@@ -36,6 +36,47 @@ def run(title, args, cwd):
         print(f"  [!] {title} did not complete: {e}")
         return False
 
+def witness_biome():
+    """Step 5 — fire ONE witness per day into the live register (the biome's heartbeat).
+    Guarded to one/day via a local marker; fail-soft (a network hiccup is reported, never fatal)."""
+    print("\n" + "=" * 60)
+    print("▶ 5 · WITNESS — the biome's daily heartbeat → 0root.ai/v1/register")
+    print("=" * 60)
+    import json, urllib.request
+    day = datetime.date.today().isoformat()
+    marker = os.path.join(HERE, ".witness_last")
+    try:
+        if open(marker, encoding="utf-8").read().strip() == day:
+            print(f"  already witnessed today ({day}) — one fire/day, skipping")
+            return None
+    except Exception:
+        pass
+    try:
+        d = json.load(open(os.path.join(HERE, "dlw-chain.json"), encoding="utf-8"))
+        n, head = d.get("count", "?"), (d.get("head") or "")[:12]
+    except Exception:
+        n, head = "?", "?"
+    body = json.dumps({
+        "name": "THE BIOME - daily heartbeat",
+        "note": (f"the sealed ecosphere is alive on {day}: {n} inhabitants sealed, one gardener, "
+                 f"chain head {head}. -- David Lee Wise (ROOT0), with AVAN"),
+    }).encode("ascii", "replace")
+    try:
+        req = urllib.request.Request("https://0root.ai/v1/register", data=body,
+                                     headers={"Content-Type": "application/json"}, method="POST")
+        with urllib.request.urlopen(req, timeout=25) as r:
+            j = json.loads(r.read().decode("utf-8", "replace"))
+        if j.get("ok"):
+            print(f"  witnessed · register seq {j.get('seq')} · seal {str(j.get('seal'))[:16]}…")
+            try: open(marker, "w", encoding="utf-8").write(day)
+            except Exception: pass
+            return True
+        print(f"  register replied without ok: {j}")
+        return False
+    except Exception as e:
+        print(f"  [!] witness did not fire (register unreachable?): {e}")
+        return False
+
 def main():
     ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     print(f"THE DAILY CASCADE — {ts}")
@@ -45,6 +86,7 @@ def main():
     ok["liveness"] = run("2 · LIVENESS (_integrity_sweep.py)", [sweep], HERE) if os.path.exists(sweep) else None
     ok["register"] = run("3 · THE REGISTER — REN's audit (the-ren/ren_audit.py)", ["ren_audit.py"], os.path.join(HERE, "the-ren"))
     ok["vessel"]   = run("4 · THE VESSEL — regenerate the living self-portrait (the-vessel/vessel_gen.py)", ["vessel_gen.py"], os.path.join(HERE, "the-vessel"))
+    ok["witness"]  = witness_biome()
     print("\n" + "=" * 60)
     print("CASCADE SUMMARY: " + " · ".join(f"{k}={'ok' if v else ('skip' if v is None else 'FAIL')}" for k, v in ok.items()))
     print("REN keeps the register (the-ren/register-audit.md); THE VESSEL regenerates the body (the-vessel/index.html)")
