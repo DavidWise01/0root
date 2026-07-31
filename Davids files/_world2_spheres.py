@@ -157,6 +157,77 @@ document.getElementById('clr').oninput=function(){s.lr=parseFloat(this.value);do
 document.getElementById('ct2').oninput=function(){s.t=parseFloat(this.value);document.getElementById('ctv').textContent=s.t.toFixed(1);render();};
 reset();window.__chain=s;})();"""
 
+# ── WARM CACHE — memoisation turns exponential recursion into linear (real call counts) ──
+WARM_BODY = """<div class="panel"><div class="ctrl" style="flex:1">
+ <div class="rd">compute &nbsp;fib(<b id="wn">20</b>) &nbsp; <input type="range" id="wnr" min="5" max="30" step="1" value="20"></div>
+ <div class="rd">NAIVE recursion &mdash; calls: <b id="wnaive" style="color:#ff2d95">&mdash;</b></div>
+ <div class="lossbar"><i id="wbn" style="width:0%;background:#ff2d95"></i></div>
+ <div class="rd">MEMOISED &mdash; calls: <b id="wmemo">&mdash;</b></div>
+ <div class="lossbar"><i id="wbm" style="width:0%"></i></div>
+ <div class="rd fate">speedup: <b id="wratio">&mdash;</b>&times; fewer calls &nbsp;&middot;&nbsp; fib = <span id="wres" style="color:#5ad0ff">&mdash;</span></div>
+ <div class="btns"><button id="wrun">run both</button></div>
+</div></div>"""
+WARM_SCRIPT = """(function(){
+function naive(n,c){c.k++;return n<2?n:naive(n-1,c)+naive(n-2,c);}
+function memo(n,m,c){c.k++;if(n<2)return n;if(m[n]!=null)return m[n];return m[n]=memo(n-1,m,c)+memo(n-2,m,c);}
+function run(){var n=+document.getElementById('wnr').value;document.getElementById('wn').textContent=n;
+ var cn={k:0},cm={k:0};var r1=naive(n,cn);memo(n,{},cm);
+ document.getElementById('wnaive').textContent=cn.k.toLocaleString();
+ document.getElementById('wmemo').textContent=cm.k.toLocaleString();
+ document.getElementById('wres').textContent=r1;
+ document.getElementById('wratio').textContent=(cm.k?cn.k/cm.k:0).toFixed(0);
+ document.getElementById('wbn').style.width='100%';
+ document.getElementById('wbm').style.width=Math.max(0.5,100*cm.k/cn.k)+'%';
+ window.__cache={n:n,naive:cn.k,memo:cm.k,result:r1};}
+document.getElementById('wnr').oninput=run;document.getElementById('wrun').onclick=run;run();})();"""
+
+# ── OFF BY ONE — the fencepost: N sections need N+1 posts (real) ──
+OBO_BODY = """<div class="panel">
+ <canvas class="inst" id="fence" width="440" height="200"></canvas>
+ <div class="ctrl">
+  <div class="rd">sections N : <b id="fn">6</b> <input type="range" id="fnr" min="2" max="12" step="1" value="6"></div>
+  <div class="rd">loop <code>i&lt;N</code> &rarr; posts <b id="fbug" style="color:#ff2d95">&mdash;</b> <span style="color:#ff2d95">(hangs open)</span></div>
+  <div class="rd">loop <code>i&lt;=N</code> &rarr; posts <b id="ffix">&mdash;</b> (closed)</div>
+  <div class="rd fate">N sections need <b id="fneed">&mdash;</b> posts, not N.</div>
+  <div class="btns"><button id="ftog">show buggy / fixed</button></div>
+ </div>
+</div>"""
+OBO_SCRIPT = """(function(){
+var cv=document.getElementById('fence'),g=cv.getContext('2d'),W=cv.width,H=cv.height;
+var st={N:6,buggy:true};
+function draw(){g.clearRect(0,0,W,H);var N=st.N,pad=28,gap=(W-2*pad)/N,y0=40,y1=H-40,posts=st.buggy?N:N+1;
+ for(var s=0;s<N;s++){var xa=pad+s*gap,xb=pad+(s+1)*gap,closed=(s+1)<posts;
+  g.strokeStyle=closed?'#39fc6b':'#ff2d95';g.lineWidth=3;g.beginPath();g.moveTo(xa,(y0+y1)/2);g.lineTo(xb,(y0+y1)/2);g.stroke();}
+ for(var p=0;p<posts;p++){var x=pad+p*gap;g.fillStyle='#ffd23f';g.fillRect(x-4,y0,8,y1-y0);g.fillStyle='#fff3c0';g.fillRect(x-4,y0,8,4);}
+ if(st.buggy){var xe=pad+N*gap;g.strokeStyle='#ff2d95';g.setLineDash([4,4]);g.lineWidth=2;g.strokeRect(xe-4,y0,8,y1-y0);g.setLineDash([]);}}
+function upd(){var N=st.N;document.getElementById('fn').textContent=N;document.getElementById('fbug').textContent=N;
+ document.getElementById('ffix').textContent=N+1;document.getElementById('fneed').textContent=N+1;draw();
+ window.__fence={N:N,buggyPosts:N,fixedPosts:N+1};}
+document.getElementById('fnr').oninput=function(){st.N=+this.value;upd();};
+document.getElementById('ftog').onclick=function(){st.buggy=!st.buggy;draw();};
+upd();})();"""
+
+# ── THE KONAMI CODE — a real finite-state sequence matcher ──
+KON_BODY = """<div class="panel"><div class="ctrl" style="flex:1">
+ <div class="rd">the code: <b style="letter-spacing:3px">&uarr; &uarr; &darr; &darr; &larr; &rarr; &larr; &rarr; B A</b> &nbsp;(click or use arrow keys)</div>
+ <div id="kseq" class="rd" style="font-size:28px;letter-spacing:8px;min-height:36px">&mdash;</div>
+ <div class="btns" id="kpad"></div>
+ <div class="rd fate" id="kstatus">locked &middot; 0 / 10</div>
+ <div class="btns"><button id="kreset">reset</button></div>
+</div></div>"""
+KON_SCRIPT = """(function(){
+var CODE=['U','U','D','D','L','R','L','R','B','A'];
+var GLY={U:'\\u2191',D:'\\u2193',L:'\\u2190',R:'\\u2192',B:'B',A:'A'};
+var idx=0,unlocked=false,pad=document.getElementById('kpad');
+['U','D','L','R','B','A'].forEach(function(k){var b=document.createElement('button');b.textContent=GLY[k];b.onclick=function(){feed(k);};pad.appendChild(b);});
+function render(){document.getElementById('kseq').innerHTML=CODE.map(function(c,i){return '<span style="color:'+(i<idx?'#39fc6b':'#4c7a54')+'">'+GLY[c]+'</span>';}).join(' ');
+ document.getElementById('kstatus').innerHTML=unlocked?'<span style="color:#39fc6b">UNLOCKED &mdash; 30 LIVES</span>':('locked &middot; '+idx+' / 10');
+ window.__konami={index:idx,unlocked:unlocked};}
+function feed(k){if(unlocked)return;if(k===CODE[idx]){idx++;if(idx===CODE.length)unlocked=true;}else{idx=(k===CODE[0])?1:0;}render();}
+document.getElementById('kreset').onclick=function(){idx=0;unlocked=false;render();};
+addEventListener('keydown',function(e){var m={ArrowUp:'U',ArrowDown:'D',ArrowLeft:'L',ArrowRight:'R',b:'B',B:'B',a:'A',A:'A'};if(m[e.key]){feed(m[e.key]);e.preventDefault();}});
+render();})();"""
+
 SPHERES = [
  {"slug":"the-bowl","title":"THE BOWL","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#ffd23f","icon":"grind",
@@ -172,6 +243,27 @@ SPHERES = [
   "lit":"A genuine 2-layer net and genuine backprop. Forward: a=w1·x, y=w2·a, L=(y&minus;t)². Backward is the literal chain rule: ∂L/∂y=2(y&minus;t), ∂L/∂a=∂L/∂y·w2, ∂L/∂w2=∂L/∂y·a, ∂L/∂w1=∂L/∂a·x. Each number is recomputed every step from the actual weights; SGD (w&larr;w&minus;η·∂L/∂w) drives the loss toward 0. Change the target or η and it re-solves live.",
   "fig":"The glowing wires are decoration; the values on them are real. 'The error walked backward' is how backprop actually works, told as a picture.",
   "body":CHAIN_BODY,"script":CHAIN_SCRIPT},
+ {"slug":"warm-cache","title":"WARM CACHE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#5ad0ff","icon":"respawn",
+  "kicker":"the second time is always faster",
+  "blurb":"real recursion with a real call counter. Naive fib(n) makes O(φⁿ) calls; one memo cuts it to O(n). fib(20): 21,891 calls vs 39. Same answer, a thousandfold less work.",
+  "lit":"Genuine recursion, genuinely counted. Naive Fibonacci recomputes the same subproblems, making <b>2·fib(n+1)&minus;1</b> calls (fib(20) &rarr; 21,891); a memo table makes each n once, <b>O(n)</b> calls (fib(20) &rarr; 39). Both run live and report their real call counts — the speedup you see is measured, not asserted.",
+  "fig":"'Warm cache / the second time is faster' is the arcade line; the mechanism (overlapping subproblems, memoised) is the honest computer-science underneath.",
+  "body":WARM_BODY,"script":WARM_SCRIPT},
+ {"slug":"off-by-one","title":"OFF BY ONE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#7cfc00","icon":"glitch",
+  "kicker":"the fencepost that ruins the fence",
+  "blurb":"the fencepost error, drawn. A fence of N sections needs N+1 posts; the loop i<N builds only N and leaves the far end hanging open. Slide N and watch the gap.",
+  "lit":"The classic fencepost / off-by-one. N sections require <b>N+1</b> posts (a post on both ends of every rail). A loop <code>for(i=0;i&lt;N)</code> places only N posts, so the last section has no right-hand post — the fence hangs open; <code>i&lt;=N</code> fixes it. The post counts and the open rail (red) are computed from N, not drawn by hand.",
+  "fig":"The pixel fence is the picture; the bug is real and is exactly why <code>&lt;</code> vs <code>&lt;=</code> has cost real systems real money.",
+  "body":OBO_BODY,"script":OBO_SCRIPT},
+ {"slug":"the-konami-code","title":"THE KONAMI CODE","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE KONAMI CODE","domain_slug":"the-konami-code","accent":"#ffd23f","icon":"cheat",
+  "kicker":"up up down down — unlock it all",
+  "blurb":"a real finite-state sequence matcher. Feed ↑↑↓↓←→←→BA in order and it unlocks; one wrong key snaps the index back. The exact DFA arcade cabinets ran.",
+  "lit":"A genuine finite-state matcher. An index walks the 10-symbol target; a correct symbol advances it, a wrong one resets it (to 1 if the miss is itself the first symbol, else 0). Reach 10 and it latches UNLOCKED. This is the real recogniser behind the cheat — click the pad or use the arrow keys; the state is live in window.__konami.",
+  "fig":"'30 lives' is the Contra lore; the state machine deciding whether you typed the code is the real part.",
+  "body":KON_BODY,"script":KON_SCRIPT},
 ]
 
 def main():
