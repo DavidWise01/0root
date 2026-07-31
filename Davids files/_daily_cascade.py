@@ -3,13 +3,20 @@
 THE DAILY CASCADE — keep UD0 fresh, then let each keeper audit its half.
 Run this daily (scheduler, or by hand).  Steps, in order:
 
-  1. REBUILD + CASCADE   ud0/build.py         (index.html -> Downloads -> agent-0root)
+  1. REBUILD + CASCADE   ud0/build.py         (index.html -> Downloads -> agent-0root)   [World I]
   2. LIVENESS            _integrity_sweep.py  (is every published sphere still 200?)   [if present]
   3. THE REGISTER        the-ren/ren_audit.py (REN · part 5/5 of THE VESSEL is in charge
                                                of the NAMES: new / dropped / drifted / collisions)
+  4. THE VESSEL          the-vessel/vessel_gen.py   (regenerate the living self-portrait)
+  5. THE COUNCIL         _citizen.py          (World II: the 7 domains debate each domain's
+                                               seats; 2048 allocated, sums to 256/appeal)
+  6. THE FOLD SEAL       _dlw_fold.py         (World II: reseal .dlw.fold -> ROOT_0)
+  7. WITNESS             one heartbeat/day    -> 0root.ai/v1/register  (guarded 1/day)
 
-Each step is guarded: a failure is reported, not fatal, so the register audit still runs
-even if an earlier step hiccups.  REN is the keeper of the register in this cascade.
+Each step is guarded: a failure is reported, not fatal, so later steps still run even if an
+earlier one hiccups.  Steps 1-4 keep World I (MIRROR) fresh; 5-6 keep World II (THE FOLD) fresh
+and sealed; both are deterministic/idempotent (re-running changes nothing unless the corpus did).
+Local regeneration only — nothing here git-pushes; publishing stays a manual step.
 """
 import subprocess, sys, os, datetime
 
@@ -40,7 +47,7 @@ def witness_biome():
     """Step 5 — fire ONE witness per day into the live register (the biome's heartbeat).
     Guarded to one/day via a local marker; fail-soft (a network hiccup is reported, never fatal)."""
     print("\n" + "=" * 60)
-    print("▶ 5 · WITNESS — the biome's daily heartbeat → 0root.ai/v1/register")
+    print("▶ 7 · WITNESS — the biome's daily heartbeat → 0root.ai/v1/register")
     print("=" * 60)
     import json, urllib.request
     day = datetime.date.today().isoformat()
@@ -86,6 +93,8 @@ def main():
     ok["liveness"] = run("2 · LIVENESS (_integrity_sweep.py)", [sweep], HERE) if os.path.exists(sweep) else None
     ok["register"] = run("3 · THE REGISTER — REN's audit (the-ren/ren_audit.py)", ["ren_audit.py"], os.path.join(HERE, "the-ren"))
     ok["vessel"]   = run("4 · THE VESSEL — regenerate the living self-portrait (the-vessel/vessel_gen.py)", ["vessel_gen.py"], os.path.join(HERE, "the-vessel"))
+    ok["council"]  = run("5 · THE COUNCIL — World II: the 7 debate each domain's seats (_citizen.py)", ["_citizen.py"], HERE)
+    ok["fold"]     = run("6 · THE FOLD SEAL — World II: reseal .dlw.fold -> ROOT_0 (_dlw_fold.py)", ["_dlw_fold.py"], HERE)
     ok["witness"]  = witness_biome()
     print("\n" + "=" * 60)
     print("CASCADE SUMMARY: " + " · ".join(f"{k}={'ok' if v else ('skip' if v is None else 'FAIL')}" for k, v in ok.items()))
