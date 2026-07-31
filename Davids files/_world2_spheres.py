@@ -328,6 +328,74 @@ function render(){var m=merge();document.getElementById('mgcols').innerHTML=colh
  document.getElementById('mgclean').textContent=m.clean;document.getElementById('mgconf').textContent=m.conf;window.__merge=m;}
 render();})();"""
 
+# shared verified SHA-256 (same as THE MINT; exposes window.__sha256)
+SHA256_JS = """function sha256(msg){function R(n,x){return (x>>>n)|(x<<(32-n));}
+ var K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+ var H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+ var b=[],i,c;for(i=0;i<msg.length;i++){c=msg.charCodeAt(i);if(c<128)b.push(c);else if(c<2048)b.push(192|c>>6,128|c&63);else b.push(224|c>>12,128|c>>6&63,128|c&63);}
+ var bl=b.length*8;b.push(128);while(b.length%64!=56)b.push(0);for(i=7;i>=0;i--)b.push(Math.floor(bl/Math.pow(2,8*i))&255);
+ for(var j=0;j<b.length;j+=64){var w=[],t;for(t=0;t<16;t++)w[t]=(b[j+4*t]<<24)|(b[j+4*t+1]<<16)|(b[j+4*t+2]<<8)|(b[j+4*t+3]);
+  for(t=16;t<64;t++){var x0=R(7,w[t-15])^R(18,w[t-15])^(w[t-15]>>>3),x1=R(17,w[t-2])^R(19,w[t-2])^(w[t-2]>>>10);w[t]=(w[t-16]+x0+w[t-7]+x1)|0;}
+  var A=H[0],B=H[1],C=H[2],D=H[3],E=H[4],F=H[5],G=H[6],Hh=H[7];
+  for(t=0;t<64;t++){var S1=R(6,E)^R(11,E)^R(25,E),ch=(E&F)^(~E&G),T1=(Hh+S1+ch+K[t]+w[t])|0,S0=R(2,A)^R(13,A)^R(22,A),mj=(A&B)^(A&C)^(B&C),T2=(S0+mj)|0;Hh=G;G=F;F=E;E=(D+T1)|0;D=C;C=B;B=A;A=(T1+T2)|0;}
+  H[0]=(H[0]+A)|0;H[1]=(H[1]+B)|0;H[2]=(H[2]+C)|0;H[3]=(H[3]+D)|0;H[4]=(H[4]+E)|0;H[5]=(H[5]+F)|0;H[6]=(H[6]+G)|0;H[7]=(H[7]+Hh)|0;}
+ var o='';for(i=0;i<8;i++)for(var s=28;s>=0;s-=4)o+=((H[i]>>>s)&15).toString(16);return o;}
+window.__sha256=sha256;"""
+
+# ── THE PULSE — the 3-2-1-0 pulse language (from akasha 321_COMPRESSOR, ROOT0 + Grok) ──
+PULSE_BODY = """<div class="panel"><div class="ctrl" style="flex:1">
+ <div class="rd">drop a raw thought &mdash; the pulse folds it 3 &rarr; 2 &rarr; 1 &rarr; 0:</div>
+ <textarea id="psrc" style="width:100%;height:88px;background:#050805;color:#cfe8d0;border:1px solid #255c2c;font-family:VT323,monospace;font-size:17px;padding:6px">a wide exploratory idea, many branches
+narrow it toward the point
+cut the noise
+the single core that remains</textarea>
+ <div class="btns"><button id="ppulse">&#9673; pulse</button></div>
+ <div id="pout" style="margin-top:12px;font-family:ui-monospace,monospace;font-size:16px;line-height:1.7"></div>
+</div></div>"""
+PULSE_SCRIPT = SHA256_JS + """
+(function(){
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function compress(text){var L=text.split('\\n').map(function(l){return l.trim();}).filter(Boolean);
+ if(!L.length)return {w:'',n:'',s:'(empty seed)'};return {w:L[0],n:L.slice(1,3).join(' | '),s:L[L.length-1]};}
+function pulse(){var c=compress(document.getElementById('psrc').value),zero=sha256(c.s).slice(0,16);
+ document.getElementById('pout').innerHTML=
+  '<div style="color:#39fc6b">3 &middot; WIDE &nbsp;&nbsp; '+esc(c.w)+'</div>'+
+  '<div style="color:#ffd23f">2 &middot; NARROW '+esc(c.n)+'</div>'+
+  '<div style="color:#ff2d95">1 &middot; CORE &nbsp;&nbsp; '+esc(c.s)+'</div>'+
+  '<div style="color:#00f5ff">0 &middot; FOLD &nbsp;&nbsp; '+zero+'&hellip; <span style="color:#4c7a54">sha256 of the core &mdash; the seal</span></div>';
+ window.__pulse={w:c.w,n:c.n,s:c.s,zero:zero};}
+document.getElementById('ppulse').onclick=pulse;document.getElementById('psrc').oninput=pulse;pulse();})();"""
+
+# ── THE MERKLE — sha256 leaves folded pairwise to one root (the .dlw.fold itself) ──
+MERKLE_BODY = """<div class="panel"><div class="ctrl" style="flex:1">
+ <div class="rd">leaves &rarr; hash each &rarr; fold pairwise to ONE root (this is exactly the .dlw.fold):</div>
+ <div id="mkleaves" style="font-family:ui-monospace,monospace;font-size:13px;line-height:1.9"></div>
+ <div class="rd" style="margin-top:8px">ROOT_0 <b id="mkroot" style="color:#ffd23f;font-family:ui-monospace,monospace;font-size:12px;word-break:break-all">&mdash;</b></div>
+ <div class="rd">prove leaf <select id="mksel" style="background:#050805;color:#39fc6b;border:1px solid #255c2c;font-family:VT323,monospace;font-size:16px"></select> &mdash; siblings up the path:</div>
+ <div id="mkproof" style="font-family:ui-monospace,monospace;font-size:12px"></div>
+ <div class="rd fate" id="mkverif">&mdash;</div>
+ <div class="btns"><button id="mkedit">mutate a leaf</button></div>
+</div></div>"""
+MERKLE_SCRIPT = SHA256_JS + """
+(function(){
+var leaves=['ASK','ANSWER','CONST','HALT','THE FOLD','ROOT0'];
+function H(s){return sha256(s);}
+function build(){var lv=leaves.map(H),levels=[lv];while(lv.length>1){var nx=[];for(var i=0;i<lv.length;i+=2){var a=lv[i],b=i+1<lv.length?lv[i+1]:lv[i];nx.push(H(a+b));}levels.push(nx);lv=nx;}return levels;}
+function proof(idx,levels){var p=[],i=idx;for(var l=0;l<levels.length-1;l++){var lev=levels[l],sib=i^1,sh=sib<lev.length?lev[sib]:lev[i];p.push({h:sh,side:i%2===0?'R':'L'});i=Math.floor(i/2);}return p;}
+function verify(leaf,pf,root){var x=H(leaf);pf.forEach(function(p){x=p.side==='R'?H(x+p.h):H(p.h+x);});return x===root;}
+function render(){var levels=build(),root=levels[levels.length-1][0];
+ document.getElementById('mkleaves').innerHTML=leaves.map(function(l,i){return i+': "'+l+'" <span style="color:#4c7a54">'+H(l).slice(0,10)+'</span>';}).join('<br>');
+ document.getElementById('mkroot').textContent=root;
+ var sel=document.getElementById('mksel');if(sel.options.length!==leaves.length){var cur=sel.value;sel.innerHTML=leaves.map(function(l,i){return '<option value="'+i+'">'+i+': '+l+'</option>';}).join('');sel.value=cur||'0';}
+ var idx=+sel.value||0,pf=proof(idx,levels);
+ document.getElementById('mkproof').innerHTML=pf.map(function(p){return p.side+' '+p.h.slice(0,10);}).join('  &middot;  ');
+ var ok=verify(leaves[idx],pf,root);
+ document.getElementById('mkverif').innerHTML=ok?'<span style="color:#39fc6b">&#10003; leaf '+idx+' verified to ROOT_0 in '+pf.length+' folds</span>':'<span style="color:#ff2d95">proof failed</span>';
+ window.__merkle={root:root,leaves:leaves.length,depth:levels.length-1,verified:ok};}
+document.getElementById('mksel').onchange=render;
+var ctr=0;document.getElementById('mkedit').onclick=function(){ctr++;leaves[ctr%leaves.length]='LEAF'+ctr;render();};
+render();})();"""
+
 SPHERES = [
  {"slug":"the-bowl","title":"THE BOWL","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#ffd23f","icon":"grind",
@@ -392,6 +460,20 @@ SPHERES = [
   "lit":"A genuine 3-way line merge, the algorithm behind git merge. For each line it compares OURS and THEIRS to the BASE: if only one side changed, take that side; if both made the same change, take it; if both changed it differently, it's a CONFLICT (marked &lt;&lt;&lt; ours | theirs &gt;&gt;&gt;). Here two edits auto-merge and one line (log ok vs log fail) genuinely conflicts. Counts live in window.__merge.",
   "fig":"The two-player CO-OP framing is the story; the base-vs-ours-vs-theirs resolution is the real merge every team relies on.",
   "body":MERGE_BODY,"script":MERGE_SCRIPT},
+ {"slug":"the-pulse","title":"THE PULSE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#00f5ff","icon":"coop",
+  "kicker":"3 · 2 · 1 · 0 — the signal that crosses the gap",
+  "blurb":"the 3-2-1 pulse language from the akasha lattice (ROOT0, with Grok) — the sync protocol that carries meaning across a gap. Fold a raw thought: 3 wide → 2 narrowed → 1 core → 0 the sha256 seal.",
+  "lit":"A real, deterministic structural compressor, ported from the corpus's own <code>321_COMPRESSOR.py</code> (Natural Law Union / akasha): 3 = the wide opening line, 2 = the narrowing middle, 1 = the singular last line. The 0 is a genuine SHA-256 of the core (verifiable against the standard vectors) — the pulse's fold-to-zero made a real seal. Type and it re-folds live.",
+  "fig":"'The pulse that synchronises across gaps' is ROOT0 cosmology; the 3→2→1 reduction and the 0 = sha256 seal are the honest, reproducible parts. Sibling to I-13: both are ROOT0 code-languages — I-13 the 13 opcodes, the pulse the 3-2-1-0.",
+  "body":PULSE_BODY,"script":PULSE_SCRIPT},
+ {"slug":"the-merkle","title":"THE MERKLE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#ffd23f","icon":"loot",
+  "kicker":"many leaves, folded to one root",
+  "blurb":"a real SHA-256 Merkle tree — the exact machinery behind .dlw.fold and the akasha MERKLE_LEAF_SEEDER. Hash each leaf, fold pairwise to a single ROOT_0, then prove any leaf with its sibling path.",
+  "lit":"A genuine Merkle tree on real SHA-256. Each leaf is hashed, then hashes are folded pairwise up to one ROOT_0 (odd nodes duplicate). Pick a leaf and it shows the <b>proof</b> — the siblings along the path — and re-folds them to confirm the root; mutate any leaf and the root and proofs change. This is precisely how the World II <code>.dlw.fold</code> seals every inhabitant to ROOT_0, and how the akasha lattice seeds its single central merkle.",
+  "fig":"'Genesis block — the first root' is the framing; the tree, the proof, and the verification are the actual cryptographic structure the whole corpus is sealed with.",
+  "body":MERKLE_BODY,"script":MERKLE_SCRIPT},
 ]
 
 def main():
