@@ -228,6 +228,106 @@ document.getElementById('kreset').onclick=function(){idx=0;unlocked=false;render
 addEventListener('keydown',function(e){var m={ArrowUp:'U',ArrowDown:'D',ArrowLeft:'L',ArrowRight:'R',b:'B',B:'B',a:'A',A:'A'};if(m[e.key]){feed(m[e.key]);e.preventDefault();}});
 render();})();"""
 
+# ── THE MINT — real SHA-256 proof-of-work (the same hash the .dlw seal uses) ──
+MINT_BODY = """<div class="panel"><div class="ctrl" style="flex:1">
+ <div class="rd">block <input id="mdata" value="THE FOLD // genesis" style="width:240px;background:#050805;color:#5ad0ff;border:1px solid #255c2c;font-family:VT323,monospace;font-size:18px;padding:3px 6px"></div>
+ <div class="rd">difficulty <b id="mdiff">3</b> leading zeros <input type="range" id="mdr" min="1" max="5" step="1" value="3"></div>
+ <div class="rd">nonce <b id="mnonce">0</b> &middot; attempts <b id="mtries">0</b> &middot; <b id="mrate">0</b>/s</div>
+ <div class="rd" style="word-break:break-all;font-size:14px;font-family:ui-monospace,monospace">hash <span id="mhash">&mdash;</span></div>
+ <div class="rd fate" id="mstatus">idle</div>
+ <div class="btns"><button id="mmine">&#9935; mine</button><button id="mstop">stop</button></div>
+</div></div>"""
+MINT_SCRIPT = """(function(){
+function sha256(msg){function R(n,x){return (x>>>n)|(x<<(32-n));}
+ var K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+ var H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+ var b=[],i,c;for(i=0;i<msg.length;i++){c=msg.charCodeAt(i);if(c<128)b.push(c);else if(c<2048)b.push(192|c>>6,128|c&63);else b.push(224|c>>12,128|c>>6&63,128|c&63);}
+ var bl=b.length*8;b.push(128);while(b.length%64!=56)b.push(0);for(i=7;i>=0;i--)b.push(Math.floor(bl/Math.pow(2,8*i))&255);
+ for(var j=0;j<b.length;j+=64){var w=[],t;for(t=0;t<16;t++)w[t]=(b[j+4*t]<<24)|(b[j+4*t+1]<<16)|(b[j+4*t+2]<<8)|(b[j+4*t+3]);
+  for(t=16;t<64;t++){var x0=R(7,w[t-15])^R(18,w[t-15])^(w[t-15]>>>3),x1=R(17,w[t-2])^R(19,w[t-2])^(w[t-2]>>>10);w[t]=(w[t-16]+x0+w[t-7]+x1)|0;}
+  var A=H[0],B=H[1],C=H[2],D=H[3],E=H[4],F=H[5],G=H[6],Hh=H[7];
+  for(t=0;t<64;t++){var S1=R(6,E)^R(11,E)^R(25,E),ch=(E&F)^(~E&G),T1=(Hh+S1+ch+K[t]+w[t])|0,S0=R(2,A)^R(13,A)^R(22,A),mj=(A&B)^(A&C)^(B&C),T2=(S0+mj)|0;Hh=G;G=F;F=E;E=(D+T1)|0;D=C;C=B;B=A;A=(T1+T2)|0;}
+  H[0]=(H[0]+A)|0;H[1]=(H[1]+B)|0;H[2]=(H[2]+C)|0;H[3]=(H[3]+D)|0;H[4]=(H[4]+E)|0;H[5]=(H[5]+F)|0;H[6]=(H[6]+G)|0;H[7]=(H[7]+Hh)|0;}
+ var o='';for(i=0;i<8;i++)for(var s=28;s>=0;s-=4)o+=((H[i]>>>s)&15).toString(16);return o;}
+ window.__sha256=sha256;
+ var dr=document.getElementById('mdr'),mining=false,nonce=0,tries=0,t0=0;
+ function tgt(){return Array(+dr.value+1).join('0');}
+ function found(n,h){mining=false;document.getElementById('mstatus').innerHTML='<span style="color:#39fc6b">MINTED &middot; nonce='+n+'</span>';document.getElementById('mhash').innerHTML='<span style="color:#39fc6b">'+h+'</span>';window.__mint={nonce:n,hash:h,tries:tries};}
+ function batch(){if(!mining)return;var t=tgt(),data=document.getElementById('mdata').value,i,h='';
+  for(i=0;i<1500;i++){h=sha256(data+':'+nonce);tries++;if(h.slice(0,t.length)===t){document.getElementById('mnonce').textContent=nonce;document.getElementById('mtries').textContent=tries;found(nonce,h);return;}nonce++;}
+  document.getElementById('mnonce').textContent=nonce;document.getElementById('mtries').textContent=tries;document.getElementById('mhash').textContent=h;
+  var dt=(performance.now()-t0)/1000;if(dt>0)document.getElementById('mrate').textContent=Math.round(tries/dt).toLocaleString();requestAnimationFrame(batch);}
+ document.getElementById('mmine').onclick=function(){if(mining)return;mining=true;nonce=0;tries=0;t0=performance.now();document.getElementById('mstatus').textContent='mining…';batch();};
+ document.getElementById('mstop').onclick=function(){mining=false;document.getElementById('mstatus').textContent='stopped';};
+ document.getElementById('mdr').oninput=function(){document.getElementById('mdiff').textContent=this.value;};})();"""
+
+# ── THE FIREWALL — a real first-match rule engine ──
+FIRE_BODY = """<div class="panel"><div class="ctrl" style="flex:1">
+ <div class="rd">RULES &middot; first match wins &middot; click an action to flip:</div>
+ <div id="frules" class="net"></div>
+ <div class="rd" style="margin-top:10px">TRAFFIC (port &rarr; decision &middot; matched rule):</div>
+ <div id="ftraffic" class="net"></div>
+ <div class="rd fate">allowed <b id="fallow" style="color:#39fc6b">0</b> &middot; blocked <b id="fblock" style="color:#ff2d95">0</b></div>
+</div></div>"""
+FIRE_SCRIPT = """(function(){
+var rules=[{p:22,a:'DENY'},{p:443,a:'ALLOW'},{p:80,a:'ALLOW'},{p:'*',a:'DENY'}];
+var traffic=[80,443,22,8080,53,443,22,80,443];
+function decide(port){for(var i=0;i<rules.length;i++){if(rules[i].p==='*'||rules[i].p===port)return {act:rules[i].a,rule:i};}return {act:'DENY',rule:-1};}
+function render(){document.getElementById('frules').innerHTML=rules.map(function(r,i){var c=r.a==='ALLOW'?'#39fc6b':'#ff2d95';
+  return '<span class="n">#'+i+' port '+r.p+' <b data-i="'+i+'" style="cursor:pointer;color:'+c+'">'+r.a+'</b></span>';}).join(' ');
+ [].forEach.call(document.querySelectorAll('#frules b[data-i]'),function(b){b.onclick=function(){var i=+b.getAttribute('data-i');rules[i].a=rules[i].a==='ALLOW'?'DENY':'ALLOW';render();};});
+ var allow=0,block=0;document.getElementById('ftraffic').innerHTML=traffic.map(function(port){var d=decide(port),ok=d.act==='ALLOW';ok?allow++:block++;
+  return '<span class="n" style="color:'+(ok?'#39fc6b':'#ff2d95')+'">:'+port+' '+(ok?'\\u2192 pass':'\\u2715 drop')+' <span style="color:#4c7a54">#'+d.rule+'</span></span>';}).join(' ');
+ document.getElementById('fallow').textContent=allow;document.getElementById('fblock').textContent=block;window.__fw={decide:decide,allow:allow,block:block};}
+render();})();"""
+
+# ── GARBAGE COLLECTION — real mark & sweep reachability ──
+GC_BODY = """<div class="panel"><canvas class="inst" id="gc" width="440" height="260"></canvas><div class="ctrl">
+ <div class="rd">roots (gold) reach some objects, not all.</div>
+ <div class="rd">reachable <b id="greach" style="color:#39fc6b">&mdash;</b> &middot; garbage <b id="ggarb" style="color:#ff2d95">&mdash;</b> &middot; freed <b id="gfreed">0</b></div>
+ <div class="rd fate" id="gstatus">heap live</div>
+ <div class="btns"><button id="gmark">mark</button><button id="gsweep">sweep</button><button id="greset">reset</button></div>
+</div></div>"""
+GC_SCRIPT = """(function(){
+var cv=document.getElementById('gc'),g=cv.getContext('2d'),W=cv.width,H=cv.height,N=8;
+var pos=[[70,70],[70,190],[185,70],[185,190],[300,70],[300,190],[390,120],[400,225]];
+var roots=[0,1],edges=[[0,2],[2,3],[3,4],[1,5],[6,7],[7,6]];
+var marked=[],swept=[];
+function mark(){marked=new Array(N).fill(false);var st=roots.slice();while(st.length){var n=st.pop();if(marked[n])continue;marked[n]=true;edges.forEach(function(e){if(e[0]===n&&!marked[e[1]])st.push(e[1]);});}draw();set();}
+function sweep(){if(!marked.length)mark();swept=[];for(var i=0;i<N;i++)if(!marked[i])swept.push(i);draw();set();document.getElementById('gstatus').innerHTML='<span style="color:#ff2d95">swept '+swept.length+' \\u2014 the fold reclaims them</span>';}
+function reset(){marked=[];swept=[];draw();set();document.getElementById('gstatus').textContent='heap live';}
+function set(){var r=marked.filter(Boolean).length;document.getElementById('greach').textContent=marked.length?r:'\\u2014';document.getElementById('ggarb').textContent=marked.length?(N-r):'\\u2014';document.getElementById('gfreed').textContent=swept.length;window.__gc={reachable:marked.filter(Boolean).length,swept:swept.slice(),roots:roots};}
+function draw(){g.clearRect(0,0,W,H);edges.forEach(function(e){var a=pos[e[0]],b=pos[e[1]];g.strokeStyle='#255c2c';g.lineWidth=2;g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();});
+ for(var i=0;i<N;i++){if(swept.indexOf(i)>=0)continue;var p=pos[i],col=roots.indexOf(i)>=0?'#ffd23f':(marked[i]?'#39fc6b':'#3a4a3a');
+  g.fillStyle=col;g.fillRect(p[0]-16,p[1]-16,32,32);g.fillStyle='rgba(255,255,255,.22)';g.fillRect(p[0]-16,p[1]-16,32,6);
+  g.fillStyle='#0a0e0a';g.font='13px VT323,monospace';g.fillText(''+i,p[0]-3,p[1]+4);}}
+document.getElementById('gmark').onclick=mark;document.getElementById('gsweep').onclick=sweep;document.getElementById('greset').onclick=reset;
+reset();})();"""
+
+# ── THE MERGE — a real 3-way merge with conflict detection ──
+MERGE_BODY = """<div class="panel"><div class="ctrl" style="flex:1">
+ <div class="rd">3-way merge: BASE, two branches edit it. non-conflicting edits auto-merge; a line both sides change differently is a CONFLICT.</div>
+ <div id="mgcols" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;font-family:ui-monospace,monospace;font-size:14px;margin-top:10px"></div>
+ <div class="rd" style="margin-top:12px">MERGED:</div>
+ <div id="mgout" style="font-family:ui-monospace,monospace;font-size:15px"></div>
+ <div class="rd fate">clean <b id="mgclean" style="color:#39fc6b">&mdash;</b> &middot; conflicts <b id="mgconf" style="color:#ff2d95">&mdash;</b></div>
+</div></div>"""
+MERGE_SCRIPT = """(function(){
+var base=['init()','load(cfg)','run()','teardown()','log(done)'];
+var ours=['init()','load(cfg2)','run()','teardown()','log(ok)'];
+var theirs=['init()','load(cfg)','run(fast)','teardown()','log(fail)'];
+function merge(){var out=[],clean=0,conf=0;for(var i=0;i<base.length;i++){var b=base[i],o=ours[i],t=theirs[i],line,st;
+  if(o===b&&t===b){line=b;st='same';}else if(o!==b&&t===b){line=o;st='ours';clean++;}
+  else if(t!==b&&o===b){line=t;st='theirs';clean++;}else if(o===t){line=o;st='both';clean++;}
+  else{line=null;st='conflict';conf++;}out.push({o:o,t:t,line:line,st:st});}return {out:out,clean:clean,conf:conf};}
+function colhtml(label,arr){return '<div><div style="color:#4c7a54">'+label+'</div>'+arr.map(function(l,i){return '<div style="color:'+(l!==base[i]?'#ffd23f':'#cfe8d0')+'">'+l+'</div>';}).join('')+'</div>';}
+function render(){var m=merge();document.getElementById('mgcols').innerHTML=colhtml('BASE',base)+colhtml('OURS',ours)+colhtml('THEIRS',theirs);
+ document.getElementById('mgout').innerHTML=m.out.map(function(r){return r.st==='conflict'
+  ?'<div style="color:#ff2d95">&lt;&lt;&lt; '+r.o+'  &brvbar;  '+r.t+' &gt;&gt;&gt; CONFLICT</div>'
+  :'<div style="color:'+(r.st==='same'?'#cfe8d0':'#39fc6b')+'">'+r.line+(r.st!=='same'?' <span style="color:#4c7a54">('+r.st+')</span>':'')+'</div>';}).join('');
+ document.getElementById('mgclean').textContent=m.clean;document.getElementById('mgconf').textContent=m.conf;window.__merge=m;}
+render();})();"""
+
 SPHERES = [
  {"slug":"the-bowl","title":"THE BOWL","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#ffd23f","icon":"grind",
@@ -264,6 +364,34 @@ SPHERES = [
   "lit":"A genuine finite-state matcher. An index walks the 10-symbol target; a correct symbol advances it, a wrong one resets it (to 1 if the miss is itself the first symbol, else 0). Reach 10 and it latches UNLOCKED. This is the real recogniser behind the cheat — click the pad or use the arrow keys; the state is live in window.__konami.",
   "fig":"'30 lives' is the Contra lore; the state machine deciding whether you typed the code is the real part.",
   "body":KON_BODY,"script":KON_SCRIPT},
+ {"slug":"the-mint","title":"THE MINT","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#ffd23f","icon":"loot",
+  "kicker":"stamp a coin the hard way — find the nonce",
+  "blurb":"real SHA-256 proof-of-work — the same hash the .dlw seal uses. Pick a difficulty and mine: increment the nonce until sha256(block:nonce) starts with N zeros. Every attempt is a real hash.",
+  "lit":"A genuine, from-scratch SHA-256 (verifiable: sha256('abc') = ba7816bf…f20015ad, the standard vector) driving real proof-of-work. It increments a nonce and hashes block:nonce until the digest has N leading zero hex digits — expected work ~16ᴺ tries. Nonce, live hash, attempt count and hash-rate are all measured. This is the exact primitive the corpus's own .dlw / .dlw.fold seals are built on.",
+  "fig":"'Minting a coin' is the LOOT dressing; the hashing, the difficulty, and the work are the honest Bitcoin-style mechanism.",
+  "body":MINT_BODY,"script":MINT_SCRIPT},
+ {"slug":"the-firewall","title":"THE FIREWALL","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FIREWALL","domain_slug":"the-firewall","accent":"#ff5a3c","icon":"boss",
+  "kicker":"blocks everything trying to get in",
+  "blurb":"a real first-match rule engine. Traffic hits the rules top-down; the first rule that matches the port decides ALLOW or DENY. Flip a rule and watch every packet's verdict change.",
+  "lit":"A genuine first-match packet filter — exactly how iptables/ACLs decide. Each packet's port is tested against the rules in order; the first match (or the catch-all *) sets ALLOW/DENY, and the matched rule # is shown. Click any action to flip it and the whole traffic table re-decides live. Deterministic and inspectable in window.__fw.",
+  "fig":"The BOSS 'wall that blocks everything' is the frame; the ordered rule evaluation is the real firewall logic.",
+  "body":FIRE_BODY,"script":FIRE_SCRIPT},
+ {"slug":"garbage-collection","title":"GARBAGE COLLECTION","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#5ad0ff","icon":"respawn",
+  "kicker":"sweep the dead, reclaim the memory",
+  "blurb":"real mark & sweep. MARK walks the reference graph from the roots and colours everything reachable; SWEEP frees what it couldn't reach. Objects with no path from a root are garbage — the fold reclaims them.",
+  "lit":"Genuine tracing garbage collection. MARK does a real graph traversal from the root set, flagging every reachable object; SWEEP frees the unmarked. For this heap the roots reach {0,2,3,4} and {1,5}; the island {6,7} points only at itself, so it's unreachable and collected. Reachable/garbage/freed counts are computed from the actual traversal (window.__gc).",
+  "fig":"The glowing boxes are the picture; mark-and-sweep reachability is precisely how real runtimes decide what to free. RESPAWN's 'die & return' fits: the dead are reclaimed so the live can go on.",
+  "body":GC_BODY,"script":GC_SCRIPT},
+ {"slug":"the-merge","title":"THE MERGE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#9d00ff","icon":"coop",
+  "kicker":"two branches become one",
+  "blurb":"a real 3-way merge. From a common BASE, two branches each edit lines; edits only one side made are taken automatically, and a line both sides changed differently is flagged a CONFLICT — exactly what git does.",
+  "lit":"A genuine 3-way line merge, the algorithm behind git merge. For each line it compares OURS and THEIRS to the BASE: if only one side changed, take that side; if both made the same change, take it; if both changed it differently, it's a CONFLICT (marked &lt;&lt;&lt; ours | theirs &gt;&gt;&gt;). Here two edits auto-merge and one line (log ok vs log fail) genuinely conflicts. Counts live in window.__merge.",
+  "fig":"The two-player CO-OP framing is the story; the base-vs-ours-vs-theirs resolution is the real merge every team relies on.",
+  "body":MERGE_BODY,"script":MERGE_SCRIPT},
 ]
 
 def main():
