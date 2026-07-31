@@ -12,13 +12,17 @@ Run this daily (scheduler, or by hand).  Steps, in order:
                                                seats; 2048 allocated, sums to 256/appeal)
   6. THE FOLD SEAL       _dlw_fold.py         (World II: reseal .dlw.fold -> ROOT_0)
   7. MIRROR WORLD II     ud0/world2/ -> agent-0root/static/world2   (copy to the live host tree)
-  8. WITNESS             one heartbeat/day    -> 0root.ai/v1/register  (guarded 1/day)
+  8. PUBLISH             commit + push BOTH worlds to BOTH live hosts:
+                           · ud0 repo        -> github.com/DavidWise01/ud0  (GitHub Pages)
+                           · agent-0root/static -> 0root.ai  (Railway auto-deploys on push)
+  9. WITNESS             one heartbeat/day    -> 0root.ai/v1/register  (guarded 1/day)
 
 Each step is guarded: a failure is reported, not fatal, so later steps still run even if an
 earlier one hiccups.  Steps 1-4 keep World I (MIRROR) fresh; 5-7 keep World II (THE FOLD) fresh,
-sealed, and mirrored; all deterministic/idempotent (re-running changes nothing unless the corpus
-did).  Local regeneration + copy-to-host-tree only — nothing here git-pushes; the push stays
-manual (same as build.py, which copies World I into agent-0root's working tree without pushing).
+sealed, and mirrored; all deterministic/idempotent.  Step 8 PUBLISHES: it commits only when a
+repo actually has a diff and pushes only when it committed, fail-soft per host (one host's outage
+never blocks the other).  Run with --no-push for a dry run (regenerate + mirror, show what WOULD
+publish, but touch no remote).
 """
 import subprocess, sys, os, datetime
 
@@ -31,6 +35,7 @@ for _stream in (sys.stdout, sys.stderr):
         pass
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+PUSH = "--no-push" not in sys.argv     # default: publish. --no-push = dry run (no remote touched)
 def run(title, args, cwd):
     print("\n" + "=" * 60)
     print(f"▶ {title}")
@@ -70,11 +75,57 @@ def mirror_world2():
         print(f"  [!] world2 mirror did not complete: {e}")
         return False
 
+def push_worlds(dry=False):
+    """Step 8 — PUBLISH both worlds to both live hosts: the ud0 repo (GitHub Pages) and the
+    agent-0root mirror (0root.ai / Railway). Stages the publish tree, commits only if there is a
+    diff, pushes only if it committed; fail-soft PER HOST so one remote's outage never blocks the
+    other. Author: David Lee Wise (ROOT0). `dry` (--no-push) shows what WOULD publish, touches nothing."""
+    import subprocess
+    print("\n" + "=" * 60)
+    print("▶ 8 · PUBLISH — push both worlds to both hosts" + ("   (DRY RUN · --no-push)" if dry else ""))
+    print("=" * 60)
+    day = datetime.date.today().isoformat()
+    AUTHOR = ["-c", "user.email=r.giskard.01@gmail.com", "-c", "user.name=DavidWise01"]
+    # (label, repo dir, path to stage within that repo)
+    targets = [
+        ("ud0 · GitHub Pages", os.path.join(HERE, "ud0"), "-A"),          # dedicated repo: publish all
+        ("agent-0root · 0root.ai", r"C:\root0-greenpaper-repo\agent-0root", "static"),  # scope to the served tree, leave app/ alone
+    ]
+    results = {}
+    for label, repo, stage in targets:
+        if not os.path.isdir(repo):
+            print(f"  (skip {label}: repo not present — {repo})"); results[label] = None; continue
+        if subprocess.run(["git", "-C", repo, "rev-parse", "--is-inside-work-tree"],
+                          capture_output=True, text=True).returncode != 0:
+            print(f"  (skip {label}: not a git repo)"); results[label] = None; continue
+        try:
+            subprocess.run(["git", "-C", repo, "add", stage], check=False, capture_output=True, text=True)
+            if subprocess.run(["git", "-C", repo, "diff", "--cached", "--quiet"]).returncode == 0:
+                print(f"  {label}: nothing to publish (clean)"); results[label] = None; continue
+            changed = subprocess.run(["git", "-C", repo, "diff", "--cached", "--name-only"],
+                                     capture_output=True, text=True).stdout.strip().splitlines()
+            if dry:
+                print(f"  {label}: WOULD publish {len(changed)} file(s) — e.g. " + ", ".join(changed[:4]))
+                subprocess.run(["git", "-C", repo, "reset", "-q"], capture_output=True, text=True)
+                results[label] = None; continue
+            subprocess.run(["git", "-C", repo] + AUTHOR +
+                           ["commit", "-q", "-m", f"daily cascade: publish both worlds — {day}"],
+                           check=False, capture_output=True, text=True)
+            p = subprocess.run(["git", "-C", repo, "push", "-q"], capture_output=True, text=True)
+            if p.returncode == 0:
+                print(f"  {label}: pushed \u2713  ({len(changed)} file(s))"); results[label] = True
+            else:
+                print(f"  [!] {label}: push FAILED — {(p.stderr or p.stdout).strip()[:200]}"); results[label] = False
+        except Exception as e:
+            print(f"  [!] {label}: {e}"); results[label] = False
+    vals = [v for v in results.values() if v is not None]
+    return (all(vals) if vals else None)
+
 def witness_biome():
     """Step 5 — fire ONE witness per day into the live register (the biome's heartbeat).
     Guarded to one/day via a local marker; fail-soft (a network hiccup is reported, never fatal)."""
     print("\n" + "=" * 60)
-    print("▶ 8 · WITNESS — the biome's daily heartbeat → 0root.ai/v1/register")
+    print("▶ 9 · WITNESS — the biome's daily heartbeat → 0root.ai/v1/register")
     print("=" * 60)
     import json, urllib.request
     day = datetime.date.today().isoformat()
@@ -123,6 +174,7 @@ def main():
     ok["council"]  = run("5 · THE COUNCIL — World II: the 7 debate each domain's seats (_citizen.py)", ["_citizen.py"], HERE)
     ok["fold"]     = run("6 · THE FOLD SEAL — World II: reseal .dlw.fold -> ROOT_0 (_dlw_fold.py)", ["_dlw_fold.py"], HERE)
     ok["mirror_w2"]= mirror_world2()
+    ok["publish"]  = push_worlds(dry=not PUSH)
     ok["witness"]  = witness_biome()
     print("\n" + "=" * 60)
     print("CASCADE SUMMARY: " + " · ".join(f"{k}={'ok' if v else ('skip' if v is None else 'FAIL')}" for k, v in ok.items()))
