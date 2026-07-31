@@ -396,7 +396,58 @@ document.getElementById('mksel').onchange=render;
 var ctr=0;document.getElementById('mkedit').onclick=function(){ctr++;leaves[ctr%leaves.length]='LEAF'+ctr;render();};
 render();})();"""
 
+# ── THE DOOR — causal attention head, ported from gpt_mini.py's DoorAttention ──
+DOOR_BODY = """<div class="panel">
+ <canvas class="inst" id="att" width="300" height="300"></canvas>
+ <div class="ctrl">
+  <div class="rd">causal attention over 7 I-13 tokens &mdash; real Q&middot;K&#7488; &rarr; gate &rarr; &middot;V</div>
+  <div class="rd">gate: <b id="dgate">softmax</b> &middot; &tau; lens <input type="range" id="dtau" min="0.2" max="3" step="0.1" value="1"> <b id="dtauv">1.00</b></div>
+  <div class="btns"><button id="dgatebtn">flip gate</button><button id="dropebtn">RoPE: on</button></div>
+  <div class="rd">row sums: <span id="drowsum" style="font-family:ui-monospace,monospace;font-size:13px">&mdash;</span></div>
+  <div class="rd fate" id="dnote">&mdash;</div>
+ </div>
+</div>"""
+DOOR_SCRIPT = """(function(){
+var TOK=['ASK','ANSWER','CONST','ARG','CALL','RET','HALT'],T=TOK.length,D=8;
+function prng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function randmat(r,c,g){var m=[];for(var i=0;i<r;i++){m[i]=[];for(var j=0;j<c;j++)m[i][j]=(g()*2-1)*0.6;}return m;}
+function mm(A,B){var m=[];for(var i=0;i<A.length;i++){m[i]=[];for(var j=0;j<B[0].length;j++){var s=0;for(var k=0;k<B.length;k++)s+=A[i][k]*B[k][j];m[i][j]=s;}}return m;}
+var E=[];for(var i=0;i<T;i++){E[i]=[];for(var d=0;d<D;d++)E[i][d]=Math.sin((i+1)*(d+1)*0.7)+0.3*Math.cos((i+1)*0.9-d);}
+var g=prng(1234),Wq=randmat(D,D,g),Wk=randmat(D,D,g),Wv=randmat(D,D,g),Q=mm(E,Wq),K=mm(E,Wk),V=mm(E,Wv);
+function rope(x){return x.map(function(row,pos){var o=row.slice();for(var d=0;d<D;d+=2){var inv=1/Math.pow(10000,d/D),ang=pos*inv,c=Math.cos(ang),s=Math.sin(ang),a=row[d],b=row[d+1];o[d]=a*c-b*s;o[d+1]=a*s+b*c;}return o;});}
+var st={gate:'softmax',tau:1.0,rope:true};
+function attend(){var Qr=st.rope?rope(Q):Q,Kr=st.rope?rope(K):K,att=[],rowsum=[];
+ for(var i=0;i<T;i++){var sc=[];for(var j=0;j<T;j++){var dot=0;for(var d=0;d<D;d++)dot+=Qr[i][d]*Kr[j][d];sc[j]=(j<=i)?dot/(Math.sqrt(D)*st.tau):-Infinity;}
+  var row;if(st.gate==='softmax'){var mx=Math.max.apply(null,sc.filter(isFinite));var ex=sc.map(function(s){return isFinite(s)?Math.exp(s-mx):0;});var Z=ex.reduce(function(a,b){return a+b;},0);row=ex.map(function(e){return e/Z;});}
+  else{row=sc.map(function(s){return isFinite(s)?1/(1+Math.exp(-s)):0;});}
+  att[i]=row;rowsum[i]=row.reduce(function(a,b){return a+b;},0);}
+ return {att:att,rowsum:rowsum};}
+function draw(res){var cv=document.getElementById('att'),c=cv.getContext('2d'),W=cv.width;c.clearRect(0,0,W,W);
+ var cell=Math.floor((W-30)/T),ox=26,oy=20;
+ for(var i=0;i<T;i++)for(var j=0;j<T;j++){var a=res.att[i][j],col;
+  if(j>i)col='#0a0e0a';else{var v=Math.min(1,a*(st.gate==='softmax'?T*0.55:1));col='rgb('+Math.round(18+v*139)+','+Math.round(18+v*234)+','+Math.round(28+v*79)+')';}
+  c.fillStyle=col;c.fillRect(ox+j*cell,oy+i*cell,cell-1,cell-1);}
+ c.fillStyle='#4c7a54';c.font='9px ui-monospace,monospace';for(var k=0;k<T;k++){c.fillText(TOK[k].slice(0,3),ox+k*cell,oy-6);c.fillText(TOK[k].slice(0,3),0,oy+k*cell+cell*0.62);}}
+function render(){var res=attend();draw(res);
+ document.getElementById('dgate').textContent=st.gate;document.getElementById('dtauv').textContent=st.tau.toFixed(2);
+ document.getElementById('drowsum').textContent=res.rowsum.map(function(s){return s.toFixed(2);}).join(' ');
+ document.getElementById('dnote').textContent=st.gate==='softmax'?'softmax: each query competes over keys, every row sums to 1':'sigmoid: each door opens independently, rows do NOT sum to 1';
+ window.__door={gate:st.gate,tau:st.tau,rope:st.rope,rowsum:res.rowsum,
+  causalOK:res.att.every(function(row,i){return row.every(function(a,j){return j<=i||a===0;});}),
+  softmaxSumsOne:res.rowsum.every(function(s){return Math.abs(s-1)<1e-6;})};}
+document.getElementById('dgatebtn').onclick=function(){st.gate=st.gate==='softmax'?'sigmoid':'softmax';render();};
+document.getElementById('dropebtn').onclick=function(){st.rope=!st.rope;this.textContent='RoPE: '+(st.rope?'on':'off');render();};
+document.getElementById('dtau').oninput=function(){st.tau=parseFloat(this.value);render();};
+render();})();"""
+
 SPHERES = [
+ {"slug":"the-door","title":"THE DOOR","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#9d00ff","icon":"glitch",
+  "kicker":"q·k scores → the gate → the mix",
+  "blurb":"a real causal attention head, ported from David's gpt_mini.py — Q·Kᵀ scaled scores, a causal mask, softmax OR sigmoid gate (the Smasher Cup), a temperature lens, and RoPE. The forward pass of the machine that speaks.",
+  "lit":"The exact DoorAttention mechanism from <code>gpt_mini.py</code>, run live: scores = Q·Kᵀ/(√d·τ), causal-masked so a token sees only the past, then the gate — <b>softmax</b> (rows compete, sum to 1) vs <b>sigmoid</b> (each 'door' opens independently, rows need not sum to 1) — then the weighted mix of V. RoPE rotates q,k by position. Weights are fixed/untrained, so this shows the real MECHANISM (verifiable: causal upper-triangle is exactly 0; softmax rows sum to 1.000; τ sharpens or flattens), not a learned pattern.",
+  "fig":"'The door' is gpt_mini's own name for a q·k score; the 7 I-13 opcodes are the demo tokens. The attention math is the honest part — it's what every transformer, including the one writing this, actually computes.",
+  "body":DOOR_BODY,"script":DOOR_SCRIPT},
  {"slug":"the-bowl","title":"THE BOWL","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#ffd23f","icon":"grind",
   "kicker":"roll downhill until the floor stops falling",
