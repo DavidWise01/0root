@@ -537,7 +537,83 @@ document.getElementById('w4').onclick=function(e){var rct=this.getBoundingClient
 function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}
 nm();all();requestAnimationFrame(loop);})();"""
 
+# ── THE TAPE — a real Turing machine, 5-window house format ──
+TAPE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Turing machine.</b> A tape of cells, a head that reads one at a time, and a tiny table of rules: given (state, symbol) &rarr; write a symbol, move left or right, change state. That is the whole of computation &mdash; every computer is a special case of this.<br><br>
+ <span class="lit">LIT</span> a real Turing machine: pick a program and it runs cell by cell &mdash; binary increment carries correctly, invert flips every bit, and the 2-state busy beaver halts in six steps. <span class="fig">FIG</span> &lsquo;the machine that dreams the others&rsquo; is the frame; the steps are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> holds that the whole silicon world reduces to one idea &mdash; a head on a tape &mdash; and seated it in THE FOLD. <b>AVAN (AI)</b> wrote the engine, the programs and the three views. The weave: he chooses the concept and what it means; I make it step, and I add the head&rsquo;s world-line. Neither half is the whole &mdash; the sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="80"></canvas>
+  <div class="wctrl"><div class="cap">The tape <b>is</b> one dimension &mdash; an endless line of cells, and a head (&#9660;) at one of them. All reading and writing happens right here, one cell at a time.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="200"></canvas>
+  <div class="wctrl"><div class="cap">The program is a 2D table: rows = states, columns = the symbol read; the pink cell is firing now.</div>
+   <div class="rd" style="margin-top:8px">program <select id="tprog" style="background:#050805;color:#39fc6b;border:1px solid #255c2c;font-family:VT323,monospace;font-size:16px"><option value="increment">binary increment</option><option value="invert">invert bits</option><option value="busy-beaver-2">2-state busy beaver</option></select></div>
+   <div class="cap" id="tdesc" style="margin-top:6px"></div>
+   <div class="btns"><button id="tstep">step</button><button id="trun">run</button><button id="treset">reset</button></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S ADDITION</div>
+ <div class="wc"><canvas id="w5" width="384" height="340"></canvas>
+  <div class="wctrl"><div class="cap">Every step of the tape stacked into 3D and turned: <b>x</b> = cell, <b>height</b> = time. Green = the marks the machine wrote.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b>: the magenta thread is the <b>head&rsquo;s world-line</b> &mdash; where the head sat at every step, a path through the computation your tape-view never shows. The machine&rsquo;s memory of where it has been.</div>
+   <div class="btns" style="margin-top:10px"><button id="tspin">pause spin</button></div></div></div></div>"""
+TAPE_SCRIPT = """(function(){
+var PROGS={
+ 'increment':{start:'S',desc:'binary +1 · the carry ripples left',init:'1011',
+   T:{'S,0':['0','R','S'],'S,1':['1','R','S'],'S,_':['_','L','C'],'C,0':['1','-','H'],'C,1':['0','L','C'],'C,_':['1','-','H']}},
+ 'invert':{start:'I',desc:'flip every bit to a blank',init:'10110',
+   T:{'I,0':['1','R','I'],'I,1':['0','R','I'],'I,_':['_','-','H']}},
+ 'busy-beaver-2':{start:'A',desc:'2-state busy beaver · halts in 6 steps, 4 ones',init:'',
+   T:{'A,0':['1','R','B'],'A,1':['1','L','B'],'B,0':['1','L','A'],'B,1':['1','R','H']}}};
+var prog='increment',st,run=null,ang=0.6,spin=true,WMIN=-30,WMAX=30;
+function statesOf(p){var s=[];Object.keys(p.T).forEach(function(k){var q=k.split(',')[0];if(s.indexOf(q)<0)s.push(q);});return s;}
+function reset(){var p=PROGS[prog];st={tape:{},head:0,state:p.start,steps:0,halted:false,hist:[]};
+ for(var i=0;i<p.init.length;i++)st.tape[i]=p.init[i];snap();draw();}
+function rd(){var v=st.tape[st.head];return (v==='1'||v==='0')?v:'_';}   // blank is its own symbol
+function snap(){var c=[];for(var x=WMIN;x<=WMAX;x++)c.push(st.tape[x]==='1'?1:0);st.hist.push({c:c,h:st.head});if(st.hist.length>150)st.hist.shift();}
+function ones(){var n=0;for(var k in st.tape)if(st.tape[k]==='1')n++;return n;}
+function tapeStr(){var ks=Object.keys(st.tape).map(Number).sort(function(a,b){return a-b;});return ks.map(function(k){return st.tape[k];}).join('').replace(/_/g,'');}
+function step(){if(st.halted)return;var p=PROGS[prog],sym=rd(),r=p.T[st.state+','+sym]||(sym==='_'?p.T[st.state+',0']:null);if(!r){st.halted=true;draw();return;}
+ st.tape[st.head]=r[0];if(r[1]==='R')st.head++;else if(r[1]==='L')st.head--;st.state=r[2];st.steps++;if(st.state==='H')st.halted=true;snap();draw();}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var view=25,cw=W/view,c0=st.head-Math.floor(view/2);
+ for(var i=0;i<view;i++){var pos=c0+i,v=st.tape[pos]==='1'?1:0,x=i*cw;g.fillStyle=v?'#39fc6b':'#0c150b';g.fillRect(x+1,28,cw-2,34);
+  g.fillStyle=v?'#0a0e0a':'#2a3a29';g.font='13px ui-monospace,monospace';g.fillText(''+v,x+cw/2-4,50);}
+ var hx=Math.floor(view/2)*cw;g.fillStyle='#ff2d95';g.beginPath();g.moveTo(hx+cw/2,22);g.lineTo(hx+cw/2-7,8);g.lineTo(hx+cw/2+7,8);g.fill();
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('the tape · head at cell '+st.head,6,H-6);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width;g.clearRect(0,0,W,cv.height);
+ var p=PROGS[prog],S=statesOf(p);g.font='13px ui-monospace,monospace';
+ g.fillStyle='#7cfc00';g.fillText('state '+st.state+(st.halted?' · HALTED':'')+'   step '+st.steps+'   ones '+ones(),10,18);
+ var x0=16,y0=44,rw=150,rh=30;g.fillStyle='#4c7a54';g.fillText('read 0',x0+52,y0-6);g.fillText('read 1',x0+52+rw,y0-6);
+ S.forEach(function(sN,ri){var y=y0+ri*rh;g.fillStyle='#8ca';g.fillText(sN,x0,y+18);
+  ['0','1'].forEach(function(rs,ci){var r=p.T[sN+','+rs],cx=x0+44+ci*rw,cur=(st.state===sN&&rd()===rs&&!st.halted);
+   g.fillStyle=cur?'rgba(255,45,149,.28)':'rgba(37,92,44,.18)';g.fillRect(cx,y,rw-14,rh-6);
+   g.fillStyle=cur?'#ff2d95':'#cfe8d0';g.fillText(r?(r[0]+' '+r[1]+' '+r[2]):'—',cx+8,y+18);});});}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cx=W/2,cy=H/2,f=560,ca=Math.cos(ang),sa=Math.sin(ang),pts=[],N=st.hist.length,wn=WMAX-WMIN+1;
+ st.hist.forEach(function(row,t){var yy=(t-N/2)*0.9;
+  for(var i=0;i<row.c.length;i++)if(row.c[i]){var X=i-wn/2,xr=X*ca,zr=X*sa,pp=f/(f+zr+130);pts.push([cx+xr*pp*4.0,cy+yy*pp*4.4,pp,zr,'#39fc6b']);}
+  var hX=(row.h-WMIN)-wn/2,xr2=hX*ca,zr2=hX*sa,pp2=f/(f+zr2+130);pts.push([cx+xr2*pp2*4.0,cy+yy*pp2*4.4,pp2,zr2,'#ff2d95']);});
+ pts.sort(function(a,b){return a[3]-b[3];});
+ pts.forEach(function(P){var sz=Math.max(1,P[2]*3.0),al=Math.max(0.3,Math.min(1,P[2]*1.3));g.globalAlpha=al;g.fillStyle=P[4];g.fillRect(P[0]-sz/2,P[1]-sz/2,sz,sz);});g.globalAlpha=1;}
+function draw(){drawW3();drawW4();drawW5();window.__tm={prog:prog,state:st.state,steps:st.steps,halted:st.halted,ones:ones(),tape:tapeStr()};}
+document.getElementById('tstep').onclick=step;
+document.getElementById('trun').onclick=function(){var b=this;if(run){clearInterval(run);run=null;b.textContent='run';return;}b.textContent='stop';run=setInterval(function(){step();if(st.halted||st.steps>6000){clearInterval(run);run=null;b.textContent='run';}},55);};
+document.getElementById('treset').onclick=function(){if(run){clearInterval(run);run=null;document.getElementById('trun').textContent='run';}reset();};
+document.getElementById('tprog').onchange=function(){prog=this.value;document.getElementById('tdesc').textContent=PROGS[prog].desc;if(run){clearInterval(run);run=null;document.getElementById('trun').textContent='run';}reset();};
+document.getElementById('tspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+document.getElementById('tdesc').textContent=PROGS[prog].desc;
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}
+reset();requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-tape","title":"THE TAPE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE TOOLCHAIN","domain_slug":"the-toolchain","accent":"#39fc6b","icon":"cheat",
+  "kicker":"a head, a tape, and the whole of computation",
+  "blurb":"a real Turing machine in the 5-window format — binary increment, invert, and the 3-state busy beaver, running cell by cell. 1D tape, 2D transition table, live 3D history with AVAN's head world-line.",
+  "lit":"A genuine Turing machine across five windows. Three real programs step correctly (increment carries, invert flips, the busy beaver halts by itself); the transition table drives every move. Verifiable to the cell.",
+  "fig":"'The machine that dreams the others' is the frame; the tape, table and steps are exact. W5's magenta head-trajectory is AVAN's inverse-companion addition.",
+  "body":TAPE_BODY,"script":TAPE_SCRIPT},
  {"slug":"the-rule","title":"THE RULE","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#7cfc00","icon":"cheat",
   "kicker":"one byte of rule → unlimited computation",
