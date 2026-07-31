@@ -51,6 +51,17 @@ input[type=range]{{width:120px;vertical-align:middle;accent-color:{s['accent']}}
 .note{{background:#0a0f0a;border-left:4px solid #255c2c;padding:14px 16px;margin-top:22px;font-size:17px;color:#cfe8d0;line-height:1.6}}
 .lit{{color:#0a0e0a;background:#39fc6b;font-family:'Press Start 2P',monospace;font-size:8px;padding:2px 5px}}
 .fig{{color:#0a0e0a;background:{s['accent']};font-family:'Press Start 2P',monospace;font-size:8px;padding:2px 5px}}
+.win{{background:#0a0f0a;border:2px solid color-mix(in srgb,{s['accent']} 42%,#0a0e0a);border-left:4px solid {s['accent']};padding:16px 18px;margin:16px 0}}
+.win .winh{{font-family:'Press Start 2P',ui-monospace,monospace;font-size:10px;color:{s['accent']};margin-bottom:13px;display:flex;align-items:center;gap:9px;line-height:1.5}}
+.win .winh .wn{{background:{s['accent']};color:#0a0e0a;padding:3px 7px;font-size:10px}}
+.win .wintxt{{font-size:17px;line-height:1.6;color:#cfe8d0}}
+.win .wintxt b{{color:{s['accent']}}}
+.win .wc{{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start}}
+.win .wc canvas{{image-rendering:pixelated;background:#050805;border:1px solid #255c2c;max-width:100%;flex:none}}
+.win .wctrl{{flex:1;min-width:210px}}
+.win .cap{{font-size:15px;color:#8ca;line-height:1.5}}
+.win .avan{{margin-top:12px;border-top:1px dashed color-mix(in srgb,{s['accent']} 40%,transparent);padding-top:10px;font-size:15px;color:#cfe8d0}}
+.win .avan b{{color:#ff2d95}}
 .seal{{font-family:'Press Start 2P',monospace;font-size:8px;color:#4c7a54;margin-top:24px;border-top:2px solid #255c2c;padding-top:14px}}
 </style></head><body>
 <canvas id="rain"></canvas><div class="cm-scan"></div>
@@ -475,7 +486,65 @@ document.getElementById('dropebtn').onclick=function(){st.rope=!st.rope;this.tex
 document.getElementById('dtau').oninput=function(){st.tau=parseFloat(this.value);render();};
 render();})();"""
 
+# ── THE RULE — elementary cellular automaton, in the 5-WINDOW house format ──
+RULE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The elementary cellular automaton.</b> A row of bits and one rule: each cell&rsquo;s next value comes from itself and its two neighbours &mdash; 3 in, 1 out &mdash; so a whole rule is 8 answers = <b>one byte</b> (0&ndash;255). Run it down the page and structure appears out of nothing.<br><br>
+ <span class="lit">LIT</span> real computation &mdash; <b>Rule 110 is proven Turing-complete</b> (Cook, 2004): one byte that can, in principle, compute anything. <span class="fig">FIG</span> &lsquo;the edge of chaos&rsquo; is the poetry; the bits are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus already carries his CA work (<i>ca_explorer</i>, <i>langtons-loop</i>, <i>edge-of-chaos</i>) and the conviction that the silicon world grows from simple rules folding into complexity. <b>AVAN (AI)</b> built this instrument: the rule engine, the three representations, and the inverse.<br><br>The weave: David names the concept and its seat in THE FOLD; I make it run in 1D, 2D and 3D and add the shadow. Neither half is the whole &mdash; the sphere is the seam between us.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="122"></canvas>
+  <div class="wctrl"><div class="cap">The concept at its root: <b>one row</b> of cells, and the rule as <b>8 bits</b>. Top = the 8 neighbourhoods (111&hellip;000) and the rule&rsquo;s answer for each; bottom = a single live generation. Everything else is this line, repeated.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="384"></canvas>
+  <div class="wctrl"><div class="cap">Time flows down &mdash; each row is the rule applied to the one above. Click the grid to toggle a seed cell.</div>
+   <div class="rd" style="margin-top:10px">rule <b id="rnum">110</b> <input type="range" id="rslider" min="0" max="255" step="1" value="110" style="width:160px;vertical-align:middle"></div>
+   <div class="btns"><button id="rseed">single seed</button><button id="rrand">random seed</button></div>
+   <div class="cap" id="rname" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The whole space-time history lifted into 3D and turned: <b>x</b> = cell, <b>depth</b> = generation. Green = your rule.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the magenta cloud is the <b>complement rule, 255 &minus; N</b> &mdash; the shadow automaton on the same seed. Where your rule is silent, its inverse speaks. Two automata, one lattice.</div>
+   <div class="btns" style="margin-top:10px"><button id="rspin">pause spin</button></div></div></div></div>"""
+RULE_SCRIPT = """(function(){
+var GW=64,GH=64,rule=110,ang=0.6,spin=true;
+function bitsOf(n){var b=[];for(var i=0;i<8;i++)b[i]=(n>>i)&1;return b;}
+function evolve(rl,rows,seed){var b=bitsOf(rl),grid=[seed.slice()],cur=seed.slice();
+ for(var r=1;r<rows;r++){var nx=new Array(GW).fill(0);for(var x=0;x<GW;x++){var idx=(cur[(x-1+GW)%GW]<<2)|(cur[x]<<1)|cur[(x+1)%GW];nx[x]=b[idx];}grid.push(nx);cur=nx;}return grid;}
+function newSeed(m){var s=new Array(GW).fill(0);if(m==='rand'){for(var i=0;i<GW;i++)s[i]=Math.random()<0.5?1:0;}else s[GW>>1]=1;return s;}
+var seed=newSeed('single');
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),Wd=cv.width;g.clearRect(0,0,Wd,cv.height);
+ var b=bitsOf(rule),cw=Wd/8;
+ for(var i=7;i>=0;i--){var x=(7-i)*cw+(cw-45)/2,l=(i>>2)&1,c=(i>>1)&1,r=i&1;
+  [l,c,r].forEach(function(v,k){g.fillStyle=v?'#cfe8d0':'#1c2c1b';g.fillRect(x+k*15,8,13,13);});
+  g.fillStyle=b[i]?'#7cfc00':'#20301f';g.fillRect(x+15,26,13,13);}
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('8 neighbourhoods -> 8 answers = rule '+rule,8,60);
+ var bw=Wd/GW;for(var xx=0;xx<GW;xx++){g.fillStyle=seed[xx]?'#7cfc00':'#0a140a';g.fillRect(Math.floor(xx*bw),76,Math.ceil(bw),40);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),Wd=cv.width,Hd=cv.height,grid=evolve(rule,GH,seed),cw=Wd/GW,ch=Hd/GH;g.clearRect(0,0,Wd,Hd);
+ for(var r=0;r<GH;r++)for(var x=0;x<GW;x++)if(grid[r][x]){g.fillStyle='#7cfc00';g.fillRect(Math.floor(x*cw),Math.floor(r*ch),Math.ceil(cw),Math.ceil(ch));}}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),Wd=cv.width,Hd=cv.height;g.clearRect(0,0,Wd,Hd);
+ var gA=evolve(rule,GH,seed),gB=evolve(255-rule,GH,seed),cx=Wd/2,cy=Hd/2,f=520,ca=Math.cos(ang),sa=Math.sin(ang),pts=[];
+ function add(grid,layer,col){for(var r=0;r<GH;r++)for(var x=0;x<GW;x++)if(grid[r][x]){var X=x-GW/2,Z=layer,xr=X*ca-Z*sa,zr=X*sa+Z*ca,p=f/(f+zr+90);pts.push([cx+xr*p*5.0,cy+(r-GH/2)*p*4.4,p,zr,col]);}}
+ add(gA,8,'#7cfc00');add(gB,-8,'#ff2d95');pts.sort(function(a,b){return a[3]-b[3];});
+ pts.forEach(function(P){var sz=Math.max(1,P[2]*3.2),al=Math.max(0.25,Math.min(1,P[2]*1.25));g.globalAlpha=al;g.fillStyle=P[4];g.fillRect(P[0]-sz/2,P[1]-sz/2,sz,sz);});g.globalAlpha=1;}
+function nm(){var N={110:'Rule 110 — Turing-complete (Cook 2004)',90:'Rule 90 — the Sierpinski triangle',30:'Rule 30 — chaos; a real PRNG',184:'Rule 184 — traffic flow',150:'Rule 150 — additive XOR',54:'Rule 54 — class IV, gliders',126:'Rule 126 — fractal',250:'Rule 250 — solid cone'};document.getElementById('rname').textContent=N[rule]||('Rule '+rule);}
+function all(){drawW3();drawW4();drawW5();window.__rule={rule:rule,seedOnes:seed.reduce(function(a,b){return a+b;},0)};}
+document.getElementById('rslider').oninput=function(){rule=+this.value;document.getElementById('rnum').textContent=rule;nm();all();};
+document.getElementById('rseed').onclick=function(){seed=newSeed('single');all();};
+document.getElementById('rrand').onclick=function(){seed=newSeed('rand');all();};
+document.getElementById('rspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+document.getElementById('w4').onclick=function(e){var rct=this.getBoundingClientRect(),x=Math.floor((e.clientX-rct.left)/(rct.width/GW));if(x>=0&&x<GW){seed[x]^=1;all();}};
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}
+nm();all();requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-rule","title":"THE RULE","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#7cfc00","icon":"cheat",
+  "kicker":"one byte of rule → unlimited computation",
+  "blurb":"an elementary cellular automaton in the 5-window house format — one byte decides everything, and Rule 110 is Turing-complete. See it in 1D, 2D and live 3D, with AVAN's inverse-rule shadow.",
+  "lit":"A real elementary cellular automaton across five windows (what/why, the human+AI weave, 1D, 2D interactive, 3D + AVAN's inverse). Rule 110 is proven Turing-complete; every cell is a genuine 3-neighbour lookup.",
+  "fig":"The 'edge of chaos' framing is poetry; the automaton and its complement-rule shadow are exact.",
+  "body":RULE_BODY,"script":RULE_SCRIPT},
  {"slug":"the-fiddler","title":"THE FIDDLER","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#ff5a3c","icon":"boss",
   "kicker":"David's first repo — does the system hold under attack?",
