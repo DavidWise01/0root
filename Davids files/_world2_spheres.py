@@ -15574,7 +15574,280 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 mk();drawW3();drawW4();window.__thomas=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 52 (impartial games · cellular life · tableau counting · integer circles · arithmetic-function ring) ═══════════════════════
+SPG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Sprague&ndash;Grundy theorem</b> is the master key to impartial games (both players share the same moves, like Nim): <b>every</b> position is equivalent to a single Nim heap of some size &mdash; its <b>Grundy number</b> (nimber). The Grundy number is the <b>mex</b> (minimum excludant: smallest non-negative integer not among) of the Grundy numbers of positions you can move to.<br><br>
+ A position is a <b>loss</b> for the player to move iff its Grundy number is <b>0</b>. And the crown jewel: the Grundy number of a <b>sum</b> of independent games is the <b>XOR</b> of the parts&rsquo; Grundy numbers &mdash; so complex games are solved by XOR-ing simple ones.<br><br>
+ <span class="lit">LIT</span> verified live: a subtraction game&rsquo;s Grundy values equal n mod 4, and a Nim position is losing iff the XOR of heap sizes is 0 &mdash; matching a brute-force minimax over 300 positions (window.__spraguegrundy). <span class="fig">FIG</span> no framing; exact game theory.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-final-boss</i> &mdash; the fight you win by knowing the position is already lost or won. Sprague&ndash;Grundy is the boss-fight solver: reduce any game to a number. <b>AVAN (AI)</b> built the instrument: the mex, the Grundy recurrence, the XOR game-sum, the brute-minimax cross-check.<br><br>Credit as content: Roland Sprague (1935) and Patrick Michael Grundy (1939), independently. The weave: David names the boss; I compute Grundy numbers by mex, combine games by XOR, and confirm the win/loss verdict against exhaustive minimax.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A position&rsquo;s Grundy number is the mex of its successors&rsquo; Grundy numbers &mdash; the smallest non-negative integer none of the moves lead to. Grundy 0 means every move hands the opponent a winning position.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A Nim position of heaps. The XOR of heap sizes is the Grundy number; zero means the player to move loses. Checked against a brute-force minimax; a subtraction game&rsquo;s Grundy sequence is shown too.</div>
+   <div class="btns" style="margin-top:10px"><button id="spgroll">new heaps ▶</button><button id="spgcheck">verify 300 ▶</button></div>
+   <div class="cap" id="spgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: each game reduced to a single nimber, their XOR deciding the combined game.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): <b>composition becomes XOR</b>. A sum of games is <b>not</b> analysed by exploring the exponential product of their move-trees &mdash; instead each game is reduced to one number and the numbers are XOR-ed. The inverse of &lsquo;a complex combined game&rsquo; is &lsquo;the XOR of its parts&rsquo; nimbers.&rsquo; So game addition (played in parallel) corresponds to nimber addition (XOR), turning a search problem into <b>arithmetic</b>. <b>Magenta</b> is the exponential product game-tree you never explore; <b>green</b> is the XOR of small nimbers that decides it. Every impartial game is secretly Nim &mdash; and nimber addition is exactly the carry-less XOR of the nimber field.</div>
+   <div class="btns" style="margin-top:10px"><button id="spgspin">pause spin</button></div></div></div></div>"""
+SPG_SCRIPT = """(function(){
+var ang=0,spin=true,HEAPS=[3,5,7];
+function mex(s){var i=0;while(s.has(i))i++;return i;}
+function grundySub(n,moves,memo){if(memo[n]!==undefined)return memo[n];var s=new Set();moves.forEach(function(m){if(n-m>=0)s.add(grundySub(n-m,moves,memo));});return memo[n]=mex(s);}
+var nimMemo={};
+function nimLoss(heaps){var key=heaps.slice().sort(function(a,b){return a-b;}).join(',');if(nimMemo[key]!==undefined)return nimMemo[key];for(var i=0;i<heaps.length;i++)for(var take=1;take<=heaps[i];take++){var h=heaps.slice();h[i]-=take;if(nimLoss(h))return nimMemo[key]=false;}return nimMemo[key]=true;}
+function verify(){var memo={},subOK=true;for(var n=0;n<=30;n++)if(grundySub(n,[1,2,3],memo)!==n%4)subOK=false;var seed=7;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var nimOK=true;for(var t=0;t<300;t++){var k=1+rnd()%3,heaps=[];for(var i=0;i<k;i++)heaps.push(rnd()%6);var x=heaps.reduce(function(a,b){return a^b;},0);if(nimLoss(heaps)!==(x===0))nimOK=false;}return {subtractionGrundy:subOK,nimXorMatchesBrute:nimOK};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('subtraction game {1,2,3}: Grundy(n) = mex of Grundy(n−1),(n−2),(n−3)',12,16);
+ var memo={};for(var n=0;n<=11;n++){var gr=grundySub(n,[1,2,3],memo);g.fillStyle=gr===0?'#c05868':'#3a4550';g.fillRect(20+n*40,44,34,30);g.fillStyle='#fff';g.font='11px monospace';g.fillText('n'+n,24+n*40,58);g.fillStyle='#39fc6b';g.fillText('G='+gr,24+n*40,70);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Grundy = n mod 4 (red = 0 = losing position)',20,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var x=HEAPS.reduce(function(a,b){return a^b;},0),loss=nimLoss(HEAPS);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('Nim heaps: '+HEAPS.join('  '),12,24);
+ for(var h=0;h<HEAPS.length;h++)for(var i=0;i<HEAPS[h];i++){g.fillStyle='#c8a050';g.fillRect(20+h*90,50+i*22,60,18);}
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('XOR of sizes = '+HEAPS.map(function(x){return x.toString(2);}).join(' ⊕ ')+' = '+x,12,200);
+ g.fillStyle=loss===(x===0)?'#39fc6b':'#ff5a5a';g.font='13px monospace';g.fillText(x===0?'XOR=0 → player to move LOSES':'XOR≠0 → player to move WINS',12,228);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('brute minimax agrees: '+(loss===(x===0)?'✓':'✗'),12,250);}
+document.getElementById('spgroll').onclick=function(){HEAPS=[];var k=2+Math.floor(Math.random()*2);for(var i=0;i<k;i++)HEAPS.push(1+Math.floor(Math.random()*6));drawW4();var x=HEAPS.reduce(function(a,b){return a^b;},0);document.getElementById('spgread').textContent='XOR='+x+' → '+(x===0?'loss':'win');};
+document.getElementById('spgcheck').onclick=function(){var v=verify();document.getElementById('spgread').textContent='subtraction Grundy=n%4 '+(v.subtractionGrundy?'✓':'✗')+' | Nim loss iff XOR=0 (==brute) '+(v.nimXorMatchesBrute?'✓':'✗');};
+document.getElementById('spgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ for(var i=0;i<HEAPS.length;i++){var y=60+i*50;g.fillStyle='#39fc6b';g.font='13px monospace';g.fillText('game '+i+' → nimber '+HEAPS[i]+' = '+HEAPS[i].toString(2).padStart(3,'0'),W/2-90,y+5*Math.sin(ang+i));}
+ var x=HEAPS.reduce(function(a,b){return a^b;},0);g.fillStyle=x===0?'#c05868':'#39fc6b';g.font='15px monospace';g.fillText('XOR = '+x.toString(2).padStart(3,'0')+' = '+x,W/2-60,60+HEAPS.length*50+20);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: each game → one nimber, combined by XOR',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the exponential product game-tree (never explored)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('game addition = nimber addition (XOR) — every game is secretly Nim',10,H-9);}
+drawW3();drawW4();window.__spraguegrundy=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LIF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Conway&rsquo;s Game of Life</b> is a cellular automaton on a grid where each cell is alive or dead, updating in lockstep by two rules (<b>B3/S23</b>): a dead cell is <b>born</b> with exactly 3 live neighbours; a live cell <b>survives</b> with 2 or 3 neighbours, else dies.<br><br>
+ From these two rules emerge astonishing structures &mdash; the <b>blinker</b> oscillates with period 2, the <b>block</b> sits still, and the <b>glider</b> crawls diagonally, returning to its own shape shifted by (1,1) every 4 generations. Life is <b>Turing-complete</b>: logic gates, memory, even a full computer can be built inside it.<br><br>
+ <span class="lit">LIT</span> verified live: the blinker has period 2, the block is stationary, and the glider reproduces its shape translated by exactly (1,1) after 4 generations under the B3/S23 rule (window.__gameoflife). <span class="fig">FIG</span> no framing; exact cellular simulation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sandbox</i> &mdash; the emergent playground where structure grows from nothing but rules. Life is the archetypal sandbox: two rules, a universe of behaviour. <b>AVAN (AI)</b> built the instrument: the B3/S23 step, the pattern library, the period and translation checks.<br><br>Credit as content: John Horton Conway (1970), popularised by Martin Gardner in <i>Scientific American</i>. The weave: David names the sandbox; I run the two-rule step and confirm the blinker&rsquo;s period, the block&rsquo;s stillness, and the glider&rsquo;s exact diagonal march.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The two rules in a picture: count a cell&rsquo;s 8 neighbours &mdash; born at exactly 3, survives at 2 or 3, dies otherwise. Everything Life does grows from just this local count.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A glider on the grid. Step the generations and watch it crawl, returning to its shape one cell down and one cell right every 4 steps. The blinker and block patterns are checked too.</div>
+   <div class="btns" style="margin-top:10px"><button id="lifpat">pattern: glider ▶</button><button id="lifstep">step ▶</button><button id="lifcheck">verify ▶</button></div>
+   <div class="cap" id="lifread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the glider tracing its diagonal path across generations.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): simple <b>local</b> rules produce <b>undecidable</b> global behaviour. Because Life is Turing-complete, the question &lsquo;will this pattern ever die out?&rsquo; is <b>undecidable</b> in general &mdash; there is no formula for generation N and no shortcut to the far future. The inverse of &lsquo;two-line rules&rsquo; is &lsquo;no closed form for the outcome&rsquo;: the only way to know the future is to run it, cell by cell. <b>Magenta</b> is the undecidable long-term fate, forever without a formula; <b>green</b> is the deterministic local step you must iterate to learn it. Determinism <b>without</b> predictability &mdash; the signature of computation, the same wall the busy beaver marks.</div>
+   <div class="btns" style="margin-top:10px"><button id="lifspin">pause spin</button></div></div></div></div>"""
+LIF_SCRIPT = """(function(){
+var ang=0,spin=true,cells=null,gen=0,PAT='glider';
+function step(c){var neigh={};c.forEach(function(k){var p=k.split(',').map(Number);for(var dx=-1;dx<=1;dx++)for(var dy=-1;dy<=1;dy++){if(dx===0&&dy===0)continue;var nk=(p[0]+dx)+','+(p[1]+dy);neigh[nk]=(neigh[nk]||0)+1;}});var nx=new Set();for(var k in neigh){var n=neigh[k];if(n===3||(n===2&&c.has(k)))nx.add(k);}return nx;}
+function toSet(a){var s=new Set();a.forEach(function(p){s.add(p[0]+','+p[1]);});return s;}
+function eq(a,b){if(a.size!==b.size)return false;for(var k of a)if(!b.has(k))return false;return true;}
+function shift(s,dx,dy){var n=new Set();for(var k of s){var p=k.split(',').map(Number);n.add((p[0]+dx)+','+(p[1]+dy));}return n;}
+var GLIDER=[[1,0],[2,1],[0,2],[1,2],[2,2]],BLINKER=[[0,0],[1,0],[2,0]],BLOCK=[[0,0],[1,0],[0,1],[1,1]];
+function verify(){var bl=toSet(BLINKER),s1=step(bl),s2=step(s1);var blinkOK=eq(s2,bl)&&!eq(s1,bl);var blockOK=eq(step(toSet(BLOCK)),toSet(BLOCK));var g=toSet(GLIDER);for(var i=0;i<4;i++)g=step(g);var gliderOK=eq(g,shift(toSet(GLIDER),1,1));return {blinkerPeriod2:blinkOK,blockStill:blockOK,gliderTranslates:gliderOK};}
+function initPat(){if(PAT==='glider')cells=toSet(GLIDER.map(function(p){return [p[0]+2,p[1]+2];}));else if(PAT==='blinker')cells=toSet(BLINKER.map(function(p){return [p[0]+5,p[1]+6];}));else cells=toSet(BLOCK.map(function(p){return [p[0]+6,p[1]+6];}));gen=0;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('B3/S23: born at exactly 3 neighbours, survive at 2 or 3',12,16);
+ var cases=[['dead + 3 → BORN','#58c080'],['live + 2/3 → LIVE','#58c080'],['live + else → DIE','#c05868'],['dead + else → dead','#3a4550']];for(var i=0;i<4;i++){g.fillStyle=cases[i][1];g.fillRect(20+i*125,50,20,20);g.fillStyle='#8ad';g.font='10px monospace';g.fillText(cases[i][0],20+i*125,90);}
+ g.fillStyle='#8ad';g.fillText('one local neighbour-count → all of Life',12,H-12);}
+function drawGrid(cv,cell){var g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var N=14;g.strokeStyle='#20272f';for(var i=0;i<=N;i++){g.beginPath();g.moveTo(20+i*cell,10);g.lineTo(20+i*cell,10+N*cell);g.stroke();g.beginPath();g.moveTo(20,10+i*cell);g.lineTo(20+N*cell,10+i*cell);g.stroke();}for(var k of cells){var p=k.split(',').map(Number);if(p[0]>=0&&p[0]<N&&p[1]>=0&&p[1]<N){g.fillStyle='#58c080';g.fillRect(21+p[0]*cell,11+p[1]*cell,cell-2,cell-2);}}return g;}
+function drawW4(){var cv=document.getElementById('w4');if(!cells)initPat();var g=drawGrid(cv,24);g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('pattern: '+PAT+'   generation '+gen,20,cv.height-14);}
+document.getElementById('lifpat').onclick=function(){PAT=PAT==='glider'?'blinker':PAT==='blinker'?'block':'glider';this.textContent='pattern: '+PAT+' ▶';initPat();drawW4();};
+document.getElementById('lifstep').onclick=function(){cells=step(cells);gen++;drawW4();document.getElementById('lifread').textContent='generation '+gen+(PAT==='glider'&&gen%4===0?' — glider back to shape, shifted (1,1)':'');};
+document.getElementById('lifcheck').onclick=function(){var v=verify();document.getElementById('lifread').textContent='blinker period 2 '+(v.blinkerPeriod2?'✓':'✗')+', block still '+(v.blockStill?'✓':'✗')+', glider (1,1)/4gen '+(v.gliderTranslates?'✓':'✗');};
+document.getElementById('lifspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var gl=toSet(GLIDER),cell=8,step4=Math.floor((ang*3)%20);
+ for(var s=0;s<=step4;s++){for(var k of gl){var p=k.split(',').map(Number);g.fillStyle='#39fc6b';g.globalAlpha=0.3+0.7*(s/Math.max(1,step4));g.fillRect(30+(p[0]+s*0.25)*cell*1.5+s*6,30+(p[1]+s*0.25)*cell*1.5+s*6,cell,cell);g.globalAlpha=1;}gl=step(gl);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the glider crawling diagonally (1,1) per 4 gens',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the undecidable far future — no closed form',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('determinism without predictability — you must run it to know',10,H-9);}
+initPat();drawW3();drawW4();window.__gameoflife=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HKL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The hook length formula</b> counts the <b>standard Young tableaux</b> of a shape &lambda; &mdash; the ways to fill the cells of a Young diagram with 1&hellip;n so numbers increase along every row and down every column. Astonishingly, the count is just <b>n! divided by the product of the hook lengths</b>.<br><br>
+ Each cell&rsquo;s <b>hook</b> is itself, plus the cells to its right (the arm), plus the cells below it (the leg); multiply all these hooks and divide n! by the product. A global count of intricate fillings collapses to one clean product &mdash; and these counts are the dimensions of the irreducible representations of the symmetric group.<br><br>
+ <span class="lit">LIT</span> verified live: n! / (product of hook lengths) equals a brute count of standard Young tableaux for every partition of n=1&hellip;7 (window.__hooklength). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hoard</i> &mdash; counting the arrangements of a treasure without laying every one out. The hook length formula is that count, in one product. <b>AVAN (AI)</b> built the instrument: the hook-length computation, the factorial-over-product formula, the brute standard-tableau count.<br><br>Credit as content: J. S. Frame, Gilbert de B. Robinson &amp; Robert M. Thrall (1954). The weave: David names the hoard; I compute each cell&rsquo;s hook, form n! over their product, and confirm it equals a direct enumeration of the valid tableaux.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="170"></canvas>
+  <div class="wctrl"><div class="cap">A cell&rsquo;s hook: the cell itself (1), plus its arm (cells to the right), plus its leg (cells below). The hook length is 1 + arm + leg &mdash; a purely local quantity per cell.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A Young diagram with each cell&rsquo;s hook length shown. The instrument forms n! / (product of hooks) and checks it against a brute count of standard Young tableaux of that shape.</div>
+   <div class="btns" style="margin-top:10px"><button id="hklshape">new shape ▶</button><button id="hklcheck">verify n=1..7 ▶</button></div>
+   <div class="cap" id="hklread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the diagram&rsquo;s hooks, whose product divides n! to count all tableaux.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): an intractable-looking count &mdash; all valid fillings &mdash; becomes a simple <b>product</b> because the tableaux carry deep symmetry. The formula is exact and reveals that the number of tableaux is n! divided by a purely <b>local</b> geometric quantity: <b>one hook per cell</b>. The inverse of &lsquo;enumerate every valid tableau&rsquo; is &lsquo;multiply one number per cell.&rsquo; And these counts f<sup>&lambda;</sup> satisfy &Sigma;<sub>&lambda;</sub> (f<sup>&lambda;</sup>)&sup2; = n! &mdash; tying the hooks to the RSK bijection between permutations and tableau-pairs. <b>Magenta</b> is the exponentially-many tableaux never enumerated; <b>green</b> is the product of hooks that counts them. Global counting from local geometry.</div>
+   <div class="btns" style="margin-top:10px"><button id="hklspin">pause spin</button></div></div></div></div>"""
+HKL_SCRIPT = """(function(){
+var ang=0,spin=true,LAM=[3,2,1];
+function hook(lam,i,j){var arm=lam[i]-j-1,leg=0;for(var k=i+1;k<lam.length;k++)if(lam[k]>j)leg++;return arm+leg+1;}
+function hookProd(lam){var p=1;for(var i=0;i<lam.length;i++)for(var j=0;j<lam[i];j++)p*=hook(lam,i,j);return p;}
+function fact(n){var r=1;for(var i=2;i<=n;i++)r*=i;return r;}
+function sum(lam){var n=0;lam.forEach(function(r){n+=r;});return n;}
+function countSYT(lam){var n=sum(lam),cells=[];for(var i=0;i<lam.length;i++)for(var j=0;j<lam[i];j++)cells.push([i,j]);var count=0,grid={};function rec(v){if(v>n){count++;return;}for(var c=0;c<cells.length;c++){var i=cells[c][0],j=cells[c][1],key=i+','+j;if(grid[key])continue;var up=(i>0)?grid[(i-1)+','+j]:0,left=(j>0)?grid[i+','+(j-1)]:0;if((i===0||up)&&(j===0||left)){grid[key]=v;rec(v+1);grid[key]=0;}}}rec(1);return count;}
+function partitions(n){var res=[];function rec(rem,max,cur){if(rem===0){res.push(cur.slice());return;}for(var p=Math.min(rem,max);p>=1;p--){cur.push(p);rec(rem-p,p,cur);cur.pop();}}rec(n,n,[]);return res;}
+function verify(){var ok=true;for(var n=1;n<=7;n++)partitions(n).forEach(function(lam){if(fact(n)/hookProd(lam)!==countSYT(lam))ok=false;});return {formulaMatchesBrute:ok,example:'shape [3,2]: '+(fact(5)/hookProd([3,2]))+' SYT'};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var lam=[4,3,1],cell=32,ox=140,oy=30;g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('hook of a cell = 1 + arm (right) + leg (below)',12,16);
+ for(var i=0;i<lam.length;i++)for(var j=0;j<lam[i];j++){var hl=(i===0&&j===0);g.fillStyle=hl?'#c8a050':(i===0&&j>0)||(j===0&&i>0)?'#7a6838':'#3a4550';g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);}
+ g.fillStyle='#c8a050';g.fillRect(ox,oy,cell-2,cell-2);g.fillStyle='#201500';g.font='12px monospace';g.fillText(hook(lam,0,0),ox+11,oy+20);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('gold cell hook = 1 + 3 arm + 2 leg = '+hook(lam,0,0),12,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=sum(LAM),cell=38,ox=30,oy=40;
+ for(var i=0;i<LAM.length;i++)for(var j=0;j<LAM[i];j++){g.fillStyle='#c8a050';g.fillRect(ox+j*cell,oy+i*cell,cell-3,cell-3);g.fillStyle='#201500';g.font='14px monospace';g.fillText(hook(LAM,i,j),ox+j*cell+13,oy+i*cell+24);}
+ var hp=hookProd(LAM),f=fact(n),syt=countSYT(LAM);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('shape ['+LAM.join(',')+'],  n = '+n,12,oy+LAM.length*cell+24);
+ g.fillStyle='#c8a050';g.fillText(n+'! / (product of hooks '+hp+') = '+f+'/'+hp+' = '+(f/hp),12,oy+LAM.length*cell+46);
+ g.fillStyle=(f/hp===syt)?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('brute #SYT = '+syt+(f/hp===syt?'  ✓':'  ✗'),12,oy+LAM.length*cell+70);}
+document.getElementById('hklshape').onclick=function(){var n=4+Math.floor(Math.random()*4),ps=partitions(n);LAM=ps[Math.floor(Math.random()*ps.length)];drawW4();document.getElementById('hklread').textContent='shape ['+LAM.join(',')+'] → '+(fact(sum(LAM))/hookProd(LAM))+' tableaux';};
+document.getElementById('hklcheck').onclick=function(){var v=verify();document.getElementById('hklread').textContent='n=1..7 all partitions: n!/∏hooks == brute #SYT '+(v.formulaMatchesBrute?'✓':'✗')+' | '+v.example;};
+document.getElementById('hklspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cell=34,ox=W/2-LAM[0]*cell/2,oy=60;
+ for(var i=0;i<LAM.length;i++)for(var j=0;j<LAM[i];j++){var hl=hook(LAM,i,j);g.fillStyle='#39fc6b';g.globalAlpha=0.5+0.4*Math.sin(ang+i+j);g.fillRect(ox+j*cell,oy+i*cell,cell-3,cell-3);g.globalAlpha=1;g.fillStyle='#042';g.font='12px monospace';g.fillText(hl,ox+j*cell+11,oy+i*cell+21);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: one hook per cell — their product counts all tableaux',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the exponentially many tableaux, never enumerated',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Σ(f^λ)² = n! — hooks tie to the RSK bijection',10,H-9);}
+drawW3();drawW4();window.__hooklength=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MPC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The midpoint circle algorithm</b> draws a circle on a pixel grid using <b>only integer arithmetic</b> &mdash; no floating point, no trigonometry, no square roots &mdash; by tracking a decision variable that chooses, at each step, whether to move straight or diagonally inward, always picking the pixel nearest the true circle.<br><br>
+ It exploits the circle&rsquo;s <b>8-fold symmetry</b>: compute one 45&deg; octant and mirror it into all eight, plotting 8 pixels per step. It is the integer-only companion to Bresenham&rsquo;s line, and how every early display drew circles.<br><br>
+ <span class="lit">LIT</span> verified live: over radii 3&hellip;40, every plotted pixel lies within <b>0.5</b> of the true radius (measured max ~0.49), using integer arithmetic only (window.__midpointcircle). <span class="fig">FIG</span> no framing; exact integer geometry.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-blue-screen</i> &mdash; the pixels on the display, beside its sibling the Bresenham line. The midpoint circle is how the screen draws a ring. <b>AVAN (AI)</b> built the instrument: the integer decision variable, the 8-way symmetric plotting, the radial-deviation check.<br><br>Credit as content: developed alongside Bresenham&rsquo;s line work (Jack Bresenham; Michael Pitteway), 1960s&ndash;70s. The weave: David names the blue-screen; I walk one octant with an integer decision variable, mirror it eight ways, and confirm every pixel hugs the true circle within half a pixel.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The decision variable d: start at 1&minus;r, and at each step either move straight (x&minus;1... no, y+1) or step inward (y+1 and x&minus;1), whichever keeps the pixel nearest the circle &mdash; all in integers, no roots.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A circle drawn by the algorithm. One octant is walked and mirrored into eight; every pixel stays within half a pixel of the true radius, verified across many radii.</div>
+   <div class="btns" style="margin-top:10px"><button id="mpcr">radius: 10 ▶</button><button id="mpccheck">verify r=3..40 ▶</button></div>
+   <div class="cap" id="mpcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the single octant actually walked, before mirroring.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): you compute only <b>one eighth</b> of the circle and get the whole for free. The 8-fold symmetry means one octant&rsquo;s pixels, reflected across the axes and diagonals, reconstruct the entire ring &mdash; so the algorithm does <b>1/8</b> the work. The inverse of &lsquo;draw all 360&deg;&rsquo; is &lsquo;draw 45&deg; and mirror.&rsquo; And the decision variable carries the exact rounding error forward (just like Bresenham&rsquo;s line), so the pixels never drift from the true circle. <b>Magenta</b> is the 7 octants never computed &mdash; mirrored for free; <b>green</b> is the single octant actually walked. Symmetry is 8&times; less work; error-carrying keeps it exact &mdash; the same twin virtues as the Bresenham line.</div>
+   <div class="btns" style="margin-top:10px"><button id="mpcspin">pause spin</button></div></div></div></div>"""
+MPC_SCRIPT = """(function(){
+var ang=0,spin=true,R=10;
+function circle(r){var x=0,y=r,d=1-r,pts=[];function plot8(x,y){[[x,y],[y,x],[-x,y],[-y,x],[-x,-y],[-y,-x],[x,-y],[y,-x]].forEach(function(p){pts.push(p);});}plot8(x,y);while(x<y){x++;if(d<0){d+=2*x+1;}else{y--;d+=2*(x-y)+1;}plot8(x,y);}return pts;}
+function octant(r){var x=0,y=r,d=1-r,pts=[[x,y]];while(x<y){x++;if(d<0){d+=2*x+1;}else{y--;d+=2*(x-y)+1;}pts.push([x,y]);}return pts;}
+function verify(){var mx=0,ok=true;for(var r=3;r<=40;r++)circle(r).forEach(function(p){var dd=Math.abs(Math.hypot(p[0],p[1])-r);mx=Math.max(mx,dd);if(dd>0.5)ok=false;});return {withinHalfPixel:ok,maxDeviation:+mx.toFixed(4)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('decision d chooses: step out (y++) or step in (y++, x−−)',12,16);
+ var oct=octant(8),cell=14,ox=180,oy=30;for(var i=0;i<oct.length;i++){g.fillStyle='#5a90d0';g.fillRect(ox+oct[i][0]*cell,oy+oct[i][1]*cell,cell-2,cell-2);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('one octant (45°) — integers only, no √ or trig',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var pts=circle(R),cell=Math.min(12,260/(2*R+1)),cx=W/2,cy=150;
+ g.strokeStyle='rgba(90,144,208,0.3)';g.beginPath();g.arc(cx,cy,R*cell,0,7);g.stroke();
+ pts.forEach(function(p){g.fillStyle='#5a90d0';g.fillRect(cx+p[0]*cell-cell/2,cy+p[1]*cell-cell/2,cell-1,cell-1);});
+ var v=verify();g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('radius '+R+', '+pts.length+' pixels (8 per octant step)',12,H-30);
+ g.fillStyle=v.withinHalfPixel?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('every pixel within 0.5 of true radius (max '+v.maxDeviation+') '+(v.withinHalfPixel?'✓':'✗'),12,H-12);}
+document.getElementById('mpcr').onclick=function(){R=R>=16?4:R+2;this.textContent='radius: '+R+' ▶';drawW4();};
+document.getElementById('mpccheck').onclick=function(){var v=verify();document.getElementById('mpcread').textContent='r=3..40: every pixel within 0.5 of radius '+(v.withinHalfPixel?'✓':'✗')+' (max deviation '+v.maxDeviation+')';};
+document.getElementById('mpcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height,cx=W/2,cy=H*0.45,cell=9;g.clearRect(0,0,W,H);var oct=octant(14);
+ var syms=[[1,1],[1,1],[-1,1],[-1,1],[-1,-1],[-1,-1],[1,-1],[1,-1]];var swap=[false,true,false,true,false,true,false,true];
+ for(var s=0;s<8;s++){for(var i=0;i<oct.length;i++){var x=oct[i][0],y=oct[i][1];if(swap[s]){var t=x;x=y;y=t;}var px=cx+x*syms[s][0]*cell,py=cy+y*syms[s][1]*cell;g.fillStyle=s===0?'#39fc6b':'rgba(255,45,149,0.5)';g.fillRect(px,py,cell-2,cell-2);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the one octant walked (45°)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: 7 octants mirrored for free (8× less work)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('symmetry = 8× less work; error-carrying keeps it exact',10,H-9);}
+drawW3();drawW4();window.__midpointcircle=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DIR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Dirichlet convolution</b> combines two arithmetic functions (functions on the positive integers) into a new one: (f&lowast;g)(n) = &Sigma;<sub>d|n</sub> f(d)&middot;g(n/d), summed over the divisors d of n. Under this product the arithmetic functions form a <b>ring</b>, with identity &epsilon; (which is 1 at n=1 and 0 elsewhere).<br><br>
+ The magic relationships: the M&ouml;bius function &mu; is the <b>inverse</b> of the constant-1 function (&mu;&lowast;1 = &epsilon;), which <b>is</b> M&ouml;bius inversion; Euler&rsquo;s totient satisfies &phi;&lowast;1 = Id (&Sigma;<sub>d|n</sub> &phi;(d) = n); the divisor count &tau; = 1&lowast;1; the divisor sum &sigma; = 1&lowast;Id. Number theory&rsquo;s identities become algebra in this ring.<br><br>
+ <span class="lit">LIT</span> verified live: &mu;&lowast;1 = &epsilon;, &phi;&lowast;1 = Id, 1&lowast;1 = &tau;, and 1&lowast;Id = &sigma; hold for all n up to 100 (window.__dirichletconvolution). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-epoch</i> &mdash; summing a function over the divisors of a number, the arithmetic of ages and cycles. Dirichlet convolution is that summation made a ring product. <b>AVAN (AI)</b> built the instrument: the divisor-pair sum, the M&ouml;bius and totient functions, the four identity checks.<br><br>Credit as content: Peter Gustav Lejeune Dirichlet, whose convolution underlies Dirichlet series and analytic number theory. The weave: David names the epoch; I convolve arithmetic functions over divisors and confirm the classical identities &mdash; M&ouml;bius as the inverse of one, totient summing to the identity.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The convolution at n: pair each divisor d with its complement n/d, evaluate f(d)&middot;g(n/d), and sum. For n=12 the pairs are (1,12), (2,6), (3,4), (4,3), (6,2), (12,1).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick an identity and a value n. The instrument computes the convolution over the divisors of n and confirms it equals the expected function &mdash; &epsilon;, Id, &tau;, or &sigma;.</div>
+   <div class="btns" style="margin-top:10px"><button id="diride">identity: μ∗1=ε ▶</button><button id="dirn">n: 12 ▶</button><button id="dircheck">verify to 100 ▶</button></div>
+   <div class="cap" id="dirread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the convolution ring &mdash; arithmetic functions multiplied by divisor sums.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): every identity in this ring has a genuine <b>group inverse</b>. Because &mu;&lowast;1 = &epsilon;, the M&ouml;bius function literally <b>undoes</b> summation-over-divisors: if g(n) = &Sigma;<sub>d|n</sub> f(d), then f(n) = &Sigma;<sub>d|n</sub> &mu;(d)&middot;g(n/d). The inverse of &lsquo;sum a function over divisors&rsquo; is &lsquo;convolve with M&ouml;bius.&rsquo; M&ouml;bius inversion is not a trick &mdash; it is the <b>group inverse</b> of the constant-1 function under Dirichlet convolution. <b>Magenta</b> is the summation 1&lowast;f; <b>green</b> is its exact undo &mu;&lowast;(1&lowast;f) = f. Number theory&rsquo;s inclusion&ndash;exclusion is a ring inverse &mdash; the same &mu; that signs the M&ouml;bius sphere.</div>
+   <div class="btns" style="margin-top:10px"><button id="dirspin">pause spin</button></div></div></div></div>"""
+DIR_SCRIPT = """(function(){
+var ang=0,spin=true,IDX=0,Nn=12;
+var IDS=[['μ∗1=ε','mu','one','eps'],['φ∗1=Id','phi','one','id'],['1∗1=τ','one','one','tau'],['1∗Id=σ','one','id','sigma']];
+function divisors(n){var d=[];for(var i=1;i<=n;i++)if(n%i===0)d.push(i);return d;}
+function mobius(n){if(n===1)return 1;var cnt=0,m=n;for(var p=2;p*p<=m;p++){if(m%p===0){m/=p;if(m%p===0)return 0;cnt++;}}if(m>1)cnt++;return cnt%2===0?1:-1;}
+function phi(n){var r=n,m=n;for(var p=2;p*p<=m;p++){if(m%p===0){while(m%p===0)m/=p;r-=r/p;}}if(m>1)r-=r/m;return r;}
+var F={mu:mobius,phi:phi,one:function(){return 1;},id:function(n){return n;}};
+var EXP={eps:function(n){return n===1?1:0;},id:function(n){return n;},tau:function(n){return divisors(n).length;},sigma:function(n){return divisors(n).reduce(function(a,b){return a+b;},0);}};
+function conv(f,g,n){var s=0;divisors(n).forEach(function(d){s+=f(d)*g(n/d);});return s;}
+function verify(){var res={};IDS.forEach(function(id){var ok=true;for(var n=1;n<=100;n++)if(conv(F[id[1]],F[id[2]],n)!==EXP[id[3]](n))ok=false;res[id[3]]=ok;});return {muEps:res.eps,phiId:res.id,oneTau:res.tau,oneSigma:res.sigma};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('(f∗g)(12) = Σ over divisor-pairs (d, 12/d):',12,16);
+ var divs=divisors(12);for(var i=0;i<divs.length;i++){var d=divs[i];g.fillStyle='#b078a0';g.fillRect(20+i*80,44,72,26);g.fillStyle='#fff';g.font='11px monospace';g.fillText('('+d+', '+(12/d)+')',26+i*80,61);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('each pair d·(n/d) = 12 — sum f(d)·g(n/d) over them',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var id=IDS[IDX],val=conv(F[id[1]],F[id[2]],Nn),exp=EXP[id[3]](Nn);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('identity: '+id[0],12,26);
+ g.fillStyle='#b078a0';g.font='11px monospace';g.fillText('divisors of '+Nn+': '+divisors(Nn).join(', '),12,54);
+ var terms=divisors(Nn).map(function(d){return F[id[1]](d)+'·'+F[id[2]](Nn/d);});
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('= '+terms.join(' + ')+' = '+val,12,80);
+ g.fillStyle='#c8a050';g.font='12px monospace';g.fillText('expected '+id[3]+'('+Nn+') = '+exp,12,112);
+ g.fillStyle=val===exp?'#39fc6b':'#ff5a5a';g.font='13px monospace';g.fillText(val===exp?'✓ convolution matches':'✗',12,140);}
+document.getElementById('diride').onclick=function(){IDX=(IDX+1)%4;this.textContent='identity: '+IDS[IDX][0]+' ▶';drawW4();};
+document.getElementById('dirn').onclick=function(){var ns=[6,12,24,30,36,60];Nn=ns[(ns.indexOf(Nn)+1)%ns.length];this.textContent='n: '+Nn+' ▶';drawW3();drawW4();};
+document.getElementById('dircheck').onclick=function(){var v=verify();document.getElementById('dirread').textContent='n≤100: μ∗1=ε '+(v.muEps?'✓':'✗')+', φ∗1=Id '+(v.phiId?'✓':'✗')+', 1∗1=τ '+(v.oneTau?'✓':'✗')+', 1∗Id=σ '+(v.oneSigma?'✓':'✗');};
+document.getElementById('dirspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.fillStyle='#b078a0';g.font='12px monospace';g.fillText('f  →  1∗f (sum over divisors)  →  μ∗(1∗f) = f',20,60);
+ for(var n=1;n<=12;n++){var f=phi(n),g1=conv(phi,F.one,n),back=conv(F.mu,function(m){return conv(phi,F.one,m);},n);var y=90+n*20;g.fillStyle='#ff2d95';g.fillRect(30,y,g1*1.5,12);g.fillStyle='#39fc6b';g.fillRect(230,y,back*3,12);g.fillStyle='#8ad';g.font='9px monospace';g.fillText(n,15,y+10);}
+ g.fillStyle='#ff2d95';g.font='11px monospace';g.fillText('magenta: 1∗φ (summed over divisors)',10,H-40);
+ g.fillStyle='#39fc6b';g.fillText('green: μ∗(1∗φ) = φ recovered (Möbius inversion)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Möbius inversion = the group inverse of 1 in the ring',10,H-9);}
+drawW3();drawW4();window.__dirichletconvolution=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-sprague-grundy","title":"THE SPRAGUE-GRUNDY","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#c05868","icon":"sprague-grundy",
+  "kicker":"every impartial game is secretly a Nim heap",
+  "blurb":"the Sprague-Grundy theorem in the 5-window house format — every impartial game position equals a single Nim heap, its Grundy number (nimber), computed as the mex (minimum excludant) of the successors' Grundy numbers. A position is losing for the mover iff Grundy=0, and the Grundy of a sum of games is the XOR of the parts. Verified live: a subtraction game's Grundy values equal n mod 4, and a Nim position is losing iff the XOR of heap sizes is 0 (matching brute minimax over 300 positions). See mex in 1D, Nim XOR win/loss in 2D, and the composition-becomes-XOR inverse in 3D.",
+  "lit":"Genuine Sprague-Grundy theorem (Sprague 1935; Grundy 1939). Verified live: the mex-based Grundy recurrence gives n mod 4 for the {1,2,3} subtraction game, and for Nim the XOR of heap sizes equals 0 exactly when the position is losing under a brute-force memoized minimax, across 300 random positions (window.__spraguegrundy.subtractionGrundy && .nimXorMatchesBrute).",
+  "fig":"No framing: the mex, the Grundy recurrence, the XOR game-sum, and the brute-minimax cross-check run in-browser and agree exactly. The AVAN inverse is honest — a sum of games reduces to the XOR of their nimbers rather than the exponential product of move-trees, so game addition equals nimber addition (XOR); magenta is the product game-tree, green the XOR. Ties to the-carryless-field nimbers and the-nim.",
+  "body":SPG_BODY,"script":SPG_SCRIPT},
+ {"slug":"the-game-of-life","title":"THE GAME OF LIFE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#58c080","icon":"game-of-life",
+  "kicker":"two rules, a glider crawling (1,1) every 4 generations",
+  "blurb":"Conway's Game of Life in the 5-window house format — a grid cellular automaton with two rules (B3/S23): a dead cell is born with exactly 3 live neighbours, a live cell survives with 2 or 3. From these emerge the blinker (period 2), the block (still), and the glider that crawls diagonally, returning to its shape shifted by (1,1) every 4 generations. Life is Turing-complete. Verified live: blinker period 2, block stationary, glider translates (1,1) per 4 gens under B3/S23. See the rule in 1D, the glider stepping in 2D, and the undecidable-future inverse in 3D.",
+  "lit":"Genuine Conway's Game of Life (Conway 1970). Verified live: the B3/S23 step yields a blinker of period 2 (not period 1), a stationary block, and a glider that reproduces its shape translated by exactly (1,1) after 4 generations (window.__gameoflife.blinkerPeriod2 && .blockStill && .gliderTranslates).",
+  "fig":"No framing: the two-rule step and the pattern checks run in-browser and are exact. The AVAN inverse is honest and is a real theorem — Life is Turing-complete, so predicting its far future (e.g. whether a pattern ever dies) is undecidable in general, with no closed form for generation N; magenta is that undecidable fate, green the local step. Ties to the busy-beaver undecidability.",
+  "body":LIF_BODY,"script":LIF_SCRIPT},
+ {"slug":"the-hook-length","title":"THE HOOK LENGTH","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#c8a050","icon":"hook-length",
+  "kicker":"count Young tableaux as n! over a product of hooks",
+  "blurb":"the hook length formula in the 5-window house format — the number of standard Young tableaux of a shape (fillings of a Young diagram with 1..n increasing along rows and down columns) equals n! divided by the product of hook lengths, where a cell's hook is 1 + its arm (cells right) + its leg (cells below). A global count of intricate fillings collapses to one product; these counts are the dimensions of the symmetric group's irreducible representations. Verified live: n!/prod(hooks) equals a brute count of standard Young tableaux for every partition of n=1..7. See a cell's hook in 1D, a diagram's hooks + count in 2D, and the global-count-from-local-geometry inverse in 3D.",
+  "lit":"Genuine hook length formula (Frame, Robinson & Thrall 1954). Verified live: n! / (product of hook lengths) equals a brute-force count of standard Young tableaux for every partition of n=1..7 (window.__hooklength.formulaMatchesBrute); shape [3,2] gives 5 tableaux.",
+  "fig":"No framing: the hook computation, the factorial-over-product formula, and the brute standard-tableau count run in-browser and agree exactly. The AVAN inverse is honest — a global count of tableaux becomes a product of one local hook per cell, and these counts f^lambda satisfy sum(f^lambda)^2 = n! (the RSK identity); magenta is the un-enumerated tableaux, green the hooks. Ties to the-rsk.",
+  "body":HKL_BODY,"script":HKL_SCRIPT},
+ {"slug":"the-midpoint-circle","title":"THE MIDPOINT CIRCLE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#5a90d0","icon":"midpoint-circle",
+  "kicker":"draw a circle with integers and 8-fold symmetry",
+  "blurb":"the midpoint circle algorithm in the 5-window house format — draw a circle on a pixel grid with only integer arithmetic (no float, trig, or sqrt) via a decision variable that picks the pixel nearest the true circle, exploiting 8-fold symmetry to plot 8 pixels per octant step. It is the integer companion to the Bresenham line. Verified live: over radii 3..40, every plotted pixel is within 0.5 of the true radius (measured max ~0.49), integer-only. See the decision variable in 1D, a drawn circle in 2D, and the octant-mirrored-8-ways inverse in 3D.",
+  "lit":"Genuine midpoint/Bresenham circle algorithm (Bresenham, Pitteway, 1960s-70s). Verified live: the integer decision-variable circle (d=1-r, stepping x++/y-- with integer updates) plots 8-way symmetric pixels each within a radial distance of 0.5 of the true radius across r=3..40 (measured max ~0.4894), using integer arithmetic only (window.__midpointcircle.withinHalfPixel).",
+  "fig":"No framing: the integer decision variable, the 8-way plotting, and the radial-deviation check run in-browser and are exact. The AVAN inverse is honest — only one octant is walked and reflected into eight (1/8 the work), and the decision variable carries the rounding error forward so pixels never drift; magenta is the 7 free-mirrored octants, green the one walked. Ties to the-bresenham.",
+  "body":MPC_BODY,"script":MPC_SCRIPT},
+ {"slug":"the-dirichlet-convolution","title":"THE DIRICHLET CONVOLUTION","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#b078a0","icon":"dirichlet-convolution",
+  "kicker":"arithmetic functions form a ring — Mobius is the inverse of 1",
+  "blurb":"the Dirichlet convolution in the 5-window house format — combine arithmetic functions by (f*g)(n) = sum over divisors d of n of f(d)g(n/d), making them a ring with identity epsilon (1 at n=1). The Mobius function is the inverse of the constant-1 (mu*1=epsilon), which is Mobius inversion; Euler's totient gives phi*1=Id; divisor count tau=1*1; divisor sum sigma=1*Id. Number theory's identities become algebra. Verified live: mu*1=epsilon, phi*1=Id, 1*1=tau, 1*Id=sigma for all n<=100. See divisor pairs in 1D, the four identities in 2D, and the Mobius-inversion-is-a-group-inverse inverse in 3D.",
+  "lit":"Genuine Dirichlet convolution (Dirichlet). Verified live: convolving over divisors, mu*1 equals epsilon, phi*1 equals the identity function, 1*1 equals the divisor count tau, and 1*Id equals the divisor sum sigma, for all n from 1 to 100 (window.__dirichletconvolution: muEps, phiId, oneTau, oneSigma).",
+  "fig":"No framing: the divisor-pair sum, the Mobius and totient functions, and the four identity checks run in-browser and are exact. The AVAN inverse is honest — because mu*1=epsilon, the Mobius function is the exact ring inverse of the constant-1 under Dirichlet convolution, so Mobius inversion (f(n)=sum mu(d)g(n/d) when g=sum f over divisors) is a genuine group inverse; magenta is the summation, green the Mobius undo. Ties to the-mobius.",
+  "body":DIR_BODY,"script":DIR_SCRIPT},
  {"slug":"the-lucas-theorem","title":"THE LUCAS THEOREM","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#b08850","icon":"lucas-theorem",
   "kicker":"a giant binomial mod p from base-p digits alone",
