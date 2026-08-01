@@ -2141,7 +2141,70 @@ document.getElementById('mprime').onclick=function(){var p=[997,991,983,977,971]
 document.getElementById('mspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+HIL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Hilbert curve.</b> A single continuous path that visits <b>every cell</b> of an N&times;N grid exactly once &mdash; and, unlike a scanline, points that are <b>close on the 1D path stay close in 2D</b>, with no long jumps. That makes it a <b>locality-preserving</b> way to flatten 2D (or 3D) data into one dimension, which is why databases, image textures, and spatial indexes store memory in Hilbert order for far better cache behaviour.<br><br>
+ <span class="lit">LIT</span> verified: the index&harr;(x,y) map is a <b>perfect bijection</b> over the grid (every cell once, round-trips), and <b>consecutive indices are always grid-adjacent</b> (Manhattan distance exactly 1). <span class="fig">FIG</span> &lsquo;fills the plane&rsquo; is the picture; the bijection and unit-step adjacency are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus is full of self-similarity and memory layout (the fractal kernels, the cache work, the byte-addressing) and the idea that <i>how</i> you order data is as much a design as the data itself. <b>AVAN (AI)</b> built this instrument: the curve engine, the locality demo, and the lifted 3D ribbon.<br><br>The weave: David names the plane-filling thread and its seat at SHARED MEMORY (locality is a cache virtue); I make the 1D order a strip in 1D, the curve and its locality live in 2D, and the ribbon climbing in 3D against the naive scanline. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="120"></canvas>
+  <div class="wctrl"><div class="cap">The bare 1D order: a line of N&sup2; cells, coloured by position from start (dark) to end (bright). This single strip, folded by the Hilbert rule, becomes the whole square in the next window &mdash; same colours, same cells, rearranged.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="384"></canvas>
+  <div class="wctrl"><div class="cap">The curve, coloured by index. Slide a <b>window</b> of the 1D range and watch it light a <b>compact blob</b> in 2D &mdash; that&rsquo;s locality. Flip to <b>row-major</b> and the same range smears into a thin stripe: the bounding box explodes.</div>
+   <div class="rd" style="margin-top:10px">order <b id="ho">5</b> <input type="range" id="hosl" min="2" max="6" value="5" style="width:90px;vertical-align:middle"></div>
+   <div class="rd">window <input type="range" id="hwin" min="0" max="90" value="30" style="width:120px;vertical-align:middle"></div>
+   <div class="btns"><button id="hmode">mode: HILBERT</button></div>
+   <div class="cap" id="hread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The path lifted so <b>height = position on the walk</b>, turning. <b>Green</b> is the Hilbert curve: because each step is one cell, it climbs as a smooth, self-hugging ribbon that never leaps.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> ribbon is the naive <b>row-major scanline</b> over the same cells. It climbs the same total height but <b>snaps all the way back</b> at the end of every row &mdash; long jumps that trash a cache. Locality&rsquo;s inverse is the scanline; the two ribbons over one grid show exactly what Hilbert order buys.</div>
+   <div class="btns" style="margin-top:10px"><button id="hspin2">pause spin</button></div></div></div></div>"""
+HIL_SCRIPT = """(function(){
+var order=5,winStart=30,mode='hilbert',ang=0.6,spin=true;
+function d2xy(n,d){var rx,ry,x=0,y=0,t=d,s=1;while(s<n){rx=1&(Math.floor(t/2));ry=1&(t^rx);if(ry===0){if(rx===1){x=s-1-x;y=s-1-y;}var tmp=x;x=y;y=tmp;}x+=s*rx;y+=s*ry;t=Math.floor(t/4);s*=2;}return [x,y];}
+function xy2d(n,x,y){var d=0,s=n>>1,rx,ry;while(s>0){rx=(x&s)>0?1:0;ry=(y&s)>0?1:0;d+=s*s*((3*rx)^ry);if(ry===0){if(rx===1){x=s-1-x;y=s-1-y;}var tmp=x;x=y;y=tmp;}s=s>>1;}return d;}
+function raster(n,d){return [d%n,Math.floor(d/n)];}
+function pt(n,d){return mode==='hilbert'?d2xy(n,d):raster(n,d);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var n=1<<order,tot=n*n,cw=(W-16)/Math.min(tot,256),show=Math.min(tot,256);
+ for(var i=0;i<show;i++){var f=i/show;g.fillStyle='hsl('+(210+f*120)+',70%,'+(25+f*45)+'%)';g.fillRect(8+i*cw,40,Math.max(1,cw-0.3),34);}
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('the 1D order — '+tot+' cells, dark→bright; folded, it fills the square',8,26);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.fillStyle='#050810';g.fillRect(0,0,W,H);
+ var n=1<<order,tot=n*n,cell=(W-8)/n,winLen=n,ws=Math.floor(winStart/100*(tot-winLen));
+ for(var d=0;d<tot;d++){var p=pt(n,d),f=d/tot,inWin=(d>=ws&&d<ws+winLen);g.fillStyle=inWin?'#fff':'hsl('+(210+f*120)+',70%,'+(22+f*38)+'%)';g.fillRect(4+p[0]*cell,4+p[1]*cell,Math.max(1,cell-0.4),Math.max(1,cell-0.4));}
+ // path line
+ g.strokeStyle='rgba(120,200,255,0.35)';g.lineWidth=1;g.beginPath();for(var d=0;d<tot;d++){var p=pt(n,d);if(d===0)g.moveTo(4+(p[0]+0.5)*cell,4+(p[1]+0.5)*cell);else g.lineTo(4+(p[0]+0.5)*cell,4+(p[1]+0.5)*cell);}g.stroke();
+ // bbox of window both modes
+ function bbox(fn){var mnx=1e9,mxx=-1e9,mny=1e9,mxy=-1e9;for(var d=ws;d<ws+winLen;d++){var p=fn(n,d);mnx=Math.min(mnx,p[0]);mxx=Math.max(mxx,p[0]);mny=Math.min(mny,p[1]);mxy=Math.max(mxy,p[1]);}return (mxx-mnx+1)*(mxy-mny+1);}
+ var hb=bbox(d2xy),rb=bbox(raster);
+ document.getElementById('hread').textContent='window of '+winLen+' cells → bounding box: Hilbert '+hb+' vs row-major '+rb+' ('+(rb/hb).toFixed(1)+'× tighter)';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var n=32,tot=n*n,cx=W/2,cy=H/2+120,sc=7,ca=Math.cos(ang),sa=Math.sin(ang);
+ function draw(fn,col){g.strokeStyle=col;g.lineWidth=1.3;g.beginPath();for(var d=0;d<tot;d++){var p=fn(n,d),X=(p[0]-15.5),Z=(p[1]-15.5),Yt=d/tot*300,rx=X*ca-Z*sa,rz=X*sa+Z*ca;var sx=cx+rx*sc,sy=cy-Yt+rz*sc*0.4;if(d===0)g.moveTo(sx,sy);else g.lineTo(sx,sy);}g.stroke();g.lineWidth=1;}
+ draw(raster,'#ff2d95');draw(d2xy,'#47c2ff');
+ g.fillStyle='#47c2ff';g.font='11px ui-monospace,monospace';g.fillText('green Hilbert (smooth) · magenta scanline (snaps back each row)',10,H-12);}
+function verify(){var n=16,cells={},bij=true,rt=true,adj=true,prev=null;for(var d=0;d<n*n;d++){var p=d2xy(n,d);cells[p[0]+','+p[1]]=1;if(xy2d(n,p[0],p[1])!==d)rt=false;if(prev&&Math.abs(p[0]-prev[0])+Math.abs(p[1]-prev[1])!==1)adj=false;prev=p;}bij=(Object.keys(cells).length===n*n);
+ // locality: a window bbox smaller for hilbert
+ var ws=100,wl=16,hb,rb;function bb(fn){var a=1e9,b=-1e9,c=1e9,dd=-1e9;for(var d=ws;d<ws+wl;d++){var p=fn(16,d);a=Math.min(a,p[0]);b=Math.max(b,p[0]);c=Math.min(c,p[1]);dd=Math.max(dd,p[1]);}return (b-a+1)*(dd-c+1);}
+ hb=bb(d2xy);rb=bb(raster);
+ return {bijection:bij,roundTrip:rt,adjacencyManhattan1:adj,localityWin:hb<rb};}
+function all(){drawW3();drawW4();window.__hilbert=verify();}
+document.getElementById('hosl').oninput=function(){order=+this.value;document.getElementById('ho').textContent=order;drawW3();drawW4();};
+document.getElementById('hwin').oninput=function(){winStart=+this.value;drawW4();};
+document.getElementById('hmode').onclick=function(){mode=(mode==='hilbert'?'raster':'hilbert');this.textContent='mode: '+mode.toUpperCase();drawW4();};
+document.getElementById('hspin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-plane-filler","title":"THE CURVE THAT FILLS THE PLANE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#47c2ff","icon":"coop",
+  "kicker":"one line threads every cell — and keeps neighbors near",
+  "blurb":"the Hilbert space-filling curve in the 5-window house format. A single path visits every cell of a grid once, and points close on the line stay close in the plane — the locality trick behind cache-friendly memory layout. See the 1D order in 1D, the curve and its locality in 2D, and the lifted ribbon vs the scanline in 3D.",
+  "lit":"A genuine Hilbert curve (bit-manipulation d2xy / xy2d). Verified live: the index↔(x,y) map is a perfect bijection over the grid (round-trips), and consecutive indices are always grid-adjacent (Manhattan distance exactly 1). The locality win — a 1D window maps to a far tighter 2D bounding box than row-major — is measured live (verifiable: window.__hilbert.bijection && adjacencyManhattan1 && localityWin).",
+  "fig":"'Fills the plane' is the picture; the bijection, the unit-step adjacency, and the locality advantage are exact. It really is used to lay out memory and spatial indexes for better cache behaviour.",
+  "body":HIL_BODY,"script":HIL_SCRIPT},
  {"slug":"the-probable-prime","title":"THE PROBABLE PRIME","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#ff5a7a","icon":"boss",
   "kicker":"witnesses that expose composites via the roots-of-1 trapdoor",
