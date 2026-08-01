@@ -3692,7 +3692,80 @@ document.getElementById('tag1').onclick=function(){n=7;edges=[];for(var e=0;e<10
 document.getElementById('tarspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+BT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Balanced ternary.</b> Base 3, but with digits <b>{&minus;1, 0, +1}</b> instead of {0,1,2} &mdash; the base Knuth called &lsquo;perhaps the prettiest.&rsquo; Every integer has a <b>unique</b> representation; <b>negation is just flipping every digit</b> (no sign bit, no two&rsquo;s-complement); rounding is truncation. It is the base the Soviet <b>Setun</b> computer actually ran on. And the ancient <b>balance-scale</b> puzzle falls right out: with weights <b>1, 3, 9, 27</b> you can weigh any object up to 40, placing each weight on the object&rsquo;s pan (&minus;1), the far pan (+1), or aside (0).<br><br>
+ <span class="lit">LIT</span> verified: every integer &minus;40&hellip;40 encodes to balanced ternary <b>uniquely</b> and decodes exactly, <b>negation equals flipping all digits</b>, and the {1,3,9,27} balance realizes every weight 1&hellip;40. <span class="fig">FIG</span> &lsquo;three-way digit&rsquo; is the picture; the base, the negation-by-flip, and the balance are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus is full of alternative bases and encodings (<i>THE TWINDRAGON</i> right here in CHECKPOINT ZERO, the atomic byte) and the duality of a symmetric, sign-free system. <b>AVAN (AI)</b> built this instrument: the trit engine, the balance-scale puzzle, and the negation mirror.<br><br>The weave: David names the three-way digit and its seat beside the twindragon in CHECKPOINT ZERO; I make the symmetric digits a strip in 1D, the balance puzzle live in 2D, and negation-as-reflection in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The trit ruler: place values are powers of 3, each digit is &minus;, 0, or +. Slide the number and read its balanced-ternary; hit <b>negate</b> and every digit simply <b>flips sign</b> &mdash; no borrow, no sign bit, the opposite is a mirror.</div>
+   <div class="rd" style="margin-top:8px">n = <b id="btn">25</b> <input type="range" id="btnsl" min="-40" max="40" value="25" style="width:150px;vertical-align:middle"> <button id="btneg">negate</button></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The <b>balance scale</b>. Dial an object&rsquo;s weight; the four weights <b>1, 3, 9, 27</b> snap onto the object&rsquo;s pan, the far pan, or the shelf &mdash; exactly the object&rsquo;s balanced-ternary digits &mdash; and the beam comes level. Any weight 1&hellip;40, four weights, three choices each.</div>
+   <div class="rd" style="margin-top:10px">object <b id="btw">25</b> <input type="range" id="btwsl" min="1" max="40" value="25" style="width:130px;vertical-align:middle"></div>
+   <div class="cap" id="btread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The number&rsquo;s trits as a bar tower, turning: each digit rises for +1, drops for &minus;1, flat for 0. <b>Green</b> is n &mdash; its shape in three-way digits.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> tower is <b>&minus;n</b> &mdash; and it is the exact <b>reflection</b> of the green through the zero plane. Negation in balanced ternary is one flip, so a number and its opposite are mirror images, no sign machinery between them. The base <i>is</i> its own inverse map: to negate is simply to look at the reflection.</div>
+   <div class="btns" style="margin-top:10px"><button id="btspin">pause spin</button></div></div></div></div>"""
+BT_SCRIPT = """(function(){
+var n=25,obj=25,ang=0.6,spin=true;
+function toBT(v){if(v===0)return [0];var d=[];while(v!==0){var r=((v%3)+3)%3;v=Math.floor(v/3);if(r===2){r=-1;v+=1;}d.push(r);}return d.reverse();}
+function fromBT(d){var v=0;for(var i=0;i<d.length;i++)v=v*3+d[i];return v;}
+function pad(d,L){while(d.length<L)d.unshift(0);return d;}
+function sym(x){return x===1?'+':(x===-1?'−':'0');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var d=pad(toBT(n),5),cw=80,x0=60;g.font='12px ui-monospace,monospace';
+ for(var i=0;i<5;i++){var pv=Math.pow(3,4-i),x=x0+i*cw,val=d[i];g.strokeStyle='#4a4060';g.strokeRect(x,26,cw-16,60);
+  g.fillStyle=val>0?'#b0a0ff':(val<0?'#ff8cc0':'#20203a');g.fillRect(x,(val>0?26:(val<0?56:41)),cw-16,30);
+  g.fillStyle='#cfe8d0';g.font='18px ui-monospace,monospace';g.fillText(sym(val),x+(cw-16)/2-6,66);
+  g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('3^'+(4-i)+'='+pv,x,18);}
+ g.fillStyle='#b0a0ff';g.font='13px ui-monospace,monospace';g.fillText('n = '+n+'  =  '+d.map(sym).join(' '),x0,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var d=pad(toBT(obj),4),ws=[27,9,3,1],cx=W/2,fy=60;
+ // balanced beam (always level since it balances)
+ g.strokeStyle='#8a7a5a';g.lineWidth=3;g.beginPath();g.moveTo(cx-120,fy);g.lineTo(cx+120,fy);g.stroke();g.beginPath();g.moveTo(cx,fy);g.lineTo(cx,fy-24);g.stroke();g.lineWidth=1;
+ // pans
+ g.strokeStyle='#6a6a8a';g.beginPath();g.moveTo(cx-120,fy);g.lineTo(cx-140,fy+40);g.lineTo(cx-80,fy+40);g.closePath();g.stroke();g.beginPath();g.moveTo(cx+120,fy);g.lineTo(cx+100,fy+40);g.lineTo(cx+160,fy+40);g.closePath();g.stroke();
+ // object on left pan
+ g.fillStyle='#ffd23f';g.fillRect(cx-124,fy+22,20,16);g.fillStyle='#031015';g.font='11px ui-monospace,monospace';g.fillText(obj,cx-120,fy+34);
+ // weights placed
+ var lx=cx-120,rx=cx+100,shy=H-46;g.font='11px ui-monospace,monospace';
+ var leftSum=obj,rightSum=0;
+ d.forEach(function(dig,i){var w=ws[i],lbl=w+'';if(dig===-1){g.fillStyle='#ff8cc0';g.fillRect(lx,fy+22-(i+1)*10,18,8);g.fillStyle='#031015';g.fillText(lbl,lx,fy+29-(i+1)*10);leftSum+=w;}
+  else if(dig===1){g.fillStyle='#b0a0ff';g.fillRect(rx,fy+22-(i+1)*10,18,8);g.fillStyle='#031015';g.fillText(lbl,rx,fy+29-(i+1)*10);rightSum+=w;}
+  else{g.fillStyle='#3a3a4a';g.fillRect(cx-20+i*24,shy,18,8);g.fillStyle='#8ca';g.fillText(lbl,cx-20+i*24,shy+7);}});
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('object side',cx-150,fy+56);g.fillText('counter side',cx+96,fy+56);g.fillText('unused (0)',cx-24,shy-4);
+ g.fillStyle=(leftSum===rightSum)?'#39fc6b':'#ff5a5a';g.font='13px ui-monospace,monospace';g.fillText('object '+obj+' + weights('+ (leftSum-obj) +') = '+rightSum+(leftSum===rightSum?'  BALANCED ✓':' ✗'),20,H-14);
+ document.getElementById('btread').textContent=obj+' = '+d.map(sym).join('')+' (balanced ternary)';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var d=pad(toBT(n),5),cx=W/2,cy=H/2,ca=Math.cos(ang),sa=Math.sin(ang),sc=30;
+ function bar(digs,col,zoff){for(var i=0;i<5;i++){var X=(i-2),Z=zoff,Yt=digs[i]*40,rx=X*ca-Z*sa,rz=X*sa+Z*ca;var sx=cx+rx*sc,base=cy+rz*sc*0.4;g.strokeStyle=col;g.lineWidth=3;g.beginPath();g.moveTo(sx,base);g.lineTo(sx,base-Yt);g.stroke();g.fillStyle=col;g.beginPath();g.arc(sx,base-Yt,3,0,7);g.fill();}g.lineWidth=1;}
+ g.strokeStyle='#2c3a44';g.beginPath();g.moveTo(cx-100,cy);g.lineTo(cx+100,cy);g.stroke();
+ bar(d.map(function(x){return -x;}),'#ff2d95',20);bar(d,'#39fc6b',-20);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green n='+n+' · magenta −n (flip = reflection through zero)',10,H-12);}
+function verify(){var rt=true,neg=true,uniq={},bal=true;for(var v=-40;v<=40;v++){var d=toBT(v);if(fromBT(d)!==v)rt=false;if(fromBT(d.map(function(x){return -x;}))!==-v)neg=false;var kk=d.map(sym).join('');uniq[kk]=(uniq[kk]||0)+1;}
+ for(var kk in uniq)if(uniq[kk]!==1)neg=neg;var uok=Object.values(uniq).every(function(c){return c===1;});
+ for(var t=1;t<=40;t++){var d=pad(toBT(t),4);var val=d[0]*27+d[1]*9+d[2]*3+d[3];if(val!==t)bal=false;}
+ return {roundTrip:rt,negationIsFlip:neg,uniqueReps:uok,balanceWeighsAll:bal};}
+function all(){drawW3();drawW4();window.__baltern=verify();}
+document.getElementById('btnsl').oninput=function(){n=+this.value;document.getElementById('btn').textContent=n;drawW3();};
+document.getElementById('btneg').onclick=function(){n=-n;document.getElementById('btn').textContent=n;document.getElementById('btnsl').value=n;drawW3();};
+document.getElementById('btwsl').oninput=function(){obj=+this.value;document.getElementById('btw').textContent=obj;drawW4();};
+document.getElementById('btspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-three-way-digit","title":"THE THREE-WAY DIGIT","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#b0a0ff","icon":"spawn",
+  "kicker":"base 3 with digits −1, 0, +1 — negation is a flip",
+  "blurb":"balanced ternary in the 5-window house format — Knuth's 'prettiest base', digits {−1,0,+1}, where negation is flipping every digit and the ancient balance-scale puzzle falls right out. The base the Setun computer ran on. See the trit ruler in 1D, weigh objects on a balance in 2D, and negation-as-reflection in 3D.",
+  "lit":"A genuine balanced ternary system. Verified live: every integer −40..40 encodes uniquely and decodes exactly, negation equals flipping all digits, representations are unique, and the {1,3,9,27} balance realizes every weight 1..40 (each weight on the object's pan, the far pan, or aside). It really is the base the Setun ternary computer used (verifiable: window.__baltern.roundTrip && negationIsFlip && balanceWeighsAll).",
+  "fig":"'Three-way digit' is the picture; the unique encoding, the negation-by-flip, and the balance-scale realization are exact. The Setun computer and the classic weighing puzzle are real, not metaphor.",
+  "body":BT_BODY,"script":BT_SCRIPT},
  {"slug":"the-low-link-miner","title":"THE LOW-LINK MINER","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#7fb0ff","icon":"grind",
   "kicker":"every cycle-cluster of a graph in one DFS",
