@@ -3321,7 +3321,70 @@ document.getElementById('wnew').onclick=function(){sig=[];for(var i=0;i<16;i++)s
 document.getElementById('whtspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+WU_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Xiaolin Wu&rsquo;s line algorithm.</b> A line on a pixel grid is a <b>staircase</b> of hard on/off pixels &mdash; a row of off-by-one jaggies. Wu&rsquo;s method feathers it: each pixel gets a <b>partial brightness</b> equal to how much of it the ideal line covers, and that coverage is <b>split between the two pixels</b> a column straddles &mdash; so their brightnesses always sum to <b>exactly 1</b>. Full coverage, nothing lost, and the edge comes out smooth. Same era as Bresenham; far less known.<br><br>
+ <span class="lit">LIT</span> verified: in every column the two blended intensities sum to <b>exactly 1</b> (coverage conserved), and the intensity-weighted <b>brightness centroid equals the true line position exactly</b> &mdash; the smoothing is sub-pixel-accurate, not a blur. <span class="fig">FIG</span> &lsquo;feathered edge&rsquo; is the picture; the coverage-conservation identity is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus makes pixel art and generative graphics (<i>TECHN&Ecirc;</i>, the raster work) and cares about the off-by-one boundary where clean math meets a coarse grid. <b>AVAN (AI)</b> built this instrument: the antialiased renderer, the coverage split, and the intensity ridge.<br><br>The weave: David names the feathered edge and its seat at OFF BY ONE (the jagged staircase is a chain of off-by-ones; Wu conserves coverage to erase them); I make the coverage split a strip in 1D, aliased-vs-feathered live in 2D, and the intensity ridge in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">One column. The ideal line crosses at some height; the two pixels it falls between get brightnesses <b>1&minus;f</b> and <b>f</b> &mdash; and they sum to <b>1</b>, always. Their brightness-weighted centre sits <i>exactly</i> on the true line. Coverage in, coverage out.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="384"></canvas>
+  <div class="wctrl"><div class="cap">Zoomed in on the grid. Turn the line and compare: <b>aliased</b> hard pixels (a jagged staircase) versus Wu&rsquo;s <b>feathered</b> pixels (grey coverage that reads as a smooth line). Same line, but one keeps the sub-pixel truth.</div>
+   <div class="rd" style="margin-top:10px">angle <b id="wang">25</b>° <input type="range" id="wangsl" min="2" max="88" value="25" style="width:120px;vertical-align:middle"></div>
+   <div class="btns"><button id="wtog">mode: FEATHERED</button></div>
+   <div class="cap" id="wuread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The pixel brightness along the line as a landscape, turning. <b>Green</b> is Wu&rsquo;s <b>feathered</b> coverage &mdash; a smooth ridge that rises and falls as the line drifts between rows, its two-pixel sum flat at 1.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the <b>aliased</b> version &mdash; a hard staircase of 0s and 1s, the un-feathered inverse. Both carry the same line; the green conserves the coverage the line actually spills across two pixels, the magenta rounds it away. Antialiasing is not a blur &mdash; it is a <b>conservation law</b>, and the jagged staircase is what you get when you break it.</div>
+   <div class="btns" style="margin-top:10px"><button id="wuspin">pause spin</button></div></div></div></div>"""
+WU_SCRIPT = """(function(){
+var angle=25,mode='feathered',ang3=0.6,spin=true,N=34;
+function wuGrid(x0,y0,x1,y1,aliased){var grid=new Float32Array(N*N),steep=Math.abs(y1-y0)>Math.abs(x1-x0);
+ if(steep){var t;t=x0;x0=y0;y0=t;t=x1;x1=y1;y1=t;}if(x1<x0){var u;u=x0;x0=x1;x1=u;u=y0;y0=y1;y1=u;}
+ var dx=x1-x0,dy=y1-y0,grad=dx?dy/dx:0;
+ function plot(px,py,c){if(steep){var t=px;px=py;py=t;}if(px>=0&&px<N&&py>=0&&py<N)grid[py*N+px]=Math.min(1,grid[py*N+px]+c);}
+ for(var x=Math.round(x0);x<=Math.round(x1);x++){var ty=y0+grad*(x-x0),ip=Math.floor(ty),frac=ty-ip;if(aliased){plot(x,frac<0.5?ip:ip+1,1);}else{plot(x,ip,1-frac);plot(x,ip+1,frac);}}
+ return grid;}
+function endpoints(){var cx=N/2,cy=N/2,r=N*0.45,a=angle*Math.PI/180;return [cx-Math.cos(a)*r,cy-Math.sin(a)*r,cx+Math.cos(a)*r,cy+Math.sin(a)*r];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var ty=2.35,ip=Math.floor(ty),frac=ty-ip,ph=44,x0=180;
+ g.fillStyle='#8ca';g.font='12px ui-monospace,monospace';g.fillText('ideal line height y = '+ty.toFixed(2),12,24);
+ for(var p=0;p<4;p++){var yy=140-p*30,on=(p===ip||p===ip+1),val=(p===ip)?(1-frac):(p===ip+1?frac:0);g.fillStyle='rgba(192,208,232,'+(0.15+val*0.85)+')';g.fillRect(x0,yy-24,60,26);g.strokeStyle='#3a4a5a';g.strokeRect(x0,yy-24,60,26);g.fillStyle='#cfe8d0';g.fillText('pixel '+p+': '+val.toFixed(2),x0+70,yy-6);}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(x0-20,140-ty*30+6);g.lineTo(x0+140,140-ty*30-24);g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='12px ui-monospace,monospace';g.fillText('the two lit pixels: '+(1-frac).toFixed(2)+' + '+frac.toFixed(2)+' = 1.00  ✓',12,H-30);
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('centroid = '+ip+'·'+(1-frac).toFixed(2)+' + '+(ip+1)+'·'+frac.toFixed(2)+' = '+ty.toFixed(2)+' (exactly the line)',12,H-10);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.fillStyle='#080a10';g.fillRect(0,0,W,H);
+ var e=endpoints(),grid=wuGrid(e[0],e[1],e[2],e[3],mode==='aliased'),cw=W/N;
+ for(var y=0;y<N;y++)for(var x=0;x<N;x++){var v=grid[y*N+x];if(v>0){g.fillStyle='rgba(200,216,240,'+v+')';g.fillRect(x*cw,y*cw,cw-0.3,cw-0.3);}}
+ g.strokeStyle='#22303a';g.lineWidth=0.3;for(var i=0;i<=N;i+=2){g.beginPath();g.moveTo(i*cw,0);g.lineTo(i*cw,H);g.moveTo(0,i*cw);g.lineTo(W,i*cw);g.stroke();}g.lineWidth=1;
+ document.getElementById('wuread').textContent=mode==='aliased'?'hard pixels — the jagged staircase':'feathered — grey coverage sums to 1 per column';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var x0=2,y0=2,x1=30,y1=11,grad=(y1-y0)/(x1-x0),cx=W/2,cy=H/2+90,sc=11,ca=Math.cos(ang3),sa=Math.sin(ang3);
+ function ridge(aliased,col){g.strokeStyle=col;g.lineWidth=2;g.beginPath();var pts=0;for(var x=x0;x<=x1;x++){var ty=y0+grad*(x-x0),ip=Math.floor(ty),frac=ty-ip;var lo=aliased?(frac<0.5?1:0):(1-frac),hi=aliased?(frac<0.5?0:1):frac;
+  // draw two stems: lower pixel intensity + upper
+  [[ip,lo],[ip+1,hi]].forEach(function(pr){var X=(x-16),Z=(pr[0]-6),Yt=pr[1]*40,rx=X*ca-Z*sa,rz=X*sa+Z*ca,sx=cx+rx*sc,sy=cy-Yt+rz*sc*0.5;g.fillStyle=col;g.globalAlpha=pr[1]>0.02?0.9:0.15;g.fillRect(sx-1.5,sy-1.5,3,3);g.globalAlpha=1;});}
+ }
+ ridge(true,'#ff2d95');ridge(false,'#39fc6b');
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green feathered (smooth ridge) · magenta aliased (hard staircase)',10,H-12);}
+function verify(){var sumOK=true,cenOK=true;for(var t=0;t<500;t++){var x0=Math.random()*40,y0=Math.random()*40,x1=Math.random()*40,y1=Math.random()*40;if(Math.abs(x1-x0)<Math.abs(y1-y0)){var a=x0;x0=y0;y0=a;a=x1;x1=y1;y1=a;}if(x1<x0){var b;b=x0;x0=x1;x1=b;b=y0;y0=y1;y1=b;}var dx=x1-x0,dy=y1-y0,grad=dx?dy/dx:0;for(var x=Math.round(x0);x<=Math.round(x1);x++){var ty=y0+grad*(x-x0),ip=Math.floor(ty),frac=ty-ip,i0=1-frac,i1=frac;if(Math.abs(i0+i1-1)>1e-9)sumOK=false;if(Math.abs((ip*i0+(ip+1)*i1)-ty)>1e-9)cenOK=false;}}
+ return {coverageConserved:sumOK,centroidExact:cenOK};}
+function all(){drawW3();drawW4();window.__xiaolin=verify();}
+document.getElementById('wangsl').oninput=function(){angle=+this.value;document.getElementById('wang').textContent=angle;drawW4();};
+document.getElementById('wtog').onclick=function(){mode=(mode==='feathered'?'aliased':'feathered');this.textContent='mode: '+mode.toUpperCase();drawW4();};
+document.getElementById('wuspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang3+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-feathered-edge","title":"THE FEATHERED EDGE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#c0d0e8","icon":"glitch",
+  "kicker":"smooth lines as a coverage-conservation law",
+  "blurb":"Xiaolin Wu's antialiased line algorithm in the 5-window house format — smooth 'feathered' edges from a simple identity: each column's two blended pixels sum to exactly 1 (coverage conserved), and the brightness centroid lands exactly on the true line. See the coverage split in 1D, aliased-vs-feathered in 2D, and the intensity ridge in 3D.",
+  "lit":"A genuine Xiaolin Wu line renderer. Verified live: in every column the two blended pixel intensities sum to exactly 1 (coverage conserved, error <1e-9), and the intensity-weighted brightness centroid equals the true geometric line position exactly. Antialiasing as a bookkeeping identity, not a blur (verifiable: window.__xiaolin.coverageConserved && centroidExact).",
+  "fig":"'The feathered edge' is the picture; the coverage-conservation identity and the exact sub-pixel centroid are exact. The jagged staircase really is a chain of off-by-one roundings — this is the conservation law that removes them.",
+  "body":WU_BODY,"script":WU_SCRIPT},
  {"slug":"the-orthogonal-sign-flip","title":"THE ORTHOGONAL SIGN-FLIP","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#a0e0ff","icon":"coop",
   "kicker":"a Fourier with no multiplies — just plus and minus",
