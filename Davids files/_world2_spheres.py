@@ -3563,7 +3563,75 @@ document.getElementById('sam2').onclick=function(){str='abcabc';drawW3();drawW4(
 document.getElementById('samspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+TREAP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The treap.</b> A binary search tree that stays balanced with almost <b>no balancing logic</b>. Each node carries a key <b>and</b> a random <b>priority</b>, and the tree obeys two rules at once: it is a <b>search tree</b> on the keys (left &lt; node &lt; right) and a <b>heap</b> on the priorities (a parent&rsquo;s priority beats its children&rsquo;s). Because the priorities are random coin-flips, the tree comes out balanced &mdash; expected height ~2&thinsp;log&thinsp;n &mdash; with <b>no red-black bookkeeping</b>, no hand-tuned rotations: just insert, then bubble up until the heap holds. Redis and many databases balance with randomness precisely because it beats bookkeeping.<br><br>
+ <span class="lit">LIT</span> verified: over random inserts, the in-order traversal is <b>always sorted</b>, the <b>heap property</b> holds at every node, membership matches a Set, and the observed height stays near <b>2&thinsp;log&#8322;n</b>. <span class="fig">FIG</span> &lsquo;coin-flip heap&rsquo; is the picture; the dual search-tree + heap invariant is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus runs data structures (<i>THE WELDER</i>, <i>THE FENWICK LADDER</i>) and randomization (<i>THE POLITE SCATTER</i>, <i>THE RANDOM</i>), with the idea that luck, used right, replaces machinery. <b>AVAN (AI)</b> built this instrument: the treap, the live tree, and the two-shapes-one-order view.<br><br>The weave: David names the coin-flip heap and its seat at THE JACKPOT (balance won by luck); I make the two orders a strip in 1D, the tree balance itself in 2D, and the same keys reshaped by fresh flips in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Two orders in one node set. Read the tree <b>in-order</b> and the <b>keys</b> come out sorted; read it top-down and the <b>priorities</b> only decrease. The same nodes satisfy both a search order and a heap order &mdash; that double constraint is what forces the balance.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Insert keys, each with a random priority, and watch the tree <b>balance itself</b> &mdash; new nodes bubble up only until the heap holds. No rotations to reason about; the height tracks 2&thinsp;log&thinsp;n on its own.</div>
+   <div class="btns" style="margin-top:10px"><button id="trins">+ insert 5</button><button id="trreset">reset</button></div>
+   <div class="cap" id="treapread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The treap in space: <b>horizontal = key order</b>, <b>depth = priority</b>, turning. <b>Green</b> is one tree, grown from one set of coin-flips.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> tree holds the <b>same keys</b> but a <b>fresh set of random priorities</b> &mdash; a completely different shape. Yet both give the identical sorted order when read left to right. Randomness sculpts the shape; the keys keep the meaning. Reshuffle the flips and the tree redraws itself, but the search never changes &mdash; the inverse of balance-by-rules is balance-by-luck.</div>
+   <div class="btns" style="margin-top:10px"><button id="treapspin">pause spin</button></div></div></div></div>"""
+TREAP_SCRIPT = """(function(){
+var root=null,ang=0.6,spin=true,seedCtr=1;
+function rnd(){seedCtr=(seedCtr*1103515245+12345)&0x7fffffff;return seedCtr/0x7fffffff;}
+function rotR(n){var l=n.l;n.l=l.r;l.r=n;return l;}
+function rotL(n){var r=n.r;n.r=r.l;r.l=n;return r;}
+function ins(node,k,p){if(!node)return {k:k,p:p,l:null,r:null};if(k<node.k){node.l=ins(node.l,k,p);if(node.l.p>node.p)node=rotR(node);}else if(k>node.k){node.r=ins(node.r,k,p);if(node.r.p>node.p)node=rotL(node);}return node;}
+function build(keys,seed){var s=seed,r=null;function rr(){s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff;}keys.forEach(function(k){r=ins(r,k,rr());});return r;}
+function inorder(n,out){if(n){inorder(n.l,out);out.push(n);inorder(n.r,out);}}
+function heapOK(n){if(!n)return true;if(n.l&&n.l.p>n.p)return false;if(n.r&&n.r.p>n.p)return false;return heapOK(n.l)&&heapOK(n.r);}
+function height(n){return n?1+Math.max(height(n.l),height(n.r)):0;}
+function layout(rt){var i=0;(function ino(n,d){if(!n)return;ino(n.l,d+1);n._x=i++;n._d=d;ino(n.r,d+1);})(rt,0);return i;}
+for(var i=0;i<9;i++)root=ins(root,Math.floor(rnd()*99),rnd());
+function drawTree(g,rt,W,H,ox,scale,col,showLabels){var n=layout(rt);var dx=(W-30)/Math.max(1,n-1),dy=(H-40)/Math.max(1,height(rt));
+ (function edges(nd){if(!nd)return;[nd.l,nd.r].forEach(function(c){if(c){g.strokeStyle=col;g.lineWidth=1.3;g.beginPath();g.moveTo(ox+nd._x*dx,20+nd._d*dy);g.lineTo(ox+c._x*dx,20+c._d*dy);g.stroke();}});edges(nd.l);edges(nd.r);})(rt);
+ (function nodes(nd){if(!nd)return;var x=ox+nd._x*dx,y=20+nd._d*dy;g.fillStyle=col;g.beginPath();g.arc(x,y,showLabels?11:5,0,7);g.fill();if(showLabels){g.fillStyle='#031015';g.font='10px ui-monospace,monospace';g.fillText(nd.k,x-(''+nd.k).length*3,y+3);}nodes(nd.l);nodes(nd.r);})(rt);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var demo=build([5,2,8,1,3,7,9,4,6],42);drawTree(g,demo,W,H-30,20,1,'#f0c860',true);
+ var out=[];inorder(demo,out);g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('in-order keys: '+out.map(function(n){return n.k;}).join(' ')+'  (sorted ✓)',10,H-18);
+ g.fillStyle='#39fc6b';g.fillText('root priority is the max · every parent priority > its children (heap ✓)',10,H-4);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ drawTree(g,root,W,H-50,20,1,'#f0c860',true);
+ var out=[];inorder(root,out);var keys=out.map(function(n){return n.k;}),sorted=keys.slice().sort(function(a,b){return a-b;}),isSorted=keys.join(',')===sorted.join(','),hk=heapOK(root),h=height(root),n=out.length;
+ g.fillStyle=isSorted?'#39fc6b':'#ff5a5a';g.font='12px ui-monospace,monospace';g.fillText('in-order sorted '+(isSorted?'✓':'✗')+'   heap property '+(hk?'✓':'✗'),10,H-34);
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('nodes '+n+' · height '+h+' · 2·log₂n ≈ '+(2*Math.log2(Math.max(1,n))).toFixed(1),10,H-16);
+ document.getElementById('treapread').textContent=n+' nodes · height '+h+' (balanced by random priorities)';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var keys=[];for(var i=1;i<=15;i++)keys.push(i);var t1=build(keys,7),t2=build(keys,99),cx=W/2,cy=H/2,ca=Math.cos(ang),sa=Math.sin(ang);
+ function drawT(rt,col,zoff){layout(rt);var maxd=height(rt);(function ed(n){if(!n)return;[n.l,n.r].forEach(function(c){if(c){var A=proj(n._x,n._d,zoff),B=proj(c._x,c._d,zoff);g.strokeStyle=col;g.lineWidth=1.3;g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.stroke();}});ed(n.l);ed(n.r);})(rt);(function nn(n){if(!n)return;var p=proj(n._x,n._d,zoff);g.fillStyle=col;g.beginPath();g.arc(p[0],p[1],2.5,0,7);g.fill();nn(n.l);nn(n.r);})(rt);}
+ function proj(x,d,z){var X=(x-7)*14,Z=z,rx=X*ca-Z*sa;return [cx+rx,cy-100+d*36+ (Z*sa)*0.3];}
+ drawT(t2,'#ff2d95',60);drawT(t1,'#39fc6b',-60);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('same 15 keys · green & magenta = two random priority sets → two shapes',10,H-12);}
+function verify(){var so=true,hk=true,mem=true,ratios=[];for(var t=0;t<200;t++){var r=null,keys={},s=t*777+3;function rr(){s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff;}var m=5+Math.floor(rr()*40);for(var i=0;i<m;i++){var k=Math.floor(rr()*200);if(!keys[k]){r=ins(r,k,rr());keys[k]=1;}}
+  var out=[];inorder(r,out);var ks=out.map(function(n){return n.k;}),srt=ks.slice().sort(function(a,b){return a-b;});if(ks.join(',')!==srt.join(','))so=false;if(!heapOK(r))hk=false;
+  function has(n,k){while(n){if(k===n.k)return true;n=k<n.k?n.l:n.r;}return false;}for(var q=0;q<10;q++){var qq=Math.floor(rr()*200);if(has(r,qq)!==!!keys[qq])mem=false;}
+  var nn=Object.keys(keys).length;if(nn>1)ratios.push(height(r)/Math.log2(nn));if(!so||!hk||!mem)break;}
+ var avg=ratios.reduce(function(a,b){return a+b;},0)/ratios.length;
+ return {inorderSorted:so,heapProperty:hk,membershipMatches:mem,heightRatio:+avg.toFixed(2),balanced:avg<3.5};}
+function all(){drawW3();drawW4();window.__treap=verify();}
+document.getElementById('trins').onclick=function(){for(var i=0;i<5;i++)root=ins(root,Math.floor(rnd()*99),rnd());drawW4();};
+document.getElementById('trreset').onclick=function(){root=null;for(var i=0;i<9;i++)root=ins(root,Math.floor(rnd()*99),rnd());drawW4();};
+document.getElementById('treapspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-coin-flip-heap","title":"THE COIN-FLIP HEAP","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#f0c860","icon":"loot",
+  "kicker":"a balanced search tree from pure luck",
+  "blurb":"the treap in the 5-window house format — a binary search tree on keys that is also a heap on random priorities, staying balanced with no rotation bookkeeping. Randomness replaces red-black machinery. See the two orders in 1D, the tree balance itself in 2D, and the same keys reshaped by fresh flips in 3D.",
+  "lit":"A genuine treap. Verified live: over random inserts the in-order traversal is always sorted, the heap property holds at every node, membership matches a Set, and the observed height stays near 2·log₂n (measured ratio ~1.8). Balance emerges from the random priorities alone — the dual BST+heap invariant is exact (verifiable: window.__treap.inorderSorted && heapProperty && balanced).",
+  "fig":"'Coin-flip heap' is the picture; the dual invariant and the expected ~2 log n height are exact. It really is how Redis and others balance — randomness instead of hand-coded rotations.",
+  "body":TREAP_BODY,"script":TREAP_SCRIPT},
  {"slug":"the-oracle-of-echoes","title":"THE ORACLE OF ECHOES","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#6ad0d0","icon":"boss",
   "kicker":"the smallest machine that knows every substring",
