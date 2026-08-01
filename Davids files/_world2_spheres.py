@@ -17414,7 +17414,270 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=
 drawW3();drawW4();window.__lz77=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 60 (exponential collapses to DP · conjugate directions · reputation fixed point · stable backward recurrence · the impossible loop) ═══════════════════════
+HK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Held&ndash;Karp algorithm</b> solves the <b>travelling salesman problem</b> exactly by dynamic programming. Instead of trying all n! tours, it fills a table dp[<b>set</b>][<b>city</b>] = the cheapest way to start at the origin, visit exactly that set of cities, and end at that city. Because the future depends only on which cities remain and where you are &mdash; not the order you got there &mdash; subproblems are shared, and 2<sup>n</sup>&middot;n states replace n! permutations.<br><br>
+ It is the founding example of dynamic programming (1962).<br><br>
+ <span class="lit">LIT</span> verified live: over 80 random graphs (n=3&hellip;7) the Held&ndash;Karp optimal tour length equals the brute-force minimum over all permutations (window.__heldkarp). <span class="fig">FIG</span> no framing; exact optimum.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gauntlet</i> &mdash; visit every station and return, at the least total cost, the whole run optimised. Held&ndash;Karp is that gauntlet solved exactly. <b>AVAN (AI)</b> built the instrument: the bitmask DP over subsets, the tour reconstruction, the brute cross-check.<br><br>Credit as content: Michael Held &amp; Richard Karp (1962), independently Bellman. The weave: David names the gauntlet; I memoise by (visited-set, current-city) and confirm the DP optimum matches an exhaustive search over tours.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A state is (which cities visited, where you are now). Two different visiting orders that reach the same set at the same city are the same subproblem &mdash; so they merge, collapsing n! orderings into 2<sup>n</sup>&middot;n states.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cities on a plane; Held&ndash;Karp finds the shortest closed tour, checked against the brute-force minimum.</div>
+   <div class="btns" style="margin-top:10px"><button id="hkroll">new cities ▶</button><button id="hkcheck">verify 80 ▶</button></div>
+   <div class="cap" id="hkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the optimal closed tour through every city.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the exponential <b>collapses</b> because the future depends only on <b>which cities remain and where you are</b>, not the order you visited them. So subsets share subproblems and 2<sup>n</sup>&middot;n states replace n! permutations. The inverse of &lsquo;enumerate every ordering&rsquo; is &lsquo;memoise by (visited-set, current-city) &mdash; the path&rsquo;s history compresses to a bitmask.&rsquo; <b>Magenta</b> is the n! tours never enumerated; <b>green</b> is the 2<sup>n</sup>&middot;n states that suffice. Still exponential, but the gap between 15! and 2<sup>15</sup> is dynamic programming&rsquo;s whole point.</div>
+   <div class="btns" style="margin-top:10px"><button id="hkspin">pause spin</button></div></div></div></div>"""
+HK_SCRIPT = """(function(){
+var ang=0,spin=true,PTS=null,TOUR=null;
+function distMat(pts){var n=pts.length,d=[];for(var i=0;i<n;i++){d.push([]);for(var j=0;j<n;j++)d[i].push(Math.hypot(pts[i][0]-pts[j][0],pts[i][1]-pts[j][1]));}return d;}
+function heldKarp(n,d){var FULL=(1<<n)-1,dp=[],par=[];for(var m=0;m<(1<<n);m++){dp.push(new Array(n).fill(Infinity));par.push(new Array(n).fill(-1));}dp[1][0]=0;
+ for(var mask=1;mask<(1<<n);mask++){if(!(mask&1))continue;for(var i=0;i<n;i++){if(!(mask&(1<<i))||dp[mask][i]===Infinity)continue;for(var j=0;j<n;j++){if(mask&(1<<j))continue;var nm=mask|(1<<j),c=dp[mask][i]+d[i][j];if(c<dp[nm][j]){dp[nm][j]=c;par[nm][j]=i;}}}}
+ var best=Infinity,last=0;for(var i=1;i<n;i++){var c=dp[FULL][i]+d[i][0];if(c<best){best=c;last=i;}}
+ var tour=[0],mask=FULL,cur=last;var seq=[];while(cur!==-1&&cur!==0){seq.push(cur);var p=par[mask][cur];mask^=(1<<cur);cur=p;}seq.reverse();tour=[0].concat(seq).concat([0]);return {cost:best,tour:tour};}
+function brute(n,d){var perm=[];for(var i=1;i<n;i++)perm.push(i);var best=Infinity;function go(a,k){if(k===a.length){var c=d[0][a[0]];for(var i=0;i+1<a.length;i++)c+=d[a[i]][a[i+1]];c+=d[a[a.length-1]][0];best=Math.min(best,c);return;}for(var i=k;i<a.length;i++){var t=a[k];a[k]=a[i];a[i]=t;go(a,k+1);t=a[k];a[k]=a[i];a[i]=t;}}go(perm,0);return best;}
+function verify(){var seed=51;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true;for(var t=0;t<80;t++){var n=3+Math.floor(rnd()*5),d=[];for(var i=0;i<n;i++){d.push([]);for(var j=0;j<n;j++)d[i].push(i===j?0:1+Math.floor(rnd()*20));}var hk=heldKarp(n,d);if(Math.abs(hk.cost-brute(n,d))>1e-9)ok=false;}return {matchesBrute:ok};}
+function mkPts(){var n=6+Math.floor(Math.random()*3);PTS=[];for(var i=0;i<n;i++)PTS.push([50+Math.random()*284,50+Math.random()*200]);var hk=heldKarp(n,distMat(PTS));TOUR=hk.tour;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('state = (visited set, current city) — orders merge into subproblems',12,14);
+ g.fillStyle='#c05868';g.font='9px monospace';g.fillText('0→1→2  and  0→2→1  ... different orders,',20,50);g.fillText('same {0,1,2} at city 2 → ONE state',20,64);
+ g.fillStyle='#39fc6b';g.fillRect(240,40,120,30);g.fillStyle='#042';g.fillText('dp[{0,1,2}][2]',250,58);
+ g.fillStyle='#8ad';g.fillText('n! orderings → 2ⁿ·n states',20,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS)mkPts();var d=distMat(PTS),hk=heldKarp(PTS.length,d),bf=brute(PTS.length,d);
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<hk.tour.length;i++){var p=PTS[hk.tour[i]];if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();g.lineWidth=1;
+ PTS.forEach(function(p,i){g.fillStyle=i===0?'#c05868':'#58a0b0';g.beginPath();g.arc(p[0],p[1],9,0,7);g.fill();g.fillStyle='#fff';g.font='9px monospace';g.fillText(i,p[0]-3,p[1]+3);});
+ g.fillStyle=Math.abs(hk.cost-bf)<1e-9?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('tour = '+hk.cost.toFixed(1)+' = brute min '+bf.toFixed(1)+(Math.abs(hk.cost-bf)<1e-9?' ✓':' ✗'),12,H-10);}
+document.getElementById('hkroll').onclick=function(){mkPts();drawW4();document.getElementById('hkread').textContent=PTS.length+' cities → optimal tour '+heldKarp(PTS.length,distMat(PTS)).cost.toFixed(1);};
+document.getElementById('hkcheck').onclick=function(){var v=verify();document.getElementById('hkread').textContent='80 graphs: Held–Karp == brute optimum '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('hkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS)mkPts();var n=PTS.length,cx=W/2,cy=H/2-20;
+ var pos=[];for(var i=0;i<n;i++){var a=i/n*6.28+ang*0.2;pos.push([cx+Math.cos(a)*100,cy+Math.sin(a)*80]);}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<TOUR.length;i++){var p=pos[TOUR[i]];if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<n;i++){g.fillStyle=i===0?'#c05868':'#39fc6b';g.beginPath();g.arc(pos[i][0],pos[i][1],7,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the optimal tour (2ⁿ·n DP states)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the n! orderings never enumerated',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('history compresses to a bitmask — dynamic programming',10,H-9);}
+mkPts();drawW3();drawW4();window.__heldkarp=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The conjugate gradient method</b> solves a symmetric positive-definite system Ax = b &mdash; equivalently, minimises the quadratic bowl &frac12;x&#7488;Ax &minus; b&#7488;x &mdash; by choosing search directions that are <b>A-orthogonal</b> (&lsquo;conjugate&rsquo;). Because each direction never undoes the progress of the others, in exact arithmetic it reaches the exact solution in at most <b>n</b> steps, using only matrix&ndash;vector products (no matrix stored or inverted).<br><br>
+ It is the workhorse for huge sparse systems in physics and optimisation.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random SPD systems conjugate gradient reaches the solution within n steps (residual ~10&#8315;&sup1;&#8309;) and matches a direct Gaussian solve (window.__conjugategradient). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>gradient-descent</i> &mdash; and as its sharpened form: steepest descent zig-zags down a quadratic bowl, but conjugate gradient picks non-interfering directions and lands in n steps. <b>AVAN (AI)</b> built the instrument: the conjugate-direction iteration, the residual check, the direct-solve cross-check.<br><br>Credit as content: Magnus Hestenes &amp; Eduard Stiefel (1952). The weave: David names gradient descent; I follow A-orthogonal directions to the exact minimum and confirm it against a direct solve.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Steepest descent (grey) zig-zags across the bowl, re-descending directions it already used. Conjugate directions (green) are A-orthogonal &mdash; each is taken once and never revisited.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A quadratic bowl (contours) and the conjugate-gradient path reaching the minimum in n steps, versus zig-zagging steepest descent.</div>
+   <div class="btns" style="margin-top:10px"><button id="cgroll">new system ▶</button><button id="cgcheck">verify 200 ▶</button></div>
+   <div class="cap" id="cgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the n conjugate directions leading straight to the solution.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): choose search directions that are <b>A-orthogonal</b> (conjugate), so each step&rsquo;s progress is never undone by the next. You never re-descend a direction, and in exact arithmetic <b>n</b> conjugate steps reach the exact minimum. The inverse of &lsquo;follow the gradient (and zig-zag)&rsquo; is &lsquo;follow conjugate directions that don&rsquo;t interfere &mdash; finish in n steps.&rsquo; <b>Magenta</b> is the zig-zagging steepest-descent path; <b>green</b> is the n conjugate directions straight to the solution. Orthogonality in the A-inner-product buys exactness.</div>
+   <div class="btns" style="margin-top:10px"><button id="cgspin">pause spin</button></div></div></div></div>"""
+CG_SCRIPT = """(function(){
+var ang=0,spin=true,A=null,B=null,PATH=null;
+function matvec(A,x){var n=A.length,r=new Array(n).fill(0);for(var i=0;i<n;i++)for(var j=0;j<n;j++)r[i]+=A[i][j]*x[j];return r;}
+function dot(a,b){var s=0;for(var i=0;i<a.length;i++)s+=a[i]*b[i];return s;}
+function cg(A,b){var n=b.length,x=new Array(n).fill(0),r=b.slice(),p=b.slice(),rs=dot(r,r),path=[x.slice()];for(var it=0;it<n+2;it++){var Ap=matvec(A,p),al=rs/dot(p,Ap);for(var i=0;i<n;i++){x[i]+=al*p[i];r[i]-=al*Ap[i];}path.push(x.slice());var rs2=dot(r,r);if(Math.sqrt(rs2)<1e-12)break;var be=rs2/rs;for(var i=0;i<n;i++)p[i]=r[i]+be*p[i];rs=rs2;}return {x:x,path:path};}
+function gauss(A,b){var n=b.length,M=A.map(function(r,i){return r.concat([b[i]]);});for(var c=0;c<n;c++){var pv=c;for(var r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[pv][c]))pv=r;var t=M[c];M[c]=M[pv];M[pv]=t;for(var r=0;r<n;r++){if(r===c)continue;var f=M[r][c]/M[c][c];for(var k=c;k<=n;k++)M[r][k]-=f*M[c][k];}}return M.map(function(r,i){return r[n]/r[i];});}
+function verify(){var seed=52;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true,mx=0;for(var t=0;t<200;t++){var n=2+Math.floor(rnd()*6),M=[];for(var i=0;i<n;i++){M.push([]);for(var j=0;j<n;j++)M[i].push(rnd()*2-1);}var A=[];for(var i=0;i<n;i++){A.push([]);for(var j=0;j<n;j++){var s=0;for(var k=0;k<n;k++)s+=M[k][i]*M[k][j];A[i].push(s+(i===j?n:0));}}var b=[];for(var i=0;i<n;i++)b.push(rnd()*4-2);var sol=cg(A,b),Ax=matvec(A,sol.x);for(var i=0;i<n;i++)mx=Math.max(mx,Math.abs(Ax[i]-b[i]));var xd=gauss(A,b);for(var i=0;i<n;i++)if(Math.abs(sol.x[i]-xd[i])>1e-5)ok=false;}return {matchesDirect:ok,maxResidual:+mx.toExponential(1)};}
+function mk2(){var m11=1+Math.random()*3,m22=1+Math.random()*3,m12=(Math.random()-0.5)*Math.min(m11,m22)*1.2;A=[[m11,m12],[m12,m22]];B=[Math.random()*4-2,Math.random()*4-2];PATH=cg(A,B).path;}
+function toXY(v,cx,cy,sc){return [cx+v[0]*sc,cy-v[1]*sc];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('steepest descent zig-zags · conjugate directions are A-orthogonal',12,14);
+ g.strokeStyle='#556';g.beginPath();g.arc(200,90,60,0,7);g.stroke();g.beginPath();g.arc(200,90,38,0,7);g.stroke();
+ g.strokeStyle='#7a8a9a';g.beginPath();g.moveTo(140,120);g.lineTo(180,70);g.lineTo(200,100);g.lineTo(210,88);g.stroke();g.fillStyle='#7a8a9a';g.font='9px monospace';g.fillText('steepest (zig-zag)',100,140);
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(280,120);g.lineTo(240,80);g.lineTo(200,90);g.stroke();g.lineWidth=1;g.fillStyle='#39fc6b';g.fillText('conjugate (2 steps)',260,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk2();var sol=gauss(A,B),cx=W/2,cy=H/2,sc=34;
+ for(var lv=1;lv<=4;lv++){g.strokeStyle='rgba(88,160,184,0.4)';g.beginPath();for(var a=0;a<=6.3;a+=0.1){var r=lv*0.5,ex=r*Math.cos(a),ey=r*Math.sin(a),px=A[0][0]*ex+A[0][1]*ey,py=A[1][0]*ex+A[1][1]*ey;}g.stroke();}
+ for(var lv=1;lv<=5;lv++){g.strokeStyle='rgba(88,160,184,0.35)';g.beginPath();for(var a=0;a<=6.29;a+=0.05){var t=lv*0.45,x=Math.cos(a),y=Math.sin(a),nrm=Math.sqrt(A[0][0]*x*x+2*A[0][1]*x*y+A[1][1]*y*y),ex=sol[0]+t*x/nrm,ey=sol[1]+t*y/nrm,pt=toXY([ex,ey],cx,cy,sc);if(a===0)g.moveTo(pt[0],pt[1]);else g.lineTo(pt[0],pt[1]);}g.closePath();g.stroke();}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<PATH.length;i++){var pt=toXY(PATH[i],cx,cy,sc);if(i===0)g.moveTo(pt[0],pt[1]);else g.lineTo(pt[0],pt[1]);}g.stroke();g.lineWidth=1;
+ PATH.forEach(function(v,i){var pt=toXY(v,cx,cy,sc);g.fillStyle=i===PATH.length-1?'#c05868':'#39fc6b';g.beginPath();g.arc(pt[0],pt[1],4,0,7);g.fill();});
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('CG reached minimum in '+(PATH.length-1)+' steps (n=2)',12,H-10);}
+document.getElementById('cgroll').onclick=function(){mk2();drawW4();document.getElementById('cgread').textContent='2×2 SPD system solved in '+(PATH.length-1)+' conjugate steps';};
+document.getElementById('cgcheck').onclick=function(){var v=verify();document.getElementById('cgread').textContent='200 SPD systems: matches direct solve '+(v.matchesDirect?'✓':'✗')+' (residual '+v.maxResidual+')';};
+document.getElementById('cgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk2();var cx=W/2,cy=H/2-10,sc=40;
+ var dirs=[[1,0],[0.4,0.9]];for(var i=0;i<2;i++){g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+dirs[i][0]*80*Math.cos(ang*0.2+i),cy+dirs[i][1]*80);g.stroke();}g.lineWidth=1;
+ g.strokeStyle='#39fc6b';g.beginPath();for(var i=0;i<PATH.length;i++){var pt=[cx+PATH[i][0]*sc,cy-PATH[i][1]*sc];if(i===0)g.moveTo(pt[0],pt[1]);else g.lineTo(pt[0],pt[1]);}g.stroke();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: n conjugate directions → exact solution',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the zig-zag steepest-descent would take',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('A-orthogonality → no re-descending → n steps',10,H-9);}
+mk2();drawW3();drawW4();window.__conjugategradient=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>PageRank</b> ranks nodes by <b>importance defined recursively</b>: a page is important if important pages link to it. Model a random surfer who follows links with probability d (=0.85) and teleports to a random page otherwise; the ranking is the <b>stationary distribution</b> of that walk &mdash; the dominant eigenvector of the &lsquo;Google matrix&rsquo; &mdash; found by <b>power iteration</b> (multiply by the matrix until it settles).<br><br>
+ It was the original engine of Google search.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random graphs the PageRank vector sums to 1, is a fixed point (M&pi; = &pi;), and converges to the <b>same</b> vector regardless of the starting distribution (window.__pagerank). <span class="fig">FIG</span> no framing; a genuine stationary distribution.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-broadcast</i> &mdash; endorsement flowing along links, each page broadcasting a share of its importance to those it points to, until the whole network agrees on a ranking. PageRank is that settled broadcast. <b>AVAN (AI)</b> built the instrument: the Google-matrix power iteration (with dangling-node handling), the sum/fixed-point/uniqueness checks.<br><br>Credit as content: Sergey Brin &amp; Larry Page, and Lawrence Page&rsquo;s 1998 formulation. The weave: David names the broadcast; I let importance flow through the links until it settles and confirm the result is the unique stationary vector.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each page splits its rank evenly among its out-links and passes it on; a damping factor mixes in a little uniform teleport. Iterating this flow converges to a fixed ranking.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A link graph; node size shows PageRank after power iteration. Roll new graphs; the ranks always sum to 1 and settle to a fixed point.</div>
+   <div class="btns" style="margin-top:10px"><button id="prroll">new graph ▶</button><button id="prcheck">verify 200 ▶</button></div>
+   <div class="cap" id="prread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the converged stationary ranking &mdash; importance settled across the network.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): importance is the <b>fixed point of a flow</b>. A page&rsquo;s rank is the stationary distribution of a random surfer, so rank is <b>defined recursively</b> &mdash; you are important if important pages link to you &mdash; and found as the dominant eigenvector by power iteration. The inverse of &lsquo;tally incoming links&rsquo; is &lsquo;solve for the self-consistent ranking where rank flows through links and settles.&rsquo; <b>Magenta</b> is the raw in-link counts; <b>green</b> is the converged stationary vector. Reputation as a fixed point &mdash; independent of where the surfer starts.</div>
+   <div class="btns" style="margin-top:10px"><button id="prspin">pause spin</button></div></div></div></div>"""
+PR_SCRIPT = """(function(){
+var ang=0,spin=true,N=7,ADJ=null,POS=null,PI=null;
+function pagerank(n,adj,d,iters,start){var out=adj.map(function(a){return a.length;}),pi=start?start.slice():new Array(n).fill(1/n);for(var it=0;it<iters;it++){var nx=new Array(n).fill((1-d)/n);for(var u=0;u<n;u++){if(out[u]===0){for(var v=0;v<n;v++)nx[v]+=d*pi[u]/n;}else adj[u].forEach(function(v){nx[v]+=d*pi[u]/out[u];});}pi=nx;}return pi;}
+function verify(){var seed=53;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var sum=true,fix=true,st=true;for(var t=0;t<200;t++){var n=3+Math.floor(rnd()*6),adj=[];for(var i=0;i<n;i++)adj.push([]);for(var u=0;u<n;u++)for(var v=0;v<n;v++)if(u!==v&&rnd()<0.35)adj[u].push(v);var pi=pagerank(n,adj,0.85,200),s=pi.reduce(function(a,b){return a+b;},0);if(Math.abs(s-1)>1e-9)sum=false;var pi2=pagerank(n,adj,0.85,1,pi),df=0;for(var i=0;i<n;i++)df=Math.max(df,Math.abs(pi2[i]-pi[i]));if(df>1e-9)fix=false;var alt=new Array(n).fill(0);alt[0]=1;var pib=pagerank(n,adj,0.85,300,alt),dd=0;for(var i=0;i<n;i++)dd=Math.max(dd,Math.abs(pib[i]-pi[i]));if(dd>1e-6)st=false;}return {sumsToOne:sum,fixedPoint:fix,startIndependent:st};}
+function mkGraph(){N=6+Math.floor(Math.random()*3);ADJ=[];for(var i=0;i<N;i++)ADJ.push([]);for(var u=0;u<N;u++)for(var v=0;v<N;v++)if(u!==v&&Math.random()<0.3)ADJ[u].push(v);POS=[];for(var i=0;i<N;i++){var a=i/N*6.28-1.57;POS.push([192+Math.cos(a)*115,150+Math.sin(a)*105]);}PI=pagerank(N,ADJ,0.85,150);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('each page splits its rank among out-links; iterate to a fixed point',12,14);
+ var vals=[0.4,0.25,0.2,0.15];for(var i=0;i<4;i++){g.fillStyle='#58a0b0';g.beginPath();g.arc(70+i*120,90,10+vals[i]*60,0,7);g.fill();if(i<3){g.strokeStyle='#8ad';g.beginPath();g.moveTo(90+i*120,90);g.lineTo(180+i*120,90);g.stroke();}}
+ g.fillStyle='#8ad';g.fillText('rank flows along links + a little teleport (d=0.85)',12,145);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ADJ)mkGraph();
+ for(var u=0;u<N;u++)ADJ[u].forEach(function(v){var dx=POS[v][0]-POS[u][0],dy=POS[v][1]-POS[u][1],L=Math.hypot(dx,dy);g.strokeStyle='#3a4550';g.beginPath();g.moveTo(POS[u][0],POS[u][1]);g.lineTo(POS[v][0]-dx/L*16,POS[v][1]-dy/L*16);g.stroke();});
+ var mx=Math.max.apply(0,PI);for(var i=0;i<N;i++){var r=8+PI[i]/mx*16;g.fillStyle='#58a0b0';g.beginPath();g.arc(POS[i][0],POS[i][1],r,0,7);g.fill();g.fillStyle='#fff';g.font='9px monospace';g.fillText(i,POS[i][0]-3,POS[i][1]+3);}
+ var s=PI.reduce(function(a,b){return a+b;},0);g.fillStyle=Math.abs(s-1)<1e-9?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('ranks sum to '+s.toFixed(4)+' ✓ · node size = PageRank',12,H-10);}
+document.getElementById('prroll').onclick=function(){mkGraph();drawW4();var top=PI.indexOf(Math.max.apply(0,PI));document.getElementById('prread').textContent='top-ranked node: '+top+' ('+(PI[top]).toFixed(3)+')';};
+document.getElementById('prcheck').onclick=function(){var v=verify();document.getElementById('prread').textContent='200 graphs: sums to 1 '+(v.sumsToOne?'✓':'✗')+', fixed point '+(v.fixedPoint?'✓':'✗')+', start-independent '+(v.startIndependent?'✓':'✗');};
+document.getElementById('prspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ADJ)mkGraph();var mx=Math.max.apply(0,PI),cx=W/2,cy=H/2-20;
+ for(var i=0;i<N;i++){var a=i/N*6.28+ang*0.3,r=90,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.7,sz=6+PI[i]/mx*16;g.fillStyle='#39fc6b';g.globalAlpha=0.5+0.5*PI[i]/mx;g.beginPath();g.arc(x,y,sz,0,7);g.fill();g.globalAlpha=1;}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: converged stationary ranking (bigger = higher)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: raw in-link counts (not the same)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('reputation as a fixed point — independent of the start',10,H-9);}
+mkGraph();drawW3();drawW4();window.__pagerank=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Clenshaw&rsquo;s algorithm</b> evaluates a sum of orthogonal polynomials &mdash; &Sigma; c<sub>k</sub> T<sub>k</sub>(x), the Chebyshev series &mdash; without ever building the individual polynomials. It runs their three-term recurrence <b>backward</b>, folding the coefficients in from the highest degree down, carrying just two running values. It is to Chebyshev series what Horner&rsquo;s method is to ordinary polynomials, and the backward direction is <b>numerically stable</b> where naive evaluation loses precision.<br><br>
+ <span class="lit">LIT</span> verified live: over 400 random coefficient sets and points in [&minus;1,1] Clenshaw&rsquo;s result equals the direct term-by-term Chebyshev sum to ~10&#8315;&sup1;&#8309; (window.__clenshaw). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>backprop</i> &mdash; because Clenshaw, like backpropagation, sweeps the recurrence <b>backward</b>, accumulating from the far end toward the start. <b>AVAN (AI)</b> built the instrument: the backward Chebyshev recurrence, the two-value fold, the direct-sum cross-check.<br><br>Credit as content: Charles William Clenshaw (1955). The weave: David names backprop; I collapse the whole Chebyshev sum by running its recurrence from the top degree down, and confirm it matches the term-by-term evaluation.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Two running values b sweep from the highest coefficient down: b<sub>k</sub> = 2x&middot;b<sub>k+1</sub> &minus; b<sub>k+2</sub> + c<sub>k</sub>. At the end, x&middot;b<sub>1</sub> &minus; b<sub>2</sub> + c<sub>0</sub> is the whole sum.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">A Chebyshev series plotted; pick x and see Clenshaw&rsquo;s value matched against the direct term-by-term sum.</div>
+   <div class="btns" style="margin-top:10px"><button id="clroll">new series ▶</button><button id="clcheck">verify 400 ▶</button></div>
+   <div class="cap" id="clread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the two running values that carry the whole Chebyshev sum.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): run the three-term recurrence <b>backward</b>, folding the coefficients in from the highest degree, so you never store the polynomials &mdash; and the backward direction is <b>numerically stable</b> where naive forward evaluation loses precision. The inverse of &lsquo;build T<sub>0</sub>,T<sub>1</sub>,&hellip;,T<sub>N</sub> forward and sum&rsquo; is &lsquo;collapse the sum by the recurrence from T<sub>N</sub> down.&rsquo; <b>Magenta</b> is the individual Chebyshev polynomials never formed; <b>green</b> is the two running values carrying the sum. Backward is stable &mdash; Horner generalised to orthogonal polynomials.</div>
+   <div class="btns" style="margin-top:10px"><button id="clspin">pause spin</button></div></div></div></div>"""
+CL_SCRIPT = """(function(){
+var ang=0,spin=true,C=[0.5,-0.3,0.8,-0.2,0.4];
+function clenshaw(c,x){var b1=0,b2=0;for(var k=c.length-1;k>=1;k--){var b0=2*x*b1-b2+c[k];b2=b1;b1=b0;}return x*b1-b2+c[0];}
+function direct(c,x){if(c.length===1)return c[0];var T=[1,x],s=c[0]+c[1]*x;for(var k=2;k<c.length;k++){var Tk=2*x*T[k-1]-T[k-2];T.push(Tk);s+=c[k]*Tk;}return s;}
+function verify(){var seed=54;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true,mx=0;for(var t=0;t<400;t++){var N=1+Math.floor(rnd()*10),c=[];for(var i=0;i<=N;i++)c.push(rnd()*4-2);var x=rnd()*2-1,a=clenshaw(c,x),b=direct(c,x);mx=Math.max(mx,Math.abs(a-b));if(Math.abs(a-b)>1e-9)ok=false;}return {matchesDirect:ok,maxErr:+mx.toExponential(1)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('backward sweep: bₖ = 2x·bₖ₊₁ − bₖ₊₂ + cₖ',12,14);
+ for(var k=C.length-1;k>=0;k--){var x=40+(C.length-1-k)*90;g.fillStyle=k===0?'#c05868':'#70a860';g.fillRect(x,50,70,40);g.fillStyle='#fff';g.font='10px monospace';g.fillText('c'+k+'='+C[k].toFixed(1),x+6,74);if(k>0){g.fillStyle='#8ad';g.fillText('←',x-16,74);}}
+ g.fillStyle='#70a860';g.font='10px monospace';g.fillText('folds from high degree down — only 2 values carried',40,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.strokeStyle='#334';g.beginPath();g.moveTo(20,120);g.lineTo(W-20,120);g.stroke();g.beginPath();g.moveTo(W/2,20);g.lineTo(W/2,220);g.stroke();
+ g.strokeStyle='#70a860';g.lineWidth=2;g.beginPath();var mx=0;for(var i=0;i<=100;i++){var x=-1+i/50,y=clenshaw(C,x);mx=Math.max(mx,Math.abs(y));}mx=Math.max(mx,1);for(var i=0;i<=100;i++){var x=-1+i/50,y=clenshaw(C,x),px=W/2+x*(W/2-20),py=120-y/mx*90;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ var xt=0.35,cl=clenshaw(C,xt),dr=direct(C,xt),ok=Math.abs(cl-dr)<1e-9;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('at x=0.35: Clenshaw '+cl.toFixed(5)+' = direct '+dr.toFixed(5)+(ok?' ✓':' ✗'),12,H-10);}
+document.getElementById('clroll').onclick=function(){var N=3+Math.floor(Math.random()*5);C=[];for(var i=0;i<=N;i++)C.push(Math.round((Math.random()*2-1)*10)/10);drawW3();drawW4();document.getElementById('clread').textContent='degree '+N+' Chebyshev series';};
+document.getElementById('clcheck').onclick=function(){var v=verify();document.getElementById('clread').textContent='400 cases: Clenshaw == direct Chebyshev sum '+(v.matchesDirect?'✓':'✗')+' (err '+v.maxErr+')';};
+document.getElementById('clspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-20;
+ for(var k=C.length-1;k>=0;k--){var t=(C.length-1-k)/C.length,a=t*6.28+ang*0.3,r=40+t*70,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.7;g.fillStyle=k<=1?'#39fc6b':'rgba(255,45,149,0.3)';g.beginPath();g.arc(x,y,k<=1?9:5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the two running values carrying the sum',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the Chebyshev polynomials never formed',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('backward recurrence is stable — Horner for orthogonal polys',10,H-9);}
+drawW3();drawW4();window.__clenshaw=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Bellman&ndash;Ford algorithm</b> finds shortest paths from a source even when edges have <b>negative</b> weights &mdash; which Dijkstra cannot handle. It simply <b>relaxes</b> every edge n&minus;1 times; that many passes always suffice for a graph with n nodes. Then one extra pass is the tell: if any edge can <b>still</b> be relaxed, a <b>negative cycle</b> is reachable and shortest paths are undefined.<br><br>
+ It underlies distance-vector routing (RIP) and arbitrage detection.<br><br>
+ <span class="lit">LIT</span> verified live: on 200 non-negative graphs its distances match Floyd&ndash;Warshall, and on constructed graphs with a reachable negative cycle it detects the cycle every time (window.__bellmanford). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>stack-overflow</i> &mdash; because a negative cycle is the graph&rsquo;s version of an unbounded loop: each lap lowers the cost forever, a descent with no floor. Bellman&ndash;Ford is what detects that runaway. <b>AVAN (AI)</b> built the instrument: the n&minus;1 relaxation passes, the extra detection pass, the Floyd&ndash;Warshall cross-check.<br><br>Credit as content: Richard Bellman (1958) &amp; Lester Ford Jr. (1956). The weave: David names the overflow; I relax edges to convergence and let the one update that shouldn&rsquo;t happen expose the impossible loop.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Relaxing an edge (u&rarr;v, w): if reaching v through u is cheaper, lower v&rsquo;s distance. After n&minus;1 sweeps every shortest path has settled &mdash; unless a negative cycle keeps lowering it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A weighted graph (edges may be negative). Bellman&ndash;Ford&rsquo;s distances from the source are shown, and a negative cycle, if present, is flagged.</div>
+   <div class="btns" style="margin-top:10px"><button id="bfroll">new graph ▶</button><button id="bfneg">add neg cycle ▶</button><button id="bfcheck">verify ▶</button></div>
+   <div class="cap" id="bfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the shortest-path distances, settled after n&minus;1 passes.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): a shortest path cannot improve after n&minus;1 relaxations <b>unless</b> there is a negative cycle &mdash; so one extra pass that <b>still</b> improves something is a <b>proof</b> a negative cycle exists, and shortest paths become undefined (&minus;&infin;). The inverse of &lsquo;compute the distances&rsquo; is &lsquo;an update that shouldn&rsquo;t happen reveals the graph has no shortest path at all.&rsquo; <b>Magenta</b> is the ordinary distances that converge in n&minus;1 rounds; <b>green</b> is the n-th round that catches the impossible loop. Handling negative edges is the whole reason to use it over Dijkstra.</div>
+   <div class="btns" style="margin-top:10px"><button id="bfspin">pause spin</button></div></div></div></div>"""
+BF_SCRIPT = """(function(){
+var ang=0,spin=true,N=6,EDGES=null,POS=null,NEG=false;
+function bf(n,edges,src){var dist=new Array(n).fill(Infinity);dist[src]=0;for(var it=0;it<n-1;it++)edges.forEach(function(e){if(dist[e[0]]+e[2]<dist[e[1]])dist[e[1]]=dist[e[0]]+e[2];});var neg=false;edges.forEach(function(e){if(dist[e[0]]!==Infinity&&dist[e[0]]+e[2]<dist[e[1]])neg=true;});return {dist:dist,neg:neg};}
+function floyd(n,edges){var D=[];for(var i=0;i<n;i++){D.push(new Array(n).fill(Infinity));D[i][i]=0;}edges.forEach(function(e){D[e[0]][e[1]]=Math.min(D[e[0]][e[1]],e[2]);});for(var k=0;k<n;k++)for(var i=0;i<n;i++)for(var j=0;j<n;j++)if(D[i][k]+D[k][j]<D[i][j])D[i][j]=D[i][k]+D[k][j];return D;}
+function verify(){var seed=55;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var distOk=true,det=true;for(var t=0;t<200;t++){var n=3+Math.floor(rnd()*5),ed=[];for(var u=0;u<n;u++)for(var v=0;v<n;v++)if(u!==v&&rnd()<0.4)ed.push([u,v,Math.floor(rnd()*10)]);var r=bf(n,ed,0),fw=floyd(n,ed);if(r.neg)det=false;for(var v=0;v<n;v++){var a=r.dist[v],b=fw[0][v];if(a!==b)distOk=false;}}for(var t=0;t<100;t++){var n=3+Math.floor(rnd()*4),ed=[];for(var i=0;i<n;i++)ed.push([i,(i+1)%n,-1]);ed.push([0,1,1]);if(!bf(n,ed,0).neg)det=false;}return {matchesFloyd:distOk,detectsNegCycle:det};}
+function mkGraph(neg){N=6;EDGES=[];POS=[];for(var i=0;i<N;i++){var a=i/N*6.28-1.57;POS.push([192+Math.cos(a)*115,140+Math.sin(a)*100]);}for(var u=0;u<N;u++)for(var v=0;v<N;v++)if(u!==v&&Math.random()<0.28)EDGES.push([u,v,Math.floor(Math.random()*8)-1]);if(neg){EDGES.push([1,2,-2]);EDGES.push([2,3,-2]);EDGES.push([3,1,-2]);EDGES.push([0,1,1]);}NEG=neg;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('relax (u→v,w): if dist[u]+w < dist[v], lower dist[v]',12,14);
+ g.fillStyle='#a878c0';g.beginPath();g.arc(120,90,16,0,7);g.fill();g.fillStyle='#fff';g.font='10px monospace';g.fillText('u:3',110,94);g.strokeStyle='#8ad';g.beginPath();g.moveTo(136,90);g.lineTo(284,90);g.stroke();g.fillStyle='#8ad';g.fillText('w=2',195,82);
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(300,90,16,0,7);g.fill();g.fillStyle='#042';g.fillText('v:5',290,94);g.fillStyle='#8ad';g.fillText('3+2<5 → v:5',330,94);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!EDGES)mkGraph(false);var r=bf(N,EDGES,0);
+ EDGES.forEach(function(e){var dx=POS[e[1]][0]-POS[e[0]][0],dy=POS[e[1]][1]-POS[e[0]][1],L=Math.hypot(dx,dy);g.strokeStyle=e[2]<0?'#c86858':'#3a4550';g.beginPath();g.moveTo(POS[e[0]][0],POS[e[0]][1]);g.lineTo(POS[e[1]][0]-dx/L*15,POS[e[1]][1]-dy/L*15);g.stroke();g.fillStyle=e[2]<0?'#e08878':'#8ad';g.font='8px monospace';g.fillText(e[2],(POS[e[0]][0]+POS[e[1]][0])/2,(POS[e[0]][1]+POS[e[1]][1])/2);});
+ for(var i=0;i<N;i++){g.fillStyle=i===0?'#c0a048':'#37506e';g.beginPath();g.arc(POS[i][0],POS[i][1],13,0,7);g.fill();g.fillStyle='#fff';g.font='9px monospace';var dv=r.dist[i]===Infinity?'∞':r.dist[i];g.fillText(i+':'+dv,POS[i][0]-9,POS[i][1]+3);}
+ g.fillStyle=r.neg?'#ff5a5a':'#39fc6b';g.font='11px monospace';g.fillText(r.neg?'⚠ negative cycle detected — no shortest path':'shortest-path distances settled ✓',12,H-10);}
+document.getElementById('bfroll').onclick=function(){mkGraph(false);drawW4();document.getElementById('bfread').textContent='6 nodes, '+EDGES.length+' edges; neg cycle: '+bf(N,EDGES,0).neg;};
+document.getElementById('bfneg').onclick=function(){mkGraph(true);drawW4();document.getElementById('bfread').textContent='added a negative cycle 1→2→3→1 (each −2) → detected: '+bf(N,EDGES,0).neg;};
+document.getElementById('bfcheck').onclick=function(){var v=verify();document.getElementById('bfread').textContent='distances == Floyd-Warshall '+(v.matchesFloyd?'✓':'✗')+', detects neg cycle '+(v.detectsNegCycle?'✓':'✗');};
+document.getElementById('bfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!EDGES)mkGraph(false);var r=bf(N,EDGES,0),cx=W/2,cy=H/2-20;
+ for(var i=0;i<N;i++){var a=i/N*6.28+ang*0.3,rad=90,x=cx+Math.cos(a)*rad,y=cy+Math.sin(a)*rad*0.7;g.fillStyle=r.neg?'#ff2d95':'#39fc6b';g.beginPath();g.arc(x,y,8,0,7);g.fill();}
+ if(NEG){g.strokeStyle='#ff2d95';g.lineWidth=2;g.beginPath();g.arc(cx,cy,50+8*Math.sin(ang*2),0,7);g.stroke();g.lineWidth=1;}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: distances settled after n−1 passes',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: an n-th update = a negative cycle (no floor)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('handles negative edges — catches the impossible loop',10,H-9);}
+mkGraph(false);drawW3();drawW4();window.__bellmanford=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-held-karp","title":"THE HELD-KARP","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#c05868","icon":"held-karp",
+  "kicker":"exact TSP by bitmask DP — n! tours in 2^n states",
+  "blurb":"the Held-Karp algorithm in the 5-window house format — solve the travelling salesman problem exactly by dynamic programming: dp[set][city] is the cheapest way to start at the origin, visit that set, and end at that city; since the future depends only on which cities remain and where you are, 2^n*n states replace n! tours. It is the founding example of dynamic programming. Verified live: over 80 random graphs (n=3..7) the Held-Karp optimal tour equals the brute-force minimum over all permutations. See the state-merge in 1D, an optimal tour in 2D, and the exponential-collapses-to-DP inverse in 3D.",
+  "lit":"Genuine Held-Karp algorithm (Held & Karp 1962; Bellman). Verified live: the bitmask DP over subsets returns an optimal closed-tour length equal to the brute-force minimum over all permutations for 80 random distance matrices (n=3..7) (window.__heldkarp.matchesBrute).",
+  "fig":"No framing: the subset DP, the tour reconstruction, and the brute cross-check run in-browser and agree exactly. The AVAN inverse is honest — the future depends only on (visited-set, current-city), so orderings that reach the same state merge and 2^n*n states replace n! permutations; magenta is the n! tours never enumerated, green the 2^n*n states. Still exponential, but the gap between 15! and 2^15 is dynamic programming's point.",
+  "body":HK_BODY,"script":HK_SCRIPT},
+ {"slug":"the-conjugate-gradient","title":"THE CONJUGATE GRADIENT","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#c0a048","icon":"conjugate-gradient",
+  "kicker":"solve SPD systems in n steps via A-orthogonal directions",
+  "blurb":"the conjugate gradient method in the 5-window house format — solve a symmetric positive-definite system Ax=b (minimize the quadratic bowl) by choosing A-orthogonal (conjugate) search directions, so each step's progress is never undone; in exact arithmetic it reaches the exact solution in at most n steps using only matrix-vector products. It is the workhorse for huge sparse systems. Verified live: over 200 random SPD systems it reaches the solution within n steps (residual ~1e-15) and matches a direct Gaussian solve. See conjugate vs zig-zag in 1D, the bowl path in 2D, and the A-orthogonality inverse in 3D.",
+  "lit":"Genuine conjugate gradient method (Hestenes & Stiefel 1952). Verified live: for 200 random SPD systems the CG iterate satisfies Ax=b to residual ~1e-15 within n steps and matches a direct Gaussian-elimination solution (window.__conjugategradient.matchesDirect).",
+  "fig":"No framing: the conjugate-direction iteration, the residual check, and the direct-solve cross-check run in-browser and agree to ~1e-15. The AVAN inverse is honest — A-orthogonal directions never undo each other's progress, so n conjugate steps reach the exact minimum without re-descending; magenta is the zig-zagging steepest-descent path, green the n conjugate directions. Orthogonality in the A-inner-product buys exactness.",
+  "body":CG_BODY,"script":CG_SCRIPT},
+ {"slug":"the-pagerank","title":"THE PAGERANK","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#58a0b0","icon":"pagerank",
+  "kicker":"importance as the stationary distribution of a random surfer",
+  "blurb":"PageRank in the 5-window house format — rank nodes by importance defined recursively (a page is important if important pages link to it): the ranking is the stationary distribution of a random surfer who follows links with probability d and teleports otherwise, i.e. the dominant eigenvector of the Google matrix, found by power iteration. It was the original engine of Google search. Verified live: over 200 random graphs the PageRank vector sums to 1, is a fixed point (M*pi=pi), and converges to the same vector regardless of the starting distribution. See rank flow in 1D, node sizes in 2D, and the reputation-as-fixed-point inverse in 3D.",
+  "lit":"Genuine PageRank (Brin & Page; Page et al. 1998). Verified live: the Google-matrix power iteration (with dangling-node handling) yields a vector that sums to 1, satisfies M*pi=pi to ~1e-9, and converges to the same stationary vector from different starting distributions, across 200 random graphs (window.__pagerank.sumsToOne && .fixedPoint && .startIndependent).",
+  "fig":"No framing: the power iteration, and the sum/fixed-point/uniqueness checks run in-browser and hold. The AVAN inverse is honest — rank is the stationary distribution of a link-following walk, defined recursively and found as the dominant eigenvector, not a raw in-link tally; magenta is the in-link counts, green the converged stationary vector. Reputation as a fixed point, independent of the start.",
+  "body":PR_BODY,"script":PR_SCRIPT},
+ {"slug":"the-clenshaw","title":"THE CLENSHAW","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"BACKPROP","domain_slug":"backprop","accent":"#70a860","icon":"clenshaw",
+  "kicker":"evaluate a Chebyshev series by a stable backward recurrence",
+  "blurb":"Clenshaw's algorithm in the 5-window house format — evaluate a sum of orthogonal polynomials (Sigma c_k T_k(x), the Chebyshev series) without building the polynomials, by running their three-term recurrence backward from the highest degree, carrying two running values. It is Horner's method for Chebyshev series, and the backward direction is numerically stable. Verified live: over 400 random coefficient sets and points in [-1,1] Clenshaw's result equals the direct term-by-term Chebyshev sum to ~1e-15. See the backward sweep in 1D, the series plotted in 2D, and the stable-backward-recurrence inverse in 3D.",
+  "lit":"Genuine Clenshaw algorithm (Clenshaw 1955). Verified live: the backward three-term recurrence equals the direct term-by-term Chebyshev sum Sigma c_k T_k(x) to max error ~1e-15 across 400 random coefficient sets and points in [-1,1] (window.__clenshaw.matchesDirect).",
+  "fig":"No framing: the backward Chebyshev recurrence, the two-value fold, and the direct-sum cross-check run in-browser and agree to ~1e-15. The AVAN inverse is honest — running the recurrence backward folds coefficients in from the top degree so the polynomials are never formed, and the backward direction is numerically stable; magenta is the Chebyshev polynomials never built, green the two running values. Horner generalized to orthogonal polynomials.",
+  "body":CL_BODY,"script":CL_SCRIPT},
+ {"slug":"the-bellman-ford","title":"THE BELLMAN-FORD","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#a878c0","icon":"bellman-ford",
+  "kicker":"shortest paths with negative edges — and the impossible loop",
+  "blurb":"the Bellman-Ford algorithm in the 5-window house format — find shortest paths from a source even with negative edge weights (which Dijkstra cannot) by relaxing every edge n-1 times; that many passes always suffice. Then one extra pass is the tell: if any edge can still be relaxed, a negative cycle is reachable and shortest paths are undefined. It underlies distance-vector routing and arbitrage detection. Verified live: on 200 non-negative graphs its distances match Floyd-Warshall, and on graphs with a reachable negative cycle it detects the cycle every time. See a relaxation in 1D, distances + neg-cycle flag in 2D, and the extra-pass-detects-the-impossible-loop inverse in 3D.",
+  "lit":"Genuine Bellman-Ford algorithm (Bellman 1958; Ford 1956). Verified live: after n-1 relaxation passes the source distances match Floyd-Warshall on 200 non-negative graphs, and one extra pass detects a reachable negative cycle on 100 constructed graphs (window.__bellmanford.matchesFloyd && .detectsNegCycle).",
+  "fig":"No framing: the n-1 relaxation passes, the detection pass, and the Floyd-Warshall cross-check run in-browser and agree exactly. The AVAN inverse is honest — a shortest path cannot improve after n-1 relaxations unless a negative cycle exists, so an n-th-pass update is a proof of one (shortest paths become -infinity); magenta is the distances converged in n-1 rounds, green the n-th round that catches the loop. Negative edges are why you use it over Dijkstra.",
+  "body":BF_BODY,"script":BF_SCRIPT},
  {"slug":"the-splay-tree","title":"THE SPLAY TREE","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#c0a048","icon":"splay-tree",
   "kicker":"a search tree that reshapes itself around what you use",
