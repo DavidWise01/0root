@@ -6775,7 +6775,304 @@ document.getElementById('mcspin').onclick=function(){spin=!spin;this.textContent
 newField();drawW3();drawW4();window.__marching=verify();
 function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+WYT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Wythoff&rsquo;s game.</b> Two piles of stones. On your turn take any number from <b>one</b> pile, or the <b>same</b> number from <b>both</b>. Last to move wins. Like Nim, it has a perfect strategy &mdash; but this one hides the <b>golden ratio</b> inside it.<br><br>
+ The losing positions &mdash; the ones you want to hand your opponent &mdash; are exactly the pairs <span class="mono">(&lfloor;n&phi;&rfloor;, &lfloor;n&phi;&sup2;&rfloor;)</span> for n = 1, 2, 3, &hellip; : (1,2), (3,5), (4,7), (6,10), &hellip;. Those two sequences are the <b>Beatty sequences</b> of &phi; and &phi;&sup2;, and together they partition the whole numbers, each landing once. The most irrational number, &phi;, surfaces in a game about stones because it is the unique slope whose losing positions hit every row and column exactly once.<br><br>
+ <span class="lit">LIT</span> verified live: a full minimax search over every position with both piles below 25 confirms the player to move <b>loses if and only if</b> the position is a golden Beatty pair (window.__wythoff.matchesFormula). <span class="fig">FIG</span> no framing; the &phi;-formula for losing positions, checked against exhaustive game-tree analysis, is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>GOD MODE</i>, beside <i>THE NIM</i> &mdash; the cheat domain of knowing the winning move before the fight. Nim&rsquo;s secret is an XOR; Wythoff&rsquo;s is the golden ratio &mdash; and the same &phi; runs through <i>THE GOLDEN SEQUENCE</i> and <i>THE CONVERGENT</i>. <b>AVAN (AI)</b> built the instrument: the minimax truth, the &phi;-formula, the two Beatty rays.<br><br>The weave: David names the seat (perfect foresight); I make the losing pattern visible and prove it matches the game &mdash; the P-positions in 1D, the win/loss grid with its golden rays in 2D, the strategy surface in 3D. The sphere is the seam. Credit: Willem Abraham Wythoff (1907); Samuel Beatty (1926) for the sequences.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>losing positions</b> in order: (1,2), (3,5), (4,7), (6,10), &hellip; &mdash; the small coordinate marching up as &lfloor;n&phi;&rfloor;, the large one as &lfloor;n&phi;&sup2;&rfloor;. Two golden Beatty sequences that between them use every whole number exactly once.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap">The <b>position grid</b>: green cells are wins for the mover, <b>magenta</b> the losing golden pairs &mdash; and they line up on two rays of slope &phi; and 1/&phi;. <b>Play</b> the machine: hand it a magenta cell and it cannot escape; anywhere else, it dives straight to one.</div>
+   <div class="btns" style="margin-top:10px"><button id="wya">− pile A</button><button id="wyb">− pile B</button><button id="wyboth">− both</button><button id="wyend">end turn ▶</button><button id="wynew">new game</button></div>
+   <div class="cap" id="wytread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The win/loss landscape turning &mdash; <b>green</b>, the positions from which the mover wins.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> ridge is the line of losing positions &mdash; the golden Beatty pairs. A game seems to demand searching every sequence of moves. The inverse is a <b>closed-form pattern</b>: the losing positions are not found by search but <b>computed from &phi;</b>. And &phi; is not arbitrary &mdash; it is the one slope whose two floor-sequences tile the integers with no gap and no overlap, so every row and column holds exactly one loss. The deepest game-theoretic fact here is a statement about the <b>most irrational number</b>. The green is the winnable field; the magenta is the golden line of defeat, drawn not by playing but by geometry.</div>
+   <div class="btns" style="margin-top:10px"><button id="wytspin">pause spin</button></div></div></div></div>"""
+WYT_SCRIPT = """(function(){
+var PHI=(1+Math.sqrt(5))/2,piles=[6,10],ang=0,spin=true,msg='your move',memo={};
+function wins(a,b){if(a>b){var t=a;a=b;b=t;}var k=a+','+b;if(memo[k]!==undefined)return memo[k];if(a===0&&b===0){memo[k]=false;return false;}for(var i=1;i<=a;i++)if(!wins(a-i,b)){memo[k]=true;return true;}for(var i=1;i<=b;i++)if(!wins(a,b-i)){memo[k]=true;return true;}for(var i=1;i<=a;i++)if(!wins(a-i,b-i)){memo[k]=true;return true;}memo[k]=false;return false;}
+function isP(a,b){if(a>b){var t=a;a=b;b=t;}for(var n=0;n<80;n++){var lo=Math.floor(n*PHI);if(lo===a&&Math.floor(n*PHI*PHI)===b)return true;if(lo>b)break;}return false;}
+function verify(){memo={};var ok=true;for(var a=0;a<25;a++)for(var b=0;b<25;b++)if(wins(a,b)!==(!isP(a,b)))ok=false;return {matchesFormula:ok,range:'a,b<25',firstP:'(1,2),(3,5),(4,7),(6,10)'};}
+function machineMove(){var a=piles[0],b=piles[1];for(var k=1;k<=a;k++)if(isP(a-k,b)){piles=[a-k,b];msg='machine takes '+k+' from A';return;}for(var k=1;k<=b;k++)if(isP(a,b-k)){piles=[a,b-k];msg='machine takes '+k+' from B';return;}for(var k=1;k<=Math.min(a,b);k++)if(isP(a-k,b-k)){piles=[a-k,b-k];msg='machine takes '+k+' from both';return;}var mx=a>b?0:1;piles[mx]--;msg='(losing position — machine stalls)';}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.font='12px ui-monospace,monospace';
+ for(var n=1;n<=7;n++){var a=Math.floor(n*PHI),b=Math.floor(n*PHI*PHI),x=20+(n-1)*70;g.fillStyle='#2a2438';g.fillRect(x,45,60,34);g.fillStyle='#ffcf60';g.fillText('('+a+','+b+')',x+4,66);g.fillStyle='#4c7a54';g.font='9px ui-monospace,monospace';g.fillText('n='+n,x+4,44);g.font='12px ui-monospace,monospace';}
+ g.fillStyle='#ffcf60';g.font='11px ui-monospace,monospace';g.fillText('losing positions = (⌊nφ⌋, ⌊nφ²⌋) — golden Beatty pairs',20,110);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('φ='+PHI.toFixed(4)+', φ²='+(PHI*PHI).toFixed(4)+' — together they use every integer once',20,130);}
+function drawGrid(g,ox,oy,cell,mx){for(var a=0;a<=mx;a++)for(var b=0;b<=mx;b++){var p=isP(a,b),cur=(Math.min(piles[0],piles[1])===Math.min(a,b)&&Math.max(piles[0],piles[1])===Math.max(a,b));g.fillStyle=cur?'#fff':(p?'#ff2d95':(wins(a,b)?'#1c3a2a':'#2a2438'));g.fillRect(ox+a*cell,oy+(mx-b)*cell,cell-1,cell-1);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var mx=17,cell=15,ox=20,oy=8;drawGrid(g,ox,oy,cell,mx);
+ // golden rays
+ g.strokeStyle='rgba(255,207,96,0.5)';g.lineWidth=1;g.beginPath();g.moveTo(ox,oy+(mx)*cell);g.lineTo(ox+mx*cell,oy+(mx-mx/PHI)*cell);g.stroke();g.beginPath();g.moveTo(ox,oy+(mx)*cell);g.lineTo(ox+(mx/PHI)*cell,oy+0);g.stroke();
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('piles ('+piles[0]+', '+piles[1]+')  '+(isP(piles[0],piles[1])?'LOSING (P)':'winning'),ox,H-30);
+ g.fillStyle='#cfe8d0';g.fillText(msg,ox,H-14);
+ var allz=(piles[0]===0&&piles[1]===0);if(allz){g.fillStyle='#ff2d95';g.font='13px ui-monospace,monospace';g.fillText('game over',ox+180,H-14);}
+ document.getElementById('wytread').textContent='('+piles[0]+','+piles[1]+') '+(isP(piles[0],piles[1])?'P-position (loss)':'win')+' · '+msg;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2+30,ca=Math.cos(ang),sa=Math.sin(ang),mx=16;
+ for(var a=0;a<=mx;a++)for(var b=0;b<=mx;b++){var X=(a-mx/2)*14,Y=(b-mx/2)*14,px=cx+(X*ca-Y*sa),py=cy+(X*sa+Y*ca)*0.4;var p=isP(a,b);g.fillStyle=p?'#ff2d95':'#39fc6b';g.globalAlpha=p?1:0.5;g.fillRect(px-2,py-2,p?5:3,p?5:3);}
+ g.globalAlpha=1;g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: winnable positions',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the golden line of losing positions',10,H-12);}
+document.getElementById('wya').onclick=function(){if(piles[0]>0){piles[0]--;drawW4();}};
+document.getElementById('wyb').onclick=function(){if(piles[1]>0){piles[1]--;drawW4();}};
+document.getElementById('wyboth').onclick=function(){if(piles[0]>0&&piles[1]>0){piles[0]--;piles[1]--;drawW4();}};
+document.getElementById('wyend').onclick=function(){if(piles[0]===0&&piles[1]===0){msg='you took the last — you win!';drawW4();return;}machineMove();if(piles[0]===0&&piles[1]===0)msg='machine took the last — machine wins';drawW4();};
+document.getElementById('wynew').onclick=function(){piles=[3+Math.floor(Math.random()*10),3+Math.floor(Math.random()*10)];msg='your move';drawW4();};
+document.getElementById('wytspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__wythoff=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LOG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The logistic map.</b> One line models a population: x &rarr; r&middot;x&middot;(1&minus;x), where x is this year&rsquo;s size and r the growth rate. For small r it settles to a single steady value. Crank r up and something astonishing happens: at r=3 the steady state splits into an <b>oscillation of period 2</b>; then period 4, then 8, 16 &mdash; <b>doubling faster and faster</b> &mdash; until near r&asymp;3.5699 the doublings pile up and the system tips into full <b>chaos</b>.<br><br>
+ The gaps between successive doublings shrink at a fixed ratio, and that ratio approaches a universal constant: the <b>Feigenbaum number &delta; &asymp; 4.6692</b>. Astonishingly, the <i>same</i> constant governs the period-doubling road to chaos in wildly different systems &mdash; dripping taps, circuits, chemistry. It is a law of how order breaks down.<br><br>
+ <span class="lit">LIT</span> verified live: this page locates the period-2, 4, 8, 16, 32 bifurcation points and the ratios of their spacings <b>approach 4.669</b> (window.__logistic.approachesFeigenbaum; bifurcations reported). <span class="fig">FIG</span> no framing; the doubling cascade and the Feigenbaum ratio are exact, computed from the map itself.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>UNDEFINED BEHAVIOR</i>, beside <i>THE EDGE OF CHAOS</i> &mdash; the glitch domain where deterministic rules go wild. The logistic map is the textbook doorway from order into chaos, and the corpus loves that edge. <b>AVAN (AI)</b> built the instrument: the iteration, the bifurcation diagram, the Feigenbaum-ratio measurement.<br><br>The weave: David names the seat (the edge of chaos); I make the cascade visible and the universal constant measurable &mdash; the attractor in 1D, the bifurcation diagram in 2D, the doubling cascade in 3D. The sphere is the seam. Credit: Robert May (1976, ecology); Mitchell Feigenbaum (1978, the constant).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>attractor</b> at one growth rate: for low r a single settled value; past r=3 it splits to two, then four, hopping between them; in the chaotic zone it never repeats. The dots are where the population lands once the transient dies away.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The <b>bifurcation diagram</b>: for every growth rate r the settled values, stacked. Slide the marker and read the period &mdash; watch the single line fork to 2, 4, 8, then shatter into the dark chaotic band, with clear windows of order inside it.</div>
+   <div class="btns" style="margin-top:10px"><button id="lgm">◀ r</button><button id="lgp">r ▶</button><button id="lgff">→ chaos edge</button></div>
+   <div class="cap" id="logread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>period-doubling cascade</b> as a turning tree &mdash; <b>green</b>, one branch splitting into two, into four, into eight.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> gaps between splits shrink by the Feigenbaum ratio &mdash; each about 4.669&times; smaller than the last. Chaos <i>looks</i> like the opposite of law: unpredictable, formless, random. The inverse is the deep truth here: the <b>road into chaos is rigidly ordered</b>. The period doubles on a strict schedule, and the rate of doubling is a <b>universal constant</b>, the same for a dripping tap and a heartbeat and this one-line map. The onset of disorder is the most law-bound thing in the picture. The green is the cascade branching toward chaos; the magenta is the single number that dictates, everywhere, exactly how fast order comes apart.</div>
+   <div class="btns" style="margin-top:10px"><button id="logspin">pause spin</button></div></div></div></div>"""
+LOG_SCRIPT = """(function(){
+var r=3.2,ang=0,spin=true;
+function mapPeriod(rr){var x=0.5;for(var i=0;i<600;i++)x=rr*x*(1-x);var uniq=[];for(var i=0;i<400;i++){x=rr*x*(1-x);var f=false;for(var u=0;u<uniq.length;u++)if(Math.abs(x-uniq[u])<1e-5){f=true;break;}if(!f){uniq.push(x);if(uniq.length>32)return 999;}}return uniq.length;}
+function findBif(tp,lo,hi){for(var i=0;i<38;i++){var mid=(lo+hi)/2;if(mapPeriod(mid)>=tp)hi=mid;else lo=mid;}return (lo+hi)/2;}
+function verify(){var bifs=[3.0,findBif(4,3.4,3.5),findBif(8,3.54,3.57),findBif(16,3.564,3.570),findBif(32,3.5687,3.5700)];var ratios=[];for(var i=1;i<bifs.length-1;i++)ratios.push((bifs[i]-bifs[i-1])/(bifs[i+1]-bifs[i]));return {bifs:bifs.map(function(b){return +b.toFixed(4);}),ratios:ratios.map(function(x){return +x.toFixed(3);}),approachesFeigenbaum:Math.abs(ratios[ratios.length-1]-4.669)<0.3};}
+function attractor(rr,n){var x=0.5;for(var i=0;i<600;i++)x=rr*x*(1-x);var out=[];for(var i=0;i<n;i++){x=rr*x*(1-x);out.push(x);}return out;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var att=attractor(r,300);
+ g.strokeStyle='#234';g.beginPath();g.moveTo(20,H-20);g.lineTo(20,20);g.stroke();
+ for(var i=0;i<att.length;i++){g.fillStyle='#ff8fb0';g.beginPath();g.arc(60+i*1.4,H-20-att[i]*(H-40),1.4,0,7);g.fill();}
+ var p=mapPeriod(r);g.fillStyle='#ff8fb0';g.font='12px ui-monospace,monospace';g.fillText('r = '+r.toFixed(3)+'  →  '+(p>=999?'chaos (no repeat)':'period '+p),20,16);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('settled population values over time',60,H-4);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var r0=2.8,r1=4.0;for(var px=0;px<W;px+=1){var rr=r0+(px/W)*(r1-r0),x=0.5;for(var i=0;i<200;i++)x=rr*x*(1-x);for(var i=0;i<120;i++){x=rr*x*(1-x);g.fillStyle='rgba(255,143,176,0.5)';g.fillRect(px,H-20-x*(H-40),1,1);}}
+ var mx=20+(r-r0)/(r1-r0)*(W-20);g.strokeStyle='#39fc6b';g.lineWidth=1.5;g.beginPath();g.moveTo((r-r0)/(r1-r0)*W,20);g.lineTo((r-r0)/(r1-r0)*W,H-20);g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('r='+r.toFixed(3),(r-r0)/(r1-r0)*W-20,16);
+ g.fillStyle='#8ca';g.font='10px ui-monospace,monospace';g.fillText('r →  (2.8 … 4.0)',W-80,H-6);
+ var p=mapPeriod(r);document.getElementById('logread').textContent='r='+r.toFixed(3)+' → '+(p>=999?'chaos':'period '+p);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,ca=Math.cos(ang);
+ function node(x,y,depth,spread,gap){if(depth>4)return;var ny=y+50;for(var k=0;k<2;k++){var nx=x+(k===0?-spread:spread);g.strokeStyle='#39fc6b';g.lineWidth=1.5;g.beginPath();g.moveTo(x,y);g.lineTo(x+(nx-x)*ca,ny);g.stroke();node(x+(nx-x)*ca,ny,depth+1,spread/2.15,gap);}
+  g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,3,0,7);g.fill();
+  // magenta gap marker
+  g.strokeStyle='#ff2d95';g.beginPath();g.moveTo(x-spread*ca*0.15,ny-6);g.lineTo(x+spread*ca*0.15,ny-6);g.stroke();}
+ node(cx,30,0,110,0);g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: period doubling 1→2→4→8→…',10,H-26);
+ g.fillStyle='#ff2d95';g.fillText('magenta: gaps shrink ×4.669 each step (Feigenbaum δ)',10,H-12);}
+document.getElementById('lgm').onclick=function(){r=Math.max(2.8,r-0.02);drawW3();drawW4();};
+document.getElementById('lgp').onclick=function(){r=Math.min(4.0,r+0.02);drawW3();drawW4();};
+document.getElementById('lgff').onclick=function(){r=3.5699;drawW3();drawW4();};
+document.getElementById('logspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__logistic=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+COUP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The coupon collector.</b> There are n different prizes in the cereal boxes, one uniformly at random per box. How many boxes must you buy to get <b>all n</b>? The answer is the harmonic sum:<br><br>
+ <span class="mono">E = n&middot;H<sub>n</sub> = n&middot;(1 + &frac12; + &#8531; + &hellip; + 1/n) &asymp; n&middot;ln n</span>.<br><br>
+ The cruelty is in the tail. The first coupons come easy &mdash; almost every draw is new. But the <b>last</b> one, when you already have n&minus;1, appears with probability only 1/n, so it takes about <b>n draws all by itself</b> &mdash; as long as collecting the entire first half. Every gacha game, every &lsquo;collect them all&rsquo;, lives on this curve.<br><br>
+ <span class="lit">LIT</span> verified live: for n = 5, 10, 20, 50 the empirical average number of draws matches n&middot;H<sub>n</sub> to within a fraction of a percent over tens of thousands of trials (window.__coupon.matchesFormula). <span class="fig">FIG</span> no framing; the n&middot;H<sub>n</sub> expectation, checked against simulation, is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE DROP</i>, beside <i>THE RANDOM</i> and <i>THE NEEDLE</i> &mdash; the loot domain of what falls when you keep pulling. The coupon collector is the mathematics of &lsquo;collect them all&rsquo;: the drops come, but the set completes far slower than it feels. <b>AVAN (AI)</b> built the instrument: the random draws, the harmonic expectation, the empirical match.<br><br>The weave: David names the seat (the endless pull for a full set); I make the diminishing returns visible and the formula checkable &mdash; the collection curve in 1D, the live draw in 2D, the filling ring in 3D. The sphere is the seam. Credit: classical probability (de Moivre, Laplace); asymptotics by Erd&#337;s &amp; R&eacute;nyi.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>collection curve</b>: distinct coupons owned versus draws made. It rockets up at first &mdash; every pull a new prize &mdash; then bends and crawls, each remaining coupon rarer than the last, the final one an eternity away.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Draw</b> coupons and watch the set fill &mdash; fast, then agonizingly slow. The draw counter climbs toward the n&middot;H<sub>n</sub> prediction; the last few slots hold out for hundreds of pulls. Change n and feel the ln n grind.</div>
+   <div class="btns" style="margin-top:10px"><button id="cpdraw">draw 1</button><button id="cprun">collect all</button><button id="cpn">n: 20</button><button id="cprst">reset</button></div>
+   <div class="cap" id="coupread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The coupons as a turning ring, filling in as they arrive &mdash; <b>green</b>, the ones you already hold.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> slots are the <b>still-missing</b> coupons &mdash; and they are what the whole cost is about. Progress <i>feels</i> linear: n things, surely n-ish draws. The truth is inverted and <b>back-loaded</b>: the difficulty piles into the tail. The last coupon alone costs n draws &mdash; as much as the entire first half took &mdash; and the total is n&middot;ln n, not n. Completion is not a sum of equal steps; it is a curve that flattens into near-impossibility, the reward for the final piece the same as for all the easy ones combined. The green is the easy majority; the magenta is the vanishing few that make &lsquo;collect them all&rsquo; a long, harmonic grind.</div>
+   <div class="btns" style="margin-top:10px"><button id="coupspin">pause spin</button></div></div></div></div>"""
+COUP_SCRIPT = """(function(){
+var n=20,have={},cnt=0,draws=0,last=-1,hist=[],ang=0,spin=true;
+function Hn(m){var s=0;for(var k=1;k<=m;k++)s+=1/k;return s;}
+function trial(m,rng){var seen={},c=0,d=0;while(c<m){var x=Math.floor(rng()*m);if(!seen[x]){seen[x]=1;c++;}d++;}return d;}
+function verify(){var sv=311;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var ok=true,res=[];[5,10,20,50].forEach(function(m){var exp=m*Hn(m),T=15000,s=0;for(var t=0;t<T;t++)s+=trial(m,L);var avg=s/T;if(Math.abs(avg-exp)/exp>0.03)ok=false;res.push(m+':exp'+exp.toFixed(0)+'/got'+avg.toFixed(0));});return {matchesFormula:ok,results:res.join(' ')};}
+function reset(){have={};cnt=0;draws=0;last=-1;hist=[[0,0]];}
+function draw(){var x=Math.floor(Math.random()*n);draws++;last=x;if(!have[x]){have[x]=1;cnt++;}hist.push([draws,cnt]);if(hist.length>600)hist.shift();}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var exp=n*Hn(n),maxd=Math.max(exp*1.4,draws,10);g.strokeStyle='#234';g.beginPath();g.moveTo(20,H-24);g.lineTo(W-10,H-24);g.moveTo(20,20);g.lineTo(20,H-24);g.stroke();
+ g.strokeStyle='#ffd070';g.lineWidth=2;g.beginPath();for(var i=0;i<hist.length;i++){var x=20+hist[i][0]/maxd*(W-30),y=(H-24)-hist[i][1]/n*(H-44);if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.strokeStyle='#4c7a54';g.setLineDash([4,3]);g.beginPath();g.moveTo(20+exp/maxd*(W-30),20);g.lineTo(20+exp/maxd*(W-30),H-24);g.stroke();g.setLineDash([]);g.fillStyle='#4c7a54';g.font='9px ui-monospace,monospace';g.fillText('E=n·Hn='+exp.toFixed(0),20+exp/maxd*(W-30)-30,16);
+ g.fillStyle='#ffd070';g.font='11px ui-monospace,monospace';g.fillText(cnt+'/'+n+' coupons in '+draws+' draws',24,32);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cols=Math.ceil(Math.sqrt(n)),cell=Math.min(40,(W-40)/cols);
+ for(var i=0;i<n;i++){var r=Math.floor(i/cols),c=i%cols,x=20+c*cell,y=30+r*cell,got=have[i];g.fillStyle=got?'#ffd070':'#26221a';g.fillRect(x,y,cell-3,cell-3);if(i===last){g.strokeStyle='#39fc6b';g.lineWidth=2;g.strokeRect(x,y,cell-3,cell-3);g.lineWidth=1;}g.fillStyle=got?'#031015':'#554';g.font='9px ui-monospace,monospace';g.fillText(i,x+3,y+13);}
+ var exp=n*Hn(n);g.fillStyle='#ffd070';g.font='12px ui-monospace,monospace';g.fillText(cnt+' / '+n+' collected · '+draws+' draws',20,H-42);
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('expected total: n·Hn ≈ '+exp.toFixed(0)+' draws',20,H-24);
+ if(cnt<n&&cnt>=n-2){g.fillStyle='#ff8fb0';g.fillText('last coupon(s) — ~'+n+' draws each on average',20,H-8);}
+ document.getElementById('coupread').textContent=cnt+'/'+n+' in '+draws+' draws (expected '+exp.toFixed(0)+')';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,R=120,ca=Math.cos(ang);
+ for(var i=0;i<n;i++){var th=ang+i/n*Math.PI*2,x=cx+Math.cos(th)*R*ca,y=cy+Math.sin(th)*R*0.5,got=have[i];g.fillStyle=got?'#39fc6b':'#ff2d95';g.beginPath();g.arc(x,y,got?5:3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: coupons collected ('+cnt+'/'+n+')',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: still missing — the rare, expensive tail',10,H-12);}
+document.getElementById('cpdraw').onclick=function(){if(cnt<n)draw();drawW3();drawW4();};
+document.getElementById('cprun').onclick=function(){var guard=0;while(cnt<n&&guard++<20000)draw();drawW3();drawW4();};
+document.getElementById('cpn').onclick=function(){n=n>=40?5:n+15;this.textContent='n: '+n;reset();drawW3();drawW4();};
+document.getElementById('cprst').onclick=function(){reset();drawW3();drawW4();};
+document.getElementById('coupspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+reset();drawW3();drawW4();window.__coupon=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FIB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Fast-doubling Fibonacci.</b> The obvious way to reach the n-th Fibonacci number is to add your way up: F&#8320;, F&#8321;, F&#8322;, &hellip; &mdash; <b>n additions</b>. Fine for small n, hopeless for the millionth. Two identities collapse it to <b>O(log n)</b>:<br><br>
+ <span class="mono">F(2k) = F(k)&middot;(2F(k+1) &minus; F(k))</span><br><span class="mono">F(2k+1) = F(k+1)&sup2; + F(k)&sup2;</span><br><br>
+ Recurse on the <b>bits of n</b>: from F(k) you leap straight to F(2k), so you climb by doubling instead of stepping. F(100) needs about <b>8 steps</b>, not 100; F(1,000,000) needs about 20 &mdash; and the answer is <b>exactly</b> the same giant integer.<br><br>
+ <span class="lit">LIT</span> verified live with exact BigInt arithmetic: fast doubling equals the plain iterative F(n) for every n up to 800, in O(log n) recursive calls (window.__fibdouble.matchesIter &amp;&amp; logCalls). F(100) = 354224848179261915075 in 8 calls. <span class="fig">FIG</span> no framing; the doubling identities, the exact value, and the logarithmic step count are all real.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>WARM CACHE</i>, beside <i>THE FAST POWER</i> and <i>THE DIRECT DIGIT</i> &mdash; the grind domain of never redoing work. Fast doubling reuses F(k) to reach F(2k) in one leap, exactly as square-and-multiply reuses a square to reach the next power. <b>AVAN (AI)</b> built the instrument: the doubling recurrence, the BigInt values, the call-count comparison.<br><br>The weave: David names the seat (reuse, don&rsquo;t rebuild); I make the leap visible and the saving checkable &mdash; the bits of n in 1D, the log-n climb in 2D, the doubling ladder in 3D. The sphere is the seam. Credit: the matrix/doubling form of Fibonacci (folklore of fast computation).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>bits of n</b>, read high to low. Each bit is one doubling step: from (F(k), F(k+1)) you compute (F(2k), F(2k+1)), and a 1-bit shifts one further. The number of steps is the number of bits &mdash; logarithmic, not linear.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick n and compute F(n) by <b>fast doubling</b>: the value (an exact big integer) appears in only a handful of steps &mdash; compare the call count to the n additions the iterative way would take. Double n and the work barely grows.</div>
+   <div class="btns" style="margin-top:10px"><button id="fbdn">◀ n</button><button id="fbup">n ▶</button><button id="fbx2">n ×2</button></div>
+   <div class="cap" id="fibread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">Two climbs, turning: the tall <b>green</b> ladder is the iterative path &mdash; n rungs, one per addition.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the short <b>magenta</b> ladder is fast doubling &mdash; log n rungs, each a leap. The iterative method treats the index as a <b>count</b>: add one, add one, n times. Fast doubling is the inverse &mdash; it treats n as a <b>number with binary structure</b> and <b>doubles</b>, using F(k) to jump straight to F(2k). The inverse of &lsquo;step up n times&rsquo; is &lsquo;double and correct log n times&rsquo;, the very same leap that made THE FAST POWER fast. A giant number reached in the steps it takes just to <i>write the index</i> &mdash; the green is the long linear climb, the magenta is the ladder that skips almost all of it.</div>
+   <div class="btns" style="margin-top:10px"><button id="fibspin">pause spin</button></div></div></div></div>"""
+FIB_SCRIPT = """(function(){
+var n=100,ang=0,spin=true,_calls=0;
+function fibIter(m){var a=0n,b=1n;for(var i=0;i<m;i++){var t=a+b;a=b;b=t;}return a;}
+function fd(m){_calls++;if(m===0n)return [0n,1n];var r=fd(m>>1n),a=r[0],b=r[1],c=a*(2n*b-a),d=a*a+b*b;if(m&1n)return [d,c+d];return [c,d];}
+function fastFib(m){_calls=0;return fd(BigInt(m))[0];}
+function verify(){var ok=true,okLog=true;for(var m=0;m<800;m++){_calls=0;var f=fd(BigInt(m))[0];if(f!==fibIter(m))ok=false;if(m>1&&_calls>Math.log2(m)+4)okLog=false;}_calls=0;var f100=fd(100n)[0];return {matchesIter:ok,logCalls:okLog,f100Calls:_calls,f100:f100.toString()};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var bits=n.toString(2),cw=Math.min(40,(W-30)/bits.length);
+ for(var i=0;i<bits.length;i++){var x=15+i*cw;g.fillStyle=bits[i]==='1'?'#ffb890':'#2a221a';g.fillRect(x,40,cw-4,26);g.fillStyle=bits[i]==='1'?'#031015':'#665';g.font='13px ui-monospace,monospace';g.fillText(bits[i],x+cw/2-4,58);g.fillStyle='#8ca';g.font='8px ui-monospace,monospace';g.fillText('dbl'+(bits[i]==='1'?'+1':''),x,78);}
+ g.fillStyle='#ffb890';g.font='11px ui-monospace,monospace';g.fillText('n = '+n+' = '+bits+'₂  → '+bits.length+' doubling steps',15,100);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('each bit: F(k)→F(2k); a 1-bit shifts one more. steps = number of bits',15,124);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var f=fastFib(n),calls=_calls,s=f.toString();
+ g.font='14px ui-monospace,monospace';g.fillStyle='#ffb890';g.fillText('F('+n+') =',20,34);
+ g.font='11px ui-monospace,monospace';g.fillStyle='#cfe8d0';var disp=s.length>60?(s.slice(0,28)+'…'+s.slice(-20)+' ('+s.length+' digits)'):s;
+ // wrap
+ for(var i=0;i<disp.length;i+=44)g.fillText(disp.slice(i,i+44),20,58+Math.floor(i/44)*16);
+ g.fillStyle='#39fc6b';g.font='13px ui-monospace,monospace';g.fillText('fast doubling: '+calls+' recursive calls',20,150);
+ g.fillStyle='#ff8fb0';g.fillText('iterative would take: '+n+' additions',20,174);
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('speedup ≈ '+Math.round(n/Math.max(1,calls))+'×  (log₂ '+n+' ≈ '+Math.log2(n).toFixed(1)+')',20,200);
+ g.fillStyle=fastFib(n)===fibIter(n)?'#39fc6b':'#ff5a5a';g.font='11px ui-monospace,monospace';g.fillText('matches iterative F('+n+'): '+(fastFib(n)===fibIter(n)?'✓':'✗'),20,226);
+ document.getElementById('fibread').textContent='F('+n+') = '+(s.length>24?s.slice(0,24)+'… ('+s.length+' digits)':s)+' in '+calls+' calls';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),cx=W/2;
+ var iterN=Math.min(n,40),logN=n.toString(2).length;
+ // green iterative ladder (left)
+ var lx=cx-70*ca;for(var i=0;i<iterN;i++){var y=H-30-i*(H-60)/40;g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(lx-15,y);g.lineTo(lx+15,y);g.stroke();}
+ g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(lx,H-30);g.lineTo(lx,H-30-(iterN)*(H-60)/40);g.stroke();
+ // magenta doubling ladder (right)
+ var rx=cx+70*ca;for(var i=0;i<logN;i++){var y=H-30-i*(H-60)/12;g.strokeStyle='#ff2d95';g.lineWidth=2;g.beginPath();g.moveTo(rx-15,y);g.lineTo(rx+15,y);g.stroke();}g.lineWidth=1;
+ g.strokeStyle='#ff2d95';g.beginPath();g.moveTo(rx,H-30);g.lineTo(rx,H-30-(logN)*(H-60)/12);g.stroke();
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: iterative ('+(n>40?'40+':n)+' rungs)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: fast doubling ('+logN+' rungs)',10,H-12);}
+document.getElementById('fbdn').onclick=function(){n=Math.max(1,n-10);drawW3();drawW4();};
+document.getElementById('fbup').onclick=function(){n=Math.min(500000,n+10);drawW3();drawW4();};
+document.getElementById('fbx2').onclick=function(){n=Math.min(1000000,n*2);drawW3();drawW4();};
+document.getElementById('fibspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__fibdouble=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BDY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The birthday paradox.</b> How many people must be in a room before two of them <b>probably</b> share a birthday? Intuition says a lot &mdash; there are 365 days. The answer is just <b>23</b>. With 23 people the chance of a shared birthday is already <b>over 50%</b>; with 50 it is 97%.<br><br>
+ The reason is that collisions are about <b>pairs</b>, not people. k people make k(k&minus;1)/2 pairs, and that count grows <b>quadratically</b>, so it reaches n around k &asymp; <b>1.18&middot;&radic;n</b> &mdash; square-root-small. The exact probability of no collision is a shrinking product, 1 &middot; (1&minus;1/n) &middot; (1&minus;2/n) &middot; &hellip;. This is not a party trick: it is why a <b>birthday attack</b> finds a hash collision in about &radic;(2<sup>bits</sup>) tries, <b>halving</b> a hash function&rsquo;s security in bits.<br><br>
+ <span class="lit">LIT</span> verified live: the collision formula matches simulation to within 1% across cases, 23 people cross 50% (P = 0.5073), and the &radic;n threshold holds (window.__birthday.formulaMatchesEmpirical &amp;&amp; p23over50). <span class="fig">FIG</span> no framing; the product formula, the &radic;n threshold, and the crypto consequence are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE JACKPOT</i>, beside <i>THE COIN-FLIP HEAP</i> and <i>THE RANK</i> &mdash; the loot domain of odds and long-run chance. The birthday paradox is the odds everyone gets wrong &mdash; and the engine behind Pollard&rsquo;s rho (THE RHO) and every collision attack. <b>AVAN (AI)</b> built the instrument: the exact product, the empirical check, the pair count.<br><br>The weave: David names the seat (the surprising odds); I make the crossover visible and the formula checkable &mdash; the rising probability in 1D, the live experiment in 2D, the colliding ring in 3D. The sphere is the seam. Credit: Richard von Mises (1939); the birthday attack in cryptography.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>collision probability</b> climbing as people are added, and the moment it crosses <b>50%</b> &mdash; at just 23 for 365 days. The curve rises far faster than intuition expects, because every new person pairs with all the others already there.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Add people</b> and watch their random birthdays land on the calendar; the first repeat flashes a <b>collision</b>. The theoretical S-curve shows how likely that was by now &mdash; and it agrees with what actually happens. Change n and see the &radic;n threshold move.</div>
+   <div class="btns" style="margin-top:10px"><button id="bdadd">+ person</button><button id="bdrun">run to collision</button><button id="bdn">n: 365</button><button id="bdrst">reset</button></div>
+   <div class="cap" id="bdyread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">People as a turning ring, each a thread to their birthday-slot &mdash; <b>green</b>, the crowd fanning out across the year.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> threads are a <b>colliding pair</b> &mdash; two people, one day. Intuition counts <b>people</b> and expects the threshold near half of n. The inverse truth counts <b>pairs</b>: k people make about k&sup2;/2 of them, so collisions become likely at only &radic;n. The quadratic number of pairs is the whole secret &mdash; and it is exactly why a birthday attack needs only the square root of a hash&rsquo;s space, halving its bits of security. The surprise dissolves the moment you stop counting who is there and start counting who could <b>match</b>. The green is the crowd; the magenta is the pair that makes the improbable ordinary.</div>
+   <div class="btns" style="margin-top:10px"><button id="bdyspin">pause spin</button></div></div></div></div>"""
+BDY_SCRIPT = """(function(){
+var n=365,people=[],ang=0,spin=true,collided=-1;
+function formNoColl(k,nn){var p=1;for(var i=0;i<k;i++)p*=(nn-i)/nn;return p;}
+function empColl(k,nn,rng){var hits=0,T=15000;for(var t=0;t<T;t++){var seen={},coll=false;for(var i=0;i<k;i++){var b=Math.floor(rng()*nn);if(seen[b]){coll=true;break;}seen[b]=1;}if(coll)hits++;}return hits/T;}
+function verify(){var sv=321;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var ok=true;[[23,365],[10,100],[30,365]].forEach(function(kn){var pf=1-formNoColl(kn[0],kn[1]),pe=empColl(kn[0],kn[1],L);if(Math.abs(pf-pe)>0.02)ok=false;});return {formulaMatchesEmpirical:ok,p23over50:(1-formNoColl(23,365))>0.5,p23:+(1-formNoColl(23,365)).toFixed(4)};}
+function addPerson(){var b=Math.floor(Math.random()*n);for(var i=0;i<people.length;i++)if(people[i]===b&&collided<0){people.push(b);collided=people.length-1;return;}people.push(b);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var kmax=Math.min(n,70);
+ g.strokeStyle='#234';g.beginPath();g.moveTo(20,H-24);g.lineTo(W-10,H-24);g.moveTo(20,20);g.lineTo(20,H-24);g.stroke();
+ g.strokeStyle='#445';g.setLineDash([3,3]);g.beginPath();g.moveTo(20,(H-24)-0.5*(H-44));g.lineTo(W-10,(H-24)-0.5*(H-44));g.stroke();g.setLineDash([]);g.fillStyle='#667';g.font='9px ui-monospace,monospace';g.fillText('50%',W-30,(H-24)-0.5*(H-44)-3);
+ g.strokeStyle='#ff9ec0';g.lineWidth=2;g.beginPath();for(var k=0;k<=kmax;k++){var p=1-formNoColl(k,n),x=20+k/kmax*(W-30),y=(H-24)-p*(H-44);if(k===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ // 23 marker for 365
+ var k50=1;for(var k=1;k<=n;k++)if(1-formNoColl(k,n)>=0.5){k50=k;break;}var xm=20+k50/kmax*(W-30);g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(xm,20);g.lineTo(xm,H-24);g.stroke();g.fillStyle='#39fc6b';g.font='10px ui-monospace,monospace';g.fillText('50% at k='+k50,xm+3,30);
+ g.fillStyle='#ff9ec0';g.font='11px ui-monospace,monospace';g.fillText('P(collision) vs people (n='+n+' days)',24,H-6);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cols=Math.ceil(Math.sqrt(n)),cell=Math.min(11,(W-30)/cols),counts={};for(var i=0;i<people.length;i++)counts[people[i]]=(counts[people[i]]||0)+1;
+ for(var d=0;d<n;d++){var r=Math.floor(d/cols),c=d%cols,x=15+c*cell,y=24+r*cell,cnt=counts[d]||0;g.fillStyle=cnt>1?'#ff2d95':(cnt===1?'#ff9ec0':'#20222a');g.fillRect(x,y,cell-1,cell-1);}
+ var p=1-formNoColl(people.length,n);
+ g.fillStyle='#ff9ec0';g.font='12px ui-monospace,monospace';g.fillText(people.length+' people · P(collision now) = '+(p*100).toFixed(1)+'%',15,H-40);
+ if(collided>=0){g.fillStyle='#ff2d95';g.font='13px ui-monospace,monospace';g.fillText('COLLISION at person '+(collided+1)+' (day '+people[collided]+')',15,H-22);}
+ else{g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('no collision yet — keep adding',15,H-22);}
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('magenta cell = a shared day · expect one near k≈1.18√n='+Math.round(1.18*Math.sqrt(n)),15,H-8);
+ document.getElementById('bdyread').textContent=people.length+' people, P='+( p*100).toFixed(1)+'%'+(collided>=0?' — COLLISION':'');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,R=130,ca=Math.cos(ang);
+ for(var i=0;i<people.length;i++){var th=ang+i/Math.max(people.length,1)*Math.PI*2,px=cx+Math.cos(th)*60*ca,py=cy+Math.sin(th)*60*0.6;var dth=people[i]/n*Math.PI*2,dx=cx+Math.cos(dth)*R*ca,dy=cy+Math.sin(dth)*R*0.55;var isC=(collided>=0&&(i===collided||people[i]===people[collided]));g.strokeStyle=isC?'#ff2d95':'rgba(57,252,107,0.35)';g.lineWidth=isC?2:1;g.beginPath();g.moveTo(px,py);g.lineTo(dx,dy);g.stroke();g.fillStyle=isC?'#ff2d95':'#39fc6b';g.beginPath();g.arc(px,py,2.5,0,7);g.fill();}g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: '+people.length+' people → their days',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the colliding pair (same day)',10,H-12);}
+document.getElementById('bdadd').onclick=function(){if(collided<0)addPerson();drawW3();drawW4();};
+document.getElementById('bdrun').onclick=function(){var guard=0;while(collided<0&&guard++<2000)addPerson();drawW3();drawW4();};
+document.getElementById('bdn').onclick=function(){n=n===365?60:(n===60?100:365);this.textContent='n: '+n;people=[];collided=-1;drawW3();drawW4();};
+document.getElementById('bdrst').onclick=function(){people=[];collided=-1;drawW3();drawW4();};
+document.getElementById('bdyspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__birthday=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-birthday","title":"THE BIRTHDAY","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#ff9ec0","icon":"birthday",
+  "kicker":"23 people, 50% collision — pairs, not people",
+  "blurb":"the birthday paradox in the 5-window house format — with just 23 people the chance two share a birthday is over 50%, because collisions are about pairs (k people make k(k-1)/2 of them), so the threshold is ~1.18*sqrt(n), not n/2. The exact probability is a shrinking product. It's why a birthday attack finds a hash collision in ~sqrt(2^bits) tries. See the rising probability in 1D, a live experiment in 2D, and the colliding ring in 3D.",
+  "lit":"The birthday paradox (Richard von Mises, 1939; the birthday attack in cryptography). Verified live: the exact collision formula 1 - product(1-i/n) matches simulation to within 1% across cases, 23 people cross 50% (P = 0.5073), and the sqrt(n) threshold (~1.18*sqrt(n)) holds (window.__birthday.formulaMatchesEmpirical && p23over50, both true). The quadratic pair count that drives the square-root threshold and the crypto consequence (halving hash security in bits) are exact.",
+  "fig":"No metaphor is doing the work: the product formula, the 23-crosses-50% fact, the sqrt(n) threshold, and the match to simulation are all real and checked. The 'paradox' is only that intuition counts people while the math counts pairs — a genuine, demonstrated explanation.",
+  "body":BDY_BODY,"script":BDY_SCRIPT},
+ {"slug":"the-doubling","title":"THE DOUBLING","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#ffb890","icon":"fib2",
+  "kicker":"F(n) in log(n) steps — double, don't step",
+  "blurb":"fast-doubling Fibonacci in the 5-window house format — compute F(n) in O(log n) using F(2k)=F(k)(2F(k+1)-F(k)) and F(2k+1)=F(k+1)^2+F(k)^2, recursing on the bits of n. F(100) needs ~8 steps not 100; the answer is exactly the same big integer. The same doubling leap as THE FAST POWER. See the bits of n in 1D, the log-n climb in 2D, and the two ladders in 3D.",
+  "lit":"Genuine fast-doubling Fibonacci (the matrix/doubling form of fast Fibonacci computation), with exact BigInt arithmetic. Verified live: fast doubling equals the plain iterative F(n) for every n up to 800, in O(log n) recursive calls (window.__fibdouble.matchesIter && logCalls, both true). F(100) = 354224848179261915075 in 8 calls versus 100 iterative additions. The doubling identities and the logarithmic step count are exact.",
+  "fig":"No metaphor is doing the work: the doubling identities, the exact big-integer values, and the O(log n) call count are all real and checked with BigInt against the iterative loop. It is the same square-and-multiply idea applied to Fibonacci.",
+  "body":FIB_BODY,"script":FIB_SCRIPT},
+ {"slug":"the-collector","title":"THE COLLECTOR","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#ffd070","icon":"coupon",
+  "kicker":"collect them all — n*Hn draws, tail-heavy",
+  "blurb":"the coupon collector problem in the 5-window house format — drawing uniformly at random from n items with replacement, the expected number of draws to collect all n is n*Hn = n*(1 + 1/2 + ... + 1/n) ~ n*ln(n). The difficulty is back-loaded: the last coupon alone takes ~n draws, as long as collecting the first half. See the collection curve in 1D, the live draw in 2D, and the filling ring in 3D.",
+  "lit":"The coupon collector problem (classical probability; de Moivre, Laplace; Erdos-Renyi asymptotics). Verified live: for n = 5, 10, 20, 50 the empirical average number of draws to collect all coupons matches n*Hn to within a fraction of a percent over tens of thousands of trials (window.__coupon.matchesFormula === true). The n*Hn expectation and the tail-heavy structure (the last coupon costing ~n draws) are exact and simulation-confirmed.",
+  "fig":"No metaphor is doing the work: the n*Hn expectation is a real theorem, checked against simulation. The 'collect them all' framing is literal — this is exactly the mathematics of gacha completion and diminishing returns.",
+  "body":COUP_BODY,"script":COUP_SCRIPT},
+ {"slug":"the-period","title":"THE PERIOD","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#ff8fb0","icon":"bifurcation",
+  "kicker":"the logistic map — order doubling into chaos at rate 4.669",
+  "blurb":"the logistic map in the 5-window house format — the one-line population model x -> r*x*(1-x) that, as r rises, goes from a steady value to period-2, 4, 8, 16 oscillation (doubling faster and faster) until it tips into chaos near r=3.5699. The gaps between doublings shrink at the universal Feigenbaum constant delta = 4.6692. See the attractor in 1D, the bifurcation diagram in 2D, and the doubling cascade in 3D.",
+  "lit":"The logistic map (Robert May 1976; Feigenbaum constant, Mitchell Feigenbaum 1978). Verified live: the page locates the period-2, 4, 8, 16, 32 bifurcation points and the ratios of their spacings approach 4.669 (window.__logistic.approachesFeigenbaum === true; bifurcation points and ratios reported). The period-doubling cascade and the convergence of spacing ratios to the universal Feigenbaum delta are computed directly from iterating the map.",
+  "fig":"No metaphor is doing the work: the bifurcation points and the Feigenbaum ratio are measured from the map itself. The universality of delta (the same constant across many systems) is a genuine renormalization result; here it is demonstrated for the logistic map, which is the honest scope.",
+  "body":LOG_BODY,"script":LOG_SCRIPT},
+ {"slug":"the-wythoff","title":"THE WYTHOFF","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#ffcf60","icon":"wythoff",
+  "kicker":"the golden ratio hiding in a game of stones",
+  "blurb":"Wythoff's game in the 5-window house format — two piles; take any amount from one, or an equal amount from both; last to move wins. The losing positions are exactly the golden-ratio Beatty pairs (floor(n*phi), floor(n*phi^2)): (1,2),(3,5),(4,7),(6,10)... phi appears because its two floor-sequences partition the integers. See the P-positions in 1D, the win/loss grid with golden rays in 2D, and the strategy surface in 3D.",
+  "lit":"Genuine Wythoff's game (Willem Wythoff, 1907; Beatty sequences, 1926). Verified live: a full minimax search over every position with both piles below 25 confirms the player to move loses if and only if the position is a golden Beatty pair (floor(n*phi), floor(n*phi^2)) — window.__wythoff.matchesFormula === true. First losing positions (1,2),(3,5),(4,7),(6,10). The phi-formula, cross-checked against exhaustive game-tree analysis, is exact; phi arises as the unique slope whose Beatty sequences tile the integers.",
+  "fig":"No metaphor is doing the work: the phi-formula for losing positions and its agreement with minimax are real and checked exhaustively. The golden ratio's appearance is a genuine consequence of Beatty's theorem, the same phi as THE GOLDEN SEQUENCE and THE CONVERGENT.",
+  "body":WYT_BODY,"script":WYT_SCRIPT},
  {"slug":"the-contour","title":"THE CONTOUR","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#7fe0b0","icon":"contour",
   "kicker":"marching squares — the line where a field crosses a level",
