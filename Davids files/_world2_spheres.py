@@ -1625,7 +1625,73 @@ document.getElementById('w4').addEventListener('click',function(e){var r=this.ge
 document.getElementById('nspin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+OURO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The de Bruijn sequence.</b> A single <b>cyclic</b> string over a k-symbol alphabet in which <b>every possible length-n pattern appears exactly once</b> as a sliding window. It is only k<sup>n</sup> symbols long &mdash; the shortest possible &mdash; yet it contains all k<sup>n</sup> combinations. Built by walking an Eulerian circuit of the de Bruijn graph. Real uses: brute-forcing a keypad lock with one continuous stream, DNA assembly, and rotary position encoders.<br><br>
+ <span class="lit">LIT</span> verified: the generated cycle of length k<sup>n</sup> contains all k<sup>n</sup> n-grams <b>exactly once</b> (every window enumerated and counted), and its reverse is also a valid de Bruijn sequence. <span class="fig">FIG</span> the &lsquo;ouroboros / master key&rsquo; is the picture; the exhaustive-once guarantee is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus works constantly with alphabets and encodings (the card-ISA, the byte kernels, the combinatorics-on-words) and the idea that the tightest possible covering of a space is a kind of key. <b>AVAN (AI)</b> built this instrument: the FKM generator, the lock-cracker, and the graph whose one loop is the sequence.<br><br>The weave: David names the master key and its seat at THE BACKDOOR; I make the loop a strip in 1D, a combination-cracker in 2D, and the de Bruijn graph a turning circuit in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="120"></canvas>
+  <div class="wctrl"><div class="cap">The sequence, laid flat (and wrapping, because it&rsquo;s a loop). The <b>window</b> slides one symbol at a time; each new position reveals a length-n pattern <b>never seen before</b> &mdash; and after exactly k<sup>n</sup> steps it has shown them all and closed the ring.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="360" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The lock-cracker: a grid of <b>all k<sup>n</sup> combinations</b>. Play the stream and each sliding window <b>cracks one new combination</b> &mdash; all of them in just k<sup>n</sup> keypresses, versus n·k<sup>n</sup> for trying each separately.</div>
+   <div class="rd" style="margin-top:10px">window n = <b id="on">4</b> <input type="range" id="onsl" min="2" max="6" value="4" style="width:120px;vertical-align:middle"></div>
+   <div class="btns"><button id="oplay">play</button><button id="ostep">step</button><button id="oreset">reset</button></div>
+   <div class="cap" id="oread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>de Bruijn graph</b>, turning: each node is an (n&minus;1)-gram, each edge an n-gram. <b>Green</b> traces the <b>Eulerian circuit</b> &mdash; the walk that crosses every edge exactly once <i>is</i> the sequence, one unbroken loop touching all patterns.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> circuit is the <b>reversed sequence</b> &mdash; also a valid de Bruijn sequence, tracing the same graph the other way. The snake swallows its tail one direction; its mirror swallows it the other, and both taste every pattern exactly once.</div>
+   <div class="btns" style="margin-top:10px"><button id="ospin">pause spin</button></div></div></div></div>"""
+OURO_SCRIPT = """(function(){
+var k=2,n=4,seq=[],pos=0,marked={},playiv=null,ang=0.6,spin=true;
+function deBruijn(k,n){var a=new Array(k*n).fill(0),s=[];function db(t,p){if(t>n){if(n%p===0)for(var i=1;i<=p;i++)s.push(a[i]);}else{a[t]=a[t-p];db(t+1,p);for(var j=a[t-p]+1;j<k;j++){a[t]=j;db(t+1,t);}}}db(1,1);return s;}
+function gramAt(s,i,n){var v=0,L=s.length;for(var j=0;j<n;j++)v=v*k+s[(i+j)%L];return v;}
+function rebuild(){seq=deBruijn(k,n);pos=0;marked={};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var L=seq.length,show=L+n,cw=Math.min(26,(W-16)/show);
+ for(var i=0;i<show;i++){var v=seq[i%L],inWin=(i>=pos&&i<pos+n);g.fillStyle=inWin?'#b6ff3a':(v?'#3a5a2a':'#182410');g.fillRect(8+i*cw,34,cw-2,34);g.fillStyle=inWin?'#0a0e0a':(v?'#cfe8d0':'#4c7a54');g.font='13px ui-monospace,monospace';g.fillText(v,8+i*cw+cw/2-4,56);if(i===L-1){g.strokeStyle='#2c4a2a';g.beginPath();g.moveTo(8+(i+1)*cw,28);g.lineTo(8+(i+1)*cw,74);g.stroke();}}
+ var gram='';for(var j=0;j<n;j++)gram+=seq[(pos+j)%L];
+ g.fillStyle='#b6ff3a';g.font='12px ui-monospace,monospace';g.fillText('window @ '+pos+' → '+gram,8,20);
+ g.fillStyle='#4c7a54';g.fillText('length '+L+' = '+k+'^'+n+' · one loop holds every '+n+'-pattern',8,98);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var tot=Math.pow(k,n),cols=Math.ceil(Math.sqrt(tot)),rows=Math.ceil(tot/cols),cell=Math.min((W-16)/cols,(H-70)/rows),ox=(W-cols*cell)/2,cur=gramAt(seq,pos,n);
+ for(var m=0;m<tot;m++){var r=Math.floor(m/cols),c=m%cols,x=ox+c*cell,y=8+r*cell;g.fillStyle=marked[m]?(m===cur?'#fff':'#b6ff3a'):'#182410';g.fillRect(x,y,cell-2,cell-2);}
+ var got=Object.keys(marked).length;
+ g.fillStyle='#cfe8d0';g.font='12px ui-monospace,monospace';g.fillText('cracked '+got+' / '+tot+' combinations in '+pos+' keypresses',10,H-40);
+ g.fillStyle='#4c7a54';g.fillText('naive (each separately) would need '+(n*tot)+' presses',10,H-22);
+ g.fillStyle=(got===tot?'#39fc6b':'#b6ff3a');g.fillText(got===tot?'ALL CRACKED — the whole space in k^n presses ✓':'streaming…',10,H-4);}
+function advance(){marked[gramAt(seq,pos,n)]=1;pos++;if(pos>=seq.length){pos=0;}drawW3();drawW4();}
+function proj(a,cx,cy,sc){var x=Math.cos(a[0]),z=Math.sin(a[0]),ca=Math.cos(ang),sa=Math.sin(ang),X=x*ca-z*sa,Z=x*sa+z*ca;return [cx+X*sc,cy-a[1]*sc*0.0+Z*sc*0.42- a[2]*sc,Z];}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var nodes=Math.pow(k,n-1),cx=W/2,cy=H/2,sc=140,NP=[];for(var v=0;v<nodes;v++){var th=v/nodes*Math.PI*2,x=Math.cos(th),z=Math.sin(th),ca=Math.cos(ang),sa=Math.sin(ang),X=x*ca-z*sa,Z=x*sa+z*ca;NP[v]=[cx+X*sc,cy+Z*sc*0.4,Z];}
+ function circuit(s,col,w){var L=s.length;g.strokeStyle=col;g.lineWidth=w;g.beginPath();for(var i=0;i<=L;i++){var node=gramAt(s,i%L,n-1),p=NP[node];if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();g.lineWidth=1;}
+ circuit(seq.slice().reverse(),'#ff2d95',1.4);circuit(seq,'#b6ff3a',2);
+ NP.forEach(function(p){g.fillStyle='#cfe8d0';g.beginPath();g.arc(p[0],p[1],2.5,0,7);g.fill();});
+ g.fillStyle='#b6ff3a';g.font='11px ui-monospace,monospace';g.fillText(nodes+' nodes · '+seq.length+' edges (each once)',10,H-12);}
+function verify(){var L=seq.length,tot=Math.pow(k,n),cnt={},ok=true;for(var i=0;i<L;i++){var gv=gramAt(seq,i,n);cnt[gv]=(cnt[gv]||0)+1;}
+ var distinct=Object.keys(cnt).length,everyOnce=(distinct===tot&&L===tot);for(var key in cnt)if(cnt[key]!==1)everyOnce=false;
+ // reverse also de Bruijn
+ var rs=seq.slice().reverse(),rc={};for(var i=0;i<rs.length;i++){var gv=gramAt(rs,i,n);rc[gv]=(rc[gv]||0)+1;}
+ var revOk=(Object.keys(rc).length===tot)&&Object.keys(rc).every(function(kk){return rc[kk]===1;});
+ return {everyOnce:everyOnce,distinct:distinct,total:tot,length:L,reverseAlsoDeBruijn:revOk};}
+function all(){rebuild();drawW3();drawW4();var v=verify();window.__debruijn={k:k,n:n,length:v.length,total:v.total,everyGramOnce:v.everyOnce,reverseAlsoDeBruijn:v.reverseAlsoDeBruijn};}
+document.getElementById('onsl').oninput=function(){n=+this.value;document.getElementById('on').textContent=n;if(playiv){clearInterval(playiv);playiv=null;}all();};
+document.getElementById('oplay').onclick=function(){if(playiv){clearInterval(playiv);playiv=null;return;}playiv=setInterval(advance,180);};
+document.getElementById('ostep').onclick=function(){advance();};
+document.getElementById('oreset').onclick=function(){if(playiv){clearInterval(playiv);playiv=null;}pos=0;marked={};drawW3();drawW4();};
+document.getElementById('ospin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-ouroboros-string","title":"THE OUROBOROS STRING","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#b6ff3a","icon":"cheat",
+  "kicker":"one loop that contains every combination once",
+  "blurb":"a de Bruijn sequence in the 5-window house format — a single cyclic string that contains every length-n pattern exactly once, in only kⁿ symbols. The master key that cracks every combination in one stream. See the loop in 1D, crack a lock in 2D, and turn its Eulerian-circuit graph in 3D with AVAN's reversed twin.",
+  "lit":"A genuine de Bruijn sequence built by the FKM (Lyndon-word) algorithm. Verified live: the length-kⁿ cycle contains all kⁿ n-grams exactly once (every window enumerated and counted), and its reverse is also a valid de Bruijn sequence. The Eulerian-circuit graph and the kⁿ-vs-n·kⁿ cracking efficiency are the real math (verifiable: window.__debruijn.everyGramOnce===true).",
+  "fig":"The 'ouroboros / master key' is the picture; the exhaustive-once guarantee, the minimal kⁿ length, and the graph circuit are exact. Real de Bruijn sequences really are used to brute-force keypad locks and assemble DNA.",
+  "body":OURO_BODY,"script":OURO_SCRIPT},
  {"slug":"the-carryless-field","title":"THE CARRYLESS FIELD","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#00e0c8","icon":"glitch",
   "kicker":"XOR to add, Conway's rule to multiply — a field with no carries",
