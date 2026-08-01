@@ -2080,7 +2080,75 @@ document.getElementById('fclr2').onclick=function(){bit=new Array(N+1).fill(0);a
 document.getElementById('fspin3').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+MR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Miller&ndash;Rabin test.</b> Trial division can <i>prove</i> a number prime, but it is hopeless on the hundreds-of-digits primes cryptography needs. Miller&ndash;Rabin instead <b>interrogates</b> n with random &lsquo;witnesses&rsquo;: it exploits the fact that modulo a prime, <b>1 has only two square roots (&plusmn;1)</b>. Pick a base a, walk a chain of squarings, and if a &lsquo;rogue&rsquo; square root of 1 appears, n is <b>definitely composite</b> &mdash; a is a witness. If not, n is <b>probably prime</b>.<br><br>
+ <span class="lit">LIT</span> verified: primes are exposed by <b>no</b> base; every odd composite is exposed by <b>&ge;3/4 of bases</b> (so t rounds err with probability &le;4<sup>&minus;t</sup>) &mdash; even Carmichael numbers like 561 that fool the Fermat test are caught. <span class="fig">FIG</span> &lsquo;witnesses / sudden death&rsquo; is the picture; the 3/4 bound is the exact theorem.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus leans on primes and modular arithmetic everywhere (<i>THE MINT</i>, <i>THE SIEVE</i>, the crypto spheres) and the idea that you can be <i>almost</i> certain far faster than certain. <b>AVAN (AI)</b> built this instrument: the witness engine, the base-sweep, and the squaring graph.<br><br>The weave: David names the probable prime and its seat at SUDDEN DEATH (a composite usually dies in one round); I make the squaring chain a strip in 1D, the witness-sweep live in 2D, and the roots-of-1 trapdoors a turning graph in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The witness chain for base 2. Write n&minus;1 = 2<sup>s</sup>&middot;d, then compute 2<sup>d</sup>, and <b>square</b> it, and again&hellip; A prime lands on 1 only via &plusmn;1; if this chain hits a <b>1 that arrived from something other than &plusmn;1</b>, the base has exposed a composite.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">Sweep <b>every base</b> 2&hellip;n&minus;1 for the chosen n: <b>green</b> = fooled (calls it probably prime), <b>red</b> = witness (exposes it). A prime is a <b>field of green</b>; a composite is <b>&ge;3/4 red</b>. Try 561 &mdash; a Carmichael number that beats Fermat but not this.</div>
+   <div class="rd" style="margin-top:10px">n = <b id="mn">561</b> <input type="range" id="mnsl" min="5" max="999" step="2" value="561" style="width:130px;vertical-align:middle"></div>
+   <div class="btns"><button id="m561">561 (Carmichael)</button><button id="mprime">a prime</button></div>
+   <div class="cap" id="mrread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>squaring map</b> x&rarr;x&sup2; mod n on a ring, turning: every residue arrows toward its square, and all roads funnel toward <b>1</b>. <b>Green</b> marks the two &lsquo;honest&rsquo; square roots of 1: +1 and &minus;1.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> points are the <b>rogue square roots of 1</b> &mdash; residues that are neither +1 nor &minus;1 yet square to 1. They exist <b>only when n is composite</b> (n=15 has four roots of 1; a prime has exactly two). Squaring is the forward map; these extra inverse-roots are the cracks every witness slips through. The trapdoor is the inverse of the lock.</div>
+   <div class="btns" style="margin-top:10px"><button id="mspin">pause spin</button></div></div></div></div>"""
+MR_SCRIPT = """(function(){
+var n=561,ang=0.6,spin=true;
+function mpow(a,d,m){var r=1;a%=m;while(d>0){if(d&1)r=r*a%m;a=a*a%m;d=Math.floor(d/2);}return r;}
+function decomp(m){var d=m-1,s=0;while(d%2===0){d/=2;s++;}return [s,d];}
+function witness(a,m){if(m%2===0)return m!==2;var ds=decomp(m),s=ds[0],d=ds[1],x=mpow(a,d,m);if(x===1||x===m-1)return false;for(var i=0;i<s-1;i++){x=x*x%m;if(x===m-1)return false;}return true;}
+function chain(a,m){var ds=decomp(m),s=ds[0],d=ds[1],seq=[mpow(a,d,m)];for(var i=0;i<s;i++)seq.push(seq[seq.length-1]*seq[seq.length-1]%m);return {seq:seq,s:s,d:d};}
+function isPrime(m){if(m<2)return false;for(var i=2;i*i<=m;i++)if(m%i===0)return false;return true;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var c=chain(2,n),seq=c.seq,cw=Math.min(60,(W-20)/seq.length),exposed=witness(2,n);
+ g.fillStyle='#8ca';g.font='12px ui-monospace,monospace';g.fillText('n='+n+',  n-1 = 2^'+c.s+' · '+c.d+',  base a=2',10,18);
+ for(var i=0;i<seq.length;i++){var v=seq[i],x=10+i*cw,special=(v===1||v===n-1);g.fillStyle=v===1?'#39fc6b':(v===n-1?'#5ad0ff':'#ff5a7a');g.fillRect(x,40,cw-6,30);g.fillStyle='#031015';g.font='11px ui-monospace,monospace';g.fillText(v,x+2,60);
+  if(i>0){g.fillStyle='#4c7a54';g.fillText('²',x-6,58);}}
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('green=1  blue=n-1(=-1)  red=other',10,92);
+ g.fillStyle=exposed?'#ff5a7a':'#39fc6b';g.font='13px ui-monospace,monospace';g.fillText(exposed?'base 2 EXPOSES n as COMPOSITE (a rogue root of 1)':(isPrime(n)?'passes for base 2 (n is prime)':'base 2 fooled — try more bases'),10,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var bases=n-3,cols=Math.ceil(Math.sqrt(bases)),cell=Math.max(3,Math.min(16,(W-16)/cols)),wcount=0;
+ for(var idx=0;idx<bases;idx++){var a=idx+2,r=Math.floor(idx/cols),c=idx%cols,x=8+c*cell,y=8+r*cell,w=witness(a,n);if(w)wcount++;g.fillStyle=w?'#ff5a7a':'#2c8a4a';g.fillRect(x,y,cell-1,cell-1);}
+ var frac=bases>0?wcount/bases:0,prime=isPrime(n);
+ g.fillStyle=prime?'#39fc6b':'#ff5a7a';g.font='13px ui-monospace,monospace';g.fillText((prime?'PRIME':'COMPOSITE')+' — witnesses '+(frac*100).toFixed(1)+'% of bases',10,H-26);
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText(prime?'no base exposes it':'≥75% expose it → miss ≤ 4^-t after t rounds',10,H-8);
+ document.getElementById('mrread').textContent=prime?('n='+n+' is prime: every base is fooled (green)'):('n='+n+' composite: '+wcount+'/'+bases+' bases are witnesses');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var m=15,cx=W/2,cy=H/2,R=125,ca=Math.cos(ang),sa=Math.sin(ang);
+ function P(i){var th=i/m*Math.PI*2,x=Math.cos(th),z=Math.sin(th),X=x*ca-z*sa,Z=x*sa+z*ca;return [cx+X*R,cy+Z*R*0.4,Z];}
+ var pts=[];for(var i=0;i<m;i++)pts[i]=P(i);
+ // squaring arrows
+ g.strokeStyle='#2c4a55';g.lineWidth=1;for(var i=0;i<m;i++){var j=(i*i)%m,a=pts[i],b=pts[j];g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();}
+ var roots=[];for(var i=0;i<m;i++)if((i*i)%m===1)roots.push(i);
+ for(var i=0;i<m;i++){var isRoot=(i*i)%m===1,honest=(i===1||i===m-1);g.fillStyle=isRoot?(honest?'#39fc6b':'#ff2d95'):'#7c9';g.beginPath();g.arc(pts[i][0],pts[i][1],isRoot?6:3,0,7);g.fill();
+  g.fillStyle='#cfe8d0';g.font='10px ui-monospace,monospace';g.fillText(i,pts[i][0]+6,pts[i][1]+3);}
+ g.fillStyle='#ff2d95';g.font='11px ui-monospace,monospace';g.fillText('mod 15: roots of 1 = {'+roots.join(',')+'} — 4, not 2 (composite trapdoor)',10,H-12);}
+function all(){drawW3();drawW4();
+ // verify over range
+ var pno=true,cb=true;for(var m=5;m<=499;m+=2){var wc=0;for(var a=2;a<m-1;a++)if(witness(a,m))wc++;var fr=wc/(m-3);if(isPrime(m)){if(fr>0)pno=false;}else{if(fr<0.75)cb=false;}}
+ var wf561=0;for(var a=2;a<560;a++)if(witness(a,561))wf561++;
+ window.__millerrabin={primesNoWitness:pno,compAtLeast3quarters:cb,carmichael561Fraction:+(wf561/558).toFixed(3),rootsOf1_mod15:[1,4,11,14].filter(function(x){return (x*x)%15===1;}).length};}
+document.getElementById('mnsl').oninput=function(){n=+this.value;if(n%2===0)n++;document.getElementById('mn').textContent=n;drawW3();drawW4();};
+document.getElementById('m561').onclick=function(){n=561;document.getElementById('mn').textContent=n;document.getElementById('mnsl').value=561;drawW3();drawW4();};
+document.getElementById('mprime').onclick=function(){var p=[997,991,983,977,971][Math.floor(Math.random()*5)];n=p;document.getElementById('mn').textContent=n;document.getElementById('mnsl').value=n;drawW3();drawW4();};
+document.getElementById('mspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-probable-prime","title":"THE PROBABLE PRIME","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#ff5a7a","icon":"boss",
+  "kicker":"witnesses that expose composites via the roots-of-1 trapdoor",
+  "blurb":"the Miller–Rabin primality test in the 5-window house format. It interrogates a number with 'witnesses' that exploit the fact that 1 has only ±1 as square roots modulo a prime. See the witness chain in 1D, sweep every base in 2D, and the roots-of-1 trapdoors on the squaring graph in 3D.",
+  "lit":"A genuine Miller–Rabin test. Verified live: primes are exposed by no base, every odd composite is exposed by ≥3/4 of bases (miss ≤4^-t after t rounds), and Carmichael numbers (561, which fools the Fermat test) are still caught. The rogue square roots of 1 that only exist for composites are the real trapdoor (verifiable: window.__millerrabin.compAtLeast3quarters===true).",
+  "fig":"'Witnesses / sudden death' is the picture; the ≥3/4 bound and the roots-of-1 structure are exact theorems. This is the actual test guarding real RSA/ECC keys — the probabilistic certainty is honestly a probability (≤4^-t), not a proof.",
+  "body":MR_BODY,"script":MR_SCRIPT},
  {"slug":"the-fenwick-ladder","title":"THE FENWICK LADDER","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#4fd0e0","icon":"loot",
   "kicker":"a whole range-sum tree hidden in one array, by i & −i",
