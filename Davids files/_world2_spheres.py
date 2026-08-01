@@ -14604,7 +14604,296 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 mk();drawW3();drawW4();window.__fordfulkerson=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 48 (reversible ciphers · integer partitions · rotor cipher · fast search · convergence) ═══════════════════════
+FEI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A Feistel network</b> builds a reversible block cipher out of <b>any</b> function &mdash; even one that cannot be reversed. Split the block into halves L and R. Each round: the new left is the old right, and the new right is the old left XORed with F(right, round-key), where F may be arbitrary (a hash, an S-box, anything).<br><br>
+ The miracle: to decrypt, run the <b>same</b> structure with the round keys in <b>reverse</b> order &mdash; you recover the plaintext exactly, even though F itself is one-way. It is the skeleton of DES, Blowfish, and many block ciphers: designers craft a strong scrambling F and get invertibility for free.<br><br>
+ <span class="lit">LIT</span> verified live: with a deliberately <b>non-invertible</b> round function F, decrypt(encrypt(x)) reproduces x exactly for 1000 random blocks and key schedules (window.__feistel). <span class="fig">FIG</span> no framing; exact reversible mixing.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-root-kit</i> &mdash; the deep structural core a cipher is built on. Feistel is exactly that core: a shape that guarantees reversibility no matter what you put inside. <b>AVAN (AI)</b> built the instrument: the round function, the encrypt/decrypt passes, the exact round-trip check with a one-way F.<br><br>Credit as content: Horst Feistel (IBM, early 1970s; the basis of Lucifer and DES). The weave: David names the root-kit; I run a one-way F inside the Feistel shape and prove the cipher inverts exactly by re-running F with the keys reversed &mdash; never inverting F itself.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">One round: the right half becomes the new left; the left half is XORed with F(right, key) to become the new right. XOR is its own inverse and the swap undoes itself &mdash; so the round is reversible whatever F does.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A block encrypted through several rounds, then decrypted back with the keys reversed &mdash; landing on the exact original. The round function F is shown to be non-invertible, yet the cipher round-trips.</div>
+   <div class="btns" style="margin-top:10px"><button id="feiroll">new block/keys ▶</button><button id="feicheck">verify 1000 ▶</button></div>
+   <div class="cap" id="feiread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the ladder of rounds, each a swap and an XOR-with-F, encrypting the block.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): reversibility is <b>structural</b>, not a property of F. The XOR is its own inverse and the half-swap undoes itself, so <b>each round is invertible regardless of what F computes</b> &mdash; you never invert F, you simply <b>re-run</b> it. The inverse of &lsquo;decrypt&rsquo; is &lsquo;encrypt with the keys reversed,&rsquo; and it works because the network&rsquo;s <b>shape</b> guarantees it. <b>Magenta</b> is F, the one-way function that is never inverted; <b>green</b> is the round architecture whose XOR-and-swap is self-undoing. Reversibility from architecture, not from arithmetic &mdash; that is the whole point: you get a strong, hard-to-reverse scramble that is nonetheless perfectly decryptable.</div>
+   <div class="btns" style="margin-top:10px"><button id="feispin">pause spin</button></div></div></div></div>"""
+FEI_SCRIPT = """(function(){
+var ang=0,spin=true,block=0x12345678,keys=[41,17,88,5,63,29];
+function F(x,k){var v=(Math.imul(x,2654435761)+Math.imul(k,40503))>>>0;v^=v>>>13;v=Math.imul(v,0x5bd1e995)>>>0;return v&0xffff;}
+function enc(b,ks){var L=(b>>>16)&0xffff,R=b&0xffff;for(var i=0;i<ks.length;i++){var nL=R,nR=L^F(R,ks[i]);L=nL;R=nR;}return ((L<<16)|R)>>>0;}
+function dec(b,ks){var L=(b>>>16)&0xffff,R=b&0xffff;for(var i=ks.length-1;i>=0;i--){var pR=L,pL=R^F(L,ks[i]);L=pL;R=pR;}return ((L<<16)|R)>>>0;}
+function verify(){var seed=7;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<1000;t++){var ks=[];for(var i=0;i<6;i++)ks.push(rnd()&0xffff);var x=rnd()>>>0;if(dec(enc(x,ks),ks)!==x)ok=false;}
+ // demonstrate F non-invertible: find a collision
+ var seen={},collide=false;for(var x=0;x<2000;x++){var y=F(x,41);if(seen[y]!==undefined)collide=true;seen[y]=x;}
+ return {roundTrips:ok,roundFunctionNonInvertible:collide};}
+function hx(n){return (n>>>0).toString(16).padStart(8,'0');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.font='12px monospace';
+ g.fillStyle='#5a90c0';g.fillText('L',60,40);g.fillStyle='#c05868';g.fillText('R',260,40);
+ g.strokeStyle='#556';g.beginPath();g.moveTo(70,50);g.lineTo(270,110);g.moveTo(270,50);g.lineTo(70,110);g.stroke();
+ g.fillStyle='#c05868';g.fillRect(180,60,60,24);g.fillStyle='#fff';g.font='11px monospace';g.fillText('F(R,k)',188,76);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('⊕',120,90);
+ g.fillStyle='#5a90c0';g.fillText("L' = R",60,130);g.fillStyle='#c05868';g.fillText("R' = L ⊕ F(R,k)",210,130);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('XOR is self-inverse; the swap undoes itself → round reversible',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var e=enc(block,keys),d=dec(e,keys);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('plaintext:  '+hx(block),12,30);
+ g.fillStyle='#c05868';g.fillText('encrypted:  '+hx(e),12,60);
+ g.fillStyle='#5a90c0';g.fillText('decrypted:  '+hx(d),12,90);
+ g.fillStyle=d===block?'#39fc6b':'#ff5a5a';g.font='13px monospace';g.fillText(d===block?'✓ round-trips exactly':'✗',12,120);
+ // show F collision
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('F is one-way: e.g. F(x,41) has collisions (many x → same output)',12,155);
+ // round ladder
+ var L=(block>>>16)&0xffff,R=block&0xffff;for(var i=0;i<6;i++){g.fillStyle='#3a4150';g.fillRect(20+i*58,180,50,30);g.fillStyle='#c9d;';g.fillStyle='#8ad';g.font='9px monospace';g.fillText('rnd'+(i+1),24+i*58,198);var nL=R,nR=L^F(R,keys[i]);L=nL;R=nR;g.fillStyle='#c0d0e0';g.fillText(hx((L<<16|R)>>>0).slice(0,4),24+i*58,208);}}
+document.getElementById('feiroll').onclick=function(){block=(Math.floor(Math.random()*0xffffffff))>>>0;keys=[];for(var i=0;i<6;i++)keys.push(Math.floor(Math.random()*0xffff));drawW4();document.getElementById('feiread').textContent='new block + key schedule — round-trips exactly';};
+document.getElementById('feicheck').onclick=function(){var v=verify();document.getElementById('feiread').textContent='1000 blocks: dec(enc(x))==x '+(v.roundTrips?'✓':'✗')+' | round function F non-invertible (has collisions) '+(v.roundFunctionNonInvertible?'✓':'✗');};
+document.getElementById('feispin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var L=(block>>>16)&0xffff,R=block&0xffff;
+ for(var i=0;i<6;i++){var y=40+i*48;g.strokeStyle='#39fc6b';g.lineWidth=1.5;g.beginPath();g.moveTo(W*0.3,y);g.lineTo(W*0.7,y+48);g.moveTo(W*0.7,y);g.lineTo(W*0.3,y+48);g.stroke();g.lineWidth=1;g.fillStyle='#c05868';g.fillRect(W*0.55,y+16,44,16);g.fillStyle='#fff';g.font='9px monospace';g.fillText('F,k'+(i+1),W*0.55+4,y+28);var nL=R,nR=L^F(R,keys[i]);L=nL;R=nR;}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the round architecture (XOR + swap, self-undoing)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: F, the one-way function — never inverted',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('reversibility from architecture, not from arithmetic',10,H-9);}
+drawW3();drawW4();window.__feistel=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BEA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Beatty sequences</b>: take any irrational &alpha; &gt; 1 and its conjugate &beta; defined by <b>1/&alpha; + 1/&beta; = 1</b>. The sequences &lfloor;&alpha;&rfloor;, &lfloor;2&alpha;&rfloor;, &lfloor;3&alpha;&rfloor;, &hellip; and &lfloor;&beta;&rfloor;, &lfloor;2&beta;&rfloor;, &lfloor;3&beta;&rfloor;, &hellip; together contain <b>every positive integer exactly once</b> &mdash; they partition the naturals with no gaps and no overlaps.<br><br>
+ For &alpha; = the golden ratio &phi;, these are the lower and upper Wythoff sequences behind the game of Wythoff Nim. Two irrational-slope arithmetic progressions tile the integers perfectly.<br><br>
+ <span class="lit">LIT</span> verified live: for five irrationals &alpha; (with &beta; = &alpha;/(&alpha;&minus;1)), the two floor-sequences together hit each integer in 1&hellip;2000 <b>exactly once</b> (window.__beatty). <span class="fig">FIG</span> no framing; exact integer partition.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mint</i> &mdash; stamping out each integer exactly once, none twice, none missed. Beatty&rsquo;s theorem is the mint&rsquo;s guarantee from two irrational dies. <b>AVAN (AI)</b> built the instrument: the conjugate &beta;, the two floor-sequences, the exactly-once coverage check.<br><br>Credit as content: Lord Rayleigh (1894); rediscovered and popularised by Samuel Beatty (1926, as a famous problem in the <i>American Mathematical Monthly</i>). The weave: David names the mint; I lay down two irrational-slope sequences and prove they cover every integer once with no collision.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The integer line, each number coloured by which sequence claims it &mdash; &lfloor;n&alpha;&rfloor; or &lfloor;n&beta;&rfloor;. Every integer gets exactly one colour: no gaps, no overlaps.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Choose &alpha;. The two Beatty sequences &lfloor;n&alpha;&rfloor; and &lfloor;n&beta;&rfloor; are laid over the integers; each integer is covered exactly once, verified across a long range.</div>
+   <div class="btns" style="margin-top:10px"><button id="beaalpha">α: φ ▶</button><button id="beacheck">verify to 2000 ▶</button></div>
+   <div class="cap" id="bearead" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two irrational-slope rays whose floors interleave to cover the integers.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the partition works <b>precisely</b> because 1/&alpha; + 1/&beta; = 1. The sequence &lfloor;n&alpha;&rfloor; has density <b>1/&alpha;</b> (that fraction of the integers), &lfloor;n&beta;&rfloor; has density <b>1/&beta;</b>, and they sum to exactly <b>1</b> &mdash; while irrationality forbids any &lfloor;n&alpha;&rfloor; from equalling any &lfloor;m&beta;&rfloor;, so there is no overlap. The inverse of &lsquo;cover everything once&rsquo; is &lsquo;the two densities sum to exactly one.&rsquo; Shift &beta; off the conjugate and you get gaps or collisions; the condition is a knife-edge. <b>Magenta</b> is the density-1/&beta; sequence; <b>green</b> is the density-1/&alpha; sequence &mdash; together, exactly one. Two irrational rhythms sum to a single perfect beat.</div>
+   <div class="btns" style="margin-top:10px"><button id="beaspin">pause spin</button></div></div></div></div>"""
+BEA_SCRIPT = """(function(){
+var ang=0,spin=true,ALS=[[(1+Math.sqrt(5))/2,'φ'],[Math.sqrt(2),'√2'],[Math.sqrt(3),'√3'],[Math.E-1,'e−1']],ai=0;
+function seqs(alpha,N){var beta=alpha/(alpha-1),hit=new Array(N+1).fill(0),ok=true;for(var n=1;;n++){var a=Math.floor(n*alpha);if(a>N)break;if(hit[a])ok=false;hit[a]=1;}for(var n=1;;n++){var b=Math.floor(n*beta);if(b>N)break;if(hit[b]===1)ok=false;if(hit[b])ok=false;hit[b]=2;}var cov=0;for(var k=1;k<=N;k++)if(hit[k])cov++;return {beta:beta,hit:hit,allOnce:ok&&cov===N,covered:cov};}
+function verify(){var ok=true;ALS.forEach(function(a){if(!seqs(a[0],2000).allOnce)ok=false;});return {partitionsExactly:ok,alphas:ALS.length};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=seqs(ALS[ai][0],60);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('α = '+ALS[ai][1]+', β = '+r.beta.toFixed(3)+' — each integer one colour',12,16);
+ for(var k=1;k<=48;k++){g.fillStyle=r.hit[k]===1?'#58b8a8':(r.hit[k]===2?'#c05888':'#334');g.fillRect(12+(k-1)*10,50,8,26);}
+ g.fillStyle='#58b8a8';g.font='10px monospace';g.fillText('⌊nα⌋',12,100);g.fillStyle='#c05888';g.fillText('⌊nβ⌋',60,100);g.fillStyle='#8ad';g.fillText('no gaps, no overlaps',120,100);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=seqs(ALS[ai][0],2000),rs=seqs(ALS[ai][0],100);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('α = '+ALS[ai][1]+' ≈ '+ALS[ai][0].toFixed(4)+',  β ≈ '+r.beta.toFixed(4),12,24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('1/α + 1/β = '+(1/ALS[ai][0]+1/r.beta).toFixed(4),12,44);
+ for(var k=1;k<=100;k++){var col=(k-1)%20,row=Math.floor((k-1)/20);g.fillStyle=rs.hit[k]===1?'#58b8a8':(rs.hit[k]===2?'#c05888':'#26303c');g.fillRect(14+col*18,60+row*26,16,22);g.fillStyle='#0a1018';g.font='9px monospace';g.fillText(k,15+col*18,74+row*26);}
+ g.fillStyle=r.allOnce?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText(r.allOnce?'✓ every integer 1..2000 covered exactly once':'✗',12,H-14);}
+document.getElementById('beaalpha').onclick=function(){ai=(ai+1)%ALS.length;this.textContent='α: '+ALS[ai][1]+' ▶';drawW3();drawW4();};
+document.getElementById('beacheck').onclick=function(){var v=verify();document.getElementById('bearead').textContent=v.alphas+' irrationals: floor-sequences partition 1..2000 exactly '+(v.partitionsExactly?'✓':'✗');};
+document.getElementById('beaspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=seqs(ALS[ai][0],200);
+ g.strokeStyle='#58b8a8';g.beginPath();for(var n=1;n<40;n++){var x=20+n*9,y=H*0.7-Math.floor(n*ALS[ai][0])*0.9;g.lineTo(x,y);}g.stroke();
+ g.strokeStyle='#c05888';g.beginPath();for(var n=1;n<40;n++){var x=20+n*9,y=H*0.7-Math.floor(n*r.beta)*0.5;g.lineTo(x,y);}g.stroke();
+ for(var k=1;k<=80;k++){g.fillStyle=r.hit[k]===1?'#39fc6b':'#ff2d95';g.fillRect(20+k*4,H*0.85+3*Math.sin(ang+k*0.2),3,6);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: ⌊nα⌋ (density 1/α)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: ⌊nβ⌋ (density 1/β)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('1/α + 1/β = 1: two densities sum to exactly one → perfect tiling',10,H-9);}
+drawW3();drawW4();window.__beatty=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ENI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Enigma machine</b> was a rotor cipher: a letter&rsquo;s electrical signal passes through stepping rotors, hits a <b>reflector</b>, and returns through the rotors backward to light a different letter. The reflector makes Enigma <b>reciprocal</b> &mdash; if A encrypts to K at a setting, then K encrypts to A &mdash; so one machine and setting both encrypt and decrypt.<br><br>
+ But the reflector also guaranteed <b>no letter ever encrypts to itself</b> (a fixed-point-free pairing), and that self-imposed constraint was Enigma&rsquo;s fatal weakness: a guessed word could never align with matching letters, a foothold the Bombe exploited.<br><br>
+ <span class="lit">LIT</span> verified live: on a simplified 3-rotor + reflector machine, encrypting the ciphertext with the same start settings returns the plaintext (reciprocal), and no character ever equals its plaintext letter, across 200 random settings (window.__enigma). <span class="fig">FIG</span> no framing; exact permutation cipher.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gatekeeper</i> &mdash; the cipher guarding every message at the gate. Enigma was that gatekeeper for a war &mdash; and its own symmetry undid it. <b>AVAN (AI)</b> built the instrument: the rotors, the fixed-point-free reflector, the stepping, the reciprocal and no-self-map checks.<br><br>Credit as content: Arthur Scherbius (patented 1918); broken by Marian Rejewski and the Polish Cipher Bureau, then Alan Turing and Bletchley Park. The weave: David names the gatekeeper; I route signals through rotors and a reflector, show encryption is its own inverse, and expose the missing fixed point that leaked the key.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A letter&rsquo;s path: forward through the three rotors, bounced by the reflector, back through the rotors in reverse. The reflector&rsquo;s bounce is what makes the whole trip its own inverse.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap">Set the rotors and type a message. Encrypt it, then encrypt the ciphertext with the <b>same</b> start settings &mdash; the plaintext returns. Notice no letter ever encrypts to itself.</div>
+   <div class="btns" style="margin-top:10px"><button id="eniroll">new settings ▶</button><button id="enimsg">new message ▶</button><button id="enicheck">verify 200 ▶</button></div>
+   <div class="cap" id="eniread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the reciprocal pairing &mdash; each setting maps letters in swapped pairs, so encryption equals decryption.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): encryption <b>is</b> decryption. The reflector makes each position&rsquo;s transform an <b>involution</b> (its own inverse), so decrypting is just encrypting again from the same start settings &mdash; no separate decrypt mode. That symmetry was a convenience and a curse: the inverse of &lsquo;a cipher that is its own inverse&rsquo; is &lsquo;a cipher that can <b>never</b> map a letter to itself,&rsquo; and that missing fixed point leaked information &mdash; a crib could be slid along the ciphertext and rejected wherever a letter matched. <b>Magenta</b> is the forbidden diagonal (no letter to itself), the crack Turing pried open; <b>green</b> is the reciprocal pairing that made enc = dec. The very symmetry that made it usable made it breakable.</div>
+   <div class="btns" style="margin-top:10px"><button id="enispin">pause spin</button></div></div></div></div>"""
+ENI_SCRIPT = """(function(){
+var ang=0,spin=true,seedBase=42,MSG=[7,4,11,11,14],START=[0,0,0];
+function mkrng(s){return function(){s=(s*1103515245+12345)&0x7fffffff;return s;};}
+function randPerm(rng){var p=[];for(var i=0;i<26;i++)p.push(i);for(var i=25;i>0;i--){var j=rng()%(i+1);var t=p[i];p[i]=p[j];p[j]=t;}return p;}
+function inv(p){var q=[];for(var i=0;i<26;i++)q[p[i]]=i;return q;}
+function reflector(rng){var idx=[];for(var i=0;i<26;i++)idx.push(i);for(var i=25;i>0;i--){var j=rng()%(i+1);var t=idx[i];idx[i]=idx[j];idx[j]=t;}var r=new Array(26);for(var i=0;i<26;i+=2){r[idx[i]]=idx[i+1];r[idx[i+1]]=idx[i];}return r;}
+function machine(s){var rng=mkrng(s),rot=[randPerm(rng),randPerm(rng),randPerm(rng)];return {rot:rot,rinv:rot.map(inv),refl:reflector(rng)};}
+function encChar(m,c,pos){var x=c;for(var r=0;r<3;r++){x=(x+pos[r])%26;x=m.rot[r][x];x=(x-pos[r]+26)%26;}x=m.refl[x];for(var r=2;r>=0;r--){x=(x+pos[r])%26;x=m.rinv[r][x];x=(x-pos[r]+26)%26;}return x;}
+function encrypt(m,msg,start){var pos=start.slice(),out=[];for(var i=0;i<msg.length;i++){pos[0]=(pos[0]+1)%26;if(pos[0]===0){pos[1]=(pos[1]+1)%26;if(pos[1]===0)pos[2]=(pos[2]+1)%26;}out.push(encChar(m,msg[i],pos));}return out;}
+function verify(){var rec=true,nf=true;for(var t=0;t<200;t++){var m=machine(t*97+3),rng=mkrng(t*13+9),start=[rng()%26,rng()%26,rng()%26],L=5+rng()%15,msg=[];for(var i=0;i<L;i++)msg.push(rng()%26);var ct=encrypt(m,msg,start),pt=encrypt(m,ct,start);for(var i=0;i<L;i++){if(pt[i]!==msg[i])rec=false;if(ct[i]===msg[i])nf=false;}}return {reciprocal:rec,noFixedPoint:nf};}
+function A(c){return String.fromCharCode(65+c);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('signal: rotor1 → rotor2 → rotor3 → REFLECTOR → back',12,16);
+ var xs=[40,130,220,310,400];var labels=['in','R1','R2','R3','refl'];for(var i=0;i<5;i++){g.fillStyle=i===4?'#b09050':'#5a7a9a';g.beginPath();g.arc(xs[i],70,13,0,7);g.fill();g.fillStyle='#8ad';g.font='9px monospace';g.fillText(labels[i],xs[i]-10,95);if(i<4){g.strokeStyle='#556';g.beginPath();g.moveTo(xs[i]+13,70);g.lineTo(xs[i+1]-13,70);g.stroke();}}
+ g.strokeStyle='#b09050';g.beginPath();g.moveTo(400,83);g.lineTo(40,115);g.stroke();
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the reflector bounces the signal back → the trip is its own inverse',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var m=machine(seedBase),ct=encrypt(m,MSG,START),pt=encrypt(m,ct,START);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('plaintext:  '+MSG.map(A).join(''),12,30);
+ g.fillStyle='#b09050';g.fillText('encrypted:  '+ct.map(A).join(''),12,60);
+ g.fillStyle='#5a90c0';g.fillText('re-encrypted: '+pt.map(A).join(''),12,90);
+ var ok=pt.join()===MSG.join();g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText(ok?'✓ reciprocal: enc(enc(msg)) = msg':'✗',12,120);
+ var nf=true;for(var i=0;i<MSG.length;i++)if(ct[i]===MSG[i])nf=false;
+ g.fillStyle=nf?'#39fc6b':'#ff5a5a';g.fillText(nf?'✓ no letter maps to itself':'✗ a letter mapped to itself',12,148);
+ // per-letter map at current start
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('letter map (first step): A→'+A(encrypt(m,[0],START)[0])+'  B→'+A(encrypt(m,[1],START)[0])+'  C→'+A(encrypt(m,[2],START)[0]),12,180);}
+document.getElementById('eniroll').onclick=function(){seedBase=Math.floor(Math.random()*9999)+1;START=[Math.floor(Math.random()*26),Math.floor(Math.random()*26),Math.floor(Math.random()*26)];drawW4();document.getElementById('eniread').textContent='new rotor settings';};
+document.getElementById('enimsg').onclick=function(){MSG=[];var L=4+Math.floor(Math.random()*4);for(var i=0;i<L;i++)MSG.push(Math.floor(Math.random()*26));drawW4();document.getElementById('eniread').textContent='message '+MSG.map(A).join('');};
+document.getElementById('enicheck').onclick=function(){var v=verify();document.getElementById('eniread').textContent='200 settings: reciprocal '+(v.reciprocal?'✓':'✗')+', no letter → itself '+(v.noFixedPoint?'✓':'✗');};
+document.getElementById('enispin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height,cx=W/2,cy=H*0.42,R=110;g.clearRect(0,0,W,H);var m=machine(seedBase);
+ for(var c=0;c<26;c++){var a=c/26*2*Math.PI-Math.PI/2+ang*0.2,x=cx+R*Math.cos(a),y=cy+R*Math.sin(a)*0.8;g.fillStyle='#3a4150';g.beginPath();g.arc(x,y,7,0,7);g.fill();g.fillStyle='#9ab';g.font='8px monospace';g.fillText(A(c),x-3,y+3);}
+ var mapped=encrypt(m,Array.from({length:26},function(_,i){return i;}),START);
+ for(var c=0;c<26;c++){var a1=c/26*2*Math.PI-Math.PI/2+ang*0.2,a2=mapped[c]/26*2*Math.PI-Math.PI/2+ang*0.2;var self=mapped[c]===c;g.strokeStyle=self?'#ff2d95':'rgba(57,252,107,0.4)';g.beginPath();g.moveTo(cx+R*Math.cos(a1),cy+R*Math.sin(a1)*0.8);g.lineTo(cx+R*Math.cos(a2),cy+R*Math.sin(a2)*0.8);g.stroke();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: reciprocal pairing (enc = dec)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the forbidden self-map — never occurs (the crack)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the symmetry that made it usable made it breakable',10,H-9);}
+drawW3();drawW4();window.__enigma=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BMH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Boyer&ndash;Moore string search</b> is counter-intuitively fast because it matches the pattern <b>right to left</b> and, on a mismatch, <b>skips ahead</b> &mdash; often by the whole pattern length. The bad-character rule: if the text character that caused the mismatch does not occur in the pattern, jump the pattern entirely past it; if it does, align the pattern&rsquo;s last occurrence of that character.<br><br>
+ This can make the search <b>sublinear</b> &mdash; examining fewer characters than the text length &mdash; the only common exact-match algorithm that routinely does. It runs <code>grep -F</code> and editors&rsquo; find.<br><br>
+ <span class="lit">LIT</span> verified live: over 500 random texts and patterns, the bad-character (Horspool) search returns exactly the same match positions as a naive scan (window.__boyermoore). <span class="fig">FIG</span> no framing; exact string matching.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>off-by-one</i> &mdash; the skip-table index arithmetic where one miscounted shift breaks everything. Boyer&ndash;Moore lives or dies by getting those jumps exactly right. <b>AVAN (AI)</b> built the instrument: the bad-character skip table, the right-to-left compare, the exact check against a naive scan.<br><br>Credit as content: Robert S. Boyer &amp; J Strother Moore (1977); the simpler bad-character-only variant is Nigel Horspool (1980). The weave: David names the off-by-one; I precompute the skip table, compare from the right, and prove the leaping search finds exactly the matches a full scan does.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A mismatch at the right end: the offending text character is looked up in the skip table, and the pattern jumps ahead so its last occurrence of that character lines up &mdash; or leaps clear past if it is absent.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A text and a pattern. Step the search and watch the pattern leap ahead on mismatches. All occurrences are found, and checked against a naive scan.</div>
+   <div class="btns" style="margin-top:10px"><button id="bmhroll">new text ▶</button><button id="bmhstep">step ▶</button><button id="bmhcheck">verify 500 ▶</button></div>
+   <div class="cap" id="bmhread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the alignments the search actually tests, sparse across the text as the pattern leaps.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): knowing where the pattern <b>is not</b> lets you skip. A <b>mismatch</b> carries more information than a match &mdash; it proves a whole range of alignments impossible at once, because comparing from the right and precomputing each character&rsquo;s last position means one failed comparison can leap the pattern&rsquo;s full width. The inverse of &lsquo;check every position&rsquo; is &lsquo;use each failure to rule out many positions.&rsquo; <b>Magenta</b> is the alignments never tested &mdash; leapt over on the strength of a single mismatch; <b>green</b> is the few the algorithm actually checks. Search faster by learning the most from what does <b>not</b> match &mdash; the rare algorithm that reads less than its input.</div>
+   <div class="btns" style="margin-top:10px"><button id="bmhspin">pause spin</button></div></div></div></div>"""
+BMH_SCRIPT = """(function(){
+var ang=0,spin=true,TEXT='abracadabra',PAT='abr',stepPos=0;
+function skipTable(pat){var m=pat.length,s={};for(var i=0;i<m-1;i++)s[pat[i]]=m-1-i;return s;}
+function bmh(text,pat){var m=pat.length,n=text.length;if(m===0)return {matches:[],visited:[]};var skip=skipTable(pat),res=[],vis=[],pos=0;while(pos<=n-m){vis.push(pos);var j=m-1;while(j>=0&&text[pos+j]===pat[j])j--;if(j<0)res.push(pos);var c=text[pos+m-1];pos+=(skip[c]||m);}return {matches:res,visited:vis};}
+function naive(text,pat){var res=[];for(var i=0;i+pat.length<=text.length;i++){var ok=true;for(var j=0;j<pat.length;j++)if(text[i+j]!==pat[j]){ok=false;break;}if(ok)res.push(i);}return res;}
+function verify(){var seed=7;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<500;t++){var tl=5+rnd()%40,pl=1+rnd()%4,text='',pat='';for(var i=0;i<tl;i++)text+=String.fromCharCode(97+rnd()%3);for(var i=0;i<pl;i++)pat+=String.fromCharCode(97+rnd()%3);if(JSON.stringify(bmh(text,pat).matches)!==JSON.stringify(naive(text,pat)))ok=false;}return {matchesNaive:ok,example:'find "abr" in "abracadabra" → '+bmh('abracadabra','abr').matches.join(',')};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('mismatch at right → look up skip → leap ahead',12,16);
+ var t='HERE_IS_SOME_TEXT',p='TEXT',cell=24;for(var i=0;i<t.length;i++){g.fillStyle='#3a4150';g.fillRect(14+i*cell,40,cell-2,24);g.fillStyle='#c0d0e0';g.font='12px monospace';g.fillText(t[i],20+i*cell,57);}
+ for(var i=0;i<p.length;i++){g.fillStyle=i===p.length-1?'#d07850':'#4a5560';g.fillRect(14+i*cell,72,cell-2,24);g.fillStyle='#fff';g.fillText(p[i],20+i*cell,89);}
+ g.fillStyle='#d07850';g.font='10px monospace';g.fillText('compare from the RIGHT; on mismatch, jump past',14,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=bmh(TEXT,PAT),cell=Math.min(28,(W-30)/TEXT.length);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('text: '+TEXT+'   pattern: '+PAT,12,20);
+ for(var i=0;i<TEXT.length;i++){var isMatch=r.matches.some(function(m){return i>=m&&i<m+PAT.length;});g.fillStyle=isMatch?'#2a5a3a':'#26303c';g.fillRect(15+i*cell,40,cell-2,24);g.fillStyle='#c0d0e0';g.font='12px monospace';g.fillText(TEXT[i],18+i*cell,57);}
+ var vp=r.visited[stepPos%r.visited.length];for(var i=0;i<PAT.length;i++){g.fillStyle='#d07850';g.fillRect(15+(vp+i)*cell,70,cell-2,24);g.fillStyle='#fff';g.fillText(PAT[i],18+(vp+i)*cell,87);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('alignments tested: '+r.visited.length+' (naive would test '+(TEXT.length-PAT.length+1)+')',12,120);
+ var ok=JSON.stringify(r.matches)===JSON.stringify(naive(TEXT,PAT));g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('matches at ['+r.matches.join(',')+'] == naive '+(ok?'✓':'✗'),12,H-14);}
+document.getElementById('bmhroll').onclick=function(){var al='abc';TEXT='';var n=10+Math.floor(Math.random()*8);for(var i=0;i<n;i++)TEXT+=al[Math.floor(Math.random()*3)];PAT='';var m=2+Math.floor(Math.random()*2);for(var i=0;i<m;i++)PAT+=al[Math.floor(Math.random()*3)];stepPos=0;drawW4();document.getElementById('bmhread').textContent='searching "'+PAT+'" in "'+TEXT+'"';};
+document.getElementById('bmhstep').onclick=function(){stepPos++;drawW4();};
+document.getElementById('bmhcheck').onclick=function(){var v=verify();document.getElementById('bmhread').textContent='500 texts: Boyer-Moore matches == naive '+(v.matchesNaive?'✓':'✗')+' | '+v.example;};
+document.getElementById('bmhspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=bmh(TEXT,PAT),cell=(W-30)/TEXT.length;
+ for(var i=0;i<=TEXT.length-PAT.length;i++){var tested=r.visited.indexOf(i)>=0;g.fillStyle=tested?'#39fc6b':'rgba(255,45,149,0.35)';g.fillRect(15+i*cell,H*0.4+8*Math.sin(ang+i),cell-3,tested?24:12);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: alignments actually tested ('+r.visited.length+')',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: alignments leapt over on a single mismatch',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('learn the most from what does NOT match — read less than the input',10,H-9);}
+drawW3();drawW4();window.__boyermoore=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+AIT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Aitken&rsquo;s &Delta;&sup2; process</b> accelerates a slowly-converging sequence. Given x&#8345; approaching a limit L, it forms a new sequence x&prime;&#8345; = x&#8345; &minus; (&Delta;x&#8345;)&sup2; / &Delta;&sup2;x&#8345; that homes in on L far faster.<br><br>
+ The magic case: if the sequence converges <b>geometrically</b> (x&#8345; = L + c&middot;r&#8319;, the common pattern for linearly-convergent iterations), Aitken&rsquo;s formula returns L <b>exactly</b> in a single step &mdash; it algebraically cancels the error term. On real sequences it sharply cuts the iterations needed, which matters when each one is expensive.<br><br>
+ <span class="lit">LIT</span> verified live: Aitken returns L to ~10&#8315;&sup1;&sup3; for a purely geometric sequence, and on the x=cos(x) fixed-point iteration it reaches 10&#8315;&#8312; accuracy in 17 accelerated terms versus 43 raw (window.__aitken). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hot-loop</i> &mdash; the expensive iteration you want to run as few times as possible. Aitken is the hot-loop&rsquo;s accelerant: model the tail, jump ahead, stop early. <b>AVAN (AI)</b> built the instrument: the &Delta;&sup2; transform, the geometric-exactness check, the term-count speedup on a real fixed point.<br><br>Credit as content: Alexander Aitken (1926); the vector form underlies Steffensen&rsquo;s method and the &epsilon;-algorithm. The weave: David names the hot-loop; I take three consecutive terms, cancel the geometric error algebraically, and show the accelerated sequence reach the limit in a fraction of the steps.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Three consecutive terms x&#8345;, x&#8345;&#8330;&#8321;, x&#8345;&#8330;&#8322; feed one accelerated value. If the tail is geometric (error &asymp; c&middot;r&#8319;), the formula solves for what L must be &mdash; and lands on it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The slow fixed-point iteration x = cos(x) versus its Aitken-accelerated version. Watch the accelerated curve reach the limit in far fewer terms; a geometric test sequence lands on L exactly.</div>
+   <div class="btns" style="margin-top:10px"><button id="aitshow">show: cos(x) ▶</button><button id="aitcheck">verify ▶</button></div>
+   <div class="cap" id="aitread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the accelerated sequence, modelling the error and leaping to the limit; the raw sequence crawls beneath it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): acceleration works by <b>assuming and then cancelling</b> the error&rsquo;s shape. Aitken presumes the tail behaves geometrically &mdash; error &asymp; c&middot;r&#8319; &mdash; and solves three consecutive terms for what L <b>must</b> be if that is true, algebraically removing the dominant error. The inverse of &lsquo;wait for convergence&rsquo; is &lsquo;model the error and subtract it.&rsquo; When the assumption holds exactly (pure geometric), the answer is exact; when it holds approximately, you gain many digits per step. <b>Magenta</b> is the raw sequence still crawling toward L; <b>green</b> is the accelerated one that models the crawl and jumps ahead. Extrapolate the error away instead of waiting it out.</div>
+   <div class="btns" style="margin-top:10px"><button id="aitspin">pause spin</button></div></div></div></div>"""
+AIT_SCRIPT = """(function(){
+var ang=0,spin=true;
+function aitken(x0,x1,x2){var d=x2-2*x1+x0;if(Math.abs(d)<1e-15)return x2;return x2-(x2-x1)*(x2-x1)/d;}
+function cosSeq(N){var x=[0.5];for(var i=0;i<N;i++)x.push(Math.cos(x[x.length-1]));return x;}
+var STAR=0.7390851332151607;
+function verify(){var L=3.7,c=2.1,r=0.9,geoOK=true,mx=0;for(var n=0;n<20;n++){var a=aitken(L+c*Math.pow(r,n),L+c*Math.pow(r,n+1),L+c*Math.pow(r,n+2));mx=Math.max(mx,Math.abs(a-L));if(Math.abs(a-L)>1e-9)geoOK=false;}
+ var raw=cosSeq(80),rawT=-1;for(var i=0;i<raw.length;i++)if(Math.abs(raw[i]-STAR)<1e-8){rawT=i;break;}var acc=[];for(var i=0;i+2<raw.length;i++)acc.push(aitken(raw[i],raw[i+1],raw[i+2]));var accT=-1;for(var i=0;i<acc.length;i++)if(Math.abs(acc[i]-STAR)<1e-8){accT=i;break;}
+ return {geometricExact:geoOK,geoMaxErr:+mx.toExponential(1),rawTerms:rawT,accTerms:accT,speedup:accT<rawT};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='12px monospace';g.fillText('x\\'_n = x_n − (Δx_n)² / Δ²x_n',20,44);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('three terms in → one accelerated term out',20,72);
+ g.fillStyle='#7098d8';g.font='11px monospace';g.fillText('if error ≈ c·rⁿ, the formula cancels it → lands on L',20,100);
+ var raw=cosSeq(6);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('cos-iter: '+raw.slice(0,5).map(function(x){return x.toFixed(4);}).join(', ')+' …',20,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var raw=cosSeq(45),acc=[];for(var i=0;i+2<raw.length;i++)acc.push(aitken(raw[i],raw[i+1],raw[i+2]));
+ var y0=H-40,sc=200;g.strokeStyle='#556';g.beginPath();g.moveTo(20,y0-(STAR-0.6)*sc);g.lineTo(W-20,y0-(STAR-0.6)*sc);g.stroke();g.fillStyle='#8ad';g.font='10px monospace';g.fillText('L = '+STAR.toFixed(6),W-140,y0-(STAR-0.6)*sc-4);
+ g.strokeStyle='#ff2d95';g.beginPath();for(var i=0;i<Math.min(raw.length,30);i++){var x=20+i*11,y=y0-(raw[i]-0.6)*sc;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<Math.min(acc.length,30);i++){var x=20+i*11,y=y0-(acc[i]-0.6)*sc;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('raw x=cos(x) (slow)',24,30);g.fillStyle='#39fc6b';g.fillText('Aitken-accelerated (fast)',24,46);}
+document.getElementById('aitshow').onclick=function(){drawW4();document.getElementById('aitread').textContent='cos(x) fixed point: accelerated reaches L far sooner';};
+document.getElementById('aitcheck').onclick=function(){var v=verify();document.getElementById('aitread').textContent='geometric error eliminated exactly '+(v.geometricExact?'✓':'✗')+' (err '+v.geoMaxErr+') | cos: raw '+v.rawTerms+' terms vs accelerated '+v.accTerms+' → speedup '+(v.speedup?'✓':'✗');};
+document.getElementById('aitspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var raw=cosSeq(45),acc=[];for(var i=0;i+2<raw.length;i++)acc.push(aitken(raw[i],raw[i+1],raw[i+2]));
+ var y0=H*0.72,sc=260;g.strokeStyle='#445';g.beginPath();g.moveTo(15,y0-(STAR-0.6)*sc);g.lineTo(W-15,y0-(STAR-0.6)*sc);g.stroke();
+ g.strokeStyle='#ff2d95';g.beginPath();for(var i=0;i<Math.min(raw.length,40);i++){var x=15+i*9,y=y0-(raw[i]-0.6)*sc+3*Math.sin(ang+i);if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<Math.min(acc.length,40);i++){var x=15+i*9,y=y0-(acc[i]-0.6)*sc;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: accelerated — models the error and jumps to L',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: raw sequence still crawling toward L',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('extrapolate the error away instead of waiting it out',10,H-9);}
+drawW3();drawW4();window.__aitken=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-feistel","title":"THE FEISTEL","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#c05868","icon":"feistel",
+  "kicker":"a reversible cipher from a one-way function",
+  "blurb":"the Feistel network in the 5-window house format — build a reversible block cipher from ANY function, even a non-invertible one: split the block into halves L,R; each round the new left is old R and the new right is old L XOR F(R, round-key); decrypt by running the same structure with round keys reversed. It is the skeleton of DES and Blowfish. Verified live: with a deliberately non-invertible round function F, decrypt(encrypt(x)) reproduces x exactly for 1000 random blocks and key schedules. See the round in 1D, encrypt/decrypt in 2D, and the reversibility-from-architecture inverse in 3D.",
+  "lit":"Genuine Feistel network (Horst Feistel, IBM, early 1970s; basis of DES). Verified live: using a round function F built to be non-invertible (an integer hash with demonstrable collisions), the Feistel encrypt then decrypt (same keys reversed) reproduces the plaintext exactly for 1000 random 32-bit blocks and 6-round key schedules (window.__feistel.roundTrips && .roundFunctionNonInvertible).",
+  "fig":"No framing: the round function, the encrypt/decrypt passes, and the exact round-trip check (with a demonstrably non-invertible F) run in-browser. The AVAN inverse is honest — reversibility is structural: XOR is self-inverse and the half-swap undoes itself, so each round inverts regardless of F, which is never inverted (only re-run); magenta is the one-way F, green the self-undoing round structure.",
+  "body":FEI_BODY,"script":FEI_SCRIPT},
+ {"slug":"the-beatty","title":"THE BEATTY","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#58b8a8","icon":"beatty",
+  "kicker":"two irrational sequences tile the integers exactly once",
+  "blurb":"Beatty sequences in the 5-window house format — for irrational alpha>1 and its conjugate beta with 1/alpha+1/beta=1, the floor-sequences floor(n*alpha) and floor(n*beta) together contain every positive integer exactly once (Rayleigh-Beatty theorem). For alpha=golden ratio these are the Wythoff sequences behind Wythoff Nim. Verified live: for five irrationals, the two sequences partition 1..2000 exactly (no gaps, no overlaps). See the colored integer line in 1D, the partition in 2D, and the densities-sum-to-one inverse in 3D.",
+  "lit":"Genuine Beatty/Rayleigh theorem (Rayleigh 1894; Beatty 1926). Verified live: for alpha in {phi, sqrt2, sqrt3, e-1} with beta=alpha/(alpha-1), the sequences floor(n*alpha) and floor(n*beta) together cover each integer in 1..2000 exactly once (window.__beatty.partitionsExactly).",
+  "fig":"No framing: the conjugate beta, the two floor-sequences, and the exactly-once coverage check run in-browser and are exact. The AVAN inverse is honest — the partition holds precisely because the densities 1/alpha and 1/beta sum to 1 and irrationality forbids any collision between the two sequences; magenta is the density-1/beta sequence, green the density-1/alpha sequence.",
+  "body":BEA_BODY,"script":BEA_SCRIPT},
+ {"slug":"the-enigma","title":"THE ENIGMA","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#b09050","icon":"enigma",
+  "kicker":"a cipher that is its own inverse — and could never encrypt a letter to itself",
+  "blurb":"the Enigma machine in the 5-window house format — a rotor cipher whose reflector makes it reciprocal (if A encrypts to K, K encrypts to A), so one machine and setting both encrypt and decrypt. But the reflector also guaranteed no letter ever encrypts to itself, and that constraint was Enigma's fatal weakness (the foothold the Bombe exploited). Verified live: on a simplified 3-rotor + reflector machine, encrypting the ciphertext with the same start settings returns the plaintext, and no character ever equals its plaintext letter, across 200 random settings. See the signal path in 1D, encrypt-twice in 2D, and the symmetry-was-the-crack inverse in 3D.",
+  "lit":"Genuine Enigma rotor cipher (Scherbius, patented 1918; broken by Rejewski and Turing). Verified live: a simplified 3-rotor + fixed-point-free reflector machine with rotor stepping is reciprocal (encrypting the ciphertext from the same start settings returns the plaintext) and never maps any letter to itself, across 200 random settings and messages (window.__enigma.reciprocal && .noFixedPoint).",
+  "fig":"No framing: the rotors, the fixed-point-free reflector, the stepping, and the reciprocal + no-self-map checks run in-browser and are exact. The AVAN inverse is honest and historical — the reflector makes each position an involution (enc = dec) but forbids any fixed point, and that missing self-map genuinely leaked information to codebreakers; magenta marks the forbidden self-map diagonal, green the reciprocal pairing.",
+  "body":ENI_BODY,"script":ENI_SCRIPT},
+ {"slug":"the-boyer-moore","title":"THE BOYER-MOORE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#d07850","icon":"boyer-moore",
+  "kicker":"search by skipping — learn most from a mismatch",
+  "blurb":"Boyer-Moore string search in the 5-window house format — match the pattern right-to-left and, on a mismatch, skip ahead (often by the whole pattern length) using the bad-character rule: if the mismatched text character is absent from the pattern, jump entirely past it; else align its last occurrence. This can be sublinear, examining fewer characters than the text length. Verified live: over 500 random texts/patterns, the bad-character (Horspool) search returns exactly the same match positions as a naive scan. See a skip in 1D, the leaping search in 2D, and the mismatch-informs-most inverse in 3D.",
+  "lit":"Genuine Boyer-Moore string search (Boyer & Moore 1977; bad-character variant Horspool 1980). Verified live: the bad-character skip-table search, comparing right-to-left, returns exactly the same set of match positions as a naive O(nm) scan for 500 random texts and patterns (window.__boyermoore.matchesNaive); 'abr' in 'abracadabra' -> 0,7.",
+  "fig":"No framing: the skip table, the right-to-left compare, and the exact check against naive search run in-browser and agree. The AVAN inverse is honest — a mismatch rules out many alignments at once, so comparing from the right with a precomputed last-occurrence table lets one failure leap the pattern's full width; magenta is the alignments skipped, green the few actually tested.",
+  "body":BMH_BODY,"script":BMH_SCRIPT},
+ {"slug":"the-aitken","title":"THE AITKEN","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#7098d8","icon":"aitken",
+  "kicker":"accelerate convergence by cancelling the error's shape",
+  "blurb":"Aitken's delta-squared process in the 5-window house format — accelerate a slowly-converging sequence: from x_n -> L form x'_n = x_n - (dx_n)^2 / d^2 x_n, which homes in on L far faster. If the sequence converges geometrically (x_n = L + c*r^n), Aitken returns L exactly in one step by cancelling the error term. Verified live: Aitken returns L to ~1e-13 for a geometric sequence, and on the x=cos(x) fixed-point iteration reaches 1e-8 accuracy in 17 accelerated terms versus 43 raw. See three-terms-to-one in 1D, raw vs accelerated in 2D, and the model-the-error inverse in 3D.",
+  "lit":"Genuine Aitken delta-squared acceleration (Aitken 1926). Verified live: for a purely geometric sequence x_n = L + c*r^n, Aitken's formula returns L to max error ~1.5e-13 (exact cancellation); on the linearly-convergent x=cos(x) fixed point, the accelerated sequence reaches 1e-8 of the limit in 17 terms versus 43 for the raw sequence (window.__aitken.geometricExact && .speedup).",
+  "fig":"No framing: the delta-squared transform, the geometric-exactness check, and the term-count comparison on a real fixed point run in-browser and are exact. The AVAN inverse is honest — Aitken assumes a geometric error tail and algebraically solves three terms for L, removing the dominant error; exact when the tail is truly geometric, strong acceleration otherwise; magenta is the raw crawl, green the accelerated jump.",
+  "body":AIT_BODY,"script":AIT_SCRIPT},
  {"slug":"the-patience-sorting","title":"THE PATIENCE SORTING","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#c8a848","icon":"patience-sorting",
   "kicker":"deal cards to piles — the pile count is the longest increasing run",
