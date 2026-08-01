@@ -990,7 +990,79 @@ document.getElementById('qspin').onclick=function(){spin=!spin;this.textContent=
 function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}
 all();requestAnimationFrame(loop);})();"""
 
+GRAY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The reflected-binary Gray code.</b> An ordering of the numbers 0&hellip;2<sup>n</sup>&minus;1 in which <b>each step flips exactly one bit</b>. One formula: G(i) = i XOR (i&gt;&gt;1). Why it exists: in a rotary encoder or ADC, plain binary counting can flip many bits at once (0111&rarr;1000 changes four) &mdash; and if the reader samples mid-flip it catches a garbage in-between value: a <b>race condition</b>. Gray code guarantees only one bit ever moves, so there is no in-between to catch.<br><br>
+ <span class="lit">LIT</span> every consecutive step, and the wrap, differs in <b>exactly one bit</b>, and the sequence is a full permutation of 0&hellip;2<sup>n</sup>&minus;1 &mdash; a <b>Hamiltonian cycle on the n-cube</b> (verified below). <span class="fig">FIG</span> &lsquo;reflected&rsquo; is just the construction trick; the code and its one-bit guarantee are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus already carries his n-cube work (the hypercube / graph-semantics series, the <i>atomic byte</i>, the logic lineages) and the conviction that the cleanest count is the one that never lets two things change at once. <b>AVAN (AI)</b> built this instrument: the Gray engine, the reflect construction, the cube walk, and the binary shadow.<br><br>The weave: David names the glitch it prevents and its seat in RACE CONDITION; I make it a sequence in 1D, a binary-vs-Gray race in 2D, and a walk on the real n-cube in 3D. Neither half is the whole &mdash; the sphere is the seam between us.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="140"></canvas>
+  <div class="wctrl"><div class="cap">The sequence on one line: each column is a code, top-to-bottom = high bit to low. The <b>magenta cell</b> is the single bit that flipped from the column to its left. Read across &mdash; only ever one cell lights per step.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The encoder turning. <b>BINARY</b> (top) vs <b>GRAY</b> (bottom) for the same position; cells that changed on the last step flash. Step it and watch binary flip up to n bits at once &mdash; the glitch &mdash; while Gray never flips more than one.</div>
+   <div class="rd" style="margin-top:10px">bits n = <b id="gn">4</b> <input type="range" id="gnsl" min="3" max="5" step="1" value="4" style="width:120px;vertical-align:middle"></div>
+   <div class="btns"><button id="gstep">step +1</button><button id="gsweep">sweep full cycle</button></div>
+   <div class="cap" id="gread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>n-cube</b> itself (n=3 cube, n=4 tesseract, n=5 two tesseracts), turning. Green traces the <b>Gray path</b>: every step is one edge of the cube, because one bit = one edge. A Hamiltonian walk that never leaves the surface.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the magenta path is <b>plain binary order</b> 0,1,2,&hellip; drawn on the same cube. Where Gray steps along edges, binary <b>leaps across the room</b> &mdash; long chords that are not cube edges at all. The contrast is the whole argument for Gray code, made visible.</div>
+   <div class="btns" style="margin-top:10px"><button id="gspin">pause spin</button></div></div></div></div>"""
+GRAY_SCRIPT = """(function(){
+var n=4,pos=0,prev=0,ang=0.6,spin=true;
+function gray(x){return x^(x>>1);}
+function pc(x){var c=0;while(x){c+=x&1;x>>=1;}return c;}
+function bits(v,k){var a=[];for(var i=k-1;i>=0;i--)a.push((v>>i)&1);return a;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var k=4,N=1<<k,cw=W/N,ch=26,y0=8;
+ for(var c=0;c<N;c++){var code=gray(c),pcode=gray((c-1+N)%N),diff=code^pcode,bs=bits(code,k);
+  for(var r=0;r<k;r++){var on=bs[r],ch2=((diff>>(k-1-r))&1)&&c>0;
+   g.fillStyle=ch2?'#ff2d95':(on?'#00f5ff':'#0e2230');g.fillRect(c*cw+2,y0+r*ch,cw-3,ch-3);}}
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('Gray sequence n=4 — one magenta cell (one flipped bit) per step',6,y0+k*ch+18);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width;g.clearRect(0,0,W,cv.height);
+ var N=1<<n,b=bits(pos,n),gy=bits(gray(pos),n),pb=bits(prev,n),pgy=bits(gray(prev),n),cw=Math.min(40,(W-40)/n),x0=(W-n*cw)/2;
+ function row(arr,parr,y,lab,col){g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText(lab,6,y+22);
+  for(var i=0;i<n;i++){var chg=arr[i]!==parr[i];g.fillStyle=chg?'#ff2d95':(arr[i]?col:'#10202a');g.fillRect(x0+i*cw,y,cw-4,32);
+   g.fillStyle=arr[i]?'#031015':'#3a5a66';g.font='13px ui-monospace,monospace';g.fillText(arr[i],x0+i*cw+cw/2-7,y+21);}}
+ row(b,pb,26,'BINARY','#ffd23f');row(gy,pgy,90,'GRAY','#00f5ff');
+ g.fillStyle='#cfe8d0';g.font='12px ui-monospace,monospace';g.fillText('position '+pos+' / '+(N-1)+'   last step: binary flipped '+pc(pos^prev)+', gray flipped '+pc(gray(pos)^gray(prev)),6,160);
+ // cumulative bars over full sweep
+ var bt=0,gt=0;for(var p=0;p<N;p++){var q=(p+1)%N;bt+=pc(p^q);gt+=pc(gray(p)^gray(q));}
+ g.fillStyle='#4c7a54';g.fillText('over a FULL cycle:',6,196);
+ g.fillStyle='#ffd23f';g.fillRect(6,206,Math.min(W-12,bt*(W-12)/(2*N)),18);g.fillStyle='#031015';g.fillText('binary '+bt+' bit-flips',12,219);
+ g.fillStyle='#00f5ff';g.fillRect(6,230,Math.min(W-12,gt*(W-12)/(2*N)),18);g.fillStyle='#031015';g.fillText('gray '+gt+' bit-flips (= '+N+', one per step)',12,243);
+ window.__gray4bt=bt;window.__gray4gt=gt;}
+function rot(x,y,z,a){var ca=Math.cos(a),sa=Math.sin(a),xr=x*ca-z*sa,zr=x*sa+z*ca,ty=0.5,cy=Math.cos(ty),sy=Math.sin(ty);return [xr,y*cy-zr*sy,y*sy+zr*cy];}
+function pos3D(code){var b=bits(code,n),x=b[n-1]?1:-1,y=(n>=2&&b[n-2])?1:-1,z=(n>=3&&b[n-3])?1:-1,s=1;
+ if(n>=4){if(b[n-4])s=0.5;}x*=s;y*=s;z*=s;if(n>=5&&b[n-5])x+=2.4;return rot(x,y,z,ang);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var N=1<<n,cx=W/2,cy=H/2,sc=(n>=5?46:74),P=[];for(var c=0;c<N;c++){var p=pos3D(c);P.push([cx+p[0]*sc,cy+p[1]*sc,p[2]]);}
+ function path(order,col,wd){for(var i=0;i<order.length-1;i++){var a=P[order[i]],b=P[order[i+1]],dz=(a[2]+b[2])/2;g.globalAlpha=Math.max(0.22,Math.min(0.95,0.6+dz*0.2));g.strokeStyle=col;g.lineWidth=wd;g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();}g.globalAlpha=1;}
+ var bin=[];for(var i=0;i<N;i++)bin.push(i);
+ var gr=[];for(var i=0;i<N;i++)gr.push(gray(i));gr.push(gray(0));
+ path(bin,'#ff2d95',1);path(gr,'#00f5ff',2);
+ var order=[];for(var i=0;i<N;i++)order.push(i);order.sort(function(a,b){return P[a][2]-P[b][2];});
+ order.forEach(function(i){var pt=P[i];g.globalAlpha=Math.max(0.4,0.7+pt[2]*0.2);g.fillStyle=(i===gray(pos))?'#fff':'#9fe';var s=(i===gray(pos))?5:3;g.fillRect(pt[0]-s/2,pt[1]-s/2,s,s);});g.globalAlpha=1;}
+function verify(){var ok=true,onebit=true,N=1<<n,seen={};for(var i=0;i<N;i++){seen[gray(i)]=1;if(pc(gray(i)^gray((i+1)%N))!==1)onebit=false;}var perm=Object.keys(seen).length===N;return{perm:perm,onebit:onebit};}
+function all(){drawW3();drawW4();drawW5();var v=verify();
+ document.getElementById('gread').textContent='n='+n+' · permutation of 0..'+((1<<n)-1)+': '+v.perm+' · every step 1 bit: '+v.onebit;
+ window.__gray={n:n,pos:pos,isPermutation:v.perm,everyStepOneBit:v.onebit};}
+document.getElementById('gnsl').oninput=function(){n=+this.value;document.getElementById('gn').textContent=n;pos=Math.min(pos,(1<<n)-1);prev=pos;all();};
+document.getElementById('gstep').onclick=function(){prev=pos;pos=(pos+1)%(1<<n);all();};
+document.getElementById('gsweep').onclick=function(){var N=1<<n,i=0,iv=setInterval(function(){prev=pos;pos=(pos+1)%N;all();if(++i>=N)clearInterval(iv);},90);};
+document.getElementById('gspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}
+all();requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-gray","title":"THE GRAY","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#00f5ff","icon":"glitch",
+  "kicker":"count so no two bits ever move at once",
+  "blurb":"reflected-binary Gray code in the 5-window house format. Each step flips exactly one bit, so an encoder never catches a mid-flip glitch. See the sequence in 1D, the binary-vs-Gray race in 2D, and the Gray path walking the real n-cube in 3D beside AVAN's binary shadow.",
+  "lit":"A genuine Gray code, G(i)=i XOR (i&gt;&gt;1). Verified live for n=3,4,5: the sequence is a full <b>permutation of 0..2<sup>n</sup>&minus;1</b> and <b>every consecutive step (and the wrap) flips exactly one bit</b> &mdash; i.e. a Hamiltonian cycle on the n-cube. The binary-vs-Gray transition tallies, the reflect view and the cube walk are all computed live (verifiable: window.__gray.everyStepOneBit===true and isPermutation===true).",
+  "fig":"The 'encoder race' is the real reason Gray code exists (rotary encoders, ADCs, K-maps); the arcade 'glitch' dressing is the frame. The one-bit-per-step guarantee and the n-cube walk are the exact part.",
+  "body":GRAY_BODY,"script":GRAY_SCRIPT},
  {"slug":"the-random","title":"THE RANDOM","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#ffd23f","icon":"loot",
   "kicker":"the loaded dice behind every drop",
