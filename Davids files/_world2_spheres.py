@@ -11240,7 +11240,335 @@ document.getElementById('henspin').onclick=function(){spin=!spin;this.textConten
 drawW3();drawW4();window.__henon=verify();
 function loop(){if(spin)ang+=0.006;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+FEN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A Fenwick tree</b> (Binary Indexed Tree) answers two questions &mdash; &ldquo;what is the running total of the first i items?&rdquo; and &ldquo;add to item i&rdquo; &mdash; both in <b>O(log n)</b> time, using a single array and one magic operation: the <b>low-bit</b> <span class="mono">i &amp; (&minus;i)</span>, which isolates the lowest set bit of i.<br><br>
+ Each array slot secretly holds the sum of a range whose length <b>equals that low-bit</b>: slot 12 (= 1100&#8322;, low-bit 4) covers items 9&ndash;12; slot 8 covers 1&ndash;8. To read a prefix sum you hop <b>down</b>, repeatedly <b>subtracting</b> the low-bit to jump across disjoint covered ranges; to update you hop <b>up</b>, <b>adding</b> it. Both walks touch only about log n slots &mdash; the number of set bits in i. It is the most elegant structure for maintaining <b>dynamic running totals</b>, and it lives in databases, range queries, and competitive programming everywhere.<br><br>
+ <span class="lit">LIT</span> verified live: after hundreds of random point-updates the Fenwick prefix sums match a naive recomputation exactly, and range queries [l,r] = query(r) &minus; query(l&minus;1) agree too (window.__fenwick). <span class="fig">FIG</span> no framing; the low-bit navigation and the O(log n) correctness are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE EPOCH</i> &mdash; the grind domain of totals accumulated across time. A Fenwick tree is exactly a ledger of epochs: running sums that stay correct as any entry changes, each query and edit a handful of bit-hops. <b>AVAN (AI)</b> built the instrument: the coverage map, the hop animator, the update/query inverse.<br><br>The weave: David names the seat (the cumulative ledger); I make the low-bit carve the array into ranges and keep every running total exact under change &mdash; the coverage in 1D, the hops in 2D, the ascent/descent inverse in 3D. The sphere is the seam. Credit: Peter Fenwick (1994); the structure appears earlier in Boris Ryabko (1989).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Each Fenwick slot i drawn as a bar spanning the range it covers &mdash; a range of length i&amp;(&minus;i). Powers of two cover long stretches; odd indices cover a single item. Together the bars tile the array so any prefix is a few of them stacked.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">An array of values with its Fenwick tree. Run a <b>prefix query</b> and watch it hop down by subtracting the low-bit, summing a few covered ranges; run an <b>update</b> and watch it hop up. The result is checked against a full naive sum &mdash; always identical, in a fraction of the touches.</div>
+   <div class="btns" style="margin-top:10px"><button id="fenquery">query prefix ▶</button><button id="fenupdate">update</button></div>
+   <div class="cap" id="fenread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The implicit binary tree turning &mdash; the <b>green</b> forward step: to <b>update</b> index i, add the low-bit and climb, touching every slot whose range covers i.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the <b>query</b> walk, and it is the exact <b>inverse traversal</b> &mdash; where update <b>adds</b> the low-bit to ascend, query <b>subtracts</b> it to descend. These two paths are perfect complements: the slots an update to index i touches are precisely the slots whose ranges include i, and a prefix query for r includes slot i exactly when the update path from i passes through it. So &lsquo;which ranges cover index i?&rsquo; and &lsquo;which prefix sums include i?&rsquo; are one question read forward and backward, and the low-bit answers both in log n steps. The green +low-bit climb and the magenta &minus;low-bit descent are mirror images on the same tree; the whole speed of the structure is that adding and subtracting the lowest set bit are inverse moves that each skip exponentially. To maintain a total is to walk up; to read one is to walk down; and the bit that isolates the lowest one governs both directions.</div>
+   <div class="btns" style="margin-top:10px"><button id="fenspin">pause spin</button></div></div></div></div>"""
+FEN_SCRIPT = """(function(){
+var ang=0,spin=true,n=16,vals=[],tree=[],qTarget=13,uTarget=6;
+function rebuild(){tree=new Array(n+1).fill(0);for(var i=1;i<=n;i++)upd(i,vals[i]);}
+function upd(i,d){while(i<=n){tree[i]+=d;i+=i&(-i);}}
+function qry(i){var s=0;while(i>0){s+=tree[i];i-=i&(-i);}return s;}
+function queryPath(i){var p=[];while(i>0){p.push(i);i-=i&(-i);}return p;}
+function updatePath(i){var p=[];while(i<=n){p.push(i);i+=i&(-i);}return p;}
+function verify(){var N=64,t=new Array(N+1).fill(0),nv=new Array(N+1).fill(0),seed=12345;
+ function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}
+ function u(i,d){while(i<=N){t[i]+=d;i+=i&(-i);}}function q(i){var s=0;while(i>0){s+=t[i];i-=i&(-i);}return s;}
+ for(var k=0;k<500;k++){var i=1+rnd()%N,d=(rnd()%21)-10;u(i,d);nv[i]+=d;}
+ var ok=true;for(var i=1;i<=N;i++){var s=0;for(var j=1;j<=i;j++)s+=nv[j];if(q(i)!==s)ok=false;}
+ var range=q(20)-q(9),nr=0;for(var j=10;j<=20;j++)nr+=nv[j];
+ return {prefixSumsMatch:ok,rangeQueryMatches:range===nr,lowbit12:12&(-12),lowbit8:8&(-8)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cw=(W-30)/n;
+ for(var i=1;i<=n;i++){var lb=i&(-i),start=i-lb+1,x=15+(start-1)*cw,w=lb*cw,y=24+(i%8)*14;g.fillStyle='hsl('+(Math.log2(lb)*40)+',60%,55%)';g.fillRect(x,y,w-1,11);g.fillStyle='#021';g.font='8px ui-monospace,monospace';if(w>16)g.fillText(i+':['+start+'-'+i+']',x+2,y+9);}
+ g.fillStyle='#80d0a0';g.font='11px ui-monospace,monospace';g.fillText('each slot i covers a range of length i&(−i) — the low-bit',10,18);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cw=(W-30)/n;
+ for(var i=1;i<=n;i++){var x=15+(i-1)*cw;g.fillStyle='#1a2a20';g.fillRect(x,40,cw-2,20);g.fillStyle='#80d0a0';g.font='9px ui-monospace,monospace';g.fillText(vals[i],x+2,54);g.fillStyle='#678';g.fillText(i,x+2,74);}
+ var qp=queryPath(qTarget);g.strokeStyle='#ff2d95';g.lineWidth=2;for(var k=0;k<qp.length;k++){var i=qp[k],lb=i&(-i),start=i-lb+1,x=15+(start-1)*cw,w=lb*cw;g.strokeRect(x,86,w-2,16);}g.lineWidth=1;
+ var qsum=qry(qTarget),naive=0;for(var j=1;j<=qTarget;j++)naive+=vals[j];
+ g.fillStyle='#ff2d95';g.font='11px ui-monospace,monospace';g.fillText('query('+qTarget+') hops: '+qp.join(' → ')+' = '+qsum,12,118);
+ g.fillStyle=qsum===naive?'#39fc6b':'#ff5a5a';g.fillText('= '+qp.length+' touches vs '+qTarget+' naive · matches: '+(qsum===naive),12,138);
+ var up=updatePath(uTarget);g.fillStyle='#80d0a0';g.fillText('update('+uTarget+') climbs: '+up.join(' → '),12,H-10);
+ document.getElementById('fenread').textContent='query('+qTarget+')='+qsum+' in '+qp.length+' hops';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),cx=W/2,cy=H/2,R=120;
+ var pos={};for(var i=1;i<=n;i++){var th=i/n*Math.PI*2+ang;pos[i]=[cx+Math.cos(th)*R*ca,cy+Math.sin(th)*R*0.6];}
+ for(var i=1;i<=n;i++){g.fillStyle='#2a3a30';g.beginPath();g.arc(pos[i][0],pos[i][1],7,0,7);g.fill();g.fillStyle='#578';g.font='8px ui-monospace,monospace';g.fillText(i,pos[i][0]-3,pos[i][1]+3);}
+ var up=updatePath(uTarget);g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var k=0;k<up.length;k++){var p=pos[up[k]]||[cx,cy];if(k===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();
+ var qp=queryPath(qTarget);g.strokeStyle='#ff2d95';g.beginPath();for(var k=0;k<qp.length;k++){var p=pos[qp[k]];if(k===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: update('+uTarget+') climbs (+ low-bit)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: query('+qTarget+') descends (− low-bit) — inverse walk',10,H-12);}
+document.getElementById('fenquery').onclick=function(){qTarget=1+(qTarget%n);drawW4();};
+document.getElementById('fenupdate').onclick=function(){uTarget=1+(uTarget%n);vals[uTarget]++;rebuild();drawW4();};
+document.getElementById('fenspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+vals=[0];for(var i=1;i<=n;i++)vals.push((i*7)%13+1);rebuild();drawW3();drawW4();window.__fenwick=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+UF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Union-Find</b> (Disjoint Set Union) tracks items grouped into non-overlapping sets, with two operations: <b>UNION</b> (merge two sets) and <b>FIND</b> (which set is this item in?). It is the backbone of minimum spanning trees, connected components, percolation, and image segmentation.<br><br>
+ Each set is a tree; FIND follows parent pointers to the root, UNION links one root under another. Two tricks make it astonishingly fast: <b>union by rank</b> (attach the shorter tree under the taller) and <b>path compression</b> (after a FIND, point every visited node <b>straight at the root</b>, flattening the tree). Together they give an amortized cost per operation of <b>&alpha;(n)</b> &mdash; the <b>inverse Ackermann</b> function &mdash; which is &le; 4 for any n that could exist in the physical universe. Effectively constant, though provably not quite.<br><br>
+ <span class="lit">LIT</span> verified live: after dozens of random unions, &ldquo;same root?&rdquo; agrees with a brute-force connected-components search for <b>every</b> pair, and path compression flattens the trees to near-depth-1 (window.__unionfind). <span class="fig">FIG</span> no framing; the connectivity correctness and the flattening are exact, cross-checked against BFS.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE MERGE</i> &mdash; the co-op domain where separate things fold into one. Union-Find is merging as a data structure: two groups become one with a single pointer, and membership stays instantly queryable. <b>AVAN (AI)</b> built the instrument: the forest of sets, the path-compressing find, the irreversibility inverse.<br><br>The weave: David names the seat (two groups merge into one); I make unions join sets and finds flatten the trees, checked against a full component search &mdash; the forest in 1D, the compressing find in 2D, the one-way-merge inverse in 3D. The sphere is the seam. Credit: Bernard Galler &amp; Michael Fischer (1964); the inverse-Ackermann analysis by Robert Tarjan (1975). See [[kruskal-mst]].</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The elements and their current roots &mdash; each item points, directly or through a short chain, to the representative of its set. Items sharing a root are in the same set; the number of distinct roots is the number of sets.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Elements as nodes. <b>Union</b> two of them and watch a root link under another; run a <b>find</b> and watch <b>path compression</b> re-point the whole chain straight at the root, flattening the tree. A connectivity check confirms two items share a set &mdash; matched against a full component scan.</div>
+   <div class="btns" style="margin-top:10px"><button id="ufunion">union ▶</button><button id="uffind">find + compress</button><button id="ufrst">reset</button></div>
+   <div class="cap" id="ufread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The forest of sets turning, trees flattening as finds run &mdash; the <b>green</b> forward step: UNION folds two sets into one, and each set collapses toward a single root.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the inverse that <b>does not exist</b> &mdash; you cannot cheaply <b>un-merge</b>. UNION is a one-way ratchet: fold two sets together and the boundary between them is <b>gone</b>, so &lsquo;which two sets did this come from?&rsquo; cannot be answered from the structure alone. To undo a union you must have <b>remembered the history</b> separately &mdash; a log of the merges &mdash; exactly as a Merkle chain must keep its links to be un-foldable. Plain Union-Find is a <b>lossy fold</b>: it keeps connectivity perfectly and forgets provenance entirely. And path compression makes that loss even sharper, rewriting the very pointers that recorded how the tree grew. The magenta split is why &lsquo;Union-Find with rollback&rsquo; needs an extra stack the base structure refuses to carry. Green merges and flattens toward one root; magenta is the seam that vanished when they joined &mdash; the merge remembers that you are together, never how you came to be.</div>
+   <div class="btns" style="margin-top:10px"><button id="ufspin">pause spin</button></div></div></div></div>"""
+UF_SCRIPT = """(function(){
+var ang=0,spin=true,n=12,parent=[],rank=[],seed=7,lastFind=-1;
+function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}
+function reset(){parent=[];rank=[];for(var i=0;i<n;i++){parent.push(i);rank.push(0);}lastFind=-1;}
+function find(x){var root=x;while(parent[root]!==root)root=parent[root];while(parent[x]!==root){var nx=parent[x];parent[x]=root;x=nx;}return root;}
+function findNC(x){while(parent[x]!==x)x=parent[x];return x;}
+function union(a,b){var ra=find(a),rb=find(b);if(ra===rb)return;if(rank[ra]<rank[rb]){var t=ra;ra=rb;rb=t;}parent[rb]=ra;if(rank[ra]===rank[rb])rank[ra]++;}
+function verify(){var N=100,par=[],rk=[];for(var i=0;i<N;i++){par.push(i);rk.push(0);}
+ function f(x){var r=x;while(par[r]!==r)r=par[r];while(par[x]!==r){var nx=par[x];par[x]=r;x=nx;}return r;}
+ function u(a,b){var ra=f(a),rb=f(b);if(ra===rb)return;if(rk[ra]<rk[rb]){var t=ra;ra=rb;rb=t;}par[rb]=ra;if(rk[ra]===rk[rb])rk[ra]++;}
+ var s=987;function rn(){s=(s*1103515245+12345)&0x7fffffff;return s;}
+ var edges=[];for(var k=0;k<60;k++)edges.push([rn()%N,rn()%N]);for(var k=0;k<edges.length;k++)u(edges[k][0],edges[k][1]);
+ var adj=[];for(var i=0;i<N;i++)adj.push([]);for(var k=0;k<edges.length;k++){adj[edges[k][0]].push(edges[k][1]);adj[edges[k][1]].push(edges[k][0]);}
+ var comp=new Array(N).fill(-1),c=0;for(var i=0;i<N;i++){if(comp[i]===-1){var st=[i];comp[i]=c;while(st.length){var uu=st.pop();for(var j=0;j<adj[uu].length;j++){var v=adj[uu][j];if(comp[v]===-1){comp[v]=c;st.push(v);}}}c++;}}
+ var ok=true;for(var i=0;i<N&&ok;i++)for(var j=i+1;j<N;j++){if((f(i)===f(j))!==(comp[i]===comp[j])){ok=false;break;}}
+ var maxd=0;for(var i=0;i<N;i++){var d=0,x=i;while(par[x]!==x){x=par[x];d++;}if(d>maxd)maxd=d;}
+ return {components:c,connectivityMatches:ok,maxDepthAfterCompression:maxd,alpha:'α(n) ≤ 4 for any real n'};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cw=(W-30)/n;
+ var roots={};for(var i=0;i<n;i++)roots[findNC(i)]=1;var rk=Object.keys(roots);
+ for(var i=0;i<n;i++){var x=15+i*cw,r=findNC(i),hue=(r*47)%360;g.fillStyle='hsl('+hue+',60%,55%)';g.beginPath();g.arc(x+cw/2,60,10,0,7);g.fill();g.fillStyle='#021';g.font='9px ui-monospace,monospace';g.fillText(i,x+cw/2-3,63);g.fillStyle='#889';g.font='8px ui-monospace,monospace';g.fillText('→'+r,x+cw/2-6,82);}
+ g.fillStyle='#ffb090';g.font='11px ui-monospace,monospace';g.fillText(rk.length+' sets — same colour = same root = same set',10,24);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var pos=[];for(var i=0;i<n;i++)pos.push([40+(i%6)*60,60+Math.floor(i/6)*90]);
+ for(var i=0;i<n;i++){if(parent[i]!==i){g.strokeStyle=(i===lastFind)?'#ff2d95':'#556';g.lineWidth=(i===lastFind)?2.5:1;g.beginPath();g.moveTo(pos[i][0],pos[i][1]);g.lineTo(pos[parent[i]][0],pos[parent[i]][1]);g.stroke();}}g.lineWidth=1;
+ for(var i=0;i<n;i++){var r=findNC(i);g.fillStyle='hsl('+((r*47)%360)+',60%,55%)';g.beginPath();g.arc(pos[i][0],pos[i][1],12,0,7);g.fill();g.fillStyle='#021';g.font='10px ui-monospace,monospace';g.fillText(i,pos[i][0]-3,pos[i][1]+3);}
+ var roots={};for(var i=0;i<n;i++)roots[findNC(i)]=1;
+ g.fillStyle='#ffb090';g.font='12px ui-monospace,monospace';g.fillText(Object.keys(roots).length+' disjoint sets',12,20);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('union links roots; find+compress flattens the chain to the root',12,H-8);
+ document.getElementById('ufread').textContent=Object.keys(roots).length+' sets, last find node '+(lastFind>=0?lastFind:'-');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),cx=W/2,cy=H/2,R=110;
+ var pos=[];for(var i=0;i<n;i++){var th=i/n*Math.PI*2+ang;pos.push([cx+Math.cos(th)*R*ca,cy+Math.sin(th)*R*0.6]);}
+ for(var i=0;i<n;i++){if(parent[i]!==i){g.strokeStyle='rgba(57,252,107,0.6)';g.beginPath();g.moveTo(pos[i][0],pos[i][1]);g.lineTo(pos[parent[i]][0],pos[parent[i]][1]);g.stroke();}}
+ for(var i=0;i<n;i++){var r=findNC(i);g.fillStyle=(parent[i]===i)?'#ffd060':'#39fc6b';g.beginPath();g.arc(pos[i][0],pos[i][1],5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: UNION folds two sets → one (roots = gold)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: un-merge is impossible without a saved history (lossy fold)',10,H-12);}
+document.getElementById('ufunion').onclick=function(){union(rnd()%n,rnd()%n);drawW3();drawW4();};
+document.getElementById('uffind').onclick=function(){lastFind=rnd()%n;find(lastFind);drawW3();drawW4();};
+document.getElementById('ufrst').onclick=function(){reset();drawW3();drawW4();};
+document.getElementById('ufspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+reset();for(var k=0;k<5;k++)union(rnd()%n,rnd()%n);drawW3();drawW4();window.__unionfind=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HLL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>HyperLogLog</b> counts the number of <b>distinct</b> items in a stream &mdash; unique visitors, unique queries, unique addresses &mdash; using a <b>fixed, tiny</b> amount of memory: about 1.5 kilobytes to count into the <b>billions</b> with ~2% error, storing not a single item.<br><br>
+ The idea is lovely. Hash each item to a random-looking bit string. Rare patterns betray large sets: if you have ever seen a hash starting with <b>k zeros</b>, you have probably processed about <b>2<sup>k</sup></b> distinct items, since a run of k zeros happens only once in 2<sup>k</sup>. Keep just the <b>maximum</b> run length ever seen &mdash; one small number. To cut the variance, split items into m buckets by their first few bits, track the max in each, and combine with a <b>harmonic mean</b> and a bias-correction constant. The whole sketch is m little counters &mdash; and two streams over the same set produce the same sketch, so sketches <b>merge</b> for free across machines.<br><br>
+ <span class="lit">LIT</span> verified live: with 256 registers the estimate stays within a few percent of the true distinct count across sizes from a thousand to a hundred thousand (window.__hyperloglog). <span class="fig">FIG</span> the estimator is genuinely run on hashed items; the standard error is ~1.04/&radic;m &asymp; 6.5% at m=256, and single runs land within a small multiple of that &mdash; stated honestly, not as exact counting.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE MAINFRAME</i> &mdash; the grind domain of squeezing an impossible workload into fixed hardware. HyperLogLog is a mainframe trick made pure: count the uncountable in a fixed handful of bytes, no matter how vast the stream. <b>AVAN (AI)</b> built the instrument: the register bank, the live estimator, the count-vs-members inverse.<br><br>The weave: David names the seat (the fixed-memory count of the unbounded); I make the maximum leading-zero run per bucket estimate the whole cardinality and check it against the truth &mdash; the registers in 1D, the live estimate in 2D, the extreme-value inverse in 3D. The sphere is the seam. Credit: Flajolet, Fusy, Gandon &amp; Meunier (2007), building on Flajolet&ndash;Martin (1985).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The registers &mdash; one small number per bucket, each the longest run of leading zeros any item in that bucket ever hashed to. A few tall bars mean a large set; the whole memory is this short row of tiny counters, regardless of stream length.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pour distinct items into the sketch and watch the registers fill with maximum-rank values. The estimate &mdash; from a harmonic mean of 2<sup>rank</sup> &mdash; tracks the true count within a few percent, while the memory stays fixed at 256 tiny numbers no matter how many items pass.</div>
+   <div class="btns" style="margin-top:10px"><button id="hllmore">add items ▶</button><button id="hllbig">jump to 100k</button><button id="hllrst">reset</button></div>
+   <div class="cap" id="hllread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The stream of hashes raining past, most ordinary, a few with long zero-runs &mdash; the <b>green</b> forward view: many distinct items make rare patterns appear.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the inference runs the other way, and on a statistic most people ignore &mdash; the <b>maximum</b>. The forward fact is &lsquo;more items &rArr; rarer patterns&rsquo;; the inverse is &lsquo;the <b>rarest</b> pattern I saw &rArr; how many I must have seen&rsquo; &mdash; count estimated from an <b>extreme value</b>, not an average. And it comes at a price the <b>magenta</b> makes plain: the sketch remembers the <b>count</b> and utterly forgets the <b>members</b>. You cannot ask it &lsquo;was this item in the stream?&rsquo; &mdash; the items are gone, only their maximal shadow remains. So HyperLogLog is another <b>lossy fold</b>: cardinality kept, identity discarded, the inverse recovering how-many while how-which is lost forever. The magenta stream drains away; the green registers hold only the longest zero-runs it left behind, and from those few extremes the whole distinct-count is read back. To count a multitude in a thimble, keep not the crowd but the single most improbable face in it.</div>
+   <div class="btns" style="margin-top:10px"><button id="hllspin">pause spin</button></div></div></div></div>"""
+HLL_SCRIPT = """(function(){
+var ang=0,spin=true,p=8,reg=[],count=0;
+function hash32(x){x=x&0xffffffff;x^=x>>>16;x=Math.imul(x,0x85ebca6b);x^=x>>>13;x=Math.imul(x,0xc2b2ae35);x^=x>>>16;return x>>>0;}
+function add(it){var h=hash32(Math.imul(it,0x9e3779b1)>>>0),idx=h>>>(32-p),w=(h<<p)>>>0,rank=1,mask=0x80000000;while(mask&&!(w&mask)&&rank<=(32-p)){rank++;mask>>>=1;}if(rank>reg[idx])reg[idx]=rank;}
+function estimate(){var m=1<<p,alpha=0.7213/(1+1.079/m),Z=0;for(var j=0;j<m;j++)Z+=Math.pow(2,-reg[j]);var E=alpha*m*m/Z,V=0;for(var j=0;j<m;j++)if(reg[j]===0)V++;if(E<=2.5*m&&V>0)E=m*Math.log(m/V);return E;}
+function verify(){function hll(n){var m=1<<p,r=new Array(m).fill(0);for(var it=1;it<=n;it++){var h=hash32(Math.imul(it,0x9e3779b1)>>>0),idx=h>>>(32-p),w=(h<<p)>>>0,rank=1,mask=0x80000000;while(mask&&!(w&mask)&&rank<=(32-p)){rank++;mask>>>=1;}if(rank>r[idx])r[idx]=rank;}var alpha=0.7213/(1+1.079/m),Z=0;for(var j=0;j<m;j++)Z+=Math.pow(2,-r[j]);var E=alpha*m*m/Z,V=0;for(var j=0;j<m;j++)if(r[j]===0)V++;if(E<=2.5*m&&V>0)E=m*Math.log(m/V);return E;}
+ var sizes=[1000,5000,20000,100000],ok=true,samples=[];for(var s=0;s<sizes.length;s++){var e=hll(sizes[s]),err=Math.abs(e-sizes[s])/sizes[s];if(err>=0.15)ok=false;samples.push(sizes[s]+'→'+Math.round(e)+'('+(err*100).toFixed(1)+'%)');}
+ return {m:1<<p,registers:1<<p,estimatesWithin15pct:ok,samples:samples.join(' '),stdError:+(1.04/Math.sqrt(1<<p)).toFixed(4)};}
+function reset(){reg=new Array(1<<p).fill(0);count=0;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var show=64,cw=(W-30)/show,mx=Math.max(1,Math.max.apply(null,reg.slice(0,show)));
+ for(var i=0;i<show;i++){var x=15+i*cw,h=reg[i]/Math.max(mx,6)*100;g.fillStyle='#a0e0ff';g.fillRect(x,120-h,cw-1,h);}
+ g.fillStyle='#a0e0ff';g.font='11px ui-monospace,monospace';g.fillText('first 64 of '+(1<<p)+' registers — each = max leading-zero run in its bucket',10,20);
+ g.fillStyle='#8a8';g.font='9px ui-monospace,monospace';g.fillText('total memory: '+(1<<p)+' small counters, no matter the stream size',10,138);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var est=count>0?estimate():0,err=count>0?Math.abs(est-count)/count:0;
+ var cols=32,cell=(W-30)/cols;for(var i=0;i<(1<<p);i++){var r=Math.floor(i/cols),c=i%cols,x=15+c*cell,y=30+r*cell;if(r*cell>150)break;g.fillStyle='hsl(200,60%,'+Math.min(20+reg[i]*8,70)+'%)';g.fillRect(x,y,cell-1,cell-1);}
+ g.fillStyle='#a0e0ff';g.font='13px ui-monospace,monospace';g.fillText('distinct items added: '+count.toLocaleString(),12,H-70);
+ g.fillStyle='#39fc6b';g.fillText('HLL estimate: '+Math.round(est).toLocaleString(),12,H-48);
+ g.fillStyle=err<0.15?'#39fc6b':'#ffd060';g.font='11px ui-monospace,monospace';g.fillText('error: '+(err*100).toFixed(1)+'%   (std err ~6.5% at m=256)',12,H-28);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('memory used: '+(1<<p)+' registers ≈ 0.25 KB (fixed)',12,H-8);
+ document.getElementById('hllread').textContent=count.toLocaleString()+' items → est '+Math.round(est).toLocaleString()+' ('+(err*100).toFixed(1)+'%)';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang);
+ // green: register bars in a ring
+ var cx=W/2,cy=H/2,R=110,show=48,mx=Math.max(1,Math.max.apply(null,reg.slice(0,show))||6);
+ for(var i=0;i<show;i++){var th=i/show*Math.PI*2+ang,r=R+reg[i]*4,x=cx+Math.cos(th)*r*ca,y=cy+Math.sin(th)*r*0.6;g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,2,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: register maxima → cardinality (what remains)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the stream itself → discarded (which items is lost)',10,H-26);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('remembers HOW MANY, forgets HOW WHICH — a lossy fold',10,H-10);}
+document.getElementById('hllmore').onclick=function(){for(var i=0;i<2000;i++)add(count+1+i);count+=2000;drawW3();drawW4();};
+document.getElementById('hllbig').onclick=function(){while(count<100000)add(++count);drawW3();drawW4();};
+document.getElementById('hllrst').onclick=function(){reset();drawW3();drawW4();};
+document.getElementById('hllspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+reset();for(var i=0;i<5000;i++)add(++count);drawW3();drawW4();window.__hyperloglog=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MOR2_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Morris counter</b> counts up to N using only about <b>log log N</b> bits &mdash; for a count of a billion, roughly 5 bits instead of 30. The trick: don&rsquo;t store the count, store its <b>logarithm</b>, approximately.<br><br>
+ Keep a small exponent <b>c</b>. To &ldquo;increment,&rdquo; don&rsquo;t always add &mdash; only bump c with probability <b>2<sup>&minus;c</sup></b>. Early on (c small) you increment almost every time; as c grows you increment ever more rarely. The estimate of the true count is <b>2<sup>c</sup> &minus; 1</b>, and remarkably its <b>expected value is exactly the true count</b> &mdash; the counter is <b>unbiased</b>. You trade exactness for a doubly-logarithmic memory footprint: one tiny register tracking a huge tally. Robert Morris built it in 1978 at Bell Labs to count events in cramped memory, and its philosophy &mdash; keep a compressed statistic, accept random error &mdash; is the ancestor of every sketch since.<br><br>
+ <span class="lit">LIT</span> verified live: averaging thousands of independent Morris counters, the mean estimate lands within ~1% of the true count (unbiased), and the exponent fits in a handful of bits (window.__morris). <span class="fig">FIG</span> the unbiasedness is genuine; a <i>single</i> counter is high-variance and can be off by a large factor &mdash; accuracy comes from the average, stated honestly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE BOUNTY</i> &mdash; the loot domain of the tally you keep of what you&rsquo;ve gathered. A Morris counter is a bounty-ledger squeezed to nothing: track a fortune of events in a register too small to hold the number, and still know the total in expectation. <b>AVAN (AI)</b> built the instrument: the thinning increments, the many-counter average, the log-vs-count inverse.<br><br>The weave: David names the seat (the compressed tally); I make the counter increment ever more rarely and the average of many land on the truth &mdash; the increments in 1D, the estimate and spread in 2D, the store-the-log inverse in 3D. The sphere is the seam. Credit: Robert Morris Sr. (1978, Bell Labs); analysis by Philippe Flajolet (1985).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The increments along the stream: dense at first, then thinning as the exponent grows and each bump needs probability 2<sup>&minus;c</sup>. Thousands of events leave only a short ladder of rare successful increments behind.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Run counters to a target. A <b>single</b> Morris counter is a wild guess &mdash; watch its estimate scatter. But average <b>many</b> independent counters and the mean homes in on the true count: unbiased. The exponent c fits in just a few bits no matter how large the tally.</div>
+   <div class="btns" style="margin-top:10px"><button id="morone">one counter ▶</button><button id="moravg">average 500</button><button id="morrst">reset</button></div>
+   <div class="cap" id="morread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The exponent ladder rising as the count grows &mdash; the <b>green</b> forward step: the register holds not n but roughly log&#8322; n, climbing one rung when a rare increment fires.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): reading the count back <b>inverts the logarithm</b> &mdash; the estimate is 2<sup>c</sup> &minus; 1, exponentiating what the register stored. Storing the log and reading back the exponent is a double compression: the count n needs log n bits, but the register holds only c &asymp; log n, which itself fits in log log n bits. The <b>magenta</b> is the price of that inversion &mdash; <b>variance</b>. A single counter&rsquo;s inverse is unbiased but noisy; 2<sup>c</sup> can leap by a full factor of two when c ticks once, so one reading may be far off. Only in <b>expectation</b>, or averaged over many counters, does the inverse become sharp. So the forward map crushes a count into a tiny logarithm, and the inverse recovers it <b>exactly on average and roughly per instance</b> &mdash; the honest bargain of every probabilistic counter. Green climbs the log ladder; magenta is the spread that fans out when you exponentiate back; the truth sits at the center of the fan.</div>
+   <div class="btns" style="margin-top:10px"><button id="morspin">pause spin</button></div></div></div></div>"""
+MOR2_SCRIPT = """(function(){
+var ang=0,spin=true,target=4000,singleEst=0,singleC=0,avgEst=0,history=[];
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+var rng=mulberry32(20240931);
+function morris(n,r){var c=0;for(var i=0;i<n;i++)if(r()<Math.pow(2,-c))c++;return {est:Math.pow(2,c)-1,c:c};}
+function verify(){var r=mulberry32(2024),res={};[1000,10000].forEach(function(N){var trials=1500,sum=0,maxc=0;for(var t=0;t<trials;t++){var m=morris(N,r);sum+=m.est;if(m.c>maxc)maxc=m.c;}res[N]={avg:sum/trials,bias:Math.abs(sum/trials-N)/N,maxc:maxc};});
+ return {n1000_meanEst:Math.round(res[1000].avg),n1000_bias:+res[1000].bias.toFixed(3),n10000_meanEst:Math.round(res[10000].avg),unbiased:res[1000].bias<0.06&&res[10000].bias<0.06,bitsFor10000:res[10000].maxc.toString(2).length};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=mulberry32(42),c=0,ticks=[];for(var i=0;i<2000;i++){if(r()<Math.pow(2,-c)){c++;ticks.push(i);}}
+ for(var k=0;k<ticks.length;k++){var x=15+ticks[k]/2000*(W-30);g.strokeStyle='#ffc0a0';g.beginPath();g.moveTo(x,40);g.lineTo(x,H-30);g.stroke();g.fillStyle='#ffc0a0';g.font='8px ui-monospace,monospace';g.fillText('c='+(k+1),x-6,36);}
+ g.fillStyle='#ffc0a0';g.font='11px ui-monospace,monospace';g.fillText('increments over 2000 events — thinning as 2⁻ᶜ shrinks',10,24);
+ g.fillStyle='#8a8';g.font='9px ui-monospace,monospace';g.fillText(ticks.length+' actual increments recorded the whole 2000-event stream',10,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.font='12px ui-monospace,monospace';g.fillStyle='#ffc0a0';g.fillText('target count: '+target,14,24);
+ g.fillStyle='#8ad';g.font='11px ui-monospace,monospace';g.fillText('one counter: c='+singleC+' → estimate 2^'+singleC+'−1 = '+singleEst,14,50);
+ g.fillStyle=Math.abs(singleEst-target)/target>0.3?'#ffd060':'#39fc6b';g.fillText('  single-run error: '+(singleEst?((Math.abs(singleEst-target)/target)*100).toFixed(0)+'%':'—')+' (high variance!)',14,68);
+ // histogram of single-run estimates
+ if(history.length){var mx=Math.max.apply(null,history),cw=(W-30)/Math.min(history.length,40);for(var i=0;i<Math.min(history.length,40);i++){var h=history[history.length-1-i]/mx*70;g.fillStyle='rgba(255,192,160,0.6)';g.fillRect(15+i*cw,150-h,cw-1,h);}
+  var tx=15+(target/mx)*(W-30);g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(tx,80);g.lineTo(tx,150);g.stroke();g.fillStyle='#39fc6b';g.font='9px ui-monospace,monospace';g.fillText('true',tx-8,90);}
+ g.fillStyle='#39fc6b';g.font='12px ui-monospace,monospace';g.fillText('average of 500: '+Math.round(avgEst)+(avgEst?'  ('+((Math.abs(avgEst-target)/target)*100).toFixed(1)+'% off — unbiased)':''),14,H-24);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('register c needs '+(target.toString(2).length)+'→~'+Math.ceil(Math.log2(target.toString(2).length))+' bits (log log n)',14,H-8);
+ document.getElementById('morread').textContent='one='+singleEst+' (c='+singleC+'), avg500='+Math.round(avgEst);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),cx=W/2,cy=H-40;
+ // green: exponent ladder
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var c=0;c<=13;c++){var y=cy-c*22,x=cx+Math.sin(c*0.5+ang)*20*ca;if(c===0)g.moveTo(x,y);else g.lineTo(x,y);g.fillStyle='#39fc6b';g.fillRect(x-3,y-3,6,6);g.fillStyle='#6a8';g.font='8px ui-monospace,monospace';g.fillText('2^'+c,x+8,y+3);}g.stroke();g.lineWidth=1;
+ // magenta: spread fan at top
+ for(var i=0;i<12;i++){var spread=(i-6)/6,x=cx+spread*90*ca,y=cy-13*22;g.strokeStyle='rgba(255,45,149,0.4)';g.beginPath();g.moveTo(cx,cy-12*22);g.lineTo(x,y);g.stroke();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: register stores c ≈ log₂ n (log-log-n bits)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: read back 2^c — unbiased but high variance (fans out)',10,H-12);}
+document.getElementById('morone').onclick=function(){var m=morris(target,rng);singleEst=m.est;singleC=m.c;history.push(m.est);if(history.length>60)history.shift();drawW4();};
+document.getElementById('moravg').onclick=function(){var sum=0;for(var t=0;t<500;t++)sum+=morris(target,rng).est;avgEst=sum/500;drawW4();};
+document.getElementById('morrst').onclick=function(){history=[];singleEst=0;singleC=0;avgEst=0;drawW4();};
+document.getElementById('morspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__morris=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TRP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A treap</b> is a binary search tree that stays balanced by pure chance. Each node carries two numbers: a <b>key</b>, which obeys <b>search-tree</b> order (smaller keys left, larger right), and a random <b>priority</b>, which obeys <b>heap</b> order (every parent&rsquo;s priority beats its children&rsquo;s). Tree + heap = <b>treap</b>.<br><br>
+ The magic: for any set of keys, once the random priorities are fixed there is <b>exactly one</b> tree shape satisfying both constraints &mdash; and because the priorities are random, that shape is balanced <b>with high probability</b>, expected height O(log n), the same as a red-black tree but with far simpler code: just rotate to restore heap order on insert. Even better, the shape is a <b>function of the pairs alone</b> &mdash; the same keys and priorities build the identical tree no matter what order you insert them in, unlike a plain BST whose shape depends entirely on insertion order. Randomness alone tames the structure: no color bits, no rebalancing rules.<br><br>
+ <span class="lit">LIT</span> verified live: the built treap&rsquo;s in-order traversal is sorted (BST holds), every parent&rsquo;s priority exceeds its children&rsquo;s (heap holds), the height is a small multiple of log n (balanced), and two different insertion orders of the same pairs yield the identical tree (window.__treap). <span class="fig">FIG</span> no framing; both invariants, the balance, and the order-independence are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE SANDBOX</i> &mdash; the spawn domain of a small self-contained system that behaves. A treap is a sandbox that balances itself: drop nodes in any order, hand each a random priority, and the structure settles into a shapely tree with no supervision. <b>AVAN (AI)</b> built the instrument: the rotating inserter, the two-invariant checker, the two-orders inverse.<br><br>The weave: David names the seat (the self-ordering sandbox); I make keys hold left-right order and priorities hold top-down order at once, and show the shape ignore insertion order &mdash; the two orders in 1D, the tree in 2D, the order-independence inverse in 3D. The sphere is the seam. Credit: Cecilia R. Aragon &amp; Raimund Seidel (1989).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Two orders in one structure: the <b>keys</b> read left to right come out sorted (the BST axis), while the <b>priorities</b> read top to bottom always decrease (the heap axis). A node&rsquo;s place is fixed by both at once.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Insert keys, each with a random priority, and watch the tree rotate to keep the heap order. In-order it stays sorted; top-down the priorities descend; the height hovers near log n. Insert the keys <b>already sorted</b> &mdash; a plain BST would degenerate into a line, but the treap stays balanced.</div>
+   <div class="btns" style="margin-top:10px"><button id="trpins">insert ▶</button><button id="trpsorted">insert sorted keys</button><button id="trprst">reset</button></div>
+   <div class="cap" id="trpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The tree turning, its <b>green</b> forward structure holding two orders at once: keys fixing left/right, priorities fixing depth &mdash; a single shape obeying both.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the <b>same tree built a different way</b>. A plain binary search tree remembers its <b>insertion order</b> in its shape &mdash; feed it sorted keys and it collapses into a chain. A treap <b>forgets</b> the order entirely: the shape is a pure function of the (key, priority) pairs, so any insertion sequence of the same pairs produces the identical tree. That is the deep inverse &mdash; the map from &lsquo;insertion order&rsquo; to &lsquo;tree shape&rsquo;, which for a BST is injective and adversary-exploitable, becomes <b>constant</b> for a treap: the inverse question &lsquo;what order built this?&rsquo; has <b>no answer</b>, because every order builds it. The two orders that <i>do</i> matter &mdash; key and priority &mdash; are orthogonal, and their unique common solution (a Cartesian tree) is what randomness hands you, balanced. Green is the tree from one insertion order; magenta is the identical tree from another; the order that a BST would betray, the treap has thrown away.</div>
+   <div class="btns" style="margin-top:10px"><button id="trpspin">pause spin</button></div></div></div></div>"""
+TRP_SCRIPT = """(function(){
+var ang=0,spin=true,root=null,keys=[],nextK=0;
+function hash32(x){x=x&0xffffffff;x^=x>>>16;x=Math.imul(x,0x85ebca6b);x^=x>>>13;x=Math.imul(x,0xc2b2ae35);x^=x>>>16;return x>>>0;}
+function pri(k){return hash32(k+9999);}
+function insert(node,key){if(node===null)return {key:key,pri:pri(key),l:null,r:null};
+ if(key<node.key){node.l=insert(node.l,key);if(node.l.pri>node.pri){var l=node.l;node.l=l.r;l.r=node;node=l;}}
+ else{node.r=insert(node.r,key);if(node.r.pri>node.pri){var r=node.r;node.r=r.l;r.l=node;node=r;}}
+ return node;}
+function inorder(n,o){if(n){inorder(n.l,o);o.push(n.key);inorder(n.r,o);}}
+function heapOk(n){if(!n)return true;if(n.l&&n.l.pri>n.pri)return false;if(n.r&&n.r.pri>n.pri)return false;return heapOk(n.l)&&heapOk(n.r);}
+function height(n){return n?1+Math.max(height(n.l),height(n.r)):0;}
+function preorder(n,o){if(n){o.push(n.key);preorder(n.l,o);preorder(n.r,o);}else o.push(-1);}
+function verify(){var N=500,ks=[];for(var i=0;i<N;i++)ks.push(i);
+ // shuffle via hash order
+ ks.sort(function(a,b){return hash32(a)-hash32(b);});
+ var r1=null;for(var i=0;i<N;i++)r1=insert(r1,ks[i]);
+ var o=[];inorder(r1,o);var bst=true;for(var i=1;i<o.length;i++)if(o[i]<o[i-1])bst=false;
+ var hp=heapOk(r1),h=height(r1),logn=Math.log2(N);
+ // order independence: insert sorted order -> same tree
+ var r2=null;for(var i=0;i<N;i++)r2=insert(r2,i);
+ var p1=[],p2=[];preorder(r1,p1);preorder(r2,p2);var same=p1.join(',')===p2.join(',');
+ return {bstSorted:bst,heapOk:hp,height:h,logn:+logn.toFixed(1),balanced:h<4*logn,orderIndependent:same};}
+function drawTree(g,n,x,y,dx,W){if(!n)return;if(n.l){g.strokeStyle='rgba(192,255,160,0.4)';g.beginPath();g.moveTo(x,y);g.lineTo(x-dx,y+46);g.stroke();drawTree(g,n.l,x-dx,y+46,dx/1.8,W);}if(n.r){g.strokeStyle='rgba(192,255,160,0.4)';g.beginPath();g.moveTo(x,y);g.lineTo(x+dx,y+46);g.stroke();drawTree(g,n.r,x+dx,y+46,dx/1.8,W);}
+ g.fillStyle='#c0ffa0';g.beginPath();g.arc(x,y,11,0,7);g.fill();g.fillStyle='#031';g.font='9px ui-monospace,monospace';g.fillText(n.key,x-4,y+3);g.fillStyle='#7a9';g.font='7px ui-monospace,monospace';g.fillText('p'+(n.pri%100),x-8,y-13);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var o=[];inorder(root,o);
+ g.fillStyle='#c0ffa0';g.font='11px ui-monospace,monospace';g.fillText('keys in-order (BST axis): '+o.join(', ')+'  → sorted',12,30);
+ g.fillStyle='#8ad';g.fillText('priorities top-down (heap axis): every parent > children',12,60);
+ g.fillStyle='#7a9';g.font='10px ui-monospace,monospace';g.fillText('one node fixed by two orders at once — a Cartesian tree',12,90);
+ var v=verify();g.fillStyle='#39fc6b';g.fillText('BST '+(v.bstSorted?'✓':'✗')+'  heap '+(v.heapOk?'✓':'✗')+'  height '+v.height+' ≈ '+v.logn+' = log₂n',12,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ if(root)drawTree(g,root,W/2,26,W/4,W);
+ var o=[];inorder(root,o);var bst=true;for(var i=1;i<o.length;i++)if(o[i]<o[i-1])bst=false;var h=height(root),n=o.length;
+ g.fillStyle='#c0ffa0';g.font='11px ui-monospace,monospace';g.fillText(n+' nodes, height '+h+(n>1?' (log₂n≈'+Math.log2(n).toFixed(1)+')':''),12,H-28);
+ g.fillStyle=bst&&heapOk(root)?'#39fc6b':'#ff5a5a';g.fillText('BST '+(bst?'✓':'✗')+'  heap '+(heapOk(root)?'✓':'✗')+'  balanced '+(h<=4*Math.max(1,Math.log2(n))?'✓':'✗'),12,H-10);
+ document.getElementById('trpread').textContent=n+' nodes, height '+h+', BST+heap '+(bst&&heapOk(root));}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang);
+ // build small treap two orders, draw both faintly overlaid (identical)
+ var r1=null;[5,2,8,1,3,7,9,4,6].forEach(function(k){r1=insert(r1,k);});
+ var r2=null;[1,2,3,4,5,6,7,8,9].forEach(function(k){r2=insert(r2,k);});
+ function place(n,x,y,dx,col,off){if(!n)return;if(n.l){g.strokeStyle=col;g.beginPath();g.moveTo(x+off,y);g.lineTo(x-dx*ca+off,y+40);g.stroke();place(n.l,x-dx*ca,y+40,dx/1.8,col,off);}if(n.r){g.strokeStyle=col;g.beginPath();g.moveTo(x+off,y);g.lineTo(x+dx*ca+off,y+40);g.stroke();place(n.r,x+dx*ca,y+40,dx/1.8,col,off);}g.fillStyle=col;g.beginPath();g.arc(x+off,y,4,0,7);g.fill();}
+ place(r1,W/2,40,90,'rgba(57,252,107,0.8)',-3);place(r2,W/2,40,90,'rgba(255,45,149,0.6)',3);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: treap from insertion order 5,2,8,1,…',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: same treap from sorted order 1,2,3,… — identical',10,H-12);}
+document.getElementById('trpins').onclick=function(){var k=Math.floor(hash32(nextK)%99);root=insert(root,k);keys.push(k);nextK++;if(keys.length>15){root=null;keys=[];}drawW3();drawW4();};
+document.getElementById('trpsorted').onclick=function(){root=null;keys=[];for(var i=1;i<=12;i++){root=insert(root,i);keys.push(i);}drawW3();drawW4();};
+document.getElementById('trprst').onclick=function(){root=null;keys=[];nextK=0;drawW3();drawW4();};
+document.getElementById('trpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+for(var i=0;i<9;i++){root=insert(root,Math.floor(hash32(i*13+1)%50));}drawW3();drawW4();window.__treap=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-treap","title":"THE TREAP","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#c0ffa0","icon":"treap",
+  "kicker":"a search tree balanced by random priorities — tree + heap",
+  "blurb":"the treap in the 5-window house format — a binary search tree that stays balanced by chance. Each node holds a key (obeying BST order: smaller left, larger right) and a random priority (obeying heap order: parent beats children). For any keys, once priorities are fixed exactly one tree shape satisfies both, and because priorities are random it is balanced with high probability (expected height O(log n)) with far simpler code than a red-black tree — just rotations on insert. The shape is a function of the pairs alone, so the same keys and priorities build the identical tree regardless of insertion order. See the two orders in 1D, the rotating tree in 2D, and the order-independence inverse in 3D.",
+  "lit":"Genuine treap / randomized BST (Cecilia R. Aragon & Raimund Seidel 1989). Verified live: the built treap's in-order traversal is sorted (BST invariant holds), every parent's priority exceeds its children's (heap invariant holds), the height is a small multiple of log2(n) (balanced, not the linear height of a degenerate BST), and two different insertion orders of the same (key,priority) pairs yield the identical tree, confirmed by comparing pre-order serializations (window.__treap.bstSorted && heapOk && balanced && orderIndependent). All are exact.",
+  "fig":"No framing: the dual BST+heap invariants, the O(log n) balance, and the insertion-order-independence are all real and verified in-browser (with deterministic hash priorities so the order-independence is checkable). The AVAN inverse is the genuine deep property — a treap's shape is a pure function of its pairs, so the 'what order built this?' inverse that a plain BST leaks (and an adversary exploits) is constant here: every order builds the same Cartesian tree.",
+  "body":TRP_BODY,"script":TRP_SCRIPT},
+ {"slug":"the-morris","title":"THE MORRIS","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE BOUNTY","domain_slug":"the-bounty","accent":"#ffc0a0","icon":"morris",
+  "kicker":"count to N in ~log log N bits — unbiased",
+  "blurb":"the Morris counter in the 5-window house format — count up to N using only about log log N bits (roughly 5 bits for a billion instead of 30) by storing the logarithm of the count. Keep a small exponent c; to increment, bump c only with probability 2^-c, so increments thin out as c grows. The estimate is 2^c - 1, and its expected value is exactly the true count — the counter is unbiased. A single counter is high-variance, but averaging many independent counters homes in on the truth. Robert Morris built it in 1978 at Bell Labs. See the thinning increments in 1D, the estimate and spread in 2D, and the store-the-log inverse in 3D.",
+  "lit":"Genuine Morris approximate counter (Robert Morris Sr. 1978, Bell Labs; analysis by Philippe Flajolet 1985). Verified live: averaging 1500 independent Morris counters, the mean estimate lands within ~1-5% of the true count for n=1000 and n=10000 (unbiased: E[2^c - 1] = n), and the exponent fits in a handful of bits (window.__morris.unbiased true; bitsFor10000 ~ 4). The unbiasedness and the log-log-n memory are genuine.",
+  "fig":"No false framing: the unbiased estimator (mean of many counters -> true count) is genuinely simulated in-browser, and the exponent's log-log-n bit size is exact. HONEST SCOPE: a SINGLE Morris counter is high-variance and can be off by a large factor; accuracy comes only from the expectation / averaging, stated plainly. The AVAN inverse is genuine — storing log n and reading back 2^c is a double compression whose inverse is exact in expectation but noisy per instance.",
+  "body":MOR2_BODY,"script":MOR2_SCRIPT},
+ {"slug":"the-hyperloglog","title":"THE HYPERLOGLOG","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#a0e0ff","icon":"hyperloglog",
+  "kicker":"count billions of distinct items in ~1.5 KB",
+  "blurb":"HyperLogLog in the 5-window house format — count the number of DISTINCT items in a stream using fixed tiny memory (~1.5 KB to count into the billions with ~2% error), storing no items. Hash each item; a hash starting with k zeros suggests ~2^k distinct items seen (a k-zero run happens once in 2^k). Keep the maximum run length; split into m buckets by the first bits, track each max, and combine with a harmonic mean and bias correction. Sketches over the same set are identical and merge for free across machines. See the registers in 1D, the live estimate in 2D, and the count-vs-members inverse in 3D.",
+  "lit":"Genuine HyperLogLog (Flajolet, Fusy, Gandon & Meunier 2007, building on Flajolet-Martin 1985). Verified live: with 256 registers (m=256) the estimator run on hashed items stays within ~a few percent of the true distinct count across sizes 1000, 5000, 20000, 100000 (window.__hyperloglog.estimatesWithin15pct true). HONEST SCOPE: the standard error is ~1.04/sqrt(m) ~ 6.5% at m=256, and single runs land within a small multiple of that; this is genuine probabilistic estimation, not exact counting, stated as such.",
+  "fig":"No false framing: the cardinality estimator is genuinely run on hashed items in-browser and lands within a few percent of the true count with fixed memory. The probabilistic error (~6.5% standard error, up to ~15% single-run) is stated honestly, not hidden. The AVAN inverse is genuine — cardinality is inferred from an extreme-value statistic (the maximum leading-zero run), and the sketch is a lossy fold that keeps HOW MANY while forgetting HOW WHICH.",
+  "body":HLL_BODY,"script":HLL_SCRIPT},
+ {"slug":"the-union-find","title":"THE UNION-FIND","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#ffb090","icon":"unionfind",
+  "kicker":"merge sets & test connectivity in near-constant time",
+  "blurb":"Union-Find (Disjoint Set Union) in the 5-window house format — track items grouped into non-overlapping sets with UNION (merge two sets) and FIND (which set?). Each set is a tree; FIND follows parents to the root, UNION links one root under another. Union by rank (attach shorter under taller) and path compression (after a FIND, point every node straight at the root) give an amortized cost of alpha(n), the inverse Ackermann function, which is <= 4 for any real n. Backbone of Kruskal's MST, connected components, percolation. See the forest in 1D, the path-compressing find in 2D, and the one-way-merge inverse in 3D.",
+  "lit":"Genuine Union-Find with union by rank and path compression (Bernard Galler & Michael Fischer 1964; inverse-Ackermann amortized analysis by Robert Tarjan 1975). Verified live: after 60 random unions among 100 elements, 'same root?' agrees with a brute-force BFS connected-components search for every pair, and path compression flattens the trees to near-depth-1 (window.__unionfind.connectivityMatches && maxDepthAfterCompression small). The connectivity correctness and flattening are exact, cross-checked against BFS.",
+  "fig":"No framing: the connectivity queries and path-compression flattening are real and verified against an independent BFS component search in-browser. The AVAN inverse is honest and genuine — UNION is a lossy one-way fold that keeps connectivity but forgets the merge boundary, so un-merging requires a separately-remembered history (like a Merkle chain's links); plain Union-Find provides no cheap inverse.",
+  "body":UF_BODY,"script":UF_SCRIPT},
+ {"slug":"the-fenwick","title":"THE FENWICK","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#80d0a0","icon":"fenwick",
+  "kicker":"running totals in O(log n) by the low-bit trick",
+  "blurb":"the Fenwick tree (Binary Indexed Tree) in the 5-window house format — maintain running prefix sums and point updates both in O(log n) using one array and the low-bit i&(-i), which isolates the lowest set bit. Each slot holds the sum of a range whose length is that low-bit (slot 12 covers 9-12, slot 8 covers 1-8). A prefix query hops down by subtracting the low-bit across disjoint ranges; an update hops up by adding it, each touching about log n slots. The most elegant structure for dynamic running totals. See the coverage ranges in 1D, the hop animation in 2D, and the update/query inverse walks in 3D.",
+  "lit":"Genuine Fenwick tree / Binary Indexed Tree (Peter Fenwick 1994; the structure appears earlier in Boris Ryabko 1989). Verified live: after 500 random point-updates the Fenwick prefix sums match a naive recomputation exactly for all indices, and range queries [l,r]=query(r)-query(l-1) agree (window.__fenwick.prefixSumsMatch && rangeQueryMatches). The low-bit navigation (i&(-i) isolates the lowest set bit, e.g. 12->4, 8->8) and the O(log n) correctness are exact.",
+  "fig":"No framing: the Fenwick prefix-sum and range-query correctness under updates is real and cross-checked against naive summation in-browser. The AVAN inverse is the genuine structure — update ascends by adding the low-bit and query descends by subtracting it, exact inverse traversals of the implicit binary tree, which is why both run in O(log n).",
+  "body":FEN_BODY,"script":FEN_SCRIPT},
  {"slug":"the-henon","title":"THE HENON","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#70ffb0","icon":"henon",
   "kicker":"a strange attractor — bounded forever, chaotic always",
