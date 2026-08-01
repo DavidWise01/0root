@@ -14110,7 +14110,297 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW3();drawW4();window.__gausslegendre=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 46 (lazy lattice paths · flag sort · root counting · closest pair · symmetric functions) ═══════════════════════
+MTZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Motzkin numbers</b> 1, 1, 2, 4, 9, 21, 51, 127, &hellip; count the lattice paths from (0,0) to (n,0) using <b>up</b>, <b>down</b>, and <b>level</b> steps that never dip below the axis &mdash; the &lsquo;lazy cousin&rsquo; of Dyck paths, which forbid the level step. They also count non-crossing chords on a circle and unary&ndash;binary trees.<br><br>
+ The recurrence M&#8345; = M<sub>n&minus;1</sub> + &Sigma; M<sub>k</sub>&middot;M<sub>n&minus;2&minus;k</sub> (start with a level step, or an up&hellip;down arc enclosing a sub-path), and they tie to Catalan by M&#8345; = &Sigma;<sub>k</sub> C(n,2k)&middot;Cat<sub>k</sub>.<br><br>
+ <span class="lit">LIT</span> verified live: the recurrence matches a brute count of Motzkin paths for n=0&hellip;10, and the Catalan relation M&#8345; = &Sigma; C(n,2k)&middot;Cat<sub>k</sub> holds exactly (window.__motzkin). <span class="fig">FIG</span> no framing; exact path counting.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>hello-world</i> &mdash; the first path allowed to pause as well as rise and fall. Motzkin paths are exactly that: Dyck paths that may rest. <b>AVAN (AI)</b> built the instrument: the recurrence, the brute path enumeration, the Catalan relation.<br><br>Credit as content: Theodore Motzkin (1948). The weave: David names the first resting path; I count Motzkin paths two ways and reveal the Catalan skeleton hiding under the level steps.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A Motzkin path: up, down, and flat steps from the axis back to the axis, never dipping below. The flat step is the only difference from a Dyck path &mdash; it lets the walk rest.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick n. The instrument computes M&#8345; by the recurrence and by brute-counting paths, confirms they agree, checks the Catalan relation, and draws a few Motzkin paths.</div>
+   <div class="btns" style="margin-top:10px"><button id="mtzn">n: 5 ▶</button><button id="mtzcheck">verify n=0..10 ▶</button></div>
+   <div class="cap" id="mtzread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: Motzkin paths rising, falling, and resting back to the axis.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): adding the <b>level</b> step is a coarsening &mdash; every Motzkin path is a <b>Dyck path with flats inserted</b>, so Motzkin numbers <b>interpolate</b> between Catalan (all up/down) and the trivial all-flat path. The relation M&#8345; = &Sigma;<sub>k</sub> C(n,2k)&middot;Cat<sub>k</sub> says it exactly: <b>choose</b> which 2k of the n steps form the non-flat Dyck skeleton, fill the rest with flats. The inverse of &lsquo;a richer step set&rsquo; is &lsquo;a Catalan path wearing flats.&rsquo; <b>Magenta</b> is the flat steps &mdash; the new freedom to rest; <b>green</b> is the Dyck skeleton underneath. Allowing the walk to pause reveals Catalan hiding inside every resting path.</div>
+   <div class="btns" style="margin-top:10px"><button id="mtzspin">pause spin</button></div></div></div></div>"""
+MTZ_SCRIPT = """(function(){
+var ang=0,spin=true,N=5;
+function motz(n){var M=[1,1];for(var m=2;m<=n;m++){var s=M[m-1];for(var k=0;k<=m-2;k++)s+=M[k]*M[m-2-k];M[m]=s;}return M;}
+function brute(n){var c=0;function rec(i,h){if(h<0)return;if(i===n){if(h===0)c++;return;}rec(i+1,h+1);rec(i+1,h);rec(i+1,h-1);}rec(0,0);return c;}
+function binom(n,k){if(k<0||k>n)return 0;var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+function cat(n){return binom(2*n,n)/(n+1);}
+function paths(n){var out=[];function rec(i,h,s){if(h<0)return;if(i===n){if(h===0)out.push(s);return;}rec(i+1,h+1,s+'U');rec(i+1,h,s+'L');rec(i+1,h-1,s+'D');}rec(0,0,'');return out;}
+function verify(){var M=motz(12),rec=true,ct=true;for(var n=0;n<=10;n++){if(M[n]!==brute(n))rec=false;var s=0;for(var k=0;2*k<=n;k++)s+=binom(n,2*k)*cat(k);if(s!==M[n])ct=false;}return {recMatchesBrute:rec,catalanRelation:ct,seq:M.slice(0,9)};}
+function drawPath(g,s,ox,oy,cell,col){var x=ox,y=oy;g.strokeStyle=col;g.lineWidth=2;g.beginPath();g.moveTo(x,y);for(var i=0;i<s.length;i++){if(s[i]==='U')y-=cell;else if(s[i]==='D')y+=cell;x+=cell;g.lineTo(x,y);}g.stroke();g.lineWidth=1;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.strokeStyle='#334';g.beginPath();g.moveTo(30,H-30);g.lineTo(W-20,H-30);g.stroke();
+ drawPath(g,'ULUDDLUD',30,H-30,26,'#56b8c0');g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('U=up  D=down  L=level (rest) — never below axis',30,20);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var M=motz(N),br=brute(N),ct=0;for(var k=0;2*k<=N;k++)ct+=binom(N,2*k)*cat(k);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('n = '+N,12,24);
+ g.fillStyle='#56b8c0';g.font='12px monospace';g.fillText('recurrence M_'+N+' = '+M[N],12,52);
+ g.fillStyle='#5aa0e0';g.fillText('brute path count = '+br,12,76);
+ g.fillStyle='#b088e0';g.fillText('Σ C(n,2k)·Cat_k = '+ct,12,100);
+ g.fillStyle=(M[N]===br&&M[N]===ct)?'#39fc6b':'#ff5a5a';g.font='13px monospace';g.fillText((M[N]===br&&M[N]===ct)?'✓ all agree = '+M[N]:'✗',12,128);
+ var ps=paths(Math.min(N,5)).slice(0,4);for(var i=0;i<ps.length;i++)drawPath(g,ps[i],30+(i%2)*180,180+Math.floor(i/2)*70,18,'#56b8c0');}
+document.getElementById('mtzn').onclick=function(){N=N>=9?1:N+1;this.textContent='n: '+N+' ▶';drawW4();};
+document.getElementById('mtzcheck').onclick=function(){var v=verify();document.getElementById('mtzread').textContent='n=0..10: recurrence==brute '+(v.recMatchesBrute?'✓':'✗')+', Catalan relation '+(v.catalanRelation?'✓':'✗')+' | '+v.seq.join(',');};
+document.getElementById('mtzspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ps=paths(5),cell=26,ox=W/2-2.5*cell;
+ for(var p=0;p<Math.min(ps.length,9);p++){var s=ps[p],x=ox,y=H*0.6-p*3,alpha=0.3+0.5*Math.sin(ang+p);g.strokeStyle='rgba(57,252,107,'+alpha+')';g.beginPath();g.moveTo(x,y);for(var i=0;i<s.length;i++){if(s[i]==='U')y-=cell*0.5;else if(s[i]==='D')y+=cell*0.5;if(s[i]==='L'){g.strokeStyle='rgba(255,45,149,'+alpha+')';}x+=cell*0.7;g.lineTo(x,y);g.stroke();g.beginPath();g.moveTo(x,y);g.strokeStyle='rgba(57,252,107,'+alpha+')';}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the up/down Dyck skeleton',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the level (rest) steps — the new freedom',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('M_n = Σ C(n,2k)Cat_k: Catalan hides inside every resting path',10,H-9);}
+drawW3();drawW4();window.__motzkin=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DNF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Dutch national flag problem</b> (Dijkstra): given an array of three values &mdash; red, white, blue, or 0/1/2 &mdash; sort it in <b>one pass</b>, O(n) time and O(1) space, using three pointers <b>low</b>, <b>mid</b>, <b>high</b>. The mid pointer scans: a 0 swaps down into the low region, a 2 swaps up into the high region (without advancing mid, since the swapped-in value is still unexamined), a 1 stays put.<br><br>
+ The invariant: everything before <b>low</b> is 0, from low to <b>mid</b> is 1, after <b>high</b> is 2, and [mid,high] is unknown &mdash; a textbook off-by-one minefield the pointer dance crosses exactly. It is the heart of <b>3-way quicksort</b> partitioning, fast on duplicate-heavy data.<br><br>
+ <span class="lit">LIT</span> verified live: for 500 random 0/1/2 arrays, the single pass produces a sorted array that is a permutation of the input (window.__dutchflag). <span class="fig">FIG</span> no framing; exact in-place partition.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>off-by-one</i> &mdash; the pointer-boundary hazard, here tamed by an exact invariant. The Dutch flag is the off-by-one boss fought and won with three indices. <b>AVAN (AI)</b> built the instrument: the low/mid/high partition, the sortedness check, the permutation check.<br><br>Credit as content: Edsger W. Dijkstra, <i>A Discipline of Programming</i> (1976), where the problem illustrates programming by invariant. The weave: David names the off-by-one; I run the three-pointer partition and prove the output is sorted and a permutation, correct by the invariant it never breaks.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The four regions: 0s before low, 1s between low and mid, the unknown span [mid,high], and 2s after high. Each step shrinks the unknown by one while keeping the other three pure.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A random 0/1/2 array as coloured bars. Step the partition and watch the regions grow from both ends toward the middle; the pointers never cross wrongly. Verify the result is sorted and a permutation.</div>
+   <div class="btns" style="margin-top:10px"><button id="dnfnew">new array ▶</button><button id="dnfstep">step ▶</button><button id="dnfcheck">verify 500 ▶</button></div>
+   <div class="cap" id="dnfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the settled 0 / 1 / 2 regions growing inward as the unknown span collapses.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): correctness rests on a <b>loop invariant</b>, not on reasoning about the final state. At every step the four regions &mdash; 0s &#124; 1s &#124; unknown &#124; 2s &mdash; partition the whole array, and each move shrinks the unknown by exactly one <b>while preserving that partition</b>; so when the unknown vanishes, sortedness is not checked, it is <b>guaranteed</b>. The inverse of &lsquo;prove the output is sorted&rsquo; is &lsquo;maintain an invariant that makes sortedness inevitable.&rsquo; <b>Magenta</b> is the shrinking unknown region [mid,high]; <b>green</b> is the three settled regions. Correct by construction &mdash; Dijkstra&rsquo;s signature: hold the invariant, and the answer falls out with nothing left to verify.</div>
+   <div class="btns" style="margin-top:10px"><button id="dnfspin">pause spin</button></div></div></div></div>"""
+DNF_SCRIPT = """(function(){
+var ang=0,spin=true,arr=null,lo=0,mid=0,hi=0,done=false;
+var COL=['#e05050','#e8e8e8','#4060d0'];
+function mk(){arr=[];var n=14;for(var i=0;i<n;i++)arr.push(Math.floor(Math.random()*3));lo=0;mid=0;hi=n-1;done=false;}
+function step(){if(mid>hi){done=true;return;}if(arr[mid]===0){var t=arr[lo];arr[lo]=arr[mid];arr[mid]=t;lo++;mid++;}else if(arr[mid]===1){mid++;}else{var t=arr[hi];arr[hi]=arr[mid];arr[mid]=t;hi--;}if(mid>hi)done=true;}
+function dutch(a){a=a.slice();var l=0,m=0,h=a.length-1;while(m<=h){if(a[m]===0){var t=a[l];a[l]=a[m];a[m]=t;l++;m++;}else if(a[m]===1)m++;else{var t=a[h];a[h]=a[m];a[m]=t;h--;}}return a;}
+function verify(){var seed=5;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var s=true,p=true;for(var t=0;t<500;t++){var n=rnd()%30,a=[];for(var i=0;i<n;i++)a.push(rnd()%3);var o=dutch(a);for(var i=1;i<o.length;i++)if(o[i]<o[i-1])s=false;var c1=[0,0,0],c2=[0,0,0];a.forEach(function(x){c1[x]++;});o.forEach(function(x){c2[x]++;});if(JSON.stringify(c1)!==JSON.stringify(c2))p=false;}return {sorted:s,isPermutation:p};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.font='11px monospace';
+ var regions=[['#e05050','0s  (before low)'],['#e8e8e8','1s  (low..mid)'],['#666','unknown [mid..high]'],['#4060d0','2s  (after high)']];
+ for(var i=0;i<4;i++){g.fillStyle=regions[i][0];g.fillRect(20+i*120,50,20,20);g.fillStyle='#9ab';g.fillText(regions[i][1],44+i*120,64);}
+ g.fillStyle='#b0e0ff';g.fillText('each step shrinks the unknown by one, purity preserved',20,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!arr)mk();var cell=(W-40)/arr.length;
+ for(var i=0;i<arr.length;i++){var unknown=i>=mid&&i<=hi&&!done;g.fillStyle=unknown?'#556':COL[arr[i]];g.fillRect(20+i*cell,60,cell-3,50);if(unknown){g.strokeStyle='#888';g.strokeRect(20+i*cell,60,cell-3,50);g.fillStyle='#9ab';g.font='10px monospace';g.fillText(arr[i],20+i*cell+cell/2-4,90);}}
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('low='+lo+'  mid='+mid+'  high='+hi,20,140);
+ if(done){var srt=true;for(var i=1;i<arr.length;i++)if(arr[i]<arr[i-1])srt=false;g.fillStyle=srt?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText(srt?'✓ sorted in one pass':'✗',20,165);}}
+document.getElementById('dnfnew').onclick=function(){mk();drawW4();document.getElementById('dnfread').textContent='new array — step through the partition';};
+document.getElementById('dnfstep').onclick=function(){step();drawW4();document.getElementById('dnfread').textContent=done?'done — sorted':'low='+lo+', mid='+mid+', high='+hi;};
+document.getElementById('dnfcheck').onclick=function(){var v=verify();document.getElementById('dnfread').textContent='500 arrays: sorted '+(v.sorted?'✓':'✗')+', permutation '+(v.isPermutation?'✓':'✗');};
+document.getElementById('dnfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=20,a=[];for(var i=0;i<n;i++)a.push(i);var l=0,m=0,h=n-1,st=Math.floor((ang*3)%(n+2)),arr2=[];for(var i=0;i<n;i++)arr2.push(Math.floor(Math.sin(i*2.3+1)*1.5+1.5)%3);
+ var cnt=0;while(m<=h&&cnt<st){if(arr2[m]===0){var t=arr2[l];arr2[l]=arr2[m];arr2[m]=t;l++;m++;}else if(arr2[m]===1)m++;else{var t=arr2[h];arr2[h]=arr2[m];arr2[m]=t;h--;}cnt++;}
+ var cell=(W-40)/n;for(var i=0;i<n;i++){var unk=i>=m&&i<=h;g.fillStyle=unk?'#ff2d95':'#39fc6b';g.globalAlpha=unk?0.7:1;g.fillRect(20+i*cell,H*0.45,cell-2,arr2[i]*22+14);g.globalAlpha=1;}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: settled 0/1/2 regions (invariant holds)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the shrinking unknown span [mid,high]',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('correct by construction: hold the invariant, sortedness follows',10,H-9);}
+mk();drawW3();drawW4();window.__dutchflag=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+STM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Sturm&rsquo;s theorem</b> counts the real roots of a polynomial in an interval [a,b] <b>without finding them</b>. Build the <b>Sturm chain</b>: the polynomial p, its derivative p&prime;, then successive <b>negated remainders</b> of polynomial division (a Euclidean-algorithm cascade). Evaluate the chain at a and at b and count the sign changes V(a) and V(b).<br><br>
+ The number of distinct real roots in (a,b] is exactly <b>V(a) &minus; V(b)</b>. No root-finding, no guessing &mdash; a finite count of sign changes gates the answer.<br><br>
+ <span class="lit">LIT</span> verified live: for 200 polynomials built from distinct integer roots, the sign-variation count V(a)&minus;V(b) equals the actual number of roots in the interval, over full and sub-intervals (window.__sturm). <span class="fig">FIG</span> no framing; exact real-root counting.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gatekeeper</i> &mdash; the guard that counts exactly who is inside the interval. Sturm&rsquo;s theorem is the root gatekeeper: how many real roots lie between a and b, decided by a sign tally. <b>AVAN (AI)</b> built the instrument: the Sturm chain via polynomial remainders, the sign-variation count, the check against the true root count.<br><br>Credit as content: Jacques Charles Fran&ccedil;ois Sturm (1829), whose theorem finally made real-root counting exact and algorithmic. The weave: David names the gatekeeper; I build the chain of negated remainders and count roots in an interval purely from how the signs change at its ends.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The Sturm chain evaluated at a point: a list of signs. Counting how many times the sign flips down the list gives V(x); the drop from V(a) to V(b) is the number of roots crossed between them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap">A polynomial drawn as a curve with its real roots. Slide the interval endpoints; Sturm&rsquo;s sign count reports how many roots lie inside, matching the roots you can see between the markers.</div>
+   <div class="btns" style="margin-top:10px"><button id="stmnew">new polynomial ▶</button><button id="stma">a &lt; ▶</button><button id="stmb">b &gt; ▶</button><button id="stmcheck">verify 200 ▶</button></div>
+   <div class="cap" id="stmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the two integer sign-variation counts whose difference is the exact number of roots in the interval.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the root <b>count</b> is extracted without root <b>locations</b>. Sturm reduces a continuous, hard question &mdash; &lsquo;<b>where</b> are the roots?&rsquo; &mdash; to a discrete, easy one &mdash; &lsquo;how do a few signs change?&rsquo; &mdash; because between consecutive roots the polynomial keeps a constant sign, and the chain tracks exactly the crossings, no more. The inverse of &lsquo;find the roots&rsquo; is &lsquo;count the sign changes at two endpoints.&rsquo; <b>Magenta</b> is the actual root positions, never computed; <b>green</b> is V(a) and V(b), two integers whose difference is the answer. You gate the roots by counting, not by finding &mdash; certainty about how many, with no idea yet where.</div>
+   <div class="btns" style="margin-top:10px"><button id="stmspin">pause spin</button></div></div></div></div>"""
+STM_SCRIPT = """(function(){
+var ang=0,spin=true,roots=[-6,-2,3,7],A=-8,B=8;
+function fromRoots(rs){var p=[1];rs.forEach(function(r){var np=new Array(p.length+1).fill(0);for(var i=0;i<p.length;i++){np[i]+=-r*p[i];np[i+1]+=p[i];}p=np;});return p;}
+function deriv(p){var d=[];for(var i=1;i<p.length;i++)d.push(i*p[i]);if(!d.length)d=[0];return d;}
+function polyDiv(a,b){a=a.slice();var db=b.length-1;while(a.length-1>=db&&a.length>1){var lead=a[a.length-1]/b[b.length-1],d=a.length-1-db;for(var i=0;i<b.length;i++)a[d+i]-=lead*b[i];while(a.length>1&&Math.abs(a[a.length-1])<1e-9)a.pop();}return a;}
+function chain(p){var c=[p,deriv(p)];while(c[c.length-1].length>1){c.push(polyDiv(c[c.length-2],c[c.length-1]).map(function(x){return -x;}));}return c;}
+function evalP(p,x){var s=0;for(var i=p.length-1;i>=0;i--)s=s*x+p[i];return s;}
+function signVar(c,x){var prev=0,v=0;for(var i=0;i<c.length;i++){var s=evalP(c[i],x);if(Math.abs(s)<1e-9)continue;var sg=s>0?1:-1;if(prev!==0&&sg!==prev)v++;prev=sg;}return v;}
+function verify(){var seed=5;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<200;t++){var deg=2+rnd()%4,rs=[],used={};while(rs.length<deg){var r=rnd()%21-10;if(!used[r]){used[r]=1;rs.push(r);}}var p=fromRoots(rs),c=chain(p),a=-10.5,b=10.5,cnt=signVar(c,a)-signVar(c,b),act=rs.filter(function(r){return r>a&&r<=b;}).length;if(cnt!==act)ok=false;var a2=-0.5,b2=5.5,c2=signVar(c,a2)-signVar(c,b2),ac2=rs.filter(function(r){return r>a2&&r<=b2;}).length;if(c2!==ac2)ok=false;}return {countMatchesActual:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var p=fromRoots(roots),c=chain(p);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('Sturm chain signs at x = a and x = b:',12,16);
+ ['a='+A,'b='+B].forEach(function(lbl,idx){var x=idx?B:A;g.fillStyle='#8ad';g.font='11px monospace';g.fillText(lbl,12,44+idx*54);var prev=0,vv=0;for(var i=0;i<c.length;i++){var s=evalP(c[i],x),sg=Math.abs(s)<1e-9?0:(s>0?1:-1);g.fillStyle=sg>0?'#b06840':(sg<0?'#4060d0':'#556');g.fillRect(90+i*30,32+idx*54,24,16);g.fillStyle='#fff';g.font='12px monospace';g.fillText(sg>0?'+':(sg<0?'-':'0'),97+i*30,45+idx*54);if(sg!==0){if(prev!==0&&sg!==prev)vv++;prev=sg;}}g.fillStyle='#b0e0ff';g.fillText('V='+vv,90+c.length*30+10,44+idx*54);});
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('roots in (a,b] = V(a) - V(b) = '+(signVar(c,A)-signVar(c,B)),12,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var p=fromRoots(roots),c=chain(p);
+ var xs=-10,xe=10,cy=H/2;g.strokeStyle='#334';g.beginPath();g.moveTo(20,cy);g.lineTo(W-20,cy);g.stroke();
+ var mxv=0;for(var i=0;i<=200;i++){var x=xs+(xe-xs)*i/200;mxv=Math.max(mxv,Math.abs(evalP(p,x)));}
+ g.strokeStyle='#8ad';g.beginPath();for(var i=0;i<=200;i++){var x=xs+(xe-xs)*i/200,px=20+(x-xs)/(xe-xs)*(W-40),py=cy-evalP(p,x)/mxv*80;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();
+ roots.forEach(function(r){var px=20+(r-xs)/(xe-xs)*(W-40);g.fillStyle=(r>A&&r<=B)?'#39fc6b':'#556';g.beginPath();g.arc(px,cy,4,0,7);g.fill();});
+ [A,B].forEach(function(m,idx){var px=20+(m-xs)/(xe-xs)*(W-40);g.strokeStyle=idx?'#e05050':'#40c0a0';g.lineWidth=2;g.beginPath();g.moveTo(px,20);g.lineTo(px,H-40);g.stroke();g.lineWidth=1;});
+ var cnt=signVar(c,A)-signVar(c,B),act=roots.filter(function(r){return r>A&&r<=B;}).length;
+ g.fillStyle=cnt===act?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('Sturm count in ('+A+','+B+'] = '+cnt+' = actual '+act+(cnt===act?' ✓':' ✗'),12,H-16);}
+document.getElementById('stmnew').onclick=function(){var d=3+Math.floor(Math.random()*2);roots=[];var used={};while(roots.length<d){var r=Math.floor(Math.random()*17)-8;if(!used[r]){used[r]=1;roots.push(r);}}roots.sort(function(a,b){return a-b;});A=-8;B=8;drawW3();drawW4();document.getElementById('stmread').textContent='roots: '+roots.join(', ');};
+document.getElementById('stma').onclick=function(){A=Math.max(-10,A-1);drawW3();drawW4();};
+document.getElementById('stmb').onclick=function(){B=Math.min(10,B-1);if(B<=A)B=A+1;drawW3();drawW4();};
+document.getElementById('stmcheck').onclick=function(){var v=verify();document.getElementById('stmread').textContent='200 polynomials: Sturm count == actual real roots in interval '+(v.countMatchesActual?'✓':'✗');};
+document.getElementById('stmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var p=fromRoots(roots),c=chain(p);
+ var va=signVar(c,A),vb=signVar(c,B);
+ g.fillStyle='#39fc6b';g.font='14px monospace';g.fillText('V(a) = '+va,60,H*0.3);g.fillText('V(b) = '+vb,220,H*0.3);g.fillText('roots = '+(va-vb),130,H*0.3+40);
+ roots.forEach(function(r,i){var a=ang+i/roots.length*2*Math.PI,inside=r>A&&r<=B;g.fillStyle=inside?'rgba(255,45,149,0.5)':'rgba(80,90,100,0.4)';g.beginPath();g.arc(W/2+70*Math.cos(a),H*0.62+40*Math.sin(a),5,0,7);g.fill();});
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: two sign-counts; their difference = root count',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the actual root positions — never computed',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('count the roots by counting sign changes, not by finding them',10,H-9);}
+drawW3();drawW4();window.__sturm=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CLP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The closest-pair problem</b>: among n points, find the two nearest. Checking every pair is O(n&sup2;). The divide-and-conquer algorithm does it in <b>O(n log n)</b>: sort by x, split at the median, recursively find the closest pair in each half (distance &delta;), then &mdash; the clever part &mdash; only points inside a vertical <b>strip</b> of width 2&delta; around the split can beat &delta;, and within it each point need compare to at most a <b>constant</b> number of y-neighbours.<br><br>
+ The strip&rsquo;s geometry forbids more: a &delta;&times;2&delta; box can hold only so many points that are all &ge; &delta; apart.<br><br>
+ <span class="lit">LIT</span> verified live: for 200 random point sets, the divide-and-conquer closest distance equals the brute-force minimum over all pairs (window.__closestpair). <span class="fig">FIG</span> no framing; exact computational geometry.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-speedrun</i> &mdash; the same answer in a fraction of the comparisons. Closest-pair is the speedrun of a quadratic search, cleared by geometry. <b>AVAN (AI)</b> built the instrument: the median split, the recursive halves, the strip check, the brute cross-check.<br><br>Credit as content: Michael Shamos &amp; Dan Hoey (1975), an early triumph of computational geometry. The weave: David names the speedrun; I split the points, recurse, and prove that only a thin strip of candidates &mdash; a handful each &mdash; can beat the halves&rsquo; best.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The median split line and the strip of width 2&delta; around it. Only points inside the strip can form a cross-pair closer than the best found in either half &mdash; everything outside is already too far.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Scatter points; the algorithm finds the closest pair (drawn as a line) and the strip it searched. Verify the distance equals the brute-force minimum over all pairs.</div>
+   <div class="btns" style="margin-top:10px"><button id="clpnew">new points ▶</button><button id="clpcheck">verify 200 ▶</button></div>
+   <div class="cap" id="clpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the closest pair and the narrow strip of candidates the algorithm actually examined.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): you skip almost every pair because distance is <b>geometric</b>, not combinatorial. After recursion, any cross-pair closer than &delta; must lie in a strip of width 2&delta; <b>and</b> be close in y &mdash; and a &delta;&times;2&delta; box can hold only a <b>bounded</b> number of points that are pairwise &ge; &delta; apart (a packing limit), so each strip point compares to O(1) others. The inverse of &lsquo;check all O(n&sup2;) pairs&rsquo; is &lsquo;geometry bounds the candidates to O(n).&rsquo; <b>Magenta</b> is the vast majority of pairs never examined; <b>green</b> is the strip&rsquo;s O(n) comparisons that contain the answer. Packing density turns a quadratic search linear &mdash; the same lesson as the diameter living only on antipodal pairs.</div>
+   <div class="btns" style="margin-top:10px"><button id="clpspin">pause spin</button></div></div></div></div>"""
+CLP_SCRIPT = """(function(){
+var ang=0,spin=true,pts=null,best=null,delta=0;
+function d2(a,b){return (a[0]-b[0])*(a[0]-b[0])+(a[1]-b[1])*(a[1]-b[1]);}
+function brute(P){var b=Infinity;for(var i=0;i<P.length;i++)for(var j=i+1;j<P.length;j++)b=Math.min(b,d2(P[i],P[j]));return b;}
+function dc(P){P=P.slice().sort(function(a,b){return a[0]-b[0];});var bestPair=null;
+ function rec(lo,hi){if(hi-lo<=3){var bd=Infinity;for(var i=lo;i<hi;i++)for(var j=i+1;j<hi;j++){var d=d2(P[i],P[j]);if(d<bd){bd=d;bestPair=[P[i],P[j]];}}return bd;}var mid=(lo+hi)>>1,mx=P[mid][0],dl=rec(lo,mid),dr=rec(mid,hi),d=Math.min(dl,dr),strip=[];for(var i=lo;i<hi;i++)if((P[i][0]-mx)*(P[i][0]-mx)<d)strip.push(P[i]);strip.sort(function(a,b){return a[1]-b[1];});for(var i=0;i<strip.length;i++)for(var j=i+1;j<strip.length&&(strip[j][1]-strip[i][1])*(strip[j][1]-strip[i][1])<d;j++){var dd=d2(strip[i],strip[j]);if(dd<d){d=dd;bestPair=[strip[i],strip[j]];}}return d;}
+ var dd=rec(0,P.length);return {dist2:dd,pair:bestPair};}
+function verify(){var seed=5;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<200;t++){var n=4+rnd()%25,P=[];for(var i=0;i<n;i++)P.push([rnd()%1000,rnd()%1000]);if(Math.abs(dc(P).dist2-brute(P))>1e-6)ok=false;}return {matchesBrute:ok,trials:200};}
+function mk(){pts=[];for(var i=0;i<28;i++)pts.push([30+Math.random()*320,30+Math.random()*250]);var r=dc(pts);best=r.pair;delta=Math.sqrt(r.dist2);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var mx=W/2;g.strokeStyle='#e05050';g.lineWidth=2;g.beginPath();g.moveTo(mx,20);g.lineTo(mx,H-20);g.stroke();g.lineWidth=1;
+ g.fillStyle='rgba(224,136,80,0.2)';g.fillRect(mx-40,20,80,H-40);
+ g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('split line (red) + strip of width 2δ (orange)',12,16);
+ for(var i=0;i<20;i++){var x=30+i*24;g.fillStyle=(Math.abs(x-mx)<40)?'#e08850':'#556';g.beginPath();g.arc(x,H/2+20*Math.sin(i),4,0,7);g.fill();}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('only strip points can beat the halves\\' best δ',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!pts)mk();
+ for(var i=0;i<pts.length;i++){g.fillStyle='#556';g.beginPath();g.arc(pts[i][0],pts[i][1],3,0,7);g.fill();}
+ if(best){g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(best[0][0],best[0][1]);g.lineTo(best[1][0],best[1][1]);g.stroke();g.lineWidth=1;g.fillStyle='#39fc6b';g.beginPath();g.arc(best[0][0],best[0][1],5,0,7);g.fill();g.beginPath();g.arc(best[1][0],best[1][1],5,0,7);g.fill();}
+ var bd=Math.sqrt(brute(pts)),dd=Math.sqrt(dc(pts).dist2);
+ g.fillStyle=Math.abs(bd-dd)<1e-6?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('closest distance '+dd.toFixed(2)+' = brute min '+bd.toFixed(2)+(Math.abs(bd-dd)<1e-6?' ✓':' ✗'),12,H-12);}
+document.getElementById('clpnew').onclick=function(){mk();drawW4();document.getElementById('clpread').textContent='new points — closest pair found by divide & conquer';};
+document.getElementById('clpcheck').onclick=function(){var v=verify();document.getElementById('clpread').textContent='200 point sets: D&C closest == brute min '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('clpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!pts)mk();var mx=W/2;
+ g.fillStyle='rgba(57,252,107,0.12)';g.fillRect(mx-delta,20,2*delta,H-40);
+ // magenta: all pairs (faint)
+ g.strokeStyle='rgba(255,45,149,0.06)';for(var i=0;i<pts.length;i++)for(var j=i+1;j<pts.length;j++){g.beginPath();g.moveTo(pts[i][0]*0.9+15,pts[i][1]*0.9+15);g.lineTo(pts[j][0]*0.9+15,pts[j][1]*0.9+15);g.stroke();}
+ for(var i=0;i<pts.length;i++){g.fillStyle='#50606a';g.beginPath();g.arc(pts[i][0]*0.9+15,pts[i][1]*0.9+15,2.5,0,7);g.fill();}
+ if(best){g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(best[0][0]*0.9+15,best[0][1]*0.9+15);g.lineTo(best[1][0]*0.9+15,best[1][1]*0.9+15);g.stroke();g.lineWidth=1;}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the strip\\'s O(n) candidate comparisons',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the O(n²) pairs never examined',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('packing density bounds candidates → quadratic becomes linear',10,H-9);}
+mk();drawW3();drawW4();window.__closestpair=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NEW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Newton&rsquo;s identities</b> connect two ways of summarising a set of numbers &mdash; the roots of a polynomial. The <b>power sums</b> p<sub>k</sub> = &Sigma; x<sub>i</sub><sup>k</sup> (add up the k-th powers) and the <b>elementary symmetric</b> polynomials e<sub>k</sub> (the polynomial&rsquo;s coefficients by Vieta: sums of products of the roots taken k at a time).<br><br>
+ The recurrence p<sub>k</sub> = e&#8321;p<sub>k&minus;1</sub> &minus; e&#8322;p<sub>k&minus;2</sub> + &hellip; &plusmn; k&middot;e<sub>k</sub> converts either into the other. So knowing the sums of powers of the (unknown) roots reconstructs the polynomial&rsquo;s coefficients &mdash; <b>without ever finding the roots</b>.<br><br>
+ <span class="lit">LIT</span> verified live: for 300 random root-sets, Newton&rsquo;s identities recover the elementary symmetric polynomials e<sub>k</sub> from the power sums, matching Vieta&rsquo;s coefficients exactly (window.__newtonidentities). <span class="fig">FIG</span> no framing; exact symmetric-function arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; the arithmetic engine translating between descriptions. Newton&rsquo;s identities are the symmetric-function core: moments in, coefficients out. <b>AVAN (AI)</b> built the instrument: the power sums, the recurrence recovering e<sub>k</sub>, the check against Vieta.<br><br>Credit as content: Isaac Newton (<i>Arithmetica Universalis</i>, c. 1707); anticipated by Albert Girard (1629). The weave: David names the mainframe; I compute power sums of chosen roots, run Newton&rsquo;s recurrence to recover the elementary symmetric polynomials, and match them to the polynomial&rsquo;s own coefficients.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Two summaries of the same roots: the power sums (sums of k-th powers) and the elementary symmetric polynomials (the coefficients). Newton&rsquo;s recurrence steps down the list, converting one into the other.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Choose roots. The instrument computes their power sums, runs Newton&rsquo;s identities to recover the elementary symmetric polynomials, and confirms they equal the polynomial&rsquo;s Vieta coefficients &mdash; reconstructing the polynomial from power sums alone.</div>
+   <div class="btns" style="margin-top:10px"><button id="newroll">new roots ▶</button><button id="newcheck">verify 300 ▶</button></div>
+   <div class="cap" id="newread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the two equivalent descriptions of a root-set &mdash; power sums and elementary symmetric polynomials &mdash; linked by the recurrence.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the map is genuinely <b>invertible both ways</b>. Power sums and elementary symmetric polynomials are two <b>bases</b> for the ring of symmetric functions, and Newton&rsquo;s identities are the exact change of basis (over the rationals). So a &lsquo;<b>moment</b>&rsquo; description &mdash; sums of powers &mdash; and a &lsquo;<b>coefficient</b>&rsquo; description &mdash; Vieta&rsquo;s products &mdash; carry the <b>same</b> information about a multiset of numbers, and <b>neither needs the numbers themselves</b>. The inverse of &lsquo;moments&rsquo; is &lsquo;coefficients,&rsquo; each recoverable from the other. <b>Magenta</b> is the roots, never required; <b>green</b> is the two equivalent symmetric descriptions. Sums of powers and products of roots are one truth spoken in two languages.</div>
+   <div class="btns" style="margin-top:10px"><button id="newspin">pause spin</button></div></div></div></div>"""
+NEW_SCRIPT = """(function(){
+var ang=0,spin=true,roots=[1,-2,3];
+function powerSums(rs,K){var p=[];for(var k=1;k<=K;k++){var s=0;rs.forEach(function(r){s+=Math.pow(r,k);});p.push(s);}return p;}
+function elemSym(rs){var e=[1];rs.forEach(function(r){var ne=e.slice();for(var i=0;i<e.length;i++)ne[i+1]=(ne[i+1]||0)+e[i]*r;e=ne;});return e;}
+function newtonE(p,n){var e=[1];for(var k=1;k<=n;k++){var s=0;for(var i=1;i<k;i++)s+=Math.pow(-1,i-1)*e[k-i]*p[i-1];s+=Math.pow(-1,k-1)*p[k-1];e[k]=s/k;}return e;}
+function verify(){var seed=5;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<300;t++){var n=2+rnd()%5,rs=[];for(var i=0;i<n;i++)rs.push(rnd()%9-4);var p=powerSums(rs,n),ea=elemSym(rs),en=newtonE(p,n);for(var k=0;k<=n;k++)if(Math.abs(ea[k]-en[k])>1e-6)ok=false;}return {recoverMatchesVieta:ok,trials:300};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=roots.length,p=powerSums(roots,n),e=elemSym(roots);g.font='12px monospace';
+ g.fillStyle='#a898d8';g.fillText('power sums p_k = Σ x_i^k:',20,36);g.fillStyle='#e8eef8';for(var k=0;k<n;k++)g.fillText('p'+(k+1)+'='+p[k],210+k*70,36);
+ g.fillStyle='#40c0a0';g.fillText('elementary symmetric e_k:',20,72);g.fillStyle='#e8eef8';for(var k=1;k<=n;k++)g.fillText('e'+k+'='+e[k],210+(k-1)*70,72);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Newton: p_k = e1·p_{k-1} - e2·p_{k-2} + … ± k·e_k',20,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=roots.length,p=powerSums(roots,n),ea=elemSym(roots),en=newtonE(p,n);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('roots: '+roots.join(', '),12,24);
+ g.fillStyle='#a898d8';g.fillText('power sums: '+p.join(', '),12,52);
+ g.fillStyle='#40c0a0';g.fillText('Newton recovers e: '+en.slice(1).map(function(x){return x.toFixed(0);}).join(', '),12,80);
+ g.fillStyle='#5aa0e0';g.fillText('Vieta e (from roots): '+ea.slice(1).join(', '),12,104);
+ var ok=true;for(var k=0;k<=n;k++)if(Math.abs(ea[k]-en[k])>1e-6)ok=false;
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='13px monospace';g.fillText(ok?'✓ match — polynomial recovered from power sums':'✗',12,132);
+ // reconstructed polynomial
+ var poly='x^'+n;for(var k=1;k<=n;k++){var c=Math.pow(-1,k)*en[k];if(Math.abs(c)>1e-9)poly+=(c>0?' + ':' - ')+Math.abs(c)+'x^'+(n-k);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('p(x) = '+poly.replace('x^0',''),12,162);}
+document.getElementById('newroll').onclick=function(){var n=2+Math.floor(Math.random()*3);roots=[];for(var i=0;i<n;i++)roots.push(Math.floor(Math.random()*9)-4);drawW3();drawW4();document.getElementById('newread').textContent='roots '+roots.join(', ')+' → recovered via Newton';};
+document.getElementById('newcheck').onclick=function(){var v=verify();document.getElementById('newread').textContent='300 root-sets: Newton recovers e_k == Vieta '+(v.recoverMatchesVieta?'✓':'✗');};
+document.getElementById('newspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=roots.length,p=powerSums(roots,n),e=elemSym(roots);
+ g.fillStyle='#a898d8';g.font='11px monospace';g.fillText('power sums',W*0.2,50);g.fillStyle='#40c0a0';g.fillText('symmetric e_k',W*0.6,50);
+ for(var k=0;k<n;k++){var y=80+k*36;g.fillStyle='#a898d8';g.fillRect(W*0.18,y,Math.min(90,Math.abs(p[k])*2+6),16+3*Math.sin(ang+k));g.fillStyle='#40c0a0';g.fillRect(W*0.58,y,Math.min(90,Math.abs(e[k+1]||0)*8+6),16+3*Math.sin(ang+k+1));
+  g.strokeStyle='rgba(57,252,107,0.4)';g.beginPath();g.moveTo(W*0.18+95,y+8);g.lineTo(W*0.58,y+8);g.stroke();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: two equivalent symmetric descriptions',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the roots themselves — never needed',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('moments ⟺ coefficients: one truth, two languages',10,H-9);}
+drawW3();drawW4();window.__newtonidentities=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-motzkin","title":"THE MOTZKIN","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#56b8c0","icon":"motzkin",
+  "kicker":"paths that may rest — Catalan hiding under the flats",
+  "blurb":"the Motzkin numbers in the 5-window house format — 1,1,2,4,9,21,51,127 count lattice paths from (0,0) to (n,0) using up, down, and LEVEL steps that never dip below the axis (Dyck paths that may rest). Recurrence M_n = M_{n-1} + sum M_k M_{n-2-k}, and M_n = sum_k C(n,2k) Cat_k ties them to Catalan. Verified live: the recurrence matches a brute path count for n=0..10 and the Catalan relation holds. See a Motzkin path in 1D, three counts agreeing in 2D, and the Catalan-under-flats inverse in 3D.",
+  "lit":"Genuine Motzkin numbers (Motzkin 1948). Verified live: M_n = M_{n-1} + sum_{k} M_k M_{n-2-k} matches a brute count of up/down/level paths staying >=0 for n=0..10, and M_n = sum_k C(n,2k) Cat_k holds exactly (window.__motzkin.recMatchesBrute && .catalanRelation); M = 1,1,2,4,9,21,51,127,323.",
+  "fig":"No framing: the recurrence, the brute path enumeration, and the Catalan relation all compute in-browser and agree exactly. The AVAN inverse is honest — every Motzkin path is a Dyck path with flats inserted, and M_n = sum C(n,2k)Cat_k literally chooses which 2k steps form the non-flat Dyck skeleton; magenta is the level steps, green the Dyck skeleton.",
+  "body":MTZ_BODY,"script":MTZ_SCRIPT},
+ {"slug":"the-dutch-flag","title":"THE DUTCH FLAG","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#d06868","icon":"dutch-flag",
+  "kicker":"sort three colors in one pass — correct by invariant",
+  "blurb":"Dijkstra's Dutch national flag problem in the 5-window house format — sort an array of three values (0/1/2) in one pass, O(n) time O(1) space, with three pointers low/mid/high: a 0 swaps down, a 2 swaps up (mid not advancing), a 1 stays. The invariant keeps 0s before low, 1s to mid, unknown [mid,high], 2s after high. It is the heart of 3-way quicksort. Verified live: for 500 random 0/1/2 arrays the single pass yields a sorted array that is a permutation of the input. See the four regions in 1D, step the partition in 2D, and the correct-by-invariant inverse in 3D.",
+  "lit":"Genuine Dutch national flag partition (Dijkstra, A Discipline of Programming, 1976). Verified live: the three-pointer single-pass partition produces, for 500 random 0/1/2 arrays, an output that is non-decreasing (sorted) and has the same value-counts as the input (a permutation) — window.__dutchflag.sorted && .isPermutation.",
+  "fig":"No framing: the low/mid/high partition, the sortedness check, and the permutation check run in-browser and are exact. The AVAN inverse is honest — correctness follows from a maintained loop invariant (0s | 1s | unknown | 2s), each step shrinking the unknown while preserving the partition, so sortedness is guaranteed at termination rather than checked; magenta is the shrinking unknown span.",
+  "body":DNF_BODY,"script":DNF_SCRIPT},
+ {"slug":"the-sturm","title":"THE STURM","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#b06840","icon":"sturm",
+  "kicker":"count real roots in an interval without finding them",
+  "blurb":"Sturm's theorem in the 5-window house format — count the real roots of a polynomial in [a,b] without finding them: build the Sturm chain (p, p', then successive negated polynomial-division remainders), count sign changes V(a) and V(b), and the number of distinct real roots in (a,b] is exactly V(a)-V(b). Verified live: for 200 polynomials built from distinct integer roots, the sign-variation count equals the actual roots in the interval, over full and sub-intervals. See the chain's signs in 1D, a slidable interval in 2D, and the count-not-locate inverse in 3D.",
+  "lit":"Genuine Sturm's theorem (Sturm 1829). Verified live: building the Sturm chain via negated polynomial-division remainders and counting sign variations, V(a)-V(b) equals the actual number of real roots in (a,b] for 200 polynomials with distinct integer roots, across both wide and narrow intervals (window.__sturm.countMatchesActual).",
+  "fig":"No framing: the Sturm chain, the sign-variation counts, and the check against the true root count run in-browser and are exact (float remainders read with a sign tolerance). The AVAN inverse is honest — Sturm extracts the exact root count without root locations, reducing a continuous 'where' to a discrete sign tally; magenta is the actual root positions, never computed, green the two integer counts.",
+  "body":STM_BODY,"script":STM_SCRIPT},
+ {"slug":"the-closest-pair","title":"THE CLOSEST PAIR","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#e08850","icon":"closest-pair",
+  "kicker":"nearest two points in O(n log n) — geometry bounds the strip",
+  "blurb":"the closest-pair problem in the 5-window house format — find the two nearest of n points in O(n log n) instead of O(n^2): sort by x, split at the median, recurse in each half (distance delta), then only points in a vertical strip of width 2delta around the split can beat delta, and each such point compares to at most a constant number of y-neighbors (a packing bound). Verified live: for 200 random point sets, the divide-and-conquer closest distance equals the brute-force minimum over all pairs. See the strip in 1D, closest pair drawn in 2D, and the packing-bounds-candidates inverse in 3D.",
+  "lit":"Genuine divide-and-conquer closest pair (Shamos & Hoey 1975). Verified live: the median-split recursion plus strip check returns a closest squared-distance equal to the brute-force minimum over all pairs for 200 random point sets (window.__closestpair.matchesBrute).",
+  "fig":"No framing: the recursion, the strip check, and the brute cross-check run in-browser and match exactly. The AVAN inverse is honest — a delta x 2delta box can hold only O(1) points pairwise >= delta apart (packing), so each strip point compares to O(1) others, bounding candidates to O(n); magenta is the O(n^2) pairs skipped, green the strip's O(n) comparisons.",
+  "body":CLP_BODY,"script":CLP_SCRIPT},
+ {"slug":"the-newton-identities","title":"THE NEWTON IDENTITIES","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#a898d8","icon":"newton-identities",
+  "kicker":"power sums <-> polynomial coefficients, no roots needed",
+  "blurb":"Newton's identities in the 5-window house format — connect the power sums p_k = sum x_i^k of a polynomial's roots to the elementary symmetric polynomials e_k (its coefficients by Vieta) via p_k = e1 p_{k-1} - e2 p_{k-2} + ... +- k e_k. So the sums of powers of the unknown roots reconstruct the polynomial's coefficients without ever finding the roots. Verified live: for 300 random root-sets, Newton's identities recover e_k from the power sums, matching Vieta exactly. See the two summaries in 1D, recover-from-power-sums in 2D, and the moments-are-coefficients inverse in 3D.",
+  "lit":"Genuine Newton's identities (Newton, Arithmetica Universalis c.1707; Girard 1629). Verified live: for 300 random integer root-sets, computing power sums p_k and running the Newton recurrence recovers the elementary symmetric polynomials e_k that match those from Vieta (elementary symmetric of the roots) exactly (window.__newtonidentities.recoverMatchesVieta).",
+  "fig":"No framing: the power sums, the Newton recurrence, and the Vieta comparison run in-browser and agree exactly. The AVAN inverse is honest — power sums and elementary symmetric polynomials are two bases of the symmetric-function ring, and Newton's identities are the exact change of basis over the rationals, so moments and coefficients carry the same information without the roots; magenta is the roots (never needed), green the two descriptions.",
+  "body":NEW_BODY,"script":NEW_SCRIPT},
  {"slug":"the-stirling","title":"THE STIRLING","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#cf9838","icon":"stirling",
   "kicker":"count set partitions — and translate powers to falling factorials",
