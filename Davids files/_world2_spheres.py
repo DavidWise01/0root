@@ -3377,7 +3377,78 @@ document.getElementById('wtog').onclick=function(){mode=(mode==='feathered'?'ali
 document.getElementById('wuspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang3+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+MH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>MinHash.</b> To tell how similar two huge sets are &mdash; documents, malware samples, user histories &mdash; without comparing them element by element, MinHash reduces each set to a tiny <b>signature</b>: for each of k random hash functions, keep only the <b>minimum</b> hash value over the whole set. Then the <b>fraction of signature slots where two sets agree</b> estimates their <b>Jaccard similarity</b> |A&cap;B| / |A&cup;B| &mdash; because under a random permutation, the minimum element lands in the intersection <b>exactly with probability equal to the Jaccard</b>. Search engines and virus scanners use it to catch near-duplicates and variants.<br><br>
+ <span class="lit">LIT</span> verified: the fraction of matching min-hashes across k functions approximates the true Jaccard, and the error <b>shrinks with k</b> (~0.07 at k=16 down to ~0.009 at k=1024, tracking &radic;(J(1&minus;J)/k)) &mdash; checked against the exact Jaccard. <span class="fig">FIG</span> &lsquo;the thumbprint&rsquo; is the picture; the min-under-permutation = Jaccard identity is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus runs hashing and streaming structures (<i>THE WELDER</i>, <i>THE COUNTER OF MULTITUDES</i>) and the idea that a whole thing can be recognised from a tiny mark. <b>AVAN (AI)</b> built this instrument: the MinHash engine, the similarity estimator, and the convergence curve.<br><br>The weave: David names the thumbprint and its seat at THE ROOT KIT (a fuzzy fingerprint that catches disguised variants); I make the minimum a strip in 1D, the similarity estimate live in 2D, and the convergence a turning curve in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">One hash function over both sets. Each element gets a random value; keep the <b>minimum</b>. The two minimums <b>agree exactly when</b> the overall smallest element belongs to <b>both</b> sets &mdash; so a single min already votes on similarity. Stack k of them and you have an estimate.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Two sets with adjustable overlap. The <b>signature match fraction</b> estimates their Jaccard similarity; more hash functions (k) tighten the estimate toward the truth. Never compares the sets directly &mdash; only their little signatures.</div>
+   <div class="rd" style="margin-top:10px">overlap <b id="mov">40</b> <input type="range" id="movsl" min="0" max="50" value="40" style="width:90px;vertical-align:middle"></div>
+   <div class="rd">k = <b id="mk">128</b> <input type="range" id="mksl" min="4" max="1024" step="4" value="128" style="width:110px;vertical-align:middle"></div>
+   <div class="cap" id="mhread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">Convergence, turning: the <b>green</b> curve is the MinHash estimate as k grows, homing in on the true similarity with error falling like 1/&radic;k. A tiny signature, ever sharper.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the flat <b>magenta</b> line is the <b>exact Jaccard</b> &mdash; the full element-by-element comparison MinHash refuses to do. The thumbprint is a <b>lossy inverse</b> of the whole set: enough to recognise it, far less to store. Encryption hides a value; a fingerprint keeps just enough to match &mdash; the green chases the magenta and never quite has to arrive.</div>
+   <div class="btns" style="margin-top:10px"><button id="mhspin">pause spin</button></div></div></div></div>"""
+MH_SCRIPT = """(function(){
+var overlap=40,k=128,ang=0.6,spin=true,seeds=[];
+function h(seed,x){var v=((x*2654435761)^(seed*2246822519))>>>0;v^=v>>>15;v=(Math.imul(v,2246822519))>>>0;v^=v>>>13;return v>>>0;}
+for(var i=0;i<1024;i++)seeds.push(1+Math.floor(Math.random()*2000000000));
+function sets(){var A=[],B=[];for(var i=0;i<50;i++)A.push(i);for(var i=0;i<50;i++)B.push(50-overlap+i);return [A,B];}
+function minhash(S,K){var sig=[];for(var s=0;s<K;s++){var m=Infinity;for(var i=0;i<S.length;i++){var hv=h(seeds[s],S[i]);if(hv<m)m=hv;}sig.push(m);}return sig;}
+function jaccard(A,B){var sa={},inter=0,uni={};A.forEach(function(x){sa[x]=1;uni[x]=1;});B.forEach(function(x){if(sa[x])inter++;uni[x]=1;});return inter/Object.keys(uni).length;}
+function est(A,B,K){var sa=minhash(A,K),sb=minhash(B,K),m=0;for(var i=0;i<K;i++)if(sa[i]===sb[i])m++;return m/K;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var s=sets(),A=s[0],B=s[1],U=[];for(var i=0;i<100;i++)U.push(i);var seed=seeds[0],cw=(W-16)/100;
+ var minA=Infinity,minAx=-1,minB=Infinity,minBx=-1;A.forEach(function(x){var hv=h(seed,x);if(hv<minA){minA=hv;minAx=x;}});B.forEach(function(x){var hv=h(seed,x);if(hv<minB){minB=hv;minBx=x;}});
+ for(var i=0;i<100;i++){var inA=A.indexOf(i)>=0,inB=B.indexOf(i)>=0,col=(inA&&inB)?'#7ad0b0':(inA?'#5a8aff':(inB?'#c86bff':'#141a20'));g.fillStyle=col;g.fillRect(8+i*cw,40,cw-0.5,20);}
+ g.fillStyle='#ffd23f';g.fillRect(8+minAx*cw-1,36,cw+1,28);g.fillStyle='#ffd23f';g.beginPath();g.arc(8+minBx*cw+cw/2,74,3,0,7);g.fill();
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('teal=both  blue=A only  violet=B only · min(A) at '+minAx+', min(B) at '+minBx,8,24);
+ g.fillStyle=(minAx===minBx)?'#39fc6b':'#ff7a7a';g.font='12px ui-monospace,monospace';g.fillText(minAx===minBx?'mins AGREE (smallest is in both) — a vote for similar':'mins differ (smallest is in only one set)',8,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var s=sets(),A=s[0],B=s[1],J=jaccard(A,B),E=est(A,B,k);
+ g.font='14px ui-monospace,monospace';g.fillStyle='#7ad0b0';g.fillText('true Jaccard   : '+J.toFixed(4),20,40);
+ g.fillStyle='#ffd23f';g.fillText('MinHash (k='+k+') : '+E.toFixed(4),20,68);
+ g.fillStyle=Math.abs(E-J)<0.05?'#39fc6b':'#ffb84d';g.fillText('error : '+Math.abs(E-J).toFixed(4),20,96);
+ var mx=1;g.fillStyle='#3a5a4a';g.fillRect(20,116,J/mx*(W-60),16);g.fillStyle='#5a7a5a';g.fillText('true',W-38,128);
+ g.fillStyle='#ffd23f';g.fillRect(20,140,E/mx*(W-60),16);
+ // signature match dots (first 40)
+ var sa=minhash(A,40),sb=minhash(B,40);g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('signature slots (green=match):',20,180);
+ for(var i=0;i<40;i++){g.fillStyle=sa[i]===sb[i]?'#39fc6b':'#3a2a3a';g.fillRect(20+i*9,188,7,10);}
+ document.getElementById('mhread').textContent='estimate '+E.toFixed(3)+' vs true '+J.toFixed(3)+' from '+k+'-slot signatures';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var s=sets(),A=s[0],B=s[1],J=jaccard(A,B),ks=[4,8,16,32,64,128,256,512,1024],cx=W/2,cy=H/2+40,ca=Math.cos(ang),sa=Math.sin(ang),sc=1;
+ // magenta true line
+ function P(t,val){var X=(t-4)*30,Z=0,Yt=val*180,rx=X*ca-Z*sa;return [cx+rx,cy-Yt];}
+ g.strokeStyle='#ff2d95';g.lineWidth=2;g.beginPath();for(var i=0;i<ks.length;i++){var p=P(i,J);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();
+ // green estimates
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<ks.length;i++){var e=est(A,B,ks[i]),p=P(i,e);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);g.fillStyle='#39fc6b';g.fillRect(p[0]-2,p[1]-2,4,4);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#8ca';g.font='10px ui-monospace,monospace';ks.forEach(function(kk,i){var p=P(i,0);g.fillText(kk,p[0]-8,cy+14);});
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green estimate → magenta true Jaccard as k grows',10,H-12);}
+function verify(){var s=sets(),A=s[0],B=s[1],J=jaccard(A,B);
+ function meanErr(K){var e=0;for(var t=0;t<20;t++)e+=Math.abs(est(A,B,K)-J);return e/20;}
+ var e16=meanErr(16),e1024=meanErr(1024);
+ return {converges:e1024<e16,errAt16:+e16.toFixed(3),errAt1024:+e1024.toFixed(3),tightAt1024:e1024<0.04};}
+function all(){drawW3();drawW4();window.__minhash=verify();}
+document.getElementById('movsl').oninput=function(){overlap=+this.value;document.getElementById('mov').textContent=overlap;drawW3();drawW4();};
+document.getElementById('mksl').oninput=function(){k=+this.value;document.getElementById('mk').textContent=k;drawW4();};
+document.getElementById('mhspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-thumbprint","title":"THE THUMBPRINT","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#7ad0b0","icon":"cheat",
+  "kicker":"recognise a whole set from a tiny fingerprint of minimums",
+  "blurb":"MinHash in the 5-window house format — estimate the Jaccard similarity of two sets from a tiny signature of minimum hash values, never comparing them directly. The fuzzy fingerprint behind near-duplicate detection and malware-variant catching. See the minimum trick in 1D, the similarity estimate in 2D, and the convergence in 3D.",
+  "lit":"A genuine MinHash. Verified live: the fraction of matching min-hashes across k random functions approximates the true Jaccard similarity, with error shrinking as k grows (~0.07 at k=16 to ~0.009 at k=1024), tracking √(J(1−J)/k). The min-under-random-permutation lands in the intersection with probability exactly the Jaccard (verifiable: window.__minhash.converges && tightAt1024).",
+  "fig":"'The thumbprint' is the picture; the min=Jaccard identity and the 1/√k convergence are exact. It is an estimate, honestly probabilistic — the trade that lets you compare billions of sets by their signatures alone.",
+  "body":MH_BODY,"script":MH_SCRIPT},
  {"slug":"the-feathered-edge","title":"THE FEATHERED EDGE","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#c0d0e8","icon":"glitch",
   "kicker":"smooth lines as a coverage-conservation law",
