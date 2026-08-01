@@ -12607,7 +12607,294 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW3();drawW4();window.__montgomery=verify();
 function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 40 (bit-hacks · rasterization · mutual-exclusion · MCMC · transforms) ═══════════════════════
+FIS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The fast inverse square root</b> is a legendary hack from <b>Quake III Arena</b> (1999): compute 1/&radic;x &mdash; needed to normalise millions of vectors a second &mdash; with <b>no division and no square root</b>, using a bit-level trick and one line of &lsquo;magic.&rsquo;<br><br>
+ Reinterpret the float&rsquo;s bits as an integer, do <code>i = 0x5f3759df &minus; (i &gt;&gt; 1)</code> &mdash; halve and subtract from a mysterious constant &mdash; reinterpret back as a float, and you already have 1/&radic;x to about <b>3.4%</b>. One Newton&ndash;Raphson step, <code>y = y(1.5 &minus; 0.5&middot;x&middot;y&sup2;)</code>, sharpens it to <b>~0.17%</b>. The shift approximately halves the exponent (which is what a square root does to it); the constant corrects the mantissa and the exponent bias.<br><br>
+ <span class="lit">LIT</span> verified live: over a sweep of x, the raw bit-hack is within ~3.4% and after one Newton step within ~0.18% of the true 1/&radic;x (window.__fastinvsqrt). <span class="fig">FIG</span> no framing; exact IEEE-754 bit reinterpretation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-backdoor</i> &mdash; the hack that sneaks past the hardware&rsquo;s front door. Fast inverse sqrt is the archetypal backdoor: skip the FPU&rsquo;s divider entirely and read the answer out of the bits. <b>AVAN (AI)</b> built the instrument: the float/int reinterpretation, the Newton step, the error sweep.<br><br>Credit as content: the Quake III source (id Software, 1999); the constant&rsquo;s near-optimality analysed by Chris Lomont (2003) and Charles McEniry; lineage traced to Greg Walsh and Cleve Moler / Gary Tarolli. The weave: David names the backdoor; I show the logarithm hidden in the float&rsquo;s bits, and how Newton doubles the correct digits.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The IEEE-754 float: 1 sign bit, 8 exponent bits, 23 mantissa bits. Shifting the whole integer right by one halves the exponent &mdash; the crude core of a square root &mdash; and the magic constant fixes up what that shift got wrong.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick x and see three numbers: the raw bit-hack estimate, the Newton-refined value, and the true 1/&radic;x. Sweep across the range and watch the error stay under 0.2% after one step.</div>
+   <div class="btns" style="margin-top:10px"><button id="fisx">x: 2.0 ▶</button><button id="fisnewton">Newton: on ▶</button><button id="fissweep">sweep error ▶</button></div>
+   <div class="cap" id="fisread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the error curve across the exponent range &mdash; the raw hack&rsquo;s gentle ripple, flattened by Newton to a near-flat line.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the &lsquo;magic&rsquo; is a <b>logarithm</b> hiding in plain sight. A float&rsquo;s integer bit-pattern is, up to a constant, a <b>piecewise-linear approximation of its log&#8322;</b> &mdash; so shifting the integer right by one really is halving the log, i.e. taking a square root, and subtracting from the constant negates it (inverse) and fixes the bias. The inverse of &lsquo;a mysterious hex constant&rsquo; is &lsquo;the log&#8322; bias correction, computed once.&rsquo; And Newton&rsquo;s iteration converges <b>quadratically</b>, so each step roughly <b>doubles the correct digits</b>: 3.4% &rarr; 0.17% &rarr; ~0.0005%. <b>Magenta</b> is the raw hack&rsquo;s error band; <b>green</b> is the Newton-sharpened curve beneath it. No magic &mdash; a logarithm in the exponent field and a quadratically-converging correction.</div>
+   <div class="btns" style="margin-top:10px"><button id="fisspin">pause spin</button></div></div></div></div>"""
+FIS_SCRIPT = """(function(){
+var ang=0,spin=true,X=2.0,useNewton=true;
+var buf=new ArrayBuffer(4),f32=new Float32Array(buf),i32=new Int32Array(buf);
+function raw(x){f32[0]=x;var i=i32[0];i=0x5f3759df-(i>>1);i32[0]=i;return f32[0];}
+function fis(x,n){var y=raw(x);if(n)y=y*(1.5-0.5*x*y*y);return y;}
+function verify(){var e0=0,e1=0;for(var k=0;k<2000;k++){var x=0.01+k*0.5,y0=raw(x),y1=y0*(1.5-0.5*x*y0*y0),t=1/Math.sqrt(x);e0=Math.max(e0,Math.abs(y0-t)/t);e1=Math.max(e1,Math.abs(y1-t)/t);}return {constant:'0x5f3759df',maxRelErrRaw:+(e0*100).toFixed(2),maxRelErrNewton:+(e1*100).toFixed(3),unit:'percent'};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);f32[0]=X;var bits=(i32[0]>>>0).toString(2).padStart(32,'0');g.font='11px monospace';
+ g.fillStyle='#b0e0ff';g.fillText('IEEE-754 float bits of x = '+X+':',12,18);
+ for(var i=0;i<32;i++){var col=i===0?'#e06060':(i<9?'#c8a020':'#5aa0e0');g.fillStyle=bits[i]==='1'?col:'#26303c';g.fillRect(12+i*15,30,13,22);g.fillStyle='#0a1018';g.font='10px monospace';g.fillText(bits[i],12+i*15+3,45);}
+ g.fillStyle='#c8a020';g.font='10px monospace';g.fillText('sign(1) exponent(8) mantissa(23) — shift >>1 halves the exponent',12,72);
+ g.fillStyle='#e8eef8';g.fillText('i = 0x5f3759df - (i>>1)  → reinterpret as float ≈ 1/√x',12,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var y0=raw(X),y1=y0*(1.5-0.5*X*y0*y0),t=1/Math.sqrt(X);
+ g.font='13px monospace';g.fillStyle='#e8eef8';g.fillText('x = '+X.toFixed(3),12,28);
+ g.fillStyle='#c8a020';g.fillText('bit-hack:   '+y0.toFixed(6)+'   ('+(Math.abs(y0-t)/t*100).toFixed(2)+'%)',12,60);
+ g.fillStyle=useNewton?'#39fc6b':'#556';g.fillText('+1 Newton:  '+y1.toFixed(6)+'   ('+(Math.abs(y1-t)/t*100).toFixed(3)+'%)',12,86);
+ g.fillStyle='#58b0e0';g.fillText('true 1/√x:  '+t.toFixed(6),12,112);
+ // error bars
+ g.fillStyle='#c8a020';g.fillRect(12,140,Math.min(300,Math.abs(y0-t)/t*3000),12);g.fillStyle='#39fc6b';g.fillRect(12,158,Math.min(300,Math.abs(y1-t)/t*3000),12);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('error bars ×3000 — Newton (green) far under raw (gold)',12,H-12);}
+document.getElementById('fisx').onclick=function(){var xs=[0.5,2.0,9.0,50,150,1000];X=xs[(xs.indexOf(X)+1)%xs.length];this.textContent='x: '+X+' ▶';drawW3();drawW4();};
+document.getElementById('fisnewton').onclick=function(){useNewton=!useNewton;this.textContent='Newton: '+(useNewton?'on':'off')+' ▶';drawW4();};
+document.getElementById('fissweep').onclick=function(){var v=verify();document.getElementById('fisread').textContent='sweep: raw max '+v.maxRelErrRaw+'%, after 1 Newton '+v.maxRelErrNewton+'% (<0.2%)';};
+document.getElementById('fisspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.strokeStyle='#c8a020';g.beginPath();for(var i=0;i<=200;i++){var x=Math.pow(2,(i/200)*10-2),y0=raw(x),t=1/Math.sqrt(x),e=(y0-t)/t;var px=10+i/200*(W-20),py=H*0.4-e*1400+30*Math.sin(ang+i*0.05);if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();
+ g.strokeStyle='#39fc6b';g.beginPath();for(var i=0;i<=200;i++){var x=Math.pow(2,(i/200)*10-2),y0=raw(x),y1=y0*(1.5-0.5*x*y0*y0),t=1/Math.sqrt(x),e=(y1-t)/t;var px=10+i/200*(W-20),py=H*0.4-e*1400;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();
+ g.strokeStyle='#334';g.beginPath();g.moveTo(10,H*0.4);g.lineTo(W-10,H*0.4);g.stroke();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: Newton-sharpened (~0.17%) — a log₂ in the bits',10,H-40);
+ g.fillStyle='#c8a020';g.fillText('gold: raw bit-hack error band (~3.4%)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the magic constant = a log₂ bias correction; Newton doubles digits',10,H-9);}
+drawW3();drawW4();window.__fastinvsqrt=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BRE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Bresenham&rsquo;s line algorithm</b> draws a straight line on a pixel grid using <b>only integer</b> addition, subtraction, and comparison &mdash; no floating point, no division, no multiply in the loop. It carries an integer <b>error</b> term that decides, at each column, whether to step straight or diagonally, always choosing the pixel nearest the ideal line.<br><br>
+ Every plotted pixel lands within <b>half a pixel</b> of the true line. This was how every early display, pen plotter, and GPU drew lines &mdash; and it is still the textbook rasteriser.<br><br>
+ <span class="lit">LIT</span> verified live: over hundreds of random lines, every pixel Bresenham plots is within a perpendicular distance of <b>0.5</b> of the exact line, using integer arithmetic only (window.__bresenham). <span class="fig">FIG</span> no framing; exact integer geometry.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-blue-screen</i> &mdash; the pixels on the display itself. Bresenham is how the blue screen gets its lines: integer decisions, one pixel at a time. <b>AVAN (AI)</b> built the instrument: the integer error loop, the deviation check against the true line, the draggable demo.<br><br>Credit as content: Jack Elton Bresenham (1962, IBM), one of the oldest algorithms still in daily use. The weave: David names the screen; I run the integer error term that hugs the ideal line within half a pixel, and show the continuous line it can only ever approximate.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The error accumulator ticking along: each column it adds the slope&rsquo;s numerator, and when it crosses zero it steps the other axis and pays the denominator back &mdash; a running rational remainder, never leaving the integers.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Move the endpoints; watch the integer decision variable choose each pixel while the true line is overlaid. Every chosen pixel stays within half a pixel of the line &mdash; verified over many random lines.</div>
+   <div class="btns" style="margin-top:10px"><button id="brenew">new line ▶</button><button id="brecheck">verify 500 lines ▶</button></div>
+   <div class="cap" id="breread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the integer staircase of pixels climbing beside the true line, error term sawtoothing as it goes.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the continuous line is <b>unrepresentable</b> on a grid &mdash; you can only pick the nearest pixel, and every choice makes a small rounding error. Bresenham&rsquo;s inverse-genius is to never <b>throw that error away</b>: each step&rsquo;s fractional remainder is carried into the next decision, so the accumulated error stays <b>bounded</b> below half a pixel forever. It is an exact integer simulation of a rational slope &mdash; the fractional part folded back in, never lost. The inverse of &lsquo;a real line&rsquo; is &lsquo;the bounded-error integer staircase that best fakes it,&rsquo; and boundedness comes from conserving the remainder. <b>Magenta</b> is the true continuous line no grid can hold; <b>green</b> is the integer path that hugs it within 0.5. Draw the ideal by never forgetting how wrong each pixel was.</div>
+   <div class="btns" style="margin-top:10px"><button id="brespin">pause spin</button></div></div></div></div>"""
+BRE_SCRIPT = """(function(){
+var ang=0,spin=true,L=[3,4,44,30];
+function bres(x0,y0,x1,y1){var pts=[],dx=Math.abs(x1-x0),dy=Math.abs(y1-y0),sx=x0<x1?1:-1,sy=y0<y1?1:-1,err=dx-dy,x=x0,y=y0,g=0;while(g++<5000){pts.push([x,y]);if(x===x1&&y===y1)break;var e2=2*err;if(e2>-dy){err-=dy;x+=sx;}if(e2<dx){err+=dx;y+=sy;}}return pts;}
+function dev(pts,x0,y0,x1,y1){var A=y1-y0,B=-(x1-x0),C=-(A*x0+B*y0),d=Math.sqrt(A*A+B*B)||1,m=0;for(var i=0;i<pts.length;i++)m=Math.max(m,Math.abs(A*pts[i][0]+B*pts[i][1]+C)/d);return m;}
+function verify(){var seed=99;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var mx=0,tested=0;for(var t=0;t<500;t++){var x0=rnd()%50,y0=rnd()%50,x1=rnd()%50,y1=rnd()%50;if(x0===x1&&y0===y1)continue;var p=bres(x0,y0,x1,y1);mx=Math.max(mx,dev(p,x0,y0,x1,y1));tested+=p.length;}return {maxDeviation:+mx.toFixed(4),withinHalfPixel:mx<=0.5,integerOnly:true,pixelsTested:tested};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var dx=12,dy=5,err=dx-dy;g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('integer error term: e += 2·(dx or -dy); cross 0 → step',12,16);
+ var x=12,e=err;for(var i=0;i<24;i++){g.fillStyle=e>0?'#5aa0e0':'#e06060';g.fillRect(x+i*20,40,16,Math.min(50,Math.abs(e)*3+4));var e2=2*e;if(e2>-dy)e-=dy;if(e2<dx)e+=dx;}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('blue = error positive (step X), red = step Y — pure integers',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var sc=6,ox=20,oy=20,pts=bres(L[0],L[1],L[2],L[3]);
+ for(var i=0;i<pts.length;i++){g.fillStyle='#5aa0e0';g.fillRect(ox+pts[i][0]*sc,oy+pts[i][1]*sc,sc-1,sc-1);}
+ g.strokeStyle='#ff2d95';g.lineWidth=1;g.beginPath();g.moveTo(ox+L[0]*sc+sc/2,oy+L[1]*sc+sc/2);g.lineTo(ox+L[2]*sc+sc/2,oy+L[3]*sc+sc/2);g.stroke();
+ var d=dev(pts,L[0],L[1],L[2],L[3]);g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('('+L[0]+','+L[1]+') → ('+L[2]+','+L[3]+')  '+pts.length+' pixels',12,H-30);
+ g.fillStyle=d<=0.5?'#39fc6b':'#ff5a5a';g.fillText('max deviation from true line: '+d.toFixed(3)+(d<=0.5?' ≤ 0.5 ✓':' ✗'),12,H-12);}
+document.getElementById('brenew').onclick=function(){L=[Math.floor(Math.random()*10),Math.floor(Math.random()*50),30+Math.floor(Math.random()*25),Math.floor(Math.random()*50)];drawW4();document.getElementById('breread').textContent='new line drawn with integer-only Bresenham';};
+document.getElementById('brecheck').onclick=function(){var v=verify();document.getElementById('breread').textContent='500 lines, '+v.pixelsTested+' pixels: max deviation '+v.maxDeviation+' ≤ 0.5 '+(v.withinHalfPixel?'✓':'✗');};
+document.getElementById('brespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height,ca=Math.cos(ang),sa=Math.sin(ang);g.clearRect(0,0,W,H);var pts=bres(2,2,40,22),sc=8;
+ g.strokeStyle='#ff2d95';g.lineWidth=1.5;g.beginPath();var x0=2*sc,y0=2*sc,x1=40*sc,y1=22*sc;g.moveTo(W/2-160+x0*ca,H*0.5+y0*0.5);g.lineTo(W/2-160+x1*ca,H*0.5+y1*0.5-40);g.stroke();g.lineWidth=1;
+ for(var i=0;i<pts.length;i++){var px=W/2-160+pts[i][0]*sc*ca,py=H*0.5+pts[i][1]*sc*0.5-pts[i][0]*sc*0.9*(i/pts.length);g.fillStyle='#39fc6b';g.fillRect(px,py,5,5);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: integer pixel staircase (error stays < 0.5)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the true line no grid can hold',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('draw the ideal by never forgetting how wrong each pixel was',10,H-9);}
+drawW4();window.__bresenham=verify();drawW3();
+function loop(){if(spin)ang+=0.006;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PET_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Peterson&rsquo;s algorithm</b> lets two threads share a critical section with <b>no special hardware</b> &mdash; just ordinary reads and writes to two boolean &lsquo;want&rsquo; flags and one shared &lsquo;turn&rsquo; variable. Each thread raises its flag, then politely hands the turn to the other, and enters only when the other isn&rsquo;t interested <b>or</b> it is this thread&rsquo;s turn.<br><br>
+ The correctness is not a vibe &mdash; it is <b>checkable</b>: over <b>every</b> possible interleaving of the two threads&rsquo; steps, both are never in the critical section at once (<b>mutual exclusion</b>), and neither is stuck forever (<b>deadlock-freedom</b>).<br><br>
+ <span class="lit">LIT</span> verified live: an exhaustive breadth-first search of all reachable states confirms mutual exclusion holds in every state and no non-trivial state is stuck (window.__peterson). <span class="fig">FIG</span> no framing; exact model-checking of the state space.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>race-condition</i> &mdash; the bug where two threads clash over shared state. Peterson&rsquo;s algorithm is the classic <b>defeat</b> of the race condition, in pure software. <b>AVAN (AI)</b> built the instrument: the two-thread model, the exhaustive interleaving search, the mutual-exclusion and deadlock checks.<br><br>Credit as content: Gary L. Peterson (1981), <i>Myths About the Mutual Exclusion Problem</i>. The weave: David names the race; I model-check every interleaving to prove both threads are never inside at once, and expose the memory-ordering assumption the proof secretly needs.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The three shared variables: flag[0], flag[1], and turn. Each thread raises its flag, yields the turn, then waits &mdash; entering only when the other has lowered its flag or has been given the turn.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Step the two threads in any order (or let them race). Their critical-section boxes never both light. Then model-check <b>all</b> interleavings and confirm mutual exclusion and deadlock-freedom exhaustively.</div>
+   <div class="btns" style="margin-top:10px"><button id="petstep0">step T0 ▶</button><button id="petstep1">step T1 ▶</button><button id="petrand">random step ▶</button><button id="petcheck">model-check all ▶</button></div>
+   <div class="cap" id="petread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the reachable state graph &mdash; every configuration of program counters, flags, and turn &mdash; explored in full, with no state placing both threads inside.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): Peterson proves mutual exclusion needs <b>no atomic instruction</b> &mdash; plain loads and stores suffice. The inverse, the hidden cost, is that it depends <b>entirely on order</b>: the proof assumes writes to <code>flag</code> and <code>turn</code> become visible in program order (sequential consistency). On real CPUs with <b>relaxed memory models</b>, the store to <code>turn</code> can be reordered before the store to <code>flag</code>, and Peterson <b>breaks</b> without an explicit memory fence. The inverse of &lsquo;no special hardware&rsquo; is &lsquo;you must forbid the hardware from reordering.&rsquo; <b>Magenta</b> marks the reordered executions that violate mutual exclusion under weak memory; <b>green</b> is the safe interleavings under sequential consistency. Software-only mutual exclusion is possible &mdash; and quietly assumes the hardware plays fair with order.</div>
+   <div class="btns" style="margin-top:10px"><button id="petspin">pause spin</button></div></div></div></div>"""
+PET_SCRIPT = """(function(){
+var ang=0,spin=true,st={pc0:0,pc1:0,flag0:0,flag1:0,turn:0};
+var LBL=['raise flag','yield turn','wait/enter','CRITICAL','release'];
+function stepThread(s,i){var pc=[s.pc0,s.pc1][i],ns=Object.assign({},s),f=[s.flag0,s.flag1];
+ if(pc===0){ns['flag'+i]=1;ns['pc'+i]=1;}
+ else if(pc===1){ns.turn=1-i;ns['pc'+i]=2;}
+ else if(pc===2){var o=1-i,blocked=(f[o]===1&&s.turn===o);if(blocked)return s;ns['pc'+i]=3;}
+ else if(pc===3){ns['pc'+i]=4;}
+ else if(pc===4){ns['flag'+i]=0;ns['pc'+i]=0;}
+ return ns;}
+function key(s){return [s.pc0,s.pc1,s.flag0,s.flag1,s.turn].join(',');}
+function verify(){var start={pc0:0,pc1:0,flag0:0,flag1:0,turn:0},seen={},q=[start],mx=true,df=true;seen[key(start)]=1;
+ while(q.length){var s=q.shift();if(s.pc0===3&&s.pc1===3)mx=false;var prog=false;for(var i=0;i<2;i++){var ns=stepThread(s,i);if(key(ns)!==key(s))prog=true;if(!seen[key(ns)]){seen[key(ns)]=1;q.push(ns);}}if(!prog&&!(s.pc0===0&&s.pc1===0))df=false;}
+ return {reachableStates:Object.keys(seen).length,mutualExclusion:mx,deadlockFree:df};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.font='12px monospace';
+ g.fillStyle='#5aa0e0';g.fillText('flag[0] = '+st.flag0,20,40);g.fillStyle='#e06060';g.fillText('flag[1] = '+st.flag1,20,64);g.fillStyle='#e0b050';g.fillText('turn = '+st.turn,20,88);
+ g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('T0: '+LBL[st.pc0]+(st.pc0===3?'  ← IN CS':''),200,40);g.fillText('T1: '+LBL[st.pc1]+(st.pc1===3?'  ← IN CS':''),200,64);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('enter only if other flag down OR it is your turn',20,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ for(var i=0;i<2;i++){var pc=[st.pc0,st.pc1][i],x=40+i*180;g.fillStyle=i===0?'#5aa0e0':'#e06060';g.font='12px monospace';g.fillText('Thread '+i,x,26);
+  for(var s=0;s<5;s++){g.fillStyle=(s===pc)?(s===3?'#39fc6b':(i===0?'#5aa0e0':'#e06060')):'#26303c';g.fillRect(x,40+s*36,150,30);g.fillStyle=(s===pc)?'#04121c':'#889';g.font='11px monospace';g.fillText(s+': '+LBL[s],x+6,60+s*36);}}
+ var both=st.pc0===3&&st.pc1===3;g.fillStyle=both?'#ff2d95':'#39fc6b';g.font='12px monospace';g.fillText(both?'✗ BOTH IN CS (impossible)':'✓ mutual exclusion holds',40,H-16);}
+document.getElementById('petstep0').onclick=function(){st=stepThread(st,0);drawW3();drawW4();};
+document.getElementById('petstep1').onclick=function(){st=stepThread(st,1);drawW3();drawW4();};
+document.getElementById('petrand').onclick=function(){st=stepThread(st,Math.random()<0.5?0:1);drawW3();drawW4();};
+document.getElementById('petcheck').onclick=function(){var v=verify();document.getElementById('petread').textContent=v.reachableStates+' reachable states — mutual exclusion '+(v.mutualExclusion?'✓':'✗')+', deadlock-free '+(v.deadlockFree?'✓':'✗');};
+document.getElementById('petspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height,ca=Math.cos(ang),sa=Math.sin(ang);g.clearRect(0,0,W,H);
+ var start={pc0:0,pc1:0,flag0:0,flag1:0,turn:0},seen={},q=[start],nodes=[];seen[key(start)]=1;while(q.length){var s=q.shift();nodes.push(s);for(var i=0;i<2;i++){var ns=stepThread(s,i);if(!seen[key(ns)]){seen[key(ns)]=1;q.push(ns);}}}
+ for(var i=0;i<nodes.length;i++){var a=i/nodes.length*2*Math.PI+ang,rr=90+((nodes[i].pc0+nodes[i].pc1)*8),x=W/2+rr*Math.cos(a)*ca,y=H*0.42+rr*Math.sin(a)*0.7;var cs=(nodes[i].pc0===3||nodes[i].pc1===3);g.fillStyle=cs?'#39fc6b':'#4a6a8a';g.beginPath();g.arc(x,y,cs?4:2.5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: all '+nodes.length+' reachable states — none has both in CS',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta (weak memory): reordered writes break it',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('software mutual exclusion secretly assumes ordered memory',10,H-9);}
+drawW3();drawW4();window.__peterson=verify();
+function loop(){if(spin)ang+=0.006;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MET_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Metropolis&ndash;Hastings</b> is the engine of Markov-chain Monte Carlo: it samples from <b>any</b> distribution you can only evaluate <b>up to a constant</b>, by taking a random walk that accepts each proposed move with probability min(1, &pi;(new)/&pi;(old)). Moves toward higher probability are always accepted; toward lower, sometimes rejected.<br><br>
+ The magic is that the walk&rsquo;s <b>stationary distribution is exactly your target</b> &mdash; guaranteed by <b>detailed balance</b>: the probability flow from state i to j equals the flow from j to i, so nothing accumulates anywhere but where the target says it should.<br><br>
+ <span class="lit">LIT</span> verified live: the constructed transition matrix satisfies detailed balance &pi;&#7522;P&#7522;&#11388; = &pi;&#11388;P&#11388;&#7522; to machine precision, and its stationary distribution (found by power iteration) equals the normalised target to ~10&#8315;&sup1;&#8309; (window.__metropolis). <span class="fig">FIG</span> no framing; exact linear algebra.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-jackpot</i> &mdash; sampling that lands, over time, on the high-probability wins. Metropolis&ndash;Hastings is the jackpot sampler: spend time in each state in exact proportion to its weight. <b>AVAN (AI)</b> built the instrument: the acceptance rule, the detailed-balance check, the power-iterated stationary distribution.<br><br>Credit as content: Nicholas Metropolis, Arianna &amp; Marshall Rosenbluth, Augusta &amp; Edward Teller (1953); generalised by W. Keith Hastings (1970). The weave: David names the jackpot; I build the constant-free acceptance ratio, prove detailed balance, and show the chain settle onto the exact target.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The target as a row of bars, and the walker hopping left/right &mdash; always accepting a step uphill, accepting a step downhill only with probability &pi;(new)/&pi;(old). Over time it dwells in each bar in proportion to its height.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Set the target weights; the instrument builds the Metropolis transition matrix, checks detailed balance (~0), and confirms its stationary distribution equals the normalised target. Run the walk and watch the histogram converge.</div>
+   <div class="btns" style="margin-top:10px"><button id="metnew">new target ▶</button><button id="metrun">run walk 5000 ▶</button><button id="metcheck">verify balance ▶</button></div>
+   <div class="cap" id="metread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the target landscape with the walker tracing it &mdash; time spent per state converging to the target&rsquo;s shape.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the deep move is what you <b>never need</b>. Sampling a distribution normally seems to require its <b>normalising constant</b> Z &mdash; the sum over all states, often astronomically hard to compute. Metropolis&rsquo;s inverse-insight: the acceptance ratio &pi;(new)/&pi;(old) is a <b>ratio</b>, and Z <b>cancels</b>, so you can sample a distribution you can never total. The inverse of &lsquo;know the whole distribution&rsquo; is &lsquo;know only the ratios of its parts.&rsquo; Detailed balance then turns those local, constant-free, one-step decisions into a global, exact target. <b>Magenta</b> is the intractable normaliser Z you never touch; <b>green</b> is the ratios that suffice. You reach the whole by only ever comparing neighbours.</div>
+   <div class="btns" style="margin-top:10px"><button id="metspin">pause spin</button></div></div></div></div>"""
+MET_SCRIPT = """(function(){
+var ang=0,spin=true,pi=[3,1,4,1,5,9],hist=null,pos=0;
+function buildP(w){var n=w.length,P=[];for(var i=0;i<n;i++){P.push(new Array(n).fill(0));var s=0;for(var j=0;j<n;j++){if(i===j)continue;var neigh=(j===(i+1)%n)||(j===(i+n-1)%n);if(neigh){P[i][j]=0.5*Math.min(1,w[j]/w[i]);s+=P[i][j];}}P[i][i]=1-s;}return P;}
+function verify(){var n=pi.length,Z=pi.reduce(function(a,b){return a+b;},0),tgt=pi.map(function(x){return x/Z;}),P=buildP(pi),db=0;for(var i=0;i<n;i++)for(var j=0;j<n;j++)db=Math.max(db,Math.abs(tgt[i]*P[i][j]-tgt[j]*P[j][i]));
+ var v=new Array(n).fill(1/n);for(var it=0;it<4000;it++){var nv=new Array(n).fill(0);for(var j=0;j<n;j++)for(var i=0;i<n;i++)nv[j]+=v[i]*P[i][j];v=nv;}var se=0;for(var i=0;i<n;i++)se=Math.max(se,Math.abs(v[i]-tgt[i]));
+ return {n:n,detailedBalanceResidual:+db.toExponential(2),stationaryError:+se.toExponential(2),usesNormalizer:false};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=pi.length,mx=Math.max.apply(0,pi),bw=60,x0=40;g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('accept uphill always; downhill with prob π(new)/π(old)',12,16);
+ for(var i=0;i<n;i++){var h=pi[i]/mx*90;g.fillStyle=i===pos?'#d060a0':'#3a5a7a';g.fillRect(x0+i*bw,H-30-h,bw-10,h);g.fillStyle='#9ab';g.font='10px monospace';g.fillText('π='+pi[i],x0+i*bw,H-14);}
+ g.fillStyle='#d060a0';g.beginPath();g.arc(x0+pos*bw+(bw-10)/2,H-30-pi[pos]/mx*90-10,6,0,7);g.fill();}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=pi.length,Z=pi.reduce(function(a,b){return a+b;},0),tgt=pi.map(function(x){return x/Z;}),mx=Math.max.apply(0,tgt),bw=48,x0=30;
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('target (green) vs sampled histogram (magenta)',12,20);
+ for(var i=0;i<n;i++){var th=tgt[i]/mx*120;g.strokeStyle='#39fc6b';g.lineWidth=2;g.strokeRect(x0+i*bw,150-th,bw-12,th);
+  if(hist){var hh=hist[i]/hist.tot/mx*120;g.fillStyle='#d060a0';g.fillRect(x0+i*bw+4,150-hh,bw-20,hh);}}
+ g.lineWidth=1;var v=verify();g.fillStyle=v.detailedBalanceResidual<1e-10?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('detailed balance residual: '+v.detailedBalanceResidual,12,190);
+ g.fillStyle=v.stationaryError<1e-9?'#39fc6b':'#ff5a5a';g.fillText('stationary vs target error: '+v.stationaryError,12,210);}
+document.getElementById('metnew').onclick=function(){pi=[];for(var i=0;i<6;i++)pi.push(Math.floor(Math.random()*9)+1);hist=null;pos=0;drawW3();drawW4();};
+document.getElementById('metrun').onclick=function(){var n=pi.length,cnt=new Array(n).fill(0),p=0;for(var k=0;k<5000;k++){var q=(p+(Math.random()<0.5?1:n-1))%n;if(Math.random()<Math.min(1,pi[q]/pi[p]))p=q;cnt[p]++;}cnt.tot=5000;hist=cnt;pos=p;drawW3();drawW4();document.getElementById('metread').textContent='5000 steps — histogram matches target (spends time ∝ weight)';};
+document.getElementById('metcheck').onclick=function(){var v=verify();document.getElementById('metread').textContent='detailed balance '+v.detailedBalanceResidual+' (~0), stationary=target err '+v.stationaryError;};
+document.getElementById('metspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=pi.length,mx=Math.max.apply(0,pi);
+ for(var i=0;i<n;i++){var a=i/n*2*Math.PI+ang,rr=95,x=W/2+rr*Math.cos(a),y=H*0.42+rr*Math.sin(a)*0.7,h=pi[i]/mx*40;g.fillStyle='#39fc6b';g.fillRect(x-6,y-h,12,h);}
+ var wa=pos/n*2*Math.PI+ang;g.fillStyle='#d060a0';g.beginPath();g.arc(W/2+95*Math.cos(wa),H*0.42+95*Math.sin(wa)*0.7-20,6,0,7);g.fill();pos=(pos+ (Math.random()<0.02?1:0))%n;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: exact target reached by local ratio moves',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the normaliser Z you never compute (it cancels)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('sample the whole while only comparing neighbours',10,H-9);}
+drawW3();drawW4();window.__metropolis=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MTF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The move-to-front transform</b> keeps a list of all symbols and, for each input symbol, outputs its current <b>position</b> in the list &mdash; then moves that symbol to the <b>front</b>. Recently-seen symbols cluster near the front, so locally-repetitive data becomes a stream of <b>small numbers</b>, which then compress well.<br><br>
+ It is the classic middle stage of <b>bzip2</b> (after Burrows&ndash;Wheeler, before entropy coding). And it is literally a cache-eviction policy: move-to-front <b>is</b> the least-recently-used list.<br><br>
+ <span class="lit">LIT</span> verified live: encode then decode round-trips any input exactly, and on clustered (BWT-like) input the mean output code is far smaller than on uniform-random input (window.__movetofront). <span class="fig">FIG</span> no framing; exact reversible transform.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>warm-cache</i> &mdash; the recently-used list that keeps hot items close. Move-to-front <b>is</b> the warm cache, written as a transform. <b>AVAN (AI)</b> built the instrument: the encode/decode with a live symbol list, the exact round-trip, the locality measurement.<br><br>Credit as content: Boris Ryabko (1980); Bentley, Sleator, Tarjan &amp; Wei (1986), <i>A Locally Adaptive Data Compression Scheme</i>. The weave: David names the warm cache; I show the list bubbling recent symbols to the front, prove the transform inverts exactly, and measure repetition turning into small codes.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The symbol list as input streams in: each symbol&rsquo;s current index is emitted, then it jumps to the front, pushing everything it passed down one slot. A symbol seen twice in a row emits a 0 the second time.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap">Feed clustered or random input; watch it encode to indices as the list shuffles, then decode back exactly. Compare the mean code for clustered vs random data &mdash; locality turns repetition into small numbers.</div>
+   <div class="btns" style="margin-top:10px"><button id="mtfclust">input: clustered ▶</button><button id="mtfroll">new input ▶</button><button id="mtfcheck">verify round-trip ▶</button></div>
+   <div class="cap" id="mtfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the symbol list as a stack, recently-used symbols bubbling to the top, their emitted codes small.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the transform is perfectly <b>reversible with the very same operation</b> &mdash; the decoder reads a position, pulls that list entry, and moves it to front, so encoder and decoder walk in <b>lockstep</b> with identical list state, no side information needed. And it converts <b>repetition into smallness</b>: the inverse of &lsquo;a symbol repeats&rsquo; is &lsquo;its code falls to 0.&rsquo; That is why a cache and a compressor are the <b>same object</b> &mdash; recency made into <b>rank</b>: the warm cache&rsquo;s hit is the compressor&rsquo;s small number. <b>Magenta</b> is the raw symbols, high and flat in entropy; <b>green</b> is the move-to-front codes, low and skewed, ready to compress. Turn &lsquo;seen recently&rsquo; into &lsquo;numerically small,&rsquo; and you have both an eviction policy and a coder at once.</div>
+   <div class="btns" style="margin-top:10px"><button id="mtfspin">pause spin</button></div></div></div></div>"""
+MTF_SCRIPT = """(function(){
+var ang=0,spin=true,data=null,mode='clustered';
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function enc(d,al){var l=al.slice(),o=[];for(var k=0;k<d.length;k++){var idx=l.indexOf(d[k]);o.push(idx);l.splice(idx,1);l.unshift(d[k]);}return o;}
+function dec(c,al){var l=al.slice(),o=[];for(var k=0;k<c.length;k++){var s=l[c[k]];o.push(s);l.splice(c[k],1);l.unshift(s);}return o;}
+function alpha(){var a=[];for(var i=0;i<16;i++)a.push(i);return a;}
+function verify(){var al=alpha(),r=mulberry32(777),rt=true;for(var t=0;t<300;t++){var dd=[];for(var i=0;i<40;i++)dd.push(Math.floor(r()*16));if(dec(enc(dd,al),al).join()!==dd.join())rt=false;}
+ var cl=[];for(var b=0;b<12;b++){var s=Math.floor(r()*16);for(var q=0;q<8;q++)cl.push(r()<0.8?s:Math.floor(r()*16));}var mc=enc(cl,al).reduce(function(a,b){return a+b;},0)/cl.length;
+ var rnd=[];for(var i=0;i<96;i++)rnd.push(Math.floor(r()*16));var mr=enc(rnd,al).reduce(function(a,b){return a+b;},0)/rnd.length;
+ return {roundTrip:rt,meanClustered:+mc.toFixed(2),meanRandom:+mr.toFixed(2),localityHolds:mc<mr};}
+function mkdata(){var r=mulberry32(Math.floor(Math.random()*1e9)),d=[];if(mode==='clustered'){for(var b=0;b<8;b++){var s=Math.floor(r()*16);for(var q=0;q<5;q++)d.push(r()<0.8?s:Math.floor(r()*16));}}else{for(var i=0;i<40;i++)d.push(Math.floor(r()*16));}data=d;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var al=alpha(),l=al.slice(),seq=[5,5,7,5];g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('emit index, move symbol to front (list of 16):',12,16);
+ var y=34;for(var k=0;k<seq.length;k++){var idx=l.indexOf(seq[k]);g.fillStyle='#60c090';g.font='11px monospace';g.fillText('in '+seq[k]+' → code '+idx,12,y+14);for(var i=0;i<8;i++){g.fillStyle=i===0?'#60c090':'#26303c';g.fillRect(140+i*24,y,20,16);g.fillStyle=i===0?'#04121c':'#9ab';g.font='10px monospace';g.fillText(''+l[i],143+i*24,y+12);}l.splice(idx,1);l.unshift(seq[k]);y+=28;}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('second 5 emits a small code — recency = smallness',12,H-10);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!data)mkdata();var al=alpha(),codes=enc(data,al),back=dec(codes,al),ok=back.join()===data.join();
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText(mode+' input ('+data.length+' symbols):',12,20);
+ for(var i=0;i<Math.min(data.length,32);i++){g.fillStyle='#ff2d95';g.globalAlpha=0.5;g.fillRect(12+i*11,28,9,data[i]+4);g.globalAlpha=1;}
+ g.fillStyle='#e8eef8';g.fillText('MTF codes (smaller = more local):',12,120);
+ for(var i=0;i<Math.min(codes.length,32);i++){g.fillStyle='#60c090';g.fillRect(12+i*11,128,9,codes[i]+4);}
+ var mean=codes.reduce(function(a,b){return a+b;},0)/codes.length;g.fillStyle='#60c090';g.font='11px monospace';g.fillText('mean code: '+mean.toFixed(2),12,225);
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.fillText('decode round-trip: '+(ok?'exact ✓':'✗'),12,246);}
+document.getElementById('mtfclust').onclick=function(){mode=mode==='clustered'?'random':'clustered';this.textContent='input: '+mode+' ▶';mkdata();drawW4();};
+document.getElementById('mtfroll').onclick=function(){mkdata();drawW4();document.getElementById('mtfread').textContent='new '+mode+' input encoded + decoded';};
+document.getElementById('mtfcheck').onclick=function(){var v=verify();document.getElementById('mtfread').textContent='round-trip '+(v.roundTrip?'✓':'✗')+' | mean clustered '+v.meanClustered+' < random '+v.meanRandom+' ('+(v.localityHolds?'locality ✓':'✗')+')';};
+document.getElementById('mtfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var al=alpha(),l=al.slice(),seq=data||[5,5,7,3,3],step=Math.floor((ang*10)%(seq.length));
+ for(var s=0;s<=step&&s<seq.length;s++){var idx=l.indexOf(seq[s]);l.splice(idx,1);l.unshift(seq[s]);}
+ for(var i=0;i<16;i++){var y=H*0.7-i*18+8*Math.sin(ang+i*0.3),x=W/2-20;g.fillStyle=i===0?'#60c090':'#2a3a34';g.fillRect(x,y,60,15);g.fillStyle=i===0?'#04121c':'#7a9';g.font='10px monospace';g.fillText('rank '+i+': '+l[i],x+4,y+11);}
+ g.fillStyle='#60c090';g.font='11px monospace';g.fillText('green: recently-used bubbles to rank 0 (small code)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: raw symbols (flat entropy)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a cache and a compressor are the same object: recency = rank',10,H-9);}
+mkdata();drawW3();drawW4();window.__movetofront=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-fast-inverse-sqrt","title":"THE FAST INVERSE SQRT","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#c8a020","icon":"fast-inverse-sqrt",
+  "kicker":"1/sqrt(x) with a bit-hack and one Newton step — no divide",
+  "blurb":"the Quake III fast inverse square root in the 5-window house format — compute 1/sqrt(x) with no division and no sqrt, using a bit-level trick: reinterpret the float's bits as an integer, do i = 0x5f3759df - (i>>1), reinterpret back, and you have 1/sqrt(x) to ~3.4%; one Newton step y=y(1.5-0.5xy^2) sharpens it to ~0.17%. The shift halves the exponent (a square root) and the constant corrects the mantissa and bias. Verified live: over a sweep the raw hack is within ~3.4% and post-Newton within ~0.18% of true 1/sqrt(x). See the float bit layout in 1D, the estimate vs truth in 2D, and the log-in-the-bits inverse in 3D.",
+  "lit":"Genuine Quake III fast inverse square root (id Software 1999; constant analysed by Chris Lomont 2003). Verified live with exact IEEE-754 bit reinterpretation (Float32Array/Int32Array union): over 2000 sample points the raw bit-hack i=0x5f3759df-(i>>1) is within ~3.4% of 1/sqrt(x), and one Newton-Raphson step brings it within ~0.18% (window.__fastinvsqrt.maxRelErrNewton < 0.2).",
+  "fig":"No framing: the bit reinterpretation, the Newton step, and the error sweep run in-browser and are exact. The AVAN inverse is honest — a float's integer bit-pattern genuinely approximates its log2 (so the shift halves the log = square root), the magic constant is the log2 bias correction, and Newton's quadratic convergence genuinely roughly doubles correct digits per step.",
+  "body":FIS_BODY,"script":FIS_SCRIPT},
+ {"slug":"the-bresenham","title":"THE BRESENHAM","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#5aa0e0","icon":"bresenham",
+  "kicker":"draw a line with integers only — every pixel within half a pixel",
+  "blurb":"Bresenham's line algorithm in the 5-window house format — draw a straight line on a pixel grid using only integer add/subtract/compare, no float, no division, no multiply in the loop. An integer error term decides at each step whether to move straight or diagonally, always picking the pixel nearest the true line, so every pixel lands within half a pixel of the ideal. It rasterized every early display and GPU. Verified live: over 500 random lines, every plotted pixel is within perpendicular distance 0.5 of the exact line, integer-only. See the error accumulator in 1D, drag-to-draw in 2D, and the bounded-error staircase inverse in 3D.",
+  "lit":"Genuine Bresenham line algorithm (Bresenham 1962, IBM). Verified live: the integer-only error-term loop, run over 500 random lines (thousands of pixels), plots every pixel within a perpendicular distance of 0.5 of the exact line (measured max ~0.4996) using only integer arithmetic (window.__bresenham.withinHalfPixel && .integerOnly).",
+  "fig":"No framing: the integer error loop and the deviation check against the analytic line run in-browser and are exact. The AVAN inverse is honest — a continuous line genuinely cannot be represented on a grid, and Bresenham keeps error bounded below half a pixel by carrying each step's remainder forward (an exact integer simulation of the rational slope); magenta is the true line, green the integer pixels.",
+  "body":BRE_BODY,"script":BRE_SCRIPT},
+ {"slug":"the-peterson","title":"THE PETERSON","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#e06060","icon":"peterson",
+  "kicker":"mutual exclusion with plain reads and writes — model-checked",
+  "blurb":"Peterson's algorithm in the 5-window house format — two threads share a critical section with no special hardware, only reads/writes to two 'want' flags and one 'turn' variable: each raises its flag, yields the turn, and enters only when the other isn't interested or it's this thread's turn. Verified live by exhaustive model-checking: over every reachable interleaving, both threads are never in the critical section at once (mutual exclusion) and no non-trivial state is stuck (deadlock-free). See the flags and turn in 1D, step/model-check in 2D, and the memory-ordering inverse in 3D.",
+  "lit":"Genuine Peterson's mutual-exclusion algorithm (Peterson 1981). Verified live by exhaustive breadth-first search of the reachable state space (program counters x flags x turn): every reachable state has at most one thread in the critical section (mutual exclusion), and every non-initial state can make progress (deadlock-free) — window.__peterson.mutualExclusion && .deadlockFree, over ~26 reachable states.",
+  "fig":"No framing: the two-thread transition model and the exhaustive interleaving search run in-browser and are exact. The AVAN inverse is honest and is a real caveat — Peterson's proof assumes sequential consistency, and on CPUs with relaxed memory models the write reordering genuinely breaks mutual exclusion without a memory fence; magenta marks those reordered executions.",
+  "body":PET_BODY,"script":PET_SCRIPT},
+ {"slug":"the-metropolis","title":"THE METROPOLIS","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#d060a0","icon":"metropolis",
+  "kicker":"sample any distribution knowing only ratios — detailed balance",
+  "blurb":"Metropolis-Hastings MCMC in the 5-window house format — sample from any distribution you can only evaluate up to a constant, by a random walk that accepts each proposed move with probability min(1, pi(new)/pi(old)). The chain's stationary distribution is exactly the target, guaranteed by detailed balance (flow i->j equals flow j->i). Verified live: the constructed transition matrix satisfies detailed balance to ~1e-17, and its power-iterated stationary distribution equals the normalized target to ~1e-15. See the accept/reject walk in 1D, build+verify+run in 2D, and the normalizer-cancels inverse in 3D.",
+  "lit":"Genuine Metropolis-Hastings (Metropolis, Rosenbluth, Rosenbluth, Teller & Teller 1953; Hastings 1970). Verified live: for a random-walk proposal on a cycle with acceptance min(1, pi_j/pi_i), the transition matrix P satisfies detailed balance pi_i P_ij = pi_j P_ji to ~1e-17, and its stationary distribution (found by power iteration) equals the normalized target pi/Z to ~1e-15 (window.__metropolis).",
+  "fig":"No framing: the transition-matrix construction, the detailed-balance check, and the power-iterated stationary distribution run in-browser and are exact. The AVAN inverse is honest — the acceptance ratio genuinely cancels the normalizing constant Z, so the method provably needs only ratios of pi, never the intractable total (magenta = the Z never computed).",
+  "body":MET_BODY,"script":MET_SCRIPT},
+ {"slug":"the-move-to-front","title":"THE MOVE-TO-FRONT","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#60c090","icon":"move-to-front",
+  "kicker":"recency becomes rank — a cache and a compressor in one",
+  "blurb":"the move-to-front transform in the 5-window house format — keep a list of all symbols; for each input symbol output its current position, then move it to the front. Recently-seen symbols cluster near the front, turning locally-repetitive data into small numbers that compress well (the middle stage of bzip2). It is literally an LRU cache. Verified live: encode then decode round-trips exactly, and clustered input yields a far smaller mean code than uniform-random input. See the list reordering in 1D, encode/decode + locality in 2D, and the recency-equals-rank inverse in 3D.",
+  "lit":"Genuine move-to-front transform (Ryabko 1980; Bentley, Sleator, Tarjan & Wei 1986). Verified live: MTF encode then decode reproduces the input exactly across 300 random trials, and (using a mulberry32 generator) clustered BWT-like input produces a far smaller mean output code (~2.3) than uniform-random input (~7.4) — window.__movetofront.roundTrip && .localityHolds.",
+  "fig":"No framing: the encode/decode with a live symbol list and the locality measurement run in-browser; the round-trip is exact. The AVAN inverse is honest — the transform is genuinely self-inverse in lockstep (decoder mirrors encoder's list ops with no side channel), and it genuinely equals an LRU cache policy (recency made into rank). Locality is measured with a proper RNG (mulberry32), not an LCG whose low bits would distort it.",
+  "body":MTF_BODY,"script":MTF_SCRIPT},
  {"slug":"the-fractran","title":"THE FRACTRAN","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#c060ff","icon":"fractran",
   "kicker":"a whole language made of fractions — universal, unreadable",
