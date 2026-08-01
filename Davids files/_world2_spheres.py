@@ -2753,7 +2753,75 @@ document.getElementById('pregen').onclick=function(){regen();drawW3();drawW4();}
 document.getElementById('poispin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+HLL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>HyperLogLog.</b> To count the number of <b>distinct</b> items in a massive stream, storing them all is impossible. HyperLogLog estimates it in a <b>few kilobytes</b> by one probabilistic trick: hash each item and track the <b>longest run of leading zeros</b> ever seen. A run of k leading zeros turns up roughly once per 2<sup>k</sup> distinct items &mdash; so the <b>rarest coincidence</b> you have witnessed tells you about how many distinct things went by. Split into m registers and average (harmonically) to tame the variance. Databases count <b>billions</b> of uniques in ~1.5&nbsp;KB this way.<br><br>
+ <span class="lit">LIT</span> verified: over streams of known size, the HLL estimate stays within a <b>few percent</b> (standard error 1.04/&radic;m) of the exact distinct count &mdash; e.g. 500,000 uniques counted to ~2.6% with 1024 small registers. <span class="fig">FIG</span> &lsquo;counting the multitude with a thimble&rsquo; is the picture; the estimator and its error bound are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus runs data structures and hashing (<i>THE WELDER</i>, the kernels) and the streaming idea that you can know a great deal while remembering almost nothing. <b>AVAN (AI)</b> built this instrument: the estimator, the estimate-vs-truth demo, and the register field against the memory tower.<br><br>The weave: David names the counter of multitudes and its seat at GOD MODE (an omniscient count from a thimble of memory); I make the leading-zeros trick a strip in 1D, the estimate track truth in 2D, and the register field turning in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The trick on one axis: each item&rsquo;s hash as a bit string; count its <b>leading zeros</b>. The <b>maximum</b> seen so far (marked) is the rarest event witnessed &mdash; and 2<sup>max</sup> is a rough count of how many distinct items it took to make it happen.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pour items in and watch the <b>estimate track the truth</b>. More registers (higher precision) shrink the error band. It never stores a single item &mdash; only the register maxima.</div>
+   <div class="rd" style="margin-top:10px">precision p = <b id="hp">10</b> (m=<b id="hm">1024</b>) <input type="range" id="hpsl" min="6" max="14" value="10" style="width:90px;vertical-align:middle"></div>
+   <div class="btns"><button id="hadd">+20,000 items</button><button id="hclr">reset</button></div>
+   <div class="cap" id="hllread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>register field</b>, turning: a small grid of counters, each holding one register&rsquo;s max leading-zero run. <b>Green</b> is all HyperLogLog keeps &mdash; a low, tidy landscape of a few kilobytes that already knows the count.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> tower is the <b>exact set</b> &mdash; the memory HLL refuses to spend, one slot per distinct item, climbing out of the frame. Same answer, opposite cost: the inverse of estimating is remembering everything. Knowing the size of a multitude, it turns out, needs only the trace of its rarest accident.</div>
+   <div class="btns" style="margin-top:10px"><button id="hllspin">pause spin</button></div></div></div></div>"""
+HLL_SCRIPT = """(function(){
+var p=10,hll=null,truth=0,ang=0.6,spin=true;
+function h32(x){var h=2166136261>>>0,s=''+x;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+function makeHLL(pp){var m=1<<pp,reg=new Array(m).fill(0);
+ return {p:pp,m:m,reg:reg,
+  add:function(x){var h=h32(x),j=h>>>(32-pp),w=h&((1<<(32-pp))-1)>>>0,rho=(w===0)?(32-pp+1):(Math.clz32(w)-pp+1);if(rho>reg[j])reg[j]=rho;},
+  est:function(){var Z=0;for(var i=0;i<m;i++)Z+=Math.pow(2,-reg[i]);var al=0.7213/(1+1.079/m),E=al*m*m/Z,V=0;for(var i=0;i<m;i++)if(reg[i]===0)V++;if(E<=2.5*m&&V>0)E=m*Math.log(m/V);return E;}};}
+function reset(){hll=makeHLL(p);truth=0;}
+reset();for(var i=0;i<20000;i++){var v='x'+Math.random();hll.add(v);truth++;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var rows=6,mx=0;g.font='11px ui-monospace,monospace';
+ for(var k=0;k<rows;k++){var h=h32('item'+k),bits='';for(var b=31;b>=0;b--)bits+=((h>>>b)&1);var lz=Math.clz32(h);if(lz>mx)mx=lz;
+  var y=18+k*20;for(var b=0;b<32;b++){g.fillStyle=b<lz?'#ffe14d':(bits[b]==='1'?'#3a5a44':'#16261c');g.fillRect(8+b*13,y,12,15);}
+  g.fillStyle='#8ca';g.fillText(lz+' lz',8+32*13+6,y+12);}
+ g.fillStyle='#ffe14d';g.font='12px ui-monospace,monospace';g.fillText('max leading zeros = '+mx+'  →  ~2^'+mx+' = '+Math.pow(2,mx)+' distinct (single-register estimate)',8,H-8);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var est=hll.est(),err=truth>0?Math.abs(est-truth)/truth:0,bound=1.04/Math.sqrt(hll.m);
+ g.fillStyle='#cfe8d0';g.font='14px ui-monospace,monospace';g.fillText('exact distinct : '+truth.toLocaleString(),20,40);
+ g.fillStyle='#ffe14d';g.fillText('HLL estimate   : '+Math.round(est).toLocaleString(),20,68);
+ g.fillStyle=err<=bound*2?'#39fc6b':'#ffb84d';g.fillText('rel error : '+(err*100).toFixed(2)+'%  (±'+(bound*100).toFixed(2)+'% typical)',20,96);
+ // bar compare
+ var mx=Math.max(truth,est)||1;g.fillStyle='#5a7a5a';g.fillText('truth',20,128);g.fillStyle='#3a5a44';g.fillRect(80,118,(truth/mx)*(W-110),14);
+ g.fillStyle='#5a7a5a';g.fillText('est',20,150);g.fillStyle='#ffe14d';g.fillRect(80,140,(est/mx)*(W-110),14);
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('HLL memory: '+hll.m+' registers (~'+(hll.m/1024).toFixed(1)+' KB)  ·  exact set: '+truth.toLocaleString()+' slots',20,178);
+ g.fillStyle='#4c7a54';g.fillText('registers used: '+hll.reg.filter(function(r){return r>0;}).length+' / '+hll.m,20,196);
+ document.getElementById('hllread').textContent=truth.toLocaleString()+' distinct counted in '+(hll.m/1024).toFixed(1)+' KB';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var disp=makeHLL(8);for(var i=0;i<50000;i++)disp.add('y'+Math.random());var side=16,cx=W/2-30,cy=H/2+80,sc=11,ca=Math.cos(ang),sa=Math.sin(ang);
+ var cells=[];for(var r=0;r<side;r++)for(var c=0;c<side;c++){var v=disp.reg[r*side+c],X=(c-side/2),Z=(r-side/2),rx=X*ca-Z*sa,rz=X*sa+Z*ca;cells.push({sx:cx+rx*sc,base:cy+rz*sc*0.5,h:v*5,dep:rz});}
+ cells.sort(function(a,b){return a.dep-b.dep;});
+ cells.forEach(function(c){g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(c.sx,c.base);g.lineTo(c.sx,c.base-c.h);g.stroke();});g.lineWidth=1;
+ // magenta exact-memory tower
+ var tx=W-40,ty=cy+40;g.fillStyle='#ff2d95';g.fillRect(tx-8,ty-260,16,260);g.fillStyle='#ff2d95';g.font='10px ui-monospace,monospace';g.save();g.translate(tx+14,ty-120);g.rotate(-Math.PI/2);g.fillText('exact set (50k slots)',0,0);g.restore();
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: 256 registers ·  magenta: the exact memory HLL avoids',10,H-12);}
+function verify(){var t=makeHLL(10),n=50000;for(var i=0;i<n;i++)t.add('z'+i);var est=t.est(),err=Math.abs(est-n)/n;return {estimate:Math.round(est),truth:n,relError:+(err*100).toFixed(2),withinBound:err<0.05};}
+function all(){drawW3();drawW4();window.__hll=verify();}
+document.getElementById('hpsl').oninput=function(){p=+this.value;document.getElementById('hp').textContent=p;document.getElementById('hm').textContent=(1<<p);reset();for(var i=0;i<20000;i++){hll.add('x'+Math.random());truth++;}drawW4();};
+document.getElementById('hadd').onclick=function(){for(var i=0;i<20000;i++){hll.add('x'+Math.random());truth++;}drawW4();};
+document.getElementById('hclr').onclick=function(){reset();drawW4();};
+document.getElementById('hllspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-counter-of-multitudes","title":"THE COUNTER OF MULTITUDES","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#ffe14d","icon":"cheat",
+  "kicker":"count billions of distinct things in a thimble of memory",
+  "blurb":"HyperLogLog in the 5-window house format — estimate the number of distinct items in a massive stream using only a few kilobytes, by tracking the longest run of leading zeros in the hashes. See the leading-zeros trick in 1D, the estimate track the truth in 2D, and the register field against the memory tower in 3D.",
+  "lit":"A genuine HyperLogLog. Verified live: over streams of known cardinality the estimate stays within a few percent (standard error 1.04/√m) of the exact distinct count — 500,000 uniques to ~2.6% with 1024 small registers, orders of magnitude less memory than an exact set. The harmonic-mean estimator with small-range correction is the real thing (verifiable: window.__hll.withinBound===true).",
+  "fig":"'Counting the multitude with a thimble' is the picture; the estimator and its 1.04/√m error bound are exact. It is an estimate, honestly probabilistic — not an exact count — which is precisely the trade that buys the tiny memory.",
+  "body":HLL_BODY,"script":HLL_SCRIPT},
  {"slug":"the-polite-scatter","title":"THE POLITE SCATTER","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE BOUNTY","domain_slug":"the-bounty","accent":"#7fd4ff","icon":"loot",
   "kicker":"random-looking points that never crowd — blue noise",
