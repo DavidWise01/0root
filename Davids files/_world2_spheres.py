@@ -12108,7 +12108,285 @@ document.getElementById('telspin').onclick=function(){spin=!spin;this.textConten
 drawW3();drawW4();window.__teleportation=verify();
 function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 38 (halting · reversibility · erasure · counters · integrity) ═══════════════════════
+BB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The busy beaver</b> asks a deceptively simple question: among all n-state, 2-symbol Turing machines that <b>halt</b> when started on a blank tape, which runs the <b>longest</b>, and which prints the <b>most</b> 1s? Call those record values S(n) and &Sigma;(n).<br><br>
+ The shock is that these functions grow faster than <b>any</b> computable function &mdash; &Sigma;(n) is a concrete, finite thing that no algorithm can compute. Already S(5) is 47,176,870 and &Sigma;(6) exceeds 10&#8593;&#8593;15. For n=3 the champion prints <b>&Sigma;(3)=6</b> ones (the longest-running 3-state machine, a different one, takes S(3)=21 steps).<br><br>
+ <span class="lit">LIT</span> verified live: the canonical 3-state champion, from a blank tape, <b>halts</b> in 14 steps having written exactly 6 ones; the 2-state champion halts in 6 steps with 4 ones (window.__busybeaver). <span class="fig">FIG</span> no framing; these are exact simulations of documented machines.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-grindstone</i> &mdash; the machine that grinds hardest and longest, then stops. The busy beaver is the grindstone&rsquo;s patron: the halter that works the most before falling silent. <b>AVAN (AI)</b> built the instrument: the Turing-machine simulator, the champion tables, the space-time diagram.<br><br>Credit as content: Tibor Rad&oacute; posed it in <i>On non-computable functions</i> (1962); Shen Lin &amp; Rad&oacute; settled n=3 (1965); recent collaborative work settled S(5) (2024). The weave: David names the hardest worker; I run the exact champions to a halt, then show the horizon of uncomputability behind them.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The tape as a line of cells, the head reading and writing as it steps through the champion. A finite machine, a finite program, and yet the only way to learn how long it runs is to run it &mdash; there is no shortcut in general.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Choose the 2-state or 3-state champion and step it, or run to the halt. Watch the tape fill and the head shuttle; the machine stops itself at the busy-beaver record.</div>
+   <div class="btns" style="margin-top:10px"><button id="bbmac">machine: BB(3) ▶</button><button id="bbstep">step ▶</button><button id="bbrun">run to halt ▶</button></div>
+   <div class="cap" id="bbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the space-time diagram &mdash; each row a snapshot of the tape, stacked in time &mdash; the champion&rsquo;s finite, halting trace laid out as terrain.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward question is &lsquo;find the machine that runs the <b>longest</b> and still halts.&rsquo; Its inverse is a wall: to know &Sigma;(n) you must know <b>which</b> machines halt &mdash; and that is the <b>halting problem</b>, undecidable in general. So &Sigma; is perfectly well-defined (there are only finitely many n-state machines) yet <b>not computable</b>; past a certain n, even ZFC set theory cannot prove its value. The inverse of &lsquo;the maximum&rsquo; is &lsquo;the unknowable&rsquo;: a finite question whose answer no algorithm can produce, because the non-halters never announce themselves. <b>Magenta</b> is that horizon &mdash; the machines still running, that may halt in a step or never; <b>green</b> is the champion&rsquo;s trace, the last thing computation can say before a silence you cannot predict. The busiest beaver marks exactly where knowing ends.</div>
+   <div class="btns" style="margin-top:10px"><button id="bbspin">pause spin</button></div></div></div></div>"""
+BB_SCRIPT = """(function(){
+var ang=0,spin=true,which=3,tape={},pos=0,st='A',steps=0,ones=0,halted=false,hist=[];
+var CH={2:{A:{0:[1,1,'B'],1:[1,-1,'B']},B:{0:[1,-1,'A'],1:[1,1,'H']}},
+        3:{A:{0:[1,1,'B'],1:[1,1,'H']},B:{0:[0,1,'C'],1:[1,1,'B']},C:{0:[1,-1,'C'],1:[1,-1,'A']}}};
+function reset(){tape={};pos=0;st='A';steps=0;ones=0;halted=false;hist=[snapshot()];}
+function snapshot(){var row={};for(var k in tape)row[k]=tape[k];return {tape:row,pos:pos,st:st};}
+function step(){if(halted)return;var s=tape[pos]||0,r=CH[which][st][s];tape[pos]=r[0];pos+=r[1];st=r[2];steps++;if(st==='H')halted=true;var o=0;for(var k in tape)o+=tape[k];ones=o;hist.push(snapshot());}
+function runFull(w){var t={},p=0,s='A',n=0;while(s!=='H'&&n<10000){var sy=t[p]||0,r=CH[w][s][sy];t[p]=r[0];p+=r[1];s=r[2];n++;}var o=0;for(var k in t)o+=t[k];return {steps:n,ones:o,halted:s==='H'};}
+function verify(){return {bb2:runFull(2),bb3:runFull(3),sigma2:4,sigma3:6,note:'Sigma(3)=6 max ones; S(3)=21 max steps (different machine)'};}
+function drawTape(g,cx,cy,cell){for(var i=-14;i<=14;i++){var v=tape[pos+i]||0;g.fillStyle=v?'#ff9a3c':'#26303c';g.fillRect(cx+i*cell,cy,cell-2,cell-2);}g.strokeStyle='#fff';g.strokeRect(cx-cell*0.15,cy-3,cell*1.0,cell+4);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);drawTape(g,W/2-8,H/2-10,15);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('BB('+which+')  state '+st+'  step '+steps+'  ones '+ones+(halted?'  — HALTED':''),10,20);g.fillStyle='#ff9a3c';g.font='16px monospace';g.fillText('▲',W/2-8+ -0*15,H/2+18);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ for(var t=0;t<hist.length&&t<26;t++){var h=hist[t];for(var i=-11;i<=11;i++){var v=(h.tape[h.pos-h.pos+ (i)] )?1:0;}}
+ // draw space-time compactly
+ var rows=Math.min(hist.length,28),cell=13,x0=W/2;
+ for(var t=0;t<rows;t++){var h=hist[t];for(var i=-12;i<=12;i++){var v=h.tape[i]||0;if(v){g.fillStyle='#ff9a3c';g.fillRect(x0+i*cell,8+t*9,cell-3,7);}}g.fillStyle='#4a5a2a';g.fillRect(x0+h.pos*cell,8+t*9,cell-3,7);}
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('BB('+which+')  step '+steps+'  state '+st+'  ones '+ones,12,H-30);
+ g.fillStyle=halted?'#39fc6b':'#8ad';g.font='12px monospace';g.fillText(halted?('HALTED at '+steps+' steps, '+ones+' ones ✓'):'running…',12,H-12);}
+document.getElementById('bbmac').onclick=function(){which=which===3?2:3;this.textContent='machine: BB('+which+') ▶';reset();drawW3();drawW4();};
+document.getElementById('bbstep').onclick=function(){step();drawW3();drawW4();document.getElementById('bbread').textContent='step '+steps+', state '+st+', ones '+ones+(halted?' — HALTED':'');};
+document.getElementById('bbrun').onclick=function(){var guard=0;while(!halted&&guard++<5000)step();drawW3();drawW4();document.getElementById('bbread').textContent='HALTED: '+steps+' steps, '+ones+' ones (Σ('+which+')='+(which===3?6:4)+')';};
+document.getElementById('bbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height,ca=Math.cos(ang),sa=Math.sin(ang);g.clearRect(0,0,W,H);var full=runFull(which),h2=[];
+ var t={},p=0,s='A';var snap=function(){var r={};for(var k in t)r[k]=t[k];return {t:r,p:p};};h2.push(snap());var n=0;while(s!=='H'&&n<200){var sy=t[p]||0,r=CH[which][s][sy];t[p]=r[0];p+=r[1];s=r[2];n++;h2.push(snap());}
+ var cell=12;for(var ti=0;ti<h2.length;ti++){var hh=h2[ti];for(var i=-10;i<=10;i++){if(hh.t[i]){var x=i*cell,y=-ti*8,xr=x*ca-0*sa;g.fillStyle='#39fc6b';g.fillRect(W/2+xr,H*0.72+y+ti*sa*3,cell-4,5);}}g.fillStyle='rgba(255,45,149,0.5)';g.fillRect(W/2+hh.p*cell*ca,H*0.72-ti*8+ti*sa*3,cell-4,5);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the champion\\'s finite halting trace',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the head — beyond it, the undecidable horizon',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Σ(n) is finite, well-defined, and NOT computable (halting problem)',10,H-9);}
+reset();drawW3();drawW4();window.__busybeaver=verify();
+function loop(){if(spin)ang+=0.006;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MRG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Margolus mirror</b> is a <b>reversible</b> block cellular automaton. Instead of updating every cell from its neighbours, the grid is cut into 2&times;2 <b>blocks</b> &mdash; and the partition shifts by one cell every other step (the Margolus neighbourhood). Each block is transformed by a rule that is a <b>bijection</b> on the 16 possible block states, so the whole update is invertible.<br><br>
+ Run it forward for any number of steps, then run it <b>backward</b>, and you land on the <b>exact</b> starting configuration &mdash; cell for cell, nothing lost. Our rule rotates each block 180&deg;, which also conserves the number of live cells <b>exactly</b>. It is reversible physics in a toy: information is never destroyed, and time has no built-in arrow.<br><br>
+ <span class="lit">LIT</span> verified live: forward 12 steps then backward 12 steps reproduces the seed <b>bit-for-bit</b>, and the live-cell count is identical at every step (window.__margolus). <span class="fig">FIG</span> no framing; exact invertible dynamics.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>rollback</i> &mdash; the undo that returns to the exact prior state. The Margolus mirror is rollback made physical: because every step is a bijection, the past is always exactly recoverable. <b>AVAN (AI)</b> built the instrument: the alternating-partition block update, the forward/backward retrace, the conserved-count check.<br><br>Credit as content: Tommaso Toffoli &amp; Norman Margolus, <i>Cellular Automata Machines</i> (1987); the &lsquo;Critters&rsquo; and billiard-ball reversible rules. The weave: David names the perfect undo; I make a grid evolve, then rewind it to the exact seed, and show the conserved quantity that makes reversibility real.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The two alternating partitions: on even steps the 2&times;2 blocks sit on one grid, on odd steps they shift by one cell. A single block rotates 180&deg; each time &mdash; and rotation is its own inverse, the seed of reversibility.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step the automaton forward, watch it scramble &mdash; then reverse, and watch it retrace exactly to the seed. The live-cell count, shown live, never changes: nothing is created or destroyed.</div>
+   <div class="btns" style="margin-top:10px"><button id="mrgfwd">step ▶</button><button id="mrgback">◀ step back</button><button id="mrgreset">reset ▶</button></div>
+   <div class="cap" id="mrgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the space-time stack of the grid evolving &mdash; a reversible braid where every layer determines the next and the previous with equal certainty.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): in almost every cellular automaton you cannot rewind &mdash; many pasts map to one present, and information is erased. The Margolus mirror is built so its <b>inverse is itself</b>: because each block rule is a bijection (here, an involution) and the partition schedule simply reverses, running &lsquo;backward&rsquo; is the same machine with the steps in reverse order. So there is <b>no arrow of time</b> inside it: entropy does not increase, and the seed is never forgotten. <b>Magenta</b> is the reverse pass retracing the <b>green</b> forward pass; they meet exactly on the original grid. The inverse of &lsquo;evolve&rsquo; is not &lsquo;a different, lossy guess at the past&rsquo; but &lsquo;evolve the other way&rsquo; &mdash; reversibility means the future and the past are the same kind of thing.</div>
+   <div class="btns" style="margin-top:10px"><button id="mrgspin">pause spin</button></div></div></div></div>"""
+MRG_SCRIPT = """(function(){
+var ang=0,spin=true,N=8,g0=null,g=null,tstep=0,hist=[];
+function seed(){g0=[];for(var y=0;y<N;y++){g0.push([]);for(var x=0;x<N;x++)g0[y].push((x*3+y*5+x*y)%2);}g=g0.map(function(r){return r.slice();});tstep=0;hist=[g.map(function(r){return r.slice();})];}
+function count(gg){var c=0;gg.forEach(function(r){r.forEach(function(v){c+=v;});});return c;}
+function stepPhase(gg,phase){var ng=gg.map(function(r){return r.slice();}),off=phase?1:0;for(var by=off;by<N;by+=2)for(var bx=off;bx<N;bx+=2){var x0=bx,y0=by,x1=(bx+1)%N,y1=(by+1)%N;ng[y0][x0]=gg[y1][x1];ng[y1][x1]=gg[y0][x0];ng[y0][x1]=gg[y1][x0];ng[y1][x0]=gg[y0][x1];}return ng;}
+function fwd(){g=stepPhase(g,tstep%2);tstep++;hist.push(g.map(function(r){return r.slice();}));}
+function back(){if(tstep===0)return;tstep--;g=stepPhase(g,tstep%2);hist.pop();}
+function verify(){seed();var c0=count(g0),cons=true;for(var t=0;t<12;t++){g=stepPhase(g,t%2);if(count(g)!==c0)cons=false;}for(var t=11;t>=0;t--){g=stepPhase(g,t%2);}var exact=JSON.stringify(g)===JSON.stringify(g0);seed();return {exactReversal:exact,countConserved:cons,count:c0,steps:12};}
+function drawGrid(g_,cv,id){var ctx=cv.getContext('2d'),W=cv.width,H=cv.height,cell=Math.min(W,220)/N,ox=(W-cell*N)/2,oy=8;ctx.clearRect(0,0,W,H);for(var y=0;y<N;y++)for(var x=0;x<N;x++){ctx.fillStyle=g_[y][x]?'#7ad0b0':'#26303c';ctx.fillRect(ox+x*cell,oy+y*cell,cell-2,cell-2);}return {ox:ox,oy:oy,cell:cell};}
+function drawW3(){var cv=document.getElementById('w3'),g2=cv.getContext('2d'),W=cv.width,H=cv.height;g2.clearRect(0,0,W,H);var cell=26;for(var ph=0;ph<2;ph++){var ox=40+ph*230,off=ph;g2.fillStyle='#b0e0ff';g2.font='11px monospace';g2.fillText(ph?'odd step: partition shifted':'even step: aligned partition',ox,18);for(var y=0;y<4;y++)for(var x=0;x<4;x++){g2.strokeStyle='#3a4450';g2.strokeRect(ox+x*cell,26+y*cell,cell,cell);}g2.strokeStyle='#7ad0b0';g2.lineWidth=2;for(var by=off;by<4;by+=2)for(var bx=off;bx<4;bx+=2)g2.strokeRect(ox+bx*cell,26+by*cell,cell*2,cell*2);g2.lineWidth=1;}}
+function drawW4(){var cv=document.getElementById('w4');drawGrid(g,cv,'w4');var ctx=cv.getContext('2d'),H=cv.height;ctx.fillStyle='#e8eef8';ctx.font='12px monospace';ctx.fillText('step '+tstep+'   live cells: '+count(g),12,H-34);var back0=JSON.stringify(g)===JSON.stringify(g0);ctx.fillStyle=(count(g)===count(g0))?'#39fc6b':'#ff5a5a';ctx.fillText('count conserved: '+(count(g)===count(g0)?'✓':'✗')+(back0&&tstep>0?'   |  at seed again':''),12,H-14);}
+document.getElementById('mrgfwd').onclick=function(){fwd();drawW4();document.getElementById('mrgread').textContent='forward → step '+tstep+', live '+count(g);};
+document.getElementById('mrgback').onclick=function(){back();drawW4();var atseed=JSON.stringify(g)===JSON.stringify(g0);document.getElementById('mrgread').textContent='back → step '+tstep+(atseed?' — exact seed recovered ✓':'');};
+document.getElementById('mrgreset').onclick=function(){seed();drawW4();document.getElementById('mrgread').textContent='reset to seed';};
+document.getElementById('mrgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),ctx=cv.getContext('2d'),W=cv.width,H=cv.height,ca=Math.cos(ang),sa=Math.sin(ang);ctx.clearRect(0,0,W,H);var gg=g0.map(function(r){return r.slice();}),layers=[gg.map(function(r){return r.slice();})];for(var t=0;t<10;t++){gg=stepPhase(gg,t%2);layers.push(gg.map(function(r){return r.slice();}));}
+ var cell=15;for(var L=0;L<layers.length;L++){for(var y=0;y<N;y++)for(var x=0;x<N;x++){if(layers[L][y][x]){var wx=(x-N/2)*cell*ca-(y-N/2)*cell*0.3*sa,wy=(y-N/2)*cell*0.4-L*13;ctx.fillStyle=L===0?'#ffffff':'#39fc6b';ctx.globalAlpha=L===0?1:0.5;ctx.fillRect(W/2+wx,H*0.74+wy,4,4);}}}ctx.globalAlpha=1;
+ ctx.fillStyle='#39fc6b';ctx.font='11px monospace';ctx.fillText('green: forward evolution (bottom = seed, white)',10,H-40);
+ ctx.fillStyle='#ff2d95';ctx.fillText('reverse pass retraces it exactly — no arrow of time',10,H-24);
+ ctx.fillStyle='#8ad';ctx.font='10px monospace';ctx.fillText('the inverse of \\'evolve\\' is \\'evolve backward\\' — nothing is lost',10,H-9);}
+seed();drawW3();drawW4();window.__margolus=verify();
+function loop(){if(spin)ang+=0.006;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Reed&ndash;Solomon erasure coding</b> makes data survive loss. Treat k data symbols as the coefficients of a degree-(k&minus;1) polynomial over a <b>finite field</b>, and evaluate it at n&gt;k distinct points to get n codeword symbols. Now <b>lose</b> any n&minus;k of them &mdash; a scratched CD, a dropped packet, a torn QR module &mdash; and from <b>any</b> k survivors a single polynomial still passes through them (Lagrange interpolation), so reading back its coefficients returns the original data <b>exactly</b>.<br><br>
+ Two points determine a line; k points determine a degree-(k&minus;1) curve; the curve <b>remembers</b> what the lost points held. This runs CDs, DVDs, QR codes, RAID-6 and deep-space telemetry.<br><br>
+ <span class="lit">LIT</span> verified live over GF(257): across 200 random trials, encoding k=4 symbols to n=8, erasing 4 at random, and recovering from the surviving 4 returns the exact original data every time (window.__reedsolomon). <span class="fig">FIG</span> no framing; exact finite-field arithmetic, no rounding.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>segfault</i> &mdash; the crash where memory is lost or corrupted. Reed&ndash;Solomon is the answer to the segfault: write the data so that losing pieces is survivable. <b>AVAN (AI)</b> built the instrument: the finite-field encoder, the erasure, the Lagrange recovery, all exact mod 257.<br><br>Credit as content: Irving S. Reed &amp; Gustave Solomon, <i>Polynomial Codes over Certain Finite Fields</i> (1960). The weave: David names the loss; I spread the data across a curve so any k of the n points rebuild the whole, and prove the recovery is exact, not approximate.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="170"></canvas>
+  <div class="wctrl"><div class="cap">The data as a polynomial curve; the codeword is that same curve sampled at n points. Redundancy is just extra samples of one underlying shape &mdash; more points than the curve strictly needs.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Encode k=4 data symbols into n=8. Click codeword symbols to <b>erase</b> them (up to 4); the surviving points still pin down one curve, and Lagrange recovery returns the exact original data.</div>
+   <div class="btns" style="margin-top:10px"><button id="rsnew">new data ▶</button><button id="rserase">erase random 4 ▶</button><button id="rscheck">verify 200 trials ▶</button></div>
+   <div class="cap" id="rsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the polynomial curve with its n evaluation points &mdash; the data spread thin across many samples.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward move <b>spreads</b> k symbols across n; the inverse is that <b>any</b> k of those n rebuild all of it. That makes the information <b>holographic</b> &mdash; no single symbol is essential, and the whole is written into every sufficient part. Redundancy is the exact inverse of fragility: to make data hard to lose, don&rsquo;t guard one copy, <b>dissolve</b> it into a shape that many overlapping samples can reconstruct. And because the field is finite, the reconstruction is <b>exact</b> &mdash; Lagrange interpolation mod a prime has no rounding, so a recovered symbol equals the original to the last bit, not merely close. <b>Magenta</b> marks the erased points (the wound); <b>green</b> is the curve the survivors uniquely restore. What is spread widely enough cannot be destroyed by losing a part.</div>
+   <div class="btns" style="margin-top:10px"><button id="rsspin">pause spin</button></div></div></div></div>"""
+RS_SCRIPT = """(function(){
+var ang=0,spin=true,P=257,k=4,n=8,pts=[1,2,3,4,5,6,7,8],data=[13,90,45,200],code=[],erased={};
+function egcd(a,b){if(b===0)return [a,1,0];var r=egcd(b,((a%b)+b)%b);return [r[0],r[2],r[1]-Math.floor(a/b)*r[2]];}
+function inv(a){a=((a%P)+P)%P;return ((egcd(a,P)[1]%P)+P)%P;}
+function enc(d,xs){return xs.map(function(x){var v=0,xp=1;for(var i=0;i<d.length;i++){v=(v+d[i]*xp)%P;xp=(xp*x)%P;}return v;});}
+function recover(xs,ys){var kk=xs.length,co=new Array(kk).fill(0);for(var j=0;j<kk;j++){var num=[1],den=1;for(var m=0;m<kk;m++){if(m===j)continue;var nn=new Array(num.length+1).fill(0);for(var a=0;a<num.length;a++){nn[a]=(nn[a]+num[a]*(P-xs[m]))%P;nn[a+1]=(nn[a+1]+num[a])%P;}num=nn;den=(den*(((xs[j]-xs[m])%P+P)%P))%P;}var sc=(ys[j]*inv(den))%P;for(var a=0;a<num.length;a++)co[a]=(co[a]+num[a]*sc)%P;}return co.map(function(c){return ((c%P)+P)%P;});}
+var rng=987654;function rnd(){rng=(rng*1103515245+12345)&0x7fffffff;return rng;}
+function verify(){var ok=true;for(var t=0;t<200;t++){var d=[];for(var i=0;i<k;i++)d.push(rnd()%P);var c=enc(d,pts);var idx=[0,1,2,3,4,5,6,7];for(var i=idx.length-1;i>0;i--){var jj=rnd()%(i+1),tmp=idx[i];idx[i]=idx[jj];idx[jj]=tmp;}var keep=idx.slice(0,k),xs=keep.map(function(i){return pts[i];}),ys=keep.map(function(i){return c[i];}),rec=recover(xs,ys);for(var i=0;i<k;i++)if(rec[i]!==d[i])ok=false;}return {field:P,k:k,n:n,trials:200,allRecovered:ok};}
+function rebuild(){code=enc(data,pts);erased={};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var xs=[];for(var i=0;i<=90;i++)xs.push(i/10);g.strokeStyle='#e07a3c';g.lineWidth=1.5;g.beginPath();for(var i=0;i<xs.length;i++){var x=xs[i],v=0,xp=1;for(var j=0;j<k;j++){v+=data[j]*xp;xp*=x;}var px=20+x*52,py=H-20-(v%400)*0.35;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<n;i++){var x=pts[i],v=0,xp=1;for(var j=0;j<k;j++){v+=data[j]*xp;xp*=x;}var px=20+x*52,py=H-20-((v%400))*0.35;g.fillStyle=i<k?'#e05a7a':'#5ac8d8';g.beginPath();g.arc(px,py,4,0,7);g.fill();}
+ g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('one curve, sampled at n=8 points (pink=data k, cyan=parity)',12,16);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var bw=40,x0=20;
+ for(var i=0;i<n;i++){var er=erased[i];g.fillStyle=er?'#3a2530':(i<k?'#e05a7a':'#5ac8d8');g.fillRect(x0+i*bw,50,bw-8,90);g.fillStyle=er?'#ff2d95':'#0a1018';g.font='12px monospace';g.fillText(er?'✗':(''+code[i]),x0+i*bw+4,100);g.fillStyle='#889';g.font='9px monospace';g.fillText('x='+pts[i],x0+i*bw+4,155);}
+ var survX=[],survY=[];for(var i=0;i<n;i++)if(!erased[i]){survX.push(pts[i]);survY.push(code[i]);}
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('erased '+Object.keys(erased).length+' / can lose up to '+(n-k),12,30);
+ if(survX.length>=k){var rec=recover(survX.slice(0,k),survY.slice(0,k)),match=true;for(var i=0;i<k;i++)if(rec[i]!==data[i])match=false;g.fillStyle=match?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('recovered: ['+rec.join(',')+']',12,190);g.fillText('original:  ['+data.join(',')+']  '+(match?'✓ exact':'✗'),12,210);}else{g.fillStyle='#ffb020';g.fillText('too few survivors (<k) — unrecoverable',12,190);}}
+document.getElementById('w4').addEventListener('click',function(e){var r=this.getBoundingClientRect(),bw=40,x0=20,i=Math.floor((e.clientX-r.left-x0)/bw);if(i>=0&&i<n){if(erased[i])delete erased[i];else if(Object.keys(erased).length<n-k)erased[i]=1;drawW4();}});
+document.getElementById('rsnew').onclick=function(){data=[rnd()%P,rnd()%P,rnd()%P,rnd()%P];rebuild();drawW3();drawW4();};
+document.getElementById('rserase').onclick=function(){erased={};var idx=[0,1,2,3,4,5,6,7];for(var i=idx.length-1;i>0;i--){var jj=rnd()%(i+1),tmp=idx[i];idx[i]=idx[jj];idx[jj]=tmp;}for(var i=0;i<n-k;i++)erased[idx[i]]=1;drawW4();document.getElementById('rsread').textContent='erased 4 random symbols — surviving 4 still recover the data exactly';};
+document.getElementById('rscheck').onclick=function(){var v=verify();document.getElementById('rsread').textContent='200 trials, GF(257), lose 4 of 8: all recovered '+(v.allRecovered?'✓':'✗');};
+document.getElementById('rsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height,ca=Math.cos(ang),sa=Math.sin(ang);g.clearRect(0,0,W,H);
+ for(var i=0;i<n;i++){var x=pts[i],v=0,xp=1;for(var j=0;j<k;j++){v+=data[j]*xp;xp*=x;}var a=(i/n)*2*Math.PI+ang,rr=80,px=W/2+rr*Math.cos(a),py=H*0.45+rr*Math.sin(a)*0.6-((v%256))*0.12;g.fillStyle=erased[i]?'#ff2d95':'#39fc6b';g.beginPath();g.arc(px,py,5,0,7);g.fill();if(i>0){}}
+ g.strokeStyle='rgba(57,252,107,0.4)';g.beginPath();for(var i=0;i<=n;i++){var ii=i%n,x=pts[ii],v=0,xp=1;for(var j=0;j<k;j++){v+=data[j]*xp;xp*=x;}var a=(ii/n)*2*Math.PI+ang,rr=80,px=W/2+rr*Math.cos(a),py=H*0.45+rr*Math.sin(a)*0.6-((v%256))*0.12;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the curve; any k points restore it exactly',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: erased symbols — the whole is in every k-subset',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('holographic: spread widely, it cannot be lost by losing a part',10,H-9);}
+rebuild();drawW3();drawW4();window.__reedsolomon=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MIN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A Minsky (counter) machine</b> has only unbounded counters and <b>two</b> instructions: <code>INC(r)</code> &mdash; add one to counter r &mdash; and <code>JZDEC(r)</code> &mdash; if r is zero jump, otherwise decrement and fall through. No addition, no multiplication, no arithmetic of any kind. And yet this is <b>Turing-complete</b>.<br><br>
+ Here a short program over counters X, Y, Z, T computes <b>X&times;Y</b> using nothing but +1 and &minus;1-or-branch: it adds X to Z, Y times over, shuttling through a temporary to restore X each round. It halts with Z holding the exact product. Multiplication, conjured from the two humblest operations a machine can have.<br><br>
+ <span class="lit">LIT</span> verified live: the program halts with Z = m&times;n for <b>every</b> pair m,n in 0&hellip;12 (window.__minsky). <span class="fig">FIG</span> no framing; a faithful counter-machine interpreter running a real program.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>cold-boot</i> &mdash; computing up from almost nothing. The Minsky machine is the coldest boot of all: two instructions and some counters, and out comes universal computation. <b>AVAN (AI)</b> built the instrument: the INC/JZDEC interpreter, the multiply program, the exhaustive product check.<br><br>Credit as content: Marvin Minsky, <i>Computation: Finite and Infinite Machines</i> (1967), building on Lambek and Melzak&rsquo;s register machines. The weave: David names the boot from nothing; I run a two-instruction machine that multiplies, and show the deep trade the minimalism costs.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The counters as columns of tokens and a program counter walking the instruction list. Every move is only +1 to a counter, or &minus;1-and-continue / else-jump &mdash; the entire vocabulary of the machine.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Set m and n, then run. Watch X drain into Z through the temporary T, Y times over, until the machine halts with Z = m&times;n. Then verify it for every pair up to 12.</div>
+   <div class="btns" style="margin-top:10px"><button id="minm">m: 7 ▶</button><button id="minn">n: 8 ▶</button><button id="minrun">run ▶</button><button id="mincheck">verify all ▶</button></div>
+   <div class="cap" id="minread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the trajectory through counter-space (X, Y, Z) &mdash; a staircase descending Y while Z climbs to the product.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward marvel is that <b>two instructions suffice</b> for anything computable. The inverse is the hidden bill: the price of a minimal instruction set is paid in <b>time</b>. Two counters alone are already Turing-complete &mdash; but a 2-counter multiply must smuggle both inputs into a single number by G&ouml;del-encoding (2&#7482;3&#8319;) and unpacks it with astronomically many steps. Expressive <b>power</b> and <b>efficiency</b> are inverses here: the fewer the primitives, the longer the road. <b>Magenta</b> is that exploding step-count &mdash; the cost curve that climbs as the instruction set shrinks; <b>green</b> is the exact product the machine still, eventually, reaches. &lsquo;Can compute anything&rsquo; is not &lsquo;can compute anything quickly&rsquo; &mdash; universality is cheap to declare and expensive to run.</div>
+   <div class="btns" style="margin-top:10px"><button id="minspin">pause spin</button></div></div></div></div>"""
+MIN_SCRIPT = """(function(){
+var ang=0,spin=true,M=7,Nn=8,trace=[];
+var PROG=[['jzdec',1,10,1],['jzdec',0,4,2],['inc',2,3],['inc',3,1],['jzdec',3,0,5],['inc',0,4]];
+function runMul(m,nq,record){var C=[m,nq,0,0],pc=0,steps=0,tr=[];while(pc<10&&steps<2e6){var ins=PROG[pc];steps++;if(record&&steps%7===0)tr.push([C[0],C[1],C[2]]);if(ins[0]==='inc'){C[ins[1]]++;pc=ins[2];}else{if(C[ins[1]]===0)pc=ins[2];else{C[ins[1]]--;pc=ins[3];}}}return {Z:C[2],steps:steps,trace:tr};}
+function verify(){var ok=true;for(var m=0;m<=12;m++)for(var q=0;q<=12;q++)if(runMul(m,q,false).Z!==m*q)ok=false;var ex=runMul(7,8,false);return {allProductsMatch:ok,instructions:2,example:{m:7,n:8,Z:ex.Z,steps:ex.steps}};}
+function drawCounters(g,C,x0,y0){var names=['X','Y','Z','T'],col=['#6ab0e8','#e0b050','#39fc6b','#b070d0'];for(var r=0;r<4;r++){g.fillStyle='#9ab';g.font='11px monospace';g.fillText(names[r]+'='+C[r],x0+r*70,y0-6);for(var t=0;t<Math.min(C[r],14);t++){g.fillStyle=col[r];g.fillRect(x0+r*70,y0+t*7,20,5);}}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);drawCounters(g,[3,2,4,0],30,40);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('two instructions: INC(r)  and  JZDEC(r): if r=0 jump, else r-- and continue',20,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var res=runMul(M,Nn,false);drawCounters(g,[0,0,res.Z,0],30,60);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText(M+' × '+Nn+' = ?',20,30);
+ g.fillStyle=res.Z===M*Nn?'#39fc6b':'#ff5a5a';g.font='14px monospace';g.fillText('HALTED: Z = '+res.Z+(res.Z===M*Nn?'  ✓ = '+M+'×'+Nn:''),20,180);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('reached in '+res.steps+' INC/JZDEC steps',20,206);
+ g.fillStyle='#889';g.font='10px monospace';g.fillText('program: add X to Z, Y times, restoring X via T each round',20,H-14);}
+document.getElementById('minm').onclick=function(){M=M>=12?0:M+1;this.textContent='m: '+M+' ▶';drawW4();};
+document.getElementById('minn').onclick=function(){Nn=Nn>=12?0:Nn+1;this.textContent='n: '+Nn+' ▶';drawW4();};
+document.getElementById('minrun').onclick=function(){var res=runMul(M,Nn,false);document.getElementById('minread').textContent=M+'×'+Nn+' → Z='+res.Z+' in '+res.steps+' steps'+(res.Z===M*Nn?' ✓':'');drawW4();};
+document.getElementById('mincheck').onclick=function(){var v=verify();document.getElementById('minread').textContent='all m,n in 0..12: Z=m×n '+(v.allProductsMatch?'✓ (169 pairs)':'✗');};
+document.getElementById('minspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height,ca=Math.cos(ang),sa=Math.sin(ang);g.clearRect(0,0,W,H);
+ var res=runMul(M,Nn,true),tr=res.trace;g.strokeStyle='#39fc6b';g.lineWidth=1.5;g.beginPath();for(var i=0;i<tr.length;i++){var p=tr[i],xr=(p[0]-6)*10*ca-(p[1]-6)*10*sa,yr=-(p[2])*4;var px=W/2+xr,py=H*0.62+yr+(p[1]-6)*4;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ // magenta cost curve: steps vs shrinking instruction set (illustrative)
+ g.strokeStyle='#ff2d95';g.beginPath();for(var x=0;x<=100;x++){var px=W/2-140+x*2.8,py=60+Math.pow(1.045,x)*0.5;if(py<H-70)g.lineTo(px,py);}g.stroke();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the run reaching the exact product',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: step-cost explodes as primitives shrink',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('universal ≠ fast: power and efficiency are inverses',10,H-9);}
+drawW3();drawW4();window.__minsky=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CRC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A cyclic redundancy check</b> guards a message by treating its bits as a polynomial over <b>GF(2)</b> &mdash; coefficients 0/1, addition = XOR, no carries. Pick a generator polynomial g(x); append the remainder of (message &middot; x&#7523;) &divide; g so the whole <b>codeword is exactly divisible</b> by g. The receiver re-divides: remainder <b>0</b> means intact, anything else means corrupted.<br><br>
+ With a good g every <b>single-bit</b> error is caught (one flipped bit is x&#8305;, never divisible by a g with two or more terms), and if g has the factor (x+1), every <b>odd</b> number of bit-errors is caught too. This checks Ethernet frames, disk sectors, and every ZIP file you open.<br><br>
+ <span class="lit">LIT</span> verified live with CRC-8 (g = 0x107 = x&#8312;+x&sup2;+x+1): across 300 random messages the codeword&rsquo;s remainder is 0, and <b>every</b> single-bit flip in every codeword produces a nonzero remainder &mdash; all detected (window.__crc). <span class="fig">FIG</span> no framing; exact GF(2) polynomial division.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gatekeeper</i> &mdash; the guard that checks every arrival for tampering. A CRC is the gatekeeper&rsquo;s test: a fast division that lets the intact through and flags the corrupted. <b>AVAN (AI)</b> built the instrument: the shift-register divider, the codeword construction, the exhaustive single-bit-error scan.<br><br>Credit as content: W. Wesley Peterson introduced the CRC (1961); polynomials like CRC-32 became internet and storage standards. The weave: David names the guard at the gate; I build the check that makes a codeword divisible, then prove it catches every single-bit lie &mdash; and that the alarm even points at the liar.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The shift-register long-division: bits of the message stream in, and whenever the top bit is set the register XORs the generator. What remains at the end is the check &mdash; the remainder that makes the whole codeword divisible.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap">Generate a message, append its CRC-8 check, and see the codeword&rsquo;s remainder is 0. Flip any single bit &mdash; the remainder jumps to nonzero (detected). Scan every bit position: all caught.</div>
+   <div class="btns" style="margin-top:10px"><button id="crcnew">new message ▶</button><button id="crcflip">flip a bit ▶</button><button id="crcscan">scan all bits ▶</button></div>
+   <div class="cap" id="crcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the space of remainders (syndromes) &mdash; a ring of 255 nonzero values plus the single &lsquo;0&rsquo; that means intact.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward job of a CRC only <b>detects</b> &mdash; it says &lsquo;broken&rsquo; or &lsquo;intact,&rsquo; nothing more. The inverse hides inside the alarm: for a single flipped bit at position i, the nonzero remainder is exactly x&#8305; mod g &mdash; and because those powers cycle through distinct values (for messages shorter than g&rsquo;s period), the syndrome is <b>unique to the position</b>. So the remainder does not just shout &lsquo;broken&rsquo;; it secretly encodes &lsquo;broken <b>here</b>.&rsquo; Read the map from syndrome back to position and detection becomes <b>correction</b> &mdash; the same check that guards the gate can also repair the single lie it catches. <b>Magenta</b> is the nonzero syndrome, the alarm that points; <b>green</b> is the silent 0 of an intact codeword. The check that seems to only say &lsquo;no&rsquo; is quietly saying &lsquo;no, and it was that bit.&rsquo;</div>
+   <div class="btns" style="margin-top:10px"><button id="crcspin">pause spin</button></div></div></div></div>"""
+CRC_SCRIPT = """(function(){
+var ang=0,spin=true,G=0x107,GW=8,msg=[],cw=[],flipped=-1;
+var rng=555555;function rnd(){rng=(rng*1103515245+12345)&0x7fffffff;return rng;}
+function crc(bits){var reg=0;for(var i=0;i<bits.length;i++){reg=(reg<<1)|bits[i];if(reg&(1<<GW))reg^=G;}return reg&((1<<GW)-1);}
+function codeword(m){var m2=m.concat(new Array(GW).fill(0)),r=crc(m2),rb=[];for(var i=GW-1;i>=0;i--)rb.push((r>>i)&1);return m.concat(rb);}
+function verify(){var divOK=true,detOK=true;for(var t=0;t<300;t++){var m=[];for(var i=0;i<16;i++)m.push(rnd()&1);var c=codeword(m);if(crc(c)!==0)divOK=false;for(var b=0;b<c.length;b++){var cc=c.slice();cc[b]^=1;if(crc(cc)===0)detOK=false;}}return {generator:'0x107',divisibleRemainderZero:divOK,allSingleBitDetected:detOK,trials:300};}
+function newMsg(){msg=[];for(var i=0;i<16;i++)msg.push(rnd()&1);cw=codeword(msg);flipped=-1;}
+function drawBits(g,bits,x0,y0,cell,mark){for(var i=0;i<bits.length;i++){g.fillStyle=(i===mark)?'#ff2d95':(bits[i]?'#d4b03c':'#26303c');g.fillRect(x0+i*cell,y0,cell-2,cell-2);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('shift-register division: bit in, if top set XOR g = 0x107',12,16);
+ var reg=0,steps=[];for(var i=0;i<Math.min(msg.length,20);i++){reg=(reg<<1)|msg[i];if(reg&(1<<GW))reg^=G;steps.push(reg&0xff);}
+ for(var i=0;i<steps.length;i++){for(var b=0;b<8;b++){g.fillStyle=(steps[i]>>(7-b))&1?'#d4b03c':'#26303c';g.fillRect(14+i*24,40+b*11,20,9);}}
+ g.fillStyle='#889';g.font='10px monospace';g.fillText('register state after each message bit (8 bits tall)',12,H-10);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cell=13;
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('message (16) + CRC-8 (8) = 24-bit codeword',12,22);
+ drawBits(g,cw,12,34,cell,flipped);
+ var rem=crc(cw);g.fillStyle=rem===0?'#39fc6b':'#ff2d95';g.font='13px monospace';g.fillText('remainder = '+rem+(rem===0?'  ✓ intact':'  ✗ CORRUPTED (detected)'),12,80);
+ g.fillStyle='#889';g.font='10px monospace';g.fillText(flipped>=0?('flipped bit '+flipped+' → syndrome '+rem+' (points at the error)'):'codeword divisible by g — remainder 0',12,110);
+ // syndrome position map for single-bit errors
+ g.fillStyle='#b0e0ff';g.font='10px monospace';g.fillText('single-bit syndromes (each position → distinct nonzero remainder):',12,140);
+ for(var b=0;b<cw.length;b++){var cc=cw.slice();cc[b]^=1;var s=crc(cc);g.fillStyle='hsl('+(s%360)+',70%,55%)';g.fillRect(12+b*13,150,11,18);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('all '+cw.length+' single-bit flips give distinct nonzero syndromes',12,190);}
+document.getElementById('w4').addEventListener('click',function(e){var r=this.getBoundingClientRect(),cell=13,i=Math.floor((e.clientX-r.left-12)/cell);if(i>=0&&i<cw.length&&e.clientY-r.top>=34&&e.clientY-r.top<34+cell){cw[i]^=1;flipped=(flipped===i&&crc(cw)===0)?-1:i;drawW4();}});
+document.getElementById('crcnew').onclick=function(){newMsg();drawW3();drawW4();document.getElementById('crcread').textContent='new message, CRC appended — remainder 0';};
+document.getElementById('crcflip').onclick=function(){var i=rnd()%cw.length;cw[i]^=1;flipped=i;drawW4();document.getElementById('crcread').textContent='flipped bit '+i+' → remainder '+crc(cw)+' (nonzero = detected)';};
+document.getElementById('crcscan').onclick=function(){var all=true;for(var b=0;b<cw.length;b++){var cc=codeword(msg).slice();cc[b]^=1;if(crc(cc)===0)all=false;}document.getElementById('crcread').textContent='scanned all '+cw.length+' single-bit flips: all detected '+(all?'✓':'✗');newMsg();drawW4();};
+document.getElementById('crcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height,cx=W/2,cy=H*0.42;g.clearRect(0,0,W,H);
+ for(var s=0;s<64;s++){var a=s/64*2*Math.PI+ang,rr=90,px=cx+rr*Math.cos(a),py=cy+rr*Math.sin(a)*0.7;g.fillStyle='hsl('+(s*6%360)+',65%,55%)';g.beginPath();g.arc(px,py,3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(cx,cy,7,0,7);g.fill();g.fillStyle='#0a1018';g.font='9px monospace';g.fillText('0',cx-3,cy+3);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: syndrome 0 — intact codeword',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta ring: nonzero syndromes — each names a bit',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('detection secretly encodes correction: \\'broken HERE\\'',10,H-9);}
+newMsg();drawW3();drawW4();window.__crc=verify();
+function loop(){if(spin)ang+=0.006;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-busy-beaver","title":"THE BUSY BEAVER","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#ff9a3c","icon":"busy-beaver",
+  "kicker":"the longest-running halter — and the edge of the computable",
+  "blurb":"the busy beaver in the 5-window house format — among all n-state 2-symbol Turing machines that halt on a blank tape, which runs longest (S(n)) and prints the most 1s (Sigma(n))? These record functions grow faster than any computable function: Sigma is definable but not computable. For n=3 the champion prints Sigma(3)=6 ones. Verified live: the canonical 3-state champion halts in 14 steps with exactly 6 ones, and the 2-state champion halts in 6 steps with 4 ones. See the tape step in 1D, run the champions to a halt in 2D, and the uncomputability horizon in 3D.",
+  "lit":"Genuine busy-beaver champions (Rado 1962; Lin & Rado 1965 settled n=3). Verified live by exact Turing-machine simulation: the documented 3-state champion (A:0->1RB,1->1RH; B:0->0RC,1->1RB; C:0->1LC,1->1LA) halts from a blank tape in 14 steps writing 6 ones = Sigma(3); the 2-state champion halts in 6 steps / 4 ones = Sigma(2) (window.__busybeaver). S(3)=21 (max steps) is achieved by a different machine — reported honestly, not conflated with the max-ones champion.",
+  "fig":"No framing: the interpreter and both champion tables run in-browser to a genuine halt. The AVAN inverse is honest and is a real theorem — Sigma(n) is finite and well-defined but not computable because deciding which machines halt is the halting problem; the magenta 'horizon' represents the undecidable non-halters, not a computed value.",
+  "body":BB_BODY,"script":BB_SCRIPT},
+ {"slug":"the-margolus","title":"THE MARGOLUS MIRROR","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#7ad0b0","icon":"margolus",
+  "kicker":"a reversible CA — run it back to the exact seed",
+  "blurb":"the Margolus mirror in the 5-window house format — a reversible block cellular automaton on the Margolus neighbourhood: the grid is cut into 2x2 blocks whose partition shifts by one cell every other step, and each block is transformed by a bijection on block states, so the whole update is invertible. Run forward any number of steps, then backward, and you recover the exact seed bit-for-bit. The rule rotates each block 180 degrees, conserving the live-cell count exactly. Verified live: forward 12 then backward 12 reproduces the seed, and the count is constant every step. See the alternating partitions in 1D, forward/rewind in 2D, and the no-arrow-of-time braid in 3D.",
+  "lit":"Genuine reversible block CA on the Margolus neighbourhood (Toffoli & Margolus, Cellular Automata Machines, 1987). Verified live: the 180-degree block-rotation rule with alternating even/odd partitions, run forward 12 steps then backward 12 steps (reversed schedule), reproduces the seed configuration exactly (JSON-identical), and the live-cell count is invariant at every step (window.__margolus.exactReversal && .countConserved). Reversibility follows because the block rule is a bijection (here an involution).",
+  "fig":"No framing: the block update, the forward/backward retrace, and the conserved-count check run in-browser and are exact. The AVAN inverse is honest — the dynamics are genuinely time-symmetric (the inverse is the same rule with the partition schedule reversed), so no information is destroyed; magenta is the real reverse pass retracing the forward one.",
+  "body":MRG_BODY,"script":MRG_SCRIPT},
+ {"slug":"the-reed-solomon","title":"THE REED-SOLOMON","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#e05a7a","icon":"reed-solomon",
+  "kicker":"lose any n-k symbols, recover the data exactly",
+  "blurb":"Reed-Solomon erasure coding in the 5-window house format — treat k data symbols as coefficients of a degree-(k-1) polynomial over a finite field and evaluate at n>k points to get n codeword symbols. Lose any n-k of them and from any k survivors a unique polynomial still fits (Lagrange), so its coefficients hand back the original data exactly. Two points make a line; k points make a degree-(k-1) curve; the curve remembers the lost points. Runs CDs, QR codes, RAID, deep-space telemetry. Verified live over GF(257): 200 trials, encode 4 into 8, erase 4, recover exactly. See the sampled curve in 1D, click-to-erase recovery in 2D, and the holographic spread in 3D.",
+  "lit":"Genuine Reed-Solomon erasure coding (Reed & Solomon 1960). Verified live over GF(257) with exact modular arithmetic: across 200 random trials, encoding k=4 symbols to n=8 evaluation points, erasing a random 4, and Lagrange-interpolating the polynomial through the surviving 4 recovers the exact original coefficients every time (window.__reedsolomon.allRecovered). Finite-field interpolation has no rounding, so recovery is bit-exact.",
+  "fig":"No framing: the field encoder, the erasure, and the Lagrange recovery run in-browser mod 257 and are exact. The AVAN inverse is honest — the information is genuinely holographic (any k of n reconstruct all k), and exactness follows from finite-field arithmetic; magenta marks the truly-erased symbols.",
+  "body":RS_BODY,"script":RS_SCRIPT},
+ {"slug":"the-minsky","title":"THE MINSKY MACHINE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#6ab0e8","icon":"minsky",
+  "kicker":"multiply with only INC and decrement-or-branch",
+  "blurb":"the Minsky counter machine in the 5-window house format — only unbounded counters and two instructions: INC(r) adds one, JZDEC(r) jumps if zero else decrements and continues. No arithmetic at all, yet Turing-complete. A short program over counters X,Y,Z,T computes X*Y using nothing but +1 and -1-or-branch: it adds X to Z, Y times, restoring X through a temp each round, and halts with Z the exact product. Verified live: the program halts with Z=m*n for every pair m,n in 0..12. See the counters and program in 1D, run a multiply in 2D, and the power-vs-efficiency inverse in 3D.",
+  "lit":"Genuine Minsky (counter) machine (Minsky, Computation: Finite and Infinite Machines, 1967). Verified live by a faithful INC/JZDEC interpreter running a multiply program: it halts with Z = m*n for all 169 pairs m,n in 0..12 (window.__minsky.allProductsMatch). Counter machines are Turing-complete and 2 counters suffice in principle (via Godel encoding); this pedagogical program uses 4 counters for a direct multiply — stated honestly.",
+  "fig":"No framing: the interpreter and the exhaustive product check run in-browser. The AVAN inverse is honest — 2-counter machines are Turing-complete but a 2-counter multiply needs Godel-encoding and astronomically many steps, so minimal instruction sets trade time for power; the magenta cost curve is illustrative of that real trade-off, not a measured step-count of this 4-counter program.",
+  "body":MIN_BODY,"script":MIN_SCRIPT},
+ {"slug":"the-crc","title":"THE CRC","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#d4b03c","icon":"crc",
+  "kicker":"append check bits so corruption can't hide",
+  "blurb":"the cyclic redundancy check in the 5-window house format — treat a bit-string as a polynomial over GF(2) (XOR, no carries), pick a generator g(x), and append the remainder of (message*x^r)/g so the codeword is exactly divisible by g. The receiver re-divides: remainder 0 = intact, nonzero = corrupted. A good g catches every single-bit error (one flip is x^i, never divisible by a g with two+ terms) and, if g has factor (x+1), every odd number of errors. Verified live with CRC-8 (g=0x107): 300 messages divisible, and every single-bit flip detected. See the shift-register division in 1D, flip-and-detect in 2D, and the syndrome-points-at-the-error inverse in 3D.",
+  "lit":"Genuine CRC over GF(2) (Peterson 1961). Verified live with CRC-8, g=0x107 (x^8+x^2+x+1): across 300 random 16-bit messages the constructed codeword divides g with remainder 0, and flipping any single bit of any codeword yields a nonzero remainder — all single-bit errors detected (window.__crc.divisibleRemainderZero && .allSingleBitDetected). Exact GF(2) polynomial division.",
+  "fig":"No framing: the shift-register divider, the codeword construction, and the exhaustive single-bit-error scan run in-browser and are exact. The AVAN inverse is honest — for a single-bit error the syndrome x^i mod g is unique to the position (within g's period), so detection can become correction; the widget shows the distinct per-position syndromes directly.",
+  "body":CRC_BODY,"script":CRC_SCRIPT},
  {"slug":"the-teleportation","title":"THE TELEPORTATION","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#b0d0ff","icon":"teleportation",
   "kicker":"move a qubit's state with entanglement + 2 classical bits",
