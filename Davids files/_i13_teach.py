@@ -79,6 +79,175 @@ i13_block = {
 if vox is not None:
     i13_block["voxel"] = vox   # THE VOLUME — the I-13 voxel measuring instrument
 
+# ── FULL CORPUS integration (David 2026-08-01: "integrate please, full corpus") ──
+# Vendor the whole i13-v2 archive tree into world2 (+ mirror), hash every file into a
+# manifest, and fold those hashes into a single `corpus_root` recorded in fold.json's
+# central DB. HONEST SCOPE: ROOT_0 is the merkle over the sphere/keeper inhabitants only
+# (sha256(name|slug|blurb)); it does NOT hash the corpus. The corpus is bound instead by
+# its own corpus_root, sitting in the central DB beside ROOT_0. Write a browsable index.
+# Idempotent: re-run each batch keeps the full corpus attached. HONEST NOTE: the corpus
+# .txt on disk does NOT match the MANIFEST's declared sha (different revision, not a
+# line-ending artifact) — we record the ACTUAL bytes' sha and flag the mismatch.
+CORPUS_SRC = os.path.join(HERE, "i-13", "i-13 v2", "i13-v2")
+DECLARED_CORPUS_TXT_SHA = "95ec55ba00ee2d8b082092725e359acbaf1d81904d8359312bb3c7dff8f9319f"
+SECTION_META = [
+    ("01-frozen-spec", "The Frozen Spec",
+     "The tower, the five rules, the twelve operants, the machine (net = binds - k). Start at I-13-v2-FROZEN.md; the JSON is what the declared sha covers; the v1 HTML is kept to record what v2 corrected."),
+    ("02-the-stack", "The Stack",
+     "lex to parse to compile to assemble to validate to VM to JIT, all running in the page. 18,249 trained parameters executing in JavaScript; turn the cortex off and watch it fail. The twelve-station line, colour-coded by provenance."),
+    ("03-the-factory", "The Factory",
+     "Paste any source: it names the language and emits a bootloader (plane, rules, pairs, quantile, and the trap that language sprang). 756 languages, 17 families; the six delimiter pair-tables and their guards."),
+    ("04-hello-world", "Hello World",
+     "Real toolchains installed and run, not simulations: rustc 1.75.0 ('name survived the borrow') and go 1.22.2 (two defer statements discharging LIFO)."),
+    ("05-corpora", "Corpora",
+     "ab-corpus-v2.txt: Boole / Lovelace / Hinton with the human first-person stripped. Note: the vendored file differs from the MANIFEST's declared sha (a different revision)."),
+    ("06-rust-source", "Rust Source",
+     "677 lines. Builds with rustc --edition 2021 -O src/main.rs -o i13. The comments carry the measurements, the attributions, and the bugs."),
+    ("07-earlier-build", "Earlier Build",
+     "Prior sessions: Stott's polytope sections, the compendium, the provenance tracer, the eve stack, and the same wall six times."),
+]
+
+def _sha(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+corpus_manifest = []          # [{path, sha256, bytes}]
+corpus_by_section = {}        # section -> [ {file, sha256, bytes} ]
+corpus_total_bytes = 0
+corpus_txt_actual_sha = None
+if os.path.isdir(CORPUS_SRC):
+    for root, _dirs, files in os.walk(CORPUS_SRC):
+        for fn in sorted(files):
+            fp = os.path.join(root, fn)
+            rel = os.path.relpath(fp, CORPUS_SRC).replace("\\", "/")
+            sha = _sha(fp); sz = os.path.getsize(fp)
+            corpus_manifest.append({"path": rel, "sha256": sha, "bytes": sz})
+            corpus_total_bytes += sz
+            sec = rel.split("/")[0]
+            corpus_by_section.setdefault(sec, []).append({"file": rel, "sha256": sha, "bytes": sz})
+            if rel.endswith("ab-corpus-v2.txt"):
+                corpus_txt_actual_sha = sha
+            # vendor into world2 + mirror, preserving structure
+            for base in (os.path.join(W2, "i13-v2"), os.path.join(MIRROR, "i13-v2")):
+                out = os.path.join(base, rel.replace("/", os.sep))
+                try:
+                    os.makedirs(os.path.dirname(out), exist_ok=True)
+                    shutil.copy2(fp, out)
+                except OSError as e:
+                    print("  (corpus copy skip", out, ":", e, ")")
+
+    # fold every file's sha into a single corpus_root (honest binding of the exact bytes)
+    corpus_root = hashlib.sha256(
+        "\n".join(it["path"] + ":" + it["sha256"] for it in sorted(corpus_manifest, key=lambda x: x["path"])
+                  ).encode("utf-8")).hexdigest()
+
+    # ── browsable index (violet house style, offline, no dark background) ──
+    def _esc(s): return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    rows = []
+    for sec, title, blurb in SECTION_META:
+        items = corpus_by_section.get(sec, [])
+        links = "".join(
+            '<li><a href="{p}">{n}</a> <span class="sz">{kb} KB</span></li>'.format(
+                p=_esc(it["file"]), n=_esc(it["file"].split("/")[-1]), kb=max(1, it["bytes"] // 1024))
+            for it in items)
+        rows.append(
+            '<section class="sec"><h2>{t}</h2><p class="blurb">{b}</p><ul>{l}</ul></section>'.format(
+                t=_esc(title), b=_esc(blurb), l=links))
+    txt_note = ""
+    if corpus_txt_actual_sha and corpus_txt_actual_sha != DECLARED_CORPUS_TXT_SHA:
+        txt_note = ('<p class="note">Honest record: the vendored <code>ab-corpus-v2.txt</code> hashes to '
+                    '<code>{a}&hellip;</code>, which does <b>not</b> match the archive MANIFEST\'s declared '
+                    '<code>{d}&hellip;</code> &mdash; it is a different revision (verified: no CR bytes, same after '
+                    'LF-normalization). The vendored bytes\' true sha is what is sealed here.</p>').format(
+                        a=corpus_txt_actual_sha[:16], d=DECLARED_CORPUS_TXT_SHA[:16])
+    index_html = (
+        '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width,initial-scale=1">'
+        '<title>I-13 v2 &middot; full corpus &middot; WORLD II — THE FOLD</title><style>'
+        ':root{color-scheme:light}*{box-sizing:border-box}'
+        'body{margin:0;font:15px/1.55 -apple-system,Segoe UI,Roboto,sans-serif;color:#2a1f47;'
+        'background:linear-gradient(160deg,#efe7ff 0%,#e3d5ff 45%,#f3e6ff 100%);padding:34px 20px 80px}'
+        '.wrap{max-width:900px;margin:0 auto}'
+        'h1{font-size:30px;margin:0 0 4px;color:#4a2f8f;letter-spacing:.5px}'
+        '.sub{color:#6a5a92;margin:0 0 6px;font-size:14px}'
+        '.seal{font:12px/1.5 ui-monospace,Menlo,monospace;color:#7a5a2a;background:#fff4d8;'
+        'border:1px solid #e6c98a;border-radius:8px;padding:8px 12px;margin:14px 0 24px;word-break:break-all}'
+        '.sec{background:rgba(255,255,255,.72);border:1px solid #d9c8ff;border-radius:12px;'
+        'padding:16px 20px;margin:0 0 16px;box-shadow:0 2px 10px rgba(90,50,160,.06)}'
+        'h2{margin:0 0 6px;font-size:18px;color:#5a3aa8}'
+        '.blurb{margin:0 0 10px;color:#4a3f66;font-size:14px}'
+        'ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px}'
+        'li{font:13px ui-monospace,Menlo,monospace}'
+        'a{color:#6a3fd0;text-decoration:none;border-bottom:1px solid #c9b0ff}a:hover{color:#4a1fb0}'
+        '.sz{color:#9a8ac0;font-size:11px}'
+        '.note{background:#fff0f4;border:1px solid #f0bcd0;border-radius:8px;padding:10px 14px;'
+        'color:#8a3a5a;font-size:13px;margin:18px 0}code{background:#f3ecff;padding:1px 4px;border-radius:4px}'
+        '.claim{margin-top:22px;color:#4a3f66;font-size:13.5px}'
+        '</style></head><body><div class="wrap">'
+        '<h1>I-13 v2 &middot; full corpus</h1>'
+        '<p class="sub">A four-plane agent stack over a thirteen-symbol language. Two planes learn, two do not. '
+        'Five parameter-free rules. Every HTML file is standalone and offline &mdash; open it in a browser.</p>'
+        '<div class="seal">frozen 2026-08-01 &middot; declared spec sha ' + (declared_sha or "?") + '<br>'
+        + str(len(corpus_manifest)) + ' files &middot; ' + str(corpus_total_bytes // 1024) + ' KB &middot; '
+        'corpus_root ' + corpus_root[:24] + '&hellip;<br>'
+        '<span style="color:#8a7a4a">recorded in THE FOLD\'s central DB (fold.json) beside ROOT_0. '
+        'ROOT_0 folds the sphere inhabitants; this corpus_root binds the archive\'s exact bytes.</span></div>'
+        + "".join(rows)
+        + txt_note
+        + '<p class="claim"><b>The claim, stated narrowly:</b> deterministic zero-parameter components guarantee '
+        'structural properties that no model at this scale reaches. A GRU at 16,936 parameters predicts <b>better</b> '
+        '(0.8440 bits vs 0.9182) and generates <b>2.3&times; worse</b>. Learned state is not a stack. '
+        'The record: 21 corrections, 16 approaches measured dead and kept.</p>'
+        '</div></body></html>')
+    for base in (os.path.join(W2, "i13-v2"), os.path.join(MIRROR, "i13-v2")):
+        try:
+            os.makedirs(base, exist_ok=True)
+            with open(os.path.join(base, "index.html"), "w", encoding="utf-8") as fh:
+                fh.write(index_html)
+        except OSError as e:
+            print("  (index write skip", base, ":", e, ")")
+
+    i13_block["corpus"] = {
+        "name": "I-13 v2 full corpus",
+        "frozen": spec.get("frozen", "2026-08-01"),
+        "declared_spec_sha256": declared_sha,          # self-declared in the json
+        "files": len(corpus_manifest),
+        "bytes": corpus_total_bytes,
+        "sections": [{"id": s, "title": t, "blurb": b,
+                      "files": [it["file"].split("/")[-1] for it in corpus_by_section.get(s, [])]}
+                     for (s, t, b) in SECTION_META],
+        "rust_source_lines": 677,
+        "corpus_txt": {
+            "declared_sha256": DECLARED_CORPUS_TXT_SHA,
+            "actual_sha256": corpus_txt_actual_sha,
+            "matches_declared": (corpus_txt_actual_sha == DECLARED_CORPUS_TXT_SHA),
+            "note": ("HONEST: vendored ab-corpus-v2.txt does NOT match the MANIFEST's declared sha; "
+                     "it is a different revision (no CR bytes; same after LF-normalization). "
+                     "The actual bytes' sha is what is sealed."),
+        },
+        "index": "i13-v2/index.html",
+        "root": "i13-v2/",
+        "corpus_root": corpus_root,      # sha256 over sorted (path:sha) — one fingerprint for the whole archive
+        "manifest": corpus_manifest,     # every file's true sha256 — binds the corpus under corpus_root
+        "sealing_scope": ("ROOT_0 is the merkle over the sphere/keeper inhabitants (sha256(name|slug|blurb)) "
+                          "and does NOT hash this corpus. The corpus is bound by corpus_root, recorded here "
+                          "in the central DB (fold.json) beside ROOT_0."),
+        "note": ("David 2026-08-01: 'integrate please, full corpus'. The whole i13-v2 archive is vendored "
+                 "beside fold.json and mirrored; every file's sha256 is recorded here and folded into "
+                 "corpus_root. Note: ROOT_0 covers the inhabitants, not the corpus — see sealing_scope."),
+    }
+    print("  + FULL CORPUS integrated:", len(corpus_manifest), "files,",
+          corpus_total_bytes // 1024, "KB vendored into world2 + mirror; index.html written")
+    print("    corpus_root", corpus_root[:16], "(bound in central DB; ROOT_0 covers inhabitants, not corpus)")
+    if corpus_txt_actual_sha != DECLARED_CORPUS_TXT_SHA:
+        print("    HONEST: corpus .txt actual sha", (corpus_txt_actual_sha or "?")[:12],
+              "!= declared", DECLARED_CORPUS_TXT_SHA[:12], "(different revision; recorded as-is)")
+else:
+    print("  (corpus source not found at", CORPUS_SRC, "— corpus block skipped)")
+
 # compact ASCII marker every node carries (fold.json is ensure_ascii=False, but keep the
 # .dlw-facing text ASCII-clean to be safe with the sealer)
 MARK = ("I-13 v2.0 | net = binds - k | 4 planes, 13 symbols, 12 operants, 5 cortex rules | "
