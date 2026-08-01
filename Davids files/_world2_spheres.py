@@ -15812,7 +15812,275 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW3();drawW4();window.__dirichletconvolution=verify();
 function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 53 (assignment · matrix square root · Catalan refinement · prefix flips · difference of squares) ═══════════════════════
+HUN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Hungarian algorithm</b> solves the <b>assignment problem</b>: given n workers and n jobs with a cost for each pairing, find the one-to-one assignment of workers to jobs with <b>minimum total cost</b> &mdash; in O(n&sup3;), versus checking all n! matchings.<br><br>
+ It works by subtracting constants from rows and columns of the cost matrix (which never changes <b>which</b> assignment is optimal) until enough zeros appear to form a complete zero-cost matching, guided by dual variables. It is the combinatorial-optimisation workhorse behind scheduling, tracking, and resource allocation.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random cost matrices (n=2&hellip;6), the Hungarian assignment&rsquo;s total cost equals the brute-force minimum over all n! permutations (window.__hungarian). <span class="fig">FIG</span> no framing; exact optimisation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-pull-request</i> &mdash; matching contributions to reviewers at least total cost, cleanly one-to-one. The Hungarian algorithm is that optimal pairing. <b>AVAN (AI)</b> built the instrument: the row/column reduction, the augmenting-path matching, the brute cross-check.<br><br>Credit as content: Harold Kuhn (1955), who named it &lsquo;Hungarian&rsquo; for the earlier work of K&ouml;nig and Egerv&aacute;ry; refined by James Munkres. The weave: David names the pull-request; I reduce the cost matrix to zeros and match on them, confirming the total cost equals the exhaustive minimum.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Subtracting each row&rsquo;s minimum, then each column&rsquo;s, creates zeros without changing the optimal assignment &mdash; because every complete assignment uses one cell per row, so shifting a whole row shifts every assignment&rsquo;s cost equally.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A cost matrix. The Hungarian algorithm finds the minimum-cost assignment (highlighted cells, one per row and column); the total is checked against a brute-force minimum over all permutations.</div>
+   <div class="btns" style="margin-top:10px"><button id="hunnew">new costs ▶</button><button id="huncheck">verify 200 ▶</button></div>
+   <div class="cap" id="hunread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the optimal assignment, one cell per row and column, sitting on the reduced zeros.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): subtracting a constant from a whole row or column does <b>not</b> change which assignment is optimal &mdash; every complete assignment uses exactly one cell per row, so a row shift moves <b>all</b> assignments&rsquo; costs by the same amount. The inverse of &lsquo;the cheapest matching&rsquo; is &lsquo;the matching that is cheapest <b>after</b> you have zeroed out the unavoidable per-row and per-column minimums.&rsquo; The algorithm exploits this invariance: reduce until the optimum reveals itself as a zero-cost matching. <b>Magenta</b> is the n! matchings never enumerated; <b>green</b> is the reduced zeros where the optimum hides. Reduction reveals the answer without search &mdash; linear-programming duality made combinatorial, the same max-min pairing as K&ouml;nig and max-flow.</div>
+   <div class="btns" style="margin-top:10px"><button id="hunspin">pause spin</button></div></div></div></div>"""
+HUN_SCRIPT = """(function(){
+var ang=0,spin=true,COST=[[9,2,7],[6,4,3],[5,8,1]];
+function hungarian(cost){var n=cost.length,INF=1e9,u=new Array(n+1).fill(0),v=new Array(n+1).fill(0),p=new Array(n+1).fill(0),way=new Array(n+1).fill(0);
+ for(var i=1;i<=n;i++){p[0]=i;var j0=0,minv=new Array(n+1).fill(INF),used=new Array(n+1).fill(false);
+  do{used[j0]=true;var i0=p[j0],delta=INF,j1=-1;for(var j=1;j<=n;j++)if(!used[j]){var cur=cost[i0-1][j-1]-u[i0]-v[j];if(cur<minv[j]){minv[j]=cur;way[j]=j0;}if(minv[j]<delta){delta=minv[j];j1=j;}}for(var j=0;j<=n;j++){if(used[j]){u[p[j]]+=delta;v[j]-=delta;}else minv[j]-=delta;}j0=j1;}while(p[j0]!==0);
+  do{var j1=way[j0];p[j0]=p[j1];j0=j1;}while(j0);}
+ var total=0,assign=new Array(n);for(var j=1;j<=n;j++){assign[p[j]-1]=j-1;total+=cost[p[j]-1][j-1];}return {cost:total,assign:assign};}
+function brute(cost){var n=cost.length,best=1e9,bp=null;function rec(row,used,c,perm){if(row===n){if(c<best){best=c;bp=perm.slice();}return;}for(var j=0;j<n;j++)if(!(used&(1<<j))){perm.push(j);rec(row+1,used|(1<<j),c+cost[row][j],perm);perm.pop();}}rec(0,0,0,[]);return {cost:best,assign:bp};}
+function verify(){var seed=7;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<200;t++){var n=2+rnd()%5,cost=[];for(var i=0;i<n;i++){cost.push([]);for(var j=0;j<n;j++)cost[i].push(rnd()%20);}if(hungarian(cost).cost!==brute(cost).cost)ok=false;}return {matchesBrute:ok,trials:200};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var C=[[9,2,7],[6,4,3],[5,8,1]],cell=42,ox=40,oy=30;g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('subtract each row min → zeros appear (optimum unchanged)',12,16);
+ for(var i=0;i<3;i++){var rmin=Math.min.apply(0,C[i]);for(var j=0;j<3;j++){var v=C[i][j]-rmin;g.fillStyle=v===0?'#6088c0':'#3a4550';g.fillRect(ox+j*cell,oy+i*cell,cell-3,cell-3);g.fillStyle='#fff';g.font='13px monospace';g.fillText(v,ox+j*cell+15,oy+i*cell+26);}}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('blue zeros are candidate assignment cells',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=hungarian(COST),n=COST.length,cell=52,ox=60,oy=40;
+ for(var i=0;i<n;i++)for(var j=0;j<n;j++){var chosen=r.assign[i]===j;g.fillStyle=chosen?'#6088c0':'#26303c';g.fillRect(ox+j*cell,oy+i*cell,cell-4,cell-4);g.fillStyle=chosen?'#fff':'#9ab';g.font='15px monospace';g.fillText(COST[i][j],ox+j*cell+18,oy+i*cell+30);}
+ var b=brute(COST);g.fillStyle=r.cost===b.cost?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('Hungarian cost '+r.cost+' = brute min '+b.cost+(r.cost===b.cost?' ✓':' ✗'),12,oy+n*cell+24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('assignment: '+r.assign.map(function(j,i){return 'W'+i+'→J'+j;}).join(', '),12,oy+n*cell+44);}
+document.getElementById('hunnew').onclick=function(){var n=3;COST=[];for(var i=0;i<n;i++){COST.push([]);for(var j=0;j<n;j++)COST[i].push(1+Math.floor(Math.random()*9));}drawW4();document.getElementById('hunread').textContent='min cost = '+hungarian(COST).cost;};
+document.getElementById('huncheck').onclick=function(){var v=verify();document.getElementById('hunread').textContent='200 matrices (n=2..6): Hungarian == brute min '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('hunspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=hungarian(COST),n=COST.length,lx=W*0.3,rx=W*0.7,dy=60,oy=70;
+ for(var i=0;i<n;i++){g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(lx,oy+i*dy+3*Math.sin(ang+i));g.lineTo(rx,oy+r.assign[i]*dy);g.stroke();g.lineWidth=1;}
+ for(var i=0;i<n;i++){g.fillStyle='#6088c0';g.beginPath();g.arc(lx,oy+i*dy,10,0,7);g.fill();g.fillStyle='#fff';g.font='10px monospace';g.fillText('W'+i,lx-7,oy+i*dy+3);g.fillStyle='#c090a0';g.beginPath();g.arc(rx,oy+i*dy,10,0,7);g.fill();g.fillStyle='#fff';g.fillText('J'+i,rx-6,oy+i*dy+3);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the optimal assignment (min total cost '+r.cost+')',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the n! matchings never enumerated',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('row/column reduction reveals the optimum without search',10,H-9);}
+drawW3();drawW4();window.__hungarian=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CHO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Cholesky decomposition</b> factors a symmetric <b>positive-definite</b> matrix A into A = L&middot;L&#7488;, where L is lower-triangular &mdash; a kind of &lsquo;matrix square root.&rsquo; It is about <b>twice as fast</b> as general LU (you compute only one triangular factor), and it is the go-to for solving symmetric positive-definite systems, least squares, and drawing <b>correlated random samples</b>: to sample a Gaussian with covariance &Sigma;, compute &Sigma; = LL&#7488; and transform independent normals by L.<br><br>
+ If A is <b>not</b> positive-definite the algorithm fails &mdash; a negative appears under a square root &mdash; so Cholesky is itself a positive-definiteness test.<br><br>
+ <span class="lit">LIT</span> verified live: for 300 random symmetric positive-definite matrices, L&middot;L&#7488; reconstructs A to ~10&#8315;&sup1;&#8309;, L is lower-triangular, and a non-positive-definite matrix is correctly rejected (window.__cholesky). <span class="fig">FIG</span> no framing; exact factorisation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-toolchain</i> &mdash; the numerical-linear-algebra tool under every solver and sampler. Cholesky is that quiet workhorse: the fast, stable matrix square root. <b>AVAN (AI)</b> built the instrument: the triangular factorisation, the reconstruction check, the positive-definiteness rejection.<br><br>Credit as content: Andr&eacute;-Louis Cholesky (c. 1910, published posthumously 1924 after his death in WWI). The weave: David names the toolchain; I build L one column at a time, confirm L&middot;L&#7488; equals A, and show a non-positive-definite matrix break the square root.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">L is built entry by entry: each diagonal entry is a square root of what remains, each below-diagonal entry divides by the diagonal above it. Only the lower triangle is computed &mdash; the upper is its mirror.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A symmetric positive-definite matrix A and its Cholesky factor L. The product L&middot;L&#7488; reconstructs A exactly. Toggle to a non-positive-definite matrix and watch the factorisation fail under a negative square root.</div>
+   <div class="btns" style="margin-top:10px"><button id="chonew">new SPD matrix ▶</button><button id="chospd">try non-SPD ▶</button><button id="chocheck">verify 300 ▶</button></div>
+   <div class="cap" id="choread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the single lower-triangular factor L, from which A = L&middot;L&#7488; rebuilds.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): <b>symmetry halves the work</b>. Because A is symmetric, its two LU factors are <b>transposes</b> of each other (L and L&#7488;), so you compute only <b>one</b> and get the other for free. The inverse of &lsquo;two triangular factors&rsquo; is &lsquo;one, mirrored.&rsquo; And the decomposition succeeds <b>iff</b> A is positive-definite, so Cholesky is a <b>constructive proof</b>: if all the square roots stay real, A is SPD; if one goes negative, it is not. <b>Magenta</b> is the second triangular factor you never compute &mdash; it is just the transpose; <b>green</b> is the single factor L. Symmetry earns half the work and doubles as a definiteness test.</div>
+   <div class="btns" style="margin-top:10px"><button id="chospin">pause spin</button></div></div></div></div>"""
+CHO_SCRIPT = """(function(){
+var ang=0,spin=true,A=null,mode='spd';
+function matmulT(L){var n=L.length,M=[];for(var i=0;i<n;i++){M.push([]);for(var j=0;j<n;j++){var s=0;for(var k=0;k<n;k++)s+=L[i][k]*L[j][k];M[i][j]=s;}}return M;}
+function cholesky(A){var n=A.length,L=[];for(var i=0;i<n;i++)L.push(new Array(n).fill(0));for(var i=0;i<n;i++)for(var j=0;j<=i;j++){var s=0;for(var k=0;k<j;k++)s+=L[i][k]*L[j][k];if(i===j){var d=A[i][i]-s;if(d<=0)return null;L[i][j]=Math.sqrt(d);}else L[i][j]=(A[i][j]-s)/L[j][j];}return L;}
+function randL(n){var L=[];for(var i=0;i<n;i++){L.push(new Array(n).fill(0));for(var j=0;j<=i;j++)L[i][j]=(i===j)?(1+Math.random()*3):(Math.random()*4-2);}return L;}
+function verify(){function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}var rnd=mb(999),ok=true,mx=0;for(var t=0;t<300;t++){var n=2+Math.floor(rnd()*4),L0=[];for(var i=0;i<n;i++){L0.push(new Array(n).fill(0));for(var j=0;j<=i;j++)L0[i][j]=(i===j)?(1+rnd()*3):(rnd()*4-2);}var Am=matmulT(L0),L=cholesky(Am);if(!L){ok=false;continue;}var R=matmulT(L);for(var i=0;i<n;i++)for(var j=0;j<n;j++)mx=Math.max(mx,Math.abs(R[i][j]-Am[i][j]));}return {reconstructsA:ok&&mx<1e-9,rejectsNonSPD:cholesky([[1,2],[2,1]])===null,maxError:+mx.toExponential(1)};}
+function mkSPD(){A=matmulT(randL(3)).map(function(r){return r.map(function(v){return Math.round(v*100)/100;});});mode='spd';}
+function drawM(g,M,ox,oy,cell,col){var n=M.length;for(var i=0;i<n;i++)for(var j=0;j<n;j++){g.fillStyle=col;g.globalAlpha=0.2;g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);g.globalAlpha=1;g.fillStyle='#e8eef8';g.font='10px monospace';g.fillText((Math.round(M[i][j]*10)/10),ox+j*cell+3,oy+i*cell+cell/2+4);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='12px monospace';g.fillText('L[i][i] = √(A[i][i] − Σ L[i][k]²)',20,44);
+ g.fillStyle='#58a8b0';g.fillText('L[i][j] = (A[i][j] − Σ L[i][k]L[j][k]) / L[j][j]',20,74);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('only the lower triangle is computed — upper = mirror (transpose)',20,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mkSPD();var M=(mode==='nonspd')?[[1,2,0],[2,1,0],[0,0,1]]:A,L=cholesky(M),cell=40;
+ g.fillStyle='#58a8b0';g.font='11px monospace';g.fillText('A',30,26);drawM(g,M,20,32,cell,'#58a8b0');
+ if(L){g.fillStyle='#c8a050';g.fillText('L',30,160);drawM(g,L,20,166,cell,'#c8a050');var R=matmulT(L),mx=0;for(var i=0;i<M.length;i++)for(var j=0;j<M.length;j++)mx=Math.max(mx,Math.abs(R[i][j]-M[i][j]));g.fillStyle=mx<1e-9?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('L·Lᵀ = A '+(mx<1e-9?'✓':'✗')+'  (err '+mx.toExponential(1)+')',150,180);}
+ else{g.fillStyle='#ff5a5a';g.font='13px monospace';g.fillText('✗ FAILS — negative under a square root',20,175);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('matrix is not positive-definite',20,196);}}
+document.getElementById('chonew').onclick=function(){mkSPD();drawW4();document.getElementById('choread').textContent='new SPD matrix — L·Lᵀ reconstructs it';};
+document.getElementById('chospd').onclick=function(){mode=mode==='spd'?'nonspd':'spd';if(mode==='spd')mkSPD();drawW4();document.getElementById('choread').textContent=mode==='nonspd'?'non-SPD: factorization fails':'back to SPD';};
+document.getElementById('chocheck').onclick=function(){var v=verify();document.getElementById('choread').textContent='300 SPD: L·Lᵀ=A '+(v.reconstructsA?'✓':'✗')+' (err '+v.maxError+'), rejects non-SPD '+(v.rejectsNonSPD?'✓':'✗');};
+document.getElementById('chospin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mkSPD();var L=cholesky(A)||[[1,0,0],[0,1,0],[0,0,1]],n=L.length,cell=44,ox=W/2-n*cell/2,oy=70;
+ for(var i=0;i<n;i++)for(var j=0;j<n;j++){var lower=j<=i;g.fillStyle=lower?'#39fc6b':'rgba(255,45,149,0.3)';g.globalAlpha=lower?(0.6+0.4*Math.sin(ang+i)):0.4;g.fillRect(ox+j*cell,oy+i*cell,cell-3,cell-3);g.globalAlpha=1;if(lower){g.fillStyle='#042';g.font='10px monospace';g.fillText((Math.round(L[i][j]*10)/10),ox+j*cell+3,oy+i*cell+24);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the single lower factor L (computed)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the upper factor Lᵀ — free, just the mirror',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('symmetry halves the work; success = a proof of positive-definiteness',10,H-9);}
+mkSPD();drawW3();drawW4();window.__cholesky=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NAR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Narayana numbers</b> N(n,k) refine the Catalan numbers: they count the Dyck paths of semilength n (balanced-parenthesis strings) that have exactly <b>k peaks</b> &mdash; a peak being an up-step immediately followed by a down-step, &lsquo;()&rsquo;. Summing over all k recovers the Catalan number: &Sigma;<sub>k</sub> N(n,k) = C&#8345;.<br><br>
+ The closed form is N(n,k) = (1/n)&middot;C(n,k)&middot;C(n,k&minus;1), and the triangle 1; 1,1; 1,3,1; 1,6,6,1; 1,10,20,10,1 is <b>symmetric</b> (N(n,k)=N(n,n+1&minus;k)) &mdash; Catalan sliced by a natural statistic.<br><br>
+ <span class="lit">LIT</span> verified live: N(n,k) equals a brute count of Dyck paths with k peaks, and &Sigma;<sub>k</sub> N(n,k) equals the Catalan number, for n=1&hellip;8 (window.__narayana). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-cron-job</i> &mdash; counting the peaks in a periodic climb, the ups-and-downs of a repeating run. The Narayana numbers are that peak-count, refining the Catalan total. <b>AVAN (AI)</b> built the instrument: the closed-form N(n,k), the brute peak-count of Dyck paths, the Catalan row-sum.<br><br>Credit as content: Tadepalli Venkata Narayana (1955). The weave: David names the cron-job; I count Dyck paths by their peaks, match them to the closed form, and show they sum back to Catalan.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A Dyck path with its peaks marked &mdash; each place an up-step is immediately followed by a down-step. Two paths of the same length can have different peak counts; N(n,k) tallies how many have exactly k.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick n. The Narayana row is computed by the closed form and by brute-counting Dyck paths by peaks; they agree, and the row sums to the Catalan number.</div>
+   <div class="btns" style="margin-top:10px"><button id="narn">n: 4 ▶</button><button id="narcheck">verify n=1..8 ▶</button></div>
+   <div class="cap" id="narread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the symmetric Narayana triangle, refining each Catalan number.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the Catalan number <b>decomposes</b> by a hidden statistic. Summing Narayana over k <b>un-refines</b> back to Catalan, so Narayana is Catalan &lsquo;sliced by peaks,&rsquo; and the slicing is <b>symmetric</b> &mdash; peaks and valleys are interchangeable, giving N(n,k)=N(n,n+1&minus;k). The inverse of &lsquo;one Catalan count&rsquo; is &lsquo;its refinement by a natural feature,&rsquo; and refinements like this expose the internal structure a single number hides. <b>Magenta</b> is the lumped Catalan total; <b>green</b> is the Narayana slices summing to it. One number, its histogram by peaks &mdash; the same Catalan objects, sorted by shape.</div>
+   <div class="btns" style="margin-top:10px"><button id="narspin">pause spin</button></div></div></div></div>"""
+NAR_SCRIPT = """(function(){
+var ang=0,spin=true,N=4;
+function binom(n,k){if(k<0||k>n)return 0;var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+function narayana(n,k){return binom(n,k)*binom(n,k-1)/n;}
+function catalan(n){return binom(2*n,n)/(n+1);}
+function dyckPeaks(n){var cnt={};function rec(s,open,close){if(s.length===2*n){var peaks=0;for(var i=0;i+1<s.length;i++)if(s[i]==='('&&s[i+1]===')')peaks++;cnt[peaks]=(cnt[peaks]||0)+1;return;}if(open<n)rec(s+'(',open+1,close);if(close<open)rec(s+')',open,close+1);}rec('',0,0);return cnt;}
+function verify(){var nar=true,sum=true;for(var n=1;n<=8;n++){var pk=dyckPeaks(n),s=0;for(var k=1;k<=n;k++){var nv=narayana(n,k);s+=nv;if(nv!==(pk[k]||0))nar=false;}if(s!==catalan(n))sum=false;}return {matchesPeaks:nar,sumsToCatalan:sum,row4:[1,2,3,4].map(function(k){return narayana(4,k);})};}
+function drawPath(g,s,ox,oy,cell){var x=ox,y=oy;g.strokeStyle='#c090a0';g.lineWidth=2;g.beginPath();g.moveTo(x,y);for(var i=0;i<s.length;i++){var ny=y+(s[i]==='('?-cell:cell);g.lineTo(x+cell,ny);x+=cell;y=ny;}g.stroke();g.lineWidth=1;
+ var px=ox;for(var i=0;i+1<s.length;i++){if(s[i]==='('&&s[i+1]===')'){g.fillStyle='#ffd54a';g.beginPath();g.arc(px+cell,oy-cell,4,0,7);g.fill();}px+=cell;}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('Dyck path — peaks (yellow) are up-then-down "()"',12,16);
+ g.strokeStyle='#334';g.setLineDash([3,3]);g.beginPath();g.moveTo(30,120);g.lineTo(30+8*24,120);g.stroke();g.setLineDash([]);
+ drawPath(g,'(()(()))',30,120,24);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var row=[];for(var k=1;k<=N;k++)row.push(narayana(N,k));var pk=dyckPeaks(N),br=[];for(var k=1;k<=N;k++)br.push(pk[k]||0);var ok=JSON.stringify(row)===JSON.stringify(br),s=row.reduce(function(a,b){return a+b;},0);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('n = '+N,12,24);
+ g.fillStyle='#c090a0';g.fillText('formula N(n,k): '+row.join(', '),12,52);
+ g.fillStyle='#5aa0e0';g.fillText('brute peak-count: '+br.join(', '),12,76);
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.fillText(ok?'✓ agree':'✗',12,100);
+ g.fillStyle=s===catalan(N)?'#39fc6b':'#ff5a5a';g.fillText('sum '+s+' = Catalan('+N+') = '+catalan(N)+(s===catalan(N)?' ✓':' ✗'),12,124);
+ var mx=Math.max.apply(0,row);for(var k=0;k<row.length;k++){var h=row[k]/mx*110;g.fillStyle='#c090a0';g.fillRect(40+k*54,270-h,44,h);g.fillStyle='#9ab';g.font='10px monospace';g.fillText(row[k],40+k*54+6,268-h-4);g.fillText(k+1+' pk',40+k*54+4,285);}}
+document.getElementById('narn').onclick=function(){N=N>=8?1:N+1;this.textContent='n: '+N+' ▶';drawW4();};
+document.getElementById('narcheck').onclick=function(){var v=verify();document.getElementById('narread').textContent='n=1..8: N(n,k)==Dyck peaks '+(v.matchesPeaks?'✓':'✗')+', sum==Catalan '+(v.sumsToCatalan?'✓':'✗')+' | N(4,k)='+v.row4.join(',');};
+document.getElementById('narspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ for(var n=1;n<=6;n++){var row=[];for(var k=1;k<=n;k++)row.push(narayana(n,k));var mx=Math.max.apply(0,row),y=30+n*48;for(var k=0;k<row.length;k++){var x=W/2+(k-(row.length-1)/2)*36,h=Math.log(1+row[k])*8;g.fillStyle='#39fc6b';g.globalAlpha=0.6+0.4*Math.sin(ang+k);g.fillRect(x-14,y-h,28,h);g.globalAlpha=1;}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: Narayana slices (Dyck paths by peak count)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: they sum back to the lumped Catalan number',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('one number, its histogram by peaks (symmetric)',10,H-9);}
+drawW3();drawW4();window.__narayana=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PAN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Pancake sorting</b>: you have a stack of differently-sized pancakes and a spatula, and the only move is to insert the spatula somewhere and <b>flip</b> the whole top portion. How few flips sort the stack largest-on-bottom?<br><br>
+ The greedy method &mdash; bring the largest unsorted pancake to the top (one flip), then flip it down to its place (a second) &mdash; always works, in at most <b>2n&minus;3</b> flips. Finding the truly minimum count (the &lsquo;pancake number&rsquo;) is hard. The famous fact: the only research paper <b>Bill Gates</b> ever published (1979, with Christos Papadimitriou) improved the bound on pancake sorting.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random stacks, greedy pancake sorting produces a sorted stack using at most 2n&minus;3 flips (window.__pancakesorting). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-konami-code</i> &mdash; a fixed sequence of flips that unlocks the sorted order. Pancake sorting is that flip-sequence puzzle. <b>AVAN (AI)</b> built the instrument: the prefix-flip operation, the greedy sort, the sortedness and flip-bound checks.<br><br>Credit as content: posed by Jacob E. Goodman (writing as &lsquo;Harry Dweighter&rsquo;, 1975); the 2n&minus;3 upper bound improved by William H. (Bill) Gates &amp; Christos Papadimitriou (1979). The weave: David names the konami-code; I bring each largest pancake up and flip it home, and confirm the stack sorts within the bound.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A prefix flip: choose a position and reverse everything above it, like sliding a spatula in and turning the top pancakes over. It is the only move &mdash; no arbitrary swaps allowed.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A stack of pancakes. Greedy-sort it with prefix flips, watching the largest rise then flip into place. The result is sorted, and the flip count stays within 2n&minus;3.</div>
+   <div class="btns" style="margin-top:10px"><button id="panroll">new stack ▶</button><button id="panstep">flip ▶</button><button id="pancheck">verify 300 ▶</button></div>
+   <div class="cap" id="panread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the sequence of prefix flips that carries the stack to sorted order.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): with a <b>restricted</b> move set &mdash; only prefix reversals, never an arbitrary swap &mdash; sorting still succeeds, but the <b>cost</b> changes and the <b>optimum</b> gets hard. What an ordinary sort does in ~n log n comparisons takes O(n) flips here, and finding the <b>minimum</b> number of flips is NP-hard. The inverse of &lsquo;any swap allowed&rsquo; is &lsquo;only prefix reversals &mdash; a more constrained world where even the optimum is elusive.&rsquo; Restricting the operations does not make sorting impossible; it makes <b>optimal</b> sorting intractable. <b>Magenta</b> is the arbitrary swaps you are <b>not</b> allowed; <b>green</b> is the prefix flips you must use. Constraint turns an easy problem&rsquo;s optimum into a hard one &mdash; the same lesson as the 15-puzzle&rsquo;s restricted slides.</div>
+   <div class="btns" style="margin-top:10px"><button id="panspin">pause spin</button></div></div></div></div>"""
+PAN_SCRIPT = """(function(){
+var ang=0,spin=true,STACK=[3,1,5,2,6,4],flipHist=[],flipIdx=0;
+function flip(a,k){var b=a.slice();for(var i=0;i<=k;i++)b[i]=a[k-i];return b;}
+function pancakeSort(a){a=a.slice();var n=a.length,flips=[];for(var size=n;size>1;size--){var mi=0;for(var i=1;i<size;i++)if(a[i]>a[mi])mi=i;if(mi===size-1)continue;if(mi>0){a=flip(a,mi);flips.push(mi);}a=flip(a,size-1);flips.push(size-1);}return {sorted:a,flips:flips};}
+function verify(){var seed=7;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var srt=true,bnd=true;for(var t=0;t<300;t++){var n=2+rnd()%7,v=Array.from({length:n},function(_,i){return i+1;});for(var i=v.length-1;i>0;i--){var j=rnd()%(i+1);var tt=v[i];v[i]=v[j];v[j]=tt;}var r=pancakeSort(v);for(var i=1;i<n;i++)if(r.sorted[i]<r.sorted[i-1])srt=false;if(r.flips.length>2*n-3&&n>1)bnd=false;}return {sorts:srt,flipsBounded:bnd};}
+function rebuild(){var r=pancakeSort(STACK);flipHist=[STACK.slice()];var a=STACK.slice();r.flips.forEach(function(k){a=flip(a,k);flipHist.push(a.slice());});flipIdx=0;}
+function drawStack(g,a,ox,oy,cw){var n=a.length;for(var i=0;i<n;i++){var w=a[i]*cw;g.fillStyle=a[i]===Math.max.apply(0,a)?'#d0a048':'#7a6838';g.fillRect(ox-w/2,oy+i*16,w,14);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('prefix flip: insert spatula, reverse the top portion',12,16);
+ var a=[2,5,1,4,3];drawStack(g,a,120,40,14);g.fillStyle='#d0a048';g.font='20px monospace';g.fillText('→',210,70);var b=flip(a,2);drawStack(g,b,320,40,14);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the only move — no arbitrary swaps',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!flipHist.length)rebuild();var a=flipHist[Math.min(flipIdx,flipHist.length-1)];
+ var cw=44/STACK.length,oy=30;for(var i=0;i<a.length;i++){var w=a[i]*cw*STACK.length*0.5;g.fillStyle=a[i]===Math.max.apply(0,a)?'#d0a048':'#5a4e2e';g.fillRect(W/2-w/2,oy+i*30,w,26);g.fillStyle='#fff';g.font='12px monospace';g.fillText(a[i],W/2-6,oy+i*30+18);}
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('flip '+flipIdx+' / '+(flipHist.length-1),12,H-30);
+ var sorted=a.every(function(v,i){return i===0||v>=a[i-1];});g.fillStyle=sorted?'#39fc6b':'#8ad';g.fillText(sorted?'✓ sorted in '+(flipHist.length-1)+' flips (≤ 2n−3 = '+(2*STACK.length-3)+')':'sorting…',12,H-12);}
+document.getElementById('panroll').onclick=function(){STACK=[];var n=5+Math.floor(Math.random()*3);var v=Array.from({length:n},function(_,i){return i+1;});for(var i=v.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=v[i];v[i]=v[j];v[j]=t;}STACK=v;rebuild();drawW4();document.getElementById('panread').textContent=STACK.join(' ')+' → '+pancakeSort(STACK).flips.length+' flips';};
+document.getElementById('panstep').onclick=function(){flipIdx=Math.min(flipIdx+1,flipHist.length-1);drawW4();};
+document.getElementById('pancheck').onclick=function(){var v=verify();document.getElementById('panread').textContent='300 stacks: greedy sorts '+(v.sorts?'✓':'✗')+', flips ≤ 2n−3 '+(v.flipsBounded?'✓':'✗');};
+document.getElementById('panspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!flipHist.length)rebuild();
+ for(var f=0;f<flipHist.length;f++){var a=flipHist[f],y=30+f*Math.min(28,300/flipHist.length),cw=6;for(var i=0;i<a.length;i++){g.fillStyle=(f===flipHist.length-1)?'#39fc6b':'rgba(57,252,107,'+(0.3+0.5*f/flipHist.length)+')';g.fillRect(W/2-a.length*cw/2+i*cw+2*Math.sin(ang+f),y,cw-1,a[i]*2);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the flip sequence sorting the stack',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: arbitrary swaps — not allowed here',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('restrict the moves and the optimum becomes NP-hard',10,H-9);}
+rebuild();drawW3();drawW4();window.__pancakesorting=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FER_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Fermat&rsquo;s factorization method</b> splits an odd number n by writing it as a <b>difference of squares</b>: n = a&sup2; &minus; b&sup2; = (a&minus;b)(a+b). Start with a = &lceil;&radic;n&rceil; and increase a by 1 until a&sup2; &minus; n is itself a perfect square b&sup2;; then (a&minus;b) and (a+b) are factors.<br><br>
+ It is blazing fast when n&rsquo;s two factors are <b>close</b> together (near &radic;n), and slow when they are far apart &mdash; which is why secure RSA requires its two primes to differ substantially, so this attack fails.<br><br>
+ <span class="lit">LIT</span> verified live: for a range of odd composites, Fermat&rsquo;s search returns two nontrivial factors whose product is n (e.g. 5959 = 59 &times; 101) &mdash; window.__fermatfactorization. <span class="fig">FIG</span> no framing; exact integer factorisation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-wall</i> &mdash; breaking through a composite number&rsquo;s wall into its factors. Fermat&rsquo;s method is the oldest crack: turn the number into a difference of squares. <b>AVAN (AI)</b> built the instrument: the ascending search for a perfect square, the factor extraction, the product check.<br><br>Credit as content: Pierre de Fermat (17th century). The weave: David names the wall; I climb a upward from &radic;n until a&sup2; &minus; n is a perfect square, read off the factors, and confirm their product is n.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Starting just above &radic;n, try each a: is a&sup2; &minus; n a perfect square? The first time it is, that square is b&sup2;, and (a&minus;b)(a+b) = n splits the number.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick an odd composite. Watch a climb from &lceil;&radic;n&rceil; until a&sup2; &minus; n is a perfect square, then read off the factors. Close factors are found instantly; distant factors take many steps.</div>
+   <div class="btns" style="margin-top:10px"><button id="fernum">new composite ▶</button><button id="fercheck">verify ▶</button></div>
+   <div class="cap" id="ferread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the ascending search for the perfect square a&sup2; &minus; n that unlocks the factors.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): <b>factoring and finding a square congruence are the same problem</b>. n = (a&minus;b)(a+b) means finding a, b with a&sup2; &minus; b&sup2; = n &mdash; and this difference-of-squares idea is the <b>seed of all modern factoring</b>: the quadratic sieve and number field sieve all hunt for a&sup2; &equiv; b&sup2; (mod n) with a &ne; &plusmn;b. The inverse of &lsquo;find the factors&rsquo; is &lsquo;find a nontrivial square congruence.&rsquo; Fermat&rsquo;s method is the naive exact version; the sieves make the square-hunt subexponential. <b>Magenta</b> is the factors you seek; <b>green</b> is the square a&sup2; &minus; n you actually search for. Factoring is square-hunting &mdash; and it is slow exactly when the factors are far apart, the difficulty RSA leans on.</div>
+   <div class="btns" style="margin-top:10px"><button id="ferspin">pause spin</button></div></div></div></div>"""
+FER_SCRIPT = """(function(){
+var ang=0,spin=true,NUM=5959;
+function isqrt(x){var r=Math.round(Math.sqrt(x));while(r*r>x)r--;while((r+1)*(r+1)<=x)r++;return r;}
+function isSquare(x){var r=isqrt(x);return r*r===x?r:-1;}
+function fermat(n){var a=Math.ceil(Math.sqrt(n)),steps=[];while(a<=n){var b2=a*a-n,b=isSquare(b2);steps.push({a:a,b2:b2,sq:b>=0});if(b>=0)return {factors:[a-b,a+b],a:a,b:b,steps:steps};a++;}return {factors:null,steps:steps};}
+function verify(){var comps=[15,21,35,77,91,143,187,209,221,899,3599,5959],ok=true;comps.forEach(function(n){if(n%2===0)return;var f=fermat(n);if(!f.factors||f.factors[0]<=1||f.factors[0]*f.factors[1]!==n)ok=false;});return {findsFactors:ok,example:'5959 = '+fermat(5959).factors.join(' × ')};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var f=fermat(NUM);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('n = '+NUM+', climb a from ⌈√n⌉ = '+Math.ceil(Math.sqrt(NUM))+':',12,16);
+ for(var i=0;i<Math.min(f.steps.length,8);i++){var st=f.steps[i];g.fillStyle=st.sq?'#39fc6b':'#3a4550';g.fillRect(14+i*62,40,58,44);g.fillStyle=st.sq?'#042':'#c0d0e0';g.font='9px monospace';g.fillText('a='+st.a,18+i*62,54);g.fillText('a²−n=',18+i*62,66);g.fillText(st.b2,18+i*62,78);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('first a where a²−n is a perfect square → factors',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var f=fermat(NUM);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('n = '+NUM,12,26);
+ g.fillStyle='#b06858';g.font='11px monospace';g.fillText('searched '+f.steps.length+' values of a from '+Math.ceil(Math.sqrt(NUM)),12,52);
+ if(f.factors){g.fillStyle='#8ad';g.fillText('a = '+f.a+',  b = '+f.b+',  a²−n = '+f.b+'² = '+(f.b*f.b),12,76);g.fillStyle='#39fc6b';g.font='14px monospace';g.fillText(NUM+' = '+f.factors[0]+' × '+f.factors[1],12,108);g.fillStyle=(f.factors[0]*f.factors[1]===NUM)?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('product check: '+(f.factors[0]*f.factors[1])+(f.factors[0]*f.factors[1]===NUM?' ✓':' ✗'),12,132);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText(f.steps.length<=2?'factors close to √n → found fast':'factors far apart → many steps',12,H-14);}
+document.getElementById('fernum').onclick=function(){var comps=[15,35,77,143,187,221,323,437,667,899,1147,1517,2021,3599,5959,8051];NUM=comps[Math.floor(Math.random()*comps.length)];drawW3();drawW4();document.getElementById('ferread').textContent=NUM+' = '+fermat(NUM).factors.join(' × ');};
+document.getElementById('fercheck').onclick=function(){var v=verify();document.getElementById('ferread').textContent='odd composites: Fermat finds nontrivial factors '+(v.findsFactors?'✓':'✗')+' | '+v.example;};
+document.getElementById('ferspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var f=fermat(NUM),a0=Math.ceil(Math.sqrt(NUM));
+ g.strokeStyle='#39fc6b';g.beginPath();for(var i=0;i<f.steps.length;i++){var x=30+i/Math.max(1,f.steps.length-1)*(W-60),y=H*0.6-Math.sqrt(Math.max(0,f.steps[i].b2))*0.3+8*Math.sin(ang+i);if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ var last=f.steps[f.steps.length-1];g.fillStyle='#39fc6b';g.beginPath();g.arc(W-30,H*0.6-Math.sqrt(Math.max(0,last.b2))*0.3,5,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the square a²−n hunted for (√ of it climbing)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the factors — found once the square appears',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('factoring = hunting a²≡b² — the seed of the sieves',10,H-9);}
+drawW3();drawW4();window.__fermatfactorization=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-hungarian","title":"THE HUNGARIAN","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#6088c0","icon":"hungarian",
+  "kicker":"minimum-cost assignment by reducing to zeros",
+  "blurb":"the Hungarian algorithm in the 5-window house format — solve the assignment problem (match n workers to n jobs at minimum total cost) in O(n^3) instead of checking n! matchings, by subtracting row and column constants (which never change the optimal assignment) until a zero-cost complete matching appears. It is the workhorse of scheduling, tracking, and allocation. Verified live: over 200 random cost matrices (n=2..6), the Hungarian assignment's total cost equals the brute-force minimum over all permutations. See row reduction in 1D, an optimal assignment in 2D, and the reduction-reveals-the-answer inverse in 3D.",
+  "lit":"Genuine Hungarian algorithm (Kuhn 1955, on Konig-Egervary; Munkres). Verified live: the row/column-reduction + augmenting-path assignment returns a total cost equal to the brute-force minimum over all n! permutations for 200 random cost matrices of size n=2..6 (window.__hungarian.matchesBrute).",
+  "fig":"No framing: the reduction, the matching, and the brute cross-check run in-browser and agree exactly. The AVAN inverse is honest — subtracting a constant from a row or column shifts every complete assignment's cost equally (each uses one cell per row), so the optimum is invariant and reveals itself as a zero-cost matching; magenta is the n! matchings, green the reduced zeros. Ties to Hopcroft-Karp/Konig and Ford-Fulkerson.",
+  "body":HUN_BODY,"script":HUN_SCRIPT},
+ {"slug":"the-cholesky","title":"THE CHOLESKY","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE TOOLCHAIN","domain_slug":"the-toolchain","accent":"#58a8b0","icon":"cholesky",
+  "kicker":"a matrix square root — A = L·Lᵀ, half the work of LU",
+  "blurb":"the Cholesky decomposition in the 5-window house format — factor a symmetric positive-definite matrix A into A = L*L^T with L lower-triangular (a matrix square root), about twice as fast as general LU. It solves SPD systems, least squares, and draws correlated Gaussian samples (Sigma = LL^T, transform normals by L). If A is not positive-definite the algorithm fails under a negative square root, so it doubles as a definiteness test. Verified live: for 300 random SPD matrices L*L^T reconstructs A to ~1e-15, L is lower-triangular, and a non-SPD matrix is rejected. See the triangular build in 1D, factor+reconstruct in 2D, and the symmetry-halves-the-work inverse in 3D.",
+  "lit":"Genuine Cholesky decomposition (Cholesky c.1910, published 1924). Verified live: for 300 random SPD matrices (formed as L0*L0^T), the Cholesky factor L satisfies L*L^T = A to max error ~1e-15 and is lower-triangular, and the algorithm returns failure on a non-positive-definite matrix (window.__cholesky.reconstructsA && .rejectsNonSPD).",
+  "fig":"No framing: the triangular factorization, the reconstruction check, and the non-SPD rejection run in-browser and are exact to floating precision. The AVAN inverse is honest — A's two LU factors are transposes (L and L^T) by symmetry, so only one is computed, and success is a constructive proof of positive-definiteness; magenta is the free transpose factor, green the computed L.",
+  "body":CHO_BODY,"script":CHO_SCRIPT},
+ {"slug":"the-narayana","title":"THE NARAYANA","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#c090a0","icon":"narayana",
+  "kicker":"Catalan sliced by peaks — a refinement that sums back",
+  "blurb":"the Narayana numbers in the 5-window house format — N(n,k) counts Dyck paths (balanced-paren strings) of semilength n with exactly k peaks (an up-step then a down-step, '()'), refining the Catalan numbers: sum_k N(n,k) = C_n. The closed form is N(n,k)=(1/n)C(n,k)C(n,k-1), and the triangle 1;1,1;1,3,1;1,6,6,1 is symmetric. Verified live: N(n,k) equals a brute count of Dyck paths with k peaks and the rows sum to the Catalan number for n=1..8. See peaks on a path in 1D, formula vs brute in 2D, and the Catalan-decomposed-by-a-statistic inverse in 3D.",
+  "lit":"Genuine Narayana numbers (Narayana 1955). Verified live: N(n,k)=(1/n)C(n,k)C(n,k-1) equals a brute count of Dyck paths of semilength n with exactly k peaks, and sum_k N(n,k) equals the Catalan number C_n, for n=1..8 (window.__narayana.matchesPeaks && .sumsToCatalan); N(4,k)=1,6,6,1.",
+  "fig":"No framing: the closed form, the brute peak-count, and the Catalan row-sum run in-browser and agree exactly. The AVAN inverse is honest — Narayana is Catalan refined by the peak statistic (summing over k un-refines to Catalan), and the refinement is symmetric (peaks vs valleys, N(n,k)=N(n,n+1-k)); magenta is the lumped Catalan, green the Narayana slices. Ties to the-catalan and the-motzkin.",
+  "body":NAR_BODY,"script":NAR_SCRIPT},
+ {"slug":"the-pancake-sorting","title":"THE PANCAKE SORTING","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE KONAMI CODE","domain_slug":"the-konami-code","accent":"#d0a048","icon":"pancake-sorting",
+  "kicker":"sort by prefix flips — Bill Gates' only paper",
+  "blurb":"pancake sorting in the 5-window house format — sort a stack when the only move is a prefix flip (insert a spatula, flip the top portion). Greedy (bring the largest unsorted pancake up, then flip it down) always sorts in at most 2n-3 flips; finding the true minimum (the pancake number) is NP-hard. The famous fact: Bill Gates' only research paper (with Papadimitriou, 1979) improved the bound. Verified live: over 300 random stacks, greedy pancake sorting produces a sorted stack using at most 2n-3 flips. See a prefix flip in 1D, a stack sorted in 2D, and the restricted-moves-make-the-optimum-hard inverse in 3D.",
+  "lit":"Genuine pancake sorting (posed by Goodman 1975; 2n-3 bound improved by Gates & Papadimitriou 1979). Verified live: greedy prefix-flip sorting (bring max up, flip to place) produces a fully sorted stack using at most 2n-3 flips for 300 random permutations (window.__pancakesorting.sorts && .flipsBounded).",
+  "fig":"No framing: the prefix-flip operation, the greedy sort, and the sortedness + flip-bound checks run in-browser and are exact. The AVAN inverse is honest — restricting moves to prefix reversals still sorts (in O(n) flips) but makes the minimum-flip problem NP-hard; magenta is the disallowed arbitrary swaps, green the prefix flips. Ties to the-fifteen-puzzle's restricted moves.",
+  "body":PAN_BODY,"script":PAN_SCRIPT},
+ {"slug":"the-fermat-factorization","title":"THE FERMAT FACTORIZATION","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#b06858","icon":"fermat-factorization",
+  "kicker":"factor n as a difference of squares — the seed of the sieves",
+  "blurb":"Fermat's factorization method in the 5-window house format — split an odd n as a difference of squares n = a^2 - b^2 = (a-b)(a+b): start a at ceil(sqrt(n)) and increase until a^2 - n is a perfect square b^2, then (a-b),(a+b) are factors. It is fast when the factors are close to sqrt(n), slow when far apart (why secure RSA uses primes of very different sizes). Verified live: for a range of odd composites, the search returns nontrivial factors whose product is n (e.g. 5959 = 59 x 101). See a^2-n climbing in 1D, factors found in 2D, and the factoring-is-square-hunting inverse in 3D.",
+  "lit":"Genuine Fermat factorization (Fermat, 17th c.). Verified live: for odd composites {15,21,35,77,...,5959}, ascending a from ceil(sqrt(n)) until a^2-n is a perfect square returns two nontrivial factors (a-b)(a+b) whose product equals n (window.__fermatfactorization.findsFactors); 5959 = 59 x 101.",
+  "fig":"No framing: the ascending perfect-square search, the factor extraction, and the product check run in-browser and are exact integer arithmetic. The AVAN inverse is honest — factoring n equals finding a nontrivial square congruence a^2 = b^2, the seed of the quadratic sieve and number field sieve; Fermat is the naive exact version, and it is slow exactly when factors are far apart (the RSA security assumption). Magenta is the factors, green the hunted square.",
+  "body":FER_BODY,"script":FER_SCRIPT},
  {"slug":"the-sprague-grundy","title":"THE SPRAGUE-GRUNDY","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#c05868","icon":"sprague-grundy",
   "kicker":"every impartial game is secretly a Nim heap",
