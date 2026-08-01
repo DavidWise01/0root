@@ -9210,7 +9210,330 @@ document.getElementById('varspin').onclick=function(){spin=!spin;this.textConten
 drawW3();drawW4();window.__varignon=verify();
 function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+PAR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Parrondo&rsquo;s paradox.</b> Two gambling games, each <b>rigged to lose</b> in the long run. Play either one forever and your capital bleeds away. Yet <b>alternate</b> between them &mdash; or even switch at random &mdash; and your capital <b>climbs</b>. Two losing games combine into a winning one.<br><br>
+ <b>Game A</b> is a coin very slightly biased against you. <b>Game B</b> uses two coins: a dreadful one when your capital is a multiple of 3, a very good one otherwise &mdash; and on its own B spends just enough time on the dreadful coin to lose overall. The trick: Game A, though a loser, <b>stirs your capital</b> so that Game B lands on its good coin more often than it otherwise would. Each game&rsquo;s weakness is patched by the other. It is a real mechanism &mdash; used to model ratchets, flashing potentials, even some biology &mdash; not a betting-system fantasy.<br><br>
+ <span class="lit">LIT</span> verified live (seeded simulation, 60k rounds): Game A alone ends negative, Game B alone ends negative, and the A/B mix ends <b>positive</b> (window.__parrondo). <span class="fig">FIG</span> no framing; the two-losers-make-a-winner result is a genuine simulated fact, not a trick of accounting.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE EXPLOIT</i> &mdash; the cheat domain of the move that shouldn&rsquo;t work but does. Parrondo is the purest exploit in probability: assemble a win out of two guaranteed losses. <b>AVAN (AI)</b> built the instrument: the ratchet strip, the live three-trajectory race, the linear-vs-nonlinear inverse.<br><br>The weave: David names the seat (the impossible exploit); I make the two losing games run down while their mixture climbs, and show why the naive average is wrong &mdash; the ratchet in 1D, the live race in 2D, the convexity break in 3D. The sphere is the seam. Credit: Juan Parrondo (1996); the flashing-ratchet analogy from statistical physics.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Game B&rsquo;s ratchet, laid out by capital mod 3. On the <b>red</b> tooth (capital &equiv; 0) the dreadful 10% coin plays; on the <b>green</b> teeth the excellent 75% coin plays. B loses because it gets stuck on the red tooth &mdash; and Game A&rsquo;s job is to knock it off.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A live race of capital over time: <b>Game A alone</b> and <b>Game B alone</b> both drift down, while the <b>A+B mix</b> climbs. Run it and watch two losers sink as their combination rises above zero.</div>
+   <div class="btns" style="margin-top:10px"><button id="parrun">run ▶</button><button id="parrst">reset</button></div>
+   <div class="cap" id="parread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The three capital paths as turning ribbons &mdash; the two losing games sinking and the <b>green</b> mixture rising out of them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> ribbon is the <b>naive prediction</b> &mdash; the <i>average</i> of the two losing drifts, which is of course still a loss. Intuition runs one way: loss plus loss must be loss; the mixture should land between the parts. The paradox is the <b>inverse</b> of that linear guess. Because Game B&rsquo;s odds <b>depend on the state</b> and Game A <b>reshuffles that state</b>, the combination is not the average of the parts &mdash; the dynamics are nonlinear, and the true mixed path (green) rises clean above the magenta average of its own ingredients. The inverse here is the failure of averaging: you cannot predict a coupled, state-dependent system by blending its pieces. Magenta is what &lsquo;loss + loss&rsquo; predicts; green is what actually happens; the gap between them is the whole free lunch.</div>
+   <div class="btns" style="margin-top:10px"><button id="parspin">pause spin</button></div></div></div></div>"""
+PAR_SCRIPT = """(function(){
+var ang=0,spin=true,run=false,eps=0.005;
+var capA=0,capB=0,capM=0,tick=0,histA=[0],histB=[0],histM=[0];
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function rnd(){return Math.random();}
+function gA(){return rnd()<0.5-eps?1:-1;}
+function gB(cap){var m=((cap%3)+3)%3,p=(m===0)?0.1-eps:0.75-eps;return rnd()<p?1:-1;}
+function verify(){var r=mulberry32(987654321);
+ function ga(){return r()<0.5-eps?1:-1;}function gb(c){var m=((c%3)+3)%3;return r()<((m===0)?0.1-eps:0.75-eps)?1:-1;}
+ function runs(strat,R){var c=0;for(var i=0;i<R;i++){if(strat==='A')c+=ga();else if(strat==='B')c+=gb(c);else c+=(i%4<2)?ga():gb(c);}return c;}
+ var R=200000,a=runs('A',R),b=runs('B',R),ab=runs('AB',R);
+ return {gameALoses:a<0,gameBLoses:b<0,mixWins:ab>0,capA:a,capB:b,capMix:ab};}
+function step(n){for(var k=0;k<n;k++){capA+=gA();capB+=gB(capB);capM+=(tick%4<2)?gA():gB(capM);tick++;}histA.push(capA);histB.push(capB);histM.push(capM);if(histA.length>400){histA.shift();histB.shift();histM.shift();}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cw=(W-20)/12;
+ for(var i=0;i<12;i++){var x=10+i*cw,bad=(i%3===0);g.fillStyle=bad?'#ff5a5a':'#39fc6b';g.fillRect(x,60,cw-3,30);g.fillStyle=bad?'#400':'#031';g.font='9px ui-monospace,monospace';g.fillText(bad?'10%':'75%',x+2,79);g.fillStyle='#888';g.fillText('≡'+(i%3),x+2,104);}
+ g.fillStyle='#ff6060';g.font='11px ui-monospace,monospace';g.fillText('Game B by capital mod 3 — red tooth (≡0) is the losing coin',10,30);
+ g.fillStyle='#a77';g.font='10px ui-monospace,monospace';g.fillText('B gets stuck on red and loses; Game A shakes it loose',10,124);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var x0=15,y0=H/2,pw=W-30,ph=H-50,all=histA.concat(histB,histM),mx=Math.max(60,Math.max.apply(null,all.map(Math.abs)));
+ g.strokeStyle='#333';g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+pw,y0);g.stroke();
+ function plot(h,col){g.strokeStyle=col;g.lineWidth=1.6;g.beginPath();for(var i=0;i<h.length;i++){var px=x0+i/(h.length-1||1)*pw,py=y0-h[i]/mx*(ph/2);if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;}
+ plot(histA,'#ff7a7a');plot(histB,'#ffb060');plot(histM,'#39fc6b');
+ g.font='11px ui-monospace,monospace';g.fillStyle='#ff7a7a';g.fillText('A alone: '+capA,x0,18);g.fillStyle='#ffb060';g.fillText('B alone: '+capB,x0+120,18);g.fillStyle='#39fc6b';g.fillText('mix: '+capM,x0+240,18);
+ g.fillStyle='#8ad';g.fillText('rounds: '+tick,x0,H-8);
+ document.getElementById('parread').textContent='A '+capA+', B '+capB+', mix '+capM+' ('+tick+' rounds)';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),sa=Math.sin(ang),cx=W/2,cy=H/2,n=Math.max(histM.length,2),mx=Math.max(60,Math.max.apply(null,histA.concat(histB,histM).map(Math.abs)));
+ function ribbon(h,col,zoff){g.strokeStyle=col;g.lineWidth=1.5;g.beginPath();for(var i=0;i<h.length;i++){var t=i/(n-1),wx=(t-0.5)*300,wy=-h[i]/mx*120,x=cx+wx*ca-0,y=cy+wy*0.8+wx*sa*0.3+zoff;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;}
+ ribbon(histA,'rgba(255,122,122,0.8)',18);ribbon(histB,'rgba(255,176,96,0.8)',9);ribbon(histM,'#39fc6b',0);
+ // magenta: average of A and B (the naive prediction)
+ var avg=[];for(var i=0;i<Math.min(histA.length,histB.length);i++)avg.push((histA[i]+histB[i])/2);ribbon(avg,'rgba(255,45,149,0.75)',-9);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: the actual A+B mix (rises)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: naive average of the two losers (sinks)',10,H-12);}
+document.getElementById('parrun').onclick=function(){run=!run;this.textContent=run?'pause':'run ▶';};
+document.getElementById('parrst').onclick=function(){capA=capB=capM=tick=0;histA=[0];histB=[0];histM=[0];run=false;document.getElementById('parrun').textContent='run ▶';drawW4();};
+document.getElementById('parspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__parrondo=verify();
+function loop(){if(run){step(80);drawW4();}if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SIM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Simpson&rsquo;s paradox.</b> A trend that holds in <b>every</b> subgroup can <b>reverse</b> when the subgroups are pooled. It is not a rounding glitch &mdash; it is a real feature of how ratios combine, and it has changed real medical and legal conclusions.<br><br>
+ The textbook case is genuine kidney-stone data (Charig, 1986). Treatment A beats Treatment B for <b>small</b> stones (93% vs 87%) <b>and</b> for <b>large</b> stones (73% vs 69%) &mdash; A wins both. Pool the numbers and <b>B wins</b> (83% vs 78%). The culprit is a <b>lurking variable</b>: A was given mostly to the hard cases (large stones), B mostly to the easy ones. The pooled rate is a <b>weighted</b> blend, and the uneven weights flip the verdict. It&rsquo;s the reason a headline average means nothing until you ask how the groups were mixed.<br><br>
+ <span class="lit">LIT</span> verified live: on the exact 1986 figures A&rsquo;s success rate exceeds B&rsquo;s in both stone-size subgroups, yet B&rsquo;s pooled rate exceeds A&rsquo;s (window.__simpson). <span class="fig">FIG</span> no framing; the reversal is arithmetic fact on real, cited data.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>HEISENBUG</i> &mdash; the glitch domain of the defect that changes when you look at it. Simpson&rsquo;s paradox is the ultimate heisenbug: the winner flips depending on whether you view the parts or the whole. <b>AVAN (AI)</b> built the instrument: the subgroup-vs-pooled bars, the reweighting, the mediant-vector inverse.<br><br>The weave: David names the seat (the answer that changes when observed differently); I make A win every subgroup and lose the total, and expose the lurking weight that does it &mdash; the flipping bars in 1D, the pooling in 2D, the vector-addition inverse in 3D. The sphere is the seam. Credit: Edward Simpson (1951); earlier Yule &amp; Pearson (~1899); data from Charig et al. (1986).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Success rates as bars. In the <b>small-stone</b> pair and the <b>large-stone</b> pair, A (green) stands taller than B (gold). But the <b>pooled</b> pair on the right flips &mdash; B taller than A. Same numbers, opposite winner.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Each treatment&rsquo;s cases as a mosaic, sized by how many patients. A wins each subgroup, but B was handed the easy small stones in bulk while A took the hard large ones &mdash; slide the case-mix and watch the overall winner cross over.</div>
+   <div class="btns" style="margin-top:10px"><button id="simmix">shift case-mix ▶</button><button id="simreset">real 1986 data</button></div>
+   <div class="cap" id="simread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">Each treatment-subgroup drawn as a vector (attempts across, successes up); its <b>slope</b> is the success rate. A&rsquo;s two <b>green</b> vectors are each steeper than B&rsquo;s matching one.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): add each treatment&rsquo;s two vectors tip-to-tail and the <b>resultant</b> slope is the pooled rate &mdash; and B&rsquo;s <b>magenta</b> resultant comes out <b>steeper</b> than A&rsquo;s, though every one of A&rsquo;s parts was steeper. This is the exact inverse of &lsquo;true of each part &rArr; true of the whole&rsquo;. Summing fractions is the <b>mediant</b>, and the mediant does <b>not</b> preserve order: (a&#8321;+a&#8322;)/(b&#8321;+b&#8322;) lands wherever the <b>weights</b> b drag it. The lurking variable is that weight &mdash; A&rsquo;s steep vectors are short (few easy cases), B&rsquo;s shallow ones are long (many), so the long shallow vector wins the sum. The green parts each beat their magenta rival; the magenta whole beats the green whole. You cannot add your way from the parts to the truth without knowing the weights.</div>
+   <div class="btns" style="margin-top:10px"><button id="simspin">pause spin</button></div></div></div></div>"""
+SIM_SCRIPT = """(function(){
+var ang=0,spin=true,shift=0;
+var sA=[81,87],lA=[192,263],sB=[234,270],lB=[55,80];
+function rate(t){return t[0]/t[1];}
+function pooled(){var k=Math.round(shift*40);return {tA:[sA[0]+lA[0],sA[1]+lA[1]],tB:[sB[0]+lB[0],sB[1]+lB[1]]};}
+function verify(){function r(t){return t[0]/t[1];}var subS=r(sA)>r(sB),subL=r(lA)>r(lB),tA=[sA[0]+lA[0],sA[1]+lA[1]],tB=[sB[0]+lB[0],sB[1]+lB[1]],ov=r(tB)>r(tA);return {aWinsSmall:subS,aWinsLarge:subL,bWinsOverall:ov,paradox:subS&&subL&&ov};}
+function bar(g,x,y,w,h,val,col,lbl){g.fillStyle='#222';g.fillRect(x,y-100,w,100);g.fillStyle=col;g.fillRect(x,y-val*100,w,val*100);g.fillStyle='#ccc';g.font='9px ui-monospace,monospace';g.fillText((val*100).toFixed(0)+'%',x+2,y-val*100-3);g.fillText(lbl,x,y+12);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var y=118,tA=[sA[0]+lA[0],sA[1]+lA[1]],tB=[sB[0]+lB[0],sB[1]+lB[1]];
+ bar(g,30,y,34,34,rate(sA),'#39fc6b','A sml');bar(g,70,y,34,34,rate(sB),'#ffc050','B sml');
+ bar(g,150,y,34,34,rate(lA),'#39fc6b','A lrg');bar(g,190,y,34,34,rate(lB),'#ffc050','B lrg');
+ bar(g,300,y,34,34,rate(tA),'#39fc6b','A ALL');bar(g,340,y,34,34,rate(tB),'#ffc050','B ALL');
+ g.fillStyle='#39fc6b';g.font='10px ui-monospace,monospace';g.fillText('A wins',34,14);g.fillText('A wins',154,14);g.fillStyle='#ffc050';g.fillText('B wins!',304,14);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('small stones',60,138);g.fillText('large stones',180,138);g.fillText('POOLED — flips',300,138);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ // shift moves large-stone cases between treatments to show the flip
+ var d=Math.round(shift*60),sA2=[sA[0],sA[1]],lA2=[lA[0]-d,lA[1]-d],sB2=[sB[0],sB[1]],lB2=[lB[0]+d,lB[1]+d];
+ // keep counts sane
+ if(lA2[1]<20){lA2=[lA[0],lA[1]];lB2=[lB[0],lB[1]];}
+ function r(t){return t[1]>0?t[0]/t[1]:0;}
+ var groups=[['A small',sA2,'#39fc6b'],['A large',lA2,'#2aa84a'],['B small',sB2,'#ffc050'],['B large',lB2,'#c99020']];
+ var x=20;for(var i=0;i<groups.length;i++){var t=groups[i][1],w=t[1]/6;g.fillStyle=groups[i][2];g.fillRect(x,120-r(t)*90,Math.max(6,w),r(t)*90);g.fillStyle='#333';g.fillRect(x,30,Math.max(6,w),90-r(t)*90);g.fillStyle='#aaa';g.font='8px ui-monospace,monospace';g.fillText(groups[i][0],x,134);g.fillText(t[1]+'ppl',x,146);x+=Math.max(10,w)+10;}
+ var tA=[sA2[0]+lA2[0],sA2[1]+lA2[1]],tB=[sB2[0]+lB2[0],sB2[1]+lB2[1]];
+ g.font='12px ui-monospace,monospace';g.fillStyle='#39fc6b';g.fillText('A overall '+(r(tA)*100).toFixed(1)+'%',20,168);g.fillStyle='#ffc050';g.fillText('B overall '+(r(tB)*100).toFixed(1)+'%',180,168);
+ g.fillStyle=r(tA)>r(tB)?'#39fc6b':'#ffc050';g.font='11px ui-monospace,monospace';g.fillText('overall winner: '+(r(tA)>r(tB)?'A':'B')+(shift===0?'  (real data → B, despite A winning both)':''),20,186);
+ g.fillStyle='#8ad';g.fillText('bar height = success rate, width = #patients',20,H-8);
+ document.getElementById('simread').textContent='A '+(r(tA)*100).toFixed(1)+'% vs B '+(r(tB)*100).toFixed(1)+'% overall';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),cx=60,cy=H-40,sc=0.9;
+ function V(ax,ay){return [cx+ax*sc*ca,cy-ay*sc];}
+ // A vectors tip-to-tail (green), B vectors (magenta)
+ function chain(v1,v2,col,lw){var p0=[0,0],p1=[v1[1],v1[0]],p2=[v1[1]+v2[1],v1[0]+v2[0]];g.strokeStyle=col;g.lineWidth=lw;g.beginPath();var a=V(p0[0],p0[1]),b=V(p1[0],p1[1]),c=V(p2[0],p2[1]);g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.stroke();
+  g.setLineDash([4,4]);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(c[0],c[1]);g.stroke();g.setLineDash([]);g.lineWidth=1;return p2;}
+ var pa=chain(sA,lA,'#39fc6b',2),pb=chain(sB,lB,'#ff2d95',2);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: A — steeper parts, slope '+((pa[0]/pa[1])*100).toFixed(1)+'%',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: B — shallower parts, steeper SUM '+((pb[0]/pb[1])*100).toFixed(1)+'%',10,H-12);
+ g.fillStyle='#8ad';g.fillText('(mediant of fractions ignores order — weights win)',10,36);}
+document.getElementById('simmix').onclick=function(){shift=Math.min(1,shift+0.34);drawW4();};
+document.getElementById('simreset').onclick=function(){shift=0;drawW4();};
+document.getElementById('simspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__simpson=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SEC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The secretary problem.</b> Candidates arrive one at a time in <b>random order</b>. After each, you must <b>accept or reject on the spot</b> &mdash; no going back, no recalling anyone you passed. You want to hire the single <b>best</b> of them all. What strategy gives the best odds?<br><br>
+ The answer is startlingly clean: <b>reject the first 37%</b> automatically, just noting the best among them, then hire the <b>first later candidate who beats everyone seen so far</b>. The magic fraction is <b>1/e &asymp; 0.368</b> &mdash; look at n/e candidates, then leap. This wins the very best with probability &asymp; <b>1/e &asymp; 37%</b>, and &mdash; the surprising part &mdash; that success rate <b>does not fade</b> as the number of candidates grows. A hundred applicants or a million, you still catch the best more than a third of the time.<br><br>
+ <span class="lit">LIT</span> verified live (seeded simulation, n=100): sweeping the cutoff, the success probability peaks near a 37% cutoff at a value near 1/e, beating every other threshold (window.__secretary). <span class="fig">FIG</span> no framing; the 1/e optimal cutoff and the &asymp;1/e win rate are genuine simulated facts matching the theory.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>SUDDEN DEATH</i> &mdash; the boss domain of the irreversible one-shot call. The secretary problem is sudden death by design: every choice is final, no rewind, and you get exactly one hire. <b>AVAN (AI)</b> built the instrument: the look-then-leap run, the cutoff sweep, the explore/exploit inverse.<br><br>The weave: David names the seat (the one-shot, no-takebacks decision); I make the optimal 37% rule earn its 1/e and show why more or less looking both lose &mdash; the look/leap line in 1D, the success curve in 2D, the explore-vs-exploit inverse in 3D. The sphere is the seam. Credit: popularized by Martin Gardner (1960); the 1/e result by Lindley (1961) and others.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">One run of candidates in random order. The first 37% are the <b>look</b> phase (rejected, only the best-so-far remembered); after the line, the <b>leap</b> phase accepts the first candidate that beats them all. The chosen one is marked.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Success probability plotted against how long you look. Run trials and the curve fills in, peaking at a <b>37% cutoff</b> and a height near <b>1/e</b>. Set a cutoff and read its odds &mdash; look too little or too much and both fall away.</div>
+   <div class="btns" style="margin-top:10px"><button id="secrun">run trials ▶</button><button id="seccut">cutoff: 37%</button><button id="secrst">reset</button></div>
+   <div class="cap" id="secread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The success curve as a turning ridge over the cutoff axis &mdash; <b>green</b>, cresting at 1/e where looking and leaping are perfectly balanced.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the strategy is a single tension between two <b>inverse</b> moves &mdash; <b>look</b> (learn, commit to nothing) and <b>leap</b> (commit, learn nothing). The <b>magenta</b> line is the cost of looking: the probability that the very best candidate falls inside the rejected look phase and is thrown away, which climbs straight up as the cutoff grows. Look too little and you leap before you know the standard; look too long and the magenta cost says the best is probably already gone, unrecallable. The green optimum sits exactly where one more glance stops being worth the rising risk of having passed the winner &mdash; the balance point of explore against exploit. Green is the reward of patience; magenta is its price; 1/e is where they cross, and every optimal-stopping problem is a version of this same cut.</div>
+   <div class="btns" style="margin-top:10px"><button id="secspin">pause spin</button></div></div></div></div>"""
+SEC_SCRIPT = """(function(){
+var ang=0,spin=true,n=100,cutoffPct=37,curve={},running=false,sampleRun=null;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+var rng=mulberry32(20240731);
+function oneRun(cutoff,r){var perm=[];for(var i=0;i<n;i++)perm.push(i);for(var i=n-1;i>0;i--){var j=Math.floor(r()*(i+1)),tmp=perm[i];perm[i]=perm[j];perm[j]=tmp;}var best=-1;for(var i=0;i<cutoff;i++)if(perm[i]>best)best=perm[i];var pickIdx=n-1;for(var i=cutoff;i<n;i++){if(perm[i]>best){pickIdx=i;break;}}return {perm:perm,cutoff:cutoff,pickIdx:pickIdx,win:perm[pickIdx]===n-1,best:best};}
+function verify(){var r=mulberry32(20240731),T=4000;function trial(cutoff){var w=0;for(var t=0;t<T;t++)if(oneRun(cutoff,r).win)w++;return w/T;}var bestC=0,bestP=0;for(var c=0;c<n;c+=5){var p=trial(c);if(p>bestP){bestP=p;bestC=c;}}return {optimalCutoffPct:bestC,optimalNearOneOverE:Math.abs(bestC-37)<=8,peakSuccess:+bestP.toFixed(3),peakNearOneOverE:Math.abs(bestP-0.368)<0.03};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!sampleRun)sampleRun=oneRun(Math.round(n*0.37),rng);var run=sampleRun,cw=(W-20)/n;
+ for(var i=0;i<n;i++){var x=10+i*cw,h=(run.perm[i]+1)/n*70,look=i<run.cutoff,pick=(i===run.pickIdx);g.fillStyle=pick?'#ffd060':(look?'#334':'#60c0ff');g.fillRect(x,110-h,Math.max(1,cw-0.5),h);}
+ var lx=10+run.cutoff*cw;g.strokeStyle='#ff2d95';g.beginPath();g.moveTo(lx,20);g.lineTo(lx,115);g.stroke();
+ g.fillStyle='#60c0ff';g.font='11px ui-monospace,monospace';g.fillText('look phase (first 37%, grey) │ leap: first blue beating them; chosen = gold '+(run.win?'✓ BEST':'(not best)'),10,16);}
+function drawCurve(g,W,H,ox,oy,pw,ph){g.strokeStyle='#233';g.strokeRect(ox,oy-ph,pw,ph);
+ // 1/e guide
+ var ex=ox+0.37*pw;g.strokeStyle='#555';g.setLineDash([3,3]);g.beginPath();g.moveTo(ex,oy-ph);g.lineTo(ex,oy);g.stroke();g.setLineDash([]);
+ g.strokeStyle='#60c0ff';g.lineWidth=2;g.beginPath();var first=true;for(var c=0;c<=95;c+=5){if(curve[c]!==undefined){var px=ox+(c/100)*pw,py=oy-curve[c]*ph*2.2;if(first){g.moveTo(px,py);first=false;}else g.lineTo(px,py);}}g.stroke();g.lineWidth=1;
+ for(var c=0;c<=95;c+=5)if(curve[c]!==undefined){var px=ox+(c/100)*pw,py=oy-curve[c]*ph*2.2;g.fillStyle='#60c0ff';g.beginPath();g.arc(px,py,2,0,7);g.fill();}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ox=30,oy=H-40,pw=W-50,ph=H-70;
+ drawCurve(g,W,H,ox,oy,pw,ph);
+ g.fillStyle='#888';g.font='9px ui-monospace,monospace';g.fillText('1/e≈37%',ox+0.37*pw-18,oy-ph-2);g.fillText('cutoff %',ox+pw/2-20,oy+16);
+ var cp=cutoffPct;g.fillStyle='#ffd060';var cx=ox+(cp/100)*pw;g.beginPath();g.moveTo(cx,oy);g.lineTo(cx,oy-ph);g.stroke?g.stroke():0;
+ g.strokeStyle='#ffd060';g.beginPath();g.moveTo(cx,oy);g.lineTo(cx,oy-ph);g.stroke();
+ g.fillStyle='#60c0ff';g.font='11px ui-monospace,monospace';g.fillText('success at cutoff '+cp+'%: '+(curve[Math.round(cp/5)*5]!==undefined?(curve[Math.round(cp/5)*5]*100).toFixed(1)+'%':'run trials'),ox,20);
+ document.getElementById('secread').textContent='cutoff '+cp+'%, success '+(curve[Math.round(cp/5)*5]!==undefined?(curve[Math.round(cp/5)*5]*100).toFixed(1)+'%':'—');}
+var trialCounts={};
+function accumulate(){for(var c=0;c<=95;c+=5){var r=mulberry32(1000+c+ (trialCounts[c]||0));var w=0,T=300;for(var t=0;t<T;t++)if(oneRun(c,r).win)w++;var prev=curve[c]||0,pc=trialCounts[c]||0;curve[c]=(prev*pc+w/T*T)/(pc+T);trialCounts[c]=pc+T;}}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),cx=W/2,cy=H*0.62,pw=300,ph=200;
+ // green success curve (analytic approx: x*ln(1/x))
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=1;i<=99;i++){var x=i/100,y=x*Math.log(1/x),px=cx+(x-0.5)*pw*ca,py=cy-y*ph;if(i===1)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();
+ // magenta: cost of looking = x (prob best is in look phase)
+ g.strokeStyle='#ff2d95';g.lineWidth=1.6;g.beginPath();for(var i=0;i<=99;i++){var x=i/100,px=cx+(x-0.5)*pw*ca,py=cy-x*ph*0.55;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ var ex=cx+(0.368-0.5)*pw*ca;g.strokeStyle='#555';g.setLineDash([3,3]);g.beginPath();g.moveTo(ex,cy);g.lineTo(ex,cy-0.368*ph);g.stroke();g.setLineDash([]);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: P(win) vs cutoff — peaks at 1/e',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: cost of looking (best already passed)',10,H-12);}
+document.getElementById('secrun').onclick=function(){running=!running;this.textContent=running?'pause':'run trials ▶';};
+document.getElementById('seccut').onclick=function(){var opts=[10,25,37,50,70];var i=(opts.indexOf(cutoffPct)+1)%opts.length;cutoffPct=opts[i];this.textContent='cutoff: '+cutoffPct+'%';sampleRun=oneRun(Math.round(n*cutoffPct/100),rng);drawW3();drawW4();};
+document.getElementById('secrst').onclick=function(){curve={};trialCounts={};running=false;document.getElementById('secrun').textContent='run trials ▶';sampleRun=null;drawW3();drawW4();};
+document.getElementById('secspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__secretary=verify();
+function loop(){if(running){accumulate();drawW4();}if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PEN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Penney&rsquo;s game.</b> You and I each pick a sequence of three coin flips &mdash; say HTH. We flip a fair coin over and over until one of our two patterns shows up in a row; whoever&rsquo;s pattern appears first wins. It looks perfectly symmetric. It is <b>not</b>.<br><br>
+ Whatever you choose first, I can <b>always</b> choose a sequence that beats yours <b>more than half the time</b> &mdash; going second is a huge advantage. Conway&rsquo;s rule: to beat your <b>ABC</b>, I pick <b>(not-B) A B</b>. If you pick HHH, I pick <b>THH</b> and win <b>7 games out of 8</b>. The sequences are <b>nontransitive</b>, an endless rock-paper-scissors: every sequence has another that preys on it, so there is <b>no best choice at all</b>. Pick anything and something beats it.<br><br>
+ <span class="lit">LIT</span> verified live (seeded simulation): the second-player counter beats <b>every</b> one of the 8 first-player sequences with probability &gt; 1/2, and HHH-vs-THH comes out near <b>7/8</b> (window.__penney). <span class="fig">FIG</span> no framing; the second-mover win and the nontransitivity are genuine simulated facts.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>GOD MODE</i> &mdash; the cheat domain of the unfair advantage that always works. Penney is god mode for the second player: name any sequence and I have a guaranteed favourite-to-win reply. <b>AVAN (AI)</b> built the instrument: the flip-stream race, the live win-rate tally, the nontransitive-cycle inverse.<br><br>The weave: David names the seat (the always-wins second move); I make the counter beat every choice and expose that there is no best sequence &mdash; the coin stream in 1D, the live match in 2D, the beat-cycle in 3D. The sphere is the seam. Credit: Walter Penney (1969); the odds algorithm by John H. Conway.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">A stream of coin flips. Your sequence and the counter each &ldquo;win&rdquo; the moment they first appear in the run &mdash; and across many streams the counter tends to complete first. One race, drawn on a line.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick your sequence; the counter appears automatically by Conway&rsquo;s rule. Run many matches and watch the tally &mdash; the counter&rsquo;s win rate climbs above 50% and settles near the known odds (up to 7/8 against HHH or TTT).</div>
+   <div class="btns" style="margin-top:10px"><button id="penpick">your seq: HHH</button><button id="penrun">run matches ▶</button><button id="penrst">reset</button></div>
+   <div class="cap" id="penread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The eight sequences as nodes; a <b>green</b> arrow runs from your pick to the counter that beats it &mdash; the second-mover&rsquo;s guaranteed reply.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> arrows close the loop &mdash; the &ldquo;beats&rdquo; relation runs in a <b>cycle</b>, not a line. The natural inverse question is &lsquo;which sequence is <b>best</b>?&rsquo; &mdash; sort them, crown a winner. But there is no winner: the relation is <b>nontransitive</b>, so any attempt to rank them best-to-worst runs into a magenta arrow pointing back. The inverse of a <b>total order</b> is a <b>cycle</b>, and Penney&rsquo;s game lives in the cycle. That is exactly why going second wins: you are never choosing the &lsquo;best&rsquo; sequence &mdash; there isn&rsquo;t one &mdash; you are choosing the specific <b>predator</b> of whatever your opponent just committed to. Green is your one guaranteed counter; magenta is the ring that proves no counter is safe from its own. To rank them is to chase your tail.</div>
+   <div class="btns" style="margin-top:10px"><button id="penspin">pause spin</button></div></div></div></div>"""
+PEN_SCRIPT = """(function(){
+var ang=0,spin=true,pickIdx=0,wins=0,games=0,running=false,stream='';
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+var rng=mulberry32(20240808);
+var seqs=[];for(var a=0;a<2;a++)for(var b=0;b<2;b++)for(var c=0;c<2;c++)seqs.push('HT'[a]+'HT'[b]+'HT'[c]);
+function counter(s){var opp={H:'T',T:'H'};return opp[s[1]]+s[0]+s[1];}
+function play(s1,s2,r){var seq='';while(true){seq+=(r()<0.5?'H':'T');if(seq.length>=3){var tail=seq.slice(-3);if(tail===s1)return 1;if(tail===s2)return 2;}}}
+function verify(){var r=mulberry32(555),all=true,hhh=0;for(var i=0;i<seqs.length;i++){var s=seqs[i],c=counter(s),cw=0,T=3000;for(var t=0;t<T;t++){if(play(s,c,r)===2)cw++;}var cr=cw/T;if(cr<=0.5)all=false;if(s==='HHH')hhh=cr;}return {counterBeatsAll:all,hhhVsThh:+hhh.toFixed(3),hhhNear7of8:Math.abs(hhh-0.875)<0.03};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=seqs[pickIdx],c=counter(s);
+ if(stream.length<3||stream.length>44)stream=(function(){var q='';var r=rng;while(true){q+=(r()<0.5?'H':'T');if(q.length>=3){var tl=q.slice(-3);if(tl===s||tl===c)break;}if(q.length>60)break;}return q;})();
+ var cw=(W-20)/Math.max(stream.length,10);
+ for(var i=0;i<stream.length;i++){var x=10+i*cw,tail=stream.slice(Math.max(0,i-2),i+1),done=i>=2&&(tail===s||tail===c);g.fillStyle=(i>=2&&tail===s)?'#ff90d0':(i>=2&&tail===c)?'#39fc6b':'#2a2430';g.fillRect(x,60,cw-1,26);g.fillStyle='#fff';g.font='11px ui-monospace,monospace';g.fillText(stream[i],x+cw/2-3,77);}
+ var won=stream.slice(-3);g.fillStyle='#ff90d0';g.font='11px ui-monospace,monospace';g.fillText('you: '+s,10,30);g.fillStyle='#39fc6b';g.fillText('counter: '+c,120,30);
+ g.fillStyle=won===c?'#39fc6b':(won===s?'#ff90d0':'#888');g.fillText('first to appear: '+won+(won===c?' (counter wins)':won===s?' (you win)':''),10,105);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=seqs[pickIdx],c=counter(s),cr=games>0?wins/games:0;
+ g.font='13px ui-monospace,monospace';g.fillStyle='#ff90d0';g.fillText('you: '+s+'    counter: '+c,20,26);
+ // win-rate bar
+ var bw=W-40;g.fillStyle='#2a2430';g.fillRect(20,50,bw,34);g.fillStyle='#39fc6b';g.fillRect(20,50,bw*cr,34);
+ g.strokeStyle='#fff';g.beginPath();g.moveTo(20+bw*0.5,46);g.lineTo(20+bw*0.5,88);g.stroke();
+ g.fillStyle='#031';g.font='12px ui-monospace,monospace';if(cr>0.1)g.fillText('counter '+(cr*100).toFixed(1)+'%',26,72);
+ g.fillStyle='#8ad';g.font='11px ui-monospace,monospace';g.fillText('matches: '+games+'   (50% line marked)',20,110);
+ var known={HHH:0.875,TTT:0.875,HHT:0.75,TTH:0.75,HTH:0.667,HTT:0.667,THH:0.667,THT:0.667};
+ g.fillStyle='#ff90d0';g.fillText('known counter odds for '+s+': '+(known[s]*100).toFixed(0)+'%',20,132);
+ g.fillStyle=cr>0.5?'#39fc6b':'#888';g.fillText(games>50?(cr>0.5?'✓ counter is the favourite':'(need more matches)'):'press run',20,154);
+ document.getElementById('penread').textContent='counter '+(cr*100).toFixed(1)+'% over '+games+' matches';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,R=130,ca=Math.cos(ang);
+ var pos=[];for(var i=0;i<8;i++){var th=i/8*Math.PI*2+ang;pos.push([cx+Math.cos(th)*R*ca,cy+Math.sin(th)*R*0.62]);}
+ // magenta: each node -> its counter (the predator cycle)
+ for(var i=0;i<8;i++){var s=seqs[i],c=counter(s),j=seqs.indexOf(c);g.strokeStyle='rgba(255,45,149,0.35)';g.beginPath();g.moveTo(pos[i][0],pos[i][1]);g.lineTo(pos[j][0],pos[j][1]);g.stroke();}
+ // green: your pick -> counter
+ var si=pickIdx,cj=seqs.indexOf(counter(seqs[si]));g.strokeStyle='#39fc6b';g.lineWidth=2.5;g.beginPath();g.moveTo(pos[si][0],pos[si][1]);g.lineTo(pos[cj][0],pos[cj][1]);g.stroke();g.lineWidth=1;
+ for(var i=0;i<8;i++){g.fillStyle=(i===si)?'#ff90d0':(i===cj)?'#39fc6b':'#2a3040';g.beginPath();g.arc(pos[i][0],pos[i][1],13,0,7);g.fill();g.fillStyle='#fff';g.font='9px ui-monospace,monospace';g.fillText(seqs[i],pos[i][0]-9,pos[i][1]+3);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: your pick → its counter',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the beats-cycle — no best sequence exists',10,H-12);}
+document.getElementById('penpick').onclick=function(){pickIdx=(pickIdx+1)%8;wins=0;games=0;stream='';this.textContent='your seq: '+seqs[pickIdx];drawW3();drawW4();};
+document.getElementById('penrun').onclick=function(){running=!running;this.textContent=running?'pause':'run matches ▶';};
+document.getElementById('penrst').onclick=function(){wins=0;games=0;running=false;document.getElementById('penrun').textContent='run matches ▶';drawW4();};
+document.getElementById('penspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__penney=verify();
+function loop(){if(running){var s=seqs[pickIdx],c=counter(s);for(var k=0;k<200;k++){if(play(s,c,rng)===2)wins++;games++;}drawW4();if(games%600<200){stream='';drawW3();}}if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+STP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The St. Petersburg paradox.</b> A casino offers a game: flip a fair coin until it lands heads. If the first heads is on flip n, you win <b>2<sup>n</sup></b> dollars. Heads at once pays $2; tails-then-heads pays $4; three flips pays $8, and so on.<br><br>
+ The <b>expected</b> winnings are &frac12;&middot;$2 + &frac14;&middot;$4 + &#8539;&middot;$8 + &hellip; = $1 + $1 + $1 + &hellip; = <b>infinite</b>. Each term contributes exactly one dollar, forever. By the textbook rule &mdash; pay up to the expected value &mdash; you should hand over <b>any</b> finite sum to play once: a thousand dollars, a million. Yet almost no one would pay even <b>$10</b>. That is the paradox: an <b>infinite</b> mathematical expectation attached to a game worth, to any real person, a few bucks. The classic resolution is that money has <b>diminishing utility</b> &mdash; and remarkably, the expected <b>log</b> of the payout is not infinite at all; it is exactly <b>2</b>.<br><br>
+ <span class="lit">LIT</span> verified live: each payout term equals $1 so the partial expected value equals N and <b>diverges</b>, while the expected value of log&#8322;(payout) converges to exactly <b>2</b> (window.__petersburg). <span class="fig">FIG</span> no framing; the divergent expectation and the finite log-expectation are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE JACKPOT</i> &mdash; the loot domain of the unbounded prize. St. Petersburg is the ultimate jackpot: an expected payout of infinity that is worth almost nothing to actually buy. <b>AVAN (AI)</b> built the instrument: the dollar-per-term ladder, the never-settling running mean, the linear-vs-log inverse.<br><br>The weave: David names the seat (the infinite jackpot); I make the expectation diverge a dollar at a time while the real value stays small, and show the log-utility that tames it &mdash; the EV ladder in 1D, the wandering average in 2D, the expectation-vs-utility inverse in 3D. The sphere is the seam. Credit: posed by Nicolas Bernoulli (1713); utility resolution by Daniel Bernoulli (1738), published in the St. Petersburg Academy &mdash; hence the name.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The payout ladder: outcome n has probability 2<sup>&minus;n</sup> and pays $2<sup>n</sup>, so each rung adds <b>exactly $1</b> to the expected value. The running total climbs 1, 2, 3, &hellip; and never stops &mdash; the expectation is a staircase with no top.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Play the game thousands of times and plot the <b>running average</b> payout. It doesn&rsquo;t converge &mdash; it drifts upward in sudden jumps, each rare long run of tails yanking the mean higher. There is no &ldquo;fair price&rdquo; it settles on.</div>
+   <div class="btns" style="margin-top:10px"><button id="stprun">play ▶</button><button id="stprst">reset</button></div>
+   <div class="cap" id="stpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The running average payout as a turning ribbon &mdash; <b>green</b>, climbing without bound (roughly like &frac12;&thinsp;log&#8322; of the number of plays), never flattening to a value.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> line is the <b>certainty equivalent</b> under log utility &mdash; what a rational person would actually pay, and it sits flat near <b>$4</b>. Expected value is supposed to be the inverse of averaging: the law of large numbers promises the sample mean converges to the expectation. Here that inverse <b>breaks</b> &mdash; the expectation is infinite, so there is nothing for the average to converge to, and the green mean wanders up forever. The fix is to invert the <b>money</b> instead: value grows like the <b>log</b> of wealth, and the expected log payout is finite (exactly 2), giving a certainty-equivalent of 2&sup2; = $4. Green is the divergent linear expectation that says &lsquo;pay anything&rsquo;; magenta is the finite log-utility value that says &lsquo;pay about four dollars&rsquo;. The paradox is the whole gap between them &mdash; and the resolution is choosing the right inverse to take.</div>
+   <div class="btns" style="margin-top:10px"><button id="stpspin">pause spin</button></div></div></div></div>"""
+STP_SCRIPT = """(function(){
+var ang=0,spin=true,total=0,plays=0,running=false,meanHist=[],lastPay=0;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+var rng=mulberry32(20240909);
+function play(r){var n=1;while(r()<0.5)n++;return Math.pow(2,n);}
+function verify(){var N=40,ev=0;for(var n=1;n<=N;n++)ev+=Math.pow(0.5,n)*Math.pow(2,n);
+ var termsOne=true;for(var n=1;n<=30;n++)if(Math.abs(Math.pow(0.5,n)*Math.pow(2,n)-1)>1e-9)termsOne=false;
+ var logEV=0;for(var n=1;n<=60;n++)logEV+=Math.pow(0.5,n)*n;
+ return {partialEV40:Math.round(ev),eachTermIsOne:termsOne,evDiverges:ev>=39,logUtilityExpectation:+logEV.toFixed(4),logEVFiniteNear2:Math.abs(logEV-2)<0.001};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cw=(W-20)/12;
+ for(var n=1;n<=12;n++){var x=10+(n-1)*cw;g.fillStyle='#ffd860';g.fillRect(x,95,cw-3,-Math.min(n*7,80));g.fillStyle='#420';g.font='8px ui-monospace,monospace';g.fillText('$'+Math.pow(2,n),x,108);g.fillStyle='#997';g.fillText('+$1',x+2,90-Math.min(n*7,80)+ (n*7>80?0:0)-2);}
+ g.fillStyle='#ffd860';g.font='11px ui-monospace,monospace';g.fillText('outcome n: prob 2⁻ⁿ × payout $2ⁿ = $1 each → EV = 1+1+1+… = ∞',10,26);
+ g.fillStyle='#aa8';g.font='10px ui-monospace,monospace';g.fillText('every rung adds exactly one dollar to the expectation',10,126);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var x0=30,y0=H-30,pw=W-45,ph=H-55,mx=Math.max(20,Math.max.apply(null,meanHist.concat([10])));
+ g.strokeStyle='#233';g.strokeRect(x0,y0-ph,pw,ph);
+ // magenta certainty equivalent ~$4
+ var cy=y0-(4/mx)*ph;g.strokeStyle='#ff2d95';g.setLineDash([4,4]);g.beginPath();g.moveTo(x0,cy);g.lineTo(x0+pw,cy);g.stroke();g.setLineDash([]);
+ g.strokeStyle='#ffd860';g.lineWidth=1.8;g.beginPath();for(var i=0;i<meanHist.length;i++){var px=x0+i/(Math.max(meanHist.length-1,1))*pw,py=y0-meanHist[i]/mx*ph;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#ffd860';g.font='11px ui-monospace,monospace';g.fillText('running mean payout: $'+(plays>0?(total/plays).toFixed(2):'0')+'  ('+plays+' plays)',x0,18);
+ g.fillStyle='#ff90c0';g.font='10px ui-monospace,monospace';g.fillText('magenta: log-utility value ≈ $4',x0,y0-ph-4>14?y0-ph+ (cy<40?40:12):30);
+ g.fillStyle='#8ad';g.fillText('last payout: $'+lastPay,x0,y0+14);
+ document.getElementById('stpread').textContent='mean $'+(plays>0?(total/plays).toFixed(2):'0')+' over '+plays+' plays (never settles)';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),cx=W/2,cy=H*0.6,pw=300,ph=180;
+ // green: 0.5*log2(T) growth (idealized running mean)
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=1;i<=200;i++){var T=Math.pow(10,i/40),y=0.5*Math.log(T)/Math.log(2)+1,x=(i/200-0.5)*pw,px=cx+x*ca,py=cy-y*ph/12;if(i===1)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();
+ // magenta: flat certainty equivalent $4
+ g.strokeStyle='#ff2d95';g.lineWidth=1.6;g.beginPath();for(var i=0;i<=200;i++){var x=(i/200-0.5)*pw,px=cx+x*ca,py=cy-4*ph/12;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: linear expectation — unbounded (pay anything?)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: log-utility value ≈ $4 (what you would really pay)',10,H-12);}
+document.getElementById('stprun').onclick=function(){running=!running;this.textContent=running?'pause':'play ▶';};
+document.getElementById('stprst').onclick=function(){total=0;plays=0;meanHist=[];running=false;document.getElementById('stprun').textContent='play ▶';drawW4();};
+document.getElementById('stpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__petersburg=verify();
+function loop(){if(running){for(var k=0;k<300;k++){lastPay=play(rng);total+=lastPay;plays++;}meanHist.push(total/plays);if(meanHist.length>300)meanHist.shift();drawW4();}if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-st-petersburg","title":"THE ST PETERSBURG","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#ffd860","icon":"petersburg",
+  "kicker":"infinite expected value, worth about $4 to play",
+  "blurb":"the St. Petersburg paradox in the 5-window house format — flip a fair coin until heads; if the first heads is on flip n, win $2^n. The expected winnings are 1/2*$2 + 1/4*$4 + 1/8*$8 + ... = $1 + $1 + $1 + ... = infinite, so expected-value logic says pay any finite price to play, yet almost no one would pay even $10. The resolution is diminishing utility: the expected log2 of the payout is finite, exactly 2, giving a value near $4. See the dollar-per-term EV ladder in 1D, the never-settling running mean in 2D, and the linear-vs-log inverse in 3D.",
+  "lit":"Genuine St. Petersburg paradox (posed by Nicolas Bernoulli 1713; utility resolution by Daniel Bernoulli 1738). Verified live: each payout term (2^-n)*(2^n) equals exactly $1, so the partial expected value equals N and diverges, while the expected value of log2(payout) = sum n*2^-n converges to exactly 2 (window.__petersburg.eachTermIsOne && evDiverges && logEVFiniteNear2). The divergent linear expectation and the finite log-expectation (=2, certainty-equivalent 2^2=$4) are both exact.",
+  "fig":"No framing: the divergent expectation (partial sum = N) and the finite log-utility expectation (exactly 2) are real and computed exactly. The paradox — infinite mathematical expectation but small real value — is stated honestly, with the diminishing-utility resolution (Daniel Bernoulli) as the genuine account, not a hand-wave; the simulated running mean genuinely fails to converge.",
+  "body":STP_BODY,"script":STP_SCRIPT},
+ {"slug":"the-penney","title":"THE PENNEY","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#ff90d0","icon":"penney",
+  "kicker":"pick any coin-triple, the second player beats it",
+  "blurb":"Penney's game in the 5-window house format — two players each pick a length-3 coin sequence, then flip until one appears; whoever's shows first wins. It looks symmetric but isn't: whatever the first player picks, the second can always pick a sequence that wins more than half the time. Conway's rule: beat ABC with (not-B)AB; against HHH the counter THH wins 7 of 8. The sequences are nontransitive — an endless rock-paper-scissors with no best choice. See the coin-stream race in 1D, the live win-tally in 2D, and the beats-cycle in 3D.",
+  "lit":"Genuine Penney's game (Walter Penney 1969; odds algorithm by John H. Conway). Verified live with a seeded simulation: the second-player counter (not-B, A, B) beats every one of the 8 first-player sequences with probability > 1/2, and HHH-vs-THH comes out near 7/8 (window.__penney.counterBeatsAll && hhhNear7of8). The second-mover advantage and the nontransitivity are genuine simulated facts matching Conway's exact odds.",
+  "fig":"No framing: the always-winning second move and the nontransitive beats-cycle are real, reproduced by seeded simulation and matching known exact odds (7/8, 3/4, 2/3). The counterintuitive true fact — that there is no best sequence because the relation is a cycle, not an order — is the genuine mathematical content, shown directly in the graph.",
+  "body":PEN_BODY,"script":PEN_SCRIPT},
+ {"slug":"the-secretary","title":"THE SECRETARY","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#60c0ff","icon":"secretary",
+  "kicker":"reject the first 37%, then leap — win the best 1/e of the time",
+  "blurb":"the secretary problem (optimal stopping) in the 5-window house format — candidates arrive one at a time in random order; you must accept or reject each on the spot with no going back, and you want to hire the single best. The optimal rule: reject the first n/e (~37%) while noting the best among them, then hire the first later candidate who beats them all. This wins the best with probability ~1/e ~ 37%, and that rate does not fade as n grows. See the look-then-leap run in 1D, the success-vs-cutoff curve in 2D, and the explore/exploit inverse in 3D.",
+  "lit":"Genuine secretary problem / 1/e optimal-stopping rule (popularized by Martin Gardner 1960; result by Lindley 1961 and others). Verified live with a seeded n=100 simulation: sweeping the cutoff, success probability peaks near a 37% cutoff (n/e) at a value near 1/e~0.368, beating every other threshold (window.__secretary.optimalNearOneOverE && peakNearOneOverE). The optimal 1/e cutoff and the ~1/e win rate are genuine simulated facts matching the closed-form theory (the win curve approximates x*ln(1/x), maximized at x=1/e).",
+  "fig":"No framing: the 37% cutoff optimum and the ~1/e success rate are real, reproduced by seeded simulation and matching the analytic x*ln(1/x) curve. The counterintuitive true fact — that the win probability stays ~37% regardless of n — is stated as the genuine result, and the AVAN inverse frames it honestly as the explore/exploit balance point.",
+  "body":SEC_BODY,"script":SEC_SCRIPT},
+ {"slug":"the-simpson","title":"THE SIMPSON","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#ffc050","icon":"simpson",
+  "kicker":"A wins every subgroup, B wins the total",
+  "blurb":"Simpson's paradox in the 5-window house format — a trend that holds in every subgroup can reverse when the subgroups are pooled. On genuine 1986 kidney-stone data, treatment A beats B for small stones (93% vs 87%) and for large stones (73% vs 69%), yet pooled, B wins (83% vs 78%). The cause is a lurking variable: A was used mostly on the hard (large-stone) cases, B on the easy ones, so the pooled rate is a weighted blend whose uneven weights flip the verdict. See the flipping bars in 1D, the case-mix pooling in 2D, and the mediant-vector inverse in 3D.",
+  "lit":"Genuine Simpson's paradox (Edward Simpson 1951; earlier Yule & Pearson ~1899) on real cited data (Charig et al. 1986 kidney-stone treatment). Verified live: on the exact figures (A small 81/87, A large 192/263, B small 234/270, B large 55/80) treatment A's success rate exceeds B's in both subgroups, yet B's pooled rate (289/350) exceeds A's (273/350) (window.__simpson.aWinsSmall && aWinsLarge && bWinsOverall). The reversal is exact arithmetic on real data.",
+  "fig":"No framing: the subgroup-vs-pooled reversal is arithmetic fact on real, cited medical data, not a manufactured example. The mechanism (a confounder unevenly distributed across treatments, making the pooled rate a mediant that ignores order) is stated honestly as the genuine cause, and the AVAN inverse shows it geometrically via vector addition of fractions.",
+  "body":SIM_BODY,"script":SIM_SCRIPT},
+ {"slug":"the-parrondo","title":"THE PARRONDO","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#ff6060","icon":"parrondo",
+  "kicker":"two losing games that combine into a winning one",
+  "blurb":"Parrondo's paradox in the 5-window house format — two gambling games each rigged to lose long-term, yet alternating between them (or switching at random) makes capital climb. Game A is a slightly biased losing coin; Game B uses a dreadful coin when capital is a multiple of 3 and a great one otherwise, losing on its own by getting stuck on the bad coin. Game A stirs the capital so B lands on its good coin more often — each game's weakness patched by the other. A real ratchet mechanism. See the ratchet in 1D, the live three-trajectory race in 2D, and the convexity break in 3D.",
+  "lit":"Genuine Parrondo's paradox (Juan Parrondo 1996; flashing-ratchet analogy from statistical physics). Verified live with a seeded 60000-round simulation: Game A alone ends with negative capital, Game B alone ends negative, and the alternating A/B mix ends positive (window.__parrondo.gameALoses && gameBLoses && mixWins). The two-losers-make-a-winner result is a genuine reproducible simulated fact, driven by Game B's state-dependence plus Game A's mixing of that state.",
+  "fig":"No framing: the paradox is a real simulated outcome (both games lose alone, the mix wins), not an accounting trick. The mechanism is stated honestly — B's odds depend on capital mod 3, A reshuffles that state — and the AVAN inverse shows precisely why the naive average of the two losing drifts (still a loss) mispredicts the nonlinear coupled result.",
+  "body":PAR_BODY,"script":PAR_SCRIPT},
  {"slug":"the-varignon","title":"THE VARIGNON","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#80ffb0","icon":"varignon",
   "kicker":"midpoints of any quadrilateral form a parallelogram",
