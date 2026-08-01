@@ -8074,7 +8074,325 @@ document.getElementById('frospin').onclick=function(){spin=!spin;this.textConten
 drawW3();drawW4();window.__frobenius=verify();
 function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+TM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Thue&ndash;Morse sequence.</b> Start with a single <b>0</b>. Repeatedly append the <b>complement</b> of everything so far: 0 &rarr; 01 &rarr; 0110 &rarr; 01101001 &rarr; &hellip; The n-th bit is simply the <b>parity of the number of 1s</b> in n written in binary. It is aperiodic, self-similar, and famously the <b>fairest turn order</b>.<br><br>
+ Alternating turns (you, me, you, me) hands a lasting edge to whoever picks first. Taking turns in <b>Thue&ndash;Morse order</b> (you, me, me, you, me, you, you, me&hellip;) cancels that edge: split 0&hellip;2<sup>k</sup>&minus;1 into the &lsquo;0&rsquo; picks and the &lsquo;1&rsquo; picks and the two sides have <b>equal sums of every power</b> up to degree k&minus;1 (the Prouhet&ndash;Tarry&ndash;Escott property). The sequence is also <b>cube-free</b>: no block of symbols ever repeats three times in a row.<br><br>
+ <span class="lit">LIT</span> verified live: the recurrence t(2n)=t(n), t(2n+1)=1&minus;t(n) holds; the first 600 symbols are cube-free; and the Prouhet partition gives equal power sums for k = 1..7 (window.__thuemorse). <span class="fig">FIG</span> no framing; the recurrence, cube-freeness, and the equal-power-sums fairness are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE HANDOFF</i>, beside the other turn-taking spheres &mdash; the co-op domain of who goes next. Thue&ndash;Morse is the mathematically fairest handoff order there is. <b>AVAN (AI)</b> built the instrument: the complement-doubling, the parity view, the fair-turn simulator.<br><br>The weave: David names the seat (the fair handoff); I make the sequence build itself and the fairness visible &mdash; the strip in 1D, the doubling and the converging teams in 2D, the inverse-generated path in 3D. The sphere is the seam. Credit: Axel Thue (1906, 1912); Marston Morse (1921); Eug&egrave;ne Prouhet (1851, the equal-power-sums partition).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The sequence as a strip of 0s and 1s. Each symbol is the parity of the 1-bits in its index &mdash; and equivalently the complement-doubling of the block before it. No motif ever appears three times back-to-back.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Watch the word build by <b>complement-doubling</b>, and watch two players draft items 0,1,2,&hellip; (each worth its own value) in Thue&ndash;Morse order. Their running totals stay locked together &mdash; the fairness is the near-tie.</div>
+   <div class="btns" style="margin-top:10px"><button id="tmdbl">double ▶</button><button id="tmrst">reset</button><button id="tmpar">parity view</button></div>
+   <div class="cap" id="tmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The sequence as a turning path &mdash; step one way on 0, the other on 1 &mdash; tracing the self-similar Thue&ndash;Morse curve in <b>green</b>.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> trail is the <b>complement</b> of the same sequence. Here the inverse isn&rsquo;t a mirror bolted on afterward &mdash; it is the <b>generator itself</b>. The whole word is built by taking what you have and appending its inverse, forever. The inverse of &lsquo;emit the next symbol&rsquo; is &lsquo;emit the complement of what you just emitted&rsquo;, and iterating that single inverse from one lonely 0 produces an infinite word that is aperiodic, cube-free, and the fairest possible &mdash; balance manufactured out of nothing but repeated negation. Green is the sequence; magenta is the inverse that made it. They are the same object, offset by one flip.</div>
+   <div class="btns" style="margin-top:10px"><button id="tmspin">pause spin</button></div></div></div></div>"""
+TM_SCRIPT = """(function(){
+var word='0',ang=0,spin=true,parity=false;
+function t(n){var c=0;while(n){c^=n&1;n>>>=1;}return c;}
+function seq(N){var s='';for(var i=0;i<N;i++)s+=t(i);return s;}
+function verify(){var rec=true;for(var n=0;n<2000;n++)if(t(2*n)!==t(n)||t(2*n+1)!==1-t(n))rec=false;
+ var s=seq(600),cf=true;for(var L=1;L<=200&&cf;L++)for(var i=0;i+3*L<=s.length;i++){var w=s.substr(i,L);if(s.substr(i+L,L)===w&&s.substr(i+2*L,L)===w){cf=false;break;}}
+ var pt=true;for(var k=1;k<=7;k++){var A=[],B=[];for(var n=0;n<(1<<k);n++)(t(n)===0?A:B).push(n);for(var j=0;j<k;j++){var sa=0,sb=0;for(var x=0;x<A.length;x++)sa+=Math.pow(A[x],j);for(var y=0;y<B.length;y++)sb+=Math.pow(B[y],j);if(Math.abs(sa-sb)>1e-6)pt=false;}}
+ return {recurrence:rec,cubeFree:cf,prouhet:pt,start:seq(32)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=seq(64),cw=(W-20)/s.length;
+ for(var i=0;i<s.length;i++){var x=10+i*cw,one=s[i]==='1';g.fillStyle=one?'#b98cff':'#2a2438';g.fillRect(x,55,cw-1,26);}
+ g.fillStyle='#b98cff';g.font='11px ui-monospace,monospace';g.fillText('Thue–Morse: '+seq(40)+'…',10,32);
+ g.fillStyle='#7a6ca0';g.font='10px ui-monospace,monospace';g.fillText('bit n = parity of 1s in binary(n) = complement-doubling of the block before',10,105);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.font='13px ui-monospace,monospace';g.fillStyle='#b98cff';
+ if(parity){var s=seq(64),cols=16,cell=Math.min(20,(W-40)/cols);g.fillText('parity view: bit = popcount(n) mod 2',18,26);
+  for(var i=0;i<s.length;i++){var r=Math.floor(i/cols),c=i%cols,x=20+c*cell,y=40+r*cell;g.fillStyle=s[i]==='1'?'#b98cff':'#241c30';g.fillRect(x,y,cell-2,cell-2);g.fillStyle=s[i]==='1'?'#fff':'#665';g.font='9px ui-monospace,monospace';g.fillText(bin(i),x+1,y+11);}
+ }else{g.fillText('word ('+word.length+' symbols):',18,26);g.font='11px ui-monospace,monospace';g.fillStyle='#e8e0ff';
+  var ln=word.match(/.{1,32}/g)||[word];for(var i=0;i<ln.length;i++)g.fillText(ln[i],18,48+i*15);}
+ // fair-turn simulator using current word (values = index+1)
+ var w=parity?seq(32):word,vals=[],A=0,B=0;for(var i=0;i<w.length;i++){var v=(i%7)+1;if(w[i]==='0')A+=v;else B+=v;}
+ var by=parity?210:Math.min(200,60+(word.match(/.{1,32}/g)||['']).length*15+20);
+ g.font='12px ui-monospace,monospace';g.fillStyle='#39fc6b';g.fillText('team 0 total: '+A,18,by+14);g.fillStyle='#ff2d95';g.fillText('team 1 total: '+B,18,by+32);
+ g.fillStyle=Math.abs(A-B)<=Math.max(...(w.length?[7]:[0]))?'#9df':'#f88';g.fillText('gap: '+Math.abs(A-B)+' (drafting values in T–M order stays near-tied)',18,by+52);
+ document.getElementById('tmread').textContent='word length '+word.length+', teams '+A+' vs '+B;}
+function bin(n){return n.toString(2);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=seq(220),ca=Math.cos(ang),sa=Math.sin(ang);
+ function path(comp,col){var x=0,y=0,dir=0,pts=[];for(var i=0;i<s.length;i++){var b=comp?(s[i]==='0'?1:0):+s[i];dir+=b?1:-1;x+=Math.cos(dir*0.4);y+=Math.sin(dir*0.4);pts.push([x,y]);}
+  var cx=W/2,cy=H/2;g.strokeStyle=col;g.lineWidth=1.4;g.beginPath();for(var i=0;i<pts.length;i++){var px=cx+(pts[i][0]*ca-0)*6,py=cy+pts[i][1]*6*0.7+ (comp?18:-18);if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();}
+ path(false,'#39fc6b');path(true,'rgba(255,45,149,0.75)');g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: the Thue–Morse path',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: its complement — the generator itself',10,H-12);}
+document.getElementById('tmdbl').onclick=function(){var c='';for(var i=0;i<word.length;i++)c+=word[i]==='0'?'1':'0';if(word.length<256)word+=c;drawW4();};
+document.getElementById('tmrst').onclick=function(){word='0';parity=false;drawW4();};
+document.getElementById('tmpar').onclick=function(){parity=!parity;this.textContent=parity?'word view':'parity view';drawW4();};
+document.getElementById('tmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__thuemorse=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The de Bruijn sequence.</b> The <b>shortest</b> cyclic string that contains <b>every</b> possible length-n word over a k-symbol alphabet, each exactly once. The binary case B(2,3) = <b>00010111</b>: slide a 3-wide window around the loop and you read off all eight patterns 000, 001, 010, 101, 011, 111, 110, 100 &mdash; no repeats, no gaps.<br><br>
+ Its length is exactly <b>k<sup>n</sup></b>, the theoretical minimum: there are k<sup>n</sup> windows and each starting position yields one. That makes it a master key. To try every 3-digit binary code on a keypad naively is 8&times;3 = 24 presses; the de Bruijn string cracks all eight in just <b>8</b> presses, because every single new keypress completes a brand-new code. Under the hood it is an <b>Euler circuit</b> through the de Bruijn graph &mdash; a walk using every edge exactly once.<br><br>
+ <span class="lit">LIT</span> verified live: for (k,n) = (2,3),(2,4),(2,5),(3,3),(4,2),(2,6) the constructed sequence has length exactly k<sup>n</sup> and every one of the k<sup>n</sup> windows appears exactly once (window.__debruijn.allWindowsOnce). <span class="fig">FIG</span> no framing; the minimal length and the exactly-once coverage are real.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE BACKDOOR</i>, beside the other master-key spheres &mdash; the cheat domain of getting in the short way. A de Bruijn string is the literal shortest keypad-cracking swipe. <b>AVAN (AI)</b> built the instrument: the construction, the window slide, the lock-cracker counter, the graph circuit.<br><br>The weave: David names the seat (the backdoor); I make the string cover every code and the savings countable &mdash; the sliding window in 1D, the cracker in 2D, the Euler circuit in 3D. The sphere is the seam. Credit: Nicolaas Govert de Bruijn (1946); Camille Flye Sainte-Marie (1894); and the Sanskrit prosodist Pingala&rsquo;s ancient mnemonic <i>yam&aacute;t&aacute;r&aacute;jabh&aacute;nasalag&aacute;m</i>, a B(2,3).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The cyclic de Bruijn string, with a sliding <b>window</b> of width n. As it walks the loop it spells out every length-n word once &mdash; the whole space of codes packed into one line with maximal overlap.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Choose the alphabet size k and word length n. Slide the window: each new position checks off a fresh code in the grid until all k<sup>n</sup> are lit. The <b>lock-cracker</b> readout shows presses used vs. the naive n&middot;k<sup>n</sup>.</div>
+   <div class="btns" style="margin-top:10px"><button id="dbk">k: 2</button><button id="dbn">n: 3</button><button id="dbslide">slide ▶</button></div>
+   <div class="cap" id="dbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The de Bruijn <b>graph</b>: nodes are (n&minus;1)-words, edges are n-words. The sequence is an <b>Euler circuit</b> using every edge exactly once &mdash; traced in <b>green</b>.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the <b>naive un-overlapped listing</b> &mdash; every code written out separately, n&middot;k<sup>n</sup> symbols long. The de Bruijn sequence is its exact inverse: instead of listing the words, it <b>overlaps them maximally</b> into a single loop of length k<sup>n</sup>, a compression by a factor of exactly n. The inverse of &lsquo;enumerate each word in full&rsquo; is &lsquo;share every symbol between n consecutive words&rsquo;, and the demand that makes it possible is that each graph edge be used once &mdash; an Euler circuit. Green is the folded loop where nothing is wasted; magenta is the unfolded list it compresses. The whole trick is folding an enumeration into an overlap.</div>
+   <div class="btns" style="margin-top:10px"><button id="dbspin">pause spin</button></div></div></div></div>"""
+DB_SCRIPT = """(function(){
+var k=2,n=3,pos=0,ang=0,spin=true;
+function deBruijn(kk,nn){var a=new Array(kk*nn).fill(0),seq=[];
+ function db(t,p){if(t>nn){if(nn%p===0)for(var i=1;i<=p;i++)seq.push(a[i]);}else{a[t]=a[t-p];db(t+1,p);for(var j=a[t-p]+1;j<kk;j++){a[t]=j;db(t+1,t);}}}
+ db(1,1);return seq;}
+function verify(){var res=true,cases=[[2,3],[2,4],[2,5],[3,3],[4,2],[2,6]];
+ for(var c=0;c<cases.length;c++){var kk=cases[c][0],nn=cases[c][1],s=deBruijn(kk,nn),N=s.length,seen={},cnt=0;
+  if(N!==Math.pow(kk,nn))res=false;
+  for(var i=0;i<N;i++){var w='';for(var j=0;j<nn;j++)w+=s[(i+j)%N];if(!seen[w]){seen[w]=1;cnt++;}}
+  if(cnt!==Math.pow(kk,nn))res=false;}
+ return {allWindowsOnce:res,b23:deBruijn(2,3).join('')};}
+function win(s,p){var w='';for(var j=0;j<n;j++)w+=s[(p+j)%s.length];return w;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=deBruijn(k,n),cw=Math.min(30,(W-20)/s.length);
+ for(var i=0;i<s.length;i++){var x=10+i*cw,inWin=((i-pos+s.length)%s.length)<n;g.fillStyle=inWin?'#6cf0e0':'#1c2c2a';g.fillRect(x,55,cw-2,26);g.fillStyle=inWin?'#031015':'#6cf0e0';g.font='12px ui-monospace,monospace';g.fillText(s[i],x+cw/2-3,72);}
+ g.fillStyle='#6cf0e0';g.font='11px ui-monospace,monospace';g.fillText('B('+k+','+n+') = '+s.join('')+'  (cyclic, length '+s.length+' = '+k+'^'+n+')',10,32);
+ g.fillStyle='#4a8a80';g.font='10px ui-monospace,monospace';g.fillText('window at '+pos+' reads: '+win(s,pos),10,105);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=deBruijn(k,n),KN=Math.pow(k,n);
+ g.font='13px ui-monospace,monospace';g.fillStyle='#6cf0e0';g.fillText('B('+k+','+n+'), length '+s.length,18,24);
+ // grid of all k^n codes
+ var seen={};for(var p=0;p<=pos;p++)seen[win(s,p)]=1;
+ var cols=Math.min(KN,16),cell=Math.min(30,(W-36)/cols),rows=Math.ceil(KN/cols);g.font='9px ui-monospace,monospace';
+ for(var idx=0;idx<KN;idx++){var code='';var v=idx;for(var d=0;d<n;d++){code=(v%k)+code;v=Math.floor(v/k);}var r=Math.floor(idx/cols),c=idx%cols,x=18+c*cell,y=38+r*cell,lit=seen[code];g.fillStyle=lit?'#6cf0e0':'#12201e';g.fillRect(x,y,cell-2,cell-2);g.fillStyle=lit?'#031015':'#3a6a62';g.fillText(code,x+2,y+cell/2+2);}
+ var by=38+rows*cell+16,pressed=pos+n,naive=n*KN,cracked=Object.keys(seen).length;
+ g.font='12px ui-monospace,monospace';g.fillStyle='#8fe';g.fillText('codes cracked: '+cracked+' / '+KN,18,by);
+ g.fillStyle='#6cf0e0';g.fillText('presses used: '+Math.min(pressed,s.length+n-1)+'   naive: '+naive,18,by+18);
+ g.fillStyle='#39fc6b';g.fillText('de Bruijn cracks all '+KN+' in '+s.length+' presses (÷'+n+')',18,by+36);
+ document.getElementById('dbread').textContent='B('+k+','+n+'): '+cracked+'/'+KN+' codes, '+Math.min(pressed,s.length)+' presses';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=deBruijn(k,n),cx=W/2,cy=H/2,R=120,ca=Math.cos(ang);
+ // nodes = (n-1)-words, place on circle
+ var K1=Math.pow(k,n-1),nodes=[];for(var i=0;i<K1;i++){var th=i/K1*Math.PI*2+ang,x=cx+Math.cos(th)*R*ca,y=cy+Math.sin(th)*R*0.62;nodes.push([x,y]);}
+ // edges of the euler circuit = consecutive windows of length n-1
+ g.strokeStyle='rgba(57,252,107,0.55)';g.lineWidth=1.3;g.beginPath();
+ for(var i=0;i<s.length;i++){var a='',b='';for(var j=0;j<n-1;j++){a+=s[(i+j)%s.length];b+=s[(i+1+j)%s.length];}var ai=parseInt(a,k)||0,bi=parseInt(b,k)||0;g.moveTo(nodes[ai][0],nodes[ai][1]);g.lineTo(nodes[bi][0],nodes[bi][1]);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<K1;i++){g.fillStyle='#39fc6b';g.beginPath();g.arc(nodes[i][0],nodes[i][1],3,0,7);g.fill();}
+ // magenta: naive listing bar
+ g.fillStyle='#ff2d95';g.font='11px ui-monospace,monospace';g.fillText('magenta length (naive): '+(n*Math.pow(k,n))+'   green (de Bruijn): '+s.length,10,H-28);
+ g.strokeStyle='#ff2d95';g.beginPath();g.moveTo(10,H-16);g.lineTo(10+Math.min(360,n*Math.pow(k,n)*2),H-16);g.stroke();
+ g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(10,H-8);g.lineTo(10+Math.min(360,s.length*2),H-8);g.stroke();
+ g.fillStyle='#39fc6b';g.fillText('green: Euler circuit through the de Bruijn graph',10,20);}
+document.getElementById('dbk').onclick=function(){k=k>=4?2:k+1;if(Math.pow(k,n)>256)n=2;pos=0;this.textContent='k: '+k;document.getElementById('dbn').textContent='n: '+n;drawW3();drawW4();};
+document.getElementById('dbn').onclick=function(){n=n>=(k===2?6:3)?2:n+1;pos=0;this.textContent='n: '+n;drawW3();drawW4();};
+document.getElementById('dbslide').onclick=function(){var s=deBruijn(k,n);pos=(pos+1)%s.length;drawW3();drawW4();};
+document.getElementById('dbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__debruijn=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ANT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Langton&rsquo;s ant.</b> One ant on an infinite grid of white cells, following two rules: on a <b>white</b> cell turn right, flip the cell to black, step forward; on a <b>black</b> cell turn left, flip it to white, step forward. That is the entire program.<br><br>
+ For the first few hundred steps it makes tidy symmetric shapes. Then it descends into <b>apparent chaos</b> &mdash; roughly ten thousand steps of a formless, unpredictable scribble. And then, with no change to the rules, <b>order erupts</b>: near step 10,000 the ant locks into a repeating cycle of exactly <b>104 steps</b> that lays down a straight diagonal <b>&ldquo;highway&rdquo;</b> and drives along it forever. No one has proven <i>why</i> the highway always appears &mdash; it is only ever known by running the ant. (It is also provably <b>unbounded</b>: the Cohen&ndash;Kung theorem says the ant&rsquo;s trail can never stay in a finite region.)<br><br>
+ <span class="lit">LIT</span> verified live: from an all-white grid the ant enters a period-104 cycle near step ~9975, and every 104 steps thereafter its net displacement is a constant diagonal vector (window.__ant). <span class="fig">FIG</span> no framing; the emergence, the period 104, and the constant diagonal drift are exact &mdash; only the <i>reason</i> stays open.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>FIRST LIGHT</i>, beside the other emergence spheres &mdash; the spawn domain of order appearing out of the void. The highway rising from ten thousand steps of chaos is exactly a first-light moment. <b>AVAN (AI)</b> built the instrument: the live ant, the turn-tape, the reversible path.<br><br>The weave: David names the seat (the first light of order); I make the emergence run and the highway appear on its own &mdash; the turn-tape in 1D, the live simulation in 2D, the reversible 3D ribbon. The sphere is the seam. Credit: Christopher Langton (1986); the unboundedness is the Cohen&ndash;Kung theorem.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The ant&rsquo;s program as a 1D tape of turns &mdash; <b>R</b> on white, <b>L</b> on black &mdash; one symbol per step. Chaotic at first; once the highway begins, the tape settles into a fixed <b>104-symbol</b> loop repeating forever.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The live ant. Run it and watch the symmetric start dissolve into chaos, then &mdash; near step 10,000 &mdash; the <b>highway</b> break out and shoot off diagonally. The readout flags the moment order emerges.</div>
+   <div class="btns" style="margin-top:10px"><button id="antrun">run ▶</button><button id="antfast">skip to 9900</button><button id="antrst">reset</button></div>
+   <div class="cap" id="antread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The ant&rsquo;s path lifted into 3D &mdash; x, y, and time as height. The tangled early chaos coils near the base; the highway climbs off as a straight diagonal ramp, in <b>green</b>.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> ramp is the same trajectory run <b>backward</b>. Langton&rsquo;s ant is <b>time-reversible</b>: from the ant&rsquo;s cell, heading, and the grid you can uniquely recover the previous state &mdash; so the highway can be un-driven, step by step, back down into the chaos it rose from. That is the real inverse here: forward, a trivial rule manufactures unpredictable order that no shortcut can foresee; backward, that same order dissolves perfectly and deterministically into the scribble &mdash; yet running it in reverse is no easier, still one step at a time. The emergence is irreversible to <i>predict</i> but reversible to <i>replay</i>. Green climbs out of chaos into the highway; magenta descends the highway back into chaos.</div>
+   <div class="btns" style="margin-top:10px"><button id="antspin">pause spin</button></div></div></div></div>"""
+ANT_SCRIPT = """(function(){
+var ang=0,spin=true,run=false,step=0,x=0,y=0,dx=0,dy=-1,grid={},turns=[],path=[[0,0]],emerge=-1;
+function reset(){step=0;x=0;y=0;dx=0;dy=-1;grid={};turns=[];path=[[0,0]];emerge=-1;}
+function tick(){var key=x+'|'+y,c=grid[key]||0;if(c===0){var t=dx;dx=-dy;dy=t;turns.push('R');}else{var t=dx;dx=dy;dy=-t;turns.push('L');}grid[key]=1-c;x+=dx;y+=dy;step++;path.push([x,y]);
+ if(emerge<0&&step>9900&&step<10200){var p=104;if(path.length>step&&step-p-1>=0){/*detect below*/}}}
+function detectEmerge(){var p=104;for(var start=9900;start<Math.min(10200,path.length-3*p-p);start++){var d0=[path[start+p][0]-path[start][0],path[start+p][1]-path[start][1]],ok=true;for(var kk=start;kk<start+3*p;kk++){if(path[kk+p][0]-path[kk][0]!==d0[0]||path[kk+p][1]-path[kk][1]!==d0[1]){ok=false;break;}}if(ok)return[start,d0];}return null;}
+function verify(){reset();for(var s=0;s<11000;s++)tick();var f=detectEmerge();var out={highwayFound:f!==null,emergesNear:f?f[0]:-1,displacement:f?f[1].join(','):''};reset();return out;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var show=turns.slice(-96),cw=(W-20)/96;
+ for(var i=0;i<show.length;i++){var xx=10+i*cw,R=show[i]==='R';g.fillStyle=R?'#7affb0':'#243a2e';g.fillRect(xx,55,cw-1,26);g.fillStyle=R?'#031015':'#7affb0';g.font='9px ui-monospace,monospace';if(cw>7)g.fillText(show[i],xx+cw/2-3,72);}
+ g.fillStyle='#7affb0';g.font='11px ui-monospace,monospace';g.fillText('turn-tape (last 96): R=white-cell, L=black-cell — step '+step,10,32);
+ g.fillStyle='#4a8a68';g.font='10px ui-monospace,monospace';g.fillText(emerge>0?('highway: fixed 104-symbol loop from step '+emerge):'pre-highway: no fixed loop yet',10,105);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#0a1410';g.fillRect(0,0,W,H);
+ var sc=3,cx=W/2-x*sc*0.3,cy=H/2-y*sc*0.3;
+ for(var key in grid){if(grid[key]){var pr=key.split('|'),gx=+pr[0],gy=+pr[1];g.fillStyle='#2a6a4a';g.fillRect(cx+gx*sc,cy+gy*sc,sc,sc);}}
+ g.fillStyle='#ff2d95';g.fillRect(cx+x*sc-1,cy+y*sc-1,sc+2,sc+2);
+ g.fillStyle='#7affb0';g.font='12px ui-monospace,monospace';g.fillText('step '+step,12,20);
+ if(emerge>0){g.fillStyle='#ffd060';g.fillText('★ HIGHWAY emerged at step '+emerge,12,H-12);}
+ document.getElementById('antread').textContent='step '+step+(emerge>0?(' — highway from '+emerge+', disp/104='+verifyDisp):' — '+(step<300?'symmetric':step<9900?'chaos':'watching for highway'));}
+var verifyDisp='';
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),sa=Math.sin(ang),cx=W/2,cy=H*0.62,n=path.length;
+ function draw(rev,col){g.strokeStyle=col;g.lineWidth=1.2;g.beginPath();for(var i=0;i<n;i+=Math.max(1,Math.floor(n/1200))){var idx=rev?n-1-i:i,px=path[idx][0],py=path[idx][1],hz=i/n*180;var sx=cx+(px*ca-py*sa)*2.2+(rev?0:0),sy=cy-hz+(px*sa+py*ca)*1.0;if(i===0)g.moveTo(sx,sy);else g.lineTo(sx,sy);}g.stroke();g.lineWidth=1;}
+ draw(false,'#39fc6b');draw(true,'rgba(255,45,149,0.6)');
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: path forward (chaos → highway)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: same path reversed (highway → chaos)',10,H-12);}
+document.getElementById('antrun').onclick=function(){run=!run;this.textContent=run?'pause':'run ▶';};
+document.getElementById('antfast').onclick=function(){while(step<9900){tick();}emerge=(detectEmerge()||[-1])[0];drawW3();drawW4();};
+document.getElementById('antrst').onclick=function(){run=false;document.getElementById('antrun').textContent='run ▶';reset();drawW3();drawW4();drawW5();};
+document.getElementById('antspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+var vres=verify();verifyDisp=vres.displacement;window.__ant=vres;
+reset();drawW3();drawW4();
+function loop(){if(run){for(var i=0;i<40;i++)tick();if(emerge<0&&step>9900){var f=detectEmerge();if(f){emerge=f[0];verifyDisp=f[1].join(',');}}drawW3();drawW4();}if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HIL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Hilbert curve.</b> A single continuous fractal path that visits <b>every</b> cell of a 2<sup>n</sup>&times;2<sup>n</sup> grid exactly once &mdash; and never jumps: <b>consecutive cells are always neighbors</b>. It is a space-filling curve, a way to unroll a 2D square into a 1D line.<br><br>
+ The magic is <b>locality preservation</b>. Two points close together on the line stay close together on the plane. Row-major scanning (left to right, top to bottom) tears that apart &mdash; two cells one row apart are a whole width away in memory. Hilbert doesn&rsquo;t tear. That is why it is used for <b>cache-friendly memory layouts</b>, spatial database keys (map (x,y) to a 1D index that clusters), image dithering, and R-tree ordering: put spatially near things near in storage, and the cache hits.<br><br>
+ <span class="lit">LIT</span> verified live: for grids up to 64&times;64 the index&rarr;(x,y) map is a <b>bijection</b>, its inverse (x,y)&rarr;index <b>round-trips</b> exactly, and every pair of consecutive indices is <b>Manhattan-distance 1</b> apart (window.__hilbert). <span class="fig">FIG</span> no framing; the bijection, the exact inverse, and the adjacency are all real.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>WARM CACHE</i>, beside the other locality spheres &mdash; the grind domain of keeping the working set hot. The Hilbert curve is the classic trick for a cache-friendly 2D layout. <b>AVAN (AI)</b> built the instrument: the recursive curve, the index probe, the row-major contrast.<br><br>The weave: David names the seat (the warm cache); I make the curve fill the grid without ever jumping and show why that keeps memory hot &mdash; the index strip in 1D, the drawn curve in 2D, the locality contrast in 3D. The sphere is the seam. Credit: David Hilbert (1891), building on Giuseppe Peano&rsquo;s first space-filling curve (1890).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The 1D index line 0, 1, 2, &hellip;, N&minus;1 &mdash; the order the curve visits cells. Slide along it and the highlighted plane cell (shown in window 4) moves only one step at a time. The line and the square are the same walk.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The Hilbert curve drawn at order p. Probe an index to see its cell; the curve never breaks contact with itself. Toggle the <b>row-major</b> scan to see the alternative that jumps a full row every wrap.</div>
+   <div class="btns" style="margin-top:10px"><button id="hilup">order ▲</button><button id="hildn">order ▼</button><button id="hilrm">show row-major</button><button id="hilprobe">probe ▶</button></div>
+   <div class="cap" id="hilread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The curve lifted into 3D: x, y, and the 1D index as height. The green ribbon climbs smoothly &mdash; a small step in height is always a small step in the plane.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> ribbon is the <b>row-major</b> layout on the same grid &mdash; the naive inverse. Both are bijections between the line and the square; the difference is entirely in the <b>inverse&rsquo;s</b> behavior. Row-major maps the square to the line by tearing every vertical neighborhood apart &mdash; two cells stacked vertically land a full width apart in 1D, so the magenta ribbon leaps across the whole plane on every row wrap. Hilbert&rsquo;s inverse keeps the neighborhoods intact: nowhere does it leap. That is the real inverse here &mdash; not a mirror, but the <i>other direction</i> of the same map, and the whole point of the curve is that its inverse doesn&rsquo;t shred locality the way the obvious one does. Green never jumps; magenta jumps a full width every wrap. Same bijection, opposite treatment of what&rsquo;s near.</div>
+   <div class="btns" style="margin-top:10px"><button id="hilspin">pause spin</button></div></div></div></div>"""
+HIL_SCRIPT = """(function(){
+var p=4,ang=0,spin=true,probe=0,showRM=false;
+function d2xy(n,d){var x=0,y=0,t=d,s=1;while(s<n){var rx=1&Math.floor(t/2),ry=1&(t^rx);if(ry===0){if(rx===1){x=s-1-x;y=s-1-y;}var tmp=x;x=y;y=tmp;}x+=s*rx;y+=s*ry;t=Math.floor(t/4);s*=2;}return[x,y];}
+function xy2d(n,x,y){var d=0,s=n>>1;while(s>0){var rx=(x&s)>0?1:0,ry=(y&s)>0?1:0;d+=s*s*((3*rx)^ry);if(ry===0){if(rx===1){x=s-1-x;y=s-1-y;}var tmp=x;x=y;y=tmp;}s>>=1;}return d;}
+function verify(){var res={bijection:true,inverse:true,locality:true};for(var pp=1;pp<=6;pp++){var n=1<<pp,N=n*n,seen={},pts=[];for(var d=0;d<N;d++){var xy=d2xy(n,d);pts.push(xy);var key=xy[0]+'|'+xy[1];if(seen[key])res.bijection=false;seen[key]=1;if(xy2d(n,xy[0],xy[1])!==d)res.inverse=false;}if(Object.keys(seen).length!==N)res.bijection=false;for(var d=0;d<N-1;d++)if(Math.abs(pts[d][0]-pts[d+1][0])+Math.abs(pts[d][1]-pts[d+1][1])!==1)res.locality=false;}return res;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=1<<p,N=n*n,cw=(W-20)/Math.min(N,128);
+ for(var i=0;i<Math.min(N,128);i++){var x=10+i*cw,hot=(i===probe);g.fillStyle=hot?'#62d0ff':'hsl('+(200+i/N*80)+',60%,'+(hot?70:32)+'%)';g.fillRect(x,60,Math.max(1,cw-1),22);}
+ g.fillStyle='#62d0ff';g.font='11px ui-monospace,monospace';g.fillText('Hilbert index 0..'+(N-1)+' (order '+p+') — probe at '+probe+' → cell '+d2xy(n,probe).join(','),10,36);}
+function drawCurve(g,ox,oy,cell,n,col,rowmajor){g.strokeStyle=col;g.lineWidth=Math.max(1,cell*0.18);g.beginPath();for(var d=0;d<n*n;d++){var xy=rowmajor?[d%n,Math.floor(d/n)]:d2xy(n,d),px=ox+xy[0]*cell+cell/2,py=oy+xy[1]*cell+cell/2;if(d===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=1<<p,sz=Math.min(300,W-20),cell=sz/n,ox=(W-sz)/2,oy=14;
+ g.strokeStyle='#1c2c3a';for(var i=0;i<=n;i++){g.beginPath();g.moveTo(ox+i*cell,oy);g.lineTo(ox+i*cell,oy+sz);g.stroke();g.beginPath();g.moveTo(ox,oy+i*cell);g.lineTo(ox+sz,oy+i*cell);g.stroke();}
+ drawCurve(g,ox,oy,cell,n,showRM?'#ff2d95':'#62d0ff',showRM);
+ var pc=d2xy(n,probe);g.fillStyle='#fff';g.fillRect(ox+pc[0]*cell+cell*0.25,oy+pc[1]*cell+cell*0.25,cell*0.5,cell*0.5);
+ g.fillStyle=showRM?'#ff2d95':'#62d0ff';g.font='12px ui-monospace,monospace';g.fillText((showRM?'row-major':'Hilbert')+' order '+p+' ('+n+'×'+n+', '+(n*n)+' cells)',ox,oy+sz+20);
+ document.getElementById('hilread').textContent=(showRM?'row-major':'Hilbert')+' order '+p+', probe '+probe+' → ('+pc[0]+','+pc[1]+')';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=1<<Math.min(p,5),N=n*n,ca=Math.cos(ang),sa=Math.sin(ang),cx=W/2,cy=H*0.72,sc=150/n;
+ function ribbon(rowmajor,col){g.strokeStyle=col;g.lineWidth=1.3;g.beginPath();for(var d=0;d<N;d++){var xy=rowmajor?[d%n,Math.floor(d/n)]:d2xy(n,d),wx=xy[0]-n/2,wy=xy[1]-n/2,hz=d/N*230,sx=cx+(wx*ca-wy*sa)*sc,sy=cy-hz+(wx*sa+wy*ca)*sc*0.5;if(d===0)g.moveTo(sx,sy);else g.lineTo(sx,sy);}g.stroke();g.lineWidth=1;}
+ ribbon(false,'#39fc6b');ribbon(true,'rgba(255,45,149,0.55)');
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: Hilbert — height-neighbors are plane-neighbors',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: row-major — leaps a full width every wrap',10,H-12);}
+document.getElementById('hilup').onclick=function(){p=Math.min(6,p+1);probe=0;drawW3();drawW4();};
+document.getElementById('hildn').onclick=function(){p=Math.max(1,p-1);probe=0;drawW3();drawW4();};
+document.getElementById('hilrm').onclick=function(){showRM=!showRM;this.textContent=showRM?'show Hilbert':'show row-major';drawW4();};
+document.getElementById('hilprobe').onclick=function(){var n=1<<p;probe=(probe+Math.max(1,Math.floor(n*n/64)))%(n*n);drawW3();drawW4();};
+document.getElementById('hilspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__hilbert=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BEN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Benford&rsquo;s law.</b> In a huge range of real-world data, the <b>leading digit</b> is not evenly spread. You might expect each of 1&ndash;9 to lead about 11% of the time. Instead <b>1 leads ~30%</b> of the time and <b>9 barely 4.6%</b>. The exact frequency of leading digit d is <span class="mono">log<sub>10</sub>(1 + 1/d)</span>.<br><br>
+ It holds for quantities that span many orders of magnitude: city populations, stock prices, physical constants, river lengths, and pure-math sequences like the <b>Fibonacci numbers</b> and <b>powers of 2</b>. The reason is scale: if the logarithm of the data is spread out evenly, the leading digit follows this log law automatically. Forensic accountants weaponize it &mdash; <b>fabricated</b> figures tend to have too-uniform leading digits, so a dataset that violates Benford is a red flag for cooked books.<br><br>
+ <span class="lit">LIT</span> verified live: the leading digits of the first 2000 Fibonacci numbers and of powers of 2 match Benford to within 0.01, while a uniform-random control does <b>not</b> (window.__benford). <span class="fig">FIG</span> no framing; the log-law, the Fibonacci/powers-of-2 fit, and the uniform-control failure are all exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE MINT</i>, beside the other money spheres &mdash; the loot domain of where numbers are made. Benford&rsquo;s law is the fingerprint that tells honestly-minted figures from forged ones. <b>AVAN (AI)</b> built the instrument: the digit tally, the dataset switch, the fraud flag, the scale-invariance view.<br><br>The weave: David names the seat (the mint, honest vs forged coin); I make the leading digits tally themselves and the Benford curve appear over real sequences &mdash; the bars in 1D, the live datasets in 2D, the scale-invariance in 3D. The sphere is the seam. Credit: Simon Newcomb (1881, from worn logarithm-table pages); Frank Benford (1938, the law).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The nine leading-digit frequencies as bars, with the Benford curve log<sub>10</sub>(1+1/d) overlaid. The steep fall from 1 to 9 is the signature &mdash; honest data hugs the curve.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Switch datasets and watch the leading digits tally against Benford. Fibonacci, powers of 2, and powers of 3 <b>fit</b>; a uniform-random control <b>fails</b> and trips the fraud flag &mdash; exactly how an auditor spots invented numbers.</div>
+   <div class="btns" style="margin-top:10px"><button id="bends">dataset: Fibonacci</button><button id="benscale">×7 (rescale)</button></div>
+   <div class="cap" id="benread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">Numbers wrapped around a <b>log cylinder</b>: their mantissas land evenly around the loop, and the arc each leading digit owns &mdash; wide for 1, thin for 9 &mdash; is exactly its Benford share, in <b>green</b>.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> ring is the naive <b>uniform</b> guess &mdash; every digit owning an equal 1/9 slice. The forward question is &lsquo;which data follows Benford?&rsquo; The inverse question is deeper: &lsquo;which distribution is <b>forced</b> if the law must not care what units you measure in?&rsquo; Multiply every value by 7, convert dollars to yen, switch bases &mdash; Benford is the <b>unique</b> leading-digit law that survives unchanged (scale- and base-invariance). The uniform ring shatters the moment you rescale; the Benford arcs rotate but keep their widths. So the inverse of &lsquo;what obeys Benford&rsquo; is &lsquo;Benford is the only thing unit-independence permits&rsquo; &mdash; it isn&rsquo;t one option among many, it is the fixed point of rescaling. Green is the law that holds under any change of units; magenta is the guess that doesn&rsquo;t.</div>
+   <div class="btns" style="margin-top:10px"><button id="benspin">pause spin</button></div></div></div></div>"""
+BEN_SCRIPT = """(function(){
+var ds=0,ang=0,spin=true,scale=1;
+var NAMES=['Fibonacci','powers of 2','powers of 3','uniform-random'];
+function lead(x){if(x<=0)return 0;while(x>=10)x/=10;while(x<1)x*=10;return Math.floor(x);}
+function benford(d){return Math.log(1+1/d)/Math.log(10);}
+function tally(which,N,k){var counts=new Array(10).fill(0);
+ if(which===0){var a=1,b=1;for(var i=0;i<N;i++){counts[lead(a*k)]++;var t=a+b;a=b;b=t;if(b>1e15){a/=1e10;b/=1e10;}}}
+ else if(which===1){var p=1;for(var i=0;i<N;i++){counts[lead(p*k)]++;p*=2;if(p>1e15)p/=1e10;}}
+ else if(which===2){var p=1;for(var i=0;i<N;i++){counts[lead(p*k)]++;p*=3;if(p>1e15)p/=1e10;}}
+ else {var seed=12345;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}for(var i=0;i<N;i++){var v=1+Math.floor(rnd()*9)+rnd();counts[lead(v*k)]++;}}
+ return counts;}
+function maxdev(counts,N){var m=0;for(var d=1;d<=9;d++)m=Math.max(m,Math.abs(counts[d]/N-benford(d)));return m;}
+function verify(){var N=2000;var cf=tally(0,N,1),cp=tally(1,N,1),cu=tally(3,N,1);
+ var df=maxdev(cf,N),dp=maxdev(cp,N),du=maxdev(cu,N);
+ // scale invariance: Fibonacci ×7 still Benford
+ var cf7=tally(0,N,7),df7=maxdev(cf7,N);
+ return {fibFollows:df<0.01,pow2Follows:dp<0.01,uniformFails:du>0.03,scaleInvariant:df7<0.01,maxDevFib:+df.toFixed(4)};}
+function drawBars(g,counts,N,W,H,oy,col){var bw=(W-40)/9;var mx=0.32;
+ for(var d=1;d<=9;d++){var x=20+(d-1)*bw,h=(counts[d]/N)/mx*(H-oy-20),y=H-20-h;g.fillStyle=col;g.fillRect(x+2,y,bw-6,h);g.fillStyle='#aaa';g.font='9px ui-monospace,monospace';g.fillText(d,x+bw/2-3,H-6);}
+ g.strokeStyle='#ff2d95';g.lineWidth=2;g.beginPath();for(var d=1;d<=9;d++){var x=20+(d-1)*bw+bw/2,by=H-20-(benford(d)/mx)*(H-oy-20);if(d===1)g.moveTo(x,by);else g.lineTo(x,by);}g.stroke();g.lineWidth=1;
+ for(var d=1;d<=9;d++){var x=20+(d-1)*bw+bw/2,by=H-20-(benford(d)/mx)*(H-oy-20);g.fillStyle='#ff2d95';g.beginPath();g.arc(x,by,2.5,0,7);g.fill();}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var c=tally(0,2000,1);
+ g.fillStyle='#ffcf4a';g.font='11px ui-monospace,monospace';g.fillText('leading-digit frequency (Fibonacci) vs Benford log₁₀(1+1/d)',10,16);
+ drawBars(g,c,2000,W,H,28,'#ffcf4a');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var N=2000,c=tally(ds,N,scale),md=maxdev(c,N),fraud=md>0.03;
+ g.font='13px ui-monospace,monospace';g.fillStyle='#ffcf4a';g.fillText(NAMES[ds]+(scale>1?' ×'+scale:''),18,22);
+ drawBars(g,c,N,W,H-6,40,fraud?'#ff5a5a':'#ffcf4a');
+ g.font='12px ui-monospace,monospace';g.fillStyle=fraud?'#ff5a5a':'#39fc6b';g.fillText('max deviation '+md.toFixed(4)+(fraud?'  ⚑ FRAUD FLAG (not Benford)':'  ✓ follows Benford'),18,H-26);
+ document.getElementById('benread').textContent=NAMES[ds]+(scale>1?' ×'+scale:'')+': max dev '+md.toFixed(4)+(fraud?' — flagged':' — Benford');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,R=120,ca=Math.cos(ang);
+ // green: benford arcs on a ring; magenta: uniform ring
+ var acc=0;for(var d=1;d<=9;d++){var frac=benford(d),a0=acc*Math.PI*2+ang,a1=(acc+frac)*Math.PI*2+ang;g.strokeStyle='hsl('+(50+d*6)+',90%,'+(60-d*3)+'%)';g.lineWidth=10;g.beginPath();for(var t=0;t<=1;t+=0.05){var th=a0+(a1-a0)*t,x=cx+Math.cos(th)*R*ca,y=cy+Math.sin(th)*R*0.6;if(t===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+  var mid=(a0+a1)/2;g.fillStyle='#ffcf4a';g.font='10px ui-monospace,monospace';g.fillText(d,cx+Math.cos(mid)*(R+18)*ca-3,cy+Math.sin(mid)*(R+18)*0.6+3);acc+=frac;}
+ g.lineWidth=1;
+ // magenta uniform ring inside
+ g.strokeStyle='rgba(255,45,149,0.6)';g.lineWidth=4;for(var d=0;d<9;d++){var a0=(d/9+0.003)*Math.PI*2+ang*0.5,a1=((d+1)/9-0.003)*Math.PI*2+ang*0.5;g.beginPath();for(var t=0;t<=1;t+=0.1){var th=a0+(a1-a0)*t,x=cx+Math.cos(th)*(R*0.55)*ca,y=cy+Math.sin(th)*(R*0.55)*0.6;if(t===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();}g.lineWidth=1;
+ g.fillStyle='#ffcf4a';g.font='11px ui-monospace,monospace';g.fillText('green ring: Benford arcs (1 widest → 9 thinnest)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta ring: uniform 1/9 guess — breaks on rescale',10,H-12);}
+document.getElementById('bends').onclick=function(){ds=(ds+1)%4;scale=1;this.textContent='dataset: '+NAMES[ds];drawW4();};
+document.getElementById('benscale').onclick=function(){scale=scale===1?7:1;drawW4();};
+document.getElementById('benspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__benford=verify();
+function loop(){if(spin)ang+=0.006;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-benford","title":"THE BENFORD","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#ffcf4a","icon":"benford",
+  "kicker":"1 leads 30% of the time — the fingerprint of honest numbers",
+  "blurb":"Benford's law in the 5-window house format — in data spanning many orders of magnitude, the leading digit is not uniform: 1 leads about 30% of the time and 9 only ~4.6%, with frequency exactly log10(1+1/d). It holds for populations, prices, physical constants, Fibonacci numbers, and powers of 2. Fabricated figures have too-uniform leading digits, so violating Benford is a forensic-accounting red flag. See the digit bars in 1D, the live dataset switch + fraud flag in 2D, and the scale-invariance log cylinder in 3D.",
+  "lit":"Genuine Benford's law (Simon Newcomb 1881; Frank Benford 1938). Verified live: the leading digits of the first 2000 Fibonacci numbers and of powers of 2 match log10(1+1/d) to within 0.01, a uniform-random control fails (deviation > 0.03), and multiplying the Fibonacci data by 7 leaves the fit intact (scale invariance) (window.__benford.fibFollows && pow2Follows && uniformFails && scaleInvariant). The log-law, the fits, the control failure, and the rescale invariance are exact.",
+  "fig":"No framing: the log10(1+1/d) frequencies, the Fibonacci/powers-of-2 fit, the uniform-control failure, and scale invariance are all real and checked in-browser. The fraud-detection use is the genuine, documented application; the sphere flags the uniform control exactly as an auditor would.",
+  "body":BEN_BODY,"script":BEN_SCRIPT},
+ {"slug":"the-hilbert","title":"THE HILBERT","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#62d0ff","icon":"hilbert",
+  "kicker":"fill the square without ever jumping — locality kept",
+  "blurb":"the Hilbert space-filling curve in the 5-window house format — a continuous fractal path that visits every cell of a 2^n x 2^n grid exactly once, and never jumps: consecutive cells are always neighbors. It maps 2D to 1D while preserving locality (points close on the line stay close on the plane), unlike row-major scanning which tears vertical neighbors apart. Used for cache-friendly layouts, spatial index keys, dithering, and R-tree ordering. See the index line in 1D, the drawn curve in 2D, and the locality contrast in 3D.",
+  "lit":"Genuine Hilbert curve (David Hilbert 1891, after Peano 1890). Verified live: for grids up to 64x64 the index->(x,y) map is a bijection (all cells hit once), its inverse (x,y)->index round-trips exactly, and every pair of consecutive indices is Manhattan-distance 1 apart (window.__hilbert.bijection && inverse && locality, all true). The bijection, exact inverse, and step-1 adjacency are real; the locality advantage over row-major is shown directly.",
+  "fig":"No framing: the space-filling bijection, the exact inverse mapping, and the always-adjacent traversal are real and checked to 64x64. The cache-friendliness is the genuine consequence of the adjacency property, contrasted honestly against the row-major alternative on the same grid.",
+  "body":HIL_BODY,"script":HIL_SCRIPT},
+ {"slug":"the-ant","title":"THE ANT","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#7affb0","icon":"ant",
+  "kicker":"two rules, ten thousand steps of chaos, then a highway",
+  "blurb":"Langton's ant in the 5-window house format — one ant on an all-white grid: on a white cell turn right/flip/step, on a black cell turn left/flip/step. For the first few hundred steps it makes symmetric shapes, then ~10000 steps of apparent chaos, then with no rule change it locks into a period-104 cycle that builds a straight diagonal 'highway' forever. No one has proven why the highway always appears; it is provably unbounded (Cohen-Kung). See the turn-tape in 1D, the live ant in 2D, and the reversible path in 3D.",
+  "lit":"Genuine Langton's ant (Christopher Langton 1986; unboundedness is the Cohen-Kung theorem). Verified live: from an all-white grid the ant enters a period-104 cycle near step ~9975, and every 104 steps thereafter its net displacement is a constant diagonal vector (window.__ant.highwayFound true, emergesNear ~9975, displacement a fixed pair). The emergence, the period 104, and the constant diagonal drift are exact and reproduced in-browser; the OPEN part, stated honestly, is that no proof explains why the highway must emerge from any start.",
+  "fig":"No framing: the two-rule automaton, the chaos-then-highway emergence, the period 104, and the constant diagonal displacement are all real and checked. The honest caveat is carried openly: the highway is observed and reproduced, not proven inevitable; unboundedness (not highway-formation) is the proven Cohen-Kung result.",
+  "body":ANT_BODY,"script":ANT_SCRIPT},
+ {"slug":"the-de-bruijn","title":"THE DE BRUIJN","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#6cf0e0","icon":"debruijn",
+  "kicker":"the shortest string holding every code — k^n",
+  "blurb":"the de Bruijn sequence in the 5-window house format — the shortest cyclic string that contains every length-n word over a k-symbol alphabet exactly once. B(2,3)=00010111 holds all eight 3-bit patterns as a window slides the loop. Its length is exactly k^n, the theoretical minimum, so it is a master key: it cracks every n-digit code in k^n presses instead of n*k^n, because each new keypress completes a fresh code. Under the hood it is an Euler circuit through the de Bruijn graph. See the sliding window in 1D, the lock-cracker in 2D, and the graph circuit in 3D.",
+  "lit":"Genuine de Bruijn sequence (N. G. de Bruijn 1946; Flye Sainte-Marie 1894; ancient B(2,3) in Pingala's Sanskrit mnemonic). Verified live: for (k,n)=(2,3),(2,4),(2,5),(3,3),(4,2),(2,6) the constructed sequence has length exactly k^n and every one of the k^n windows appears exactly once (window.__debruijn.allWindowsOnce true). B(2,3)=00010111. The minimal length and exactly-once coverage are exact; the construction is the standard FKM/necklace recursion, equivalent to an Euler circuit.",
+  "fig":"No framing: the k^n length, the exactly-once window coverage, and the keypad-cracking savings (k^n presses vs naive n*k^n) are all real and checked. The 'master key' is literal — every new symbol completes a new code by maximal overlap.",
+  "body":DB_BODY,"script":DB_SCRIPT},
+ {"slug":"the-thue-morse","title":"THE THUE-MORSE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#b98cff","icon":"thuemorse",
+  "kicker":"the fairest turn order — 0110100110010110…",
+  "blurb":"the Thue-Morse sequence in the 5-window house format — start with 0 and repeatedly append the complement (0 -> 01 -> 0110 -> 01101001 -> ...); the n-th bit is the parity of the number of 1s in binary(n). It is the fairest turn order: taking turns in Thue-Morse order cancels the first-mover advantage (Prouhet-Tarry-Escott: the two pick-sets have equal sums of every power up to degree k-1), and it is cube-free (no block repeats three times in a row). See the strip in 1D, the doubling + fair-draft in 2D, and the self-inverse path in 3D.",
+  "lit":"Genuine Thue-Morse sequence (Axel Thue 1906/1912; Marston Morse 1921; Prouhet 1851). Verified live: the recurrence t(2n)=t(n), t(2n+1)=1-t(n) holds for n<2000; the first 600 symbols are cube-free (no www substring for any period up to 200); and the Prouhet partition of 0..2^k-1 by parity gives equal sums of j-th powers for all j<k, k=1..7 (window.__thuemorse.recurrence && cubeFree && prouhet). start = 01101001100101101001011001101001. All three properties are exact.",
+  "fig":"No framing: the recurrence, cube-freeness, and the equal-power-sums fairness (Prouhet-Tarry-Escott) are real and checked in-browser. The 'fairest turn order' claim is precisely the equal-power-sums property, not a loose metaphor.",
+  "body":TM_BODY,"script":TM_SCRIPT},
  {"slug":"the-frobenius","title":"THE FROBENIUS","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#ffd060","icon":"coins2",
   "kicker":"the largest amount you can't make — ab-a-b",
