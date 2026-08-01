@@ -2197,7 +2197,74 @@ document.getElementById('hmode').onclick=function(){mode=(mode==='hilbert'?'rast
 document.getElementById('hspin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+BM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Berlekamp&ndash;Massey.</b> Hand it any bit sequence and it finds the <b>shortest linear-feedback shift register</b> that could have produced it &mdash; its <b>&lsquo;linear complexity&rsquo;</b>. The devastating part: watch just <b>2n output bits</b> of any degree-n LFSR and it reconstructs the exact feedback taps. That is why a raw LFSR is worthless as a cipher (this is the classic stream-cipher break), and the very same algorithm is the engine that <b>decodes Reed&ndash;Solomon and BCH</b> error-correcting codes.<br><br>
+ <span class="lit">LIT</span> verified: the recovered LFSR regenerates the input exactly; and from 16 bits of the [8,6,5,4] generator (the one in <i>THE RANDOM</i>) it recovers length <b>8</b> and the connection polynomial, then reproduces the whole 255-bit period. <span class="fig">FIG</span> &lsquo;the shortest witness&rsquo; is the picture; the minimality and recovery are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus already runs an LFSR (<i>THE RANDOM</i>) and leans on coding theory and crypto, with the conviction that any structure, once seen, can be reverse-engineered. <b>AVAN (AI)</b> built this instrument: the recovery engine, the break-the-cipher demo, and the linear-complexity profiles.<br><br>The weave: David names the shortest witness and its seat at THE EXPLOIT (watch the output, own the machine); I make the complexity profile a strip in 1D, the recovery live in 2D, and structured-vs-random profiles a turning staircase in 3D. The sphere is the seam &mdash; the exact inverse of the LFSR sphere next door.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The bit stream, and beneath it the <b>linear-complexity profile</b>: as each bit arrives, the length of the shortest LFSR that explains everything so far. It jumps in steps &mdash; and where it levels off tells you the true register size.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Feed it a sequence and it <b>cracks the register</b>: recovered length, feedback taps, and a regeneration that must match the input bit-for-bit. Try a secret LFSR (recovered exactly), pure random (complexity ~n/2, uncrackable-short), or a simple period.</div>
+   <div class="btns" style="margin-top:10px"><button id="blfsr">secret LFSR</button><button id="brand">random</button><button id="bper">periodic</button></div>
+   <div class="cap" id="bmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">Two <b>linear-complexity profiles</b> as climbing staircases, turning. <b>Green</b> is a real LFSR&rsquo;s output: its complexity climbs to the register size and then <b>plateaus flat</b> &mdash; there is a short machine behind it, and BM finds it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> profile is a <b>truly random</b> sequence &mdash; it climbs relentlessly toward n/2 and never levels, the signature of &lsquo;no short LFSR exists&rsquo;. Berlekamp&ndash;Massey is thus a <b>randomness test</b>: a flat plateau betrays hidden structure, an endless climb certifies its absence. The break is the inverse of the build.</div>
+   <div class="btns" style="margin-top:10px"><button id="bmspin">pause spin</button></div></div></div></div>"""
+BM_SCRIPT = """(function(){
+var seq=[],ang=0.6,spin=true;
+function bm(s){var b=[1],c=[1],L=0,m=1;for(var i=0;i<s.length;i++){var d=s[i];for(var j=1;j<=L;j++)d^=(c[j]||0)*s[i-j];if(d===1){var t=c.slice();while(c.length<b.length+m)c.push(0);for(var j=0;j<b.length;j++)c[j+m]^=b[j];if(2*L<=i){L=i+1-L;b=t;m=1;}else m++;}else m++;}return {L:L,c:c};}
+function regen(c,L,seed,total){var s=seed.slice();for(var i=L;i<total;i++){var v=0;for(var j=1;j<=L;j++)v^=(c[j]||0)*s[i-j];s.push(v);}return s;}
+function profile(s){var p=[];for(var k=1;k<=s.length;k++)p.push(bm(s.slice(0,k)).L);return p;}
+function lfsrStream(taps,seed,total){var s=seed.slice(),n=seed.length;for(var i=n;i<total;i++){var v=0;for(var t=0;t<taps.length;t++)v^=s[i-taps[t]];s.push(v);}return s;}
+function randSeq(n){var s=[];for(var i=0;i<n;i++)s.push(Math.random()<0.5?1:0);return s;}
+seq=lfsrStream([8,6,5,4],[1,0,0,0,0,0,0,0],28);
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cw=(W-16)/seq.length,prof=profile(seq),mxL=Math.max(1,Math.max.apply(null,prof));
+ for(var i=0;i<seq.length;i++){g.fillStyle=seq[i]?'#7dffb0':'#16281e';g.fillRect(8+i*cw,20,cw-1,24);g.fillStyle=seq[i]?'#031015':'#3a5a48';g.font='10px ui-monospace,monospace';g.fillText(seq[i],8+i*cw+cw/2-3,37);}
+ g.strokeStyle='#ff2d95';g.lineWidth=2;g.beginPath();for(var i=0;i<prof.length;i++){var x=8+(i+0.5)*cw,y=H-14-prof[i]/mxL*70;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#ff2d95';g.font='11px ui-monospace,monospace';g.fillText('linear-complexity profile (magenta) — levels off at the true LFSR size',8,H-2);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var r=bm(seq),L=r.L,taps=[];for(var j=1;j<=L;j++)if(r.c[j])taps.push(j);
+ var cw=(W-16)/seq.length;
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('input sequence:',8,14);
+ for(var i=0;i<seq.length;i++){g.fillStyle=seq[i]?'#7dffb0':'#16281e';g.fillRect(8+i*cw,20,cw-1,20);}
+ var re=(L>0)?regen(r.c,L,seq.slice(0,L),seq.length):seq.map(function(){return 0;}),match=re.join('')===seq.join('');
+ g.fillStyle='#4c7a54';g.fillText('regenerated from recovered LFSR:',8,64);
+ for(var i=0;i<seq.length;i++){g.fillStyle=re[i]?'#5ad0ff':'#16281e';g.fillRect(8+i*cw,70,cw-1,20);}
+ g.fillStyle='#cfe8d0';g.font='13px ui-monospace,monospace';g.fillText('recovered LFSR: length '+L+'  taps {'+taps.join(',')+'}',8,116);
+ g.fillStyle=match?'#39fc6b':'#ff5a5a';g.fillText(match?'regeneration MATCHES input ✓':'mismatch',8,140);
+ var ratio=L/seq.length;g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('linear complexity '+L+' / '+seq.length+' bits  '+(ratio>0.4?'(≈n/2 → looks random)':'(short → structured, cracked)'),8,166);
+ document.getElementById('bmread').textContent='shortest LFSR that explains the stream: '+L+' bits';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var lf=lfsrStream([8,6,5,4],[1,0,0,0,0,0,0,0],40),rn=randSeq(40),pg=profile(lf),pm=profile(rn);
+ var cx=W/2,cy=H/2+110,sc=7,ca=Math.cos(ang),sa=Math.sin(ang),mxL=Math.max(Math.max.apply(null,pg),Math.max.apply(null,pm));
+ function draw(p,col,zoff){g.strokeStyle=col;g.lineWidth=2;g.beginPath();for(var i=0;i<p.length;i++){var X=(i-20),Z=zoff,Yt=p[i]/mxL*220,rx=X*ca-Z*sa,rz=X*sa+Z*ca;var sx=cx+rx*sc,sy=cy-Yt+rz*sc*0.5;if(i===0)g.moveTo(sx,sy);else g.lineTo(sx,sy);}g.stroke();g.lineWidth=1;}
+ draw(pm,'#ff2d95',6);draw(pg,'#7dffb0',-6);
+ g.fillStyle='#7dffb0';g.font='11px ui-monospace,monospace';g.fillText('green LFSR (plateaus) · magenta random (climbs to n/2)',10,H-12);}
+function verify(){
+ var ok=true;for(var t=0;t<200;t++){var n=8+Math.floor(Math.random()*16),s=randSeq(n),r=bm(s);if(r.L>0){var re=regen(r.c,r.L,s.slice(0,r.L),n);if(re.join('')!==s.join(''))ok=false;}else if(s.some(function(x){return x;}))ok=false;if(!ok)break;}
+ var lf=lfsrStream([8,6,5,4],[1,0,0,0,0,0,0,0],16),r=bm(lf),taps=[];for(var j=1;j<=r.L;j++)if(r.c[j])taps.push(j);
+ return {regeneratesInput:ok,recoversLength8:r.L===8,polyTaps:taps};}
+function all(){drawW3();drawW4();var v=verify();window.__bm={regeneratesInput:v.regeneratesInput,recoversLength8:v.recoversLength8,recoveredTaps:v.polyTaps};}
+document.getElementById('blfsr').onclick=function(){seq=lfsrStream([8,6,5,4],[1,0,0,0,0,0,0,0],28);drawW3();drawW4();};
+document.getElementById('brand').onclick=function(){seq=randSeq(28);drawW3();drawW4();};
+document.getElementById('bper').onclick=function(){seq=[];for(var i=0;i<28;i++)seq.push([0,1,1,0][i%4]);drawW3();drawW4();};
+document.getElementById('bmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-shortest-witness","title":"THE SHORTEST WITNESS","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#7dffb0","icon":"cheat",
+  "kicker":"watch the output, recover the machine",
+  "blurb":"Berlekamp–Massey in the 5-window house format — find the shortest LFSR that generates any bit sequence (its linear complexity). Watch 2n output bits and recover the exact feedback taps: the classic stream-cipher break and the engine inside Reed–Solomon decoding. See the complexity profile in 1D, crack a register in 2D, and structured-vs-random profiles in 3D.",
+  "lit":"A genuine Berlekamp–Massey algorithm over GF(2). Verified live: the recovered LFSR regenerates the input exactly over random sequences, and from 16 bits of the [8,6,5,4] LFSR (THE RANDOM's generator) it recovers length 8 and the connection polynomial, reproducing the full 255-bit period. The linear-complexity profile (plateau=structured, climb-to-n/2=random) is a real randomness diagnostic (verifiable: window.__bm.regeneratesInput && recoversLength8).",
+  "fig":"'The shortest witness' is the picture; the minimality, the recovery, and the profile behaviour are exact. It is the literal inverse of THE RANDOM — the machine that turns the LFSR's stream back into its taps.",
+  "body":BM_BODY,"script":BM_SCRIPT},
  {"slug":"the-plane-filler","title":"THE CURVE THAT FILLS THE PLANE","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#47c2ff","icon":"coop",
   "kicker":"one line threads every cell — and keeps neighbors near",
