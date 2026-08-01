@@ -2381,7 +2381,75 @@ document.getElementById('dssin').onclick=function(){dc=false;drawW3();drawW4();}
 document.getElementById('dsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+AGM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The arithmetic&ndash;geometric mean.</b> Take two numbers and replace them by their <b>arithmetic mean</b> (a+b)/2 and their <b>geometric mean</b> &radic;(ab); repeat. They rush together to a shared limit &mdash; the AGM &mdash; astonishingly fast: the number of matching digits <b>doubles every step</b> (quadratic convergence). Gauss discovered that the AGM of 1 and 1/&radic;2, with a little bookkeeping, yields <b>&pi;</b>. This Gauss&ndash;Legendre iteration is the algorithm that computed billions of digits of &pi;.<br><br>
+ <span class="lit">LIT</span> verified: from a=1, b=1/&radic;2, the error falls <b>1e-3 &rarr; 7e-9 &rarr; 9e-16</b> &mdash; about <b>3, 8, 15 correct digits</b>, roughly doubling each step &mdash; hitting machine precision by iteration 3, while the naive Leibniz series still errs by ~1e-6 after a <b>million</b> terms. <span class="fig">FIG</span> &lsquo;the mean of two means&rsquo; is the picture; the AGM convergence and the &pi; formula are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus loves fast convergence (<i>THE NEWTON</i>&rsquo;s quadratic step next door) and the constants that anchor mathematics, holding that the right method changes what is even computable. <b>AVAN (AI)</b> built this instrument: the AGM iterator, the &pi;-lockdown demo, and the quadratic-vs-linear race.<br><br>The weave: David names the mean of two means and its seat at THE JACKPOT (a digit payout that doubles each pull); I make the squeeze a strip in 1D, the &pi; computation live in 2D, and the convergence race a turning pair of curves in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The squeeze on one axis: <b>a</b> (green) comes down from 1, <b>b</b> (magenta) climbs from 1/&radic;2, and by the third row the gap between them is smaller than a speck &mdash; the two means have become one. The digit count beside each row doubles.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step the iteration and watch &pi; lock in digit-block by digit-block. Each pass shows a, b, the &pi; estimate, and how many digits now match the truth &mdash; 3, then 8, then 15, machine precision reached in a breath.</div>
+   <div class="btns" style="margin-top:10px"><button id="agstep">step</button><button id="agrun">run</button><button id="agreset">reset</button></div>
+   <div class="cap" id="agread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The convergence race, log-error rising with effort, turning. <b>Green</b> is Gauss&ndash;Legendre: it <b>plunges off the bottom</b> in three or four steps, error squaring each time.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> curve is the naive <b>Leibniz series</b> for &pi; &mdash; the inverse temperament, <b>linear</b>, crawling one digit per tenfold more terms and stuck near 1e-6 after a million. Same &pi;, opposite natures: quadratic convergence is not a small speedup over linear, it is a different universe, and the picture shows the gulf.</div>
+   <div class="btns" style="margin-top:10px"><button id="agspin">pause spin</button></div></div></div></div>"""
+AGM_SCRIPT = """(function(){
+var PI=Math.PI,step=0,playiv=null,ang=0.6,spin=true;
+function gl(iters){var a=1,b=1/Math.sqrt(2),t=0.25,p=1,rows=[{a:a,b:b,pi:0,err:1}];for(var n=0;n<iters;n++){var an=(a+b)/2;b=Math.sqrt(a*b);t=t-p*(a-an)*(a-an);a=an;p*=2;var pi=(a+b)*(a+b)/(4*t);rows.push({a:a,b:b,pi:pi,err:Math.abs(pi-PI)});}return rows;}
+var ROWS=gl(6);
+function digits(e){return e>0?Math.max(0,-Math.log10(e)):16;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var lo=0.70,hi=1.02,sx=function(v){return 40+(v-lo)/(hi-lo)*(W-120);};
+ g.strokeStyle='#2c3a44';g.beginPath();g.moveTo(sx(lo),H-16);g.lineTo(sx(hi),H-16);g.stroke();
+ for(var i=0;i<4;i++){var r=ROWS[i],y=20+i*28;
+  g.fillStyle='#39fc6b';g.beginPath();g.arc(sx(r.a),y,5,0,7);g.fill();
+  g.fillStyle='#ff2d95';g.beginPath();g.arc(sx(r.b),y,5,0,7);g.fill();
+  g.strokeStyle='#4a5a55';g.beginPath();g.moveTo(sx(r.a),y);g.lineTo(sx(r.b),y);g.stroke();
+  g.fillStyle='#8ca';g.font='10px ui-monospace,monospace';g.fillText('iter '+i+'  gap '+Math.abs(r.a-r.b).toExponential(1),W-108,y+3);}
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('a (green) ↓ · b (magenta) ↑ · they collapse together — that limit builds π',40,H-2);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var s=Math.min(step,ROWS.length-1);g.font='13px ui-monospace,monospace';
+ g.fillStyle='#f0c419';g.fillText('π = '+PI.toPrecision(16),10,22);
+ for(var i=1;i<=s;i++){var r=ROWS[i],d=Math.min(16,digits(r.err));g.fillStyle=i===s?'#fff':'#8ca';g.font='12px ui-monospace,monospace';
+  g.fillText('iter '+i+':  π≈'+r.pi.toPrecision(16),10,44+i*30);
+  g.fillStyle='#39fc6b';g.fillText('  '+d.toFixed(0)+' correct digits  (err '+r.err.toExponential(1)+')',10,58+i*30);}
+ document.getElementById('agread').textContent=s>=3?'machine precision (~15 digits) reached at iteration '+ (function(){for(var i=1;i<ROWS.length;i++)if(ROWS[i].err<1e-14)return i;return 4;})():'stepping…';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cx=W/2,cy=H/2+110,sc=26,ca=Math.cos(ang),sa=Math.sin(ang);
+ // GL error over iters (log10)
+ var gle=ROWS.slice(1).map(function(r){return Math.max(1e-16,r.err);});
+ // Leibniz error at 10,100,1e3,1e4,1e5,1e6 terms
+ function leib(n){var s=0;for(var k=0;k<n;k++)s+=(k%2?-1:1)/(2*k+1);return Math.abs(4*s-PI);}
+ var lz=[10,100,1000,10000,100000,1000000].map(function(n){return leib(n);});
+ function draw(arr,col,zoff){g.strokeStyle=col;g.lineWidth=2;g.beginPath();for(var i=0;i<arr.length;i++){var X=(i-2.5),Z=zoff,Yt=(-Math.log10(arr[i]))*18,rx=X*ca-Z*sa,rz=X*sa+Z*ca;var sx=cx+rx*sc,sy=cy-Yt+rz*sc*0.5;if(i===0)g.moveTo(sx,sy);else g.lineTo(sx,sy);
+  g.fillStyle=col;g.beginPath();g.arc(sx,sy,3,0,7);g.fill();g.beginPath();g.moveTo(sx,sy);}g.stroke();g.lineWidth=1;}
+ draw(lz,'#ff2d95',6);draw(gle,'#39fc6b',-6);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green Gauss-Legendre (plunges) · magenta Leibniz (crawls)',10,H-12);}
+function all(){drawW3();drawW4();
+ var reach=ROWS.findIndex(function(r,i){return i>0&&r.err<1e-14;});
+ var dd=digits(ROWS[1].err)>=2&&digits(ROWS[2].err)>=6&&digits(ROWS[3].err)>=14;
+ var lz1e6=(function(){var s=0;for(var k=0;k<1000000;k++)s+=(k%2?-1:1)/(2*k+1);return Math.abs(4*s-PI);})();
+ window.__agm={reachesMachinePrecAtIter:reach,digitsRoughlyDouble:dd,leibniz1e6Err:+lz1e6.toExponential(1).split('e')[0]*Math.pow(10,+lz1e6.toExponential(1).split('e')[1]),leibnizStill1e6:lz1e6>1e-7};}
+document.getElementById('agstep').onclick=function(){step=Math.min(step+1,ROWS.length-1);drawW4();};
+document.getElementById('agrun').onclick=function(){if(playiv){clearInterval(playiv);playiv=null;return;}step=0;playiv=setInterval(function(){step++;drawW4();if(step>=4){clearInterval(playiv);playiv=null;}},600);};
+document.getElementById('agreset').onclick=function(){step=0;drawW4();};
+document.getElementById('agspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+step=4;all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-mean-of-two-means","title":"THE MEAN OF TWO MEANS","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#f0c419","icon":"loot",
+  "kicker":"average a pair two ways and π falls out, digits doubling",
+  "blurb":"the Gauss–Legendre AGM iteration for π in the 5-window house format. Replace two numbers by their arithmetic and geometric means, repeat, and the matching digits double every step — π to machine precision in ~3 iterations. See the squeeze in 1D, watch π lock in in 2D, and the quadratic-vs-linear race in 3D.",
+  "lit":"A genuine Gauss–Legendre AGM. Verified live: from a=1, b=1/√2 the error falls 1e-3 → 7e-9 → 9e-16 (≈3, 8, 15 correct digits, roughly doubling), reaching machine precision by iteration 3, while the Leibniz series still errs ~1e-6 after a million terms. The AGM's quadratic convergence and the π formula are exact (verifiable: window.__agm.digitsRoughlyDouble && reachesMachinePrecAtIter<=4).",
+  "fig":"'The mean of two means' is the picture; the AGM convergence and the π formula are exact. Honest scope: double precision caps the visible doubling at ~15 digits (iteration 3) — the doubling continues with arbitrary precision, which this in-browser version does not carry.",
+  "body":AGM_BODY,"script":AGM_SCRIPT},
  {"slug":"the-one-bit-river","title":"THE ONE-BIT RIVER","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#4fb8ff","icon":"coop",
   "kicker":"infinite-resolution sound from a wire flipping fast",
