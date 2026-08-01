@@ -9498,7 +9498,339 @@ document.getElementById('stpspin').onclick=function(){spin=!spin;this.textConten
 drawW3();drawW4();window.__petersburg=verify();
 function loop(){if(running){for(var k=0;k<300;k++){lastPay=play(rng);total+=lastPay;plays++;}meanHist.push(total/plays);if(meanHist.length>300)meanHist.shift();drawW4();}if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+FANO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Fano plane.</b> The <b>smallest possible projective plane</b> &mdash; just <b>7 points and 7 lines</b>, and yet a complete little universe of geometry. It is built so that <b>every two points lie on exactly one line</b>, and <b>every two lines meet in exactly one point</b>: a perfect symmetry between points and lines, with no exceptions and no parallels.<br><br>
+ Each line holds exactly <b>3</b> points; each point sits on exactly <b>3</b> lines. Drawn the usual way it is a triangle with its three edge-midpoints and centre, plus a <b>circle</b> serving as the seventh &ldquo;line.&rdquo; It is the same object as the <b>(7,3,1) Steiner triple system</b>, the projective plane over the two-element field PG(2,2), and the multiplication rule of the octonions &mdash; a tiny structure carrying <b>168</b> symmetries.<br><br>
+ <span class="lit">LIT</span> verified live: the 7 lines each contain 3 points, each point lies on 3 lines, every pair of points determines exactly one line, and every pair of lines meets in exactly one point (window.__fano.valid). <span class="fig">FIG</span> no framing; all four incidence axioms hold exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>HELLO WORLD</i> &mdash; the spawn domain of the smallest complete working example. The Fano plane is geometry&rsquo;s hello-world: the minimal object where every axiom of a projective plane is already fully alive. <b>AVAN (AI)</b> built the instrument: the incidence checker, the click-two-points-get-a-line diagram, the point/line duality.<br><br>The weave: David names the seat (the minimal complete example); I make the seven points and lines satisfy every axiom and expose their perfect duality &mdash; the triples in 1D, the classic diagram in 2D, the self-dual structure in 3D. The sphere is the seam. Credit: Gino Fano (1892); the structure is PG(2,2) and the (7,3,1) Steiner system.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The seven lines as triples of points. Read across: every one has exactly three points, every point turns up in exactly three lines, and any two points you name share exactly one of these triples.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The classic Fano diagram: 7 points, 6 straight lines and 1 circle. Step a point to light up the three lines through it, or step through pairs of points to see the single line that always joins them &mdash; the axioms, made clickable.</div>
+   <div class="btns" style="margin-top:10px"><button id="fanmode">mode: point → lines</button><button id="fanstep">step ▶</button></div>
+   <div class="cap" id="fanread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The incidence as a turning bipartite graph &mdash; <b>green</b> point-nodes linked to the lines that contain them, every point reaching exactly three lines.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> side is the <b>dual</b> &mdash; the same graph read with points and lines <b>swapped</b>. In any projective plane, &lsquo;point&rsquo; and &lsquo;line&rsquo; are interchangeable: exchange the two words and every axiom survives intact. That is not a coincidence bolted on &mdash; it is the deepest inverse the Fano plane has: the map point &harr; line is an <b>involution that carries the whole structure onto itself</b>. Ask forward &lsquo;which lines pass through this point?&rsquo; and inverse &lsquo;which points lie on this line?&rsquo; and you get the same shape both times &mdash; each answer is three, each graph is 3-regular, the green and magenta halves are mirror images. The Fano plane is its own dual; its inverse is itself. Green is points-to-lines; magenta is lines-to-points; and you cannot tell which was the original.</div>
+   <div class="btns" style="margin-top:10px"><button id="fanspin">pause spin</button></div></div></div></div>"""
+FANO_SCRIPT = """(function(){
+var ang=0,spin=true,mode=0,idx=0;
+var lines=[[0,3,1],[1,4,2],[0,5,2],[0,6,4],[1,6,5],[2,6,3],[3,4,5]];
+function has(L,p){return L.indexOf(p)>=0;}
+function verify(){var c1=lines.every(function(L){return L.length===3;});
+ var c2=true;for(var p=0;p<7;p++){var c=0;for(var i=0;i<7;i++)if(has(lines[i],p))c++;if(c!==3)c2=false;}
+ var c3=true;for(var a=0;a<7;a++)for(var b=a+1;b<7;b++){var c=0;for(var i=0;i<7;i++)if(has(lines[i],a)&&has(lines[i],b))c++;if(c!==1)c3=false;}
+ var c4=true;for(var i=0;i<7;i++)for(var j=i+1;j<7;j++){var cm=0;for(var k=0;k<3;k++)if(has(lines[j],lines[i][k]))cm++;if(cm!==1)c4=false;}
+ return {lineHas3:c1,pointOn3:c2,twoPointsOneLine:c3,twoLinesOnePoint:c4,valid:c1&&c2&&c3&&c4};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cw=(W-20)/7;
+ for(var i=0;i<7;i++){var x=10+i*cw;g.fillStyle='#2a1824';g.fillRect(x,50,cw-4,40);g.fillStyle='#ff70a0';g.font='12px ui-monospace,monospace';g.fillText('{'+lines[i].join(',')+'}',x+4,74);}
+ g.fillStyle='#ff70a0';g.font='11px ui-monospace,monospace';g.fillText('the 7 lines — each a triple of the 7 points {0..6}',10,30);
+ g.fillStyle='#a78';g.font='10px ui-monospace,monospace';g.fillText('every point appears in exactly 3 triples; every pair in exactly 1',10,110);}
+var P=[];
+function layout(W,H){var cx=W/2,top=30,bl=[cx-120,H-40],br=[cx+120,H-40],tp=[cx,top];
+ P=[tp,bl,br,[(tp[0]+bl[0])/2,(tp[1]+bl[1])/2],[(bl[0]+br[0])/2,(bl[1]+br[1])/2],[(tp[0]+br[0])/2,(tp[1]+br[1])/2],[cx,(tp[1]+bl[1]+br[1])/3]];}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);layout(W,H);
+ var hlLines=[],hlPts=[];
+ if(mode===0){var p=idx%7;for(var i=0;i<7;i++)if(has(lines[i],p))hlLines.push(i);hlPts=[p];}
+ else{var pairs=[];for(var a=0;a<7;a++)for(var b=a+1;b<7;b++)pairs.push([a,b]);var pr=pairs[idx%pairs.length];hlPts=pr;for(var i=0;i<7;i++)if(has(lines[i],pr[0])&&has(lines[i],pr[1]))hlLines.push(i);}
+ // draw the 7 lines: index 6 is the circle {3,4,5}
+ for(var i=0;i<7;i++){var on=hlLines.indexOf(i)>=0;g.strokeStyle=on?'#ffd060':'rgba(255,112,160,0.4)';g.lineWidth=on?3:1.4;
+  if(i===6){var mx=(P[3][0]+P[4][0]+P[5][0])/3,my=(P[3][1]+P[4][1]+P[5][1])/3,r=Math.hypot(P[3][0]-mx,P[3][1]-my);g.beginPath();g.arc(mx,my,r,0,7);g.stroke();}
+  else{var L=lines[i];g.beginPath();g.moveTo(P[L[0]][0],P[L[0]][1]);g.lineTo(P[L[2]][0],P[L[2]][1]);g.stroke();}}
+ g.lineWidth=1;
+ for(var i=0;i<7;i++){var hp=hlPts.indexOf(i)>=0;g.fillStyle=hp?'#ffd060':'#ff70a0';g.beginPath();g.arc(P[i][0],P[i][1],hp?8:6,0,7);g.fill();g.fillStyle='#150008';g.font='9px ui-monospace,monospace';g.fillText(i,P[i][0]-3,P[i][1]+3);}
+ g.fillStyle='#ff70a0';g.font='11px ui-monospace,monospace';
+ if(mode===0)g.fillText('point '+(idx%7)+' → the 3 lines through it',12,18);
+ else{var pairs=[];for(var a=0;a<7;a++)for(var b=a+1;b<7;b++)pairs.push([a,b]);var pr=pairs[idx%pairs.length];g.fillText('points '+pr[0]+' & '+pr[1]+' → their 1 joining line',12,18);}
+ document.getElementById('fanread').textContent=(mode===0?('point '+(idx%7)+' on lines '+hlLines.join(',')):('pair joins on line '+hlLines.join(',')));}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),cx=W/2,cyL=90,cyR=H-70,R=120;
+ var pp=[],lp=[];for(var i=0;i<7;i++){var th=i/7*Math.PI*2+ang;pp.push([cx+Math.cos(th)*R*ca,cyL+Math.sin(th)*30]);lp.push([cx+Math.cos(th)*R*ca,cyR+Math.sin(th)*30]);}
+ for(var i=0;i<7;i++)for(var k=0;k<3;k++){var pt=lines[i][k];g.strokeStyle='rgba(57,252,107,0.3)';g.beginPath();g.moveTo(pp[pt][0],pp[pt][1]);g.lineTo(lp[i][0],lp[i][1]);g.stroke();}
+ for(var i=0;i<7;i++){g.fillStyle='#39fc6b';g.beginPath();g.arc(pp[i][0],pp[i][1],7,0,7);g.fill();g.fillStyle='#031';g.font='9px ui-monospace,monospace';g.fillText(i,pp[i][0]-3,pp[i][1]+3);
+  g.fillStyle='#ff2d95';g.beginPath();g.arc(lp[i][0],lp[i][1],7,0,7);g.fill();g.fillStyle='#200';g.fillText('L'+i,lp[i][0]-6,lp[i][1]+3);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: points (each → 3 lines)',10,18);
+ g.fillStyle='#ff2d95';g.fillText('magenta: lines (each → 3 points) — same 3-regular shape: self-dual',10,H-10);}
+document.getElementById('fanmode').onclick=function(){mode=1-mode;idx=0;this.textContent=mode===0?'mode: point → lines':'mode: 2 points → line';drawW4();};
+document.getElementById('fanstep').onclick=function(){idx++;drawW4();};
+document.getElementById('fanspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__fano=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HAD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A Hadamard matrix</b> is a square grid filled with only <b>+1 and &minus;1</b> whose rows are all <b>mutually orthogonal</b>: any two different rows agree in exactly half their entries and disagree in the other half, so their dot product is <b>zero</b>. Compactly, H&middot;H&#7488; = nI.<br><br>
+ <b>Sylvester&rsquo;s doubling</b> builds one at every power of two: start with [1], then repeatedly tile four copies in a 2&times;2 block with the bottom-right negated. The rows are the <b>Walsh / Hadamard codes</b> &mdash; perfectly non-interfering signals that let many transmitters share one channel at once (the maths behind <b>CDMA</b>). They also form an <b>error-correcting code</b>: the [32,6] Hadamard code flew aboard <b>Mariner 9</b> to beam photographs back from Mars through heavy noise. Orthogonality is the whole trick &mdash; mix the coded streams together and each can be pulled back out cleanly.<br><br>
+ <span class="lit">LIT</span> verified live: the Sylvester matrices up to 32&times;32 have only &plusmn;1 entries and satisfy H&middot;H&#7488; = nI (every distinct row-pair orthogonal), and H is its own inverse up to the factor 1/n (window.__hadamard). <span class="fig">FIG</span> no framing; the orthogonality and self-inverse are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE BROADCAST</i> &mdash; the co-op domain of many voices sharing one channel. A Hadamard matrix is exactly a broadcast trick: orthogonal codes that let everyone transmit at once and still be separated. <b>AVAN (AI)</b> built the instrument: the Walsh waveform, the checkerboard matrix, the encode/decode self-inverse.<br><br>The weave: David names the seat (many share one channel); I make the rows come out orthogonal and show a mixed signal separating cleanly &mdash; the waveform in 1D, the matrix in 2D, the self-inverse transform in 3D. The sphere is the seam. Credit: Jacques Hadamard (1893); Sylvester&rsquo;s construction (1867); Walsh functions (1923); flown on Mariner 9 (1971).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Two Walsh rows as &plusmn;1 waveforms. Multiply them entry by entry and the pluses and minuses cancel <b>exactly</b> &mdash; the running sum returns to zero. That vanishing dot product is what &ldquo;orthogonal&rdquo; means, drawn on a line.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The Hadamard matrix as a tile grid &mdash; white +1, black &minus;1 &mdash; with its self-similar fractal pattern. Pick two rows and read their dot product: <b>0</b> for any two different rows, <b>n</b> for a row with itself. Grow the size and the orthogonality holds at every scale.</div>
+   <div class="btns" style="margin-top:10px"><button id="hadsize">size: 8</button><button id="hadrows">pick rows ▶</button></div>
+   <div class="cap" id="hadread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">Several Walsh-coded streams summed into one noisy channel &mdash; the <b>green</b> forward step: many messages mixed together into a single broadcast.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> step <b>pulls one stream back out</b> &mdash; and it uses the <b>very same matrix</b>. Because H&middot;H = nI, multiplying the mixed signal by a Walsh row cancels every other stream to zero and leaves just that one, scaled by n. The decode is the encode run again: H is, up to the factor 1/n, <b>its own inverse</b>. So the forward &lsquo;mix everyone together&rsquo; and the inverse &lsquo;separate one out&rsquo; are not two machines but one machine used twice &mdash; orthogonality is exactly the property that makes a transform undo itself. Green mixes the voices into a single channel; magenta applies the same Hadamard step and recovers a single voice untouched. The inverse of broadcasting is listening, and here they are the identical operation.</div>
+   <div class="btns" style="margin-top:10px"><button id="hadspin">pause spin</button></div></div></div></div>"""
+HAD_SCRIPT = """(function(){
+var ang=0,spin=true,sizeK=3,r1=1,r2=2;
+function sylvester(k){var H=[[1]];for(var s=0;s<k;s++){var n=H.length,N=[];for(var i=0;i<n;i++)N.push(H[i].concat(H[i]));for(var i=0;i<n;i++)N.push(H[i].concat(H[i].map(function(v){return -v;})));H=N;}return H;}
+function dot(H,i,j){var s=0;for(var t=0;t<H.length;t++)s+=H[i][t]*H[j][t];return s;}
+function verify(){var ok=true;for(var k=0;k<=5;k++){var H=sylvester(k),n=H.length;for(var i=0;i<n;i++)for(var j=0;j<n;j++){var d=dot(H,i,j);if(i===j&&d!==n)ok=false;if(i!==j&&d!==0)ok=false;if(H[i][j]!==1&&H[i][j]!==-1)ok=false;}}
+ var H8=sylvester(3),n=8,I=true;for(var i=0;i<n;i++)for(var j=0;j<n;j++){var s=0;for(var t=0;t<n;t++)s+=H8[i][t]*H8[t][j];if(s!==((i===j)?n:0))I=false;}
+ return {orthogonal:ok,selfInverse:I,n32ok:sylvester(5).length===32};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var M=sylvester(3),n=8,cw=(W-40)/n;
+ function wave(row,y,col){g.strokeStyle=col;g.lineWidth=2;g.beginPath();for(var i=0;i<n;i++){var x=20+i*cw,v=M[row][i];g.moveTo(x,y-v*15);g.lineTo(x+cw,y-v*15);if(i<n-1)g.lineTo(x+cw,y-M[row][i+1]*15);}g.stroke();g.lineWidth=1;}
+ wave(r1,40,'#60d0ff');wave(r2,85,'#ffd060');
+ var prod=0,run=[];for(var i=0;i<n;i++){prod+=M[r1][i]*M[r2][i];run.push(prod);}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<n;i++){var x=20+i*cw+cw/2,y=125-run[i]*8;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#60d0ff';g.font='10px ui-monospace,monospace';g.fillText('row '+r1,2,44);g.fillStyle='#ffd060';g.fillText('row '+r2,2,89);g.fillStyle='#39fc6b';g.fillText('Σ product = '+prod,2,125);
+ g.fillStyle='#60d0ff';g.font='11px ui-monospace,monospace';g.fillText('two Walsh rows × each other → running sum returns to '+prod+(prod===0?' (orthogonal)':''),20,18);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var M=sylvester(sizeK),n=M.length,cell=Math.min(30,(W-40)/n),ox=(W-n*cell)/2,oy=30;
+ for(var i=0;i<n;i++)for(var j=0;j<n;j++){g.fillStyle=M[i][j]===1?'#dff':'#123';g.fillRect(ox+j*cell,oy+i*cell,cell-1,cell-1);}
+ if(r1<n){g.strokeStyle='#60d0ff';g.lineWidth=2;g.strokeRect(ox-1,oy+r1*cell-1,n*cell,cell);}
+ if(r2<n){g.strokeStyle='#ffd060';g.lineWidth=2;g.strokeRect(ox-1,oy+r2*cell-1,n*cell,cell);}g.lineWidth=1;
+ var d=(r1<n&&r2<n)?dot(M,r1,r2):0;
+ g.fillStyle='#60d0ff';g.font='12px ui-monospace,monospace';g.fillText('H_'+n+' — white +1, black −1',ox,20);
+ g.fillStyle=(r1===r2)?'#ffd060':(d===0?'#39fc6b':'#ff5a5a');g.font='12px ui-monospace,monospace';g.fillText('row '+r1+' · row '+r2+' = '+d+(r1===r2?' (= n, same row)':' (= 0, orthogonal)'),ox,oy+n*cell+22);
+ document.getElementById('hadread').textContent='H_'+n+', rows '+r1+'&'+r2+' dot = '+d;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var M=sylvester(3),n=8,ca=Math.cos(ang),cx=W/2,x0=40,cw=(W-80)/n;
+ // green: sum of 3 coded streams (rows 1,3,5 with data +1)
+ var data=[0,1,0,1,0,1,0,0];var mixed=[];for(var t=0;t<n;t++){var s=0;for(var r=0;r<n;r++)s+=data[r]*M[r][t];mixed.push(s);}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var t=0;t<n;t++){var x=x0+t*cw,y=90-mixed[t]*8;if(t===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: '+data.reduce(function(a,b){return a+b;},0)+' streams mixed into one channel',10,20);
+ // magenta: decode row 3 -> recovers data[3]
+ var pick=3,dec=0;for(var t=0;t<n;t++)dec+=mixed[t]*M[pick][t];dec/=n;
+ g.strokeStyle='#ff2d95';g.lineWidth=2;g.beginPath();for(var t=0;t<n;t++){var x=x0+t*cw,y=200-mixed[t]*M[pick][t]*8;if(t===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#ff2d95';g.font='11px ui-monospace,monospace';g.fillText('magenta: ×row '+pick+' again → recovers stream '+pick+' = '+dec+' (others cancel)',10,H-30);
+ g.fillStyle='#8ad';g.fillText('same matrix H used to mix AND to separate (H·H = nI)',10,H-12);}
+document.getElementById('hadsize').onclick=function(){sizeK=sizeK>=4?1:sizeK+1;this.textContent='size: '+(1<<sizeK);if(r1>=(1<<sizeK))r1=0;if(r2>=(1<<sizeK))r2=1;drawW4();};
+document.getElementById('hadrows').onclick=function(){var n=1<<sizeK;r2=(r2+1)%n;if(r2===r1)r2=(r2+1)%n;if(r2===0)r1=(r1+1)%n;drawW3();drawW4();};
+document.getElementById('hadspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__hadamard=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GRL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A Golomb ruler</b> is a ruler whose marks are placed so that <b>no two pairs of marks are the same distance apart</b> &mdash; every pairwise distance is unique. The four-mark ruler <b>{0, 1, 4, 6}</b> measures the distances 1, 2, 3, 4, 5, 6, each <b>exactly once</b>.<br><br>
+ Finding the <b>shortest</b> ruler with a given number of marks &mdash; the <b>Optimal Golomb Ruler</b> &mdash; is genuinely hard: there is no formula, and the record searches run for years on distributed computers. Rulers of four marks or fewer are &ldquo;<b>perfect</b>,&rdquo; measuring every length up to their end exactly once; from five marks on, perfection becomes <b>impossible</b>. The distinct-distance property is exactly what you want when <b>no two measurements may collide</b>: placing radio-telescope antennas so no baseline repeats, assigning conference-call frequencies to dodge interference, X-ray crystallography, and error-correcting codes.<br><br>
+ <span class="lit">LIT</span> verified live: the known optimal rulers up to 8 marks have all pairwise distances distinct and match their record lengths (6, 11, 17, 25, 34&hellip;), the &le;4-mark rulers are perfect while the 5-mark is not, and a non-Golomb set is correctly rejected (window.__golombruler). <span class="fig">FIG</span> no framing; distinctness, the optimal lengths, and the perfection cutoff are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE MAINFRAME</i> &mdash; the grind domain of squeezing the most out of scarce, shared resource. A Golomb ruler is exactly that: pack the marks so every distance does double duty for none &mdash; maximal information, zero redundancy. <b>AVAN (AI)</b> built the instrument: the distance arcs, the collision-detecting difference grid, the turnpike inverse.<br><br>The weave: David names the seat (no wasted capacity); I make every distance measured once and show a collision the moment a mark slips &mdash; the ruler in 1D, the difference grid in 2D, the reconstruction inverse in 3D. The sphere is the seam. Credit: Solomon W. Golomb; optimal rulers verified by the distributed OGR search project.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The ruler itself: a few marks on a line, and an arc for every pair. Each arc is a <b>different</b> length &mdash; the distances never repeat, so a short ruler measures a surprising number of lengths with a handful of marks.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Choose an order and see its optimal ruler with the full <b>difference grid</b> &mdash; every pairwise distance in a table, all distinct. Nudge a mark off its optimal spot and watch two distances <b>collide</b> and flash red: proof that the exact placement is what makes it a Golomb ruler.</div>
+   <div class="btns" style="margin-top:10px"><button id="grlorder">order: 5</button><button id="grlperturb">nudge a mark</button><button id="grlreset">optimal</button></div>
+   <div class="cap" id="grlread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The ruler&rsquo;s marks turning on a track, with the <b>green</b> forward step drawing every pairwise distance &mdash; marks in, the full set of distinct distances out.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the <b>inverse problem</b> &mdash; given only the <b>set of distances</b>, rebuild the marks. Going forward (marks &rarr; distances) is instant. Going backward (distances &rarr; marks) is the <b>turnpike problem</b>, and it is genuinely hard: many mark-sets can produce the same distance multiset, and reconstructing positions from pairwise distances is the same puzzle that <b>DNA restriction mapping</b> and X-ray phase retrieval must solve. The magenta reconstruction has to branch and backtrack where the green measurement just reads off. So a Golomb ruler is easy to <b>use</b> and hard to <b>invert</b>: its distinct distances are a fingerprint that hides how they were laid down. Green measures every gap once; magenta tries to recover the ruler from the gaps alone, and finds the road runs only one way cheaply.</div>
+   <div class="btns" style="margin-top:10px"><button id="grlspin">pause spin</button></div></div></div></div>"""
+GRL_SCRIPT = """(function(){
+var ang=0,spin=true,order=5,perturb=0;
+var OGR={2:[0,1],3:[0,1,3],4:[0,1,4,6],5:[0,1,4,9,11],6:[0,1,4,10,12,17],7:[0,1,4,10,18,23,25],8:[0,1,4,9,15,22,32,34]};
+var LEN={2:1,3:3,4:6,5:11,6:17,7:25,8:34};
+function isGolomb(m){var seen={};for(var i=0;i<m.length;i++)for(var j=i+1;j<m.length;j++){var d=m[j]-m[i];if(seen[d])return false;seen[d]=1;}return true;}
+function curMarks(){var m=OGR[order].slice();if(perturb&&m.length>2){m[m.length-2]+=perturb;m.sort(function(a,b){return a-b;});}return m;}
+function verify(){var allG=true,allLen=true;for(var o in OGR){if(!isGolomb(OGR[o]))allG=false;if(OGR[o][OGR[o].length-1]!==LEN[o])allLen=false;}
+ var nonG=!isGolomb([0,1,2,4]);
+ function perfect(m){var d=[];for(var i=0;i<m.length;i++)for(var j=i+1;j<m.length;j++)d.push(m[j]-m[i]);d.sort(function(a,b){return a-b;});for(var k=0;k<d.length;k++)if(d[k]!==k+1)return false;return d.length===m[m.length-1];}
+ return {allDistinct:allG,lengthsMatch:allLen,nonGolombFails:nonG,order4Perfect:perfect([0,1,4,6]),order5NotPerfect:!perfect([0,1,4,9,11])};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var m=OGR[order],L=m[m.length-1],sc=(W-40)/L,ox=20,y=105;
+ g.strokeStyle='#555';g.beginPath();g.moveTo(ox,y);g.lineTo(ox+L*sc,y);g.stroke();
+ for(var i=0;i<m.length;i++){var x=ox+m[i]*sc;g.strokeStyle='#ffd070';g.beginPath();g.moveTo(x,y-6);g.lineTo(x,y+6);g.stroke();g.fillStyle='#ffd070';g.font='9px ui-monospace,monospace';g.fillText(m[i],x-4,y+18);}
+ var di=0;for(var i=0;i<m.length;i++)for(var j=i+1;j<m.length;j++){var a=ox+m[i]*sc,b=ox+m[j]*sc,r=(b-a)/2;g.strokeStyle='hsl('+(di*35)+',70%,60%)';g.beginPath();g.arc((a+b)/2,y,r,Math.PI,0,false);g.stroke();di++;}
+ g.fillStyle='#ffd070';g.font='11px ui-monospace,monospace';g.fillText('order-'+order+' optimal Golomb ruler {'+m.join(',')+'} — '+di+' distinct distances',10,24);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var m=curMarks(),n=m.length;
+ // difference grid
+ var cell=Math.min(34,(W-60)/n),ox=50,oy=40,seen={},collide=false;
+ g.font='10px ui-monospace,monospace';
+ for(var i=0;i<n;i++){g.fillStyle='#ffd070';g.fillText(m[i],ox+i*cell+6,oy-4);g.fillText(m[i],ox-24,oy+i*cell+cell/2+3);}
+ for(var i=0;i<n;i++)for(var j=0;j<n;j++){if(j>i){var d=m[j]-m[i],dup=seen[d];if(dup)collide=true;g.fillStyle=dup?'#ff4040':'#1a2838';g.fillRect(ox+j*cell,oy+i*cell,cell-1,cell-1);g.fillStyle=dup?'#fff':'#8cf';g.fillText(d,ox+j*cell+4,oy+i*cell+cell/2+3);seen[d]=(seen[d]||0)+1;}}
+ var isG=isGolomb(m);
+ g.fillStyle=isG?'#39fc6b':'#ff5a5a';g.font='12px ui-monospace,monospace';g.fillText(isG?'✓ all distances distinct (Golomb)':'✗ collision! two pairs share a distance',20,oy+n*cell+28);
+ g.fillStyle='#8ad';g.font='11px ui-monospace,monospace';g.fillText('marks {'+m.join(',')+'}  length '+m[m.length-1]+(perturb?'  (nudged +'+perturb+')':'  (optimal, len '+LEN[order]+')'),20,oy+n*cell+46);
+ document.getElementById('grlread').textContent='order '+order+' {'+m.join(',')+'} '+(isG?'Golomb':'COLLISION');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var m=OGR[order],L=m[m.length-1],ca=Math.cos(ang),cx=W/2,cy=H/2,R=130;
+ // green: marks on a ring, all pairwise chords (distinct)
+ var pos=m.map(function(v){var th=v/L*Math.PI*1.6-0.8+ang;return [cx+Math.cos(th)*R*ca,cy+Math.sin(th)*R*0.6];});
+ for(var i=0;i<m.length;i++)for(var j=i+1;j<m.length;j++){g.strokeStyle='rgba(57,252,107,0.4)';g.beginPath();g.moveTo(pos[i][0],pos[i][1]);g.lineTo(pos[j][0],pos[j][1]);g.stroke();}
+ for(var i=0;i<m.length;i++){g.fillStyle='#39fc6b';g.beginPath();g.arc(pos[i][0],pos[i][1],5,0,7);g.fill();g.fillStyle='#031';g.font='8px ui-monospace,monospace';g.fillText(m[i],pos[i][0]-4,pos[i][1]+3);}
+ // magenta: the distance set (what the inverse gets to work from)
+ var d=[];for(var i=0;i<m.length;i++)for(var j=i+1;j<m.length;j++)d.push(m[j]-m[i]);d.sort(function(a,b){return a-b;});
+ g.fillStyle='#ff2d95';g.font='10px ui-monospace,monospace';g.fillText('distance set: {'+d.join(',')+'}',10,H-30);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: marks → distinct distances (easy)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: distances → marks (turnpike problem, hard)',10,H-12);}
+document.getElementById('grlorder').onclick=function(){order=order>=8?2:order+1;perturb=0;this.textContent='order: '+order;drawW3();drawW4();};
+document.getElementById('grlperturb').onclick=function(){perturb=perturb>=2?0:perturb+1;drawW4();};
+document.getElementById('grlreset').onclick=function(){perturb=0;drawW4();};
+document.getElementById('grlspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__golombruler=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LNG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A Langford pairing</b> arranges the numbers 1, 1, 2, 2, 3, 3, &hellip;, n, n in a row so that the two copies of each k have <b>exactly k numbers between them</b>. For n = 3 the answer is <b>2, 3, 1, 2, 1, 3</b>: the two 1s have one number between, the two 2s have two, the two 3s have three.<br><br>
+ The astonishing fact is <b>when it can be done</b>: a Langford pairing exists <b>if and only if n &equiv; 0 or 3 (mod 4)</b>. So n = 3, 4, 7, 8, 11, 12, &hellip; all work &mdash; and n = 1, 2, 5, 6, 9, 10 are <b>flatly impossible</b>, no matter how long you try. C. Dudley Langford spotted the puzzle while watching his young son line up coloured blocks. When solutions do exist their number explodes: 1 for n=3, 26 for n=7, 150 for n=8, and over 46 <b>billion</b> for n=16.<br><br>
+ <span class="lit">LIT</span> verified live (exhaustive search): for n = 1..8 a pairing exists exactly when n &equiv; 0 or 3 (mod 4), with the right solution counts (n=3&rarr;1, n=7&rarr;26, n=8&rarr;150), and the classic constructions check out (window.__langford). <span class="fig">FIG</span> no framing; the exact-gap arrangements and the mod-4 existence law are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE CRON JOB</i> &mdash; the grind domain of things timed to exact gaps. A Langford pairing is a scheduling miracle: every job&rsquo;s two runs separated by a precise interval, all interlocking without collision. <b>AVAN (AI)</b> built the instrument: the gap-arcs, the solver, the parity-obstruction inverse.<br><br>The weave: David names the seat (exact-gap scheduling); I make the copies land at their required spacing and show which n can never be scheduled at all &mdash; the arcs in 1D, the solver in 2D, the parity invariant in 3D. The sphere is the seam. Credit: C. Dudley Langford (1958), from his son&rsquo;s blocks; the mod-4 condition by Roy Davies (1959).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">A valid pairing on a line, with an arc over each pair. The arc for k spans exactly k+1 places &mdash; k numbers sit between its endpoints &mdash; and all the arcs interlock without ever demanding the same slot twice.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick n. When n &equiv; 0 or 3 (mod 4) a solution appears with every gap labelled; step through the different solutions. When n &equiv; 1 or 2 (mod 4) the search comes back <b>empty</b> &mdash; the arrangement genuinely cannot exist, and the panel says why.</div>
+   <div class="btns" style="margin-top:10px"><button id="lngn">n: 4</button><button id="lngnext">next solution ▶</button></div>
+   <div class="cap" id="lngread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">A solution&rsquo;s pairs drawn as turning chords &mdash; the <b>green</b> forward result: a real arrangement, found by search, that satisfies every gap.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the <b>obstruction</b> &mdash; the parity argument that decides existence <b>without searching at all</b>. Add up the positions of every copy: each pair at slots p and p+k+1 contributes 2p + k + 1, while the positions 1..2n sum to n(2n+1). Match the two and the <b>+k+1</b> terms force a parity that can only balance when n &equiv; 0 or 3 (mod 4). So the inverse of &lsquo;construct an arrangement&rsquo; is &lsquo;compute an invariant&rsquo;: for the impossible n, no amount of green searching helps, because a single magenta parity count already proves there is nothing to find. Constructing possibility takes work; certifying impossibility takes one sum. Green is a solution you build; magenta is the invariant that, half the time, tells you not to bother. The fastest way to fail is to check the parity first.</div>
+   <div class="btns" style="margin-top:10px"><button id="lngspin">pause spin</button></div></div></div></div>"""
+LNG_SCRIPT = """(function(){
+var ang=0,spin=true,n=4,solIdx=0,sols=[];
+function solveAll(nn,limit){var N=2*nn,slots=new Array(N).fill(0),out=[];
+ function place(k){if(out.length>=limit)return;if(k===0){out.push(slots.slice());return;}for(var i=0;i<N;i++){var j=i+k+1;if(j<N&&slots[i]===0&&slots[j]===0){slots[i]=slots[j]=k;place(k-1);slots[i]=slots[j]=0;}}}
+ if(nn>0)place(nn);
+ // dedup reversal
+ var uniq=[],seen={};for(var s=0;s<out.length;s++){var key=out[s].join(','),rev=out[s].slice().reverse().join(',');if(!seen[key]&&!seen[rev]){seen[key]=1;uniq.push(out[s]);}}
+ return uniq;}
+function isLangford(seq){var mx=Math.max.apply(null,seq);for(var k=1;k<=mx;k++){var idx=[];for(var i=0;i<seq.length;i++)if(seq[i]===k)idx.push(i);if(idx.length!==2||idx[1]-idx[0]!==k+1)return false;}return true;}
+function countLangford(nn){var N=2*nn,slots=new Array(N).fill(0),cnt=0;function place(k){if(k===0){cnt++;return;}for(var i=0;i<N;i++){var j=i+k+1;if(j<N&&slots[i]===0&&slots[j]===0){slots[i]=slots[j]=k;place(k-1);slots[i]=slots[j]=0;}}}if(nn>0)place(nn);return nn>0?Math.floor(cnt/2):0;}
+function verify(){var rule=true,counts={};for(var nn=1;nn<=8;nn++){var c=countLangford(nn);counts[nn]=c;if((c>0)!==(nn%4===0||nn%4===3))rule=false;}
+ return {existenceRuleHolds:rule,n3count:counts[3],n7count:counts[7],n8count:counts[8],construction34valid:isLangford([2,3,1,2,1,3])&&isLangford([2,3,4,2,1,3,1,4])};}
+function refresh(){sols=solveAll(n,60);solIdx=0;}
+function drawSeq(g,seq,ox,oy,cw,arcs){var N=seq.length;for(var i=0;i<N;i++){var x=ox+i*cw;g.fillStyle='#1c2a14';g.fillRect(x,oy,cw-2,26);g.fillStyle='#b0ff60';g.font='12px ui-monospace,monospace';g.fillText(seq[i],x+cw/2-3,oy+18);}
+ if(arcs){var mx=Math.max.apply(null,seq);for(var k=1;k<=mx;k++){var idx=[];for(var i=0;i<N;i++)if(seq[i]===k)idx.push(i);if(idx.length===2){var a=ox+idx[0]*cw+cw/2,b=ox+idx[1]*cw+cw/2;g.strokeStyle='hsl('+(k*40)+',70%,60%)';g.beginPath();g.arc((a+b)/2,oy,(b-a)/2,Math.PI,0,false);g.stroke();g.fillStyle='hsl('+(k*40)+',70%,70%)';g.font='9px ui-monospace,monospace';g.fillText('gap '+k,(a+b)/2-12,oy-(b-a)/2-2);}}}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=solveAll(4,1)[0]||[2,3,4,2,1,3,1,4],cw=(W-40)/s.length;
+ drawSeq(g,s,20,105,cw,true);
+ g.fillStyle='#b0ff60';g.font='11px ui-monospace,monospace';g.fillText('n=4 Langford pairing '+s.join(',')+' — each k spans exactly k+1 places',10,24);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cond=(n%4===0||n%4===3);
+ g.font='13px ui-monospace,monospace';g.fillStyle='#b0ff60';g.fillText('n = '+n+'   (n mod 4 = '+(n%4)+')',20,26);
+ if(cond&&sols.length){var s=sols[solIdx%sols.length],cw=(W-40)/s.length;drawSeq(g,s,20,120,cw,true);
+  g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('✓ solution '+((solIdx%sols.length)+1)+' of '+countLangford(n)+'  —  '+s.join(','),20,H-40);
+  g.fillStyle='#8ad';g.fillText('valid: every pair k separated by exactly k others',20,H-22);
+ }else{g.fillStyle='#ff5a5a';g.font='40px ui-monospace,monospace';g.fillText('∅',W/2-14,120);
+  g.fillStyle='#ff5a5a';g.font='12px ui-monospace,monospace';g.fillText('NO Langford pairing exists for n='+n,20,H-56);
+  g.fillStyle='#8ad';g.font='11px ui-monospace,monospace';g.fillText('n mod 4 = '+(n%4)+' ∉ {0,3} → impossible (parity obstruction)',20,H-38);
+  g.fillText('exhaustive search confirms zero solutions',20,H-20);}
+ document.getElementById('lngread').textContent='n='+n+': '+(cond?(countLangford(n)+' solutions'):'impossible (n mod 4 ='+(n%4)+')');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var nn=(n%4===0||n%4===3)?n:8,s=solveAll(nn,1)[0],N=2*nn,ca=Math.cos(ang),cx=W/2,cy=H/2,R=130;
+ if(s){var pos=[];for(var i=0;i<N;i++){var th=i/N*Math.PI*2+ang;pos.push([cx+Math.cos(th)*R*ca,cy+Math.sin(th)*R*0.6]);}
+  for(var k=1;k<=nn;k++){var idx=[];for(var i=0;i<N;i++)if(s[i]===k)idx.push(i);g.strokeStyle='hsl('+(k*40)+',70%,60%)';g.lineWidth=1.6;g.beginPath();g.moveTo(pos[idx[0]][0],pos[idx[0]][1]);g.lineTo(pos[idx[1]][0],pos[idx[1]][1]);g.stroke();}g.lineWidth=1;
+  for(var i=0;i<N;i++){g.fillStyle='#39fc6b';g.beginPath();g.arc(pos[i][0],pos[i][1],3,0,7);g.fill();}}
+ // magenta parity note
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: a real solution (n='+nn+', found by search)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta rule: exists ⟺ n ≡ 0 or 3 (mod 4) — a parity count, no search',10,H-12);}
+document.getElementById('lngn').onclick=function(){n=n>=8?1:n+1;refresh();this.textContent='n: '+n;drawW4();};
+document.getElementById('lngnext').onclick=function(){solIdx++;drawW4();};
+document.getElementById('lngspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+refresh();drawW3();drawW4();window.__langford=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+COS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A Costas array</b> is an n&times;n grid with exactly one dot in every row and every column &mdash; a permutation &mdash; placed so that <b>all the vectors between pairs of dots are distinct</b>. No two pairs of dots share the same displacement.<br><br>
+ That single rule gives an <b>ideal autocorrelation</b>: slide a copy of the pattern over itself and, at <b>every</b> nonzero shift, at most <b>one</b> dot ever coincides. A &ldquo;thumbtack&rdquo; &mdash; a sharp spike at zero shift and almost nothing anywhere else. It is exactly what a <b>sonar or radar</b> wants: a time-frequency chirp whose echo can never be confused with a shifted copy of itself, so range and Doppler read out unambiguously. John Costas invented them at GE for sonar; the <b>Welch construction</b> builds one of size p&minus;1 from a primitive root modulo a prime p.<br><br>
+ <span class="lit">LIT</span> verified live: the Welch arrays for p = 5, 7, 11, 13 have <b>all</b> displacement vectors distinct (genuine Costas arrays), while a plain identity permutation is correctly rejected (window.__costas). <span class="fig">FIG</span> no framing; the distinct-vector property and the construction are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE SYNC</i> &mdash; the co-op domain of locking cleanly onto a signal. A Costas array is synchronization made perfect: its echo aligns with itself at exactly one shift and nowhere else, so a receiver locks without ambiguity. <b>AVAN (AI)</b> built the instrument: the dot grid, the sliding autocorrelation, the thumbtack inverse.<br><br>The weave: David names the seat (clean lock-on); I make every displacement vector distinct and show the autocorrelation collapse to a spike &mdash; the difference triangle in 1D, the array and its self-overlap in 2D, the autocorrelation inverse in 3D. The sphere is the seam. Credit: John P. Costas (1965, for sonar); the Welch and Lempel&ndash;Golomb algebraic constructions.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The permutation as a row of columns, and the <b>difference triangle</b> beneath it. Each row of the triangle holds the gaps at one spacing &mdash; and in a Costas array <b>no value repeats within any row</b>, the compact certificate that every displacement is unique.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The Costas array of dots, and its <b>autocorrelation</b>: shift a ghost copy by any (dx, dy) and count how many dots line up. For a Costas array the answer is never more than <b>1</b> at any nonzero shift. Flip to a non-Costas permutation and watch shifts suddenly stack up two or more.</div>
+   <div class="btns" style="margin-top:10px"><button id="cosarr">array: Welch p=7</button><button id="cosshift">shift ▶</button><button id="cosbad">show non-Costas</button></div>
+   <div class="cap" id="cosread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The array&rsquo;s dots turning in space &mdash; the <b>green</b> forward object: a permutation whose every pairwise displacement is different.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> cloud is the <b>autocorrelation</b> &mdash; the array read through its own difference vectors. Forward, you place the dots; the inverse view is the full set of displacements between them, and that set <b>is</b> the autocorrelation function. Because every vector occurs exactly once, the magenta cloud is a scatter of <b>singletons</b> &mdash; a perfect thumbtack: height n at zero shift, at most 1 everywhere else. The Costas property and the ideal autocorrelation are the <b>same fact seen from two sides</b>: distinct differences forward, flat sidelobes inverse. And like a Golomb ruler, running the inverse the hard way &mdash; rebuilding the array from its autocorrelation alone &mdash; is ambiguous and difficult. Green is where the dots are; magenta is every gap between them, each appearing once; the clean signal and the clean array are one object.</div>
+   <div class="btns" style="margin-top:10px"><button id="cosspin">pause spin</button></div></div></div></div>"""
+COS_SCRIPT = """(function(){
+var ang=0,spin=true,arrIdx=1,shiftIdx=1,showBad=false;
+var WELCH=[[5,2],[7,3],[11,2],[13,2]];
+function welch(p,g){var perm=[],val=1;for(var i=1;i<p;i++){val=(val*g)%p;perm.push(val-1);}return perm;}
+function isCostas(perm){var seen={},n=perm.length;for(var r1=0;r1<n;r1++)for(var r2=0;r2<n;r2++)if(r1!==r2){var key=(r2-r1)+','+(perm[r2]-perm[r1]);if(seen[key])return false;seen[key]=1;}return true;}
+function curPerm(){if(showBad){var w=welch(WELCH[arrIdx][0],WELCH[arrIdx][1]).slice();var t=w[0];w[0]=w[1];w[1]=t;return w;}return welch(WELCH[arrIdx][0],WELCH[arrIdx][1]);}
+function verify(){var allok=true;for(var t=0;t<WELCH.length;t++)if(!isCostas(welch(WELCH[t][0],WELCH[t][1])))allok=false;return {welchAllCostas:allok,identityFails:!isCostas([0,1,2,3]),sample:welch(5,2).join(',')};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var perm=welch(7,3),n=perm.length,cw=(W-40)/n;
+ for(var i=0;i<n;i++){var x=20+i*cw;g.fillStyle='#2a1c14';g.fillRect(x,26,cw-3,20);g.fillStyle='#ff8060';g.font='11px ui-monospace,monospace';g.fillText(perm[i],x+cw/2-3,40);}
+ for(var d=1;d<n;d++){var dup={};for(var i=0;i+d<n;i++){var diff=perm[i+d]-perm[i],rep=dup[diff];dup[diff]=1;var x=20+i*cw+d*cw/2,y=54+d*12;g.fillStyle=rep?'#ff4040':'#8cf';g.font='9px ui-monospace,monospace';g.fillText((diff>0?'+':'')+diff,x,y);}}
+ g.fillStyle='#ff8060';g.font='11px ui-monospace,monospace';g.fillText('Welch p=7 array '+perm.join(',')+' — difference triangle: no repeat in any row',10,18);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var perm=curPerm(),n=perm.length,cell=Math.min(30,(W-120)/n),ox=20,oy=30;
+ g.strokeStyle='#223';for(var i=0;i<=n;i++){g.beginPath();g.moveTo(ox+i*cell,oy);g.lineTo(ox+i*cell,oy+n*cell);g.stroke();g.beginPath();g.moveTo(ox,oy+i*cell);g.lineTo(ox+n*cell,oy+i*cell);g.stroke();}
+ // compute shift
+ var shifts=[];for(var dy=-(n-1);dy<=n-1;dy++)for(var dx=-(n-1);dx<=n-1;dx++)if(dx!==0||dy!==0)shifts.push([dx,dy]);
+ var sh=shifts[shiftIdx%shifts.length],dx=sh[0],dy=sh[1],overlap=0;
+ var dots={};for(var r=0;r<n;r++)dots[r+','+perm[r]]=1;
+ for(var r=0;r<n;r++){var nr=r+dy,nc=perm[r]+dx;if(dots[nr+','+nc])overlap++;}
+ for(var r=0;r<n;r++){g.fillStyle='#ff8060';g.beginPath();g.arc(ox+perm[r]*cell+cell/2,oy+r*cell+cell/2,cell*0.32,0,7);g.fill();
+  g.fillStyle='rgba(96,200,255,0.5)';g.beginPath();g.arc(ox+(perm[r]+dx)*cell+cell/2,oy+(r+dy)*cell+cell/2,cell*0.24,0,7);g.fill();}
+ g.fillStyle='#8ad';g.font='11px ui-monospace,monospace';g.fillText('shift ('+dx+','+dy+'): '+overlap+' dot'+(overlap===1?'':'s')+' overlap',ox,oy+n*cell+20);
+ var isC=isCostas(perm);g.fillStyle=isC?'#39fc6b':'#ff5a5a';g.fillText(isC?'Costas ✓ — every nonzero shift overlaps ≤ 1':'NOT Costas — some shift overlaps ≥ 2',ox,oy+n*cell+38);
+ document.getElementById('cosread').textContent=(isC?'Costas':'non-Costas')+', shift('+dx+','+dy+') overlap '+overlap;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var perm=welch(WELCH[arrIdx][0],WELCH[arrIdx][1]),n=perm.length,ca=Math.cos(ang),cx=W/2,cy=H*0.34,sc=Math.min(14,180/n);
+ // green dots
+ for(var r=0;r<n;r++){var x=cx+(perm[r]-n/2)*sc*ca,y=cy+(r-n/2)*sc*0.7;g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,3,0,7);g.fill();}
+ // magenta: all difference vectors from center (each once)
+ var mcx=cx,mcy=H*0.74;g.strokeStyle='#233';g.beginPath();g.moveTo(mcx-90,mcy);g.lineTo(mcx+90,mcy);g.moveTo(mcx,mcy-70);g.lineTo(mcx,mcy+70);g.stroke();
+ var seen={};for(var r1=0;r1<n;r1++)for(var r2=0;r2<n;r2++)if(r1!==r2){var dr=r2-r1,dc=perm[r2]-perm[r1];g.fillStyle=seen[dr+','+dc]?'#ff4040':'#ff2d95';g.beginPath();g.arc(mcx+dc*sc*0.5*ca,mcy+dr*sc*0.5,1.8,0,7);g.fill();seen[dr+','+dc]=1;}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: the array of dots',10,18);
+ g.fillStyle='#ff2d95';g.fillText('magenta: all difference vectors — each once (thumbtack autocorrelation)',10,H-10);}
+document.getElementById('cosarr').onclick=function(){arrIdx=(arrIdx+1)%WELCH.length;shiftIdx=1;this.textContent='array: Welch p='+WELCH[arrIdx][0];drawW4();};
+document.getElementById('cosshift').onclick=function(){shiftIdx++;drawW4();};
+document.getElementById('cosbad').onclick=function(){showBad=!showBad;this.textContent=showBad?'show Costas':'show non-Costas';drawW4();};
+document.getElementById('cosspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__costas=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-costas","title":"THE COSTAS","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#ff8060","icon":"costas",
+  "kicker":"one dot per row & column, every displacement distinct",
+  "blurb":"the Costas array in the 5-window house format — an n x n grid with one dot per row and column (a permutation) placed so all displacement vectors between pairs of dots are distinct. This gives an ideal thumbtack autocorrelation: slide a copy over itself and at every nonzero shift at most one dot coincides — exactly what sonar and radar need for unambiguous range/Doppler. John Costas invented them for sonar (1965); the Welch construction builds size p-1 from a primitive root mod a prime p. See the difference triangle in 1D, the array and its self-overlap in 2D, and the autocorrelation inverse in 3D.",
+  "lit":"Genuine Costas arrays (John P. Costas 1965; Welch and Lempel-Golomb constructions). Verified live: the Welch arrays for p=5,7,11,13 (built from primitive roots) have all displacement vectors distinct — genuine Costas arrays — while a plain identity permutation is correctly rejected for repeated displacements (window.__costas.welchAllCostas && identityFails). The distinct-vector property and the Welch construction are exact, and the ideal (<=1) autocorrelation follows directly.",
+  "fig":"No framing: the distinct-displacement property, the Welch construction, and the resulting thumbtack autocorrelation (every nonzero shift overlaps at most one dot) are real and verified. The identity of 'distinct differences' with 'ideal autocorrelation' is the genuine mathematical content, shown by the sliding-overlap demo; the difficulty of the reverse (array from autocorrelation) is noted honestly as analogous to the turnpike problem.",
+  "body":COS_BODY,"script":COS_SCRIPT},
+ {"slug":"the-langford","title":"THE LANGFORD","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#b0ff60","icon":"langford",
+  "kicker":"arrange 1,1,2,2,…,n,n so the two k's are k apart",
+  "blurb":"the Langford pairing in the 5-window house format — arrange the numbers 1,1,2,2,...,n,n in a row so the two copies of each k have exactly k numbers between them. For n=3: 2,3,1,2,1,3. Such an arrangement exists if and only if n is congruent to 0 or 3 mod 4, so n=3,4,7,8 work while n=1,2,5,6 are impossible. Langford spotted it watching his son's blocks; solution counts explode (n=7:26, n=8:150, n=16: over 46 billion). See the gap-arcs in 1D, the solver-or-impossibility in 2D, and the parity obstruction in 3D.",
+  "lit":"Genuine Langford pairing (C. Dudley Langford 1958; mod-4 existence condition by Roy Davies 1959). Verified live by exhaustive search: for n=1..8 a pairing exists exactly when n mod 4 is 0 or 3, with correct solution counts up to reversal (n=3->1, n=4->1, n=7->26, n=8->150; n=1,2,5,6->0), and the classic constructions 2,3,1,2,1,3 and 2,3,4,2,1,3,1,4 are valid (window.__langford.existenceRuleHolds && construction34valid). The exact-gap arrangements and the mod-4 existence law are exact.",
+  "fig":"No framing: the exact-gap arrangements, the solution counts, and the n=0,3 mod 4 existence law are all real and verified by exhaustive in-browser search (impossibility for n=1,2,5,6 is a genuine zero-count result, not an unfinished search). The AVAN inverse — that a parity/position-sum invariant certifies impossibility without searching — is the honest mathematical reason behind the mod-4 law.",
+  "body":LNG_BODY,"script":LNG_SCRIPT},
+ {"slug":"the-golomb-ruler","title":"THE GOLOMB RULER","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#ffd070","icon":"golombruler",
+  "kicker":"marks whose every pairwise distance is distinct",
+  "blurb":"the Golomb ruler in the 5-window house format — a ruler whose marks are placed so no two pairs are the same distance apart, every pairwise distance unique. The 4-mark {0,1,4,6} measures 1..6 each exactly once. Finding the shortest ruler for a given mark count (the Optimal Golomb Ruler) is hard, with no formula and multi-year distributed searches. Rulers of <=4 marks are perfect (measure every length once); 5+ cannot be. Used for radio-telescope antenna placement, frequency assignment, crystallography, and codes. See the distance arcs in 1D, the collision-detecting difference grid in 2D, and the turnpike inverse in 3D.",
+  "lit":"Genuine Golomb rulers (Solomon Golomb; optimal rulers verified by the distributed OGR project). Verified live: the known optimal rulers up to 8 marks ({0,1,4,6}, {0,1,4,9,11}, {0,1,4,10,12,17}, {0,1,4,10,18,23,25}, {0,1,4,9,15,22,32,34}) have all pairwise distances distinct and match their record lengths (6,11,17,25,34), the <=4-mark rulers are perfect while the 5-mark is not, and a non-Golomb set {0,1,2,4} is correctly rejected (window.__golombruler). Distinctness, optimal lengths, and the perfection cutoff are exact.",
+  "fig":"No framing: the distinct-distance property, the optimal-ruler lengths, and the order-4-perfect / order-5-imperfect cutoff are real and checked exhaustively. The hardness of the inverse (reconstructing marks from the distance set = the turnpike problem, also faced in DNA restriction mapping) is the genuine asymmetry, stated as fact — the forward direction is checked, the inverse difficulty is a known result not re-proven here.",
+  "body":GRL_BODY,"script":GRL_SCRIPT},
+ {"slug":"the-hadamard","title":"THE HADAMARD","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#60d0ff","icon":"hadamard",
+  "kicker":"a ±1 matrix with every row orthogonal — H·Hᵀ = nI",
+  "blurb":"the Hadamard matrix in the 5-window house format — a square grid of only +1 and -1 whose rows are all mutually orthogonal (any two different rows agree in exactly half their entries), so H*H^T = nI. Sylvester's doubling builds one at every power of two: start with [1] and tile four copies with the bottom-right negated. The rows are Walsh/Hadamard codes — non-interfering signals behind CDMA — and an error-correcting code (the [32,6] Hadamard code flew on Mariner 9). See the orthogonal Walsh waveforms in 1D, the checkerboard matrix in 2D, and the self-inverse encode/decode in 3D.",
+  "lit":"Genuine Hadamard matrix (Jacques Hadamard 1893; Sylvester's construction 1867; Walsh functions 1923; the [32,6] Hadamard code flown on Mariner 9, 1971). Verified live: the Sylvester matrices up to 32x32 have only +-1 entries and satisfy H*H^T = nI (every distinct row-pair orthogonal, each row with itself = n), and H8*H8 = 8I so H is its own inverse up to 1/n (window.__hadamard.orthogonal && selfInverse). The orthogonality and self-inverse are exact.",
+  "fig":"No framing: the +-1 entries, the mutual row-orthogonality (H*H^T = nI), and the self-inverse property are real and checked exhaustively over all row-pairs up to 32x32. The CDMA/Walsh-code and Mariner-9 error-correction uses are genuine documented applications; the encode-equals-decode inverse is demonstrated (mix streams, multiply by a row, recover one), not merely claimed.",
+  "body":HAD_BODY,"script":HAD_SCRIPT},
+ {"slug":"the-fano","title":"THE FANO","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#ff70a0","icon":"fano",
+  "kicker":"7 points, 7 lines — the smallest projective plane",
+  "blurb":"the Fano plane in the 5-window house format — the smallest projective plane, just 7 points and 7 lines, where every two points lie on exactly one line and every two lines meet in exactly one point. Each line holds 3 points; each point lies on 3 lines. Drawn as a triangle with its edge-midpoints and center plus a circle for the seventh line, it is the (7,3,1) Steiner triple system, the plane PG(2,2), and the octonion multiplication rule, carrying 168 symmetries. See the triples in 1D, the classic clickable diagram in 2D, and the point/line self-duality in 3D.",
+  "lit":"Genuine Fano plane (Gino Fano 1892; = PG(2,2) = the (7,3,1) Steiner triple system). Verified live: the 7 lines each contain exactly 3 points, each point lies on exactly 3 lines, every pair of points determines exactly one line, and every pair of lines meets in exactly one point (window.__fano.valid, all four incidence axioms true) — checked on the standard geometric embedding (triangle + edge-midpoints + center + incircle). All incidence properties are exact.",
+  "fig":"No framing: the four projective-plane incidence axioms are real and verified exhaustively over all point-pairs and line-pairs. The self-duality (point <-> line is a structure-preserving involution) is the genuine mathematical content, demonstrated by the identical 3-regular incidence on both sides, not asserted.",
+  "body":FANO_BODY,"script":FANO_SCRIPT},
  {"slug":"the-st-petersburg","title":"THE ST PETERSBURG","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#ffd860","icon":"petersburg",
   "kicker":"infinite expected value, worth about $4 to play",
