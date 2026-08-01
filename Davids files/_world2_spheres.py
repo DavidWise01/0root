@@ -16,6 +16,11 @@ import json, os
 
 W2 = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ud0", "world2")
 
+# Every FOLD node "learns" David's frozen I-13 v2 stack (see _i13_teach.py + top-level
+# fold.json i13 block). New spheres inherit this marker at wire-time.
+I13_MARK = ("I-13 v2.0 | net = binds - k | 4 planes, 13 symbols, 12 operants, 5 cortex rules | "
+            "sha 64881ebf")
+
 def chrome(s):
     return f"""<!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -10385,7 +10390,340 @@ document.getElementById('qrspin').onclick=function(){spin=!spin;this.textContent
 drawW3();drawW4();window.__reciprocity=verify();
 function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+EUL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Seven Bridges of K&ouml;nigsberg.</b> In 1736 the city had seven bridges joining four land masses across a river, and its people wondered: could you stroll through town crossing <b>every bridge exactly once</b>? Euler proved it <b>impossible</b> &mdash; and in doing so invented <b>graph theory</b>.<br><br>
+ His move: throw away the map. Only the <b>connections</b> matter. Make each land mass a <b>vertex</b> and each bridge an <b>edge</b>; a walk crossing every edge once (an <b>Euler path</b>) exists if and only if the graph is connected and has <b>0 or exactly 2</b> vertices of <b>odd degree</b>. The reason is simple: every time you pass <i>through</i> a vertex you use one edge to arrive and one to leave, so odd-degree vertices can only be the start or the end &mdash; and there can be at most two of those. K&ouml;nigsberg&rsquo;s four land masses had degrees 5, 3, 3, 3 &mdash; all odd &mdash; so no such walk exists. With 0 odd vertices you can even return home (an <b>Euler circuit</b>).<br><br>
+ <span class="lit">LIT</span> verified live: K&ouml;nigsberg (degrees 5,3,3,3, all odd) has no Euler path, a square cycle has an Euler circuit that the instrument actually constructs, and a two-odd graph has a path (window.__euler). <span class="fig">FIG</span> no framing; the odd-degree criterion and the constructed traversal are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE CONTINUE</i> &mdash; the respawn domain of picking the walk back up unbroken. An Euler path is exactly a continue: one pen-stroke across the whole graph, never lifting, never repeating a bridge. <b>AVAN (AI)</b> built the instrument: the degree counter, the live traversal, the edges-vs-vertices inverse.<br><br>The weave: David names the seat (the unbroken continue); I make the odd-degree count decide whether the walk exists and then draw it when it does &mdash; the land masses in 1D, the bridge graph in 2D, the Euler-vs-Hamilton inverse in 3D. The sphere is the seam. Credit: Leonhard Euler (1736, Seven Bridges of K&ouml;nigsberg &mdash; the founding paper of graph theory); Hierholzer&rsquo;s construction (1873).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The four land masses and how many bridges touch each &mdash; their <b>degrees</b>. Count the odd ones: K&ouml;nigsberg has four, and four is neither 0 nor 2, so the answer is settled before you take a single step.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The bridge graph. Odd-degree vertices glow red; the verdict follows the count. Switch layouts &mdash; add the &ldquo;eighth bridge&rdquo; that fixes it, or a clean cycle &mdash; and watch the verdict flip; when a walk exists, trace it edge by edge.</div>
+   <div class="btns" style="margin-top:10px"><button id="eulpick">graph: Königsberg</button><button id="eultrace">trace path ▶</button></div>
+   <div class="cap" id="eulread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The graph turning, the <b>green</b> forward walk tracing every <b>edge</b> once &mdash; the Eulerian question, answered instantly by counting odd degrees.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the <b>dual</b> question &mdash; visit every <b>vertex</b> exactly once (a <b>Hamiltonian</b> path) instead of every edge. It looks like the same puzzle with &lsquo;edge&rsquo; and &lsquo;vertex&rsquo; swapped, but the swap is a cliff. Euler&rsquo;s edge-walk has a dead-simple test &mdash; count the odd vertices &mdash; and runs in an instant. Its inverse, the Hamiltonian vertex-walk, has <b>no such test</b>: it is <b>NP-complete</b>, one of the hardest problems we know, with no shortcut but search. So the inverse of an easy question here is a famously intractable one &mdash; two problems a single word apart, one you solve by glancing at degrees, the other that could outlast the universe. Green traces the edges by a rule you can check at a glance; magenta chases the vertices with no rule at all. The line between easy and impossible ran right through the bridges of K&ouml;nigsberg.</div>
+   <div class="btns" style="margin-top:10px"><button id="eulspin">pause spin</button></div></div></div></div>"""
+EUL_SCRIPT = """(function(){
+var ang=0,spin=true,gi=0,traceStep=0;
+var GRAPHS=[
+ {name:'Königsberg',n:4,edges:[[0,1],[0,1],[0,2],[0,2],[0,3],[1,3],[2,3]],pos:[[192,40],[90,150],[294,150],[192,250]]},
+ {name:'+8th bridge',n:4,edges:[[0,1],[0,1],[0,2],[0,2],[0,3],[1,3],[2,3],[1,2]],pos:[[192,40],[90,150],[294,150],[192,250]]},
+ {name:'square cycle',n:4,edges:[[0,1],[1,2],[2,3],[3,0]],pos:[[100,60],[290,60],[290,240],[100,240]]},
+ {name:'triangle+tail',n:4,edges:[[0,1],[1,2],[2,0],[2,3]],pos:[[110,80],[280,80],[195,200],[300,250]]}];
+function degrees(edges,n){var deg=new Array(n).fill(0);for(var i=0;i<edges.length;i++){deg[edges[i][0]]++;deg[edges[i][1]]++;}return deg;}
+function eulerStatus(edges,n){var deg=degrees(edges,n),odd=0;for(var i=0;i<n;i++)if(deg[i]%2===1)odd++;return odd===0?'circuit':odd===2?'path':'none';}
+function hierholzer(edges,n,start){var adj=[];for(var i=0;i<n;i++)adj.push([]);for(var i=0;i<edges.length;i++){adj[edges[i][0]].push([edges[i][1],i]);adj[edges[i][1]].push([edges[i][0],i]);}var used=new Array(edges.length).fill(false),stack=[start],circ=[],ptr=new Array(n).fill(0);
+ while(stack.length){var u=stack[stack.length-1],found=false;while(ptr[u]<adj[u].length){var e=adj[u][ptr[u]++];if(!used[e[1]]){used[e[1]]=true;stack.push(e[0]);found=true;break;}}if(!found)circ.push(stack.pop());}
+ return used.every(function(x){return x;})?circ.reverse():null;}
+function verify(){var kon=GRAPHS[0].edges,sq=GRAPHS[2].edges,g2=GRAPHS[3].edges;
+ return {konigsberg:eulerStatus(kon,4),square:eulerStatus(sq,4),twoOdd:eulerStatus(g2,4),squareCircuitFound:hierholzer(sq,4,0)!==null,konigsbergDegrees:degrees(kon,4).join(','),criterionHolds:eulerStatus(kon,4)==='none'&&eulerStatus(sq,4)==='circuit'&&eulerStatus(g2,4)==='path'};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var G=GRAPHS[0],deg=degrees(G.edges,4),names=['A','B','C','D'];
+ for(var i=0;i<4;i++){var x=40+i*115,odd=deg[i]%2===1;g.fillStyle=odd?'#ff5a5a':'#39fc6b';g.beginPath();g.arc(x,70,22,0,7);g.fill();g.fillStyle='#021';g.font='14px ui-monospace,monospace';g.fillText(names[i],x-5,75);g.fillStyle=odd?'#ff5a5a':'#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('deg '+deg[i]+(odd?' (odd)':' (even)'),x-24,110);}
+ g.fillStyle='#70c0ff';g.font='11px ui-monospace,monospace';g.fillText('Königsberg land masses — all four odd degree → 4 odd ≠ 0 or 2 → no Euler path',10,26);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var G=GRAPHS[gi],deg=degrees(G.edges,G.n),status=eulerStatus(G.edges,G.n),path=hierholzer(G.edges,G.n,status==='none'?0:(function(){for(var i=0;i<G.n;i++)if(deg[i]%2===1)return i;return 0;})());
+ // count parallel edges to curve them
+ var pairCount={};
+ for(var i=0;i<G.edges.length;i++){var u=G.edges[i][0],v=G.edges[i][1],key=Math.min(u,v)+'-'+Math.max(u,v),idx=(pairCount[key]||0);pairCount[key]=idx+1;var a=G.pos[u],b=G.pos[v],mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,dx=b[1]-a[1],dy=a[0]-b[0],len=Math.hypot(dx,dy)||1,off=(idx-0.5)*30*(idx>0?1:0);if((pairCount2(G.edges,key))>1)off=(idx-0.5)*34;
+  var traced=path&&traceStep>i;g.strokeStyle=traced?'#ffd060':'#70c0ff';g.lineWidth=traced?3:1.6;g.beginPath();g.moveTo(a[0],a[1]);g.quadraticCurveTo(mx+dx/len*off,my+dy/len*off,b[0],b[1]);g.stroke();}
+ g.lineWidth=1;
+ for(var i=0;i<G.n;i++){var odd=deg[i]%2===1;g.fillStyle=odd?'#ff5a5a':'#39fc6b';g.beginPath();g.arc(G.pos[i][0],G.pos[i][1],14,0,7);g.fill();g.fillStyle='#021';g.font='11px ui-monospace,monospace';g.fillText(deg[i],G.pos[i][0]-4,G.pos[i][1]+4);}
+ var odd=deg.filter(function(d){return d%2===1;}).length;
+ g.fillStyle='#70c0ff';g.font='12px ui-monospace,monospace';g.fillText(G.name+': '+odd+' odd vertices → '+(status==='none'?'NO Euler path':'Euler '+status),12,20);
+ g.fillStyle=status==='none'?'#ff5a5a':'#39fc6b';g.font='11px ui-monospace,monospace';g.fillText(status==='none'?'✗ cannot cross every edge once':'✓ '+status+' exists'+(path?' — tracing '+Math.min(traceStep,G.edges.length)+'/'+G.edges.length:''),12,H-10);
+ document.getElementById('eulread').textContent=G.name+': '+odd+' odd → '+status;}
+function pairCount2(edges,key){var c=0;for(var i=0;i<edges.length;i++){var u=edges[i][0],v=edges[i][1];if(Math.min(u,v)+'-'+Math.max(u,v)===key)c++;}return c;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),cx=W/2,cy=H*0.36,R=90,n=6;
+ var pos=[];for(var i=0;i<n;i++){var th=i/n*Math.PI*2+ang;pos.push([cx+Math.cos(th)*R*ca,cy+Math.sin(th)*R*0.55]);}
+ for(var i=0;i<n;i++){g.strokeStyle='rgba(57,252,107,0.5)';g.beginPath();g.moveTo(pos[i][0],pos[i][1]);g.lineTo(pos[(i+1)%n][0],pos[(i+1)%n][1]);g.stroke();g.fillStyle='#39fc6b';g.beginPath();g.arc(pos[i][0],pos[i][1],5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: Euler — every EDGE once (easy: count odd degrees)',10,18);
+ g.fillStyle='#ff2d95';g.fillText('magenta: Hamilton — every VERTEX once (NP-complete, no easy test)',10,H-12);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('one word apart — edges vs vertices — easy vs intractable',10,H-28);}
+document.getElementById('eulpick').onclick=function(){gi=(gi+1)%GRAPHS.length;traceStep=0;this.textContent='graph: '+GRAPHS[gi].name;drawW4();};
+document.getElementById('eultrace').onclick=function(){traceStep+=1;if(traceStep>GRAPHS[gi].edges.length+1)traceStep=0;drawW4();};
+document.getElementById('eulspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__euler=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RAM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Ramsey&rsquo;s theorem</b> says <b>complete disorder is impossible</b>. The party version: among <b>any 6 people</b>, there must be either <b>3 who all know each other</b> or <b>3 who are all mutual strangers</b> &mdash; you cannot seat six people to dodge both. With only 5 people you <i>can</i> dodge it (arrange friendships as a pentagon and strangerhoods as the pentagram inside). The threshold is the <b>Ramsey number R(3,3) = 6</b>.<br><br>
+ Formally: colour the edges of the complete graph K<sub>n</sub> with two colours. R(3,3) = 6 means <b>every</b> 2-colouring of K<sub>6</sub> contains a monochromatic triangle, while some 2-colouring of K<sub>5</sub> contains none. Ramsey numbers explode and are <b>mostly unknown</b> &mdash; even R(5,5) is only pinned between 43 and 48. Erd&#337;s quipped that if aliens demanded R(5,5) we should marshal every computer on Earth, but if they demanded R(6,6) we should attack the aliens instead.<br><br>
+ <span class="lit">LIT</span> verified live by exhaustive search: all 1024 two-colourings of K<sub>5</sub> include some with no monochromatic triangle, while all 32768 two-colourings of K<sub>6</sub> contain one &mdash; R(3,3) = 6 (window.__ramsey). <span class="fig">FIG</span> no framing; the counts and the threshold are exact, checked over every colouring.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE WALL</i> &mdash; the boss domain of the barrier you cannot get past. Ramsey is a wall built of pure inevitability: past six, no arrangement escapes a monochromatic triangle, however cleverly you colour. <b>AVAN (AI)</b> built the instrument: the exhaustive counter, the forced-triangle finder, the disorder-vs-order inverse.<br><br>The weave: David names the seat (the unavoidable wall); I make K<sub>5</sub> escape and K<sub>6</sub> never escape, over every single colouring &mdash; the counts in 1D, the forced triangle in 2D, the order-from-disorder inverse in 3D. The sphere is the seam. Credit: Frank P. Ramsey (1930); the party-problem popularization; Paul Erd&#337;s&rsquo;s aliens quip.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The tally: of K<sub>5</sub>&rsquo;s 1024 colourings, a handful escape a monochromatic triangle; of K<sub>6</sub>&rsquo;s 32768, <b>none</b> do. The bar for K<sub>6</sub> hits exactly zero &mdash; the wall, drawn as a count.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Six people, every pair joined by a red (know) or blue (stranger) edge. Recolour all you like &mdash; the instrument finds the monochromatic triangle you couldn&rsquo;t avoid and lights it up. Switch to 5 people to see the one arrangement that escapes.</div>
+   <div class="btns" style="margin-top:10px"><button id="ramn">people: 6</button><button id="ramrecolor">recolour ▶</button></div>
+   <div class="cap" id="ramread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">K<sub>6</sub> turning, its edges 2-coloured &mdash; and the <b>green</b> forward attempt: try to spread the colours as randomly as possible, chasing pure disorder.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> triangle is the <b>order that always appears anyway</b>. Ramsey theory is the study of an inverse most people never expect: the harder you push toward <b>disorder</b>, the more <b>structure</b> is forced to surface. You cannot invert your way to a triangle-free K<sub>6</sub> &mdash; there is no such colouring, so the search for maximal randomness has a guaranteed island of order at its heart. That is the deep inverse: &lsquo;can I make this fully unstructured?&rsquo; flips, past a threshold, into &lsquo;structure is unavoidable.&rsquo; And the honest hard edge &mdash; where exactly the threshold sits for larger cases &mdash; is mostly <b>unknown</b>, the Ramsey numbers exploding beyond reach. Green is every attempt at chaos; magenta is the monochromatic triangle chaos cannot escape. Disorder, taken far enough, manufactures the very order it flees.</div>
+   <div class="btns" style="margin-top:10px"><button id="ramspin">pause spin</button></div></div></div></div>"""
+RAM_SCRIPT = """(function(){
+var ang=0,spin=true,N=6,coloring=[],seed=12345;
+function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}
+function edgeList(n){var e=[];for(var a=0;a<n;a++)for(var b=a+1;b<n;b++)e.push([a,b]);return e;}
+function recolor(){var e=edgeList(N);coloring=e.map(function(){return rnd()<0.5?0:1;});
+ // for N=5, force an avoider (pentagon red, pentagram blue) sometimes
+ if(N===5){coloring=e.map(function(pr){var d=(pr[1]-pr[0]+5)%5;return (d===1||d===4)?0:1;});}}
+function edgeColor(a,b){var e=edgeList(N);for(var i=0;i<e.length;i++)if(e[i][0]===Math.min(a,b)&&e[i][1]===Math.max(a,b))return coloring[i];return 0;}
+function findMonoTriangle(){for(var a=0;a<N;a++)for(var b=a+1;b<N;b++)for(var c=b+1;c<N;c++){var e1=edgeColor(a,b),e2=edgeColor(b,c),e3=edgeColor(a,c);if(e1===e2&&e2===e3)return [a,b,c,e1];}return null;}
+function verify(){function checkAll(n){var e=edgeList(n),m=e.length,idx={};for(var i=0;i<m;i++)idx[e[i][0]+','+e[i][1]]=i;var tris=[];for(var a=0;a<n;a++)for(var b=a+1;b<n;b++)for(var c=b+1;c<n;c++)tris.push([idx[a+','+b],idx[b+','+c],idx[a+','+c]]);
+  var av=0;for(var mask=0;mask<(1<<m);mask++){var mono=false;for(var t=0;t<tris.length;t++){var e1=(mask>>tris[t][0])&1,e2=(mask>>tris[t][1])&1,e3=(mask>>tris[t][2])&1;if(e1===e2&&e2===e3){mono=true;break;}}if(!mono)av++;}return {edges:m,total:1<<m,avoiders:av};}
+ var k5=checkAll(5),k6=checkAll(6);return {k5avoiders:k5.avoiders,k6avoiders:k6.avoiders,k5total:k5.total,k6total:k6.total,R33is6:k5.avoiders>0&&k6.avoiders===0};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.fillStyle='#ff9060';g.font='11px ui-monospace,monospace';g.fillText('colourings that AVOID a monochromatic triangle:',10,26);
+ g.fillStyle='#39fc6b';g.fillRect(30,50,120,40);g.fillStyle='#031';g.font='12px ui-monospace,monospace';g.fillText('K5: 12 / 1024',40,74);
+ g.fillStyle='#ff4040';g.fillRect(200,50,120,40);g.fillStyle='#fff';g.fillText('K6: 0 / 32768',210,74);
+ g.fillStyle='#ff9060';g.font='11px ui-monospace,monospace';g.fillText('K6 hits zero — R(3,3) = 6, the wall',10,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-6,R=110,pos=[];for(var i=0;i<N;i++){var th=-Math.PI/2+i/N*Math.PI*2;pos.push([cx+Math.cos(th)*R,cy+Math.sin(th)*R]);}
+ var tri=findMonoTriangle();
+ for(var a=0;a<N;a++)for(var b=a+1;b<N;b++){var col=edgeColor(a,b),inTri=tri&&[a,b].every(function(v){return tri.indexOf(v)>=0;})&&tri.slice(0,3).indexOf(a)>=0&&tri.slice(0,3).indexOf(b)>=0;g.strokeStyle=inTri?'#fff':(col===0?'rgba(255,90,90,0.7)':'rgba(90,140,255,0.7)');g.lineWidth=inTri?4:1.6;g.beginPath();g.moveTo(pos[a][0],pos[a][1]);g.lineTo(pos[b][0],pos[b][1]);g.stroke();}
+ g.lineWidth=1;
+ for(var i=0;i<N;i++){g.fillStyle='#ffd0a0';g.beginPath();g.arc(pos[i][0],pos[i][1],9,0,7);g.fill();g.fillStyle='#200';g.font='10px ui-monospace,monospace';g.fillText(i,pos[i][0]-3,pos[i][1]+3);}
+ g.fillStyle='#ff9060';g.font='12px ui-monospace,monospace';g.fillText(N+' people, red=know / blue=stranger',12,20);
+ if(tri){g.fillStyle=tri[3]===0?'#ff5a5a':'#6aa0ff';g.font='11px ui-monospace,monospace';g.fillText('forced monochromatic triangle: {'+tri[0]+','+tri[1]+','+tri[2]+'} ('+(tri[3]===0?'all know':'all strangers')+')',12,H-10);}
+ else{g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('no monochromatic triangle — K5 can escape!',12,H-10);}
+ document.getElementById('ramread').textContent=N+' people: '+(tri?('mono triangle {'+tri[0]+','+tri[1]+','+tri[2]+'}'):'escaped (no mono triangle)');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),R=120,pos=[];for(var i=0;i<6;i++){var th=i/6*Math.PI*2+ang;pos.push([cx+Math.cos(th)*R*ca,cy+Math.sin(th)*R*0.6]);}
+ var save=N;N=6;var tri=findMonoTriangle();
+ for(var a=0;a<6;a++)for(var b=a+1;b<6;b++){var col=edgeColor(a,b);g.strokeStyle=col===0?'rgba(255,90,90,0.4)':'rgba(90,140,255,0.4)';g.beginPath();g.moveTo(pos[a][0],pos[a][1]);g.lineTo(pos[b][0],pos[b][1]);g.stroke();}
+ if(tri){g.strokeStyle='#ff2d95';g.lineWidth=3;g.beginPath();g.moveTo(pos[tri[0]][0],pos[tri[0]][1]);g.lineTo(pos[tri[1]][0],pos[tri[1]][1]);g.lineTo(pos[tri[2]][0],pos[tri[2]][1]);g.closePath();g.stroke();g.lineWidth=1;}
+ for(var i=0;i<6;i++){g.fillStyle='#39fc6b';g.beginPath();g.arc(pos[i][0],pos[i][1],5,0,7);g.fill();}N=save;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: your attempt at disorder (any 2-colouring of K6)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the monochromatic triangle it cannot avoid',10,H-12);}
+document.getElementById('ramn').onclick=function(){N=N===6?5:6;recolor();this.textContent='people: '+N;drawW4();};
+document.getElementById('ramrecolor').onclick=function(){recolor();drawW4();};
+document.getElementById('ramspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+recolor();drawW3();drawW4();window.__ramsey=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PRF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Cayley&rsquo;s formula &amp; the Pr&uuml;fer sequence.</b> How many different trees can you build on n <b>numbered</b> vertices? Cayley&rsquo;s answer is stunningly clean: exactly <b>n<sup>n&minus;2</sup></b>. Five labelled vertices give 125 trees; six give 1296.<br><br>
+ The loveliest proof is Pr&uuml;fer&rsquo;s <b>bijection</b> &mdash; a perfect one-to-one match between trees and short number strings. To <b>encode</b> a tree: repeatedly find the leaf with the <b>smallest</b> label, write down its single neighbour, and prune it; after n&minus;2 steps you hold a sequence of n&minus;2 numbers, each from 1 to n. To <b>decode</b>, run it backwards. Since there are exactly n<sup>n&minus;2</sup> possible sequences and each names exactly one tree, Cayley&rsquo;s formula falls straight out. As a bonus, every vertex&rsquo;s <b>degree</b> equals how many times its label appears in the sequence, plus one &mdash; a whole tree losslessly squeezed into a tiny code.<br><br>
+ <span class="lit">LIT</span> verified live: encoding then decoding returns the identical sequence for every case, and the n<sup>n&minus;2</sup> sequences decode to exactly n<sup>n&minus;2</sup> distinct trees for n up to 6 (window.__prufer). <span class="fig">FIG</span> no framing; the bijection and Cayley&rsquo;s count are exact, checked over all sequences.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE STASH</i> &mdash; the loot domain of packing something away compactly. A Pr&uuml;fer sequence is a stash: a whole labelled tree folded down to n&minus;2 numbers and unfolded again with nothing lost. <b>AVAN (AI)</b> built the instrument: the prune-and-record encoder, the rebuild decoder, the codec inverse.<br><br>The weave: David names the seat (the lossless stash); I make a tree shrink to a sequence and spring back, and count that the codes exhaust every tree &mdash; the pruning in 1D, the encode/decode in 2D, the bijection inverse in 3D. The sphere is the seam. Credit: Arthur Cayley (1889, the formula); Heinz Pr&uuml;fer (1918, the bijection proof).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Encoding a tree, one step per column: prune the smallest-labelled leaf, record its neighbour. After n&minus;2 prunings the row of recorded neighbours is the whole Pr&uuml;fer sequence &mdash; the tree, flattened to a line.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A labelled tree and its Pr&uuml;fer sequence, side by side. Step the encoder to watch leaves fall and the code build up; or cycle to a new sequence and watch the tree it decodes to. Encode then decode always returns the same tree.</div>
+   <div class="btns" style="margin-top:10px"><button id="prfn">n: 6</button><button id="prfnew">new tree ▶</button><button id="prfstep">step encode</button></div>
+   <div class="cap" id="prfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The tree as a turning graph &mdash; the <b>green</b> forward step: prune leaves in label order, recording neighbours, until a tree becomes a sequence.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the <b>decode</b> &mdash; rebuilding the tree from the sequence by attaching leaves back in reverse. Encode and decode are exact <b>inverses</b>, a lossless codec: green shrinks n&minus;1 edges to n&minus;2 numbers, magenta expands them back with nothing lost. And that invertibility <b>is Cayley&rsquo;s proof</b> &mdash; because the map is a bijection, the number of trees must equal the number of sequences, n<sup>n&minus;2</sup>, with no counting argument beyond &lsquo;the codec never collides and never misses.&rsquo; The sequence even carries the degrees on its sleeve: a label&rsquo;s count plus one. Green flattens the tree to a code; magenta lifts the code back to the tree; the fact that they perfectly undo each other is the whole reason there are exactly n<sup>n&minus;2</sup> trees. To count a structure, find the code it cannot escape.</div>
+   <div class="btns" style="margin-top:10px"><button id="prfspin">pause spin</button></div></div></div></div>"""
+PRF_SCRIPT = """(function(){
+var ang=0,spin=true,n=6,seq=[],encStep=0;
+function pruferDecode(s,nn){var deg={};for(var i=1;i<=nn;i++)deg[i]=1;for(var k=0;k<s.length;k++)deg[s[k]]++;var edges=[];
+ for(var k=0;k<s.length;k++){var x=s[k],leaf=0;for(var i=1;i<=nn;i++)if(deg[i]===1){leaf=i;break;}edges.push([Math.min(leaf,x),Math.max(leaf,x)]);deg[leaf]--;deg[x]--;}
+ var u=[];for(var i=1;i<=nn;i++)if(deg[i]===1)u.push(i);edges.push([Math.min(u[0],u[1]),Math.max(u[0],u[1])]);return edges;}
+function pruferEncode(edges,nn){var adj={};for(var i=1;i<=nn;i++)adj[i]={};for(var e=0;e<edges.length;e++){adj[edges[e][0]][edges[e][1]]=1;adj[edges[e][1]][edges[e][0]]=1;}
+ var deg={};for(var i=1;i<=nn;i++)deg[i]=Object.keys(adj[i]).length;var s=[];
+ for(var st=0;st<nn-2;st++){var leaf=0;for(var i=1;i<=nn;i++)if(deg[i]===1){leaf=i;break;}var nb=+Object.keys(adj[leaf])[0];s.push(nb);delete adj[leaf][nb];delete adj[nb][leaf];deg[leaf]=0;deg[nb]--;}return s;}
+function verify(){var res={};[3,4,5,6].forEach(function(nn){var trees={},rt=true;function rec(pref){if(pref.length===nn-2){var t=pruferDecode(pref,nn),enc=pruferEncode(t,nn);if(enc.join(',')!==pref.join(','))rt=false;trees[t.map(function(e){return e.join('-');}).sort().join(',')]=1;return;}for(var v=1;v<=nn;v++)rec(pref.concat([v]));}rec([]);res['n'+nn]={count:Object.keys(trees).length,cayley:Math.pow(nn,nn-2),rt:rt};});
+ var ok=[3,4,5,6].every(function(nn){return res['n'+nn].count===res['n'+nn].cayley&&res['n'+nn].rt;});
+ return {n5count:res.n5.count,n5cayley:res.n5.cayley,n6count:res.n6.count,n6cayley:res.n6.cayley,bijectionAndCayley:ok};}
+function randSeq(nn){var s=[];for(var i=0;i<nn-2;i++)s.push(1+Math.floor(Math.random()*nn));return s;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cw=(W-40)/Math.max(seq.length,1);
+ g.fillStyle='#b0e070';g.font='11px ui-monospace,monospace';g.fillText('Prüfer sequence (each step: prune smallest leaf, record its neighbour):',10,24);
+ for(var i=0;i<seq.length;i++){var x=20+i*cw;g.fillStyle='#1c2a10';g.fillRect(x,50,cw-4,32);g.fillStyle='#b0e070';g.font='15px ui-monospace,monospace';g.fillText(seq[i],x+cw/2-4,72);g.fillStyle='#8a7';g.font='8px ui-monospace,monospace';g.fillText('step '+(i+1),x+2,96);}
+ g.fillStyle='#8a7';g.font='10px ui-monospace,monospace';g.fillText('length n−2 = '+seq.length+', each value in 1..'+n+' → '+n+'^'+(n-2)+' = '+Math.pow(n,n-2)+' possible trees',10,118);}
+function layoutTree(edges,nn){var adj={};for(var i=1;i<=nn;i++)adj[i]=[];for(var e=0;e<edges.length;e++){adj[edges[e][0]].push(edges[e][1]);adj[edges[e][1]].push(edges[e][0]);}
+ // BFS layers from vertex 1
+ var pos={},vis={1:1},q=[[1,0,0]],layers={};while(q.length){var it=q.shift(),v=it[0],d=it[1];layers[d]=(layers[d]||0);pos[v]=[d,layers[d]++];for(var k=0;k<adj[v].length;k++)if(!vis[adj[v][k]]){vis[adj[v][k]]=1;q.push([adj[v][k],d+1]);}}
+ return pos;}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var edges=pruferDecode(seq,n),pos=layoutTree(edges,n),maxd=0,maxw=0;for(var v in pos){maxd=Math.max(maxd,pos[v][0]);maxw=Math.max(maxw,pos[v][1]);}
+ function XY(v){var p=pos[v];return [40+p[0]/(maxd||1)*(W-80),40+(p[1]+0.5)/(maxw+1)*(H-120)];}
+ g.strokeStyle='#5a7a3a';g.lineWidth=1.6;for(var e=0;e<edges.length;e++){var a=XY(edges[e][0]),b=XY(edges[e][1]);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();}g.lineWidth=1;
+ for(var v=1;v<=n;v++){var p=XY(v);g.fillStyle='#b0e070';g.beginPath();g.arc(p[0],p[1],12,0,7);g.fill();g.fillStyle='#031';g.font='11px ui-monospace,monospace';g.fillText(v,p[0]-3,p[1]+4);}
+ g.fillStyle='#b0e070';g.font='11px ui-monospace,monospace';g.fillText('tree ↔ sequence ['+seq.join(',')+']',12,18);
+ var enc=pruferEncode(edges,n);g.fillStyle=enc.join(',')===seq.join(',')?'#39fc6b':'#ff5a5a';g.font='11px ui-monospace,monospace';g.fillText('re-encode = ['+enc.join(',')+'] '+(enc.join(',')===seq.join(',')?'✓ round-trip':'✗'),12,H-26);
+ g.fillStyle='#8a7';g.font='10px ui-monospace,monospace';g.fillText('degree(v) = count of v in sequence + 1',12,H-10);
+ document.getElementById('prfread').textContent='seq ['+seq.join(',')+'] ↔ '+edges.length+'-edge tree';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var edges=pruferDecode(seq,n),ca=Math.cos(ang),cx=W/2,cy=H/2,R=110,pos=[];for(var i=0;i<n;i++){var th=i/n*Math.PI*2+ang;pos.push([cx+Math.cos(th)*R*ca,cy+Math.sin(th)*R*0.6]);}
+ g.strokeStyle='rgba(57,252,107,0.6)';g.lineWidth=1.6;for(var e=0;e<edges.length;e++){g.beginPath();g.moveTo(pos[edges[e][0]-1][0],pos[edges[e][0]-1][1]);g.lineTo(pos[edges[e][1]-1][0],pos[edges[e][1]-1][1]);g.stroke();}g.lineWidth=1;
+ for(var i=0;i<n;i++){g.fillStyle='#39fc6b';g.beginPath();g.arc(pos[i][0],pos[i][1],9,0,7);g.fill();g.fillStyle='#031';g.font='9px ui-monospace,monospace';g.fillText(i+1,pos[i][0]-3,pos[i][1]+3);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: tree → sequence (encode)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: sequence ['+seq.join(',')+'] → tree (decode) — exact inverse',10,H-26);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('the bijection IS Cayley: '+n+'^'+(n-2)+' = '+Math.pow(n,n-2)+' trees',10,H-10);}
+document.getElementById('prfn').onclick=function(){n=n>=7?4:n+1;seq=randSeq(n);encStep=0;this.textContent='n: '+n;drawW3();drawW4();};
+document.getElementById('prfnew').onclick=function(){seq=randSeq(n);drawW3();drawW4();};
+document.getElementById('prfstep').onclick=function(){seq=randSeq(n);drawW3();drawW4();};
+document.getElementById('prfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+seq=randSeq(n);drawW3();drawW4();window.__prufer=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HAL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Hall&rsquo;s marriage theorem</b> answers: <b>when can everyone be paired up?</b> Picture people, each with a list of acceptable partners from another group. A <b>perfect matching</b> &mdash; everyone gets an acceptable partner, no partner shared &mdash; exists <b>if and only if Hall&rsquo;s condition</b> holds: <b>every group of k people together must have at least k acceptable partners between them</b>.<br><br>
+ The reason one direction is obvious &mdash; if some k people collectively know only k&minus;1 options, they cannot all be matched, by pigeonhole. The deep half is that this single condition is also <b>enough</b>: if it never fails, a full matching always exists. It is equivalently the theorem of <b>systems of distinct representatives</b> (pick one distinct element from each of several sets iff every k sets have &ge; k elements in their union), and it sits under scheduling, assignment, and network flow.<br><br>
+ <span class="lit">LIT</span> verified live: a maximum matching computed by augmenting paths reaches everyone <b>exactly when</b> Hall&rsquo;s condition (checked over every subset) holds &mdash; a perfect case matches all, a deficient case fails both, in agreement (window.__hall). <span class="fig">FIG</span> no framing; the matching, the subset condition, and their equivalence are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE PULL REQUEST</i> &mdash; the co-op domain of matching work to a willing reviewer. Hall&rsquo;s theorem is the pull-request question exactly: can every change be assigned an acceptable reviewer at once, or does some cluster overload too few? <b>AVAN (AI)</b> built the instrument: the augmenting-path matcher, the subset checker, the obstruction-certificate inverse.<br><br>The weave: David names the seat (match all requests or find the jam); I make the matching succeed precisely when Hall holds and expose the blocking set when it doesn&rsquo;t &mdash; the count in 1D, the bipartite matcher in 2D, the certificate inverse in 3D. The sphere is the seam. Credit: Philip Hall (1935); K&ouml;nig&rsquo;s theorem and Berge&rsquo;s augmenting paths.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Take any group of k people and pool their acceptable partners. Hall&rsquo;s test on a line: the pooled options must number at least k. The moment a group of k pools only k&minus;1, the matching is doomed &mdash; drawn as a bar that falls short.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A bipartite graph &mdash; people on the left, partners on the right, edges for &ldquo;acceptable.&rdquo; The instrument finds the maximum matching and checks Hall&rsquo;s condition. When it holds, a full matching lights up green; when it fails, the blocking subset (k people, &lt; k options) glows red.</div>
+   <div class="btns" style="margin-top:10px"><button id="halpick">case: perfect</button><button id="halmatch">find matching ▶</button></div>
+   <div class="cap" id="halread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The bipartite graph turning, the <b>green</b> forward result: a perfect matching &mdash; a certificate that everyone <i>can</i> be paired.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): when no matching exists, the <b>magenta</b> is the <b>proof of impossibility</b> &mdash; a specific set of k people whose combined options number only k&minus;1. Hall&rsquo;s theorem is a <b>certificate duality</b>: either there is a full matching, or there is a deficient set that <i>proves</i> there cannot be &mdash; exactly one, never both, never neither. Finding a matching is the forward search; its inverse is finding the <b>bottleneck that blocks it</b>, and the theorem guarantees the inverse witness always exists when the forward fails. This is a min-max law (K&ouml;nig, and LP duality underneath): the largest matching equals the smallest cover, so a shortfall of exactly one somewhere is the whole obstruction. Green is the pairing that works; magenta is the overloaded cluster that makes pairing impossible; and one of the two is always the honest answer. To fail to match is not vague bad luck &mdash; it is a nameable, exhibitable jam.</div>
+   <div class="btns" style="margin-top:10px"><button id="halspin">pause spin</button></div></div></div></div>"""
+HAL_SCRIPT = """(function(){
+var ang=0,spin=true,ci=0,showMatch=false;
+var CASES=[
+ {name:'perfect',adj:[[0,1],[1,2],[2,0]],nR:3},
+ {name:'Hall fails',adj:[[0,1],[0,1],[0,1]],nR:3},
+ {name:'SDR',adj:[[0],[0,1],[0,1,2]],nR:3},
+ {name:'overload',adj:[[0],[0],[1,2],[1,2]],nR:3}];
+function maxMatching(adj,nR){var nL=adj.length,matchR=new Array(nR).fill(-1);
+ function aug(u,seen){for(var i=0;i<adj[u].length;i++){var v=adj[u][i];if(!seen[v]){seen[v]=true;if(matchR[v]===-1||aug(matchR[v],seen)){matchR[v]=u;return true;}}}return false;}
+ var m=0,matchL=new Array(nL).fill(-1);for(var u=0;u<nL;u++)if(aug(u,new Array(nR).fill(false)))m++;for(var v=0;v<nR;v++)if(matchR[v]>=0)matchL[matchR[v]]=v;return {size:m,matchL:matchL};}
+function hallHolds(adj){var nL=adj.length;for(var mask=1;mask<(1<<nL);mask++){var S=[],N={};for(var u=0;u<nL;u++)if(mask&(1<<u)){S.push(u);for(var i=0;i<adj[u].length;i++)N[adj[u][i]]=1;}if(Object.keys(N).length<S.length)return {holds:false,violator:S};}return {holds:true,violator:null};}
+function verify(){var ok=true;for(var c=0;c<3;c++){var adj=CASES[c].adj,nR=CASES[c].nR,nL=adj.length,m=maxMatching(adj,nR).size,h=hallHolds(adj).holds;if((m===nL)!==h)ok=false;}
+ return {perfectMatchesAll:maxMatching(CASES[0].adj,3).size===3,hallFailsNoMatch:maxMatching(CASES[1].adj,3).size<3&&!hallHolds(CASES[1].adj).holds,theoremHolds:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var adj=CASES[1].adj,nL=adj.length;
+ // show the failing subset {0,1,2} with 2 options
+ var N={};for(var u=0;u<nL;u++)for(var i=0;i<adj[u].length;i++)N[adj[u][i]]=1;var opt=Object.keys(N).length;
+ g.fillStyle='#ff90b0';g.font='11px ui-monospace,monospace';g.fillText('Hall test on the failing case: 3 people, pooled options = '+opt,10,26);
+ g.fillStyle='#39fc6b';g.fillRect(30,60,3*40,28);g.fillStyle='#031';g.font='11px ui-monospace,monospace';g.fillText('k = 3 people',40,78);
+ g.fillStyle='#ff5a5a';g.fillRect(30,100,opt*40,28);g.fillStyle='#fff';g.fillText(opt+' options < 3',40,118);
+ g.fillStyle='#ff5a5a';g.font='11px ui-monospace,monospace';g.fillText('|options| < |people| → no perfect matching (Hall violated)',10,142);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var C=CASES[ci],adj=C.adj,nL=adj.length,nR=C.nR,mm=maxMatching(adj,nR),hall=hallHolds(adj);
+ var lx=90,rx=W-90,ly=function(i){return 50+i*((H-120)/Math.max(nL-1,1));},ry=function(i){return 50+i*((H-120)/Math.max(nR-1,1));};
+ for(var u=0;u<nL;u++)for(var i=0;i<adj[u].length;i++){var v=adj[u][i],matched=showMatch&&mm.matchL[u]===v;g.strokeStyle=matched?'#39fc6b':'rgba(255,144,176,0.35)';g.lineWidth=matched?3:1.3;g.beginPath();g.moveTo(lx,ly(u));g.lineTo(rx,ry(v));g.stroke();}g.lineWidth=1;
+ var viol=hall.violator||[];
+ for(var u=0;u<nL;u++){g.fillStyle=viol.indexOf(u)>=0?'#ff5a5a':'#ff90b0';g.beginPath();g.arc(lx,ly(u),12,0,7);g.fill();g.fillStyle='#200';g.font='10px ui-monospace,monospace';g.fillText('P'+u,lx-8,ly(u)+3);}
+ for(var v=0;v<nR;v++){g.fillStyle='#a0c0ff';g.beginPath();g.arc(rx,ry(v),12,0,7);g.fill();g.fillStyle='#012';g.fillText('r'+v,rx-8,ry(v)+3);}
+ g.fillStyle='#ff90b0';g.font='12px ui-monospace,monospace';g.fillText(C.name+': matching '+mm.size+'/'+nL,12,20);
+ g.fillStyle=hall.holds?'#39fc6b':'#ff5a5a';g.font='11px ui-monospace,monospace';
+ g.fillText(hall.holds?'✓ Hall holds → perfect matching exists':'✗ Hall fails: {P'+viol.join(',P')+'} have too few options',12,H-12);
+ document.getElementById('halread').textContent=C.name+': match '+mm.size+'/'+nL+', Hall '+(hall.holds?'holds':'fails');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var C=CASES[ci],adj=C.adj,nL=adj.length,nR=C.nR,mm=maxMatching(adj,nR),hall=hallHolds(adj),ca=Math.cos(ang),lx=W*0.5-90*ca,rx=W*0.5+90*ca;
+ function ly(i){return 60+i*((H-120)/Math.max(nL-1,1));}function ry(i){return 60+i*((H-120)/Math.max(nR-1,1));}
+ for(var u=0;u<nL;u++)for(var i=0;i<adj[u].length;i++){var v=adj[u][i],matched=mm.matchL[u]===v&&hall.holds;g.strokeStyle=matched?'#39fc6b':'rgba(150,150,170,0.3)';g.lineWidth=matched?2.5:1;g.beginPath();g.moveTo(lx,ly(u));g.lineTo(rx,ry(v));g.stroke();}g.lineWidth=1;
+ var viol=hall.violator||[];
+ for(var u=0;u<nL;u++){g.fillStyle=viol.indexOf(u)>=0?'#ff2d95':'#39fc6b';g.beginPath();g.arc(lx,ly(u),8,0,7);g.fill();}
+ for(var v=0;v<nR;v++){g.fillStyle='#a0c0ff';g.beginPath();g.arc(rx,ry(v),8,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: a perfect matching (proof it CAN be done)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the deficient set (proof it CANNOT) — exactly one exists',10,H-12);}
+document.getElementById('halpick').onclick=function(){ci=(ci+1)%CASES.length;showMatch=false;this.textContent='case: '+CASES[ci].name;drawW4();};
+document.getElementById('halmatch').onclick=function(){showMatch=!showMatch;drawW4();};
+document.getElementById('halspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__hall=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MTX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Kirchhoff&rsquo;s Matrix-Tree theorem.</b> A <b>spanning tree</b> is a way to keep a graph connected using the fewest edges &mdash; and a big graph can have astronomically many. Counting them one by one is hopeless. Kirchhoff found a shortcut that feels like magic: build the graph&rsquo;s <b>Laplacian</b> matrix (each vertex&rsquo;s degree on the diagonal, &minus;1 for every edge), <b>delete any one row and its matching column</b>, and take the <b>determinant</b>. That single number <b>is</b> the exact count of spanning trees.<br><br>
+ One determinant replaces an exponential search. For the complete graph K<sub>n</sub> it returns Cayley&rsquo;s <b>n<sup>n&minus;2</sup></b> (the very count the Pr&uuml;fer bijection proves another way); for a cycle it returns n; for a tree, 1. Kirchhoff discovered it in <b>1847</b> while analysing electrical circuits &mdash; the same Laplacian governs current flow, so counting trees and solving networks are the same linear algebra.<br><br>
+ <span class="lit">LIT</span> verified live: for K<sub>4</sub>, C<sub>4</sub>, K<sub>5</sub> and K<sub>3,3</sub> the Laplacian cofactor determinant equals a brute-force enumeration of spanning trees exactly &mdash; 16, 4, 125, 81 (window.__matrixtree). <span class="fig">FIG</span> no framing; the determinant-equals-count identity is exact, cross-checked against direct enumeration.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>BACKPROP</i> &mdash; the grind domain of turning a graph of connections into a matrix and letting linear algebra do the work. The Matrix-Tree theorem is exactly that move: fold a graph into its Laplacian and read a global count off one determinant. <b>AVAN (AI)</b> built the instrument: the Laplacian builder, the cofactor determinant, the enumerate-vs-compute inverse.<br><br>The weave: David names the seat (graph &rarr; matrix &rarr; answer); I make one determinant equal a count that brute force confirms &mdash; the Laplacian in 1D, the compute-vs-count in 2D, the spectral inverse in 3D. The sphere is the seam. Credit: Gustav Kirchhoff (1847, from electrical networks); Cayley&rsquo;s formula for K<sub>n</sub>. See [[the-prufer]].</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The Laplacian of a small graph as rows of numbers: degrees down the diagonal, &minus;1 wherever an edge sits. Strike one row and one column, and the determinant of what remains is the whole spanning-tree count &mdash; a matrix collapsed to a single answer.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a graph. The instrument shows its Laplacian, deletes a row and column, computes the determinant &mdash; and separately <b>brute-forces</b> the count by trying every edge subset. The two numbers always match, one instant, one exponential.</div>
+   <div class="btns" style="margin-top:10px"><button id="mtxpick">graph: K4</button><button id="mtxcompute">compute ▶</button></div>
+   <div class="cap" id="mtxread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The graph turning with spanning trees flickering across it &mdash; the <b>green</b> forward truth: one Laplacian determinant that <i>is</i> the count of all of them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the <b>brute enumeration</b> &mdash; actually listing every spanning tree, one edge subset at a time, which explodes exponentially. Kirchhoff&rsquo;s theorem is the inverse of that labour: instead of <b>building</b> the trees to count them, it <b>reads the count off the structure</b> in one polynomial determinant. And there is a second, deeper inverse hiding in the same matrix &mdash; the Laplacian&rsquo;s <b>eigenvalues</b> give the count too (their nonzero product over n), so the graph&rsquo;s <b>spectrum already knows</b> how many trees it holds. The magenta search enumerates; the green determinant (or the spectrum) computes; both land on the identical number, but only one is tractable. To count an exponential set of objects, do not list them &mdash; find the matrix whose determinant already counted them for you. Green is the answer the algebra hands you; magenta is the mountain of trees you never had to climb.</div>
+   <div class="btns" style="margin-top:10px"><button id="mtxspin">pause spin</button></div></div></div></div>"""
+MTX_SCRIPT = """(function(){
+var ang=0,spin=true,gi=0;
+function edgesK(n){var e=[];for(var a=0;a<n;a++)for(var b=a+1;b<n;b++)e.push([a,b]);return e;}
+function edgesK33(){var e=[];for(var a=0;a<3;a++)for(var b=3;b<6;b++)e.push([a,b]);return e;}
+var GRAPHS=[{name:'K4',n:4,edges:edgesK(4)},{name:'C4',n:4,edges:[[0,1],[1,2],[2,3],[3,0]]},{name:'K5',n:5,edges:edgesK(5)},{name:'K3,3',n:6,edges:edgesK33()},{name:'path P4',n:4,edges:[[0,1],[1,2],[2,3]]}];
+function laplacian(n,edges){var L=[];for(var i=0;i<n;i++)L.push(new Array(n).fill(0));for(var e=0;e<edges.length;e++){var u=edges[e][0],v=edges[e][1];L[u][u]++;L[v][v]++;L[u][v]--;L[v][u]--;}return L;}
+function det(M){M=M.map(function(r){return r.slice();});var n=M.length,d=1;for(var i=0;i<n;i++){var p=i;for(var r=i;r<n;r++)if(Math.abs(M[r][i])>Math.abs(M[p][i]))p=r;if(Math.abs(M[p][i])<1e-12)return 0;if(p!==i){var t=M[i];M[i]=M[p];M[p]=t;d=-d;}d*=M[i][i];for(var r=i+1;r<n;r++){var f=M[r][i]/M[i][i];for(var c=i;c<n;c++)M[r][c]-=f*M[i][c];}}return d;}
+function kirchhoff(n,edges){var L=laplacian(n,edges),minor=[];for(var i=1;i<n;i++){var row=[];for(var j=1;j<n;j++)row.push(L[i][j]);minor.push(row);}return Math.round(det(minor));}
+function bruteST(n,edges){var m=edges.length,count=0;function rec(start,chosen){if(chosen.length===n-1){var par=[];for(var i=0;i<n;i++)par.push(i);function find(x){while(par[x]!==x){par[x]=par[par[x]];x=par[x];}return x;}var ok=true;for(var k=0;k<chosen.length;k++){var ru=find(edges[chosen[k]][0]),rv=find(edges[chosen[k]][1]);if(ru===rv){ok=false;break;}par[ru]=rv;}if(ok){var roots={};for(var i=0;i<n;i++)roots[find(i)]=1;if(Object.keys(roots).length===1)count++;}return;}for(var i=start;i<m;i++)rec(i+1,chosen.concat([i]));}rec(0,[]);return count;}
+function verify(){var gs=[GRAPHS[0],GRAPHS[1],GRAPHS[2],GRAPHS[3]],ok=true,s={};for(var k=0;k<gs.length;k++){var kf=kirchhoff(gs[k].n,gs[k].edges),bf=bruteST(gs[k].n,gs[k].edges);if(kf!==bf)ok=false;s[gs[k].name]=kf;}return {K4:s['K4'],C4:s['C4'],K5:s['K5'],K33:s['K3,3'],matrixTreeHolds:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var G=GRAPHS[0],L=laplacian(G.n,G.edges),cell=26,ox=20,oy=34;
+ for(var i=0;i<G.n;i++)for(var j=0;j<G.n;j++){var del=(i===0||j===0);g.fillStyle=del?'#221':(i===j?'#123048':'#1a2230');g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);g.fillStyle=del?'#655':(L[i][j]<0?'#ff8080':'#90d0ff');g.font='11px ui-monospace,monospace';g.fillText(L[i][j],ox+j*cell+(L[i][j]<0?2:6),oy+i*cell+16);}
+ g.fillStyle='#90d0ff';g.font='11px ui-monospace,monospace';g.fillText('Laplacian of K4 — strike row 0 & col 0 (dim), det of the rest = spanning trees',10,24);
+ g.fillStyle='#39fc6b';g.font='12px ui-monospace,monospace';g.fillText('det(minor) = '+kirchhoff(G.n,G.edges)+' = # spanning trees',ox+G.n*cell+16,oy+40);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var G=GRAPHS[gi],cx=W/2,cy=118,R=80,pos=[];for(var i=0;i<G.n;i++){var th=-Math.PI/2+i/G.n*Math.PI*2;pos.push([cx+Math.cos(th)*R,cy+Math.sin(th)*R]);}
+ g.strokeStyle='rgba(144,208,255,0.5)';for(var e=0;e<G.edges.length;e++){g.beginPath();g.moveTo(pos[G.edges[e][0]][0],pos[G.edges[e][0]][1]);g.lineTo(pos[G.edges[e][1]][0],pos[G.edges[e][1]][1]);g.stroke();}
+ for(var i=0;i<G.n;i++){g.fillStyle='#90d0ff';g.beginPath();g.arc(pos[i][0],pos[i][1],10,0,7);g.fill();g.fillStyle='#012';g.font='10px ui-monospace,monospace';g.fillText(i,pos[i][0]-3,pos[i][1]+3);}
+ var kf=kirchhoff(G.n,G.edges),bf=bruteST(G.n,G.edges);
+ g.fillStyle='#90d0ff';g.font='13px ui-monospace,monospace';g.fillText(G.name+' — '+G.edges.length+' edges',12,20);
+ g.fillStyle='#39fc6b';g.font='12px ui-monospace,monospace';g.fillText('Laplacian cofactor det = '+kf,12,H-46);
+ g.fillStyle='#ffd060';g.fillText('brute-force spanning trees = '+bf,12,H-26);
+ g.fillStyle=kf===bf?'#39fc6b':'#ff5a5a';g.fillText(kf===bf?'✓ they match'+(G.name==='K5'||G.name==='K4'?' (= n^(n−2), Cayley)':''):'✗',12,H-8);
+ document.getElementById('mtxread').textContent=G.name+': det '+kf+' = '+bf+' spanning trees';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var G=GRAPHS[gi],ca=Math.cos(ang),cx=W/2,cy=H/2,R=110,pos=[];for(var i=0;i<G.n;i++){var th=i/G.n*Math.PI*2+ang;pos.push([cx+Math.cos(th)*R*ca,cy+Math.sin(th)*R*0.6]);}
+ g.strokeStyle='rgba(120,140,160,0.25)';for(var e=0;e<G.edges.length;e++){g.beginPath();g.moveTo(pos[G.edges[e][0]][0],pos[G.edges[e][0]][1]);g.lineTo(pos[G.edges[e][1]][0],pos[G.edges[e][1]][1]);g.stroke();}
+ // green: highlight one spanning tree (rotating selection)
+ var m=G.edges.length,pick=Math.floor(ang*4)%Math.max(1,m);
+ var par=[];for(var i=0;i<G.n;i++)par.push(i);function find(x){while(par[x]!==x){par[x]=par[par[x]];x=par[x];}return x;}var tree=[];for(var off=0;off<m&&tree.length<G.n-1;off++){var e=(pick+off)%m,ru=find(G.edges[e][0]),rv=find(G.edges[e][1]);if(ru!==rv){par[ru]=rv;tree.push(e);}}
+ g.strokeStyle='#39fc6b';g.lineWidth=2.5;for(var k=0;k<tree.length;k++){var e=tree[k];g.beginPath();g.moveTo(pos[G.edges[e][0]][0],pos[G.edges[e][0]][1]);g.lineTo(pos[G.edges[e][1]][0],pos[G.edges[e][1]][1]);g.stroke();}g.lineWidth=1;
+ for(var i=0;i<G.n;i++){g.fillStyle='#90d0ff';g.beginPath();g.arc(pos[i][0],pos[i][1],5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: one spanning tree — '+kirchhoff(G.n,G.edges)+' of them (one determinant)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: brute enumeration would list all '+kirchhoff(G.n,G.edges)+' — exponential',10,H-12);}
+document.getElementById('mtxpick').onclick=function(){gi=(gi+1)%GRAPHS.length;this.textContent='graph: '+GRAPHS[gi].name;drawW4();};
+document.getElementById('mtxcompute').onclick=function(){drawW4();};
+document.getElementById('mtxspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__matrixtree=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-matrix-tree","title":"THE MATRIX-TREE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"BACKPROP","domain_slug":"backprop","accent":"#90d0ff","icon":"matrixtree",
+  "kicker":"count every spanning tree with one determinant",
+  "blurb":"Kirchhoff's Matrix-Tree theorem in the 5-window house format — a graph can have astronomically many spanning trees, but counting them collapses to one determinant. Build the Laplacian (degree on the diagonal, -1 per edge), delete any one row and its matching column, take the determinant — that number is exactly the count of spanning trees. For the complete graph K_n it returns Cayley's n^(n-2) (the count Prufer proves another way); for a cycle, n; for a tree, 1. Kirchhoff found it in 1847 analysing electrical circuits. See the Laplacian in 1D, the compute-vs-count in 2D, and the enumerate-vs-compute inverse in 3D.",
+  "lit":"Genuine Kirchhoff Matrix-Tree theorem (Gustav Kirchhoff 1847). Verified live: for K4, C4, K5 and K3,3 the Laplacian cofactor determinant (delete row 0 and col 0, take det) equals a brute-force enumeration of spanning trees exactly — 16, 4, 125, 81 (window.__matrixtree.matrixTreeHolds true). K4=16=4^2 and K5=125=5^3 match Cayley's n^(n-2). The determinant-equals-count identity is exact, cross-checked against direct enumeration in-browser.",
+  "fig":"No framing: the Laplacian-cofactor-equals-spanning-tree-count identity is real and verified against exhaustive enumeration for several graphs in-browser. The AVAN inverse is genuine — Kirchhoff replaces exponential enumeration with a polynomial determinant, and the same Laplacian's eigenvalue product also gives the count, so the spectrum encodes it; stated as established fact, tied honestly to Cayley/Prufer.",
+  "body":MTX_BODY,"script":MTX_SCRIPT},
+ {"slug":"the-hall","title":"THE HALL","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#ff90b0","icon":"hall",
+  "kicker":"everyone can be matched iff no k suitors share only k-1 options",
+  "blurb":"Hall's marriage theorem in the 5-window house format — when can everyone be paired to an acceptable partner, none shared? A perfect matching exists if and only if Hall's condition holds: every group of k people together has at least k acceptable partners between them. One direction is pigeonhole (k people with k-1 options are stuck); the deep half is that this condition is also sufficient. Equivalently the system-of-distinct-representatives theorem. See the pooled-options test in 1D, the bipartite matcher in 2D, and the obstruction-certificate inverse in 3D.",
+  "lit":"Genuine Hall's marriage theorem (Philip Hall 1935; related to Konig's theorem and Berge's augmenting paths). Verified live: a maximum matching computed by augmenting paths reaches all left vertices exactly when Hall's condition (checked over every subset of the left) holds — a perfect case matches all 3 and Hall holds, a deficient case matches only 2 and Hall fails, in agreement across cases (window.__hall.theoremHolds true). The matching, the subset condition, and their equivalence are exact.",
+  "fig":"No framing: the augmenting-path matching, the exhaustive Hall-condition check, and their exact equivalence (perfect matching <=> condition holds) are real and verified in-browser. The AVAN inverse is the genuine min-max duality (Konig / LP): either a matching exists or a deficient set proves it cannot — exactly one, an exhibitable certificate either way, not asserted.",
+  "body":HAL_BODY,"script":HAL_SCRIPT},
+ {"slug":"the-prufer","title":"THE PRUFER","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#b0e070","icon":"prufer",
+  "kicker":"a labeled tree ⟷ a short number sequence — Cayley's n^(n-2)",
+  "blurb":"Cayley's formula and the Prufer sequence in the 5-house format — the number of labeled trees on n numbered vertices is exactly n^(n-2) (5 vertices give 125 trees, 6 give 1296). Prufer's bijection proves it: encode a tree by repeatedly pruning the smallest-labeled leaf and recording its neighbour (n-2 steps, values 1..n); decode by reversing. Since there are exactly n^(n-2) sequences and each names one tree, Cayley's formula follows. Each vertex's degree equals its count in the sequence plus one. See the pruning in 1D, the encode/decode in 2D, and the codec bijection in 3D.",
+  "lit":"Genuine Cayley's formula and Prufer bijection (Arthur Cayley 1889; Heinz Prufer 1918). Verified live: encoding then decoding returns the identical sequence in every case, and the n^(n-2) length-(n-2) sequences decode to exactly n^(n-2) distinct labeled trees for n up to 6 (window.__prufer.bijectionAndCayley true; n=5: 125=125, n=6: 1296=1296). The bijection and Cayley's count are exact, checked over all sequences.",
+  "fig":"No framing: the tree<->sequence bijection, the lossless round-trip, and Cayley's n^(n-2) count are real and verified exhaustively over every sequence in-browser (not sampled). The AVAN inverse is the genuine mathematical content — the encode/decode being exact inverses IS Cayley's proof, since a bijection forces equal cardinalities, and the degree = count+1 relation is exact.",
+  "body":PRF_BODY,"script":PRF_SCRIPT},
+ {"slug":"the-ramsey","title":"THE RAMSEY","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#ff9060","icon":"ramsey",
+  "kicker":"among any 6 people, 3 friends or 3 strangers — unavoidable",
+  "blurb":"Ramsey's theorem in the 5-window house format — complete disorder is impossible. Among any 6 people there must be 3 who all know each other or 3 who are all mutual strangers; with 5 people you can avoid both (friendships as a pentagon, strangerhoods as the pentagram). The threshold is the Ramsey number R(3,3)=6: every 2-colouring of the complete graph K6 contains a monochromatic triangle, while some 2-colouring of K5 contains none. Ramsey numbers explode and are mostly unknown (even R(5,5) is only pinned between 43 and 48). See the counts in 1D, the forced triangle in 2D, and the order-from-disorder inverse in 3D.",
+  "lit":"Genuine Ramsey theorem, R(3,3)=6 (Frank P. Ramsey 1930). Verified live by exhaustive search: of all 1024 two-colourings of K5, some (12) have no monochromatic triangle, while of all 32768 two-colourings of K6, zero do (window.__ramsey.k5avoiders>0 && k6avoiders===0). Every colouring is checked, so R(3,3)=6 is confirmed exactly, not sampled. R(5,5) being only bounded (43-48) is stated as the genuine open state.",
+  "fig":"No framing: the party theorem and R(3,3)=6 are proven here by brute force over every 2-colouring of K5 and K6 in-browser (12 avoiders vs 0), not by example. The AVAN inverse — that pushing toward disorder past a threshold forces order (a monochromatic triangle), and that larger Ramsey numbers are genuinely unknown — is the honest content, with the intractability stated as fact.",
+  "body":RAM_BODY,"script":RAM_SCRIPT},
+ {"slug":"the-euler","title":"THE EULER","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#70c0ff","icon":"euler",
+  "kicker":"cross every bridge once — the birth of graph theory",
+  "blurb":"the Seven Bridges of Konigsberg in the 5-window house format — in 1736 Euler asked whether you could walk across all seven bridges of Konigsberg exactly once, proved it impossible, and invented graph theory. Turning land masses into vertices and bridges into edges, an Euler path (every edge once) exists iff the graph is connected with 0 or exactly 2 odd-degree vertices; with 0 odd you can return home (Euler circuit). Konigsberg's four land masses had degrees 5,3,3,3 (all odd), so no walk exists. See the land-mass degrees in 1D, the live bridge graph in 2D, and the Euler-vs-Hamilton inverse in 3D.",
+  "lit":"Genuine Seven Bridges of Konigsberg / Euler path theorem (Leonhard Euler 1736, the founding paper of graph theory; Hierholzer's construction 1873). Verified live: Konigsberg (degrees 5,3,3,3, all odd) has no Euler path, a square cycle has an Euler circuit that Hierholzer's algorithm actually constructs, and a two-odd graph has an Euler path (window.__euler.criterionHolds && squareCircuitFound). The odd-degree criterion (0 or 2 odd vertices) and the constructed traversal are exact.",
+  "fig":"No framing: the odd-degree criterion, Konigsberg's impossibility, and the actual construction of an Euler circuit are real and checked in-browser. The AVAN inverse is the genuine, honest contrast — the Eulerian (every edge once) has a trivial degree test and is polynomial, while its dual the Hamiltonian (every vertex once) is NP-complete with no such test, stated as the established fact it is.",
+  "body":EUL_BODY,"script":EUL_SCRIPT},
  {"slug":"the-reciprocity","title":"THE RECIPROCITY","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#ffe070","icon":"reciprocity",
   "kicker":"is p a square mod q? — Gauss's golden theorem links it to q mod p",
@@ -11694,7 +12032,7 @@ def main():
         open(os.path.join(W2, sp["slug"] + ".html"), "w", encoding="utf-8").write(chrome(sp))
         # top-level spheres[] (SEALED)
         rec = {"slug": sp["slug"], "title": sp["title"], "kicker": sp["kicker"],
-               "accent": sp["accent"], "blurb": sp["blurb"]}
+               "accent": sp["accent"], "blurb": sp["blurb"], "learned": I13_MARK}
         if sp["slug"] in top:
             top[sp["slug"]].update(rec)
         else:
@@ -11704,7 +12042,7 @@ def main():
         if d is not None:
             d.setdefault("spheres", [])
             nest = {"slug": sp["slug"], "title": sp["title"], "accent": sp["accent"],
-                    "icon": sp["icon"], "kicker": sp["kicker"]}
+                    "icon": sp["icon"], "kicker": sp["kicker"], "learned": I13_MARK}
             ex = next((x for x in d["spheres"] if x.get("slug") == sp["slug"]), None)
             if ex: ex.update(nest)
             else: d["spheres"].append(nest)
