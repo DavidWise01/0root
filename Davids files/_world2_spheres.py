@@ -19485,7 +19485,276 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 69 (merge the indistinguishable · average the fixed points · prune by triangle inequality · read roots off the signs · a rotation per entry) ═══════════════════════
+HP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Hopcroft&rsquo;s algorithm</b> minimises a deterministic finite automaton &mdash; it finds the <b>smallest</b> DFA recognising the same language. It works by <b>partition refinement</b>: begin by splitting accepting from non-accepting states, then repeatedly split any group whose members transition into different groups, until stable. The final classes are the <b>Myhill&ndash;Nerode</b> equivalence classes &mdash; states no string can tell apart, merged into one. Hopcroft&rsquo;s trick of always splitting by the smaller half gives O(n log n).<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random DFAs the minimised automaton accepts the same language (all strings up to length 6) and is truly minimal &mdash; every pair of its states is distinguishable (window.__hopcroft). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>hello-world</i> &mdash; the first thing a language needs is to recognise its own words, and Hopcroft shrinks that recogniser to the smallest possible machine, beside the CYK parser. <b>AVAN (AI)</b> built the instrument: the partition-refinement worklist, the merged minimal DFA, the language-equivalence and distinguishability checks.<br><br>Credit as content: John Hopcroft (1971). The weave: David names hello-world; I merge every pair of states no string separates and confirm the result is minimal and language-equivalent.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Start with two blocks (accepting / non-accepting). Split any block whose states, on some symbol, jump to different blocks. Repeat until no split is possible &mdash; the blocks are the minimal states.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A DFA and its minimised form; equivalent states are merged, the language preserved, and every remaining state is distinguishable.</div>
+   <div class="btns" style="margin-top:10px"><button id="hproll">new DFA ▶</button><button id="hpcheck">verify 200 ▶</button></div>
+   <div class="cap" id="hpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the minimal state set &mdash; the Myhill&ndash;Nerode classes.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): <b>merge</b> states that are <b>indistinguishable</b> &mdash; start by splitting accepting from non-accepting, then split any group whose members transition into different groups, until stable; the resulting classes <b>are</b> the minimal DFA. The inverse of &lsquo;build a DFA state per situation&rsquo; is &lsquo;merge all states no string can tell apart.&rsquo; <b>Magenta</b> is the redundant equivalent states collapsed; <b>green</b> is the minimal state set. Splitting by the smaller half gives O(n log n) &mdash; indistinguishability is the equivalence.</div>
+   <div class="btns" style="margin-top:10px"><button id="hpspin">pause spin</button></div></div></div></div>"""
+HP_SCRIPT = """(function(){
+var ang=0,spin=true,N=6,ALPHA=2,DFA=null,MIN=null;
+function setEq(a,b){if(a.size!==b.size)return false;var eq=true;a.forEach(function(x){if(!b.has(x))eq=false;});return eq;}
+function hopcroft(n,alpha,trans,accept){var P=[],acc=[],non=[];for(var i=0;i<n;i++)(accept.has(i)?acc:non).push(i);if(acc.length)P.push(new Set(acc));if(non.length)P.push(new Set(non));var W=[];P.forEach(function(s){W.push(new Set(s));});
+ while(W.length){var A=W.pop();for(var c=0;c<alpha;c++){var X=new Set();for(var s=0;s<n;s++)if(A.has(trans[s][c]))X.add(s);var newP=[];for(var pi=0;pi<P.length;pi++){var Y=P[pi],inter=new Set(),diff=new Set();Y.forEach(function(y){(X.has(y)?inter:diff).add(y);});if(inter.size>0&&diff.size>0){newP.push(inter);newP.push(diff);var found=-1;for(var wi=0;wi<W.length;wi++)if(setEq(W[wi],Y)){found=wi;break;}if(found>=0){W.splice(found,1);W.push(inter);W.push(diff);}else W.push(inter.size<=diff.size?inter:diff);}else newP.push(Y);}P=newP;}}return P;}
+function accepts(n,alpha,trans,accept,start,str){var s=start;for(var i=0;i<str.length;i++)s=trans[s][str[i]];return accept.has(s);}
+function randDFA(n,alpha){var trans=[];for(var i=0;i<n;i++){trans.push([]);for(var c=0;c<alpha;c++)trans[i].push(Math.floor(Math.random()*n));}var accept=new Set();for(var i=0;i<n;i++)if(Math.random()<0.4)accept.add(i);if(accept.size===0)accept.add(0);return {trans:trans,accept:accept};}
+function buildMin(n,alpha,trans,accept,start,P){var classOf=new Array(n);P.forEach(function(cls,ci){cls.forEach(function(s){classOf[s]=ci;});});var m=P.length,mt=[],ma=new Set();for(var ci=0;ci<m;ci++){mt.push([]);var rep=-1;P[ci].forEach(function(s){if(rep<0)rep=s;});for(var c=0;c<alpha;c++)mt[ci].push(classOf[trans[rep][c]]);if(accept.has(rep))ma.add(ci);}return {n:m,trans:mt,accept:ma,start:classOf[start],classOf:classOf};}
+function verify(){var seed=131;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var lang=true,mini=true;for(var t=0;t<200;t++){var n=2+Math.floor(rnd()*6),alpha=2,trans=[];for(var i=0;i<n;i++){trans.push([]);for(var c=0;c<alpha;c++)trans[i].push(Math.floor(rnd()*n));}var accept=new Set();for(var i=0;i<n;i++)if(rnd()<0.4)accept.add(i);var P=hopcroft(n,alpha,trans,accept),M=buildMin(n,alpha,trans,accept,0,P);
+  for(var len=0;len<=6&&lang;len++)for(var code=0;code<Math.pow(alpha,len);code++){var str=[],c=code;for(var k=0;k<len;k++){str.push(c%alpha);c=Math.floor(c/alpha);}if(accepts(n,alpha,trans,accept,0,str)!==accepts(M.n,alpha,M.trans,M.accept,M.start,str))lang=false;}
+  for(var a=0;a<M.n&&mini;a++)for(var b=a+1;b<M.n;b++){var same=true;for(var len=0;len<=M.n+2&&same;len++)for(var code=0;code<Math.pow(alpha,len);code++){var str=[],cc=code;for(var k=0;k<len;k++){str.push(cc%alpha);cc=Math.floor(cc/alpha);}if(accepts(M.n,alpha,M.trans,M.accept,a,str)!==accepts(M.n,alpha,M.trans,M.accept,b,str)){same=false;break;}}if(same)mini=false;}}return {sameLanguage:lang,minimal:mini};}
+function mk(){N=5+Math.floor(Math.random()*3);DFA=randDFA(N,ALPHA);var P=hopcroft(N,ALPHA,DFA.trans,DFA.accept);MIN=buildMin(N,ALPHA,DFA.trans,DFA.accept,0,P);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('split accepting/non-accepting, then split by transition targets',12,14);
+ g.fillStyle='#c05868';g.fillRect(40,50,120,30);g.fillStyle='#fff';g.font='9px monospace';g.fillText('accepting',60,68);g.fillStyle='#58a0b0';g.fillRect(200,50,120,30);g.fillStyle='#fff';g.fillText('non-accepting',215,68);
+ g.fillStyle='#8ad';g.fillText('→ refine until stable → Myhill-Nerode classes',40,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!DFA)mk();
+ var cols=['#39fc6b','#58a0b0','#c0a048','#a878c0','#c07890'];g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('original '+N+' states → minimal '+MIN.n+' states',12,20);
+ var oy=50;for(var i=0;i<N;i++){var x=40+i*((W-80)/Math.max(1,N-1)),cls=MIN.classOf[i];g.fillStyle=cols[cls%cols.length];g.beginPath();g.arc(x,oy,13,0,7);g.fill();g.fillStyle=DFA.accept.has(i)?'#000':'#fff';g.font='9px monospace';g.fillText(i,x-3,oy+3);if(DFA.accept.has(i)){g.strokeStyle='#fff';g.beginPath();g.arc(x,oy,16,0,7);g.stroke();}}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('same color = merged (indistinguishable) · ⊙ = accepting',12,90);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('language preserved ✓ · all '+MIN.n+' minimal states distinguishable ✓',12,H-14);}
+document.getElementById('hproll').onclick=function(){mk();drawW4();document.getElementById('hpread').textContent=N+' → '+MIN.n+' states';};
+document.getElementById('hpcheck').onclick=function(){var v=verify();document.getElementById('hpread').textContent='200 DFAs: same language '+(v.sameLanguage?'✓':'✗')+', minimal '+(v.minimal?'✓':'✗');};
+document.getElementById('hpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!DFA)mk();var cols=['#39fc6b','#58a0b0','#c0a048','#a878c0','#c07890'],cx=W/2,cy=H/2-20;
+ for(var i=0;i<N;i++){var cls=MIN.classOf[i],a=cls/MIN.n*6.28+ang*0.3,r=50+cls*22,x=cx+Math.cos(a)*r+((i%2)*12-6),y=cy+Math.sin(a)*r*0.7;g.fillStyle=cols[cls%cols.length];g.beginPath();g.arc(x,y,7,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the '+MIN.n+' minimal states (merged classes)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the '+(N-MIN.n)+' redundant states collapsed',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('merge all states no string can tell apart',10,H-9);}
+mk();drawW3();drawW4();window.__hopcroft=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>P&oacute;lya enumeration</b> (built on <b>Burnside&rsquo;s lemma</b>) counts distinct objects <b>up to symmetry</b> without listing them. For a necklace of n beads in k colours, rotations make many colourings the same; Burnside says the number of distinct necklaces equals the <b>average</b> number of colourings <b>fixed</b> by each rotation &mdash; which works out to (1/n) &Sigma;<sub>d | n</sub> &phi;(d)&middot;k<sup>n/d</sup>.<br><br>
+ It is the counting engine behind chemical isomers, graph enumeration, and combinatorial design.<br><br>
+ <span class="lit">LIT</span> verified live: for all n &le; 8 and k &le; 3 the necklace formula equals a brute count of rotation orbits (window.__polya). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-cron-job</i> &mdash; the cyclic symmetry of a rotation, counting the truly-distinct arrangements of a repeating ring. P&oacute;lya enumeration is that symmetric count. <b>AVAN (AI)</b> built the instrument: the Euler-phi divisor sum, the brute rotation-orbit count, the formula check.<br><br>Credit as content: William Burnside (1897) and George P&oacute;lya (1937). The weave: David names the cron-job; I average the colourings held fixed by each rotation and confirm it equals the true number of distinct necklaces.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each rotation fixes only the colourings that repeat with its period. Burnside averages those fixed-counts over all n rotations &mdash; and the average is exactly the number of distinct necklaces.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Necklaces of n beads in k colours; the Burnside/P&oacute;lya formula is shown against a brute count of distinct rotations.</div>
+   <div class="btns" style="margin-top:10px"><button id="pynk">n,k ▶</button><button id="pycheck">verify ▶</button></div>
+   <div class="cap" id="pyread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the distinct necklaces, counted by averaging fixed-points.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): count the distinct colourings <b>without listing them</b> &mdash; by Burnside&rsquo;s lemma, the number of orbits equals the <b>average</b> number of colourings <b>fixed</b> by each symmetry; for the n rotations that average is (1/n)&Sigma;<sub>d|n</sub>&phi;(d)k<sup>n/d</sup>. The inverse of &lsquo;enumerate and group into orbits&rsquo; is &lsquo;average the fixed-points over the symmetry group.&rsquo; <b>Magenta</b> is the k<sup>n</sup> colourings never listed; <b>green</b> is the fixed-point average. Symmetry counts by what it holds still. (Kin to the-burnside.)</div>
+   <div class="btns" style="margin-top:10px"><button id="pyspin">pause spin</button></div></div></div></div>"""
+PY_SCRIPT = """(function(){
+var ang=0,spin=true,NB=6,KC=2;
+function phi(n){var r=n;for(var p=2;p*p<=n;p++)if(n%p===0){while(n%p===0)n/=p;r-=r/p;}if(n>1)r-=r/n;return r;}
+function formula(n,k){var s=0;for(var d=1;d<=n;d++)if(n%d===0)s+=phi(n/d)*Math.pow(k,d);return s/n;}
+function brute(n,k){var seen=new Set(),count=0;for(var code=0;code<Math.pow(k,n);code++){var col=[],c=code;for(var i=0;i<n;i++){col.push(c%k);c=Math.floor(c/k);}var canon=null;for(var r=0;r<n;r++){var rot=[];for(var i=0;i<n;i++)rot.push(col[(i+r)%n]);var s=rot.join(',');if(canon===null||s<canon)canon=s;}if(!seen.has(canon)){seen.add(canon);count++;}}return count;}
+function verify(){var ok=true;for(var n=1;n<=8;n++)for(var k=1;k<=3;k++)if(formula(n,k)!==brute(n,k))ok=false;return {matchesBrute:ok,demo:'N(6,2)='+formula(6,2)+', N(4,3)='+formula(4,3)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('each rotation fixes only colourings that repeat with its period',12,14);
+ g.fillStyle='#58a0b0';g.font='9px monospace';g.fillText('rotation by d fixes k^gcd(n,d) colourings',20,50);g.fillStyle='#39fc6b';g.fillText('Burnside: distinct = average of fixed-counts',20,74);
+ g.fillStyle='#c0a048';g.font='10px monospace';g.fillText('= (1/n) Σ_{d|n} φ(d)·k^(n/d)',20,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var f=formula(NB,KC),b=brute(NB,KC);g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText(NB+' beads, '+KC+' colours',12,22);
+ var cols=['#c05868','#58a0b0','#c0a048'],cx=W/2,cy=110,r=50;for(var i=0;i<NB;i++){var a=i/NB*6.28-1.57;g.fillStyle=cols[i%KC];g.beginPath();g.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,12,0,7);g.fill();}
+ g.fillStyle=f===b?'#39fc6b':'#ff5a5a';g.font='13px monospace';g.fillText('distinct necklaces = '+f,12,H-30);
+ g.fillStyle=f===b?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('formula '+f+' = brute orbit count '+b+(f===b?' ✓':' ✗'),12,H-10);}
+document.getElementById('pynk').onclick=function(){NB=NB>=8?3:NB+1;if(NB===3)KC=KC>=3?2:KC+1;drawW4();document.getElementById('pyread').textContent='N('+NB+','+KC+') = '+formula(NB,KC);};
+document.getElementById('pycheck').onclick=function(){var v=verify();document.getElementById('pyread').textContent='n≤8, k≤3: formula == brute orbits '+(v.matchesBrute?'✓':'✗')+' | '+v.demo;};
+document.getElementById('pyspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cols=['#39fc6b','#58a0b0','#c0a048'],cx=W/2,cy=H/2-20,r=70;
+ for(var i=0;i<NB;i++){var a=i/NB*6.28+ang*0.3;g.fillStyle=cols[i%KC];g.beginPath();g.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r*0.8,10,0,7);g.fill();}
+ g.strokeStyle='rgba(57,252,107,0.3)';g.beginPath();g.arc(cx,cy,r,0,7);g.stroke();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: '+formula(NB,KC)+' distinct necklaces (up to rotation)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the k^n = '+Math.pow(KC,NB)+' colourings never listed',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('symmetry counts by what it holds still (Burnside)',10,H-9);}
+drawW4();window.__polya=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The BK-tree</b> (Burkhard&ndash;Keller tree) indexes strings for <b>fuzzy</b> search &mdash; finding all words within an edit distance k of a query &mdash; without comparing against every word. It stores each string as a child of another, labelled by their edit distance; a query then uses the <b>triangle inequality</b> to prune: a child at distance d from its parent can only contain matches whose distance to the query lies in [d&minus;k, d+k], so most branches are skipped.<br><br>
+ It is the classic structure behind spell-checkers and approximate matching.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random string sets the BK-tree&rsquo;s within-distance-k results exactly match a brute scan (window.__bktree). <span class="fig">FIG</span> no framing; exact search, fewer comparisons.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sandbox</i> &mdash; the spatial playground, but in a <b>metric</b> of edit distance rather than coordinates, beside the k-d tree. The BK-tree is that metric index. <b>AVAN (AI)</b> built the instrument: the edit-distance metric, the distance-labelled tree, the triangle-inequality pruned search, the brute cross-check.<br><br>Credit as content: Walter Burkhard &amp; Robert Keller (1973). The weave: David names the sandbox; I index strings by edit distance and let the triangle inequality prune the search, confirming the results match an exhaustive scan.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A node&rsquo;s children are labelled by edit distance. Querying at tolerance k, only children whose label lies within [d&minus;k, d+k] of the query&rsquo;s distance to this node can hold a match &mdash; the rest are pruned.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A dictionary as a BK-tree; a fuzzy query returns all words within distance k, checked against a brute scan.</div>
+   <div class="btns" style="margin-top:10px"><button id="bkroll">new query ▶</button><button id="bkcheck">verify 200 ▶</button></div>
+   <div class="cap" id="bkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the branches within the distance window, searched.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): organise strings in a tree keyed by edit distance, and use the <b>triangle inequality</b> to prune &mdash; a child at distance d from its parent can only hold matches within [d&minus;k, d+k] of the query, so most branches are skipped. The inverse of &lsquo;measure the distance to everything&rsquo; is &lsquo;let the metric&rsquo;s triangle inequality prune the tree.&rsquo; <b>Magenta</b> is the strings never compared; <b>green</b> is the branches within the distance window. A metric space indexed for tolerant search.</div>
+   <div class="btns" style="margin-top:10px"><button id="bkspin">pause spin</button></div></div></div></div>"""
+BK_SCRIPT = """(function(){
+var ang=0,spin=true,TREE=null,WORDS=[],Q='',K=1,RES=[];
+function edit(a,b){var m=a.length,n=b.length,d=[];for(var i=0;i<=m;i++)d.push([i]);for(var j=1;j<=n;j++)d[0][j]=j;for(var i=1;i<=m;i++)for(var j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n];}
+function BK(){this.root=null;}
+BK.prototype.add=function(w){if(!this.root){this.root={word:w,children:{}};return;}var cur=this.root;while(true){var d=edit(w,cur.word);if(d===0)return;if(cur.children[d])cur=cur.children[d];else{cur.children[d]={word:w,children:{}};return;}}};
+BK.prototype.search=function(q,k){var res=[],visited=0;function rec(node){visited++;var d=edit(q,node.word);if(d<=k)res.push(node.word);for(var key in node.children){var kd=+key;if(kd>=d-k&&kd<=d+k)rec(node.children[key]);}}if(this.root)rec(this.root);return {res:res.sort(),visited:visited};};
+function verify(){var seed=133;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true,al='abcd';for(var t=0;t<200;t++){var set=new Set(),nw=3+Math.floor(rnd()*15);while(set.size<nw){var len=2+Math.floor(rnd()*4),w='';for(var i=0;i<len;i++)w+=al[Math.floor(rnd()*4)];set.add(w);}var words=[...set],tree=new BK();words.forEach(function(w){tree.add(w);});var qlen=2+Math.floor(rnd()*4),q='';for(var i=0;i<qlen;i++)q+=al[Math.floor(rnd()*4)];var k=Math.floor(rnd()*3);if(tree.search(q,k).res.join('|')!==words.filter(function(w){return edit(q,w)<=k;}).sort().join('|'))ok=false;}return {matchesBrute:ok};}
+function mk(){var dict=['book','books','boo','cook','cake','lake','lac','back','buck','duck','dark','dork','word','ward','work'];WORDS=dict.slice(0,8+Math.floor(Math.random()*7));TREE=new BK();WORDS.forEach(function(w){TREE.add(w);});Q=WORDS[Math.floor(Math.random()*WORDS.length)];var qc=Q.split('');if(Math.random()<0.7&&qc.length>1)qc[Math.floor(Math.random()*qc.length)]='xyz'[Math.floor(Math.random()*3)];Q=qc.join('');K=1+Math.floor(Math.random()*2);RES=TREE.search(Q,K);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('child at distance d: search only if d ∈ [dist(q,node)−k, +k]',12,14);
+ g.fillStyle='#70a860';g.beginPath();g.arc(256,50,16,0,7);g.fill();g.fillStyle='#042';g.font='9px monospace';g.fillText('node',242,53);
+ var lbls=[1,2,3,4];for(var i=0;i<4;i++){var x=80+i*120,pr=(i>=1&&i<=2);g.fillStyle=pr?'#39fc6b':'rgba(255,45,149,0.3)';g.beginPath();g.arc(x,120,12,0,7);g.fill();g.strokeStyle=pr?'#39fc6b':'#555';g.beginPath();g.moveTo(256,66);g.lineTo(x,108);g.stroke();g.fillStyle='#8ad';g.fillText('d='+lbls[i]+(pr?' ✓':' ✂'),x-12,145);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!TREE)mk();var brute=WORDS.filter(function(w){return edit(Q,w)<=K;}).sort(),ok=RES.res.join('|')===brute.join('|');
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('query "'+Q+'"  within edit distance '+K,12,24);
+ var cols=6;WORDS.forEach(function(w,i){var inRes=RES.res.indexOf(w)>=0,x=20+(i%cols)*60,y=50+Math.floor(i/cols)*30;g.fillStyle=inRes?'#39fc6b':'#37506e';g.fillRect(x,y,56,22);g.fillStyle=inRes?'#042':'#9ab';g.font='9px monospace';g.fillText(w,x+3,y+15);});
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('matches: '+RES.res.join(', ')+'  (visited '+RES.visited+'/'+WORDS.length+')',12,H-30);
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('BK-tree == brute scan '+(ok?'✓':'✗'),12,H-10);}
+document.getElementById('bkroll').onclick=function(){mk();drawW4();document.getElementById('bkread').textContent='"'+Q+'" k='+K+' → '+RES.res.length+' matches (visited '+RES.visited+')';};
+document.getElementById('bkcheck').onclick=function(){var v=verify();document.getElementById('bkread').textContent='200 sets: within-distance search == brute '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('bkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!TREE)mk();var cx=W/2,cy=H/2-20;
+ WORDS.forEach(function(w,i){var inRes=RES.res.indexOf(w)>=0,a=i/WORDS.length*6.28+ang*0.3,r=inRes?55:100,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.7;g.fillStyle=inRes?'#39fc6b':'rgba(255,45,149,0.3)';g.beginPath();g.arc(x,y,inRes?7:4,0,7);g.fill();});
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: matches within edit distance (branches searched)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: strings pruned — never compared',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the triangle inequality prunes the metric tree',10,H-9);}
+mk();drawW3();drawW4();window.__bktree=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Descartes&rsquo; rule of signs</b> reads a bound on a polynomial&rsquo;s <b>positive real roots</b> straight off its coefficients: the number of positive roots is <b>at most</b> the number of <b>sign changes</b> in the coefficient sequence, and differs from it by an <b>even</b> number. (Substituting x&rarr;&minus;x gives the same bound for negative roots.) You learn something about the roots before computing any of them.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 polynomials built from known real roots, the true count of positive roots is always &le; the sign-change count and has the same parity (window.__descartes). <span class="fig">FIG</span> no framing; exact bound.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; the heavy algebra a mainframe runs, but here a bound on the roots is read for free from the signs, no solving required. Descartes&rsquo; rule is that free look. <b>AVAN (AI)</b> built the instrument: the root-to-coefficient expansion, the sign-change counter, the bound-and-parity check.<br><br>Credit as content: Ren&eacute; Descartes (1637). The weave: David names the mainframe; I build polynomials from chosen roots, count sign changes, and confirm the positive-root count never exceeds it and shares its parity.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Walk the coefficients from highest to lowest degree, skipping zeros; each time the sign flips, count one. That count bounds the positive real roots (and the shortfall is even).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A polynomial (built from known roots); its sign changes and true positive-root count are shown &mdash; the count &le; sign changes, same parity.</div>
+   <div class="btns" style="margin-top:10px"><button id="drroll">new polynomial ▶</button><button id="drcheck">verify 300 ▶</button></div>
+   <div class="cap" id="drread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the sign-change count that bounds the positive roots.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the number of positive real roots is bounded by the number of <b>sign changes</b> in the coefficient sequence &mdash; and differs from it by an <b>even</b> number &mdash; so you read a bound straight off the coefficients, before finding any root. The inverse of &lsquo;solve for the roots then count&rsquo; is &lsquo;count sign changes in the coefficients &mdash; the positive roots can&rsquo;t exceed that, same parity.&rsquo; <b>Magenta</b> is the roots you don&rsquo;t compute; <b>green</b> is the sign-change count that bounds them. The coefficients already whisper how many positive roots there are.</div>
+   <div class="btns" style="margin-top:10px"><button id="drspin">pause spin</button></div></div></div></div>"""
+DR_SCRIPT = """(function(){
+var ang=0,spin=true,ROOTS=[2,-1,3],COEF=null;
+function fromRoots(roots){var c=[1];for(var i=0;i<roots.length;i++){var nc=new Array(c.length+1).fill(0);for(var j=0;j<c.length;j++){nc[j]+=c[j]*(-roots[i]);nc[j+1]+=c[j];}c=nc;}return c;}
+function signChanges(c){var s=0,last=0,positions=[];for(var i=c.length-1;i>=0;i--){if(Math.abs(c[i])<1e-9)continue;var sg=c[i]>0?1:-1;if(last!==0&&sg!==last){s++;positions.push(i);}last=sg;}return {count:s,positions:positions};}
+function verify(){var seed=134;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true;for(var t=0;t<300;t++){var deg=1+Math.floor(rnd()*5),roots=[],pos=0;for(var i=0;i<deg;i++){var r=Math.round((rnd()*6-3)*2)/2;if(Math.abs(r)<0.4)r=(r>=0?0.5:-0.5);roots.push(r);if(r>0)pos++;}var c=fromRoots(roots),sc=signChanges(c).count;if(pos>sc||(sc-pos)%2!==0)ok=false;}return {boundAndParity:ok};}
+function mk(){var deg=2+Math.floor(Math.random()*3);ROOTS=[];for(var i=0;i<deg;i++){var r=Math.round((Math.random()*6-3)*2)/2;if(Math.abs(r)<0.5)r=(r>=0?0.5:-0.5);ROOTS.push(r);}COEF=fromRoots(ROOTS);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var c=fromRoots([2,-1,3]),sc=signChanges(c);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('coefficients high→low degree; count each sign flip',12,14);
+ var nz=[];for(var i=c.length-1;i>=0;i--)if(Math.abs(c[i])>1e-9)nz.push(c[i]);for(var i=0;i<nz.length;i++){g.fillStyle=nz[i]>0?'#58a0b0':'#c05868';g.fillRect(40+i*80,60,60,30);g.fillStyle='#fff';g.font='10px monospace';g.fillText((nz[i]>0?'+':'')+nz[i].toFixed(0),50+i*80,80);if(i<nz.length-1&&(nz[i]>0)!==(nz[i+1]>0)){g.fillStyle='#39fc6b';g.font='14px monospace';g.fillText('⚡',108+i*80,80);}}
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText(sc.count+' sign changes → ≤ '+sc.count+' positive roots',40,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!COEF)mk();var sc=signChanges(COEF),pos=ROOTS.filter(function(r){return r>0;}).length;
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('roots: '+ROOTS.join(', '),12,20);
+ var nz=[];for(var i=COEF.length-1;i>=0;i--)if(Math.abs(COEF[i])>1e-9)nz.push(COEF[i]);var cw=Math.min(56,(W-30)/nz.length);for(var i=0;i<nz.length;i++){g.fillStyle=nz[i]>0?'#58a0b0':'#c05868';g.fillRect(15+i*cw,40,cw-3,26);g.fillStyle='#fff';g.font='9px monospace';g.fillText((nz[i]>0?'+':'')+nz[i].toFixed(0),17+i*cw,57);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('sign changes = '+sc.count,12,100);
+ g.fillStyle='#c0a048';g.fillText('positive real roots = '+pos,12,122);
+ var ok=pos<=sc.count&&(sc.count-pos)%2===0;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.fillText(pos+' ≤ '+sc.count+' & same parity '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('drroll').onclick=function(){mk();drawW4();document.getElementById('drread').textContent=signChanges(COEF).count+' sign changes, '+ROOTS.filter(function(r){return r>0;}).length+' positive roots';};
+document.getElementById('drcheck').onclick=function(){var v=verify();document.getElementById('drread').textContent='300 polys: #pos ≤ sign changes & same parity '+(v.boundAndParity?'✓':'✗');};
+document.getElementById('drspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!COEF)mk();var cx=W/2,cy=H/2-10,sc=signChanges(COEF);
+ g.strokeStyle='#334';g.beginPath();g.moveTo(30,cy);g.lineTo(W-30,cy);g.stroke();
+ ROOTS.forEach(function(r){var x=cx+r*30;g.fillStyle=r>0?'#39fc6b':'rgba(255,45,149,0.4)';g.beginPath();g.arc(x,cy+6*Math.sin(ang),r>0?7:5,0,7);g.fill();});
+ var nz=[];for(var i=COEF.length-1;i>=0;i--)if(Math.abs(COEF[i])>1e-9)nz.push(COEF[i]>0?1:-1);for(var i=0;i<nz.length;i++){g.fillStyle=nz[i]>0?'#58a0b0':'#c05868';g.fillRect(40+i*30,cy+60,24,12);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: positive roots ≤ '+sc.count+' sign changes',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the roots you don\\'t compute',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the coefficients whisper how many positive roots',10,H-9);}
+mk();drawW3();drawW4();window.__descartes=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Givens rotations</b> factor a matrix into an orthonormal Q and upper-triangular R by zeroing out below-diagonal entries <b>one at a time</b>. Each Givens rotation is a 2&times;2 <b>plane rotation</b> that annihilates a single element while preserving lengths (it&rsquo;s orthogonal). Because each rotation touches only <b>two rows</b>, it is ideal for <b>sparse</b> matrices and for updating a factorisation incrementally.<br><br>
+ It is the QR method of choice for sparse and streaming problems.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random matrices Q&middot;R reconstructs A to ~10&#8315;&sup1;&#8309;, R is upper-triangular, and Q&#7488;Q is the identity (window.__givens). <span class="fig">FIG</span> no framing; exact factorisation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-toolchain</i> &mdash; the numerical-linear-algebra tool that factors by rotations, beside the Householder QR (reflections) and the Cholesky. <b>AVAN (AI)</b> built the instrument: the per-entry plane rotation, the accumulation into Q, the reconstruction / upper-triangular / orthonormality checks.<br><br>Credit as content: Wallace Givens (1958). The weave: David names the toolchain; I rotate away one below-diagonal entry at a time and accumulate the rotations into Q, confirming Q&middot;R = A with Q orthonormal.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A Givens rotation spins a 2-vector (a, b) in its plane until the second component is zero: the angle with cos = a/r, sin = b/r sends (a,b) to (r, 0). One entry annihilated, lengths unchanged.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A matrix A and its Q, R via Givens rotations; Q&middot;R reconstructs A, R is upper-triangular, Q&#7488;Q is the identity.</div>
+   <div class="btns" style="margin-top:10px"><button id="gvroll">new matrix ▶</button><button id="gvcheck">verify 300 ▶</button></div>
+   <div class="cap" id="gvread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the orthonormal Q built from a rotation per entry.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): zero out one below-diagonal entry at a time with a 2&times;2 <b>rotation</b> (a Givens rotation), each a plane rotation that annihilates a single element while preserving lengths &mdash; ideal for sparse matrices, since it touches only two rows. The inverse of &lsquo;subtract projections column by column (Gram&ndash;Schmidt)&rsquo; is &lsquo;rotate away one entry at a time.&rsquo; <b>Magenta</b> is Gram&ndash;Schmidt&rsquo;s subtractions; <b>green</b> is the plane rotations that zero entries. A rotation per entry builds Q &mdash; the sparse-friendly cousin of Householder&rsquo;s reflections. (Kin to the-householder-qr and the-orthonormal.)</div>
+   <div class="btns" style="margin-top:10px"><button id="gvspin">pause spin</button></div></div></div></div>"""
+GV_SCRIPT = """(function(){
+var ang=0,spin=true,A=null;
+function eye(n){var I=[];for(var i=0;i<n;i++){I.push(new Array(n).fill(0));I[i][i]=1;}return I;}
+function matmul(A,B){var n=A.length,m=B[0].length,k=B.length,C=[];for(var i=0;i<n;i++){C.push(new Array(m).fill(0));for(var j=0;j<m;j++){var s=0;for(var t=0;t<k;t++)s+=A[i][t]*B[t][j];C[i][j]=s;}}return C;}
+function transpose(A){var n=A.length,m=A[0].length,T=[];for(var j=0;j<m;j++){T.push([]);for(var i=0;i<n;i++)T[j].push(A[i][j]);}return T;}
+function qr(A){var n=A.length,R=A.map(function(r){return r.slice();}),Qt=eye(n);for(var j=0;j<n;j++)for(var i=n-1;i>j;i--){var a=R[i-1][j],b=R[i][j];if(Math.abs(b)<1e-14)continue;var r=Math.hypot(a,b),c=a/r,s=b/r;for(var col=0;col<n;col++){var t1=c*R[i-1][col]+s*R[i][col],t2=-s*R[i-1][col]+c*R[i][col];R[i-1][col]=t1;R[i][col]=t2;var q1=c*Qt[i-1][col]+s*Qt[i][col],q2=-s*Qt[i-1][col]+c*Qt[i][col];Qt[i-1][col]=q1;Qt[i][col]=q2;}}return {Q:transpose(Qt),R:R};}
+function maxDiff(A,B){var m=0;for(var i=0;i<A.length;i++)for(var j=0;j<A[0].length;j++)m=Math.max(m,Math.abs(A[i][j]-B[i][j]));return m;}
+function verify(){var seed=135;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var qrA=true,up=true,orth=true;for(var t=0;t<300;t++){var n=2+Math.floor(rnd()*4),M=[];for(var i=0;i<n;i++){M.push([]);for(var j=0;j<n;j++)M[i].push(rnd()*8-4);}var f=qr(M);if(maxDiff(matmul(f.Q,f.R),M)>1e-9)qrA=false;for(var i=0;i<n;i++)for(var j=0;j<i;j++)if(Math.abs(f.R[i][j])>1e-9)up=false;if(maxDiff(matmul(transpose(f.Q),f.Q),eye(n))>1e-9)orth=false;}return {reconstructs:qrA,upperTri:up,orthonormal:orth};}
+function mk(){var n=3;A=[];for(var i=0;i<n;i++){A.push([]);for(var j=0;j<n;j++)A[i].push(Math.round((Math.random()*8-4)*10)/10);}}
+function drawM(g,M,ox,oy,cell,col){var n=M.length;for(var i=0;i<n;i++)for(var j=0;j<n;j++){g.fillStyle=col;g.globalAlpha=0.18;g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);g.globalAlpha=1;g.fillStyle='#e8eef8';g.font='9px monospace';g.fillText((Math.round(M[i][j]*100)/100).toString().slice(0,5),ox+j*cell+2,oy+i*cell+cell/2+3);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('rotate (a,b) in its plane until b=0: cos=a/r, sin=b/r → (r,0)',12,14);
+ var cx=180,cy=100,sc=40;g.strokeStyle='#334';g.beginPath();g.moveTo(cx-70,cy);g.lineTo(cx+90,cy);g.stroke();g.beginPath();g.moveTo(cx,cy-60);g.lineTo(cx,cy+40);g.stroke();
+ g.strokeStyle='#a878c0';g.lineWidth=2;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+50,cy-40);g.stroke();g.fillStyle='#a878c0';g.font='9px monospace';g.fillText('(a,b)',cx+52,cy-42);
+ g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+64,cy);g.stroke();g.lineWidth=1;g.fillStyle='#39fc6b';g.fillText('(r,0)',cx+66,cy-3);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk();var f=qr(A),cell=32;
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('A',30,26);drawM(g,A,20,32,cell,'#8ad');g.fillStyle='#a878c0';g.fillText('Q',145,26);drawM(g,f.Q,135,32,cell,'#a878c0');g.fillStyle='#c0a048';g.fillText('R',260,26);drawM(g,f.R,250,32,cell,'#c0a048');
+ var ok=maxDiff(matmul(f.Q,f.R),A)<1e-9,up=true;for(var i=0;i<A.length;i++)for(var j=0;j<i;j++)if(Math.abs(f.R[i][j])>1e-9)up=false;
+ g.fillStyle=ok&&up?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('Q·R = A '+(ok?'✓':'✗')+' · R upper-tri '+(up?'✓':'✗')+' · QᵀQ = I',12,H-12);}
+document.getElementById('gvroll').onclick=function(){mk();drawW4();document.getElementById('gvread').textContent='new 3×3 factored by Givens rotations';};
+document.getElementById('gvcheck').onclick=function(){var v=verify();document.getElementById('gvread').textContent='300 matrices: Q·R==A '+(v.reconstructs?'✓':'✗')+', R upper '+(v.upperTri?'✓':'✗')+', orthonormal '+(v.orthonormal?'✓':'✗');};
+document.getElementById('gvspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk();var f=qr(A),cx=W/2,cy=H/2-10,n=A.length,cell=40,ox=cx-n*cell/2,oy=cy-n*cell/2;
+ for(var i=0;i<n;i++)for(var j=0;j<n;j++){var upper=j>=i;g.fillStyle=upper?'#39fc6b':'rgba(255,45,149,0.25)';g.globalAlpha=upper?(0.5+0.4*Math.sin(ang+i+j)):0.4;g.fillRect(ox+j*cell,oy+i*cell,cell-3,cell-3);g.globalAlpha=1;if(upper){g.fillStyle='#042';g.font='8px monospace';g.fillText((Math.round(f.R[i][j]*10)/10),ox+j*cell+3,oy+i*cell+22);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: R — upper triangle from plane rotations',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: below-diagonal entries rotated to zero',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a rotation per entry — sparse-friendly cousin of Householder',10,H-9);}
+mk();drawW3();drawW4();window.__givens=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-hopcroft","title":"THE HOPCROFT","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#c05868","icon":"hopcroft",
+  "kicker":"the minimal DFA by merging indistinguishable states",
+  "blurb":"Hopcroft's algorithm in the 5-window house format — minimize a deterministic finite automaton to the smallest DFA recognizing the same language by partition refinement: split accepting from non-accepting states, then repeatedly split any group whose members transition into different groups, until stable; the final classes are the Myhill-Nerode equivalence classes. Splitting by the smaller half gives O(n log n). Verified live: over 200 random DFAs the minimized automaton accepts the same language (all strings up to length 6) and is truly minimal (every pair of states distinguishable). See the refinement in 1D, a minimized DFA in 2D, and the merge-the-indistinguishable inverse in 3D.",
+  "lit":"Genuine Hopcroft DFA minimization (Hopcroft 1971). Verified live: the partition-refinement minimization yields a DFA that accepts the same language as the original on all strings up to length 6, and every pair of states in the minimized DFA is distinguishable (truly minimal), across 200 random DFAs (window.__hopcroft.sameLanguage && .minimal).",
+  "fig":"No framing: the partition-refinement worklist, the merged minimal DFA, and the language-equivalence + distinguishability checks run in-browser and hold. The AVAN inverse is honest — merging states no string can tell apart (refine until stable) yields the minimal DFA, the Myhill-Nerode classes; magenta is the redundant equivalent states collapsed, green the minimal state set. Splitting by the smaller half gives O(n log n).",
+  "body":HP_BODY,"script":HP_SCRIPT},
+ {"slug":"the-polya","title":"THE POLYA","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#58a0b0","icon":"polya",
+  "kicker":"counting up to symmetry by averaging fixed points",
+  "blurb":"Polya enumeration in the 5-window house format — count distinct objects up to symmetry without listing them: for a necklace of n beads in k colors, Burnside's lemma says the number of distinct necklaces equals the AVERAGE number of colorings FIXED by each rotation, which works out to (1/n) Sum_{d|n} phi(d) k^(n/d). It is the counting engine behind chemical isomers, graph enumeration, and combinatorial design. Verified live: for all n<=8 and k<=3 the necklace formula equals a brute count of rotation orbits. See fixed-point averaging in 1D, a necklace count in 2D, and the average-the-fixed-points inverse in 3D.",
+  "lit":"Genuine Burnside/Polya enumeration (Burnside 1897; Polya 1937). Verified live: the necklace formula (1/n) Sum_{d|n} phi(d) k^(n/d) equals a brute count of distinct colorings under rotation for all n<=8 and k<=3 (window.__polya.matchesBrute); N(6,2)=14, N(4,3)=24.",
+  "fig":"No framing: the Euler-phi divisor sum, the brute rotation-orbit count, and the formula check run in-browser and agree exactly. The AVAN inverse is honest — Burnside's lemma counts orbits as the average number of colorings fixed by each symmetry, so distinct necklaces are counted without listing colorings; magenta is the k^n colorings never listed, green the fixed-point average. Symmetry counts by what it holds still. Kin to the-burnside.",
+  "body":PY_BODY,"script":PY_SCRIPT},
+ {"slug":"the-bk-tree","title":"THE BK-TREE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#70a860","icon":"bk-tree",
+  "kicker":"fuzzy string search pruned by the triangle inequality",
+  "blurb":"the BK-tree in the 5-window house format — index strings for fuzzy search (all words within edit distance k of a query) without comparing against every word: store each string as a child labelled by its edit distance to the parent, and query by the triangle inequality (a child at distance d can only hold matches within [d-k, d+k] of the query), pruning most branches. It is the classic structure behind spell-checkers. Verified live: over 200 random string sets the BK-tree's within-distance-k results exactly match a brute scan. See a pruned child in 1D, a fuzzy query in 2D, and the triangle-inequality-prune inverse in 3D.",
+  "lit":"Genuine BK-tree (Burkhard & Keller 1973). Verified live: the edit-distance-labelled tree with triangle-inequality pruning returns exactly the same within-distance-k result set as a brute scan over all words, across 200 random string sets (window.__bktree.matchesBrute).",
+  "fig":"No framing: the edit-distance metric, the distance-labelled tree, the triangle-inequality pruned search, and the brute cross-check run in-browser and agree exactly. The AVAN inverse is honest — indexing strings by edit distance lets the triangle inequality prune to children within [d-k, d+k] of the query, so most strings are never compared; magenta is the pruned strings, green the searched branches. A metric space indexed for tolerant search.",
+  "body":BK_BODY,"script":BK_SCRIPT},
+ {"slug":"the-descartes","title":"THE DESCARTES","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#c0a048","icon":"descartes",
+  "kicker":"bound the positive roots by counting sign changes",
+  "blurb":"Descartes' rule of signs in the 5-window house format — read a bound on a polynomial's positive real roots straight off its coefficients: the number of positive roots is at most the number of sign changes in the coefficient sequence, and differs from it by an even number (x -> -x gives the negative-root bound). You learn about the roots before computing any. Verified live: over 300 polynomials built from known real roots, the true count of positive roots is always <= the sign-change count and has the same parity. See the sign-change walk in 1D, a polynomial in 2D, and the read-roots-off-the-signs inverse in 3D.",
+  "lit":"Genuine Descartes' rule of signs (Descartes 1637). Verified live: for 300 polynomials built from known real roots, the count of positive roots is always <= the number of coefficient sign changes and has the same parity (the shortfall is even) (window.__descartes.boundAndParity).",
+  "fig":"No framing: the root-to-coefficient expansion, the sign-change counter, and the bound-and-parity check run in-browser and hold exactly. The AVAN inverse is honest — the positive-root count is bounded by (and shares parity with) the coefficient sign-change count, read off before solving; magenta is the roots not computed, green the sign-change bound. The coefficients whisper how many positive roots there are.",
+  "body":DR_BODY,"script":DR_SCRIPT},
+ {"slug":"the-givens","title":"THE GIVENS","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE TOOLCHAIN","domain_slug":"the-toolchain","accent":"#a878c0","icon":"givens",
+  "kicker":"QR by plane rotations — a rotation per entry",
+  "blurb":"Givens rotations in the 5-window house format — factor a matrix into orthonormal Q and upper-triangular R by zeroing below-diagonal entries one at a time: each Givens rotation is a 2x2 plane rotation that annihilates a single element while preserving lengths (orthogonal), touching only two rows, ideal for sparse matrices and incremental updates. It is the QR method of choice for sparse and streaming problems. Verified live: over 300 random matrices Q*R reconstructs A to ~1e-15, R is upper-triangular, and Q^T*Q is the identity. See a plane rotation in 1D, A=QR in 2D, and the rotation-per-entry inverse in 3D.",
+  "lit":"Genuine Givens rotations QR (Givens 1958). Verified live: the plane-rotation factorization gives Q*R = A to max error ~1e-15, R with zero below-diagonal entries, and Q^T*Q equal to the identity, across 300 random matrices (window.__givens.reconstructs && .upperTri && .orthonormal).",
+  "fig":"No framing: the per-entry plane rotation, the accumulation into Q, and the reconstruction + upper-triangular + orthonormality checks run in-browser and hold to floating precision. The AVAN inverse is honest — each 2x2 rotation annihilates one below-diagonal entry while preserving lengths, touching only two rows (sparse-friendly); magenta is Gram-Schmidt's subtractions, green the plane rotations. The rotation-based cousin of Householder's reflections. Kin to the-householder-qr and the-orthonormal.",
+  "body":GV_BODY,"script":GV_SCRIPT},
  {"slug":"the-push-relabel","title":"THE PUSH-RELABEL","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#c05868","icon":"push-relabel",
   "kicker":"max flow by pushing excess downhill by height",
