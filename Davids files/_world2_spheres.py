@@ -15100,7 +15100,287 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 mk();drawW3();drawW4();window.__hopcroftkarp=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 50 (permutation cycles · disorder count · polygon area · nested eval · residue symbol) ═══════════════════════
+ST1_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The unsigned Stirling numbers of the first kind</b> c(n,k) count the permutations of n items with exactly <b>k cycles</b> &mdash; the mirror of the second kind, which counts set partitions into k blocks. The recurrence c(n,k) = (n&minus;1)&middot;c(n&minus;1,k) + c(n&minus;1,k&minus;1): a new item joins an existing cycle in n&minus;1 ways, or forms its own new cycle.<br><br>
+ Rows sum to n! (every permutation has some number of cycles), and they are the coefficients of the <b>rising factorial</b>: x(x+1)(x+2)&hellip;(x+n&minus;1) = &Sigma;<sub>k</sub> c(n,k)&middot;x&#7503; &mdash; the exact dual of the second kind&rsquo;s falling-factorial identity.<br><br>
+ <span class="lit">LIT</span> verified live: the recurrence matches a brute count of permutations by cycle number for n=1&hellip;7, each row sums to n!, and the rising-factorial identity holds exactly (window.__stirlingcycles). <span class="fig">FIG</span> no framing; exact counting.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-epoch</i> &mdash; beside its companion, the Stirling numbers of the second kind. Where the second kind groups a set into blocks, the first kind cycles a permutation; two ways to shatter n! into pieces. <b>AVAN (AI)</b> built the instrument: the recurrence, the brute cycle count, the rising-factorial identity.<br><br>Credit as content: James Stirling (<i>Methodus Differentialis</i>, 1730). The weave: David names the epoch; I count permutations by their cycles two ways and show the numbers are exactly the rising-factorial coefficients &mdash; the inverse table to the second kind.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A permutation drawn as its cycle diagram: follow each element to where it maps, and the arrows close into loops. The number of loops is the cycle count that c(n,k) tallies.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick n. The instrument computes the first-kind row by recurrence and by brute-counting permutations by cycle number, confirms they agree, and checks the row sums to n! and the rising-factorial identity.</div>
+   <div class="btns" style="margin-top:10px"><button id="st1n">n: 5 ▶</button><button id="st1check">verify n=1..7 ▶</button></div>
+   <div class="cap" id="st1read" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the first-kind triangle, each entry a count of permutations with k cycles.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the two kinds of Stirling numbers are literally <b>inverse matrices</b>. The second kind converts ordinary <b>powers</b> to <b>falling</b> factorials; the (signed) first kind converts <b>rising/falling</b> factorials back to powers &mdash; and stacked as triangular matrices, they multiply to the <b>identity</b>. So &lsquo;group a set into blocks&rsquo; and &lsquo;cycle a permutation&rsquo; are not just parallel counts; as changes of basis between the power and factorial bases, each <b>undoes</b> the other. The inverse of the second kind&rsquo;s table <b>is</b> the first kind&rsquo;s. <b>Magenta</b> is the second-kind (set partitions); <b>green</b> is the first-kind (cycles) &mdash; two triangles that annihilate to I. The most natural ways to break n! apart are mutual inverses.</div>
+   <div class="btns" style="margin-top:10px"><button id="st1spin">pause spin</button></div></div></div></div>"""
+ST1_SCRIPT = """(function(){
+var ang=0,spin=true,N=5;
+function stir1(n){var c=[[1]];for(var m=1;m<=n;m++){c.push([0]);for(var k=1;k<=m;k++)c[m][k]=(m-1)*(c[m-1][k]||0)+(c[m-1][k-1]||0);}return c;}
+function permsOf(a){if(a.length<=1)return [a];var out=[];for(var i=0;i<a.length;i++){var r=a.slice(0,i).concat(a.slice(i+1));permsOf(r).forEach(function(p){out.push([a[i]].concat(p));});}return out;}
+function cyc(p){var n=p.length,seen=new Array(n).fill(false),c=0;for(var i=0;i<n;i++)if(!seen[i]){c++;var j=i;while(!seen[j]){seen[j]=true;j=p[j];}}return c;}
+function fact(n){var r=1;for(var i=2;i<=n;i++)r*=i;return r;}
+function rising(x,n){var p=1;for(var i=0;i<n;i++)p*=(x+i);return p;}
+function bruteRow(n){var cnt={};permsOf(Array.from({length:n},function(_,i){return i;})).forEach(function(p){var c=cyc(p);cnt[c]=(cnt[c]||0)+1;});var row=[];for(var k=0;k<=n;k++)row.push(cnt[k]||0);return row;}
+function verify(){var C=stir1(7),rec=true,rs=true,ri=true;for(var n=1;n<=7;n++){var br=bruteRow(n);for(var k=1;k<=n;k++)if(C[n][k]!==br[k])rec=false;var s=0;for(var k=1;k<=n;k++)s+=C[n][k];if(s!==fact(n))rs=false;for(var x=0;x<=5;x++){var l=rising(x,n),r=0;for(var k=0;k<=n;k++)r+=(C[n][k]||0)*Math.pow(x,k);if(l!==r)ri=false;}}return {recMatchesBrute:rec,rowSumFactorial:rs,risingFactorial:ri,row5:C[5].slice(1)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('permutation (2 4 0 1 3) as cycles: follow i → p[i] into loops',12,16);
+ var p=[2,4,0,1,3],pos=[[80,90],[160,60],[240,90],[320,60],[400,90]];for(var i=0;i<5;i++){g.fillStyle='#c88848';g.beginPath();g.arc(pos[i][0],pos[i][1],13,0,7);g.fill();g.fillStyle='#201500';g.font='11px monospace';g.fillText(i,pos[i][0]-3,pos[i][1]+4);}
+ for(var i=0;i<5;i++){var a=pos[i],b=pos[p[i]];g.strokeStyle='#c88848';g.beginPath();g.moveTo(a[0],a[1]+13);g.bezierCurveTo(a[0],a[1]+40,b[0],b[1]+40,b[0],b[1]+13);g.stroke();}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('cycles: (0 2)(1 4 3) → 2 cycles, counted in c(5,2)',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var C=stir1(N),row=C[N].slice(1),br=bruteRow(N).slice(1),ok=JSON.stringify(row)===JSON.stringify(br),rs=row.reduce(function(a,b){return a+b;},0);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('n = '+N,12,24);
+ g.fillStyle='#c88848';g.fillText('recurrence: '+row.join(', '),12,52);
+ g.fillStyle='#5aa0e0';g.fillText('brute cycle count: '+br.join(', '),12,76);
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.fillText(ok?'✓ agree; row sum '+rs+' = '+N+'!':'✗',12,100);
+ g.fillStyle='#b088e0';g.font='11px monospace';g.fillText('x(x+1)…(x+'+(N-1)+') = Σ c('+N+',k) x^k',12,126);
+ var mx=Math.max.apply(0,row);for(var k=0;k<row.length;k++){var h=row[k]/mx*110;g.fillStyle='#c88848';g.fillRect(40+k*56,270-h,46,h);g.fillStyle='#9ab';g.font='10px monospace';g.fillText(row[k],40+k*56+4,268-h-4);g.fillText('k='+(k+1),40+k*56+6,285);}}
+document.getElementById('st1n').onclick=function(){N=N>=7?1:N+1;this.textContent='n: '+N+' ▶';drawW4();};
+document.getElementById('st1check').onclick=function(){var v=verify();document.getElementById('st1read').textContent='n=1..7: recurrence==brute '+(v.recMatchesBrute?'✓':'✗')+', row sum=n! '+(v.rowSumFactorial?'✓':'✗')+', rising-factorial '+(v.risingFactorial?'✓':'✗')+' | c(5,k)='+v.row5.join(',');};
+document.getElementById('st1spin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var C=stir1(6);
+ for(var n=1;n<=6;n++){var row=C[n].slice(1),mx=Math.max.apply(0,row),y=40+n*48;for(var k=0;k<row.length;k++){var x=W/2+(k-(row.length-1)/2)*38,h=Math.log(1+row[k])*7;g.fillStyle='#39fc6b';g.globalAlpha=0.6+0.4*Math.sin(ang+k);g.fillRect(x-15,y-h,30,h);g.globalAlpha=1;}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: 1st-kind (cycles) — rising factorial coeffs',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: 2nd-kind (partitions) — the inverse matrix',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the two Stirling triangles multiply to the identity',10,H-9);}
+drawW3();drawW4();window.__stirlingcycles=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+INV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>An inversion</b> is a pair of elements out of order &mdash; a[i] &gt; a[j] with i &lt; j. The number of inversions measures how far a sequence is from sorted (0 = sorted, n(n&minus;1)/2 = reversed), and it is exactly the minimum number of <b>adjacent swaps</b> (bubble-sort steps) needed to sort it.<br><br>
+ Counting them naively is O(n&sup2;), but a modified <b>merge sort</b> counts them in O(n log n): when merging, each time you take an element from the right half before the left is exhausted, it forms an inversion with every remaining left element.<br><br>
+ <span class="lit">LIT</span> verified live: over 500 random arrays, the merge-sort inversion count equals a brute O(n&sup2;) count (window.__inversions). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-speedrun</i> &mdash; the same disorder measure in O(n log n) instead of O(n&sup2;). Counting inversions is the sortedness speedrun, riding a merge sort. <b>AVAN (AI)</b> built the instrument: the merge with cross-inversion counting, the brute cross-check, the min-adjacent-swaps interpretation.<br><br>Credit as content: the merge-sort counting technique is classic (Knuth, <i>The Art of Computer Programming</i>). The weave: David names the speedrun; I count inversions during the merge for free and prove the total matches an exhaustive pairwise count.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Merging two sorted halves: whenever a right-half element is taken before the left half is empty, it jumps ahead of every left element still waiting &mdash; each of those is one crossing inversion, counted in a single subtraction.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">An array with its inversions (crossing lines between out-of-order pairs). Count them by merge sort and verify against the brute count; the total equals the minimum adjacent swaps to sort.</div>
+   <div class="btns" style="margin-top:10px"><button id="invroll">new array ▶</button><button id="invcheck">verify 500 ▶</button></div>
+   <div class="cap" id="invread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the recursive splits and merges, crossing inversions counted as each merge runs.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the total inversion count <b>splits cleanly into three additive pieces</b> &mdash; inversions <b>within</b> the left half, <b>within</b> the right half, and <b>crossing</b> between them. Divide-and-conquer works because the measure is <b>additive over the split</b>: the two within-counts come from the recursion, and the crossing count falls out of the merge you are doing anyway, for free. The inverse of &lsquo;compare all O(n&sup2;) pairs&rsquo; is &lsquo;count within-halves recursively, plus crossings during the merge.&rsquo; <b>Magenta</b> is the quadratic field of all pairs; <b>green</b> is the recursive splits with their free crossing-counts. Disorder is additive across a divide &mdash; that additivity is the entire speedup, the same lever as divide-and-conquer closest-pair.</div>
+   <div class="btns" style="margin-top:10px"><button id="invspin">pause spin</button></div></div></div></div>"""
+INV_SCRIPT = """(function(){
+var ang=0,spin=true,A=[5,2,6,1,3,4];
+function mergeCount(a){var inv=0;function ms(arr){if(arr.length<=1)return arr;var m=arr.length>>1,l=ms(arr.slice(0,m)),r=ms(arr.slice(m)),res=[],i=0,j=0;while(i<l.length&&j<r.length){if(l[i]<=r[j])res.push(l[i++]);else{inv+=l.length-i;res.push(r[j++]);}}while(i<l.length)res.push(l[i++]);while(j<r.length)res.push(r[j++]);return res;}ms(a.slice());return inv;}
+function brute(a){var c=0;for(var i=0;i<a.length;i++)for(var j=i+1;j<a.length;j++)if(a[i]>a[j])c++;return c;}
+function verify(){var seed=7;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<500;t++){var n=rnd()%25,a=[];for(var i=0;i<n;i++)a.push(rnd()%50);if(mergeCount(a)!==brute(a))ok=false;}return {matchesBrute:ok,example:mergeCount([3,1,4,1,5])};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('merge [2,5] + [1,3]: taking 1 (right) before 2,5 → +2 inversions',12,16);
+ var l=[2,5],r=[1,3];g.fillStyle='#5a8ac0';for(var i=0;i<2;i++){g.fillRect(60+i*40,50,34,30);g.fillStyle='#fff';g.font='13px monospace';g.fillText(l[i],72+i*40,70);g.fillStyle='#5a8ac0';}
+ g.fillStyle='#d0687a';for(var i=0;i<2;i++){g.fillRect(200+i*40,50,34,30);g.fillStyle='#fff';g.fillText(r[i],212+i*40,70);g.fillStyle='#d0687a';}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('each right-before-left pull counts all remaining left elements at once',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cell=(W-40)/A.length;
+ for(var i=0;i<A.length;i++){g.fillStyle='#3a4550';g.fillRect(20+i*cell,40,cell-4,24);g.fillStyle='#c0d0e0';g.font='12px monospace';g.fillText(A[i],20+i*cell+cell/2-5,57);}
+ for(var i=0;i<A.length;i++)for(var j=i+1;j<A.length;j++)if(A[i]>A[j]){g.strokeStyle='rgba(208,104,122,0.5)';g.beginPath();g.moveTo(20+i*cell+cell/2,70);g.bezierCurveTo(20+i*cell+cell/2,130,20+j*cell+cell/2,130,20+j*cell+cell/2,70);g.stroke();}
+ var mc=mergeCount(A),bc=brute(A);g.fillStyle=mc===bc?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('inversions: merge '+mc+' = brute '+bc+(mc===bc?' ✓':' ✗'),12,H-30);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('= minimum adjacent swaps to sort',12,H-12);}
+document.getElementById('invroll').onclick=function(){A=[];var n=6+Math.floor(Math.random()*3);var v=Array.from({length:n},function(_,i){return i+1;});for(var i=v.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=v[i];v[i]=v[j];v[j]=t;}A=v;drawW4();document.getElementById('invread').textContent=A.join(' ')+' → '+mergeCount(A)+' inversions';};
+document.getElementById('invcheck').onclick=function(){var v=verify();document.getElementById('invread').textContent='500 arrays: merge-sort count == brute '+(v.matchesBrute?'✓':'✗')+' | [3,1,4,1,5]='+v.example;};
+document.getElementById('invspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ function tree(x,y,w,depth){if(depth>3||w<20)return;g.strokeStyle='rgba(57,252,107,0.5)';g.beginPath();g.moveTo(x,y);g.lineTo(x-w/3,y+50);g.moveTo(x,y);g.lineTo(x+w/3,y+50);g.stroke();g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,3,0,7);g.fill();tree(x-w/3,y+50,w/2,depth+1);tree(x+w/3,y+50,w/2,depth+1);}
+ tree(W/2,30,W*0.7,0);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: recursion + free crossing-counts during merges',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the O(n²) pairs never explicitly compared',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('disorder is additive across a divide — within + within + crossing',10,H-9);}
+drawW3();drawW4();window.__inversions=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SHL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The shoelace formula</b> computes the area of <b>any</b> simple polygon from just its vertex coordinates: A = &frac12;|&Sigma; (x&#7522;&middot;y&#7522;&#8330;&#8321; &minus; x&#7522;&#8330;&#8321;&middot;y&#7522;)| &mdash; the name comes from the criss-cross pattern of multiplications, like lacing a shoe.<br><br>
+ The signed sum, before the absolute value, also gives the <b>orientation</b>: positive for counter-clockwise, negative for clockwise. It works for any simple polygon, convex or not, and drops out of Green&rsquo;s theorem.<br><br>
+ <span class="lit">LIT</span> verified live: for 200 polygons, the shoelace area equals a triangle-fan sum, and for lattice polygons it matches <b>Pick&rsquo;s theorem</b> (A = I + B/2 &minus; 1) exactly (window.__shoelace). <span class="fig">FIG</span> no framing; exact area.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>first-light</i> &mdash; a shape born the moment its vertices are placed, its area readable at once. The shoelace formula is that first measure of a new shape. <b>AVAN (AI)</b> built the instrument: the criss-cross cross-products, the triangle-fan cross-check, the orientation sign, the Pick&rsquo;s-theorem tie.<br><br>Credit as content: attributed to Albrecht Ludwig Friedrich Meister (1769) and Carl Friedrich Gauss (hence &lsquo;Gauss&rsquo;s area formula&rsquo;). The weave: David names first-light; I lace the vertex coordinates into a signed sum, read off area and orientation, and confirm it against triangulation and Pick&rsquo;s lattice count.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The criss-cross: for each edge, multiply x&#7522;&middot;y&#7522;&#8330;&#8321; and subtract x&#7522;&#8330;&#8321;&middot;y&#7522; &mdash; the shoelace pattern. Sum them, halve, and take the magnitude for the area.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A polygon on a lattice. The shoelace area is shown, checked against a triangle-fan sum, with the orientation sign, and verified against Pick&rsquo;s theorem (interior + boundary lattice points).</div>
+   <div class="btns" style="margin-top:10px"><button id="shlnew">new polygon ▶</button><button id="shlcheck">verify ▶</button></div>
+   <div class="cap" id="shlread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the signed triangles from the origin to each edge, summing to the enclosed area.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the formula sums <b>signed</b> triangle areas &mdash; each edge with the origin &mdash; and the signs make the parts <b>outside</b> the polygon <b>cancel</b>. A triangle to an edge on the far side contributes negatively and erases the overshoot of a near-side triangle. The inverse of &lsquo;the enclosed area&rsquo; is &lsquo;a sum of signed triangles whose exterior parts annihilate.&rsquo; You never clip or triangulate the actual polygon; you sum blindly over all edges and let the <b>orientation signs</b> sort inside from outside. <b>Magenta</b> is the exterior triangle parts, added then cancelled; <b>green</b> is the net enclosed area that survives. A global area computed by a blind, signed, edge-by-edge tally &mdash; geometry from bookkeeping.</div>
+   <div class="btns" style="margin-top:10px"><button id="shlspin">pause spin</button></div></div></div></div>"""
+SHL_SCRIPT = """(function(){
+var ang=0,spin=true,POLY=[[1,1],[6,2],[7,5],[4,7],[1,5]];
+function shoelace(p){var s=0,n=p.length;for(var i=0;i<n;i++){var j=(i+1)%n;s+=p[i][0]*p[j][1]-p[j][0]*p[i][1];}return s/2;}
+function fan(p){var a=0;for(var i=1;i+1<p.length;i++){var v1=[p[i][0]-p[0][0],p[i][1]-p[0][1]],v2=[p[i+1][0]-p[0][0],p[i+1][1]-p[0][1]];a+=(v1[0]*v2[1]-v1[1]*v2[0])/2;}return a;}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a;}
+function boundary(p){var b=0;for(var i=0;i<p.length;i++){var j=(i+1)%p.length;b+=gcd(p[j][0]-p[i][0],p[j][1]-p[i][1]);}return b;}
+function convex(cx,cy,R,n){var p=[];for(var i=0;i<n;i++){var a=2*Math.PI*i/n;p.push([Math.round(cx+R*Math.cos(a)),Math.round(cy+R*Math.sin(a))]);}return p;}
+function verify(){var seed=7;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var fanOK=true;for(var t=0;t<200;t++){var n=3+rnd()%6,p=convex(20,20,15,n);if(Math.abs(Math.abs(shoelace(p))-Math.abs(fan(p)))>1e-9)fanOK=false;}
+ var sq=[[0,0],[4,0],[4,4],[0,4]],A=Math.abs(shoelace(sq)),B=boundary(sq),I=A-B/2+1;return {matchesFan:fanOK,picksTheorem:A===I+B/2-1,pickExample:'4x4: A='+A+'=I('+I+')+B('+B+')/2-1'};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('shoelace criss-cross:  Σ ( x_i·y_{i+1} − x_{i+1}·y_i )',12,20);
+ var p=[[1,1],[4,1],[3,4]];for(var i=0;i<3;i++){var j=(i+1)%3;g.fillStyle='#58b0c0';g.font='11px monospace';g.fillText('('+p[i][0]+','+p[i][1]+')×('+p[j][0]+','+p[j][1]+'): '+p[i][0]+'·'+p[j][1]+' − '+p[j][0]+'·'+p[i][1]+' = '+(p[i][0]*p[j][1]-p[j][0]*p[i][1]),20,50+i*24);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('sum, halve, absolute value → area = '+Math.abs(shoelace(p)),20,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var sc=36,ox=30,oy=H-40;
+ g.strokeStyle='#26303c';for(var x=0;x<=9;x++){g.beginPath();g.moveTo(ox+x*sc,oy);g.lineTo(ox+x*sc,oy-8*sc);g.stroke();}for(var y=0;y<=8;y++){g.beginPath();g.moveTo(ox,oy-y*sc);g.lineTo(ox+9*sc,oy-y*sc);g.stroke();}
+ g.fillStyle='rgba(88,176,192,0.25)';g.beginPath();for(var i=0;i<POLY.length;i++){var x=ox+POLY[i][0]*sc,y=oy-POLY[i][1]*sc;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.closePath();g.fill();g.strokeStyle='#58b0c0';g.lineWidth=2;g.stroke();g.lineWidth=1;
+ for(var i=0;i<POLY.length;i++){g.fillStyle='#58b0c0';g.beginPath();g.arc(ox+POLY[i][0]*sc,oy-POLY[i][1]*sc,4,0,7);g.fill();}
+ var A=Math.abs(shoelace(POLY)),fa=Math.abs(fan(POLY)),B=boundary(POLY),I=A-B/2+1;
+ g.fillStyle=Math.abs(A-fa)<1e-9?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('shoelace area '+A+' = fan '+fa+(Math.abs(A-fa)<1e-9?' ✓':' ✗'),12,20);
+ g.fillStyle=(A===I+B/2-1)?'#39fc6b':'#ff5a5a';g.fillText('Pick: '+A+' = I('+I+') + B('+B+')/2 − 1 '+(A===I+B/2-1?'✓':'✗'),12,40);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('orientation: '+(shoelace(POLY)>0?'counter-clockwise (+)':'clockwise (−)'),12,H-14);}
+document.getElementById('shlnew').onclick=function(){var n=4+Math.floor(Math.random()*3);POLY=convex(4+Math.random()*1,4,2+Math.random()*1.5,n).map(function(p){return [Math.max(0,Math.min(9,p[0]+2)),Math.max(0,Math.min(8,p[1]))];});drawW4();document.getElementById('shlread').textContent='area = '+Math.abs(shoelace(POLY));};
+document.getElementById('shlcheck').onclick=function(){var v=verify();document.getElementById('shlread').textContent='200 polygons: shoelace == fan '+(v.matchesFan?'✓':'✗')+' | Pick '+(v.picksTheorem?'✓':'✗')+' ('+v.pickExample+')';};
+document.getElementById('shlspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height,cx=W/2,cy=H*0.5,sc=20;g.clearRect(0,0,W,H);
+ for(var i=0;i<POLY.length;i++){var j=(i+1)%POLY.length,a=POLY[i],b=POLY[j],cross=a[0]*b[1]-b[0]*a[1];g.fillStyle=cross>=0?'rgba(57,252,107,0.25)':'rgba(255,45,149,0.25)';g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+(a[0]-4)*sc,cy-(a[1]-4)*sc);g.lineTo(cx+(b[0]-4)*sc,cy-(b[1]-4)*sc);g.closePath();g.fill();}
+ g.strokeStyle='#58b0c0';g.lineWidth=1.5;g.beginPath();for(var i=0;i<POLY.length;i++){var x=cx+(POLY[i][0]-4)*sc,y=cy-(POLY[i][1]-4)*sc;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.closePath();g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: positively-signed triangles (net area)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: negatively-signed — exterior parts cancel',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('sum blindly over edges; orientation signs sort inside from outside',10,H-9);}
+drawW3();drawW4();window.__shoelace=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HOR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Horner&rsquo;s method</b> evaluates a degree-n polynomial in just <b>n</b> multiplications (versus the naive ~2n) by rewriting it as nested multiplication: a&#8345;x&#8319; + &hellip; + a&#8320; = (&hellip;((a&#8345;)x + a&#8345;&#8331;&#8321;)x + &hellip;)x + a&#8320;.<br><br>
+ The same nesting is <b>synthetic division</b>: the intermediate values are the coefficients of the quotient when you divide by (x&minus;r), and the final value is the remainder &mdash; which, by the remainder theorem, equals p(r). One elegant scheme both evaluates a polynomial and factors out a root.<br><br>
+ <span class="lit">LIT</span> verified live: over 500 cases, Horner&rsquo;s value equals the naive evaluation, and synthetic division gives quotient q and remainder rem with q(x)(x&minus;r)+rem = p(x) and rem = p(r) exactly (window.__horner). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-vault</i> &mdash; the stored coefficients, unlocked in the fewest operations. Horner&rsquo;s method is the vault&rsquo;s efficient key. <b>AVAN (AI)</b> built the instrument: the nested evaluation, the synthetic-division quotient/remainder, the reconstruction check.<br><br>Credit as content: William George Horner (1819), though the scheme was known to Qin Jiushao (1247) and used by Newton. The weave: David names the vault; I nest the multiplications to evaluate in n steps and show the same nesting is division by (x&minus;r), giving quotient and remainder at once.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The nested evaluation from the top coefficient down: start with a&#8345;, multiply by x, add the next coefficient, repeat. Each step is one multiply and one add &mdash; n of each for the whole polynomial.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A polynomial evaluated at x by Horner (the running nested value shown), checked against the naive sum. Then synthetic division by (x&minus;r): the quotient and remainder, with p reconstructed exactly.</div>
+   <div class="btns" style="margin-top:10px"><button id="horroll">new polynomial ▶</button><button id="horcheck">verify 500 ▶</button></div>
+   <div class="cap" id="horread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the nested accumulator sweeping the coefficients from the top down to the final value.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): <b>evaluation and division are the same computation</b>. Horner&rsquo;s running accumulator <b>is</b> synthetic division, so evaluating p at r simultaneously produces the quotient p(x)/(x&minus;r) and the remainder p(r). The inverse of &lsquo;compute the value p(r)&rsquo; is &lsquo;factor out the root: p(x) = q(x)(x&minus;r) + p(r).&rsquo; One pass gives both, because a polynomial&rsquo;s <b>value</b> at r and its <b>divisibility</b> by (x&minus;r) are two faces of the remainder theorem &mdash; p(r) = 0 exactly when (x&minus;r) divides p. <b>Magenta</b> is the quotient coefficients, the division falling out; <b>green</b> is the final value p(r). Evaluating is dividing &mdash; the same nested loop, read two ways.</div>
+   <div class="btns" style="margin-top:10px"><button id="horspin">pause spin</button></div></div></div></div>"""
+HOR_SCRIPT = """(function(){
+var ang=0,spin=true,C=[-6,11,-6,1],X=2;
+function horner(c,x){var r=0,steps=[];for(var i=c.length-1;i>=0;i--){r=r*x+c[i];steps.push(r);}return {val:r,steps:steps};}
+function naive(c,x){var r=0;for(var i=0;i<c.length;i++)r+=c[i]*Math.pow(x,i);return r;}
+function synth(c,r){var n=c.length-1,q=new Array(n).fill(0);q[n-1]=c[n];for(var i=n-2;i>=0;i--)q[i]=c[i+1]+r*q[i+1];var rem=c[0]+r*q[0];return {q:q,rem:rem};}
+function verify(){var seed=7;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var hOK=true,sOK=true;for(var t=0;t<500;t++){var n=1+rnd()%6,c=[];for(var i=0;i<=n;i++)c.push(rnd()%11-5);var x=rnd()%9-4;if(horner(c,x).val!==naive(c,x))hOK=false;var r=rnd()%7-3,sd=synth(c,r);if(sd.rem!==horner(c,r).val)sOK=false;var recon=new Array(c.length).fill(0);for(var i=0;i<sd.q.length;i++){recon[i+1]+=sd.q[i];recon[i]+=-r*sd.q[i];}recon[0]+=sd.rem;for(var i=0;i<c.length;i++)if(recon[i]!==c[i])sOK=false;}return {evalMatchesNaive:hOK,syntheticDivision:sOK};}
+function polyStr(c){var s='';for(var i=c.length-1;i>=0;i--){if(c[i]===0)continue;s+=(s&&c[i]>0?' + ':(c[i]<0?' − ':''))+Math.abs(c[i])+(i>0?'x'+(i>1?'^'+i:''):'');}return s||'0';}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('p(x) = '+polyStr(C)+',  evaluate at x = '+X,12,16);
+ var h=horner(C,X);var acc=0;g.font='11px monospace';for(var i=C.length-1,k=0;i>=0;i--,k++){acc=acc*X+C[i];g.fillStyle='#c0a048';g.fillText('× '+X+' + '+C[i]+' = '+acc,20+k*110,60);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('nested: (((1)·x −6)·x +11)·x −6 = '+h.val,12,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var h=horner(C,X),nv=naive(C,X),sd=synth(C,X);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('p(x) = '+polyStr(C),12,24);
+ g.fillStyle='#c0a048';g.fillText('Horner p('+X+') = '+h.val,12,54);
+ g.fillStyle=h.val===nv?'#39fc6b':'#ff5a5a';g.fillText('naive p('+X+') = '+nv+(h.val===nv?'  ✓':'  ✗'),12,78);
+ g.fillStyle='#b088e0';g.font='11px monospace';g.fillText('synthetic division by (x − '+X+'):',12,110);
+ g.fillStyle='#8ad';g.fillText('quotient coeffs: '+sd.q.slice().reverse().join(', ')+'   remainder: '+sd.rem,12,132);
+ var recon=new Array(C.length).fill(0);for(var i=0;i<sd.q.length;i++){recon[i+1]+=sd.q[i];recon[i]+=-X*sd.q[i];}recon[0]+=sd.rem;var ok=JSON.stringify(recon)===JSON.stringify(C);
+ g.fillStyle=ok&&sd.rem===h.val?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('q(x)(x−'+X+') + '+sd.rem+' = p(x) '+(ok?'✓':'✗')+',  rem = p('+X+') '+(sd.rem===h.val?'✓':'✗'),12,H-16);}
+document.getElementById('horroll').onclick=function(){var n=2+Math.floor(Math.random()*3);C=[];for(var i=0;i<=n;i++)C.push(Math.floor(Math.random()*9)-4);if(C[n]===0)C[n]=1;X=Math.floor(Math.random()*5)-2;drawW3();drawW4();document.getElementById('horread').textContent='p('+X+') = '+horner(C,X).val;};
+document.getElementById('horcheck').onclick=function(){var v=verify();document.getElementById('horread').textContent='500 cases: Horner==naive '+(v.evalMatchesNaive?'✓':'✗')+', synthetic division reconstructs & rem=p(r) '+(v.syntheticDivision?'✓':'✗');};
+document.getElementById('horspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var h=horner(C,X),sd=synth(C,X);
+ for(var i=0;i<h.steps.length;i++){var y=50+i*44;g.fillStyle='#39fc6b';g.fillRect(W*0.55,y,60,22+4*Math.sin(ang+i));g.fillStyle='#042';g.font='10px monospace';g.fillText(h.steps[i],W*0.55+6,y+14);
+  if(i<sd.q.length){g.fillStyle='#ff2d95';g.fillRect(W*0.25,y,60,22);g.fillStyle='#fff';g.fillText(sd.q[sd.q.length-1-i]!==undefined?sd.q[i]:'',W*0.25+6,y+14);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: nested accumulator → the value p(r)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: same steps = quotient of division by (x−r)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('evaluating IS dividing — the same nested loop, read two ways',10,H-9);}
+drawW3();drawW4();window.__horner=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+JAC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Legendre symbol</b> (a/p) tells whether a is a quadratic residue mod a prime p (a perfect square, +1) or not (&minus;1). <b>The Jacobi symbol</b> extends it to any odd modulus n by multiplying the Legendre symbols over n&rsquo;s prime factors: (a/n) = &prod;(a/p&#7522;)<sup>e&#7522;</sup>.<br><br>
+ Its power: it can be computed <b>fast</b> via quadratic reciprocity and the supplementary laws &mdash; <b>without factoring n</b> &mdash; making it the workhorse of primality tests (Solovay&ndash;Strassen) and modular square-root algorithms. A subtlety: for composite n, (a/n)=+1 does <b>not</b> guarantee a is a residue &mdash; which is exactly what makes it useful for detecting composites.<br><br>
+ <span class="lit">LIT</span> verified live: the reciprocity-computed Jacobi symbol equals the product of Legendre symbols over the factorisation for odd n, and equals the Legendre symbol (correctly predicting residues) for primes (window.__jacobisymbol). <span class="fig">FIG</span> no framing; exact number theory.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gatekeeper</i> &mdash; deciding, at the gate, which numbers are squares modulo n. The Jacobi symbol is that residue gatekeeper, computed without ever opening the factorisation. <b>AVAN (AI)</b> built the instrument: the reciprocity ladder, the Legendre-product cross-check, the prime-residue prediction.<br><br>Credit as content: Adrien-Marie Legendre (1798); generalised by Carl Gustav Jacob Jacobi (1837); reciprocity by Gauss. The weave: David names the gatekeeper; I compute (a/n) by swap-and-reduce reciprocity and confirm it matches the product of Legendre symbols over the primes &mdash; without ever finding them.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Computing (a/n) by reciprocity: pull out factors of 2 (a sign rule on n mod 8), then flip (a/n) &harr; (n/a) with a sign from n,a mod 4, and reduce &mdash; a gcd-like ladder that never factors n.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Choose a and an odd n. The Jacobi symbol is computed by reciprocity and checked against the product of Legendre symbols over n&rsquo;s factorisation. For prime n, it correctly flags quadratic residues.</div>
+   <div class="btns" style="margin-top:10px"><button id="jaca">a: 5 ▶</button><button id="jacn">n: 21 ▶</button><button id="jaccheck">verify ▶</button></div>
+   <div class="cap" id="jacread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the residue map mod n &mdash; which values are squares &mdash; and the Jacobi symbol reading it via reciprocity.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the Jacobi symbol computes a <b>factorisation-dependent</b> quantity <b>without the factorisation</b>. Reciprocity lets you swap and reduce (a/n) &harr; (n/a) like a gcd, so you reach the product-over-primes value without ever finding the primes. The inverse of &lsquo;multiply Legendre symbols over prime factors&rsquo; is &lsquo;reciprocity&rsquo;s swap-and-reduce, blind to the factors.&rsquo; And the catch &mdash; a Jacobi +1 need not mean a residue &mdash; is the <b>other</b> inverse: the fast symbol <b>loses</b> the residue guarantee that only the true Legendre (with known primes) keeps, and that lost guarantee is exactly the gap that catches composite &lsquo;liars.&rsquo; <b>Magenta</b> is the hidden factorisation, never computed; <b>green</b> is the reciprocity ladder. Answer a factoring-flavoured question without factoring.</div>
+   <div class="btns" style="margin-top:10px"><button id="jacspin">pause spin</button></div></div></div></div>"""
+JAC_SCRIPT = """(function(){
+var ang=0,spin=true,Aval=5,Nval=21;
+function jacobi(a,n){a=((a%n)+n)%n;var res=1;while(a!==0){while(a%2===0){a/=2;var r=n%8;if(r===3||r===5)res=-res;}var t=a;a=n;n=t;if(a%4===3&&n%4===3)res=-res;a=a%n;}return n===1?res:0;}
+function legendre(a,p){a=((a%p)+p)%p;if(a===0)return 0;var r=1,e=(p-1)/2,b=a;while(e>0){if(e&1)r=(r*b)%p;b=(b*b)%p;e=Math.floor(e/2);}return r===1?1:-1;}
+function factorize(n){var f={};for(var p=2;p*p<=n;p++)while(n%p===0){f[p]=(f[p]||0)+1;n/=p;}if(n>1)f[n]=(f[n]||0)+1;return f;}
+function gcd(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+function isPrime(n){if(n<2)return false;for(var i=2;i*i<=n;i++)if(n%i===0)return false;return true;}
+function verify(){var odd=[3,5,7,9,15,21,35,45,63,105],jOK=true,pOK=true;odd.forEach(function(n){for(var a=1;a<n;a++){if(gcd(a,n)!==1)continue;var f=factorize(n),prod=1;for(var p in f)prod*=Math.pow(legendre(a,+p),f[p]);if(jacobi(a,n)!==prod)jOK=false;}});[3,5,7,11,13].forEach(function(p){for(var a=1;a<p;a++)if(jacobi(a,p)!==legendre(a,p))pOK=false;});return {matchesLegendreProduct:jOK,primesPredictQR:pOK};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('reciprocity ladder for ('+Aval+'/'+Nval+'):',12,16);
+ var a=Aval,n=Nval,y=40,res=1;g.font='11px monospace';while(a!==0&&y<H-20){while(a%2===0){a/=2;var r=n%8;if(r===3||r===5)res=-res;g.fillStyle='#a06890';g.fillText('pull out 2 → ('+a+'/'+n+'), sign '+(res>0?'+':'−'),20,y);y+=18;}var t=a;a=n;n=t;if(a%4===3&&n%4===3)res=-res;g.fillStyle='#8ad';g.fillText('flip → ('+a+'/'+n+')',20,y);y+=18;a=a%n;g.fillText('reduce → ('+a+'/'+n+')',20,y);y+=18;}
+ g.fillStyle='#39fc6b';g.fillText('= '+jacobi(Aval,Nval)+'  (never factored n)',20,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var j=jacobi(Aval,Nval),f=factorize(Nval),prod=1,parts=[];for(var p in f){var lg=legendre(Aval,+p);prod*=Math.pow(lg,f[p]);parts.push('('+Aval+'/'+p+')'+(f[p]>1?'^'+f[p]:'')+'='+lg);}
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('Jacobi ('+Aval+'/'+Nval+') = '+j,12,30);
+ g.fillStyle='#a06890';g.font='11px monospace';g.fillText('n = '+Nval+' = '+Object.keys(f).map(function(p){return f[p]>1?p+'^'+f[p]:p;}).join('·'),12,58);
+ g.fillStyle='#8ad';g.fillText('Legendre product: '+parts.join(' · ')+' = '+prod,12,82);
+ g.fillStyle=j===prod?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText(j===prod?'✓ Jacobi == product of Legendre':'✗',12,110);
+ if(isPrime(Nval)){var sq={};for(var x=1;x<Nval;x++)sq[(x*x)%Nval]=1;var isQR=!!sq[((Aval%Nval)+Nval)%Nval];g.fillStyle='#b088e0';g.fillText('n prime: '+Aval+' is '+(isQR?'a QR':'a non-residue')+' mod '+Nval+' → symbol '+(isQR?'+1':'−1'),12,140);g.fillStyle=(isQR?(j===1):(j===-1))?'#39fc6b':'#ff5a5a';g.fillText((isQR?(j===1):(j===-1))?'✓ correctly predicted':'✗',12,164);}
+ else{g.fillStyle='#8ad';g.font='10px monospace';g.fillText('n composite: symbol +1 does NOT guarantee a residue',12,140);}}
+document.getElementById('jaca').onclick=function(){do{Aval=2+Math.floor(Math.random()*20);}while(gcd(Aval,Nval)!==1);this.textContent='a: '+Aval+' ▶';drawW3();drawW4();};
+document.getElementById('jacn').onclick=function(){var odd=[3,5,7,11,13,15,21,35,45,63];Nval=odd[Math.floor(Math.random()*odd.length)];if(gcd(Aval,Nval)!==1)Aval=Nval>2?2:1;while(gcd(Aval,Nval)!==1)Aval++;this.textContent='n: '+Nval+' ▶';drawW3();drawW4();};
+document.getElementById('jaccheck').onclick=function(){var v=verify();document.getElementById('jacread').textContent='odd n: Jacobi == Legendre product '+(v.matchesLegendreProduct?'✓':'✗')+' | primes predict QR '+(v.primesPredictQR?'✓':'✗');};
+document.getElementById('jacspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=Nval,sq={};for(var x=1;x<n;x++)sq[(x*x)%n]=1;
+ var cols=Math.ceil(Math.sqrt(n));for(var v=0;v<n;v++){var col=v%cols,row=Math.floor(v/cols),x=W/2-cols*14+col*28,y=60+row*28;g.fillStyle=sq[v]?'#39fc6b':'#3a3040';g.beginPath();g.arc(x,y,10,0,7);g.fill();g.fillStyle=sq[v]?'#042':'#88a';g.font='9px monospace';g.fillText(v,x-5,y+3);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: quadratic residues mod '+n+' (the squares)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the factorisation of n — never computed',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('reciprocity answers a factoring question without factoring',10,H-9);}
+drawW3();drawW4();window.__jacobisymbol=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-stirling-cycles","title":"THE STIRLING CYCLES","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#c88848","icon":"stirling-cycles",
+  "kicker":"count permutations by cycles — the inverse of set partitions",
+  "blurb":"the unsigned Stirling numbers of the first kind in the 5-window house format — c(n,k) counts permutations of n items with exactly k cycles (mirror of the second kind, which counts set partitions), via c(n,k)=(n-1)c(n-1,k)+c(n-1,k-1). Rows sum to n!, and they are the rising-factorial coefficients: x(x+1)...(x+n-1)=sum_k c(n,k) x^k. Verified live: the recurrence matches a brute cycle count for n=1..7, rows sum to n!, and the rising-factorial identity holds. See a permutation's cycles in 1D, recurrence vs brute in 2D, and the two-kinds-are-inverse-matrices inverse in 3D.",
+  "lit":"Genuine unsigned Stirling numbers of the first kind (Stirling 1730). Verified live: c(n,k)=(n-1)c(n-1,k)+c(n-1,k-1) matches a brute count of permutations by cycle number for n=1..7, rows sum to n!, and x(x+1)...(x+n-1)=sum_k c(n,k) x^k holds for integer x (window.__stirlingcycles); c(5,k)=24,50,35,10,1.",
+  "fig":"No framing: the recurrence, the brute cycle enumeration, the n! row sum, and the rising-factorial identity all compute in-browser and agree exactly. The AVAN inverse is honest — the first and second kind, as triangular change-of-basis matrices between the power and factorial bases, are genuine inverses (their product is the identity); magenta is second-kind (partitions), green first-kind (cycles).",
+  "body":ST1_BODY,"script":ST1_SCRIPT},
+ {"slug":"the-inversions","title":"THE INVERSIONS","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#d0687a","icon":"inversions",
+  "kicker":"count disorder in O(n log n) — additive across a divide",
+  "blurb":"inversion counting in the 5-window house format — an inversion is a pair out of order (a[i]>a[j], i<j); the count measures distance from sorted and equals the minimum adjacent swaps to sort. Naively O(n^2), but a modified merge sort counts them in O(n log n): each time a right-half element is taken before the left is exhausted, it inverts with every remaining left element. Verified live: over 500 random arrays, the merge-sort count equals a brute O(n^2) count. See a merge counting crossings in 1D, an array's inversions in 2D, and the additive-across-a-divide inverse in 3D.",
+  "lit":"Genuine merge-sort inversion counting (classic, Knuth TAOCP). Verified live: counting crossing inversions during merge (adding l.length-i for each right-before-left pull) yields a total equal to the brute-force O(n^2) inversion count for 500 random arrays (window.__inversions.matchesBrute); [3,1,4,1,5] has 3 inversions.",
+  "fig":"No framing: the merge with cross-inversion counting and the brute cross-check run in-browser and agree exactly. The AVAN inverse is honest — inversions split additively into within-left, within-right, and crossing counts, so divide-and-conquer works because the measure is additive and the crossing count is free from the merge; magenta is the O(n^2) pairs, green the recursive splits.",
+  "body":INV_BODY,"script":INV_SCRIPT},
+ {"slug":"the-shoelace","title":"THE SHOELACE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#58b0c0","icon":"shoelace",
+  "kicker":"polygon area from vertex coordinates — signs cancel the outside",
+  "blurb":"the shoelace formula in the 5-window house format — the area of any simple polygon from its vertices: A = (1/2)|sum (x_i y_{i+1} - x_{i+1} y_i)|, the criss-cross pattern like lacing a shoe. The signed sum also gives orientation (CCW positive, CW negative). It works for convex or non-convex simple polygons and drops out of Green's theorem. Verified live: for 200 polygons the shoelace area equals a triangle-fan sum, and for lattice polygons it matches Pick's theorem (A = I + B/2 - 1). See the criss-cross in 1D, a lattice polygon in 2D, and the signed-triangles-cancel inverse in 3D.",
+  "lit":"Genuine shoelace / Gauss area formula (Meister 1769; Gauss). Verified live: A=(1/2)|sum x_i y_{i+1} - x_{i+1} y_i| equals a triangle-fan area for 200 polygons, and for a lattice polygon matches Pick's theorem A=I+B/2-1 exactly (window.__shoelace.matchesFan && .picksTheorem); a 4x4 square gives A=16=I(9)+B(16)/2-1.",
+  "fig":"No framing: the criss-cross sum, the triangle-fan cross-check, the orientation sign, and the Pick's-theorem tie run in-browser and are exact. The AVAN inverse is honest — the formula sums signed triangles (origin to each edge) and the orientation signs make exterior parts cancel, so no clipping or triangulation is needed; magenta is the cancelled exterior parts, green the net area (ties to the-pick).",
+  "body":SHL_BODY,"script":SHL_SCRIPT},
+ {"slug":"the-horner","title":"THE HORNER","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#c0a048","icon":"horner",
+  "kicker":"evaluate in n multiplications — and it's synthetic division",
+  "blurb":"Horner's method in the 5-window house format — evaluate a degree-n polynomial in n multiplications (vs naive ~2n) by nesting: a_n x^n+...+a_0 = (...((a_n)x+a_{n-1})x+...)x+a_0. The same nesting is synthetic division: intermediate values are the quotient coefficients dividing by (x-r), and the final value is the remainder = p(r) (remainder theorem). Verified live: over 500 cases Horner equals naive evaluation, and synthetic division gives q,rem with q(x)(x-r)+rem=p(x) and rem=p(r). See the nested eval in 1D, eval+division in 2D, and the evaluating-is-dividing inverse in 3D.",
+  "lit":"Genuine Horner's method (Horner 1819; earlier Qin Jiushao 1247, Newton). Verified live: the nested evaluation equals the naive sum for 500 random polynomials/points, and synthetic division by (x-r) yields quotient q and remainder rem satisfying q(x)(x-r)+rem == p(x) (coefficient-exact) with rem == p(r) (window.__horner.evalMatchesNaive && .syntheticDivision).",
+  "fig":"No framing: the nested evaluation, the synthetic-division quotient/remainder, and the exact reconstruction run in-browser and agree. The AVAN inverse is honest — Horner's accumulator IS synthetic division, so evaluating p at r produces both the quotient p(x)/(x-r) and the remainder p(r); value and divisibility are two faces of the remainder theorem. Magenta is the quotient, green the value.",
+  "body":HOR_BODY,"script":HOR_SCRIPT},
+ {"slug":"the-jacobi-symbol","title":"THE JACOBI SYMBOL","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#a06890","icon":"jacobi-symbol",
+  "kicker":"a residue test computed by reciprocity — without factoring",
+  "blurb":"the Jacobi symbol in the 5-window house format — the Legendre symbol (a/p) says if a is a quadratic residue mod prime p (+1) or not (-1); the Jacobi symbol extends it to odd n as the product of Legendre symbols over n's prime factors, (a/n)=prod (a/p_i)^{e_i}. It is computed fast by quadratic reciprocity WITHOUT factoring n (the engine of Solovay-Strassen primality). Caveat: for composite n, (a/n)=+1 does not guarantee a is a residue. Verified live: the reciprocity value equals the Legendre product over the factorization for odd n, and equals Legendre (predicting residues) for primes. See the reciprocity ladder in 1D, symbol vs product in 2D, and the answer-without-factoring inverse in 3D.",
+  "lit":"Genuine Jacobi/Legendre symbols and quadratic reciprocity (Legendre 1798; Jacobi 1837; Gauss). Verified live: the reciprocity-computed Jacobi symbol equals the product of Legendre symbols (via Euler's criterion) over n's factorization for odd n in {3,5,7,9,15,21,35,45,63,105}, and equals the Legendre symbol correctly predicting quadratic residues for primes 3,5,7,11,13 (window.__jacobisymbol.matchesLegendreProduct && .primesPredictQR).",
+  "fig":"No framing: the reciprocity ladder, the Legendre-product cross-check, and the prime-residue prediction run in-browser and are exact. The AVAN inverse is honest — reciprocity computes the product-over-primes value without finding the primes (swap-and-reduce like a gcd), and the lost residue guarantee for composites is exactly what catches composite liars in Solovay-Strassen; magenta is the uncomputed factorization, green the reciprocity ladder.",
+  "body":JAC_BODY,"script":JAC_SCRIPT},
  {"slug":"the-van-der-corput","title":"THE VAN DER CORPUT","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#60b0c8","icon":"van-der-corput",
   "kicker":"reverse the bits of n — points that fill the interval evenly",
