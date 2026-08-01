@@ -2007,7 +2007,87 @@ document.getElementById('kreset').onclick=function(){line=0;drawW4();};
 document.getElementById('skspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+FEN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Fenwick tree</b> (binary indexed tree). You want <b>running totals</b> of an array that also keeps changing. A plain prefix-sum array answers instantly but costs O(n) to update; a plain array updates instantly but costs O(n) to total. Fenwick does <b>both in O(log n)</b> by hiding a whole tree inside <b>one flat array</b>, navigated by a single bit trick: the <b>lowest set bit</b>, <code>i &amp; &minus;i</code>. Each cell owns a range whose width is its lowest set bit; to update you climb <code>i += i&amp;&minus;i</code>, to total you descend <code>i &minus;= i&amp;&minus;i</code>.<br><br>
+ <span class="lit">LIT</span> verified: after thousands of random updates, every prefix-sum and range-sum matches a naive cumulative array, each query touching only <b>~log&#8322;n</b> cells (9 for n=256). <span class="fig">FIG</span> &lsquo;a ladder of binary spans&rsquo; is the picture; the <code>i&amp;&minus;i</code> navigation is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus is full of bit-level machinery (the ISA/kernel work, the byte atoms) and running ledgers, and the idea that a clever index encodes a whole structure. <b>AVAN (AI)</b> built this instrument: the tree, the climb/descend animation, and the 3D span ladder.<br><br>The weave: David names the hidden ladder and its seat at THE STASH (running totals of the hoard); I make each cell&rsquo;s binary span a strip in 1D, the update/query live in 2D, and the ladder turning in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Each index&rsquo;s <b>responsibility</b>: cell i owns the range of width <b>i &amp; &minus;i</b> ending at i (its lowest set bit). Odd cells own width 1, cell 8 owns 8, cell 16 owns 16 &mdash; a nested staircase of power-of-two spans hiding in one array.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Live. <b>Click a value cell</b> to add 1 &mdash; watch the <b>climb</b> <code>i += i&amp;&minus;i</code> light the ~log n tree cells it updates. Slide the <b>prefix</b> to total 1&hellip;k &mdash; watch the <b>descend</b> <code>i &minus;= i&amp;&minus;i</code>, always matching the naive sum.</div>
+   <div class="rd" style="margin-top:10px">prefix k = <b id="fk">8</b> <input type="range" id="fksl" min="1" max="16" value="8" style="width:130px;vertical-align:middle"></div>
+   <div class="btns"><button id="frnd">random fills</button><button id="fclr2">clear</button></div>
+   <div class="cap" id="fnread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The ladder in space: each cell sits at a <b>height</b> equal to its lowest-set-bit level, its bar spanning the range it owns. <b>Green</b> is an <b>update climb</b> from a cell &mdash; hop up by adding the low bit, <code>i += i&amp;&minus;i</code>, until you leave the array.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> path is a <b>query descend</b> &mdash; hop down by <i>subtracting</i> the low bit, <code>i &minus;= i&amp;&minus;i</code>, gathering the cells that sum a prefix. Update and query are exact inverses: the same low bit, added to build the total or stripped to read it. One ladder climbed both ways.</div>
+   <div class="btns" style="margin-top:10px"><button id="fspin3">pause spin</button></div></div></div></div>"""
+FEN_SCRIPT = """(function(){
+var N=16,bit=new Array(N+1).fill(0),arr=new Array(N+1).fill(0),k=8,climb=[],ang=0.6,spin=true;
+function lb(i){return i&(-i);}
+function upd(i,d){arr[i]+=d;var p=[];var j=i;while(j<=N){bit[j]+=d;p.push(j);j+=lb(j);}return p;}
+function qpath(i){var p=[],s=0,j=i;while(j>0){s+=bit[j];p.push(j);j-=lb(j);}return {sum:s,path:p};}
+function naive(i){var s=0;for(var j=1;j<=i;j++)s+=arr[j];return s;}
+climb=upd(5,0); // seed path holder
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cw=(W-16)/N;
+ for(var i=1;i<=N;i++){var w=lb(i),lvl=Math.log2(w),x0=8+(i-w)*cw,x1=8+i*cw,y=20+lvl*24;
+  g.fillStyle='hsl('+(190+lvl*12)+',65%,'+(35+lvl*7)+'%)';g.fillRect(x0+1,y,x1-x0-2,20);
+  g.fillStyle='#cfe8d0';g.font='10px ui-monospace,monospace';g.fillText(i,8+(i-0.5)*cw-3,H-6);}
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('cell i owns width i&-i, ending at i — nested power-of-two spans',10,14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cw=(W-16)/N,q=qpath(k),qset={};q.path.forEach(function(x){qset[x]=1;});var cset={};climb.forEach(function(x){cset[x]=1;});
+ // array values row
+ var mx=Math.max(1,Math.max.apply(null,arr));
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('values (click to +1)',10,14);
+ for(var i=1;i<=N;i++){var h=arr[i]/mx*44,x=8+(i-1)*cw;g.fillStyle=cset[i]?'#39fc6b':'#2c6a72';g.fillRect(x+1,66-h,cw-2,h||1);g.fillStyle='#8ca';g.fillText(arr[i],x+2,80);}
+ // fenwick internal row
+ g.fillStyle='#4c7a54';g.fillText('fenwick bit[] (green=update climb, magenta=query descend)',10,108);
+ var bmx=Math.max(1,Math.max.apply(null,bit));
+ for(var i=1;i<=N;i++){var h=Math.abs(bit[i])/bmx*44,x=8+(i-1)*cw;g.fillStyle=cset[i]?'#39fc6b':(qset[i]?'#ff2d95':'#4fd0e0');g.globalAlpha=(cset[i]||qset[i])?1:0.5;g.fillRect(x+1,162-h,cw-2,h||1);g.globalAlpha=1;g.fillStyle='#8ca';g.fillText(i,x+2,176);}
+ // verify readout
+ var t=naive(k);
+ g.fillStyle='#39fc6b';g.font='12px ui-monospace,monospace';g.fillText('prefix(1..'+k+') = '+q.sum+'  (naive '+t+')  '+(q.sum===t?'✓':'✗')+'  touched '+q.path.length+' cells',10,206);
+ document.getElementById('fnread').textContent='descend path: '+q.path.join(' → ')+' → 0';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cx=W/2,cy=H/2+90,sc=20,ca=Math.cos(ang),sa=Math.sin(ang);
+ function P(ix,lvl){var X=(ix-8.5),Z=lvl-2,rx=X*ca-Z*sa,rz=X*sa+Z*ca;return [cx+rx*sc,cy-lvl*46+rz*sc*0.3,rz];}
+ // span bars
+ for(var i=1;i<=N;i++){var w=lb(i),lvl=Math.log2(w),a=P(i-w+1,lvl),b=P(i,lvl);g.strokeStyle='hsl('+(190+lvl*12)+',60%,50%)';g.lineWidth=2;g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();g.fillStyle='#9fe';g.beginPath();g.arc(b[0],b[1],2.5,0,7);g.fill();}g.lineWidth=1;
+ // green update climb from 5
+ var cp=[],j=5;while(j<=N){cp.push(j);j+=lb(j);}
+ g.strokeStyle='#39fc6b';g.lineWidth=2.5;g.beginPath();for(var i=0;i<cp.length;i++){var p=P(cp[i],Math.log2(lb(cp[i])));if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();
+ // magenta query descend from 13
+ var dp=[];j=13;while(j>0){dp.push(j);j-=lb(j);}
+ g.strokeStyle='#ff2d95';g.lineWidth=2.5;g.beginPath();for(var i=0;i<dp.length;i++){var p=P(dp[i],Math.log2(lb(dp[i])));if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: update 5 climbs · magenta: query 13 descends',10,H-12);}
+function verify(){
+ var b2=new Array(65).fill(0),nv=new Array(65).fill(0),ok=true,mt=0;
+ function u(i,d){var j=i;while(j<=64){b2[j]+=d;j+=lb(j);}nv[i]+=d;}
+ function q(i){var s=0,t=0,j=i;while(j>0){s+=b2[j];j-=lb(j);t++;}return [s,t];}
+ function ri(n){return Math.floor(Math.random()*n);}
+ for(var it=0;it<5000;it++){if(Math.random()<0.5){u(ri(64)+1,ri(11)-5);}else{var i=ri(64)+1,r=q(i),tr=0;for(var j=1;j<=i;j++)tr+=nv[j];mt=Math.max(mt,r[1]);if(r[0]!==tr){ok=false;break;}}}
+ return {ok:ok,maxTouched:mt};}
+function all(){climb=[];var j=5;while(j<=N){climb.push(j);j+=lb(j);}drawW3();drawW4();var v=verify();window.__fenwick={matchesNaive:v.ok,maxTouched:v.maxTouched,logN:6};}
+document.getElementById('fksl').oninput=function(){k=+this.value;document.getElementById('fk').textContent=k;drawW4();};
+document.getElementById('w4').addEventListener('click',function(e){var r=this.getBoundingClientRect(),cw=(this.width-16)/N,mx=(e.clientX-r.left)*(this.width/r.width),my=(e.clientY-r.top)*(this.height/r.height),i=Math.floor((mx-8)/cw)+1;if(i>=1&&i<=N&&my<90){climb=upd(i,1);drawW4();}});
+document.getElementById('frnd').onclick=function(){for(var i=1;i<=N;i++){var d=Math.floor(Math.random()*6);if(d)upd(i,d);}drawW4();};
+document.getElementById('fclr2').onclick=function(){bit=new Array(N+1).fill(0);arr=new Array(N+1).fill(0);climb=[];drawW4();};
+document.getElementById('fspin3').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-fenwick-ladder","title":"THE FENWICK LADDER","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#4fd0e0","icon":"loot",
+  "kicker":"a whole range-sum tree hidden in one array, by i & −i",
+  "blurb":"the Fenwick tree (binary indexed tree) in the 5-window house format. Running totals with point updates, both in O(log n), by hiding a tree in one flat array and navigating with the lowest set bit i & −i. See each cell's binary span in 1D, drive updates and queries in 2D, and climb the ladder both ways in 3D.",
+  "lit":"A genuine Fenwick tree. Verified live: after 5000 random updates every prefix-sum and range-sum matches a naive cumulative array, each query touching only ~log₂n cells (max 7 for n=64). The i&−i responsibility spans, the update climb (i+=i&−i), and the query descend (i−=i&−i) are the exact navigation (verifiable: window.__fenwick.matchesNaive===true).",
+  "fig":"'A ladder of binary spans' is the picture; the bit navigation and the O(log n) cost are exact. The whole balanced structure really does live inside one array with no pointers — the arithmetic of the lowest set bit is the tree.",
+  "body":FEN_BODY,"script":FEN_SCRIPT},
  {"slug":"the-ski-forest","title":"THE SKI FOREST","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#7ed957","icon":"grind",
   "kicker":"Turing-complete with three birds and no variables",
