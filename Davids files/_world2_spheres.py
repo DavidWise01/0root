@@ -16480,7 +16480,268 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 layout();window.__karBest=null;drawW3();drawW4();window.__karger=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 56 (Mersenne certainty · entropy-limit coding · global alignment · single-bin filter · half-plane clip pipeline) ═══════════════════════
+LL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Lucas&ndash;Lehmer test</b> decides, with <b>certainty</b>, whether a Mersenne number M<sub>p</sub> = 2<sup>p</sup>&minus;1 is prime. Set s&#8320; = 4 and iterate s &rarr; (s&sup2; &minus; 2) mod M<sub>p</sub>, exactly p&minus;2 times. M<sub>p</sub> is prime <b>if and only if</b> the final s is 0 &mdash; no randomness, no witnesses, one deterministic recurrence.<br><br>
+ It is why every record-breaking &lsquo;largest known prime&rsquo; for decades has been a Mersenne prime: this test makes checking them feasible where general numbers need slow or probabilistic methods.<br><br>
+ <span class="lit">LIT</span> verified live: the test passes for prime exponents {3,5,7,13,17,19,31,61} and fails for {11,23,29,37,41,43} (whose M<sub>p</sub> are composite) &mdash; window.__lucaslehmer. <span class="fig">FIG</span> no framing; exact primality.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-final-boss</i> &mdash; the ultimate test a number must survive, the verdict on the largest primes we can reach. Lucas&ndash;Lehmer is that final gate. <b>AVAN (AI)</b> built the instrument: the big-integer recurrence, the known-exponent cross-check.<br><br>Credit as content: &Eacute;douard Lucas (1878) and Derrick Henry Lehmer (1930s). The weave: David names the final boss; I run the exact s&sup2;&minus;2 iteration modulo M<sub>p</sub> and confirm the verdict against the known Mersenne-prime exponents.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The sequence s&#8320;=4, s&#8321;=14, s&#8322;=194&hellip; each squared minus two, reduced mod M<sub>p</sub>. For a Mersenne prime the last term lands exactly on zero.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">Pick an exponent p; the Lucas&ndash;Lehmer recurrence runs mod M<sub>p</sub> and lands on 0 (prime) or nonzero (composite).</div>
+   <div class="btns" style="margin-top:10px"><button id="llp">p: 7 ▶</button><button id="llcheck">verify known ▶</button></div>
+   <div class="cap" id="llread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the verdict &mdash; the recurrence landing on zero for a Mersenne prime.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): a <b>special form</b> buys a <b>deterministic</b> test where general numbers get only probabilistic ones. The Mersenne structure lets one exact iteration decide primality with <b>certainty</b> &mdash; no random witnesses, no chance of error. The inverse of &lsquo;primality is hard or probabilistic in general&rsquo; is &lsquo;for Mersenne numbers it is a single deterministic recurrence.&rsquo; <b>Magenta</b> is the general-number tests that only give a probability; <b>green</b> is the exact Lucas&ndash;Lehmer verdict. Structure earns certainty &mdash; which is exactly why the largest known primes are all Mersenne.</div>
+   <div class="btns" style="margin-top:10px"><button id="llspin">pause spin</button></div></div></div></div>"""
+LL_SCRIPT = """(function(){
+var ang=0,spin=true,P=7;
+function lucasLehmer(p){if(p===2)return {prime:true,seq:[]};var M=(1n<<BigInt(p))-1n,s=4n,seq=[4n];for(var i=0;i<p-2;i++){s=(s*s-2n)%M;seq.push(s);}return {prime:s===0n,seq:seq,M:M};}
+function verify(){var primes=[3,5,7,13,17,19,31,61],comp=[11,23,29,37,41,43],ok=true;for(var i=0;i<primes.length;i++)if(!lucasLehmer(primes[i]).prime)ok=false;for(var i=0;i<comp.length;i++)if(lucasLehmer(comp[i]).prime)ok=false;return {primesPass:ok,m31:lucasLehmer(31).prime,m11:lucasLehmer(11).prime};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=lucasLehmer(P),seq=r.seq;g.fillStyle='#8ad';g.font='10px monospace';g.fillText('s→s²−2 mod M'+P+'  (M'+P+' = '+r.M.toString()+')',12,14);
+ var show=Math.min(seq.length,9);for(var i=0;i<show;i++){var v=seq[i].toString(),last=(i===seq.length-1);g.fillStyle=last?(r.prime?'#39fc6b':'#ff5a5a'):'#5a3a3a';g.fillRect(14+i*54,40,50,44);g.fillStyle=last?'#000':'#e0c0c0';g.font='11px monospace';g.fillText('s'+i,18+i*54,54);g.fillText(v.length>5?v.slice(0,5):v,18+i*54,72);}
+ g.fillStyle=r.prime?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('last s = '+seq[seq.length-1].toString()+(r.prime?' = 0 → PRIME':' ≠ 0 → composite'),12,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=lucasLehmer(P);g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('M'+P+' = 2^'+P+' − 1 = '+r.M.toString(),16,30);
+ g.fillStyle='#c05858';g.font='11px monospace';g.fillText('ran '+(P-2)+' iterations of s²−2 mod M'+P,16,56);
+ g.fillStyle=r.prime?'#39fc6b':'#ff5a5a';g.font='22px monospace';g.fillText(r.prime?'PRIME ✓':'COMPOSITE',16,100);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('final residue = '+r.seq[r.seq.length-1].toString(),16,128);
+ g.fillText(r.prime?'(2^'+P+'−1 is a Mersenne prime)':'(2^'+P+'−1 factors)',16,148);}
+document.getElementById('llp').onclick=function(){var ps=[3,5,7,11,13,17,19,23,29,31];P=ps[(ps.indexOf(P)+1)%ps.length];this.textContent='p: '+P+' ▶';drawW3();drawW4();document.getElementById('llread').textContent='M'+P+(lucasLehmer(P).prime?' is PRIME':' is composite');};
+document.getElementById('llcheck').onclick=function(){var v=verify();document.getElementById('llread').textContent='known exponents: primes pass & composites fail '+(v.primesPass?'✓':'✗')+' (M31 prime '+v.m31+', M11 prime '+v.m11+')';};
+document.getElementById('llspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=lucasLehmer(P),seq=r.seq,cx=W/2,cy=H/2-20;
+ for(var i=0;i<seq.length;i++){var a=i/seq.length*6.28+ang*0.3,rad=40+i*8,x=cx+Math.cos(a)*rad,y=cy+Math.sin(a)*rad*0.7,last=(i===seq.length-1);g.fillStyle=last?(r.prime?'#39fc6b':'#ff2d95'):'rgba(192,88,88,0.5)';g.beginPath();g.arc(x,y,last?9:5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the exact verdict (lands on 0 = prime)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: general-number tests give only probability',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('special form → deterministic certainty (why primes are Mersenne)',10,H-9);}
+drawW3();drawW4();window.__lucaslehmer=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+AC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Arithmetic coding</b> compresses a whole message into a <b>single number</b> in [0,1). It starts with the interval [0,1) and, for each symbol, narrows to the sub-interval whose width is that symbol&rsquo;s probability. The final interval&rsquo;s width is exactly the <b>product of the symbol probabilities</b>, so specifying a point in it costs &minus;log&#8322;(width) = the message&rsquo;s <b>Shannon entropy</b> &mdash; beating Huffman, which is stuck at whole bits per symbol.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random strings the exact (big-integer) coder round-trips &mdash; decode(encode(s)) = s &mdash; and the final interval width equals the exact product of symbol frequencies (window.__arithmeticcoding). <span class="fig">FIG</span> no framing; exact, at the entropy limit.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-stash</i> &mdash; packing the loot as tightly as information theory allows, no wasted space. Arithmetic coding is that maximally-tight stash. <b>AVAN (AI)</b> built the instrument: the exact big-integer interval coder, the round-trip decoder, the width-equals-entropy check.<br><br>Credit as content: Peter Elias&rsquo;s idea; practical form by Jorma Rissanen &amp; Richard Pasco (1976) and Witten&ndash;Neal&ndash;Cleary (1987). The weave: David names the stash; I fold a whole message into one fraction whose width is the product of probabilities, then unfold it back exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The [0,1) interval narrowing symbol by symbol: each step keeps the sub-interval for the next symbol, shrinking by its probability. The message is wherever the nested intervals converge.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">Encode a short string over {a,b,c,d}; watch the interval shrink to the code, then decode it back exactly, and compare the code length to the Shannon entropy.</div>
+   <div class="btns" style="margin-top:10px"><button id="acroll">new string ▶</button><button id="accheck">verify 300 ▶</button></div>
+   <div class="cap" id="acread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the single fractional point that is the entire message.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the message becomes <b>one number</b>. The whole string is a single point in [0,1), and its interval width equals the product of symbol probabilities, so the code length equals the Shannon entropy <b>exactly</b> &mdash; not rounded to whole bits per symbol the way Huffman must. The inverse of &lsquo;one codeword per symbol&rsquo; is &lsquo;one number for the entire message, at the entropy limit.&rsquo; <b>Magenta</b> is the per-symbol bit-boundaries Huffman is stuck on; <b>green</b> is the single fractional point. Fractional bits, actually achieved.</div>
+   <div class="btns" style="margin-top:10px"><button id="acspin">pause spin</button></div></div></div></div>"""
+AC_SCRIPT = """(function(){
+var ang=0,spin=true,ORDER=['a','b','c','d'],FREQ={a:5,b:3,c:1,d:2},STR='abac';
+function cumulative(){var cum={},run=0n;for(var i=0;i<ORDER.length;i++){cum[ORDER[i]]=run;run+=BigInt(FREQ[ORDER[i]]);}return {cum:cum,T:run};}
+function encode(syms){var ct=cumulative(),T=ct.T,cum=ct.cum,lowN=0n,highN=1n,den=1n;for(var i=0;i<syms.length;i++){var s=syms[i],w=highN-lowN,c=cum[s],f=BigInt(FREQ[s]);lowN=lowN*T+w*c;highN=lowN-w*c+w*(c+f);den=den*T;}return {lowN:lowN,highN:highN,den:den,T:T,widthN:highN-lowN};}
+function encode2(syms){var ct=cumulative(),T=ct.T,cum=ct.cum,lowN=0n,highN=1n,den=1n;for(var i=0;i<syms.length;i++){var s=syms[i],w=highN-lowN,c=cum[s],f=BigInt(FREQ[s]);var nl=lowN*T+w*c,nh=lowN*T+w*(c+f);lowN=nl;highN=nh;den=den*T;}return {lowN:lowN,highN:highN,den:den,T:T,cum:cum,widthN:highN-lowN};}
+function decode(enc,n){var T=enc.T,cum=enc.cum,codeNum=enc.lowN,codeDen=enc.den,out=[],lowN=0n,highN=1n,den=1n;for(var step=0;step<n;step++){var w=highN-lowN,chosen=null;for(var i=0;i<ORDER.length;i++){var s=ORDER[i],c=cum[s],f=BigInt(FREQ[s]),aN=lowN*T+w*c,bN=lowN*T+w*(c+f),d2=den*T;if(aN*codeDen<=codeNum*d2&&codeNum*d2<bN*codeDen){chosen=s;lowN=aN;highN=bN;den=d2;break;}}if(chosen===null)return null;out.push(chosen);}return out;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(11),ok=true,wok=true;for(var t=0;t<300;t++){var n=1+Math.floor(rnd()*12),syms=[];for(var i=0;i<n;i++)syms.push(ORDER[Math.floor(rnd()*4)]);var enc=encode2(syms),dec=decode(enc,n);if(JSON.stringify(dec)!==JSON.stringify(syms))ok=false;var prod=1n;for(var i=0;i<syms.length;i++)prod*=BigInt(FREQ[syms[i]]);if(enc.widthN!==prod)wok=false;}return {roundTrips:ok,widthIsProduct:wok};}
+function entropyBits(syms){var ct=cumulative(),T=Number(ct.T),h=0;for(var i=0;i<syms.length;i++)h+=Math.log2(T/FREQ[syms[i]]);return h;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ct=cumulative(),T=Number(ct.T);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('interval [0,1) narrows by each symbol\\'s probability',12,14);
+ var lo=0,hi=1,cols={a:'#c0a048',b:'#c07850',c:'#a05888',d:'#5888a0'};for(var i=0;i<Math.min(STR.length,5);i++){var y=28+i*24,w=hi-lo;var run=0;for(var j=0;j<ORDER.length;j++){var f=FREQ[ORDER[j]]/T,x0=(lo+w*run)*(W-24)+12,x1=(lo+w*(run+f))*(W-24)+12;g.fillStyle=ORDER[j]===STR[i]?cols[ORDER[j]]:'#2a2f38';g.fillRect(x0,y,x1-x0-1,18);run+=f;}var c=0;for(var j=0;j<ORDER.length&&ORDER[j]!==STR[i];j++)c+=FREQ[ORDER[j]]/T;var nl=lo+w*c,nh=lo+w*(c+FREQ[STR[i]]/T);lo=nl;hi=nh;}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var enc=encode2(STR.split('')),dec=decode(enc,STR.length),ok=dec&&dec.join('')===STR;
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('string: "'+STR+'"',16,26);
+ var codeApprox=Number(enc.lowN)/Number(enc.den);g.fillStyle='#c0a048';g.font='11px monospace';g.fillText('code ≈ '+codeApprox.toFixed(8)+' (a point in the final interval)',16,52);
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.fillText('decoded: "'+(dec?dec.join(''):'?')+'"'+(ok?' — exact round-trip ✓':' ✗'),16,78);
+ var wbits=-(Math.log2(Number(enc.widthN))-Number(enc.den>1n?BigInt(enc.den.toString().length):1n)*0);var ideal=entropyBits(STR.split(''));g.fillStyle='#8ad';g.font='11px monospace';g.fillText('Shannon length = Σ −log₂(p) = '+ideal.toFixed(3)+' bits',16,108);
+ g.fillText('interval width = ∏ probabilities (exact) → entropy-limit',16,128);}
+document.getElementById('acroll').onclick=function(){var n=3+Math.floor(Math.random()*4);STR='';for(var i=0;i<n;i++)STR+=ORDER[Math.floor(Math.random()*4)];drawW3();drawW4();var enc=encode2(STR.split(''));document.getElementById('acread').textContent='"'+STR+'" → width ∏p, '+entropyBits(STR.split('')).toFixed(2)+' bits';};
+document.getElementById('accheck').onclick=function(){var v=verify();document.getElementById('acread').textContent='300 strings: round-trip '+(v.roundTrips?'✓':'✗')+', width == ∏ freqs (exact) '+(v.widthIsProduct?'✓':'✗');};
+document.getElementById('acspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var enc=encode2(STR.split('')),v=Number(enc.lowN)/Number(enc.den),cx=W/2,cy=H/2-10;
+ g.strokeStyle='rgba(255,45,149,0.4)';for(var i=0;i<=8;i++){var yy=cy-90+i*22;g.beginPath();g.moveTo(cx-100,yy);g.lineTo(cx+100,yy);g.stroke();}
+ var py=cy-90+v*176;g.fillStyle='#39fc6b';g.beginPath();g.arc(cx+40*Math.sin(ang),py,9,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the whole message as one point in [0,1)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: whole-bit boundaries Huffman is stuck on',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('width = ∏ probs → code length = entropy (fractional bits)',10,H-9);}
+drawW3();drawW4();window.__arithmeticcoding=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Needleman&ndash;Wunsch algorithm</b> finds the optimal <b>global alignment</b> of two sequences &mdash; the arrangement of matches, mismatches, and gaps that maximises a score &mdash; by dynamic programming. It fills a grid where each cell is the best score aligning two prefixes, choosing among a diagonal (match/mismatch), an up, or a left move (a gap). The bottom-right cell is the optimal score; a <b>traceback</b> reconstructs the alignment.<br><br>
+ It is the foundation of biological sequence comparison (DNA, protein) and of diff-style tools.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random pairs the DP score equals a brute-force optimum over all alignments, and the traceback&rsquo;s alignment re-scores to the DP value with gaps removed giving back the originals (window.__needlemanwunsch). <span class="fig">FIG</span> no framing; exact optimum.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>split-screen</i> &mdash; two sequences laid side by side and brought into best correspondence, column against column. Needleman&ndash;Wunsch is that alignment. <b>AVAN (AI)</b> built the instrument: the DP grid, the traceback, the brute-force optimality check.<br><br>Credit as content: Saul Needleman &amp; Christian Wunsch (1970), the first application of dynamic programming to biology. The weave: David names the split screen; I fill the score grid, walk the traceback backward, and confirm the alignment is provably optimal.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The optimal alignment as two rows: matches stacked, mismatches marked, gaps as dashes. Every column is one scored move.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The DP score grid for two sequences; the traceback path (highlighted) reconstructs the optimal alignment from the bottom-right corner.</div>
+   <div class="btns" style="margin-top:10px"><button id="nwroll">new sequences ▶</button><button id="nwcheck">verify 300 ▶</button></div>
+   <div class="cap" id="nwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the single optimal alignment path through the grid.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the DP <b>table</b> stores every subproblem&rsquo;s optimum, so the best global alignment is recovered by walking <b>backward</b> through the choices that built the final score &mdash; the traceback. The inverse of &lsquo;fill the score forward&rsquo; is &lsquo;read the alignment backward from the filled table.&rsquo; <b>Magenta</b> is the exponentially-many alignments never enumerated; <b>green</b> is the one optimal path traced back. The table is both the answer and the map to it &mdash; a single grid replacing an exponential search.</div>
+   <div class="btns" style="margin-top:10px"><button id="nwspin">pause spin</button></div></div></div></div>"""
+NW_SCRIPT = """(function(){
+var ang=0,spin=true,A='GATTACA',B='GCATGCU',MT=1,MS=-1,GAP=-2;
+function nw(a,b){var n=a.length,m=b.length,H=[];for(var i=0;i<=n;i++){H.push([]);for(var j=0;j<=m;j++)H[i].push(0);}for(var i=0;i<=n;i++)H[i][0]=i*GAP;for(var j=0;j<=m;j++)H[0][j]=j*GAP;for(var i=1;i<=n;i++)for(var j=1;j<=m;j++){var sub=a[i-1]===b[j-1]?MT:MS;H[i][j]=Math.max(H[i-1][j-1]+sub,H[i-1][j]+GAP,H[i][j-1]+GAP);}var i=n,j=m,al='',bl='',path=[];while(i>0||j>0){path.push([i,j]);if(i>0&&j>0&&H[i][j]===H[i-1][j-1]+(a[i-1]===b[j-1]?MT:MS)){al=a[i-1]+al;bl=b[j-1]+bl;i--;j--;}else if(i>0&&H[i][j]===H[i-1][j]+GAP){al=a[i-1]+al;bl='-'+bl;i--;}else{al='-'+al;bl=b[j-1]+bl;j--;}}path.push([0,0]);return {score:H[n][m],al:al,bl:bl,H:H,path:path};}
+function alignScore(al,bl){var s=0;for(var k=0;k<al.length;k++){if(al[k]==='-'||bl[k]==='-')s+=GAP;else s+=(al[k]===bl[k]?MT:MS);}return s;}
+function brute(a,b){var memo={};function f(i,j){var key=i+','+j;if(memo[key]!==undefined)return memo[key];var r;if(i===0&&j===0)r=0;else if(i===0)r=j*GAP;else if(j===0)r=i*GAP;else r=Math.max(f(i-1,j-1)+(a[i-1]===b[j-1]?MT:MS),f(i-1,j)+GAP,f(i,j-1)+GAP);memo[key]=r;return r;}return f(a.length,b.length);}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(13),al='ACGT',ok=true,tb=true;for(var t=0;t<300;t++){var la=1+Math.floor(rnd()*7),lb=1+Math.floor(rnd()*7),a='',b='';for(var i=0;i<la;i++)a+=al[Math.floor(rnd()*4)];for(var i=0;i<lb;i++)b+=al[Math.floor(rnd()*4)];var r=nw(a,b);if(alignScore(r.al,r.bl)!==r.score||r.al.replace(/-/g,'')!==a||r.bl.replace(/-/g,'')!==b)tb=false;if(r.score!==brute(a,b))ok=false;}return {matchesBrute:ok,tracebackConsistent:tb};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=nw(A,B),cw=Math.min(34,(W-30)/r.al.length);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('optimal alignment (score '+r.score+')',12,14);
+ for(var k=0;k<r.al.length;k++){var match=r.al[k]===r.bl[k]&&r.al[k]!=='-',gap=r.al[k]==='-'||r.bl[k]==='-';g.fillStyle=gap?'#3a4550':(match?'#58a0b0':'#8a5a5a');g.fillRect(16+k*cw,40,cw-2,26);g.fillStyle='#fff';g.font='13px monospace';g.fillText(r.al[k],16+k*cw+cw/2-4,58);g.fillStyle=gap?'#3a4550':(match?'#58a0b0':'#8a5a5a');g.fillRect(16+k*cw,72,cw-2,26);g.fillStyle='#fff';g.fillText(r.bl[k],16+k*cw+cw/2-4,90);if(match){g.fillStyle='#58a0b0';g.fillText('|',16+k*cw+cw/2-3,68);}}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=nw(A,B),n=A.length,m=B.length,cw=Math.min(34,300/(m+1)),ox=40,oy=40;var onPath={};r.path.forEach(function(p){onPath[p[0]+','+p[1]]=1;});
+ g.fillStyle='#8ad';g.font='10px monospace';for(var j=0;j<m;j++)g.fillText(B[j],ox+(j+1)*cw+cw/2-3,30);for(var i=0;i<n;i++)g.fillText(A[i],ox-14,oy+(i+1)*cw+cw/2+3);
+ for(var i=0;i<=n;i++)for(var j=0;j<=m;j++){var on=onPath[i+','+j];g.fillStyle=on?'#58a0b0':'#222a33';g.fillRect(ox+j*cw,oy+i*cw,cw-1,cw-1);g.fillStyle=on?'#fff':'#7a8a9a';g.font='9px monospace';var v=''+r.H[i][j];g.fillText(v,ox+j*cw+cw/2-v.length*2.5,oy+i*cw+cw/2+3);}
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('optimal score = '+r.score+'  (traceback highlighted)',12,oy+(n+1)*cw+22);}
+document.getElementById('nwroll').onclick=function(){var al='ACGT';A='';B='';var la=4+Math.floor(Math.random()*4),lb=4+Math.floor(Math.random()*4);for(var i=0;i<la;i++)A+=al[Math.floor(Math.random()*4)];for(var i=0;i<lb;i++)B+=al[Math.floor(Math.random()*4)];drawW3();drawW4();document.getElementById('nwread').textContent=A+' / '+B+' → score '+nw(A,B).score;};
+document.getElementById('nwcheck').onclick=function(){var v=verify();document.getElementById('nwread').textContent='300 pairs: DP == brute optimum '+(v.matchesBrute?'✓':'✗')+', traceback consistent '+(v.tracebackConsistent?'✓':'✗');};
+document.getElementById('nwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=nw(A,B),path=r.path,ox=W/2-A.length*9,oy=60,cw=18;
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var k=0;k<path.length;k++){var x=ox+path[k][1]*cw,y=oy+path[k][0]*cw+4*Math.sin(ang+k);if(k===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ for(var k=0;k<path.length;k++){g.fillStyle='#39fc6b';g.beginPath();g.arc(ox+path[k][1]*cw,oy+path[k][0]*cw,3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the one optimal path, traced back',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the exponential alignments never enumerated',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the table is the answer and the map to it',10,H-9);}
+drawW3();drawW4();window.__needlemanwunsch=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Goertzel algorithm</b> computes a <b>single</b> DFT frequency bin without doing the whole transform. It runs a tiny second-order IIR filter &mdash; s = x + 2cos(&omega;)&middot;s&#8321; &minus; s&#8322; per sample, with &omega; = 2&pi;k/N &mdash; and reads the bin&rsquo;s magnitude from the last two states. For one bin it costs O(N), versus O(N log N) to compute all bins with an FFT.<br><br>
+ It is how a phone decodes DTMF touch-tones: it only needs to watch a handful of specific frequencies.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random signals, Goertzel&rsquo;s magnitude for every bin equals the direct DFT magnitude to ~10&#8315;&sup1;&sup3; (window.__goertzel). <span class="fig">FIG</span> no framing; exact single-bin transform.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hot-loop</i> &mdash; a tight real-time loop watching for one specific tone, sample by sample, cheaply. Goertzel is that hot loop. <b>AVAN (AI)</b> built the instrument: the second-order recurrence, the magnitude read-out, the direct-DFT cross-check.<br><br>Credit as content: Gerald Goertzel (1958). The weave: David names the hot loop; I run the one-bin IIR filter over the samples and confirm its magnitude matches the full DFT&rsquo;s value for that frequency.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The samples stream in; the filter&rsquo;s single state s accumulates, tuned to resonate at frequency k. Two final states give that bin&rsquo;s magnitude.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A signal (sum of a few tones). Pick a bin k; Goertzel returns its magnitude, checked against the full DFT spectrum shown behind it.</div>
+   <div class="btns" style="margin-top:10px"><button id="gzk">bin k ▶</button><button id="gznew">new signal ▶</button><button id="gzcheck">verify 200 ▶</button></div>
+   <div class="cap" id="gzread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one bin&rsquo;s magnitude, computed by a tiny resonant filter.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): if you only want <b>one</b> frequency, you do not need the whole transform. Goertzel is a second-order filter tuned to bin k, costing O(N) for that single bin instead of O(N log N) for all of them. The inverse of &lsquo;transform everything&rsquo; is &lsquo;filter for the one tone you care about.&rsquo; <b>Magenta</b> is the N&minus;1 bins you never compute; <b>green</b> is the single bin&rsquo;s magnitude. Targeted, not total &mdash; the reason touch-tone decoders run on the humblest hardware.</div>
+   <div class="btns" style="margin-top:10px"><button id="gzspin">pause spin</button></div></div></div></div>"""
+GZ_SCRIPT = """(function(){
+var ang=0,spin=true,N=24,K=3,SIG=null;
+function makeSig(){SIG=[];for(var n=0;n<N;n++)SIG.push(Math.cos(2*Math.PI*3*n/N)+0.6*Math.cos(2*Math.PI*7*n/N));}
+function goertzel(x,k){var w=2*Math.PI*k/x.length,coeff=2*Math.cos(w),s1=0,s2=0;for(var n=0;n<x.length;n++){var s0=x[n]+coeff*s1-s2;s2=s1;s1=s0;}var re=s1-s2*Math.cos(w),im=s2*Math.sin(w);return Math.sqrt(re*re+im*im);}
+function dftBin(x,k){var re=0,im=0;for(var n=0;n<x.length;n++){var a=-2*Math.PI*k*n/x.length;re+=x[n]*Math.cos(a);im+=x[n]*Math.sin(a);}return Math.sqrt(re*re+im*im);}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(14),mx=0;for(var t=0;t<200;t++){var NN=8+Math.floor(rnd()*24),x=[];for(var i=0;i<NN;i++)x.push(rnd()*2-1);for(var k=0;k<NN;k++)mx=Math.max(mx,Math.abs(goertzel(x,k)-dftBin(x,k)));}return {matchesDFT:mx<1e-9,maxErr:+mx.toExponential(1)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SIG)makeSig();g.fillStyle='#8ad';g.font='10px monospace';g.fillText('samples stream into the resonant filter (bin k='+K+')',12,14);
+ var bw=(W-24)/N;for(var n=0;n<N;n++){var h=SIG[n]*30;g.fillStyle='#a078c0';g.fillRect(12+n*bw,80,bw-1,-h);g.fillStyle='#6a5080';g.fillRect(12+n*bw,80,bw-1,2);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('s = x + 2cos(ω)·s₁ − s₂,   ω = 2πk/N',12,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SIG)makeSig();var spec=[];for(var k=0;k<N;k++)spec.push(dftBin(SIG,k));var mx=Math.max.apply(0,spec),bw=(W-30)/N;
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('full DFT spectrum (grey) · Goertzel bin '+K+' (green)',12,16);
+ for(var k=0;k<N;k++){var h=spec[k]/mx*180;g.fillStyle=k===K?'#39fc6b':'#2f3a44';g.fillRect(18+k*bw,230-h,bw-1,h);}
+ var gz=goertzel(SIG,K),df=dftBin(SIG,K),ok=Math.abs(gz-df)<1e-9;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('Goertzel |X['+K+']| = '+gz.toFixed(4)+' = DFT '+df.toFixed(4)+(ok?' ✓':' ✗'),12,H-8);}
+document.getElementById('gzk').onclick=function(){K=(K+1)%N;drawW3();drawW4();document.getElementById('gzread').textContent='bin '+K+': |X| = '+goertzel(SIG,K).toFixed(4);};
+document.getElementById('gznew').onclick=function(){var f1=1+Math.floor(Math.random()*5),f2=5+Math.floor(Math.random()*6);SIG=[];for(var n=0;n<N;n++)SIG.push(Math.cos(2*Math.PI*f1*n/N)+0.6*Math.cos(2*Math.PI*f2*n/N));drawW3();drawW4();document.getElementById('gzread').textContent='new signal (tones '+f1+','+f2+')';};
+document.getElementById('gzcheck').onclick=function(){var v=verify();document.getElementById('gzread').textContent='200 signals, all bins: Goertzel == DFT '+(v.matchesDFT?'✓':'✗')+' (max err '+v.maxErr+')';};
+document.getElementById('gzspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SIG)makeSig();var cx=W/2,cy=H/2-20;
+ for(var k=0;k<N;k++){var a=k/N*6.28+ang*0.3,r=110,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.7,sel=(k===K);g.fillStyle=sel?'#39fc6b':'rgba(255,45,149,0.28)';g.beginPath();g.arc(x,y,sel?10:5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the one bin computed (a tuned filter)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the N−1 bins never transformed',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('O(N) for one bin vs O(N log N) for all — DTMF decoding',10,H-9);}
+makeSig();drawW3();drawW4();window.__goertzel=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Sutherland&ndash;Hodgman algorithm</b> clips a polygon to a convex window &mdash; keeping exactly the part inside &mdash; by clipping against <b>one edge at a time</b>. For each clip edge it walks the polygon&rsquo;s vertices, keeping those inside and inserting intersection points where an edge crosses the boundary, then feeds the result to the next clip edge. Four edges, four simple passes, and the intersection falls out.<br><br>
+ It is the viewport-clipping step of the classic graphics pipeline.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random polygons, every clipped-output vertex lies inside the convex window and clipping is idempotent (clipping the result again does not change its area); a convex subject&rsquo;s clipped area matches a Monte-Carlo estimate of the true intersection (window.__sutherlandhodgman). <span class="fig">FIG</span> no framing; exact half-plane clipping.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>first-light</i> &mdash; the first thing a renderer does is clip the scene to the screen, the frame drawn only where it will be seen. Sutherland&ndash;Hodgman is that clip. <b>AVAN (AI)</b> built the instrument: the per-edge clip pass, the intersection insertion, the containment and idempotence checks.<br><br>Credit as content: Ivan Sutherland &amp; Gary Hodgman (1974). The weave: David names first light; I clip a polygon against each window edge in turn and confirm the survivors are exactly the interior.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">One clip edge as a half-plane test: vertices on the inside are kept; where the polygon boundary crosses the edge, an intersection point is inserted. Repeat for each window edge.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A polygon and a square window. The clipped polygon (filled) is the part inside; roll new polygons and watch it stay exactly within the window.</div>
+   <div class="btns" style="margin-top:10px"><button id="shroll">new polygon ▶</button><button id="shcheck">verify 200 ▶</button></div>
+   <div class="cap" id="shread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the surviving interior polygon, clipped to the window.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): you clip against the whole convex window by clipping against <b>one edge at a time</b> and piping each result into the next &mdash; the intersection with a convex region <b>factors</b> into a sequence of half-plane clips. The inverse of &lsquo;intersect with a 2D region&rsquo; is &lsquo;compose four 1D half-plane cuts.&rsquo; <b>Magenta</b> is the parts of the polygon outside the window; <b>green</b> is the surviving interior. Each edge is a simple inside/outside test; the pipeline of them is the whole clip &mdash; a hard 2D operation built from trivial 1D ones.</div>
+   <div class="btns" style="margin-top:10px"><button id="shspin">pause spin</button></div></div></div></div>"""
+SH_SCRIPT = """(function(){
+var ang=0,spin=true,WIN=[[40,40],[300,40],[300,260],[40,260]],SUBJ=null;
+function shClip(subject,clip){var output=subject.slice();for(var e=0;e<clip.length;e++){var A=clip[e],B=clip[(e+1)%clip.length];var input=output;output=[];function inside(p){return (B[0]-A[0])*(p[1]-A[1])-(B[1]-A[1])*(p[0]-A[0])>=-1e-9;}function inter(p,q){var x1=p[0],y1=p[1],x2=q[0],y2=q[1],x3=A[0],y3=A[1],x4=B[0],y4=B[1];var d=(x1-x2)*(y3-y4)-(y1-y2)*(x3-x4);var t=((x1-x3)*(y3-y4)-(y1-y3)*(x3-x4))/d;return [x1+t*(x2-x1),y1+t*(y2-y1)];}for(var i=0;i<input.length;i++){var cur=input[i],prev=input[(i+input.length-1)%input.length],cin=inside(cur),pin=inside(prev);if(cin){if(!pin)output.push(inter(prev,cur));output.push(cur);}else if(pin)output.push(inter(prev,cur));}if(!output.length)break;}return output;}
+function area(poly){var s=0;for(var i=0;i<poly.length;i++){var a=poly[i],b=poly[(i+1)%poly.length];s+=a[0]*b[1]-b[0]*a[1];}return Math.abs(s)/2;}
+function insideConvex(p,clip){for(var e=0;e<clip.length;e++){var A=clip[e],B=clip[(e+1)%clip.length];if((B[0]-A[0])*(p[1]-A[1])-(B[1]-A[1])*(p[0]-A[0])<-1e-7)return false;}return true;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(15),win=[[0,0],[10,0],[10,10],[0,10]],allIn=true,idem=true;for(var t=0;t<200;t++){var k=3+Math.floor(rnd()*3),subj=[];for(var i=0;i<k;i++)subj.push([rnd()*16-3,rnd()*16-3]);var cl=shClip(subj,win);if(cl.length){for(var i=0;i<cl.length;i++)if(!insideConvex(cl[i],win))allIn=false;if(Math.abs(area(shClip(cl,win))-area(cl))>1e-6)idem=false;}}
+ var mcOk=true;for(var t=0;t<20;t++){var cx=2+rnd()*6,cy=2+rnd()*6,rad=1+rnd()*5,subj=[];for(var i=0;i<5;i++){var a=i/5*6.283;subj.push([cx+Math.cos(a)*rad,cy+Math.sin(a)*rad]);}var ca=area(shClip(subj,win)),hit=0,NN=120000;for(var s=0;s<NN;s++){var px=rnd()*10,py=rnd()*10;if(insideConvex([px,py],subj))hit++;}if(Math.abs(hit/NN*100-ca)>0.5)mcOk=false;}
+ return {allInside:allIn,idempotent:idem,mcAreaMatches:mcOk};}
+function makeSubj(){var cx=170+Math.random()*40-20,cy=150+Math.random()*40-20,k=3+Math.floor(Math.random()*3),subj=[];for(var i=0;i<k;i++){var a=i/k*6.283+Math.random()*0.4;var r=90+Math.random()*90;subj.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r]);}SUBJ=subj;}
+function poly(g,pts,stroke,fill){if(!pts.length)return;g.beginPath();g.moveTo(pts[0][0],pts[0][1]);for(var i=1;i<pts.length;i++)g.lineTo(pts[i][0],pts[i][1]);g.closePath();if(fill){g.fillStyle=fill;g.fill();}if(stroke){g.strokeStyle=stroke;g.stroke();}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('one clip edge: keep inside vertices, insert crossings',12,14);
+ g.strokeStyle='#60a870';g.setLineDash([4,3]);g.beginPath();g.moveTo(256,30);g.lineTo(256,150);g.stroke();g.setLineDash([]);g.fillStyle='#8ad';g.font='9px monospace';g.fillText('inside →',180,150);g.fillText('← outside',270,150);
+ var tri=[[120,50],[320,80],[180,130]];poly(g,tri,'#c07850',null);var cl=shClip(tri,[[256,300],[256,0],[0,0],[0,300]]);poly(g,cl,'#60a870','rgba(96,168,112,0.3)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SUBJ)makeSubj();poly(g,WIN,'#8ad',null);poly(g,SUBJ,'rgba(192,120,80,0.7)',null);var cl=shClip(SUBJ,WIN);poly(g,cl,'#60a870','rgba(96,168,112,0.45)');
+ var allin=cl.every(function(p){return insideConvex(p,WIN);});g.fillStyle=allin?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('clipped area '+area(cl).toFixed(0)+' — all verts inside window '+(allin?'✓':'✗'),12,H-10);}
+document.getElementById('shroll').onclick=function(){makeSubj();drawW4();var cl=shClip(SUBJ,WIN);document.getElementById('shread').textContent=SUBJ.length+'-gon → clipped '+cl.length+' verts, area '+area(cl).toFixed(0);};
+document.getElementById('shcheck').onclick=function(){var v=verify();document.getElementById('shread').textContent='200: all inside '+(v.allInside?'✓':'✗')+', idempotent '+(v.idempotent?'✓':'✗')+', MC area match '+(v.mcAreaMatches?'✓':'✗');};
+document.getElementById('shspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SUBJ)makeSubj();var cx=W/2,cy=H/2-20,sc=0.85,off=[cx-170*sc,cy-150*sc];
+ function tr(p){return [off[0]+p[0]*sc+3*Math.sin(ang),off[1]+p[1]*sc];}
+ poly(g,WIN.map(tr),'#8ad',null);poly(g,SUBJ.map(tr),'rgba(255,45,149,0.5)',null);var cl=shClip(SUBJ,WIN);poly(g,cl.map(tr),'#39fc6b','rgba(57,252,107,0.4)');
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the surviving interior (four half-plane cuts)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the polygon parts outside the window',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a 2D intersection factored into 1D edge tests',10,H-9);}
+makeSubj();drawW3();drawW4();window.__sutherlandhodgman=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-lucas-lehmer","title":"THE LUCAS-LEHMER","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#c05858","icon":"lucas-lehmer",
+  "kicker":"a deterministic primality verdict for Mersenne numbers",
+  "blurb":"the Lucas-Lehmer test in the 5-window house format — decide with certainty whether M_p = 2^p - 1 is prime: set s0=4, iterate s -> (s^2 - 2) mod M_p exactly p-2 times; M_p is prime iff the final s is 0. No randomness, no witnesses — one deterministic recurrence, which is why the largest known primes are all Mersenne. Verified live: the test passes for prime exponents {3,5,7,13,17,19,31,61} and fails for {11,23,29,37,41,43} (composite M_p). See the s^2-2 sequence in 1D, the verdict in 2D, and the special-form-earns-certainty inverse in 3D.",
+  "lit":"Genuine Lucas-Lehmer test (Lucas 1878; Lehmer 1930s). Verified live (BigInt): the s->s^2-2 mod M_p recurrence lands on 0 exactly for the Mersenne-prime exponents {3,5,7,13,17,19,31,61} and nonzero for {11,23,29,37,41,43} whose M_p are composite (window.__lucaslehmer.primesPass); M31 prime, M11 not.",
+  "fig":"No framing: the big-integer recurrence and the known-exponent cross-check run in-browser and are exact. The AVAN inverse is honest — the Mersenne special form buys a deterministic (not probabilistic) primality test, one exact recurrence deciding with certainty; magenta is the general-number tests that give only a probability, green the exact Lucas-Lehmer verdict.",
+  "body":LL_BODY,"script":LL_SCRIPT},
+ {"slug":"the-arithmetic-coding","title":"THE ARITHMETIC CODING","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#c0a048","icon":"arithmetic-coding",
+  "kicker":"the whole message as one number, at the entropy limit",
+  "blurb":"arithmetic coding in the 5-window house format — compress a whole message into a single number in [0,1) by narrowing the interval to each symbol's probability sub-interval; the final width equals the product of symbol probabilities, so the code length equals the Shannon entropy exactly — beating Huffman's whole-bit-per-symbol floor. Verified live: over 300 random strings the exact BigInt coder round-trips (decode(encode(s))=s) and the final interval width equals the exact product of symbol frequencies. See the interval narrowing in 1D, encode+decode with entropy in 2D, and the one-number-at-the-entropy-limit inverse in 3D.",
+  "lit":"Genuine arithmetic coding (Elias; Rissanen & Pasco 1976; Witten-Neal-Cleary 1987). Verified live (BigInt exact): decode(encode(s))==s for 300 random strings, and the final interval width numerator equals the exact product of symbol frequencies (window.__arithmeticcoding.roundTrips && .widthIsProduct).",
+  "fig":"No framing: the exact big-integer interval coder, the round-trip decoder, and the width-equals-product check run in-browser and are exact. The AVAN inverse is honest — the whole string is one point in [0,1) whose interval width = product of probabilities, so code length = Shannon entropy exactly (fractional bits), not rounded per symbol like Huffman; magenta is Huffman's bit-boundaries, green the single point.",
+  "body":AC_BODY,"script":AC_SCRIPT},
+ {"slug":"the-needleman-wunsch","title":"THE NEEDLEMAN-WUNSCH","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#58a0b0","icon":"needleman-wunsch",
+  "kicker":"optimal global alignment by dynamic programming",
+  "blurb":"the Needleman-Wunsch algorithm in the 5-window house format — find the optimal global alignment of two sequences (matches, mismatches, gaps maximizing a score) by filling a DP grid where each cell is the best score aligning two prefixes; the corner is the optimum and a traceback reconstructs the alignment. It founded biological sequence comparison. Verified live: over 300 random pairs the DP score equals a brute-force optimum over all alignments, and the traceback re-scores to the DP value with gaps removed giving back the originals. See the alignment in 1D, the score grid + traceback in 2D, and the table-is-the-answer-and-the-map inverse in 3D.",
+  "lit":"Genuine Needleman-Wunsch algorithm (Needleman & Wunsch 1970). Verified live: the DP optimal score equals an independent brute-force optimum over all alignments for 300 random pairs, and the traceback alignment re-scores to the DP value with de-gapped rows equal to the inputs (window.__needlemanwunsch.matchesBrute && .tracebackConsistent).",
+  "fig":"No framing: the DP grid, the traceback, and the brute-force optimality check run in-browser and agree exactly. The AVAN inverse is honest — the filled table stores every subproblem optimum, so the best alignment is read backward via traceback; magenta is the exponential alignments never enumerated, green the one optimal path. The grid is both answer and map.",
+  "body":NW_BODY,"script":NW_SCRIPT},
+ {"slug":"the-goertzel","title":"THE GOERTZEL","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#a078c0","icon":"goertzel",
+  "kicker":"one DFT bin from a tiny resonant filter",
+  "blurb":"the Goertzel algorithm in the 5-window house format — compute a single DFT frequency bin without the whole transform, using a second-order IIR filter (s = x + 2cos(w)s1 - s2, w = 2*pi*k/N) and reading the magnitude from the last two states; O(N) for one bin versus O(N log N) for all. It is how phones decode DTMF touch-tones. Verified live: over 200 random signals Goertzel's magnitude for every bin equals the direct DFT magnitude to ~1e-13. See the filter accumulating in 1D, one bin against the full spectrum in 2D, and the filter-for-one-tone inverse in 3D.",
+  "lit":"Genuine Goertzel algorithm (Goertzel 1958). Verified live: the second-order recurrence's single-bin magnitude equals the direct DFT bin magnitude to max error ~1e-13 across 200 random signals and all bins (window.__goertzel.matchesDFT).",
+  "fig":"No framing: the IIR recurrence, the magnitude read-out, and the direct-DFT cross-check run in-browser and match to floating precision. The AVAN inverse is honest — for one frequency you need not transform everything; a tuned second-order filter gives that bin in O(N); magenta is the N-1 bins never computed, green the single bin. Targeted, not total (DTMF decoding).",
+  "body":GZ_BODY,"script":GZ_SCRIPT},
+ {"slug":"the-sutherland-hodgman","title":"THE SUTHERLAND-HODGMAN","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#60a870","icon":"sutherland-hodgman",
+  "kicker":"clip a polygon to a window, one edge at a time",
+  "blurb":"the Sutherland-Hodgman algorithm in the 5-window house format — clip a polygon to a convex window by clipping against one edge at a time: for each clip edge keep the inside vertices and insert intersection points where the boundary crosses, then pipe the result to the next edge. It is the graphics pipeline's viewport clip. Verified live: over 200 random polygons every clipped-output vertex lies inside the convex window and clipping is idempotent (area unchanged on re-clip); a convex subject's clipped area matches a Monte-Carlo estimate of the true intersection. See a half-plane clip in 1D, a polygon clipped to a window in 2D, and the factor-2D-into-1D-cuts inverse in 3D.",
+  "lit":"Genuine Sutherland-Hodgman clipping (Sutherland & Hodgman 1974). Verified live: for 200 random polygons every output vertex satisfies all clip half-planes and re-clipping leaves the area unchanged (idempotent); a convex subject's clipped shoelace area matches a 120k-sample Monte-Carlo intersection estimate to <0.5 (window.__sutherlandhodgman.allInside && .idempotent && .mcAreaMatches).",
+  "fig":"No framing: the per-edge clip pass, the containment test, and the idempotence + Monte-Carlo area checks run in-browser; allInside and idempotent are exact, MC confirms the area. The AVAN inverse is honest — intersection with a convex window factors into a sequence of half-plane clips (four 1D edge tests compose into the 2D clip); magenta is the outside parts, green the surviving interior.",
+  "body":SH_BODY,"script":SH_SCRIPT},
  {"slug":"the-bbp","title":"THE BBP","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#c0a048","icon":"bbp",
   "kicker":"the n-th hex digit of pi, without the digits before it",
