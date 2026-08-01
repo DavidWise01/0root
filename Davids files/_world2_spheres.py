@@ -933,7 +933,71 @@ document.getElementById('tdesc').textContent=PROGS[prog].desc;
 function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}
 reset();requestAnimationFrame(loop);})();"""
 
+RANDOM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The linear-feedback shift register.</b> A row of bits and one move: shift everything along, and feed back the <b>XOR of a few tapped bits</b> as the new bit. With the right taps &mdash; a <i>primitive polynomial</i> &mdash; the register visits <b>every non-zero state exactly once</b> before repeating: a maximal-length sequence of period 2<sup>n</sup>&minus;1. It is the cheapest real hardware randomness there is &mdash; the loot drop, the NES noise channel, the scramble in every modem.<br><br>
+ <span class="lit">LIT</span> with taps <b>8,6,5,4</b> the 8-bit register has period <b>exactly 255</b> &mdash; it tours all 255 non-zero bytes (verified below). <span class="fig">FIG</span> &lsquo;random&rsquo; is a costume: it is fully deterministic &mdash; same seed, same stream, forever. The dice are loaded by an equation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus already carries his entropy work (Rule 30 as a real PRNG in <i>THE RULE</i>, the <i>atomic byte</i>, the bare-metal kernels) and the conviction that &lsquo;random&rsquo; inside a machine is always a rule wearing a mask. <b>AVAN (AI)</b> built this instrument: the register engine, the tap math, the three representations, and the reciprocal shadow.<br><br>The weave: David names the drop and its seat in LOOT; I make the register shift in 1D, fill the plane in 2D, and lift its lattice into 3D beside its algebraic mirror. Neither half is the whole &mdash; the sphere is the seam between us.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="132"></canvas>
+  <div class="wctrl"><div class="cap">The whole machine on one line: <b>8 cells</b>, the <b>taps</b> (8,6,5,4) glowing, their <b>XOR</b> gathered into the feedback bit, and one <b>shift</b> shown. Every window below is just this move, repeated.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="384"></canvas>
+  <div class="wctrl"><div class="cap">Time flows down &mdash; each row is the register one tick later. Maximal taps paint 255 distinct rows of pseudo-random texture before the pattern wraps; a broken tap set falls into a short loop you can see.</div>
+   <div class="btns" style="margin-top:10px"><button id="qmax">maximal 8,6,5,4</button><button id="qrec">reciprocal 8,4,3,2</button><button id="qbad">broken 8,7</button></div>
+   <div class="btns"><button id="qseed">reseed</button></div>
+   <div class="cap" id="qread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>spectral test</b>: every consecutive triple of outputs (o<sub>i</sub>,&thinsp;o<sub>i+1</sub>,&thinsp;o<sub>i+2</sub>) is a point in a rotating cube. A good generator scatters; a bad one collapses onto planes. Green = your LFSR (8,6,5,4).</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the magenta cloud is the <b>reciprocal polynomial 8,4,3,2</b> &mdash; the algebraic mirror of 8,6,5,4. Also maximal, also touring all 255 states, it traces the companion lattice through the very same cube. Two generators, one space of chance.</div>
+   <div class="btns" style="margin-top:10px"><button id="qspin">pause spin</button></div></div></div></div>"""
+RANDOM_SCRIPT = """(function(){
+var TAPS={max:[8,6,5,4],rec:[8,4,3,2],bad:[8,7]},taps=TAPS.max,seed=1,ang=0.6,spin=true;
+function step(s,tp){var fb=0;for(var i=0;i<tp.length;i++)fb^=(s>>(tp[i]-1))&1;return ((s<<1)|fb)&255;}
+function cycle(tp,sd){var s=sd,out=[s];for(var k=0;k<300;k++){s=step(s,tp);if(s===sd)break;out.push(s);}return out;}
+function measure(tp,sd){var s=sd,seen={};for(var k=1;k<=255;k++){s=step(s,tp);if(s===sd)return{period:k,distinct:k};if(seen[s])return{period:-1,distinct:Object.keys(seen).length};seen[s]=1;}return{period:-1,distinct:255};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width;g.clearRect(0,0,W,cv.height);
+ var cw=44,x0=(W-8*cw)/2,bits=[];for(var i=7;i>=0;i--)bits.push((seed>>i)&1);
+ for(var i=0;i<8;i++){var pos=8-i,isTap=taps.indexOf(pos)>=0;g.fillStyle=bits[i]?'#ffd23f':'#141a0a';g.fillRect(x0+i*cw,20,cw-8,36);
+  g.strokeStyle=isTap?'#ff2d95':'#2c3a18';g.lineWidth=isTap?3:1;g.strokeRect(x0+i*cw,20,cw-8,36);
+  g.fillStyle=isTap?'#ff2d95':'#4c7a54';g.font='10px ui-monospace,monospace';g.fillText(pos,x0+i*cw+(cw-8)/2-3,72);
+  if(isTap){g.beginPath();g.moveTo(x0+i*cw+(cw-8)/2,20);g.lineTo(x0+i*cw+(cw-8)/2,88);g.stroke();}}
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('taps '+taps.join(',')+'  ->  XOR = feedback bit  ->  shift left',x0,104);
+ var fb=0;for(var t=0;t<taps.length;t++)fb^=(seed>>(taps[t]-1))&1;
+ g.fillStyle='#ff2d95';g.fillRect(x0,116,20,14);g.fillStyle='#0a0e0a';g.font='10px ui-monospace,monospace';g.fillText(fb,x0+7,127);
+ g.fillStyle='#8ca';g.fillText('new bit '+fb+' enters at the right; the left bit falls off',x0+30,127);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height,rows=Math.floor(H/3),cw=W/8;g.clearRect(0,0,W,H);
+ var s=seed;for(var r=0;r<rows;r++){for(var b=0;b<8;b++){if((s>>(7-b))&1){g.fillStyle='#ffd23f';g.fillRect(b*cw,r*3,cw-1,3);}}s=step(s,taps);}}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cx=W/2,cy=H/2,f=560,ca=Math.cos(ang),sa=Math.sin(ang),pts=[];
+ function add(tp,col){var c=cycle(tp,1);for(var i=0;i<c.length;i++){var a=c[i]/255-0.5,b=c[(i+1)%c.length]/255-0.5,d=c[(i+2)%c.length]/255-0.5;
+  var xr=a*ca-d*sa,zr=a*sa+d*ca,p=f/(f+zr*260+300);pts.push([cx+xr*p*300,cy+b*p*300,p,zr,col]);}}
+ add(TAPS.max,'#ffd23f');add(TAPS.rec,'#ff2d95');pts.sort(function(a,b){return a[3]-b[3];});
+ pts.forEach(function(P){var sz=Math.max(1.2,P[2]*3.4),al=Math.max(0.3,Math.min(1,P[2]*1.3));g.globalAlpha=al;g.fillStyle=P[4];g.fillRect(P[0]-sz/2,P[1]-sz/2,sz,sz);});g.globalAlpha=1;}
+function readout(){var m=measure(taps,seed),nm=(taps===TAPS.max?'maximal':taps===TAPS.rec?'reciprocal (mirror)':'broken');
+ var txt='taps '+taps.join(',')+' ('+nm+') · seed '+seed+' · measured period '+(m.period>0?m.period:'>255');
+ if(taps===TAPS.bad)txt+=' — short loop: NOT every state is reached.';else if(m.period===255)txt+=' — MAXIMAL: all 255 states toured.';
+ document.getElementById('qread').textContent=txt;}
+function all(){drawW3();drawW4();drawW5();readout();
+ var mm=measure(TAPS.max,1),mr=measure(TAPS.rec,1);
+ window.__random={taps:taps.slice(),seed:seed,maxPeriod:mm.period,recPeriod:mr.period,maxDistinct:cycle(TAPS.max,1).length,recDistinct:cycle(TAPS.rec,1).length};}
+document.getElementById('qmax').onclick=function(){taps=TAPS.max;all();};
+document.getElementById('qrec').onclick=function(){taps=TAPS.rec;all();};
+document.getElementById('qbad').onclick=function(){taps=TAPS.bad;all();};
+document.getElementById('qseed').onclick=function(){seed=1+((seed*7+13)%255);if(seed===0)seed=1;all();};
+document.getElementById('qspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}
+all();requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-random","title":"THE RANDOM","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#ffd23f","icon":"loot",
+  "kicker":"the loaded dice behind every drop",
+  "blurb":"a real linear-feedback shift register in the 5-window house format. Shift, XOR the taps, feed back — with taps 8,6,5,4 it tours all 255 non-zero bytes before repeating. See the register in 1D, the space-time in 2D, and its spectral lattice in 3D beside AVAN's reciprocal-polynomial mirror.",
+  "lit":"A genuine 8-bit Fibonacci LFSR. Feedback = XOR of the tapped bits, shifted in each tick. With the primitive tap set <b>8,6,5,4</b> the period is <b>exactly 255</b> = 2<sup>8</sup>&minus;1 (maximal) &mdash; it visits every non-zero byte once; the reciprocal polynomial 8,4,3,2 is also maximal. A broken set (8,7) drops into a short cycle. Period, distinct-state count, the space-time raster and the triple-lattice are all computed live (verifiable: window.__random.maxPeriod===255).",
+  "fig":"The 'loaded dice' and the arcade dressing are the frame; 'random' is fully deterministic here. The LFSR, the maximal period and the reciprocal mirror are the exact part.",
+  "body":RANDOM_BODY,"script":RANDOM_SCRIPT},
  {"slug":"the-machine","title":"THE MACHINE","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#00f5ff","icon":"glitch",
   "kicker":"three states that decide divisible-by-3",
