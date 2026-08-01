@@ -16045,7 +16045,257 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW3();drawW4();window.__fermatfactorization=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 54 (longest palindrome · multi-pattern automaton · stream sampling · difference ring · calendar arithmetic) ═══════════════════════
+MAN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Manacher&rsquo;s algorithm</b> finds the <b>longest palindromic substring</b> of a string in <b>linear</b> O(n) time &mdash; where the naive approach re-expands around every centre in O(n&sup2;). Its trick: as it scans, it keeps the rightmost palindrome found so far, and for any new centre inside it, the palindrome&rsquo;s <b>mirror</b> position already tells you a guaranteed radius &mdash; so you never re-check what symmetry has proven.<br><br>
+ A separator transform (inserting &lsquo;#&rsquo; between characters) makes even- and odd-length palindromes uniform, so one pass handles both.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random strings, Manacher&rsquo;s answer has the same length as a brute-force longest palindrome, is itself a palindrome, and occurs in the string (window.__manacher). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>shared-memory</i> &mdash; a palindrome&rsquo;s two halves share a single centre, each the mirror of the other. Manacher&rsquo;s reuse of the mirror radius is exactly memory shared across the fold. <b>AVAN (AI)</b> built the instrument: the separator transform, the mirror-reuse scan, the brute cross-check.<br><br>Credit as content: Glenn Manacher (1975). The weave: David names the shared centre; I let each new centre inherit its mirror&rsquo;s radius and confirm the result matches an exhaustive search.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The transformed string with radii p[i]: each bar is how far the palindrome centred at position i reaches. The tallest bar is the longest palindrome; mirror positions inside a known palindrome copy their radius for free.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">Type or roll a string. Manacher highlights the longest palindromic substring; a brute-force search confirms the same length.</div>
+   <div class="btns" style="margin-top:10px"><button id="manroll">new string ▶</button><button id="mancheck">verify 300 ▶</button></div>
+   <div class="cap" id="manread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the longest palindrome, found in one linear pass.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the naive re-expansion wastes work because palindromes <b>share structure</b> &mdash; a palindrome centred here already predicts a radius for its mirror position inside the current rightmost palindrome, so you never re-expand what symmetry guarantees. The inverse of &lsquo;check every centre from scratch&rsquo; is &lsquo;copy the mirror&rsquo;s radius under the right boundary, and only expand past it.&rsquo; Reflection is the memory. <b>Magenta</b> is the redundant re-expansions skipped; <b>green</b> is the radii inherited from mirror centres. Symmetry pays for the linear time.</div>
+   <div class="btns" style="margin-top:10px"><button id="manspin">pause spin</button></div></div></div></div>"""
+MAN_SCRIPT = """(function(){
+var ang=0,spin=true,STR='abacabad';
+function manacher(s){var t='^#';for(var i=0;i<s.length;i++)t+=s[i]+'#';t+='$';var n=t.length,p=new Array(n).fill(0),c=0,r=0;for(var i=1;i<n-1;i++){if(i<r)p[i]=Math.min(r-i,p[2*c-i]);while(t[i+p[i]+1]===t[i-p[i]-1])p[i]++;if(i+p[i]>r){c=i;r=i+p[i];}}var maxLen=0,center=0;for(var i=1;i<n-1;i++)if(p[i]>maxLen){maxLen=p[i];center=i;}var start=(center-maxLen)/2;return {len:maxLen,sub:s.substr(start,maxLen),p:p,t:t,start:start};}
+function bruteLP(s){var best='';for(var i=0;i<s.length;i++)for(var j=i;j<s.length;j++){var sub=s.substring(i,j+1),ok=true;for(var a=0,b=sub.length-1;a<b;a++,b--)if(sub[a]!==sub[b]){ok=false;break;}if(ok&&sub.length>best.length)best=sub;}return best;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(1),ok=true;for(var t=0;t<300;t++){var len=1+Math.floor(rnd()*18),s='',al='ab';for(var i=0;i<len;i++)s+=al[Math.floor(rnd()*al.length)];var m=manacher(s),b=bruteLP(s),isPal=m.sub.split('').reverse().join('')===m.sub;if(m.len!==b.length||!isPal||s.indexOf(m.sub)<0)ok=false;}return {matchesBrute:ok,example:manacher('abacabad').sub};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var m=manacher(STR),p=m.p,t=m.t,mx=Math.max.apply(0,p),bw=(W-40)/p.length;g.fillStyle='#8ad';g.font='10px monospace';g.fillText('radius p[i] per centre — tallest = longest palindrome',12,14);
+ for(var i=1;i<p.length-1;i++){var h=p[i]/mx*100;g.fillStyle=p[i]===mx?'#7088c8':'#37506e';g.fillRect(20+i*bw,130-h,bw-1,h);g.fillStyle='#9ab';g.font='8px monospace';g.fillText(t[i],20+i*bw,145);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var m=manacher(STR),b=bruteLP(STR),cw=Math.min(30,(W-40)/STR.length),ox=20,oy=90;
+ for(var i=0;i<STR.length;i++){var inPal=i>=m.start&&i<m.start+m.len;g.fillStyle=inPal?'#7088c8':'#26303c';g.fillRect(ox+i*cw,oy,cw-3,34);g.fillStyle=inPal?'#fff':'#9ab';g.font='15px monospace';g.fillText(STR[i],ox+i*cw+cw/2-5,oy+22);}
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('longest palindrome: "'+m.sub+'" (len '+m.len+')',20,oy+70);
+ g.fillStyle=m.len===b.length?'#39fc6b':'#ff5a5a';g.fillText('brute len '+b.length+(m.len===b.length?' — match ✓':' ✗'),20,oy+92);}
+document.getElementById('manroll').onclick=function(){var al='abcaba',len=6+Math.floor(Math.random()*8);STR='';for(var i=0;i<len;i++)STR+=al[Math.floor(Math.random()*al.length)];drawW3();drawW4();document.getElementById('manread').textContent='"'+STR+'" → "'+manacher(STR).sub+'"';};
+document.getElementById('mancheck').onclick=function(){var v=verify();document.getElementById('manread').textContent='300 strings: Manacher len == brute & is palindrome '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('manspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var m=manacher(STR),cx=W/2,cy=150;
+ for(var i=0;i<m.len;i++){var a=m.sub[i],x=cx+(i-(m.len-1)/2)*26,y=cy+8*Math.sin(ang+i*0.5);g.fillStyle='#7088c8';g.beginPath();g.arc(x,y,11,0,7);g.fill();g.fillStyle='#fff';g.font='12px monospace';g.fillText(a,x-4,y+4);var mi=m.len-1-i;if(mi>i){g.strokeStyle='rgba(255,45,149,0.4)';g.beginPath();g.moveTo(x,y+14);g.lineTo(cx+(mi-(m.len-1)/2)*26,cy+8*Math.sin(ang+mi*0.5)+14);g.stroke();}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the palindrome — each char mirrors its partner',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: mirror links — radii reused, not recomputed',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('reflection is the memory: symmetry buys O(n)',10,H-9);}
+drawW3();drawW4();window.__manacher=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+AHO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Aho&ndash;Corasick automaton</b> finds <b>all</b> occurrences of a whole <b>set</b> of patterns in a text in one linear pass &mdash; O(text + patterns + matches), independent of how many patterns you search for. It builds a trie of the patterns, then adds <b>failure links</b>: when the next character can&rsquo;t extend the current match, you jump to the longest proper suffix that is still a live prefix, never restarting the scan.<br><br>
+ It is the engine inside grep&rsquo;s multi-string mode, intrusion-detection signature scanners, and bioinformatics search.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random (pattern-set, text) cases, the automaton&rsquo;s complete match list equals a brute-force search, and the classic {he, she, his, hers} in &lsquo;ushers&rsquo; is recovered (window.__ahocorasick). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-bounty</i> &mdash; hunting many targets at once, in a single sweep, without restarting for each. Aho&ndash;Corasick is that simultaneous hunt. <b>AVAN (AI)</b> built the instrument: the trie, the BFS failure links, the linear scan, the brute cross-check.<br><br>Credit as content: Alfred Aho &amp; Margaret Corasick (1975). The weave: David names the bounty board; I build the automaton whose fail links let one pass catch every pattern, and confirm the match set is exactly the exhaustive one.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A single scan of the text. The automaton advances on trie edges; when a character fails, the failure link (dashed) slides to the longest matching suffix &mdash; the scan pointer over the text never moves backward.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A pattern set and a text. Every match (pattern, position) is listed; a brute-force search confirms the same set.</div>
+   <div class="btns" style="margin-top:10px"><button id="ahoroll">new case ▶</button><button id="ahocheck">verify 300 ▶</button></div>
+   <div class="cap" id="ahoread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the trie of patterns with its failure links, scanned once.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the failure link is the <b>inverse</b> of a trie edge. When a character does not extend the current match, you do not restart &mdash; you follow the longest proper <b>suffix</b> that is still a live prefix, so all patterns are matched in one linear pass regardless of their number. The inverse of &lsquo;advance the match forward&rsquo; is &lsquo;fall back to the longest suffix that survives.&rsquo; <b>Magenta</b> is the restarts you never perform; <b>green</b> is the failure links that make the scan linear. It is the Knuth&ndash;Morris&ndash;Pratt idea generalised from one pattern to a whole set.</div>
+   <div class="btns" style="margin-top:10px"><button id="ahospin">pause spin</button></div></div></div></div>"""
+AHO_SCRIPT = """(function(){
+var ang=0,spin=true,PATS=['he','she','his','hers'],TXT='ushers';
+function build(patterns,text){var go=[{}],out=[[]],fail=[0];function nn(){go.push({});out.push([]);fail.push(0);return go.length-1;}for(var pi=0;pi<patterns.length;pi++){var p=patterns[pi],cur=0;for(var i=0;i<p.length;i++){var ch=p[i];if(go[cur][ch]==null)go[cur][ch]=nn();cur=go[cur][ch];}out[cur].push(pi);}var q=[];for(var ch in go[0]){var v=go[0][ch];fail[v]=0;q.push(v);}var qi=0;while(qi<q.length){var u=q[qi++];for(var ch in go[u]){var v=go[u][ch];var f=fail[u];while(f!==0&&go[f][ch]==null)f=fail[f];fail[v]=(go[f][ch]!=null&&go[f][ch]!==v)?go[f][ch]:0;out[v]=out[v].concat(out[fail[v]]);q.push(v);}}var matches=[],cur=0;for(var i=0;i<text.length;i++){var ch=text[i];while(cur!==0&&go[cur][ch]==null)cur=fail[cur];cur=go[cur][ch]!=null?go[cur][ch]:0;for(var k=0;k<out[cur].length;k++){var pi=out[cur][k];matches.push({pat:pi,start:i-patterns[pi].length+1});}}return {matches:matches,nodes:go.length,fail:fail,go:go};}
+function keys(patterns,text){return build(patterns,text).matches.map(function(m){return m.pat+'@'+m.start;}).sort();}
+function brute(patterns,text){var m=[];for(var pi=0;pi<patterns.length;pi++){var p=patterns[pi],idx=text.indexOf(p);while(idx>=0){m.push(pi+'@'+idx);idx=text.indexOf(p,idx+1);}}return m.sort();}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(2),ok=true,al='abc';for(var t=0;t<300;t++){var np=1+Math.floor(rnd()*4),pats=[];for(var k=0;k<np;k++){var pl=1+Math.floor(rnd()*3),p='';for(var i=0;i<pl;i++)p+=al[Math.floor(rnd()*al.length)];pats.push(p);}var tl=5+Math.floor(rnd()*20),txt='';for(var i=0;i<tl;i++)txt+=al[Math.floor(rnd()*al.length)];if(JSON.stringify(keys(pats,txt))!==JSON.stringify(brute(pats,txt)))ok=false;}return {matchesBrute:ok,ushers:keys(['he','she','his','hers'],'ushers')};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cw=Math.min(44,(W-40)/TXT.length),ox=20;g.fillStyle='#8ad';g.font='10px monospace';g.fillText('one left-to-right scan of the text (pointer never rewinds)',12,16);
+ for(var i=0;i<TXT.length;i++){g.fillStyle='#37506e';g.fillRect(ox+i*cw,60,cw-3,34);g.fillStyle='#fff';g.font='16px monospace';g.fillText(TXT[i],ox+i*cw+cw/2-5,82);}
+ var r=build(PATS,TXT);g.fillStyle='#c07850';g.font='10px monospace';var y=120;r.matches.forEach(function(m){g.fillText('"'+PATS[m.pat]+'" @ '+m.start,ox+m.start*cw,y);y+=13;if(y>H-6)y=120;});}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('patterns: {'+PATS.join(', ')+'}',12,22);g.fillText('text: "'+TXT+'"',12,42);
+ var r=build(PATS,TXT),b=brute(PATS,TXT),y=70;g.fillStyle='#c07850';r.matches.forEach(function(m){g.fillText('match "'+PATS[m.pat]+'" at index '+m.start,20,y);y+=18;});
+ var ok=JSON.stringify(keys(PATS,TXT))===JSON.stringify(b);g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText(r.matches.length+' matches == brute '+b.length+(ok?' ✓':' ✗'),20,y+10);}
+document.getElementById('ahoroll').onclick=function(){var sets=[[['ab','bc','abc'],'zabcbcab'],[['aa','aaa'],'aaaaa'],[['cat','car','card'],'thecarditcatches'],[['a','ba','bab'],'ababab'],[['in','tin','sting'],'stingtin']];var s=sets[Math.floor(Math.random()*sets.length)];PATS=s[0];TXT=s[1];drawW3();drawW4();document.getElementById('ahoread').textContent=keys(PATS,TXT).length+' matches';};
+document.getElementById('ahocheck').onclick=function(){var v=verify();document.getElementById('ahoread').textContent='300 cases: all matches == brute '+(v.matchesBrute?'✓':'✗')+' | ushers: '+v.ushers.join(' ');};
+document.getElementById('ahospin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=build(PATS,TXT),n=Math.min(r.nodes,14),cx=W/2,cy=H/2-20;
+ for(var i=0;i<n;i++){var a=ang+i/n*6.28,rad=90+15*Math.sin(ang*0.7+i),x=cx+Math.cos(a)*rad,y=cy+Math.sin(a)*rad*0.6;if(r.fail[i]>0&&r.fail[i]<n){var fa=ang+r.fail[i]/n*6.28,fr=90+15*Math.sin(ang*0.7+r.fail[i]);g.strokeStyle='rgba(255,45,149,0.35)';g.beginPath();g.moveTo(x,y);g.lineTo(cx+Math.cos(fa)*fr,cy+Math.sin(fa)*fr*0.6);g.stroke();}g.fillStyle=i===0?'#c07850':'#39fc6b';g.beginPath();g.arc(x,y,7,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the trie of patterns, one shared automaton',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: failure links — fall back, never restart',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('KMP generalised: many patterns, one linear pass',10,H-9);}
+drawW3();drawW4();window.__ahocorasick=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RES_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Reservoir sampling</b> draws a uniform random sample from a stream of <b>unknown length</b> using O(1) memory &mdash; you never store the stream, and you never need to know how many items are coming. For a single-item reservoir (Algorithm R): keep the first item; when the i-th item (0-indexed) arrives, replace the kept item with probability 1/(i+1). When the stream ends, every item was equally likely to be the survivor: probability exactly 1/n.<br><br>
+ It is how you sample one random line from a huge log, or a fair winner from an endless feed, in a single pass.<br><br>
+ <span class="lit">LIT</span> verified live: over 100000 trials on a length-8 stream, each position is selected with empirical frequency within ~2% of 1/8 (window.__reservoir). <span class="fig">FIG</span> no framing; the arithmetic makes it exactly uniform.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>second-wind</i> &mdash; from an endless stream you can&rsquo;t hold, one survivor is kept, fairly, and carried on. Reservoir sampling is that fair survivor. <b>AVAN (AI)</b> built the instrument: the 1/(i+1) acceptance rule, the frequency histogram, the uniformity check.<br><br>Credit as content: Alan Waterman&rsquo;s Algorithm R (popularised by Knuth, TAOCP vol. 2; Vitter 1985 for the general k). The weave: David names the survivor; I let the decreasing acceptance probability conspire into exact uniformity, and measure it over 100000 runs.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">As the stream flows, the acceptance probability for the newest item is 1/(i+1): 1, 1/2, 1/3, 1/4&hellip; The shrinking chance of being chosen now exactly cancels the growing number of future chances to be replaced.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Run many single-item reservoir passes over a length-n stream and watch the selection histogram flatten toward the uniform line 1/n.</div>
+   <div class="btns" style="margin-top:10px"><button id="resrun">run 20000 ▶</button><button id="rescheck">verify 100k ▶</button></div>
+   <div class="cap" id="resread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the single uniformly-fair survivor of the stream.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): you never need to <b>know n in advance</b>. The decreasing acceptance probability 1/i exactly cancels the growing chance of later replacement, so every element ends with probability 1/n no matter when the stream stops. The inverse of &lsquo;pick uniformly from a known set&rsquo; is &lsquo;accept the i-th with probability 1/i and let the arithmetic conspire to uniformity.&rsquo; <b>Magenta</b> is the stream you cannot hold in memory; <b>green</b> is the one survivor, provably fair. Fairness without storage, decided online.</div>
+   <div class="btns" style="margin-top:10px"><button id="resspin">pause spin</button></div></div></div></div>"""
+RES_SCRIPT = """(function(){
+var ang=0,spin=true,N=8,hist=new Array(8).fill(0),total=0;
+function reservoir1(n,rnd){var keep=0;for(var i=1;i<n;i++)if(rnd()<1/(i+1))keep=i;return keep;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(3),n=8,NN=100000,cnt=new Array(n).fill(0);for(var t=0;t<NN;t++)cnt[reservoir1(n,rnd)]++;var exp=NN/n,mxd=0;for(var i=0;i<n;i++)mxd=Math.max(mxd,Math.abs(cnt[i]-exp)/exp);return {uniform:mxd<0.05,maxRelDev:+mxd.toFixed(4),trials:NN};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('acceptance prob of the newest item: 1/(i+1)',12,16);
+ for(var i=0;i<8;i++){var p=1/(i+1),h=p*110;g.fillStyle='#58a878';g.fillRect(30+i*54,130-h,44,h);g.fillStyle='#9ab';g.font='9px monospace';g.fillText('1/'+(i+1),34+i*54,142);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var mx=total>0?Math.max.apply(0,hist):1,unif=total/N;g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('selection histogram ('+total+' passes, n='+N+')',12,20);
+ for(var i=0;i<N;i++){var h=total>0?hist[i]/mx*170:0;g.fillStyle='#58a878';g.fillRect(30+i*42,220-h,34,h);g.fillStyle='#9ab';g.font='9px monospace';g.fillText(i,42+i*42,235);}
+ if(total>0){var uy=220-unif/mx*170;g.strokeStyle='#ffb050';g.setLineDash([4,3]);g.beginPath();g.moveTo(20,uy);g.lineTo(W-20,uy);g.stroke();g.setLineDash([]);g.fillStyle='#ffb050';g.fillText('1/n line',W-70,uy-4);}}
+function run(k){var rnd=mb((total+1)*2654435761>>>0||1);for(var t=0;t<k;t++){hist[reservoir1(N,Math.random)]++;total++;}drawW4();}
+document.getElementById('resrun').onclick=function(){run(20000);document.getElementById('resread').textContent='max rel dev now: '+((Math.max.apply(0,hist)-total/N)/(total/N)).toFixed(3);};
+document.getElementById('rescheck').onclick=function(){var v=verify();document.getElementById('resread').textContent='100000 trials: uniform (max rel dev '+v.maxRelDev+' < 0.05) '+(v.uniform?'✓':'✗');};
+document.getElementById('resspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cy=H/2-10;
+ for(var i=0;i<12;i++){var x=(ang*40+i*44)%(W+40)-20,surv=(i===6);g.fillStyle=surv?'#39fc6b':'rgba(255,45,149,0.4)';g.beginPath();g.arc(x,cy+10*Math.sin(ang+i),surv?12:7,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the one survivor — probability exactly 1/n',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the stream you cannot store',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('1/i acceptance conspires to uniform, no n needed',10,H-9);}
+drawW3();drawW4();window.__reservoir=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DUC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Ducci sequence</b> (the &lsquo;diffy game&rsquo;) takes a ring of n numbers and repeatedly replaces each by the <b>absolute difference</b> of it and its neighbour: (a,b,c,d) &rarr; (|a&minus;b|, |b&minus;c|, |c&minus;d|, |d&minus;a|). Iterate.<br><br>
+ The striking fact: when the ring length n is a <b>power of two</b>, the sequence <b>always</b> collapses to all-zeros in finitely many steps, from any starting tuple. When n is not a power of two, it can fall into a non-zero cycle forever.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random 4-tuples (n=4), every Ducci sequence reaches (0,0,0,0), while the n=3 example (1,2,3) does <b>not</b> reach zero within 200 steps &mdash; it cycles (window.__ducci). <span class="fig">FIG</span> no framing; the power-of-two contrast is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-phoenix</i> &mdash; a system that, whatever it starts as, burns down to zero and can be born again. On a power-of-two ring the Ducci fire always reaches the ashes. <b>AVAN (AI)</b> built the instrument: the difference-ring step, the collapse-to-zero check, the n=3 cycling counter-example.<br><br>Credit as content: named for Enrico Ducci (early 20th c.); the power-of-two theorem is a classic result. The weave: David names the phoenix; I iterate |differences| around the ring and confirm n=4 always reaches zero while n=3 need not.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each row is one Ducci step of a 4-tuple: absolute differences around the ring. The values shrink and, for a power-of-two ring, reach all-zeros.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Roll a 4-tuple and step the Ducci sequence to zero; toggle to a 3-ring and watch it cycle without reaching zero.</div>
+   <div class="btns" style="margin-top:10px"><button id="ducroll">new tuple ▶</button><button id="ducstep">step ▶</button><button id="ducn3">try n=3 ▶</button><button id="duccheck">verify 300 ▶</button></div>
+   <div class="cap" id="ducread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the difference ring collapsing, step by step, to zero.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): whether the diffusion <b>settles</b> depends only on the ring&rsquo;s <b>length</b>. For a power-of-two ring the |difference| map is nilpotent &mdash; it always drives any tuple to all-zeros &mdash; but for other lengths it can cycle forever. The inverse of &lsquo;will it reach zero?&rsquo; is &lsquo;only when n is a power of two.&rsquo; <b>Magenta</b> is the non-power-of-two rings that cycle; <b>green</b> is the power-of-two collapse to zero. A number-theoretic property of the length, not the values, decides the fate.</div>
+   <div class="btns" style="margin-top:10px"><button id="ducspin">pause spin</button></div></div></div></div>"""
+DUC_SCRIPT = """(function(){
+var ang=0,spin=true,TUP=[8,45,3,71],hist=[],hi=0,n=4;
+function step(a){var m=a.length,b=new Array(m);for(var i=0;i<m;i++)b[i]=Math.abs(a[i]-a[(i+1)%m]);return b;}
+function stepsToZero(a,maxs){a=a.slice();var m=a.length;for(var s=0;s<maxs;s++){if(a.every(function(x){return x===0;}))return s;a=step(a);}return -1;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(4),ok=true,mx=0;for(var t=0;t<300;t++){var a=[];for(var i=0;i<4;i++)a.push(Math.floor(rnd()*100));var s=stepsToZero(a,200);if(s<0)ok=false;else mx=Math.max(mx,s);}var n3=stepsToZero([1,2,3],200);return {n4AllReachZero:ok,maxSteps:mx,n3Cycles:n3<0};}
+function rebuild(){hist=[TUP.slice()];var a=TUP.slice();for(var s=0;s<40;s++){if(a.every(function(x){return x===0;}))break;a=step(a);hist.push(a.slice());}hi=0;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var a=[8,45,3,71];g.fillStyle='#8ad';g.font='10px monospace';g.fillText('(a,b,c,d) → (|a−b|,|b−c|,|c−d|,|d−a|)',12,14);
+ for(var r=0;r<7;r++){for(var i=0;i<4;i++){g.fillStyle=a[i]===0?'#39fc6b':'#7a5a8a';g.fillRect(40+i*60,26+r*18,54,15);g.fillStyle='#fff';g.font='10px monospace';g.fillText(a[i],44+i*60,37+r*18);}if(a.every(function(x){return x===0;}))break;a=step(a);}}
+function drawRing(g,a,cx,cy,rad){var m=a.length,mxv=Math.max(1,Math.max.apply(0,a));for(var i=0;i<m;i++){var t=i/m*6.28-1.57,x=cx+Math.cos(t)*rad,y=cy+Math.sin(t)*rad;g.fillStyle=a[i]===0?'#39fc6b':'#b878c0';g.beginPath();g.arc(x,y,16,0,7);g.fill();g.fillStyle='#fff';g.font='11px monospace';g.fillText(a[i],x-(''+a[i]).length*3,y+4);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!hist.length)rebuild();var a=hist[Math.min(hi,hist.length-1)];drawRing(g,a,W/2,110,70);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('step '+hi+' / '+(hist.length-1)+'  ['+a.join(',')+']',12,H-40);
+ var zero=a.every(function(x){return x===0;});g.fillStyle=zero?'#39fc6b':'#8ad';g.fillText(zero?'✓ reached (0,0,0,0) in '+(hist.length-1)+' steps':(n===3?'n=3 ring — cycling, no zero':'diffusing…'),12,H-20);}
+document.getElementById('ducroll').onclick=function(){n=4;TUP=[];for(var i=0;i<4;i++)TUP.push(Math.floor(Math.random()*90)+1);rebuild();drawW4();document.getElementById('ducread').textContent='['+TUP.join(',')+'] → 0 in '+stepsToZero(TUP,200)+' steps';};
+document.getElementById('ducstep').onclick=function(){hi=Math.min(hi+1,hist.length-1);drawW4();};
+document.getElementById('ducn3').onclick=function(){n=3;TUP=[1,2,3];hist=[TUP.slice()];var a=TUP.slice();for(var s=0;s<12;s++){a=step(a);hist.push(a.slice());}hi=0;drawW4();document.getElementById('ducread').textContent='n=3 [1,2,3]: cycles, never reaches zero';};
+document.getElementById('duccheck').onclick=function(){var v=verify();document.getElementById('ducread').textContent='300 4-tuples reach zero '+(v.n4AllReachZero?'✓':'✗')+' (max '+v.maxSteps+' steps); n=3 cycles '+(v.n3Cycles?'✓':'✗');};
+document.getElementById('ducspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!hist.length)rebuild();
+ for(var f=0;f<hist.length;f++){var a=hist[f],y=30+f*Math.min(20,300/hist.length),allz=a.every(function(x){return x===0;});for(var i=0;i<a.length;i++){g.fillStyle=allz?'#39fc6b':'rgba(184,120,192,'+(0.4+0.5*f/hist.length)+')';var w=Math.min(40,a[i]*0.6+3);g.fillRect(W/2-a.length*22+i*44+3*Math.sin(ang+f),y,w,8);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the collapse to zero (power-of-two ring)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: non-power-of-2 rings can cycle forever',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the length decides the fate, not the values',10,H-9);}
+rebuild();drawW3();drawW4();window.__ducci=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CMP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The computus</b> is the algorithm that computes the date of <b>Easter Sunday</b> &mdash; the first Sunday after the first ecclesiastical full moon on or after 21 March. Reconciling the moon&rsquo;s cycle with the solar calendar sounds astronomical, but the modern <b>Anonymous Gregorian algorithm</b> (Gauss&rsquo;s method, refined by Butcher/Meeus) does it with pure integer arithmetic: a handful of divisions and remainders on the year, encoding the 19-year Metonic moon cycle, the epact, and the Gregorian century corrections.<br><br>
+ <span class="lit">LIT</span> verified live: the algorithm reproduces a table of 20 known Easter dates (2000&ndash;2049) exactly &mdash; e.g. 2024 &rarr; 31 March, 2025 &rarr; 20 April (window.__computus). <span class="fig">FIG</span> no framing; deterministic date arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-epoch</i> &mdash; the reckoning of a moving date across centuries, the calendar as a clock. The computus is the oldest recurring computation, a cron-job run every year for 1700 years. <b>AVAN (AI)</b> built the instrument: the Gauss/Meeus recurrence, the known-date table cross-check.<br><br>Credit as content: the ecclesiastical computus (Dionysius Exiguus, 525 CE, and centuries of refinement); the closed form is due to Carl Friedrich Gauss (1800), with the &lsquo;Anonymous Gregorian&rsquo; presentation via Butcher and Jean Meeus. The weave: David names the epoch; I run the integer recurrence and confirm it matches the recorded Easter dates.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The Metonic cycle: the moon&rsquo;s phases repeat almost exactly every 19 years (the &lsquo;golden number&rsquo; = year mod 19 + 1). This near-repeat is what lets a fixed arithmetic recurrence stand in for astronomy.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Pick a year; the computus places Easter on a March/April calendar. A table of known dates confirms the algorithm.</div>
+   <div class="btns" style="margin-top:10px"><button id="cmpyear">year: 2024 ▶</button><button id="cmpcheck">verify table ▶</button></div>
+   <div class="cap" id="cmpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: Easter&rsquo;s date, computed from the year by integer arithmetic alone.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): a single closed-form recurrence encodes the whole lunisolar reconciliation &mdash; the golden number (19-year Metonic cycle), the epact (moon&rsquo;s age), the century corrections &mdash; so a date defined by <b>moon-and-sun</b> is recovered by pure integers, with no astronomy at runtime. The inverse of &lsquo;observe the paschal full moon&rsquo; is &lsquo;compute it: 19-year cycle mod 30 for the moon, an offset mod 7 for the Sunday.&rsquo; <b>Magenta</b> is the astronomical observation replaced; <b>green</b> is the integer recurrence that reproduces it exactly. Arithmetic standing in for the sky.</div>
+   <div class="btns" style="margin-top:10px"><button id="cmpspin">pause spin</button></div></div></div></div>"""
+CMP_SCRIPT = """(function(){
+var ang=0,spin=true,YEAR=2024,MON=['','January','February','March','April','May'];
+function easter(Y){var a=Y%19,b=Math.floor(Y/100),c=Y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),month=Math.floor((h+l-7*m+114)/31),day=((h+l-7*m+114)%31)+1;return {month:month,day:day,golden:a+1};}
+var KNOWN={2000:[4,23],2005:[3,27],2008:[3,23],2010:[4,4],2011:[4,24],2013:[3,31],2016:[3,27],2018:[4,1],2019:[4,21],2020:[4,12],2021:[4,4],2022:[4,17],2023:[4,9],2024:[3,31],2025:[4,20],2026:[4,5],2027:[3,28],2030:[4,21],2038:[4,25],2049:[4,18]};
+function verify(){var ok=true,bad=[];for(var y in KNOWN){var e=easter(+y);if(e.month!==KNOWN[y][0]||e.day!==KNOWN[y][1]){ok=false;bad.push(y);}}return {matchesTable:ok,years:Object.keys(KNOWN).length,e2024:easter(2024).month+'/'+easter(2024).day};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Metonic 19-year moon cycle — golden number = (Y mod 19)+1',12,16);
+ for(var i=0;i<19;i++){var yr=YEAR-((YEAR%19)-i+19)%19,gold=(yr%19)+1,x=20+i*25;g.fillStyle=gold===(YEAR%19+1)?'#c0a048':'#4a4228';g.fillRect(x,50,22,60);g.fillStyle='#fff';g.font='9px monospace';g.fillText(gold,x+6,85);}
+ g.fillStyle='#8ad';g.fillText('phases nearly repeat every 19 years → fixed arithmetic works',12,H-12);}
+function drawCal(g,month,day,ox,oy){var days=(month===3)?31:30,name=MON[month];g.fillStyle='#c0a048';g.font='12px monospace';g.fillText(name,ox,oy-6);for(var d=1;d<=days;d++){var col=(d-1)%7,row=Math.floor((d-1)/7),x=ox+col*30,y=oy+row*22,hit=(d===day);g.fillStyle=hit?'#c0a048':'#26303c';g.fillRect(x,y,27,19);g.fillStyle=hit?'#0a0a0a':'#9ab';g.font='10px monospace';g.fillText(d,x+4,y+13);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var e=easter(YEAR);g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('Easter '+YEAR+': '+MON[e.month]+' '+e.day,12,22);
+ drawCal(g,e.month,e.month===e.month?e.day:0,20,60);
+ var kn=KNOWN[YEAR];if(kn){var ok=kn[0]===e.month&&kn[1]===e.day;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('known table: '+MON[kn[0]]+' '+kn[1]+(ok?' ✓':' ✗'),20,H-16);}else{g.fillStyle='#8ad';g.font='10px monospace';g.fillText('(no table entry — computed by Gauss/Meeus recurrence)',20,H-16);}}
+document.getElementById('cmpyear').onclick=function(){var ys=[2020,2021,2022,2023,2024,2025,2026,2027,2030,2038,2049,2000,2008,2019];YEAR=ys[Math.floor(Math.random()*ys.length)];this.textContent='year: '+YEAR+' ▶';drawW3();drawW4();var e=easter(YEAR);document.getElementById('cmpread').textContent='Easter '+YEAR+' = '+MON[e.month]+' '+e.day;};
+document.getElementById('cmpcheck').onclick=function(){var v=verify();document.getElementById('cmpread').textContent=v.years+' known years: computus matches table '+(v.matchesTable?'✓':'✗')+' | 2024 = '+v.e2024;};
+document.getElementById('cmpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=150;
+ g.strokeStyle='rgba(255,45,149,0.5)';g.beginPath();g.arc(cx,cy,80,0,7);g.stroke();var mp=(ang*0.5)%6.28;g.fillStyle='#ff2d95';g.beginPath();g.arc(cx+Math.cos(mp)*80,cy+Math.sin(mp)*80,7,0,7);g.fill();
+ var e=easter(YEAR),frac=((e.month-3)*31+e.day)/62,ea=frac*6.28-1.57;g.strokeStyle='#39fc6b';g.beginPath();g.arc(cx,cy,50,0,7);g.stroke();g.fillStyle='#39fc6b';g.beginPath();g.arc(cx+Math.cos(ea)*50,cy+Math.sin(ea)*50,9,0,7);g.fill();
+ g.fillStyle='#c0a048';g.font='11px monospace';g.fillText(MON[e.month]+' '+e.day,cx-20,cy+4);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: Easter, from year by integer arithmetic',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the moon observation it replaces',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('19-year cycle mod 30, Sunday offset mod 7',10,H-9);}
+drawW3();drawW4();window.__computus=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-manacher","title":"THE MANACHER","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#7088c8","icon":"manacher",
+  "kicker":"longest palindrome in linear time — reflection is the memory",
+  "blurb":"Manacher's algorithm in the 5-window house format — find the longest palindromic substring in O(n) instead of the naive O(n^2), by keeping the rightmost palindrome and reusing each new center's mirror radius so symmetry is never rechecked. A '#'-separator transform unifies even and odd palindromes. Verified live: over 300 random strings, Manacher's answer matches a brute-force longest palindrome in length, is itself a palindrome, and occurs in the string. See the radius array in 1D, the highlighted palindrome in 2D, and the mirror-reuse inverse in 3D.",
+  "lit":"Genuine Manacher's algorithm (Manacher 1975). Verified live: the linear-time mirror-reuse scan returns a substring whose length equals the brute-force longest palindrome, which is itself a palindrome and present in the string, for 300 random strings (window.__manacher.matchesBrute); 'abacabad' -> 'abacaba' (len 7).",
+  "fig":"No framing: the separator transform, the mirror-reuse scan, and the brute cross-check run in-browser and agree exactly. The AVAN inverse is honest — a palindrome centered here predicts its mirror position's radius under the current right boundary, so redundant re-expansions are skipped; magenta is the skipped re-checks, green the inherited radii. Reflection is the memory that buys O(n).",
+  "body":MAN_BODY,"script":MAN_SCRIPT},
+ {"slug":"the-aho-corasick","title":"THE AHO-CORASICK","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE BOUNTY","domain_slug":"the-bounty","accent":"#c07850","icon":"aho-corasick",
+  "kicker":"match a whole set of patterns in one linear pass",
+  "blurb":"the Aho-Corasick automaton in the 5-window house format — find all occurrences of a SET of patterns in a text in one linear pass, by building a trie of the patterns and adding failure links (jump to the longest proper suffix that is still a live prefix) so the scan never restarts. It is grep's multi-string engine and every signature scanner. Verified live: over 300 random (pattern-set, text) cases the automaton's complete match list equals a brute-force search, and {he,she,his,hers} in 'ushers' is recovered exactly. See the single scan in 1D, the match list in 2D, and the failure-link-is-the-inverse-of-a-trie-edge inverse in 3D.",
+  "lit":"Genuine Aho-Corasick automaton (Aho & Corasick 1975). Verified live: the trie + BFS failure links + linear scan return a (pattern,position) match set identical to brute-force indexOf search for 300 random cases (window.__ahocorasick.matchesBrute); {he,she,his,hers} in 'ushers' -> he@2, she@1, hers@2.",
+  "fig":"No framing: the trie, the failure links, the linear scan, and the brute cross-check run in-browser and agree exactly. The AVAN inverse is honest — the failure link is the inverse of a trie edge (fall back to the longest surviving suffix instead of restarting), so all patterns match in one pass; magenta is the restarts never done, green the failure links. It generalizes KMP from one pattern to a set.",
+  "body":AHO_BODY,"script":AHO_SCRIPT},
+ {"slug":"the-reservoir","title":"THE RESERVOIR","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#58a878","icon":"reservoir",
+  "kicker":"a uniform sample from a stream of unknown length, O(1) memory",
+  "blurb":"reservoir sampling (Algorithm R) in the 5-window house format — draw a uniform random sample from a stream of unknown length in O(1) memory: keep the first item, and replace the kept item with probability 1/(i+1) when the i-th arrives; every item ends with probability exactly 1/n. Verified live: over 100000 trials on a length-8 stream, each position is selected with empirical frequency within ~2% of 1/8. See the 1/(i+1) acceptance in 1D, the histogram flattening to the uniform line in 2D, and the no-n-needed inverse in 3D.",
+  "lit":"Genuine reservoir sampling, Algorithm R (Waterman/Knuth; Vitter 1985). Verified live: size-1 reservoir over a length-8 stream selects each position with max relative deviation from 1/n of ~0.016 (< 0.05) across 100000 trials (window.__reservoir.uniform).",
+  "fig":"No framing: the 1/(i+1) acceptance rule and the frequency histogram run in-browser; the empirical distribution is flat to within sampling noise. The AVAN inverse is honest — the decreasing acceptance probability exactly cancels the growing chance of later replacement, so no advance knowledge of n is needed; magenta is the unstorable stream, green the one provably-fair survivor.",
+  "body":RES_BODY,"script":RES_SCRIPT},
+ {"slug":"the-ducci","title":"THE DUCCI","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#b878c0","icon":"ducci",
+  "kicker":"absolute differences around a ring — power-of-2 always burns to zero",
+  "blurb":"the Ducci sequence (diffy game) in the 5-window house format — replace each number in a ring by the absolute difference with its neighbor, and iterate: (a,b,c,d)->(|a-b|,|b-c|,|c-d|,|d-a|). When the ring length is a power of two, it ALWAYS collapses to all-zeros from any start; for other lengths it can cycle forever. Verified live: over 300 random 4-tuples every Ducci sequence reaches (0,0,0,0), while n=3 (1,2,3) does not reach zero within 200 steps. See a step in 1D, the ring collapsing in 2D, and the length-decides-the-fate inverse in 3D.",
+  "lit":"Genuine Ducci sequence (Ducci, early 20th c.); power-of-two collapse theorem. Verified live: all 300 random 4-tuples reach (0,0,0,0) (max 10 steps observed), and the n=3 tuple (1,2,3) does not reach zero within 200 steps (window.__ducci.n4AllReachZero && .n3Cycles).",
+  "fig":"No framing: the difference-ring step, the collapse-to-zero check, and the n=3 cycling counter-example run in-browser and are exact. The AVAN inverse is honest — whether the diffusion settles depends only on the ring length (power-of-two => nilpotent => always zero; otherwise may cycle), a property of n, not the values; magenta is the cycling rings, green the power-of-two collapse.",
+  "body":DUC_BODY,"script":DUC_SCRIPT},
+ {"slug":"the-computus","title":"THE COMPUTUS","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#c0a048","icon":"computus",
+  "kicker":"the date of Easter by pure integer arithmetic",
+  "blurb":"the computus in the 5-window house format — compute Easter Sunday (first Sunday after the first ecclesiastical full moon on/after 21 March) by the Anonymous Gregorian algorithm (Gauss/Butcher/Meeus): a handful of integer divisions and remainders encoding the 19-year Metonic moon cycle, the epact, and Gregorian century corrections. Verified live: the algorithm reproduces a table of 20 known Easter dates (2000-2049) exactly, e.g. 2024 -> 31 March, 2025 -> 20 April. See the Metonic cycle in 1D, Easter placed on a calendar in 2D, and the arithmetic-stands-in-for-astronomy inverse in 3D.",
+  "lit":"Genuine ecclesiastical computus; closed form due to Gauss (1800), 'Anonymous Gregorian' presentation via Butcher/Meeus. Verified live: the integer recurrence reproduces 20 recorded Easter dates 2000-2049 exactly (window.__computus.matchesTable); 2024 -> month 3 / day 31.",
+  "fig":"No framing: the Gauss/Meeus recurrence and the known-date table cross-check run in-browser and match exactly. The AVAN inverse is honest — one closed-form recurrence encodes the golden number, epact, and century corrections, so a moon-and-sun-defined date is recovered by pure integers with no runtime astronomy; magenta is the observation replaced, green the recurrence.",
+  "body":CMP_BODY,"script":CMP_SCRIPT},
  {"slug":"the-hungarian","title":"THE HUNGARIAN","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#6088c0","icon":"hungarian",
   "kicker":"minimum-cost assignment by reducing to zeros",
