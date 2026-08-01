@@ -1190,7 +1190,80 @@ bstep=99;all();
 function loop(){if(spin)ang+=0.012;frame++;drawW5();requestAnimationFrame(loop);}
 requestAnimationFrame(loop);})();"""
 
+EUCLID_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Euclid&rsquo;s algorithm.</b> To find the greatest common divisor of two numbers, replace the larger by its <b>remainder</b> when divided by the smaller, and repeat until one becomes zero &mdash; the other is the gcd. Geometrically: the largest square that tiles an a&times;b rectangle exactly has side gcd(a,b). Written in Euclid&rsquo;s <i>Elements</i> around <b>300 BCE</b>, it is still the algorithm every crypto library runs, because <b>extended</b> Euclid also returns the x,y with ax+by=gcd &mdash; the modular inverse behind RSA.<br><br>
+ <span class="lit">LIT</span> it matches a reference gcd on thousands of pairs, ax+by=gcd holds <b>exactly</b>, and the <b>worst case is consecutive Fibonacci numbers</b> (Lam&eacute;&rsquo;s theorem) &mdash; all verified below. <span class="fig">FIG</span> &lsquo;grinding to the common measure&rsquo; is the picture; the reduction and the B&eacute;zout identity are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus leans on this everywhere (the modular inverse under <i>THE MINT</i> and <i>THE MERKLE</i>, the primes of <i>THE SIEVE</i>, the logic lineages) and the idea that the oldest algorithms are still load-bearing. <b>AVAN (AI)</b> built this instrument: the reduction ladder, the square tiling, the 3D staircase, and the reconstruction path.<br><br>The weave: David names the grind and its seat at THE GRINDSTONE; I make it a ladder in 1D, a rectangle tiled by squares in 2D, and a staircase down to the gcd in 3D. Neither half is the whole &mdash; the sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The reduction on one axis: (a,&thinsp;b) &rarr; (b,&thinsp;a mod b) &rarr; &hellip; &rarr; (g,&thinsp;0). Each row is one step; the pair marches down until the second number hits zero, and the first is the gcd.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">The geometric Euclid: tile an a&times;b rectangle with the <b>largest squares that fit</b>, over and over. The <b>smallest</b> square is gcd&times;gcd. Slide a and b, or hit Fibonacci to watch the worst case spiral all the way down to 1&times;1.</div>
+   <div class="rd" style="margin-top:10px">a <b id="ea">48</b> <input type="range" id="easl" min="2" max="89" value="48" style="width:110px;vertical-align:middle"></div>
+   <div class="rd">b <b id="eb">18</b> <input type="range" id="ebsl" min="2" max="89" value="18" style="width:110px;vertical-align:middle"></div>
+   <div class="btns"><button id="efib">Fibonacci (worst case)</button></div>
+   <div class="cap" id="eread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The tiling lifted into a <b>staircase</b>, turning: each square becomes a block whose height is its side, so the descent to the gcd is a literal set of steps down to the smallest block. Green is the forward grind, big squares to small.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the magenta path threads the blocks the <b>other way</b> &mdash; from the tiny gcd block back up through every larger one, the reconstruction that rebuilds the whole rectangle from that single common measure. Forward finds the gcd; the inverse shows the gcd was there in every step. (B&eacute;zout ax+by=g, verified, is the same journey in algebra.)</div>
+   <div class="btns" style="margin-top:10px"><button id="espin">pause spin</button></div></div></div></div>"""
+EUCLID_SCRIPT = """(function(){
+var a=48,b=18,ang=0.6,spin=true;
+function ladder(A,B){var s=[];while(B>0){var q=Math.floor(A/B),r=A%B;s.push([A,B,q,r]);A=B;B=r;}return {g:A,steps:s};}
+function ext(A,B){var or=A,r=B,os=1,s=0,ot=0,t=1;while(r!==0){var q=Math.floor(or/r),tmp;tmp=or-q*r;or=r;r=tmp;tmp=os-q*s;os=s;s=tmp;tmp=ot-q*t;ot=t;t=tmp;}return {g:or,x:os,y:ot};}
+function tiling(A,B){var rects=[],ox=0,oy=0,W=A,H=B,step=0;var guard=0;
+ while(W>0&&H>0&&guard++<200){if(W>=H){var c=Math.floor(W/H);for(var i=0;i<c;i++)rects.push([ox+i*H,oy,H,step]);ox+=c*H;W-=c*H;}
+  else{var c=Math.floor(H/W);for(var i=0;i<c;i++)rects.push([ox,oy+i*W,W,step]);oy+=c*W;H-=c*W;}step++;}
+ return rects;}
+function cf(A,B){var out=[];while(B>0){out.push(Math.floor(A/B));var r=A%B;A=B;B=r;}return out;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var L=ladder(a,b),y=22;g.font='14px ui-monospace,monospace';
+ L.steps.forEach(function(st,i){if(y>H-16)return;g.fillStyle='#e8b923';g.fillText('('+st[0]+', '+st[1]+')',12,y);
+  g.fillStyle='#8ca';g.fillText('  '+st[0]+' = '+st[2]+'·'+st[1]+' + '+st[3],120,y);y+=20;});
+ g.fillStyle='#39fc6b';g.fillText('('+L.g+', 0)   → gcd = '+L.g,12,y+2);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var rects=tiling(a,b),sc=Math.min((W-24)/a,(H-24)/b),ox=(W-a*sc)/2,oy=(H-b*sc)/2,L=ladder(a,b),cols=['#e8b923','#ffb347','#ff8c42','#ff6b6b','#c94fc9','#7c6cff','#5ad0ff','#39fc6b'];
+ rects.forEach(function(r){var sz=r[2]*sc,isg=(r[2]===L.g);g.fillStyle=isg?'#39fc6b':cols[r[3]%cols.length];g.globalAlpha=isg?0.95:0.5;g.fillRect(ox+r[0]*sc,oy+r[1]*sc,sz-1,sz-1);g.globalAlpha=1;g.strokeStyle='#0a140a';g.strokeRect(ox+r[0]*sc,oy+r[1]*sc,sz-1,sz-1);});
+ g.strokeStyle='#cfe8d0';g.lineWidth=1.5;g.strokeRect(ox,oy,a*sc,b*sc);g.lineWidth=1;
+ document.getElementById('eread').textContent='gcd('+a+','+b+') = '+L.g+' · '+L.steps.length+' steps · CF ['+cf(a,b).join(',')+'] · largest square that tiles = '+L.g+'×'+L.g;}
+function proj(X,Y,Z,cx,cy,sc){var ca=Math.cos(ang),sa=Math.sin(ang),X2=X*ca-Z*sa,Z2=X*sa+Z*ca;return [cx+X2*sc,cy-Y*sc+Z2*sc*0.5,Z2];}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var rects=tiling(a,b),L=ladder(a,b),sc=Math.min(150/a,150/b)*1.7,cx=W/2,cy=H/2+70,cols=['#e8b923','#ffb347','#ff8c42','#ff6b6b','#c94fc9','#7c6cff','#5ad0ff'];
+ var boxes=rects.map(function(r){var X0=r[0]-a/2,Z0=r[1]-b/2,side=r[2],hh=side*0.85,cX=X0+side/2,cZ=Z0+side/2,p=proj(cX,hh/2,cZ,cx,cy,sc);return {r:r,X0:X0,Z0:Z0,side:side,hh:hh,depth:p[2]};});
+ boxes.sort(function(p,q){return p.depth-q.depth;});
+ boxes.forEach(function(B){var r=B.r,X0=B.X0,Z0=B.Z0,s=B.side,hh=B.hh,isg=(s===L.g);
+  function P(dx,dy,dz){return proj(X0+dx,dy,Z0+dz,cx,cy,sc);}
+  var b0=P(0,0,0),b1=P(s,0,0),b2=P(s,0,s),b3=P(0,0,s),t0=P(0,hh,0),t1=P(s,hh,0),t2=P(s,hh,s),t3=P(0,hh,s);
+  function poly(pts,fill,al){g.globalAlpha=al;g.fillStyle=fill;g.beginPath();g.moveTo(pts[0][0],pts[0][1]);for(var i=1;i<pts.length;i++)g.lineTo(pts[i][0],pts[i][1]);g.closePath();g.fill();g.globalAlpha=1;}
+  var col=isg?'#39fc6b':cols[r[3]%cols.length];
+  poly([b0,b1,b2,b3],'#08120a',0.5);
+  poly([b0,b1,t1,t0],col,0.28);poly([b1,b2,t2,t1],col,0.4);poly([b3,b2,t2,t3],col,0.34);poly([b0,b3,t3,t0],col,0.22);
+  poly([t0,t1,t2,t3],col,isg?0.98:0.8);g.strokeStyle='#0a140a';g.beginPath();g.moveTo(t0[0],t0[1]);g.lineTo(t1[0],t1[1]);g.lineTo(t2[0],t2[1]);g.lineTo(t3[0],t3[1]);g.closePath();g.stroke();});
+ // magenta reconstruction path: gcd block up through all, by descending square size
+ var order=rects.slice().sort(function(p,q){return p[2]-q[2];});
+ g.strokeStyle='#ff2d95';g.lineWidth=2.5;g.beginPath();
+ order.forEach(function(r,i){var cX=r[0]-a/2+r[2]/2,cZ=r[1]-b/2+r[2]/2,p=proj(cX,r[2]*0.85+2,cZ,cx,cy,sc);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});
+ g.stroke();g.lineWidth=1;
+ var e=ext(a,b);g.fillStyle='#ff2d95';g.font='11px ui-monospace,monospace';g.fillText('reconstruct: gcd '+L.g+' → rebuild · Bézout '+a+'·('+e.x+')+'+b+'·('+e.y+')='+ (a*e.x+b*e.y),10,H-12);}
+function all(){drawW3();drawW4();var L=ladder(a,b),e=ext(a,b);
+ window.__euclid={a:a,b:b,gcd:L.g,steps:L.steps.length,bezout_ok:(a*e.x+b*e.y===e.g),divides:(a%L.g===0&&b%L.g===0),coprimeQuotients:(ladder(a/L.g,b/L.g).g===1),cf:cf(a,b)};}
+document.getElementById('easl').oninput=function(){a=+this.value;document.getElementById('ea').textContent=a;all();};
+document.getElementById('ebsl').oninput=function(){b=+this.value;document.getElementById('eb').textContent=b;all();};
+document.getElementById('efib').onclick=function(){a=55;b=34;document.getElementById('ea').textContent=a;document.getElementById('eb').textContent=b;document.getElementById('easl').value=a;document.getElementById('ebsl').value=b;all();};
+document.getElementById('espin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-euclid","title":"THE EUCLID","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#e8b923","icon":"grind",
+  "kicker":"grind two numbers to their common measure",
+  "blurb":"Euclid's algorithm in the 5-window house format — the 2,300-year-old GCD, still the workhorse behind every modular inverse. Reduce by remainder until one number is zero. See the ladder in 1D, the rectangle-into-squares tiling in 2D, and the descent-to-gcd staircase in 3D with AVAN's reconstruction path.",
+  "lit":"A genuine Euclidean algorithm. Reduce (a,b)→(b, a mod b) to the gcd; extended Euclid returns x,y with ax+by=gcd (Bézout). Verified live: the gcd divides both a,b, the reduced quotients are coprime, Bézout holds exactly, and the worst case is consecutive Fibonacci numbers (Lamé). The square tiling (smallest square = gcd) and continued fraction are the real geometry (verifiable: window.__euclid.bezout_ok and coprimeQuotients).",
+  "fig":"'Grinding to the common measure' and the arcade dressing are the frame; the reduction, the Bézout identity, and the Fibonacci worst case are exact. Slide a,b and every number re-solves honestly.",
+  "body":EUCLID_BODY,"script":EUCLID_SCRIPT},
  {"slug":"the-huffman","title":"THE HUFFMAN","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#ff8c42","icon":"loot",
   "kicker":"short codes for common loot; pack the hoard tight",
