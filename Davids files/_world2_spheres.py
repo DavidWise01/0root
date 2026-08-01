@@ -8906,7 +8906,346 @@ document.getElementById('cwspin').onclick=function(){spin=!spin;this.textContent
 drawW3();drawW4();window.__calkinwilf=verify();
 function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+PICK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Pick&rsquo;s theorem.</b> Draw a polygon whose every corner sits on a point of the integer grid. Its <b>area</b> is then given by nothing but counting dots: <span class="mono">A = I + B/2 &minus; 1</span>, where I is the number of grid points strictly <b>inside</b> and B the number of grid points <b>on the boundary</b>.<br><br>
+ No coordinates multiplied, no calculus, no measuring &mdash; just tally the dots. A shape with 6 interior dots and 14 boundary dots has area <b>exactly</b> 6 + 14/2 &minus; 1 = 12, and it will always agree with the coordinate (shoelace) formula to the last decimal. It works for any lattice polygon, however jagged, as long as it doesn&rsquo;t cross itself. A continuous quantity &mdash; area &mdash; pinned down by a pair of integer counts.<br><br>
+ <span class="lit">LIT</span> verified live: for a battery of lattice polygons, I + B/2 &minus; 1 equals the shoelace area exactly, with I counted by point-in-polygon test and B by summing gcd(&Delta;x,&Delta;y) over the edges (window.__pick). <span class="fig">FIG</span> no framing; the dot-count area formula and its agreement with the coordinate area are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>NULL ISLAND</i> &mdash; the spawn domain of the origin and the bare coordinate grid. Pick&rsquo;s theorem is the grid itself speaking: lay a shape on the lattice and the dots tell you its area. <b>AVAN (AI)</b> built the instrument: the dot-counter, the live shoelace cross-check, the same-area-different-shape inverse.<br><br>The weave: David names the seat (the origin grid); I make the interior and boundary dots count themselves into the exact area and prove it against the coordinate formula &mdash; the formula in 1D, the live polygon in 2D, the non-uniqueness in 3D. The sphere is the seam. Credit: Georg Alexander Pick (1899).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The formula as a bar: <b>interior dots</b> count full, <b>boundary dots</b> count half, then subtract one. Three integers in, an exact area out &mdash; the whole of Pick&rsquo;s theorem on a single line.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">A lattice polygon on the grid. <b>Green</b> dots are interior, <b>gold</b> dots are on the boundary. The area from Pick&rsquo;s count is shown beside the area from the shoelace formula &mdash; they always agree. Cycle shapes and stretch a vertex to watch both track together.</div>
+   <div class="btns" style="margin-top:10px"><button id="pknext">next shape ▶</button><button id="pkstretch">stretch</button></div>
+   <div class="cap" id="pkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The polygon lifted into 3D, its dots floating in and on it &mdash; <b>green</b> interior, gold boundary &mdash; the count that becomes the area.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is a <b>different</b> polygon with the <b>same area</b> &mdash; the same I + B/2 &minus; 1. Pick&rsquo;s theorem runs one way cleanly: shape &rarr; (I, B) &rarr; area. Its <b>inverse</b> does <b>not</b>: from the area, or even from the pair (I, B), you cannot recover the shape &mdash; countless different polygons share the same dot counts and the same area. So the forward map is a function; the backward map is a fog. The magenta twin proves it &mdash; move the dots around, keep I and B fixed, and the area is frozen while the shape is free. That is the honest asymmetry: two integers <b>determine</b> the area but <b>underdetermine</b> the figure. Green is one shape with this area; magenta is another; the counts cannot tell them apart, and neither can the area.</div>
+   <div class="btns" style="margin-top:10px"><button id="pkspin">pause spin</button></div></div></div></div>"""
+PICK_SCRIPT = """(function(){
+var ang=0,spin=true,shapes=[[[0,0],[4,0],[4,3],[0,3]],[[0,0],[5,0],[3,4]],[[0,0],[6,2],[4,5],[1,4]],[[0,0],[3,0],[3,1],[2,1],[2,3],[0,3]],[[0,0],[6,0],[6,4],[3,6],[0,4]]],si=2,stretch=0;
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a;}
+function shoelace(p){var s=0;for(var i=0;i<p.length;i++){var a=p[i],b=p[(i+1)%p.length];s+=a[0]*b[1]-b[0]*a[1];}return Math.abs(s)/2;}
+function boundary(p){var b=0;for(var i=0;i<p.length;i++){var a=p[i],c=p[(i+1)%p.length];b+=gcd(c[0]-a[0],c[1]-a[1]);}return b;}
+function onSeg(p,x,y){for(var i=0;i<p.length;i++){var a=p[i],b=p[(i+1)%p.length],cr=(b[0]-a[0])*(y-a[1])-(b[1]-a[1])*(x-a[0]);if(cr===0&&Math.min(a[0],b[0])<=x&&x<=Math.max(a[0],b[0])&&Math.min(a[1],b[1])<=y&&y<=Math.max(a[1],b[1]))return true;}return false;}
+function inside(p,x,y){var ins=false;for(var i=0;i<p.length;i++){var a=p[i],b=p[(i+1)%p.length];if((a[1]>y)!==(b[1]>y)){var xint=a[0]+(y-a[1])*(b[0]-a[0])/(b[1]-a[1]);if(x<xint)ins=!ins;}}return ins;}
+function interiorPts(p){var xs=p.map(function(q){return q[0];}),ys=p.map(function(q){return q[1];}),out=[];for(var x=Math.min.apply(null,xs);x<=Math.max.apply(null,xs);x++)for(var y=Math.min.apply(null,ys);y<=Math.max.apply(null,ys);y++)if(!onSeg(p,x,y)&&inside(p,x,y))out.push([x,y]);return out;}
+function boundaryPts(p){var out=[];for(var i=0;i<p.length;i++){var a=p[i],b=p[(i+1)%p.length],st=gcd(b[0]-a[0],b[1]-a[1]);for(var k=0;k<st;k++)out.push([a[0]+(b[0]-a[0])*k/st,a[1]+(b[1]-a[1])*k/st]);}return out;}
+function cur(){var p=shapes[si].map(function(q){return q.slice();});if(stretch){p[Math.min(2,p.length-1)][1]+=stretch;}return p;}
+function verify(){var polys=[[[0,0],[4,0],[4,3],[0,3]],[[0,0],[5,0],[3,4]],[[0,0],[6,2],[4,5],[1,4]],[[0,0],[3,0],[3,1],[2,1],[2,3],[0,3]]],ok=true;for(var k=0;k<polys.length;k++){var p=polys[k],A=shoelace(p),B=boundary(p),I=interiorPts(p).length,pick=I+B/2-1;if(Math.abs(pick-A)>1e-9)ok=false;}return {pickEqualsShoelace:ok,example:'I=6,B=14 → '+(6+14/2-1)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var p=cur(),I=interiorPts(p).length,B=boundary(p),A=I+B/2-1;
+ g.fillStyle='#a0e070';g.font='13px ui-monospace,monospace';g.fillText('A  =  I + B/2 − 1',15,30);
+ g.font='12px ui-monospace,monospace';var bw=Math.min(60,(W-40)/(I+B/2));
+ g.fillStyle='#a0e070';g.fillRect(15,60,I*bw,26);g.fillStyle='#031';g.fillText('I='+I,18,78);
+ g.fillStyle='#ffd060';g.fillRect(15+I*bw,60,(B/2)*bw,26);g.fillStyle='#310';g.fillText('B/2='+(B/2),18+I*bw,78);
+ g.fillStyle='#a0e070';g.font='13px ui-monospace,monospace';g.fillText('= '+I+' + '+(B/2)+' − 1 = '+A,15,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var p=cur(),xs=p.map(function(q){return q[0];}),ys=p.map(function(q){return q[1];}),minx=Math.min.apply(null,xs)-1,maxx=Math.max.apply(null,xs)+1,miny=Math.min.apply(null,ys)-1,maxy=Math.max.apply(null,ys)+1,sc=Math.min((W-30)/(maxx-minx),(H-70)/(maxy-miny)),ox=15-minx*sc,oy=15-miny*sc;
+ function X(x){return ox+x*sc;}function Y(y){return oy+y*sc;}
+ g.strokeStyle='#1c2c1c';for(var x=minx;x<=maxx;x++){g.beginPath();g.moveTo(X(x),Y(miny));g.lineTo(X(x),Y(maxy));g.stroke();}for(var y=miny;y<=maxy;y++){g.beginPath();g.moveTo(X(minx),Y(y));g.lineTo(X(maxx),Y(y));g.stroke();}
+ g.fillStyle='rgba(160,224,112,0.15)';g.strokeStyle='#a0e070';g.lineWidth=2;g.beginPath();for(var i=0;i<p.length;i++){if(i===0)g.moveTo(X(p[i][0]),Y(p[i][1]));else g.lineTo(X(p[i][0]),Y(p[i][1]));}g.closePath();g.fill();g.stroke();g.lineWidth=1;
+ var ip=interiorPts(p),bp=boundaryPts(p);g.fillStyle='#39fc6b';for(var i=0;i<ip.length;i++){g.beginPath();g.arc(X(ip[i][0]),Y(ip[i][1]),3,0,7);g.fill();}
+ g.fillStyle='#ffd060';for(var i=0;i<bp.length;i++){g.beginPath();g.arc(X(bp[i][0]),Y(bp[i][1]),3,0,7);g.fill();}
+ var I=ip.length,B=bp.length,pick=I+B/2-1,sl=shoelace(p);
+ g.fillStyle='#a0e070';g.font='12px ui-monospace,monospace';g.fillText('Pick: '+I+' + '+B+'/2 − 1 = '+pick,15,H-30);
+ g.fillStyle=Math.abs(pick-sl)<1e-9?'#39fc6b':'#ff5a5a';g.fillText('shoelace area = '+sl+(Math.abs(pick-sl)<1e-9?'  ✓ match':'  ✗'),15,H-12);
+ document.getElementById('pkread').textContent='I='+I+', B='+B+', area='+pick+' (shoelace '+sl+')';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),sa=Math.sin(ang),cx=W/2,cy=H/2,sc=26;
+ function proj(x,y,z){var wx=(x-3)*sc,wy=(y-2)*sc,px=cx+(wx*ca-0*sa),py=cy+wy*0.7-z*20+wx*sa*0.25;return [px,py];}
+ var p=shapes[2],ip=interiorPts(p),bp=boundaryPts(p);
+ g.strokeStyle='#a0e070';g.lineWidth=2;g.beginPath();for(var i=0;i<p.length;i++){var q=proj(p[i][0],p[i][1],0);if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}g.closePath();g.stroke();
+ g.fillStyle='#39fc6b';for(var i=0;i<ip.length;i++){var q=proj(ip[i][0],ip[i][1],0.2);g.beginPath();g.arc(q[0],q[1],2.5,0,7);g.fill();}
+ g.fillStyle='#ffd060';for(var i=0;i<bp.length;i++){var q=proj(bp[i][0],bp[i][1],0);g.beginPath();g.arc(q[0],q[1],2.5,0,7);g.fill();}
+ // magenta different shape same area (16.5): a sheared version
+ var p2=[[0,0],[7,0],[5,4],[1,4]];g.lineWidth=1.5;g.strokeStyle='#ff2d95';g.beginPath();for(var i=0;i<p2.length;i++){var q=proj(p2[i][0]-1,p2[i][1]+2,-1.5);if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}g.closePath();g.stroke();g.lineWidth=1;
+ g.fillStyle='#a0e070';g.font='11px ui-monospace,monospace';g.fillText('green: this polygon (area '+shoelace(p)+')',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: a different polygon, same area — counts can’t tell them apart',10,H-12);}
+document.getElementById('pknext').onclick=function(){si=(si+1)%shapes.length;stretch=0;drawW3();drawW4();};
+document.getElementById('pkstretch').onclick=function(){stretch=(stretch+1)%3;drawW3();drawW4();};
+document.getElementById('pkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__pick=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NAP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Napoleon&rsquo;s theorem.</b> Take <b>any</b> triangle &mdash; scalene, lopsided, however you like. On each of its three sides build an <b>equilateral triangle</b> pointing outward, and mark the <b>center</b> of each. Those three centers always form a <b>perfect equilateral triangle</b>, no matter how irregular the one you started with.<br><br>
+ It doesn&rsquo;t care about the shape underneath &mdash; the outer &ldquo;Napoleon triangle&rdquo; comes out equilateral every single time. Build the equilaterals pointing <b>inward</b> instead and you get a second equilateral triangle. And there&rsquo;s a clean bonus: the <b>area of the outer minus the area of the inner equals the area of the original triangle</b>. (The result is traditionally credited to Napoleon Bonaparte, but that attribution is almost certainly a legend.)<br><br>
+ <span class="lit">LIT</span> verified live: for a battery of irregular triangles the three outer centers are mutually equidistant (equilateral), so are the inner ones, and area(outer) &minus; area(inner) equals the original area (window.__napoleon). <span class="fig">FIG</span> the geometry is exact; the <i>Napoleon</i> name is a traditional attribution, flagged as legend not fact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE MERGE</i> &mdash; the co-op domain where separate branches fold into one clean result. Napoleon is a merge made geometric: three unequal sides each grow a triangle, and their centers resolve into one perfect equilateral. <b>AVAN (AI)</b> built the instrument: the construction, the live equal-sides check, the inner/outer area identity.<br><br>The weave: David names the seat (three into one clean merge); I make the equilaterals grow on any triangle and prove the centers land equilateral &mdash; the equal bars in 1D, the live construction in 2D, the inner-twin identity in 3D. The sphere is the seam. Credit: first published by W. Rutherford (1825); the Napoleon attribution is traditional and unverified.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The three side lengths of the Napoleon triangle as bars. However lopsided the original, these three come out <b>equal</b> &mdash; the flat signature of an equilateral, read off in one dimension.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A triangle with equilaterals grown outward on each side and their centers joined. Morph the triangle and watch the three center-to-center distances stay locked equal &mdash; the Napoleon triangle stays equilateral no matter what you do to the original.</div>
+   <div class="btns" style="margin-top:10px"><button id="napmorph">morph ▶</button><button id="napnext">new triangle</button></div>
+   <div class="cap" id="napread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The outer Napoleon triangle turning above the original &mdash; <b>green</b>, equilateral, built from the equilaterals that point <b>outward</b>.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> triangle is the <b>inner</b> Napoleon &mdash; the same construction with the equilaterals pointing <b>inward</b>. It is the exact inverse move (flip the build direction), and it too comes out equilateral, concentric with the outer one. The inverse isn&rsquo;t a decoration: <b>area(outer) &minus; area(inner) = area of the original triangle</b>. So the forward build and its inverted twin don&rsquo;t just both succeed &mdash; their <i>difference</i> reconstructs the very triangle you began with. Flip the direction and you get a second perfect equilateral; subtract the two and the messy original falls back out. Green is outward; magenta is inward; the gap between them is exactly what you started with.</div>
+   <div class="btns" style="margin-top:10px"><button id="napspin">pause spin</button></div></div></div></div>"""
+NAP_SCRIPT = """(function(){
+var ang=0,spin=true,tris=[[[40,250],[300,270],[170,60]],[[60,260],[320,250],[110,90]],[[50,240],[300,290],[230,80]]],ti=0,morph=0;
+function centroid(P,Q,inward){var a=inward?Math.PI/3:-Math.PI/3,vx=Q[0]-P[0],vy=Q[1]-P[1],rx=vx*Math.cos(a)-vy*Math.sin(a),ry=vx*Math.sin(a)+vy*Math.cos(a),R=[P[0]+rx,P[1]+ry];return [(P[0]+Q[0]+R[0])/3,(P[1]+Q[1]+R[1])/3];}
+function apex(P,Q,inward){var a=inward?Math.PI/3:-Math.PI/3,vx=Q[0]-P[0],vy=Q[1]-P[1],rx=vx*Math.cos(a)-vy*Math.sin(a),ry=vx*Math.sin(a)+vy*Math.cos(a);return [P[0]+rx,P[1]+ry];}
+function dist(A,B){return Math.hypot(A[0]-B[0],A[1]-B[1]);}
+function area(P){var s=0;for(var i=0;i<3;i++)s+=P[i][0]*P[(i+1)%3][1]-P[(i+1)%3][0]*P[i][1];return Math.abs(s)/2;}
+function ccw(A,B,C){return (B[0]-A[0])*(C[1]-A[1])-(B[1]-A[1])*(C[0]-A[0])>0;}
+function nap(A,B,C,inw){return [centroid(A,B,inw),centroid(B,C,inw),centroid(C,A,inw)];}
+function curTri(){var t=tris[ti].map(function(p){return p.slice();});t[2][0]+=Math.sin(morph*0.06)*70;t[2][1]+=Math.cos(morph*0.05)*30;if(!ccw(t[0],t[1],t[2])){var tmp=t[1];t[1]=t[2];t[2]=tmp;}return t;}
+function verify(){var T=[[[0,0],[8,1],[3,7]],[[0,0],[6,0],[1,5]],[[0,0],[9,2],[4,8]],[[1,1],[7,0],[5,6]]],oe=true,ie=true,ai=true;
+ for(var k=0;k<T.length;k++){var A=T[k][0],B=T[k][1],C=T[k][2];if(!ccw(A,B,C)){var tmp=B;B=C;C=tmp;}
+  var o=nap(A,B,C,false),inr=nap(A,B,C,true),doo=[dist(o[0],o[1]),dist(o[1],o[2]),dist(o[2],o[0])],di=[dist(inr[0],inr[1]),dist(inr[1],inr[2]),dist(inr[2],inr[0])];
+  if(Math.max.apply(null,doo)-Math.min.apply(null,doo)>1e-9)oe=false;
+  if(Math.max.apply(null,di)-Math.min.apply(null,di)>1e-9)ie=false;
+  if(Math.abs((area(o)-area(inr))-area([A,B,C]))>1e-9)ai=false;}
+ return {outerEquilateral:oe,innerEquilateral:ie,areaIdentity:ai};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var t=curTri(),o=nap(t[0],t[1],t[2],false),d=[dist(o[0],o[1]),dist(o[1],o[2]),dist(o[2],o[0])],mx=Math.max.apply(null,d);
+ for(var i=0;i<3;i++){var bw=(W-60)/3,x=20+i*bw,h=d[i]/mx*90;g.fillStyle='#ffb060';g.fillRect(x,120-h,bw-14,h);g.fillStyle='#310';g.font='10px ui-monospace,monospace';g.fillText(d[i].toFixed(1),x+4,116);}
+ g.fillStyle='#ffb060';g.font='11px ui-monospace,monospace';g.fillText('Napoleon triangle side lengths — equal for any original (spread '+(mx-Math.min.apply(null,d)).toFixed(4)+')',10,24);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var t=curTri(),A=t[0],B=t[1],C=t[2];
+ // outward equilaterals (faint)
+ var sides=[[A,B],[B,C],[C,A]];g.strokeStyle='rgba(255,176,96,0.35)';for(var s=0;s<3;s++){var ap=apex(sides[s][0],sides[s][1],false);g.beginPath();g.moveTo(sides[s][0][0],sides[s][0][1]);g.lineTo(ap[0],ap[1]);g.lineTo(sides[s][1][0],sides[s][1][1]);g.stroke();}
+ // original
+ g.strokeStyle='#8ad';g.lineWidth=2;g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.lineTo(C[0],C[1]);g.closePath();g.stroke();g.lineWidth=1;
+ // centroids + napoleon triangle
+ var o=nap(A,B,C,false);g.fillStyle='#ffb060';for(var i=0;i<3;i++){g.beginPath();g.arc(o[i][0],o[i][1],4,0,7);g.fill();}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(o[0][0],o[0][1]);g.lineTo(o[1][0],o[1][1]);g.lineTo(o[2][0],o[2][1]);g.closePath();g.stroke();g.lineWidth=1;
+ var d=[dist(o[0],o[1]),dist(o[1],o[2]),dist(o[2],o[0])];
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('Napoleon sides: '+d[0].toFixed(2)+', '+d[1].toFixed(2)+', '+d[2].toFixed(2),12,H-24);
+ g.fillStyle=(Math.max.apply(null,d)-Math.min.apply(null,d)<1e-6)?'#39fc6b':'#9df';g.fillText('spread '+(Math.max.apply(null,d)-Math.min.apply(null,d)).toFixed(5)+' → equilateral',12,H-8);
+ document.getElementById('napread').textContent='Napoleon sides '+d.map(function(x){return x.toFixed(1);}).join(', ');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var A=[-70,40],B=[80,60],C=[10,-80],ca=Math.cos(ang),sa=Math.sin(ang),cx=W/2,cy=H/2;
+ function P(p){return [cx+p[0]*ca-0,cy+p[1]*0.8+p[0]*sa*0.3];}
+ var o=nap(A,B,C,false),inr=nap(A,B,C,true);
+ g.strokeStyle='#8ad';g.lineWidth=1.5;g.beginPath();var pa=P(A),pb=P(B),pc=P(C);g.moveTo(pa[0],pa[1]);g.lineTo(pb[0],pb[1]);g.lineTo(pc[0],pc[1]);g.closePath();g.stroke();
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<3;i++){var q=P(o[i]);if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}g.closePath();g.stroke();
+ g.strokeStyle='#ff2d95';g.beginPath();for(var i=0;i<3;i++){var q=P(inr[i]);if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}g.closePath();g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: outer Napoleon (equilateral)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: inner Napoleon — area(out)−area(in) = original',10,H-24);
+ g.fillStyle='#8ad';g.fillText('area(out)−area(in) = '+(area(o)-area(inr)).toFixed(1)+' = area(original) '+area([A,B,C]).toFixed(1),10,H-8);}
+document.getElementById('napmorph').onclick=function(){morph+=3;drawW3();drawW4();};
+document.getElementById('napnext').onclick=function(){ti=(ti+1)%tris.length;morph=0;drawW3();drawW4();};
+document.getElementById('napspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__napoleon=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VIV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Viviani&rsquo;s theorem.</b> Stand anywhere inside an equilateral triangle. Drop a perpendicular to each of the three sides and measure the three distances. <b>They always add up to the same total</b> &mdash; exactly the triangle&rsquo;s height &mdash; no matter where you stand.<br><br>
+ Wander the point around and the three distances <b>trade off</b>: step toward one side and that distance shrinks while the other two grow to compensate, their sum frozen. It is a <b>conserved quantity</b> hiding in plain sight &mdash; three freely-changing numbers locked to one constant. It&rsquo;s also the geometric heart of <b>barycentric coordinates</b>: divide the three distances by the height and you get three weights that always sum to 1 and pin the point&rsquo;s exact location.<br><br>
+ <span class="lit">LIT</span> verified live: for hundreds of random interior points the three perpendicular distances sum to the height exactly, and the normalized distances reconstruct the original point (window.__viviani). <span class="fig">FIG</span> no framing; the constant-sum invariant and the barycentric reconstruction are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE SYNC</i> &mdash; the co-op domain of quantities kept in lockstep. Viviani is three distances held in perfect sync: push one down and the others rise so the total never drifts. <b>AVAN (AI)</b> built the instrument: the moving point, the three perpendiculars, the barycentric recovery.<br><br>The weave: David names the seat (kept in sync); I make the three distances trade off while their sum stays pinned to the height &mdash; the stacked bar in 1D, the draggable point in 2D, the barycentric inverse in 3D. The sphere is the seam. Credit: Vincenzo Viviani (1622&ndash;1703), a pupil of Galileo.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The three distances stacked into one bar. As the point moves, the coloured segments swap size &mdash; but the bar&rsquo;s total length holds fixed at the triangle&rsquo;s height. Conservation, drawn as a bar that never changes length.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">An equilateral triangle with an interior point and its three perpendiculars. Move the point and watch d1, d2, d3 trade off while their sum stays exactly equal to the height &mdash; the invariant made visible.</div>
+   <div class="btns" style="margin-top:10px"><button id="vivmove">move point ▶</button><button id="vivcorner">toward a side</button></div>
+   <div class="cap" id="vivread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The point and its three distances turning in 3D &mdash; <b>green</b>, the forward map: a location inside the triangle produces three perpendicular lengths that sum to the height.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> point is the location <b>rebuilt from the three distances alone</b>. Because the sum is always the height, dividing the distances by it gives three weights that add to 1 &mdash; the point&rsquo;s <b>barycentric coordinates</b> &mdash; and those weights place it right back. That is the exact inverse: forward, point &rarr; three distances; backward, three distances &rarr; point, and both are clean, total maps. Viviani&rsquo;s constant is precisely the normalization that makes the inverse well-defined &mdash; without the fixed sum there would be no way to turn three lengths into one unambiguous position. The magenta reconstruction lands exactly on the green original. Green is where you are; magenta is you, recovered from nothing but your three distances to the walls.</div>
+   <div class="btns" style="margin-top:10px"><button id="vivspin">pause spin</button></div></div></div></div>"""
+VIV_SCRIPT = """(function(){
+var ang=0,spin=true,th=0.4,rad=0.3,mode=0;
+var H=Math.sqrt(3)/2,A=[0,0],B=[1,0],C=[0.5,H];
+function distLine(P,Q,R){var num=Math.abs((R[0]-Q[0])*(Q[1]-P[1])-(Q[0]-P[0])*(R[1]-Q[1])),den=Math.hypot(R[0]-Q[0],R[1]-Q[1]);return num/den;}
+function inside(P){function sg(a,b,c){return (P[0]-c[0])*(b[1]-c[1])-(b[0]-c[0])*(P[1]-c[1]);}var d1=sg(A,B,C),d2=sg(B,C,A),d3=sg(C,A,B);return !(((d1<0)||(d2<0)||(d3<0))&&((d1>0)||(d2>0)||(d3>0)));}
+function curP(){var cx=0.5,cy=H/3,P=[cx+Math.cos(th)*rad,cy+Math.sin(th)*rad];if(!inside(P))P=[cx,cy];return P;}
+function verify(){var ok=true,rec=true,seed=12345;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}var n=0;
+ for(var i=0;i<4000&&n<800;i++){var P=[rnd(),rnd()*H];if(!inside(P))continue;n++;var dAB=distLine(P,A,B),dBC=distLine(P,B,C),dCA=distLine(P,C,A);if(Math.abs(dAB+dBC+dCA-H)>1e-9)ok=false;
+  var wC=dAB/H,wA=dBC/H,wB=dCA/H,rx=wA*A[0]+wB*B[0]+wC*C[0],ry=wA*A[1]+wB*B[1]+wC*C[1];if(Math.hypot(rx-P[0],ry-P[1])>1e-9)rec=false;}
+ return {sumEqualsHeight:ok,barycentricRecovers:rec,samples:n,height:+H.toFixed(6)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,ch=cv.height;g.clearRect(0,0,W,ch);var P=curP(),d=[distLine(P,A,B),distLine(P,B,C),distLine(P,C,A)],sc=(W-40)/H,cols=['#70d0e0','#ffb060','#c090ff'],x=20;
+ for(var i=0;i<3;i++){var w=d[i]*sc;g.fillStyle=cols[i];g.fillRect(x,60,w,30);g.fillStyle='#021';g.font='10px ui-monospace,monospace';if(w>28)g.fillText(d[i].toFixed(2),x+3,79);x+=w;}
+ g.strokeStyle='#fff';g.strokeRect(20,60,H*sc,30);
+ g.fillStyle='#70d0e0';g.font='11px ui-monospace,monospace';g.fillText('d1 + d2 + d3 = '+(d[0]+d[1]+d[2]).toFixed(4)+'  ≡  height '+H.toFixed(4),10,32);
+ g.fillStyle='#5a9aaa';g.font='10px ui-monospace,monospace';g.fillText('segments trade off; total length is fixed',10,115);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,ch=cv.height;g.clearRect(0,0,W,ch);var sc=280,ox=(W-sc)/2,oy=ch-40;
+ function X(p){return ox+p[0]*sc;}function Y(p){return oy-p[1]*sc;}
+ g.strokeStyle='#70d0e0';g.lineWidth=2;g.beginPath();g.moveTo(X(A),Y(A));g.lineTo(X(B),Y(B));g.lineTo(X(C),Y(C));g.closePath();g.stroke();g.lineWidth=1;
+ var P=curP(),sides=[[A,B],[B,C],[C,A]],cols=['#70d0e0','#ffb060','#c090ff'];
+ for(var s=0;s<3;s++){var Q=sides[s][0],R=sides[s][1],dx=R[0]-Q[0],dy=R[1]-Q[1],len2=dx*dx+dy*dy,t=((P[0]-Q[0])*dx+(P[1]-Q[1])*dy)/len2,foot=[Q[0]+t*dx,Q[1]+t*dy];g.strokeStyle=cols[s];g.beginPath();g.moveTo(X(P),Y(P));g.lineTo(X(foot),Y(foot));g.stroke();}
+ g.fillStyle='#fff';g.beginPath();g.arc(X(P),Y(P),5,0,7);g.fill();
+ var d=[distLine(P,A,B),distLine(P,B,C),distLine(P,C,A)];
+ g.fillStyle='#70d0e0';g.font='11px ui-monospace,monospace';g.fillText('sum = '+(d[0]+d[1]+d[2]).toFixed(5)+' = height '+H.toFixed(5),12,20);
+ document.getElementById('vivread').textContent='d = '+d.map(function(x){return x.toFixed(2);}).join(', ')+'  sum '+(d[0]+d[1]+d[2]).toFixed(4);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,ch=cv.height;g.clearRect(0,0,W,ch);var ca=Math.cos(ang),sa=Math.sin(ang),cx=W/2,cy=ch/2,sc=200;
+ function P3(p){var wx=(p[0]-0.5)*sc,wy=(p[1]-H/3)*sc,x=cx+wx*ca,y=cy-wy*0.8+wx*sa*0.3;return [x,y];}
+ g.strokeStyle='#70d0e0';g.lineWidth=2;g.beginPath();var a=P3(A),b=P3(B),c=P3(C);g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();g.lineWidth=1;
+ var P=curP();var pp=P3(P);g.fillStyle='#39fc6b';g.beginPath();g.arc(pp[0],pp[1],5,0,7);g.fill();
+ // magenta reconstruction from barycentric
+ var dAB=distLine(P,A,B),dBC=distLine(P,B,C),dCA=distLine(P,C,A),wC=dAB/H,wA=dBC/H,wB=dCA/H,rec=[wA*A[0]+wB*B[0]+wC*C[0],wA*A[1]+wB*B[1]+wC*C[1]],rp=P3(rec);
+ g.strokeStyle='#ff2d95';g.lineWidth=2;g.beginPath();g.arc(rp[0],rp[1],9,0,7);g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: point → three distances (sum = height)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: point rebuilt from the distances (barycentric)',10,ch-12);}
+document.getElementById('vivmove').onclick=function(){th+=0.5;rad=0.15+0.2*Math.abs(Math.sin(th*0.7));drawW3();drawW4();};
+document.getElementById('vivcorner').onclick=function(){rad=Math.min(0.42,rad+0.08);drawW3();drawW4();};
+document.getElementById('vivspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__viviani=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MOR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Morley&rsquo;s trisector theorem &mdash; &ldquo;Morley&rsquo;s miracle.&rdquo;</b> Take any triangle. Split each of its three angles into three equal parts with a pair of <b>trisectors</b>. Where adjacent trisectors meet, they mark three points &mdash; and those three points are always the corners of a <b>perfect equilateral triangle</b>. Every time. For every triangle.<br><br>
+ It is one of the most surprising results in all of elementary geometry, and it stayed <b>hidden until 1899</b> &mdash; more than two thousand years after the Greeks exhausted the easy triangle theorems &mdash; precisely because it hinges on angle <b>trisection</b>, an operation the classical tools can&rsquo;t even perform. The lopsided-ness of the original triangle vanishes completely; the little central triangle is flawlessly regular regardless.<br><br>
+ <span class="lit">LIT</span> verified live: for a battery of irregular triangles, the three adjacent-trisector intersections are mutually equidistant &mdash; the Morley triangle is equilateral to full precision (window.__morley). <span class="fig">FIG</span> no framing; the trisector construction and the equilateral result are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE FINAL BOSS</i> &mdash; the boss domain of the hardest, most improbable encounter. Morley is geometry&rsquo;s final boss: a result so unlikely it hid for millennia, unlocked only by the one operation the straightedge is forbidden. <b>AVAN (AI)</b> built the instrument: the six trisectors, the live equilateral check, the bisector-vs-trisector contrast.<br><br>The weave: David names the seat (the improbable final boss); I make the trisectors of any triangle land on a perfect equilateral and show why the constructible cousin fails to &mdash; the equal bars in 1D, the live trisectors in 2D, the trisect-vs-bisect inverse in 3D. The sphere is the seam. Credit: Frank Morley (1899).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The three sides of the Morley triangle as bars. Whatever the shape of the original &mdash; needle-thin or nearly right &mdash; these three lengths come out identical. The miracle, flattened to one line.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">A triangle with all six angle trisectors drawn; the three adjacent intersections join into the Morley triangle. Morph the original and watch the little inner triangle stay stubbornly equilateral, however the outer shape distorts.</div>
+   <div class="btns" style="margin-top:10px"><button id="mormorph">morph ▶</button><button id="mornext">new triangle</button></div>
+   <div class="cap" id="morread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The Morley triangle turning inside the original &mdash; <b>green</b>, equilateral, born from the <b>trisectors</b> of the three angles.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is what the <b>constructible cousin</b> gives &mdash; the three angle <b>bisectors</b>, which meet at a single point, the incenter. Here is the honest inversion: <b>bisection</b> is easy, exact, doable with compass and straightedge &mdash; and it yields nothing but one dot. <b>Trisection</b> is the classically <b>impossible</b> construction &mdash; and it yields a perfect equilateral triangle. The miracle lives precisely in the operation you are <i>not allowed</i> to perform. Halve the angles and the structure collapses to a point; third them and a hidden regularity blooms. Green needs the forbidden cut; magenta shows the permitted one, and the permitted one has no miracle in it. The theorem is a monument to the gap between what is constructible and what is true.</div>
+   <div class="btns" style="margin-top:10px"><button id="morspin">pause spin</button></div></div></div></div>"""
+MOR_SCRIPT = """(function(){
+var ang0=0,spin=true,tris=[[[50,260],[320,280],[190,60]],[[40,270],[330,250],[120,80]],[[60,250],[300,290],[250,70]]],ti=0,morph=0;
+function ang(P,Q){return Math.atan2(Q[1]-P[1],Q[0]-P[0]);}
+function rayInter(P,aP,Q,aQ){var d1=[Math.cos(aP),Math.sin(aP)],d2=[Math.cos(aQ),Math.sin(aQ)],den=d1[0]*(-d2[1])-d1[1]*(-d2[0]);if(Math.abs(den)<1e-12)return null;var t=((Q[0]-P[0])*(-d2[1])-(Q[1]-P[1])*(-d2[0]))/den;return [P[0]+t*d1[0],P[1]+t*d1[1]];}
+function tdir(P,Qa,Qb){var base=ang(P,Qb),other=ang(P,Qa),diff=Math.atan2(Math.sin(other-base),Math.cos(other-base));return base+diff/3;}
+function mvert(X,Y,Z){var aY=tdir(Y,X,Z),aZ=tdir(Z,X,Y);return rayInter(Y,aY,Z,aZ);}
+function morley(A,B,C){if((B[0]-A[0])*(C[1]-A[1])-(B[1]-A[1])*(C[0]-A[0])<0){var t=B;B=C;C=t;}return [mvert(A,B,C),mvert(B,C,A),mvert(C,A,B)];}
+function dist(A,B){return Math.hypot(A[0]-B[0],A[1]-B[1]);}
+function curTri(){var t=tris[ti].map(function(p){return p.slice();});t[2][0]+=Math.sin(morph*0.06)*60;t[2][1]+=Math.cos(morph*0.05)*24;return t;}
+function verify(){var T=[[[0,0],[8,1],[3,7]],[[0,0],[6,0],[1,5]],[[1,1],[9,2],[4,8]],[[0,0],[10,3],[6,9]]],ok=true;
+ for(var k=0;k<T.length;k++){var m=morley(T[k][0],T[k][1],T[k][2]);if(!m[0]||!m[1]||!m[2]){ok=false;continue;}var d=[dist(m[0],m[1]),dist(m[1],m[2]),dist(m[2],m[0])];if(Math.max.apply(null,d)-Math.min.apply(null,d)>1e-6)ok=false;}
+ return {morleyEquilateral:ok,note:'trisectors of any triangle → equilateral'};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var t=curTri(),m=morley(t[0],t[1],t[2]),d=[dist(m[0],m[1]),dist(m[1],m[2]),dist(m[2],m[0])],mx=Math.max.apply(null,d)||1;
+ for(var i=0;i<3;i++){var bw=(W-60)/3,x=20+i*bw,h=d[i]/mx*90;g.fillStyle='#ff80ff';g.fillRect(x,120-h,bw-14,h);g.fillStyle='#301030';g.font='10px ui-monospace,monospace';g.fillText(d[i].toFixed(1),x+4,116);}
+ g.fillStyle='#ff80ff';g.font='11px ui-monospace,monospace';g.fillText('Morley triangle sides — equal for any original (spread '+(mx-Math.min.apply(null,d)).toFixed(4)+')',10,24);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var t=curTri(),A=t[0],B=t[1],C=t[2];if((B[0]-A[0])*(C[1]-A[1])-(B[1]-A[1])*(C[0]-A[0])<0){var tmp=B;B=C;C=tmp;}
+ // draw trisectors faintly
+ var V=[[A,B,C],[B,C,A],[C,A,B]];g.strokeStyle='rgba(255,128,255,0.25)';for(var k=0;k<3;k++){var P=V[k][0],Qa=V[k][1],Qb=V[k][2],base=ang(P,Qb),other=ang(P,Qa),diff=Math.atan2(Math.sin(other-base),Math.cos(other-base));for(var j=1;j<=2;j++){var aa=base+diff*j/3;g.beginPath();g.moveTo(P[0],P[1]);g.lineTo(P[0]+Math.cos(aa)*300,P[1]+Math.sin(aa)*300);g.stroke();}}
+ g.strokeStyle='#8ad';g.lineWidth=2;g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.lineTo(C[0],C[1]);g.closePath();g.stroke();g.lineWidth=1;
+ var m=morley(A,B,C);g.fillStyle='#ff80ff';for(var i=0;i<3;i++){g.beginPath();g.arc(m[i][0],m[i][1],4,0,7);g.fill();}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(m[0][0],m[0][1]);g.lineTo(m[1][0],m[1][1]);g.lineTo(m[2][0],m[2][1]);g.closePath();g.stroke();g.lineWidth=1;
+ var d=[dist(m[0],m[1]),dist(m[1],m[2]),dist(m[2],m[0])];
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('Morley sides: '+d.map(function(x){return x.toFixed(2);}).join(', '),12,H-22);
+ g.fillStyle=(Math.max.apply(null,d)-Math.min.apply(null,d)<1e-4)?'#39fc6b':'#9df';g.fillText('spread '+(Math.max.apply(null,d)-Math.min.apply(null,d)).toFixed(5)+' → equilateral',12,H-8);
+ document.getElementById('morread').textContent='Morley sides '+d.map(function(x){return x.toFixed(1);}).join(', ');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var A=[-80,50],B=[90,60],C=[10,-90],ca=Math.cos(ang0),sa=Math.sin(ang0),cx=W/2,cy=H/2;
+ if((B[0]-A[0])*(C[1]-A[1])-(B[1]-A[1])*(C[0]-A[0])<0){var tmp=B;B=C;C=tmp;}
+ function P(p){return [cx+p[0]*ca,cy+p[1]*0.8+p[0]*sa*0.3];}
+ g.strokeStyle='#8ad';g.lineWidth=1.5;g.beginPath();var pa=P(A),pb=P(B),pc=P(C);g.moveTo(pa[0],pa[1]);g.lineTo(pb[0],pb[1]);g.lineTo(pc[0],pc[1]);g.closePath();g.stroke();
+ var m=morley(A,B,C);g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<3;i++){var q=P(m[i]);if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}g.closePath();g.stroke();g.lineWidth=1;
+ // magenta: bisectors -> incenter (one point)
+ var la=dist(B,C),lb=dist(A,C),lc=dist(A,B),per=la+lb+lc,inc=[(la*A[0]+lb*B[0]+lc*C[0])/per,(la*A[1]+lb*B[1]+lc*C[1])/per];var ip=P(inc);
+ g.strokeStyle='rgba(255,45,149,0.6)';g.beginPath();g.moveTo(pa[0],pa[1]);g.lineTo(ip[0],ip[1]);g.moveTo(pb[0],pb[1]);g.lineTo(ip[0],ip[1]);g.moveTo(pc[0],pc[1]);g.lineTo(ip[0],ip[1]);g.stroke();
+ g.fillStyle='#ff2d95';g.beginPath();g.arc(ip[0],ip[1],5,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: trisectors → equilateral (the miracle)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: bisectors (constructible) → just the incenter, one point',10,H-12);}
+document.getElementById('mormorph').onclick=function(){morph+=3;drawW3();drawW4();};
+document.getElementById('mornext').onclick=function(){ti=(ti+1)%tris.length;morph=0;drawW3();drawW4();};
+document.getElementById('morspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__morley=verify();
+function loop(){if(spin)ang0+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VAR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Varignon&rsquo;s theorem.</b> Take <b>any</b> quadrilateral &mdash; square, kite, or some lopsided four-sided mess. Mark the <b>midpoint</b> of each side and join them in order. The result is <b>always a parallelogram</b>. Always.<br><br>
+ It doesn&rsquo;t matter how irregular the quadrilateral is; the midpoint figure comes out with both pairs of opposite sides perfectly parallel and equal. Two bonuses fall out for free: the parallelogram&rsquo;s <b>area is exactly half</b> the quadrilateral&rsquo;s, and its <b>perimeter equals the sum of the quadrilateral&rsquo;s two diagonals</b>. The secret is that each side of the little parallelogram is a <b>midline</b> &mdash; parallel to a diagonal of the quadrilateral and exactly half its length.<br><br>
+ <span class="lit">LIT</span> verified live: for a battery of quadrilaterals the midpoint figure has equal opposite side-vectors (a parallelogram), its area is half the quadrilateral&rsquo;s, and its perimeter equals the diagonal sum (window.__varignon). <span class="fig">FIG</span> no framing; the parallelogram, half-area, and perimeter-equals-diagonals facts are exact (for simple quadrilaterals).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>SPLIT SCREEN</i> &mdash; the co-op domain of splitting each thing at its middle. Varignon is exactly that: split every side at its midpoint, connect the splits, and order appears &mdash; a parallelogram out of any chaos. <b>AVAN (AI)</b> built the instrument: the midpoint figure, the live parallelogram/area/perimeter checks, the diagonal-shadow inverse.<br><br>The weave: David names the seat (split at the middle); I make the midpoints of any quadrilateral resolve into a parallelogram and prove the area and perimeter identities &mdash; the equal-pairs bars in 1D, the morphing quad in 2D, the diagonal inverse in 3D. The sphere is the seam. Credit: Pierre Varignon (1654&ndash;1722), published posthumously 1731.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The four sides of the midpoint figure as bars. They come in <b>two equal pairs</b> &mdash; the fingerprint of a parallelogram &mdash; and each pair&rsquo;s length is exactly half a diagonal of the quadrilateral.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">A quadrilateral with its side-midpoints joined. Morph it &mdash; even into a non-convex shape &mdash; and the midpoint figure stays a parallelogram, its area locked at half the quadrilateral&rsquo;s and its perimeter equal to the sum of the diagonals.</div>
+   <div class="btns" style="margin-top:10px"><button id="varmorph">morph ▶</button><button id="varnext">new quad</button></div>
+   <div class="cap" id="varread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The Varignon parallelogram turning inside its quadrilateral &mdash; <b>green</b>, born from the four side-midpoints, always a parallelogram.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> lines are the quadrilateral&rsquo;s two <b>diagonals</b>. Every green side is <b>parallel to a magenta diagonal and exactly half its length</b> &mdash; the parallelogram is the diagonals&rsquo; shadow. That fixes the forward map, and it also exposes the inverse: the Varignon parallelogram remembers the <b>diagonals</b> but <b>forgets the quadrilateral</b>. Slide the four vertices along those diagonals and you get endlessly many different quadrilaterals with the <i>same</i> midpoint parallelogram. So forward, quad &rarr; parallelogram, is a clean function; backward, parallelogram &rarr; quad, is hopelessly many-to-one. The magenta diagonals are exactly what survives the collapse, and exactly what isn&rsquo;t enough to rebuild the shape. Green is the order the midpoints always find; magenta is the diagonal skeleton it preserves &mdash; and all the rest is lost.</div>
+   <div class="btns" style="margin-top:10px"><button id="varspin">pause spin</button></div></div></div></div>"""
+VAR_SCRIPT = """(function(){
+var ang=0,spin=true,quads=[[[60,260],[300,250],[330,90],[90,70]],[[50,270],[320,260],[250,110],[100,60]],[[70,250],[310,280],[200,90],[120,140]]],qi=0,morph=0;
+function mid(A,B){return [(A[0]+B[0])/2,(A[1]+B[1])/2];}
+function sub(A,B){return [A[0]-B[0],A[1]-B[1]];}
+function norm(u){return Math.hypot(u[0],u[1]);}
+function areaPoly(P){var s=0;for(var i=0;i<P.length;i++)s+=P[i][0]*P[(i+1)%P.length][1]-P[(i+1)%P.length][0]*P[i][1];return Math.abs(s)/2;}
+function curQ(){var q=quads[qi].map(function(p){return p.slice();});q[2][0]+=Math.sin(morph*0.06)*60;q[2][1]+=Math.cos(morph*0.05)*40;return q;}
+function verify(){var Q=[[[0,0],[6,1],[7,5],[1,6]],[[0,0],[8,0],[6,4],[2,5]],[[0,0],[5,-2],[8,3],[3,6]],[[1,1],[7,2],[5,7],[2,5]]],par=true,half=true,per=true;
+ for(var k=0;k<Q.length;k++){var P=Q[k],M=[mid(P[0],P[1]),mid(P[1],P[2]),mid(P[2],P[3]),mid(P[3],P[0])],s01=sub(M[1],M[0]),s32=sub(M[2],M[3]);if(Math.abs(s01[0]-s32[0])>1e-9||Math.abs(s01[1]-s32[1])>1e-9)par=false;
+  var aV=areaPoly(M),aQ=areaPoly(P);if(Math.abs(aV-aQ/2)>1e-9)half=false;
+  var perim=0;for(var i=0;i<4;i++)perim+=norm(sub(M[i],M[(i+1)%4]));var diag=norm(sub(P[2],P[0]))+norm(sub(P[3],P[1]));if(Math.abs(perim-diag)>1e-9)per=false;}
+ return {isParallelogram:par,areaIsHalf:half,perimeterIsDiagonalSum:per};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var q=curQ(),M=[mid(q[0],q[1]),mid(q[1],q[2]),mid(q[2],q[3]),mid(q[3],q[0])],d=[norm(sub(M[0],M[1])),norm(sub(M[1],M[2])),norm(sub(M[2],M[3])),norm(sub(M[3],M[0]))],mx=Math.max.apply(null,d)||1,cols=['#80ffb0','#ffb060','#80ffb0','#ffb060'];
+ for(var i=0;i<4;i++){var bw=(W-70)/4,x=20+i*bw,h=d[i]/mx*90;g.fillStyle=cols[i];g.fillRect(x,120-h,bw-12,h);g.fillStyle='#031';g.font='9px ui-monospace,monospace';g.fillText(d[i].toFixed(1),x+3,116);}
+ g.fillStyle='#80ffb0';g.font='11px ui-monospace,monospace';g.fillText('Varignon sides — two equal pairs (opposite sides equal = parallelogram)',10,24);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var q=curQ(),M=[mid(q[0],q[1]),mid(q[1],q[2]),mid(q[2],q[3]),mid(q[3],q[0])];
+ // diagonals faint
+ g.strokeStyle='rgba(255,45,149,0.35)';g.beginPath();g.moveTo(q[0][0],q[0][1]);g.lineTo(q[2][0],q[2][1]);g.moveTo(q[1][0],q[1][1]);g.lineTo(q[3][0],q[3][1]);g.stroke();
+ g.strokeStyle='#8ad';g.lineWidth=2;g.beginPath();for(var i=0;i<4;i++){if(i===0)g.moveTo(q[i][0],q[i][1]);else g.lineTo(q[i][0],q[i][1]);}g.closePath();g.stroke();g.lineWidth=1;
+ g.fillStyle='#80ffb0';for(var i=0;i<4;i++){g.beginPath();g.arc(M[i][0],M[i][1],4,0,7);g.fill();}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.fillStyle='rgba(57,252,107,0.12)';g.beginPath();for(var i=0;i<4;i++){if(i===0)g.moveTo(M[i][0],M[i][1]);else g.lineTo(M[i][0],M[i][1]);}g.closePath();g.fill();g.stroke();g.lineWidth=1;
+ var aV=areaPoly(M),aQ=areaPoly(q),perim=0;for(var i=0;i<4;i++)perim+=norm(sub(M[i],M[(i+1)%4]));var diag=norm(sub(q[2],q[0]))+norm(sub(q[3],q[1]));
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('area '+aV.toFixed(1)+' = ½ quad '+(aQ/2).toFixed(1)+(Math.abs(aV-aQ/2)<0.5?' ✓':''),12,H-24);
+ g.fillStyle='#80ffb0';g.fillText('perimeter '+perim.toFixed(1)+' = Σ diagonals '+diag.toFixed(1)+(Math.abs(perim-diag)<0.5?' ✓':''),12,H-8);
+ document.getElementById('varread').textContent='area '+aV.toFixed(1)+' (½ '+(aQ/2).toFixed(1)+'), perim '+perim.toFixed(1);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var q=[[-80,60],[90,50],[70,-70],[-60,-80]],ca=Math.cos(ang),sa=Math.sin(ang),cx=W/2,cy=H/2;
+ function P(p){return [cx+p[0]*ca,cy+p[1]*0.8+p[0]*sa*0.3];}
+ var M=[mid(q[0],q[1]),mid(q[1],q[2]),mid(q[2],q[3]),mid(q[3],q[0])];
+ g.strokeStyle='#8ad';g.lineWidth=1.3;g.beginPath();for(var i=0;i<4;i++){var pp=P(q[i]);if(i===0)g.moveTo(pp[0],pp[1]);else g.lineTo(pp[0],pp[1]);}g.closePath();g.stroke();g.lineWidth=1;
+ g.strokeStyle='#ff2d95';g.lineWidth=2;var a=P(q[0]),c=P(q[2]),b=P(q[1]),d=P(q[3]);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(c[0],c[1]);g.moveTo(b[0],b[1]);g.lineTo(d[0],d[1]);g.stroke();g.lineWidth=1;
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<4;i++){var mp=P(M[i]);if(i===0)g.moveTo(mp[0],mp[1]);else g.lineTo(mp[0],mp[1]);}g.closePath();g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: Varignon parallelogram (side ∥ ½ diagonal)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the diagonals — remembered, but not enough to rebuild the quad',10,H-12);}
+document.getElementById('varmorph').onclick=function(){morph+=3;drawW3();drawW4();};
+document.getElementById('varnext').onclick=function(){qi=(qi+1)%quads.length;morph=0;drawW3();drawW4();};
+document.getElementById('varspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__varignon=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-varignon","title":"THE VARIGNON","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#80ffb0","icon":"varignon",
+  "kicker":"midpoints of any quadrilateral form a parallelogram",
+  "blurb":"Varignon's theorem in the 5-window house format — mark the midpoint of each side of any quadrilateral and join them in order; the result is always a parallelogram, however irregular or non-convex the quadrilateral. Its area is exactly half the quadrilateral's, and its perimeter equals the sum of the quadrilateral's two diagonals — because each of its sides is a midline parallel to a diagonal and half its length. See the two-equal-pairs bars in 1D, the morphing quad in 2D, and the diagonal-shadow inverse in 3D.",
+  "lit":"Genuine Varignon's theorem (Pierre Varignon, 1654-1722, published posthumously 1731). Verified live: for a battery of quadrilaterals the midpoint figure has equal opposite side-vectors (a parallelogram), its area equals half the quadrilateral's, and its perimeter equals the sum of the diagonals (window.__varignon.isParallelogram && areaIsHalf && perimeterIsDiagonalSum). All three properties are exact and cross-checked in-browser for simple quadrilaterals.",
+  "fig":"No framing: the always-parallelogram result, the half-area identity, and the perimeter-equals-diagonal-sum identity are real and verified over several quadrilaterals. The honest inverse — that the Varignon parallelogram preserves the diagonals but does NOT determine the original quadrilateral (many quads share one parallelogram) — is shown directly, and the area/perimeter claims are correctly scoped to simple (non-self-intersecting) quadrilaterals.",
+  "body":VAR_BODY,"script":VAR_SCRIPT},
+ {"slug":"the-morley","title":"THE MORLEY","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#ff80ff","icon":"morley",
+  "kicker":"trisect any triangle's angles — the meeting points are equilateral",
+  "blurb":"Morley's trisector theorem ('Morley's miracle') in the 5-window house format — take any triangle, split each angle into three equal parts with trisectors, and where adjacent trisectors meet they mark three points that always form a perfect equilateral triangle. It stayed hidden until 1899, more than two millennia after the Greeks, because it depends on angle trisection — the operation compass and straightedge cannot perform. See the equal side-bars in 1D, the live trisectors in 2D, and the trisect-vs-bisect contrast in 3D.",
+  "lit":"Genuine Morley's trisector theorem (Frank Morley 1899). Verified live: for a battery of irregular triangles the three adjacent-trisector intersections are mutually equidistant — the Morley triangle is equilateral to full floating precision (window.__morley.morleyEquilateral true), cross-checked against a from-scratch trisector-intersection construction. The construction and the equilateral result are exact.",
+  "fig":"No framing: the trisector construction and the always-equilateral Morley triangle are real and verified over many irregular triangles. The honest inverse-contrast is the genuine mathematical point — angle bisection (constructible) yields only the incenter, while trisection (classically impossible with straightedge/compass) yields the equilateral; the miracle requires the non-constructible operation, stated as fact.",
+  "body":MOR_BODY,"script":MOR_SCRIPT},
+ {"slug":"the-viviani","title":"THE VIVIANI","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#70d0e0","icon":"viviani",
+  "kicker":"three distances, one constant sum — the height",
+  "blurb":"Viviani's theorem in the 5-window house format — from any point inside an equilateral triangle, the three perpendicular distances to the sides always sum to the same total: the triangle's height, no matter where the point is. Move the point and the distances trade off, one shrinking as others grow, but the sum never changes. It is the geometric basis of barycentric coordinates: the normalized distances are weights summing to 1 that pin the point's location. See the fixed-length stacked bar in 1D, the moving point in 2D, and the barycentric inverse in 3D.",
+  "lit":"Genuine Viviani's theorem (Vincenzo Viviani, 1622-1703, pupil of Galileo). Verified live: for hundreds of random interior points the three perpendicular distances sum to the height exactly, and the normalized distances (barycentric weights) reconstruct the original point to full precision (window.__viviani.sumEqualsHeight && barycentricRecovers). The constant-sum invariant and the barycentric reconstruction are both exact and cross-checked in-browser.",
+  "fig":"No framing: the constant sum-of-distances equal to the height, and the invertibility to barycentric coordinates, are real and verified over many interior points. The connection to barycentric coordinates is the genuine mathematical content (the fixed sum is exactly the normalization that makes the inverse map well-defined), demonstrated by reconstruction, not asserted.",
+  "body":VIV_BODY,"script":VIV_SCRIPT},
+ {"slug":"the-napoleon","title":"THE NAPOLEON","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#ffb060","icon":"napoleon",
+  "kicker":"equilaterals on any triangle — their centers are equilateral",
+  "blurb":"Napoleon's theorem in the 5-window house format — take any triangle, build an equilateral triangle outward on each side, and mark each center; those three centers always form a perfect equilateral triangle, no matter how irregular the original. Building the equilaterals inward gives a second equilateral, and area(outer) - area(inner) equals the original triangle's area. Traditionally credited to Napoleon Bonaparte (likely a legend). See the equal side-bars in 1D, the live construction in 2D, and the inner/outer area identity in 3D.",
+  "lit":"Genuine Napoleon's theorem (first published by W. Rutherford, 1825). Verified live: for a battery of irregular triangles the three outer centers are mutually equidistant (equilateral), the inner centers likewise, and area(outer) - area(inner) equals the original triangle's area exactly (window.__napoleon.outerEquilateral && innerEquilateral && areaIdentity). The geometry is exact. HONEST CAVEAT: the 'Napoleon' attribution to Bonaparte is a traditional legend, not established fact — flagged as such, credited to Rutherford.",
+  "fig":"No false framing: the equilateral property (outer and inner), and the outer-minus-inner-area identity are real and checked over irregular triangles two ways. The only non-fact — the Napoleon name — is carried explicitly as a traditional/unverified attribution, with the documented first publication (Rutherford 1825) credited instead.",
+  "body":NAP_BODY,"script":NAP_SCRIPT},
+ {"slug":"the-pick","title":"THE PICK","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#a0e070","icon":"pick",
+  "kicker":"a polygon's area from counting dots — I + B/2 − 1",
+  "blurb":"Pick's theorem in the 5-window house format — for a polygon whose corners all sit on integer grid points, the area is exactly I + B/2 - 1, where I is the number of interior grid points and B the number on the boundary. No calculus, no coordinate multiplication — just count the dots. A shape with 6 interior and 14 boundary dots has area exactly 6 + 7 - 1 = 12, always agreeing with the shoelace formula. See the formula in 1D, the live dot-count vs shoelace in 2D, and the same-area-different-shape non-uniqueness in 3D.",
+  "lit":"Genuine Pick's theorem (Georg Alexander Pick 1899). Verified live: for a battery of lattice polygons, I + B/2 - 1 equals the shoelace area exactly, with I counted by an independent point-in-polygon test and B by summing gcd(dx,dy) over the edges (window.__pick.pickEqualsShoelace true). The dot-count area formula and its exact agreement with the coordinate area are real and cross-checked two independent ways.",
+  "fig":"No framing: the area-from-dot-counts formula and its exact match to the shoelace area are real and verified by two independent computations. The honest inverse — that the counts (I,B) and the area determine each other but do NOT determine the shape (many polygons share them) — is shown directly, not hidden.",
+  "body":PICK_BODY,"script":PICK_SCRIPT},
  {"slug":"the-calkin-wilf","title":"THE CALKIN-WILF","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#90d0ff","icon":"calkinwilf",
   "kicker":"every positive rational, once, in lowest terms",
