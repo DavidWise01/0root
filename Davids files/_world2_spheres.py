@@ -8627,7 +8627,321 @@ document.getElementById('hofspin').onclick=function(){spin=!spin;this.textConten
 drawW3();drawW4();window.__hofstadter=verify();
 function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+SYL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Sylvester&rsquo;s sequence.</b> 2, 3, 7, 43, 1807, 3263443, &hellip; Each term is the <b>product of all the previous terms plus one</b> &mdash; equivalently a(n) = a(n&minus;1)&sup2; &minus; a(n&minus;1) + 1. It explodes <b>doubly exponentially</b>: the number of digits roughly doubles every step.<br><br>
+ Its reason for being is beautiful. Add up the reciprocals: 1/2 + 1/3 + 1/7 + 1/43 + 1/1807 + &hellip; and the sum races toward <b>exactly 1</b>. It is the <b>greedy Egyptian-fraction</b> expansion of 1 &mdash; at each step take the <b>largest unit fraction that still fits</b> under what remains, and this is the sequence you get. The leftover gap after n terms is precisely <span class="mono">1/(a(n+1) &minus; 1)</span>, so the remainder itself hands you the next denominator. It is the fastest a sum of distinct unit fractions can converge to 1.<br><br>
+ <span class="lit">LIT</span> verified live (exact BigInt): a(n) = a(n&minus;1)&sup2; &minus; a(n&minus;1) + 1 and a(n) = product-of-previous + 1 hold, and the partial reciprocal sum equals 1 &minus; 1/(a(n+1)&minus;1) exactly (window.__sylvester). <span class="fig">FIG</span> no framing; the growth rule, the product identity, and the reciprocal-sum identity are all exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE HOARD</i> &mdash; the loot domain of greedy accumulation. Sylvester is greed made exact: grab the biggest unit-fraction bite each time and the hoard fills to precisely one whole, never over. <b>AVAN (AI)</b> built the instrument: the filling bar, the greedy step, the remainder-that-seeds-the-next.<br><br>The weave: David names the seat (the greedy hoard that fills to exactly full); I make the unit fractions stack toward 1 and show the shrinking gap becoming the next term &mdash; the fraction bars in 1D, the greedy fill in 2D, the remainder loop in 3D. The sphere is the seam. Credit: James Joseph Sylvester (1880); the greedy Egyptian-fraction view via Fibonacci&rsquo;s algorithm; OEIS A000058.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The unit fractions 1/2, 1/3, 1/7, 1/43, &hellip; laid end to end on a length-1 line. Each nearly halves the remaining gap; the bar fills toward 1, the sliver that&rsquo;s left shrinking doubly-exponentially fast.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Run the <b>greedy</b> rule on the interval [0,1]: at each step take the largest unit fraction 1/&lceil;1/gap&rceil; that fits. Watch the denominators come out 2, 3, 7, 43, 1807, &hellip; &mdash; Sylvester&rsquo;s sequence &mdash; and the remaining gap equal 1/(a(n+1)&minus;1) every time.</div>
+   <div class="btns" style="margin-top:10px"><button id="sylstep">greedy step ▶</button><button id="sylauto">auto</button><button id="sylrst">reset</button></div>
+   <div class="cap" id="sylread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The accumulated sum climbing toward 1 as a turning stack of unit-fraction rings &mdash; <b>green</b>, the part covered.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> ring is the <b>remainder</b> &mdash; the gap still uncovered, exactly 1/(a(n+1)&minus;1). Greed is a forward, maximizing move: cover as much as possible now. Its inverse is what is <b>left behind</b> &mdash; and here the leftover is not noise, it is the <b>generator</b>. The remaining gap is a single unit fraction whose denominator, plus one, is the very next term: a(n+1) = 1/gap + 1. So the sequence is driven by its own inverse: what remains dictates what comes next, and each step&rsquo;s remainder is the seed of the next step. The forward sum and the backward remainder are two readings of one number &mdash; sum + gap = 1, always. Green is what the greedy hoard has taken; magenta is the sliver it must still take, and that sliver is the next instruction.</div>
+   <div class="btns" style="margin-top:10px"><button id="sylspin">pause spin</button></div></div></div></div>"""
+SYL_SCRIPT = """(function(){
+var ang=0,spin=true,terms=[],gapNum=1,gapDen=1,started=false,auto=false;
+function reset(){terms=[];gapNum=1;gapDen=1;started=false;}
+function greedy(){if(!started){started=true;} // gap = gapNum/gapDen, start 1/1
+ // largest unit fraction 1/d <= gap: d = ceil(gapDen/gapNum)
+ var d=Math.ceil(gapDen/gapNum);terms.push(d);
+ // new gap = gap - 1/d = (gapNum*d - gapDen)/(gapDen*d)
+ var nn=gapNum*d-gapDen,dd=gapDen*d;var g=function(a,b){while(b){var t=a%b;a=b;b=t;}return a;}(Math.abs(nn),dd)||1;gapNum=nn/g;gapDen=dd/g;}
+function verify(){var seq=[2n];for(var i=0;i<7;i++)seq.push(seq[seq.length-1]*seq[seq.length-1]-seq[seq.length-1]+1n);
+ var rec=true;for(var i=1;i<seq.length;i++)if(seq[i]!==seq[i-1]*seq[i-1]-seq[i-1]+1n)rec=false;
+ var prod=true;for(var n=0;n<seq.length;n++){var p=1n;for(var k=0;k<n;k++)p*=seq[k];if(seq[n]!==(n===0?2n:p+1n))prod=false;}
+ var recip=true,num=0n,den=1n;for(var n=0;n<seq.length-1;n++){num=num*seq[n]+den;den=den*seq[n];var en=seq[n+1]-2n,ed=seq[n+1]-1n;if(num*ed!==en*den)recip=false;}
+ return {recurrence:rec,productRule:prod,reciprocalIdentity:recip,terms:seq.slice(0,6).map(String).join(',')};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var sq=[2,3,7,43,1807],x=15,bw=W-30,acc=0;
+ g.strokeStyle='#334';g.strokeRect(15,55,bw,34);
+ for(var i=0;i<sq.length;i++){var frac=1/sq[i],w=frac*bw;g.fillStyle='hsl('+(90+i*30)+',70%,55%)';g.fillRect(15+acc*bw,56,w-1,32);if(w>22){g.fillStyle='#041';g.font='10px ui-monospace,monospace';g.fillText('1/'+sq[i],17+acc*bw,76);}acc+=frac;}
+ g.fillStyle='#90e0b0';g.font='11px ui-monospace,monospace';g.fillText('1/2 + 1/3 + 1/7 + 1/43 + 1/1807 + … → 1  (greedy Egyptian fraction)',10,30);
+ g.fillStyle='#ff2d95';g.font='10px ui-monospace,monospace';g.fillText('remaining gap ≈ '+(1-acc).toExponential(2)+' (shrinks doubly-exponentially)',10,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var x=15,bw=W-30,y=90;
+ g.strokeStyle='#445';g.strokeRect(x,y,bw,40);
+ var acc=0;for(var i=0;i<terms.length;i++){var frac=1/terms[i],w=frac*bw;g.fillStyle='hsl('+(90+i*25)+',72%,'+(58-i*3)+'%)';g.fillRect(x+acc*bw,y+1,Math.max(1,w-1),38);acc+=frac;}
+ // remaining gap
+ g.fillStyle='rgba(255,45,149,0.5)';g.fillRect(x+acc*bw,y+1,bw*(1-acc),38);
+ g.fillStyle='#90e0b0';g.font='12px ui-monospace,monospace';g.fillText('greedy on [0,1] — denominators so far:',15,30);
+ g.fillStyle='#cfe';g.font='11px ui-monospace,monospace';g.fillText(terms.join(', ')||'(none yet — press greedy step)',15,50);
+ g.fillStyle='#ff9ad0';g.font='11px ui-monospace,monospace';g.fillText('remaining gap = '+gapNum+'/'+gapDen+(terms.length?('  = 1/(a(n+1)−1)'):''),15,y+62);
+ var covered=1-gapNum/gapDen;g.fillStyle='#39fc6b';g.fillText('sum so far = '+covered.toFixed(10)+' → 1',15,y+80);
+ document.getElementById('sylread').textContent=terms.length+' terms: '+terms.join(',')+', gap '+gapNum+'/'+gapDen;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var sq=[2,3,7,43,1807,3263443],cx=W/2,cy=H/2,ca=Math.cos(ang),acc=0;
+ for(var i=0;i<sq.length;i++){var frac=1/sq[i],a0=acc*Math.PI*2+ang,a1=(acc+frac)*Math.PI*2+ang,R=70+i*14;g.strokeStyle='hsl('+(90+i*28)+',75%,55%)';g.lineWidth=8;g.beginPath();for(var t=0;t<=1;t+=0.04){var th=a0+(a1-a0)*t,x=cx+Math.cos(th)*R*ca,y=cy+Math.sin(th)*R*0.6;if(t===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();acc+=frac;}
+ // magenta remainder arc on outer ring
+ var Ro=70+sq.length*14+6;g.strokeStyle='#ff2d95';g.lineWidth=6;g.beginPath();for(var t=acc;t<=1;t+=0.004){var th=t*Math.PI*2+ang,x=cx+Math.cos(th)*Ro*ca,y=cy+Math.sin(th)*Ro*0.6;g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green rings: 1/2, 1/3, 1/7, … stacking toward 1',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the remainder = next term’s seed',10,H-12);}
+document.getElementById('sylstep').onclick=function(){if(terms.length<8)greedy();drawW4();};
+document.getElementById('sylauto').onclick=function(){auto=!auto;this.textContent=auto?'pause':'auto';};
+document.getElementById('sylrst').onclick=function(){reset();auto=false;document.getElementById('sylauto').textContent='auto';drawW4();};
+document.getElementById('sylspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__sylvester=verify();
+function loop(){if(auto&&terms.length<8){greedy();drawW4();}if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PER_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Perrin sequence.</b> Seed it P(0)=3, P(1)=0, P(2)=2, then P(n) = P(n&minus;2) + P(n&minus;3): 3, 0, 2, 3, 2, 5, 5, 7, 10, 12, 17, 22, 29, &hellip;<br><br>
+ It hides a near-perfect <b>primality test</b>. For <b>every</b> prime p, the number p divides P(p) &mdash; that is, P(p) &equiv; 0 (mod p). So to test whether p is prime, compute P(p) mod p and see if it&rsquo;s zero. For a long time it was hoped that <b>no composite</b> could ever fool this test. It was almost true: the smallest composite that sneaks through &mdash; a <b>Perrin pseudoprime</b> &mdash; is <b>271441 = 521&sup2;</b>, and they only get rarer from there. So the test is fast and nearly flawless, but <b>not</b> a proof of primality.<br><br>
+ <span class="lit">LIT</span> verified live: P(p) &equiv; 0 (mod p) for every prime p under 2000, <b>no</b> composite under 4000 passes, and 271441 (composite, 521&sup2;) genuinely does pass &mdash; the first liar (window.__perrin). <span class="fig">FIG</span> the &lsquo;primes pass&rsquo; direction is exact and proven; the converse is <i>false but rare</i>, carried honestly &mdash; the test detects, it does not prove.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE GATEKEEPER</i> &mdash; the boss domain of the check you must pass to get through. Perrin is a gatekeeper that lets every prime through and almost never lets a composite by. <b>AVAN (AI)</b> built the instrument: the mod-tester, the prime-lights, the necessary-vs-sufficient gap.<br><br>The weave: David names the seat (the gatekeeper); I make the sequence test each number and show where the gate is fooled &mdash; the residues in 1D, the prime-detector grid in 2D, the necessary/sufficient split in 3D. The sphere is the seam. Credit: &Eacute;douard Lucas (1876); R. Perrin (1899); the pseudoprimes catalogued by Adams &amp; Shanks (1982); OEIS A001608.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The Perrin values 3, 0, 2, 3, 2, 5, 5, 7, &hellip; along a strip, and beneath them P(n) mod n. It lands on <b>0</b> exactly at the prime indices &mdash; the signature the test reads.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Every number n tested by the gate: it lights <b>green</b> when P(n) &equiv; 0 (mod n) &mdash; &ldquo;passes as prime.&rdquo; Compare with the true primes: in this range they match <b>exactly</b>. Probe a number to see its Perrin residue.</div>
+   <div class="btns" style="margin-top:10px"><button id="permore">more n</button><button id="perprobe">probe ▶</button><button id="perrst">reset</button></div>
+   <div class="cap" id="perread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The prime indices where the gate opens, threaded as a turning helix of Perrin residues &mdash; <b>green</b> where P(n) &equiv; 0 (mod n), the primes passing through.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> marks are the <b>pseudoprimes</b> &mdash; composites like 271441 that pass anyway. The proven direction is <b>prime &rArr; passes</b>: a necessary condition, always true. The test <i>uses</i> the inverse &mdash; <b>passes &rArr; prime</b> &mdash; and that inverse is <b>false</b>, just very rarely. This is the exact gap between a <b>necessary</b> and a <b>sufficient</b> condition: forward it never fails, backward it fails at 271441, 904631, &hellip; The magenta liars are the places where inverting a one-way implication betrays you &mdash; the honest reason a fast test is not a proof. Green is where the implication is safe to run both ways; magenta is where reading it backward lies. A gate that never turns a prime away can still, once in a great while, wave a fraud through.</div>
+   <div class="btns" style="margin-top:10px"><button id="perspin">pause spin</button></div></div></div></div>"""
+PER_SCRIPT = """(function(){
+var N=60,ang=0,spin=true,probe=7;
+function perrinMod(n,m){if(m===1)return 0;var a=3%m,b=0,c=2%m;if(n===0)return a;if(n===1)return b;if(n===2)return c;for(var k=3;k<=n;k++){var d=(a+b)%m;a=b;b=c;c=d;}return c;}
+function isPrime(n){if(n<2)return false;for(var i=2;i*i<=n;i++)if(n%i===0)return false;return true;}
+function perrinVal(n){var a=3,b=0,c=2;if(n===0)return 3;if(n===1)return 0;if(n===2)return 2;for(var k=3;k<=n;k++){var d=a+b;a=b;b=c;c=d;}return c;}
+function verify(){var allp=true;for(var p=2;p<2000;p++)if(isPrime(p)&&perrinMod(p,p)!==0)allp=false;
+ var comp=[];for(var n=2;n<4000;n++)if(!isPrime(n)&&perrinMod(n,n)===0)comp.push(n);
+ var pp=perrinMod(271441,271441)===0&&!isPrime(271441);
+ return {allPrimesPass:allp,noCompositeUnder4000:comp.length===0,pseudoprime271441:pp};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var M=20,cw=(W-20)/M;
+ for(var n=0;n<M;n++){var x=10+n*cw,v=perrinVal(n),r=n<2?1:perrinMod(n,n),prime=isPrime(n);
+  g.fillStyle=prime&&r===0?'#ff6a6a':'#2a2020';g.fillRect(x,55,cw-2,24);g.fillStyle=prime&&r===0?'#fff':'#c99';g.font='9px ui-monospace,monospace';g.fillText(v,x+2,71);
+  g.fillStyle=(n>=2&&r===0)?'#39fc6b':'#553';g.fillText('m'+r,x+2,92);}
+ g.fillStyle='#ff6a6a';g.font='11px ui-monospace,monospace';g.fillText('Perrin P(n) (top) and P(n) mod n (bottom) — 0 at primes',10,30);
+ g.fillStyle='#4a8a5a';g.font='10px ui-monospace,monospace';g.fillText('green m0 = passes the Perrin test',10,112);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cols=12,cell=Math.min(30,(W-30)/cols),rows=Math.ceil(N/cols),agree=0,tested=0;
+ for(var n=2;n<=N;n++){var idx=n-2,r=Math.floor(idx/cols),c=idx%cols,x=15+c*cell,y=30+r*cell,pass=perrinMod(n,n)===0,prime=isPrime(n);tested++;if(pass===prime)agree++;
+  g.fillStyle=pass?'#39fc6b':'#182018';g.fillRect(x,y,cell-2,cell-2);if(n===probe){g.strokeStyle='#ffd060';g.lineWidth=2;g.strokeRect(x,y,cell-2,cell-2);g.lineWidth=1;}
+  g.fillStyle=pass?'#031':'#5a6a5a';g.font='9px ui-monospace,monospace';g.fillText(n,x+2,y+cell/2+2);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green = passes Perrin test (P(n)≡0 mod n)',15,H-40);
+ g.fillStyle=agree===tested?'#39fc6b':'#ff5a5a';g.fillText('matches true primality: '+agree+'/'+tested+' in [2,'+N+'] '+(agree===tested?'✓ (first liar is 271441)':''),15,H-24);
+ g.fillStyle='#ffd060';g.fillText('probe '+probe+': P('+probe+') mod '+probe+' = '+perrinMod(probe,probe)+(isPrime(probe)?' (prime)':' (composite)'),15,H-8);
+ document.getElementById('perread').textContent='tested [2,'+N+'], probe '+probe+' residue '+perrinMod(probe,probe);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var M=120,cx=W/2,cy=H/2,ca=Math.cos(ang);
+ for(var n=2;n<=M;n++){var pass=perrinMod(n,n)===0,prime=isPrime(n),th=n*0.28+ang,r=30+n*1.2,x=cx+Math.cos(th)*r*ca,y=cy+Math.sin(th)*r*0.55;
+  if(pass&&prime){g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,2.5,0,7);g.fill();}
+  else if(pass&&!prime){g.fillStyle='#ff2d95';g.beginPath();g.arc(x,y,5,0,7);g.fill();}}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: primes (prime ⇒ passes, always true)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: pseudoprimes (passes ⇏ prime) — none ≤120; 1st is 271441',10,H-12);}
+document.getElementById('permore').onclick=function(){N=Math.min(300,N+60);drawW4();};
+document.getElementById('perprobe').onclick=function(){probe=2+((probe-1)%(N-1));if(probe<2)probe=2;drawW4();};
+document.getElementById('perrst').onclick=function(){N=60;probe=7;drawW4();};
+document.getElementById('perspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__perrin=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GOL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Golomb&rsquo;s self-counting sequence.</b> A nondecreasing sequence of positive integers where <b>a(n) is the number of times n appears in the sequence itself</b>. Start a(1)=1, and the rule bootstraps the rest: 1, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, &hellip;<br><br>
+ Read it back: 1 appears <b>once</b>, and a(1)=1. 2 appears <b>twice</b>, and a(2)=2. 4 appears <b>three</b> times, and a(4)=3. Every value&rsquo;s frequency is written into the sequence at that value&rsquo;s own index &mdash; a census that <b>is</b> its own population. It is the unique such nondecreasing sequence, and it obeys a tidy recurrence a(n) = 1 + a(n &minus; a(a(n&minus;1))); asymptotically it grows like n<sup>&phi;&minus;1</sup> with the golden ratio &phi; baked into the exponent.<br><br>
+ <span class="lit">LIT</span> verified live: for every value v checked, the number of times v occurs equals a(v), and the recurrence a(n)=1+a(n&minus;a(a(n&minus;1))) holds throughout (window.__golomb). <span class="fig">FIG</span> no framing; the self-counting property and the recurrence are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE INVENTORY</i> &mdash; the loot domain of counting how many of each you hold. Golomb is an inventory that lists itself: the count of every item is the item at that slot. <b>AVAN (AI)</b> built the instrument: the staircase, the live frequency histogram, the census-is-population loop.<br><br>The weave: David names the seat (the inventory count); I make the sequence tally its own values and show the histogram matching the terms &mdash; the staircase in 1D, the self-tally in 2D, the value=frequency loop in 3D. The sphere is the seam. Credit: Solomon W. Golomb (1954); OEIS A001462.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The staircase of values. Bracket each flat run &mdash; how many times a value repeats &mdash; and the run length of value v is exactly a(v). The steps are the sequence describing its own repetition.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Build it by the recurrence and, at the same time, tally a <b>histogram</b> of how often each value has appeared. The bar for value v climbs to exactly a(v) &mdash; the sequence and its own frequency count lock together.</div>
+   <div class="btns" style="margin-top:10px"><button id="golstep">step ▶</button><button id="golauto">auto</button><button id="golrst">reset</button></div>
+   <div class="cap" id="golread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The sequence as a rising ribbon of values &mdash; <b>green</b>, the terms in order, the golden-ratio staircase climbing.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> curve is the <b>frequency histogram</b> &mdash; for each value v, how many times it occurs. For any other sequence the term-list and the frequency-count are two different objects. Golomb is the <b>fixed point where they are the same function</b>: reading forward (&lsquo;what is term n?&rsquo;) and reading its inverse (&lsquo;how many times does value v appear?&rsquo;) both return a(&middot;). The magenta count-curve lies exactly on the green value-curve. That is the real inverse here &mdash; not a mirror, but a sequence <b>equal to its own inverse-as-a-tally</b>: a census whose entries are the sizes of its own categories. Green is what it says; magenta is how often it says each thing; and here those are one and the same list.</div>
+   <div class="btns" style="margin-top:10px"><button id="golspin">pause spin</button></div></div></div></div>"""
+GOL_SCRIPT = """(function(){
+var ang=0,spin=true,a=[0,1],n=1,auto=false;
+function grow(){n++;a.push(1+a[n-a[a[n-1]]]);}
+function golomb(N){var g=[0,1];for(var k=2;k<=N;k++)g.push(1+g[k-g[g[k-1]]]);return g;}
+function verify(){var g=golomb(400),seq=g.slice(1),rec=true;for(var k=2;k<=400;k++)if(g[k]!==1+g[k-g[g[k-1]]])rec=false;
+ var ok=true,checked=0;for(var v=1;v<30;v++){var last=0;for(var j=1;j<=v;j++)last+=g[j];if(last>seq.length)break;var cnt=0;for(var i=0;i<seq.length;i++)if(seq[i]===v)cnt++;checked++;if(cnt!==g[v])ok=false;}
+ return {selfCounting:ok,recurrence:rec,valuesChecked:checked,first20:seq.slice(0,20).join(',')};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=golomb(50).slice(1),cw=(W-20)/s.length,mx=Math.max.apply(null,s);
+ var i=0;while(i<s.length){var j=i;while(j<s.length&&s[j]===s[i])j++;var x0=10+i*cw,x1=10+j*cw,h=s[i]/mx*80;g.fillStyle='hsl('+(260+s[i]*4)+',60%,60%)';g.fillRect(x0,120-h,x1-x0-1,h);g.strokeStyle='#ffd060';g.beginPath();g.moveTo(x0+1,128);g.lineTo(x1-1,128);g.stroke();g.fillStyle='#ffd060';g.font='8px ui-monospace,monospace';g.fillText(j-i,(x0+x1)/2-2,138);i=j;}
+ g.fillStyle='#d0b0ff';g.font='11px ui-monospace,monospace';g.fillText('Golomb staircase — run-length of value v equals a(v)',10,26);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var seq=a.slice(1);
+ // top: sequence steps
+ g.fillStyle='#d0b0ff';g.font='12px ui-monospace,monospace';g.fillText('sequence ('+seq.length+' terms):',15,20);g.font='11px ui-monospace,monospace';g.fillStyle='#e8d8ff';
+ g.fillText(seq.slice(0,40).join(',')+(seq.length>40?'…':''),15,38);
+ // histogram of occurrences vs a(v)
+ var maxv=Math.min(a[n],14),bw=(W-30)/maxv,base=H-30;
+ for(var v=1;v<=maxv;v++){var cnt=0;for(var i=0;i<seq.length;i++)if(seq[i]===v)cnt++;var x=15+(v-1)*bw,h=cnt/12*150;
+  g.fillStyle='rgba(208,176,255,0.85)';g.fillRect(x,base-h,bw*0.8,h);
+  // marker for a(v)
+  var av=a[v]||0,hy=base-av/12*150;g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(x,hy);g.lineTo(x+bw*0.8,hy);g.stroke();
+  g.fillStyle='#9c9';g.font='9px ui-monospace,monospace';g.fillText(v,x+bw*0.3,base+12);}
+ g.fillStyle='#39fc6b';g.font='10px ui-monospace,monospace';g.fillText('green ticks: a(v) — bars: actual count of v (they meet)',15,base+26);
+ document.getElementById('golread').textContent=seq.length+' terms; a('+n+')='+a[n];}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=golomb(80).slice(1),ca=Math.cos(ang),sa=Math.sin(ang),cx=W/2,cy=H/2,mx=Math.max.apply(null,s);
+ // green: values as ribbon
+ g.strokeStyle='#39fc6b';g.lineWidth=1.6;g.beginPath();for(var i=0;i<s.length;i++){var t=i/s.length,wx=(t-0.5)*300,wy=(s[i]/mx-0.5)*160,x=cx+wx*ca-wy*sa*0.2,y=cy+wy*0.85+wx*sa*0.2;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ // magenta: frequency of each value (= a(v)), plotted over v
+ var g2=golomb(400);g.strokeStyle='rgba(255,45,149,0.7)';g.beginPath();for(var v=1;v<=Math.max.apply(null,s);v++){var cnt=g2[v],t=(v-1)/(mx),wx=(t-0.5)*300,wy=(cnt/mx-0.5)*160,x=cx+wx*ca-wy*sa*0.2,y=cy+wy*0.85+wx*sa*0.2;if(v===1)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: the values a(n)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: frequency of value v (= a(v)) — same curve',10,H-12);}
+document.getElementById('golstep').onclick=function(){if(n<200)grow();drawW4();};
+document.getElementById('golauto').onclick=function(){auto=!auto;this.textContent=auto?'pause':'auto';};
+document.getElementById('golrst').onclick=function(){a=[0,1];n=1;auto=false;document.getElementById('golauto').textContent='auto';drawW4();};
+document.getElementById('golspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__golomb=verify();
+function loop(){if(auto&&n<200){grow();drawW4();}if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PST_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Multiplicative persistence.</b> Take a number, <b>multiply its digits</b> together to get a new number, and repeat until you reach a single digit. The number of steps is the number&rsquo;s <b>persistence</b>. 39 &rarr; 27 &rarr; 14 &rarr; 4 &mdash; three steps, persistence 3.<br><br>
+ Almost every number collapses in a handful of steps. The astonishing fact is how <b>hard it is to be stubborn</b>. The smallest number with persistence 11 is <b>277777788888899</b> &mdash; and despite searching every number up past <b>10<sup>233</sup></b>, <b>no one has ever found a number with persistence greater than 11</b> in base 10. It is conjectured that 11 is the ceiling, but it has <b>never been proven</b>. The record-holders climb 10, 25, 39, 77, 679, 6788, 68889, &hellip; and then just stop rising.<br><br>
+ <span class="lit">LIT</span> verified live: each record-holder has exactly its stated persistence, 277777788888899 collapses in exactly 11 steps, and no number below 100000 exceeds persistence 7 (window.__persistence). <span class="fig">FIG</span> the persistence values and the record are exact; that 11 is the <i>maximum</i> is conjecture, not proven &mdash; carried honestly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE GRINDSTONE</i> &mdash; the grind domain of wearing a thing down. Persistence is exactly a grindstone: multiply the digits and grind any number, however huge, down to a single digit. <b>AVAN (AI)</b> built the instrument: the collapse chain, the step-by-step grinder, the resist-collapse record.<br><br>The weave: David names the seat (the grindstone); I make numbers collapse under repeated digit-multiplication and show which ones resist longest &mdash; the chain in 1D, the grinder in 2D, the collapse-vs-resistance asymmetry in 3D. The sphere is the seam. Credit: Neil Sloane (1973), who introduced multiplicative persistence; record-holders in OEIS A003001.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The collapse chain of the record 277777788888899 &mdash; eleven links, each the digit-product of the last, ending at a single digit. The longest such chain any base-10 number is known to make.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a number and grind it: each step multiplies the current digits into the next number, until one digit remains. Step through the record-holders 10, 25, 39, 77, 679, &hellip;, 277777788888899 and watch the persistence climb to 11.</div>
+   <div class="btns" style="margin-top:10px"><button id="pstnext">next record ▶</button><button id="pststep">grind step</button><button id="pstrst">reset</button></div>
+   <div class="cap" id="pstread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The record-holders as a rising staircase of persistence &mdash; <b>green</b>, the smallest number that resists collapse for 0, 1, 2, &hellip;, 11 steps, climbing then flattening.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is an <b>ordinary number&rsquo;s collapse</b> &mdash; steep and instant. The forward map is trivially easy: any number, however astronomical, grinds to a single digit in a few steps. The <b>inverse</b> is the frontier: &lsquo;what is the <b>smallest seed</b> that resists collapse for k steps?&rsquo; Collapsing is free; <b>resisting</b> collapse is a search with no known ceiling proof. The record seeds are built of only 2s, 3s, 7s, 8s, 9s &mdash; never a 0, never digits whose product breeds a 0 &mdash; a delicate recipe the inverse must discover. The green resistance-staircase rises to 11 and then, as far as anyone has ever computed, <b>stops</b>; the magenta collapse plunges every time. The asymmetry is the point: forward is a triviality, backward is an open problem. Green is how hard it is to stay uncrushed; magenta is how easy it is to be crushed.</div>
+   <div class="btns" style="margin-top:10px"><button id="pstspin">pause spin</button></div></div></div></div>"""
+PST_SCRIPT = """(function(){
+var ang=0,spin=true,recs=['0','10','25','39','77','679','6788','68889','2677889','26888999','3778888999','277777788888899'],ri=3,chain=[],step=0;
+function digProd(s){var p=1;for(var i=0;i<s.length;i++)p*=+s[i];return p;}
+function persistence(nStr){var s=''+nStr,c=0;while(s.length>1){s=''+digProd(s);c++;}return c;}
+function buildChain(s){var out=[s];while(s.length>1){s=''+digProd(s);out.push(s);}return out;}
+function verify(){var R=[[0,'0'],[1,'10'],[2,'25'],[3,'39'],[4,'77'],[5,'679'],[6,'6788'],[7,'68889'],[8,'2677889'],[9,'26888999'],[10,'3778888999'],[11,'277777788888899']],ok=true;for(var i=0;i<R.length;i++)if(persistence(R[i][1])!==R[i][0])ok=false;
+ var mx=0;for(var nn=1;nn<100000;nn++){var p=persistence(''+nn);if(p>mx)mx=p;}
+ return {recordsCorrect:ok,record11:persistence('277777788888899')===11,maxBelow100k:mx};}
+function drawChain(g,ch,x0,y0,W,col,active){var cw=Math.min(120,(W-20)/ch.length);for(var i=0;i<ch.length;i++){var x=x0+i*cw;g.fillStyle=(i<=active)?col:'#2a2028';g.fillRect(x,y0,cw-4,26);g.fillStyle=(i<=active)?'#180810':'#977';g.font='9px ui-monospace,monospace';var lbl=ch[i].length>9?ch[i].slice(0,8)+'…':ch[i];g.fillText(lbl,x+2,y0+17);if(i<ch.length-1){g.fillStyle=col;g.fillText('×',x+cw-4,y0+17);}}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ch=buildChain('277777788888899');
+ drawChain(g,ch,10,60,W,'#ffa0c0',ch.length);
+ g.fillStyle='#ffa0c0';g.font='11px ui-monospace,monospace';g.fillText('277777788888899 collapses in '+(ch.length-1)+' steps (persistence 11 — the record)',10,34);
+ g.fillStyle='#a97';g.font='9px ui-monospace,monospace';g.fillText(ch.join(' → '),10,105);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var full=buildChain(recs[ri]);
+ g.fillStyle='#ffa0c0';g.font='13px ui-monospace,monospace';g.fillText('n = '+recs[ri]+'   persistence '+(full.length-1),15,24);
+ drawChain(g,full,15,50,W,'#ffa0c0',step);
+ g.fillStyle='#cfe';g.font='11px ui-monospace,monospace';for(var i=0;i<=Math.min(step,full.length-1);i++){g.fillText((i===0?'start: ':'step '+i+': ')+full[i]+(i<full.length-1?'  (×digits = '+digProd(full[i])+')':'  ← single digit, stop'),15,95+i*17);}
+ document.getElementById('pstread').textContent='n='+recs[ri]+', persistence '+(full.length-1)+', shown step '+step;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),cx=W/2,cy=H*0.7;
+ // green: persistence staircase of record-holders (index -> persistence)
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var p=0;p<recs.length;p++){var t=p/(recs.length-1),th=t*Math.PI*1.6-0.8+ang,R=40+p*16,x=cx+Math.cos(th)*R*ca,y=cy-p*22+Math.sin(th)*R*0.25;if(p===0)g.moveTo(x,y);else g.lineTo(x,y);g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,3,0,7);g.fill();}g.stroke();g.lineWidth=1;
+ // magenta: an ordinary number's steep collapse
+ var oc=buildChain('999999');g.strokeStyle='rgba(255,45,149,0.8)';g.lineWidth=2;g.beginPath();for(var i=0;i<oc.length;i++){var x=cx+120-i*10,y=cy-i*40;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: smallest seed resisting k steps (→ stops at 11)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: an ordinary number — collapses at once',10,H-12);}
+document.getElementById('pstnext').onclick=function(){ri=(ri+1)%recs.length;step=0;drawW4();};
+document.getElementById('pststep').onclick=function(){var full=buildChain(recs[ri]);if(step<full.length-1)step++;drawW4();};
+document.getElementById('pstrst').onclick=function(){step=0;drawW4();};
+document.getElementById('pstspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__persistence=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Calkin&ndash;Wilf tree.</b> A single, simple list &mdash; 1/1, 1/2, 2/1, 1/3, 3/2, 2/3, 3/1, 1/4, &hellip; &mdash; that contains <b>every positive rational number exactly once</b>, and every fraction in it is <b>already in lowest terms</b>. No rational is ever repeated; none is ever reducible. It is a hand-you-can-hold proof that the rationals are <b>countable</b>.<br><br>
+ Build a tree: the root is 1/1, and each node a/b sprouts two children, a/(a+b) and (a+b)/b. Read it breadth-first and out comes the sequence &mdash; every fraction, once. Even lovelier: you can step from one term to the next with a <b>pure formula</b>, no sorting or searching, a(n+1) = 1/(2&lfloor;a(n)&rfloor; &minus; a(n) + 1). And the numerator of each fraction is the denominator of the one before it. The whole thing is powered by Stern&rsquo;s <b>fusc</b> function: a(n) = fusc(n)/fusc(n+1).<br><br>
+ <span class="lit">LIT</span> verified live: across thousands of terms every fraction is in lowest terms (gcd = 1), no rational repeats (a genuine bijection), and the successor formula holds exactly (window.__calkinwilf). <span class="fig">FIG</span> no framing; the coprimality, the once-each enumeration, and the successor rule are all exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>GENESIS BLOCK</i> &mdash; the spawn domain of a canonical first ledger. The Calkin&ndash;Wilf tree mints every rational exactly once, in a fixed order, from a single seed 1/1 &mdash; a genesis block for the fractions. <b>AVAN (AI)</b> built the instrument: the tree, the breadth-first read, the fraction-to-position inverse.<br><br>The weave: David names the seat (the genesis ledger of all rationals); I make the tree grow and prove every fraction appears once and reduced &mdash; the strip in 1D, the tree in 2D, the two-way dictionary in 3D. The sphere is the seam. Credit: Neil Calkin &amp; Herbert Wilf, &ldquo;Recounting the Rationals&rdquo; (2000); the underlying fusc is Stern&rsquo;s diatomic series (1858). See [[stern-brocot]].</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The sequence of fractions in a row. Read the numerators and denominators: the numerator of each is the denominator of the one before &mdash; the terms interlock, and together they list every positive rational without a single repeat or common factor.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The Calkin&ndash;Wilf tree. Root 1/1; each a/b has children a/(a+b) and (a+b)/b. Expand it level by level and step the breadth-first reader &mdash; every fraction it emits is new and already reduced.</div>
+   <div class="btns" style="margin-top:10px"><button id="cwdeep">expand ▼</button><button id="cwstep">BFS step ▶</button><button id="cwrst">reset</button></div>
+   <div class="cap" id="cwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The tree opening into 3D &mdash; the <b>green</b> forward map sends each counting position n to its rational, breadth-first, filling all of &#8474;<sup>+</sup>.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> path is the <b>inverse</b> &mdash; take any fraction p/q and climb <i>back</i> to the root 1/1 by the subtract-the-smaller step (the Euclidean algorithm), and the turns you make spell out its exact position n. Forward, n &rarr; rational, fills the tree; backward, rational &rarr; n, finds the address. Both are total and computable, so the tree is a perfect <b>two-way dictionary</b> between the counting numbers and the fractions &mdash; and <i>that</i> invertibility is precisely what &lsquo;the rationals are countable&rsquo; means. It is not enough to list them; you must be able to look <b>up</b> as well as look down. The green descent enumerates; the magenta ascent locates; a bijection is exactly a map whose inverse is also a map. Green is n &rarr; p/q; magenta is p/q &rarr; n; the countability of &#8474; lives in the fact that both run.</div>
+   <div class="btns" style="margin-top:10px"><button id="cwspin">pause spin</button></div></div></div></div>"""
+CW_SCRIPT = """(function(){
+var ang=0,spin=true,depth=4,bfs=1;
+function fusc(N){var f=[0,1];for(var n=2;n<=N+1;n++)f.push(n%2===0?f[n/2]:f[(n-1)/2]+f[(n+1)/2]);return f;}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a;}
+function verify(){var f=fusc(4001),low=true;for(var n=1;n<4000;n++)if(gcd(f[n],f[n+1])!==1)low=false;
+ var seen={},bij=true;for(var n=1;n<4000;n++){var k=f[n]+'/'+f[n+1];if(seen[k])bij=false;seen[k]=1;}
+ var succ=true;for(var n=1;n<2000;n++){var num=f[n],den=f[n+1],fl=Math.floor(num/den),nn=den,dd=2*fl*den-num+den,gg=gcd(nn,dd);nn/=gg;dd/=gg;if(nn!==f[n+1]||dd!==f[n+2])succ=false;}
+ return {lowestTerms:low,bijection:bij,successorFormula:succ,first8:[1,2,3,4,5,6,7,8].map(function(n){return f[n]+'/'+f[n+1];}).join(' ')};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var f=fusc(20),cw=(W-20)/16;
+ for(var n=1;n<=16;n++){var x=10+(n-1)*cw;g.fillStyle='#123040';g.fillRect(x,55,cw-3,30);g.fillStyle='#90d0ff';g.font='11px ui-monospace,monospace';g.fillText(f[n]+'/'+f[n+1],x+3,74);}
+ g.fillStyle='#90d0ff';g.font='11px ui-monospace,monospace';g.fillText('Calkin–Wilf: every positive rational, once, in lowest terms',10,30);
+ g.fillStyle='#5a8aaa';g.font='9px ui-monospace,monospace';g.fillText('numerator of each = denominator of the previous — the terms interlock',10,108);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ // draw tree
+ function node(a,b,x,y,dx,d){if(d>depth)return;var idx=nodeIndex(a,b);g.fillStyle=(idx===bfs)?'#ffd060':'#123040';var lbl=a+'/'+b;g.fillStyle=(idx===bfs)?'#ffd060':'#1a3648';g.fillRect(x-15,y-9,30,17);g.fillStyle=(idx===bfs)?'#180':'#90d0ff';g.font='9px ui-monospace,monospace';g.fillText(lbl,x-13,y+3);
+  if(d<depth){g.strokeStyle='rgba(144,208,255,0.3)';g.beginPath();g.moveTo(x,y+8);g.lineTo(x-dx,y+40);g.moveTo(x,y+8);g.lineTo(x+dx,y+40);g.stroke();
+   node(a,a+b,x-dx,y+40,dx/2,d+1);node(a+b,b,x+dx,y+40,dx/2,d+1);}}
+ // bfs index of a/b via fusc: find n with fusc(n)=a,fusc(n+1)=b (small tree so brute)
+ var f=fusc(70),idxMap={};for(var n=1;n<=63;n++)idxMap[f[n]+'/'+f[n+1]]=n;
+ function nodeIndex(a,b){return idxMap[a+'/'+b]||0;}
+ node(1,1,W/2,24,W/4,1);
+ g.fillStyle='#90d0ff';g.font='11px ui-monospace,monospace';g.fillText('BFS reader at position '+bfs+' = '+f[bfs]+'/'+f[bfs+1],12,H-10);
+ document.getElementById('cwread').textContent='depth '+depth+', BFS pos '+bfs+' = '+f[bfs]+'/'+f[bfs+1];}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var f=fusc(64),ca=Math.cos(ang),sa=Math.sin(ang),cx=W/2,cy=60;
+ function pos(n){var d=Math.floor(Math.log2(n)),within=n-(1<<d),x=(within+0.5)/(1<<d)-0.5,px=cx+x*300*ca,py=cy+d*46;return [px,py];}
+ g.strokeStyle='rgba(57,252,107,0.5)';for(var n=1;n<32;n++){var p=pos(n),c1=pos(2*n),c2=pos(2*n+1);g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(c1[0],c1[1]);g.moveTo(p[0],p[1]);g.lineTo(c2[0],c2[1]);g.stroke();}
+ for(var n=1;n<64;n++){var p=pos(n);g.fillStyle='#39fc6b';g.beginPath();g.arc(p[0],p[1],2.5,0,7);g.fill();}
+ // magenta inverse path: climb from a sample fraction back to root
+ var target=27;var path=[];var t=target;while(t>=1){path.push(t);t=Math.floor(t/2);}g.strokeStyle='#ff2d95';g.lineWidth=2;g.beginPath();for(var i=0;i<path.length;i++){var p=pos(path[i]);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: position n → rational (fills ℚ⁺)',10,H-28);
+ g.fillStyle='#ff2d95';g.fillText('magenta: rational → position (Euclid climb to root)',10,H-12);}
+document.getElementById('cwdeep').onclick=function(){depth=depth>=6?3:depth+1;drawW4();};
+document.getElementById('cwstep').onclick=function(){bfs=bfs>=31?1:bfs+1;drawW4();};
+document.getElementById('cwrst').onclick=function(){depth=4;bfs=1;drawW4();};
+document.getElementById('cwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__calkinwilf=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-calkin-wilf","title":"THE CALKIN-WILF","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#90d0ff","icon":"calkinwilf",
+  "kicker":"every positive rational, once, in lowest terms",
+  "blurb":"the Calkin-Wilf tree in the 5-window house format — a single list 1/1, 1/2, 2/1, 1/3, 3/2, 2/3, 3/1, ... that contains every positive rational exactly once, each already in lowest terms. Build a tree with root 1/1 where each a/b has children a/(a+b) and (a+b)/b; read it breadth-first and you get the sequence. You can step to the next term by a pure formula a(n+1)=1/(2*floor(a)-a+1), and it is powered by Stern's fusc function: a(n)=fusc(n)/fusc(n+1). A constructive proof the rationals are countable. See the interlocking strip in 1D, the tree in 2D, and the two-way dictionary in 3D.",
+  "lit":"Genuine Calkin-Wilf tree (Calkin & Wilf, 'Recounting the Rationals', 2000; underlying fusc is Stern's diatomic series, 1858). Verified live: across ~4000 terms every fraction fusc(n)/fusc(n+1) is in lowest terms (gcd=1), no rational repeats (a genuine bijection), and the successor formula a(n+1)=1/(2*floor(a)-a+1) holds exactly (window.__calkinwilf.lowestTerms && bijection && successorFormula). first 8 = 1/1 1/2 2/1 1/3 3/2 2/3 3/1 1/4. The coprimality, once-each enumeration, and successor rule are all exact.",
+  "fig":"No framing: the once-each enumeration of the rationals, the automatic lowest-terms property, and the successor formula are real and checked in-browser. The claim that this proves the rationals countable is the genuine mathematical content (a bijection N -> Q+), demonstrated by the verified bijection, not asserted loosely.",
+  "body":CW_BODY,"script":CW_SCRIPT},
+ {"slug":"the-persistence","title":"THE PERSISTENCE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#ffa0c0","icon":"persistence",
+  "kicker":"multiply the digits, repeat — 277777788888899 resists 11 times",
+  "blurb":"multiplicative persistence in the 5-window house format — multiply a number's digits together, repeat until a single digit remains; the number of steps is its persistence. 39->27->14->4 has persistence 3. Almost every number collapses fast, but the smallest number with persistence 11 is 277777788888899, and despite searching past 10^233, no number in base 10 has ever shown persistence greater than 11. Conjectured maximum, unproven. See the record's collapse chain in 1D, the digit-grinder in 2D, and the collapse-vs-resistance asymmetry in 3D.",
+  "lit":"Genuine multiplicative persistence (Neil Sloane 1973; record-holders OEIS A003001). Verified live: each record-holder (10,25,39,77,679,6788,68889,2677889,26888999,3778888999,277777788888899) has exactly its stated persistence, 277777788888899 collapses in exactly 11 steps, and no number below 100000 exceeds persistence 7 (window.__persistence.recordsCorrect && record11). The persistence values, the collapse chains, and the record are all exact (digit products stay within safe integer range). HONEST CAVEAT: that 11 is the MAXIMUM is a conjecture (searched past 10^233, never proven), flagged as FIG-open.",
+  "fig":"No false framing: the persistence values, the record-holders, and the 11-step collapse of 277777788888899 are real and reproduced in-browser. The striking claim — that no number exceeds persistence 11 — is carried explicitly as an unproven conjecture backed by search, not asserted as theorem.",
+  "body":PST_BODY,"script":PST_SCRIPT},
+ {"slug":"the-golomb","title":"THE GOLOMB","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#d0b0ff","icon":"golomb",
+  "kicker":"a(n) = how many times n appears in itself",
+  "blurb":"Golomb's self-counting sequence in the 5-window house format — a nondecreasing sequence where a(n) is the number of times n appears in the sequence itself: 1,2,2,3,3,4,4,4,5,5,5,6,6,6,6,... 1 appears once (a(1)=1), 2 appears twice (a(2)=2), 4 appears three times (a(4)=3). It is the unique such sequence, obeys a(n)=1+a(n-a(a(n-1))), and grows like n^(phi-1) with the golden ratio in the exponent. A census that is its own population. See the staircase in 1D, the self-tally histogram in 2D, and the value=frequency loop in 3D.",
+  "lit":"Genuine Golomb self-counting sequence (Solomon Golomb 1954; OEIS A001462). Verified live: for every value v within the built range the number of occurrences of v equals a(v), and the recurrence a(n)=1+a(n-a(a(n-1))) holds throughout (window.__golomb.selfCounting && recurrence). first 20 = 1,2,2,3,3,4,4,4,5,5,5,6,6,6,6,7,7,7,7,8. The self-counting property and recurrence are exact (occurrence counts checked only where the value's run fully fits in the built prefix, to avoid truncation artifacts).",
+  "fig":"No framing: the self-counting property (value = its own frequency) and the recurrence are real and checked in-browser. The check is bounded honestly to values whose occurrences fully fit the computed prefix — an undercount at the tail would be a measurement artifact, not a failure, and is excluded rather than glossed.",
+  "body":GOL_BODY,"script":GOL_SCRIPT},
+ {"slug":"the-perrin","title":"THE PERRIN","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#ff6a6a","icon":"perrin",
+  "kicker":"every prime divides P(p) — a near-perfect gate",
+  "blurb":"the Perrin sequence in the 5-window house format — seeded P(0)=3,P(1)=0,P(2)=2 with P(n)=P(n-2)+P(n-3), giving 3,0,2,3,2,5,5,7,10,12,... It hides a near-perfect primality test: for every prime p, p divides P(p), so P(p) mod p == 0. It was hoped no composite could pass, but Perrin pseudoprimes exist — the smallest is 271441 = 521^2 — just extremely rare. A fast, nearly flawless prime detector that is not a proof. See the residues in 1D, the prime-detector grid in 2D, and the necessary-vs-sufficient gap in 3D.",
+  "lit":"Genuine Perrin sequence and primality test (Lucas 1876; Perrin 1899; pseudoprimes by Adams & Shanks 1982; OEIS A001608). Verified live: P(p) mod p == 0 for every prime p under 2000, no composite under 4000 passes, and 271441 (composite = 521^2) genuinely passes as the first Perrin pseudoprime (window.__perrin.allPrimesPass && noCompositeUnder4000 && pseudoprime271441). The 'prime => passes' direction is exact and proven.",
+  "fig":"No false framing: the necessary direction (every prime passes) is proven and checked; the converse (passing implies prime) is explicitly shown FALSE via 271441. The sphere carries the honest necessary-vs-sufficient gap — a fast test detects, it does not prove — rather than overselling it as a primality proof.",
+  "body":PER_BODY,"script":PER_SCRIPT},
+ {"slug":"the-sylvester","title":"THE SYLVESTER","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#90e0b0","icon":"sylvester",
+  "kicker":"2, 3, 7, 43, 1807 — unit fractions that fill exactly one",
+  "blurb":"Sylvester's sequence in the 5-window house format — 2,3,7,43,1807,3263443,... where each term is the product of all previous terms plus one (a(n)=a(n-1)^2-a(n-1)+1), growing doubly exponentially. The reciprocals 1/2+1/3+1/7+1/43+... race to exactly 1: it is the greedy Egyptian-fraction expansion of 1, taking the largest unit fraction that fits at each step, and the leftover gap after n terms is precisely 1/(a(n+1)-1). See the fraction bars in 1D, the greedy fill in 2D, and the remainder loop in 3D.",
+  "lit":"Genuine Sylvester's sequence (J. J. Sylvester 1880; OEIS A000058). Verified live with exact BigInt arithmetic: a(n)=a(n-1)^2-a(n-1)+1 and a(n)=(product of all previous)+1 both hold, and the partial reciprocal sum equals 1-1/(a(n+1)-1) exactly (window.__sylvester.recurrence && productRule && reciprocalIdentity, all true). Terms 2,3,7,43,1807,3263443. The growth rule, product identity, and reciprocal-sum identity are all exact.",
+  "fig":"No framing: the recurrence, the product-plus-one identity, and the reciprocal-sum-to-1 identity are real and checked exactly (BigInt, no float slop). The 'fastest converging unit-fraction sum to 1' and greedy-Egyptian-fraction framing are the genuine mathematical characterization, not embellishment.",
+  "body":SYL_BODY,"script":SYL_SCRIPT},
  {"slug":"the-hofstadter","title":"THE HOFSTADTER","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#b0b0ff","icon":"hofstadter",
   "kicker":"Q(n)=Q(n-Q(n-1))+Q(n-Q(n-2)) — chaos that might not survive",
