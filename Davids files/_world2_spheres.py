@@ -13610,7 +13610,280 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 mk();drawW3();drawW4();window.__haar=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 44 (permutation stats · flat sequences · string primes · linear scans · tree flattening) ═══════════════════════
+EUL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Eulerian number</b> &lang;n,k&rang; counts the permutations of 1&hellip;n with exactly k <b>descents</b> &mdash; places where a value is followed by a smaller one. They form a triangle 1; 1,1; 1,4,1; 1,11,11,1; 1,26,66,26,1; &hellip; that is <b>symmetric</b> (reversing a permutation swaps ascents and descents) and whose rows sum to <b>n!</b> (every permutation has some descent count).<br><br>
+ They obey the recurrence &lang;n,k&rang; = (k+1)&lang;n&minus;1,k&rang; + (n&minus;k)&lang;n&minus;1,k&minus;1&rang;, and Worpitzky&rsquo;s identity writes x&#8319; as a sum of binomials weighted by them.<br><br>
+ <span class="lit">LIT</span> verified live: the recurrence matches a brute tally of descents over all n! permutations for n=1&hellip;7, and each row sums to n! (window.__eulerian). <span class="fig">FIG</span> no framing; exact combinatorial counting.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-grindstone</i> &mdash; grinding through every ordering and tallying its descents. Eulerian numbers are exactly that tally, organised. <b>AVAN (AI)</b> built the instrument: the recurrence, the brute descent count over all permutations, the row-sum check.<br><br>Credit as content: Leonhard Euler (1755, in his work on the Eulerian polynomials). The weave: David names the grind; I count descents two ways &mdash; the recurrence triangle and the exhaustive permutation tally &mdash; and show a uniform pile of n! orderings resolve into a symmetric distribution.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">A permutation with its descents marked in red &mdash; each spot where the next value drops. The number of descents is the statistic Eulerian numbers count, and it ranges from 0 (sorted) to n&minus;1 (reversed).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick n. The instrument computes the Eulerian row by the recurrence and by brute-tallying descents over all n! permutations, confirms they agree, and checks the row sums to n!.</div>
+   <div class="btns" style="margin-top:10px"><button id="euln">n: 5 ▶</button><button id="eulcheck">verify n=1..7 ▶</button></div>
+   <div class="cap" id="eulread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Eulerian triangle, each row a symmetric bell of descent counts summing to n!.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the descent count is a <b>refinement</b> that turns a structureless pile into a distribution. Sum the row and you recover n! &mdash; forgetting the descents &mdash; but the individual counts reveal that a random permutation&rsquo;s number of descents <b>concentrates</b> near (n&minus;1)/2 in a bell-shaped curve. The inverse of &lsquo;n! permutations, all alike&rsquo; is &lsquo;the same n! sorted, by a single statistic, into a symmetric distribution.&rsquo; And the symmetry &lang;n,k&rang; = &lang;n,n&minus;1&minus;k&rang; is a genuine bijection &mdash; reversing each permutation swaps its ascents and descents. <b>Magenta</b> is the flat pile of all n! orderings; <b>green</b> is the Eulerian bell they fall into by descent count. One statistic makes a distribution out of uniformity.</div>
+   <div class="btns" style="margin-top:10px"><button id="eulspin">pause spin</button></div></div></div></div>"""
+EUL_SCRIPT = """(function(){
+var ang=0,spin=true,N=5;
+function eulRec(n){var A=[[1]];for(var m=1;m<=n;m++){A.push([]);for(var k=0;k<m;k++)A[m][k]=(k+1)*(A[m-1][k]||0)+(m-k)*(A[m-1][k-1]||0);}return A;}
+function permsOf(a){if(a.length<=1)return [a];var out=[];for(var i=0;i<a.length;i++){var r=a.slice(0,i).concat(a.slice(i+1));permsOf(r).forEach(function(p){out.push([a[i]].concat(p));});}return out;}
+function descents(p){var d=0;for(var i=0;i<p.length-1;i++)if(p[i]>p[i+1])d++;return d;}
+function fact(n){var r=1;for(var i=2;i<=n;i++)r*=i;return r;}
+function bruteRow(n){var cnt={};permsOf(Array.from({length:n},function(_,i){return i+1;})).forEach(function(p){var d=descents(p);cnt[d]=(cnt[d]||0)+1;});var row=[];for(var k=0;k<n;k++)row.push(cnt[k]||0);return row;}
+function verify(){var A=eulRec(7),rec=true,rs=true;for(var n=1;n<=7;n++){var br=bruteRow(n);for(var k=0;k<n;k++)if(A[n][k]!==br[k])rec=false;if(A[n].reduce(function(a,b){return a+b;},0)!==fact(n))rs=false;}return {recMatchesBrute:rec,rowSumFactorial:rs,row5:A[5]};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var p=[2,5,1,4,3,6],cell=52,ox=60;g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('descents (red) = positions where the next value is smaller',12,16);
+ for(var i=0;i<p.length;i++){var desc=i<p.length-1&&p[i]>p[i+1];g.fillStyle=desc?'#e06060':'#3a4150';g.fillRect(ox+i*cell,50,cell-8,40);g.fillStyle='#fff';g.font='16px monospace';g.fillText(p[i],ox+i*cell+16,76);if(desc){g.fillStyle='#e06060';g.font='18px monospace';g.fillText('↓',ox+i*cell+cell-14,74);}}
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('this permutation has 2 descents → counted in ⟨6,2⟩',12,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var A=eulRec(N),row=A[N],br=bruteRow(N),ok=JSON.stringify(row)===JSON.stringify(br),rs=row.reduce(function(a,b){return a+b;},0);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('n = '+N,12,24);
+ g.fillStyle='#d09040';g.font='12px monospace';g.fillText('recurrence: '+row.join(', '),12,52);
+ g.fillStyle='#5aa0e0';g.fillText('brute descents: '+br.join(', '),12,76);
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.fillText(ok?'✓ agree; row sum '+rs+' = '+N+'!':'✗',12,104);
+ var mx=Math.max.apply(0,row);for(var k=0;k<row.length;k++){var h=row[k]/mx*120;g.fillStyle='#d09040';g.fillRect(40+k*54,260-h,44,h);g.fillStyle='#9ab';g.font='10px monospace';g.fillText(row[k],40+k*54+6,258-h-4);g.fillText('k='+k,40+k*54+8,275);}}
+document.getElementById('euln').onclick=function(){N=N>=8?1:N+1;this.textContent='n: '+N+' ▶';drawW4();};
+document.getElementById('eulcheck').onclick=function(){var v=verify();document.getElementById('eulread').textContent='n=1..7: recurrence == brute '+(v.recMatchesBrute?'✓':'✗')+', row sum = n! '+(v.rowSumFactorial?'✓':'✗')+' | ⟨5,k⟩='+v.row5.join(',');};
+document.getElementById('eulspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var A=eulRec(7);
+ for(var n=1;n<=7;n++){var row=A[n],mx=Math.max.apply(0,row),y=30+n*44;for(var k=0;k<row.length;k++){var x=W/2+(k-(row.length-1)/2)*40,h=row[k]/mx*30;g.fillStyle='#39fc6b';g.globalAlpha=0.6+0.4*Math.sin(ang+k);g.fillRect(x-16,y-h,32,h);g.globalAlpha=1;}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: symmetric Eulerian bells (each row sums to n!)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the flat pile of n! permutations before sorting',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('one statistic (descents) turns uniformity into a distribution',10,H-9);}
+drawW3();drawW4();window.__eulerian=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RSH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Rudin&ndash;Shapiro sequence</b> r&#8345; = (&minus;1)<sup>(number of &lsquo;11&rsquo; pairs in the binary of n)</sup> is a &plusmn;1 sequence engineered to be <b>flat</b>: its partial sums stay astonishingly small &mdash; growing like &radic;N rather than N &mdash; and equivalently its power spectrum is nearly flat (very low autocorrelation).<br><br>
+ That flatness is prized: spreading a signal&rsquo;s energy evenly across a band is exactly what radar pulse-compression and spread-spectrum communication need, and low-correlation &plusmn;1 sequences like this one make it possible.<br><br>
+ <span class="lit">LIT</span> verified live: over N up to 200,000, the ratio |S<sub>N</sub>|/&radic;N of the partial sums stays bounded (measured max &asymp; 2.45, within the proven bound 2+&radic;2 &asymp; 3.41), while a structureless sum would grow linearly (window.__rudinshapiro). <span class="fig">FIG</span> no framing; exact bit-counting.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sync</i> &mdash; correlation and synchronisation, where flat spectra let receivers lock on. The Rudin&ndash;Shapiro sequence is the sync engineer&rsquo;s friend: deterministic, yet noise-flat. <b>AVAN (AI)</b> built the instrument: the bit-pair parity rule, the partial-sum walk, the &radic;N envelope check.<br><br>Credit as content: Harold Shapiro (1951 thesis) and Walter Rudin (1959); these are &lsquo;Golay&ndash;Rudin&ndash;Shapiro&rsquo; sequences in signal processing. The weave: David names the sync; I generate the &plusmn;1 sequence from binary bit-pairs and show its sums hug a &radic;N envelope no random-looking sum should respect so tightly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The &plusmn;1 sequence (from the parity of &lsquo;11&rsquo; bit-pairs) and the running partial sum &mdash; a walk that, unlike most deterministic sums, never drifts far from zero.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Plot the partial sums S<sub>N</sub> against the &plusmn;C&radic;N envelope. Extend N and watch the walk stay inside the square-root band, its peak ratio |S<sub>N</sub>|/&radic;N holding near 2.45.</div>
+   <div class="btns" style="margin-top:10px"><button id="rshn">N: 256 ▶</button><button id="rshcheck">verify bound ▶</button></div>
+   <div class="cap" id="rshread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Rudin&ndash;Shapiro partial-sum walk, hugging the &radic;N envelope as it grows.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): a fully <b>deterministic</b> sequence behaves, where it counts, like a <b>random</b> one. Its partial sums grow like &radic;N &mdash; exactly the scale of a random walk of &plusmn;1 coin flips &mdash; and its spectrum is flat like white noise, yet every term is fixed by a two-line binary rule. The inverse of &lsquo;structured and predictable&rsquo; is &lsquo;as balanced as coin flips, on purpose.&rsquo; This is designed <b>flatness</b>: it is the mirror of Thue&ndash;Morse, whose rule designs <b>imbalance-avoidance</b> &mdash; here the rule designs <b>correlation-avoidance</b>, producing noise-like statistics from rigid structure. <b>Magenta</b> is the &radic;N random-walk envelope; <b>green</b> is the deterministic walk that never escapes it. Rigidity engineered to look like chance.</div>
+   <div class="btns" style="margin-top:10px"><button id="rshspin">pause spin</button></div></div></div></div>"""
+RSH_SCRIPT = """(function(){
+var ang=0,spin=true,NN=256;
+function rud(n){var c=0,prev=0;while(n>0){var b=n&1;if(b&&prev)c^=1;prev=b;n>>=1;}return c?-1:1;}
+function verify(){var S=0,mx=0,arg=0;for(var N=1;N<=200000;N++){S+=rud(N-1);var ra=Math.abs(S)/Math.sqrt(N);if(ra>mx){mx=ra;arg=N;}}return {maxRatio:+mx.toFixed(4),atN:arg,boundTheorem:'2+sqrt2 ≈ 3.414',bounded:mx<3.5};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('r_n from parity of \\'11\\' bit-pairs; running sum stays small',12,16);
+ var S=0;for(var i=0;i<64;i++){var r=rud(i);g.fillStyle=r>0?'#7090d0':'#e06060';g.fillRect(12+i*7.6,34,6,10);S+=r;g.fillStyle='#50c090';g.fillRect(12+i*7.6,H-40-S*4,6,4);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('blue/red = +1/−1, green = partial sum (hovers near 0)',12,H-10);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var S=0,pts=[0],mx=0;for(var i=0;i<NN;i++){S+=rud(i);pts.push(S);mx=Math.max(mx,Math.abs(S));}
+ var cx=W-20,sc=(W-40)/NN,cy=H/2,ys=(H/2-20)/Math.max(mx,Math.sqrt(NN)*2.5);
+ // envelope
+ g.strokeStyle='#ff2d95';g.beginPath();for(var i=1;i<=NN;i++){g.lineTo(20+i*sc,cy-2.45*Math.sqrt(i)*ys);}g.stroke();g.beginPath();for(var i=1;i<=NN;i++){g.lineTo(20+i*sc,cy+2.45*Math.sqrt(i)*ys);}g.stroke();
+ g.strokeStyle='#50c090';g.lineWidth=1.5;g.beginPath();for(var i=0;i<=NN;i++)g.lineTo(20+i*sc,cy-pts[i]*ys);g.stroke();g.lineWidth=1;
+ g.strokeStyle='#334';g.beginPath();g.moveTo(20,cy);g.lineTo(W-20,cy);g.stroke();
+ var peak=0;for(var i=1;i<=NN;i++)peak=Math.max(peak,Math.abs(pts[i])/Math.sqrt(i));
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('N = '+NN+'  peak |S_N|/√N = '+peak.toFixed(3),12,20);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('green walk stays inside the ±2.45√N envelope (magenta)',12,H-12);}
+document.getElementById('rshn').onclick=function(){NN=NN>=4096?256:NN*2;this.textContent='N: '+NN+' ▶';drawW4();};
+document.getElementById('rshcheck').onclick=function(){var v=verify();document.getElementById('rshread').textContent='N≤200000: max |S_N|/√N = '+v.maxRatio+' at N='+v.atN+' — bounded (< '+v.boundTheorem+') '+(v.bounded?'✓':'✗');};
+document.getElementById('rshspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var N=1024,S=0,pts=[0];for(var i=0;i<N;i++){S+=rud(i);pts.push(S);}
+ var sc=(W-30)/N,cy=H*0.45,ys=1.1;
+ g.strokeStyle='#ff2d95';g.beginPath();for(var i=1;i<=N;i++)g.lineTo(15+i*sc,cy-2.45*Math.sqrt(i)*ys);g.stroke();g.beginPath();for(var i=1;i<=N;i++)g.lineTo(15+i*sc,cy+2.45*Math.sqrt(i)*ys);g.stroke();
+ g.strokeStyle='#50c090';g.beginPath();for(var i=0;i<=N;i++)g.lineTo(15+i*sc,cy-pts[i]*ys+3*Math.sin(ang+i*0.02));g.stroke();
+ g.fillStyle='#50c090';g.font='11px monospace';g.fillText('green: deterministic walk, grows like √N (random-walk scale)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the ±√N envelope it never escapes',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a rigid rule engineered to look like coin flips (flat spectrum)',10,H-9);}
+drawW3();drawW4();window.__rudinshapiro=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LYN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A Lyndon word</b> is a string strictly smaller than all of its rotations &mdash; &lsquo;aab&rsquo; is one, &lsquo;aba&rsquo; and &lsquo;baa&rsquo; are not. The <b>Chen&ndash;Fox&ndash;Lyndon theorem</b> says every string factors <b>uniquely</b> into a sequence of Lyndon words in <b>non-increasing</b> order &mdash; a prime factorisation for strings. Duval&rsquo;s algorithm finds it in O(n) with constant extra memory.<br><br>
+ For example &lsquo;banana&rsquo; &rarr; b &middot; an &middot; an &middot; a. Lyndon words also form a basis of the free Lie algebra and give the fastest way to compute a string&rsquo;s least rotation.<br><br>
+ <span class="lit">LIT</span> verified live: for 500 random strings, Duval&rsquo;s factorisation concatenates back to the original, every factor is a Lyndon word (smaller than all its rotations), and the factors are non-increasing (window.__lyndon). <span class="fig">FIG</span> no framing; exact string combinatorics.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-inventory</i> &mdash; breaking a thing into its canonical, ordered parts. Lyndon factorisation is the inventory of a string: its unique, sorted list of atomic pieces. <b>AVAN (AI)</b> built the instrument: Duval&rsquo;s linear algorithm, the Lyndon test (smaller than all rotations), the non-increasing check.<br><br>Credit as content: Roger Lyndon (1954); the factorisation theorem of K.-T. Chen, R. Fox &amp; Lyndon; Jean-Pierre Duval&rsquo;s linear-time algorithm (1983). The weave: David names the inventory; I factor strings into Lyndon atoms, prove each is minimal among its rotations, and show the decomposition is unique and ordered &mdash; primes for words.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">A string split into its Lyndon factors, drawn as ordered blocks &mdash; each strictly smaller than all its own rotations, and the sequence non-increasing from left to right, like exponents in a prime factorisation.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Type or roll a string; Duval factors it live into Lyndon words. Verify the concatenation equals the original, each factor is Lyndon (smaller than every rotation), and the sequence is non-increasing.</div>
+   <div class="btns" style="margin-top:10px"><button id="lynroll">new string ▶</button><button id="lyncheck">verify 500 ▶</button></div>
+   <div class="cap" id="lynread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the ordered Lyndon factors &mdash; the unique atoms a string decomposes into.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the factorisation is <b>unique</b>, exactly like prime factorisation for integers &mdash; every string has one and only one non-increasing Lyndon decomposition, so it is a canonical fingerprint you can compare, hash, or invert. The inverse of &lsquo;a flat string&rsquo; is &lsquo;its unique ordered multiset of Lyndon atoms.&rsquo; And a Lyndon word <b>is</b> the canonical representative of an aperiodic <b>necklace</b> &mdash; the rotation that comes out smallest &mdash; tying string-primes directly to the necklace-counting of Burnside. <b>Magenta</b> is a string&rsquo;s rotations (its necklace); <b>green</b> is the Lyndon representative and the unique factorisation. Strings have primes too.</div>
+   <div class="btns" style="margin-top:10px"><button id="lynspin">pause spin</button></div></div></div></div>"""
+LYN_SCRIPT = """(function(){
+var ang=0,spin=true,S='banana';
+function duval(s){var n=s.length,i=0,fac=[];while(i<n){var j=i+1,k=i;while(j<n&&s[k]<=s[j]){if(s[k]<s[j])k=i;else k++;j++;}while(i<=k){fac.push(s.substring(i,i+j-k));i+=j-k;}}return fac;}
+function isLyndon(w){for(var r=1;r<w.length;r++){if(w.substring(r)+w.substring(0,r)<=w)return false;}return true;}
+function verify(){var seed=7;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<500;t++){var s='',L=1+rnd()%14;for(var i=0;i<L;i++)s+=String.fromCharCode(97+rnd()%3);var f=duval(s);if(f.join('')!==s)ok=false;for(var i=0;i<f.length;i++)if(!isLyndon(f[i]))ok=false;for(var i=0;i+1<f.length;i++)if(f[i]<f[i+1])ok=false;}return {concatOK:ok,allLyndon:ok,nonIncreasing:ok,example:duval('banana').join('·')};}
+function drawFactors(g,f,ox,oy,cell,col){var x=ox;for(var i=0;i<f.length;i++){g.fillStyle=col;g.fillRect(x,oy,f[i].length*cell,26);g.fillStyle='#04121c';g.font='13px monospace';for(var j=0;j<f[i].length;j++)g.fillText(f[i][j],x+j*cell+cell/2-4,oy+18);g.strokeStyle='#0a1018';g.strokeRect(x,oy,f[i].length*cell,26);x+=f[i].length*cell+6;}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('banana → b · an · an · a  (non-increasing Lyndon factors)',12,16);
+ drawFactors(g,duval('banana'),40,50,20,'#c0a050');g.fillStyle='#8ad';g.font='10px monospace';g.fillText('each block < all its rotations; blocks non-increasing left→right',12,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var f=duval(S);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('string: '+S,12,24);
+ drawFactors(g,f,20,44,22,'#c0a050');
+ var cat=f.join('')===S,allL=f.every(isLyndon),ni=true;for(var i=0;i+1<f.length;i++)if(f[i]<f[i+1])ni=false;
+ g.fillStyle=cat?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('concatenation == original: '+(cat?'✓':'✗'),12,110);
+ g.fillStyle=allL?'#39fc6b':'#ff5a5a';g.fillText('every factor is Lyndon (< all rotations): '+(allL?'✓':'✗'),12,132);
+ g.fillStyle=ni?'#39fc6b':'#ff5a5a';g.fillText('factors non-increasing: '+(ni?'✓':'✗'),12,154);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText(f.length+' factors: '+f.join(' · '),12,182);}
+document.getElementById('lynroll').onclick=function(){S='';var L=4+Math.floor(Math.random()*8);for(var i=0;i<L;i++)S+=String.fromCharCode(97+Math.floor(Math.random()*3));drawW4();document.getElementById('lynread').textContent=S+' → '+duval(S).join(' · ');};
+document.getElementById('lyncheck').onclick=function(){var v=verify();document.getElementById('lynread').textContent='500 strings: concat '+(v.concatOK?'✓':'✗')+', all Lyndon '+(v.allLyndon?'✓':'✗')+', non-increasing '+(v.nonIncreasing?'✓':'✗');};
+document.getElementById('lynspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height,cx=W/2,cy=H*0.42,R=80;g.clearRect(0,0,W,H);var w='aabab',rots=[];for(var r=0;r<w.length;r++)rots.push(w.substring(r)+w.substring(0,r));var minR=rots.slice().sort()[0];
+ for(var r=0;r<rots.length;r++){var a=ang+r/rots.length*2*Math.PI-Math.PI/2,x=cx+R*Math.cos(a),y=cy+R*Math.sin(a);g.fillStyle=rots[r]===minR?'#39fc6b':'#ff2d95';g.beginPath();g.arc(x,y,4,0,7);g.fill();g.fillStyle=rots[r]===minR?'#39fc6b':'#889';g.font='10px monospace';g.fillText(rots[r],x-14,y-8);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the Lyndon rep (least rotation of the necklace)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the other rotations (same necklace)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('unique factorisation — strings have primes too',10,H-9);}
+drawW3();drawW4();window.__lyndon=verify();
+function loop(){if(spin)ang+=0.006;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ZAL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Z-algorithm</b> computes, for every position i of a string, the length of the longest substring starting at i that matches a <b>prefix</b> of the whole string &mdash; the <b>Z-array</b>. Done naively that is O(n&sup2;); the Z-algorithm does it in <b>O(n)</b> by keeping the rightmost match interval [l,r] seen so far and <b>reusing</b> earlier Z-values inside it.<br><br>
+ Concatenate <code>pattern &sect; text</code> and the Z-array instantly locates every occurrence of the pattern (wherever Z equals the pattern length) &mdash; clean linear-time string search, a sibling of KMP.<br><br>
+ <span class="lit">LIT</span> verified live: for 500 random strings, every Z[i] equals a brute-force prefix-match length (window.__zalgorithm). <span class="fig">FIG</span> no framing; exact string matching.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-choke-point</i> &mdash; the bottleneck every search must pass through, where linear time matters. The Z-algorithm is the choke-point cleared: all prefix matches in one pass. <b>AVAN (AI)</b> built the instrument: the [l,r] window, the mirror-reuse, the brute cross-check, the pattern search.<br><br>Credit as content: popularised by Dan Gusfield&rsquo;s <i>Algorithms on Strings, Trees, and Sequences</i> (1997); part of the linear-time string-matching lineage. The weave: David names the choke-point; I compute the Z-array in one forward sweep, verify it against brute force, and show the right pointer that never retreats.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The current match window [l,r]. Inside it, position i mirrors an earlier position i&minus;l whose Z-value is already known &mdash; so the algorithm copies that answer and only ever extends past r, which moves forward and never back.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Type a string; the Z-array is computed in O(n) and shown as bars. Verify each Z[i] against a brute prefix-match, and use <code>pattern &sect; text</code> to locate every occurrence in linear time.</div>
+   <div class="btns" style="margin-top:10px"><button id="zalroll">new string ▶</button><button id="zalcheck">verify 500 ▶</button></div>
+   <div class="cap" id="zalread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Z-values as bars along the string &mdash; every prefix match found in a single sweep.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the linear time comes from <b>never re-comparing</b> a character already known to match. Inside the current window [l,r], position i is a <b>mirror</b> of the earlier position i&minus;l, whose Z-value is already computed &mdash; so the algorithm <b>copies</b> the answer and only extends past r. The inverse of &lsquo;recompare from scratch at every i&rsquo; is &lsquo;reuse the mirror, and advance a right pointer that only moves forward.&rsquo; Because r never retreats, the total extra comparisons across the whole string sum to at most n &mdash; amortised linearity from a monotone pointer. <b>Magenta</b> is the O(n&sup2;) redundant comparisons skipped; <b>green</b> is the single forward march of r. Speed from memory of what already matched.</div>
+   <div class="btns" style="margin-top:10px"><button id="zalspin">pause spin</button></div></div></div></div>"""
+ZAL_SCRIPT = """(function(){
+var ang=0,spin=true,S='aabaabab';
+function zArray(s){var n=s.length,Z=new Array(n).fill(0),l=0,r=0;if(n)Z[0]=n;for(var i=1;i<n;i++){if(i<r)Z[i]=Math.min(r-i,Z[i-l]);while(i+Z[i]<n&&s[Z[i]]===s[i+Z[i]])Z[i]++;if(i+Z[i]>r){l=i;r=i+Z[i];}}return Z;}
+function bruteZ(s,i){var k=0;while(i+k<s.length&&s[k]===s[i+k])k++;return k;}
+function verify(){var seed=7;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<500;t++){var s='',L=1+rnd()%30;for(var i=0;i<L;i++)s+=String.fromCharCode(97+rnd()%3);var Z=zArray(s);for(var i=1;i<L;i++)if(Z[i]!==bruteZ(s,i))ok=false;}return {matchesBrute:ok,example:zArray('aabaab').join(',')};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s='aabaabab',cell=40,ox=40;g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('window [l,r]: i mirrors i−l, whose Z is known',12,16);
+ for(var i=0;i<s.length;i++){g.fillStyle=(i>=2&&i<=4)?'#e06050':'#3a4150';g.fillRect(ox+i*cell,40,cell-6,30);g.fillStyle='#fff';g.font='15px monospace';g.fillText(s[i],ox+i*cell+13,60);}
+ g.strokeStyle='#e06050';g.lineWidth=2;g.strokeRect(ox+2*cell-2,36,3*cell,38);g.lineWidth=1;g.fillStyle='#e06050';g.font='11px monospace';g.fillText('[l..r]',ox+2*cell,90);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('r only moves forward — total work across the string ≤ n',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var Z=zArray(S),cell=Math.min(40,360/S.length),ox=20;
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('string: '+S,12,22);
+ var ok=true;for(var i=1;i<S.length;i++)if(Z[i]!==bruteZ(S,i))ok=false;
+ for(var i=0;i<S.length;i++){g.fillStyle='#3a4150';g.fillRect(ox+i*cell,40,cell-4,24);g.fillStyle='#fff';g.font='13px monospace';g.fillText(S[i],ox+i*cell+cell/2-4,57);var h=Z[i]/S.length*90;g.fillStyle='#e06050';g.fillRect(ox+i*cell,180-h,cell-4,h);g.fillStyle='#9ab';g.font='10px monospace';g.fillText(Z[i],ox+i*cell+cell/2-3,178-h-3);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('bar height = Z[i] (longest prefix match starting at i)',12,205);
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText(ok?'✓ Z-array matches brute force':'✗',12,228);}
+document.getElementById('zalroll').onclick=function(){S='';var L=6+Math.floor(Math.random()*4);for(var i=0;i<L;i++)S+=String.fromCharCode(97+Math.floor(Math.random()*2));drawW4();document.getElementById('zalread').textContent=S+' → Z = '+zArray(S).join(',');};
+document.getElementById('zalcheck').onclick=function(){var v=verify();document.getElementById('zalread').textContent='500 strings: Z[i] == brute prefix match '+(v.matchesBrute?'✓':'✗')+' | aabaab → '+v.example;};
+document.getElementById('zalspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s='aabaabaab',Z=zArray(s),cell=32,ox=W/2-s.length*cell/2;
+ for(var i=0;i<s.length;i++){var h=Z[i]/s.length*80;g.fillStyle='#50c090';g.fillRect(ox+i*cell,H*0.6-h,cell-4,h+2+6*Math.sin(ang+i));}
+ // magenta: skipped comparisons (illustrative diagonal)
+ g.strokeStyle='rgba(255,45,149,0.3)';for(var i=1;i<s.length;i++)for(var j=0;j<Z[i]&&j<3;j++){g.beginPath();g.moveTo(ox+i*cell,40);g.lineTo(ox+j*cell,40);g.stroke();}
+ g.fillStyle='#50c090';g.font='11px monospace';g.fillText('green: Z-values found in one forward sweep of r',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the O(n²) recomparisons the mirror skips',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('amortised O(n): a right pointer that never retreats',10,H-9);}
+drawW3();drawW4();window.__zalgorithm=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ETO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Euler tour technique</b> flattens a tree into a flat array by a depth-first walk that records each node&rsquo;s <b>entry</b> time (tin) and <b>exit</b> time (tout). The magic: the subtree of any node v is <b>exactly</b> the contiguous range [tin[v], tout[v]] in the array.<br><br>
+ So &lsquo;sum over a subtree,&rsquo; &lsquo;is u a descendant of v,&rsquo; and &lsquo;subtree size&rsquo; all become O(1)&ndash;O(log n) <b>range</b> queries on an array &mdash; letting you point segment trees and Fenwick trees at tree problems they were never built for.<br><br>
+ <span class="lit">LIT</span> verified live: for 200 random trees, the subtree of every node v equals exactly the set of nodes whose entry time lies in [tin[v], tout[v]], and its size equals tout[v] &minus; tin[v] + 1 (window.__eulertour). <span class="fig">FIG</span> no framing; exact tree flattening.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>genesis-block</i> &mdash; the tree unrolled from its single root, the first structure laid down in order. The Euler tour is that unrolling: a hierarchy serialised into one line. <b>AVAN (AI)</b> built the instrument: the DFS entry/exit timestamps, the subtree-equals-range check, the interactive flattening.<br><br>Credit as content: the Euler tour technique, standard in algorithm design and rooted in Tarjan&ndash;Vishkin parallel tree algorithms (1985). The weave: David names the genesis block; I timestamp a depth-first walk and prove every subtree is a contiguous slice of the resulting array.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A depth-first walk assigning entry (tin) and exit (tout) times. Enter a node, recurse into its children, then leave &mdash; so a whole subtree occupies one unbroken span of times.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">A random tree and its flattened array. Click a node: its subtree lights up in the tree, and the contiguous range [tin, tout] lights up identically in the array. Verify subtree == range and size == tout &minus; tin + 1.</div>
+   <div class="btns" style="margin-top:10px"><button id="etonew">new tree ▶</button><button id="etocheck">verify 200 ▶</button></div>
+   <div class="cap" id="etoread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the tree beside its flattened array, each subtree a contiguous block.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): a branching, two-dimensional hierarchy becomes a one-dimensional <b>nesting of intervals</b>. Parent&ndash;child in the tree turns into range <b>containment</b> on the line &mdash; [tin[v], tout[v]] contains [tin[u], tout[u]] <b>iff</b> u lies in v&rsquo;s subtree &mdash; so tree ancestry <b>is</b> interval nesting, exactly. The inverse of &lsquo;a branching hierarchy&rsquo; is &lsquo;a set of nested intervals on a line.&rsquo; That is precisely why flat array structures &mdash; Fenwick trees, segment trees &mdash; can answer questions about a tree: the tree was an interval order all along. <b>Magenta</b> is the tree&rsquo;s edges; <b>green</b> is the nested intervals encoding the same ancestry. Hierarchy is containment in disguise.</div>
+   <div class="btns" style="margin-top:10px"><button id="etospin">pause spin</button></div></div></div></div>"""
+ETO_SCRIPT = """(function(){
+var ang=0,spin=true,T=null,sel=0;
+function build(n,seed){var rnd=function(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;};var adj=[[]],par=[-1],depth=[0];for(var i=1;i<n;i++){var p=rnd()%i;adj.push([]);adj[p].push(i);par.push(p);depth.push(depth[p]+1);}return {adj:adj,par:par,depth:depth,n:n};}
+function tour(adj){var tin=[],tout=[],order=[],timer=0;function dfs(u){tin[u]=timer++;order.push(u);for(var i=0;i<adj[u].length;i++)dfs(adj[u][i]);tout[u]=timer-1;}dfs(0);return {tin:tin,tout:tout,order:order};}
+function subtree(adj,v){var res=[],st=[v];while(st.length){var u=st.pop();res.push(u);for(var i=0;i<adj[u].length;i++)st.push(adj[u][i]);}return res.sort(function(a,b){return a-b;});}
+function verify(){var seed=7;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<200;t++){var n=2+rnd()%20,T=build(n,rnd()),et=tour(T.adj);for(var v=0;v<n;v++){var sub=subtree(T.adj,v),ir=[];for(var u=0;u<n;u++)if(et.tin[u]>=et.tin[v]&&et.tin[u]<=et.tout[v])ir.push(u);ir.sort(function(a,b){return a-b;});if(JSON.stringify(sub)!==JSON.stringify(ir))ok=false;if(sub.length!==et.tout[v]-et.tin[v]+1)ok=false;}}return {subtreeIsRange:ok,trials:200};}
+function layout(T){var et=tour(T.adj),xs=[],order=et.order;for(var i=0;i<order.length;i++)xs[order[i]]=i;return {et:et,xs:xs};}
+function mk(){T=build(9,Math.floor(Math.random()*1e6)+1);sel=0;}
+function drawTree(g,T,L,ox,oy,cell,highlight){var et=L.et;for(var u=0;u<T.n;u++){if(T.par[u]>=0){var p=T.par[u];g.strokeStyle='rgba(255,45,149,0.5)';g.beginPath();g.moveTo(ox+L.xs[p]*cell,oy+T.depth[p]*38);g.lineTo(ox+L.xs[u]*cell,oy+T.depth[u]*38);g.stroke();}}
+ for(var u=0;u<T.n;u++){var on=highlight.indexOf(u)>=0;g.fillStyle=on?'#50b0a0':'#3a4150';g.beginPath();g.arc(ox+L.xs[u]*cell,oy+T.depth[u]*38,11,0,7);g.fill();g.fillStyle=on?'#04121c':'#9ab';g.font='11px monospace';g.fillText(u,ox+L.xs[u]*cell-3,oy+T.depth[u]*38+4);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;if(!T)mk();var L=layout(T);g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('DFS assigns tin (enter) / tout (leave) — subtree = one span',12,14);drawTree(g,T,L,40,40,52,subtree(T.adj,0));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;if(!T)mk();var L=layout(T),sub=subtree(T.adj,sel);g.clearRect(0,0,W,H);
+ drawTree(g,T,L,30,30,42,sub);
+ var cell=40,ox=12,oy=230;g.fillStyle='#8ad';g.font='10px monospace';g.fillText('flattened array (by entry time); range [tin,tout] highlighted:',12,215);
+ for(var i=0;i<T.n;i++){var u=L.et.order[i],on=i>=L.et.tin[sel]&&i<=L.et.tout[sel];g.fillStyle=on?'#50b0a0':'#26303c';g.fillRect(ox+i*cell,oy,cell-4,26);g.fillStyle=on?'#04121c':'#9ab';g.font='12px monospace';g.fillText(u,ox+i*cell+14,oy+17);}
+ var ok=sub.length===(L.et.tout[sel]-L.et.tin[sel]+1);g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('node '+sel+': subtree size '+sub.length+' = [tin '+L.et.tin[sel]+', tout '+L.et.tout[sel]+'] '+(ok?'✓':'✗'),12,oy+50);}
+document.getElementById('w4').addEventListener('click',function(e){if(!T)return;var L=layout(T),r=this.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;for(var u=0;u<T.n;u++){var x=30+L.xs[u]*42,y=30+T.depth[u]*38;if((mx-x)*(mx-x)+(my-y)*(my-y)<160){sel=u;drawW4();return;}}});
+document.getElementById('etonew').onclick=function(){mk();drawW3();drawW4();document.getElementById('etoread').textContent='new tree — click a node to see its subtree = array range';};
+document.getElementById('etocheck').onclick=function(){var v=verify();document.getElementById('etoread').textContent='200 trees: subtree(v) == range [tin,tout] and size == tout-tin+1 '+(v.subtreeIsRange?'✓':'✗');};
+document.getElementById('etospin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;if(!T)mk();var L=layout(T);g.clearRect(0,0,W,H);
+ // nested intervals (green)
+ for(var u=0;u<T.n;u++){var x0=20+L.et.tin[u]*(W-40)/T.n,x1=20+(L.et.tout[u]+1)*(W-40)/T.n,y=40+T.depth[u]*30;g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(x0+2,y);g.lineTo(x1-2,y);g.stroke();g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText(u,x0+3,y-4);}
+ g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: nested intervals [tin,tout] — deeper = shorter',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('containment ⟺ ancestry: interval nesting = the tree',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('hierarchy is interval containment — why arrays answer tree queries',10,H-9);}
+mk();drawW3();drawW4();window.__eulertour=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-eulerian","title":"THE EULERIAN","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#d09040","icon":"eulerian",
+  "kicker":"count permutations by descents — a bell inside n!",
+  "blurb":"the Eulerian numbers in the 5-window house format — <n,k> counts permutations of 1..n with exactly k descents (a value followed by a smaller one). The triangle 1;1,1;1,4,1;1,11,11,1;1,26,66,26,1 is symmetric and each row sums to n!, obeying <n,k>=(k+1)<n-1,k>+(n-k)<n-1,k-1>. Verified live: the recurrence matches a brute descent-tally over all n! permutations for n=1..7, and rows sum to n!. See a permutation's descents in 1D, recurrence vs brute in 2D, and the uniformity-into-distribution inverse in 3D.",
+  "lit":"Genuine Eulerian numbers (Euler 1755). Verified live: the recurrence <n,k>=(k+1)<n-1,k>+(n-k)<n-1,k-1> matches a brute-force tally of descents over all n! permutations for n=1..7, and each row sums to n! (window.__eulerian.recMatchesBrute && .rowSumFactorial); <5,k>=1,26,66,26,1.",
+  "fig":"No framing: the recurrence, the exhaustive descent tally, and the row-sum check run in-browser and agree exactly. The AVAN inverse is honest — the descent statistic refines the flat n! pile into a symmetric bell that concentrates near (n-1)/2, and the symmetry <n,k>=<n,n-1-k> is a real reversal bijection; magenta is the flat pile, green the Eulerian bell.",
+  "body":EUL_BODY,"script":EUL_SCRIPT},
+ {"slug":"the-rudin-shapiro","title":"THE RUDIN-SHAPIRO","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#7090d0","icon":"rudin-shapiro",
+  "kicker":"a deterministic +-1 sequence with random-walk-flat sums",
+  "blurb":"the Rudin-Shapiro sequence in the 5-window house format — r_n = (-1)^(number of '11' pairs in binary of n) is a +-1 sequence engineered so its partial sums grow like sqrt(N) not N (a nearly flat power spectrum, very low autocorrelation), which is exactly what radar pulse-compression and spread-spectrum need. Verified live: over N up to 200000 the ratio |S_N|/sqrt(N) stays bounded (measured max ~2.45, within the proven bound 2+sqrt2~3.41). See the +-1 walk in 1D, the sqrt(N) envelope in 2D, and the deterministic-looks-random inverse in 3D.",
+  "lit":"Genuine Rudin-Shapiro (Golay-Rudin-Shapiro) sequence (Shapiro 1951; Rudin 1959). Verified live: computing r_n from the parity of '11' bit-pairs, the partial-sum ratio |S_N|/sqrt(N) over N<=200000 has measured maximum ~2.45 (at N=174763), within the proven bound 2+sqrt2~3.414 — bounded, unlike a linearly-growing structureless sum (window.__rudinshapiro.bounded).",
+  "fig":"No framing: the bit-pair parity rule and the partial-sum/envelope check run in-browser and are exact. The AVAN inverse is honest — the sums genuinely grow at the sqrt(N) random-walk scale and the spectrum is flat like noise despite a rigid rule; it is the designed-correlation-avoidance mirror of Thue-Morse's designed-imbalance-avoidance. Magenta is the sqrt(N) envelope, green the deterministic walk.",
+  "body":RSH_BODY,"script":RSH_SCRIPT},
+ {"slug":"the-lyndon","title":"THE LYNDON","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#c0a050","icon":"lyndon",
+  "kicker":"unique factorization of a string into Lyndon words",
+  "blurb":"Lyndon words in the 5-window house format — a Lyndon word is strictly smaller than all its rotations (aab yes, aba/baa no), and the Chen-Fox-Lyndon theorem says every string factors uniquely into non-increasing Lyndon words (a prime factorization for strings), found by Duval's O(n) algorithm. banana -> b.an.an.a. Verified live: for 500 random strings, Duval's factorization concatenates back to the original, every factor is Lyndon, and the factors are non-increasing. See the factored blocks in 1D, live Duval in 2D, and the unique-factorization/necklace inverse in 3D.",
+  "lit":"Genuine Lyndon words and Chen-Fox-Lyndon factorization (Lyndon 1954; Duval's linear algorithm 1983). Verified live: for 500 random strings Duval's factorization satisfies concatenation == original, every factor is a Lyndon word (strictly less than all rotations), and the sequence is non-increasing (window.__lyndon.concatOK && .allLyndon && .nonIncreasing); banana -> b.an.an.a.",
+  "fig":"No framing: Duval's algorithm, the Lyndon test, and the non-increasing check run in-browser and are exact. The AVAN inverse is honest — the factorization is genuinely unique (a canonical fingerprint, like prime factorization), and a Lyndon word is exactly the least rotation of an aperiodic necklace, tying it to Burnside's necklace counting; magenta is the rotations, green the Lyndon representative.",
+  "body":LYN_BODY,"script":LYN_SCRIPT},
+ {"slug":"the-z-algorithm","title":"THE Z-ALGORITHM","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#e06050","icon":"z-algorithm",
+  "kicker":"all prefix matches in O(n) — a pointer that never retreats",
+  "blurb":"the Z-algorithm in the 5-window house format — the Z-array gives, at each position i, the longest substring starting at i that matches a prefix of the string; computed in O(n) (not naive O(n^2)) by keeping the rightmost match interval [l,r] and reusing earlier Z-values inside it. Concatenate pattern + separator + text and the Z-array finds every pattern occurrence in linear time. Verified live: for 500 random strings, every Z[i] equals a brute prefix-match. See the [l,r] window in 1D, Z-bars in 2D, and the mirror-reuse inverse in 3D.",
+  "lit":"Genuine Z-algorithm (popularized by Gusfield 1997; linear-time string matching lineage). Verified live: computing the Z-array with the [l,r] window and mirror-reuse, every Z[i] equals the brute-force longest-common-prefix length for 500 random strings (window.__zalgorithm.matchesBrute); aabaab -> 6,1,0,3,1,0.",
+  "fig":"No framing: the O(n) Z-array and the brute cross-check run in-browser and match exactly. The AVAN inverse is honest — linearity comes from reusing the mirror position i-l inside the window and a right pointer r that never retreats, so total extra comparisons sum to <= n (amortized O(n)); magenta is the O(n^2) comparisons skipped, green the single forward march of r.",
+  "body":ZAL_BODY,"script":ZAL_SCRIPT},
+ {"slug":"the-euler-tour","title":"THE EULER TOUR","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#50b0a0","icon":"euler-tour",
+  "kicker":"flatten a tree so every subtree is a contiguous range",
+  "blurb":"the Euler tour technique in the 5-window house format — flatten a tree by a DFS that records each node's entry (tin) and exit (tout) times, so the subtree of any node v is exactly the contiguous range [tin[v], tout[v]] in the array. Subtree-sum, descendant-of, and subtree-size all become O(1)-O(log n) range queries, letting segment/Fenwick trees answer tree problems. Verified live: for 200 random trees, each subtree equals the set of nodes with entry time in [tin[v], tout[v]] and size tout-tin+1. See DFS timestamps in 1D, click-a-node in 2D, and the hierarchy-is-interval-nesting inverse in 3D.",
+  "lit":"Genuine Euler tour technique (standard; rooted in Tarjan-Vishkin parallel tree algorithms 1985). Verified live: for 200 random trees, the subtree of every node v equals exactly {u : tin[v] <= tin[u] <= tout[v]} and has size tout[v]-tin[v]+1 (window.__eulertour.subtreeIsRange).",
+  "fig":"No framing: the DFS entry/exit timestamps and the subtree-equals-range check run in-browser and are exact. The AVAN inverse is honest — parent-child in the tree becomes interval containment on the line ([tin_v,tout_v] contains [tin_u,tout_u] iff u is in v's subtree), so tree ancestry is exactly interval nesting, which is why flat array structures can answer tree queries; magenta is the tree edges, green the nested intervals.",
+  "body":ETO_BODY,"script":ETO_SCRIPT},
  {"slug":"the-catalan","title":"THE CATALAN","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#6cc0d0","icon":"catalan",
   "kicker":"one number counts a hundred structures — and /(n+1) is a mirror",
