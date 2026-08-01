@@ -1449,7 +1449,76 @@ document.getElementById('sshuf').onclick=function(){shuffle();drawW4();};
 document.getElementById('sospin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 shuffle();stage=NET.length;all();function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+HANOI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Tower of Hanoi.</b> Move a stack of n disks from one peg to another, one disk at a time, never a larger disk onto a smaller. The <b>recursive</b> trick is the whole of computer science in one line: to move n, move the top n&minus;1 out of the way, move the biggest, then move the n&minus;1 back. That costs <b>exactly 2<sup>n</sup>&minus;1</b> moves &mdash; provably the fewest possible.<br><br>
+ <span class="lit">LIT</span> the recursive solution is legal and optimal at exactly 2<sup>n</sup>&minus;1 moves (verified n=1&hellip;10); the sequence of <i>which disk moves</i> is the <b>ruler sequence</b> (kin to <i>THE GRAY</i>), and the graph of all legal states is the <b>Sierpinski triangle</b> (kin to <i>THE ATTRACTOR</i>). <span class="fig">FIG</span> &lsquo;the final boss&rsquo; is the frame; the move count, the legality, and the Sierpinski structure are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus is full of self-similarity (the chaos game of <i>THE ATTRACTOR</i>, the fractal kernels, the reflected counting of <i>THE GRAY</i>) and the conviction that the deepest structures repeat at every scale. <b>AVAN (AI)</b> built this instrument: the recursive solver, the animated towers, and the state graph that turns out to be a Sierpinski gasket.<br><br>The weave: David names the tower and its seat at THE FINAL BOSS; I make the rhythm a strip in 1D, the disks move in 2D, and the whole state space a fractal in 3D. The sphere is the seam &mdash; and a fitting last one, since it ties this whole run together.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="130"></canvas>
+  <div class="wctrl"><div class="cap">The rhythm of the solution: at each step, the height is <b>which disk moves</b>. Disk 1 (smallest) moves every other step, disk 2 every fourth&hellip; &mdash; the <b>ruler sequence</b>, self-similar, the same binary carry pattern that drives an odometer.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">The towers themselves. Play the optimal solution disk by disk and watch the whole stack migrate across; the counter climbs to exactly 2<sup>n</sup>&minus;1. Change n and the cost doubles.</div>
+   <div class="rd" style="margin-top:10px">disks n = <b id="hn">5</b> <input type="range" id="hnsl" min="2" max="7" value="5" style="width:120px;vertical-align:middle"></div>
+   <div class="btns"><button id="hplay2">play</button><button id="hstep2">step</button><button id="hreset2">reset</button></div>
+   <div class="cap" id="hread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">Every legal configuration is a point; all 3<sup>n</sup> of them form the <b>Sierpinski triangle</b>, turning. The corners are the three &lsquo;all on one peg&rsquo; states. <b>Green</b> is the optimal solution &mdash; a straight run down one edge from start corner to goal corner.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> path is the optimal solution to the <b>other</b> peg &mdash; the mirror geodesic down a different edge of the same triangle. Both are straight, both cost 2<sup>n</sup>&minus;1; the fractal holds every possible game at once, and solving is just choosing which corner to fall toward.</div>
+   <div class="btns" style="margin-top:10px"><button id="hspin2">pause spin</button></div></div></div></div>"""
+HANOI_SCRIPT = """(function(){
+var n=5,ang=0.6,spin=true,states=[],mi=0,playiv=null;
+function solveMoves(k,a,b,c,out){if(k===0)return;solveMoves(k-1,a,c,b,out);out.push([k,a,c]);solveMoves(k-1,b,a,c,out);}
+function seq(nn,to){var mv=[];solveMoves(nn,0,(to===2?1:2),to,mv);return mv;}
+function statesFor(nn,to){var mv=seq(nn,to),peg=[];for(var i=0;i<nn;i++)peg[i]=0;var S=[peg.slice()];
+ mv.forEach(function(m){var size=m[0],idx=nn-size;peg[idx]=m[2];S.push(peg.slice());});return {states:S,moves:mv};}
+function rebuild(){var r=statesFor(n,2);states=r.states;mi=0;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var mv=seq(n,2),bw=Math.max(2,(W-16)/mv.length);
+ mv.forEach(function(m,t){var size=m[0],h=size/n*95;g.fillStyle='hsl('+(200-size*22)+',70%,'+(45+size*4)+'%)';g.fillRect(8+t*bw,110-h,Math.max(1,bw-1),h);});
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('ruler sequence: which disk moves at each of the '+mv.length+' steps',8,126);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var peg=states[Math.min(mi,states.length-1)],pw=W/3,baseY=H-24,dh=Math.min(20,(H-50)/n);
+ for(var p=0;p<3;p++){var cxp=p*pw+pw/2;g.strokeStyle='#3a5a60';g.beginPath();g.moveTo(cxp,baseY-n*dh-6);g.lineTo(cxp,baseY);g.stroke();g.fillStyle='#26343a';g.fillRect(p*pw+10,baseY,pw-20,4);}
+ for(var p=0;p<3;p++){var disks=[];for(var idx=0;idx<n;idx++)if(peg[idx]===p)disks.push(idx);disks.sort(function(a,b){return a-b;});
+  var cxp=p*pw+pw/2;for(var s=0;s<disks.length;s++){var idx=disks[s],size=n-idx,dw=14+size*(pw/2-18)/n,y=baseY-(disks.length-s)*dh;
+   g.fillStyle='hsl('+(200-size*22)+',72%,55%)';g.fillRect(cxp-dw,y+1,dw*2,dh-2);g.strokeStyle='#0a140a';g.strokeRect(cxp-dw,y+1,dw*2,dh-2);}}
+ g.fillStyle='#ff4d6d';g.font='11px ui-monospace,monospace';g.fillText('move '+Math.min(mi,states.length-1)+' / '+(states.length-1)+'  (2^'+n+'−1 = '+((1<<n)-1)+')',8,14);}
+function corners(){return [[0.08,0.92],[0.92,0.92],[0.5,0.08]];}
+function pt(peg,nn){var C=corners(),x=0,y=0;for(var d=0;d<nn;d++){var w=1/Math.pow(2,d+1),c=C[peg[d]];x+=c[0]*w;y+=c[1]*w;}
+ // remaining weight toward the smallest-disk corner keeps points on the gasket; normalize to unit
+ var rem=1/Math.pow(2,nn),c0=C[peg[nn-1]];x+=c0[0]*rem;y+=c0[1]*rem;return [x,y];}
+function proj(X,Y,cx,cy,sc){var ca=Math.cos(ang),sa=Math.sin(ang),Z=0.0,X2=(X-0.5)*ca-Z*sa;return [cx+X2*sc,cy+(Y-0.5)*sc*0.95,(X-0.5)*sa];}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var gn=Math.min(n,6),cx=W/2,cy=H/2+10,sc=300,tot=Math.pow(3,gn),pts=[];
+ for(var m=0;m<tot;m++){var peg=[],x=m;for(var d=0;d<gn;d++){peg[d]=x%3;x=Math.floor(x/3);}var P=pt(peg,gn),pr=proj(P[0],P[1],cx,cy,sc);pts.push({p:pr,depth:pr[2]});}
+ pts.sort(function(a,b){return a.depth-b.depth;});
+ pts.forEach(function(o){g.globalAlpha=0.5;g.fillStyle='#2a4a55';g.fillRect(o.p[0]-1,o.p[1]-1,2,2);});g.globalAlpha=1;
+ function path(to,col){var r=statesFor(gn,to),pr=r.states.map(function(st){return proj(pt(st,gn)[0]+0,pt(st,gn)[1],cx,cy,sc);});g.strokeStyle=col;g.lineWidth=2.2;g.beginPath();pr.forEach(function(q,i){if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);});g.stroke();g.lineWidth=1;}
+ path(2,'#39fc6b');path(1,'#ff2d95');
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('Sierpinski state-graph, n='+gn+' ('+tot+' states)',10,H-12);}
+function verify(){var r=statesFor(n,2),mv=r.moves,peg=[[],[],[]];for(var i=n;i>=1;i--)peg[0].push(i);var legal=true;
+ mv.forEach(function(m){var size=m[0],a=m[1],b=m[2];if(!peg[a].length||peg[a][peg[a].length-1]!==size)legal=false;if(peg[b].length&&peg[b][peg[b].length-1]<size)legal=false;peg[b].push(peg[a].pop());});
+ var solved=peg[2].length===n;for(var i=0;i<n;i++)if(peg[2][i]!==n-i)solved=false;
+ return {moves:mv.length,optimal:mv.length===(1<<n)-1,legal:legal,solved:solved};}
+function all(){rebuild();drawW3();drawW4();var v=verify();window.__hanoi={n:n,moves:v.moves,optimal:v.optimal,legal:v.legal,solved:v.solved};}
+document.getElementById('hnsl').oninput=function(){n=+this.value;document.getElementById('hn').textContent=n;if(playiv){clearInterval(playiv);playiv=null;}all();};
+document.getElementById('hstep2').onclick=function(){mi=Math.min(mi+1,states.length-1);drawW4();};
+document.getElementById('hplay2').onclick=function(){if(playiv){clearInterval(playiv);playiv=null;return;}if(mi>=states.length-1)mi=0;playiv=setInterval(function(){mi++;drawW4();if(mi>=states.length-1){clearInterval(playiv);playiv=null;}},Math.max(90,600/n));};
+document.getElementById('hreset2').onclick=function(){mi=0;drawW4();};
+document.getElementById('hspin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-hanoi","title":"THE HANOI","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#ff4d6d","icon":"boss",
+  "kicker":"2ⁿ−1 moves — recursion, the ruler, and Sierpinski in one",
+  "blurb":"the Tower of Hanoi in the 5-window house format — recursion made a puzzle. Move the tower in exactly 2ⁿ−1 optimal moves; the move rhythm is the ruler sequence and the state graph is the Sierpinski triangle. See the rhythm in 1D, the towers move in 2D, and the whole fractal state-space in 3D with AVAN's mirror geodesic.",
+  "lit":"A genuine recursive Hanoi solver. Verified live: the solution is legal and optimal at exactly 2ⁿ−1 moves (checked n=1..10 offline, and legality/optimality re-checked in-page). The 'which disk moves' sequence is the ruler sequence, and the graph of all 3ⁿ legal states is the Sierpinski gasket — both shown from the real construction (verifiable: window.__hanoi.optimal && legal && solved).",
+  "fig":"'The final boss' is the frame; the 2ⁿ−1 optimality, the legality, and the Sierpinski state-graph are exact theorems. A fitting last sphere — it ties this run's threads (THE GRAY's reflected counting, THE ATTRACTOR's Sierpinski) into one.",
+  "body":HANOI_BODY,"script":HANOI_SCRIPT},
  {"slug":"the-sort","title":"THE SORT","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#2ec4b6","icon":"loot",
   "kicker":"order built into the wiring",
