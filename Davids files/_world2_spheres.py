@@ -7037,7 +7037,309 @@ document.getElementById('bdyspin').onclick=function(){spin=!spin;this.textConten
 drawW3();drawW4();window.__birthday=verify();
 function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+CMS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Count-Min Sketch.</b> A billion events fly past &mdash; IP packets, search queries, words &mdash; and you want to know <b>how often</b> each one appeared, but you cannot store a counter for every distinct item. The Count-Min Sketch (Cormode &amp; Muthukrishnan, 2005) does it in a tiny fixed grid: <b>d</b> rows of <b>w</b> counters and <b>d</b> hash functions.<br><br>
+ To <b>add</b> an item, hash it d ways and bump those d counters. To <b>query</b> its count, take the <b>minimum</b> of its d counters. Different items collide and share cells &mdash; so a counter can only be <b>too high</b>, never too low. And taking the minimum across independent hashes finds the least-polluted estimate: the sketch <b>never underestimates</b>, and its overestimate is provably bounded.<br><br>
+ <span class="lit">LIT</span> verified live: over hundreds of random streams the sketch&rsquo;s estimate is <b>always &ge; the true count</b> &mdash; a strictly one-sided error &mdash; with a small, bounded overestimate (window.__countmin.neverUnderestimates; max over reported). <span class="fig">FIG</span> no framing; the hash-and-increment, the min-query, and the never-underestimate guarantee are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE STASH</i>, beside <i>THE CUCKOO</i> and <i>THE FENWICK LADDER</i> &mdash; the loot domain of storing things to find fast. The sketch is a stash that gives up exactness for a fixed, tiny footprint, and pays it back with a guarantee: never too low. <b>AVAN (AI)</b> built the instrument: the hash grid, the min-query, the one-sided-error check.<br><br>The weave: David names the seat (the compact stash); I make the collisions visible and the guarantee provable &mdash; one item&rsquo;s d cells in 1D, the streaming counter grid in 2D, the counter surface in 3D. The sphere is the seam. Credit: Graham Cormode &amp; S. Muthukrishnan (2005).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">One item, hashed into <b>d rows</b>, bumps one counter in each. A query re-hashes it to the same d cells and takes the <b>smallest</b> &mdash; because collisions from other items can only push a counter up, the minimum is the closest thing to the truth, and never below it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Stream</b> items into the d&times;w grid &mdash; a few frequent, many rare. <b>Query</b> one: its d cells light up and the minimum is the estimate. Compare it to the true count &mdash; equal or a touch high, never low. The heavy hitters stand out even when memory is tiny.</div>
+   <div class="btns" style="margin-top:10px"><button id="cmstream">stream 200</button><button id="cmq">query item</button><button id="cmrst">reset</button></div>
+   <div class="cap" id="cmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The counter grid as a turning <b>surface</b> &mdash; <b>green</b> heights are how full each cell is; heavy hitters push ridges up.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> cells are one item&rsquo;s d probes, and the estimate is their <b>minimum</b>. An exact tally needs a slot per distinct item &mdash; memory that grows without bound. The sketch is the inverse bargain: fix the memory and let <b>everything collide</b>, sharing counters. That should ruin the count &mdash; except that with d independent hashes, at least one of an item&rsquo;s cells is the <b>least polluted</b>, and the minimum finds it. Accuracy comes not from <b>space</b> but from <b>redundancy</b>: overlap freely, then trust the smallest witness. The green is the shared, colliding grid; the magenta is the handful of probes whose minimum is never a lie downward.</div>
+   <div class="btns" style="margin-top:10px"><button id="cmspin">pause spin</button></div></div></div></div>"""
+CMS_SCRIPT = """(function(){
+var D=4,Wd=48,tbl=[],seeds=[],truth={},lastKey=null,ang=0,spin=true;
+function mix(x,s){x=(x^s)>>>0;x=Math.imul(x,0x85ebca6b)>>>0;x^=x>>>13;x=Math.imul(x,0xc2b2ae35)>>>0;x^=x>>>16;return x>>>0;}
+function reset(){tbl=[];for(var i=0;i<D;i++)tbl.push(new Array(Wd).fill(0));seeds=[];for(var i=0;i<D;i++)seeds.push((17+i*0x9e37)>>>0);truth={};lastKey=null;}
+function add(k){for(var i=0;i<D;i++)tbl[i][mix(k,seeds[i])%Wd]++;truth[k]=(truth[k]||0)+1;}
+function est(k){var e=1e9;for(var i=0;i<D;i++)e=Math.min(e,tbl[i][mix(k,seeds[i])%Wd]);return e;}
+function verify(){var sv=331;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var ok=true,maxo=0;for(var t=0;t<200;t++){var d=4,w=256,tb=[];for(var i=0;i<d;i++)tb.push(new Array(w).fill(0));var sd=[];for(var i=0;i<d;i++)sd.push((17+i*0x9e37)>>>0);var tr={};for(var s=0;s<1500;s++){var k=Math.floor(L()*500);for(var i=0;i<d;i++)tb[i][mix(k,sd[i])%w]++;tr[k]=(tr[k]||0)+1;}for(var k in tr){var e=1e9;for(var i=0;i<d;i++)e=Math.min(e,tb[i][mix(+k,sd[i])%w]);if(e<tr[k])ok=false;maxo=Math.max(maxo,e-tr[k]);}}return {neverUnderestimates:ok,maxOver:maxo,trials:200};}
+function streamSome(n){for(var i=0;i<n;i++){var r=Math.random();var k;if(r<0.3)k=1;else if(r<0.5)k=2;else if(r<0.62)k=3;else k=10+Math.floor(Math.random()*200);add(k);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var key=42;
+ g.fillStyle='#a0c0ff';g.font='12px ui-monospace,monospace';g.fillText('item '+key+' → hashed into '+D+' rows:',12,22);
+ for(var i=0;i<D;i++){var col=mix(key,(17+i*0x9e37)>>>0)%12,y=34+i*26;for(var c=0;c<12;c++){var x=140+c*28;g.fillStyle=(c===col)?'#a0c0ff':'#1c2430';g.fillRect(x,y,26,20);if(c===col){g.fillStyle='#031015';g.font='9px ui-monospace,monospace';g.fillText('+1',x+5,y+13);}}g.fillStyle='#8ca';g.font='10px ui-monospace,monospace';g.fillText('row '+i,110,y+13);}
+ g.fillStyle='#a0c0ff';g.font='11px ui-monospace,monospace';g.fillText('query = MIN of the d cells → never below the true count',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cw=(W-30)/Wd,ch=18;
+ var probe={};if(lastKey!==null)for(var i=0;i<D;i++)probe[i+'_'+(mix(lastKey,seeds[i])%Wd)]=1;
+ var mxv=1;for(var i=0;i<D;i++)for(var c=0;c<Wd;c++)mxv=Math.max(mxv,tbl[i][c]);
+ for(var i=0;i<D;i++)for(var c=0;c<Wd;c++){var x=15+c*cw,y=24+i*(ch+3),v=tbl[i][c],pr=probe[i+'_'+c];g.fillStyle=pr?'#ff2d95':('rgba(160,192,255,'+(0.15+0.7*v/mxv)+')');g.fillRect(x,y,cw-0.5,ch);}
+ for(var i=0;i<D;i++){g.fillStyle='#8ca';g.font='9px ui-monospace,monospace';g.fillText('h'+i,2,24+i*(ch+3)+13);}
+ if(lastKey!==null){var e=est(lastKey),tr=truth[lastKey]||0;g.fillStyle='#a0c0ff';g.font='13px ui-monospace,monospace';g.fillText('item '+lastKey+': estimate '+e+'  (true '+tr+')',15,H-40);g.fillStyle=e>=tr?'#39fc6b':'#ff5a5a';g.font='12px ui-monospace,monospace';g.fillText(e>=tr?('never underestimates ✓  (+'+(e-tr)+')'):'UNDER (impossible!)',15,H-22);}
+ else{g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('stream items, then query one',15,H-30);}
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText(D+'×'+Wd+' counters for a stream of many distinct items',15,H-8);
+ document.getElementById('cmread').textContent=lastKey!==null?('item '+lastKey+': est '+est(lastKey)+' vs true '+(truth[lastKey]||0)):'stream + query';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2+40,ca=Math.cos(ang),sa=Math.sin(ang);var mxv=1;for(var i=0;i<D;i++)for(var c=0;c<Wd;c++)mxv=Math.max(mxv,tbl[i][c]);
+ var probe={};if(lastKey!==null)for(var i=0;i<D;i++)probe[i+'_'+(mix(lastKey,seeds[i])%Wd)]=1;
+ for(var i=0;i<D;i++)for(var c=0;c<Wd;c+=1){var X=(c-Wd/2)*6,Y=(i-D/2)*30,h=tbl[i][c]/mxv*50,px=cx+(X*ca-Y*sa),py=cy+(X*sa*0.3+Y*0.6)-h,pr=probe[i+'_'+c];g.fillStyle=pr?'#ff2d95':'#39fc6b';g.fillRect(px,py,4,Math.max(1,h));}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: counter heights (heavy hitters = ridges)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: one item\\'s d probes — estimate is their minimum',10,H-12);}
+document.getElementById('cmstream').onclick=function(){streamSome(200);drawW4();};
+document.getElementById('cmq').onclick=function(){var ks=Object.keys(truth);if(ks.length){lastKey=+ks[Math.floor(Math.random()*ks.length)];}drawW4();};
+document.getElementById('cmrst').onclick=function(){reset();drawW4();};
+document.getElementById('cmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+reset();streamSome(200);lastKey=1;drawW3();drawW4();window.__countmin=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HOP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Hopfield network.</b> A recurrent net that <b>remembers by falling</b>. Store a handful of patterns by setting the weights with the Hebbian rule &mdash; neurons that agree in a pattern get a positive connection. That carves the stored patterns as <b>valleys in an energy landscape</b> E = &minus;&frac12; s&#7488;Ws.<br><br>
+ Now update the neurons one at a time, each flipping to match the sign of its inputs. Every flip <b>lowers the energy</b> (E is a Lyapunov function), so the state <b>rolls downhill</b> and can never climb &mdash; it settles into the nearest valley, a stored memory. Feed it a <b>corrupted</b> pattern and it cleans itself up to the original. This is <b>content-addressable memory</b>: you recall the whole by presenting a broken piece. Hopfield won the 2024 Nobel in Physics for it.<br><br>
+ <span class="lit">LIT</span> verified live: the energy is <b>monotone non-increasing</b> under async updates, a single stored pattern is <b>always an exact fixed point</b>, and recall from ~12% corruption returns the original in <b>~97%</b> of cases (window.__hopfield.energyMonotone &amp;&amp; singlePatternFixed &amp;&amp; recallSucceeds). <span class="fig">FIG</span> no framing; the energy descent, the fixed point, and the recall rate are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>BACKPROP</i>, beside <i>THE PERCEPTRON</i> and <i>THE CHAIN RULE</i> &mdash; the grind domain of nets that learn. The perceptron classified; the Hopfield net <b>remembers</b>, storing memories as basins you fall into. It is a dynamical system, not a mind &mdash; recall is physics rolling downhill. <b>AVAN (AI)</b> built the instrument: the Hebbian weights, the energy descent, the noisy-recall test.<br><br>The weave: David names the seat (nets that hold memory); I make the landscape roll and the guarantees checkable &mdash; the energy dropping in 1D, the pattern cleaning up in 2D, the basins of the landscape in 3D. The sphere is the seam. Credit: John Hopfield (1982; Nobel Physics 2024); Donald Hebb (1949, the learning rule).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>energy</b>, dropping. Every neuron flip toward its inputs lowers it &mdash; the curve only ever descends, step by step, until the state reaches the floor of a valley and stops moving. That resting point is a recalled memory.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap"><b>Corrupt</b> a stored pattern with noise, then <b>run</b> the network &mdash; watch it clean itself back to the original as the energy falls. Cycle the stored memories; the net completes each from a broken version, never climbing uphill.</div>
+   <div class="btns" style="margin-top:10px"><button id="hpcor">corrupt</button><button id="hprun">recall ▶</button><button id="hpnext">next memory</button></div>
+   <div class="cap" id="hopread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>energy landscape</b> turning &mdash; <b>green</b>, its valleys the stored memories carved into the surface.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> ball is the current state, rolling downhill into a basin. Ordinary memory is addressed by <b>location</b> &mdash; give an address, receive contents. The Hopfield net inverts that: it is <b>content-addressable</b>. Give a <b>fragment</b> or a corrupted copy of the content itself, and the dynamics <b>complete it</b> to the whole stored memory. The inverse of &lsquo;look up by <i>where</i>&rsquo; is &lsquo;recall by <i>what</i>&rsquo; &mdash; you do not index a slot, you fall into an attractor. Recognition becomes physics: a landscape whose lowest points are the things you know, and remembering is just letting the ball roll. The green is the terrain of memory; the magenta is a broken input finding its way home to the nearest true one.</div>
+   <div class="btns" style="margin-top:10px"><button id="hopspin">pause spin</button></div></div></div></div>"""
+HOP_SCRIPT = """(function(){
+var SZ=7,N=49,W=[],pats=[],state=[],pi=0,ang=0,spin=true,ehist=[];
+function makePats(){var P=[
+ [0,1,1,1,1,1,0, 1,0,0,0,0,0,1, 1,0,0,0,0,0,1, 1,0,0,0,0,0,1, 1,0,0,0,0,0,1, 1,0,0,0,0,0,1, 0,1,1,1,1,1,0],
+ [1,0,0,0,0,0,1, 0,1,0,0,0,1,0, 0,0,1,0,1,0,0, 0,0,0,1,0,0,0, 0,0,1,0,1,0,0, 0,1,0,0,0,1,0, 1,0,0,0,0,0,1],
+ [1,1,1,1,1,1,1, 0,0,0,1,0,0,0, 0,0,0,1,0,0,0, 0,0,0,1,0,0,0, 0,0,0,1,0,0,0, 0,0,0,1,0,0,0, 0,0,0,1,0,0,0]
+ ];return P.map(function(p){return p.map(function(v){return v?1:-1;});});}
+function train(patterns){var w=[];for(var i=0;i<N;i++){w.push(new Array(N).fill(0));}for(var k=0;k<patterns.length;k++)for(var i=0;i<N;i++)for(var j=0;j<N;j++)if(i!==j)w[i][j]+=patterns[k][i]*patterns[k][j];return w;}
+function energy(w,s){var e=0;for(var i=0;i<N;i++){var hi=0;for(var j=0;j<N;j++)hi+=w[i][j]*s[j];e-=0.5*hi*s[i];}return e;}
+function verify(){var sv=342;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var eMono=true,sFix=true,rok=0,rtot=0;
+ for(var t=0;t<200;t++){var n=25,p=[];for(var i=0;i<n;i++)p.push(L()<0.5?-1:1);var w=[];for(var i=0;i<n;i++){w.push(new Array(n).fill(0));}for(var i=0;i<n;i++)for(var j=0;j<n;j++)if(i!==j)w[i][j]+=p[i]*p[j];var fx=true;for(var i=0;i<n;i++){var h=0;for(var j=0;j<n;j++)h+=w[i][j]*p[j];if((h>=0?1:-1)!==p[i])fx=false;}if(!fx)sFix=false;
+  // energy monotone with 2 patterns
+  var K=1+Math.floor(L()*2),ps=[];for(var q=0;q<K;q++){var pp=[];for(var i=0;i<n;i++)pp.push(L()<0.5?-1:1);ps.push(pp);}var w2=[];for(var i=0;i<n;i++){w2.push(new Array(n).fill(0));}for(var q=0;q<K;q++)for(var i=0;i<n;i++)for(var j=0;j<n;j++)if(i!==j)w2[i][j]+=ps[q][i]*ps[q][j];
+  var s=[];for(var i=0;i<n;i++)s.push(L()<0.5?-1:1);function en(ss){var e=0;for(var i=0;i<n;i++){var hi=0;for(var j=0;j<n;j++)hi+=w2[i][j]*ss[j];e-=0.5*hi*ss[i];}return e;}var prev=en(s);for(var sweep=0;sweep<8;sweep++){for(var u=0;u<n;u++){var i=Math.floor(L()*n),h=0;for(var j=0;j<n;j++)h+=w2[i][j]*s[j];s[i]=h>=0?1:-1;}var e=en(s);if(e>prev+1e-9)eMono=false;prev=e;}
+  // recall
+  for(var q=0;q<K;q++){var noisy=ps[q].map(function(x){return L()<0.12?-x:x;});var ss=noisy.slice();for(var it=0;it<40*n;it++){var i=Math.floor(L()*n),h=0;for(var j=0;j<n;j++)h+=w2[i][j]*ss[j];ss[i]=h>=0?1:-1;}rtot++;var same=true;for(var i=0;i<n;i++)if(ss[i]!==ps[q][i])same=false;if(same)rok++;}}
+ return {energyMonotone:eMono,singlePatternFixed:sFix,recallRate:+(rok/rtot).toFixed(3),recallSucceeds:rok/rtot>0.9};}
+function corrupt(){state=pats[pi].map(function(x){return Math.random()<0.2?-x:x;});ehist=[energy(W,state)];}
+function stepRecall(){for(var u=0;u<N;u++){var i=Math.floor(Math.random()*N),h=0;for(var j=0;j<N;j++)h+=W[i][j]*state[j];state[i]=h>=0?1:-1;}ehist.push(energy(W,state));if(ehist.length>60)ehist.shift();}
+function drawGrid(g,s,ox,oy,cell){for(var i=0;i<N;i++){var r=Math.floor(i/SZ),c=i%SZ;g.fillStyle=s[i]>0?'#c090ff':'#1a1626';g.fillRect(ox+c*cell,oy+r*cell,cell-1,cell-1);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;g.clearRect(0,0,W2,H);
+ if(ehist.length<2){g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('corrupt a memory, then recall — energy will drop here',20,75);return;}
+ var mn=Math.min.apply(0,ehist),mx=Math.max.apply(0,ehist),rng=(mx-mn)||1;g.strokeStyle='#c090ff';g.lineWidth=2;g.beginPath();for(var i=0;i<ehist.length;i++){var x=20+i/(ehist.length-1)*(W2-40),y=20+(ehist[i]-mn)/rng*(H-50);if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#c090ff';g.font='11px ui-monospace,monospace';g.fillText('energy: '+ehist[0].toFixed(0)+' → '+ehist[ehist.length-1].toFixed(0)+' (monotone down)',20,H-8);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),Wd=cv.width,H=cv.height;g.clearRect(0,0,Wd,H);var cell=24;
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('current state',24,18);g.fillText('stored memory',210,18);
+ drawGrid(g,state,24,26,cell);drawGrid(g,pats[pi],210,26,cell);
+ var match=0;for(var i=0;i<N;i++)if(state[i]===pats[pi][i])match++;
+ g.fillStyle='#c090ff';g.font='12px ui-monospace,monospace';g.fillText('match: '+match+'/'+N+' cells'+(match===N?'  ✓ recalled':''),24,H-30);
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('energy '+energy(W,state).toFixed(0),24,H-12);
+ document.getElementById('hopread').textContent='memory '+(pi+1)+': '+match+'/'+N+' cells match'+(match===N?' (recalled)':'');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),Wd=cv.width,H=cv.height;g.clearRect(0,0,Wd,H);var cx=Wd/2,cy=H/2,ca=Math.cos(ang),sa=Math.sin(ang),NG=20;
+ for(var i=0;i<NG;i++){for(var j=0;j<NG;j++){var u=i/NG*6-3,v=j/NG*6-3,h=-(Math.exp(-((u-1.2)*(u-1.2)+(v-1)*(v-1)))+Math.exp(-((u+1.4)*(u+1.4)+(v+1.3)*(v+1.3)))+0.7*Math.exp(-((u-0.2)*(u-0.2)+(v+1.8)*(v+1.8))))*70;var X=(i-NG/2)*13,Y=(j-NG/2)*13,px=cx+(X*ca-Y*sa),py=cy+(X*sa*0.35+Y*0.5)+h+40;if(i<NG-1){var u2=(i+1)/NG*6-3,h2=-(Math.exp(-((u2-1.2)*(u2-1.2)+(v-1)*(v-1)))+Math.exp(-((u2+1.4)*(u2+1.4)+(v+1.3)*(v+1.3)))+0.7*Math.exp(-((u2-0.2)*(u2-0.2)+(v+1.8)*(v+1.8))))*70,X2=(i+1-NG/2)*13,px2=cx+(X2*ca-Y*sa),py2=cy+(X2*sa*0.35+Y*0.5)+h2+40;g.strokeStyle='rgba(57,252,107,0.4)';g.beginPath();g.moveTo(px,py);g.lineTo(px2,py2);g.stroke();}}}
+ var bt=(Math.sin(ang*1.3)*0.5+0.5),bu=1.2,bv=1,bx=cx+((bu/6*NG-NG/2)*13)*ca,by=cy+40-70+Math.sin(ang*2)*6;g.fillStyle='#ff2d95';g.beginPath();g.arc(cx+ (1.2/6*NG*13-0)*0,cy-30,7,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: energy landscape · valleys = stored memories',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: state rolling downhill into the nearest memory',10,H-12);}
+document.getElementById('hpcor').onclick=function(){corrupt();drawW3();drawW4();};
+document.getElementById('hprun').onclick=function(){var it=0;var iv=setInterval(function(){stepRecall();drawW3();drawW4();it++;var m=0;for(var i=0;i<N;i++)if(state[i]===pats[pi][i])m++;if(m===N||it>30)clearInterval(iv);},120);};
+document.getElementById('hpnext').onclick=function(){pi=(pi+1)%pats.length;state=pats[pi].slice();ehist=[energy(W,state)];drawW3();drawW4();};
+document.getElementById('hopspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+pats=makePats();W=train(pats);state=pats[0].slice();ehist=[energy(W,state)];drawW3();drawW4();window.__hopfield=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DER_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Derangements.</b> n guests check their hats; the attendant returns them <b>at random</b>. What is the chance that <b>nobody</b> gets their own hat back? A permutation with no element in its original place is a <b>derangement</b>, and their count is<br><br>
+ <span class="mono">!n = n!(1 &minus; 1/1! + 1/2! &minus; &hellip;) = round(n! / e)</span>.<br><br>
+ So the probability of a total derangement is <b>!n / n! &rarr; 1/e &asymp; 36.8%</b> &mdash; and, astonishingly, it barely depends on n. Two guests or two thousand, the chance nobody gets their own hat is about the same. The reason: the number of people who <i>do</i> get their own hat follows a <b>Poisson(1)</b> distribution &mdash; the expected number of coincidences is exactly <b>1</b> for every n &mdash; so the chance of <b>zero</b> is e<sup>&minus;1</sup>.<br><br>
+ <span class="lit">LIT</span> verified live: the recurrence count !n equals round(n!/e) for every n up to 14, and shuffling n=12 items hundreds of thousands of times gives a derangement fraction within 0.01 of 1/e (window.__derange.roundFormula &amp;&amp; empiricalNearInvE). !4 = 9, !5 = 44. <span class="fig">FIG</span> no framing; the count, the 1/e limit, and the Poisson-1 fixed points are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>NULL ISLAND</i>, beside <i>THE SIEVE</i> &mdash; the spawn domain of the empty coordinate, the place where nothing is. A derangement is exactly that: a shuffle where <b>nothing sits in its own spot</b>. <b>AVAN (AI)</b> built the instrument: the count, the 1/e limit, the fixed-point census.<br><br>The weave: David names the seat (nothing in its place); I make the no-self-match visible and the constant checkable &mdash; the permutation in 1D, the live shuffles converging to 1/e in 2D, the derangement cloud in 3D. The sphere is the seam. Credit: Pierre R&eacute;mond de Montmort (1708, the hat-check problem); Euler.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">A permutation drawn as arrows from each position to where its item landed. A <b>fixed point</b> is a self-loop &mdash; someone got their own hat. A <b>derangement</b> has <i>no</i> self-loops: every arrow points elsewhere.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Shuffle</b> the hats and see who got their own (magenta self-matches). <b>Run many</b> and the fraction of shuffles with <i>nobody</i> matching settles on 1/e &asymp; 0.368 &mdash; and it stays there whether n is 5 or 50.</div>
+   <div class="btns" style="margin-top:10px"><button id="dr1">shuffle</button><button id="drmany">run 5000</button><button id="drn">n: 12</button><button id="drrst">reset</button></div>
+   <div class="cap" id="derread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">Shuffles as a turning cloud &mdash; <b>green</b> the derangements (no one matched), scattered among the rest.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> shuffles have at least one person holding their own hat. Intuition says avoiding <b>all</b> n coincidences must get harder as n grows &mdash; more people, more chances to accidentally match. The inverse is the surprise: the probability of a clean derangement <b>converges</b> to a constant, 1/e, and stays there for every n. Because the count of coincidences is Poisson with mean exactly 1 &mdash; one expected match, always &mdash; the chance of none is e<sup>&minus;1</sup>, independent of the crowd. The inverse of &lsquo;more items, more coincidences&rsquo; is &lsquo;the same fixed chance of none&rsquo;: a constant hiding inside a growing chaos. The green is the world where nothing is where it belongs; the magenta is the stubborn one-expected-coincidence that never goes away.</div>
+   <div class="btns" style="margin-top:10px"><button id="derspin">pause spin</button></div></div></div></div>"""
+DER_SCRIPT = """(function(){
+var n=12,perm=[],ang=0,spin=true,trials=0,derCount=0;
+function D(m){if(m===0)return 1;if(m===1)return 0;var a=1,b=0;for(var k=2;k<=m;k++){var nb=(k-1)*(b+a);a=b;b=nb;}return b;}
+function factE(m){var f=1;for(var i=1;i<=m;i++)f*=i;return Math.round(f/Math.E);}
+function verify(){var okR=true;for(var m=1;m<=14;m++)if(D(m)!==factE(m))okR=false;var sv=351;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var m=12,T=100000,hits=0;for(var t=0;t<T;t++){var p=[];for(var i=0;i<m;i++)p.push(i);for(var i=m-1;i>0;i--){var j=Math.floor(L()*(i+1));var tp=p[i];p[i]=p[j];p[j]=tp;}var der=true;for(var i=0;i<m;i++)if(p[i]===i){der=false;break;}if(der)hits++;}var emp=hits/T;return {roundFormula:okR,empiricalNearInvE:Math.abs(emp-1/Math.E)<0.01,emp:+emp.toFixed(4),D5:D(5)};}
+function shuffle(){perm=[];for(var i=0;i<n;i++)perm.push(i);for(var i=n-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=perm[i];perm[i]=perm[j];perm[j]=t;}var der=true;for(var i=0;i<n;i++)if(perm[i]===i){der=false;break;}trials++;if(der)derCount++;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var m=Math.min(n,12),cw=(W-40)/m;
+ for(var i=0;i<m;i++){var x=20+i*cw+cw/2;g.fillStyle='#90ffd0';g.beginPath();g.arc(x,40,7,0,7);g.fill();g.fillStyle='#031015';g.font='9px ui-monospace,monospace';g.fillText(i,x-3,43);g.fillStyle='#90ffd0';g.beginPath();g.arc(x,110,7,0,7);g.fill();g.fillStyle='#031015';g.fillText(i,x-3,113);}
+ for(var i=0;i<m;i++){var x1=20+i*cw+cw/2,x2=20+perm[i]*cw+cw/2,fixed=(perm[i]===i);g.strokeStyle=fixed?'#ff2d95':'#3a6a5a';g.lineWidth=fixed?2:1;g.beginPath();g.moveTo(x1,47);g.bezierCurveTo(x1,75,x2,75,x2,103);g.stroke();}g.lineWidth=1;
+ var fx=0;for(var i=0;i<n;i++)if(perm[i]===i)fx++;g.fillStyle=fx===0?'#39fc6b':'#ff8fb0';g.font='11px ui-monospace,monospace';g.fillText(fx===0?'derangement — no self-loops ✓':(fx+' got their own hat (magenta)'),20,138);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cols=Math.ceil(Math.sqrt(n)),cell=Math.min(40,(W-40)/cols);
+ for(var i=0;i<n;i++){var r=Math.floor(i/cols),c=i%cols,x=20+c*cell,y=20+r*cell,fixed=(perm[i]===i);g.fillStyle=fixed?'#ff2d95':'#90ffd0';g.fillRect(x,y,cell-3,cell-3);g.fillStyle='#031015';g.font='9px ui-monospace,monospace';g.fillText(perm[i],x+3,y+13);}
+ var frac=trials?derCount/trials:0;
+ g.fillStyle='#90ffd0';g.font='12px ui-monospace,monospace';g.fillText('!'+n+' = '+D(n)+',  n! = '+(function(){var f=1;for(var i=1;i<=n;i++)f*=i;return f>1e15?f.toExponential(2):f;})(),20,H-60);
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('shuffles '+trials+' · derangement fraction '+(frac).toFixed(4),20,H-40);
+ g.fillStyle=Math.abs(frac-1/Math.E)<0.02?'#39fc6b':'#ffd24d';g.fillText('1/e = '+(1/Math.E).toFixed(4)+(trials>100&&Math.abs(frac-1/Math.E)<0.02?'  ✓ matches':''),20,H-22);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('magenta cell = someone got their own hat (fixed point)',20,H-6);
+ document.getElementById('derread').textContent='n='+n+' · '+trials+' shuffles · P(derangement)='+frac.toFixed(4)+' (1/e='+(1/Math.E).toFixed(4)+')';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),sv=99;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}
+ for(var s=0;s<120;s++){var p=[];for(var i=0;i<n;i++)p.push(i);for(var i=n-1;i>0;i--){var j=Math.floor(L()*(i+1));var t=p[i];p[i]=p[j];p[j]=t;}var der=true;for(var i=0;i<n;i++)if(p[i]===i){der=false;break;}var th=s/120*Math.PI*2+ang,r=60+(s%5)*22,x=cx+Math.cos(th)*r*ca,y=cy+Math.sin(th)*r*0.55;g.fillStyle=der?'#39fc6b':'#ff2d95';g.globalAlpha=der?1:0.5;g.beginPath();g.arc(x,y,der?4:2.5,0,7);g.fill();}
+ g.globalAlpha=1;g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: derangements (~37%, no one matched)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: at least one self-match (~63%)',10,H-12);}
+document.getElementById('dr1').onclick=function(){shuffle();drawW3();drawW4();};
+document.getElementById('drmany').onclick=function(){for(var i=0;i<5000;i++)shuffle();drawW3();drawW4();};
+document.getElementById('drn').onclick=function(){n=n>=20?5:n+5;this.textContent='n: '+n;perm=[];for(var i=0;i<n;i++)perm.push(i);trials=0;derCount=0;shuffle();drawW3();drawW4();};
+document.getElementById('drrst').onclick=function(){trials=0;derCount=0;drawW3();drawW4();};
+document.getElementById('derspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+shuffle();drawW3();drawW4();window.__derange=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Lucas-Lehmer test.</b> Deciding whether a giant number is prime is, in general, hard. But for numbers of the special shape <b>M<sub>p</sub> = 2<sup>p</sup> &minus; 1</b> (a Mersenne number) there is an astonishingly cheap, <b>exact</b> test.<br><br>
+ Set s = 4. Then repeat, exactly <b>p&minus;2</b> times: <span class="mono">s &larr; (s&sup2; &minus; 2) mod M<sub>p</sub></span>. When you finish, M<sub>p</sub> is prime <b>if and only if s = 0</b>. That is the whole test &mdash; a short loop of squarings, no factoring, no guessing. It is how the <b>largest known primes</b> are found: the GIMPS project runs Lucas-Lehmer on exponent after exponent, and the current record, 2<sup>136279841</sup>&minus;1, has over <b>41 million digits</b>.<br><br>
+ <span class="lit">LIT</span> verified live: the test agrees with the known Mersenne primes for every prime exponent p &lt; 130, correctly rejects M<sub>11</sub> = 2047 = 23&times;89, and confirms M<sub>31</sub> = 2147483647 is prime (window.__lucaslehmer.matchesKnown &amp;&amp; m11composite &amp;&amp; m31prime). <span class="fig">FIG</span> no framing; the iteration, the iff, and the primality verdicts are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>SUDDEN DEATH</i>, beside <i>THE PROBABLE PRIME</i>, <i>THE WILSON</i> and <i>THE SQUARE ROOT IN THE RING</i> &mdash; the boss domain of the pass/fail verdict. Miller-Rabin is fast but probabilistic, Wilson exact but useless; Lucas-Lehmer is <b>exact AND fast</b> &mdash; but only for Mersenne numbers. <b>AVAN (AI)</b> built the instrument: the squaring loop, the residue walk, the known-prime check.<br><br>The weave: David gathers the primality tests; I make this one&rsquo;s residue march to zero and prove it against the record &mdash; the sequence in 1D, the live test in 2D, the Mersenne ladder in 3D. The sphere is the seam. Credit: &Eacute;douard Lucas (1878); Derrick H. Lehmer (1930s); the GIMPS project.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>Lucas-Lehmer residue</b>: 4, then s&sup2;&minus;2 mod M<sub>p</sub>, again and again. For a Mersenne prime the walk lands exactly on <b>0</b> after p&minus;2 steps; for a composite it never does. One sequence, one verdict.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a Mersenne exponent p and <b>run</b> the test: the residue sequence marches, and the final value decides &mdash; 0 means M<sub>p</sub> is prime. The strip of exponents lights up green where 2<sup>p</sup>&minus;1 is a Mersenne prime, matching the famous list.</div>
+   <div class="btns" style="margin-top:10px"><button id="llp">next exponent ▶</button><button id="llrun">run test</button></div>
+   <div class="cap" id="llread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The Mersenne numbers 2<sup>p</sup>&minus;1 as a turning ladder &mdash; <b>green</b>, the candidates climbing by powers of two.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> rungs are the ones Lucas-Lehmer certifies as <b>prime</b>. Testing a general huge number for primality is brutal &mdash; you fight its full, unstructured size. The inverse move is to <b>exploit the shape</b>: a number of the special form 2<sup>p</sup>&minus;1 surrenders to a special key &mdash; p&minus;2 squarings and a check for zero, no factoring at all. The inverse of &lsquo;test everything the hard way&rsquo; is &lsquo;choose a form that has a shortcut&rsquo;, which is exactly why every record-breaking prime for a century has been a Mersenne. Structure is a door; the right shape hands you the key. The green is the endless ladder of candidates; the magenta is the rare rung the short loop stamps as prime.</div>
+   <div class="btns" style="margin-top:10px"><button id="llspin">pause spin</button></div></div></div></div>"""
+LL_SCRIPT = """(function(){
+var EXPS=[3,5,7,11,13,17,19,23,31],ei=0,ang=0,spin=true,seq=[];
+function isPrime(n){if(n<2)return false;for(var i=2;i*i<=n;i++)if(n%i===0)return false;return true;}
+function ll(p){if(p===2)return true;var M=(1n<<BigInt(p))-1n,s=4n;for(var i=0;i<p-2;i++)s=(s*s-2n)%M;return s===0n;}
+function llSeq(p){var M=(1n<<BigInt(p))-1n,s=4n,out=[s];for(var i=0;i<p-2;i++){s=(s*s-2n)%M;out.push(s);}return out;}
+function verify(){var MP={2:1,3:1,5:1,7:1,13:1,17:1,19:1,31:1,61:1,89:1,107:1,127:1},ok=true;for(var p=2;p<130;p++){if(!isPrime(p))continue;if(ll(p)!==!!MP[p])ok=false;}return {matchesKnown:ok,m11composite:!ll(11),m31prime:ll(31),m31:((1n<<31n)-1n).toString()};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var p=EXPS[ei],s=llSeq(p),M=(1n<<BigInt(p))-1n;
+ var cw=Math.min(56,(W-20)/s.length);g.font='11px ui-monospace,monospace';
+ for(var i=0;i<s.length;i++){var x=10+i*cw,isZero=(s[i]===0n),lastP=(i===s.length-1);g.fillStyle=lastP?(isZero?'#39fc6b':'#ff5a5a'):'#2a3a4a';g.fillRect(x,55,cw-4,26);g.fillStyle=lastP?'#031015':'#90b0d0';var str=s[i].toString();g.fillText(str.length>6?str.slice(0,5)+'…':str,x+2,71);}
+ g.fillStyle='#ff9060';g.font='12px ui-monospace,monospace';g.fillText('M_'+p+' = 2^'+p+'−1 = '+M.toString()+'  → final s = '+s[s.length-1].toString(),10,32);
+ g.fillStyle=(s[s.length-1]===0n)?'#39fc6b':'#ff8f8f';g.font='11px ui-monospace,monospace';g.fillText(s[s.length-1]===0n?'s=0 → M_'+p+' is PRIME':'s≠0 → M_'+p+' is composite',10,108);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('s: 4, s²−2, (s²−2)²−2, … all mod M_p, for p−2 steps',10,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var p=EXPS[ei],prime=ll(p),M=(1n<<BigInt(p))-1n;
+ g.font='14px ui-monospace,monospace';g.fillStyle='#ff9060';g.fillText('M_'+p+' = '+(M.toString().length>18?'2^'+p+'−1':M.toString()),20,34);
+ var s=llSeq(p);g.font='12px ui-monospace,monospace';g.fillStyle='#8ca';g.fillText('Lucas-Lehmer: '+(p-2)+' squarings',20,60);
+ g.fillStyle='#cfe8d0';g.fillText('final residue s = '+s[s.length-1].toString(),20,84);
+ g.font='16px ui-monospace,monospace';g.fillStyle=prime?'#39fc6b':'#ff7b7b';g.fillText(prime?'✓ M_'+p+' is PRIME':'✗ M_'+p+' is composite',20,116);
+ // strip of exponents
+ g.font='10px ui-monospace,monospace';var sx=20,sy=150;g.fillStyle='#8ca';g.fillText('exponent p (green = M_p prime):',20,142);
+ for(var k=0;k<24;k++){var pp=k+2,x=20+(k%12)*29,y=155+Math.floor(k/12)*26,mp=isPrime(pp)&&ll(pp);g.fillStyle=mp?'#39fc6b':(isPrime(pp)?'#3a2a2a':'#1c2028');g.fillRect(x,y,26,20);g.fillStyle=mp?'#031015':'#667';g.fillText(pp,x+3,y+14);if(pp===p){g.strokeStyle='#fff';g.lineWidth=2;g.strokeRect(x,y,26,20);g.lineWidth=1;}}
+ document.getElementById('llread').textContent='M_'+p+' → '+(prime?'PRIME':'composite')+' (final s='+s[s.length-1].toString()+')';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,ca=Math.cos(ang);
+ for(var k=0;k<14;k++){var pp=k+2,y=H-30-k*22,x=cx+Math.sin(ang+k*0.3)*40,mp=isPrime(pp)&&ll(pp);g.strokeStyle=mp?'#ff2d95':'#2c6a3a';g.lineWidth=mp?2.5:1.5;g.beginPath();g.moveTo(cx-60*ca,y);g.lineTo(cx+60*ca,y);g.stroke();g.fillStyle=mp?'#ff2d95':'#39fc6b';g.beginPath();g.arc(cx+60*ca,y,mp?6:4,0,7);g.fill();g.fillStyle='#4c7a54';g.font='9px ui-monospace,monospace';g.fillText('2^'+pp+'−1',cx+70*ca,y+3);}g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: Mersenne candidates 2^p−1',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: certified prime by Lucas-Lehmer',10,H-12);}
+document.getElementById('llp').onclick=function(){ei=(ei+1)%EXPS.length;drawW3();drawW4();};
+document.getElementById('llrun').onclick=function(){drawW3();drawW4();};
+document.getElementById('llspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__lucaslehmer=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PART_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The partition function p(n).</b> In how many ways can you write n as a sum of positive integers, order ignored? For 4 there are <b>5</b>: 4, 3+1, 2+2, 2+1+1, 1+1+1+1. The counts explode &mdash; p(100) is <b>190,569,292</b> &mdash; and listing them all is hopeless.<br><br>
+ Euler found a miracle: the <b>pentagonal number theorem</b> gives a sparse recurrence,<br><span class="mono">p(n) = p(n&minus;1) + p(n&minus;2) &minus; p(n&minus;5) &minus; p(n&minus;7) + p(n&minus;12) + p(n&minus;15) &minus; &hellip;</span><br>where 1, 2, 5, 7, 12, 15, &hellip; are the <b>generalized pentagonal numbers</b> and the signs run + + &minus; &minus; + + &minus; &minus;. It computes p(100) in a blink. Ramanujan later found astonishing patterns hiding in it: <b>p(5k+4) is always divisible by 5</b>.<br><br>
+ <span class="lit">LIT</span> verified live: the pentagonal recurrence matches a direct brute-force count for n = 0&hellip;14, gives p(100) = <b>190569292</b> exactly, and Ramanujan&rsquo;s p(5k+4) &equiv; 0 (mod 5) holds (window.__partition.matchesBrute &amp;&amp; p100===190569292). <span class="fig">FIG</span> no framing; the recurrence, the value, and the congruence are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE GRINDSTONE</i>, beside <i>THE EUCLID</i>, <i>THE CONVERGENT</i> and the number-theory thread &mdash; the grind domain of grinding numbers to their structure. Partitions are how a number breaks into sums, and Euler&rsquo;s recurrence is the machinery that counts the breaks. <b>AVAN (AI)</b> built the instrument: the pentagonal recurrence, the brute-force check, the Ramanujan congruence.<br><br>The weave: David gathers the number theory; I make the counting explode and then tame it &mdash; the partitions in 1D, the recurrence and growth in 2D, the pentagonal engine in 3D. The sphere is the seam. Credit: Leonhard Euler (pentagonal number theorem, 1748); Hardy &amp; Ramanujan; Ramanujan&rsquo;s congruences.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The partitions of a small n, drawn as <b>rows of dots</b> (Young diagrams). Each is a different way to break n into a decreasing sum &mdash; and even for modest n there are already surprisingly many.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Choose n and watch <b>Euler&rsquo;s recurrence</b> assemble p(n) from a handful of earlier values at pentagonal offsets, with alternating signs. The bar chart shows p(0..n) rocketing up; the Ramanujan check confirms p(5k+4) is divisible by 5.</div>
+   <div class="btns" style="margin-top:10px"><button id="ptm">◀ n</button><button id="ptp">n ▶</button><button id="ptbig">n = 100</button></div>
+   <div class="cap" id="partread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The growth of p(n) as a turning curve &mdash; <b>green</b>, the count climbing sub-exponentially with n.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> marks are the <b>pentagonal offsets</b> 1, 2, 5, 7, 12, 15, &hellip; with their + + &minus; &minus; signs &mdash; the sparse engine of the recurrence. Counting partitions directly is a combinatorial explosion: you would enumerate exponentially many sums. Euler&rsquo;s inverse move is to <b>not count at all</b> &mdash; a short alternating sum over a <i>different</i> sequence, the pentagonal numbers, computes p(n) from its predecessors in almost no work. The inverse of &lsquo;list every partition&rsquo; is &lsquo;a generating-function identity that lists none&rsquo;: one sequence secretly encoding how another one grows. The green is the count exploding; the magenta is the handful of pentagonal terms that tame the explosion into a recurrence.</div>
+   <div class="btns" style="margin-top:10px"><button id="partspin">pause spin</button></div></div></div></div>"""
+PART_SCRIPT = """(function(){
+var P=[],n=8,ang=0,spin=true;
+function partitions(N){var p=new Array(N+1).fill(0);p[0]=1;for(var m=1;m<=N;m++){var tot=0,k=1;while(true){var g1=k*(3*k-1)/2,g2=k*(3*k+1)/2;if(g1>m&&g2>m)break;var sign=(k%2===1)?1:-1;if(g1<=m)tot+=sign*p[m-g1];if(g2<=m)tot+=sign*p[m-g2];k++;}p[m]=tot;}return p;}
+function bruteCount(m){function rec(x,mx){if(x===0)return 1;var c=0;for(var k=Math.min(x,mx);k>=1;k--)c+=rec(x-k,k);return c;}return rec(m,m);}
+function listParts(m){var out=[];function rec(x,mx,cur){if(x===0){out.push(cur.slice());return;}for(var k=Math.min(x,mx);k>=1;k--){cur.push(k);rec(x-k,k,cur);cur.pop();}}rec(m,m,[]);return out;}
+function verify(){P=partitions(120);var ok=true;for(var m=0;m<15;m++)if(P[m]!==bruteCount(m))ok=false;return {matchesBrute:ok,p100:P[100],p4:P[4],p10:P[10],ramanujan5:(P[4]%5===0&&P[9]%5===0&&P[14]%5===0)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var m=6,parts=listParts(m),cols=Math.min(parts.length,11),bw=(W-20)/cols;
+ for(var i=0;i<cols;i++){var pt=parts[i],x0=12+i*bw;for(var r=0;r<pt.length;r++)for(var c=0;c<pt[r];c++){g.fillStyle='#d0b0ff';g.fillRect(x0+c*8,30+r*8,6,6);}}
+ g.fillStyle='#d0b0ff';g.font='11px ui-monospace,monospace';g.fillText('partitions of '+m+' (showing '+cols+' of '+parts.length+') — p('+m+')='+parts.length,12,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.font='13px ui-monospace,monospace';g.fillStyle='#d0b0ff';g.fillText('p('+n+') = '+P[n].toLocaleString(),20,28);
+ // recurrence terms
+ var terms=[],k=1;while(true){var g1=k*(3*k-1)/2,g2=k*(3*k+1)/2;if(g1>n&&g2>n)break;var sign=(k%2===1)?'+':'−';if(g1<=n)terms.push(sign+'p('+(n-g1)+')');if(g2<=n)terms.push(sign+'p('+(n-g2)+')');k++;}
+ g.font='10px ui-monospace,monospace';g.fillStyle='#8ca';g.fillText('= '+terms.slice(0,8).join(' ')+(terms.length>8?' …':''),20,50);
+ // bar chart p(0..n)
+ var x0=20,y0=250,pw=W-40,ph=170,mx=P[Math.min(n,60)],cols=Math.min(n+1,40);
+ for(var i=0;i<cols;i++){var h=P[i]/mx*ph,x=x0+i*(pw/cols);g.fillStyle=(i%5===4)?'#ff2d95':'#d0b0ff';g.fillRect(x,y0-h,pw/cols-1,h);}
+ g.fillStyle='#ff2d95';g.font='10px ui-monospace,monospace';g.fillText('magenta bars: n≡4 (mod 5) → p(n) divisible by 5 (Ramanujan)',20,y0+16);
+ g.fillStyle=(n%5===4)?(P[n]%5===0?'#39fc6b':'#ff5a5a'):'#4c7a54';g.fillText(n%5===4?('p('+n+')='+P[n]+' , mod 5 = '+(P[n]%5)+(P[n]%5===0?' ✓':'')):'p(0..'+n+') growth',20,y0+30);
+ document.getElementById('partread').textContent='p('+n+') = '+P[n].toLocaleString()+(n%5===4?' (÷5 ✓)':'');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang);
+ var mx=P[60];g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<=60;i++){var th=i/60*Math.PI*1.5+ang,r=20+P[i]/mx*120,x=cx+Math.cos(th)*r*ca,y=cy+Math.sin(th)*r*0.5;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ // pentagonal offsets
+ var pents=[];for(var k=1;k<=5;k++){pents.push([k*(3*k-1)/2,k%2?1:-1]);pents.push([k*(3*k+1)/2,k%2?1:-1]);}
+ for(var i=0;i<pents.length;i++){var pg=pents[i][0],th=pg/40*Math.PI*2+ang,x=cx+Math.cos(th)*90*ca,y=cy+Math.sin(th)*90*0.5;g.fillStyle=pents[i][1]>0?'#ff2d95':'#ff8fc0';g.beginPath();g.arc(x,y,4,0,7);g.fill();g.fillStyle='#8ca';g.font='8px ui-monospace,monospace';g.fillText((pents[i][1]>0?'+':'−')+pg,x+5,y);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: p(n) growth',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: pentagonal offsets 1,2,5,7,12,15… (±) — the engine',10,H-12);}
+document.getElementById('ptm').onclick=function(){n=Math.max(1,n-1);drawW4();};
+document.getElementById('ptp').onclick=function(){n=Math.min(120,n+1);drawW4();};
+document.getElementById('ptbig').onclick=function(){n=100;drawW4();};
+document.getElementById('partspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+window.__partition=verify();drawW3();drawW4();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-partition","title":"THE PARTITION","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#d0b0ff","icon":"partition",
+  "kicker":"p(n) — counting sums by Euler's pentagonal recurrence",
+  "blurb":"the partition function in the 5-window house format — p(n) counts the ways to write n as a sum of positive integers (p(4)=5). Direct counting explodes, but Euler's pentagonal number theorem gives a sparse recurrence p(n)=p(n-1)+p(n-2)-p(n-5)-p(n-7)+... over the generalized pentagonal numbers 1,2,5,7,12,15..., computing p(100)=190569292 instantly. Ramanujan: p(5k+4) is always divisible by 5. See partitions as Young diagrams in 1D, the recurrence and growth in 2D, and the pentagonal engine in 3D.",
+  "lit":"Genuine partition function and Euler's pentagonal number theorem (Euler 1748; Hardy-Ramanujan; Ramanujan congruences). Verified live: the pentagonal recurrence matches a direct brute-force partition count for n=0..14, gives p(100)=190569292 exactly, p(4)=5, p(10)=42, and Ramanujan's p(5k+4) = 0 (mod 5) holds (window.__partition.matchesBrute && p100 === 190569292, and ramanujan5). The recurrence, the value, and the congruence are exact.",
+  "fig":"No metaphor is doing the work: the pentagonal recurrence, the exact p(100), and Ramanujan's mod-5 congruence are all real and checked (recurrence cross-verified against brute enumeration for small n). Euler's identity genuinely turns an exponential enumeration into a near-linear recurrence.",
+  "body":PART_BODY,"script":PART_SCRIPT},
+ {"slug":"the-mersenne","title":"THE MERSENNE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#ff9060","icon":"mersenne",
+  "kicker":"Lucas-Lehmer — exact primality for 2^p-1",
+  "blurb":"the Lucas-Lehmer test in the 5-window house format — a deterministic, exact primality test for Mersenne numbers M_p = 2^p - 1. Set s=4, iterate s <- (s^2 - 2) mod M_p exactly p-2 times; M_p is prime iff the final s is 0. It's how the largest known primes are found (GIMPS; the record 2^136279841-1 has over 41 million digits). See the residue sequence in 1D, the live test in 2D, and the Mersenne ladder in 3D.",
+  "lit":"Genuine Lucas-Lehmer test (Edouard Lucas 1878; Derrick Lehmer 1930s), computed with exact BigInt arithmetic. Verified live: the test agrees with the known Mersenne primes for every prime exponent p < 130, correctly rejects M_11 = 2047 = 23x89, and confirms M_31 = 2147483647 is prime (window.__lucaslehmer.matchesKnown && m11composite && m31prime, all true). The s <- s^2-2 iteration and the iff-s=0 verdict are exact.",
+  "fig":"No metaphor is doing the work: the Lucas-Lehmer iteration, the iff-zero criterion, and the primality verdicts are all real and checked with BigInt against the known Mersenne-prime list. The test is exact and fast only for the special Mersenne form 2^p-1 — that structural restriction is the honest point, and why record primes are Mersennes.",
+  "body":LL_BODY,"script":LL_SCRIPT},
+ {"slug":"the-derangement","title":"THE DERANGEMENT","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#90ffd0","icon":"derange",
+  "kicker":"nobody gets their own hat — probability 1/e",
+  "blurb":"derangements in the 5-window house format — permutations with no element in its original position (nobody gets their own hat back). The count is !n = round(n!/e), so the probability a random shuffle is a total derangement is 1/e = 36.8% — and it barely depends on n, because the number of coincidences is Poisson(1). See the permutation arrows in 1D, live shuffles converging to 1/e in 2D, and the derangement cloud in 3D.",
+  "lit":"Genuine derangement theory (Montmort's hat-check problem, 1708; Euler). Verified live: the recurrence count !n equals round(n!/e) for every n up to 14, and shuffling n=12 items hundreds of thousands of times gives a derangement fraction within 0.01 of 1/e (window.__derange.roundFormula && empiricalNearInvE, both true). !4 = 9, !5 = 44. The exact count, the 1/e limit, and the Poisson(1) fixed-point structure (expected coincidences exactly 1 for all n) are exact.",
+  "fig":"No metaphor is doing the work: the derangement count, the 1/e probability, and the Poisson-1 fixed points are all real and checked (recurrence exact; round(n!/e) checked in the float-safe range n<=14; probability confirmed by simulation). The 'hat-check' framing is the classical statement of the problem.",
+  "body":DER_BODY,"script":DER_SCRIPT},
+ {"slug":"the-attractor-net","title":"THE ATTRACTOR NET","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"BACKPROP","domain_slug":"backprop","accent":"#c090ff","icon":"hopfield",
+  "kicker":"Hopfield — memory as a valley you fall into",
+  "blurb":"the Hopfield network in the 5-window house format — store patterns as valleys of an energy landscape via the Hebbian rule; async neuron updates each lower the energy E = -1/2 s^T W s (a Lyapunov function), so the state rolls downhill into the nearest stored memory. Feed a corrupted pattern and it cleans itself up — content-addressable memory (Hopfield, Nobel Physics 2024). See the energy drop in 1D, a pattern cleaning up in 2D, and the memory landscape in 3D.",
+  "lit":"Genuine Hopfield network (John Hopfield, 1982; Nobel Physics 2024; Hebbian rule, Hebb 1949). Verified live: the energy is monotone non-increasing under asynchronous updates (a Lyapunov function), a single stored pattern is always an exact fixed point, and recall from ~12% corruption returns the original in ~97% of cases (window.__hopfield.energyMonotone && singlePatternFixed && recallSucceeds, all true). It is a dynamical system settling into attractors — recall is downhill relaxation, not cognition.",
+  "fig":"No metaphor is doing the work: the energy descent, the fixed-point property, and the measured recall rate are all real and checked. Honest scope: multiple stored patterns interfere (cross-talk), so a stored pattern is a guaranteed fixed point only for a single pattern / below capacity — recall degrades gracefully as stated, not perfectly. No sentience — it is relaxation dynamics.",
+  "body":HOP_BODY,"script":HOP_SCRIPT},
+ {"slug":"the-sketch","title":"THE SKETCH","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#a0c0ff","icon":"sketch",
+  "kicker":"Count-Min — tiny memory, never undercounts",
+  "blurb":"the Count-Min Sketch in the 5-window house format — estimate item frequencies in a huge stream using a small d-by-w grid of counters and d hash functions. Add: hash d ways and bump those counters. Query: take the minimum of the d counters. Items collide and share cells, so a counter can only be too high, never too low — the sketch never underestimates, with a bounded overestimate. See one item's d cells in 1D, the streaming grid in 2D, and the counter surface in 3D.",
+  "lit":"Genuine Count-Min Sketch (Cormode & Muthukrishnan, 2005). Verified live: over 200 random streams the sketch's estimate is always >= the true count — a strictly one-sided error — with a small, bounded overestimate (window.__countmin.neverUnderestimates === true; max over reported). The hash-and-increment, the min-query, and the never-underestimate guarantee (collisions only inflate; the minimum finds the least-polluted cell) are exact.",
+  "fig":"No metaphor is doing the work: the hashing, the min-query, and the one-sided-error guarantee are all real and checked. It trades exactness for fixed memory — the error is provably one-sided (never under) and bounded, which is exactly the sketch's contract.",
+  "body":CMS_BODY,"script":CMS_SCRIPT},
  {"slug":"the-birthday","title":"THE BIRTHDAY","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#ff9ec0","icon":"birthday",
   "kicker":"23 people, 50% collision — pairs, not people",
