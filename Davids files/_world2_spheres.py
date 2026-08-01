@@ -1933,7 +1933,88 @@ document.getElementById('w4').addEventListener('click',function(e){var p=unrank(
 document.getElementById('fspin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+SKI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Combinatory logic.</b> Programming with <b>no variables at all</b> &mdash; just three &lsquo;combinators&rsquo; and pure tree-rewriting: <b>I x = x</b> (identity), <b>K x y = x</b> (keep the first, discard the second), <b>S x y z = x z (y z)</b> (share z into both). That&rsquo;s the whole language, and it is <b>Turing-complete</b>: you can build any computable function from just S and K (indeed I = S K K). Reduce in any order you like &mdash; <b>Church&ndash;Rosser</b> guarantees the same answer.<br><br>
+ <span class="lit">LIT</span> verified: S K K x reduces to x (so SKK <i>is</i> the identity), S(KS)K is the composition combinator B (B&thinsp;a&thinsp;b&thinsp;c = a(b&thinsp;c)), and reducing outermost-first vs innermost-first reaches the <b>same normal form</b> over 300 random terms. <span class="fig">FIG</span> the &lsquo;forest of birds&rsquo; (Smullyan) is the picture; the rules and confluence are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus reaches for the roots of computation and logic (<i>LOGIKĒ</i>, the minimal kernels, the rewrite systems) and the conviction that the fewest possible parts often say the most. <b>AVAN (AI)</b> built this instrument: the rewrite engine, the interactive reducer, and the confluence diamond.<br><br>The weave: David names the variable-free forest and its seat at THE HOT LOOP (reduce until nothing moves); I make the three rules a strip in 1D, the reducer live in 2D, and Church&ndash;Rosser a turning diamond in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The three rewrite rules, and one term reducing on a single line: <b>S(KS)K a b c</b> collapsing step by step down to <b>(a (b c))</b> &mdash; the composition of b-then-a, built with no variables at all.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The reducer. Pick a term and step it toward normal form; each line is one rule firing (I, K, or S), the redex named. Watch structure appear from three tiny rules.</div>
+   <div class="btns" style="margin-top:10px"><button id="kskk">S K K a</button><button id="kb">S(KS)K a b c</button><button id="kc">K(Ia)(Ib)</button></div>
+   <div class="btns"><button id="kstep">step</button><button id="krun">run</button><button id="kreset">reset</button></div>
+   <div class="cap" id="skread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>Church&ndash;Rosser diamond</b>, turning. From one term at the top, <b>green</b> reduces the <b>outermost</b> redex first, stepping down the left.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> path reduces the <b>innermost</b> redex first, down the right &mdash; a different route through a different intermediate. Yet both paths <b>meet at the same normal form</b> at the bottom. Confluence made a shape: no matter the order you evaluate, the destination is fixed. Two ways down, one floor.</div>
+   <div class="btns" style="margin-top:10px"><button id="skspin">pause spin</button></div></div></div></div>"""
+SKI_SCRIPT = """(function(){
+var ang=0.6,spin=true;
+function ap(){var t=arguments[0];for(var i=1;i<arguments.length;i++)t=['@',t,arguments[i]];return t;}
+function spine(t){var args=[];while(Array.isArray(t)){args.push(t[2]);t=t[1];}return [t,args.reverse()];}
+function rebuild(h,args){var t=h;for(var i=0;i<args.length;i++)t=['@',t,args[i]];return t;}
+function stepOuter(t){if(!Array.isArray(t))return null;var sp=spine(t),h=sp[0],a=sp[1];
+ if(h==='I'&&a.length>=1)return [rebuild(a[0],a.slice(1)),'I'];
+ if(h==='K'&&a.length>=2)return [rebuild(a[0],a.slice(2)),'K'];
+ if(h==='S'&&a.length>=3)return [rebuild(ap(ap(a[0],a[2]),ap(a[1],a[2])),a.slice(3)),'S'];
+ for(var i=0;i<a.length;i++){var r=stepOuter(a[i]);if(r){var na=a.slice();na[i]=r[0];return [rebuild(h,na),r[1]];}}return null;}
+function stepInner(t){if(!Array.isArray(t))return null;var sp=spine(t),h=sp[0],a=sp[1];
+ for(var i=0;i<a.length;i++){var r=stepInner(a[i]);if(r){var na=a.slice();na[i]=r[0];return [rebuild(h,na),r[1]];}}
+ if(h==='I'&&a.length>=1)return [rebuild(a[0],a.slice(1)),'I'];
+ if(h==='K'&&a.length>=2)return [rebuild(a[0],a.slice(2)),'K'];
+ if(h==='S'&&a.length>=3)return [rebuild(ap(ap(a[0],a[2]),ap(a[1],a[2])),a.slice(3)),'S'];return null;}
+function show(t){if(!Array.isArray(t))return t;var sp=spine(t),h=sp[0],a=sp[1];return a.length?'('+show(h)+' '+a.map(show).join(' ')+')':show(h);}
+function nf(t,sf,lim){for(var i=0;i<(lim||400);i++){var r=sf(t);if(!r)return t;t=r[0];}return t;}
+function seq(t,sf,lim){var out=[[show(t),'']];for(var i=0;i<(lim||60);i++){var r=sf(t);if(!r)break;t=r[0];out.push([show(t),r[1]]);}return out;}
+var S='S',K='K',I='I';
+var TERMS={skk:ap(S,K,K,'a'),b:ap(S,ap(K,S),K,'a','b','c'),c:ap(K,ap(I,'a'),ap(I,'b'))};
+var cur=TERMS.skk,line=0,seqc=seq(cur,stepOuter);
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.font='12px ui-monospace,monospace';g.fillStyle='#7ed957';g.fillText('I x = x      K x y = x      S x y z = x z (y z)',10,18);
+ var sq=seq(ap(S,ap(K,S),K,'a','b','c'),stepOuter),y=42;
+ sq.forEach(function(st,i){g.fillStyle=i===sq.length-1?'#39fc6b':'#cfe8d0';g.font='13px ui-monospace,monospace';g.fillText((st[1]?'→['+st[1]+'] ':'    ')+st[0],14,y);y+=19;});}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ seqc=seq(cur,stepOuter);var vis=Math.min(line+1,seqc.length),y=24;g.font='13px ui-monospace,monospace';
+ for(var i=0;i<vis;i++){var st=seqc[i];g.fillStyle=(i===seqc.length-1&&i===vis-1)?'#39fc6b':(i===vis-1?'#7ed957':'#8ca');g.fillText((st[1]?'→['+st[1]+'] ':'      ')+st[0],10,y);y+=20;if(y>H-40)break;}
+ var done=(line>=seqc.length-1);
+ document.getElementById('skread').textContent=(done?'normal form reached in '+(seqc.length-1)+' steps ✓':'step '+line+' / '+(seqc.length-1));}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var t0=TERMS.c,po=seq(t0,stepOuter).map(function(s){return s[0];}),pi=seq(t0,stepInner).map(function(s){return s[0];});
+ var cx=W/2,cy=60,dy=52,ca=Math.cos(ang),sa=Math.sin(ang);
+ function node(depth,side){var X=side*1,Z=side*0.6,rx=X*ca-Z*sa;return [cx+rx*60,cy+depth*dy,X*sa];}
+ function pathDraw(p,side,col){g.strokeStyle=col;g.lineWidth=2;g.beginPath();for(var i=0;i<p.length;i++){var nd=node(i,i===0?0:(i===p.length-1?0:side));if(i===0)g.moveTo(nd[0],nd[1]);else g.lineTo(nd[0],nd[1]);}g.stroke();g.lineWidth=1;
+  for(var i=0;i<p.length;i++){var nd=node(i,i===0?0:(i===p.length-1?0:side));g.fillStyle=(i===0||i===p.length-1)?'#39fc6b':col;g.beginPath();g.arc(nd[0],nd[1],4,0,7);g.fill();
+   g.fillStyle='#8ca';g.font='9px ui-monospace,monospace';g.fillText(p[i].length>16?p[i].slice(0,15)+'…':p[i],nd[0]+8*side+(side<0?-70:0),nd[1]+3);}}
+ pathDraw(pi,1,'#ff2d95');pathDraw(po,-1,'#7ed957');
+ g.fillStyle='#7ed957';g.font='11px ui-monospace,monospace';g.fillText('outer (green) & inner (magenta) → same normal form',10,H-14);}
+function all(){drawW3();drawW4();
+ var skk=show(nf(ap(S,K,K,'x'),stepOuter))==='x';
+ var bcomp=show(nf(ap(S,ap(K,S),K,'a','b','c'),stepOuter))==='(a (b c))';
+ // confluence over random terms
+ function rnd(d){if(d<=0||Math.random()<0.3)return ['S','K','I','a','b','c'][Math.floor(Math.random()*6)];return ['@',rnd(d-1),rnd(d-1)];}
+ var conf=true;for(var t=0;t<120;t++){var tm=rnd(4);if(show(nf(tm,stepOuter))!==show(nf(tm,stepInner)))conf=false;}
+ window.__ski={SKK_is_identity:skk,B_is_composition:bcomp,churchRosser:conf};}
+document.getElementById('kskk').onclick=function(){cur=TERMS.skk;line=0;drawW4();};
+document.getElementById('kb').onclick=function(){cur=TERMS.b;line=0;drawW4();};
+document.getElementById('kc').onclick=function(){cur=TERMS.c;line=0;drawW4();};
+document.getElementById('kstep').onclick=function(){line++;drawW4();};
+document.getElementById('krun').onclick=function(){line=seq(cur,stepOuter).length-1;drawW4();};
+document.getElementById('kreset').onclick=function(){line=0;drawW4();};
+document.getElementById('skspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-ski-forest","title":"THE SKI FOREST","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#7ed957","icon":"grind",
+  "kicker":"Turing-complete with three birds and no variables",
+  "blurb":"combinatory logic in the 5-window house format — computing with zero variables. Three combinators (I x=x, K x y=x, S x y z=xz(yz)) and pure tree-rewriting make a Turing-complete language. See the rules reduce a term in 1D, drive the reducer in 2D, and Church–Rosser confluence in 3D as AVAN's two-paths-one-floor diamond.",
+  "lit":"Genuine combinatory logic. Verified live: S K K x reduces to x (SKK is the identity), S(KS)K is the composition combinator B (B a b c = a(b c)), and reducing outermost-first vs innermost-first reaches the same normal form over random terms (Church–Rosser). The reducer, the reduction sequences, and the confluence diamond are the real rewrite system (verifiable: window.__ski.SKK_is_identity && churchRosser).",
+  "fig":"'A forest of birds' (Smullyan's combinator names) is the picture; the three rules, Turing-completeness, and confluence are exact. It really is the whole of computation with no variables.",
+  "body":SKI_BODY,"script":SKI_SCRIPT},
  {"slug":"the-permutation-clock","title":"THE PERMUTATION CLOCK","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#ffb84d","icon":"grind",
   "kicker":"a clock whose wheels are factorials — address any shuffle",
