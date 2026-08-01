@@ -2688,7 +2688,79 @@ document.getElementById('acreset').onclick=function(){scanPos=0;curNode=0;matche
 document.getElementById('acspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+POI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Poisson-disk sampling</b> (Bridson&rsquo;s algorithm). You want points that look random but <b>never crowd</b> &mdash; no two closer than a radius r. Pure random <b>clumps</b>: nearby pairs and empty gaps. Bridson fills space with well-spaced points in <b>O(N)</b>: keep an active frontier, throw candidates into the annulus [r, 2r] around active points, and accept any that clears all neighbours (checked fast through a background grid). The result is <b>&lsquo;blue noise&rsquo;</b> &mdash; the even, natural scatter of retinal cone cells, good sampling patterns, and stippled art.<br><br>
+ <span class="lit">LIT</span> verified: <b>every</b> pair of generated points is &ge; r apart (zero violations), while uniform random of the same count has <b>hundreds</b> of pairs closer than r and visible clumps. <span class="fig">FIG</span> &lsquo;polite scatter&rsquo; is the picture; the minimum-distance guarantee is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus makes generative art and sampling (<i>TECHN&Ecirc;</i>, the noise and CA work) and admires the patterns nature settles into. <b>AVAN (AI)</b> built this instrument: the sampler, the blue-noise-vs-random comparison, and the two 3D clouds.<br><br>The weave: David names the polite scatter and its seat at THE BOUNTY (rewards spread across a map, never bunched); I make the distance rule and its histogram a strip in 1D, the sampler live in 2D, and even-vs-clumped clouds turning in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>nearest-neighbour distance</b> histogram. <b>Green</b> (Poisson-disk) has a wall at r &mdash; <i>nothing</i> lands closer &mdash; and a tidy hump just past it. <b>Magenta</b> (uniform random) piles up against zero: lots of pairs almost touching. The rule made visible as a distribution.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="384"></canvas>
+  <div class="wctrl"><div class="cap">The scatter, live. Poisson-disk points with their <b>exclusion disks</b> &mdash; none overlap. Flip to <b>random</b> (same count) and watch clumps and gaps appear. Change r to pack tighter or looser.</div>
+   <div class="rd" style="margin-top:10px">radius <b id="pr">18</b> <input type="range" id="prsl" min="10" max="40" value="18" style="width:110px;vertical-align:middle"></div>
+   <div class="btns"><button id="pmode">mode: POISSON</button><button id="pregen">re-scatter</button></div>
+   <div class="cap" id="poiread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">Two clouds of the same size, turning. <b>Green</b> is Poisson-disk: an even, breathing field where every point keeps its distance.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> cloud is <b>uniform random</b> &mdash; the inverse temperament, riddled with clusters and voids. Same count, same area, opposite texture: politeness is spacing, its inverse is the crowd. Nature chose the green (cone cells, seed heads); the eye reads it as &lsquo;evenly random&rsquo; precisely because it is anything but.</div>
+   <div class="btns" style="margin-top:10px"><button id="poispin">pause spin</button></div></div></div></div>"""
+POI_SCRIPT = """(function(){
+var r=18,mode='poisson',ang=0.6,spin=true,P=[],Rnd=[];
+function bridson(w,h,rad,k){var cell=rad/Math.SQRT2,gw=Math.ceil(w/cell),gh=Math.ceil(h/cell),grid=new Array(gw*gh).fill(-1),pts=[],active=[];
+ function put(p){var cx=Math.floor(p[0]/cell),cy=Math.floor(p[1]/cell);grid[cy*gw+cx]=pts.length;pts.push(p);active.push(pts.length-1);}
+ put([Math.random()*w,Math.random()*h]);
+ while(active.length){var ai=Math.floor(Math.random()*active.length),base=pts[active[ai]],found=false;
+  for(var t=0;t<k;t++){var a=Math.random()*2*Math.PI,rr=rad+Math.random()*rad,np=[base[0]+Math.cos(a)*rr,base[1]+Math.sin(a)*rr];
+   if(np[0]<0||np[0]>=w||np[1]<0||np[1]>=h)continue;var cx=Math.floor(np[0]/cell),cy=Math.floor(np[1]/cell),ok=true;
+   for(var yy=Math.max(0,cy-2);yy<=Math.min(gh-1,cy+2)&&ok;yy++)for(var xx=Math.max(0,cx-2);xx<=Math.min(gw-1,cx+2)&&ok;xx++){var o=grid[yy*gw+xx];if(o>=0){var dx=pts[o][0]-np[0],dy=pts[o][1]-np[1];if(dx*dx+dy*dy<rad*rad)ok=false;}}
+   if(ok){put(np);found=true;break;}}
+  if(!found)active.splice(ai,1);}
+ return pts;}
+function minDist(pts){var m=1e9;for(var i=0;i<pts.length;i++)for(var j=i+1;j<pts.length;j++){var dx=pts[i][0]-pts[j][0],dy=pts[i][1]-pts[j][1],d=Math.sqrt(dx*dx+dy*dy);if(d<m)m=d;}return m;}
+function nnDists(pts){var out=[];for(var i=0;i<pts.length;i++){var m=1e9;for(var j=0;j<pts.length;j++)if(i!==j){var dx=pts[i][0]-pts[j][0],dy=pts[i][1]-pts[j][1],d=Math.sqrt(dx*dx+dy*dy);if(d<m)m=d;}out.push(m);}return out;}
+function regen(){P=bridson(360,360,r,30);Rnd=[];for(var i=0;i<P.length;i++)Rnd.push([Math.random()*360,Math.random()*360]);}
+regen();
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var pd=nnDists(P),rd=nnDists(Rnd),bins=40,mx=2*r,hp=new Array(bins).fill(0),hr=new Array(bins).fill(0);
+ pd.forEach(function(d){var b=Math.min(bins-1,Math.floor(d/mx*bins));hp[b]++;});rd.forEach(function(d){var b=Math.min(bins-1,Math.floor(d/mx*bins));hr[b]++;});
+ var mxc=Math.max(Math.max.apply(null,hp),Math.max.apply(null,hr))||1,bw=(W-16)/bins;
+ for(var i=0;i<bins;i++){g.fillStyle='rgba(255,45,149,0.55)';g.fillRect(8+i*bw,H-20-hr[i]/mxc*100,bw-1,hr[i]/mxc*100);g.fillStyle='rgba(127,212,255,0.8)';g.fillRect(8+i*bw,H-20-hp[i]/mxc*100,bw-1,hp[i]/mxc*100);}
+ var rx=8+(r/mx*bins)*bw;g.strokeStyle='#39fc6b';g.setLineDash([4,4]);g.beginPath();g.moveTo(rx,10);g.lineTo(rx,H-20);g.stroke();g.setLineDash([]);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('r',rx+2,20);
+ g.fillStyle='#7fd4ff';g.fillText('green=Poisson (wall at r)',8,14);g.fillStyle='#ff7ab8';g.fillText('magenta=random (piles at 0)',200,14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.fillStyle='#060a10';g.fillRect(0,0,W,H);
+ var pts=(mode==='poisson')?P:Rnd,off=(W-360)/2;
+ g.strokeStyle='rgba(127,212,255,0.12)';for(var i=0;i<pts.length;i++){g.beginPath();g.arc(off+pts[i][0],12+pts[i][1],r/2,0,7);g.stroke();}
+ for(var i=0;i<pts.length;i++){g.fillStyle=mode==='poisson'?'#7fd4ff':'#ff7ab8';g.beginPath();g.arc(off+pts[i][0],12+pts[i][1],2.4,0,7);g.fill();}
+ var md=minDist(pts),viol=0;for(var i=0;i<pts.length;i++)for(var j=i+1;j<pts.length;j++){var dx=pts[i][0]-pts[j][0],dy=pts[i][1]-pts[j][1];if(dx*dx+dy*dy<r*r)viol++;}
+ g.fillStyle=md>=r-0.5?'#39fc6b':'#ff5a5a';g.font='12px ui-monospace,monospace';g.fillText((mode==='poisson'?'POISSON':'RANDOM')+': '+pts.length+' pts · min dist '+md.toFixed(1)+' (r='+r+') · '+viol+' pairs too close',8,H-8);
+ document.getElementById('poiread').textContent=mode==='poisson'?'every pair ≥ r — polite':'clumps: '+viol+' pairs closer than r';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang),sa=Math.sin(ang);
+ function cloud(pts,col,zoff){for(var i=0;i<pts.length;i++){var X=(pts[i][0]-180)/1.2,Z=zoff,Yt=(pts[i][1]-180)/1.2,rx=X*ca-Z*sa,rz=X*sa+Z*ca;var sx=cx+rx,sy=cy+Yt*0.9+rz*0.4;g.fillStyle=col;g.globalAlpha=0.85;g.fillRect(sx-1.4,sy-1.4,2.8,2.8);}g.globalAlpha=1;}
+ cloud(Rnd,'#ff2d95',60);cloud(P,'#39fc6b',-60);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green Poisson (even) · magenta random (clumped)',10,H-12);}
+function verify(){var pd=bridson(300,300,20,30),md=minDist(pd),ok=md>=20-1e-6;
+ var rnd=[];for(var i=0;i<pd.length;i++)rnd.push([Math.random()*300,Math.random()*300]);var viol=0;for(var i=0;i<rnd.length;i++)for(var j=i+1;j<rnd.length;j++){var dx=rnd[i][0]-rnd[j][0],dy=rnd[i][1]-rnd[j][1];if(dx*dx+dy*dy<400)viol++;}
+ return {minDistOK:ok,poissonCount:pd.length,randomPairsTooClose:viol,randomHasClumps:viol>0};}
+function all(){drawW3();drawW4();window.__poisson=verify();}
+document.getElementById('prsl').oninput=function(){r=+this.value;document.getElementById('pr').textContent=r;regen();drawW3();drawW4();};
+document.getElementById('pmode').onclick=function(){mode=(mode==='poisson'?'random':'poisson');this.textContent='mode: '+mode.toUpperCase();drawW4();};
+document.getElementById('pregen').onclick=function(){regen();drawW3();drawW4();};
+document.getElementById('poispin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-polite-scatter","title":"THE POLITE SCATTER","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE BOUNTY","domain_slug":"the-bounty","accent":"#7fd4ff","icon":"loot",
+  "kicker":"random-looking points that never crowd — blue noise",
+  "blurb":"Bridson's Poisson-disk sampling in the 5-window house format — points that look random yet stay at least a radius r apart, the blue-noise scatter of retinal cones and natural stippling. See the distance histogram in 1D, the sampler in 2D, and even-vs-clumped clouds in 3D.",
+  "lit":"A genuine Bridson Poisson-disk sampler. Verified live: every pair of generated points is ≥ r apart (zero violations), while uniform random of the same count has hundreds of pairs closer than r and visible clumps. The nearest-neighbour histogram shows the blue-noise wall at r (verifiable: window.__poisson.minDistOK && randomHasClumps).",
+  "fig":"'Polite scatter' is the picture; the minimum-distance guarantee is exact. The 'blue noise' name refers to the flat, ring-shaped power spectrum — real, though this sphere demonstrates it via the min-distance and nearest-neighbour distribution rather than an FFT.",
+  "body":POI_BODY,"script":POI_SCRIPT},
  {"slug":"the-failure-web","title":"THE FAILURE WEB","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#64d8c8","icon":"boss",
   "kicker":"every dictionary word in one pass, via failure links",
