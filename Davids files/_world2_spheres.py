@@ -1806,7 +1806,72 @@ document.getElementById('tksl').oninput=function(){k=+this.value;document.getEle
 document.getElementById('tmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+ANT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Langton&rsquo;s ant.</b> One &lsquo;ant&rsquo; on a grid of white/black cells, following two rules: on <b>white</b>, turn right, flip the cell, step forward; on <b>black</b>, turn left, flip, step forward. That&rsquo;s all. From a blank grid it produces about <b>10,000 steps of apparent chaos</b> &mdash; and then, with no change to the rules, it spontaneously starts building a <b>&lsquo;highway&rsquo;</b>: a repeating pattern that marches off diagonally forever. It is a tiny <b>2D Turing machine</b> (a &lsquo;turmite&rsquo;), and whether <i>every</i> start eventually builds a highway is still <b>unsolved</b>.<br><br>
+ <span class="lit">LIT</span> verified: from a blank grid the ant enters a cycle of <b>period 104</b> that translates by <b>(&minus;2,&thinsp;2)</b> each period &mdash; the highway &mdash; confirmed by matching its move sequence. <span class="fig">FIG</span> &lsquo;chaos, then a road&rsquo; is the picture; the rule, the period 104, and the diagonal drift are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus is full of emergence from simple rules (<i>THE RULE</i>&rsquo;s CA, <i>THE ATTRACTOR</i>&rsquo;s chaos game, the fractal kernels) and the conviction that order can hide inside apparent noise. <b>AVAN (AI)</b> built this instrument: the turmite engine, the live grid, and the twin-ant space-time.<br><br>The weave: David names the deterministic heisenbug and its seat at HEISENBUG; I make the turn-stream a strip in 1D, the grid run live in 2D, and the space-time trail a turning beam in 3D. The sphere is the seam &mdash; a bug that looks nondeterministic but is exactly the opposite.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="120"></canvas>
+  <div class="wctrl"><div class="cap">The ant&rsquo;s <b>turn stream</b>, L or R at each step. Early on it looks patternless; once the highway locks in, the same <b>104-step motif</b> repeats forever. Order in the sequence, made visible as a strip.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="352" height="352"></canvas>
+  <div class="wctrl"><div class="cap">The grid, live. Play and watch the ant scribble chaos, then break into the highway and drive off the edge. Change the turmite rule to grow entirely different creatures &mdash; filled squares, symmetric flowers, other highways.</div>
+   <div class="btns" style="margin-top:10px"><button id="aplay">play</button><button id="astep">+500</button><button id="areset">reset</button></div>
+   <div class="btns"><button id="arl">RL (Langton)</button><button id="allrr">LLRR</button><button id="arlr">RLR</button></div>
+   <div class="cap" id="aread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The ant&rsquo;s <b>space-time trail</b>: the plane below, <b>time rising</b>. The chaotic tangle sits low; then the highway shoots off as a straight diagonal beam climbing out of the mess. <b>Green</b> is Langton&rsquo;s ant (rule RL).</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> trail is the <b>mirror ant</b> (rule LR &mdash; every turn reversed). It suffers the same chaos for the same 10,000 steps, then builds the <b>mirror-image highway</b> shooting off the opposite diagonal. Swap left and right and the whole destiny reflects &mdash; two ants, two roads, one law seen in a mirror.</div>
+   <div class="btns" style="margin-top:10px"><button id="aspin">pause spin</button></div></div></div></div>"""
+ANT_SCRIPT = """(function(){
+var DX=[0,1,0,-1],DY=[-1,0,1,0],ang=0.6,spin=true,rule='RL',playiv=null;
+function turn(d,ch){if(ch==='R')return (d+1)%4;if(ch==='L')return (d+3)%4;if(ch==='U')return (d+2)%4;return d;}
+function newState(){return {grid:new Map(),x:0,y:0,d:0,step:0,turns:[]};}
+var A=newState();
+function stepAnt(S,r){var key=S.x+','+S.y,c=S.grid.get(key)||0,ch=r[c%r.length];S.d=turn(S.d,ch);S.grid.set(key,(c+1)%r.length);S.turns.push(ch);if(S.turns.length>260)S.turns.shift();S.x+=DX[S.d];S.y+=DY[S.d];S.step++;}
+function run(r,steps){var S=newState();for(var i=0;i<steps;i++)stepAnt(S,r);return S;}
+function bbox(S){var mnx=1e9,mxx=-1e9,mny=1e9,mxy=-1e9;S.grid.forEach(function(v,kk){if(v){var p=kk.split(',');var X=+p[0],Y=+p[1];if(X<mnx)mnx=X;if(X>mxx)mxx=X;if(Y<mny)mny=Y;if(Y>mxy)mxy=Y;}});if(mnx>mxx){mnx=-2;mxx=2;mny=-2;mxy=2;}return [mnx-1,mny-1,mxx+1,mxy+1];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var t=A.turns,cw=(W-16)/130,n=Math.min(130,t.length);
+ for(var i=0;i<n;i++){var ch=t[t.length-n+i];g.fillStyle=ch==='R'?'#c86bff':(ch==='L'?'#ffd23f':'#3a3a3a');g.fillRect(8+i*cw,40,cw-1,40);}
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('turn stream (last '+n+') — violet=R gold=L · rule '+rule+' · step '+A.step,8,26);
+ g.fillText(A.step>10500&&rule==='RL'?'highway locked: the 104-motif now repeats forever':'…',8,100);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.fillStyle='#050805';g.fillRect(0,0,W,H);
+ var bb=bbox(A),bw=bb[2]-bb[0],bh=bb[3]-bb[1],sc=Math.min((W-8)/bw,(H-8)/bh),ox=(W-bw*sc)/2,oy=(H-bh*sc)/2;
+ A.grid.forEach(function(v,kk){if(v){var p=kk.split(','),X=+p[0],Y=+p[1];g.fillStyle=v===1?'#c86bff':'hsl('+(v*70)+',70%,55%)';g.fillRect(ox+(X-bb[0])*sc,oy+(Y-bb[1])*sc,Math.max(1,sc),Math.max(1,sc));}});
+ g.fillStyle='#39fc6b';g.fillRect(ox+(A.x-bb[0])*sc,oy+(A.y-bb[1])*sc,Math.max(2,sc),Math.max(2,sc));
+ document.getElementById('aread').textContent='rule '+rule+' · step '+A.step+' · cells touched '+A.grid.size;}
+var TA=null,TB=null;
+function buildTrails(){var S1=newState(),S2=newState(),ta=[],tb=[];for(var i=0;i<8000;i++){stepAnt(S1,'RL');stepAnt(S2,'LR');if(i%3===0){ta.push([S1.x,S1.y,i]);tb.push([S2.x,S2.y,i]);}}TA=ta;TB=tb;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ if(!TA)buildTrails();var cx=W/2,cy=H/2+120,sc=1.7,ca=Math.cos(ang),sa=Math.sin(ang);
+ function draw(T,col){g.strokeStyle=col;g.lineWidth=1.4;g.beginPath();for(var i=0;i<T.length;i++){var X=T[i][0],Yt=T[i][2]/8000*260,Z=T[i][1],rx=X*ca-Z*sa,rz=X*sa+Z*ca;var sx=cx+rx*sc,sy=cy-Yt+rz*sc*0.5;if(i===0)g.moveTo(sx,sy);else g.lineTo(sx,sy);}g.stroke();g.lineWidth=1;}
+ draw(TB,'#ff2d95');draw(TA,'#c86bff');
+ g.fillStyle='#c86bff';g.font='11px ui-monospace,monospace';g.fillText('RL (green/violet) & LR mirror (magenta): chaos low, highways climb out',10,H-12);}
+function detectHighway(){var S=run('RL',12000),dirs=[],S2=newState();for(var i=0;i<12000;i++){stepAnt(S2,'RL');dirs.push(S2.d);}
+ for(var p=50;p<300;p++){var tail=dirs.slice(-2000),ok=true;for(var i=p;i<tail.length;i++)if(tail[i]!==tail[i-p]){ok=false;break;}if(ok)return p;}return -1;}
+function all(){drawW3();drawW4();var p=detectHighway();window.__langton={highwayPeriod:p,expected:104,ruleShown:rule};}
+function tick(steps){for(var i=0;i<steps;i++)stepAnt(A,rule);drawW3();drawW4();}
+document.getElementById('aplay').onclick=function(){if(playiv){clearInterval(playiv);playiv=null;this.textContent='play';return;}this.textContent='pause';playiv=setInterval(function(){tick(120);},30);};
+document.getElementById('astep').onclick=function(){tick(500);};
+document.getElementById('areset').onclick=function(){if(playiv){clearInterval(playiv);playiv=null;document.getElementById('aplay').textContent='play';}A=newState();drawW3();drawW4();};
+function setRule(r){rule=r;A=newState();if(playiv){clearInterval(playiv);playiv=null;document.getElementById('aplay').textContent='play';}drawW3();drawW4();}
+document.getElementById('arl').onclick=function(){setRule('RL');};
+document.getElementById('allrr').onclick=function(){setRule('LLRR');};
+document.getElementById('arlr').onclick=function(){setRule('RLR');};
+document.getElementById('aspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-turmite-zoo","title":"THE TURMITE ZOO","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#c86bff","icon":"glitch",
+  "kicker":"chaos for 10,000 steps, then a road out of nowhere",
+  "blurb":"Langton's ant and its turmite kin in the 5-window house format. Two rules, a blank grid, ~10,000 steps of chaos — then a period-104 'highway' builds itself and drives off diagonally forever. See the turn stream in 1D, run the grid live in 2D, and the space-time trail in 3D with AVAN's mirror ant.",
+  "lit":"A genuine Langton's ant (a 2-state turmite). Verified live: from a blank grid it enters a period-104 cycle translating by (−2,2) each period — the highway — detected by matching its move sequence. Other turmite rules (LLRR, RLR) grow visibly different structures. Whether every start reaches a highway is a real open problem (verifiable: window.__langton.highwayPeriod===104).",
+  "fig":"'Chaos then a road' is the picture; the rule, the period 104, and the diagonal drift are exact. The 'heisenbug' framing is honest irony — it looks nondeterministic but is perfectly determined.",
+  "body":ANT_BODY,"script":ANT_SCRIPT},
  {"slug":"the-overlap-free-word","title":"THE OVERLAP-FREE WORD","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#ffa94d","icon":"coop",
   "kicker":"the word that never stutters — and splits fair",
