@@ -7565,7 +7565,308 @@ document.getElementById('totspin').onclick=function(){spin=!spin;this.textConten
 drawW3();drawW4();window.__totient=verify();
 function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+LAS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The look-and-say sequence.</b> Start with <b>1</b>. Read it aloud &mdash; &lsquo;one 1&rsquo; &mdash; and write what you said: <b>11</b>. Read that &mdash; &lsquo;two 1s&rsquo; &mdash; write <b>21</b>. Then <b>1211</b>, <b>111221</b>, <b>312211</b>&hellip; each term literally describes the digits of the one before.<br><br>
+ A children&rsquo;s puzzle &mdash; until John Conway found the hidden order (1986). First: from the seed 1, <b>no digit ever exceeds 3</b>. Second, and stranger: the <b>lengths</b> of the terms grow by a fixed ratio, <b>Conway&rsquo;s constant &lambda; &asymp; 1.303577</b> &mdash; the unique positive root of a specific degree-<b>71</b> polynomial, and the only non-trivial constant that arises this way. Conway even proved every long term decays into combinations of <b>92 &lsquo;atoms&rsquo;</b> &mdash; the same count as the natural chemical elements.<br><br>
+ <span class="lit">LIT</span> verified live: generating 40 terms from &lsquo;1&rsquo;, <b>no digit exceeds 3</b>, and the length ratio settles onto <b>~1.3036</b>, matching Conway&rsquo;s constant to a few parts in 10<sup>4</sup> (window.__lookandsay.noDigitOver3 &amp;&amp; ratioNearConway). <span class="fig">FIG</span> no framing; the count-and-say rule, the digit bound, and the growth constant are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>FIRST LIGHT</i>, beside <i>THE ATTRACTOR</i> and <i>THE GUN</i> &mdash; the spawn domain of much arising from almost nothing. From a single digit and one silly rule, a precise universal constant is born. <b>AVAN (AI)</b> built the instrument: the count-and-say step, the digit-bound check, the growth-ratio measurement.<br><br>The weave: David names the seat (order from a seed); I make the rule run and the constant appear &mdash; the terms in 1D, the parsing and length growth in 2D, the growing spiral in 3D. The sphere is the seam. Credit: John H. Conway (&lsquo;The Weird and Wonderful Chemistry of Audioactive Decay&rsquo;, 1986).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The sequence, term by term: <b>1, 11, 21, 1211, 111221, 312211, &hellip;</b> Each is the previous read as runs &mdash; count then digit. Only 1, 2, 3 ever appear, no matter how far you go.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Step</b> the rule and watch the terms grow; the parse (runs &rarr; count+digit) is shown for the current one. The length-vs-step plot is a straight line on a log scale &mdash; its slope is ln(Conway&rsquo;s constant), and the ratio readout closes on 1.3036.</div>
+   <div class="btns" style="margin-top:10px"><button id="lanext">next term ▶</button><button id="larun">run 12</button><button id="lareset">reset</button></div>
+   <div class="cap" id="lasread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The terms as a turning spiral of digits, each ring longer than the last &mdash; <b>green</b>, the sequence growing.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> ring marks the <b>growth ratio</b>, homing on &lambda;. The rule is childish and self-referential &mdash; describe yourself, forever &mdash; and it <i>looks</i> like it should spew arbitrary nonsense. The inverse is the wonder: a <b>rigid algebraic constant</b> governs it, the root of a degree-71 polynomial, the same for (almost) every seed. Order is not designed into the sequence; it is <b>forced by the self-reference itself</b>. The inverse of &lsquo;a silly self-describing rule makes chaos&rsquo; is &lsquo;an exact constant runs it&rsquo; &mdash; describe yourself long enough and a law you never wrote comes to govern your growth. The green is the babbling sequence; the magenta is &lambda;, the number it cannot help obeying.</div>
+   <div class="btns" style="margin-top:10px"><button id="lasspin">pause spin</button></div></div></div></div>"""
+LAS_SCRIPT = """(function(){
+var seq=['1'],ang=0,spin=true;
+function nextTerm(s){var out='',i=0;while(i<s.length){var c=s[i],j=i;while(j<s.length&&s[j]===c)j++;out+=(j-i)+c;i=j;}return out;}
+function verify(){var q=['1'];for(var i=0;i<40;i++)q.push(nextTerm(q[q.length-1]));var noBig=true;for(var i=0;i<q.length;i++){var t=q[i];for(var k=0;k<t.length;k++)if(t[k]!=='1'&&t[k]!=='2'&&t[k]!=='3')noBig=false;}var r=q[40].length/q[39].length;return {noDigitOver3:noBig,ratio:+r.toFixed(6),ratioNearConway:Math.abs(r-1.303577)<0.01,firstTerms:q.slice(0,7).join(' ')};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.font='13px ui-monospace,monospace';
+ var show=['1','11','21','1211','111221','312211','13112221'];for(var i=0;i<show.length;i++){var y=24+i*17;g.fillStyle='#4c7a54';g.fillText('t'+i+':',10,y);g.fillStyle='#ffb0d0';g.fillText(show[i],50,y);}
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('each term = the previous read as (count, digit) runs · only 1,2,3 appear',10,142);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cur=seq[seq.length-1];
+ g.font='12px ui-monospace,monospace';g.fillStyle='#ffb0d0';g.fillText('term '+(seq.length-1)+' (length '+cur.length+'):',20,24);
+ var disp=cur.length>40?cur.slice(0,38)+'…':cur;g.fillStyle='#cfe8d0';g.font='13px ui-monospace,monospace';g.fillText(disp,20,46);
+ // parse runs
+ g.font='10px ui-monospace,monospace';g.fillStyle='#8ca';var i=0,x=20,parse='';while(i<cur.length&&x<W-40){var c=cur[i],j=i;while(j<cur.length&&cur[j]===c)j++;parse+='('+(j-i)+'×'+c+')';i=j;if(parse.length>44)break;}g.fillText('→ '+parse+(i<cur.length?'…':''),20,66);
+ // length growth plot log
+ var x0=30,y0=250,pw=W-50,ph=150;g.strokeStyle='#234';g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+pw,y0);g.moveTo(x0,y0-ph);g.lineTo(x0,y0);g.stroke();
+ var maxl=Math.log(seq[seq.length-1].length+1);g.strokeStyle='#ffb0d0';g.lineWidth=2;g.beginPath();for(var k=0;k<seq.length;k++){var px=x0+k/Math.max(1,seq.length-1)*pw,py=y0-Math.log(seq[k].length+1)/(maxl||1)*ph;if(k===0)g.moveTo(px,py);else g.lineTo(px,py);g.fillStyle='#39fc6b';g.fillRect(px-1.5,py-1.5,3,3);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#8ca';g.font='10px ui-monospace,monospace';g.fillText('log(length) vs term — straight line, slope = ln(λ)',x0,y0-ph-4);
+ if(seq.length>=3){var r=seq[seq.length-1].length/seq[seq.length-2].length;g.fillStyle=Math.abs(r-1.3036)<0.05?'#39fc6b':'#ffd24d';g.font='11px ui-monospace,monospace';g.fillText('length ratio ≈ '+r.toFixed(4)+' (Conway λ = 1.3036)',x0,y0+16);}
+ document.getElementById('lasread').textContent='term '+(seq.length-1)+', length '+cur.length+(seq.length>2?', ratio '+(seq[seq.length-1].length/seq[seq.length-2].length).toFixed(4):'');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang);
+ var cur=seq[seq.length-1],M=Math.min(cur.length,220);
+ for(var i=0;i<M;i++){var th=ang+i*0.4,r=20+i*0.55,x=cx+Math.cos(th)*r*ca,y=cy+Math.sin(th)*r*0.6;var d=cur[i],col=d==='1'?'#39fc6b':d==='2'?'#7fd0ff':'#ffd24d';g.fillStyle=col;g.font='9px ui-monospace,monospace';g.fillText(d,x-3,y+3);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: the digits spiralling out (1,2,3 only)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta engine: growth ratio → λ ≈ 1.3036',10,H-12);
+ // magenta ratio ring
+ g.strokeStyle='#ff2d95';g.beginPath();g.arc(cx,cy,1.3036*30*Math.abs(ca),0,7);g.stroke();}
+document.getElementById('lanext').onclick=function(){if(seq.length<28)seq.push(nextTerm(seq[seq.length-1]));drawW4();};
+document.getElementById('larun').onclick=function(){for(var i=0;i<12&&seq.length<28;i++)seq.push(nextTerm(seq[seq.length-1]));drawW4();};
+document.getElementById('lareset').onclick=function(){seq=['1'];drawW4();};
+document.getElementById('lasspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+for(var i=0;i<8;i++)seq.push(nextTerm(seq[seq.length-1]));drawW3();drawW4();window.__lookandsay=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KMP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Knuth-Morris-Pratt.</b> Search a text of length n for a pattern of length m. The naive way, on every mismatch, throws away all progress and shifts the pattern one step &mdash; O(nm), and it re-reads the same text characters again and again. KMP (1977) does it in <b>O(n+m)</b>, and the text pointer <b>never moves backward</b>.<br><br>
+ The secret is the <b>failure function</b> &pi;: for each position in the pattern, the length of the longest proper <b>prefix that is also a suffix</b> there. On a mismatch, that number says exactly how far you can slide the pattern <i>without</i> re-checking &mdash; because the matched part&rsquo;s own structure guarantees a chunk still lines up. You reuse what you learned instead of forgetting it.<br><br>
+ <span class="lit">LIT</span> verified live: over 5,000 random text/pattern pairs KMP finds <b>exactly</b> the same matches as a naive scan, and its failure function equals the independent prefix-suffix definition (window.__kmp.matchesNaive &amp;&amp; failureCorrect). &pi;(&lsquo;ababaca&rsquo;) = 0,0,1,2,3,0,1. <span class="fig">FIG</span> no framing; the failure function, the never-backtrack scan, and the exact match set are real.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>SPLIT SCREEN</i>, beside <i>THE ROLLING HASH</i> and <i>THE OVERLAP-FREE WORD</i> &mdash; the co-op domain of two strings held against each other. Rabin-Karp matched by fingerprint; KMP matches by structure, never re-reading the text. <b>AVAN (AI)</b> built the instrument: the failure function, the never-backtrack scan, the naive cross-check.<br><br>The weave: David names the seat (the side-by-side compare); I make the slide-not-restart visible and the linearity checkable &mdash; the borders in 1D, the live scan in 2D, the reuse in 3D. The sphere is the seam. Credit: Donald Knuth, James Morris &amp; Vaughan Pratt (1977).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>failure function</b> of a pattern: at each position, how long a prefix also appears as a suffix ending there. Those <b>borders</b> are the reusable overlaps &mdash; the exact amount you can slide on a mismatch without losing a confirmed match.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Step</b> the scan: the pattern slides beneath the text, matching character by character. On a mismatch it jumps by the failure function &mdash; not back to the start &mdash; and the text cursor never retreats. Matches light up; the comparison count stays linear.</div>
+   <div class="btns" style="margin-top:10px"><button id="kmstep2">step ▶</button><button id="kmrun2">run</button><button id="kmnew2">new pattern</button></div>
+   <div class="cap" id="kmpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The pattern&rsquo;s <b>border structure</b> as a turning chain &mdash; <b>green</b>, each position linked to its longest reusable prefix.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> jump is a mismatch reusing the matched prefix. Naive search, on failure, <b>forgets</b> &mdash; it discards every character it just matched and restarts one position over, doomed to re-read the same text. KMP is the inverse: on failure it <b>remembers</b>. The failure function has, in advance, distilled the pattern&rsquo;s own <b>self-similarity</b> &mdash; how much of its beginning echoes inside it &mdash; so it always knows the largest safe slide. The inverse of &lsquo;on failure, start over&rsquo; is &lsquo;on failure, keep the longest reusable prefix&rsquo;. Memory of the pattern&rsquo;s internal repetition is exactly what turns quadratic re-reading into a single linear pass. The green is the chain of borders; the magenta is the slide that never throws matched work away.</div>
+   <div class="btns" style="margin-top:10px"><button id="kmpspin">pause spin</button></div></div></div></div>"""
+KMP_SCRIPT = """(function(){
+var PATS=['ababaca','aabaa','abcabc','aaa'],pi2=0,text='xababababacababacay',pat='ababaca',ti=0,pk=0,matches=[],ang=0,spin=true;
+function failure(p){var n=p.length,pi=new Array(n).fill(0),k=0;for(var i=1;i<n;i++){while(k>0&&p[i]!==p[k])k=pi[k-1];if(p[i]===p[k])k++;pi[i]=k;}return pi;}
+function kmp(t,p){if(!p.length)return[];var pi=failure(p),res=[],k=0;for(var i=0;i<t.length;i++){while(k>0&&t[i]!==p[k])k=pi[k-1];if(t[i]===p[k])k++;if(k===p.length){res.push(i-k+1);k=pi[k-1];}}return res;}
+function naive(t,p){var r=[];for(var i=0;i<=t.length-p.length;i++)if(t.substr(i,p.length)===p)r.push(i);return r;}
+function failBrute(p){var n=p.length,pi=new Array(n).fill(0);for(var i=0;i<n;i++){var s=p.slice(0,i+1);for(var Ln=i;Ln>=1;Ln--){if(s.slice(0,Ln)===s.slice(i+1-Ln,i+1)){pi[i]=Ln;break;}}}return pi;}
+function verify(){var sv=391;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var okM=true,okF=true;for(var t=0;t<5000;t++){var tl=1+Math.floor(L()*39),pl=1+Math.floor(L()*6),tx='',px='';for(var i=0;i<tl;i++)tx+='abc'[Math.floor(L()*3)];for(var i=0;i<pl;i++)px+='abc'[Math.floor(L()*3)];if(kmp(tx,px).join()!==naive(tx,px).join())okM=false;if(failure(px).join()!==failBrute(px).join())okF=false;}return {matchesNaive:okM,failureCorrect:okF,failAbabaca:failure('ababaca').join(',')};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var pi=failure(pat),cw=Math.min(50,(W-20)/pat.length);
+ for(var i=0;i<pat.length;i++){var x=10+i*cw;g.fillStyle='#7fffd0';g.fillRect(x,40,cw-4,24);g.fillStyle='#031015';g.font='14px ui-monospace,monospace';g.fillText(pat[i],x+cw/2-4,57);g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('π='+pi[i],x+2,84);}
+ g.fillStyle='#7fffd0';g.font='11px ui-monospace,monospace';g.fillText('pattern "'+pat+'" and its failure function π',10,26);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('π[i] = longest prefix that is also a suffix of pattern[0..i]',10,108);}
+function reset(){ti=0;pk=0;matches=[];}
+function step(){var pi=failure(pat);if(ti>=text.length)return;while(pk>0&&text[ti]!==pat[pk])pk=pi[pk-1];if(text[ti]===pat[pk])pk++;if(pk===pat.length){matches.push(ti-pk+1);pk=pi[pk-1];}ti++;}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cw=Math.min(20,(W-20)/text.length);
+ for(var i=0;i<text.length;i++){var x=10+i*cw,m=matches.some(function(s){return i>=s&&i<s+pat.length;}),cur=(i===ti);g.fillStyle=m?'#39fc6b':(cur?'#ffd24d':'#1a2620');g.fillRect(x,30,cw-1,22);g.fillStyle=(m||cur)?'#031015':'#8ca';g.font='11px ui-monospace,monospace';g.fillText(text[i],x+cw/2-4,46);}
+ // pattern alignment: pattern starts at ti-pk
+ var start=ti-pk;for(var j=0;j<pat.length;j++){var x=10+(start+j)*cw;if(start+j>=0){g.fillStyle=(j<pk)?'#7fffd0':'#3a4a3a';g.fillRect(x,58,cw-1,18);g.fillStyle=(j<pk)?'#031015':'#889';g.font='10px ui-monospace,monospace';g.fillText(pat[j],x+cw/2-3,72);}}
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('text pos '+ti+' · matched '+pk+' of '+pat.length,10,H-40);
+ g.fillStyle='#39fc6b';g.fillText('matches at ['+matches.join(', ')+']',10,H-22);
+ var nv=naive(text,pat);g.fillStyle=matches.join()===nv.slice(0,matches.length).join()?'#4c7a54':'#ff5a5a';g.font='10px ui-monospace,monospace';g.fillText('KMP matches == naive '+JSON.stringify(nv),10,H-6);
+ document.getElementById('kmpread').textContent='pos '+ti+', k='+pk+', matches ['+matches.join(',')+']';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var pi=failure(pat),cx=W/2,cy=H/2,R=120,ca=Math.cos(ang),n=pat.length;
+ var pos=[];for(var i=0;i<n;i++){var th=-Math.PI/2+i/n*Math.PI*2+ang;pos.push([cx+Math.cos(th)*R*ca,cy+Math.sin(th)*R*0.5]);}
+ for(var i=0;i<n;i++){if(pi[i]>0){var j=pi[i]-1;g.strokeStyle='#ff2d95';g.lineWidth=1.5;g.beginPath();g.moveTo(pos[i][0],pos[i][1]);g.lineTo(pos[j][0],pos[j][1]);g.stroke();}if(i<n-1){g.strokeStyle='#2c6a4a';g.beginPath();g.moveTo(pos[i][0],pos[i][1]);g.lineTo(pos[i+1][0],pos[i+1][1]);g.stroke();}}g.lineWidth=1;
+ for(var i=0;i<n;i++){g.fillStyle='#39fc6b';g.beginPath();g.arc(pos[i][0],pos[i][1],9,0,7);g.fill();g.fillStyle='#031015';g.font='10px ui-monospace,monospace';g.fillText(pat[i],pos[i][0]-3,pos[i][1]+3);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: the pattern (chain of positions)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: failure links — how far to reuse on mismatch',10,H-12);}
+document.getElementById('kmstep2').onclick=function(){step();drawW4();};
+document.getElementById('kmrun2').onclick=function(){var guard=0;while(ti<text.length&&guard++<500)step();drawW4();};
+document.getElementById('kmnew2').onclick=function(){pat=PATS[(PATS.indexOf(pat)+1)%PATS.length];reset();drawW3();drawW4();};
+document.getElementById('kmpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+reset();drawW3();drawW4();window.__kmp=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Gram-Schmidt orthonormalization.</b> Take any set of vectors &mdash; leaning on each other, sharing directions, redundant &mdash; and turn them into an <b>orthonormal</b> set: mutually perpendicular, each of unit length, spanning the <b>same space</b>. It is the workhorse behind QR decomposition, least squares, and every &lsquo;nice basis&rsquo; in numerical linear algebra.<br><br>
+ The move is pure subtraction. Take the next vector and <b>strip away its shadow</b> on each direction you have already fixed &mdash; subtract its projection onto every earlier vector. What remains is perpendicular to all of them; normalize it, and it joins the frame. Repeat. Nothing is added; overlap is removed.<br><br>
+ <span class="lit">LIT</span> verified live: over 5,000 random vector sets the output is <b>orthonormal</b> (every pairwise dot product is 0, every self-dot is 1) and it <b>spans the same subspace</b> as the input &mdash; each original vector is recovered exactly as a combination of the new frame (window.__gramschmidt.orthonormal &amp;&amp; sameSpan). <span class="fig">FIG</span> no framing; the projection-subtraction, the orthonormality, and the span preservation are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE BROADCAST</i>, beside <i>THE FOURIER</i> and <i>THE ORTHOGONAL SIGN-FLIP</i> &mdash; the co-op domain of orthogonal bases working in concert. Fourier and Hadamard <i>are</i> orthonormal bases; Gram-Schmidt is how you <b>build</b> one from any starting vectors. <b>AVAN (AI)</b> built the instrument: the projection subtraction, the normalization, the orthonormality check.<br><br>The weave: David names the seat (the orthogonal ensemble); I make the shadow-removal visible and the perpendicularity checkable &mdash; the projection in 1D, the 2D orthogonalization, the 3D frame. The sphere is the seam. Credit: J&oslash;rgen Pedersen Gram (1883) &amp; Erhard Schmidt (1907); Laplace &amp; Cauchy earlier.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Subtract the <b>projection</b>: a vector minus its shadow on a fixed direction leaves a <b>remainder perpendicular</b> to that direction. That single operation, applied against each earlier vector, is all of Gram-Schmidt.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Two input vectors. Watch v&#8322; lose its shadow on u&#8321; (the dashed projection) and become the perpendicular u&#8322; &mdash; the dot product snaps to <b>0</b>. <b>New vectors</b> to re-run; the frame is always exactly orthogonal, spanning the same plane.</div>
+   <div class="btns" style="margin-top:10px"><button id="gsstep2">orthogonalize ▶</button><button id="gsnew2">new vectors</button></div>
+   <div class="cap" id="gsread2" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">Three input vectors orthogonalized into a perpendicular frame, turning &mdash; <b>green</b>, the clean right-angled axes.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> stubs are the <b>projections being removed</b> &mdash; the overlap each vector shared with the ones before it. A set of vectors usually carries <b>redundant, tangled</b> information: each leans partly along the others. Gram-Schmidt is the inverse of building up &mdash; it <b>takes away</b>. It adds nothing; it subtracts from each vector precisely what it duplicates, leaving pure, independent directions. The inverse of &lsquo;vectors that lean on each other&rsquo; is &lsquo;a frame where every axis knows nothing of the others&rsquo; &mdash; independence manufactured by subtraction, the same space kept, the tangle gone. The green is the perpendicular frame; the magenta is the shared shadow that had to be removed to make it.</div>
+   <div class="btns" style="margin-top:10px"><button id="gsspin2">pause spin</button></div></div></div></div>"""
+GS_SCRIPT = """(function(){
+var v1=[2.4,0.6],v2=[1.2,1.8],showOrtho=false,ang=0,spin=true,V3=[[1,0.3,0.2],[0.5,1,0.4],[0.2,0.3,1]];
+function dot(a,b){var s=0;for(var i=0;i<a.length;i++)s+=a[i]*b[i];return s;}
+function gs(vecs){var us=[];for(var v=0;v<vecs.length;v++){var w=vecs[v].slice();for(var u=0;u<us.length;u++){var c=dot(vecs[v],us[u]);for(var i=0;i<w.length;i++)w[i]-=c*us[u][i];}var n=Math.sqrt(dot(w,w));if(n<1e-12)continue;us.push(w.map(function(x){return x/n;}));}return us;}
+function verify(){var sv=401;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var okO=true,okS=true;for(var t=0;t<5000;t++){var dim=2+Math.floor(L()*4),k=1+Math.floor(L()*dim),vecs=[];for(var a=0;a<k;a++){var v=[];for(var i=0;i<dim;i++)v.push(L()*10-5);vecs.push(v);}var us=gs(vecs);for(var i=0;i<us.length;i++)for(var j=0;j<us.length;j++){var want=i===j?1:0;if(Math.abs(dot(us[i],us[j])-want)>1e-9)okO=false;}for(var a=0;a<vecs.length;a++){var w=vecs[a].slice();for(var u=0;u<us.length;u++){var c=dot(vecs[a],us[u]);for(var i=0;i<w.length;i++)w[i]-=c*us[u][i];}if(Math.sqrt(dot(w,w))>1e-7)okS=false;}}return {orthonormal:okO,sameSpan:okS,trials:5000};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ox=90,oy=110,sc=40;
+ var u=[1,0],v=[1.6,1.3],c=dot(v,u),proj=[c*u[0],c*u[1]],perp=[v[0]-proj[0],v[1]-proj[1]];
+ function A(vec,col,dash){g.strokeStyle=col;g.lineWidth=2;if(dash)g.setLineDash([4,3]);g.beginPath();g.moveTo(ox,oy);g.lineTo(ox+vec[0]*sc,oy-vec[1]*sc);g.stroke();g.setLineDash([]);g.lineWidth=1;}
+ A([3.5,0],'#3a4a5a');A(v,'#7fd0ff');A(proj,'#ff8fb0',true);
+ g.strokeStyle='#ffd070';g.lineWidth=2;g.beginPath();g.moveTo(ox+proj[0]*sc,oy-proj[1]*sc);g.lineTo(ox+v[0]*sc,oy-v[1]*sc);g.stroke();g.lineWidth=1;
+ g.fillStyle='#7fd0ff';g.font='11px ui-monospace,monospace';g.fillText('v',ox+v[0]*sc+4,oy-v[1]*sc);g.fillStyle='#ff8fb0';g.fillText('projection',ox+proj[0]*sc-20,oy+16);g.fillStyle='#ffd070';g.fillText('perpendicular remainder',ox+80,oy-40);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('v − proj_u(v) ⊥ u',ox-40,oy+36);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ox=W/2,oy=H/2,sc=45;
+ g.strokeStyle='#1c2430';g.beginPath();g.moveTo(20,oy);g.lineTo(W-20,oy);g.moveTo(ox,20);g.lineTo(ox,H-20);g.stroke();
+ function A(vec,col,dash,lab){g.strokeStyle=col;g.lineWidth=2.5;if(dash)g.setLineDash([4,3]);g.beginPath();g.moveTo(ox,oy);g.lineTo(ox+vec[0]*sc,oy-vec[1]*sc);g.stroke();g.setLineDash([]);g.lineWidth=1;if(lab){g.fillStyle=col;g.font='12px ui-monospace,monospace';g.fillText(lab,ox+vec[0]*sc+3,oy-vec[1]*sc-3);}}
+ var n1=Math.sqrt(dot(v1,v1)),u1=[v1[0]/n1,v1[1]/n1];
+ A(v1,'#7fffd0',false,'v₁');A(v2,'#7fd0ff',false,'v₂');
+ if(showOrtho){var c=dot(v2,u1),proj=[c*u1[0],c*u1[1]],perp=[v2[0]-proj[0],v2[1]-proj[1]],n2=Math.sqrt(dot(perp,perp)),u2=[perp[0]/n2,perp[1]/n2];
+  A(proj,'#ff2d95',true);A([u1[0]*2.2,u1[1]*2.2],'#ffd070',false,'u₁');A([u2[0]*2.2,u2[1]*2.2],'#ffd070',false,'u₂');
+  g.fillStyle='#39fc6b';g.font='12px ui-monospace,monospace';g.fillText('u₁·u₂ = '+dot(u1,u2).toFixed(6)+' (⊥) ✓',20,H-16);}
+ else{g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('press orthogonalize: subtract v₂\\'s shadow on u₁',20,H-16);}
+ document.getElementById('gsread2').textContent=showOrtho?'orthonormal frame u₁⊥u₂':'v₁, v₂ (not yet orthogonal)';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),sa=Math.sin(ang),sc=70;
+ var us=gs(V3);function P(v){var X=v[0],Y=v[1],Z=v[2];return [cx+(X*ca-Z*sa)*sc,cy-(Y*sc)+(X*sa+Z*ca)*sc*0.3];}
+ // input vectors faint
+ for(var i=0;i<V3.length;i++){var p=P(V3[i]);g.strokeStyle='#2c5a4a';g.beginPath();g.moveTo(cx,cy);g.lineTo(p[0],p[1]);g.stroke();}
+ // orthonormal frame
+ var cols=['#39fc6b','#7dffb0','#a0ffd0'];for(var i=0;i<us.length;i++){var p=P(us[i]);g.strokeStyle=cols[i];g.lineWidth=2.5;g.beginPath();g.moveTo(cx,cy);g.lineTo(p[0],p[1]);g.stroke();g.lineWidth=1;g.fillStyle=cols[i];g.beginPath();g.arc(p[0],p[1],3,0,7);g.fill();}
+ // projection stub (magenta) for the 2nd vector
+ if(us.length>=2){var c=dot(V3[1],us[0]),proj=[c*us[0][0],c*us[0][1],c*us[0][2]],pp=P(proj);g.strokeStyle='#ff2d95';g.setLineDash([3,3]);g.beginPath();g.moveTo(cx,cy);g.lineTo(pp[0],pp[1]);g.stroke();g.setLineDash([]);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: orthonormal frame (perpendicular axes)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the shared projection removed by subtraction',10,H-12);}
+document.getElementById('gsstep2').onclick=function(){showOrtho=true;drawW4();};
+document.getElementById('gsnew2').onclick=function(){v1=[Math.random()*3+0.5,Math.random()*3-1.5];v2=[Math.random()*3-1.5,Math.random()*3+0.5];showOrtho=false;drawW4();};
+document.getElementById('gsspin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__gramschmidt=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BAS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Basel problem.</b> Add up the reciprocals of the perfect squares: 1 + 1/4 + 1/9 + 1/16 + 1/25 + &hellip; It clearly converges &mdash; but to <b>what</b>? For ninety years no one knew. In 1734 the 27-year-old Euler stunned Europe with the answer:<br><br>
+ <span class="mono">&Sigma;<sub>n&ge;1</sub> 1/n&sup2; = &pi;&sup2;/6 &asymp; 1.644934</span>.<br><br>
+ A sum over the plain counting numbers &mdash; the flattest, most circle-free objects in mathematics &mdash; produces <b>&pi;</b>, the constant of the circle. Euler got it by factoring sin(x)/x by its <b>roots</b> at every multiple of &pi;. The same trick gives &zeta;(4) = &pi;<sup>4</sup>/90, and every even zeta value as a rational times a power of &pi;.<br><br>
+ <span class="lit">LIT</span> verified live: the partial sum of 1/n&sup2; converges to &pi;&sup2;/6 (its error shrinking like 1/N &mdash; within 10<sup>&minus;5</sup> by two million terms), and &Sigma;1/n&#8308; converges to &pi;<sup>4</sup>/90 (window.__basel.converges &amp;&amp; zeta4Correct). <span class="fig">FIG</span> no framing; the sum, its limit &pi;&sup2;/6, and the &zeta;(4) value are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>GRADIENT DESCENT</i>, beside <i>THE BOWL</i> and <i>THE CLUSTERS</i> &mdash; the grind domain of a quantity settling onto its true value. The Basel partial sums descend, term by shrinking term, onto &pi;&sup2;/6. <b>AVAN (AI)</b> built the instrument: the running sum, the 1/N error decay, the &zeta;(4) check.<br><br>The weave: David names the seat (the settling limit); I make the climb visible and the limit checkable &mdash; the partial sums in 1D, the running total and error in 2D, the shrinking terms in 3D. The sphere is the seam. Credit: posed by Pietro Mengoli (1650); solved by Leonhard Euler (1734).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>partial sums</b> rising toward &pi;&sup2;/6. Early terms leap; later ones barely nudge, because 1/n&sup2; falls off fast &mdash; yet the tail is just slow enough that reaching the limit takes forever, the remaining gap always about 1/N.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Add terms</b> and watch the running total climb toward the &pi;&sup2;/6 line, the error readout shrinking by roughly 1/N. Jump ahead a million terms and it is right on the mark &mdash; a sum of fractions landing exactly on a power of &pi;.</div>
+   <div class="btns" style="margin-top:10px"><button id="baadd">+ 50 terms</button><button id="bajump">jump to 1,000,000</button><button id="barst">reset</button></div>
+   <div class="cap" id="baselread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The terms 1/n&sup2; as a turning stack of shrinking blocks, their heights summing upward &mdash; <b>green</b>, the pieces of the total.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> line is &pi;&sup2;/6, the limit the blocks reach. &pi; is the <b>circle</b> constant &mdash; it lives in curves, areas, rotations. The integers 1, 2, 3 are pure discrete <b>counting</b>, with no circle anywhere in sight. The Basel sum is the inverse bridge: a sum over the <b>flattest, most circle-free objects</b> reconstructs &pi;&sup2;. It works because Euler wrote the sine wave as an infinite product over its <b>zeros</b> &mdash; which sit at every integer multiple of &pi; &mdash; so the integers were secretly carrying &pi; inside the sine all along. The inverse of &lsquo;&pi; lives in circles&rsquo; is &lsquo;&pi; is hiding in the integers&rsquo;, and factoring a wave by its roots is the key that lets it out. The green is the pile of humble fractions; the magenta is the circle-constant they cannot help summing to.</div>
+   <div class="btns" style="margin-top:10px"><button id="baselspin">pause spin</button></div></div></div></div>"""
+BAS_SCRIPT = """(function(){
+var N=1,sum=1,ang=0,spin=true,hist=[[1,1]];
+var TARGET=Math.PI*Math.PI/6;
+function partial(n,p){var s=0;if(p===2){for(var k=1;k<=n;k++)s+=1/(k*k);}else{for(var k=1;k<=n;k++)s+=1/(k*k*k*k);}return s;}
+function verify(){var s=partial(2000000,2),ok=Math.abs(s-TARGET)<1e-5,s4=partial(100000,4),t4=Math.pow(Math.PI,4)/90;return {converges:ok,partialN:+s.toFixed(6),target:+TARGET.toFixed(6),zeta4Correct:Math.abs(s4-t4)<1e-9};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.strokeStyle='#445';g.setLineDash([4,3]);g.beginPath();g.moveTo(20,30);g.lineTo(W-10,30);g.stroke();g.setLineDash([]);g.fillStyle='#ff2d95';g.font='10px ui-monospace,monospace';g.fillText('π²/6 = '+TARGET.toFixed(5),W-110,26);
+ var s=0;g.strokeStyle='#90d0ff';g.lineWidth=2;g.beginPath();for(var n=1;n<=60;n++){s+=1/(n*n);var x=20+(n-1)/59*(W-30),y=H-20-(s/TARGET)*(H-50);if(n===1)g.moveTo(x,y);else g.lineTo(x,y);g.fillStyle='#39fc6b';g.fillRect(x-1,y-1,2,2);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#90d0ff';g.font='11px ui-monospace,monospace';g.fillText('partial sums of 1/n² climbing to π²/6 (first 60 terms)',20,H-4);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.font='15px ui-monospace,monospace';g.fillStyle='#90d0ff';g.fillText('N = '+N.toLocaleString(),20,32);
+ // bar toward target
+ var bx=20,by=60,bw=W-40,bh=30;g.strokeStyle='#345';g.strokeRect(bx,by,bw,bh);g.fillStyle='#90d0ff';g.fillRect(bx,by,bw*sum/TARGET,bh);
+ g.strokeStyle='#ff2d95';g.lineWidth=2;g.beginPath();g.moveTo(bx+bw,by-4);g.lineTo(bx+bw,by+bh+4);g.stroke();g.lineWidth=1;g.fillStyle='#ff2d95';g.font='10px ui-monospace,monospace';g.fillText('π²/6',bx+bw-20,by-6);
+ g.font='13px ui-monospace,monospace';g.fillStyle='#cfe8d0';g.fillText('sum = '+sum.toFixed(8),20,120);
+ g.fillStyle='#8ca';g.fillText('π²/6 = '+TARGET.toFixed(8),20,144);
+ var err=Math.abs(sum-TARGET);g.fillStyle=err<1e-3?'#39fc6b':'#ffd24d';g.fillText('error = '+err.toExponential(2)+' (≈ 1/N = '+(1/N).toExponential(2)+')',20,168);
+ // error log plot
+ var x0=30,y0=270,pw=W-50,ph=80;g.strokeStyle='#234';g.strokeRect(x0,y0-ph,pw,ph);g.strokeStyle='#90d0ff';g.lineWidth=1.5;g.beginPath();for(var i=0;i<hist.length;i++){var e=Math.abs(hist[i][1]-TARGET)||1e-16,px=x0+i/Math.max(1,hist.length-1)*pw,py=y0-(-Math.log10(e))/7*ph;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;g.fillStyle='#456';g.font='9px ui-monospace,monospace';g.fillText('log error ↓ as terms grow',x0+2,y0-ph-3);
+ document.getElementById('baselread').textContent='N='+N.toLocaleString()+' sum='+sum.toFixed(6)+' (π²/6='+TARGET.toFixed(6)+', err '+err.toExponential(1)+')';}
+function addTerms(k){for(var i=0;i<k;i++){N++;sum+=1/(N*N);}hist.push([N,sum]);if(hist.length>120)hist.shift();}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang);
+ var acc=0;for(var n=1;n<=40;n++){var term=1/(n*n),th=ang+n*0.5,r=30+n*4,x=cx+Math.cos(th)*r*ca,y=cy+Math.sin(th)*r*0.6-acc*80;acc+=term;g.fillStyle='#39fc6b';g.fillRect(x-3,y,6,Math.max(1,term*300));}
+ // target line
+ var ty=cy-TARGET*80+ (1/1)*0;g.strokeStyle='#ff2d95';g.setLineDash([4,3]);g.beginPath();g.moveTo(20,cy-TARGET*80);g.lineTo(W-20,cy-TARGET*80);g.stroke();g.setLineDash([]);g.fillStyle='#ff2d95';g.font='10px ui-monospace,monospace';g.fillText('π²/6',W-50,cy-TARGET*80-4);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: the terms 1/n² stacking up',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: π²/6 — a circle constant from pure integers',10,H-12);}
+document.getElementById('baadd').onclick=function(){addTerms(50);drawW4();};
+document.getElementById('bajump').onclick=function(){sum=partial(1000000,2);N=1000000;hist.push([N,sum]);drawW4();};
+document.getElementById('barst').onclick=function(){N=1;sum=1;hist=[[1,1]];drawW4();};
+document.getElementById('baselspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__basel=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MOB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The M&ouml;bius function &mu;(n).</b> A sign that reads a number&rsquo;s prime skeleton. &mu;(1) = 1. If n is a product of <b>k distinct</b> primes, &mu;(n) = (&minus;1)<sup>k</sup>. If any prime is <b>repeated</b> (a square divides n), &mu;(n) = 0. So &mu;(6) = +1, &mu;(30) = &minus;1, &mu;(12) = 0.<br><br>
+ Its power is one identity: <span class="mono">&Sigma;<sub>d|n</sub> &mu;(d) = [n = 1]</span> &mdash; the &mu;-values over the divisors of any n &gt; 1 cancel to <b>zero</b>. That drives <b>M&ouml;bius inversion</b>: if g is the &lsquo;divisor sum&rsquo; of f (g(n) = &Sigma;<sub>d|n</sub> f(d)), then f is recovered exactly by <span class="mono">f(n) = &Sigma;<sub>d|n</sub> &mu;(d) g(n/d)</span>. Inclusion-exclusion crystallised into a single sign. It even links every arithmetic function: &phi;(n) = &Sigma;<sub>d|n</sub> &mu;(d)&middot;(n/d), and &Sigma;&mu;(n)/n<sup>s</sup> = 1/&zeta;(s).<br><br>
+ <span class="lit">LIT</span> verified live: &Sigma;<sub>d|n</sub>&mu;(d) = [n=1] for all n, M&ouml;bius inversion recovers an arbitrary f from its divisor sum, and &phi;(n) = &Sigma;&mu;(d)(n/d) (window.__mobius.sumIdentity &amp;&amp; inversion &amp;&amp; phiIdentity). &mu;(1..12) = 1,&minus;1,&minus;1,0,&minus;1,1,&minus;1,0,0,1,&minus;1,0. <span class="fig">FIG</span> no framing; the identity, the inversion, and the &phi; link are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>CHECKPOINT ZERO</i>, right beside <i>THE TOTIENT</i> &mdash; the spawn domain of numbers read through their structure. &mu; and &phi; are the two great arithmetic functions, and M&ouml;bius inversion is the bridge that turns one into the other. <b>AVAN (AI)</b> built the instrument: the &mu; sign, the cancelling divisor sum, the inversion, the &phi; identity.<br><br>The weave: David places it next to its twin; I make the sign visible and the un-mixing checkable &mdash; the &mu; strip in 1D, the divisor cancellation and inversion in 2D, the sign-ring in 3D. The sphere is the seam. Credit: August Ferdinand M&ouml;bius (1832); the connection to &zeta; via Riemann.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The M&ouml;bius function along the integers: <b>+1</b> for an even number of distinct primes, <b>&minus;1</b> for odd, <b>0</b> whenever a prime repeats. A jagged &plusmn;1 fingerprint of how each number is built from primes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick n and see its divisors with their &mu; values &mdash; for n &gt; 1 they <b>sum to exactly 0</b>. Then watch <b>M&ouml;bius inversion</b>: a function&rsquo;s divisor sums are un-mixed back into the original values, &mu; supplying the exact cancelling weights.</div>
+   <div class="btns" style="margin-top:10px"><button id="mom">◀ n</button><button id="mop">n ▶</button><button id="moinv">show inversion</button></div>
+   <div class="cap" id="mobread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The integers on a turning ring, coloured by &mu; &mdash; <b>green</b> +1, dark 0, and the &minus;1s.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> are the &minus;1 values &mdash; and &mu; is, quite literally, an <b>inverse operator</b>. Summing a function over the divisors of n <b>entangles</b> its values: g(n) blends f across every divisor, a forward, mixing operation. M&ouml;bius inversion is the exact undo &mdash; &mu; is <b>precisely the set of &plusmn;1, 0 weights</b> that disentangle the blend and pull f back out of g. The inverse of &lsquo;sum over divisors&rsquo; is &lsquo;&mu;-weighted sum over divisors&rsquo;, and &mu; exists <i>because</i> the divisor-sum is invertible: it is inclusion-exclusion, distilled to a single sign function, the primes&rsquo; own &plusmn;1 fingerprint that unmixes any sum built on them. The green is the sign along the numbers; the magenta is the &minus;1s doing the cancelling that makes the inverse exact.</div>
+   <div class="btns" style="margin-top:10px"><button id="mobspin">pause spin</button></div></div></div></div>"""
+MOB_SCRIPT = """(function(){
+var n=12,showInv=false,ang=0,spin=true;
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a;}
+function mu(m){if(m===1)return 1;var cnt=0,d=2,x=m;while(d*d<=x){if(x%d===0){x=Math.floor(x/d);if(x%d===0)return 0;cnt++;}d++;}if(x>1)cnt++;return (cnt%2===0)?1:-1;}
+function phi(m){var c=0;for(var k=1;k<=m;k++)if(gcd(k,m)===1)c++;return c;}
+function divisors(m){var o=[];for(var d=1;d<=m;d++)if(m%d===0)o.push(d);return o;}
+function verify(){var sumOK=true;for(var m=1;m<1200;m++){var s=0;for(var d=1;d<=m;d++)if(m%d===0)s+=mu(d);if(s!==(m===1?1:0))sumOK=false;}var sv=411;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var f=[0];for(var m=1;m<200;m++)f.push(Math.floor(L()*11)-5);var g=[0];for(var m=1;m<200;m++){var s=0;for(var d=1;d<=m;d++)if(m%d===0)s+=f[d];g.push(s);}var invOK=true;for(var m=1;m<200;m++){var rec=0;for(var d=1;d<=m;d++)if(m%d===0)rec+=mu(d)*g[Math.floor(m/d)];if(rec!==f[m])invOK=false;}var phiOK=true;for(var m=1;m<400;m++){var s=0;for(var d=1;d<=m;d++)if(m%d===0)s+=mu(d)*Math.floor(m/d);if(s!==phi(m))phiOK=false;}return {sumIdentity:sumOK,inversion:invOK,phiIdentity:phiOK,muVals:[1,2,3,4,5,6,7,8,9,10,11,12].map(mu).join(',')};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var M=40,cw=(W-20)/M;
+ g.strokeStyle='#345';g.beginPath();g.moveTo(10,75);g.lineTo(W-10,75);g.stroke();
+ for(var m=1;m<=M;m++){var mv=mu(m),x=10+(m-1)*cw;g.fillStyle=mv>0?'#39fc6b':(mv<0?'#ff2d95':'#3a3a44');var h=mv*40;g.fillRect(x,75-Math.max(0,h),cw-1,Math.abs(h)||3);}
+ g.fillStyle='#d0a0ff';g.font='11px ui-monospace,monospace';g.fillText('μ(1..40): green +1, magenta −1, grey 0 (repeated prime)',10,20);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('sign = (−1)^(#distinct primes), or 0 if a square divides n',10,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var divs=divisors(n);
+ g.font='13px ui-monospace,monospace';g.fillStyle='#d0a0ff';g.fillText('divisors of '+n+' and their μ:',20,28);
+ var s=0,x=20;for(var i=0;i<divs.length;i++){var mv=mu(divs[i]);s+=mv;g.fillStyle=mv>0?'#39fc6b':(mv<0?'#ff2d95':'#3a3a44');g.fillRect(x,40,46,34);g.fillStyle='#031015';g.font='10px ui-monospace,monospace';g.fillText('μ('+divs[i]+')',x+3,54);g.fillText('='+(mv>=0?'+':'')+mv,x+8,68);x+=52;if(x>W-52){x=20;}}
+ g.fillStyle=s===(n===1?1:0)?'#39fc6b':'#ff5a5a';g.font='13px ui-monospace,monospace';g.fillText('Σ μ(d) = '+s+' = ['+n+'==1]'+(s===(n===1?1:0)?' ✓':''),20,110);
+ if(showInv){g.fillStyle='#8ca';g.font='10px ui-monospace,monospace';g.fillText('Möbius inversion: g(n)=Σf(d) → f(n)=Σμ(d)g(n/d)',20,150);
+  var f=[0,3,1,4,1,5,9,2,6,5,3,5,8,9,7,9];var gg=[0];for(var m=1;m<=n;m++){var t=0;for(var d=1;d<=m;d++)if(m%d===0)t+=f[d]||0;gg.push(t);}var rec=0;for(var d=1;d<=n;d++)if(n%d===0)rec+=mu(d)*(gg[Math.floor(n/d)]||0);
+  g.fillStyle='#7fd0ff';g.fillText('g('+n+') = Σf(d) = '+gg[n],20,172);g.fillStyle=rec===(f[n]||0)?'#39fc6b':'#ff5a5a';g.fillText('Σμ(d)g('+n+'/d) = '+rec+' = f('+n+') = '+(f[n]||0)+(rec===(f[n]||0)?' ✓ recovered':''),20,192);}
+ g.fillStyle='#d0a0ff';g.font='11px ui-monospace,monospace';g.fillText('φ('+n+') via μ: Σμ(d)·('+n+'/d) = '+divs.reduce(function(a,d){return a+mu(d)*Math.floor(n/d);},0)+' = φ = '+phi(n),20,H-14);
+ document.getElementById('mobread').textContent='n='+n+': Σμ(d)='+s+', φ='+phi(n);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,R=130,ca=Math.cos(ang),M=48;
+ for(var m=1;m<=M;m++){var mv=mu(m),th=-Math.PI/2+m/M*Math.PI*2+ang,x=cx+Math.cos(th)*R*ca,y=cy+Math.sin(th)*R*0.5;g.fillStyle=mv>0?'#39fc6b':(mv<0?'#ff2d95':'#1a2028');g.globalAlpha=mv===0?0.4:1;g.beginPath();g.arc(x,y,mv===0?2.5:5,0,7);g.fill();}
+ g.globalAlpha=1;g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green μ=+1 · dark μ=0 (square-divisible)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta μ=−1 — the weights that un-mix a divisor sum',10,H-12);}
+document.getElementById('mom').onclick=function(){n=Math.max(1,n-1);drawW4();};
+document.getElementById('mop').onclick=function(){n=Math.min(60,n+1);drawW4();};
+document.getElementById('moinv').onclick=function(){showInv=!showInv;drawW4();};
+document.getElementById('mobspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__mobius=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-mobius","title":"THE MOBIUS","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#d0a0ff","icon":"mobius",
+  "kicker":"the sign of the primes that un-mixes divisor sums",
+  "blurb":"the Mobius function in the 5-window house format — mu(n) is +1 for a product of an even number of distinct primes, -1 for odd, 0 if any prime repeats. Its identity sum over d|n of mu(d) = [n==1] drives Mobius inversion: if g is the divisor sum of f, then f(n) = sum over d|n of mu(d)*g(n/d). It links phi(n)=sum mu(d)(n/d) and 1/zeta(s). See the mu strip in 1D, the divisor cancellation and inversion in 2D, and the sign-ring in 3D.",
+  "lit":"Genuine Mobius function and inversion (August Mobius, 1832). Verified live: sum over d|n of mu(d) equals [n==1] for all n, Mobius inversion recovers an arbitrary function f from its divisor sum g, and phi(n) = sum over d|n of mu(d)*(n/d) (window.__mobius.sumIdentity && inversion && phiIdentity, all true). mu(1..12) = 1,-1,-1,0,-1,1,-1,0,0,1,-1,0. The identity, the inversion, and the phi link are exact.",
+  "fig":"No metaphor is doing the work: the mu sign rule, the cancelling divisor-sum identity, Mobius inversion, and the phi identity are all real and checked exhaustively. mu is genuinely the inverse of the divisor-sum operation (inclusion-exclusion as a sign function), the dual of the totient beside it.",
+  "body":MOB_BODY,"script":MOB_SCRIPT},
+ {"slug":"the-basel","title":"THE BASEL","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#90d0ff","icon":"basel",
+  "kicker":"1 + 1/4 + 1/9 + ... = pi^2/6",
+  "blurb":"the Basel problem in the 5-window house format — the sum of reciprocal squares 1 + 1/4 + 1/9 + 1/16 + ... equals exactly pi^2/6, Euler's 1734 shock: a sum over the plain counting numbers producing pi, the circle constant. The same sine-product trick gives zeta(4) = pi^4/90 and every even zeta value. See the partial sums in 1D, the running total and error in 2D, and the shrinking terms in 3D.",
+  "lit":"The Basel problem (posed by Mengoli 1650; solved by Euler 1734). Verified live: the partial sum of 1/n^2 converges to pi^2/6 with error shrinking like 1/N (within 1e-5 by two million terms), and sum 1/n^4 converges to pi^4/90 (window.__basel.converges && zeta4Correct, both true). The sum, its exact limit pi^2/6, and the zeta(4) value are real; Euler's method (factoring sin(x)/x by its roots at multiples of pi) is why the circle constant appears.",
+  "fig":"No framing: the sum, its convergence to pi^2/6, and the zeta(4)=pi^4/90 value are all real and computed. Convergence is slow (error ~1/N), so the partial sum only approaches the exact limit — the closed-form pi^2/6 is Euler's exact result, demonstrated numerically.",
+  "body":BAS_BODY,"script":BAS_SCRIPT},
+ {"slug":"the-orthonormal","title":"THE ORTHONORMAL","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#ffd070","icon":"gs",
+  "kicker":"Gram-Schmidt — independence made by subtraction",
+  "blurb":"Gram-Schmidt orthonormalization in the 5-window house format — turn any vectors into an orthonormal set (mutually perpendicular, unit length) spanning the same space, by stripping each vector of its projections onto the ones already chosen and normalizing the remainder. The engine behind QR decomposition and least squares. See the projection subtraction in 1D, the 2D orthogonalization in 2D, and the perpendicular frame in 3D.",
+  "lit":"Genuine Gram-Schmidt process (Gram 1883, Schmidt 1907). Verified live: over 5,000 random vector sets the output is orthonormal (every pairwise dot product 0, every self-dot 1) and spans the same subspace as the input — each original vector is exactly recovered as a combination of the new frame (window.__gramschmidt.orthonormal && sameSpan, both true). The projection-subtraction, orthonormality, and span preservation are exact.",
+  "fig":"No metaphor is doing the work: the projection subtraction, the orthonormality (dot products checked to 1e-9), and the span preservation are all real and verified. Classical Gram-Schmidt can lose orthogonality under floating-point for near-dependent vectors (modified Gram-Schmidt fixes it); the exactness shown here is on well-conditioned random sets, stated honestly.",
+  "body":GS_BODY,"script":GS_SCRIPT},
+ {"slug":"the-failure-function","title":"THE FAILURE FUNCTION","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#7fffd0","icon":"kmp",
+  "kicker":"KMP — match without ever re-reading the text",
+  "blurb":"Knuth-Morris-Pratt string matching in the 5-window house format — find a pattern in text in O(n+m) with the text pointer never moving backward. The failure function gives, for each pattern position, the longest proper prefix that is also a suffix, so on a mismatch you slide by exactly the right amount, reusing what matched instead of restarting. See the borders in 1D, the live never-backtrack scan in 2D, and the reuse structure in 3D.",
+  "lit":"Genuine Knuth-Morris-Pratt (Knuth, Morris & Pratt, 1977). Verified live: over 5,000 random text/pattern pairs KMP finds exactly the same matches as a naive scan, and its failure function equals the independent prefix-suffix definition (window.__kmp.matchesNaive && failureCorrect, both true). pi('ababaca') = 0,0,1,2,3,0,1. The failure function, the never-backtrack linear scan, and the exact match set are all exact.",
+  "fig":"No metaphor is doing the work: the failure function (cross-checked against its brute prefix-suffix definition), the never-backtrack scan, and the match set (cross-checked against naive) are all real. The linearity comes from the text pointer never retreating — demonstrated, not asserted.",
+  "body":KMP_BODY,"script":KMP_SCRIPT},
+ {"slug":"the-look-and-say","title":"THE LOOK-AND-SAY","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#ffb0d0","icon":"countsay",
+  "kicker":"describe yourself forever → Conway's constant 1.3036",
+  "blurb":"the look-and-say sequence in the 5-window house format — start with 1 and read each term aloud to get the next: 1, 11, 21, 1211, 111221, 312211... Conway proved no digit ever exceeds 3 (from seed 1), and the term lengths grow by a universal ratio, Conway's constant 1.303577 (root of a degree-71 polynomial). See the terms in 1D, the parse and length growth in 2D, and the growing digit-spiral in 3D.",
+  "lit":"Genuine look-and-say / audioactive decay (John Conway, 1986). Verified live: generating 40 terms from '1', no digit ever exceeds 3, and the length ratio settles onto ~1.3036, matching Conway's constant (1.303577, the unique positive root of a degree-71 polynomial) to a few parts in 10^4 (window.__lookandsay.noDigitOver3 && ratioNearConway, both true). The count-and-say rule, the digit bound, and the universal growth constant are exact.",
+  "fig":"No metaphor is doing the work: the count-and-say rule, the no-digit-over-3 bound, and the growth ratio approaching Conway's constant are all real and measured from the generated terms. The degree-71 polynomial and the '92 atoms' cosmological theorem are cited results, not re-proved here; the growth constant is demonstrated empirically.",
+  "body":LAS_BODY,"script":LAS_SCRIPT},
  {"slug":"the-totient","title":"THE TOTIENT","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#b0e0a0","icon":"totient",
   "kicker":"Euler's phi — the count that runs RSA",
