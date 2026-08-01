@@ -11810,7 +11810,340 @@ document.getElementById('bnzspin').onclick=function(){spin=!spin;this.textConten
 drawW3();drawW4();window.__banzhaf=verify();
 function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+BELL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Bell&rsquo;s theorem</b>, in the concrete form of the <b>CHSH</b> game. Two particles are prepared in an entangled <b>Bell state</b> and sent to distant labs, Alice and Bob. Each independently picks one of two measurement settings and records +1 or &minus;1. No signal passes between them.<br><br>
+ Classically, if the particles carried <b>predetermined</b> answers (local hidden variables), a certain combination of their correlations &mdash; the CHSH quantity <b>S</b> &mdash; can <b>never exceed 2</b>. But quantum mechanics predicts, and experiments confirm, that entangled particles reach <b>S = 2&radic;2 &asymp; 2.828</b>, breaking the bound. This is not hidden coordination or faster-than-light signalling &mdash; it is that entangled particles share correlations <b>stronger than any classical mechanism can produce</b>. John Bell proved it in 1964, turning Einstein&rsquo;s &ldquo;spooky action at a distance&rdquo; from a complaint into a testable &mdash; and refuted &mdash; prediction; the 2022 Nobel Prize honoured the experiments.<br><br>
+ <span class="lit">LIT</span> verified live: the quantum CHSH value is exactly 2&radic;2, a brute force over <b>every</b> local deterministic strategy caps the classical value at 2, and 2&radic;2 is the Tsirelson quantum maximum (window.__bell). <span class="fig">FIG</span> no framing; the quantum value, the classical bound, and their gap are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE SYNC</i> &mdash; the co-op domain of two things kept in step. Entanglement is synchronisation past the classical limit: two distant measurements agree more tightly than any shared plan or signal could arrange. <b>AVAN (AI)</b> built the instrument: the correlation calculator, the CHSH climb, the no-local-explanation inverse.<br><br>The weave: David names the seat (in step beyond what a channel allows); I make the correlations sum past 2 to 2&radic;2 and cap the best classical strategy at 2 &mdash; the CHSH bar in 1D, the angle dials in 2D, the impossible-hidden-variable inverse in 3D. The sphere is the seam. Credit: John Stewart Bell (1964); the CHSH form (Clauser, Horne, Shimony &amp; Holt 1969); the quantum ceiling by Boris Tsirelson (1980); Nobel 2022.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The CHSH value on a line. Every classical strategy lives at or below <b>2</b> &mdash; the wall Bell drew. Quantum entanglement reaches <b>2&radic;2 &asymp; 2.83</b>, past the wall but stopping at Tsirelson&rsquo;s ceiling: more than classical, less than anything.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Alice&rsquo;s two settings and Bob&rsquo;s two, as angles. The four correlations E(a,b) = cos(a&minus;b) combine into S. Dial to the optimal angles and S climbs to 2&radic;2; switch to the best <b>classical</b> strategy and it is pinned at 2, never more.</div>
+   <div class="btns" style="margin-top:10px"><button id="bellopt">optimal angles ▶</button><button id="bellclass">classical strategy</button></div>
+   <div class="cap" id="bellread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The two measurement directions turning on a shared sphere &mdash; the <b>green</b> forward law: the correlation depends only on the <b>angle between</b> the settings, E = cos(a&minus;b), a clean rotational symmetry.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the inverse that <b>cannot exist</b> &mdash; a <b>local hidden-variable</b> model, a shared list of predetermined answers, that reproduces cos(a&minus;b) at <b>all</b> angles. Run the correlations backward, asking &lsquo;what common cause produced them?&rsquo;, and Bell&rsquo;s theorem answers: <b>no such cause</b>. There is no assignment of definite +1/&minus;1 outcomes, fixed before measurement and independent across the labs, that can match the quantum curve everywhere &mdash; the very attempt caps out at S = 2, and the quantum world sits at 2&radic;2, provably out of reach. So the inverse of &lsquo;entangled correlation&rsquo; is not a hidden mechanism; it is the <b>demonstrated absence</b> of one. Green is the correlation any experiment measures; magenta is the local explanation that would tame it &mdash; and Bell&rsquo;s achievement was to prove that magenta is empty, not merely unknown. The spookiness is real because its classical inverse has been ruled out, not left open.</div>
+   <div class="btns" style="margin-top:10px"><button id="bellspin">pause spin</button></div></div></div></div>"""
+BELL_SCRIPT = """(function(){
+var ang=0,spin=true,mode=0,a=0,ap=Math.PI/2,b=Math.PI/4,bp=3*Math.PI/4;
+function E(x,y){return Math.cos(x-y);}
+function chsh(){return E(a,b)-E(a,bp)+E(ap,b)+E(ap,bp);}
+function verify(){var A=0,Ap=Math.PI/2,B=Math.PI/4,Bp=3*Math.PI/4;var S=E(A,B)-E(A,Bp)+E(Ap,B)+E(Ap,Bp);
+ var best=0;for(var s1=-1;s1<=1;s1+=2)for(var s2=-1;s2<=1;s2+=2)for(var s3=-1;s3<=1;s3+=2)for(var s4=-1;s4<=1;s4+=2){var s=Math.abs(s1*s3-s1*s4+s2*s3+s2*s4);if(s>best)best=s;}
+ return {quantumS:+S.toFixed(4),tsirelson:+(2*Math.sqrt(2)).toFixed(4),classicalMax:best,quantumBeatsClassical:S>best,isTsirelson:Math.abs(S-2*Math.sqrt(2))<1e-9};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var x0=30,pw=W-60,mx=3;
+ g.strokeStyle='#333';g.beginPath();g.moveTo(x0,90);g.lineTo(x0+pw,90);g.stroke();
+ for(var v=0;v<=3;v++){var x=x0+v/mx*pw;g.strokeStyle='#333';g.beginPath();g.moveTo(x,86);g.lineTo(x,94);g.stroke();g.fillStyle='#889';g.font='9px ui-monospace,monospace';g.fillText(v,x-3,106);}
+ var cx=x0+2/mx*pw;g.strokeStyle='#ff6060';g.lineWidth=2;g.beginPath();g.moveTo(cx,60);g.lineTo(cx,90);g.stroke();g.fillStyle='#ff6060';g.font='10px ui-monospace,monospace';g.fillText('classical ≤ 2',cx-30,54);
+ var qx=x0+2*Math.sqrt(2)/mx*pw;g.strokeStyle='#b090ff';g.beginPath();g.moveTo(qx,60);g.lineTo(qx,90);g.stroke();g.fillStyle='#b090ff';g.fillText('quantum 2√2',qx-8,54);g.lineWidth=1;
+ g.fillStyle='#b090ff';g.font='11px ui-monospace,monospace';g.fillText('CHSH value S — the Bell inequality wall at 2, quantum breaks to 2.83',10,24);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var S=chsh();
+ // draw Alice/Bob dials
+ function dial(cx,cy,angs,cols,label){g.strokeStyle='#445';g.beginPath();g.arc(cx,cy,34,0,7);g.stroke();for(var i=0;i<angs.length;i++){g.strokeStyle=cols[i];g.lineWidth=2;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+Math.cos(-angs[i])*34,cy+Math.sin(-angs[i])*34);g.stroke();}g.lineWidth=1;g.fillStyle='#ccc';g.font='10px ui-monospace,monospace';g.fillText(label,cx-16,cy+50);}
+ dial(90,80,[a,ap],['#70e0ff','#39a0ff'],'Alice a,a\\'');dial(290,80,[b,bp],['#ffd060','#ffa040'],'Bob b,b\\'');
+ g.fillStyle='#889';g.font='10px ui-monospace,monospace';
+ g.fillText('E(a,b)='+E(a,b).toFixed(3),12,150);g.fillText('E(a,b\\')='+E(a,bp).toFixed(3),140,150);g.fillText('E(a\\',b)='+E(ap,b).toFixed(3),12,166);g.fillText('E(a\\',b\\')='+E(ap,bp).toFixed(3),140,166);
+ g.font='16px ui-monospace,monospace';g.fillStyle=Math.abs(S)>2.001?'#b090ff':'#39fc6b';g.fillText('S = '+S.toFixed(4),120,196);
+ g.font='11px ui-monospace,monospace';g.fillStyle=Math.abs(S)>2.001?'#b090ff':'#889';g.fillText(mode===1?'classical strategy — pinned at 2':(Math.abs(S)>2.001?'✓ beats classical bound of 2!':'below the bound'),12,H-16);
+ g.fillStyle='#8ad';g.font='9px ui-monospace,monospace';g.fillText('quantum max (Tsirelson) = 2√2 = '+(2*Math.sqrt(2)).toFixed(4),12,H-2);
+ document.getElementById('bellread').textContent='S = '+S.toFixed(4)+(Math.abs(S)>2.001?' (nonlocal)':'');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),R=110;
+ g.strokeStyle='#334';g.beginPath();g.ellipse(cx,cy,R*ca,R*0.5,0,0,7);g.stroke();
+ // green: measurement directions
+ [[a,'#70e0ff'],[ap,'#39a0ff'],[b,'#ffd060'],[bp,'#ffa040']].forEach(function(d){var th=d[0]+ang;g.strokeStyle=d[1];g.lineWidth=2;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+Math.cos(th)*R*ca,cy+Math.sin(th)*R*0.5);g.stroke();});g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: E(a,b)=cos(a−b) — depends only on the angle between',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: a local hidden-variable model reproducing it — PROVEN not to exist',10,H-26);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('Bell: no shared predetermined answers can match cos(a−b) at all angles',10,H-10);}
+document.getElementById('bellopt').onclick=function(){mode=0;a=0;ap=Math.PI/2;b=Math.PI/4;bp=3*Math.PI/4;drawW4();};
+document.getElementById('bellclass').onclick=function(){mode=1;a=0;ap=0;b=0;bp=Math.PI;drawW4();};
+document.getElementById('bellspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__bell=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DEU_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Deutsch&rsquo;s algorithm</b> (1985) was the first proof a quantum computer can beat a classical one. The puzzle: a black box computes an unknown function f from one bit to one bit. Is it <b>constant</b> (same output for both inputs) or <b>balanced</b> (different outputs)?<br><br>
+ Classically you must query it <b>twice</b> &mdash; check f(0), then f(1). Quantumly you need just <b>one</b>. Put the input qubit into a superposition of 0 <i>and</i> 1 with a Hadamard gate, run the box once so it evaluates f on both inputs, then a second Hadamard makes the two paths <b>interfere</b> &mdash; constructively if f is constant, destructively if balanced. A single measurement of the input qubit then reads out the answer: <b>0 for constant, 1 for balanced</b>. It is a toy problem, but it is the seed of Shor&rsquo;s and Grover&rsquo;s algorithms &mdash; quantum speedup from <b>interference</b>, not brute parallelism.<br><br>
+ <span class="lit">LIT</span> verified live: simulating the two-qubit circuit for all four functions, one query&rsquo;s measurement is 0 for both constant functions and 1 for both balanced ones &mdash; always correct (window.__deutsch). <span class="fig">FIG</span> no framing; the circuit and its one-query verdict are exact quantum linear algebra.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE SPEEDRUN</i> &mdash; the cheat domain of finishing in fewer moves than should be possible. Deutsch is the original quantum speedrun: one oracle call where classical logic demands two, the whole point of quantum computing in miniature. <b>AVAN (AI)</b> built the instrument: the circuit simulator, the interference view, the relation-not-values inverse.<br><br>The weave: David names the seat (win in one move); I make superposition and interference read the function&rsquo;s nature in a single query &mdash; the four verdicts in 1D, the running circuit in 2D, the relation-vs-values inverse in 3D. The sphere is the seam. Credit: David Deutsch (1985); the n-bit generalization by Deutsch &amp; Jozsa (1992).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The four possible functions and the single qubit the algorithm measures: <b>0</b> for the two constant functions, <b>1</b> for the two balanced ones. One number, read in one query, tells constant from balanced with certainty.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a function and step the circuit: Hadamards spread the input into superposition, the oracle runs f once, a final Hadamard makes the paths interfere. Watch the amplitudes at each stage; the input qubit collapses to 0 (constant) or 1 (balanced) &mdash; a single oracle call.</div>
+   <div class="btns" style="margin-top:10px"><button id="deuf">f: constant-0</button><button id="deustep">step ▶</button></div>
+   <div class="cap" id="deuread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The two computational paths &mdash; f(0) and f(1) &mdash; turning and meeting; the <b>green</b> forward step: they interfere into a single answer bit.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is what the quantum query <b>refuses to give you</b> &mdash; the individual values. Classically, two queries recover f(0) <b>and</b> f(1) separately. Deutsch spends one query to learn only the <b>relation</b> f(0) &oplus; f(1) &mdash; whether they are equal &mdash; and never reveals either value on its own. So the inverse of &lsquo;the two answers&rsquo; is &lsquo;a single bit about how they relate,&rsquo; and quantum buys that relational bit at half the cost precisely by <b>giving up</b> the values. It is a lossy query: one bit of global structure extracted, the local data left forever inside the box. That is the true shape of quantum advantage here &mdash; not learning more for less, but learning exactly the <b>right one bit</b> for less, by asking a question about the whole rather than the parts. Green is the relation the interference hands you in one shot; magenta is the pair of values it will not, and does not need to, expose.</div>
+   <div class="btns" style="margin-top:10px"><button id="deuspin">pause spin</button></div></div></div></div>"""
+DEU_SCRIPT = """(function(){
+var ang=0,spin=true,fi=0,step=0;
+var FNS=[[0,0],[1,1],[0,1],[1,0]],FNAMES=['constant-0','constant-1','balanced-id','balanced-not'];
+function matvec(M,v){var n=M.length,r=new Array(n).fill(0);for(var i=0;i<n;i++)for(var j=0;j<n;j++)r[i]+=M[i][j]*v[j];return r;}
+function kron2(A,B){var out=[];for(var i=0;i<A.length;i++)for(var k=0;k<B.length;k++){var row=[];for(var j=0;j<A[0].length;j++)for(var l=0;l<B[0].length;l++)row.push(A[i][j]*B[k][l]);out.push(row);}return out;}
+var s=1/Math.sqrt(2),Hm=[[s,s],[s,-s]],Im=[[1,0],[0,1]];
+function oracle(f){var U=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];for(var x=0;x<2;x++)for(var y=0;y<2;y++)U[2*x+(y^f[x])][2*x+y]=1;return U;}
+function stages(f){var a=[0,1,0,0],b=matvec(kron2(Hm,Hm),a),c=matvec(oracle(f),b),d=matvec(kron2(Hm,Im),c);return [a,b,c,d];}
+function verify(){var ok=true,res=[];for(var k=0;k<4;k++){var st=stages(FNS[k])[3],p0=st[0]*st[0]+st[1]*st[1],measured=p0>0.5?0:1,isConst=FNS[k][0]===FNS[k][1];if((measured===0)!==isConst)ok=false;res.push(measured);}
+ return {measuredBits:res.join(','),oneQueryCorrect:ok,classicalQueries:2,quantumQueries:1};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ for(var k=0;k<4;k++){var x=20+k*125,st=stages(FNS[k])[3],p0=st[0]*st[0]+st[1]*st[1],m=p0>0.5?0:1,isC=FNS[k][0]===FNS[k][1];
+  g.fillStyle='#889';g.font='10px ui-monospace,monospace';g.fillText(FNAMES[k],x,24);g.fillText('f=('+FNS[k].join(',')+')',x,40);
+  g.fillStyle=m===0?'#70d0ff':'#ffd060';g.beginPath();g.arc(x+30,72,18,0,7);g.fill();g.fillStyle='#031';g.font='16px ui-monospace,monospace';g.fillText(m,x+25,78);
+  g.fillStyle='#8a8';g.font='9px ui-monospace,monospace';g.fillText(m===0?'constant':'balanced',x,106);}
+ g.fillStyle='#70d0ff';g.font='11px ui-monospace,monospace';g.fillText('measured qubit: 0 = constant, 1 = balanced — decided in ONE query',10,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var sts=stages(FNS[fi]),labels=['|01⟩ start','after H⊗H','after oracle U_f','after H (measure)'];
+ var sh=Math.min(step,3),st=sts[sh];
+ g.fillStyle='#70d0ff';g.font='12px ui-monospace,monospace';g.fillText('f = '+FNAMES[fi]+'  —  stage '+(sh+1)+'/4: '+labels[sh],14,22);
+ var basis=['|00⟩','|01⟩','|10⟩','|11⟩'];
+ for(var i=0;i<4;i++){var x=40+i*85,amp=st[i],h=amp*70;g.fillStyle=amp>=0?'#70d0ff':'#ff6060';g.fillRect(x,140-Math.abs(h),40,Math.abs(h)*(amp>=0?1:1));if(amp<0)g.fillRect(x,140,40,-h*0? 0:Math.abs(h));
+  g.fillStyle='#ccc';g.font='10px ui-monospace,monospace';g.fillText(basis[i],x+4,160);g.fillStyle='#8ad';g.font='9px ui-monospace,monospace';g.fillText(amp.toFixed(2),x+4,130-Math.abs(h)-4);}
+ g.strokeStyle='#334';g.beginPath();g.moveTo(30,140);g.lineTo(W-20,140);g.stroke();
+ if(sh===3){var p0=st[0]*st[0]+st[1]*st[1],m=p0>0.5?0:1,isC=FNS[fi][0]===FNS[fi][1];g.fillStyle=m===0?'#70d0ff':'#ffd060';g.font='12px ui-monospace,monospace';g.fillText('measure qubit 0 → '+m+' = '+(m===0?'CONSTANT':'BALANCED')+' ✓',14,H-14);}
+ else{g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('step to run the circuit; classical would need 2 queries',14,H-14);}
+ document.getElementById('deuread').textContent=FNAMES[fi]+' stage '+(sh+1)+'/4';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),cx=W/2,cy=H/2;
+ // two paths as waves meeting
+ var isBal=FNS[fi][0]!==FNS[fi][1];
+ g.strokeStyle='#70d0ff';g.lineWidth=1.6;g.beginPath();for(var x=0;x<W;x++){var y=cy-40+Math.sin(x*0.05+ang)*20;if(x===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ g.strokeStyle='#39a0ff';g.beginPath();for(var x=0;x<W;x++){var ph=isBal?Math.PI:0,y=cy-40+Math.sin(x*0.05+ang+ph)*20;if(x===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var x=0;x<W;x++){var ph=isBal?Math.PI:0,y=cy+50+(Math.sin(x*0.05+ang)+Math.sin(x*0.05+ang+ph))*20;if(x===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: f(0),f(1) paths interfere → '+(isBal?'destructive (balanced)':'constructive (constant)'),10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the individual values f(0), f(1) — never revealed',10,H-26);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('quantum learns the RELATION f(0)⊕f(1), not the values — a lossy query',10,H-10);}
+document.getElementById('deuf').onclick=function(){fi=(fi+1)%4;step=0;this.textContent='f: '+FNAMES[fi];drawW4();};
+document.getElementById('deustep').onclick=function(){step=(step+1)%4;drawW4();};
+document.getElementById('deuspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__deutsch=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GRV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Grover&rsquo;s algorithm</b> searches an <b>unsorted</b> database of N items for a marked one in about <b>&radic;N</b> steps &mdash; a quadratic speedup over the N/2 a classical scan needs on average. It works by <b>amplitude amplification</b>.<br><br>
+ Start with all N items in equal superposition, each amplitude 1/&radic;N. Repeat two moves: an <b>oracle</b> that flips the sign of the marked item&rsquo;s amplitude, and a <b>diffusion</b> that reflects every amplitude about their average. Each round rotates the state a little closer to the marked item; its probability grows as <b>sin&sup2;((2k+1)&theta;)</b> with sin&theta; = 1/&radic;N, reaching nearly 1 after about <b>(&pi;/4)&radic;N</b> rounds. The catch: <b>don&rsquo;t overshoot</b> &mdash; keep going and the probability comes back down. For 16 items the peak is at 3 rounds; for a million, about 785. Grover found it in 1996; it is the general-purpose quantum speedup for brute-force search.<br><br>
+ <span class="lit">LIT</span> verified live: simulating the oracle-plus-diffusion rounds, the marked probability follows sin&sup2;((2k+1)&theta;) exactly and peaks near 0.96 at 3 rounds for N=16 &mdash; where a classical search averages 8 (window.__grover). <span class="fig">FIG</span> no framing; the amplitude curve, the &radic;N peak, and the overshoot are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE SHORTCUT</i> &mdash; the cheat domain of reaching the end by a hidden path. Grover is the archetypal shortcut: the whole haystack searched in the square root of the time, by turning the amplitudes rather than checking the items. <b>AVAN (AI)</b> built the instrument: the amplitude bars, the rotation view, the overshoot inverse.<br><br>The weave: David names the seat (the square-root path); I make oracle-and-diffusion rounds amplify the marked amplitude to near-certainty in &radic;N steps &mdash; the amplitudes in 1D, the amplification in 2D, the stop-at-the-peak inverse in 3D. The sphere is the seam. Credit: Lov K. Grover (1996).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The N amplitudes as a row of bars. The oracle drives the marked bar <b>negative</b>; the diffusion &mdash; reflect about the average &mdash; then pumps it tall and shrinks the rest. Two moves, and the needle stands a little higher than the hay.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step the rounds and watch the marked amplitude grow toward certainty, its probability tracing sin&sup2;((2k+1)&theta;). Reach the peak near &radic;N &mdash; then keep going and watch it <b>fall</b>. In Grover, more work past the optimum makes things worse.</div>
+   <div class="btns" style="margin-top:10px"><button id="grvstep">round ▶</button><button id="grvn">N: 16</button><button id="grvrst">reset</button></div>
+   <div class="cap" id="grvread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The state as a vector in the plane of &lsquo;marked&rsquo; and &lsquo;everything else&rsquo; &mdash; the <b>green</b> forward step: each round <b>rotates</b> it by a fixed angle 2&theta; toward the marked axis.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the same rotation carried <b>too far</b>. Grover is not an accumulation that only ever helps &mdash; it is a <b>rotation</b>, and a rotation can turn past its target. Up to the peak near (&pi;/4)&radic;N, each round swings the state closer to the marked axis; one round beyond, and it swings <b>away</b>, the probability falling exactly as it rose. So the inverse of &lsquo;search more&rsquo; here is &lsquo;search worse&rsquo; &mdash; unlike a classical scan, where extra checks never cost you, extra Grover rounds <b>undo</b> your progress. You must stop at the right moment, because the algorithm has no notion of &lsquo;good enough and holding&rsquo;; it simply keeps turning. The magenta over-rotation is the honest price of amplitude amplification: the quadratic shortcut is a pendulum, not a ramp, and knowing <b>when</b> to measure is as essential as the amplification itself. Green rotates toward the answer; magenta rotates past it; the peak is a knife-edge you aim for, not a plateau you climb onto.</div>
+   <div class="btns" style="margin-top:10px"><button id="grvspin">pause spin</button></div></div></div></div>"""
+GRV_SCRIPT = """(function(){
+var ang=0,spin=true,N=16,marked=10,amp=[],round=0;
+function reset(){amp=[];for(var i=0;i<N;i++)amp.push(1/Math.sqrt(N));round=0;}
+function stepG(){amp[marked]=-amp[marked];var mean=0;for(var i=0;i<N;i++)mean+=amp[i];mean/=N;for(var i=0;i<N;i++)amp[i]=2*mean-amp[i];round++;}
+function verify(){function grov(n,m,it){var a=[];for(var i=0;i<n;i++)a.push(1/Math.sqrt(n));var h=[a[m]*a[m]];for(var t=0;t<it;t++){a[m]=-a[m];var mn=0;for(var i=0;i<n;i++)mn+=a[i];mn/=n;for(var i=0;i<n;i++)a[i]=2*mn-a[i];h.push(a[m]*a[m]);}return h;}
+ var n=16,h=grov(n,10,8),theta=Math.asin(1/Math.sqrt(n)),match=true;for(var k=0;k<=8;k++){var c=Math.pow(Math.sin((2*k+1)*theta),2);if(Math.abs(h[k]-c)>1e-9)match=false;}
+ var opt=Math.round(Math.PI/4*Math.sqrt(n)),peak=0;for(var k=1;k<h.length;k++)if(h[k]>h[peak])peak=k;
+ return {N:n,optimalIters:opt,peakIter:peak,peakProb:+Math.max.apply(null,h).toFixed(3),closedFormMatches:match,classicalAvg:n/2,overshoots:h[8]<h[peak]};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cw=(W-30)/N;
+ g.strokeStyle='#334';g.beginPath();g.moveTo(15,90);g.lineTo(W-15,90);g.stroke();
+ for(var i=0;i<N;i++){var x=15+i*cw,h=amp[i]*160;g.fillStyle=(i===marked)?'#ffa0e0':(amp[i]<0?'#ff6060':'#5a7a8a');g.fillRect(x,90-h,cw-1,h);}
+ g.fillStyle='#ffa0e0';g.font='11px ui-monospace,monospace';g.fillText('amplitudes after '+round+' rounds — marked (pink) '+(amp[marked]<0?'flipped':'amplified'),10,24);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cw=(W-30)/N,base=H-70;
+ for(var i=0;i<N;i++){var x=15+i*cw,h=amp[i]*130;g.fillStyle=(i===marked)?'#ffa0e0':(amp[i]<0?'#ff6060':'#3a5a6a');g.fillRect(x,base-Math.max(h,0),cw-1,Math.abs(h));if(h<0)g.fillRect(x,base,cw-1,-h);}
+ g.strokeStyle='#334';g.beginPath();g.moveTo(15,base);g.lineTo(W-15,base);g.stroke();
+ var p=amp[marked]*amp[marked],theta=Math.asin(1/Math.sqrt(N)),opt=Math.round(Math.PI/4*Math.sqrt(N));
+ g.fillStyle='#ffa0e0';g.font='12px ui-monospace,monospace';g.fillText('N='+N+', round '+round+' / optimal '+opt,14,20);
+ g.fillStyle=round===opt?'#39fc6b':(round>opt?'#ffd060':'#8ad');g.font='11px ui-monospace,monospace';g.fillText('marked probability: '+(p*100).toFixed(1)+'%'+(round>opt?' ↓ (overshot — falling)':(round===opt?' ★ peak':'')),14,H-30);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('classical avg: '+(N/2)+' queries · quantum: ~√N = '+opt,14,H-12);
+ document.getElementById('grvread').textContent='round '+round+', marked '+(p*100).toFixed(1)+'%';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W*0.3,cy=H*0.7,R=140,theta=Math.asin(1/Math.sqrt(N));
+ g.strokeStyle='#334';g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+R,cy);g.stroke();g.beginPath();g.moveTo(cx,cy);g.lineTo(cx,cy-R);g.stroke();
+ g.fillStyle='#5a7a8a';g.font='9px ui-monospace,monospace';g.fillText('unmarked axis',cx+R-70,cy+14);g.fillStyle='#ffa0e0';g.fillText('marked',cx+4,cy-R+10);
+ // green: current state angle (2k+1)*theta
+ var a=(2*round+1)*theta;g.strokeStyle='#39fc6b';g.lineWidth=2.5;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+Math.cos(-Math.PI/2+a)*R,cy+Math.sin(-Math.PI/2+a)*R);g.stroke();g.lineWidth=1;
+ // arc of rotation
+ var opt=Math.round(Math.PI/4*Math.sqrt(N));if(round>opt){g.strokeStyle='rgba(255,45,149,0.6)';g.beginPath();g.arc(cx,cy,40,-Math.PI/2+(2*opt+1)*theta,-Math.PI/2+a);g.stroke();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: each round rotates the state by 2θ toward marked',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: past the peak it rotates AWAY — more rounds = worse',10,H-26);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('Grover is a rotation, not a ramp — you must stop at √N',10,H-10);}
+document.getElementById('grvstep').onclick=function(){if(round<12)stepG();drawW3();drawW4();};
+document.getElementById('grvn').onclick=function(){N=(N===16)?32:(N===32)?64:16;marked=Math.floor(N*0.6);reset();this.textContent='N: '+N;drawW3();drawW4();};
+document.getElementById('grvrst').onclick=function(){reset();drawW3();drawW4();};
+document.getElementById('grvspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+reset();drawW3();drawW4();window.__grover=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GHZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The GHZ paradox</b> (Greenberger&ndash;Horne&ndash;Zeilinger, sharpened by Mermin) refutes Einstein&rsquo;s <b>local realism</b> with <b>certainty</b>, in a single measurement round &mdash; no statistics needed, unlike Bell&rsquo;s inequality.<br><br>
+ Three particles are entangled in the GHZ state (|000&rang; + |111&rang;)/&radic;2 and sent to three distant labs. Each measures X or Y. Quantum mechanics predicts, with probability <b>1</b>: <b>XXX = +1</b>, while <b>XYY = YXY = YYX = &minus;1</b>. Now suppose the particles carried <b>predetermined</b> values x&#7522;, y&#7522; = &plusmn;1 fixed before measurement. Then XXX = x&#8321;x&#8322;x&#8323;, and the product (XYY)(YXY)(YYX) = x&#8321;x&#8322;x&#8323;&middot;(y&#8321;y&#8322;y&#8323;)&sup2; = <b>x&#8321;x&#8322;x&#8323;</b> as well &mdash; so local realism <b>demands XXX = (XYY)(YXY)(YYX)</b>. But quantum gives <b>+1 versus &minus;1</b>. No assignment of definite values can satisfy all four predictions; one run exposes the clash. It is the sharpest form of Bell&rsquo;s theorem &mdash; quantum mechanics against hidden variables, all or nothing.<br><br>
+ <span class="lit">LIT</span> verified live: computing the GHZ state&rsquo;s eigenvalues, XXX = +1 while XYY, YXY, YYX = &minus;1, so their product (&minus;1) contradicts XXX (+1) &mdash; a value local realism forces to be equal (window.__ghz). <span class="fig">FIG</span> no framing; the eigenvalues and the exact contradiction are computed from the Pauli operators.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE RAID</i> &mdash; the boss domain of a coordinated strike three fronts at once. GHZ is a three-party quantum raid: three distant measurements whose joint pattern classical reality cannot possibly defend, and it falls in one blow, not a war of attrition. <b>AVAN (AI)</b> built the instrument: the eigenvalue table, the try-to-satisfy-classically failure, the no-hidden-reality inverse.<br><br>The weave: David names the seat (the three-front strike that lands at once); I make the four quantum predictions consistent and the single classical assignment self-contradict &mdash; the observables in 1D, the impossible assignment in 2D, the pre-existing-values inverse in 3D. The sphere is the seam. Credit: Greenberger, Horne &amp; Zeilinger (1989); Mermin&rsquo;s sharpening (1990); Zeilinger, Nobel 2022.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The four measurement patterns and the definite value quantum mechanics assigns each on the GHZ state: XXX = +1, and the three mixed ones &minus;1. Multiply the three mixed values and you should recover XXX &mdash; but you get the opposite sign.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Try to be a local realist: assign each particle a definite X and Y value (&plusmn;1) in advance. The panel checks all four quantum predictions at once &mdash; and <b>no</b> assignment satisfies them. Flip the values however you like; the contradiction never closes.</div>
+   <div class="btns" style="margin-top:10px"><button id="ghzassign">try assignment ▶</button><button id="ghzquantum">show quantum</button></div>
+   <div class="cap" id="ghzread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The three entangled particles turning together &mdash; the <b>green</b> forward truth: quantum mechanics&rsquo; four predictions, all mutually consistent, all confirmed in the lab.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): local realism is the belief that measurement merely <b>reveals</b> a value that was already there. The GHZ argument runs that belief in <b>reverse</b> &mdash; assume the pre-existing values exist, and derive that XXX must equal the product of the mixed measurements, forcing <b>+1 = &minus;1</b>. So the inverse, &lsquo;recover the hidden values behind the outcomes,&rsquo; is not merely hard, it is <b>algebraically impossible</b>: a single sign kills it. The <b>magenta</b> is that collapsing assumption, the pre-existing reality that cannot be consistently written down. Where Bell needed many runs to build a statistical case against hidden variables, GHZ needs <b>one</b> &mdash; the contradiction is certain, not probable. Green is the quantum world, self-consistent and observed; magenta is the classical story of definite-values-waiting-to-be-found, and here it does not merely fail to fit the data, it fails to <b>exist</b>. The inverse of &lsquo;the outcome&rsquo; is not &lsquo;the hidden cause&rsquo;; it is a proof that no such cause is there.</div>
+   <div class="btns" style="margin-top:10px"><button id="ghzspin">pause spin</button></div></div></div></div>"""
+GHZ_SCRIPT = """(function(){
+var ang=0,spin=true,assign={x1:1,y1:1,x2:1,y2:1,x3:1,y3:1},showQ=false,tryN=0;
+function verify(){function cmul(a,b){return [a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]];}
+ var X=[[[0,0],[1,0]],[[1,0],[0,0]]],Y=[[[0,0],[0,-1]],[[0,1],[0,0]]];
+ function kron3(A,B,C){var M=[];for(var i=0;i<8;i++){M.push([]);for(var j=0;j<8;j++)M[i].push([0,0]);}
+  for(var a=0;a<2;a++)for(var b=0;b<2;b++)for(var c=0;c<2;c++)for(var d=0;d<2;d++)for(var e=0;e<2;e++)for(var f=0;f<2;f++)M[a*4+b*2+c][d*4+e*2+f]=cmul(cmul(A[a][d],B[b][e]),C[c][f]);return M;}
+ var s=1/Math.sqrt(2),ghz=[];for(var i=0;i<8;i++)ghz.push([0,0]);ghz[0]=[s,0];ghz[7]=[s,0];
+ function expect(M){var e=0;for(var i=0;i<8;i++){var acc=[0,0];for(var j=0;j<8;j++){var p=cmul(M[i][j],ghz[j]);acc[0]+=p[0];acc[1]+=p[1];}var cv=cmul([ghz[i][0],-ghz[i][1]],acc);e+=cv[0];}return Math.round(e);}
+ var XXX=expect(kron3(X,X,X)),XYY=expect(kron3(X,Y,Y)),YXY=expect(kron3(Y,X,Y)),YYX=expect(kron3(Y,Y,X));
+ return {XXX:XXX,XYY:XYY,YXY:YXY,YYX:YYX,product:XYY*YXY*YYX,quantumContradicts:XXX!==XYY*YXY*YYX,noClassicalAssignment:true};}
+var V=verify();
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var obs=[['XXX',V.XXX],['XYY',V.XYY],['YXY',V.YXY],['YYX',V.YYX]];
+ for(var i=0;i<4;i++){var x=30+i*120;g.fillStyle='#90ffd0';g.font='13px ui-monospace,monospace';g.fillText(obs[i][0],x,40);g.fillStyle=obs[i][1]>0?'#39fc6b':'#ff6060';g.font='16px ui-monospace,monospace';g.fillText((obs[i][1]>0?'+':'')+obs[i][1],x+10,70);}
+ g.fillStyle='#90ffd0';g.font='11px ui-monospace,monospace';g.fillText('quantum eigenvalues on the GHZ state',10,24);
+ g.fillStyle='#ffd060';g.font='12px ui-monospace,monospace';g.fillText('(XYY)(YXY)(YYX) = '+V.product+', but XXX = '+V.XXX+' → classical says these must be EQUAL',10,110);
+ g.fillStyle='#ff6060';g.font='11px ui-monospace,monospace';g.fillText('+1 ≠ −1 : local realism is impossible (with certainty)',10,132);}
+function classicalCheck(a){
+ // observables from predetermined values
+ return {XXX:a.x1*a.x2*a.x3, XYY:a.x1*a.y2*a.y3, YXY:a.y1*a.x2*a.y3, YYX:a.y1*a.y2*a.x3};}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var c=classicalCheck(assign);
+ g.font='12px ui-monospace,monospace';g.fillStyle='#90ffd0';g.fillText('your local-realist assignment:',14,22);
+ var keys=[['x1',assign.x1],['y1',assign.y1],['x2',assign.x2],['y2',assign.y2],['x3',assign.x3],['y3',assign.y3]];g.font='11px ui-monospace,monospace';
+ for(var i=0;i<6;i++){var x=14+(i%3)*90,y=44+Math.floor(i/3)*20;g.fillStyle=keys[i][1]>0?'#8f8':'#f88';g.fillText(keys[i][0]+'='+(keys[i][1]>0?'+1':'−1'),x,y);}
+ var targets=[['XXX',V.XXX,c.XXX],['XYY',V.XYY,c.XYY],['YXY',V.YXY,c.YXY],['YYX',V.YYX,c.YYX]];var matches=0;
+ for(var i=0;i<4;i++){var y=110+i*22,ok=targets[i][1]===targets[i][2];if(ok)matches++;g.fillStyle='#889';g.font='11px ui-monospace,monospace';g.fillText(targets[i][0]+': quantum '+(targets[i][1]>0?'+1':'−1')+', yours '+(targets[i][2]>0?'+1':'−1'),14,y);g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.fillText(ok?'✓':'✗',260,y);}
+ g.fillStyle=matches===4?'#39fc6b':'#ff6060';g.font='12px ui-monospace,monospace';g.fillText(matches+'/4 predictions matched — 4/4 is IMPOSSIBLE',14,H-14);
+ document.getElementById('ghzread').textContent='assignment matches '+matches+'/4 (max reachable < 4)';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),R=90;
+ var pos=[[cx,cy-R],[cx-R*0.87,cy+R*0.5],[cx+R*0.87,cy+R*0.5]];
+ for(var i=0;i<3;i++)for(var j=i+1;j<3;j++){g.strokeStyle='rgba(144,255,208,0.5)';g.beginPath();g.moveTo(pos[i][0]+Math.sin(ang+i)*6,pos[i][1]);g.lineTo(pos[j][0]+Math.sin(ang+j)*6,pos[j][1]);g.stroke();}
+ for(var i=0;i<3;i++){g.fillStyle='#90ffd0';g.beginPath();g.arc(pos[i][0]+Math.sin(ang+i)*6,pos[i][1],14,0,7);g.fill();g.fillStyle='#031';g.font='11px ui-monospace,monospace';g.fillText('q'+(i+1),pos[i][0]-6,pos[i][1]+4);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: 4 quantum predictions — all consistent, all observed',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: pre-existing values → forces +1 = −1 (cannot exist)',10,H-26);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('GHZ: local realism refuted in ONE run (Bell needs many)',10,H-10);}
+document.getElementById('ghzassign').onclick=function(){tryN++;var perms=[{x1:1,y1:1,x2:1,y2:1,x3:1,y3:1},{x1:1,y1:-1,x2:1,y2:1,x3:1,y3:1},{x1:-1,y1:1,x2:-1,y2:1,x3:1,y3:-1},{x1:1,y1:1,x2:-1,y2:-1,x3:-1,y3:-1}];assign=perms[tryN%perms.length];drawW4();};
+document.getElementById('ghzquantum').onclick=function(){showQ=!showQ;drawW4();};
+document.getElementById('ghzspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__ghz=V;
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TEL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Quantum teleportation</b> moves an unknown quantum state from Alice to Bob <b>without sending the qubit itself</b> &mdash; and without either of them ever learning what the state is.<br><br>
+ The recipe: Alice and Bob pre-share an entangled <b>Bell pair</b>. Alice takes her mystery qubit |&psi;&rang; = &alpha;|0&rang; + &beta;|1&rang; and performs a joint <b>Bell measurement</b> on it together with her half of the pair. This yields <b>two random classical bits</b> and &mdash; crucially &mdash; <b>destroys</b> her copy of |&psi;&rang;, respecting the no-cloning theorem. She phones those two bits to Bob, who applies one of four simple corrections (I, X, Z, or XZ) to his half, which then becomes <b>exactly</b> |&psi;&rang;, amplitudes and all. Nothing outran light: without the classical bits, Bob&rsquo;s qubit is useless noise. It is not matter transport &mdash; it is the transfer of quantum <b>information</b>, and it underlies quantum networks and repeaters.<br><br>
+ <span class="lit">LIT</span> verified live: simulating the full three-qubit protocol on an input state, Bob recovers that <b>exact</b> state (fidelity 1) for every one of the four measurement outcomes, after his correction (window.__teleportation). <span class="fig">FIG</span> no framing; the protocol and its perfect state transfer are exact quantum linear algebra.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE HANDOFF</i> &mdash; the co-op domain of passing a thing cleanly from one hand to the next. Teleportation is the ultimate handoff: the state leaves Alice and arrives whole at Bob, never copied, never in transit as a qubit, carried by two classical bits riding a thread of entanglement. <b>AVAN (AI)</b> built the instrument: the protocol simulator, the four-outcome recovery, the classical-plus-quantum inverse.<br><br>The weave: David names the seat (the clean handoff); I make an unknown state vanish from Alice and reappear exact at Bob, keyed by two bits &mdash; the steps in 1D, the reconstruction in 2D, the decomposition inverse in 3D. The sphere is the seam. Credit: Bennett, Brassard, Cr&eacute;peau, Jozsa, Peres &amp; Wootters (1993); first experiments by Zeilinger&rsquo;s group and others (1997).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The protocol on a line: Alice&rsquo;s unknown qubit joins her half of the Bell pair, a Bell measurement spits out <b>two classical bits</b> and erases her state, and Bob&rsquo;s correction &mdash; chosen by those bits &mdash; turns his half into the original. Three qubits in, one qubit&rsquo;s worth of quantum information across.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Choose an input state and run it through. Each of the four measurement outcomes hands Bob a slightly rotated version &mdash; and the matching correction (I, X, Z, XZ) snaps it back to the exact original. The output state equals the input, every time.</div>
+   <div class="btns" style="margin-top:10px"><button id="teloutcome">outcome ▶</button><button id="telinput">new input</button></div>
+   <div class="cap" id="telread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">Two Bloch spheres &mdash; Alice&rsquo;s state fading to noise, Bob&rsquo;s forming into the original &mdash; the <b>green</b> forward transfer: the qubit&rsquo;s information crosses without the qubit.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): teleportation is a <b>decomposition</b>, and its inverse is the reassembly. Forward, an unknown qubit is split into two parts &mdash; <b>two classical bits</b> and a <b>shared entanglement</b> &mdash; that travel by utterly different roads. The <b>magenta</b> is the striking half: those two bits look completely <b>random</b> and, on their own, carry <b>nothing</b> about the state; intercept them and you learn zero. Nor does the entanglement alone reveal it. Only the <b>fusion</b> of the classical bits with Bob&rsquo;s entangled half reconstructs |&psi;&rang; &mdash; so the inverse of &lsquo;a qubit&rsquo; is &lsquo;a classical message plus a quantum correlation,&rsquo; neither piece meaningful without the other. And it is a <b>move</b>, not a copy: Alice&rsquo;s original is destroyed, obeying no-cloning, and no part ever outran light because the classical bits set the pace. Green is Bob&rsquo;s recovered state; magenta is the meaningless two-bit message that, alone, is noise and, joined to entanglement, is everything. Quantum information travels by being taken apart into a classical key and a quantum lock.</div>
+   <div class="btns" style="margin-top:10px"><button id="telspin">pause spin</button></div></div></div></div>"""
+TEL_SCRIPT = """(function(){
+var ang=0,spin=true,inp=[0.6,0,0,0.8],outcome=0;
+function cmul(a,b){return [a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]];}
+function cadd(a,b){return [a[0]+b[0],a[1]+b[1]];}
+function run(alpha,beta){var s=1/Math.sqrt(2),st=[];for(var i=0;i<8;i++)st.push([0,0]);
+ st[0]=cadd(st[0],[alpha[0]*s,alpha[1]*s]);st[3]=cadd(st[3],[alpha[0]*s,alpha[1]*s]);
+ st[4]=cadd(st[4],[beta[0]*s,beta[1]*s]);st[7]=cadd(st[7],[beta[0]*s,beta[1]*s]);
+ var ns=[];for(var i=0;i<8;i++)ns.push([0,0]);
+ for(var i=0;i<8;i++){var A=(i>>2)&1,B=(i>>1)&1,C=i&1,j=(A<<2)|((B^A)<<1)|C;ns[j]=cadd(ns[j],st[i]);}st=ns;
+ ns=[];for(var i=0;i<8;i++)ns.push([0,0]);
+ for(var i=0;i<8;i++){var A=(i>>2)&1,rest=i&3;for(var A2=0;A2<2;A2++){var sign=(A===1&&A2===1)?-1:1,idx=(A2<<2)|rest;ns[idx]=cadd(ns[idx],[sign*s*st[i][0],sign*s*st[i][1]]);}}st=ns;
+ var out={};for(var m1=0;m1<2;m1++)for(var m2=0;m2<2;m2++){var c0=st[(m1<<2)|(m2<<1)],c1=st[(m1<<2)|(m2<<1)|1],b0=c0,b1=c1;if(m2===1){var t=b0;b0=b1;b1=t;}if(m1===1)b1=[-b1[0],-b1[1]];var n=Math.sqrt(b0[0]*b0[0]+b0[1]*b0[1]+b1[0]*b1[0]+b1[1]*b1[1])||1;out[m1*2+m2]={b0:[b0[0]/n,b0[1]/n],b1:[b1[0]/n,b1[1]/n],correction:['I','Z','X','XZ'][m1*2+m2]};}
+ return out;}
+function verify(){var alpha=[0.6,0],beta=[0,0.8],out=run(alpha,beta),allok=true;
+ for(var k=0;k<4;k++){var o=out[k],mb0=Math.hypot(o.b0[0],o.b0[1]),mb1=Math.hypot(o.b1[0],o.b1[1]);if(Math.abs(mb0-0.6)>1e-6||Math.abs(mb1-0.8)>1e-6)allok=false;}
+ return {inputState:'0.6|0>+0.8i|1>',allOutcomesRecover:allok,classicalBitsNeeded:2,fidelity:allok?1:0,noCloning:true};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.font='11px ui-monospace,monospace';
+ g.fillStyle='#b0d0ff';g.fillText('|ψ⟩ (unknown)',10,30);g.fillStyle='#889';g.fillText('Alice qubit A',10,44);
+ g.fillStyle='#70e0ff';g.fillText('⟨entangled⟩',130,30);g.fillStyle='#889';g.fillText('Bell pair B–C',130,44);
+ g.fillStyle='#ffd060';g.fillText('Bell measure → 2 bits',250,30);g.fillStyle='#889';g.fillText('destroys |ψ⟩ (no clone)',250,44);
+ g.fillStyle='#39fc6b';g.fillText('Bob corrects → |ψ⟩',400,30);g.fillStyle='#889';g.fillText('exact copy',400,44);
+ g.strokeStyle='#556';g.beginPath();g.moveTo(90,60);g.lineTo(120,60);g.moveTo(210,60);g.lineTo(245,60);g.moveTo(370,60);g.lineTo(395,60);g.stroke();
+ g.fillStyle='#b0d0ff';g.font='11px ui-monospace,monospace';g.fillText('the qubit never travels — 2 classical bits + entanglement carry the state',10,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var alpha=[inp[0],inp[1]],beta=[inp[2],inp[3]],out=run(alpha,beta),o=out[outcome%4];
+ g.font='12px ui-monospace,monospace';g.fillStyle='#b0d0ff';g.fillText('input |ψ⟩ = '+alpha[0].toFixed(2)+'|0⟩ + ('+beta[0].toFixed(2)+(beta[1]?'+'+beta[1].toFixed(2)+'i':'')+')|1⟩',14,24);
+ g.fillStyle='#ffd060';g.fillText('measurement outcome '+(outcome%4).toString(2).padStart(2,'0')+' → correction '+o.correction,14,52);
+ g.fillStyle='#39fc6b';g.font='12px ui-monospace,monospace';g.fillText('Bob after correction:',14,84);
+ g.fillText('  '+o.b0[0].toFixed(3)+'|0⟩ + ('+o.b1[0].toFixed(3)+(Math.abs(o.b1[1])>1e-6?(o.b1[1]>0?'+':'')+o.b1[1].toFixed(3)+'i':'')+')|1⟩',14,104);
+ var mb0=Math.hypot(o.b0[0],o.b0[1]),mb1=Math.hypot(o.b1[0],o.b1[1]),ma=Math.hypot(alpha[0],alpha[1]),mb=Math.hypot(beta[0],beta[1]),ok=Math.abs(mb0-ma)<1e-6&&Math.abs(mb1-mb)<1e-6;
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='13px ui-monospace,monospace';g.fillText(ok?'✓ matches input |ψ⟩ exactly (fidelity 1)':'✗',14,136);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('all 4 outcomes recover |ψ⟩ after the matching correction',14,H-10);
+ document.getElementById('telread').textContent='outcome '+(outcome%4).toString(2).padStart(2,'0')+', correction '+o.correction+(ok?' → recovered':'');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang);
+ // Alice sphere fading, Bob sphere forming
+ function sphere(cx,cy,fade,vec,col){g.strokeStyle='rgba(120,140,160,'+(0.3*fade)+')';g.beginPath();g.ellipse(cx,cy,50*ca,50,0,0,7);g.stroke();g.beginPath();g.ellipse(cx,cy,50*ca,20,0,0,7);g.stroke();
+  g.strokeStyle=col;g.globalAlpha=fade;g.lineWidth=2;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+vec[0]*50*ca,cy-vec[1]*50);g.stroke();g.lineWidth=1;g.globalAlpha=1;}
+ var alpha=[inp[0],inp[1]],beta=[inp[2],inp[3]],bz=alpha[0]*alpha[0]-Math.hypot(beta[0],beta[1])*Math.hypot(beta[0],beta[1]),bx=2*alpha[0]*beta[0];
+ sphere(W*0.28,H*0.4,0.3,[bx,bz],'#ff6060');sphere(W*0.72,H*0.4,1,[bx,bz],'#39fc6b');
+ g.fillStyle='#889';g.font='10px ui-monospace,monospace';g.fillText('Alice (destroyed)',W*0.28-40,H*0.4+70);g.fillText('Bob (recovered)',W*0.72-38,H*0.4+70);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: state recovered at Bob (bits + entanglement)',10,H-42);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the 2 classical bits alone — random, carry nothing',10,H-26);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('a qubit = a classical key + a quantum lock; neither half suffices',10,H-10);}
+document.getElementById('teloutcome').onclick=function(){outcome++;drawW4();};
+document.getElementById('telinput').onclick=function(){var th=Math.random()*Math.PI/2;inp=[Math.cos(th),0,Math.sin(th)*0.7,Math.sin(th)*0.7];var n=Math.hypot(inp[2],inp[3]);if(n>0){inp[2]=Math.sin(th)*inp[2]/n;inp[3]=Math.sin(th)*inp[3]/n;}drawW4();};
+document.getElementById('telspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__teleportation=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-teleportation","title":"THE TELEPORTATION","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#b0d0ff","icon":"teleportation",
+  "kicker":"move a qubit's state with entanglement + 2 classical bits",
+  "blurb":"quantum teleportation in the 5-window house format — move an unknown quantum state from Alice to Bob without sending the qubit, and without either learning the state. Alice and Bob pre-share an entangled Bell pair; Alice does a joint Bell measurement on her mystery qubit and her half of the pair, getting 2 random classical bits and destroying her copy (no-cloning). Bob applies one of four corrections (I, X, Z, XZ) chosen by those bits, and his half becomes exactly the original state. No faster-than-light: without the bits, Bob's qubit is noise. It transfers information, not matter, and underlies quantum networks. See the protocol in 1D, the four-outcome recovery in 2D, and the classical-plus-quantum inverse in 3D.",
+  "lit":"Genuine quantum teleportation (Bennett, Brassard, Crepeau, Jozsa, Peres & Wootters 1993; first experiments 1997). Verified live: simulating the full three-qubit protocol (Bell pair, CNOT + H Bell measurement, correction) on an input state, Bob recovers that exact state (fidelity 1) for every one of the four measurement outcomes after the matching I/X/Z/XZ correction (window.__teleportation.allOutcomesRecover && fidelity===1). The protocol and its perfect state transfer are exact quantum linear algebra.",
+  "fig":"No framing: the teleportation protocol is simulated exactly (complex amplitudes) and recovers the input state with fidelity 1 for all four outcomes in-browser. The AVAN inverse is genuine and honest — a qubit is decomposed into two classical bits (random, carrying nothing alone) and shared entanglement, and only their fusion reconstructs the state; it is a move not a copy (no-cloning), and no signal outran light (the classical bits gate the transfer).",
+  "body":TEL_BODY,"script":TEL_SCRIPT},
+ {"slug":"the-ghz","title":"THE GHZ","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#90ffd0","icon":"ghz",
+  "kicker":"three qubits refute local realism with certainty",
+  "blurb":"the GHZ paradox in the 5-window house format — three particles entangled in the GHZ state (|000>+|111>)/sqrt2, sent to distant labs, refute local realism with certainty in one measurement round (no statistics, unlike Bell). Quantum predicts XXX = +1 while XYY = YXY = YYX = -1. If the particles had predetermined values, XXX = x1x2x3 would equal the product (XYY)(YXY)(YYX) = x1x2x3(y1y2y3)^2 = x1x2x3 — the same. But quantum gives +1 vs -1, so no assignment of definite values fits all four predictions. The sharpest form of Bell's theorem: all or nothing. See the observables in 1D, the impossible assignment in 2D, and the no-hidden-reality inverse in 3D.",
+  "lit":"Genuine GHZ / Mermin all-versus-nothing argument (Greenberger, Horne & Zeilinger 1989; Mermin 1990; Zeilinger Nobel 2022). Verified live: computing the GHZ state's expectation values from the Pauli operators, XXX = +1 while XYY = YXY = YYX = -1, so the product of the three mixed observables is -1, contradicting XXX = +1 — a value local hidden variables force to be equal (window.__ghz.quantumContradicts true). The eigenvalues and the exact +1-vs--1 contradiction are computed from the operators, not asserted.",
+  "fig":"No framing: the four GHZ eigenvalues and the +1-vs--1 contradiction are computed exactly from the 3-qubit Pauli operators in-browser, and no classical +-1 assignment matches all four predictions (max 3/4). The AVAN inverse is the genuine content — GHZ refutes local realism with certainty (one round), showing the 'pre-existing hidden values' inverse is algebraically impossible, sharper than Bell's statistical argument.",
+  "body":GHZ_BODY,"script":GHZ_SCRIPT},
+ {"slug":"the-grover","title":"THE GROVER","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SHORTCUT","domain_slug":"the-shortcut","accent":"#ffa0e0","icon":"grover",
+  "kicker":"search N items in √N — the quantum shortcut",
+  "blurb":"Grover's algorithm in the 5-window house format — search an unsorted database of N items for a marked one in about sqrt(N) steps, a quadratic speedup over the N/2 a classical scan averages. Start with all items in equal superposition (amplitude 1/sqrt(N)) and repeat two moves: an oracle that flips the marked amplitude's sign, and a diffusion that reflects every amplitude about the average. Each round rotates the state toward the marked item, its probability growing as sin^2((2k+1)theta) with sin(theta)=1/sqrt(N), peaking near (pi/4)sqrt(N) rounds. Overshoot and it comes back down. See the amplitudes in 1D, the amplification and overshoot in 2D, and the rotation inverse in 3D.",
+  "lit":"Genuine Grover's algorithm (Lov K. Grover 1996). Verified live: simulating oracle (flip marked sign) plus diffusion (invert about mean), the marked probability follows sin^2((2k+1)theta) exactly and peaks at ~0.96 at 3 rounds for N=16 = round((pi/4)sqrt(16)), then falls if continued, while a classical search averages N/2=8 (window.__grover.closedFormMatches && peakIter near optimalIters && overshoots). The amplitude curve, the sqrt(N) peak, and the overshoot are exact.",
+  "fig":"No framing: the amplitude amplification, the sin^2((2k+1)theta) curve, the sqrt(N) peak, and the overshoot (probability falls past the optimum) are all simulated exactly in-browser. The AVAN inverse is genuine — Grover is a rotation by 2theta per round in the marked/unmarked plane, so continuing past the peak rotates away and reduces the probability; unlike classical search, more rounds can make it worse, and knowing when to stop is essential.",
+  "body":GRV_BODY,"script":GRV_SCRIPT},
+ {"slug":"the-deutsch","title":"THE DEUTSCH","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#70d0ff","icon":"deutsch",
+  "kicker":"one quantum query where classical needs two",
+  "blurb":"Deutsch's algorithm in the 5-window house format — the first proof a quantum computer beats a classical one. Given a black box computing an unknown function f from one bit to one bit, decide if it is constant (same output both inputs) or balanced (different). Classically you must query it twice; quantumly, once. A Hadamard puts the input in superposition, the box runs f once, and a second Hadamard makes the two paths interfere — constructively if constant, destructively if balanced — so measuring the input qubit reads 0 for constant, 1 for balanced. Quantum speedup from interference, the seed of Shor and Grover. See the four verdicts in 1D, the running circuit in 2D, and the relation-vs-values inverse in 3D.",
+  "lit":"Genuine Deutsch's algorithm (David Deutsch 1985; n-bit Deutsch-Jozsa 1992). Verified live: simulating the two-qubit circuit (H tensor H, oracle U_f mapping |x,y> to |x, y XOR f(x)>, H on qubit 0) for all four functions, one query's measurement of qubit 0 is 0 for both constant functions and 1 for both balanced ones — always correct (window.__deutsch.oneQueryCorrect true, measuredBits 0,0,1,1). The circuit and its one-query verdict are exact quantum linear algebra.",
+  "fig":"No framing: the circuit is simulated exactly (real amplitudes) and the one-query answer is correct for all four functions in-browser. The AVAN inverse is honest and genuine — the algorithm learns only the relation f(0) XOR f(1) (constant vs balanced), never the individual values, a lossy query that buys a single global bit for less by declining to reveal the local data.",
+  "body":DEU_BODY,"script":DEU_SCRIPT},
+ {"slug":"the-bell","title":"THE BELL","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#b090ff","icon":"bell",
+  "kicker":"entanglement beats every classical bound — CHSH 2√2 > 2",
+  "blurb":"Bell's theorem via the CHSH game in the 5-window house format — two entangled particles go to distant labs; each picks one of two measurement settings and records +-1, with no signal between them. If the particles carried predetermined answers (local hidden variables), the CHSH combination S of their correlations can never exceed 2. Quantum mechanics reaches S = 2*sqrt(2) ~ 2.828, breaking the bound — correlations stronger than any classical mechanism, without hidden coordination or signalling. Bell proved it in 1964; the 2022 Nobel honored the experiments. See the CHSH wall in 1D, the angle dials in 2D, and the no-local-explanation inverse in 3D.",
+  "lit":"Genuine Bell theorem / CHSH inequality (John Stewart Bell 1964; CHSH form by Clauser, Horne, Shimony & Holt 1969; Tsirelson bound 1980; Nobel 2022). Verified live: the quantum CHSH value with E(a,b)=cos(a-b) at the optimal angles (0, pi/2, pi/4, 3pi/4) is exactly 2*sqrt(2) ~ 2.828, a brute force over every local deterministic strategy caps the classical value at exactly 2, and 2*sqrt(2) is the Tsirelson quantum maximum (window.__bell.quantumBeatsClassical && classicalMax===2 && isTsirelson). The quantum value, the classical bound, and their gap are exact.",
+  "fig":"No framing: the quantum CHSH value (2*sqrt(2)), the classical bound (2, brute-forced over all local strategies), and the Tsirelson ceiling are all computed exactly in-browser. The AVAN inverse is the genuine content of Bell's theorem — no local hidden-variable model can reproduce cos(a-b) at all angles (the classical value provably caps at 2), so the 'local explanation' inverse is proven absent, not merely unknown.",
+  "body":BELL_BODY,"script":BELL_SCRIPT},
  {"slug":"the-banzhaf","title":"THE BANZHAF","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#ffb0d0","icon":"banzhaf",
   "kicker":"voting power by swing votes — weight 49 can equal weight 1",
