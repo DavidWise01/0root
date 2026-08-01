@@ -11533,7 +11533,319 @@ document.getElementById('trpspin').onclick=function(){spin=!spin;this.textConten
 for(var i=0;i<9;i++){root=insert(root,Math.floor(hash32(i*13+1)%50));}drawW3();drawW4();window.__treap=verify();
 function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+CND_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Condorcet paradox.</b> Even when <b>every</b> voter has perfectly consistent preferences, the group&rsquo;s majority preference can <b>cycle</b>. Three voters ranking three candidates &mdash; (A&gt;B&gt;C), (B&gt;C&gt;A), (C&gt;A&gt;B) &mdash; produce a majority for <b>A over B</b>, a majority for <b>B over C</b>, and a majority for <b>C over A</b>. Round and round, with no bottom.<br><br>
+ So there is <b>no Condorcet winner</b> &mdash; no candidate who beats every other head-to-head. Worse, whoever wins depends entirely on the <b>agenda</b>: in sequential pairwise votes, a chairman who sets the order picks the winner. The individuals are rational; the collective is not. Discovered by the Marquis de Condorcet in 1785, it is the seed of <b>Arrow&rsquo;s impossibility theorem</b> &mdash; the proof that no ranked voting method can be fair, decisive, and cycle-free all at once.<br><br>
+ <span class="lit">LIT</span> verified live: on this profile A beats B, B beats C, and C beats A (each 2&ndash;1), there is <b>no Condorcet winner</b>, and three different agenda orders elect three different candidates (window.__condorcet). <span class="fig">FIG</span> no framing; the majority cycle, the absent winner, and the agenda control are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>RACE CONDITION</i> &mdash; the glitch domain of an outcome that depends on order and has no stable answer. The Condorcet cycle is a social race condition exactly: the winner is undefined until you fix the sequence, and any sequence can be forced to any result. <b>AVAN (AI)</b> built the instrument: the pairwise tally, the cyclic tournament, the transitive-vs-cyclic inverse.<br><br>The weave: David names the seat (order decides, nothing is stable); I make three rational rankings breed an irrational cycle and let the agenda pick any winner &mdash; the ballots in 1D, the beats-cycle in 2D, the aggregation inverse in 3D. The sphere is the seam. Credit: Marquis de Condorcet (1785); the general impossibility by Kenneth Arrow (1951).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The three ballots, each a clean top-to-bottom ranking, and beneath them the three head-to-head tallies. Every voter is consistent; every pairwise vote has a clear 2&ndash;1 winner &mdash; and yet the three winners chase each other in a ring.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The three candidates with directed &ldquo;beats&rdquo; arrows &mdash; A&rarr;B, B&rarr;C, C&rarr;A &mdash; a perfect cycle, no top and no bottom. Run a sequential agenda: pit two candidates, then the winner against the third. Change the order and the champion changes, though not one vote moved.</div>
+   <div class="btns" style="margin-top:10px"><button id="cndagenda">run agenda ▶</button></div>
+   <div class="cap" id="cndread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The majority relation as a turning tournament &mdash; the <b>magenta</b> ring of &ldquo;beats&rdquo; arrows with no source and no sink, a cycle that cannot be laid out in a line.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>green</b> is what each voter brings &mdash; a <b>transitive</b> ranking, a clean line from best to worst. Aggregating those lines by majority is supposed to invert them into a group line, a collective ordering. But the inverse <b>fails</b>: the sum of total orders need not be a total order at all. The forward step &lsquo;each person ranks consistently&rsquo; has, as its majority inverse, a <b>cycle</b> &mdash; the group cannot be ranked, because A&gt;B&gt;C&gt;A has no first place. That is the whole shock of collective choice: transitivity is not preserved under majority, so &lsquo;who does the group prefer?&rsquo; can be a question with no answer, only an agenda. Green is the orderable individual; magenta is the un-orderable crowd; and the gap between them is the impossibility Arrow later proved no clever rule can close. To combine rational minds is not to get a rational mind.</div>
+   <div class="btns" style="margin-top:10px"><button id="cndspin">pause spin</button></div></div></div></div>"""
+CND_SCRIPT = """(function(){
+var ang=0,spin=true,agendaIdx=0,prefs=[['A','B','C'],['B','C','A'],['C','A','B']],cands=['A','B','C'];
+function beats(x,y){var c=0;for(var i=0;i<prefs.length;i++)if(prefs[i].indexOf(x)<prefs[i].indexOf(y))c++;return c;}
+function agenda(order){var w=order[0];for(var i=1;i<order.length;i++){var ch=order[i];if(beats(ch,w)>beats(w,ch))w=ch;}return w;}
+function verify(){var cycle=beats('A','B')>beats('B','A')&&beats('B','C')>beats('C','B')&&beats('C','A')>beats('A','C');
+ var winners=cands.filter(function(c){return cands.every(function(o){return o===c||beats(c,o)>beats(o,c);});});
+ var a1=agenda(['A','B','C']),a2=agenda(['B','C','A']),a3=agenda(['C','A','B']);
+ return {AvB:beats('A','B')+'-'+beats('B','A'),BvC:beats('B','C')+'-'+beats('C','B'),CvA:beats('C','A')+'-'+beats('A','C'),majorityCycle:cycle,condorcetWinners:winners.length,agendaControlled:!(a1===a2&&a2===a3),agendas:'ABC→'+a1+', BCA→'+a2+', CAB→'+a3};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ for(var i=0;i<3;i++){var x=30+i*130;g.fillStyle='#ff80a0';g.font='11px ui-monospace,monospace';g.fillText('Voter '+(i+1)+':',x,24);g.fillStyle='#cde';g.font='13px ui-monospace,monospace';g.fillText(prefs[i].join(' > '),x,44);}
+ var pairs=[['A','B'],['B','C'],['C','A']];for(var i=0;i<3;i++){var x=30+i*160,p=pairs[i],bx=beats(p[0],p[1]),by=beats(p[1],p[0]);g.fillStyle='#39fc6b';g.font='12px ui-monospace,monospace';g.fillText(p[0]+' vs '+p[1]+': '+bx+'-'+by+' → '+(bx>by?p[0]:p[1]),x,90);}
+ g.fillStyle='#ff80a0';g.font='11px ui-monospace,monospace';g.fillText('A beats B, B beats C, C beats A — the majority cycles, no winner',20,124);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-6,R=90,pos={A:[cx,cy-R],B:[cx-R*0.87,cy+R*0.5],C:[cx+R*0.87,cy+R*0.5]};
+ var arr=[['A','B'],['B','C'],['C','A']];g.strokeStyle='#ff80a0';g.lineWidth=2;g.fillStyle='#ff80a0';
+ for(var i=0;i<arr.length;i++){var a=pos[arr[i][0]],b=pos[arr[i][1]],mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy),ux=dx/len,uy=dy/len;g.beginPath();g.moveTo(a[0]+ux*16,a[1]+uy*16);g.lineTo(b[0]-ux*16,b[1]-uy*16);g.stroke();
+  var hx=b[0]-ux*16,hy=b[1]-uy*16;g.beginPath();g.moveTo(hx,hy);g.lineTo(hx-ux*10-uy*5,hy-uy*10+ux*5);g.lineTo(hx-ux*10+uy*5,hy-uy*10-ux*5);g.fill();
+  g.fillStyle='#8a8';g.font='9px ui-monospace,monospace';g.fillText('2-1',mx-8,my-4);g.fillStyle='#ff80a0';}g.lineWidth=1;
+ for(var c in pos){g.fillStyle='#c090ff';g.beginPath();g.arc(pos[c][0],pos[c][1],18,0,7);g.fill();g.fillStyle='#100';g.font='14px ui-monospace,monospace';g.fillText(c,pos[c][0]-4,pos[c][1]+5);}
+ var orders=[['A','B','C'],['B','C','A'],['C','A','B']],ord=orders[agendaIdx%3],w=agenda(ord);
+ g.fillStyle='#ffd060';g.font='12px ui-monospace,monospace';g.fillText('agenda '+ord.join('→')+': winner = '+w,12,H-30);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('same votes, different order → different winner (agenda control)',12,H-12);
+ document.getElementById('cndread').textContent='agenda '+ord.join('')+' → '+w;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),R=110,pos={A:0,B:1,C:2};
+ // magenta cycle
+ var P={};['A','B','C'].forEach(function(c,i){var th=i/3*Math.PI*2+ang-Math.PI/2;P[c]=[cx+Math.cos(th)*R*ca,cy+Math.sin(th)*R*0.62];});
+ g.strokeStyle='#ff2d95';g.lineWidth=2;[['A','B'],['B','C'],['C','A']].forEach(function(e){var a=P[e[0]],b=P[e[1]];g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();});g.lineWidth=1;
+ for(var c in P){g.fillStyle='#c090ff';g.beginPath();g.arc(P[c][0],P[c][1],12,0,7);g.fill();g.fillStyle='#100';g.font='11px ui-monospace,monospace';g.fillText(c,P[c][0]-3,P[c][1]+3);}
+ // green: a transitive individual order (a line)
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(30,H-70);g.lineTo(90,H-70);g.lineTo(150,H-70);g.stroke();['A','B','C'].forEach(function(c,i){g.fillStyle='#39fc6b';g.beginPath();g.arc(30+i*60,H-70,8,0,7);g.fill();g.fillStyle='#031';g.fillText(c,27+i*60,H-67);});g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: each voter — a transitive line (has a top)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the majority — a cycle (no top): transitivity lost',10,H-12);}
+document.getElementById('cndagenda').onclick=function(){agendaIdx++;drawW4();};
+document.getElementById('cndspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__condorcet=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SHP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Shapley value</b> answers: when a group cooperates to make something worth v, how much does each member <b>fairly deserve</b>? Lloyd Shapley&rsquo;s answer (1953): average each player&rsquo;s <b>marginal contribution</b> over <b>every order</b> of joining. Imagine the players arriving one at a time in a random sequence; each is credited with how much they add to the coalition already present; average over all n! orders.<br><br>
+ This single formula is the <b>only</b> one obeying four fairness axioms at once: <b>efficiency</b> (shares sum to the whole), <b>symmetry</b> (interchangeable players get equal shares), <b>dummy</b> (a player who adds nothing to any coalition gets nothing), and <b>additivity</b>. A jolt follows in voting: with weights 50/30/20 and a 51% quota, the biggest party holds <b>two-thirds</b> of the real power despite only half the seats, while the 30 and 20 parties are <b>exactly equal</b>. It underlies cost-sharing, credit attribution, and &mdash; as SHAP &mdash; explaining machine-learning predictions.<br><br>
+ <span class="lit">LIT</span> verified live: for [51; 50,30,20] the Shapley values are 2/3, 1/6, 1/6 &mdash; they sum to 1 (efficiency), the two smaller are equal (symmetry) &mdash; and a weight-0 player scores 0 (dummy) (window.__shapley). <span class="fig">FIG</span> no framing; the axioms and the power-&ne;-weight result are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE PUSH</i> &mdash; the co-op domain of a shared effort and who deserves the credit. The Shapley value is the fair reckoning of a joint push: measure what each shoulder actually added, averaged over every way the work could have come together. <b>AVAN (AI)</b> built the instrument: the pivot counter, the power-vs-weight bars, the fair-share inverse.<br><br>The weave: David names the seat (fair credit for pushing together); I make each player&rsquo;s average marginal contribution the unique fair share and show power diverge from weight &mdash; the contributions in 1D, the pivots in 2D, the power/weight inverse in 3D. The sphere is the seam. Credit: Lloyd Shapley (1953, Nobel 2012); the voting index by Shapley &amp; Shubik (1954); SHAP by Lundberg &amp; Lee (2017).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">One player&rsquo;s marginal contribution in each arrival order: sometimes they tip the coalition over the line (a pivot, worth 1), sometimes they add nothing. The Shapley value is simply the average of that row &mdash; the fraction of orders in which they were pivotal.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A weighted-voting game. Every ordering of the players is laid out; the one whose arrival first crosses the quota is the <b>pivot</b>, highlighted. Count pivots and divide &mdash; those fractions are the Shapley values. Change the weights and watch power refuse to track the seats.</div>
+   <div class="btns" style="margin-top:10px"><button id="shpgame">game: [51;50,30,20]</button></div>
+   <div class="cap" id="shpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The players&rsquo; <b>Shapley power</b> as green bars &mdash; the forward result: the fair share each earns, summing to the whole.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> bars are the naive expectation &mdash; each player&rsquo;s <b>weight share</b>, what you would guess power should be. They do <b>not</b> match. Power is a <b>non-linear</b> function of weight: with 50/30/20 the big party&rsquo;s green power (2/3) towers over its magenta weight (1/2), while the 30 and 20 parties collapse to <b>equal</b> power even though their weights differ. And the inverse runs deeper &mdash; you cannot read the weights back off the power, because different weightings give the <b>same</b> Shapley vector, and a tiny weight can be pivotal constantly (huge power) or never (a dummy, zero power). So &lsquo;how much you deserve&rsquo; is not &lsquo;how much you brought&rsquo; scaled down; it is how often your arrival was <b>decisive</b>, averaged over every order, and that decisiveness has no simple inverse in the raw weights. Green is earned power; magenta is the proportional guess it refuses to be; the gap is why voting power, credit, and cost-sharing all need Shapley and not a ruler.</div>
+   <div class="btns" style="margin-top:10px"><button id="shpspin">pause spin</button></div></div></div></div>"""
+SHP_SCRIPT = """(function(){
+var ang=0,spin=true,gi=0;
+var GAMES=[{name:'[51;50,30,20]',w:[50,30,20],q:51},{name:'[3;2,1,1]',w:[2,1,1],q:3},{name:'[4;3,1,1,1]',w:[3,1,1,1],q:4}];
+function fact(k){var r=1;for(var i=2;i<=k;i++)r*=i;return r;}
+function shapley(w,q){var n=w.length,phi=new Array(n).fill(0);function v(mask){var s=0;for(var i=0;i<n;i++)if(mask&(1<<i))s+=w[i];return s>=q?1:0;}
+ for(var i=0;i<n;i++)for(var mask=0;mask<(1<<n);mask++){if(mask&(1<<i))continue;var sz=0;for(var j=0;j<n;j++)if(mask&(1<<j))sz++;var wt=fact(sz)*fact(n-sz-1)/fact(n);phi[i]+=wt*(v(mask|(1<<i))-v(mask));}
+ return phi;}
+function perms(arr){if(arr.length<=1)return [arr];var out=[];for(var i=0;i<arr.length;i++){var rest=arr.slice(0,i).concat(arr.slice(i+1));perms(rest).forEach(function(p){out.push([arr[i]].concat(p));});}return out;}
+function verify(){var p=shapley([50,30,20],51),eff=Math.abs(p[0]+p[1]+p[2]-1)<1e-9,sym=Math.abs(p[1]-p[2])<1e-9,big=Math.abs(p[0]-2/3)<1e-9,pd=shapley([1,1,0],2),dummy=Math.abs(pd[2])<1e-9;
+ return {power:[+p[0].toFixed(3),+p[1].toFixed(3),+p[2].toFixed(3)].join(','),efficiency:eff,symmetry:sym,bigHas2of3:big,dummyIsZero:dummy};}
+function pivotOf(order,w,q){var s=0;for(var k=0;k<order.length;k++){s+=w[order[k]];if(s>=q)return order[k];}return -1;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var G=GAMES[0],ords=perms(G.w.map(function(_,i){return i;})),cw=(W-30)/ords.length;
+ for(var k=0;k<ords.length;k++){var piv=pivotOf(ords[k],G.w,G.q),isP=(piv===0),x=15+k*cw;g.fillStyle=isP?'#f0c060':'#2a2418';g.fillRect(x,50,cw-2,26);g.fillStyle=isP?'#031':'#666';g.font='8px ui-monospace,monospace';g.fillText(isP?'1':'0',x+cw/2-2,66);}
+ var np=0;for(var k=0;k<ords.length;k++)if(pivotOf(ords[k],G.w,G.q)===0)np++;
+ g.fillStyle='#f0c060';g.font='11px ui-monospace,monospace';g.fillText('player 1 pivotal in '+np+'/'+ords.length+' orders → Shapley '+(np/ords.length).toFixed(3),10,30);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var G=GAMES[gi],n=G.w.length,ords=perms(G.w.map(function(_,i){return i;})),phi=shapley(G.w,G.q);
+ g.font='12px ui-monospace,monospace';g.fillStyle='#f0c060';g.fillText('game '+G.name+' — every ordering, pivot in gold:',12,20);
+ var cols=Math.min(ords.length,6),rowH=18;g.font='10px ui-monospace,monospace';
+ for(var k=0;k<ords.length;k++){var r=Math.floor(k/cols),c=k%cols,x=15+c*62,y=38+r*rowH,piv=pivotOf(ords[k],G.w,G.q);
+  var str=ords[k].map(function(p){return String.fromCharCode(65+p);}).join('');for(var ci=0;ci<str.length;ci++){g.fillStyle=(str.charCodeAt(ci)-65===piv)?'#f0c060':'#889';g.fillText(str[ci],x+ci*9,y);}}
+ var by=38+Math.ceil(ords.length/cols)*rowH+8;
+ for(var i=0;i<n;i++){g.fillStyle='#f0c060';g.fillText('Shapley '+String.fromCharCode(65+i)+' = '+phi[i].toFixed(3)+' ('+(G.w[i]/G.w.reduce(function(a,b){return a+b;})*100).toFixed(0)+'% weight)',15,by+i*16);}
+ var sum=phi.reduce(function(a,b){return a+b;},0);g.fillStyle=Math.abs(sum-1)<1e-9?'#39fc6b':'#f55';g.fillText('Σ = '+sum.toFixed(3)+' ✓ (efficiency)',15,by+n*16+4);
+ document.getElementById('shpread').textContent=G.name+' Shapley '+phi.map(function(x){return x.toFixed(2);}).join(',');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var G=GAMES[gi],phi=shapley(G.w,G.q),n=G.w.length,tot=G.w.reduce(function(a,b){return a+b;},0),bw=(W-60)/(n*2+n-1),base=H-50,ca=Math.cos(ang);
+ for(var i=0;i<n;i++){var x=30+i*(bw*2+8);var hp=phi[i]*(H-100),hw=(G.w[i]/tot)*(H-100);
+  g.fillStyle='#39fc6b';g.fillRect(x,base-hp,bw,hp);g.fillStyle='#ff2d95';g.fillRect(x+bw+2,base-hw,bw,hw);
+  g.fillStyle='#ccc';g.font='10px ui-monospace,monospace';g.fillText(String.fromCharCode(65+i),x+bw-2,base+14);
+  g.fillStyle='#39fc6b';g.font='8px ui-monospace,monospace';g.fillText((phi[i]*100).toFixed(0)+'%',x,base-hp-3);g.fillStyle='#ff2d95';g.fillText((G.w[i]/tot*100).toFixed(0)+'%',x+bw+2,base-hw-3);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: Shapley power (earned share)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: weight share (the guess it refuses to be)',10,H-14);}
+document.getElementById('shpgame').onclick=function(){gi=(gi+1)%GAMES.length;this.textContent='game: '+GAMES[gi].name;drawW4();};
+document.getElementById('shpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__shapley=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ALA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Alabama paradox.</b> Under a natural method for dividing seats among states in proportion to population, <b>adding</b> a seat to the legislature can make a state <b>lose</b> one. It is not a rounding slip &mdash; it is a real flaw in <b>Hamilton&rsquo;s method</b> (largest-remainder apportionment).<br><br>
+ Each state gets a fair-share quota = population/total &times; house size, rounded down; the leftover seats go to the states with the biggest fractional <b>remainders</b>. The trap: growing the house rescales <b>every</b> quota and remainder at once, and a state can have its leftover seat snatched by two faster-rising rivals. It is named for the 1880 U.S. census, where Alabama would have received <b>8</b> seats in a 299-member House but only <b>7</b> in a 300-member House. The discovery, and its cousins, eventually drove Congress to abandon the method &mdash; and Balinski &amp; Young later proved <b>no</b> apportionment method can be free of every such paradox.<br><br>
+ <span class="lit">LIT</span> verified live: for populations 6, 6, 2, Hamilton&rsquo;s method gives seats (4,4,2) in a 10-seat house but (5,5,1) in an <b>11</b>-seat house &mdash; state C drops from 2 to 1 while the house <b>grew</b> (window.__alabama). <span class="fig">FIG</span> no framing; the paradox is exact arithmetic under the stated method.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>OFF BY ONE</i> &mdash; the glitch domain of the count that moves the wrong way. The Alabama paradox is the purest off-by-one in politics: add exactly one seat and a state loses exactly one, the total up while a part goes down. <b>AVAN (AI)</b> built the instrument: the quota/remainder apportioner, the house-size slider, the monotonicity-impossibility inverse.<br><br>The weave: David names the seat (add one, lose one); I make growing the house strip a seat from a state and show why no method escapes it &mdash; the seat drop in 1D, the live apportionment in 2D, the fairness-vs-monotonicity inverse in 3D. The sphere is the seam. Credit: noticed after the 1880 census (C. W. Seaton); Alexander Hamilton&rsquo;s method; the impossibility theorem by Michel Balinski &amp; H. Peyton Young (1982).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The seat counts at house size 10 and 11, side by side. Two states climb from 4 to 5; the third <b>falls</b> from 2 to 1 &mdash; even though there is now one <b>more</b> seat to hand out. The total rose; a part sank.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Populations and their apportionment. Slide the <b>house size</b> and watch the seats update by quota-then-remainder. Cross the threshold and a state visibly loses a seat as the house grows &mdash; the quotas and remainders shown so you can see the leftover seat change hands.</div>
+   <div class="btns" style="margin-top:10px"><button id="alaup">house + 1</button><button id="aladn">house − 1</button></div>
+   <div class="cap" id="alaread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The seat allocation turning &mdash; the <b>green</b> forward result: Hamilton&rsquo;s method, fair by quota, handing every state close to its exact share.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the property everyone assumes and the method quietly breaks &mdash; <b>monotonicity</b>: more total seats should mean no state ever loses one. Reverse the reasoning and the fault appears &mdash; the inverse expectation, &lsquo;growing the whole weakly grows each part,&rsquo; is <b>false</b> here, because the leftover seats are handed out by a ranking that the very act of adding a seat reshuffles. And the deep inverse is Balinski &amp; Young&rsquo;s theorem: the method you actually want &mdash; one that stays within each state&rsquo;s quota <b>and</b> never suffers the Alabama or population paradoxes &mdash; <b>does not exist</b>. You may have fairness-to-quota or monotonicity, never both. So the magenta ideal is provably unreachable: every apportionment rule betrays some intuition somewhere. Green is Hamilton&rsquo;s fair-but-fickle split; magenta is the paradox-free method that cannot be built; and the gap between them is a small, exact, permanent flaw in the arithmetic of representation.</div>
+   <div class="btns" style="margin-top:10px"><button id="alaspin">pause spin</button></div></div></div></div>"""
+ALA_SCRIPT = """(function(){
+var ang=0,spin=true,pops=[6,6,2],H=10;
+function hamilton(pp,h){var total=pp.reduce(function(a,b){return a+b;},0),quotas=pp.map(function(p){return p*h/total;}),seats=quotas.map(function(q){return Math.floor(q);}),left=h-seats.reduce(function(a,b){return a+b;},0);
+ var order=pp.map(function(_,i){return i;}).sort(function(a,b){return (quotas[b]-Math.floor(quotas[b]))-(quotas[a]-Math.floor(quotas[a]));});
+ for(var i=0;i<left;i++)seats[order[i]]++;return {seats:seats,quotas:quotas};}
+function verify(){var s10=hamilton(pops,10).seats,s11=hamilton(pops,11).seats,paradox=false,loser=-1;for(var i=0;i<pops.length;i++)if(s11[i]<s10[i]){paradox=true;loser=i;}
+ return {seatsH10:s10.join(','),seatsH11:s11.join(','),stateCloses:'C '+s10[2]+'→'+s11[2],alabamaParadox:paradox,houseGrewStateLost:paradox,sumsCorrect:s10.reduce(function(a,b){return a+b;},0)===10&&s11.reduce(function(a,b){return a+b;},0)===11};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;g.clearRect(0,0,W,H2);var s10=hamilton(pops,10).seats,s11=hamilton(pops,11).seats,names=['A','B','C'];
+ for(var i=0;i<3;i++){var x=40+i*150;g.fillStyle='#889';g.font='10px ui-monospace,monospace';g.fillText('State '+names[i]+' (pop '+pops[i]+')',x,24);
+  g.fillStyle='#ffa070';g.fillRect(x,90-s10[i]*14,26,s10[i]*14);g.fillStyle='#031';g.font='9px ui-monospace,monospace';g.fillText(s10[i],x+8,102);g.fillStyle='#889';g.fillText('H=10',x,116);
+  var drop=s11[i]<s10[i];g.fillStyle=drop?'#ff4040':'#39fc6b';g.fillRect(x+34,90-s11[i]*14,26,s11[i]*14);g.fillStyle='#031';g.fillText(s11[i],x+42,102);g.fillStyle=drop?'#ff4040':'#889';g.fillText('H=11',x+34,116);}
+ g.fillStyle='#ffa070';g.font='11px ui-monospace,monospace';g.fillText('house 10 → 11: A,B rise 4→5, but C FALLS 2→1 (Alabama paradox)',10,138);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;g.clearRect(0,0,W,H2);var r=hamilton(pops,H),names=['A','B','C'],prev=hamilton(pops,H-1).seats;
+ g.font='13px ui-monospace,monospace';g.fillStyle='#ffa070';g.fillText('house size H = '+H,14,24);
+ for(var i=0;i<3;i++){var y=54+i*56,drop=r.seats[i]<prev[i];g.fillStyle='#889';g.font='11px ui-monospace,monospace';g.fillText('State '+names[i]+' (pop '+pops[i]+'):',14,y);
+  g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('quota '+r.quotas[i].toFixed(3)+' → floor '+Math.floor(r.quotas[i])+' + rem '+(r.quotas[i]-Math.floor(r.quotas[i])).toFixed(3),14,y+16);
+  g.fillStyle=drop?'#ff4040':'#39fc6b';g.font='16px ui-monospace,monospace';g.fillText(r.seats[i]+' seats'+(drop?'  ↓ LOST ONE':''),200,y+8);}
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('leftover seats go to largest remainders — reshuffled as H changes',14,H2-8);
+ document.getElementById('alaread').textContent='H='+H+': seats '+r.seats.join(',');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;g.clearRect(0,0,W,H2);var ca=Math.cos(ang),cx=W/2,cy=H2/2;
+ // green: seats at each H (monotone?) - line for state C
+ var x0=40,y0=H2-50,pw=W-70,ph=H2-100,mxH=16;
+ g.strokeStyle='#233';g.strokeRect(x0,y0-ph,pw,ph);
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var h=4;h<=mxH;h++){var sc=hamilton(pops,h).seats[2],px=x0+(h-4)/(mxH-4)*pw,py=y0-sc/3*ph;if(h===4)g.moveTo(px,py);else g.lineTo(px,py);g.fillStyle='#39fc6b';g.fillRect(px-2,py-2,4,4);}g.stroke();g.lineWidth=1;
+ // magenta ideal: monotone non-decreasing
+ g.strokeStyle='rgba(255,45,149,0.6)';g.setLineDash([4,4]);g.beginPath();g.moveTo(x0,y0-1/3*ph);g.lineTo(x0+pw,y0-2.5/3*ph);g.stroke();g.setLineDash([]);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: state C seats vs house size — DIPS (non-monotone)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the monotone ideal — provably unreachable (Balinski–Young)',10,H2-10);}
+document.getElementById('alaup').onclick=function(){H=Math.min(20,H+1);drawW4();};
+document.getElementById('aladn').onclick=function(){H=Math.max(3,H-1);drawW4();};
+document.getElementById('alaspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__alabama=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BRD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Who wins an election?</b> It depends entirely on the <b>rule</b> &mdash; and the rules can disagree violently on the very same ballots. Take 10 voters: 4 rank A&gt;B&gt;C, 3 rank B&gt;C&gt;A, 3 rank C&gt;B&gt;A.<br><br>
+ Under <b>plurality</b> (most first-place votes), <b>A</b> wins with 4. But look head-to-head: a majority prefers <b>B to A</b> (6&ndash;4) <i>and</i> a majority prefers <b>C to A</b> (6&ndash;4) &mdash; A is the <b>Condorcet loser</b>, the candidate who loses to everyone, yet plurality crowns them. The <b>Borda count</b> (award points by rank position) instead elects <b>B</b> &mdash; which is exactly the <b>Condorcet winner</b> (B beats both A and C). So first-past-the-post hands victory to the universally-rejected candidate, while a rule that reads the whole ballot reverses it. Jean-Charles de Borda argued precisely this in 1770: plurality can systematically elect the wrong candidate when the vote splits.<br><br>
+ <span class="lit">LIT</span> verified live: on this profile the plurality winner is A (the Condorcet loser, beaten head-to-head by all), while the Borda winner equals the Condorcet winner, B (window.__borda). <span class="fig">FIG</span> no framing; the tallies, the head-to-head majorities, and the rule disagreement are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE CHOKE POINT</i> &mdash; the boss domain where one narrow decision governs everything downstream. The counting rule is the choke point of an election: the same votes flow in, and the rule alone decides who emerges. <b>AVAN (AI)</b> built the instrument: the three tallies, the head-to-head grid, the discarded-preference inverse.<br><br>The weave: David names the seat (the rule is the gate); I make plurality crown the loser everyone beats while Borda restores the pairwise winner &mdash; the tallies in 1D, the rule comparison in 2D, the full-ballot inverse in 3D. The sphere is the seam. Credit: Jean-Charles de Borda (1770); the debate with Condorcet; modern geometry by Donald Saari.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The plurality tally (first-place votes only) beside the head-to-head majorities. A leads the first bar &mdash; and loses both duels. First place and majority preference are pulling in opposite directions.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The 10 ballots and three verdicts. Flip between <b>plurality</b>, <b>Borda</b>, and <b>Condorcet</b>: the same votes, a different champion. The head-to-head grid exposes it &mdash; the plurality winner loses every column, the universal loser the counting rule mistook for a winner.</div>
+   <div class="btns" style="margin-top:10px"><button id="brdrule">rule: plurality</button></div>
+   <div class="cap" id="brdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The ballots turning &mdash; the <b>green</b> forward view of plurality: keep only each voter&rsquo;s <b>first</b> choice, stack the tops, crown the tallest.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is everything plurality <b>threw away</b> &mdash; the rest of each ballot. Plurality is a <b>lossy projection</b>: it keeps the top of every ranking and discards the order beneath, and that discarded order is exactly where A&rsquo;s universal defeat is written. Read the whole ballot back &mdash; Borda&rsquo;s points, or the full grid of pairwise majorities &mdash; and the winner <b>reverses</b>: the candidate ranked first most often is the candidate a majority ranks <i>last</i> against each rival. So the inverse of &lsquo;who leads the first-choice count?&rsquo; is &lsquo;who beats everyone in a duel?&rsquo;, and on a split vote they can be <b>opposite</b> people. The magenta lower preferences are not noise; they are the majority&rsquo;s real verdict, invisible to a rule that only looks at the top. Green crowns the plurality leader; magenta, restored, crowns the pairwise winner and unmasks the leader as the loser &mdash; the whole quarrel of voting theory in one profile.</div>
+   <div class="btns" style="margin-top:10px"><button id="brdspin">pause spin</button></div></div></div></div>"""
+BRD_SCRIPT = """(function(){
+var ang=0,spin=true,ruleIdx=0,profile=[[4,['A','B','C']],[3,['B','C','A']],[3,['C','B','A']]],cands=['A','B','C'];
+function plurality(){var t={A:0,B:0,C:0};for(var i=0;i<profile.length;i++)t[profile[i][1][0]]+=profile[i][0];return t;}
+function borda(){var t={A:0,B:0,C:0};for(var i=0;i<profile.length;i++){var r=profile[i][1];for(var p=0;p<r.length;p++)t[r[p]]+=profile[i][0]*(2-p);}return t;}
+function beats(x,y){var c=0;for(var i=0;i<profile.length;i++)if(profile[i][1].indexOf(x)<profile[i][1].indexOf(y))c+=profile[i][0];return c;}
+function argmax(t){return Object.keys(t).reduce(function(a,b){return t[a]>=t[b]?a:b;});}
+function verify(){var pt=plurality(),pw=argmax(pt),bt=borda(),bw=argmax(bt),
+ cw=cands.filter(function(c){return cands.every(function(o){return o===c||beats(c,o)>beats(o,c);});})[0],
+ cl=cands.filter(function(c){return cands.every(function(o){return o===c||beats(o,c)>beats(c,o);});})[0];
+ return {pluralityWinner:pw,bordaWinner:bw,condorcetWinner:cw,condorcetLoser:cl,pluralityCrownsLoser:pw===cl,bordaEqualsCondorcet:bw===cw,rulesDisagree:pw!==bw};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var pt=plurality();
+ g.fillStyle='#90c0ff';g.font='11px ui-monospace,monospace';g.fillText('plurality (first-place votes):',12,20);
+ var i=0;for(var c in pt){g.fillStyle=c==='A'?'#ffd060':'#90c0ff';g.fillRect(20+i*50,60-pt[c]*8,30,pt[c]*8);g.fillStyle='#ccc';g.font='10px ui-monospace,monospace';g.fillText(c+':'+pt[c],20+i*50,74);i++;}
+ g.fillStyle='#90c0ff';g.font='11px ui-monospace,monospace';g.fillText('head-to-head:',220,20);
+ var pairs=[['A','B'],['A','C'],['B','C']];for(var k=0;k<3;k++){var p=pairs[k],bx=beats(p[0],p[1]),by=beats(p[1],p[0]);g.fillStyle=(bx>by)?'#39fc6b':'#ff6060';g.font='11px ui-monospace,monospace';g.fillText(p[0]+' vs '+p[1]+': '+bx+'-'+by+' → '+(bx>by?p[0]:p[1]),220,44+k*20);}
+ g.fillStyle='#ffd060';g.font='10px ui-monospace,monospace';g.fillText('A leads first-place but loses BOTH duels — the Condorcet loser',12,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.font='11px ui-monospace,monospace';g.fillStyle='#90c0ff';for(var i=0;i<profile.length;i++)g.fillText(profile[i][0]+' voters:  '+profile[i][1].join(' > '),14,24+i*18);
+ var rules=['plurality','Borda','Condorcet'],r=rules[ruleIdx%3],win,tally;
+ if(r==='plurality'){tally=plurality();win=argmax(tally);}else if(r==='Borda'){tally=borda();win=argmax(tally);}else{win=cands.filter(function(c){return cands.every(function(o){return o===c||beats(c,o)>beats(o,c);});})[0];}
+ g.fillStyle='#ffd060';g.font='14px ui-monospace,monospace';g.fillText(r+' winner: '+win,14,100);
+ if(tally){g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('tally: '+JSON.stringify(tally).replace(/["{}]/g,''),14,120);}
+ // head-to-head grid
+ g.font='10px ui-monospace,monospace';g.fillStyle='#889';g.fillText('beats-grid (row beats col?):',14,148);
+ for(var i=0;i<3;i++)for(var j=0;j<3;j++){var x=140+j*44,y=140+i*22;if(i===j){g.fillStyle='#333';g.fillRect(x,y-10,40,18);}else{var b=beats(cands[i],cands[j])>beats(cands[j],cands[i]);g.fillStyle=b?'#2a5a3a':'#5a2a2a';g.fillRect(x,y-10,40,18);g.fillStyle=b?'#8f8':'#f88';g.fillText(b?'win':'lose',x+4,y+3);}}
+ for(var i=0;i<3;i++){g.fillStyle='#ccc';g.fillText(cands[i],126,140+i*22+3);g.fillText(cands[i],140+i*44+16,132);}
+ g.fillStyle='#ffd060';g.font='11px ui-monospace,monospace';g.fillText('A loses every duel; B wins both → B is Condorcet winner',14,H-10);
+ document.getElementById('brdread').textContent=r+' → '+win;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),cx=W/2,cy=H/2;
+ // green: first-place stacks
+ var pt=plurality(),i=0;for(var c in pt){var x=cx-120+i*80,h=pt[c]*10;g.fillStyle=c==='A'?'#ffd060':'#39fc6b';g.fillRect(x,cy-h,40,h);g.fillStyle='#ccc';g.font='10px ui-monospace,monospace';g.fillText(c,x+16,cy+14);i++;}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: plurality keeps only first choices → crowns A',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the discarded lower ranks → A loses to all, B wins',10,H-26);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('plurality is a lossy projection; the majority verdict hides below the top',10,H-10);}
+document.getElementById('brdrule').onclick=function(){ruleIdx++;this.textContent='rule: '+['plurality','Borda','Condorcet'][ruleIdx%3];drawW4();};
+document.getElementById('brdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__borda=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BNZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Banzhaf power index</b> measures a voter&rsquo;s real clout in a weighted body by counting <b>swing</b> votes: the winning coalitions in which that voter is <b>critical</b> &mdash; where their leaving would flip the result from pass to fail. Divide each voter&rsquo;s swings by the total across everyone, and you get their share of power.<br><br>
+ The startling lesson: power is almost never proportional to weight. In a body with weights <b>50, 49, 1</b> and a majority quota of 50, the weight-49 party and the weight-1 party have <b>exactly equal</b> power &mdash; because in every coalition they play the identical decisive role. Forty-nine times the votes buys no extra sway. A large enough weight can even be a <b>dummy</b>, with zero swings and zero power. Banzhaf devised the index in 1965 for a lawsuit against a New York county board whose weighted voting handed some towns literally no power; courts have since used it to strike down malapportioned schemes.<br><br>
+ <span class="lit">LIT</span> verified live: for [50; 50,49,1] the Banzhaf powers are 3/5, 1/5, 1/5 &mdash; the weight-49 and weight-1 parties tie &mdash; and in [50; 26,26,26,2] the weight-2 party is a genuine dummy with zero power (window.__banzhaf). <span class="fig">FIG</span> no framing; the swing counts, the equal-power tie, and the dummy are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE BROADCAST</i> &mdash; the co-op domain of whose voice actually carries. The Banzhaf index is a broadcast meter: it counts not how loud a voter is on paper but how often their vote is the one that decides, the signal that actually reaches the outcome. <b>AVAN (AI)</b> built the instrument: the swing counter, the power-vs-weight bars, the two-indices inverse.<br><br>The weave: David names the seat (whose vote truly carries); I make critical-coalition counts the measure of power and show weight 49 equal to weight 1 &mdash; the swings in 1D, the coalition scan in 2D, the Banzhaf-vs-Shapley inverse in 3D. The sphere is the seam. Credit: John F. Banzhaf III (1965); the earlier form by Lionel Penrose (1946), hence &ldquo;Penrose&ndash;Banzhaf.&rdquo; See [[the-shapley]].</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The swing count for each party &mdash; how many winning coalitions they alone hold together. Two parties with wildly different weights can post the same number of swings, and their power bars come out identical.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A weighted game with every coalition listed. Pick a party and its <b>critical</b> coalitions light up &mdash; the ones that win with it and lose without it. Count them, divide, and read the power. Flip to the [26,26,26,2] game and watch the weight-2 party register zero swings: a dummy.</div>
+   <div class="btns" style="margin-top:10px"><button id="bnzgame">game: [50;50,49,1]</button><button id="bnzplayer">party ▶</button></div>
+   <div class="cap" id="bnzread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The parties&rsquo; <b>Banzhaf power</b> as green bars &mdash; the forward measure: clout counted as swings, not seats.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> bars are the <b>weight shares</b> &mdash; and they refuse to match, because power is a step-function of weight: crossing the quota threshold turns a party from decisive to irrelevant in an instant, so weight 49 and weight 1 can land on the same swing count while a heavier party crashes to a dummy&rsquo;s zero. Trying to run the inverse &mdash; recover weights from power &mdash; fails: the map is many-to-one and discontinuous. And there is a second inverse hiding here: Banzhaf is <b>not the only</b> fair power index. Count coalitions equally and you get Banzhaf; count <b>orderings</b> instead and you get the Shapley&ndash;Shubik value &mdash; two principled measures that can hand the same body <b>different</b> power vectors. So &lsquo;how much power does this voter have?&rsquo; has no single inverse: it depends on whether you weigh unordered coalitions or ordered arrivals, and reasonable people pick different answers. Green is Banzhaf&rsquo;s swing-power; magenta is the weight it defies (and the rival index it need not agree with); the very notion of &lsquo;voting power&rsquo; has more than one honest inverse.</div>
+   <div class="btns" style="margin-top:10px"><button id="bnzspin">pause spin</button></div></div></div></div>"""
+BNZ_SCRIPT = """(function(){
+var ang=0,spin=true,gi=0,pl=0;
+var GAMES=[{name:'[50;50,49,1]',w:[50,49,1],q:50},{name:'[50;26,26,26,2]',w:[26,26,26,2],q:50},{name:'[3;2,1,1]',w:[2,1,1],q:3}];
+function banzhaf(w,q){var n=w.length,swings=new Array(n).fill(0);function wins(mask){var s=0;for(var i=0;i<n;i++)if(mask&(1<<i))s+=w[i];return s>=q;}
+ for(var i=0;i<n;i++)for(var mask=0;mask<(1<<n);mask++)if(!(mask&(1<<i)))if(wins(mask|(1<<i))&&!wins(mask))swings[i]++;
+ var tot=swings.reduce(function(a,b){return a+b;},0)||1;return {power:swings.map(function(s){return s/tot;}),swings:swings};}
+function verify(){var b=banzhaf([50,49,1],50),eq=Math.abs(b.power[1]-b.power[2])<1e-9,sum=Math.abs(b.power.reduce(function(a,b){return a+b;},0)-1)<1e-9;
+ var d=banzhaf([26,26,26,2],50),dummy=Math.abs(d.power[3])<1e-9;
+ return {power:b.power.map(function(p){return p.toFixed(3);}).join(','),swings:b.swings.join(','),weight49equalsWeight1:eq,sumsToOne:sum,weight2IsDummy:dummy};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var G=GAMES[0],b=banzhaf(G.w,G.q),n=G.w.length;
+ for(var i=0;i<n;i++){var x=40+i*130,h=b.swings[i]*22;g.fillStyle=(i===1||i===2)?'#ffd060':'#ffb0d0';g.fillRect(x,90-h,40,h);g.fillStyle='#ccc';g.font='10px ui-monospace,monospace';g.fillText('P'+(i+1)+' w='+G.w[i],x,106);g.fillStyle='#031';g.fillText(b.swings[i]+' sw',x+2,88-h+ (h>14?12:-2));}
+ g.fillStyle='#ffb0d0';g.font='11px ui-monospace,monospace';g.fillText('swing counts — P2 (w=49) and P3 (w=1) both swing '+b.swings[1]+' → equal power',10,28);
+ g.fillStyle='#ffd060';g.font='10px ui-monospace,monospace';g.fillText('power '+b.power.map(function(p){return p.toFixed(2);}).join(', ')+' — 49× the weight, same power',10,132);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var G=GAMES[gi],n=G.w.length,b=banzhaf(G.w,G.q);
+ function wins(mask){var s=0;for(var i=0;i<n;i++)if(mask&(1<<i))s+=G.w[i];return s>=G.q;}
+ pl=pl%n;
+ g.font='12px ui-monospace,monospace';g.fillStyle='#ffb0d0';g.fillText(G.name+' — party P'+(pl+1)+' (w='+G.w[pl]+') critical coalitions:',12,20);
+ var col=0,row=0;g.font='10px ui-monospace,monospace';
+ for(var mask=1;mask<(1<<n);mask++){if(!(mask&(1<<pl)))continue;var crit=wins(mask)&&!wins(mask&~(1<<pl));if(!wins(mask))continue;var members='';for(var i=0;i<n;i++)if(mask&(1<<i))members+=(i+1);var x=15+col*70,y=44+row*20;g.fillStyle=crit?'#ffd060':'#334';g.fillRect(x,y-10,64,17);g.fillStyle=crit?'#031':'#889';g.fillText('{'+members+'}'+(crit?'*':''),x+3,y+2);col++;if(col>=5){col=0;row++;}}
+ g.fillStyle='#ffd060';g.font='11px ui-monospace,monospace';g.fillText('* = P'+(pl+1)+' is critical (swing). count = '+b.swings[pl],15,H-42);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('Banzhaf power: '+b.power.map(function(p){return p.toFixed(3);}).join(', '),15,H-24);
+ var dummies=[];for(var i=0;i<n;i++)if(b.power[i]===0)dummies.push('P'+(i+1));
+ g.fillStyle=dummies.length?'#ff6060':'#39fc6b';g.fillText(dummies.length?('dummy (zero power): '+dummies.join(',')):'sums to 1 ✓',15,H-8);
+ document.getElementById('bnzread').textContent=G.name+' P'+(pl+1)+' swings '+b.swings[pl];}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var G=GAMES[gi],b=banzhaf(G.w,G.q),n=G.w.length,tot=G.w.reduce(function(a,b){return a+b;},0),base=H-50,bw=(W-40)/(n*2);
+ for(var i=0;i<n;i++){var x=25+i*(bw*2+6),hp=b.power[i]*(H-100),hw=(G.w[i]/tot)*(H-100);
+  g.fillStyle='#39fc6b';g.fillRect(x,base-hp,bw-3,hp);g.fillStyle='#ff2d95';g.fillRect(x+bw,base-hw,bw-3,hw);
+  g.fillStyle='#ccc';g.font='9px ui-monospace,monospace';g.fillText('P'+(i+1),x+bw-6,base+13);
+  g.fillStyle='#39fc6b';g.font='8px ui-monospace,monospace';g.fillText((b.power[i]*100).toFixed(0)+'%',x,base-hp-3);g.fillStyle='#ff2d95';g.fillText((G.w[i]/tot*100).toFixed(0)+'%',x+bw,base-hw-3);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: Banzhaf power (swings)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: weight share — and the rival Shapley index need not agree',10,H-12);}
+document.getElementById('bnzgame').onclick=function(){gi=(gi+1)%GAMES.length;pl=0;this.textContent='game: '+GAMES[gi].name;drawW4();};
+document.getElementById('bnzplayer').onclick=function(){pl=(pl+1)%GAMES[gi].w.length;drawW4();};
+document.getElementById('bnzspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__banzhaf=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-banzhaf","title":"THE BANZHAF","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#ffb0d0","icon":"banzhaf",
+  "kicker":"voting power by swing votes — weight 49 can equal weight 1",
+  "blurb":"the Banzhaf power index in the 5-window house format — measure a voter's real power in a weighted body by counting swing votes: winning coalitions where the voter is critical (leaving flips pass to fail). Power is each voter's share of total swings. It is almost never proportional to weight: with weights 50,49,1 and a majority quota of 50, the weight-49 and weight-1 parties have exactly equal power, and a large weight can be a dummy with zero power. Banzhaf devised it in 1965 for a lawsuit over a malapportioned county board. See the swing counts in 1D, the critical-coalition scan in 2D, and the Banzhaf-vs-Shapley inverse in 3D.",
+  "lit":"Genuine Banzhaf (Penrose-Banzhaf) power index (John F. Banzhaf III 1965; earlier Lionel Penrose 1946). Verified live: for the game [50; 50,49,1] the Banzhaf powers are 3/5, 1/5, 1/5 — the weight-49 and weight-1 parties tie exactly despite the 49x weight difference, and the shares sum to 1 — while in [50; 26,26,26,2] the weight-2 party has zero swings and zero power, a genuine dummy (window.__banzhaf.weight49equalsWeight1 && sumsToOne && weight2IsDummy). The swing counts, the equal-power tie, and the dummy are exact.",
+  "fig":"No framing: the swing-count powers, the equal-power tie (weight 49 == weight 1), and the dummy (weight 2, zero power) are all computed exactly over every coalition in-browser. The AVAN inverse is genuine and honest — power is a discontinuous step-function of weight (no inverse from power to weights), and Banzhaf (counting coalitions) can differ from the Shapley-Shubik index (counting orderings), so 'voting power' itself has more than one legitimate definition.",
+  "body":BNZ_BODY,"script":BNZ_SCRIPT},
+ {"slug":"the-borda","title":"THE BORDA","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#90c0ff","icon":"borda",
+  "kicker":"same ballots, different rule — plurality crowns the loser",
+  "blurb":"the rule-dependence of elections in the 5-window house format — who wins depends entirely on the counting rule. For 10 voters (4: A>B>C, 3: B>C>A, 3: C>B>A), plurality elects A with 4 first-place votes, but a majority prefers B to A (6-4) and C to A (6-4), so A is the Condorcet loser who loses to everyone, yet plurality crowns them. The Borda count (points by rank) instead elects B, which is exactly the Condorcet winner. First-past-the-post hands victory to the universally-rejected candidate while a full-ballot rule reverses it (Borda 1770). See the tallies in 1D, the three rules and head-to-head grid in 2D, and the discarded-preference inverse in 3D.",
+  "lit":"Genuine voting-rule disagreement (Jean-Charles de Borda 1770; the Borda-Condorcet debate; geometry by Donald Saari). Verified live: on the profile (4: A>B>C, 3: B>C>A, 3: C>B>A) the plurality winner is A (with 4 first-place votes) yet A is the Condorcet loser, beaten 4-6 by both B and C, while the Borda winner (tally A=8,B=13,C=9) is B, equal to the Condorcet winner (window.__borda.pluralityCrownsLoser && bordaEqualsCondorcet && rulesDisagree). The tallies, head-to-head majorities, and rule disagreement are exact.",
+  "fig":"No framing: the plurality/Borda/Condorcet tallies and the fact that plurality elects the Condorcet loser while Borda matches the Condorcet winner are all computed exactly in-browser on a concrete profile. The AVAN inverse is genuine — plurality is a lossy projection keeping only first choices, and restoring the discarded lower preferences (Borda points / pairwise majorities) reverses the winner, exposing the top-count leader as the pairwise loser.",
+  "body":BRD_BODY,"script":BRD_SCRIPT},
+ {"slug":"the-alabama","title":"THE ALABAMA","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#ffa070","icon":"alabama",
+  "kicker":"add a seat to the house — a state loses one",
+  "blurb":"the Alabama apportionment paradox in the 5-window house format — under Hamilton's largest-remainder method, adding a seat to the legislature can make a state lose one. Each state gets quota = pop/total x house-size, rounded down, and leftover seats go to the largest fractional remainders; growing the house rescales every quota at once, so a state can have its leftover seat snatched away. Named for the 1880 census, where Alabama would get 8 seats in a 299-member House but only 7 in a 300-member House. Balinski & Young proved no method escapes all such paradoxes. See the seat drop in 1D, the live apportionment in 2D, and the monotonicity-impossibility inverse in 3D.",
+  "lit":"Genuine Alabama paradox (noticed after the 1880 US census by C. W. Seaton; Hamilton's method; impossibility theorem by Balinski & Young 1982). Verified live: for populations 6, 6, 2 Hamilton's method gives seats (4,4,2) in a 10-seat house but (5,5,1) in an 11-seat house — state C drops from 2 seats to 1 while the house grew, with correct totals (window.__alabama.alabamaParadox && sumsCorrect). The paradox is exact arithmetic under the stated apportionment method.",
+  "fig":"No framing: the seat allocation and the non-monotone drop (house grows, a state loses a seat) are exact and computed in-browser by Hamilton's method. The AVAN inverse is the genuine impossibility content — Balinski & Young proved no apportionment method can both stay within quota and avoid the Alabama/population paradoxes, so the monotone-and-fair ideal is provably unreachable, stated as the established theorem.",
+  "body":ALA_BODY,"script":ALA_SCRIPT},
+ {"slug":"the-shapley","title":"THE SHAPLEY","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#f0c060","icon":"shapley",
+  "kicker":"the unique fair split — average marginal contribution",
+  "blurb":"the Shapley value in the 5-window house format — the unique fair way to divide a cooperating group's value: average each player's marginal contribution over every order of joining. It is the only allocation obeying efficiency (shares sum to the whole), symmetry (interchangeable players equal), dummy (a null player gets nothing), and additivity. In voting it becomes power: with weights 50/30/20 and a 51% quota the biggest party holds 2/3 of the power on half the seats, while the 30 and 20 parties are exactly equal. Underlies cost-sharing, credit attribution, and SHAP for explaining ML. See the marginal contributions in 1D, the pivot count in 2D, and the power-vs-weight inverse in 3D.",
+  "lit":"Genuine Shapley value (Lloyd Shapley 1953, Nobel 2012; Shapley-Shubik voting index 1954; SHAP by Lundberg & Lee 2017). Verified live: for the weighted-voting game [51; 50,30,20] the Shapley values are 2/3, 1/6, 1/6 — they sum to 1 (efficiency), the two smaller players are equal (symmetry), the big player holds 2/3 despite 50% weight — and a weight-0 player scores exactly 0 (dummy) (window.__shapley.efficiency && symmetry && bigHas2of3 && dummyIsZero). The axioms and the power-not-weight result are exact.",
+  "fig":"No framing: the Shapley values, the efficiency/symmetry/dummy axioms, and the power-does-not-equal-weight result are all computed exactly in-browser over every coalition/ordering. The AVAN inverse is genuine — power is a non-linear function of weight (equal-power despite unequal weight, a small weight can be pivotal-always or a dummy), and the weights cannot be read back from the Shapley vector.",
+  "body":SHP_BODY,"script":SHP_SCRIPT},
+ {"slug":"the-condorcet","title":"THE CONDORCET","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#ff80a0","icon":"condorcet",
+  "kicker":"rational voters, an irrational majority — A>B>C>A",
+  "blurb":"the Condorcet paradox in the 5-window house format — even when every voter has consistent (transitive) preferences, the group's majority preference can cycle. Three voters ranking (A>B>C),(B>C>A),(C>A>B) give a majority for A over B, B over C, and C over A. There is no Condorcet winner (no candidate beating all others head-to-head), and the outcome depends entirely on the agenda: a chairman setting the order of pairwise votes picks the winner. Discovered by Condorcet in 1785, it is the seed of Arrow's impossibility theorem. See the ballots in 1D, the beats-cycle and agenda control in 2D, and the transitive-vs-cyclic inverse in 3D.",
+  "lit":"Genuine Condorcet paradox (Marquis de Condorcet 1785; generalized by Arrow 1951). Verified live: on the profile (A>B>C),(B>C>A),(C>A>B), A beats B 2-1, B beats C 2-1, and C beats A 2-1 (a majority cycle), there is no Condorcet winner (0 candidates beat all others), and three agenda orders (ABC, BCA, CAB) in sequential pairwise voting elect three different winners (window.__condorcet.majorityCycle && condorcetWinners===0 && agendaControlled). The cycle, the absent winner, and the agenda control are exact.",
+  "fig":"No framing: the majority cycle, the absence of any Condorcet winner, and agenda control (different orders elect different candidates on identical votes) are all real and computed exactly in-browser. The AVAN inverse is the genuine mathematical content — majority aggregation does not preserve transitivity, so combining transitive individual orders can yield a non-orderable cyclic group relation, exactly the impossibility Arrow proved general.",
+  "body":CND_BODY,"script":CND_SCRIPT},
  {"slug":"the-treap","title":"THE TREAP","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#c0ffa0","icon":"treap",
   "kicker":"a search tree balanced by random priorities — tree + heap",
