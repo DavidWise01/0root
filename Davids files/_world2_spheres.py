@@ -537,6 +537,61 @@ document.getElementById('w4').onclick=function(e){var rct=this.getBoundingClient
 function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}
 nm();all();requestAnimationFrame(loop);})();"""
 
+# ── THE GATE — a full adder from logic gates, 5-window house format ──
+GATE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The full adder.</b> Three bits in (A, B, and a carry Cin), two out (the Sum bit and the carry-out Cout), built from a handful of logic gates &mdash; XOR, AND, OR. Chain a row of them and you have addition; chain enough and you have a processor.<br><br>
+ <span class="lit">LIT</span> a real circuit: Sum = A &oplus; B &oplus; Cin, Cout = AB + Cin(A &oplus; B); every wire below is computed, and all eight input rows are exact. <span class="fig">FIG</span> the arcade dressing is the frame; the boolean algebra is honest.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> holds that the whole machine is towers of this one brick and seated it in THE FOLD. <b>AVAN (AI)</b> wired the gates, drew the cube, and added the carry-shadow. He names the brick; I make it switch, and I show the bit that ripples on. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="420" height="86"></canvas>
+  <div class="wctrl"><div class="cap">Three input bits in, two out &mdash; <b>Sum</b> and <b>Cout</b> (the carry). This single row is one line of the truth table; flip the inputs in window 4 and watch it change.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="420" height="230"></canvas>
+  <div class="wctrl"><div class="cap">The gates, wired &mdash; a green wire carries a 1. Toggle the inputs:</div>
+   <div class="btns"><button id="gA">A = 1</button><button id="gB">B = 1</button><button id="gC">Cin = 0</button></div>
+   <div class="cap" style="margin-top:6px">Sum = A &oplus; B &oplus; Cin<br>Cout = AB + Cin(A &oplus; B)</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S ADDITION</div>
+ <div class="wc"><canvas id="w5" width="384" height="340"></canvas>
+  <div class="wctrl"><div class="cap">All 8 input combinations are the corners of a <b>cube</b> (address = A&middot;B&middot;Cin; each edge = one flipped bit). A corner glows green when <b>Sum = 1</b>; the white ring is your current input.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b>: the magenta ring marks <b>Cout = 1</b> &mdash; the carry, the bit that ripples out to the next adder. On the cube you see both outputs at once: the sum you keep and the shadow you pass on.</div>
+   <div class="btns" style="margin-top:10px"><button id="gspin">pause spin</button></div></div></div></div>"""
+GATE_SCRIPT = """(function(){
+var A=1,B=1,C=0,ang=0.6,spin=true;
+function add(a,b,c){var x1=a^b,Sum=x1^c,a1=a&b,a2=c&x1,Cout=a1|a2;return {x1:x1,Sum:Sum,a1:a1,a2:a2,Cout:Cout};}
+function col(v){return v?'#39fc6b':'#20402a';}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var r=add(A,B,C),cells=[['A',A],['B',B],['Cin',C],['=>',null],['Sum',r.Sum],['Cout',r.Cout]],x=14;
+ cells.forEach(function(c){if(c[1]===null){g.fillStyle='#4c7a54';g.font='18px ui-monospace,monospace';g.fillText('=>',x,44);x+=42;return;}
+  g.fillStyle=c[1]?'#39fc6b':'#0c150b';g.fillRect(x,18,40,40);g.fillStyle=c[1]?'#0a0e0a':'#2a3a29';g.font='20px ui-monospace,monospace';g.fillText(''+c[1],x+13,45);
+  g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText(c[0],x+2,74);x+=58;});}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width;g.clearRect(0,0,W,cv.height);var r=add(A,B,C);
+ function node(x,y,v,lbl){g.fillStyle=col(v);g.beginPath();g.arc(x,y,7,0,7);g.fill();g.fillStyle='#8ca';g.font='12px ui-monospace,monospace';g.fillText(lbl+'='+v,x-6,y-11);}
+ function gate(x,y,lbl){g.strokeStyle='#5ad0ff';g.lineWidth=1;g.strokeRect(x,y,50,26);g.fillStyle='#5ad0ff';g.font='11px ui-monospace,monospace';g.fillText(lbl,x+6,y+17);}
+ function wire(x1,y1,x2,y2,v){g.strokeStyle=col(v);g.lineWidth=2;g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke();}
+ wire(24,40,150,56,A);wire(24,95,150,68,B);wire(24,40,150,131,A);wire(24,95,150,143,B);
+ wire(200,56,262,92,r.x1);wire(24,155,262,104,C);wire(24,155,262,156,C);wire(200,68,262,168,r.x1);
+ wire(200,131,318,198,r.a1);wire(315,162,318,212,r.a2);
+ gate(150,45,'XOR');gate(150,120,'AND');gate(262,80,'XOR');gate(262,150,'AND');gate(315,188,'OR');
+ node(24,40,A,'A');node(24,95,B,'B');node(24,155,C,'Cin');node(345,93,r.Sum,'S');node(378,201,r.Cout,'Co');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cx=W/2,cy=H/2,S=92,ca=Math.cos(ang),sa=Math.sin(ang),V=[];
+ for(var i=0;i<8;i++)V.push({i:i,a:(i>>2)&1,b:(i>>1)&1,c:i&1});
+ function proj(v){var X=v.a-0.5,Y=v.b-0.5,Z=v.c-0.5,xr=X*ca-Z*sa,zr=X*sa+Z*ca,p=1/(1.6+zr);return [cx+xr*S*p*2.2,cy+Y*S*p*2.2,p,zr];}
+ for(var i=0;i<8;i++)for(var b=0;b<3;b++){var j=i^(1<<b);if(j>i){var p1=proj(V[i]),p2=proj(V[j]);g.strokeStyle='rgba(90,208,255,.4)';g.lineWidth=1;g.beginPath();g.moveTo(p1[0],p1[1]);g.lineTo(p2[0],p2[1]);g.stroke();}}
+ V.slice().sort(function(x,y){return proj(x)[3]-proj(y)[3];}).forEach(function(v){var r=add(v.a,v.b,v.c),q=proj(v),cur=(v.a===A&&v.b===B&&v.c===C),sz=q[2]*13;
+  g.globalAlpha=Math.max(.5,q[2]);g.fillStyle=r.Sum?'#39fc6b':'#1a2a1a';g.beginPath();g.arc(q[0],q[1],sz,0,7);g.fill();
+  if(r.Cout){g.strokeStyle='#ff2d95';g.lineWidth=3;g.beginPath();g.arc(q[0],q[1],sz+4,0,7);g.stroke();}
+  if(cur){g.strokeStyle='#fff';g.lineWidth=2;g.beginPath();g.arc(q[0],q[1],sz+9,0,7);g.stroke();}g.globalAlpha=1;});}
+function all(){drawW3();drawW4();drawW5();window.__gate={A:A,B:B,C:C,r:add(A,B,C)};}
+function setlbl(){document.getElementById('gA').textContent='A = '+A;document.getElementById('gB').textContent='B = '+B;document.getElementById('gC').textContent='Cin = '+C;}
+document.getElementById('gA').onclick=function(){A^=1;setlbl();all();};
+document.getElementById('gB').onclick=function(){B^=1;setlbl();all();};
+document.getElementById('gC').onclick=function(){C^=1;setlbl();all();};
+document.getElementById('gspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}
+setlbl();all();requestAnimationFrame(loop);})();"""
+
 # ── THE STACK — an RPN stack machine, 5-window house format ──
 STACK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The stack machine.</b> Reverse-Polish (postfix) notation and one stack: numbers get pushed; an operator pops two, computes, and pushes the answer. No parentheses, no precedence rules &mdash; the order <i>is</i> the meaning. This is how a VM actually evaluates an expression.<br><br>
@@ -658,6 +713,13 @@ function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}
 reset();requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-gate","title":"THE GATE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#00f5ff","icon":"glitch",
+  "kicker":"the one brick every processor is towers of",
+  "blurb":"a real full adder from logic gates, 5-window — Sum = A⊕B⊕Cin, Cout = AB+Cin(A⊕B). 1D truth row, 2D wired gates (toggle the inputs), 3D boolean cube with AVAN's carry-shadow.",
+  "lit":"A genuine full adder across five windows: real XOR/AND/OR logic, every wire computed live, all 8 input rows exact. The 3D view is the true boolean 3-cube — 8 corners, edges = single-bit flips — coloured by the Sum output.",
+  "fig":"The arcade dressing is the frame; the boolean algebra, the wiring and the cube are exact. The magenta carry-ring is AVAN's inverse-companion addition.",
+  "body":GATE_BODY,"script":GATE_SCRIPT},
  {"slug":"the-stack","title":"THE STACK","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#ff8c42","icon":"spawn",
   "kicker":"push, pop, and the order that is the meaning",
