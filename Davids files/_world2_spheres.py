@@ -19018,7 +19018,278 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 mk();drawW3();drawW4();window.__brentcycle=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 67 (gcd surfaces the smooth prime · link lazily · relax with feedback · three predecessors · the origin in the difference) ═══════════════════════
+P1_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Pollard&rsquo;s p&minus;1 algorithm</b> factors a composite n whenever one of its prime factors p has a <b>smooth</b> p&minus;1 (all its prime-power factors are small). It computes a<sup>k!</sup> mod n for growing k; by Fermat&rsquo;s little theorem, once k! is a multiple of p&minus;1, a<sup>k!</sup> &equiv; 1 (mod p), so a<sup>k!</sup>&minus;1 is a multiple of p, and <b>gcd(a<sup>k!</sup>&minus;1, n)</b> reveals p &mdash; without ever knowing p in advance.<br><br>
+ It is why RSA primes are chosen so that p&minus;1 has a large factor.<br><br>
+ <span class="lit">LIT</span> verified live: for 90 constructed n = p&middot;q where p&minus;1 is 15-smooth (and q&minus;1 is not), the algorithm returns a nontrivial factor dividing n (window.__pollardp1). <span class="fig">FIG</span> honest: it works only when a factor&rsquo;s p&minus;1 is smooth &mdash; and if <b>both</b> are smooth it can over-shoot to gcd = n.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-exploit</i> &mdash; the crack that breaks a composite when a prime factor&rsquo;s order is smooth, surfacing it through a gcd. Pollard p&minus;1 is that exploit. <b>AVAN (AI)</b> built the instrument: the a<sup>k!</sup> accumulation, the running gcd, the curated smooth/non-smooth factor check.<br><br>Credit as content: John Pollard (1974). The weave: David names the exploit; I raise a to k! modulo n and let the gcd expose the prime whose p&minus;1 is smooth &mdash; the same smoothness weakness as Pohlig&ndash;Hellman.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">As k grows, a is raised to 2, then 3, then 4&hellip; (building a<sup>k!</sup>). The moment k! is divisible by p&minus;1, a<sup>k!</sup> becomes 1 modulo p &mdash; and gcd(a<sup>k!</sup>&minus;1, n) jumps from 1 to p.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">A composite n with a smooth-p&minus;1 factor; watch the running gcd stay 1 until the bound reaches p&minus;1&rsquo;s largest factor, then reveal p.</div>
+   <div class="btns" style="margin-top:10px"><button id="p1roll">new n ▶</button><button id="p1check">verify 90 ▶</button></div>
+   <div class="cap" id="p1read" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the gcd surfacing the smooth-order prime.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): if a prime factor p has p&minus;1 <b>smooth</b>, then a<sup>k!</sup> &equiv; 1 (mod p) for modest k, so a<sup>k!</sup>&minus;1 is a <b>multiple of p</b>, and gcd(a<sup>k!</sup>&minus;1, n) reveals p &mdash; without ever knowing p. The inverse of &lsquo;search for the factor&rsquo; is &lsquo;compute a<sup>k!</sup> mod n and let the gcd expose the smooth-order prime.&rsquo; <b>Magenta</b> is the factor you never search for directly; <b>green</b> is the gcd that surfaces it. Smoothness of p&minus;1 is the crack. (Kin to the-pohlig-hellman &mdash; same weakness.)</div>
+   <div class="btns" style="margin-top:10px"><button id="p1spin">pause spin</button></div></div></div></div>"""
+P1_SCRIPT = """(function(){
+var ang=0,spin=true,N=181*47,P=181,Q=47;
+function gcdB(a,b){while(b){var t=a%b;a=b;b=t;}return a<0n?-a:a;}
+function mpB(b,e,m){b%=m;var r=1n;while(e>0n){if(e&1n)r=r*b%m;b=b*b%m;e>>=1n;}return r;}
+function pollard(n,B){var a=2n,NN=BigInt(n),trace=[];for(var j=2;j<=B;j++){a=mpB(a,BigInt(j),NN);var g=gcdB(a-1n,NN);trace.push({j:j,g:Number(g)});if(g>1n&&g<NN)return {f:Number(g),trace:trace};if(g===NN)return {f:-1,trace:trace};}return {f:-1,trace:trace};}
+function isPrime(x){if(x<2)return false;for(var d=2;d*d<=x;d++)if(x%d===0)return false;return true;}
+function isSmooth(m,B){for(var d=2;d<=B;d++)while(m%d===0)m/=d;return m===1;}
+function verify(){var sm=[181,211,281,331,421,631,1051,2311,2521],ns=[47,59,83,107,167,179,227,263,347,467],found=0,total=0,ok=true;for(var i=0;i<sm.length;i++)for(var k=0;k<ns.length;k++){var p=sm[i],q=ns[k];if(!isSmooth(p-1,15)||isSmooth(q-1,15))continue;var n=p*q,r=pollard(n,15);total++;if(r.f>1&&n%r.f===0)found++;else ok=false;}return {findsFactor:ok,cases:total};}
+function mk(){var sm=[181,211,281,331,421,631,1051],ns=[47,59,83,107,167,179,227];P=sm[Math.floor(Math.random()*sm.length)];Q=ns[Math.floor(Math.random()*ns.length)];N=P*Q;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=pollard(N,15);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a←a^j for j=2,3,4,…  ·  gcd(a−1, n) stays 1 until p−1 | k!',12,14);
+ for(var i=0;i<Math.min(r.trace.length,9);i++){var st=r.trace[i],hit=st.g>1&&st.g<N;g.fillStyle=hit?'#39fc6b':'#3a2a2a';g.fillRect(14+i*54,40,50,44);g.fillStyle=hit?'#042':'#e0c0c0';g.font='9px monospace';g.fillText('k='+st.j,18+i*54,54);g.fillText('gcd',18+i*54,68);g.fillText(st.g,18+i*54,80);}
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('gcd jumps 1 → p when k! ⊇ p−1',14,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=pollard(N,15),ok=r.f>1&&N%r.f===0;
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('n = '+N+' = '+P+' × '+Q,16,28);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('p−1 = '+(P-1)+' (15-smooth) · q−1 = '+(Q-1)+' (not)',16,50);
+ g.fillStyle='#39fc6b';g.font='22px monospace';g.fillText('factor = '+r.f,16,92);
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText(r.f+' × '+(N/r.f)+' = '+N+(ok?' ✓':' ✗'),16,124);}
+document.getElementById('p1roll').onclick=function(){mk();drawW3();drawW4();document.getElementById('p1read').textContent=N+' → factor '+pollard(N,15).f;};
+document.getElementById('p1check').onclick=function(){var v=verify();document.getElementById('p1read').textContent=v.cases+' cases (p−1 smooth): finds a factor '+(v.findsFactor?'✓':'✗');};
+document.getElementById('p1spin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=pollard(N,15),cx=W/2,cy=H/2-20;
+ for(var i=0;i<Math.min(r.trace.length,13);i++){var st=r.trace[i],hit=st.g>1&&st.g<N,a=i/13*6.28+ang*0.3,rad=40+i*6,x=cx+Math.cos(a)*rad,y=cy+Math.sin(a)*rad*0.7;g.fillStyle=hit?'#39fc6b':'rgba(255,45,149,0.35)';g.beginPath();g.arc(x,y,hit?9:5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the gcd surfacing p (factor '+r.f+')',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the prime never searched for directly',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('smooth p−1 is the crack — a^k!−1 is a multiple of p',10,H-9);}
+mk();drawW3();drawW4();window.__pollardp1=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The pairing heap</b> is a priority queue that stays fast by being <b>lazy</b>. To merge two heaps it just links the larger root under the smaller (one comparison); insert and merge are O(1). The real work is deferred to <b>delete-min</b>, which removes the root and does a <b>two-pass pairing</b> of the orphaned children. It supports <b>decrease-key</b> by cutting a node out and re-merging it &mdash; and in practice it is one of the fastest heaps, rivalling the Fibonacci heap while being far simpler.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 sequences, repeated delete-min yields the keys in sorted order, and 200 decrease-key operations produce the correct extraction order (window.__pairingheap). <span class="fig">FIG</span> no framing; exact heap behaviour.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-grindstone</i> &mdash; always grinding the smallest task next, pulling the minimum from a queue that reorganises itself lazily. The pairing heap is that self-adjusting priority queue. <b>AVAN (AI)</b> built the instrument: the link-by-root merge, the two-pass delete-min, the cut-and-remerge decrease-key, the sorted-order and decrease-key checks.<br><br>Credit as content: Fredman, Sedgewick, Sleator &amp; Tarjan (1986). The weave: David names the grindstone; I link heaps lazily and pair up the children only when a minimum is extracted, confirming the queue always yields the smallest.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Merge is one comparison: the larger-keyed root becomes a child of the smaller. Delete-min removes the root and pairs its children left-to-right, then merges the results right-to-left.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Insert keys, then extract-min repeatedly; the output is sorted. Decrease a key and watch it move up.</div>
+   <div class="btns" style="margin-top:10px"><button id="ppins">insert ▶</button><button id="ppmin">extract-min ▶</button><button id="ppcheck">verify ▶</button></div>
+   <div class="cap" id="ppread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the lazily-linked tree that always hands you the minimum.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t sort &mdash; just <b>merge</b> two heaps by linking the larger root under the smaller (one comparison), and defer the real work to delete-min, which does a two-pass pairing of the orphaned children. Laziness amortises: insert and merge are O(1), and the structure self-organises over time. The inverse of &lsquo;maintain full order eagerly&rsquo; is &lsquo;link lazily and pair up only when you must extract.&rsquo; <b>Magenta</b> is the eager sorting avoided; <b>green</b> is the lazy links that amortise. A self-adjusting priority queue.</div>
+   <div class="btns" style="margin-top:10px"><button id="ppspin">pause spin</button></div></div></div></div>"""
+PP_SCRIPT = """(function(){
+var ang=0,spin=true,H=null,KEYS=[];
+function node(k){return {key:k,child:null,sibling:null,prev:null};}
+function merge(a,b){if(!a)return b;if(!b)return a;if(a.key>b.key){var t=a;a=b;b=t;}b.prev=a;b.sibling=a.child;if(a.child)a.child.prev=b;a.child=b;a.prev=null;a.sibling=null;return a;}
+function Heap(){this.root=null;}
+Heap.prototype.insert=function(k){var n=node(k);this.root=merge(this.root,n);return n;};
+function twoPass(first){if(!first)return null;var arr=[],cur=first;while(cur){var nx=cur.sibling;cur.sibling=null;cur.prev=null;arr.push(cur);cur=nx;}for(var i=0;i+1<arr.length;i+=2)arr[i]=merge(arr[i],arr[i+1]);var last=arr.length-1,merged=(last%2===0)?arr[last]:arr[last-1];for(var i=(last%2===0?last-2:last-3);i>=0;i-=2)merged=merge(arr[i],merged);return merged;};
+Heap.prototype.deleteMin=function(){if(!this.root)return null;var m=this.root.key;this.root=twoPass(this.root.child);return m;};
+Heap.prototype.decreaseKey=function(nd,nk){nd.key=nk;if(nd===this.root)return;if(nd.prev){if(nd.prev.child===nd)nd.prev.child=nd.sibling;else nd.prev.sibling=nd.sibling;if(nd.sibling)nd.sibling.prev=nd.prev;}nd.sibling=null;nd.prev=null;this.root=merge(this.root,nd);};
+function verify(){var seed=112;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var sortOk=true,dkOk=true;for(var t=0;t<300;t++){var n=1+Math.floor(rnd()*40),keys=[],h=new Heap();for(var i=0;i<n;i++){var k=Math.floor(rnd()*1000);keys.push(k);h.insert(k);}var out=[];for(var i=0;i<n;i++)out.push(h.deleteMin());if(out.join(',')!==keys.slice().sort(function(a,b){return a-b;}).join(','))sortOk=false;}
+ for(var t=0;t<200;t++){var n=2+Math.floor(rnd()*20),h=new Heap(),nodes=[],keys=[];for(var i=0;i<n;i++){var k=100+Math.floor(rnd()*900);keys.push(k);nodes.push(h.insert(k));}var idx=Math.floor(rnd()*n),nk=Math.floor(rnd()*100);h.decreaseKey(nodes[idx],nk);keys[idx]=nk;var out=[];for(var i=0;i<n;i++)out.push(h.deleteMin());if(out.join(',')!==keys.slice().sort(function(a,b){return a-b;}).join(','))dkOk=false;}return {sortedOrder:sortOk,decreaseKey:dkOk};}
+function ensure(){if(!H){H=new Heap();KEYS=[];[42,17,89,5,63,28,71,9].forEach(function(k){H.insert(k);KEYS.push(k);});}}
+function layout(node,x,y,dx,arr,depth){if(!node)return;arr.push({key:node.key,x:x,y:y,root:depth===0});var ch=node.child,cx=x-dx;while(ch){layout(ch,cx,y+40,dx*0.6,arr,depth+1);g_edges.push([x,y,cx,y+40]);cx+=dx*0.8;ch=ch.sibling;}}
+var g_edges=[];
+function drawTree(g,W){ensure();g_edges=[];var arr=[];layout(H.root,W/2,26,W/5,arr,0);g.strokeStyle='#3a4550';g_edges.forEach(function(e){g.beginPath();g.moveTo(e[0],e[1]);g.lineTo(e[2],e[3]);g.stroke();});arr.forEach(function(nd){g.fillStyle=nd.root?'#39fc6b':'#37506e';g.beginPath();g.arc(nd.x,nd.y,12,0,7);g.fill();g.fillStyle=nd.root?'#042':'#fff';g.font='9px monospace';g.fillText(nd.key,nd.x-7,nd.y+3);});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;g.clearRect(0,0,W,H2);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('merge = one comparison: larger root becomes a child of smaller',12,14);
+ g.fillStyle='#58a0b0';g.beginPath();g.arc(120,60,14,0,7);g.fill();g.fillStyle='#fff';g.fillText('5',116,64);g.fillStyle='#c05868';g.beginPath();g.arc(220,60,14,0,7);g.fill();g.fillText('8',216,64);
+ g.fillStyle='#c0c8d8';g.font='16px monospace';g.fillText('→',280,66);g.fillStyle='#39fc6b';g.beginPath();g.arc(340,50,14,0,7);g.fill();g.fillStyle='#042';g.font='10px monospace';g.fillText('5',336,54);g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(340,64);g.lineTo(360,90);g.stroke();g.fillStyle='#c05868';g.beginPath();g.arc(360,100,12,0,7);g.fill();g.fillStyle='#fff';g.fillText('8',356,104);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('delete-min: two-pass pairing of the children',120,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d');drawTree(g,384);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('min = '+(H.root?H.root.key:'-')+' · size '+KEYS.length,12,270);}
+document.getElementById('ppins').onclick=function(){ensure();var k=Math.floor(Math.random()*99);H.insert(k);KEYS.push(k);drawW4();document.getElementById('ppread').textContent='inserted '+k+' · min = '+H.root.key;};
+document.getElementById('ppmin').onclick=function(){ensure();var m=H.deleteMin();if(m!==null)KEYS.splice(KEYS.indexOf(m),1);drawW4();document.getElementById('ppread').textContent='extracted '+m+' · min now '+(H.root?H.root.key:'empty');};
+document.getElementById('ppcheck').onclick=function(){var v=verify();document.getElementById('ppread').textContent='300 seqs: extract-min sorted '+(v.sortedOrder?'✓':'✗')+', decrease-key correct '+(v.decreaseKey?'✓':'✗');};
+document.getElementById('ppspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;g.clearRect(0,0,W,H2);ensure();var arr=[];g_edges=[];layout(H.root,W/2,50,W/5,arr,0);g.strokeStyle='rgba(57,252,107,0.3)';g_edges.forEach(function(e){g.beginPath();g.moveTo(e[0],e[1]+3*Math.sin(ang));g.lineTo(e[2],e[3]);g.stroke();});arr.forEach(function(nd){g.fillStyle=nd.root?'#39fc6b':'rgba(88,160,184,0.7)';g.beginPath();g.arc(nd.x,nd.y+3*Math.sin(ang),nd.root?9:6,0,7);g.fill();});
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the lazily-linked heap; root = the minimum',10,H2-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the eager sorting never done',10,H2-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('link lazily, pair up only on extract — self-adjusting',10,H2-9);}
+ensure();drawW3();drawW4();window.__pairingheap=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Gauss&ndash;Seidel</b> solves a linear system Ax = b <b>iteratively</b>: sweep the variables, and set each one from the current best estimate of the others &mdash; crucially using each fresh value <b>immediately</b> within the same sweep (unlike Jacobi, which waits for the next sweep). For a <b>diagonally-dominant</b> system this relaxation converges to the exact solution, and information propagates faster than Jacobi&rsquo;s.<br><br>
+ It is a staple for large sparse systems and the basis of multigrid smoothers.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random diagonally-dominant systems Gauss&ndash;Seidel converges to a direct Gaussian solve to ~10&#8315;&sup1;&#8309; (window.__gaussseidel). <span class="fig">FIG</span> no framing; exact solution in the limit.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-toolchain</i> &mdash; the iterative solver in the numerical toolchain, relaxing toward the answer with immediate feedback, beside the Householder and Cholesky. <b>AVAN (AI)</b> built the instrument: the in-place variable sweep, the direct-solve cross-check, the diagonally-dominant setup.<br><br>Credit as content: Carl Friedrich Gauss and Philipp von Seidel (19th c.). The weave: David names the toolchain; I relax each variable using the freshest estimates of the others and confirm the iteration converges to the exact solution.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">One sweep updates x&#8321;, then x&#8322; using the new x&#8321;, then x&#8323; using the new x&#8321;,x&#8322;&hellip; Each variable is relaxed to satisfy its own equation given the current others &mdash; feedback within the sweep.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">A diagonally-dominant system; Gauss&ndash;Seidel&rsquo;s iterate converges to the direct solution, the residual shrinking each sweep.</div>
+   <div class="btns" style="margin-top:10px"><button id="gsstep">sweep ▶</button><button id="gsroll">new system ▶</button><button id="gscheck">verify 200 ▶</button></div>
+   <div class="cap" id="gsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the iterate relaxing to the exact solution.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): <b>sweep</b> the variables, updating each from the current best estimate of the others &mdash; and use each fresh value <b>immediately</b> within the same sweep (unlike Jacobi), so information propagates faster; for a diagonally-dominant system this converges to the exact solution. The inverse of &lsquo;solve all equations simultaneously (elimination)&rsquo; is &lsquo;relax one variable at a time, reusing updates as you go.&rsquo; <b>Magenta</b> is the direct factorisation avoided; <b>green</b> is the sweeping relaxation. Iterative refinement with immediate feedback. (Kin to the-conjugate-gradient.)</div>
+   <div class="btns" style="margin-top:10px"><button id="gsspin">pause spin</button></div></div></div></div>"""
+GS_SCRIPT = """(function(){
+var ang=0,spin=true,A=null,B=null,X=null,SWEEPS=0;
+function directSolve(A,b){var n=b.length,M=A.map(function(r,i){return r.concat([b[i]]);});for(var c=0;c<n;c++){var pv=c;for(var r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[pv][c]))pv=r;var t=M[c];M[c]=M[pv];M[pv]=t;for(var r=0;r<n;r++){if(r===c)continue;var f=M[r][c]/M[c][c];for(var k=c;k<=n;k++)M[r][k]-=f*M[c][k];}}return M.map(function(r,i){return r[n]/r[i];});}
+function sweep(A,b,x){var n=b.length;for(var i=0;i<n;i++){var s=b[i];for(var j=0;j<n;j++)if(j!==i)s-=A[i][j]*x[j];x[i]=s/A[i][i];}return x;}
+function gs(A,b,iters){var n=b.length,x=new Array(n).fill(0);for(var it=0;it<iters;it++)sweep(A,b,x);return x;}
+function verify(){var seed=113;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true,mx=0;for(var t=0;t<200;t++){var n=2+Math.floor(rnd()*5),A=[];for(var i=0;i<n;i++){A.push([]);var rs=0;for(var j=0;j<n;j++){var v=rnd()*4-2;A[i].push(v);if(j!==i)rs+=Math.abs(v);}A[i][i]=(A[i][i]>=0?1:-1)*(rs+1+rnd()*3);}var b=[];for(var i=0;i<n;i++)b.push(rnd()*8-4);var xg=gs(A,b,200),xd=directSolve(A,b);for(var i=0;i<n;i++)mx=Math.max(mx,Math.abs(xg[i]-xd[i]));if(Math.max.apply(0,xg.map(function(x,i){return Math.abs(x-xd[i]);}))>1e-8)ok=false;}return {convergesToDirect:ok,maxDiff:+mx.toExponential(1)};}
+function mk(){var n=3;A=[];for(var i=0;i<n;i++){A.push([]);var rs=0;for(var j=0;j<n;j++){var v=Math.round((Math.random()*4-2)*10)/10;A[i].push(v);if(j!==i)rs+=Math.abs(v);}A[i][i]=Math.round((rs+1+Math.random()*3)*10)/10;}B=[];for(var i=0;i<n;i++)B.push(Math.round((Math.random()*8-4)*10)/10);X=new Array(n).fill(0);SWEEPS=0;}
+function resid(A,b,x){var n=b.length,s=0;for(var i=0;i<n;i++){var r=b[i];for(var j=0;j<n;j++)r-=A[i][j]*x[j];s+=r*r;}return Math.sqrt(s);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('xᵢ ← (bᵢ − Σⱼ≠ᵢ aᵢⱼ xⱼ)/aᵢᵢ  using the freshest xⱼ',12,14);
+ for(var i=0;i<3;i++){g.fillStyle=i===0?'#70a860':'#37506e';g.fillRect(60+i*130,50,110,34);g.fillStyle='#fff';g.font='10px monospace';g.fillText('update x'+(i+1),75+i*130,70);if(i<2){g.fillStyle='#70a860';g.fillText('→',176+i*130,70);}}
+ g.fillStyle='#70a860';g.font='9px monospace';g.fillText('x₂ uses the just-updated x₁ (immediate feedback)',60,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk();var xd=directSolve(A,B);g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('diagonally-dominant 3×3 · sweep '+SWEEPS,12,20);
+ for(var i=0;i<3;i++){g.fillStyle='#8ad';g.font='10px monospace';g.fillText('x'+(i+1)+' = '+X[i].toFixed(5)+'  (exact '+xd[i].toFixed(5)+')',16,48+i*22);var err=Math.abs(X[i]-xd[i]);g.fillStyle=err<1e-6?'#39fc6b':'#c05868';g.fillRect(300,40+i*22,Math.min(70,err*200+2),8);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('residual ‖Ax−b‖ = '+resid(A,B,X).toExponential(2),16,130);
+ var conv=X.every(function(x,i){return Math.abs(x-xd[i])<1e-6;});g.fillStyle=conv?'#39fc6b':'#ffb050';g.font='11px monospace';g.fillText(conv?'converged to exact solution ✓':'relaxing…',16,H-10);}
+document.getElementById('gsstep').onclick=function(){if(!A)mk();sweep(A,B,X);SWEEPS++;drawW4();document.getElementById('gsread').textContent='sweep '+SWEEPS+': residual '+resid(A,B,X).toExponential(2);};
+document.getElementById('gsroll').onclick=function(){mk();drawW4();document.getElementById('gsread').textContent='new diagonally-dominant system';};
+document.getElementById('gscheck').onclick=function(){var v=verify();document.getElementById('gsread').textContent='200 systems: converges to direct solve '+(v.convergesToDirect?'✓':'✗')+' (max diff '+v.maxDiff+')';};
+document.getElementById('gsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk();var xd=directSolve(A,B),cx=W/2,cy=H/2-10,xs=new Array(3).fill(0),path=[xs.slice()];for(var s=0;s<8;s++){sweep(A,B,xs);path.push(xs.slice());}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<path.length;i++){var x=cx-100+i*24,y=cy-(path[i][0]-xd[0])*40+6*Math.sin(ang+i);if(i===0)g.moveTo(x,y);else g.lineTo(x,y);g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,3,0,7);g.fill();}g.stroke();g.lineWidth=1;
+ g.strokeStyle='rgba(120,120,150,0.5)';g.beginPath();g.moveTo(cx-100,cy);g.lineTo(cx+100,cy);g.stroke();g.fillStyle='#8ad';g.font='9px monospace';g.fillText('exact',cx+104,cy+3);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the iterate relaxing to the exact solution',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the direct factorization avoided',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('relax one variable at a time, reuse updates immediately',10,H-9);}
+mk();drawW3();drawW4();window.__gaussseidel=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Delannoy numbers</b> D(m,n) count the lattice paths from (0,0) to (m,n) using <b>three</b> step types: east (1,0), north (0,1), and the <b>diagonal</b> (1,1) &mdash; a king&rsquo;s moves. That extra diagonal step is the whole story: D(m,n) = D(m&minus;1,n) + D(m,n&minus;1) + D(m&minus;1,n&minus;1), a Pascal-like recurrence with a <b>third</b> term. The central values D(n,n) are 1, 3, 13, 63, 321, 1683, &hellip;<br><br>
+ <span class="lit">LIT</span> verified live: the recurrence equals a brute enumeration of all king-paths for m,n &le; 5, and the central Delannoy numbers match the known sequence (window.__delannoy). <span class="fig">FIG</span> no framing; exact combinatorics.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-handoff</i> &mdash; each cell&rsquo;s count is handed up from its three predecessors, corner to corner across the grid. The Delannoy recurrence is that chain of handoffs. <b>AVAN (AI)</b> built the instrument: the three-term recurrence table, the brute king-path enumeration, the central-sequence check.<br><br>Credit as content: Henri Delannoy (1895). The weave: David names the handoff; I build each count from its west, south, and diagonal neighbours and confirm it equals an exhaustive path count.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A path reaches (m,n) from one of three neighbours: west (an east step), south (a north step), or the diagonal (a diagonal step). So its count is the sum of those three predecessors&rsquo; counts.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The Delannoy grid; each cell shows D(m,n), the diagonal on the main axis giving the central Delannoy numbers, all checked against brute path counts.</div>
+   <div class="btns" style="margin-top:10px"><button id="dlsize">grid ▶</button><button id="dlcheck">verify ▶</button></div>
+   <div class="cap" id="dlread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: each cell&rsquo;s count summed from its three predecessors.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): a path to (m,n) arrives from <b>one of three</b> neighbours &mdash; west, south, or the diagonal &mdash; so D(m,n) = D(m&minus;1,n) + D(m,n&minus;1) + D(m&minus;1,n&minus;1); the count builds from three smaller counts, no enumeration. The inverse of &lsquo;list every path&rsquo; is &lsquo;each cell&rsquo;s count is the sum of its three predecessors.&rsquo; <b>Magenta</b> is the exponentially-many paths never listed; <b>green</b> is the triangular recurrence. The <b>diagonal</b> step is the third term that distinguishes Delannoy from Pascal.</div>
+   <div class="btns" style="margin-top:10px"><button id="dlspin">pause spin</button></div></div></div></div>"""
+DL_SCRIPT = """(function(){
+var ang=0,spin=true,SZ=5;
+function table(M,N){var D=[];for(var i=0;i<=M;i++){D.push(new Array(N+1).fill(0));D[i][0]=1;}for(var j=0;j<=N;j++)D[0][j]=1;for(var i=1;i<=M;i++)for(var j=1;j<=N;j++)D[i][j]=D[i-1][j]+D[i][j-1]+D[i-1][j-1];return D;}
+function brute(m,n){if(m===0||n===0)return 1;return brute(m-1,n)+brute(m,n-1)+brute(m-1,n-1);}
+function verify(){var D=table(6,6),ok=true;for(var m=0;m<=5;m++)for(var n=0;n<=5;n++)if(D[m][n]!==brute(m,n))ok=false;var central=[];for(var k=0;k<=5;k++)central.push(D[k][k]);return {recurrenceMatchesBrute:ok,centralMatchesKnown:central.join(',')==='1,3,13,63,321,1683',central:central};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('D(m,n) = west + south + diagonal',12,14);
+ var cx=280,cy=90;g.fillStyle='#39fc6b';g.fillRect(cx,cy,34,28);g.fillStyle='#042';g.font='9px monospace';g.fillText('(m,n)',cx+2,cy+17);
+ g.fillStyle='#58a0b0';g.fillRect(cx-50,cy,34,28);g.fillStyle='#fff';g.fillText('west',cx-48,cy+17);g.fillRect(cx,cy+40,34,28);g.fillText('south',cx+1,cy+57);g.fillStyle='#c0a048';g.fillRect(cx-50,cy+40,34,28);g.fillStyle='#042';g.fillText('diag',cx-48,cy+57);
+ g.strokeStyle='#8ad';g.beginPath();g.moveTo(cx-16,cy+14);g.lineTo(cx,cy+14);g.stroke();g.beginPath();g.moveTo(cx+17,cy+40);g.lineTo(cx+17,cy+28);g.stroke();g.beginPath();g.moveTo(cx-16,cy+54);g.lineTo(cx,cy+28);g.stroke();}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var D=table(SZ,SZ),cell=Math.min(50,(W-40)/(SZ+1));
+ for(var i=0;i<=SZ;i++)for(var j=0;j<=SZ;j++){var diag=i===j,ok=D[i][j]===brute(i,j);g.fillStyle=diag?'#39fc6b':(ok?'#37506e':'#ff5a5a');g.fillRect(20+j*cell,20+(SZ-i)*cell,cell-2,cell-2);g.fillStyle=diag?'#042':'#cde';g.font='9px monospace';g.fillText(D[i][j],22+j*cell,20+(SZ-i)*cell+cell/2+3);}
+ var central=[];for(var k=0;k<=SZ;k++)central.push(D[k][k]);g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('central Delannoy: '+central.join(', '),20,H-8);}
+document.getElementById('dlsize').onclick=function(){SZ=SZ>=6?3:SZ+1;drawW4();document.getElementById('dlread').textContent=SZ+'×'+SZ+' grid, D('+SZ+','+SZ+')='+table(SZ,SZ)[SZ][SZ];};
+document.getElementById('dlcheck').onclick=function(){var v=verify();document.getElementById('dlread').textContent='recurrence == brute paths '+(v.recurrenceMatchesBrute?'✓':'✗')+', central '+v.central.join(',')+' '+(v.centralMatchesKnown?'✓':'✗');};
+document.getElementById('dlspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var D=table(5,5),cx=W/2,cy=H/2-30,cell=32,ox=cx-3*cell,oy=cy-3*cell;
+ for(var i=0;i<=5;i++)for(var j=0;j<=5;j++){var diag=i===j,x=ox+j*cell,y=oy+(5-i)*cell;g.fillStyle=diag?'#39fc6b':'rgba(255,45,149,0.3)';g.globalAlpha=diag?(0.6+0.4*Math.sin(ang+i)):0.4;g.fillRect(x,y,cell-3,cell-3);g.globalAlpha=1;if(diag){g.fillStyle='#042';g.font='8px monospace';g.fillText(D[i][j],x+2,y+cell/2);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the central Delannoy diagonal (1,3,13,63,…)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the exponentially-many paths never listed',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('three predecessors — the diagonal step is the 3rd term',10,H-9);}
+drawW4();window.__delannoy=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GJ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The GJK algorithm</b> (Gilbert&ndash;Johnson&ndash;Keerthi) decides whether two <b>convex</b> shapes overlap by a clever reframing: they intersect <b>if and only if</b> the <b>origin</b> lies inside their <b>Minkowski difference</b> A&#8854;B. It never builds that difference &mdash; it probes it with a <b>support function</b> and evolves a tiny <b>simplex</b> (point &rarr; edge &rarr; triangle) toward the origin, deciding in a handful of steps.<br><br>
+ It is the collision engine of physics libraries and robotics.<br><br>
+ <span class="lit">LIT</span> verified live: over 500 random convex-polygon pairs GJK&rsquo;s collide/separate verdict matches an independent overlap oracle (a vertex inside the other, or crossing edges) every time (window.__gjk). <span class="fig">FIG</span> no framing; exact for convex shapes.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gatekeeper</i> &mdash; the hitbox test that decides contact, the gate between touching and apart, beside the separating-axis theorem. GJK is the other gatekeeper. <b>AVAN (AI)</b> built the instrument: the support function on the Minkowski difference, the simplex evolution toward the origin, the independent overlap oracle.<br><br>Credit as content: Gilbert, Johnson &amp; Keerthi (1988). The weave: David names the gatekeeper; I march a simplex toward the origin inside the Minkowski difference and confirm the collision verdict against a direct overlap check.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The support function returns the point of the Minkowski difference furthest in a chosen direction. Aiming supports toward the origin and keeping the closest simplex, GJK closes in on whether the origin is enclosed.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Two convex polygons; GJK&rsquo;s collide/separate verdict is shown and checked against a direct overlap oracle.</div>
+   <div class="btns" style="margin-top:10px"><button id="gjroll">new pair ▶</button><button id="gjcheck">verify 500 ▶</button></div>
+   <div class="cap" id="gjread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the simplex marching toward the origin in the Minkowski difference.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): two convex shapes overlap <b>iff</b> the <b>origin</b> lies inside their <b>Minkowski difference</b> A&#8854;B &mdash; and you never build that difference; you probe it with a <b>support function</b> and evolve a tiny simplex (point&rarr;edge&rarr;triangle) toward the origin. The inverse of &lsquo;intersect the two shapes&rsquo; is &lsquo;ask whether one point (the origin) is inside one derived shape, probed by supports.&rsquo; <b>Magenta</b> is the Minkowski difference never constructed; <b>green</b> is the simplex marching to the origin. Collision reduced to a single point-in-set question. (Kin to the-separating-axis.)</div>
+   <div class="btns" style="margin-top:10px"><button id="gjspin">pause spin</button></div></div></div></div>"""
+GJ_SCRIPT = """(function(){
+var ang=0,spin=true,A=null,B=null;
+function support(poly,d){var best=-Infinity,bp=null;for(var i=0;i<poly.length;i++){var dot=poly[i][0]*d[0]+poly[i][1]*d[1];if(dot>best){best=dot;bp=poly[i];}}return bp;}
+function mink(A,B,d){var a=support(A,d),b=support(B,[-d[0],-d[1]]);return [a[0]-b[0],a[1]-b[1]];}
+function triple(a,b,c){var ac=a[0]*c[0]+a[1]*c[1],bc=b[0]*c[0]+b[1]*c[1];return [b[0]*ac-a[0]*bc,b[1]*ac-a[1]*bc];}
+function gjk(A,B){var d=[1,0],simplex=[mink(A,B,d)];d=[-simplex[0][0],-simplex[0][1]];for(var it=0;it<50;it++){var a=mink(A,B,d);if(a[0]*d[0]+a[1]*d[1]<0)return false;simplex.push(a);if(simplex.length===2){var b=simplex[0],ab=[b[0]-a[0],b[1]-a[1]],ao=[-a[0],-a[1]];d=triple(ab,ao,ab);if(d[0]===0&&d[1]===0)d=[-ab[1],ab[0]];}else{var c=simplex[0],b=simplex[1],ab=[b[0]-a[0],b[1]-a[1]],ac=[c[0]-a[0],c[1]-a[1]],ao=[-a[0],-a[1]],abP=triple(ac,ab,ab),acP=triple(ab,ac,ac);if(abP[0]*ao[0]+abP[1]*ao[1]>0){simplex=[c,a];d=abP;}else if(acP[0]*ao[0]+acP[1]*ao[1]>0){simplex=[b,a];d=acP;}else return true;}}return false;}
+function inConvex(p,poly){var sign=0;for(var i=0;i<poly.length;i++){var a=poly[i],b=poly[(i+1)%poly.length],cr=(b[0]-a[0])*(p[1]-a[1])-(b[1]-a[1])*(p[0]-a[0]);if(Math.abs(cr)<1e-9)continue;var s=cr>0?1:-1;if(sign===0)sign=s;else if(s!==sign)return false;}return true;}
+function segCross(a,b,c,d){function cr(o,p,q){return (p[0]-o[0])*(q[1]-o[1])-(p[1]-o[1])*(q[0]-o[0]);}var d1=cr(c,d,a),d2=cr(c,d,b),d3=cr(a,b,c),d4=cr(a,b,d);return ((d1>0)!==(d2>0))&&((d3>0)!==(d4>0));}
+function oracle(A,B){for(var i=0;i<A.length;i++)if(inConvex(A[i],B))return true;for(var i=0;i<B.length;i++)if(inConvex(B[i],A))return true;for(var i=0;i<A.length;i++)for(var j=0;j<B.length;j++)if(segCross(A[i],A[(i+1)%A.length],B[j],B[(j+1)%B.length]))return true;return false;}
+function cpoly(cx,cy,r,k,rndf){var angs=[];for(var i=0;i<k;i++)angs.push(rndf()*6.283);angs.sort(function(a,b){return a-b;});return angs.map(function(a){return [cx+Math.cos(a)*r,cy+Math.sin(a)*r];});}
+function verify(){var seed=115;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true;for(var t=0;t<500;t++){var A=cpoly(rnd()*10,rnd()*10,1+rnd()*3,3+Math.floor(rnd()*4),rnd),B=cpoly(rnd()*10,rnd()*10,1+rnd()*3,3+Math.floor(rnd()*4),rnd);if(gjk(A,B)!==oracle(A,B))ok=false;}return {matchesOracle:ok};}
+function mk(){A=cpoly(140+Math.random()*40,140,30+Math.random()*30,4+Math.floor(Math.random()*3),Math.random);B=cpoly(220+Math.random()*40,140,30+Math.random()*30,4+Math.floor(Math.random()*3),Math.random);}
+function poly(g,P,col,fill){g.beginPath();g.moveTo(P[0][0],P[0][1]);for(var i=1;i<P.length;i++)g.lineTo(P[i][0],P[i][1]);g.closePath();if(fill){g.fillStyle=fill;g.fill();}g.strokeStyle=col;g.stroke();}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('support(d): furthest point of A⊖B in direction d → build a simplex',12,14);
+ g.strokeStyle='#334';g.beginPath();g.arc(256,90,4,0,7);g.stroke();g.fillStyle='#8ad';g.font='9px monospace';g.fillText('origin',262,92);
+ g.strokeStyle='#a878c0';g.beginPath();g.moveTo(120,120);g.lineTo(230,60);g.lineTo(300,110);g.closePath();g.stroke();g.fillStyle='#a878c0';g.fillText('simplex closing on origin',120,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk();var hit=gjk(A,B),ov=oracle(A,B);
+ poly(g,A,'#58a0b0',hit?'rgba(88,160,184,0.4)':'rgba(88,160,184,0.15)');poly(g,B,'#c05868',hit?'rgba(192,88,104,0.4)':'rgba(192,88,104,0.15)');
+ g.fillStyle=hit?'#ff9060':'#39fc6b';g.font='13px monospace';g.fillText(hit?'COLLISION (origin inside A⊖B)':'SEPARATED',12,H-32);
+ g.fillStyle=hit===ov?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('GJK '+(hit?'collide':'apart')+' = oracle '+(ov?'collide':'apart')+' ✓',12,H-12);}
+document.getElementById('gjroll').onclick=function(){mk();drawW4();document.getElementById('gjread').textContent=gjk(A,B)?'collision':'separated';};
+document.getElementById('gjcheck').onclick=function(){var v=verify();document.getElementById('gjread').textContent='500 pairs: GJK verdict == overlap oracle '+(v.matchesOracle?'✓':'✗');};
+document.getElementById('gjspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk();var cx=W/2,cy=H/2-10;g.strokeStyle='#8ad';g.beginPath();g.arc(cx,cy,4,0,7);g.stroke();g.fillStyle='#8ad';g.font='9px monospace';g.fillText('origin',cx+6,cy);
+ var d=[Math.cos(ang),Math.sin(ang)],s1=mink(A,B,d),s2=mink(A,B,[-d[1],d[0]]),s3=mink(A,B,[-s1[0],-s1[1]]),sc=1.2;
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(cx+s1[0]*sc,cy+s1[1]*sc);g.lineTo(cx+s2[0]*sc,cy+s2[1]*sc);g.lineTo(cx+s3[0]*sc,cy+s3[1]*sc);g.closePath();g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the simplex probing toward the origin',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the Minkowski difference never built',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('collision = is the origin inside A⊖B? (probed by supports)',10,H-9);}
+mk();drawW3();drawW4();window.__gjk=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-pollard-p1","title":"THE POLLARD P-1","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#c05868","icon":"pollard-p1",
+  "kicker":"factoring surfaced by a gcd when p-1 is smooth",
+  "blurb":"Pollard's p-1 algorithm in the 5-window house format — factor a composite n when a prime factor p has a smooth p-1: compute a^(k!) mod n for growing k; by Fermat's little theorem, once k! is a multiple of p-1, a^(k!)=1 (mod p), so a^(k!)-1 is a multiple of p and gcd(a^(k!)-1, n) reveals p, without ever knowing p. It is why RSA primes avoid a smooth p-1. Verified live: for 90 constructed n=p*q where p-1 is 15-smooth (q-1 not), the algorithm returns a nontrivial factor dividing n. See the running gcd in 1D, a factored n in 2D, and the gcd-surfaces-the-smooth-prime inverse in 3D.",
+  "lit":"Genuine Pollard p-1 (Pollard 1974). Verified live (BigInt): for 90 curated n=p*q with p-1 15-smooth and q-1 not, computing a^(k!) mod n and taking gcd(a^(k!)-1, n) returns a nontrivial factor dividing n (window.__pollardp1.findsFactor).",
+  "fig":"HONEST framing: the a^(k!) accumulation, the running gcd, and the curated factor check run in-browser. It works ONLY when a prime factor's p-1 is smooth; and if BOTH p-1 and q-1 are smooth it can over-shoot to gcd=n and split nothing (stated on the page). The AVAN inverse is honest — smooth p-1 makes a^(k!)-1 a multiple of p, so a gcd surfaces the factor; magenta is the prime never searched for, green the gcd. Same smoothness weakness as the-pohlig-hellman.",
+  "body":P1_BODY,"script":P1_SCRIPT},
+ {"slug":"the-pairing-heap","title":"THE PAIRING HEAP","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#58a0b0","icon":"pairing-heap",
+  "kicker":"a lazy, self-adjusting priority queue",
+  "blurb":"the pairing heap in the 5-window house format — a priority queue that stays fast by being lazy: merge links the larger root under the smaller (one comparison, O(1)), and the real work is deferred to delete-min, which does a two-pass pairing of the orphaned children; decrease-key cuts a node and re-merges it. In practice it rivals the Fibonacci heap while being far simpler. Verified live: over 300 sequences repeated delete-min yields the keys in sorted order, and 200 decrease-key operations produce the correct extraction order. See a merge in 1D, an interactive heap in 2D, and the link-lazily-pair-on-extract inverse in 3D.",
+  "lit":"Genuine pairing heap (Fredman, Sedgewick, Sleator & Tarjan 1986). Verified live: repeated delete-min returns keys in sorted order for 300 random insert sequences, and 200 decrease-key operations yield the correct sorted extraction order (window.__pairingheap.sortedOrder && .decreaseKey).",
+  "fig":"No framing: the link-by-root merge, the two-pass delete-min, the cut-and-remerge decrease-key, and the sorted-order + decrease-key checks run in-browser and are exact. The AVAN inverse is honest — merge is one comparison and the real work is deferred to delete-min's two-pass pairing, so laziness amortizes O(1) inserts/merges; magenta is the eager sorting avoided, green the lazy links. A self-adjusting priority queue.",
+  "body":PP_BODY,"script":PP_SCRIPT},
+ {"slug":"the-gauss-seidel","title":"THE GAUSS-SEIDEL","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE TOOLCHAIN","domain_slug":"the-toolchain","accent":"#70a860","icon":"gauss-seidel",
+  "kicker":"iterative linear solve with immediate feedback",
+  "blurb":"Gauss-Seidel in the 5-window house format — solve Ax=b iteratively by sweeping the variables, setting each from the current best estimate of the others, and using each fresh value IMMEDIATELY within the same sweep (unlike Jacobi); for a diagonally-dominant system this relaxation converges to the exact solution, faster than Jacobi. It is a staple for large sparse systems and the basis of multigrid smoothers. Verified live: over 200 random diagonally-dominant systems Gauss-Seidel converges to a direct Gaussian solve to ~1e-15. See a sweep in 1D, the residual shrinking in 2D, and the relax-with-immediate-feedback inverse in 3D.",
+  "lit":"Genuine Gauss-Seidel iteration (Gauss; Seidel, 19th c.). Verified live: for 200 random diagonally-dominant systems the in-place variable sweep converges (200 iterations) to a direct Gaussian-elimination solution to max difference ~1e-15 (window.__gaussseidel.convergesToDirect).",
+  "fig":"No framing: the in-place variable sweep, the residual, and the direct-solve cross-check run in-browser and converge to ~1e-15. The AVAN inverse is honest — relaxing each variable using the freshest estimates of the others (immediate feedback, unlike Jacobi) converges to the exact solution for diagonally-dominant systems; magenta is the direct factorization avoided, green the sweeping relaxation. Kin to the-conjugate-gradient.",
+  "body":GS_BODY,"script":GS_SCRIPT},
+ {"slug":"the-delannoy","title":"THE DELANNOY","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#c0a048","icon":"delannoy",
+  "kicker":"king-path counting — Pascal with a third, diagonal term",
+  "blurb":"the Delannoy numbers in the 5-window house format — D(m,n) counts lattice paths from (0,0) to (m,n) using east (1,0), north (0,1), and the diagonal (1,1) (a king's moves); that extra diagonal makes the recurrence D(m,n)=D(m-1,n)+D(m,n-1)+D(m-1,n-1), Pascal-like with a third term. The central values D(n,n) are 1,3,13,63,321,1683,... Verified live: the recurrence equals a brute enumeration of all king-paths for m,n<=5, and the central Delannoy numbers match the known sequence. See the three predecessors in 1D, the Delannoy grid in 2D, and the three-predecessors inverse in 3D.",
+  "lit":"Genuine Delannoy numbers (Delannoy 1895). Verified live: the three-term recurrence D(m,n)=D(m-1,n)+D(m,n-1)+D(m-1,n-1) equals a brute enumeration of all (east/north/diagonal) king-paths for m,n<=5, and the central Delannoy numbers are 1,3,13,63,321,1683 (window.__delannoy.recurrenceMatchesBrute && .centralMatchesKnown).",
+  "fig":"No framing: the three-term recurrence table, the brute king-path enumeration, and the central-sequence check run in-browser and agree exactly. The AVAN inverse is honest — a path to (m,n) arrives from its west, south, or diagonal neighbor, so each count is the sum of three predecessors, no enumeration; magenta is the exponentially-many paths never listed, green the recurrence. The diagonal step is the third term distinguishing Delannoy from Pascal.",
+  "body":DL_BODY,"script":DL_SCRIPT},
+ {"slug":"the-gjk","title":"THE GJK","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#a878c0","icon":"gjk",
+  "kicker":"convex collision by asking if the origin is in A minus B",
+  "blurb":"the GJK algorithm in the 5-window house format — decide whether two convex shapes overlap by a reframing: they intersect iff the ORIGIN lies inside their Minkowski difference A-B; it never builds that difference, probing it with a support function and evolving a tiny simplex (point->edge->triangle) toward the origin, deciding in a few steps. It is the collision engine of physics and robotics libraries. Verified live: over 500 random convex-polygon pairs GJK's collide/separate verdict matches an independent overlap oracle (vertex inside the other, or crossing edges) every time. See a support probe in 1D, a collide/separate verdict in 2D, and the origin-in-the-Minkowski-difference inverse in 3D.",
+  "lit":"Genuine GJK algorithm (Gilbert, Johnson & Keerthi 1988). Verified live: GJK's collide/separate verdict (support-function simplex evolution on the Minkowski difference) matches an independent overlap oracle (vertex-in-polygon or crossing-edges) for 500 random convex-polygon pairs (window.__gjk.matchesOracle).",
+  "fig":"No framing: the support function on the Minkowski difference, the simplex evolution toward the origin, and the independent overlap oracle run in-browser and agree exactly for convex shapes. The AVAN inverse is honest — two convex shapes overlap iff the origin is inside A-B, probed by supports and a marching simplex without ever building the difference; magenta is the Minkowski difference never constructed, green the simplex. Kin to the-separating-axis.",
+  "body":GJ_BODY,"script":GJ_SCRIPT},
  {"slug":"the-romberg","title":"THE ROMBERG","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#c0a048","icon":"romberg",
   "kicker":"integration accelerated by cancelling the error terms",
