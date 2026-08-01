@@ -9795,7 +9795,348 @@ document.getElementById('cosspin').onclick=function(){spin=!spin;this.textConten
 drawW3();drawW4();window.__costas=verify();
 function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+QUI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A quine</b> is a program that takes no input and prints <b>its own source code</b> &mdash; exactly, character for character &mdash; without cheating by reading its own file. It sounds impossible: to contain a copy of itself, the program would need a copy of the copy, and so on forever.<br><br>
+ The escape is to split the program into two parts: a chunk of <b>data</b> that describes the code as a string, and a chunk of <b>code</b> that prints that data <b>twice</b> &mdash; once as literal data, once interpreted as code. A classic one line of JavaScript, <span class="mono">(function a(){return "("+a+")()"})()</span>, evaluates to precisely its own text. It is not a party trick: <b>Kleene&rsquo;s recursion theorem</b> proves <i>every</i> Turing-complete language has quines, and the same self-reference is the seed of computer viruses and of von Neumann&rsquo;s self-replicating machines.<br><br>
+ <span class="lit">LIT</span> verified live: the program is evaluated and its output is compared to its source &mdash; they are identical, character for character (window.__quine.isQuine). <span class="fig">FIG</span> no framing; the program genuinely reproduces its own text, checked by direct string equality.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>COLD BOOT</i> &mdash; the spawn domain of bringing a system up from nothing. A quine is the coldest boot of all: a program that pulls its entire self out of its own logic, needing no source on disk to reproduce. <b>AVAN (AI)</b> built the instrument: the run-and-compare, the data/code split, the fixed-point ouroboros.<br><br>The weave: David names the seat (bootstrap from nothing); I make the program emit its own text and prove it matches, character by character &mdash; the two parts in 1D, the run/compare in 2D, the fixed-point loop in 3D. The sphere is the seam. Credit: the term coined by Douglas Hofstadter after logician W. V. O. Quine; existence guaranteed by Kleene&rsquo;s recursion theorem; self-replication traced to John von Neumann.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The quine split into its two parts: a <b>data</b> string that spells out the code, and the <b>code</b> that prints the data &mdash; first as a quoted string, then run as instructions. Neither half alone can copy itself; together they close the loop.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Run the quine. Its <b>source</b> sits on top, its <b>output</b> below, and every character is compared &mdash; all green where they match. Press run and watch the program hand back exactly the text it was written in.</div>
+   <div class="btns" style="margin-top:10px"><button id="quirun">run the quine ▶</button></div>
+   <div class="cap" id="quiread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The program feeding its own text back to itself as a turning ring &mdash; the <b>green</b> forward step: run the source, get the output.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> ring is the <b>identity</b> &mdash; and a quine is the one place where running a program and doing <b>nothing</b> to it coincide. Normally &lsquo;execute&rsquo; sends a program to some output <i>different</i> from itself; its inverse would be undoing that. A quine is a <b>fixed point</b> of execution: eval(q) = q, so the forward map and its own inverse both land on the same text. Kleene&rsquo;s recursion theorem is exactly the promise that such a fixed point always exists &mdash; for <i>any</i> transformation you like, some program behaves as if it were handed its own source. The magenta identity loop lies exactly on the green execution loop; run and leave-alone are the same arrow. A quine is where a program and its own reflection are one, and the inverse of running it is running it again.</div>
+   <div class="btns" style="margin-top:10px"><button id="quispin">pause spin</button></div></div></div></div>"""
+QUI_SCRIPT = """(function(){
+var ang=0,spin=true,ran=false,outputText='';
+var SRC='(function a(){return "("+a+")()"})()';
+function verify(){var out;try{out=eval(SRC);}catch(e){out='ERROR:'+e.message;}return {source:SRC,output:out,isQuine:out===SRC,len:SRC.length};}
+var V=verify();
+function wrap(s,n){var out=[];for(var i=0;i<s.length;i+=n)out.push(s.slice(i,i+n));return out;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.font='11px ui-monospace,monospace';
+ var dataPart='"("+a+")()"',codePart='function a(){return … }';
+ g.fillStyle='#80ffe0';g.fillText('DATA  (a string spelling the code):',12,28);g.fillStyle='#cff';g.fillText('  "("+a+")()"',12,46);
+ g.fillStyle='#ffd060';g.fillText('CODE  (prints the data twice — quoted, then run):',12,74);g.fillStyle='#ffe';g.fillText('  (function a(){ return "("+a+")()" })()',12,92);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('the function reads its own text via a.toString(), wraps it, and returns the whole program',12,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.font='11px ui-monospace,monospace';g.fillStyle='#80ffe0';g.fillText('source:',10,20);
+ var lines=wrap(SRC,44);for(var i=0;i<lines.length;i++){g.fillStyle='#cff';g.fillText(lines[i],10,38+i*15);}
+ var oy=38+lines.length*15+14;
+ g.fillStyle='#ffd060';g.fillText('output'+(ran?':':' (press run):'),10,oy);
+ if(ran){var olines=wrap(outputText,44);for(var i=0;i<olines.length;i++){
+   for(var c=0;c<olines[i].length;c++){var gi=i*44+c,match=SRC[gi]===olines[i][c];g.fillStyle=match?'#39fc6b':'#ff4040';g.fillText(olines[i][c],10+c*6.6,oy+18+i*15);}}
+   var oy2=oy+18+olines.length*15+8;
+   g.fillStyle=V.isQuine?'#39fc6b':'#ff5a5a';g.font='12px ui-monospace,monospace';g.fillText(V.isQuine?'✓ output === source, char-for-char ('+SRC.length+' chars)':'✗ mismatch',10,oy2);}
+ document.getElementById('quiread').textContent=ran?('isQuine: '+V.isQuine+' ('+SRC.length+' chars)'):'press run';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),R=110;
+ // green execution ring
+ g.strokeStyle='#39fc6b';g.lineWidth=2.5;g.beginPath();for(var t=0;t<=1;t+=0.01){var th=t*Math.PI*2+ang,x=cx+Math.cos(th)*R*ca,y=cy+Math.sin(th)*R*0.62;if(t===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ // arrow head (ouroboros)
+ var th=ang,hx=cx+Math.cos(th)*R*ca,hy=cy+Math.sin(th)*R*0.62;g.fillStyle='#39fc6b';g.beginPath();g.arc(hx,hy,6,0,7);g.fill();
+ // magenta identity ring (same circle, slightly inset)
+ g.strokeStyle='rgba(255,45,149,0.7)';g.lineWidth=1.5;g.beginPath();for(var t=0;t<=1;t+=0.02){var th2=t*Math.PI*2-ang,x=cx+Math.cos(th2)*(R-8)*ca,y=cy+Math.sin(th2)*(R-8)*0.62;if(t===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#0b1a16';g.font='11px ui-monospace,monospace';
+ g.fillStyle='#39fc6b';g.fillText('green: eval(q) — run the program',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: identity — a quine is the fixed point eval(q) = q',10,H-12);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('run and leave-alone are the same arrow',cx-90,cy+3);}
+document.getElementById('quirun').onclick=function(){outputText=V.output;ran=true;drawW4();};
+document.getElementById('quispin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__quine=V;
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+YC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Y combinator</b> manufactures <b>recursion out of nothing</b>. Recursion normally needs a function to call itself <i>by name</i> &mdash; but a truly anonymous function has no name to call. Y fixes that: it hands a nameless function a copy of itself to recurse with, satisfying <span class="mono">Y f = f (Y f)</span>.<br><br>
+ In pure lambda calculus it is <span class="mono">Y = &lambda;f.(&lambda;x.f(x x))(&lambda;x.f(x x))</span> &mdash; and the whole trick is <b>self-application</b>, the <span class="mono">x x</span> that feeds a function itself. (In eager languages you delay it a hair, giving the Z combinator.) With it you can build <b>factorial from a function that never mentions its own name</b>: write &ldquo;given <i>self</i>, return n&middot;self(n&minus;1)&rdquo; and Y supplies the <i>self</i>. It is the theoretical heart of how recursion can exist at all &mdash; and it lends its name to the famous startup accelerator.<br><br>
+ <span class="lit">LIT</span> verified live: a Y combinator built in-browser turns nameless functions into working factorial and Fibonacci, matching the known values (fact(10)=3628800, fib(10)=55) with <b>no named recursion anywhere</b> (window.__ycombinator). <span class="fig">FIG</span> no framing; the recursion is genuinely produced by the combinator, checked against exact values.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>STACK OVERFLOW</i> &mdash; the glitch domain of recursion pushed to its edge. The Y combinator lives right there: self-application is one delay away from an infinite stack, and only the fixed-point structure keeps it finite. <b>AVAN (AI)</b> built the instrument: the fixed-point tower, the self-supplying factorial, the converge-to-fixed-point inverse.<br><br>The weave: David names the seat (the edge of infinite recursion); I make a nameless function recurse and land on the right answer, self supplied by Y &mdash; the tower in 1D, the stepping recursion in 2D, the fixed-point inverse in 3D. The sphere is the seam. Credit: the lambda calculus of Alonzo Church (1930s); the combinator associated with Haskell Curry; the accelerator Y Combinator named for it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Y f unrolls into f(f(f(&hellip;))) &mdash; each layer is the same function handed one more copy of itself. The tower would run forever except that the base case (n&le;1) snips it off at the right depth.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Compute factorial (or Fibonacci) through the Y combinator and step down the recursion: at each level the nameless function is given <b>self</b> and calls it, until the base case returns and the products unwind back up. The function never names itself &mdash; Y does the naming.</div>
+   <div class="btns" style="margin-top:10px"><button id="ycn">n: 5</button><button id="ycfn">factorial</button><button id="ycstep">step ▶</button></div>
+   <div class="cap" id="ycread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The self-application <span class="mono">x x</span> spiralling inward &mdash; the <b>green</b> forward step: keep applying f, f(f(f(&hellip;))), each pass one level deeper.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> point is the <b>fixed point</b> &mdash; the value Y&thinsp;f the spiral is converging to, the one place where <span class="mono">f(Y f) = Y f</span>. Applying f is the forward move; its inverse is asking &lsquo;what does f leave <b>unchanged</b>?&rsquo; &mdash; and that is exactly the fixed point. Y doesn&rsquo;t crawl the green spiral one step at a time; it <b>jumps straight to the magenta centre</b>, the fixed point of f, and hands it back as a working recursive function. This is the same shape as a quine, where running a program leaves it unchanged &mdash; there the fixed point of <i>eval</i>, here the fixed point of a <i>function transformer</i>. The green unrolling shows recursion happening; the magenta centre is the fixed point that <i>is</i> the recursion, reached in one move. To recurse is to sit still at the place f can no longer move you.</div>
+   <div class="btns" style="margin-top:10px"><button id="ycspin">pause spin</button></div></div></div></div>"""
+YC_SCRIPT = """(function(){
+var ang=0,spin=true,n=5,isFact=true,step=0;
+var Y=function(f){return (function(x){return f(function(v){return x(x)(v);});})(function(x){return f(function(v){return x(x)(v);});});};
+var fact=Y(function(self){return function(k){return k<=1?1:k*self(k-1);};});
+var fib=Y(function(self){return function(k){return k<2?k:self(k-1)+self(k-2);};});
+function verify(){var facts=[];for(var i=0;i<8;i++)facts.push(fact(i));var known=[1,1,2,6,24,120,720,5040],fc=facts.every(function(v,i){return v===known[i];});return {factorials:facts.join(','),fact10:fact(10),fib10:fib(10),factCorrect:fc&&fact(10)===3628800,fibCorrect:fib(10)===55};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.font='12px ui-monospace,monospace';g.fillStyle='#a0d0ff';g.fillText('Y f  =  f (Y f)  =  f (f (Y f))  =  f (f (f (…)))',14,26);
+ var x=20;for(var i=0;i<6;i++){g.fillStyle='hsl(210,'+(70-i*8)+'%,'+(65-i*6)+'%)';g.fillRect(x,50,150-i*22,44-i*4);g.fillStyle='#012';g.font='10px ui-monospace,monospace';g.fillText('f(',x+4,72);x+=22;}
+ g.fillStyle='#ffd060';g.fillText('base',x+2,72);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('each nested f is the same function handed one more copy of itself (via x x)',14,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.font='13px ui-monospace,monospace';g.fillStyle='#a0d0ff';g.fillText((isFact?'factorial':'fibonacci')+'('+n+') via Y — no named recursion',14,22);
+ var depth=Math.min(step,n);
+ // descent
+ for(var i=0;i<=depth;i++){var y=44+i*20,k=n-i;g.fillStyle='#cdf';g.font='11px ui-monospace,monospace';
+  if(isFact)g.fillText('  '.repeat(i)+(k<=1?('self('+k+') = 1  ← base'):('self('+k+') = '+k+' × self('+(k-1)+')')),14,y);
+  else g.fillText('  '.repeat(i)+(k<2?('self('+k+') = '+k+'  ← base'):('self('+k+') = self('+(k-1)+') + self('+(k-2)+')')),14,y);}
+ var val=isFact?fact(n):fib(n);
+ if(step>=n){g.fillStyle='#39fc6b';g.font='13px ui-monospace,monospace';g.fillText('= '+val,14,44+(depth+1)*20+10);}
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText("the function body: function(self){ return function(k){ … self(k-1) … } }  — 'self' comes from Y",14,H-8);
+ document.getElementById('ycread').textContent=(isFact?'fact':'fib')+'('+n+') = '+val;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang);
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var t=0;t<8*Math.PI;t+=0.1){var r=110*Math.exp(-t/12),th=t+ang,x=cx+Math.cos(th)*r*ca,y=cy+Math.sin(th)*r*0.7;if(t===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#ff2d95';g.beginPath();g.arc(cx,cy,6,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: f(f(f(…))) — the recursion unrolling',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the fixed point f(Y f) = Y f — Y jumps here directly',10,H-12);}
+document.getElementById('ycn').onclick=function(){n=n>=9?1:n+1;step=0;this.textContent='n: '+n;drawW4();};
+document.getElementById('ycfn').onclick=function(){isFact=!isFact;step=0;this.textContent=isFact?'factorial':'fibonacci';drawW4();};
+document.getElementById('ycstep').onclick=function(){step=step>n?0:step+1;drawW4();};
+document.getElementById('ycspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__ycombinator=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CHU_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Church numerals</b> encode the whole numbers as <b>pure functions</b> &mdash; no digits, no built-in arithmetic, just functions applying functions. The number n means &ldquo;<b>do f, n times</b>&rdquo;: 3 = &lambda;f.&lambda;x. f(f(f(x))); zero applies f not at all.<br><br>
+ From that single idea you get <b>all of arithmetic</b> with nothing but function application. <b>Successor</b> wraps one more f. <b>Addition</b> runs one numeral&rsquo;s applications after the other. <b>Multiplication</b> nests them. And <b>exponentiation</b> is startlingly just applying one numeral <i>to</i> another: m<sup>n</sup> = n&nbsp;m. To read a numeral back out, hand it the function &ldquo;add 1&rdquo; and the starting value 0, and count. This is Alonzo Church showing that numbers &mdash; and, through the lambda calculus, <b>all of computation</b> &mdash; can be built from the single notion of a function, with no other material at all.<br><br>
+ <span class="lit">LIT</span> verified live: numerals built purely from functions decode to 0..7, and the function-only definitions of +, &times;, and ^ give 3+4=7, 3&times;4=12, 2<sup>5</sup>=32 (window.__church). <span class="fig">FIG</span> no framing; the encodings and the pure-function arithmetic are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>GENESIS BLOCK</i> &mdash; the spawn domain of the first canonical thing minted from nothing. Church numerals are the genesis block of number itself: the integers, conjured out of pure function application with no prior arithmetic assumed. <b>AVAN (AI)</b> built the instrument: the application chain, the pure-function calculator, the encode/decode inverse.<br><br>The weave: David names the seat (numbers from nothing); I make arithmetic run with functions alone and decode back to ordinary integers &mdash; the application chain in 1D, the function calculator in 2D, the count-the-applications inverse in 3D. The sphere is the seam. Credit: Alonzo Church (1930s), the lambda calculus.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The numeral 3 spelled out as f(f(f(x))) &mdash; a chain of three applications wrapped around a seed x. The number is not a symbol here; it is literally <b>how many times</b> the function is applied.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick two numbers and an operation. The Church numerals combine by pure function application &mdash; nested boxes, no arithmetic &mdash; and the result is decoded by feeding it &ldquo;add 1&rdquo; and 0. It always matches ordinary +, &times;, ^.</div>
+   <div class="btns" style="margin-top:10px"><button id="chum">m: 3</button><button id="chun">n: 4</button><button id="chuop">op: ×</button></div>
+   <div class="cap" id="churead" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The numeral as a turning tower of applications &mdash; the <b>green</b> forward encoding: the number n <i>is</i> the act of applying f exactly n times.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> counter is the <b>decode</b> &mdash; recovering the ordinary number by running that very iteration on a tally. Encoding turns a number into <b>the act of iterating</b>; the inverse is simply to <b>count the iterations</b>: hand the numeral the function &ldquo;+1&rdquo; and the seed 0, and the applications tick a counter up to n. Forward, n becomes a machine that repeats; backward, you watch the machine repeat and read off how many times. The two are exact inverses, and between them they say something startling &mdash; a number and &lsquo;the action of doing something that-many times&rsquo; are the <b>same object</b>. The green tower is the number as pure repetition; the magenta counter is the ordinary integer falling back out of it. To be the number three is to be threefold application, and to invert that is only to count.</div>
+   <div class="btns" style="margin-top:10px"><button id="chuspin">pause spin</button></div></div></div></div>"""
+CHU_SCRIPT = """(function(){
+var ang=0,spin=true,m=3,nn=4,op=1;
+var zero=function(f){return function(x){return x;};};
+var succ=function(n){return function(f){return function(x){return f(n(f)(x));};};};
+var add=function(a){return function(b){return function(f){return function(x){return a(f)(b(f)(x));};};};};
+var mult=function(a){return function(b){return function(f){return a(b(f));};};};
+var exp=function(a){return function(b){return b(a);};};
+function church(k){var c=zero;for(var i=0;i<k;i++)c=succ(c);return c;}
+function decode(n){return n(function(k){return k+1;})(0);}
+function verify(){var enc=[];for(var k=0;k<8;k++)enc.push(decode(church(k)));var encOk=enc.every(function(v,i){return v===i;});
+ var a34=decode(add(church(3))(church(4))),m34=decode(mult(church(3))(church(4))),e25=decode(exp(church(2))(church(5)));
+ return {encoded:enc.join(','),add34:a34,mult34:m34,exp25:e25,allCorrect:encOk&&a34===7&&m34===12&&e25===32};}
+function compute(){var cm=church(m),cn=church(nn),r;if(op===0)r=add(cm)(cn);else if(op===1)r=mult(cm)(cn);else r=exp(cm)(cn);return decode(r);}
+function ordinary(){return op===0?m+nn:op===1?m*nn:Math.pow(m,nn);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.font='13px ui-monospace,monospace';g.fillStyle='#ffb0e0';g.fillText('3  =  λf.λx.  f( f( f( x ) ) )',20,30);
+ var x=30;for(var i=0;i<3;i++){g.fillStyle='hsl(320,70%,'+(66-i*8)+'%)';g.fillRect(x,55,180-i*40,50-i*4);g.fillStyle='#200';g.font='12px ui-monospace,monospace';g.fillText('f(',x+6,84);x+=40;}
+ g.fillStyle='#ffd060';g.fillText('x',x+4,84);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('the numeral IS the number of applications — no digit anywhere',20,124);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var sym=['+','×','^'][op],val=compute(),ord=ordinary();
+ g.font='14px ui-monospace,monospace';g.fillStyle='#ffb0e0';g.fillText(m+' '+sym+' '+nn+'  via pure functions',20,28);
+ g.font='11px ui-monospace,monospace';g.fillStyle='#cdf';
+ var expr=op===0?('add(church('+m+'))(church('+nn+'))'):op===1?('mult(church('+m+'))(church('+nn+'))'):('exp(church('+m+'))(church('+nn+'))');
+ g.fillText('Church:  '+expr,20,56);
+ g.fillText('decode:  result(k => k+1)(0)',20,76);
+ // nested boxes illustration
+ var boxes=Math.min(val,12);for(var i=0;i<boxes;i++){g.fillStyle='hsl(320,70%,'+(70-i*3)+'%)';g.fillRect(20+i*26,95,24,24);}
+ if(val>12){g.fillStyle='#ffb0e0';g.fillText('…',20+12*26,112);}
+ g.fillStyle='#39fc6b';g.font='14px ui-monospace,monospace';g.fillText('= '+val,20,150);
+ g.fillStyle=val===ord?'#39fc6b':'#ff5a5a';g.font='12px ui-monospace,monospace';g.fillText('ordinary '+m+sym+nn+' = '+ord+(val===ord?'  ✓ match':'  ✗'),20,174);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('no number was used inside — only function application',20,H-8);
+ document.getElementById('churead').textContent=m+sym+nn+' = '+val+' (Church) = '+ord+' (ordinary)';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var val=Math.min(compute(),24),ca=Math.cos(ang),cx=W/2,cy=H*0.72;
+ // green tower of applications spiralling up
+ for(var i=0;i<val;i++){var t=i/Math.max(val,1),th=i*0.6+ang,r=30+i*3,x=cx+Math.cos(th)*r*ca,y=cy-i*11+Math.sin(th)*r*0.2;g.fillStyle='hsl(140,80%,'+(40+t*30)+'%)';g.beginPath();g.arc(x,y,5,0,7);g.fill();}
+ // magenta counter
+ g.fillStyle='#ff2d95';g.font='13px ui-monospace,monospace';g.fillText('count = '+compute(),cx-30,H-40);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: n-fold application f(f(…f(x)))',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: decode — count the applications back to a number',10,H-14);}
+document.getElementById('chum').onclick=function(){m=m>=6?0:m+1;this.textContent='m: '+m;drawW4();};
+document.getElementById('chun').onclick=function(){nn=nn>=6?0:nn+1;this.textContent='n: '+nn;drawW4();};
+document.getElementById('chuop').onclick=function(){op=(op+1)%3;this.textContent='op: '+['+','×','^'][op];drawW4();};
+document.getElementById('chuspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__church=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SKI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>SKI combinator calculus</b> is a model of computation with <b>no variables at all</b> &mdash; just two operators and the act of applying one thing to another. The rules are tiny: <span class="mono">K x y = x</span> (keep the first argument, throw away the second) and <span class="mono">S x y z = x z (y z)</span> (hand the third argument to both of the others). That is the entire language.<br><br>
+ Astonishingly, those two combinators are <b>enough for everything</b>: every function of the lambda calculus &mdash; and therefore everything computable at all &mdash; can be rewritten using only S and K, with <b>no bound variables anywhere</b>. The identity function is simply <span class="mono">I = S K K</span>. Booleans, numbers, even recursion all become trees of S and K. Moses Sch&ouml;nfinkel showed variables can be <b>eliminated from logic entirely</b>; this &ldquo;point-free&rdquo; style is the ancestor of pipeline-and-compose programming.<br><br>
+ <span class="lit">LIT</span> verified live: an in-browser reducer confirms I&nbsp;a&rarr;a, K&nbsp;a&nbsp;b&rarr;a, S&nbsp;a&nbsp;b&nbsp;c&rarr;(ac)(bc), and S&nbsp;K&nbsp;K acting as the identity on every atom &mdash; the identity built from S and K alone (window.__ski). <span class="fig">FIG</span> no framing; the reduction rules and combinatorial completeness (I = SKK) are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>NOCLIP</i> &mdash; the cheat domain of moving through what should stop you. SKI noclips straight through the need for variables: computation walks on, nameless, as if the walls of binding weren&rsquo;t there. <b>AVAN (AI)</b> built the instrument: the rewrite rules, the step reducer, the point-free/point-ful inverse.<br><br>The weave: David names the seat (pass through the constraint); I make two operators compute everything and reduce expressions to their value with no variable ever named &mdash; the rules in 1D, the reducer in 2D, the variables-vs-none inverse in 3D. The sphere is the seam. Credit: Moses Sch&ouml;nfinkel (1924); combinatory logic developed by Haskell Curry.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The whole language on one line: <b>I x &rarr; x</b>, <b>K x y &rarr; x</b>, <b>S x y z &rarr; x z (y z)</b>. Three rewrite arrows, no variables to bind &mdash; and yet enough to express every computable function.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick an expression and step it toward normal form. Watch <b>S K K x</b> grind down to just <b>x</b> &mdash; the identity function, manufactured from S and K with no I and no variable in sight. Each step applies one rewrite rule.</div>
+   <div class="btns" style="margin-top:10px"><button id="skipick">expr: SKKx</button><button id="skistep">reduce ▶</button><button id="skireset">reset</button></div>
+   <div class="cap" id="skiread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The combinator expression as a turning tree of S and K nodes &mdash; the <b>green</b> forward form: a whole computation, expressed with <b>no variables</b>.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the <b>lambda term with variables</b> that the SKI tree came from. The forward translation &mdash; <b>bracket abstraction</b> &mdash; takes a named function like &lambda;x.x and grinds every variable out of it until only S and K remain (&lambda;x.x becomes SKK). Its inverse reads a nameless combinator tree and reconstructs a lambda term <i>with</i> variables that means the same thing. So point-free and point-ful are two encodings of one function, and you can compile either way. What the pair proves is quietly radical: <b>variables are a convenience, not a necessity</b> &mdash; the identical computation exists with names and without them, and SKI is the without-them witness. Green is the variable-free tree that actually runs; magenta is the friendly named version we usually write; between them, nothing computable is lost.</div>
+   <div class="btns" style="margin-top:10px"><button id="skispin">pause spin</button></div></div></div></div>"""
+SKI_SCRIPT = """(function(){
+var ang=0,spin=true,exprIdx=0,term=null,steps=0;
+function A(a,b){return ['@',a,b];}
+function step(t){if(t[0]==='@'){var f=t[1],x=t[2];
+  if(f[0]==='I')return [x,true];
+  if(f[0]==='@'){var g=f[1],y=f[2];
+    if(g[0]==='K')return [y,true];
+    if(g[0]==='@'){var h=g[1],z=g[2];if(h[0]==='S')return [A(A(z,x),A(y,x)),true];}}
+  var rf=step(f);if(rf[1])return [A(rf[0],x),true];
+  var rx=step(x);if(rx[1])return [A(f,rx[0]),true];}
+ return [t,false];}
+function norm(t){for(var i=0;i<2000;i++){var r=step(t);if(!r[1])return r[0];t=r[0];}return t;}
+function show(t){if(t[0]==='@')return '('+show(t[1])+show(t[2])+')';return t[0];}
+function verify(){var S=['S'],K=['K'],I=['I'],a=['a'],b=['b'],c=['c'],SKK=A(A(S,K),K);
+ var rI=show(norm(A(I,a))),rK=show(norm(A(A(K,a),b))),rS=show(norm(A(A(A(S,a),b),c))),rSKK=show(norm(A(SKK,a)));
+ var idOk=['a','b','c'].every(function(v){return show(norm(A(SKK,[v])))===v;});
+ return {I_a:rI,K_ab:rK,S_abc:rS,SKK_a:rSKK,identityFromSK:idOk,allCorrect:rI==='a'&&rK==='a'&&rS==='((ac)(bc))'&&idOk};}
+var EXPRS=[['SKKx',A(A(A(['S'],['K']),['K']),['x'])],['Kxy',A(A(['K'],['x']),['y'])],['Sxyz',A(A(A(['S'],['x']),['y']),['z'])],['S(K)(K)x',A(A(A(['S'],['K']),['K']),['x'])]];
+function resetTerm(){term=JSON.parse(JSON.stringify(EXPRS[exprIdx][1]));steps=0;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.font='14px ui-monospace,monospace';
+ g.fillStyle='#90ffb0';g.fillText('I x     →  x',30,44);
+ g.fillStyle='#ffd060';g.fillText('K x y   →  x',30,76);
+ g.fillStyle='#a0d0ff';g.fillText('S x y z →  x z (y z)',30,108);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('two operators, no variables — and everything computable follows',30,134);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.font='13px ui-monospace,monospace';g.fillStyle='#90ffb0';g.fillText('reduce: '+EXPRS[exprIdx][0],16,24);
+ g.font='15px ui-monospace,monospace';g.fillStyle='#cff';g.fillText(show(term),16,60);
+ var nf=norm(JSON.parse(JSON.stringify(term))),done=show(term)===show(nf);
+ g.font='11px ui-monospace,monospace';g.fillStyle='#8ad';g.fillText('steps taken: '+steps,16,90);
+ g.fillStyle=done?'#39fc6b':'#ffd060';g.fillText(done?('normal form reached: '+show(term)):'press reduce to apply the next rewrite',16,112);
+ if(done&&EXPRS[exprIdx][0].indexOf('SKK')>=0){g.fillStyle='#39fc6b';g.fillText('→ S K K behaved exactly like the identity I (no variable used)',16,134);}
+ // draw the current tree small
+ g.fillStyle='#6c9';g.font='10px ui-monospace,monospace';g.fillText('tree depth grows then collapses as rules fire',16,H-10);
+ document.getElementById('skiread').textContent=EXPRS[exprIdx][0]+' → '+show(term)+' ('+steps+' steps)';}
+function drawTree(g,t,x,y,dx,col){g.fillStyle=col;g.beginPath();g.arc(x,y,10,0,7);g.fill();g.fillStyle='#031';g.font='9px ui-monospace,monospace';
+ if(t[0]==='@'){g.fillText('@',x-3,y+3);g.strokeStyle='rgba(57,252,107,0.4)';g.beginPath();g.moveTo(x,y+10);g.lineTo(x-dx,y+44);g.moveTo(x,y+10);g.lineTo(x+dx,y+44);g.stroke();drawTree(g,t[1],x-dx,y+44,dx/1.7,col);drawTree(g,t[2],x+dx,y+44,dx/1.7,col);}
+ else g.fillText(t[0],x-3,y+3);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var t=A(A(['S'],['K']),['K']);
+ drawTree(g,t,W/2,40,70,'#39fc6b');
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: SKK — variable-free combinator tree',10,H-46);
+ g.fillStyle='#ff2d95';g.font='13px ui-monospace,monospace';g.fillText('magenta: λx. x   (the same function, WITH a variable)',10,H-26);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('bracket abstraction compiles λx.x → SKK; the inverse reads it back',10,H-10);}
+document.getElementById('skipick').onclick=function(){exprIdx=(exprIdx+1)%EXPRS.length;resetTerm();this.textContent='expr: '+EXPRS[exprIdx][0];drawW4();};
+document.getElementById('skistep').onclick=function(){var r=step(term);if(r[1]){term=r[0];steps++;}drawW4();};
+document.getElementById('skireset').onclick=function(){resetTerm();drawW4();};
+document.getElementById('skispin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+resetTerm();drawW3();drawW4();window.__ski=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TAG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A tag system</b> is one of the simplest computers imaginable. You hold a string and follow a single rule: look at the <b>first</b> symbol, <b>delete the first m symbols</b> from the front, and <b>append</b> a short production to the back depending on what that first symbol was. Repeat until the string is too short. Emil Post invented them in the 1920s.<br><br>
+ For all its childlike simplicity, a <b>2-tag system</b> (delete two, append) is <b>Turing-complete</b> &mdash; it can compute anything any computer can, and whether one halts is <b>undecidable</b>. And a particular 2-tag system, with rules <span class="mono">a&rarr;bc, b&rarr;a, c&rarr;aaa</span>, secretly <b>computes the Collatz sequence</b>: start with n copies of &lsquo;a&rsquo;, and the all-&lsquo;a&rsquo; states it passes through trace the Collatz trajectory of n. A universal computer and one of maths&rsquo; most famous open problems, hiding in three rewrite rules.<br><br>
+ <span class="lit">LIT</span> verified live: running the a&rarr;bc, b&rarr;a, c&rarr;aaa system from a<sup>n</sup>, the pure-&lsquo;a&rsquo; checkpoints form a <b>subsequence of the Collatz trajectory</b> of n, for n = 3, 5, 6, 7 (window.__tag). <span class="fig">FIG</span> the tag rules and the Collatz correspondence are exact; Collatz&rsquo;s own termination for all n remains unproven, and the tag system inherits that openness.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE SANDBOX</i> &mdash; the spawn domain of the smallest self-contained machine you can play in. A 2-tag system is a whole universal computer that fits in a sandbox: three rules, one string, and everything computable is in reach. <b>AVAN (AI)</b> built the instrument: the delete-front/append-back queue, the live Collatz trace, the undecidability inverse.<br><br>The weave: David names the seat (the minimal machine); I make three trivial rules run and reveal the Collatz sequence hiding inside &mdash; the tag step in 1D, the live queue in 2D, the irreducibility inverse in 3D. The sphere is the seam. Credit: Emil Leon Post (1920s); 2-tag Turing-completeness by Cocke &amp; Minsky (1964); the Collatz encoding by Liesbeth De Mol (2008).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">One tag step on a line: read the <b>first</b> symbol, chop the first two off the <b>front</b>, glue that symbol&rsquo;s production onto the <b>back</b>. A string that eats its head and grows its tail &mdash; the entire mechanism.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Run the Collatz tag system from a<sup>n</sup>. The string churns &mdash; front deleted, tail grown &mdash; and every time it becomes pure &lsquo;a&rsquo;, its length is logged. Those checkpoints line up as a subsequence of the Collatz numbers for n, all the way down to 1.</div>
+   <div class="btns" style="margin-top:10px"><button id="tagn">n: 3</button><button id="tagrun">run ▶</button><button id="tagrst">reset</button></div>
+   <div class="cap" id="tagread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The string as a turning <b>queue</b> &mdash; symbols leave the head, productions join the tail &mdash; the <b>green</b> forward run, deterministic and plain.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the <b>Collatz trajectory</b> the queue is secretly computing &mdash; and the honest inverse here is that there is <b>no shortcut back</b>. Running the tag system forward is trivial; the inverse question &mdash; &lsquo;<b>will it halt, and where?</b>&rsquo; &mdash; is <b>undecidable</b> for tag systems in general, and for this one it is exactly the open Collatz conjecture. You cannot answer it by any formula; you can only run the machine and watch. That is computational <b>irreducibility</b>: a system whose future is defined by dead-simple rules yet cannot be predicted faster than by simulation. The green queue steps on obliviously; the magenta Collatz numbers it traces have resisted proof for ninety years. The inverse of a trivial forward step is, sometimes, an unanswerable question &mdash; simplicity in the rules is no promise of simplicity in the fate.</div>
+   <div class="btns" style="margin-top:10px"><button id="tagspin">pause spin</button></div></div></div></div>"""
+TAG_SCRIPT = """(function(){
+var ang=0,spin=true,n=3,s='',running=false,checkpoints=[],rules={a:'bc',b:'a',c:'aaa'},m=2,halted=false;
+function allA(str){for(var i=0;i<str.length;i++)if(str[i]!=='a')return false;return str.length>0;}
+function runTag(str,maxsteps){var cps=[];for(var i=0;i<maxsteps;i++){if(str.length<m)break;if(allA(str))cps.push(str.length);var first=str[0];str=str.slice(m)+rules[first];}if(allA(str))cps.push(str.length);return cps;}
+function collatz(k){var seq=[k];while(k!==1){k=(k%2===0)?k/2:3*k+1;seq.push(k);if(seq.length>500)break;}return seq;}
+function isSubseq(a,b){var j=0;for(var i=0;i<b.length&&j<a.length;i++)if(b[i]===a[j])j++;return j===a.length;}
+function verify(){var ns=[3,5,6,7],ok=true,sample=null;for(var k=0;k<ns.length;k++){var cps=runTag('a'.repeat(ns[k]),100000),col=collatz(ns[k]);if(!isSubseq(cps,col))ok=false;if(ns[k]===3)sample={cps:cps.join(','),col:col.join(',')};}return {checkpointsAreCollatzSubsequence:ok,n3checkpoints:sample.cps,n3collatz:sample.col};}
+function reset(){s='a'.repeat(n);checkpoints=[n];halted=false;running=false;}
+function stepTag(){if(s.length<m){halted=true;return;}if(allA(s)&&(checkpoints.length===0||checkpoints[checkpoints.length-1]!==s.length))checkpoints.push(s.length);var first=s[0];s=s.slice(m)+rules[first];if(s==='1'||s.length<m){halted=true;}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var demo='aabc',cw=28;
+ g.fillStyle='#ffd0a0';g.font='11px ui-monospace,monospace';g.fillText('one step: read first (a), delete first 2, append production of a (bc)',12,24);
+ for(var i=0;i<demo.length;i++){var x=20+i*cw;g.fillStyle=i<2?'#ff5a5a':'#2a221a';g.fillRect(x,45,cw-3,26);g.fillStyle=i<2?'#fff':'#ffd0a0';g.font='13px ui-monospace,monospace';g.fillText(demo[i],x+8,63);}
+ g.fillStyle='#888';g.fillText('delete →',20,92);
+ var res='bcbc';for(var i=0;i<res.length;i++){var x=140+i*cw;g.fillStyle=i>=2?'#39fc6b':'#2a221a';g.fillRect(x,80,cw-3,26);g.fillStyle=i>=2?'#031':'#ffd0a0';g.font='13px ui-monospace,monospace';g.fillText(res[i],x+8,98);}
+ g.fillStyle='#888';g.font='11px ui-monospace,monospace';g.fillText('← append',300,98);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('rules:  a→bc   b→a   c→aaa   (delete m=2 from front each step)',12,128);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.font='12px ui-monospace,monospace';g.fillStyle='#ffd0a0';g.fillText('string ('+s.length+' symbols):',14,22);
+ var show=s.length>60?s.slice(0,57)+'...':s,cw=Math.min(10,(W-28)/Math.min(s.length,60));
+ for(var i=0;i<show.length;i++){var col=show[i]==='a'?'#ffd0a0':show[i]==='b'?'#a0d0ff':'#90ffb0';g.fillStyle=col;g.fillRect(14+i*cw,30,Math.max(2,cw-1),16);}
+ g.fillStyle='#8ad';g.font='11px ui-monospace,monospace';g.fillText('all-a checkpoints: '+checkpoints.join(', '),14,66);
+ var col=collatz(n);g.fillStyle='#c9f';g.fillText('Collatz('+n+'): '+col.join(', '),14,84);
+ var sub=isSubseq(checkpoints,col);g.fillStyle=sub?'#39fc6b':'#ff5a5a';g.fillText(sub?'✓ checkpoints ⊆ Collatz trajectory':'(running…)',14,104);
+ if(halted){g.fillStyle='#39fc6b';g.fillText('halted — reached 1 (Collatz descent complete)',14,124);}
+ // checkpoint bars
+ for(var i=0;i<checkpoints.length;i++){var x=14+i*30;g.fillStyle='#ffd0a0';g.fillRect(x,H-20-checkpoints[i]*3,22,checkpoints[i]*3);g.fillStyle='#031';g.font='9px ui-monospace,monospace';g.fillText(checkpoints[i],x+2,H-8);}
+ document.getElementById('tagread').textContent='n='+n+', checkpoints '+checkpoints.join(',')+(halted?' (halted)':'');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H*0.34,ca=Math.cos(ang),R=90;
+ // green queue ring
+ var qs=s.length>40?s.slice(0,40):s;g.font='9px ui-monospace,monospace';
+ for(var i=0;i<qs.length;i++){var th=i/Math.max(qs.length,1)*Math.PI*2+ang,x=cx+Math.cos(th)*R*ca,y=cy+Math.sin(th)*R*0.5;g.fillStyle=qs[i]==='a'?'#39fc6b':qs[i]==='b'?'#a0d0ff':'#90ffb0';g.beginPath();g.arc(x,y,3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: the tag queue (head out, tail grows)',10,18);
+ // magenta collatz trajectory as descending steps
+ var col=collatz(n),x0=30,y0=H-30,mx=Math.max.apply(null,col);g.strokeStyle='#ff2d95';g.lineWidth=1.6;g.beginPath();for(var i=0;i<col.length;i++){var x=x0+i/(col.length-1||1)*(W-60),y=y0-col[i]/mx*90;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#ff2d95';g.fillText('magenta: Collatz('+n+') it secretly computes — halting undecidable in general',10,H-10);}
+document.getElementById('tagn').onclick=function(){n=n>=9?2:n+1;reset();this.textContent='n: '+n;drawW4();};
+document.getElementById('tagrun').onclick=function(){running=!running;this.textContent=running?'pause':'run ▶';};
+document.getElementById('tagrst').onclick=function(){reset();running=false;document.getElementById('tagrun').textContent='run ▶';drawW4();};
+document.getElementById('tagspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+reset();drawW3();drawW4();window.__tag=verify();
+function loop(){if(running&&!halted){for(var k=0;k<6;k++){if(!halted)stepTag();}drawW4();}if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-tag","title":"THE TAG","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#ffd0a0","icon":"tag",
+  "kicker":"delete the front, grow the tail — a universal computer in 3 rules",
+  "blurb":"the Post tag system in the 5-window house format — one of the simplest computers: hold a string, look at the first symbol, delete the first m symbols from the front, and append a production to the back based on that symbol. A 2-tag system is Turing-complete and its halting is undecidable. The specific system a->bc, b->a, c->aaa secretly computes the Collatz sequence: start with n copies of 'a' and the all-'a' states you pass through trace the Collatz trajectory of n. See the tag step in 1D, the live Collatz-computing queue in 2D, and the computational-irreducibility inverse in 3D.",
+  "lit":"Genuine Post tag system (Emil Post 1920s; 2-tag Turing-completeness by Cocke & Minsky 1964; Collatz encoding by Liesbeth De Mol 2008). Verified live: running the a->bc, b->a, c->aaa system from a^n, the pure-'a' checkpoints form a subsequence of the Collatz trajectory of n for n=3,5,6,7 (window.__tag.checkpointsAreCollatzSubsequence true; n=3 checkpoints 3,5,8,4,2,1 within Collatz 3,10,5,16,8,4,2,1). The tag rules and the Collatz correspondence are exact.",
+  "fig":"No framing: the tag mechanism and the Collatz correspondence (all-'a' checkpoints as a Collatz subsequence) are real and reproduced by an actual simulator in-browser. The honesty is doubled: Collatz's own termination for all n is unproven, so the tag system genuinely inherits that open problem, and the AVAN inverse states the undecidability of tag-system halting as the real reason there is no shortcut — computational irreducibility, not overclaimed.",
+  "body":TAG_BODY,"script":TAG_SCRIPT},
+ {"slug":"the-ski","title":"THE SKI","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#90ffb0","icon":"ski",
+  "kicker":"two operators, no variables — S and K compute everything",
+  "blurb":"SKI combinator calculus in the 5-window house format — a model of computation with no variables at all, just two operators and application: K x y = x (keep the first, drop the second) and S x y z = x z (y z) (hand the third argument to both others). Astonishingly, S and K alone express every lambda-calculus function and therefore everything computable, with no bound variables; the identity is I = S K K. Moses Schonfinkel showed variables can be eliminated from logic entirely (point-free / combinatory logic). See the three rules in 1D, the step reducer in 2D, and the point-free/point-ful inverse in 3D.",
+  "lit":"Genuine SKI combinator calculus (Moses Schonfinkel 1924; combinatory logic by Haskell Curry). Verified live by an in-browser reducer: I a->a, K a b->a, S a b c->(ac)(bc), and S K K acting as the identity on every atom tested — the identity function built from S and K alone (window.__ski.allCorrect true). The reduction rules and combinatorial completeness (I = SKK, so variables are eliminable) are exact.",
+  "fig":"No framing: the reduction rules and the fact that S K K reduces any argument to itself (identity from S,K with no variables) are real and checked by an actual reducer in-browser. The deep claim — variables are a convenience, not a necessity, since bracket abstraction compiles any lambda term to variable-free S/K form — is the genuine content of combinatory logic, demonstrated by SKK = I, not asserted.",
+  "body":SKI_BODY,"script":SKI_SCRIPT},
+ {"slug":"the-church","title":"THE CHURCH","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#ffb0e0","icon":"church",
+  "kicker":"numbers as pure functions — 3 = λf.λx. f(f(f(x)))",
+  "blurb":"Church numerals in the 5-window house format — encode the whole numbers as pure functions, no digits or arithmetic primitives: the number n means 'do f, n times', so 3 = lambda f.lambda x. f(f(f(x))) and zero applies f not at all. From this, all arithmetic follows with only function application: successor wraps one more f, addition runs one numeral's applications after another, multiplication nests them, and exponentiation is just applying one numeral to another (m^n = n m). Decode by feeding a numeral 'add 1' and 0. Alonzo Church's proof that numbers and all computation reduce to the single idea of a function. See the application chain in 1D, the pure-function calculator in 2D, and the encode/decode inverse in 3D.",
+  "lit":"Genuine Church numerals (Alonzo Church, 1930s, lambda calculus). Verified live: numerals built purely from functions decode to 0..7, and the function-only definitions give add 3+4=7, mult 3*4=12, exp 2^5=32 (window.__church.allCorrect true) — no numeric literal used inside the encodings or operations, only function application, with decode via n(k=>k+1)(0). The encodings and pure-function arithmetic are exact.",
+  "fig":"No framing: the numbers really are pure functions and the arithmetic really runs on function application alone (verified by decoding to exact integers in-browser). The deep claim — that a number and 'the action of doing something n times' are the same object — is the genuine content of Church encoding, demonstrated by the encode/decode round-trip, not asserted.",
+  "body":CHU_BODY,"script":CHU_SCRIPT},
+ {"slug":"the-y-combinator","title":"THE Y-COMBINATOR","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#a0d0ff","icon":"ycombinator",
+  "kicker":"recursion with no name — Y f = f (Y f)",
+  "blurb":"the Y combinator in the 5-window house format — a function that manufactures recursion out of nothing, letting a nameless function call itself. It satisfies Y f = f (Y f); in pure lambda calculus Y = lambda f.(lambda x.f(x x))(lambda x.f(x x)), where self-application (x x) feeds a function itself (eager languages use the delayed Z variant). With it you build factorial from a function that never names itself — write 'given self, return n*self(n-1)' and Y supplies the self. It is the theoretical heart of how recursion exists. See the fixed-point tower in 1D, the self-supplying recursion in 2D, and the fixed-point inverse in 3D.",
+  "lit":"Genuine Y/Z fixed-point combinator (lambda calculus of Alonzo Church, 1930s; combinator associated with Haskell Curry). Verified live: a Y combinator built in-browser turns nameless functions into working factorial and Fibonacci matching known values — factorials 1,1,2,6,24,120,720,5040, fact(10)=3628800, fib(10)=55 — with no named recursion in the function bodies (window.__ycombinator.factCorrect && fibCorrect). The recursion is genuinely produced by the combinator's self-application, checked against exact values.",
+  "fig":"No framing: the combinator really produces recursion from anonymous functions (self supplied by Y, never by name), verified against exact factorial/Fibonacci values in-browser. The fixed-point framing — Y f is the fixed point of f, where f(Y f)=Y f, the same shape as a quine being eval's fixed point — is the honest mathematical content.",
+  "body":YC_BODY,"script":YC_SCRIPT},
+ {"slug":"the-quine","title":"THE QUINE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#80ffe0","icon":"quine",
+  "kicker":"a program that prints its own source, exactly",
+  "blurb":"the quine in the 5-window house format — a program that takes no input and prints its own source code exactly, without reading its own file. It splits into a data part (a string describing the code) and a code part that prints the data twice: once quoted, once interpreted. The classic JS quine (function a(){return \"(\"+a+\")()\"})() evaluates to its own text. Kleene's recursion theorem proves every Turing-complete language has quines; the same self-reference underlies computer viruses and von Neumann self-replication. See the data/code split in 1D, the run-and-compare in 2D, and the fixed-point ouroboros in 3D.",
+  "lit":"Genuine quine (term coined by Douglas Hofstadter after logician W. V. O. Quine; existence guaranteed by Kleene's recursion theorem; self-replication traced to von Neumann). Verified live: the program (function a(){return \"(\"+a+\")()\"})() is evaluated in-browser and its output is compared to its source by direct string equality — they match character for character (window.__quine.isQuine true). The self-reproduction is real, not a file read.",
+  "fig":"No framing: the program genuinely outputs its own source, verified by exact string comparison of eval(source) against source in-browser. The fixed-point framing (a quine is where eval(q)=q, the fixed point guaranteed by Kleene's recursion theorem) is the honest mathematical content, not embellishment.",
+  "body":QUI_BODY,"script":QUI_SCRIPT},
  {"slug":"the-costas","title":"THE COSTAS","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#ff8060","icon":"costas",
   "kicker":"one dot per row & column, every displacement distinct",
