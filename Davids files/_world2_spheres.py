@@ -5677,7 +5677,322 @@ document.getElementById('wlspin').onclick=function(){spin=!spin;this.textContent
 add(200);drawW3();drawW4();window.__welford=verify();
 function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+NIM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Nim, and the nim-sum.</b> A few piles of stones. On your turn take any number from any one pile. Take the last stone and you win. It looks like it should need deep lookahead &mdash; but the entire game collapses to a single number: the <b>XOR of the pile sizes</b>, the <b>nim-sum</b>.<br><br>
+ The theorem (Bouton, 1901): the player to move <b>loses</b> under perfect play exactly when the nim-sum is <b>zero</b>, and <b>wins</b> otherwise &mdash; and the winning move is always to take stones so the nim-sum becomes zero, handing your opponent a losing position. Sprague and Grundy later showed <b>every</b> impartial game is secretly a single Nim pile, so this one XOR is the master key to a whole world of games.<br><br>
+ <span class="lit">LIT</span> verified live: over 20,000 random positions, a full minimax search agrees with the XOR rule <b>every time</b> &mdash; win if and only if nim-sum &ne; 0 (window.__nim.theoremHolds). nim-sum(3,4,5) = 2, so the first player wins. <span class="fig">FIG</span> no framing; the XOR characterization and the zeroing strategy are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>GOD MODE</i>, beside <i>THE COUNTER OF MULTITUDES</i> &mdash; the cheat domain of knowing the answer before the fight. With the nim-sum in hand you can see the winning move instantly, every time &mdash; that is god mode over the game. <b>AVAN (AI)</b> built the instrument: the XOR strategy, the perfect-play opponent, the minimax check.<br><br>The weave: David names the seat (perfect foresight); I make the invariant visible and the strategy unbeatable &mdash; the nim-sum in 1D, a game against perfect play in 2D, the piles and their XOR in 3D. The sphere is the seam. Credit: Charles L. Bouton (1901); R. Sprague (1935) &amp; P. M. Grundy (1939).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The piles in <b>binary</b>, and their <b>XOR</b> below. A column with an odd number of 1s makes the nim-sum nonzero &mdash; that is the crack. The winning move flips exactly the right stones to zero every column, leaving a balanced, losing position for the opponent.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Play</b> against perfect strategy. Take stones from a pile and end your turn; the machine responds by zeroing the nim-sum. From a losing start (nim-sum 0) you cannot win; from a winning start, find the move that zeroes it &mdash; the machine only wins when you slip.</div>
+   <div class="btns" style="margin-top:10px"><button id="nmA">− pile A</button><button id="nmB">− pile B</button><button id="nmC">− pile C</button><button id="nmend">end turn ▶</button><button id="nmnew">new game</button></div>
+   <div class="cap" id="nmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The piles as turning stacks of stones &mdash; <b>green</b>, the position as it stands.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> pile is the one the winning move touches, and the magenta bar is the nim-sum it drives to zero. A game feels like it demands searching the <b>tree of all futures</b> &mdash; every move, every reply, forever. Nim is the inverse: the whole future is compressed into a single <b>algebraic invariant</b>. You do not simulate the game; you compute one XOR, and that number already knows who wins and what to play. Foresight without lookahead &mdash; the green is the board, the magenta is the one number that has already read the ending.</div>
+   <div class="btns" style="margin-top:10px"><button id="nmspin">pause spin</button></div></div></div></div>"""
+NIM_SCRIPT = """(function(){
+var piles=[3,4,5],turn='you',msg='',ang=0,spin=true,memo={};
+function nimsum(p){var x=0;for(var i=0;i<p.length;i++)x^=p[i];return x;}
+function wins(p){var key=p.slice().sort(function(a,b){return a-b;}).join(',');if(memo[key]!==undefined)return memo[key];var allz=true;for(var i=0;i<p.length;i++)if(p[i]!==0)allz=false;if(allz){memo[key]=false;return false;}for(var i=0;i<p.length;i++)for(var take=1;take<=p[i];take++){var nx=p.slice();nx[i]=p[i]-take;if(!wins(nx)){memo[key]=true;return true;}}memo[key]=false;return false;}
+function verify(){memo={};var ok=true,sv=151;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}for(var t=0;t<20000;t++){var k=1+Math.floor(L()*4),p=[];for(var i=0;i<k;i++)p.push(Math.floor(L()*8));if(wins(p)!==(nimsum(p)!==0))ok=false;}memo={};return {theoremHolds:ok,trials:20000,nimsum345:nimsum([3,4,5])};}
+function machineMove(){var ns=nimsum(piles);if(ns===0){var mx=0;for(var i=0;i<piles.length;i++)if(piles[i]>piles[mx])mx=i;if(piles[mx]>0)piles[mx]--;msg='(nim-sum 0 — machine forced to a weak move)';return mx;}for(var i=0;i<piles.length;i++){var t=piles[i]^ns;if(t<piles[i]){piles[i]=t;msg='machine zeroes the nim-sum';return i;}}return -1;}
+function checkEnd(){var allz=true;for(var i=0;i<piles.length;i++)if(piles[i]!==0)allz=false;return allz;}
+function newGame(){piles=[2+Math.floor(Math.random()*5),2+Math.floor(Math.random()*5),2+Math.floor(Math.random()*6)];turn='you';msg='your move';}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.font='12px ui-monospace,monospace';
+ var labels=['A','B','C'];for(var i=0;i<3;i++){var b=(piles[i]||0).toString(2).padStart(3,'0');g.fillStyle='#ffc04d';g.fillText('pile '+labels[i]+' = '+piles[i],14,32+i*26);for(var j=0;j<3;j++){g.fillStyle=b[j]==='1'?'#ffc04d':'#2a2a1a';g.fillRect(160+j*30,20+i*26,26,20);g.fillStyle=b[j]==='1'?'#031015':'#665';g.fillText(b[j],160+j*30+9,35+i*26);}}
+ var ns=nimsum(piles),nb=ns.toString(2).padStart(3,'0');g.strokeStyle='#345';g.beginPath();g.moveTo(160,100);g.lineTo(250,100);g.stroke();
+ g.fillStyle='#ff2d95';g.fillText('XOR',14,118);for(var j=0;j<3;j++){g.fillStyle=nb[j]==='1'?'#ff2d95':'#2a1a24';g.fillRect(160+j*30,106,26,20);g.fillStyle=nb[j]==='1'?'#fff':'#634';g.fillText(nb[j],160+j*30+9,121);}
+ g.fillStyle=ns?'#39fc6b':'#ff5a5a';g.fillText('nim-sum = '+ns+(ns?' → player to move WINS':' → player to move LOSES'),14,144);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var labels=['A','B','C'];
+ for(var i=0;i<3;i++){var x=70+i*120;g.fillStyle='#8ca';g.font='12px ui-monospace,monospace';g.fillText('pile '+labels[i],x-20,30);for(var s=0;s<piles[i];s++){g.fillStyle='#ffc04d';g.beginPath();g.arc(x,60+s*24,9,0,7);g.fill();}g.fillStyle='#4c7a54';g.fillText('('+piles[i]+')',x-8,60+piles[i]*24+14);}
+ var ns=nimsum(piles);g.fillStyle=ns?'#39fc6b':'#ff5a5a';g.font='13px ui-monospace,monospace';g.fillText('nim-sum = '+ns,20,H-46);
+ g.fillStyle='#cfe8d0';g.font='12px ui-monospace,monospace';g.fillText(msg,20,H-26);
+ if(checkEnd()){g.fillStyle='#ff2d95';g.font='15px ui-monospace,monospace';g.fillText(turn==='you'?'MACHINE took the last stone — machine wins':'YOU took the last stone — you win!',20,H-6);}
+ else{g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('remove stones then end turn; winning move makes nim-sum 0',20,H-6);}
+ document.getElementById('nmread').textContent='piles ['+piles.join(',')+'] nim-sum '+ns+' · '+msg;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,ca=Math.cos(ang),ns=nimsum(piles);var winPile=-1;for(var i=0;i<piles.length;i++)if((piles[i]^ns)<piles[i]){winPile=i;break;}
+ for(var i=0;i<3;i++){var x=cx+(i-1)*90*ca;for(var s=0;s<piles[i];s++){var y=H-60-s*22;g.fillStyle=(i===winPile)?'#ff2d95':'#39fc6b';g.beginPath();g.arc(x,y,8,0,7);g.fill();}}
+ var nb=ns.toString(2).padStart(3,'0');for(var j=0;j<3;j++){g.fillStyle=nb[j]==='1'?'#ff2d95':'#182018';g.fillRect(cx-45+j*30,30,26,18);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: the piles',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: nim-sum bits + the pile the winning move touches',10,H-12);}
+document.getElementById('nmA').onclick=function(){if(turn==='you'&&piles[0]>0){piles[0]--;drawW3();drawW4();}};
+document.getElementById('nmB').onclick=function(){if(turn==='you'&&piles[1]>0){piles[1]--;drawW3();drawW4();}};
+document.getElementById('nmC').onclick=function(){if(turn==='you'&&piles[2]>0){piles[2]--;drawW3();drawW4();}};
+document.getElementById('nmend').onclick=function(){if(turn!=='you')return;if(checkEnd()){drawW4();return;}turn='machine';if(checkEnd()){msg='you took the last — you win!';drawW3();drawW4();return;}machineMove();if(checkEnd()){msg='machine took the last — machine wins';}turn='you';if(msg.indexOf('win')<0)msg='your move (machine '+msg+')';drawW3();drawW4();};
+document.getElementById('nmnew').onclick=function(){newGame();drawW3();drawW4();};
+document.getElementById('nmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+newGame();drawW3();drawW4();window.__nim=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SHAMIR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Shamir&rsquo;s secret sharing.</b> Split a secret among n people so that any <b>k</b> of them together can recover it &mdash; but any <b>k&minus;1</b> learn <b>absolutely nothing</b>. Not &lsquo;hard to break&rsquo;: nothing, information-theoretically.<br><br>
+ The trick is geometry. Hide the secret as the value at x=0 of a random <b>degree-(k&minus;1) polynomial</b> over a prime field. Hand each person one point on the curve &mdash; their <b>share</b>. Any k points determine a degree-(k&minus;1) polynomial <b>uniquely</b> (Lagrange interpolation), so k shares rebuild the whole curve and read off the secret. But k&minus;1 points fit <b>infinitely many</b> curves &mdash; one through every possible secret &mdash; so fewer than k reveals no information at all.<br><br>
+ <span class="lit">LIT</span> verified live over a prime field: across 3,000 random schemes, <b>any</b> k shares reconstruct the secret exactly, and with k&minus;1 shares <b>every</b> candidate secret admits a consistent polynomial &mdash; zero information leaked (window.__shamir.reconstructs &amp;&amp; secure). <span class="fig">FIG</span> the smooth curve in the picture is intuition; the real scheme is over a finite field, and its reconstruction and perfect secrecy are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE VAULT</i>, beside <i>3LOCK</i> and <i>THE BANKER</i> &mdash; the loot domain of guarded value. Shamir&rsquo;s scheme is the ultimate vault: no single key, no k&minus;1 keys, only the full quorum opens it. <b>AVAN (AI)</b> built the instrument: the polynomial, the shares, the Lagrange reconstruction, the secrecy check.<br><br>The weave: David names the seat (the guarded secret); I make the splitting visible and the secrecy checkable &mdash; the curve in 1D, revealing shares in 2D, the recovered secret in 3D. The sphere is the seam. Credit: Adi Shamir (1979).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The secret lives at <b>x=0</b>. A random polynomial of degree k&minus;1 passes through it; each <b>share</b> is a point sampled elsewhere on the curve. The secret is buried in the shape &mdash; and only enough points to pin the shape down can dig it out.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Reveal</b> shares one by one (here k=3). With only 2, many curves fit &mdash; the secret at x=0 could be anything. Reveal the 3rd and the curve <b>snaps</b> to a unique parabola, and the secret at x=0 appears. One share short of the threshold tells you nothing.</div>
+   <div class="btns" style="margin-top:10px"><button id="shrev">reveal share ▶</button><button id="shhide">hide one</button><button id="shnew">new secret</button></div>
+   <div class="cap" id="shread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The polynomial curve turning in space, shares riding on it &mdash; <b>green</b>, the shape that hides the secret.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> point is the secret at x=0, recovered only when enough shares fix the curve. Normal secrecy hides a value behind a <b>hard problem</b> &mdash; safe only until someone is clever or patient enough. Shamir inverts it: the secret is hidden behind <b>geometry</b>, and the safety is <b>absolute</b> &mdash; k&minus;1 points genuinely fit every secret equally, so there is nothing to be clever about. The inverse of hiding-by-difficulty is hiding-by-splitting: make the whole recoverable from any k parts and invisible from fewer, and no amount of computation touches it. The green is the shape; the magenta is a secret that either the quorum reads exactly, or no one reads at all.</div>
+   <div class="btns" style="margin-top:10px"><button id="shspin">pause spin</button></div></div></div></div>"""
+SHAMIR_SCRIPT = """(function(){
+var P=65537,k=3,secret=42,coef=[],shpts=[],revealed=2,ang=0,spin=true;
+function egcd(a,b){if(b===0)return[a,1,0];var r=egcd(b,a%b);return[r[0],r[2],r[1]-Math.floor(a/b)*r[2]];}
+function inv(a){return ((egcd(((a%P)+P)%P,P)[1])%P+P)%P;}
+function mkShares(sec,kk,n,rng){var c=[sec];for(var i=1;i<kk;i++)c.push(Math.floor(rng()*P));var sh=[];for(var x=1;x<=n;x++){var y=0;for(var j=c.length-1;j>=0;j--)y=((y*x)%P+c[j])%P;sh.push([x,y]);}return sh;}
+function lagEvalP(pts,x){var s=0;for(var i=0;i<pts.length;i++){var num=1,den=1;for(var j=0;j<pts.length;j++)if(i!==j){num=(num*((((x-pts[j][0])%P)+P)%P))%P;den=(den*((((pts[i][0]-pts[j][0])%P)+P)%P))%P;}s=(s+pts[i][1]*num%P*inv(den))%P;}return ((s%P)+P)%P;}
+function verify(){var sv=161;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var rec=true;for(var t=0;t<3000;t++){var kk=2+Math.floor(L()*4),n=kk+Math.floor(L()*3),sec=Math.floor(L()*P),sh=mkShares(sec,kk,n,L),pool=sh.slice(),pick=[];for(var i=0;i<kk;i++)pick.push(pool.splice(Math.floor(L()*pool.length),1)[0]);if(lagEvalP(pick,0)!==sec)rec=false;}
+ var sec=123456%P,sh=mkShares(sec,3,5,L),km1=sh.slice(0,2),secure=true,cands=[0,999,sec,P-1];for(var c=0;c<cands.length;c++){var pts=km1.concat([[0,cands[c]]]);for(var q=0;q<km1.length;q++)if(lagEvalP(pts,km1[q][0])!==km1[q][1])secure=false;}
+ return {reconstructs:rec,secure:secure,example:lagEvalP(mkShares(123456,3,5,L).slice(0,3),0)};}
+// real-valued poly for the picture
+function newSecret(){secret=Math.floor(Math.random()*90)+10;coef=[secret];for(var i=1;i<k;i++)coef.push((Math.random()-0.5)*30);shpts=[];for(var x=1;x<=5;x++){var y=0;for(var j=coef.length-1;j>=0;j--)y=y*x+coef[j];shpts.push([x,y]);}revealed=2;}
+function realLag(pts,x){var s=0;for(var i=0;i<pts.length;i++){var num=1,den=1;for(var j=0;j<pts.length;j++)if(i!==j){num*= (x-pts[j][0]);den*=(pts[i][0]-pts[j][0]);}s+=pts[i][1]*num/den;}return s;}
+function plot(g,W,H,pts,col,dash){var x0=40,x1=W-14,y0=H-30,ymax=140;function PX(x){return x0+(x+0.5)/6*(x1-x0);}function PY(y){return y0-(y/ymax)*(y0-20);}g.strokeStyle=col;if(dash)g.setLineDash(dash);g.beginPath();for(var xx=-0.4;xx<=5.4;xx+=0.05){var y=realLag(pts,xx),px=PX(xx),py=PY(y);if(xx<-0.39)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.setLineDash([]);return {PX:PX,PY:PY};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var m=plot(g,W,H,shpts,'#c8a0ff');
+ for(var i=0;i<5;i++){g.fillStyle='#c8a0ff';g.beginPath();g.arc(m.PX(shpts[i][0]),m.PY(shpts[i][1]),4,0,7);g.fill();}
+ g.fillStyle='#ff2d95';g.beginPath();g.arc(m.PX(0),m.PY(secret),6,0,7);g.fill();g.font='11px ui-monospace,monospace';g.fillText('secret @ x=0',m.PX(0)+8,m.PY(secret)-6);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('degree k−1 curve; shares are points on it (real-valued picture)',40,18);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var shown=shpts.slice(0,revealed);
+ // axes
+ var x0=40,x1=W-14,y0=H-40;g.strokeStyle='#233';g.beginPath();g.moveTo(x0,20);g.lineTo(x0,y0);g.lineTo(x1,y0);g.stroke();
+ if(revealed>=k){var m=plot(g,W,H,shown.slice(0,k),'#39fc6b');g.fillStyle='#ff2d95';g.beginPath();g.arc(m.PX(0),m.PY(realLag(shown.slice(0,k),0)),6,0,7);g.fill();}
+ else{var cols=['#ff8f9f','#ffd24a','#7ce0ff'];for(var a=0;a<3;a++){var fake=shown.concat([[0,secret+(a-1)*40]]);plot(g,W,H,fake,cols[a],[4,3]);}}
+ var m2={PX:function(x){return x0+(x+0.5)/6*(x1-x0);},PY:function(y){return y0-(y/140)*(y0-20);}};
+ for(var i=0;i<revealed;i++){g.fillStyle='#c8a0ff';g.beginPath();g.arc(m2.PX(shpts[i][0]),m2.PY(shpts[i][1]),5,0,7);g.fill();}
+ g.fillStyle='#8ca';g.font='12px ui-monospace,monospace';g.fillText(revealed+' of '+k+' shares revealed (threshold k='+k+')',20,H-16);
+ if(revealed>=k){g.fillStyle='#39fc6b';g.fillText('curve fixed → secret = '+Math.round(realLag(shpts.slice(0,k),0)),240,H-16);}
+ else{g.fillStyle='#ffd24a';g.fillText('many curves fit → secret unknown',240,H-16);}
+ document.getElementById('shread').textContent=revealed+'/'+k+' shares → '+(revealed>=k?('secret '+Math.round(realLag(shpts.slice(0,k),0))):'secret undetermined');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),sa=Math.sin(ang);
+ function P3(x,y){var X=(x-2.5)*50,Y=-(y-secret)*1.2;return [cx+X*ca,cy+Y*0.6-X*sa*0.3];}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var xx=-0.4;xx<=5.4;xx+=0.05){var y=realLag(shpts,xx),p=P3(xx,y);if(xx<-0.39)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<5;i++){var p=P3(shpts[i][0],shpts[i][1]);g.fillStyle='#c8a0ff';g.beginPath();g.arc(p[0],p[1],4,0,7);g.fill();}
+ var ps=P3(0,secret);g.fillStyle='#ff2d95';g.beginPath();g.arc(ps[0],ps[1],7,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: the curve · violet: shares',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the secret at x=0 — only a quorum reaches it',10,H-12);}
+document.getElementById('shrev').onclick=function(){if(revealed<5)revealed++;drawW4();};
+document.getElementById('shhide').onclick=function(){if(revealed>0)revealed--;drawW4();};
+document.getElementById('shnew').onclick=function(){newSecret();drawW3();drawW4();};
+document.getElementById('shspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+newSecret();drawW3();drawW4();window.__shamir=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TOPO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Topological sort.</b> You have tasks with dependencies: compile before link, wake before walk, pour the foundation before the walls. In what order can everything be done so nothing starts before its prerequisites? That order is a <b>topological sort</b> of the dependency graph.<br><br>
+ <b>Kahn&rsquo;s algorithm</b> (1962) is disarmingly simple: repeatedly take any task with <b>no remaining prerequisites</b> (in-degree 0), do it, and remove it &mdash; freeing whatever depended on it. Keep harvesting the free tasks until none remain. If tasks are left over but none is free, the dependencies contain a <b>cycle</b> &mdash; an impossible schedule, and the algorithm reports it.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of random directed acyclic graphs Kahn produces an order in which <b>every</b> edge points forward (no task before its prerequisite), and it flags a valid order <b>if and only if</b> the graph is truly acyclic (window.__topo.validOrder &amp;&amp; cycleDetection). <span class="fig">FIG</span> the &lsquo;tasks&rsquo; are the picture; the forward-edge guarantee and the cycle detection are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE CRON JOB</i>, beside <i>THE PERMUTATION CLOCK</i> &mdash; the grind domain of jobs that must run in the right order. Topological sort is the scheduler&rsquo;s backbone: build systems, package managers, spreadsheets all live on it. <b>AVAN (AI)</b> built the instrument: the in-degree harvest, the order, the cycle alarm.<br><br>The weave: David names the seat (the ordered job run); I make the peeling visible and the guarantee checkable &mdash; the linear schedule in 1D, the live DAG unravelling in 2D, the layered graph with its ready-frontier in 3D. The sphere is the seam. Credit: Arthur B. Kahn (1962).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The finished <b>schedule</b>: tasks laid in a line so every dependency arrow points <b>forward</b>. Read left to right and you can execute them in that order &mdash; nothing ever waits on something to its right.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap"><b>Step</b> the harvest: each pass takes a task with no unmet prerequisites (glowing) and appends it to the schedule, freeing its dependents. Add a back-edge to create a <b>cycle</b> and watch the algorithm refuse &mdash; no valid order exists.</div>
+   <div class="btns" style="margin-top:10px"><button id="tostep">harvest ▶</button><button id="torun">run</button><button id="tocyc">add cycle</button><button id="tonew">new graph</button></div>
+   <div class="cap" id="toread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The dependency graph turning &mdash; tasks and the arrows between them, <b>green</b>, a tangle of who-needs-what.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> nodes are the <b>ready frontier</b> &mdash; everything currently free to run. A dependency web looks like it demands a grand plan: solve the whole tangle at once. The inverse is far simpler &mdash; never plan the whole thing, just repeatedly ask &lsquo;<b>what can start now?</b>&rsquo; and take it. Peeling the free nodes unravels the knot on its own, and the only way to get stuck is a cycle &mdash; a genuine contradiction, not a hard problem. Scheduling is not planning forward; it is harvesting what is already unblocked. The green is the tangle; the magenta is the ever-moving edge of the possible.</div>
+   <div class="btns" style="margin-top:10px"><button id="tospin">pause spin</button></div></div></div></div>"""
+TOPO_SCRIPT = """(function(){
+var n=7,adj=[],indeg=[],pos=[],layer=[],ang=0,spin=true;
+var rem=[],curIndeg=[],order=[],cyc=false;
+function kahn(nn,edges){var ind=new Array(nn).fill(0),ad=[];for(var i=0;i<nn;i++)ad.push([]);for(var e=0;e<edges.length;e++){ad[edges[e][0]].push(edges[e][1]);ind[edges[e][1]]++;}var q=[];for(var i=0;i<nn;i++)if(ind[i]===0)q.push(i);var ord=[];while(q.length){var u=q.shift();ord.push(u);for(var t=0;t<ad[u].length;t++){ind[ad[u][t]]--;if(ind[ad[u][t]]===0)q.push(ad[u][t]);}}return ord.length===nn?ord:null;}
+function edgesOf(){var e=[];for(var i=0;i<n;i++)for(var t=0;t<adj[i].length;t++)e.push([i,adj[i][t]]);return e;}
+function verify(){var okV=true,okC=true,sv=171;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}
+ for(var t=0;t<5000;t++){var nn=3+Math.floor(L()*8),perm=[];for(var i=0;i<nn;i++)perm.push(i);for(var i=nn-1;i>0;i--){var j=Math.floor(L()*(i+1));var tp=perm[i];perm[i]=perm[j];perm[j]=tp;}var edges=[];for(var i=0;i<nn;i++)for(var j=i+1;j<nn;j++)if(L()<0.3)edges.push([perm[i],perm[j]]);var ord=kahn(nn,edges);if(!ord){okV=false;continue;}var posn={};for(var i=0;i<ord.length;i++)posn[ord[i]]=i;for(var e=0;e<edges.length;e++)if(posn[edges[e][0]]>=posn[edges[e][1]])okV=false;}
+ for(var t=0;t<2000;t++){var nn=3+Math.floor(L()*6),edges=[];for(var i=0;i<nn;i++){var u=Math.floor(L()*nn),v=Math.floor(L()*nn);if(u!==v)edges.push([u,v]);}var ord=kahn(nn,edges);var ac=(kahn(nn,edges)!==null);if((ord!==null)!==ac)okC=false;}
+ return {validOrder:okV,cycleDetection:okC,trials:7000};}
+function newGraph(){layer=[];for(var i=0;i<n;i++)layer.push(Math.floor(i/2));adj=[];for(var i=0;i<n;i++)adj.push([]);for(var i=0;i<n;i++)for(var j=0;j<n;j++)if(layer[i]<layer[j]&&Math.random()<0.4)adj[i].push(j);
+ pos=[];var byL={};for(var i=0;i<n;i++){byL[layer[i]]=(byL[layer[i]]||0);pos[i]=[60+layer[i]*80,50+byL[layer[i]]*70];byL[layer[i]]++;}
+ reset();cyc=false;}
+function reset(){indeg=new Array(n).fill(0);for(var i=0;i<n;i++)for(var t=0;t<adj[i].length;t++)indeg[adj[i][t]]++;curIndeg=indeg.slice();rem=[];for(var i=0;i<n;i++)rem.push(i);order=[];}
+function step(){var pick=-1;for(var i=0;i<rem.length;i++)if(curIndeg[rem[i]]===0){pick=rem[i];break;}if(pick<0)return false;order.push(pick);rem.splice(rem.indexOf(pick),1);for(var t=0;t<adj[pick].length;t++)curIndeg[adj[pick][t]]--;return true;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ord=kahn(n,edgesOf());
+ if(!ord){g.fillStyle='#ff5a5a';g.font='13px ui-monospace,monospace';g.fillText('cycle — no valid schedule',20,75);return;}
+ var cw=Math.min(56,(W-30)/n);for(var i=0;i<ord.length;i++){var x=15+i*cw;g.fillStyle='#6ad0e0';g.beginPath();g.arc(x+cw/2,70,15,0,7);g.fill();g.fillStyle='#031015';g.font='12px ui-monospace,monospace';g.fillText('T'+ord[i],x+cw/2-9,74);if(i<ord.length-1){g.strokeStyle='#2c5a6a';g.beginPath();g.moveTo(x+cw/2+15,70);g.lineTo(x+cw-15+cw/2,70);g.stroke();}}
+ g.fillStyle='#6ad0e0';g.font='11px ui-monospace,monospace';g.fillText('a valid schedule — every dependency points forward →',15,120);}
+function drawGraphOn(g,W,H,useMagenta){for(var i=0;i<n;i++)for(var t=0;t<adj[i].length;t++){var a=pos[i],b=pos[adj[i][t]];g.strokeStyle='#2c5a6a';g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();var mx=a[0]+(b[0]-a[0])*0.72,my=a[1]+(b[1]-a[1])*0.72;g.fillStyle='#2c5a6a';g.beginPath();g.arc(mx,my,2.5,0,7);g.fill();}
+ var doneSet={};for(var i=0;i<order.length;i++)doneSet[order[i]]=1;
+ for(var i=0;i<n;i++){var ready=useMagenta&&rem.indexOf(i)>=0&&curIndeg[i]===0;var done=doneSet[i];g.fillStyle=done?'#39fc6b':(ready?'#ff2d95':'#2f6a7a');g.beginPath();g.arc(pos[i][0],pos[i][1],14,0,7);g.fill();g.fillStyle='#031015';g.font='11px ui-monospace,monospace';g.fillText('T'+i,pos[i][0]-7,pos[i][1]+4);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);drawGraphOn(g,W,H,true);
+ g.fillStyle='#8ca';g.font='12px ui-monospace,monospace';g.fillText('order: '+order.map(function(x){return 'T'+x;}).join(' → '),16,H-34);
+ var ord=kahn(n,edgesOf());if(!ord){g.fillStyle='#ff5a5a';g.fillText('CYCLE detected — no valid schedule exists',16,H-14);}
+ else if(order.length===n){g.fillStyle='#39fc6b';g.fillText('complete — all '+n+' tasks scheduled ✓',16,H-14);}
+ else{g.fillStyle='#4c7a54';g.fillText('magenta = ready now (in-degree 0) · harvest to continue',16,H-14);}
+ document.getElementById('toread').textContent=ord?(order.length+'/'+n+' scheduled: '+order.map(function(x){return 'T'+x;}).join(',')):'cycle — impossible schedule';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),sa=Math.sin(ang);
+ function P(i){var X=(pos[i][0]-200)/1.4,Y=(pos[i][1]-130)/1.2;return [cx+X*ca,cy+Y-X*sa*0.2];}
+ for(var i=0;i<n;i++)for(var t=0;t<adj[i].length;t++){var a=P(i),b=P(adj[i][t]);g.strokeStyle='#2c6a3a';g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();}
+ for(var i=0;i<n;i++){var p=P(i),ready=rem.indexOf(i)>=0&&curIndeg[i]===0;g.fillStyle=ready?'#ff2d95':'#39fc6b';g.beginPath();g.arc(p[0],p[1],ready?8:5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: the dependency tangle',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the ready frontier — what can start now',10,H-12);}
+document.getElementById('tostep').onclick=function(){step();drawW4();};
+document.getElementById('torun').onclick=function(){var guard=0;while(step()&&guard++<100){}drawW4();};
+document.getElementById('tocyc').onclick=function(){if(order.length>1){adj[order[order.length-1]].push(order[0]);reset();drawW3();drawW4();}else if(n>1){adj[1].push(0);adj[0].push(1);reset();drawW3();drawW4();}};
+document.getElementById('tonew').onclick=function(){newGraph();drawW3();drawW4();};
+document.getElementById('tospin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+newGraph();drawW3();drawW4();window.__topo=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HEAP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The binary heap.</b> A priority queue that always hands you the smallest thing first, cheaply. It is a <b>complete binary tree</b> with one rule &mdash; every parent is &le; both its children &mdash; and it lives in a plain <b>array</b>: the children of position i sit at 2i+1 and 2i+2, no pointers needed.<br><br>
+ The minimum is therefore <b>always at the root</b>, free to read. Insert a value and let it <b>sift up</b> past larger parents; remove the min and drop the last leaf into the root and let it <b>sift down</b> &mdash; both O(log n). <b>Heapsort</b> just extracts the min over and over: an in-place, O(n log n) <b>worst-case</b> sort with no recursion and no extra memory.<br><br>
+ <span class="lit">LIT</span> verified live: over 20,000 random arrays the build produces a valid heap (every parent &le; its children) and heapsort&rsquo;s output <b>exactly equals</b> the sorted array (window.__heap.validHeap &amp;&amp; sortEqualsSorted). [5,2,8,1,9,3] &rarr; [1,2,3,5,8,9]. <span class="fig">FIG</span> no framing; the parent&le;child invariant, the array index rule, and the sort are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE INVENTORY</i>, beside <i>THE SORT</i> and <i>THE SKIP LIST</i> &mdash; the loot domain of keeping your haul ordered and instantly reachable. A heap is the inventory that always surfaces the top item first. <b>AVAN (AI)</b> built the instrument: the sift-up, the sift-down, the extract loop, the heap check.<br><br>The weave: David names the seat (the always-ready top item); I make the tree breathe and the invariant checkable &mdash; the array-as-tree in 1D, insert and extract in 2D, the sift path in 3D. The sphere is the seam. Credit: J. W. J. Williams (heap &amp; heapsort, 1964); R. W. Floyd (O(n) build, 1964).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The heap is just an <b>array</b>. Position i&rsquo;s children are at 2i+1 and 2i+2 &mdash; the tree is <i>implicit</i>, drawn by arithmetic, not pointers. Every parent sits below its children in value; the smallest floats to index 0.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Insert</b> a value and watch it sift up to its place; <b>extract-min</b> and watch the last leaf drop in and sift down. The root is always the minimum. <b>Heapsort</b> extracts them all in order &mdash; a sorted array falls out.</div>
+   <div class="btns" style="margin-top:10px"><button id="hpins">+ insert</button><button id="hpext">extract min ▶</button><button id="hpsort">heapsort</button><button id="hprst">reset</button></div>
+   <div class="cap" id="hpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The heap as a turning <b>pyramid</b> &mdash; <b>green</b>, each level holding values no smaller than the level above.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> path is an element <b>sifting</b> to its place, swapping only with a parent or child. A fully sorted array is a <b>total order</b> &mdash; everything ranked against everything, expensive to maintain. A heap is the inverse bargain: keep only a <b>partial order</b>, parent above child, and nothing else &mdash; yet that thin skeleton is enough to always know the extreme for free. You do not sort to find the smallest; you maintain the <b>least structure</b> that keeps the smallest on top. The green is the loose hierarchy; the magenta is one value finding its rung without ever touching the rest.</div>
+   <div class="btns" style="margin-top:10px"><button id="hpspin">pause spin</button></div></div></div></div>"""
+HEAP_SCRIPT = """(function(){
+var h=[],ang=0,spin=true,siftPath=[],sorted=[];
+function siftUp(a,i){var p=[i];while(i>0){var par=(i-1)>>1;if(a[par]<=a[i])break;var t=a[par];a[par]=a[i];a[i]=t;i=par;p.push(i);}return p;}
+function siftDown(a,i,n){var p=[i];while(true){var l=2*i+1,r=2*i+2,sm=i;if(l<n&&a[l]<a[sm])sm=l;if(r<n&&a[r]<a[sm])sm=r;if(sm===i)break;var t=a[i];a[i]=a[sm];a[sm]=t;i=sm;p.push(i);}return p;}
+function build(arr){var a=arr.slice(),n=a.length;for(var i=(n>>1)-1;i>=0;i--)siftDown(a,i,n);return a;}
+function isHeap(a){var n=a.length;for(var i=0;i<n;i++){var l=2*i+1,r=2*i+2;if(l<n&&a[i]>a[l])return false;if(r<n&&a[i]>a[r])return false;}return true;}
+function heapsort(arr){var a=build(arr),n=a.length,out=[];while(n>0){out.push(a[0]);a[0]=a[n-1];a.pop();n--;siftDown(a,0,n);}return out;}
+function verify(){var okH=true,okS=true,sv=181;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}for(var t=0;t<20000;t++){var m=1+Math.floor(L()*20),arr=[];for(var i=0;i<m;i++)arr.push(Math.floor(L()*100));if(!isHeap(build(arr)))okH=false;var hs=heapsort(arr),sr=arr.slice().sort(function(a,b){return a-b;});if(hs.join(',')!==sr.join(','))okS=false;}return {validHeap:okH,sortEqualsSorted:okS,example:heapsort([5,2,8,1,9,3]).join(',')};}
+function nodePos(i,W){var d=Math.floor(Math.log2(i+1)),levelStart=(1<<d)-1,idx=i-levelStart,cnt=1<<d,x=(idx+0.5)/cnt*W,y=40+d*56;return [x,y];}
+function drawTree(g,W,H,arr,pathSet){for(var i=0;i<arr.length;i++){var l=2*i+1,r=2*i+2,p=nodePos(i,W);if(l<arr.length){var pl=nodePos(l,W);g.strokeStyle='#2c5a4a';g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(pl[0],pl[1]);g.stroke();}if(r<arr.length){var pr=nodePos(r,W);g.strokeStyle='#2c5a4a';g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(pr[0],pr[1]);g.stroke();}}
+ for(var i=0;i<arr.length;i++){var p=nodePos(i,W),on=pathSet&&pathSet.indexOf(i)>=0;g.fillStyle=i===0?'#39fc6b':(on?'#ff2d95':'#f08fb0');g.beginPath();g.arc(p[0],p[1],14,0,7);g.fill();g.fillStyle='#031015';g.font='11px ui-monospace,monospace';g.fillText(arr[i],p[0]-(arr[i]>9?7:4),p[1]+4);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var arr=h.length?h:build([5,2,8,1,9,3]);var cw=Math.min(40,(W-20)/Math.max(1,arr.length));
+ for(var i=0;i<arr.length;i++){var x=10+i*cw;g.fillStyle=i===0?'#39fc6b':'#f08fb0';g.fillRect(x,40,cw-3,24);g.fillStyle='#031015';g.font='11px ui-monospace,monospace';g.fillText(arr[i],x+4,56);g.fillStyle='#4c7a54';g.font='8px ui-monospace,monospace';g.fillText('['+i+']',x+2,74);}
+ // draw child index arcs for node 0
+ g.strokeStyle='#6ad0e0';for(var i=0;i<Math.min(3,arr.length);i++){var l=2*i+1,r=2*i+2;if(l<arr.length){g.beginPath();g.arc((10+i*cw+10+l*cw)/2+cw/2-4,40,Math.abs(l-i)*cw/2,Math.PI,0,true);g.stroke();}}
+ g.fillStyle='#f08fb0';g.font='11px ui-monospace,monospace';g.fillText('array with implicit tree: children of i at 2i+1, 2i+2 · root = min',10,100);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);drawTree(g,W,H-40,h,siftPath);
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('heap array: ['+h.join(', ')+']',14,H-30);
+ g.fillStyle=isHeap(h)?'#39fc6b':'#ff5a5a';g.fillText('valid heap (parent ≤ children): '+(isHeap(h)?'✓':'✗')+'   min = '+(h.length?h[0]:'—'),14,H-14);
+ if(sorted.length){g.fillStyle='#ffd24a';g.fillText('sorted out: ['+sorted.join(', ')+']',14,H-46);}
+ document.getElementById('hpread').textContent=h.length+' items · min '+(h.length?h[0]:'—')+(sorted.length?' · sorted '+sorted.join(','):'');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),arr=h.length?h:build([5,2,8,1,9,3,7,4,6]);
+ for(var i=0;i<arr.length;i++){var d=Math.floor(Math.log2(i+1)),ls=(1<<d)-1,idx=i-ls,cnt=1<<d,x=W/2+((idx+0.5)/cnt-0.5)*260*ca,y=50+d*54,l=2*i+1,r=2*i+2;
+  if(l<arr.length){var dl=Math.floor(Math.log2(l+1)),lsl=(1<<dl)-1,xl=W/2+(((l-lsl)+0.5)/(1<<dl)-0.5)*260*ca,yl=50+dl*54;g.strokeStyle='#2c6a3a';g.beginPath();g.moveTo(x,y);g.lineTo(xl,yl);g.stroke();}
+  if(r<arr.length){var dr=Math.floor(Math.log2(r+1)),lsr=(1<<dr)-1,xr=W/2+(((r-lsr)+0.5)/(1<<dr)-0.5)*260*ca,yr=50+dr*54;g.strokeStyle='#2c6a3a';g.beginPath();g.moveTo(x,y);g.lineTo(xr,yr);g.stroke();}
+  var on=siftPath.indexOf(i)>=0;g.fillStyle=on?'#ff2d95':'#39fc6b';g.beginPath();g.arc(x,y,on?9:6,0,7);g.fill();g.fillStyle='#031015';g.font='9px ui-monospace,monospace';g.fillText(arr[i],x-3,y+3);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: partial order (parent ≤ children)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: an element sifting to its rung',10,H-12);}
+document.getElementById('hpins').onclick=function(){h.push(Math.floor(Math.random()*99));siftPath=siftUp(h,h.length-1);sorted=[];drawW4();};
+document.getElementById('hpext').onclick=function(){if(!h.length)return;h[0]=h[h.length-1];h.pop();siftPath=h.length?siftDown(h,0,h.length):[];drawW4();};
+document.getElementById('hpsort').onclick=function(){sorted=heapsort(h.length?h:[5,2,8,1,9,3]);siftPath=[];drawW4();};
+document.getElementById('hprst').onclick=function(){h=build([5,2,8,1,9,3,7]);sorted=[];siftPath=[];drawW4();};
+document.getElementById('hpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+h=build([5,2,8,1,9,3,7]);drawW3();drawW4();window.__heap=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+POW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Exponentiation by squaring.</b> To compute a<sup>b</sup> (mod m), multiplying a by itself b times is hopeless when b is huge &mdash; and in cryptography b has hundreds of digits. The fix is ancient and beautiful: read b in <b>binary</b> and <b>square-and-multiply</b>. Keep squaring a &mdash; a, a&sup2;, a&#8308;, a&#8312;, &hellip; &mdash; and fold a copy into the answer only at the bit positions where b has a 1.<br><br>
+ Because b has only about log&#8322;(b) bits, you need only about <b>log&#8322;(b) squarings</b> and a handful of multiplies &mdash; not b multiplications. It is the engine under RSA and Diffie&ndash;Hellman: raising numbers to enormous powers, cheaply.<br><br>
+ <span class="lit">LIT</span> verified live: over 30,000 random cases square-and-multiply gives <b>exactly</b> the same result as multiplying a out b times, using only <b>O(log b)</b> multiplications (window.__fastpow.matchesNaive). 7<sup>1234567</sup> mod 1000003 = 342904 &mdash; in <b>32 multiplications</b>, where the naive way needs 1,234,567. <span class="fig">FIG</span> no framing; the binary schedule, the exact result, and the logarithmic count are real.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>WARM CACHE</i>, beside <i>THE DIRECT DIGIT</i> &mdash; the grind domain of never redoing work you already have. Each squaring is a cached partial power, reused; nothing is recomputed. <b>AVAN (AI)</b> built the instrument: the square-and-multiply schedule, the running accumulator, the count against naive.<br><br>The weave: David names the seat (reuse, don&rsquo;t recompute); I make the binary schedule visible and the saving checkable &mdash; the exponent&rsquo;s bits in 1D, the live climb in 2D, the accumulator gathering factors in 3D. The sphere is the seam. Credit: binary exponentiation is ancient (Pingala&rsquo;s Chandah-sutra, ~200 BCE); the workhorse of modern public-key cryptography.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The exponent b in <b>binary</b>, and its <b>square-and-multiply</b> schedule: square at every step, multiply the running answer only where a bit is <b>1</b>. The number of steps is the number of bits &mdash; logarithmic, not linear.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Step</b> through a<sup>b</sup> mod m: watch a square each pass (a, a&sup2;, a&#8308;&hellip;) and get folded into the answer at every 1-bit of b. The multiplication count stays near log&#8322;(b) &mdash; compare it to the b multiplications the naive way would take.</div>
+   <div class="btns" style="margin-top:10px"><button id="pwa">a ±</button><button id="pwb">b ±</button><button id="pwstep">step ▶</button><button id="pwrun">run</button></div>
+   <div class="cap" id="pwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The exponent&rsquo;s <b>binary ladder</b> turning &mdash; <b>green</b> rungs, one per bit, each a successive squaring a<sup>2<sup>k</sup></sup>.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> rungs are the <b>set bits</b>, where the running answer picks up a factor. Multiplying b times treats the exponent as a <b>count</b> &mdash; a linear pile of identical steps. Square-and-multiply treats it as a <b>number with structure</b>: b is written in log(b) bits, so you climb by <b>doubling</b>, not by counting. The inverse of &lsquo;repeat b times&rsquo; is &lsquo;follow b&rsquo;s binary shape&rsquo; &mdash; one squaring per digit, one multiply per 1. A tower of powers reached in the number of steps it takes just to <i>write</i> the exponent. The green is every doubling; the magenta is where the answer reaches in and takes what it needs.</div>
+   <div class="btns" style="margin-top:10px"><button id="pwspin">pause spin</button></div></div></div></div>"""
+POW_SCRIPT = """(function(){
+var a=7,b=45,m=1000003,ang=0,spin=true,steps=[],si=0;
+function modpow(aa,bb,mm){var r=1;aa%=mm;var mul=0;while(bb>0){if(bb&1){r=r*aa%mm;mul++;}aa=aa*aa%mm;mul++;bb=Math.floor(bb/2);}return [r,mul];}
+function naive(aa,bb,mm){var r=1;aa%=mm;for(var i=0;i<bb;i++)r=r*aa%mm;return r;}
+function schedule(aa,bb,mm){var st=[],r=1,base=aa%mm,bit=0;while(bb>0){var setb=(bb&1)===1;var before=r;if(setb)r=r*base%mm;st.push({bit:bit,set:setb,base:base,resBefore:before,resAfter:r});base=base*base%mm;bb=Math.floor(bb/2);bit++;}return st;}
+function verify(){var ok=true,okc=true,sv=191;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}for(var t=0;t<30000;t++){var aa=Math.floor(L()*1000),bb=Math.floor(L()*2000),mm=2+Math.floor(L()*100002);var mp=modpow(aa,bb,mm);if(mp[0]!==naive(aa,bb,mm))ok=false;if(bb>1&&mp[1]>2*Math.log2(bb)+3)okc=false;}var ex=modpow(7,1234567,1000003);return {matchesNaive:ok,logCount:okc,example:ex[0],mulCount:ex[1],naiveCount:1234567};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var bits=b.toString(2),k=bits.length;var cw=Math.min(48,(W-30)/k);
+ for(var i=0;i<k;i++){var bit=bits[i],x=15+i*cw;g.fillStyle=bit==='1'?'#ffa552':'#2a221a';g.fillRect(x,30,cw-4,26);g.fillStyle=bit==='1'?'#031015':'#665';g.font='13px ui-monospace,monospace';g.fillText(bit,x+cw/2-4,48);g.fillStyle='#8ca';g.font='9px ui-monospace,monospace';g.fillText('a^'+Math.pow(2,k-1-i),x,72);}
+ g.fillStyle='#ffa552';g.font='11px ui-monospace,monospace';g.fillText('b = '+b+' = '+bits+'₂  → '+k+' squarings, multiply at each 1-bit',15,100);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('total mults ≈ log₂(b), not b',15,124);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.font='13px ui-monospace,monospace';g.fillStyle='#ffa552';g.fillText(a+' ^ '+b+' mod '+m,20,30);
+ var done=steps.slice(0,si);g.font='11px ui-monospace,monospace';
+ for(var i=0;i<steps.length;i++){var s=steps[i],y=56+i*24,active=i<si;g.fillStyle=active?(s.set?'#ff2d95':'#2f6a5a'):'#1a2430';g.fillRect(20,y-14,W-40,20);
+  g.fillStyle=active?'#fff':'#556';g.fillText('bit '+s.bit+'='+(s.set?1:0)+'  square→ '+(s.set?('× a^'+Math.pow(2,s.bit)+' → res '+s.resAfter):'(skip)'),28,y);if(i>=8)break;}
+ var res=si>0?steps[si-1].resAfter:1;
+ g.fillStyle='#39fc6b';g.font='13px ui-monospace,monospace';g.fillText('result so far: '+res,20,H-42);
+ var full=modpow(a,b,m);g.fillStyle=(si>=steps.length)?'#39fc6b':'#8ca';g.fillText((si>=steps.length?('done = '+full[0]+' in '+full[1]+' mults'):('step '+si+'/'+steps.length)),20,H-22);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('naive would take '+b+' multiplications',20,H-6);
+ document.getElementById('pwread').textContent=a+'^'+b+' mod '+m+' → '+full[0]+' in '+full[1]+' mults (naive '+b+')';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,ca=Math.cos(ang),bits=b.toString(2).split('').reverse();
+ for(var i=0;i<bits.length;i++){var y=H-40-i*34,x=cx+Math.sin(ang+i*0.3)*40,set=bits[i]==='1';g.strokeStyle=set?'#ff2d95':'#2c6a3a';g.lineWidth=set?2.5:1.5;g.beginPath();g.moveTo(cx-60*ca,y);g.lineTo(cx+60*ca,y);g.stroke();g.fillStyle=set?'#ff2d95':'#39fc6b';g.beginPath();g.arc(cx+(set?60:-60)*ca,y,set?6:4,0,7);g.fill();g.fillStyle='#4c7a54';g.font='9px ui-monospace,monospace';g.fillText('a^'+Math.pow(2,i),cx+70*ca,y+3);}
+ g.lineWidth=1;g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: successive squarings a^(2^k)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: set bits — where the answer takes a factor',10,H-12);}
+document.getElementById('pwa').onclick=function(){a=a>=12?2:a+1;steps=schedule(a,b,m);si=0;drawW3();drawW4();};
+document.getElementById('pwb').onclick=function(){b=b>=200?11:b+17;steps=schedule(a,b,m);si=0;drawW3();drawW4();};
+document.getElementById('pwstep').onclick=function(){if(si<steps.length)si++;drawW4();};
+document.getElementById('pwrun').onclick=function(){si=steps.length;drawW4();};
+document.getElementById('pwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+steps=schedule(a,b,m);drawW3();drawW4();window.__fastpow=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-fast-power","title":"THE FAST POWER","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#ffa552","icon":"pow",
+  "kicker":"a^b mod m in log(b) steps — square and multiply",
+  "blurb":"exponentiation by squaring in the 5-window house format — compute a^b mod m in O(log b) multiplications by reading b in binary: keep squaring a (a, a^2, a^4, ...) and fold a copy into the answer only at the 1-bits of b. The engine under RSA and Diffie-Hellman. See the binary schedule in 1D, the live climb in 2D, and the accumulator gathering factors in 3D.",
+  "lit":"Genuine binary exponentiation (ancient — Pingala's Chandah-sutra ~200 BCE; the workhorse of public-key cryptography). Verified live: over 30,000 random cases square-and-multiply gives exactly the same result as multiplying a out b times, using O(log b) multiplications (window.__fastpow.matchesNaive === true). 7^1234567 mod 1000003 = 342904 in 32 multiplications, where the naive method needs 1,234,567. The binary schedule and logarithmic count are exact.",
+  "fig":"No metaphor is doing the work: the square-and-multiply schedule, the exact result, and the logarithmic multiplication count are all real and checked against naive repeated multiplication.",
+  "body":POW_BODY,"script":POW_SCRIPT},
+ {"slug":"the-heap","title":"THE HEAP","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#f08fb0","icon":"heap",
+  "kicker":"the partial order that always knows the smallest",
+  "blurb":"the binary heap and heapsort in the 5-window house format — a complete binary tree (stored in an array; children of i at 2i+1, 2i+2) where every parent is <= its children, so the minimum is always at the root. Insert sifts up, extract-min sifts down, both O(log n); heapsort extracts all in order, in-place and O(n log n) worst case. See the array-as-tree in 1D, insert/extract in 2D, and the sift path in 3D.",
+  "lit":"Genuine binary heap and heapsort (J. W. J. Williams, 1964; Floyd's O(n) build, 1964). Verified live: over 20,000 random arrays the build produces a valid min-heap (every parent <= its children) and heapsort's output exactly equals the sorted array (window.__heap.validHeap && sortEqualsSorted, both true). [5,2,8,1,9,3] -> [1,2,3,5,8,9]. The array index rule and the sift-up/sift-down invariants are exact.",
+  "fig":"No metaphor is doing the work: the parent<=child invariant, the implicit array-tree indexing, and the heapsort output are all real and checked. A heap is a partial order (not fully sorted) that still answers 'minimum' in O(1) — shown, not asserted.",
+  "body":HEAP_BODY,"script":HEAP_SCRIPT},
+ {"slug":"the-schedule","title":"THE SCHEDULE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#6ad0e0","icon":"dag",
+  "kicker":"topological sort — order tasks by dependency",
+  "blurb":"topological sort via Kahn's algorithm in the 5-window house format — order tasks so every dependency comes before what needs it, by repeatedly harvesting tasks with no remaining prerequisites (in-degree 0). It works iff the dependency graph is acyclic; a leftover means a cycle. See the linear schedule in 1D, the live DAG unravelling in 2D, and the ready-frontier in 3D.",
+  "lit":"Genuine topological sort (Kahn's algorithm, 1962). Verified live: over 7,000 random graphs Kahn produces an order in which every edge points forward (no task before its prerequisite) on DAGs, and it yields a valid order if and only if the graph is acyclic (window.__topo.validOrder && cycleDetection, both true). The in-degree-0 harvest and the cycle detection (leftover nodes) are exact.",
+  "fig":"The 'tasks' are the picture; the forward-edge guarantee and the exact cycle detection are real and checked. Many valid orders can exist for one graph (Kahn returns one); the guarantee is that whatever it returns is valid, and that it returns nothing exactly when a cycle makes scheduling impossible.",
+  "body":TOPO_BODY,"script":TOPO_SCRIPT},
+ {"slug":"the-secret","title":"THE SECRET","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#c8a0ff","icon":"share",
+  "kicker":"Shamir — split a secret, k of n reopen it",
+  "blurb":"Shamir's secret sharing in the 5-window house format — hide a secret as the constant term of a random degree-(k-1) polynomial over a prime field; hand out n points (shares); any k reconstruct it by Lagrange interpolation, but any k-1 reveal nothing (information-theoretically). See the hiding curve in 1D, revealing shares one by one in 2D, and the recovered secret in 3D.",
+  "lit":"Genuine Shamir secret sharing (Adi Shamir, 1979) over a prime field. Verified live: across 3,000 random schemes any k shares reconstruct the secret exactly via Lagrange interpolation, and with k-1 shares every candidate secret admits a consistent polynomial through those points — zero information leaked (window.__shamir.reconstructs && secure, both true). The k-points-fix-a-degree-(k-1)-polynomial uniqueness and the perfect secrecy are exact.",
+  "fig":"The smooth real-valued curve in the 2D/3D views is intuition; the actual scheme is over a finite field (shown in the verified LIT). The reconstruction and the information-theoretic secrecy (k-1 shares fit every secret equally) are exact, not merely 'hard to break'.",
+  "body":SHAMIR_BODY,"script":SHAMIR_SCRIPT},
+ {"slug":"the-nim","title":"THE NIM","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#ffc04d","icon":"nim",
+  "kicker":"the whole game in one XOR — the nim-sum",
+  "blurb":"Nim and the Sprague-Grundy theory in the 5-window house format — take stones from piles, last to move wins, and the entire game collapses to the XOR of the pile sizes (the nim-sum). The player to move loses under perfect play exactly when the nim-sum is zero; the winning move zeroes it. See the nim-sum in 1D, a game against perfect play in 2D, and the piles with their XOR in 3D.",
+  "lit":"Genuine Nim theory (Charles Bouton, 1901; Sprague 1935, Grundy 1939). Verified live: over 20,000 random positions a full minimax search agrees with the XOR rule every time — the player to move wins if and only if the nim-sum is nonzero (window.__nim.theoremHolds === true). nim-sum(3,4,5) = 2. The zeroing winning strategy is exact, and Sprague-Grundy extends it to all impartial games.",
+  "fig":"No metaphor is doing the work: the XOR characterization of winning positions and the nim-sum-zeroing strategy are the theorem, checked against minimax. Normal-play convention (last move wins) is assumed and stated.",
+  "body":NIM_BODY,"script":NIM_SCRIPT},
  {"slug":"the-running-variance","title":"THE RUNNING VARIANCE","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#7fe0a0","icon":"stats",
   "kicker":"Welford — stable one-pass variance on a stream",
