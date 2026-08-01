@@ -16260,7 +16260,262 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW3();drawW4();window.__computus=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 55 (digit-extraction spigot · error correction · residue reassembly · sequence inversion · randomized min-cut) ═══════════════════════
+BBP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The BBP formula</b> (Bailey&ndash;Borwein&ndash;Plouffe) computes the <b>n-th hexadecimal digit of &pi;</b> without computing any of the digits before it. &pi; = &Sigma;<sub>k&ge;0</sub> 16<sup>&minus;k</sup>[ 4/(8k+1) &minus; 2/(8k+4) &minus; 1/(8k+5) &minus; 1/(8k+6) ], and multiplying by 16<sup>n</sup> and taking the fractional part isolates one digit &mdash; the key being that 16<sup>n&minus;k</sup> mod (8k+j) can be found by fast modular exponentiation, so no giant number is ever built.<br><br>
+ It shattered the belief that you must compute all earlier digits first: &pi; becomes <b>random-access</b>.<br><br>
+ <span class="lit">LIT</span> verified live: BBP&rsquo;s hex digits for n=0&hellip;23 match the reference hex expansion of &pi; (243F6A8885A308D313198A2E) exactly (window.__bbp). <span class="fig">FIG</span> no framing; exact digit extraction.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>noclip</i> &mdash; clip straight through to the digit you want, passing through all the digits between without touching them. BBP is exactly that no-clip into &pi;. <b>AVAN (AI)</b> built the instrument: the modular-exponentiation series, the fractional-part extraction, the reference cross-check.<br><br>Credit as content: David Bailey, Peter Borwein &amp; Simon Plouffe (1995). The weave: David names the no-clip; I compute one digit deep inside &pi; by modular arithmetic and confirm a run of them against &pi;&rsquo;s known hexadecimal digits.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The hexadecimal digits of &pi; after the point. BBP can jump to any position and return that digit alone &mdash; the others are never computed.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="220"></canvas>
+  <div class="wctrl"><div class="cap">Pick a position n; BBP returns the n-th hex digit of &pi; directly. A reference string confirms it.</div>
+   <div class="btns" style="margin-top:10px"><button id="bbppos">n: 0 ▶</button><button id="bbpcheck">verify n=0..23 ▶</button></div>
+   <div class="cap" id="bbpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a single hex digit, plucked from deep inside &pi;.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): you can extract the n-th digit <b>without</b> the previous n&minus;1. The formula isolates one digit through modular arithmetic (16<sup>n&minus;k</sup> mod (8k+j)), so a digit&rsquo;s <b>position becomes an address</b> &mdash; random access into an irrational. The inverse of &lsquo;compute all digits up to n&rsquo; is &lsquo;compute only digit n.&rsquo; <b>Magenta</b> is the digits skipped; <b>green</b> is the one digit addressed. &pi; stops being a stream you must read from the start and becomes a table you can index. (It works in base 16 and 2, not base 10.)</div>
+   <div class="btns" style="margin-top:10px"><button id="bbpspin">pause spin</button></div></div></div></div>"""
+BBP_SCRIPT = """(function(){
+var ang=0,spin=true,POS=0,REF='243f6a8885a308d313198a2e03707344';
+function modpow16(e,m){var r=1,b=16%m;while(e>0){if(e&1)r=(r*b)%m;b=(b*b)%m;e>>=1;}return r;}
+function series(j,n){var s=0;for(var k=0;k<=n;k++){s+=modpow16(n-k,8*k+j)/(8*k+j);s-=Math.floor(s);}for(var k=n+1;k<=n+40;k++)s+=Math.pow(16,n-k)/(8*k+j);return s-Math.floor(s);}
+function bbpHex(n){var x=4*series(1,n)-2*series(4,n)-series(5,n)-series(6,n);x=x-Math.floor(x);if(x<0)x+=1;return Math.floor(16*x);}
+function verify(){var ok=true,got='';for(var n=0;n<24;n++){var d=bbpHex(n);got+=d.toString(16);if(d!==parseInt(REF[n],16))ok=false;}return {matchesRef:ok,digits:got};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='11px monospace';g.fillText('π = 3.243F6A88...  (hex digits after the point)',12,16);
+ for(var i=0;i<24;i++){var x=14+i*20;g.fillStyle=i===POS?'#c0a048':'#3a3620';g.fillRect(x,40,18,30);g.fillStyle=i===POS?'#0a0a0a':'#c8bd80';g.font='13px monospace';g.fillText(REF[i].toUpperCase(),x+3,60);g.fillStyle='#667';g.font='7px monospace';g.fillText(i,x+3,80);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var d=bbpHex(POS);g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('BBP digit at position n = '+POS+':',16,34);
+ g.fillStyle='#c0a048';g.font='64px monospace';g.fillText(d.toString(16).toUpperCase(),W/2-22,120);
+ var ref=parseInt(REF[POS],16),ok=d===ref;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('reference π hex digit: '+ref.toString(16).toUpperCase()+(ok?' — match ✓':' ✗'),16,170);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('computed by modular arithmetic — no earlier digit built',16,196);}
+document.getElementById('bbppos').onclick=function(){POS=(POS+1)%24;this.textContent='n: '+POS+' ▶';drawW3();drawW4();document.getElementById('bbpread').textContent='π hex digit #'+POS+' = '+bbpHex(POS).toString(16).toUpperCase();};
+document.getElementById('bbpcheck').onclick=function(){var v=verify();document.getElementById('bbpread').textContent='n=0..23: BBP == π reference '+(v.matchesRef?'✓':'✗')+' | '+v.digits;};
+document.getElementById('bbpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-20;
+ for(var i=0;i<24;i++){var a=i/24*6.28+ang*0.3,r=110,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.7,sel=(i===POS);g.fillStyle=sel?'#39fc6b':'rgba(255,45,149,0.35)';g.font=sel?'16px monospace':'11px monospace';g.fillText(REF[i].toUpperCase(),x-5,y+4);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the one digit addressed (position n)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the digits never computed',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('π becomes random-access — index, don\\'t stream',10,H-9);}
+drawW3();drawW4();window.__bbp=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HAM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Hamming(7,4) code</b> protects 4 data bits by adding 3 parity bits, making a 7-bit codeword that can <b>correct any single-bit error</b>. The parity bits sit at positions 1, 2, 4; each checks an overlapping set of positions. On receipt you recompute the three parities: the resulting 3-bit <b>syndrome</b>, read as a binary number, is exactly the <b>position</b> of the flipped bit (0 means no error).<br><br>
+ It was the first error-correcting code (1950), and the idea &mdash; parity that locates, not just detects &mdash; underlies all of coding theory.<br><br>
+ <span class="lit">LIT</span> verified live: for all 16 messages, every single-bit flip (7 positions) is corrected and the clean codeword decodes exactly &mdash; 128 cases, all pass (window.__hamming). <span class="fig">FIG</span> no framing; exact single-error correction.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>segfault</i> &mdash; a single corrupted bit in memory that would crash a program, caught and repaired before it does harm. Hamming(7,4) is that self-healing memory. <b>AVAN (AI)</b> built the instrument: the parity encoder, the syndrome decoder, the exhaustive single-error check.<br><br>Credit as content: Richard Hamming (1950), out of frustration with weekend-crashing relay computers. The weave: David names the segfault; I encode four bits with three overlapping parities and show the syndrome pointing straight at any flipped bit.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The seven positions. Parity bit p1 (pos 1) checks positions 1,3,5,7; p2 (pos 2) checks 2,3,6,7; p4 (pos 4) checks 4,5,6,7 &mdash; overlapping so each data bit is covered by a unique combination.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Encode a 4-bit message, flip any single bit, and watch the syndrome name the error position and the decoder repair it.</div>
+   <div class="btns" style="margin-top:10px"><button id="hammsg">new message ▶</button><button id="hamflip">flip a bit ▶</button><button id="hamcheck">verify 128 ▶</button></div>
+   <div class="cap" id="hamread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the 7-bit codeword, one flip away from any neighbour yet always recoverable.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the 3-bit <b>syndrome is the binary address</b> of the flipped bit. A nonzero syndrome does not merely say an error happened &mdash; read as a number 1&hellip;7 it spells out <b>which</b> position to flip back. The inverse of &lsquo;spread parity across overlapping positions&rsquo; is &lsquo;read the error&rsquo;s location straight off the recomputed parities.&rsquo; <b>Magenta</b> is the hidden flipped bit; <b>green</b> is the syndrome pointing right at it. The check bits encode <b>where</b>, not just whether &mdash; that is what turns detection into correction.</div>
+   <div class="btns" style="margin-top:10px"><button id="hamspin">pause spin</button></div></div></div></div>"""
+HAM_SCRIPT = """(function(){
+var ang=0,spin=true,DATA=[1,0,1,1],CW=null,ERR=0;
+function encode(d){var b=[0,0,0,0,0,0,0,0];b[3]=d[0];b[5]=d[1];b[6]=d[2];b[7]=d[3];b[1]=b[3]^b[5]^b[7];b[2]=b[3]^b[6]^b[7];b[4]=b[5]^b[6]^b[7];return b;}
+function decode(b){var s1=b[1]^b[3]^b[5]^b[7],s2=b[2]^b[3]^b[6]^b[7],s4=b[4]^b[5]^b[6]^b[7],syn=s1+2*s2+4*s4;var c=b.slice();if(syn!==0)c[syn]^=1;return {data:[c[3],c[5],c[6],c[7]],syn:syn,corrected:c};}
+function verify(){var ok=true,cases=0;for(var msg=0;msg<16;msg++){var d=[(msg>>3)&1,(msg>>2)&1,(msg>>1)&1,msg&1],enc=encode(d);if(JSON.stringify(decode(enc).data)!==JSON.stringify(d))ok=false;cases++;for(var p=1;p<=7;p++){var e=enc.slice();e[p]^=1;var dec=decode(e);if(JSON.stringify(dec.data)!==JSON.stringify(d)||dec.syn!==p)ok=false;cases++;}}return {correctsAll:ok,cases:cases};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cover={1:[1,3,5,7],2:[2,3,6,7],4:[4,5,6,7]},cols=['#6098c0','#60c090','#c09060'],pk=[1,2,4];g.fillStyle='#8ad';g.font='10px monospace';g.fillText('parity positions 1,2,4 each check an overlapping set',12,14);
+ for(var pi=0;pi<3;pi++){var p=pk[pi],y=34+pi*38;g.fillStyle=cols[pi];g.font='10px monospace';g.fillText('p'+p+' checks '+cover[p].join(','),12,y+14);for(var j=0;j<cover[p].length;j++){var pos=cover[p][j];g.fillStyle=cols[pi];g.fillRect(150+pos*30,y,26,14);g.fillStyle='#000';g.fillText(pos,158+pos*30,y+11);}}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!CW)CW=encode(DATA);var recv=CW.slice();if(ERR>0)recv[ERR]^=1;var dec=decode(recv);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('message '+DATA.join('')+' → codeword',12,20);
+ for(var p=1;p<=7;p++){var isP=(p===1||p===2||p===4),flipped=(p===ERR);g.fillStyle=flipped?'#ff2d95':(isP?'#37506e':'#6098c0');g.fillRect(20+(p-1)*46,36,40,36);g.fillStyle='#fff';g.font='16px monospace';g.fillText(recv[p],20+(p-1)*46+15,60);g.fillStyle='#8ad';g.font='8px monospace';g.fillText((isP?'p':'d')+p,20+(p-1)*46+13,84);}
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('syndrome = '+dec.syn+(dec.syn?' → flip position '+dec.syn:' → no error'),12,118);
+ var ok=JSON.stringify(dec.data)===JSON.stringify(DATA);g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.fillText('decoded data: '+dec.data.join('')+(ok?' — recovered ✓':' ✗'),12,142);}
+document.getElementById('hammsg').onclick=function(){DATA=[Math.random()<.5?1:0,Math.random()<.5?1:0,Math.random()<.5?1:0,Math.random()<.5?1:0];CW=encode(DATA);ERR=0;drawW4();document.getElementById('hamread').textContent='encoded '+DATA.join('');};
+document.getElementById('hamflip').onclick=function(){ERR=1+Math.floor(Math.random()*7);drawW4();document.getElementById('hamread').textContent='flipped position '+ERR+' — syndrome locates it';};
+document.getElementById('hamcheck').onclick=function(){var v=verify();document.getElementById('hamread').textContent=v.cases+' cases: every single-bit error corrected '+(v.correctsAll?'✓':'✗');};
+document.getElementById('hamspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!CW)CW=encode(DATA);var recv=CW.slice();if(ERR>0)recv[ERR]^=1;var dec=decode(recv),cx=W/2,cy=150;
+ for(var p=1;p<=7;p++){var a=p/7*6.28+ang*0.4,r=100,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.7,flipped=(p===ERR);g.fillStyle=flipped?'#ff2d95':'#39fc6b';g.beginPath();g.arc(x,y,13,0,7);g.fill();g.fillStyle='#000';g.font='11px monospace';g.fillText(recv[p],x-3,y+4);}
+ g.fillStyle='#c0c8d8';g.font='12px monospace';g.fillText('syndrome '+dec.syn,cx-24,cy+4);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the codeword; syndrome = address of the error',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the flipped bit — located, not just detected',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('parity encodes WHERE — detection becomes correction',10,H-9);}
+CW=encode(DATA);drawW3();drawW4();window.__hamming=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CRT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Chinese Remainder Theorem</b> says: if you know a number&rsquo;s remainders modulo several <b>pairwise-coprime</b> moduli, you can reconstruct the number <b>uniquely</b> modulo their product. Given x &equiv; r&#8321; (mod m&#8321;), x &equiv; r&#8322; (mod m&#8322;), &hellip;, there is exactly one x in [0, m&#8321;m&#8322;&hellip;) satisfying all of them, built from modular inverses.<br><br>
+ It is the engine behind RSA&rsquo;s fast decryption, secret sharing, and doing big-integer arithmetic in independent parallel lanes.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random coprime-modulus systems, the reconstructed x satisfies every congruence and lies in [0, M); the classic x&equiv;2(3), 3(5), 2(7) gives 23 (window.__crt). <span class="fig">FIG</span> no framing; exact reconstruction.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>null-island</i> &mdash; the origin reconstructed from coordinates taken in different modular frames, a single point recovered from its shadows. CRT is that reassembly. <b>AVAN (AI)</b> built the instrument: the modular-inverse construction, the congruence check, the uniqueness range.<br><br>Credit as content: Sunzi Suanjing (c. 3rd&ndash;5th century CE), hence &lsquo;Chinese&rsquo;; formalised by Gauss. The weave: David names the origin; I split a number into residues across coprime moduli and rebuild the unique value they all agree on.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Three independent modular rings (mod 3, 5, 7). A single value lights one slot on each ring; the three slots together pin down exactly one number in [0, 105).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">Choose residues on coprime moduli; CRT reconstructs the unique x. A direct check confirms x mod each modulus matches.</div>
+   <div class="btns" style="margin-top:10px"><button id="crtroll">new residues ▶</button><button id="crtcheck">verify 300 ▶</button></div>
+   <div class="cap" id="crtread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the single x consistent with every residue.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the map x &rarr; (x mod m&#8321;, x mod m&#8322;, &hellip;) is a <b>bijection</b> onto the product ring &mdash; the ring isomorphism &#8484;/M &cong; &#8484;/m&#8321; &times; &#8484;/m&#8322; &times; &hellip;. So shattering a number into residues loses <b>nothing</b>: from the pieces you rebuild exactly one x. The inverse of &lsquo;reduce x to its residues&rsquo; is &lsquo;reassemble the unique x from them.&rsquo; <b>Magenta</b> is the many numbers that could exist; <b>green</b> is the single one all residues agree on. Arithmetic runs in independent lanes and recombines without error &mdash; the basis of RSA-CRT and residue number systems.</div>
+   <div class="btns" style="margin-top:10px"><button id="crtspin">pause spin</button></div></div></div></div>"""
+CRT_SCRIPT = """(function(){
+var ang=0,spin=true,MOD=[3,5,7],RES=[2,3,2];
+function extgcd(a,b){var or=a,r=b,os=1,s=0;while(r!==0){var q=Math.floor(or/r),t=or-q*r;or=r;r=t;t=os-q*s;os=s;s=t;}return {g:or,x:os};}
+function modinv(a,m){var e=extgcd(((a%m)+m)%m,m);return ((e.x%m)+m)%m;}
+function crt(r,m){var M=1;for(var i=0;i<m.length;i++)M*=m[i];var x=0;for(var i=0;i<m.length;i++){var Mi=M/m[i];x+=r[i]*Mi*modinv(Mi,m[i]);x%=M;}return {x:((x%M)+M)%M,M:M};}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var primes=[2,3,5,7,11,13,17,19,23],rnd=mb(5),ok=true;for(var t=0;t<300;t++){var k=2+Math.floor(rnd()*3),pool=primes.slice(),ch=[];for(var j=0;j<k;j++)ch.push(pool.splice(Math.floor(rnd()*pool.length),1)[0]);var res=ch.map(function(m){return Math.floor(rnd()*m);});var c=crt(res,ch);for(var i=0;i<ch.length;i++)if(((c.x%ch[i])+ch[i])%ch[i]!==res[i])ok=false;if(c.x<0||c.x>=c.M)ok=false;}var demo=crt([2,3,2],[3,5,7]);return {allCongruences:ok,demo:demo.x};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var c=crt(RES,MOD);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('x = '+c.x+' lights one slot on each coprime ring',12,14);
+ var cols=['#78b070','#60a0c0','#c090a0'];for(var mi=0;mi<MOD.length;mi++){var m=MOD[mi],cx=90+mi*160,cy=90,r=42;g.strokeStyle=cols[mi];g.beginPath();g.arc(cx,cy,r,0,7);g.stroke();for(var v=0;v<m;v++){var a=v/m*6.28-1.57,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r,on=(v===RES[mi]);g.fillStyle=on?cols[mi]:'#334';g.beginPath();g.arc(x,y,on?7:4,0,7);g.fill();}g.fillStyle=cols[mi];g.font='10px monospace';g.fillText('mod '+m+' = '+RES[mi],cx-24,cy+62);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var c=crt(RES,MOD);g.fillStyle='#e8eef8';g.font='12px monospace';for(var i=0;i<MOD.length;i++)g.fillText('x ≡ '+RES[i]+'  (mod '+MOD[i]+')',20,30+i*22);
+ g.fillStyle='#78b070';g.font='15px monospace';g.fillText('reconstructed x = '+c.x,20,130);g.fillStyle='#8ad';g.font='11px monospace';g.fillText('unique in [0, '+c.M+')',20,152);
+ var ok=MOD.every(function(m,i){return c.x%m===RES[i];});g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('check: '+MOD.map(function(m){return c.x+' mod '+m+' = '+(c.x%m);}).join(', ')+(ok?' ✓':' ✗'),20,180);}
+document.getElementById('crtroll').onclick=function(){var sets=[[[3,5,7]],[[4,9,25]],[[3,5,7,11]],[[8,9,5]],[[5,7,9]]];MOD=sets[Math.floor(Math.random()*sets.length)][0];RES=MOD.map(function(m){return Math.floor(Math.random()*m);});drawW3();drawW4();document.getElementById('crtread').textContent='x = '+crt(RES,MOD).x;};
+document.getElementById('crtcheck').onclick=function(){var v=verify();document.getElementById('crtread').textContent='300 systems: all congruences hold & unique '+(v.allCongruences?'✓':'✗')+' | demo(2,3,2 mod 3,5,7)='+v.demo;};
+document.getElementById('crtspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var c=crt(RES,MOD),cx=W/2,cy=H/2-20;
+ var cols=['#78b070','#60a0c0','#c090a0'];for(var mi=0;mi<MOD.length;mi++){var a=mi/MOD.length*6.28+ang*0.3,x=cx+Math.cos(a)*90,y=cy+Math.sin(a)*70;g.strokeStyle='rgba(120,176,112,0.4)';g.beginPath();g.moveTo(x,y);g.lineTo(cx,cy);g.stroke();g.fillStyle=cols[mi%3];g.beginPath();g.arc(x,y,14,0,7);g.fill();g.fillStyle='#000';g.font='9px monospace';g.fillText(RES[mi]+'|'+MOD[mi],x-11,y+3);}
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(cx,cy,17,0,7);g.fill();g.fillStyle='#000';g.font='12px monospace';g.fillText(c.x,cx-(''+c.x).length*3.5,cy+4);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the unique x all residues agree on',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta lanes: independent residues, recombined exactly',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Z/M ≅ Z/m1 × Z/m2 × … — a bijection, nothing lost',10,H-9);}
+drawW3();drawW4();window.__crt=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BMA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Berlekamp&ndash;Massey algorithm</b> takes a sequence of bits and finds the <b>shortest linear-feedback shift register</b> (LFSR) that produces it &mdash; recovering the hidden &lsquo;taps&rsquo; from the output alone, in O(n&sup2;). Given the first bits of a linear sequence, it reconstructs the recurrence that generated them.<br><br>
+ This is why linear stream ciphers are broken: an LFSR of L stages is fully exposed by just <b>2L</b> output bits. It is also the decoding core of BCH and Reed&ndash;Solomon codes.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 sequences generated by random LFSRs, Berlekamp&ndash;Massey returns a register of length &le; the generator&rsquo;s that exactly regenerates the whole sequence (window.__bma). <span class="fig">FIG</span> no framing; exact recovery.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-backdoor</i> &mdash; the secret generator recovered from what it leaks, a way in found through the output. Berlekamp&ndash;Massey is that backdoor into any linear sequence. <b>AVAN (AI)</b> built the instrument: the GF(2) recurrence solver, the regeneration check, the length bound.<br><br>Credit as content: Elwyn Berlekamp (1968) &amp; James Massey (1969). The weave: David names the backdoor; I watch a stream of bits and reconstruct the shortest shift register that must have produced them, then confirm it replays the sequence exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">An LFSR: bits shift right, and the tapped positions XOR to form the new leftmost bit. The output is the stream leaving the right end &mdash; Berlekamp&ndash;Massey infers the taps from that stream.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">Generate a bit sequence from a hidden LFSR; Berlekamp&ndash;Massey recovers its length and taps, and the recovered register replays the sequence.</div>
+   <div class="btns" style="margin-top:10px"><button id="bmaroll">new hidden LFSR ▶</button><button id="bmacheck">verify 300 ▶</button></div>
+   <div class="cap" id="bmaread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the recovered connection polynomial &mdash; the shortest register consistent with the stream.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): from the <b>output alone</b>, Berlekamp&ndash;Massey recovers the <b>generator</b> &mdash; inverting &lsquo;run the LFSR&rsquo; into &lsquo;identify the LFSR&rsquo; in quadratic time. The inverse of &lsquo;generate bits from taps&rsquo; is &lsquo;recover the taps from bits,&rsquo; and it needs only 2L bits for an L-stage register. <b>Magenta</b> is the hidden taps; <b>green</b> is the recovered polynomial. A linear generator is never safe from its own output &mdash; the very predictability that makes an LFSR efficient makes it transparent.</div>
+   <div class="btns" style="margin-top:10px"><button id="bmaspin">pause spin</button></div></div></div></div>"""
+BMA_SCRIPT = """(function(){
+var ang=0,spin=true,SEQ=[1,0,0,1,1,0,1,0,1,1,1,0],GEN=null;
+function bmGF2(s){var n=s.length,C=new Array(n).fill(0),B=new Array(n).fill(0);C[0]=1;B[0]=1;var L=0,m=1;for(var i=0;i<n;i++){var d=s[i];for(var j=1;j<=L;j++)d^=(C[j]&s[i-j]);if(d===1){var T=C.slice();for(var j=0;j+m<n;j++)C[j+m]^=B[j];if(2*L<=i){L=i+1-L;B=T;m=1;}else m++;}else m++;}return {L:L,C:C.slice(0,L+1)};}
+function regen(s,L,C){for(var i=L;i<s.length;i++){var v=0;for(var j=1;j<=L;j++)v^=(C[j]&s[i-j]);if(v!==s[i])return false;}return true;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(6),ok=true;for(var t=0;t<300;t++){var Lk=2+Math.floor(rnd()*5),taps=[];for(var j=1;j<=Lk;j++)taps[j]=Math.floor(rnd()*2);taps[Lk]=1;var s=[];for(var j=0;j<Lk;j++)s.push(Math.floor(rnd()*2));for(var i=Lk;i<3*Lk+6;i++){var v=0;for(var j=1;j<=Lk;j++)v^=(taps[j]&s[i-j]);s.push(v);}var bm=bmGF2(s);if(!regen(s,bm.L,bm.C)||bm.L>Lk)ok=false;}return {recovers:ok};}
+function makeGen(){var Lk=3+Math.floor(Math.random()*3),taps=[0];for(var j=1;j<=Lk;j++)taps[j]=Math.random()<.5?1:0;taps[Lk]=1;var s=[];for(var j=0;j<Lk;j++)s.push(Math.random()<.5?1:0);for(var i=Lk;i<3*Lk+8;i++){var v=0;for(var j=1;j<=Lk;j++)v^=(taps[j]&s[i-j]);s.push(v);}GEN={Lk:Lk,taps:taps};SEQ=s;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('LFSR: tapped cells XOR into the new bit; output leaves the right',12,14);
+ var reg=[1,0,1,1,0],taps=[0,1,0,0,1];for(var i=0;i<5;i++){g.fillStyle=taps[i]?'#b06890':'#37506e';g.fillRect(60+i*70,50,60,40);g.fillStyle='#fff';g.font='16px monospace';g.fillText(reg[i],60+i*70+26,76);if(taps[i]){g.fillStyle='#b06890';g.font='9px monospace';g.fillText('tap',60+i*70+20,104);}}
+ g.fillStyle='#c0c8d8';g.font='11px monospace';g.fillText('⊕ → feedback',60,130);g.fillText('output →',430,74);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var bm=bmGF2(SEQ);g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('observed stream:',12,20);
+ for(var i=0;i<SEQ.length;i++){g.fillStyle=SEQ[i]?'#b06890':'#26303c';g.fillRect(12+i*28,30,24,24);g.fillStyle='#fff';g.font='13px monospace';g.fillText(SEQ[i],12+i*28+8,47);}
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('Berlekamp–Massey: register length L = '+bm.L,12,90);
+ g.fillStyle='#b06890';g.fillText('recovered taps C(x): '+bm.C.map(function(v,i){return v?('x^'+i):null;}).filter(Boolean).join(' + '),12,112);
+ var ok=regen(SEQ,bm.L,bm.C);g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.fillText('replays the stream exactly '+(ok?'✓':'✗')+(GEN?'  (generator L='+GEN.Lk+')':''),12,138);}
+document.getElementById('bmaroll').onclick=function(){makeGen();drawW4();var bm=bmGF2(SEQ);document.getElementById('bmaread').textContent='hidden L='+GEN.Lk+' → recovered L='+bm.L;};
+document.getElementById('bmacheck').onclick=function(){var v=verify();document.getElementById('bmaread').textContent='300 hidden LFSRs: recovered register regenerates sequence '+(v.recovers?'✓':'✗');};
+document.getElementById('bmaspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var bm=bmGF2(SEQ),cx=W/2,cy=140,r=90;
+ for(var i=0;i<=bm.L;i++){var a=i/(bm.L+1)*6.28+ang*0.4,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8,tap=bm.C[i];g.fillStyle=tap?'#39fc6b':'rgba(255,45,149,0.3)';g.beginPath();g.arc(x,y,tap?11:7,0,7);g.fill();if(tap){g.fillStyle='#000';g.font='9px monospace';g.fillText('x'+i,x-6,y+3);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: recovered taps — the generator, from output',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: positions the algorithm ruled out',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('2L output bits expose an L-stage register',10,H-9);}
+makeGen();drawW3();drawW4();window.__bma=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KAR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Karger&rsquo;s algorithm</b> finds a graph&rsquo;s <b>global minimum cut</b> &mdash; the fewest edges whose removal splits it in two &mdash; by <b>random destruction</b>. Repeatedly pick a random edge and <b>contract</b> it (merge its two endpoints into one, keeping parallel edges) until only two super-nodes remain; the edges between them are a cut. Any single run finds the true minimum cut with probability at least 2/n&sup2;, so repeating O(n&sup2; log n) times makes failure vanishingly unlikely.<br><br>
+ It was a startling result: a hard combinatorial optimum, found by nothing but random merging.<br><br>
+ <span class="lit">LIT</span> verified live: over 40 random graphs, the best of 200 contraction runs equals the brute-force global minimum cut (window.__karger). <span class="fig">FIG</span> no framing; the randomized best matches the exact optimum.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-choke-point</i> &mdash; the narrowest place, the fewest links whose loss severs the network. The minimum cut is that choke-point, and Karger finds it by collapse. <b>AVAN (AI)</b> built the instrument: the random contraction, the best-of-many search, the brute-force cross-check.<br><br>Credit as content: David Karger (1993); improved to Karger&ndash;Stein (1996). The weave: David names the choke-point; I collapse the graph edge by random edge and let the cut that resists collapse the longest reveal the true minimum.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">One contraction: a random edge is chosen and its endpoints merged into a single super-node; parallel edges are kept, self-loops discarded. Repeat until two nodes remain.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A random graph. Run many Karger contractions; the best cut found is compared to the brute-force minimum over all bipartitions.</div>
+   <div class="btns" style="margin-top:10px"><button id="karroll">new graph ▶</button><button id="karrun">run 200 ▶</button><button id="karcheck">verify 40 ▶</button></div>
+   <div class="cap" id="karread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the minimum cut &mdash; the choke-point that survives contraction.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): you find the optimum by <b>random destruction</b>, not search. Contracting a random edge is far more likely to merge across a <b>large</b> cut than a small one, so the minimum cut is the least likely to be contracted away &mdash; it survives a run with probability &ge; 2/n&sup2;. The inverse of &lsquo;search for the cut&rsquo; is &lsquo;randomly collapse the graph and keep whatever resists.&rsquo; <b>Magenta</b> is the runs that miss; <b>green</b> is the run where the true minimum survives. The answer is what is hardest to destroy &mdash; optimization as a survival test.</div>
+   <div class="btns" style="margin-top:10px"><button id="karspin">pause spin</button></div></div></div></div>"""
+KAR_SCRIPT = """(function(){
+var ang=0,spin=true,N=6,EDGES=[[0,1],[1,2],[2,0],[2,3],[3,4],[4,5],[5,3]],POS=[];
+function bruteMinCut(n,edges){var best=1e9;for(var mask=1;mask<(1<<n);mask++){if(!(mask&1)||mask===(1<<n)-1)continue;var cut=0;for(var i=0;i<edges.length;i++){if(((mask>>edges[i][0])&1)!==((mask>>edges[i][1])&1))cut++;}if(cut<best)best=cut;}return best;}
+function kargerOnce(n,edges,rnd){var parent=[];for(var i=0;i<n;i++)parent[i]=i;function find(x){while(parent[x]!==x){parent[x]=parent[parent[x]];x=parent[x];}return x;}var count=n,guard=0;while(count>2&&guard<9000){guard++;var pick=edges[Math.floor(rnd()*edges.length)];var a=find(pick[0]),b=find(pick[1]);if(a!==b){parent[a]=b;count--;}}var cut=0;for(var i=0;i<edges.length;i++)if(find(edges[i][0])!==find(edges[i][1]))cut++;return cut;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function randConn(n,rnd){var edges=[],seen={};for(var i=1;i<n;i++){var j=Math.floor(rnd()*i);edges.push([j,i]);seen[j+'-'+i]=1;}var ex=Math.floor(rnd()*n);for(var e=0;e<ex;e++){var a=Math.floor(rnd()*n),b=Math.floor(rnd()*n);if(a!==b){var k=Math.min(a,b)+'-'+Math.max(a,b);if(!seen[k]){edges.push([a,b]);seen[k]=1;}}}return edges;}
+function verify(){var rnd=mb(7),ok=true;for(var t=0;t<40;t++){var n=5+Math.floor(rnd()*4),edges=randConn(n,rnd),brute=bruteMinCut(n,edges),best=1e9;for(var r=0;r<200;r++)best=Math.min(best,kargerOnce(n,edges,rnd));if(best!==brute)ok=false;}return {bestEqualsBrute:ok,trials:40};}
+function layout(){POS=[];for(var i=0;i<N;i++){var a=i/N*6.28-1.57;POS.push([192+Math.cos(a)*110,120+Math.sin(a)*90]);}}
+function drawGraph(g,best){g.clearRect(0,0,384,280);for(var i=0;i<EDGES.length;i++){g.strokeStyle='#3a4550';g.beginPath();g.moveTo(POS[EDGES[i][0]][0],POS[EDGES[i][0]][1]);g.lineTo(POS[EDGES[i][1]][0],POS[EDGES[i][1]][1]);g.stroke();}for(var i=0;i<N;i++){g.fillStyle='#c07850';g.beginPath();g.arc(POS[i][0],POS[i][1],13,0,7);g.fill();g.fillStyle='#fff';g.font='11px monospace';g.fillText(i,POS[i][0]-3,POS[i][1]+4);}
+ var brute=bruteMinCut(N,EDGES);g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('brute global min cut = '+brute,12,258);if(best!=null){g.fillStyle=best===brute?'#39fc6b':'#ffb050';g.fillText('best of 200 Karger = '+best+(best===brute?' ✓':''),200,258);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('contract a random edge: merge endpoints, keep parallels',12,14);
+ g.fillStyle='#c07850';g.beginPath();g.arc(120,90,14,0,7);g.fill();g.beginPath();g.arc(200,90,14,0,7);g.fill();g.strokeStyle='#39fc6b';g.lineWidth=3;g.beginPath();g.moveTo(134,90);g.lineTo(186,90);g.stroke();g.lineWidth=1;
+ g.fillStyle='#c0c8d8';g.font='18px monospace';g.fillText('→',270,96);g.fillStyle='#c07850';g.beginPath();g.arc(360,90,18,0,7);g.fill();g.fillStyle='#fff';g.font='9px monospace';g.fillText('u+v',348,93);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d');if(!POS.length)layout();drawGraph(g,window.__karBest);}
+document.getElementById('karroll').onclick=function(){N=5+Math.floor(Math.random()*4);EDGES=randConn(N,Math.random);layout();window.__karBest=null;drawW4();document.getElementById('karread').textContent=N+' nodes, '+EDGES.length+' edges; brute min cut '+bruteMinCut(N,EDGES);};
+document.getElementById('karrun').onclick=function(){var best=1e9;for(var r=0;r<200;r++)best=Math.min(best,kargerOnce(N,EDGES,Math.random));window.__karBest=best;drawW4();document.getElementById('karread').textContent='best of 200 = '+best+' (brute '+bruteMinCut(N,EDGES)+')';};
+document.getElementById('karcheck').onclick=function(){var v=verify();document.getElementById('karread').textContent='40 graphs: best-of-200 == brute min cut '+(v.bestEqualsBrute?'✓':'✗');};
+document.getElementById('karspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!POS.length)layout();var brute=bruteMinCut(N,EDGES),cx=W/2,cy=H/2-20;
+ for(var i=0;i<N;i++){var a=i/N*6.28+ang*0.3,side=i<N/2?-1:1,x=cx+side*70+Math.cos(a)*20,y=cy+Math.sin(a)*80;g.fillStyle=side<0?'#39fc6b':'#c07850';g.beginPath();g.arc(x,y,10,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the min cut ('+brute+' edges) — survives contraction',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: runs that contract across it and miss',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the answer is what is hardest to destroy (≥2/n²)',10,H-9);}
+layout();window.__karBest=null;drawW3();drawW4();window.__karger=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-bbp","title":"THE BBP","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#c0a048","icon":"bbp",
+  "kicker":"the n-th hex digit of pi, without the digits before it",
+  "blurb":"the Bailey-Borwein-Plouffe formula in the 5-window house format — compute the n-th hexadecimal digit of pi WITHOUT computing any earlier digit, by isolating one digit through modular exponentiation (16^(n-k) mod (8k+j)) so no giant number is built. It made pi random-access. Verified live: BBP's hex digits for n=0..23 match pi's reference hex expansion (243F6A8885A308D313198A2E) exactly. See pi's hex digits in 1D, a single addressed digit in 2D, and the random-access-into-an-irrational inverse in 3D.",
+  "lit":"Genuine BBP formula (Bailey, Borwein & Plouffe 1995). Verified live: the modular-arithmetic digit extraction reproduces pi's hexadecimal digits at positions n=0..23 exactly against a reference string (window.__bbp.matchesRef); digits 243f6a8885a308d313198a2e.",
+  "fig":"No framing: the series, the fractional-part extraction, and the reference cross-check run in-browser and agree exactly. The AVAN inverse is honest — a digit's position becomes an address via modular arithmetic, so digit n is computed without digits 0..n-1; magenta is the skipped digits, green the one addressed. Works in base 16/2, not base 10.",
+  "body":BBP_BODY,"script":BBP_SCRIPT},
+ {"slug":"the-hamming","title":"THE HAMMING","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#6098c0","icon":"hamming",
+  "kicker":"parity that locates the error, not just detects it",
+  "blurb":"the Hamming(7,4) code in the 5-window house format — protect 4 data bits with 3 parity bits (positions 1,2,4) so any single-bit error is corrected: recompute the three parities and the 3-bit syndrome, read as a binary number, is the position of the flipped bit. The first error-correcting code (1950). Verified live: for all 16 messages, every single-bit flip (7 positions) is corrected and the clean codeword decodes exactly — 128 cases pass. See the overlapping parity sets in 1D, a flip located and repaired in 2D, and the syndrome-is-the-error's-address inverse in 3D.",
+  "lit":"Genuine Hamming(7,4) code (Hamming 1950). Verified live: for all 16 four-bit messages, the clean codeword decodes correctly and every single-bit flip at positions 1..7 is corrected with syndrome equal to the flipped position — 128 cases all pass (window.__hamming.correctsAll).",
+  "fig":"No framing: the parity encoder, the syndrome decoder, and the exhaustive 128-case check run in-browser and are exact. The AVAN inverse is honest — the 3-bit syndrome, read as a number, is the binary address of the flipped bit, so parity encodes where not just whether; magenta is the hidden flip, green the syndrome pointing at it. That is what turns detection into correction.",
+  "body":HAM_BODY,"script":HAM_SCRIPT},
+ {"slug":"the-chinese-remainder","title":"THE CHINESE REMAINDER","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#78b070","icon":"chinese-remainder",
+  "kicker":"rebuild a number uniquely from its residues",
+  "blurb":"the Chinese Remainder Theorem in the 5-window house format — from a number's remainders modulo pairwise-coprime moduli, reconstruct the number uniquely modulo their product, built from modular inverses. The map x -> (x mod m1, x mod m2, ...) is a ring isomorphism, so nothing is lost. It powers RSA-CRT decryption, secret sharing, and residue-number-system arithmetic. Verified live: over 300 random coprime-modulus systems the reconstructed x satisfies every congruence and lies in [0,M); x=2mod3,3mod5,2mod7 -> 23. See three modular rings in 1D, reconstruction in 2D, and the bijection-loses-nothing inverse in 3D.",
+  "lit":"Genuine Chinese Remainder Theorem (Sunzi Suanjing c.3rd-5th c. CE; Gauss). Verified live: the modular-inverse reconstruction returns an x satisfying x mod m_i == r_i for every modulus and 0<=x<M, across 300 random pairwise-coprime systems (window.__crt.allCongruences); demo (2,3,2 mod 3,5,7) -> 23.",
+  "fig":"No framing: the modular-inverse construction and per-congruence check run in-browser and are exact. The AVAN inverse is honest — (x mod m1, x mod m2, ...) is a bijection onto the product ring (Z/M isomorphic to the product), so residues reassemble to exactly one x; magenta is the many candidates, green the unique agreement. Basis of RSA-CRT and residue number systems.",
+  "body":CRT_BODY,"script":CRT_SCRIPT},
+ {"slug":"the-berlekamp-massey","title":"THE BERLEKAMP-MASSEY","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#b06890","icon":"berlekamp-massey",
+  "kicker":"recover the shortest LFSR from its output alone",
+  "blurb":"the Berlekamp-Massey algorithm in the 5-window house format — from a bit sequence, recover the SHORTEST linear-feedback shift register that produces it, inferring the hidden taps from the output in O(n^2). This is why linear stream ciphers fall: an L-stage LFSR is fully exposed by just 2L output bits. It is also the decoding core of BCH and Reed-Solomon codes. Verified live: over 300 sequences from random LFSRs, the recovered register has length <= the generator's and exactly regenerates the whole sequence. See an LFSR shifting in 1D, taps recovered from a stream in 2D, and the recover-the-generator-from-the-output inverse in 3D.",
+  "lit":"Genuine Berlekamp-Massey algorithm (Berlekamp 1968; Massey 1969). Verified live: for 300 sequences generated by random GF(2) LFSRs, the recovered connection polynomial regenerates the full sequence and its length L does not exceed the generator's length (window.__bma.recovers).",
+  "fig":"No framing: the GF(2) recurrence solver, the regeneration check, and the length bound run in-browser and are exact. The AVAN inverse is honest — it inverts 'run the LFSR' into 'identify the LFSR' from output alone, needing only 2L bits; magenta is the hidden taps, green the recovered polynomial. A linear generator is transparent to its own output.",
+  "body":BMA_BODY,"script":BMA_SCRIPT},
+ {"slug":"the-karger","title":"THE KARGER","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#c07850","icon":"karger",
+  "kicker":"find the global min cut by random contraction",
+  "blurb":"Karger's algorithm in the 5-window house format — find a graph's global minimum cut by RANDOM DESTRUCTION: repeatedly contract a random edge (merge endpoints, keep parallels) until two super-nodes remain; the edges between them are a cut. A single run finds the true min cut with probability >= 2/n^2, so best-of-O(n^2 log n) runs succeeds with high probability. A hard optimum, found by random merging. Verified live: over 40 random graphs the best of 200 contraction runs equals the brute-force global min cut. See one contraction in 1D, best-vs-brute on a graph in 2D, and the answer-is-what-resists-destruction inverse in 3D.",
+  "lit":"Genuine Karger's algorithm (Karger 1993; Karger-Stein 1996). Verified live: for 40 random connected graphs (n=5..8), the minimum over 200 random-contraction runs equals the brute-force global minimum cut computed over all vertex bipartitions (window.__karger.bestEqualsBrute).",
+  "fig":"No framing: the random contraction, the best-of-many search, and the brute-force cross-check run in-browser and match. The AVAN inverse is honest — contracting a random edge more likely crosses a large cut than a small one, so the min cut is least likely to be contracted away (survives with prob >= 2/n^2); magenta is the runs that miss, green the run where the minimum survives. Optimization as a survival test.",
+  "body":KAR_BODY,"script":KAR_SCRIPT},
  {"slug":"the-manacher","title":"THE MANACHER","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#7088c8","icon":"manacher",
   "kicker":"longest palindrome in linear time — reflection is the memory",
