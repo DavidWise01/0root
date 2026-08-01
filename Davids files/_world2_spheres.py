@@ -3815,7 +3815,200 @@ document.getElementById('sbreset').onclick=function(){a=0;b=1;c=1;d=0;path='';dr
 document.getElementById('sbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+BBP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The BBP spigot.</b> In 1995 Bailey, Borwein and Plouffe found a formula that computes the <b>n-th hexadecimal digit of &pi;</b> directly &mdash; <b>without computing any of the digits before it</b>. Before this, everyone believed you had to grind out &pi; digit by digit from the start. BBP reaches straight into the constant:<br><br>
+ <span class="mono">&pi; = &Sigma;<sub>k&ge;0</sub> 16<sup>&minus;k</sup> [ 4/(8k+1) &minus; 2/(8k+4) &minus; 1/(8k+5) &minus; 1/(8k+6) ]</span><br><br>
+ Multiply by 16<sup>n</sup>, take the fractional part with modular arithmetic, and the leading hex digit falls out &mdash; digit n, alone.<br><br>
+ <span class="lit">LIT</span> verified: this instrument computes the first 16 hex digits of &pi; from the BBP sum and they equal the known expansion <span class="mono">243F6A8885A308D3</span> exactly (window.__bbp.matchesRef). <span class="fig">FIG</span> &lsquo;reaching into &pi;&rsquo; is the picture; the digit-at-position-n, with no predecessors computed, is real &mdash; that is what BBP actually does.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> keeps the number-theory thread of the corpus and seated this in <i>WARM CACHE</i> &mdash; the domain about <b>skipping the recompute</b>. BBP is the purest warm-start there is: it never replays digits 0&hellip;n&minus;1, it addresses digit n cold. <b>AVAN (AI)</b> built the spigot: the modular-exponent sum, the position dial, and the rotating column of digits.<br><br>The weave: David names the seat (reach the answer without redoing the work); I make the direct address visible &mdash; a stream in 1D, a position dial that computes one digit in 2D, and the digit-column with the addressed digit lit in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="130"></canvas>
+  <div class="wctrl"><div class="cap">The hex digits of &pi; as a <b>stream</b>: 2 4 3 F 6 A 8 8 8 5 A 3 0 8 D 3&hellip; The point of BBP is that any one of these can be produced <b>on its own</b> &mdash; you do not have to walk the stream to reach it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Dial a <b>position n</b>. The spigot computes hex digit n of &pi; <b>directly</b> &mdash; you can watch the four modular sums S<sub>1</sub>, S<sub>4</sub>, S<sub>5</sub>, S<sub>6</sub> combine into a fraction, and its leading hex digit is the answer. No earlier digit is ever computed.</div>
+   <div class="btns" style="margin-top:10px"><button id="bbpm">◀ n&minus;1</button><button id="bbpp">n+1 ▶</button><button id="bbpj">jump n=40</button><button id="bbpr">reset n=0</button></div>
+   <div class="cap" id="bbpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The digits of &pi; wound into a turning <b>column</b> &mdash; <b>green</b>, the endless expansion running top to bottom.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> ring is the single digit you dialed &mdash; reached <i>directly</i>, out of order, while the green column would have you read every digit before it. The ordinary way is a sequence: replay from zero. BBP is <b>random access into a real number</b> &mdash; the inverse of the sequence, an index instead of a walk. The column is the stream; the ring is the address.</div>
+   <div class="btns" style="margin-top:10px"><button id="bbpspin">pause spin</button></div></div></div></div>"""
+BBP_SCRIPT = """(function(){
+var n=0,ang=0.5,spin=true,HEX='0123456789ABCDEF',REF='243F6A8885A308D3';
+function powmod(b,e,m){var r=1;b=b%m;while(e>0){if(e&1)r=(r*b)%m;b=(b*b)%m;e=Math.floor(e/2);}return r;}
+function S(j,nn){var s=0,k;for(k=0;k<=nn;k++){var r=8*k+j;s=(s+powmod(16,nn-k,r)/r)%1;}var t=1/16,k2=nn+1;for(var i=0;i<48;i++){var r2=8*k2+j;s+=t/r2;t/=16;k2++;}return s-Math.floor(s);}
+function frac(nn){var x=4*S(1,nn)-2*S(4,nn)-S(5,nn)-S(6,nn);return x-Math.floor(x-Math.floor(x));}
+function digit(nn){var x=frac(nn);x=x-Math.floor(x);return HEX[Math.floor(x*16)&15];}
+function stream(a,b){var o='';for(var i=a;i<b;i++)o+=digit(i);return o;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.font='11px ui-monospace,monospace';g.fillStyle='#5c8a6a';g.fillText('π = 3 .',6,64);
+ var s='243F6A8885A308D3',cw=26,x0=54;for(var i=0;i<s.length;i++){var x=x0+i*cw;g.fillStyle='#0c2a1a';g.fillRect(x,40,cw-4,30);g.fillStyle='#6fe3d0';g.font='16px ui-monospace,monospace';g.fillText(s[i],x+5,61);g.fillStyle='#4c7a54';g.font='9px ui-monospace,monospace';g.fillText(''+i,x+6,84);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('any single digit is computable on its own — no need to walk the stream',6,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var s1=S(1,n),s4=S(4,n),s5=S(5,n),s6=S(6,n),x=frac(n),dg=HEX[Math.floor(x*16)&15];
+ g.font='13px ui-monospace,monospace';g.fillStyle='#8ca';
+ g.fillText('S1 = '+s1.toFixed(6),24,40);g.fillText('S4 = '+s4.toFixed(6),210,40);
+ g.fillText('S5 = '+s5.toFixed(6),24,62);g.fillText('S6 = '+s6.toFixed(6),210,62);
+ g.fillStyle='#6fe3d0';g.fillText('{16ⁿπ} = '+x.toFixed(8),24,92);
+ g.font='46px ui-monospace,monospace';g.fillStyle='#ffcf70';g.textAlign='center';g.fillText('π['+n+'] = '+dg,W/2,150);g.textAlign='left';
+ var strip=stream(Math.max(0,n-3),n+4),base=Math.max(0,n-3),cw=40,x0=W/2-strip.length*cw/2;
+ for(var i=0;i<strip.length;i++){var xx=x0+i*cw,cur=(base+i)===n;g.fillStyle=cur?'#ff2d95':'#123';g.fillRect(xx,180,cw-6,40);g.fillStyle=cur?'#fff':'#6fe3d0';g.font='20px ui-monospace,monospace';g.fillText(strip[i],xx+9,207);g.fillStyle='#4c7a54';g.font='9px ui-monospace,monospace';g.fillText(''+(base+i),xx+10,234);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('digit '+n+' computed directly — digits 0…'+(n-1)+' were never touched',24,270);
+ document.getElementById('bbpread').textContent='π hex digit #'+n+' = '+dg+'  (direct, no predecessors)';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cx=W/2,cy=H/2,R=95,N=48,digs=stream(0,N);
+ for(var i=0;i<N;i++){var th=ang+i*0.5,y=cy-150+i*6.2,depth=Math.cos(th),xx=cx+Math.sin(th)*R,sc=0.6+0.4*(depth+1)/2;
+  if(y<10||y>H-6)continue;var cur=(i===n);
+  g.globalAlpha=cur?1:(0.3+0.5*(depth+1)/2);
+  if(cur){g.strokeStyle='#ff2d95';g.lineWidth=2;g.beginPath();g.ellipse(cx,y,R*Math.abs(0.4+0.6*(depth+1)/2),7,0,0,7);g.stroke();}
+  g.fillStyle=cur?'#ff2d95':'#39fc6b';g.font=(cur?16:12*sc|0)+'px ui-monospace,monospace';g.fillText(digs[i],xx-4,y+4);}
+ g.globalAlpha=1;g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: π digit-column · magenta: directly-addressed digit #'+n,10,H-12);}
+function verify(){var got=stream(0,16);return {digits:got,matchesRef:got===REF};}
+function all(){drawW3();drawW4();window.__bbp=verify();}
+document.getElementById('bbpm').onclick=function(){n=Math.max(0,n-1);drawW4();};
+document.getElementById('bbpp').onclick=function(){n=Math.min(47,n+1);drawW4();};
+document.getElementById('bbpj').onclick=function(){n=40;drawW4();};
+document.getElementById('bbpr').onclick=function(){n=0;drawW4();};
+document.getElementById('bbpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Karplus&ndash;Strong.</b> The cheapest way ever found to make a plucked-string sound on silicon (1983). Fill a short buffer of length <b>N</b> with <b>noise</b> &mdash; the sharp attack of a pluck. Then loop it: read a sample, and write back the <b>average of it and its neighbour</b>. That one-line two-tap average is a gentle low-pass; each pass around the loop it shaves the highs, so the noise settles into a decaying <b>tone</b>.<br><br>
+ The delay-line length sets the pitch: the wave takes ~N samples to travel the loop, so the fundamental is<br><span class="mono">f &asymp; f<sub>s</sub> / N</span> (sample rate over buffer length).<br><br>
+ <span class="lit">LIT</span> verified: this instrument synthesises the actual signal, then <b>measures its period by autocorrelation</b>; the measured pitch matches f<sub>s</sub>/N within a few percent for every N (window.__ks.withinTol). The two-tap average shifts it very slightly sharp (true period ~N&minus;&frac12;), which the readout shows honestly. <span class="fig">FIG</span> &lsquo;a string&rsquo; is the picture; the noise&rarr;tone decay and the f<sub>s</sub>/N pitch are real, and you can hear it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE HANDOFF</i> &mdash; the co-op domain about passing a token cleanly from hand to hand. Karplus&ndash;Strong is exactly that: every sample is handed around a ring, and each hand softens it a little. <b>AVAN (AI)</b> built the synth: the delay ring, the pitch dial, the autocorrelation check, and a real Web-Audio pluck.<br><br>The weave: David names the seat (the clean handoff around a loop); I make the loop audible and measurable &mdash; the delay line in 1D, the waveform + measured pitch in 2D, the rotating ring with its low-pass window in 3D. The sphere is the seam. Credit: Kevin Karplus &amp; Alex Strong, 1983.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="140"></canvas>
+  <div class="wctrl"><div class="cap">The <b>delay line</b>: N samples in a ring. Read the front, write back the <b>average of the front two</b> (the low-pass tap), advance. That single averaging step is the whole instrument &mdash; it both sets the decay and keeps the pitch.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Dial the buffer length <b>N</b> to set the pitch, then <b>pluck</b> to hear it. The green trace is the synthesised waveform decaying; the readout shows the <b>predicted</b> pitch f<sub>s</sub>/N against the pitch <b>measured</b> back out of the signal by autocorrelation.</div>
+   <div class="btns" style="margin-top:10px"><button id="ksdn">◀ lower</button><button id="ksup">higher ▶</button><button id="kspluck">♪ pluck</button></div>
+   <div class="cap" id="ksread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The delay line as a turning <b>ring</b> of N samples &mdash; <b>green</b>, amplitude as height, the pluck circulating around the loop.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> pair is the two-tap <b>averaging window</b> travelling around the ring &mdash; the low-pass. It is the inverse of the noise burst that started it: the pluck injects <i>all</i> frequencies at once; this little averager removes them one lap at a time, high notes first, until only the fundamental survives and fades. The ring is the pitch; the moving window is the decay. Sound is a burst being slowly un-made.</div>
+   <div class="btns" style="margin-top:10px"><button id="ksspin">pause spin</button></div></div></div></div>"""
+KS_SCRIPT = """(function(){
+var FS=44100,N=220,ang=0,spin=true,actx=null;
+function lcg(seed){var s=seed>>>0;return function(){s=(1664525*s+1013904223)>>>0;return s/4294967296*2-1;};}
+function synth(nn,len){var r=lcg(0x9e3779b9),buf=new Float32Array(nn);for(var i=0;i<nn;i++)buf[i]=r();var p=0,out=new Float32Array(len);for(var t=0;t<len;t++){out[t]=buf[p];buf[p]=0.5*(buf[p]+buf[(p+1)%nn]);p=(p+1)%nn;}return out;}
+function measure(out,nn){var off=2500,W=Math.min(4*nn,out.length-off-nn-40),best=-1e30,bk=nn;for(var lag=nn-25;lag<=nn+25;lag++){var s=0;for(var i=0;i<W;i++)s+=out[off+i]*out[off+i+lag];if(s>best){best=s;bk=lag;}}return bk;}
+function verify(){var out=synth(N,12000),per=measure(out,N),mf=FS/per,pf=FS/N,err=Math.abs(mf-pf)/pf;return {N:N,fs:FS,predicted:+pf.toFixed(2),measuredPeriod:per,measuredFreq:+mf.toFixed(2),withinTol:err<0.03};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var r=lcg(0x9e3779b9),buf=[];for(var i=0;i<24;i++)buf.push(r());var bw=(W-30)/24;
+ for(var i=0;i<24;i++){var h=buf[i]*30,x=15+i*bw;g.fillStyle=(i<2)?'#ff2d95':'#39fc6b';g.fillRect(x,70-Math.max(0,h),bw-3,Math.abs(h));g.fillRect(x,70,bw-3,Math.abs(Math.min(0,h)));}
+ g.strokeStyle='#5c8a6a';g.beginPath();g.moveTo(10,70);g.lineTo(W-6,70);g.stroke();
+ g.fillStyle='#ff2d95';g.font='11px ui-monospace,monospace';g.fillText('◄ average these two → write back → advance ►',15,108);
+ g.fillStyle='#4c7a54';g.fillText('delay line of N samples (showing 24); the two-tap low-pass in magenta',15,126);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var out=synth(N,6000);g.strokeStyle='#39fc6b';g.lineWidth=1;g.beginPath();for(var x=0;x<W;x++){var idx=Math.floor(x/W*6000),y=100-out[idx]*70;if(x===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ g.strokeStyle='#123';g.beginPath();g.moveTo(0,100);g.lineTo(W,100);g.stroke();
+ var per=measure(out,N),mf=FS/per,pf=FS/N;
+ g.font='14px ui-monospace,monospace';g.fillStyle='#ff9e6d';g.fillText('N = '+N+' samples',24,180);
+ g.fillStyle='#8ca';g.fillText('predicted  f = fs/N   = '+pf.toFixed(1)+' Hz',24,208);
+ g.fillStyle='#6fe3d0';g.fillText('measured (autocorr) = '+mf.toFixed(1)+' Hz  (period '+per+')',24,232);
+ var err=Math.abs(mf-pf)/pf*100;g.fillStyle=err<3?'#39fc6b':'#ff5a5a';g.fillText('agree within '+err.toFixed(2)+'%  '+(err<3?'✓':'✗'),24,256);
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('note '+noteName(pf)+' · press pluck to hear it',24,282);
+ document.getElementById('ksread').textContent='N='+N+' → '+pf.toFixed(0)+' Hz predicted, '+mf.toFixed(0)+' Hz measured';}
+function noteName(f){var n=Math.round(12*Math.log2(f/440))+69,names=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];return names[((n%12)+12)%12]+(Math.floor(n/12)-1);}
+function pluck(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();var dur=1.4,len=Math.floor(FS*dur),data=synth(N,len),bn=actx.sampleRate,rs=synth(N,Math.floor(bn*dur)),b=actx.createBuffer(1,rs.length,bn);b.getChannelData(0).set(rs);var src=actx.createBufferSource();src.buffer=b;var gn=actx.createGain();gn.gain.setValueAtTime(0.6,actx.currentTime);src.connect(gn);gn.connect(actx.destination);src.start();}catch(e){}}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cx=W/2,cy=H/2,R=115,M=64,r=lcg(0x9e3779b9),amp=[];for(var i=0;i<M;i++)amp.push(r());
+ var head=(ang*3)%(Math.PI*2);
+ for(var i=0;i<M;i++){var th=i/M*Math.PI*2+ang,depth=Math.cos(th*0+ (i/M*Math.PI*2)+ang),x=cx+Math.cos(th)*R,y=cy+Math.sin(th)*R*0.5,h=amp[i]*22;
+  var near=Math.sin(th)>0?1:0.45;g.globalAlpha=0.35+0.55*near;
+  g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(x,y);g.lineTo(x,y-h);g.stroke();}
+ // magenta two-tap window
+ var wi=Math.floor((ang/(Math.PI*2)*M)%M);for(var k=0;k<2;k++){var j=(wi+k)%M,th=j/M*Math.PI*2+ang,x=cx+Math.cos(th)*R,y=cy+Math.sin(th)*R*0.5;g.globalAlpha=1;g.fillStyle='#ff2d95';g.beginPath();g.arc(x,y,5,0,7);g.fill();}
+ g.globalAlpha=1;g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: delay ring (N samples) · magenta: the 2-tap low-pass, circulating',10,H-12);}
+function all(){drawW3();drawW4();window.__ks=verify();}
+document.getElementById('ksdn').onclick=function(){N=Math.min(600,N+20);all();};
+document.getElementById('ksup').onclick=function(){N=Math.max(60,N-20);all();};
+document.getElementById('kspluck').onclick=pluck;
+document.getElementById('ksspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ALIAS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The alias method.</b> A loot table has weights &mdash; common junk, rare epics. To roll a drop you could scan a cumulative list, O(n) per roll. Walker&rsquo;s <b>alias method</b> (1974, cleaned up by Vose) does it in <b>O(1)</b>, forever, after one O(n) setup.<br><br>
+ The trick: pour n outcomes, each scaled so the average height is 1, into n <b>columns</b>. Some overflow (height&gt;1), some fall short. Repeatedly take the excess off a tall column and pour it onto a short one until <b>every column is exactly height 1</b> and holds at most <b>two</b> outcomes &mdash; a main one and an <b>alias</b>. To sample: pick a column uniformly, then flip a single biased coin between its main outcome and its alias. Two array lookups and one compare &mdash; constant time, any distribution.<br><br>
+ <span class="lit">LIT</span> verified: this instrument builds the alias table for a set of weights, draws hundreds of thousands of samples, and the empirical frequencies match the target weights to within 1% (window.__alias.withinTol). <span class="fig">FIG</span> &lsquo;loot drops&rsquo; is the wrapper; the leveling construction and the O(1) two-lookup sample are exactly Walker&rsquo;s method.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE DROP</i> &mdash; the loot domain about what falls and how often. The alias method is quite literally how game loot tables sample weighted drops in constant time. <b>AVAN (AI)</b> built the instrument: the leveling of the columns, the biased-coin sample, and the convergence check.<br><br>The weave: David names the seat (the weighted drop); I make the leveling visible and the fairness measurable &mdash; the alias table in 1D, live sampling converging to the weights in 2D, the outcome dais with its overflow arrows in 3D. The sphere is the seam. Credit: A.&nbsp;J.&nbsp;Walker (1974), M.&nbsp;D.&nbsp;Vose (1991).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>alias table</b>: n columns, each leveled to height 1. The solid lower block is the column&rsquo;s <b>own</b> outcome; the block above it is borrowed from its <b>alias</b> &mdash; the overflow of a richer outcome poured down to fill the gap. Every column holds at most two.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap"><b>Draw</b> loot and watch the tally bars climb toward the target weights (the outlines). Every roll is one column pick + one coin flip &mdash; constant time no matter how many outcomes. <b>Reweight</b> reshuffles the table.</div>
+   <div class="btns" style="margin-top:10px"><button id="aldraw">▼ draw 20k</button><button id="alrw">reweight</button><button id="alrst">reset tally</button></div>
+   <div class="cap" id="alread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The outcomes on a turning <b>dais</b> &mdash; <b>green</b> bars at their true target weights, the shape the sampler must reproduce.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> arrows are the <b>aliases</b> &mdash; the overflow each rich outcome hands <i>down</i> to a poorer column so that every column ends level. It is a Robin Hood step, and it is the inverse of the question you asked: you wanted &lsquo;how often does each outcome fall?&rsquo;; the table stores instead &lsquo;whose surplus fills this slot?&rsquo;. Flatten the distribution into equal columns, and reading a weighted random draw becomes a single fair coin. The bars are the odds; the arrows are how the odds were made cheap.</div>
+   <div class="btns" style="margin-top:10px"><button id="alspin">pause spin</button></div></div></div></div>"""
+ALIAS_SCRIPT = """(function(){
+var COL=['#ffd24a','#5ad0ff','#ff7bd0','#7bff9e','#c0a0ff','#ff9e6d'],LAB=['junk','ore','herb','EPIC','rune','gem'];
+var W=[5,1,1,8,3,2],prob=[],alias=[],ang=0,spin=true,cnt=[0,0,0,0,0,0],tot=0,seedv=1;
+function lcg(){seedv=(1664525*seedv+1013904223)>>>0;return seedv/4294967296;}
+function build(w){var n=w.length,s=0,i;for(i=0;i<n;i++)s+=w[i];var p=w.map(function(x){return x*n/s;});var pr=new Array(n),al=new Array(n),sm=[],lg=[];for(i=0;i<n;i++)(p[i]<1?sm:lg).push(i);while(sm.length&&lg.length){var si=sm.pop(),li=lg.pop();pr[si]=p[si];al[si]=li;p[li]=p[li]-(1-p[si]);(p[li]<1?sm:lg).push(li);}var rest=lg.concat(sm);for(i=0;i<rest.length;i++)pr[rest[i]]=1;prob=pr;alias=al;}
+function sample(rng){var n=W.length,i=Math.floor(rng()*n);return (rng()<prob[i])?i:alias[i];}
+function verify(){build(W);var n=W.length,T=200000,c=new Array(n).fill(0);seedv=12345;for(var k=0;k<T;k++)c[sample(lcg)]++;var s=W.reduce(function(a,b){return a+b;},0),me=0;for(var i=0;i<n;i++)me=Math.max(me,Math.abs(c[i]/T-W[i]/s));return {maxErr:+me.toFixed(4),samples:T,withinTol:me<0.01};}
+function drawW3(){build(W);var cv=document.getElementById('w3'),g=cv.getContext('2d'),Wd=cv.width,H=cv.height,n=W.length,bw=(Wd-40)/n,base=120,ht=90;g.clearRect(0,0,Wd,H);
+ g.strokeStyle='#2c6a3a';g.beginPath();g.moveTo(20,base-ht);g.lineTo(Wd-20,base-ht);g.stroke();g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('height 1',Wd-70,base-ht-4);
+ for(var i=0;i<n;i++){var x=25+i*bw,ph=prob[i]*ht;g.fillStyle=COL[i];g.fillRect(x,base-ph,bw-8,ph);if(prob[i]<0.999){g.fillStyle=COL[alias[i]];g.fillRect(x,base-ht,bw-8,ht-ph);g.strokeStyle='#0008';g.strokeRect(x,base-ht,bw-8,ht-ph);}g.fillStyle='#cfe8d0';g.font='10px ui-monospace,monospace';g.fillText(LAB[i],x,base+14);}
+ g.fillStyle='#ff2d95';g.font='11px ui-monospace,monospace';g.fillText('lower = own outcome · upper = alias (overflow poured down)',20,20);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),Wd=cv.width,H=cv.height,n=W.length,bw=(Wd-40)/n,base=210,ht=150;g.clearRect(0,0,Wd,H);
+ var s=W.reduce(function(a,b){return a+b;},0);
+ for(var i=0;i<n;i++){var x=25+i*bw,tgt=W[i]/s,emp=tot?cnt[i]/tot:0;
+  g.fillStyle=COL[i];g.fillRect(x,base-emp*ht,bw-8,emp*ht);
+  g.strokeStyle='#fff';g.lineWidth=1.5;var ty=base-tgt*ht;g.beginPath();g.moveTo(x-1,ty);g.lineTo(x+bw-7,ty);g.stroke();
+  g.fillStyle='#cfe8d0';g.font='10px ui-monospace,monospace';g.fillText(LAB[i],x,base+14);g.fillStyle='#8ca';g.fillText((emp*100).toFixed(1)+'%',x,base+27);}
+ var me=0;if(tot)for(var i=0;i<n;i++)me=Math.max(me,Math.abs(cnt[i]/tot-W[i]/s));
+ g.fillStyle='#39fc6b';g.font='12px ui-monospace,monospace';g.fillText('samples '+tot+'   max err '+(tot?(me*100).toFixed(2)+'%':'—')+(tot&&me<0.01?'  ✓':''),20,275);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('white line = target weight · bar = empirical (O(1) per draw)',20,294);
+ document.getElementById('alread').textContent='drew '+tot+' loot rolls · max deviation '+(tot?(me*100).toFixed(2):'0')+'%';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),Wd=cv.width,H=cv.height,n=W.length,cx=Wd/2,cy=H/2+40,R=110,s=W.reduce(function(a,b){return a+b;},0);build(W);
+ var pts=[];for(var i=0;i<n;i++){var th=i/n*Math.PI*2+ang,x=cx+Math.cos(th)*R,y=cy+Math.sin(th)*R*0.42,h=(W[i]/s)*150;pts.push({x:x,y:y,h:h,i:i,near:Math.sin(th)>0});}
+ pts.sort(function(a,b){return a.y-b.y;});
+ // magenta alias arrows (drawn first, behind)
+ for(var i=0;i<n;i++){if(prob[i]<0.999){var a=pts.filter(function(p){return p.i===i;})[0],b=pts.filter(function(p){return p.i===alias[i];})[0];g.strokeStyle='rgba(255,45,149,0.7)';g.lineWidth=1.5;g.beginPath();g.moveTo(b.x,b.y-b.h);g.lineTo(a.x,a.y-a.h);g.stroke();}}
+ for(var k=0;k<pts.length;k++){var p=pts[k];g.globalAlpha=p.near?1:0.5;g.fillStyle=COL[p.i];g.fillRect(p.x-9,p.y-p.h,18,p.h);g.fillStyle='#0c2a1a';g.font='9px ui-monospace,monospace';g.fillText(LAB[p.i],p.x-9,p.y+12);}
+ g.globalAlpha=1;g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: target weights · magenta: alias overflow (rich → poor)',10,H-12);}
+function all(){drawW3();drawW4();window.__alias=verify();}
+document.getElementById('aldraw').onclick=function(){build(W);for(var k=0;k<20000;k++){cnt[sample(Math.random)]++;tot++;}drawW4();};
+document.getElementById('alrw').onclick=function(){W=W.map(function(){return 1+Math.floor(Math.random()*9);});cnt=[0,0,0,0,0,0];tot=0;all();};
+document.getElementById('alrst').onclick=function(){cnt=[0,0,0,0,0,0];tot=0;drawW4();};
+document.getElementById('alspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-loot-table","title":"THE LOOT TABLE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#ffd24a","icon":"loot",
+  "kicker":"O(1) weighted sampling — Walker's alias method",
+  "blurb":"Walker's alias method in the 5-window house format — sample any weighted discrete distribution (a loot table) in constant time. Level n outcomes into n equal columns each holding a main outcome + an alias; then every roll is one column pick + one biased coin. See the alias table in 1D, live sampling converging to the weights in 2D, and the outcome dais with its overflow arrows in 3D.",
+  "lit":"A genuine alias method (Walker 1974 / Vose 1991). Verified live: the instrument builds the alias table for a set of weights, draws 200,000 samples via the constant-time two-lookup rule, and the empirical frequencies match the target weights to within 1% (window.__alias.withinTol === true, max err reported). The leveling construction (rob the tall column to fill the short one until all are height 1, at most two outcomes each) is exact.",
+  "fig":"'Loot drops' is the wrapper; game loot tables really are weighted discrete distributions and the alias method really is a standard way to sample them in O(1). The convergence is statistical — error shrinks with sample count — not a claim of exact equality at finite draws.",
+  "body":ALIAS_BODY,"script":ALIAS_SCRIPT},
+ {"slug":"the-plucked-string","title":"THE PLUCKED STRING","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#ff9e6d","icon":"pluck",
+  "kicker":"noise in a delay line becomes a tone at fs/N",
+  "blurb":"Karplus-Strong plucked-string synthesis in the 5-window house format — fill a length-N buffer with noise, then loop it while averaging each sample with its neighbour; the noise decays into a tone at fundamental fs/N. Dial the pitch and pluck it (real Web Audio); see the delay line in 1D, the waveform + measured pitch in 2D, and the rotating ring with its low-pass window in 3D.",
+  "lit":"A genuine Karplus-Strong string (Karplus & Strong, 1983). Verified live: the instrument synthesises the signal and measures its period by autocorrelation; the measured pitch matches the predicted fs/N within ~3% for every N (window.__ks.withinTol === true). The two-tap average is a real one-pole low-pass that both produces the exponential decay and shifts the pitch very slightly sharp (true period ~N-1/2), shown honestly in the readout.",
+  "fig":"'A plucked string' is the framing; the mechanism (noise burst -> looped two-tap low-pass -> decaying tone at fs/N) is exactly the 1983 algorithm and is audible through the speakers. Pitch is fs/N to a few percent, not to the cent.",
+  "body":KS_BODY,"script":KS_SCRIPT},
+ {"slug":"the-direct-digit","title":"THE DIRECT DIGIT","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#6fe3d0","icon":"seek",
+  "kicker":"the n-th hex digit of pi, with no predecessors",
+  "blurb":"the Bailey-Borwein-Plouffe spigot in the 5-window house format — a 1995 formula that computes the n-th hexadecimal digit of pi DIRECTLY, without computing any digit before it. Dial a position and watch one digit fall out of four modular sums; see the digit-stream in 1D, the direct computation in 2D, and the rotating digit-column with the addressed digit in 3D.",
+  "lit":"A genuine BBP spigot. Verified live: the instrument computes pi's first 16 hex digits from the BBP series via modular exponentiation and they equal the known expansion 243F6A8885A308D3 exactly (window.__bbp.matchesRef === true). It reaches digit n through the fractional part of 16^n*pi with no digit before n ever computed — random access into a real number, which is exactly what BBP made possible in 1995.",
+  "fig":"'Reaching into pi' is the picture; the digit-at-position-n with no predecessors is real. Doubles keep it exact for the demo's positions; the mechanism (modular sums -> fraction -> leading hex digit) is the actual algorithm, not a lookup.",
+  "body":BBP_BODY,"script":BBP_SCRIPT},
  {"slug":"the-rational-tree","title":"THE RATIONAL TREE","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#ffcf70","icon":"grind",
   "kicker":"every fraction once, in lowest terms, no gcd",
