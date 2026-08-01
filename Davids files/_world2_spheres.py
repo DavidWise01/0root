@@ -7304,7 +7304,303 @@ document.getElementById('partspin').onclick=function(){spin=!spin;this.textConte
 window.__partition=verify();drawW3();drawW4();
 function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+MND_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Mandelbrot set.</b> For each complex number c, iterate z &rarr; z&sup2; + c starting from 0. If the orbit stays <b>bounded</b>, c belongs to the set; if it flies to infinity, it does not. From that one line grows the most famous object in mathematics &mdash; an infinitely intricate fractal whose boundary has (Shishikura) Hausdorff dimension <b>2</b>.<br><br>
+ Its structure is exact, not vague. There is a hard <b>escape criterion</b>: the moment |z| &gt; 2, the orbit is doomed &mdash; a finite certificate of an infinite fate. The big heart is the <b>main cardioid</b> (period 1), parametrised by c = &mu;/2 &minus; &mu;&sup2;/4; attached at c = &minus;1 is the <b>period-2 bulb</b>, a perfect disk of radius exactly <b>1/4</b>; and around the rim, infinitely many bulbs, one for every period.<br><br>
+ <span class="lit">LIT</span> verified live: every c with |c| &gt; 2 escapes; every c in the disk |c+1| &lt; 1/4 stays bounded; and every c on the cardioid c = &mu;/2 &minus; &mu;&sup2;/4 (|&mu;| &lt; 1) stays bounded (window.__mandelbrot.bigEscapes &amp;&amp; bulbBounded &amp;&amp; cardioidBounded). <span class="fig">FIG</span> no framing; the escape bound, the exact 1/4 bulb, and the cardioid are real.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>UNDEFINED BEHAVIOR</i>, beside <i>THE PERIOD</i> (the logistic map) and <i>THE EDGE OF CHAOS</i> &mdash; the glitch domain of simple rules gone wild. And the tie is exact: the Mandelbrot set&rsquo;s <b>real slice is the logistic bifurcation</b>, the same doubling cascade. <b>AVAN (AI)</b> built the instrument: the escape iteration, the cardioid and bulb, the orbit tracer.<br><br>The weave: David names the seat (the wild edge); I make the set render and its exact features checkable &mdash; the real slice in 1D, the escape-time picture and live orbits in 2D, the escape surface in 3D. The sphere is the seam. Credit: Benoit Mandelbrot (1980); Douady &amp; Hubbard (proved it connected); Brooks &amp; Matelski (early picture).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>real slice</b>: c along the real axis. Where the orbit stays bounded is exactly where the logistic map is stable or period-doubling &mdash; the Mandelbrot set on the real line is the same cascade into chaos, seen from the complex side.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The set, coloured by <b>escape time</b>. <b>Click</b> a point to trace its orbit &mdash; inside, it stays trapped; just outside, it spirals out past radius 2 and is gone. <b>Zoom</b> into the boundary and the same motifs repeat forever.</div>
+   <div class="btns" style="margin-top:10px"><button id="mnzoom">zoom boundary</button><button id="mnreset">reset view</button><button id="mnorbit">orbit: on</button></div>
+   <div class="cap" id="mndread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The escape-time as a turning <b>surface</b> &mdash; <b>green</b>, deep flat plateau where the set lives, cliffs rising at the fractal boundary.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> ridge is the boundary, and it marks a deep inversion. The set is <i>defined</i> by an <b>infinite</b> process &mdash; iterate forever, ask if it stays bounded &mdash; which you can never actually run to completion. The escape criterion is the inverse: it converts that infinity into a <b>finite certificate</b>. You do not wait forever to see a point leave; the instant |z| &gt; 2 you <b>know</b> its whole future is escape. The inverse of &lsquo;run to the end of time to decide&rsquo; is &lsquo;a threshold that decides the escapees early&rsquo;. The honest edge: membership itself &mdash; staying bounded &mdash; has no such shortcut, so the set is only <b>semi-decidable</b>; you can prove a point out, never (by iterating) prove it in. The green is the trapped interior; the magenta is the cliff where finite certainty ends and infinity begins.</div>
+   <div class="btns" style="margin-top:10px"><button id="mndspin">pause spin</button></div></div></div></div>"""
+MND_SCRIPT = """(function(){
+var view={cx:-0.6,cy:0,scale:1.6},orbitOn=true,orbitC=null,ang=0,spin=true,grid=null;
+function escapes(cr,ci,maxit){var zr=0,zi=0;for(var i=0;i<maxit;i++){var t=zr*zr-zi*zi+cr;zi=2*zr*zi+ci;zr=t;if(zr*zr+zi*zi>4)return i;}return -1;}
+function verify(){var sv=361;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var big=true,bulb=true,card=true;for(var t=0;t<5000;t++){var r=2.01+L()*8,th=L()*6.283;if(escapes(r*Math.cos(th),r*Math.sin(th),200)<0)big=false;}for(var t=0;t<5000;t++){var r=L()*0.249,th=L()*6.283;if(escapes(-1+r*Math.cos(th),r*Math.sin(th),300)>=0)bulb=false;}for(var t=0;t<5000;t++){var r=L()*0.98,th=L()*6.283,mr=r*Math.cos(th),mi=r*Math.sin(th),cr=mr/2-(mr*mr-mi*mi)/4,ci=mi/2-(2*mr*mi)/4;if(escapes(cr,ci,300)>=0)card=false;}return {bigEscapes:big,bulbBounded:bulb,cardioidBounded:card};}
+function px2c(px,py,W,H){return [view.cx+(px/W-0.5)*view.scale*2,view.cy+(py/H-0.5)*view.scale*2*H/W];}
+function render(cv){var g=cv.getContext('2d'),W=cv.width,H=cv.height,img=g.createImageData(W,H),d=img.data;for(var py=0;py<H;py++)for(var px=0;px<W;px++){var c=px2c(px,py,W,H),it=escapes(c[0],c[1],100),o=(py*W+px)*4;if(it<0){d[o]=8;d[o+1]=12;d[o+2]=20;}else{var t=it/100;d[o]=40+t*180;d[o+1]=20+t*120;d[o+2]=80+t*175;}d[o+3]=255;}g.putImageData(img,0,0);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ for(var px=0;px<W;px++){var cr=-2.2+(px/W)*3,it=escapes(cr,0,300);g.fillStyle=it<0?'#39fc6b':'hsl('+(200-it*4)+',60%,45%)';g.fillRect(px,50,1,40);}
+ g.fillStyle='#c0a0ff';g.font='11px ui-monospace,monospace';g.fillText('real slice c∈[−2.2, 0.8]: green = in set (bounded)',10,30);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('the bounded part = the logistic map\\'s stable & period-doubling zone',10,110);}
+function drawW4(){var cv=document.getElementById('w4');render(cv);var g=cv.getContext('2d'),W=cv.width,H=cv.height;
+ if(orbitOn&&orbitC){var zr=0,zi=0,pts=[];for(var i=0;i<60;i++){var t=zr*zr-zi*zi+orbitC[0];zi=2*zr*zi+orbitC[1];zr=t;pts.push([zr,zi]);if(zr*zr+zi*zi>16)break;}
+  g.strokeStyle='#ffd24d';g.lineWidth=1.2;g.beginPath();for(var i=0;i<pts.length;i++){var sx=(pts[i][0]-view.cx)/(view.scale*2)*W+W/2,sy=(pts[i][1]-view.cy)/(view.scale*2*H/W)*H+H/2;if(i===0)g.moveTo(W/2,H/2);else g.lineTo(sx,sy);}g.stroke();g.lineWidth=1;
+  var esc=escapes(orbitC[0],orbitC[1],200);g.fillStyle='rgba(3,10,8,0.8)';g.fillRect(0,H-20,W,20);g.fillStyle=esc<0?'#39fc6b':'#ffd24d';g.font='11px ui-monospace,monospace';g.fillText('c=('+orbitC[0].toFixed(3)+','+orbitC[1].toFixed(3)+') → '+(esc<0?'BOUNDED (in set)':'escapes at '+esc),8,H-6);
+  document.getElementById('mndread').textContent='c=('+orbitC[0].toFixed(3)+','+orbitC[1].toFixed(3)+') '+(esc<0?'in set':'escapes @'+esc);}}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!grid){grid=[];var NG=40;for(var i=0;i<NG;i++){grid.push([]);for(var j=0;j<NG;j++){var cr=-2.1+i/NG*3,ci=-1.2+j/NG*2.4,it=escapes(cr,ci,80);grid[i].push(it<0?80:it);}}}
+ var cx=W/2,cy=H/2+30,ca=Math.cos(ang),sa=Math.sin(ang),NG=grid.length;
+ for(var i=0;i<NG;i++)for(var j=0;j<NG;j++){var X=(i-NG/2)*7,Y=(j-NG/2)*7,h=grid[i][j]===80?-30:-grid[i][j]*0.4,px=cx+(X*ca-Y*sa),py=cy+(X*sa*0.4+Y*0.5)+h,inset=grid[i][j]===80;g.fillStyle=inset?'#39fc6b':(grid[i][j]<8?'#ff2d95':'#2c5a4a');g.fillRect(px,py,3,3);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: the set (bounded plateau)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the fractal boundary cliff',10,H-12);}
+var w4=document.getElementById('w4');
+w4.addEventListener('click',function(e){var r=w4.getBoundingClientRect();orbitC=px2c((e.clientX-r.left)*w4.width/r.width,(e.clientY-r.top)*w4.height/r.height,w4.width,w4.height);drawW4();});
+document.getElementById('mnzoom').onclick=function(){view={cx:-0.745,cy:0.113,scale:0.04};grid=null;drawW4();};
+document.getElementById('mnreset').onclick=function(){view={cx:-0.6,cy:0,scale:1.6};orbitC=null;grid=null;drawW4();};
+document.getElementById('mnorbit').onclick=function(){orbitOn=!orbitOn;this.textContent='orbit: '+(orbitOn?'on':'off');drawW4();};
+document.getElementById('mndspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__mandelbrot=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LAG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Lagrange interpolation.</b> Through any <b>n+1</b> points with distinct x-values there passes <b>exactly one</b> polynomial of degree &le; n. Lagrange&rsquo;s formula writes it down directly, with no equation-solving:<br><br>
+ <span class="mono">L(x) = &Sigma;<sub>i</sub> y<sub>i</sub> &middot; &prod;<sub>j&ne;i</sub> (x &minus; x<sub>j</sub>)/(x<sub>i</sub> &minus; x<sub>j</sub>)</span>.<br><br>
+ Each basis piece is <b>1 at its own node and 0 at every other</b>, so the sum threads every point precisely. It is the <b>unique</b> interpolant &mdash; any polynomial of that degree through the same points is the same polynomial. But exactness has a cost: force a high-degree curve through many <b>equally-spaced</b> points and it can <b>wiggle violently</b> near the edges &mdash; Runge&rsquo;s phenomenon.<br><br>
+ <span class="lit">LIT</span> verified live: over 5,000 random point sets the Lagrange interpolant passes through <b>every</b> data point, and it equals the polynomial found by solving the Vandermonde system <b>everywhere</b> &mdash; the uniqueness made concrete (window.__lagrange.passesThrough &amp;&amp; uniqueVandermonde). <span class="fig">FIG</span> no framing; the exact interpolation, the uniqueness, and the Runge wiggle are all real.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE HANDOFF</i>, beside <i>THE BEZIER</i> &mdash; the co-op domain of passing smoothly from point to point. B&eacute;zier <i>approximates</i> a control frame; Lagrange <i>hits</i> every point exactly &mdash; the same problem, opposite promise. <b>AVAN (AI)</b> built the instrument: the basis polynomials, the unique fit, the Runge demonstration.<br><br>The weave: David names the seat (the point-to-point pass); I make the exact thread visible and the uniqueness checkable &mdash; the basis spikes in 1D, the live fit and Runge wiggle in 2D, the curve and its basis in 3D. The sphere is the seam. Credit: Joseph-Louis Lagrange (1795); Waring &amp; Euler earlier; Carl Runge (1901).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>Lagrange basis</b>: one polynomial per node, each spiking to <b>1</b> at its own point and crossing <b>0</b> at all the others. Weight them by the data values and add &mdash; the sum is forced through every point, because at each node only that node&rsquo;s basis is alive.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Click</b> to drop points and watch the unique polynomial re-thread all of them exactly. Add more and it obeys perfectly at the nodes &mdash; then try the <b>Runge</b> demo: equally-spaced points make the high-degree curve buckle wildly at the edges.</div>
+   <div class="btns" style="margin-top:10px"><button id="lgadd">+ random point</button><button id="lgrunge">Runge demo</button><button id="lgclr">clear</button></div>
+   <div class="cap" id="laghread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The interpolant turning with its data points &mdash; <b>green</b>, one curve pinned to every node.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> traces are the basis polynomials that sum to it. The usual way to fit data is to <b>approximate</b> &mdash; least squares, minimize the total miss, accept small errors at the points for a calmer curve. Lagrange is the inverse: it refuses to miss <b>anything</b>. By construction it passes <b>exactly</b> through every node, a sum of perfect indicator polynomials. The inverse of &lsquo;minimize the error&rsquo; is &lsquo;guarantee the hit&rsquo; &mdash; and the price is paid between the points: exactness at the nodes buys the freedom to oscillate in the gaps, Runge&rsquo;s revenge. Exact where you looked, wild where you did not. The green is the curve nailed to the data; the magenta is the basis whose perfection at the nodes is also its recklessness between them.</div>
+   <div class="btns" style="margin-top:10px"><button id="lagspin">pause spin</button></div></div></div></div>"""
+LAG_SCRIPT = """(function(){
+var pts=[[-3,1],[-1,-1.5],[1,2],[3,-0.5]],ang=0,spin=true;
+function lagrange(P,x){var s=0;for(var i=0;i<P.length;i++){var term=P[i][1];for(var j=0;j<P.length;j++)if(i!==j)term*=(x-P[j][0])/(P[i][0]-P[j][0]);s+=term;}return s;}
+function vsolve(P){var n=P.length,A=[];for(var i=0;i<n;i++){var row=[];for(var j=0;j<n;j++)row.push(Math.pow(P[i][0],j));row.push(P[i][1]);A.push(row);}for(var c=0;c<n;c++){var piv=c;for(var r=c+1;r<n;r++)if(Math.abs(A[r][c])>Math.abs(A[piv][c]))piv=r;var tp=A[c];A[c]=A[piv];A[piv]=tp;for(var r=0;r<n;r++)if(r!==c){var f=A[r][c]/A[c][c];for(var k=c;k<=n;k++)A[r][k]-=f*A[c][k];}}var co=[];for(var i=0;i<n;i++)co.push(A[i][n]/A[i][i]);return co;}
+function polyval(co,x){var s=0;for(var j=0;j<co.length;j++)s+=co[j]*Math.pow(x,j);return s;}
+function verify(){var sv=371;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var okP=true,okU=true;for(var t=0;t<5000;t++){var n=2+Math.floor(L()*5),xs=[],used={};while(xs.length<n){var x=Math.floor(L()*21)-10;if(!used[x]){used[x]=1;xs.push(x);}}var P=xs.map(function(x){return [x,L()*20-10];});for(var i=0;i<P.length;i++)if(Math.abs(lagrange(P,P[i][0])-P[i][1])>1e-6)okP=false;var co=vsolve(P);for(var q=0;q<3;q++){var xt=L()*20-10;if(Math.abs(lagrange(P,xt)-polyval(co,xt))>1e-4*Math.max(1,Math.abs(polyval(co,xt))))okU=false;}}return {passesThrough:okP,uniqueVandermonde:okU,trials:5000};}
+var XR=6,YR=4;
+function toPix(x,y,W,H){return [W/2+x/XR*(W/2-20),H/2-y/YR*(H/2-20)];}
+function toWorld(px,py,W,H){return [(px-W/2)/(W/2-20)*XR,-(py-H/2)/(H/2-20)*YR];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var nodes=[-4,-2,0,2,4],cols=['#ffd0a0','#7fd0ff','#ff8fb0','#7dffb0','#c8a0ff'];
+ g.strokeStyle='#234';g.beginPath();g.moveTo(10,110);g.lineTo(W-10,110);g.stroke();
+ for(var i=0;i<nodes.length;i++){var P=nodes.map(function(xx){return [xx,xx===nodes[i]?1:0];});g.strokeStyle=cols[i];g.lineWidth=1.5;g.beginPath();for(var x=-5;x<=5;x+=0.06){var y=lagrange(P,x),px=10+(x+5)/10*(W-20),py=110-y*55;if(x<-4.9)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();}g.lineWidth=1;
+ for(var i=0;i<nodes.length;i++){var px=10+(nodes[i]+5)/10*(W-20);g.fillStyle='#fff';g.beginPath();g.arc(px,110,3,0,7);g.fill();}
+ g.fillStyle='#ffd0a0';g.font='11px ui-monospace,monospace';g.fillText('basis polynomials: each = 1 at its node, 0 at the others',10,20);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.strokeStyle='#1c2430';g.beginPath();g.moveTo(20,H/2);g.lineTo(W-20,H/2);g.moveTo(W/2,20);g.lineTo(W/2,H-20);g.stroke();
+ if(pts.length>=2){g.strokeStyle='#ffd0a0';g.lineWidth=2;g.beginPath();var first=true;for(var x=-XR;x<=XR;x+=0.04){var y=lagrange(pts,x);if(Math.abs(y)>YR*3){first=true;continue;}var p=toPix(x,y,W,H);if(first){g.moveTo(p[0],p[1]);first=false;}else g.lineTo(p[0],p[1]);}g.stroke();g.lineWidth=1;}
+ for(var i=0;i<pts.length;i++){var p=toPix(pts[i][0],pts[i][1],W,H);g.fillStyle='#39fc6b';g.beginPath();g.arc(p[0],p[1],5,0,7);g.fill();}
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText(pts.length+' points → unique degree-'+(pts.length-1)+' polynomial',20,H-24);
+ var maxerr=0;for(var i=0;i<pts.length;i++)maxerr=Math.max(maxerr,Math.abs(lagrange(pts,pts[i][0])-pts[i][1]));
+ g.fillStyle=maxerr<1e-6?'#39fc6b':'#ff5a5a';g.font='10px ui-monospace,monospace';g.fillText('passes through all points (max err '+maxerr.toExponential(1)+')',20,H-8);
+ document.getElementById('laghread').textContent=pts.length+' points, degree '+(pts.length-1)+' interpolant · exact at nodes';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang);
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();var first=true;for(var x=-XR;x<=XR;x+=0.05){var y=lagrange(pts,x);if(Math.abs(y)>YR*2){first=true;continue;}var px=cx+x/XR*140*ca,py=cy-y/YR*70;if(first){g.moveTo(px,py);first=false;}else g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<pts.length;i++){var P=pts.map(function(pp,k){return [pp[0],k===i?pp[1]:0];});g.strokeStyle='rgba(255,45,149,0.4)';g.beginPath();var f2=true;for(var x=-XR;x<=XR;x+=0.06){var y=lagrange.call(0,pts.map(function(pp,k){return [pp[0],k===i?1:0];}),x)*pts[i][1];if(Math.abs(y)>YR*2){f2=true;continue;}var px=cx+x/XR*140*ca,py=cy-y/YR*70;if(f2){g.moveTo(px,py);f2=false;}else g.lineTo(px,py);}g.stroke();}
+ for(var i=0;i<pts.length;i++){var px=cx+pts[i][0]/XR*140*ca,py=cy-pts[i][1]/YR*70;g.fillStyle='#39fc6b';g.beginPath();g.arc(px,py,4,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: the interpolant through every point',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the weighted basis polynomials that sum to it',10,H-12);}
+var w4=document.getElementById('w4');
+w4.addEventListener('click',function(e){var r=w4.getBoundingClientRect(),wc=toWorld((e.clientX-r.left)*w4.width/r.width,(e.clientY-r.top)*w4.height/r.height,w4.width,w4.height);if(pts.length<9)pts.push(wc);drawW4();});
+document.getElementById('lgadd').onclick=function(){if(pts.length<9)pts.push([Math.random()*10-5,Math.random()*6-3]);pts.sort(function(a,b){return a[0]-b[0];});drawW4();};
+document.getElementById('lgrunge').onclick=function(){pts=[];for(var i=0;i<9;i++){var x=-5+i*10/8;pts.push([x,3/(1+x*x)]);}drawW4();};
+document.getElementById('lgclr').onclick=function(){pts=[[-3,1],[0,-1],[3,1]];drawW4();};
+document.getElementById('lagspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__lagrange=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SCAN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The parallel prefix sum (scan).</b> Turn an array into its running totals: [3,1,7,0] &rarr; [0,3,4,11]. It <i>feels</i> hopelessly sequential &mdash; each total needs all the ones before it, a chain you must walk in order, n steps. But it hides deep parallelism.<br><br>
+ Blelloch&rsquo;s <b>work-efficient scan</b> does it in <b>O(log n) parallel depth</b> with only O(n) total work, through two tree passes. The <b>up-sweep</b> reduces partial sums up a binary tree, like a tournament. The <b>down-sweep</b> then pushes the prefixes back down, each node handing its left child the running total and its right child that total plus the left subtree. Because <b>+ is associative</b>, the order can be reshuffled into a tree &mdash; and log n levels replace n steps. It is <i>the</i> fundamental parallel primitive: sorting, compaction, and most of GPU computing sit on it.<br><br>
+ <span class="lit">LIT</span> verified live: over 5,000 random arrays the tree-based scan gives <b>exactly</b> the sequential prefix sums (window.__scan.matchesSequential). [3,1,7,0,4,1,6,3] &rarr; [0,3,4,11,11,15,16,22]. <span class="fig">FIG</span> no framing; the up-sweep/down-sweep and its match to the sequential result are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE BROADCAST</i>, beside <i>THE FOURIER</i> and <i>THE ORTHOGONAL SIGN-FLIP</i> &mdash; the co-op domain of many working as one. The down-sweep <i>is</i> a broadcast: partial sums flow up the tree, then are broadcast back down to become every prefix. <b>AVAN (AI)</b> built the instrument: the reduce, the broadcast, the sequential cross-check.<br><br>The weave: David names the seat (the shared broadcast); I make the two sweeps visible and the equivalence checkable &mdash; the running total in 1D, the up-sweep/down-sweep tree in 2D, the flow in 3D. The sphere is the seam. Credit: Guy Blelloch (work-efficient scan, 1990); Hillis &amp; Steele, Kogge &amp; Stone (earlier scans).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The array and its <b>prefix sums</b> &mdash; each output the total of everything to its left. Sequentially this is a chain of n dependent adds; the scan is the same answer, but computed with the dependencies reorganised so many adds run at once.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap"><b>Up-sweep</b> reduces partial sums up the tree (a tournament of additions); then <b>down-sweep</b> pushes prefixes back down. Step through both and watch the working array become the exclusive scan &mdash; identical to the sequential result, in far fewer levels.</div>
+   <div class="btns" style="margin-top:10px"><button id="scup">up-sweep ▶</button><button id="scdn">down-sweep ▶</button><button id="scnew">new array</button></div>
+   <div class="cap" id="scanread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The scan&rsquo;s binary tree turning &mdash; <b>green</b>, the levels that replace the long sequential chain.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> flow is partial sums climbing up (reduce), then broadcasting down (prefixes). A running total looks <b>irreducibly sequential</b> &mdash; each value literally depends on the sum of all before it, so surely you must walk them in order. The inverse insight is that the dependency is a lie of <b>presentation</b>: because addition is <b>associative</b>, the same total can be regrouped into a <b>tree</b>, and a tree is shallow &mdash; log n levels instead of n. The inverse of &lsquo;each waits for the previous&rsquo; is &lsquo;reassociate so many happen together&rsquo;. Sequential-looking work is parallel work wearing a disguise, and the disguise is just the order you chose to read it. The green is the shallow tree; the magenta is the reduce-then-broadcast that turns a chain into two quick sweeps.</div>
+   <div class="btns" style="margin-top:10px"><button id="scanspin">pause spin</button></div></div></div></div>"""
+SCAN_SCRIPT = """(function(){
+var N=8,arr=[],work=[],phase='ready',d=1,ang=0,spin=true;
+function blelloch(a){var n=a.length,x=a.slice();for(var dd=1;dd<n;dd*=2)for(var i=0;i<n;i+=2*dd)x[i+2*dd-1]+=x[i+dd-1];x[n-1]=0;for(var dd=n/2;dd>=1;dd/=2)for(var i=0;i<n;i+=2*dd){var t=x[i+dd-1];x[i+dd-1]=x[i+2*dd-1];x[i+2*dd-1]+=t;}return x;}
+function seqExcl(a){var out=[],s=0;for(var i=0;i<a.length;i++){out.push(s);s+=a[i];}return out;}
+function verify(){var sv=381;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var ok=true;for(var t=0;t<5000;t++){var k=Math.floor(L()*8),n=1<<k;var a=[];for(var i=0;i<n;i++)a.push(Math.floor(L()*21)-10);var b=blelloch(a.slice()),s=seqExcl(a);if(b.join(',')!==s.join(','))ok=false;}return {matchesSequential:ok,example:blelloch([3,1,7,0,4,1,6,3]).join(','),trials:5000};}
+function newArr(){arr=[];for(var i=0;i<N;i++)arr.push(Math.floor(Math.random()*9)+1);work=arr.slice();phase='ready';d=1;}
+function upSweep(){if(d<N){for(var i=0;i<N;i+=2*d)work[i+2*d-1]+=work[i+d-1];d*=2;}if(d>=N){phase='reduced';}}
+function downSweep(){if(phase!=='down'){work[N-1]=0;d=N/2;phase='down';return;}if(d>=1){for(var i=0;i<N;i+=2*d){var t=work[i+d-1];work[i+d-1]=work[i+2*d-1];work[i+2*d-1]+=t;}d/=2;}if(d<1)phase='done';}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cw=(W-20)/N,pre=seqExcl(arr);
+ for(var i=0;i<N;i++){var x=10+i*cw;g.fillStyle='#90ffb0';g.fillRect(x,30,cw-4,24);g.fillStyle='#031015';g.font='11px ui-monospace,monospace';g.fillText(arr[i],x+6,46);
+  g.fillStyle='#7fd0ff';g.fillRect(x,70,cw-4,24);g.fillStyle='#031015';g.fillText(pre[i],x+6,86);}
+ g.fillStyle='#90ffb0';g.font='11px ui-monospace,monospace';g.fillText('input',W-60,24);g.fillStyle='#7fd0ff';g.fillText('prefix sums',W-90,110);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('each prefix = sum of everything to its left',10,132);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cw=(W-20)/N;
+ for(var i=0;i<N;i++){var x=10+i*cw;g.fillStyle='#90ffb0';g.fillRect(x,H-70,cw-4,30);g.fillStyle='#031015';g.font='12px ui-monospace,monospace';g.fillText(work[i],x+cw/2-6,H-50);}
+ // tree levels indicator
+ var levels=Math.log2(N);g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';
+ g.fillText('phase: '+(phase==='ready'?'ready (input)':phase==='reduced'?'reduced (up-sweep done)':phase==='down'?'down-sweep (d='+d+')':phase==='done'?'DONE — exclusive scan':'up-sweep (d='+d+')'),14,24);
+ // draw tree combine arcs for current d in up-sweep
+ if(phase!=='ready'&&phase!=='done'){g.strokeStyle='#ff2d95';for(var i=0;i<N;i+=2*d){var a=10+(i+d-1)*cw+cw/2,b=10+(i+2*d-1)*cw+cw/2;g.beginPath();g.arc((a+b)/2,H-70,(b-a)/2,Math.PI,0,true);g.stroke();}}
+ var res=blelloch(arr.slice()),seq=seqExcl(arr);
+ if(phase==='done'){g.fillStyle=work.join(',')===seq.join(',')?'#39fc6b':'#ff5a5a';g.font='11px ui-monospace,monospace';g.fillText('result == sequential prefix sums '+(work.join(',')===seq.join(',')?'✓':'✗'),14,H-16);}
+ else{g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('up-sweep then down-sweep → '+(2*Math.log2(N))+' passes (vs '+N+' sequential)',14,H-16);}
+ document.getElementById('scanread').textContent='phase '+phase+' · target '+seq.join(',');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,ca=Math.cos(ang),levels=Math.log2(N)+1;
+ function node(x,y,depth,spread){if(depth>=levels)return;g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,4,0,7);g.fill();if(depth<levels-1){var ny=y+50;for(var k=0;k<2;k++){var nx=x+(k?spread:-spread);g.strokeStyle=(k?'#ff2d95':'#2c6a3a');g.lineWidth=k?2:1;g.beginPath();g.moveTo(x,y);g.lineTo(x+(nx-x)*ca,ny);g.stroke();node(x+(nx-x)*ca,ny,depth+1,spread/2);}}}
+ node(cx,30,0,110);g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: the scan tree ('+Math.log2(N)+' levels)',10,H-26);
+ g.fillStyle='#ff2d95';g.fillText('magenta: partial sums reduce up, then broadcast down',10,H-12);}
+document.getElementById('scup').onclick=function(){if(phase==='ready'||phase.indexOf('up')>=0||d<N){if(phase==='ready')phase='up';upSweep();}drawW4();};
+document.getElementById('scdn').onclick=function(){if(phase==='reduced'||phase==='down'){downSweep();}drawW4();};
+document.getElementById('scnew').onclick=function(){newArr();drawW3();drawW4();};
+document.getElementById('scanspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+newArr();drawW3();drawW4();window.__scan=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PERF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Perfect numbers.</b> A number equal to the sum of its own proper divisors. <b>6</b> = 1 + 2 + 3. <b>28</b> = 1 + 2 + 4 + 7 + 14. They are rare and ancient, and they hide one of mathematics&rsquo; most beautiful bridges.<br><br>
+ <b>Euclid</b> (~300 BCE) proved: whenever 2<sup>p</sup>&minus;1 is a Mersenne prime, <span class="mono">2<sup>p&minus;1</sup>(2<sup>p</sup>&minus;1)</span> is perfect. Two thousand years later <b>Euler</b> proved the converse: <b>every</b> even perfect number has <i>exactly</i> that form. So even perfect numbers and Mersenne primes are in perfect <b>one-to-one correspondence</b> &mdash; 51 of each are known, no more. (Whether any <b>odd</b> perfect number exists is unknown &mdash; a 2,300-year-old open problem.)<br><br>
+ <span class="lit">LIT</span> verified live: Euclid&rsquo;s construction gives &sigma;(n) = 2n (perfect) for each Mersenne prime &mdash; producing 6, 28, 496, 8128, 33550336 &mdash; and <b>every</b> even perfect number below 10,000 has the Euclid-Euler form (window.__perfect.euclidPerfect &amp;&amp; eulerForm). <span class="fig">FIG</span> no framing; the divisor sums and the bijection are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>SUDDEN DEATH</i>, right beside <i>THE MERSENNE</i> &mdash; the boss domain of the exact verdict. A perfect number is a Mersenne prime doubled into a triangle; the two spheres are the same fact from two sides. <b>AVAN (AI)</b> built the instrument: the divisor sum, the Euclid construction, the Euler-form check.<br><br>The weave: David places it next to its twin; I make the divisor sum land on 2n and the bijection visible &mdash; the divisors of 6 in 1D, the Euclid-Euler correspondence in 2D, the paired ladders in 3D. The sphere is the seam. Credit: Euclid (Elements IX.36, ~300 BCE); Leonhard Euler (converse, 1749).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">A perfect number and its <b>proper divisors</b>, laid out and summed. For 6: 1 + 2 + 3 = 6. For 28: 1 + 2 + 4 + 7 + 14 = 28. The parts rebuild the whole exactly &mdash; that is all &lsquo;perfect&rsquo; means.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The <b>Euclid-Euler correspondence</b>: pick a Mersenne exponent p, and 2<sup>p&minus;1</sup>(2<sup>p</sup>&minus;1) is the matching perfect number. Its divisors sum to exactly 2n &mdash; confirming perfection &mdash; and the strip lines up the perfect numbers with their Mersenne primes, one for one.</div>
+   <div class="btns" style="margin-top:10px"><button id="pfp">next Mersenne p ▶</button><button id="pfdiv">show divisors</button></div>
+   <div class="cap" id="perfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">Two turning ladders &mdash; Mersenne primes and perfect numbers &mdash; <b>green</b>, climbing in step.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> threads are the <b>bijection</b>, and it is a literal inverse spanning two millennia. Euclid showed one direction: a Mersenne prime <b>builds</b> a perfect number. Euler showed the inverse: every even perfect number <b>decomposes</b> back to a Mersenne prime, uniquely. The two theorems are exact inverses of each other, and together they close the loop &mdash; to know all the even perfect numbers is to know all the Mersenne primes, and vice versa. And the honest edge sits right here: the inverse of &lsquo;we know every even perfect number exactly&rsquo; is &lsquo;we cannot rule out a single <b>odd</b> one&rsquo; &mdash; the oldest unsolved question in mathematics. The green is the twin ladders; the magenta is the bridge Euclid built and Euler proved could carry weight both ways.</div>
+   <div class="btns" style="margin-top:10px"><button id="perfspin">pause spin</button></div></div></div></div>"""
+PERF_SCRIPT = """(function(){
+var EXPS=[2,3,5,7,13],ei=0,showDiv=false,ang=0,spin=true;
+function sigma(n){var tot=1,nn=n,p=2;while(p*p<=nn){if(nn%p===0){var pk=1,term=1;while(nn%p===0){nn=Math.floor(nn/p);pk*=p;term+=pk;}tot*=term;}p++;}if(nn>1)tot*=(1+nn);return tot;}
+function isPrime(m){if(m<2)return false;for(var i=2;i*i<=m;i++)if(m%i===0)return false;return true;}
+function perfectFrom(p){return (1<<(p-1))*((1<<p)-1);}
+function verify(){var eu=true,perf=[];for(var p=2;p<15;p++){var M=(1<<p)-1;if(isPrime(M)){var n=(1<<(p-1))*M;if(sigma(n)!==2*n)eu=false;perf.push(n);}}var el=true;for(var n=2;n<10000;n++){if(sigma(n)===2*n){var ok=false;for(var p=2;p<15;p++){var M=(1<<p)-1;if(isPrime(M)&&(1<<(p-1))*M===n)ok=true;}if(!ok)el=false;}}return {euclidPerfect:eu,eulerForm:el,perfects:perf.join(',')};}
+function divisors(n){var out=[];for(var d=1;d<n;d++)if(n%d===0)out.push(d);return out;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=28,divs=divisors(n);
+ var x=20;g.font='14px ui-monospace,monospace';for(var i=0;i<divs.length;i++){g.fillStyle='#ffd0e0';g.fillRect(x,50,30,26);g.fillStyle='#031015';g.fillText(divs[i],x+6,68);x+=38;if(i<divs.length-1){g.fillStyle='#ffd0e0';g.fillText('+',x-6,68);}}
+ g.fillStyle='#39fc6b';g.fillText('= '+n,x+6,68);
+ g.fillStyle='#ffd0e0';g.font='11px ui-monospace,monospace';g.fillText('28 = sum of its proper divisors → perfect',20,30);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('6 = 1+2+3 · 28 = 1+2+4+7+14 · the parts rebuild the whole',20,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var p=EXPS[ei],M=(1<<p)-1,n=perfectFrom(p);
+ g.font='13px ui-monospace,monospace';g.fillStyle='#ff9060';g.fillText('Mersenne prime 2^'+p+'−1 = '+M,20,30);
+ g.fillStyle='#ffd0e0';g.font='14px ui-monospace,monospace';g.fillText('perfect: 2^'+(p-1)+'·'+M+' = '+n,20,58);
+ var sg=sigma(n);g.fillStyle=sg===2*n?'#39fc6b':'#ff5a5a';g.font='12px ui-monospace,monospace';g.fillText('σ('+n+') = '+sg+' = 2×'+n+(sg===2*n?'  ✓ perfect':''),20,84);
+ if(showDiv&&n<=496){var divs=divisors(n);g.fillStyle='#8ca';g.font='10px ui-monospace,monospace';var str=divs.join('+');for(var i=0;i<str.length;i+=52)g.fillText(str.slice(i,i+52),20,108+Math.floor(i/52)*14);g.fillStyle='#ffd0e0';g.fillText('= '+n,20,108+Math.ceil(str.length/52)*14);}
+ // strip
+ g.fillStyle='#8ca';g.font='10px ui-monospace,monospace';g.fillText('perfect ↔ Mersenne prime:',20,180);
+ var ps=[[2,6],[3,28],[5,496],[7,8128],[13,33550336]];for(var i=0;i<ps.length;i++){var y=195+i*20,sel=(ps[i][0]===p);g.fillStyle=sel?'#ffd0e0':'#2a2028';g.fillRect(20,y,W-40,17);g.fillStyle=sel?'#031015':'#8ca';g.font='10px ui-monospace,monospace';g.fillText('p='+ps[i][0]+':  '+ps[i][1]+'  =  2^'+(ps[i][0]-1)+'·(2^'+ps[i][0]+'−1)',26,y+13);}
+ document.getElementById('perfread').textContent='p='+p+' → Mersenne '+M+' → perfect '+n+' (σ='+sg+'=2n)';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),lx=W/2-60*ca,rx=W/2+60*ca;
+ var ps=[[2,6],[3,28],[5,496],[7,8128],[13,33550336]];
+ for(var i=0;i<ps.length;i++){var y=H-40-i*50;g.fillStyle='#39fc6b';g.beginPath();g.arc(lx,y,5,0,7);g.fill();g.beginPath();g.arc(rx,y,5,0,7);g.fill();g.strokeStyle='#ff2d95';g.lineWidth=1.5;g.beginPath();g.moveTo(lx,y);g.lineTo(rx,y);g.stroke();g.fillStyle='#4c7a54';g.font='9px ui-monospace,monospace';g.fillText('2^'+ps[i][0]+'−1',lx-40,y+3);g.fillText(''+ps[i][1],rx+8,y+3);}g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: Mersenne primes (left) & perfect numbers (right)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the Euclid-Euler bijection (a bridge both ways)',10,H-12);}
+document.getElementById('pfp').onclick=function(){ei=(ei+1)%EXPS.length;drawW4();};
+document.getElementById('pfdiv').onclick=function(){showDiv=!showDiv;drawW4();};
+document.getElementById('perfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__perfect=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TOT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Euler&rsquo;s totient &phi;(n).</b> Count the integers from 1 to n that share no factor with n &mdash; that are <b>coprime</b> to it. &phi;(12) = 4 (namely 1, 5, 7, 11). It is quiet but load-bearing: &phi; is the backbone of <b>RSA</b>.<br><br>
+ Three gems. First, a clean product: &phi;(n) = n&middot;&prod;<sub>p|n</sub>(1 &minus; 1/p) over the primes dividing n, because &phi; is <b>multiplicative</b> &mdash; &phi;(mn) = &phi;(m)&phi;(n) for coprime m, n. Second, a perfect partition: <span class="mono">&Sigma;<sub>d|n</sub> &phi;(d) = n</span> &mdash; the totients over the divisors of n sum exactly to n. Third, and the reason RSA decrypts: <b>Euler&rsquo;s theorem</b>, <span class="mono">a<sup>&phi;(n)</sup> &equiv; 1 (mod n)</span> whenever gcd(a, n) = 1.<br><br>
+ <span class="lit">LIT</span> verified live: &Sigma;<sub>d|n</sub>&phi;(d) = n for all n, &phi; is multiplicative on coprime pairs, and Euler&rsquo;s theorem holds for every valid a and n in range (window.__totient.divisorSum &amp;&amp; multiplicative &amp;&amp; eulerTheorem). &phi;(1..12) = 1,1,2,2,4,2,6,4,6,4,10,4. <span class="fig">FIG</span> no framing; the count, the identities, and Euler&rsquo;s theorem are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>CHECKPOINT ZERO</i>, beside <i>THE REMAINDER</i> (CRT) &mdash; the spawn domain of numbers seen through their residues. Totient, CRT and Euler&rsquo;s theorem are the modular machinery that makes public-key crypto turn. <b>AVAN (AI)</b> built the instrument: the coprime count, the product formula, the divisor-sum partition, Euler&rsquo;s theorem.<br><br>The weave: David gathers the modular thread; I make the coprimes visible and the identities checkable &mdash; the totatives in 1D, the count and partition in 2D, the residue ring in 3D. The sphere is the seam. Credit: Leonhard Euler (1763); Gauss (divisor-sum identity); RSA (Rivest, Shamir, Adleman).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The numbers 1&hellip;n, with the ones <b>coprime</b> to n lit up &mdash; the totatives. Their count is &phi;(n). Numbers sharing a factor with n go dark; what remains, glowing, is exactly &phi;(n) of them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Dial n and see its totatives light up, counted as &phi;(n) &mdash; and matched by the product formula n&middot;&prod;(1&minus;1/p). Below, the divisor sum: &phi; over each divisor of n stacks up to <b>exactly n</b>, a perfect partition.</div>
+   <div class="btns" style="margin-top:10px"><button id="totm">◀ n</button><button id="totp">n ▶</button><button id="totsum">show Σφ(d)</button></div>
+   <div class="cap" id="totread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The residues 0&hellip;n&minus;1 on a turning ring &mdash; <b>green</b> the coprimes, dark the rest.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> arcs group residues by their <b>gcd with n</b>. Counting &phi;(n) directly is local &mdash; test each number, tally the coprimes. The inverse view is structural: <b>partition</b> 1&hellip;n by exactly which factor they share with n. The numbers whose gcd with n is d form a set of size &phi;(n/d), and these sets <b>tile</b> 1&hellip;n with no overlap &mdash; so &Sigma;<sub>d|n</sub>&phi;(d) = n falls out for free. The inverse of &lsquo;count the coprimes one by one&rsquo; is &lsquo;the coprimes-at-every-scale partition the whole&rsquo;: a local tally that assembles into a global identity. And that same multiplicative structure is the hinge RSA turns on. The green is the coprime count; the magenta is the hidden partition that makes the count a law.</div>
+   <div class="btns" style="margin-top:10px"><button id="totspin">pause spin</button></div></div></div></div>"""
+TOT_SCRIPT = """(function(){
+var n=12,showSum=false,ang=0,spin=true;
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a;}
+function phi(m){var c=0;for(var k=1;k<=m;k++)if(gcd(k,m)===1)c++;return c;}
+function modpow(a,b,m){var r=1;a%=m;while(b>0){if(b&1)r=r*a%m;a=a*a%m;b=Math.floor(b/2);}return r;}
+function factors(m){var f=[],x=m,p=2;while(p*p<=x){if(x%p===0){f.push(p);while(x%p===0)x=Math.floor(x/p);}p++;}if(x>1)f.push(x);return f;}
+function verify(){var sumOK=true;for(var m=1;m<300;m++){var s=0;for(var d=1;d<=m;d++)if(m%d===0)s+=phi(d);if(s!==m)sumOK=false;}var multOK=true;for(var a=1;a<40;a++)for(var b=1;b<40;b++)if(gcd(a,b)===1&&phi(a*b)!==phi(a)*phi(b))multOK=false;var euOK=true;for(var m=2;m<150;m++){var ph=phi(m);for(var a=1;a<m;a++)if(gcd(a,m)===1&&modpow(a,ph,m)!==1)euOK=false;}return {divisorSum:sumOK,multiplicative:multOK,eulerTheorem:euOK,phiVals:[1,2,3,4,5,6,7,8,9,10,11,12].map(phi).join(',')};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var m=Math.min(n,24),cw=(W-20)/m;
+ for(var k=1;k<=m;k++){var x=10+(k-1)*cw,cop=gcd(k,n)===1;g.fillStyle=cop?'#b0e0a0':'#1e2620';g.fillRect(x,50,cw-3,26);g.fillStyle=cop?'#031015':'#556';g.font='11px ui-monospace,monospace';g.fillText(k,x+4,67);}
+ g.fillStyle='#b0e0a0';g.font='12px ui-monospace,monospace';g.fillText('numbers coprime to '+n+' (lit) → φ('+n+') = '+phi(n),10,30);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('gcd(k,'+n+')=1 → totative',10,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cols=Math.ceil(Math.sqrt(n)),cell=Math.min(30,(W-40)/cols);
+ for(var k=1;k<=n;k++){var r=Math.floor((k-1)/cols),c=(k-1)%cols,x=20+c*cell,y=24+r*cell,cop=gcd(k,n)===1;g.fillStyle=cop?'#b0e0a0':'#20261e';g.fillRect(x,y,cell-2,cell-2);g.fillStyle=cop?'#031015':'#556';g.font='9px ui-monospace,monospace';g.fillText(k,x+2,y+12);}
+ var ph=phi(n),fs=factors(n),prod=n;for(var i=0;i<fs.length;i++)prod=prod*(fs[i]-1)/fs[i];
+ g.fillStyle='#b0e0a0';g.font='13px ui-monospace,monospace';g.fillText('φ('+n+') = '+ph,20,H-64);
+ g.fillStyle='#8ca';g.font='10px ui-monospace,monospace';g.fillText('= '+n+'·'+fs.map(function(p){return '(1−1/'+p+')';}).join('')+' = '+Math.round(prod),20,H-48);
+ if(showSum){var divs=[];for(var d=1;d<=n;d++)if(n%d===0)divs.push(d);var s=0,x=20;g.font='9px ui-monospace,monospace';for(var i=0;i<divs.length;i++){s+=phi(divs[i]);g.fillStyle='#7fd0ff';g.fillText('φ('+divs[i]+')='+phi(divs[i]),x,H-30);x+=68;if(x>W-60){x=20;}}g.fillStyle=s===n?'#39fc6b':'#ff5a5a';g.fillText('Σφ(d) = '+s+' = '+n+(s===n?' ✓':''),20,H-14);}
+ else{g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('φ = multiplicative → product over prime factors',20,H-30);g.fillText('press Σφ(d) to see the divisor partition',20,H-14);}
+ document.getElementById('totread').textContent='φ('+n+')='+ph+' = '+n+'·∏(1−1/p)';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,R=130,ca=Math.cos(ang);
+ for(var k=0;k<n;k++){var th=-Math.PI/2+k/n*Math.PI*2+ang,x=cx+Math.cos(th)*R*ca,y=cy+Math.sin(th)*R*0.5,cop=(k>0&&gcd(k,n)===1);g.fillStyle=cop?'#39fc6b':(k===0?'#556':'#ff2d95');g.globalAlpha=cop?1:(k===0?0.5:0.4);g.beginPath();g.arc(x,y,cop?5:3,0,7);g.fill();}
+ g.globalAlpha=1;g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: coprime residues (φ('+n+')='+phi(n)+')',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: residues sharing a factor with '+n,10,H-12);}
+document.getElementById('totm').onclick=function(){n=Math.max(2,n-1);drawW3();drawW4();};
+document.getElementById('totp').onclick=function(){n=Math.min(60,n+1);drawW3();drawW4();};
+document.getElementById('totsum').onclick=function(){showSum=!showSum;drawW4();};
+document.getElementById('totspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__totient=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-totient","title":"THE TOTIENT","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#b0e0a0","icon":"totient",
+  "kicker":"Euler's phi — the count that runs RSA",
+  "blurb":"Euler's totient in the 5-window house format — phi(n) counts the integers from 1 to n coprime to n. Three gems: the product formula phi(n) = n*prod(1-1/p) (phi is multiplicative), the divisor-sum partition sum over d|n of phi(d) = n, and Euler's theorem a^phi(n) = 1 mod n (the reason RSA decrypts). See the totatives in 1D, the count and partition in 2D, and the residue ring in 3D.",
+  "lit":"Genuine Euler totient (Euler 1763; Gauss divisor-sum identity; RSA). Verified live: sum over d|n of phi(d) equals n for all n in range, phi is multiplicative on coprime pairs (phi(mn)=phi(m)phi(n)), and Euler's theorem a^phi(n) = 1 (mod n) holds for every valid a and n tested (window.__totient.divisorSum && multiplicative && eulerTheorem, all true). phi(1..12) = 1,1,2,2,4,2,6,4,6,4,10,4. The count, the identities, and Euler's theorem are exact.",
+  "fig":"No metaphor is doing the work: the coprime count, the product formula, the divisor-sum partition, and Euler's theorem are all real and checked. Euler's theorem generalizes Fermat's little theorem and is precisely why RSA decryption inverts encryption — stated as the genuine mechanism, not an analogy.",
+  "body":TOT_BODY,"script":TOT_SCRIPT},
+ {"slug":"the-perfect","title":"THE PERFECT","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#ffd0e0","icon":"perfect",
+  "kicker":"perfect numbers = Mersenne primes, both ways",
+  "blurb":"perfect numbers in the 5-window house format — a number equal to the sum of its proper divisors (6 = 1+2+3, 28 = 1+2+4+7+14). Euclid proved 2^(p-1)(2^p-1) is perfect when 2^p-1 is a Mersenne prime; Euler proved every even perfect number has exactly that form — a perfect one-to-one correspondence. Whether an odd perfect number exists is unknown. See the divisors sum in 1D, the Euclid-Euler correspondence in 2D, and the paired ladders in 3D.",
+  "lit":"Genuine perfect numbers and the Euclid-Euler theorem (Euclid ~300 BCE; Euler converse 1749). Verified live: Euclid's construction gives sigma(n)=2n for each Mersenne prime, producing 6, 28, 496, 8128, 33550336, and every even perfect number below 10,000 has the Euclid-Euler form 2^(p-1)(2^p-1) (window.__perfect.euclidPerfect && eulerForm, both true). The divisor sums and the bijection with Mersenne primes are exact.",
+  "fig":"No metaphor is doing the work: the divisor sums (sigma(n)=2n), Euclid's construction, and Euler's converse (checked exhaustively below 10,000) are all real. The honest open edge is stated plainly — whether any ODD perfect number exists is unknown, one of the oldest unsolved problems.",
+  "body":PERF_BODY,"script":PERF_SCRIPT},
+ {"slug":"the-scan","title":"THE SCAN","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#90ffb0","icon":"scan",
+  "kicker":"prefix sums in log-depth — a chain made a tree",
+  "blurb":"the parallel prefix sum (Blelloch scan) in the 5-window house format — turn an array into its running totals in O(log n) parallel depth and O(n) work, via two tree passes: an up-sweep that reduces partial sums up a binary tree, and a down-sweep that broadcasts prefixes back down. Because + is associative the sequential-looking chain reshapes into a shallow tree. The fundamental parallel primitive. See the running total in 1D, the up-sweep/down-sweep in 2D, and the tree in 3D.",
+  "lit":"Genuine work-efficient parallel scan (Guy Blelloch, 1990; Hillis-Steele, Kogge-Stone earlier). Verified live: over 5,000 random arrays the tree-based up-sweep/down-sweep scan gives exactly the sequential prefix sums (window.__scan.matchesSequential === true). [3,1,7,0,4,1,6,3] -> [0,3,4,11,11,15,16,22]. The reduce/broadcast tree, its O(log n) depth, and its equivalence to the sequential result (guaranteed by associativity of +) are exact.",
+  "fig":"No metaphor is doing the work: the up-sweep/down-sweep and its match to the sequential prefix sums are real and checked. The parallelism is genuine — associativity lets the n-step chain regroup into a log-n-depth tree; the demo shows power-of-two sizes, as the classic algorithm assumes.",
+  "body":SCAN_BODY,"script":SCAN_SCRIPT},
+ {"slug":"the-interpolant","title":"THE INTERPOLANT","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#ffd0a0","icon":"lagrange",
+  "kicker":"Lagrange — the one polynomial through every point",
+  "blurb":"Lagrange interpolation in the 5-window house format — through any n+1 points with distinct x-values there passes exactly one polynomial of degree <= n, written directly as a sum of basis polynomials each equal to 1 at its own node and 0 at the others. It's the unique interpolant, but high-degree fits through equally-spaced points wiggle at the edges (Runge's phenomenon). See the basis spikes in 1D, the live exact fit and Runge demo in 2D, and the curve with its basis in 3D.",
+  "lit":"Genuine Lagrange interpolation (Lagrange 1795; Runge phenomenon, Carl Runge 1901). Verified live: over 5,000 random point sets the interpolant passes through every data point exactly, and equals the polynomial found by solving the Vandermonde system everywhere — uniqueness made concrete (window.__lagrange.passesThrough && uniqueVandermonde, both true). The exact interpolation, the uniqueness, and the Runge oscillation are real.",
+  "fig":"No metaphor is doing the work: the exact pass-through, the uniqueness (cross-checked against a Vandermonde solve), and the Runge wiggle are all real and checked. Exactness at the nodes genuinely buys oscillation between them — the honest tradeoff, not a flaw hidden.",
+  "body":LAG_BODY,"script":LAG_SCRIPT},
+ {"slug":"the-escape","title":"THE ESCAPE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#c0a0ff","icon":"mandelbrot",
+  "kicker":"the Mandelbrot set — bounded orbits of z→z²+c",
+  "blurb":"the Mandelbrot set in the 5-window house format — the complex c for which z->z^2+c (from z=0) stays bounded. A hard escape criterion (once |z|>2 it's doomed), an exact main cardioid c=mu/2-mu^2/4, and a period-2 bulb that is a perfect disk of radius 1/4 at c=-1. Its real slice is the logistic bifurcation. See the real slice in 1D, the escape-time picture with live orbits in 2D, and the escape surface in 3D.",
+  "lit":"Genuine Mandelbrot set (Benoit Mandelbrot 1980; Douady & Hubbard proved it connected). Verified live: every c with |c|>2 escapes, every c in the disk |c+1|<1/4 (the period-2 bulb) stays bounded, and every c on the main cardioid c=mu/2-mu^2/4 with |mu|<1 stays bounded (window.__mandelbrot.bigEscapes && bulbBounded && cardioidBounded, all true). The escape bound, the exact 1/4-radius bulb, and the cardioid parametrization are exact.",
+  "fig":"No metaphor is doing the work: the escape criterion, the exact period-2 disk, and the cardioid are all real and checked. Honest edge: escape is a finite certificate, but membership (staying bounded) is only semi-decidable — you can prove a point out, never prove it in by iterating; the rendering uses a fixed iteration cap, as all do.",
+  "body":MND_BODY,"script":MND_SCRIPT},
  {"slug":"the-partition","title":"THE PARTITION","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#d0b0ff","icon":"partition",
   "kicker":"p(n) — counting sums by Euler's pentagonal recurrence",
