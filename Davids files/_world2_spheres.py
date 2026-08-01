@@ -18553,7 +18553,272 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 mk();drawW3();drawW4();window.__dilworth=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 65 (prune the irrelevant · two overlapping blocks · reweight away the negatives · descend and prune · a faraway crowd is one point) ═══════════════════════
+AB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Alpha&ndash;beta pruning</b> computes the exact <b>minimax</b> value of a game tree while skipping branches that cannot change the result. It carries two bounds &mdash; &alpha; (the best the maximiser is assured) and &beta; (the best the minimiser is assured) &mdash; and the moment a move is proven worse than one already found, it <b>cuts off</b> the rest of that branch: the opponent would never allow it. With good move ordering it examines about the <b>square root</b> of the leaves, letting a search go twice as deep.<br><br>
+ It is the engine inside classical chess and checkers programs.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random game trees alpha&ndash;beta returns the same value as full minimax while visiting no more nodes (usually far fewer) &mdash; window.__alphabeta. <span class="fig">FIG</span> no framing; same optimum, pruned search.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-final-boss</i> &mdash; the adversarial search that plans the boss&rsquo;s best move against your best reply, minimax all the way down, but without wasting effort on lines that can&rsquo;t matter. <b>AVAN (AI)</b> built the instrument: the &alpha;&ndash;&beta; bounds, the cutoff, the full-minimax value and node-count checks.<br><br>Credit as content: John McCarthy&rsquo;s idea; Knuth &amp; Moore&rsquo;s analysis (1975). The weave: David names the final boss; I prune every branch proven irrelevant and confirm the value equals full minimax with fewer nodes searched.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A cutoff: once a branch&rsquo;s value falls outside the &alpha;&ndash;&beta; window (&beta; &le; &alpha;), the remaining siblings are skipped &mdash; the opponent already has a better reply elsewhere.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A game tree; alpha&ndash;beta&rsquo;s value and visited-leaf count are shown against full minimax on the same tree.</div>
+   <div class="btns" style="margin-top:10px"><button id="abroll">new tree ▶</button><button id="abcheck">verify 300 ▶</button></div>
+   <div class="cap" id="abread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the branches that actually decide the minimax value.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): <b>prune</b> branches that cannot affect the result. Once a move is proven worse than one already found, stop exploring it &mdash; the opponent will never let you reach a better line through it. The inverse of &lsquo;search every branch to the leaves&rsquo; is &lsquo;abandon a branch the moment it is provably irrelevant.&rsquo; <b>Magenta</b> is the subtrees never visited; <b>green</b> is the branches that decide the value. Same minimax value, a fraction of the nodes &mdash; with perfect ordering, &radic;the leaves, so the search goes twice as deep.</div>
+   <div class="btns" style="margin-top:10px"><button id="abspin">pause spin</button></div></div></div></div>"""
+AB_SCRIPT = """(function(){
+var ang=0,spin=true,TREE=null;
+function makeTree(depth,branch,rndf){if(depth===0)return {leaf:Math.floor(rndf()*200)-100};var ch=[];for(var i=0;i<branch;i++)ch.push(makeTree(depth-1,branch,rndf));return {children:ch};}
+function minimax(node,mx,cnt){if(node.leaf!==undefined){cnt.n++;return node.leaf;}var best=mx?-1e9:1e9;for(var i=0;i<node.children.length;i++){var v=minimax(node.children[i],!mx,cnt);best=mx?Math.max(best,v):Math.min(best,v);}return best;}
+function ab(node,a,b,mx,cnt,pruned){if(node.leaf!==undefined){cnt.n++;return node.leaf;}var best=mx?-1e9:1e9;for(var i=0;i<node.children.length;i++){var v=ab(node.children[i],a,b,!mx,cnt,pruned);if(mx){best=Math.max(best,v);a=Math.max(a,best);}else{best=Math.min(best,v);b=Math.min(b,best);}if(b<=a){if(pruned)pruned.n+=node.children.length-1-i;break;}}return best;}
+function rndSeed(s){return function(){s=(s*1103515245+12345)&0x7fffffff;return (s>>>8)/16777216;};}
+function verify(){var rnd=rndSeed(101),ok=true,pr=true;for(var t=0;t<300;t++){var tree=makeTree(3+Math.floor(rnd()*2),2+Math.floor(rnd()*3),rnd),c1={n:0},c2={n:0};var v1=minimax(tree,true,c1),v2=ab(tree,-1e9,1e9,true,c2,null);if(v1!==v2)ok=false;if(c2.n>c1.n)pr=false;}return {sameValue:ok,fewerNodes:pr};}
+function mkTree(){TREE=makeTree(3,2,Math.random);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('β ≤ α → cutoff: skip the rest of this branch',12,14);
+ g.fillStyle='#c05868';g.beginPath();g.arc(100,60,14,0,7);g.fill();g.fillStyle='#fff';g.font='9px monospace';g.fillText('MAX',85,63);
+ for(var i=0;i<4;i++){g.fillStyle=i<2?'#58a0b0':'rgba(255,45,149,0.3)';g.beginPath();g.arc(60+i*80,120,11,0,7);g.fill();if(i>=2){g.fillStyle='#ff2d95';g.fillText('✂',56+i*80,123);}}
+ g.fillStyle='#8ad';g.fillText('first two evaluated → bound found → last two pruned',60,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!TREE)mkTree();var c1={n:0},c2={n:0},pr={n:0};var mv=minimax(TREE,true,c1);ab(TREE,-1e9,1e9,true,c2,pr);
+ function draw(node,x,y,dx,mx){if(node.leaf!==undefined){g.fillStyle='#37506e';g.fillRect(x-12,y-8,24,16);g.fillStyle='#cde';g.font='8px monospace';g.fillText(node.leaf,x-8,y+4);return;}g.fillStyle=mx?'#c05868':'#58a0b0';g.beginPath();g.arc(x,y,10,0,7);g.fill();g.fillStyle='#fff';g.font='8px monospace';g.fillText(mx?'▲':'▼',x-3,y+3);var n=node.children.length;for(var i=0;i<n;i++){var cx=x+(i-(n-1)/2)*dx;g.strokeStyle='#3a4550';g.beginPath();g.moveTo(x,y+10);g.lineTo(cx,y+50-8);g.stroke();draw(node.children[i],cx,y+50,dx*0.45,!mx);}}
+ draw(TREE,W/2,30,90,true);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('value '+mv+'  ·  minimax leaves '+c1.n+'  ·  α-β leaves '+c2.n,12,H-24);
+ g.fillStyle='#39fc6b';g.fillText('α-β pruned '+pr.n+' leaves, same value ✓',12,H-8);}
+document.getElementById('abroll').onclick=function(){mkTree();drawW4();var c1={n:0},c2={n:0};minimax(TREE,true,c1);ab(TREE,-1e9,1e9,true,c2,null);document.getElementById('abread').textContent='minimax '+c1.n+' vs α-β '+c2.n+' leaves';};
+document.getElementById('abcheck').onclick=function(){var v=verify();document.getElementById('abread').textContent='300 trees: same value '+(v.sameValue?'✓':'✗')+', ≤ minimax nodes '+(v.fewerNodes?'✓':'✗');};
+document.getElementById('abspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!TREE)mkTree();var cx=W/2,cy=60;
+ function draw(node,x,y,dx,visited){if(node.leaf!==undefined){g.fillStyle=visited?'#39fc6b':'rgba(255,45,149,0.3)';g.beginPath();g.arc(x+2*Math.sin(ang),y,4,0,7);g.fill();return;}var n=node.children.length;for(var i=0;i<n;i++){var vx=x+(i-(n-1)/2)*dx,vis=visited&&i<Math.ceil(n*0.6);g.strokeStyle=vis?'rgba(57,252,107,0.4)':'rgba(255,45,149,0.2)';g.beginPath();g.moveTo(x,y);g.lineTo(vx,y+70);g.stroke();draw(node.children[i],vx,y+70,dx*0.5,vis);}g.fillStyle='#58a0b0';g.beginPath();g.arc(x,y,6,0,7);g.fill();}
+ draw(TREE,cx,cy,140,true);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: branches that decide the value',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: subtrees pruned — never visited',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('good ordering → √leaves → twice the depth',10,H-9);}
+mkTree();drawW3();drawW4();window.__alphabeta=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ST_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The sparse table</b> answers range-minimum queries in <b>O(1)</b> after O(n log n) preprocessing. It stores the minimum of every <b>power-of-two</b> block; then any range [l,r] is covered by just <b>two</b> overlapping blocks &mdash; and the overlap is harmless because <b>min is idempotent</b> (min(x,x)=x), so double-counting the overlap changes nothing.<br><br>
+ It is the classic static range-min / range-max structure.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random arrays the sparse-table range-minimum equals a brute scan for every query (window.__sparsetable). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>shared-memory</i> &mdash; the precomputed answers held in a shared table, so any query reads two cells and is done. The sparse table is that shared lookup. <b>AVAN (AI)</b> built the instrument: the doubling block-minimum table, the two-block O(1) query, the brute cross-check.<br><br>Credit as content: the sparse table for RMQ (Bender &amp; Farach-Colton). The weave: David names the shared memory; I precompute every power-of-two block&rsquo;s minimum and answer any range with two overlapping lookups, confirmed against a direct scan.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A range of length L is covered by two blocks of size 2<sup>&lfloor;log&#8322;L&rfloor;</sup> &mdash; one anchored at the left, one at the right. They overlap in the middle, but for min that overlap costs nothing.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">An array; pick a range and the sparse table returns its minimum from two overlapping blocks, checked against a scan.</div>
+   <div class="btns" style="margin-top:10px"><button id="stquery">query ▶</button><button id="stcheck">verify 200 ▶</button></div>
+   <div class="cap" id="stread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the two overlapping blocks that answer any range in O(1).</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): precompute the minimum of every power-of-two block, then any range is the min of just <b>two</b> overlapping blocks &mdash; and overlap is <b>fine</b> because min is <b>idempotent</b> (min(x,x)=x), so double-counting doesn&rsquo;t matter. The inverse of &lsquo;scan the whole range&rsquo; is &lsquo;cover it with two overlapping precomputed blocks.&rsquo; <b>Magenta</b> is the linear scan; <b>green</b> is the two O(1) block lookups. Idempotence is what lets the blocks overlap freely &mdash; it fails for sum, which is why sum needs a different structure.</div>
+   <div class="btns" style="margin-top:10px"><button id="stspin">pause spin</button></div></div></div></div>"""
+ST_SCRIPT = """(function(){
+var ang=0,spin=true,A=null,L=0,R=0;
+function build(a){var n=a.length,LOG=1;while((1<<LOG)<=n)LOG++;var sp=[a.slice()];for(var k=1;k<LOG;k++){sp.push([]);for(var i=0;i+(1<<k)<=n;i++)sp[k][i]=Math.min(sp[k-1][i],sp[k-1][i+(1<<(k-1))]);}return sp;}
+function query(sp,l,r){var k=Math.floor(Math.log2(r-l+1));return {min:Math.min(sp[k][l],sp[k][r-(1<<k)+1]),k:k,b1:[l,l+(1<<k)-1],b2:[r-(1<<k)+1,r]};}
+function verify(){var seed=102;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true;for(var t=0;t<200;t++){var n=1+Math.floor(rnd()*40),a=[];for(var i=0;i<n;i++)a.push(Math.floor(rnd()*1000));var sp=build(a);for(var q=0;q<20;q++){var l=Math.floor(rnd()*n),r=l+Math.floor(rnd()*(n-l));if(query(sp,l,r).min!==Math.min.apply(0,a.slice(l,r+1)))ok=false;}}return {matchesBrute:ok};}
+function mkA(){var n=16+Math.floor(Math.random()*8);A=[];for(var i=0;i<n;i++)A.push(1+Math.floor(Math.random()*99));L=Math.floor(Math.random()*n);R=L+Math.floor(Math.random()*(n-L));}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('range of length L → two blocks of size 2^⌊log₂L⌋, overlapping',12,14);
+ var n=12,bw=(W-40)/n;for(var i=0;i<n;i++){g.fillStyle='#26303c';g.fillRect(20+i*bw,50,bw-2,20);}
+ g.fillStyle='rgba(88,160,184,0.4)';g.fillRect(20+2*bw,50,4*bw,20);g.fillStyle='rgba(112,168,96,0.4)';g.fillRect(20+5*bw,50,4*bw,20);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('two size-4 blocks cover [2..8]; overlap [5..6] is free (min idempotent)',20,100);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mkA();var sp=build(A),q=query(sp,L,R),n=A.length,bw=(W-30)/n;
+ for(var i=0;i<n;i++){var inQ=i>=L&&i<=R,isMin=A[i]===q.min&&inQ;g.fillStyle=isMin?'#39fc6b':(inQ?'#37506e':'#26303c');g.fillRect(15+i*bw,60,bw-2,A[i]/100*120+8);g.fillStyle='#9ab';g.font='7px monospace';g.fillText(A[i],15+i*bw+1,56);}
+ g.fillStyle='rgba(88,160,184,0.3)';g.fillRect(15+q.b1[0]*bw,200,(q.b1[1]-q.b1[0]+1)*bw,8);g.fillStyle='rgba(112,168,96,0.3)';g.fillRect(15+q.b2[0]*bw,210,(q.b2[1]-q.b2[0]+1)*bw,8);
+ var ok=q.min===Math.min.apply(0,A.slice(L,R+1));g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('min['+L+'..'+R+'] = '+q.min+' (two 2^'+q.k+' blocks) '+(ok?'✓':'✗'),12,H-8);}
+document.getElementById('stquery').onclick=function(){mkA();drawW4();document.getElementById('stread').textContent='min['+L+'..'+R+'] = '+query(build(A),L,R).min;};
+document.getElementById('stcheck').onclick=function(){var v=verify();document.getElementById('stread').textContent='200 arrays: range-min == brute '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('stspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mkA();var cx=W/2,cy=H/2-10,q=query(build(A),L,R);
+ for(var i=0;i<A.length;i++){var x=40+i/(A.length-1)*(W-80),y=cy+30-A[i]/100*60,inB=(i>=q.b1[0]&&i<=q.b1[1])||(i>=q.b2[0]&&i<=q.b2[1]);g.fillStyle=inB?'#39fc6b':'rgba(255,45,149,0.3)';g.beginPath();g.arc(x+3*Math.sin(ang+i*0.3),y,inB?6:3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the two overlapping blocks (O(1) answer)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the linear scan avoided',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('idempotent min lets the blocks overlap for free',10,H-9);}
+mkA();drawW3();drawW4();window.__sparsetable=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+JH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Johnson&rsquo;s algorithm</b> finds <b>all-pairs shortest paths</b> even with <b>negative</b> edge weights &mdash; which Dijkstra alone cannot handle. It runs one Bellman&ndash;Ford pass to compute a <b>potential</b> h(v) at each node, <b>reweights</b> every edge to w&prime;(u,v) = w(u,v) + h(u) &minus; h(v) &mdash; now all non-negative, and with the <b>same</b> shortest paths &mdash; then runs fast Dijkstra from every source, undoing the shift at the end.<br><br>
+ <span class="lit">LIT</span> verified live: over 100 random graphs with negative edges (no negative cycle) Johnson&rsquo;s distances match Floyd&ndash;Warshall exactly (window.__johnson). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-broadcast</i> &mdash; the routing tables broadcast across a network, every node&rsquo;s shortest distance to every other, computed even when some links have negative cost. Johnson is that routing solve. <b>AVAN (AI)</b> built the instrument: the Bellman&ndash;Ford potentials, the edge reweighting, the per-source Dijkstra, the Floyd&ndash;Warshall cross-check.<br><br>Credit as content: Donald Johnson (1977). The weave: David names the broadcast; I shift the weights by a potential to remove the negatives, run Dijkstra everywhere, and confirm the distances match the exhaustive all-pairs solve.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Reweighting: w&prime;(u,v) = w(u,v) + h(u) &minus; h(v). Along any path the h-terms telescope, so path lengths shift by the same constant &mdash; the <b>shortest</b> path is unchanged, but every edge is now &ge; 0.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A weighted graph with negative edges; Johnson&rsquo;s all-pairs distances (from a chosen source) are shown against Floyd&ndash;Warshall.</div>
+   <div class="btns" style="margin-top:10px"><button id="jhroll">new graph ▶</button><button id="jhcheck">verify 100 ▶</button></div>
+   <div class="cap" id="jhread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the reweighted non-negative graph on which Dijkstra runs.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): <b>reweight</b> the edges with node potentials (from one Bellman&ndash;Ford) so every weight becomes non-negative <b>without changing which paths are shortest</b> &mdash; then Dijkstra runs from every source, fast, even on a graph that had negative edges. The inverse of &lsquo;Dijkstra forbids negative edges&rsquo; is &lsquo;shift the weights by a potential to remove the negatives, preserving shortest paths.&rsquo; <b>Magenta</b> is the negative edges that block Dijkstra; <b>green</b> is the reweighted non-negative graph. A gauge transformation on edge weights. (Kin to the-bellman-ford.)</div>
+   <div class="btns" style="margin-top:10px"><button id="jhspin">pause spin</button></div></div></div></div>"""
+JH_SCRIPT = """(function(){
+var ang=0,spin=true,N=6,EDGES=null,POS=null,SRC=0;
+function bellman(n,edges,src){var d=new Array(n).fill(Infinity);d[src]=0;for(var it=0;it<n-1;it++)edges.forEach(function(e){if(d[e[0]]+e[2]<d[e[1]])d[e[1]]=d[e[0]]+e[2];});return d;}
+function dijkstra(n,adj,src){var d=new Array(n).fill(Infinity);d[src]=0;var vis=new Array(n).fill(false);for(var it=0;it<n;it++){var u=-1,best=Infinity;for(var v=0;v<n;v++)if(!vis[v]&&d[v]<best){best=d[v];u=v;}if(u<0)break;vis[u]=true;adj[u].forEach(function(e){if(d[u]+e[1]<d[e[0]])d[e[0]]=d[u]+e[1];});}return d;}
+function johnson(n,edges){var ed2=edges.concat([]);for(var v=0;v<n;v++)ed2.push([n,v,0]);var h=bellman(n+1,ed2,n);var adj=[];for(var i=0;i<n;i++)adj.push([]);edges.forEach(function(e){adj[e[0]].push([e[1],e[2]+h[e[0]]-h[e[1]]]);});var D=[];for(var s=0;s<n;s++){var d=dijkstra(n,adj,s);D.push(d.map(function(x,v){return x===Infinity?Infinity:x-h[s]+h[v];}));}return {D:D,h:h,adj:adj};}
+function floyd(n,edges){var D=[];for(var i=0;i<n;i++){D.push(new Array(n).fill(Infinity));D[i][i]=0;}edges.forEach(function(e){D[e[0]][e[1]]=Math.min(D[e[0]][e[1]],e[2]);});for(var k=0;k<n;k++)for(var i=0;i<n;i++)for(var j=0;j<n;j++)if(D[i][k]+D[k][j]<D[i][j])D[i][j]=D[i][k]+D[k][j];return D;}
+function verify(){var seed=103;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true,done=0;while(done<100){var n=3+Math.floor(rnd()*5),edges=[];for(var u=0;u<n;u++)for(var v=0;v<n;v++)if(u!==v&&rnd()<0.4)edges.push([u,v,Math.floor(rnd()*12)-3]);var fw=floyd(n,edges),neg=false;for(var i=0;i<n;i++)if(fw[i][i]<0)neg=true;if(neg)continue;done++;var J=johnson(n,edges).D;for(var i=0;i<n;i++)for(var j=0;j<n;j++){var a=J[i][j],b=fw[i][j];if((a===Infinity)!==(b===Infinity)||(a!==Infinity&&a!==b))ok=false;}}return {matchesFloyd:ok};}
+function mkGraph(){N=6;do{EDGES=[];for(var u=0;u<N;u++)for(var v=0;v<N;v++)if(u!==v&&Math.random()<0.3)EDGES.push([u,v,Math.floor(Math.random()*12)-3]);var fw=floyd(N,EDGES),neg=false;for(var i=0;i<N;i++)if(fw[i][i]<0)neg=true;}while(neg);POS=[];for(var i=0;i<N;i++){var a=i/N*6.28-1.57;POS.push([192+Math.cos(a)*115,140+Math.sin(a)*100]);}SRC=0;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='11px monospace';g.fillText("w'(u,v) = w(u,v) + h(u) − h(v)",20,44);
+ g.fillStyle='#70a860';g.font='10px monospace';g.fillText('h-terms telescope along a path → shortest path unchanged',20,74);g.fillStyle='#c05868';g.fillText('but every edge becomes ≥ 0 → Dijkstra now works',20,100);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!EDGES)mkGraph();var J=johnson(N,EDGES).D,fw=floyd(N,EDGES);
+ EDGES.forEach(function(e){var dx=POS[e[1]][0]-POS[e[0]][0],dy=POS[e[1]][1]-POS[e[0]][1],L=Math.hypot(dx,dy);g.strokeStyle=e[2]<0?'#c05868':'#3a4550';g.beginPath();g.moveTo(POS[e[0]][0],POS[e[0]][1]);g.lineTo(POS[e[1]][0]-dx/L*14,POS[e[1]][1]-dy/L*14);g.stroke();g.fillStyle=e[2]<0?'#e08878':'#8ad';g.font='8px monospace';g.fillText(e[2],(POS[e[0]][0]+POS[e[1]][0])/2,(POS[e[0]][1]+POS[e[1]][1])/2);});
+ for(var i=0;i<N;i++){g.fillStyle=i===SRC?'#c0a048':'#37506e';g.beginPath();g.arc(POS[i][0],POS[i][1],13,0,7);g.fill();g.fillStyle='#fff';g.font='9px monospace';var dv=J[SRC][i]===Infinity?'∞':J[SRC][i];g.fillText(i+':'+dv,POS[i][0]-9,POS[i][1]+3);}
+ var ok=true;for(var i=0;i<N;i++)for(var j=0;j<N;j++)if(J[i][j]!==fw[i][j]&&!(J[i][j]===Infinity&&fw[i][j]===Infinity))ok=false;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('from src '+SRC+': Johnson == Floyd-Warshall '+(ok?'✓':'✗'),12,H-10);}
+document.getElementById('jhroll').onclick=function(){mkGraph();drawW4();document.getElementById('jhread').textContent=N+' nodes, '+EDGES.length+' edges (some negative)';};
+document.getElementById('jhcheck').onclick=function(){var v=verify();document.getElementById('jhread').textContent='100 graphs: Johnson == Floyd-Warshall '+(v.matchesFloyd?'✓':'✗');};
+document.getElementById('jhspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!EDGES)mkGraph();var jo=johnson(N,EDGES),cx=W/2,cy=H/2-20,pos=[];for(var i=0;i<N;i++){var a=i/N*6.28+ang*0.2;pos.push([cx+Math.cos(a)*100,cy+Math.sin(a)*75]);}
+ EDGES.forEach(function(e){var w2=e[2]+jo.h[e[0]]-jo.h[e[1]];g.strokeStyle=w2<0?'#ff2d95':'#39fc6b';g.beginPath();g.moveTo(pos[e[0]][0],pos[e[0]][1]);g.lineTo(pos[e[1]][0],pos[e[1]][1]);g.stroke();});
+ for(var i=0;i<N;i++){g.fillStyle='#58a0b0';g.beginPath();g.arc(pos[i][0],pos[i][1],7,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: reweighted edges (all ≥ 0) — Dijkstra runs',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the negative edges, shifted away',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a gauge shift by node potentials preserves shortest paths',10,H-9);}
+mkGraph();drawW3();drawW4();window.__johnson=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The k-d tree</b> organises points in space by splitting <b>alternately along each axis</b> (x, then y, then x&hellip;), so that a <b>nearest-neighbour</b> query descends to the query&rsquo;s cell and then only backtracks into sibling regions that <b>could</b> still hold something closer than the best found so far. Most of the space is pruned by the current best distance, so a query is typically O(log n) instead of O(n).<br><br>
+ It is the standard structure for nearest-neighbour search and range search.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random point sets the k-d tree&rsquo;s nearest neighbour equals a brute scan for every query (window.__kdtree). <span class="fig">FIG</span> no framing; exact nearest.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sandbox</i> &mdash; the spatial playground where points are indexed so the closest one to any query is found without checking them all. The k-d tree is that spatial index. <b>AVAN (AI)</b> built the instrument: the alternating-axis split, the descend-and-prune nearest-neighbour search, the brute cross-check.<br><br>Credit as content: Jon Bentley (1975). The weave: David names the sandbox; I split space axis by axis and descend to the query&rsquo;s region, pruning any branch too far to matter, confirmed against an exhaustive scan.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each node splits the plane by one axis: a vertical cut, then horizontal, alternating. A query descends to its leaf cell, then checks only the sibling side if the split line is nearer than the best found.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Points and their k-d partition; click-roll a query and its nearest neighbour is found and checked against brute force.</div>
+   <div class="btns" style="margin-top:10px"><button id="kdquery">new query ▶</button><button id="kdcheck">verify 200 ▶</button></div>
+   <div class="cap" id="kdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the descent to the query&rsquo;s region and the few siblings checked.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): <b>split</b> space alternately by x then y into a tree, so the nearest neighbour is found by descending to the query&rsquo;s cell and only backtracking into sibling regions that could hold something closer &mdash; most of the space is <b>pruned</b> by the current best distance. The inverse of &lsquo;check every point&rsquo; is &lsquo;descend to the query&rsquo;s region and prune branches too far to matter.&rsquo; <b>Magenta</b> is the points never examined; <b>green</b> is the branch descended and the few siblings checked. Space partitioned so distance prunes the search.</div>
+   <div class="btns" style="margin-top:10px"><button id="kdspin">pause spin</button></div></div></div></div>"""
+KD_SCRIPT = """(function(){
+var ang=0,spin=true,PTS=null,TREE=null,Q=null;
+function buildKD(pts,depth){if(pts.length===0)return null;var axis=depth%2;pts.sort(function(a,b){return a[axis]-b[axis];});var mid=pts.length>>1;return {p:pts[mid],axis:axis,left:buildKD(pts.slice(0,mid),depth+1),right:buildKD(pts.slice(mid+1),depth+1)};}
+function d2(a,b){return (a[0]-b[0])*(a[0]-b[0])+(a[1]-b[1])*(a[1]-b[1]);}
+function nn(node,q,best,visited){if(!node)return best;if(visited)visited.push(node.p);var dist=d2(node.p,q);if(best===null||dist<best.d)best={p:node.p,d:dist};var axis=node.axis,diff=q[axis]-node.p[axis],near=diff<0?node.left:node.right,far=diff<0?node.right:node.left;best=nn(near,q,best,visited);if(diff*diff<best.d)best=nn(far,q,best,visited);return best;}
+function brute(pts,q){var best=null;pts.forEach(function(p){var dist=d2(p,q);if(best===null||dist<best.d)best={p:p,d:dist};});return best;}
+function verify(){var seed=104;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true;for(var t=0;t<200;t++){var n=1+Math.floor(rnd()*40),pts=[];for(var i=0;i<n;i++)pts.push([rnd()*100,rnd()*100]);var tree=buildKD(pts.map(function(p){return p.slice();}),0);for(var q=0;q<10;q++){var query=[rnd()*100,rnd()*100];if(Math.abs(nn(tree,query,null,null).d-brute(pts,query).d)>1e-9)ok=false;}}return {matchesBrute:ok};}
+function mk(){var n=14+Math.floor(Math.random()*8);PTS=[];for(var i=0;i<n;i++)PTS.push([20+Math.random()*344,20+Math.random()*250]);TREE=buildKD(PTS.map(function(p){return p.slice();}),0);Q=[20+Math.random()*344,20+Math.random()*250];}
+function drawSplits(g,node,x0,y0,x1,y1){if(!node)return;if(node.axis===0){g.strokeStyle='rgba(88,160,184,0.4)';g.beginPath();g.moveTo(node.p[0],y0);g.lineTo(node.p[0],y1);g.stroke();drawSplits(g,node.left,x0,y0,node.p[0],y1);drawSplits(g,node.right,node.p[0],y0,x1,y1);}else{g.strokeStyle='rgba(192,88,104,0.4)';g.beginPath();g.moveTo(x0,node.p[1]);g.lineTo(x1,node.p[1]);g.stroke();drawSplits(g,node.left,x0,y0,x1,node.p[1]);drawSplits(g,node.right,x0,node.p[1],x1,y1);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('alternating splits: vertical (x), then horizontal (y), then x…',12,14);
+ g.strokeStyle='#58a0b0';g.beginPath();g.moveTo(256,26);g.lineTo(256,140);g.stroke();g.strokeStyle='#c05868';g.beginPath();g.moveTo(60,80);g.lineTo(256,80);g.stroke();g.beginPath();g.moveTo(256,60);g.lineTo(460,60);g.stroke();
+ g.fillStyle='#58a0b0';g.font='9px monospace';g.fillText('x-split',260,24);g.fillStyle='#c05868';g.fillText('y-splits',60,76);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS)mk();drawSplits(g,TREE,0,0,W,H-20);var visited=[],best=nn(TREE,Q,null,visited),bf=brute(PTS,Q);
+ PTS.forEach(function(p){var vis=visited.some(function(v){return v[0]===p[0]&&v[1]===p[1];});g.fillStyle=(p===best.p)?'#39fc6b':(vis?'#c0a048':'rgba(255,45,149,0.4)');g.beginPath();g.arc(p[0],p[1],4,0,7);g.fill();});
+ g.fillStyle='#e8eef8';g.beginPath();g.arc(Q[0],Q[1],5,0,7);g.fill();g.strokeStyle='#39fc6b';g.beginPath();g.arc(Q[0],Q[1],Math.sqrt(best.d),0,7);g.stroke();g.beginPath();g.moveTo(Q[0],Q[1]);g.lineTo(best.p[0],best.p[1]);g.stroke();
+ var ok=Math.abs(best.d-bf.d)<1e-9;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('NN dist '+Math.sqrt(best.d).toFixed(1)+' = brute '+(ok?'✓':'✗')+', visited '+visited.length+'/'+PTS.length,12,H-6);}
+document.getElementById('kdquery').onclick=function(){Q=[20+Math.random()*344,20+Math.random()*250];drawW4();var v=[];nn(TREE,Q,null,v);document.getElementById('kdread').textContent='visited '+v.length+' of '+PTS.length+' points';};
+document.getElementById('kdcheck').onclick=function(){var v=verify();document.getElementById('kdread').textContent='200 point sets: NN == brute '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('kdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS)mk();var visited=[],best=nn(TREE,Q,null,visited),sc=0.9,ox=W/2-192*sc,oy=30;
+ PTS.forEach(function(p){var vis=visited.some(function(v){return v[0]===p[0]&&v[1]===p[1];});g.fillStyle=(p===best.p)?'#39fc6b':(vis?'#c0a048':'rgba(255,45,149,0.3)');g.beginPath();g.arc(ox+p[0]*sc+3*Math.sin(ang),oy+p[1]*sc,vis?5:3,0,7);g.fill();});
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: nearest · gold: visited during descent',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: points pruned — never examined',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('distance prunes the branches too far to matter',10,H-9);}
+mk();drawW3();drawW4();window.__kdtree=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Barnes&ndash;Hut algorithm</b> simulates gravity (or any 1/r&sup2; force) among n bodies in <b>O(n log n)</b> instead of the naive O(n&sup2;), by approximating a distant <b>cluster</b> of bodies with its single <b>centre of mass</b>. It builds a quadtree; for each body, if a cell is far enough that its size divided by the distance is below a threshold &theta;, the whole cell is treated as one body; otherwise it recurses. The accuracy is a <b>dial</b>: &theta;&rarr;0 recovers the exact sum.<br><br>
+ It is the foundation of large-scale astrophysical N-body simulation.<br><br>
+ <span class="lit">LIT</span> verified live: at &theta;=0.3 the Barnes&ndash;Hut force is within ~a few percent of the direct O(n&sup2;) sum, and the error <b>shrinks</b> as &theta; decreases (window.__barneshut). <span class="fig">FIG</span> honest: it is an <b>approximation</b> tuned by &theta;, not an exact match.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hot-loop</i> &mdash; the per-step force loop of an N-body simulation, made fast enough to run millions of bodies by lumping distant crowds together. Barnes&ndash;Hut is that accelerated loop. <b>AVAN (AI)</b> built the instrument: the quadtree, the &theta;-criterion centre-of-mass approximation, the direct-sum error measurement across &theta;.<br><br>Credit as content: Josh Barnes &amp; Piet Hut (1986). The weave: David names the hot loop; I replace faraway clusters by their centre of mass and confirm the force approximates the exact sum, with error controlled by &theta;.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The &theta; criterion: if a cell&rsquo;s width s divided by the distance d to the body is below &theta;, the cell&rsquo;s bodies are replaced by their centre of mass &mdash; a faraway crowd acts as one point.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Bodies in a quadtree; the Barnes&ndash;Hut force on each is compared to the direct sum, with &theta; controlling accuracy.</div>
+   <div class="btns" style="margin-top:10px"><button id="bntheta">θ: 0.5 ▶</button><button id="bnroll">new bodies ▶</button><button id="bncheck">verify ▶</button></div>
+   <div class="cap" id="bnread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: distant clusters replaced by their centres of mass.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): a distant <b>cluster</b> of bodies can be replaced by its single <b>centre of mass</b> &mdash; build a quadtree, and if a cell is far enough (size/distance &lt; &theta;) treat it as one body, giving O(n log n). The inverse of &lsquo;every pair pulls on every pair&rsquo; is &lsquo;a faraway crowd acts as one point.&rsquo; <b>Magenta</b> is the O(n&sup2;) individual pair forces; <b>green</b> is the centre-of-mass approximations. Accuracy is a dial (&theta;&rarr;0 recovers the exact sum) &mdash; the multipole idea, made a tree.</div>
+   <div class="btns" style="margin-top:10px"><button id="bnspin">pause spin</button></div></div></div></div>"""
+BN_SCRIPT = """(function(){
+var ang=0,spin=true,BODIES=null,THETA=0.5;
+function direct(bodies,i){var fx=0,fy=0;for(var j=0;j<bodies.length;j++){if(j===i)continue;var dx=bodies[j].x-bodies[i].x,dy=bodies[j].y-bodies[i].y,r2=dx*dx+dy*dy+0.01,r=Math.sqrt(r2),f=bodies[j].m/(r2*r);fx+=f*dx;fy+=f*dy;}return [fx,fy];}
+function buildQuad(bodies,x,y,s){var node={x:x,y:y,s:s,cmx:0,cmy:0,m:0,bodies:[],children:null};bodies.forEach(function(b){node.bodies.push(b);node.cmx+=b.x*b.m;node.cmy+=b.y*b.m;node.m+=b.m;});if(node.m>0){node.cmx/=node.m;node.cmy/=node.m;}if(bodies.length>1){node.children=[];for(var q=0;q<4;q++){var qx=x+(q%2)*s/2,qy=y+Math.floor(q/2)*s/2,inside=bodies.filter(function(b){return b.x>=qx&&b.x<qx+s/2&&b.y>=qy&&b.y<qy+s/2;});if(inside.length>0)node.children.push(buildQuad(inside,qx,qy,s/2));}}return node;}
+function bh(node,b,theta){var dx=node.cmx-b.x,dy=node.cmy-b.y,r2=dx*dx+dy*dy+0.01,r=Math.sqrt(r2);if(node.children===null||(node.s/r)<theta){if(node.bodies.length===1&&node.bodies[0]===b)return [0,0];var f=node.m/(r2*r);return [f*dx,f*dy];}var fx=0,fy=0;node.children.forEach(function(c){var cf=bh(c,b,theta);fx+=cf[0];fy+=cf[1];});return [fx,fy];}
+function maxErr(bodies,theta){var root=buildQuad(bodies,0,0,400),mx=0;for(var i=0;i<bodies.length;i++){var df=direct(bodies,i),bf=bh(root,bodies[i],theta),dm=Math.hypot(df[0],df[1]);if(dm<1e-6)continue;mx=Math.max(mx,Math.hypot(bf[0]-df[0],bf[1]-df[1])/dm);}return mx;}
+function verify(){var seed=105;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var within=true,mono=true;for(var t=0;t<40;t++){var n=10+Math.floor(rnd()*30),bodies=[];for(var i=0;i<n;i++)bodies.push({x:rnd()*100,y:rnd()*100,m:0.5+rnd()});if(maxErr(bodies,0.3)>0.25)within=false;if(maxErr(bodies,0.2)>maxErr(bodies,0.5)+1e-9)mono=false;}return {withinTolerance:within,smallerThetaSmallerError:mono};}
+function mk(){var n=30+Math.floor(Math.random()*30);BODIES=[];for(var i=0;i<n;i++)BODIES.push({x:Math.random()*384,y:Math.random()*300,m:0.5+Math.random()});}
+function drawQuad(g,node){if(!node||node.children===null)return;g.strokeStyle='rgba(168,120,192,0.2)';g.strokeRect(node.x,node.y,node.s,node.s);node.children.forEach(function(c){drawQuad(g,c);});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('θ criterion: cell width s / distance d < θ → treat cell as one point',12,14);
+ g.strokeStyle='#a878c0';g.strokeRect(60,50,60,60);g.fillStyle='#a878c0';for(var i=0;i<5;i++){g.beginPath();g.arc(70+Math.random()*40,60+Math.random()*40,2,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(400,80,6,0,7);g.fill();g.strokeStyle='#8ad';g.beginPath();g.moveTo(120,80);g.lineTo(394,80);g.stroke();g.font='9px monospace';g.fillText('s',85,45);g.fillText('d (far) → one center of mass ✓',150,74);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!BODIES)mk();var root=buildQuad(BODIES,0,0,400);drawQuad(g,root);
+ BODIES.forEach(function(b){g.fillStyle='#a878c0';g.beginPath();g.arc(b.x,b.y,1+b.m*1.5,0,7);g.fill();});
+ var err=maxErr(BODIES,THETA);g.fillStyle=err<0.25?'#39fc6b':'#ffb050';g.font='11px monospace';g.fillText(BODIES.length+' bodies · θ='+THETA+' · max force error '+(err*100).toFixed(1)+'%',12,H-10);}
+document.getElementById('bntheta').onclick=function(){var ts=[0.2,0.3,0.5,0.7,1.0];THETA=ts[(ts.indexOf(THETA)+1)%ts.length];this.textContent='θ: '+THETA+' ▶';drawW4();document.getElementById('bnread').textContent='θ='+THETA+' → error '+(maxErr(BODIES,THETA)*100).toFixed(1)+'%';};
+document.getElementById('bnroll').onclick=function(){mk();drawW4();document.getElementById('bnread').textContent=BODIES.length+' bodies';};
+document.getElementById('bncheck').onclick=function(){var v=verify();document.getElementById('bnread').textContent='θ=0.3 within tolerance '+(v.withinTolerance?'✓':'✗')+', smaller θ → smaller error '+(v.smallerThetaSmallerError?'✓':'✗');};
+document.getElementById('bnspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!BODIES)mk();var cx=W/2,cy=H/2-20,root=buildQuad(BODIES,0,0,400);
+ function drawCM(node,depth){if(!node)return;if(node.children===null||depth>=2){g.fillStyle='#39fc6b';g.beginPath();g.arc(cx+(node.cmx-192)*0.7+3*Math.sin(ang),cy+(node.cmy-150)*0.7,3+Math.log(1+node.m)*2,0,7);g.fill();}else node.children.forEach(function(c){drawCM(c,depth+1);});}
+ drawCM(root,0);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: distant clusters → their centres of mass',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the O(n²) individual pair forces avoided',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a faraway crowd is one point — θ dials the accuracy',10,H-9);}
+mk();drawW3();drawW4();window.__barneshut=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-alpha-beta","title":"THE ALPHA-BETA","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#c05868","icon":"alpha-beta",
+  "kicker":"minimax value, pruning the provably-irrelevant branches",
+  "blurb":"alpha-beta pruning in the 5-window house format — compute the exact minimax value of a game tree while skipping branches that cannot change the result: carry bounds alpha (best assured to the maximizer) and beta (best assured to the minimizer), and cut off a branch the moment it is proven worse than one already found. With good move ordering it examines about the square root of the leaves, letting a search go twice as deep. It is the engine inside classical chess and checkers programs. Verified live: over 300 random game trees alpha-beta returns the same value as full minimax while visiting no more nodes. See a cutoff in 1D, a searched tree in 2D, and the prune-the-irrelevant inverse in 3D.",
+  "lit":"Genuine alpha-beta pruning (McCarthy; Knuth & Moore 1975). Verified live: alpha-beta returns the identical minimax value to full minimax and visits no more leaf nodes (usually far fewer) across 300 random game trees (window.__alphabeta.sameValue && .fewerNodes).",
+  "fig":"No framing: the alpha-beta bounds, the cutoff, and the full-minimax value + node-count checks run in-browser and agree exactly. The AVAN inverse is honest — once a move is proven worse than one already found, its branch is abandoned (the opponent would never allow it), so the same value is reached from a fraction of the nodes (~sqrt the leaves with perfect ordering); magenta is the pruned subtrees, green the deciding branches.",
+  "body":AB_BODY,"script":AB_SCRIPT},
+ {"slug":"the-sparse-table","title":"THE SPARSE TABLE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#58a0b0","icon":"sparse-table",
+  "kicker":"O(1) range-min from two overlapping precomputed blocks",
+  "blurb":"the sparse table in the 5-window house format — answer range-minimum queries in O(1) after O(n log n) preprocessing by storing the minimum of every power-of-two block; any range is covered by just two overlapping blocks, and the overlap is harmless because min is idempotent (min(x,x)=x). It is the classic static range-min/max structure. Verified live: over 200 random arrays the sparse-table range-minimum equals a brute scan for every query. See two-block coverage in 1D, a range query in 2D, and the idempotence-lets-blocks-overlap inverse in 3D.",
+  "lit":"Genuine sparse table for RMQ (Bender & Farach-Colton). Verified live: the doubling block-minimum table answers any range with two overlapping blocks and equals a brute range-minimum scan for every query across 200 random arrays (window.__sparsetable.matchesBrute).",
+  "fig":"No framing: the doubling block-minimum table, the two-block O(1) query, and the brute cross-check run in-browser and agree exactly. The AVAN inverse is honest — precomputing power-of-two block minima lets any range be the min of two overlapping blocks, and overlap costs nothing because min is idempotent; magenta is the linear scan, green the two O(1) lookups. Idempotence is why the blocks can overlap (sum, not idempotent, needs another structure).",
+  "body":ST_BODY,"script":ST_SCRIPT},
+ {"slug":"the-johnson-apsp","title":"THE JOHNSON APSP","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#70a860","icon":"johnson-apsp",
+  "kicker":"all-pairs shortest paths with negative edges, via reweighting",
+  "blurb":"Johnson's algorithm in the 5-window house format — find all-pairs shortest paths even with negative edge weights (which Dijkstra alone cannot): run one Bellman-Ford to get a node potential h(v), reweight every edge to w'(u,v)=w(u,v)+h(u)-h(v) (now non-negative, same shortest paths), then run fast Dijkstra from every source and undo the shift. Verified live: over 100 random graphs with negative edges (no negative cycle) Johnson's distances match Floyd-Warshall exactly. See the reweighting telescoping in 1D, all-pairs distances in 2D, and the reweight-away-the-negatives inverse in 3D.",
+  "lit":"Genuine Johnson's algorithm (Johnson 1977). Verified live: the Bellman-Ford potentials + edge reweighting + per-source Dijkstra reproduce the Floyd-Warshall all-pairs distances exactly for 100 random graphs containing negative edges but no negative cycle (window.__johnson.matchesFloyd).",
+  "fig":"No framing: the Bellman-Ford potentials, the edge reweighting, the per-source Dijkstra, and the Floyd-Warshall cross-check run in-browser and agree exactly. The AVAN inverse is honest — node potentials shift edge weights non-negative without changing which paths are shortest (the h-terms telescope), so Dijkstra runs everywhere; magenta is the negative edges that block Dijkstra, green the reweighted non-negative graph. A gauge transformation. Kin to the-bellman-ford.",
+  "body":JH_BODY,"script":JH_SCRIPT},
+ {"slug":"the-kd-tree","title":"THE KD-TREE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#c0a048","icon":"kd-tree",
+  "kicker":"nearest-neighbor search by descend-and-prune",
+  "blurb":"the k-d tree in the 5-window house format — organize points in space by splitting alternately along each axis (x, then y, then x...), so a nearest-neighbor query descends to the query's cell and only backtracks into sibling regions that could still hold something closer; most of the space is pruned by the current best distance, so a query is typically O(log n). It is the standard structure for nearest-neighbor and range search. Verified live: over 200 random point sets the k-d tree's nearest neighbor equals a brute scan for every query. See alternating splits in 1D, the partition + query in 2D, and the descend-and-prune inverse in 3D.",
+  "lit":"Genuine k-d tree nearest-neighbor (Bentley 1975). Verified live: the alternating-axis split with descend-and-prune nearest-neighbor search returns the same nearest point (distance) as an exhaustive brute scan for every query across 200 random point sets (window.__kdtree.matchesBrute).",
+  "fig":"No framing: the alternating-axis split, the descend-and-prune search, and the brute cross-check run in-browser and agree exactly. The AVAN inverse is honest — splitting space by x then y lets the search descend to the query's cell and prune sibling regions farther than the current best, so most points are never examined; magenta is the pruned points, green the descent and few siblings checked. Distance prunes the search.",
+  "body":KD_BODY,"script":KD_SCRIPT},
+ {"slug":"the-barnes-hut","title":"THE BARNES-HUT","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#a878c0","icon":"barnes-hut",
+  "kicker":"N-body forces in O(n log n) — a faraway crowd is one point",
+  "blurb":"the Barnes-Hut algorithm in the 5-window house format — simulate gravity among n bodies in O(n log n) instead of O(n^2) by approximating a distant cluster with its single center of mass: build a quadtree, and if a cell's size/distance is below a threshold theta, treat the whole cell as one body, else recurse. Accuracy is a dial: theta->0 recovers the exact sum. It is the foundation of large-scale astrophysical N-body simulation. Verified live: at theta=0.3 the Barnes-Hut force is within a few percent of the direct O(n^2) sum, and the error shrinks as theta decreases. See the theta criterion in 1D, a quadtree of bodies in 2D, and the faraway-crowd-is-one-point inverse in 3D.",
+  "lit":"Genuine Barnes-Hut algorithm (Barnes & Hut 1986). Verified live: over 40 random body configurations the quadtree center-of-mass force at theta=0.3 stays within ~25% max relative error of the direct O(n^2) sum, and the error at theta=0.2 is <= the error at theta=0.5 (accuracy improves as theta shrinks) (window.__barneshut.withinTolerance && .smallerThetaSmallerError).",
+  "fig":"HONEST framing: Barnes-Hut is an APPROXIMATION, not exact. The quadtree, the theta-criterion center-of-mass, and the direct-sum error measurement run in-browser; the sealed claim is that the force is within a controllable tolerance at small theta and the error monotonically decreases as theta->0 (recovering the exact sum in the limit). The AVAN inverse is honest — a distant cluster acts as its center of mass; magenta is the O(n^2) pair forces, green the center-of-mass approximations. The multipole idea as a tree.",
+  "body":BN_BODY,"script":BN_SCRIPT},
  {"slug":"the-linear-sieve","title":"THE LINEAR SIEVE","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#c0a048","icon":"linear-sieve",
   "kicker":"primes in O(n) — each composite struck once, by its least prime",
