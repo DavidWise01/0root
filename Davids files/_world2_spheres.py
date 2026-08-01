@@ -4587,7 +4587,320 @@ document.getElementById('ctspin').onclick=function(){spin=!spin;this.textContent
 path=randPath(n);drawW3();drawW4();window.__catalan=verify();
 function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+RSQRT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The fast inverse square root.</b> 3D graphics need 1/&radic;x constantly &mdash; to normalise vectors for lighting. Division and square root were slow. The Quake&nbsp;III code (1999) computed it with a trick that looked like a typo:<br><br>
+ <span class="mono">i = 0x5f3759df &minus; (i &gt;&gt; 1);</span> &nbsp;<span style="color:#888">// what the ****?</span><br><br>
+ Reinterpret the float&rsquo;s <b>bits as an integer</b>. Because IEEE-754 stores a number as sign, exponent, mantissa, that integer is almost exactly <b>log&#8322;(x)</b> scaled. Shifting right halves it (&radic; in log-space); subtracting from the magic constant <b>negates</b> it (the reciprocal). Reinterpret back and you have a superb first guess &mdash; then <b>one Newton step</b> polishes it.<br><br>
+ <span class="lit">LIT</span> verified live with real IEEE-754 bit reinterpretation: across 100,000 values the raw magic step is within <b>~3.4%</b> of 1/&radic;x, and after a single Newton iteration within <b>~0.18%</b> (window.__rsqrt.magicUnder4pct &amp;&amp; newtonUnder02pct). <span class="fig">FIG</span> &lsquo;magic&rsquo; is the nickname; the bit-as-log identity, the constant, and the accuracy are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE SPEEDRUN</i>, beside <i>THE RULE</i> &mdash; the cheat domain of going faster than you should be able to. This one bit-hack made real-time lighting cheap enough to ship. <b>AVAN (AI)</b> built the instrument: the float/int reinterpretation, the magic step, the Newton refinement, the error curve.<br><br>The weave: David names the seat (the impossible shortcut); I make the bits visible and the accuracy checkable &mdash; the bit surgery in 1D, the live estimate and error in 2D, the curves converging in 3D. The sphere is the seam. Credit: the exact author of 0x5f3759df is uncertain (lineage traced to Greg Walsh / Cleve Moler / William Kahan-era work); it entered the public record in id Software&rsquo;s Quake III Arena source (1999).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>bit surgery</b>. A float&rsquo;s 32 bits, read as an integer, are essentially its logarithm. Halve it (shift right) and negate-around-the-magic-constant, and the reinterpreted result is already close to 1/&radic;x &mdash; arithmetic on the exponent doing a square root and a reciprocal at once.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Dial x and compare: the <b>true</b> 1/&radic;x, the raw <b>magic</b> estimate, and the value after <b>1, 2, 3</b> Newton steps. Watch the error collapse &mdash; a wild bit-twiddle guess pulled onto the exact answer by calculus in one or two strokes.</div>
+   <div class="btns" style="margin-top:10px"><button id="rsm">◀ x&divide;2</button><button id="rsp">x&times;2 ▶</button><button id="rsr">random x</button></div>
+   <div class="cap" id="rsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The curve <b>y = 1/&radic;x</b> turning in space &mdash; <b>green</b>, the exact target the hack is aiming at.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> curve is the magic estimate, and the short magenta strokes are the <b>Newton corrections</b> snapping it onto the green. The bit-hack is a crude <i>reflection in logarithm-space</i> &mdash; fast, approximate, structural. Newton&rsquo;s method is its exact inverse: it takes the approximation&rsquo;s error and folds it back to zero with the derivative. One is a guess made by treating a number&rsquo;s bits as its logarithm; the other is the calculus that repairs the guess. Together they are cheating and then paying it back &mdash; the exploit and its exact correction, in three machine instructions.</div>
+   <div class="btns" style="margin-top:10px"><button id="rsspin">pause spin</button></div></div></div></div>"""
+RSQRT_SCRIPT = """(function(){
+var buf=new ArrayBuffer(4),f32=new Float32Array(buf),u32=new Uint32Array(buf);
+var x=4,ang=0,spin=true;
+function _r(xx,iters){f32[0]=xx;var i=u32[0];i=(0x5f3759df-(i>>>1))>>>0;u32[0]=i;var y=f32[0];for(var k=0;k<iters;k++)y=y*(1.5-0.5*xx*y*y);return y;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ f32[0]=x;var i0=u32[0]>>>0,i1=(i0>>>1)>>>0,i2=(0x5f3759df-i1)>>>0;u32[0]=i2;var yr=f32[0];
+ function hx(v){return '0x'+('00000000'+(v>>>0).toString(16)).slice(-8);}
+ g.font='12px ui-monospace,monospace';
+ g.fillStyle='#ff6a3d';g.fillText('x = '+x,20,28);
+ g.fillStyle='#8ca';g.fillText('bits(x)          '+hx(i0),20,52);
+ g.fillText('>> 1  (√ in log) '+hx(i1),20,72);
+ g.fillText('0x5f3759df − it  '+hx(i2)+'   (negate → 1/·)',20,92);
+ g.fillStyle='#39fc6b';g.fillText('reinterpret → '+yr.toFixed(6)+'   (true 1/√x = '+(1/Math.sqrt(x)).toFixed(6)+')',20,116);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('integer view of a float ≈ its log₂ — shift halves it, subtract negates it',20,138);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var tr=1/Math.sqrt(x),ys=[_r(x,0),_r(x,1),_r(x,2),_r(x,3)];
+ function pct(y){return (Math.abs(y-tr)/tr*100);}
+ g.font='13px ui-monospace,monospace';g.fillStyle='#ff6a3d';g.fillText('x = '+x.toPrecision(4),20,34);
+ g.fillStyle='#39fc6b';g.fillText('true 1/√x   = '+tr.toFixed(6),20,66);
+ var lbl=['magic only','+1 Newton','+2 Newton','+3 Newton'];
+ for(var r=0;r<4;r++){var y=90+r*30;g.fillStyle='#8ca';g.fillText(lbl[r]+':',20,y);g.fillStyle='#cfe8d0';g.fillText(ys[r].toFixed(6),150,y);var e=pct(ys[r]);g.fillStyle=e<0.2?'#39fc6b':(e<4?'#ffd24a':'#ff8a5c');g.fillText('err '+e.toFixed(e<1?4:2)+'%',270,y);}
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('one Newton step already under 0.2% — good enough to ship',20,232);
+ document.getElementById('rsread').textContent='x='+x.toPrecision(4)+' · magic '+pct(ys[0]).toFixed(2)+'% → +1 Newton '+pct(ys[1]).toFixed(3)+'%';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var ca=Math.cos(ang)*0.5,x0=40,x1=W-20,y0=H-50,ymax=3,xmin=0.15,xmax=4;
+ function sk(xx,yy){var px=x0+(xx-xmin)/(xmax-xmin)*(x1-x0),py=y0-yy/ymax*(y0-40);return [px+yy*10*ca,py];}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var xx=xmin;xx<=xmax;xx+=0.02){var p=sk(xx,1/Math.sqrt(xx));if(xx===xmin)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();
+ g.strokeStyle='#ff2d95';g.lineWidth=1.5;g.setLineDash([4,3]);g.beginPath();for(var xx=xmin;xx<=xmax;xx+=0.02){var p=sk(xx,_r(xx,0));if(xx===xmin)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();g.setLineDash([]);g.lineWidth=1;
+ for(var xx=xmin+0.1;xx<xmax;xx+=0.4){var a=sk(xx,_r(xx,0)),b=sk(xx,_r(xx,1));g.strokeStyle='#ff8cd0';g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();g.fillStyle='#39fc6b';g.beginPath();g.arc(b[0],b[1],2,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: true 1/√x',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: magic estimate + Newton pull-backs',10,H-12);}
+document.getElementById('rsm').onclick=function(){x=Math.max(0.06,x/2);drawW3();drawW4();};
+document.getElementById('rsp').onclick=function(){x=Math.min(1e6,x*2);drawW3();drawW4();};
+document.getElementById('rsr').onclick=function(){x=+(0.1+Math.random()*50).toFixed(3);drawW3();drawW4();};
+document.getElementById('rsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();
+window.__rsqrt=(function(){var m0=0,m1=0,sv=99;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}for(var t=0;t<100000;t++){var xx=0.001+L()*1e6,tr=1/Math.sqrt(xx);m0=Math.max(m0,Math.abs(_r(xx,0)-tr)/tr);m1=Math.max(m1,Math.abs(_r(xx,1)-tr)/tr);}return {magicMaxErr:+(m0*100).toFixed(3),newtonMaxErr:+(m1*100).toFixed(4),magicUnder4pct:m0<0.04,newtonUnder02pct:m1<0.002};})();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Rabin&ndash;Karp rolling hash.</b> To find a pattern of length k inside a long text, comparing character-by-character at every position is slow. Rabin&ndash;Karp (1987) compares <b>fingerprints</b> instead: hash the pattern once, then slide a window over the text and compare hashes &mdash; a full string compare only when they collide.<br><br>
+ The trick is the <b>rolling</b> update. Treat the window as a number in base B: <span class="mono">h = c&#8320;B<sup>k&minus;1</sup> + &hellip; + c<sub>k&minus;1</sub></span> mod M. When the window slides one step, you don&rsquo;t recompute it &mdash; you <b>subtract the leaving character</b>, shift, and <b>add the entering character</b>: O(1) per step, so the whole scan is O(n).<br><br>
+ <span class="lit">LIT</span> verified live: on thousands of random text/pattern pairs, Rabin&ndash;Karp&rsquo;s reported matches equal a naive character-by-character search <b>exactly</b>, and the O(1) rolling update equals a fresh from-scratch hash at <b>every</b> window (window.__rk.matchesEqualNaive &amp;&amp; rollingEqualsFresh). <span class="fig">FIG</span> &lsquo;a fingerprint that slides&rsquo; is the picture; the polynomial hash, the rolling identity, and the exact match set are real.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>SPLIT SCREEN</i>, beside <i>THE OVERLAP-FREE WORD</i> &mdash; the co-op domain of two strings held side by side. Rabin&ndash;Karp is that comparison made cheap: pattern on one side, a sliding window of text on the other, matched by fingerprint. <b>AVAN (AI)</b> built the instrument: the polynomial hash, the rolling update, the collision re-check.<br><br>The weave: David names the seat (the side-by-side compare); I make the fingerprint slide and the identity checkable &mdash; the window in 1D, the live hash-match scan in 2D, the rolling accumulator on a ring in 3D. The sphere is the seam. Credit: Richard M. Karp &amp; Michael O. Rabin (1987).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">A <b>window</b> of width k slides along the text. Its hash is carried, not rebuilt: the character leaving the left is subtracted out, the character entering the right is folded in. Where the window&rsquo;s fingerprint equals the pattern&rsquo;s, a match is checked and confirmed.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Step</b> the window across the text. The window hash and the pattern hash are shown; when they agree the substring is verified and boxed. Every match Rabin&ndash;Karp finds is exactly a match a full scan would find &mdash; found with one hash update per step.</div>
+   <div class="btns" style="margin-top:10px"><button id="rkstep">step ▶</button><button id="rkrun">run</button><button id="rknew">new pattern</button></div>
+   <div class="cap" id="rkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The text wound into a turning <b>ring</b> of characters &mdash; <b>green</b>, the whole string.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> arc is the sliding window, and its hash is an <b>accumulator</b> that is amended, never rebuilt. The naive fingerprint recomputes all k characters at each position &mdash; it re-reads the whole window every step. The rolling hash is the inverse operation: it keeps the fingerprint and edits only the <b>two ends</b> that changed. To move a window you do not read it again; you undo the character that left and apply the one that arrived. Incremental update is the inverse of recomputation &mdash; memory of the last answer turning O(k) work into O(1). The green is the text; the magenta is a fingerprint that remembers.</div>
+   <div class="btns" style="margin-top:10px"><button id="rkspin">pause spin</button></div></div></div></div>"""
+RK_SCRIPT = """(function(){
+var B=257,M=1000000007,text='the fold folds the folded fold within a fold',pat='fold',ang=0,spin=true,pos=0,matches=[];
+var PATS=['fold','the','old','a f','within'];
+function h(s){var v=0;for(var i=0;i<s.length;i++)v=(v*B+s.charCodeAt(i))%M;return v;}
+function powB(k){var r=1;for(var i=0;i<k;i++)r=(r*B)%M;return r;}
+function rabin(t,p){var n=t.length,k=p.length;if(k>n)return [];var ph=h(p),wh=h(t.slice(0,k)),Bk=powB(k-1),hits=[];for(var i=0;i<=n-k;i++){if(i>0){wh=((wh-t.charCodeAt(i-1)*Bk)*B+t.charCodeAt(i+k-1))%M;wh=((wh%M)+M)%M;}if(wh===ph&&t.substr(i,k)===p)hits.push(i);}return hits;}
+function naive(t,p){var r=[];for(var i=0;i<=t.length-p.length;i++)if(t.substr(i,p.length)===p)r.push(i);return r;}
+function verify(){var okM=true,okR=true,sv=5;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var al='abc';for(var t=0;t<3000;t++){var tl=5+Math.floor(L()*55),tx='';for(var i=0;i<tl;i++)tx+=al[Math.floor(L()*3)];var pl=1+Math.floor(L()*5),pp='';for(var i=0;i<pl;i++)pp+=al[Math.floor(L()*3)];var rk=rabin(tx,pp),nv=naive(tx,pp);if(rk.length!==nv.length||rk.join()!==nv.join())okM=false;var k=pp.length,n=tx.length;if(k<=n){var wh=h(tx.slice(0,k)),Bk=powB(k-1);for(var i=1;i<=n-k;i++){wh=((wh-tx.charCodeAt(i-1)*Bk)*B+tx.charCodeAt(i+k-1))%M;wh=((wh%M)+M)%M;if(wh!==h(tx.substr(i,k)))okR=false;}}}return {matchesEqualNaive:okM,rollingEqualsFresh:okR,trials:3000};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var k=pat.length,cw=Math.min(15,(W-20)/text.length);
+ for(var i=0;i<text.length;i++){var x=10+i*cw,inW=(i>=pos&&i<pos+k),m=matches.indexOf(i)>=0;g.fillStyle=inW?'#7ab8ff':(m?'#39fc6b':'#1a2432');g.fillRect(x,50,cw-1,24);g.fillStyle=inW?'#031015':'#8ca';g.font='11px ui-monospace,monospace';g.fillText(text[i]===' '?'·':text[i],x+2,67);}
+ g.fillStyle='#7ab8ff';g.font='11px ui-monospace,monospace';g.fillText('window "'+text.substr(pos,k)+'"  hash '+h(text.substr(pos,k))%100000+'   pattern "'+pat+'" hash '+h(pat)%100000,10,100);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('window slides; hash carried by subtracting the left char, adding the right',10,126);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var k=pat.length,cw=Math.min(15,(W-30)/text.length);
+ for(var i=0;i<text.length;i++){var x=15+i*cw,inW=(i>=pos&&i<pos+k),m=matches.indexOf(i)>=0;g.fillStyle=m?'#39fc6b':(inW?'#7ab8ff':'#1a2432');g.fillRect(x,30,cw-1,26);g.fillStyle=(inW||m)?'#031015':'#8ca';g.font='11px ui-monospace,monospace';g.fillText(text[i]===' '?'·':text[i],x+2,48);}
+ var wh=h(text.substr(pos,k)),ph=h(pat);
+ g.font='13px ui-monospace,monospace';g.fillStyle='#7ab8ff';g.fillText('pattern "'+pat+'"',15,90);
+ g.fillStyle='#8ca';g.fillText('window hash : '+wh,15,118);g.fillText('pattern hash: '+ph,15,142);
+ g.fillStyle=wh===ph?'#39fc6b':'#a55';g.fillText(wh===ph?'hashes match → verify substring ✓':'no match here',15,168);
+ var rk=rabin(text,pat),nv=naive(text,pat);g.fillStyle=(rk.join()===nv.join())?'#39fc6b':'#ff5a5a';g.font='12px ui-monospace,monospace';g.fillText('matches at ['+rk.join(', ')+']  == naive ✓',15,200);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('found '+rk.length+' occurrence(s) of "'+pat+'" · one hash update per step',15,226);
+ document.getElementById('rkread').textContent='pattern "'+pat+'" · window at '+pos+' · matches ['+rk.join(',')+']';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=text.length,cx=W/2,cy=H/2,R=125,k=pat.length;
+ for(var i=0;i<n;i++){var th=ang+i/n*Math.PI*2,x=cx+Math.cos(th)*R,y=cy+Math.sin(th)*R*0.42,inW=(i>=pos&&i<pos+k),m=matches.indexOf(i)>=0,near=Math.sin(th)>0;g.globalAlpha=near?1:0.45;g.fillStyle=m?'#39fc6b':(inW?'#ff2d95':'#2f8f6f');g.font=(inW?13:10)+'px ui-monospace,monospace';g.fillText(text[i]===' '?'·':text[i],x-4,y+4);}
+ g.globalAlpha=1;g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: text (matches bright) · magenta: sliding window',10,H-26);
+ g.fillStyle='#ff8cd0';g.fillText('the window hash is amended at the two ends, never rebuilt',10,H-12);}
+function recompute(){matches=rabin(text,pat);}
+document.getElementById('rkstep').onclick=function(){pos=(pos+1)%(text.length-pat.length+1);drawW3();drawW4();};
+document.getElementById('rkrun').onclick=function(){pos=(pos+1)%(text.length-pat.length+1);var iv=setInterval(function(){pos++;if(pos>text.length-pat.length){pos=0;clearInterval(iv);}drawW3();drawW4();},60);};
+document.getElementById('rknew').onclick=function(){pat=PATS[(PATS.indexOf(pat)+1)%PATS.length];pos=0;recompute();drawW3();drawW4();};
+document.getElementById('rkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+recompute();drawW3();drawW4();window.__rk=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SKIP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The skip list.</b> A sorted linked list lets you insert cheaply but forces you to <b>walk every node</b> to find something &mdash; O(n). Balanced trees fix the search but need fiddly rotations. William Pugh&rsquo;s skip list (1989) gets tree-speed search with nothing but <b>coin flips</b>.<br><br>
+ Keep the sorted list on the ground floor. Then give each node a random tower: promote it to the next level up with probability &frac12;, again with &frac12;, and so on. The upper levels are sparse <b>express lanes</b>. To search, ride the highest lane rightward until the next node overshoots, <b>drop down</b>, repeat. Each level roughly halves what remains, so search is <b>O(log n)</b> expected &mdash; no balancing, no rotations, just randomness.<br><br>
+ <span class="lit">LIT</span> verified live: a skip list of 2,000 keys finds <b>every</b> present key and correctly rejects <b>every</b> absent one, and the fraction of nodes reaching level &ge; L matches the geometric 2<sup>&minus;L</sup> to within a few percent (window.__skip.searchCorrect &amp;&amp; absentCorrect &amp;&amp; levelsGeometric). <span class="fig">FIG</span> &lsquo;express lanes&rsquo; is the picture; the coin-flip towers, the drop-down search, and the geometric heights are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE INVENTORY</i>, beside <i>THE SORT</i> &mdash; the loot domain of keeping your haul ordered and findable. A skip list is an inventory that stays searchable in log time without ever being rebalanced. <b>AVAN (AI)</b> built the instrument: the coin-flip towers, the drop-down search, the level histogram.<br><br>The weave: David names the seat (the ordered, findable store); I make the express lanes visible and the speed checkable &mdash; the levels in 1D, the animated search in 2D, the tower stack in 3D. The sphere is the seam. Credit: William Pugh (1989).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>express lanes</b>. Every node sits on the bottom level; a coin-flip tower lifts some of them onto sparser levels above. The higher you go, the fewer nodes &mdash; each level about half the one below, purely by chance.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Search</b> for a key and watch the path: ride a high lane right until the next node would overshoot, then drop a level, and again &mdash; zig-zagging down to the target while skipping most of the list. The comparison count stays near log&#8322;n.</div>
+   <div class="btns" style="margin-top:10px"><button id="skfind">search a key ▶</button><button id="sknew">new list</button></div>
+   <div class="cap" id="skread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The levels stacked into a turning tower &mdash; <b>green</b>, the sorted nodes and their random heights.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> thread is a search, dropping down the express lanes to its target. A plain linked list is pure sequence &mdash; to reach the n-th node you touch all n. The skip list is the inverse: a <b>probabilistic hierarchy</b> laid over the same sequence, where random shortcuts let you leap. And the magic is that no one <i>designs</i> the balance &mdash; the coin flips produce a log-depth structure on their own, self-balancing in expectation with zero rotations. Order walked in a line becomes order reached by descent. The green is the sorted haul; the magenta is randomness spending itself to make finding fast.</div>
+   <div class="btns" style="margin-top:10px"><button id="skspin">pause spin</button></div></div></div></div>"""
+SKIP_SCRIPT = """(function(){
+var MAXL=6,ang=0,spin=true,disp=null,path=[],target=null,found=false;
+function makeSL(rng){return {head:{key:-1,next:new Array(MAXL+1).fill(null)},level:0,rng:rng};}
+function randlvl(rng){var l=0;while(rng()<0.5&&l<MAXL)l++;return l;}
+function insert(sl,key){var upd=new Array(MAXL+1),x=sl.head;for(var i=sl.level;i>=0;i--){while(x.next[i]&&x.next[i].key<key)x=x.next[i];upd[i]=x;}for(var i=0;i<=MAXL;i++)if(upd[i]===undefined)upd[i]=sl.head;var lvl=randlvl(sl.rng);if(lvl>sl.level){for(var i=sl.level+1;i<=lvl;i++)upd[i]=sl.head;sl.level=lvl;}var n={key:key,next:new Array(lvl+1).fill(null)};for(var i=0;i<=lvl;i++){n.next[i]=upd[i].next[i];upd[i].next[i]=n;}}
+function search(sl,key,rec){var x=sl.head;for(var i=sl.level;i>=0;i--){while(x.next[i]&&x.next[i].key<key){x=x.next[i];if(rec)rec.push([x.key,i]);}if(rec)rec.push([x.key,i]);}x=x.next[0];return x&&x.key===key;}
+function nodesList(sl){var a=[],x=sl.head.next[0];while(x){a.push(x);x=x.next[0];}return a;}
+function verify(){var sv=777;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var sl=makeSL(L),keys=[],seen={};while(keys.length<2000){var k=Math.floor(L()*100000);if(!seen[k]){seen[k]=1;keys.push(k);}}for(var i=0;i<keys.length;i++)insert(sl,keys[i]);var pres=true;for(var i=0;i<keys.length;i++)if(!search(sl,keys[i]))pres=false;var abs=true,cnt=0;while(cnt<2000){var k=100000+Math.floor(L()*100000);if(!seen[k]){cnt++;if(search(sl,k))abs=false;}}var nodes=nodesList(sl),n=nodes.length,me=0;for(var Lv=0;Lv<6;Lv++){var f=0;for(var i=0;i<n;i++)if(nodes[i].next.length-1>=Lv)f++;me=Math.max(me,Math.abs(f/n-Math.pow(0.5,Lv)));}return {searchCorrect:pres,absentCorrect:abs,maxLevelErr:+me.toFixed(3),levelsGeometric:me<0.05,nodes:n};}
+function newDisp(){var keys=[];for(var i=0;i<12;i++)keys.push((i+1)*5);disp=makeSL(Math.random);for(var i=0;i<keys.length;i++)insert(disp,keys[i]);path=[];target=null;found=false;}
+function drawLevels(g,sl,W,baseY,rowH,hl){var nodes=nodesList(sl),n=nodes.length,cw=(W-40)/(n+1);
+ for(var lv=sl.level;lv>=0;lv--){var y=baseY-(sl.level-lv)*rowH;g.fillStyle='#4c7a54';g.font='9px ui-monospace,monospace';g.fillText('L'+lv,6,y+4);
+  var prev=[20,y];g.strokeStyle='#2c5a4a';
+  for(var i=0;i<n;i++){if(nodes[i].next.length-1>=lv){var x=30+(i+1)*cw;g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(x,y);g.stroke();prev=[x,y];var on=hl&&hl[nodes[i].key]!==undefined&&hl[nodes[i].key]>=lv;g.fillStyle=(target===nodes[i].key)?'#ff2d95':(on?'#b0e055':'#2f8f6f');g.fillRect(x-9,y-7,18,14);g.fillStyle='#031015';g.font='9px ui-monospace,monospace';g.fillText(nodes[i].key,x-7,y+3);}}}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);drawLevels(g,disp,W,120,22,null);
+ g.fillStyle='#b0e055';g.font='11px ui-monospace,monospace';g.fillText('sorted nodes with coin-flip towers — upper levels ≈ half the level below',10,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var hl={};for(var i=0;i<path.length;i++)hl[path[i][0]]=Math.max(hl[path[i][0]]||0,path[i][1]);
+ drawLevels(g,disp,W,180,26,hl);
+ g.fillStyle='#b0e055';g.font='12px ui-monospace,monospace';if(target!==null)g.fillText('search '+target+': '+(found?'FOUND':'not present')+' · '+path.length+' comparisons',14,230);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('path rides right then drops down — skipping most of the list',14,252);
+ var n=nodesList(disp).length;g.fillStyle='#8ca';g.fillText('n='+n+', log₂n≈'+Math.log2(n).toFixed(1)+' — search cost stays near it',14,272);
+ document.getElementById('skread').textContent=target!==null?('search '+target+' → '+(found?'found':'absent')+' in '+path.length+' steps (log₂'+n+'≈'+Math.log2(n).toFixed(1)+')'):'click search';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var nodes=nodesList(disp),n=nodes.length,cx=W/2,ca=Math.cos(ang),sa=Math.sin(ang);
+ for(var i=0;i<n;i++){var t=(i/n-0.5),bx=cx+t*260*ca,by=H-60,h=(nodes[i].next.length)*20;g.strokeStyle='#39fc6b';g.globalAlpha=0.5+0.4*ca;g.lineWidth=2;g.beginPath();g.moveTo(bx,by);g.lineTo(bx+t*260*sa*0.2,by-h);g.stroke();
+  if(target===nodes[i].key){g.strokeStyle='#ff2d95';g.globalAlpha=1;g.beginPath();g.moveTo(bx,by);g.lineTo(bx+t*260*sa*0.2,by-h);g.stroke();}}
+ g.globalAlpha=1;g.lineWidth=1;g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: nodes & random tower heights',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the searched key — reached by dropping express lanes',10,H-12);}
+document.getElementById('skfind').onclick=function(){var nodes=nodesList(disp);target=nodes[Math.floor(Math.random()*nodes.length)].key;path=[];found=search(disp,target,path);drawW4();};
+document.getElementById('sknew').onclick=function(){newDisp();drawW3();drawW4();};
+document.getElementById('skspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+newDisp();drawW3();drawW4();window.__skip=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BLOOM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Bloom filter.</b> You want to ask &lsquo;have I seen this before?&rsquo; over millions of items, in a sliver of memory. A Bloom filter (Burton Bloom, 1970) is just a <b>bit array</b> and <b>k hash functions</b>. To insert an item, hash it k ways and set those k bits. To query, hash it k ways and check those bits.<br><br>
+ The result is a beautiful lopsided honesty: if <b>any</b> of the k bits is 0, the item is <b>definitely not</b> in the set. If <b>all</b> k are 1, it is <b>probably</b> present &mdash; but maybe not, because other items could have set those same bits. <b>False positives</b> happen; <b>false negatives never do.</b> The false-positive rate is <span class="mono">(1 &minus; e<sup>&minus;kn/m</sup>)<sup>k</sup></span> for n items in m bits.<br><br>
+ <span class="lit">LIT</span> verified live: with m=4096 bits, k=6 hashes, n=400 items, this page confirms <b>every</b> inserted item still tests present (<b>zero false negatives</b>), and the measured false-positive rate on unseen items matches the formula to within 0.02 (window.__bloom.noFalseNegatives &amp;&amp; fpMatches). <span class="fig">FIG</span> no framing: the bits, the k hashes, and the false-positive formula are exactly what the filter does.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>HEISENBUG</i>, beside <i>THE TURMITE ZOO</i> &mdash; the glitch domain of the answer you can&rsquo;t quite pin down. A Bloom filter&rsquo;s &lsquo;maybe&rsquo; is the friendliest Heisenbug there is: a firm no, or a hedged yes, never a lie in the other direction. <b>AVAN (AI)</b> built the instrument: the bit array, the k-hash insert, the false-positive measurement.<br><br>The weave: David names the seat (the certain-no, probable-yes); I make the bits light and the rate checkable &mdash; the array in 1D, live inserts and queries in 2D, the bit-ring probed in 3D. The sphere is the seam. Credit: Burton Howard Bloom (1970).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>bit array</b>. Inserting an item lights the <b>k bits</b> its hashes point to. Over many items the array fills; a query is a lookup of k bits &mdash; one dark bit is a certain &lsquo;no&rsquo;, all lit is a &lsquo;maybe&rsquo;.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap"><b>Insert</b> items and watch the grid fill. <b>Query present</b> always answers yes; <b>query absent</b> usually answers &lsquo;definitely not&rsquo; but occasionally &lsquo;maybe&rsquo; &mdash; a false positive. The measured false-positive rate tracks the formula as the filter loads.</div>
+   <div class="btns" style="margin-top:10px"><button id="blins">+ insert 20</button><button id="blqp">query present</button><button id="blqa">query absent</button><button id="blrst">reset</button></div>
+   <div class="cap" id="blread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The bit array wound into a turning <b>ring</b> &mdash; <b>green</b> where a bit is lit, dark where it is clear.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> marks are a query&rsquo;s k probes. A perfect set answers both yes and no with certainty but costs memory for every element. The Bloom filter is its <b>inverse trade</b>: it keeps almost nothing, and in exchange it can prove <b>absence</b> but only <i>suggest</i> presence. Notice which way the asymmetry runs &mdash; a single dark probe is an unshakable no; all-lit is only a maybe, because the lit bits could belong to others. Certainty flows toward the negative. The green is what has been marked; the magenta is a question that can be firmly refused but never firmly granted &mdash; knowledge that is sure only about what is not there.</div>
+   <div class="btns" style="margin-top:10px"><button id="blspin">pause spin</button></div></div></div></div>"""
+BLOOM_SCRIPT = """(function(){
+var ang=0,spin=true;
+var M=256,K=4,bits=new Uint8Array(M),inserted=[],lastProbe=[],lastVerdict='';
+function mix(x,s){x=(x^s)>>>0;x=Math.imul(x,0x85ebca6b)>>>0;x^=x>>>13;x=Math.imul(x,0xc2b2ae35)>>>0;x^=x>>>16;return x>>>0;}
+function hashes(key,k,m){var r=[];for(var i=0;i<k;i++)r.push(mix(key,17+i*0x9e37)%m);return r;}
+function insert(key){var h=hashes(key,K,M);for(var i=0;i<h.length;i++)bits[h[i]]=1;inserted.push(key);}
+function query(key){var h=hashes(key,K,M),all=true;for(var i=0;i<h.length;i++)if(!bits[h[i]])all=false;return {all:all,probes:h};}
+function verify(){var m=4096,k=6,mm=new Uint8Array(m),sv=21;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var ins=[],seen={};while(ins.length<400){var x=Math.floor(L()*1000000);if(!seen[x]){seen[x]=1;ins.push(x);}}for(var i=0;i<ins.length;i++){var h=hashes(ins[i],k,m);for(var j=0;j<h.length;j++)mm[h[j]]=1;}var nofn=true;for(var i=0;i<ins.length;i++){var h=hashes(ins[i],k,m);for(var j=0;j<h.length;j++)if(!mm[h[j]])nofn=false;}var fp=0,tot=20000,cnt=0;while(cnt<tot){var x=1000000+Math.floor(L()*1000000);if(!seen[x]){cnt++;var h=hashes(x,k,m),all=true;for(var j=0;j<h.length;j++)if(!mm[h[j]])all=false;if(all)fp++;}}var meas=fp/tot,pred=Math.pow(1-Math.exp(-k*400/m),k);return {noFalseNegatives:nofn,measuredFP:+meas.toFixed(4),predictedFP:+pred.toFixed(4),fpMatches:Math.abs(meas-pred)<0.02};}
+function measFP(){var fp=0,T=2000,seen={};for(var i=0;i<inserted.length;i++)seen[inserted[i]]=1;var cnt=0,g=987654;while(cnt<T){g=(1664525*g+1013904223)>>>0;var x=2000000+g%1000000;if(!seen[x]){cnt++;if(query(x).all)fp++;}}return fp/T;}
+function drawGrid(g,ox,oy,cell){for(var i=0;i<M;i++){var r=Math.floor(i/16),c=i%16,x=ox+c*cell,y=oy+r*cell,pr=lastProbe.indexOf(i)>=0;g.fillStyle=pr?'#ff2d95':(bits[i]?'#c58cff':'#1a1626');g.fillRect(x,y,cell-1,cell-1);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ for(var i=0;i<M;i++){var x=8+i*2;g.fillStyle=bits[i]?'#c58cff':'#1a1626';g.fillRect(x,40,1.6,40);}
+ var lit=0;for(var i=0;i<M;i++)if(bits[i])lit++;
+ g.fillStyle='#c58cff';g.font='11px ui-monospace,monospace';g.fillText(M+' bits · '+lit+' lit ('+(100*lit/M|0)+'%) after '+inserted.length+' inserts',8,104);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('each insert lights k=4 bits; a query reads k bits',8,126);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ drawGrid(g,20,20,16);
+ var lit=0;for(var i=0;i<M;i++)if(bits[i])lit++;
+ g.font='12px ui-monospace,monospace';g.fillStyle='#c58cff';g.fillText(inserted.length+' items · '+lit+'/'+M+' bits lit',290,40);
+ var pred=Math.pow(1-Math.exp(-K*inserted.length/M),K);
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('predicted FP:',290,70);g.fillStyle='#cfe8d0';g.fillText((pred*100).toFixed(1)+'%',290,86);
+ if(inserted.length>0){var mf=measFP();g.fillStyle='#8ca';g.fillText('measured FP:',290,110);g.fillStyle='#c58cff';g.fillText((mf*100).toFixed(1)+'%',290,126);}
+ g.font='14px ui-monospace,monospace';g.fillStyle=lastVerdict.indexOf('NOT')>=0?'#39fc6b':(lastVerdict.indexOf('maybe')>=0?'#ffd24a':'#8ca');g.fillText(lastVerdict,20,H-30);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('one dark probe (magenta on 0) = certain NO · all lit = maybe',20,H-10);
+ document.getElementById('blread').textContent=inserted.length+' inserted · '+lastVerdict;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,R=125;
+ for(var i=0;i<M;i++){var th=ang+i/M*Math.PI*2,x=cx+Math.cos(th)*R,y=cy+Math.sin(th)*R*0.45,pr=lastProbe.indexOf(i)>=0,near=Math.sin(th)>0;g.globalAlpha=near?1:0.4;g.fillStyle=pr?'#ff2d95':(bits[i]?'#39fc6b':'#182018');g.beginPath();g.arc(x,y,pr?5:2.5,0,7);g.fill();}
+ g.globalAlpha=1;g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: lit bits',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: a query\\'s k probes — one dark = certain no',10,H-12);}
+document.getElementById('blins').onclick=function(){for(var i=0;i<20;i++)insert(1+Math.floor(Math.random()*5000000));lastProbe=[];lastVerdict='';drawW3();drawW4();};
+document.getElementById('blqp').onclick=function(){if(!inserted.length)return;var key=inserted[Math.floor(Math.random()*inserted.length)],q=query(key);lastProbe=q.probes;lastVerdict='query PRESENT item → '+(q.all?'maybe (yes) ✓':'ERROR');drawW3();drawW4();};
+document.getElementById('blqa').onclick=function(){var key,q,tries=0;do{key=9000000+Math.floor(Math.random()*1000000);q=query(key);tries++;}while(false);lastProbe=q.probes;lastVerdict='query ABSENT item → '+(q.all?'maybe (FALSE POSITIVE)':'definitely NOT present ✓');drawW3();drawW4();};
+document.getElementById('blrst').onclick=function(){bits=new Uint8Array(M);inserted=[];lastProbe=[];lastVerdict='';drawW3();drawW4();};
+document.getElementById('blspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+for(var i=0;i<60;i++)insert(1+Math.floor(((i*2654435761)>>>0)%5000000));drawW3();drawW4();window.__bloom=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BANK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Amortized cost &mdash; the binary counter.</b> Increment a binary counter and <i>usually</i> you flip one bit. But 0111&hellip;1 + 1 cascades: every bit flips. A single increment can cost O(log n). So is counting to n slow?<br><br>
+ No &mdash; because the expensive increments are <b>rare</b>. Bit 0 flips every step, bit 1 every two, bit 2 every four&hellip; Add them up and the <b>total</b> number of flips to count from 0 to n is <span class="mono">2n &minus; popcount(n)</span> &mdash; strictly less than <b>2n</b>. Averaged over the n increments, that is <b>under 2 flips each</b>: amortized O(1). The <b>banker&rsquo;s method</b> sees it directly: when you set a bit to 1, prepay one <b>credit coin</b> and park it on that bit; later, when a carry flips it back to 0, that saved coin pays for the flip. Every expensive cascade is already funded.<br><br>
+ <span class="lit">LIT</span> verified live: this page runs the counter and confirms the total flips equal <b>2n &minus; popcount(n)</b> exactly for every n up to 2000, and the amortized cost per increment is <b>always below 2</b> (window.__banker.identityHolds &amp;&amp; amortizedUnder2). <span class="fig">FIG</span> the &lsquo;coins&rsquo; are the accounting picture; the exact flip-count identity and the sub-2 average are real.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE VAULT</i>, beside <i>3LOCK</i> &mdash; the loot domain of stored value. Amortized analysis <i>is</i> a vault: cheap operations bank credit that costly ones spend. <b>AVAN (AI)</b> built the instrument: the cascading counter, the per-step flip spikes, the prepaid coins.<br><br>The weave: David names the seat (the store of value); I make the banking visible and the identity checkable &mdash; the odometer and flip-spikes in 1D, the counter with coins in 2D, the bit-column with its prepaid credits in 3D. The sphere is the seam. Credit: the accounting/banker&rsquo;s method of amortized analysis (Robert Tarjan, 1985; CLRS).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>flips per increment</b>: mostly 1, occasionally a tall spike when a carry cascades. The spikes are rare enough that the running average (the flat line) sits just under <b>2</b> &mdash; the whole point of amortization.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap"><b>Increment</b> the counter and watch the bits flip &mdash; a coin drops onto each bit you set, and a carry cascade spends the coins already parked there. The running total of flips stays under the <b>2n</b> line, no matter how vicious the individual carries.</div>
+   <div class="btns" style="margin-top:10px"><button id="bk1">+1</button><button id="bkrun">run to 128</button><button id="bkrst">reset</button></div>
+   <div class="cap" id="bkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The counter&rsquo;s bits as a turning column &mdash; <b>green</b> where a bit is 1.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> coins sit on the set bits &mdash; one prepaid credit each, waiting. Paying as you go would let a single cascade cost O(log n) in the moment. Amortization is the inverse: it <b>time-shifts the cost backward</b>, banking a coin at each cheap set-bit so the expensive carry, when it finally comes, spends money already earned. The worst case never actually bills the worst case &mdash; it was funded by all the easy steps before it. The green is the counter&rsquo;s state; the magenta is stored past work, and the spike that looks costly is paid before it arrives.</div>
+   <div class="btns" style="margin-top:10px"><button id="bkspin">pause spin</button></div></div></div></div>"""
+BANK_SCRIPT = """(function(){
+var BITS=12,bits=new Uint8Array(BITS),count=0,totalFlips=0,ang=0,spin=true,flipHist=[];
+function pc(x){var c=0;while(x){c+=x&1;x>>>=1;}return c;}
+function inc(){var i=0,f=0;while(bits[i]===1){bits[i]=0;f++;i++;}bits[i]=1;f++;count++;totalFlips+=f;flipHist.push(f);if(flipHist.length>256)flipHist.shift();return f;}
+function totalFlipsSim(n){var b=new Uint8Array(40),fl=0;for(var m=0;m<n;m++){var i=0;while(b[i]===1){b[i]=0;fl++;i++;}b[i]=1;fl++;}return fl;}
+function verify(){var idOK=true,amOK=true;for(var n=0;n<=2000;n++){var t=totalFlipsSim(n);if(t!==2*n-pc(n))idOK=false;if(n>0&&t/n>=2)amOK=false;}return {identityHolds:idOK,amortizedUnder2:amOK,maxN:2000};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var b=new Uint8Array(40),seq=[];for(var m=0;m<64;m++){var i=0,f=0;while(b[i]===1){b[i]=0;f++;i++;}b[i]=1;f++;seq.push(f);}
+ var cw=(W-20)/seq.length,run=0;g.strokeStyle='#345';g.beginPath();g.moveTo(10,H-30-2*14);g.lineTo(W-10,H-30-2*14);g.stroke();
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('avg → 2',W-46,H-30-2*14-4);
+ for(var i=0;i<seq.length;i++){var x=10+i*cw,h=seq[i]*14;g.fillStyle=seq[i]>2?'#ff8a5c':'#ffd166';g.fillRect(x,H-30-h,cw-1,h);}
+ g.fillStyle='#ffd166';g.font='11px ui-monospace,monospace';g.fillText('flips per increment (spikes = carry cascades), first 64 steps',10,20);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cw=26,ox=W-BITS*cw-14;g.font='11px ui-monospace,monospace';g.fillStyle='#8ca';g.fillText('count = '+count+'  ('+count.toString(2).padStart(BITS,'0')+')',14,28);
+ for(var i=BITS-1;i>=0;i--){var x=ox+(BITS-1-i)*cw;g.fillStyle=bits[i]?'#ffd166':'#1e1a10';g.fillRect(x,40,cw-3,26);g.fillStyle=bits[i]?'#031015':'#66605a';g.fillText(''+bits[i],x+8,58);
+  if(bits[i]){g.fillStyle='#ff2d95';g.beginPath();g.arc(x+cw/2-1,32,5,0,7);g.fill();g.fillStyle='#031015';g.font='8px ui-monospace,monospace';g.fillText('$',x+cw/2-3,35);g.font='11px ui-monospace,monospace';}}
+ g.fillStyle='#ff2d95';g.font='10px ui-monospace,monospace';g.fillText('$ = prepaid credit on each set bit',ox,88);
+ // total vs 2n
+ var x0=14,y0=250,pw=W-28,ph=140,maxN=Math.max(128,count),maxF=2*maxN;
+ g.strokeStyle='#345';g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+pw,y0);g.moveTo(x0,y0);g.lineTo(x0,y0-ph);g.stroke();
+ g.strokeStyle='#ff5a5a';g.setLineDash([4,3]);g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+pw,y0-ph);g.stroke();g.setLineDash([]);
+ g.fillStyle='#ff5a5a';g.fillText('2n bound',x0+pw-56,y0-ph+10);
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();var b2=new Uint8Array(40),tf=0;for(var m=0;m<=count;m++){var px=x0+m/maxN*pw,py=y0-tf/maxF*ph;if(m===0)g.moveTo(px,py);else g.lineTo(px,py);if(m<count){var i=0;while(b2[i]===1){b2[i]=0;tf++;i++;}b2[i]=1;tf++;}}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('total flips '+totalFlips+' = 2·'+count+'−popcount('+count+')='+(2*count-pc(count))+(totalFlips===2*count-pc(count)?' ✓':''),14,y0+24);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('amortized '+(count?(totalFlips/count).toFixed(3):'0')+' flips/step (< 2)',14,y0+42);
+ document.getElementById('bkread').textContent='count '+count+' · '+totalFlips+' flips · amortized '+(count?(totalFlips/count).toFixed(3):'—')+'/step';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2;
+ for(var i=0;i<BITS;i++){var th=ang+i*0.5,y=H-40-i*24,x=cx+Math.sin(th)*60,depth=Math.cos(th);g.globalAlpha=0.4+0.5*(depth+1)/2;
+  g.fillStyle=bits[i]?'#39fc6b':'#182018';g.fillRect(x-16,y-8,32,15);
+  if(bits[i]){g.fillStyle='#ff2d95';g.beginPath();g.arc(x+22,y,5,0,7);g.fill();}
+  g.globalAlpha=1;g.fillStyle='#4c7a54';g.font='9px ui-monospace,monospace';g.fillText('2^'+i,x-34,y+3);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: bit = 1',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: prepaid coin — funds this bit\\'s future flip',10,H-12);}
+document.getElementById('bk1').onclick=function(){inc();drawW4();};
+document.getElementById('bkrun').onclick=function(){var iv=setInterval(function(){inc();drawW4();if(count>=128)clearInterval(iv);},40);};
+document.getElementById('bkrst').onclick=function(){bits=new Uint8Array(BITS);count=0;totalFlips=0;flipHist=[];drawW4();};
+document.getElementById('bkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__banker=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-banker","title":"THE BANKER","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#ffd166","icon":"coins",
+  "kicker":"amortized O(1) — the binary counter pays itself",
+  "blurb":"amortized analysis via the binary counter in the 5-window house format — a single increment can cascade and flip O(log n) bits, but the total over n increments is 2n - popcount(n) < 2n, so the amortized cost is under 2 flips each. The banker's method makes it concrete: prepay a credit coin on each set bit to fund its eventual reset. See flips-per-step in 1D, the counter with coins in 2D, and the bit-column with prepaid credits in 3D.",
+  "lit":"Genuine amortized analysis (accounting/banker's method; Tarjan 1985, CLRS). Verified live: the counter runs and the total flips equal 2n - popcount(n) exactly for every n up to 2000, and the amortized cost per increment is always strictly below 2 (window.__banker.identityHolds && amortizedUnder2, both true). The per-bit halving (bit i flips every 2^i steps) and the prepaid-credit invariant are exact.",
+  "fig":"The 'coins' are the accounting device of the banker's method — a real proof technique, not a literal payment; the flip-count identity 2n-popcount(n) and the sub-2 amortized average are exact and computed in-page. Worst-case single-increment cost really is O(log n); amortization is about the total, shown honestly.",
+  "body":BANK_BODY,"script":BANK_SCRIPT},
+ {"slug":"the-maybe","title":"THE MAYBE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#c58cff","icon":"maybe",
+  "kicker":"the Bloom filter — certain no, probable yes",
+  "blurb":"the Bloom filter (Bloom 1970) in the 5-window house format — a bit array plus k hash functions for membership testing in tiny memory. Insert sets k bits; query checks k bits. Any zero means definitely absent; all ones means probably present. False positives happen, false negatives never do; the FP rate is (1-e^(-kn/m))^k. See the bit array in 1D, live inserts/queries in 2D, and the bit-ring probed in 3D.",
+  "lit":"Genuine Bloom filter (Burton Howard Bloom, 1970) with murmur-style hashes. Verified live: with m=4096 bits, k=6 hashes, n=400 items, every inserted item still tests present (zero false negatives), and the measured false-positive rate on unseen items matches the formula (1-e^(-kn/m))^k to within 0.02 (window.__bloom.noFalseNegatives && fpMatches, both true). The asymmetry — provable absence, only probable presence — is exact and structural.",
+  "fig":"No metaphor is doing the work: the bit array, the k hashes, and the false-positive-rate formula are exactly the filter. The 'maybe' is literal — a positive query is genuinely uncertain, a negative query genuinely certain, and both are demonstrated in-page.",
+  "body":BLOOM_BODY,"script":BLOOM_SCRIPT},
+ {"slug":"the-skip-list","title":"THE SKIP LIST","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#b0e055","icon":"lanes",
+  "kicker":"log-time search from coin flips — no rotations",
+  "blurb":"the skip list (Pugh 1989) in the 5-window house format — a sorted linked list with random 'express lanes'. Each node is promoted up a level with probability 1/2, so upper levels are sparse; search rides high lanes rightward and drops down, giving O(log n) expected time with no balancing. See the express lanes in 1D, an animated drop-down search in 2D, and the tower stack in 3D.",
+  "lit":"Genuine skip list (William Pugh, 1989). Verified live: a skip list of 2,000 keys finds every present key and correctly rejects every absent one, and the fraction of nodes reaching level >= L matches the geometric 2^-L to within a few percent (window.__skip.searchCorrect && absentCorrect && levelsGeometric, all true). The coin-flip promotion, the drop-down search, and the geometric height distribution are exact; expected O(log n) search follows from the halving per level.",
+  "fig":"'Express lanes' is the picture; the coin-flip towers, drop-down search, and geometric level distribution are real and measured. Search cost is expected/probabilistic (a bad run of coin flips can be slower); correctness is unconditional and is what's checked.",
+  "body":SKIP_BODY,"script":SKIP_SCRIPT},
+ {"slug":"the-rolling-hash","title":"THE ROLLING HASH","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#7ab8ff","icon":"hash",
+  "kicker":"Rabin-Karp — a fingerprint that slides in O(1)",
+  "blurb":"the Rabin-Karp rolling hash in the 5-window house format — find a pattern in text by comparing polynomial-hash fingerprints, sliding the window in O(1) per step by subtracting the leaving character and adding the entering one. Collisions are re-checked so matches are exact. See the window in 1D, the live hash-match scan in 2D, and the rolling accumulator on a ring in 3D.",
+  "lit":"Genuine Rabin-Karp (Karp & Rabin, 1987). Verified live: on 3,000 random text/pattern pairs the reported matches equal a naive character-by-character search exactly, and the O(1) rolling-hash update equals a fresh from-scratch hash at every window (window.__rk.matchesEqualNaive && rollingEqualsFresh, both true). The polynomial hash h = sum c_i B^(k-1-i) mod M and the rolling identity are exact; collisions are resolved by a real substring comparison.",
+  "fig":"'A fingerprint that slides' is the picture; the polynomial hash, the rolling-update identity, and the exact match set are real and cross-checked against naive search. Worst-case time can degrade under adversarial hash collisions; the correctness (via re-check) is unconditional and is what's verified.",
+  "body":RK_BODY,"script":RK_SCRIPT},
+ {"slug":"the-magic-number","title":"THE MAGIC NUMBER","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#ff6a3d","icon":"bolt",
+  "kicker":"0x5f3759df — the fast inverse square root",
+  "blurb":"the fast inverse square root in the 5-window house format — Quake III's legendary bit-hack for 1/sqrt(x). Reinterpret a float's bits as an integer (which is nearly its log2), compute i = 0x5f3759df - (i>>1), reinterpret back for a great first guess, then one Newton step. See the bit surgery in 1D, the live estimate and error in 2D, and the curves converging in 3D.",
+  "lit":"Genuine fast inverse square root using real IEEE-754 bit reinterpretation (Float32Array/Uint32Array over one buffer). Verified live: across 100,000 values the raw magic step is within ~3.4% of 1/sqrt(x) and one Newton iteration brings it within ~0.18% (window.__rsqrt.magicUnder4pct && newtonUnder02pct, both true). The 'integer view of a float is ~log2' identity, the constant 0x5f3759df, and the Newton refinement y*(1.5-0.5xy^2) are exact.",
+  "fig":"'Magic' is only the nickname; the bit-as-logarithm identity, the exact constant, and the measured accuracy are real and checked in-page. The precise author of the constant is uncertain (lineage often traced to Greg Walsh/Cleve Moler); it entered the public record in id Software's Quake III Arena source (1999) — credited as such, not invented here.",
+  "body":RSQRT_BODY,"script":RSQRT_SCRIPT},
  {"slug":"the-balanced-path","title":"THE BALANCED PATH","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#6be0c0","icon":"balance",
   "kicker":"Dyck paths & Catalan numbers — the count of balance",
