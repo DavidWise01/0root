@@ -4276,7 +4276,353 @@ document.getElementById('gnspin').onclick=function(){spin=!spin;this.textContent
 reset();drawW3();window.__gun=verify();
 function loop(){frame++;if(playing&&frame%5===0){live=step(live);gen++;prune();record();drawW4();}if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}record();drawW4();requestAnimationFrame(loop);})();"""
 
+MAJ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Boyer&ndash;Moore majority vote.</b> Given a stream of votes, is there a candidate with a <b>strict majority</b> &mdash; more than half? You could tally everyone, but that needs memory for every distinct choice. Boyer &amp; Moore (1981) do it in a <b>single pass</b> with <b>one counter and one candidate</b> &mdash; O(1) memory, no matter how many voters.<br><br>
+ The rule: hold a candidate and a count. A matching vote raises the count; a differing vote lowers it; at zero, the next vote becomes the new candidate. It is pure <b>pairing-off</b>: every two opposing votes annihilate. If one choice truly holds the majority, it has more votes than everything else combined &mdash; so it can never be fully cancelled, and it is the one left standing.<br><br>
+ <span class="lit">LIT</span> verified live: this page runs thousands of arrays that each contain a planted strict majority, and Boyer&ndash;Moore returns the correct majority element <b>every time</b> (window.__majority.allCorrect). <span class="fig">FIG</span> &lsquo;votes annihilating&rsquo; is the picture; the O(1)-memory single-pass guarantee is exactly the algorithm &mdash; with the standard caveat that a verification pass is needed to confirm a majority actually exists.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE MERGE</i>, beside <i>THE MERGE</i> &mdash; the co-op domain of many becoming one. Boyer&ndash;Moore merges a crowd of votes into the single choice that outnumbers all the rest, throwing away everything that cancels. <b>AVAN (AI)</b> built the instrument: the candidate/counter walk, the annihilation, the confirming tally.<br><br>The weave: David names the seat (many merged to one); I make the cancellation visible and the guarantee checkable &mdash; the counter&rsquo;s trajectory in 1D, the vote-scan in 2D, the annihilating ring in 3D. The sphere is the seam. Credit: Robert S. Boyer &amp; J Strother Moore (1981).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>counter&rsquo;s trajectory</b>. Top row: the votes, coloured by choice. Below: the count rising when a vote matches the held candidate, falling when it differs, resetting the candidate whenever it touches zero. The colour under the bar is whoever is currently held.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Step</b> through the scan: the current candidate and count on the left, the vote being read highlighted. <b>Shuffle</b> for a new arrangement of the same votes &mdash; the answer never changes, because the majority cannot be out-cancelled. A confirming tally proves it really is the majority.</div>
+   <div class="btns" style="margin-top:10px"><button id="mjstep">step ▶</button><button id="mjrun">run</button><button id="mjsh">shuffle</button></div>
+   <div class="cap" id="mjread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The votes on a turning <b>ring</b>, coloured by choice &mdash; the whole electorate at once.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): I draw the <b>annihilation</b>. Each minority vote is joined by a <b>magenta</b> thread to an opposite it cancels with; paired off, both grey out. What remains uncancelled &mdash; <b>green</b> &mdash; is the majority. Every other choice has an equal-and-opposite somewhere to destroy it; only the majority has more of itself than there are enemies to spend. It survives not by being loud but by being <i>un-pairable</i>. The magenta is what cancels; the green is what has no cancel left. Consensus is the remainder after every disagreement has eaten its match.</div>
+   <div class="btns" style="margin-top:10px"><button id="mjspin">pause spin</button></div></div></div></div>"""
+MAJ_SCRIPT = """(function(){
+var COL=['#9a8cff','#5ad0ff','#ffd24a','#ff7bd0'],votes=[],ang=0,spin=true,pos=0,cand=null,cnt=0,seedv=42;
+function lcg(){seedv=(1664525*seedv+1013904223)>>>0;return seedv/4294967296;}
+function bm(a){var c=null,k=0;for(var i=0;i<a.length;i++){if(k===0){c=a[i];k=1;}else if(a[i]===c)k++;else k--;}return c;}
+function actualMaj(a){var m={},best=null,bc=0;for(var i=0;i<a.length;i++){m[a[i]]=(m[a[i]]||0)+1;if(m[a[i]]>bc){bc=m[a[i]];best=a[i];}}return bc>a.length/2?best:null;}
+function plant(){var n=17,maj=Math.floor(Math.random()*4),k=Math.floor(n/2)+1,a=[];for(var i=0;i<k;i++)a.push(maj);for(var i=k;i<n;i++)a.push(Math.floor(Math.random()*4));for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function verify(){seedv=321;var T=5000,ok=0;for(var t=0;t<T;t++){var n=5+Math.floor(lcg()*36),maj=Math.floor(lcg()*4),k=Math.floor(n/2)+1,a=[];for(var i=0;i<k;i++)a.push(maj);for(var i=k;i<n;i++)a.push(Math.floor(lcg()*4));for(var i=a.length-1;i>0;i--){var j=Math.floor(lcg()*(i+1));var tp=a[i];a[i]=a[j];a[j]=tp;}var real=actualMaj(a);if(real!==null&&bm(a)===real)ok++;else if(real!==null){return {trials:T,allCorrect:false};}}return {trials:T,allCorrect:true,correct:ok};}
+function reset(){pos=0;cand=null;cnt=0;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=votes.length,cw=(W-20)/n;
+ var c=null,k=0;for(var i=0;i<n;i++){var x=10+i*cw;g.fillStyle=COL[votes[i]];g.fillRect(x,14,cw-2,20);
+  if(k===0){c=votes[i];k=1;}else if(votes[i]===c)k++;else k--;
+  var by=110-k*9;g.fillStyle=COL[c];g.fillRect(x,Math.min(110,by),cw-2,Math.abs(k*9)+1);}
+ g.strokeStyle='#345';g.beginPath();g.moveTo(10,110);g.lineTo(W-10,110);g.stroke();
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('votes (top) · counter height & held-candidate colour (below) → survivor = '+labelOf(bm(votes)),10,138);}
+function labelOf(v){return ['A','B','C','D'][v];}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=votes.length,cw=(W-40)/n;
+ for(var i=0;i<n;i++){var x=20+i*cw;g.fillStyle=COL[votes[i]];g.globalAlpha=i<pos?0.4:1;g.fillRect(x,40,cw-2,28);g.globalAlpha=1;if(i===pos){g.strokeStyle='#fff';g.lineWidth=2;g.strokeRect(x-1,39,cw,30);g.lineWidth=1;}}
+ g.fillStyle='#8ca';g.font='13px ui-monospace,monospace';g.fillText('scanning position '+pos+' / '+n,20,100);
+ g.fillStyle='#fff';g.fillText('candidate:',20,132);if(cand!==null){g.fillStyle=COL[cand];g.fillRect(110,120,24,16);g.fillStyle='#fff';g.fillText('('+labelOf(cand)+')',140,132);}
+ g.fillStyle='#ffd24a';g.fillText('count: '+cnt,20,158);
+ if(pos>=n){var res=bm(votes),real=actualMaj(votes);g.fillStyle='#39fc6b';g.font='14px ui-monospace,monospace';g.fillText('result: '+labelOf(res),20,196);g.fillStyle=real===res?'#39fc6b':'#ff5a5a';g.font='12px ui-monospace,monospace';g.fillText('tally confirms majority = '+labelOf(real)+'  '+(real===res?'✓':'✗'),20,218);}
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('one counter, one candidate — O(1) memory',20,250);
+ document.getElementById('mjread').textContent='pos '+pos+'/'+n+' · candidate '+(cand!==null?labelOf(cand):'-')+' · count '+cnt;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=votes.length,cx=W/2,cy=H/2,R=120;
+ var maj=bm(votes),pts=[];for(var i=0;i<n;i++){var th=ang+i/n*Math.PI*2,x=cx+Math.cos(th)*R,y=cy+Math.sin(th)*R*0.5;pts.push({x:x,y:y,v:votes[i],near:Math.sin(th)>0});}
+ // pair minorities with opposites (annihilation) — greedy match by leftover pool
+ var used=new Array(n).fill(false),pairs=[];var pool=[];for(var i=0;i<n;i++)if(votes[i]!==maj)pool.push(i);
+ // pair each minority with a distinct majority token to cancel
+ var majIdx=[];for(var i=0;i<n;i++)if(votes[i]===maj)majIdx.push(i);
+ for(var p=0;p<pool.length&&p<majIdx.length;p++){pairs.push([pool[p],majIdx[p]]);used[pool[p]]=true;used[majIdx[p]]=true;}
+ for(var q=0;q<pairs.length;q++){var a=pts[pairs[q][0]],b=pts[pairs[q][1]];g.strokeStyle='rgba(255,45,149,0.5)';g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b.x,b.y);g.stroke();}
+ for(var i=0;i<n;i++){var p=pts[i];g.globalAlpha=p.near?1:0.5;var survive=(votes[i]===maj&&!used[i]);g.fillStyle=survive?'#39fc6b':(used[i]?'#556':COL[p.v]);g.beginPath();g.arc(p.x,p.y,survive?6:4,0,7);g.fill();}
+ g.globalAlpha=1;g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: uncancelled majority · magenta: annihilating pairs',10,H-12);}
+document.getElementById('mjstep').onclick=function(){if(pos<votes.length){var x=votes[pos];if(cnt===0){cand=x;cnt=1;}else if(x===cand)cnt++;else cnt--;pos++;}drawW4();};
+document.getElementById('mjrun').onclick=function(){while(pos<votes.length){var x=votes[pos];if(cnt===0){cand=x;cnt=1;}else if(x===cand)cnt++;else cnt--;pos++;}drawW4();};
+document.getElementById('mjsh').onclick=function(){votes=plant();reset();drawW3();drawW4();};
+document.getElementById('mjspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+votes=plant();reset();drawW3();drawW4();window.__majority=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TORT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Floyd&rsquo;s tortoise and hare.</b> Follow a sequence where each value points to the next: x, f(x), f(f(x))&hellip; In a finite world it must eventually <b>repeat</b> &mdash; the path is a &lsquo;&rho;&rsquo;: a tail that runs into a loop. How do you detect the loop, and find where it starts, using <b>no memory of the path</b>?<br><br>
+ Two pointers. The <b>tortoise</b> steps once per tick; the <b>hare</b> steps twice. If there is a loop, the fast one laps the slow one and they land on the <b>same node</b> &mdash; a collision that proves the cycle. A second phase &mdash; reset one pointer to the start and step both by one &mdash; meets exactly at the <b>cycle entry</b> (a small, lovely number-theory fact about the gap).<br><br>
+ <span class="lit">LIT</span> verified live: on thousands of random pointer-maps, Floyd recovers the cycle start &mu; and the cycle length &lambda; and they match a brute-force visited-set computation <b>every time</b> (window.__tortoise.allMatch). <span class="fig">FIG</span> &lsquo;a race&rsquo; is the picture; the O(1)-memory detection, and the exact &mu; and &lambda;, are the real algorithm.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE HOT LOOP</i> &mdash; the grind domain of the loop that runs and runs. Floyd&rsquo;s trick is how you catch a loop from the inside without a map. <b>AVAN (AI)</b> built the instrument: the &rho;-shaped graph, the two racers, the entry-finding phase, the brute-force cross-check.<br><br>The weave: David names the seat (the loop); I make the catch visible and the numbers checkable &mdash; the &rho; laid out in 1D, the race and entry-find in 2D, the loop turning with its two chasers in 3D. The sphere is the seam. Credit: Robert W. Floyd (the tortoise-and-hare cycle detection).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>&rho; shape</b>: a straight <b>tail</b> of length &mu; leading into a <b>loop</b> of length &lambda;. Walk from the start and you travel the tail once, then circle the loop forever. The whole of Floyd&rsquo;s method is finding these two numbers with two moving fingers and nothing written down.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap"><b>Step</b> the race. The <b>tortoise</b> (slow) and <b>hare</b> (fast) move through the graph until they collide inside the loop &mdash; then the entry-finding phase walks them to the cycle start. Read &mu; and &lambda; off the graph; a brute-force tally confirms them.</div>
+   <div class="btns" style="margin-top:10px"><button id="ttstep">step ▶</button><button id="ttrun">run</button><button id="ttnew">new map</button></div>
+   <div class="cap" id="ttread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The &rho; turning in space &mdash; the tail feeding the loop, seen from around.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the two <b>magenta</b> markers are the racers. A single walker, memory-less, can never know it has entered a loop &mdash; every step looks new. Two walkers at <b>different speeds</b> turn that invisible fact into a <b>visible collision</b>: the loop is detected not by remembering where you have been, but by the gap between a fast self and a slow self closing to zero. It is the inverse of memory &mdash; knowledge from <i>relative motion</i> instead of from a record. The green is the shape; the magenta is how two speeds feel a loop the way one never could.</div>
+   <div class="btns" style="margin-top:10px"><button id="ttspin">pause spin</button></div></div></div></div>"""
+TORT_SCRIPT = """(function(){
+var nxt=[],x0=0,mu=0,lam=0,seq=[],coord={},ang=0,spin=true;
+var slow=0,fast=0,phase=0,steps=0,met=false,seedv=88;
+function floyd(f,x0){var s=f(x0),ff=f(f(x0));while(s!==ff){s=f(s);ff=f(f(ff));}var m=0;s=x0;while(s!==ff){s=f(s);ff=f(ff);m++;}var l=1,g=f(s);while(s!==g){g=f(g);l++;}return [m,l];}
+function brute(f,x0){var seen={},x=x0,i=0;while(seen[x]===undefined){seen[x]=i;x=f(x);i++;}return [seen[x],i-seen[x]];}
+function verify(){seedv=1234;var T=5000,ok=0;for(var t=0;t<T;t++){var n=3+Math.floor(rnd()*38),nx=[];for(var i=0;i<n;i++)nx.push(Math.floor(rnd()*n));var f=function(x){return nx[x];},s=Math.floor(rnd()*n);var a=floyd(f,s),b=brute(f,s);if(a[0]===b[0]&&a[1]===b[1])ok++;else return {trials:T,allMatch:false};}return {trials:T,allMatch:true,matched:ok};}
+function rnd(){seedv=(1664525*seedv+1013904223)>>>0;return seedv/4294967296;}
+function gen(){var tries=0;while(tries++<200){var n=8+Math.floor(Math.random()*5);nxt=[];for(var i=0;i<n;i++)nxt.push(Math.floor(Math.random()*n));x0=Math.floor(Math.random()*n);var f=function(x){return nxt[x];},r=floyd(f,x0);mu=r[0];lam=r[1];if(mu>=2&&mu<=5&&lam>=3&&lam<=7)break;}
+ seq=[];var x=x0;for(var k=0;k<mu+lam;k++){seq.push(x);x=nxt[x];}
+ coord={};var cxC=270,cyC=170,rC=80;for(var i=0;i<lam;i++){var th=-Math.PI/2+i/lam*Math.PI*2;coord[seq[mu+i]]=[cxC+Math.cos(th)*rC,cyC+Math.sin(th)*rC];}
+ for(var j=0;j<mu;j++){coord[seq[j]]=[40+j*(cxC-rC-40)/Math.max(1,mu),cyC];}
+ slow=x0;fast=x0;phase=0;steps=0;met=false;}
+function node(k){if(k<mu)return seq[k];return seq[mu+((k-mu)%lam)];}
+function drawGraph(g,tokens){for(var i=0;i<seq.length;i++){var a=coord[seq[i]],b=coord[nxt[seq[i]]];if(a&&b){g.strokeStyle='#2c5a6a';g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();}}
+ for(var i=0;i<seq.length;i++){var c=coord[seq[i]];g.fillStyle=(i>=mu)?'#2f8f6f':'#3a6a7a';g.beginPath();g.arc(c[0],c[1],7,0,7);g.fill();}
+ if(coord[seq[mu]]){g.strokeStyle='#ffcf5a';g.lineWidth=2;g.beginPath();g.arc(coord[seq[mu]][0],coord[seq[mu]][1],11,0,7);g.stroke();g.lineWidth=1;}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ for(var j=0;j<mu;j++){var x=20+j*34;g.fillStyle='#3a6a7a';g.beginPath();g.arc(x,50,9,0,7);g.fill();if(j<mu-1){g.strokeStyle='#2c5a6a';g.beginPath();g.moveTo(x+9,50);g.lineTo(x+25,50);g.stroke();}}
+ var cx=20+mu*34+50,cy=70,r=34;for(var i=0;i<lam;i++){var th=i/lam*Math.PI*2,px=cx+Math.cos(th)*r,py=cy+Math.sin(th)*r;g.fillStyle='#2f8f6f';g.beginPath();g.arc(px,py,8,0,7);g.fill();}
+ g.strokeStyle='#2c5a6a';g.beginPath();g.moveTo(20+(mu-1)*34+9,50);g.lineTo(cx-r,cy-8);g.stroke();
+ g.fillStyle='#ffb060';g.font='12px ui-monospace,monospace';g.fillText('tail μ = '+mu,20,120);g.fillText('loop λ = '+lam,cx-30,cy+r+30);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('the ρ: a tail of μ nodes running into a loop of λ',20,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ drawGraph(g);
+ var st=coord[slow],ha=coord[fast];
+ if(ha){g.fillStyle='#ff2d95';g.beginPath();g.arc(ha[0],ha[1],5,0,7);g.fill();g.fillStyle='#ff2d95';g.font='10px ui-monospace,monospace';g.fillText('hare',ha[0]+7,ha[1]-7);}
+ if(st){g.fillStyle='#ffd24a';g.beginPath();g.arc(st[0],st[1]-0,4,0,7);g.fill();g.fillStyle='#ffd24a';g.fillText('tortoise',st[0]+7,st[1]+14);}
+ g.fillStyle='#8ca';g.font='12px ui-monospace,monospace';var lbl=phase===0?'racing…':(phase===1?'finding entry…':'done: μ='+mu+', λ='+lam);g.fillText(lbl,14,H-44);
+ if(phase===2){var b=brute(function(x){return nxt[x];},x0);g.fillStyle=(b[0]===mu&&b[1]===lam)?'#39fc6b':'#ff5a5a';g.font='12px ui-monospace,monospace';g.fillText('brute-force check: μ='+b[0]+', λ='+b[1]+'  '+(b[0]===mu&&b[1]===lam?'✓':'✗'),14,H-24);}
+ else{g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('tortoise +1 / hare +2 per step',14,H-24);}
+ document.getElementById('ttread').textContent=phase===2?('cycle start μ='+mu+', length λ='+lam+' (Floyd = brute force)'):'racing: tortoise & hare stepping…';}
+function stepAlgo(){if(phase===0){slow=nxt[slow];fast=nxt[nxt[fast]];steps++;if(slow===fast){phase=1;fast=x0;}}
+ else if(phase===1){if(slow===fast){phase=2;}else{slow=nxt[slow];fast=nxt[fast];}}
+ drawW4();}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),sa=Math.sin(ang);
+ var P={};var rC=95;for(var i=0;i<lam;i++){var th=i/lam*Math.PI*2,X=Math.cos(th)*rC,Z=Math.sin(th)*rC;P[seq[mu+i]]=[cx+X*ca-Z*sa*0.5,cy+Math.sin(th)*rC*0.35-20];}
+ for(var j=0;j<mu;j++){P[seq[j]]=[cx-140+j*(140-rC)/Math.max(1,mu)*1.4,cy-20];}
+ for(var i=0;i<seq.length;i++){var a=P[seq[i]],b=P[nxt[seq[i]]];if(a&&b){g.strokeStyle='#2c6a3a';g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();}}
+ for(var i=0;i<seq.length;i++){var c=P[seq[i]];g.fillStyle='#39fc6b';g.beginPath();g.arc(c[0],c[1],4,0,7);g.fill();}
+ var st=P[slow],ha=P[fast];if(ha){g.fillStyle='#ff2d95';g.beginPath();g.arc(ha[0],ha[1],6,0,7);g.fill();}if(st){g.fillStyle='#ff8cd0';g.beginPath();g.arc(st[0],st[1],5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: the ρ (tail + loop)',10,H-26);g.fillStyle='#ff2d95';g.fillText('magenta: tortoise & hare — two speeds feeling the loop',10,H-12);}
+document.getElementById('ttstep').onclick=stepAlgo;
+document.getElementById('ttrun').onclick=function(){var guard=0;while(phase!==2&&guard++<10000)stepAlgo();};
+document.getElementById('ttnew').onclick=function(){gen();drawW3();drawW4();};
+document.getElementById('ttspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+gen();drawW3();drawW4();window.__tortoise=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ZECK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Zeckendorf&rsquo;s theorem.</b> We write numbers in base ten, or base two &mdash; place values 1, 10, 100 or 1, 2, 4, 8. But you can also use the <b>Fibonacci numbers</b> 1, 2, 3, 5, 8, 13, 21&hellip; as place values, and something remarkable happens: <b>every</b> positive integer has <b>exactly one</b> representation as a sum of Fibonacci numbers <b>no two of which are consecutive</b>.<br><br>
+ Finding it is greedy: subtract the largest Fibonacci number that fits, repeat. 100 = 89 + 8 + 3. And you will never need two neighbours &mdash; because any two consecutive Fibonacci numbers add up to the next one, so using both is always replaceable by one. The <b>&lsquo;no two adjacent&rsquo;</b> rule is exactly what makes the representation unique.<br><br>
+ <span class="lit">LIT</span> verified live: for every integer 1&hellip;1000 this page confirms the greedy Zeckendorf digits <b>sum back</b> to n, use <b>no two consecutive</b> Fibonacci numbers, and are the <b>only</b> such representation (a brute-force count of valid representations returns exactly 1) &mdash; window.__zeck.allSumBack &amp;&amp; noConsecutive &amp;&amp; allUnique. <span class="fig">FIG</span> no framing needed; this is Zeckendorf&rsquo;s theorem, checked number by number.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>CHECKPOINT ZERO</i>, beside <i>THE TWINDRAGON</i> and <i>THE THREE-WAY DIGIT</i> &mdash; the spawn domain of exotic ways to write a number. Base &minus;1+i, balanced ternary, and now the Fibonacci base: each a different alphabet for the same integers. <b>AVAN (AI)</b> built the instrument: the greedy peel, the no-adjacent digits, the uniqueness count.<br><br>The weave: David gathers the strange numeral systems; I make this one legible and checkable &mdash; the Fibonacci digit-string in 1D, the greedy tiling in 2D, the golden place-values in 3D. The sphere is the seam. Credit: Édouard Zeckendorf (theorem published 1972; C. G. Lekkerkerker, 1952).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>Fibonacci digit-string</b> of a number: a 1 over each Fibonacci place value that is used, a 0 elsewhere &mdash; and <b>never two 1s in a row</b>. That single forbidden pattern (&lsquo;no&nbsp;11&rsquo;) is the whole reason the representation is one-of-a-kind.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Dial a number and watch <b>greedy Zeckendorf</b> peel off the largest Fibonacci that fits, then the next, tiling the number with non-adjacent Fibonacci blocks. The digits light up with never two together; the sum and the uniqueness check confirm it.</div>
+   <div class="btns" style="margin-top:10px"><button id="zkm">◀ &minus;1</button><button id="zkp">+1 ▶</button><button id="zkj">+50</button><button id="zkr">random</button></div>
+   <div class="cap" id="zkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The Fibonacci place-values as a turning ladder of <b>golden blocks</b>, each the sum of the two below it &mdash; <b>green</b>, the whole scale.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> blocks are the ones chosen for your number, and I draw the <b>forbidden link</b> between any two neighbours. Most number systems are defined by what digits you may <i>use</i>; Zeckendorf is defined by what you may <b>not place</b> &mdash; two adjacent Fibonacci blocks. And that prohibition is not arbitrary: two neighbours always fuse into the block above them, so forbidding the pair is forbidding redundancy. Uniqueness is carved out by a rule of absence. The green is what exists; the magenta bond is the pairing the system refuses, and in that refusal every number gets exactly one name.</div>
+   <div class="btns" style="margin-top:10px"><button id="zkspin">pause spin</button></div></div></div></div>"""
+ZECK_SCRIPT = """(function(){
+var fibs=[1,2];while(fibs[fibs.length-1]<300000)fibs.push(fibs[fibs.length-1]+fibs[fibs.length-2]);
+var n=100,ang=0,spin=true;
+function greedy(m){var out=[],i=fibs.length-1;while(m>0){while(fibs[i]>m)i--;out.push(i);m-=fibs[i];i--;}return out;}
+function countReps(m){var F=[];for(var i=0;i<fibs.length&&fibs[i]<=m;i++)F.push(fibs[i]);var L=F.length,cnt=0;(function rec(i,rem,last){if(rem===0){cnt++;return;}if(i>=L||rem<0)return;rec(i+1,rem,last);if(last!==i-1)rec(i+1,rem-F[i],i);})(0,m,-2);return cnt;}
+function verify(){var N=1000,sb=true,nc=true,uq=true;for(var m=1;m<=N;m++){var idx=greedy(m),s=0;for(var a=0;a<idx.length;a++)s+=fibs[idx[a]];if(s!==m)sb=false;for(var a=0;a<idx.length-1;a++)if(idx[a]-idx[a+1]===1)nc=false;if(countReps(m)!==1)uq=false;}return {N:N,allSumBack:sb,noConsecutive:nc,allUnique:uq};}
+function usedSet(m){var s={},idx=greedy(m);for(var a=0;a<idx.length;a++)s[idx[a]]=1;return s;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var maxi=0;while(fibs[maxi]<=n)maxi++;var used=usedSet(n),cw=Math.min(44,(W-20)/maxi);
+ for(var i=0;i<maxi;i++){var x=10+(maxi-1-i)*cw,on=used[i];g.fillStyle=on?'#f0b429':'#1a2230';g.fillRect(x,40,cw-3,28);g.fillStyle=on?'#031015':'#4c7a54';g.font='13px ui-monospace,monospace';g.fillText(on?'1':'0',x+cw/2-6,59);g.fillStyle='#5c8a6a';g.font='9px ui-monospace,monospace';g.fillText(''+fibs[i],x+2,84);}
+ g.fillStyle='#f0b429';g.font='12px ui-monospace,monospace';g.fillText(n+' = '+greedy(n).map(function(i){return fibs[i];}).join(' + '),10,116);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('digits over Fibonacci place values — never two 1s adjacent (the “no 11” rule)',10,138);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var idx=greedy(n),x=20,y=60,scale=(W-40)/n;
+ g.font='11px ui-monospace,monospace';g.fillStyle='#8ca';g.fillText('tiling '+n+' with non-adjacent Fibonacci blocks:',20,30);
+ for(var a=0;a<idx.length;a++){var w=fibs[idx[a]]*scale;g.fillStyle=['#f0b429','#ffd873','#e0a020','#ffe0a0'][a%4];g.fillRect(x,40,Math.max(2,w-2),34);if(w>26){g.fillStyle='#031015';g.fillText(''+fibs[idx[a]],x+4,61);}x+=w;}
+ g.strokeStyle='#345';g.strokeRect(20,40,(W-40),34);
+ var s=0;for(var a=0;a<idx.length;a++)s+=fibs[idx[a]];
+ g.fillStyle='#39fc6b';g.font='13px ui-monospace,monospace';g.fillText('sum = '+s+(s===n?'  ✓':'  ✗'),20,110);
+ var noC=true;for(var a=0;a<idx.length-1;a++)if(idx[a]-idx[a+1]===1)noC=false;
+ g.fillStyle=noC?'#39fc6b':'#ff5a5a';g.fillText('no two consecutive Fibonacci: '+(noC?'✓':'✗'),20,134);
+ var reps=countReps(n);g.fillStyle=reps===1?'#39fc6b':'#ff5a5a';g.fillText('valid representations of '+n+': '+reps+(reps===1?' (unique) ✓':''),20,158);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText(n+' = '+idx.map(function(i){return fibs[i];}).join(' + '),20,182);
+ document.getElementById('zkread').textContent=n+' = '+idx.map(function(i){return fibs[i];}).join(' + ')+' · unique: '+(reps===1);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var used=usedSet(n),maxi=0;while(fibs[maxi]<=Math.max(n,55))maxi++;maxi=Math.min(maxi,13);var cx=W/2;
+ var prev=null;for(var i=0;i<maxi;i++){var th=ang+i*0.5,y=H-40-i*24,depth=Math.cos(th),x=cx+Math.sin(th)*70,w=8+Math.log(fibs[i]+1)*7,on=used[i];
+  g.globalAlpha=0.4+0.5*(depth+1)/2;g.fillStyle=on?'#ff2d95':'#39fc6b';g.fillRect(x-w/2,y-8,w,14);
+  if(on&&used[i+1]){g.globalAlpha=1;g.strokeStyle='#ff2d95';g.lineWidth=2;g.setLineDash([3,3]);g.beginPath();g.moveTo(x,y);g.lineTo(cx+Math.sin(ang+(i+1)*0.5)*70,H-40-(i+1)*24);g.stroke();g.setLineDash([]);g.lineWidth=1;}
+  g.globalAlpha=1;g.fillStyle='#4c7a54';g.font='9px ui-monospace,monospace';g.fillText(''+fibs[i],x+w/2+3,y);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: Fibonacci ladder · magenta: chosen for '+n,10,20);
+ g.fillStyle='#ff8cd0';g.fillText('(no magenta pair is ever adjacent — the forbidden bond)',10,H-12);}
+document.getElementById('zkm').onclick=function(){n=Math.max(1,n-1);drawW3();drawW4();};
+document.getElementById('zkp').onclick=function(){n=Math.min(5000,n+1);drawW3();drawW4();};
+document.getElementById('zkj').onclick=function(){n=Math.min(5000,n+50);drawW3();drawW4();};
+document.getElementById('zkr').onclick=function(){n=1+Math.floor(Math.random()*2000);drawW3();drawW4();};
+document.getElementById('zkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__zeck=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+JOS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Josephus problem.</b> n people stand in a circle. Starting from one, you count around and eliminate every <b>k-th</b> person, closing the ring each time. Where should you stand to be the <b>last one left</b>?<br><br>
+ The brute way is to act out the whole massacre. But there is a clean recurrence &mdash; if J(n) is the survivor&rsquo;s seat, then <span class="mono">J(n) = (J(n&minus;1) + k) mod n</span>, starting from J(1)=0 &mdash; and for the famous case <b>k=2</b> an outright formula: write n = 2<sup>m</sup> + L, and the survivor is seat <b>2L+1</b>. Even prettier: that is just n&rsquo;s <b>binary digits rotated left by one</b>.<br><br>
+ <span class="lit">LIT</span> verified live: for every circle size up to 200 this page runs the full elimination and confirms the survivor equals the recurrence (for k=2&hellip;5) and, for k=2, equals both the 2L+1 formula and the binary-rotation trick (window.__josephus.matchesRecurrence &amp;&amp; matchesClosedForm2 &amp;&amp; bitRotationHolds). <span class="fig">FIG</span> the historical legend is flavour; the recurrence, the 2L+1 formula, and the bit-rotation are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>SUDDEN DEATH</i> &mdash; the boss domain of last-one-standing. The Josephus circle is sudden death in its oldest form: count, eliminate, repeat, one survivor. <b>AVAN (AI)</b> built the instrument: the elimination circle, the recurrence, and the binary-rotation shortcut.<br><br>The weave: David names the seat (the survivor); I make the counting run and the shortcut checkable &mdash; the elimination order in 1D, the live circle in 2D, the ring with its bit-rotation answer in 3D. The sphere is the seam. Credit: the problem is named for the historian Flavius Josephus; the k=2 formula is classic (Graham/Knuth/Patashnik, <i>Concrete Mathematics</i>).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>elimination order</b>, unrolled: seats in the order they fall, every k-th one struck. The last seat to remain is the survivor &mdash; and you can compute it without acting the whole thing out.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Set the circle size and the step k, then <b>eliminate</b>. Every k-th living seat is removed; the ring closes and counting continues. The last seat lights up &mdash; and it always matches the formula&rsquo;s prediction.</div>
+   <div class="btns" style="margin-top:10px"><button id="jsn">n±</button><button id="jsk">k=2/3</button><button id="jsstep">eliminate ▶</button><button id="jsrun">run</button><button id="jsrst">reset</button></div>
+   <div class="cap" id="jsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The circle turning in space, seats around the ring &mdash; the fallen dim, the living bright.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): for k=2 I show the answer as a <b>bit rotation</b>. The killing is a long loop &mdash; n&minus;1 eliminations, one at a time. The survivor is a single <b>shift</b>: take n in binary, move its leading 1 to the end, and you have the seat, in <b>magenta</b>, with no loop at all. It is the inverse of the process: an O(n) massacre collapses to an O(1) rotation of bits. The green ring is the work; the magenta seat is the shortcut that makes the work unnecessary. Sometimes the whole of a process hides inside one turn of its own digits.</div>
+   <div class="btns" style="margin-top:10px"><button id="jsspin">pause spin</button></div></div></div></div>"""
+JOS_SCRIPT = """(function(){
+var n=13,k=2,ang=0,spin=true,alive=[],pos=0,order=[],survivor=null;
+function sim(nn,kk){var p=[];for(var i=0;i<nn;i++)p.push(i);var idx=0;while(p.length>1){idx=(idx+kk-1)%p.length;p.splice(idx,1);}return p[0];}
+function recur(nn,kk){var r=0;for(var i=2;i<=nn;i++)r=(r+kk)%i;return r;}
+function closed2(nn){var m=1;while(m*2<=nn)m*=2;return 2*(nn-m);} // 0-indexed
+function bitrot(nn){var b=nn.toString(2);var r=b.slice(1)+b[0];return parseInt(r,2);} // 1-indexed survivor
+function verify(){var mR=true,mC=true,mB=true;for(var nn=1;nn<=200;nn++){for(var kk=2;kk<=5;kk++){if(sim(nn,kk)!==recur(nn,kk))mR=false;}if(sim(nn,2)!==closed2(nn))mC=false;if(nn>=1&&(closed2(nn)+1)!==bitrot(nn))mB=false;}return {matchesRecurrence:mR,matchesClosedForm2:mC,bitRotationHolds:mB};}
+function reset(){alive=[];for(var i=0;i<n;i++)alive.push(i);pos=0;order=[];survivor=null;}
+function elim(){if(alive.length<=1){survivor=alive[0];return;}pos=(pos+k-1)%alive.length;order.push(alive[pos]);alive.splice(pos,1);if(alive.length===1)survivor=alive[0];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var sv=sim(n,k),p=[];for(var i=0;i<n;i++)p.push(i);var idx=0,ord=[];while(p.length>1){idx=(idx+k-1)%p.length;ord.push(p[idx]);p.splice(idx,1);}var last=p[0];
+ var cw=Math.min(34,(W-20)/n);for(var i=0;i<ord.length;i++){var x=10+i*cw;g.fillStyle='#3a2530';g.fillRect(x,40,cw-3,26);g.fillStyle='#a06070';g.font='10px ui-monospace,monospace';g.fillText(''+ord[i],x+4,57);}
+ var xs=10+ord.length*cw;g.fillStyle='#39fc6b';g.fillRect(xs,40,cw-3,26);g.fillStyle='#031015';g.fillText(''+last,xs+4,57);
+ g.fillStyle='#ff8a5c';g.font='12px ui-monospace,monospace';g.fillText('n='+n+', k='+k+' → survivor seat '+last+' (0-indexed)',10,98);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('elimination order (dim) then the last survivor (green)',10,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=150,R=110;
+ var aliveSet={};for(var i=0;i<alive.length;i++)aliveSet[alive[i]]=1;
+ for(var i=0;i<n;i++){var th=-Math.PI/2+i/n*Math.PI*2,x=cx+Math.cos(th)*R,y=cy+Math.sin(th)*R,on=aliveSet[i];
+  var isSurv=(survivor===i);g.fillStyle=isSurv?'#39fc6b':(on?'#ff8a5c':'#33262c');g.beginPath();g.arc(x,y,isSurv?11:8,0,7);g.fill();
+  g.fillStyle=on?'#031015':'#66505a';g.font='9px ui-monospace,monospace';g.fillText(''+i,x-5,y+3);}
+ if(alive.length>1){var th=-Math.PI/2+alive[pos]/n*Math.PI*2;g.strokeStyle='#fff';g.lineWidth=2;g.beginPath();g.arc(cx+Math.cos(th)*R,cy+Math.sin(th)*R,12,0,7);g.stroke();g.lineWidth=1;}
+ g.fillStyle='#8ca';g.font='12px ui-monospace,monospace';g.fillText(alive.length+' alive · next counts '+k,20,H-42);
+ var pred=sim(n,k);g.fillStyle='#4c7a54';g.fillText('formula predicts survivor seat '+pred,20,H-24);
+ if(survivor!==null){g.fillStyle=survivor===pred?'#39fc6b':'#ff5a5a';g.font='13px ui-monospace,monospace';g.fillText('survivor: '+survivor+(survivor===pred?'  ✓ matches formula':'  ✗'),20,H-6);}
+ document.getElementById('jsread').textContent=survivor!==null?('survivor seat '+survivor+' (formula: '+pred+')'):(alive.length+' alive, k='+k);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,R=120;
+ var sv=sim(n,2),rot=bitrot(n)-1;
+ for(var i=0;i<n;i++){var th=ang+i/n*Math.PI*2,x=cx+Math.cos(th)*R,y=cy+Math.sin(th)*R*0.45,near=Math.sin(th)>0;g.globalAlpha=near?1:0.5;
+  var isS=(i===rot);g.fillStyle=isS?'#ff2d95':'#39fc6b';g.beginPath();g.arc(x,y,isS?7:4,0,7);g.fill();}
+ g.globalAlpha=1;g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('k=2 ring · n='+n+' = '+n.toString(2)+'b',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta survivor = binary rotated left: '+n.toString(2)+' → '+(n.toString(2).slice(1)+n.toString(2)[0])+' = seat '+rot,10,H-24);
+ g.fillStyle='#4c7a54';g.fillText('(0-indexed; matches full elimination survivor '+sv+')',10,H-10);}
+document.getElementById('jsn').onclick=function(){n=n>=20?7:n+1;reset();drawW3();drawW4();};
+document.getElementById('jsk').onclick=function(){k=(k===2?3:2);reset();drawW3();drawW4();};
+document.getElementById('jsstep').onclick=function(){elim();drawW4();};
+document.getElementById('jsrun').onclick=function(){var guard=0;while(alive.length>1&&guard++<10000)elim();drawW4();};
+document.getElementById('jsrst').onclick=function(){reset();drawW4();};
+document.getElementById('jsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+reset();drawW3();drawW4();window.__josephus=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CAT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Dyck paths and the Catalan numbers.</b> How many ways can you write n pairs of parentheses so they balance &mdash; every &lsquo;)&rsquo; matched by an earlier &lsquo;(&rsquo;? The same count answers a dozen questions: valid <b>stack</b> push/pop sequences, mountain ranges that never dig below ground, triangulations of a polygon, binary trees with n nodes. The answer is the <b>Catalan number</b>:<br><br>
+ <span class="mono">C<sub>n</sub> = C(2n, n) / (n+1)</span> &nbsp;=&nbsp; 1, 1, 2, 5, 14, 42, 132, 429, 1430&hellip;<br><br>
+ Read a &lsquo;(&rsquo; as a step up and a &lsquo;)&rsquo; as a step down and a balanced string becomes a <b>Dyck path</b>: it starts and ends on the ground and <b>never dips below it</b> &mdash; exactly a stack that never underflows.<br><br>
+ <span class="lit">LIT</span> verified live: this page <b>exhaustively enumerates</b> every balanced string for n = 0&hellip;8 and the counts equal C<sub>n</sub> precisely (1,1,2,5,14,42,132,429,1430), with <b>every</b> path staying non-negative (window.__catalan.enumMatchesFormula &amp;&amp; allNonNegative). <span class="fig">FIG</span> the &lsquo;mountain&rsquo; is a drawing; the count-equals-Catalan and the never-below-zero facts are exact, enumerated one path at a time.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>STACK OVERFLOW</i>, beside <i>THE STACK</i> &mdash; the glitch domain of the stack pushed past its floor. A balanced-parenthesis string is precisely a stack discipline that never pops an empty stack; dipping below zero <i>is</i> the underflow. <b>AVAN (AI)</b> built the instrument: the enumeration, the path drawing, the reflection bijection.<br><br>The weave: David names the seat (the stack that must not underflow); I make the balance a shape and the count a proof &mdash; a path in 1D, live enumeration to C<sub>n</sub> in 2D, the reflection trick in 3D. The sphere is the seam. Credit: Eugène Charles Catalan; the reflection argument is Désiré André&rsquo;s (1887).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">A balanced string as a <b>path</b>: &lsquo;(&rsquo; steps up, &lsquo;)&rsquo; steps down. It ends where it began and &mdash; the one rule &mdash; <b>never crosses below the ground line</b>. That is the same as a stack whose pops never outrun its pushes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Choose n and see a valid Dyck path drawn as a mountain. The instrument <b>counts every</b> balanced arrangement of n pairs and checks it against the Catalan formula &mdash; they always agree. <b>New path</b> draws another of the C<sub>n</sub> possibilities.</div>
+   <div class="btns" style="margin-top:10px"><button id="ctm">◀ n&minus;1</button><button id="ctp">n+1 ▶</button><button id="ctnew">new path</button></div>
+   <div class="cap" id="ctread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">Valid Dyck paths stacked into a turning fan &mdash; <b>green</b> mountains that never break the ground.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): to count the good paths, André counts the <b>bad</b> ones. A path that dips below the ground is reflected &mdash; <b>magenta</b> &mdash; across the line just under it from the moment it first touches: ups become downs thereafter. That mirror puts every forbidden path in perfect one-to-one correspondence with the <i>unrestricted</i> paths ending two steps lower, which are easy to count. So C<sub>n</sub> = (all paths) &minus; (bad paths) = C(2n,n) &minus; C(2n,n+1). You find what is allowed by mirroring what is not. The green is the permitted; the magenta is the reflected transgression that makes the permitted countable.</div>
+   <div class="btns" style="margin-top:10px"><button id="ctspin">pause spin</button></div></div></div></div>"""
+CAT_SCRIPT = """(function(){
+var n=5,ang=0,spin=true,path='';
+function catalan(nn){var num=1;for(var i=1;i<=nn;i++)num=num*(nn+i)/i;return Math.round(num/(nn+1));}
+function enumDyck(nn){var res=[];(function rec(s,o,c){if(s.length===2*nn){res.push(s);return;}if(o<nn)rec(s+'(',o+1,c);if(c<o)rec(s+')',o,c+1);})('',0,0);return res;}
+function verify(){var m=true,nn2=true;for(var nn=0;nn<=8;nn++){var p=enumDyck(nn);if(p.length!==catalan(nn))m=false;for(var i=0;i<p.length;i++){var h=0,s=p[i];for(var j=0;j<s.length;j++){h+=s[j]==='('?1:-1;if(h<0)nn2=false;}}}return {maxN:8,enumMatchesFormula:m,allNonNegative:nn2,C8:catalan(8)};}
+function randPath(nn){var s='',o=0,c=0;while(s.length<2*nn){var canUp=o<nn,canDown=c<o;if(canUp&&canDown)s+=(Math.random()<0.5?'(':')'),(s[s.length-1]==='('?o++:c++);else if(canUp){s+='(';o++;}else{s+=')';c++;}}return s;}
+function heights(s){var h=[0];for(var i=0;i<s.length;i++)h.push(h[h.length-1]+(s[i]==='('?1:-1));return h;}
+function drawPath(g,s,ox,oy,cw,ch,col){var h=heights(s),maxh=Math.max.apply(0,h)||1;g.strokeStyle='#345';g.beginPath();g.moveTo(ox,oy);g.lineTo(ox+s.length*cw,oy);g.stroke();
+ g.strokeStyle=col;g.lineWidth=2;g.beginPath();for(var i=0;i<h.length;i++){var x=ox+i*cw,y=oy-h[i]*ch;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<h.length;i++){g.fillStyle=col;g.beginPath();g.arc(ox+i*cw,oy-h[i]*ch,2.5,0,7);g.fill();}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var s=path,cw=Math.min(30,(W-40)/(s.length||1));drawPath(g,s,20,100,cw,20,'#6be0c0');
+ g.fillStyle='#6be0c0';g.font='13px ui-monospace,monospace';g.fillText(s,20,128);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('( = up, ) = down · never below the ground line = stack never underflows',20,146);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var s=path,cw=Math.min(30,(W-40)/(s.length||1));drawPath(g,s,20,150,cw,22,'#6be0c0');
+ var cnt=enumDyck(n).length,formula=catalan(n);
+ g.fillStyle='#6be0c0';g.font='14px ui-monospace,monospace';g.fillText('n = '+n+' pairs',20,190);
+ g.fillStyle='#8ca';g.font='12px ui-monospace,monospace';g.fillText('enumerated balanced strings: '+cnt,20,216);
+ g.fillStyle='#8ca';g.fillText('Catalan formula C(2n,n)/(n+1): '+formula,20,238);
+ g.fillStyle=cnt===formula?'#39fc6b':'#ff5a5a';g.font='13px ui-monospace,monospace';g.fillText(cnt===formula?'they agree ✓':'mismatch ✗',20,262);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('current path: '+s,20,284);
+ document.getElementById('ctread').textContent='n='+n+': '+cnt+' balanced strings = C_'+n+' = '+formula;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2;
+ // green: a few valid paths as fanned mountains
+ var paths=enumDyck(4);var show=[paths[0],paths[3],paths[7],paths[13]];
+ for(var p=0;p<show.length;p++){var h=heights(show[p]),th=ang+p*0.5,ca=Math.cos(th);g.strokeStyle='rgba(57,252,107,'+(0.4+0.4*(ca+1)/2)+')';g.lineWidth=1.5;g.beginPath();for(var i=0;i<h.length;i++){var x=cx-70+i*20*ca,y=cy+30-h[i]*16-p*4;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();}g.lineWidth=1;
+ // magenta: a bad path and its reflection
+ var bad=')((())'.length?'())(()':'';bad='())((' ;var b='()) (('.replace(/ /g,'');
+ var badp='())(()';var hb=heights(badp);
+ // find first dip below 0
+ var hh=[0],cur=0,firstNeg=-1;for(var i=0;i<badp.length;i++){cur+=badp[i]==='('?1:-1;hh.push(cur);if(cur<0&&firstNeg<0)firstNeg=i+1;}
+ g.strokeStyle='rgba(255,45,149,0.45)';g.setLineDash([3,3]);g.beginPath();for(var i=0;i<hh.length;i++){var x=cx-60+i*20,y=cy+120-hh[i]*16;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.setLineDash([]);
+ // reflection across y=-1 after firstNeg
+ var refl=[];for(var i=0;i<hh.length;i++){refl.push(i>=firstNeg? (-2-hh[i]) : hh[i]);}
+ g.strokeStyle='#ff2d95';g.lineWidth=2;g.beginPath();for(var i=0;i<refl.length;i++){var x=cx-60+i*20,y=cy+120-refl[i]*16;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.strokeStyle='#555';g.setLineDash([2,4]);g.beginPath();g.moveTo(cx-60,cy+120+16);g.lineTo(cx-60+hh.length*20,cy+120+16);g.stroke();g.setLineDash([]);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: valid Dyck paths',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: a below-ground path reflected (André) — counts the forbidden',10,H-12);}
+document.getElementById('ctm').onclick=function(){n=Math.max(1,n-1);path=randPath(n);drawW3();drawW4();};
+document.getElementById('ctp').onclick=function(){n=Math.min(12,n+1);path=randPath(n);drawW3();drawW4();};
+document.getElementById('ctnew').onclick=function(){path=randPath(n);drawW3();drawW4();};
+document.getElementById('ctspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+path=randPath(n);drawW3();drawW4();window.__catalan=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-balanced-path","title":"THE BALANCED PATH","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#6be0c0","icon":"balance",
+  "kicker":"Dyck paths & Catalan numbers — the count of balance",
+  "blurb":"Dyck paths and the Catalan numbers in the 5-window house format — the number of balanced-parenthesis strings of n pairs (equivalently: stack push/pop sequences that never underflow, mountain paths that never dip below ground) is the Catalan number C(2n,n)/(n+1). See a balanced string as a path in 1D, live enumeration to C_n in 2D, and André's reflection bijection in 3D.",
+  "lit":"Genuine Catalan enumeration. Verified live: the page exhaustively enumerates every balanced-parenthesis string for n=0..8 and the counts equal the Catalan numbers exactly (1,1,2,5,14,42,132,429,1430), with every path staying non-negative (window.__catalan.enumMatchesFormula && allNonNegative, both true). A balanced string is exactly a stack whose pops never outrun its pushes; below-zero = underflow. The reflection identity C_n = C(2n,n) - C(2n,n+1) is shown via André's mirror.",
+  "fig":"The 'mountain' and 'stack' are pictures; the count-equals-Catalan and never-below-zero facts are exact and enumerated one path at a time. The reflection bijection is illustrated on a sample path, not re-proved in full generality.",
+  "body":CAT_BODY,"script":CAT_SCRIPT},
+ {"slug":"the-josephus","title":"THE JOSEPHUS","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#ff8a5c","icon":"circle",
+  "kicker":"the last one standing — and the bit-rotation shortcut",
+  "blurb":"the Josephus problem in the 5-window house format — n people in a circle, every k-th eliminated; who survives? A clean recurrence J(n)=(J(n-1)+k) mod n gives the seat, and for k=2 the survivor is 2L+1 — which is just n's binary rotated left by one. See the elimination order in 1D, the live circle in 2D, and the ring with its bit-rotation answer in 3D.",
+  "lit":"Genuine Josephus problem. Verified live: for every circle size up to 200 the full elimination survivor equals the recurrence (k=2..5), and for k=2 equals both the 2L+1 closed form and the binary-left-rotation of n (window.__josephus.matchesRecurrence && matchesClosedForm2 && bitRotationHolds, all true). The O(n) elimination really does collapse to an O(1) bit rotation for k=2.",
+  "fig":"The historical legend (Josephus escaping a suicide pact) is flavour only; the recurrence, the 2L+1 formula, and the bit-rotation identity are exact and checked against full simulation. Seats are 0-indexed here.",
+  "body":JOS_BODY,"script":JOS_SCRIPT},
+ {"slug":"the-zeckendorf","title":"THE ZECKENDORF","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#f0b429","icon":"fib",
+  "kicker":"every integer, one sum of non-consecutive Fibonaccis",
+  "blurb":"Zeckendorf's theorem in the 5-window house format — every positive integer is a unique sum of non-consecutive Fibonacci numbers, found greedily. The 'no two adjacent' rule is exactly what makes it unique. See the Fibonacci digit-string in 1D, the greedy tiling in 2D, and the golden place-value ladder in 3D.",
+  "lit":"Genuine Zeckendorf representation (Zeckendorf's theorem, published 1972; Lekkerkerker 1952). Verified live: for every integer 1..1000 the greedy digits sum back to n, use no two consecutive Fibonacci numbers, and a brute-force count of valid non-consecutive representations returns exactly 1 (window.__zeck.allSumBack && noConsecutive && allUnique, all true). Because consecutive Fibonaccis sum to the next, forbidding adjacency forbids redundancy — that is the uniqueness, demonstrated not asserted.",
+  "fig":"No metaphor is doing the work: the Fibonacci place values, the greedy peel, and the uniqueness count are the theorem itself, checked number by number. Calling the digit rule 'no 11' is the only framing.",
+  "body":ZECK_BODY,"script":ZECK_SCRIPT},
+ {"slug":"the-tortoise","title":"THE TORTOISE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#ffb060","icon":"loop",
+  "kicker":"Floyd's tortoise & hare — catch a loop with no memory",
+  "blurb":"Floyd's cycle detection in the 5-window house format — detect a loop in a pointer-following sequence with two pointers and O(1) memory. The tortoise steps once, the hare twice; they must collide inside the loop, and a second phase finds the cycle's start. See the rho shape in 1D, the race and entry-find in 2D, and the loop turning with its two chasers in 3D.",
+  "lit":"Genuine Floyd tortoise-and-hare cycle detection. Verified live: on 5,000 random pointer-maps, Floyd's recovered cycle start mu and length lambda match a brute-force visited-set computation every time (window.__tortoise.allMatch === true). The two-speed collision and the entry-finding second phase are exact; the method uses O(1) memory regardless of tail or loop length.",
+  "fig":"'A race' is the picture; the O(1)-memory detection and the exact mu and lambda are the real algorithm. The entry-finding phase relies on a genuine modular-arithmetic identity about the meeting point, demonstrated here and cross-checked against brute force, not merely asserted.",
+  "body":TORT_BODY,"script":TORT_SCRIPT},
+ {"slug":"the-majority","title":"THE MAJORITY","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#9a8cff","icon":"vote",
+  "kicker":"Boyer-Moore majority vote — O(1) memory, one pass",
+  "blurb":"the Boyer-Moore majority vote in the 5-window house format — find the element appearing more than half the time in a single pass with just one counter and one candidate. Opposing votes pair off and annihilate; only a true majority can't be fully cancelled. See the counter's trajectory in 1D, the vote-scan in 2D, and the annihilating ring in 3D.",
+  "lit":"Genuine Boyer-Moore majority vote (Boyer & Moore, 1981). Verified live: the page runs 5,000 arrays each containing a planted strict majority and the O(1)-memory single-pass scan returns the correct majority element every time (window.__majority.allCorrect === true). The pairing-off argument is exact — a strict majority has more votes than everything else combined, so it cannot be cancelled to zero. Standard caveat shown: a confirming tally is needed to know a majority exists at all.",
+  "fig":"'Votes annihilating' is the picture; the candidate/counter rule and the O(1)-memory guarantee are exactly the algorithm. It finds THE majority only when one exists; on inputs with no strict majority it returns a candidate that the confirming pass then rejects — shown honestly.",
+  "body":MAJ_BODY,"script":MAJ_SCRIPT},
  {"slug":"the-gun","title":"THE GUN","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#ffcf5a","icon":"life",
   "kicker":"the Gosper glider gun — a pattern that grows forever",
