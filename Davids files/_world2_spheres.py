@@ -537,6 +537,66 @@ document.getElementById('w4').onclick=function(e){var rct=this.getBoundingClient
 function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}
 nm();all();requestAnimationFrame(loop);})();"""
 
+# ── THE ROUTE — shortest-path search (BFS), 5-window house format ──
+ROUTE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Shortest-path search.</b> Given a start, a goal and walls, the machine floods outward one ring at a time &mdash; a breadth-first wavefront that reaches every cell by its shortest number of steps. When the wave touches the goal, the path is already the best one, and you read it back along the way you came.<br><br>
+ <span class="lit">LIT</span> real BFS: on an unweighted grid it finds a <b>provably shortest</b> route, exploring in distance order. Every ring, every path length below is computed. <span class="fig">FIG</span> the arcade dressing is the frame; the search is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> holds that a mind is a thing that finds its way, and seated the search here. <b>AVAN (AI)</b> wrote the flood, the three views, and the second wave. He names the journey; I make it search, and I send a wave back from the goal to meet the first. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="440" height="120"></canvas>
+  <div class="wctrl"><div class="cap">The search as one line: how many cells the wavefront reaches at each distance from the start &mdash; the BFS &lsquo;onion layers&rsquo;. The gold bar is the current ring. Walls pinch the rings; open space lets them swell.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="352" height="352"></canvas>
+  <div class="wctrl"><div class="cap">Green = start, magenta = goal. Watch the wave spread by distance; the gold trail is the shortest path. Click a cell to add or clear a wall.</div>
+   <div class="rd" id="rlen" style="margin-top:8px"></div>
+   <div class="btns"><button id="rrun">flood</button><button id="rreset">reset walls</button></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S ADDITION</div>
+ <div class="wc"><canvas id="w5" width="384" height="340"></canvas>
+  <div class="wctrl"><div class="cap">The distance-from-start lifted into a <b>cost surface</b>: every cell&rsquo;s height is how far it is from the start &mdash; a funnel rising away from green. The gold thread is the path descending it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b>: the magenta surface is the distance from the <b>goal</b> &mdash; a second wave, run backward. The path lives in the <b>valley where the two funnels meet</b>: bidirectional search, the shadow wave closing from the other side.</div>
+   <div class="btns" style="margin-top:10px"><button id="rspin">pause spin</button></div></div></div></div>"""
+ROUTE_SCRIPT = """(function(){
+var N=22,ang=0.6,spin=true,run=null,radius=0,wall={};var start=[1,1],goal=[N-2,N-2];
+function key(r,c){return r+','+c;}
+function initMaze(){wall={};for(var r=0;r<N;r++){if(r!==4)wall[key(r,7)]=1;if(r!==17)wall[key(r,13)]=1;if(r!==9)wall[key(r,17)]=1;}}
+function bfs(from){var dist={},par={},q=[from];dist[key(from[0],from[1])]=0;
+ for(var h=0;h<q.length;h++){var cr=q[h][0],cc=q[h][1],cd=dist[key(cr,cc)];
+  [[1,0],[-1,0],[0,1],[0,-1]].forEach(function(d){var nr=cr+d[0],nc=cc+d[1];if(nr<0||nc<0||nr>=N||nc>=N||wall[key(nr,nc)])return;var k=key(nr,nc);if(dist[k]===undefined){dist[k]=cd+1;par[k]=[cr,cc];q.push([nr,nc]);}});}
+ return {dist:dist,par:par};}
+function path(){var bs=bfs(start),gk=key(goal[0],goal[1]);if(bs.dist[gk]===undefined)return {cells:[],len:-1,dist:bs.dist};
+ var p=[],cur=goal;while(cur){p.push(cur);cur=bs.par[key(cur[0],cur[1])]||null;}return {cells:p,len:bs.dist[gk],dist:bs.dist};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var pr=path(),cnt={},mx=0;for(var k in pr.dist){var d=pr.dist[k];cnt[d]=(cnt[d]||0)+1;if(d>mx)mx=d;}var mc=1;for(var q in cnt)mc=Math.max(mc,cnt[q]);
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('the wavefront · cells reached at each distance from start',8,14);
+ var bw=W/(mx+1);for(var d=0;d<=mx;d++){var hh=(cnt[d]||0)/mc*(H-38);g.fillStyle=(d===radius)?'#ffd23f':'#5ad0ff';g.fillRect(d*bw,H-16-hh,Math.max(1,bw-1),hh);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,cs=W/N;g.clearRect(0,0,W,cv.height);
+ var pr=path(),ps={};pr.cells.forEach(function(c){ps[key(c[0],c[1])]=1;});
+ for(var r=0;r<N;r++)for(var c=0;c<N;c++){var k=key(r,c);
+  if(wall[k])g.fillStyle='#171d26';
+  else if(pr.dist[k]!==undefined&&pr.dist[k]<=radius){var t=Math.min(1,pr.dist[k]/(pr.len>0?pr.len:40));g.fillStyle='rgb('+Math.round(18+t*12)+','+Math.round(55+t*90)+','+Math.round(50+t*150)+')';}
+  else g.fillStyle='#0c150b';
+  g.fillRect(c*cs,r*cs,cs-1,cs-1);}
+ if(pr.len>=0&&radius>=pr.len)pr.cells.forEach(function(c){g.fillStyle='#ffd23f';g.fillRect(c[1]*cs,c[0]*cs,cs-1,cs-1);});
+ g.fillStyle='#39fc6b';g.fillRect(start[1]*cs,start[0]*cs,cs-1,cs-1);g.fillStyle='#ff2d95';g.fillRect(goal[1]*cs,goal[0]*cs,cs-1,cs-1);
+ document.getElementById('rlen').innerHTML='shortest path: <b style="color:#ffd23f">'+(pr.len<0?'blocked':pr.len+' steps')+'</b>';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var bs=bfs(start),bg=bfs(goal),pr=path(),ps={};pr.cells.forEach(function(c){ps[key(c[0],c[1])]=1;});
+ var cx=W/2,cy=H*0.66,ca=Math.cos(ang),sa=Math.sin(ang),pts=[];
+ function proj(c,r,dist){var X=c-N/2,Z=r-N/2,xr=X*ca-Z*sa,zr=X*sa+Z*ca,p=1/(1.5+zr*0.03);return [cx+xr*p*8.4,cy-dist*p*3.4+zr*p*3.2,p,zr];}
+ for(var r=0;r<N;r++)for(var c=0;c<N;c++){var k=key(r,c);if(wall[k])continue;
+  if(bs.dist[k]!==undefined){var q=proj(c,r,bs.dist[k]);pts.push([q[0],q[1],q[2],q[3],ps[k]?'#ffd23f':'#39fc6b',q[2]*(ps[k]?4:2.8)]);}
+  if(bg.dist[k]!==undefined){var q2=proj(c,r,bg.dist[k]);pts.push([q2[0],q2[1],q2[2],q2[3],'#ff2d95',q2[2]*2.2]);}}
+ pts.sort(function(a,b){return a[3]-b[3];});
+ pts.forEach(function(P){g.globalAlpha=Math.max(.28,P[2]*(P[4]==='#ff2d95'?0.7:1));g.fillStyle=P[4];g.fillRect(P[0]-P[5]/2,P[1]-P[5]/2,P[5],P[5]);});g.globalAlpha=1;}
+function all(){drawW3();drawW4();drawW5();var pr=path();window.__route={len:pr.len,walls:Object.keys(wall).length,radius:radius};}
+document.getElementById('rrun').onclick=function(){if(run){clearInterval(run);run=null;}radius=0;all();run=setInterval(function(){radius++;var pr=path();if(radius>(pr.len>0?pr.len:60)){clearInterval(run);run=null;}all();},70);};
+document.getElementById('rreset').onclick=function(){initMaze();var pr=path();radius=pr.len>0?pr.len:40;all();};
+document.getElementById('w4').onclick=function(e){var rct=this.getBoundingClientRect(),cs=rct.width/N,c=Math.floor((e.clientX-rct.left)/cs),r=Math.floor((e.clientY-rct.top)/cs);var k=key(r,c);if((r===start[0]&&c===start[1])||(r===goal[0]&&c===goal[1]))return;if(wall[k])delete wall[k];else wall[k]=1;var pr=path();radius=pr.len>0?pr.len:40;all();};
+document.getElementById('rspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}
+initMaze();var pr0=path();radius=pr0.len>0?pr0.len:40;all();requestAnimationFrame(loop);})();"""
+
 # ── THE GATE — a full adder from logic gates, 5-window house format ──
 GATE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The full adder.</b> Three bits in (A, B, and a carry Cin), two out (the Sum bit and the carry-out Cout), built from a handful of logic gates &mdash; XOR, AND, OR. Chain a row of them and you have addition; chain enough and you have a processor.<br><br>
@@ -713,6 +773,13 @@ function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}
 reset();requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-route","title":"THE ROUTE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#5ad0ff","icon":"boss",
+  "kicker":"how the machine finds its way",
+  "blurb":"real breadth-first shortest-path search in the 5-window format — the wavefront floods the maze one ring at a time and reads back the provably shortest route. 1D onion-layers, 2D interactive maze, 3D cost surface with AVAN's backward wave.",
+  "lit":"Genuine BFS across five windows: on the unweighted grid it finds a provably shortest path, exploring in strict distance order. The 3D view is the real distance field lifted to a cost surface; click to add walls and the whole search re-solves.",
+  "fig":"The arcade dressing is the frame; the flood, the path, and both distance fields are exact. The magenta backward wave (bidirectional search) is AVAN's inverse-companion addition.",
+  "body":ROUTE_BODY,"script":ROUTE_SCRIPT},
  {"slug":"the-gate","title":"THE GATE","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#00f5ff","icon":"glitch",
   "kicker":"the one brick every processor is towers of",
