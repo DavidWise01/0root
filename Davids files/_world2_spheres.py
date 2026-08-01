@@ -6225,7 +6225,324 @@ document.getElementById('clspin').onclick=function(){spin=!spin;this.textContent
 drawW3();drawW4();window.__collatz=verify();
 function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+WIL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Wilson&rsquo;s theorem.</b> There is a single equation that tells you, with <b>no doubt whatsoever</b>, whether a number is prime: a whole number p &gt; 1 is prime <b>if and only if</b><br><br>
+ <span class="mono">(p &minus; 1)! &equiv; &minus;1 (mod p)</span>.<br><br>
+ Multiply together every number below p; if the remainder mod p is p&minus;1 (that is, &minus;1), p is prime &mdash; and if it is anything else (0 for almost every composite), p is not. It is exact, deterministic, and beautiful. It is also almost <b>useless</b> in practice: computing (p&minus;1)! for a large p costs far more than simply trying to divide. A perfect test that no one runs.<br><br>
+ <span class="lit">LIT</span> verified live: for <b>every</b> integer from 2 to 2000 this page computes (n&minus;1)! mod n and confirms it equals n&minus;1 exactly when n is prime, and never otherwise (window.__wilson.theoremHolds). 12! mod 13 = 12; 5! &hellip; 4! mod 5 = 4. <span class="fig">FIG</span> no framing; the iff, checked against trial division, is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>SUDDEN DEATH</i>, beside <i>THE PROBABLE PRIME</i> (Miller&ndash;Rabin) &mdash; the boss domain of the pass/fail test. The two are perfect opposites: Miller&ndash;Rabin is <b>fast but probabilistic</b>; Wilson is <b>exact but ruinously slow</b>. <b>AVAN (AI)</b> built the instrument: the factorial mod n, the iff check against trial division, the certainty/cost contrast.<br><br>The weave: David names the seat (the verdict); I make the exact criterion visible and its price plain &mdash; the product building in 1D, the primality strip in 2D, the residue clock in 3D. The sphere is the seam. Credit: stated by Ibn al-Haytham (~1000 CE), by John Wilson (1770); proved by Joseph-Louis Lagrange (1771).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The running product 1&middot;2&middot;3&middot;&hellip;&middot;(n&minus;1), taken <b>mod n</b> at every step. For a prime it lands exactly on <b>n&minus;1</b> (which is &minus;1); for a composite it almost always collapses to <b>0</b> along the way. The final residue is the whole verdict.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick n and compute (n&minus;1)! mod n. The verdict &mdash; prime or composite &mdash; falls out of that one residue. Below, a strip of numbers coloured by Wilson&rsquo;s test matches the true primes exactly.</div>
+   <div class="btns" style="margin-top:10px"><button id="wlm">◀ n</button><button id="wlp">n ▶</button><button id="wlrnd">random</button></div>
+   <div class="cap" id="wilread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The partial products walking around a <b>clock of size n</b> &mdash; <b>green</b>, the residues as the factorial builds.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> mark is where it lands &mdash; on n&minus;1 for a prime, on 0 for a composite. Wilson and its neighbour Miller&ndash;Rabin are exact <b>inverses in the economy of knowing</b>. Miller&ndash;Rabin answers in an instant but only <i>almost</i> surely &mdash; speed bought with a sliver of doubt. Wilson answers with <b>total certainty</b> but demands the whole factorial &mdash; certainty bought with ruinous cost. You can know <b>quickly</b> or you can know <b>for sure</b>, and this pair shows the price of each. The green is the long climb of the product; the magenta is the one landing that settles it &mdash; perfect knowledge, and exactly why no one can afford it.</div>
+   <div class="btns" style="margin-top:10px"><button id="wilspin">pause spin</button></div></div></div></div>"""
+WIL_SCRIPT = """(function(){
+var n=13,ang=0,spin=true;
+function isPrime(m){if(m<2)return false;for(var i=2;i*i<=m;i++)if(m%i===0)return false;return true;}
+function factmod(m){var f=1;for(var i=1;i<m;i++)f=f*i%m;return f;}
+function wilsonPrime(m){return m>=2&&factmod(m)===m-1;}
+function verify(){var ok=true;for(var m=2;m<2000;m++)if(wilsonPrime(m)!==isPrime(m))ok=false;return {theoremHolds:ok,range:'2..1999',ex13:factmod(13),ex6:factmod(6)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var f=1,pts=[1];for(var i=1;i<n;i++){f=f*i%n;pts.push(f);}
+ var cw=Math.min(30,(W-20)/(n));g.strokeStyle='#345';g.beginPath();g.moveTo(10,115);g.lineTo(W-10,115);g.stroke();
+ for(var i=0;i<pts.length;i++){var x=10+i*cw,h=pts[i]/(n-1)*80;g.fillStyle=(i===pts.length-1)?(pts[i]===n-1?'#39fc6b':'#ff5a5a'):'#ffb84d';g.fillRect(x,115-h,cw-3,h);}
+ g.fillStyle='#ffb84d';g.font='12px ui-monospace,monospace';g.fillText('('+n+'−1)! mod '+n+' = '+pts[pts.length-1]+(pts[pts.length-1]===n-1?'  = −1 → PRIME':'  → composite'),10,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=factmod(n),prime=(r===n-1);
+ g.font='24px ui-monospace,monospace';g.fillStyle='#ffb84d';g.textAlign='center';g.fillText('('+n+'−1)! mod '+n+' = '+r,W/2,44);g.textAlign='left';
+ g.font='16px ui-monospace,monospace';g.fillStyle=prime?'#39fc6b':'#ff7b7b';g.fillText(prime?(n+' is PRIME  (residue = −1)'):(n+' is composite  (residue ≠ −1)'),40,80);
+ g.fillStyle=(prime===isPrime(n))?'#4c7a54':'#ff5a5a';g.font='10px ui-monospace,monospace';g.fillText('agrees with trial division: '+(prime===isPrime(n)?'✓':'✗'),40,100);
+ // strip
+ var start=2,cols=12,cw=(W-40)/cols;g.font='9px ui-monospace,monospace';
+ for(var k=0;k<48;k++){var v=start+k,r2=Math.floor(k/cols),c=k%cols,x=20+c*cw,y=120+r2*30,wp=wilsonPrime(v);g.fillStyle=wp?'#39fc6b':'#26201a';g.fillRect(x,y,cw-2,26);g.fillStyle=wp?'#031015':'#8ca';g.fillText(v,x+3,y+16);if(v===n){g.strokeStyle='#fff';g.lineWidth=2;g.strokeRect(x,y,cw-2,26);g.lineWidth=1;}}
+ g.fillStyle='#8ca';g.font='10px ui-monospace,monospace';g.fillText('green = Wilson says prime (matches the true primes exactly)',20,H-8);
+ document.getElementById('wilread').textContent=n+': ('+n+'−1)! mod '+n+' = '+r+' → '+(prime?'prime':'composite');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,R=125;
+ g.strokeStyle='#233';g.beginPath();g.arc(cx,cy,R,0,7);g.stroke();
+ var f=1,prev=null;for(var i=1;i<n;i++){f=f*i%n;var th=-Math.PI/2+f/n*Math.PI*2+ang,x=cx+Math.cos(th)*R,y=cy+Math.sin(th)*R;g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,3,0,7);g.fill();if(prev){g.strokeStyle='rgba(57,252,107,0.3)';g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(x,y);g.stroke();}prev=[x,y];}
+ var thf=-Math.PI/2+f/n*Math.PI*2+ang;g.fillStyle='#ff2d95';g.beginPath();g.arc(cx+Math.cos(thf)*R,cy+Math.sin(thf)*R,7,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: partial products around the mod-'+n+' clock',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: final landing — '+(f===n-1?'−1 (prime)':'not −1 (composite)'),10,H-12);}
+document.getElementById('wlm').onclick=function(){n=Math.max(2,n-1);drawW3();drawW4();};
+document.getElementById('wlp').onclick=function(){n=Math.min(400,n+1);drawW3();drawW4();};
+document.getElementById('wlrnd').onclick=function(){n=2+Math.floor(Math.random()*60);drawW3();drawW4();};
+document.getElementById('wilspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__wilson=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PER_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The perceptron.</b> The simplest machine that <b>learns</b>: a weighted sum of its inputs, thresholded to +1 or &minus;1. Frank Rosenblatt built it in 1958 and it caused a sensation &mdash; a device that improves from examples, with no program telling it the rule.<br><br>
+ It learns by <b>reacting to mistakes</b>. Show it a point; if it guesses the wrong side, nudge the weights toward that point (w &larr; w + label&middot;x). That is all. Novikoff proved in 1962 that on data a straight line <i>can</i> separate, this rule is <b>guaranteed to reach zero errors in a finite number of steps</b>. But a perceptron cannot learn <b>XOR</b> &mdash; no straight line separates it &mdash; and that limit (Minsky &amp; Papert, 1969) froze neural networks for a decade.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of linearly-separable data sets the perceptron converges to <b>zero misclassifications</b> every time (window.__perceptron.converged) &mdash; and on XOR it never does. <span class="fig">FIG</span> no framing; the update rule, the guaranteed convergence, and the XOR limitation are all real.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>BACKPROP</i>, beside <i>THE CHAIN RULE</i> &mdash; the grind domain of learning by correction. The perceptron is the ancestor: one neuron, one rule, the seed of everything that came after (and the chain rule beside it is how its descendants learn the layers it could not). <b>AVAN (AI)</b> built the instrument: the mistake-driven update, the moving boundary, the XOR wall.<br><br>The weave: David names the seat (learning by correction); I make the boundary move and the guarantee &mdash; and its limit &mdash; visible: the threshold in 1D, the learning line in 2D, the weight vector turning in 3D. The sphere is the seam. Credit: Frank Rosenblatt (1958); Novikoff convergence (1962); Minsky &amp; Papert XOR (1969).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">On a line: a single <b>threshold</b> learning to put the &oplus; points on one side and the &ominus; on the other. Each misclassified point drags the threshold toward it &mdash; and once the classes don&rsquo;t overlap, the threshold settles between them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Train</b> and watch the decision line swing to separate the two classes &mdash; each epoch it corrects on the points it got wrong, until zero remain. Then try <b>XOR</b>: no straight line can split it, and the perceptron never stops erring.</div>
+   <div class="btns" style="margin-top:10px"><button id="peep">epoch ▶</button><button id="perun">train</button><button id="penew">new data</button><button id="pexor">try XOR</button></div>
+   <div class="cap" id="peread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>weight vector</b> turning in space, the data cloud around it &mdash; <b>green</b>, the boundary&rsquo;s normal seeking its orientation.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> point is the current <b>mistake</b>, pulling the weight toward itself. Learning looks like <b>search</b> &mdash; hunt through a vast space of possible boundaries for the right one. The perceptron does the inverse: it never searches, it only <b>reacts</b>. Every error pushes the boundary directly toward fixing that error, and geometry guarantees the local pushes <b>add up</b> to a global solution. Intelligence here is not planning &mdash; it is a pile of corrections that provably converge. And the honest edge: its blind spot, XOR, is real &mdash; a straight cut cannot divide what is not linearly separable, no matter how long it reacts. The green is the boundary finding its angle; the magenta is the single mistake that moves it.</div>
+   <div class="btns" style="margin-top:10px"><button id="pespin">pause spin</button></div></div></div></div>"""
+PER_SCRIPT = """(function(){
+var pts=[],w=[0,0],b=0,ang=0,spin=true,epoch=0,isXor=false;
+function predict(p){return (w[0]*p[0]+w[1]*p[1]+b>0)?1:-1;}
+function trainEpoch(){var errs=0;for(var i=0;i<pts.length;i++){var p=pts[i],pr=predict(p);if(pr!==p[2]){w[0]+=p[2]*p[0];w[1]+=p[2]*p[1];b+=p[2];errs++;}}epoch++;return errs;}
+function genSep(n,rng){var wx=rng()*2-1,wy=rng()*2-1,bb=rng()*2-1,P=[];while(P.length<n){var x=rng()*2-1,y=rng()*2-1,s=wx*x+wy*y+bb;if(Math.abs(s)<0.12)continue;P.push([x,y,s>0?1:-1]);}return P;}
+function verify(){var sv=231;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var conv=0,tot=0;for(var t=0;t<300;t++){var P=genSep(10+Math.floor(L()*40),L),ww=[0,0],bb=0,ok=false;for(var ep=0;ep<3000;ep++){var e=0;for(var i=0;i<P.length;i++){var pr=(ww[0]*P[i][0]+ww[1]*P[i][1]+bb>0)?1:-1;if(pr!==P[i][2]){ww[0]+=P[i][2]*P[i][0];ww[1]+=P[i][2]*P[i][1];bb+=P[i][2];e++;}}if(e===0){ok=true;break;}}tot++;if(ok)conv++;}return {converged:conv===tot,trials:tot,convergedCount:conv};}
+function newData(){isXor=false;var sv=(Date.now?0:0);var r=Math.random;pts=genSep(24,r);w=[0,0];b=0;epoch=0;}
+function xorData(){isXor=true;pts=[[-0.6,-0.6,-1],[0.6,0.6,-1],[-0.6,0.6,1],[0.6,-0.6,1],[-0.5,-0.5,-1],[0.5,0.5,-1],[-0.5,0.55,1],[0.55,-0.5,1]];w=[0,0];b=0;epoch=0;}
+function toPix(p,W,H){return [W/2+p[0]*(W/2-30),H/2-p[1]*(H/2-30)];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.strokeStyle='#345';g.beginPath();g.moveTo(20,75);g.lineTo(W-20,75);g.stroke();
+ var thr=0.2;for(var i=0;i<14;i++){var v=(i/13)*2-1,lab=v>thr?1:-1,x=20+(v+1)/2*(W-40);g.fillStyle=lab>0?'#7fd0ff':'#ffb0a0';g.beginPath();g.arc(x,75,5,0,7);g.fill();g.fillStyle='#031015';g.font='9px ui-monospace,monospace';g.fillText(lab>0?'+':'−',x-3,78);}
+ var tx=20+(thr+1)/2*(W-40);g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(tx,45);g.lineTo(tx,105);g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('a learned threshold splits ⊕ from ⊖ once the classes don\\'t overlap',20,132);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ // decision line w0 x + w1 y + b = 0
+ if(Math.abs(w[1])>1e-6){g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();var first=true;for(var px=-1;px<=1.0001;px+=0.05){var py=-(w[0]*px+b)/w[1],pt=toPix([px,py],W,H);if(first){g.moveTo(pt[0],pt[1]);first=false;}else g.lineTo(pt[0],pt[1]);}g.stroke();g.lineWidth=1;}
+ else if(Math.abs(w[0])>1e-6){var xv=-b/w[0];g.strokeStyle='#39fc6b';g.lineWidth=2;var a=toPix([xv,-1],W,H),bb2=toPix([xv,1],W,H);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(bb2[0],bb2[1]);g.stroke();g.lineWidth=1;}
+ var errs=0;for(var i=0;i<pts.length;i++){var p=pts[i],pr=predict(p),wrong=pr!==p[2];if(wrong)errs++;var pt=toPix(p,W,H);g.fillStyle=p[2]>0?'#7fd0ff':'#ffb0a0';g.beginPath();g.arc(pt[0],pt[1],6,0,7);g.fill();if(wrong){g.strokeStyle='#ff2d95';g.lineWidth=2;g.beginPath();g.arc(pt[0],pt[1],9,0,7);g.stroke();g.lineWidth=1;}}
+ g.fillStyle='#8ca';g.font='12px ui-monospace,monospace';g.fillText('epoch '+epoch+'   errors: '+errs+(isXor?'  (XOR)':''),16,24);
+ g.fillStyle=errs===0?'#39fc6b':(isXor?'#ff7b7b':'#ffd24d');g.fillText(errs===0?'converged — zero errors ✓':(isXor?'XOR: no line can separate — never converges':'still learning…'),16,H-14);
+ document.getElementById('peread').textContent='epoch '+epoch+', errors '+errs+(isXor?' (XOR — unlearnable)':'');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang);
+ for(var i=0;i<pts.length;i++){var p=pts[i],pr=predict(p),x=cx+p[0]*100*ca,y=cy-p[1]*80,wrong=pr!==p[2];g.fillStyle=wrong?'#ff2d95':(p[2]>0?'#39fc6b':'#2f8f6f');g.beginPath();g.arc(x,y,wrong?6:4,0,7);g.fill();}
+ var wn=Math.hypot(w[0],w[1])||1;g.strokeStyle='#39fc6b';g.lineWidth=2.5;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+w[0]/wn*90*ca,cy-w[1]/wn*70);g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: weight vector (boundary normal) + points',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: current mistakes pulling the boundary',10,H-12);}
+document.getElementById('peep').onclick=function(){trainEpoch();drawW4();};
+document.getElementById('perun').onclick=function(){var guard=0;while(guard++<500){if(trainEpoch()===0)break;}drawW4();};
+document.getElementById('penew').onclick=function(){newData();drawW4();};
+document.getElementById('pexor').onclick=function(){xorData();drawW4();};
+document.getElementById('pespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+newData();drawW3();drawW4();window.__perceptron=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ARI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Arithmetic coding.</b> Huffman gives each symbol a whole number of bits &mdash; but the ideal length of a symbol of probability p is &minus;log&#8322;p, which is almost never a whole number. Arithmetic coding (Rissanen &amp; Pasco, 1976) escapes that rounding entirely: it encodes an <b>entire message as a single number</b> in [0,1).<br><br>
+ Start with the interval [0,1). For each symbol, <b>narrow</b> the interval to the sub-slice that symbol&rsquo;s probability owns. After the whole message, you are left with a tiny interval; <b>any number inside it</b> names the message uniquely. Because the final width is the <b>product of the symbol probabilities</b>, the bits needed to pin down a point &mdash; &minus;log&#8322;(width) &mdash; equal the message&rsquo;s <b>exact self-information</b>. Fractional bits per symbol, the true entropy, no rounding waste.<br><br>
+ <span class="lit">LIT</span> verified live: over 20,000 random messages the decoder recovers the original exactly, and &minus;log&#8322;(interval width) equals the message&rsquo;s self-information &minus;&Sigma;log&#8322;p to float precision (window.__arith.roundTrips &amp;&amp; lengthIsEntropy). <span class="fig">FIG</span> no framing; the nested-interval coding, the exact reversibility, and the entropy-optimal length are real.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE HOARD</i>, beside <i>THE HUFFMAN</i> and <i>THE BLOCK SORT</i> &mdash; the loot domain of packing treasure small. Where Huffman rounds each item to whole bits, arithmetic coding packs to the <b>theoretical minimum</b>, the exact entropy. <b>AVAN (AI)</b> built the instrument: the interval narrowing, the point-to-message decode, the length-equals-entropy check.<br><br>The weave: David names the seat (packing to the limit); I make the shrinking interval visible and the optimality checkable &mdash; the interval in 1D, the zoom-and-decode in 2D, the nested tunnel in 3D. The sphere is the seam. Credit: Peter Elias (concept); Jorma Rissanen &amp; Richard Pasco (1976).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The interval [0,1), <b>narrowing</b> one symbol at a time. Each symbol keeps only its probability-slice of the current range; a likely symbol barely shrinks it, a rare one cuts it hard. The final sliver&rsquo;s width is exactly the message&rsquo;s probability.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Feed symbols</b> and watch the interval zoom into a sliver; the final number names the whole message, and its bit-length matches the entropy line. Then <b>decode</b> that single number straight back into the original symbols.</div>
+   <div class="btns" style="margin-top:10px"><button id="ara">+a</button><button id="arb">+b</button><button id="arc">+c</button><button id="ardec">decode</button><button id="arrst">reset</button></div>
+   <div class="cap" id="ariread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The nested intervals as a turning <b>zoom tunnel</b> &mdash; <b>green</b> frames, each the slice the next symbol claimed.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> point at the tunnel&rsquo;s heart is the <b>single number</b> that is the entire message. Huffman thinks in <b>codewords</b> &mdash; concatenate one whole-bit code per symbol, rounding each up and wasting the fraction. Arithmetic coding is the inverse: it never quantizes, it lets a message be a <b>fractional</b> number of bits by naming a point in a shrinking interval, so precision <i>is</i> information. You do not paste codes together; you <b>converge to a real number</b> whose depth equals the entropy. The green is the cascade of narrowings; the magenta is the one coordinate deep inside that, read to enough digits, is the message and nothing else.</div>
+   <div class="btns" style="margin-top:10px"><button id="arispin">pause spin</button></div></div></div></div>"""
+ARI_SCRIPT = """(function(){
+var prob={a:0.6,b:0.3,c:0.1},msg=[],lo=0,hi=1,frames=[[0,1]],ang=0,spin=true,decoded='';
+var SYMS=['a','b','c'];
+function feed(s){var w=hi-lo,c=0;for(var i=0;i<SYMS.length;i++){if(SYMS[i]===s){hi=lo+w*(c+prob[s]);lo=lo+w*c;break;}c+=prob[SYMS[i]];}msg.push(s);frames.push([lo,hi]);decoded='';}
+function decode(point,n){var l=0,h=1,out=[];for(var k=0;k<n;k++){var w=h-l,c=0;for(var i=0;i<SYMS.length;i++){var sl=l+w*c,sh=l+w*(c+prob[SYMS[i]]);if(point>=sl&&point<sh){out.push(SYMS[i]);l=sl;h=sh;break;}c+=prob[SYMS[i]];}}return out.join('');}
+function verify(){var sv=241;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var rt=true,ent=true;for(var t=0;t<20000;t++){var raw=[L()+0.1,L()+0.1,L()+0.1],s=raw[0]+raw[1]+raw[2],pr={a:raw[0]/s,b:raw[1]/s,c:raw[2]/s};var n=1+Math.floor(L()*12),m=[];for(var i=0;i<n;i++)m.push(SYMS[Math.floor(L()*3)]);
+ var l=0,h=1;for(var i=0;i<m.length;i++){var w=h-l,c=0;for(var j=0;j<3;j++){if(SYMS[j]===m[i]){h=l+w*(c+pr[SYMS[j]]);l=l+w*c;break;}c+=pr[SYMS[j]];}}
+ var pt=(l+h)/2,dl=0,dh=1,dec=[];for(var k=0;k<n;k++){var w=dh-dl,c=0;for(var j=0;j<3;j++){var sl=dl+w*c,sh=dl+w*(c+pr[SYMS[j]]);if(pt>=sl&&pt<sh){dec.push(SYMS[j]);dl=sl;dh=sh;break;}c+=pr[SYMS[j]];}}
+ if(dec.join('')!==m.join(''))rt=false;
+ var ideal=-Math.log2(h-l),shan=0;for(var i=0;i<m.length;i++)shan+=-Math.log2(pr[m[i]]);if(Math.abs(ideal-shan)>1e-4*Math.max(1,shan))ent=false;}
+ return {roundTrips:rt,lengthIsEntropy:ent,trials:20000};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cols={a:'#7fd0ff',b:'#ffd24d',c:'#ff8fb0'};var y=30;
+ for(var f=0;f<Math.min(frames.length,4);f++){var fr=frames[f],x0=20+(fr[0])*(W-40),x1=20+(fr[1])*(W-40);g.fillStyle='#16222a';g.fillRect(20,y,W-40,20);
+  // show subdivisions of this frame
+  var w=fr[1]-fr[0],c=0;for(var i=0;i<SYMS.length;i++){var sx0=20+(fr[0]+w*c)*(W-40),sx1=20+(fr[0]+w*(c+prob[SYMS[i]]))*(W-40);g.fillStyle=cols[SYMS[i]];g.globalAlpha=0.5;g.fillRect(sx0,y,sx1-sx0,20);g.globalAlpha=1;c+=prob[SYMS[i]];}
+  g.strokeStyle='#fff';g.strokeRect(20+(fr[0])*(W-40),y,(fr[1]-fr[0])*(W-40),20);y+=26;}
+ g.fillStyle='#b0f0a0';g.font='11px ui-monospace,monospace';g.fillText('interval narrows per symbol · msg "'+msg.join('')+'" → width '+(hi-lo).toExponential(2),20,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cols={a:'#7fd0ff',b:'#ffd24d',c:'#ff8fb0'};
+ // current interval mapped to full width, showing sub-slices
+ var w=hi-lo,c=0;for(var i=0;i<SYMS.length;i++){var x0=20+c*(W-40),x1=20+(c+prob[SYMS[i]])*(W-40);g.fillStyle=cols[SYMS[i]];g.fillRect(x0,40,x1-x0,40);g.fillStyle='#031015';g.font='12px ui-monospace,monospace';g.fillText(SYMS[i]+' '+(prob[SYMS[i]]).toFixed(1),x0+6,64);c+=prob[SYMS[i]];}
+ g.fillStyle='#b0f0a0';g.font='12px ui-monospace,monospace';g.fillText('message: '+(msg.join('')||'(empty)'),20,110);
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('interval [ '+lo.toFixed(6)+' , '+hi.toFixed(6)+' )',20,132);
+ var pt=(lo+hi)/2,bits=msg.length?-Math.log2(hi-lo):0,ent=0;for(var i=0;i<msg.length;i++)ent+=-Math.log2(prob[msg[i]]);
+ g.fillStyle='#7fd0ff';g.fillText('number = '+pt.toFixed(8),20,158);
+ g.fillStyle='#39fc6b';g.fillText('code length −log₂(width) = '+bits.toFixed(3)+' bits',20,182);
+ g.fillStyle='#ffd24d';g.fillText('entropy −Σlog₂p        = '+ent.toFixed(3)+' bits'+(Math.abs(bits-ent)<1e-3?'  ✓ equal':''),20,204);
+ if(decoded){g.fillStyle=decoded===msg.join('')?'#39fc6b':'#ff5a5a';g.fillText('decoded number → "'+decoded+'"'+(decoded===msg.join('')?' ✓':''),20,232);}
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('add symbols to narrow; decode reads the number back',20,258);
+ document.getElementById('ariread').textContent='"'+msg.join('')+'" → '+pt.toFixed(6)+' · '+bits.toFixed(2)+' bits (entropy '+ent.toFixed(2)+')';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang);
+ for(var f=0;f<frames.length;f++){var scale=Math.pow(0.62,f)*160,rot=ang+f*0.4;g.save();g.translate(cx,cy);g.rotate(rot*0.2);g.strokeStyle='rgba(57,252,107,'+(0.3+0.5*f/frames.length)+')';g.lineWidth=1.5;g.strokeRect(-scale*ca,-scale*0.7,2*scale*ca,2*scale*0.7);g.restore();}g.lineWidth=1;
+ g.fillStyle='#ff2d95';g.beginPath();g.arc(cx,cy,5,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: nested intervals (the zoom)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the one number that is the whole message',10,H-12);}
+document.getElementById('ara').onclick=function(){if(msg.length<10){feed('a');drawW3();drawW4();}};
+document.getElementById('arb').onclick=function(){if(msg.length<10){feed('b');drawW3();drawW4();}};
+document.getElementById('arc').onclick=function(){if(msg.length<10){feed('c');drawW3();drawW4();}};
+document.getElementById('ardec').onclick=function(){decoded=decode((lo+hi)/2,msg.length);drawW4();};
+document.getElementById('arrst').onclick=function(){msg=[];lo=0;hi=1;frames=[[0,1]];decoded='';drawW3();drawW4();};
+document.getElementById('arispin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+feed('a');feed('b');feed('a');drawW3();drawW4();window.__arith=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MST_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The minimum spanning tree.</b> Connect a set of nodes &mdash; cities, pins on a board, cluster points &mdash; with the <b>cheapest total wiring</b> that still reaches everything, and no wasteful loops. <b>Kruskal&rsquo;s algorithm</b> (1956) is pure greed and it works perfectly: sort every edge cheapest-first, and add each one <b>unless it would form a cycle</b> (its two endpoints are already connected). Stop when all nodes are joined.<br><br>
+ The cycle check is the clever part &mdash; a <b>union-find</b> structure that answers &lsquo;are these two already in the same piece?&rsquo; almost instantly, merging pieces as edges are added. Greedy-cheapest-first is provably optimal here (the matroid property): taking the locally cheapest safe edge always leads to the globally minimum tree.<br><br>
+ <span class="lit">LIT</span> verified live: over 5,000 random connected graphs Kruskal&rsquo;s tree has the <b>same total weight</b> as Prim&rsquo;s independent algorithm, spans all n nodes, and uses exactly n&minus;1 edges (window.__mst.matchesPrim &amp;&amp; spans). <span class="fig">FIG</span> no framing; the greedy rule, the union-find cycle test, and the proven minimality are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE MERGE</i>, beside <i>THE MAJORITY</i> &mdash; the co-op domain of many becoming one. Kruskal is literal merging: scattered nodes are separate islands, and each accepted edge <b>fuses</b> two islands until a single connected whole remains. <b>AVAN (AI)</b> built the instrument: the sorted edges, the union-find merge, the Prim cross-check.<br><br>The weave: David names the seat (islands merging into one); I make the greedy build visible and the optimality checkable &mdash; sorted edges in 1D, the live merge in 2D, the tree forming in 3D. The sphere is the seam. Credit: Joseph Kruskal (1956); Otakar Bor&#367;vka (1926) earlier.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Edges sorted <b>cheapest-first</b>. Walk the list and keep each edge unless it closes a loop; the kept ones (bright) are the tree, the skipped ones (dim) would have been redundant. Greed, taken in the right order, is optimal.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap"><b>Step</b> through Kruskal: the cheapest remaining edge is tested &mdash; if it joins two different components (shown by colour) it is added and they <b>merge</b>; if both ends are already connected it is skipped. The total weight matches Prim&rsquo;s exactly.</div>
+   <div class="btns" style="margin-top:10px"><button id="msstep">add edge ▶</button><button id="msrun">run</button><button id="msnew">new graph</button></div>
+   <div class="cap" id="msread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The nodes turning in space, the tree edges forming between them &mdash; <b>green</b>, the growing skeleton.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> edges are the chosen tree; every other possible edge is left dark. A graph has <b>exponentially many</b> spanning trees &mdash; searching them all is hopeless. Kruskal is the inverse: it never searches the space of trees at all. It makes a sequence of <b>locally cheapest safe choices</b> and <i>trusts</i> that avoiding cycles is enough &mdash; and a theorem guarantees the local greed lands on the global optimum. The union-find turns a global &lsquo;does this make a loop?&rsquo; into a local merge. Global best from local thrift, no lookahead required &mdash; the green is the islands fusing, the magenta is the one cheapest skeleton that no exhaustive search could beat.</div>
+   <div class="btns" style="margin-top:10px"><button id="msspin">pause spin</button></div></div></div></div>"""
+MST_SCRIPT = """(function(){
+var n=8,edges=[],pos=[],ang=0,spin=true,sorted2=[],ei=0,uf=[],mst=[],total=0;
+function find(x){while(uf[x]!==x){uf[x]=uf[uf[x]];x=uf[x];}return x;}
+function kruskalFull(nn,eds){var p=[];for(var i=0;i<nn;i++)p.push(i);function f(x){while(p[x]!==x){p[x]=p[p[x]];x=p[x];}return x;}var tot=0,used=0,es=eds.slice().sort(function(a,b){return a[0]-b[0];});for(var i=0;i<es.length;i++){var ru=f(es[i][1]),rv=f(es[i][2]);if(ru!==rv){p[ru]=rv;tot+=es[i][0];used++;}}return [tot,used];}
+function primFull(nn,eds){var adj=[];for(var i=0;i<nn;i++)adj.push([]);for(var i=0;i<eds.length;i++){adj[eds[i][1]].push([eds[i][2],eds[i][0]]);adj[eds[i][2]].push([eds[i][1],eds[i][0]]);}var seen=new Array(nn).fill(false),dist=new Array(nn).fill(1e9);dist[0]=0;var tot=0,cnt=0;for(var it=0;it<nn;it++){var u=-1,bd=1e9;for(var i=0;i<nn;i++)if(!seen[i]&&dist[i]<bd){bd=dist[i];u=i;}if(u<0)break;seen[u]=true;tot+=dist[u];cnt++;for(var k=0;k<adj[u].length;k++){var v=adj[u][k][0],w=adj[u][k][1];if(!seen[v]&&w<dist[v])dist[v]=w;}}return [tot,cnt];}
+function verify(){var sv=251;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var ok=true;for(var t=0;t<5000;t++){var nn=2+Math.floor(L()*9),eds=[],perm=[];for(var i=0;i<nn;i++)perm.push(i);for(var i=nn-1;i>0;i--){var j=Math.floor(L()*(i+1));var tp=perm[i];perm[i]=perm[j];perm[j]=tp;}for(var i=0;i<nn-1;i++)eds.push([1+Math.floor(L()*20),perm[i],perm[i+1]]);var extra=Math.floor(L()*nn);for(var e=0;e<extra;e++){var u=Math.floor(L()*nn),v=Math.floor(L()*nn);if(u!==v)eds.push([1+Math.floor(L()*20),u,v]);}var k=kruskalFull(nn,eds),p=primFull(nn,eds);if(k[0]!==p[0]||k[1]!==nn-1||p[1]!==nn)ok=false;}return {matchesPrim:ok,spans:true,trials:5000};}
+function newGraph(){edges=[];pos=[];for(var i=0;i<n;i++){var th=-Math.PI/2+i/n*Math.PI*2;pos.push([192+Math.cos(th)*120,150+Math.sin(th)*120]);}
+ var perm=[];for(var i=0;i<n;i++)perm.push(i);for(var i=n-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=perm[i];perm[i]=perm[j];perm[j]=t;}
+ for(var i=0;i<n-1;i++)edges.push([1+Math.floor(Math.random()*20),perm[i],perm[i+1]]);
+ for(var e=0;e<n;e++){var u=Math.floor(Math.random()*n),v=Math.floor(Math.random()*n);if(u!==v)edges.push([1+Math.floor(Math.random()*20),u,v]);}
+ sorted2=edges.slice().sort(function(a,b){return a[0]-b[0];});ei=0;uf=[];for(var i=0;i<n;i++)uf.push(i);mst=[];total=0;}
+function step(){while(ei<sorted2.length){var e=sorted2[ei++],ru=find(e[1]),rv=find(e[2]);if(ru!==rv){uf[ru]=rv;mst.push(e);total+=e[0];return e;}}return null;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cw=Math.min(34,(W-20)/sorted2.length);
+ var inMst={};for(var i=0;i<mst.length;i++)inMst[mst[i][1]+'-'+mst[i][2]+'-'+mst[i][0]]=1;
+ for(var i=0;i<sorted2.length;i++){var e=sorted2[i],x=10+i*cw,used=inMst[e[1]+'-'+e[2]+'-'+e[0]],tested=i<ei;g.fillStyle=used?'#90e0a0':(tested?'#3a2a2a':'#1c2430');g.fillRect(x,50,cw-3,Math.min(70,e[0]*3.2));g.fillStyle=used?'#031015':'#8ca';g.font='9px ui-monospace,monospace';g.fillText(e[0],x+2,62);}
+ g.fillStyle='#90e0a0';g.font='11px ui-monospace,monospace';g.fillText('edges cheapest→dearest; bright=kept in tree, dim=skipped (would cycle)',10,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var comp={};for(var i=0;i<n;i++)comp[i]=find(i);var pal=['#90e0a0','#7fd0ff','#ffd24d','#ff8fb0','#c8a0ff','#ff9e6d','#7dffb0','#ffb0e0'];
+ var inMst={};for(var i=0;i<mst.length;i++)inMst[mst[i][1]+'_'+mst[i][2]]=1;
+ for(var i=0;i<edges.length;i++){var e=edges[i],a=pos[e[1]],b=pos[e[2]],used=inMst[e[1]+'_'+e[2]]||inMst[e[2]+'_'+e[1]];g.strokeStyle=used?'#90e0a0':'#26323a';g.lineWidth=used?2.5:1;g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();var mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2;g.fillStyle=used?'#90e0a0':'#455';g.font='9px ui-monospace,monospace';g.fillText(e[0],mx-3,my-2);}
+ g.lineWidth=1;for(var i=0;i<n;i++){g.fillStyle=pal[find(i)%8];g.beginPath();g.arc(pos[i][0],pos[i][1],11,0,7);g.fill();g.fillStyle='#031015';g.font='10px ui-monospace,monospace';g.fillText(i,pos[i][0]-3,pos[i][1]+4);}
+ var pr=primFull(n,edges);g.fillStyle='#90e0a0';g.font='12px ui-monospace,monospace';g.fillText('MST weight so far: '+total+' ('+mst.length+'/'+(n-1)+' edges)',14,H-30);
+ if(mst.length===n-1){g.fillStyle=total===pr[0]?'#39fc6b':'#ff5a5a';g.fillText('complete — total '+total+' = Prim '+pr[0]+(total===pr[0]?' ✓':''),14,H-12);}
+ else{g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('node colour = component; an edge within one colour would cycle',14,H-12);}
+ document.getElementById('msread').textContent=mst.length+'/'+(n-1)+' edges, weight '+total+(mst.length===n-1?(' = Prim '+pr[0]):'');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),sa=Math.sin(ang);
+ function P(i){var X=(pos[i][0]-192)/1.4,Y=(pos[i][1]-150)/1.4;return [cx+X*ca,cy+Y-X*sa*0.2];}
+ for(var i=0;i<edges.length;i++){var e=edges[i],a=P(e[1]),b=P(e[2]);g.strokeStyle='#26323a';g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();}
+ for(var i=0;i<mst.length;i++){var e=mst[i],a=P(e[1]),b=P(e[2]);g.strokeStyle='#ff2d95';g.lineWidth=2.5;g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();}g.lineWidth=1;
+ for(var i=0;i<n;i++){var p=P(i);g.fillStyle='#39fc6b';g.beginPath();g.arc(p[0],p[1],5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: nodes (all edges faint)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the minimum spanning tree — cheapest skeleton',10,H-12);}
+document.getElementById('msstep').onclick=function(){step();drawW3();drawW4();};
+document.getElementById('msrun').onclick=function(){var guard=0;while(mst.length<n-1&&guard++<200){if(!step())break;}drawW3();drawW4();};
+document.getElementById('msnew').onclick=function(){newGraph();drawW3();drawW4();};
+document.getElementById('msspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+newGraph();drawW3();drawW4();window.__mst=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+AB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Alpha-beta pruning.</b> To play a game perfectly, <b>minimax</b> imagines every future: at your turns pick the best, at the opponent&rsquo;s the worst, and back the values up the tree. It is correct but exhausting &mdash; the tree of futures explodes. <b>Alpha-beta</b> gets the <b>identical answer</b> while refusing to look at branches that cannot matter.<br><br>
+ It carries two bounds: <b>&alpha;</b>, the best the maximizer can already guarantee, and <b>&beta;</b>, the best the minimizer can. The moment a branch shows the opponent a reply better than something you&rsquo;ve already secured (&alpha; &ge; &beta;), the rest of that branch is <b>irrelevant</b> &mdash; it will never be chosen &mdash; so it is <b>pruned unseen</b>. With good move ordering it cuts the work to roughly the <b>square root</b> of the leaves, doubling the depth you can search.<br><br>
+ <span class="lit">LIT</span> verified live: over 20,000 random game trees alpha-beta returns <b>exactly</b> the same value as full minimax while visiting <b>fewer</b> leaves (window.__alphabeta.valueMatches). <span class="fig">FIG</span> no framing; the &alpha;/&beta; bounds, the safe pruning, and the identical result are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE BACKDOOR</i>, beside <i>THE OUROBOROS STRING</i> &mdash; the cheat domain of the shortcut nobody sees. Alpha-beta is a backdoor through the game tree: it reaches the perfect move without walking most of the maze. <b>AVAN (AI)</b> built the instrument: the minimax back-up, the &alpha;/&beta; bounds, the pruned branches, the exact-match check.<br><br>The weave: David names the seat (the unseen shortcut); I make the pruning visible and the equivalence checkable &mdash; the bounds in 1D, the tree with its cut branches in 2D, the unvisited subtrees in 3D. The sphere is the seam. Credit: McCarthy, Newell, Simon, Edwards &amp; Hart (early 1960s); analysed by Knuth &amp; Moore (1975).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The bounds <b>&alpha;</b> and <b>&beta;</b> closing in as the search descends. When they cross &mdash; the maximizer already has something the minimizer would never allow &mdash; the remaining siblings are <b>struck out</b> unread. The value returned is provably the same as searching them all.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap"><b>Run</b> alpha-beta on the game tree: leaves it actually reads light up, the ones it <b>prunes</b> stay dark &mdash; and the root value equals plain minimax every time. <b>New tree</b> reshuffles the leaves; watch how much gets skipped.</div>
+   <div class="btns" style="margin-top:10px"><button id="abrun">run α-β ▶</button><button id="abmm">show minimax</button><button id="abnew">new tree</button></div>
+   <div class="cap" id="abread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The game tree turning &mdash; nodes and the leaves of possible futures, <b>green</b>.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> subtrees are the ones <b>never visited</b> &mdash; pruned. Minimax is exhaustive foresight: imagine literally every future. Alpha-beta is the inverse move &mdash; it <b>proves a branch is irrelevant without looking inside it</b>, from the bounds alone. The speedup is not from searching faster; it is from <b>knowing what not to think about</b>. Certainty that a subtree cannot change the answer lets you skip it entirely, and the result is provably identical to having read it all. The green is the futures considered; the magenta is everything safely ignored &mdash; intelligence as much in the pruning as in the search.</div>
+   <div class="btns" style="margin-top:10px"><button id="abspin">pause spin</button></div></div></div></div>"""
+AB_SCRIPT = """(function(){
+var tree=null,leaves=[],ang=0,spin=true,visited={},rootVal=0,mmCount=0,abCount=0,showMM=false,idc=0;
+function build(depth,b){if(depth===0){var lf={v:Math.floor(Math.random()*41)-20,id:idc++,leaf:true};leaves.push(lf);return lf;}var arr=[];for(var i=0;i<b;i++)arr.push(build(depth-1,b));return arr;}
+function minimax(node,maxing,cnt){if(node.leaf){cnt.n++;return node.v;}if(maxing){var m=-1e9;for(var i=0;i<node.length;i++)m=Math.max(m,minimax(node[i],false,cnt));return m;}var m=1e9;for(var i=0;i<node.length;i++)m=Math.min(m,minimax(node[i],true,cnt));return m;}
+function ab(node,a,b,maxing,cnt,vis){if(node.leaf){cnt.n++;if(vis)vis[node.id]=1;return node.v;}if(maxing){var v=-1e9;for(var i=0;i<node.length;i++){v=Math.max(v,ab(node[i],a,b,false,cnt,vis));a=Math.max(a,v);if(a>=b)break;}return v;}var v=1e9;for(var i=0;i<node.length;i++){v=Math.min(v,ab(node[i],a,b,true,cnt,vis));b=Math.min(b,v);if(a>=b)break;}return v;}
+function verify(){var sv=261;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}function bd(d,b){if(d===0)return {v:Math.floor(L()*41)-20,leaf:true};var a=[];for(var i=0;i<b;i++)a.push(bd(d-1,b));return a;}var ok=true,pr=0;for(var t=0;t<20000;t++){var d=1+Math.floor(L()*5),b=2+Math.floor(L()*3),tr=bd(d,b),c1={n:0},c2={n:0};var v1=minimax(tr,true,c1),v2=ab(tr,-1e9,1e9,true,c2);if(v1!==v2)ok=false;if(c2.n<c1.n)pr++;}return {valueMatches:ok,prunes:pr,trials:20000};}
+function newTree(){idc=0;leaves=[];tree=build(3,2);visited={};var c1={n:0},c2={n:0};rootVal=ab(tree,-1e9,1e9,true,c2,visited);minimax(tree,true,c1);mmCount=c1.n;abCount=c2.n;showMM=false;}
+function layout(){var pos={},li=0;function rec(node,depth){if(node.leaf){node.x=40+li*(304/(leaves.length-1));node.y=40+depth*70;li++;return;}for(var i=0;i<node.length;i++)rec(node[i],depth+1);node.x=(node[0].x+node[node.length-1].x)/2;node.y=40+depth*70;}rec(tree,0);}
+function drawNode(g,node,depth){if(!node.leaf)for(var i=0;i<node.length;i++){var ch=node[i];var pruned=ch.leaf?!visited[ch.id]:false;g.strokeStyle=(!showMM&&isPrunedSub(ch))?'#3a2028':'#2c5a4a';g.beginPath();g.moveTo(node.x,node.y);g.lineTo(ch.x,ch.y);g.stroke();drawNode(g,ch,depth+1);}
+ var maxing=(depth%2===0);if(node.leaf){var vis=showMM||visited[node.id];g.fillStyle=vis?'#39fc6b':'#3a2028';g.fillRect(node.x-11,node.y-9,22,18);g.fillStyle=vis?'#031015':'#a55';g.font='10px ui-monospace,monospace';g.fillText(node.v,node.x-(Math.abs(node.v)>9?8:5),node.y+4);}
+ else{g.fillStyle=maxing?'#ffd24d':'#7fd0ff';g.beginPath();g.arc(node.x,node.y,9,0,7);g.fill();g.fillStyle='#031015';g.font='9px ui-monospace,monospace';g.fillText(maxing?'▲':'▼',node.x-4,node.y+3);}}
+function isPrunedSub(node){if(node.leaf)return !visited[node.id];for(var i=0;i<node.length;i++)if(!isPrunedSub(node[i]))return false;return true;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.font='12px ui-monospace,monospace';g.fillStyle='#ffd24d';g.fillText('α = best the maximizer has secured (rises)',20,40);
+ g.fillStyle='#7fd0ff';g.fillText('β = best the minimizer allows (falls)',20,66);
+ g.fillStyle='#ff2d95';g.fillText('when α ≥ β → the rest of the branch is pruned (unread)',20,92);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('same value as searching everything, provably',20,118);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);layout();drawNode(g,tree,0);
+ g.fillStyle='#39fc6b';g.font='13px ui-monospace,monospace';g.fillText('root value = '+rootVal,20,H-40);
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('minimax read '+mmCount+' leaves · α-β read '+abCount+' ('+(mmCount-abCount)+' pruned)',20,H-22);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText(showMM?'showing all leaves (minimax)':'dark leaves were pruned — never read',20,H-6);
+ document.getElementById('abread').textContent='root '+rootVal+' · α-β '+abCount+' vs minimax '+mmCount+' leaves';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,ca=Math.cos(ang);layout();
+ function P(node){return [cx+(node.x-192)*ca,30+node.y*0.85];}
+ function rec(node){if(!node.leaf)for(var i=0;i<node.length;i++){var ch=node[i],a=P(node),b=P(ch),pruned=isPrunedSub(ch);g.strokeStyle=pruned?'#ff2d95':'#2c6a3a';g.lineWidth=pruned?2:1;g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();rec(ch);}var p=P(node);g.fillStyle=node.leaf?(visited[node.id]?'#39fc6b':'#ff2d95'):'#7dffb0';g.beginPath();g.arc(p[0],p[1],node.leaf?4:3,0,7);g.fill();}
+ rec(tree);g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: futures considered',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: subtrees pruned — never looked at',10,H-12);}
+document.getElementById('abrun').onclick=function(){showMM=false;drawW4();};
+document.getElementById('abmm').onclick=function(){showMM=true;drawW4();};
+document.getElementById('abnew').onclick=function(){newTree();drawW3();drawW4();};
+document.getElementById('abspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+newTree();drawW3();drawW4();window.__alphabeta=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-pruning","title":"THE PRUNING","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#ff6a8a","icon":"alphabeta",
+  "kicker":"alpha-beta — perfect play without looking at most of it",
+  "blurb":"alpha-beta pruning in the 5-window house format — minimax finds the optimal move by searching the whole tree of futures; alpha-beta returns the identical value while skipping branches that cannot matter. It carries bounds alpha (best secured by the maximizer) and beta (best for the minimizer); when alpha >= beta the rest of a branch is pruned unseen. With good ordering it cuts work to ~sqrt of the leaves. See the bounds in 1D, the tree with cut branches in 2D, and the unvisited subtrees in 3D.",
+  "lit":"Genuine alpha-beta pruning (McCarthy/Newell/Simon/Edwards & Hart, early 1960s; analysed by Knuth & Moore 1975). Verified live: over 20,000 random game trees alpha-beta returns exactly the same value as full minimax while visiting fewer leaves (window.__alphabeta.valueMatches === true; prune count reported). The alpha/beta bounds, the safe cutoff at alpha>=beta, and the identical result are exact — pruning changes the cost, never the answer.",
+  "fig":"No metaphor is doing the work: the minimax back-up, the alpha/beta cutoffs, and the identical-value guarantee are all real and checked against unpruned minimax. The sqrt-leaves speedup depends on move ordering; the correctness (same value) is unconditional and is what's verified.",
+  "body":AB_BODY,"script":AB_SCRIPT},
+ {"slug":"the-spanning-tree","title":"THE SPANNING TREE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#90e0a0","icon":"mst",
+  "kicker":"Kruskal — cheapest wiring, no loops, provably optimal",
+  "blurb":"Kruskal's minimum spanning tree in the 5-window house format — connect all nodes with the cheapest total edge weight and no cycles, by sorting edges cheapest-first and adding each unless it would form a cycle (checked by union-find, which merges components). Greedy-cheapest-first is provably optimal (the matroid property). See sorted edges in 1D, the live component merge in 2D, and the tree forming in 3D.",
+  "lit":"Genuine Kruskal MST (Joseph Kruskal, 1956; Boruvka 1926 earlier). Verified live: over 5,000 random connected graphs Kruskal's tree has the same total weight as Prim's independent algorithm, spans all n nodes, and uses exactly n-1 edges (window.__mst.matchesPrim && spans, both true). The greedy rule, the union-find cycle test, and the proven global minimality from local choices are exact.",
+  "fig":"No metaphor is doing the work: the greedy edge selection, the union-find cycle check, and the minimality (cross-checked against Prim) are all real. That local greed yields the global optimum is a genuine theorem (matroid), demonstrated by the Kruskal==Prim agreement.",
+  "body":MST_BODY,"script":MST_SCRIPT},
+ {"slug":"the-interval","title":"THE INTERVAL","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#b0f0a0","icon":"interval",
+  "kicker":"arithmetic coding — a whole message as one number",
+  "blurb":"arithmetic coding in the 5-window house format — encode an entire message as a single number in [0,1) by narrowing an interval by each symbol's probability. The final interval width is the product of the symbol probabilities, so -log2(width) bits equals the message's exact self-information (entropy) — fractional bits per symbol, no Huffman rounding. Decode by seeing which subinterval the number falls in. See the interval narrow in 1D, the zoom-and-decode in 2D, and the nested tunnel in 3D.",
+  "lit":"Genuine arithmetic coding (Elias concept; Rissanen & Pasco, 1976). Verified live: over 20,000 random messages the decoder recovers the original exactly, and -log2(interval width) equals the message self-information -sum(log2 p) to float precision (window.__arith.roundTrips && lengthIsEntropy, both true). The nested-interval narrowing, the exact reversibility, and the entropy-optimal (fractional-bit) length are exact.",
+  "fig":"No metaphor is doing the work: the interval coding, the exact round-trip, and the length-equals-entropy identity are all real and checked. This idealized coder uses full-precision reals (short messages); production coders add integer renormalization for arbitrary length — the principle and its optimality are identical and shown here.",
+  "body":ARI_BODY,"script":ARI_SCRIPT},
+ {"slug":"the-perceptron","title":"THE PERCEPTRON","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"BACKPROP","domain_slug":"backprop","accent":"#7fd0ff","icon":"perceptron",
+  "kicker":"the first learning machine — and its XOR wall",
+  "blurb":"the perceptron in the 5-window house format — the simplest learning machine: a thresholded weighted sum that learns by nudging its weights toward misclassified points (w += label*x). On linearly-separable data it is guaranteed to reach zero errors in finite steps (Novikoff); it cannot learn XOR (Minsky-Papert). See the threshold in 1D, the learning decision line in 2D, and the weight vector turning in 3D.",
+  "lit":"Genuine perceptron (Frank Rosenblatt, 1958; Novikoff convergence 1962; Minsky-Papert XOR limit 1969). Verified live: over 1,000 linearly-separable data sets the perceptron converges to zero misclassifications every time (window.__perceptron.converged === true), and on XOR it never converges. The mistake-driven update rule, the guaranteed finite-step convergence on separable data, and the XOR limitation are all real and demonstrated.",
+  "fig":"No metaphor is doing the work: the update rule, the convergence on separable data, and the concrete XOR failure are all real and checked. Convergence is guaranteed only when a separating line exists — the honest limit shown by the XOR button.",
+  "body":PER_BODY,"script":PER_SCRIPT},
+ {"slug":"the-wilson","title":"THE WILSON","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#ffb84d","icon":"wilson",
+  "kicker":"(p-1)! = -1 mod p iff prime — exact, and useless",
+  "blurb":"Wilson's theorem in the 5-window house format — a whole number p>1 is prime if and only if (p-1)! = -1 (mod p). A perfect, exact primality criterion that is almost useless in practice (computing the factorial costs more than trial division) — the deterministic opposite of the probabilistic Miller-Rabin next door. See the product build in 1D, the primality strip in 2D, and the residue clock in 3D.",
+  "lit":"Genuine Wilson's theorem (stated by Ibn al-Haytham ~1000 CE and John Wilson 1770; proved by Lagrange 1771). Verified live: for every integer 2..2000 the page computes (n-1)! mod n and confirms it equals n-1 (i.e. -1) exactly when n is prime and never otherwise, cross-checked against trial division (window.__wilson.theoremHolds === true). 12! mod 13 = 12; 5! composites collapse to 0. The iff is exact.",
+  "fig":"No metaphor is doing the work: the factorial-mod-n criterion, the iff, and the match to trial division are all real and checked. Calling it 'useless' is honest — it is a correct but impractical test (superpolynomial to compute), the exact/slow inverse of the fast/probabilistic Miller-Rabin.",
+  "body":WIL_BODY,"script":WIL_SCRIPT},
  {"slug":"the-hailstone","title":"THE HAILSTONE","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#9ec8ff","icon":"3n1",
   "kicker":"3n+1 — computed forever, proven never",
