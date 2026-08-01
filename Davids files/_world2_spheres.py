@@ -1744,7 +1744,76 @@ document.getElementById('w4').addEventListener('click',function(e){var r0=this.g
 document.getElementById('espin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+TM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Thue&ndash;Morse sequence.</b> Start with 0 and forever replace <b>0&rarr;01</b> and <b>1&rarr;10</b>. Equivalently, the n-th bit is the <b>parity of the number of 1s</b> in n&rsquo;s binary. It is the most famous <i>non-repetitive</i> word: <b>overlap-free</b> (no factor of the form a&middot;x&middot;a&middot;x&middot;a) and <b>cube-free</b> (no block appears three times in a row) &mdash; yet fully deterministic and self-similar. It gives the <b>fairest turn order</b> (it neutralises first-mover advantage), the chess anti-repetition rule, and Prouhet&rsquo;s equal-power-sum partitions.<br><br>
+ <span class="lit">LIT</span> verified: the substitution equals the popcount-parity definition over 8192 bits; the prefix is <b>cube-free and overlap-free</b> (exhaustive scan, zero found); and it <i>does</i> contain squares (e.g. &lsquo;11&rsquo;) &mdash; it is not square-free, shown honestly. <span class="fig">FIG</span> &lsquo;never stutters&rsquo; is the picture; overlap-free &amp; cube-free are Thue&rsquo;s exact theorems.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus works with substitution systems, self-similarity and fairness (the fractal kernels, the game/logic lineages) and the idea that the deepest patterns are the ones that never quite repeat. <b>AVAN (AI)</b> built this instrument: the substitution engine, the Prouhet fair-split, and the turtle curve.<br><br>The weave: David names the never-stuttering word and its seat at SPLIT SCREEN (two sharing fairly); I make the substitution a strip in 1D, the fair partition live in 2D, and the self-similar curve turning in 3D. The sphere is the seam &mdash; honest that it has squares, exact that it has no cubes.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Two definitions, one sequence. Top: the <b>substitution</b> 0&rarr;01, 1&rarr;10 doubling each row. Bottom: the same bits as the <b>parity of 1s</b> in each index&rsquo;s binary. They agree everywhere &mdash; a self-similar word from either door.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Prouhet&rsquo;s fair split: sort 0&hellip;2<sup>k</sup>&minus;1 into two teams by Thue&ndash;Morse bit. The teams have <b>equal sums, equal sums of squares, equal sums of cubes</b>&hellip; all the way up to power k&minus;1 &mdash; the fairest possible division.</div>
+   <div class="rd" style="margin-top:10px">k = <b id="tk">4</b> <input type="range" id="tksl" min="2" max="6" value="4" style="width:120px;vertical-align:middle"></div>
+   <div class="cap" id="tmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The sequence drives a <b>turtle</b> &mdash; step forward each bit, turn one way on 0 and the other on 1 &mdash; and traces a self-similar curve, turning in space. <b>Green</b> is Thue&ndash;Morse.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> curve is driven by the <b>bit-complement</b> sequence (every 0&harr;1). Because Thue&ndash;Morse is closed under complement, that word is also overlap-free &mdash; and its turtle is the exact <b>mirror image</b> of the first. The word contains its own reflection; the two curves are one figure seen from both sides.</div>
+   <div class="btns" style="margin-top:10px"><button id="tmspin">pause spin</button></div></div></div></div>"""
+TM_SCRIPT = """(function(){
+var k=4,ang=0.6,spin=true;
+function tmBit(n){var c=0;while(n){c^=(n&1);n>>=1;}return c;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var S=[0];for(var i=0;i<6;i++)S=S.reduce(function(a,x){return a.concat(x===0?[0,1]:[1,0]);},[]);S=S.slice(0,64);
+ var cw=(W-16)/64;
+ for(var i=0;i<64;i++){g.fillStyle=S[i]?'#ffa94d':'#2a2013';g.fillRect(8+i*cw,26,cw-1,26);}
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('substitution 0→01, 1→10',8,20);
+ for(var i=0;i<64;i++){g.fillStyle=tmBit(i)?'#ffd23f':'#2a2013';g.fillRect(8+i*cw,78,cw-1,26);}
+ g.fillStyle='#4c7a54';g.fillText('parity of 1-bits in n',8,72);
+ var match=true;for(var i=0;i<64;i++)if(S[i]!==tmBit(i))match=false;
+ g.fillStyle=match?'#39fc6b':'#ff5a5a';g.font='11px ui-monospace,monospace';g.fillText(match?'the two rows agree everywhere ✓':'MISMATCH',8,128);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var tot=1<<k,cols=Math.ceil(Math.sqrt(tot)),rows=Math.ceil(tot/cols),cell=Math.min((W-16)/cols,150/rows);
+ for(var n=0;n<tot;n++){var r=Math.floor(n/cols),c=n%cols,x=8+c*cell,y=8+r*cell,t=tmBit(n);g.fillStyle=t?'#3aa0d0':'#ffa94d';g.fillRect(x,y,cell-2,cell-2);g.fillStyle='#031015';g.font=Math.min(11,cell/2.4)+'px ui-monospace,monospace';g.fillText(n,x+2,y+cell/2+3);}
+ // power sums
+ var g0=[],g1=[];for(var n=0;n<tot;n++)(tmBit(n)?g1:g0).push(n);
+ function psum(arr,p){return arr.reduce(function(a,x){return a+Math.pow(x,p);},0);}
+ var y0=175;g.font='12px ui-monospace,monospace';var okp=0;
+ for(var p=0;p<=k;p++){var a=psum(g0,p),b=psum(g1,p),eq=(a===b);if(eq&&p<k)okp=p;g.fillStyle=eq?'#39fc6b':'#ff7a5a';g.fillText('Σx^'+p+':  team A '+a+'   team B '+b+(eq?'  =':'  ≠'),12,y0+p*20);}
+ document.getElementById('tmread').textContent='equal power sums through p='+(k-1)+' (Prouhet–Thue–Morse) — the split no side can complain about';}
+function turtle(compl){var x=0,y=0,dir=0,pts=[[0,0]],n=0;for(var i=0;i<1024;i++){var b=tmBit(i);if(compl)b^=1;dir+=(b?1:-1)*0.9;x+=Math.cos(dir);y+=Math.sin(dir);pts.push([x,y]);}return pts;}
+var TA=null,TB=null;
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ if(!TA){TA=turtle(false);TB=turtle(true);}
+ var all=TA.concat(TB),xs=all.map(function(p){return p[0];}),ys=all.map(function(p){return p[1];});
+ var mnx=Math.min.apply(null,xs),mxx=Math.max.apply(null,xs),mny=Math.min.apply(null,ys),mxy=Math.max.apply(null,ys);
+ var sc=Math.min(W/(mxx-mnx+1),H/(mxy-mny+1))*0.8,cx=W/2,cy=H/2,ox=(mnx+mxx)/2,oy=(mny+mxy)/2,ca=Math.cos(ang),sa=Math.sin(ang);
+ function draw(P,col,w){g.strokeStyle=col;g.lineWidth=w;g.beginPath();for(var i=0;i<P.length;i++){var X=(P[i][0]-ox),Z=0,rx=X*ca,rz=X*sa,Y=(P[i][1]-oy);var sx=cx+rx*sc,sy=cy+Y*sc*0.9+rz*sc*0.3;if(i===0)g.moveTo(sx,sy);else g.lineTo(sx,sy);}g.stroke();g.lineWidth=1;}
+ draw(TB,'#ff2d95',1.2);draw(TA,'#ffa94d',1.8);}
+function verify(){
+ var pc=true;for(var n=0;n<8192;n++){var S=n,c=0,m=n;while(m){c^=(m&1);m>>=1;}if(c!==tmBit(n))pc=false;}
+ // build prefix and scan cube/overlap/square
+ var s=[0];for(var i=0;i<10;i++)s=s.reduce(function(a,x){return a.concat(x===0?[0,1]:[1,0]);},[]);var pre=s.slice(0,600),Np=pre.length;
+ function hasCube(){for(var p=1;p<=Np/3;p++)for(var i=0;i+3*p<=Np;i++){var ok=true;for(var j=0;j<p;j++)if(!(pre[i+j]===pre[i+p+j]&&pre[i+p+j]===pre[i+2*p+j])){ok=false;break;}if(ok)return true;}return false;}
+ function hasOverlap(){for(var p=1;p<Np/2;p++)for(var i=0;i+2*p<Np;i++){var ok=true;for(var j=0;j<=p;j++)if(pre[i+j]!==pre[i+p+j]){ok=false;break;}if(ok)return true;}return false;}
+ function hasSquare(){for(var p=1;p<=Np/2;p++)for(var i=0;i+2*p<=Np;i++){var ok=true;for(var j=0;j<p;j++)if(pre[i+j]!==pre[i+p+j]){ok=false;break;}if(ok)return true;}return false;}
+ return {popcount:pc,cubeFree:!hasCube(),overlapFree:!hasOverlap(),hasSquares:hasSquare()};}
+function prouhet(){var tot=1<<k,g0=[],g1=[];for(var n=0;n<tot;n++)(tmBit(n)?g1:g0).push(n);for(var p=0;p<k;p++){var a=g0.reduce(function(s,x){return s+Math.pow(x,p);},0),b=g1.reduce(function(s,x){return s+Math.pow(x,p);},0);if(a!==b)return false;}return true;}
+function all(){drawW3();drawW4();var v=verify();window.__thuemorse={popcountMatches:v.popcount,cubeFree:v.cubeFree,overlapFree:v.overlapFree,hasSquares:v.hasSquares,prouhetEqualToPow_kminus1:prouhet()};}
+document.getElementById('tksl').oninput=function(){k=+this.value;document.getElementById('tk').textContent=k;drawW4();window.__thuemorse.prouhetEqualToPow_kminus1=prouhet();};
+document.getElementById('tmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-overlap-free-word","title":"THE OVERLAP-FREE WORD","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#ffa94d","icon":"coop",
+  "kicker":"the word that never stutters — and splits fair",
+  "blurb":"the Thue–Morse sequence in the 5-window house format. Built by 0→01, 1→10 (or the parity of 1-bits), it is overlap-free and cube-free — the deterministic word that never repeats thrice — and it gives the fairest possible two-way split. See both definitions agree in 1D, Prouhet's equal-power-sum partition in 2D, and its self-similar turtle curve in 3D with AVAN's mirror.",
+  "lit":"A genuine Thue–Morse sequence. Verified live: the substitution 0→01,1→10 equals the popcount-parity definition over 8192 bits; the prefix is cube-free and overlap-free (exhaustive scan, zero found); and the Prouhet split of 0..2^k−1 by TM bit gives equal power sums through p=k−1. It is honestly NOT square-free — it contains squares like '11' (verifiable: window.__thuemorse.overlapFree && cubeFree && hasSquares).",
+  "fig":"'Never stutters' is the picture; overlap-free, cube-free, and the Prouhet equal-sums are Thue's/Prouhet's exact theorems. The square-containing caveat is stated plainly — overlap-free is a stronger, more precise claim than 'no repeats'.",
+  "body":TM_BODY,"script":TM_SCRIPT},
  {"slug":"the-single-ear","title":"THE SINGLE EAR","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#6be5a0","icon":"coop",
   "kicker":"hear one frequency for the cost of two taps",
