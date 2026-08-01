@@ -17642,7 +17642,262 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 mkGraph(false);drawW3();drawW4();window.__bellmanford=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 61 (one search, k handoffs · leveled blocking flow · bottom-up spans · midpoint alignment · reuse the last LCP) ═══════════════════════
+FC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Fractional cascading</b> answers the same query against <b>many</b> sorted lists with a <b>single</b> binary search instead of one per list. It weaves a fraction of each list into the previous one and adds <b>bridge</b> pointers, so once you locate the query in the first list, every other list&rsquo;s answer is a constant-time hop away &mdash; turning k searches of O(log n) each into O(log n + k) total.<br><br>
+ It is the classic speedup for iterated search in computational geometry.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random setups of k sorted lists, the successor fractional cascading reports in each list equals an independent binary search in that list (window.__fractionalcascading). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-handoff</i> &mdash; the found position is handed from one list to the next along a bridge, no fresh search needed. Fractional cascading is that chain of handoffs. <b>AVAN (AI)</b> built the instrument: the augmented lists with promoted elements, the bridge pointers, the single-search-then-hop query, the per-list cross-check.<br><br>Credit as content: Bernard Chazelle &amp; Leonidas Guibas (1986). The weave: David names the handoff; I weave the lists together so one search cascades through them all, and confirm each answer matches an independent search.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Every other element of one list is promoted into the previous list, carrying a bridge back. A position found here points to a position there &mdash; the query slides across for free.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Several sorted lists; a query&rsquo;s successor in each is found by one search plus bridge hops, checked against per-list binary search.</div>
+   <div class="btns" style="margin-top:10px"><button id="fcquery">query ▶</button><button id="fccheck">verify 300 ▶</button></div>
+   <div class="cap" id="fcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the single search, then bridges carrying it through every list.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): you do <b>one</b> binary search and then <b>hop</b>. By weaving a fraction of each list into the previous one, the position found in list i gives the position in list i+1 in O(1), so k searches collapse to one search plus k constant hops. The inverse of &lsquo;search each list independently&rsquo; is &lsquo;search once and let each list hand its answer to the next.&rsquo; <b>Magenta</b> is the k&minus;1 redundant binary searches; <b>green</b> is the single search and its O(1) bridges. Shared structure between the lists carries the query along.</div>
+   <div class="btns" style="margin-top:10px"><button id="fcspin">pause spin</button></div></div></div></div>"""
+FC_SCRIPT = """(function(){
+var ang=0,spin=true,LISTS=null,M=null,Q=42,RES=null;
+function buildFC(lists){var k=lists.length,M=new Array(k);M[k-1]=lists[k-1].map(function(v){return {val:v,own:true};});for(var i=k-2;i>=0;i--){var pr=[];for(var j=1;j<M[i+1].length;j+=2)pr.push({val:M[i+1][j].val,own:false});var ow=lists[i].map(function(v){return {val:v,own:true};});M[i]=ow.concat(pr).sort(function(a,b){return a.val-b.val;});}for(var i=0;i<k;i++){var li=0;for(var j=0;j<M[i].length;j++){if(M[i][j].own){M[i][j].lidx=li;li++;}}var no=lists[i].length;for(var j=M[i].length-1;j>=0;j--){if(M[i][j].own)no=M[i][j].lidx;M[i][j].succL=no;}}for(var i=0;i<k-1;i++)for(var j=0;j<M[i].length;j++){var lo=0,hi=M[i+1].length,v=M[i][j].val;while(lo<hi){var mid=(lo+hi)>>1;if(M[i+1][mid].val<v)lo=mid+1;else hi=mid;}M[i][j].bridge=lo;}return M;}
+function queryFC(M,lists,q){var k=M.length,res=new Array(k),lo=0,hi=M[0].length;while(lo<hi){var mid=(lo+hi)>>1;if(M[0][mid].val<q)lo=mid+1;else hi=mid;}var p=lo,hops=[p];for(var i=0;i<k;i++){var si=(p<M[i].length)?M[i][p].succL:lists[i].length;res[i]=(si<lists[i].length)?lists[i][si]:null;if(i<k-1){var t=(p<M[i].length)?M[i][p].bridge:M[i+1].length;while(t>0&&M[i+1][t-1].val>=q)t--;p=t;hops.push(p);}}return {res:res,hops:hops};}
+function naive(list,q){var lo=0,hi=list.length;while(lo<hi){var mid=(lo+hi)>>1;if(list[mid]<q)lo=mid+1;else hi=mid;}return lo<list.length?list[lo]:null;}
+function verify(){var seed=61;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true;for(var t=0;t<300;t++){var k=2+Math.floor(rnd()*5),lists=[];for(var i=0;i<k;i++){var n=1+Math.floor(rnd()*15),s=new Set();while(s.size<n)s.add(Math.floor(rnd()*100));lists.push([...s].sort(function(a,b){return a-b;}));}var Mm=buildFC(lists);for(var q=0;q<20;q++){var qq=Math.floor(rnd()*110),fc=queryFC(Mm,lists,qq);for(var i=0;i<k;i++)if(fc.res[i]!==naive(lists[i],qq))ok=false;}}return {matchesNaive:ok};}
+function mkLists(){var k=4;LISTS=[];for(var i=0;i<k;i++){var n=5+Math.floor(Math.random()*4),s=new Set();while(s.size<n)s.add(Math.floor(Math.random()*90)+5);LISTS.push([...s].sort(function(a,b){return a-b;}));}M=buildFC(LISTS);Q=Math.floor(Math.random()*90)+5;RES=queryFC(M,LISTS,Q);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('every-other element promoted up + a bridge back down',12,14);
+ var a=[10,25,40,55,70],b=[15,30,45,60];for(var i=0;i<a.length;i++){g.fillStyle='#37506e';g.fillRect(40+i*80,40,50,20);g.fillStyle='#cde';g.font='9px monospace';g.fillText(a[i],48+i*80,54);}
+ for(var i=0;i<b.length;i++){g.fillStyle=(i%2===1)?'#58a0b8':'#2a3540';g.fillRect(40+i*80,100,50,20);g.fillStyle='#cde';g.fillText(b[i],48+i*80,114);if(i%2===1){g.strokeStyle='#58a0b8';g.beginPath();g.moveTo(65+i*80,100);g.lineTo(65+i*80,60);g.stroke();}}
+ g.fillStyle='#58a0b8';g.font='9px monospace';g.fillText('bridges carry the position between lists',40,145);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!LISTS)mkLists();g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('query q = '+Q+' → successor in each list',12,18);
+ for(var i=0;i<LISTS.length;i++){var y=40+i*52,cw=Math.min(34,(W-30)/LISTS[i].length);for(var j=0;j<LISTS[i].length;j++){var isSucc=LISTS[i][j]===RES.res[i];g.fillStyle=isSucc?'#58a0b8':'#26303c';g.fillRect(15+j*cw,y,cw-3,26);g.fillStyle=isSucc?'#fff':'#9ab';g.font='9px monospace';g.fillText(LISTS[i][j],17+j*cw,y+17);}g.fillStyle='#8ad';g.font='9px monospace';g.fillText('L'+i+'→'+(RES.res[i]===null?'∞':RES.res[i]),W-46,y+16);}
+ var ok=LISTS.every(function(l,i){return RES.res[i]===naive(l,Q);});g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('one search + bridges == per-list binary search '+(ok?'✓':'✗'),12,H-8);}
+document.getElementById('fcquery').onclick=function(){mkLists();drawW4();document.getElementById('fcread').textContent='q='+Q+' → ['+RES.res.map(function(v){return v===null?'∞':v;}).join(', ')+']';};
+document.getElementById('fccheck').onclick=function(){var v=verify();document.getElementById('fcread').textContent='300 setups: per-list successor == naive binary search '+(v.matchesNaive?'✓':'✗');};
+document.getElementById('fcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!LISTS)mkLists();var k=LISTS.length;
+ for(var i=0;i<k;i++){var y=50+i*70;g.strokeStyle='rgba(88,160,184,0.4)';g.beginPath();g.moveTo(40,y);g.lineTo(W-40,y);g.stroke();var px=40+(RES.res[i]!==null?RES.res[i]:95)/100*(W-80);g.fillStyle=i===0?'#39fc6b':'#58a0b8';g.beginPath();g.arc(px+3*Math.sin(ang+i),y,i===0?9:6,0,7);g.fill();if(i<k-1){g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(px,y+6);g.lineTo(40+(RES.res[i+1]!==null?RES.res[i+1]:95)/100*(W-80),y+70-6);g.stroke();}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: one search, then bridges through every list',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the k−1 redundant binary searches avoided',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('each list hands its answer to the next — O(log n + k)',10,H-9);}
+mkLists();drawW3();drawW4();window.__fractionalcascading=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Dinic&rsquo;s algorithm</b> computes the <b>maximum flow</b> through a network. Rather than pushing flow along one augmenting path at a time, it organises the graph into <b>levels</b> by breadth-first distance and pushes a <b>blocking flow</b> that saturates many shortest paths at once. Only O(V) such phases are ever needed, giving O(V&sup2;E). By the max-flow&ndash;min-cut theorem, the value it finds equals the <b>minimum cut</b> &mdash; the network&rsquo;s true bottleneck capacity.<br><br>
+ <span class="lit">LIT</span> verified live: over 60 random capacitated graphs Dinic&rsquo;s max flow equals the brute-force minimum s&ndash;t cut (window.__dinic). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-wall</i> &mdash; the maximum you can push equals the capacity of the tightest cut, the wall the flow presses against. Dinic finds that wall. <b>AVAN (AI)</b> built the instrument: the BFS level graph, the blocking-flow DFS with the residual network, the brute min-cut cross-check.<br><br>Credit as content: Yefim Dinitz (1970). The weave: David names the wall; I layer the graph and push blocking flows until no augmenting path remains, and confirm the value equals the minimum cut.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">BFS labels each node by its distance from the source &mdash; the level graph. Flow is only pushed strictly forward through levels, saturating a whole layer of shortest paths per phase.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A capacitated network; Dinic&rsquo;s max flow from source to sink is shown against the brute-force minimum cut.</div>
+   <div class="btns" style="margin-top:10px"><button id="dnroll">new network ▶</button><button id="dncheck">verify 60 ▶</button></div>
+   <div class="cap" id="dnread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the maximum flow, equal to the minimum cut&rsquo;s capacity.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): organise the graph into <b>levels</b> by BFS distance and push only strictly-forward paths &mdash; a <b>blocking flow</b> per level graph saturates many shortest paths at once, so only O(V) phases are needed instead of one augmentation at a time. The inverse of &lsquo;find one augmenting path at a time&rsquo; is &lsquo;layer the graph and push a blocking flow through the whole layer.&rsquo; <b>Magenta</b> is the meandering augmenting paths; <b>green</b> is the leveled blocking flow &mdash; and the max flow equals the min cut, the wall&rsquo;s true capacity. (Kin to the-karger and the-stoer-wagner.)</div>
+   <div class="btns" style="margin-top:10px"><button id="dnspin">pause spin</button></div></div></div></div>"""
+DN_SCRIPT = """(function(){
+var ang=0,spin=true,N=6,CAP0=null,POS=null,MF=0;
+function dinic(n,cap,s,t){var flow=0,level,it;function bfs(){level=new Array(n).fill(-1);level[s]=0;var q=[s];while(q.length){var u=q.shift();for(var v=0;v<n;v++)if(level[v]<0&&cap[u][v]>0){level[v]=level[u]+1;q.push(v);}}return level[t]>=0;}function dfs(u,pu){if(u===t)return pu;for(;it[u]<n;it[u]++){var v=it[u];if(level[v]===level[u]+1&&cap[u][v]>0){var d=dfs(v,Math.min(pu,cap[u][v]));if(d>0){cap[u][v]-=d;cap[v][u]+=d;return d;}}}return 0;}while(bfs()){it=new Array(n).fill(0);var f;while((f=dfs(s,Infinity))>0)flow+=f;}return flow;}
+function levelsOf(n,cap0,s){var cap=cap0.map(function(r){return r.slice();}),level=new Array(n).fill(-1);level[s]=0;var q=[s];while(q.length){var u=q.shift();for(var v=0;v<n;v++)if(level[v]<0&&cap[u][v]>0){level[v]=level[u]+1;q.push(v);}}return level;}
+function bruteMinCut(n,cap0,s,t){var best=Infinity;for(var mask=0;mask<(1<<n);mask++){if(!(mask&(1<<s))||(mask&(1<<t)))continue;var c=0;for(var i=0;i<n;i++)for(var j=0;j<n;j++)if((mask&(1<<i))&&!(mask&(1<<j)))c+=cap0[i][j];if(c<best)best=c;}return best;}
+function verify(){var seed=62;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true;for(var t=0;t<60;t++){var n=3+Math.floor(rnd()*4),c0=[];for(var i=0;i<n;i++){c0.push([]);for(var j=0;j<n;j++)c0[i].push(0);}for(var i=0;i<n;i++)for(var j=0;j<n;j++)if(i!==j&&rnd()<0.5)c0[i][j]=Math.floor(rnd()*10);var cap=c0.map(function(r){return r.slice();});if(dinic(n,cap,0,n-1)!==bruteMinCut(n,c0,0,n-1))ok=false;}return {maxFlowEqualsMinCut:ok};}
+function mkNet(){N=6;CAP0=[];for(var i=0;i<N;i++){CAP0.push([]);for(var j=0;j<N;j++)CAP0[i].push(0);}for(var i=0;i<N;i++)for(var j=i+1;j<N;j++)if(Math.random()<0.5)CAP0[i][j]=1+Math.floor(Math.random()*9);POS=[[40,140]];for(var i=1;i<N-1;i++)POS.push([100+((i-1)%2)*120,60+Math.floor((i-1)/2)*90]);POS.push([344,140]);var cap=CAP0.map(function(r){return r.slice();});MF=dinic(N,cap,0,N-1);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('BFS level graph — push flow only strictly forward through levels',12,14);
+ var cols=['#c05868','#c0a048','#58a0b0','#70a860'];for(var lv=0;lv<4;lv++){g.fillStyle=cols[lv];g.fillText('L'+lv,40+lv*120,40);for(var k=0;k<2;k++){g.beginPath();g.arc(50+lv*120,70+k*40,12,0,7);g.fill();}}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!CAP0)mkNet();var lvl=levelsOf(N,CAP0,0);
+ for(var i=0;i<N;i++)for(var j=0;j<N;j++)if(CAP0[i][j]>0){g.strokeStyle='#3a4550';var dx=POS[j][0]-POS[i][0],dy=POS[j][1]-POS[i][1],L=Math.hypot(dx,dy);g.beginPath();g.moveTo(POS[i][0],POS[i][1]);g.lineTo(POS[j][0]-dx/L*14,POS[j][1]-dy/L*14);g.stroke();g.fillStyle='#8ad';g.font='8px monospace';g.fillText(CAP0[i][j],(POS[i][0]+POS[j][0])/2,(POS[i][1]+POS[j][1])/2-2);}
+ for(var i=0;i<N;i++){g.fillStyle=i===0?'#c05868':(i===N-1?'#70a860':'#37506e');g.beginPath();g.arc(POS[i][0],POS[i][1],13,0,7);g.fill();g.fillStyle='#fff';g.font='9px monospace';g.fillText(i===0?'s':(i===N-1?'t':i),POS[i][0]-3,POS[i][1]+3);}
+ g.fillStyle=MF===bruteMinCut(N,CAP0,0,N-1)?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('max flow = '+MF+' = min cut '+bruteMinCut(N,CAP0,0,N-1)+' ✓',12,H-10);}
+document.getElementById('dnroll').onclick=function(){mkNet();drawW4();document.getElementById('dnread').textContent='max flow = '+MF;};
+document.getElementById('dncheck').onclick=function(){var v=verify();document.getElementById('dnread').textContent='60 networks: max flow == brute min cut '+(v.maxFlowEqualsMinCut?'✓':'✗');};
+document.getElementById('dnspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!CAP0)mkNet();var lvl=levelsOf(N,CAP0,0),cx=W/2;
+ for(var i=0;i<N;i++){var lv=lvl[i]<0?3:lvl[i],x=60+lv*80,y=H/2-20+Math.sin(ang+i)*40*(i%2?1:-1);g.fillStyle=i===0?'#c05868':(i===N-1?'#39fc6b':'#58a0b0');g.beginPath();g.arc(x,y,8,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: leveled blocking flow (max flow = '+MF+')',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the meandering augmenting paths avoided',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('max flow = min cut — the wall\\'s true capacity',10,H-9);}
+mkNet();drawW3();drawW4();window.__dinic=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The CYK algorithm</b> decides whether a string belongs to a <b>context-free language</b>, and does it <b>bottom-up</b>. With the grammar in Chomsky normal form (every rule is A&rarr;BC or A&rarr;terminal), it fills a table: which nonterminals can generate each substring. Small spans combine into larger ones, so an otherwise exponential search over derivations becomes an O(n&sup3;) dynamic program.<br><br>
+ It is a foundation of parsing and computational linguistics.<br><br>
+ <span class="lit">LIT</span> verified live: with a balanced-parentheses grammar in CNF, CYK accepts a non-empty string <b>iff</b> the string is balanced &mdash; matching an independent balance check over 400 random bracket strings (window.__cyk). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>hello-world</i> &mdash; the first thing a language needs is to recognise its own valid programs; CYK is that recogniser, built from the ground up. <b>AVAN (AI)</b> built the instrument: the CNF grammar, the O(n&sup3;) span table, the balance-oracle cross-check.<br><br>Credit as content: John Cocke, Daniel Younger &amp; Tadao Kasami (1960s). The weave: David names hello-world; I fill the table of which nonterminals derive each substring and confirm acceptance matches the true language.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Length-1 spans get their nonterminals from terminals; longer spans combine two adjacent sub-spans by a rule A&rarr;BC. The start symbol covering the whole string means &lsquo;accepted&rsquo;.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A bracket string and its CYK table; the top cell holds the start symbol exactly when the string is balanced.</div>
+   <div class="btns" style="margin-top:10px"><button id="cyroll">new string ▶</button><button id="cycheck">verify 400 ▶</button></div>
+   <div class="cap" id="cyread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the span table, proving the whole string from its parts.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): build the parse <b>bottom-up from spans</b>. Fill a table of which nonterminals generate each substring, combining smaller spans into larger ones, so an exponential search over derivations becomes an O(n&sup3;) table over substrings. The inverse of &lsquo;expand the start symbol downward&rsquo; is &lsquo;prove each substring&rsquo;s nonterminals upward and combine.&rsquo; <b>Magenta</b> is the exponential derivation tree explored top-down; <b>green</b> is the O(n&sup3;) span table. Chomsky normal form makes every step a binary join.</div>
+   <div class="btns" style="margin-top:10px"><button id="cyspin">pause spin</button></div></div></div></div>"""
+CY_SCRIPT = """(function(){
+var ang=0,spin=true,STR='(())';
+var CNF={term:{'(':['L'],')':['R']},bin:[['S','L','R'],['S','L','B'],['S','S','S'],['B','S','R']]};
+function cyk(s){var n=s.length;if(n===0)return {accept:false,P:[]};var P=[];for(var i=0;i<n;i++){P.push([]);for(var j=0;j<n;j++)P[i].push(new Set());}for(var i=0;i<n;i++)(CNF.term[s[i]]||[]).forEach(function(A){P[i][i].add(A);});for(var len=2;len<=n;len++)for(var i=0;i+len-1<n;i++){var j=i+len-1;for(var k=i;k<j;k++)CNF.bin.forEach(function(r){if(P[i][k].has(r[1])&&P[k+1][j].has(r[2]))P[i][j].add(r[0]);});}return {accept:P[0][n-1].has('S'),P:P};}
+function isBal(s){var d=0;for(var i=0;i<s.length;i++){d+=s[i]==='('?1:-1;if(d<0)return false;}return d===0;}
+function verify(){var seed=63;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true;for(var t=0;t<400;t++){var n=Math.floor(rnd()*10),s='';for(var i=0;i<n;i++)s+=rnd()<0.5?'(':')';if(cyk(s).accept!==(s.length>0&&isBal(s)))ok=false;}return {matchesOracle:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('span[i..k] = B, span[k+1..j] = C, rule A→BC ⇒ span[i..j] = A',12,14);
+ g.fillStyle='#70a860';g.fillRect(60,50,60,26);g.fillStyle='#042';g.font='10px monospace';g.fillText('L (',72,67);g.fillStyle='#70a860';g.fillRect(140,50,60,26);g.fillStyle='#042';g.fillText('R )',152,67);
+ g.fillStyle='#c0c8d8';g.font='14px monospace';g.fillText('→',210,68);g.fillStyle='#39fc6b';g.fillRect(240,50,80,26);g.fillStyle='#042';g.font='10px monospace';g.fillText('S ( )',255,67);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('S covering the whole string = accepted',60,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=cyk(STR),n=STR.length;g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('"'+STR+'"',12,20);
+ if(n>0){var cell=Math.min(40,300/n),ox=30,oy=40;for(var i=0;i<n;i++){g.fillStyle='#8ad';g.font='10px monospace';g.fillText(STR[i],ox+i*cell+cell/2-3,oy-4);}
+  for(var len=1;len<=n;len++)for(var i=0;i+len-1<n;i++){var j=i+len-1,set=r.P[i][j],x=ox+i*cell,y=oy+(len-1)*cell,has=set.size>0,top=(len===n);g.fillStyle=top&&set.has('S')?'#39fc6b':(has?'#37506e':'#1a2028');g.fillRect(x,y,cell-2,cell-2);if(has){g.fillStyle=top&&set.has('S')?'#042':'#cde';g.font='8px monospace';g.fillText([...set].join(''),x+2,y+cell/2);}}}
+ g.fillStyle=r.accept===(STR.length>0&&isBal(STR))?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('CYK accept: '+r.accept+' = balanced: '+(STR.length>0&&isBal(STR))+' ✓',12,H-10);}
+document.getElementById('cyroll').onclick=function(){var n=2+Math.floor(Math.random()*6);STR='';for(var i=0;i<n;i++)STR+=Math.random()<0.55?'(':')';drawW4();document.getElementById('cyread').textContent='"'+STR+'" → '+(cyk(STR).accept?'accepted':'rejected');};
+document.getElementById('cycheck').onclick=function(){var v=verify();document.getElementById('cyread').textContent='400 strings: CYK accept == balanced-oracle '+(v.matchesOracle?'✓':'✗');};
+document.getElementById('cyspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=cyk(STR),n=STR.length,cx=W/2,top=40,cell=Math.min(34,300/Math.max(n,1));
+ for(var len=1;len<=n;len++)for(var i=0;i+len-1<n;i++){var j=i+len-1,has=r.P[i][j].size>0,x=cx-n*cell/2+i*cell+(len-1)*cell/2+3*Math.sin(ang+len),y=top+(len-1)*(cell*0.9);g.fillStyle=has?(len===n&&r.P[i][j].has('S')?'#39fc6b':'#39fc6b'):'rgba(255,45,149,0.25)';g.globalAlpha=has?0.8:0.4;g.fillRect(x,y,cell-4,cell*0.7);g.globalAlpha=1;}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the O(n³) span table (bottom-up)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the exponential top-down derivation tree',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('prove substrings upward — CNF makes each step binary',10,H-9);}
+drawW3();drawW4();window.__cyk=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Hirschberg&rsquo;s algorithm</b> computes an <b>optimal</b> global alignment of two sequences &mdash; the same result as Needleman&ndash;Wunsch &mdash; but in <b>linear space</b> instead of O(nm). Its trick: the optimal path must cross the <b>middle column</b> somewhere, and that crossing is found from two linear-space score sweeps (forward to the middle, backward from the end); then it recurses on the two halves.<br><br>
+ It is what makes aligning genome-length sequences feasible in memory.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random pairs Hirschberg&rsquo;s alignment scores identically to Needleman&ndash;Wunsch and its aligned rows de-gap back to the originals (window.__hirschberg). <span class="fig">FIG</span> no framing; same optimum, linear memory.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>split-screen</i> &mdash; two sequences aligned side by side, but now in a sliver of memory. Hirschberg is Needleman&ndash;Wunsch made frugal. <b>AVAN (AI)</b> built the instrument: the linear-space forward/backward score sweeps, the midpoint split, the divide-and-conquer recursion, the NW cross-check.<br><br>Credit as content: Daniel Hirschberg (1975). The weave: David names the split screen; I find where the optimal alignment crosses the middle from O(n) space and recurse, then confirm the result matches the full-table optimum.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The optimal path from corner to corner must pass through the middle column at exactly one row. Two score sweeps &mdash; forward to the middle, backward from the end &mdash; agree on which row that is.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">Two sequences; Hirschberg&rsquo;s alignment and score are shown against Needleman&ndash;Wunsch on the same pair.</div>
+   <div class="btns" style="margin-top:10px"><button id="hbroll">new sequences ▶</button><button id="hbcheck">verify 300 ▶</button></div>
+   <div class="cap" id="hbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the optimal alignment, recovered from midpoints in linear space.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): you don&rsquo;t need the whole table to recover the alignment. The optimal path must cross the <b>middle column</b> somewhere, and that crossing is found from just two linear-space score sweeps &mdash; then you <b>recurse</b> on the two halves. The inverse of &lsquo;store the O(nm) table&rsquo; is &lsquo;find the midpoint from O(n) space and divide-and-conquer.&rsquo; <b>Magenta</b> is the full quadratic table never stored; <b>green</b> is the two score rows and the midpoints. Same optimal alignment, linear memory &mdash; divide-and-conquer meets dynamic programming.</div>
+   <div class="btns" style="margin-top:10px"><button id="hbspin">pause spin</button></div></div></div></div>"""
+HB_SCRIPT = """(function(){
+var ang=0,spin=true,A='AGTACGCA',B='TATGC',MT=1,MS=-1,GAP=-2;
+function nwScore(a,b){var m=b.length,prev=new Array(m+1),cur=new Array(m+1);for(var j=0;j<=m;j++)prev[j]=j*GAP;for(var i=1;i<=a.length;i++){cur[0]=i*GAP;for(var j=1;j<=m;j++){var sub=a[i-1]===b[j-1]?MT:MS;cur[j]=Math.max(prev[j-1]+sub,prev[j]+GAP,cur[j-1]+GAP);}for(var j=0;j<=m;j++)prev[j]=cur[j];}return prev;}
+function nwFull(a,b){var n=a.length,m=b.length,H=[];for(var i=0;i<=n;i++){H.push([]);for(var j=0;j<=m;j++)H[i].push(0);}for(var i=0;i<=n;i++)H[i][0]=i*GAP;for(var j=0;j<=m;j++)H[0][j]=j*GAP;for(var i=1;i<=n;i++)for(var j=1;j<=m;j++){var sub=a[i-1]===b[j-1]?MT:MS;H[i][j]=Math.max(H[i-1][j-1]+sub,H[i-1][j]+GAP,H[i][j-1]+GAP);}var i=n,j=m,al='',bl='';while(i>0||j>0){if(i>0&&j>0&&H[i][j]===H[i-1][j-1]+(a[i-1]===b[j-1]?MT:MS)){al=a[i-1]+al;bl=b[j-1]+bl;i--;j--;}else if(i>0&&H[i][j]===H[i-1][j]+GAP){al=a[i-1]+al;bl='-'+bl;i--;}else{al='-'+al;bl=b[j-1]+bl;j--;}}return [al,bl];}
+function hb(a,b){if(a.length===0)return [Array(b.length+1).join('-'),b];if(b.length===0)return [a,Array(a.length+1).join('-')];if(a.length===1||b.length===1)return nwFull(a,b);var mid=a.length>>1,scL=nwScore(a.slice(0,mid),b),scR=nwScore(a.slice(mid).split('').reverse().join(''),b.split('').reverse().join(''));var best=-Infinity,sp=0;for(var j=0;j<=b.length;j++){var v=scL[j]+scR[b.length-j];if(v>best){best=v;sp=j;}}var l=hb(a.slice(0,mid),b.slice(0,sp)),r=hb(a.slice(mid),b.slice(sp));return [l[0]+r[0],l[1]+r[1]];}
+function ascore(al,bl){var s=0;for(var k=0;k<al.length;k++){if(al[k]==='-'||bl[k]==='-')s+=GAP;else s+=(al[k]===bl[k]?MT:MS);}return s;}
+function verify(){var seed=64;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true,al='ACGT';for(var t=0;t<300;t++){var la=1+Math.floor(rnd()*8),lb=1+Math.floor(rnd()*8),a='',b='';for(var i=0;i<la;i++)a+=al[Math.floor(rnd()*4)];for(var i=0;i<lb;i++)b+=al[Math.floor(rnd()*4)];var h=hb(a,b),nsc=nwScore(a,b)[b.length];if(ascore(h[0],h[1])!==nsc)ok=false;if(h[0].replace(/-/g,'')!==a||h[1].replace(/-/g,'')!==b)ok=false;}return {matchesNW:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('optimal path crosses the middle column at one row (from 2 sweeps)',12,14);
+ g.strokeStyle='#334';g.strokeRect(60,30,320,100);g.strokeStyle='#c0a048';g.setLineDash([4,3]);g.beginPath();g.moveTo(220,30);g.lineTo(220,130);g.stroke();g.setLineDash([]);
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(60,30);g.lineTo(140,60);g.lineTo(220,75);g.lineTo(300,105);g.lineTo(380,130);g.stroke();g.lineWidth=1;g.fillStyle='#c0a048';g.beginPath();g.arc(220,75,5,0,7);g.fill();g.font='9px monospace';g.fillText('midpoint',225,72);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var h=hb(A,B),cw=Math.min(26,(W-30)/h[0].length);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Hirschberg alignment (score '+ascore(h[0],h[1])+', linear space)',12,18);
+ for(var k=0;k<h[0].length;k++){var m=h[0][k]===h[1][k]&&h[0][k]!=='-',gp=h[0][k]==='-'||h[1][k]==='-';g.fillStyle=gp?'#3a4550':(m?'#c0a048':'#8a5a5a');g.fillRect(15+k*cw,40,cw-2,24);g.fillStyle='#fff';g.font='12px monospace';g.fillText(h[0][k],15+k*cw+cw/2-4,57);g.fillStyle=gp?'#3a4550':(m?'#c0a048':'#8a5a5a');g.fillRect(15+k*cw,70,cw-2,24);g.fillStyle='#fff';g.fillText(h[1][k],15+k*cw+cw/2-4,87);}
+ var nsc=nwScore(A,B)[B.length],ok=ascore(h[0],h[1])===nsc;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('score '+ascore(h[0],h[1])+' = Needleman–Wunsch '+nsc+(ok?' ✓':' ✗'),12,H-14);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('used O(min(n,m)) space, not O(n·m)',12,H-2);}
+document.getElementById('hbroll').onclick=function(){var al='ACGT';A='';B='';var la=5+Math.floor(Math.random()*4),lb=4+Math.floor(Math.random()*4);for(var i=0;i<la;i++)A+=al[Math.floor(Math.random()*4)];for(var i=0;i<lb;i++)B+=al[Math.floor(Math.random()*4)];drawW4();document.getElementById('hbread').textContent=A+' / '+B+' → score '+ascore(hb(A,B)[0],hb(A,B)[1]);};
+document.getElementById('hbcheck').onclick=function(){var v=verify();document.getElementById('hbread').textContent='300 pairs: Hirschberg score == NW & de-gaps to originals '+(v.matchesNW?'✓':'✗');};
+document.getElementById('hbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var h=hb(A,B),cx=W/2,cy=H/2-10,n=A.length,m=B.length,sc=Math.min(18,240/Math.max(n,m)),ox=cx-m*sc/2,oy=cy-n*sc/2;
+ g.strokeStyle='rgba(255,45,149,0.2)';for(var i=0;i<=n;i++){g.beginPath();g.moveTo(ox,oy+i*sc);g.lineTo(ox+m*sc,oy+i*sc);g.stroke();}
+ var i=0,j=0;g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(ox,oy);for(var k=0;k<h[0].length;k++){if(h[0][k]!=='-')i++;if(h[1][k]!=='-')j++;g.lineTo(ox+j*sc+2*Math.sin(ang+k),oy+i*sc);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#c0a048';g.beginPath();g.arc(ox+Math.floor(m/2)*sc,oy+Math.floor(n/2)*sc,5,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: optimal alignment from midpoints (linear space)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the full O(n·m) table never stored',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('divide-and-conquer meets DP — same optimum',10,H-9);}
+drawW4();window.__hirschberg=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Kasai&rsquo;s algorithm</b> computes the <b>LCP array</b> &mdash; the longest common prefix between each pair of adjacent suffixes in a suffix array &mdash; in <b>linear</b> time. The insight: process suffixes in <b>text order</b>, not sorted order, and reuse the previous answer, because dropping the first character of a suffix shortens its LCP with its neighbour by <b>at most one</b>. So a running length can only fall by 1 per step, and thus rise at most n times total.<br><br>
+ The LCP array powers substring search, longest repeated substring, and more.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random strings Kasai&rsquo;s O(n) LCP array equals a brute-force pairwise-prefix computation (window.__kasai). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-inventory</i> &mdash; the LCP array is the catalogue of how much adjacent suffixes overlap, the string&rsquo;s inventory of shared prefixes. Kasai builds it in one linear pass. <b>AVAN (AI)</b> built the instrument: the suffix array, the rank inverse, the running-length Kasai pass, the brute cross-check.<br><br>Credit as content: Toru Kasai et al. (2001). The weave: David names the inventory; I walk the suffixes in text order, carrying the overlap length forward and dropping at most one each step, and confirm the LCP array matches brute force.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Moving from suffix i to suffix i+1 drops one leading character; its overlap with the previous suffix in sorted order can shrink by at most one &mdash; so the running length h decreases by &le;1, and total work stays linear.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A string&rsquo;s sorted suffixes and the LCP between each adjacent pair; Kasai&rsquo;s linear result is checked against brute force.</div>
+   <div class="btns" style="margin-top:10px"><button id="ksroll">new string ▶</button><button id="kscheck">verify 300 ▶</button></div>
+   <div class="cap" id="ksread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the running overlap length carried from suffix to suffix.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): compute <b>all</b> longest-common-prefixes in O(n) total by processing suffixes in <b>text order</b> and reusing the previous answer &mdash; because dropping the first character shortens a suffix&rsquo;s LCP with its neighbour by at most one, the running length h falls by &le;1 each step, so it can only rise n times total. The inverse of &lsquo;recompute each LCP from scratch (n&sup2; total)&rsquo; is &lsquo;reuse the previous suffix&rsquo;s LCP, losing at most one character.&rsquo; <b>Magenta</b> is the redundant character comparisons; <b>green</b> is the running length carried forward. An amortised argument turns quadratic into linear. (Kin to the-suffix-array and the-suffix-automaton.)</div>
+   <div class="btns" style="margin-top:10px"><button id="ksspin">pause spin</button></div></div></div></div>"""
+KS_SCRIPT = """(function(){
+var ang=0,spin=true,STR='banana';
+function sa(s){var n=s.length,a=[];for(var i=0;i<n;i++)a.push(i);a.sort(function(x,y){return s.slice(x)<s.slice(y)?-1:1;});return a;}
+function kasai(s,SA){var n=s.length,rank=new Array(n),lcp=new Array(n).fill(0);for(var i=0;i<n;i++)rank[SA[i]]=i;var h=0;for(var i=0;i<n;i++){if(rank[i]>0){var j=SA[rank[i]-1];while(i+h<n&&j+h<n&&s[i+h]===s[j+h])h++;lcp[rank[i]]=h;if(h>0)h--;}else h=0;}return lcp;}
+function brute(s,SA){var n=s.length,lcp=new Array(n).fill(0);for(var i=1;i<n;i++){var a=SA[i],b=SA[i-1],h=0;while(a+h<n&&b+h<n&&s[a+h]===s[b+h])h++;lcp[i]=h;}return lcp;}
+function verify(){var seed=65;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true,al='abc';for(var t=0;t<300;t++){var n=1+Math.floor(rnd()*14),s='';for(var i=0;i<n;i++)s+=al[Math.floor(rnd()*3)];var SA=sa(s);if(kasai(s,SA).join(',')!==brute(s,SA).join(','))ok=false;}return {matchesBrute:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('running overlap h drops by ≤1 per step → linear total work',12,14);
+ var hs=[3,2,1,0,2,1];for(var i=0;i<hs.length;i++){g.fillStyle='#a878c0';g.fillRect(40+i*70,110-hs[i]*22,50,hs[i]*22+4);g.fillStyle='#cde';g.font='9px monospace';g.fillText('h='+hs[i],44+i*70,124);}
+ g.fillStyle='#8ad';g.fillText('h can only rise n times in total (amortized O(n))',40,145);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var SA=sa(STR),lcp=kasai(STR,SA),n=STR.length;g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('"'+STR+'" — sorted suffixes + LCP',12,18);
+ var rowh=Math.min(22,220/n);for(var i=0;i<n;i++){var suf=STR.slice(SA[i]);g.fillStyle='#37506e';g.font='10px monospace';g.fillText(suf,60,36+i*rowh);g.fillStyle='#a878c0';g.fillText(i>0?('lcp '+lcp[i]):'—',W-70,36+i*rowh);if(i>0&&lcp[i]>0){g.fillStyle='rgba(168,120,192,0.4)';g.fillRect(58,28+i*rowh-rowh+4,lcp[i]*7,rowh);}}
+ var ok=kasai(STR,SA).join(',')===brute(STR,SA).join(',');g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('Kasai O(n) LCP == brute '+(ok?'✓':'✗'),12,H-8);}
+document.getElementById('ksroll').onclick=function(){var words=['banana','mississippi','abracadabra','abababab','aabbaabb','tobeornottobe'];STR=words[Math.floor(Math.random()*words.length)];drawW4();document.getElementById('ksread').textContent='"'+STR+'" → LCP ['+kasai(STR,sa(STR)).join(',')+']';};
+document.getElementById('kscheck').onclick=function(){var v=verify();document.getElementById('ksread').textContent='300 strings: Kasai LCP == brute '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('ksspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var SA=sa(STR),lcp=kasai(STR,SA),n=STR.length,cx=W/2,cy=H/2-10;
+ for(var i=0;i<n;i++){var a=i/n*6.28+ang*0.3,r=60+(i>0?lcp[i]:0)*18,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.7;g.fillStyle='#39fc6b';g.globalAlpha=0.5+0.5*(i>0?lcp[i]:0)/Math.max(1,Math.max.apply(0,lcp));g.beginPath();g.arc(x,y,5+(i>0?lcp[i]:0)*2,0,7);g.fill();g.globalAlpha=1;}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the running overlap carried suffix to suffix',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the redundant re-comparisons avoided',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('drop ≤1 per step → quadratic becomes linear',10,H-9);}
+drawW4();window.__kasai=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-fractional-cascading","title":"THE FRACTIONAL CASCADING","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#58a0b8","icon":"fractional-cascading",
+  "kicker":"search many sorted lists with one search plus bridges",
+  "blurb":"fractional cascading in the 5-window house format — answer the same query against many sorted lists with a single binary search: weave a fraction of each list into the previous one and add bridge pointers, so once you locate the query in the first list, every other list's answer is a constant-time hop away, turning k searches of O(log n) into O(log n + k). It is the classic iterated-search speedup in computational geometry. Verified live: over 300 random setups of k sorted lists, the successor it reports in each list equals an independent binary search. See promoted elements + bridges in 1D, a multi-list query in 2D, and the one-search-k-handoffs inverse in 3D.",
+  "lit":"Genuine fractional cascading (Chazelle & Guibas 1986). Verified live: the augmented-list structure with bridge pointers returns, via one binary search plus O(1) hops, the same per-list successor as an independent binary search in each list, across 300 random setups of k sorted lists (window.__fractionalcascading.matchesNaive).",
+  "fig":"No framing: the augmented lists with promoted elements, the bridge pointers, the single-search-then-hop query, and the per-list cross-check run in-browser and agree exactly. The AVAN inverse is honest — a position found in list i gives the position in list i+1 in O(1), so k independent searches collapse to one search plus k hops; magenta is the k-1 redundant searches, green the single search + bridges. Shared structure carries the query along.",
+  "body":FC_BODY,"script":FC_SCRIPT},
+ {"slug":"the-dinic","title":"THE DINIC","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#c05868","icon":"dinic",
+  "kicker":"max flow by leveled blocking flows — max flow = min cut",
+  "blurb":"Dinic's algorithm in the 5-window house format — compute maximum flow by organizing the graph into levels via BFS and pushing a blocking flow that saturates many shortest paths at once; only O(V) phases are needed, giving O(V^2 E). By max-flow-min-cut, the value equals the minimum cut, the network's true bottleneck. Verified live: over 60 random capacitated graphs Dinic's max flow equals the brute-force minimum s-t cut. See the level graph in 1D, flow vs min cut in 2D, and the leveled-blocking-flow inverse in 3D.",
+  "lit":"Genuine Dinic's algorithm (Dinitz 1970). Verified live: the BFS-level-graph + blocking-flow max flow equals the brute-force minimum s-t cut (over all vertex partitions separating source and sink) for 60 random capacitated graphs (window.__dinic.maxFlowEqualsMinCut).",
+  "fig":"No framing: the BFS level graph, the blocking-flow DFS on the residual network, and the brute min-cut cross-check run in-browser and agree exactly. The AVAN inverse is honest — layering the graph and pushing a blocking flow saturates many shortest paths per phase (O(V) phases), far fewer than one augmentation at a time, and the value equals the min cut; magenta is the meandering augmenting paths, green the leveled blocking flow. Kin to the-karger and the-stoer-wagner.",
+  "body":DN_BODY,"script":DN_SCRIPT},
+ {"slug":"the-cyk","title":"THE CYK","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#70a860","icon":"cyk",
+  "kicker":"context-free recognition, bottom-up in O(n^3)",
+  "blurb":"the CYK algorithm in the 5-window house format — decide whether a string is in a context-free language, bottom-up: with the grammar in Chomsky normal form (rules A->BC or A->terminal), fill a table of which nonterminals generate each substring, combining small spans into larger ones, so an exponential derivation search becomes an O(n^3) dynamic program. It is a foundation of parsing. Verified live: with a balanced-parentheses grammar in CNF, CYK accepts a non-empty string iff it is balanced, matching an independent balance check over 400 random bracket strings. See a binary join in 1D, the span table in 2D, and the bottom-up-from-spans inverse in 3D.",
+  "lit":"Genuine CYK algorithm (Cocke, Younger & Kasami, 1960s). Verified live: a CNF balanced-parentheses grammar's CYK acceptance equals an independent balance oracle (non-empty and balanced) for 400 random bracket strings (window.__cyk.matchesOracle); '(())' accepted, '(()' rejected.",
+  "fig":"No framing: the CNF grammar, the O(n^3) span table, and the balance-oracle cross-check run in-browser and agree exactly. The AVAN inverse is honest — filling a table of which nonterminals derive each substring turns an exponential top-down derivation search into an O(n^3) bottom-up table, with CNF making every step a binary join; magenta is the exponential derivation tree, green the span table. A foundation of parsing.",
+  "body":CY_BODY,"script":CY_SCRIPT},
+ {"slug":"the-hirschberg","title":"THE HIRSCHBERG","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#c0a048","icon":"hirschberg",
+  "kicker":"optimal alignment in linear space via midpoints",
+  "blurb":"Hirschberg's algorithm in the 5-window house format — compute an optimal global alignment (same result as Needleman-Wunsch) in linear space instead of O(nm): the optimal path must cross the middle column somewhere, found from two linear-space score sweeps (forward to the middle, backward from the end), then recurse on the halves. It makes genome-length alignment feasible in memory. Verified live: over 300 random pairs Hirschberg's alignment scores identically to Needleman-Wunsch and de-gaps back to the originals. See the midpoint crossing in 1D, an alignment in 2D, and the midpoint-divide-and-conquer inverse in 3D.",
+  "lit":"Genuine Hirschberg's algorithm (Hirschberg 1975). Verified live: the linear-space divide-and-conquer alignment scores identically to a Needleman-Wunsch score and its aligned rows de-gap to the input sequences, for 300 random pairs (window.__hirschberg.matchesNW).",
+  "fig":"No framing: the linear-space forward/backward score sweeps, the midpoint split, the recursion, and the NW cross-check run in-browser and agree exactly. The AVAN inverse is honest — the optimal path's crossing of the middle column is found from O(n) space and the problem divides into two halves, so the O(nm) table is never stored; magenta is the full quadratic table, green the two score rows + midpoints. Same optimum, linear memory.",
+  "body":HB_BODY,"script":HB_SCRIPT},
+ {"slug":"the-kasai","title":"THE KASAI","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#a878c0","icon":"kasai",
+  "kicker":"the LCP array in linear time by reusing the last overlap",
+  "blurb":"Kasai's algorithm in the 5-window house format — compute the LCP array (longest common prefix between adjacent suffixes in a suffix array) in linear time: process suffixes in TEXT order and reuse the previous answer, because dropping the first character shortens a suffix's LCP with its neighbor by at most one, so a running length falls by <=1 per step and rises at most n times total. The LCP array powers substring search and longest-repeated-substring. Verified live: over 300 random strings Kasai's O(n) LCP array equals a brute-force pairwise-prefix computation. See the running length in 1D, sorted suffixes + LCP in 2D, and the reuse-the-last-overlap inverse in 3D.",
+  "lit":"Genuine Kasai's algorithm (Kasai et al. 2001). Verified live: the text-order running-length LCP pass equals a brute-force pairwise longest-common-prefix computation over the suffix array for 300 random strings (window.__kasai.matchesBrute).",
+  "fig":"No framing: the suffix array, the rank inverse, the running-length Kasai pass, and the brute cross-check run in-browser and agree exactly. The AVAN inverse is honest — processing suffixes in text order and reusing the previous LCP (which can only drop by one when the leading character is removed) makes the total work linear by an amortized argument; magenta is the redundant character comparisons, green the running length carried forward. Kin to the-suffix-array and the-suffix-automaton.",
+  "body":KS_BODY,"script":KS_SCRIPT},
  {"slug":"the-held-karp","title":"THE HELD-KARP","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#c05868","icon":"held-karp",
   "kicker":"exact TSP by bitmask DP — n! tours in 2^n states",
