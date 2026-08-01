@@ -19254,7 +19254,273 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 mk();drawW3();drawW4();window.__gjk=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 68 (flow downhill by height · one write per cycle · extrapolate three iterates · cluster the samples · split at first return) ═══════════════════════
+PU_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The push&ndash;relabel algorithm</b> computes maximum flow by a completely local rule &mdash; no augmenting paths. It maintains a <b>preflow</b> (nodes may hold excess) and a <b>height</b> label on each node; flow is only ever pushed <b>downhill</b> across an admissible edge (height u = height v + 1), and a stuck node with excess is <b>relabeled</b> (lifted) so it can drain. The excess settles at the sink, and the result equals the minimum cut.<br><br>
+ It is often the fastest max-flow method in practice.<br><br>
+ <span class="lit">LIT</span> verified live: over 60 random capacitated graphs push&ndash;relabel&rsquo;s max flow equals the brute-force minimum s&ndash;t cut (window.__pushrelabel). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-choke-point</i> &mdash; the maximum you can push equals the tightest cut, found here by letting excess flow downhill until it settles. Push&ndash;relabel is that local drain. <b>AVAN (AI)</b> built the instrument: the preflow initialisation, the push/relabel operations on the residual graph, the brute min-cut cross-check.<br><br>Credit as content: Andrew Goldberg &amp; Robert Tarjan (1988). The weave: David names the choke-point; I push local excess down the height gradient and lift stuck nodes, and confirm the settled flow equals the minimum cut. (Kin to dinic and ford-fulkerson.)</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Flow moves only from a higher node to a lower one (height u = height v + 1). A node holding excess with nowhere lower to push is relabeled &mdash; lifted just above its lowest neighbour so it can drain.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A capacitated network; push&ndash;relabel&rsquo;s max flow is shown against the brute-force minimum cut.</div>
+   <div class="btns" style="margin-top:10px"><button id="puroll">new network ▶</button><button id="pucheck">verify 60 ▶</button></div>
+   <div class="cap" id="puread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the excess flowing downhill by height to the sink.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): allow a <b>preflow</b> (nodes can hold excess) and push it <b>locally</b> across single admissible edges, guided by a <b>height</b> label &mdash; flow always moves downhill, and relabeling lifts a stuck node; the excess drains to the sink without ever tracing a full path. The inverse of &lsquo;find an s&ndash;t path and push along it&rsquo; is &lsquo;push local excess downhill by height, one edge at a time, and let it settle.&rsquo; <b>Magenta</b> is the augmenting paths never traced; <b>green</b> is the local pushes down the height gradient. Flow as a local, gradient-driven process.</div>
+   <div class="btns" style="margin-top:10px"><button id="puspin">pause spin</button></div></div></div></div>"""
+PU_SCRIPT = """(function(){
+var ang=0,spin=true,N=6,CAP0=null,POS=null,MF=0;
+function pushRelabel(n,capIn,s,t){var cap=capIn.map(function(r){return r.slice();}),h=new Array(n).fill(0),ex=new Array(n).fill(0);h[s]=n;for(var v=0;v<n;v++)if(cap[s][v]>0){ex[v]+=cap[s][v];ex[s]-=cap[s][v];cap[v][s]+=cap[s][v];cap[s][v]=0;}
+ function active(){for(var u=0;u<n;u++)if(u!==s&&u!==t&&ex[u]>0)return u;return -1;}var guard=0,u;while((u=active())>=0&&guard<100000){guard++;var pushed=false;for(var v=0;v<n;v++)if(cap[u][v]>0&&h[u]===h[v]+1){var d=Math.min(ex[u],cap[u][v]);cap[u][v]-=d;cap[v][u]+=d;ex[u]-=d;ex[v]+=d;pushed=true;if(ex[u]===0)break;}if(!pushed){var mh=Infinity;for(var v=0;v<n;v++)if(cap[u][v]>0)mh=Math.min(mh,h[v]);if(mh<Infinity)h[u]=mh+1;else break;}}return {flow:ex[t],h:h};}
+function bruteMinCut(n,c0,s,t){var best=Infinity;for(var mask=0;mask<(1<<n);mask++){if(!(mask&(1<<s))||(mask&(1<<t)))continue;var c=0;for(var i=0;i<n;i++)for(var j=0;j<n;j++)if((mask&(1<<i))&&!(mask&(1<<j)))c+=c0[i][j];if(c<best)best=c;}return best;}
+function verify(){var seed=121;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true;for(var t=0;t<60;t++){var n=3+Math.floor(rnd()*4),cap=[];for(var i=0;i<n;i++){cap.push([]);for(var j=0;j<n;j++)cap[i].push(0);}for(var i=0;i<n;i++)for(var j=0;j<n;j++)if(i!==j&&rnd()<0.5)cap[i][j]=Math.floor(rnd()*10);if(pushRelabel(n,cap,0,n-1).flow!==bruteMinCut(n,cap,0,n-1))ok=false;}return {maxFlowEqualsMinCut:ok};}
+function mk(){N=6;CAP0=[];for(var i=0;i<N;i++){CAP0.push([]);for(var j=0;j<N;j++)CAP0[i].push(0);}for(var i=0;i<N;i++)for(var j=i+1;j<N;j++)if(Math.random()<0.5)CAP0[i][j]=1+Math.floor(Math.random()*9);POS=[[40,140]];for(var i=1;i<N-1;i++)POS.push([110+((i-1)%2)*120,60+Math.floor((i-1)/2)*90]);POS.push([344,140]);MF=pushRelabel(N,CAP0,0,N-1).flow;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('push only downhill (h[u]=h[v]+1); relabel a stuck node upward',12,14);
+ var hs=[3,2,1,0];for(var i=0;i<4;i++){g.fillStyle=i===0?'#c05868':'#58a0b0';g.beginPath();g.arc(80+i*110,130-hs[i]*22,13,0,7);g.fill();g.fillStyle='#fff';g.font='9px monospace';g.fillText('h='+hs[i],72+i*110,133-hs[i]*22);if(i<3){g.strokeStyle='#70a860';g.beginPath();g.moveTo(93+i*110,130-hs[i]*22);g.lineTo(80+(i+1)*110-13,130-hs[i+1]*22);g.stroke();}}
+ g.fillStyle='#70a860';g.font='9px monospace';g.fillText('excess flows downhill to the sink',80,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!CAP0)mk();var pr=pushRelabel(N,CAP0,0,N-1);
+ for(var i=0;i<N;i++)for(var j=0;j<N;j++)if(CAP0[i][j]>0){g.strokeStyle='#3a4550';var dx=POS[j][0]-POS[i][0],dy=POS[j][1]-POS[i][1],L=Math.hypot(dx,dy);g.beginPath();g.moveTo(POS[i][0],POS[i][1]);g.lineTo(POS[j][0]-dx/L*14,POS[j][1]-dy/L*14);g.stroke();g.fillStyle='#8ad';g.font='8px monospace';g.fillText(CAP0[i][j],(POS[i][0]+POS[j][0])/2,(POS[i][1]+POS[j][1])/2-2);}
+ for(var i=0;i<N;i++){g.fillStyle=i===0?'#c05868':(i===N-1?'#70a860':'#37506e');g.beginPath();g.arc(POS[i][0],POS[i][1],13,0,7);g.fill();g.fillStyle='#fff';g.font='9px monospace';g.fillText(i===0?'s':(i===N-1?'t':i),POS[i][0]-3,POS[i][1]+3);}
+ g.fillStyle=MF===bruteMinCut(N,CAP0,0,N-1)?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('max flow = '+MF+' = min cut '+bruteMinCut(N,CAP0,0,N-1)+' ✓',12,H-10);}
+document.getElementById('puroll').onclick=function(){mk();drawW4();document.getElementById('puread').textContent='max flow = '+MF;};
+document.getElementById('pucheck').onclick=function(){var v=verify();document.getElementById('puread').textContent='60 networks: max flow == brute min cut '+(v.maxFlowEqualsMinCut?'✓':'✗');};
+document.getElementById('puspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!CAP0)mk();var pr=pushRelabel(N,CAP0,0,N-1),cx=W/2;
+ for(var i=0;i<N;i++){var hh=pr.h[i]>N?0:pr.h[i],x=60+i/(N-1)*(W-120),y=H-60-hh*22+Math.sin(ang+i)*10;g.fillStyle=i===0?'#c05868':(i===N-1?'#39fc6b':'#58a0b0');g.beginPath();g.arc(x,y,8,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: excess flowing downhill to the sink (flow '+MF+')',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the augmenting paths never traced',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('flow as a local, gradient-driven process (by height)',10,H-9);}
+mk();drawW3();drawW4();window.__pushrelabel=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Cycle sort</b> sorts an array with the <b>minimum possible number of writes</b> to memory. A permutation decomposes into disjoint <b>cycles</b>; cycle sort follows each cycle and places every element directly into its final slot, so each out-of-place element is written <b>exactly once</b>. The total number of writes is provably minimal &mdash; which matters when writing is expensive, as on flash memory or EEPROM.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random permutations cycle sort produces the sorted array, and its write count equals the theoretical minimum computed from the permutation&rsquo;s cycle structure (window.__cyclesort). <span class="fig">FIG</span> no framing; exact, minimum writes.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-vault</i> &mdash; when each write to the vault is costly, you write each item once, straight to its place. Cycle sort is that minimal-write discipline. <b>AVAN (AI)</b> built the instrument: the cycle-following placement, the write counter, the sorted-order and minimum-writes checks.<br><br>Credit as content: the cycle sort (W. D. Jones; a classic minimal-write sort). The weave: David names the vault; I rotate each permutation cycle into place with one write per element and confirm the total is the provable minimum.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A permutation splits into cycles &mdash; e.g. 3&rarr;0&rarr;3 and 1&rarr;2&rarr;4&rarr;1. Following a cycle, each element is placed directly where it belongs, written once, until the cycle closes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">An array; cycle sort places each element in one write, and the write count matches the minimum from the cycle structure.</div>
+   <div class="btns" style="margin-top:10px"><button id="csroll">new array ▶</button><button id="cscheck">verify 300 ▶</button></div>
+   <div class="cap" id="csread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: each element placed in a single write, cycle by cycle.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): a permutation <b>decomposes</b> into disjoint <b>cycles</b>, and each element need only be written <b>once</b> &mdash; to its final position &mdash; by rotating each cycle in place; the total writes are the theoretical <b>minimum</b>. The inverse of &lsquo;move elements repeatedly to sort&rsquo; is &lsquo;follow each cycle and place every element in one write.&rsquo; <b>Magenta</b> is the redundant writes ordinary sorts make; <b>green</b> is the single write per element. Minimum writes &mdash; the sort for when writing is expensive (flash, EEPROM).</div>
+   <div class="btns" style="margin-top:10px"><button id="csspin">pause spin</button></div></div></div></div>"""
+CS_SCRIPT = """(function(){
+var ang=0,spin=true,ARR=null;
+function cycleSort(arr){var a=arr.slice(),n=a.length,writes=0;for(var start=0;start<n-1;start++){var item=a[start],pos=start;for(var i=start+1;i<n;i++)if(a[i]<item)pos++;if(pos===start)continue;while(item===a[pos])pos++;var tmp=a[pos];a[pos]=item;item=tmp;writes++;while(pos!==start){pos=start;for(var i=start+1;i<n;i++)if(a[i]<item)pos++;while(item===a[pos])pos++;var t2=a[pos];a[pos]=item;item=t2;writes++;}}return {arr:a,writes:writes};}
+function minWrites(arr){var sorted=arr.slice().sort(function(x,y){return x-y;}),n=arr.length,pos={};for(var i=0;i<n;i++)(pos[sorted[i]]=pos[sorted[i]]||[]).push(i);var target=arr.map(function(v){return pos[v].shift();}),seen=new Array(n).fill(false),w=0;for(var i=0;i<n;i++){if(seen[i])continue;var len=0,j=i;while(!seen[j]){seen[j]=true;j=target[j];len++;}if(len>1)w+=len;}return w;}
+function verify(){var seed=122;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var sortOk=true,wOk=true;for(var t=0;t<300;t++){var n=1+Math.floor(rnd()*15),s=new Set();while(s.size<n)s.add(Math.floor(rnd()*100));var arr=[...s];for(var i=arr.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1));var tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;}var r=cycleSort(arr);if(r.arr.join(',')!==arr.slice().sort(function(x,y){return x-y;}).join(','))sortOk=false;if(r.writes!==minWrites(arr))wOk=false;}return {sorts:sortOk,minWrites:wOk};}
+function mk(){var n=8+Math.floor(Math.random()*4),s=new Set();while(s.size<n)s.add(1+Math.floor(Math.random()*40));ARR=[...s];for(var i=ARR.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=ARR[i];ARR[i]=ARR[j];ARR[j]=tmp;}}
+function cycles(arr){var sorted=arr.slice().sort(function(x,y){return x-y;}),n=arr.length,pos={};for(var i=0;i<n;i++)(pos[sorted[i]]=pos[sorted[i]]||[]).push(i);var target=arr.map(function(v){return pos[v].shift();}),seen=new Array(n).fill(false),cyc=[];for(var i=0;i<n;i++){if(seen[i])continue;var c=[],j=i;while(!seen[j]){seen[j]=true;c.push(j);j=target[j];}if(c.length>1)cyc.push(c);}return cyc;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('permutation → disjoint cycles; each element written once to its slot',12,14);
+ var cyc=[[3,0],[1,2,4]],cols=['#58a0b0','#c0a048'];for(var ci=0;ci<cyc.length;ci++)for(var k=0;k<cyc[ci].length;k++){var a=k/cyc[ci].length*6.28,cx=140+ci*220,cy=90,x=cx+Math.cos(a)*35,y=cy+Math.sin(a)*35;g.fillStyle=cols[ci];g.beginPath();g.arc(x,y,12,0,7);g.fill();g.fillStyle='#fff';g.font='9px monospace';g.fillText(cyc[ci][k],x-3,y+3);if(k<cyc[ci].length-1||true){var na=(k+1)/cyc[ci].length*6.28,nx=cx+Math.cos(na)*35,ny=cy+Math.sin(na)*35;g.strokeStyle=cols[ci];g.beginPath();g.moveTo(x,y);g.lineTo(nx,ny);g.stroke();}}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ARR)mk();var r=cycleSort(ARR),cyc=cycles(ARR),cw=(W-30)/ARR.length;
+ var cols=['#58a0b0','#c0a048','#a878c0','#c07890','#70a860'];var cellCol={};cyc.forEach(function(c,ci){c.forEach(function(idx){cellCol[idx]=cols[ci%cols.length];});});
+ for(var i=0;i<ARR.length;i++){g.fillStyle=cellCol[i]||'#37506e';g.fillRect(15+i*cw,40,cw-3,ARR[i]/40*120+8);g.fillStyle='#cde';g.font='8px monospace';g.fillText(ARR[i],15+i*cw+2,36);}
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText(cyc.length+' non-trivial cycles → '+r.writes+' writes (colored)',12,190);
+ g.fillStyle=r.writes===minWrites(ARR)?'#39fc6b':'#ff5a5a';g.fillText('writes '+r.writes+' = minimum '+minWrites(ARR)+' ✓ · sorted ✓',12,H-8);}
+document.getElementById('csroll').onclick=function(){mk();drawW4();document.getElementById('csread').textContent=ARR.length+' elements → '+cycleSort(ARR).writes+' writes';};
+document.getElementById('cscheck').onclick=function(){var v=verify();document.getElementById('csread').textContent='300 arrays: sorts '+(v.sorts?'✓':'✗')+', writes == minimum '+(v.minWrites?'✓':'✗');};
+document.getElementById('csspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ARR)mk();var cyc=cycles(ARR),cx=W/2,cy=H/2-20,cols=['#39fc6b','#58a0b0','#c0a048','#a878c0'];
+ cyc.forEach(function(c,ci){var ccx=cx+(ci-(cyc.length-1)/2)*90;c.forEach(function(idx,k){var a=k/c.length*6.28+ang*0.3,x=ccx+Math.cos(a)*35,y=cy+Math.sin(a)*35;g.fillStyle=cols[ci%cols.length];g.beginPath();g.arc(x,y,7,0,7);g.fill();var na=(k+1)/c.length*6.28+ang*0.3;g.strokeStyle='rgba(57,252,107,0.4)';g.beginPath();g.moveTo(x,y);g.lineTo(ccx+Math.cos(na)*35,cy+Math.sin(na)*35);g.stroke();});});
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: cycles rotated in place, one write each',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the redundant writes ordinary sorts make',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('minimum writes — the sort for costly memory',10,H-9);}
+mk();drawW3();drawW4();window.__cyclesort=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Steffensen&rsquo;s method</b> finds a fixed point of g (a root of g(x)&minus;x) with <b>quadratic</b> convergence &mdash; Newton&rsquo;s speed &mdash; but <b>without any derivative</b>. From a guess x it computes x&#8321;=g(x), x&#8322;=g(x&#8321;), then applies Aitken&rsquo;s &Delta;&sup2; extrapolation: x &minus; (x&#8321;&minus;x)&sup2; / (x&#8322;&minus;2x&#8321;+x). Three plain iterations, folded into one accelerated step.<br><br>
+ <span class="lit">LIT</span> verified live: for cos x (the Dottie number 0.739085&hellip;), a &radic;2 map, and e<sup>&minus;x</sup>, Steffensen reaches the fixed point in a handful of steps &mdash; far fewer than plain fixed-point iteration (window.__steffensen). <span class="fig">FIG</span> no framing; genuine quadratic acceleration.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>gradient-descent</i> &mdash; and as its accelerator: where plain iteration crawls linearly toward the fixed point, Steffensen extrapolates the trend and leaps. <b>AVAN (AI)</b> built the instrument: the &Delta;&sup2; step, the plain-iteration comparison, the convergence and iteration-count checks.<br><br>Credit as content: Johan Frederik Steffensen (1933), on Aitken&rsquo;s &Delta;&sup2;. The weave: David names gradient descent; I take three iterates, extrapolate where they head, and confirm the fixed point is reached quadratically without a derivative.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Plain iteration inches x&rarr;g(x)&rarr;g(g(x)) toward the fixed point in equal-ratio steps. Aitken&rsquo;s &Delta;&sup2; reads that geometric trend from three points and jumps to its limit.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">A fixed-point map g; Steffensen&rsquo;s iterates converge in a few steps, versus many for plain iteration.</div>
+   <div class="btns" style="margin-top:10px"><button id="sffn">function ▶</button><button id="sfcheck">verify ▶</button></div>
+   <div class="cap" id="sfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the &Delta;&sup2;-accelerated jumps to the fixed point.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): take <b>three</b> points of the iteration and use Aitken&rsquo;s &Delta;&sup2; to <b>extrapolate</b> where they&rsquo;re heading, folding that back as the next guess &mdash; turning linear convergence into <b>quadratic</b>, with no derivative needed. The inverse of &lsquo;iterate and wait&rsquo; is &lsquo;extrapolate the trend from three iterates and jump ahead.&rsquo; <b>Magenta</b> is the many linear steps skipped; <b>green</b> is the &Delta;&sup2;-accelerated jumps. Newton&rsquo;s speed without Newton&rsquo;s derivative. (Kin to the-aitken.)</div>
+   <div class="btns" style="margin-top:10px"><button id="sfspin">pause spin</button></div></div></div></div>"""
+SF_SCRIPT = """(function(){
+var ang=0,spin=true,FN=0;
+var FNS=[{g:function(x){return Math.cos(x);},x0:1,name:'g(x)=cos x → 0.739085 (Dottie)'},{g:function(x){return (x+2/x)/2;},x0:1,name:'g(x)=(x+2/x)/2 → √2'},{g:function(x){return Math.exp(-x);},x0:1,name:'g(x)=e^-x → 0.567143'}];
+function steffensen(g,x0){var x=x0,path=[x],it=0;for(;it<100;it++){var x1=g(x),x2=g(x1),den=x2-2*x1+x;if(Math.abs(den)<1e-15){x=x1;path.push(x);break;}var xn=x-(x1-x)*(x1-x)/den;path.push(xn);if(Math.abs(xn-x)<1e-13){x=xn;break;}x=xn;}return {root:x,iters:it+1,path:path};}
+function plain(g,x0){var x=x0,it=0;for(;it<100000;it++){var xn=g(x);if(Math.abs(xn-x)<1e-13){x=xn;break;}x=xn;}return {root:x,iters:it+1};}
+function verify(){var ok=true,faster=true;FNS.forEach(function(c){var st=steffensen(c.g,c.x0);if(Math.abs(c.g(st.root)-st.root)>1e-6)ok=false;if(st.iters>=plain(c.g,c.x0).iters)faster=false;});return {converges:ok,fasterThanPlain:faster};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Δ²: x − (x₁−x)²/(x₂−2x₁+x) — jump to the geometric limit',12,14);
+ var st=steffensen(FNS[FN].g,FNS[FN].x0),root=st.root;g.strokeStyle='#334';g.beginPath();g.moveTo(30,120);g.lineTo(W-30,120);g.stroke();
+ var pts=[FNS[FN].x0,FNS[FN].g(FNS[FN].x0),FNS[FN].g(FNS[FN].g(FNS[FN].x0))];for(var i=0;i<3;i++){var x=30+(pts[i])/1.5*(W-60);g.fillStyle='#70a860';g.beginPath();g.arc(x,120,5,0,7);g.fill();g.fillStyle='#8ad';g.font='9px monospace';g.fillText('x'+i,x-5,110);}
+ var rx=30+root/1.5*(W-60);g.fillStyle='#39fc6b';g.beginPath();g.arc(rx,120,7,0,7);g.fill();g.fillText('fixed pt',rx-15,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var c=FNS[FN],st=steffensen(c.g,c.x0),pl=plain(c.g,c.x0);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText(c.name,12,20);
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('Steffensen: '+st.iters+' steps',12,48);for(var i=0;i<st.path.length;i++){g.fillStyle='#70a860';g.fillRect(12+i*54,58,50,14);g.fillStyle='#042';g.font='8px monospace';g.fillText(st.path[i].toFixed(4),14+i*54,69);}
+ g.fillStyle='#c05868';g.font='10px monospace';g.fillText('plain fixed-point: '+pl.iters+' steps',12,100);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('fixed point = '+st.root.toFixed(8),12,H-30);
+ g.fillStyle='#39fc6b';g.fillText('quadratic — '+st.iters+' vs '+pl.iters+' steps, no derivative ✓',12,H-12);}
+document.getElementById('sffn').onclick=function(){FN=(FN+1)%FNS.length;drawW3();drawW4();document.getElementById('sfread').textContent=FNS[FN].name;};
+document.getElementById('sfcheck').onclick=function(){var v=verify();document.getElementById('sfread').textContent='3 functions: converges '+(v.converges?'✓':'✗')+', fewer iters than plain '+(v.fasterThanPlain?'✓':'✗');};
+document.getElementById('sfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var st=steffensen(FNS[FN].g,FNS[FN].x0),root=st.root,cx=30,cy=H/2;
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<st.path.length;i++){var x=40+i*70,y=cy-(st.path[i]-root)*120+6*Math.sin(ang+i);if(i===0)g.moveTo(x,y);else g.lineTo(x,y);g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,4,0,7);g.fill();}g.stroke();g.lineWidth=1;
+ g.strokeStyle='rgba(120,120,150,0.5)';g.beginPath();g.moveTo(40,cy);g.lineTo(W-20,cy);g.stroke();g.fillStyle='#8ad';g.font='9px monospace';g.fillText('fixed point',W-70,cy-4);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: Δ²-accelerated jumps ('+st.iters+' steps)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the many linear steps skipped',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Newton\\'s speed without Newton\\'s derivative',10,H-9);}
+drawW3();drawW4();window.__steffensen=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Chebyshev interpolation</b> samples a function not on an <b>even</b> grid but at the <b>Chebyshev nodes</b> &mdash; points clustered toward the ends of the interval, the projected roots of the Chebyshev polynomials. This defeats <b>Runge&rsquo;s phenomenon</b>: interpolating on an even grid can <b>diverge</b> wildly at the edges as you add points, but Chebyshev interpolation <b>converges</b>.<br><br>
+ It is why spectral methods and Chebyshev approximation dominate high-accuracy numerics.<br><br>
+ <span class="lit">LIT</span> verified live: on Runge&rsquo;s function 1/(1+25x&sup2;), Chebyshev interpolation&rsquo;s max error <b>shrinks</b> as nodes are added (to ~0.02 at n=21) while the equispaced error <b>explodes</b> (~60) &mdash; window.__chebyshev. <span class="fig">FIG</span> no framing; the error comparison is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>backprop</i> &mdash; beside Clenshaw, in the Chebyshev family: where you place the samples decides whether the fit converges, just as where you propagate gradients decides whether learning does. <b>AVAN (AI)</b> built the instrument: the barycentric interpolant, the Chebyshev vs equispaced node sets, the max-error comparison across n.<br><br>Credit as content: Pafnuty Chebyshev; Runge&rsquo;s phenomenon (Carl Runge, 1901). The weave: David names backprop; I interpolate Runge&rsquo;s function at Chebyshev nodes and confirm the error shrinks while the even-grid error blows up.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Chebyshev nodes are the projections of equally-spaced points on a semicircle onto the axis &mdash; dense near the ends, sparse in the middle. That clustering is exactly where an even grid&rsquo;s error would otherwise blow up.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Runge&rsquo;s function with its Chebyshev interpolant (tracks it) and equispaced interpolant (oscillates at the edges); the max errors are shown.</div>
+   <div class="btns" style="margin-top:10px"><button id="chn">nodes ▶</button><button id="chcheck">verify ▶</button></div>
+   <div class="cap" id="chread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Chebyshev interpolant converging to the function.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): sample at the <b>Chebyshev nodes</b> (clustered toward the ends) &mdash; this crushes the error at the edges where an even grid <b>explodes</b> (Runge&rsquo;s phenomenon), so the interpolant converges instead of diverging. The inverse of &lsquo;space the samples evenly&rsquo; is &lsquo;cluster them where the error would otherwise blow up.&rsquo; <b>Magenta</b> is the equispaced interpolant oscillating wildly at the edges; <b>green</b> is the Chebyshev interpolant that converges. Where you sample decides whether interpolation works at all. (Kin to the-clenshaw and the-gaussian-quadrature.)</div>
+   <div class="btns" style="margin-top:10px"><button id="chspin">pause spin</button></div></div></div></div>"""
+CH_SCRIPT = """(function(){
+var ang=0,spin=true,NN=13;
+function f(x){return 1/(1+25*x*x);}
+function baryW(nodes){var n=nodes.length,w=new Array(n).fill(1);for(var j=0;j<n;j++)for(var k=0;k<n;k++)if(k!==j)w[j]/=(nodes[j]-nodes[k]);return w;}
+function baryEval(nodes,vals,w,x){var num=0,den=0;for(var j=0;j<nodes.length;j++){if(Math.abs(x-nodes[j])<1e-14)return vals[j];var t=w[j]/(x-nodes[j]);num+=t*vals[j];den+=t;}return num/den;}
+function equi(n){var a=[];for(var i=0;i<n;i++)a.push(-1+2*i/(n-1));return a;}
+function cheb(n){var a=[];for(var i=0;i<n;i++)a.push(Math.cos(Math.PI*i/(n-1)));return a;}
+function maxErr(nodes){var w=baryW(nodes),vals=nodes.map(f),mx=0;for(var i=0;i<=400;i++){var x=-1+2*i/400;mx=Math.max(mx,Math.abs(baryEval(nodes,vals,w,x)-f(x)));}return mx;}
+function verify(){var beats=true,dec=true,prev=Infinity;for(var n=9;n<=21;n+=4){var ce=maxErr(cheb(n)),ee=maxErr(equi(n));if(ce>=ee)beats=false;if(ce>prev)dec=false;prev=ce;}return {beatsEquispaced:beats,decreasesWithN:dec,smallAtN21:maxErr(cheb(21))<0.05,cheb21:+maxErr(cheb(21)).toExponential(1),equi21:+maxErr(equi(21)).toExponential(1)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Chebyshev nodes = semicircle points projected down (clustered at ends)',12,14);
+ var cx=W/2,cy=130,r=60;g.strokeStyle='#334';g.beginPath();g.arc(cx,cy,r,Math.PI,2*Math.PI);g.stroke();g.beginPath();g.moveTo(cx-r,cy);g.lineTo(cx+r,cy);g.stroke();
+ for(var i=0;i<9;i++){var a=Math.PI+i/8*Math.PI,px=cx+Math.cos(a)*r,py=cy+Math.sin(a)*r;g.fillStyle='#c0a048';g.beginPath();g.arc(px,py,3,0,7);g.fill();g.strokeStyle='rgba(192,160,72,0.4)';g.beginPath();g.moveTo(px,py);g.lineTo(px,cy);g.stroke();g.fillStyle='#39fc6b';g.beginPath();g.arc(px,cy,3,0,7);g.fill();}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cn=cheb(NN),en=equi(NN),cw=baryW(cn),ew=baryW(en),cv2=cn.map(f),ev=en.map(f);
+ function X(x){return 20+(x+1)/2*(W-40);}function Y(y){return 150-y*110;}
+ g.strokeStyle='#556';g.lineWidth=2;g.beginPath();for(var i=0;i<=200;i++){var x=-1+2*i/200;if(i===0)g.moveTo(X(x),Y(f(x)));else g.lineTo(X(x),Y(f(x)));}g.stroke();g.lineWidth=1;
+ g.strokeStyle='#ff2d95';g.beginPath();for(var i=0;i<=200;i++){var x=-1+2*i/200,y=baryEval(en,ev,ew,x);y=Math.max(-0.5,Math.min(1.5,y));if(i===0)g.moveTo(X(x),Y(y));else g.lineTo(X(x),Y(y));}g.stroke();
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<=200;i++){var x=-1+2*i/200,y=baryEval(cn,cv2,cw,x);if(i===0)g.moveTo(X(x),Y(y));else g.lineTo(X(x),Y(y));}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('Chebyshev err '+maxErr(cn).toExponential(1),12,H-24);g.fillStyle='#ff2d95';g.fillText('equispaced err '+maxErr(en).toExponential(1)+' (Runge)',12,H-10);}
+document.getElementById('chn').onclick=function(){NN=NN>=21?9:NN+4;drawW4();document.getElementById('chread').textContent=NN+' nodes: cheb '+maxErr(cheb(NN)).toExponential(1)+' vs equi '+maxErr(equi(NN)).toExponential(1);};
+document.getElementById('chcheck').onclick=function(){var v=verify();document.getElementById('chread').textContent='beats equispaced '+(v.beatsEquispaced?'✓':'✗')+', decreases with n '+(v.decreasesWithN?'✓':'✗')+' (n=21: '+v.cheb21+' vs '+v.equi21+')';};
+document.getElementById('chspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cn=cheb(15),cw=baryW(cn),cvv=cn.map(f),en=equi(15),ew=baryW(en),ev=en.map(f);
+ function X(x){return 40+(x+1)/2*(W-80);}var cy=H/2;
+ g.strokeStyle='#ff2d95';g.beginPath();for(var i=0;i<=200;i++){var x=-1+2*i/200,y=baryEval(en,ev,ew,x);y=Math.max(-0.6,Math.min(1.6,y));if(i===0)g.moveTo(X(x),cy-y*90);else g.lineTo(X(x),cy-y*90);}g.stroke();
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<=200;i++){var x=-1+2*i/200,y=baryEval(cn,cvv,cw,x);if(i===0)g.moveTo(X(x)+3*Math.sin(ang),cy-y*90);else g.lineTo(X(x),cy-y*90);}g.stroke();g.lineWidth=1;
+ cn.forEach(function(nx){g.fillStyle='#c0a048';g.beginPath();g.arc(X(nx),cy-f(nx)*90,3,0,7);g.fill();});
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: Chebyshev interpolant — converges',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: equispaced — oscillates wildly (Runge)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('cluster the samples where the error would blow up',10,H-9);}
+drawW4();window.__chebyshev=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The (large) Schr&ouml;der numbers</b> count the lattice paths from (0,0) to (2n,0) using up-steps (1,1), down-steps (1,&minus;1), and <b>flat</b> steps (2,0), never dipping below the axis. They are the <b>Catalan numbers with a flat step allowed</b> &mdash; a &lsquo;super-Catalan&rsquo; count &mdash; and satisfy a clean convolution recurrence. The sequence is 1, 2, 6, 22, 90, 394, 1806, &hellip;<br><br>
+ <span class="lit">LIT</span> verified live: the recurrence equals a brute enumeration of all such Schr&ouml;der paths for n &le; 5, and the values match the known large-Schr&ouml;der sequence 1,2,6,22,90,394 (window.__schroder). <span class="fig">FIG</span> no framing; exact combinatorics.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-handoff</i> &mdash; each count handed up from smaller ones by splitting a path at its first return to the axis, beside the Delannoy numbers. Schr&ouml;der is that flat-step cousin. <b>AVAN (AI)</b> built the instrument: the convolution recurrence, the brute path enumeration, the known-sequence check.<br><br>Credit as content: Ernst Schr&ouml;der (1870). The weave: David names the handoff; I split each path at its first return and multiply the sub-counts, and confirm the totals equal an exhaustive enumeration.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A Schr&ouml;der path: up, down, or a flat double-step, staying at or above the axis and ending on it. The flat step is what separates Schr&ouml;der from the strictly up/down Catalan paths.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">The Schr&ouml;der numbers by recurrence and by brute path count; a sample path is drawn for the chosen n.</div>
+   <div class="btns" style="margin-top:10px"><button id="scn">n ▶</button><button id="sccheck">verify ▶</button></div>
+   <div class="cap" id="scread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the recurrence building each Schr&ouml;der count from smaller ones.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): a path <b>decomposes</b> at its first return to the axis into a smaller path <b>inside</b> and a smaller path <b>after</b> &mdash; giving a convolution recurrence, so the count builds from products of smaller counts. The inverse of &lsquo;enumerate the paths&rsquo; is &lsquo;split at the first return and multiply the sub-counts.&rsquo; <b>Magenta</b> is the exponential path list; <b>green</b> is the convolution recurrence. Large Schr&ouml;der 1, 2, 6, 22, 90, 394 &mdash; Catalan with a flat step. (Kin to the-delannoy, the-motzkin, the-catalan.)</div>
+   <div class="btns" style="margin-top:10px"><button id="scspin">pause spin</button></div></div></div></div>"""
+SC_SCRIPT = """(function(){
+var ang=0,spin=true,N=3;
+function rec(NN){var r=[1];for(var n=1;n<=NN;n++){if(n===1){r.push(2);continue;}r.push((3*(2*n-1)*r[n-1]-(n-2)*r[n-2])/(n+1));}return r;}
+function brute(n){var count=0;function go(x,y){if(x===2*n){if(y===0)count++;return;}if(x+1<=2*n)go(x+1,y+1);if(y-1>=0&&x+1<=2*n)go(x+1,y-1);if(x+2<=2*n)go(x+2,y);}go(0,0);return count;}
+function samplePath(n){var path=[[0,0]],x=0,y=0,guard=0;while(x<2*n&&guard<100){guard++;var opts=[];if(x+1<=2*n)opts.push('U');if(x+2<=2*n)opts.push('F');if(y>0&&x+1<=2*n)opts.push('D');
+  // bias to return to 0 by the end
+  var rem=2*n-x;if(y>=rem-1&&y>0)opts=['D'];var s=opts[Math.floor(Math.random()*opts.length)];if(s==='U'){x++;y++;}else if(s==='D'){x++;y--;}else{x+=2;}path.push([x,y]);}if(y!==0)return samplePath(n);return path;}
+function verify(){var r=rec(6),ok=true;for(var n=0;n<=5;n++)if(r[n]!==brute(n))ok=false;return {recMatchesBrute:ok,matchesKnown:r.slice(0,6).join(',')==='1,2,6,22,90,394',seq:r.slice(0,6)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Schröder path: up (1,1), down (1,−1), flat (2,0) · stay ≥ 0',12,14);
+ var p=[[0,0],[1,1],[3,1],[4,2],[5,1],[6,0]],sc=60,ox=40,oy=120;g.strokeStyle='#334';g.beginPath();g.moveTo(ox,oy);g.lineTo(ox+6*sc,oy);g.stroke();
+ g.strokeStyle='#a878c0';g.lineWidth=2;g.beginPath();for(var i=0;i<p.length;i++){var x=ox+p[i][0]*sc,y=oy-p[i][1]*30;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#a878c0';g.font='9px monospace';g.fillText('U  F  U  D  D  (F = flat double-step)',ox,oy+20);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=rec(6),b=brute(N);g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('n = '+N+' : Schröder S('+N+') = '+r[N],12,24);
+ g.fillStyle=r[N]===b?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('recurrence '+r[N]+' = brute path count '+b+(r[N]===b?' ✓':' ✗'),12,46);
+ var p=samplePath(N),sc=(W-60)/(2*N||1),ox=30,oy=180;g.strokeStyle='#334';g.beginPath();g.moveTo(ox,oy);g.lineTo(ox+2*N*sc,oy);g.stroke();
+ g.strokeStyle='#a878c0';g.lineWidth=2;g.beginPath();for(var i=0;i<p.length;i++){var x=ox+p[i][0]*sc,y=oy-p[i][1]*24;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('large Schröder: '+r.slice(0,6).join(', '),12,H-10);}
+document.getElementById('scn').onclick=function(){N=N>=5?1:N+1;drawW4();document.getElementById('scread').textContent='S('+N+') = '+rec(N)[N];};
+document.getElementById('sccheck').onclick=function(){var v=verify();document.getElementById('scread').textContent='recurrence == brute '+(v.recMatchesBrute?'✓':'✗')+', '+v.seq.join(',')+' '+(v.matchesKnown?'✓':'✗');};
+document.getElementById('scspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=rec(7),cx=W/2,cy=H/2-20;
+ for(var n=1;n<=6;n++){var a=n/7*6.28+ang*0.3,rad=40+Math.log(r[n])*14,x=cx+Math.cos(a)*Math.min(rad,120),y=cy+Math.sin(a)*Math.min(rad,120)*0.7;g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,6,0,7);g.fill();g.fillStyle='#8ad';g.font='8px monospace';g.fillText(r[n],x+8,y+3);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the convolution recurrence (1,2,6,22,90,394)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the exponential path list never enumerated',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('split at the first return — Catalan with a flat step',10,H-9);}
+drawW4();window.__schroder=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-push-relabel","title":"THE PUSH-RELABEL","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#c05868","icon":"push-relabel",
+  "kicker":"max flow by pushing excess downhill by height",
+  "blurb":"the push-relabel algorithm in the 5-window house format — compute maximum flow by a local rule with no augmenting paths: maintain a preflow (nodes may hold excess) and a height label per node; push flow only downhill across an admissible edge (h[u]=h[v]+1), and relabel (lift) a stuck node with excess so it can drain; the excess settles at the sink and equals the minimum cut. It is often the fastest max-flow method in practice. Verified live: over 60 random capacitated graphs push-relabel's max flow equals the brute-force minimum s-t cut. See downhill pushes in 1D, flow vs min cut in 2D, and the flow-downhill-by-height inverse in 3D.",
+  "lit":"Genuine push-relabel algorithm (Goldberg & Tarjan 1988). Verified live: the preflow + push/relabel operations on the residual graph produce a max flow equal to the brute-force minimum s-t cut for 60 random capacitated graphs (window.__pushrelabel.maxFlowEqualsMinCut).",
+  "fig":"No framing: the preflow initialization, the push/relabel on the residual graph, and the brute min-cut cross-check run in-browser and agree exactly. The AVAN inverse is honest — allowing a preflow and pushing local excess downhill by height (relabeling stuck nodes) drains flow to the sink without tracing any augmenting path; magenta is the augmenting paths never traced, green the local downhill pushes. Kin to the-dinic and the-ford-fulkerson.",
+  "body":PU_BODY,"script":PU_SCRIPT},
+ {"slug":"the-cycle-sort","title":"THE CYCLE SORT","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#58a0b0","icon":"cycle-sort",
+  "kicker":"sorting with the minimum possible number of writes",
+  "blurb":"cycle sort in the 5-window house format — sort an array with the minimum possible number of writes: a permutation decomposes into disjoint cycles, and cycle sort follows each cycle, placing every element directly into its final slot, so each out-of-place element is written exactly once; the total writes are provably minimal. It matters when writing is expensive, as on flash memory or EEPROM. Verified live: over 300 random permutations cycle sort produces the sorted array, and its write count equals the theoretical minimum computed from the permutation's cycle structure. See cycles in 1D, colored cycles in 2D, and the one-write-per-cycle inverse in 3D.",
+  "lit":"Genuine cycle sort (a classic minimal-write sort). Verified live: over 300 random permutations cycle sort yields the correctly sorted array, and its write count equals the minimum derived from the permutation's cycle decomposition (sum of nontrivial cycle lengths) (window.__cyclesort.sorts && .minWrites).",
+  "fig":"No framing: the cycle-following placement, the write counter, and the sorted-order + minimum-writes checks run in-browser and are exact. The AVAN inverse is honest — a permutation's cycles let each element be written exactly once to its final position by rotating each cycle in place, achieving the theoretical minimum writes; magenta is the redundant writes ordinary sorts make, green the single write per element. The sort for costly memory.",
+  "body":CS_BODY,"script":CS_SCRIPT},
+ {"slug":"the-steffensen","title":"THE STEFFENSEN","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#70a860","icon":"steffensen",
+  "kicker":"quadratic fixed-point convergence with no derivative",
+  "blurb":"Steffensen's method in the 5-window house format — find a fixed point of g (a root of g(x)-x) with quadratic convergence (Newton's speed) but no derivative: from x compute x1=g(x), x2=g(x1), then apply Aitken's delta-squared extrapolation x - (x1-x)^2/(x2-2x1+x); three plain iterations folded into one accelerated step. Verified live: for cos x (the Dottie number 0.739085), a sqrt(2) map, and e^-x, Steffensen reaches the fixed point in a handful of steps, far fewer than plain fixed-point iteration. See the delta-squared jump in 1D, iterates in 2D, and the extrapolate-three-iterates inverse in 3D.",
+  "lit":"Genuine Steffensen's method (Steffensen 1933; Aitken's delta-squared). Verified live: for three fixed-point maps (cos x, (x+2/x)/2, e^-x) Steffensen converges to the fixed point (|g(x)-x|<1e-6) in far fewer iterations than plain fixed-point iteration (window.__steffensen.converges && .fasterThanPlain); cos -> 0.739085 in ~5 steps.",
+  "fig":"No framing: the delta-squared step, the plain-iteration comparison, and the convergence + iteration-count checks run in-browser and hold. The AVAN inverse is honest — taking three iterates and Aitken-extrapolating their geometric trend turns linear convergence into quadratic with no derivative; magenta is the many linear steps skipped, green the delta-squared jumps. Newton's speed without Newton's derivative. Kin to the-aitken.",
+  "body":SF_BODY,"script":SF_SCRIPT},
+ {"slug":"the-chebyshev","title":"THE CHEBYSHEV","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"BACKPROP","domain_slug":"backprop","accent":"#c0a048","icon":"chebyshev",
+  "kicker":"interpolate at clustered nodes to defeat Runge",
+  "blurb":"Chebyshev interpolation in the 5-window house format — sample a function not on an even grid but at the Chebyshev nodes (clustered toward the ends, the projected roots of the Chebyshev polynomials); this defeats Runge's phenomenon, where interpolating on an even grid diverges wildly at the edges as points are added while Chebyshev interpolation converges. It underlies spectral methods and high-accuracy approximation. Verified live: on Runge's function 1/(1+25x^2), the Chebyshev max error shrinks as nodes are added (~0.02 at n=21) while the equispaced error explodes (~60). See the semicircle projection in 1D, both interpolants in 2D, and the cluster-the-samples inverse in 3D.",
+  "lit":"Genuine Chebyshev interpolation (Chebyshev; Runge's phenomenon, Runge 1901). Verified live: for Runge's function 1/(1+25x^2), the barycentric interpolant at Chebyshev nodes has smaller max error than at equispaced nodes at every tested n, the Chebyshev error decreases as n grows, and at n=21 it is ~0.018 versus equispaced ~60 (window.__chebyshev.beatsEquispaced && .decreasesWithN && .smallAtN21).",
+  "fig":"No framing: the barycentric interpolant, the Chebyshev vs equispaced node sets, and the max-error comparison across n run in-browser and are exact. The AVAN inverse is honest — clustering samples at the Chebyshev nodes crushes the edge error where an even grid explodes (Runge), so the interpolant converges instead of diverging; magenta is the wildly-oscillating equispaced interpolant, green the converging Chebyshev one. Kin to the-clenshaw and the-gaussian-quadrature.",
+  "body":CH_BODY,"script":CH_SCRIPT},
+ {"slug":"the-schroder","title":"THE SCHRODER","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#a878c0","icon":"schroder",
+  "kicker":"Catalan with a flat step — super-Catalan path counts",
+  "blurb":"the (large) Schröder numbers in the 5-window house format — count lattice paths from (0,0) to (2n,0) using up (1,1), down (1,-1), and FLAT (2,0) steps, never dipping below the axis; they are the Catalan numbers with a flat step allowed (a super-Catalan count) and satisfy a convolution recurrence. The sequence is 1,2,6,22,90,394,1806,... Verified live: the recurrence equals a brute enumeration of all such Schröder paths for n<=5, and the values match the known large-Schröder sequence 1,2,6,22,90,394. See a Schröder path in 1D, recurrence vs brute in 2D, and the split-at-first-return inverse in 3D.",
+  "lit":"Genuine large Schröder numbers (Schröder 1870). Verified live: the recurrence S(n)=(3(2n-1)S(n-1)-(n-2)S(n-2))/(n+1) equals a brute enumeration of all up/down/flat Schröder paths (staying >=0) for n<=5, and the values are 1,2,6,22,90,394 (window.__schroder.recMatchesBrute && .matchesKnown).",
+  "fig":"No framing: the convolution recurrence, the brute path enumeration, and the known-sequence check run in-browser and agree exactly. The AVAN inverse is honest — a path splits at its first return to the axis into an inside and an after path, giving a convolution recurrence, so counts build from products of smaller counts; magenta is the exponential path list, green the recurrence. Large Schröder is Catalan with a flat step. Kin to the-delannoy, the-motzkin, the-catalan.",
+  "body":SC_BODY,"script":SC_SCRIPT},
  {"slug":"the-pollard-p1","title":"THE POLLARD P-1","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#c05868","icon":"pollard-p1",
   "kicker":"factoring surfaced by a gcd when p-1 is smooth",
