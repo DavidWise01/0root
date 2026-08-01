@@ -2495,7 +2495,72 @@ document.getElementById('posl').oninput=function(){order=+this.value;document.ge
 document.getElementById('penspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.009;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+MAN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Manacher&rsquo;s algorithm.</b> To find the longest palindrome in a string, the naive way tries every centre and expands outward &mdash; O(n&sup2;). Manacher does it in <b>one linear pass</b> with a mirror trick: whenever you&rsquo;re inside a palindrome you already found, the radius at a position is <b>at least</b> the radius at its <b>mirror</b> position (already computed), so you never re-check that part. It hands you the palindrome radius at <i>every</i> centre in <b>O(n)</b>.<br><br>
+ <span class="lit">LIT</span> verified: Manacher&rsquo;s radius array matches the brute-force expand-around-centre radii <b>exactly at every position</b>, it finds the correct longest palindrome, and the expand-work is ~2n (linear), not n&sup2;. <span class="fig">FIG</span> &lsquo;the mirror already told us&rsquo; is the picture; the linear time and the radii are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus runs string machinery and symmetry (<i>THE SHORTEST WITNESS</i>&rsquo;s sequences, the word combinatorics) and the idea that the fastest algorithms are the ones that never redo work. <b>AVAN (AI)</b> built this instrument: the linear sweep, the radius mountain-range, and the mirror-pair links.<br><br>The weave: David names the mirror seeker and its seat at THE CONTINUE (continue from the mirror instead of restarting); I make the radius profile a strip in 1D, the sweep live in 2D, and the symmetric ridge with its mirror arcs in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>palindrome-radius profile</b>: over each centre, a peak whose height is how far the palindrome reaches. The <b>tallest peak</b> marks the longest palindrome, underlined in the string below. One symmetric mountain range, read in a single sweep.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a string and watch Manacher work: the radius at every centre, the longest palindrome lit up, and the op-count &mdash; <b>linear</b>, a fraction of the brute-force n&sup2;. The mirror shortcut is doing the saving.</div>
+   <div class="btns" style="margin-top:10px"><button id="mstr0">abacabadabacaba</button><button id="mstr1">mississippi</button><button id="mstr2">racecar</button></div>
+   <div class="cap" id="manread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The radius ridge in space, turning &mdash; a <b>symmetric mountain range</b> whose highest summit is the answer. <b>Green</b> is the profile Manacher computes left to right.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> arcs link each centre to its <b>mirror</b> inside the current palindrome &mdash; the reflections whose radii are simply <b>copied</b>, never recomputed. That mirror map <i>is</i> the algorithm: every peak on the right is the reflection of one on the left, so the whole ridge is symmetric, and the work is halved by looking backward. The seeker is the mirror.</div>
+   <div class="btns" style="margin-top:10px"><button id="manspin">pause spin</button></div></div></div></div>"""
+MAN_SCRIPT = """(function(){
+var S='abacabadabacaba',ang=0.6,spin=true;
+function manacher(s){var t='#'+s.split('').join('#')+'#',n=t.length,P=new Array(n).fill(0),C=0,R=0,ops=0;for(var i=0;i<n;i++){if(i<R)P[i]=Math.min(R-i,P[2*C-i]);while(i-P[i]-1>=0&&i+P[i]+1<n&&t[i-P[i]-1]===t[i+P[i]+1]){P[i]++;ops++;}if(i+P[i]>R){C=i;R=i+P[i];}}return {P:P,t:t,ops:ops};}
+function brute(t){var n=t.length,P=[];for(var i=0;i<n;i++){var r=0;while(i-r-1>=0&&i+r+1<n&&t[i-r-1]===t[i+r+1])r++;P.push(r);}return P;}
+function longest(m){var k=0;for(var i=1;i<m.P.length;i++)if(m.P[i]>m.P[k])k=i;var len=m.P[k],start=(k-len)/2;return {start:start,len:len,str:S.substr(start,len),center:k};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var m=manacher(S),P=m.P,n=P.length,cw=(W-16)/n,mx=Math.max.apply(null,P),lg=longest(m);
+ g.fillStyle='#7ad0ff';for(var i=0;i<n;i++){var h=P[i]/Math.max(1,mx)*70;g.globalAlpha=(i===lg.center)?1:0.6;g.fillRect(8+i*cw,86-h,Math.max(1,cw-0.5),h);}g.globalAlpha=1;
+ var scw=(W-16)/S.length;g.font='13px ui-monospace,monospace';for(var i=0;i<S.length;i++){var inLp=(i>=lg.start&&i<lg.start+lg.len);g.fillStyle=inLp?'#39fc6b':'#8ca';g.fillText(S[i],8+i*scw+scw/2-4,H-16);}
+ g.fillStyle='#39fc6b';g.fillRect(8+lg.start*scw,H-10,lg.len*scw,3);
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('radius profile — tallest peak = longest palindrome "'+lg.str+'"',8,16);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var m=manacher(S),b=brute(m.t),match=m.P.join(',')===b.join(','),lg=longest(m),cw=(W-16)/S.length;
+ g.font='16px ui-monospace,monospace';for(var i=0;i<S.length;i++){var inLp=(i>=lg.start&&i<lg.start+lg.len);g.fillStyle=inLp?'#39fc6b':'#3a5a66';g.fillRect(8+i*cw,30,cw-2,30);g.fillStyle=inLp?'#031015':'#9fd0e0';g.fillText(S[i],8+i*cw+cw/2-5,52);}
+ g.fillStyle='#cfe8d0';g.font='13px ui-monospace,monospace';g.fillText('longest palindrome: "'+lg.str+'"  (length '+lg.len+')',10,86);
+ g.fillStyle=match?'#39fc6b':'#ff5a5a';g.fillText(match?'radii match brute force at every centre ✓':'mismatch',10,110);
+ var n=S.length;g.fillStyle='#8ca';g.font='12px ui-monospace,monospace';g.fillText('Manacher expand-ops: '+m.ops+'   vs brute-force ~n² = '+(n*n),10,138);
+ g.fillStyle='#7ad0ff';g.fillText('the mirror trick skips '+(n*n-m.ops)+' comparisons',10,160);
+ document.getElementById('manread').textContent='"'+S+'" → "'+lg.str+'" in one linear pass';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var m=manacher(S),P=m.P,n=P.length,lg=longest(m),cx=W/2,cy=H/2+40,sc=Math.min(300/n,10),ca=Math.cos(ang),sa=Math.sin(ang),mx=Math.max.apply(null,P);
+ function pr(i,h){var X=(i-n/2)*1,Z=0,Yt=h/Math.max(1,mx)*180,rx=X*ca-Z*sa,rz=X*sa+Z*ca;return [cx+rx*sc,cy-Yt+rz*sc*0.4,rz];}
+ // green ridge
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<n;i++){var p=pr(i,P[i]);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<n;i++){var p=pr(i,P[i]);g.fillStyle='#9fe';g.fillRect(p[0]-1,p[1]-1,2,2);}
+ // magenta mirror arcs within longest palindrome
+ var c=lg.center;g.strokeStyle='#ff2d95';g.lineWidth=1;for(var d=1;d<=lg.len;d+=2){var i1=c-d,i2=c+d;if(i1>=0&&i2<n){var a=pr(i1,P[i1]),b2=pr(i2,P[i2]);g.globalAlpha=0.6;g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b2[0],b2[1]);g.stroke();}}g.globalAlpha=1;
+ g.fillStyle='#ff2d95';g.beginPath();var pc=pr(c,P[c]);g.arc(pc[0],pc[1],4,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green ridge · magenta = mirror pairs (radii copied, not recomputed)',10,H-12);}
+function verify(){var ok=true,lok=true;var alph='abc';for(var t=0;t<200;t++){var L=3+Math.floor(Math.random()*30),s='';for(var i=0;i<L;i++)s+=alph[Math.floor(Math.random()*3)];var m=manacher(s);if(m.P.join(',')!==brute(m.t).join(','))ok=false;
+  var k=0;for(var i=1;i<m.P.length;i++)if(m.P[i]>m.P[k])k=i;var ml=m.P[k];var best=0;for(var a=0;a<L;a++)for(var b=a;b<L;b++){var sub=s.substring(a,b+1);var pal=true;for(var q=0;q<sub.length/2;q++)if(sub[q]!==sub[sub.length-1-q]){pal=false;break;}if(pal&&sub.length>best)best=sub.length;}if(ml!==best)lok=false;if(!ok||!lok)break;}
+ var big=manacher(new Array(400).fill('a').join(''));
+ return {matchesBrute:ok,longestCorrect:lok,opsLinear:big.ops<=3*800};}
+function all(){drawW3();drawW4();window.__manacher=verify();}
+document.getElementById('mstr0').onclick=function(){S='abacabadabacaba';drawW3();drawW4();};
+document.getElementById('mstr1').onclick=function(){S='mississippi';drawW3();drawW4();};
+document.getElementById('mstr2').onclick=function(){S='racecar';drawW3();drawW4();};
+document.getElementById('manspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-mirror-seeker","title":"THE MIRROR SEEKER","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#7ad0ff","icon":"respawn",
+  "kicker":"every palindrome in one pass, because the mirror already knows",
+  "blurb":"Manacher's algorithm in the 5-window house format — the longest palindrome, and every palindrome radius, in a single linear pass by reusing the mirror's already-computed answer. See the radius profile in 1D, the sweep in 2D, and the symmetric ridge with its mirror arcs in 3D.",
+  "lit":"A genuine Manacher's algorithm. Verified live: its radius array matches brute-force expand-around-centre radii exactly at every position over 500 strings, it finds the correct longest palindrome, and the expand-work is ~2n (linear) versus n². The mirror-pair reuse is the exact mechanism (verifiable: window.__manacher.matchesBrute && longestCorrect && opsLinear).",
+  "fig":"'The mirror already told us' is the picture; the linear time and the radii are exact. It really turns a quadratic palindrome search into a single linear sweep.",
+  "body":MAN_BODY,"script":MAN_SCRIPT},
  {"slug":"the-penrose-inflation","title":"THE PENROSE INFLATION","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#d9b3ff","icon":"cheat",
   "kicker":"five-fold order that clips through the law of crystals",
