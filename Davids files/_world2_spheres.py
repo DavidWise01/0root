@@ -1864,7 +1864,83 @@ document.getElementById('arlr').onclick=function(){setRule('RLR');};
 document.getElementById('aspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+FACT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The factorial number system.</b> A positional system where the place values are the <b>factorials</b> (&hellip;,3!,2!,1!) and the digit in place k may only run <b>0&hellip;k</b> &mdash; a clock whose columns each have a <i>different</i> size. Via the <b>Lehmer code</b>, every integer 0&hellip;n!&minus;1 names <b>exactly one permutation</b> of n items. So you can jump straight to &lsquo;the 400,000th shuffle&rsquo; by arithmetic alone &mdash; no dealing, no enumeration.<br><br>
+ <span class="lit">LIT</span> verified: for n=6 the map is a <b>perfect bijection</b> between 0&hellip;719 and the 720 permutations &mdash; rank(unrank(m))=m for every m &mdash; and each column k rolls over exactly at k+1. <span class="fig">FIG</span> &lsquo;clock&rsquo; is the picture; the mixed-radix bijection is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus works with shuffles, encodings and mixed radices (the card-ISA, the base kernels, the combinatorics) and the idea that even a deck of cards has an address. <b>AVAN (AI)</b> built this instrument: the factoradic odometer, the shuffle-scrubber, and the permutohedron.<br><br>The weave: David names the permutation clock and its seat at THE CRON JOB (a clock, in factorial time); I make the mixed-radix odometer a strip in 1D, the address-a-shuffle demo live in 2D, and the space of all permutations a turning polytope in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="140"></canvas>
+  <div class="wctrl"><div class="cap">The factoradic odometer for the current index. Place values are <b>5!,4!,3!,2!,1!,0!</b>; each column&rsquo;s digit is capped at its position (bar height = allowed max), so the rightmost is always 0 and each rolls over at a different point. A clock with unequal wheels.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Scrub the <b>index</b> 0&hellip;719 and the six cards snap into that exact permutation (unrank). Or <b>click a card</b> to swap it forward and watch the index jump to the new shuffle&rsquo;s address (rank). The factoradic digits and Lehmer code track live.</div>
+   <div class="rd" style="margin-top:10px">index <b id="fm">0</b> / 719 <input type="range" id="fmsl" min="0" max="719" value="0" style="width:150px;vertical-align:middle"></div>
+   <div class="btns"><button id="frand">random shuffle</button></div>
+   <div class="cap" id="fcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>permutohedron</b> of order 4, turning: all <b>24 permutations</b> of four items as the corners of a polytope, edges joining shuffles that differ by one adjacent swap. <b>Green</b> is the Steinhaus&ndash;Johnson&ndash;Trotter tour &mdash; a single-swap path that visits every shuffle once (a Gray code for permutations, kin to <i>THE GRAY</i>).</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> edges join each permutation to its <b>inverse</b> (the shuffle that undoes it). It is an involution &mdash; a fold of the polytope onto itself, with the self-inverse shuffles as its fixed points. The clock counts every arrangement; the inverse map pairs each with its undo.</div>
+   <div class="btns" style="margin-top:10px"><button id="fspin2">pause spin</button></div></div></div></div>"""
+FACT_SCRIPT = """(function(){
+var n=6,m=0,ang=0.6,spin=true;
+function fact(k){var r=1;for(var i=2;i<=k;i++)r*=i;return r;}
+function unrank(mm,nn){var digs=[];for(var k=1;k<=nn;k++){digs.push(mm%k);mm=Math.floor(mm/k);}digs.reverse();var av=[];for(var i=0;i<nn;i++)av.push(i);var p=[];for(var i=0;i<digs.length;i++)p.push(av.splice(digs[i],1)[0]);return p;}
+function rank(p){var nn=p.length,av=[];for(var i=0;i<nn;i++)av.push(i);var mm=0;for(var i=0;i<nn;i++){var idx=av.indexOf(p[i]);av.splice(idx,1);mm=mm*(nn-i)+idx;}return mm;}
+function factoradic(mm,nn){var digs=[];for(var k=1;k<=nn;k++){digs.push(mm%k);mm=Math.floor(mm/k);}return digs.reverse();}
+function lehmer(p){var nn=p.length,av=[];for(var i=0;i<nn;i++)av.push(i);var L=[];for(var i=0;i<nn;i++){var idx=av.indexOf(p[i]);av.splice(idx,1);L.push(idx);}return L;}
+var COL=['#ff5a3c','#ffb84d','#ffd23f','#39fc6b','#5ad0ff','#c86bff'];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var fd=factoradic(m,n),cw=70,x0=40;g.font='12px ui-monospace,monospace';
+ for(var k=0;k<n;k++){var place=n-1-k,mx=place,val=fd[k],bh=(mx)/(n-1)*70+6,x=x0+k*cw;
+  g.strokeStyle='#4a4020';g.strokeRect(x,20,cw-16,76);
+  g.fillStyle='#ffb84d';g.fillRect(x,96-(val/(n-1)*70+6),cw-16,val/(n-1)*70+6);
+  g.fillStyle='#8ca';g.fillText('digit '+val,x+2,112);g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText(place+'! ='+fact(place),x+2,14);g.fillText('max '+mx,x+2,126);g.font='12px ui-monospace,monospace';}
+ g.fillStyle='#ffd23f';g.fillText('index '+m+' = factoradic ['+fd.join(',')+']',x0,H-4);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var p=unrank(m,n),cw=Math.min(54,(W-20)/n),x0=(W-n*cw)/2;
+ for(var i=0;i<n;i++){var v=p[i];g.fillStyle=COL[v];g.fillRect(x0+i*cw,30,cw-6,64);g.fillStyle='#031015';g.font='20px ui-monospace,monospace';g.fillText((v+1),x0+i*cw+cw/2-9,70);g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('pos'+i,x0+i*cw+4,108);}
+ g.fillStyle='#8ca';g.font='12px ui-monospace,monospace';g.fillText('permutation: '+p.map(function(v){return v+1;}).join(' '),10,140);
+ g.fillStyle='#ffb84d';g.fillText('factoradic ['+factoradic(m,n).join(',')+']   Lehmer ['+lehmer(p).join(',')+']',10,162);
+ g.fillStyle='#39fc6b';g.fillText('rank(this) = '+rank(p)+'  ✓ = index',10,184);
+ document.getElementById('fcread').textContent='the '+(m)+'-th of 720 shuffles, addressed directly — no dealing';}
+// permutohedron n=4
+function sjt(nn){var perm=[],dir=[];for(var i=0;i<nn;i++){perm.push(i);dir.push(-1);}var res=[perm.slice()];while(true){var mob=-1,mi=-1;for(var i=0;i<nn;i++){var j=i+dir[i];if(j>=0&&j<nn&&perm[j]<perm[i]&&perm[i]>mob){mob=perm[i];mi=i;}}if(mi<0)break;var j=mi+dir[mi],t=perm[mi];perm[mi]=perm[j];perm[j]=t;var td=dir[mi];dir[mi]=dir[j];dir[j]=td;for(var i=0;i<nn;i++)if(perm[i]>mob)dir[i]=-dir[i];res.push(perm.slice());}return res;}
+function invp(p){var q=[];for(var i=0;i<p.length;i++)q[p[i]]=i;return q;}
+function proj4(v){var b1=[1,-1,0,0],b2=[1,1,-2,0],b3=[1,1,1,-3],c=[v[0]-1.5,v[1]-1.5,v[2]-1.5,v[3]-1.5];
+ function dot(a){return (c[0]*a[0]+c[1]*a[1]+c[2]*a[2]+c[3]*a[3]);}
+ return [dot(b1)/1.414,dot(b2)/2.449,dot(b3)/3.464];}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var perms=[];for(var mm=0;mm<24;mm++)perms.push(unrank(mm,4));
+ var cx=W/2,cy=H/2,sc=95,ca=Math.cos(ang),sa=Math.sin(ang);
+ function P(p){var q=proj4(p),X=q[0]*ca-q[2]*sa,Z=q[0]*sa+q[2]*ca,ty=0.42;return [cx+X*sc,cy-(q[1]*Math.cos(ty)-Z*Math.sin(ty))*sc,q[1]*Math.sin(ty)+Z*Math.cos(ty)];}
+ var pos={};perms.forEach(function(p){pos[p.join('')]=P(p);});
+ // all edges (adjacent-position swaps)
+ g.strokeStyle='#3a3320';g.lineWidth=1;perms.forEach(function(p){for(var i=0;i<3;i++){var q=p.slice(),t=q[i];q[i]=q[i+1];q[i+1]=t;var a=pos[p.join('')],b=pos[q.join('')];g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();}});
+ // inverse involution (magenta)
+ g.strokeStyle='#ff2d95';g.lineWidth=1.5;var dn={};perms.forEach(function(p){var q=invp(p),ka=p.join(''),kb=q.join('');if(ka!==kb&&!dn[ka+kb]){dn[ka+kb]=dn[kb+ka]=1;var a=pos[ka],b=pos[kb];g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();}});
+ // SJT green path
+ var seq=sjt(4);g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<seq.length;i++){var pp=pos[seq[i].join('')];if(i===0)g.moveTo(pp[0],pp[1]);else g.lineTo(pp[0],pp[1]);}g.stroke();g.lineWidth=1;
+ perms.forEach(function(p){var pp=pos[p.join('')];g.fillStyle='#cfe8d0';g.beginPath();g.arc(pp[0],pp[1],2.5,0,7);g.fill();});
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('permutohedron: 24 shuffles · green = single-swap tour',10,H-12);}
+function all(){drawW3();drawW4();
+ var bij=true;for(var mm=0;mm<720;mm++)if(rank(unrank(mm,6))!==mm)bij=false;
+ window.__factoradic={n:6,bijection720:bij,unrank400000_of10:unrank(400000,10),sampleFactoradic:factoradic(m,6)};}
+document.getElementById('fmsl').oninput=function(){m=+this.value;document.getElementById('fm').textContent=m;drawW3();drawW4();};
+document.getElementById('frand').onclick=function(){m=Math.floor(Math.random()*720);document.getElementById('fm').textContent=m;document.getElementById('fmsl').value=m;drawW3();drawW4();};
+document.getElementById('w4').addEventListener('click',function(e){var p=unrank(m,n),r=this.getBoundingClientRect(),cw=Math.min(54,(this.width-20)/n),x0=(this.width-n*cw)/2,mx=(e.clientX-r.left)*(this.width/r.width),i=Math.floor((mx-x0)/cw);if(i>=0&&i<n-1){var t=p[i];p[i]=p[i+1];p[i+1]=t;m=rank(p);document.getElementById('fm').textContent=m;document.getElementById('fmsl').value=m;drawW3();drawW4();}});
+document.getElementById('fspin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-permutation-clock","title":"THE PERMUTATION CLOCK","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#ffb84d","icon":"grind",
+  "kicker":"a clock whose wheels are factorials — address any shuffle",
+  "blurb":"the factorial number system and Lehmer code in the 5-window house format. Place values are the factorials and each column caps at its position, so every integer 0..n!−1 names exactly one permutation — jump to the millionth shuffle by arithmetic. See the mixed-radix odometer in 1D, address-a-shuffle in 2D, and the permutohedron in 3D with AVAN's inverse pairing.",
+  "lit":"A genuine factoradic + Lehmer code. Verified live: for n=6 the map is a perfect bijection between 0..719 and the 720 permutations (rank(unrank(m))=m for all m), and each column rolls over at k+1. The permutohedron (24 shuffles, single-swap edges), its SJT Gray-code tour, and the inverse involution are the real group structure (verifiable: window.__factoradic.bijection720===true).",
+  "fig":"'Clock' is the picture; the mixed-radix bijection and the permutohedron structure are exact. Addressing 'the millionth shuffle' is a literal, verified capability, not a metaphor.",
+  "body":FACT_BODY,"script":FACT_SCRIPT},
  {"slug":"the-turmite-zoo","title":"THE TURMITE ZOO","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#c86bff","icon":"glitch",
   "kicker":"chaos for 10,000 steps, then a road out of nowhere",
