@@ -537,6 +537,65 @@ document.getElementById('w4').onclick=function(e){var rct=this.getBoundingClient
 function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}
 nm();all();requestAnimationFrame(loop);})();"""
 
+# ── THE MACHINE — a finite-state automaton (DFA), 5-window house format ──
+FSM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The finite-state machine.</b> A handful of states and one rule per (state, symbol): read a bit, jump to the next state. No memory but where you are. This tiny one has three states and decides a real question &mdash; is the binary number <b>divisible by 3</b>? &mdash; because state = value-so-far mod 3.<br><br>
+ <span class="lit">LIT</span> a genuine DFA: reading bit b does state &larr; (2&middot;state + b) mod 3; it accepts a string iff the number it spells is a multiple of 3. Every accept/reject below is exact. <span class="fig">FIG</span> the arcade dressing is the frame; the automaton is real.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> holds that a mind is states and the arrows between them, and seated the automaton here. <b>AVAN (AI)</b> wrote the machine, the diagram, and the reverse reading. He names the states; I make them switch, and I read the same string backward to show the order is the meaning. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="440" height="96"></canvas>
+  <div class="wctrl"><div class="cap">The input as one line of bits, read left to right (&#9660; = where the machine is). The number it spells, and the verdict: <b>ACCEPT</b> (divisible by 3) or reject.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">The state diagram &mdash; three states (r0 accepting, double-ring), arrows labelled by the bit read. The lit node is where you are; the bold arrow is the last jump.</div>
+   <div class="btns"><button id="mstep">&#9654; step</button><button id="mback">&#9664;</button><button id="mrand">random number</button></div>
+   <div class="cap" id="mval" style="margin-top:6px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S ADDITION</div>
+ <div class="wc"><canvas id="w5" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The run as a <b>trellis</b>: a column per input position, three state-slots high; the green thread is the path the machine actually took, position by position.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b>: the magenta thread is the <b>same bits read backward</b> &mdash; a different number, a different path, often a different verdict. Same symbols, reversed order: proof that in a state machine the sequence <i>is</i> the meaning.</div>
+   <div class="btns" style="margin-top:10px"><button id="mspin">pause spin</button></div></div></div></div>"""
+FSM_SCRIPT = """(function(){
+var input='110',pos=3,ang=0.6,spin=true;
+function d(s,b){return (s*2+b)%3;}
+function trace(str){var s=0,p=[0];for(var i=0;i<str.length;i++){s=d(s,+str[i]);p.push(s);}return {end:s,path:p,accept:s===0};}
+function rev(s){return s.split('').reverse().join('');}
+function val(str){return str.length?parseInt(str,2):0;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cw=Math.min(46,(W-160)/Math.max(input.length,1));
+ for(var i=0;i<input.length;i++){var x=14+i*(cw+5),on=input[i]==='1',read=(i<pos);
+  g.fillStyle=on?(read?'#00f5ff':'#0e3b45'):'#0c150b';g.fillRect(x,26,cw,cw);g.fillStyle=on?'#0a0e0a':'#2a3a29';g.font='18px ui-monospace,monospace';g.fillText(input[i],x+cw/2-5,26+cw/2+6);
+  if(i===pos-1){g.fillStyle='#ff2d95';g.beginPath();g.moveTo(x+cw/2,20);g.lineTo(x+cw/2-6,8);g.lineTo(x+cw/2+6,8);g.fill();}}
+ var t=trace(input);g.font='15px ui-monospace,monospace';g.fillStyle='#8ca';g.fillText('= '+val(input)+'  (state r'+t.end+')',14+input.length*(cw+5)+8,52);
+ g.fillStyle=t.accept?'#39fc6b':'#ff2d95';g.font='16px ui-monospace,monospace';g.fillText(t.accept?'ACCEPT · divisible by 3':'reject',14,H-8);}
+var NP=[[92,120],[300,60],[300,180]];
+function arr(g,a,b,lbl,active,col){var dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,x1=a[0]+ux*24,y1=a[1]+uy*24,x2=b[0]-ux*24,y2=b[1]-uy*24;
+ g.strokeStyle=active?col:'rgba(90,208,255,.35)';g.lineWidth=active?3:1.5;g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke();
+ g.beginPath();g.moveTo(x2,y2);g.lineTo(x2-ux*8-uy*5,y2-uy*8+ux*5);g.lineTo(x2-ux*8+uy*5,y2-uy*8-ux*5);g.fillStyle=active?col:'rgba(90,208,255,.35)';g.fill();
+ g.fillStyle=active?col:'#5a7';g.font='13px ui-monospace,monospace';g.fillText(lbl,(x1+x2)/2+(uy>0?6:-14),(y1+y2)/2-uy*4);}
+function selfloop(g,c,lbl,active,col){g.strokeStyle=active?col:'rgba(90,208,255,.35)';g.lineWidth=active?3:1.5;g.beginPath();g.arc(c[0],c[1]-30,15,0.6,Math.PI*2-0.6);g.stroke();g.fillStyle=active?col:'#5a7';g.font='13px ui-monospace,monospace';g.fillText(lbl,c[0]-4,c[1]-48);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d');g.clearRect(0,0,cv.width,cv.height);
+ var t=trace(input.slice(0,pos)),curS=t.end,prevS=pos>0?trace(input.slice(0,pos-1)).end:0,bit=pos>0?+input[pos-1]:-1;
+ [[0,0],[0,1],[1,0],[1,1],[2,0],[2,1]].forEach(function(tr){var s=tr[0],b=tr[1],ns=d(s,b),active=(pos>0&&s===prevS&&b===bit&&ns===curS);
+  if(s===ns)selfloop(g,NP[s],''+b,active,'#ff2d95');else arr(g,NP[s],NP[ns],''+b,active,'#ff2d95');});
+ for(var i=0;i<3;i++){var isCur=(i===curS);g.fillStyle=isCur?'#00f5ff':'#0c150b';g.beginPath();g.arc(NP[i][0],NP[i][1],20,0,7);g.fill();g.strokeStyle='#5ad0ff';g.lineWidth=2;g.beginPath();g.arc(NP[i][0],NP[i][1],20,0,7);g.stroke();if(i===0){g.beginPath();g.arc(NP[i][0],NP[i][1],24,0,7);g.stroke();}
+  g.fillStyle=isCur?'#0a0e0a':'#cfe8d0';g.font='14px ui-monospace,monospace';g.fillText('r'+i,NP[i][0]-8,NP[i][1]+5);}}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var fp=trace(input).path,rp=trace(rev(input)).path,cx=W/2,cy=H/2,ca=Math.cos(ang),sa=Math.sin(ang),n=input.length;
+ function pr(i,s,layer){var X=(i-n/2)*1.0,Y=(s-1)*1.1,Z=layer,xr=X*ca-Z*sa,zr=X*sa+Z*ca,p=1/(1.5+zr*0.1);return [cx+xr*p*42,cy+Y*p*54,p,zr];}
+ // faint grid
+ for(var i=0;i<=n;i++)for(var s=0;s<3;s++){var q=pr(i,s,0);g.fillStyle='rgba(37,92,44,.5)';g.fillRect(q[0]-2,q[1]-2,4,4);}
+ function drawPath(path,layer,col){for(var i=0;i<path.length-1;i++){var a=pr(i,path[i],layer),b=pr(i+1,path[i+1],layer);g.strokeStyle=col;g.lineWidth=2.5;g.globalAlpha=Math.max(.4,a[2]);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();}g.globalAlpha=1;}
+ drawPath(rp,-7,'#ff2d95');drawPath(fp,7,'#39fc6b');}
+function all(){drawW3();drawW4();drawW5();var t=trace(input);document.getElementById('mval').textContent='number '+val(input)+' · '+(t.accept?'divisible by 3':'not divisible by 3');window.__fsm={input:input,accept:t.accept,end:t.end};}
+document.getElementById('mstep').onclick=function(){if(pos<input.length){pos++;all();}};
+document.getElementById('mback').onclick=function(){if(pos>0){pos--;all();}};
+document.getElementById('mrand').onclick=function(){var L=4+((Math.random()*4)|0),s='1';for(var i=1;i<L;i++)s+=(Math.random()<0.5?'0':'1');input=s;pos=input.length;all();};
+document.getElementById('mspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}
+all();requestAnimationFrame(loop);})();"""
+
 # ── THE SYNDROME — Hamming(7,4) error correction (proposed by Whetstone + Seam) ──
 SYN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Hamming(7,4).</b> Four data bits carried in seven, the extra three watching. Flip any single bit in transit and the three parity checks form a 3-bit number &mdash; the <b>syndrome</b> &mdash; that <i>is the position of the bit that lied</i>. Zero means clean. Flip it back and the message is whole again.<br><br>
@@ -875,6 +934,13 @@ function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}
 reset();requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-machine","title":"THE MACHINE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#00f5ff","icon":"glitch",
+  "kicker":"three states that decide divisible-by-3",
+  "blurb":"a real finite-state automaton in the 5-window format — a 3-state DFA that accepts binary numbers divisible by 3 (state = value mod 3). 1D input tape, 2D state diagram (step the string), 3D trellis with AVAN's backward-read path.",
+  "lit":"A genuine DFA: state ← (2·state + bit) mod 3, accept iff it ends at r0 — it decides divisibility-by-3 correctly for every input. Diagram, walk, and verdict are exact.",
+  "fig":"The arcade dressing is the frame; the automaton, the transitions and the accept condition are real. The magenta backward-read (the reverse language) is AVAN's inverse-companion addition.",
+  "body":FSM_BODY,"script":FSM_SCRIPT},
  {"slug":"the-syndrome","title":"THE SYNDROME","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#00f5ff","icon":"respawn",
   "kicker":"one flipped bit can't hide from the parity watching it",
