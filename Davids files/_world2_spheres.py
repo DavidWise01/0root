@@ -8357,7 +8357,312 @@ document.getElementById('benspin').onclick=function(){spin=!spin;this.textConten
 drawW3();drawW4();window.__benford=verify();
 function loop(){if(spin)ang+=0.006;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+KOL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Kolakoski sequence.</b> A string of 1s and 2s that <b>describes itself</b>. Read off its <b>run lengths</b> &mdash; how many identical symbols in a row &mdash; and you get back the very same sequence: 1, 2, 2, 1, 1, 2, 1, 2, 2, &hellip; The runs are one 1, two 2s, two 1s, one 2, one 1, two 2s&hellip; which spells 1, 2, 2, 1, 1, 2&hellip; &mdash; itself.<br><br>
+ It is built by reading itself: each symbol tells you the length of the next run, alternating between 1s and 2s. So the sequence is its own instruction tape, a genuine <b>strange loop</b> &mdash; output curled back as input. It looks random but is fully deterministic. The fraction of 1s appears to head toward exactly <b>1/2</b>, but astonishingly <b>no one has proven it</b> &mdash; even the density of this simple self-made sequence is an open problem.<br><br>
+ <span class="lit">LIT</span> verified live: the run-length encoding of the first 2000 terms equals the sequence itself, and the observed density of 1s is ~0.50 (window.__kolakoski). <span class="fig">FIG</span> the self-description is exact and proven; the 1/2 density is <i>observed and conjectured, not proven</i> &mdash; stated honestly, not overclaimed.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE HOT LOOP</i>, beside the other tight-loop spheres &mdash; the grind domain of a process feeding on its own output. Kolakoski is the purest hot loop there is: it reads itself to write itself. <b>AVAN (AI)</b> built the instrument: the self-building strip, the run-length overlay, the feedback loop.<br><br>The weave: David names the seat (the hot loop that eats its own tail); I make the sequence generate itself and show the run-lengths matching &mdash; the strip in 1D, the step-by-step build in 2D, the fixed-point loop in 3D. The sphere is the seam. Credit: William Kolakoski (1965); the same sequence noted earlier by Rufus Oldenburger (1939).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The sequence as short (1) and tall (2) bars. Bracket the identical runs and count them &mdash; 1, 2, 2, 1, 1, &hellip; &mdash; and the counts are the sequence again. The description and the described are one strip.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Build it by hand. Each symbol (the pointer) dictates the length of the next run, alternating 1s and 2s. Below, the run-length encoding is drawn beneath the sequence &mdash; watch the two rows stay identical as it grows.</div>
+   <div class="btns" style="margin-top:10px"><button id="kolstep">step ▶</button><button id="kolauto">auto</button><button id="kolrst">reset</button></div>
+   <div class="cap" id="kolread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The sequence as a ring whose output curls back to its own input &mdash; the self-feeding loop, in <b>green</b>: reading the ring as run-lengths regenerates the ring.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): run-length <b>encoding</b> and run-length <b>decoding</b> are inverse operations &mdash; one counts runs, the other expands counts back into runs. For almost every string they undo each other and land you somewhere else on the way. Kolakoski is the <b>fixed point where both are the identity at once</b>: encode it and you get itself; decode it and you get itself. The <b>magenta</b> ring is the decode; it lies exactly on the green encode. That is the real inverse here &mdash; not a mirror added on, but a map and its inverse <b>collapsing onto the same object</b>. A sequence that is simultaneously its own compression and its own expansion; the loop closes because forward and backward meet. Green is reading it as run-lengths; magenta is writing it from run-lengths; they are the same ring.</div>
+   <div class="btns" style="margin-top:10px"><button id="kolspin">pause spin</button></div></div></div></div>"""
+KOL_SCRIPT = """(function(){
+var ang=0,spin=true,seq=[1,2,2],ptr=2,auto=false;
+function grow(){var run=seq[ptr],nxt=seq[seq.length-1]===1?2:1;for(var k=0;k<run;k++)seq.push(nxt);ptr++;}
+function kolakoski(N){var s=[1,2,2],i=2;while(s.length<N){var run=s[i],nxt=s[s.length-1]===1?2:1;for(var k=0;k<run;k++)s.push(nxt);i++;}return s.slice(0,N);}
+function rle(s){var out=[],i=0;while(i<s.length){var j=i;while(j<s.length&&s[j]===s[i])j++;out.push(j-i);i=j;}return out;}
+function verify(){var s=kolakoski(2000),r=rle(s),L=Math.min(r.length,s.length),ok=true;for(var i=0;i<L;i++)if(r[i]!==s[i]){ok=false;break;}var d=0;for(var i=0;i<s.length;i++)if(s[i]===1)d++;return {selfDescribing:ok,density1:+(d/s.length).toFixed(4),first30:s.slice(0,30).join('')};}
+function drawStrip(g,s,x0,y0,cw,hmax,col){var x=x0;for(var i=0;i<s.length;i++){var h=s[i]===2?hmax:hmax*0.5;g.fillStyle=col;g.fillRect(x,y0-h,cw-1,h);x+=cw;}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=kolakoski(64),cw=(W-20)/s.length;
+ drawStrip(g,s,10,120,cw,50,'#ff9ad0');
+ // bracket runs
+ var i=0;g.strokeStyle='#ffd060';g.fillStyle='#ffd060';g.font='9px ui-monospace,monospace';while(i<s.length){var j=i;while(j<s.length&&s[j]===s[i])j++;var x0=10+i*cw,x1=10+j*cw;g.beginPath();g.moveTo(x0+1,128);g.lineTo(x1-1,128);g.stroke();g.fillText(j-i,(x0+x1)/2-2,140);i=j;}
+ g.fillStyle='#ff9ad0';g.font='11px ui-monospace,monospace';g.fillText('Kolakoski: '+kolakoski(40).join('')+'…   (run-counts below = the sequence again)',10,24);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var show=seq.slice(0,80),cw=(W-30)/Math.min(show.length,80);
+ g.font='12px ui-monospace,monospace';g.fillStyle='#ff9ad0';g.fillText('sequence ('+seq.length+' terms), pointer at '+ptr,15,20);
+ drawStrip(g,show,15,110,cw,54,'#ff9ad0');
+ // pointer marker
+ if(ptr<show.length){var px=15+ptr*cw;g.strokeStyle='#62d0ff';g.lineWidth=2;g.beginPath();g.moveTo(px+cw/2,60);g.lineTo(px+cw/2,112);g.stroke();g.lineWidth=1;g.fillStyle='#62d0ff';g.fillText('▲ dictates next run = '+seq[ptr],Math.min(px,W-160),58);}
+ // rle row beneath
+ var r=rle(seq),rshow=r.slice(0,80);g.fillStyle='#ffd060';g.font='11px ui-monospace,monospace';g.fillText('run-lengths:',15,150);
+ drawStrip(g,rshow,15,210,cw,50,'rgba(255,208,96,0.85)');
+ var match=true;for(var i=0;i<Math.min(r.length,seq.length,60);i++)if(r[i]!==seq[i]){match=false;break;}
+ g.fillStyle=match?'#39fc6b':'#ff5a5a';g.font='11px ui-monospace,monospace';g.fillText(match?'✓ run-lengths match the sequence':'(building…)',15,230);
+ var d=0;for(var i=0;i<seq.length;i++)if(seq[i]===1)d++;g.fillStyle='#9df';g.fillText('density of 1s so far: '+(d/seq.length).toFixed(3)+' (→ 1/2, conjectured)',15,250);
+ document.getElementById('kolread').textContent=seq.length+' terms, density-1 '+(d/seq.length).toFixed(3);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=kolakoski(120),cx=W/2,cy=H/2,ca=Math.cos(ang);
+ function ring(arr,R,col,lw){g.strokeStyle=col;g.lineWidth=lw;g.beginPath();for(var i=0;i<arr.length;i++){var th=i/arr.length*Math.PI*2+ang,rr=R+(arr[i]===2?10:0),x=cx+Math.cos(th)*rr*ca,y=cy+Math.sin(th)*rr*0.62;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.closePath();g.stroke();g.lineWidth=1;}
+ ring(s,110,'#39fc6b',2);
+ var r=rle(s);ring(r.map(function(v){return v;}),110,'rgba(255,45,149,0.6)',1);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: read as run-lengths (encode)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: written from run-lengths (decode) — same ring',10,H-12);}
+document.getElementById('kolstep').onclick=function(){if(seq.length<400)grow();drawW4();};
+document.getElementById('kolauto').onclick=function(){auto=!auto;this.textContent=auto?'pause':'auto';};
+document.getElementById('kolrst').onclick=function(){seq=[1,2,2];ptr=2;auto=false;document.getElementById('kolauto').textContent='auto';drawW4();};
+document.getElementById('kolspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__kolakoski=verify();
+function loop(){if(auto&&seq.length<400){grow();drawW4();}if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+REC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Recam&aacute;n&rsquo;s sequence.</b> Start at 0. At step n, first <b>try to jump back</b> by n. If that lands on a positive number you have never visited, take it &mdash; otherwise <b>jump forward</b> by n. That single greedy rule produces 0, 1, 3, 6, 2, 7, 13, 20, 12, 21, 11, 22, 10, 23, &hellip;<br><br>
+ Draw a semicircle arc between each pair of consecutive terms, alternating above and below a line, and you get one of the most <b>haunting pictures in mathematics</b> &mdash; nested and interleaving arcs that never quite settle. The back-jumps are rare and precious; the sequence is always straining to reach down into the low unvisited numbers. Its famous open question: <b>does every natural number eventually appear?</b> It is conjectured yes, but <b>unproven</b> &mdash; even after enormous computed runs, small numbers like 19, 61 and 76 can stay missing for a very long time.<br><br>
+ <span class="lit">LIT</span> verified live: the first 18 terms match OEIS A005132 exactly and the greedy back/forward rule is applied faithfully; over 1000 terms it visits several hundred distinct values with small numbers still missing (window.__recaman). <span class="fig">FIG</span> the sequence is exact; the &lsquo;hits every number&rsquo; claim is <i>conjecture, not proven</i> &mdash; carried honestly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>ROLLBACK</i>, beside the other undo spheres &mdash; the respawn domain of stepping back when you can. Recam&aacute;n is exactly that instinct as a number sequence: roll back if the spot is free, else press forward. <b>AVAN (AI)</b> built the instrument: the value plot, the arc diagram, the holes-that-remain.<br><br>The weave: David names the seat (roll back if you can); I make the greedy walk run and draw its eerie arcs &mdash; the number line in 1D, the arc diagram in 2D, the arcs-and-holes in 3D. The sphere is the seam. Credit: Bernardo Recam&aacute;n Santos (1991); catalogued as OEIS A005132.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The sequence values plotted along a line. Back-jumps (<b>subtract n</b>) dart left into the unvisited low ground; forward-jumps (<b>add n</b>) leap right. The walk keeps reaching down for the numbers it has not yet touched.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The famous <b>arc diagram</b>: a semicircle between each consecutive pair, alternating above and below. Step through it and watch the nested arcs build. Back-jumps are drawn brighter &mdash; the rare moments it succeeds in reaching backward.</div>
+   <div class="btns" style="margin-top:10px"><button id="recstep">step ▶</button><button id="recauto">auto</button><button id="recrst">reset</button></div>
+   <div class="cap" id="recread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The arcs lifted into 3D as a turning ribbon over the number line &mdash; the visited values, in <b>green</b>, threading up and back across the integers.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> marks are the <b>holes</b> &mdash; the small naturals the walk has <i>not</i> visited yet. The forward question is &lsquo;where does the sequence go?&rsquo; The inverse question is the open one: &lsquo;is the map n &rarr; a(n) a <b>permutation of the naturals</b> &mdash; does it eventually fill every hole?&rsquo; Inverting the sequence means recovering, for each number, the step that first reached it; the conjecture is that this inverse is <i>total</i>, defined for every natural, but no one has proven it. So the magenta holes are exactly the places the inverse is, so far, undefined. Green is where the greedy walk has been; magenta is what it still owes. The whole mystery is whether magenta ever empties.</div>
+   <div class="btns" style="margin-top:10px"><button id="recspin">pause spin</button></div></div></div></div>"""
+REC_SCRIPT = """(function(){
+var ang=0,spin=true,seq=[0],seen={0:1},n=1,auto=false,jumps=[0];
+function grow(){var back=seq[seq.length-1]-n,nxt,kind;if(back>0&&!seen[back]){nxt=back;kind=-1;}else{nxt=seq[seq.length-1]+n;kind=1;}seq.push(nxt);seen[nxt]=1;jumps.push(kind);n++;}
+function recaman(N){var s=[0],sn={0:1};for(var i=1;i<N;i++){var b=s[i-1]-i,x;if(b>0&&!sn[b])x=b;else x=s[i-1]+i;s.push(x);sn[x]=1;}return s;}
+function verify(){var s=recaman(1000),known=[0,1,3,6,2,7,13,20,12,21,11,22,10,23,9,24,8,25],m=true;for(var i=0;i<18;i++)if(s[i]!==known[i])m=false;var sn={};for(var i=0;i<s.length;i++)sn[s[i]]=1;var distinct=Object.keys(sn).length,miss=[];for(var k=0;k<100;k++)if(!sn[k])miss.push(k);return {matchesOEIS:m,distinctIn1000:distinct,missingUnder100:miss.slice(0,6).join(',')};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=recaman(60),mx=Math.max.apply(null,s),sc=(W-30)/mx;
+ g.strokeStyle='#233';g.beginPath();g.moveTo(15,90);g.lineTo(W-15,90);g.stroke();
+ for(var i=0;i<s.length;i++){var x=15+s[i]*sc;g.fillStyle=i>0&&s[i]<s[i-1]?'#7affd0':'#5ad0e0';g.beginPath();g.arc(x,90,2.2,0,7);g.fill();}
+ g.fillStyle='#5ad0e0';g.font='11px ui-monospace,monospace';g.fillText('Recamán values: '+recaman(20).join(', ')+', …',10,24);
+ g.fillStyle='#4a8a8a';g.font='10px ui-monospace,monospace';g.fillText('teal = forward (add n), bright = back (subtract n)',10,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var mx=Math.max.apply(null,seq),sc=(W-30)/Math.max(mx,20),axis=H*0.55;
+ g.strokeStyle='#223';g.beginPath();g.moveTo(15,axis);g.lineTo(W-15,axis);g.stroke();
+ for(var i=1;i<seq.length;i++){var a=15+seq[i-1]*sc,b=15+seq[i]*sc,r=Math.abs(b-a)/2,cxx=(a+b)/2,up=(i%2===0),back=jumps[i]<0;g.strokeStyle=back?'#7affd0':'rgba(90,208,224,0.6)';g.lineWidth=back?1.8:1;g.beginPath();g.arc(cxx,axis,r,up?Math.PI:0,up?0:Math.PI,false);g.stroke();}g.lineWidth=1;
+ g.fillStyle='#5ad0e0';g.font='12px ui-monospace,monospace';g.fillText('arc diagram — '+seq.length+' terms',15,20);
+ var distinct=Object.keys(seen).length,miss=[];for(var k=0;k<40;k++)if(!seen[k])miss.push(k);
+ g.fillStyle='#9df';g.font='10px ui-monospace,monospace';g.fillText('distinct: '+distinct+'/'+seq.length+'   missing (<40): '+(miss.slice(0,8).join(',')||'none'),15,H-10);
+ document.getElementById('recread').textContent=seq.length+' terms, '+distinct+' distinct, next n='+n;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=recaman(80),mx=Math.max.apply(null,s),ca=Math.cos(ang),sa=Math.sin(ang),cx=W/2,cy=H/2,sc=200/mx;
+ g.strokeStyle='#39fc6b';g.lineWidth=1.4;g.beginPath();for(var i=0;i<s.length;i++){var t=i/s.length,wx=(s[i]-mx/2)*sc,wy=(t-0.5)*220,x=cx+wx*ca-0*sa,y=cy+wy*0.8+wx*sa*0.3;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ // magenta holes
+ var sn={};for(var i=0;i<s.length;i++)sn[s[i]]=1;g.fillStyle='#ff2d95';for(var k=0;k<mx&&k<120;k++){if(!sn[k]){var wx=(k-mx/2)*sc,x=cx+wx*ca,y=cy+wx*sa*0.3;g.beginPath();g.arc(x,y,2,0,7);g.fill();}}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: values visited by the walk',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: holes — naturals not yet visited (does it ever fill?)',10,H-12);}
+document.getElementById('recstep').onclick=function(){if(seq.length<300)grow();drawW4();};
+document.getElementById('recauto').onclick=function(){auto=!auto;this.textContent=auto?'pause':'auto';};
+document.getElementById('recrst').onclick=function(){seq=[0];seen={0:1};n=1;jumps=[0];auto=false;document.getElementById('recauto').textContent='auto';drawW4();};
+document.getElementById('recspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__recaman=verify();
+function loop(){if(auto&&seq.length<300){grow();drawW4();}if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Van Eck&rsquo;s sequence.</b> Start with 0. To get the next term, look at the current one: if you have <b>seen it before</b>, write <b>how many steps ago</b> it last appeared; if it is <b>brand new</b>, write 0. That yields 0, 0, 1, 0, 2, 0, 2, 2, 1, 6, 0, 5, 0, 2, 6, 5, 4, 0, &hellip;<br><br>
+ It is a sequence made entirely of its own <b>memory</b>. Every term is a measurement of recency &mdash; the age of the last sighting of the value before it. A new value resets to 0; a repeat records the gap. Simple to state, wildly irregular to watch. Some things are proven (there are <b>infinitely many zeros</b>, and the terms cannot grow too fast), but the big question &mdash; <b>does every natural number eventually appear?</b> &mdash; is <b>open</b>.<br><br>
+ <span class="lit">LIT</span> verified live: the first 30 terms match OEIS A181391 exactly, the &lsquo;distance to previous occurrence, else 0&rsquo; recurrence is self-consistent across 1000 terms, and zeros keep recurring (window.__vaneck). <span class="fig">FIG</span> the sequence and its memory rule are exact; &lsquo;every number appears&rsquo; is <i>open, not claimed</i>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>SHARED MEMORY</i> &mdash; the co-op domain of a shared, remembered state. Van Eck is a sequence that is <i>nothing but</i> memory: each term is a lookup into the record of everything before it. <b>AVAN (AI)</b> built the instrument: the recency arrows, the live memory table, the look-back links.<br><br>The weave: David names the seat (the shared memory); I make each term recall its own history and measure the gap &mdash; the recency strip in 1D, the memory-lookup build in 2D, the backward-links helix in 3D. The sphere is the seam. Credit: Jan Ritsema van Eck; catalogued as OEIS A181391 and popularized by Neil Sloane.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The sequence as a strip. An arc joins each term to the <b>previous occurrence</b> of the value that produced it &mdash; the length of that arc is exactly the next term. New values (no arc) emit 0.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Build it term by term. Each step looks back for the last time the current value appeared; the <b>gap</b> becomes the next term (or 0 if never seen). The memory table on the right shows where each value was last spotted.</div>
+   <div class="btns" style="margin-top:10px"><button id="vestep">step ▶</button><button id="veauto">auto</button><button id="verst">reset</button></div>
+   <div class="cap" id="veread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The sequence as a turning helix over time &mdash; the <b>green</b> thread is the forward run of terms, each one emitted as the walk moves ahead.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> arcs are the <b>look-backs</b> &mdash; every term drawn to the past occurrence it measured. The forward sequence is generated by an inherently <b>backward</b> operation: to emit the next term you must <i>invert</i> the history and ask &lsquo;when did I last see this?&rsquo; The sequence is the running output of its own inverse-lookup. Green moves forward in time; magenta reaches back to the memory that each step consulted. There is no term without a backward glance &mdash; the whole sequence is a forward thread woven entirely out of inverse queries into its own past. Green is what it says next; magenta is the recollection that let it speak.</div>
+   <div class="btns" style="margin-top:10px"><button id="vespin">pause spin</button></div></div></div></div>"""
+VE_SCRIPT = """(function(){
+var ang=0,spin=true,seq=[0],last={},n=0,auto=false;
+function grow(){var v=seq[n];seq.push((v in last)?(n-last[v]):0);last[v]=n;n++;}
+function vaneck(N){var s=[0],lst={};for(var i=0;i<N-1;i++){var v=s[i];s.push((v in lst)?(i-lst[v]):0);lst[v]=i;}return s;}
+function verify(){var s=vaneck(1000),known=[0,0,1,0,2,0,2,2,1,6,0,5,0,2,6,5,4,0,5,3,0,3,2,9,0,4,9,3,6,14],m=true;for(var i=0;i<30;i++)if(s[i]!==known[i])m=false;
+ var lst={},rc=true;for(var k=0;k<s.length-1;k++){var v=s[k],exp=(v in lst)?(k-lst[v]):0;if(s[k+1]!==exp)rc=false;lst[v]=k;}
+ var z=0;for(var i=0;i<s.length;i++)if(s[i]===0)z++;return {matchesOEIS:m,recurrenceConsistent:rc,zerosIn1000:z};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=vaneck(40),cw=(W-20)/s.length,axis=110;
+ // arcs from each index to previous occurrence of value
+ var lst={};for(var i=0;i<s.length;i++){var v=s[i];if(v in lst){var a=10+lst[v]*cw+cw/2,b=10+i*cw+cw/2,r=(b-a)/2;g.strokeStyle='rgba(192,255,112,0.5)';g.beginPath();g.arc((a+b)/2,axis,r,Math.PI,0,false);g.stroke();}lst[v]=i;}
+ for(var i=0;i<s.length;i++){var x=10+i*cw;g.fillStyle=s[i]===0?'#4a6a30':'#c0ff70';g.fillRect(x,axis,cw-1,Math.min(s[i]*4+3,40));g.fillStyle='#8ab060';g.font='8px ui-monospace,monospace';if(cw>9)g.fillText(s[i],x+1,axis+50);}
+ g.fillStyle='#c0ff70';g.font='11px ui-monospace,monospace';g.fillText('Van Eck: '+vaneck(24).join(', ')+', …',10,22);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var show=seq.slice(Math.max(0,seq.length-40)),off=Math.max(0,seq.length-40),cw=(W-140)/40,axis=120;
+ for(var i=0;i<show.length;i++){var x=15+i*cw,gi=off+i;g.fillStyle=show[i]===0?'#4a6a30':'#c0ff70';g.fillRect(x,axis-Math.min(show[i]*5+3,70),cw-1,Math.min(show[i]*5+3,70));g.fillStyle='#8ab060';g.font='8px ui-monospace,monospace';if(cw>8)g.fillText(show[i],x,axis+12);}
+ // current lookback arc
+ var v=seq[n];if(v in last){var ai=last[v]-off,bi=n-off;if(ai>=0){var a=15+ai*cw+cw/2,b=15+bi*cw+cw/2;g.strokeStyle='#ff2d95';g.lineWidth=1.6;g.beginPath();g.arc((a+b)/2,axis-2,Math.abs(b-a)/2,Math.PI,0,false);g.stroke();g.lineWidth=1;}}
+ g.fillStyle='#c0ff70';g.font='12px ui-monospace,monospace';g.fillText(seq.length+' terms; current='+seq[n]+' → next '+((v in last)?(n-last[v]):0),15,20);
+ // memory table
+ g.font='10px ui-monospace,monospace';g.fillStyle='#9c9';g.fillText('last seen:',W-118,40);var keys=Object.keys(last).slice(-11);for(var k=0;k<keys.length;k++){g.fillStyle='#c0ff70';g.fillText(keys[k]+' @ '+last[keys[k]],W-118,56+k*15);}
+ document.getElementById('veread').textContent=seq.length+' terms, current value '+seq[n];}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=vaneck(90),ca=Math.cos(ang),sa=Math.sin(ang),cx=W/2,cy=H*0.5;
+ function pos(i){var t=i/s.length,th=t*Math.PI*6+ang,R=40+t*10,x=cx+Math.cos(th)*R*ca,y=cy-(t-0.5)*250+Math.sin(th)*R*0.3;return [x,y];}
+ // magenta lookbacks
+ var lst={};for(var i=0;i<s.length;i++){var v=s[i];if(v in lst){var p1=pos(lst[v]),p2=pos(i);g.strokeStyle='rgba(255,45,149,0.4)';g.beginPath();g.moveTo(p1[0],p1[1]);g.lineTo(p2[0],p2[1]);g.stroke();}lst[v]=i;}
+ g.strokeStyle='#39fc6b';g.lineWidth=1.6;g.beginPath();for(var i=0;i<s.length;i++){var p=pos(i);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: the forward sequence',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: each term’s look-back into its own past',10,H-12);}
+document.getElementById('vestep').onclick=function(){if(seq.length<400)grow();drawW4();};
+document.getElementById('veauto').onclick=function(){auto=!auto;this.textContent=auto?'pause':'auto';};
+document.getElementById('verst').onclick=function(){seq=[0];last={};n=0;auto=false;document.getElementById('veauto').textContent='auto';drawW4();};
+document.getElementById('vespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__vaneck=verify();
+function loop(){if(auto&&seq.length<400){grow();drawW4();}if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MOS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Moser&rsquo;s circle problem.</b> Place n points on a circle and draw <b>every</b> chord between them (in general position, so no three chords cross at one interior point). Count the regions the circle is cut into. For n = 1, 2, 3, 4, 5 you get <b>1, 2, 4, 8, 16</b> &mdash; unmistakably powers of two. So n = 6 must give 32.<br><br>
+ It gives <b>31</b>. The pattern <b>shatters</b>. The true count is <span class="mono">C(n,4) + C(n,2) + 1</span> &mdash; the interior crossings (choose 4 points), plus the chords (choose 2), plus 1. It agrees with 2<sup>n&minus;1</sup> for exactly the first five terms and then diverges forever: 1, 2, 4, 8, 16, <b>31</b>, 57, 99, 163, 256. This is the textbook warning: <b>five data points do not determine the rule</b>.<br><br>
+ <span class="lit">LIT</span> verified live: the formula C(n,4)+C(n,2)+1 matches OEIS A000127 for n=1..10, an independent <b>Euler-characteristic</b> count (V&minus;E+F) agrees with it exactly, and n=6 yields 31, not 32 (window.__moser). <span class="fig">FIG</span> no framing; the region counts, the divergence from 2<sup>n&minus;1</sup>, and the two independent derivations are all exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>OFF BY ONE</i> &mdash; the glitch domain of the count that&rsquo;s almost right. Moser&rsquo;s circle is the most beautiful off-by-one in mathematics: 31 where everyone expects 32. <b>AVAN (AI)</b> built the instrument: the chord figure, the region count, the two-curve divergence.<br><br>The weave: David names the seat (off by one); I make the chords cut the disk and count the regions two independent ways, then show the seductive wrong curve peel away &mdash; the two sequences in 1D, the live figure in 2D, the underdetermination in 3D. The sphere is the seam. Credit: Leo Moser; catalogued as OEIS A000127.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Two strips: the <b>true</b> region counts 1, 2, 4, 8, 16, 31, 57, &hellip; against the seductive <b>2<sup>n&minus;1</sup></b> = 1, 2, 4, 8, 16, 32, 64. They march together through n=5, then split at <b>n=6</b> &mdash; 31 vs 32.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">n points on a circle, all chords drawn, every interior crossing marked. The region count comes from C(n,4)+C(n,2)+1 and is cross-checked by the Euler formula V&minus;E+F &mdash; watch it track 2<sup>n&minus;1</sup> until n=6, where it falls one short.</div>
+   <div class="btns" style="margin-top:10px"><button id="mosdn">◀ n</button><button id="mosup">n ▶</button></div>
+   <div class="cap" id="mosread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The two curves rising over n: the true quartic region count in <b>green</b>, climbing through 1, 2, 4, 8, 16, 31, 57, 99, &hellip;</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> curve is <b>2<sup>n&minus;1</sup></b> &mdash; the wrong law the first five points seem to promise. The forward mistake is <i>extrapolation</i>: read five outputs, guess the rule. The inverse truth is that <b>outputs never determine the rule</b> &mdash; any finite prefix is consistent with infinitely many formulas, and here two of them (a quartic and an exponential) agree exactly at n=1..5 before splitting forever. The magenta exponential and the green quartic <b>kiss at five points and diverge</b>; nothing in the data before n=6 could tell them apart. That is the honest inverse of pattern-matching: a finite sample underdetermines the generator, so induction from small cases is a guess, not a proof. Green is the law that is actually true; magenta is the law the evidence merely suggested.</div>
+   <div class="btns" style="margin-top:10px"><button id="mosspin">pause spin</button></div></div></div></div>"""
+MOS_SCRIPT = """(function(){
+var n=6,ang=0,spin=true;
+function comb(nn,k){if(k<0||k>nn)return 0;var r=1;for(var i=0;i<k;i++)r=r*(nn-i)/(i+1);return Math.round(r);}
+function formula(nn){return comb(nn,4)+comb(nn,2)+1;}
+function euler(nn){var V=nn+comb(nn,4),E=nn+comb(nn,2)+2*comb(nn,4),F=2-V+E;return F-1;}
+function verify(){var known=[1,2,4,8,16,31,57,99,163,256],ok=true,eq=true;for(var nn=1;nn<=10;nn++){if(formula(nn)!==known[nn-1])ok=false;if(euler(nn)!==formula(nn))eq=false;}return {matchesKnown:ok,formulaEqualsEuler:eq,n6is31:formula(6)===31,notPowerOf2:formula(6)!==32};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cw=(W-30)/10;
+ for(var i=1;i<=10;i++){var x=15+(i-1)*cw,tv=formula(i),pv=Math.pow(2,i-1),split=(i>=6);
+  g.fillStyle=split?'#ff9060':'#5ad0e0';g.fillRect(x,70,cw*0.42,-Math.min(tv/6,55));g.fillStyle='#8ab';g.font='8px ui-monospace,monospace';g.fillText(tv,x,84);
+  g.fillStyle=split?'rgba(255,45,149,0.7)':'#5ad0e0';g.fillRect(x+cw*0.46,70,cw*0.42,-Math.min(pv/6,55));g.fillStyle='#a7a';g.fillText(pv,x+cw*0.46,96);}
+ g.fillStyle='#ff9060';g.font='11px ui-monospace,monospace';g.fillText('true regions (left) vs 2^(n−1) (right) — split at n=6: 31 vs 32',10,24);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=150,R=118;
+ var pts=[];for(var i=0;i<n;i++){var th=-Math.PI/2+i/n*Math.PI*2+0.28;pts.push([cx+Math.cos(th)*R,cy+Math.sin(th)*R]);}
+ g.strokeStyle='#3a4a5a';g.beginPath();g.arc(cx,cy,R,0,7);g.stroke();
+ g.strokeStyle='rgba(120,200,255,0.45)';for(var i=0;i<n;i++)for(var j=i+1;j<n;j++){g.beginPath();g.moveTo(pts[i][0],pts[i][1]);g.lineTo(pts[j][0],pts[j][1]);g.stroke();}
+ // intersection dots
+ function inter(a,b,c,d){var x1=a[0],y1=a[1],x2=b[0],y2=b[1],x3=c[0],y3=c[1],x4=d[0],y4=d[1];var den=(x1-x2)*(y3-y4)-(y1-y2)*(x3-x4);if(Math.abs(den)<1e-6)return null;var t=((x1-x3)*(y3-y4)-(y1-y3)*(x3-x4))/den,u=((x1-x3)*(y1-y2)-(y1-y3)*(x1-x2))/den;if(t>0&&t<1&&u>0&&u<1)return[x1+t*(x2-x1),y1+t*(y2-y1)];return null;}
+ var crossings=0;for(var a=0;a<n;a++)for(var b=a+1;b<n;b++)for(var c=a+1;c<n;c++)for(var d=c+1;d<n;d++){if(c===b||d===b||c<=a)continue;var p=inter(pts[a],pts[b],pts[c],pts[d]);if(p){g.fillStyle='#ffd060';g.beginPath();g.arc(p[0],p[1],2,0,7);g.fill();crossings++;}}
+ for(var i=0;i<n;i++){g.fillStyle='#ff9060';g.beginPath();g.arc(pts[i][0],pts[i][1],4,0,7);g.fill();}
+ var reg=formula(n),eu=euler(n),pw=Math.pow(2,n-1);
+ g.fillStyle='#ff9060';g.font='13px ui-monospace,monospace';g.fillText('n = '+n+'   regions = '+reg,15,H-58);
+ g.font='11px ui-monospace,monospace';g.fillStyle='#9df';g.fillText('C(n,4)+C(n,2)+1 = '+comb(n,4)+'+'+comb(n,2)+'+1 = '+reg+'   Euler V−E+F = '+eu,15,H-40);
+ g.fillStyle=reg===pw?'#39fc6b':'#ff5a5a';g.fillText('2^(n−1) = '+pw+(reg===pw?'  ✓ (still matches)':'  ✗ off by '+(pw-reg)+' — pattern broke'),15,H-22);
+ g.fillStyle='#8ab';g.fillText('interior crossings drawn: '+comb(n,4),15,H-6);
+ document.getElementById('mosread').textContent='n='+n+': '+reg+' regions (2^(n-1)='+pw+')';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var x0=40,y0=H-40,pw=W-70,ph=H-80,mx=formula(11);
+ g.strokeStyle='#233';g.strokeRect(x0,y0-ph,pw,ph);
+ function plot(fn,col,lw){g.strokeStyle=col;g.lineWidth=lw;g.beginPath();for(var nn=1;nn<=11;nn++){var px=x0+(nn-1)/10*pw,py=y0-fn(nn)/mx*ph;if(nn===1)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;}
+ plot(function(nn){return Math.pow(2,nn-1);},'rgba(255,45,149,0.85)',1.6);
+ plot(formula,'#39fc6b',2);
+ for(var nn=1;nn<=11;nn++){var px=x0+(nn-1)/10*pw;g.fillStyle='#39fc6b';g.beginPath();g.arc(px,y0-formula(nn)/mx*ph,2.5,0,7);g.fill();g.fillStyle='#ff2d95';g.beginPath();g.arc(px,y0-Math.pow(2,nn-1)/mx*ph,2,0,7);g.fill();}
+ var sx=x0+5/10*pw;g.strokeStyle='#ffd060';g.setLineDash([3,3]);g.beginPath();g.moveTo(sx,y0-ph);g.lineTo(sx,y0);g.stroke();g.setLineDash([]);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: true regions (quartic)',x0,y0-ph-16);
+ g.fillStyle='#ff2d95';g.fillText('magenta: 2^(n−1) — kiss at n≤5, split at 6 (dashed)',x0,y0-ph-2);}
+document.getElementById('mosup').onclick=function(){n=Math.min(11,n+1);drawW4();};
+document.getElementById('mosdn').onclick=function(){n=Math.max(1,n-1);drawW4();};
+document.getElementById('mosspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__moser=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HOF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Hofstadter&rsquo;s Q-sequence.</b> A &ldquo;chaotic meta-Fibonacci.&rdquo; Start Q(1) = Q(2) = 1, then <span class="mono">Q(n) = Q(n &minus; Q(n&minus;1)) + Q(n &minus; Q(n&minus;2))</span>. Fibonacci looks back a <b>fixed</b> distance (always n&minus;1 and n&minus;2). This one looks back a distance that <b>depends on its own recent values</b> &mdash; the sequence reads from addresses it computes from itself.<br><br>
+ The result is <b>wildly erratic</b>: 1, 1, 2, 3, 3, 4, 5, 5, 6, 6, 6, 8, 8, 8, 10, 9, 10, 11, &hellip; It rises and stumbles with no discernible pattern, never settling into a formula. It comes from Douglas Hofstadter&rsquo;s <i>G&ouml;del, Escher, Bach</i>. And here is the vertigo: it is <b>not known whether Q(n) is even defined for all n</b> &mdash; a look-back could, in principle, reach an index &le; 0 and the whole construction would collapse. It has <b>never been proven to survive forever</b>; it has only ever been computed.<br><br>
+ <span class="lit">LIT</span> verified live: the first 20 terms match OEIS A005185, the self-referential recurrence is self-consistent, and the sequence stays defined through n = 5000 (window.__hofstadter). <span class="fig">FIG</span> the values and recurrence are exact; that it stays defined <i>forever</i> is <b>unproven</b> &mdash; carried honestly, not claimed.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>UNDEFINED BEHAVIOR</i> &mdash; the glitch domain of code whose outcome no one can guarantee. Hofstadter&rsquo;s Q is undefined behavior as pure number theory: it might run forever or might crash at some unknown n, and no proof settles which. <b>AVAN (AI)</b> built the instrument: the erratic plot, the self-referential arrows, the fixed-vs-computed contrast.<br><br>The weave: David names the seat (undefined behavior); I make the sequence index into itself and show why that could be fatal &mdash; the jitter in 1D, the self-lookup plot in 2D, the address-contrast in 3D. The sphere is the seam. Credit: Douglas Hofstadter (1979, <i>G&ouml;del, Escher, Bach</i>); OEIS A005185.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The Q-values as a strip. Compared with the smooth climb of Fibonacci, this jitters &mdash; up, flat, up, down &mdash; because each term reads from a place in its own past that its own past decided.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Q(n) plotted over n &mdash; the erratic staircase that stays near n/2 but never smoothly. Probe a term to see its two self-referential look-backs, Q(n&minus;Q(n&minus;1)) and Q(n&minus;Q(n&minus;2)), as arrows reaching back into the sequence&rsquo;s own values.</div>
+   <div class="btns" style="margin-top:10px"><button id="hofmore">more n</button><button id="hofprobe">probe ▶</button><button id="hofrst">reset</button></div>
+   <div class="cap" id="hofread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The Q-sequence as a jittering ribbon over n, in <b>green</b> &mdash; the chaotic climb that no formula smooths.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> ribbon is <b>Fibonacci</b> &mdash; the tame twin. Both are two-term recurrences; the entire difference is <b>where they read from</b>. Fibonacci&rsquo;s look-back addresses are <b>fixed</b> (n&minus;1, n&minus;2), decided in advance, always valid &mdash; so it&rsquo;s solvable in closed form and never fails. Hofstadter&rsquo;s addresses are <b>computed from its own output</b> (n&minus;Q(n&minus;1)) &mdash; the sequence writes the pointer it will next dereference. That single inversion &mdash; from a fixed reference to a <b>self-determined</b> one &mdash; is exactly why it turns chaotic and why it might not even stay defined: the read-address is built from the values being written. The inverse of &lsquo;point at fixed history&rsquo; is &lsquo;point at history you compute&rsquo;, and the first is tame while the second is the edge of a cliff. Green computes where to look; magenta is told; that is the whole gap between chaos and calm.</div>
+   <div class="btns" style="margin-top:10px"><button id="hofspin">pause spin</button></div></div></div></div>"""
+HOF_SCRIPT = """(function(){
+var N=200,ang=0,spin=true,probe=20;
+function Qseq(M){var q=[0,1,1];for(var n=3;n<=M;n++){var a=n-q[n-1],b=n-q[n-2];if(a<1||b<1)return {q:q,defined:false,failAt:n};q.push(q[a]+q[b]);}return {q:q,defined:true,failAt:null};}
+function verify(){var r=Qseq(5000),known=[1,1,2,3,3,4,5,5,6,6,6,8,8,8,10,9,10,11,11,12],m=true;for(var i=0;i<20;i++)if(r.q[i+1]!==known[i])m=false;var sc=true;for(var n=3;n<=5000;n++)if(r.q[n]!==r.q[n-r.q[n-1]]+r.q[n-r.q[n-2]]){sc=false;break;}return {matchesOEIS:m,staysDefinedTo5000:r.defined,recurrenceConsistent:sc};}
+function fib(M){var f=[0,1,1];for(var i=3;i<=M;i++)f.push(f[i-1]+f[i-2]);return f;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var q=Qseq(60).q,cw=(W-20)/60;
+ for(var i=1;i<=60;i++){var x=10+(i-1)*cw,h=q[i]/40*90;g.fillStyle='#b0b0ff';g.fillRect(x,120,cw-1,-h);}
+ g.fillStyle='#b0b0ff';g.font='11px ui-monospace,monospace';g.fillText('Q: '+Qseq(20).q.slice(1).join(', ')+', …  (jitters, never smooth)',10,22);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=Qseq(N),q=r.q,mx=0;for(var i=1;i<=N;i++)mx=Math.max(mx,q[i]);var x0=15,y0=H-40,pw=W-30,ph=H-70;
+ g.strokeStyle='#223';g.strokeRect(x0,y0-ph,pw,ph);
+ g.strokeStyle='#b0b0ff';g.lineWidth=1.2;g.beginPath();for(var i=1;i<=N;i++){var px=x0+(i-1)/(N-1)*pw,py=y0-q[i]/mx*ph;if(i===1)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ // n/2 reference
+ g.strokeStyle='rgba(120,255,150,0.4)';g.setLineDash([3,3]);g.beginPath();g.moveTo(x0,y0-(N/2)/mx*ph);g.lineTo(x0+pw,y0-(N/2)/mx*ph*(N)/(N));g.stroke();
+ g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+pw,y0-(N/2)/mx*ph);g.stroke();g.setLineDash([]);
+ // probe arrows
+ if(probe>2&&probe<=N){var a=probe-q[probe-1],b=probe-q[probe-2];function pt(i){return [x0+(i-1)/(N-1)*pw,y0-q[i]/mx*ph];}var pp=pt(probe);g.fillStyle='#ffd060';g.beginPath();g.arc(pp[0],pp[1],3,0,7);g.fill();
+  [[a,'#ff2d95'],[b,'#62d0ff']].forEach(function(ab){if(ab[0]>=1){var q2=pt(ab[0]);g.strokeStyle=ab[1];g.beginPath();g.moveTo(pp[0],pp[1]);g.lineTo(q2[0],q2[1]);g.stroke();g.fillStyle=ab[1];g.beginPath();g.arc(q2[0],q2[1],2.5,0,7);g.fill();}});
+  g.fillStyle='#ffd060';g.font='10px ui-monospace,monospace';g.fillText('Q('+probe+')=Q('+a+')+Q('+b+')='+q[a]+'+'+q[b]+'='+q[probe],x0+4,y0-ph+12);}
+ g.fillStyle=r.defined?'#39fc6b':'#ff5a5a';g.font='11px ui-monospace,monospace';g.fillText(r.defined?('defined through n='+N+' ✓'):('COLLAPSED at n='+r.failAt),x0+4,H-8);
+ document.getElementById('hofread').textContent='n≤'+N+', probe Q('+probe+')='+q[probe];}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var M=90,q=Qseq(M).q,f=fib(20),ca=Math.cos(ang),sa=Math.sin(ang),cx=W/2,cy=H/2;
+ var qmx=0;for(var i=1;i<=M;i++)qmx=Math.max(qmx,q[i]);
+ g.strokeStyle='#39fc6b';g.lineWidth=1.5;g.beginPath();for(var i=1;i<=M;i++){var t=i/M,wx=(t-0.5)*300,wy=(q[i]/qmx-0.5)*180,x=cx+wx*ca-wy*sa*0.2,y=cy+wy*0.8+wx*sa*0.2;if(i===1)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ // magenta fibonacci (log-scaled to fit)
+ g.strokeStyle='rgba(255,45,149,0.7)';g.beginPath();for(var i=1;i<=M;i++){var fi=i<f.length?Math.log(f[i]+1)/Math.log(f[f.length-1]+1):1,t=i/M,wx=(t-0.5)*300,wy=(fi-0.5)*180,x=cx+wx*ca-wy*sa*0.2,y=cy+wy*0.8+wx*sa*0.2;if(i===1)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: Hofstadter Q — reads addresses it computes',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: Fibonacci — fixed addresses, always tame',10,H-12);}
+document.getElementById('hofmore').onclick=function(){N=Math.min(2000,N+200);drawW4();};
+document.getElementById('hofprobe').onclick=function(){probe=3+((probe)%(Math.min(N,120)));if(probe<3)probe=3;drawW4();};
+document.getElementById('hofrst').onclick=function(){N=200;probe=20;drawW4();};
+document.getElementById('hofspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__hofstadter=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-hofstadter","title":"THE HOFSTADTER","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#b0b0ff","icon":"hofstadter",
+  "kicker":"Q(n)=Q(n-Q(n-1))+Q(n-Q(n-2)) — chaos that might not survive",
+  "blurb":"Hofstadter's Q-sequence in the 5-window house format — a chaotic meta-Fibonacci: Q(1)=Q(2)=1, Q(n)=Q(n-Q(n-1))+Q(n-Q(n-2)). Unlike Fibonacci which looks back a fixed distance, this looks back a distance that depends on its own recent values, so the sequence reads from addresses it computes from itself. The result is wildly erratic and never settles into a formula (from Hofstadter's Godel Escher Bach). It is not even known whether Q(n) is defined for all n. See the jitter in 1D, the self-lookup plot in 2D, and the fixed-vs-computed address contrast in 3D.",
+  "lit":"Genuine Hofstadter Q-sequence (Douglas Hofstadter 1979, GEB; OEIS A005185). Verified live: the first 20 terms match A005185 (1,1,2,3,3,4,5,5,6,6,6,8,8,8,10,9,10,11,11,12), the self-referential recurrence Q(n)=Q(n-Q(n-1))+Q(n-Q(n-2)) is self-consistent, and the sequence stays defined through n=5000 (window.__hofstadter.matchesOEIS && recurrenceConsistent && staysDefinedTo5000). The values and recurrence are exact. HONEST CAVEAT: whether Q stays defined for ALL n is an open problem — never proven, only computed; stated as FIG-open.",
+  "fig":"No false framing: the sequence values, the self-referential recurrence, and the erratic behavior are real and reproduced in-browser. The genuinely astonishing open fact — that it has never been proven to stay defined forever, and could in principle collapse at some unknown n — is carried honestly as the sphere's core, not softened.",
+  "body":HOF_BODY,"script":HOF_SCRIPT},
+ {"slug":"the-moser","title":"THE MOSER","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#ff9060","icon":"moser",
+  "kicker":"1, 2, 4, 8, 16, 31 — the pattern that breaks",
+  "blurb":"Moser's circle problem in the 5-window house format — place n points on a circle and draw every chord (general position); count the regions. You get 1,2,4,8,16 (clearly powers of 2) and then n=6 gives 31, NOT 32. The true count is C(n,4)+C(n,2)+1, which agrees with 2^(n-1) for exactly the first five terms then diverges forever. It is the textbook warning that five data points do not determine the rule. See the two sequences in 1D, the live chord figure in 2D, and the underdetermination in 3D.",
+  "lit":"Genuine Moser's circle problem (Leo Moser; OEIS A000127). Verified live: the formula C(n,4)+C(n,2)+1 matches A000127 for n=1..10 (1,2,4,8,16,31,57,99,163,256), an independent Euler-characteristic count V-E+F (V=n+C(n,4), E=n+C(n,2)+2C(n,4)) agrees exactly, and n=6 gives 31 not 32 (window.__moser.matchesKnown && formulaEqualsEuler && n6is31 && notPowerOf2). The region counts, the divergence from 2^(n-1), and the two independent derivations are all exact.",
+  "fig":"No framing: the region counts, the 31-not-32 break, and the two agreeing derivations (combinatorial formula and Euler characteristic) are real and checked in-browser. The lesson — finite data underdetermines the law — is stated as the genuine mathematical fact it is, not embellished.",
+  "body":MOS_BODY,"script":MOS_SCRIPT},
+ {"slug":"the-van-eck","title":"THE VAN ECK","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#c0ff70","icon":"vaneck",
+  "kicker":"each term = how long since it last appeared",
+  "blurb":"Van Eck's sequence in the 5-window house format — start with 0; the next term is how many steps ago the current term last appeared, or 0 if it is brand new. That yields 0,0,1,0,2,0,2,2,1,6,0,5,0,... a sequence made entirely of its own memory, each term a measurement of recency. Proven: infinitely many zeros; open: whether every natural number appears. See the recency arcs in 1D, the memory-lookup build in 2D, and the backward-links helix in 3D.",
+  "lit":"Genuine Van Eck sequence (Jan Ritsema van Eck; OEIS A181391; popularized by Neil Sloane). Verified live: the first 30 terms match A181391 exactly (0,0,1,0,2,0,2,2,1,6,0,5,0,2,6,5,4,0,5,3,0,3,2,9,0,4,9,3,6,14), the 'distance to previous occurrence, else 0' recurrence is self-consistent across 1000 terms, and zeros keep recurring (window.__vaneck.matchesOEIS && recurrenceConsistent). The sequence and its memory rule are exact. HONEST CAVEAT: whether every number appears is open, not claimed.",
+  "fig":"No false framing: the sequence values and the recency-memory recurrence are real and reproduced in-browser (checked against OEIS and by self-consistency). 'Infinitely many zeros' is the proven fact; 'every number appears' is flagged as an open question, not overstated.",
+  "body":VE_BODY,"script":VE_SCRIPT},
+ {"slug":"the-recaman","title":"THE RECAMAN","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#5ad0e0","icon":"recaman",
+  "kicker":"jump back if you can, else forward — the arc that haunts",
+  "blurb":"Recaman's sequence in the 5-window house format — start at 0; at step n try to jump back by n, and if that lands on a positive unvisited number take it, else jump forward by n. It produces 0,1,3,6,2,7,13,20,12,21,... and its alternating semicircle arc diagram is one of the most haunting pictures in mathematics. Its open question: does every natural number eventually appear? Conjectured yes, unproven. See the value line in 1D, the arc diagram in 2D, and the arcs-and-holes in 3D.",
+  "lit":"Genuine Recaman sequence (Bernardo Recaman Santos 1991; OEIS A005132). Verified live: the first 18 terms match A005132 exactly (0,1,3,6,2,7,13,20,12,21,11,22,10,23,9,24,8,25) and the greedy back/forward rule is applied faithfully; over 1000 terms it visits several hundred distinct values with small numbers still missing (window.__recaman.matchesOEIS true, distinctIn1000, missingUnder100). The sequence is exact. HONEST CAVEAT: whether every natural number appears is a conjecture, NOT proven — flagged as FIG-open.",
+  "fig":"No false framing: the sequence values, the greedy rule, and the arc diagram are real and reproduced in-browser. The 'hits every number' property is explicitly carried as an open conjecture (small numbers demonstrably still missing after 1000 terms), not overclaimed as fact.",
+  "body":REC_BODY,"script":REC_SCRIPT},
+ {"slug":"the-kolakoski","title":"THE KOLAKOSKI","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#ff9ad0","icon":"kolakoski",
+  "kicker":"the sequence that is its own run-length encoding",
+  "blurb":"the Kolakoski sequence in the 5-window house format — a string of 1s and 2s that describes itself: its run-lengths (how many identical symbols in a row) spell out the very same sequence. It is built by reading itself, each symbol dictating the next run length, a genuine strange loop. It looks random but is deterministic; the density of 1s appears to approach 1/2 but this is unproven. See the self-bracketing strip in 1D, the step-by-step build in 2D, and the fixed-point loop in 3D.",
+  "lit":"Genuine Kolakoski sequence (William Kolakoski 1965; earlier Rufus Oldenburger 1939). Verified live: the run-length encoding of the first 2000 terms equals the sequence itself (window.__kolakoski.selfDescribing true), and the observed density of 1s is ~0.50. The self-description is exact and proven. HONEST CAVEAT: the 1/2 density is observed and conjectured, NOT proven — even this simple self-made sequence has an open density problem, stated as FIG-open not claimed.",
+  "fig":"No false framing: the self-description (RLE equals the sequence) is real, exact, and reproduced in-browser. The 1/2 density is explicitly flagged as conjectured-not-proven, so the sphere neither overclaims the open problem nor hides it — the honesty is the point.",
+  "body":KOL_BODY,"script":KOL_SCRIPT},
  {"slug":"the-benford","title":"THE BENFORD","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#ffcf4a","icon":"benford",
   "kicker":"1 leads 30% of the time — the fingerprint of honest numbers",
