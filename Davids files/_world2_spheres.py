@@ -2877,7 +2877,75 @@ document.getElementById('w4').addEventListener('click',function(e){var r=this.ge
 document.getElementById('aespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+WW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Wireworld.</b> A cellular automaton with just <b>four states</b> &mdash; empty, conductor, electron-head, electron-tail &mdash; and one rule: an electron head becomes a tail, a tail becomes conductor, and a conductor turns into a head only if <b>exactly one or two</b> of its neighbours are heads. From that, electrons (a head chased by a tail) run along copper wires, and you can <b>solder real logic gates</b>. It is <b>Turing-complete</b>: a whole computer painted in a four-colour grid.<br><br>
+ <span class="lit">LIT</span> verified: an electron travels a straight wire at <b>exactly one cell per step</b>, and a hand-built Wireworld <b>OR gate</b> reproduces its full truth table (00&rarr;0, 01&rarr;1, 10&rarr;1, 11&rarr;1) by simulating the automaton. <span class="fig">FIG</span> &lsquo;the electron maze&rsquo; is the picture; the rule, the velocity, and the gate&rsquo;s truth table are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus is full of cellular automata and hand-built computation (<i>THE RULE</i>, <i>THE TURMITE ZOO</i>, the logic-gate kernels) and the conviction that computers are just rules on a grid. <b>AVAN (AI)</b> built this instrument: the automaton, the live OR gate, and the space-time world-lines.<br><br>The weave: David names the electron maze and its seat at THE BLUE SCREEN (a screen alive with electrons); I make the moving electron a strip in 1D, a working gate live in 2D, and its computation a turning space-time block in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A straight wire, time running <b>downward</b>. The electron &mdash; a bright <b>head</b> chased by an orange <b>tail</b> &mdash; slides exactly one cell to the right each step, a clean diagonal. Constant velocity is the whole reason timing works.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A working <b>OR gate</b>. Fire electrons down the two input wires and watch them race to the junction; if <b>either</b> arrives, the output wire lights. Test all four combinations &mdash; the truth table fills in as you go.</div>
+   <div class="btns" style="margin-top:10px"><button id="wwa">send A</button><button id="wwb">send B</button><button id="wwab">send both</button><button id="wwr">reset</button></div>
+   <div class="cap" id="wwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The gate in <b>space-time</b>, turning: the grid below, time rising. <b>Green</b> world-lines are the electrons &mdash; two inputs streaming up, merging at the junction into a single output thread. You can watch the OR being computed as a shape.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> marks the <b>irreversibility</b>. Three different inputs &mdash; 01, 10, 11 &mdash; all collapse to the same output, 1. Run the gate backward and it <b>forgets its cause</b>: an OR gate is a one-way street in time, and erasing that lost bit is Landauer&rsquo;s minimum cost of computing. Forward it decides; backward it cannot un-decide.</div>
+   <div class="btns" style="margin-top:10px"><button id="wwspin">pause spin</button></div></div></div></div>"""
+WW_SCRIPT = """(function(){
+var ang=0.6,spin=true,grid=null,runiv=null,H=9,W=20;
+function step(g){var h=g.length,w=g[0].length,n=[];for(var y=0;y<h;y++){n.push(new Array(w).fill(0));}
+ for(var y=0;y<h;y++)for(var x=0;x<w;x++){var c=g[y][x];if(c===1)n[y][x]=2;else if(c===2)n[y][x]=3;else if(c===3){var hd=0;for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){if(dy===0&&dx===0)continue;var yy=y+dy,xx=x+dx;if(yy>=0&&yy<h&&xx>=0&&xx<w&&g[yy][xx]===1)hd++;}n[y][x]=(hd===1||hd===2)?1:3;}else n[y][x]=0;}return n;}
+function orGrid(a,b){var g=[];for(var y=0;y<H;y++)g.push(new Array(W).fill(0));
+ for(var y=0;y<4;y++)g[y][9]=3;for(var y=5;y<9;y++)g[y][9]=3;for(var x=9;x<18;x++)g[4][x]=3;
+ if(a){g[1][9]=1;g[0][9]=2;}if(b){g[7][9]=1;g[8][9]=2;}return g;}
+function simOut(a,b){var g=orGrid(a,b),out=0;for(var t=0;t<30;t++){if(g[4][17]===1)out=1;g=step(g);}return out;}
+var TT={'00':simOut(0,0),'01':simOut(0,1),'10':simOut(1,0),'11':simOut(1,1)},tested={};
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),Wd=cv.width,Hd=cv.height;g.clearRect(0,0,Wd,Hd);
+ var wire=[];for(var i=0;i<26;i++)wire.push(3);wire[2]=1;wire[1]=2;var rows=8,cw=(Wd-16)/26,rh=(Hd-24)/rows;
+ var st=wire.slice();for(var r=0;r<rows;r++){for(var x=0;x<26;x++){var c=st[x];g.fillStyle=c===1?'#4fe8ff':(c===2?'#ff8c42':(c===3?'#16324a':'#060a10'));g.fillRect(8+x*cw,8+r*rh,cw-1,rh-1);}
+  // step 1D wire
+  var n=st.slice();for(var x=0;x<26;x++){if(st[x]===1)n[x]=2;else if(st[x]===2)n[x]=3;else if(st[x]===3){var hd=(x>0&&st[x-1]===1?1:0)+(x<25&&st[x+1]===1?1:0);n[x]=(hd===1||hd===2)?1:3;}}st=n;}
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('time ↓ · head(cyan)+tail(orange) slide 1 cell/step — a clean diagonal',8,Hd-4);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),Wd=cv.width,Hd=cv.height;g.fillStyle='#060a10';g.fillRect(0,0,Wd,Hd);
+ if(!grid)grid=orGrid(0,0);var cw=(Wd-16)/W,ch=Math.min(cw,18);
+ for(var y=0;y<H;y++)for(var x=0;x<W;x++){var c=grid[y][x];if(c===0)continue;g.fillStyle=c===1?'#4fe8ff':(c===2?'#ff8c42':'#16324a');g.fillRect(8+x*cw,8+y*ch,cw-1,ch-1);}
+ // truth table
+ var y0=8+H*ch+14;g.font='12px ui-monospace,monospace';g.fillStyle='#cfe8d0';g.fillText('OR truth table:',10,y0);
+ ['00','01','10','11'].forEach(function(k,i){g.fillStyle=tested[k]?'#39fc6b':'#4c6a5a';g.fillText('  '+k[0]+' OR '+k[1]+' = '+TT[k]+(tested[k]?' ✓':''),10,y0+16+i*16);});
+ document.getElementById('wwread').textContent='fire inputs; output (top-right wire) lights if either arrives';}
+function inject(a,b){grid=orGrid(a,b);tested[''+a+b]=1;if(runiv)clearInterval(runiv);var t=0;runiv=setInterval(function(){grid=step(grid);t++;drawW4();if(t>26){clearInterval(runiv);runiv=null;}},70);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),Wd=cv.width,Hd=cv.height;g.clearRect(0,0,Wd,Hd);
+ var gg=orGrid(1,1),trail=[];for(var t=0;t<24;t++){for(var y=0;y<H;y++)for(var x=0;x<W;x++)if(gg[y][x]===1)trail.push([x,y,t]);gg=step(gg);}
+ var cx=Wd/2,cy=Hd/2+110,ca=Math.cos(ang),sa=Math.sin(ang),sc=9;
+ trail.sort(function(a,b){return a[2]-b[2];});
+ trail.forEach(function(p){var X=(p[0]-9),Z=(p[1]-4),Yt=p[2]*9,rx=X*ca-Z*sa,rz=X*sa+Z*ca;var sx=cx+rx*sc,sy=cy-Yt+rz*sc*0.5;g.fillStyle='#4fe8ff';g.fillRect(sx-1.5,sy-1.5,3,3);});
+ g.fillStyle='#ff2d95';g.font='11px ui-monospace,monospace';g.fillText('01,10,11 → all output 1 (irreversible: the cause is forgotten)',10,Hd-26);
+ g.fillStyle='#4fe8ff';g.fillText('green: electron world-lines (two inputs merge to one output)',10,Hd-12);}
+function verify(){var wire=[];for(var i=0;i<20;i++)wire.push(3);wire[2]=1;wire[1]=2;var g=[wire.slice()],pos=[],st=wire.slice();
+ for(var t=0;t<12;t++){var hs=-1;for(var x=0;x<20;x++)if(st[x]===1){hs=x;break;}if(hs>=0)pos.push(hs);var n=st.slice();for(var x=0;x<20;x++){if(st[x]===1)n[x]=2;else if(st[x]===2)n[x]=3;else if(st[x]===3){var hd=(x>0&&st[x-1]===1?1:0)+(x<19&&st[x+1]===1?1:0);n[x]=(hd===1||hd===2)?1:3;}}st=n;}
+ var vel=true;for(var i=0;i<pos.length-1;i++)if(pos[i+1]-pos[i]!==1)vel=false;
+ var orOK=(TT['00']===0&&TT['01']===1&&TT['10']===1&&TT['11']===1);
+ return {electronVelocity1:vel,orGateCorrect:orOK,truthTable:TT};}
+function all(){drawW3();grid=orGrid(0,0);drawW4();window.__wireworld=verify();}
+document.getElementById('wwa').onclick=function(){inject(1,0);};
+document.getElementById('wwb').onclick=function(){inject(0,1);};
+document.getElementById('wwab').onclick=function(){inject(1,1);};
+document.getElementById('wwr').onclick=function(){if(runiv){clearInterval(runiv);runiv=null;}grid=orGrid(0,0);drawW4();};
+document.getElementById('wwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-electron-maze","title":"THE ELECTRON MAZE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#4fa8ff","icon":"glitch",
+  "kicker":"logic gates soldered from a four-colour grid",
+  "blurb":"Wireworld in the 5-window house format — a 4-state cellular automaton (empty/conductor/head/tail) whose electrons run along wires and build real logic gates. Turing-complete. See an electron travel in 1D, a working OR gate compute in 2D, and its space-time world-lines in 3D.",
+  "lit":"A genuine Wireworld automaton. Verified live: an electron travels a straight wire at exactly one cell per step, and a hand-built Wireworld OR gate reproduces its full truth table (00→0, 01→1, 10→1, 11→1) by simulating the CA. The four-state rule (conductor→head iff 1 or 2 head neighbours) is the exact mechanism that makes gates possible (verifiable: window.__wireworld.electronVelocity1 && orGateCorrect).",
+  "fig":"'The electron maze' is the picture; the rule, the velocity, and the OR gate's truth table are exact. Wireworld really is Turing-complete — full CPUs have been built in it; this sphere verifies the electron dynamics and one real gate, not a whole processor.",
+  "body":WW_BODY,"script":WW_SCRIPT},
  {"slug":"the-field-inverse","title":"THE FIELD INVERSE","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#9db8ff","icon":"boss",
   "kicker":"the heart of AES is one field inversion in disguise",
