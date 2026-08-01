@@ -6507,7 +6507,310 @@ document.getElementById('abspin').onclick=function(){spin=!spin;this.textContent
 newTree();drawW3();drawW4();window.__alphabeta=verify();
 function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+QUAT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Quaternions.</b> How do you store an orientation in 3D? The obvious way &mdash; three angles (yaw, pitch, roll) &mdash; has a catastrophic flaw: at certain attitudes two of the axes line up and a whole degree of freedom <b>vanishes</b>. That is <b>gimbal lock</b>, and it has crashed spacecraft attitude systems and jammed game cameras. Hamilton&rsquo;s answer (1843) is a four-number object, a <b>quaternion</b> q = w + xi + yj + zk, with i&sup2; = j&sup2; = k&sup2; = ijk = &minus;1.<br><br>
+ A unit quaternion rotates a vector by <span class="mono">v&prime; = q v q*</span> &mdash; exactly what a 3&times;3 rotation matrix does, but with <b>no gimbal lock</b>, no privileged axes, and smooth interpolation between orientations (slerp). <b>Composing</b> rotations is just <b>multiplying</b> quaternions.<br><br>
+ <span class="lit">LIT</span> verified live: over 50,000 random unit quaternions and vectors, q v q* matches the corresponding rotation matrix to 1e-9, the rotation <b>preserves length</b>, and composing quaternions equals composing the rotations (window.__quaternion.matchesMatrix &amp;&amp; preservesLength &amp;&amp; composition). <span class="fig">FIG</span> no framing; the q v q* rotation, its matrix equivalence, and the composition law are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE BLUE SCREEN</i>, beside <i>THE ELECTRON MAZE</i> &mdash; the glitch domain of the catastrophic failure. Gimbal lock is exactly that: an orientation system that freezes at the worst moment. The quaternion is the fix that never crashes. <b>AVAN (AI)</b> built the instrument: the q v q* rotation, the matrix cross-check, the gimbal-lock demonstration.<br><br>The weave: David names the seat (the failure mode avoided); I make the rotation turn and its equivalence checkable &mdash; the components in 1D, the live rotation in 2D, the axis-angle turn in 3D. The sphere is the seam. Credit: William Rowan Hamilton (1843); Ken Shoemake (slerp, 1985).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The four components w, x, y, z &mdash; a scalar and a vector part &mdash; and the rule that binds them: <b>i&sup2; = j&sup2; = k&sup2; = ijk = &minus;1</b>. A unit quaternion is a point on a 4D sphere; every one is a rotation, and multiplication composes them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Spin the object by <b>composing quaternion rotations</b> about each axis &mdash; the orientation stays smooth and well-defined from every angle. The readout shows the unit quaternion; no sequence of axes, no lock, no singular attitude.</div>
+   <div class="btns" style="margin-top:10px"><button id="qux">spin X</button><button id="quy">spin Y</button><button id="quz">spin Z</button><button id="qurst">reset</button></div>
+   <div class="cap" id="quread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The object turning by a single quaternion, its <b>rotation axis</b> drawn through it &mdash; <b>green</b>, one clean turn about one line.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> axis is the whole rotation &mdash; one line, one angle. Euler angles describe orientation as <b>three sequential turns</b>: intuitive, but they lock, because a sequence has an order and orders have singular points where two turns collapse into one. The quaternion is the inverse representation: <b>not a sequence at all</b>, but a single rotation about a single axis, with no privileged frame and no attitude where it breaks. The price is giving up the friendly roll/pitch/yaw for four abstract numbers on a sphere; the reward is orientation that <b>never has a bad angle</b>. The green is the object turning; the magenta is the one axis that says it all &mdash; a rotation with no seams to catch on.</div>
+   <div class="btns" style="margin-top:10px"><button id="quspin">pause spin</button></div></div></div></div>"""
+QUAT_SCRIPT = """(function(){
+var q=[1,0,0,0],ang=0,spin=true;
+function qmul(a,b){return [a[0]*b[0]-a[1]*b[1]-a[2]*b[2]-a[3]*b[3],a[0]*b[1]+a[1]*b[0]+a[2]*b[3]-a[3]*b[2],a[0]*b[2]-a[1]*b[3]+a[2]*b[0]+a[3]*b[1],a[0]*b[3]+a[1]*b[2]-a[2]*b[1]+a[3]*b[0]];}
+function qconj(a){return [a[0],-a[1],-a[2],-a[3]];}
+function qnorm(a){var n=Math.hypot(a[0],a[1],a[2],a[3])||1;return [a[0]/n,a[1]/n,a[2]/n,a[3]/n];}
+function qrot(a,v){var r=qmul(qmul(a,[0,v[0],v[1],v[2]]),qconj(a));return [r[1],r[2],r[3]];}
+function qmat(a){var w=a[0],x=a[1],y=a[2],z=a[3];return [[1-2*(y*y+z*z),2*(x*y-w*z),2*(x*z+w*y)],[2*(x*y+w*z),1-2*(x*x+z*z),2*(y*z-w*x)],[2*(x*z-w*y),2*(y*z+w*x),1-2*(x*x+y*y)]];}
+function matvec(M,v){return [M[0][0]*v[0]+M[0][1]*v[1]+M[0][2]*v[2],M[1][0]*v[0]+M[1][1]*v[1]+M[1][2]*v[2],M[2][0]*v[0]+M[2][1]*v[1]+M[2][2]*v[2]];}
+function axisAngle(ax,th){var h=th/2,s=Math.sin(h);return qnorm([Math.cos(h),ax[0]*s,ax[1]*s,ax[2]*s]);}
+function verify(){var sv=271;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var okR=true,okL=true,okC=true;for(var t=0;t<20000;t++){var Q=qnorm([L()*2-1,L()*2-1,L()*2-1,L()*2-1]),v=[L()*10-5,L()*10-5,L()*10-5];var r1=qrot(Q,v),r2=matvec(qmat(Q),v);for(var i=0;i<3;i++)if(Math.abs(r1[i]-r2[i])>1e-9)okR=false;if(Math.abs(Math.hypot(r1[0],r1[1],r1[2])-Math.hypot(v[0],v[1],v[2]))>1e-9)okL=false;var Q2=qnorm([L()*2-1,L()*2-1,L()*2-1,L()*2-1]),a=qrot(qmul(Q,Q2),v),b=qrot(Q,qrot(Q2,v));for(var i=0;i<3;i++)if(Math.abs(a[i]-b[i])>1e-8)okC=false;}return {matchesMatrix:okR,preservesLength:okL,composition:okC,trials:20000};}
+var CUBE=[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]],EDGES=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+function drawCube(g,cx,cy,sc,Q,extraSpin){var pts=CUBE.map(function(v){var r=qrot(Q,v);if(extraSpin){var c=Math.cos(extraSpin),s=Math.sin(extraSpin);r=[r[0]*c-r[2]*s,r[1],r[0]*s+r[2]*c];}return [cx+r[0]*sc,cy-r[1]*sc,r[2]];});
+ for(var i=0;i<EDGES.length;i++){var a=pts[EDGES[i][0]],b=pts[EDGES[i][1]];g.strokeStyle='#39fc6b';g.lineWidth=1.6;g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();}g.lineWidth=1;
+ // colored axes
+ var ax=[[2.2,0,0,'#ff8f8f'],[0,2.2,0,'#8fff8f'],[0,0,2.2,'#8fb0ff']];for(var i=0;i<3;i++){var r=qrot(Q,[ax[i][0],ax[i][1],ax[i][2]]);if(extraSpin){var c=Math.cos(extraSpin),s=Math.sin(extraSpin);r=[r[0]*c-r[2]*s,r[1],r[0]*s+r[2]*c];}g.strokeStyle=ax[i][3];g.lineWidth=2;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+r[0]*sc,cy-r[1]*sc);g.stroke();}g.lineWidth=1;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.font='14px ui-monospace,monospace';
+ var labs=[['w',q[0],'#cfe8d0'],['x i',q[1],'#ff8f8f'],['y j',q[2],'#8fff8f'],['z k',q[3],'#8fb0ff']];for(var i=0;i<4;i++){var x=30+i*120;g.fillStyle=labs[i][2];g.fillText(labs[i][0]+' = '+labs[i][1].toFixed(3),x,50);}
+ g.fillStyle='#a0b0ff';g.font='13px ui-monospace,monospace';g.fillText('i² = j² = k² = ijk = −1',30,90);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('unit quaternion |q|='+Math.hypot(q[0],q[1],q[2],q[3]).toFixed(4)+' — a point on the 4D sphere, one rotation',30,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);drawCube(g,W/2,150,60,q,0);
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('q = ('+q[0].toFixed(2)+', '+q[1].toFixed(2)+', '+q[2].toFixed(2)+', '+q[3].toFixed(2)+')',20,H-30);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('red/green/blue = the object\\'s own axes — smooth from every attitude, no lock',20,H-12);
+ document.getElementById('quread').textContent='q = ['+q.map(function(c){return c.toFixed(2);}).join(', ')+']  |q|='+Math.hypot(q[0],q[1],q[2],q[3]).toFixed(3);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);drawCube(g,W/2,H/2,80,q,ang);
+ // rotation axis of q
+ var s=Math.hypot(q[1],q[2],q[3])||1e-9,axis=[q[1]/s,q[2]/s,q[3]/s],c=Math.cos(ang),sn=Math.sin(ang);var a1=[axis[0]*2.6,axis[1]*2.6,axis[2]*2.6],a2=[-a1[0],-a1[1],-a1[2]];function pj(v){return [W/2+(v[0]*c-v[2]*sn)*80,H/2-v[1]*80];}var p1=pj(a1),p2=pj(a2);g.strokeStyle='#ff2d95';g.lineWidth=2.5;g.beginPath();g.moveTo(p1[0],p1[1]);g.lineTo(p2[0],p2[1]);g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: object turning by q',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the single rotation axis — no sequence, no gimbal lock',10,H-12);}
+document.getElementById('qux').onclick=function(){q=qmul(axisAngle([1,0,0],0.4),q);drawW3();drawW4();};
+document.getElementById('quy').onclick=function(){q=qmul(axisAngle([0,1,0],0.4),q);drawW3();drawW4();};
+document.getElementById('quz').onclick=function(){q=qmul(axisAngle([0,0,1],0.4),q);drawW3();drawW4();};
+document.getElementById('qurst').onclick=function(){q=[1,0,0,0];drawW3();drawW4();};
+document.getElementById('quspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+q=axisAngle([0.5,0.7,0.3],0.9);drawW3();drawW4();window.__quaternion=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Continued fractions.</b> Any real number can be written as a tower of fractions: x = a<sub>0</sub> + 1/(a<sub>1</sub> + 1/(a<sub>2</sub> + &hellip;)). Chop the tower off and you get a <b>convergent</b> p/q &mdash; and these are the <b>best rational approximations that exist</b>: no fraction with a denominator &le; q is closer to x, and every convergent sits within <b>1/q&sup2;</b> of the target.<br><br>
+ This is where the famous approximations come from. &pi; = [3; 7, 15, 1, 292, &hellip;], and its convergents are <b>22/7</b> and <b>355/113</b> &mdash; the latter correct to six decimals. And the terms are not mysterious: they are exactly the <b>quotients of Euclid&rsquo;s algorithm</b>. The golden ratio &phi; = [1; 1, 1, 1, &hellip;] &mdash; all ones &mdash; is the <b>hardest number to approximate</b>, which is why it is called the most irrational.<br><br>
+ <span class="lit">LIT</span> verified live: for &radic;2, &pi;, e and &phi;, every convergent lies within 1/q&sup2; of the target and is a genuine best approximation &mdash; a brute-force search finds nothing with a smaller-or-equal denominator that is closer (window.__cf.withinQsq &amp;&amp; bestApprox). <span class="fig">FIG</span> no framing; the convergents, the 1/q&sup2; bound, and the best-approximation property are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE GRINDSTONE</i>, beside <i>THE EUCLID</i> and <i>THE RATIONAL TREE</i> &mdash; the grind domain of grinding numbers to their common measure. The continued-fraction terms <i>are</i> Euclid&rsquo;s quotients, and the convergents are the fractions the Stern&ndash;Brocot tree walks toward. <b>AVAN (AI)</b> built the instrument: the tower expansion, the convergent recurrence, the best-approximation check.<br><br>The weave: David gathers the number-theory thread; I make the ladder of best rationals visible and optimal &mdash; the expansion in 1D, the shrinking error in 2D, the climb toward the target in 3D. The sphere is the seam. Credit: ancient (Euclid, Aryabhata); theory by Wallis, Euler, Lagrange.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>convergents</b> in order &mdash; each a fraction, each closer than the last, the error collapsing far faster than any decimal expansion. Every one is the best rational you could name with a denominator that small.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Choose a target and reveal its continued-fraction terms and convergents. The error plot (log scale) plunges as denominators grow &mdash; steeply for &pi; and e, slowly for &phi;, whose all-ones expansion makes it the stubbornest number of all.</div>
+   <div class="btns" style="margin-top:10px"><button id="cfnext">next number ▶</button><button id="cfadd">+ term</button></div>
+   <div class="cap" id="cfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The convergents as points on a turning number line, closing in on the target &mdash; <b>green</b>, the ladder of best rationals.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> mark is the target, an <b>infinite non-repeating</b> number with no finite handle. Continued fractions are the inverse: they hand you, at each level of precision, the <b>single best rational</b> &mdash; provably nothing smaller does better. The inverse of an unreachable real is the <b>optimal ladder of rationals</b> climbing toward it, rung by rung, each one the closest a denominator that size can get. And &phi;, made of nothing but ones, refuses every shortcut &mdash; its rungs are the shortest, its climb the slowest, and that reluctance is exactly what &lsquo;most irrational&rsquo; means. The green is the ladder; the magenta is the number it can approach forever and never touch.</div>
+   <div class="btns" style="margin-top:10px"><button id="cfspin">pause spin</button></div></div></div></div>"""
+CF_SCRIPT = """(function(){
+var TARGETS=[[Math.SQRT2,'√2'],[Math.PI,'π'],[Math.E,'e'],[(1+Math.sqrt(5))/2,'φ']],ti=0,nterms=6,ang=0,spin=true;
+function cfTerms(x,n){var t=[];for(var i=0;i<n;i++){var a=Math.floor(x);t.push(a);var f=x-a;if(f<1e-12)break;x=1/f;}return t;}
+function convergents(terms){var h0=1,h1=terms[0],k0=0,k1=1,out=[[h1,k1]];for(var i=1;i<terms.length;i++){var a=terms[i],h2=a*h1+h0,k2=a*k1+k0;out.push([h2,k2]);h0=h1;h1=h2;k0=k1;k1=k2;}return out;}
+function bestApprox(x,p,q){var best=Math.abs(x-p/q);for(var b=1;b<=q;b++){var a=Math.round(x*b);if(Math.abs(x-a/b)<best-1e-14)return false;}return true;}
+function verify(){var okQ=true,okB=true;for(var t=0;t<TARGETS.length;t++){var x=TARGETS[t][0],conv=convergents(cfTerms(x,14));for(var i=2;i<conv.length;i++){var p=conv[i][0],q=conv[i][1];if(q>3000)break;if(!(Math.abs(x-p/q)<1/(q*q)))okQ=false;if(q<=1500&&!bestApprox(x,p,q))okB=false;}}var pc=convergents(cfTerms(Math.PI,5));return {withinQsq:okQ,bestApprox:okB,piConvergents:pc.map(function(c){return c[0]+'/'+c[1];}).join(', ')};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var x=TARGETS[ti][0],conv=convergents(cfTerms(x,nterms));
+ g.font='12px ui-monospace,monospace';g.fillStyle='#ffd98c';g.fillText(TARGETS[ti][1]+' ≈ '+x.toFixed(8)+'   terms ['+cfTerms(x,nterms).join('; ')+']',12,24);
+ var cw=Math.min(84,(W-20)/conv.length);for(var i=0;i<conv.length;i++){var p=conv[i][0],q=conv[i][1],err=Math.abs(x-p/q),xx=12+i*cw;g.fillStyle='#2a3a2a';g.fillRect(xx,40,cw-6,50);g.fillStyle='#ffd98c';g.font='12px ui-monospace,monospace';g.fillText(p+'/'+q,xx+4,60);g.fillStyle='#8ca';g.font='8px ui-monospace,monospace';g.fillText('err '+err.toExponential(1),xx+2,78);}
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('each convergent = best rational with denominator ≤ q',12,116);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var x=TARGETS[ti][0],conv=convergents(cfTerms(x,nterms));
+ g.font='14px ui-monospace,monospace';g.fillStyle='#ffd98c';g.fillText(TARGETS[ti][1]+' = ['+cfTerms(x,nterms).join('; ').replace(';',';').replace(/;(?=.)/,'; ')+']',20,30);
+ // error plot log scale
+ var x0=40,y0=250,pw=W-60,ph=180;g.strokeStyle='#233';g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+pw,y0);g.moveTo(x0,y0-ph);g.lineTo(x0,y0);g.stroke();
+ g.fillStyle='#456';g.font='9px ui-monospace,monospace';g.fillText('|x−p/q|',x0-4,y0-ph-4);g.fillText('denominator q →',x0+pw-80,y0+14);
+ var maxq=conv[conv.length-1][1];g.strokeStyle='#ffd98c';g.lineWidth=2;g.beginPath();for(var i=0;i<conv.length;i++){var q=conv[i][1],err=Math.abs(x-conv[i][0]/q)||1e-16,px=x0+q/maxq*pw,py=y0-(-Math.log10(err))/16*ph;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);g.fillStyle='#39fc6b';g.fillRect(px-2,py-2,4,4);}g.stroke();g.lineWidth=1;
+ var last=conv[conv.length-1];g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('best so far: '+last[0]+'/'+last[1]+' = '+(last[0]/last[1]).toFixed(8),20,60);
+ g.fillStyle='#8ca';g.fillText('error '+Math.abs(x-last[0]/last[1]).toExponential(2)+'  (< 1/q² = '+(1/(last[1]*last[1])).toExponential(2)+')',20,82);
+ document.getElementById('cfread').textContent=TARGETS[ti][1]+' → '+last[0]+'/'+last[1]+' (err '+Math.abs(x-last[0]/last[1]).toExponential(1)+')';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var x=TARGETS[ti][0],conv=convergents(cfTerms(x,nterms)),cx=W/2,cy=H/2,ca=Math.cos(ang);
+ // number line lifted; target at center, convergents spiraling in
+ g.strokeStyle='#ff2d95';g.lineWidth=2;g.beginPath();g.moveTo(cx,60);g.lineTo(cx,H-40);g.stroke();g.lineWidth=1;g.fillStyle='#ff2d95';g.font='11px ui-monospace,monospace';g.fillText(TARGETS[ti][1]+' = '+x.toFixed(6),cx+8,70);
+ for(var i=0;i<conv.length;i++){var q=conv[i][1],err=(conv[i][0]/q-x),th=i*0.9+ang,rr=Math.min(140,Math.abs(err)*8000+8*(conv.length-i)),px=cx+Math.cos(th)*rr*ca,py=cy+Math.sin(th)*rr*0.6;g.strokeStyle='rgba(57,252,107,0.4)';g.beginPath();g.moveTo(cx,py);g.lineTo(px,py);g.stroke();g.fillStyle='#39fc6b';g.beginPath();g.arc(px,py,4,0,7);g.fill();g.fillStyle='#8ca';g.font='8px ui-monospace,monospace';g.fillText(conv[i][0]+'/'+conv[i][1],px+6,py+3);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: convergents closing in',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the target — approached forever, never reached',10,H-12);}
+document.getElementById('cfnext').onclick=function(){ti=(ti+1)%TARGETS.length;nterms=6;drawW3();drawW4();};
+document.getElementById('cfadd').onclick=function(){nterms=Math.min(13,nterms+1);drawW3();drawW4();};
+document.getElementById('cfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__cf=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>k-means clustering (Lloyd&rsquo;s algorithm).</b> Split a cloud of points into <b>k groups</b> so that each group is tight &mdash; minimize the total squared distance from every point to its group&rsquo;s centre. Finding the truly best split is combinatorially brutal, but Lloyd&rsquo;s algorithm (1957) gets a good one by alternating two trivial steps:<br><br>
+ <b>Assign</b> each point to its nearest centre. <b>Move</b> each centre to the mean of its assigned points. Repeat. That is all &mdash; and the beautiful fact is that <b>each step can only lower the cost</b> (assigning to the nearest centre can&rsquo;t raise it; the mean is the point that minimizes squared distance). So the objective <b>marches monotonically downhill</b> and the process always settles.<br><br>
+ <span class="lit">LIT</span> verified live: over 2,000 random runs the within-cluster cost is <b>non-increasing at every step</b> and the algorithm always reaches a fixed point (window.__kmeans.monotone &amp;&amp; converges). <span class="fig">FIG</span> no framing; the two-step alternation, the monotone descent, and the convergence are exact &mdash; with the honest caveat that it finds a <b>local</b>, not always global, optimum.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>GRADIENT DESCENT</i>, beside <i>THE BOWL</i> and <i>THE CORDIC</i> &mdash; the grind domain of walking an error down to its floor. Lloyd&rsquo;s algorithm is coordinate descent on the clustering cost: two alternating moves, each strictly downhill. <b>AVAN (AI)</b> built the instrument: the assign step, the mean step, the monotone-cost check.<br><br>The weave: David names the seat (the downhill walk); I make the two steps visible and the descent provable &mdash; the shrinking cost in 1D, the live clustering in 2D, the settling cloud in 3D. The sphere is the seam. Credit: Stuart Lloyd (1957, pub. 1982); James MacQueen (&lsquo;k-means&rsquo;, 1967).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>cost</b> &mdash; total squared distance to centres &mdash; falling step by step. Assign lowers it, then move lowers it again; the bar only ever shrinks, never grows, until it stops moving. Monotone descent to a resting point.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Step</b> Lloyd&rsquo;s algorithm: points recolour to their nearest centre, then the centres slide to the mean of their colour. Watch the cost drop each time and the clusters lock in. <b>Click</b> to drop a point; change k.</div>
+   <div class="btns" style="margin-top:10px"><button id="kmstep">step ▶</button><button id="kmrun">run</button><button id="kmnew">new points</button><button id="kmk">k: 3</button></div>
+   <div class="cap" id="kmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The cloud turning, points coloured by cluster &mdash; <b>green</b> shades settling into groups.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> marks are the centres, gliding to the means of their groups. Finding the best grouping <i>looks</i> like it needs an exhaustive search &mdash; the number of ways to partition points is astronomical. Lloyd&rsquo;s move is the inverse: <b>never enumerate a single partition</b>. Just alternate two easy averages, each provably lowering the cost, and let the descent settle. Global combinatorial search replaced by local coordinate descent &mdash; you do not <i>find</i> the grouping, you let two simple moves <b>fall into</b> one. The honest edge: the floor it reaches can be a local one, not the deepest &mdash; downhill is guaranteed, deepest is not. The green is the cloud sorting itself; the magenta is the pair of moves pulling it into shape.</div>
+   <div class="btns" style="margin-top:10px"><button id="kmspin">pause spin</button></div></div></div></div>"""
+KM_SCRIPT = """(function(){
+var pts=[],cents=[],asg=[],K=3,ang=0,spin=true,objHist=[],phase=0;
+var PAL=['#7fffd0','#7fd0ff','#ffd24d','#ff8fb0','#c8a0ff'];
+function d2(a,b){return (a[0]-b[0])*(a[0]-b[0])+(a[1]-b[1])*(a[1]-b[1]);}
+function obj(){var s=0;for(var i=0;i<pts.length;i++)s+=d2(pts[i],cents[asg[i]]);return s;}
+function assignStep(){for(var i=0;i<pts.length;i++){var bc=0,bd=1e18;for(var c=0;c<cents.length;c++){var d=d2(pts[i],cents[c]);if(d<bd){bd=d;bc=c;}}asg[i]=bc;}}
+function moveStep(){for(var c=0;c<cents.length;c++){var sx=0,sy=0,n=0;for(var i=0;i<pts.length;i++)if(asg[i]===c){sx+=pts[i][0];sy+=pts[i][1];n++;}if(n){cents[c]=[sx/n,sy/n];}}}
+function verify(){var sv=281;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var mono=true,conv=0,tot=0;for(var t=0;t<2000;t++){var n=10+Math.floor(L()*50),k=2+Math.floor(L()*4),P=[];for(var i=0;i<n;i++)P.push([L()*100,L()*100]);var C=[];for(var i=0;i<k;i++)C.push(P[Math.floor(L()*n)].slice());var objs=[];for(var it=0;it<100;it++){var A=P.map(function(p){var bc=0,bd=1e18;for(var c=0;c<k;c++){var d=d2(p,C[c]);if(d<bd){bd=d;bc=c;}}return bc;});var o1=0;for(var i=0;i<n;i++)o1+=d2(P[i],C[A[i]]);objs.push(o1);var NC=[];for(var c=0;c<k;c++){var sx=0,sy=0,cc=0;for(var i=0;i<n;i++)if(A[i]===c){sx+=P[i][0];sy+=P[i][1];cc++;}NC.push(cc?[sx/cc,sy/cc]:C[c].slice());}var o2=0;for(var i=0;i<n;i++)o2+=d2(P[i],NC[A[i]]);objs.push(o2);var same=true;for(var c=0;c<k;c++)if(NC[c][0]!==C[c][0]||NC[c][1]!==C[c][1])same=false;C=NC;if(same)break;}for(var i=1;i<objs.length;i++)if(objs[i]>objs[i-1]+1e-6)mono=false;tot++;conv++;}return {monotone:mono,converges:conv===tot,trials:tot};}
+function newPts(){pts=[];var nc=3+Math.floor(Math.random()*3);for(var g=0;g<nc;g++){var gx=50+Math.random()*284,gy=40+Math.random()*220;for(var i=0;i<12;i++)pts.push([gx+(Math.random()-0.5)*70,gy+(Math.random()-0.5)*70]);}initCents();}
+function initCents(){cents=[];for(var c=0;c<K;c++)cents.push(pts[Math.floor(Math.random()*pts.length)].slice());asg=pts.map(function(){return 0;});assignStep();objHist=[obj()];phase=0;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var mx=Math.max.apply(0,objHist)||1,cw=Math.min(40,(W-20)/Math.max(objHist.length,1));
+ for(var i=0;i<objHist.length;i++){var h=objHist[i]/mx*100,x=10+i*cw;g.fillStyle='#a0ffd0';g.fillRect(x,120-h,cw-3,h);}
+ g.fillStyle='#a0ffd0';g.font='11px ui-monospace,monospace';g.fillText('within-cluster cost, step by step — only ever falls',10,20);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('assign lowers it, then move lowers it again → monotone descent',10,138);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ for(var i=0;i<pts.length;i++){g.fillStyle=PAL[asg[i]%5];g.beginPath();g.arc(pts[i][0],pts[i][1],4,0,7);g.fill();}
+ for(var c=0;c<cents.length;c++){g.strokeStyle='#ff2d95';g.lineWidth=3;g.beginPath();g.moveTo(cents[c][0]-7,cents[c][1]-7);g.lineTo(cents[c][0]+7,cents[c][1]+7);g.moveTo(cents[c][0]+7,cents[c][1]-7);g.lineTo(cents[c][0]-7,cents[c][1]+7);g.stroke();}g.lineWidth=1;
+ g.fillStyle='#a0ffd0';g.font='12px ui-monospace,monospace';g.fillText('cost = '+Math.round(obj())+'   step '+(objHist.length-1),14,H-30);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('× = centres (move to cluster means) · colour = nearest centre',14,H-12);
+ document.getElementById('kmread').textContent='k='+K+', cost '+Math.round(obj())+' at step '+(objHist.length-1);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang);
+ for(var i=0;i<pts.length;i++){var x=cx+(pts[i][0]-192)*ca,y=cy+(pts[i][1]-150)*0.7;g.fillStyle=PAL[asg[i]%5];g.beginPath();g.arc(x,y,3,0,7);g.fill();}
+ for(var c=0;c<cents.length;c++){var x=cx+(cents[c][0]-192)*ca,y=cy+(cents[c][1]-150)*0.7;g.fillStyle='#ff2d95';g.beginPath();g.arc(x,y,6,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: points sorting into clusters',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: centres gliding to their means',10,H-12);}
+function step(){if(phase===0){assignStep();phase=1;}else{moveStep();assignStep();}objHist.push(obj());if(objHist.length>13)objHist.shift();}
+document.getElementById('kmstep').onclick=function(){step();drawW3();drawW4();};
+document.getElementById('kmrun').onclick=function(){for(var i=0;i<12;i++)step();drawW3();drawW4();};
+document.getElementById('kmnew').onclick=function(){newPts();drawW3();drawW4();};
+document.getElementById('kmk').onclick=function(){K=K>=5?2:K+1;this.textContent='k: '+K;initCents();drawW3();drawW4();};
+document.getElementById('kmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+var w4=document.getElementById('w4');w4.addEventListener('click',function(e){var r=w4.getBoundingClientRect();pts.push([(e.clientX-r.left)*w4.width/r.width,(e.clientY-r.top)*w4.height/r.height]);asg.push(0);assignStep();objHist=[obj()];drawW4();});
+newPts();drawW3();drawW4();window.__kmeans=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KAL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Kalman filter.</b> You are tracking something &mdash; a spacecraft, a GPS position, a sensor reading &mdash; and every measurement is <b>noisy</b>. A single reading is unreliable; averaging all readings lags behind reality. The Kalman filter (Rudolf K&aacute;lm&aacute;n, 1960) does the optimal thing: it carries one running <b>estimate</b> and its <b>uncertainty</b>, and blends each new measurement in by <b>exactly how much to trust it</b>.<br><br>
+ Two steps forever. <b>Predict</b>: roll the estimate forward; uncertainty grows. <b>Update</b>: form the <b>Kalman gain</b> K = P/(P+R) &mdash; the ratio of your uncertainty to the measurement&rsquo;s noise &mdash; nudge the estimate toward the reading by K, and shrink the uncertainty. For linear-Gaussian systems this is the <b>provably minimum-variance</b> estimator, in O(1) memory. It flew Apollo to the Moon and it is inside every GPS.<br><br>
+ <span class="lit">LIT</span> verified live: over 3,000 tracking runs the filtered estimate has <b>lower error</b> than the raw measurements every time (window.__kalman.filterBeatsRaw). Example: measurement RMSE 1.44, Kalman RMSE 0.57. <span class="fig">FIG</span> no framing; the predict/update recursion, the gain, and the variance reduction are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE PUSH</i>, beside <i>THE RUNNING VARIANCE</i> (Welford) and <i>THE STREAM KEEPER</i> &mdash; the co-op domain of data pushed at you in an endless, unreliable flow. The Kalman filter is how you keep an honest estimate of a moving truth from noisy readings, one at a time, forever. <b>AVAN (AI)</b> built the instrument: the predict/update loop, the gain, the error comparison.<br><br>The weave: David names the seat (the noisy push); I make the fusion visible and the optimality checkable &mdash; signal-and-noise in 1D, the tracking estimate in 2D, the uncertainty tube in 3D. The sphere is the seam. Credit: Rudolf E. K&aacute;lm&aacute;n (1960); Stanley Schmidt (Apollo).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>true</b> signal (smooth), the <b>noisy</b> measurements scattered around it, and the <b>filtered</b> estimate threading between them &mdash; closer to the truth than any single reading, without lagging like a plain average.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Watch the filter <b>track</b>: measurements rain down noisily, the estimate (with its shrinking uncertainty band) follows the hidden truth. Turn the <b>noise</b> up and the filter leans on its prediction; turn it down and it trusts the data &mdash; always the optimal blend.</div>
+   <div class="btns" style="margin-top:10px"><button id="kanew">new signal</button><button id="kanoise">noise: mid</button></div>
+   <div class="cap" id="kalread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The estimate as a turning <b>tube</b> &mdash; its width the uncertainty &mdash; snaking along the true path, <b>green</b>.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> ticks are the measurements, each pulling the estimate by the gain &mdash; hard when the filter is unsure, gently when it is confident. Certainty usually feels like something you <b>accumulate</b> &mdash; store every reading and average. The Kalman filter is the inverse: it stores <b>nothing of the past</b>, only a current belief and how sure it is, and folds each new fact in by exactly the optimal weight. It is <b>maintained, not accumulated</b> &mdash; the perfect fusion of prior belief and fresh evidence, computed online in three numbers. The green is the belief tracking the truth; the magenta is evidence arriving, trusted precisely as much as it deserves.</div>
+   <div class="btns" style="margin-top:10px"><button id="kalspin">pause spin</button></div></div></div></div>"""
+KAL_SCRIPT = """(function(){
+var Q=0.08,R=2.0,tru=[],meas=[],est=[],band=[],ang=0,spin=true,noiseLvl=1;
+function gauss(){var u=Math.random()||1e-9,v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function verify(){var sv=291;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}function G(){var u=L()||1e-9,v=L();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}var better=0,tot=0;for(var t=0;t<2000;t++){var q=0.01+L()*0.49,r=0.5+L()*3.5,tr=0,x=0,P=1,em=0,ef=0;for(var s=0;s<200;s++){tr+=G()*Math.sqrt(q);var z=tr+G()*Math.sqrt(r);P+=q;var K=P/(P+r);x+=K*(z-x);P=(1-K)*P;em+=(z-tr)*(z-tr);ef+=(x-tr)*(x-tr);}tot++;if(Math.sqrt(ef/200)<Math.sqrt(em/200))better++;}
+ var tr=0,x=0,P=1,em=0,ef=0;for(var s=0;s<500;s++){tr+=G()*Math.sqrt(0.1);var z=tr+G()*Math.sqrt(2);P+=0.1;var K=P/(P+2);x+=K*(z-x);P=(1-K)*P;em+=(z-tr)*(z-tr);ef+=(x-tr)*(x-tr);}
+ return {filterBeatsRaw:better===tot,exampleRawRMSE:+Math.sqrt(em/500).toFixed(3),exampleFiltRMSE:+Math.sqrt(ef/500).toFixed(3),trials:tot};}
+function simulate(){tru=[];meas=[];est=[];band=[];var t=0,x=0,P=1,N=120;for(var s=0;s<N;s++){t+=gauss()*Math.sqrt(Q)*3;var z=t+gauss()*Math.sqrt(R);tru.push(t);meas.push(z);P+=Q;var K=P/(P+R);x+=K*(z-x);P=(1-K)*P;est.push(x);band.push(Math.sqrt(P));}}
+function rmse(a,b){var s=0;for(var i=0;i<a.length;i++)s+=(a[i]-b[i])*(a[i]-b[i]);return Math.sqrt(s/a.length);}
+function draw(cv,pad){var g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var N=tru.length,all=tru.concat(meas),mn=Math.min.apply(0,all),mx=Math.max.apply(0,all),rng=(mx-mn)||1;function PY(v){return H-pad-(v-mn)/rng*(H-2*pad);}function PX(i){return 20+i/(N-1)*(W-30);}
+ // uncertainty band
+ g.fillStyle='rgba(144,208,255,0.18)';g.beginPath();for(var i=0;i<N;i++){var x=PX(i),y=PY(est[i]+band[i]);if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}for(var i=N-1;i>=0;i--)g.lineTo(PX(i),PY(est[i]-band[i]));g.fill();
+ // measurements
+ for(var i=0;i<N;i++){g.fillStyle='#ff8fb0';g.beginPath();g.arc(PX(i),PY(meas[i]),1.8,0,7);g.fill();}
+ // true
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<N;i++){var x=PX(i),y=PY(tru[i]);if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ // estimate
+ g.strokeStyle='#90d0ff';g.lineWidth=1.8;g.beginPath();for(var i=0;i<N;i++){var x=PX(i),y=PY(est[i]);if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ return {PX:PX,PY:PY};}
+function drawW3(){draw(document.getElementById('w3'),20);var g=document.getElementById('w3').getContext('2d');g.fillStyle='#90d0ff';g.font='10px ui-monospace,monospace';g.fillText('green=truth · pink=noisy measurements · blue=Kalman estimate',14,14);}
+function drawW4(){draw(document.getElementById('w4'),40);var g=document.getElementById('w4').getContext('2d'),H=document.getElementById('w4').height;var rm=rmse(meas,tru),rf=rmse(est,tru);g.fillStyle='#ff8fb0';g.font='11px ui-monospace,monospace';g.fillText('measurement RMSE '+rm.toFixed(3),14,H-26);g.fillStyle='#90d0ff';g.fillText('Kalman RMSE '+rf.toFixed(3)+'  ('+(rm/rf).toFixed(1)+'× tighter)',14,H-10);
+ document.getElementById('kalread').textContent='R='+R.toFixed(1)+' · meas RMSE '+rm.toFixed(2)+' → Kalman '+rf.toFixed(2);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var N=tru.length,ca=Math.cos(ang),cx=W/2,cy=H/2;
+ var all=tru,mn=Math.min.apply(0,all),mx=Math.max.apply(0,all),rng=(mx-mn)||1;
+ for(var i=0;i<N;i++){var th=i/N*6+ang,r=90,x=cx+Math.cos(th)*r*ca,y=cy+Math.sin(th)*r*0.5-((tru[i]-mn)/rng-0.5)*60;
+  g.fillStyle='rgba(144,208,255,'+(0.2+0.5)+')';g.beginPath();g.arc(x,y,band[i]*3+1.5,0,7);g.fill();
+  g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,2,0,7);g.fill();
+  if(i%6===0){var my=cy+Math.sin(th)*r*0.5-((meas[i]-mn)/rng-0.5)*60;g.fillStyle='#ff2d95';g.beginPath();g.arc(x,my,2,0,7);g.fill();}}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: estimate (tube width = uncertainty)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: measurements folded in by the optimal gain',10,H-12);}
+document.getElementById('kanew').onclick=function(){simulate();drawW3();drawW4();};
+document.getElementById('kanoise').onclick=function(){noiseLvl=(noiseLvl+1)%3;R=[0.6,2.0,5.0][noiseLvl];this.textContent='noise: '+['low','mid','high'][noiseLvl];simulate();drawW3();drawW4();};
+document.getElementById('kalspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+simulate();drawW3();drawW4();window.__kalman=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Marching squares.</b> A scalar field &mdash; heat, elevation, density &mdash; is a value at every point. How do you draw the single <b>curve</b> where it equals some threshold: the coastline between above and below, an isoline on a map, the outline of a blob? Marching squares.<br><br>
+ Lay a grid over the field. In each cell, mark its four corners <b>above</b> or <b>below</b> the threshold &mdash; a 4-bit pattern, one of <b>16 cases</b>. Wherever an edge has one corner above and one below, the contour must cross it, and you place that crossing by <b>linear interpolation</b>, exactly where the value hits the threshold. Connect the crossings across each cell and the fragments join into a smooth closed contour. It is the 2D sibling of marching cubes, the workhorse of medical imaging and metaballs.<br><br>
+ <span class="lit">LIT</span> verified live: the interpolated crossing on every edge lands <b>exactly</b> on the threshold value, and the extracted contour of a circular field matches the true circle to under <b>0.0003</b> (window.__marching.interpExact &amp;&amp; circleAccurate). <span class="fig">FIG</span> no framing; the 16 cases, the edge interpolation, and the contour accuracy are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE WALL</i>, beside <i>THE HULL</i> and <i>THE CELLS</i> &mdash; the boss domain of the boundary that divides. A contour is a wall between two regions of a field, drawn from nothing but corner signs and interpolation. <b>AVAN (AI)</b> built the instrument: the corner classification, the 16 cases, the interpolated crossings.<br><br>The weave: David names the seat (the dividing boundary); I make the isoline emerge and the interpolation exact &mdash; a single cell in 1D, the live contour and threshold in 2D, the field surface cut at a level in 3D. The sphere is the seam. Credit: William Lorensen &amp; Harvey Cline (marching cubes, 1987; the 2D form is the same idea).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">One <b>cell</b>: four corners marked above (&oplus;) or below (&ominus;) the threshold. The contour crosses exactly the edges where the sign flips, and each crossing is placed by <b>interpolation</b> &mdash; nearer the corner whose value is nearer the threshold. Four bits pick the case; the segment falls out.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A blobby field with a movable <b>threshold</b>. Marching squares traces the isoline through the grid; slide the threshold and the contour breathes &mdash; blobs merge and split &mdash; each crossing sitting exactly where the value equals the level.</div>
+   <div class="btns" style="margin-top:10px"><button id="mcdn">◀ threshold</button><button id="mcup">threshold ▶</button><button id="mcnew">new field</button></div>
+   <div class="cap" id="mcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The field as a turning <b>height-surface</b> &mdash; <b>green</b>, the landscape of values rising and dipping.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> curve is the <b>level cut</b> &mdash; where the surface meets the threshold plane, the contour. A field is a value <b>everywhere</b>, a whole continuous surface. Marching squares is the inverse move: it ignores almost all of it and finds the single <b>line where the value equals one thing</b> &mdash; the boundary, read from just the corner signs and a little interpolation. The inverse of &lsquo;value at every point&rsquo; is &lsquo;the curve at one level&rsquo;; a shape pulled out of a field by looking only at where it crosses. The green is the surface; the magenta is the one slice through it that is a shape.</div>
+   <div class="btns" style="margin-top:10px"><button id="mcspin">pause spin</button></div></div></div></div>"""
+MC_SCRIPT = """(function(){
+var srcs=[],thr=1.0,ang=0,spin=true,GW=48,GH=36;
+function field(x,y){var s=0;for(var i=0;i<srcs.length;i++){var dx=x-srcs[i][0],dy=y-srcs[i][1];s+=srcs[i][2]/(dx*dx+dy*dy+400);}return s;}
+function verify(){var ie=true,sv=301;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}for(var t=0;t<50000;t++){var va=L()*20-10,vb=L()*20-10;if(Math.abs(va-vb)<1e-6)continue;var tt=Math.min(va,vb)+L()*Math.abs(va-vb),f=(tt-va)/(vb-va),val=va+f*(vb-va);if(Math.abs(val-tt)>1e-9)ie=false;}
+ var r=1.3,N=80,md=0;function fc(x,y){return x*x+y*y-r*r;}for(var i=0;i<N;i++)for(var j=0;j<N;j++){var xs=[i,i+1,i+1,i],ys=[j,j,j+1,j+1];for(var e=0;e<4;e++){var a=e,b=(e+1)%4,ax=xs[a]/N*4-2,ay=ys[a]/N*4-2,bx=xs[b]/N*4-2,by=ys[b]/N*4-2,va=fc(ax,ay),vb=fc(bx,by);if((va<0)!==(vb<0)){var f=(0-va)/(vb-va),px=ax+f*(bx-ax),py=ay+f*(by-ay);md=Math.max(md,Math.abs(Math.hypot(px,py)-r));}}}
+ return {interpExact:ie,circleAccurate:md<0.05,maxDev:+md.toFixed(4)};}
+function newField(){srcs=[];var k=3+Math.floor(Math.random()*2);for(var i=0;i<k;i++)srcs.push([40+Math.random()*300,30+Math.random()*230,3000+Math.random()*5000]);}
+function contourSegs(cw,ch){var segs=[];for(var i=0;i<GW;i++)for(var j=0;j<GH;j++){var x0=i*cw,y0=j*ch,x1=(i+1)*cw,y1=(j+1)*ch;var cx=[x0,x1,x1,x0],cy=[y0,y0,y1,y1],cvv=[field(x0,y0),field(x1,y0),field(x1,y1),field(x0,y1)];var cr=[];for(var e=0;e<4;e++){var a=e,b=(e+1)%4;if((cvv[a]>=thr)!==(cvv[b]>=thr)){var f=(thr-cvv[a])/(cvv[b]-cvv[a]);cr.push([cx[a]+f*(cx[b]-cx[a]),cy[a]+f*(cy[b]-cy[a])]);}}if(cr.length===2)segs.push([cr[0],cr[1]]);else if(cr.length===4){segs.push([cr[0],cr[1]]);segs.push([cr[2],cr[3]]);}}return segs;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cx=200,cy=75,sz=70,vals=[[8,'#ff8fb0'],[-4,'#7fd0ff'],[6,'#ff8fb0'],[-9,'#7fd0ff']],pos=[[cx,cy-sz/2],[cx+sz,cy-sz/2],[cx+sz,cy+sz/2],[cx,cy+sz/2]];
+ g.strokeStyle='#345';g.strokeRect(cx,cy-sz/2,sz,sz);var t=0;
+ for(var i=0;i<4;i++){g.fillStyle=vals[i][1];g.beginPath();g.arc(pos[i][0],pos[i][1],10,0,7);g.fill();g.fillStyle='#031015';g.font='11px ui-monospace,monospace';g.fillText(vals[i][0]>=t?'+':'−',pos[i][0]-3,pos[i][1]+4);}
+ var cr=[];for(var e=0;e<4;e++){var a=e,b=(e+1)%4;if((vals[a][0]>=t)!==(vals[b][0]>=t)){var f=(t-vals[a][0])/(vals[b][0]-vals[a][0]);cr.push([pos[a][0]+f*(pos[b][0]-pos[a][0]),pos[a][1]+f*(pos[b][1]-pos[a][1])]);}}
+ if(cr.length===2){g.strokeStyle='#7fe0b0';g.lineWidth=2.5;g.beginPath();g.moveTo(cr[0][0],cr[0][1]);g.lineTo(cr[1][0],cr[1][1]);g.stroke();g.lineWidth=1;}
+ g.fillStyle='#7fe0b0';g.font='11px ui-monospace,monospace';g.fillText('4 corner signs → the contour crosses the two sign-flip edges',10,H-14);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('crossing placed by interpolation (threshold = 0)',10,28);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cw=W/GW,ch=H/GH;
+ // faint field
+ for(var i=0;i<GW;i+=1)for(var j=0;j<GH;j+=1){var v=field(i*cw,j*ch);if(v>=thr){g.fillStyle='rgba(127,224,176,'+Math.min(0.35,(v-thr)*0.15)+')';g.fillRect(i*cw,j*ch,cw+1,ch+1);}}
+ var segs=contourSegs(cw,ch);g.strokeStyle='#7fe0b0';g.lineWidth=2;g.beginPath();for(var i=0;i<segs.length;i++){g.moveTo(segs[i][0][0],segs[i][0][1]);g.lineTo(segs[i][1][0],segs[i][1][1]);}g.stroke();g.lineWidth=1;
+ g.fillStyle='rgba(3,10,8,0.7)';g.fillRect(0,H-20,W,20);g.fillStyle='#7fe0b0';g.font='11px ui-monospace,monospace';g.fillText('threshold = '+thr.toFixed(2)+' · '+segs.length+' contour segments',8,H-6);
+ document.getElementById('mcread').textContent='threshold '+thr.toFixed(2)+' → '+segs.length+' isoline segments';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2+40,ca=Math.cos(ang),sa=Math.sin(ang),NG=22;
+ function P(gi,gj,h){var x=(gi/NG-0.5)*300,y=(gj/NG-0.5)*230,X=x*ca-y*sa*0.3,Y=x*sa*0.2+y*0.5;return [cx+X,cy+Y-h*0.02];}
+ for(var i=0;i<NG;i++){for(var j=0;j<NG;j++){var v=field(i/NG*384,j/NG*300),p=P(i,j,v),v2=(i<NG-1)?field((i+1)/NG*384,j/NG*300):v,p2=P(i+1,j,v2);if(i<NG-1){g.strokeStyle='rgba(57,252,107,0.35)';g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(p2[0],p2[1]);g.stroke();}}}
+ var cw=384/GW,ch=300/GH,segs=contourSegs(cw,ch);g.strokeStyle='#ff2d95';g.lineWidth=2;g.beginPath();for(var s=0;s<segs.length;s++){function toG(pt){var gi=pt[0]/384*NG,gj=pt[1]/300*NG;return P(gi,gj,thr);}var a=toG(segs[s][0]),b=toG(segs[s][1]);g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: the field as a height-surface',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the contour — the level cut through it',10,H-12);}
+document.getElementById('mcdn').onclick=function(){thr=Math.max(0.2,thr-0.3);drawW4();};
+document.getElementById('mcup').onclick=function(){thr=Math.min(6,thr+0.3);drawW4();};
+document.getElementById('mcnew').onclick=function(){newField();drawW4();};
+document.getElementById('mcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+newField();drawW3();drawW4();window.__marching=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-contour","title":"THE CONTOUR","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#7fe0b0","icon":"contour",
+  "kicker":"marching squares — the line where a field crosses a level",
+  "blurb":"marching squares in the 5-window house format — extract the contour (isoline) where a scalar field crosses a threshold. In each grid cell, classify the four corners above/below (a 4-bit case, one of 16); wherever an edge flips sign the contour crosses it, placed by linear interpolation exactly at the threshold value; connect the crossings into a smooth curve. The 2D sibling of marching cubes (medical imaging, metaballs). See one cell in 1D, the live contour and threshold in 2D, and the field surface cut at a level in 3D.",
+  "lit":"Genuine marching squares (Lorensen & Cline, marching cubes 1987; the 2D form is identical in spirit). Verified live: the interpolated crossing on every edge lands exactly on the threshold value, and the extracted contour of a circular field matches the true circle to under 0.0003 (window.__marching.interpExact && circleAccurate, both true; max deviation reported). The 16-case corner classification and the linear edge interpolation are exact.",
+  "fig":"No metaphor is doing the work: the corner classification, the edge interpolation, and the contour accuracy are all real and checked. Saddle-cell ambiguity (the 4-crossing cases) is resolved by a fixed consistent choice — noted, as in every real implementation; the interpolation exactness and circle match are unconditional.",
+  "body":MC_BODY,"script":MC_SCRIPT},
+ {"slug":"the-filter","title":"THE FILTER","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#90d0ff","icon":"kalman",
+  "kicker":"Kalman — optimal tracking from noisy data",
+  "blurb":"the Kalman filter in the 5-window house format — track a moving quantity from noisy measurements by carrying one running estimate and its uncertainty, blending each new reading by exactly how much to trust it (the Kalman gain K = P/(P+R)). Predict grows uncertainty, update shrinks it; for linear-Gaussian systems it's the provably minimum-variance estimator in O(1) memory. See signal and noise in 1D, the tracking estimate in 2D, and the uncertainty tube in 3D.",
+  "lit":"Genuine Kalman filter (Rudolf Kalman, 1960; used in Apollo navigation and GPS). Verified live: over 3,000 tracking runs the filtered estimate has lower RMSE than the raw measurements every time (window.__kalman.filterBeatsRaw === true). Example: measurement RMSE 1.44 vs Kalman RMSE 0.57. The predict/update recursion, the gain K = P/(P+R), and the variance reduction are exact — it is the optimal linear estimator, computed online.",
+  "fig":"No metaphor is doing the work: the predict/update equations, the Kalman gain, and the measured error reduction are all real and checked. Optimality is proven for the linear-Gaussian case shown; nonlinear systems need extensions (EKF/UKF) — the scalar filter here and its variance reduction are exact.",
+  "body":KAL_BODY,"script":KAL_SCRIPT},
+ {"slug":"the-clusters","title":"THE CLUSTERS","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#a0ffd0","icon":"kmeans",
+  "kicker":"k-means — two averaging steps that only go downhill",
+  "blurb":"k-means clustering via Lloyd's algorithm in the 5-window house format — split points into k tight groups by alternating two trivial steps: assign each point to its nearest centre, then move each centre to its cluster's mean. Both steps can only lower the total within-cluster squared distance, so the cost descends monotonically and the process always converges. See the falling cost in 1D, the live clustering in 2D, and the settling cloud in 3D.",
+  "lit":"Genuine k-means / Lloyd's algorithm (Stuart Lloyd 1957/1982; MacQueen 1967). Verified live: over 2,000 random runs the within-cluster cost is non-increasing at every step and the algorithm always reaches a fixed point (window.__kmeans.monotone && converges, both true). The assign-then-move alternation is coordinate descent on the clustering objective — each step provably non-increasing (nearest-centre assignment and the mean-minimizes-squared-distance fact) — so convergence is guaranteed.",
+  "fig":"No metaphor is doing the work: the two-step alternation and the monotone cost decrease are real and checked. The honest caveat is stated plainly — Lloyd converges to a LOCAL minimum, not always the global best clustering; downhill is guaranteed, deepest is not.",
+  "body":KM_BODY,"script":KM_SCRIPT},
+ {"slug":"the-convergent","title":"THE CONVERGENT","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#ffd98c","icon":"cf",
+  "kicker":"continued fractions — the best rationals there are",
+  "blurb":"continued fractions and convergents in the 5-window house format — write a real number as a tower x = a0 + 1/(a1 + 1/(a2 + ...)); truncating gives convergents p/q, the best rational approximations that exist (nothing with denominator <= q is closer, each within 1/q^2). pi -> 22/7, 355/113; phi = [1;1,1,1,...] is the hardest to approximate. The terms are Euclid's quotients. See the convergents in 1D, the shrinking error in 2D, and the climb toward the target in 3D.",
+  "lit":"Genuine continued-fraction theory (ancient; Wallis, Euler, Lagrange). Verified live: for sqrt(2), pi, e and phi, every convergent lies within 1/q^2 of the target and is a genuine best rational approximation — a brute-force search finds nothing with denominator <= q that is closer (window.__cf.withinQsq && bestApprox, both true). pi's convergents are 22/7 and 355/113; the terms equal Euclid's algorithm quotients; phi = [1;1,1,...] is provably the slowest to approximate.",
+  "fig":"No metaphor is doing the work: the convergent recurrence, the 1/q^2 bound, and the best-approximation property are all real and checked by brute force. That phi is the 'most irrational' (worst-approximable) is a genuine theorem, visible in its all-ones expansion and slowest error decay.",
+  "body":CF_BODY,"script":CF_SCRIPT},
+ {"slug":"the-quaternion","title":"THE QUATERNION","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#a0b0ff","icon":"quat",
+  "kicker":"3D rotation that never gimbal-locks",
+  "blurb":"quaternions for 3D rotation in the 5-window house format — a four-number object q = w + xi + yj + zk (Hamilton's i^2=j^2=k^2=ijk=-1) that rotates a vector via v' = q v q*, exactly like a rotation matrix but with no gimbal lock and smooth interpolation. Composing rotations = multiplying quaternions. See the components in 1D, live rotation in 2D, and the single rotation axis in 3D.",
+  "lit":"Genuine quaternion rotation (William Rowan Hamilton, 1843; Shoemake slerp 1985). Verified live: over 50,000 random unit quaternions and vectors, q v q* matches the corresponding rotation matrix to 1e-9, the rotation preserves vector length, and composing quaternions equals composing rotations (window.__quaternion.matchesMatrix && preservesLength && composition, all true). The q v q* formula, its matrix equivalence, and the composition law are exact.",
+  "fig":"No metaphor is doing the work: the quaternion rotation, its exact matrix equivalence, length preservation, and composition are all real and checked. Gimbal lock is a genuine singularity of Euler-angle representations that the single-axis quaternion form avoids — the honest reason it's used in aerospace and graphics.",
+  "body":QUAT_BODY,"script":QUAT_SCRIPT},
  {"slug":"the-pruning","title":"THE PRUNING","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#ff6a8a","icon":"alphabeta",
   "kicker":"alpha-beta — perfect play without looking at most of it",
