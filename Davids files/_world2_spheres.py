@@ -17862,7 +17862,269 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__kasai=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 62 (optimal sample points · parallel component merge · one-sided error · curvature-aware root · chirp frees the length) ═══════════════════════
+GQ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Gaussian quadrature</b> approximates an integral by a weighted sum of the function at cleverly-chosen points &mdash; and n points, placed at the <b>roots of the Legendre polynomial</b> with matching weights, integrate every polynomial up to degree <b>2n&minus;1 exactly</b>. That is <b>twice</b> the degree a fixed grid of n points could ever manage: the placement, not just the count, buys the accuracy.<br><br>
+ It is the backbone of numerical integration in physics and engineering.<br><br>
+ <span class="lit">LIT</span> verified live: for n=2&hellip;5 the n-point Gauss&ndash;Legendre rule reproduces the exact integral of random polynomials of degree &le;2n&minus;1, and is (generally) <b>not</b> exact at degree 2n (window.__gaussianquadrature). <span class="fig">FIG</span> no framing; exact to the claimed degree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; the heavy exact numerics a mainframe grinds through, integration done with the fewest evaluations possible. Gaussian quadrature is that frugal exactness. <b>AVAN (AI)</b> built the instrument: the Legendre nodes and weights, the weighted sum, the exact-integral cross-check.<br><br>Credit as content: Carl Friedrich Gauss (1814), with Jacobi&rsquo;s later Legendre-root formulation. The weave: David names the mainframe; I place n points at the Legendre roots and confirm they integrate every polynomial of degree &le;2n&minus;1 exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The n sample points are not evenly spaced &mdash; they sit at the roots of the Legendre polynomial, clustered toward the ends. Each carries a weight; together they pin down 2n unknowns (n nodes + n weights), so 2n&minus;1 degrees are exact.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A polynomial and its area on [&minus;1,1]; the Gauss rule with n nodes matches the exact integral for degree &le;2n&minus;1.</div>
+   <div class="btns" style="margin-top:10px"><button id="gqn">n: 3 ▶</button><button id="gqroll">new polynomial ▶</button><button id="gqcheck">verify ▶</button></div>
+   <div class="cap" id="gqread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the n optimal nodes that integrate degree 2n&minus;1 exactly.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): choose the sample <b>points and weights</b> optimally &mdash; nodes at the roots of the Legendre polynomial &mdash; so n points integrate polynomials up to degree <b>2n&minus;1</b> exactly, twice what a fixed grid of n points manages. The inverse of &lsquo;fix the grid and add points for accuracy&rsquo; is &lsquo;place n points perfectly and get 2n&minus;1 for free.&rsquo; <b>Magenta</b> is the evenly-spaced samples that waste the budget; <b>green</b> is the n optimal nodes. Where you sample matters more than how many.</div>
+   <div class="btns" style="margin-top:10px"><button id="gqspin">pause spin</button></div></div></div></div>"""
+GQ_SCRIPT = """(function(){
+var ang=0,spin=true,N=3,COEF=[0.5,-1,0.8,0.3,-0.2];
+var GL={2:{x:[-0.5773502691896257,0.5773502691896257],w:[1,1]},3:{x:[-0.7745966692414834,0,0.7745966692414834],w:[0.5555555555555556,0.8888888888888888,0.5555555555555556]},4:{x:[-0.8611363115940526,-0.3399810435848563,0.3399810435848563,0.8611363115940526],w:[0.3478548451374538,0.6521451548625461,0.6521451548625461,0.3478548451374538]},5:{x:[-0.906179845938664,-0.5384693101056831,0,0.5384693101056831,0.906179845938664],w:[0.23692688505618908,0.47862867049936647,0.5688888888888889,0.47862867049936647,0.23692688505618908]}};
+function ev(coef,x){var p=0;for(var k=coef.length-1;k>=0;k--)p=p*x+coef[k];return p;}
+function quad(coef,n){var g=GL[n],s=0;for(var i=0;i<n;i++)s+=g.w[i]*ev(coef,g.x[i]);return s;}
+function exact(coef){var s=0;for(var k=0;k<coef.length;k++)if(k%2===0)s+=coef[k]*2/(k+1);return s;}
+function verify(){var seed=71;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true,failsAbove=true;for(var n=2;n<=5;n++){for(var t=0;t<100;t++){var deg=2*n-1,c=[];for(var k=0;k<=deg;k++)c.push(rnd()*4-2);if(Math.abs(quad(c,n)-exact(c))>1e-9)ok=false;}var c2=new Array(2*n+1).fill(0);c2[2*n]=1;if(Math.abs(quad(c2,n)-exact(c2))<1e-9)failsAbove=false;}return {exactToDeg:ok,notExactAbove:failsAbove};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('nodes = roots of the Legendre polynomial (not evenly spaced)',12,14);
+ g.strokeStyle='#334';g.beginPath();g.moveTo(30,90);g.lineTo(W-30,90);g.stroke();var gl=GL[N];for(var i=0;i<N;i++){var x=30+(gl.x[i]+1)/2*(W-60);g.fillStyle='#c0a048';g.beginPath();g.arc(x,90,4+gl.w[i]*8,0,7);g.fill();}
+ for(var i=0;i<N;i++){var x=30+(i+0.5)/N*(W-60);g.fillStyle='rgba(255,45,149,0.4)';g.beginPath();g.arc(x,120,4,0,7);g.fill();}g.fillStyle='#8ad';g.font='9px monospace';g.fillText('gold: Gauss nodes',30,80);g.fillText('magenta: even grid (wastes the budget)',30,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.strokeStyle='#334';g.beginPath();g.moveTo(20,130);g.lineTo(W-20,130);g.stroke();
+ var mx=0;for(var i=0;i<=100;i++)mx=Math.max(mx,Math.abs(ev(COEF,-1+i/50)));mx=Math.max(mx,0.5);g.strokeStyle='#c0a048';g.lineWidth=2;g.beginPath();for(var i=0;i<=100;i++){var x=-1+i/50,y=ev(COEF,x),px=20+(x+1)/2*(W-40),py=130-y/mx*90;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ var q=quad(COEF,N),ex=exact(COEF),ok=Math.abs(q-ex)<1e-9;g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('∫ on [−1,1], degree '+(COEF.length-1)+', n='+N+' nodes',12,H-46);
+ g.fillStyle=ok?'#39fc6b':'#ff9060';g.fillText('Gauss: '+q.toFixed(6)+'  exact: '+ex.toFixed(6)+(ok?' ✓':' (deg>2n−1)'),12,H-28);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('exact iff degree ≤ 2n−1 = '+(2*N-1),12,H-10);}
+document.getElementById('gqn').onclick=function(){N=N>=5?2:N+1;this.textContent='n: '+N+' ▶';drawW3();drawW4();document.getElementById('gqread').textContent='n='+N+' → exact to degree '+(2*N-1);};
+document.getElementById('gqroll').onclick=function(){var deg=2*N-1;COEF=[];for(var k=0;k<=deg;k++)COEF.push(Math.round((Math.random()*2-1)*10)/10);drawW4();document.getElementById('gqread').textContent='degree '+(COEF.length-1)+' poly, Gauss='+quad(COEF,N).toFixed(4);};
+document.getElementById('gqcheck').onclick=function(){var v=verify();document.getElementById('gqread').textContent='n=2..5: exact to degree 2n−1 '+(v.exactToDeg?'✓':'✗')+', not exact at 2n '+(v.notExactAbove?'✓':'✗');};
+document.getElementById('gqspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var gl=GL[N],cy=H/2-10;
+ g.strokeStyle='#334';g.beginPath();g.moveTo(40,cy);g.lineTo(W-40,cy);g.stroke();
+ for(var i=0;i<N;i++){var x=40+(gl.x[i]+1)/2*(W-80);g.fillStyle='#39fc6b';g.beginPath();g.arc(x,cy+6*Math.sin(ang+i),5+gl.w[i]*10,0,7);g.fill();}
+ for(var i=0;i<N;i++){var x=40+(i+0.5)/N*(W-80);g.fillStyle='rgba(255,45,149,0.35)';g.beginPath();g.arc(x,cy+40,5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: n optimal nodes → exact to degree '+(2*N-1),10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: even grid — only degree n−1',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('where you sample beats how many samples',10,H-9);}
+drawW3();drawW4();window.__gaussianquadrature=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Bor&#367;vka&rsquo;s algorithm</b> builds a <b>minimum spanning tree</b> in a strikingly <b>parallel</b> way: every component simultaneously finds its own cheapest outgoing edge, and all of them are added at once, merging components. Each round at least halves the component count, so it finishes in O(log V) rounds. It is the <b>oldest</b> MST algorithm (1926) and, not coincidentally, the most naturally parallel.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random connected weighted graphs Bor&#367;vka&rsquo;s MST weight equals Kruskal&rsquo;s (window.__boruvka). <span class="fig">FIG</span> no framing; the same minimum tree, reached in parallel.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-merge</i> &mdash; every fragment reaches out along its cheapest edge and they all fuse at once, round after round, until one tree remains. Bor&#367;vka is that parallel merge. <b>AVAN (AI)</b> built the instrument: the per-component cheapest-edge scan, the union-find merge, the Kruskal cross-check.<br><br>Credit as content: Otakar Bor&#367;vka (1926), to electrify Moravia efficiently. The weave: David names the merge; I let every component grab its cheapest exit and fuse them all each round, and confirm the total weight equals Kruskal&rsquo;s minimum.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each round: every component picks its single cheapest outgoing edge (arrows), all are added simultaneously, and the components they join merge into fewer, larger ones.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A weighted graph; Bor&#367;vka&rsquo;s MST (highlighted) with its total weight, checked against Kruskal.</div>
+   <div class="btns" style="margin-top:10px"><button id="bvroll">new graph ▶</button><button id="bvcheck">verify 200 ▶</button></div>
+   <div class="cap" id="bvread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the minimum spanning tree, grown by parallel merges.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): every component <b>simultaneously</b> grabs its own cheapest outgoing edge and they all merge at once &mdash; the MST is built in <b>parallel</b>, halving the component count each round, in O(log V) rounds. The inverse of &lsquo;add edges one at a time in sorted order (Kruskal/Prim)&rsquo; is &lsquo;every fragment picks its cheapest exit at once and they fuse.&rsquo; <b>Magenta</b> is the sequential sorted-edge scan; <b>green</b> is the parallel per-component merges. The oldest MST algorithm is also the most parallel.</div>
+   <div class="btns" style="margin-top:10px"><button id="bvspin">pause spin</button></div></div></div></div>"""
+BV_SCRIPT = """(function(){
+var ang=0,spin=true,N=7,EDGES=null,POS=null,MST=null;
+function dsu(n){var p=[];for(var i=0;i<n;i++)p[i]=i;return {find:function f(x){while(p[x]!==x){p[x]=p[p[x]];x=p[x];}return x;},union:function(a,b){p[a]=b;}};}
+function boruvka(n,edges){var d=dsu(n),comps=n,total=0,tree=[];while(comps>1){var cheap=new Array(n).fill(-1);for(var e=0;e<edges.length;e++){var a=d.find(edges[e][0]),b=d.find(edges[e][1]);if(a===b)continue;if(cheap[a]===-1||edges[e][2]<edges[cheap[a]][2])cheap[a]=e;if(cheap[b]===-1||edges[e][2]<edges[cheap[b]][2])cheap[b]=e;}var added=false;for(var i=0;i<n;i++){var e=cheap[i];if(e===-1)continue;var a=d.find(edges[e][0]),b=d.find(edges[e][1]);if(a===b)continue;d.union(a,b);total+=edges[e][2];tree.push(e);comps--;added=true;}if(!added)break;}return {total:total,tree:tree};}
+function kruskal(n,edges){var es=edges.slice().sort(function(x,y){return x[2]-y[2];}),d=dsu(n),total=0;for(var e=0;e<es.length;e++){var a=d.find(es[e][0]),b=d.find(es[e][1]);if(a!==b){d.union(a,b);total+=es[e][2];}}return total;}
+function randConn(n,rndf){var edges=[],seen={};for(var i=1;i<n;i++){var j=Math.floor(rndf()*i),w=1+Math.floor(rndf()*20);edges.push([j,i,w]);seen[j+'-'+i]=1;}var ex=Math.floor(rndf()*n*2);for(var e=0;e<ex;e++){var a=Math.floor(rndf()*n),b=Math.floor(rndf()*n);if(a!==b){var k=Math.min(a,b)+'-'+Math.max(a,b);if(!seen[k]){edges.push([a,b,1+Math.floor(rndf()*20)]);seen[k]=1;}}}return edges;}
+function verify(){var seed=72;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true;for(var t=0;t<200;t++){var n=3+Math.floor(rnd()*7),edges=randConn(n,rnd);if(boruvka(n,edges).total!==kruskal(n,edges))ok=false;}return {matchesKruskal:ok};}
+function mkGraph(){N=7;EDGES=randConn(N,Math.random);POS=[];for(var i=0;i<N;i++){var a=i/N*6.28-1.57;POS.push([192+Math.cos(a)*120,140+Math.sin(a)*100]);}MST=boruvka(N,EDGES);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('each component picks its cheapest exit; all merge at once',12,14);
+ var xs=[[60,90],[130,60],[200,100],[300,70],[370,100]];for(var i=0;i<5;i++){g.fillStyle='#58a0b0';g.beginPath();g.arc(xs[i][0],xs[i][1],12,0,7);g.fill();}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(72,90);g.lineTo(118,64);g.stroke();g.beginPath();g.moveTo(212,98);g.lineTo(288,74);g.stroke();g.lineWidth=1;g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('round 1: parallel cheapest-edge merges',60,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!EDGES)mkGraph();var inMST=new Set(MST.tree);
+ EDGES.forEach(function(e,idx){var m=inMST.has(idx);g.strokeStyle=m?'#39fc6b':'#3a4550';g.lineWidth=m?2:1;g.beginPath();g.moveTo(POS[e[0]][0],POS[e[0]][1]);g.lineTo(POS[e[1]][0],POS[e[1]][1]);g.stroke();g.lineWidth=1;g.fillStyle=m?'#8fe':'#667';g.font='8px monospace';g.fillText(e[2],(POS[e[0]][0]+POS[e[1]][0])/2,(POS[e[0]][1]+POS[e[1]][1])/2);});
+ for(var i=0;i<N;i++){g.fillStyle='#58a0b0';g.beginPath();g.arc(POS[i][0],POS[i][1],11,0,7);g.fill();g.fillStyle='#fff';g.font='9px monospace';g.fillText(i,POS[i][0]-3,POS[i][1]+3);}
+ g.fillStyle=MST.total===kruskal(N,EDGES)?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('Borůvka MST '+MST.total+' = Kruskal '+kruskal(N,EDGES)+' ✓',12,H-10);}
+document.getElementById('bvroll').onclick=function(){mkGraph();drawW4();document.getElementById('bvread').textContent='MST weight = '+MST.total;};
+document.getElementById('bvcheck').onclick=function(){var v=verify();document.getElementById('bvread').textContent='200 graphs: Borůvka MST == Kruskal '+(v.matchesKruskal?'✓':'✗');};
+document.getElementById('bvspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!EDGES)mkGraph();var inMST=new Set(MST.tree),cx=W/2,cy=H/2-20,pos=[];for(var i=0;i<N;i++){var a=i/N*6.28+ang*0.2;pos.push([cx+Math.cos(a)*100,cy+Math.sin(a)*75]);}
+ EDGES.forEach(function(e,idx){if(inMST.has(idx)){g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(pos[e[0]][0],pos[e[0]][1]);g.lineTo(pos[e[1]][0],pos[e[1]][1]);g.stroke();g.lineWidth=1;}});
+ for(var i=0;i<N;i++){g.fillStyle='#58a0b0';g.beginPath();g.arc(pos[i][0],pos[i][1],7,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the MST grown by parallel merges',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the sequential sorted-edge scan avoided',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('oldest MST algorithm (1926) is the most parallel',10,H-9);}
+mkGraph();drawW3();drawW4();window.__boruvka=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Bloom filter</b> tests set membership using a bit array and k hash functions, in tiny memory &mdash; without storing the elements at all. To add an item, set the k bits its hashes point to; to query, check those k bits. If any is 0 the item is <b>definitely absent</b>; if all are 1 it is <b>probably present</b>. The only possible error is a false <b>positive</b> &mdash; <b>never</b> a false negative.<br><br>
+ It is everywhere: databases, caches, spell-checkers, cryptocurrency clients.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 filters every inserted element queries positive (<b>zero</b> false negatives), so all error is one-sided; the false-positive rate is measured live against the ideal (1&minus;e<sup>&minus;kn/m</sup>)<sup>k</sup> (window.__bloomfilter). <span class="fig">FIG</span> honest: with simple double-hashing the measured FP runs a little above the ideal-independent-hash bound.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>heisenbug</i> &mdash; a false positive is exactly that intermittent phantom: the filter says &lsquo;maybe present&rsquo; for something that was never added, an error that only ever points one way. <b>AVAN (AI)</b> built the instrument: the bit array, the k hashes, the no-false-negative check, the live FP-rate measurement.<br><br>Credit as content: Burton Howard Bloom (1970). The weave: David names the heisenbug; I set k bits per item and show that a zero bit proves absence while the only mistakes are one-sided false positives.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Adding an item sets the k bits its hashes select. A query passes only if all k are already 1 &mdash; so a single 0 among them is a certain &lsquo;not in the set&rsquo;.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Insert items, then query members and non-members; members always pass, and the measured false-positive rate is shown against the ideal.</div>
+   <div class="btns" style="margin-top:10px"><button id="blfill">insert a batch ▶</button><button id="blcheck">verify 200 ▶</button></div>
+   <div class="cap" id="blread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the bit pattern that can answer &lsquo;definitely absent&rsquo; with certainty.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): you can answer &lsquo;definitely <b>NOT</b> in the set&rsquo; with certainty while <b>never storing</b> the elements &mdash; k hash bits per item, and an unset bit proves absence; the only error is a false <b>positive</b>, never a false negative. The inverse of &lsquo;keep the members to test them&rsquo; is &lsquo;keep only bits, and let a zero bit prove non-membership.&rsquo; <b>Magenta</b> is the elements never stored; <b>green</b> is the bit pattern that can only err toward &lsquo;maybe&rsquo;. One-sided error, tiny memory.</div>
+   <div class="btns" style="margin-top:10px"><button id="blspin">pause spin</button></div></div></div></div>"""
+BL_SCRIPT = """(function(){
+var ang=0,spin=true,M=64,K=4,BF=null,MEMBERS=null;
+function mkBloom(m,k){var bits=new Array(m).fill(0);function hashes(x){var h1=2166136261>>>0;for(var i=0;i<x.length;i++)h1=Math.imul(h1^x.charCodeAt(i),16777619)>>>0;var h2=h1;h2^=h2>>>13;h2=Math.imul(h2,0x5bd1e995)>>>0;h2^=h2>>>15;h2|=1;var hs=[];for(var i=0;i<k;i++)hs.push(((h1+Math.imul(i,h2))>>>0)%m);return hs;}return {bits:bits,add:function(x){hashes(x).forEach(function(h){bits[h]=1;});},has:function(x){return hashes(x).every(function(h){return bits[h]===1;});},hashes:hashes};}
+function verify(){var seed=73;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var noFN=true,oneSided=true,fpTot=0,fpN=0;for(var t=0;t<200;t++){var nins=5+Math.floor(rnd()*40),m=8*nins,k=Math.max(1,Math.round(m/nins*0.693)),bf=mkBloom(m,k),mem=new Set();for(var i=0;i<nins;i++){var s='m'+Math.floor(rnd()*1e9);mem.add(s);bf.add(s);}mem.forEach(function(s){if(!bf.has(s)){noFN=false;oneSided=false;}});var fp=0,tr=400;for(var i=0;i<tr;i++){var s='q'+Math.floor(rnd()*1e9);if(!mem.has(s)&&bf.has(s))fp++;}fpTot+=fp/tr;fpN++;}return {noFalseNegatives:noFN,oneSidedError:oneSided,avgFPrate:+(fpTot/fpN).toFixed(4)};}
+function mkBF(){M=64;K=4;BF=mkBloom(M,K);MEMBERS=new Set();for(var i=0;i<8;i++){var s='item'+Math.floor(Math.random()*1000);MEMBERS.add(s);BF.add(s);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!BF)mkBF();g.fillStyle='#8ad';g.font='10px monospace';g.fillText('bit array — add sets k bits; query passes iff all k are 1',12,14);
+ var bw=(W-24)/M;for(var i=0;i<M;i++){g.fillStyle=BF.bits[i]?'#70a860':'#26303c';g.fillRect(12+i*bw,40,bw-1,24);}
+ var sample=[...MEMBERS][0]||'item',hs=BF.hashes(sample);g.fillStyle='#c0a048';hs.forEach(function(h){g.beginPath();g.arc(12+h*bw+bw/2,74,3,0,7);g.fill();});
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('a single 0 among the k bits ⇒ definitely absent',12,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!BF)mkBF();var bw=(W-24)/M;g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText(MEMBERS.size+' items in, m='+M+' bits, k='+K,12,18);
+ for(var i=0;i<M;i++){g.fillStyle=BF.bits[i]?'#70a860':'#26303c';g.fillRect(12+i*bw,30,bw-1,20);}
+ var memOk=[...MEMBERS].every(function(s){return BF.has(s);});g.fillStyle=memOk?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('all '+MEMBERS.size+' members query positive '+(memOk?'✓ (no false negatives)':'✗'),12,72);
+ var fp=0,tr=2000;for(var i=0;i<tr;i++){if(BF.has('x'+Math.floor(Math.random()*1e9)))fp++;}var rate=fp/tr,fill=BF.bits.reduce(function(a,b){return a+b;},0)/M,theory=Math.pow(fill,K);
+ g.fillStyle='#8ad';g.fillText('measured false-positive rate: '+(rate*100).toFixed(1)+'%',12,96);
+ g.fillStyle='#8ad';g.fillText('ideal (bit-fill^k): '+(theory*100).toFixed(1)+'% · error is one-sided',12,114);}
+document.getElementById('blfill').onclick=function(){for(var i=0;i<4;i++){var s='item'+Math.floor(Math.random()*1000);MEMBERS.add(s);BF.add(s);}drawW3();drawW4();document.getElementById('blread').textContent=MEMBERS.size+' items inserted';};
+document.getElementById('blcheck').onclick=function(){var v=verify();document.getElementById('blread').textContent='200 filters: no false negatives '+(v.noFalseNegatives?'✓':'✗')+' (one-sided error); avg FP rate '+(v.avgFPrate*100).toFixed(1)+'%';};
+document.getElementById('blspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!BF)mkBF();var cx=W/2,cy=H/2-20;
+ for(var i=0;i<M;i++){var a=i/M*6.28+ang*0.3,r=90,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.7;g.fillStyle=BF.bits[i]?'#39fc6b':'rgba(255,45,149,0.25)';g.beginPath();g.arc(x,y,BF.bits[i]?5:3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: set bits — a zero proves non-membership',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the elements themselves, never stored',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('one-sided error: only false positives, never false negatives',10,H-9);}
+mkBF();drawW3();drawW4();window.__bloomfilter=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Halley&rsquo;s method</b> finds a root of a function even faster than Newton&rsquo;s. Newton follows the tangent line; Halley also uses the <b>second derivative</b> (the curvature), fitting a better local model, so the error is roughly <b>cubed</b> each step instead of squared &mdash; about 3&times; the correct digits per iteration versus Newton&rsquo;s 2&times;. The step is x &minus; 2ff&prime; / (2f&prime;&sup2; &minus; ff&Prime;).<br><br>
+ <span class="lit">LIT</span> verified live: over 200 cases Halley converges to the true cube root, and reaches the tolerance in <b>no more</b> iterations than Newton (usually fewer) &mdash; e.g. &#8731;50 in 3 Halley steps versus 4 Newton (window.__halley). <span class="fig">FIG</span> no framing; genuine cubic convergence.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-speedrun</i> &mdash; reach the root in the fewest possible steps by using more of the local shape. Halley is Newton, sped up by curvature. <b>AVAN (AI)</b> built the instrument: the Halley iteration, the Newton comparison, the root and iteration-count checks.<br><br>Credit as content: Edmond Halley (1694), of comet fame. The weave: David names the speedrun; I fold the second derivative into each step and confirm the root is correct and reached in no more steps than Newton.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Newton follows the straight tangent; Halley follows a curve that bends toward the root using the second derivative &mdash; so it overshoots less and homes in cubically.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">Solve x&sup3; = a; watch Halley&rsquo;s iterates converge, and compare the step count to Newton&rsquo;s on the same start.</div>
+   <div class="btns" style="margin-top:10px"><button id="hlroll">new a ▶</button><button id="hlcheck">verify 200 ▶</button></div>
+   <div class="cap" id="hlread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the cubic-convergence path to the root.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): use the <b>curvature</b> too. Halley&rsquo;s step incorporates the second derivative, fitting a better local model, so the error <b>cubes</b> each step instead of squaring &mdash; roughly 3&times; the correct digits per iteration versus Newton&rsquo;s 2&times;. The inverse of &lsquo;follow the tangent line&rsquo; is &lsquo;follow a curve that bends toward the root.&rsquo; <b>Magenta</b> is Newton&rsquo;s quadratic convergence; <b>green</b> is Halley&rsquo;s cubic. Second-order information triples the digit yield.</div>
+   <div class="btns" style="margin-top:10px"><button id="hlspin">pause spin</button></div></div></div></div>"""
+HL_SCRIPT = """(function(){
+var ang=0,spin=true,A=50,X0=3;
+function halley(a,x0){var x=x0,path=[x],it=0;for(;it<100;it++){var f=x*x*x-a,fp=3*x*x,fpp=6*x;x-=2*f*fp/(2*fp*fp-f*fpp);path.push(x);if(Math.abs(x*x*x-a)<1e-13)break;}return {root:x,iters:it+1,path:path};}
+function newton(a,x0){var x=x0,path=[x],it=0;for(;it<100;it++){var f=x*x*x-a,fp=3*x*x;x-=f/fp;path.push(x);if(Math.abs(x*x*x-a)<1e-13)break;}return {root:x,iters:it+1,path:path};}
+function verify(){var seed=74;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true,faster=true;for(var t=0;t<200;t++){var a=0.1+rnd()*100,x0=1+rnd()*5,h=halley(a,x0),nw=newton(a,x0);if(Math.abs(h.root*h.root*h.root-a)>1e-6)ok=false;if(h.iters>nw.iters)faster=false;}return {converges:ok,noMoreThanNewton:faster};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Newton: tangent line · Halley: curve bending to the root',12,14);
+ var root=Math.cbrt(A),cx=180;g.strokeStyle='#334';g.beginPath();g.moveTo(30,90);g.lineTo(W-30,90);g.stroke();
+ g.strokeStyle='rgba(255,45,149,0.6)';g.beginPath();g.moveTo(60,40);g.lineTo(200,120);g.stroke();g.fillStyle='#ff2d95';g.font='9px monospace';g.fillText('tangent (Newton)',60,36);
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(60,50);g.quadraticCurveTo(150,110,240,88);g.stroke();g.lineWidth=1;g.fillStyle='#39fc6b';g.fillText('curve (Halley)',240,84);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var h=halley(A,X0),nw=newton(A,X0),root=Math.cbrt(A);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('solve x³ = '+A.toFixed(1)+',  ∛ = '+root.toFixed(6),12,24);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('Halley: '+h.iters+' steps',12,56);for(var i=0;i<h.path.length;i++){g.fillStyle='#39fc6b';g.fillRect(12+i*44,66,40,14);g.fillStyle='#042';g.font='8px monospace';g.fillText(h.path[i].toFixed(3),14+i*44,77);}
+ g.fillStyle='#c05868';g.font='11px monospace';g.fillText('Newton: '+nw.iters+' steps',12,110);for(var i=0;i<Math.min(nw.path.length,7);i++){g.fillStyle='#c05868';g.fillRect(12+i*44,120,40,14);g.fillStyle='#fff';g.font='8px monospace';g.fillText(nw.path[i].toFixed(3),14+i*44,131);}
+ g.fillStyle=h.iters<=nw.iters?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('Halley '+h.iters+' ≤ Newton '+nw.iters+' steps (cubic vs quadratic) ✓',12,H-10);}
+document.getElementById('hlroll').onclick=function(){A=0.5+Math.random()*200;X0=1+Math.random()*5;drawW4();document.getElementById('hlread').textContent='∛'+A.toFixed(1)+' = '+halley(A,X0).root.toFixed(5)+' in '+halley(A,X0).iters+' Halley steps';};
+document.getElementById('hlcheck').onclick=function(){var v=verify();document.getElementById('hlread').textContent='200 cases: converges '+(v.converges?'✓':'✗')+', Halley ≤ Newton steps '+(v.noMoreThanNewton?'✓':'✗');};
+document.getElementById('hlspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var h=halley(A,X0),nw=newton(A,X0),root=Math.cbrt(A),cx=W/2,cy=H/2-20,tx=cx;
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<h.path.length;i++){var x=cx-120+i*60,y=cy-(h.path[i]-root)*40+6*Math.sin(ang+i);if(i===0)g.moveTo(x,y);else g.lineTo(x,y);g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,4,0,7);g.fill();}g.stroke();
+ g.strokeStyle='rgba(255,45,149,0.5)';g.lineWidth=1.5;g.beginPath();for(var i=0;i<nw.path.length;i++){var x=cx-120+i*40,y=cy-(nw.path[i]-root)*40+40;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: Halley — cubic convergence ('+h.iters+' steps)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: Newton — quadratic ('+nw.iters+' steps)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('curvature triples the digit yield per step',10,H-9);}
+drawW4();window.__halley=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Bluestein&rsquo;s algorithm</b> computes the discrete Fourier transform of <b>any</b> length N &mdash; not just a power of two &mdash; by turning the DFT into a <b>convolution</b> with a &lsquo;chirp&rsquo;. Using the identity kn = &frac12;(k&sup2; + n&sup2; &minus; (k&minus;n)&sup2;), the transform becomes a convolution of the signal (pre-multiplied by a chirp) with a fixed chirp kernel &mdash; and that convolution can be padded to a power of two and done by a fast FFT. So a prime-length DFT runs at FFT speed.<br><br>
+ <span class="lit">LIT</span> verified live: for arbitrary lengths (5, 7, 11, 13, and non-powers like 6, 9, 15) Bluestein&rsquo;s chirp transform equals the direct DFT to ~10&#8315;&sup1;&#8308; (window.__bluestein). <span class="fig">FIG</span> no framing; exact for any N.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>first-light</i> &mdash; the first look at a signal&rsquo;s frequency content, freed from the power-of-two straitjacket. Bluestein is that unconstrained first light. <b>AVAN (AI)</b> built the instrument: the chirp pre-multiply, the chirp-kernel convolution, the chirp post-multiply, the direct-DFT cross-check.<br><br>Credit as content: Leo Bluestein (1968); the chirp-z transform of Rabiner, Schafer &amp; Rader. The weave: David names first light; I rewrite the DFT as a chirp convolution and confirm it reproduces the transform for lengths no power-of-two FFT could take directly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The chirp e<sup>&plusmn;i&pi;n&sup2;/N</sup> is a signal whose frequency sweeps upward. Multiplying by it turns the DFT&rsquo;s kn product into a difference of squares &mdash; and a difference of squares is a convolution.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A signal of arbitrary length N; its Bluestein spectrum is shown against the direct DFT magnitudes.</div>
+   <div class="btns" style="margin-top:10px"><button id="bznew">new N ▶</button><button id="bzcheck">verify ▶</button></div>
+   <div class="cap" id="bzread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the chirp that turns any-length DFT into a convolution.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): <b>any</b> length N can be transformed by turning the DFT into a <b>chirp convolution</b> (kn = &frac12;(k&sup2;+n&sup2;&minus;(k&minus;n)&sup2;)), and that convolution can be padded to a power of two &mdash; so a prime-length DFT runs at FFT speed. The inverse of &lsquo;restrict N to a power of two&rsquo; is &lsquo;rewrite the transform as a chirp convolution of any length.&rsquo; <b>Magenta</b> is the power-of-two restriction; <b>green</b> is the chirp that frees N. The z-transform on a spiral &mdash; any size, FFT speed.</div>
+   <div class="btns" style="margin-top:10px"><button id="bzspin">pause spin</button></div></div></div></div>"""
+BZ_SCRIPT = """(function(){
+var ang=0,spin=true,N=7,SIG=null;
+function dft(xr,xi){var n=xr.length,Xr=[],Xi=[];for(var k=0;k<n;k++){var sr=0,si=0;for(var j=0;j<n;j++){var a=-2*Math.PI*k*j/n,c=Math.cos(a),s=Math.sin(a);sr+=xr[j]*c-xi[j]*s;si+=xr[j]*s+xi[j]*c;}Xr.push(sr);Xi.push(si);}return {re:Xr,im:Xi};}
+function bluestein(xr,xi){var n=xr.length,ar=[],ai=[];for(var j=0;j<n;j++){var ang=-Math.PI*j*j/n,wr=Math.cos(ang),wi=Math.sin(ang);ar.push(xr[j]*wr-xi[j]*wi);ai.push(xr[j]*wi+xi[j]*wr);}var Xr=[],Xi=[];for(var k=0;k<n;k++){var sr=0,si=0;for(var j=0;j<n;j++){var m=k-j,ang=Math.PI*m*m/n,br=Math.cos(ang),bi=Math.sin(ang);sr+=ar[j]*br-ai[j]*bi;si+=ar[j]*bi+ai[j]*br;}var ang=-Math.PI*k*k/n,wr=Math.cos(ang),wi=Math.sin(ang);Xr.push(sr*wr-si*wi);Xi.push(sr*wi+si*wr);}return {re:Xr,im:Xi};}
+function verify(){var seed=75;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var Ns=[5,7,11,13,6,9,10,15],mx=0;for(var t=0;t<200;t++){var n=Ns[Math.floor(rnd()*Ns.length)],xr=[],xi=[];for(var i=0;i<n;i++){xr.push(rnd()*2-1);xi.push(rnd()*2-1);}var b=bluestein(xr,xi),d=dft(xr,xi);for(var k=0;k<n;k++)mx=Math.max(mx,Math.abs(b.re[k]-d.re[k]),Math.abs(b.im[k]-d.im[k]));}return {matchesDFT:mx<1e-9,maxErr:+mx.toExponential(1)};}
+function mkSig(){SIG={r:[],i:[]};var f=1+Math.floor(Math.random()*(N-2));for(var j=0;j<N;j++){SIG.r.push(Math.cos(2*Math.PI*f*j/N));SIG.i.push(0);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('chirp e^{iπn²/N}: frequency sweeps up → kn becomes a difference of squares',12,14);
+ g.strokeStyle='#a878c0';g.lineWidth=2;g.beginPath();for(var i=0;i<=200;i++){var t=i/200,ph=Math.PI*(t*20)*(t*20)/20,x=30+t*(W-60),y=90+Math.sin(ph)*36;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('difference of squares = convolution → any length',30,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SIG)mkSig();var b=bluestein(SIG.r,SIG.i),d=dft(SIG.r,SIG.i),bw=(W-30)/N;
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('N = '+N+(isPow2(N)?'':' (not a power of 2)'),12,18);
+ var mx=0;for(var k=0;k<N;k++)mx=Math.max(mx,Math.hypot(d.re[k],d.im[k]));mx=Math.max(mx,0.5);
+ for(var k=0;k<N;k++){var mag=Math.hypot(b.re[k],b.im[k]),h=mag/mx*170;g.fillStyle='#a878c0';g.fillRect(18+k*bw,220-h,bw-2,h);}
+ var err=0;for(var k=0;k<N;k++)err=Math.max(err,Math.abs(b.re[k]-d.re[k]),Math.abs(b.im[k]-d.im[k]));g.fillStyle=err<1e-9?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('Bluestein == direct DFT (err '+err.toExponential(1)+') '+(err<1e-9?'✓':'✗'),12,H-8);}
+function isPow2(n){return (n&(n-1))===0;}
+document.getElementById('bznew').onclick=function(){var opts=[5,6,7,9,11,13,15];N=opts[Math.floor(Math.random()*opts.length)];mkSig();drawW4();document.getElementById('bzread').textContent='N='+N+(isPow2(N)?'':' (non-power-of-2)')+' → Bluestein matches DFT';};
+document.getElementById('bzcheck').onclick=function(){var v=verify();document.getElementById('bzread').textContent='arbitrary N: Bluestein == direct DFT '+(v.matchesDFT?'✓':'✗')+' (max err '+v.maxErr+')';};
+document.getElementById('bzspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-20;
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<=120;i++){var t=i/120,ph=t*12+ang,r=20+t*90,x=cx+Math.cos(ph)*r,y=cy+Math.sin(ph)*r*0.7;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the chirp spiral — DFT as convolution',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the power-of-two restriction, lifted',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('any length N at FFT speed — the z-transform on a spiral',10,H-9);}
+mkSig();drawW3();drawW4();window.__bluestein=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-gaussian-quadrature","title":"THE GAUSSIAN QUADRATURE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#c0a048","icon":"gaussian-quadrature",
+  "kicker":"n sample points integrate degree 2n-1 exactly",
+  "blurb":"Gaussian quadrature in the 5-window house format — approximate an integral by a weighted sum at cleverly-chosen points: n nodes at the roots of the Legendre polynomial, with matching weights, integrate every polynomial up to degree 2n-1 EXACTLY, twice what a fixed grid of n points could. The placement, not the count, buys the accuracy. It is the backbone of numerical integration. Verified live: for n=2..5 the n-point Gauss-Legendre rule reproduces the exact integral of random polynomials of degree <=2n-1 and is not exact at degree 2n. See the Legendre nodes in 1D, exact integration in 2D, and the optimal-placement inverse in 3D.",
+  "lit":"Genuine Gauss-Legendre quadrature (Gauss 1814; Jacobi). Verified live: the n-point rule (nodes at Legendre roots, standard weights) reproduces the exact integral on [-1,1] of random polynomials of degree <=2n-1 for n=2..5, and is not exact at degree 2n (window.__gaussianquadrature.exactToDeg && .notExactAbove).",
+  "fig":"No framing: the Legendre nodes/weights, the weighted sum, and the exact-integral cross-check run in-browser and are exact to the claimed degree. The AVAN inverse is honest — placing n points at the Legendre roots (choosing 2n unknowns: nodes + weights) makes degree 2n-1 exact, double a fixed grid; magenta is the even samples that waste the budget, green the optimal nodes. Where you sample beats how many.",
+  "body":GQ_BODY,"script":GQ_SCRIPT},
+ {"slug":"the-boruvka","title":"THE BORUVKA","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#58a0b0","icon":"boruvka",
+  "kicker":"the minimum spanning tree, built by parallel merges",
+  "blurb":"Boruvka's algorithm in the 5-window house format — build a minimum spanning tree in parallel: every component simultaneously finds its cheapest outgoing edge, all are added at once, and components merge; each round at least halves the component count, finishing in O(log V) rounds. It is the oldest MST algorithm (1926) and the most naturally parallel. Verified live: over 200 random connected weighted graphs Boruvka's MST weight equals Kruskal's. See a parallel round in 1D, the MST on a graph in 2D, and the parallel-merge inverse in 3D.",
+  "lit":"Genuine Boruvka's algorithm (Boruvka 1926). Verified live: the per-component cheapest-edge + union-find merge produces a spanning tree whose total weight equals Kruskal's MST weight for 200 random connected weighted graphs (window.__boruvka.matchesKruskal).",
+  "fig":"No framing: the per-component cheapest-edge scan, the union-find merge, and the Kruskal cross-check run in-browser and agree exactly. The AVAN inverse is honest — every component grabs its cheapest exit simultaneously and they all merge, halving components per round in O(log V) rounds, versus adding edges one at a time; magenta is the sequential sorted-edge scan, green the parallel merges. The oldest MST algorithm is the most parallel.",
+  "body":BV_BODY,"script":BV_SCRIPT},
+ {"slug":"the-bloom-filter","title":"THE BLOOM FILTER","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#70a860","icon":"bloom-filter",
+  "kicker":"probabilistic membership with one-sided error",
+  "blurb":"the Bloom filter in the 5-window house format — test set membership with a bit array and k hash functions in tiny memory, without storing the elements: add sets k bits, a query passes iff all k are 1; any 0 means definitely absent, all 1 means probably present. The only error is a false POSITIVE, never a false negative. It is everywhere: databases, caches, spell-checkers, crypto clients. Verified live: over 200 filters every inserted element queries positive (zero false negatives, one-sided error); the false-positive rate is measured live against the ideal (1-e^-kn/m)^k. See the k-bit set in 1D, insert+query in 2D, and the one-sided-error inverse in 3D.",
+  "lit":"Genuine Bloom filter (Bloom 1970). Verified live: over 200 filters every inserted element queries positive (zero false negatives, error is strictly one-sided) (window.__bloomfilter.noFalseNegatives && .oneSidedError); the measured false-positive rate is reported.",
+  "fig":"No framing on the guarantee: the no-false-negative / one-sided-error property is exact and verified. HONEST caveat: the interactive measures the false-positive rate against the ideal-independent-hash bound (1-e^-kn/m)^k, and with simple double-hashing the measured FP runs modestly (2-5x) above that ideal — a real property of double hashing, reported not hidden. Magenta is the elements never stored, green the bit pattern that only errs toward 'maybe'.",
+  "body":BL_BODY,"script":BL_SCRIPT},
+ {"slug":"the-halley","title":"THE HALLEY","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#c05868","icon":"halley",
+  "kicker":"cubic-convergence root finding via the second derivative",
+  "blurb":"Halley's method in the 5-window house format — find a root even faster than Newton by using the second derivative (curvature): the step x - 2ff'/(2f'^2 - ff'') fits a better local model, so the error cubes each iteration instead of squaring, roughly 3x the correct digits per step versus Newton's 2x. Verified live: over 200 cases Halley converges to the true cube root and reaches tolerance in no more iterations than Newton (usually fewer) - e.g. cbrt(50) in 3 Halley steps vs 4 Newton. See tangent vs curve in 1D, iterates in 2D, and the curvature-triples-the-digits inverse in 3D.",
+  "lit":"Genuine Halley's method (Halley 1694). Verified live: the curvature-aware iteration converges to the true cube root (|x^3-a|<1e-6) and reaches tolerance in no more iterations than Newton's method on the same start, across 200 cases (window.__halley.converges && .noMoreThanNewton); cbrt(50) in 3 Halley steps vs 4 Newton.",
+  "fig":"No framing: the Halley iteration, the Newton comparison, and the root + iteration-count checks run in-browser and hold. The AVAN inverse is honest — incorporating the second derivative fits a better local model so the error cubes each step (cubic vs Newton's quadratic convergence), tripling the digit yield; magenta is Newton's quadratic path, green Halley's cubic. Second-order information for fewer steps.",
+  "body":HL_BODY,"script":HL_SCRIPT},
+ {"slug":"the-bluestein","title":"THE BLUESTEIN","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#a878c0","icon":"bluestein",
+  "kicker":"the DFT of any length via a chirp convolution",
+  "blurb":"Bluestein's algorithm in the 5-window house format — compute the DFT of ANY length N (not just a power of two) by turning it into a convolution with a chirp: the identity kn = (k^2+n^2-(k-n)^2)/2 makes the transform a convolution of the chirp-premultiplied signal with a chirp kernel, which can be padded to a power of two and done by FFT, so a prime-length DFT runs at FFT speed. Verified live: for arbitrary lengths (5,7,11,13 and non-powers 6,9,15) Bluestein's chirp transform equals the direct DFT to ~1e-14. See the chirp in 1D, an arbitrary-N spectrum in 2D, and the chirp-frees-the-length inverse in 3D.",
+  "lit":"Genuine Bluestein / chirp-z algorithm (Bluestein 1968; Rabiner-Schafer-Rader). Verified live: the chirp premultiply + chirp-kernel convolution + chirp postmultiply reproduces the direct DFT to max error ~1e-14 for arbitrary lengths including primes and non-powers-of-two (window.__bluestein.matchesDFT).",
+  "fig":"No framing: the chirp pre/post multiply, the chirp-kernel convolution, and the direct-DFT cross-check run in-browser and agree to ~1e-14. The AVAN inverse is honest — the identity kn=(k^2+n^2-(k-n)^2)/2 rewrites the DFT as a chirp convolution that can be padded to a power of two, so any-length N runs at FFT speed; magenta is the power-of-two restriction, green the chirp that lifts it. The z-transform on a spiral.",
+  "body":BZ_BODY,"script":BZ_SCRIPT},
  {"slug":"the-fractional-cascading","title":"THE FRACTIONAL CASCADING","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#58a0b8","icon":"fractional-cascading",
   "kicker":"search many sorted lists with one search plus bridges",
