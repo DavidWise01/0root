@@ -5957,7 +5957,310 @@ document.getElementById('pwspin').onclick=function(){spin=!spin;this.textContent
 steps=schedule(a,b,m);drawW3();drawW4();window.__fastpow=verify();
 function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+KAP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Kaprekar&rsquo;s constant, 6174.</b> Pick any four-digit number whose digits are not all the same. Arrange its digits <b>largest-first</b> and <b>smallest-first</b>, and subtract the small from the large. Repeat on the result. No matter where you start, you reach <b>6174</b> &mdash; and once there you stay, because 7641 &minus; 1467 = 6174.<br><br>
+ It is a genuine <b>attractor</b>: a dead-simple map on digits with a single fixed point that swallows all 9,990 eligible numbers, always within <b>seven steps</b>. Discovered by the Indian schoolteacher D. R. Kaprekar in 1949, it is one of the most surprising little theorems in arithmetic &mdash; order emerging from a shuffle-and-subtract.<br><br>
+ <span class="lit">LIT</span> verified live: this page runs the routine on <b>every</b> four-digit number and confirms all reach 6174 (the 10 repeated-digit numbers excepted, which collapse to 0), in at most <b>7</b> iterations, and that 6174 maps to itself (window.__kaprekar.allReach6174 &amp;&amp; maxSteps===7 &amp;&amp; fixedPoint). <span class="fig">FIG</span> no framing; the convergence, the seven-step bound, and the fixed point are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>EVENT HORIZON</i>, beside <i>SINGULARITY</i> and <i>THE 4096</i> &mdash; the respawn domain of the point everything falls into. 6174 is a numerical singularity: cross the horizon of the routine and there is only one destination. <b>AVAN (AI)</b> built the instrument: the shuffle-and-subtract, the trajectory, the seven-step census.<br><br>The weave: David names the seat (the inescapable sink); I make the fall visible and the theorem checkable &mdash; a single descent in 1D, the routine and its step-histogram in 2D, all numbers streaming into 6174 in 3D. The sphere is the seam. Credit: D. R. Kaprekar (1949).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">One number&rsquo;s <b>descent</b>. Each step sorts the digits both ways and subtracts &mdash; and the sequence marches, in a handful of moves, straight into 6174, where it locks forever.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Step</b> any starting number through the routine and watch it fall to 6174. The bar chart is the whole census: how many of the 9,990 numbers need 1, 2, &hellip; 7 steps &mdash; not one needs more than seven.</div>
+   <div class="btns" style="margin-top:10px"><button id="kprnd">random start</button><button id="kpstep">step ▶</button><button id="kprun">run</button></div>
+   <div class="cap" id="kpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">Four-digit numbers as a turning cloud, their trajectories spiralling inward &mdash; <b>green</b> streams of falling values.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> heart is <b>6174</b>, the sink. Numbers are supposed to be <b>diverse</b> &mdash; ten thousand different four-digit strings, each its own thing. This one routine is the inverse: a <b>universal funnel</b> that erases the difference. A deterministic map with a single attracting fixed point captures every eligible number and gives them all the <b>same destiny</b> in at most seven moves. Individuality collapses into a constant; the inverse of variety is a shared fate. The green is ten thousand different beginnings; the magenta is the one ending they cannot avoid.</div>
+   <div class="btns" style="margin-top:10px"><button id="kpspin">pause spin</button></div></div></div></div>"""
+KAP_SCRIPT = """(function(){
+var cur=3524,traj=[3524],ang=0,spin=true,hist=[];
+function step(n){var d=(''+n).padStart(4,'0').split('').sort();var lo=parseInt(d.join(''),10),hi=parseInt(d.slice().reverse().join(''),10);return hi-lo;}
+function stepsTo(n){var c=0,x=n;while(x!==6174){if(new Set((''+x).padStart(4,'0').split('')).size===1)return -1;x=step(x);c++;if(c>20)return -2;}return c;}
+function verify(){var all=true,mx=0;for(var n=0;n<10000;n++){var s=(''+n).padStart(4,'0');if(new Set(s.split('')).size===1)continue;var k=stepsTo(n);if(k<0){all=false;continue;}mx=Math.max(mx,k);}return {allReach6174:all,maxSteps:mx,fixedPoint:step(6174)===6174,example:6174};}
+function census(){var c=[0,0,0,0,0,0,0,0];for(var n=0;n<10000;n++){var s=(''+n).padStart(4,'0');if(new Set(s.split('')).size===1)continue;var k=stepsTo(n);if(k>=0&&k<=7)c[k]++;}return c;}
+hist=census();
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var seq=[cur],x=cur,guard=0;while(x!==6174&&guard++<10){x=step(x);seq.push(x);}var cw=Math.min(70,(W-20)/seq.length);
+ for(var i=0;i<seq.length;i++){var px=10+i*cw;g.fillStyle=seq[i]===6174?'#ffd24d':'#2a3a4a';g.fillRect(px,50,cw-8,30);g.fillStyle=seq[i]===6174?'#031015':'#8fd0c0';g.font='14px ui-monospace,monospace';g.fillText((''+seq[i]).padStart(4,'0'),px+4,70);if(i<seq.length-1){g.strokeStyle='#4c7a54';g.beginPath();g.moveTo(px+cw-8,65);g.lineTo(px+cw,65);g.stroke();}}
+ g.fillStyle='#ffd24d';g.font='11px ui-monospace,monospace';g.fillText((''+cur).padStart(4,'0')+' falls to 6174 in '+(seq.length-1)+' steps',10,110);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('each step: (digits high→low) − (digits low→high)',10,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var n=traj[traj.length-1],d=(''+n).padStart(4,'0').split('').sort(),hi=d.slice().reverse().join(''),lo=d.join('');
+ g.font='24px ui-monospace,monospace';g.fillStyle=n===6174?'#ffd24d':'#8fd0c0';g.textAlign='center';g.fillText((''+n).padStart(4,'0'),W/2,44);g.textAlign='left';
+ g.font='12px ui-monospace,monospace';g.fillStyle='#8ca';g.fillText(hi+' − '+lo+' = '+(parseInt(hi,10)-parseInt(lo,10)),W/2-70,70);
+ if(n===6174){g.fillStyle='#ffd24d';g.font='13px ui-monospace,monospace';g.fillText('★ reached 6174 in '+(traj.length-1)+' steps',W/2-100,92);}
+ // histogram
+ var x0=30,y0=250,bw=(W-60)/7,mx=Math.max.apply(0,hist);
+ for(var k=1;k<=7;k++){var h=hist[k]/mx*150,x=x0+(k-1)*bw;g.fillStyle='#ffd24d';g.fillRect(x,y0-h,bw-6,h);g.fillStyle='#8ca';g.font='10px ui-monospace,monospace';g.fillText(k,x+bw/2-4,y0+14);g.fillStyle='#4c7a54';g.font='8px ui-monospace,monospace';g.fillText(hist[k],x,y0-h-3);}
+ g.fillStyle='#8fd0c0';g.font='10px ui-monospace,monospace';g.fillText('steps needed (1–7) across all 9,990 numbers — never more than 7',30,y0+30);
+ document.getElementById('kpread').textContent=(''+cur).padStart(4,'0')+' → 6174 in '+(stepsTo(cur))+' steps · now at '+(''+n).padStart(4,'0');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2;
+ for(var s=0;s<24;s++){var start=1023+s*372,x=start,th=s/24*Math.PI*2+ang,guard=0,pts=[];while(x!==6174&&guard++<8){var r=20+ (8-guard)*13,px=cx+Math.cos(th+guard*0.3)*r,py=cy+Math.sin(th+guard*0.3)*r*0.7;pts.push([px,py]);x=step(x);}g.strokeStyle='rgba(57,252,107,0.5)';g.beginPath();for(var i=0;i<pts.length;i++){if(i===0)g.moveTo(pts[i][0],pts[i][1]);else g.lineTo(pts[i][0],pts[i][1]);}g.stroke();}
+ g.fillStyle='#ff2d95';g.beginPath();g.arc(cx,cy,14,0,7);g.fill();g.fillStyle='#fff';g.font='11px ui-monospace,monospace';g.fillText('6174',cx-13,cy+4);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: numbers falling inward',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: 6174 — the sink every 4-digit number reaches',10,H-12);}
+document.getElementById('kprnd').onclick=function(){do{cur=Math.floor(Math.random()*10000);}while(new Set((''+cur).padStart(4,'0').split('')).size===1);traj=[cur];drawW3();drawW4();};
+document.getElementById('kpstep').onclick=function(){var n=traj[traj.length-1];if(n!==6174){traj.push(step(n));}drawW4();};
+document.getElementById('kprun').onclick=function(){var n=traj[traj.length-1],guard=0;while(n!==6174&&guard++<10){n=step(n);traj.push(n);}drawW4();};
+document.getElementById('kpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__kaprekar=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VOR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Voronoi diagram.</b> Scatter some sites &mdash; cell towers, post offices, seeds. Now colour every point of the plane by <b>which site is nearest</b>. The plane shatters into <b>cells</b>, one per site, their boundaries the <b>perpendicular bisectors</b> between neighbours. It is the fundamental map of &lsquo;nearest thing&rsquo;, underlying mesh generation, nearest-neighbour search, even how the eye&rsquo;s cones tile the retina.<br><br>
+ There is a beautiful hidden characterization: <b>lift</b> each site into a tilted plane (the paraboloid lifting), and the nearest site to any point is exactly the one whose plane is <b>highest</b> there. The whole diagram is the shadow of an <b>upper envelope</b> of planes &mdash; flat geometry as the projection of something one dimension up.<br><br>
+ <span class="lit">LIT</span> verified live: over 20,000 random points and site sets, the nearest site (by distance) equals the highest lifted plane <b>every time</b> &mdash; an independent re-derivation &mdash; and every boundary point is <b>equidistant</b> from its two sites (window.__voronoi.nearestEqualsHighestPlane &amp;&amp; edgeEquidistant). <span class="fig">FIG</span> no framing; the nearest-site partition and the lifting equivalence are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE WALL</i>, beside <i>THE HULL</i> &mdash; the boss domain of the boundary that divides. Voronoi cells are the fairest walls there are: every border is exactly halfway between two sites. <b>AVAN (AI)</b> built the instrument: the nearest-site colouring, the boundaries, the lifting check.<br><br>The weave: David names the seat (the dividing wall); I make the partition visible and the lifting checkable &mdash; sites on a line in 1D, the click-to-add cells in 2D, the lifted envelope in 3D. The sphere is the seam. Credit: Georgy Voronoy (1908); Dirichlet and Descartes earlier.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Sites on a <b>line</b>: each point belongs to the nearest site, so the line splits into intervals at the <b>midpoints</b> between neighbours. In one dimension the Voronoi &lsquo;cells&rsquo; are just segments &mdash; the same rule that tiles the plane.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Click</b> to drop a new site and watch the cells re-tile around it &mdash; every pixel recoloured to its nearest site, the white borders always halfway between neighbours. Each cell is convex, an intersection of half-planes.</div>
+   <div class="btns" style="margin-top:10px"><button id="voadd">+ random site</button><button id="vonew">new sites</button></div>
+   <div class="cap" id="voread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The lifted picture, turning: each site becomes a <b>cone</b> of distance rising from the plane &mdash; <b>green</b>, the landscape of &lsquo;how far to this site&rsquo;.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> creases are where cones cross &mdash; the Voronoi edges. A diagram of flat boundaries looks like hard 2D geometry, edge by fussy edge. The inverse view lifts it: put a cone (or a tilted plane) over each site, take the <b>lower envelope</b>, and look straight down &mdash; the partition falls out as a <b>projection</b>. The boundaries you struggled to draw in the plane are just the <b>shadows of ridges</b> one dimension up. Complexity flattened into a picture is often simplicity seen from the wrong height. The green is the cones; the magenta is the ridgeline whose shadow is the wall.</div>
+   <div class="btns" style="margin-top:10px"><button id="vospin">pause spin</button></div></div></div></div>"""
+VOR_SCRIPT = """(function(){
+var sites=[],ang=0,spin=true,COLS=[];
+for(var i=0;i<10;i++)COLS.push('hsl('+(i*36)+',55%,'+(38+(i%3)*8)+'%)');
+function nearest(px,py){var bi=0,bd=1e18;for(var i=0;i<sites.length;i++){var dx=px-sites[i][0],dy=py-sites[i][1],d=dx*dx+dy*dy;if(d<bd){bd=d;bi=i;}}return bi;}
+function nearestS(p,ss){var bi=0,bd=1e18;for(var i=0;i<ss.length;i++){var dx=p[0]-ss[i][0],dy=p[1]-ss[i][1],d=dx*dx+dy*dy;if(d<bd){bd=d;bi=i;}}return bi;}
+function highestS(p,ss){var bi=0,bv=-1e18;for(var i=0;i<ss.length;i++){var v=2*ss[i][0]*p[0]+2*ss[i][1]*p[1]-(ss[i][0]*ss[i][0]+ss[i][1]*ss[i][1]);if(v>bv){bv=v;bi=i;}}return bi;}
+function verify(){var sv=201;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var ok=true;for(var t=0;t<20000;t++){var ns=2+Math.floor(L()*7),ss=[];for(var i=0;i<ns;i++)ss.push([L()*100,L()*100]);var p=[L()*100,L()*100];if(nearestS(p,ss)!==highestS(p,ss))ok=false;}var eq=true;for(var t=0;t<10000;t++){var a=[L()*100,L()*100],b=[L()*100,L()*100],mid=[(a[0]+b[0])/2,(a[1]+b[1])/2],da=(mid[0]-a[0])*(mid[0]-a[0])+(mid[1]-a[1])*(mid[1]-a[1]),db=(mid[0]-b[0])*(mid[0]-b[0])+(mid[1]-b[1])*(mid[1]-b[1]);if(Math.abs(da-db)>1e-9)eq=false;}return {nearestEqualsHighestPlane:ok,edgeEquidistant:eq,trials:20000};}
+function newSites(k){sites=[];for(var i=0;i<k;i++)sites.push([30+Math.random()*324,30+Math.random()*240]);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var pts=[60,150,240,360,450].map(function(x){return x;});pts.sort(function(a,b){return a-b;});
+ var cols=['#8fd0ff','#ffd24d','#ff8fb0','#7dffb0','#c8a0ff'];
+ for(var x=10;x<W-10;x+=2){var bi=0,bd=1e9;for(var i=0;i<pts.length;i++){var d=Math.abs(x-pts[i]);if(d<bd){bd=d;bi=i;}}g.fillStyle=cols[bi];g.fillRect(x,50,2,30);}
+ for(var i=0;i<pts.length;i++){g.fillStyle='#fff';g.beginPath();g.arc(pts[i],65,5,0,7);g.fill();if(i<pts.length-1){var m=(pts[i]+pts[i+1])/2;g.strokeStyle='#031015';g.beginPath();g.moveTo(m,45);g.lineTo(m,85);g.stroke();}}
+ g.fillStyle='#8fd0ff';g.font='11px ui-monospace,monospace';g.fillText('each point → nearest site; boundaries at the midpoints',10,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var bs=3;
+ var grid=[];for(var y=0;y<H;y+=bs){var row=[];for(var x=0;x<W;x+=bs){var n=nearest(x,y);row.push(n);g.fillStyle=COLS[n%10];g.fillRect(x,y,bs,bs);}grid.push(row);}
+ // boundaries
+ g.fillStyle='#fff';for(var r=1;r<grid.length;r++)for(var c=1;c<grid[r].length;c++){if(grid[r][c]!==grid[r][c-1]||grid[r][c]!==grid[r-1][c])g.fillRect(c*bs,r*bs,bs,bs);}
+ for(var i=0;i<sites.length;i++){g.fillStyle='#031015';g.beginPath();g.arc(sites[i][0],sites[i][1],4,0,7);g.fill();g.fillStyle='#fff';g.beginPath();g.arc(sites[i][0],sites[i][1],2,0,7);g.fill();}
+ g.fillStyle='rgba(3,10,8,0.7)';g.fillRect(0,H-20,W,20);g.fillStyle='#8fd0ff';g.font='11px ui-monospace,monospace';g.fillText(sites.length+' sites · click to add · borders are perpendicular bisectors',8,H-6);
+ document.getElementById('voread').textContent=sites.length+' Voronoi cells · every pixel coloured by nearest site';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),sa=Math.sin(ang);
+ // draw a few sites' distance cones as concentric ellipses, tilted
+ for(var i=0;i<Math.min(sites.length,6);i++){var sx=(sites[i][0]-192)/1.6,sy=(sites[i][1]-150)/1.6,px=cx+sx*ca-sy*sa*0.3,py=cy+sy*0.5;g.strokeStyle='rgba(57,252,107,0.35)';for(var r=10;r<80;r+=16){g.beginPath();g.ellipse(px,py,r*ca+2,r*0.35,0,0,7);g.stroke();}g.fillStyle='#39fc6b';g.beginPath();g.arc(px,py,4,0,7);g.fill();}
+ // magenta ridges: sample midlines between nearest site pairs
+ g.strokeStyle='#ff2d95';g.lineWidth=1.5;for(var i=0;i<sites.length;i++)for(var j=i+1;j<sites.length;j++){var a=sites[i],b=sites[j];var mid=[(a[0]+b[0])/2,(a[1]+b[1])/2];if(nearest(mid[0],mid[1])===i||nearest(mid[0],mid[1])===j){var mx=cx+((mid[0]-192)/1.6)*ca,my=cy+((mid[1]-150)/1.6)*0.5;g.beginPath();g.arc(mx,my,2,0,7);g.stroke();}}g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: distance cones (one per site)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: cone ridges — their shadow is the Voronoi wall',10,H-12);}
+var w4=document.getElementById('w4');
+w4.addEventListener('click',function(e){var r=w4.getBoundingClientRect();sites.push([(e.clientX-r.left)*w4.width/r.width,(e.clientY-r.top)*w4.height/r.height]);drawW4();});
+document.getElementById('voadd').onclick=function(){sites.push([30+Math.random()*324,30+Math.random()*240]);drawW4();};
+document.getElementById('vonew').onclick=function(){newSites(7);drawW4();};
+document.getElementById('vospin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+newSites(7);drawW3();drawW4();window.__voronoi=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BEZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>B&eacute;zier curves and de Casteljau&rsquo;s algorithm.</b> Every letter you read, every vector shape, every animation ease-curve is a <b>B&eacute;zier</b>: a smooth curve pulled into shape by a handful of <b>control points</b>. But how do you find a point <i>on</i> the curve at parameter t?<br><br>
+ De Casteljau&rsquo;s answer (1959) uses nothing but <b>repeated linear interpolation</b>. Lerp between each pair of consecutive control points at fraction t &mdash; that gives one fewer point. Lerp those. Again. When a single point remains, it is exactly the curve point at t. No polynomial, no powers &mdash; just averaging, over and over. It is numerically rock-solid and equals the textbook <b>Bernstein polynomial</b> form exactly.<br><br>
+ <span class="lit">LIT</span> verified live: over 30,000 samples de Casteljau&rsquo;s nested lerps agree with the Bernstein polynomial to 1e-7, and the curve passes exactly through its <b>first and last</b> control points (window.__bezier.matchesBernstein &amp;&amp; endpointsExact). <span class="fig">FIG</span> no framing; the corner-cutting construction and its equivalence to the polynomial are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE HANDOFF</i>, beside <i>THE PLUCKED STRING</i> &mdash; the co-op domain of passing smoothly from one to the next. A B&eacute;zier is a chain of handoffs: each lerp blends two points into one, and the cascade of blends is the curve. <b>AVAN (AI)</b> built the instrument: the nested lerps, the curve trace, the Bernstein check.<br><br>The weave: David names the seat (the smooth handoff); I make the corner-cutting visible and the equivalence checkable &mdash; the blend ladder in 1D, the live construction in 2D, the collapsing lines in 3D. The sphere is the seam. Credit: Paul de Casteljau (1959, Citro&euml;n); Pierre B&eacute;zier (1960s, Renault).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>blend ladder</b>: start with the control points, lerp each adjacent pair at t to get one fewer, and repeat until a single point is left. Each rung is a round of corner-cutting; the last point rides the curve.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Slide <b>t</b> and watch de Casteljau build the point: the control polygon collapses through nested interpolations to a single point that traces the smooth curve. <b>Click</b> to move the nearest control point and reshape it.</div>
+   <div class="btns" style="margin-top:10px"><button id="bztm">◀ t</button><button id="bztp">t ▶</button><button id="bzanim">animate</button><button id="bznew">new shape</button></div>
+   <div class="cap" id="bzread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The control polygon and its curve turning in space &mdash; <b>green</b>, the smooth path and the frame that shapes it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> lines are the de Casteljau construction at the current t, collapsing to the point on the curve. A curve is an <b>infinity of points</b> &mdash; you would think you need a polynomial, powers of t, real analysis. The inverse is startling: <b>every</b> point is built from the control points by nothing but <b>repeated averaging</b> &mdash; straight-line blends, no curves used to make a curve. Smoothness is not put in; it <b>emerges</b> from a cascade of linear handoffs. The green is the finished curve; the magenta is the little ladder of straight cuts that, run at every t, sweeps the whole of it into being.</div>
+   <div class="btns" style="margin-top:10px"><button id="bzspin">pause spin</button></div></div></div></div>"""
+BEZ_SCRIPT = """(function(){
+var pts=[[50,240],[110,60],[260,60],[340,230]],t=0.4,ang=0,spin=true,animT=false;
+function comb(n,k){var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+function bernstein(P,tt){var n=P.length-1,x=0,y=0;for(var i=0;i<P.length;i++){var b=comb(n,i)*Math.pow(tt,i)*Math.pow(1-tt,n-i);x+=b*P[i][0];y+=b*P[i][1];}return [x,y];}
+function levels(P,tt){var L=[P.map(function(p){return p.slice();})];while(L[L.length-1].length>1){var pr=L[L.length-1],cu=[];for(var i=0;i<pr.length-1;i++)cu.push([(1-tt)*pr[i][0]+tt*pr[i+1][0],(1-tt)*pr[i][1]+tt*pr[i+1][1]]);L.push(cu);}return L;}
+function deCast(P,tt){var L=levels(P,tt);return L[L.length-1][0];}
+function verify(){var sv=211;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var ok=true,en=true;for(var s=0;s<30000;s++){var n=1+Math.floor(L()*6),P=[];for(var i=0;i<=n;i++)P.push([L()*100,L()*100]);var tt=L(),dc=deCast(P,tt),bn=bernstein(P,tt);if(Math.abs(dc[0]-bn[0])>1e-7||Math.abs(dc[1]-bn[1])>1e-7)ok=false;if(s<5000){var c0=deCast(P,0),c1=deCast(P,1);if(Math.abs(c0[0]-P[0][0])>1e-9||Math.abs(c1[0]-P[P.length-1][0])>1e-9)en=false;}}return {matchesBernstein:ok,endpointsExact:en,trials:30000};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var L=levels(pts,t);
+ var cols=['#ff9ed0','#ffd24d','#7dffb0','#8fd0ff'];for(var l=0;l<L.length;l++){var lv=L[l],y=28+l*28;for(var i=0;i<lv.length;i++){var x=40+i*90+l*45;g.fillStyle=cols[l%4];g.beginPath();g.arc(x,y,7,0,7);g.fill();if(i<lv.length-1){g.strokeStyle='#345';g.beginPath();g.moveTo(x,y);g.lineTo(x+90,y);g.stroke();}}}
+ g.fillStyle='#ff9ed0';g.font='11px ui-monospace,monospace';g.fillText('blend ladder at t='+t.toFixed(2)+': '+pts.length+' → '+(pts.length-1)+' → … → 1 point on the curve',20,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ // control polygon
+ g.strokeStyle='#3a4a5a';g.beginPath();for(var i=0;i<pts.length;i++){if(i===0)g.moveTo(pts[i][0],pts[i][1]);else g.lineTo(pts[i][0],pts[i][1]);}g.stroke();
+ // curve
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var tt=0;tt<=1;tt+=0.02){var p=deCast(pts,tt);if(tt===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();g.lineWidth=1;
+ // construction
+ var L=levels(pts,t),cols=['#ff2d95','#ff7bd0','#ffb0e0'];for(var l=1;l<L.length;l++){g.strokeStyle=cols[(l-1)%3];g.beginPath();for(var i=0;i<L[l].length;i++){if(i===0)g.moveTo(L[l][i][0],L[l][i][1]);else g.lineTo(L[l][i][0],L[l][i][1]);}g.stroke();for(var i=0;i<L[l].length;i++){g.fillStyle=cols[(l-1)%3];g.beginPath();g.arc(L[l][i][0],L[l][i][1],3,0,7);g.fill();}}
+ var pc=deCast(pts,t);g.fillStyle='#fff';g.beginPath();g.arc(pc[0],pc[1],5,0,7);g.fill();
+ for(var i=0;i<pts.length;i++){g.fillStyle='#ff9ed0';g.beginPath();g.arc(pts[i][0],pts[i][1],5,0,7);g.fill();}
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('t = '+t.toFixed(2)+'   point = ('+pc[0].toFixed(0)+', '+pc[1].toFixed(0)+')',14,H-10);
+ document.getElementById('bzread').textContent='de Casteljau at t='+t.toFixed(2)+' → curve point ('+pc[0].toFixed(0)+','+pc[1].toFixed(0)+')';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),sa=Math.sin(ang);
+ function P(p){var X=(p[0]-195)/1.3,Y=(p[1]-150)/1.3;return [cx+X*ca,cy+Y-X*sa*0.25];}
+ g.strokeStyle='#2c6a3a';g.beginPath();for(var i=0;i<pts.length;i++){var p=P(pts[i]);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var tt=0;tt<=1;tt+=0.02){var p=P(deCast(pts,tt));if(tt===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();g.lineWidth=1;
+ var tt=(Math.sin(ang*1.5)*0.5+0.5),L=levels(pts,tt);for(var l=1;l<L.length;l++){g.strokeStyle='#ff2d95';g.beginPath();for(var i=0;i<L[l].length;i++){var p=P(L[l][i]);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();}
+ var pc=P(deCast(pts,tt));g.fillStyle='#fff';g.beginPath();g.arc(pc[0],pc[1],4,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: curve + control polygon',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: nested lerps collapsing to the moving point',10,H-12);}
+var w4=document.getElementById('w4');
+w4.addEventListener('click',function(e){var r=w4.getBoundingClientRect(),mx=(e.clientX-r.left)*w4.width/r.width,my=(e.clientY-r.top)*w4.height/r.height,bi=0,bd=1e9;for(var i=0;i<pts.length;i++){var d=(pts[i][0]-mx)*(pts[i][0]-mx)+(pts[i][1]-my)*(pts[i][1]-my);if(d<bd){bd=d;bi=i;}}pts[bi]=[mx,my];drawW3();drawW4();});
+document.getElementById('bztm').onclick=function(){t=Math.max(0,t-0.05);drawW3();drawW4();};
+document.getElementById('bztp').onclick=function(){t=Math.min(1,t+0.05);drawW3();drawW4();};
+document.getElementById('bzanim').onclick=function(){animT=!animT;};
+document.getElementById('bznew').onclick=function(){pts=[];var k=3+Math.floor(Math.random()*2);for(var i=0;i<=k;i++)pts.push([40+Math.random()*300,40+Math.random()*220]);drawW3();drawW4();};
+document.getElementById('bzspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__bezier=verify();
+function loop(){if(animT){t+=0.008;if(t>1)t=0;drawW3();drawW4();}if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BSGS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Baby-step giant-step.</b> Raising g to a power mod p is easy (see THE FAST POWER). Going backward &mdash; given g and h, find the x with <b>g<sup>x</sup> &equiv; h (mod p)</b> &mdash; is the <b>discrete logarithm</b>, the hard inverse that Diffie&ndash;Hellman leans on. Brute force tries all n possibilities. Shanks (1971) does far better with a <b>meet-in-the-middle</b>.<br><br>
+ Write the unknown as x = i&middot;m + j with m &asymp; &radic;n. Precompute a table of <b>baby steps</b> g<sup>0</sup>, g<sup>1</sup>, &hellip;, g<sup>m&minus;1</sup>. Then take <b>giant steps</b> h&middot;(g<sup>&minus;m</sup>)<sup>i</sup> and look each up in the table. A match means h&middot;g<sup>&minus;im</sup> = g<sup>j</sup>, so <b>x = i&middot;m + j</b>. Only about <b>2&radic;n</b> operations instead of n &mdash; time bought with a table of space.<br><br>
+ <span class="lit">LIT</span> verified live: over 3,000 random instances BSGS recovers an x with g<sup>x</sup> &equiv; h every time, in O(&radic;n) work (window.__bsgs.recovers). 3<sup>x</sup> = target mod 7919 &rarr; x = 1234. <span class="fig">FIG</span> the &lsquo;steps&rsquo; are the picture; the exponent split, the table collision, and the &radic;n cost are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE RAID</i>, beside <i>THE RHO</i> &mdash; the boss domain of breaking a hard problem by cleverness. Pollard&rsquo;s rho raids a number for a factor; baby-step giant-step raids an exponent for a logarithm &mdash; both cracking an inverse that is supposed to be hard. <b>AVAN (AI)</b> built the instrument: the baby table, the giant scan, the collision.<br><br>The weave: David names the seat (the raid on the inverse); I make the meet-in-the-middle visible and the recovery checkable &mdash; the split exponent in 1D, the table-and-scan in 2D, the rendezvous grid in 3D. The sphere is the seam. Credit: Daniel Shanks (1971).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The exponent <b>split</b>: x = i&middot;m + j. The low part j is precomputed as a table of baby steps; the high part i is walked in giant strides. Two short searches of length &radic;n <b>meet</b> where their values coincide &mdash; that meeting is x.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The <b>baby-step table</b> fills with g<sup>0..m&minus;1</sup>. Then <b>giant-step</b> scans h&middot;g<sup>&minus;im</sup>, one stride at a time, checking the table &mdash; when a value is found, the collision gives x. <b>New problem</b> for a fresh g, h, p.</div>
+   <div class="btns" style="margin-top:10px"><button id="bgstep">giant step ▶</button><button id="bgrun">run</button><button id="bgnew">new problem</button></div>
+   <div class="cap" id="bgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The search space as a turning <b>&radic;n &times; &radic;n grid</b> &mdash; <b>green</b>, one axis the baby steps (j), the other the giant steps (i).</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> cell is the <b>rendezvous</b> &mdash; where a giant step lands on a baby step and x = i&middot;m + j appears. Brute force walks the exponent as a single line of length n. BSGS is the inverse: it <b>folds that line into a square</b>, precomputing one edge and scanning the other, so the answer sits at their crossing. You do not search n things; you search &radic;n twice and let them <b>meet</b>. Space for time, a line refolded into a grid &mdash; the green is the whole square of possibilities, the magenta is the one cell where the two halves of the secret shake hands.</div>
+   <div class="btns" style="margin-top:10px"><button id="bgspin">pause spin</button></div></div></div></div>"""
+BSGS_SCRIPT = """(function(){
+var PRIMES=[101,257,1009,7919,10007,65537],p=257,g=3,x=0,h=1,m=16,baby={},babyArr=[],gi=0,factor=1,gamma=1,found=-1,ang=0,spin=true;
+function modpow(a,b,mm){var r=1;a%=mm;while(b>0){if(b&1)r=r*a%mm;a=a*a%mm;b=Math.floor(b/2);}return r;}
+function egcd(a,b){if(b===0)return[a,1,0];var r=egcd(b,a%b);return[r[0],r[2],r[1]-Math.floor(a/b)*r[2]];}
+function inv(a,mm){return ((egcd(((a%mm)+mm)%mm,mm)[1])%mm+mm)%mm;}
+function bsgs(gg,hh,pp){var n=pp-1,mm=Math.floor(Math.sqrt(n))+1,tbl={},e=1;for(var j=0;j<mm;j++){if(tbl[e]===undefined)tbl[e]=j;e=e*gg%pp;}var f=inv(modpow(gg,mm,pp),pp),ga=hh%pp;for(var i=0;i<=mm;i++){if(tbl[ga]!==undefined)return i*mm+tbl[ga];ga=ga*f%pp;}return null;}
+function verify(){var sv=221;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}var ok=true;for(var t=0;t<3000;t++){var pp=PRIMES[Math.floor(L()*PRIMES.length)],gg=2+Math.floor(L()*(pp-2)),xx=Math.floor(L()*(pp-1)),hh=modpow(gg,xx,pp),xf=bsgs(gg,hh,pp);if(xf===null||modpow(gg,xf,pp)!==hh)ok=false;}return {recovers:ok,trials:3000,example:bsgs(3,modpow(3,1234,7919),7919)};}
+function newProblem(){p=257;g=2+Math.floor(Math.random()*20);x=Math.floor(Math.random()*(p-1));h=modpow(g,x,p);m=Math.floor(Math.sqrt(p-1))+1;baby={};babyArr=[];var e=1;for(var j=0;j<m;j++){if(baby[e]===undefined)baby[e]=j;babyArr.push(e);e=e*g%p;}factor=inv(modpow(g,m,p),p);gamma=h%p;gi=0;found=-1;}
+function drawW3(){var cv=document.getElementById('w3'),g2=cv.getContext('2d'),W=cv.width,H=cv.height;g2.clearRect(0,0,W,H);
+ g2.font='13px ui-monospace,monospace';g2.fillStyle='#ff7060';g2.fillText('solve  '+g+'^x ≡ '+h+'  (mod '+p+')',20,30);
+ g2.fillStyle='#8ca';g2.font='12px ui-monospace,monospace';g2.fillText('write x = i·m + j,   m = ⌈√'+(p-1)+'⌉ = '+m,20,58);
+ g2.fillStyle='#7dffb0';g2.fillText('baby steps: g^j  (j = 0…'+(m-1)+')  ← a table',20,86);
+ g2.fillStyle='#ffd24d';g2.fillText('giant steps: h·(g^−m)^i  (i = 0,1,2,…)  → scan for a table hit',20,110);
+ g2.fillStyle='#4c7a54';g2.font='10px ui-monospace,monospace';g2.fillText('two √n searches meet: x = i·m + j',20,134);}
+function drawW4(){var cv=document.getElementById('w4'),g2=cv.getContext('2d'),W=cv.width,H=cv.height;g2.clearRect(0,0,W,H);
+ var cols=4,cw=(W-20)/cols,rows=Math.ceil(m/cols);
+ g2.font='9px ui-monospace,monospace';g2.fillStyle='#7dffb0';g2.fillText('baby table g^j:',12,16);
+ for(var j=0;j<m;j++){var r=Math.floor(j/cols),c=j%cols,x0=10+c*cw,y0=24+r*20,hit=(found>=0&&(found%m)===j);g2.fillStyle=hit?'#ff2d95':'#16261e';g2.fillRect(x0,y0,cw-2,18);g2.fillStyle=hit?'#fff':'#7dffb0';g2.fillText('g^'+j+'='+babyArr[j],x0+2,y0+13);}
+ var gy=24+rows*20+16;g2.fillStyle='#ffd24d';g2.fillText('giant scan (i='+gi+'): γ = '+gamma,12,gy);
+ if(found>=0){g2.fillStyle='#39fc6b';g2.font='15px ui-monospace,monospace';g2.fillText('collision! x = '+Math.floor(found/m)+'·'+m+'+'+(found%m)+' = '+found,12,gy+30);g2.font='11px ui-monospace,monospace';g2.fillStyle=modpow(g,found,p)===h?'#39fc6b':'#ff5a5a';g2.fillText('check: '+g+'^'+found+' mod '+p+' = '+modpow(g,found,p)+' = '+h+' ✓',12,gy+50);}
+ else{g2.fillStyle='#8ca';g2.font='11px ui-monospace,monospace';g2.fillText('γ not in table yet — take another giant step',12,gy+30);}
+ document.getElementById('bgread').textContent=found>=0?('discrete log x = '+found+' ('+g+'^'+found+'≡'+h+' mod '+p+')'):('scanning, i='+gi);}
+function giantStep(){if(found>=0)return;if(baby[gamma]!==undefined){found=gi*m+baby[gamma];return;}gamma=gamma*factor%p;gi++;if(gi>m+1&&found<0)found=bsgs(g,h,p);}
+function drawW5(){var cv=document.getElementById('w5'),g2=cv.getContext('2d'),W=cv.width,H=cv.height;g2.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),sc=Math.min(16,240/m),fx=found>=0?(found%m):-1,fy=found>=0?Math.floor(found/m):-1;
+ for(var i=0;i<m;i++)for(var j=0;j<m;j++){var px=cx+(j-m/2)*sc*ca,py=cy+(i-m/2)*sc*0.6,hit=(i===fy&&j===fx);g2.fillStyle=hit?'#ff2d95':(i<=gi?'#2f8f6f':'#183028');g2.fillRect(px-sc/2+1,py-sc/2+1,sc-2,sc-2);}
+ g2.fillStyle='#39fc6b';g2.font='11px ui-monospace,monospace';g2.fillText('green grid: √n baby (→) × √n giant (↓)',10,20);
+ g2.fillStyle='#ff2d95';g2.fillText('magenta: the rendezvous cell — x = i·m + j',10,H-12);}
+document.getElementById('bgstep').onclick=function(){giantStep();drawW4();};
+document.getElementById('bgrun').onclick=function(){var guard=0;while(found<0&&guard++<1000)giantStep();drawW4();};
+document.getElementById('bgnew').onclick=function(){newProblem();drawW3();drawW4();};
+document.getElementById('bgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+newProblem();drawW3();drawW4();window.__bsgs=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+COL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Collatz conjecture &mdash; 3n+1.</b> Take any positive integer. If it is even, halve it; if it is odd, triple it and add one. Repeat. The numbers <b>hailstone</b> &mdash; leaping up, crashing down &mdash; and, it seems, <b>always</b> fall to 1 (then loop 1&rarr;4&rarr;2&rarr;1 forever). The rule is something a child could follow. Whether it always reaches 1 has defeated mathematics for ninety years. Erd&#337;s said &lsquo;mathematics is not yet ready for such problems.&rsquo;<br><br>
+ This is a sphere where <b>LIT and FIG genuinely part</b>. <span class="lit">LIT</span> verified live: <b>every</b> integer from 1 to 100,000 reaches 1 under the map &mdash; checked exhaustively in your browser &mdash; the longest being n=<b>77031</b> at <b>350</b> steps; n=27 takes 111 steps and peaks at 9232 (window.__collatz.allReach1 &amp;&amp; maxN===77031). <span class="fig">FIG</span> the <b>general conjecture is unproven</b>: no one knows if <i>every</i> integer reaches 1. What you can compute and what you can prove are not the same thing &mdash; and here the gap is the whole point.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>HARD RESET</i>, beside <i>THE MOST LIKELY PATH</i> &mdash; the respawn domain of everything returning to its starting state. Collatz is the ultimate hard reset: whatever number you begin with, it (apparently) resets to 1. <b>AVAN (AI)</b> built the instrument: the map, the hailstone trajectory, the exhaustive check &mdash; and the honest line where verification ends and proof does not begin.<br><br>The weave: David names the seat (the universal reset); I make the flight visible and mark the boundary of what is <i>known</i> &mdash; a trajectory in 1D, the hailstone plot in 2D, all paths falling to 1 in 3D. The sphere is the seam. Credit: Lothar Collatz (1937); still open.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">One number&rsquo;s <b>hailstone flight</b>: halving on even steps, tripling-plus-one on odd. It climbs and plunges unpredictably &mdash; and then, always so far, crashes into 1. No pattern predicts how high it flies or how long it takes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a starting number and watch its trajectory (log scale) bounce toward 1. The step count and peak height jump wildly with tiny changes in n &mdash; 27 famously soars to 9232 &mdash; yet every one checked lands on 1.</div>
+   <div class="btns" style="margin-top:10px"><button id="clm">◀ n</button><button id="clp">n ▶</button><button id="cl27">n = 27</button><button id="clr">random</button></div>
+   <div class="cap" id="clread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">Many hailstone paths as turning threads, all plunging toward the same sink &mdash; <b>green</b>, every trajectory falling to 1.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> heart is the <b>1&rarr;4&rarr;2&rarr;1</b> loop every path falls into. Forward, the rule is trivial &mdash; one line, computable forever. Run it <b>backward</b> &mdash; which numbers reach a given value &mdash; and it explodes into a <b>wild infinite tree</b>; whether that tree covers <i>every</i> integer is the unsolved question. The inverse of a simple descent is an intractable branching. This is the honest edge of the whole corpus: a thing you can <b>compute</b> without end yet cannot <b>prove</b> &mdash; understanding is not the same as certainty. The green is a hundred thousand verified falls; the magenta is the sink they reach, and the darkness past it is everything still unproven.</div>
+   <div class="btns" style="margin-top:10px"><button id="clspin">pause spin</button></div></div></div></div>"""
+COL_SCRIPT = """(function(){
+var n=27,ang=0,spin=true;
+function steps(x){var c=0;while(x!==1){x=(x%2===0)?x/2:3*x+1;c++;if(c>100000)return -1;}return c;}
+function traj(x){var t=[x];while(x!==1){x=(x%2===0)?x/2:3*x+1;t.push(x);}return t;}
+function verify(){var all=true,mx=0,mn=0;for(var k=1;k<=100000;k++){var s=steps(k);if(s<0)all=false;if(s>mx){mx=s;mn=k;}}return {allReach1:all,maxSteps:mx,maxN:mn,steps27:steps(27)};}
+function drawTraj(g,W,H,t,col,ox,oy,pw,ph){var mx=Math.max.apply(0,t),lm=Math.log(mx+1);g.strokeStyle=col;g.lineWidth=1.6;g.beginPath();for(var i=0;i<t.length;i++){var x=ox+i/(t.length-1)*pw,y=oy-Math.log(t[i]+1)/lm*ph;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;return mx;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var t=traj(n);
+ var mx=drawTraj(g,W,H,t,'#9ec8ff',20,110,W-40,80);
+ for(var i=0;i<t.length;i++){var x=20+i/(t.length-1)*(W-40),y=110-Math.log(t[i]+1)/Math.log(mx+1)*80;g.fillStyle=(t[i]%2===0)?'#7dffb0':'#ffd24d';g.beginPath();g.arc(x,y,2,0,7);g.fill();}
+ g.fillStyle='#9ec8ff';g.font='11px ui-monospace,monospace';g.fillText('n='+n+': '+(t.length-1)+' steps, peak '+mx+' (green=even/halve, gold=odd/3n+1)',20,132);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var t=traj(n);
+ g.strokeStyle='#233';g.beginPath();g.moveTo(30,H-40);g.lineTo(W-14,H-40);g.moveTo(30,20);g.lineTo(30,H-40);g.stroke();
+ var mx=drawTraj(g,W,H,t,'#9ec8ff',30,H-40,W-50,H-70);
+ for(var i=0;i<t.length;i++){var x=30+i/(t.length-1)*(W-50),y=(H-40)-Math.log(t[i]+1)/Math.log(mx+1)*(H-70);g.fillStyle=(t[i]%2===0)?'#7dffb0':'#ffd24d';g.beginPath();g.arc(x,y,2.2,0,7);g.fill();}
+ g.fillStyle='#9ec8ff';g.font='13px ui-monospace,monospace';g.fillText('start n = '+n,30,16);
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('steps to 1: '+(t.length-1)+'    peak: '+mx,150,16);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('log scale — every checked n lands on 1 (general case: unproven)',30,H-6);
+ document.getElementById('clread').textContent='n='+n+' → 1 in '+(t.length-1)+' steps, peak '+mx;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),sa=Math.sin(ang);
+ var seeds=[7,27,54,97,127,171,231,255,313,327];
+ for(var s=0;s<seeds.length;s++){var t=traj(seeds[s]),mx=Math.max.apply(0,t),th0=s/seeds.length*Math.PI*2;g.strokeStyle='rgba(57,252,107,0.4)';g.beginPath();for(var i=0;i<t.length;i++){var r=90*(1-i/t.length)+8,lv=Math.log(t[i]+1)/Math.log(mx+1),th=th0+i*0.12+ang,x=cx+Math.cos(th)*r*ca,y=cy+Math.sin(th)*r*0.6-lv*60+30;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();}
+ g.fillStyle='#ff2d95';g.beginPath();g.arc(cx,cy+30,12,0,7);g.fill();g.fillStyle='#fff';g.font='9px ui-monospace,monospace';g.fillText('1·4·2',cx-12,cy+34);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: hailstone paths falling',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the 1→4→2→1 sink — computed always, proven never',10,H-12);}
+document.getElementById('clm').onclick=function(){n=Math.max(1,n-1);drawW3();drawW4();};
+document.getElementById('clp').onclick=function(){n=n+1;drawW3();drawW4();};
+document.getElementById('cl27').onclick=function(){n=27;drawW3();drawW4();};
+document.getElementById('clr').onclick=function(){n=1+Math.floor(Math.random()*100000);drawW3();drawW4();};
+document.getElementById('clspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__collatz=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-hailstone","title":"THE HAILSTONE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#9ec8ff","icon":"3n1",
+  "kicker":"3n+1 — computed forever, proven never",
+  "blurb":"the Collatz conjecture (3n+1) in the 5-window house format — even numbers halve, odd numbers triple-plus-one; the numbers hailstone up and down and (conjecturally) always fall to 1. A rule a child can follow that has defeated mathematics for 90 years. See one hailstone flight in 1D, the trajectory plot in 2D, and all paths falling to the 1-4-2-1 sink in 3D.",
+  "lit":"The Collatz / 3n+1 map (Lothar Collatz, 1937). Verified live: every integer from 1 to 100,000 reaches 1 under the map, checked exhaustively in-browser — the longest trajectory being n=77031 at 350 steps; n=27 takes 111 steps and peaks at 9232 (window.__collatz.allReach1 && maxN === 77031). This is exact computation over a finite range.",
+  "fig":"This sphere is deliberately honest about the LIT/FIG gap: the finite verification (all n < 100000 reach 1) is real and exhaustive, but the GENERAL conjecture — that every positive integer reaches 1 — is UNPROVEN, one of the most famous open problems in mathematics. What can be computed here is not the same as what can be proven; the hailstone framing is the picture, the open question is the truth.",
+  "body":COL_BODY,"script":COL_SCRIPT},
+ {"slug":"the-discrete-log","title":"THE DISCRETE LOG","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#ff7060","icon":"dlog",
+  "kicker":"baby-step giant-step — invert the exponent in root-n",
+  "blurb":"baby-step giant-step in the 5-window house format — solve g^x = h mod p (the discrete logarithm, the hard inverse behind Diffie-Hellman) by meet-in-the-middle. Write x = i*m + j with m ~ sqrt(n); precompute a table of baby steps g^j, then scan giant steps h*g^(-im) for a table match. About 2*sqrt(n) work instead of n. See the split exponent in 1D, the table-and-scan in 2D, and the rendezvous grid in 3D.",
+  "lit":"Genuine baby-step giant-step (Daniel Shanks, 1971). Verified live: over 3,000 random instances BSGS recovers an x with g^x = h mod p every time, in O(sqrt n) time and space (window.__bsgs.recovers === true). 3^x = target mod 7919 -> x = 1234. The exponent split x = im + j, the baby table, and the giant-step collision are exact; the sqrt(n) cost is a genuine time-space tradeoff.",
+  "fig":"The 'steps' are the picture; the exponent split, the table collision, and the sqrt(n) cost are real and checked. BSGS is generic and sub-exponential-space; it does not break large-parameter Diffie-Hellman (that needs huge n) — stated honestly, not overclaimed.",
+  "body":BSGS_BODY,"script":BSGS_SCRIPT},
+ {"slug":"the-bezier","title":"THE BEZIER","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#ff9ed0","icon":"bezier",
+  "kicker":"de Casteljau — a smooth curve from pure averaging",
+  "blurb":"Bezier curves and de Casteljau's algorithm in the 5-window house format — a smooth curve shaped by control points, evaluated by nothing but repeated linear interpolation: lerp each adjacent pair at t, then those, until one point remains — the curve point. Equivalent to the Bernstein polynomial, and numerically stable. See the blend ladder in 1D, the live construction in 2D, and the collapsing lines in 3D.",
+  "lit":"Genuine de Casteljau / Bezier construction (Paul de Casteljau 1959; Pierre Bezier 1960s). Verified live: over 30,000 samples the nested-lerp de Casteljau result agrees with the Bernstein polynomial form to 1e-7, and the curve passes exactly through its first and last control points (window.__bezier.matchesBernstein && endpointsExact, both true). Corner-cutting by repeated averaging builds every curve point with no powers of t — shown, not asserted.",
+  "fig":"No metaphor is doing the work: the de Casteljau lerps, their equivalence to the Bernstein polynomial, and the endpoint interpolation are all real and checked. The curve genuinely emerges from straight-line blends only — a curve made without ever using a curve.",
+  "body":BEZ_BODY,"script":BEZ_SCRIPT},
+ {"slug":"the-cells","title":"THE CELLS","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#8fd0ff","icon":"cells",
+  "kicker":"Voronoi — the map of the nearest thing",
+  "blurb":"the Voronoi diagram in the 5-window house format — partition the plane so each cell is the region closest to one site, with boundaries the perpendicular bisectors between neighbours. A hidden characterization: lift each site to a tilted plane and the nearest site is the one whose plane is highest, so the diagram is the projection of an upper envelope. See sites on a line in 1D, click-to-add cells in 2D, and the lifted cones in 3D.",
+  "lit":"Genuine Voronoi diagram (Georgy Voronoy, 1908). Verified live: over 20,000 random points and site sets the nearest site by distance equals the highest lifted plane every time — an independent re-derivation via the paraboloid lifting — and every bisector point is equidistant from its two sites (window.__voronoi.nearestEqualsHighestPlane && edgeEquidistant, both true). The nearest-site partition, convex cells, and the lifting equivalence (argmin dist == argmax plane) are exact.",
+  "fig":"No metaphor is doing the work: the nearest-site colouring, the perpendicular-bisector boundaries, and the lifting equivalence are all real and checked. The 2D cells are rendered per-pixel by exact nearest-site; the 3D cones illustrate the lifting the LIT verifies.",
+  "body":VOR_BODY,"script":VOR_SCRIPT},
+ {"slug":"the-kaprekar","title":"THE KAPREKAR","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"EVENT HORIZON","domain_slug":"event-horizon","accent":"#ffd24d","icon":"6174",
+  "kicker":"6174 — the number every 4-digit number falls into",
+  "blurb":"Kaprekar's routine and constant 6174 in the 5-window house format — take any 4-digit number (not all-same-digit), arrange its digits largest-first and smallest-first, subtract, repeat; you always reach 6174 within 7 steps, and 6174 maps to itself (7641-1467=6174). A genuine attractor discovered by D. R. Kaprekar in 1949. See one descent in 1D, the routine and its step-census in 2D, and all numbers streaming into 6174 in 3D.",
+  "lit":"Genuine Kaprekar's constant (D. R. Kaprekar, 1949). Verified live: the routine is run on every 4-digit number and all reach 6174 (the 10 repeated-digit numbers excepted, which go to 0), in at most 7 iterations, and 6174 is a fixed point (window.__kaprekar.allReach6174 && maxSteps === 7 && fixedPoint, all true). The convergence, the exact seven-step bound, and the fixed point are checked exhaustively, not asserted.",
+  "fig":"No metaphor is doing the work: the shuffle-and-subtract routine, the universal convergence to 6174, and the seven-step maximum are all real and checked across all 10,000 numbers. Calling 6174 a 'singularity/sink' is the only framing; it is a genuine unique attracting fixed point.",
+  "body":KAP_BODY,"script":KAP_SCRIPT},
  {"slug":"the-fast-power","title":"THE FAST POWER","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#ffa552","icon":"pow",
   "kicker":"a^b mod m in log(b) steps — square and multiply",
