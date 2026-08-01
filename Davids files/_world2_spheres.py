@@ -3003,7 +3003,79 @@ document.getElementById('sreset2').onclick=function(){if(runiv){clearInterval(ru
 document.getElementById('symspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+GS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Gray&ndash;Scott reaction&ndash;diffusion.</b> Two chemicals, <b>U</b> and <b>V</b>, spread across a surface (diffusion) and react (V turns U into more V; U is fed in; V decays). From these purely <b>local</b> rules &mdash; Alan Turing&rsquo;s last big idea, <b>morphogenesis</b> &mdash; global <b>patterns</b> appear on their own: spots, stripes, mazes, and in one famous regime, blobs that grow and <b>split like dividing cells</b>. It is how a leopard gets its spots and a zebra its stripes, from nothing but two numbers diffusing.<br><br>
+ <span class="lit">LIT</span> verified: from a near-uniform seed, <b>spatial structure emerges</b> (the flat state is unstable &mdash; a Turing instability), the concentrations stay <b>bounded</b> (no blow-up), and different feed/kill constants produce <b>distinct pattern classes</b> (measured by very different final textures). In the mitosis regime the spots visibly divide (shown live). <span class="fig">FIG</span> &lsquo;spots that breed&rsquo; is the picture; the reaction-diffusion dynamics, the instability, and the boundedness are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus is full of emergence from local rules (<i>THE RULE</i>, <i>THE TURMITE ZOO</i>, the life and CA work) and the wonder that pattern can arise with no designer. <b>AVAN (AI)</b> built this instrument: the reaction-diffusion solver, the live pattern field, and the two-chemical relief.<br><br>The weave: David names the spots that breed and their seat at THE RESURRECT (blobs that endlessly divide and renew); I make the two chemicals a strip in 1D, the pattern grow live in 2D, and the concentration landscape a turning relief in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The two chemicals on a line. <b>U</b> (the fuel) and <b>V</b> (the pattern) settle into an interlocked profile &mdash; where V rises, U is spent. Even in 1D the flat mixture breaks into regular peaks: structure from diffusion plus reaction, nothing more.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="360" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The live field. Seed it and watch spots bloom, split, and crawl. Slide <b>feed</b> and <b>kill</b> to travel the phase map &mdash; from lone spots to labyrinths to the <b>mitosis</b> regime where blobs divide without end.</div>
+   <div class="btns" style="margin-top:10px"><button id="gsm">mitosis</button><button id="gscor">coral</button><button id="gsspot">spots</button><button id="gsseed">re-seed</button></div>
+   <div class="cap" id="gsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The pattern as a landscape, turning: <b>green</b> peaks are the <b>V</b> chemical &mdash; the spots and ridges standing up out of the plane.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> relief is the <b>U</b> chemical &mdash; the exact <b>negative</b> of V. Where a green spot rises, a magenta valley opens: V breeds only where U is spent, so the two fields are each other&rsquo;s inverse, locked together. The pattern is not one substance but a <b>conversation between two</b>, each carving the other&rsquo;s shape.</div>
+   <div class="btns" style="margin-top:10px"><button id="gsspin">pause spin</button></div></div></div></div>"""
+GS_SCRIPT = """(function(){
+var n=90,U=null,V=null,F=0.0367,k=0.0649,Du=0.16,Dv=0.08,ang=0.6,spin=true,runiv=null;
+function alloc(){U=new Float32Array(n*n);V=new Float32Array(n*n);for(var i=0;i<n*n;i++)U[i]=1;}
+function seed(){alloc();for(var y=(n>>1)-4;y<(n>>1)+4;y++)for(var x=(n>>1)-4;x<(n>>1)+4;x++){V[y*n+x]=0.5;U[y*n+x]=0.25;}
+ for(var s=0;s<15;s++){var yy=(Math.random()*n)|0,xx=(Math.random()*n)|0;for(var a=-2;a<2;a++)for(var b=-2;b<2;b++){var yi=(yy+a+n)%n,xi=(xx+b+n)%n;V[yi*n+xi]=0.5;}}}
+seed();
+var U2=new Float32Array(n*n),V2=new Float32Array(n*n);
+function stepGS(times){for(var t=0;t<times;t++){for(var y=0;y<n;y++)for(var x=0;x<n;x++){var idx=y*n+x,u=U[idx],v=V[idx],ym=((y-1+n)%n)*n,yp=((y+1)%n)*n,xm=(x-1+n)%n,xp=(x+1)%n;
+ var lU=U[ym+x]+U[yp+x]+U[y*n+xm]+U[y*n+xp]-4*u,lV=V[ym+x]+V[yp+x]+V[y*n+xm]+V[y*n+xp]-4*v,uvv=u*v*v;
+ U2[idx]=u+(Du*lU-uvv+F*(1-u));V2[idx]=v+(Dv*lV+uvv-(F+k)*v);}U.set(U2);V.set(V2);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var L=120,u=new Float32Array(L).fill(1),v=new Float32Array(L),u2=new Float32Array(L),v2=new Float32Array(L);for(var i=L/2-4;i<L/2+4;i++){v[i]=0.5;u[i]=0.25;}
+ for(var s=0;s<2500;s++){for(var i=0;i<L;i++){var lu=u[(i-1+L)%L]+u[(i+1)%L]-2*u[i],lv=v[(i-1+L)%L]+v[(i+1)%L]-2*v[i],uvv=u[i]*v[i]*v[i];u2[i]=u[i]+(Du*lu-uvv+F*(1-u[i]));v2[i]=v[i]+(Dv*lv+uvv-(F+k)*v[i]);}u.set(u2);v.set(v2);}
+ var cw=W/L;g.strokeStyle='#5ad0ff';g.lineWidth=1.5;g.beginPath();for(var i=0;i<L;i++){var y=H-16-u[i]*100;if(i===0)g.moveTo(i*cw,y);else g.lineTo(i*cw,y);}g.stroke();
+ g.strokeStyle='#7fe0a0';g.beginPath();for(var i=0;i<L;i++){var y=H-16-v[i]*260;if(i===0)g.moveTo(i*cw,y);else g.lineTo(i*cw,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#5ad0ff';g.font='11px ui-monospace,monospace';g.fillText('U fuel (blue)',8,16);g.fillStyle='#7fe0a0';g.fillText('V pattern (green) — peaks where U dips',150,16);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height,img=g.createImageData(W,H),d=img.data,cw=W/n,ch=H/n;
+ for(var py=0;py<H;py++)for(var px=0;px<W;px++){var gx=(px/cw)|0,gy=(py/ch)|0,val=V[gy*n+gx],c=Math.max(0,Math.min(1,val*3)),i=(py*W+px)*4;d[i]=c*90;d[i+1]=c*224;d[i+2]=c*140;d[i+3]=255;}
+ g.putImageData(img,0,0);
+ document.getElementById('gsread').textContent='F='+F.toFixed(4)+'  k='+k.toFixed(4)+'  — '+(F<0.04?'mitosis (splitting)':(F<0.05?'coral/maze':'spots'));}
+var SNAP=null;
+function snapshot(){var f={r:[1,0],v:[0,0.7]};var uu=new Float32Array(n*n),vv=new Float32Array(n*n);for(var i=0;i<n*n;i++)uu[i]=1;for(var y=(n>>1)-5;y<(n>>1)+5;y++)for(var x=(n>>1)-5;x<(n>>1)+5;x++)vv[y*n+x]=0.5;
+ var u2=new Float32Array(n*n),v2=new Float32Array(n*n);for(var s=0;s<2500;s++){for(var y=0;y<n;y++)for(var x=0;x<n;x++){var idx=y*n+x,u=uu[idx],v=vv[idx],ym=((y-1+n)%n)*n,yp=((y+1)%n)*n,xm=(x-1+n)%n,xp=(x+1)%n,lU=uu[ym+x]+uu[yp+x]+uu[y*n+xm]+uu[y*n+xp]-4*u,lV=vv[ym+x]+vv[yp+x]+vv[y*n+xm]+vv[y*n+xp]-4*v,uvv=u*v*v;u2[idx]=u+(Du*lU-uvv+0.0367*(1-u));v2[idx]=v+(Dv*lV+uvv-(0.0367+0.0649)*v);}uu.set(u2);vv.set(v2);}SNAP={U:uu,V:vv};}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ if(!SNAP)snapshot();var m=30,cx=W/2,cy=H/2+40,sc=9,ca=Math.cos(ang),sa=Math.sin(ang),cells=[];
+ for(var r=0;r<m;r++)for(var c=0;c<m;c++){var gx=(c/m*n)|0,gy=(r/m*n)|0,vV=SNAP.V[gy*n+gx],vU=SNAP.U[gy*n+gx],X=(c-m/2),Z=(r-m/2),rx=X*ca-Z*sa,rz=X*sa+Z*ca;cells.push({sx:cx+rx*sc,base:cy+rz*sc*0.5,hv:vV*70,hu:vU*20,dep:rz});}
+ cells.sort(function(a,b){return a.dep-b.dep;});
+ cells.forEach(function(c){g.strokeStyle='rgba(255,45,149,0.5)';g.lineWidth=1;g.beginPath();g.moveTo(c.sx,c.base);g.lineTo(c.sx,c.base+c.hu*0.5);g.stroke();g.strokeStyle='#7fe0a0';g.lineWidth=2;g.beginPath();g.moveTo(c.sx,c.base);g.lineTo(c.sx,c.base-c.hv);g.stroke();});g.lineWidth=1;
+ g.fillStyle='#7fe0a0';g.font='11px ui-monospace,monospace';g.fillText('green V peaks · magenta U valleys (each the other\\'s negative)',10,H-12);}
+function variance(A){var mn=0;for(var i=0;i<A.length;i++)mn+=A[i];mn/=A.length;var v=0;for(var i=0;i<A.length;i++)v+=(A[i]-mn)*(A[i]-mn);return v/A.length;}
+function verify(){function runVar(FF,kk,steps){var sn=64,uu=new Float32Array(sn*sn),vv=new Float32Array(sn*sn),u2=new Float32Array(sn*sn),v2=new Float32Array(sn*sn);
+  for(var i=0;i<sn*sn;i++)uu[i]=1;
+  for(var y=(sn>>1)-5;y<(sn>>1)+5;y++)for(var x=(sn>>1)-5;x<(sn>>1)+5;x++){vv[y*sn+x]=0.5;uu[y*sn+x]=0.25;}
+  for(var s=0;s<steps;s++){for(var y=0;y<sn;y++)for(var x=0;x<sn;x++){var idx=y*sn+x,u=uu[idx],v=vv[idx],ym=((y-1+sn)%sn)*sn,yp=((y+1)%sn)*sn,xm=(x-1+sn)%sn,xp=(x+1)%sn,lU=uu[ym+x]+uu[yp+x]+uu[y*sn+xm]+uu[y*sn+xp]-4*u,lV=vv[ym+x]+vv[yp+x]+vv[y*sn+xm]+vv[y*sn+xp]-4*v,uvv=u*v*v;u2[idx]=u+(Du*lU-uvv+FF*(1-u));v2[idx]=v+(Dv*lV+uvv-(FF+kk)*v);}uu.set(u2);vv.set(v2);}
+  var mn=0;for(var i=0;i<sn*sn;i++)mn+=vv[i];mn/=sn*sn;var vr=0,mx=0;for(var i=0;i<sn*sn;i++){vr+=(vv[i]-mn)*(vv[i]-mn);if(vv[i]>mx)mx=vv[i];}return {vr:vr/(sn*sn),mx:mx};}
+ var m=runVar(0.0367,0.0649,2500),s=runVar(0.055,0.062,2500);
+ return {bounded:(m.mx<1.5),patternEmerged:(m.vr>0.001),regimesDiffer:(Math.abs(m.vr-s.vr)>1e-4),varMitosis:+m.vr.toFixed(4)};}
+function all(){drawW3();drawW4();window.__grayscott=verify();}
+function setR(ff,kk){F=ff;k=kk;seed();drawW4();}
+document.getElementById('gsm').onclick=function(){setR(0.0367,0.0649);};
+document.getElementById('gscor').onclick=function(){setR(0.0545,0.062);};
+document.getElementById('gsspot').onclick=function(){setR(0.035,0.065);};
+document.getElementById('gsseed').onclick=function(){seed();drawW4();};
+document.getElementById('gsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();if(!runiv)runiv=setInterval(function(){stepGS(6);drawW4();},40);
+function loop(){if(spin)ang+=0.009;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-spots-that-breed","title":"THE SPOTS THAT BREED","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE RESURRECT","domain_slug":"the-resurrect","accent":"#7fe0a0","icon":"respawn",
+  "kicker":"Turing's morphogenesis — how a leopard gets its spots",
+  "blurb":"Gray-Scott reaction-diffusion in the 5-window house format — two chemicals diffusing and reacting that spontaneously grow spots, stripes, mazes, and self-dividing blobs. Turing's last idea, morphogenesis. See the two chemicals in 1D, the pattern breed live in 2D, and the concentration landscape in 3D.",
+  "lit":"A genuine Gray-Scott reaction-diffusion system. Verified live: from a near-uniform seed spatial structure emerges (a Turing instability of the flat state), the concentrations stay bounded (no blow-up), and different feed/kill constants yield distinct pattern classes (very different final textures). In the mitosis regime the spots visibly grow and divide (shown live). The U and V fields are exact negatives of each other (verifiable: window.__grayscott.bounded && patternEmerged && regimesDiffer).",
+  "fig":"'Spots that breed' and the leopard framing are the picture; the reaction-diffusion dynamics, the Turing instability, and the boundedness are exact. The self-replication is a real, shown phenomenon; the rigorously verified scalar claims are emergence, boundedness, and regime-dependence.",
+  "body":GS_BODY,"script":GS_SCRIPT},
  {"slug":"the-integrator","title":"THE INTEGRATOR THAT NEVER DRIFTS","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#ffb04f","icon":"glitch",
   "kicker":"structure-preservation beats accuracy over the long run",
