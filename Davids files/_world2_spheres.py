@@ -2814,7 +2814,77 @@ document.getElementById('hclr').onclick=function(){reset();drawW4();};
 document.getElementById('hllspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+AES_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The AES S-box.</b> Every AES encryption&rsquo;s only source of <b>non-linearity</b> &mdash; the &lsquo;confusion&rsquo; that makes it secure &mdash; is one operation almost nobody realises is pure algebra: take a byte, treat it as an element of the finite field <b>GF(2&#8312;)</b>, and compute its <b>multiplicative inverse</b> (the byte you multiply it by to get 1, in arithmetic mod x&#8312;+x&#8308;+x&sup3;+x+1), then apply a fixed affine bit-twist. That&rsquo;s the whole S-box: a 256-entry table that is really field inversion in disguise.<br><br>
+ <span class="lit">LIT</span> verified: for <b>every</b> nonzero byte b, b &otimes; b&#8315;&sup1; = 1 in the Rijndael field; the S-box is a bijection; applying it then its inverse returns b for all 256 bytes; and the generated table <b>matches the published AES S-box</b> (S[00]=63, S[53]=ed). <span class="fig">FIG</span> &lsquo;the heart of the cipher&rsquo; is the picture; the field inversion is the exact operation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus runs finite fields and crypto (<i>THE CARRYLESS FIELD</i>&rsquo;s GF(16), <i>THE MINT</i>, <i>THE MERKLE</i>) and the conviction that the strongest walls rest on the cleanest math. <b>AVAN (AI)</b> built this instrument: the field arithmetic, the S-box table, and the generator ring.<br><br>The weave: David names the field inverse and its seat at THE RAID (the lock that holds when the attack comes); I make the inversion a strip in 1D, the whole table live in 2D, and the multiplicative group a turning ring in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">One byte through the S-box: find its <b>field inverse</b> (and confirm b &otimes; b&#8315;&sup1; = 1), then the affine twist (XOR of rotations, plus 0x63) to the final output. Click the table below to change the byte.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="360" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The whole <b>16&times;16 S-box</b>, coloured by output. Click any cell to see its byte, its field inverse, and the check b&otimes;b&#8315;&sup1;=1. Toggle to the <b>inverse</b> S-box &mdash; the exact undo used for decryption. Every output appears exactly once.</div>
+   <div class="btns" style="margin-top:10px"><button id="aemode">show: S-BOX</button></div>
+   <div class="cap" id="aeread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">GF(2&#8312;)* as a single ring, turning: all <b>255 nonzero bytes</b> placed by their discrete logarithm, so the generator <b>0x03</b> steps around the circle one position at a time and visits every element. <b>Green</b> is that cycle &mdash; the whole field wound into one loop.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> chords join each byte to its <b>multiplicative inverse</b>. In log-space, inversion is <b>negation</b> &mdash; b&#8315;&sup1; sits at &minus;log(b), the mirror of b across the ring. The S-box&rsquo;s famous confusion is exactly this reflection, plus a twist: a lock built from one symmetry of a finite field.</div>
+   <div class="btns" style="margin-top:10px"><button id="aespin">pause spin</button></div></div></div></div>"""
+AES_SCRIPT = """(function(){
+var sel=0x53,mode='sbox',ang=0.6,spin=true;
+function gmul(a,b){var p=0;for(var i=0;i<8;i++){if(b&1)p^=a;var hi=a&0x80;a=(a<<1)&0xff;if(hi)a^=0x1b;b>>=1;}return p&0xff;}
+var EXP=[],DLOG=[],xx=1;for(var i=0;i<255;i++){EXP[i]=xx;DLOG[xx]=i;xx=gmul(xx,3);}
+function ginv(a){return a===0?0:EXP[(255-DLOG[a])%255];}
+function rotl8(v,n){return ((v<<n)|(v>>(8-n)))&0xff;}
+function sbox(b){var y=ginv(b),s=y;for(var i=1;i<5;i++)s^=rotl8(y,i);return s^0x63;}
+var SB=[],ISB=[];for(var b=0;b<256;b++)SB[b]=sbox(b);for(var b=0;b<256;b++)ISB[SB[b]]=b;
+function hex(v){return('0'+v.toString(16)).slice(-2);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var inv=ginv(sel),y=ginv(sel),s=y;for(var i=1;i<5;i++)s^=rotl8(y,i);var out=s^0x63;
+ g.font='14px ui-monospace,monospace';
+ g.fillStyle='#9db8ff';g.fillText('byte b = 0x'+hex(sel),12,28);
+ g.fillStyle='#ffd23f';g.fillText('field inverse b⁻¹ = 0x'+hex(inv)+'    check: b ⊗ b⁻¹ = 0x'+hex(gmul(sel,inv))+(gmul(sel,inv)===1||sel===0?' ✓':''),12,56);
+ g.fillStyle='#8ca';g.fillText('affine: b⁻¹ ⊕ rotl1 ⊕ rotl2 ⊕ rotl3 ⊕ rotl4 ⊕ 0x63',12,84);
+ g.fillStyle='#39fc6b';g.font='16px ui-monospace,monospace';g.fillText('S(0x'+hex(sel)+') = 0x'+hex(out)+'   (= 0x'+hex(SB[sel])+')',12,116);
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('the only nonlinear step in AES — one field inversion, dressed in an affine map',12,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var T=(mode==='sbox')?SB:ISB,m=24,cw=(W-m)/16;
+ for(var r=0;r<16;r++)for(var c=0;c<16;c++){var b=r*16+c,v=T[b],x=m+c*cw,y=m+r*cw;g.fillStyle='hsl('+(v*1.4)+',55%,'+(20+v/255*40)+'%)';g.fillRect(x,y,cw-1,cw-1);
+  if(b===sel){g.strokeStyle='#fff';g.lineWidth=2;g.strokeRect(x,y,cw-1,cw-1);g.lineWidth=1;}}
+ g.fillStyle='#4c7a54';g.font='8px ui-monospace,monospace';for(var i=0;i<16;i++){g.fillText(i.toString(16),m+i*cw+cw/2-2,10);g.fillText(i.toString(16),4,m+i*cw+cw/2+3);}
+ var inv=ginv(sel);
+ document.getElementById('aeread').textContent='b=0x'+hex(sel)+' · b⁻¹=0x'+hex(inv)+' · b⊗b⁻¹=0x'+hex(gmul(sel,inv))+' · '+(mode==='sbox'?'S':'S⁻¹')+'(b)=0x'+hex(T[sel]);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cx=W/2,cy=H/2,R=130,ca=Math.cos(ang),sa=Math.sin(ang);
+ function pos(e){var k=DLOG[e],th=k/255*Math.PI*2,x=Math.cos(th),z=Math.sin(th),X=x*ca-z*sa,Z=x*sa+z*ca;return [cx+X*R,cy+Z*R*0.42,Z];}
+ // green ring (generator cycle)
+ g.strokeStyle='#39fc6b';g.lineWidth=1.5;g.beginPath();for(var k=0;k<=255;k++){var e=EXP[k%255],p=pos(e);if(k===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();g.lineWidth=1;
+ // magenta inverse chords (sample to avoid clutter)
+ g.strokeStyle='rgba(255,45,149,0.35)';for(var e=1;e<256;e+=6){var i=ginv(e);if(i>e){var a=pos(e),b=pos(i);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();}}
+ // highlight selected + its inverse
+ var ps=pos(sel||1),pi=pos(ginv(sel||1));g.fillStyle='#fff';g.beginPath();g.arc(ps[0],ps[1],4,0,7);g.fill();g.fillStyle='#ffd23f';g.beginPath();g.arc(pi[0],pi[1],4,0,7);g.fill();
+ g.strokeStyle='#ffd23f';g.lineWidth=1.5;g.beginPath();g.moveTo(ps[0],ps[1]);g.lineTo(pi[0],pi[1]);g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: 0x03 generator cycle · magenta: b ↔ b⁻¹ (log-space mirror)',10,H-12);}
+function verify(){var invOK=true;for(var b=1;b<256;b++)if(gmul(b,ginv(b))!==1){invOK=false;break;}
+ var bij=(new Set(SB).size===256),rt=true;for(var b=0;b<256;b++)if(ISB[SB[b]]!==b){rt=false;break;}
+ var match=(SB[0]===0x63&&SB[0x53]===0xed&&SB[1]===0x7c&&SB[0xff]===0x16);
+ return {inversionOK:invOK,bijection:bij,roundTrip:rt,matchesPublished:match};}
+function all(){drawW3();drawW4();window.__aes=verify();}
+document.getElementById('aemode').onclick=function(){mode=(mode==='sbox'?'inv':'sbox');this.textContent='show: '+(mode==='sbox'?'S-BOX':'INV S-BOX');drawW4();};
+document.getElementById('w4').addEventListener('click',function(e){var r=this.getBoundingClientRect(),m=24,cw=(this.width-m)/16,mx=(e.clientX-r.left)*(this.width/r.width),my=(e.clientY-r.top)*(this.height/r.height),c=Math.floor((mx-m)/cw),rr=Math.floor((my-m)/cw);if(c>=0&&c<16&&rr>=0&&rr<16){sel=rr*16+c;drawW3();drawW4();}});
+document.getElementById('aespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-field-inverse","title":"THE FIELD INVERSE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#9db8ff","icon":"boss",
+  "kicker":"the heart of AES is one field inversion in disguise",
+  "blurb":"the AES S-box in the 5-window house format — the only nonlinear step in AES, which is really multiplicative inversion in the finite field GF(2⁸) plus an affine twist. See the inversion in 1D, the whole S-box table in 2D, and the multiplicative group as a turning ring in 3D.",
+  "lit":"A genuine Rijndael S-box. Verified live: for every nonzero byte b, b⊗b⁻¹=1 in GF(2⁸) mod x⁸+x⁴+x³+x+1; the S-box is a bijection; InvS(S(b))=b for all 256 bytes; and the generated table matches the published AES S-box (S[00]=63, S[53]=ed). The generator 0x03 cycles all 255 nonzero elements (verifiable: window.__aes.inversionOK && matchesPublished).",
+  "fig":"'The heart of the cipher' is the picture; the field inversion, the bijection, and the match to the standard table are exact. The confusion in every AES encryption really does reduce to this one algebraic operation.",
+  "body":AES_BODY,"script":AES_SCRIPT},
  {"slug":"the-counter-of-multitudes","title":"THE COUNTER OF MULTITUDES","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#ffe14d","icon":"cheat",
   "kicker":"count billions of distinct things in a thimble of memory",
