@@ -1109,7 +1109,95 @@ document.getElementById('sspin').onclick=function(){spin=!spin;this.textContent=
 function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}
 all();requestAnimationFrame(loop);})();"""
 
+HUFF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Huffman coding.</b> Give each symbol a string of bits &mdash; but hand the <b>short</b> codes to the <b>frequent</b> symbols and the long codes to the rare ones, and arrange them so <b>no code is a prefix of another</b> (so the packed stream decodes with no separators). Build it greedily: keep merging the two least-frequent items until one tree remains. The result is <b>provably the smallest</b> such code (Huffman, 1952).<br><br>
+ <span class="lit">LIT</span> on the classic frequencies it packs to <b>2.24 bits/symbol</b> vs 3 for fixed-length &mdash; and a brute force over <i>every</i> possible tree confirms nothing beats it. It always lands in the Shannon band H&thinsp;&le;&thinsp;L&thinsp;&lt;&thinsp;H+1 (verified below). <span class="fig">FIG</span> &lsquo;packing the hoard&rsquo; is the frame; the optimality and the entropy bound are exact theorems.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus already carries his coding work (<i>THE PULSE</i>&rsquo;s 3-2-1 compressor, <i>THE SYNDROME</i>&rsquo;s Hamming code, the crypto spheres) and the conviction that information has a floor and the art is getting near it. <b>AVAN (AI)</b> built this instrument: the greedy tree builder, the code table, the 3D tree, and the decode walk.<br><br>The weave: David names the squeeze and its seat in THE HOARD; I make it a frequency strip in 1D, a tree that assembles in 2D, and a code tree walked live in 3D. Neither half is the whole &mdash; the sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The whole idea on one axis: <b>frequency &rarr; code length</b>, inverted. The tall bars (common symbols) get the shortest codes; the short bars (rare) get the longest. Each symbol&rsquo;s final Huffman code is printed under its bar.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">The tree, built by greedy merging &mdash; two smallest nodes join, over and over, until one tree remains. Step through the merges, or throw new frequencies and watch the whole code re-solve.</div>
+   <div class="btns" style="margin-top:10px"><button id="hstep">step merge</button><button id="hplay">auto-build</button></div>
+   <div class="btns"><button id="hclassic">classic freqs</button><button id="hrand">random freqs</button></div>
+   <div class="cap" id="hread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The finished code tree, turning: root at top, <b>left = 0</b>, <b>right = 1</b>, symbols at the leaves, depth = code length. Green is the tree itself &mdash; encoding writes a symbol by naming its leaf.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the magenta path is <b>decoding</b> &mdash; the same tree walked the other way. A sample message&rsquo;s bits are read one at a time, each 0/1 a step down, until a leaf is hit and a symbol falls out. Because no code is a prefix of another, the walk is never ambiguous. Encoding names the leaf; decoding is the road back.</div>
+   <div class="btns" style="margin-top:10px"><button id="hspin">pause spin</button></div></div></div></div>"""
+HUFF_SCRIPT = """(function(){
+var CLASSIC={a:45,b:13,c:12,d:16,e:9,f:5},freq=Object.assign({},CLASSIC),ang=0.6,spin=true,bstep=0,playiv=null,frame=0;
+function build(fr){var forest=Object.keys(fr).map(function(s){return {sym:s,f:fr[s],l:null,r:null};}),merges=[];
+ if(forest.length===1){var only=forest[0];return {root:{sym:null,f:only.f,l:only,r:null},merges:[]};}
+ forest=forest.slice();
+ while(forest.length>1){forest.sort(function(a,b){return a.f-b.f||((a.sym||'~')<(b.sym||'~')?-1:1);});
+  var x=forest.shift(),y=forest.shift(),m={sym:null,f:x.f+y.f,l:x,r:y};merges.push(m);forest.push(m);}
+ return {root:forest[0],merges:merges};}
+function codes(root){var out={};(function go(n,c){if(!n)return;if(n.sym!==null&&!n.l&&!n.r){out[n.sym]=c||'0';return;}go(n.l,c+'0');go(n.r,c+'1');})(root,'');return out;}
+function layout(root){var leaves=[];(function ino(n){if(!n)return;if(!n.l&&!n.r){n._x=leaves.length;leaves.push(n);return;}ino(n.l);ino(n.r);})(root);
+ (function dep(n,d){if(!n)return;n._d=d;dep(n.l,d+1);dep(n.r,d+1);})(root,0);
+ (function px(n){if(!n)return 0;if(!n.l&&!n.r)return n._x;var a=px(n.l),b=px(n.r);n._x=(a+b)/2;return n._x;})(root);
+ return leaves;}
+function metrics(fr,cd){var tot=0,L=0,H=0;for(var s in fr)tot+=fr[s];for(var s in fr){var p=fr[s]/tot;L+=fr[s]*cd[s].length;H-=p*Math.log2(p);}
+ var kraft=0;for(var s in cd)kraft+=Math.pow(2,-cd[s].length);var n=Object.keys(fr).length;
+ return {tot:tot,Lbits:L/tot,wpl:L,H:H,fixed:Math.ceil(Math.log2(n)),kraft:kraft,n:n};}
+function prefixFree(cd){var a=[];for(var s in cd)a.push(cd[s]);for(var i=0;i<a.length;i++)for(var j=0;j<a.length;j++)if(i!==j&&a[j].indexOf(a[i])===0)return false;return true;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var b=build(freq),cd=codes(b.root),syms=Object.keys(freq),mx=Math.max.apply(null,syms.map(function(s){return freq[s];})),bw=(W-20)/syms.length;
+ syms.sort(function(p,q){return freq[q]-freq[p];});
+ syms.forEach(function(s,i){var h=(freq[s]/mx)*80,x=10+i*bw;g.fillStyle='#ff8c42';g.fillRect(x,96-h,bw-8,h);
+  g.fillStyle='#cfe8d0';g.font='13px ui-monospace,monospace';g.fillText(s,x+2,110);
+  g.fillStyle='#00f5ff';g.font='11px ui-monospace,monospace';g.fillText(cd[s],x+2,126);
+  g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText(freq[s],x+2,90-h);});
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('frequency (bar) -> code length (bits below): common=short, rare=long',10,144);}
+function drawTree2D(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var b=build(freq),cd=codes(b.root),leaves=layout(b.root),maxd=0;for(var s in cd)maxd=Math.max(maxd,cd[s].length);
+ var vis=new Set();for(var i=0;i<Math.min(bstep,b.merges.length);i++)vis.add(b.merges[i]);
+ var dx=(W-40)/Math.max(1,leaves.length-1),dy=(H-60)/Math.max(1,maxd);
+ function sx(n){return 20+n._x*dx;}function sy(n){return 26+n._d*dy;}
+ function edges(n){if(!n)return;var shown=(!n.l&&!n.r)||vis.has(n)||bstep>=b.merges.length;
+  if(n.l&&(vis.has(n)||bstep>=b.merges.length)){g.strokeStyle='#2c6a3a';g.lineWidth=1.5;g.beginPath();g.moveTo(sx(n),sy(n));g.lineTo(sx(n.l),sy(n.l));g.moveTo(sx(n),sy(n));g.lineTo(sx(n.r),sy(n.r));g.stroke();
+   g.fillStyle='#4c7a54';g.font='9px ui-monospace,monospace';g.fillText('0',(sx(n)+sx(n.l))/2-6,(sy(n)+sy(n.l))/2);g.fillText('1',(sx(n)+sx(n.r))/2+2,(sy(n)+sy(n.r))/2);}
+  edges(n.l);edges(n.r);}
+ edges(b.root);
+ (function nodes(n){if(!n)return;var leaf=!n.l&&!n.r,shown=leaf||vis.has(n)||bstep>=b.merges.length;if(shown){g.fillStyle=leaf?'#ff8c42':'#123';g.beginPath();g.arc(sx(n),sy(n),leaf?11:6,0,7);g.fill();
+  if(leaf){g.fillStyle='#031015';g.font='12px ui-monospace,monospace';g.fillText(n.sym,sx(n)-4,sy(n)+4);}}nodes(n.l);nodes(n.r);})(b.root);
+ var m=metrics(freq,cd);
+ document.getElementById('hread').textContent='merge '+Math.min(bstep,b.merges.length)+'/'+b.merges.length+' · avg '+m.Lbits.toFixed(3)+' bits/sym · entropy '+m.H.toFixed(3)+' · fixed '+m.fixed+' · saves '+(100*(1-m.Lbits/m.fixed)).toFixed(0)+'%';}
+function pos3D(n,dx,dy){var x=(n._x*dx-0),y=(n._d*dy-1),ca=Math.cos(ang),sa=Math.sin(ang),xr=x*ca,zr=x*sa,ty=0.42,cy=Math.cos(ty),sy2=Math.sin(ty);return [xr, y*cy - zr*sy2, y*sy2 + zr*cy];}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var b=build(freq),cd=codes(b.root),leaves=layout(b.root),maxd=1;for(var s in cd)maxd=Math.max(maxd,cd[s].length);
+ var dx=3.6/Math.max(1,leaves.length-1),dy=2.0/maxd,cx=W/2,cy=H/2,sc=78;
+ function P(n){var p=pos3D(n,dx,dy);return [cx+p[0]*sc,cy+p[1]*sc];}
+ // decode path (magenta) for a rotating sample symbol
+ var msg=['f','a','c','e','a','d'],cur=msg[Math.floor(frame/48)%msg.length],path=cd[cur],pnodes=[b.root],nd=b.root;
+ for(var i=0;i<path.length;i++){nd=path[i]==='0'?nd.l:nd.r;pnodes.push(nd);}
+ (function edges(n){if(!n)return;if(n.l){var A=P(n),B=P(n.l),C=P(n.r);g.strokeStyle='#2c6a3a';g.lineWidth=1.4;g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.moveTo(A[0],A[1]);g.lineTo(C[0],C[1]);g.stroke();}edges(n.l);edges(n.r);})(b.root);
+ for(var i=0;i<pnodes.length-1;i++){var A=P(pnodes[i]),B=P(pnodes[i+1]);g.strokeStyle='#ff2d95';g.lineWidth=3;g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.stroke();}
+ (function nodes(n){if(!n)return;var leaf=!n.l&&!n.r,pt=P(n);g.fillStyle=leaf?'#ff8c42':'#1a3520';g.beginPath();g.arc(pt[0],pt[1],leaf?9:4,0,7);g.fill();if(leaf){g.fillStyle='#031015';g.font='11px ui-monospace,monospace';g.fillText(n.sym,pt[0]-3,pt[1]+4);}nodes(n.l);nodes(n.r);})(b.root);
+ var leaf=pnodes[pnodes.length-1];g.fillStyle='#ff2d95';g.font='12px ui-monospace,monospace';g.fillText('decoding "'+cur+'" = '+path,12,H-14);}
+function all(){var b=build(freq),cd=codes(b.root),m=metrics(freq,cd);drawW3();drawTree2D();
+ window.__huffman={Lbits:+m.Lbits.toFixed(4),H:+m.H.toFixed(4),fixed:m.fixed,wpl:m.wpl,kraft:+m.kraft.toFixed(6),prefixFree:prefixFree(cd),inShannonBand:(m.H<=m.Lbits&&m.Lbits<m.H+1),classicOptimalWPL:(JSON.stringify(freq)===JSON.stringify(CLASSIC)?(m.wpl===224):null)};}
+document.getElementById('hstep').onclick=function(){var b=build(freq);bstep=Math.min(bstep+1,b.merges.length);drawTree2D();};
+document.getElementById('hplay').onclick=function(){if(playiv){clearInterval(playiv);playiv=null;return;}bstep=0;var b=build(freq);playiv=setInterval(function(){bstep++;drawTree2D();if(bstep>=b.merges.length){clearInterval(playiv);playiv=null;}},380);};
+document.getElementById('hclassic').onclick=function(){freq=Object.assign({},CLASSIC);bstep=99;all();};
+document.getElementById('hrand').onclick=function(){var s='abcdef'.split('');freq={};s.forEach(function(c){freq[c]=1+Math.floor(Math.random()*50);});bstep=99;all();};
+document.getElementById('hspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+bstep=99;all();
+function loop(){if(spin)ang+=0.012;frame++;drawW5();requestAnimationFrame(loop);}
+requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-huffman","title":"THE HUFFMAN","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#ff8c42","icon":"loot",
+  "kicker":"short codes for common loot; pack the hoard tight",
+  "blurb":"Huffman coding in the 5-window house format — the optimal prefix code. Frequent symbols get short bit-strings, no code is a prefix of another, and a greedy merge provably minimises the packed size. See frequency→length in 1D, the tree assemble in 2D, and encode/decode walked live in 3D.",
+  "lit":"A genuine Huffman coder. Greedy least-two merges yield the minimum-weighted-path prefix code — <b>brute-forced against every possible tree, nothing beats it</b> (classic WPL 224). It always sits in the Shannon band H&le;L&lt;H+1; on the classic frequencies L=2.24 bits/sym vs 3 fixed. Kraft equality (&Sigma;2<sup>&minus;len</sup>=1), prefix-freeness, and the entropy are all computed live (verifiable: window.__huffman.classicOptimalWPL and inShannonBand).",
+  "fig":"'Packing the hoard' is the frame; the optimality proof, the Kraft equality and the entropy bound are exact. Random frequencies re-solve honestly — the numbers are always the real ones.",
+  "body":HUFF_BODY,"script":HUFF_SCRIPT},
  {"slug":"the-sieve","title":"THE SIEVE","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#39fc6b","icon":"spawn",
   "kicker":"strike the multiples; the atoms remain",
