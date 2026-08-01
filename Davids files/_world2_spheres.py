@@ -17182,7 +17182,274 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 stepInit();for(var i=0;i<8;i++)stepDigit();drawW3();drawW4();window.__espigot=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 59 (self-adjusting tree · value-guided search · substring machine · zero-collision hash · point-back compression) ═══════════════════════
+SP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The splay tree</b> is a self-adjusting binary search tree: every time you touch a node, you <b>splay</b> it &mdash; rotate it all the way to the root. There are no balance rules and no stored heights or colours; the tree simply reshapes itself so that recently and frequently accessed keys sit near the top, giving <b>amortised</b> O(log n) per operation.<br><br>
+ It is a self-optimising cache in tree form, and the basis of link-cut trees.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random operation sequences the in-order traversal stays sorted, the key set matches a reference, every key is found, and after each access that key is at the root (window.__splaytree). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>warm-cache</i> &mdash; the thing you just used floats to the top, ready to hand, so the next access is cheap. The splay tree is a warm cache built of pointers. <b>AVAN (AI)</b> built the instrument: the top-down splay, the insert/find, the sorted-order + at-root checks.<br><br>Credit as content: Daniel Sleator &amp; Robert Tarjan (1985). The weave: David names the warm cache; I splay each touched key to the root and confirm the tree stays a valid search tree while the workload reshapes it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A splay: the accessed node rotates upward step by step (zig, zig-zig, zig-zag) until it becomes the root &mdash; the path it travelled is roughly halved in depth along the way.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Insert or access keys; the touched key splays to the root and the tree rebalances itself around your usage.</div>
+   <div class="btns" style="margin-top:10px"><button id="spins">insert random ▶</button><button id="spacc">access a key ▶</button><button id="spcheck">verify 300 ▶</button></div>
+   <div class="cap" id="spread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the accessed key, splayed to the root, the tree reshaped beneath it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the tree <b>reshapes itself around what you use</b>. Every access splays the touched node to the root, so recently and frequently used keys drift to the top and repeated access is amortised O(log n) &mdash; with <b>no</b> explicit balance rules, heights, or colours maintained. The inverse of &lsquo;keep the tree balanced by rules&rsquo; is &lsquo;let access itself reshape the tree.&rsquo; <b>Magenta</b> is the rigid AVL/red-black balance conditions you never maintain; <b>green</b> is the self-adjusting path splayed to the root. The structure adapts to the workload.</div>
+   <div class="btns" style="margin-top:10px"><button id="spspin">pause spin</button></div></div></div></div>"""
+SP_SCRIPT = """(function(){
+var ang=0,spin=true,TREE=null,LAST=null;
+function splay(root,key){if(!root)return root;var N={key:0,left:null,right:null},l=N,r=N;while(true){if(key<root.key){if(!root.left)break;if(key<root.left.key){var t=root.left;root.left=t.right;t.right=root;root=t;if(!root.left)break;}r.left=root;r=root;root=root.left;}else if(key>root.key){if(!root.right)break;if(key>root.right.key){var t=root.right;root.right=t.left;t.left=root;root=t;if(!root.right)break;}l.right=root;l=root;root=root.right;}else break;}l.right=root.left;r.left=root.right;root.left=N.right;root.right=N.left;return root;}
+function T(){this.root=null;}
+T.prototype.insert=function(key){if(!this.root){this.root={key:key,left:null,right:null};return;}this.root=splay(this.root,key);if(this.root.key===key)return;var n={key:key,left:null,right:null};if(key<this.root.key){n.left=this.root.left;n.right=this.root;this.root.left=null;}else{n.right=this.root.right;n.left=this.root;this.root.right=null;}this.root=n;};
+T.prototype.find=function(key){this.root=splay(this.root,key);return this.root&&this.root.key===key;};
+function inorder(n,o){if(!n)return;inorder(n.left,o);o.push(n.key);inorder(n.right,o);}
+function verify(){var seed=41;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true,srt=true,ro=true;for(var t=0;t<300;t++){var st=new T(),ref=new Set(),nOps=3+Math.floor(rnd()*20);for(var o=0;o<nOps;o++){var k=Math.floor(rnd()*50);st.insert(k);ref.add(k);}var io=[];inorder(st.root,io);for(var i=1;i<io.length;i++)if(io[i]<=io[i-1])srt=false;if(io.length!==ref.size)ok=false;var arr=[...ref];for(var q=0;q<arr.length;q++){if(!st.find(arr[q]))ok=false;if(st.root.key!==arr[q])ro=false;}}return {sorted:srt,keysMatch:ok,accessedAtRoot:ro};}
+function ensure(){if(!TREE){TREE=new T();[30,15,45,8,22,38,50,4,12].forEach(function(k){TREE.insert(k);});}}
+function layout(node,x,y,dx,arr,depth){if(!node)return;arr.push({key:node.key,x:x,y:y,root:depth===0});layout(node.left,x-dx,y+44,dx*0.55,arr,depth+1);layout(node.right,x+dx,y+44,dx*0.55,arr,depth+1);}
+function drawTree(g,W,H){ensure();var nodes=[];layout(TREE.root,W/2,30,W/4,nodes,0);
+ function edges(node,x,y,dx){if(!node)return;if(node.left){g.strokeStyle='#3a4550';g.beginPath();g.moveTo(x,y);g.lineTo(x-dx,y+44);g.stroke();edges(node.left,x-dx,y+44,dx*0.55);}if(node.right){g.strokeStyle='#3a4550';g.beginPath();g.moveTo(x,y);g.lineTo(x+dx,y+44);g.stroke();edges(node.right,x+dx,y+44,dx*0.55);}}
+ edges(TREE.root,W/2,30,W/4);
+ nodes.forEach(function(nd){g.fillStyle=nd.root?'#39fc6b':(nd.key===LAST?'#c0a048':'#37506e');g.beginPath();g.arc(nd.x,nd.y,13,0,7);g.fill();g.fillStyle=nd.root?'#042':'#fff';g.font='10px monospace';g.fillText(nd.key,nd.x-6,nd.y+4);});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('splay: rotate the accessed node up to the root (zig · zig-zig · zig-zag)',12,14);
+ for(var i=0;i<4;i++){var y=120-i*24;g.fillStyle=i===3?'#39fc6b':'#c0a048';g.beginPath();g.arc(80+i*100,y,12,0,7);g.fill();if(i<3){g.strokeStyle='#8ad';g.beginPath();g.moveTo(92+i*100,y-6);g.lineTo(168+i*100,120-(i+1)*24+6);g.stroke();}}
+ g.fillStyle='#8ad';g.fillText('depth of the path roughly halves',80,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d');drawTree(g,384,280);var st=g;g.fillStyle='#8ad';g.font='10px monospace';g.fillText(LAST!==null?('root = '+TREE.root.key+' (last touched '+LAST+')'):'root = '+TREE.root.key,12,270);}
+document.getElementById('spins').onclick=function(){ensure();var k=Math.floor(Math.random()*60);TREE.insert(k);LAST=k;drawW4();document.getElementById('spread').textContent='inserted '+k+' → splayed to root';};
+document.getElementById('spacc').onclick=function(){ensure();var io=[];inorder(TREE.root,io);var k=io[Math.floor(Math.random()*io.length)];TREE.find(k);LAST=k;drawW4();document.getElementById('spread').textContent='accessed '+k+' → now at root';};
+document.getElementById('spcheck').onclick=function(){var v=verify();document.getElementById('spread').textContent='300 seqs: sorted '+(v.sorted?'✓':'✗')+', keys match '+(v.keysMatch?'✓':'✗')+', accessed at root '+(v.accessedAtRoot?'✓':'✗');};
+document.getElementById('spspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);ensure();var io=[];inorder(TREE.root,io);var cx=W/2,cy=H/2-10;
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(cx,cy-70,14,0,7);g.fill();g.fillStyle='#042';g.font='10px monospace';g.fillText(TREE.root.key,cx-6,cy-66);
+ for(var i=0;i<io.length;i++){var a=i/io.length*6.28+ang*0.3,x=cx+Math.cos(a)*90,y=cy+Math.sin(a)*70;if(io[i]!==TREE.root.key){g.fillStyle='rgba(255,45,149,0.35)';g.beginPath();g.arc(x,y,5,0,7);g.fill();}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the accessed key splayed to the root',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: rigid balance rules never maintained',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('access itself reshapes the tree — a cache of pointers',10,H-9);}
+ensure();drawW3();drawW4();window.__splaytree=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+IP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Interpolation search</b> finds a value in a <b>sorted</b> array by <b>guessing where it should be</b> from its value, not just splitting in the middle. If the data is roughly uniform, it interpolates a position proportional to how far the target sits between the current endpoints &mdash; leaping most of the way in one step. On uniformly distributed data it runs in O(log log n) expected time, beating binary search&rsquo;s O(log n).<br><br>
+ It is how you look up a name near the front of a phone book without opening to the middle first.<br><br>
+ <span class="lit">LIT</span> verified live: over 400 random sorted arrays interpolation search finds every present key, rejects every absent one, and always agrees with binary search on membership (window.__interpolationsearch). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-speedrun</i> &mdash; skip the midpoints, guess the target&rsquo;s location straight from its value, and reach it in fewer probes than binary search. Interpolation search is that speedrun. <b>AVAN (AI)</b> built the instrument: the value-interpolated probe, the divide-by-zero guard for flat ranges, the binary-search cross-check.<br><br>Credit as content: W. W. Peterson (1957). The weave: David names the speedrun; I jump to the interpolated position each step and confirm the result matches an exhaustive binary search.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Instead of the midpoint, the probe lands where the value should be: position = lo + (x &minus; a[lo]) / (a[hi] &minus; a[lo]) &times; (hi &minus; lo). On uniform data that guess is nearly exact.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A sorted array; search for a value and watch the value-guided probes leap to it, compared with binary search&rsquo;s midpoint steps.</div>
+   <div class="btns" style="margin-top:10px"><button id="ipsearch">search a value ▶</button><button id="ipcheck">verify 400 ▶</button></div>
+   <div class="cap" id="ipread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the value-guided probe leaping straight toward the target.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): if the data is roughly <b>uniform</b>, you can guess where the key is <b>by its value</b>. Interpolate a position proportional to how far x lies between the endpoints and jump most of the way in one step &mdash; O(log log n) expected. The inverse of &lsquo;split by index (the midpoint)&rsquo; is &lsquo;split by value (the interpolated point).&rsquo; <b>Magenta</b> is the log n midpoints binary search would test; <b>green</b> is the value-guided guesses that leap straight to it. Use the numbers, not just their order.</div>
+   <div class="btns" style="margin-top:10px"><button id="ipspin">pause spin</button></div></div></div></div>"""
+IP_SCRIPT = """(function(){
+var ang=0,spin=true,ARR=null,TARGET=null,PROBES=[];
+function interp(a,x){var lo=0,hi=a.length-1,probes=[];while(lo<=hi&&x>=a[lo]&&x<=a[hi]){if(a[hi]===a[lo]){probes.push(lo);return {idx:a[lo]===x?lo:-1,probes:probes};}var pos=lo+Math.floor((x-a[lo])*(hi-lo)/(a[hi]-a[lo]));probes.push(pos);if(a[pos]===x)return {idx:pos,probes:probes};if(a[pos]<x)lo=pos+1;else hi=pos-1;}return {idx:-1,probes:probes};}
+function bin(a,x){var lo=0,hi=a.length-1,steps=0;while(lo<=hi){var m=(lo+hi)>>1;steps++;if(a[m]===x)return {idx:m,steps:steps};if(a[m]<x)lo=m+1;else hi=m-1;}return {idx:-1,steps:steps};}
+function verify(){var seed=42;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true;for(var t=0;t<400;t++){var n=1+Math.floor(rnd()*40),s=new Set();while(s.size<n)s.add(Math.floor(rnd()*200));var a=[...s].sort(function(p,q){return p-q;});for(var q=0;q<15;q++){var x=Math.floor(rnd()*220),ip=interp(a,x),pres=a.indexOf(x)>=0;if(pres){if(ip.idx<0||a[ip.idx]!==x)ok=false;}else if(ip.idx>=0)ok=false;if((ip.idx>=0)!==(bin(a,x).idx>=0))ok=false;}}return {agreesBinary:ok};}
+function mkArr(){var n=20+Math.floor(Math.random()*12),s=new Set();while(s.size<n)s.add(Math.floor(Math.random()*200));ARR=[...s].sort(function(p,q){return p-q;});TARGET=ARR[Math.floor(Math.random()*ARR.length)];PROBES=interp(ARR,TARGET).probes;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('probe = lo + (x−a[lo])/(a[hi]−a[lo]) · (hi−lo)',12,14);
+ var a=[3,9,14,20,27,35,42,51,60,72,85,99],x=51,r=interp(a,x),bw=(W-40)/a.length;for(var i=0;i<a.length;i++){var hit=a[i]===x,pr=r.probes.indexOf(i)>=0;g.fillStyle=hit?'#39fc6b':(pr?'#c06868':'#2a3540');g.fillRect(20+i*bw,60,bw-3,40);g.fillStyle='#cde';g.font='9px monospace';g.fillText(a[i],22+i*bw,84);}
+ g.fillStyle='#c06868';g.font='10px monospace';g.fillText('search 51 → probes at index '+r.probes.join(', ')+' (found in '+r.probes.length+')',20,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ARR)mkArr();var r=interp(ARR,TARGET),bw=(W-30)/ARR.length;
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('search '+TARGET+' in '+ARR.length+' sorted values',12,20);
+ for(var i=0;i<ARR.length;i++){var hit=ARR[i]===TARGET,pr=r.probes.indexOf(i)>=0;g.fillStyle=hit?'#39fc6b':(pr?'#c06868':'#26303c');g.fillRect(15+i*bw,40,bw-2,ARR[i]/200*120+8);}
+ g.fillStyle='#c06868';g.font='11px monospace';g.fillText('interpolation: '+r.probes.length+' probes',12,200);
+ g.fillStyle='#8ad';g.fillText('binary search: '+bin(ARR,TARGET).steps+' steps',12,220);
+ g.fillStyle=r.idx>=0?'#39fc6b':'#ff5a5a';g.fillText(r.idx>=0?'found at index '+r.idx+' ✓':'not present',12,242);}
+document.getElementById('ipsearch').onclick=function(){mkArr();drawW4();var r=interp(ARR,TARGET);document.getElementById('ipread').textContent='found '+TARGET+' in '+r.probes.length+' probes (binary: '+bin(ARR,TARGET).steps+')';};
+document.getElementById('ipcheck').onclick=function(){var v=verify();document.getElementById('ipread').textContent='400 arrays: agrees with binary search on membership '+(v.agreesBinary?'✓':'✗');};
+document.getElementById('ipspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ARR)mkArr();var r=interp(ARR,TARGET),cy=H/2-10;
+ g.strokeStyle='#334';g.beginPath();g.moveTo(30,cy);g.lineTo(W-30,cy);g.stroke();
+ var targetX=30+(TARGET/200)*(W-60);for(var i=0;i<r.probes.length;i++){var px=30+(ARR[r.probes[i]]/200)*(W-60),last=(i===r.probes.length-1);g.fillStyle=last?'#39fc6b':'#c06868';g.beginPath();g.arc(px,cy+10*Math.sin(ang+i),last?9:5,0,7);g.fill();if(i>0){g.strokeStyle='rgba(57,252,107,0.4)';g.beginPath();g.moveTo(30+(ARR[r.probes[i-1]]/200)*(W-60),cy);g.lineTo(px,cy);g.stroke();}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: value-guided probes leaping to the target',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the log n midpoints binary search tests',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('split by value, not index → O(log log n) on uniform data',10,H-9);}
+mkArr();drawW3();drawW4();window.__interpolationsearch=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The suffix automaton</b> is the <b>smallest</b> deterministic machine that recognises exactly the <b>substrings</b> of a string &mdash; and it has only O(n) states for a length-n string, even though the string has up to n(n+1)/2 substrings. Every substring is a path from the start; end-positions that behave identically are merged into one state via &lsquo;suffix links&rsquo;.<br><br>
+ It answers substring queries, counts distinct substrings, and finds longest common substrings in linear time.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random strings the automaton&rsquo;s distinct-substring count &mdash; &Sigma;(len &minus; len[link]) over states &mdash; equals a brute-force count, and it accepts substrings while rejecting non-substrings (window.__suffixautomaton). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-inventory</i> &mdash; a compact catalogue of every piece a string contains, every substring indexed in linear space. The suffix automaton is that inventory. <b>AVAN (AI)</b> built the instrument: the online construction with suffix links and clones, the distinct-count formula, the membership check.<br><br>Credit as content: Blumer et al. (1985), the &lsquo;DAWG&rsquo;. The weave: David names the inventory; I build the minimal substring machine one character at a time and confirm it counts and recognises every substring exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each state covers a range of substring lengths [len[link]+1 &hellip; len]; summing those ranges over all states counts every distinct substring &mdash; a linear structure holding a quadratic set.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A string, its suffix automaton (states and transitions), and its distinct-substring count checked against brute force.</div>
+   <div class="btns" style="margin-top:10px"><button id="saroll">new string ▶</button><button id="sacheck">verify 300 ▶</button></div>
+   <div class="cap" id="saread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the O(n) states whose paths are all the substrings.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the smallest <b>machine</b> recognising exactly the substrings has only O(n) states. Every substring is a path, and end-positions that behave identically are <b>merged</b> into one state, so a linear automaton encodes a quadratic number of substrings. The inverse of &lsquo;enumerate the substrings&rsquo; is &lsquo;the minimal automaton whose paths <b>are</b> the substrings.&rsquo; <b>Magenta</b> is the O(n&sup2;) substrings spelled out; <b>green</b> is the O(n) states that generate them. The distinct count &Sigma;(len &minus; len[link]) falls straight out of the structure.</div>
+   <div class="btns" style="margin-top:10px"><button id="saspin">pause spin</button></div></div></div></div>"""
+SA_SCRIPT = """(function(){
+var ang=0,spin=true,STR='ababa';
+function build(s){var st=[{len:0,link:-1,next:{}}],last=0;function ext(c){var cur=st.length;st.push({len:st[last].len+1,link:-1,next:{}});var p=last;while(p!==-1&&st[p].next[c]===undefined){st[p].next[c]=cur;p=st[p].link;}if(p===-1)st[cur].link=0;else{var q=st[p].next[c];if(st[p].len+1===st[q].len)st[cur].link=q;else{var cl=st.length;st.push({len:st[p].len+1,link:st[q].link,next:Object.assign({},st[q].next)});while(p!==-1&&st[p].next[c]===q){st[p].next[c]=cl;p=st[p].link;}st[q].link=cl;st[cur].link=cl;}}last=cur;}for(var i=0;i<s.length;i++)ext(s[i]);return st;}
+function distinct(st){var tot=0;for(var v=1;v<st.length;v++)tot+=st[v].len-st[st[v].link].len;return tot;}
+function brute(s){var set=new Set();for(var i=0;i<s.length;i++)for(var j=i+1;j<=s.length;j++)set.add(s.substring(i,j));return set.size;}
+function accepts(st,sub){var cur=0;for(var i=0;i<sub.length;i++){if(st[cur].next[sub[i]]===undefined)return false;cur=st[cur].next[sub[i]];}return true;}
+function verify(){var seed=43;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true,mem=true,al='abc';for(var t=0;t<300;t++){var n=1+Math.floor(rnd()*12),s='';for(var i=0;i<n;i++)s+=al[Math.floor(rnd()*3)];var st=build(s);if(distinct(st)!==brute(s))ok=false;for(var q=0;q<5;q++){var i=Math.floor(rnd()*n),j=i+1+Math.floor(rnd()*(n-i)),sub=s.substring(i,j);if(!accepts(st,sub))mem=false;if(accepts(st,sub+'z')&&s.indexOf(sub+'z')<0)mem=false;}}return {distinctMatches:ok,membership:mem};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var st=build(STR);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('state covers lengths [len[link]+1 … len]; sum = distinct substrings',12,14);
+ var tot=0;for(var v=1;v<Math.min(st.length,9);v++){var lo=st[st[v].link].len+1,hi=st[v].len;g.fillStyle='#58a0b0';g.fillRect(20+(v-1)*54,50,48,30);g.fillStyle='#fff';g.font='9px monospace';g.fillText('['+lo+'..'+hi+']',22+(v-1)*54,68);tot+=hi-lo+1;}
+ g.fillStyle='#58a0b0';g.font='11px monospace';g.fillText('Σ = '+distinct(st)+' distinct substrings',20,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var st=build(STR),d=distinct(st),b=brute(STR);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('string: "'+STR+'"',12,24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText(st.length+' states for '+STR.length+' chars',12,44);
+ var n=Math.min(st.length,12),cols=4;for(var v=0;v<n;v++){var x=40+(v%cols)*90,y=70+Math.floor(v/cols)*44;g.fillStyle=v===0?'#c0a048':'#37506e';g.beginPath();g.arc(x,y,13,0,7);g.fill();g.fillStyle='#fff';g.font='9px monospace';g.fillText('s'+v,x-6,y+3);}
+ g.fillStyle=d===b?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('distinct substrings: Σ(len−link) = '+d+' = brute '+b+(d===b?' ✓':' ✗'),12,H-12);}
+document.getElementById('saroll').onclick=function(){var al='abab c'.replace(' ',''),n=4+Math.floor(Math.random()*5);STR='';for(var i=0;i<n;i++)STR+=al[Math.floor(Math.random()*al.length)];drawW3();drawW4();document.getElementById('saread').textContent='"'+STR+'": '+distinct(build(STR))+' distinct substrings';};
+document.getElementById('sacheck').onclick=function(){var v=verify();document.getElementById('saread').textContent='300 strings: distinct count == brute '+(v.distinctMatches?'✓':'✗')+', membership correct '+(v.membership?'✓':'✗');};
+document.getElementById('saspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var st=build(STR),cx=W/2,cy=H/2-20,n=st.length;
+ for(var v=0;v<n;v++){var a=v/n*6.28+ang*0.3,r=50+st[v].len*14,x=cx+Math.cos(a)*Math.min(r,120),y=cy+Math.sin(a)*Math.min(r,120)*0.7;var link=st[v].link;if(link>=0){var la=link/n*6.28,lr=Math.min(50+st[link].len*14,120);g.strokeStyle='rgba(255,45,149,0.3)';g.beginPath();g.moveTo(x,y);g.lineTo(cx+Math.cos(la)*lr,cy+Math.sin(la)*lr*0.7);g.stroke();}g.fillStyle=v===0?'#c0a048':'#39fc6b';g.beginPath();g.arc(x,y,6,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the O(n) states (paths = all substrings)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: suffix links merging equivalent end-positions',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a linear machine holding a quadratic set',10,H-9);}
+drawW3();drawW4();window.__suffixautomaton=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Perfect hashing</b> (the FKS scheme) stores a <b>fixed</b> set of n keys with <b>zero collisions</b> and O(n) space, so every lookup is a single probe. It uses two levels: a top hash spreads keys into n buckets, and each bucket of b keys gets its own secondary table of size b&sup2; with a hash chosen to be <b>collision-free</b>. The sum of the b&sup2; sizes is O(n) in expectation, so total space stays linear.<br><br>
+ It is how you build a static dictionary &mdash; keywords, Unicode tables &mdash; with guaranteed constant-time lookup.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random key sets every key resolves to a unique slot (lookups exact for members, rejecting non-members) and total space stays O(n) (window.__perfecthash). <span class="fig">FIG</span> no framing; zero collisions, exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-vault</i> &mdash; a unique lock for every key, no two sharing a slot, one turn to open. Perfect hashing is that vault. <b>AVAN (AI)</b> built the instrument: the two-level construction, the b&sup2; collision-free secondaries, the lookup and space checks.<br><br>Credit as content: Michael Fredman, J&aacute;nos Koml&oacute;s &amp; Endre Szemer&eacute;di (1984). The weave: David names the vault; I spread keys into buckets, size each secondary at b&sup2; and re-pick its hash until collision-free, and confirm every key has its own slot in linear space.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Two levels: the top hash sends keys to buckets; a bucket holding b keys opens a secondary table of size b&sup2;, large enough that a random hash almost surely places its keys with no collision.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A key set hashed into buckets, each with its collision-free b&sup2; secondary. Roll new sets; every key lands in a unique slot, total space stays near linear.</div>
+   <div class="btns" style="margin-top:10px"><button id="phroll">new keys ▶</button><button id="phcheck">verify 200 ▶</button></div>
+   <div class="cap" id="phread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: each key in its own unique slot &mdash; one probe, always.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): for a <b>fixed</b> key set you can guarantee <b>zero</b> collisions in O(n) space. Each bucket of b keys gets a b&sup2; secondary table whose hash is chosen collision-free, and &Sigma;b&sup2; is O(n) in expectation. The inverse of &lsquo;handle collisions at lookup time (chaining, probing)&rsquo; is &lsquo;choose the hash functions so there are none.&rsquo; <b>Magenta</b> is the collision chains you never walk; <b>green</b> is the unique slot each key lands in. One probe, always &mdash; a vault with a unique lock per key.</div>
+   <div class="btns" style="margin-top:10px"><button id="phspin">pause spin</button></div></div></div></div>"""
+PH_SCRIPT = """(function(){
+var ang=0,spin=true,KEYS=null,F=null,P=2147483647;
+function h(a,b,x,m){return ((((a*x+b)%P)+P)%P)%m;}
+function fks(keys,rndf){var n=keys.length;if(n===0)return {m:0,second:[],space:0,top:{a:1,b:0}};var m=n,buckets,top;while(true){buckets=[];for(var i=0;i<m;i++)buckets.push([]);var a=1+Math.floor(rndf()*(P-1)),b=Math.floor(rndf()*P);keys.forEach(function(k){buckets[h(a,b,k,m)].push(k);});var sq=0;buckets.forEach(function(bk){sq+=bk.length*bk.length;});if(sq<=4*n){top={a:a,b:b};break;}}
+ var second=[],space=m;for(var i=0;i<m;i++){var bk=buckets[i],bi=bk.length,mi=bi*bi;if(bi<=1){second.push({m:mi,a:0,b:0,table:bk.slice(),count:bi});space+=mi;continue;}while(true){var a2=1+Math.floor(rndf()*(P-1)),b2=Math.floor(rndf()*P),tbl=new Array(mi).fill(null),coll=false;for(var q=0;q<bi;q++){var sl=h(a2,b2,bk[q],mi);if(tbl[sl]!==null){coll=true;break;}tbl[sl]=bk[q];}if(!coll){second.push({m:mi,a:a2,b:b2,table:tbl,count:bi});break;}}space+=mi;}return {top:top,m:m,second:second,space:space,n:n};}
+function lookup(f,x){if(f.m===0)return false;var i=h(f.top.a,f.top.b,x,f.m),s=f.second[i];if(s.m===0)return false;if(s.a===0)return s.table.indexOf(x)>=0;return s.table[h(s.a,s.b,x,s.m)]===x;}
+function verify(){var seed=44;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var lok=true,sok=true;for(var t=0;t<200;t++){var n=1+Math.floor(rnd()*30),set=new Set();while(set.size<n)set.add(Math.floor(rnd()*100000));var keys=[...set],f=fks(keys,rnd);keys.forEach(function(k){if(!lookup(f,k))lok=false;});for(var q=0;q<10;q++){var x=Math.floor(rnd()*100000);if(set.has(x)){if(!lookup(f,x))lok=false;}else if(lookup(f,x))lok=false;}if(f.space>6*n+5)sok=false;}return {zeroCollisionLookup:lok,spaceLinear:sok};}
+function mkKeys(){var n=8+Math.floor(Math.random()*8),set=new Set();while(set.size<n)set.add(Math.floor(Math.random()*9999));KEYS=[...set];F=fks(KEYS,Math.random);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('top hash → n buckets · a bucket of b keys → b² collision-free table',12,14);
+ g.fillStyle='#70a860';for(var i=0;i<5;i++){g.fillRect(30+i*40,40,32,24);}g.fillStyle='#fff';g.font='9px monospace';g.fillText('buckets',30,80);
+ g.fillStyle='#c0a048';g.fillText('bucket with 2 keys → table size 4 (no collision)',30,110);for(var j=0;j<4;j++){g.strokeStyle='#c0a048';g.strokeRect(30+j*30,120,26,20);}g.fillStyle='#39fc6b';g.beginPath();g.arc(43,130,5,0,7);g.fill();g.beginPath();g.arc(103,130,5,0,7);g.fill();}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!KEYS)mkKeys();
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText(KEYS.length+' keys → '+F.m+' buckets, total space '+F.space,12,20);
+ var cols=6,cw=58;for(var i=0;i<F.m;i++){var s=F.second[i],x=20+(i%cols)*cw,y=44+Math.floor(i/cols)*54;g.strokeStyle='#3a4550';g.strokeRect(x,y,cw-8,40);g.fillStyle='#8ad';g.font='8px monospace';g.fillText('b='+s.count+',m='+s.m,x+2,y-2);
+  for(var q=0;q<Math.min(s.m,9);q++){var filled=s.a===0?(q<s.table.length):(s.table[q]!==null&&s.table[q]!==undefined);g.fillStyle=filled?'#70a860':'#26303c';g.fillRect(x+2+(q%3)*15,y+4+Math.floor(q/3)*12,12,10);}}
+ var lok=KEYS.every(function(k){return lookup(F,k);});g.fillStyle=lok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('every key unique slot, lookup exact '+(lok?'✓':'✗')+' · space '+(F.space<=6*F.n+5?'O(n) ✓':'✗'),12,H-8);}
+document.getElementById('phroll').onclick=function(){mkKeys();drawW4();document.getElementById('phread').textContent=KEYS.length+' keys → space '+F.space+' (≤ 6n)';};
+document.getElementById('phcheck').onclick=function(){var v=verify();document.getElementById('phread').textContent='200 sets: zero-collision lookups exact '+(v.zeroCollisionLookup?'✓':'✗')+', space O(n) '+(v.spaceLinear?'✓':'✗');};
+document.getElementById('phspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!KEYS)mkKeys();var cx=W/2,cy=H/2-20;
+ for(var i=0;i<KEYS.length;i++){var a=i/KEYS.length*6.28+ang*0.3,x=cx+Math.cos(a)*100,y=cy+Math.sin(a)*75;g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,7,0,7);g.fill();g.strokeStyle='rgba(112,168,96,0.3)';g.beginPath();g.moveTo(x,y);g.lineTo(cx,cy);g.stroke();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: each key in its own unique slot (one probe)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the collision chains never walked',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('choose the hashes so there are no collisions',10,H-9);}
+mkKeys();drawW3();drawW4();window.__perfecthash=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>LZ77</b> compresses by <b>pointing backward</b>. As it scans, whenever the upcoming text has already appeared within a sliding window of the recent past, it emits a <b>(distance, length)</b> reference to that earlier copy instead of the literal bytes, followed by the next new character. The file ends up describing itself in terms of its own history.<br><br>
+ It is the core of gzip, PNG, and ZIP (LZ77 followed by Huffman coding = DEFLATE).<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random strings decompress(compress(s)) reproduces s exactly, and repetitive text collapses to few tokens (e.g. &lsquo;abracadabraabracadabra&rsquo; &rarr; 9 tokens) &mdash; window.__lz77. <span class="fig">FIG</span> no framing; exact round-trip.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>rollback</i> &mdash; because decompression literally <b>rolls back</b> to an earlier position in the output and copies forward, replaying the past to rebuild the present. LZ77 is that rollback-and-copy. <b>AVAN (AI)</b> built the instrument: the sliding-window match finder, the token stream, the roll-back decoder, the round-trip check.<br><br>Credit as content: Abraham Lempel &amp; Jacob Ziv (1977). The weave: David names the rollback; I emit back-references into the window, then rebuild the string by rolling back to each reference and copying &mdash; and confirm it matches the original.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A back-reference: instead of re-emitting bytes seen before, LZ77 writes (distance back, length to copy). Decoding rolls the cursor back that distance and copies the run forward.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Type or roll text; LZ77 tokenises it into literals and back-references, then decompresses back to the original.</div>
+   <div class="btns" style="margin-top:10px"><button id="lzroll">new text ▶</button><button id="lzcheck">verify 300 ▶</button></div>
+   <div class="cap" id="lzread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the back-reference pointing into the window at data already seen.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): repetition is stored as a <b>pointer backward</b>. Instead of re-emitting data seen before, LZ77 writes (distance, length) referencing the earlier occurrence in a sliding window, so the file describes itself in terms of its own past. The inverse of &lsquo;write the bytes again&rsquo; is &lsquo;point back to where they already are.&rsquo; <b>Magenta</b> is the repeated data never re-stored; <b>green</b> is the back-reference into the window. Decompression rolls back to the referenced position and copies forward &mdash; the seed of gzip and DEFLATE.</div>
+   <div class="btns" style="margin-top:10px"><button id="lzspin">pause spin</button></div></div></div></div>"""
+LZ_SCRIPT = """(function(){
+var ang=0,spin=true,STR='abracadabraabracadabra',W=16;
+function compress(s,W){var tk=[],i=0;while(i<s.length){var bl=0,bo=0,start=Math.max(0,i-W);for(var j=start;j<i;j++){var len=0;while(i+len<s.length&&s[j+len]===s[i+len]&&len<255)len++;if(len>bl){bl=len;bo=i-j;}}if(bl>=2){tk.push([bo,bl,i+bl<s.length?s[i+bl]:'']);i+=bl+1;}else{tk.push([0,0,s[i]]);i+=1;}}return tk;}
+function decompress(tk){var out='';tk.forEach(function(t){var off=t[0],len=t[1],ch=t[2];if(len>0){var st=out.length-off;for(var k=0;k<len;k++)out+=out[st+k];}out+=ch;});return out;}
+function verify(){var seed=45;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true,al='abcab';for(var t=0;t<300;t++){var n=Math.floor(rnd()*40),s='';for(var i=0;i<n;i++)s+=al[Math.floor(rnd()*al.length)];if(decompress(compress(s,16))!==s)ok=false;}return {roundTrips:ok,demoTokens:compress('abracadabraabracadabra',16).length};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;g.clearRect(0,0,W2,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('back-reference (distance, length): roll back and copy the run',12,14);
+ var s='abcabc',cw=40;for(var i=0;i<s.length;i++){g.fillStyle=i<3?'#a878c0':'#39fc6b';g.fillRect(60+i*cw,60,cw-4,34);g.fillStyle='#fff';g.font='16px monospace';g.fillText(s[i],60+i*cw+13,82);}
+ g.strokeStyle='#39fc6b';g.setLineDash([4,3]);g.beginPath();g.moveTo(60+3*cw+15,55);g.bezierCurveTo(150,20,90,20,60+15,55);g.stroke();g.setLineDash([]);g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('(distance 3, length 3)',120,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;g.clearRect(0,0,W2,H);var tk=compress(STR,W),dec=decompress(tk),ok=dec===STR;
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('"'+STR.slice(0,30)+'" ('+STR.length+' chars)',12,20);
+ g.fillStyle='#8ad';g.fillText('→ '+tk.length+' tokens:',12,42);
+ var x=12,y=64;tk.forEach(function(t){var isRef=t[1]>0,label=isRef?('('+t[0]+','+t[1]+')'+t[2]):("'"+t[2]+"'");g.fillStyle=isRef?'#a878c0':'#37506e';var w=label.length*7+6;if(x+w>W2-12){x=12;y+=24;}g.fillRect(x,y-12,w,18);g.fillStyle='#fff';g.font='10px monospace';g.fillText(label,x+3,y+1);x+=w+4;});
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('decompress → original '+(ok?'✓ ('+STR.length+' chars from '+tk.length+' tokens)':'✗'),12,H-10);}
+document.getElementById('lzroll').onclick=function(){var bases=['abcabcabc','the the the cat','mississippi','abababababab','hello hello world','aaaaaaaabbbbbbbb'];STR=bases[Math.floor(Math.random()*bases.length)];drawW4();document.getElementById('lzread').textContent=STR.length+' chars → '+compress(STR,W).length+' tokens';};
+document.getElementById('lzcheck').onclick=function(){var v=verify();document.getElementById('lzread').textContent='300 strings: decompress(compress(s))==s '+(v.roundTrips?'✓':'✗')+' | demo '+v.demoTokens+' tokens';};
+document.getElementById('lzspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;g.clearRect(0,0,W2,H);var tk=compress(STR,W),cy=H/2-10,n=Math.min(STR.length,26),cw=(W2-40)/n;
+ for(var i=0;i<n;i++){g.fillStyle='rgba(120,120,150,0.4)';g.fillRect(20+i*cw,cy,cw-2,14);}
+ var pos=0, ti=0;for(var t=0;t<tk.length&&pos<n;t++){var off=tk[t][0],len=tk[t][1];if(len>0){var from=pos-off;g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(20+pos*cw+cw/2,cy-4+6*Math.sin(ang+t));g.bezierCurveTo(20+pos*cw,cy-40,20+from*cw,cy-40,20+from*cw+cw/2,cy-4);g.stroke();for(var k=0;k<len&&pos<n;k++){g.fillStyle='#a878c0';g.fillRect(20+pos*cw,cy,cw-2,14);pos++;}}else{g.fillStyle='#39fc6b';g.fillRect(20+pos*cw,cy,cw-2,14);pos++;}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green arcs: back-references into the window',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: repeated data never re-stored',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the file describes itself by its own past (→ DEFLATE)',10,H-9);}
+drawW3();drawW4();window.__lz77=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-splay-tree","title":"THE SPLAY TREE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#c0a048","icon":"splay-tree",
+  "kicker":"a search tree that reshapes itself around what you use",
+  "blurb":"the splay tree in the 5-window house format — a self-adjusting binary search tree: every access splays the touched node to the root by rotations, with no balance rules or stored heights, so recently and frequently used keys drift to the top and operations are amortized O(log n). It is a self-optimizing cache in tree form. Verified live: over 300 random operation sequences the in-order traversal stays sorted, the key set matches a reference, every key is found, and after each access that key is at the root. See a splay in 1D, a self-adjusting tree in 2D, and the access-reshapes-the-tree inverse in 3D.",
+  "lit":"Genuine splay tree (Sleator & Tarjan 1985). Verified live: over 300 random insert/access sequences the in-order traversal is sorted, the key multiset equals a reference set, every inserted key is found, and each accessed key ends at the root (window.__splaytree.sorted && .keysMatch && .accessedAtRoot).",
+  "fig":"No framing: the top-down splay, insert/find, and the sorted-order + at-root checks run in-browser and hold exactly. The AVAN inverse is honest — every access splays the touched node to the root so the tree self-adjusts to the workload with no explicit balance rules; magenta is the AVL/red-black conditions never maintained, green the self-adjusting path splayed up. A warm cache built of pointers.",
+  "body":SP_BODY,"script":SP_SCRIPT},
+ {"slug":"the-interpolation-search","title":"THE INTERPOLATION SEARCH","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#c06868","icon":"interpolation-search",
+  "kicker":"guess the position from the value — O(log log n) on uniform data",
+  "blurb":"interpolation search in the 5-window house format — find a value in a sorted array by guessing its position from its value (position proportional to how far x sits between the endpoints), leaping most of the way in one step; O(log log n) expected on uniform data, beating binary search's O(log n). It is how you find a name near the front of a phone book. Verified live: over 400 random sorted arrays it finds every present key, rejects every absent one, and always agrees with binary search on membership. See the value-interpolated probe in 1D, probes leaping to the target in 2D, and the split-by-value inverse in 3D.",
+  "lit":"Genuine interpolation search (Peterson 1957). Verified live: the value-interpolated search finds present keys, rejects absent ones, and agrees with binary search on membership for 400 random sorted arrays with 15 queries each (window.__interpolationsearch.agreesBinary).",
+  "fig":"No framing: the value-interpolated probe, the flat-range divide-by-zero guard, and the binary-search cross-check run in-browser and agree exactly. The AVAN inverse is honest — on roughly uniform data you guess the key's position by its value and jump, splitting by value not index; magenta is the log n midpoints binary search tests, green the value-guided leaps. Use the numbers, not just their order.",
+  "body":IP_BODY,"script":IP_SCRIPT},
+ {"slug":"the-suffix-automaton","title":"THE SUFFIX AUTOMATON","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#58a0b0","icon":"suffix-automaton",
+  "kicker":"the smallest machine recognizing every substring, O(n) states",
+  "blurb":"the suffix automaton in the 5-window house format — the smallest deterministic machine recognizing exactly the substrings of a string, with only O(n) states despite up to n(n+1)/2 substrings; every substring is a path, and equivalent end-positions are merged via suffix links. It counts distinct substrings, answers membership, and finds longest common substrings in linear time. Verified live: over 300 random strings the distinct-substring count Sigma(len - len[link]) equals a brute-force count, and it accepts substrings while rejecting non-substrings. See the length ranges in 1D, states in 2D, and the linear-machine-holds-quadratic-set inverse in 3D.",
+  "lit":"Genuine suffix automaton / DAWG (Blumer et al. 1985). Verified live: the online construction's distinct-substring count Sigma(len - len[link]) over states equals a brute-force substring-set count, and path traversal accepts substrings and rejects non-substrings, for 300 random strings (window.__suffixautomaton.distinctMatches && .membership).",
+  "fig":"No framing: the online construction with suffix links and clones, the distinct-count formula, and the membership check run in-browser and are exact. The AVAN inverse is honest — the minimal automaton merges identically-behaving end-positions so O(n) states encode a quadratic number of substrings, and the distinct count falls out as Sigma(len - len[link]); magenta is the O(n^2) substrings spelled out, green the O(n) states.",
+  "body":SA_BODY,"script":SA_SCRIPT},
+ {"slug":"the-perfect-hash","title":"THE PERFECT HASH","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#70a860","icon":"perfect-hash",
+  "kicker":"zero collisions, O(n) space, one probe per lookup",
+  "blurb":"perfect hashing (the FKS scheme) in the 5-window house format — store a fixed set of n keys with zero collisions and O(n) space using two levels: a top hash spreads keys into n buckets, and each bucket of b keys gets a secondary table of size b^2 with a collision-free hash; Sigma b^2 is O(n) in expectation. Every lookup is a single probe. It builds static dictionaries (keywords, Unicode tables) with guaranteed constant-time lookup. Verified live: over 200 random key sets every key resolves to a unique slot (exact for members, rejecting non-members) and total space stays O(n). See the two levels in 1D, buckets and b^2 secondaries in 2D, and the choose-hashes-with-no-collisions inverse in 3D.",
+  "lit":"Genuine FKS perfect hashing (Fredman, Komlos & Szemeredi 1984). Verified live: the two-level scheme (top hash into n buckets, collision-free b^2 secondaries) gives exact membership for all keys and rejects non-members, with total space <= 6n+5, across 200 random key sets (window.__perfecthash.zeroCollisionLookup && .spaceLinear).",
+  "fig":"No framing: the two-level construction, the collision-free b^2 secondaries, and the lookup + space checks run in-browser and are exact (zero collisions). The AVAN inverse is honest — for a fixed key set the hashes are chosen so there are no collisions, replacing collision-handling with guaranteed unique slots in linear space; magenta is the collision chains never walked, green the unique slot per key. One probe, always.",
+  "body":PH_BODY,"script":PH_SCRIPT},
+ {"slug":"the-lz77","title":"THE LZ77","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#a878c0","icon":"lz77",
+  "kicker":"compress by pointing backward into your own past",
+  "blurb":"LZ77 in the 5-window house format — compress by pointing backward: when upcoming text has already appeared within a sliding window of the recent past, emit a (distance, length) reference to that earlier copy plus the next new character, so the file describes itself in terms of its own history. It is the core of gzip, PNG, and ZIP (LZ77 + Huffman = DEFLATE). Verified live: over 300 random strings decompress(compress(s)) reproduces s exactly, and repetitive text collapses to few tokens (abracadabraabracadabra -> 9 tokens). See a back-reference in 1D, tokenized text in 2D, and the point-back-not-restore inverse in 3D.",
+  "lit":"Genuine LZ77 (Lempel & Ziv 1977). Verified live: the sliding-window compressor and roll-back decompressor round-trip exactly (decompress(compress(s)) == s) for 300 random strings; 'abracadabraabracadabra' compresses to 9 tokens (window.__lz77.roundTrips).",
+  "fig":"No framing: the sliding-window match finder, the token stream, the roll-back decoder, and the round-trip check run in-browser and are exact. The AVAN inverse is honest — repetition is stored as a (distance, length) pointer into the window rather than re-emitted, and decompression rolls back to the referenced position and copies forward; magenta is the repeated data never re-stored, green the back-reference. The seed of gzip/DEFLATE.",
+  "body":LZ_BODY,"script":LZ_SCRIPT},
  {"slug":"the-baby-step-giant-step","title":"THE BABY-STEP GIANT-STEP","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#c06868","icon":"baby-step-giant-step",
   "kicker":"discrete log by meeting in the middle, O(sqrt n)",
