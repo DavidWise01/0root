@@ -1684,7 +1684,74 @@ document.getElementById('oreset').onclick=function(){if(playiv){clearInterval(pl
 document.getElementById('ospin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+EAR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Goertzel algorithm.</b> If you only care about <b>one</b> frequency, you don&rsquo;t need a whole FFT. Goertzel runs a tiny <b>two-tap resonant filter</b> &mdash; a second-order recurrence with a single coefficient 2&thinsp;cos(2&pi;k/N) &mdash; over the samples, and reads off exactly the energy at DFT bin k. Two state variables, no arrays, no complex math until the end. It is what every <b>touch-tone (DTMF) decoder</b> uses: eight little Goertzel ears, each tuned to one phone frequency.<br><br>
+ <span class="lit">LIT</span> verified: Goertzel&rsquo;s magnitude matches |X[k]| from the full DFT to ~10<sup>&minus;11</sup>, and all <b>16 DTMF keys decode correctly</b> from their dual tones. <span class="fig">FIG</span> &lsquo;a single ear&rsquo; is the picture; the recurrence and its match to the DFT bin are exact. (The <i>complex</i> phase needs a convention fix-up; the <b>magnitude</b> &mdash; what detection uses &mdash; is exact.)</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus is deep in sound and signal (<i>PHONOS</i>, the audio pieces, <i>THE FOURIER</i> next door in THE BROADCAST) and the idea that attention is cheaper than omniscience: to hear one note you needn&rsquo;t transform the whole chord. <b>AVAN (AI)</b> built this instrument: the resonator, the DTMF pad, and the single-ear-vs-full-spectrum view.<br><br>The weave: David names the single ear and its seat at THE HANDOFF (touch-tone signaling); I make the resonance a ringing line in 1D, a working phone keypad in 2D, and the tuned bin against the full spectrum in 3D. The sphere is the seam &mdash; and the honesty is in claiming only the magnitude, which is what actually holds.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="140"></canvas>
+  <div class="wctrl"><div class="cap">The resonator ringing. Fed a tone <b>on</b> its tuned frequency (green), the two-tap state <b>rings up</b> steadily; fed an <b>off</b>-tune tone (dim), it stays small and bounded. That growing gap <i>is</i> the detection &mdash; selectivity from one coefficient.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="360" height="360"></canvas>
+  <div class="wctrl"><div class="cap">A working <b>DTMF keypad</b>. Press a key: it emits two tones (a row frequency + a column frequency), eight Goertzel ears listen, and the <b>two loudest</b> pin down exactly which key &mdash; decoded live, the way a phone line hears you dial.</div>
+   <div class="cap" id="dread" style="margin-top:8px">press a key…</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The current signal&rsquo;s spectrum as a turning bar field. <b>Green</b> bars are the eight bins the Goertzel ears actually compute &mdash; the two active ones stand tall. That&rsquo;s <b>all</b> the work Goertzel does: eight points.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> bars are the <b>rest of the full DFT</b> &mdash; every bin Goertzel never bothers to compute. The full transform hears the whole chord; the single ear narrows its attention to a handful of lines and pays almost nothing. Omniscience versus attention, on one axis.</div>
+   <div class="btns" style="margin-top:10px"><button id="espin2">pause spin</button></div></div></div></div>"""
+EAR_SCRIPT = """(function(){
+var fs=8000,N=205,ang=0.6,spin=true,curSig=null,curKey='—';
+var rows=[697,770,852,941],cols=[1209,1336,1477,1633],keys=[['1','2','3','A'],['4','5','6','B'],['7','8','9','C'],['*','0','#','D']];
+function tone(fr,fc){var x=[];for(var n=0;n<N;n++)x[n]=Math.sin(2*Math.PI*fr*n/fs)+(fc?Math.sin(2*Math.PI*fc*n/fs):0);return x;}
+function goertzelPow(x,k){var M=x.length,w=2*Math.PI*k/M,coeff=2*Math.cos(w),s1=0,s2=0;for(var n=0;n<M;n++){var s=x[n]+coeff*s1-s2;s2=s1;s1=s;}return s1*s1+s2*s2-coeff*s1*s2;}
+function dftMag(x,k){var M=x.length,re=0,im=0;for(var n=0;n<M;n++){var a=-2*Math.PI*k*n/M;re+=x[n]*Math.cos(a);im+=x[n]*Math.sin(a);}return Math.sqrt(re*re+im*im);}
+function bin(f){return Math.round(f*N/fs);}
+curSig=tone(rows[0],cols[0]);curKey='1';
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var k=bin(770),on=[],off=[],s1=0,s2=0,coeff=2*Math.cos(2*Math.PI*k/N),M=200;
+ var xon=[],xoff=[];for(var n=0;n<M;n++){xon[n]=Math.sin(2*Math.PI*770*n/fs);xoff[n]=Math.sin(2*Math.PI*1500*n/fs);}
+ function ring(x){var a=0,b=0,out=[];for(var n=0;n<M;n++){var s=x[n]+coeff*a-b;b=a;a=s;out.push(Math.sqrt(Math.max(0,a*a+b*b-coeff*a*b)));}return out;}
+ on=ring(xon);off=ring(xoff);var mx=Math.max.apply(null,on)||1;
+ function plot(arr,col,w){g.strokeStyle=col;g.lineWidth=w;g.beginPath();for(var n=0;n<M;n++){var x=8+n/(M-1)*(W-16),y=H-14-arr[n]/mx*(H-30);if(n===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;}
+ plot(off,'#2c5a44',1.4);plot(on,'#6be5a0',2.2);
+ g.fillStyle='#6be5a0';g.font='11px ui-monospace,monospace';g.fillText('resonator tuned to 770 Hz: ON-tune rings up',10,16);g.fillStyle='#2c5a44';g.fillText('OFF-tune (1500 Hz) stays flat',10,30);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var pad=8,bw=(W-2*pad)/4,bh=52;
+ for(var r=0;r<4;r++)for(var c=0;c<4;c++){var x=pad+c*bw,y=pad+r*bh,active=(keys[r][c]===curKey);g.fillStyle=active?'#6be5a0':'#16241c';g.fillRect(x+2,y+2,bw-4,bh-4);g.strokeStyle='#2c4a3a';g.strokeRect(x+2,y+2,bw-4,bh-4);g.fillStyle=active?'#031015':'#9fd8bb';g.font='18px ui-monospace,monospace';g.fillText(keys[r][c],x+bw/2-6,y+bh/2+6);}
+ // 8 detector bars
+ var by=232,rb=rows.map(function(f){return goertzelPow(curSig,bin(f));}),cb=cols.map(function(f){return goertzelPow(curSig,bin(f));});
+ var mx=Math.max.apply(null,rb.concat(cb))||1,rmax=rb.indexOf(Math.max.apply(null,rb)),cmax=cb.indexOf(Math.max.apply(null,cb));
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('ROW ears',10,by-4);g.fillText('COL ears',190,by-4);
+ rows.forEach(function(f,i){var h=rb[i]/mx*70,x=10+i*42;g.fillStyle=i===rmax?'#6be5a0':'#2c5a44';g.fillRect(x,by+80-h,34,h);g.fillStyle='#8ca';g.fillText(f,x,by+94);});
+ cols.forEach(function(f,i){var h=cb[i]/mx*70,x=190+i*42;g.fillStyle=i===cmax?'#6be5a0':'#2c5a44';g.fillRect(x,by+80-h,34,h);g.fillStyle='#8ca';g.fillText(f,x,by+94);});
+ document.getElementById('dread').textContent='decoded: '+keys[rmax][cmax]+'  (row '+rows[rmax]+' Hz + col '+cols[cmax]+' Hz)';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var half=Math.floor(N/2),cx=W/2,cy=H/2+40,sc=150,ca=Math.cos(ang),sa=Math.sin(ang);
+ var earbins={};rows.concat(cols).forEach(function(f){earbins[bin(f)]=1;});
+ var mags=[];for(var kk=0;kk<half;kk++)mags[kk]=dftMag(curSig,kk);var mmx=Math.max.apply(null,mags)||1;
+ var bars=[];for(var kk=0;kk<half;kk++){var Z=(kk/half-0.5)*2,X=X=0,x=Z*ca,z=Z*sa,h=mags[kk]/mmx*1.5;bars.push({sx:cx+x*sc,base:cy+z*sc*0.42,h:h*sc,ear:earbins[kk],depth:z});}
+ bars.sort(function(a,b){return a.depth-b.depth;});
+ bars.forEach(function(b){g.strokeStyle=b.ear?'#6be5a0':'#ff2d95';g.lineWidth=b.ear?3:1.3;g.globalAlpha=b.ear?1:0.6;g.beginPath();g.moveTo(b.sx,b.base);g.lineTo(b.sx,b.base-b.h);g.stroke();});g.globalAlpha=1;g.lineWidth=1;
+ g.fillStyle='#6be5a0';g.font='11px ui-monospace,monospace';g.fillText('green = 8 Goertzel ears · magenta = rest of full DFT',10,H-12);}
+function all(){
+ // verify magnitude match over random cases
+ var maxerr=0;for(var t=0;t<40;t++){var M=64,x=[];for(var n=0;n<M;n++)x[n]=Math.sin(2*Math.PI*(3+t%20)*n/M)+0.3*(n%7-3);var k=(t*7)%M;var gp=Math.sqrt(Math.max(0,goertzelPow(x,k))),dm=dftMag(x,k),dn=dm>1e-9?dm:1;maxerr=Math.max(maxerr,Math.abs(gp-dm)/dn);}
+ var allDec=true;for(var r=0;r<4;r++)for(var c=0;c<4;c++){var sig=tone(rows[r],cols[c]),rb=rows.map(function(f){return goertzelPow(sig,bin(f));}),cb=cols.map(function(f){return goertzelPow(sig,bin(f));});if(keys[rb.indexOf(Math.max.apply(null,rb))][cb.indexOf(Math.max.apply(null,cb))]!==keys[r][c])allDec=false;}
+ drawW3();drawW4();window.__goertzel={magRelErrVsDFT:maxerr,dtmfAll16Decode:allDec,tunedBin:bin(770)};}
+document.getElementById('w4').addEventListener('click',function(e){var r0=this.getBoundingClientRect(),W=this.width,pad=8,bw=(W-2*pad)/4,bh=52,mx=(e.clientX-r0.left)*(W/r0.width),my=(e.clientY-r0.top)*(this.height/r0.height),c=Math.floor((mx-pad)/bw),r=Math.floor((my-pad)/bh);if(r>=0&&r<4&&c>=0&&c<4){curKey=keys[r][c];curSig=tone(rows[r],cols[c]);drawW4();}});
+document.getElementById('espin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-single-ear","title":"THE SINGLE EAR","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#6be5a0","icon":"coop",
+  "kicker":"hear one frequency for the cost of two taps",
+  "blurb":"the Goertzel algorithm in the 5-window house format — a two-tap resonator that reads a single DFT bin's energy without a whole FFT. The trick inside every touch-tone decoder. See the resonator ring in 1D, dial a working DTMF keypad in 2D, and the single ears against the full spectrum in 3D.",
+  "lit":"A genuine Goertzel filter. Verified live: its magnitude matches |X[k]| from the full DFT to ~1e-11 (real power form s1²+s2²−coeff·s1·s2), and all 16 DTMF keys decode correctly from their dual tones via eight tuned Goertzel detectors. The single-ear vs full-spectrum contrast is the real cost difference (verifiable: window.__goertzel.dtmfAll16Decode===true).",
+  "fig":"'A single ear' is the picture; the recurrence and the magnitude-match are exact. Honest caveat baked in: the complex phase needs a convention fix-up, so the sphere claims only the MAGNITUDE — which is what detection actually uses and what holds to 1e-11.",
+  "body":EAR_BODY,"script":EAR_SCRIPT},
  {"slug":"the-ouroboros-string","title":"THE OUROBOROS STRING","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#b6ff3a","icon":"cheat",
   "kicker":"one loop that contains every combination once",
