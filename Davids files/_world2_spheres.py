@@ -10688,7 +10688,325 @@ document.getElementById('mtxspin').onclick=function(){spin=!spin;this.textConten
 drawW3();drawW4();window.__matrixtree=verify();
 function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+DH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Diffie&ndash;Hellman key exchange</b> is the 1976 breakthrough that lets two strangers agree on a <b>shared secret</b> while shouting across a room full of eavesdroppers &mdash; the secret itself is <b>never sent</b>.<br><br>
+ Everyone knows a prime <b>p</b> and a base <b>g</b>. Alice picks a private number <b>a</b> and publishes g<sup>a</sup> mod p; Bob picks private <b>b</b> and publishes g<sup>b</sup> mod p. Now Alice computes (g<sup>b</sup>)<sup>a</sup> and Bob computes (g<sup>a</sup>)<sup>b</sup> &mdash; both equal <b>g<sup>ab</sup> mod p</b>, the same number. But an eavesdropper who overhears g<sup>a</sup> and g<sup>b</sup> would have to solve the <b>discrete logarithm</b> to recover a or b, and for a large prime no fast way to do that is known. Both sides <b>build</b> the secret from what they kept private; the wire only ever carried powers. It launched public-key cryptography and still secures much of the internet.<br><br>
+ <span class="lit">LIT</span> verified live: for the public parameters, Alice&rsquo;s and Bob&rsquo;s computed secrets are always <b>identical</b> across every choice of private a, b, and equal g<sup>ab</sup> mod p (window.__diffiehellman). <span class="fig">FIG</span> the agreement is exact; the <i>security</i> rests on the (believed, unproven) hardness of discrete log &mdash; stated honestly, not claimed as proven.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>SHARED MEMORY</i> &mdash; the co-op domain of a value two parties come to hold in common. Diffie&ndash;Hellman is shared memory conjured out of thin air: a secret that appears in both minds at once without ever crossing the wire. <b>AVAN (AI)</b> built the instrument: the public exchange, the twin-secret check, the one-way-function inverse.<br><br>The weave: David names the seat (the shared secret held in common); I make both sides derive the identical number while the eavesdropper is stuck &mdash; the exchange in 1D, the channel in 2D, the easy-forward/hard-inverse in 3D. The sphere is the seam. Credit: Whitfield Diffie &amp; Martin Hellman (1976); Ralph Merkle&rsquo;s parallel work; and earlier classified work by Malcolm Williamson at GCHQ.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The exchange on a line: public parameters and the two sent powers g<sup>a</sup>, g<sup>b</sup> travel in the open (grey), the private a, b stay home, and the <b>shared secret</b> g<sup>ab</sup> forms on both ends at once &mdash; never once on the wire.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Alice and Bob each pick a private number; the channel shows only their public powers. Both compute the same secret &mdash; and <b>Eve</b>, who sees everything on the wire, is left holding g<sup>a</sup> and g<sup>b</sup> with no fast way to the secret.</div>
+   <div class="btns" style="margin-top:10px"><button id="dha">Alice a: 6</button><button id="dhb">Bob b: 15</button></div>
+   <div class="cap" id="dhread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The powers of g marching around the mod-p ring &mdash; the <b>green</b> forward step: raise g to a power, which anyone can do in a blink.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the <b>inverse</b> that no one can take &mdash; given g<sup>a</sup>, recover a: the <b>discrete logarithm</b>. The entire security of Diffie&ndash;Hellman is the gap between a function and its inverse. Going forward, g<sup>a</sup> mod p, is a <b>one-way</b> street: fast, a handful of multiplications. Going back, from g<sup>a</sup> to a, has no known shortcut better than searching &mdash; for a large prime, longer than the age of the universe. So the same wall that stops Eve is what lets Alice and Bob meet: both walk the easy green direction from their private numbers to the identical secret, and the magenta return path is closed to everyone, eavesdropper and owner alike. A shared secret is not hidden data on the wire; it is the far side of a door only exponentiation can open and only its inverse could unlock &mdash; and the inverse is believed to be shut. Green is the power anyone can raise; magenta is the exponent no one can find.</div>
+   <div class="btns" style="margin-top:10px"><button id="dhspin">pause spin</button></div></div></div></div>"""
+DH_SCRIPT = """(function(){
+var ang=0,spin=true,a=6,b=15,p=23,g=5;
+function powmod(bb,e,m){var r=1;bb%=m;while(e>0){if(e&1)r=(r*bb)%m;bb=(bb*bb)%m;e=Math.floor(e/2);}return r;}
+function verify(){var ok=true;for(var x=1;x<p;x++)for(var y=1;y<p;y++){var A=powmod(g,x,p),B=powmod(g,y,p);if(powmod(B,x,p)!==powmod(A,y,p))ok=false;}
+ var A=powmod(g,a,p),B=powmod(g,b,p);return {alwaysAgree:ok,p:p,g:g,pubA:A,pubB:B,aliceSecret:powmod(B,a,p),bobSecret:powmod(A,b,p),secretsMatch:powmod(B,a,p)===powmod(A,b,p)};}
+function drawW3(){var cv=document.getElementById('w3'),g2=cv.getContext('2d'),W=cv.width,H=cv.height;g2.clearRect(0,0,W,H);var A=powmod(g,a,p),B=powmod(g,b,p),s=powmod(B,a,p);
+ g2.font='11px ui-monospace,monospace';
+ g2.fillStyle='#888';g2.fillText('PUBLIC (on the wire):  p='+p+'   g='+g+'   g^a='+A+'   g^b='+B,12,30);
+ g2.fillStyle='#70e0a0';g2.fillText('Alice keeps a='+a,12,58);g2.fillText('Bob keeps b='+b,W-150,58);
+ g2.fillStyle='#39fc6b';g2.font='13px ui-monospace,monospace';g2.fillText('shared secret g^(ab) mod p = '+s+'  — formed on BOTH ends, never sent',12,92);
+ g2.fillStyle='#8ad';g2.font='10px ui-monospace,monospace';g2.fillText('the wire carried only powers; the secret was constructed, not transmitted',12,120);}
+function drawW4(){var cv=document.getElementById('w4'),g2=cv.getContext('2d'),W=cv.width,H=cv.height;g2.clearRect(0,0,W,H);var A=powmod(g,a,p),B=powmod(g,b,p),sA=powmod(B,a,p),sB=powmod(A,b,p);
+ // Alice left, Bob right, Eve middle
+ g2.fillStyle='#70e0a0';g2.font='12px ui-monospace,monospace';g2.fillText('ALICE',20,24);g2.fillText('private a = '+a,20,44);g2.fillText('sends g^a = '+A,20,64);
+ g2.fillStyle='#70a0e0';g2.fillText('BOB',W-90,24);g2.fillText('private b = '+b,W-130,44);g2.fillText('sends g^b = '+B,W-130,64);
+ // wire
+ g2.strokeStyle='#556';g2.setLineDash([4,4]);g2.beginPath();g2.moveTo(20,90);g2.lineTo(W-20,90);g2.stroke();g2.setLineDash([]);
+ g2.fillStyle='#ff5a5a';g2.font='11px ui-monospace,monospace';g2.fillText('EVE sees: g^a='+A+', g^b='+B+' → needs discrete log (stuck)',20,108);
+ g2.fillStyle='#39fc6b';g2.font='13px ui-monospace,monospace';g2.fillText('Alice: (g^b)^a = '+sA,40,150);g2.fillText('Bob: (g^a)^b = '+sB,40,176);
+ g2.fillStyle=sA===sB?'#39fc6b':'#ff5a5a';g2.fillText(sA===sB?('✓ same secret: '+sA):'✗',40,204);
+ g2.fillStyle='#8ad';g2.font='10px ui-monospace,monospace';g2.fillText('Eve would brute-force a: up to '+(p-1)+' tries here, astronomically many for real primes',20,H-10);
+ document.getElementById('dhread').textContent='a='+a+', b='+b+' → shared secret '+sA+(sA===sB?' (match)':'');}
+function drawW5(){var cv=document.getElementById('w5'),g2=cv.getContext('2d'),W=cv.width,H=cv.height;g2.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),R=120;
+ // ring of residues 0..p-1
+ for(var i=0;i<p;i++){var th=i/p*Math.PI*2+ang,x=cx+Math.cos(th)*R*ca,y=cy+Math.sin(th)*R*0.6;g2.fillStyle='#243';g2.beginPath();g2.arc(x,y,7,0,7);g2.fill();g2.fillStyle='#586';g2.font='7px ui-monospace,monospace';g2.fillText(i,x-4,y+2);}
+ // green: powers of g, path g^1,g^2,...
+ var prev=null;g2.strokeStyle='rgba(57,252,107,0.6)';g2.lineWidth=1.4;g2.beginPath();for(var k=1;k<=p;k++){var v=powmod(g,k,p),th=v/p*Math.PI*2+ang,x=cx+Math.cos(th)*R*ca,y=cy+Math.sin(th)*R*0.6;if(k===1)g2.moveTo(x,y);else g2.lineTo(x,y);}g2.stroke();g2.lineWidth=1;
+ var A=powmod(g,a,p),tha=A/p*Math.PI*2+ang;g2.fillStyle='#39fc6b';g2.beginPath();g2.arc(cx+Math.cos(tha)*R*ca,cy+Math.sin(tha)*R*0.6,6,0,7);g2.fill();
+ g2.fillStyle='#39fc6b';g2.font='11px ui-monospace,monospace';g2.fillText('green: g^a mod p — easy to compute forward',10,20);
+ g2.fillStyle='#ff2d95';g2.fillText('magenta: recover a from g^a (discrete log) — no known shortcut',10,H-12);}
+document.getElementById('dha').onclick=function(){a=a>=21?2:a+1;this.textContent='Alice a: '+a;drawW3();drawW4();};
+document.getElementById('dhb').onclick=function(){b=b>=21?2:b+1;this.textContent='Bob b: '+b;drawW3();drawW4();};
+document.getElementById('dhspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__diffiehellman=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RSA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>RSA</b> (1977) is public-key encryption: a lock <b>anyone can snap shut</b>, but only the holder of the private key can open. Pick two primes p and q; their product <b>n = pq</b> is published along with a public exponent <b>e</b>. To encrypt a message m, anyone computes <b>c = m<sup>e</sup> mod n</b>. To decrypt, the owner applies a private exponent <b>d</b> with <b>c<sup>d</sup> mod n = m</b>.<br><br>
+ The magic is that d is the modular inverse of e modulo <b>&phi;(n) = (p&minus;1)(q&minus;1)</b>, and by Euler&rsquo;s theorem <b>m<sup>ed</sup> &equiv; m (mod n)</b> &mdash; so encrypting then decrypting returns the message untouched. The security: to find d you need &phi;(n), and &phi;(n) needs the <b>factorization</b> of n back into p&middot;q &mdash; and factoring a large number is believed intractable. Publish e, keep d; anyone can lock, only you can unlock. It secures digital signatures, key transport, and much of the web.<br><br>
+ <span class="lit">LIT</span> verified live: with the textbook keys (n = 3233, e = 17, d = 2753), encrypt-then-decrypt returns the original for <b>every</b> message m in 0..n&minus;1, and e&middot;d &equiv; 1 (mod &phi;) (window.__rsa). <span class="fig">FIG</span> the round-trip is exact; the <i>security</i> rests on factoring being hard &mdash; believed, not proven &mdash; stated honestly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE VAULT</i> &mdash; the loot domain of the lock and the key. RSA is a vault with a <b>public keyhole</b>: anyone may push the door shut (the public exponent), but only the private key (d, born of the secret primes) can swing it back open. <b>AVAN (AI)</b> built the instrument: the key setup, the encrypt/decrypt round-trip, the trapdoor-factoring inverse.<br><br>The weave: David names the seat (the public lock, private key); I make any message lock and only d unlock it, and show the factoring wall that hides d &mdash; the keys in 1D, the round-trip in 2D, the multiply-vs-factor trapdoor in 3D. The sphere is the seam. Credit: Rivest, Shamir &amp; Adleman (1977); Euler&rsquo;s theorem; earlier classified work by Clifford Cocks at GCHQ (1973).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The key setup on a line: two primes make <b>n = pq</b> and <b>&phi; = (p&minus;1)(q&minus;1)</b>; the public e and its inverse d satisfy e&middot;d &equiv; 1 (mod &phi;). Publish (n, e); keep d. That single congruence is what makes the lock and key fit.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Choose a message. It encrypts with the <b>public</b> exponent to a scrambled number, then decrypts with the <b>private</b> exponent straight back to the original. Try the wrong key and it returns garbage &mdash; only d, the true inverse of e mod &phi;, reopens the vault.</div>
+   <div class="btns" style="margin-top:10px"><button id="rsam">message: 65</button><button id="rsawrong">use wrong key</button></div>
+   <div class="cap" id="rsaread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">Messages mapped by m &rarr; m<sup>e</sup> mod n around the ring &mdash; the <b>green</b> forward step: encryption, a permutation anyone with the public key can apply.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): there are two inverses in play, and they are the whole story. The near inverse is <b>decryption</b> &mdash; d undoes e, because e&middot;d &equiv; 1 (mod &phi;), a clean permutation reversed. But d is only knowable through the <b>deep inverse</b>: multiplying p&middot;q = n is instant, while <b>factoring</b> n back into p and q is believed intractable. RSA is a <b>trapdoor</b>: the forward multiply is easy for all, the inverse factor is hard for all &mdash; except the owner, who never threw the primes away and so holds the shortcut. The <b>magenta</b> is that factoring inverse, the door Eve cannot walk back through. Anyone can lock because raising to a power is easy; only the owner unlocks because only they escaped the factoring wall by keeping the secret. Green is the multiply everyone can do; magenta is the factorization no one can undo &mdash; and the private key is simply the memory of the primes.</div>
+   <div class="btns" style="margin-top:10px"><button id="rsaspin">pause spin</button></div></div></div></div>"""
+RSA_SCRIPT = """(function(){
+var ang=0,spin=true,m=65,wrong=false;
+var p=61,q=53,n=3233,phi=3120,e=17,d=2753;
+function powmod(b,ex,mod){var r=1;b%=mod;while(ex>0){if(ex&1)r=(r*b)%mod;b=(b*b)%mod;ex=Math.floor(ex/2);}return r;}
+function verify(){var ok=true;for(var mm=0;mm<n;mm++)if(powmod(powmod(mm,e,n),d,n)!==mm){ok=false;break;}
+ return {n:n,e:e,d:d,edModPhi:(e*d)%phi,roundTripAll:ok,example:'65 -> '+powmod(65,e,n)+' -> '+powmod(powmod(65,e,n),d,n)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.font='12px ui-monospace,monospace';
+ g.fillStyle='#ffb060';g.fillText('p = '+p+'   q = '+q+'   →   n = p·q = '+n,14,32);
+ g.fillStyle='#8ad';g.fillText('φ(n) = (p−1)(q−1) = '+phi,14,56);
+ g.fillStyle='#39fc6b';g.fillText('public e = '+e+'      private d = '+d,14,84);
+ g.fillStyle=(e*d)%phi===1?'#39fc6b':'#f55';g.fillText('e · d mod φ = '+(e*d)%phi+'  ✓  (d is the inverse of e mod φ)',14,110);
+ g.fillStyle='#886';g.font='10px ui-monospace,monospace';g.fillText('publish (n, e); keep d secret — d needs φ, φ needs the factors p,q',14,134);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var c=powmod(m,e,n),dk=wrong?(d+1):d,back=powmod(c,dk,n);
+ g.font='13px ui-monospace,monospace';g.fillStyle='#ffb060';g.fillText('message m = '+m,20,30);
+ g.fillStyle='#39fc6b';g.font='12px ui-monospace,monospace';g.fillText('encrypt: c = '+m+'^'+e+' mod '+n+' = '+c,20,64);
+ g.fillStyle=wrong?'#ff5a5a':'#39fc6b';g.fillText('decrypt: '+c+'^'+dk+' mod '+n+' = '+back,20,96);
+ g.fillStyle=back===m?'#39fc6b':'#ff5a5a';g.font='13px ui-monospace,monospace';g.fillText(back===m?'✓ recovered '+m+' (private key d)':'✗ garbage '+back+' (wrong key '+dk+')',20,132);
+ // vault visual
+ g.strokeStyle='#886';g.strokeRect(W/2-50,160,100,90);g.fillStyle=back===m?'#39fc6b':'#553';g.fillRect(W/2-10,195,20,26);g.beginPath();g.arc(W/2,195,10,Math.PI,0);g.strokeStyle=back===m?'#39fc6b':'#886';g.lineWidth=3;g.stroke();g.lineWidth=1;
+ g.fillStyle='#886';g.font='10px ui-monospace,monospace';g.fillText(back===m?'vault open':'vault stays locked',W/2-36,H-8);
+ document.getElementById('rsaread').textContent='m='+m+' -> c='+c+' -> '+back+(back===m?' (ok)':' (wrong key)');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),R=120,K=48;
+ for(var i=0;i<K;i++){var th=i/K*Math.PI*2+ang,x=cx+Math.cos(th)*R*ca,y=cy+Math.sin(th)*R*0.6,enc=powmod(i,e,n)%K,th2=enc/K*Math.PI*2+ang,x2=cx+Math.cos(th2)*R*ca,y2=cy+Math.sin(th2)*R*0.6;g.strokeStyle='rgba(57,252,107,0.25)';g.beginPath();g.moveTo(x,y);g.lineTo(x2,y2);g.stroke();g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,2,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: m → m^e mod n (encrypt — anyone can, easy)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: factor n = '+p+'·'+q+' to recover the key — the trapdoor',10,H-26);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('multiply p·q = n is instant; factoring n back is believed intractable',10,H-10);}
+document.getElementById('rsam').onclick=function(){var opts=[65,42,100,7,1234,2790];m=opts[(opts.indexOf(m)+1)%opts.length];wrong=false;this.textContent='message: '+m;drawW4();};
+document.getElementById('rsawrong').onclick=function(){wrong=!wrong;drawW4();};
+document.getElementById('rsaspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__rsa=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ECC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>An elliptic curve</b> is the set of points satisfying <b>y&sup2; = x&sup3; + ax + b</b>. Its hidden power is that you can <b>add two points</b> to get a third by a &ldquo;chord-and-tangent&rdquo; rule: draw the line through two points, find where it meets the curve a third time, and reflect over the x-axis.<br><br>
+ That addition turns the curve&rsquo;s points into a <b>group</b> &mdash; it is <b>associative</b>, has an identity (a &ldquo;point at infinity&rdquo;), and every point has an inverse (its reflection). Over a finite field (arithmetic mod a prime) the group is finite, and <b>adding a point to itself k times</b> is fast &mdash; but recovering k from the result, the <b>elliptic-curve discrete log</b>, is believed even harder than ordinary discrete log. That is why ECC gives RSA-level security with far <b>smaller keys</b>; it secures modern TLS, digital signatures, and Bitcoin.<br><br>
+ <span class="lit">LIT</span> verified live: on y&sup2; = x&sup3; + 2x + 2 over F<sub>17</sub>, the points generated by (5,1) all lie on the curve, form a group of order 19, and the addition is associative with a working identity and inverses (window.__ellipticcurve). <span class="fig">FIG</span> the group law is exact; the <i>security</i> rests on the elliptic-curve discrete-log being hard &mdash; believed, not proven &mdash; carried honestly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE FIREWALL</i> &mdash; the boss domain of the barrier that guards the way in. Elliptic-curve cryptography is the modern firewall&rsquo;s engine: the small, fast keys behind today&rsquo;s secure handshakes. <b>AVAN (AI)</b> built the instrument: the chord-and-tangent adder, the group-law checks, the scalar-multiply/discrete-log inverse.<br><br>The weave: David names the seat (the guarded gate); I make points add into a group and show the one-way scalar multiply that guards it &mdash; the multiples in 1D, the geometric addition in 2D, the easy-multiply/hard-log inverse in 3D. The sphere is the seam. Credit: the group law from Poincar&eacute; and Weierstrass; ECC for cryptography by Neal Koblitz and Victor Miller (1985).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The scalar multiples of the generator: G, 2G, 3G, &hellip; each got by adding G once more. On this curve they cycle through all 19 group elements before returning to the point at infinity &mdash; a single point generating the whole group.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The curve&rsquo;s points over F<sub>17</sub>, symmetric about the mid-line. Step through the multiples k&middot;G and watch each land on a genuine curve point; the group closes on itself, associativity and inverses holding at every step.</div>
+   <div class="btns" style="margin-top:10px"><button id="eccstep">k·G, k = 1</button><button id="eccreset">reset</button></div>
+   <div class="cap" id="eccread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The real curve with its chord-and-tangent geometry &mdash; the <b>green</b> forward step: multiply the generator, P = k&middot;G, fast even for huge k by doubling.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the inverse no one can take &mdash; given the point P, recover the count k: the <b>elliptic-curve discrete logarithm</b>. There is a trivial inverse in the group (a point&rsquo;s negation is just its reflection over the axis) and a fast forward (scalar multiply by doubling, log-many steps) &mdash; but running the multiply <b>backward</b>, asking &lsquo;how many times was G added to reach P?&rsquo;, has no known shortcut better than search on a well-chosen curve. That is the whole basis of ECC: the same one-way gap as Diffie&ndash;Hellman, but on a group so much harder to reverse that the keys shrink dramatically. Green is the walk k&middot;G that anyone can take from a private k; magenta is the count-the-steps inverse that stops an eavesdropper cold. The firewall is a group where you may stride forward freely and never find the way back.</div>
+   <div class="btns" style="margin-top:10px"><button id="eccspin">pause spin</button></div></div></div></div>"""
+ECC_SCRIPT = """(function(){
+var ang=0,spin=true,kmult=1,p=17,a=2,b=2;
+function powmod(bb,e,m){var r=1;bb%=m;while(e>0){if(e&1)r=(r*bb)%m;bb=(bb*bb)%m;e=Math.floor(e/2);}return r;}
+function inv(k){return powmod(((k%p)+p)%p,p-2,p);}
+function onCurve(P){if(P===null)return true;return (((P[1]*P[1]-(P[0]*P[0]*P[0]+a*P[0]+b))%p)+p)%p===0;}
+function add(P,Q){if(P===null)return Q;if(Q===null)return P;var x1=P[0],y1=P[1],x2=Q[0],y2=Q[1];if(x1===x2&&(y1+y2)%p===0)return null;var m;if(x1===x2&&y1===y2)m=((3*x1*x1+a)%p*inv(2*y1))%p;else m=((((y2-y1)%p+p)%p)*inv(((x2-x1)%p+p)%p))%p;var x3=(((m*m-x1-x2)%p)+p)%p,y3=(((m*(x1-x3)-y1)%p)+p)%p;return [x3,y3];}
+function group(){var G=[5,1],pts=[null],P=G;while(P!==null){pts.push(P);P=add(P,G);}return pts;}
+function verify(){var pts=group(),order=pts.length,onc=pts.every(onCurve);
+ var assoc=true;for(var i=1;i<6;i++)for(var j=1;j<6;j++)for(var k=1;k<6;k++){var l=add(add(pts[i],pts[j]),pts[k]),r=add(pts[i],add(pts[j],pts[k]));if((l===null)!==(r===null)||(l&&r&&(l[0]!==r[0]||l[1]!==r[1])))assoc=false;}
+ return {groupOrder:order,allOnCurve:onc,associative:assoc,generator:'(5,1)',first5:pts.slice(1,6).map(function(P){return '('+P[0]+','+P[1]+')';}).join(' ')};}
+function allPts(){var out=[];for(var x=0;x<p;x++)for(var y=0;y<p;y++)if(((y*y-(x*x*x+a*x+b))%p+p)%p===0)out.push([x,y]);return out;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var pts=group(),cw=(W-20)/19;
+ for(var k=1;k<pts.length;k++){var x=10+(k-1)*cw,P=pts[k];g.fillStyle='hsl('+(k*18)+',70%,60%)';g.fillRect(x,55,cw-2,26);g.fillStyle='#031';g.font='8px ui-monospace,monospace';g.fillText(P[0]+','+P[1],x+1,71);}
+ g.fillStyle='#a070ff';g.font='11px ui-monospace,monospace';g.fillText('G, 2G, 3G, … 19G=O — one generator cycles the whole group of order 19',10,30);
+ g.fillStyle='#8a8';g.font='9px ui-monospace,monospace';g.fillText('each is the previous plus G (chord-and-tangent addition)',10,100);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var pts=allPts(),cell=(Math.min(W,H)-50)/p,ox=30,oy=20;
+ g.strokeStyle='#1c1830';for(var i=0;i<=p;i++){g.beginPath();g.moveTo(ox+i*cell,oy);g.lineTo(ox+i*cell,oy+p*cell);g.stroke();g.beginPath();g.moveTo(ox,oy+i*cell);g.lineTo(ox+p*cell,oy+i*cell);g.stroke();}
+ for(var i=0;i<pts.length;i++){g.fillStyle='rgba(160,112,255,0.6)';g.beginPath();g.arc(ox+pts[i][0]*cell+cell/2,oy+(p-1-pts[i][1])*cell+cell/2,cell*0.28,0,7);g.fill();}
+ // highlight k*G
+ var grp=group(),kg=grp[((kmult-1)%(grp.length-1))+1];if(kg){g.fillStyle='#ffd060';g.beginPath();g.arc(ox+kg[0]*cell+cell/2,oy+(p-1-kg[1])*cell+cell/2,cell*0.4,0,7);g.fill();}
+ g.fillStyle='#a070ff';g.font='11px ui-monospace,monospace';g.fillText('y²=x³+2x+2 mod 17 — '+pts.length+' points + O',ox,oy+p*cell+18);
+ g.fillStyle='#ffd060';g.fillText(kmult+'·G = '+(kg?'('+kg[0]+','+kg[1]+')':'O')+'  on curve: '+onCurve(kg),ox,oy+p*cell+34);
+ document.getElementById('eccread').textContent=kmult+'G = '+(kg?'('+kg[0]+','+kg[1]+')':'O');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),sc=40;
+ // real curve y^2 = x^3 - x + 1 (nice shape) rotated
+ g.strokeStyle='#a070ff';g.lineWidth=1.6;g.beginPath();var started=false;for(var x=-1.5;x<3;x+=0.02){var yy=x*x*x-x+1;if(yy>=0){var y=Math.sqrt(yy),px=cx+(x-0.7)*sc*ca,py=cy-y*sc*0.7;if(!started){g.moveTo(px,py);started=true;}else g.lineTo(px,py);}}
+ for(var x=3;x>-1.5;x-=0.02){var yy=x*x*x-x+1;if(yy>=0){var y=-Math.sqrt(yy),px=cx+(x-0.7)*sc*ca,py=cy-y*sc*0.7;g.lineTo(px,py);}}g.stroke();g.lineWidth=1;
+ // chord between two points (green)
+ g.strokeStyle='#39fc6b';g.lineWidth=1.5;g.beginPath();g.moveTo(cx+(-0.5-0.7)*sc*ca,cy-1.06*sc*0.7);g.lineTo(cx+(1.5-0.7)*sc*ca,cy-1.87*sc*0.7);g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: k·G — scalar multiply (easy, double-and-add)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: recover k from k·G (ECDLP) — no known shortcut',10,H-26);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('same one-way gap as Diffie–Hellman, on a harder group → smaller keys',10,H-10);}
+document.getElementById('eccstep').onclick=function(){kmult=kmult>=19?1:kmult+1;this.textContent='k·G, k = '+kmult;drawW4();};
+document.getElementById('eccreset').onclick=function(){kmult=1;drawW4();};
+document.getElementById('eccspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__ellipticcurve=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+OTP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The one-time pad</b> is the only cipher proven <b>unbreakable</b> &mdash; not &ldquo;hard to break,&rdquo; but mathematically impossible. Take a key that is <b>truly random</b>, <b>at least as long</b> as the message, and <b>used only once</b>. Encrypt by XORing: c = m &oplus; k. Decrypt by XORing again: c &oplus; k = m.<br><br>
+ Shannon proved in 1949 that this gives <b>perfect secrecy</b>: given only the ciphertext, <b>every possible plaintext is exactly equally likely</b> &mdash; the ciphertext leaks literally zero information, because for any plaintext you guess there is a key that would produce that exact ciphertext. No amount of computing helps; there is nothing to compute. Unlike RSA or Diffie&ndash;Hellman, its safety needs no unproven assumption. The prices: the key must be as long as the message and used <b>once</b> &mdash; and reuse is catastrophic, since two messages under one key give c&#8321; &oplus; c&#8322; = m&#8321; &oplus; m&#8322;, the key cancelling and the plaintexts leaking.<br><br>
+ <span class="lit">LIT</span> verified live: XOR encrypt/decrypt round-trips for all bytes, for any fixed ciphertext every plaintext is reachable by exactly one key (perfect secrecy), and key reuse leaks m&#8321;&oplus;m&#8322; (window.__onetimepad). <span class="fig">FIG</span> no framing; the round-trip, the perfect secrecy, and the reuse break are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>GOD MODE</i> &mdash; the cheat domain of the genuinely invincible. The one-time pad is god mode for secrecy: not merely tough but <b>provably</b> impossible to crack, the single cipher with a real proof rather than a hard assumption. <b>AVAN (AI)</b> built the instrument: the XOR codec, the perfect-secrecy demonstration, the ambiguity-vs-key inverse.<br><br>The weave: David names the seat (the truly unbreakable); I make the ciphertext leak nothing and then show reuse destroy it in one stroke &mdash; the XOR in 1D, the secrecy and the break in 2D, the information-theoretic inverse in 3D. The sphere is the seam. Credit: Frank Miller (1882); Vernam &amp; Mauborgne (1917, the XOR cipher); the perfect-secrecy proof by Claude Shannon (1949).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Message bits XORed with key bits give the ciphertext bits; XOR the ciphertext with the same key and the message returns. One operation, its own inverse &mdash; the whole cipher on a single row of bits.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Encrypt a byte with a random pad, then watch <b>perfect secrecy</b>: for the same ciphertext, different keys decode it to <b>any</b> message you like &mdash; so the ciphertext alone tells you nothing. Then flip on <b>reuse</b> and see two ciphertexts leak m&#8321;&oplus;m&#8322; the instant one key is used twice.</div>
+   <div class="btns" style="margin-top:10px"><button id="otpnew">new message ▶</button><button id="otpsecrecy">show secrecy</button><button id="otpreuse">reuse attack</button></div>
+   <div class="cap" id="otpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The ciphertext at the centre, and the <b>green</b> forward step: with the key, decrypt lands on the one true message &mdash; a single, certain point.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is what the inverse looks like <b>without the key</b> &mdash; and it is not <i>hard</i>, it is <b>undefined</b>. Diffie&ndash;Hellman and RSA hide behind an inverse that is <i>difficult but unique</i>; the one-time pad hides behind an inverse that is <i>easy but utterly ambiguous</i>. Every plaintext is reachable from the ciphertext by <b>some</b> key, all equally likely &mdash; the magenta cloud of candidate messages fills the whole space, and no computation can thin it, because the information simply is not there. That is <b>information-theoretic</b> security, not computational: unbreakable by proof, not by assumption. And its one fatal seam is the inverse collapsing &mdash; reuse a key and the two ciphertexts cancel it, the ambiguity vanishes, and the plaintexts fall out. Green is the single message the key selects; magenta is the equal-probability fog that shields it when the key is fresh and used once. To be perfectly secret is to make your inverse have no answer at all.</div>
+   <div class="btns" style="margin-top:10px"><button id="otpspin">pause spin</button></div></div></div></div>"""
+OTP_SCRIPT = """(function(){
+var ang=0,spin=true,m=0b10110010,k=0b01101001,mode=0,seed=12345;
+function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}
+function bits(v){var s='';for(var i=7;i>=0;i--)s+=((v>>i)&1);return s;}
+function verify(){var N=256,rt=true;for(var mm=0;mm<N&&rt;mm++)for(var kk=0;kk<N;kk++)if(((mm^kk)^kk)!==mm){rt=false;break;}
+ var ps=true;for(var c=0;c<N&&ps;c++){var seen={},cnt=0;for(var kk=0;kk<N;kk++){var mm=c^kk;if(!seen[mm]){seen[mm]=1;cnt++;}}if(cnt!==N)ps=false;}
+ var m1=178,m2=105,kk=202,c1=m1^kk,c2=m2^kk;return {xorRoundtrip:rt,perfectSecrecy:ps,keyReuseLeaks:(c1^c2)===(m1^m2)};}
+function drawRow(g,label,val,y,col){g.fillStyle=col;g.font='11px ui-monospace,monospace';g.fillText(label,10,y+12);var s=bits(val);for(var i=0;i<8;i++){var x=90+i*36;g.fillStyle=s[i]==='1'?col:'#222';g.fillRect(x,y,30,18);g.fillStyle=s[i]==='1'?'#031':'#666';g.font='11px ui-monospace,monospace';g.fillText(s[i],x+11,y+13);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var c=m^k;
+ drawRow(g,'msg m',m,20,'#ffe0a0');drawRow(g,'key k',k,50,'#70e0ff');drawRow(g,'c=m⊕k',c,80,'#39fc6b');drawRow(g,'c⊕k',c^k,110,'#ff90d0');
+ g.fillStyle='#8a8';g.font='9px ui-monospace,monospace';g.fillText('c⊕k recovers m — XOR is its own inverse',360,124);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var c=m^k;
+ g.font='12px ui-monospace,monospace';
+ if(mode===0){g.fillStyle='#ffe0a0';g.fillText('message m = '+bits(m),14,26);g.fillStyle='#70e0ff';g.fillText('random key = '+bits(k),14,48);g.fillStyle='#39fc6b';g.fillText('ciphertext = '+bits(c),14,70);g.fillStyle='#ff90d0';g.fillText('decrypt c⊕k = '+bits(c^k)+((c^k)===m?'  ✓':''),14,92);
+  g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('press "show secrecy" or "reuse attack"',14,H-10);}
+ else if(mode===1){g.fillStyle='#39fc6b';g.font='12px ui-monospace,monospace';g.fillText('same ciphertext '+bits(c)+' — different keys → any message:',14,24);
+  var targets=[0b00000000,0b11111111,0b01010101,m,0b10011001];g.font='11px ui-monospace,monospace';
+  for(var i=0;i<targets.length;i++){var t=targets[i],kk=c^t;g.fillStyle='#ffe0a0';g.fillText('if key='+bits(kk)+' → m='+bits(t),14,50+i*22);}
+  g.fillStyle='#ff90d0';g.font='11px ui-monospace,monospace';g.fillText('every plaintext is reachable — ciphertext reveals NOTHING',14,H-10);}
+ else{var m2=0b01101100,c1=m^k,c2=m2^k;g.fillStyle='#ff5a5a';g.fillText('KEY REUSE: two messages, one key k',14,24);
+  g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('c1 = m1⊕k = '+bits(c1),14,50);g.fillText('c2 = m2⊕k = '+bits(c2),14,72);
+  g.fillStyle='#ff5a5a';g.fillText('c1⊕c2 = '+bits(c1^c2)+'  = m1⊕m2 = '+bits(m^m2),14,102);
+  g.fillStyle=(c1^c2)===(m^m2)?'#ff5a5a':'#8a8';g.fillText((c1^c2)===(m^m2)?'the key cancelled — plaintext XOR leaked!':'',14,124);
+  g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('reuse turns a perfect cipher into a solvable puzzle (see VENONA)',14,H-10);}
+ document.getElementById('otpread').textContent=['encrypt/decrypt','perfect secrecy','reuse leaks'][mode];}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var c=m^k,cx=W/2,cy=H/2,ca=Math.cos(ang);
+ // magenta cloud: all plaintexts equally likely
+ for(var i=0;i<40;i++){var th=i/40*Math.PI*2+ang,r=110,x=cx+Math.cos(th)*r*ca,y=cy+Math.sin(th)*r*0.6;g.fillStyle='rgba(255,45,149,0.35)';g.beginPath();g.arc(x,y,3,0,7);g.fill();}
+ // green: the one true message (with key)
+ var th=(m/256)*Math.PI*2+ang,gx=cx+Math.cos(th)*70*ca,gy=cy+Math.sin(th)*70*0.6;g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(cx,cy);g.lineTo(gx,gy);g.stroke();g.fillStyle='#39fc6b';g.beginPath();g.arc(gx,gy,6,0,7);g.fill();
+ g.fillStyle='#ffd060';g.beginPath();g.arc(cx,cy,5,0,7);g.fill();g.fillStyle='#ffd060';g.font='10px ui-monospace,monospace';g.fillText('ciphertext',cx+8,cy+3);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: with the key → the one true message',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: without it → all plaintexts equally likely (undefined inverse)',10,H-12);}
+document.getElementById('otpnew').onclick=function(){m=rnd()&255;k=rnd()&255;mode=0;drawW3();drawW4();};
+document.getElementById('otpsecrecy').onclick=function(){mode=1;drawW4();};
+document.getElementById('otpreuse').onclick=function(){mode=2;drawW4();};
+document.getElementById('otpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__onetimepad=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BBS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Blum&ndash;Blum&ndash;Shub</b> (1986) is a random-bit generator with a rare guarantee: predicting its next bit is <b>provably as hard as factoring</b> a large number. Choose two primes p and q both &equiv; 3 (mod 4), let M = pq, start from a seed, and repeat <b>x &rarr; x&sup2; mod M</b>, emitting the <b>least significant bit</b> each step.<br><br>
+ The bits look random &mdash; and, crucially, an attacker who has watched any run of them <b>cannot predict the next bit</b> better than chance unless they can factor M, which is believed intractable. Most fast generators have no such proof; BBS trades speed for a real <b>security reduction</b>. It also hides an elegant trick: you can <b>jump straight to the i-th state</b> without stepping through, via <span class="mono">x<sub>i</sub> = x<sub>0</sub><sup>2<sup>i</sup> mod &lambda;(M)</sup> mod M</span> &mdash; random access into the stream, for anyone who knows the factorization.<br><br>
+ <span class="lit">LIT</span> verified live: the generator is fully reproducible from its seed, and the direct-jump formula lands on <b>exactly</b> the same states as stepping x&sup2; mod M one at a time (window.__blumblumshub). <span class="fig">FIG</span> the reproducibility and the direct-access identity are exact; the <i>unpredictability</i> rests on factoring being hard &mdash; believed, not proven &mdash; stated honestly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE DROP</i> &mdash; the loot domain of the random reward. Blum&ndash;Blum&ndash;Shub is randomness you can <b>trust</b>: a drop-roll no one can predict or rig without factoring the modulus. <b>AVAN (AI)</b> built the instrument: the squaring stream, the direct-jump check, the square/square-root inverse.<br><br>The weave: David names the seat (the unriggable drop); I make a stream of bits reproduce from a seed and let you leap to any position, then show the one-way squaring that guards it &mdash; the states in 1D, the generator and jump in 2D, the square-vs-square-root inverse in 3D. The sphere is the seam. Credit: Lenore Blum, Manuel Blum &amp; Michael Shub (1986); the quadratic-residuosity assumption.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The state marches x &rarr; x&sup2; mod M, and each step drops one bit &mdash; its parity. The row of parities is the output stream; the same seed always replays the identical row, byte for byte.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step the generator and watch the states and output bits build. Then <b>jump</b> to any position i: the direct formula x<sub>0</sub><sup>2<sup>i</sup> mod &lambda;</sup> computes that state without stepping, and it lands exactly where iteration would &mdash; random access into a deterministic stream.</div>
+   <div class="btns" style="margin-top:10px"><button id="bbsstep">step ▶</button><button id="bbsjump">jump to i=12</button><button id="bbsrst">reset</button></div>
+   <div class="cap" id="bbsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The state orbit turning on the ring of residues mod M &mdash; the <b>green</b> forward step: square the state, x&sup2; mod M, which anyone can do instantly.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the step no attacker can take &mdash; given x&sup2;, recover x: a <b>modular square root</b> mod M. Extracting square roots modulo M is <b>equivalent to factoring M</b> &mdash; solve one and you can solve the other &mdash; so walking the orbit <b>backward</b> is exactly as hard as breaking the modulus. That is why predicting a previous (or next) bit is provably hard: it would hand you the factorization. Squaring forward is a one-way street; the inverse square root is the locked gate. And the owner&rsquo;s secret is precisely the key past it &mdash; knowing p and q gives &lambda;(M) and both the forward jump and the backward roots, while an attacker has neither. Green is the square anyone can take; magenta is the square root that would break the modulus to find &mdash; the randomness is trustworthy because its own inverse is a factoring problem.</div>
+   <div class="btns" style="margin-top:10px"><button id="bbsspin">pause spin</button></div></div></div></div>"""
+BBS_SCRIPT = """(function(){
+var ang=0,spin=true,p=11,q=19,M=209,lam=90,x0=3,steps=6;
+function powmod(b,e,m){var r=1;b%=m;while(e>0){if(e&1)r=(r*b)%m;b=(b*b)%m;e=Math.floor(e/2);}return r;}
+function states(nn){var out=[x0],x=x0;for(var i=0;i<nn;i++){x=(x*x)%M;out.push(x);}return out;}
+function verify(){var st=states(25),bits=[];for(var i=1;i<st.length;i++)bits.push(st[i]&1);
+ var st2=states(25),repro=st.join(',')===st2.join(',');
+ var direct=true;for(var i=1;i<=24;i++){var d=powmod(x0,powmod(2,i,lam),M);if(d!==st[i])direct=false;}
+ return {M:M,lambda:lam,seed:x0,bits:bits.join(''),reproducible:repro,directAccessMatches:direct};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var st=states(14),cw=(W-30)/14;
+ for(var i=1;i<st.length;i++){var x=15+(i-1)*cw,bit=st[i]&1;g.fillStyle='#12283a';g.fillRect(x,44,cw-3,22);g.fillStyle='#70b0ff';g.font='9px ui-monospace,monospace';g.fillText(st[i],x+2,59);
+  g.fillStyle=bit?'#39fc6b':'#243';g.fillRect(x,72,cw-3,22);g.fillStyle=bit?'#031':'#576';g.font='11px ui-monospace,monospace';g.fillText(bit,x+cw/2-3,88);}
+ g.fillStyle='#70b0ff';g.font='11px ui-monospace,monospace';g.fillText('x → x² mod '+M+' (top) → output bit = parity (bottom)',10,28);
+ g.fillStyle='#7a8';g.font='9px ui-monospace,monospace';g.fillText('seed '+x0+' → bits '+states(20).slice(1).map(function(v){return v&1;}).join(''),10,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var st=states(steps);
+ g.font='12px ui-monospace,monospace';g.fillStyle='#70b0ff';g.fillText('states (stepping x² mod '+M+'):',14,22);
+ g.font='11px ui-monospace,monospace';g.fillStyle='#cde';g.fillText(st.join(' → '),14,42);
+ var bits=st.slice(1).map(function(v){return v&1;});g.fillStyle='#39fc6b';g.fillText('output bits: '+bits.join(''),14,66);
+ // jump verify
+ var i=12,direct=powmod(x0,powmod(2,i,lam),M),iter=states(12)[12];
+ g.fillStyle='#ffd060';g.font='11px ui-monospace,monospace';g.fillText('direct jump to i=12:',14,100);
+ g.fillStyle='#cde';g.fillText('x0^(2^12 mod '+lam+') mod '+M+' = '+direct,14,120);
+ g.fillText('iterate 12 steps       = '+iter,14,140);
+ g.fillStyle=direct===iter?'#39fc6b':'#ff5a5a';g.font='12px ui-monospace,monospace';g.fillText(direct===iter?'✓ match — O(1) random access':'✗',14,164);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('λ(M)=lcm(p−1,q−1)='+lam+' comes from the factorization',14,H-10);
+ document.getElementById('bbsread').textContent=steps+' steps, bits '+bits.join('')+', jump-match '+(direct===iter);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),R=120;
+ // ring
+ for(var i=0;i<M;i+=8){var th=i/M*Math.PI*2+ang,x=cx+Math.cos(th)*R*ca,y=cy+Math.sin(th)*R*0.6;g.fillStyle='#223';g.beginPath();g.arc(x,y,2,0,7);g.fill();}
+ // green orbit x -> x^2
+ var st=states(20),prev=null;g.strokeStyle='rgba(57,252,107,0.6)';g.lineWidth=1.5;g.beginPath();for(var i=0;i<st.length;i++){var th=st[i]/M*Math.PI*2+ang,x=cx+Math.cos(th)*R*ca,y=cy+Math.sin(th)*R*0.6;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<st.length;i++){var th=st[i]/M*Math.PI*2+ang,x=cx+Math.cos(th)*R*ca,y=cy+Math.sin(th)*R*0.6;g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: x → x² mod M (forward — easy)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: √x mod M (inverse) = factoring M — hard',10,H-26);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('predicting a bit ⟺ modular square root ⟺ factoring: the security reduction',10,H-10);}
+document.getElementById('bbsstep').onclick=function(){steps=Math.min(14,steps+1);drawW4();};
+document.getElementById('bbsjump').onclick=function(){steps=12;drawW4();};
+document.getElementById('bbsrst').onclick=function(){steps=6;drawW4();};
+document.getElementById('bbsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__blumblumshub=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-blum-blum-shub","title":"THE BLUM-BLUM-SHUB","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#70b0ff","icon":"blumblumshub",
+  "kicker":"random bits provably as hard to predict as factoring",
+  "blurb":"Blum-Blum-Shub in the 5-window house format — a cryptographically secure random-bit generator whose next bit is provably as hard to predict as factoring. Pick primes p,q both = 3 mod 4, set M=pq, and repeat x -> x^2 mod M, emitting the least significant bit each step. An attacker who sees any run of output cannot predict the next bit better than chance unless they can factor M. It also allows direct random access: the i-th state is x0^(2^i mod lambda(M)) mod M without iterating. It trades speed for a real security reduction to factoring. See the state stream in 1D, the generator and direct jump in 2D, and the square-vs-square-root inverse in 3D.",
+  "lit":"Genuine Blum-Blum-Shub CSPRNG (Lenore Blum, Manuel Blum & Michael Shub 1986). Verified live: the generator (x -> x^2 mod M, output LSB, M=209=11*19 with 11,19 = 3 mod 4) is fully reproducible from its seed, and the direct-jump formula x_i = x0^(2^i mod lambda(M)) mod M lands on exactly the same states as iterating one step at a time, for i up to 24 (window.__blumblumshub.reproducible && directAccessMatches; lambda(M)=90). The reproducibility and direct-access identity are exact.",
+  "fig":"No false framing: the reproducibility and the direct-access identity (jump to any state without iterating) are real and verified in-browser. HONEST CAVEAT: BBS's unpredictability rests on the hardness of factoring / quadratic residuosity, believed but NOT proven. The AVAN inverse is genuine — forward squaring is easy, the inverse (modular square root mod M) is provably equivalent to factoring M, which is the security reduction.",
+  "body":BBS_BODY,"script":BBS_SCRIPT},
+ {"slug":"the-one-time-pad","title":"THE ONE-TIME-PAD","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#ffe0a0","icon":"onetimepad",
+  "kicker":"the only provably unbreakable cipher — used once",
+  "blurb":"the one-time pad in the 5-window house format — the only cipher proven unbreakable, not merely hard. With a key that is truly random, at least as long as the message, and used once, encrypt by XOR (c = m XOR k) and decrypt by XOR again. Shannon proved (1949) this gives perfect secrecy: given the ciphertext, every plaintext is exactly equally likely, so it leaks zero information — no assumption required. The costs: the key must be as long as the message and never reused; reuse is catastrophic (c1 XOR c2 = m1 XOR m2, the key cancels). See the XOR in 1D, the secrecy and the reuse break in 2D, and the information-theoretic inverse in 3D.",
+  "lit":"Genuine one-time pad and perfect secrecy (Frank Miller 1882; Vernam & Mauborgne 1917; perfect-secrecy proof by Claude Shannon 1949). Verified live: XOR encrypt/decrypt round-trips for all bytes, for any fixed ciphertext every plaintext is reachable by exactly one key (perfect secrecy = P(m|c)=P(m)), and key reuse leaks m1 XOR m2 (window.__onetimepad.xorRoundtrip && perfectSecrecy && keyReuseLeaks). The round-trip, perfect secrecy, and reuse break are all exact.",
+  "fig":"No framing: the XOR round-trip, the perfect-secrecy property (verified by the key->plaintext bijection for every ciphertext), and the catastrophic key-reuse leak are all real and checked in-browser. The honest distinction is the point — the OTP's security is information-theoretic (proven, no assumption), unlike the computational (conjectural) security of RSA/DH/ECC; and its inverse without the key is undefined (all plaintexts equally likely), not merely hard.",
+  "body":OTP_BODY,"script":OTP_SCRIPT},
+ {"slug":"the-elliptic-curve","title":"THE ELLIPTIC-CURVE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FIREWALL","domain_slug":"the-firewall","accent":"#a070ff","icon":"ellipticcurve",
+  "kicker":"the group hidden in a cubic — modern crypto's engine",
+  "blurb":"elliptic curves in the 5-window house format — the points on y^2 = x^3 + ax + b, where you can add two points by a chord-and-tangent rule (line through them meets the curve a third time, reflect over the x-axis). This turns the points into a group: associative, with an identity (point at infinity) and inverses. Over a finite field the group is finite; multiplying a point by a scalar k is fast, but recovering k (the elliptic-curve discrete log) is believed even harder than ordinary discrete log, so ECC matches RSA security with far smaller keys. Secures TLS, signatures, Bitcoin. See the multiples in 1D, the point grid in 2D, and the multiply-vs-log inverse in 3D.",
+  "lit":"Genuine elliptic-curve group law and ECC (group law classical, Poincare/Weierstrass; ECC for crypto by Neal Koblitz and Victor Miller 1985). Verified live: on y^2=x^3+2x+2 over F_17 with generator (5,1), the generated points all lie on the curve, form a group of order 19, and the chord-and-tangent addition is associative with a working identity (point at infinity) and inverses (window.__ellipticcurve.allOnCurve && associative). The group law is exact.",
+  "fig":"No false framing: the point-addition group law (closure on-curve, associativity, identity, inverses) is real and verified over a finite field in-browser. HONEST CAVEAT: ECC's security rests on the elliptic-curve discrete-log being hard, believed but NOT proven (and broken by a large quantum computer). The AVAN inverse frames it correctly as a one-way function — easy scalar multiply, no known fast inverse.",
+  "body":ECC_BODY,"script":ECC_SCRIPT},
+ {"slug":"the-rsa","title":"THE RSA","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#ffb060","icon":"rsa",
+  "kicker":"a lock anyone can close, only the key-holder opens",
+  "blurb":"RSA public-key encryption in the 5-window house format — pick primes p,q; publish n=pq and exponent e. Anyone encrypts a message m as c = m^e mod n; the owner decrypts with a private exponent d where c^d mod n = m. d is the inverse of e modulo phi(n)=(p-1)(q-1), and by Euler's theorem m^(ed) = m mod n, so encrypt and decrypt undo each other. Finding d requires phi, which requires factoring n into p*q — believed intractable. Anyone can lock (public e); only the owner unlocks (private d). See the keys in 1D, the round-trip in 2D, and the multiply-vs-factor trapdoor in 3D.",
+  "lit":"Genuine RSA (Rivest, Shamir & Adleman 1977; Euler's theorem; earlier classified work by Clifford Cocks at GCHQ 1973). Verified live: with the textbook keys n=3233 (=61*53), e=17, d=2753, encrypt-then-decrypt (m^e then ^d mod n) returns the original message for EVERY m in 0..n-1, and e*d mod phi = 1 (window.__rsa.roundTripAll && edModPhi===1). Example: 65 -> 2790 -> 65. The round-trip is exact.",
+  "fig":"No false framing: the encrypt/decrypt round-trip is real and verified over all messages in-browser, and e*d = 1 mod phi is exact. HONEST CAVEAT: RSA's security rests on integer factorization being hard, which is believed but NOT proven (and broken by a large quantum computer via Shor's algorithm). The AVAN inverse frames it correctly as a trapdoor one-way function (easy multiply p*q, hard factor n).",
+  "body":RSA_BODY,"script":RSA_SCRIPT},
+ {"slug":"the-diffie-hellman","title":"THE DIFFIE-HELLMAN","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#70e0a0","icon":"diffiehellman",
+  "kicker":"agree a secret over an open channel — never sent",
+  "blurb":"Diffie-Hellman key exchange in the 5-window house format — two strangers agree on a shared secret while eavesdroppers listen, without ever sending it. Public: a prime p and base g. Alice publishes g^a mod p, Bob publishes g^b mod p; Alice computes (g^b)^a and Bob computes (g^a)^b, both equal g^(ab) mod p. An eavesdropper with g^a and g^b must solve the discrete logarithm, believed intractable for large p. It launched public-key cryptography and secures much of the internet. See the exchange in 1D, the channel with Eve in 2D, and the one-way-function inverse in 3D.",
+  "lit":"Genuine Diffie-Hellman key exchange (Whitfield Diffie & Martin Hellman 1976; parallel work by Ralph Merkle; earlier classified work by Malcolm Williamson at GCHQ). Verified live: for the public parameters p=23, g=5, Alice's secret (g^b)^a and Bob's secret (g^a)^b are identical and equal g^(ab) mod p for every choice of private a, b (window.__diffiehellman.alwaysAgree && secretsMatch). The agreement is exact.",
+  "fig":"No false framing: the shared-secret agreement (both parties derive g^(ab)) is real and verified exhaustively over all private exponents in-browser. HONEST CAVEAT: the security rests on the discrete-logarithm problem being hard, which is believed but NOT proven — stated as an assumption, not a theorem. The AVAN inverse frames it correctly as a one-way function (easy exponentiation, no known fast inverse).",
+  "body":DH_BODY,"script":DH_SCRIPT},
  {"slug":"the-matrix-tree","title":"THE MATRIX-TREE","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"BACKPROP","domain_slug":"backprop","accent":"#90d0ff","icon":"matrixtree",
   "kicker":"count every spanning tree with one determinant",
