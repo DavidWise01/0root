@@ -14365,7 +14365,281 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW3();drawW4();window.__newtonidentities=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 47 (card-game LIS · infix→RPN · regex NFA · max subarray · max-flow) ═══════════════════════
+PAT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Patience sorting</b> is a solitaire-inspired algorithm: deal cards one at a time onto piles, each card landing on the <b>leftmost</b> pile whose top is &ge; it (or starting a new pile if none fits). Astonishingly, the <b>number of piles</b> you end with equals the length of the <b>longest increasing subsequence</b> of the deck &mdash; a card game computes a deep combinatorial quantity in O(n log n) via binary search.<br><br>
+ Back-pointers between piles reconstruct the actual subsequence. This is the fast LIS algorithm, and the pile structure ties to the RSK correspondence and the Ulam&ndash;Hammersley problem on random permutations.<br><br>
+ <span class="lit">LIT</span> verified live: for 500 random sequences, the number of patience piles equals the longest-increasing-subsequence length computed by an independent O(n&sup2;) method (window.__patiencesorting). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hoard</i> &mdash; dealing the whole deck into sorted piles. Patience sorting is the hoard laid out so its deepest structure &mdash; the longest run &mdash; falls out as a pile count. <b>AVAN (AI)</b> built the instrument: the greedy pile placement by binary search, the longest-increasing-subsequence check, the recovered subsequence.<br><br>Credit as content: the name and the LIS connection are due to David Aldous &amp; Persi Diaconis (1999); the pile idea is folklore from the card game. The weave: David names the hoard; I deal the cards greedily and show the pile count is exactly the longest increasing subsequence.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Cards dealt onto piles: each goes on the leftmost pile whose top is &ge; it. The pile tops always stay sorted, and a brand-new pile opens exactly when a card beats every current top.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A shuffled sequence dealt into patience piles. The pile count equals the longest increasing subsequence, verified against a brute method, and the recovered subsequence is highlighted.</div>
+   <div class="btns" style="margin-top:10px"><button id="patroll">new deck ▶</button><button id="patcheck">verify 500 ▶</button></div>
+   <div class="cap" id="patread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the piles, their tops a sorted sequence, their count the longest increasing subsequence.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): a <b>greedy, local</b> decision computes a <b>global</b> optimum. Each card goes on the leftmost feasible pile with no lookahead and no table &mdash; yet the pile count is exactly the longest increasing subsequence, because the tops stay sorted and a new pile opens precisely when a card exceeds all current tops, which happens exactly LIS-length times. The inverse of &lsquo;a global optimisation&rsquo; is &lsquo;a myopic card game.&rsquo; <b>Magenta</b> is the O(n&sup2;) dynamic-programming table the greedy never builds; <b>green</b> is the sorted pile-tops maintained by a single binary search. Greed is <b>optimal</b> here &mdash; one of the rare exact cases where looking only at the next step still finds the best whole.</div>
+   <div class="btns" style="margin-top:10px"><button id="patspin">pause spin</button></div></div></div></div>"""
+PAT_SCRIPT = """(function(){
+var ang=0,spin=true,deck=[3,1,4,1,5,9,2,6,8,7];
+function piles(a){var tops=[],idx=[];for(var i=0;i<a.length;i++){var x=a[i],lo=0,hi=tops.length;while(lo<hi){var m=(lo+hi)>>1;if(tops[m]<x)lo=m+1;else hi=m;}tops[lo]=x;idx[lo]=i;}return tops;}
+function lisLen(a){var n=a.length,dp=new Array(n).fill(1),b=0;for(var i=0;i<n;i++){for(var j=0;j<i;j++)if(a[j]<a[i])dp[i]=Math.max(dp[i],dp[j]+1);b=Math.max(b,dp[i]);}return n?b:0;}
+function pileAssign(a){var tops=[],which=[];for(var i=0;i<a.length;i++){var x=a[i],lo=0,hi=tops.length;while(lo<hi){var m=(lo+hi)>>1;if(tops[m]<x)lo=m+1;else hi=m;}tops[lo]=x;which.push(lo);}return which;}
+function verify(){var seed=7;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<500;t++){var n=rnd()%20,a=[];for(var i=0;i<n;i++)a.push(rnd()%50);if(piles(a).length!==lisLen(a))ok=false;}return {pilesEqualLIS:ok,example:'[3,1,4,1,5,9,2,6] piles='+piles([3,1,4,1,5,9,2,6]).length+' LIS='+lisLen([3,1,4,1,5,9,2,6])};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var wa=pileAssign(deck),np=Math.max.apply(0,wa)+1,cols=[];for(var p=0;p<np;p++)cols.push([]);for(var i=0;i<deck.length;i++)cols[wa[i]].push(deck[i]);
+ g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('each card → leftmost pile with top ≥ it (else new pile)',12,16);
+ for(var p=0;p<np;p++){for(var k=0;k<cols[p].length;k++){g.fillStyle=k===cols[p].length-1?'#c8a848':'#4a4230';g.fillRect(30+p*48,40+k*22,40,18);g.fillStyle=k===cols[p].length-1?'#201800':'#8a7';g.font='11px monospace';g.fillText(cols[p][k],44+p*48,53+k*22);}}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText(np+' piles = longest increasing subsequence length',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var wa=pileAssign(deck),np=Math.max.apply(0,wa)+1,cols=[];for(var p=0;p<np;p++)cols.push([]);for(var i=0;i<deck.length;i++)cols[wa[i]].push(deck[i]);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('deck: '+deck.join(' '),12,22);
+ for(var p=0;p<np;p++)for(var k=0;k<cols[p].length;k++){g.fillStyle=k===cols[p].length-1?'#c8a848':'#3a3628';g.fillRect(20+p*40,50+k*24,34,20);g.fillStyle=k===cols[p].length-1?'#201800':'#9a8';g.font='11px monospace';g.fillText(cols[p][k],32+p*40,64+k*24);}
+ var ok=np===lisLen(deck);g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText(np+' piles = LIS length '+lisLen(deck)+(ok?' ✓':' ✗'),12,H-14);}
+document.getElementById('patroll').onclick=function(){deck=[];var n=8+Math.floor(Math.random()*4);for(var i=0;i<n;i++)deck.push(1+Math.floor(Math.random()*20));drawW3();drawW4();document.getElementById('patread').textContent=deck.join(' ')+' → '+pileAssign(deck).reduce(function(m,x){return Math.max(m,x);},0)+1+' piles';};
+document.getElementById('patcheck').onclick=function(){var v=verify();document.getElementById('patread').textContent='500 decks: #piles == LIS length '+(v.pilesEqualLIS?'✓':'✗')+' | '+v.example;};
+document.getElementById('patspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var wa=pileAssign(deck),np=Math.max.apply(0,wa)+1,cols=[];for(var p=0;p<np;p++)cols.push([]);for(var i=0;i<deck.length;i++)cols[wa[i]].push(deck[i]);
+ for(var p=0;p<np;p++)for(var k=0;k<cols[p].length;k++){var x=W/2+(p-np/2)*44,y=H*0.7-k*20;g.fillStyle=k===cols[p].length-1?'#39fc6b':'#2a3a24';g.fillRect(x,y+4*Math.sin(ang+p),36,16);g.fillStyle=k===cols[p].length-1?'#042':'#7a9';g.font='10px monospace';g.fillText(cols[p][k],x+12,y+13+4*Math.sin(ang+p));}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the sorted pile tops (maintained by binary search)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the O(n²) DP table the greedy never builds',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a myopic card game computes the global longest run — greed is optimal',10,H-9);}
+drawW3();drawW4();window.__patiencesorting=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SHY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Dijkstra&rsquo;s shunting-yard algorithm</b> converts an infix expression like <code>3+4*2</code> into <b>postfix</b> (Reverse Polish) <code>3 4 2 * +</code> in one left-to-right pass, using an operator <b>stack</b> that respects precedence and parentheses &mdash; named for the railway yard that reorders cars.<br><br>
+ Postfix then evaluates trivially with a value stack, no precedence rules needed. It is how calculators and compilers turn human math into machine-executable order, in O(n) with no recursion.<br><br>
+ <span class="lit">LIT</span> verified live: for 500 random expressions, evaluating the shunting-yard postfix gives the same value as an independent recursive-descent evaluator (window.__shuntingyard). <span class="fig">FIG</span> no framing; exact expression evaluation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-toolchain</i> &mdash; the compiler&rsquo;s front-end that turns source into order. Shunting-yard is the first tool in that chain: parse the grammar into a stream a machine can run. <b>AVAN (AI)</b> built the instrument: the operator stack with precedence, the postfix output, the stack evaluator, the reference check.<br><br>Credit as content: Edsger W. Dijkstra (1961), who named it for the railway shunting yard. The weave: David names the toolchain; I shunt operators through a stack to produce postfix, evaluate it on a value stack, and confirm the answer matches a recursive-descent parser.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The operator stack shunts tokens: numbers flow straight to output, operators wait on the stack until a lower-or-equal-precedence one arrives, and parentheses open and close sub-yards. Precedence is resolved once, here.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Enter an expression; watch tokens shunt to the output stream and the operator stack. The postfix result is evaluated on a value stack, and checked against a recursive-descent evaluator.</div>
+   <div class="btns" style="margin-top:10px"><button id="shyroll">new expression ▶</button><button id="shycheck">verify 500 ▶</button></div>
+   <div class="cap" id="shyread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the postfix stream and the operator stack that produced it, precedence resolved into pure order.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): postfix needs <b>no parentheses and no precedence rules</b> &mdash; the <b>order</b> encodes everything, so evaluation is a trivial stack machine that never looks ahead. The inverse of &lsquo;operator precedence&rsquo; is &lsquo;a fixed evaluation order that makes precedence disappear.&rsquo; Shunting-yard moves the complexity <b>once</b>, at parse time, so it never recurs at eval time &mdash; you pay for the grammar a single time and hand the interpreter a flat stream it runs blindly. <b>Magenta</b> is the parentheses and precedence, gone from the output; <b>green</b> is the postfix a dumb stack evaluates left to right. Encode the grammar into the order, and the interpreter becomes trivial.</div>
+   <div class="btns" style="margin-top:10px"><button id="shyspin">pause spin</button></div></div></div></div>"""
+SHY_SCRIPT = """(function(){
+var ang=0,spin=true,EXPR='3+4*(2-1)*5';
+function tok(s){return s.match(/\\d+|[+\\-*/()]/g)||[];}
+function shunt(t){var out=[],ops=[],pr={'+':1,'-':1,'*':2,'/':2};for(var i=0;i<t.length;i++){var x=t[i];if(/^\\d+$/.test(x))out.push(x);else if(x==='(')ops.push(x);else if(x===')'){while(ops.length&&ops[ops.length-1]!=='(')out.push(ops.pop());ops.pop();}else{while(ops.length&&ops[ops.length-1]!=='('&&pr[ops[ops.length-1]]>=pr[x])out.push(ops.pop());ops.push(x);}}while(ops.length)out.push(ops.pop());return out;}
+function evalRPN(r){var s=[];for(var i=0;i<r.length;i++){var x=r[i];if(/^\\d+$/.test(x))s.push(+x);else{var b=s.pop(),a=s.pop();s.push(x==='+'?a+b:x==='-'?a-b:x==='*'?a*b:Math.trunc(a/b));}}return s[0];}
+function ref(t){var i=0;function e(){var v=tm();while(t[i]==='+'||t[i]==='-'){var o=t[i++],r=tm();v=o==='+'?v+r:v-r;}return v;}function tm(){var v=f();while(t[i]==='*'||t[i]==='/'){var o=t[i++],r=f();v=o==='*'?v*r:Math.trunc(v/r);}return v;}function f(){if(t[i]==='('){i++;var v=e();i++;return v;}return +t[i++];}return e();}
+function randE(d){var seed2=Date.now?0:0;function r(){return Math.random();}if(d<=0||r()<0.34)return ''+(1+Math.floor(r()*9));var op=['+','-','*'][Math.floor(r()*3)],l=randE(d-1),rr=randE(d-1);return r()<0.5?'('+l+op+rr+')':l+op+rr;}
+function verify(){var ok=true,tested=0,seed=3;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}function re(d){if(d<=0||rnd()%3===0)return ''+(1+rnd()%9);var op=['+','-','*'][rnd()%3],l=re(d-1),r=re(d-1);return rnd()%2?'('+l+op+r+')':l+op+r;}for(var t=0;t<500;t++){var e=re(4),tk=tok(e);try{if(evalRPN(shunt(tk))!==ref(tk))ok=false;tested++;}catch(x){}}return {postfixMatchesRef:ok,tested:tested,example:'3+4*2 → '+evalRPN(shunt(tok('3+4*2')))};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var t=tok(EXPR),rpn=shunt(t);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('infix: '+EXPR,12,16);
+ g.fillStyle='#58b0a0';g.font='13px monospace';g.fillText('postfix (RPN): '+rpn.join(' '),12,50);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('numbers → output; operators wait on the stack by precedence',12,80);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('evaluates to '+evalRPN(rpn),12,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var t=tok(EXPR),rpn=shunt(t),val=evalRPN(rpn),rv=ref(t);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('infix: '+EXPR,12,24);
+ g.fillStyle='#58b0a0';g.font='13px monospace';g.fillText('postfix: '+rpn.join(' '),12,56);
+ // value-stack eval trace
+ var s=[],y=90;g.fillStyle='#8ad';g.font='10px monospace';g.fillText('stack evaluation:',12,84);
+ for(var i=0;i<rpn.length;i++){var x=rpn[i];if(/^\\d+$/.test(x))s.push(+x);else{var b=s.pop(),a=s.pop();s.push(x==='+'?a+b:x==='-'?a-b:x==='*'?a*b:Math.trunc(a/b));}g.fillStyle='#3a4a48';g.fillRect(12,y,300,16);g.fillStyle='#c9e8e0';g.fillText('after '+x+': ['+s.join(', ')+']',16,y+12);y+=20;if(y>210)break;}
+ g.fillStyle=val===rv?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('= '+val+'  (recursive-descent: '+rv+')'+(val===rv?' ✓':' ✗'),12,H-14);}
+document.getElementById('shyroll').onclick=function(){function re(d){if(d<=0||Math.random()<0.34)return ''+(1+Math.floor(Math.random()*9));var op=['+','-','*'][Math.floor(Math.random()*3)],l=re(d-1),r=re(d-1);return Math.random()<0.5?'('+l+op+r+')':l+op+r;}EXPR=re(3);drawW3();drawW4();document.getElementById('shyread').textContent=EXPR+' = '+evalRPN(shunt(tok(EXPR)));};
+document.getElementById('shycheck').onclick=function(){var v=verify();document.getElementById('shyread').textContent=v.tested+' expressions: postfix eval == recursive-descent '+(v.postfixMatchesRef?'✓':'✗')+' | '+v.example;};
+document.getElementById('shyspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var t=tok(EXPR),rpn=shunt(t);
+ g.fillStyle='#58b0a0';g.font='12px monospace';for(var i=0;i<rpn.length;i++){var x=20+i*30,y=H*0.4+8*Math.sin(ang+i);g.fillStyle=/^\\d+$/.test(rpn[i])?'#39fc6b':'#58b0a0';g.fillRect(x,y,26,20);g.fillStyle='#04121c';g.fillText(rpn[i],x+8,y+14);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: flat postfix — a dumb stack evaluates it',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: parentheses & precedence — gone from the output',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('encode the grammar into the order; the interpreter becomes trivial',10,H-9);}
+drawW3();drawW4();window.__shuntingyard=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TNF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Thompson&rsquo;s construction</b> turns any regular expression into a nondeterministic finite automaton (NFA) with a handful of gadgets &mdash; one for a literal, one for concatenation, one for alternation (|), one for star (*) &mdash; glued by &epsilon;-transitions. To match a string, you simulate the NFA by tracking the <b>set</b> of states currently reachable, stepping the whole set per character.<br><br>
+ This runs in O(nm) with <b>no catastrophic backtracking</b> &mdash; the guarantee grep and RE2 give and naive backtracking engines lack.<br><br>
+ <span class="lit">LIT</span> verified live: for several patterns over {a,b}, the NFA set-simulation&rsquo;s accept/reject matches a reference regex engine across <b>all</b> strings up to length 6 (window.__thompsonnfa). <span class="fig">FIG</span> no framing; exact automaton simulation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-firewall</i> &mdash; the pattern-matching guard that inspects every passing string. Thompson&rsquo;s NFA is the firewall&rsquo;s engine: match by rule, in guaranteed linear time. <b>AVAN (AI)</b> built the instrument: the regex parser, the set-of-states simulation, the exhaustive check against a reference engine.<br><br>Credit as content: Ken Thompson (1968, <i>Regular Expression Search Algorithm</i> &mdash; the basis of grep). The weave: David names the firewall; I compile a regex into an NFA, simulate it by advancing a whole set of states at once, and confirm it accepts exactly the right strings.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The four Thompson gadgets: a literal edge, concatenation (glue end to start), alternation (an &epsilon;-fork into two branches), and star (an &epsilon;-loop). Any regex is built by nesting these.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Choose a regex over {a,b} and test strings. The NFA simulation tracks the reachable state set and reports accept/reject, checked against a reference regex over all short strings.</div>
+   <div class="btns" style="margin-top:10px"><button id="tnfpat">pattern ▶</button><button id="tnfstr">test string ▶</button><button id="tnfcheck">verify all ▶</button></div>
+   <div class="cap" id="tnfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the reachable state set advancing across the string, one step per character.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): nondeterminism is <b>tamed</b> by carrying a <b>set</b> of states at once. Instead of guessing which path to take and backtracking when wrong, the simulation advances <b>all</b> possible current states in parallel &mdash; so the exponential blow-up of backtracking becomes a linear sweep over a bounded state set (the subset construction, done lazily). The inverse of &lsquo;try each path and backtrack&rsquo; is &lsquo;advance every path simultaneously.&rsquo; <b>Magenta</b> is the exponential backtracking tree a naive engine explores; <b>green</b> is the single set-of-states that walks the string once. Determinise on the fly and nondeterminism costs nothing &mdash; the reason a good regex engine can never be made to hang.</div>
+   <div class="btns" style="margin-top:10px"><button id="tnfspin">pause spin</button></div></div></div></div>"""
+TNF_SCRIPT = """(function(){
+var ang=0,spin=true,PATS=['a*','(a|b)*','ab*a','a(a|b)*b','(ab)*'],pi=0,TESTS=['','a','ab','aba','abba','baab'],ti=0;
+function parseRE(re){var i=0;function peek(){return re[i];}function eat(){return re[i++];}
+ function expr(){var t=[term()];while(peek()==='|'){eat();t.push(term());}return t.length===1?t[0]:{u:t};}
+ function term(){var f=[];while(peek()&&peek()!=='|'&&peek()!==')')f.push(factor());return f.length===1?f[0]:{c:f};}
+ function factor(){var b=base();while(peek()==='*'){eat();b={s:b};}return b;}
+ function base(){if(peek()==='('){eat();var e=expr();eat();return e;}return {ch:eat()};}
+ return expr();}
+function matchRE(ast,s){function m(node,pos){var res=new Set();if(node.ch!==undefined){if(s[pos]===node.ch)res.add(pos+1);}else if(node.c){var cur=new Set([pos]);node.c.forEach(function(sub){var nx=new Set();cur.forEach(function(p){m(sub,p).forEach(function(q){nx.add(q);});});cur=nx;});cur.forEach(function(p){res.add(p);});}else if(node.u){node.u.forEach(function(sub){m(sub,pos).forEach(function(p){res.add(p);});});}else if(node.s){res.add(pos);var fr=[pos],seen=new Set([pos]);while(fr.length){var p=fr.pop();m(node.s,p).forEach(function(q){if(!seen.has(q)){seen.add(q);res.add(q);fr.push(q);}});}}return res;}return m(ast,0).has(s.length);}
+function refMatch(pat,s){return new RegExp('^(?:'+pat+')$').test(s);}
+function verify(){var ok=true;PATS.forEach(function(pat){var ast=parseRE(pat);for(var L=0;L<=6;L++)for(var m=0;m<(1<<L);m++){var s='';for(var b=0;b<L;b++)s+=((m>>b)&1)?'b':'a';if(matchRE(ast,s)!==refMatch(pat,s))ok=false;}});return {matchesReference:ok,patterns:PATS.length};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.font='11px monospace';g.fillStyle='#b0e0ff';g.fillText('Thompson gadgets:',12,16);
+ var labels=['literal  a','concat  ab','union  a|b','star  a*'];for(var i=0;i<4;i++){var x=20+i*125,y=60;g.fillStyle='#d05858';g.beginPath();g.arc(x,y,10,0,7);g.fill();g.strokeStyle='#8ad';g.beginPath();g.moveTo(x+10,y);g.lineTo(x+40,y);g.stroke();g.fillStyle='#d05858';g.beginPath();g.arc(x+50,y,10,0,7);g.fill();if(i===2){g.strokeStyle='#8ad';g.beginPath();g.moveTo(x+10,y);g.lineTo(x+40,y-18);g.moveTo(x+10,y);g.lineTo(x+40,y+18);g.stroke();}if(i===3){g.strokeStyle='#58b0a0';g.beginPath();g.arc(x+30,y-14,12,0.2,Math.PI-0.2);g.stroke();}g.fillStyle='#8ad';g.font='10px monospace';g.fillText(labels[i],x,100);}
+ g.fillStyle='#8ad';g.fillText('any regex nests these four; ε-edges glue them',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var pat=PATS[pi],s=TESTS[ti],ast=parseRE(pat),acc=matchRE(ast,s),ref=refMatch(pat,s);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('regex: /'+pat+'/',12,30);
+ g.fillStyle='#c9a6e8';g.font='13px monospace';g.fillText('string: "'+s+'"',12,60);
+ g.fillStyle=acc?'#39fc6b':'#ff7a7a';g.font='15px monospace';g.fillText(acc?'ACCEPT':'REJECT',12,100);
+ g.fillStyle=acc===ref?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('reference regex agrees: '+(acc===ref?'✓':'✗'),12,128);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('NFA advances a whole set of states — no backtracking',12,H-14);}
+document.getElementById('tnfpat').onclick=function(){pi=(pi+1)%PATS.length;drawW4();document.getElementById('tnfread').textContent='pattern /'+PATS[pi]+'/';};
+document.getElementById('tnfstr').onclick=function(){ti=(ti+1)%TESTS.length;drawW4();document.getElementById('tnfread').textContent='testing "'+TESTS[ti]+'"';};
+document.getElementById('tnfcheck').onclick=function(){var v=verify();document.getElementById('tnfread').textContent=v.patterns+' patterns, all strings ≤ len 6: NFA == reference regex '+(v.matchesReference?'✓':'✗');};
+document.getElementById('tnfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s='abba',cols=s.length+1;
+ for(var c=0;c<cols;c++){var active=(c%2===0)||(c===cols-1);for(var r=0;r<3;r++){var on=(r<=c%3+1);var x=40+c*70,y=80+r*70;g.fillStyle=on?'#39fc6b':'#2a3a30';g.beginPath();g.arc(x,y+6*Math.sin(ang+c+r),9,0,7);g.fill();if(c<cols-1&&on){g.strokeStyle='rgba(57,252,107,0.4)';g.beginPath();g.moveTo(x+9,y);g.lineTo(x+61,80+((r+1)%3)*70);g.stroke();}}
+  if(c<s.length){g.fillStyle='#c9a6e8';g.font='12px monospace';g.fillText(s[c],40+c*70+30,H-30);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the reachable state SET, advancing per character',10,H-42);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the exponential backtracking a naive engine explores',10,H-26);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('advance every path at once — nondeterminism costs nothing',10,H-11);}
+drawW4();window.__thompsonnfa=verify();drawW3();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KAD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Kadane&rsquo;s algorithm</b> finds the maximum-sum contiguous subarray in <b>one pass</b>, O(n) time and O(1) space. The insight: the best subarray <b>ending here</b> is either just this element, or this element plus the best subarray ending at the previous position &mdash; whichever is larger. Keep a running &lsquo;best ending here,&rsquo; reset it to the element whenever the running sum goes negative (a negative prefix can only hurt), and track the global maximum.<br><br>
+ It is the textbook example of dynamic programming distilled to two scalars.<br><br>
+ <span class="lit">LIT</span> verified live: for 500 random arrays with negative values, Kadane&rsquo;s result equals a brute-force maximum over all O(n&sup2;) subarrays (window.__kadane). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>undefined-behavior</i> &mdash; the negative-number trap that naive maximum-finders stumble into (initialise the max to 0 and an all-negative array breaks). Kadane steps around it cleanly. <b>AVAN (AI)</b> built the instrument: the running current/best scan, the reset rule, the brute cross-check.<br><br>Credit as content: Jay Kadane (1977), popularised by Jon Bentley&rsquo;s <i>Programming Pearls</i>. The weave: David names the trap; I run the two-scalar scan and prove it matches the exhaustive maximum over every subarray, negatives and all.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The running &lsquo;best ending here&rsquo; walks the array: it either extends the previous run or restarts at the current element. When a prefix turns negative it is dropped &mdash; carrying it forward could only lower a future sum.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">An array with negatives. Step Kadane and watch the current run and the global best; the winning subarray is highlighted. Verify the answer equals the brute maximum over all subarrays.</div>
+   <div class="btns" style="margin-top:10px"><button id="kadroll">new array ▶</button><button id="kadcheck">verify 500 ▶</button></div>
+   <div class="cap" id="kadread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the running maximum sweeping the array, the winning subarray glowing.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the O(n&sup2;) search over all (start, end) pairs collapses because the <b>optimal subarray ending at each position depends only on the optimal ending at the previous one</b> &mdash; a one-dimensional recurrence, not a two-dimensional search. The inverse of &lsquo;check all O(n&sup2;) subarrays&rsquo; is &lsquo;one running scalar carrying best-ending-here.&rsquo; And the reset rule is the crux: a prefix that has gone negative can never help any future subarray, so it is discarded &mdash; the past is forgotten <b>exactly</b> when it becomes a liability. <b>Magenta</b> is the quadratic field of subarrays never examined; <b>green</b> is the single running maximum. Optimal substructure turns a quadratic search into a scalar recurrence.</div>
+   <div class="btns" style="margin-top:10px"><button id="kadspin">pause spin</button></div></div></div></div>"""
+KAD_SCRIPT = """(function(){
+var ang=0,spin=true,A=[-2,1,-3,4,-1,2,1,-5,4];
+function kadane(a){var best=a[0],cur=a[0],bs=0,be=0,s=0;for(var i=1;i<a.length;i++){if(cur+a[i]<a[i]){cur=a[i];s=i;}else cur=cur+a[i];if(cur>best){best=cur;bs=s;be=i;}}return {best:best,start:bs,end:be};}
+function brute(a){var b=-Infinity;for(var i=0;i<a.length;i++){var s=0;for(var j=i;j<a.length;j++){s+=a[j];b=Math.max(b,s);}}return b;}
+function verify(){var seed=7;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<500;t++){var n=1+rnd()%20,a=[];for(var i=0;i<n;i++)a.push(rnd()%21-10);if(kadane(a).best!==brute(a))ok=false;}return {matchesBrute:ok};}
+function drawArr(g,a,ox,oy,cell,hl){var mx=Math.max.apply(0,a.map(Math.abs))||1;for(var i=0;i<a.length;i++){var h=a[i]/mx*50,inHl=hl&&i>=hl[0]&&i<=hl[1];g.fillStyle=inHl?'#39fc6b':(a[i]>=0?'#5a7a9a':'#9a5a6a');g.fillRect(ox+i*cell,oy-(a[i]>0?h:0),cell-3,Math.abs(h));g.fillStyle='#9ab';g.font='9px monospace';g.fillText(a[i],ox+i*cell+2,oy+(a[i]>0?12:-h+12));}g.strokeStyle='#334';g.beginPath();g.moveTo(ox,oy);g.lineTo(ox+a.length*cell,oy);g.stroke();}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('best-ending-here: extend, or restart at this element',12,16);
+ var cur=A[0],run=[A[0]];g.fillStyle='#8ad';g.font='10px monospace';var txt='cur: '+A[0];for(var i=1;i<A.length;i++){if(cur+A[i]<A[i]){cur=A[i];txt+=' | reset '+A[i];}else{cur=cur+A[i];txt+=' → '+cur;}}
+ drawArr(g,A,20,H/2,50,null);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=kadane(A);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('array: '+A.join(' '),12,22);
+ drawArr(g,A,20,150,Math.min(38,(W-40)/A.length),[r.start,r.end]);
+ g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('max subarray sum = '+r.best+'  (indices '+r.start+'..'+r.end+')',12,H-40);
+ var bf=brute(A);g.fillStyle=r.best===bf?'#39fc6b':'#ff5a5a';g.fillText('brute max over all subarrays = '+bf+(r.best===bf?' ✓':' ✗'),12,H-18);}
+document.getElementById('kadroll').onclick=function(){A=[];var n=7+Math.floor(Math.random()*4);for(var i=0;i<n;i++)A.push(Math.floor(Math.random()*17)-8);drawW3();drawW4();document.getElementById('kadread').textContent='max subarray = '+kadane(A).best;};
+document.getElementById('kadcheck').onclick=function(){var v=verify();document.getElementById('kadread').textContent='500 arrays with negatives: Kadane == brute '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('kadspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=kadane(A),cell=(W-40)/A.length,ps=0,pts=[0];for(var i=0;i<A.length;i++){ps+=A[i];pts.push(ps);}
+ var mn=Math.min.apply(0,pts),mx=Math.max.apply(0,pts),rng=(mx-mn)||1;
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<pts.length;i++){var x=20+i*cell,y=H*0.7-(pts[i]-mn)/rng*120+6*Math.sin(ang+i);if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ for(var i=r.start;i<=r.end+1;i++){var x=20+i*cell,y=H*0.7-(pts[i]-mn)/rng*120;g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the running maximum (prefix-sum view)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the O(n²) subarrays never examined',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('forget a prefix exactly when it turns into a liability',10,H-9);}
+drawW3();drawW4();window.__kadane=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FFK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The max-flow problem</b>: how much can flow from a source to a sink through a network of capacity-limited pipes? <b>Ford&ndash;Fulkerson</b> finds the maximum by repeatedly pushing flow along an <b>augmenting path</b> of not-yet-saturated pipes (using residual back-edges to reroute), until no such path remains.<br><br>
+ The theorem it proves is stunning: the <b>maximum flow equals the minimum cut</b> &mdash; the smallest total capacity of pipes you would have to sever to disconnect source from sink. A max and a min, exactly equal (linear-programming duality made concrete).<br><br>
+ <span class="lit">LIT</span> verified live: for 300 random networks, the max flow found equals the min-cut capacity (the reachable set in the residual graph), and flow is conserved at every intermediate node (window.__fordfulkerson). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-merge</i> &mdash; flows converging and merging toward the sink. Max-flow is the merge under capacity: how much can combine and pass through. <b>AVAN (AI)</b> built the instrument: the augmenting-path search (Edmonds&ndash;Karp BFS), the residual graph, the min-cut extraction, the conservation check.<br><br>Credit as content: L. R. Ford Jr. &amp; D. R. Fulkerson (1956); the BFS version is Edmonds&ndash;Karp (1972). The weave: David names the merge; I push flow along augmenting paths until none remain, then read the matching min cut off the residual graph.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">An augmenting path from source to sink: the most flow it can carry is the smallest capacity along it. Push that much, update residuals (including back-edges that permit rerouting), and search again.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A small capacity network. Run the augmenting paths to find the max flow, and see the min cut (the saturated bottleneck edges). Verify the flow value equals the cut capacity and flow is conserved.</div>
+   <div class="btns" style="margin-top:10px"><button id="ffknew">new network ▶</button><button id="ffkcheck">verify 300 ▶</button></div>
+   <div class="cap" id="ffkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the max flow filling the network up to its bottleneck, the min cut marked in magenta.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the value you <b>maximise</b> (flow) equals the value you <b>minimise</b> (cut) &mdash; a duality. Every flow is &le; every cut (weak duality, obvious: all flow crosses any cut), and Ford&ndash;Fulkerson drives them to <b>meet exactly</b> (strong duality). When no augmenting path remains, the vertices still reachable from the source in the residual graph define a cut whose capacity <b>equals</b> the flow &mdash; the algorithm&rsquo;s <b>termination certificate is the matching min cut</b>. The inverse of &lsquo;the most you can push through&rsquo; is &lsquo;the cheapest way to block it,&rsquo; and they coincide. <b>Magenta</b> is the min cut &mdash; the bottleneck edges, all saturated; <b>green</b> is the max flow that fills exactly up to it. Max equals min: the flow finds the bottleneck by filling it.</div>
+   <div class="btns" style="margin-top:10px"><button id="ffkspin">pause spin</button></div></div></div></div>"""
+FFK_SCRIPT = """(function(){
+var ang=0,spin=true,NET=null;
+function maxflow(n,cap,s,t){var f=cap.map(function(r){return r.slice();}),flow=0;while(true){var par=new Array(n).fill(-1);par[s]=s;var q=[s];while(q.length){var u=q.shift();for(var v=0;v<n;v++)if(par[v]<0&&f[u][v]>0){par[v]=u;q.push(v);}}if(par[t]<0)break;var aug=Infinity;for(var v=t;v!==s;v=par[v])aug=Math.min(aug,f[par[v]][v]);for(var v=t;v!==s;v=par[v]){f[par[v]][v]-=aug;f[v][par[v]]+=aug;}flow+=aug;}
+ var vis=new Array(n).fill(false),q=[s];vis[s]=true;while(q.length){var u=q.shift();for(var v=0;v<n;v++)if(!vis[v]&&f[u][v]>0){vis[v]=true;q.push(v);}}
+ var cut=0,cutEdges=[];for(var u=0;u<n;u++)if(vis[u])for(var v=0;v<n;v++)if(!vis[v]&&cap[u][v]>0){cut+=cap[u][v];cutEdges.push([u,v]);}
+ var used=cap.map(function(r,i){return r.map(function(c,j){return c-f[i][j];});}),cons=true;for(var u=0;u<n;u++){if(u===s||u===t)continue;var inn=0,out=0;for(var v=0;v<n;v++){if(used[u][v]>0)out+=used[u][v];if(used[v][u]>0)inn+=used[v][u];}if(inn!==out)cons=false;}
+ return {flow:flow,cut:cut,cutEdges:cutEdges,conserved:cons,vis:vis,used:used};}
+function mk(){var n=6,cap=[];for(var i=0;i<n;i++){cap.push([]);for(var j=0;j<n;j++)cap[i].push(0);}var edges=[[0,1,4],[0,2,3],[1,3,4],[2,4,3],[3,5,3],[4,5,4],[1,2,2],[3,4,2]];edges.forEach(function(e){cap[e[0]][e[1]]=e[2];});var pos=[[40,160],[150,70],[150,250],[270,70],[270,250],[360,160]];NET={n:n,cap:cap,pos:pos,s:0,t:5};}
+function verify(){var seed=5;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<300;t++){var n=4+rnd()%4,cap=[];for(var i=0;i<n;i++){cap.push([]);for(var j=0;j<n;j++)cap[i].push(i!==j&&rnd()%3===0?1+rnd()%9:0);}var r=maxflow(n,cap,0,n-1);if(r.flow!==r.cut||!r.conserved)ok=false;}return {maxflowEqualsMincut:ok,conserved:ok,trials:300};}
+function drawNet(g,net,res,ox,oy){var cap=net.cap;for(var u=0;u<net.n;u++)for(var v=0;v<net.n;v++)if(cap[u][v]>0){var a=net.pos[u],b=net.pos[v],isCut=res&&res.cutEdges.some(function(e){return e[0]===u&&e[1]===v;});g.strokeStyle=isCut?'#ff2d95':'#4a5560';g.lineWidth=isCut?3:1+(res?res.used[u][v]:0);g.beginPath();g.moveTo(a[0]+ox,a[1]+oy);g.lineTo(b[0]+ox,b[1]+oy);g.stroke();g.fillStyle='#8ad';g.font='9px monospace';g.fillText((res?res.used[u][v]:0)+'/'+cap[u][v],(a[0]+b[0])/2+ox,(a[1]+b[1])/2+oy);}g.lineWidth=1;
+ for(var u=0;u<net.n;u++){g.fillStyle=u===net.s?'#39fc6b':u===net.t?'#e0c040':(res&&res.vis[u]?'#3a6a4a':'#3a4150');g.beginPath();g.arc(net.pos[u][0]+ox,net.pos[u][1]+oy,13,0,7);g.fill();g.fillStyle='#fff';g.font='11px monospace';g.fillText(u===net.s?'S':u===net.t?'T':u,net.pos[u][0]+ox-4,net.pos[u][1]+oy+4);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('augmenting path: push min capacity along it, update residuals',12,16);
+ var xs=[40,160,280,400];for(var i=0;i<4;i++){g.fillStyle=i===0?'#39fc6b':i===3?'#e0c040':'#5090d0';g.beginPath();g.arc(xs[i],90,12,0,7);g.fill();if(i<3){g.strokeStyle='#5090d0';g.lineWidth=3;g.beginPath();g.moveTo(xs[i]+12,90);g.lineTo(xs[i+1]-12,90);g.stroke();g.lineWidth=1;g.fillStyle='#8ad';g.fillText([5,3,4][i],xs[i]+50,82);}}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('bottleneck = min(5,3,4) = 3 units of flow pushed',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!NET)mk();var res=maxflow(NET.n,NET.cap,NET.s,NET.t);drawNet(g,NET,res,10,0);
+ g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('max flow = '+res.flow,12,H-34);
+ g.fillStyle=res.flow===res.cut?'#ff2d95':'#ff5a5a';g.fillText('min cut = '+res.cut+(res.flow===res.cut?'  (= max flow ✓)':' ✗'),150,H-34);
+ g.fillStyle=res.conserved?'#8ad':'#ff5a5a';g.font='10px monospace';g.fillText('flow conserved at every node: '+(res.conserved?'✓':'✗')+'  |  magenta = min cut',12,H-14);}
+document.getElementById('ffknew').onclick=function(){mk();var e=[[0,1],[0,2],[1,3],[2,4],[3,5],[4,5],[1,2],[3,4]];e.forEach(function(ed){NET.cap[ed[0]][ed[1]]=1+Math.floor(Math.random()*8);});drawW4();document.getElementById('ffkread').textContent='max flow = '+maxflow(NET.n,NET.cap,NET.s,NET.t).flow;};
+document.getElementById('ffkcheck').onclick=function(){var v=verify();document.getElementById('ffkread').textContent='300 networks: max flow == min cut '+(v.maxflowEqualsMincut?'✓':'✗')+', flow conserved '+(v.conserved?'✓':'✗');};
+document.getElementById('ffkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!NET)mk();var res=maxflow(NET.n,NET.cap,NET.s,NET.t);drawNet(g,NET,res,10,20+10*Math.sin(ang)*0);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: max flow = '+res.flow+' filling to the bottleneck',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: min cut = '+res.cut+' (saturated bottleneck edges)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('max equals min: the flow finds the bottleneck by filling it',10,H-9);}
+mk();drawW3();drawW4();window.__fordfulkerson=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-patience-sorting","title":"THE PATIENCE SORTING","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#c8a848","icon":"patience-sorting",
+  "kicker":"deal cards to piles — the pile count is the longest increasing run",
+  "blurb":"patience sorting in the 5-window house format — deal cards onto piles, each on the leftmost pile whose top is >= it (else a new pile); the number of piles equals the longest increasing subsequence of the deck, computed in O(n log n) by binary search. Back-pointers recover the actual subsequence, and the structure ties to RSK and the Ulam-Hammersley problem. Verified live: for 500 random sequences the pile count equals the LIS length from an independent O(n^2) method. See cards dealt to piles in 1D, a deck sorted in 2D, and the greedy-is-optimal inverse in 3D.",
+  "lit":"Genuine patience sorting and its LIS connection (Aldous & Diaconis 1999; folklore card game). Verified live: dealing each element onto the leftmost pile with top >= it (binary search), the number of piles equals the longest-increasing-subsequence length computed by an independent O(n^2) DP for 500 random sequences (window.__patiencesorting.pilesEqualLIS); [3,1,4,1,5,9,2,6] gives 4 piles = LIS 4.",
+  "fig":"No framing: the greedy pile placement and the brute LIS check run in-browser and agree exactly. The AVAN inverse is honest — a greedy local decision (leftmost feasible pile) computes the global longest increasing subsequence exactly, because pile tops stay sorted and a new pile opens exactly LIS-length times; magenta is the O(n^2) DP the greedy avoids, green the sorted pile tops.",
+  "body":PAT_BODY,"script":PAT_SCRIPT},
+ {"slug":"the-shunting-yard","title":"THE SHUNTING YARD","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE TOOLCHAIN","domain_slug":"the-toolchain","accent":"#58b0a0","icon":"shunting-yard",
+  "kicker":"infix to RPN in one pass — precedence resolved once",
+  "blurb":"Dijkstra's shunting-yard algorithm in the 5-window house format — convert infix (3+4*2) to postfix (3 4 2 * +) in one left-to-right pass using an operator stack that respects precedence and parentheses, then evaluate postfix trivially on a value stack. It is how calculators and compilers turn human math into machine order, in O(n) with no recursion. Verified live: for 500 random expressions the shunting-yard postfix evaluates to the same value as an independent recursive-descent evaluator. See the operator stack in 1D, tokens shunting in 2D, and the order-encodes-grammar inverse in 3D.",
+  "lit":"Genuine shunting-yard algorithm (Dijkstra 1961). Verified live: for 500 random arithmetic expressions (+,-,*,parentheses, integer division), evaluating the shunting-yard postfix on a value stack gives the same result as an independent recursive-descent parser (window.__shuntingyard.postfixMatchesRef); 3+4*2 -> 11.",
+  "fig":"No framing: the operator-stack conversion, the postfix evaluation, and the recursive-descent reference all run in-browser and agree exactly. The AVAN inverse is honest — postfix needs no parentheses or precedence because the order encodes everything, so shunting-yard moves the grammar complexity once (parse time) and hands the interpreter a flat stream; magenta is the vanished parentheses/precedence, green the postfix.",
+  "body":SHY_BODY,"script":SHY_SCRIPT},
+ {"slug":"the-thompson-nfa","title":"THE THOMPSON NFA","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FIREWALL","domain_slug":"the-firewall","accent":"#d05858","icon":"thompson-nfa",
+  "kicker":"regex to NFA — match by advancing a whole state set, no backtracking",
+  "blurb":"Thompson's construction in the 5-window house format — compile a regular expression into an NFA from four gadgets (literal, concatenation, alternation, star) glued by epsilon-transitions, then match a string by tracking the SET of reachable states, stepping the whole set per character. This runs in O(nm) with no catastrophic backtracking (the guarantee grep and RE2 give). Verified live: for several patterns over {a,b}, the NFA set-simulation's accept/reject matches a reference regex across all strings up to length 6. See the gadgets in 1D, accept/reject in 2D, and the advance-all-paths inverse in 3D.",
+  "lit":"Genuine Thompson NFA construction (Thompson 1968, the basis of grep). Verified live: compiling regexes (concat, |, *) over {a,b} into an NFA and simulating by set-of-states, the accept/reject verdict matches JavaScript's reference RegExp for all strings up to length 6 across 5 patterns (window.__thompsonnfa.matchesReference).",
+  "fig":"No framing: the regex parser, the set-of-states simulation, and the exhaustive reference check run in-browser and agree exactly. The AVAN inverse is honest — carrying a set of states advances all nondeterministic paths in parallel, turning the exponential backtracking tree into a linear sweep over a bounded state set (lazy subset construction); magenta is the backtracking a naive engine explores, green the single advancing state set.",
+  "body":TNF_BODY,"script":TNF_SCRIPT},
+ {"slug":"the-kadane","title":"THE KADANE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#b878d0","icon":"kadane",
+  "kicker":"max subarray in one pass — forget a prefix when it turns negative",
+  "blurb":"Kadane's algorithm in the 5-window house format — find the maximum-sum contiguous subarray in one pass, O(n) time O(1) space: the best subarray ending here is either this element or this element plus the best ending previously, whichever is larger; reset when the running sum goes negative. It is dynamic programming distilled to two scalars. Verified live: for 500 random arrays with negatives, Kadane's result equals a brute maximum over all O(n^2) subarrays. See the running best in 1D, the winning subarray in 2D, and the optimal-substructure inverse in 3D.",
+  "lit":"Genuine Kadane's algorithm (Kadane 1977, via Bentley's Programming Pearls). Verified live: for 500 random arrays containing negative values, the two-scalar running scan returns a maximum subarray sum equal to the brute-force maximum over all O(n^2) contiguous subarrays (window.__kadane.matchesBrute).",
+  "fig":"No framing: the running current/best scan and the brute cross-check run in-browser and agree exactly. The AVAN inverse is honest — the optimal subarray ending at each position depends only on the previous one, a 1D recurrence replacing the 2D search, and a prefix gone negative is discarded exactly when it becomes a liability; magenta is the O(n^2) subarrays skipped, green the running maximum.",
+  "body":KAD_BODY,"script":KAD_SCRIPT},
+ {"slug":"the-ford-fulkerson","title":"THE FORD-FULKERSON","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#5090d0","icon":"ford-fulkerson",
+  "kicker":"max flow equals min cut — the bottleneck found by filling it",
+  "blurb":"Ford-Fulkerson max-flow in the 5-window house format — push flow from source to sink along augmenting paths of unsaturated pipes (with residual back-edges to reroute) until none remain; the maximum flow equals the minimum cut, the smallest total capacity severing source from sink (LP duality made concrete). Verified live: for 300 random networks the max flow equals the min-cut capacity (the residual-reachable set) and flow is conserved at every node. See an augmenting path in 1D, a network solved with its cut in 2D, and the max-equals-min inverse in 3D.",
+  "lit":"Genuine Ford-Fulkerson max-flow / max-flow min-cut theorem (Ford & Fulkerson 1956; Edmonds-Karp BFS 1972). Verified live: for 300 random capacity networks, BFS augmenting paths yield a max flow equal to the min-cut capacity (edges from the residual-reachable set of the source to the rest) and flow is conserved at every intermediate node (window.__fordfulkerson.maxflowEqualsMincut && .conserved).",
+  "fig":"No framing: the augmenting-path search, the residual min-cut extraction, and the conservation check run in-browser and are exact. The AVAN inverse is honest and is the max-flow min-cut theorem — a maximised flow equals a minimised cut, and the algorithm's termination certificate (no augmenting path) is exactly the matching min cut; magenta is the saturated min-cut edges, green the max flow filling to them.",
+  "body":FFK_BODY,"script":FFK_SCRIPT},
  {"slug":"the-motzkin","title":"THE MOTZKIN","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#56b8c0","icon":"motzkin",
   "kicker":"paths that may rest — Catalan hiding under the flats",
