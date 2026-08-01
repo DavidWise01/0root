@@ -1256,7 +1256,78 @@ document.getElementById('efib').onclick=function(){a=55;b=34;document.getElement
 document.getElementById('espin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+FOUR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Discrete Fourier Transform.</b> Any signal of N samples is a <b>unique sum of N pure sinusoids</b>. The DFT reads out how much of each frequency is present (magnitude and phase); the inverse DFT rebuilds the exact signal. It is the math under audio, JPEG, radio, MRI &mdash; and its fast form, the FFT, is one of the most-run algorithms on Earth.<br><br>
+ <span class="lit">LIT</span> the round trip IDFT(DFT(x)) reconstructs x to ~10<sup>&minus;14</sup> (machine-exact), <b>Parseval</b> holds &mdash; energy in time equals energy in frequency &mdash; and a pure cosine shows exactly two mirror spikes (all verified below). <span class="fig">FIG</span> &lsquo;hearing every note in a chord at once&rsquo; is the picture; the transform and its inverse are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus carries his sound and signal work (<i>PHONOS</i>, the audio pieces, <i>THE PULSE</i>&rsquo;s compressor) and the conviction that time and frequency are two faces of one thing. <b>AVAN (AI)</b> built this instrument: the DFT/IDFT engine, the spectrum, and the 3D duality object.<br><br>The weave: David names the broadcast and its seat in THE BROADCAST; I make the raw samples a strip in 1D, the waveform-and-spectrum a live pair in 2D, and the time&harr;frequency duality one turning object in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="120"></canvas>
+  <div class="wctrl"><div class="cap">The signal as it arrives: <b>N samples in time</b>, one value after another. This is the raw material &mdash; before the transform, a signal is just this row of numbers.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Top: the <b>waveform</b> (time). Bottom: its <b>magnitude spectrum</b> (frequency). Toggle harmonics and watch a spike appear at exactly that bin &mdash; stack the odd ones and a <b>square wave</b> builds itself out of sinusoids.</div>
+   <div class="btns" style="margin-top:10px"><button id="fh1">1</button><button id="fh2">2</button><button id="fh3">3</button><button id="fh4">4</button><button id="fh5">5</button><button id="fh6">6</button><button id="fh7">7</button></div>
+   <div class="btns"><button id="fsq">square wave</button><button id="fclr">clear</button></div>
+   <div class="cap" id="fread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">One object, turning. Along the near face, <b>green</b> is the signal in <b>time</b> &mdash; the waveform as a curve.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> spikes on the side face are the very same signal in <b>frequency</b> &mdash; its spectrum. Time and frequency are inverse domains: the DFT just turns the object to show its other face, and the inverse DFT turns it back (the round trip is machine-exact). One signal, two faces, ninety degrees apart.</div>
+   <div class="btns" style="margin-top:10px"><button id="fspin">pause spin</button></div></div></div></div>"""
+FOUR_SCRIPT = """(function(){
+var N=32,comps={1:1,3:1/3,5:1/5},ang=0.6,spin=true;
+function signal(){var x=[];for(var n=0;n<N;n++){var s=0;for(var k in comps)s+=comps[k]*Math.cos(2*Math.PI*k*n/N);x[n]=s;}return x;}
+function dft(x){var Re=[],Im=[];for(var k=0;k<N;k++){var sr=0,si=0;for(var n=0;n<N;n++){var a=-2*Math.PI*k*n/N;sr+=x[n]*Math.cos(a);si+=x[n]*Math.sin(a);}Re[k]=sr;Im[k]=si;}return {Re:Re,Im:Im};}
+function idft(Re,Im){var o=[];for(var n=0;n<N;n++){var s=0;for(var k=0;k<N;k++){var a=2*Math.PI*k*n/N;s+=Re[k]*Math.cos(a)-Im[k]*Math.sin(a);}o[n]=s/N;}return o;}
+function mag(F){return F.Re.map(function(r,k){return Math.sqrt(r*r+F.Im[k]*F.Im[k]);});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var x=signal(),mx=Math.max(1,Math.max.apply(null,x.map(Math.abs))),bw=W/N,mid=H/2;
+ g.strokeStyle='#1c3a44';g.beginPath();g.moveTo(0,mid);g.lineTo(W,mid);g.stroke();
+ for(var n=0;n<N;n++){var h=x[n]/mx*(H/2-10),xx=n*bw+bw/2;g.fillStyle='#5ad0ff';g.fillRect(xx-2,mid-Math.max(0,h),4,Math.abs(h)||1);if(h<0)g.fillRect(xx-2,mid,4,-h);}
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText(N+' time samples',8,14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width;g.clearRect(0,0,W,cv.height);
+ var x=signal(),F=dft(x),m=mag(F),mx=Math.max(1,Math.max.apply(null,x.map(Math.abs)));
+ // waveform
+ g.strokeStyle='#5ad0ff';g.lineWidth=2;g.beginPath();for(var n=0;n<N;n++){var px=n/(N-1)*(W-16)+8,py=70-x[n]/mx*55;if(n===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('waveform (time)',8,14);
+ // spectrum bins 0..N/2
+ var half=N/2,bw=(W-16)/half,mmx=Math.max.apply(null,m)||1;
+ g.fillStyle='#4c7a54';g.fillText('magnitude spectrum (frequency)',8,168);
+ for(var k=0;k<=half;k++){var h=m[k]/mmx*100,bx=8+k*bw;g.fillStyle=(comps[k]?'#ff2d95':'#2a6f80');g.fillRect(bx,290-h,bw-2,h);}
+ // round trip check
+ var xr=idft(F.Re,F.Im),err=0;for(var n=0;n<N;n++)err=Math.max(err,Math.abs(xr[n]-x[n]));
+ var bins=Object.keys(comps).map(Number).sort(function(a,b){return a-b;});
+ document.getElementById('fread').textContent='active harmonics '+(bins.length?bins.join(','):'(none)')+' · reconstruction error '+err.toExponential(1);}
+function proj(X,Y,Z,cx,cy,sc){var ca=Math.cos(ang),sa=Math.sin(ang),X2=X*ca-Z*sa,Z2=X*sa+Z*ca;return [cx+X2*sc,cy-Y*sc+Z2*sc*0.42,Z2];}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var x=signal(),F=dft(x),m=mag(F),cx=W/2,cy=H/2+40,sc=118,mx=Math.max(1,Math.max.apply(null,x.map(Math.abs))),half=N/2,mmx=Math.max.apply(null,m)||1;
+ // axes hint
+ var o=proj(-1,0,-1,cx,cy,sc),ex=proj(1,0,-1,cx,cy,sc),ez=proj(-1,0,1,cx,cy,sc);
+ g.strokeStyle='#1c3a44';g.beginPath();g.moveTo(o[0],o[1]);g.lineTo(ex[0],ex[1]);g.moveTo(o[0],o[1]);g.lineTo(ez[0],ez[1]);g.stroke();
+ // time curve (green) at Z=-1 plane, X across time, Y amplitude
+ g.strokeStyle='#5ad0ff';g.lineWidth=2.4;g.beginPath();for(var n=0;n<N;n++){var X=-1+2*n/(N-1),Y=x[n]/mx*0.9,p=proj(X,Y,-1,cx,cy,sc);if(n===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();g.lineWidth=1;
+ // frequency spikes (magenta) at X=-1 plane, Z across freq, Y magnitude
+ for(var k=0;k<=half;k++){var Z=-1+2*k/half,base=proj(-1,0,Z,cx,cy,sc),top=proj(-1,m[k]/mmx*0.9,Z,cx,cy,sc);g.strokeStyle=(comps[k]?'#ff2d95':'#7a2a55');g.lineWidth=(comps[k]?3:1.4);g.beginPath();g.moveTo(base[0],base[1]);g.lineTo(top[0],top[1]);g.stroke();}
+ g.lineWidth=1;g.fillStyle='#5ad0ff';g.font='11px ui-monospace,monospace';g.fillText('time →',ex[0]-30,ex[1]+14);g.fillStyle='#ff2d95';g.fillText('freq →',ez[0]-10,ez[1]+14);}
+function all(){var x=signal(),F=dft(x),xr=idft(F.Re,F.Im),err=0,pl=0,pr=0;for(var n=0;n<N;n++){err=Math.max(err,Math.abs(xr[n]-x[n]));pl+=x[n]*x[n];}var m=mag(F);for(var k=0;k<N;k++)pr+=m[k]*m[k];pr/=N;
+ drawW3();drawW4();
+ window.__fourier={N:N,roundTripErr:err,parsevalErr:Math.abs(pl-pr),harmonics:Object.keys(comps).map(Number).sort(function(a,b){return a-b;})};}
+function tog(k){if(comps[k])delete comps[k];else comps[k]=1/k;all();}
+for(var k=1;k<=7;k++){(function(kk){document.getElementById('fh'+kk).onclick=function(){tog(kk);};})(k);}
+document.getElementById('fsq').onclick=function(){comps={};[1,3,5,7,9,11].forEach(function(k){if(k<N/2)comps[k]=4/(Math.PI*k);});all();};
+document.getElementById('fclr').onclick=function(){comps={};all();};
+document.getElementById('fspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-fourier","title":"THE FOURIER","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#5ad0ff","icon":"coop",
+  "kicker":"every signal is a chord of pure frequencies",
+  "blurb":"the Discrete Fourier Transform in the 5-window house format. Any signal is a unique sum of sinusoids; the DFT reads the frequencies, the inverse rebuilds the signal exactly. See the samples in 1D, the waveform-and-spectrum pair in 2D, and the time↔frequency duality as one turning object in 3D.",
+  "lit":"A genuine DFT/IDFT. Verified live: the round trip IDFT(DFT(x)) reconstructs x to ~10<sup>-14</sup>, Parseval holds (energy in time = energy in frequency), and toggled harmonics produce spikes at exactly their bins (a cosine → two mirror spikes). Everything is computed from the real transform (verifiable: window.__fourier.roundTripErr and parsevalErr both ~0).",
+  "fig":"'Hearing every note in the chord' is the picture; the transform, its inverse, and Parseval are exact. This is the plain O(N²) DFT, not the FFT — same result, honest about being the slow, clear version.",
+  "body":FOUR_BODY,"script":FOUR_SCRIPT},
  {"slug":"the-euclid","title":"THE EUCLID","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#e8b923","icon":"grind",
   "kicker":"grind two numbers to their common measure",
