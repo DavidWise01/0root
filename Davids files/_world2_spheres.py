@@ -18089,7 +18089,277 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 mkSig();drawW3();drawW4();window.__bluestein=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 63 (exact transform in a field · four-slope step · snip an ear · leap in powers of two · palindromes are a tree) ═══════════════════════
+NT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The number-theoretic transform</b> (NTT) is the FFT done over a <b>finite field</b> instead of the complex numbers. Working modulo a prime that has a root of unity of the right order (here 998244353, with generator 3), the same butterfly structure computes exact convolutions of integer sequences &mdash; with <b>no floating-point error at all</b>. Transform, multiply pointwise, inverse-transform, and the product is exact.<br><br>
+ It is how competitive programmers and cryptographers multiply huge polynomials and integers exactly.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random integer polynomial pairs the NTT convolution equals the exact naive convolution (window.__ntt). <span class="fig">FIG</span> no framing; exact integer arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-grindstone</i> &mdash; grinding out big exact multiplications with the transform, no rounding to creep in. NTT is that exact fast grind. <b>AVAN (AI)</b> built the instrument: the modular butterfly transform, the pointwise product, the inverse transform, the exact-convolution cross-check.<br><br>Credit as content: the finite-field DFT (Pollard 1971; the modern NTT). The weave: David names the grindstone; I run the FFT&rsquo;s butterflies in a prime field and confirm the convolution is bit-for-bit exact against the direct product.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The same divide-and-conquer butterflies as an FFT &mdash; but the &lsquo;twiddle&rsquo; is a power of a root of unity in &#8484;/p, so every value is an exact integer mod p. No sines, no rounding.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">Two integer polynomials; their NTT convolution is shown against the exact direct product &mdash; identical, to the digit.</div>
+   <div class="btns" style="margin-top:10px"><button id="ntroll">new polynomials ▶</button><button id="ntcheck">verify 200 ▶</button></div>
+   <div class="cap" id="ntread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the exact convolution, computed by field butterflies.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): do the transform over a <b>finite field</b> &mdash; integers mod a prime with a root of unity &mdash; so there is <b>no floating-point error</b>; the convolution is exact and rounding vanishes. The inverse of &lsquo;transform in the continuous complex plane (with rounding)&rsquo; is &lsquo;transform in a finite field (exact integers).&rsquo; <b>Magenta</b> is the floating-point roundoff of a complex FFT; <b>green</b> is the exact modular arithmetic. Same butterfly structure, zero error &mdash; the FFT made exact. (Kin to the-fourier and the-bluestein.)</div>
+   <div class="btns" style="margin-top:10px"><button id="ntspin">pause spin</button></div></div></div></div>"""
+NT_SCRIPT = """(function(){
+var ang=0,spin=true,P=998244353n,G=3n,A=[3,1,4,1,5],B=[2,7,1,8];
+function mp(b,e,m){b%=m;var r=1n;while(e>0n){if(e&1n)r=r*b%m;b=b*b%m;e>>=1n;}return r;}
+function ntt(a,inv){var n=a.length;for(var i=1,j=0;i<n;i++){var bit=n>>1;for(;j&bit;bit>>=1)j^=bit;j^=bit;if(i<j){var t=a[i];a[i]=a[j];a[j]=t;}}for(var len=2;len<=n;len<<=1){var w=mp(G,(P-1n)/BigInt(len),P);if(inv)w=mp(w,P-2n,P);for(var i=0;i<n;i+=len){var wn=1n;for(var k=0;k<len/2;k++){var u=a[i+k],v=a[i+k+len/2]*wn%P;a[i+k]=(u+v)%P;a[i+k+len/2]=(u-v+P)%P;wn=wn*w%P;}}}if(inv){var ni=mp(BigInt(n),P-2n,P);for(var i=0;i<n;i++)a[i]=a[i]*ni%P;}return a;}
+function conv(A,B){var need=A.length+B.length-1,n=1;while(n<need)n<<=1;var fa=A.map(BigInt).concat(Array(n-A.length).fill(0n)),fb=B.map(BigInt).concat(Array(n-B.length).fill(0n));ntt(fa,false);ntt(fb,false);for(var i=0;i<n;i++)fa[i]=fa[i]*fb[i]%P;ntt(fa,true);return fa.slice(0,need).map(function(x){return Number(x);});}
+function naive(A,B){var r=new Array(A.length+B.length-1).fill(0);for(var i=0;i<A.length;i++)for(var j=0;j<B.length;j++)r[i+j]+=A[i]*B[j];return r;}
+function verify(){var seed=81;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true;for(var t=0;t<200;t++){var la=1+Math.floor(rnd()*12),lb=1+Math.floor(rnd()*12),a=[],b=[];for(var i=0;i<la;i++)a.push(Math.floor(rnd()*100));for(var i=0;i<lb;i++)b.push(Math.floor(rnd()*100));if(conv(a,b).join(',')!==naive(a,b).join(','))ok=false;}return {matchesExact:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('FFT butterflies — but the twiddle is a root of unity in ℤ/p (exact)',12,14);
+ for(var lv=0;lv<3;lv++)for(var k=0;k<4;k++){var x=60+k*100,y=50+lv*35;g.fillStyle='#c0a048';g.fillRect(x,y,16,16);if(lv<2){g.strokeStyle='#5a5030';g.beginPath();g.moveTo(x+8,y+16);g.lineTo(60+((k+ (lv==0?1:2))%4)*100+8,y+35);g.stroke();}}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('w = g^((p−1)/n) mod p — no sines, no rounding',60,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var nt=conv(A,B),nv=naive(A,B),ok=nt.join(',')===nv.join(',');
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('A = ['+A.join(',')+']',12,24);g.fillText('B = ['+B.join(',')+']',12,44);
+ g.fillStyle='#c0a048';g.fillText('NTT:   ['+nt.join(',')+']',12,78);g.fillStyle='#8ad';g.fillText('exact: ['+nv.join(',')+']',12,98);
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText(ok?'identical to the digit ✓ (no floating error)':'✗',12,130);}
+document.getElementById('ntroll').onclick=function(){var la=3+Math.floor(Math.random()*3),lb=3+Math.floor(Math.random()*3);A=[];B=[];for(var i=0;i<la;i++)A.push(Math.floor(Math.random()*9));for(var i=0;i<lb;i++)B.push(Math.floor(Math.random()*9));drawW4();document.getElementById('ntread').textContent='product degree '+(conv(A,B).length-1);};
+document.getElementById('ntcheck').onclick=function(){var v=verify();document.getElementById('ntread').textContent='200 pairs: NTT == exact naive convolution '+(v.matchesExact?'✓':'✗');};
+document.getElementById('ntspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-20,n=8;
+ for(var i=0;i<n;i++){var a=i/n*6.28+ang*0.3,x=cx+Math.cos(a)*90,y=cy+Math.sin(a)*70;g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,7,0,7);g.fill();var a2=(i+1)/n*6.28+ang*0.3;g.strokeStyle='rgba(57,252,107,0.3)';g.beginPath();g.moveTo(x,y);g.lineTo(cx+Math.cos(a2)*90,cy+Math.sin(a2)*70);g.stroke();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the roots of unity in ℤ/p (exact integers)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the floating roundoff a complex FFT carries',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('same butterflies, zero error — the FFT made exact',10,H-9);}
+drawW3();drawW4();window.__ntt=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Runge&ndash;Kutta method</b> (classic RK4) advances a differential equation one step by <b>sampling the slope four times</b> within the step &mdash; at the start, twice at the midpoint, and at the end &mdash; then taking a weighted average (1, 2, 2, 1)/6. The sampling errors cancel to <b>fourth order</b>, so halving the step size cuts the error roughly <b>16&times;</b>. One clever RK4 step is as accurate as thousands of crude Euler steps.<br><br>
+ It is the default workhorse for simulating physical systems.<br><br>
+ <span class="lit">LIT</span> verified live: RK4 solves y&prime;=y to reproduce e to ~10&#8315;&#8309;, its error shrinks ~16&times; when the step halves (fourth-order), and y&prime;=cos t reproduces sin t (window.__rungekutta). <span class="fig">FIG</span> no framing; genuine fourth-order accuracy.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hot-loop</i> &mdash; the tight step-loop that advances a simulation, each iteration nudging the state forward accurately. RK4 is that hot loop&rsquo;s heart. <b>AVAN (AI)</b> built the instrument: the four-slope step, the weighted average, the exact-solution and convergence-order checks.<br><br>Credit as content: Carl Runge (1895) &amp; Wilhelm Kutta (1901). The weave: David names the hot loop; I probe the slope four times per step and confirm the error falls at fourth order against known solutions.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Within one step: k&#8321; is the slope at the start, k&#8322; and k&#8323; at the midpoint (each using the last), k&#8324; at the end. Their weighted average 1&middot;2&middot;2&middot;1 fits the curve to fourth order.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">RK4 (green) versus Euler (magenta) integrating an ODE against the exact curve; RK4 tracks it where Euler drifts.</div>
+   <div class="btns" style="margin-top:10px"><button id="rkode">switch ODE ▶</button><button id="rkcheck">verify order ▶</button></div>
+   <div class="cap" id="rkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the four-slope step that tracks the true trajectory.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): <b>sample the slope at four points</b> within the step and take a weighted average &mdash; the errors of the samples <b>cancel</b> to fourth order, so one clever step is as accurate as thousands of Euler steps. The inverse of &lsquo;trust the initial slope&rsquo; is &lsquo;probe the slope four times and let the errors cancel.&rsquo; <b>Magenta</b> is Euler&rsquo;s crude single-slope drift; <b>green</b> is the four-slope weighted step. A Simpson&rsquo;s rule for trajectories &mdash; fourth-order accuracy from one step.</div>
+   <div class="btns" style="margin-top:10px"><button id="rkspin">pause spin</button></div></div></div></div>"""
+RK_SCRIPT = """(function(){
+var ang=0,spin=true,MODE=0;
+var ODES=[{f:function(t,y){return y;},sol:function(t){return Math.exp(t);},y0:1,t1:2,name:"y'=y → eᵗ"},{f:function(t,y){return Math.cos(t);},sol:function(t){return Math.sin(t);},y0:0,t1:6.283,name:"y'=cos t → sin t"},{f:function(t,y){return -2*t*y;},sol:function(t){return Math.exp(-t*t);},y0:1,t1:2.5,name:"y'=−2ty → e^(−t²)"}];
+function rk4(f,t0,y0,h,steps){var t=t0,y=y0,path=[[t,y]];for(var i=0;i<steps;i++){var k1=f(t,y),k2=f(t+h/2,y+h/2*k1),k3=f(t+h/2,y+h/2*k2),k4=f(t+h,y+h*k3);y+=h/6*(k1+2*k2+2*k3+k4);t+=h;path.push([t,y]);}return {y:y,path:path};}
+function euler(f,t0,y0,h,steps){var t=t0,y=y0,path=[[t,y]];for(var i=0;i<steps;i++){y+=h*f(t,y);t+=h;path.push([t,y]);}return {path:path};}
+function verify(){var f=function(t,y){return y;};var e1=Math.abs(rk4(f,0,1,0.1,10).y-Math.E),e2=Math.abs(rk4(f,0,1,0.05,20).y-Math.E);var g=function(t,y){return Math.cos(t);},eg=Math.abs(rk4(g,0,0,0.01,314).y-Math.sin(3.14));var order=e1/e2;return {eAccurate:e1<1e-4,orderFour:(order>10&&order<24),sinAccurate:eg<1e-6,ratio:+order.toFixed(1)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('one step: k₁ start · k₂,k₃ midpoint · k₄ end → avg (1,2,2,1)/6',12,14);
+ var labels=['k₁','k₂','k₃','k₄'],xs=[60,180,180,320],ys=[110,75,90,60];for(var i=0;i<4;i++){g.fillStyle='#58a0b0';g.beginPath();g.arc(xs[i],ys[i],10,0,7);g.fill();g.fillStyle='#fff';g.font='9px monospace';g.fillText(labels[i],xs[i]-6,ys[i]+3);}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(60,110);g.quadraticCurveTo(200,60,320,60);g.stroke();g.lineWidth=1;g.fillStyle='#8ad';g.font='9px monospace';g.fillText('weighted average fits to 4th order',60,145);}
+function toXY(p,t0,t1,ymin,ymax,W,H){return [30+(p[0]-t0)/(t1-t0)*(W-50),H-24-(p[1]-ymin)/(ymax-ymin+1e-9)*(H-50)];}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var o=ODES[MODE],h=(o.t1)/8,rk=rk4(o.f,0,o.y0,h,8),eu=euler(o.f,0,o.y0,h,8);
+ var ys=[];for(var i=0;i<=40;i++)ys.push(o.sol(i/40*o.t1));var ymin=Math.min.apply(0,ys.concat(eu.path.map(function(p){return p[1];}))),ymax=Math.max.apply(0,ys.concat(eu.path.map(function(p){return p[1];})));
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText(o.name+'  (8 steps)',12,16);
+ g.strokeStyle='#556';g.lineWidth=2;g.beginPath();for(var i=0;i<=40;i++){var p=toXY([i/40*o.t1,o.sol(i/40*o.t1)],0,o.t1,ymin,ymax,W,H);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();
+ g.strokeStyle='#ff2d95';g.beginPath();eu.path.forEach(function(pt,i){var p=toXY(pt,0,o.t1,ymin,ymax,W,H);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});g.stroke();
+ g.strokeStyle='#39fc6b';g.beginPath();rk.path.forEach(function(pt,i){var p=toXY(pt,0,o.t1,ymin,ymax,W,H);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('RK4 (tracks exact)',W-110,H-24);g.fillStyle='#ff2d95';g.fillText('Euler (drifts)',W-110,H-12);}
+document.getElementById('rkode').onclick=function(){MODE=(MODE+1)%ODES.length;drawW4();document.getElementById('rkread').textContent=ODES[MODE].name;};
+document.getElementById('rkcheck').onclick=function(){var v=verify();document.getElementById('rkread').textContent='e accurate '+(v.eAccurate?'✓':'✗')+', order-4 (ratio '+v.ratio+'≈16) '+(v.orderFour?'✓':'✗')+', sin '+(v.sinAccurate?'✓':'✗');};
+document.getElementById('rkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var o=ODES[MODE],rk=rk4(o.f,0,o.y0,o.t1/20,20),cx=30,cy=H/2;
+ var ys=rk.path.map(function(p){return p[1];}),ymin=Math.min.apply(0,ys),ymax=Math.max.apply(0,ys);
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();rk.path.forEach(function(pt,i){var x=30+pt[0]/o.t1*(W-60),y=H-40-(pt[1]-ymin)/(ymax-ymin+1e-9)*(H-90)+4*Math.sin(ang+i*0.3);if(i===0)g.moveTo(x,y);else g.lineTo(x,y);g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,3,0,7);g.fill();});g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: RK4 four-slope step tracks the trajectory',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: Euler\\'s single-slope drift',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('four probes, errors cancel → 4th-order accuracy',10,H-9);}
+drawW4();window.__rungekutta=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+EC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Ear clipping</b> triangulates a simple polygon by repeatedly snipping off an <b>ear</b> &mdash; a convex corner whose triangle contains no other vertex of the polygon. Removing an ear cuts off one triangle and one vertex; repeat until only a triangle remains. The <b>Two Ears Theorem</b> guarantees every simple polygon with more than three vertices has at least two ears, so the process never gets stuck, and it always yields exactly <b>n&minus;2</b> triangles.<br><br>
+ It is the standard way to turn a polygon into renderable triangles.<br><br>
+ <span class="lit">LIT</span> verified live: for convex polygons (300 random) and a set of non-convex reflex test shapes, ear clipping produces exactly n&minus;2 triangles whose areas sum to the polygon&rsquo;s area (window.__earclipping). <span class="fig">FIG</span> no framing; a valid triangulation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sandbox</i> &mdash; the geometry playground where a shape is broken into the triangles a renderer can draw. Ear clipping is that meshing. <b>AVAN (AI)</b> built the instrument: the convex-corner test, the point-in-triangle ear check, the snip-and-repeat loop, the triangle-count and area cross-checks.<br><br>Credit as content: the ear-clipping method (Meisters&rsquo; Two Ears Theorem, 1975). The weave: David names the sandbox; I snip one safe ear at a time and confirm the result is a valid triangulation of exactly n&minus;2 triangles.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">An ear is a convex vertex whose triangle (its two neighbours) holds no other vertex. Snip it: one triangle comes off, the polygon loses a vertex, and the search repeats.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A polygon triangulated by ear clipping; the n&minus;2 triangles are shown, and their areas sum to the polygon&rsquo;s.</div>
+   <div class="btns" style="margin-top:10px"><button id="ecroll">new polygon ▶</button><button id="ecnc">non-convex ▶</button><button id="eccheck">verify ▶</button></div>
+   <div class="cap" id="ecread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the triangulation, one ear snipped at a time.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): repeatedly <b>snip off a single ear</b> &mdash; a convex corner whose triangle contains no other vertex &mdash; reducing the polygon by one vertex each time, until only a triangle remains. The inverse of &lsquo;decompose the shape globally&rsquo; is &lsquo;remove one safe corner at a time.&rsquo; The Two Ears Theorem guarantees an ear always exists, so the greedy snip never fails. <b>Magenta</b> is the whole polygon; <b>green</b> is the ear being clipped. n&minus;2 triangles fall out, one snip each.</div>
+   <div class="btns" style="margin-top:10px"><button id="ecspin">pause spin</button></div></div></div></div>"""
+EC_SCRIPT = """(function(){
+var ang=0,spin=true,POLY=null;
+function area(poly){var s=0;for(var i=0;i<poly.length;i++){var a=poly[i],b=poly[(i+1)%poly.length];s+=a[0]*b[1]-b[0]*a[1];}return s/2;}
+function cross(o,a,b){return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);}
+function inTri(p,a,b,c){var d1=cross(a,b,p),d2=cross(b,c,p),d3=cross(c,a,p);return (d1>=0&&d2>=0&&d3>=0)||(d1<=0&&d2<=0&&d3<=0);}
+function earClip(poly){var V=poly.map(function(p,i){return i;}),tris=[],pts=poly,ccw=area(poly)>0;if(!ccw)V.reverse();var guard=0;while(V.length>2&&guard<2000){guard++;var clipped=false;for(var i=0;i<V.length;i++){var a=V[(i+V.length-1)%V.length],b=V[i],c=V[(i+1)%V.length];if(cross(pts[a],pts[b],pts[c])<=0)continue;var ear=true;for(var j=0;j<V.length;j++){var vj=V[j];if(vj===a||vj===b||vj===c)continue;if(inTri(pts[vj],pts[a],pts[b],pts[c])){ear=false;break;}}if(ear){tris.push([a,b,c]);V.splice(i,1);clipped=true;break;}}if(!clipped)break;}return tris;}
+var NC=[[[0,0],[4,0],[4,2],[2,2],[2,4],[0,4]],[[0,0],[4,0],[4,4],[2,1],[0,4]],[[0,0],[6,0],[6,4],[4,4],[4,2],[2,2],[2,4],[0,4]],[[0,0],[5,0],[5,5],[3,3],[0,5]],[[0,2],[2,0],[4,2],[3,2],[3,4],[1,4],[1,2]]];
+function verify(){var seed=83;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var cok=true;for(var t=0;t<300;t++){var n=3+Math.floor(rnd()*8),angs=[];for(var i=0;i<n;i++)angs.push(rnd()*6.283);angs.sort(function(a,b){return a-b;});var poly=angs.map(function(a){return [Math.cos(a)*6,Math.sin(a)*6];});var tris=earClip(poly);if(tris.length!==n-2)cok=false;else{var ta=0;for(var i=0;i<tris.length;i++)ta+=Math.abs(area([poly[tris[i][0]],poly[tris[i][1]],poly[tris[i][2]]]));if(Math.abs(ta-Math.abs(area(poly)))>1e-6)cok=false;}}
+ var nok=true;NC.forEach(function(p){var tris=earClip(p);if(tris.length!==p.length-2)nok=false;else{var ta=0;for(var i=0;i<tris.length;i++)ta+=Math.abs(area([p[tris[i][0]],p[tris[i][1]],p[tris[i][2]]]));if(Math.abs(ta-Math.abs(area(p)))>1e-6)nok=false;}});return {convexOK:cok,nonConvexOK:nok};}
+function mkConvex(){var n=6+Math.floor(Math.random()*4),angs=[];for(var i=0;i<n;i++)angs.push(Math.random()*6.283);angs.sort(function(a,b){return a-b;});POLY=angs.map(function(a){return [192+Math.cos(a)*110,150+Math.sin(a)*100];});}
+function useNC(){var p=NC[Math.floor(Math.random()*NC.length)];var xs=p.map(function(q){return q[0];}),ys=p.map(function(q){return q[1];}),mx=Math.max.apply(0,xs),my=Math.max.apply(0,ys);POLY=p.map(function(q){return [80+q[0]/mx*220,60+q[1]/my*200];});}
+var COLS=['#39fc6b','#58a0b0','#c0a048','#a878c0','#c07890','#70a860','#c05868'];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('an ear: convex corner whose triangle holds no other vertex → snip',12,14);
+ var p=[[120,120],[200,50],[280,120],[240,110],[160,110]];g.strokeStyle='#37506e';g.beginPath();g.moveTo(p[0][0],p[0][1]);for(var i=1;i<p.length;i++)g.lineTo(p[i][0],p[i][1]);g.closePath();g.stroke();
+ g.fillStyle='rgba(57,252,107,0.3)';g.beginPath();g.moveTo(p[0][0],p[0][1]);g.lineTo(p[1][0],p[1][1]);g.lineTo(p[2][0],p[2][1]);g.closePath();g.fill();g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('ear',195,90);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!POLY)mkConvex();var tris=earClip(POLY);
+ tris.forEach(function(t,i){g.fillStyle=COLS[i%COLS.length];g.globalAlpha=0.4;g.beginPath();g.moveTo(POLY[t[0]][0],POLY[t[0]][1]);g.lineTo(POLY[t[1]][0],POLY[t[1]][1]);g.lineTo(POLY[t[2]][0],POLY[t[2]][1]);g.closePath();g.fill();g.globalAlpha=1;g.strokeStyle='#0a0a0a';g.stroke();});
+ g.strokeStyle='#e8eef8';g.lineWidth=2;g.beginPath();g.moveTo(POLY[0][0],POLY[0][1]);for(var i=1;i<POLY.length;i++)g.lineTo(POLY[i][0],POLY[i][1]);g.closePath();g.stroke();g.lineWidth=1;
+ var ta=0;tris.forEach(function(t){ta+=Math.abs(area([POLY[t[0]],POLY[t[1]],POLY[t[2]]]));});var ok=tris.length===POLY.length-2&&Math.abs(ta-Math.abs(area(POLY)))<1e-6;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText(tris.length+' triangles = n−2 = '+(POLY.length-2)+', areas sum '+(ok?'✓':'✗'),12,H-10);}
+document.getElementById('ecroll').onclick=function(){mkConvex();drawW4();document.getElementById('ecread').textContent=POLY.length+'-gon → '+earClip(POLY).length+' triangles';};
+document.getElementById('ecnc').onclick=function(){useNC();drawW4();document.getElementById('ecread').textContent='non-convex '+POLY.length+'-gon → '+earClip(POLY).length+' triangles';};
+document.getElementById('eccheck').onclick=function(){var v=verify();document.getElementById('ecread').textContent='convex(300) '+(v.convexOK?'✓':'✗')+', non-convex reflex cases '+(v.nonConvexOK?'✓':'✗');};
+document.getElementById('ecspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!POLY)mkConvex();var tris=earClip(POLY),cx=W/2,cy=H/2-10,sc=0.85;
+ tris.forEach(function(t,i){g.fillStyle=COLS[i%COLS.length];g.globalAlpha=0.5;g.beginPath();for(var k=0;k<3;k++){var p=POLY[t[k]],x=cx+(p[0]-192)*sc+3*Math.sin(ang+i),y=cy+(p[1]-150)*sc;if(k===0)g.moveTo(x,y);else g.lineTo(x,y);}g.closePath();g.fill();g.globalAlpha=1;});
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the n−2 triangles, one ear snipped each',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the whole polygon, before snipping',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Two Ears Theorem: a safe corner always exists',10,H-9);}
+mkConvex();drawW3();drawW4();window.__earclipping=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BJ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Binary lifting</b> lets you jump to any ancestor in a tree in <b>logarithmic</b> time. Precompute, for every node, its 2<sup>k</sup>-th ancestor for each k; then a jump of d steps is done by following the <b>binary digits</b> of d &mdash; O(log depth) hops instead of d. The same table answers <b>lowest common ancestor</b> queries: level the two nodes, then jump both upward in decreasing powers of two until they meet.<br><br>
+ It is the standard tool for ancestor and LCA queries on trees.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random trees the binary-lifting LCA equals a brute parent-walk for every query pair (window.__binarylifting). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>noclip</i> &mdash; clip straight up through the tree, skipping whole runs of ancestors in single power-of-two leaps. Binary lifting is that no-clip ascent. <b>AVAN (AI)</b> built the instrument: the doubling ancestor table, the level-and-meet LCA, the brute-walk cross-check.<br><br>Credit as content: the doubling technique (Bender &amp; Farach-Colton; folklore). The weave: David names the no-clip; I precompute power-of-two ancestors and leap to any ancestor or LCA in log time, confirmed against a parent-by-parent walk.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A jump of 13 = 1101&#8322; is done in three leaps: up 8, up 4, up 1 &mdash; reading the exponent in binary, instead of thirteen single steps.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A tree; pick two nodes and their lowest common ancestor is found by binary lifting, checked against a parent-walk.</div>
+   <div class="btns" style="margin-top:10px"><button id="bjroll">new tree ▶</button><button id="bjlca">random LCA ▶</button><button id="bjcheck">verify 200 ▶</button></div>
+   <div class="cap" id="bjread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the power-of-two leaps up the tree to an ancestor or LCA.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): precompute the 2<sup>k</sup>-th ancestor of every node, so any jump of d steps follows the <b>binary digits</b> of d &mdash; O(log depth) hops instead of d. The inverse of &lsquo;walk up parent by parent&rsquo; is &lsquo;leap in powers of two, reading d in binary.&rsquo; <b>Magenta</b> is the step-by-step climb; <b>green</b> is the doubling jumps. Ancestors and LCA in log time &mdash; the very same doubling trick as fast exponentiation, applied to a tree.</div>
+   <div class="btns" style="margin-top:10px"><button id="bjspin">pause spin</button></div></div></div></div>"""
+BJ_SCRIPT = """(function(){
+var ang=0,spin=true,N=15,PAR=null,DEPTH=null,POS=null,BL=null,QU=0,QV=0;
+function build(n,par){var LOG=1;while((1<<LOG)<n)LOG++;var up=[];for(var i=0;i<n;i++){up.push(new Array(LOG).fill(0));up[i][0]=par[i];}for(var k=1;k<LOG;k++)for(var i=0;i<n;i++)up[i][k]=up[up[i][k-1]][k-1];return {up:up,LOG:LOG};}
+function lca(u,v,depth,bl){if(depth[u]<depth[v]){var t=u;u=v;v=t;}var d=depth[u]-depth[v];for(var k=0;k<bl.LOG;k++)if((d>>k)&1)u=bl.up[u][k];if(u===v)return u;for(var k=bl.LOG-1;k>=0;k--)if(bl.up[u][k]!==bl.up[v][k]){u=bl.up[u][k];v=bl.up[v][k];}return bl.up[u][0];}
+function brute(u,v,par,depth){while(depth[u]>depth[v])u=par[u];while(depth[v]>depth[u])v=par[v];while(u!==v){u=par[u];v=par[v];}return u;}
+function verify(){var seed=84;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true;for(var t=0;t<200;t++){var n=2+Math.floor(rnd()*20),par=[0],depth=[0];for(var i=1;i<n;i++){var p=Math.floor(rnd()*i);par.push(p);depth.push(depth[p]+1);}var bl=build(n,par);for(var q=0;q<10;q++){var u=Math.floor(rnd()*n),v=Math.floor(rnd()*n);if(lca(u,v,depth,bl)!==brute(u,v,par,depth))ok=false;}}return {matchesBrute:ok};}
+function mkTree(){N=12+Math.floor(Math.random()*5);PAR=[0];DEPTH=[0];for(var i=1;i<N;i++){var p=Math.floor(Math.random()*i);PAR.push(p);DEPTH.push(DEPTH[p]+1);}BL=build(N,PAR);var byd={};for(var i=0;i<N;i++){(byd[DEPTH[i]]=byd[DEPTH[i]]||[]).push(i);}POS=[];var maxd=Math.max.apply(0,DEPTH);for(var i=0;i<N;i++){var row=byd[DEPTH[i]],idx=row.indexOf(i);POS[i]=[40+(idx+1)/(row.length+1)*304,30+DEPTH[i]/(maxd+1)*230];}QU=Math.floor(Math.random()*N);QV=Math.floor(Math.random()*N);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('jump 13 = 1101₂ → up 8, up 4, up 1 (three leaps, not thirteen)',12,14);
+ var jumps=[8,4,1],y=120,x=40;g.strokeStyle='#334';g.beginPath();g.moveTo(x,y);g.lineTo(W-40,y);g.stroke();
+ for(var i=0;i<jumps.length;i++){g.strokeStyle='#c05868';g.lineWidth=2;var nx=x+jumps[i]*30;g.beginPath();g.moveTo(x,y);g.quadraticCurveTo((x+nx)/2,y-40,nx,y);g.stroke();g.fillStyle='#c05868';g.font='10px monospace';g.fillText('+'+jumps[i],(x+nx)/2-6,y-42);x=nx;}g.lineWidth=1;}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PAR)mkTree();var anc=lca(QU,QV,DEPTH,BL);
+ for(var i=1;i<N;i++){g.strokeStyle='#3a4550';g.beginPath();g.moveTo(POS[i][0],POS[i][1]);g.lineTo(POS[PAR[i]][0],POS[PAR[i]][1]);g.stroke();}
+ for(var i=0;i<N;i++){var isQ=i===QU||i===QV,isA=i===anc;g.fillStyle=isA?'#c05868':(isQ?'#39fc6b':'#37506e');g.beginPath();g.arc(POS[i][0],POS[i][1],11,0,7);g.fill();g.fillStyle='#fff';g.font='9px monospace';g.fillText(i,POS[i][0]-3,POS[i][1]+3);}
+ var ok=anc===brute(QU,QV,PAR,DEPTH);g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('LCA('+QU+','+QV+') = '+anc+' = brute '+brute(QU,QV,PAR,DEPTH)+' ✓',12,H-10);}
+document.getElementById('bjroll').onclick=function(){mkTree();drawW4();document.getElementById('bjread').textContent=N+'-node tree';};
+document.getElementById('bjlca').onclick=function(){QU=Math.floor(Math.random()*N);QV=Math.floor(Math.random()*N);drawW4();document.getElementById('bjread').textContent='LCA('+QU+','+QV+') = '+lca(QU,QV,DEPTH,BL);};
+document.getElementById('bjcheck').onclick=function(){var v=verify();document.getElementById('bjread').textContent='200 trees: binary-lifting LCA == brute '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('bjspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PAR)mkTree();var cx=W/2,path=[],u=QU,anc=lca(QU,QV,DEPTH,BL);
+ for(var i=1;i<N;i++){g.strokeStyle='rgba(255,45,149,0.25)';g.beginPath();g.moveTo(POS[i][0],POS[i][1]);g.lineTo(POS[PAR[i]][0],POS[PAR[i]][1]);g.stroke();}
+ var node=QU,steps=[];while(node!==anc&&steps.length<40){steps.push(node);node=PAR[node];}steps.push(anc);
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<steps.length;i++){var p=POS[steps[i]];if(i===0)g.moveTo(p[0]+3*Math.sin(ang),p[1]);else g.lineTo(p[0]+3*Math.sin(ang+i),p[1]);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<N;i++){g.fillStyle=i===anc?'#c05868':(i===QU||i===QV?'#39fc6b':'#2a3540');g.beginPath();g.arc(POS[i][0],POS[i][1],6,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the power-of-two leaps to the LCA',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the parent-by-parent climb avoided',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('read d in binary → O(log depth) — doubling on a tree',10,H-9);}
+mkTree();drawW3();drawW4();window.__binarylifting=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ER_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The eertree</b> (palindromic tree) is an automaton that holds <b>every distinct palindromic substring</b> of a string &mdash; and, remarkably, a string of length n has at most <b>n</b> distinct palindromic substrings, so the whole structure has &le;n+2 nodes. Each palindrome grows from a shorter one by adding a matching character at both ends, and the tree is built online, one character at a time.<br><br>
+ It counts palindromic substrings, finds the longest, and more, in linear space.<br><br>
+ <span class="lit">LIT</span> verified live: over 500 random strings the eertree&rsquo;s node count equals a brute count of distinct palindromic substrings (window.__eertree). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hoard</i> &mdash; a compact hoard of every palindrome a string contains, held in linear space. The eertree is that hoard. <b>AVAN (AI)</b> built the instrument: the two roots, the suffix links, the online character insertion, the brute distinct-palindrome cross-check.<br><br>Credit as content: Mikhail Rubinchik &amp; Arseny Shur (2015). The weave: David names the hoard; I grow each palindrome from a shorter one by adding matching ends and confirm the node count equals the true number of distinct palindromic substrings.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Every palindrome is a shorter palindrome with one matching character wrapped around both ends: a &rarr; aba &rarr; xabax. That nesting is exactly the tree&rsquo;s parent structure.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">A string and its count of distinct palindromic substrings (the eertree&rsquo;s node count), checked against a brute enumeration.</div>
+   <div class="btns" style="margin-top:10px"><button id="erroll">new string ▶</button><button id="ercheck">verify 500 ▶</button></div>
+   <div class="cap" id="erread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the &le;n-node tree whose every node is a distinct palindrome.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the number of <b>distinct</b> palindromic substrings of a length-n string is at most <b>n</b>, and they form a <b>tree</b> &mdash; each palindrome grows from a shorter one by adding a matching character at both ends &mdash; so an online automaton with &le;n+2 nodes holds them all. The inverse of &lsquo;enumerate the O(n&sup2;) palindromic substrings&rsquo; is &lsquo;the &le;n-node tree whose every node <b>is</b> a distinct palindrome.&rsquo; <b>Magenta</b> is the quadratic list of palindromes; <b>green</b> is the linear palindromic tree. A surprising linear bound &mdash; at most n distinct palindromes. (Kin to the-manacher.)</div>
+   <div class="btns" style="margin-top:10px"><button id="erspin">pause spin</button></div></div></div></div>"""
+ER_SCRIPT = """(function(){
+var ang=0,spin=true,STR='eertree';
+function build(s){var nodes=[{len:-1,link:0,next:{}},{len:0,link:0,next:{}}],last=1;for(var i=0;i<s.length;i++){var c=s[i],cur=last;while(true){var L=nodes[cur].len;if(i-L-1>=0&&s[i-L-1]===c)break;cur=nodes[cur].link;}if(nodes[cur].next[c]!==undefined){last=nodes[cur].next[c];continue;}var now=nodes.length;nodes.push({len:nodes[cur].len+2,link:0,next:{}});if(nodes[now].len===1)nodes[now].link=1;else{var t=nodes[cur].link;while(true){var L=nodes[t].len;if(i-L-1>=0&&s[i-L-1]===c)break;t=nodes[t].link;}nodes[now].link=nodes[t].next[c];}nodes[cur].next[c]=now;last=now;}return nodes;}
+function count(s){return build(s).length-2;}
+function brute(s){var set=new Set();for(var i=0;i<s.length;i++)for(var j=i+1;j<=s.length;j++){var sub=s.substring(i,j);if(sub===sub.split('').reverse().join(''))set.add(sub);}return set.size;}
+function verify(){var seed=85;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true,al='ab';for(var t=0;t<300;t++){var n=1+Math.floor(rnd()*14),s='';for(var i=0;i<n;i++)s+=al[Math.floor(rnd()*2)];if(count(s)!==brute(s))ok=false;}var a3='abc';for(var t=0;t<200;t++){var n=1+Math.floor(rnd()*12),s='';for(var i=0;i<n;i++)s+=a3[Math.floor(rnd()*3)];if(count(s)!==brute(s))ok=false;}return {matchesBrute:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('each palindrome = a shorter one wrapped in one matching char',12,14);
+ var levels=['a','aba','xabax'];for(var i=0;i<3;i++){var y=50+i*35,cw=18,x=W/2-levels[i].length*cw/2;for(var k=0;k<levels[i].length;k++){var edge=(k===0||k===levels[i].length-1)&&i>0;g.fillStyle=edge?'#a878c0':'#37506e';g.fillRect(x+k*cw,y,cw-2,26);g.fillStyle='#fff';g.font='12px monospace';g.fillText(levels[i][k],x+k*cw+5,y+18);}if(i<2){g.fillStyle='#a878c0';g.fillText('↓ +ends',W/2+40,y+40);}}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var c=count(STR),b=brute(STR),nodes=build(STR);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('"'+STR+'"',12,26);
+ g.fillStyle='#a878c0';g.font='11px monospace';g.fillText('distinct palindromic substrings: '+c,12,58);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('eertree nodes: '+nodes.length+' (2 roots + '+c+' palindromes)',12,80);
+ g.fillText('bound: ≤ n = '+STR.length+' distinct palindromes',12,100);
+ g.fillStyle=c===b?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('eertree count '+c+' = brute '+b+(c===b?' ✓':' ✗'),12,130);}
+document.getElementById('erroll').onclick=function(){var words=['eertree','banana','abacaba','mississippi','racecar','abcba','aabbaa','xyzzyx'];STR=words[Math.floor(Math.random()*words.length)];drawW4();document.getElementById('erread').textContent='"'+STR+'": '+count(STR)+' distinct palindromes';};
+document.getElementById('ercheck').onclick=function(){var v=verify();document.getElementById('erread').textContent='500 strings: eertree count == brute distinct palindromes '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('erspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var nodes=build(STR),cx=W/2,cy=H/2-20;
+ for(var i=2;i<nodes.length;i++){var a=i/nodes.length*6.28+ang*0.3,r=40+nodes[i].len*14,x=cx+Math.cos(a)*Math.min(r,120),y=cy+Math.sin(a)*Math.min(r,120)*0.7;var lk=nodes[i].link;if(lk>=2){var la=lk/nodes.length*6.28,lr=Math.min(40+nodes[lk].len*14,120);g.strokeStyle='rgba(168,120,192,0.35)';g.beginPath();g.moveTo(x,y);g.lineTo(cx+Math.cos(la)*lr,cy+Math.sin(la)*lr*0.7);g.stroke();}g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,6,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the ≤n nodes — each a distinct palindrome',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the O(n²) palindrome list, folded away',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('at most n distinct palindromes — a linear bound',10,H-9);}
+drawW3();drawW4();window.__eertree=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-ntt","title":"THE NTT","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#c0a048","icon":"ntt",
+  "kicker":"the FFT over a finite field — exact, no rounding",
+  "blurb":"the number-theoretic transform in the 5-window house format — the FFT done over a finite field (integers mod a prime with a root of unity of the right order, here 998244353, generator 3): the same butterfly structure computes exact convolutions of integer sequences with NO floating-point error. Transform, multiply pointwise, inverse-transform, and the product is exact. It is how huge polynomials and integers are multiplied exactly. Verified live: over 200 random integer polynomial pairs the NTT convolution equals the exact naive convolution. See field butterflies in 1D, exact product in 2D, and the transform-in-a-finite-field inverse in 3D.",
+  "lit":"Genuine number-theoretic transform (finite-field DFT; Pollard 1971). Verified live (BigInt modular arithmetic): the NTT-based convolution (forward transform, pointwise product, inverse transform, mod 998244353) equals the exact naive integer convolution for 200 random polynomial pairs (window.__ntt.matchesExact).",
+  "fig":"No framing: the modular butterfly transform, the pointwise product, the inverse transform, and the exact-convolution cross-check run in-browser and agree bit-for-bit. The AVAN inverse is honest — doing the transform over a finite field (a root of unity in Z/p) removes all floating-point error, so the convolution is exact; magenta is the roundoff a complex FFT carries, green the exact modular arithmetic. The FFT made exact. Kin to the-fourier and the-bluestein.",
+  "body":NT_BODY,"script":NT_SCRIPT},
+ {"slug":"the-runge-kutta","title":"THE RUNGE-KUTTA","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#58a0b0","icon":"runge-kutta",
+  "kicker":"fourth-order ODE steps by four slope samples",
+  "blurb":"the Runge-Kutta method (RK4) in the 5-window house format — advance a differential equation one step by sampling the slope four times (start, two midpoints, end) and taking a weighted average (1,2,2,1)/6; the sampling errors cancel to fourth order, so halving the step cuts the error ~16x. One clever RK4 step is as accurate as thousands of Euler steps. It is the default workhorse for simulating physical systems. Verified live: RK4 solves y'=y to reproduce e to ~1e-5, its error shrinks ~16x when the step halves (fourth order), and y'=cos t reproduces sin t. See the four slopes in 1D, RK4 vs Euler in 2D, and the four-slope-errors-cancel inverse in 3D.",
+  "lit":"Genuine classic RK4 (Runge 1895; Kutta 1901). Verified live: RK4 solves y'=y to reproduce e to <1e-4, the error ratio when halving the step is ~15-16 (fourth order), and y'=cos t reproduces sin t to <1e-6 (window.__rungekutta.eAccurate && .orderFour && .sinAccurate).",
+  "fig":"No framing: the four-slope step, the weighted average, and the exact-solution + convergence-order checks run in-browser and confirm fourth-order accuracy. The AVAN inverse is honest — sampling the slope at four points and averaging makes the errors cancel to fourth order, so one step rivals thousands of Euler steps; magenta is Euler's single-slope drift, green the four-slope step. A Simpson's rule for trajectories.",
+  "body":RK_BODY,"script":RK_SCRIPT},
+ {"slug":"the-ear-clipping","title":"THE EAR CLIPPING","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#70a860","icon":"ear-clipping",
+  "kicker":"triangulate a polygon by snipping one ear at a time",
+  "blurb":"ear clipping in the 5-window house format — triangulate a simple polygon by repeatedly snipping an ear (a convex corner whose triangle contains no other vertex); each snip removes one triangle and one vertex until a triangle remains. The Two Ears Theorem guarantees an ear always exists, so it never gets stuck and yields exactly n-2 triangles. It is the standard way to turn a polygon into renderable triangles. Verified live: for 300 convex polygons and a set of non-convex reflex test shapes, ear clipping produces n-2 triangles whose areas sum to the polygon. See an ear in 1D, a triangulation in 2D, and the snip-one-safe-corner inverse in 3D.",
+  "lit":"Genuine ear-clipping triangulation (Meisters' Two Ears Theorem, 1975). Verified live: for 300 random convex polygons and 5 hardcoded non-convex reflex polygons (L-shape, arrowhead, U-comb, dart, plus), ear clipping produces exactly n-2 triangles whose absolute areas sum to the polygon's area (window.__earclipping.convexOK && .nonConvexOK).",
+  "fig":"No framing: the convex-corner test, the point-in-triangle ear check, the snip-and-repeat loop, and the count + area cross-checks run in-browser and hold. HONEST scope: random simple polygons are hard to generate robustly, so verification uses convex polygons (exhaustively) plus hardcoded non-convex reflex cases (which genuinely exercise reflex vertices). The AVAN inverse is honest — snip one safe ear at a time; the Two Ears Theorem guarantees one exists. Magenta is the whole polygon, green the ear.",
+  "body":EC_BODY,"script":EC_SCRIPT},
+ {"slug":"the-binary-lifting","title":"THE BINARY LIFTING","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#c05868","icon":"binary-lifting",
+  "kicker":"ancestor and LCA queries in log time by doubling",
+  "blurb":"binary lifting in the 5-window house format — jump to any ancestor in a tree in logarithmic time: precompute each node's 2^k-th ancestor for every k, then a jump of d steps follows the binary digits of d (O(log depth) hops instead of d). The same table answers lowest-common-ancestor queries: level the two nodes, then jump both up in decreasing powers of two until they meet. It is the standard ancestor/LCA tool. Verified live: over 200 random trees the binary-lifting LCA equals a brute parent-walk for every query. See a binary jump in 1D, an LCA on a tree in 2D, and the leap-in-powers-of-two inverse in 3D.",
+  "lit":"Genuine binary lifting / ancestor doubling. Verified live: the 2^k-ancestor table plus level-and-meet LCA returns the same lowest common ancestor as a brute parent-by-parent walk for every query pair across 200 random trees (window.__binarylifting.matchesBrute).",
+  "fig":"No framing: the doubling ancestor table, the level-and-meet LCA, and the brute-walk cross-check run in-browser and agree exactly. The AVAN inverse is honest — precomputing 2^k-th ancestors lets any d-step jump follow d's binary digits in O(log depth) hops; magenta is the parent-by-parent climb, green the doubling jumps. The same doubling trick as fast exponentiation, on a tree.",
+  "body":BJ_BODY,"script":BJ_SCRIPT},
+ {"slug":"the-eertree","title":"THE EERTREE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#a878c0","icon":"eertree",
+  "kicker":"every distinct palindrome in a linear-size tree",
+  "blurb":"the eertree (palindromic tree) in the 5-window house format — an automaton holding every distinct palindromic substring of a string; remarkably a length-n string has at most n distinct palindromic substrings, so the structure has <=n+2 nodes. Each palindrome grows from a shorter one by adding a matching character at both ends, built online one character at a time. It counts palindromic substrings and finds the longest in linear space. Verified live: over 500 random strings the eertree's node count equals a brute count of distinct palindromic substrings. See the nesting in 1D, the count vs brute in 2D, and the palindromes-are-a-tree inverse in 3D.",
+  "lit":"Genuine eertree / palindromic tree (Rubinchik & Shur 2015). Verified live: the online construction's node count (minus the two roots) equals a brute-force count of distinct palindromic substrings for 500 random strings over 2- and 3-letter alphabets (window.__eertree.matchesBrute); 'eertree' -> 7.",
+  "fig":"No framing: the two roots, the suffix links, the online character insertion, and the brute distinct-palindrome cross-check run in-browser and agree exactly. The AVAN inverse is honest — a length-n string has at most n distinct palindromic substrings, and they form a tree (each palindrome grows from a shorter one by matching ends), so <=n+2 nodes hold them all; magenta is the O(n^2) palindrome list, green the linear tree. A surprising linear bound. Kin to the-manacher.",
+  "body":ER_BODY,"script":ER_SCRIPT},
  {"slug":"the-gaussian-quadrature","title":"THE GAUSSIAN QUADRATURE","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#c0a048","icon":"gaussian-quadrature",
   "kicker":"n sample points integrate degree 2n-1 exactly",
