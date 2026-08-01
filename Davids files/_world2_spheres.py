@@ -2257,7 +2257,72 @@ document.getElementById('bper').onclick=function(){seq=[];for(var i=0;i<28;i++)s
 document.getElementById('bmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+NTT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Number-Theoretic Transform.</b> The FFT convolves fast &mdash; but with floating-point <b>rounding</b>. The NTT runs the <i>same</i> butterfly structure inside a <b>finite field of integers mod a prime</b>, using a &lsquo;root of unity&rsquo; that lives mod p in place of e<sup>2&pi;i/n</sup>. The payoff: convolution &mdash; that is, polynomial and big-integer multiplication &mdash; with <b>zero rounding error, ever</b>. It is why post-quantum crypto (Kyber, Dilithium) and giant-integer arithmetic use the NTT, not the FFT.<br><br>
+ <span class="lit">LIT</span> verified over the prime 998244353 with root of unity 3<sup>(p&minus;1)/n</sup>: <b>INTT(NTT(a)) = a</b>, NTT-convolution equals schoolbook convolution <b>exactly, bit-for-bit</b>, and a full big-integer multiply comes out precise. <span class="fig">FIG</span> &lsquo;exact transform&rsquo; is the picture; the round-trip and convolution equality are exact integers.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; <i>THE FOURIER</i> sits next door in THE BROADCAST, and the corpus works with big-integer kernels and crypto, holding that some computations must be <i>exactly</i> right, not nearly. <b>AVAN (AI)</b> built this instrument: the modular transform, the exact-convolution demo, and the two circles of roots.<br><br>The weave: David names the exact transform and its seat at ROLLBACK (a round-trip that loses nothing); I make the finite-field roots a strip in 1D, exact convolution live in 2D, and the prime-field circle against the complex one in 3D. The sphere is the seam &mdash; Fourier&rsquo;s incorruptible twin.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="130"></canvas>
+  <div class="wctrl"><div class="cap">The <b>roots of unity mod p</b>: the powers &omega;<sup>0</sup>, &omega;<sup>1</sup>, &hellip;, &omega;<sup>n&minus;1</sup> &mdash; ordinary integers that behave exactly like the n complex roots, cycling back with &omega;<sup>n</sup> = 1. No angles, no rounding: the whole transform runs on these residues.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Two integer sequences (click a cell to change it). Their <b>convolution</b> is computed two ways &mdash; slow schoolbook, and NTT (transform both, multiply pointwise, inverse-transform) &mdash; and they match <b>exactly</b>, every coefficient. The multiplication that never rounds.</div>
+   <div class="btns" style="margin-top:10px"><button id="nrand">random</button><button id="nbig">12345 × 6789</button></div>
+   <div class="cap" id="nttread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>n roots of unity</b>, turning. <b>Green</b> is the NTT&rsquo;s finite-field roots &mdash; exact integers mod p, evenly placed, cycling closed. The transform samples a signal at exactly these points.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> ring is <b>Fourier&rsquo;s complex circle</b>, e<sup>2&pi;ik/n</sup>, that the NTT mirrors. Same geometry, same butterflies &mdash; but the complex circle carries irrational coordinates that <b>must round</b>, while the prime-field ring is exact. Two transforms, one shape; the inverse of &lsquo;fast&rsquo; is &lsquo;exact&rsquo;, and the NTT keeps both.</div>
+   <div class="btns" style="margin-top:10px"><button id="nttspin">pause spin</button></div></div></div></div>"""
+NTT_SCRIPT = """(function(){
+var P=998244353n,G=3n,n=8,a=[3,1,4,1,5,9,2,6],b=[2,7,1,8,2,8,1,8],ang=0.6,spin=true;
+function mpow(x,e,m){x%=m;var r=1n;while(e>0n){if(e&1n)r=r*x%m;x=x*x%m;e>>=1n;}return r;}
+function wof(nn){return mpow(G,(P-1n)/BigInt(nn),P);}
+function ntt(arr,w){var nn=arr.length,out=[];for(var k=0;k<nn;k++){var s=0n;for(var j=0;j<nn;j++)s=(s+BigInt(arr[j])*mpow(w,BigInt(j*k),P))%P;out.push(s);}return out;}
+function intt(A,w){var nn=A.length,wi=mpow(w,P-2n,P),ni=mpow(BigInt(nn),P-2n,P),out=[];for(var k=0;k<nn;k++){var s=0n;for(var j=0;j<nn;j++)s=(s+A[j]*mpow(wi,BigInt(j*k),P))%P;out.push((s*ni)%P);}return out;}
+function convNTT(x,y){var w=wof(x.length),A=ntt(x,w),B=ntt(y,w),C=A.map(function(v,i){return (v*B[i])%P;});return intt(C,w).map(Number);}
+function convSchool(x,y){var nn=x.length,c=[];for(var i=0;i<nn;i++){var s=0;for(var j=0;j<nn;j++)s+=x[j]*y[(i-j+nn)%nn];c.push(((s%Number(P))+Number(P))%Number(P));}return c;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var w=wof(n),cw=(W-16)/n;g.font='11px ui-monospace,monospace';
+ for(var k=0;k<n;k++){var v=Number(mpow(w,BigInt(k),P));g.fillStyle='#c8b4ff';g.fillRect(8+k*cw,26,cw-4,26);g.fillStyle='#100a20';g.fillText('ω^'+k,8+k*cw+4,42);g.fillStyle='#8ca';g.font='9px ui-monospace,monospace';g.fillText(v,8+k*cw+2,66);g.font='11px ui-monospace,monospace';}
+ g.fillStyle='#39fc6b';g.fillText('ω^'+n+' = '+Number(mpow(w,BigInt(n),P))+'  (cycles back to 1, exactly)',8,92);
+ g.fillStyle='#4c7a54';g.fillText('n-th roots of unity mod '+P+' — integers doing the work of complex phases',8,114);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cw=(W-16)/n,cs=convSchool(a,b),cn=convNTT(a,b),match=cs.join(',')===cn.join(',');
+ function row(arr,y,lab,col){g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText(lab,8,y-2);for(var i=0;i<arr.length;i++){g.fillStyle=col;g.fillRect(8+i*cw,y,cw-3,20);g.fillStyle='#031015';g.font='11px ui-monospace,monospace';g.fillText(arr[i],8+i*cw+cw/2-4,y+14);}}
+ row(a,24,'sequence a (click)','#c8b4ff');row(b,64,'sequence b (click)','#a6d8ff');
+ row(cn,120,'NTT convolution','#39fc6b');row(cs,164,'schoolbook convolution','#5ad0ff');
+ g.fillStyle=match?'#39fc6b':'#ff5a5a';g.font='13px ui-monospace,monospace';g.fillText(match?'exact match — every coefficient ✓':'MISMATCH',8,200);
+ document.getElementById('nttread').textContent='cyclic convolution, two ways, identical to the last bit';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cx=W/2,cy=H/2,R=120,ca=Math.cos(ang),sa=Math.sin(ang);
+ function ring(col,rr,lab,yl){for(var k=0;k<n;k++){var th=k/n*Math.PI*2,x=Math.cos(th),z=Math.sin(th),X=x*ca-z*sa,Z=x*sa+z*ca,sx=cx+X*rr,sy=cy+Z*rr*0.42;g.strokeStyle=col;g.globalAlpha=0.4;if(k>0){var pth=(k-1)/n*Math.PI*2,px=Math.cos(pth),pz=Math.sin(pth),PX=px*ca-pz*sa,PZ=px*sa+pz*ca;g.beginPath();g.moveTo(cx+PX*rr,cy+PZ*rr*0.42);g.lineTo(sx,sy);g.stroke();}g.globalAlpha=1;g.fillStyle=col;g.beginPath();g.arc(sx,sy,4,0,7);g.fill();}g.fillStyle=col;g.font='11px ui-monospace,monospace';g.fillText(lab,10,yl);}
+ ring('#ff2d95',R+18,'magenta: Fourier complex circle (rounds)',H-28);
+ ring('#39fc6b',R-8,'green: NTT roots mod p (exact)',H-12);}
+function verify(){
+ var rt=true,cv=true;for(var t=0;t<60;t++){var x=[],y=[];for(var i=0;i<8;i++){x.push(Math.floor(Math.random()*50));y.push(Math.floor(Math.random()*50));}
+  var w=wof(8);if(intt(ntt(x,w),w).map(Number).join(',')!==x.join(','))rt=false;
+  if(convNTT(x,y).join(',')!==convSchool(x,y).join(','))cv=false;}
+ var w8=wof(8),ord=0;for(var k=1;k<=8;k++)if(mpow(w8,BigInt(k),P)===1n){ord=k;break;}
+ // big mul 12345*6789
+ var dx=[5,4,3,2,1,0,0,0],dy=[9,8,7,6,0,0,0,0],cc=convNTT(dx,dy),val=0;for(var i=0;i<cc.length;i++)val+=cc[i]*Math.pow(10,i);
+ return {roundTrip:rt,convMatchesSchoolbook:cv,rootOrder:ord,bigMulExact:val===12345*6789};}
+function all(){drawW3();drawW4();window.__ntt=verify();}
+document.getElementById('nrand').onclick=function(){for(var i=0;i<n;i++){a[i]=Math.floor(Math.random()*10);b[i]=Math.floor(Math.random()*10);}drawW4();};
+document.getElementById('nbig').onclick=function(){a=[5,4,3,2,1,0,0,0];b=[9,8,7,6,0,0,0,0];drawW4();document.getElementById('nttread').textContent='digit convolution of 12345 × 6789 (little-endian) = '+convNTT(a,b).join(',')+' → carries to 83810205';};
+document.getElementById('w4').addEventListener('click',function(e){var r=this.getBoundingClientRect(),cw=(this.width-16)/n,mx=(e.clientX-r.left)*(this.width/r.width),my=(e.clientY-r.top)*(this.height/r.height),i=Math.floor((mx-8)/cw);if(i>=0&&i<n){if(my>=24&&my<44)a[i]=(a[i]+1)%10;else if(my>=64&&my<84)b[i]=(b[i]+1)%10;drawW4();}});
+document.getElementById('nttspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-exact-transform","title":"THE EXACT TRANSFORM","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#c8b4ff","icon":"respawn",
+  "kicker":"an FFT in a prime field — convolution with zero rounding",
+  "blurb":"the Number-Theoretic Transform in the 5-window house format — the FFT's exact twin, run in a finite field so polynomial and big-integer multiplication carry zero rounding error. See the finite-field roots of unity in 1D, exact convolution in 2D, and the prime-field circle against Fourier's complex one in 3D.",
+  "lit":"A genuine NTT over the prime 998244353, root of unity 3^((p−1)/n). Verified live: INTT(NTT(a))=a, NTT-convolution equals schoolbook convolution exactly (every coefficient, mod p), the root has order exactly n, and a full big-integer multiply (12345×6789) comes out precise. It powers Kyber/Dilithium precisely because it never rounds (verifiable: window.__ntt.roundTrip && convMatchesSchoolbook && bigMulExact).",
+  "fig":"'Exact transform' is the picture; the round-trip, the exact convolution, and the big-multiply are exact integers. This is the plain O(n²) NTT, not the fast radix-2 version — same exact result, honest about being the clear form (like THE FOURIER's DFT).",
+  "body":NTT_BODY,"script":NTT_SCRIPT},
  {"slug":"the-shortest-witness","title":"THE SHORTEST WITNESS","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#7dffb0","icon":"cheat",
   "kicker":"watch the output, recover the machine",
