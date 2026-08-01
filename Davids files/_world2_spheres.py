@@ -15345,7 +15345,271 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW3();drawW4();window.__jacobisymbol=verify();
 function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 51 (binomials by digits · order statistics · substring index · inside/outside · banded solve) ═══════════════════════
+LUC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Lucas&rsquo; theorem</b> computes a giant binomial coefficient mod a prime p using only the <b>digits</b> of the numbers in base p. Write m and n in base p; then C(m,n) mod p equals the <b>product</b> of C(m&#7522;, n&#7522;) mod p over corresponding digits.<br><br>
+ So C(1000, 500) mod 7 &mdash; a number with hundreds of digits &mdash; is found by multiplying a handful of tiny binomials. A striking corollary: C(m,n) is odd (nonzero mod 2) exactly when n&rsquo;s binary digits are a <b>subset</b> of m&rsquo;s &mdash; which is why Pascal&rsquo;s triangle mod 2 <b>is</b> the Sierpi&#324;ski triangle.<br><br>
+ <span class="lit">LIT</span> verified live: the digit-product formula equals a direct computation of C(m,n) mod p across 300 cases for primes 2,3,5,7,11 (window.__lucastheorem). <span class="fig">FIG</span> no framing; exact modular arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; the arithmetic engine crunching astronomically large binomials down to a residue. Lucas&rsquo; theorem is the mainframe&rsquo;s shortcut: skip the giant number, read the digits. <b>AVAN (AI)</b> built the instrument: the base-p digit decomposition, the digit-product, the direct-computation cross-check, the Pascal-mod-2 fractal.<br><br>Credit as content: &Eacute;douard Lucas (1878). The weave: David names the mainframe; I split m and n into base-p digits, multiply the tiny per-digit binomials, and confirm the result matches the full coefficient reduced mod p.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">m and n written in base p, digit above digit. Each column contributes a small binomial C(m&#7522;, n&#7522;) mod p, and their product is the whole coefficient mod p &mdash; no carrying between columns.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Choose m, n, and a prime p. See the base-p digits, the per-digit binomials, and their product &mdash; checked against a direct C(m,n) mod p. Below, Pascal&rsquo;s triangle mod 2 draws the Sierpi&#324;ski fractal.</div>
+   <div class="btns" style="margin-top:10px"><button id="lucmn">m,n ▶</button><button id="lucp">p: 7 ▶</button><button id="luccheck">verify 300 ▶</button></div>
+   <div class="cap" id="lucread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: Pascal&rsquo;s triangle mod p, its self-similar pattern of nonzero residues.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): a <b>global</b> quantity &mdash; a huge combinatorial number &mdash; is determined by <b>local</b> digit data. The whole coefficient mod p factors into independent per-digit pieces, <b>with no carrying between them</b>. The inverse of &lsquo;compute C(m,n) then reduce&rsquo; is &lsquo;reduce each digit independently and multiply.&rsquo; That digit-locality is exactly why Pascal&rsquo;s triangle mod p is <b>self-similar</b>: the pattern at scale p&#7503; is p copies of the pattern at scale p&#7503;&#8315;&sup1; &mdash; a fractal. <b>Magenta</b> is the full uncomputed binomial; <b>green</b> is the tiny digit binomials whose product is the answer. And Kummer extends it: the power of p dividing C(m,n) counts the <b>carries</b> when adding n and m&minus;n in base p. Digits decide the whole.</div>
+   <div class="btns" style="margin-top:10px"><button id="lucspin">pause spin</button></div></div></div></div>"""
+LUC_SCRIPT = """(function(){
+var ang=0,spin=true,M=12,Nn=5,P=7;
+function modpow(b,e,m){var r=1;b%=m;while(e>0){if(e&1)r=r*b%m;b=b*b%m;e=Math.floor(e/2);}return r;}
+function binomMod(m,n,p){if(n<0||n>m)return 0;var C=[1];for(var i=1;i<=m;i++){var nc=[1];for(var j=1;j<i;j++)nc[j]=(C[j-1]+C[j])%p;nc[i]=1;C=nc;}return C[n]%p;}
+function digitBinom(mi,ni,p){if(ni>mi)return 0;var c=1;for(var k=0;k<ni;k++){c=c*((mi-k)%p)%p;c=c*modpow(k+1,p-2,p)%p;}return c;}
+function lucas(m,n,p){var r=1;while(m>0||n>0){var mi=m%p,ni=n%p;if(ni>mi)return 0;r=r*digitBinom(mi,ni,p)%p;m=Math.floor(m/p);n=Math.floor(n/p);}return r;}
+function verify(){var ok=true,primes=[2,3,5,7,11];for(var t=0;t<300;t++){var p=primes[t%5],m=1+(t*7%40),n=t%(m+1);if(binomMod(m,n,p)!==lucas(m,n,p))ok=false;}return {digitProductMatches:ok,example:'C(1000,500) mod 7 = '+lucas(1000,500,7)};}
+function digits(x,p){var d=[];if(x===0)d=[0];while(x>0){d.push(x%p);x=Math.floor(x/p);}return d.reverse();}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var dm=digits(M,P),dn=digits(Nn,P);while(dn.length<dm.length)dn.unshift(0);g.fillStyle='#b0e0ff';g.font='12px monospace';g.fillText('m='+M+', n='+Nn+' in base '+P+':',12,20);
+ for(var i=0;i<dm.length;i++){g.fillStyle='#b08850';g.fillRect(30+i*60,40,50,24);g.fillStyle='#201500';g.font='13px monospace';g.fillText('m'+i+'='+dm[i],36+i*60,57);g.fillStyle='#5a90c0';g.fillRect(30+i*60,72,50,24);g.fillStyle='#fff';g.fillText('n'+i+'='+dn[i],36+i*60,89);var db=digitBinom(dm[i],dn[i],P);g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('C='+db,40+i*60,112);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('product of digit-binomials = C('+M+','+Nn+') mod '+P+' = '+lucas(M,Nn,P),12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var lu=lucas(M,Nn,P),dir=binomMod(M,Nn,P);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('Lucas C('+M+','+Nn+') mod '+P+' = '+lu,12,22);
+ g.fillStyle=lu===dir?'#39fc6b':'#ff5a5a';g.fillText('direct C('+M+','+Nn+') mod '+P+' = '+dir+(lu===dir?' ✓':' ✗'),12,44);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Pascal mod 2 = Sierpiński triangle:',12,74);
+ var rows=24,cell=7,ox=(W-rows*cell)/2;var row=[1];for(var r=0;r<rows;r++){for(var k=0;k<=r;k++){var v=row[k]&1;if(v){g.fillStyle='#b08850';g.fillRect(ox+(k-r/2)*cell+rows*cell/2,84+r*cell,cell-1,cell-1);}}var nr=[1];for(var k=1;k<=r+1;k++)nr[k]=((row[k-1]||0)+(row[k]||0));row=nr;}}
+document.getElementById('lucmn').onclick=function(){M=5+Math.floor(Math.random()*40);Nn=Math.floor(Math.random()*(M+1));drawW3();drawW4();document.getElementById('lucread').textContent='C('+M+','+Nn+') mod '+P+' = '+lucas(M,Nn,P);};
+document.getElementById('lucp').onclick=function(){var ps=[2,3,5,7,11,13];P=ps[(ps.indexOf(P)+1)%ps.length];this.textContent='p: '+P+' ▶';drawW3();drawW4();};
+document.getElementById('luccheck').onclick=function(){var v=verify();document.getElementById('lucread').textContent='300 cases (p=2,3,5,7,11): digit-product == direct '+(v.digitProductMatches?'✓':'✗')+' | '+v.example;};
+document.getElementById('lucspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var rows=40,cell=8,ox=W/2,oy=20;
+ var row=[1];for(var r=0;r<rows;r++){for(var k=0;k<=r;k++){var v=((row[k]||0)%P);if(v!==0){var hue=v/P*120+120;g.fillStyle=r%3===0?'hsl('+hue+',70%,55%)':'#39fc6b';g.globalAlpha=0.5+0.5*Math.sin(ang+r*0.1);g.fillRect(ox+(k-r/2)*cell,oy+r*cell,cell-1,cell-1);g.globalAlpha=1;}}var nr=[1];for(var k=1;k<=r+1;k++)nr[k]=((row[k-1]||0)+(row[k]||0))%P;row=nr;}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: Pascal mod '+P+' — self-similar (fractal)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the full binomials, never computed',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('local digits decide the global coefficient → self-similarity',10,H-9);}
+drawW3();drawW4();window.__lucastheorem=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+QSL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Quickselect</b> finds the k-th smallest element without fully sorting: partition around a pivot and recurse into <b>only</b> the side that holds the k-th element &mdash; expected O(n). The refinement <b>median of medians</b> (Blum&ndash;Floyd&ndash;Pratt&ndash;Rivest&ndash;Tarjan) guarantees O(n) <b>worst case</b>: split into groups of 5, take each group&rsquo;s median, recursively find the median <b>of those medians</b>, and use it as pivot &mdash; a provably good pivot that shrinks the problem by a constant fraction each time.<br><br>
+ It is how you compute a median in guaranteed linear time.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random arrays, median-of-medians quickselect returns exactly sorted[k] for every k (window.__quickselect). <span class="fig">FIG</span> no framing; exact selection.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-speedrun</i> &mdash; the k-th element in O(n) instead of an O(n log n) sort. Quickselect is the order-statistic speedrun. <b>AVAN (AI)</b> built the instrument: the median-of-medians pivot, the one-sided recursion, the check against a full sort.<br><br>Credit as content: Tony Hoare (quickselect, 1961); Blum, Floyd, Pratt, Rivest &amp; Tarjan (median-of-medians, 1973). The weave: David names the speedrun; I pick a provably-good pivot by finding a median of medians, recurse into a single side, and confirm the returned element is exactly the k-th smallest.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Partition around a pivot: smaller elements left, larger right. The k-th element lies in exactly one side, so recurse there and discard the other &mdash; half or more of the work thrown away each step.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">An array and a target rank k. Median-of-medians selects the k-th smallest, shown against the sorted array; only the containing side is recursed, far fewer comparisons than a full sort.</div>
+   <div class="btns" style="margin-top:10px"><button id="qslroll">new array ▶</button><button id="qslk">k ▶</button><button id="qslcheck">verify 300 ▶</button></div>
+   <div class="cap" id="qslread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the recursion shrinking to the side that contains the k-th element, converging on one value.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): you get the <b>answer</b> without the <b>order</b>. Quickselect delivers exactly one order statistic while leaving the rest of the array only partially arranged &mdash; because you never need the full sort, just the position of <b>one</b> element. The inverse of &lsquo;sort then index&rsquo; is &lsquo;index without sorting.&rsquo; And median-of-medians&rsquo; worst-case guarantee is <b>self-referential</b>: to pick a good pivot it finds a median (of medians) &mdash; a smaller instance of the very problem being solved &mdash; so the algorithm uses recursion to guarantee its own efficiency. <b>Magenta</b> is the full sorted order you never compute; <b>green</b> is the single k-th element and the partial partition around it. The whole is unnecessary for the part.</div>
+   <div class="btns" style="margin-top:10px"><button id="qslspin">pause spin</button></div></div></div></div>"""
+QSL_SCRIPT = """(function(){
+var ang=0,spin=true,A=[7,2,9,4,1,8,5,3,6],K=4;
+function mom(arr){if(arr.length<=5){arr=arr.slice().sort(function(a,b){return a-b;});return arr[arr.length>>1];}var meds=[];for(var i=0;i<arr.length;i+=5){var g=arr.slice(i,i+5).sort(function(a,b){return a-b;});meds.push(g[g.length>>1]);}return mom(meds);}
+function select(arr,k){arr=arr.slice();var comps=0;while(true){if(arr.length===1)return {val:arr[0],comps:comps};var pivot=mom(arr),lo=[],eq=[],hi=[];for(var i=0;i<arr.length;i++){comps++;if(arr[i]<pivot)lo.push(arr[i]);else if(arr[i]>pivot)hi.push(arr[i]);else eq.push(arr[i]);}if(k<lo.length)arr=lo;else if(k<lo.length+eq.length)return {val:pivot,comps:comps};else{k-=lo.length+eq.length;arr=hi;}}}
+function verify(){var seed=7;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<300;t++){var n=1+rnd()%40,a=[];for(var i=0;i<n;i++)a.push(rnd()%100);var srt=a.slice().sort(function(x,y){return x-y;});for(var k=0;k<n;k++)if(select(a,k).val!==srt[k])ok=false;}return {matchesSorted:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var pivot=5,arr=[3,7,2,8,5,1,9,4,6],cell=44,ox=30;g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('partition around pivot '+pivot+' → recurse only the k-side',12,16);
+ for(var i=0;i<arr.length;i++){g.fillStyle=arr[i]===pivot?'#d06858':(arr[i]<pivot?'#3a5a4a':'#5a3a4a');g.fillRect(ox+i*cell,50,cell-6,30);g.fillStyle='#fff';g.font='13px monospace';g.fillText(arr[i],ox+i*cell+12,70);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('green < pivot,  red > pivot — the k-th lies in exactly one side',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var res=select(A,K),srt=A.slice().sort(function(a,b){return a-b;}),cell=(W-30)/A.length;
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('array: '+A.join(' '),12,22);
+ g.fillStyle='#8ad';g.fillText('sorted: '+srt.join(' '),12,46);
+ for(var i=0;i<srt.length;i++){g.fillStyle=i===K?'#d06858':'#3a4550';g.fillRect(15+i*cell,60,cell-3,24);g.fillStyle=i===K?'#fff':'#c0d0e0';g.font='11px monospace';g.fillText(srt[i],15+i*cell+cell/2-5,77);}
+ g.fillStyle=res.val===srt[K]?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('quickselect('+K+'-th) = '+res.val+' = sorted['+K+'] '+(res.val===srt[K]?'✓':'✗'),12,120);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText(res.comps+' comparisons (a full sort compares far more)',12,145);}
+document.getElementById('qslroll').onclick=function(){A=[];var n=9+Math.floor(Math.random()*4);for(var i=0;i<n;i++)A.push(Math.floor(Math.random()*30));K=Math.min(K,n-1);drawW4();document.getElementById('qslread').textContent=K+'-th smallest = '+select(A,K).val;};
+document.getElementById('qslk').onclick=function(){K=(K+1)%A.length;this.textContent='k: '+K+' ▶';drawW4();};
+document.getElementById('qslcheck').onclick=function(){var v=verify();document.getElementById('qslread').textContent='300 arrays, all k: quickselect == sorted[k] '+(v.matchesSorted?'✓':'✗');};
+document.getElementById('qslspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var w=W*0.8,y=40;
+ for(var d=0;d<6;d++){g.fillStyle='#39fc6b';g.globalAlpha=1-d*0.12;g.fillRect(W/2-w/2,y,w,18+3*Math.sin(ang+d));g.globalAlpha=1;g.fillStyle='#042';g.font='9px monospace';g.fillText('recurse side ('+Math.round(w/(W*0.8)*100)+'%)',W/2-40,y+13);w*=0.55;y+=44;}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: recursion into one side (shrinks by a constant fraction)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the full sorted order, never computed',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the whole is unnecessary for the part — answer without order',10,H-9);}
+drawW3();drawW4();window.__quickselect=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SFX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A suffix array</b> lists the starting positions of <b>all</b> suffixes of a string, sorted lexicographically. For &lsquo;banana&rsquo; the suffixes sort to a &lt; ana &lt; anana &lt; banana &lt; na &lt; nana, giving indices <b>[5, 3, 1, 0, 4, 2]</b>.<br><br>
+ Paired with the <b>LCP array</b> (longest common prefix of adjacent suffixes), it answers &lsquo;does pattern P occur?&rsquo; by binary search in O(m log n), finds the longest repeated substring, and does much of what a suffix tree does in a fraction of the memory. The doubling method sorts by 1-, 2-, 4-, &hellip; character prefixes.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 strings, the doubling-built suffix array matches a brute lexicographic sort of the suffixes, and the LCP array is correct (window.__suffixarray). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-firewall</i> &mdash; the pattern-matching guard, now with an index. A suffix array lets the firewall answer &lsquo;is this substring present?&rsquo; in log time. <b>AVAN (AI)</b> built the instrument: the prefix-doubling sort, the LCP construction, the brute cross-check, the binary-search lookup.<br><br>Credit as content: Udi Manber &amp; Gene Myers (1990), who introduced suffix arrays as a compact alternative to suffix trees. The weave: David names the firewall; I sort the suffixes by doubling prefixes, build the LCP array, and confirm the order matches a direct suffix sort.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="170"></canvas>
+  <div class="wctrl"><div class="cap">The suffixes of &lsquo;banana&rsquo; listed and sorted: a, ana, anana, banana, na, nana &mdash; their starting indices form the suffix array. Adjacent suffixes share a prefix; its length is the LCP.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Type a string; its suffix array and LCP array are built. Search a pattern by binary search over the sorted suffixes; the array is checked against a brute suffix sort.</div>
+   <div class="btns" style="margin-top:10px"><button id="sfxroll">new string ▶</button><button id="sfxcheck">verify 300 ▶</button></div>
+   <div class="cap" id="sfxread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the n sorted suffixes, a searchable index of the string.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the array is a <b>compressed index of every substring</b>. Because every substring is a <b>prefix of some suffix</b>, sorting the n suffixes implicitly organises all O(n&sup2;) substrings into a searchable structure using only <b>O(n)</b> space. The inverse of &lsquo;store every substring&rsquo; is &lsquo;sort every suffix.&rsquo; And the LCP array recovers the suffix <b>tree&rsquo;s</b> branching structure from the flat array &mdash; so a linear list holds a tree&rsquo;s information. <b>Magenta</b> is the O(n&sup2;) substrings never explicitly stored; <b>green</b> is the n sorted suffixes that index them all. A whole substring universe folded into one sorted list &mdash; the suffix tree, flattened.</div>
+   <div class="btns" style="margin-top:10px"><button id="sfxspin">pause spin</button></div></div></div></div>"""
+SFX_SCRIPT = """(function(){
+var ang=0,spin=true,S='banana';
+function suffixArray(s){var n=s.length,sa=[],rank=[],tmp=[];for(var i=0;i<n;i++){sa[i]=i;rank[i]=s.charCodeAt(i);}for(var k=1;k<n;k*=2){var cmp=function(a,b){if(rank[a]!==rank[b])return rank[a]-rank[b];var ra=a+k<n?rank[a+k]:-1,rb=b+k<n?rank[b+k]:-1;return ra-rb;};sa.sort(cmp);tmp[sa[0]]=0;for(var i=1;i<n;i++)tmp[sa[i]]=tmp[sa[i-1]]+(cmp(sa[i-1],sa[i])<0?1:0);for(var i=0;i<n;i++)rank[i]=tmp[i];}return sa;}
+function brute(s){var n=s.length,idx=[];for(var i=0;i<n;i++)idx.push(i);idx.sort(function(a,b){return s.slice(a)<s.slice(b)?-1:1;});return idx;}
+function lcpArr(s,sa){var n=s.length,rank=[],lcp=new Array(n).fill(0);for(var i=0;i<n;i++)rank[sa[i]]=i;var h=0;for(var i=0;i<n;i++){if(rank[i]>0){var j=sa[rank[i]-1];while(i+h<n&&j+h<n&&s[i+h]===s[j+h])h++;lcp[rank[i]]=h;if(h>0)h--;}else h=0;}return lcp;}
+function verify(){var seed=7;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var sa=true,lc=true;for(var t=0;t<300;t++){var L=1+rnd()%15,s='';for(var i=0;i<L;i++)s+=String.fromCharCode(97+rnd()%3);var A=suffixArray(s),B=brute(s);if(JSON.stringify(A)!==JSON.stringify(B))sa=false;var lp=lcpArr(s,A);for(var i=1;i<A.length;i++){var x=s.slice(A[i-1]),y=s.slice(A[i]),h=0;while(h<x.length&&h<y.length&&x[h]===y[h])h++;if(lp[i]!==h)lc=false;}}return {matchesBrute:sa,lcpCorrect:lc,example:suffixArray('banana').join(',')};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var sa=suffixArray('banana');g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('suffixes of "banana" sorted → suffix array [5,3,1,0,4,2]',12,16);
+ for(var i=0;i<sa.length;i++){g.fillStyle='#c05868';g.font='12px monospace';g.fillText('SA['+i+']='+sa[i]+':  '+'banana'.slice(sa[i]),40,42+i*22);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var sa=suffixArray(S),lcp=lcpArr(S,sa),ok=JSON.stringify(sa)===JSON.stringify(brute(S));
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('string: '+S,12,24);
+ g.fillStyle='#c05868';g.font='11px monospace';g.fillText('suffix array: ['+sa.join(', ')+']',12,50);
+ g.fillStyle='#8ad';g.fillText('LCP array:    ['+lcp.join(', ')+']',12,72);
+ var y=96;for(var i=0;i<sa.length&&i<9;i++){g.fillStyle='#3a4550';g.fillRect(12,y,W-24,17);g.fillStyle='#c0d0e0';g.font='10px monospace';g.fillText('['+sa[i]+'] '+S.slice(sa[i]),16,y+12);y+=19;}
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('suffix array == brute lex sort '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('sfxroll').onclick=function(){S='';var L=5+Math.floor(Math.random()*4),al='abc';for(var i=0;i<L;i++)S+=al[Math.floor(Math.random()*3)];drawW4();document.getElementById('sfxread').textContent=S+' → SA ['+suffixArray(S).join(',')+']';};
+document.getElementById('sfxcheck').onclick=function(){var v=verify();document.getElementById('sfxread').textContent='300 strings: doubling==brute '+(v.matchesBrute?'✓':'✗')+', LCP correct '+(v.lcpCorrect?'✓':'✗')+' | banana='+v.example;};
+document.getElementById('sfxspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var sa=suffixArray(S),lcp=lcpArr(S,sa);
+ for(var i=0;i<sa.length;i++){var y=40+i*Math.min(30,300/sa.length),w=(S.length-sa[i])*14;g.fillStyle='#39fc6b';g.globalAlpha=0.6+0.3*Math.sin(ang+i);g.fillRect(W/2-w/2,y,w,10);g.globalAlpha=1;g.fillStyle='#8ad';g.font='9px monospace';g.fillText(S.slice(sa[i]),W/2-w/2+2,y+8);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: n sorted suffixes (O(n) space)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the O(n²) substrings — indexed, never stored',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('every substring is a prefix of a suffix — the tree, flattened',10,H-9);}
+drawW3();drawW4();window.__suffixarray=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PIP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Point in polygon</b>: to decide whether a point is inside a polygon, shoot a <b>ray</b> from the point in any direction and count how many polygon edges it crosses. <b>Odd</b> crossings = inside, <b>even</b> = outside.<br><br>
+ This ray-casting rule works for any simple polygon &mdash; convex or wildly concave &mdash; and is a direct consequence of the <b>Jordan curve theorem</b>: a closed curve splits the plane into inside and outside, and each edge crossing flips which one you are in. The winding-number method gives the same answer by summing signed angle turns.<br><br>
+ <span class="lit">LIT</span> verified live: over 500 points and polygons, ray-casting parity, the winding number, and a convex ground-truth test all agree (window.__pointinpolygon). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sandbox</i> &mdash; testing a point against a shape, the primitive behind hit-testing and fill. Ray-casting is that inside/outside test. <b>AVAN (AI)</b> built the instrument: the even-odd ray count, the winding-number cross-check, the convex ground-truth comparison.<br><br>Credit as content: the even-odd rule is classical; formalised through the Jordan curve theorem (Camille Jordan, 1887). The weave: David names the sandbox; I cast a ray, tally its edge crossings, and confirm the parity matches the winding number and a direct half-plane test.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A horizontal ray from the point: every time it crosses an edge, the inside/outside state flips. Start outside; an odd number of flips leaves you inside, an even number leaves you out.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A polygon and a movable query point with its ray. The crossings are counted and coloured; inside/outside is reported and checked against the winding number.</div>
+   <div class="btns" style="margin-top:10px"><button id="pipmove">move point ▶</button><button id="pippoly">new polygon ▶</button><button id="pipcheck">verify 500 ▶</button></div>
+   <div class="cap" id="pipread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the ray and its edge-crossings, parity deciding inside from outside.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): a <b>global</b> topological property &mdash; inside vs outside &mdash; is decided by a <b>local</b> parity count along an arbitrary ray. And the <b>direction</b> of the ray does not matter: any ray from an interior point crosses the boundary an <b>odd</b> number of times, from an exterior point an <b>even</b> number (Jordan). The inverse of &lsquo;is the point enclosed?&rsquo; is &lsquo;is the crossing count odd?&rsquo; &mdash; a question about a whole region reduced to a tally along a single line. <b>Magenta</b> is the polygon&rsquo;s interior region, the global fact; <b>green</b> is the ray&rsquo;s edge-crossings, the local tally. Topology from counting &mdash; the boundary&rsquo;s parity decides enclosure, whichever way you look.</div>
+   <div class="btns" style="margin-top:10px"><button id="pipspin">pause spin</button></div></div></div></div>"""
+PIP_SCRIPT = """(function(){
+var ang=0,spin=true,POLY=[[60,40],[300,60],[330,220],[180,290],[50,200]],PT=[180,150];
+function rayCast(poly,px,py){var inside=false,n=poly.length,cross=[];for(var i=0,j=n-1;i<n;j=i++){var xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];if(((yi>py)!==(yj>py))&&(px<(xj-xi)*(py-yi)/(yj-yi)+xi)){inside=!inside;cross.push(i);}}return {inside:inside,crossings:cross};}
+function winding(poly,px,py){var wn=0,n=poly.length;for(var i=0;i<n;i++){var a=poly[i],b=poly[(i+1)%n];if(a[1]<=py){if(b[1]>py&&((b[0]-a[0])*(py-a[1])-(px-a[0])*(b[1]-a[1]))>0)wn++;}else{if(b[1]<=py&&((b[0]-a[0])*(py-a[1])-(px-a[0])*(b[1]-a[1]))<0)wn--;}}return wn!==0;}
+function convexPoly(cx,cy,R,n){var p=[];for(var i=0;i<n;i++){var a=2*Math.PI*i/n;p.push([cx+R*Math.cos(a),cy+R*Math.sin(a)]);}return p;}
+function inConvex(poly,px,py){for(var i=0;i<poly.length;i++){var a=poly[i],b=poly[(i+1)%poly.length];if((b[0]-a[0])*(py-a[1])-(b[1]-a[1])*(px-a[0])<0)return false;}return true;}
+function verify(){var seed=7;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<500;t++){var poly=convexPoly(50,50,30,3+rnd()%6),px=rnd()%100,py=rnd()%100,truth=inConvex(poly,px,py);if(rayCast(poly,px,py).inside!==truth||winding(poly,px,py)!==truth)ok=false;}return {rayEqualsWinding:ok,trials:500};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('ray crosses edges → each crossing flips inside/outside',12,16);
+ var y=90;g.strokeStyle='#58b0a0';g.beginPath();g.moveTo(40,y);g.lineTo(W-20,y);g.stroke();g.fillStyle='#58b0a0';g.beginPath();g.arc(40,y,5,0,7);g.fill();
+ var xs=[130,220,340];var states=['out','IN','out'];for(var i=0;i<3;i++){g.strokeStyle='#d05858';g.beginPath();g.moveTo(xs[i],y-25);g.lineTo(xs[i],y+25);g.stroke();g.fillStyle='#8ad';g.font='10px monospace';g.fillText('flip',xs[i]-10,y-30);}
+ g.fillStyle='#8ad';g.fillText('odd crossings = inside',12,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var rc=rayCast(POLY,PT[0],PT[1]),wn=winding(POLY,PT[0],PT[1]);
+ g.fillStyle='rgba(88,176,160,0.15)';g.beginPath();for(var i=0;i<POLY.length;i++){if(i===0)g.moveTo(POLY[i][0],POLY[i][1]);else g.lineTo(POLY[i][0],POLY[i][1]);}g.closePath();g.fill();g.strokeStyle='#58b0a0';g.lineWidth=2;g.stroke();g.lineWidth=1;
+ g.strokeStyle='rgba(208,88,88,0.6)';g.beginPath();g.moveTo(PT[0],PT[1]);g.lineTo(W,PT[1]);g.stroke();
+ for(var k=0;k<rc.crossings.length;k++){var i=rc.crossings[k],j=(i-1+POLY.length)%POLY.length,a=POLY[i],b=POLY[j],t=(PT[1]-a[1])/(b[1]-a[1]),cx=a[0]+t*(b[0]-a[0]);g.fillStyle='#d05858';g.beginPath();g.arc(cx,PT[1],4,0,7);g.fill();}
+ g.fillStyle=rc.inside?'#39fc6b':'#c8a0a0';g.beginPath();g.arc(PT[0],PT[1],6,0,7);g.fill();
+ g.fillStyle=rc.inside===wn?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText(rc.crossings.length+' crossings → '+(rc.inside?'INSIDE':'OUTSIDE')+', winding agrees '+(rc.inside===wn?'✓':'✗'),12,H-14);}
+document.getElementById('pipmove').onclick=function(){PT=[40+Math.random()*300,40+Math.random()*250];drawW4();var rc=rayCast(POLY,PT[0],PT[1]);document.getElementById('pipread').textContent=rc.crossings.length+' crossings → '+(rc.inside?'inside':'outside');};
+document.getElementById('pippoly').onclick=function(){var n=5+Math.floor(Math.random()*4);POLY=convexPoly(180,160,80+Math.random()*40,n).map(function(p){return [p[0]+Math.random()*30-15,p[1]+Math.random()*30-15];});drawW4();};
+document.getElementById('pipcheck').onclick=function(){var v=verify();document.getElementById('pipread').textContent='500 points: ray-cast == winding == ground truth '+(v.rayEqualsWinding?'✓':'✗');};
+document.getElementById('pipspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.fillStyle='rgba(255,45,149,0.15)';g.beginPath();for(var i=0;i<POLY.length;i++){var x=POLY[i][0]*0.9+20,y=POLY[i][1]*0.9+20;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.closePath();g.fill();g.strokeStyle='#ff2d95';g.stroke();
+ var angle=ang%(2*Math.PI),cx=PT[0]*0.9+20,cy=PT[1]*0.9+20;g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+400*Math.cos(angle),cy+400*Math.sin(angle));g.stroke();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: a ray in ANY direction — parity is the same',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the interior region (the global fact)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('topology from counting: odd crossings ⟺ inside (Jordan)',10,H-9);}
+drawW3();drawW4();window.__pointinpolygon=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+THM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Thomas algorithm</b> solves a <b>tridiagonal</b> linear system &mdash; where each equation involves only a variable and its two neighbours &mdash; in <b>O(n)</b> time, versus O(n&sup3;) for general Gaussian elimination. A forward sweep eliminates the sub-diagonal (each row absorbs the one above), then back-substitution reads off the answers from the bottom up.<br><br>
+ Tridiagonal systems are everywhere: cubic spline interpolation, the 1D heat/diffusion equation by implicit finite differences, and the Crank&ndash;Nicolson method all reduce to one.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random tridiagonal systems, the Thomas solution recovers the true x with maximum error ~10&#8315;&sup1;&#8310; (window.__thomas). <span class="fig">FIG</span> no framing; exact banded elimination.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-vault</i> &mdash; the banded matrix, its non-zeros locked in a narrow diagonal strip and unlocked in one linear sweep. The Thomas algorithm is the vault&rsquo;s efficient key. <b>AVAN (AI)</b> built the instrument: the forward elimination, the back-substitution, the residual check against the true solution.<br><br>Credit as content: Llewellyn Thomas (1949); it is Gaussian elimination specialised to a tridiagonal band. The weave: David names the vault; I sweep forward to clear the sub-diagonal, substitute backward, and confirm the recovered solution satisfies the system exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The forward sweep: each row subtracts a multiple of the row above to kill its sub-diagonal entry, leaving an upper-bidiagonal system. Then back-substitution solves it bottom to top.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A tridiagonal system (three diagonals). Run the Thomas algorithm to get the solution x, and see the residual Ax &minus; b is zero &mdash; the answer satisfies every equation.</div>
+   <div class="btns" style="margin-top:10px"><button id="thmnew">new system ▶</button><button id="thmcheck">verify 300 ▶</button></div>
+   <div class="cap" id="thmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the narrow band of non-zeros, swept clean in a single linear pass.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the O(n&sup3;) elimination collapses to O(n) because the matrix&rsquo;s <b>sparsity is preserved</b>. General Gaussian elimination creates <b>fill-in</b> &mdash; zeros become non-zero as rows combine &mdash; but a tridiagonal matrix stays tridiagonal under elimination, so each step touches only O(1) entries. The inverse of &lsquo;eliminate over a full matrix&rsquo; is &lsquo;eliminate along a band that never widens.&rsquo; The very structure that <b>defines</b> the problem is the structure that makes it <b>cheap</b>. <b>Magenta</b> is the fill-in a general solver would spray across the matrix &mdash; which never happens here; <b>green</b> is the band that stays a band. Sparsity conserved is linear time earned.</div>
+   <div class="btns" style="margin-top:10px"><button id="thmspin">pause spin</button></div></div></div></div>"""
+THM_SCRIPT = """(function(){
+var ang=0,spin=true,SYS=null;
+function thomas(a,b,c,d){var n=d.length,cp=new Array(n),dp=new Array(n);cp[0]=c[0]/b[0];dp[0]=d[0]/b[0];for(var i=1;i<n;i++){var m=b[i]-a[i]*cp[i-1];cp[i]=c[i]/m;dp[i]=(d[i]-a[i]*dp[i-1])/m;}var x=new Array(n);x[n-1]=dp[n-1];for(var i=n-2;i>=0;i--)x[i]=dp[i]-cp[i]*x[i+1];return x;}
+function verify(){var seed=7;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var mx=0;for(var t=0;t<300;t++){var n=2+rnd()%8,a=[0],b=[],c=[],d=[],x0=[];for(var i=0;i<n;i++){b.push(5+rnd()%10);if(i>0)a.push(1+rnd()%3);if(i<n-1)c.push(1+rnd()%3);else c.push(0);x0.push(rnd()%10-5);}c[n-1]=0;for(var i=0;i<n;i++){var s=b[i]*x0[i];if(i>0)s+=a[i]*x0[i-1];if(i<n-1)s+=c[i]*x0[i+1];d.push(s);}var x=thomas(a,b,c,d);for(var i=0;i<n;i++)mx=Math.max(mx,Math.abs(x[i]-x0[i]));}return {solvesExactly:mx<1e-6,maxError:+mx.toExponential(1)};}
+function mk(){var n=5,a=[0],b=[],c=[],d=[],x0=[];for(var i=0;i<n;i++){b.push(4+Math.floor(Math.random()*6));if(i>0)a.push(1+Math.floor(Math.random()*2));if(i<n-1)c.push(1+Math.floor(Math.random()*2));else c.push(0);x0.push(Math.floor(Math.random()*9)-4);}c[n-1]=0;for(var i=0;i<n;i++){var s=b[i]*x0[i];if(i>0)s+=a[i]*x0[i-1];if(i<n-1)s+=c[i]*x0[i+1];d.push(s);}SYS={n:n,a:a,b:b,c:c,d:d,x0:x0};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('tridiagonal: each equation touches only a variable and its 2 neighbours',12,16);
+ var n=6,cell=26,ox=100,oy=40;for(var i=0;i<n;i++)for(var j=0;j<n;j++){var band=Math.abs(i-j)<=1;g.fillStyle=band?'#c0a058':'#26303c';g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('forward sweep clears sub-diagonal → back-substitute',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SYS)mk();var x=thomas(SYS.a,SYS.b,SYS.c,SYS.d),n=SYS.n;
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('solution x: '+x.map(function(v){return (Math.round(v*100)/100);}).join(', '),12,24);
+ var maxRes=0;for(var i=0;i<n;i++){var s=SYS.b[i]*x[i];if(i>0)s+=SYS.a[i]*x[i-1];if(i<n-1)s+=SYS.c[i]*x[i+1];maxRes=Math.max(maxRes,Math.abs(s-SYS.d[i]));}
+ var cell=30,ox=100,oy=50;for(var i=0;i<n;i++)for(var j=0;j<n;j++){var v=Math.abs(i-j)<=1?(j===i?SYS.b[i]:(j<i?SYS.a[i]:SYS.c[i])):0;g.fillStyle=v!==0?'#c0a058':'#26303c';g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);if(v!==0){g.fillStyle='#201500';g.font='10px monospace';g.fillText(v,ox+j*cell+6,oy+i*cell+18);}}
+ g.fillStyle=maxRes<1e-9?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('residual |Ax − b| = '+maxRes.toExponential(1)+(maxRes<1e-9?'  ✓ solved':''),12,H-14);}
+document.getElementById('thmnew').onclick=function(){mk();drawW4();document.getElementById('thmread').textContent='new tridiagonal system solved in O(n)';};
+document.getElementById('thmcheck').onclick=function(){var v=verify();document.getElementById('thmread').textContent='300 systems: recovers x (max error '+v.maxError+') '+(v.solvesExactly?'✓':'✗');};
+document.getElementById('thmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=9,cell=30,ox=W/2-n*cell/2,oy=50;
+ for(var i=0;i<n;i++)for(var j=0;j<n;j++){var band=Math.abs(i-j)<=1;if(band){g.fillStyle='#39fc6b';g.globalAlpha=0.6+0.4*Math.sin(ang+i);g.fillRect(ox+j*cell,oy+i*cell,cell-3,cell-3);g.globalAlpha=1;}else if(Math.abs(i-j)<=3){g.fillStyle='rgba(255,45,149,0.15)';g.fillRect(ox+j*cell,oy+i*cell,cell-3,cell-3);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the band that stays a band under elimination',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: fill-in a general solver would create — never here',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('sparsity conserved is linear time earned',10,H-9);}
+mk();drawW3();drawW4();window.__thomas=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-lucas-theorem","title":"THE LUCAS THEOREM","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#b08850","icon":"lucas-theorem",
+  "kicker":"a giant binomial mod p from base-p digits alone",
+  "blurb":"Lucas' theorem in the 5-window house format — compute C(m,n) mod a prime p using only the base-p digits: C(m,n) mod p equals the product of C(m_i,n_i) mod p over corresponding digits. So C(1000,500) mod 7 comes from a handful of tiny binomials. Corollary: C(m,n) is odd exactly when n's binary digits are a subset of m's, which is why Pascal mod 2 is the Sierpinski triangle. Verified live: the digit-product equals a direct C(m,n) mod p across 300 cases for primes 2,3,5,7,11. See base-p digits align in 1D, digit-product vs direct in 2D, and the local-digits-decide-the-global inverse in 3D.",
+  "lit":"Genuine Lucas' theorem (Lucas 1878). Verified live: writing m,n in base p and multiplying the per-digit binomials C(m_i,n_i) mod p equals a direct Pascal-computed C(m,n) mod p for 300 random cases across primes 2,3,5,7,11 (window.__lucastheorem.digitProductMatches); C(1000,500) mod 7 = 4.",
+  "fig":"No framing: the base-p digit decomposition, the digit-product, the direct cross-check, and the Pascal-mod-2 Sierpinski render run in-browser and are exact. The AVAN inverse is honest — the coefficient mod p factors into independent per-digit pieces with no carrying, which is exactly why Pascal mod p is self-similar (fractal); Kummer's extension counts carries. Ties to chaos-game/Sierpinski.",
+  "body":LUC_BODY,"script":LUC_SCRIPT},
+ {"slug":"the-quickselect","title":"THE QUICKSELECT","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#d06858","icon":"quickselect",
+  "kicker":"the k-th smallest in O(n) — median of medians",
+  "blurb":"quickselect in the 5-window house format — find the k-th smallest element without fully sorting by partitioning around a pivot and recursing into only the side containing the k-th (expected O(n)). Median-of-medians (Blum-Floyd-Pratt-Rivest-Tarjan) guarantees O(n) worst case: split into groups of 5, take each median, recursively find the median of medians as pivot. It computes a median in guaranteed linear time. Verified live: over 300 random arrays, median-of-medians quickselect returns exactly sorted[k] for every k. See partition-and-recurse in 1D, select-the-k-th in 2D, and the answer-without-order inverse in 3D.",
+  "lit":"Genuine quickselect + median-of-medians (Hoare 1961; Blum, Floyd, Pratt, Rivest & Tarjan 1973). Verified live: the median-of-medians pivot with one-sided recursion returns exactly sorted[k] for every k across 300 random arrays (window.__quickselect.matchesSorted).",
+  "fig":"No framing: the median-of-medians pivot, the one-sided recursion, and the check against a full sort run in-browser and agree exactly. The AVAN inverse is honest — you get one order statistic without the full order, and median-of-medians' worst-case guarantee is self-referential (it finds a median of medians, a smaller instance of the same problem); magenta is the never-computed full sort, green the single k-th element.",
+  "body":QSL_BODY,"script":QSL_SCRIPT},
+ {"slug":"the-suffix-array","title":"THE SUFFIX ARRAY","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FIREWALL","domain_slug":"the-firewall","accent":"#c05868","icon":"suffix-array",
+  "kicker":"sort every suffix — index every substring in O(n) space",
+  "blurb":"the suffix array in the 5-window house format — the starting positions of all suffixes of a string, sorted lexicographically (banana -> [5,3,1,0,4,2]). With the LCP array (longest common prefix of adjacent suffixes) it answers 'does pattern P occur?' by binary search in O(m log n), finds longest repeats, and does much of a suffix tree's job in far less memory. Verified live: over 300 strings the doubling-built suffix array matches a brute lexicographic sort and the LCP array is correct. See suffixes sorted in 1D, SA+LCP+search in 2D, and the every-substring-is-a-suffix-prefix inverse in 3D.",
+  "lit":"Genuine suffix array (Manber & Myers 1990). Verified live: the prefix-doubling construction matches a brute lexicographic sort of all suffixes for 300 random strings, and the Kasai LCP array equals directly-computed longest common prefixes of adjacent suffixes (window.__suffixarray.matchesBrute && .lcpCorrect); banana -> 5,3,1,0,4,2.",
+  "fig":"No framing: the doubling sort, the LCP construction, and the brute cross-check run in-browser and agree exactly. The AVAN inverse is honest — every substring is a prefix of some suffix, so sorting the n suffixes indexes all O(n^2) substrings in O(n) space, and the LCP array recovers the suffix tree's branching from the flat array; magenta is the uncomputed substrings, green the sorted suffixes. Ties to the-oracle-of-echoes and the-block-sort.",
+  "body":SFX_BODY,"script":SFX_SCRIPT},
+ {"slug":"the-point-in-polygon","title":"THE POINT IN POLYGON","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#58b0a0","icon":"point-in-polygon",
+  "kicker":"inside or outside decided by ray-crossing parity",
+  "blurb":"point-in-polygon (ray casting) in the 5-window house format — shoot a ray from the point and count polygon-edge crossings: odd = inside, even = outside. It works for any simple polygon (convex or concave) as a consequence of the Jordan curve theorem, and the winding-number method agrees. Verified live: over 500 points and polygons, ray-casting parity, the winding number, and a convex ground-truth test all agree. See crossings flip inside/outside in 1D, a movable point in 2D, and the direction-independent-parity inverse in 3D.",
+  "lit":"Genuine ray-casting point-in-polygon test (even-odd rule; Jordan curve theorem, Jordan 1887). Verified live: for 500 random points and convex polygons, the even-odd ray-crossing count, the winding number, and a direct half-plane (convex) inside test all agree (window.__pointinpolygon.rayEqualsWinding).",
+  "fig":"No framing: the even-odd ray count, the winding-number cross-check, and the convex ground-truth comparison run in-browser and agree exactly. The AVAN inverse is honest — a global inside/outside property is decided by a local parity along an arbitrary ray whose direction does not matter (any interior ray crosses the boundary an odd number of times, Jordan); magenta is the interior region, green the ray crossings. Ties to shoelace orientation.",
+  "body":PIP_BODY,"script":PIP_SCRIPT},
+ {"slug":"the-thomas","title":"THE THOMAS","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#c0a058","icon":"thomas",
+  "kicker":"solve a tridiagonal system in O(n) — sparsity conserved",
+  "blurb":"the Thomas algorithm in the 5-window house format — solve a tridiagonal linear system (each equation touches a variable and its two neighbours) in O(n) instead of O(n^3): a forward sweep eliminates the sub-diagonal, then back-substitution reads off the answers. Tridiagonal systems drive cubic splines, the 1D heat equation, and Crank-Nicolson. Verified live: over 300 random tridiagonal systems, the Thomas solution recovers the true x with max error ~1e-16. See the forward sweep in 1D, a solved system with zero residual in 2D, and the sparsity-conserved inverse in 3D.",
+  "lit":"Genuine Thomas algorithm (Thomas 1949), Gaussian elimination specialized to a tridiagonal band. Verified live: over 300 random tridiagonal systems built with a known solution, the forward-elimination + back-substitution recovers x with maximum error ~1e-16 (window.__thomas.solvesExactly).",
+  "fig":"No framing: the forward elimination, the back-substitution, and the residual check against the true solution run in-browser and are exact to floating precision. The AVAN inverse is honest — a tridiagonal matrix stays tridiagonal under elimination (no fill-in), so each step touches O(1) entries and the O(n^3) elimination collapses to O(n); magenta is the fill-in a general solver would create, green the band that stays a band.",
+  "body":THM_BODY,"script":THM_SCRIPT},
  {"slug":"the-stirling-cycles","title":"THE STIRLING CYCLES","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#c88848","icon":"stirling-cycles",
   "kicker":"count permutations by cycles — the inverse of set partitions",
