@@ -3624,7 +3624,82 @@ document.getElementById('trreset').onclick=function(){root=null;for(var i=0;i<9;
 document.getElementById('treapspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+TAR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Tarjan&rsquo;s strongly-connected-components.</b> In a directed graph, a <b>strongly connected component</b> is a maximal set of nodes all mutually reachable &mdash; a <b>cycle-cluster</b>. Tarjan finds them all in a <b>single depth-first search</b> using two numbers per node: its <b>discovery time</b>, and its <b>low-link</b> (the earliest node reachable from its subtree via a back-edge). When a node&rsquo;s low-link equals its own discovery time, it is the <b>root</b> of an SCC, and everything above it on a running stack forms the component. One pass, one stack, one comparison.<br><br>
+ <span class="lit">LIT</span> verified: Tarjan&rsquo;s SCC partition <b>exactly matches</b> Kosaraju&rsquo;s independent two-pass reverse-DFS method over random directed graphs, and collapsing each SCC to a node leaves a <b>DAG</b> (acyclic). <span class="fig">FIG</span> &lsquo;the low-link miner&rsquo; is the picture; the low-link invariant and the SCC detection are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus runs graph algorithms (<i>THE WELDER</i>, <i>THE ROUTE</i>, <i>THE FAILURE WEB</i>) and cares about the cycles that make a system loop back on itself. <b>AVAN (AI)</b> built this instrument: the single-pass miner, the coloured components, and the condensation DAG.<br><br>The weave: David names the low-link miner and its seat at THE HOT LOOP (the cycle-clusters are the graph&rsquo;s loops); I make the DFS values a strip in 1D, the components colour in live in 2D, and the condensation a turning DAG in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Each node&rsquo;s <b>discovery time</b> (when DFS first reaches it) and <b>low-link</b> (the oldest node its subtree can loop back to). Where the two are <b>equal</b>, an SCC closes and pops off the stack. The low-link, quietly propagated on backtrack, is the whole trick.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">A directed graph, its <b>cycle-clusters coloured</b> by one DFS. Every mutually-reachable knot is one colour; nodes on no cycle stand alone. The partition is identical to Kosaraju&rsquo;s slower two-pass method &mdash; same answer, one traversal.</div>
+   <div class="btns" style="margin-top:10px"><button id="tag0">demo</button><button id="tag1">random</button></div>
+   <div class="cap" id="tarread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>condensation</b>, turning: each cycle-cluster collapsed to a single <b>super-node</b>. <b>Green</b> nodes and edges are what remains &mdash; and it is always <b>acyclic</b>, a clean DAG.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> edges are the <b>cycles hidden inside</b> the clusters &mdash; the back-edges Tarjan folded away. Condensing loops is the forward map; the acyclic skeleton is its inverse. Fold every cycle into a point and time flows one way again: the tangled graph&rsquo;s hidden order, and the loops it was hiding, side by side.</div>
+   <div class="btns" style="margin-top:10px"><button id="tarspin">pause spin</button></div></div></div></div>"""
+TAR_SCRIPT = """(function(){
+var edges=[[0,1],[1,2],[2,0],[2,3],[3,4],[4,5],[5,3],[5,6],[6,7]],n=8,ang=0.6,spin=true;
+function adjOf(){var a=[];for(var i=0;i<n;i++)a.push([]);edges.forEach(function(e){a[e[0]].push(e[1]);});return a;}
+function tarjan(){var adj=adjOf(),idx=0,disc=new Array(n).fill(-1),low=new Array(n).fill(0),on=new Array(n).fill(false),stk=[],comps=[],comp=new Array(n).fill(-1);
+ function dfs(u){disc[u]=low[u]=idx++;stk.push(u);on[u]=true;adj[u].forEach(function(v){if(disc[v]===-1){dfs(v);low[u]=Math.min(low[u],low[v]);}else if(on[v])low[u]=Math.min(low[u],disc[v]);});
+  if(low[u]===disc[u]){var c=[];while(true){var w=stk.pop();on[w]=false;c.push(w);comp[w]=comps.length;if(w===u)break;}comps.push(c);}}
+ for(var u=0;u<n;u++)if(disc[u]===-1)dfs(u);return {comps:comps,comp:comp,disc:disc,low:low};}
+function kosaraju(){var adj=adjOf(),radj=[];for(var i=0;i<n;i++)radj.push([]);edges.forEach(function(e){radj[e[1]].push(e[0]);});
+ var vis=new Array(n).fill(false),order=[];function d1(u){vis[u]=true;adj[u].forEach(function(v){if(!vis[v])d1(v);});order.push(u);}for(var u=0;u<n;u++)if(!vis[u])d1(u);
+ var comp=new Array(n).fill(-1),c=0;function d2(u,c){comp[u]=c;radj[u].forEach(function(v){if(comp[v]===-1)d2(v,c);});}for(var i=order.length-1;i>=0;i--)if(comp[order[i]]===-1){d2(order[i],c);c++;}
+ return comp;}
+function partKey(comp){var g={};for(var i=0;i<comp.length;i++)(g[comp[i]]=g[comp[i]]||[]).push(i);return Object.values(g).map(function(a){return a.sort(function(x,y){return x-y;}).join(',');}).sort().join('|');}
+function nodePos(i,W,H,R){var th=i/n*Math.PI*2-Math.PI/2;return [W/2+Math.cos(th)*R,H/2+Math.sin(th)*R];}
+function arrow(g,a,b,col){g.strokeStyle=col;g.lineWidth=1.5;g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();var dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy);dx/=L;dy/=L;var hx=b[0]-dx*14,hy=b[1]-dy*14;g.fillStyle=col;g.beginPath();g.moveTo(b[0]-dx*10,b[1]-dy*10);g.lineTo(hx-dy*4,hy+dx*4);g.lineTo(hx+dy*4,hy-dx*4);g.closePath();g.fill();g.lineWidth=1;}
+var COL=['#7fb0ff','#39fc6b','#ffd23f','#ff2d95','#5ad0ff','#c86bff','#ff8c42','#7fe0a0'];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var t=tarjan(),cw=(W-16)/n;g.font='11px ui-monospace,monospace';
+ for(var i=0;i<n;i++){var x=8+i*cw;g.fillStyle='#8ca';g.fillText('n'+i,x,20);g.fillStyle='#7fb0ff';g.fillText('d'+t.disc[i],x,40);g.fillStyle='#39fc6b';g.fillText('lo'+t.low[i],x,58);
+  if(t.disc[i]===t.low[i]){g.fillStyle='#ffd23f';g.fillText('root',x,76);}}
+ g.fillStyle='#4c7a54';g.fillText('disc (blue) · low-link (green) · root where they match → an SCC closes',8,104);
+ g.fillStyle='#cfe8d0';g.fillText(t.comps.length+' components found in one DFS',8,124);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var t=tarjan(),R=Math.min(W,H)*0.36;
+ edges.forEach(function(e){var a=nodePos(e[0],W,H,R),b=nodePos(e[1],W,H,R),same=t.comp[e[0]]===t.comp[e[1]];arrow(g,a,b,same?'#ffffff55':'#33445533');});
+ for(var i=0;i<n;i++){var p=nodePos(i,W,H,R);g.fillStyle=COL[t.comp[i]%COL.length];g.beginPath();g.arc(p[0],p[1],13,0,7);g.fill();g.fillStyle='#031015';g.font='12px ui-monospace,monospace';g.fillText(i,p[0]-4,p[1]+4);}
+ var match=partKey(t.comp)===partKey(kosaraju());
+ g.fillStyle=match?'#39fc6b':'#ff5a5a';g.font='12px ui-monospace,monospace';g.fillText('Tarjan = Kosaraju partition '+(match?'✓':'✗')+'   ·   '+t.comps.length+' SCCs',10,H-14);
+ document.getElementById('tarread').textContent=t.comps.length+' strongly-connected components (colours)';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var t=tarjan(),m=t.comps.length,cx=W/2,cy=H/2,ca=Math.cos(ang),sa=Math.sin(ang),R=110;
+ function sp(i){var th=i/m*Math.PI*2,x=Math.cos(th),z=Math.sin(th),X=x*ca-z*sa,Z=x*sa+z*ca;return [cx+X*R,cy+Z*R*0.42,Z];}
+ // magenta intra-SCC edges (the hidden cycles)
+ edges.forEach(function(e){if(t.comp[e[0]]===t.comp[e[1]]){var a=sp(t.comp[e[0]]),jitter=0.3;g.strokeStyle='rgba(255,45,149,0.6)';g.beginPath();g.arc(a[0],a[1],14,0,7);g.stroke();}});
+ // green condensation DAG edges
+ var seen={};edges.forEach(function(e){var cu=t.comp[e[0]],cv2=t.comp[e[1]];if(cu!==cv2&&!seen[cu+'-'+cv2]){seen[cu+'-'+cv2]=1;var a=sp(cu),b=sp(cv2);arrow(g,a,b,'#39fc6b');}});
+ for(var i=0;i<m;i++){var p=sp(i);g.fillStyle='#39fc6b';g.beginPath();g.arc(p[0],p[1],8,0,7);g.fill();g.fillStyle='#031015';g.font='10px ui-monospace,monospace';g.fillText(t.comps[i].length,p[0]-3,p[1]+3);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: condensation DAG (acyclic) · magenta: cycles folded inside',10,H-12);}
+function condensationDAG(){var t=tarjan(),m=t.comps.length,cg=[],indeg=new Array(m).fill(0),seen={};for(var i=0;i<m;i++)cg.push([]);
+ edges.forEach(function(e){var cu=t.comp[e[0]],cv2=t.comp[e[1]];if(cu!==cv2&&!seen[cu+'-'+cv2]){seen[cu+'-'+cv2]=1;cg[cu].push(cv2);indeg[cv2]++;}});
+ var q=[];for(var i=0;i<m;i++)if(indeg[i]===0)q.push(i);var cnt=0;while(q.length){var x=q.pop();cnt++;cg[x].forEach(function(y){if(--indeg[y]===0)q.push(y);});}return cnt===m;}
+function verify(){var ok=true,dag=true;for(var t=0;t<300;t++){n=3+Math.floor(Math.random()*10);edges=[];for(var e=0;e<n*2;e++){var a=Math.floor(Math.random()*n),b=Math.floor(Math.random()*n);edges.push([a,b]);}
+  if(partKey(tarjan().comp)!==partKey(kosaraju()))ok=false;if(!condensationDAG())dag=false;if(!ok||!dag)break;}
+ n=8;edges=[[0,1],[1,2],[2,0],[2,3],[3,4],[4,5],[5,3],[5,6],[6,7]];
+ return {matchesKosaraju:ok,condensationIsDAG:dag};}
+function all(){drawW3();drawW4();window.__tarjan=verify();drawW3();drawW4();}
+document.getElementById('tag0').onclick=function(){n=8;edges=[[0,1],[1,2],[2,0],[2,3],[3,4],[4,5],[5,3],[5,6],[6,7]];drawW3();drawW4();};
+document.getElementById('tag1').onclick=function(){n=7;edges=[];for(var e=0;e<10;e++){var a=Math.floor(Math.random()*n),b=Math.floor(Math.random()*n);if(a!==b)edges.push([a,b]);}drawW3();drawW4();};
+document.getElementById('tarspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-low-link-miner","title":"THE LOW-LINK MINER","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#7fb0ff","icon":"grind",
+  "kicker":"every cycle-cluster of a graph in one DFS",
+  "blurb":"Tarjan's strongly-connected-components in the 5-window house format — finding every cycle-cluster of a directed graph in a single depth-first search via discovery-time and low-link values plus one stack. See the DFS values in 1D, the components colour in 2D, and the condensation DAG in 3D.",
+  "lit":"A genuine Tarjan SCC algorithm. Verified live: its partition exactly matches Kosaraju's independent two-pass reverse-DFS method over random directed graphs, and collapsing each SCC to a node always leaves a DAG (topological order exists). The low-link (earliest node reachable via a back-edge) is the exact invariant (verifiable: window.__tarjan.matchesKosaraju && condensationIsDAG).",
+  "fig":"'The low-link miner' is the picture; the low-link invariant, the Kosaraju agreement, and the acyclic condensation are exact. One DFS, one stack, one comparison — genuinely finds every cycle-cluster.",
+  "body":TAR_BODY,"script":TAR_SCRIPT},
  {"slug":"the-coin-flip-heap","title":"THE COIN-FLIP HEAP","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#f0c860","icon":"loot",
   "kicker":"a balanced search tree from pure luck",
