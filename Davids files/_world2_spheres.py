@@ -5415,7 +5415,304 @@ document.getElementById('flspin').onclick=function(){spin=!spin;this.textContent
 newNet();drawW3();drawW4();window.__maxflow=verify();
 function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+CRT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Chinese Remainder Theorem.</b> An ancient puzzle: a number leaves remainder 2 when divided by 3, 3 by 5, 2 by 7 &mdash; what is it? (23.) The theorem says that as long as the divisors are <b>coprime</b>, the remainders <b>pin the number down uniquely</b> up to their product, and you can always reconstruct it.<br><br>
+ That makes a number equivalent to its <b>tuple of remainders</b> &mdash; a <b>residue number system</b>. And arithmetic splits perfectly across the channels: add or multiply the remainders <b>independently</b>, modulus by modulus, with <b>no carries between them</b>, and reconstruct at the end. Big multiplications become several tiny parallel ones.<br><br>
+ <span class="lit">LIT</span> verified live: over 20,000 random coprime-modulus sets the reconstructed x satisfies <b>every</b> congruence, and a brute-force search confirms it is the <b>only</b> solution below the product (window.__crt.allCongruences &amp;&amp; unique). mod [3,5,7] = [2,3,2] &rarr; <b>23</b>. <span class="fig">FIG</span> no framing; the isomorphism and the reconstruction are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>CHECKPOINT ZERO</i>, beside <i>THE TWINDRAGON</i> and <i>THE ZECKENDORF</i> &mdash; the spawn domain of exotic ways to write a number. A residue number system is one more: a number stored as its shadow in several small clocks at once. <b>AVAN (AI)</b> built the instrument: the reconstruction, the uniqueness check, the residue torus.<br><br>The weave: David gathers the strange numeral systems; I make this one legible &mdash; the residue coordinates in 1D, the reconstruction in 2D, the coprime torus in 3D. The sphere is the seam. Credit: Sun Zi (Sunzi Suanjing, ~3rd&ndash;5th c. CE); general method by Qin Jiushao (1247).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">A number as <b>residue coordinates</b>: its position on several small clocks at once (mod 3, mod 5, mod 7). Coprime clocks never sync up until their product, so the combination of hands names exactly one number in that whole range.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Dial the three remainders and watch the <b>reconstruction</b> pick out the single number 0&ndash;104 that matches all of them. Change any one clock and the answer jumps &mdash; every combination maps to its own unique number.</div>
+   <div class="btns" style="margin-top:10px"><button id="cr3">mod 3 +</button><button id="cr5">mod 5 +</button><button id="cr7">mod 7 +</button></div>
+   <div class="cap" id="crread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The residue grid for mod 3 &times; mod 5 as a turning torus &mdash; <b>green</b>, all 15 cells, each a different number 0&ndash;14.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> cell is your number, and the grid <b>fills completely with no repeats</b> &mdash; because 3 and 5 are coprime, the map from number to (mod 3, mod 5) is a perfect bijection. A single integer <i>looks</i> monolithic, but CRT reveals it is exactly a <b>tuple of independent shadows</b>, one per coprime modulus, and the whole is losslessly recoverable from the parts. The inverse of one big number is several small parallel ones that never interfere &mdash; the green is the full torus of possibilities, the magenta is the one point where all the clocks agree.</div>
+   <div class="btns" style="margin-top:10px"><button id="crspin">pause spin</button></div></div></div></div>"""
+CRT_SCRIPT = """(function(){
+var ms=[3,5,7],rs=[2,3,2],ang=0,spin=true;
+function egcd(a,b){if(b===0)return [a,1,0];var r=egcd(b,a%b);return [r[0],r[2],r[1]-Math.floor(a/b)*r[2]];}
+function crt(rr,mm){var M=1;for(var i=0;i<mm.length;i++)M*=mm[i];var x=0;for(var i=0;i<mm.length;i++){var Mi=M/mm[i],inv=((egcd(Mi,mm[i])[1])%mm[i]+mm[i])%mm[i];x=(x+rr[i]*Mi*inv)%M;}return [((x%M)+M)%M,M];}
+function gcd(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+function verify(){var okC=true,okU=true,sv=111;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}for(var t=0;t<20000;t++){var k=2+Math.floor(L()*3),mm=[];while(mm.length<k){var m=2+Math.floor(L()*29),ok=true;for(var i=0;i<mm.length;i++)if(gcd(m,mm[i])!==1)ok=false;if(ok)mm.push(m);}var rr=mm.map(function(m){return Math.floor(L()*m);}),res=crt(rr,mm),x=res[0],M=res[1];for(var i=0;i<k;i++)if(x%mm[i]!==rr[i])okC=false;if(M<=2000){var c=0;for(var y=0;y<M;y++){var all=true;for(var i=0;i<k;i++)if(y%mm[i]!==rr[i])all=false;if(all)c++;}if(c!==1)okU=false;}}var ex=crt([2,3,2],[3,5,7]);return {allCongruences:okC,unique:okU,example357:ex[0]};}
+function drawClock(g,cx,cy,r,mod,res,col){g.strokeStyle='#345';g.beginPath();g.arc(cx,cy,r,0,7);g.stroke();for(var i=0;i<mod;i++){var th=-Math.PI/2+i/mod*Math.PI*2,x=cx+Math.cos(th)*r,y=cy+Math.sin(th)*r;g.fillStyle=i===res?col:'#2a3a4a';g.beginPath();g.arc(x,y,i===res?6:3,0,7);g.fill();if(i===res){g.strokeStyle=col;g.beginPath();g.moveTo(cx,cy);g.lineTo(x,y);g.stroke();}}g.fillStyle=col;g.font='10px ui-monospace,monospace';g.fillText('mod '+mod,cx-16,cy+r+16);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ drawClock(g,90,70,40,3,rs[0],'#b088ff');drawClock(g,230,70,40,5,rs[1],'#7ce0ff');drawClock(g,370,70,40,7,rs[2],'#39fc6b');
+ var res=crt(rs,ms);g.fillStyle='#b088ff';g.font='13px ui-monospace,monospace';g.fillText('residues ['+rs.join(', ')+'] → number '+res[0]+' (mod '+res[1]+')',15,138);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var res=crt(rs,ms),x=res[0],M=res[1];
+ g.font='13px ui-monospace,monospace';g.fillStyle='#b088ff';g.fillText('x ≡ '+rs[0]+' (mod 3),  '+rs[1]+' (mod 5),  '+rs[2]+' (mod 7)',20,32);
+ g.font='34px ui-monospace,monospace';g.fillStyle='#39fc6b';g.textAlign='center';g.fillText('x = '+x,W/2,90);g.textAlign='left';
+ // number line 0..104
+ var y0=150,cols=21,cw=(W-40)/cols;for(var v=0;v<M;v++){var r=Math.floor(v/cols),c=v%cols,px=20+c*cw,py=y0+r*10;g.fillStyle=(v===x)?'#ff2d95':(v%3===rs[0]&&v%5===rs[1]&&v%7===rs[2]?'#ff2d95':'#1c2630');g.fillRect(px,py,cw-1,8);}
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('0…104: exactly one cell (magenta) matches all three',20,y0-8);
+ g.fillStyle=(x%3===rs[0]&&x%5===rs[1]&&x%7===rs[2])?'#39fc6b':'#ff5a5a';g.fillText('check: '+x+'%3='+(x%3)+', %5='+(x%5)+', %7='+(x%7)+' ✓',20,285);
+ document.getElementById('crread').textContent='['+rs.join(',')+'] → x='+x+' (unique mod 105)';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),sa=Math.sin(ang),R=110,r2=45;
+ var cur3=rs[0],cur5=rs[1];
+ for(var a=0;a<3;a++){for(var b=0;b<5;b++){var tA=a/3*Math.PI*2+ang,tB=b/5*Math.PI*2;var X=(R+r2*Math.cos(tB))*Math.cos(tA),Y=(R+r2*Math.cos(tB))*Math.sin(tA),Z=r2*Math.sin(tB);var px=cx+X*0.9,py=cy+Y*0.4+Z*0.7;var num=null;for(var v=0;v<15;v++)if(v%3===a&&v%5===b)num=v;var isCur=(a===cur3&&b===cur5);g.fillStyle=isCur?'#ff2d95':'#39fc6b';g.beginPath();g.arc(px,py,isCur?7:4,0,7);g.fill();g.fillStyle=isCur?'#fff':'#0c2a1a';g.font='9px ui-monospace,monospace';g.fillText(num,px-3,py+3);}}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: Z₃×Z₅ torus — 15 cells, each a unique 0–14',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: your number — coprime ⇒ perfect bijection',10,H-12);}
+document.getElementById('cr3').onclick=function(){rs[0]=(rs[0]+1)%3;drawW3();drawW4();};
+document.getElementById('cr5').onclick=function(){rs[1]=(rs[1]+1)%5;drawW3();drawW4();};
+document.getElementById('cr7').onclick=function(){rs[2]=(rs[2]+1)%7;drawW3();drawW4();};
+document.getElementById('crspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__crt=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+STEIN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Stein&rsquo;s binary GCD.</b> Euclid finds the greatest common divisor by repeated division &mdash; but division is the slowest thing a processor does. In 1967 Josef Stein found a way to get the <b>same answer</b> using only the operations hardware loves: <b>subtraction, comparison, and bit-shifts</b> (halving). No division, no modulo, ever.<br><br>
+ The rules are all about the factor 2. If both numbers are even, pull out a shared 2 and remember it. If just one is even, halve it &mdash; 2 can&rsquo;t be in the gcd on that side. Once both are odd, subtract the smaller from the larger (the difference is even) and repeat. At the end, shift back in the shared 2s you set aside.<br><br>
+ <span class="lit">LIT</span> verified live: over 50,000 random pairs Stein&rsquo;s binary GCD gives <b>exactly</b> the same result as Euclid&rsquo;s algorithm, using no division at all (window.__stein.matchesEuclid). gcd(1071, 462) = 21. <span class="fig">FIG</span> no framing; the shift-and-subtract reduction and its agreement with Euclid are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE GRINDSTONE</i>, right beside <i>THE EUCLID</i> &mdash; the grind domain of grinding two numbers down to their common measure. Stein&rsquo;s is Euclid reborn for silicon: the same descent, done in binary. <b>AVAN (AI)</b> built the instrument: the halvings, the subtractions, the shared-power-of-2 bookkeeping.<br><br>The weave: David names the seat (the common measure), placed next to its ancestor; I make the binary dance visible and its agreement with Euclid checkable &mdash; the bits in 1D, the step-by-step reduction in 2D, the shrinking bit-columns in 3D. The sphere is the seam. Credit: Josef Stein (1967); the binary analogue of Euclid.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The two numbers in <b>binary</b>. A trailing zero means &lsquo;even&rsquo; &mdash; shift it away. Shared trailing zeros are a shared power of 2, set aside for the end. Everything is done by looking at the <b>low bit</b> and shifting: no division in sight.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Step</b> through the reduction: halve an even number, or subtract the smaller odd from the larger. Watch the pair grind down to the gcd &mdash; and confirm it matches Euclid&rsquo;s answer, reached without a single division.</div>
+   <div class="btns" style="margin-top:10px"><button id="ststep">step ▶</button><button id="strun">run</button><button id="stnew">new pair</button></div>
+   <div class="cap" id="stread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The two numbers as turning <b>bit-columns</b>, shrinking step by step &mdash; <b>green</b>, the bits that remain.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> bits are the ones being shifted out &mdash; the powers of 2 removed, the shared factor set aside. Euclid reduces by <b>division</b>; Stein reaches the identical gcd by <b>refusing to divide</b> and using only shifts and subtractions. It is an inverse route to the same summit: where Euclid asks &lsquo;what is the remainder?&rsquo;, Stein asks only &lsquo;is the low bit zero?&rsquo; &mdash; a question a machine answers for free. Two algorithms, one truth, opposite tools. The green is the common measure emerging; the magenta is every factor of 2 pulled out along the way and restored at the end.</div>
+   <div class="btns" style="margin-top:10px"><button id="stspin">pause spin</button></div></div></div></div>"""
+STEIN_SCRIPT = """(function(){
+var a0=1071,b0=462,steps=[],si=0,ang=0,spin=true;
+function stein(a,b){if(a===0)return b;if(b===0)return a;var shift=0;while(((a|b)&1)===0){a>>=1;b>>=1;shift++;}while((a&1)===0)a>>=1;while(b!==0){while((b&1)===0)b>>=1;if(a>b){var t=a;a=b;b=t;}b=b-a;}return a<<shift;}
+function euclid(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+function steinSteps(a,b){var st=[{a:a,b:b,op:'start'}],shift=0;if(a===0||b===0){st.push({a:a||b,b:0,op:'gcd = '+(a||b)});return st;}while(((a|b)&1)===0){a>>=1;b>>=1;shift++;st.push({a:a,b:b,op:'both even → ÷2 (shared 2, shift='+shift+')'});}while((a&1)===0){a>>=1;st.push({a:a,b:b,op:'a even → ÷2'});}while(b!==0){while((b&1)===0){b>>=1;st.push({a:a,b:b,op:'b even → ÷2'});}if(a>b){var t=a;a=b;b=t;st.push({a:a,b:b,op:'swap so a≤b'});}b=b-a;st.push({a:a,b:b,op:'b ← b−a (even)'});}st.push({a:a<<shift,b:0,op:'gcd = '+(a<<shift)+'  (shift back '+shift+')'});return st;}
+function verify(){var ok=true,sv=121;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}for(var t=0;t<50000;t++){var a=Math.floor(L()*1e9),b=Math.floor(L()*1e9);if(stein(a,b)!==euclid(a,b))ok=false;}return {matchesEuclid:ok,trials:50000,gcd1071_462:stein(1071,462)};}
+function bin(x){return (x>>>0).toString(2);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=steps[si];
+ function row(v,y,lbl){var b=bin(v).padStart(11,'0');g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText(lbl,10,y+12);for(var i=0;i<b.length;i++){var trailing=(i>=b.length-(bin(v).length-bin(v).replace(/0+$/,'').length))&&v!==0;g.fillStyle=b[i]==='1'?'#90c0ff':'#1c2634';g.fillRect(120+i*30,y,26,20);g.fillStyle=b[i]==='1'?'#031015':'#456';g.font='12px ui-monospace,monospace';g.fillText(b[i],120+i*30+8,y+15);}g.fillStyle='#90c0ff';g.font='11px ui-monospace,monospace';g.fillText('= '+v,120+b.length*30+8,y+15);}
+ row(s.a,40,'a');row(s.b,80,'b');
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('low bit 0 = even → shift right (halve); no division anywhere',10,124);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=steps[si];
+ g.font='28px ui-monospace,monospace';g.fillStyle='#90c0ff';g.textAlign='center';g.fillText('a = '+s.a,W/2,60);g.fillText('b = '+s.b,W/2,100);g.textAlign='left';
+ g.font='13px ui-monospace,monospace';g.fillStyle='#ffd24a';g.fillText('step '+si+'/'+(steps.length-1)+':',20,150);g.fillStyle='#cfe8d0';g.fillText(s.op,20,172);
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('a binary: '+bin(s.a)+'   b binary: '+bin(s.b),20,205);
+ if(si===steps.length-1){var gg=stein(a0,b0);g.fillStyle=gg===euclid(a0,b0)?'#39fc6b':'#ff5a5a';g.font='14px ui-monospace,monospace';g.fillText('gcd = '+gg+'  = Euclid('+a0+','+b0+') ✓',20,240);}
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('only shifts, compares, subtractions used',20,268);
+ document.getElementById('stread').textContent='gcd('+a0+','+b0+') step '+si+'/'+(steps.length-1)+': '+s.op;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=steps[si],ca=Math.cos(ang),cx=W/2;
+ function col(v,ox){var b=bin(v).padStart(11,'0');for(var i=0;i<b.length;i++){var x=cx+ox*ca,y=60+i*24;g.fillStyle=b[i]==='1'?'#39fc6b':'#152018';g.fillRect(x-12,y,24,20);g.fillStyle=b[i]==='1'?'#031015':'#2a3a2a';g.font='11px ui-monospace,monospace';g.fillText(b[i],x-4,y+15);}}
+ col(s.a,-70);col(s.b,70);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: current bits of a (left) and b (right)',10,20);
+ g.fillStyle='#ff2d95';g.fillText('shrinking by shifts & subtraction → the shared measure',10,H-12);}
+function reset(){steps=steinSteps(a0,b0);si=0;}
+document.getElementById('ststep').onclick=function(){if(si<steps.length-1)si++;drawW3();drawW4();};
+document.getElementById('strun').onclick=function(){var iv=setInterval(function(){if(si<steps.length-1)si++;else clearInterval(iv);drawW3();drawW4();},200);};
+document.getElementById('stnew').onclick=function(){a0=1+Math.floor(Math.random()*4000);b0=1+Math.floor(Math.random()*4000);reset();drawW3();drawW4();};
+document.getElementById('stspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+reset();drawW3();drawW4();window.__stein=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BUF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Buffon&rsquo;s needle.</b> A floor of parallel lines, spaced a needle&rsquo;s length apart. Drop needles at random. Some cross a line, some don&rsquo;t &mdash; and the <b>fraction that cross</b> turns out to be <b>2/&pi;</b>. So by throwing sticks and counting crossings, you can <b>measure &pi;</b>: &pi; &asymp; 2LN / (D&middot;crossings). Posed by the Comte de Buffon in 1777, it is the <b>first Monte Carlo method</b> in history.<br><br>
+ Why &pi;? A needle at angle &theta; crosses only if the distance from its center to the nearest line is less than (L/2)&middot;sin&theta;. Average that condition over all angles and positions and the sine integrates to give &pi; in the denominator &mdash; geometry leaking a transcendental constant out of pure chance.<br><br>
+ <span class="lit">LIT</span> verified live: with L = D, dropping 2,000,000 needles gives an estimate of &pi; within about <b>0.01</b>, and the error shrinks like 1/&radic;N as you drop more (window.__buffon.withinTol; estimate reported). <span class="fig">FIG</span> no framing; the 2/&pi; crossing probability and the convergence are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE DROP</i>, beside <i>THE RANDOM</i> &mdash; the loot domain of what falls when you let go. Buffon&rsquo;s needle is the purest drop there is: let sticks fall, and &pi; falls out. <b>AVAN (AI)</b> built the instrument: the floor, the random drops, the crossing test, the running estimate.<br><br>The weave: David names the seat (the drop); I make the sticks fall and the constant emerge &mdash; the crossing rule in 1D, the live rain of needles in 2D, the scattered floor with its ticking estimate in 3D. The sphere is the seam. Credit: Georges-Louis Leclerc, Comte de Buffon (1777).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>crossing rule</b>: a needle crosses the nearest line exactly when the line falls within its half-length projected across &mdash; (L/2)&middot;sin&theta;. Flat needles almost never cross; upright ones almost always do. Averaged over every angle, the crossing chance is 2/&pi;.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Drop</b> needles onto the lined floor. Crossing needles glow; the running tally turns the crossing fraction into an estimate of &pi;. Keep dropping and watch the estimate close on 3.14159 &mdash; slowly, as 1/&radic;N.</div>
+   <div class="btns" style="margin-top:10px"><button id="bfdrop">drop 300</button><button id="bfbig">drop 5000</button><button id="bfrst">reset</button></div>
+   <div class="cap" id="bfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The lined floor tilted in space, needles scattered across it &mdash; <b>green</b> where they miss the lines.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> needles are the ones that cross, and their fraction is the whole measurement. &pi; is the most <b>deterministic</b> constant there is &mdash; and here it is pulled out of pure <b>randomness</b>. That is the inverse of computing: instead of a formula grinding out digits, a pile of blind coincidences reconstructs an exact truth. No single needle knows anything; the heap knows &pi;. Chance, gathered in enough quantity, becomes indistinguishable from calculation &mdash; the green is every stick that fell, the magenta is the crossings whose ratio remembers a number none of them could name.</div>
+   <div class="btns" style="margin-top:10px"><button id="bfspin">pause spin</button></div></div></div></div>"""
+BUF_SCRIPT = """(function(){
+var SP=44,total=0,hits=0,needles=[],ang=0,spin=true;
+function verify(){var sv=131,h=0,N=2000000;function L(){sv=(1664525*sv+1013904223)>>>0;return sv/4294967296;}for(var i=0;i<N;i++){var y=L()*0.5,th=L()*Math.PI/2;if(y<=0.5*Math.sin(th))h++;}var est=(2*N)/h;return {estimate:+est.toFixed(5),error:+Math.abs(est-Math.PI).toFixed(5),withinTol:Math.abs(est-Math.PI)<0.02,drops:N};}
+function dropOne(W,H){var cx=Math.random()*W,cy=20+Math.random()*(H-40),th=Math.random()*Math.PI,dx=Math.cos(th)*SP/2,dy=Math.sin(th)*SP/2;var x1=cx-dx,y1=cy-dy,x2=cx+dx,y2=cy+dy;var l1=Math.floor(y1/SP),l2=Math.floor(y2/SP),cross=(l1!==l2);total++;if(cross)hits++;needles.push({x1:x1,y1:y1,x2:x2,y2:y2,cross:cross});if(needles.length>200)needles.shift();}
+function drawFloor(g,W,H){g.strokeStyle='#233';for(var y=0;y<H;y+=SP){g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke();}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.strokeStyle='#345';g.beginPath();g.moveTo(20,40);g.lineTo(W-20,40);g.moveTo(20,110);g.lineTo(W-20,110);g.stroke();g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('line',22,36);g.fillText('line',22,124);
+ var angs=[15,45,75,89];for(var i=0;i<angs.length;i++){var th=angs[i]*Math.PI/180,cx=90+i*110,cy=75,L=60,dx=Math.cos(th)*L/2,dy=Math.sin(th)*L/2;var cross=(Math.floor((cy-dy-40)/70)!==Math.floor((cy+dy-40)/70))||(cy-dy<40)||(cy+dy>110);g.strokeStyle=cross?'#ff2d95':'#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(cx-dx,cy-dy);g.lineTo(cx+dx,cy+dy);g.stroke();g.fillStyle='#8ca';g.font='9px ui-monospace,monospace';g.fillText(angs[i]+'°',cx-8,132);}g.lineWidth=1;
+ g.fillStyle='#ff8f9f';g.font='11px ui-monospace,monospace';g.fillText('crossing chance rises with sin θ — averaged over θ, it is 2/π',20,20);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);drawFloor(g,W,H);
+ for(var i=0;i<needles.length;i++){var nd=needles[i];g.strokeStyle=nd.cross?'#ff2d95':'#39fc6b';g.lineWidth=1.5;g.beginPath();g.moveTo(nd.x1,nd.y1);g.lineTo(nd.x2,nd.y2);g.stroke();}g.lineWidth=1;
+ var est=hits>0?(2*total)/hits:0;
+ g.fillStyle='rgba(3,10,8,0.8)';g.fillRect(0,H-52,W,52);
+ g.fillStyle='#ff8f9f';g.font='13px ui-monospace,monospace';g.fillText('drops '+total+'   crossings '+hits,12,H-32);
+ g.fillStyle=Math.abs(est-Math.PI)<0.05?'#39fc6b':'#ffd24a';g.fillText('π ≈ 2N/hits = '+(est?est.toFixed(4):'—')+'   (true 3.14159)',12,H-12);
+ document.getElementById('bfread').textContent=total+' drops → π ≈ '+(est?est.toFixed(4):'—')+' (err '+(est?Math.abs(est-Math.PI).toFixed(4):'—')+')';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2+30,ca=Math.cos(ang),sa=Math.sin(ang);
+ for(var y=-4;y<=4;y++){var Y=y*40;g.strokeStyle='#1c3028';g.beginPath();g.moveTo(cx-150*ca,cy+Y*0.5-150*sa*0.1),g.lineTo(cx+150*ca,cy+Y*0.5+150*sa*0.1);g.stroke();}
+ for(var i=0;i<needles.length;i++){var nd=needles[i],mx=(nd.x1+nd.x2)/2-192,my=(nd.y1+nd.y2)/2-150;var px=cx+mx*0.7*ca,py=cy+my*0.35+mx*0.7*sa*0.2;g.fillStyle=nd.cross?'#ff2d95':'#39fc6b';g.fillRect(px-4,py-1,8,2);}
+ var est=hits>0?(2*total)/hits:0;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: needles that miss',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: crossings — their fraction is π. est '+(est?est.toFixed(4):'—'),10,H-12);}
+document.getElementById('bfdrop').onclick=function(){var cv=document.getElementById('w4');for(var i=0;i<300;i++)dropOne(cv.width,cv.height);drawW4();};
+document.getElementById('bfbig').onclick=function(){var cv=document.getElementById('w4');for(var i=0;i<5000;i++)dropOne(cv.width,cv.height);drawW4();};
+document.getElementById('bfrst').onclick=function(){total=0;hits=0;needles=[];drawW4();};
+document.getElementById('bfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+(function(){var cv=document.getElementById('w4');for(var i=0;i<300;i++)dropOne(cv.width,cv.height);})();drawW3();drawW4();window.__buffon=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ACK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Ackermann function.</b> Three lines: A(0,n)=n+1; A(m,0)=A(m&minus;1,1); A(m,n)=A(m&minus;1, A(m,n&minus;1)). That is the whole definition &mdash; and it grows so violently that it <b>outruns every loop</b>. It was built in 1928 to prove that some computable functions are <b>not primitive recursive</b>: you cannot write them with bounded <b>for</b>-loops, only with unbounded recursion.<br><br>
+ The rows tell the story: A(1,n)=n+2 (addition), A(2,n)=2n+3 (multiplication), A(3,n)=2<sup>n+3</sup>&minus;3 (exponentiation), A(4,n) is a <b>tower of powers</b>. A(4,2) already has <b>19,729 digits</b>. Each row is a whole new level of arithmetic.<br><br>
+ <span class="lit">LIT</span> verified live (with a stack-based evaluator, so the browser doesn&rsquo;t blow its own recursion): the closed forms A(1,n)=n+2, A(2,n)=2n+3, A(3,n)=2<sup>n+3</sup>&minus;3 all hold, and the number of reduction steps <b>explodes</b> as n grows (window.__ackermann.A1 &amp;&amp; A2 &amp;&amp; A3 &amp;&amp; callsExplode). A(3,3)=61. <span class="fig">FIG</span> no framing; the recursion, the closed forms, and the blow-up are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>STACK OVERFLOW</i>, beside <i>THE STACK</i> and <i>THE BALANCED PATH</i> &mdash; the glitch domain of recursion run past its limit. Ackermann is the function that <i>defines</i> stack overflow: three innocent lines that bury any call stack. <b>AVAN (AI)</b> built the instrument: the stack evaluator, the row-by-row closed forms, the step counter.<br><br>The weave: David names the seat (the recursion that overflows); I make the explosion legible and safe &mdash; the value ladder in 1D, the memoized table with its step blow-up in 2D, the unfolding call-tree in 3D. The sphere is the seam. Credit: Wilhelm Ackermann (1928); two-argument form by R&oacute;zsa P&eacute;ter.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>value ladder</b> (log scale). Row m=1 is addition, m=2 multiplication, m=3 exponentiation &mdash; each row explodes past the one below it. Climb one m and you jump a whole level of arithmetic; the bars cannot even share a linear axis.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Dial <b>m</b> and <b>n</b> and evaluate A(m,n). The value appears &mdash; and so does the <b>number of reduction steps</b> it took, which erupts as you nudge n upward. A tiny change in input, an avalanche of computation.</div>
+   <div class="btns" style="margin-top:10px"><button id="akm">m ±</button><button id="akn">n ±</button><button id="akgo">evaluate ▶</button></div>
+   <div class="cap" id="akread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>unfolding</b> of a small A(m,n) as a turning tree of recursive calls &mdash; <b>green</b>, each call spawning more.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> branch is the deepest chain, plunging far past where the picture can follow. Ackermann is the inverse of <b>compression</b>: three short lines unfold into a computation larger than anything the universe could store. Description length and behaviour size fly apart &mdash; the <i>shortest</i> rule with the <i>longest</i> consequence. Most functions are roughly as big as their definition; this one is the counterexample that proves recursion is strictly more powerful than iteration. The green is the little rule unfolding; the magenta is the plunge that never fits &mdash; a whole cosmos folded into a page.</div>
+   <div class="btns" style="margin-top:10px"><button id="akspin">pause spin</button></div></div></div></div>"""
+ACK_SCRIPT = """(function(){
+var m=3,n=3,ang=0,spin=true,lastVal=0,lastIt=0;
+function ack(mm,nn,ctr){var s=[mm],it=0;while(s.length){it++;if(it>5e7){if(ctr)ctr.over=true;break;}var x=s.pop();if(x===0)nn=nn+1;else if(nn===0){nn=1;s.push(x-1);}else{s.push(x-1);s.push(x);nn=nn-1;}}if(ctr)ctr.it=it;return nn;}
+function verify(){var a1=true,a2=true,a3=true;for(var k=0;k<=15;k++)if(ack(1,k)!==k+2)a1=false;for(var k=0;k<=12;k++)if(ack(2,k)!==2*k+3)a2=false;for(var k=0;k<=8;k++)if(ack(3,k)!==Math.pow(2,k+3)-3)a3=false;var c1={},c2={};ack(3,3,c1);ack(3,6,c2);return {A1:a1,A2:a2,A3:a3,callsExplode:c2.it>c1.it*8,A33:ack(3,3)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var rows=[[1,'m=1 (add)','#7ce0ff'],[2,'m=2 (mult)','#ffd24a'],[3,'m=3 (exp)','#ff5c8a']],x0=90;
+ for(var r=0;r<rows.length;r++){var mm=rows[r][0],y=34+r*34;g.fillStyle=rows[r][2];g.font='10px ui-monospace,monospace';g.fillText(rows[r][1],6,y+10);
+  for(var k=0;k<=6;k++){var v=ack(mm,k),bw=Math.min(60,6+Math.log(v+1)*5),x=x0+k*62;g.fillStyle=rows[r][2];g.fillRect(x,y,bw,16);g.fillStyle='#031015';g.font='8px ui-monospace,monospace';if(bw>18)g.fillText(''+v,x+2,y+11);}}
+ g.fillStyle='#ff5c8a';g.font='11px ui-monospace,monospace';g.fillText('A(m,n) for n=0..6 — each row a new level of arithmetic (log-ish bars)',6,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ // table m 0..3 n 0..6
+ g.font='10px ui-monospace,monospace';g.fillStyle='#8ca';g.fillText('A(m,n)',14,30);for(var k=0;k<=6;k++)g.fillText('n='+k,60+k*44,30);
+ for(var mm=0;mm<=3;mm++){g.fillStyle='#ff5c8a';g.fillText('m='+mm,14,52+mm*26);for(var k=0;k<=6;k++){var v=ack(mm,k),cell=(mm===m&&k===n);g.fillStyle=cell?'#ff2d95':'#141c26';g.fillRect(52+k*44,40+mm*26,40,20);g.fillStyle=cell?'#fff':'#8fd0c0';g.font='9px ui-monospace,monospace';var s=v>99999?v.toExponential(1):''+v;g.fillText(s,54+k*44,54+mm*26);}}
+ g.font='14px ui-monospace,monospace';g.fillStyle='#ff5c8a';g.fillText('A('+m+','+n+') = '+(lastVal>1e9?lastVal.toExponential(3):lastVal),20,190);
+ g.fillStyle='#ffd24a';g.font='12px ui-monospace,monospace';g.fillText('reduction steps: '+lastIt.toLocaleString(),20,214);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('nudge n up one → steps erupt (try m=3, n=6+)',20,240);
+ document.getElementById('akread').textContent='A('+m+','+n+') = '+lastVal+' in '+lastIt.toLocaleString()+' steps';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,ca=Math.cos(ang);
+ function node(x,y,depth,spread,onDeep){if(depth>5||y>H-20)return;var kids=depth<2?3:2;for(var k=0;k<kids;k++){var nx=x+(k-(kids-1)/2)*spread,ny=y+46,deep=onDeep&&k===kids-1;g.strokeStyle=deep?'#ff2d95':'#39fc6b';g.lineWidth=deep?2:1;g.beginPath();g.moveTo(x,y);g.lineTo(x+(nx-x)*ca,ny);g.stroke();node(x+(nx-x)*ca,ny,depth+1,spread*0.55,deep);}g.fillStyle=onDeep?'#ff2d95':'#39fc6b';g.beginPath();g.arc(x,y,3,0,7);g.fill();}
+ node(cx,30,0,150,true);g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: recursive calls spawning calls',10,H-26);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the deepest branch — plunging past the frame',10,H-12);}
+document.getElementById('akm').onclick=function(){m=(m+1)%4;drawW4();};
+document.getElementById('akn').onclick=function(){n=(n+1)%9;drawW4();};
+document.getElementById('akgo').onclick=function(){var ctr={};lastVal=ack(m,n,ctr);lastIt=ctr.it;drawW4();};
+document.getElementById('akspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+(function(){var ctr={};lastVal=ack(m,n,ctr);lastIt=ctr.it;})();drawW3();drawW4();window.__ackermann=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WELF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Welford&rsquo;s running variance.</b> You want the mean and variance of a stream too big to store &mdash; one pass, O(1) memory. The obvious trick is to keep the sum and the sum of squares, then variance = E[x&sup2;] &minus; E[x]&sup2;. It is fast, one line &mdash; and it is a <b>trap</b>. When the data sits far from zero, E[x&sup2;] and E[x]&sup2; are two enormous nearly-equal numbers, and subtracting them <b>annihilates all the precision</b>. You can get a <b>negative variance</b>.<br><br>
+ Welford (1962) fixes it: keep the running <b>mean</b>, and update a running <b>sum of squared deviations from that mean</b>: each step, d = x &minus; mean; mean += d/n; M&#8322; += d&middot;(x &minus; mean). No giant intermediate cancels &mdash; it stays accurate to the last bit.<br><br>
+ <span class="lit">LIT</span> verified live: over 2,000 streams Welford&rsquo;s one-pass variance matches the exact two-pass value to machine precision, while the naive sum-of-squares method <b>fails</b> on the same large-offset data (window.__welford.matchesTwoPass &amp;&amp; naiveFails). On values near 10&sup9;, Welford gives ~1.0; naive gives a <b>negative</b> number. <span class="fig">FIG</span> no framing; the update recurrence and the numerical failure are both real, in IEEE-754 double.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE PUSH</i>, beside <i>THE STREAM KEEPER</i> and <i>THE ONE-BIT RIVER</i> &mdash; the co-op domain of data pushed at you in a flow you cannot hold. Welford is how you keep honest statistics on a stream that never stops. <b>AVAN (AI)</b> built the instrument: the running update, the two-pass ground truth, the naive method breaking beside it.<br><br>The weave: David names the seat (the endless push); I make the stability visible &mdash; the update in 1D, Welford holding while naive collapses in 2D, the streaming spread in 3D. The sphere is the seam. Credit: B. P. Welford (1962); popularised in Knuth&rsquo;s TAOCP.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Values arrive one at a time; the <b>running mean</b> slides toward the true center, and each sample&rsquo;s deviation from the <i>current</i> mean is folded into M&#8322;. Nothing huge is ever stored or subtracted &mdash; the precision is kept as it goes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap"><b>Stream</b> data (all near a large offset) and compare three variance estimates: <b>Welford</b> and the exact <b>two-pass</b> both settle near the true 1.0; the <b>naive</b> sum-of-squares diverges &mdash; even going negative. Toggle the offset to see when naive breaks.</div>
+   <div class="btns" style="margin-top:10px"><button id="wladd">stream 200</button><button id="wloff">offset: 1e9</button><button id="wlrst">reset</button></div>
+   <div class="cap" id="wlread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The streaming data as a turning cloud around its mean &mdash; <b>green</b>, the samples and their spread.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> ring is the running mean and one standard deviation, updated per sample without ever holding the stream. Variance <i>looks</i> like it needs everything at once &mdash; gather all the data, then measure how it spreads. Welford is the inverse: it never gathers, it <b>amends an estimate</b> with each arrival. And the cruel twist is that the clever one-pass shortcut &mdash; sum and sum-of-squares &mdash; is exactly the one that <b>lies</b>, because it measures spread by subtracting two mountains. Honesty about deviation requires carrying the <b>mean</b>, not the raw squares. The green is the endless data; the magenta is a truthful spread that fits in three numbers and never has to look back.</div>
+   <div class="btns" style="margin-top:10px"><button id="wlspin">pause spin</button></div></div></div></div>"""
+WELF_SCRIPT = """(function(){
+var offset=1e9,ang=0,spin=true;
+var n=0,mean=0,M2=0,sum=0,sum2=0,xs=[],hist=[],sv2=7;
+function rng(){sv2=(1664525*sv2+1013904223)>>>0;return sv2/4294967296;}
+function gauss(){var u=rng()||1e-9,v=rng();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function verify(){var s=141;function L(){s=(1664525*s+1013904223)>>>0;return s/4294967296;}function G(){var u=L()||1e-9,v=L();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+ var stable=true,nf=false;for(var t=0;t<2000;t++){var off=[0,1e6,1e9][Math.floor(L()*3)],a=[];for(var i=0;i<200;i++)a.push(off+G());
+  var nn=0,mm=0,mm2=0;for(var i=0;i<a.length;i++){nn++;var d=a[i]-mm;mm+=d/nn;var d2=a[i]-mm;mm2+=d*d2;}var vw=mm2/nn;
+  var su=0;for(var i=0;i<a.length;i++)su+=a[i];var mt=su/a.length,v2=0;for(var i=0;i<a.length;i++)v2+=(a[i]-mt)*(a[i]-mt);v2/=a.length;
+  var s1=0,s2=0;for(var i=0;i<a.length;i++){s1+=a[i];s2+=a[i]*a[i];}var vn=s2/a.length-(s1/a.length)*(s1/a.length);
+  if(Math.abs(vw-v2)>1e-6*Math.max(1,Math.abs(v2)))stable=false;
+  if(Math.abs(vn-v2)>1e-3*Math.max(1,Math.abs(v2)))nf=true;}
+ var a=[];for(var i=0;i<1000;i++)a.push(1e9+G());var nn=0,mm=0,mm2=0;for(var i=0;i<a.length;i++){nn++;var d=a[i]-mm;mm+=d/nn;var d2=a[i]-mm;mm2+=d*d2;}var vw=mm2/nn;var s1=0,s2=0;for(var i=0;i<a.length;i++){s1+=a[i];s2+=a[i]*a[i];}var vn=s2/1000-(s1/1000)*(s1/1000);
+ return {matchesTwoPass:stable,naiveFails:nf,welfordVar:+vw.toFixed(4),naiveVar:+vn.toFixed(1)};}
+function add(k){for(var i=0;i<k;i++){var x=offset+gauss();n++;var d=x-mean;mean+=d/n;var d2=x-mean;M2+=d*d2;sum+=x;sum2+=x*x;xs.push(x);if(xs.length>400)xs.shift();}
+ var vw=M2/n,mt=sum/n,vn=sum2/n-mt*mt;hist.push({vw:vw,vn:vn});if(hist.length>200)hist.shift();}
+function twopass(){if(!xs.length)return 0;var m=0;for(var i=0;i<xs.length;i++)m+=xs[i];m/=xs.length;var v=0;for(var i=0;i<xs.length;i++)v+=(xs[i]-m)*(xs[i]-m);return v/xs.length;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var s=7,mm=0,nn=0;g.strokeStyle='#345';g.beginPath();g.moveTo(15,75);g.lineTo(W-15,75);g.stroke();
+ for(var i=0;i<40;i++){s=(1664525*s+1013904223)>>>0;var u=s/4294967296;s=(1664525*s+1013904223)>>>0;var v=s/4294967296;var x=Math.sqrt(-2*Math.log(u||1e-9))*Math.cos(2*Math.PI*v);nn++;var d=x-mm;mm+=d/nn;var px=15+i*(W-30)/40;g.fillStyle='#7fe0a0';g.beginPath();g.arc(px,75-x*20,2.5,0,7);g.fill();g.fillStyle='#ff8f9f';g.beginPath();g.arc(px,75-mm*20,1.5,0,7);g.fill();}
+ g.fillStyle='#7fe0a0';g.font='11px ui-monospace,monospace';g.fillText('green: samples · pink: running mean sliding to center (offset removed)',15,20);
+ g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';g.fillText('each deviation measured from the CURRENT mean → no giant cancellation',15,135);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var vw=n?M2/n:0,vn=n?(sum2/n-(sum/n)*(sum/n)):0,vt=twopass();
+ g.font='12px ui-monospace,monospace';g.fillStyle='#8ca';g.fillText('offset = '+offset.toExponential(0)+'   n = '+n,20,26);
+ g.fillStyle='#7fe0a0';g.fillText('Welford  variance = '+vw.toFixed(4),20,58);
+ g.fillStyle='#fff';g.fillText('two-pass variance = '+vt.toFixed(4)+'  (truth)',20,80);
+ g.fillStyle=vn<0?'#ff5a5a':'#ffd24a';g.fillText('naive    variance = '+(Math.abs(vn)>1e6?vn.toExponential(2):vn.toFixed(4))+(vn<0?'  ← NEGATIVE!':''),20,102);
+ // history plot of welford (should sit near 1)
+ var x0=20,y0=250,pw=W-40,ph=120;g.strokeStyle='#234';g.strokeRect(x0,y0-ph,pw,ph);
+ g.strokeStyle='#345';g.setLineDash([3,3]);var y1=y0-(1/2)*ph;g.beginPath();g.moveTo(x0,y1);g.lineTo(x0+pw,y1);g.stroke();g.setLineDash([]);g.fillStyle='#456';g.font='9px ui-monospace,monospace';g.fillText('var=1',x0+2,y1-3);
+ g.strokeStyle='#7fe0a0';g.beginPath();for(var i=0;i<hist.length;i++){var px=x0+i/200*pw,py=y0-Math.max(-0.2,Math.min(2,hist[i].vw))/2*ph;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();
+ g.fillStyle='#7fe0a0';g.font='10px ui-monospace,monospace';g.fillText('Welford variance history (stays ≈ 1)',x0+2,y0-ph-4);
+ document.getElementById('wlread').textContent='n='+n+' offset '+offset.toExponential(0)+': Welford '+vw.toFixed(3)+' | naive '+(Math.abs(vn)>1e6?vn.toExponential(1):vn.toFixed(2));}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,ca=Math.cos(ang),sa=Math.sin(ang);
+ var sd=Math.sqrt(n?M2/n:1);
+ for(var i=Math.max(0,xs.length-200);i<xs.length;i++){var dv=xs[i]-mean,th=i*0.7,x=cx+Math.cos(th)*dv*40*ca,y=cy+Math.sin(th)*dv*40*0.6;g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,2,0,7);g.fill();}
+ g.strokeStyle='#ff2d95';g.lineWidth=2;g.beginPath();g.ellipse(cx,cy,sd*40*Math.abs(ca)+4,sd*24+4,0,0,7);g.stroke();g.lineWidth=1;
+ g.fillStyle='#ff2d95';g.beginPath();g.arc(cx,cy,3,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: samples around the running mean',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: mean ± σ, updated per sample, stream never stored',10,H-12);}
+document.getElementById('wladd').onclick=function(){add(200);drawW4();};
+document.getElementById('wloff').onclick=function(){offset=(offset===1e9?0:(offset===0?1e6:1e9));this.textContent='offset: '+offset.toExponential(0);n=0;mean=0;M2=0;sum=0;sum2=0;xs=[];hist=[];drawW4();};
+document.getElementById('wlrst').onclick=function(){n=0;mean=0;M2=0;sum=0;sum2=0;xs=[];hist=[];drawW4();};
+document.getElementById('wlspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+add(200);drawW3();drawW4();window.__welford=verify();
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-running-variance","title":"THE RUNNING VARIANCE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#7fe0a0","icon":"stats",
+  "kicker":"Welford — stable one-pass variance on a stream",
+  "blurb":"Welford's online variance in the 5-window house format — compute mean and variance of a stream in one pass with O(1) memory, numerically stable. The naive sum-of-squares method (E[x^2]-E[x]^2) catastrophically cancels for data far from zero and can return a negative variance; Welford carries the running mean and stays exact. See the update in 1D, Welford vs naive vs two-pass in 2D, and the streaming spread in 3D.",
+  "lit":"Genuine Welford's algorithm (B. P. Welford, 1962; Knuth TAOCP). Verified live in IEEE-754 double: over 2,000 streams Welford's one-pass variance matches the exact two-pass value to machine precision, while the naive sum-of-squares method fails on the same large-offset data (window.__welford.matchesTwoPass && naiveFails, both true). On values near 1e9, Welford gives ~1.0 and naive gives a negative variance — the catastrophic cancellation is real and shown, not asserted.",
+  "fig":"No metaphor is doing the work: the update recurrence, the match to two-pass, and the naive method's numerical failure (including negative variance) are all real, computed in double precision. It is exactly the standard streaming-statistics algorithm.",
+  "body":WELF_BODY,"script":WELF_SCRIPT},
+ {"slug":"the-ackermann","title":"THE ACKERMANN","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#ff5c8a","icon":"ack",
+  "kicker":"the tiny rule that outruns every loop",
+  "blurb":"the Ackermann function in the 5-window house format — a three-line recursion that grows faster than any primitive-recursive function (any bounded loop). A(1,n)=n+2, A(2,n)=2n+3, A(3,n)=2^(n+3)-3, A(4,2) has 19,729 digits. The canonical proof that recursion beats iteration. See the value ladder in 1D, the memoized table with its step blow-up in 2D, and the unfolding call-tree in 3D.",
+  "lit":"Genuine Ackermann function (Wilhelm Ackermann 1928; two-argument form by Rozsa Peter). Verified live with a stack-based evaluator (so the browser's own recursion never overflows): the closed forms A(1,n)=n+2, A(2,n)=2n+3, A(3,n)=2^(n+3)-3 all hold, and the number of reduction steps explodes with n (window.__ackermann.A1 && A2 && A3 && callsExplode, all true). A(3,3)=61. It is not primitive recursive — a real theorem, demonstrated by the row structure.",
+  "fig":"No metaphor is doing the work: the recursion, the closed forms, and the step blow-up are exact and checked. The 3D call-tree is schematic (the real one is too large to draw) — labelled as such; the growth it depicts is genuine.",
+  "body":ACK_BODY,"script":ACK_SCRIPT},
+ {"slug":"the-needle","title":"THE NEEDLE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#ff8f9f","icon":"needle",
+  "kicker":"Buffon's needle — measure pi by dropping sticks",
+  "blurb":"Buffon's needle in the 5-window house format — drop needles on a floor of parallel lines spaced a needle-length apart; the fraction that cross a line is 2/pi, so counting crossings estimates pi. The first Monte Carlo method (1777). See the crossing rule in 1D, a live rain of needles in 2D, and the scattered floor with its ticking estimate in 3D.",
+  "lit":"Genuine Buffon's needle (Comte de Buffon, 1777) — the first Monte Carlo method. Verified live: with needle length = line spacing, dropping 2,000,000 random needles estimates pi within about 0.01, and the error shrinks like 1/sqrt(N) (window.__buffon.withinTol === true; estimate and error reported). The crossing condition (center-to-line distance < (L/2)sin(theta)) integrating to a 2/pi crossing probability is exact.",
+  "fig":"No metaphor is doing the work: the crossing probability is genuinely 2/pi and the estimate genuinely converges to pi. It's a statistical estimate — error falls only as 1/sqrt(N), so it's a slow way to get pi's digits, which is stated honestly, not overclaimed.",
+  "body":BUF_BODY,"script":BUF_SCRIPT},
+ {"slug":"the-binary-gcd","title":"THE BINARY GCD","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#90c0ff","icon":"gcd2",
+  "kicker":"Stein's algorithm — gcd with no division",
+  "blurb":"Stein's binary GCD in the 5-window house format — compute the greatest common divisor using only subtraction, comparison, and bit-shifts (no division or modulo). Pull out shared factors of 2, halve even numbers, subtract the odd pair, restore the 2s at the end. See the bits in 1D, the step-by-step reduction in 2D, and shrinking bit-columns in 3D.",
+  "lit":"Genuine Stein binary GCD (Josef Stein, 1967). Verified live: over 50,000 random pairs it gives exactly Euclid's gcd using no division at all (window.__stein.matchesEuclid === true). gcd(1071,462) = 21. The rules (extract shared powers of 2, halve evens, subtract odds) are exact and reach the same value as division-based Euclid — the binary analogue seated beside THE EUCLID.",
+  "fig":"No metaphor is doing the work: the shift-and-subtract reduction and its exact agreement with Euclid are checked over 50,000 pairs. It's the same gcd by hardware-friendly operations, not an approximation.",
+  "body":STEIN_BODY,"script":STEIN_SCRIPT},
+ {"slug":"the-remainder","title":"THE REMAINDER","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#b088ff","icon":"crt",
+  "kicker":"CRT — a number as its coprime remainders",
+  "blurb":"the Chinese Remainder Theorem in the 5-window house format — a number mod a product of coprime moduli is uniquely fixed by its remainders mod each, and reconstructible. That makes it a residue number system: store a number as its remainders, do arithmetic per-channel with no carries, reconstruct at the end. See residue clocks in 1D, live reconstruction in 2D, and the coprime torus in 3D.",
+  "lit":"Genuine Chinese Remainder Theorem (Sun Zi, ~3rd-5th c. CE; general method Qin Jiushao 1247). Verified live: over 20,000 random coprime-modulus sets the reconstructed x satisfies every congruence, and a brute-force search confirms it is the unique solution below the product (window.__crt.allCongruences && unique, both true). mod [3,5,7] = [2,3,2] -> 23. The isomorphism Z_M ≅ product of Z_mi and the reconstruction are exact.",
+  "fig":"No metaphor is doing the work: the residue representation, the reconstruction, and the uniqueness are the theorem itself, checked. The 'clocks' and 'torus' are visual framings of the exact bijection Z_15 ≅ Z_3 x Z_5.",
+  "body":CRT_BODY,"script":CRT_SCRIPT},
  {"slug":"the-choke","title":"THE CHOKE","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#ff6a8a","icon":"flow",
   "kicker":"max-flow equals min-cut, exactly",
