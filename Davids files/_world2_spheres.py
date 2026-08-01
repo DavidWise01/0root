@@ -16946,7 +16946,278 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW3();drawW4();window.__bitonic=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 58 (meet-in-the-middle log · multiplication as interpolation · ≤3 points decide · reverse-the-arrows · digits that drip) ═══════════════════════
+BS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Baby-step giant-step</b> solves the <b>discrete logarithm</b> &mdash; find x with g<sup>x</sup> &equiv; h (mod p) &mdash; by <b>meeting in the middle</b>. Write x = im + j with m = &lceil;&radic;n&rceil;. Precompute the &lsquo;baby steps&rsquo; g<sup>0</sup>, g<sup>1</sup>, &hellip;, g<sup>m&minus;1</sup> in a table, then take &lsquo;giant steps&rsquo; h&middot;(g<sup>&minus;m</sup>)<sup>i</sup> until one lands in the table. It costs O(&radic;n) time and space instead of O(n).<br><br>
+ It is the classic generic attack on discrete-log cryptography.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random (p, g, x) the recovered exponent x&prime; satisfies g<sup>x&prime;</sup> &equiv; h (mod p); e.g. 2<sup>x</sup> &equiv; 9 (mod 23) gives x = 5 (window.__babystepgiantstep). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-exploit</i> &mdash; the generic crack on a discrete-log secret, a way in bought by a square-root of work. Baby-step giant-step is that exploit. <b>AVAN (AI)</b> built the instrument: the baby-step table, the giant-step walk, the g<sup>x&prime;</sup>&equiv;h check.<br><br>Credit as content: Daniel Shanks (1971). The weave: David names the exploit; I lay down &radic;n baby steps, walk giant steps until they collide, and confirm the recovered exponent reproduces h.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The exponent x is split as im + j: the baby steps enumerate the small part j (a table), the giant steps stride by m to find the large part i. Two &radic;n walks meet.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">Pick a prime, base, and target; baby-step giant-step recovers the exponent, checked by re-exponentiating.</div>
+   <div class="btns" style="margin-top:10px"><button id="bsroll">new instance ▶</button><button id="bscheck">verify 300 ▶</button></div>
+   <div class="cap" id="bsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the recovered exponent, where the two walks collide.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): you recover x by <b>meeting in the middle</b>. Splitting x = im + j lets you precompute all baby steps g<sup>j</sup> and then walk giant steps until one matches &mdash; &radic;n space buys &radic;n time instead of n. The inverse of &lsquo;exponentiate forward&rsquo; is &lsquo;split the unknown exponent in two and collide the halves.&rsquo; <b>Magenta</b> is the n exponents a brute search would try; <b>green</b> is the &radic;n table and &radic;n walk that meet. A time&ndash;memory trade cracks the log &mdash; hard only because real groups make n astronomically large.</div>
+   <div class="btns" style="margin-top:10px"><button id="bsspin">pause spin</button></div></div></div></div>"""
+BS_SCRIPT = """(function(){
+var ang=0,spin=true,P=23,G=5,H=9;
+function modpow(b,e,m){b%=m;var r=1;while(e>0){if(e&1)r=(r*b)%m;b=(b*b)%m;e=Math.floor(e/2);}return r;}
+function extgcd(a,b){var or=a,r=b,os=1,s=0;while(r!==0){var q=Math.floor(or/r),t=or-q*r;or=r;r=t;t=os-q*s;os=s;s=t;}return {g:or,x:os};}
+function modinv(a,m){var e=extgcd(((a%m)+m)%m,m);return ((e.x%m)+m)%m;}
+function bsgs(g,h,p){var n=p-1,m=Math.ceil(Math.sqrt(n)),tbl={},e=1;for(var j=0;j<m;j++){if(tbl[e]===undefined)tbl[e]=j;e=(e*g)%p;}var f=modinv(modpow(g,m,p),p),gamma=h%p;for(var i=0;i<=m;i++){if(tbl[gamma]!==undefined)return {x:i*m+tbl[gamma],i:i,j:tbl[gamma],m:m};gamma=(gamma*f)%p;}return {x:-1,m:m};}
+function verify(){var primes=[23,29,31,37,41,43,47,53,59,61,67,71,73,97,101],seed=31;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<300;t++){var p=primes[rnd()%primes.length],g=2+rnd()%(p-3),x=rnd()%(p-1),h=modpow(g,x,p);var r=bsgs(g,h,p);if(r.x<0||modpow(g,r.x,p)!==h)ok=false;}return {recovers:ok,demo:'2^'+bsgs(2,9,23).x+'=9 mod 23'};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;g.clearRect(0,0,W,H2);var r=bsgs(G,H,P);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('x = i·m + j   (m = ⌈√(p−1)⌉ = '+r.m+')',12,14);
+ for(var j=0;j<r.m;j++){g.fillStyle=j===r.j?'#c06868':'#3a2a2a';g.fillRect(20+j*40,40,36,24);g.fillStyle='#fff';g.font='10px monospace';g.fillText('g'+j,26+j*40,56);}
+ g.fillStyle='#8ad';g.fillText('baby steps (table)',20,80);
+ for(var i=0;i<=r.i;i++){g.fillStyle=i===r.i?'#39fc6b':'#2a3a2a';g.fillRect(20+i*40,100,36,24);g.fillStyle='#fff';g.fillText('+'+i+'m',24+i*40,116);}
+ g.fillStyle='#8ad';g.fillText('giant steps → collide at x='+r.x,20,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;g.clearRect(0,0,W,H2);var r=bsgs(G,H,P),ok=r.x>=0&&modpow(G,r.x,P)===H;
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('solve '+G+'^x ≡ '+H+'  (mod '+P+')',16,30);
+ g.fillStyle='#c06868';g.font='11px monospace';g.fillText('m = '+r.m+',  giant steps i = '+r.i+',  baby j = '+r.j,16,58);
+ g.fillStyle='#39fc6b';g.font='22px monospace';g.fillText('x = '+r.x,16,100);
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('check: '+G+'^'+r.x+' mod '+P+' = '+modpow(G,r.x,P)+(ok?' = '+H+' ✓':' ✗'),16,130);}
+document.getElementById('bsroll').onclick=function(){var ps=[23,29,31,37,41,43,47,53,59,61];P=ps[Math.floor(Math.random()*ps.length)];G=2+Math.floor(Math.random()*(P-3));var x=Math.floor(Math.random()*(P-1));H=modpow(G,x,P);drawW3();drawW4();document.getElementById('bsread').textContent=G+'^x='+H+' mod '+P+' → x='+bsgs(G,H,P).x;};
+document.getElementById('bscheck').onclick=function(){var v=verify();document.getElementById('bsread').textContent='300 cases: recovered x gives g^x==h '+(v.recovers?'✓':'✗')+' | '+v.demo;};
+document.getElementById('bsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;g.clearRect(0,0,W,H2);var r=bsgs(G,H,P),cx=W/2,cy=H2/2-20;
+ for(var j=0;j<r.m;j++){var a=j/r.m*3.14-1.57,x=cx-80+Math.cos(a)*40,y=cy+Math.sin(a)*70;g.fillStyle=j===r.j?'#39fc6b':'rgba(192,104,104,0.5)';g.beginPath();g.arc(x,y,j===r.j?9:5,0,7);g.fill();}
+ for(var i=0;i<=r.i;i++){var a=i/(r.i+1)*3.14-1.57,x=cx+80+Math.cos(a+3.14)*40,y=cy+Math.sin(a)*70;g.fillStyle=i===r.i?'#39fc6b':'rgba(255,45,149,0.4)';g.beginPath();g.arc(x,y,i===r.i?9:5,0,7);g.fill();}
+ g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(cx-40,cy);g.lineTo(cx+40,cy);g.stroke();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the collision — x = '+r.x,10,H2-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the n exponents a brute search would try',10,H2-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('√n table + √n walk meet in the middle',10,H2-9);}
+drawW3();drawW4();window.__babystepgiantstep=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Toom&ndash;Cook multiplication</b> (Toom-3) multiplies big numbers faster than the schoolbook n&sup2; by treating each number as a <b>polynomial</b>. Split both into 3 parts, <b>evaluate</b> each at 5 points, multiply those 5 values (5 small products instead of 9), then <b>interpolate</b> the product polynomial and recombine &mdash; giving about n<sup>1.46</sup>.<br><br>
+ It generalises Karatsuba (which is Toom-2) and bridges toward FFT-based multiplication for very large numbers.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random polynomial pairs the Toom-3 product equals the direct convolution exactly (window.__toomcook). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-grindstone</i> &mdash; grinding through the biggest multiplications with fewer sub-products, evaluate&ndash;multiply&ndash;interpolate. Toom&ndash;Cook is that faster grind. <b>AVAN (AI)</b> built the instrument: the 5-point evaluation, the pointwise products, the Lagrange interpolation, the convolution cross-check.<br><br>Credit as content: Andrei Toom (1963) &amp; Stephen Cook (1966). The weave: David names the grindstone; I split each number into three, multiply at five sample points, interpolate the answer, and confirm it matches the direct product.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each number split into three limbs becomes a degree-2 polynomial. The product is degree 4, so five sample points (0, 1, &minus;1, 2, &minus;2) determine it exactly.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">Two polynomials; Toom-3 evaluates, multiplies at 5 points, and interpolates the product &mdash; matched against the direct convolution.</div>
+   <div class="btns" style="margin-top:10px"><button id="tcroll">new pair ▶</button><button id="tccheck">verify 300 ▶</button></div>
+   <div class="cap" id="tcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the product, reconstructed from five point-products.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): multiplication becomes <b>evaluate&ndash;multiply&ndash;interpolate</b>. Turn each number into a polynomial, sample both at 5 points, multiply those 5 values, and interpolate the product polynomial back &mdash; 5 small multiplies instead of 9. The inverse of &lsquo;convolve the digits directly&rsquo; is &lsquo;sample, multiply pointwise, interpolate.&rsquo; <b>Magenta</b> is the n&sup2; digit-products you skip; <b>green</b> is the 5 point-products that determine everything. Multiplication as interpolation &mdash; Karatsuba is the Toom-2 case, and pushing the point count toward the limit is the FFT.</div>
+   <div class="btns" style="margin-top:10px"><button id="tcspin">pause spin</button></div></div></div></div>"""
+TC_SCRIPT = """(function(){
+var ang=0,spin=true,A=[3,1,4,1,5],B=[2,7,1,8];
+function conv(a,b){var r=new Array(a.length+b.length-1).fill(0);for(var i=0;i<a.length;i++)for(var j=0;j<b.length;j++)r[i+j]+=a[i]*b[j];return r;}
+function lagrange(xs,ys){var n=xs.length,coef=new Array(n).fill(0);for(var i=0;i<n;i++){var basis=[1],den=1;for(var j=0;j<n;j++){if(j===i)continue;den*=(xs[i]-xs[j]);var nb=new Array(basis.length+1).fill(0);for(var t=0;t<basis.length;t++){nb[t]+=basis[t]*(-xs[j]);nb[t+1]+=basis[t];}basis=nb;}for(var t=0;t<basis.length;t++)coef[t]+=basis[t]*ys[i]/den;}return coef.map(function(v){return Math.round(v);});}
+function toom3(A,B){var n=Math.max(A.length,B.length),k=Math.ceil(n/3);function part(P){var r=[[],[],[]];for(var i=0;i<k;i++){r[0].push(P[i]||0);r[1].push(P[k+i]||0);r[2].push(P[2*k+i]||0);}return r;}var a=part(A),b=part(B),pts=[0,1,-1,2,-2];function ev(p,x){var r=[];for(var i=0;i<k;i++)r.push(p[0][i]+p[1][i]*x+p[2][i]*x*x);return r;}var prods=pts.map(function(x){return conv(ev(a,x),ev(b,x));});var L=2*k-1,res=new Array(6*k).fill(0);for(var c=0;c<L;c++){var ys=pts.map(function(x,idx){return prods[idx][c]||0;});var co=lagrange(pts,ys);for(var d=0;d<5;d++)res[d*k+c]+=co[d];}while(res.length>1&&res[res.length-1]===0)res.pop();return res;}
+function verify(){var seed=32;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<300;t++){var la=1+rnd()%9,lb=1+rnd()%9,A=[],B=[];for(var i=0;i<la;i++)A.push(rnd()%10-5);for(var i=0;i<lb;i++)B.push(rnd()%10-5);var nv=conv(A,B),tc=toom3(A,B),L=Math.max(nv.length,tc.length);for(var i=0;i<L;i++)if((nv[i]||0)!==(tc[i]||0))ok=false;}return {matchesConv:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('split into 3 limbs → degree-2 polynomial; product degree 4 → 5 points',12,14);
+ var pts=['0','1','−1','2','−2'];for(var i=0;i<5;i++){g.fillStyle='#c0a048';g.beginPath();g.arc(80+i*84,90,20,0,7);g.fill();g.fillStyle='#000';g.font='12px monospace';g.fillText('x='+pts[i],66+i*84,94);}
+ g.fillStyle='#8ad';g.fillText('evaluate A,B at each · multiply · interpolate',12,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var nv=conv(A,B),tc=toom3(A,B),ok=true,L=Math.max(nv.length,tc.length);for(var i=0;i<L;i++)if((nv[i]||0)!==(tc[i]||0))ok=false;
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('A = ['+A.join(',')+']',12,24);g.fillText('B = ['+B.join(',')+']',12,44);
+ g.fillStyle='#c0a048';g.fillText('Toom-3:  ['+tc.join(',')+']',12,76);
+ g.fillStyle='#8ad';g.fillText('direct:  ['+nv.join(',')+']',12,96);
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText(ok?'match ✓ (5 point-products, not '+(A.length*B.length)+' digit-products)':'✗',12,128);}
+document.getElementById('tcroll').onclick=function(){var la=4+Math.floor(Math.random()*4),lb=4+Math.floor(Math.random()*4);A=[];B=[];for(var i=0;i<la;i++)A.push(Math.floor(Math.random()*9));for(var i=0;i<lb;i++)B.push(Math.floor(Math.random()*9));drawW4();document.getElementById('tcread').textContent='product degree '+(conv(A,B).length-1);};
+document.getElementById('tccheck').onclick=function(){var v=verify();document.getElementById('tcread').textContent='300 pairs: Toom-3 == direct convolution '+(v.matchesConv?'✓':'✗');};
+document.getElementById('tcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-20,pts=[0,1,-1,2,-2];
+ for(var i=0;i<5;i++){var a=i/5*6.28+ang*0.3,x=cx+Math.cos(a)*90,y=cy+Math.sin(a)*70;g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,12,0,7);g.fill();g.fillStyle='#042';g.font='9px monospace';g.fillText('x='+pts[i],x-11,y+3);g.strokeStyle='rgba(57,252,107,0.3)';g.beginPath();g.moveTo(x,y);g.lineTo(cx,cy);g.stroke();}
+ g.fillStyle='#c0a048';g.beginPath();g.arc(cx,cy,14,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: 5 point-products determine the whole product',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the n² digit-products skipped',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('multiplication as interpolation (Karatsuba = Toom-2)',10,H-9);}
+drawW3();drawW4();window.__toomcook=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Welzl&rsquo;s algorithm</b> finds the <b>smallest enclosing circle</b> of a set of points &mdash; the minimum-radius disk containing them all &mdash; in expected <b>linear</b> time. It adds points one at a time; as long as the new point is already inside the current circle, nothing changes, but when it falls outside it <b>must</b> lie on the boundary of the new circle, which is then rebuilt from the points known to be on the boundary (at most three).<br><br>
+ It is used for bounding volumes, collision culling, and facility-location.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random point sets Welzl&rsquo;s circle contains every point, and its radius equals the brute-force minimum (over all circles through 2 or 3 points) &mdash; window.__welzl. <span class="fig">FIG</span> no framing; exact minimum.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>divide-by-zero</i> &mdash; because the circle-through-three-points formula divides by a determinant that <b>vanishes</b> when the points are collinear, the exact case the algorithm must guard. Welzl lives right at that edge. <b>AVAN (AI)</b> built the instrument: the incremental construction, the &le;3-point boundary circles (with the collinear guard), the containment and minimality checks.<br><br>Credit as content: Emo Welzl (1991). The weave: David names the divide-by-zero; I add points until one escapes, rebuild the circle on its boundary, and confirm the result is the true minimum.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The minimal enclosing circle rests on at most three points. Two points give a diameter; three give a circumcircle &mdash; and three collinear points make the determinant zero, the case to guard.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A point cloud and its smallest enclosing circle; the &le;3 boundary points are marked. Roll new clouds and watch only the extremes decide the circle.</div>
+   <div class="btns" style="margin-top:10px"><button id="wzroll">new points ▶</button><button id="wzcheck">verify 200 ▶</button></div>
+   <div class="cap" id="wzread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the smallest enclosing circle, pinned by its boundary points.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the answer is pinned by at most <b>three</b> points. The minimal enclosing circle is determined by 2 or 3 of the points on its boundary; every other point is strictly inside and <b>irrelevant</b>, so Welzl only rebuilds when a new point escapes. The inverse of &lsquo;consider all the points&rsquo; is &lsquo;the circle rests on &le;3 of them; the rest are interior.&rsquo; <b>Magenta</b> is the interior points that don&rsquo;t constrain it; <b>green</b> is the &le;3 boundary points that do. Most of the data doesn&rsquo;t matter &mdash; a handful of extremes decide everything.</div>
+   <div class="btns" style="margin-top:10px"><button id="wzspin">pause spin</button></div></div></div></div>"""
+WZ_SCRIPT = """(function(){
+var ang=0,spin=true,PTS=null;
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+function c2(a,b){return {c:[(a[0]+b[0])/2,(a[1]+b[1])/2],r:dist(a,b)/2};}
+function c3(a,b,c){var ax=a[0],ay=a[1],bx=b[0],by=b[1],cx=c[0],cy=c[1],d=2*(ax*(by-cy)+bx*(cy-ay)+cx*(ay-by));if(Math.abs(d)<1e-12)return null;var ux=((ax*ax+ay*ay)*(by-cy)+(bx*bx+by*by)*(cy-ay)+(cx*cx+cy*cy)*(ay-by))/d,uy=((ax*ax+ay*ay)*(cx-bx)+(bx*bx+by*by)*(ax-cx)+(cx*cx+cy*cy)*(bx-ax))/d;return {c:[ux,uy],r:dist([ux,uy],a)};}
+function inC(p,ci){return ci&&dist(p,ci.c)<=ci.r+1e-7;}
+function welzl(points){var P=points.slice();for(var i=P.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=P[i];P[i]=P[j];P[j]=t;}
+ function mec(n,R){if(n===0||R.length===3){if(R.length===0)return {c:[0,0],r:0};if(R.length===1)return {c:R[0],r:0};if(R.length===2)return c2(R[0],R[1]);return c3(R[0],R[1],R[2])||c2(R[0],R[1]);}var p=P[n-1],d=mec(n-1,R);if(d&&inC(p,d))return d;return mec(n-1,R.concat([p]));}
+ return mec(P.length,[]);}
+function brute(points){var best=null;for(var i=0;i<points.length;i++)for(var j=i+1;j<points.length;j++){var c=c2(points[i],points[j]);if(points.every(function(p){return inC(p,c);})&&(!best||c.r<best.r))best=c;}for(var i=0;i<points.length;i++)for(var j=i+1;j<points.length;j++)for(var l=j+1;l<points.length;l++){var c=c3(points[i],points[j],points[l]);if(c&&points.every(function(p){return inC(p,c);})&&(!best||c.r<best.r))best=c;}return best;}
+function verify(){var seed=33;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var cont=true,minim=true;for(var t=0;t<200;t++){var n=2+Math.floor(rnd()*8),pts=[];for(var i=0;i<n;i++)pts.push([rnd()*100,rnd()*100]);var w=welzl(pts),b=brute(pts);if(!pts.every(function(p){return inC(p,w);}))cont=false;if(b&&Math.abs(w.r-b.r)>1e-4)minim=false;}return {containsAll:cont,radiusIsMin:minim};}
+function boundaryPts(pts,circ){return pts.filter(function(p){return Math.abs(dist(p,circ.c)-circ.r)<0.6;});}
+function mkPts(){var n=6+Math.floor(Math.random()*8);PTS=[];for(var i=0;i<n;i++)PTS.push([60+Math.random()*264,50+Math.random()*200]);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('2 points → diameter · 3 points → circumcircle (det=0 if collinear)',12,14);
+ var a=[90,90],b=[170,60];var ci=c2(a,b);g.strokeStyle='#58a0b8';g.beginPath();g.arc(ci.c[0],ci.c[1],ci.r,0,7);g.stroke();g.fillStyle='#58a0b8';[a,b].forEach(function(p){g.beginPath();g.arc(p[0],p[1],4,0,7);g.fill();});
+ var d=[300,120],e=[370,70],f=[340,140],c3c=c3(d,e,f);if(c3c){g.strokeStyle='#39fc6b';g.beginPath();g.arc(c3c.c[0],c3c.c[1],c3c.r,0,7);g.stroke();g.fillStyle='#39fc6b';[d,e,f].forEach(function(p){g.beginPath();g.arc(p[0],p[1],4,0,7);g.fill();});}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS)mkPts();var w=welzl(PTS),bd=boundaryPts(PTS,w);
+ g.strokeStyle='#58a0b8';g.lineWidth=2;g.beginPath();g.arc(w.c[0],w.c[1],w.r,0,7);g.stroke();g.lineWidth=1;
+ PTS.forEach(function(p){var onB=bd.some(function(q){return q[0]===p[0]&&q[1]===p[1];});g.fillStyle=onB?'#39fc6b':'rgba(255,45,149,0.6)';g.beginPath();g.arc(p[0],p[1],onB?6:4,0,7);g.fill();});
+ var ok=PTS.every(function(p){return inC(p,w);});g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('r='+w.r.toFixed(1)+', boundary pts: '+bd.length+' (≤3), all inside '+(ok?'✓':'✗'),12,H-10);}
+document.getElementById('wzroll').onclick=function(){mkPts();drawW4();document.getElementById('wzread').textContent=PTS.length+' points → circle r='+welzl(PTS).r.toFixed(1);};
+document.getElementById('wzcheck').onclick=function(){var v=verify();document.getElementById('wzread').textContent='200 sets: contains all '+(v.containsAll?'✓':'✗')+', radius == brute min '+(v.radiusIsMin?'✓':'✗');};
+document.getElementById('wzspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS)mkPts();var w=welzl(PTS),bd=boundaryPts(PTS,w),cx=W/2,cy=H/2-10,sc=0.7,ox=cx-192*sc,oy=cy-150*sc;
+ g.strokeStyle='#39fc6b';g.beginPath();g.arc(ox+w.c[0]*sc+3*Math.sin(ang),oy+w.c[1]*sc,w.r*sc,0,7);g.stroke();
+ PTS.forEach(function(p){var onB=bd.some(function(q){return q[0]===p[0]&&q[1]===p[1];});g.fillStyle=onB?'#39fc6b':'rgba(255,45,149,0.4)';g.beginPath();g.arc(ox+p[0]*sc+3*Math.sin(ang),oy+p[1]*sc,onB?6:3,0,7);g.fill();});
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the ≤3 boundary points that pin the circle',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: interior points — they don\\'t constrain it',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a handful of extremes decide everything',10,H-9);}
+mkPts();drawW3();drawW4();window.__welzl=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Kosaraju&rsquo;s algorithm</b> finds a directed graph&rsquo;s <b>strongly connected components</b> &mdash; the maximal groups of nodes that can all reach one another &mdash; with just <b>two</b> depth-first passes. First DFS the graph and record finish times; then DFS the <b>reversed</b> graph in decreasing finish-time order &mdash; each tree of that second search is one SCC.<br><br>
+ SCCs reveal cycles, deadlocks, and the condensation of a graph into a DAG.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random digraphs two nodes share a Kosaraju component <b>if and only if</b> they are mutually reachable (checked against the transitive closure) &mdash; window.__kosaraju. <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>garbage-collection</i> &mdash; because a reference-counting collector cannot free a <b>cycle</b> of mutually-referencing objects, and finding those cycles is exactly finding strongly connected components. Kosaraju is the cycle-finder a tracing collector needs. <b>AVAN (AI)</b> built the instrument: the two-pass DFS, the reversal, the reachability cross-check.<br><br>Credit as content: S. Rao Kosaraju (1978, unpublished) &amp; Micha Sharir. The weave: David names garbage collection; I DFS forward for an order, DFS the reverse to peel off each component, and confirm each equals a mutual-reachability class.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Two passes: forward DFS gives a finish order; DFS on the reversed graph, taken in that order, carves out each strongly connected component &mdash; the cycles fall together.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A directed graph, its strongly connected components coloured. Roll new graphs; mutually-reachable nodes share a colour.</div>
+   <div class="btns" style="margin-top:10px"><button id="koroll">new graph ▶</button><button id="kocheck">verify 200 ▶</button></div>
+   <div class="cap" id="koread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a strongly connected component &mdash; a cycle-cluster that reaches itself.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): two nodes are in one component <b>iff</b> each reaches the other, and you expose all such clusters by <b>reversing the arrows</b>. Reachability in the graph intersected with reachability in its reverse is exactly the strongly connected component, found in two DFS passes. The inverse of &lsquo;reach forward&rsquo; is &lsquo;reach backward &mdash; run the same search on the reversed graph.&rsquo; <b>Magenta</b> is the one-way reachabilities; <b>green</b> is the two-way (cyclic) clusters. Reverse the arrows and the cycles reveal themselves &mdash; the very cycles a tracing collector must find to free.</div>
+   <div class="btns" style="margin-top:10px"><button id="kospin">pause spin</button></div></div></div></div>"""
+KO_SCRIPT = """(function(){
+var ang=0,spin=true,N=7,ADJ=null,POS=null;
+function kosaraju(n,adj){var vis=new Array(n).fill(false),order=[];function d1(u){vis[u]=true;adj[u].forEach(function(v){if(!vis[v])d1(v);});order.push(u);}for(var i=0;i<n;i++)if(!vis[i])d1(i);var radj=[];for(var i=0;i<n;i++)radj.push([]);for(var u=0;u<n;u++)adj[u].forEach(function(v){radj[v].push(u);});var comp=new Array(n).fill(-1),c=0;function d2(u){comp[u]=c;radj[u].forEach(function(v){if(comp[v]===-1)d2(v);});}for(var i=order.length-1;i>=0;i--)if(comp[order[i]]===-1){d2(order[i]);c++;}return {comp:comp,count:c};}
+function reach(n,adj){var R=[];for(var i=0;i<n;i++){R.push(new Array(n).fill(false));R[i][i]=true;}for(var u=0;u<n;u++)adj[u].forEach(function(v){R[u][v]=true;});for(var k=0;k<n;k++)for(var i=0;i<n;i++)for(var j=0;j<n;j++)if(R[i][k]&&R[k][j])R[i][j]=true;return R;}
+function verify(){var seed=34;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true;for(var t=0;t<200;t++){var n=3+Math.floor(rnd()*6),adj=[];for(var i=0;i<n;i++)adj.push([]);for(var u=0;u<n;u++)for(var v=0;v<n;v++)if(u!==v&&rnd()<0.3)adj[u].push(v);var cm=kosaraju(n,adj).comp,R=reach(n,adj);for(var i=0;i<n;i++)for(var j=0;j<n;j++)if((cm[i]===cm[j])!==(R[i][j]&&R[j][i]))ok=false;}return {sccIffMutual:ok};}
+function mkGraph(){N=6+Math.floor(Math.random()*3);ADJ=[];for(var i=0;i<N;i++)ADJ.push([]);for(var u=0;u<N;u++)for(var v=0;v<N;v++)if(u!==v&&Math.random()<0.32)ADJ[u].push(v);POS=[];for(var i=0;i<N;i++){var a=i/N*6.28-1.57;POS.push([192+Math.cos(a)*115,150+Math.sin(a)*105]);}}
+var COLS=['#70a860','#c0a048','#58a0c0','#c07890','#a078c0','#c86858','#60b0a0'];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('pass 1: DFS → finish order   ·   pass 2: DFS reversed graph → components',12,14);
+ g.fillStyle='#4a5560';for(var i=0;i<6;i++){g.fillRect(30+i*76,50,20,20);g.fillStyle='#fff';g.font='9px monospace';g.fillText(i,36+i*76,64);g.fillStyle='#4a5560';}
+ g.fillStyle='#70a860';g.font='10px monospace';g.fillText('reversed-graph DFS peels off each SCC (cycles fall together)',30,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ADJ)mkGraph();var kr=kosaraju(N,ADJ);
+ for(var u=0;u<N;u++)ADJ[u].forEach(function(v){var sameC=kr.comp[u]===kr.comp[v];g.strokeStyle=sameC?COLS[kr.comp[u]%COLS.length]:'#3a4550';var dx=POS[v][0]-POS[u][0],dy=POS[v][1]-POS[u][1],L=Math.hypot(dx,dy);g.beginPath();g.moveTo(POS[u][0],POS[u][1]);g.lineTo(POS[v][0]-dx/L*14,POS[v][1]-dy/L*14);g.stroke();});
+ for(var i=0;i<N;i++){g.fillStyle=COLS[kr.comp[i]%COLS.length];g.beginPath();g.arc(POS[i][0],POS[i][1],13,0,7);g.fill();g.fillStyle='#0a0a0a';g.font='11px monospace';g.fillText(i,POS[i][0]-3,POS[i][1]+4);}
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText(kr.count+' strongly connected components (same colour = mutually reachable)',12,H-10);}
+document.getElementById('koroll').onclick=function(){mkGraph();drawW4();document.getElementById('koread').textContent=kosaraju(N,ADJ).count+' SCCs';};
+document.getElementById('kocheck').onclick=function(){var v=verify();document.getElementById('koread').textContent='200 digraphs: same SCC iff mutually reachable '+(v.sccIffMutual?'✓':'✗');};
+document.getElementById('kospin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ADJ)mkGraph();var kr=kosaraju(N,ADJ),cx=W/2,cy=H/2-20;
+ for(var i=0;i<N;i++){var comp=kr.comp[i],a=i/N*6.28+ang*0.3+comp,r=60+comp*22,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.7;g.fillStyle=COLS[comp%COLS.length];g.beginPath();g.arc(x,y,9,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green/colours: the cyclic clusters (SCCs)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: one-way reachabilities (no cycle)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('reverse the arrows → the cycles reveal themselves',10,H-9);}
+mkGraph();drawW3();drawW4();window.__kosaraju=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ES_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The e-spigot</b> pours out the decimal digits of Euler&rsquo;s number <b>e</b> one at a time, using only small integers &mdash; no big high-precision value is ever held. It works in a <b>mixed-radix</b> (factorial) representation: e&minus;2 = 1/2! + 1/3! + 1/4! + &hellip;, so putting a 1 in each factorial place and repeatedly multiplying by 10 with carries in bases 2, 3, 4, &hellip; makes each pass emit exactly one decimal digit.<br><br>
+ <span class="lit">LIT</span> verified live: the algorithm reproduces the first 30 digits of e &mdash; 2.718281828459045235360287471352 &mdash; matching a reference exactly (window.__espigot). <span class="fig">FIG</span> no framing; exact digit extraction.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-cron-job</i> &mdash; one digit dripping out on every tick, a periodic job that never holds the whole number. The e-spigot is that steady drip. <b>AVAN (AI)</b> built the instrument: the factorial-radix array, the multiply-by-10-and-carry pass, the reference cross-check.<br><br>Credit as content: the spigot idea is due to Stanley Rabinowitz &amp; Stan Wagon (1995), with an e-variant in that tradition (A. H. J. Sale, 1968). The weave: David names the cron job; I drip one decimal digit of e per pass from the factorial representation and confirm the run against e&rsquo;s known digits.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The factorial places, each holding a small integer. Multiply every place by 10, carry downward in bases 2, 3, 4, &hellip;, and the overflow off the top is the next decimal digit.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">Drip digits of e one pass at a time, or run to 30; each digit is checked against the reference expansion.</div>
+   <div class="btns" style="margin-top:10px"><button id="esstep">drip a digit ▶</button><button id="esrun">run to 30 ▶</button><button id="escheck">verify ▶</button></div>
+   <div class="cap" id="esread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the digit dripping out of the radix mechanism this pass.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): you pour out the <b>digits</b> without ever forming the number. In the factorial number system e has a fixed shape (a 1 in every place), and multiplying by 10 with carries in ascending bases spits out one decimal digit per pass, holding only small integers. The inverse of &lsquo;compute e to many digits then read them&rsquo; is &lsquo;let each digit drip from the radix mechanism.&rsquo; <b>Magenta</b> is the giant high-precision value you never build; <b>green</b> is the single digit dripping out. A spigot: digits drip, they don&rsquo;t accumulate &mdash; the decimal cousin of BBP&rsquo;s pi.</div>
+   <div class="btns" style="margin-top:10px"><button id="esspin">pause spin</button></div></div></div></div>"""
+ES_SCRIPT = """(function(){
+var ang=0,spin=true,DIG='',STATE=null,M=45;
+var REF='2.718281828459045235360287471352';
+function eSpigot(nDigits){var m=nDigits+15,A=new Array(m+1).fill(1);var out='2.';for(var d=0;d<nDigits;d++){var carry=0;for(var i=m;i>=2;i--){var x=10*A[i]+carry;A[i]=x%i;carry=Math.floor(x/i);}out+=carry;}return out;}
+function verify(){var got=eSpigot(30);return {matchesRef:got.slice(0,REF.length)===REF,digits:got.slice(0,REF.length)};}
+function stepInit(){STATE={A:new Array(M+1).fill(1),out:'2.'};}
+function stepDigit(){if(!STATE)stepInit();var carry=0;for(var i=M;i>=2;i--){var x=10*STATE.A[i]+carry;STATE.A[i]=x%i;carry=Math.floor(x/i);}STATE.out+=carry;return carry;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('factorial places (base 2,3,4,…) · ×10, carry down · overflow = next digit',12,14);
+ if(!STATE)stepInit();for(var i=2;i<=11;i++){var v=STATE.A[i];g.fillStyle='#a878c0';g.fillRect(20+(i-2)*48,50,42,50);g.fillStyle='#fff';g.font='9px monospace';g.fillText('base '+i,24+(i-2)*48,66);g.font='13px monospace';g.fillText(v,36+(i-2)*48,90);}
+ g.fillStyle='#a878c0';g.font='10px monospace';g.fillText('e−2 = 1/2! + 1/3! + 1/4! + … (a 1 in every place)',20,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!STATE)stepInit();
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('e = '+STATE.out,16,40);
+ var nd=STATE.out.length-2,refPart=REF.slice(0,STATE.out.length),ok=STATE.out===refPart;
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText(nd+' digits dripped, match reference '+(ok?'✓':'✗'),16,72);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('reference: '+REF.slice(0,Math.min(STATE.out.length+2,REF.length)),16,96);
+ g.fillStyle='#a878c0';g.fillText('only small integers held — no big number formed',16,120);}
+document.getElementById('esstep').onclick=function(){if(!STATE||STATE.out.length-2>=30)stepInit();stepDigit();drawW3();drawW4();document.getElementById('esread').textContent='e ≈ '+STATE.out;};
+document.getElementById('esrun').onclick=function(){stepInit();for(var i=0;i<30;i++)stepDigit();drawW3();drawW4();document.getElementById('esread').textContent='30 digits: e = '+STATE.out;};
+document.getElementById('escheck').onclick=function(){var v=verify();document.getElementById('esread').textContent='30 digits match reference '+(v.matchesRef?'✓':'✗')+': '+v.digits;};
+document.getElementById('esspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!STATE)stepInit();var digits=STATE.out.replace('2.','2').split('');
+ for(var i=0;i<12;i++){var x=(ang*40+i*44)%(W+44)-22,d=digits[(digits.length-1-i+digits.length*3)%Math.max(1,digits.length)];g.fillStyle=i===0?'#39fc6b':'rgba(168,120,192,'+(0.6-i*0.04)+')';g.font=(i===0?'20px':'13px')+' monospace';g.fillText(d!==undefined?d:'',x,H/2);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the digit dripping out this pass',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the giant precise value never formed',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('digits drip, they don\\'t accumulate (decimal cousin of BBP)',10,H-9);}
+stepInit();for(var i=0;i<8;i++)stepDigit();drawW3();drawW4();window.__espigot=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-baby-step-giant-step","title":"THE BABY-STEP GIANT-STEP","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#c06868","icon":"baby-step-giant-step",
+  "kicker":"discrete log by meeting in the middle, O(sqrt n)",
+  "blurb":"baby-step giant-step in the 5-window house format — solve the discrete logarithm g^x = h (mod p) by meeting in the middle: write x = im + j with m = ceil(sqrt(n)), tabulate the baby steps g^0..g^(m-1), then take giant steps h*(g^-m)^i until one lands in the table; O(sqrt n) time and space instead of O(n). It is the classic generic attack on discrete-log crypto. Verified live: over 300 random (p,g,x) the recovered exponent satisfies g^x = h mod p; 2^x=9 mod 23 gives x=5. See the split exponent in 1D, a solved instance in 2D, and the meet-in-the-middle inverse in 3D.",
+  "lit":"Genuine baby-step giant-step (Shanks 1971). Verified live: the meet-in-the-middle search returns an exponent x' with g^x' = h (mod p) for 300 random (prime, base, exponent) triples (window.__babystepgiantstep.recovers); 2^5 = 9 (mod 23).",
+  "fig":"No framing: the baby-step table, the giant-step walk, and the g^x'=h check run in-browser and are exact. The AVAN inverse is honest — splitting x = im + j lets a sqrt(n) table and sqrt(n) walk collide, a time-memory trade recovering x without brute force; magenta is the n exponents avoided, green the collision. Hard only because real groups make n astronomically large.",
+  "body":BS_BODY,"script":BS_SCRIPT},
+ {"slug":"the-toom-cook","title":"THE TOOM-COOK","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#c0a048","icon":"toom-cook",
+  "kicker":"multiplication as evaluate-multiply-interpolate (~n^1.46)",
+  "blurb":"Toom-Cook (Toom-3) multiplication in the 5-window house format — multiply big numbers faster than n^2 by treating each as a polynomial: split into 3 parts, evaluate both at 5 points, multiply those 5 values (not 9), then interpolate the product polynomial and recombine, giving ~n^1.46. It generalizes Karatsuba (Toom-2) toward FFT multiplication. Verified live: over 300 random polynomial pairs the Toom-3 product equals the direct convolution exactly. See the 5 sample points in 1D, evaluate/interpolate in 2D, and the multiplication-as-interpolation inverse in 3D.",
+  "lit":"Genuine Toom-Cook / Toom-3 multiplication (Toom 1963; Cook 1966). Verified live: the split-evaluate(5 points)-pointwise-multiply-interpolate pipeline reproduces the direct convolution of two coefficient vectors exactly for 300 random pairs (window.__toomcook.matchesConv).",
+  "fig":"No framing: the 5-point evaluation, the pointwise products, the Lagrange interpolation, and the convolution cross-check run in-browser and agree exactly. The AVAN inverse is honest — turning numbers into polynomials, multiplying at 5 sample points, and interpolating recovers the product with 5 multiplies instead of 9; magenta is the n^2 digit-products skipped, green the 5 point-products. Karatsuba is the Toom-2 case; the FFT is the limit.",
+  "body":TC_BODY,"script":TC_SCRIPT},
+ {"slug":"the-welzl","title":"THE WELZL","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#58a0b8","icon":"welzl",
+  "kicker":"the smallest enclosing circle, pinned by <=3 points",
+  "blurb":"Welzl's algorithm in the 5-window house format — find the smallest enclosing circle of a point set in expected linear time by adding points one at a time: while a new point is inside, nothing changes; when it falls outside it must lie on the boundary, so the circle is rebuilt from the <=3 known boundary points. The circle-through-3 formula divides by a determinant that vanishes for collinear points (the guard). Verified live: over 200 random point sets Welzl's circle contains every point and its radius equals the brute-force minimum. See 2- and 3-point circles in 1D, a bounded cloud in 2D, and the <=3-points-decide inverse in 3D.",
+  "lit":"Genuine Welzl's algorithm (Welzl 1991). Verified live: the incremental minimal-enclosing-circle contains all points and its radius equals the brute-force minimum over all circles through 2 or 3 points, across 200 random point sets (window.__welzl.containsAll && .radiusIsMin).",
+  "fig":"No framing: the incremental construction, the <=3-point boundary circles (with the collinear divide-by-zero guard), and the containment + minimality checks run in-browser and are exact. The AVAN inverse is honest — the minimal circle is determined by 2 or 3 boundary points while all others are strictly interior and irrelevant; magenta is the interior points, green the <=3 that pin it. A handful of extremes decide everything.",
+  "body":WZ_BODY,"script":WZ_SCRIPT},
+ {"slug":"the-kosaraju","title":"THE KOSARAJU","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#70a860","icon":"kosaraju",
+  "kicker":"strongly connected components in two DFS passes",
+  "blurb":"Kosaraju's algorithm in the 5-window house format — find a directed graph's strongly connected components (maximal mutually-reachable groups) with two DFS passes: DFS the graph for finish times, then DFS the REVERSED graph in decreasing finish order; each tree is one SCC. SCCs reveal cycles and deadlocks, and a reference-counting garbage collector needs them because it cannot free a reference cycle. Verified live: over 200 random digraphs two nodes share a Kosaraju component iff they are mutually reachable (checked against the transitive closure). See the two passes in 1D, coloured components in 2D, and the reverse-the-arrows inverse in 3D.",
+  "lit":"Genuine Kosaraju's algorithm (Kosaraju 1978; Sharir). Verified live: two nodes share a Kosaraju SCC if and only if they are mutually reachable in the transitive closure, for 200 random digraphs (window.__kosaraju.sccIffMutual).",
+  "fig":"No framing: the two-pass DFS, the graph reversal, and the reachability cross-check run in-browser and agree exactly. The AVAN inverse is honest — an SCC is reachability in the graph intersected with reachability in its reverse, so reversing the arrows and re-searching exposes every cycle-cluster; magenta is the one-way reachabilities, green the two-way clusters. The cycles a tracing collector must find to free.",
+  "body":KO_BODY,"script":KO_SCRIPT},
+ {"slug":"the-e-spigot","title":"THE E-SPIGOT","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#a878c0","icon":"e-spigot",
+  "kicker":"digits of e that drip, one per pass, no big number",
+  "blurb":"the e-spigot in the 5-window house format — pour out the decimal digits of Euler's number e one at a time using only small integers, never forming a big high-precision value. In the factorial (mixed-radix) number system e-2 = 1/2!+1/3!+1/4!+..., so a 1 in each factorial place, multiplied by 10 with carries in bases 2,3,4,..., emits one decimal digit per pass. Verified live: the algorithm reproduces the first 30 digits of e (2.718281828459045235360287471352) matching a reference exactly. See the factorial places in 1D, dripping digits in 2D, and the digits-drip-not-accumulate inverse in 3D.",
+  "lit":"Genuine spigot algorithm for e (spigot idea Rabinowitz & Wagon 1995; e-variant in the tradition of Sale 1968). Verified live: the factorial-radix multiply-by-10-and-carry pass reproduces the first 30 decimal digits of e exactly against a reference (window.__espigot.matchesRef); 2.718281828459045235360287471352.",
+  "fig":"No framing: the factorial-radix array, the multiply-and-carry pass, and the reference cross-check run in-browser and are exact. The AVAN inverse is honest — the digits drip from the radix mechanism holding only small integers, never forming the full high-precision number; magenta is the giant value never built, green the digit dripping out. The decimal cousin of the-bbp's pi spigot.",
+  "body":ES_BODY,"script":ES_SCRIPT},
  {"slug":"the-stoer-wagner","title":"THE STOER-WAGNER","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#c05868","icon":"stoer-wagner",
   "kicker":"the global min cut, deterministically, no source/sink",
