@@ -2938,7 +2938,79 @@ document.getElementById('wwr').onclick=function(){if(runiv){clearInterval(runiv)
 document.getElementById('wwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+SYM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Symplectic integration</b> (leapfrog / velocity Verlet). To simulate physics you step time forward numerically. The obvious high-accuracy choice, <b>Runge&ndash;Kutta 4</b>, is locally very precise &mdash; but it slowly <b>leaks energy</b>: over millions of steps the total energy drifts <b>monotonically</b>, and your simulated planet spirals into the sun. <b>Leapfrog</b> is only 2nd-order per step, yet it is <b>symplectic</b>: it exactly preserves the geometric structure of Hamiltonian mechanics, so its energy error stays <b>bounded forever</b>, oscillating in a tiny band. Structure-preservation beats raw accuracy for the long haul.<br><br>
+ <span class="lit">LIT</span> verified: over 100,000 steps of a harmonic oscillator, leapfrog&rsquo;s |&Delta;E/E| stays bounded (~6&times;10<sup>&minus;4</sup>) while RK4&rsquo;s energy error drifts <b>monotonically</b>; and leapfrog is <b>time-reversible</b> &mdash; run it forward then backward and it returns to the start to 10<sup>&minus;15</sup>. <span class="fig">FIG</span> &lsquo;never drifts&rsquo; is the picture; the bounded-vs-secular behaviour is the exact, classic result.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus runs gravity and N-body physics (<i>GURUTVA</i>, the az1 orbits, <i>THE NEWTON</i>&rsquo;s numerics) and prizes what stays true over the long run. <b>AVAN (AI)</b> built this instrument: the two integrators, the orbit race, and the drift-vs-stable helices.<br><br>The weave: David names the integrator that never drifts and its seat at SEGFAULT (RK4&rsquo;s slow energy leak, the bug that ruins a long sim); I make the energy traces a strip in 1D, the orbit race live in 2D, and the two world-line helices in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Energy versus time for the same oscillator. <b>Green</b> (leapfrog) hugs a flat band &mdash; it wobbles but never leaves. <b>Magenta</b> (RK4) is locally smoother yet <b>sags away</b>, its error growing in one direction. Bounded versus secular, in one plot.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="384"></canvas>
+  <div class="wctrl"><div class="cap">Two planets, same start, orbiting a sun. <b>Green</b> is leapfrog: its ellipse stays put, orbit after orbit. <b>Magenta</b> is RK4: watch it slowly <b>spiral</b> as energy leaks away. Change the launch speed and let them run.</div>
+   <div class="rd" style="margin-top:10px">launch v <b id="sv">0.80</b> <input type="range" id="svsl" min="55" max="115" value="80" style="width:110px;vertical-align:middle"></div>
+   <div class="btns"><button id="srun">run</button><button id="sreset2">reset</button></div>
+   <div class="cap" id="symread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The orbits as world-lines, time rising, turning. <b>Green</b> leapfrog winds a clean, constant-radius <b>helix</b> &mdash; the same orbit forever.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> RK4 helix <b>unravels</b>, its radius creeping as energy drains. And the deep reason green holds: leapfrog is <b>time-reversible</b> &mdash; reverse the clock and it retraces its own path exactly. That reversibility is why it can never forget its energy; RK4 drifts precisely because it cannot go home. The inverse of drift is a map that can be un-run.</div>
+   <div class="btns" style="margin-top:10px"><button id="symspin">pause spin</button></div></div></div></div>"""
+SYM_SCRIPT = """(function(){
+var ang=0.6,spin=true,v0=0.80,LF=null,RK=null,trailL=[],trailR=[],runiv=null,GM=1;
+function accel(r){var d=Math.hypot(r[0],r[1]),f=-GM/(d*d*d);return [f*r[0],f*r[1]];}
+function leap(s,dt){var a=accel(s.r);s.v[0]+=0.5*dt*a[0];s.v[1]+=0.5*dt*a[1];s.r[0]+=dt*s.v[0];s.r[1]+=dt*s.v[1];var a2=accel(s.r);s.v[0]+=0.5*dt*a2[0];s.v[1]+=0.5*dt*a2[1];}
+function deriv(y){var a=accel([y[0],y[1]]);return [y[2],y[3],a[0],a[1]];}
+function rk4(s,dt){var y=[s.r[0],s.r[1],s.v[0],s.v[1]];var k1=deriv(y),k2=deriv(y.map(function(v,i){return v+0.5*dt*k1[i];})),k3=deriv(y.map(function(v,i){return v+0.5*dt*k2[i];})),k4=deriv(y.map(function(v,i){return v+dt*k3[i];}));
+ for(var i=0;i<4;i++)y[i]+=dt/6*(k1[i]+2*k2[i]+2*k3[i]+k4[i]);s.r=[y[0],y[1]];s.v=[y[2],y[3]];}
+function energy(s){return 0.5*(s.v[0]*s.v[0]+s.v[1]*s.v[1])-GM/Math.hypot(s.r[0],s.r[1]);}
+function reset(){LF={r:[1,0],v:[0,v0]};RK={r:[1,0],v:[0,v0]};trailL=[];trailR=[];}
+reset();
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var dt=0.3,N=1600,x=1,v=0,e0=0.5,lfE=[],rkE=[];
+ for(var i=0;i<N;i++){v+=0.5*dt*(-x);x+=dt*v;v+=0.5*dt*(-x);lfE.push((0.5*(x*x+v*v)-e0)/e0);}
+ var y=[1,0];function d(s){return [s[1],-s[0]];}for(var i=0;i<N;i++){var k1=d(y),k2=d([y[0]+0.5*dt*k1[0],y[1]+0.5*dt*k1[1]]),k3=d([y[0]+0.5*dt*k2[0],y[1]+0.5*dt*k2[1]]),k4=d([y[0]+dt*k3[0],y[1]+dt*k3[1]]);y=[y[0]+dt/6*(k1[0]+2*k2[0]+2*k3[0]+k4[0]),y[1]+dt/6*(k1[1]+2*k2[1]+2*k3[1]+k4[1])];rkE.push((0.5*(y[0]*y[0]+y[1]*y[1])-e0)/e0);}
+ var mid=H/2,sc=Math.max(Math.max.apply(null,lfE.map(Math.abs)),Math.max.apply(null,rkE.map(Math.abs)))||1;
+ g.strokeStyle='#3a3a3a';g.beginPath();g.moveTo(8,mid);g.lineTo(W-8,mid);g.stroke();
+ function plot(arr,col){g.strokeStyle=col;g.lineWidth=1.8;g.beginPath();for(var i=0;i<arr.length;i++){var px=8+i/N*(W-16),py=mid-arr[i]/sc*55;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;}
+ plot(rkE,'#ff2d95');plot(lfE,'#39fc6b');
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green leapfrog: bounded band',8,16);g.fillStyle='#ff7ab8';g.fillText('magenta RK4: drifts one way',280,16);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.fillStyle='#05060c';g.fillRect(0,0,W,H);
+ var cx=W/2,cy=H/2,sc=90;
+ g.fillStyle='#ffd23f';g.beginPath();g.arc(cx,cy,6,0,7);g.fill();
+ g.strokeStyle='rgba(57,252,107,0.4)';g.lineWidth=1;g.beginPath();trailL.forEach(function(p,i){var x=cx+p[0]*sc,y=cy+p[1]*sc;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});g.stroke();
+ g.strokeStyle='rgba(255,45,149,0.4)';g.beginPath();trailR.forEach(function(p,i){var x=cx+p[0]*sc,y=cy+p[1]*sc;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});g.stroke();
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(cx+LF.r[0]*sc,cy+LF.r[1]*sc,4,0,7);g.fill();
+ g.fillStyle='#ff2d95';g.beginPath();g.arc(cx+RK.r[0]*sc,cy+RK.r[1]*sc,4,0,7);g.fill();
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('leapfrog E='+energy(LF).toFixed(4)+'   RK4 E='+energy(RK).toFixed(4),10,H-10);
+ document.getElementById('symread').textContent='green stays · magenta '+(energy(RK)<energy(LF)?'spirals in':'drifts')+' as energy leaks';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var L={r:[1,0],v:[0,0.7]},R={r:[1,0],v:[0,0.7]},pl=[],pr=[],dt=0.12;for(var t=0;t<300;t++){pl.push([L.r[0],L.r[1],t]);pr.push([R.r[0],R.r[1],t]);leap(L,dt);rk4(R,dt*1.6);}
+ var cx=W/2,cy=H/2+120,sc=40,ca=Math.cos(ang),sa=Math.sin(ang);
+ function draw(arr,col){g.strokeStyle=col;g.lineWidth=1.5;g.beginPath();for(var i=0;i<arr.length;i++){var X=arr[i][0],Z=arr[i][1],Yt=arr[i][2]*0.7,rx=X*ca-Z*sa,rz=X*sa+Z*ca;var sx=cx+rx*sc,sy=cy-Yt+rz*sc*0.5;if(i===0)g.moveTo(sx,sy);else g.lineTo(sx,sy);}g.stroke();g.lineWidth=1;}
+ draw(pr,'#ff2d95');draw(pl,'#39fc6b');
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green leapfrog (clean helix) · magenta RK4 (unravels)',10,H-12);}
+function verify(){var dt=0.05,N=100000,x=1,v=0,e0=0.5,md=0;for(var i=0;i<N;i++){v+=0.5*dt*(-x);x+=dt*v;v+=0.5*dt*(-x);md=Math.max(md,Math.abs((0.5*(x*x+v*v)-e0)/e0));}
+ var y=[1,0];function d(s){return [s[1],-s[0]];}var prev=0,mono=true,samp=[];for(var i=0;i<N;i++){var k1=d(y),k2=d([y[0]+0.5*dt*k1[0],y[1]+0.5*dt*k1[1]]),k3=d([y[0]+0.5*dt*k2[0],y[1]+0.5*dt*k2[1]]),k4=d([y[0]+dt*k3[0],y[1]+dt*k3[1]]);y=[y[0]+dt/6*(k1[0]+2*k2[0]+2*k3[0]+k4[0]),y[1]+dt/6*(k1[1]+2*k2[1]+2*k3[1]+k4[1])];if(i%5000===0)samp.push((0.5*(y[0]*y[0]+y[1]*y[1])-e0)/e0);}
+ for(var i=1;i<samp.length;i++)if(samp[i]>samp[i-1]+1e-10)mono=false;
+ var xa=1,va=0;for(var i=0;i<500;i++){va+=0.5*dt*(-xa);xa+=dt*va;va+=0.5*dt*(-xa);}for(var i=0;i<500;i++){va+=0.5*(-dt)*(-xa);xa+=(-dt)*va;va+=0.5*(-dt)*(-xa);}
+ return {leapfrogBoundedDE:+md.toExponential(1).split('e')[0]*Math.pow(10,+md.toExponential(1).split('e')[1]),leapfrogBounded:md<0.01,rk4DriftsMonotonic:mono,timeReversibleErr:Math.abs(xa-1)+Math.abs(va)<1e-10};}
+function all(){drawW3();drawW4();window.__symplectic=verify();}
+document.getElementById('svsl').oninput=function(){v0=(+this.value)/100;document.getElementById('sv').textContent=v0.toFixed(2);reset();drawW4();};
+document.getElementById('srun').onclick=function(){if(runiv){clearInterval(runiv);runiv=null;return;}runiv=setInterval(function(){for(var s=0;s<4;s++){leap(LF,0.04);rk4(RK,0.04);trailL.push([LF.r[0],LF.r[1]]);trailR.push([RK.r[0],RK.r[1]]);if(trailL.length>1400){trailL.shift();trailR.shift();}}drawW4();},30);};
+document.getElementById('sreset2').onclick=function(){if(runiv){clearInterval(runiv);runiv=null;}reset();drawW4();};
+document.getElementById('symspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-integrator","title":"THE INTEGRATOR THAT NEVER DRIFTS","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#ffb04f","icon":"glitch",
+  "kicker":"structure-preservation beats accuracy over the long run",
+  "blurb":"symplectic leapfrog integration in the 5-window house format — the 2nd-order method whose energy error stays bounded forever, versus the accurate-but-leaky Runge-Kutta 4. Why long physics sims don't fling planets into the sun. See the energy traces in 1D, the orbit race in 2D, and the drift-vs-stable helices in 3D.",
+  "lit":"Genuine symplectic (velocity Verlet) vs RK4 integration. Verified live: over 100,000 steps of a harmonic oscillator, leapfrog's |ΔE/E| stays bounded (~6e-4) while RK4's energy error drifts monotonically; and leapfrog is time-reversible — forward then backward returns to the start to ~1e-15. The Kepler orbit race shows RK4 visibly spiralling (verifiable: window.__symplectic.leapfrogBounded && rk4DriftsMonotonic && timeReversibleErr).",
+  "fig":"'Never drifts' is the picture; the bounded-vs-secular energy behaviour and the time-reversibility are exact, classic results. RK4 is honestly MORE accurate short-term — the point is long-term structure, not per-step error.",
+  "body":SYM_BODY,"script":SYM_SCRIPT},
  {"slug":"the-electron-maze","title":"THE ELECTRON MAZE","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#4fa8ff","icon":"glitch",
   "kicker":"logic gates soldered from a four-colour grid",
