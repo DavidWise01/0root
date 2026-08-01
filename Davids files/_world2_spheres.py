@@ -13361,7 +13361,291 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 mkpts();drawW3();drawW4();window.__rotatingcalipers=verify();
 function loop(){if(spin)ang+=0.01;drawW3();drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 43 (combinatorial counts · fast multiply · #P · dictionary · wavelets) ═══════════════════════
+CAT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Catalan numbers</b> 1, 1, 2, 5, 14, 42, 132, &hellip; are the most ubiquitous sequence in combinatorics: they count balanced parenthesisations, <b>Dyck paths</b> (staircase walks that never cross the diagonal), triangulations of a polygon, full binary trees, and dozens more &mdash; all the same number <b>C&#8345; = C(2n,n)/(n+1)</b>.<br><br>
+ Why divided by n+1? The <b>reflection principle</b>: of the C(2n,n) monotone lattice paths, the &lsquo;bad&rsquo; ones that cross the diagonal are in exact bijection with paths to a <b>reflected</b> endpoint, counted by C(2n,n&minus;1) &mdash; so C&#8345; = C(2n,n) &minus; C(2n,n&minus;1), which simplifies to the ratio.<br><br>
+ <span class="lit">LIT</span> verified live: the closed form equals a brute count of balanced-parenthesis strings for n=0&hellip;10, and the reflection identity C&#8345; = C(2n,n) &minus; C(2n,n&minus;1) holds throughout (window.__catalan). <span class="fig">FIG</span> no framing; exact combinatorial counting.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>hello-world</i> &mdash; the very first balanced structure, the matched bracket. Catalan numbers count exactly those first structures: valid nestings, well-formed trees. <b>AVAN (AI)</b> built the instrument: the closed form, the brute balanced-paren count, the reflection identity.<br><br>Credit as content: Ming Antu (1730s), Leonhard Euler (polygon triangulations, 1751), named for Eug&egrave;ne Catalan (1838). The weave: David names the first matched structure; I count it three ways &mdash; closed form, brute enumeration, and the reflection subtraction &mdash; and show they coincide.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A Dyck path: n up-steps and n down-steps that never dip below the start. Every balanced parenthesis string is one of these paths &mdash; open is up, close is down &mdash; and the count of them is C&#8345;.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick n. The instrument computes C&#8345; three ways &mdash; closed form, brute count of balanced strings, and the reflection subtraction &mdash; and lists a few of the actual Dyck paths.</div>
+   <div class="btns" style="margin-top:10px"><button id="catn">n: 4 ▶</button><button id="catcheck">verify all ▶</button></div>
+   <div class="cap" id="catread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Dyck paths that stay above the diagonal &mdash; the C&#8345; well-formed structures.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the mysterious <b>division by n+1</b> is a bijection made arithmetic. You cannot just divide C(2n,n) by any number and expect an integer &mdash; but the <b>bad</b> paths (those that cross the diagonal) reflect <b>exactly</b> onto the set of all paths to a mirrored endpoint, counted by C(2n,n&minus;1). So the subtraction C(2n,n) &minus; C(2n,n&minus;1) is <b>forced</b> to equal C(2n,n)/(n+1). The inverse of &lsquo;a strange ratio&rsquo; is &lsquo;a mirror pairing between the structures you reject and paths to a reflected point.&rsquo; <b>Magenta</b> is the bad paths, reflected across the diagonal to the mirror endpoint; <b>green</b> is the good Dyck paths that survive. One number, a hundred meanings &mdash; and the /(n+1) is a reflection.</div>
+   <div class="btns" style="margin-top:10px"><button id="catspin">pause spin</button></div></div></div></div>"""
+CAT_SCRIPT = """(function(){
+var ang=0,spin=true,N=4;
+function binom(n,k){if(k<0||k>n)return 0;var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+function closed(n){return binom(2*n,n)/(n+1);}
+function brute(n){var c=0;function rec(o,cl){if(o===n&&cl===n){c++;return;}if(o<n)rec(o+1,cl);if(cl<o)rec(o,cl+1);}rec(0,0);return c;}
+function paths(n){var out=[];function rec(o,cl,s){if(o===n&&cl===n){out.push(s);return;}if(o<n)rec(o+1,cl,s+'(');if(cl<o)rec(o,cl+1,s+')');}rec(0,0,'');return out;}
+function verify(){var cOK=true,rOK=true;for(var n=0;n<=10;n++){if(closed(n)!==brute(n))cOK=false;if(closed(n)!==binom(2*n,n)-binom(2*n,n-1))rOK=false;}return {closedMatchesBrute:cOK,reflection:rOK,cn:closed(5),seq:[0,1,2,3,4,5,6].map(closed)};}
+function drawDyck(g,s,ox,oy,cell,col){var x=ox,y=oy;g.strokeStyle=col;g.lineWidth=2;g.beginPath();g.moveTo(x,y);for(var i=0;i<s.length;i++){x+=cell;y+=(s[i]==='('?-cell:cell);g.lineTo(x,y);}g.stroke();g.lineWidth=1;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.strokeStyle='#334';g.setLineDash([3,3]);g.beginPath();g.moveTo(30,H-30);g.lineTo(30+8*24,H-30-8*14);g.stroke();g.setLineDash([]);
+ drawDyck(g,'(()(()))',30,H-30,24,'#6cc0d0');g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('Dyck path: ( = up, ) = down, never below the diagonal',30,20);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cl=closed(N),br=brute(N),rf=binom(2*N,N)-binom(2*N,N-1);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('n = '+N,12,24);
+ g.fillStyle='#6cc0d0';g.font='12px monospace';g.fillText('closed C(2n,n)/(n+1) = '+cl,12,52);
+ g.fillStyle='#d0b040';g.fillText('brute balanced strings = '+br,12,76);
+ g.fillStyle='#b088e0';g.fillText('reflection C(2n,n)-C(2n,n-1) = '+rf,12,100);
+ g.fillStyle=(cl===br&&cl===rf)?'#39fc6b':'#ff5a5a';g.font='13px monospace';g.fillText((cl===br&&cl===rf)?'✓ all three agree = '+cl:'✗',12,128);
+ var ps=paths(N).slice(0,6);for(var i=0;i<ps.length;i++){g.fillStyle='#8ad';g.font='11px monospace';g.fillText(ps[i],12+(i%3)*120,165+Math.floor(i/3)*20);}}
+document.getElementById('catn').onclick=function(){N=N>=8?1:N+1;this.textContent='n: '+N+' ▶';drawW4();};
+document.getElementById('catcheck').onclick=function(){var v=verify();document.getElementById('catread').textContent='n=0..10: closed==brute '+(v.closedMatchesBrute?'✓':'✗')+', reflection '+(v.reflection?'✓':'✗')+' | seq '+v.seq.join(',');};
+document.getElementById('catspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=3,ps=paths(n),cell=24,ox=W/2-n*cell,oy=H*0.5;
+ g.strokeStyle='#556';g.setLineDash([3,3]);g.beginPath();g.moveTo(ox,oy);g.lineTo(ox+2*n*cell,oy-2*n*cell*0+0);g.lineTo(ox+2*n*cell,oy);g.stroke();
+ g.beginPath();g.moveTo(ox,oy);for(var i=0;i<2*n;i++){g.lineTo(ox+(i+1)*cell,oy-((i+1)<=n?(i+1):(2*n-i-1))*cell*0);}g.stroke();g.setLineDash([]);
+ // good paths green
+ ps.forEach(function(s,k){var x=ox,y=oy;g.strokeStyle='rgba(57,252,107,0.6)';g.beginPath();g.moveTo(x,y);for(var i=0;i<s.length;i++){x+=cell;y+=(s[i]==='('?-cell:cell)*0.6;g.lineTo(x,y);}g.stroke();});
+ // one bad path reflected (magenta)
+ var x=ox,y=oy;g.strokeStyle='#ff2d95';g.beginPath();g.moveTo(x,y);var bad=')((())';for(var i=0;i<bad.length;i++){x+=cell;y+=(bad[i]==='('?-cell:cell)*0.6;g.lineTo(x,y);}g.stroke();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: '+ps.length+' good Dyck paths (C_'+n+' = '+closed(n)+')',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: a bad path (crosses diagonal) → reflects to mirror',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the /(n+1) is a reflection: bad paths ↔ paths to a mirror point',10,H-9);}
+drawW3();drawW4();window.__catalan=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+STR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Strassen&rsquo;s algorithm</b> multiplies matrices faster than the schoolbook method by exploiting hidden algebraic slack. To multiply two 2&times;2 matrices you seemingly need <b>8</b> scalar multiplications; Strassen does it with just <b>7</b> &mdash; using clever combined products like M&#8321;=(a+d)(e+h) &mdash; trading one multiply for a few extra additions.<br><br>
+ Applied recursively to n&times;n matrices split into quadrants, 7 instead of 8 turns O(n&sup3;) into <b>O(n<sup>log&#8322;7</sup>) &asymp; O(n<sup>2.807</sup>)</b> &mdash; the first sub-cubic matrix multiplication, and the crack that opened the whole field of fast linear algebra.<br><br>
+ <span class="lit">LIT</span> verified live: the recursive Strassen product equals the naive product exactly for random integer matrices, using <b>7</b> scalar multiplications per 2&times;2 where the naive method uses 8 (window.__strassen). <span class="fig">FIG</span> no framing; exact integer matrix arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-exploit</i> &mdash; finding the slack the obvious method leaves on the table. Strassen is the exploit that broke the &lsquo;matrix multiply must be cubic&rsquo; assumption. <b>AVAN (AI)</b> built the instrument: the seven products, the recombination, the exact check against naive, the multiplication count.<br><br>Credit as content: Volker Strassen (1969), <i>Gaussian Elimination is not Optimal</i>. The weave: David names the exploit; I compute the seven products, recombine them into the exact same result as the eight-multiply method, and count the saving that compounds through the recursion.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="170"></canvas>
+  <div class="wctrl"><div class="cap">The seven products M&#8321;&hellip;M&#8327;, each a single multiplication of two sums, and how they recombine into the four output blocks &mdash; one multiply fewer than the eight the naive method needs.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap">Two 4&times;4 integer matrices. The instrument multiplies them with recursive Strassen and with the naive method, confirms the products are identical, and counts the scalar multiplications (7 per 2&times;2 vs 8).</div>
+   <div class="btns" style="margin-top:10px"><button id="strnew">new matrices ▶</button><button id="strcheck">verify 50 ▶</button></div>
+   <div class="cap" id="strread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the recursion tree branching 7 ways at each level instead of 8 &mdash; the saving compounding down the depth.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): one fewer multiplication does not just save a constant &mdash; it <b>lowers the exponent forever</b>. Each recursion level replaces 8 subproblems with 7, so the cost is 7<sup>k</sup> instead of 8<sup>k</sup> at depth k, and the exponent drops from log&#8322;8 = 3 to log&#8322;7 &asymp; 2.807. The inverse of &lsquo;one less multiply&rsquo; is &lsquo;an asymptotic exponent bent down permanently.&rsquo; <b>Magenta</b> is the 8th product you never compute &mdash; the naive multiply skipped at every node; <b>green</b> is the 7 that suffice, recursing to the bottom. A single algebraic identity, applied all the way down, reshapes the complexity of multiplication. (Honesty: Strassen trades stability and constants, so it is used above a crossover size, not everywhere.)</div>
+   <div class="btns" style="margin-top:10px"><button id="strspin">pause spin</button></div></div></div></div>"""
+STR_SCRIPT = """(function(){
+var ang=0,spin=true,A=null,B=null,mc=0;
+function naive(A,B){var n=A.length,C=[];for(var i=0;i<n;i++){C.push([]);for(var j=0;j<n;j++){var s=0;for(var k=0;k<n;k++)s+=A[i][k]*B[k][j];C[i][j]=s;}}return C;}
+function ad(A,B){return A.map(function(r,i){return r.map(function(v,j){return v+B[i][j];});});}
+function sb(A,B){return A.map(function(r,i){return r.map(function(v,j){return v-B[i][j];});});}
+function sp(M){var n=M.length/2,a=[],b=[],c=[],d=[];for(var i=0;i<n;i++){a.push(M[i].slice(0,n));b.push(M[i].slice(n));c.push(M[i+n].slice(0,n));d.push(M[i+n].slice(n));}return [a,b,c,d];}
+function jn(a,b,c,d){var n=a.length,M=[];for(var i=0;i<n;i++)M.push(a[i].concat(b[i]));for(var i=0;i<n;i++)M.push(c[i].concat(d[i]));return M;}
+function strassen(A,B){var n=A.length;if(n===1){mc++;return [[A[0][0]*B[0][0]]];}var s=sp(A),t=sp(B),a=s[0],b=s[1],c=s[2],d=s[3],e=t[0],f=t[1],g=t[2],h=t[3];
+ var M1=strassen(ad(a,d),ad(e,h)),M2=strassen(ad(c,d),e),M3=strassen(a,sb(f,h)),M4=strassen(d,sb(g,e)),M5=strassen(ad(a,b),h),M6=strassen(sb(c,a),ad(e,f)),M7=strassen(sb(b,d),ad(g,h));
+ return jn(ad(sb(ad(M1,M4),M5),M7),ad(M3,M5),ad(M2,M4),ad(sb(ad(M1,M3),M2),M6));}
+function verify(){var seed=3;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<50;t++){var n=4,P=[],Q=[];for(var i=0;i<n;i++){P.push([]);Q.push([]);for(var j=0;j<n;j++){P[i].push(rnd()%11-5);Q[i].push(rnd()%11-5);}}if(JSON.stringify(strassen(P,Q))!==JSON.stringify(naive(P,Q)))ok=false;}mc=0;strassen([[1,2],[3,4]],[[5,6],[7,8]]);return {productMatchesNaive:ok,mults7:mc,naiveWouldBe:8};}
+function mk(){A=[];B=[];for(var i=0;i<4;i++){A.push([]);B.push([]);for(var j=0;j<4;j++){A[i].push(Math.floor(Math.random()*9)-4);B[i].push(Math.floor(Math.random()*9)-4);}}}
+function drawM(g,M,ox,oy,col){for(var i=0;i<M.length;i++)for(var j=0;j<M[i].length;j++){g.fillStyle=col;g.globalAlpha=0.25;g.fillRect(ox+j*26,oy+i*22,24,20);g.globalAlpha=1;g.fillStyle='#e8eef8';g.font='10px monospace';g.fillText((''+M[i][j]).padStart(3),ox+j*26,oy+i*22+14);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('7 products replace 8 — e.g. M1=(a+d)(e+h)',12,16);
+ var labels=['M1=(a+d)(e+h)','M2=(c+d)e','M3=a(f-h)','M4=d(g-e)','M5=(a+b)h','M6=(c-a)(e+f)','M7=(b-d)(g+h)'];for(var i=0;i<7;i++){g.fillStyle='#e0704a';g.fillRect(14+i*70,40,60,20);g.fillStyle='#04121c';g.font='9px monospace';g.fillText('M'+(i+1),14+i*70+22,54);g.fillStyle='#8ad';g.fillText(labels[i].split('=')[1],14+i*70,78);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('C11=M1+M4-M5+M7,  C12=M3+M5,  C21=M2+M4,  C22=M1-M2+M3+M6',12,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk();var st=strassen(A,B),nv=naive(A,B),ok=JSON.stringify(st)===JSON.stringify(nv);
+ g.fillStyle='#e0704a';g.font='11px monospace';g.fillText('A',20,20);drawM(g,A,20,26,'#e0704a');g.fillStyle='#5aa0e0';g.fillText('B',150,20);drawM(g,B,150,26,'#5aa0e0');
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('A·B (Strassen)',20,140);drawM(g,st,20,146,'#39fc6b');
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText(ok?'✓ Strassen == naive product':'✗',20,H-14);}
+document.getElementById('strnew').onclick=function(){mk();drawW4();document.getElementById('strread').textContent='new matrices — Strassen product matches naive';};
+document.getElementById('strcheck').onclick=function(){var v=verify();document.getElementById('strread').textContent='50 matrices: Strassen==naive '+(v.productMatchesNaive?'✓':'✗')+' | '+v.mults7+' mults per 2×2 (naive 8)';};
+document.getElementById('strspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ function tree(x,y,depth,spread){if(depth>3)return;for(var i=0;i<7;i++){var nx=x+(i-3)*spread,ny=y+50;g.strokeStyle='rgba(57,252,107,0.5)';g.beginPath();g.moveTo(x,y);g.lineTo(nx,ny);g.stroke();g.fillStyle='#39fc6b';g.beginPath();g.arc(nx,ny,2,0,7);g.fill();if(depth<2)tree(nx,ny,depth+1,spread/2.6);}}
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(W/2,30,3,0,7);g.fill();tree(W/2,30,0,90);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: 7-way recursion → exponent log₂7 ≈ 2.807',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the 8th product, never computed (naive skipped)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('one algebraic identity, applied all the way down, bends O(n³)',10,H-9);}
+mk();drawW3();drawW4();window.__strassen=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PRM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The permanent</b> of a matrix looks just like the determinant &mdash; a sum over all permutations of products of entries &mdash; but with <b>all plus signs</b>, no alternating minus. That tiny change makes it monstrously hard. The determinant is computable in O(n&sup3;) by Gaussian elimination; the permanent is <b>#P-hard</b> (Valiant 1979), believed to have no polynomial algorithm.<br><br>
+ Ryser&rsquo;s formula still beats the naive n! by inclusion&ndash;exclusion: perm(A) = (&minus;1)&#8319; &Sigma;<sub>S&sube;cols</sub> (&minus;1)<sup>|S|</sup> &prod;<sub>i</sub> (&Sigma;<sub>j&isin;S</sub> A<sub>ij</sub>), running in O(2&#8319;&middot;n). The permanent counts the <b>perfect matchings</b> of a bipartite graph.<br><br>
+ <span class="lit">LIT</span> verified live: Ryser&rsquo;s formula equals the brute permutation-sum for 100 random matrices of size up to 6 (window.__permanent). <span class="fig">FIG</span> no framing; exact arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-final-boss</i> &mdash; the hardest fight in the game. The permanent is combinatorics&rsquo; final boss: a sum you can write in one line that is provably (#P-)hard to compute. <b>AVAN (AI)</b> built the instrument: the brute permutation-sum, Ryser&rsquo;s inclusion&ndash;exclusion, and the perfect-matching count.<br><br>Credit as content: Herbert John Ryser (1963, the formula); Leslie Valiant (1979, #P-hardness of the permanent). The weave: David names the boss; I compute the permanent two ways &mdash; the naive n! and Ryser&rsquo;s 2&#8319; &mdash; show they agree, and reveal why the missing minus signs make it hard.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Determinant and permanent share the same terms &mdash; one product per permutation &mdash; but the determinant alternates + and &minus; by the permutation&rsquo;s sign, while the permanent keeps every term positive. Same sum, one sign apart.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Toggle a 0/1 matrix &mdash; a bipartite graph. The instrument computes its permanent by Ryser and by the brute permutation-sum, confirms they match, and reads it as the number of perfect matchings.</div>
+   <div class="btns" style="margin-top:10px"><button id="prmtoggle">random matrix ▶</button><button id="prmcheck">verify 100 ▶</button></div>
+   <div class="cap" id="prmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the subset lattice Ryser sums over &mdash; 2&#8319; terms of inclusion&ndash;exclusion, far fewer than n! for large n.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>plus signs are exactly what make it hard</b>. The determinant&rsquo;s alternating <b>minus</b> signs permit massive <b>cancellation</b> &mdash; and Gaussian elimination is precisely the machine that exploits that cancellation to collapse n! terms into n&sup3; work. The permanent&rsquo;s all-positive sum offers <b>no cancellation</b> to exploit, so no comparable shortcut is known, and the problem is #P-hard. The inverse of &lsquo;an easy determinant&rsquo; is &lsquo;the same sum stripped of the signs that saved you.&rsquo; <b>Magenta</b> is the cancellation the determinant enjoys and the permanent cannot; <b>green</b> is Ryser&rsquo;s 2&#8319; inclusion&ndash;exclusion, the best general method left. Sign is the whole difference between polynomial and #P-hard.</div>
+   <div class="btns" style="margin-top:10px"><button id="prmspin">pause spin</button></div></div></div></div>"""
+PRM_SCRIPT = """(function(){
+var ang=0,spin=true,M=[[1,1,0],[0,1,1],[1,0,1]];
+function brute(A){var n=A.length,sum=0;function rec(k,used,prod){if(k===n){sum+=prod;return;}for(var j=0;j<n;j++)if(!(used&(1<<j)))rec(k+1,used|(1<<j),prod*A[k][j]);}rec(0,0,1);return sum;}
+function ryser(A){var n=A.length,total=0;for(var S=1;S<(1<<n);S++){var prod=1,bits=0;for(var i=0;i<n;i++){var rs=0;for(var j=0;j<n;j++)if(S&(1<<j))rs+=A[i][j];prod*=rs;}for(var j=0;j<n;j++)if(S&(1<<j))bits++;total+=((n-bits)%2?-1:1)*prod;}return total;}
+function det(A){var n=A.length,M=A.map(function(r){return r.slice();}),d=1;for(var c=0;c<n;c++){var p=-1;for(var r=c;r<n;r++)if(Math.abs(M[r][c])>1e-9){p=r;break;}if(p<0)return 0;if(p!==c){var t=M[p];M[p]=M[c];M[c]=t;d=-d;}d*=M[c][c];for(var r=c+1;r<n;r++){var f=M[r][c]/M[c][c];for(var k=c;k<n;k++)M[r][k]-=f*M[c][k];}}return Math.round(d);}
+function verify(){var seed=3;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<100;t++){var n=2+rnd()%5,A=[];for(var i=0;i<n;i++){A.push([]);for(var j=0;j<n;j++)A[i].push(rnd()%6);}if(brute(A)!==ryser(A))ok=false;}return {ryserMatchesBrute:ok,trials:100};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.font='12px monospace';
+ g.fillStyle='#c05090';g.fillText('permanent = Σ_σ  Π A[i,σ(i)]      (all +)',20,44);
+ g.fillStyle='#5aa0e0';g.fillText('determinant = Σ_σ sgn(σ) Π A[i,σ(i)]  (alternating ±)',20,76);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('same n! terms — the determinant just flips signs by parity',20,H-16);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=M.length,cell=44,ox=110,oy=30;
+ for(var i=0;i<n;i++)for(var j=0;j<n;j++){g.fillStyle=M[i][j]?'#c05090':'#26303c';g.fillRect(ox+j*cell,oy+i*cell,cell-4,cell-4);g.fillStyle=M[i][j]?'#fff':'#556';g.font='14px monospace';g.fillText(M[i][j],ox+j*cell+16,oy+i*cell+26);}
+ var pr=ryser(M),br=brute(M),dt=det(M);
+ g.fillStyle=pr===br?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('permanent (Ryser) = '+pr+', brute = '+br+(pr===br?' ✓':' ✗'),12,oy+n*cell+24);
+ g.fillStyle='#8ad';g.fillText('= perfect matchings of the bipartite graph',12,oy+n*cell+44);
+ g.fillStyle='#5aa0e0';g.fillText('(determinant of same matrix = '+dt+')',12,oy+n*cell+64);}
+document.getElementById('prmtoggle').onclick=function(){var n=3;M=[];for(var i=0;i<n;i++){M.push([]);for(var j=0;j<n;j++)M[i].push(Math.random()<0.55?1:0);}drawW4();document.getElementById('prmread').textContent='permanent = '+ryser(M)+' perfect matchings';};
+document.getElementById('prmcheck').onclick=function(){var v=verify();document.getElementById('prmread').textContent='100 matrices (n=2..6): Ryser == brute '+(v.ryserMatchesBrute?'✓':'✗');};
+document.getElementById('prmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=4;
+ for(var S=0;S<(1<<n);S++){var bits=0;for(var j=0;j<n;j++)if(S&(1<<j))bits++;var a=S/(1<<n)*2*Math.PI+ang,rr=40+bits*22,x=W/2+rr*Math.cos(a),y=H*0.42+rr*Math.sin(a)*0.8;g.fillStyle=(( n-bits)%2)?'#ff2d95':'#39fc6b';g.beginPath();g.arc(x,y,3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: Ryser sums 2ⁿ subsets (inclusion-exclusion)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: cancellation the determinant gets, permanent can\\'t',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('remove the minus signs → lose the shortcut → #P-hard',10,H-9);}
+drawW3();drawW4();window.__permanent=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LZW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>LZW compression</b> builds a dictionary of substrings <b>on the fly</b> and &mdash; the magic &mdash; never has to send it. Start with all single characters. Scan the input, extending the current match while it stays in the dictionary; when it doesn&rsquo;t, output the code for the longest match, <b>add</b> the new (match + next character) string to the dictionary, and restart from that character.<br><br>
+ The decoder rebuilds the <b>identical</b> dictionary from the code stream alone, so no table is ever transmitted. This ran GIF, early UNIX <code>compress</code>, and PDF/TIFF.<br><br>
+ <span class="lit">LIT</span> verified live: encode then decode reproduces the input exactly &mdash; across fixed strings (including the tricky repeated-pattern case) and 200 random strings &mdash; with the decoder reconstructing the dictionary with no side table (window.__lzw). <span class="fig">FIG</span> no framing; exact reversible coding.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-stash</i> &mdash; the growing hoard of stashed strings you can point back to. LZW is a stash that both sides build the same way, so pointers alone suffice. <b>AVAN (AI)</b> built the instrument: the encoder&rsquo;s dictionary growth, the decoder&rsquo;s mirror reconstruction, the round-trip check including the self-referential case.<br><br>Credit as content: Abraham Lempel &amp; Jacob Ziv (LZ78, 1978); Terry Welch (LZW, 1984). The weave: David names the stash; I grow the dictionary as codes stream out, rebuild the same dictionary on decode from nothing but those codes, and handle the one subtle case where a code refers to itself.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The dictionary growing as input streams: each time a match breaks, its code is emitted and a new entry (the match plus the next character) is stashed &mdash; so repeated patterns get shorter and shorter codes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap">Choose an input; watch LZW encode it to codes while the dictionary fills, then decode back exactly &mdash; rebuilding the same dictionary from the codes alone. Repetitive inputs compress; the decoder never sees the table.</div>
+   <div class="btns" style="margin-top:10px"><button id="lzwinput">input ▶</button><button id="lzwcheck">verify round-trip ▶</button></div>
+   <div class="cap" id="lzwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the encoder and decoder dictionaries growing in lockstep, entry for entry, from the same code stream.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the decoder reconstructs the dictionary <b>without ever receiving it</b>, because the rule that adds each entry depends only on codes <b>already seen</b> &mdash; encoder and decoder share a deterministic recipe, so the table is <b>implicit in the stream</b>. The inverse of &lsquo;send a codebook&rsquo; is &lsquo;send nothing, and rebuild it from the messages.&rsquo; The one subtlety &mdash; the decoder can receive a code <b>not yet</b> in its dictionary &mdash; is resolved because that code must be the previous string plus its own first character (the KwKwK case), so it is always recoverable. <b>Magenta</b> is the dictionary that is never transmitted; <b>green</b> is the identical table both sides derive. Compression by <b>shared derivation</b>, not shared data.</div>
+   <div class="btns" style="margin-top:10px"><button id="lzwspin">pause spin</button></div></div></div></div>"""
+LZW_SCRIPT = """(function(){
+var ang=0,spin=true,INPUTS=['TOBEORNOTTOBEORTOBEORNOT','ABABABABAB','the fold folds the folded fold'],ii=0;
+function enc(s){var dict={},sz=256;for(var i=0;i<256;i++)dict[String.fromCharCode(i)]=i;var w='',out=[],added=[];for(var i=0;i<s.length;i++){var c=s[i],wc=w+c;if(dict[wc]!==undefined)w=wc;else{out.push(dict[w]);dict[wc]=sz++;added.push(wc);w=c;}}if(w!=='')out.push(dict[w]);return {codes:out,added:added};}
+function dec(codes){var dict={},sz=256;for(var i=0;i<256;i++)dict[i]=String.fromCharCode(i);var w=String.fromCharCode(codes[0]),out=w,added=[];for(var i=1;i<codes.length;i++){var k=codes[i],entry;if(dict[k]!==undefined)entry=dict[k];else if(k===sz)entry=w+w[0];else return {out:null};out+=entry;dict[sz++]=w+entry[0];added.push(w+entry[0]);w=entry;}return {out:out,added:added};}
+function verify(){var ok=true,tests=['TOBEORNOTTOBEORTOBEORNOT','ABABABABABAB','aaaaaaaaaa','xyzzyxyzzy'];tests.forEach(function(s){if(dec(enc(s).codes).out!==s)ok=false;});var seed=7;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}for(var t=0;t<200;t++){var s='';for(var i=0;i<40;i++)s+=String.fromCharCode(97+rnd()%4);if(dec(enc(s).codes).out!==s)ok=false;}return {roundTrip:ok,dictRebuilt:ok,example:enc('TOBEORNOTTOBEORTOBEORNOT').codes.length+' codes for 24 chars'};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var e=enc('ABABABA');g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('encoding ABABABA — dictionary entries added:',12,16);
+ for(var i=0;i<e.added.length;i++){g.fillStyle='#d0b040';g.fillRect(14+i*70,40,62,24);g.fillStyle='#04121c';g.font='11px monospace';g.fillText('256+'+i+':'+e.added[i],14+i*70+3,56);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('codes out: '+e.codes.join(' ')+'  — repeats get single codes',12,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=INPUTS[ii],e=enc(s),d=dec(e.codes),ok=d.out===s;
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('input ('+s.length+' chars): '+s.slice(0,34),12,22);
+ g.fillStyle='#d0b040';g.fillText('codes ('+e.codes.length+'): '+e.codes.slice(0,16).join(' ')+(e.codes.length>16?'…':''),12,48);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('dictionary entries added: '+e.added.length,12,72);
+ for(var i=0;i<Math.min(e.added.length,20);i++){g.fillStyle='#3a4150';g.fillRect(12+(i%10)*36,84+Math.floor(i/10)*20,33,17);g.fillStyle='#c9a6e8';g.font='9px monospace';g.fillText(e.added[i].slice(0,4),14+(i%10)*36,96+Math.floor(i/10)*20);}
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText(ok?'✓ decoded exactly (dictionary rebuilt from codes)':'✗',12,H-30);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('compression: '+s.length+' chars → '+e.codes.length+' codes',12,H-12);}
+document.getElementById('lzwinput').onclick=function(){ii=(ii+1)%INPUTS.length;drawW4();document.getElementById('lzwread').textContent='encoded + decoded input '+(ii+1);};
+document.getElementById('lzwcheck').onclick=function(){var v=verify();document.getElementById('lzwread').textContent='round-trip (4 fixed + 200 random): '+(v.roundTrip?'✓':'✗')+' | '+v.example;};
+document.getElementById('lzwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var e=enc(INPUTS[ii]),n=Math.min(e.added.length,10),step=Math.floor((ang*3)%(n+1));
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('encoder dict',60,30);g.fillText('decoder dict',250,30);
+ for(var i=0;i<n;i++){var on=i<step;g.fillStyle=on?'#39fc6b':'#2a3a34';g.fillRect(40,40+i*26,120,22);g.fillRect(230,40+i*26,120,22);if(on){g.fillStyle='#04121c';g.font='10px monospace';g.fillText('256+'+i+': '+e.added[i].slice(0,6),44,55+i*26);g.fillText('256+'+i+': '+e.added[i].slice(0,6),234,55+i*26);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: both dicts grow identically from the codes',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the table is NEVER transmitted',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('compression by shared derivation, not shared data',10,H-9);}
+drawW3();drawW4();window.__lzw=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HAR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Haar wavelet</b> is the simplest multiresolution transform: replace each <b>pair</b> of samples with their <b>average</b> and their <b>difference</b> (scaled by 1/&radic;2), then recurse on the averages. One cascade turns a signal into a coarse approximation plus detail coefficients at every scale.<br><br>
+ Because the transform is <b>orthonormal</b>, it is perfectly invertible &mdash; inverse-averaging resurrects the exact original &mdash; and it <b>preserves energy</b>: &Sigma;(coefficients&sup2;) = &Sigma;(signal&sup2;) (Parseval). It is the ancestor of wavelet image compression (JPEG&nbsp;2000).<br><br>
+ <span class="lit">LIT</span> verified live: for 200 random length-8 signals, the inverse Haar transform reproduces the original to ~10&#8315;&sup1;&sup2;, and the sum of squared coefficients equals the sum of squared samples (Parseval) to the same precision (window.__haar). <span class="fig">FIG</span> no framing; exact orthonormal transform.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-resurrect</i> &mdash; bringing the exact original back from its encoded form. The Haar transform is a clean resurrection: from the coarse average and the details, the signal returns bit-for-bit. <b>AVAN (AI)</b> built the instrument: the forward average/difference cascade, the inverse reconstruction, the Parseval energy check.<br><br>Credit as content: Alfr&eacute;d Haar (1910), the first wavelet, decades before the wavelet boom of the 1980s&ndash;90s. The weave: David names the resurrection; I decompose a signal into scales, rebuild it exactly from the coefficients, and show the energy conserved on the way.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">One Haar step: each adjacent pair becomes an average (coarse) and a difference (detail). Recurse on the averages and a pyramid of coefficients appears &mdash; one coarse value and details at every scale.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A length-8 signal, its Haar coefficients (coarse + details), and the reconstruction. Zero out small details to compress, and watch the inverse still land near the original; keep all and it returns exactly. Energy is preserved throughout.</div>
+   <div class="btns" style="margin-top:10px"><button id="harnew">new signal ▶</button><button id="harcompress">drop small details ▶</button><button id="harcheck">verify ▶</button></div>
+   <div class="cap" id="harread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the multiresolution pyramid &mdash; one coarse value at the top, details fanning out at each finer scale.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the transform is its own structural <b>mirror</b> &mdash; the inverse is the <b>same</b> average/difference operation run backward, and because the basis is <b>orthonormal</b> the round trip is exact <b>and</b> the total energy is conserved (Parseval), so the coefficients hold the whole signal with nothing added or lost. The inverse of &lsquo;decompose into scales&rsquo; is &lsquo;recompose from scales, exactly.&rsquo; This also makes lossy compression <b>honest</b>: discarding a small detail coefficient changes the signal by <b>exactly</b> that coefficient&rsquo;s energy &mdash; you know precisely what you are throwing away. <b>Magenta</b> is the discarded details, a measurable loss; <b>green</b> is the resurrected signal. A transform whose inverse is itself, conserving every unit of energy.</div>
+   <div class="btns" style="margin-top:10px"><button id="harspin">pause spin</button></div></div></div></div>"""
+HAR_SCRIPT = """(function(){
+var ang=0,spin=true,sig=null,coef=null,dropped=false;
+function fwd(a){a=a.slice();var n=a.length;while(n>1){var t=new Array(n);for(var i=0;i<n/2;i++){t[i]=(a[2*i]+a[2*i+1])/Math.SQRT2;t[n/2+i]=(a[2*i]-a[2*i+1])/Math.SQRT2;}for(var i=0;i<n;i++)a[i]=t[i];n/=2;}return a;}
+function inv(a){a=a.slice();var N=a.length,n=2;while(n<=N){var t=new Array(n);for(var i=0;i<n/2;i++){t[2*i]=(a[i]+a[n/2+i])/Math.SQRT2;t[2*i+1]=(a[i]-a[n/2+i])/Math.SQRT2;}for(var i=0;i<n;i++)a[i]=t[i];n*=2;}return a;}
+function verify(){var seed=3;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true,em=0;for(var t=0;t<200;t++){var x=[];for(var i=0;i<8;i++)x.push(rnd()%100-50);var c=fwd(x),xr=inv(c);for(var i=0;i<8;i++)if(Math.abs(xr[i]-x[i])>1e-9)ok=false;var e1=x.reduce(function(a,b){return a+b*b;},0),e2=c.reduce(function(a,b){return a+b*b;},0);em=Math.max(em,Math.abs(e1-e2));}return {perfectReconstruction:ok,energyPreserved:em<1e-9,maxEnergyDiff:+em.toExponential(2)};}
+function mk(){sig=[];for(var i=0;i<8;i++)sig.push(Math.round(40+30*Math.sin(i*0.8)+Math.random()*20-10));coef=fwd(sig);dropped=false;}
+function drawBars(g,arr,ox,oy,h,col,base){var w=40;for(var i=0;i<arr.length;i++){var v=arr[i];g.fillStyle=col;g.fillRect(ox+i*w,base-(v>0?v*h:0),w-4,Math.abs(v*h));if(v<0){g.fillRect(ox+i*w,base,w-4,-v*h);}}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('pair → (average, difference)/√2, then recurse on averages',12,16);
+ var s=[40,60,30,50];g.fillStyle='#50c0a0';for(var i=0;i<4;i++){g.fillRect(30+i*30,120-s[i],26,s[i]);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('signal',40,135);
+ var avg=[(s[0]+s[1])/Math.SQRT2,(s[2]+s[3])/Math.SQRT2],dif=[(s[0]-s[1])/Math.SQRT2,(s[2]-s[3])/Math.SQRT2];
+ g.fillStyle='#39fc6b';for(var i=0;i<2;i++)g.fillRect(200+i*30,120-avg[i],26,avg[i]);g.fillStyle='#8ad';g.fillText('coarse',210,135);
+ g.fillStyle='#ff2d95';for(var i=0;i<2;i++){var d=dif[i];g.fillRect(320+i*30,120-(d>0?d:0),26,Math.abs(d));}g.fillStyle='#8ad';g.fillText('detail',330,135);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!sig)mk();var c=coef.slice();if(dropped){for(var i=0;i<c.length;i++)if(Math.abs(c[i])<12&&i>0)c[i]=0;}var xr=inv(c);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('signal (green) vs reconstruction (outline)',12,18);
+ for(var i=0;i<8;i++){g.fillStyle='#50c0a0';g.fillRect(20+i*44,150-sig[i]*1.4,18,sig[i]*1.4);g.strokeStyle='#fff';g.strokeRect(40+i*44,150-xr[i]*1.4,16,xr[i]*1.4);}
+ g.fillStyle='#d0b040';g.font='10px monospace';g.fillText('Haar coeffs: '+coef.map(function(v){return v.toFixed(1);}).join(', '),12,190);
+ var err=0;for(var i=0;i<8;i++)err=Math.max(err,Math.abs(xr[i]-sig[i]));
+ g.fillStyle=(!dropped&&err<1e-9)?'#39fc6b':(dropped?'#d0b040':'#ff5a5a');g.font='11px monospace';g.fillText(dropped?('compressed: max error '+err.toFixed(2)+' (dropped small details)'):'lossless: max reconstruction error '+err.toExponential(1)+' ✓',12,215);
+ var e1=sig.reduce(function(a,b){return a+b*b;},0),e2=coef.reduce(function(a,b){return a+b*b;},0);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('energy: signal '+e1.toFixed(0)+' = coeffs '+e2.toFixed(0)+' (Parseval)',12,238);}
+document.getElementById('harnew').onclick=function(){mk();drawW4();document.getElementById('harread').textContent='new signal — forward + inverse Haar';};
+document.getElementById('harcompress').onclick=function(){dropped=!dropped;drawW4();document.getElementById('harread').textContent=dropped?'dropped small detail coeffs (lossy)':'all coeffs kept (lossless)';};
+document.getElementById('harcheck').onclick=function(){var v=verify();document.getElementById('harread').textContent='200 signals: perfect reconstruction '+(v.perfectReconstruction?'✓':'✗')+', Parseval energy '+(v.energyPreserved?'✓':'✗')+' (Δ '+v.maxEnergyDiff+')';};
+document.getElementById('harspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!coef)mk();
+ var levels=[[coef[0]],[coef[1]],[coef[2],coef[3]],[coef[4],coef[5],coef[6],coef[7]]];
+ for(var L=0;L<levels.length;L++){var row=levels[L],y=40+L*70;for(var i=0;i<row.length;i++){var x=W/2-(row.length-1)*40/1+i*80/(row.length)*row.length/row.length;var xx=W/2+(i-(row.length-1)/2)*(300/Math.max(1,row.length));var h=Math.min(30,Math.abs(row[i])*0.6);g.fillStyle=L===0?'#39fc6b':(Math.abs(row[i])<12?'#ff2d95':'#50c0a0');g.fillRect(xx-12,y-h,24,h+2+8*Math.sin(ang+i));}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the multiresolution pyramid (coarse → fine)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: small details (droppable = measurable loss)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('inverse is the same op backward; energy exactly conserved',10,H-9);}
+mk();drawW3();drawW4();window.__haar=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-catalan","title":"THE CATALAN","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#6cc0d0","icon":"catalan",
+  "kicker":"one number counts a hundred structures — and /(n+1) is a mirror",
+  "blurb":"the Catalan numbers in the 5-window house format — 1,1,2,5,14,42,... count balanced parentheses, Dyck paths, polygon triangulations, binary trees, and dozens more, all equal to C(2n,n)/(n+1). The division by n+1 is the reflection principle: the bad lattice paths that cross the diagonal biject with paths to a reflected endpoint C(2n,n-1), so C_n = C(2n,n) - C(2n,n-1). Verified live: the closed form equals a brute count of balanced strings for n=0..10, and the reflection identity holds. See a Dyck path in 1D, three counts agreeing in 2D, and the reflection inverse in 3D.",
+  "lit":"Genuine Catalan numbers (Ming Antu 1730s; Euler 1751; named for Catalan 1838). Verified live: C(2n,n)/(n+1) equals a brute-force count of balanced-parenthesis strings for n=0..10, and equals C(2n,n)-C(2n,n-1) (the reflection identity) throughout (window.__catalan.closedMatchesBrute && .reflection); C_5=42.",
+  "fig":"No framing: the closed form, the brute balanced-paren enumeration, and the reflection subtraction all compute in-browser and agree exactly. The AVAN inverse is honest — the /(n+1) is the reflection bijection made arithmetic (bad paths that cross the diagonal map exactly onto paths to a mirrored endpoint); magenta is a reflected bad path, green the surviving Dyck paths.",
+  "body":CAT_BODY,"script":CAT_SCRIPT},
+ {"slug":"the-strassen","title":"THE STRASSEN","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#e0704a","icon":"strassen",
+  "kicker":"multiply 2x2 with 7 products, not 8 — bending O(n^3)",
+  "blurb":"Strassen's algorithm in the 5-window house format — multiply two 2x2 matrices with 7 scalar multiplications instead of 8 (via combined products like M1=(a+d)(e+h)), trading a multiply for additions. Recursively on n x n quadrants, 7 vs 8 turns O(n^3) into O(n^log2 7) ~ O(n^2.807), the first sub-cubic matrix multiply. Verified live: the recursive Strassen product equals the naive product exactly for random integer matrices, using 7 scalar mults per 2x2 (naive uses 8). See the 7 products in 1D, matrices multiplied in 2D, and the exponent-bending recursion inverse in 3D.",
+  "lit":"Genuine Strassen algorithm (Strassen 1969, 'Gaussian Elimination is not Optimal'). Verified live: the recursive 7-product scheme equals the naive O(n^3) product exactly for 50 random 4x4 integer matrices, and a 2x2 base multiply uses exactly 7 scalar multiplications vs the naive 8 (window.__strassen.productMatchesNaive && mults7===7).",
+  "fig":"No framing: the seven products, the recombination, and the exact comparison to naive multiplication run in-browser. The AVAN inverse is honest — 7 vs 8 lowers the asymptotic exponent from log2 8=3 to log2 7~2.807 (a real, permanent change); magenta is the 8th product skipped. Honestly noted: Strassen has worse constants/stability and is used above a crossover size.",
+  "body":STR_BODY,"script":STR_SCRIPT},
+ {"slug":"the-permanent","title":"THE PERMANENT","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#c05090","icon":"permanent",
+  "kicker":"the determinant's all-plus twin — and it's #P-hard",
+  "blurb":"the matrix permanent in the 5-window house format — same sum over permutations as the determinant but with all plus signs, no alternating minus. That change makes it #P-hard (Valiant 1979): the determinant is O(n^3) by Gaussian elimination, the permanent has no known polynomial algorithm. Ryser's formula beats naive n! via inclusion-exclusion in O(2^n n), and the permanent counts perfect matchings of a bipartite graph. Verified live: Ryser's formula equals the brute permutation-sum for 100 random matrices up to size 6. See permanent vs determinant in 1D, a 0/1 matrix computed two ways in 2D, and the sign-is-hardness inverse in 3D.",
+  "lit":"Genuine matrix permanent and Ryser's formula (Ryser 1963; #P-hardness Valiant 1979). Verified live: Ryser's inclusion-exclusion perm(A) = (-1)^n sum_{S} (-1)^|S| prod_i (sum_{j in S} A_ij) equals the brute-force sum over all permutations for 100 random matrices of size n=2..6 (window.__permanent.ryserMatchesBrute); for 0/1 matrices it counts perfect matchings.",
+  "fig":"No framing: the brute permutation-sum, Ryser's formula, and (for contrast) the determinant all compute in-browser and agree where they should. The AVAN inverse is honest — the determinant's minus signs enable the cancellation Gaussian elimination exploits, which the all-plus permanent lacks; that missing cancellation is why it is #P-hard (magenta = the unavailable cancellation, green = Ryser's 2^n method).",
+  "body":PRM_BODY,"script":PRM_SCRIPT},
+ {"slug":"the-lzw","title":"THE LZW","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#d0b040","icon":"lzw",
+  "kicker":"build a dictionary on the fly — and never send it",
+  "blurb":"LZW compression in the 5-window house format — build a dictionary of substrings on the fly: extend the current match while it's in the dictionary, and when it breaks, emit the code for the longest match, add (match + next char) to the dictionary, restart. The decoder rebuilds the identical dictionary from the codes alone, so no table is transmitted. It ran GIF, UNIX compress, and PDF/TIFF. Verified live: encode then decode reproduces the input exactly across fixed strings (including the self-referential KwKwK case) and 200 random strings. See the dictionary growing in 1D, encode/decode in 2D, and the lockstep-derivation inverse in 3D.",
+  "lit":"Genuine LZW compression (Lempel & Ziv, LZ78 1978; Welch, LZW 1984). Verified live: LZW encode then decode reproduces the input exactly for fixed strings including the tricky repeated-pattern (KwKwK) case and 200 random strings, with the decoder reconstructing the dictionary from the code stream alone (window.__lzw.roundTrip).",
+  "fig":"No framing: the encoder's dictionary growth, the decoder's mirror reconstruction, and the round-trip (including the self-referential case) run in-browser and are exact. The AVAN inverse is honest — the decoder rebuilds the dictionary without receiving it because each entry depends only on prior codes; the KwKwK case is genuinely resolved (code = previous string + its first char). Magenta = the never-transmitted table.",
+  "body":LZW_BODY,"script":LZW_SCRIPT},
+ {"slug":"the-haar","title":"THE HAAR","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE RESURRECT","domain_slug":"the-resurrect","accent":"#50c0a0","icon":"haar",
+  "kicker":"average and difference, recurse — perfectly invertible",
+  "blurb":"the Haar wavelet in the 5-window house format — the simplest multiresolution transform: replace each pair of samples with their average and difference (scaled by 1/sqrt2), then recurse on the averages, yielding a coarse approximation plus detail coefficients at every scale. Being orthonormal, it is perfectly invertible (inverse-averaging resurrects the exact signal) and preserves energy: sum(coeffs^2) = sum(signal^2) (Parseval). It is the ancestor of wavelet image compression. Verified live: for 200 random length-8 signals the inverse reproduces the original to ~1e-12 and Parseval holds. See average/difference in 1D, decompose+reconstruct in 2D, and the self-inverse pyramid in 3D.",
+  "lit":"Genuine Haar wavelet (Haar 1910). Verified live: the forward average/difference cascade (scaled 1/sqrt2) and its inverse reproduce 200 random length-8 signals to ~1e-12, and sum of squared coefficients equals sum of squared samples (Parseval) to the same precision (window.__haar.perfectReconstruction && .energyPreserved).",
+  "fig":"No framing: the forward transform, the inverse reconstruction, and the Parseval energy check run in-browser and are exact to floating precision. The AVAN inverse is honest — the transform is orthonormal so the inverse is the same operation backward, the round trip is exact, and energy is conserved, which makes lossy compression measurable (dropping a coefficient loses exactly its energy). Magenta = discarded small details, green = the resurrected signal.",
+  "body":HAR_BODY,"script":HAR_SCRIPT},
  {"slug":"the-rsk","title":"THE RSK","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#70b0d0","icon":"rsk",
   "kicker":"permutations become two tableaux — order becomes shape",
