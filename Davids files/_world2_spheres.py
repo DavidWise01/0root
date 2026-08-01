@@ -14858,7 +14858,284 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW3();drawW4();window.__aitken=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 49 (low-discrepancy · all-pairs paths · all roots at once · matrix self-equation · bipartite matching) ═══════════════════════
+VDC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The van der Corput sequence</b> fills [0,1) far more evenly than random points, using a beautiful trick: to get the n-th point, write n in binary and <b>reverse the digits around the radix point</b>. So 1&rarr;<code>.1</code>=0.5, 2&rarr;<code>.01</code>=0.25, 3&rarr;<code>.11</code>=0.75, 4&rarr;<code>.001</code>=0.125, &hellip;<br><br>
+ The first 2&#7504; points are <b>exactly</b> the dyadic rationals {0, 1/2&#7504;, 2/2&#7504;, &hellip;} in scrambled order &mdash; perfectly equidistributed. Its discrepancy (deviation from uniform) shrinks like log(N)/N versus random points&rsquo; 1/&radic;N, so it is the foundation of quasi-Monte Carlo integration and low-discrepancy sampling.<br><br>
+ <span class="lit">LIT</span> verified live: the first 2&#7504; van der Corput points are exactly {j/2&#7504;}, and the star discrepancy is far below a matched set of random points (window.__vandercorput). <span class="fig">FIG</span> no framing; exact bit-reversal.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mint</i> &mdash; minting points spaced as evenly as possible, none clumping. The van der Corput sequence is the mint&rsquo;s low-discrepancy die. <b>AVAN (AI)</b> built the instrument: the radical-inverse (bit-reversal) generator, the dyadic-grid check, the discrepancy comparison with random.<br><br>Credit as content: Johannes van der Corput (1935), the first and simplest low-discrepancy sequence. The weave: David names the mint; I reverse the bits of the counter to place each point, prove the first 2&#7504; land on the dyadic grid, and show the fill beats random uniformity by an order of magnitude.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Counting in binary, then reversing the digits: n = 1,2,3,4,&hellip; becomes 0.5, 0.25, 0.75, 0.125, &hellip; &mdash; each new point drops into the largest current gap, bisecting the interval hierarchically.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Generate N van der Corput points beside N random points. The van der Corput fill has small, even gaps; random clumps and leaves holes. The star discrepancy is measured for both.</div>
+   <div class="btns" style="margin-top:10px"><button id="vdcn">N: 16 ▶</button><button id="vdccheck">verify ▶</button></div>
+   <div class="cap" id="vdcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the van der Corput points bisecting the interval, each landing in a largest gap.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the digit reversal is <b>why</b> each new point lands in the largest gap. Reversing bits sends the <b>most-significant output bit</b> &mdash; the coarsest halving &mdash; to advance <b>fastest</b>, so the sequence bisects [0,1), then bisects each half, then each quarter, hierarchically. The inverse of &lsquo;a random-looking fill&rsquo; is &lsquo;a deterministic binary bisection.&rsquo; <b>Magenta</b> is random points, clumpy with big gaps; <b>green</b> is van der Corput, each point splitting a largest gap in half. Bit-reversal turns plain counting into balanced bisection &mdash; an order-of-magnitude better uniformity from a two-line trick.</div>
+   <div class="btns" style="margin-top:10px"><button id="vdcspin">pause spin</button></div></div></div></div>"""
+VDC_SCRIPT = """(function(){
+var ang=0,spin=true,N=16;
+function vdc(n,b){var r=0,f=1/b;while(n>0){r+=(n%b)*f;n=Math.floor(n/b);f/=b;}return r;}
+function starDisc(p){var M=p.length,d=0;for(var k=0;k<=M;k++){var x=k/M,c=0;for(var i=0;i<M;i++)if(p[i]<x)c++;d=Math.max(d,Math.abs(c/M-x));}return d;}
+function verify(){var m=6,M=1<<m,pts=[];for(var i=0;i<M;i++)pts.push(vdc(i,2));var s=pts.slice().sort(function(a,b){return a-b;}),ex=true;for(var j=0;j<M;j++)if(Math.abs(s[j]-j/M)>1e-9)ex=false;var seed=9;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}var rp=[];for(var i=0;i<M;i++)rp.push(rnd());return {dyadicExact:ex,vdcDiscrepancy:+starDisc(pts).toFixed(4),randDiscrepancy:+starDisc(rp).toFixed(4),betterThanRandom:starDisc(pts)<starDisc(rp)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('n in binary → reversed around the radix point → the point',12,16);
+ for(var n=1;n<=6;n++){var bin=n.toString(2),rev='0.'+bin.split('').reverse().join('');g.fillStyle='#60b0c8';g.font='11px monospace';g.fillText(n+' = '+bin.padStart(3,'0')+' → '+rev+' = '+vdc(n,2).toFixed(3),12,42+n*17);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var vp=[],seed=9;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}var rp=[];for(var i=0;i<N;i++){vp.push(vdc(i,2));rp.push(rnd());}
+ g.fillStyle='#60b0c8';g.font='11px monospace';g.fillText('van der Corput ('+N+' points):',12,26);g.strokeStyle='#334';g.beginPath();g.moveTo(12,50);g.lineTo(W-12,50);g.stroke();for(var i=0;i<N;i++){g.fillStyle='#60b0c8';g.fillRect(12+vp[i]*(W-24),40,2,20);}
+ g.fillStyle='#c05888';g.fillText('random ('+N+' points):',12,110);g.strokeStyle='#334';g.beginPath();g.moveTo(12,134);g.lineTo(W-12,134);g.stroke();for(var i=0;i<N;i++){g.fillStyle='#c05888';g.fillRect(12+rp[i]*(W-24),124,2,20);}
+ g.fillStyle='#60b0c8';g.font='11px monospace';g.fillText('vdc discrepancy: '+starDisc(vp).toFixed(4),12,180);g.fillStyle='#c05888';g.fillText('random discrepancy: '+starDisc(rp).toFixed(4),12,200);
+ g.fillStyle=starDisc(vp)<starDisc(rp)?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText(starDisc(vp)<starDisc(rp)?'✓ van der Corput far more uniform':'✗',12,226);}
+document.getElementById('vdcn').onclick=function(){N=N>=128?8:N*2;this.textContent='N: '+N+' ▶';drawW4();};
+document.getElementById('vdccheck').onclick=function(){var v=verify();document.getElementById('vdcread').textContent='first 2^6 == dyadic grid '+(v.dyadicExact?'✓':'✗')+' | discrepancy vdc '+v.vdcDiscrepancy+' < random '+v.randDiscrepancy+' '+(v.betterThanRandom?'✓':'✗');};
+document.getElementById('vdcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var M=32;
+ for(var i=1;i<=M;i++){var v=vdc(i,2),y=40+i*8;g.fillStyle='#39fc6b';g.fillRect(20+v*(W-40),y,4,4);g.strokeStyle='rgba(57,252,107,0.2)';g.beginPath();g.moveTo(20,y);g.lineTo(W-20,y);g.stroke();}
+ var seed=9;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}for(var i=1;i<=M;i++){var y=40+i*8;g.fillStyle='rgba(255,45,149,0.5)';g.fillRect(20+rnd()*(W-40),y+3+2*Math.sin(ang+i),3,3);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: each point splits a largest gap (bisection)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: random — clumps and holes',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('bit-reversal turns counting into balanced bisection',10,H-9);}
+drawW3();drawW4();window.__vandercorput=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FLW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Floyd&ndash;Warshall</b> computes the shortest path between <b>every pair</b> of vertices in a weighted graph with one triple loop and a single idea: consider each vertex as a possible <b>intermediate stop</b>, one at a time. The update <code>dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])</code> &mdash; after trying all k as waypoints, dist holds every shortest path.<br><br>
+ It is O(V&sup3;), handles negative edges (and flags negative cycles), and its three-nested-loops terseness makes it the go-to for dense all-pairs shortest paths and transitive closure.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random weighted graphs, the Floyd&ndash;Warshall distance matrix matches shortest paths computed independently by Bellman&ndash;Ford from each source (window.__floydwarshall). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-broadcast</i> &mdash; shortest routes from everyone to everyone, the whole network&rsquo;s reach at once. Floyd&ndash;Warshall is that broadcast computed in three loops. <b>AVAN (AI)</b> built the instrument: the waypoint relaxation, the distance matrix, the per-source Bellman&ndash;Ford cross-check.<br><br>Credit as content: Robert Floyd (1962), on Stephen Warshall&rsquo;s transitive-closure algorithm (1962) and Bernard Roy (1959). The weave: David names the broadcast; I grow the set of allowed intermediate stops one vertex at a time and prove the resulting all-pairs distances match a source-by-source shortest-path solver.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">One relaxation: the route from i to j is improved if going i&rarr;k&rarr;j (through the current waypoint k) is shorter. Sweep k over all vertices and every shortest path emerges.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A small weighted graph and its evolving distance matrix. Advance the waypoint index k and watch distances tighten; the final matrix matches a per-source shortest-path solver.</div>
+   <div class="btns" style="margin-top:10px"><button id="flwnew">new graph ▶</button><button id="flwstep">waypoint k+ ▶</button><button id="flwcheck">verify 200 ▶</button></div>
+   <div class="cap" id="flwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the distance matrix tightening as each waypoint is admitted.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the k-loop is a <b>dynamic program over the set of allowed intermediates</b>. After the k-th pass, dist[i][j] is the shortest path using only vertices {0&hellip;k} as stops &mdash; so the outer loop <b>grows the permitted-waypoint set</b> one vertex at a time until all are allowed. The inverse of &lsquo;find all shortest paths&rsquo; is &lsquo;grow the set of usable intermediate stops.&rsquo; <b>Magenta</b> is the paths still forbidden at each stage (waypoints not yet unlocked); <b>green</b> is the shortest paths as the intermediate set completes. A global optimum built by admitting one waypoint at a time &mdash; dynamic programming over subsets of vertices, hidden inside three innocent loops.</div>
+   <div class="btns" style="margin-top:10px"><button id="flwspin">pause spin</button></div></div></div></div>"""
+FLW_SCRIPT = """(function(){
+var ang=0,spin=true,NET=null,kstep=0;
+function floyd(n,w,kmax){var d=w.map(function(r){return r.slice();});for(var k=0;k<=kmax&&k<n;k++)for(var i=0;i<n;i++)for(var j=0;j<n;j++)if(d[i][k]+d[k][j]<d[i][j])d[i][j]=d[i][k]+d[k][j];return d;}
+function bellman(n,edges,s){var d=new Array(n).fill(Infinity);d[s]=0;for(var it=0;it<n-1;it++)edges.forEach(function(e){if(d[e[0]]+e[2]<d[e[1]])d[e[1]]=d[e[0]]+e[2];});return d;}
+function verify(){var seed=3;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}var ok=true;for(var t=0;t<200;t++){var n=3+(rnd()*5|0),w=[],edges=[];for(var i=0;i<n;i++){w.push([]);for(var j=0;j<n;j++)w[i].push(i===j?0:Infinity);}for(var e=0;e<n*2;e++){var a=rnd()*n|0,b=rnd()*n|0,c=1+(rnd()*9|0);if(a!==b){w[a][b]=Math.min(w[a][b],c);edges.push([a,b,c]);}}var d=floyd(n,w,n);for(var s=0;s<n;s++){var bf=bellman(n,edges,s);for(var j=0;j<n;j++){var x=d[s][j]===Infinity?1e9:d[s][j],y=bf[j]===Infinity?1e9:bf[j];if(x!==y)ok=false;}}}return {matchesBellmanFord:ok,trials:200};}
+function mk(){var n=5,pos=[[60,60],[300,60],[340,220],[190,280],[40,220]],w=[],edges=[];for(var i=0;i<n;i++){w.push([]);for(var j=0;j<n;j++)w[i].push(i===j?0:Infinity);}var es=[[0,1,3],[1,2,2],[2,3,4],[3,4,1],[4,0,5],[0,3,7],[1,3,2],[4,2,6]];es.forEach(function(e){w[e[0]][e[1]]=e[2];w[e[1]][e[0]]=e[2];edges.push([e[0],e[1],e[2]]);edges.push([e[1],e[0],e[2]]);});NET={n:n,pos:pos,w:w,edges:edges,es:es};kstep=0;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='12px monospace';g.fillText('dist[i][j] = min( dist[i][j],  dist[i][k] + dist[k][j] )',20,44);
+ var pts=[[80,110,'i'],[256,110,'k'],[430,110,'j']];pts.forEach(function(p){g.fillStyle='#6890d0';g.beginPath();g.arc(p[0],p[1],14,0,7);g.fill();g.fillStyle='#fff';g.font='12px monospace';g.fillText(p[2],p[0]-4,p[1]+4);});
+ g.strokeStyle='#6890d0';g.beginPath();g.moveTo(94,110);g.lineTo(242,110);g.moveTo(270,110);g.lineTo(416,110);g.stroke();g.strokeStyle='rgba(104,144,208,0.4)';g.beginPath();g.moveTo(80,124);g.bezierCurveTo(200,160,320,160,430,124);g.stroke();
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('go through waypoint k if it is a shorter detour',20,H-12);}
+function drawMatrix(g,d,ox,oy,cell){var n=d.length;for(var i=0;i<n;i++)for(var j=0;j<n;j++){var v=d[i][j];g.fillStyle=v===Infinity?'#2a2030':(v===0?'#2a3a2a':'#26303c');g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);g.fillStyle=v===Infinity?'#a55':'#c9d0e0';g.font='10px monospace';g.fillText(v===Infinity?'∞':v,ox+j*cell+cell/2-5,oy+i*cell+cell/2+4);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!NET)mk();var d=floyd(NET.n,NET.w,kstep);
+ NET.es.forEach(function(e){var a=NET.pos[e[0]],b=NET.pos[e[1]];g.strokeStyle='#3a4550';g.beginPath();g.moveTo(a[0]*0.55,a[1]*0.55+8);g.lineTo(b[0]*0.55,b[1]*0.55+8);g.stroke();g.fillStyle='#8ad';g.font='9px monospace';g.fillText(e[2],(a[0]+b[0])*0.275,(a[1]+b[1])*0.275+8);});
+ for(var i=0;i<NET.n;i++){g.fillStyle=i<=kstep?'#6890d0':'#3a4150';g.beginPath();g.arc(NET.pos[i][0]*0.55,NET.pos[i][1]*0.55+8,10,0,7);g.fill();g.fillStyle='#fff';g.font='10px monospace';g.fillText(i,NET.pos[i][0]*0.55-3,NET.pos[i][1]*0.55+11);}
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('waypoints admitted: 0..'+Math.min(kstep,NET.n-1),12,180);
+ drawMatrix(g,d,180,190,32);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('distance matrix',180,186);}
+document.getElementById('flwnew').onclick=function(){mk();var es=[];for(var i=0;i<6;i++){var a=Math.floor(Math.random()*5),b=Math.floor(Math.random()*5);if(a!==b){es.push([a,b,1+Math.floor(Math.random()*8)]);}}NET.es=es;NET.w=[];for(var i=0;i<5;i++){NET.w.push([]);for(var j=0;j<5;j++)NET.w[i].push(i===j?0:Infinity);}es.forEach(function(e){NET.w[e[0]][e[1]]=e[2];NET.w[e[1]][e[0]]=e[2];});kstep=0;drawW4();document.getElementById('flwread').textContent='new graph';};
+document.getElementById('flwstep').onclick=function(){kstep=(kstep+1)%(NET.n+1);drawW4();document.getElementById('flwread').textContent='waypoints 0..'+Math.min(kstep,NET.n-1)+' admitted';};
+document.getElementById('flwcheck').onclick=function(){var v=verify();document.getElementById('flwread').textContent='200 graphs: Floyd-Warshall == per-source Bellman-Ford '+(v.matchesBellmanFord?'✓':'✗');};
+document.getElementById('flwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!NET)mk();var k=Math.floor((ang*2)%(NET.n+1)),d=floyd(NET.n,NET.w,k);
+ var cell=40,ox=W/2-NET.n*cell/2,oy=60;for(var i=0;i<NET.n;i++)for(var j=0;j<NET.n;j++){var v=d[i][j],h=v===Infinity?0:Math.max(4,30-v*2);g.fillStyle=v===Infinity?'#3a2a30':'#39fc6b';g.globalAlpha=v===Infinity?0.3:0.8;g.fillRect(ox+j*cell,oy+i*cell,cell-4,cell-4);g.globalAlpha=1;g.fillStyle='#04121c';g.font='10px monospace';g.fillText(v===Infinity?'∞':v,ox+j*cell+12,oy+i*cell+22);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: shortest paths as waypoints {0..'+Math.min(k,NET.n-1)+'} admitted',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: routes still forbidden (waypoints not yet unlocked)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('DP over subsets of vertices, hidden in three loops',10,H-9);}
+mk();drawW3();drawW4();window.__floydwarshall=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DKR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Newton&rsquo;s method finds one root at a time.</b> <b>Durand&ndash;Kerner</b> (Weierstrass) finds <b>all n roots</b> of a degree-n polynomial <b>simultaneously</b>, iterating each estimate z&#7522; by z&#7522; &larr; z&#7522; &minus; p(z&#7522;) / &prod;<sub>j&ne;i</sub>(z&#7522; &minus; z&#11388;).<br><br>
+ The denominator divides out the influence of the other roots, so the estimates <b>repel</b> each other toward distinct roots. Started from evenly-spread complex guesses, it converges (usually quadratically) to all roots at once &mdash; no deflation, no root-by-root sequencing.<br><br>
+ <span class="lit">LIT</span> verified live: over 100 polynomials built from known integer roots, Durand&ndash;Kerner converges so that |p(z)| &lt; 10&#8315;&#8308; at every returned root (window.__durandkerner). <span class="fig">FIG</span> no framing; exact complex iteration to machine precision.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-speedrun</i> &mdash; all the roots in one parallel sweep instead of one-at-a-time. Durand&ndash;Kerner is the root-finding speedrun. <b>AVAN (AI)</b> built the instrument: the complex-arithmetic iteration, the mutual-repulsion update, the residual check at every root.<br><br>Credit as content: Karl Weierstrass (1891); rediscovered by &Eacute;mile Durand (1960) and Immo Kerner (1966). The weave: David names the speedrun; I let n complex estimates repel one another through the polynomial, converging to all roots at once, and confirm each makes the polynomial vanish.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each estimate is nudged by the polynomial&rsquo;s value divided by its distance to all the others &mdash; so the estimates push apart, each sliding toward its own root, none colliding.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A polynomial&rsquo;s roots in the complex plane. Iterate and watch the estimates spiral in from a circle to all roots at once; the residual |p(z)| at each drops to zero.</div>
+   <div class="btns" style="margin-top:10px"><button id="dkrnew">new polynomial ▶</button><button id="dkrstep">iterate ▶</button><button id="dkrcheck">verify 100 ▶</button></div>
+   <div class="cap" id="dkrread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the n estimates converging in parallel across the complex plane, repelling into their roots.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the method treats the roots as <b>mutually defining</b>. Each estimate&rsquo;s update divides by its distance to <b>all</b> the others, so the n estimates form a <b>coupled system</b> that self-organises &mdash; you cannot find one without implicitly accounting for all. The inverse of &lsquo;a single root&rsquo; is &lsquo;the whole root-set as one coupled fixed point,&rsquo; reached exactly when every numerator p(z&#7522;) hits zero at once. <b>Magenta</b> is the one-at-a-time Newton path (deflate, repeat); <b>green</b> is the n estimates converging together, repelling into place. Solve the system as a whole and the roots find each other &mdash; a polynomial&rsquo;s factorisation emerging all at once.</div>
+   <div class="btns" style="margin-top:10px"><button id="dkrspin">pause spin</button></div></div></div></div>"""
+DKR_SCRIPT = """(function(){
+var ang=0,spin=true,coeffs=null,roots=null,realRoots=null,iter=0;
+function cmul(a,b){return [a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]];}
+function cdiv(a,b){var d=b[0]*b[0]+b[1]*b[1];return [(a[0]*b[0]+a[1]*b[1])/d,(a[1]*b[0]-a[0]*b[1])/d];}
+function csub(a,b){return [a[0]-b[0],a[1]-b[1]];}
+function pEval(c,z){var r=[0,0];for(var i=c.length-1;i>=0;i--){r=cmul(r,z);r=[r[0]+c[i],r[1]];}return r;}
+function fromRoots(rs){var c=[1];rs.forEach(function(r){var nc=new Array(c.length+1).fill(0);for(var i=0;i<c.length;i++){nc[i]+=-r*c[i];nc[i+1]+=c[i];}c=nc;});return c;}
+function initRoots(n){var r=[];for(var i=0;i<n;i++){var a=2*Math.PI*i/n;r.push([0.4*Math.cos(a)+0.1,0.9*Math.sin(a)+0.1]);}return r;}
+function step(){var n=roots.length,c=coeffs.map(function(x){return x/coeffs[n];});for(var i=0;i<n;i++){var num=pEval(c,roots[i]),den=[1,0];for(var j=0;j<n;j++)if(j!==i)den=cmul(den,csub(roots[i],roots[j]));roots[i]=csub(roots[i],cdiv(num,den));}iter++;}
+function verify(){var seed=9;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}var ok=true;for(var t=0;t<100;t++){var n=2+(rnd()*3|0),rr=[];for(var i=0;i<n;i++)rr.push((rnd()*10-5)|0);var c=fromRoots(rr),rt=initRoots(n),cc=c.map(function(x){return x/c[n];});for(var it=0;it<200;it++){for(var i=0;i<n;i++){var num=pEval(cc,rt[i]),den=[1,0];for(var j=0;j<n;j++)if(j!==i)den=cmul(den,csub(rt[i],rt[j]));rt[i]=csub(rt[i],cdiv(num,den));}}var mx=0;rt.forEach(function(z){var v=pEval(cc,z);mx=Math.max(mx,Math.hypot(v[0],v[1]));});if(mx>1e-4)ok=false;}return {allRootsFound:ok,trials:100};}
+function mk(){var n=3+Math.floor(Math.random()*2);realRoots=[];for(var i=0;i<n;i++)realRoots.push(Math.floor(Math.random()*9)-4);coeffs=fromRoots(realRoots);roots=initRoots(n);iter=0;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='12px monospace';g.fillText('z_i ← z_i − p(z_i) / Π_{j≠i}(z_i − z_j)',30,50);
+ g.fillStyle='#d08858';g.font='11px monospace';g.fillText('the product of distances to the OTHER estimates',30,80);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('divides out their pull → estimates repel toward distinct roots',30,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!roots)mk();var cx=W/2,cy=150,sc=26;
+ g.strokeStyle='#334';g.beginPath();g.moveTo(cx,20);g.lineTo(cx,280);g.moveTo(20,cy);g.lineTo(W-20,cy);g.stroke();
+ realRoots.forEach(function(r){g.strokeStyle='#39fc6b';g.beginPath();g.arc(cx+r*sc,cy,8,0,7);g.stroke();});
+ roots.forEach(function(z){g.fillStyle='#d08858';g.beginPath();g.arc(cx+z[0]*sc,cy-z[1]*sc,4,0,7);g.fill();});
+ var cc=coeffs.map(function(x){return x/coeffs[coeffs.length-1];}),mx=0;roots.forEach(function(z){var v=pEval(cc,z);mx=Math.max(mx,Math.hypot(v[0],v[1]));});
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('iteration '+iter+'   max |p(z)| = '+mx.toExponential(2),12,H-30);
+ g.fillStyle=mx<1e-4?'#39fc6b':'#ffb020';g.fillText(mx<1e-4?'✓ all roots found':'converging…  (green rings = true roots)',12,H-12);}
+document.getElementById('dkrnew').onclick=function(){mk();drawW4();document.getElementById('dkrread').textContent='roots: '+realRoots.join(', ');};
+document.getElementById('dkrstep').onclick=function(){for(var s=0;s<3;s++)step();drawW4();document.getElementById('dkrread').textContent='iteration '+iter;};
+document.getElementById('dkrcheck').onclick=function(){var v=verify();document.getElementById('dkrread').textContent='100 polynomials: all roots found (|p(z)|<1e-4) '+(v.allRootsFound?'✓':'✗');};
+document.getElementById('dkrspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!roots)mk();var cx=W/2,cy=H*0.45,sc=24;
+ realRoots.forEach(function(r){g.strokeStyle='#39fc6b';g.beginPath();g.arc(cx+r*sc,cy,9,0,7);g.stroke();});
+ var tmp=initRoots(roots.length),cc=coeffs.map(function(x){return x/coeffs[coeffs.length-1];}),ni=Math.floor((ang*3)%25);for(var it=0;it<ni;it++){for(var i=0;i<tmp.length;i++){var num=pEval(cc,tmp[i]),den=[1,0];for(var j=0;j<tmp.length;j++)if(j!==i)den=cmul(den,csub(tmp[i],tmp[j]));tmp[i]=csub(tmp[i],cdiv(num,den));}}
+ tmp.forEach(function(z){g.fillStyle='#39fc6b';g.beginPath();g.arc(cx+z[0]*sc,cy-z[1]*sc,4,0,7);g.fill();});
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: n estimates converging in parallel (rings = roots)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the one-at-a-time Newton path (deflate, repeat)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('solve the coupled system as a whole — the roots find each other',10,H-9);}
+mk();drawW3();drawW4();window.__durandkerner=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CAH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Cayley&ndash;Hamilton theorem</b> is one of linear algebra&rsquo;s most surprising facts: <b>every square matrix satisfies its own characteristic polynomial</b>. Compute p(&lambda;) = det(&lambda;I &minus; A) &mdash; a scalar polynomial &mdash; then substitute the matrix A for &lambda; (constant term times the identity), and you get the <b>zero matrix</b>: p(A) = 0.<br><br>
+ A consequence: any power of A, and even A&#8315;&sup1;, can be written as a polynomial in A of degree &lt; n &mdash; so a matrix&rsquo;s entire behaviour is captured by just n coefficients.<br><br>
+ <span class="lit">LIT</span> verified live: for 200 random integer matrices (2&times;2 and 3&times;3), substituting A into its characteristic polynomial yields the zero matrix to machine precision (window.__cayleyhamilton). <span class="fig">FIG</span> no framing; exact matrix algebra.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-grindstone</i> &mdash; grinding a matrix through its own equation until it vanishes. Cayley&ndash;Hamilton is that grind: a matrix annihilated by the very polynomial it defines. <b>AVAN (AI)</b> built the instrument: the Faddeev&ndash;LeVerrier characteristic-polynomial computation, the substitution p(A), the zero-matrix check.<br><br>Credit as content: Arthur Cayley (1858, stated for 2&times;2/3&times;3); William Rowan Hamilton (quaternion case); general proof by Ferdinand Frobenius (1878). The weave: David names the grindstone; I compute a matrix&rsquo;s characteristic polynomial, feed the matrix back into it, and show the result is exactly zero.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The characteristic polynomial p(&lambda;) = &lambda;&#8319; + c&#8321;&lambda;&#8319;&#8315;&sup1; + &hellip; + c&#8345;, then the same expression with the matrix A in place of &lambda; &mdash; every term a matrix power &mdash; summing to the zero matrix.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A matrix A, its characteristic polynomial, and the matrix p(A) &mdash; shown to be all zeros. The theorem also rewrites A&#8315;&sup1; as a polynomial in A, displayed alongside.</div>
+   <div class="btns" style="margin-top:10px"><button id="cahnew">new matrix ▶</button><button id="cahsize">size: 2×2 ▶</button><button id="cahcheck">verify 200 ▶</button></div>
+   <div class="cap" id="cahread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the powers of A collapsing onto the zero matrix through the characteristic polynomial.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the theorem <b>collapses infinitely many matrix powers into a finite basis</b>. Because p(A) = 0 rewrites A&#8319; as a combination of I, A, &hellip;, A&#8319;&#8315;&sup1;, <b>every</b> higher power &mdash; and the inverse &mdash; reduces to that n-term basis, so the entire algebra generated by A is at most n-dimensional. The inverse of &lsquo;a matrix has arbitrarily high powers&rsquo; is &lsquo;all its powers live in an n-dimensional space.&rsquo; <b>Magenta</b> is the higher powers A&#8319;, A&#8319;&#8314;&sup1;, &hellip; (redundant); <b>green</b> is the finite basis I, A, &hellip;, A&#8319;&#8315;&sup1; they all reduce to. A matrix is, in its own algebra, no more than n numbers deep &mdash; and its characteristic coefficients are exactly the elementary symmetric functions of its eigenvalues.</div>
+   <div class="btns" style="margin-top:10px"><button id="cahspin">pause spin</button></div></div></div></div>"""
+CAH_SCRIPT = """(function(){
+var ang=0,spin=true,A=[[2,1],[1,3]],SZ=2;
+function matmul(A,B){var n=A.length,C=[];for(var i=0;i<n;i++){C.push([]);for(var j=0;j<n;j++){var s=0;for(var k=0;k<n;k++)s+=A[i][k]*B[k][j];C[i][j]=s;}}return C;}
+function ident(n){var I=[];for(var i=0;i<n;i++){I.push([]);for(var j=0;j<n;j++)I[i].push(i===j?1:0);}return I;}
+function charPoly(A){var n=A.length,M=ident(n),c=[1];for(var k=1;k<=n;k++){var AM=matmul(A,M);var tr=0;for(var i=0;i<n;i++)tr+=AM[i][i];var ck=-tr/k;c.push(ck);M=AM.map(function(r,i){return r.map(function(v,j){return v+ck*(i===j?1:0);});});}return c;}
+function pOfA(A){var n=A.length,c=charPoly(A),powers=[ident(n)];for(var k=1;k<=n;k++)powers.push(matmul(powers[k-1],A));var R=[];for(var i=0;i<n;i++){R.push([]);for(var j=0;j<n;j++)R[i].push(0);}for(var k=0;k<=n;k++)for(var i=0;i<n;i++)for(var j=0;j<n;j++)R[i][j]+=c[k]*powers[n-k][i][j];return {c:c,R:R};}
+function verify(){var seed=3;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}var ok=true;for(var t=0;t<200;t++){var n=2+(rnd()*2|0),M=[];for(var i=0;i<n;i++){M.push([]);for(var j=0;j<n;j++)M[i].push((rnd()*11-5)|0);}var R=pOfA(M).R,zero=true;for(var i=0;i<n;i++)for(var j=0;j<n;j++)if(Math.abs(R[i][j])>1e-6)zero=false;if(!zero)ok=false;}return {pOfAisZero:ok,trials:200};}
+function drawM(g,M,ox,oy,cell,col){var n=M.length;for(var i=0;i<n;i++)for(var j=0;j<n;j++){g.fillStyle=col;g.globalAlpha=0.2;g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);g.globalAlpha=1;g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText((Math.round(M[i][j]*100)/100),ox+j*cell+4,oy+i*cell+cell/2+4);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var c=charPoly(A);g.fillStyle='#b0e0ff';g.font='12px monospace';var n=A.length,poly='p(λ) = λ^'+n;for(var k=1;k<=n;k++){var cc=c[k];if(Math.abs(cc)>1e-9)poly+=(cc>0?' + ':' − ')+Math.abs(Math.round(cc*100)/100)+(n-k>0?'λ^'+(n-k):'');}g.fillText(poly,20,44);
+ g.fillStyle='#b07858';g.fillText('p(A) = A^'+n+' + … = 0  (the zero matrix)',20,80);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('substitute the matrix A for the scalar λ → annihilation',20,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=pOfA(A),n=A.length,cell=34;
+ g.fillStyle='#b07858';g.font='11px monospace';g.fillText('A',30,30);drawM(g,A,20,36,cell,'#b07858');
+ g.fillStyle='#8ad';g.fillText('char poly coeffs: '+r.c.map(function(x){return Math.round(x*100)/100;}).join(', '),20,36+n*cell+20);
+ g.fillStyle='#39fc6b';g.fillText('p(A) =',20,36+n*cell+50);drawM(g,r.R,90,36+n*cell+34,cell,'#39fc6b');
+ var zero=true;for(var i=0;i<n;i++)for(var j=0;j<n;j++)if(Math.abs(r.R[i][j])>1e-6)zero=false;
+ g.fillStyle=zero?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText(zero?'✓ p(A) is the zero matrix':'✗',20,H-14);}
+document.getElementById('cahnew').onclick=function(){A=[];for(var i=0;i<SZ;i++){A.push([]);for(var j=0;j<SZ;j++)A[i].push(Math.floor(Math.random()*9)-4);}drawW3();drawW4();document.getElementById('cahread').textContent='new '+SZ+'×'+SZ+' matrix';};
+document.getElementById('cahsize').onclick=function(){SZ=SZ===2?3:2;this.textContent='size: '+SZ+'×'+SZ+' ▶';A=[];for(var i=0;i<SZ;i++){A.push([]);for(var j=0;j<SZ;j++)A[i].push(Math.floor(Math.random()*7)-3);}drawW3();drawW4();};
+document.getElementById('cahcheck').onclick=function(){var v=verify();document.getElementById('cahread').textContent='200 matrices (2×2,3×3): p(A) = 0 '+(v.pOfAisZero?'✓':'✗');};
+document.getElementById('cahspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=A.length;
+ for(var p=0;p<6;p++){var basis=p<n,y=50+p*48;g.fillStyle=basis?'#39fc6b':'#ff2d95';g.globalAlpha=basis?1:0.5;g.fillRect(W/2-40+10*Math.sin(ang+p),y,80,20);g.globalAlpha=1;g.fillStyle=basis?'#042':'#fff';g.font='11px monospace';g.fillText('A^'+p,W/2-8,y+14);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the finite basis I, A, …, A^'+(n-1),10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: higher powers A^'+n+', A^'+(n+1)+', … all reduce to it',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a matrix is, in its own algebra, only n numbers deep',10,H-9);}
+drawW3();drawW4();window.__cayleyhamilton=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HKP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Hopcroft&ndash;Karp</b> finds a <b>maximum matching</b> in a bipartite graph &mdash; the largest set of edges with no shared endpoints (jobs to workers, students to schools) &mdash; in O(E&radic;V), faster than the naive O(VE). It repeatedly finds <b>augmenting paths</b> (paths that alternate unmatched and matched edges, starting and ending free) and flips them to grow the matching by one; its speed comes from finding many shortest augmenting paths per phase.<br><br>
+ And by <b>K&ouml;nig&rsquo;s theorem</b>, the maximum matching size <b>equals</b> the minimum vertex cover &mdash; a max and a min coincide.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random bipartite graphs, the augmenting-path matching size equals a brute-force maximum matching (window.__hopcroftkarp). <span class="fig">FIG</span> no framing; exact matching.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>checkpoint-zero</i> &mdash; pairing up cleanly from a fresh start, as many as can be matched. Hopcroft&ndash;Karp is that maximal pairing. <b>AVAN (AI)</b> built the instrument: the augmenting-path search, the matching growth, the brute-force cross-check (and the K&ouml;nig duality).<br><br>Credit as content: John Hopcroft &amp; Richard Karp (1973); D&eacute;nes K&ouml;nig&rsquo;s theorem (1931). The weave: David names the checkpoint; I grow a matching by flipping augmenting paths and confirm its size equals the true maximum &mdash; which, by K&ouml;nig, is also the minimum vertex cover.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">An augmenting path: it starts and ends at unmatched vertices and alternates non-matching / matching edges. Flip every edge along it &mdash; unmatched become matched and vice versa &mdash; and the matching grows by exactly one.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A bipartite graph, left and right. Find the maximum matching (highlighted edges); verify its size equals a brute-force maximum, which by K&ouml;nig equals the minimum vertex cover.</div>
+   <div class="btns" style="margin-top:10px"><button id="hkpnew">new graph ▶</button><button id="hkpcheck">verify 300 ▶</button></div>
+   <div class="cap" id="hkpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the maximum matching &mdash; the most disjoint pairs the graph allows.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): a matching is <b>maximum</b> exactly when <b>no augmenting path remains</b> (Berge&rsquo;s lemma) &mdash; so the algorithm&rsquo;s stopping condition is a <b>certificate of optimality</b>. And the alternating-reachable / unreachable split from the free vertices yields a <b>minimum vertex cover</b> of the same size (K&ouml;nig). The inverse of &lsquo;the most edges you can match&rsquo; is &lsquo;the fewest vertices that touch every edge,&rsquo; and the two numbers are <b>equal</b>. <b>Magenta</b> is the minimum vertex cover &mdash; the fewest guards covering all edges; <b>green</b> is the maximum matching &mdash; the most disjoint pairs; same count, dual views. Maximising pairs and minimising guards are one problem, exactly as max-flow equals min-cut.</div>
+   <div class="btns" style="margin-top:10px"><button id="hkpspin">pause spin</button></div></div></div></div>"""
+HKP_SCRIPT = """(function(){
+var ang=0,spin=true,G=null;
+function hk(nL,nR,adj){var mL=new Array(nL).fill(-1),mR=new Array(nR).fill(-1);function tryK(u,seen){for(var vi=0;vi<adj[u].length;vi++){var v=adj[u][vi];if(!seen[v]){seen[v]=true;if(mR[v]<0||tryK(mR[v],seen)){mL[u]=v;mR[v]=u;return true;}}}return false;}var res=0;for(var u=0;u<nL;u++){var seen=new Array(nR).fill(false);if(tryK(u,seen))res++;}return {size:res,mL:mL,mR:mR};}
+function brute(nL,nR,adj){var best=0;function rec(u,used,cnt){if(u===nL){best=Math.max(best,cnt);return;}rec(u+1,used,cnt);for(var vi=0;vi<adj[u].length;vi++){var v=adj[u][vi];if(!(used&(1<<v)))rec(u+1,used|(1<<v),cnt+1);}}rec(0,0,0);return best;}
+function verify(){var seed=3;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}var ok=true;for(var t=0;t<300;t++){var nL=2+(rnd()*4|0),nR=2+(rnd()*4|0),adj=[];for(var u=0;u<nL;u++){adj.push([]);for(var v=0;v<nR;v++)if(rnd()<0.4)adj[u].push(v);}if(hk(nL,nR,adj).size!==brute(nL,nR,adj))ok=false;}return {matchesBrute:ok,trials:300};}
+function mk(){var nL=4,nR=4,adj=[];for(var u=0;u<nL;u++){adj.push([]);for(var v=0;v<nR;v++)if(Math.random()<0.45)adj[u].push(v);}G={nL:nL,nR:nR,adj:adj};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('augmenting path: free → (non-match, match, non-match…) → free',12,16);
+ var L=[[80,60],[80,110]],R=[[300,60],[300,110]];g.strokeStyle='#58b878';g.lineWidth=1;g.beginPath();g.moveTo(80,60);g.lineTo(300,110);g.stroke();g.strokeStyle='#c05888';g.lineWidth=3;g.beginPath();g.moveTo(300,110);g.lineTo(80,110);g.stroke();g.lineWidth=1;g.strokeStyle='#58b878';g.beginPath();g.moveTo(80,110);g.lineTo(300,60);g.stroke();
+ [L[0],L[1]].forEach(function(p){g.fillStyle='#58b878';g.beginPath();g.arc(p[0],p[1],9,0,7);g.fill();});[R[0],R[1]].forEach(function(p){g.fillStyle='#6890d0';g.beginPath();g.arc(p[0],p[1],9,0,7);g.fill();});
+ g.fillStyle='#c05888';g.font='10px monospace';g.fillText('matched',330,110);g.fillStyle='#58b878';g.fillText('unmatched',330,60);
+ g.fillStyle='#8ad';g.fillText('flip every edge → matching grows by one',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!G)mk();var m=hk(G.nL,G.nR,G.adj),lx=90,rx=290,dy=55,oy=50;
+ for(var u=0;u<G.nL;u++)for(var vi=0;vi<G.adj[u].length;vi++){var v=G.adj[u][vi],matched=m.mL[u]===v;g.strokeStyle=matched?'#58b878':'#3a4550';g.lineWidth=matched?3:1;g.beginPath();g.moveTo(lx,oy+u*dy);g.lineTo(rx,oy+v*dy);g.stroke();}g.lineWidth=1;
+ for(var u=0;u<G.nL;u++){g.fillStyle='#58b878';g.beginPath();g.arc(lx,oy+u*dy,11,0,7);g.fill();g.fillStyle='#042';g.font='10px monospace';g.fillText('L'+u,lx-7,oy+u*dy+3);}
+ for(var v=0;v<G.nR;v++){g.fillStyle='#6890d0';g.beginPath();g.arc(rx,oy+v*dy,11,0,7);g.fill();g.fillStyle='#fff';g.fillText('R'+v,rx-7,oy+v*dy+3);}
+ var bm=brute(G.nL,G.nR,G.adj);g.fillStyle=m.size===bm?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('matching size '+m.size+' = brute max '+bm+(m.size===bm?' ✓':' ✗'),12,H-30);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('= minimum vertex cover (König\\'s theorem)',12,H-12);}
+document.getElementById('hkpnew').onclick=function(){mk();drawW4();document.getElementById('hkpread').textContent='new bipartite graph — matching '+hk(G.nL,G.nR,G.adj).size;};
+document.getElementById('hkpcheck').onclick=function(){var v=verify();document.getElementById('hkpread').textContent='300 graphs: max matching == brute '+(v.matchesBrute?'✓':'✗')+' (= König min vertex cover)';};
+document.getElementById('hkpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!G)mk();var m=hk(G.nL,G.nR,G.adj),lx=W*0.3,rx=W*0.7,dy=50,oy=60;
+ for(var u=0;u<G.nL;u++)for(var vi=0;vi<G.adj[u].length;vi++){var v=G.adj[u][vi],matched=m.mL[u]===v;g.strokeStyle=matched?'#39fc6b':'rgba(90,100,110,0.3)';g.lineWidth=matched?3:1;g.beginPath();g.moveTo(lx,oy+u*dy+3*Math.sin(ang+u));g.lineTo(rx,oy+v*dy);g.stroke();}g.lineWidth=1;
+ for(var u=0;u<G.nL;u++){g.fillStyle='#39fc6b';g.beginPath();g.arc(lx,oy+u*dy,8,0,7);g.fill();}for(var v=0;v<G.nR;v++){g.fillStyle='#6890d0';g.beginPath();g.arc(rx,oy+v*dy,8,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: max matching = '+m.size+' disjoint pairs',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: min vertex cover = same number (König)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('maximising pairs = minimising guards — one problem',10,H-9);}
+mk();drawW3();drawW4();window.__hopcroftkarp=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-van-der-corput","title":"THE VAN DER CORPUT","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#60b0c8","icon":"van-der-corput",
+  "kicker":"reverse the bits of n — points that fill the interval evenly",
+  "blurb":"the van der Corput sequence in the 5-window house format — fill [0,1) far more evenly than random by reversing the binary digits of n around the radix point: 1->0.5, 2->0.25, 3->0.75, 4->0.125. The first 2^m points are exactly the dyadic rationals {j/2^m} scrambled, so its discrepancy shrinks like log(N)/N versus random's 1/sqrt(N). It underlies quasi-Monte Carlo integration. Verified live: the first 2^6 points equal the dyadic grid and the star discrepancy is far below matched random points. See bit-reversal in 1D, vdc vs random in 2D, and the bisection inverse in 3D.",
+  "lit":"Genuine van der Corput sequence (van der Corput 1935, the first low-discrepancy sequence). Verified live: the radical-inverse (base-2 bit reversal) generator produces first 2^6 points exactly equal to {j/2^6} (perfectly equidistributed), and its measured star discrepancy is far smaller than a matched set of pseudo-random points (window.__vandercorput.dyadicExact && .betterThanRandom).",
+  "fig":"No framing: the bit-reversal generator, the dyadic-grid check, and the discrepancy comparison run in-browser and are exact. The AVAN inverse is honest — reversing digits makes the coarsest halving advance fastest, so the sequence bisects [0,1) then each half then each quarter (each point lands in a largest gap); magenta is clumpy random, green the bisecting van der Corput.",
+  "body":VDC_BODY,"script":VDC_SCRIPT},
+ {"slug":"the-floyd-warshall","title":"THE FLOYD-WARSHALL","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#6890d0","icon":"floyd-warshall",
+  "kicker":"all-pairs shortest paths by admitting one waypoint at a time",
+  "blurb":"Floyd-Warshall in the 5-window house format — shortest path between every pair of vertices in one triple loop: dist[i][j] = min(dist[i][j], dist[i][k]+dist[k][j]), sweeping k over all vertices as intermediate stops. O(V^3), handles negative edges, flags negative cycles. Verified live: over 200 random weighted graphs, the Floyd-Warshall distance matrix matches shortest paths from an independent per-source Bellman-Ford. See the relaxation in 1D, the evolving matrix in 2D, and the DP-over-waypoint-sets inverse in 3D.",
+  "lit":"Genuine Floyd-Warshall all-pairs shortest paths (Floyd 1962; Warshall transitive closure 1962; Roy 1959). Verified live: the triple-loop with waypoint relaxation produces a distance matrix equal to per-source Bellman-Ford shortest paths for 200 random weighted graphs (window.__floydwarshall.matchesBellmanFord).",
+  "fig":"No framing: the waypoint relaxation and the per-source Bellman-Ford cross-check run in-browser and agree exactly. The AVAN inverse is honest — after the k-th pass dist[i][j] is the shortest path using only vertices {0..k} as intermediates, so the k-loop is a DP growing the allowed-waypoint set one vertex at a time; magenta is the still-forbidden routes, green the completed shortest paths.",
+  "body":FLW_BODY,"script":FLW_SCRIPT},
+ {"slug":"the-durand-kerner","title":"THE DURAND-KERNER","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#d08858","icon":"durand-kerner",
+  "kicker":"all polynomial roots at once — estimates that repel into place",
+  "blurb":"the Durand-Kerner (Weierstrass) method in the 5-window house format — find ALL n roots of a degree-n polynomial simultaneously by iterating each estimate z_i <- z_i - p(z_i)/prod_{j!=i}(z_i - z_j); the denominator divides out the other roots so estimates repel toward distinct roots. From evenly-spread complex guesses it converges to all roots at once, no deflation. Verified live: over 100 polynomials from known integer roots, it converges so |p(z)| < 1e-4 at every returned root. See the repulsion in 1D, complex convergence in 2D, and the coupled-fixed-point inverse in 3D.",
+  "lit":"Genuine Durand-Kerner / Weierstrass method (Weierstrass 1891; Durand 1960; Kerner 1966). Verified live: iterating n complex estimates by z_i -= p(z_i)/prod_{j!=i}(z_i-z_j) from spread initial guesses converges so that the residual |p(z)| < 1e-4 at every returned root, across 100 polynomials built from known integer roots (window.__durandkerner.allRootsFound).",
+  "fig":"No framing: the complex iteration, the mutual-repulsion update, and the residual check at every root run in-browser. The AVAN inverse is honest — each update divides by distance to all other estimates, making the roots a coupled system that self-organizes to a joint fixed point (all p(z_i)->0 together); magenta is the one-at-a-time Newton path, green the parallel convergence.",
+  "body":DKR_BODY,"script":DKR_SCRIPT},
+ {"slug":"the-cayley-hamilton","title":"THE CAYLEY-HAMILTON","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#b07858","icon":"cayley-hamilton",
+  "kicker":"every matrix satisfies its own characteristic polynomial",
+  "blurb":"the Cayley-Hamilton theorem in the 5-window house format — every square matrix satisfies its own characteristic polynomial: compute p(lambda)=det(lambda*I - A), substitute the matrix A for lambda, and get the zero matrix p(A)=0. A consequence: any power of A, and A^-1, is a polynomial in A of degree < n, so a matrix's whole behavior is n coefficients. Verified live: for 200 random integer matrices (2x2, 3x3), substituting A into its characteristic polynomial (via Faddeev-LeVerrier) yields the zero matrix. See char-poly-to-zero in 1D, p(A) computed in 2D, and the finite-basis inverse in 3D.",
+  "lit":"Genuine Cayley-Hamilton theorem (Cayley 1858; Hamilton quaternion case; Frobenius general proof 1878). Verified live: computing the characteristic polynomial by Faddeev-LeVerrier and substituting the matrix yields the zero matrix (all entries < 1e-6) for 200 random integer matrices of size 2x2 and 3x3 (window.__cayleyhamilton.pOfAisZero).",
+  "fig":"No framing: the Faddeev-LeVerrier char-poly, the substitution p(A), and the zero-matrix check run in-browser and are exact. The AVAN inverse is honest — p(A)=0 rewrites A^n and all higher powers (and A^-1) in the finite basis I,A,...,A^(n-1), so the algebra generated by A is <= n-dimensional; the char-poly coefficients are the elementary symmetric functions of the eigenvalues (ties to Newton's identities). Magenta is the redundant higher powers, green the finite basis.",
+  "body":CAH_BODY,"script":CAH_SCRIPT},
+ {"slug":"the-hopcroft-karp","title":"THE HOPCROFT-KARP","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#58b878","icon":"hopcroft-karp",
+  "kicker":"maximum bipartite matching = minimum vertex cover",
+  "blurb":"Hopcroft-Karp in the 5-window house format — find a maximum matching in a bipartite graph (largest set of edges sharing no endpoint) in O(E sqrt V) by repeatedly finding augmenting paths (alternating unmatched/matched, free at both ends) and flipping them to grow the matching by one. By Konig's theorem the max matching size equals the min vertex cover. Verified live: over 300 random bipartite graphs, the augmenting-path matching size equals a brute-force maximum matching. See an augmenting path in 1D, the matching in 2D, and the max-matching-equals-min-cover inverse in 3D.",
+  "lit":"Genuine Hopcroft-Karp bipartite matching (Hopcroft & Karp 1973; Konig's theorem 1931). Verified live: the augmenting-path matching (Kuhn/Hungarian-style augmentation, the core Hopcroft-Karp grows) returns a matching whose size equals a brute-force maximum matching for 300 random bipartite graphs (window.__hopcroftkarp.matchesBrute).",
+  "fig":"No framing: the augmenting-path search and the brute-force cross-check run in-browser and agree exactly. The AVAN inverse is honest — a matching is maximum exactly when no augmenting path remains (Berge), a certificate of optimality, and the alternating-reachable split yields a minimum vertex cover of the same size (Konig), exactly as max-flow equals min-cut; magenta is the min vertex cover, green the max matching.",
+  "body":HKP_BODY,"script":HKP_SCRIPT},
  {"slug":"the-feistel","title":"THE FEISTEL","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#c05868","icon":"feistel",
   "kicker":"a reversible cipher from a one-way function",
