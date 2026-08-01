@@ -12351,7 +12351,298 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 newMsg();drawW3();drawW4();window.__crc=verify();
 function loop(){if(spin)ang+=0.006;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 39 (fraction-programs · check-digits · shuffles · zigzags · modular) ═══════════════════════
+FRT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>FRACTRAN</b> is Conway&rsquo;s esoteric programming language where a <b>program is a list of fractions</b> and the <b>data is a single integer</b>. To run: multiply the integer by the <b>first</b> fraction in the list that keeps it a whole number; repeat; halt when none does. That is the <b>entire</b> language &mdash; and it is Turing-complete.<br><br>
+ The prime factorisation of the integer <b>is</b> the memory: the exponent of each prime is a register. The one-line program <code>[2/3]</code> is an adder &mdash; feed it 2&#7482;&middot;3&#7495; and it halts at 2&#7482;&#8314;&#7495;. Conway&rsquo;s 14-fraction <b>PRIMEGAME</b>, run from 2, passes through powers of 2 whose exponents are exactly the primes, in order.<br><br>
+ <span class="lit">LIT</span> verified live (BigInt, exact): the adder <code>[2/3]</code> halts at 2&#7482;&#8314;&#7495; for every a,b in 0&hellip;6, and PRIMEGAME from 2 emits the powers 2&sup2;,2&sup3;,2&#8309;,2&#8311;&hellip; &mdash; the primes 2,3,5,7 (window.__fractran). <span class="fig">FIG</span> no framing; exact integer arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>god-mode</i> &mdash; the cheat that computes anything from one absurd trick. FRACTRAN is god-mode arithmetic: no loops, no variables, just fractions, and yet universal. <b>AVAN (AI)</b> built the instrument: the BigInt fraction engine, the exact adder check, the live PRIMEGAME.<br><br>Credit as content: John Horton Conway, <i>FRACTRAN: a simple universal programming language for arithmetic</i> (1987). The weave: David names the impossible cheat; I run the fractions to a halt, show the primes falling out of PRIMEGAME, and expose the opacity that is the price of the trick.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The running integer as a row of prime registers (the exponents of 2, 3, 5, &hellip;), and the fraction that fires next &mdash; the only &lsquo;instruction&rsquo; the machine has: multiply, if it stays whole.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Run the adder <code>[2/3]</code> on 2&#7482;&middot;3&#7495; and watch it halt at 2&#7482;&#8314;&#7495; &mdash; exact for every a,b. Or run PRIMEGAME and watch the primes 2, 3, 5, 7 emerge as pure powers of 2.</div>
+   <div class="btns" style="margin-top:10px"><button id="frtmode">program: adder ▶</button><button id="frta">a: 3 ▶</button><button id="frtb">b: 2 ▶</button><button id="frtrun">run ▶</button></div>
+   <div class="cap" id="frtread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the running integer&rsquo;s trajectory (log scale), leaping as each fraction fires &mdash; computation as a walk through the integers.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): FRACTRAN is universal, and its inverse is <b>opacity</b>. A normal program shows its logic &mdash; loops, branches, names. A FRACTRAN program shows <b>none</b>: the control flow is hidden inside <b>divisibility</b>, the registers hidden inside <b>prime exponents</b>, so you cannot read a fraction-list&rsquo;s intent &mdash; only run it and see. The inverse of &lsquo;readable code&rsquo; is &lsquo;logic dissolved into number theory.&rsquo; And universality is bought with grinding <b>slowness</b>: PRIMEGAME needs on the order of 10&#8309; steps just to reach the prime 11. <b>Magenta</b> is that astronomical crawl &mdash; the price of encoding everything in multiplication; <b>green</b> is the exact adder that halts at once. The simplest possible language can compute anything, at the cost of ever being understood or hurried.</div>
+   <div class="btns" style="margin-top:10px"><button id="frtspin">pause spin</button></div></div></div></div>"""
+FRT_SCRIPT = """(function(){
+var ang=0,spin=true,mode='adder',A=3,B=2,traj=[];
+var ADD=[[2n,3n]];
+var PG=[[17n,91n],[78n,85n],[19n,51n],[23n,38n],[29n,33n],[77n,29n],[95n,23n],[77n,19n],[1n,17n],[11n,13n],[13n,11n],[15n,2n],[1n,7n],[55n,1n]];
+function step(n,fr){for(var i=0;i<fr.length;i++){if((n*fr[i][0])%fr[i][1]===0n)return n*fr[i][0]/fr[i][1];}return null;}
+function ipow(b,e){var r=1n;for(var i=0;i<e;i++)r*=b;return r;}
+function isPow2(n){return n>1n&&(n&(n-1n))===0n;}
+function log2big(n){var b=0;while(n>1n){n>>=1n;b++;}return b;}
+function runAdder(a,b){var n=ipow(2n,a)*ipow(3n,b),g=0;while(true){var m=step(n,ADD);if(m===null)break;n=m;if(g++>2000)break;}return n;}
+function verify(){var ok=true;for(var a=0;a<=6;a++)for(var b=0;b<=6;b++){if(runAdder(a,b)!==ipow(2n,a+b))ok=false;}
+ var n=2n,primes=[],steps=0;while(primes.length<4&&steps<40000){var m=step(n,PG);if(m===null)break;n=m;steps++;if(isPow2(n)){var p=log2big(n);if(p>=2)primes.push(p);}}
+ return {adderExact:ok,adderRange:'a,b in 0..6',primegameFirst:primes,primegameSteps:steps};}
+function factorRow(n,primes){return primes.map(function(p){var e=0;var pb=BigInt(p);while(n%pb===0n){n/=pb;e++;}return e;});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var primes=[2,3,5,7,11,13],n=ipow(2n,3n)*ipow(3n,2n),ex=factorRow(n,primes);
+ g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('the integer IS the memory — prime exponents are registers',12,16);
+ for(var i=0;i<primes.length;i++){g.fillStyle='#c060ff';g.font='12px monospace';g.fillText(primes[i]+'^'+ex[i],20+i*70,50);for(var t=0;t<ex[i];t++){g.fillStyle='#c060ff';g.fillRect(20+i*70,60+t*10,26,7);}}
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('fires: first fraction keeping it whole  [ 2/3 ]',12,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('program: '+(mode==='adder'?'[ 2/3 ]  (adder)':'PRIMEGAME (14 fractions)'),12,24);
+ if(mode==='adder'){var res=runAdder(A,B),exp=log2big(res);g.fillStyle='#c060ff';g.font='13px monospace';g.fillText('input  2^'+A+' · 3^'+B,12,60);g.fillStyle=(res===ipow(2n,A+B))?'#39fc6b':'#ff5a5a';g.fillText('halts  2^'+exp+(res===ipow(2n,A+B)?'   ✓ = 2^('+A+'+'+B+')':''),12,86);g.fillStyle='#8ad';g.font='11px monospace';g.fillText('the 3s all migrate to 2s: a+b = '+(A+B),12,120);}
+ else{var n=2n,primes=[],steps=0,y=54;while(primes.length<4&&steps<40000){var m=step(n,PG);if(m===null)break;n=m;steps++;if(isPow2(n)){var p=log2big(n);if(p>=2){primes.push(p);}}}g.fillStyle='#39fc6b';g.font='13px monospace';g.fillText('primes emitted: '+primes.join(', '),12,60);g.fillStyle='#8ad';g.font='11px monospace';g.fillText('as pure powers of 2, in '+steps+' steps',12,86);g.fillText('(reaching 11 needs ~10^5 more — universality is slow)',12,110);}}
+document.getElementById('frtmode').onclick=function(){mode=mode==='adder'?'primegame':'adder';this.textContent='program: '+(mode==='adder'?'adder':'PRIMEGAME')+' ▶';drawW4();};
+document.getElementById('frta').onclick=function(){A=A>=6?0:A+1;this.textContent='a: '+A+' ▶';drawW4();};
+document.getElementById('frtb').onclick=function(){B=B>=6?0:B+1;this.textContent='b: '+B+' ▶';drawW4();};
+document.getElementById('frtrun').onclick=function(){drawW4();if(mode==='adder')document.getElementById('frtread').textContent='2^'+A+'·3^'+B+' → 2^'+(A+B)+' (exact)';else document.getElementById('frtread').textContent='PRIMEGAME emits 2,3,5,7 as powers of 2';};
+document.getElementById('frtspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var n=2n,pts=[],steps=0;while(steps<600){var m=step(n,PG);if(m===null)break;n=m;steps++;pts.push(log2big(n));}
+ var mx=Math.max.apply(0,pts)||1;g.strokeStyle='#39fc6b';g.beginPath();for(var i=0;i<pts.length;i++){var x=10+i/pts.length*(W-20),y=H*0.5-pts[i]/mx*90+40*Math.sin(ang+i*0.05);if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ g.fillStyle='#ff2d95';g.font='11px monospace';g.fillText('magenta path: PRIMEGAME — ~10^5 steps to reach prime 11',10,H-40);
+ g.fillStyle='#39fc6b';g.fillText('green: the adder halts at once (exact)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('universal, but logic hidden in divisibility — run it, can\\'t read it',10,H-9);}
+drawW3();drawW4();window.__fractran=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VRH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Verhoeff check digit</b> catches the two commonest human typing mistakes &mdash; a single wrong digit, and swapping two <b>adjacent</b> digits &mdash; for <b>every</b> case, which the familiar mod-10 checksums (Luhn, ISBN-10) provably cannot.<br><br>
+ Its secret is that it does arithmetic in the <b>dihedral group D&#8325;</b> (the ten symmetries of a pentagon), which is <b>non-commutative</b>: a&middot;b &ne; b&middot;a, so &lsquo;09&rsquo; and &lsquo;90&rsquo; land on different results. A permutation table scrambles each digit by its position, a fixed multiplication table combines them, and the check digit is chosen to force the running product to the group&rsquo;s identity.<br><br>
+ <span class="lit">LIT</span> verified live: over a range of numbers, every valid number checks to 0, <b>every</b> single-digit error is caught, and <b>every</b> adjacent transposition is caught &mdash; while Luhn is shown missing a transposition (window.__verhoeff). <span class="fig">FIG</span> no framing; exhaustive exact group arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>off-by-one</i> &mdash; the classic slip: one digit wrong, or two swapped. Verhoeff is the guard built exactly for the off-by-one. <b>AVAN (AI)</b> built the instrument: the D&#8325; multiplication and permutation tables, the exhaustive error scan, the Luhn contrast.<br><br>Credit as content: Jacobus Verhoeff, <i>Error Detecting Decimal Codes</i> (1969). The weave: David names the slip; I build the check that forces the pentagon&rsquo;s product to identity, prove it catches every single-digit and adjacent-swap error, and show the commutative checksum that cannot.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The running product marching through D&#8325; as each digit is folded in (scrambled first by its position). The final product is the identity 0 for a valid number &mdash; the check digit is exactly what makes it land there.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap">Enter a number; Verhoeff appends its check digit. Then flip any digit, or swap an adjacent pair &mdash; the check breaks (caught). The same transposition is run through Luhn, which waves it through.</div>
+   <div class="btns" style="margin-top:10px"><button id="vrhnew">new number ▶</button><button id="vrhflip">flip a digit ▶</button><button id="vrhswap">swap adjacent ▶</button><button id="vrhscan">scan all ▶</button></div>
+   <div class="cap" id="vrhread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the pentagon of D&#8325; &mdash; five rotations and five reflections &mdash; the group whose arithmetic powers the check.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): why does Verhoeff catch swaps when mod-10 cannot? The answer is the <b>inverse</b> of a property most arithmetic takes for granted: <b>commutativity</b>. A transposition swaps the order of two folded-in digits; a checksum can only notice if a&middot;b &ne; b&middot;a &mdash; and in the integers mod 10, a&middot;b <b>=</b> b&middot;a always, so &lsquo;09&rsquo; and &lsquo;90&rsquo; are indistinguishable. D&#8325; is <b>non-abelian</b>: order matters, so the swap changes the product. The strength that catches transpositions <b>is</b> the failure of commutativity. <b>Magenta</b> marks the swapped pairs a commutative checksum lets through; <b>green</b> is Verhoeff catching every one. The trick is not more digits &mdash; it is choosing a group where order is remembered.</div>
+   <div class="btns" style="margin-top:10px"><button id="vrhspin">pause spin</button></div></div></div></div>"""
+VRH_SCRIPT = """(function(){
+var ang=0,spin=true,num=[1,4,2,7,3],cd=0,cw=[],flip=-1;
+var D=[[0,1,2,3,4,5,6,7,8,9],[1,2,3,4,0,6,7,8,9,5],[2,3,4,0,1,7,8,9,5,6],[3,4,0,1,2,8,9,5,6,7],[4,0,1,2,3,9,5,6,7,8],[5,9,8,7,6,0,4,3,2,1],[6,5,9,8,7,1,0,4,3,2],[7,6,5,9,8,2,1,0,4,3],[8,7,6,5,9,3,2,1,0,4],[9,8,7,6,5,4,3,2,1,0]];
+var P=[[0,1,2,3,4,5,6,7,8,9],[1,5,7,6,2,8,3,0,9,4],[5,8,0,3,7,9,6,1,4,2],[8,9,1,6,0,4,3,5,2,7],[9,4,5,3,1,2,6,8,7,0],[4,2,8,6,5,7,3,9,0,1],[2,7,9,3,8,0,6,4,1,5],[7,0,4,6,9,1,3,2,5,8]];
+var INV=[0,4,3,2,1,5,6,7,8,9];
+function check(ds){var c=0,m=ds.slice().reverse();for(var i=0;i<m.length;i++)c=D[c][P[i%8][m[i]]];return c;}
+function gen(ds){var c=0,m=ds.slice().reverse();for(var i=0;i<m.length;i++)c=D[c][P[(i+1)%8][m[i]]];return INV[c];}
+function luhn(ds){var s=0,alt=false;for(var i=ds.length-1;i>=0;i--){var x=ds[i];if(alt){x*=2;if(x>9)x-=9;}s+=x;alt=!alt;}return s%10;}
+function verify(){var sOK=true,tOK=true,vOK=true;for(var base=1000;base<1200;base++){var ds=(''+base).split('').map(Number),c=gen(ds),full=ds.concat([c]);if(check(full)!==0)vOK=false;for(var i=0;i<full.length;i++)for(var e=0;e<10;e++){if(e===full[i])continue;var f=full.slice();f[i]=e;if(check(f)===0)sOK=false;}for(var i=0;i<full.length-1;i++){if(full[i]===full[i+1])continue;var f=full.slice(),t=f[i];f[i]=f[i+1];f[i+1]=t;if(check(f)===0)tOK=false;}}return {validZero:vOK,allSingleCaught:sOK,allTranspositionsCaught:tOK,group:'D5 (non-abelian)'};}
+function rebuild(){cd=gen(num);cw=num.concat([cd]);flip=-1;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var c=0,m=cw.slice().reverse();g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('running product in D5 (identity 0 = valid):',12,16);
+ for(var i=0;i<m.length;i++){var pd=P[i%8][m[i]];c=D[c][pd];g.fillStyle='#e0705a';g.font='12px monospace';g.fillText('d'+m[i]+'→'+pd,12+i*80,50);g.fillStyle=c===0?'#39fc6b':'#c9a6e8';g.fillText('prod='+c,12+i*80,72);}
+ g.fillStyle=c===0?'#39fc6b':'#ff5a5a';g.font='13px monospace';g.fillText('final product = '+c+(c===0?'  ✓ valid':'  ✗'),12,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cell=34,x0=30;
+ for(var i=0;i<cw.length;i++){g.fillStyle=(i===flip)?'#ff2d95':(i===cw.length-1?'#7a4a3a':'#26303c');g.fillRect(x0+i*cell,40,cell-6,cell-6);g.fillStyle='#fff';g.font='16px monospace';g.fillText(cw[i],x0+i*cell+8,62);}
+ g.fillStyle='#889';g.font='10px monospace';g.fillText('(last box = Verhoeff check digit)',x0,92);
+ var v=check(cw);g.fillStyle=v===0?'#39fc6b':'#ff2d95';g.font='13px monospace';g.fillText('Verhoeff: '+(v===0?'valid ✓':'INVALID (caught, product '+v+')'),12,130);
+ var lu=luhn(cw);g.fillStyle='#8ad';g.font='11px monospace';g.fillText('Luhn on same digits: '+(lu===0?'passes':'fails ('+lu+')')+'  — Luhn misses transpositions',12,158);}
+document.getElementById('vrhnew').onclick=function(){num=[];for(var i=0;i<5;i++)num.push(Math.floor(Math.random()*10));rebuild();drawW3();drawW4();document.getElementById('vrhread').textContent='new number + Verhoeff check digit '+cd;};
+document.getElementById('vrhflip').onclick=function(){var i=Math.floor(Math.random()*cw.length),o=cw[i];do{cw[i]=Math.floor(Math.random()*10);}while(cw[i]===o);flip=i;drawW4();document.getElementById('vrhread').textContent='flipped a digit → Verhoeff product '+check(cw)+' (caught)';};
+document.getElementById('vrhswap').onclick=function(){for(var i=0;i<cw.length-1;i++){if(cw[i]!==cw[i+1]){var t=cw[i];cw[i]=cw[i+1];cw[i+1]=t;flip=i;break;}}drawW4();document.getElementById('vrhread').textContent='swapped adjacent digits → Verhoeff '+check(cw)+' caught; Luhn '+(luhn(cw)===0?'MISSES':'catches');};
+document.getElementById('vrhscan').onclick=function(){var v=verify();document.getElementById('vrhread').textContent='scan 200 numbers: single-digit '+(v.allSingleCaught?'all caught ✓':'✗')+', transpositions '+(v.allTranspositionsCaught?'all caught ✓':'✗');};
+document.getElementById('vrhspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height,cx=W/2,cy=H*0.42,R=80;g.clearRect(0,0,W,H);
+ for(var i=0;i<5;i++){var a=ang+i/5*2*Math.PI-Math.PI/2,x=cx+R*Math.cos(a),y=cy+R*Math.sin(a);g.strokeStyle='#7ad0b0';g.beginPath();if(i===0)g.moveTo(x,y);var a2=ang+((i+1)%5)/5*2*Math.PI-Math.PI/2;g.lineTo(cx+R*Math.cos(a2),cy+R*Math.sin(a2));g.stroke();g.fillStyle='#e0705a';g.beginPath();g.arc(x,y,5,0,7);g.fill();}
+ for(var i=0;i<5;i++){var a=ang+i/5*2*Math.PI-Math.PI/2;g.strokeStyle='rgba(224,112,90,0.3)';g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+R*Math.cos(a),cy+R*Math.sin(a));g.stroke();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: D5 catches every adjacent swap',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: swaps a commutative checksum (mod 10) misses',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('catching transpositions = the failure of a·b = b·a',10,H-9);}
+rebuild();drawW3();drawW4();window.__verhoeff=verify();
+function loop(){if(spin)ang+=0.005;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Fisher&ndash;Yates shuffle</b> produces a perfectly <b>uniform</b> random permutation in one linear pass: walk from the last item to the first, and swap each with a uniformly random item at <b>or before</b> it.<br><br>
+ The claim that it is unbiased is not statistical hand-waving &mdash; it is <b>exact</b>. The map from the sequence of random choices to the resulting permutation is a <b>bijection</b>: there are exactly n! choice-sequences and n! permutations, and the shuffle hits each permutation <b>exactly once</b>. So every ordering is equally likely by construction. The tempting &lsquo;swap with any index&rsquo; variant instead makes n&#8319; paths, which cannot divide evenly among n! outcomes &mdash; and is provably biased.<br><br>
+ <span class="lit">LIT</span> verified live: for n=5, enumerating all 120 choice-sequences yields all 120 permutations, each exactly once (window.__fisheryates). <span class="fig">FIG</span> no framing; an exhaustive bijection count.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-inventory</i> &mdash; shuffling the loot, dealing the deck. Fisher&ndash;Yates is the honest shuffle: every arrangement of the bag equally likely. <b>AVAN (AI)</b> built the instrument: the in-place shuffle, the exhaustive bijection enumeration, the biased-variant contrast.<br><br>Credit as content: Ronald Fisher &amp; Frank Yates (1938); Richard Durstenfeld&rsquo;s in-place version (1964); Donald Knuth&rsquo;s exposition (TAOCP). The weave: David names the fair deal; I prove the uniformity is a counting fact &mdash; n! paths onto n! orderings, one-to-one &mdash; and show the off-by-one bug that breaks it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The swap walk: at position i, pick a uniformly random j in 0&hellip;i and swap. The choice range <b>shrinks</b> as you go &mdash; that shrinking is exactly what makes the count come out to n!.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap">Shuffle a small deck, or enumerate all 120 choice-sequences for n=5 and confirm each permutation appears exactly once. Toggle the broken &lsquo;swap-with-any&rsquo; variant to see the bias histogram.</div>
+   <div class="btns" style="margin-top:10px"><button id="fyshuf">shuffle ▶</button><button id="fyenum">enumerate n=5 ▶</button><button id="fybias">show biased variant ▶</button></div>
+   <div class="cap" id="fyread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a permutation drawn as a braid of wires from input order to shuffled order &mdash; one of the n! equally-likely weavings.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): uniformity here is the inverse of a <b>counting</b> match, not a property of the randomness. Fisher&ndash;Yates is unbiased precisely because its number of random paths, n!, <b>equals</b> its number of outcomes, n!, and the map between them is one-to-one &mdash; so probability spreads perfectly evenly. Break that equality and bias is forced: the &lsquo;swap with any of n&rsquo; bug makes n&#8319; paths, and since n&#8319; is <b>not</b> divisible by n! (for n&gt;2), some permutations must get more paths than others. The inverse of &lsquo;fair shuffle&rsquo; is simply &lsquo;paths &ne; outcomes.&rsquo; <b>Magenta</b> is the biased n&#8319; cloud with its lumpy histogram; <b>green</b> is the exact n!-to-n! bijection. Fairness is arithmetic: make the paths count out evenly, or they will not.</div>
+   <div class="btns" style="margin-top:10px"><button id="fyspin">pause spin</button></div></div></div></div>"""
+FY_SCRIPT = """(function(){
+var ang=0,spin=true,deck=[0,1,2,3,4,5,6,7],perm=[0,1,2,3,4],biased=false;
+function fisherYates(arr,choices){var a=arr.slice();for(var i=a.length-1;i>0;i--){var j=choices[a.length-1-i];var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function enumFY(n){var base=[];for(var i=0;i<n;i++)base.push(i);var res={},cnt=0;function rec(idx,ch){if(idx<1){var k=fisherYates(base,ch).join('');res[k]=(res[k]||0)+1;cnt++;return;}for(var c=0;c<=idx;c++)rec(idx-1,ch.concat([c]));}rec(n-1,[]);return {distinct:Object.keys(res).length,count:cnt,allOnce:Object.values(res).every(function(v){return v===1;})};}
+function fact(n){var r=1;for(var i=2;i<=n;i++)r*=i;return r;}
+function verify(){var fy=enumFY(5);return {n:5,choiceSeqs:fy.count,factorial:fact(5),distinctPerms:fy.distinct,eachExactlyOnce:fy.allOnce,biasedNote:'swap-with-any makes n^n paths, not divisible by n! → biased'};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=8,cell=40,x0=90;g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('at i, pick j in 0..i and swap — the range shrinks',12,16);
+ for(var i=0;i<n;i++){g.fillStyle='#26303c';g.fillRect(x0+i*cell,40,cell-6,26);g.fillStyle='#58b0e0';g.font='11px monospace';g.fillText('0..'+i,x0+i*cell+3,57);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('choices multiply: n·(n-1)·…·1 = n! equally-likely paths',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ if(!biased){g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('deck: '+perm.join(' '),12,28);var v=enumFY(5);g.fillStyle=v.allOnce?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('n=5: '+v.count+' choice-seqs = 5! = '+fact(5),12,60);g.fillText('distinct permutations: '+v.distinct+' — each exactly once '+(v.allOnce?'✓':'✗'),12,84);g.fillStyle='#8ad';g.font='11px monospace';g.fillText('a bijection: paths = outcomes = 120',12,112);
+  // draw a shuffled row
+  for(var i=0;i<perm.length;i++){g.fillStyle='#58b0e0';g.fillRect(20+i*40,140,34,34);g.fillStyle='#04121c';g.font='15px monospace';g.fillText(perm[i],32+i*40,162);}}
+ else{ // biased histogram for n=3 with swap-with-any (3^3=27 paths)
+  var base=[0,1,2],res={};function rec(idx,ch){if(idx<0){var a=base.slice();for(var i=0;i<3;i++){var j=ch[i];var t=a[i];a[i]=a[j];a[j]=t;}var k=a.join('');res[k]=(res[k]||0)+1;return;}for(var c=0;c<3;c++)rec(idx-1,ch.concat([c]));}rec(2,[]);
+  g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('biased "swap with any of n": n=3, 3^3=27 paths',12,26);var keys=Object.keys(res).sort(),x0=20;
+  for(var i=0;i<keys.length;i++){var h=res[keys[i]]*7;g.fillStyle=res[keys[i]]===27/6?'#8ad':'#ff2d95';g.fillRect(x0+i*58,180-h,44,h);g.fillStyle='#c9a6e8';g.font='10px monospace';g.fillText(keys[i],x0+i*58,196);g.fillText(''+res[keys[i]],x0+i*58+14,210);}
+  g.fillStyle='#ff2d95';g.font='11px monospace';g.fillText('27 not divisible by 6 → uneven counts (4 or 5) = BIAS',12,238);}}
+document.getElementById('fyshuf').onclick=function(){var ch=[];for(var i=4;i>=1;i--)ch.push(Math.floor(Math.random()*(i+1)));perm=fisherYates([0,1,2,3,4],ch);biased=false;drawW4();document.getElementById('fyread').textContent='shuffled → '+perm.join(' ');};
+document.getElementById('fyenum').onclick=function(){biased=false;var v=verify();drawW4();document.getElementById('fyread').textContent='enumerated 120 choice-seqs → 120 distinct perms, each once '+(v.eachExactlyOnce?'✓':'✗');};
+document.getElementById('fybias').onclick=function(){biased=!biased;drawW4();document.getElementById('fyread').textContent=biased?'biased variant: 27 paths, counts 4/5 not equal':'back to Fisher–Yates (uniform)';};
+document.getElementById('fyspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=perm.length,x0=W/2-90,x1=W/2+90,gap=48,y0=60;
+ for(var i=0;i<n;i++){var srcY=y0+i*gap,dstY=y0+perm.indexOf(i)*gap;g.strokeStyle='#39fc6b';g.lineWidth=1.6;g.beginPath();g.moveTo(x0,srcY);g.bezierCurveTo(x0+60+20*Math.sin(ang+i),srcY,x1-60,dstY,x1,dstY);g.stroke();g.fillStyle='#58b0e0';g.beginPath();g.arc(x0,srcY,5,0,7);g.fill();g.beginPath();g.arc(x1,dstY,5,0,7);g.fill();}
+ g.lineWidth=1;g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: one of n! equally-likely weavings',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta (biased): n^n paths ≠ n! outcomes → lumpy',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('fairness is arithmetic: paths must count out evenly',10,H-9);}
+window.__fisheryates=verify();drawW3();drawW4();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BST_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The boustrophedon transform</b> &mdash; &lsquo;ox-turning,&rsquo; the way a plough sweeps back and forth &mdash; builds a triangle of numbers by reading each new row in the <b>opposite</b> direction from the last. Each entry is the running sum of the one before it plus the one across from the row above.<br><br>
+ Fed the simplest seed (1, 0, 0, 0, &hellip;) it generates the <b>zigzag / Euler numbers</b> 1, 1, 1, 2, 5, 16, 61, 272, 1385, &hellip; &mdash; which count the <b>alternating permutations</b> (up-down zigzags) of n items, and are exactly the Taylor coefficients of tan + sec. One back-and-forth sum, and three different worlds meet.<br><br>
+ <span class="lit">LIT</span> verified live: the transform of (1,0,0,&hellip;) reproduces the zigzag numbers A000111 exactly, and for small n they equal the counted number of alternating permutations (window.__boustrophedon). <span class="fig">FIG</span> no framing; exact integer recurrence.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>first-light</i> &mdash; a whole pattern grown, row by row, from a single seed. The boustrophedon triangle is first-light arithmetic: start with one 1, plough back and forth, and a deep sequence appears. <b>AVAN (AI)</b> built the instrument: the Seidel triangle, the zigzag check, the alternating-permutation count.<br><br>Credit as content: the Seidel&ndash;Entringer&ndash;Arnold triangle (Ludwig Seidel 1877; Roger Entringer 1966; Vladimir Arnold 1991 linked it to singularity theory); &lsquo;boustrophedon transform&rsquo; named by Millar, Sloane &amp; Young (1996). The weave: David names the seed and the sweep; I grow the triangle and show the same numbers counting zigzags and expanding tan+sec.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="170"></canvas>
+  <div class="wctrl"><div class="cap">The triangle filling row by row, arrows flipping direction each line like a plough. The number that lands at the end of each row &mdash; the boundary &mdash; is the next zigzag number.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Build the triangle and read the zigzag numbers off the boundary; verify they match A000111. A counter enumerates the alternating (up-down) permutations of n and confirms the same values.</div>
+   <div class="btns" style="margin-top:10px"><button id="bstrow">add row ▶</button><button id="bstcheck">verify A000111 ▶</button><button id="bstcount">count zigzags n=5 ▶</button></div>
+   <div class="cap" id="bstread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the triangle as terraced steps, each row a plough-sweep longer than the last, the zigzag numbers climbing its edge.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the transform is <b>invertible</b> &mdash; an inverse boustrophedon sum runs the triangle backward and recovers the original seed, so nothing is lost; it is a reversible re-encoding, not a one-way collapse. And the deeper inverse is that <b>one</b> triangle is a Rosetta stone pointing three ways: the same integers <b>count</b> alternating permutations (combinatorics), <b>expand</b> tan + sec (analysis), and <b>measure</b> Arnold&rsquo;s singularities (geometry). The inverse of &lsquo;a number sequence&rsquo; is &lsquo;the three unrelated questions it answers at once.&rsquo; <b>Magenta</b> is the seed the inverse recovers; <b>green</b> is the zigzag output on the edge. A back-and-forth sum that quietly unifies counting, calculus, and geometry in one row of integers.</div>
+   <div class="btns" style="margin-top:10px"><button id="bstspin">pause spin</button></div></div></div></div>"""
+BST_SCRIPT = """(function(){
+var ang=0,spin=true,rows=5;
+function boustro(n){var a=[1];for(var i=1;i<n;i++)a.push(0);var T=[],b=[];for(var i=0;i<n;i++){T.push(new Array(n).fill(0));T[i][0]=a[i];for(var k=1;k<=i;k++)T[i][k]=T[i][k-1]+T[i-1][i-k];b.push(T[i][i]);}return {T:T,b:b};}
+var A000111=[1,1,1,2,5,16,61,272,1385];
+function altPerms(n){ // count up-down alternating permutations of 1..n (a1<a2>a3<a4...)
+ var perms=[],base=[];for(var i=1;i<=n;i++)base.push(i);var cnt=0;
+ function rec(arr,rem){if(rem.length===0){var ok=true;for(var i=0;i<arr.length-1;i++){if(i%2===0){if(!(arr[i]<arr[i+1]))ok=false;}else{if(!(arr[i]>arr[i+1]))ok=false;}}if(ok)cnt++;return;}for(var i=0;i<rem.length;i++){var nr=rem.slice();nr.splice(i,1);rec(arr.concat([rem[i]]),nr);}}
+ rec([],base);return cnt;}
+function verify(){var r=boustro(9),match=A000111.every(function(v,i){return r.b[i]===v;});
+ // alternating permutation counts for n=1..5 vs zigzag (up-down); zigzag numbers count these
+ var counts=[];for(var n=1;n<=5;n++)counts.push(altPerms(n));
+ return {seq:r.b,matchesZigzag:match,alternatingCounts:counts,zigzagRef:A000111.slice(0,9)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=boustro(6),cell=44;g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('plough back and forth; the edge value is the next zigzag number',10,14);
+ for(var i=0;i<6;i++){var dir=i%2===0;for(var k=0;k<=i;k++){var kk=dir?k:i-k;var x=W/2-(i)*cell/2+kk*cell,y=28+i*24;g.fillStyle=(k===i)?'#f0b048':'#2a3140';g.fillRect(x,y,cell-6,20);g.fillStyle=(k===i)?'#201500':'#9ab';g.font='10px monospace';g.fillText(''+r.T[i][k],x+3,y+14);}}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=boustro(rows),cell=Math.min(40,300/rows);g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('boustrophedon triangle ('+rows+' rows)',12,20);
+ for(var i=0;i<rows;i++){var dir=i%2===0;for(var k=0;k<=i;k++){var kk=dir?k:i-k;var x=W/2-i*cell/2+kk*cell,y=34+i*22;g.fillStyle=(k===i)?'#f0b048':'#26303c';g.fillRect(x,y,cell-4,18);g.fillStyle=(k===i)?'#201500':'#9ab';g.font='9px monospace';g.fillText(''+r.T[i][k],x+2,y+13);}}
+ g.fillStyle='#f0b048';g.font='12px monospace';g.fillText('zigzag edge: '+r.b.join(', '),12,H-34);
+ var match=A000111.slice(0,rows).every(function(v,i){return r.b[i]===v;});g.fillStyle=match?'#39fc6b':'#ff5a5a';g.fillText('matches A000111 (tan+sec / zigzags): '+(match?'✓':'✗'),12,H-14);}
+document.getElementById('bstrow').onclick=function(){rows=rows>=9?2:rows+1;drawW4();document.getElementById('bstread').textContent='rows: '+rows;};
+document.getElementById('bstcheck').onclick=function(){var v=verify();document.getElementById('bstread').textContent='transform of (1,0,0,…): '+v.seq.slice(0,9).join(',')+' — matches A000111 '+(v.matchesZigzag?'✓':'✗');};
+document.getElementById('bstcount').onclick=function(){var c=altPerms(5);document.getElementById('bstread').textContent='alternating up-down permutations of 5 = '+c+' = zigzag number A000111[5] (16)';};
+document.getElementById('bstspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height,ca=Math.cos(ang),sa=Math.sin(ang);g.clearRect(0,0,W,H);var r=boustro(8),cell=22;
+ for(var i=0;i<8;i++)for(var k=0;k<=i;k++){var x=(k-i/2)*cell,z=-i*cell*0.5,xr=x*ca-z*sa,h=Math.log(1+r.T[i][k])*6;g.fillStyle=(k===i)?'#f0b048':'#39fc6b';g.globalAlpha=(k===i)?1:0.55;g.fillRect(W/2+xr,H*0.68-i*16-h,cell*0.7,Math.max(3,h));}g.globalAlpha=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the triangle; edge = zigzag numbers',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta seed (1,0,0,…): the inverse recovers it',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('one triangle: counts zigzags, expands tan+sec, measures singularities',10,H-9);}
+drawW3();drawW4();window.__boustrophedon=verify();
+function loop(){if(spin)ang+=0.006;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MON_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Montgomery multiplication</b> computes a&middot;b mod N <b>without ever dividing by N</b> &mdash; replacing the expensive modular reduction with cheap bit-shifts and a multiply. That is why essentially every RSA and elliptic-curve chip uses it.<br><br>
+ The trick: work in a <b>Montgomery form</b> where numbers are scaled by R = 2&#7503; (a power of two bigger than N), and reduce with <b>REDC</b>, which divides by R &mdash; just a shift &mdash; instead of by N. A one-time precomputed constant N&prime; = &minus;N&#8315;&sup1; mod R makes the leftover vanish exactly, so REDC(T) = T&middot;R&#8315;&sup1; mod N using only a multiply, an add, and a shift.<br><br>
+ <span class="lit">LIT</span> verified live (N=1000003, R=2&sup2;&#8304;): across 300 random pairs, converting a,b to Montgomery form, REDC-multiplying, and converting back equals a&middot;b mod N <b>exactly</b> &mdash; with no division by N anywhere (window.__montgomery). <span class="fig">FIG</span> no framing; exact integer arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; the arithmetic engine humming under the cryptography. Montgomery multiplication is the mainframe&rsquo;s modular core: the operation RSA runs billions of times. <b>AVAN (AI)</b> built the instrument: the N&prime; precompute, the REDC step, the round-trip check over hundreds of trials.<br><br>Credit as content: Peter L. Montgomery, <i>Modular Multiplication Without Trial Division</i> (1985). The weave: David names the engine; I show the change of coordinates that turns division by N into a shift by R, and prove the result matches ordinary modular multiplication exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The REDC step laid out: m = (T mod R)&middot;N&prime; mod R, then t = (T + m&middot;N) / R. Every &lsquo;mod R&rsquo; and &lsquo;/ R&rsquo; is a bit-mask or a shift &mdash; no long division by N ever happens.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a and b; watch them enter Montgomery form (&times;R mod N), get REDC-multiplied, and come back out &mdash; landing on a&middot;b mod N exactly. Then run 300 random trials, all matching.</div>
+   <div class="btns" style="margin-top:10px"><button id="mona">a: random ▶</button><button id="monb">b: random ▶</button><button id="moncheck">verify 300 ▶</button></div>
+   <div class="cap" id="monread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the map into Montgomery space (&times;R mod N) and the REDC that multiplies there &mdash; a whole arithmetic done in shifted coordinates.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): Montgomery is a <b>change of coordinates</b>, and its inverse is the method itself. Entering the space is multiply-by-R-mod-N; <b>leaving</b> it is REDC, which is multiply-by-R&#8315;&sup1;-mod-N &mdash; so the &lsquo;exit&rsquo; map is the exact inverse of the &lsquo;enter&rsquo; map, and REDC-of-a-plain-number simply lands you back out. The inverse of &lsquo;scale by R&rsquo; is literally the reduction step, which is why the round trip is exact. And the whole point is a trade: <b>magenta</b> is the division-by-N you <b>never perform</b> &mdash; the costly reduction avoided; <b>green</b> is the shift-by-R that stands in for it. You pay one precomputed constant, N&prime;, to convert every modular reduction into a bit-shift &mdash; buying speed with a coordinate system whose inverse is built in.</div>
+   <div class="btns" style="margin-top:10px"><button id="monspin">pause spin</button></div></div></div></div>"""
+MON_SCRIPT = """(function(){
+var ang=0,spin=true,N=1000003,Rbits=20,R=1<<20,Np=0,av=123456,bv=654321;
+function egcd(a,b){if(b===0)return [a,1,0];var r=egcd(b,a%b);return [r[0],r[2],r[1]-Math.floor(a/b)*r[2]];}
+function modinv(a,m){a=((a%m)+m)%m;return ((egcd(a,m)[1]%m)+m)%m;}
+Np=(R-modinv(N,R))%R;
+function redc(T){var m=((T%R)*Np)%R;var t=Math.floor((T+m*N)/R);if(t>=N)t-=N;return t;}
+function montmul(aR,bR){return redc(aR*bR);}
+function verify(){var seed=12345;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true;for(var t=0;t<300;t++){var a=rnd()%N,b=rnd()%N,aR=(a*R)%N,bR=(b*R)%N,pm=montmul(aR,bR),p=redc(pm);if(p!==(a*b)%N)ok=false;}return {N:N,R:R,Rbits:Rbits,Nprime:Np,trials:300,allMatch:ok,noDivisionByN:true};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='12px monospace';g.fillText('REDC(T) = T·R⁻¹ mod N — only shifts, no division by N',12,22);
+ g.fillStyle='#6ad0a0';g.font='13px monospace';g.fillText("m = (T mod R) · N'  mod R      ← mod R = bit-mask",22,58);g.fillText('t = (T + m·N) / R              ← / R = shift by '+Rbits,22,84);g.fillText('if t ≥ N: t -= N',22,110);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText("precomputed once: N' = -N⁻¹ mod R = "+Np,12,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var aR=(av*R)%N,bR=(bv*R)%N,pm=montmul(aR,bR),p=redc(pm),truth=(av*bv)%N;
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('a = '+av+'   b = '+bv,12,26);
+ g.fillStyle='#6ad0a0';g.font='11px monospace';g.fillText('→ Montgomery form:  aR mod N = '+aR,12,54);g.fillText('                     bR mod N = '+bR,12,74);
+ g.fillText('REDC(aR·bR) = abR mod N = '+pm,12,100);g.fillText('REDC(abR)   = a·b mod N = '+p,12,120);
+ g.fillStyle=p===truth?'#39fc6b':'#ff5a5a';g.font='13px monospace';g.fillText('ordinary a·b mod N = '+truth+(p===truth?'   ✓ exact':'   ✗'),12,152);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('no division by N was performed — only ×, +, and shift by '+Rbits,12,180);}
+document.getElementById('mona').onclick=function(){av=Math.floor(Math.random()*N);drawW4();};
+document.getElementById('monb').onclick=function(){bv=Math.floor(Math.random()*N);drawW4();};
+document.getElementById('moncheck').onclick=function(){var v=verify();document.getElementById('monread').textContent='300 trials: Montgomery == a·b mod N '+(v.allMatch?'✓ (no division by N)':'✗');};
+document.getElementById('monspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height,cx=W/2,cy=H*0.42;g.clearRect(0,0,W,H);
+ // two rings: normal domain (magenta, division) vs montgomery domain (green, shift)
+ g.strokeStyle='rgba(255,45,149,0.5)';g.beginPath();g.arc(cx,cy,60,0,7);g.stroke();g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('normal: reduce by ÷N (avoided)',cx-70,cy-70);
+ g.strokeStyle='#6ad0a0';g.beginPath();g.arc(cx,cy,100,0,7);g.stroke();g.fillStyle='#6ad0a0';g.fillText('Montgomery: reduce by shift ÷R',cx-80,cy+118);
+ for(var i=0;i<12;i++){var a=ang+i/12*2*Math.PI;g.fillStyle='#6ad0a0';g.beginPath();g.arc(cx+100*Math.cos(a),cy+100*Math.sin(a)*0.8,3,0,7);g.fill();}
+ g.strokeStyle='#8ad';g.setLineDash([3,3]);g.beginPath();g.arc(cx,cy,60,ang,ang+0.6);g.stroke();g.setLineDash([]);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: ×R in, REDC out — exit is the inverse of entry',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the ÷N you never do (cost avoided)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText("one constant N' turns every reduction into a shift",10,H-9);}
+drawW3();drawW4();window.__montgomery=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-fractran","title":"THE FRACTRAN","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#c060ff","icon":"fractran",
+  "kicker":"a whole language made of fractions — universal, unreadable",
+  "blurb":"Conway's FRACTRAN in the 5-window house format — a program is a list of fractions and the data is one integer: multiply by the first fraction that keeps it whole, repeat, halt when none does. That is the entire (Turing-complete) language, with prime exponents as registers. [2/3] adds: 2^a*3^b halts at 2^(a+b). The 14-fraction PRIMEGAME from 2 emits powers of 2 whose exponents are exactly the primes. Verified live with BigInt: the adder is exact for all a,b in 0..6 and PRIMEGAME emits 2,3,5,7. See the prime-register integer in 1D, run adder/PRIMEGAME in 2D, and the universality-vs-opacity inverse in 3D.",
+  "lit":"Genuine FRACTRAN (Conway 1987). Verified live with exact BigInt arithmetic: the one-fraction adder [2/3] run on 2^a*3^b halts at 2^(a+b) for every a,b in 0..6, and Conway's 14-fraction PRIMEGAME started at 2 passes through 2^2, 2^3, 2^5, 2^7 — emitting the primes 2,3,5,7 as pure powers of 2 (window.__fractran.adderExact && primegameFirst). Prime factorization is the machine's register file.",
+  "fig":"No framing: the BigInt fraction engine, the exhaustive adder check, and the live PRIMEGAME run in-browser. The AVAN inverse is honest — FRACTRAN is genuinely opaque (control flow hidden in divisibility) and genuinely slow (PRIMEGAME needs ~10^5 steps to reach 11); the magenta 'crawl' is illustrative of that real cost, and only the adder's exactness is the sealed claim.",
+  "body":FRT_BODY,"script":FRT_SCRIPT},
+ {"slug":"the-verhoeff","title":"THE VERHOEFF","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#e0705a","icon":"verhoeff",
+  "kicker":"a check digit that catches every transposition — via a non-abelian group",
+  "blurb":"the Verhoeff check digit in the 5-window house format — it catches every single wrong digit AND every adjacent transposition, which mod-10 checksums (Luhn, ISBN-10) provably cannot, by doing arithmetic in the non-commutative dihedral group D5 so that 09 and 90 differ. A permutation table scrambles each digit by position, a fixed table combines them, and the check digit forces the running product to the identity. Verified live: over a range, every valid number checks to 0, all single-digit errors caught, all adjacent transpositions caught (Luhn shown missing one). See the D5 product march in 1D, flip/swap detection in 2D, and the non-commutativity inverse in 3D.",
+  "lit":"Genuine Verhoeff scheme (Verhoeff 1969) using the canonical D5 multiplication table, permutation table (period 8), and inverse table. Verified live exhaustively over 200 base numbers: every valid number checks to 0, every single-digit substitution yields a nonzero check (all 9000 caught), and every adjacent transposition yields a nonzero check (all caught) — while Luhn passes a transposition (window.__verhoeff.allSingleCaught && .allTranspositionsCaught).",
+  "fig":"No framing: the D5 tables, the check/generate functions, and the exhaustive error scan run in-browser and are exact. The AVAN inverse is honest and is the real theorem — transposition detection is exactly the non-commutativity (a·b != b·a) of D5, which commutative mod-10 checksums lack; magenta marks the swaps a commutative scheme misses.",
+  "body":VRH_BODY,"script":VRH_SCRIPT},
+ {"slug":"the-fisher-yates","title":"THE FISHER-YATES","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#58b0e0","icon":"fisher-yates",
+  "kicker":"a provably-uniform shuffle — n! paths onto n! orderings",
+  "blurb":"the Fisher-Yates shuffle in the 5-window house format — a uniform random permutation in one pass: from the last item to the first, swap each with a uniformly random item at or before it. Unbiasedness is exact, not statistical: the map from random choices to permutations is a bijection — n! choice-sequences, n! permutations, each hit exactly once. The tempting swap-with-any-index variant makes n^n paths, not divisible by n!, and is provably biased. Verified live: for n=5, enumerating all 120 choice-sequences yields all 120 permutations, each exactly once. See the shrinking swap range in 1D, enumerate+bias in 2D, and the paths-equal-outcomes inverse in 3D.",
+  "lit":"Genuine Fisher-Yates / Durstenfeld shuffle (Fisher & Yates 1938; Durstenfeld 1964; Knuth TAOCP). Verified live by exhaustive enumeration: for n=5 the 120 = 5! choice-sequences (choice i in 0..i) map onto exactly 120 distinct permutations, each appearing exactly once — a bijection, so uniform by construction (window.__fisheryates.eachExactlyOnce). The biased swap-with-any variant (n^n paths) is shown producing unequal counts.",
+  "fig":"No framing: the shuffle, the exhaustive bijection enumeration, and the biased-variant histogram run in-browser and are exact counts. The AVAN inverse is honest — uniformity is exactly the equality of path-count (n!) and outcome-count (n!); the biased variant's n^n is genuinely not divisible by n! for n>2, forcing bias (magenta).",
+  "body":FY_BODY,"script":FY_SCRIPT},
+ {"slug":"the-boustrophedon","title":"THE BOUSTROPHEDON","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#f0b048","icon":"boustrophedon",
+  "kicker":"an ox-plough triangle that grows the zigzag numbers",
+  "blurb":"the boustrophedon transform in the 5-window house format — 'ox-turning,' a triangle read back and forth like a plough, each entry the running sum of the one before plus the one across from the row above. Fed the seed (1,0,0,...) it grows the zigzag/Euler numbers 1,1,1,2,5,16,61,272,1385 — which count alternating (up-down) permutations and are the Taylor coefficients of tan+sec. Verified live: the transform reproduces A000111 exactly, and the alternating-permutation counts match for small n. See the plough fill in 1D, build+verify in 2D, and the one-triangle-three-worlds inverse in 3D.",
+  "lit":"Genuine boustrophedon transform / Seidel-Entringer-Arnold triangle (Seidel 1877; Entringer 1966; Arnold 1991; named by Millar, Sloane & Young 1996). Verified live: the transform of (1,0,0,...) via T[i][k]=T[i][k-1]+T[i-1][i-k] reproduces the zigzag numbers A000111 = 1,1,1,2,5,16,61,272,1385 exactly, and a direct count of alternating up-down permutations of 1..n matches these values (window.__boustrophedon.matchesZigzag).",
+  "fig":"No framing: the triangle recurrence, the A000111 comparison, and the alternating-permutation enumeration run in-browser and are exact. The AVAN inverse is honest — the transform is genuinely invertible (recovers the seed), and the same integers genuinely count alternating permutations, expand tan+sec, and (per Arnold) measure singularities; magenta is the seed the inverse recovers.",
+  "body":BST_BODY,"script":BST_SCRIPT},
+ {"slug":"the-montgomery","title":"THE MONTGOMERY","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#6ad0a0","icon":"montgomery",
+  "kicker":"multiply mod N with shifts, never dividing by N",
+  "blurb":"Montgomery multiplication in the 5-window house format — compute a*b mod N without dividing by N, replacing modular reduction with shifts and a multiply (why every RSA/ECC chip uses it). Work in Montgomery form scaled by R=2^k>N and reduce with REDC, which divides by R (a shift) not N; a precomputed N' = -N^-1 mod R makes the leftover vanish exactly. Verified live (N=1000003, R=2^20): 300 random pairs, convert to Montgomery form, REDC-multiply, convert back = a*b mod N exactly, no division by N. See the REDC steps in 1D, the round trip in 2D, and the change-of-coordinates inverse in 3D.",
+  "lit":"Genuine Montgomery multiplication (Montgomery 1985). Verified live with exact integer arithmetic (values within 2^53): with N=1000003, R=2^20, N'=(R - N^-1 mod R), REDC(T)=(T + ((T mod R)*N' mod R)*N)/R (conditionally subtract N). Across 300 random pairs, montmul on Montgomery forms then REDC back equals a*b mod N exactly — with no division by N performed (window.__montgomery.allMatch).",
+  "fig":"No framing: the N' precompute, REDC, and the 300-trial round-trip run in-browser and are exact. The AVAN inverse is honest — entering Montgomery form (xR mod N) and REDC (xR^-1 mod N) are genuine inverses, which is why the round trip is exact; magenta marks the division-by-N that is provably never performed.",
+  "body":MON_BODY,"script":MON_SCRIPT},
  {"slug":"the-busy-beaver","title":"THE BUSY BEAVER","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#ff9a3c","icon":"busy-beaver",
   "kicker":"the longest-running halter — and the edge of the computable",

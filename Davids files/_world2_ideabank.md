@@ -3,6 +3,12 @@ Sourced 2026-07-31 by 5 domain-keeper agents. Each idea carries a CONCRETE in-br
 math claim (the honesty gate). Build in the 5-window house style; verify the claim live before sealing.
 Mark an idea `[BUILT]` when done. Prefer the obscure over the textbook. Some overlap across veins — pick distinct.
 
+> ⚠ STALE (2026-08-01): most veins A–E are ALREADY BUILT. Before building ANY idea, grep the
+> generator: `python -c "import re;print('the-SLUG' in set(re.findall(r'\"slug\":\"([^\"]+)\"',open('_world2_spheres.py',encoding='utf-8').read())))"`
+> Batch 38 built the genuinely-absent: THE BUSY BEAVER, THE MARGOLUS MIRROR, THE REED-SOLOMON,
+> THE MINSKY MACHINE, THE CRC. Refill the bank with NEW esoterica when picking gets hard.
+
+
 Already built (do NOT rebuild): elementary CA, Turing machine, RPN stack, full-adder, BFS, Hamming(7,4),
 chaos game/Sierpinski, DFA÷3, LFSR, Gray code, Sieve, Huffman, Euclid GCD, DFT, Newton fractal, bitonic sort,
 Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, attention head, 3-2-1 compressor.
