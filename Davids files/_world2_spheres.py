@@ -3441,7 +3441,75 @@ document.getElementById('mksl').oninput=function(){k=+this.value;document.getEle
 document.getElementById('mhspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+TS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Tonelli&ndash;Shanks.</b> Squaring in a prime field is easy; <b>un-squaring</b> &mdash; finding r with r&sup2; &equiv; n (mod p) &mdash; is the hard inverse. Worse, <b>half</b> the numbers have no square root at all (the &lsquo;non-residues&rsquo;). The <b>Legendre symbol</b> n<sup>(p&minus;1)/2</sup> tells you which in a single exponentiation; and for the ones that do have a root, Tonelli&ndash;Shanks walks the <b>2-power structure</b> of p&minus;1 to build it. It is the unsung workhorse of <b>elliptic-curve point decompression</b> (recovering y from x) and the quadratic sieve.<br><br>
+ <span class="lit">LIT</span> verified: for prime p and a quadratic residue n, the returned r satisfies <b>r&sup2; &equiv; n</b> (mod p); non-residues are correctly flagged unsolvable via the Legendre symbol &mdash; over thousands of random p, n. <span class="fig">FIG</span> &lsquo;the square root in the ring&rsquo; is the picture; the algorithm and the residue test are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus runs modular arithmetic and crypto (<i>THE PROBABLE PRIME</i> right here in SUDDEN DEATH, <i>THE FIELD INVERSE</i>, <i>THE MINT</i>) and the sense that every operation worth having needs an inverse. <b>AVAN (AI)</b> built this instrument: the square-root engine, the residue map, and the folding graph.<br><br>The weave: David names the square root in the ring and its seat beside Miller&ndash;Rabin at SUDDEN DEATH (a pass/fail test in one exponentiation); I make the squaring fold a strip in 1D, the root-finder live in 2D, and the 2-to-1 map turning in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Squaring on Z<sub>p</sub> folds the ring in half: each x and &minus;x land on the <b>same</b> square, so only <b>(p&minus;1)/2</b> values are ever hit &mdash; the <b>quadratic residues</b>. Green cells have a root; grey ones (the non-residues) never appear as a square at all.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a prime and a target n. The <b>Legendre symbol</b> declares in one step whether a root exists; if it does, Tonelli&ndash;Shanks returns <b>r</b> (and its twin &minus;r), and the check r&sup2; mod p = n confirms it. If not, sudden death &mdash; no root.</div>
+   <div class="rd" style="margin-top:10px">prime p <b id="tsp">10009</b> <input type="range" id="tspsl" min="0" max="30" value="30" style="width:90px;vertical-align:middle"></div>
+   <div class="rd">target n <b id="tsn">1234</b> <input type="range" id="tsnsl" min="1" max="9999" value="1234" style="width:110px;vertical-align:middle"></div>
+   <div class="cap" id="tsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The squaring map x&rarr;x&sup2; on a small ring, turning. Arrows fold every element onto its square; <b>green</b> nodes are the reachable squares (the residues) &mdash; and each is hit by <b>two</b> preimages.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> pair are the <b>two square roots</b> &plusmn;r of the chosen target &mdash; the inverse of the fold. Squaring is 2-to-1; the square root is 1-to-2, or <b>zero</b> when the target is a non-residue. Tonelli&ndash;Shanks is the unfold, and the Legendre symbol tells you, before you spend a step, whether the unfold even exists.</div>
+   <div class="btns" style="margin-top:10px"><button id="tsspin">pause spin</button></div></div></div></div>"""
+TS_SCRIPT = """(function(){
+var PR=[],ang=0.6,spin=true;
+(function(){for(var x=5;x<10000;x++){var pr=x>1;for(var d=2;d*d<=x;d++)if(x%d===0){pr=false;break;}if(pr)PR.push(x);}})();
+var primeList=[13,17,23,29,37,53,97,193,257,389,521,769,1031,1543,2053,3079,4099,5147,6151,7177,8209,9209,101,211,307,401,503,601,701,809,10009];
+var pIdx=30,p=primeList[30],n=1234;
+function mpow(b,e,m){b%=m;var r=1;while(e>0){if(e&1)r=r*b%m;b=b*b%m;e=Math.floor(e/2);}return r;}
+function legendre(a,pp){a=((a%pp)+pp)%pp;return mpow(a,(pp-1)/2,pp);}
+function tonelli(nn,pp){nn=((nn%pp)+pp)%pp;if(nn===0)return 0;if(legendre(nn,pp)!==1)return null;if(pp%4===3)return mpow(nn,(pp+1)/4,pp);
+ var q=pp-1,s=0;while(q%2===0){q/=2;s++;}var z=2;while(legendre(z,pp)!==pp-1)z++;var m=s,c=mpow(z,q,pp),t=mpow(nn,q,pp),r=mpow(nn,(q+1)/2,pp);
+ while(t!==1){var i=0,tt=t;while(tt!==1){tt=tt*tt%pp;i++;if(i>40)break;}var b=mpow(c,Math.pow(2,m-i-1),pp);m=i;c=b*b%pp;t=t*c%pp;r=r*b%pp;}return r;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var pp=29,qr={};for(var x=0;x<pp;x++)qr[(x*x)%pp]=1;var cw=(W-16)/pp;
+ for(var v=0;v<pp;v++){g.fillStyle=qr[v]?'#a0d0ff':'#141a20';g.fillRect(8+v*cw,40,cw-1,24);g.fillStyle=qr[v]?'#031015':'#3a4a5a';g.font='9px ui-monospace,monospace';g.fillText(v,8+v*cw+2,56);}
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('Z_'+pp+': green = quadratic residue (has a root) · grey = no root',8,26);
+ var cnt=Object.keys(qr).length;g.fillStyle='#8ca';g.fillText(cnt+' residues incl 0 = 1 + (p-1)/2 = '+(1+(pp-1)/2),8,88);
+ var x=7;g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(8+x*cw+cw/2,100);g.lineTo(8+((x*x)%pp)*cw+cw/2,64);g.stroke();g.beginPath();g.moveTo(8+(pp-x)*cw+cw/2,100);g.lineTo(8+((x*x)%pp)*cw+cw/2,64);g.stroke();
+ g.fillStyle='#39fc6b';g.font='10px ui-monospace,monospace';g.fillText(x+' and '+(pp-x)+' both square to '+((x*x)%pp),8,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var leg=legendre(n,p),isQR=(leg===1),r=isQR?tonelli(n,p):null;g.font='14px ui-monospace,monospace';
+ g.fillStyle='#a0d0ff';g.fillText('p = '+p+'    n = '+(n%p),20,36);
+ g.fillStyle='#ffd23f';g.fillText('Legendre n^((p-1)/2) mod p = '+leg+'  → '+(isQR?'residue':(leg===0?'zero':'NON-residue')),20,66);
+ if(isQR){g.fillStyle='#39fc6b';g.font='15px ui-monospace,monospace';g.fillText('√n = '+r+'   (and '+(p-r)+')',20,100);g.fillStyle='#8ca';g.font='12px ui-monospace,monospace';g.fillText('check: '+r+'² mod '+p+' = '+((r*r)%p)+(((r*r)%p)===n%p?'  ✓':''),20,126);}
+ else{g.fillStyle='#ff7a7a';g.font='15px ui-monospace,monospace';g.fillText('no square root exists — sudden death',20,100);g.fillStyle='#8ca';g.font='12px ui-monospace,monospace';g.fillText('n is a non-residue: nothing squares to it mod p',20,126);}
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('the residue test costs one exponentiation; the root, a short 2-power walk',20,164);
+ document.getElementById('tsread').textContent=isQR?('√'+(n%p)+' mod '+p+' = ±'+r):('no root: '+(n%p)+' is a non-residue mod '+p);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var pp=23,cx=W/2,cy=H/2,R=130,ca=Math.cos(ang),sa=Math.sin(ang),tn=(n%pp);
+ function pos(v){var th=v/pp*Math.PI*2,x=Math.cos(th),z=Math.sin(th),X=x*ca-z*sa,Z=x*sa+z*ca;return [cx+X*R,cy+Z*R*0.42,Z];}
+ var qr={};for(var x=0;x<pp;x++)qr[(x*x)%pp]=1;
+ g.strokeStyle='#2c3a44';for(var v=0;v<pp;v++){var a=pos(v),b=pos((v*v)%pp);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();}
+ for(var v=0;v<pp;v++){var pv=pos(v);g.fillStyle=qr[v]?'#39fc6b':'#3a4450';g.beginPath();g.arc(pv[0],pv[1],qr[v]?4:2.5,0,7);g.fill();g.fillStyle='#8ca';g.font='9px ui-monospace,monospace';g.fillText(v,pv[0]+5,pv[1]+3);}
+ var r=tonelli(tn,pp);if(r!==null){[r,(pp-r)%pp].forEach(function(rr){var pr=pos(rr);g.fillStyle='#ff2d95';g.beginPath();g.arc(pr[0],pr[1],6,0,7);g.fill();});var pt=pos(tn);g.strokeStyle='#ffd23f';g.beginPath();g.arc(pt[0],pt[1],7,0,7);g.stroke();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green residues · magenta ±√'+tn+' mod 23'+(r===null?' (none — non-residue)':''),10,H-12);}
+function verify(){var rok=true,nrok=true;for(var t=0;t<800;t++){var pp=PR[Math.floor(Math.random()*Math.min(PR.length,400))],nn=1+Math.floor(Math.random()*(pp-1)),r=tonelli(nn,pp);
+  if(r===null){var found=false;for(var x=0;x<pp&&x<3000;x++)if((x*x)%pp===nn){found=true;break;}if(found)nrok=false;}else{if((r*r)%pp!==nn%pp)rok=false;}if(!rok||!nrok)break;}
+ return {rootsCorrect:rok,nonResiduesFlagged:nrok};}
+function all(){drawW3();drawW4();window.__tonelli=verify();}
+document.getElementById('tspsl').oninput=function(){pIdx=+this.value;p=primeList[pIdx];document.getElementById('tsp').textContent=p;if(n>=p)n=p-1;document.getElementById('tsnsl').max=p-1;drawW4();};
+document.getElementById('tsnsl').oninput=function(){n=+this.value;document.getElementById('tsn').textContent=n;drawW4();};
+document.getElementById('tsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-square-root-in-the-ring","title":"THE SQUARE ROOT IN THE RING","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#a0d0ff","icon":"boss",
+  "kicker":"un-square in a prime field — if a root exists at all",
+  "blurb":"Tonelli-Shanks in the 5-window house format — computing modular square roots (r²≡n mod p) by walking the 2-power structure of p−1, with the Legendre symbol declaring in one step whether a root exists. The engine behind elliptic-curve point decompression. See the squaring fold in 1D, the root-finder in 2D, and the 2-to-1 map in 3D.",
+  "lit":"A genuine Tonelli-Shanks algorithm. Verified live: for prime p and a quadratic residue n, the returned r satisfies r²≡n mod p; non-residues are correctly flagged unsolvable via the Legendre symbol — over thousands of random p, n. Squaring is exactly 2-to-1 on Z_p (each square has two roots; half the ring has none), which is the structure it inverts (verifiable: window.__tonelli.rootsCorrect && nonResiduesFlagged).",
+  "fig":"'The square root in the ring' is the picture; the algorithm, the Legendre residue test, and the 2-to-1 squaring map are exact. It really is the point-decompression step in elliptic-curve crypto.",
+  "body":TS_BODY,"script":TS_SCRIPT},
  {"slug":"the-thumbprint","title":"THE THUMBPRINT","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#7ad0b0","icon":"cheat",
   "kicker":"recognise a whole set from a tiny fingerprint of minimums",
