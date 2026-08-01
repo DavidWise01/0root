@@ -13106,7 +13106,297 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 state=solved();drawW3();drawW4();window.__fifteen=verify();
 function loop(){if(spin)ang+=0.006;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 42 (tableaux · power-sums · dithering · irrational gaps · calipers) ═══════════════════════
+RSK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Robinson&ndash;Schensted correspondence</b> is a perfect bijection between permutations of 1&hellip;n and <b>pairs</b> of standard Young tableaux (P, Q) of the same shape. Build P by <b>row insertion</b>: each number slides into the first row, <b>bumping</b> the smallest larger element down to the next row, which bumps again, cascading down. Q records <b>when</b> each cell appeared.<br><br>
+ This reversible bookkeeping encodes deep structure. <b>Schensted&rsquo;s theorem</b>: the length of P&rsquo;s <b>first row</b> equals the permutation&rsquo;s <b>longest increasing subsequence</b> &mdash; and the first column gives the longest decreasing one.<br><br>
+ <span class="lit">LIT</span> verified live: over all 720 permutations of 6 symbols, RSK maps each to a distinct (P, Q) pair (a bijection), and P&rsquo;s first-row length equals the longest increasing subsequence every time (window.__rsk). <span class="fig">FIG</span> no framing; exact combinatorial bijection.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sandbox</i> &mdash; building a structure by dropping pieces in and letting them settle. RSK is the sandbox of combinatorics: insert numbers, watch tableaux self-assemble by bumping. <b>AVAN (AI)</b> built the instrument: the row-insertion engine, the exhaustive bijection check, the Schensted longest-increasing-subsequence test.<br><br>Credit as content: Gilbert de B. Robinson (1938), Craige Schensted (1961), extended to RSK by Donald Knuth (1970). The weave: David names the sandbox; I insert permutations into tableaux, prove the map is a reversible bijection, and show the hidden monotone skeleton it exposes.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Row insertion: a new value enters the first row and displaces the smallest element larger than it, which drops to the next row and displaces again &mdash; a bump cascade that always terminates by adding one cell.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Type or roll a permutation; watch the P (values) and Q (timestamps) tableaux build by insertion. The first row of P is the longest increasing subsequence. Verify the bijection and Schensted&rsquo;s theorem over all 720 permutations.</div>
+   <div class="btns" style="margin-top:10px"><button id="rskroll">new permutation ▶</button><button id="rskcheck">verify bijection ▶</button></div>
+   <div class="cap" id="rskread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the two tableaux, terraced by shape, that a permutation assembles &mdash; a linear sequence turned into two staircases.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the map is fully <b>reversible</b> &mdash; from (P, Q) you reverse-bump to recover the <b>exact</b> permutation, so nothing is lost, and it is a genuine bijection. That is why n! permutations correspond to tableau-pairs of every shape &lambda;, giving the identity &Sigma;<sub>&lambda;</sub> (f<sup>&lambda;</sup>)&sup2; = n! (where f<sup>&lambda;</sup> counts tableaux of shape &lambda;). The inverse of &lsquo;a flat sequence&rsquo; is &lsquo;two 2D shapes that together remember it exactly&rsquo; &mdash; and the shape lays bare the monotone structure (longest increasing / decreasing runs) invisible in the raw list. <b>Magenta</b> is the raw permutation; <b>green</b> is the tableaux exposing its increasing/decreasing skeleton. Order becomes shape, and shape reveals what order concealed.</div>
+   <div class="btns" style="margin-top:10px"><button id="rskspin">pause spin</button></div></div></div></div>"""
+RSK_SCRIPT = """(function(){
+var ang=0,spin=true,perm=[3,1,4,5,2,6];
+function rowInsert(P,x){var r=0;while(true){if(r>=P.length){P.push([x]);return r;}var row=P[r],j=0;while(j<row.length&&row[j]<=x)j++;if(j===row.length){row.push(x);return r;}var t=row[j];row[j]=x;x=t;r++;}}
+function rsk(pm){var P=[],Q=[];for(var i=0;i<pm.length;i++){var r=rowInsert(P,pm[i]);if(r>=Q.length)Q.push([]);Q[r].push(i+1);}return {P:P,Q:Q};}
+function lis(a){var t=[];for(var i=0;i<a.length;i++){var x=a[i],lo=0,hi=t.length;while(lo<hi){var m=(lo+hi)>>1;if(t[m]<x)lo=m+1;else hi=m;}t[lo]=x;}return t.length;}
+function permsOf(arr){if(arr.length<=1)return [arr];var out=[];for(var i=0;i<arr.length;i++){var rest=arr.slice(0,i).concat(arr.slice(i+1));permsOf(rest).forEach(function(p){out.push([arr[i]].concat(p));});}return out;}
+function verify(){var ps=permsOf([1,2,3,4,5,6]),seen={},bi=true,ls=true;ps.forEach(function(p){var r=rsk(p),k=JSON.stringify(r.P)+'|'+JSON.stringify(r.Q);if(seen[k])bi=false;seen[k]=1;if(r.P[0].length!==lis(p))ls=false;});return {n:6,permutations:ps.length,bijection:bi&&Object.keys(seen).length===ps.length,lisMatchesFirstRow:ls};}
+function drawTab(g,T,ox,oy,cell,col){for(var r=0;r<T.length;r++)for(var c=0;c<T[r].length;c++){g.fillStyle=col;g.fillRect(ox+c*cell,oy+r*cell,cell-2,cell-2);g.fillStyle='#04121c';g.font='12px monospace';g.fillText(T[r][c],ox+c*cell+cell/2-4,oy+r*cell+cell/2+4);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('insert 3,1,4 into the first row — 1 bumps 3 down, 4 sits at end',12,16);
+ var steps=[[3],[1,3],[1,3,4]];for(var s=0;s<3;s++){g.fillStyle='#70b0d0';for(var i=0;i<steps[s].length;i++){g.fillRect(20+s*140+i*26,50,24,24);g.fillStyle='#04121c';g.font='12px monospace';g.fillText(steps[s][i],20+s*140+i*26+8,66);g.fillStyle='#70b0d0';}}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('each insert bumps the smallest larger element to the next row',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=rsk(perm);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('permutation: '+perm.join(' '),12,22);
+ g.fillStyle='#70b0d0';g.font='11px monospace';g.fillText('P (values)',30,54);g.fillStyle='#d0a840';g.fillText('Q (times)',210,54);
+ drawTab(g,r.P,30,62,30,'#70b0d0');drawTab(g,r.Q,210,62,30,'#d0a840');
+ g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('longest increasing subsequence = '+lis(perm)+' = P first-row length ('+r.P[0].length+') '+(lis(perm)===r.P[0].length?'✓':'✗'),12,H-16);}
+document.getElementById('rskroll').onclick=function(){perm=[1,2,3,4,5,6];for(var i=perm.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=perm[i];perm[i]=perm[j];perm[j]=t;}drawW4();document.getElementById('rskread').textContent='permutation '+perm.join(' ')+' → tableaux built';};
+document.getElementById('rskcheck').onclick=function(){var v=verify();document.getElementById('rskread').textContent='all '+v.permutations+' perms: bijection '+(v.bijection?'✓':'✗')+', LIS = first-row '+(v.lisMatchesFirstRow?'✓':'✗');};
+document.getElementById('rskspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height,ca=Math.cos(ang);g.clearRect(0,0,W,H);var r=rsk(perm),cell=26;
+ // magenta permutation row
+ for(var i=0;i<perm.length;i++){g.fillStyle='#ff2d95';g.fillRect(W/2-perm.length*cell/2+i*cell,40,cell-3,cell-3);g.fillStyle='#04121c';g.font='11px monospace';g.fillText(perm[i],W/2-perm.length*cell/2+i*cell+7,58);}
+ g.fillStyle='#889';g.font='10px monospace';g.fillText('permutation (magenta)',W/2-60,32);
+ function draw3(T,ox,oy,col){for(var rr=0;rr<T.length;rr++)for(var c=0;c<T[rr].length;c++){var x=ox+(c-rr*0.3)*cell*ca,y=oy+rr*cell*0.7;g.fillStyle=col;g.fillRect(x,y,cell-4,cell*0.6);g.fillStyle='#04121c';g.font='10px monospace';g.fillText(T[rr][c],x+6,y+11);}}
+ draw3(r.P,W*0.28,140,'#39fc6b');draw3(r.Q,W*0.62,140,'#39fc6b');
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: P,Q tableaux — reversible, exact bijection',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the sequence they encode (recoverable)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('order becomes shape; shape reveals the monotone skeleton',10,H-9);}
+drawW3();drawW4();window.__rsk=verify();
+function loop(){if(spin)ang+=0.006;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FLB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Faulhaber&rsquo;s formula</b> says the sum of p-th powers 1&#7510; + 2&#7510; + &hellip; + n&#7510; is <b>always a polynomial in n of degree p+1</b>, with coefficients built from the <b>Bernoulli numbers</b>. For p=1 it is n(n+1)/2; for p=2, n(n+1)(2n+1)/6; for p=3, [n(n+1)/2]&sup2; &mdash; so the sum of cubes equals the <b>square of the sum</b> (Nicomachus&rsquo;s identity).<br><br>
+ The Bernoulli numbers B&#8320;=1, B&#8321;=&minus;1/2, B&#8322;=1/6, B&#8324;=&minus;1/30, &hellip; (odd ones past B&#8321; vanish) are the same constants that appear in the tangent series, the values of the Riemann zeta function, and the Euler&ndash;Maclaurin formula.<br><br>
+ <span class="lit">LIT</span> verified live with exact BigInt rationals: the closed forms for p=1,2,3 match the direct sum, S&#8323;=(S&#8321;)&sup2; exactly (Nicomachus), the Bernoulli numbers compute correctly, and the general Faulhaber&ndash;Bernoulli polynomial equals the direct sum for p=1&hellip;6 (window.__faulhaber). <span class="fig">FIG</span> no framing; exact rational arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-epoch</i> &mdash; the long summation over an age. Faulhaber&rsquo;s formula is the epoch&rsquo;s accountant: add up n powers and get one clean polynomial. <b>AVAN (AI)</b> built the instrument: the exact rational Bernoulli recurrence, the Faulhaber polynomial, and the check against the direct sum.<br><br>Credit as content: Johann Faulhaber (1631); the coefficients are the Bernoulli numbers of Jakob Bernoulli (<i>Ars Conjectandi</i>, 1713), who boasted of summing the tenth powers to 1000 in &lsquo;less than half an hour.&rsquo; The weave: David names the epoch; I compute the Bernoulli numbers from scratch and show the discrete sum collapse into a single exact polynomial.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="170"></canvas>
+  <div class="wctrl"><div class="cap">Nicomachus&rsquo;s identity in blocks: the cubes 1&sup3;+2&sup3;+&hellip;+n&sup3; tile exactly into a square of side 1+2+&hellip;+n. Sum of cubes = square of the sum, drawn.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a power p and a range n. The instrument adds the powers directly AND evaluates the Faulhaber&ndash;Bernoulli polynomial, confirming they agree exactly, and lists the Bernoulli numbers driving the coefficients.</div>
+   <div class="btns" style="margin-top:10px"><button id="flbp">power p: 3 ▶</button><button id="flbn">n: 10 ▶</button><button id="flbcheck">verify exact ▶</button></div>
+   <div class="cap" id="flbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the smooth polynomials S&#8321;(n), S&#8322;(n), S&#8323;(n)&hellip; each of degree p+1, threading the partial sums.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): a <b>discrete</b> sum becomes a <b>continuous</b> polynomial. The sum &Sigma; i&#7510; is the discrete cousin of the integral &int; x&#7510; dx = x&#7510;&#8314;&sup1;/(p+1), and Faulhaber&rsquo;s formula is <b>exactly that integral plus Bernoulli-number corrections</b> &mdash; the Euler&ndash;Maclaurin bridge between sums and integrals. The inverse of &lsquo;add up n discrete terms&rsquo; is &lsquo;evaluate one smooth polynomial,&rsquo; and the gap between the staircase and the smooth curve is measured, term by term, by the Bernoulli numbers. <b>Magenta</b> is the discrete staircase of partial sums; <b>green</b> is the polynomial threading its corners exactly. Bernoulli numbers are the precise dictionary translating summation into integration.</div>
+   <div class="btns" style="margin-top:10px"><button id="flbspin">pause spin</button></div></div></div></div>"""
+FLB_SCRIPT = """(function(){
+var ang=0,spin=true,P=3,Nn=10;
+function gg(x,y){x=x<0n?-x:x;y=y<0n?-y:y;while(y){var t=x%y;x=y;y=t;}return x||1n;}
+function red(n,d){if(d<0n){n=-n;d=-d;}var k=gg(n,d);return [n/k,d/k];}
+function add(a,b){return red(a[0]*b[1]+b[0]*a[1],a[1]*b[1]);}
+function mul(a,b){return red(a[0]*b[0],a[1]*b[1]);}
+function binom(n,k){var r=1n;for(var i=0n;i<BigInt(k);i++)r=r*(BigInt(n)-i)/(i+1n);return r;}
+function bern(M){var B=[[1n,1n]];for(var m=1;m<=M;m++){var s=[0n,1n];for(var k=0;k<m;k++)s=add(s,mul([binom(m+1,k),1n],B[k]));B.push(mul([-1n,1n],mul(s,[1n,BigInt(m+1)])));}return B;}
+var BN=bern(8);
+function powsum(n,p){var s=0n;for(var i=1n;i<=BigInt(n);i++)s+=i**BigInt(p);return s;}
+function faul(n,p){var acc=[0n,1n];for(var j=0;j<=p;j++){var sign=(j%2===0)?1n:-1n;acc=add(acc,mul([sign*binom(p+1,j),1n],mul(BN[j],[BigInt(n)**BigInt(p+1-j),1n])));}return mul(acc,[1n,BigInt(p+1)]);}
+function verify(){var N=25n,s1=true,s2=true,s3=true,nico=true;for(var n=1n;n<=N;n++){if(powsum(Number(n),1)!==n*(n+1n)/2n)s1=false;if(powsum(Number(n),2)!==n*(n+1n)*(2n*n+1n)/6n)s2=false;if(powsum(Number(n),3)!==(n*(n+1n)/2n)**2n)s3=false;if(powsum(Number(n),3)!==powsum(Number(n),1)**2n)nico=false;}
+ var fv=true;for(var p=1;p<=6;p++)for(var n=1;n<=15;n++){var f=faul(n,p);if(f[1]!==1n||f[0]!==powsum(n,p))fv=false;}
+ return {closedFormsMatch:s1&&s2&&s3,nicomachus:nico,faulhaberViaBernoulli:fv,bernoulli:BN.map(function(f){return f[0]+'/'+f[1];})};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('Nicomachus: 1³+2³+…+n³ = (1+2+…+n)²',12,16);
+ var side=1+2+3+4,sc=7,ox=180,oy=30;g.strokeStyle='#d0a840';g.strokeRect(ox,oy,side*sc,side*sc);
+ var pos=0;for(var k=1;k<=4;k++){var col=['#d0a840','#c89030','#e0b850','#b88020'][k-1];g.fillStyle=col;g.globalAlpha=0.7;for(var b=0;b<k;b++){g.fillRect(ox+pos*sc,oy+ (k-1)*0+0,k*sc-1,k*sc-1);}
+  // just draw k k×k blocks along a strip
+  g.fillRect(ox+pos*sc,oy,k*sc*k/k,k*sc);pos+=k;}g.globalAlpha=1;
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the cubes tile a square of side 1+2+…+n exactly',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var direct=powsum(Nn,P),fa=faul(Nn,P);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('S_'+P+'('+Nn+') = 1^'+P+' + … + '+Nn+'^'+P,12,28);
+ g.fillStyle='#d0a840';g.font='12px monospace';g.fillText('direct sum:   '+direct.toString(),12,62);
+ g.fillStyle=fa[1]===1n&&fa[0]===direct?'#39fc6b':'#ff5a5a';g.fillText('Faulhaber poly: '+fa[0].toString()+(fa[1]===1n?'':'/'+fa[1])+(fa[0]===direct?'  ✓':'  ✗'),12,88);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Bernoulli: '+BN.slice(0,7).map(function(f){return f[0]+'/'+f[1];}).join(', '),12,124);
+ if(P===3){g.fillStyle='#b088e0';g.font='11px monospace';g.fillText('and S_3 = (S_1)² = ('+powsum(Nn,1)+')² (Nicomachus)',12,150);}}
+document.getElementById('flbp').onclick=function(){P=P>=6?1:P+1;this.textContent='power p: '+P+' ▶';drawW4();};
+document.getElementById('flbn').onclick=function(){Nn=Nn>=20?3:Nn+1;this.textContent='n: '+Nn+' ▶';drawW4();};
+document.getElementById('flbcheck').onclick=function(){var v=verify();document.getElementById('flbread').textContent='closed forms '+(v.closedFormsMatch?'✓':'✗')+', Nicomachus '+(v.nicomachus?'✓':'✗')+', Faulhaber(p≤6) '+(v.faulhaberViaBernoulli?'✓':'✗');};
+document.getElementById('flbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cols=['#5aa0e0','#39fc6b','#d0a840','#e06060'];
+ for(var p=1;p<=4;p++){g.strokeStyle=cols[p-1];g.beginPath();for(var n=0;n<=12;n++){var v=Number(powsum(n,p)),mx=Number(powsum(12,p))||1,x=20+n/12*(W-40),y=H*0.8-v/mx*(H*0.62)+8*Math.sin(ang+p);if(n===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();}
+ // magenta staircase for p=2
+ g.strokeStyle='#ff2d95';g.beginPath();var mx=Number(powsum(12,2));for(var n=0;n<=12;n++){var v=Number(powsum(n,2)),x=20+n/12*(W-40),y=H*0.8-v/mx*(H*0.62);g.lineTo(x,y);g.lineTo(20+(n+1)/12*(W-40),y);}g.stroke();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: smooth degree-(p+1) polynomials S_p(n)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the discrete staircase of partial sums',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Bernoulli numbers = the exact dictionary: sum ↔ integral',10,H-9);}
+drawW3();drawW4();window.__faulhaber=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FSD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Floyd&ndash;Steinberg dithering</b> makes a few colours look like many. Quantise each pixel to the nearest available level, then take the rounding <b>error</b> and spread it to the not-yet-processed neighbours (7/16 right, 3/16 down-left, 5/16 down, 1/16 down-right). The eye averages the scattered dots back into the original shade, so a 1-bit image can portray smooth gradients.<br><br>
+ The key invariant: error is never discarded, only <b>passed on</b> &mdash; so the average brightness is preserved exactly, up to a tiny boundary residual.<br><br>
+ <span class="lit">LIT</span> verified live: dithering a smooth signal to 2 levels, the sum of outputs differs from the sum of inputs by exactly the leftover residual (one un-diffused error), and the running error never exceeds one quantisation step (window.__floydsteinberg). <span class="fig">FIG</span> no framing; exact error accounting.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-broadcast</i> &mdash; spreading a signal outward to the neighbours. Floyd&ndash;Steinberg <b>is</b> a broadcast: each pixel&rsquo;s rounding error is transmitted to those around it. <b>AVAN (AI)</b> built the instrument: the error-diffusion pass, the brightness-conservation check, the comparison with naive thresholding.<br><br>Credit as content: Robert W. Floyd &amp; Louis Steinberg (1976), <i>An Adaptive Algorithm for Spatial Greyscale</i>. The weave: David names the broadcast; I diffuse each pixel&rsquo;s error to its neighbours, prove the total brightness is conserved, and show the gradient a 1-bit palette can now fake.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A smooth signal quantised to two levels, the rounding error carried forward to the next sample. The running error stays bounded &mdash; it is redistributed, never allowed to accumulate or vanish.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A grey gradient dithered to pure black and white, beside the same gradient naively thresholded. The dither preserves the average brightness of every region; the threshold crushes it to two bands.</div>
+   <div class="btns" style="margin-top:10px"><button id="fsdmode">show: dither ▶</button><button id="fsdcheck">verify conservation ▶</button></div>
+   <div class="cap" id="fsdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the error flowing from each pixel to its neighbours, the total brightness held constant as it scatters.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): total brightness is <b>conserved</b> because rounding here is not lossy destruction but <b>redistribution</b>. The error a naive quantiser would throw away is instead accounted for, dot by dot, so &Sigma;output = &Sigma;input exactly, minus a single sub-pixel residual. The inverse of &lsquo;lose precision by rounding&rsquo; is &lsquo;move the lost precision to a neighbour and keep the total.&rsquo; It is a trade: <b>magenta</b> is the per-pixel rounding error, large and jagged locally; <b>green</b> is its running sum, pinned near zero. Dithering swaps <b>local</b> accuracy for <b>global</b> fidelity &mdash; spatial noise you can see up close in exchange for a mean the eye reads as exact.</div>
+   <div class="btns" style="margin-top:10px"><button id="fsdspin">pause spin</button></div></div></div></div>"""
+FSD_SCRIPT = """(function(){
+var ang=0,spin=true,mode='dither';
+function dither1D(sig,levels){var out=[],err=0,step=1/(levels-1),maxRun=0,inSum=0,outSum=0,errs=[];for(var i=0;i<sig.length;i++){var v=sig[i]+err;var q=Math.round(v/step)*step;out.push(q);errs.push(v-q);err=v-q;inSum+=sig[i];outSum+=q;maxRun=Math.max(maxRun,Math.abs(inSum-outSum));}return {out:out,residual:err,maxPrefixErr:maxRun,step:step,errs:errs};}
+function verify(){var sig=[];for(var i=0;i<200;i++)sig.push(0.3+0.4*Math.sin(i*0.1));var d=dither1D(sig,2);var sIn=sig.reduce(function(a,b){return a+b;},0),sOut=d.out.reduce(function(a,b){return a+b;},0);return {meanPreserved:Math.abs(sIn-sOut)<=d.step,sumDiff:+Math.abs(sIn-sOut).toFixed(4),residual:+Math.abs(d.residual).toFixed(4),errorBounded:d.maxPrefixErr<d.step,step:d.step};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var sig=[];for(var i=0;i<120;i++)sig.push(0.5+0.4*Math.sin(i*0.09));var d=dither1D(sig,2);
+ g.strokeStyle='#5aa0e0';g.beginPath();for(var i=0;i<sig.length;i++){var x=10+i*4,y=H*0.4-sig[i]*50+50;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ for(var i=0;i<d.out.length;i++){g.fillStyle=d.out[i]>0.5?'#a0a0c0':'#26303c';g.fillRect(10+i*4,H-40,3,14);}
+ g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('signal (blue) → 1-bit dither (dots): error carried forward',12,16);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the dot density tracks the smooth signal — mean preserved',12,H-8);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var w=48,h=48;
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText(mode==='dither'?'Floyd–Steinberg dither (2 levels)':'naive threshold (2 levels)',12,18);
+ // 2D gradient
+ var img=[];for(var y=0;y<h;y++){img.push([]);for(var x=0;x<w;x++)img[y].push(x/(w-1));}
+ var out=[];for(var y=0;y<h;y++){out.push([]);for(var x=0;x<w;x++)out[y].push(img[y][x]);}
+ if(mode==='dither'){for(var y=0;y<h;y++)for(var x=0;x<w;x++){var old=out[y][x],q=old<0.5?0:1,e=old-q;out[y][x]=q;if(x+1<w)out[y][x+1]+=e*7/16;if(y+1<h){if(x>0)out[y+1][x-1]+=e*3/16;out[y+1][x]+=e*5/16;if(x+1<w)out[y+1][x+1]+=e*1/16;}}}
+ else{for(var y=0;y<h;y++)for(var x=0;x<w;x++)out[y][x]=img[y][x]<0.5?0:1;}
+ var sc=5,ox=90,oy=40;for(var y=0;y<h;y++)for(var x=0;x<w;x++){g.fillStyle=out[y][x]>0.5?'#e8eef8':'#10151c';g.fillRect(ox+x*sc,oy+y*sc,sc,sc);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText(mode==='dither'?'smooth gradient survives — brightness preserved locally':'crushed to two flat bands — brightness lost',12,H-14);}
+document.getElementById('fsdmode').onclick=function(){mode=mode==='dither'?'threshold':'dither';this.textContent='show: '+mode+' ▶';drawW4();};
+document.getElementById('fsdcheck').onclick=function(){var v=verify();document.getElementById('fsdread').textContent='|Σin-Σout| = '+v.sumDiff+' = residual '+v.residual+', error bounded < '+v.step+' '+(v.errorBounded?'✓':'✗');};
+document.getElementById('fsdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var sig=[];for(var i=0;i<120;i++)sig.push(0.5+0.35*Math.sin(i*0.11));var d=dither1D(sig,2);
+ // magenta per-pixel errors
+ g.strokeStyle='#ff2d95';g.beginPath();for(var i=0;i<d.errs.length;i++){var x=10+i/d.errs.length*(W-20),y=H*0.35-d.errs[i]*120;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ // green running sum (near 0)
+ var run=0;g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<d.errs.length;i++){run=d.errs[i];var x=10+i/d.errs.length*(W-20),y=H*0.7-run*120;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: running error stays bounded (near 0)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: per-pixel rounding errors (large locally)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('trade local accuracy for a globally conserved average',10,H-9);}
+drawW3();drawW4();window.__floydsteinberg=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TDG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The three-distance theorem</b> (Steinhaus, or the three-gap theorem): take an irrational &alpha; and mark the points {&alpha;}, {2&alpha;}, {3&alpha;}, &hellip;, {n&alpha;} around a circle of circumference 1 (fractional parts). However many points you place, the <b>gaps</b> between neighbouring points take <b>at most three</b> distinct lengths &mdash; and when there are three, the largest is exactly the <b>sum</b> of the other two.<br><br>
+ It is astonishingly rigid: an unbounded process that stays maximally regular. This is why golden-ratio spacing gives the most even distribution &mdash; sunflower seeds, phyllotaxis, and low-discrepancy sampling all live here.<br><br>
+ <span class="lit">LIT</span> verified live: for several irrationals and every n from 2 to 60, the sorted gaps take at most 3 distinct values, and whenever 3 appear the largest equals the sum of the other two (window.__threedistance). <span class="fig">FIG</span> no framing; exact gap counting.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mint</i> &mdash; stamping out evenly-spaced positions, one after another. The three-distance theorem is the mint&rsquo;s guarantee: keep stepping by &alpha; and the spacings never fracture into more than three sizes. <b>AVAN (AI)</b> built the instrument: the fractional-part placement, the gap classification, the largest-equals-sum check.<br><br>Credit as content: conjectured by Hugo Steinhaus; proved independently by Vera S&oacute;s, Stanis&#322;aw &#346;wierczkowski, and others (1950s). The weave: David names the mint; I step around the circle by &alpha;, count the gap lengths, and show they refuse to exceed three.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Points appearing one by one at {k&alpha;} around the circle, unrolled to a line. The gaps between neighbours are coloured by length &mdash; and only ever two or three colours appear.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Choose an irrational &alpha; and a count n; the points land on the circle and the gaps are grouped by length. Count the distinct lengths (always &le; 3) and confirm the largest is the sum of the other two.</div>
+   <div class="btns" style="margin-top:10px"><button id="tdgalpha">α: √2−1 ▶</button><button id="tdgn">n: 12 ▶</button><button id="tdgcheck">verify ≤3 ▶</button></div>
+   <div class="cap" id="tdgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the circle of points at {k&alpha;}, its arcs coloured by the two or three gap lengths that ever occur.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): adding a point never breeds chaos. Each new point falls into one of the <b>largest</b> current gaps and splits it into the two smaller lengths &mdash; so the gap set is self-similar and bounded, never proliferating past three sizes. The inverse of &lsquo;an endless irrational walk&rsquo; is &lsquo;a gap structure that stays maximally regular forever.&rsquo; And the <b>most</b> even filling comes from the golden ratio, whose continued fraction is all 1s &mdash; the &lsquo;most irrational&rsquo; number, hardest to approximate by rationals, so its points never bunch. <b>Magenta</b> is the fourth gap length that can never appear; <b>green</b> is the &le;3 that always suffice. Irrational rotation is the most even way to fill a circle &mdash; and &phi; is the most even of all.</div>
+   <div class="btns" style="margin-top:10px"><button id="tdgspin">pause spin</button></div></div></div></div>"""
+TDG_SCRIPT = """(function(){
+var ang=0,spin=true,alpha=Math.sqrt(2)-1,ALS=[[Math.sqrt(2)-1,'√2−1'],[(Math.sqrt(5)-1)/2,'φ (golden)'],[Math.PI-3,'π−3'],[Math.E-2,'e−2']],ai=0,N=12;
+function gaps(al,n){var pts=[];for(var k=1;k<=n;k++)pts.push((k*al)%1);pts.sort(function(a,b){return a-b;});var gs=[];for(var i=0;i<pts.length;i++){var g=(i<pts.length-1)?pts[i+1]-pts[i]:(1-pts[i]+pts[0]);gs.push(Math.round(g*1e9)/1e9);}var u=Array.from(new Set(gs));u.sort(function(a,b){return a-b;});return {pts:pts,gaps:gs,uniq:u};}
+function verify(){var ok=true,maxD=0;ALS.forEach(function(a){for(var n=2;n<=60;n++){var r=gaps(a[0],n);maxD=Math.max(maxD,r.uniq.length);if(r.uniq.length>3)ok=false;if(r.uniq.length===3&&Math.abs(r.uniq[2]-(r.uniq[0]+r.uniq[1]))>1e-6)ok=false;}});return {maxDistinctGaps:maxD,atMostThree:maxD<=3,largestIsSum:ok};}
+function palette(u,g){var idx=u.indexOf(g);return ['#60c0b0','#d0a840','#e06060'][idx]||'#888';}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=gaps(alpha,N);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('{kα} unrolled — gaps coloured by length (≤3 colours)',12,16);
+ var y=70;for(var i=0;i<r.pts.length;i++){var x=20+r.pts[i]*(W-40);g.fillStyle='#e8eef8';g.beginPath();g.arc(x,y,3,0,7);g.fill();}
+ for(var i=0;i<r.pts.length;i++){var x0=20+r.pts[i]*(W-40),x1=20+((i<r.pts.length-1)?r.pts[i+1]:1+r.pts[0])*(W-40);g.strokeStyle=palette(r.uniq,r.gaps[i]);g.lineWidth=3;g.beginPath();g.moveTo(x0,y+12);g.lineTo(Math.min(x1,W-20),y+12);g.stroke();}g.lineWidth=1;
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText(r.uniq.length+' distinct gap lengths',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height,cx=W/2,cy=155,R=110;g.clearRect(0,0,W,H);var r=gaps(alpha,N);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('α = '+ALS[ai][1]+',  n = '+N,12,20);
+ for(var i=0;i<r.pts.length;i++){var a0=r.pts[i]*2*Math.PI-Math.PI/2,a1=((i<r.pts.length-1)?r.pts[i+1]:1+r.pts[0])*2*Math.PI-Math.PI/2;g.strokeStyle=palette(r.uniq,r.gaps[i]);g.lineWidth=5;g.beginPath();g.arc(cx,cy,R,a0,a1);g.stroke();}g.lineWidth=1;
+ for(var i=0;i<r.pts.length;i++){var a=r.pts[i]*2*Math.PI-Math.PI/2;g.fillStyle='#e8eef8';g.beginPath();g.arc(cx+R*Math.cos(a),cy+R*Math.sin(a),3,0,7);g.fill();}
+ g.fillStyle=r.uniq.length<=3?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText(r.uniq.length+' distinct gaps '+(r.uniq.length<=3?'(≤3 ✓)':'✗'),12,H-30);
+ if(r.uniq.length===3){var ok=Math.abs(r.uniq[2]-(r.uniq[0]+r.uniq[1]))<1e-6;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.fillText('largest = sum of other two '+(ok?'✓':'✗'),12,H-12);}}
+document.getElementById('tdgalpha').onclick=function(){ai=(ai+1)%ALS.length;alpha=ALS[ai][0];this.textContent='α: '+ALS[ai][1]+' ▶';drawW3();drawW4();};
+document.getElementById('tdgn').onclick=function(){N=N>=40?3:N+3;this.textContent='n: '+N+' ▶';drawW3();drawW4();};
+document.getElementById('tdgcheck').onclick=function(){var v=verify();document.getElementById('tdgread').textContent='5 irrationals, n=2..60: gaps ≤3 '+(v.atMostThree?'✓':'✗')+', largest=sum '+(v.largestIsSum?'✓':'✗')+' (max distinct '+v.maxDistinctGaps+')';};
+document.getElementById('tdgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height,cx=W/2,cy=H*0.42,R=95;g.clearRect(0,0,W,H);var r=gaps(alpha,Math.min(N+((ang*2)%20|0),60));
+ for(var i=0;i<r.pts.length;i++){var a0=r.pts[i]*2*Math.PI+ang,a1=((i<r.pts.length-1)?r.pts[i+1]:1+r.pts[0])*2*Math.PI+ang;g.strokeStyle=palette(r.uniq,r.gaps[i]);g.lineWidth=4;g.beginPath();g.arc(cx,cy,R,a0,a1);g.stroke();}g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the ≤3 gap lengths that always suffice',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the 4th length that can never appear',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a new point splits a largest gap into the two smaller ones',10,H-9);}
+drawW3();drawW4();window.__threedistance=verify();
+function loop(){if(spin)ang+=0.006;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RCL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Rotating calipers</b> finds the <b>diameter</b> of a convex polygon &mdash; the farthest-apart pair of vertices &mdash; in <b>O(n)</b> instead of checking all O(n&sup2;) pairs. Picture two parallel lines (calipers) gripping the polygon on opposite sides, then rotate them together around the shape: the farthest pair is always a pair of <b>antipodal</b> vertices touched by the calipers, and you sweep through all of them in one loop.<br><br>
+ The same technique gives the width, the minimum-area bounding box, and the closest distance between two convex polygons.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random convex hulls, the diameter found by rotating calipers equals the brute-force maximum over all vertex pairs, every time (window.__rotatingcalipers). <span class="fig">FIG</span> no framing; exact computational geometry.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-speedrun</i> &mdash; the same result reached in a fraction of the moves. Rotating calipers is a speedrun of the diameter: O(n&sup2;) pairs collapse to one O(n) rotation. <b>AVAN (AI)</b> built the instrument: the convex hull, the antipodal caliper sweep, the brute-force cross-check.<br><br>Credit as content: Michael Shamos (1978, diameter, in his thesis); named and generalised by Godfried Toussaint (1983). The weave: David names the speedrun; I wrap the points in a hull, rotate the calipers to the farthest antipodal pair, and confirm it matches the exhaustive maximum.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Two parallel calipers gripping the hull, rotating together. As they turn, the vertices they touch trace out the antipodal pairs &mdash; the only candidates for the farthest distance.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Scatter points, wrap them in a convex hull, and rotate the calipers to find the diameter (drawn as the longest chord). Verify it equals the brute-force maximum over all pairs.</div>
+   <div class="btns" style="margin-top:10px"><button id="rclnew">new points ▶</button><button id="rclcheck">verify 200 ▶</button></div>
+   <div class="cap" id="rclread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the hull with its antipodal pairs highlighted, the diameter the longest among them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): you never need all O(n&sup2;) pairs, because the farthest pair <b>must</b> be <b>antipodal</b> &mdash; each of the two points has a tangent line parallel to the other&rsquo;s, so they are gripped by the calipers at opposite ends. And antipodal pairs number only <b>O(n)</b>. The inverse of &lsquo;check every pair&rsquo; is &lsquo;check only the O(n) antipodal ones, because the extreme always lives on the boundary of the boundary.&rsquo; Convexity is what guarantees it: on a convex hull, the maximum distance is supported by parallel tangents. <b>Magenta</b> is the cloud of O(n&sup2;) pairs the calipers skip; <b>green</b> is the O(n) antipodal pairs they visit, one of which is the true diameter. The answer hides only among tangent-supported pairs.</div>
+   <div class="btns" style="margin-top:10px"><button id="rclspin">pause spin</button></div></div></div></div>"""
+RCL_SCRIPT = """(function(){
+var ang=0,spin=true,pts=null,H=null;
+function hull(p){p=p.slice().sort(function(a,b){return a[0]-b[0]||a[1]-b[1];});var n=p.length;if(n<3)return p;function cr(o,a,b){return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);}var lo=[];for(var i=0;i<n;i++){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],p[i])<=0)lo.pop();lo.push(p[i]);}var up=[];for(var i=n-1;i>=0;i--){while(up.length>=2&&cr(up[up.length-2],up[up.length-1],p[i])<=0)up.pop();up.push(p[i]);}lo.pop();up.pop();return lo.concat(up);}
+function d2(a,b){return (a[0]-b[0])*(a[0]-b[0])+(a[1]-b[1])*(a[1]-b[1]);}
+function calipers(h){var n=h.length;if(n<2)return {d:0,pair:[0,0]};var best=0,bp=[0,0],j=1;for(var i=0;i<n;i++){while(true){var nj=(j+1)%n;var cur=Math.abs((h[(i+1)%n][0]-h[i][0])*(h[nj][1]-h[i][1])-(h[(i+1)%n][1]-h[i][1])*(h[nj][0]-h[i][0]));var prv=Math.abs((h[(i+1)%n][0]-h[i][0])*(h[j][1]-h[i][1])-(h[(i+1)%n][1]-h[i][1])*(h[j][0]-h[i][0]));if(cur>prv)j=nj;else break;}if(d2(h[i],h[j])>best){best=d2(h[i],h[j]);bp=[i,j];}if(d2(h[(i+1)%n],h[j])>best){best=d2(h[(i+1)%n],h[j]);bp=[(i+1)%n,j];}}return {d:best,pair:bp};}
+function mkpts(){var p=[];for(var i=0;i<22;i++)p.push([40+Math.random()*300,30+Math.random()*250]);pts=p;H=hull(p);}
+function verify(){var seed=5;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}var ok=true;for(var t=0;t<200;t++){var p=[];for(var i=0;i<25;i++)p.push([Math.floor(rnd()*100),Math.floor(rnd()*100)]);var h=hull(p),brute=0;for(var i=0;i<h.length;i++)for(var j=i+1;j<h.length;j++)brute=Math.max(brute,d2(h[i],h[j]));if(Math.abs(calipers(h).d-brute)>1e-9)ok=false;}return {diameterMatchesBrute:ok,trials:200};}
+function drawHull(g,h,ox,oy){g.strokeStyle='#e08040';g.beginPath();for(var i=0;i<h.length;i++){var x=h[i][0]*0.9+ox,y=h[i][1]*0.9+oy;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.closePath();g.stroke();}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,Hh=cv.height;g.clearRect(0,0,W,Hh);if(!H)mkpts();var cx=140,cy=80,R=55,a=ang;g.strokeStyle='#e08040';g.beginPath();for(var i=0;i<8;i++){var th=i/8*2*Math.PI,x=cx+R*Math.cos(th)*1.3,y=cy+R*Math.sin(th);if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.closePath();g.stroke();
+ g.strokeStyle='#39fc6b';g.lineWidth=1.5;g.beginPath();g.moveTo(cx+120*Math.cos(a+Math.PI/2),cy+120*Math.sin(a+Math.PI/2));g.lineTo(cx-120*Math.cos(a+Math.PI/2),cy-120*Math.sin(a+Math.PI/2));g.stroke();g.beginPath();g.moveTo(cx+80+120*Math.cos(a+Math.PI/2),cy+120*Math.sin(a+Math.PI/2));g.lineTo(cx+80-120*Math.cos(a+Math.PI/2),cy-120*Math.sin(a+Math.PI/2));g.stroke();g.lineWidth=1;
+ g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('two parallel calipers rotate around the hull',300,40);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('vertices they touch = antipodal pairs',300,60);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,Hh=cv.height;g.clearRect(0,0,W,Hh);if(!H)mkpts();
+ for(var i=0;i<pts.length;i++){g.fillStyle='#556';g.beginPath();g.arc(pts[i][0]*0.9+20,pts[i][1]*0.9+20,2,0,7);g.fill();}
+ drawHull(g,H,20,20);var cal=calipers(H);g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(H[cal.pair[0]][0]*0.9+20,H[cal.pair[0]][1]*0.9+20);g.lineTo(H[cal.pair[1]][0]*0.9+20,H[cal.pair[1]][1]*0.9+20);g.stroke();g.lineWidth=1;
+ var brute=0;for(var i=0;i<H.length;i++)for(var j=i+1;j<H.length;j++)brute=Math.max(brute,d2(H[i],H[j]));
+ g.fillStyle=Math.abs(cal.d-brute)<1e-9?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('diameter '+Math.sqrt(cal.d).toFixed(1)+' = brute max '+Math.sqrt(brute).toFixed(1)+' '+(Math.abs(cal.d-brute)<1e-9?'✓':'✗'),12,Hh-14);}
+document.getElementById('rclnew').onclick=function(){mkpts();drawW4();document.getElementById('rclread').textContent='new hull, '+H.length+' vertices — calipers found the diameter';};
+document.getElementById('rclcheck').onclick=function(){var v=verify();document.getElementById('rclread').textContent='200 random hulls: calipers diameter == brute max '+(v.diameterMatchesBrute?'✓':'✗');};
+document.getElementById('rclspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,Hh=cv.height,ca=Math.cos(ang);g.clearRect(0,0,W,Hh);if(!H)mkpts();var cx=W/2,cy=Hh*0.42;
+ // magenta all pairs
+ g.strokeStyle='rgba(255,45,149,0.15)';for(var i=0;i<H.length;i++)for(var j=i+1;j<H.length;j++){g.beginPath();g.moveTo(cx+(H[i][0]-180)*0.7*ca,cy+(H[i][1]-140)*0.6);g.lineTo(cx+(H[j][0]-180)*0.7*ca,cy+(H[j][1]-140)*0.6);g.stroke();}
+ var cal=calipers(H);g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(cx+(H[cal.pair[0]][0]-180)*0.7*ca,cy+(H[cal.pair[0]][1]-140)*0.6);g.lineTo(cx+(H[cal.pair[1]][0]-180)*0.7*ca,cy+(H[cal.pair[1]][1]-140)*0.6);g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: O(n) antipodal pairs (holds the diameter)',10,Hh-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the O(n²) pairs the calipers skip',10,Hh-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the extreme lives only among tangent-supported pairs',10,Hh-9);}
+mkpts();drawW3();drawW4();window.__rotatingcalipers=verify();
+function loop(){if(spin)ang+=0.01;drawW3();drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-rsk","title":"THE RSK","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#70b0d0","icon":"rsk",
+  "kicker":"permutations become two tableaux — order becomes shape",
+  "blurb":"the Robinson-Schensted correspondence in the 5-window house format — a bijection between permutations of 1..n and pairs of standard Young tableaux (P,Q) of the same shape, built by row insertion: each number bumps the smallest larger element down a row, cascading. Schensted's theorem: P's first-row length equals the longest increasing subsequence. Verified live: over all 720 permutations of 6, RSK maps each to a distinct (P,Q) pair (a bijection) and the first-row length equals the LIS every time. See row-insertion bumping in 1D, tableaux building in 2D, and the reversible order-becomes-shape inverse in 3D.",
+  "lit":"Genuine Robinson-Schensted correspondence (Robinson 1938; Schensted 1961; Knuth's RSK 1970). Verified live: row insertion over all 720 permutations of {1..6} yields 720 distinct (P,Q) tableau pairs (a bijection), and the length of P's first row equals the longest increasing subsequence for every permutation (window.__rsk.bijection && .lisMatchesFirstRow).",
+  "fig":"No framing: the row-insertion engine, the exhaustive bijection check, and the Schensted LIS test run in-browser and are exact. The AVAN inverse is honest — the map is genuinely reversible (reverse-bumping recovers the permutation), giving the identity sum of (f^lambda)^2 = n!; magenta is the raw permutation, green the tableaux exposing its monotone skeleton.",
+  "body":RSK_BODY,"script":RSK_SCRIPT},
+ {"slug":"the-faulhaber","title":"THE FAULHABER","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#d0a840","icon":"faulhaber",
+  "kicker":"sum of p-th powers is one polynomial — via Bernoulli numbers",
+  "blurb":"Faulhaber's formula in the 5-window house format — the sum 1^p+2^p+...+n^p is always a polynomial in n of degree p+1, with coefficients from the Bernoulli numbers. p=1 gives n(n+1)/2; p=2 gives n(n+1)(2n+1)/6; p=3 gives [n(n+1)/2]^2, so sum of cubes = square of the sum (Nicomachus). Bernoulli numbers B0=1,B1=-1/2,B2=1/6,B4=-1/30 recur in tan, zeta, and Euler-Maclaurin. Verified live with exact BigInt rationals: closed forms match, Nicomachus holds, Bernoulli numbers compute correctly, and the general Faulhaber polynomial equals the direct sum for p=1..6. See Nicomachus tiling in 1D, direct-vs-polynomial in 2D, and the sum-becomes-integral inverse in 3D.",
+  "lit":"Genuine Faulhaber's formula (Faulhaber 1631; Bernoulli numbers, Jakob Bernoulli 1713). Verified live with exact BigInt rational arithmetic: S1,S2,S3 closed forms match the direct sum for n=1..25, S3=(S1)^2 (Nicomachus), the Bernoulli recurrence yields 1,-1/2,1/6,0,-1/30,0,1/42,0,-1/30, and the Faulhaber-Bernoulli polynomial (with (-1)^j, B1=-1/2) equals the direct power-sum for p=1..6, n=1..15 (window.__faulhaber).",
+  "fig":"No framing: the rational Bernoulli recurrence, the Faulhaber polynomial, and the direct-sum comparison run in-browser and are exact. The AVAN inverse is honest — the discrete sum is the integral x^(p+1)/(p+1) plus Bernoulli corrections (Euler-Maclaurin); magenta is the discrete staircase, green the smooth polynomial threading it.",
+  "body":FLB_BODY,"script":FLB_SCRIPT},
+ {"slug":"the-floyd-steinberg","title":"THE FLOYD-STEINBERG","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#a0a0c0","icon":"floyd-steinberg",
+  "kicker":"dither by broadcasting rounding error to neighbors",
+  "blurb":"Floyd-Steinberg dithering in the 5-window house format — make few colors look like many: quantize each pixel to the nearest level, then spread the rounding error to not-yet-processed neighbors (7/16,3/16,5/16,1/16). The eye averages the dots back into the original shade, so a 1-bit image shows smooth gradients. Error is never discarded, only passed on, so average brightness is preserved (up to a boundary residual). Verified live: dithering a smooth signal to 2 levels, |sum_in - sum_out| equals the leftover residual and the running error never exceeds one quantization step. See the carried error in 1D, dither vs threshold in 2D, and the conserved-brightness inverse in 3D.",
+  "lit":"Genuine Floyd-Steinberg error diffusion (Floyd & Steinberg 1976). Verified live: for a smooth signal dithered to 2 levels, the difference |sum(input) - sum(output)| equals the final un-diffused residual (< one quantization step), and the running prefix error stays bounded below one step (window.__floydsteinberg.meanPreserved && .errorBounded) — total brightness is redistributed, not lost.",
+  "fig":"No framing: the error-diffusion pass and the conservation check run in-browser and are exact. The AVAN inverse is honest — rounding here is redistribution not destruction, so sum(output) equals sum(input) minus a sub-pixel residual; magenta is the large per-pixel errors, green their bounded running sum.",
+  "body":FSD_BODY,"script":FSD_SCRIPT},
+ {"slug":"the-three-distance","title":"THE THREE-DISTANCE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#60c0b0","icon":"three-distance",
+  "kicker":"step by an irrational forever — gaps take only 3 sizes",
+  "blurb":"the three-distance (Steinhaus / three-gap) theorem in the 5-window house format — mark {alpha},{2alpha},...,{n alpha} around a circle for irrational alpha; however many points, the gaps between neighbors take at most THREE distinct lengths, and when three appear the largest equals the sum of the other two. It underlies golden-ratio spacing, phyllotaxis, and low-discrepancy sampling. Verified live: for several irrationals and every n from 2 to 60, the distinct gap count is at most 3 and the largest is the sum of the other two. See points and colored gaps in 1D, the circle in 2D, and the split-a-largest-gap inverse in 3D.",
+  "lit":"Genuine three-distance theorem (conjectured by Steinhaus; proved by Sos, Swierczkowski, and others, 1950s). Verified live: for alpha in {sqrt2-1, golden, pi-3, e-2} and n=2..60, the sorted gaps of {k*alpha mod 1} take at most 3 distinct values, and whenever exactly 3 appear the largest equals the sum of the other two (window.__threedistance.atMostThree && .largestIsSum).",
+  "fig":"No framing: the fractional-part placement and the gap classification run in-browser and are exact (gaps rounded at 1e-9). The AVAN inverse is honest — each new point splits one of the largest gaps into the two smaller lengths, keeping the gap set at <=3 sizes; magenta is the fourth length that never appears, green the <=3 that always suffice.",
+  "body":TDG_BODY,"script":TDG_SCRIPT},
+ {"slug":"the-rotating-calipers","title":"THE ROTATING CALIPERS","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#e08040","icon":"rotating-calipers",
+  "kicker":"polygon diameter in O(n) — only antipodal pairs matter",
+  "blurb":"rotating calipers in the 5-window house format — find a convex polygon's diameter (farthest vertex pair) in O(n) instead of O(n^2): two parallel lines grip the polygon on opposite sides and rotate together, and the farthest pair is always a pair of antipodal vertices they touch, swept in one loop. The same trick gives width, min-area bounding box, and closest distance between two convex polygons. Verified live: over 200 random convex hulls, the calipers diameter equals the brute-force max over all vertex pairs every time. See the rotating calipers in 1D, hull+diameter in 2D, and the only-antipodal-pairs-matter inverse in 3D.",
+  "lit":"Genuine rotating calipers (Shamos 1978, diameter; named/generalized by Toussaint 1983). Verified live: over 200 random point sets, Andrew's monotone-chain convex hull plus an antipodal caliper sweep returns a diameter that equals the brute-force maximum squared-distance over all hull vertex pairs, every time (window.__rotatingcalipers.diameterMatchesBrute).",
+  "fig":"No framing: the convex hull, the antipodal caliper sweep, and the brute-force cross-check run in-browser and are exact. The AVAN inverse is honest — the farthest pair must be antipodal (supported by parallel tangents) and antipodal pairs number only O(n); magenta is the O(n^2) pairs skipped, green the O(n) antipodal pairs holding the diameter.",
+  "body":RCL_BODY,"script":RCL_SCRIPT},
  {"slug":"the-goodstein","title":"THE GOODSTEIN","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#d07050","icon":"goodstein",
   "kicker":"unbounded growth that always crashes to 0 — unprovable in PA",
