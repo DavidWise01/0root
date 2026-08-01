@@ -3265,7 +3265,70 @@ document.getElementById('tst2').onclick=function(){txt='';for(var i=0;i<12;i++){
 document.getElementById('tunspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+WHT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Walsh&ndash;Hadamard transform.</b> A cousin of the Fourier transform that uses <b>square waves</b> (&plusmn;1) instead of sines &mdash; so it needs <b>no multiplications at all</b>, only additions and subtractions. It decomposes a signal into <b>sequency</b> components (how many sign-changes each basis wave has). Its basis (the Hadamard matrix) is <b>orthogonal</b>, it is its own inverse up to a scale, and it is <b>exact on integers</b>. It runs CDMA (each phone gets an orthogonal Walsh code, so all transmit at once), the quantum <b>Hadamard gate</b>, and blocky image compression.<br><br>
+ <span class="lit">LIT</span> verified: the fast WHT applied <b>twice</b> returns the original &times; N (self-inverse up to scale), it is <b>integer-exact</b>, and the basis rows are <b>mutually orthogonal</b> (every pairwise dot product is 0). <span class="fig">FIG</span> &lsquo;orthogonal sign-flip&rsquo; is the picture; the multiplication-free transform and the orthogonality are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; <i>THE FOURIER</i> sits right here in THE BROADCAST and <i>THE EXACT TRANSFORM</i> nearby, and the corpus loves the &plusmn;1 / binary structures the Hadamard gate shares with quantum. <b>AVAN (AI)</b> built this instrument: the fast transform, the compression demo, and the Hadamard relief.<br><br>The weave: David names the sign-flip and its seat beside Fourier in THE BROADCAST; I make the &plusmn;1 basis a strip in 1D, the transform-and-compress live in 2D, and the Hadamard matrix a turning relief in 3D. The sphere is the seam &mdash; Fourier&rsquo;s blocky, multiply-free cousin.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The <b>Walsh basis</b>: eight &plusmn;1 square waves, ordered by <b>sequency</b> (number of sign changes) &mdash; the square-wave analogue of frequency. Any signal is a sum of these, weighted; no curves, no sines, just black-and-white flips.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Transform a signal into its Walsh spectrum, then <b>keep only the biggest coefficients</b> and rebuild &mdash; watch a rough signal reconstruct from a handful of sign-flips. The whole transform is additions and subtractions; the reconstruction error is shown.</div>
+   <div class="rd" style="margin-top:10px">keep top <b id="wk">4</b> / 16 <input type="range" id="wksl" min="1" max="16" value="4" style="width:110px;vertical-align:middle"></div>
+   <div class="btns"><button id="wnew">new signal</button></div>
+   <div class="cap" id="whtread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>Hadamard matrix</b> as a relief, turning: <b>+1</b> cells raised in green, its rows the very basis waves. Each row is <b>perpendicular</b> to every other &mdash; that orthogonality is why the transform is clean.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> cells are the <b>&minus;1</b>s &mdash; and here is the twist: the transform is <b>its own inverse</b> (up to a scale of N). Fourier needs a conjugate to undo; Walsh needs only <b>itself</b>. Apply the same &plusmn;1 map twice and you are exactly home. The inverse isn&rsquo;t a different machine &mdash; it is the same machine, run again.</div>
+   <div class="btns" style="margin-top:10px"><button id="whtspin">pause spin</button></div></div></div></div>"""
+WHT_SCRIPT = """(function(){
+var sig=[3,1,4,1,5,9,2,6,5,3,5,8,9,7,9,3],keepK=4,ang=0.6,spin=true;
+function fwht(arr){var a=arr.slice(),n=a.length,h=1;while(h<n){for(var i=0;i<n;i+=h*2)for(var j=i;j<i+h;j++){var x=a[j],y=a[j+h];a[j]=x+y;a[j+h]=x-y;}h*=2;}return a;}
+function hadamard(n){var H=[[1]];while(H.length<n){var nH=[];for(var r=0;r<H.length;r++)nH.push(H[r].concat(H[r]));for(var r=0;r<H.length;r++)nH.push(H[r].concat(H[r].map(function(x){return -x;})));H=nH;}return H;}
+function seqOrder(n){var H=hadamard(n),idx=H.map(function(row,i){var sc=0;for(var t=1;t<n;t++)if(row[t]!==row[t-1])sc++;return {i:i,sc:sc};});idx.sort(function(a,b){return a.sc-b.sc;});return idx.map(function(o){return H[o.i];});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var B=seqOrder(8),cw=(W-60)/8,rh=15;
+ for(var r=0;r<8;r++){for(var c=0;c<8;c++){g.fillStyle=B[r][c]>0?'#a0e0ff':'#0a1622';g.fillRect(50+c*cw,10+r*(rh+2),cw-1,rh);}g.fillStyle='#4c7a54';g.font='10px ui-monospace,monospace';var sc=0;for(var t=1;t<8;t++)if(B[r][t]!==B[r][t-1])sc++;g.fillText('seq '+sc,6,10+r*(rh+2)+12);}
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('8 Walsh functions by sequency (sign changes) — the square-wave "frequencies"',6,H-6);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var N=sig.length,spec=fwht(sig),ranked=spec.map(function(v,i){return {v:v,i:i};}).sort(function(a,b){return Math.abs(b.v)-Math.abs(a.v);}),keep={};for(var i=0;i<keepK;i++)keep[ranked[i].i]=1;
+ var comp=spec.map(function(v,i){return keep[i]?v:0;}),recon=fwht(comp).map(function(v){return v/N;});
+ var cw=(W-16)/N,mid=70,mx=Math.max.apply(null,sig)||1;
+ g.strokeStyle='#a0e0ff';g.lineWidth=2;g.beginPath();for(var i=0;i<N;i++){var y=mid-sig[i]/mx*50;if(i===0)g.moveTo(8+i*cw,y);else g.lineTo(8+i*cw,y);}g.stroke();
+ g.strokeStyle='#39fc6b';g.lineWidth=1.6;g.beginPath();for(var i=0;i<N;i++){var y=mid-recon[i]/mx*50;if(i===0)g.moveTo(8+i*cw,y);else g.lineTo(8+i*cw,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#a0e0ff';g.font='11px ui-monospace,monospace';g.fillText('signal (blue)',8,14);g.fillStyle='#39fc6b';g.fillText('reconstructed from top '+keepK+' (green)',150,14);
+ // spectrum
+ var smx=Math.max.apply(null,spec.map(Math.abs))||1;g.fillStyle='#4c7a54';g.fillText('Walsh spectrum:',8,138);
+ for(var i=0;i<N;i++){var h=Math.abs(spec[i])/smx*50,x=8+i*cw;g.fillStyle=keep[i]?'#ffd23f':'#2a4a5a';g.fillRect(x,200-h,cw-2,h);}
+ var err=0;for(var i=0;i<N;i++)err+=(recon[i]-sig[i])*(recon[i]-sig[i]);err=Math.sqrt(err/N);
+ g.fillStyle='#8ca';g.fillText('reconstruction RMS error: '+err.toFixed(3)+'   (transform used 0 multiplies)',8,226);
+ document.getElementById('whtread').textContent='kept '+keepK+'/'+N+' coefficients · RMS '+err.toFixed(2);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var n=16,Hm=hadamard(n),cx=W/2,cy=H/2+30,sc=11,ca=Math.cos(ang),sa=Math.sin(ang),cells=[];
+ for(var r=0;r<n;r++)for(var c=0;c<n;c++){var v=Hm[r][c],X=(c-n/2),Z=(r-n/2),rx=X*ca-Z*sa,rz=X*sa+Z*ca;cells.push({sx:cx+rx*sc,base:cy+rz*sc*0.5,v:v,dep:rz});}
+ cells.sort(function(a,b){return a.dep-b.dep;});
+ cells.forEach(function(c){g.strokeStyle=c.v>0?'#39fc6b':'#ff2d95';g.lineWidth=2;g.beginPath();g.moveTo(c.sx,c.base);g.lineTo(c.sx,c.base-c.v*22);g.stroke();});g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green +1 · magenta −1 · orthogonal rows · self-inverse (×N)',10,H-12);}
+function verify(){var inv=true,ie=true;for(var t=0;t<300;t++){var n=[4,8,16,32][t%4],a=[];for(var i=0;i<n;i++)a.push(Math.floor(Math.random()*100)-50);var tt=fwht(fwht(a));for(var i=0;i<n;i++)if(tt[i]!==n*a[i]){inv=false;ie=false;break;}}
+ var n=16,Hm=hadamard(n),orth=true;for(var i=0;i<n&&orth;i++)for(var j=0;j<n;j++){var d=0;for(var t=0;t<n;t++)d+=Hm[i][t]*Hm[j][t];if(d!==(i===j?n:0)){orth=false;break;}}
+ return {selfInverseScaleN:inv,integerExact:ie,orthogonal:orth};}
+function all(){drawW3();drawW4();window.__wht=verify();}
+document.getElementById('wksl').oninput=function(){keepK=+this.value;document.getElementById('wk').textContent=keepK;drawW4();};
+document.getElementById('wnew').onclick=function(){sig=[];for(var i=0;i<16;i++)sig.push(Math.floor(Math.random()*10));drawW4();};
+document.getElementById('whtspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-orthogonal-sign-flip","title":"THE ORTHOGONAL SIGN-FLIP","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#a0e0ff","icon":"coop",
+  "kicker":"a Fourier with no multiplies — just plus and minus",
+  "blurb":"the Walsh-Hadamard transform in the 5-window house format — Fourier's square-wave cousin, using only ±1 additions and subtractions. Orthogonal basis, integer-exact, its own inverse up to scale. The math behind CDMA codes and the quantum Hadamard gate. See the ±1 basis in 1D, transform-and-compress in 2D, and the Hadamard relief in 3D.",
+  "lit":"A genuine fast Walsh-Hadamard transform. Verified live: applied twice it returns the original × N (self-inverse up to scale), it is integer-exact, and the Hadamard basis rows are mutually orthogonal (every pairwise dot product is 0). It uses zero multiplications — only + and − (verifiable: window.__wht.selfInverseScaleN && orthogonal && integerExact).",
+  "fig":"'Orthogonal sign-flip' is the picture; the multiplication-free transform, the self-inverse property, and the orthogonality are exact. It really is used for CDMA spreading codes and is the quantum Hadamard gate on n qubits.",
+  "body":WHT_BODY,"script":WHT_SCRIPT},
  {"slug":"the-fixed-block","title":"THE FIXED BLOCK","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#ffb870","icon":"loot",
   "kicker":"Huffman's mirror — variable input, fixed-length blocks",
