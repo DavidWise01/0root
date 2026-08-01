@@ -13848,7 +13848,304 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 mk();drawW3();drawW4();window.__eulertour=verify();
 function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 45 (set partitions · Euler trails · 2-SAT · Cartesian trees · quadrature) ═══════════════════════
+STI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Stirling numbers of the second kind</b> S(n,k) count the ways to partition a set of n labelled items into exactly k non-empty, unordered <b>blocks</b>. Where a binomial coefficient <i>chooses</i>, Stirling numbers <i>group</i>, and the recurrence tells the whole story: a new item either joins one of the k existing blocks (<b>k&middot;S(n&minus;1,k)</b> ways) or starts a fresh block (<b>S(n&minus;1,k&minus;1)</b> ways).<br><br>
+ Sum a row over all k and you get the <b>Bell number</b> B&#8345; &mdash; the total number of ways to partition the set at all.<br><br>
+ <span class="lit">LIT</span> verified live: the recurrence matches a brute count of set partitions into k blocks for n=1&hellip;7, each row sums to the Bell number, and the basis identity x&#8319; = &Sigma;<sub>k</sub> S(n,k)&middot;(x)<sub>k</sub> holds exactly (window.__stirling). <span class="fig">FIG</span> no framing; exact combinatorial counting.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-epoch</i> &mdash; sorting the long list of an age into groups. Stirling numbers are that grouping, counted. <b>AVAN (AI)</b> built the instrument: the recurrence, the brute set-partition enumeration, the Bell-number row sum, and the falling-factorial basis identity.<br><br>Credit as content: James Stirling (<i>Methodus Differentialis</i>, 1730). The weave: David names the epoch; I count set partitions two ways &mdash; recurrence and enumeration &mdash; and reveal that the same numbers translate between ordinary powers and falling factorials.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A set split into blocks. The recurrence in a picture: the newest item (red) either drops into one of the existing blocks, or opens a brand-new one &mdash; the two terms k&middot;S(n&minus;1,k) and S(n&minus;1,k&minus;1).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick n. The instrument computes the Stirling row by recurrence and by brute-enumerating set partitions, confirms they agree, and checks the row sums to the Bell number.</div>
+   <div class="btns" style="margin-top:10px"><button id="stin">n: 5 ▶</button><button id="sticheck">verify n=1..7 ▶</button></div>
+   <div class="cap" id="stiread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Stirling triangle, each entry a count of set partitions into k blocks.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the same numbers that count groupings are a <b>change of basis</b> between two ways of writing polynomials. Ordinary powers x&#8319; expand exactly into <b>falling factorials</b> (x)<sub>k</sub> = x(x&minus;1)&hellip;(x&minus;k+1) with Stirling coefficients: x&#8319; = &Sigma;<sub>k</sub> S(n,k)&middot;(x)<sub>k</sub>. So a purely <b>combinatorial</b> identity (how many partitions) is also a purely <b>linear-algebraic</b> one (the dictionary between two polynomial bases). The inverse of &lsquo;counting how to group a set&rsquo; is &lsquo;translating between how you spell a polynomial.&rsquo; <b>Magenta</b> is the power basis x&#8319;; <b>green</b> is the falling-factorial basis; the Stirling numbers are the exact translation between them. Counting and coordinates are the same table read two ways.</div>
+   <div class="btns" style="margin-top:10px"><button id="stispin">pause spin</button></div></div></div></div>"""
+STI_SCRIPT = """(function(){
+var ang=0,spin=true,N=5;
+function stir(n){var S=[[1]];for(var m=1;m<=n;m++){S.push([0]);for(var k=1;k<=m;k++)S[m][k]=k*(S[m-1][k]||0)+(S[m-1][k-1]||0);}return S;}
+function bruteStir(n,k){var c=0;function rec(i,bl){if(i===n){if(bl.length===k)c++;return;}for(var b=0;b<bl.length;b++){bl[b].push(i);rec(i+1,bl);bl[b].pop();}if(bl.length<k){bl.push([i]);rec(i+1,bl);bl.pop();}}rec(0,[]);return c;}
+function bell(n){var b=0;for(var k=0;k<=n;k++)b+=bruteStir(n,k);return b;}
+function falling(x,k){var p=1;for(var i=0;i<k;i++)p*=(x-i);return p;}
+function verify(){var S=stir(7),rec=true,bl=true,basis=true;for(var n=1;n<=7;n++){for(var k=1;k<=n;k++)if(S[n][k]!==bruteStir(n,k))rec=false;var rs=0;for(var k=1;k<=n;k++)rs+=S[n][k];if(rs!==bell(n))bl=false;
+ for(var x=0;x<=6;x++){var lhs=Math.pow(x,n),rhs=0;for(var k=0;k<=n;k++)rhs+=(S[n][k]||0)*falling(x,k);if(lhs!==rhs)basis=false;}}
+ return {recMatchesBrute:rec,rowSumBell:bl,basisIdentity:basis,row5:S[5].slice(1),bell5:bell(5)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('new item (red): join a block  OR  start a new block',12,16);
+ var blocks=[[0,3],[1],[2,4]];for(var b=0;b<blocks.length;b++){g.strokeStyle='#cf9838';g.strokeRect(30+b*100,40,86,40);for(var i=0;i<blocks[b].length;i++){g.fillStyle='#cf9838';g.beginPath();g.arc(48+b*100+i*24,60,9,0,7);g.fill();g.fillStyle='#04121c';g.font='11px monospace';g.fillText(blocks[b][i],44+b*100+i*24,64);}}
+ g.fillStyle='#e06060';g.beginPath();g.arc(360,60,9,0,7);g.fill();g.fillStyle='#8ad';g.font='10px monospace';g.fillText('→ k ways in, or 1 new block',330,90);
+ g.fillStyle='#8ad';g.fillText('S(n,k) = k·S(n-1,k) + S(n-1,k-1)',12,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var S=stir(N),row=S[N].slice(1),br=[];for(var k=1;k<=N;k++)br.push(bruteStir(N,k));var ok=JSON.stringify(row)===JSON.stringify(br),rs=row.reduce(function(a,b){return a+b;},0),B=bell(N);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('n = '+N,12,24);
+ g.fillStyle='#cf9838';g.font='12px monospace';g.fillText('recurrence: '+row.join(', '),12,52);
+ g.fillStyle='#5aa0e0';g.fillText('brute partitions: '+br.join(', '),12,76);
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.fillText(ok?'✓ agree':'✗',12,100);
+ g.fillStyle=rs===B?'#39fc6b':'#ff5a5a';g.fillText('row sum '+rs+' = Bell('+N+') = '+B+(rs===B?' ✓':' ✗'),12,124);
+ var mx=Math.max.apply(0,row);for(var k=0;k<row.length;k++){var h=row[k]/mx*110;g.fillStyle='#cf9838';g.fillRect(40+k*56,270-h,46,h);g.fillStyle='#9ab';g.font='10px monospace';g.fillText(row[k],40+k*56+6,268-h-4);g.fillText('k='+(k+1),40+k*56+6,285);}}
+document.getElementById('stin').onclick=function(){N=N>=8?1:N+1;this.textContent='n: '+N+' ▶';drawW4();};
+document.getElementById('sticheck').onclick=function(){var v=verify();document.getElementById('stiread').textContent='n=1..7: recurrence==brute '+(v.recMatchesBrute?'✓':'✗')+', row sum=Bell '+(v.rowSumBell?'✓':'✗')+', basis x^n=ΣS(n,k)(x)_k '+(v.basisIdentity?'✓':'✗');};
+document.getElementById('stispin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var S=stir(7);
+ for(var n=1;n<=7;n++){var row=S[n].slice(1),mx=Math.max.apply(0,row),y=30+n*44;for(var k=0;k<row.length;k++){var x=W/2+(k-(row.length-1)/2)*38,h=Math.log(1+row[k])*7;g.fillStyle='#39fc6b';g.globalAlpha=0.6+0.4*Math.sin(ang+k);g.fillRect(x-15,y-h,30,h);g.globalAlpha=1;}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: Stirling triangle (set-partition counts)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: also the power ↔ falling-factorial dictionary',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('x^n = Σ S(n,k)·x(x-1)…(x-k+1) — counting = coordinates',10,H-9);}
+drawW3();drawW4();window.__stirling=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HIE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>An Eulerian trail</b> crosses every edge of a graph <b>exactly once</b> &mdash; the Seven Bridges of K&ouml;nigsberg problem. Euler proved one exists precisely when the graph is connected and has either <b>0</b> odd-degree vertices (a closed circuit) or exactly <b>2</b> (an open trail between them). <b>Hierholzer&rsquo;s algorithm</b> actually finds it in O(E): walk until stuck, then splice in detours from any vertex that still has unused edges, stitching sub-tours into one.<br><br>
+ It runs DNA fragment assembly (Eulerian paths through de Bruijn graphs) and any &lsquo;traverse every link once&rsquo; problem.<br><br>
+ <span class="lit">LIT</span> verified live: on graphs with 0 or 2 odd-degree vertices, Hierholzer returns a trail using every edge exactly once; on K&#8324; (four odd vertices) it correctly reports no trail &mdash; matching Euler&rsquo;s degree criterion (window.__hierholzer). <span class="fig">FIG</span> no framing; exact graph traversal.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-wall</i> &mdash; crossing every wall or bridge once and only once. The Eulerian trail is the wall-crosser&rsquo;s route. <b>AVAN (AI)</b> built the instrument: the degree-parity criterion, Hierholzer&rsquo;s stitching, the every-edge-once check.<br><br>Credit as content: Leonhard Euler (1736, the K&ouml;nigsberg bridges &mdash; the birth of graph theory); Carl Hierholzer (1873, the constructive algorithm). The weave: David names the wall; I count odd-degree vertices to decide existence, then stitch sub-tours into a single trail that touches every edge once.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The whole question reduces to counting odd-degree vertices: 0 means a closed circuit exists, 2 means an open trail between them, anything else means no Eulerian trail at all.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A graph. Run Hierholzer to trace a trail crossing every edge once (highlighted in order), and see the odd-degree criterion predict whether one exists.</div>
+   <div class="btns" style="margin-top:10px"><button id="hienext">next graph ▶</button><button id="hierun">trace trail ▶</button><button id="hiecheck">verify ▶</button></div>
+   <div class="cap" id="hieread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the trail Hierholzer stitches from sub-tours, threading every edge exactly once.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): whether a global traversal exists is decided by a purely <b>local</b> count &mdash; you never have to try to trace it. Euler&rsquo;s leap: a walk enters and leaves each intermediate vertex in pairs, so every vertex except the two endpoints must have <b>even</b> degree; count the odd-degree vertices and 0 or 2 means yes, anything else means no. The inverse of &lsquo;search for a global path&rsquo; is &lsquo;count a local degree parity.&rsquo; K&ouml;nigsberg had <b>four</b> odd vertices &mdash; so no walk crosses all seven bridges once, decided <b>without walking</b>. <b>Magenta</b> marks the odd-degree vertices, the only possible obstruction; <b>green</b> is the trail when at most two exist. A question about the whole graph collapses to counting odd corners.</div>
+   <div class="btns" style="margin-top:10px"><button id="hiespin">pause spin</button></div></div></div></div>"""
+HIE_SCRIPT = """(function(){
+var ang=0,spin=true,gi=0;
+var GRAPHS=[
+ {n:5,e:[[0,1],[1,2],[2,3],[3,4],[4,0],[0,2],[2,4]],pos:[[190,40],[320,120],[270,260],[110,260],[60,120]]},
+ {n:4,e:[[0,1],[1,2],[2,0],[0,3],[3,1]],pos:[[120,60],[280,60],[280,240],[120,240]]},
+ {n:4,e:[[0,1],[1,2],[2,3],[3,0],[0,2],[1,3]],pos:[[120,60],[280,60],[280,240],[120,240]]}
+];
+function hier(n,edges){var adj=[];for(var i=0;i<n;i++)adj.push([]);var used=new Array(edges.length).fill(false),deg=new Array(n).fill(0);edges.forEach(function(e,i){adj[e[0]].push([e[1],i]);adj[e[1]].push([e[0],i]);deg[e[0]]++;deg[e[1]]++;});
+ var odd=[];for(var i=0;i<n;i++)if(deg[i]%2)odd.push(i);if(odd.length!==0&&odd.length!==2)return {exists:false,trail:null,odd:odd};
+ var start=odd.length===2?odd[0]:0;for(var i=0;i<n;i++)if(deg[i]>0&&odd.length===0){start=i;break;}
+ var ptr=new Array(n).fill(0),st=[start],trail=[];while(st.length){var v=st[st.length-1],adv=false;while(ptr[v]<adj[v].length){var e=adj[v][ptr[v]++];if(!used[e[1]]){used[e[1]]=true;st.push(e[0]);adv=true;break;}}if(!adv)trail.push(st.pop());}
+ var uc=used.filter(Boolean).length;return {exists:uc===edges.length,trail:trail.reverse(),edgesUsed:uc,totalEdges:edges.length,odd:odd};}
+function verify(){var r0=hier(GRAPHS[0].n,GRAPHS[0].e),r1=hier(GRAPHS[1].n,GRAPHS[1].e),r2=hier(GRAPHS[2].n,GRAPHS[2].e);
+ return {g0_allEdges:r0.exists&&r0.edgesUsed===r0.totalEdges,g1_allEdges:r1.exists,K4_noTrail:r2.trail===null,criterionMatches:(r2.odd.length===4&&r2.trail===null)};}
+function drawGraph(g,G,r,ox,oy,traceStep){for(var i=0;i<G.e.length;i++){var a=G.pos[G.e[i][0]],b=G.pos[G.e[i][1]];g.strokeStyle='#3a4150';g.lineWidth=2;g.beginPath();g.moveTo(a[0]+ox,a[1]+oy);g.lineTo(b[0]+ox,b[1]+oy);g.stroke();}
+ if(r&&r.trail&&traceStep){g.strokeStyle='#39fc6b';g.lineWidth=3;for(var s=0;s<Math.min(traceStep,r.trail.length-1);s++){var a=G.pos[r.trail[s]],b=G.pos[r.trail[s+1]];g.beginPath();g.moveTo(a[0]+ox,a[1]+oy);g.lineTo(b[0]+ox,b[1]+oy);g.stroke();}}
+ g.lineWidth=1;var deg=new Array(G.n).fill(0);G.e.forEach(function(e){deg[e[0]]++;deg[e[1]]++;});
+ for(var i=0;i<G.n;i++){var odd=deg[i]%2;g.fillStyle=odd?'#ff2d95':'#50b0a0';g.beginPath();g.arc(G.pos[i][0]+ox,G.pos[i][1]+oy,12,0,7);g.fill();g.fillStyle='#04121c';g.font='11px monospace';g.fillText(i,G.pos[i][0]+ox-3,G.pos[i][1]+oy+4);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.font='12px monospace';
+ g.fillStyle='#50b0a0';g.fillText('0 odd vertices → closed Eulerian circuit',20,40);
+ g.fillStyle='#cf9838';g.fillText('2 odd vertices → open Eulerian trail (between them)',20,72);
+ g.fillStyle='#ff2d95';g.fillText('any other count → no Eulerian trail (Königsberg: 4 odd)',20,104);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a walk pairs entries and exits — only endpoints may be odd',20,H-14);}
+var traceStep=0;
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var G=GRAPHS[gi],r=hier(G.n,G.e);drawGraph(g,G,r,0,-10,traceStep);
+ g.fillStyle=r.trail?'#39fc6b':'#ff2d95';g.font='11px monospace';g.fillText(r.trail?('trail: '+r.trail.join('→')):'no Eulerian trail ('+r.odd.length+' odd vertices)',12,H-14);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText(r.trail?('uses all '+r.totalEdges+' edges once ✓  (odd vertices: '+r.odd.length+')'):'',12,H-30);}
+document.getElementById('hienext').onclick=function(){gi=(gi+1)%GRAPHS.length;traceStep=0;drawW4();document.getElementById('hieread').textContent='graph '+(gi+1);};
+document.getElementById('hierun').onclick=function(){var G=GRAPHS[gi],r=hier(G.n,G.e);if(r.trail){traceStep=0;var iv=setInterval(function(){traceStep++;drawW4();if(traceStep>=r.trail.length-1)clearInterval(iv);},350);}document.getElementById('hieread').textContent=r.trail?'tracing every edge once…':'no trail (odd count '+r.odd.length+')';};
+document.getElementById('hiecheck').onclick=function(){var v=verify();document.getElementById('hieread').textContent='2-odd trail uses all edges '+(v.g0_allEdges?'✓':'✗')+', K4 (4 odd) rejected '+(v.K4_noTrail?'✓':'✗');};
+document.getElementById('hiespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var G=GRAPHS[0],r=hier(G.n,G.e),step=Math.floor((ang*4)%(r.trail.length));
+ drawGraph(g,G,r,20,20,step);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the trail, stitched from sub-tours',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: odd-degree vertices (the only obstruction)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('existence decided by counting odd corners — not by walking',10,H-9);}
+drawW3();drawW4();window.__hierholzer=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TSA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>2-SAT</b> asks whether a set of constraints, each an OR of two boolean literals like (x &or; &not;y), can <b>all</b> be satisfied at once. Full SAT is NP-complete, but the two-literal case is solvable in <b>linear time</b>.<br><br>
+ The trick: each clause (a &or; b) means &lsquo;if not a then b&rsquo; <b>and</b> &lsquo;if not b then a.&rsquo; Build these implications as a directed graph, find its <b>strongly-connected components</b>, and the formula is satisfiable <b>iff</b> no variable x and its negation &not;x land in the same component &mdash; if they are forced equal, contradiction. The assignment reads off from the components in reverse order.<br><br>
+ <span class="lit">LIT</span> verified live: the SCC verdict matches brute force over all 2&#8319; assignments for 300 random formulas, and when satisfiable the returned assignment satisfies every clause (window.__twosat). <span class="fig">FIG</span> no framing; exact constraint solving.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>heisenbug</i> &mdash; a contradiction that either lurks or doesn&rsquo;t, invisible until you resolve it. 2-SAT decides exactly that: is a consistent assignment possible? <b>AVAN (AI)</b> built the instrument: the implication graph, the SCC condensation, the assignment reader, the brute-force check.<br><br>Credit as content: Melven Krom (1967); the linear-time SCC method of Bengt Aspvall, Michael Plass &amp; Robert Tarjan (1979). The weave: David names the heisenbug; I turn clauses into implications, find the strongly-connected components, and read satisfiability off whether any literal is forced equal to its own negation.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">One clause (a &or; b) becomes two implications: &not;a &rarr; b and &not;b &rarr; a. A whole formula becomes a directed graph, and satisfiability is a question about its cycles.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Toggle clauses; the implication graph is built and its strongly-connected components found. The verdict (satisfiable or not) and a valid assignment are read off, and checked against brute force.</div>
+   <div class="btns" style="margin-top:10px"><button id="tsanew">new formula ▶</button><button id="tsacheck">verify 300 ▶</button></div>
+   <div class="cap" id="tsaread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the implication graph condensed into components &mdash; a valid assignment read off in reverse topological order.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): satisfiability is decided by a <b>symmetry</b> of the implication graph, not by search. The clause structure makes the graph <b>skew-symmetric</b> under the map x &harr; &not;x, and the formula fails <b>exactly</b> when this map collapses a variable and its negation into one component &mdash; because then every truth value implies its own opposite, a self-contradiction loop with no escape. The inverse of &lsquo;try all 2&#8319; assignments&rsquo; is &lsquo;check whether the forced-implication cycles ever equate a literal with its negation.&rsquo; <b>Magenta</b> is the fatal cycle binding x to &not;x; <b>green</b> is the component condensation whose reverse order names a solution. Contradiction is a cycle you can see, not a search you must run.</div>
+   <div class="btns" style="margin-top:10px"><button id="tsaspin">pause spin</button></div></div></div></div>"""
+TSA_SCRIPT = """(function(){
+var ang=0,spin=true,N=3,CL=[[1,2],[-1,3],[-2,-3],[2,-1]];
+function twoSat(n,clauses){var M=2*n,adj=[],radj=[];for(var i=0;i<M;i++){adj.push([]);radj.push([]);}function node(l){var v=Math.abs(l)-1;return l>0?2*v:2*v+1;}function neg(x){return x^1;}
+ clauses.forEach(function(c){var a=node(c[0]),b=node(c[1]);adj[neg(a)].push(b);adj[neg(b)].push(a);radj[b].push(neg(a));radj[a].push(neg(b));});
+ var vis=new Array(M).fill(false),order=[];function d1(u){vis[u]=true;for(var i=0;i<adj[u].length;i++)if(!vis[adj[u][i]])d1(adj[u][i]);order.push(u);}for(var i=0;i<M;i++)if(!vis[i])d1(i);
+ var comp=new Array(M).fill(-1),c=0;function d2(u,cc){comp[u]=cc;for(var i=0;i<radj[u].length;i++)if(comp[radj[u][i]]<0)d2(radj[u][i],cc);}for(var i=order.length-1;i>=0;i--)if(comp[order[i]]<0)d2(order[i],c++);
+ for(var v=0;v<n;v++)if(comp[2*v]===comp[2*v+1])return {sat:false,comp:comp};var asg=[];for(var v=0;v<n;v++)asg.push(comp[2*v]>comp[2*v+1]);return {sat:true,assign:asg,comp:comp};}
+function brute(n,clauses){for(var m=0;m<(1<<n);m++){var a=[];for(var v=0;v<n;v++)a.push(((m>>v)&1)?true:false);var ok=true;clauses.forEach(function(c){var la=(c[0]>0)===a[Math.abs(c[0])-1],lb=(c[1]>0)===a[Math.abs(c[1])-1];if(!(la||lb))ok=false;});if(ok)return true;}return false;}
+function verify(){var seed=11;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var vOK=true,aOK=true;for(var t=0;t<300;t++){var n=2+rnd()%4,m=1+rnd()%6,cl=[];for(var i=0;i<m;i++)cl.push([(1+rnd()%n)*(rnd()%2?1:-1),(1+rnd()%n)*(rnd()%2?1:-1)]);var r=twoSat(n,cl),bf=brute(n,cl);if(r.sat!==bf)vOK=false;if(r.sat){var ok=true;cl.forEach(function(c){var la=(c[0]>0)===r.assign[Math.abs(c[0])-1],lb=(c[1]>0)===r.assign[Math.abs(c[1])-1];if(!(la||lb))ok=false;});if(!ok)aOK=false;}}return {verdictMatchesBrute:vOK,assignmentValid:aOK};}
+function lit(l){return (l>0?'x':'¬x')+Math.abs(l);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='12px monospace';g.fillText('(x1 ∨ ¬x2)  becomes:',20,40);
+ g.fillStyle='#7048c0';g.font='13px monospace';g.fillText('¬x1 → ¬x2      and      x2 → x1',60,74);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a formula → a directed graph; satisfiability → a question about cycles',20,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=twoSat(N,CL);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('formula: '+CL.map(function(c){return '('+lit(c[0])+'∨'+lit(c[1])+')';}).join(' ∧ '),12,22);
+ // draw 2N literal nodes on a circle
+ var M=2*N,cx=W/2,cy=150,R=90;for(var v=0;v<N;v++){for(var s=0;s<2;s++){var idx=2*v+s,a=idx/M*2*Math.PI-Math.PI/2,x=cx+R*Math.cos(a),y=cy+R*Math.sin(a);g.fillStyle=['#7048c0','#40a8c8','#cf9838','#e06060','#50b0a0','#c05090'][r.comp[idx]%6];g.beginPath();g.arc(x,y,13,0,7);g.fill();g.fillStyle='#fff';g.font='10px monospace';g.fillText((s?'¬':'')+'x'+(v+1),x-8,y+4);}}
+ g.fillStyle=r.sat?'#39fc6b':'#ff2d95';g.font='13px monospace';g.fillText(r.sat?'SATISFIABLE':'UNSATISFIABLE',12,H-30);
+ if(r.sat){g.fillStyle='#8ad';g.font='11px monospace';g.fillText('assignment: '+r.assign.map(function(b,i){return 'x'+(i+1)+'='+(b?'T':'F');}).join(', '),12,H-12);}else{g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('some xi and ¬xi share a component (contradiction)',12,H-12);}}
+document.getElementById('tsanew').onclick=function(){N=2+Math.floor(Math.random()*3);var m=2+Math.floor(Math.random()*4);CL=[];for(var i=0;i<m;i++)CL.push([(1+Math.floor(Math.random()*N))*(Math.random()<0.5?1:-1),(1+Math.floor(Math.random()*N))*(Math.random()<0.5?1:-1)]);drawW4();var r=twoSat(N,CL);document.getElementById('tsaread').textContent=r.sat?'satisfiable':'unsatisfiable';};
+document.getElementById('tsacheck').onclick=function(){var v=verify();document.getElementById('tsaread').textContent='300 formulas: SCC verdict == brute '+(v.verdictMatchesBrute?'✓':'✗')+', assignment valid '+(v.assignmentValid?'✓':'✗');};
+document.getElementById('tsaspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=twoSat(N,CL),M=2*N,cx=W/2,cy=H*0.42,R=95;
+ for(var i=0;i<M;i++){var a=i/M*2*Math.PI+ang,x=cx+R*Math.cos(a),y=cy+R*Math.sin(a)*0.8;var same=r.comp[i]===r.comp[i^1];g.fillStyle=same?'#ff2d95':['#39fc6b','#40a8c8','#cf9838'][r.comp[i]%3];g.beginPath();g.arc(x,y,5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: components condense to a valid assignment',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: a literal forced equal to its negation (unsat)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('contradiction is a visible cycle, not a 2^n search',10,H-9);}
+drawW3();drawW4();window.__twosat=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CTR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A Cartesian tree</b> is built from a sequence so it satisfies <b>two orders at once</b>: its in-order traversal reproduces the original array positions (a binary search tree on <b>indices</b>), and every parent&rsquo;s value is &le; its children&rsquo;s (a min-<b>heap</b> on values). It is built in O(n) with a single stack.<br><br>
+ The payoff: the <b>lowest common ancestor</b> of positions i and j is exactly the position of the <b>minimum</b> in the range a[i&hellip;j] &mdash; so range-minimum queries and LCA queries become the <b>same</b> problem, each convertible to the other.<br><br>
+ <span class="lit">LIT</span> verified live: for random arrays, the in-order traversal equals 0,1,&hellip;,n&minus;1, the heap property holds on values, and LCA(i,j)&rsquo;s value equals the range-minimum of a[i&hellip;j] (window.__cartesiantree). <span class="fig">FIG</span> no framing; exact tree construction.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>cold-boot</i> &mdash; building the whole structure from a bare array in one pass. The Cartesian tree is exactly that: one linear scan boots a tree carrying two orders. <b>AVAN (AI)</b> built the instrument: the O(n) stack construction, the in-order / heap checks, the LCA-equals-range-minimum test.<br><br>Credit as content: Jean Vuillemin (1980), who named the structure. The weave: David names the cold boot; I build the tree in one stack pass and show two different queries &mdash; range-minimum and lowest-common-ancestor &mdash; give the very same answer.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The array as bars by value. The Cartesian tree&rsquo;s root is the global minimum; its left and right subtrees are the Cartesian trees of the segments on either side &mdash; recursively, the smallest value always rises to the top of its span.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">An array and its Cartesian tree. Click two positions: their lowest common ancestor lights up, and it is exactly the minimum of the range between them. Verify in-order, heap property, and LCA = range-min.</div>
+   <div class="btns" style="margin-top:10px"><button id="ctrnew">new array ▶</button><button id="ctrcheck">verify ▶</button></div>
+   <div class="cap" id="ctrread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the tree floating above its array, each node the minimum of the span it covers.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): two problems that look unrelated are <b>the same problem</b>. &lsquo;Minimum in a range&rsquo; is about <b>values</b>; &lsquo;lowest common ancestor&rsquo; is about <b>tree structure</b> &mdash; yet the Cartesian tree makes each reducible to the other in linear time: range-min over a[i&hellip;j] <b>is</b> LCA(i,j), and LCA <b>is</b> a range-min over an Euler tour. The inverse of &lsquo;a range-minimum query&rsquo; is &lsquo;an ancestor query,&rsquo; and back again. That equivalence is why the fastest RMQ algorithm routes through LCA and the fastest LCA through RMQ. <b>Magenta</b> is the range on the array; <b>green</b> is the LCA node in the tree &mdash; one answer wearing two hats. Two questions, one structure that translates between them.</div>
+   <div class="btns" style="margin-top:10px"><button id="ctrspin">pause spin</button></div></div></div></div>"""
+CTR_SCRIPT = """(function(){
+var ang=0,spin=true,A=[5,2,8,1,9,3,7,4],sel=[1,5];
+function cart(a){var n=a.length,par=new Array(n).fill(-1),left=new Array(n).fill(-1),right=new Array(n).fill(-1),st=[];for(var i=0;i<n;i++){var last=-1;while(st.length&&a[st[st.length-1]]>a[i])last=st.pop();if(last>=0){par[last]=i;left[i]=last;}if(st.length){par[i]=st[st.length-1];right[st[st.length-1]]=i;}st.push(i);}return {par:par,left:left,right:right,root:st[0]};}
+function inorder(t,n){var r=[];function rec(u){if(u<0)return;rec(t.left[u]);r.push(u);rec(t.right[u]);}rec(t.root);return r;}
+function lca(t,i,j){var anc={},u=i;while(u>=0){anc[u]=1;u=t.par[u];}u=j;while(u>=0){if(anc[u])return u;u=t.par[u];}return -1;}
+function verify(){var seed=3;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var io=true,hp=true,lc=true;for(var t=0;t<200;t++){var n=2+rnd()%12,a=[];for(var i=0;i<n;i++)a.push(rnd()%1000);var T=cart(a);if(JSON.stringify(inorder(T,n))!==JSON.stringify(Array.from({length:n},function(_,i){return i;})))io=false;for(var i=0;i<n;i++)if(T.par[i]>=0&&a[T.par[i]]>a[i])hp=false;for(var q=0;q<8;q++){var i=rnd()%n,j=rnd()%n;if(i>j){var tt=i;i=j;j=tt;}var mn=Math.min.apply(0,a.slice(i,j+1));if(a[lca(T,i,j)]!==mn)lc=false;}}return {inorderIsIndices:io,heapProperty:hp,lcaIsRangeMin:lc};}
+function nodePos(t,n){var xs=[],io=inorder(t,n);for(var i=0;i<io.length;i++)xs[io[i]]=i;var depth=new Array(n).fill(0);function rec(u,d){if(u<0)return;depth[u]=d;rec(t.left[u],d+1);rec(t.right[u],d+1);}rec(t.root,0);return {xs:xs,depth:depth};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var mx=Math.max.apply(0,A),cell=(W-40)/A.length;g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('array by value — the global minimum rises to the root',12,16);
+ for(var i=0;i<A.length;i++){var h=A[i]/mx*90;g.fillStyle=A[i]===Math.min.apply(0,A)?'#40a8c8':'#3a5a6a';g.fillRect(20+i*cell,H-25-h,cell-4,h);g.fillStyle='#9ab';g.font='10px monospace';g.fillText(A[i],20+i*cell+cell/2-6,H-10);}}
+function drawTree(g,t,A,np,ox,oy,cell,vspace,hl){for(var u=0;u<A.length;u++){if(t.par[u]>=0){g.strokeStyle='#3a4150';g.beginPath();g.moveTo(ox+np.xs[u]*cell,oy+np.depth[u]*vspace);g.lineTo(ox+np.xs[t.par[u]]*cell,oy+np.depth[t.par[u]]*vspace);g.stroke();}}
+ for(var u=0;u<A.length;u++){var on=hl.indexOf(u)>=0;g.fillStyle=on?'#39fc6b':'#40a8c8';g.beginPath();g.arc(ox+np.xs[u]*cell,oy+np.depth[u]*vspace,13,0,7);g.fill();g.fillStyle='#04121c';g.font='10px monospace';g.fillText(A[u],ox+np.xs[u]*cell-6,oy+np.depth[u]*vspace+4);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var T=cart(A),np=nodePos(T,A.length),cell=(W-40)/A.length,l=lca(T,sel[0],sel[1]);
+ drawTree(g,T,A,np,25,30,cell,44,[l]);
+ var mn=Math.min.apply(0,A.slice(sel[0],sel[1]+1));
+ for(var i=0;i<A.length;i++){var inRange=i>=sel[0]&&i<=sel[1];g.fillStyle=inRange?'#c05090':'#26303c';g.fillRect(25+np.xs[i]*cell-cell/2+3,H-40,cell-6,20);g.fillStyle='#fff';g.font='10px monospace';g.fillText(A[i],25+np.xs[i]*cell-6,H-26);}
+ g.fillStyle=(A[l]===mn)?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('LCA('+sel[0]+','+sel[1]+') value '+A[l]+' = range-min '+mn+(A[l]===mn?' ✓':' ✗'),12,H-52);}
+document.getElementById('w4').addEventListener('click',function(e){var T=cart(A),np=nodePos(T,A.length),cell=(this.width-40)/A.length,r=this.getBoundingClientRect(),mx=e.clientX-r.left;var best=0,bd=1e9;for(var i=0;i<A.length;i++){var x=25+np.xs[i]*cell;if(Math.abs(mx-x)<bd){bd=Math.abs(mx-x);best=i;}}sel=[Math.min(sel[1],best),Math.max(sel[1],best)];if(sel[0]===sel[1])sel=[best,Math.min(A.length-1,best+1)];sel=[Math.min(best,sel[0]),Math.max(best,sel[0])];sel=[Math.min(best,sel[1]===best?best:sel[0]),0];sel=[Math.min(best,4),Math.max(best,4)];drawW4();});
+document.getElementById('ctrnew').onclick=function(){A=[];var n=6+Math.floor(Math.random()*4);var vals=Array.from({length:n},function(_,i){return i+1;});for(var i=vals.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=vals[i];vals[i]=vals[j];vals[j]=t;}A=vals;sel=[1,n-2];drawW3();drawW4();document.getElementById('ctrread').textContent='new array — click positions to compare LCA vs range-min';};
+document.getElementById('ctrcheck').onclick=function(){var v=verify();document.getElementById('ctrread').textContent='200 arrays: in-order==indices '+(v.inorderIsIndices?'✓':'✗')+', min-heap '+(v.heapProperty?'✓':'✗')+', LCA==range-min '+(v.lcaIsRangeMin?'✓':'✗');};
+document.getElementById('ctrspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var T=cart(A),np=nodePos(T,A.length),cell=(W-40)/A.length,l=lca(T,sel[0],sel[1]);
+ drawTree(g,T,A,np,25,40,cell,40,[l]);
+ for(var i=0;i<A.length;i++){var inR=i>=sel[0]&&i<=sel[1];g.fillStyle=inR?'#c05090':'#2a3140';g.fillRect(25+np.xs[i]*cell-cell/2+3,H*0.66,cell-6,16+4*Math.sin(ang+i));}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the LCA node in the tree',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the range on the array — same answer',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('range-min ⟺ LCA: two queries, one structure',10,H-9);}
+drawW3();drawW4();window.__cartesiantree=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GLQ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Gaussian quadrature</b> is a cheat for integration. Instead of sampling a function at many evenly-spaced points (trapezoid, Simpson), it places just n sample points at <b>cleverly chosen</b> positions &mdash; the <b>roots of the n-th Legendre polynomial</b> &mdash; with matching weights, and integrates <b>exactly</b> every polynomial up to degree <b>2n&minus;1</b>.<br><br>
+ Two points nail cubics; three points nail quintics. You get the accuracy of roughly 2n evenly-spaced samples from only n, because you are free to choose <b>where</b> to sample, not merely how heavily.<br><br>
+ <span class="lit">LIT</span> verified live: 2-point Gauss integrates x&#8304;&hellip;x&sup3; exactly (and first fails at degree 4); 3-point Gauss is exact through degree 5 (and first fails at degree 6) &mdash; matching the analytic integrals on [&minus;1,1] (window.__gausslegendre). <span class="fig">FIG</span> no framing; exact quadrature arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-speedrun</i> &mdash; maximum result from minimum moves. Gaussian quadrature is the integration speedrun: the accuracy of many samples from a handful, by choosing them well. <b>AVAN (AI)</b> built the instrument: the Legendre-root nodes and weights, the exact-to-degree-2n&minus;1 check, the first-failure at 2n.<br><br>Credit as content: Carl Friedrich Gauss (1814); the nodes are the roots of the Legendre polynomials (Adrien-Marie Legendre). The weave: David names the speedrun; I integrate rising powers with only n cleverly-placed samples and show exactness up to degree 2n&minus;1, then the first miss.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The n sample points sit not at even spacing but at the roots of the Legendre polynomial &mdash; pulled toward the interior, weighted to cancel the error of every polynomial up to degree 2n&minus;1.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Choose 2-point or 3-point Gauss and integrate x&#7510; for rising p. Watch the quadrature match the exact integral all the way up to degree 2n&minus;1, then miss at 2n &mdash; the precise limit of the rule.</div>
+   <div class="btns" style="margin-top:10px"><button id="glqpts">points: 2 ▶</button><button id="glqp">degree p: 3 ▶</button><button id="glqcheck">verify limit ▶</button></div>
+   <div class="cap" id="glqread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: n nodes at Legendre roots, exact to degree 2n&minus;1 &mdash; twice the reach of an ordinary n-point rule.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the extra power comes from choosing the <b>nodes</b>, not just the weights. With n weights you can satisfy n conditions &mdash; an ordinary interpolatory rule, exact only to degree n&minus;1. By <b>also</b> choosing the n node <b>positions</b> you gain n more degrees of freedom, <b>doubling</b> the reach to 2n&minus;1. The inverse of &lsquo;sample more points&rsquo; is &lsquo;choose <b>where</b> to sample.&rsquo; And the magic positions are forced, not tuned: they must be the roots of the degree-n <b>orthogonal</b> (Legendre) polynomial, because that polynomial is orthogonal to everything of lower degree &mdash; so it annihilates exactly the error terms that would otherwise spoil degrees n through 2n&minus;1. <b>Magenta</b> is the wasted evenly-spaced samples; <b>green</b> is the n Legendre-root nodes doing double duty. Freedom of position is worth exactly as much as freedom of weight.</div>
+   <div class="btns" style="margin-top:10px"><button id="glqspin">pause spin</button></div></div></div></div>"""
+GLQ_SCRIPT = """(function(){
+var ang=0,spin=true,PTS=2,P=3;
+var G2={n:[-1/Math.sqrt(3),1/Math.sqrt(3)],w:[1,1]},G3={n:[-Math.sqrt(3/5),0,Math.sqrt(3/5)],w:[5/9,8/9,5/9]};
+function rule(){return PTS===2?G2:G3;}
+function gauss(f,r){var s=0;for(var i=0;i<r.n.length;i++)s+=r.w[i]*f(r.n[i]);return s;}
+function analytic(p){return (p%2===0)?2/(p+1):0;}
+function verify(){var ok2=true,ok3=true,f2=false,f3=false;for(var p=0;p<=3;p++)if(Math.abs(gauss(function(x){return Math.pow(x,p);},G2)-analytic(p))>1e-9)ok2=false;f2=Math.abs(gauss(function(x){return Math.pow(x,4);},G2)-analytic(4))>1e-9;
+ for(var p=0;p<=5;p++)if(Math.abs(gauss(function(x){return Math.pow(x,p);},G3)-analytic(p))>1e-9)ok3=false;f3=Math.abs(gauss(function(x){return Math.pow(x,6);},G3)-analytic(6))>1e-9;
+ return {twoPtExactTo3:ok2,twoPtFailsAt4:f2,threePtExactTo5:ok3,threePtFailsAt6:f3,exactBelowDegree:'2n-1'};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=rule();g.strokeStyle='#334';g.beginPath();g.moveTo(20,H/2);g.lineTo(W-20,H/2);g.stroke();
+ g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText(PTS+'-point nodes at Legendre roots (not evenly spaced)',12,20);
+ for(var i=0;i<r.n.length;i++){var x=(r.n[i]+1)/2*(W-40)+20;g.strokeStyle='#d08840';g.beginPath();g.moveTo(x,40);g.lineTo(x,H-30);g.stroke();g.fillStyle='#d08840';g.beginPath();g.arc(x,H/2,6,0,7);g.fill();g.fillStyle='#8ad';g.font='9px monospace';g.fillText('w='+r.w[i].toFixed(2),x-12,H-14);}
+ // evenly spaced (magenta) for contrast
+ for(var i=0;i<r.n.length;i++){var x=(i+1)/(r.n.length+1)*(W-40)+20;g.fillStyle='rgba(255,45,149,0.5)';g.beginPath();g.arc(x,H/2+14,4,0,7);g.fill();}
+ g.fillStyle='#8ad';g.fillText('magenta = evenly spaced (wasteful); gold = Legendre roots',150,20);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=rule(),q=gauss(function(x){return Math.pow(x,P);},r),ex=analytic(P),ok=Math.abs(q-ex)<1e-9,limit=2*PTS-1;
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText(PTS+'-point Gauss, ∫ x^'+P+' dx on [-1,1]',12,26);
+ g.fillStyle='#d08840';g.font='12px monospace';g.fillText('Gauss:    '+q.toFixed(8),12,60);
+ g.fillStyle='#5aa0e0';g.fillText('analytic: '+ex.toFixed(8),12,84);
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='13px monospace';g.fillText(ok?'✓ exact (degree '+P+' ≤ 2n-1 = '+limit+')':'✗ inexact (degree '+P+' > '+limit+')',12,116);
+ // draw the curve and nodes
+ g.strokeStyle='#8ad';g.beginPath();for(var i=0;i<=100;i++){var x=-1+i/50,y=Math.pow(x,P);g.lineTo(30+(x+1)/2*(W-60),200-y*40);}g.stroke();
+ for(var i=0;i<r.n.length;i++){var x=r.n[i];g.fillStyle='#d08840';g.beginPath();g.arc(30+(x+1)/2*(W-60),200-Math.pow(x,P)*40,5,0,7);g.fill();}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('n cleverly-placed samples ↔ accuracy of ~2n even samples',12,H-12);}
+document.getElementById('glqpts').onclick=function(){PTS=PTS===2?3:2;this.textContent='points: '+PTS+' ▶';drawW3();drawW4();};
+document.getElementById('glqp').onclick=function(){P=P>=7?0:P+1;this.textContent='degree p: '+P+' ▶';drawW4();};
+document.getElementById('glqcheck').onclick=function(){var v=verify();document.getElementById('glqread').textContent='2-pt exact≤3 '+(v.twoPtExactTo3?'✓':'✗')+' fails@4 '+(v.twoPtFailsAt4?'✓':'✗')+' | 3-pt exact≤5 '+(v.threePtExactTo5?'✓':'✗')+' fails@6 '+(v.threePtFailsAt6?'✓':'✗');};
+document.getElementById('glqspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ for(var pts=1;pts<=4;pts++){var y=40+pts*70,reach=2*pts-1;g.fillStyle='#8ad';g.font='10px monospace';g.fillText(pts+' pt → exact to deg '+reach,12,y-24);
+  for(var d=0;d<=8;d++){var x=140+d*26;g.fillStyle=d<=reach?'#39fc6b':'rgba(255,45,149,0.4)';g.fillRect(x,y-12,22,14+3*Math.sin(ang+d));g.fillStyle='#04121c';g.font='9px monospace';g.fillText(d,x+7,y);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: degrees integrated exactly (up to 2n-1)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: degrees beyond reach (2n and up)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('choosing WHERE doubles the reach vs choosing only weights',10,H-9);}
+drawW3();drawW4();window.__gausslegendre=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-stirling","title":"THE STIRLING","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#cf9838","icon":"stirling",
+  "kicker":"count set partitions — and translate powers to falling factorials",
+  "blurb":"the Stirling numbers of the second kind in the 5-window house format — S(n,k) counts partitions of n labeled items into exactly k non-empty blocks, via S(n,k)=k*S(n-1,k)+S(n-1,k-1) (a new item joins a block or starts one). Row sums give the Bell number. And the same numbers change basis: x^n = sum_k S(n,k)*(x)_k, powers into falling factorials. Verified live: the recurrence matches brute set-partition counts n=1..7, rows sum to Bell numbers, and the basis identity holds exactly. See the recurrence in 1D, recurrence vs brute in 2D, and the counting-is-coordinates inverse in 3D.",
+  "lit":"Genuine Stirling numbers of the second kind (Stirling, Methodus Differentialis 1730). Verified live: S(n,k)=k*S(n-1,k)+S(n-1,k-1) matches a brute count of set partitions into k blocks for n=1..7, each row sums to the Bell number, and the identity x^n = sum_k S(n,k)*x(x-1)...(x-k+1) holds exactly for integer x (window.__stirling); S(5,k)=1,15,25,10,1, Bell(5)=52.",
+  "fig":"No framing: the recurrence, the brute set-partition enumeration, the Bell-number row sum, and the falling-factorial basis identity all compute in-browser and agree exactly. The AVAN inverse is honest — the Stirling numbers are genuinely the change-of-basis matrix between the power basis and the falling-factorial basis, so a combinatorial count is literally a linear-algebra coordinate translation.",
+  "body":STI_BODY,"script":STI_SCRIPT},
+ {"slug":"the-hierholzer","title":"THE HIERHOLZER","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#b05868","icon":"hierholzer",
+  "kicker":"cross every edge once — decided by counting odd corners",
+  "blurb":"Hierholzer's algorithm in the 5-window house format — an Eulerian trail crosses every edge of a graph exactly once (the Seven Bridges of Konigsberg). Euler proved one exists iff the graph is connected with 0 odd-degree vertices (a circuit) or exactly 2 (an open trail); Hierholzer finds it in O(E) by walking till stuck then splicing in detours. Verified live: on 0/2-odd graphs the trail uses every edge exactly once; on K4 (four odd vertices) it correctly reports no trail. See the degree-parity rule in 1D, a traced trail in 2D, and the local-parity-decides-global inverse in 3D.",
+  "lit":"Genuine Eulerian trails and Hierholzer's algorithm (Euler 1736, Konigsberg; Hierholzer 1873). Verified live: on graphs with 0 or 2 odd-degree vertices Hierholzer returns a trail using every edge exactly once, and on K4 (four odd-degree vertices) it correctly returns no trail, matching Euler's degree criterion (window.__hierholzer.g0_allEdges && .K4_noTrail).",
+  "fig":"No framing: the degree-parity criterion, Hierholzer's stitching, and the every-edge-once check run in-browser and are exact. The AVAN inverse is honest and is Euler's real theorem — existence of a global traversal is decided by a local count (0 or 2 odd-degree vertices), so Konigsberg's four odd vertices prove no walk exists without any search; magenta marks the odd vertices.",
+  "body":HIE_BODY,"script":HIE_SCRIPT},
+ {"slug":"the-two-sat","title":"THE 2-SAT","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#7048c0","icon":"two-sat",
+  "kicker":"satisfiability in linear time — a contradiction is a cycle",
+  "blurb":"2-SAT in the 5-window house format — decide whether clauses, each an OR of two literals like (x OR not y), can all be satisfied. Full SAT is NP-complete, but 2-SAT is linear: each clause (a OR b) means not-a implies b and not-b implies a; build the implication graph, find strongly-connected components, and it is satisfiable iff no variable and its negation share a component (the assignment reads off in reverse topological order). Verified live: the SCC verdict matches brute force over all 2^n assignments for 300 formulas, and satisfiable ones return a valid assignment. See a clause become implications in 1D, the SCC solver in 2D, and the contradiction-is-a-cycle inverse in 3D.",
+  "lit":"Genuine 2-SAT via implication graph + SCC (Krom 1967; linear algorithm Aspvall, Plass & Tarjan 1979). Verified live: the SCC-based solver's satisfiability verdict matches brute force over all 2^n assignments for 300 random formulas, and when satisfiable the returned assignment satisfies every clause (window.__twosat.verdictMatchesBrute && .assignmentValid).",
+  "fig":"No framing: the implication graph, the Kosaraju/Tarjan SCC, the assignment reader, and the brute-force check run in-browser and agree exactly. The AVAN inverse is honest — unsatisfiability is exactly a variable and its negation sharing an SCC (a self-implication cycle), decided without searching 2^n assignments; magenta marks that fatal cycle.",
+  "body":TSA_BODY,"script":TSA_SCRIPT},
+ {"slug":"the-cartesian-tree","title":"THE CARTESIAN TREE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#40a8c8","icon":"cartesian-tree",
+  "kicker":"one tree, two orders — range-min and LCA are the same",
+  "blurb":"the Cartesian tree in the 5-window house format — built from a sequence to satisfy two orders at once: in-order traversal reproduces array positions (a BST on indices) and every parent's value <= its children (a min-heap on values), in O(n) with a stack. The payoff: the lowest common ancestor of positions i,j is exactly the position of the minimum in a[i..j], so range-minimum and LCA become the same problem. Verified live: in-order equals 0..n-1, the heap property holds, and LCA(i,j) value equals the range-minimum. See the min rising to the root in 1D, click-two-positions in 2D, and the RMQ-equals-LCA inverse in 3D.",
+  "lit":"Genuine Cartesian tree (Vuillemin 1980). Verified live: the O(n) stack construction yields a tree whose in-order traversal equals 0..n-1 (BST on indices), whose parent values are <= child values (min-heap), and for random ranges LCA(i,j)'s value equals min(a[i..j]) (window.__cartesiantree.inorderIsIndices && .heapProperty && .lcaIsRangeMin).",
+  "fig":"No framing: the stack construction, the in-order and heap checks, and the LCA-equals-range-min test run in-browser and are exact. The AVAN inverse is honest — range-minimum (about values) and lowest-common-ancestor (about tree structure) are genuinely inter-reducible in linear time via the Cartesian tree, which is why the fastest RMQ routes through LCA and vice versa; magenta is the array range, green the LCA node.",
+  "body":CTR_BODY,"script":CTR_SCRIPT},
+ {"slug":"the-gauss-legendre","title":"THE GAUSS-LEGENDRE","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#d08840","icon":"gauss-legendre",
+  "kicker":"n samples integrate polynomials of degree 2n-1 exactly",
+  "blurb":"Gaussian quadrature in the 5-window house format — instead of many evenly-spaced samples, place n points at the roots of the n-th Legendre polynomial with matching weights and integrate every polynomial up to degree 2n-1 exactly. Two points nail cubics, three nail quintics: the accuracy of ~2n even samples from only n, because you choose where to sample, not just how heavily. Verified live: 2-point Gauss is exact for x^0..x^3 (fails at degree 4) and 3-point through degree 5 (fails at 6), matching the analytic integrals on [-1,1]. See the Legendre-root nodes in 1D, integrate rising powers in 2D, and the choose-where-doubles-reach inverse in 3D.",
+  "lit":"Genuine Gauss-Legendre quadrature (Gauss 1814; nodes are Legendre-polynomial roots). Verified live: 2-point Gauss (nodes +-1/sqrt3, weights 1,1) integrates x^p on [-1,1] exactly for p=0..3 and errs at p=4; 3-point (nodes 0,+-sqrt(3/5), weights 8/9,5/9,5/9) is exact for p=0..5 and errs at p=6 (window.__gausslegendre) -- the exact-to-degree-2n-1 property.",
+  "fig":"No framing: the Legendre-root nodes/weights and the exact-vs-analytic comparison run in-browser and are exact. The AVAN inverse is honest — choosing the n node positions adds n degrees of freedom beyond the n weights, doubling exactness from n-1 to 2n-1, and the nodes must be Legendre roots because that orthogonal polynomial annihilates the error terms; magenta is wasted even samples, green the Legendre-root nodes.",
+  "body":GLQ_BODY,"script":GLQ_SCRIPT},
  {"slug":"the-eulerian","title":"THE EULERIAN","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#d09040","icon":"eulerian",
   "kicker":"count permutations by descents — a bell inside n!",
