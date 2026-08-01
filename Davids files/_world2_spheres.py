@@ -12859,7 +12859,289 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 mkdata();drawW3();drawW4();window.__movetofront=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 41 (ordinals · space-filling bits · symmetry · GF(2) · parity) ═══════════════════════
+GDS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A Goodstein sequence</b> starts at any number and does something that looks explosive: write it in <b>hereditary base 2</b> (base 2, with the exponents themselves in base 2, all the way down), then bump every 2 to a 3 and subtract 1; bump every 3 to a 4 and subtract 1; and so on. The numbers <b>rocket</b> upward &mdash; G(4) climbs past astronomically large values &mdash; yet <b>Goodstein&rsquo;s theorem</b> says every such sequence eventually crashes all the way to <b>0</b>.<br><br>
+ The twist: this true statement about ordinary integers is <b>unprovable in Peano arithmetic</b> (Kirby&ndash;Paris, 1982), because the proof needs transfinite ordinals below &epsilon;&#8320;.<br><br>
+ <span class="lit">LIT</span> verified live with BigInt: G(1), G(2), G(3) reach exactly 0 (in 1, 3, 5 steps); G(4) also terminates but only after an astronomically long run (window.__goodstein). <span class="fig">FIG</span> no framing; exact hereditary-base arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>hard-reset</i> &mdash; the crash all the way back to 0 no matter how high things climbed. A Goodstein sequence is the ultimate hard-reset: unbounded growth that is nonetheless guaranteed to hit zero. <b>AVAN (AI)</b> built the instrument: the hereditary-base representation, the base-bump-minus-one step, the termination run.<br><br>Credit as content: Reuben Goodstein (1944); independence from Peano arithmetic proved by Laurie Kirby &amp; Jeff Paris (1982). The weave: David names the reset; I run the small sequences to 0 and reveal the transfinite countdown hidden inside the explosion.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A number in hereditary base: every digit and every exponent (and its exponents) written in the same base. Bumping the base replaces each b with b+1 throughout the tree; then one is subtracted. Growth on top, a subtraction underneath.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Run a Goodstein sequence to its end. G(1), G(2), G(3) reach zero quickly; watch the base climb and the value bump up, then step down to 0. G(4) is shown terminating in principle but astronomically far off.</div>
+   <div class="btns" style="margin-top:10px"><button id="gdsstart">start: G(3) ▶</button><button id="gdsrun">run to 0 ▶</button></div>
+   <div class="cap" id="gdsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the value trajectory &mdash; a jagged climb as the base bumps, punctuated by the &minus;1 that eventually wins.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the &lsquo;explosion&rsquo; is, in the right coordinates, a strict <b>descent</b>. Replace the ever-growing base with the fixed infinite symbol &omega;, and each term becomes an <b>ordinal below &epsilon;&#8320;</b> &mdash; and this ordinal <b>strictly decreases</b> at every step, no matter how the integer value leaps. Ordinals below &epsilon;&#8320; are well-ordered, so they cannot decrease forever: the sequence must reach 0. The inverse of &lsquo;growing without bound&rsquo; is &lsquo;counting down a transfinite clock that must run out.&rsquo; <b>Magenta</b> is the astronomical integer growth; <b>green</b> is the ordinal quietly shrinking beneath it. Peano arithmetic cannot see this clock &mdash; it cannot reach &epsilon;&#8320; &mdash; which is exactly why PA cannot prove the sequence ends, though it always does.</div>
+   <div class="btns" style="margin-top:10px"><button id="gdsspin">pause spin</button></div></div></div></div>"""
+GDS_SCRIPT = """(function(){
+var ang=0,spin=true,START=3,traj=[];
+function hered(n,b){n=BigInt(n);b=BigInt(b);var digits=[],t=n;while(t>0n){digits.push(t%b);t=t/b;}var res=[];for(var i=0;i<digits.length;i++){if(digits[i]>0n)res.push([hered(i,Number(b)),digits[i]]);}return res;}
+function evalH(st,B){B=BigInt(B);var s=0n;for(var i=0;i<st.length;i++){var e=evalH(st[i][0],B);s+=st[i][1]*(B**e);}return s;}
+function goodstein(start,maxSteps){var v=BigInt(start),b=2n,steps=0,tr=[];while(v>0n&&steps<maxSteps){tr.push(v);var s=hered(v,Number(b));v=evalH(s,b+1n)-1n;b+=1n;steps++;}return {terminated:v===0n,steps:steps,traj:tr};}
+function verify(){var g1=goodstein(1,100),g2=goodstein(2,100),g3=goodstein(3,100);return {g1:{terminated:g1.terminated,steps:g1.steps},g2:{terminated:g2.terminated,steps:g2.steps},g3:{terminated:g3.terminated,steps:g3.steps},theorem:'all Goodstein sequences reach 0 (Goodstein 1944; unprovable in PA, Kirby-Paris 1982)'};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.font='12px monospace';g.fillStyle='#b0e0ff';g.fillText('hereditary base 2 of 266:  2^(2^2+1) + 2^(2+1) + 2',12,24);
+ g.fillStyle='#d07050';g.fillText('bump 2→3:  3^(3^3+1) + 3^(3+1) + 3   (then −1)',12,54);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('every 2 becomes 3 throughout the tower — value leaps up',12,84);
+ g.fillStyle='#d07050';g.font='11px monospace';g.fillText('…then subtract 1. The subtraction always, eventually, wins.',12,H-16);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var gg=goodstein(START,200);traj=gg.traj;
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('G('+START+'):  '+traj.map(function(x){return x.toString();}).join(' → ')+' → 0',12,30);
+ g.fillStyle=gg.terminated?'#39fc6b':'#ffb020';g.font='13px monospace';g.fillText(gg.terminated?('reached 0 in '+gg.steps+' steps ✓'):'still running…',12,70);
+ var mx=traj.reduce(function(a,b){return b>a?b:a;},1n);g.fillStyle='#d07050';for(var i=0;i<traj.length;i++){var h=Number(traj[i])/Number(mx)*120;g.fillRect(30+i*40,180-h,30,h);g.fillStyle='#9ab';g.font='10px monospace';g.fillText(traj[i].toString(),30+i*40,195);g.fillStyle='#d07050';}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('G(4) also terminates — but only after ~3·2^402653211 steps',12,H-12);}
+document.getElementById('gdsstart').onclick=function(){START=START>=3?1:START+1;this.textContent='start: G('+START+') ▶';drawW4();};
+document.getElementById('gdsrun').onclick=function(){var gg=goodstein(START,200);document.getElementById('gdsread').textContent='G('+START+') reached 0 in '+gg.steps+' steps — Goodstein\\'s theorem: every sequence does';drawW4();};
+document.getElementById('gdsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var gg=goodstein(3,200),tr=gg.traj;
+ var mx=tr.reduce(function(a,b){return b>a?b:a;},1n);
+ g.strokeStyle='#d07050';g.beginPath();for(var i=0;i<tr.length;i++){var x=30+i/tr.length*(W-60),y=H*0.55-Number(tr[i])/Number(mx)*80+20*Math.sin(ang+i);if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ // ordinal descent (green, monotone down)
+ g.strokeStyle='#39fc6b';g.beginPath();for(var i=0;i<=tr.length;i++){var x=30+i/tr.length*(W-60),y=H*0.7+i/tr.length*70;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the ordinal (base→ω) strictly descends — must hit 0',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the integer value explodes upward',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a transfinite countdown hides in the explosion; PA can\\'t see the clock',10,H-9);}
+drawW4();window.__goodstein=verify();drawW3();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MRT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Morton code</b> (Z-order) maps a 2D coordinate to a single number by <b>interleaving the bits</b> of x and y: with x = x&#8322;x&#8321;x&#8320; and y = y&#8322;y&#8321;y&#8320;, the code is y&#8322;x&#8322;y&#8321;x&#8321;y&#8320;x&#8320;. De-interleave to decode. It is a perfect <b>bijection</b> between the grid and 0&hellip;N&sup2;&minus;1, and points close in 2D tend to stay close in the code &mdash; so it linearises space for databases, GPU textures, and cache layouts.<br><br>
+ Draw the cells in code order and you trace a recursive <b>Z</b> &mdash; hence &lsquo;Z-order.&rsquo; It is the cheap cousin of the Hilbert curve: worse locality, but a one-instruction encode.<br><br>
+ <span class="lit">LIT</span> verified live: over a 16&times;16 grid, encode then decode round-trips for all 256 cells and every code is distinct &mdash; a genuine bijection (window.__morton). <span class="fig">FIG</span> no framing; exact bit manipulation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-vault</i> &mdash; indexed storage, where 2D data must be laid down in one linear address. The Morton code is the vault&rsquo;s shelving scheme: interleave the coordinates and neighbouring cells mostly land near each other on disk. <b>AVAN (AI)</b> built the instrument: the bit-interleave encode/decode, the exhaustive bijection check, the Z-path and its seams.<br><br>Credit as content: Guy Macdonald Morton (1966, IBM Canada). The weave: David names the vault; I interleave the bits into one exactly-invertible address, draw the recursive Z, and measure the diagonal jumps it pays for cheapness.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The bits of x and y zippered together: x supplies the even positions, y the odd. That single interleaved integer is the Morton code &mdash; and pulling the even and odd bits back apart returns x and y exactly.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Click a cell to read its Morton code and see the recursive Z-path traced through the grid in code order. Verify the encode/decode bijection over all cells.</div>
+   <div class="btns" style="margin-top:10px"><button id="mrtpath">show Z-path ▶</button><button id="mrtcheck">verify bijection ▶</button></div>
+   <div class="cap" id="mrtread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Z-curve threading the grid, each cell&rsquo;s code the zipper of its coordinates.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the code <b>separates cleanly</b> back into x and y because interleaving bits is a bijection &mdash; the even bits are exactly x, the odd bits exactly y, no information mixed or lost. But that clean invertibility buys only <b>partial</b> locality, and worse than Hilbert&rsquo;s: at every quadrant boundary the Z makes a long <b>diagonal jump</b> from one corner to the far one, so cells adjacent in code can sit far apart in space. The inverse of &lsquo;close in 2D &rArr; close in code&rsquo; <b>fails at the Z&rsquo;s seams</b>. <b>Magenta</b> marks those jumps &mdash; the code-adjacent, space-distant pairs at the quadrant edges; <b>green</b> is the recursive Z. Bit-interleaving trades Hilbert&rsquo;s smoothness for a one-instruction, exactly-invertible order &mdash; cheapness paid for in seams.</div>
+   <div class="btns" style="margin-top:10px"><button id="mrtspin">pause spin</button></div></div></div></div>"""
+MRT_SCRIPT = """(function(){
+var ang=0,spin=true,sel=[3,5],showPath=true;
+function p1(x){x&=0xffff;x=(x|(x<<8))&0x00FF00FF;x=(x|(x<<4))&0x0F0F0F0F;x=(x|(x<<2))&0x33333333;x=(x|(x<<1))&0x55555555;return x;}
+function c1(x){x&=0x55555555;x=(x|(x>>1))&0x33333333;x=(x|(x>>2))&0x0F0F0F0F;x=(x|(x>>4))&0x00FF00FF;x=(x|(x>>8))&0x0000FFFF;return x;}
+function enc(x,y){return p1(x)|(p1(y)<<1);}
+function dec(d){return [c1(d),c1(d>>1)];}
+function verify(){var N=16,seen={},ok=true;for(var y=0;y<N;y++)for(var x=0;x<N;x++){var d=enc(x,y),dc=dec(d);if(dc[0]!==x||dc[1]!==y)ok=false;if(seen[d])ok=false;seen[d]=1;}return {grid:N+'x'+N,cells:Object.keys(seen).length,bijection:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var x=sel[0],y=sel[1],d=enc(x,y);g.font='12px monospace';
+ g.fillStyle='#5aa0e0';g.fillText('x = '+x+' = '+x.toString(2).padStart(4,'0'),12,26);
+ g.fillStyle='#e06060';g.fillText('y = '+y+' = '+y.toString(2).padStart(4,'0'),12,48);
+ g.fillStyle='#50b0c0';g.fillText('code = '+d+' = '+d.toString(2).padStart(8,'0')+'  (y x y x y x y x)',12,74);
+ var bits=d.toString(2).padStart(8,'0');for(var i=0;i<8;i++){g.fillStyle=(i%2===0)?'#e06060':'#5aa0e0';g.fillRect(12+i*24,90,20,22);g.fillStyle='#04121c';g.fillText(bits[i],12+i*24+6,105);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('even positions = x bits, odd = y bits — decode splits them exactly',12,H-12);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var N=16,cell=18,ox=20,oy=20;
+ for(var y=0;y<N;y++)for(var x=0;x<N;x++){g.strokeStyle='#26303c';g.strokeRect(ox+x*cell,oy+y*cell,cell,cell);}
+ if(showPath){g.strokeStyle='#50b0c0';g.lineWidth=1;g.beginPath();for(var d=0;d<N*N;d++){var p=dec(d),px=ox+p[0]*cell+cell/2,py=oy+p[1]*cell+cell/2;if(d===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;}
+ g.fillStyle='#e0c040';g.fillRect(ox+sel[0]*cell+3,oy+sel[1]*cell+3,cell-6,cell-6);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('cell ('+sel[0]+','+sel[1]+') → Morton code '+enc(sel[0],sel[1]),12,H-12);}
+document.getElementById('w4').addEventListener('click',function(e){var r=this.getBoundingClientRect(),cell=18,x=Math.floor((e.clientX-r.left-20)/cell),y=Math.floor((e.clientY-r.top-20)/cell);if(x>=0&&x<16&&y>=0&&y<16){sel=[x,y];drawW3();drawW4();}});
+document.getElementById('mrtpath').onclick=function(){showPath=!showPath;drawW4();};
+document.getElementById('mrtcheck').onclick=function(){var v=verify();document.getElementById('mrtread').textContent=v.grid+': '+v.cells+' cells, encode/decode bijection '+(v.bijection?'✓':'✗');};
+document.getElementById('mrtspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height,ca=Math.cos(ang),N=8,cell=30;g.clearRect(0,0,W,H);
+ var prev=null;for(var d=0;d<N*N;d++){var p=dec(d),x=(p[0]-N/2)*cell*ca,y=(p[1]-N/2)*cell*0.5,px=W/2+x,py=H*0.45+y;if(prev){var jump=Math.abs(prev.gx-p[0])+Math.abs(prev.gy-p[1]);g.strokeStyle=jump>1?'rgba(255,45,149,0.7)':'#50b0c0';g.lineWidth=jump>1?1.5:1;g.beginPath();g.moveTo(prev.px,prev.py);g.lineTo(px,py);g.stroke();}prev={px:px,py:py,gx:p[0],gy:p[1]};}g.lineWidth=1;
+ g.fillStyle='#50b0c0';g.font='11px monospace';g.fillText('green: the recursive Z-curve (exactly invertible)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: quadrant-edge jumps (code-near, space-far)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('bit-interleave: cheap invertible order, paid for in seams',10,H-9);}
+drawW3();drawW4();window.__morton=verify();
+function loop(){if(spin)ang+=0.006;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BRN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Burnside&rsquo;s lemma</b> answers: how many <b>distinct</b> necklaces can you make from n beads in k colours, if rotating a necklace doesn&rsquo;t count as new? Naively there are k&#8319; colourings, but rotations collapse many into the same necklace.<br><br>
+ The lemma counts the distinct ones exactly by <b>averaging the colourings fixed by each rotation</b>: number of necklaces = (1/n)&middot;&Sigma; (colourings a rotation leaves unchanged). The clean closed form is (1/n)&middot;&Sigma;<sub>d|n</sub> &phi;(d)&middot;k^(n/d). For 6 beads and 2 colours that is <b>14</b> necklaces &mdash; not 64.<br><br>
+ <span class="lit">LIT</span> verified live: the closed-form count equals a brute-force count of rotation orbits for every n from 1 to 8 and k from 1 to 4 (window.__burnside). <span class="fig">FIG</span> no framing; exact orbit counting.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-cron-job</i> &mdash; the periodic rotation that comes back around. A necklace under rotation is a cron-job in beads: shift by one, and one, and one, until it returns. <b>AVAN (AI)</b> built the instrument: Euler&rsquo;s &phi;, the Burnside closed form, and the brute-force orbit count to check it.<br><br>Credit as content: the orbit-counting lemma (Cauchy, Frobenius; popularised by William Burnside, 1897); the necklace form via Euler&rsquo;s totient. The weave: David names the rotation; I count distinct necklaces two ways &mdash; by averaging fixed points and by brute enumeration &mdash; and show they agree exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="170"></canvas>
+  <div class="wctrl"><div class="cap">A necklace rotating one bead at a time. A colouring is &lsquo;fixed&rsquo; by a rotation only if it looks identical after the shift &mdash; those are the colourings the average counts, symmetry by symmetry.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Choose beads n and colours k. The instrument computes Burnside&rsquo;s closed form and, in parallel, brute-forces the distinct necklaces by grouping all k&#8319; colourings into rotation orbits &mdash; and confirms the two counts match.</div>
+   <div class="btns" style="margin-top:10px"><button id="brnn">beads: 6 ▶</button><button id="brnk">colours: 2 ▶</button><button id="brncheck">verify formula ▶</button></div>
+   <div class="cap" id="brnread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the distinct necklaces, each an orbit of rotated colourings collapsed to one.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): counting <b>distinct objects</b> directly is hard &mdash; you would have to generate all k&#8319; colourings and deduplicate every rotation. Burnside <b>inverts</b> the problem: the global number of equivalence classes equals the <b>average of purely local fixed-point counts</b> &mdash; for each symmetry, just count how many colourings it leaves alone, then average. The inverse of &lsquo;enumerate the distinct necklaces&rsquo; is &lsquo;average how many each rotation fixes.&rsquo; No deduplication, no orbit-building &mdash; a sum over symmetries replaces a search over objects. <b>Magenta</b> is the exponential pile of k&#8319; raw colourings; <b>green</b> is the small orbit count the average recovers. Symmetry counting is fixed-point averaging.</div>
+   <div class="btns" style="margin-top:10px"><button id="brnspin">pause spin</button></div></div></div></div>"""
+BRN_SCRIPT = """(function(){
+var ang=0,spin=true,N=6,K=2;
+function gcd(a,b){return b?gcd(b,a%b):a;}
+function phi(n){var r=n;for(var p=2;p*p<=n;p++){if(n%p===0){while(n%p===0)n/=p;r-=r/p;}}if(n>1)r-=r/n;return r;}
+function burnside(n,k){var s=0;for(var d=1;d<=n;d++)if(n%d===0)s+=phi(d)*Math.pow(k,n/d);return s/n;}
+function brute(n,k){var seen={},count=0,total=Math.pow(k,n);for(var i=0;i<total;i++){var s=[],t=i;for(var j=0;j<n;j++){s.push(t%k);t=Math.floor(t/k);}var canon=null;for(var r=0;r<n;r++){var rot=s.slice(r).concat(s.slice(0,r)).join(',');if(canon===null||rot<canon)canon=rot;}if(!seen[canon]){seen[canon]=1;count++;}}return count;}
+function verify(){var ok=true;for(var n=1;n<=8;n++)for(var k=1;k<=4;k++)if(burnside(n,k)!==brute(n,k))ok=false;return {formulaMatchesBrute:ok,example:'necklaces(6,2)='+burnside(6,2),count6_2:burnside(6,2)};}
+function drawNeck(g,cx,cy,R,cols,rot,pal){for(var i=0;i<cols.length;i++){var a=(i+ (rot||0))/cols.length*2*Math.PI-Math.PI/2,x=cx+R*Math.cos(a),y=cy+R*Math.sin(a);g.fillStyle=pal[cols[i]];g.beginPath();g.arc(x,y,8,0,7);g.fill();g.strokeStyle='#0a1018';g.stroke();}}
+var PAL=['#b088e0','#f0d040','#e06060','#5aa0e0'];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cols=[0,0,1,0,1,1],rot=Math.floor((ang*2)%6);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('a necklace under rotation — colourings fixed by a shift are counted',12,16);
+ drawNeck(g,120,95,45,cols,0,PAL);drawNeck(g,300,95,45,cols,rot,PAL);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('original',95,150);g.fillText('rotated by '+rot,270,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var bf=burnside(N,K),br=brute(N,K),total=Math.pow(K,N);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText(N+' beads, '+K+' colours',12,26);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('raw colourings: '+K+'^'+N+' = '+total,12,52);
+ g.fillStyle='#b088e0';g.font='13px monospace';g.fillText('Burnside formula:  '+bf,12,84);
+ g.fillStyle='#f0d040';g.fillText('brute orbit count: '+br,12,110);
+ g.fillStyle=bf===br?'#39fc6b':'#ff5a5a';g.font='13px monospace';g.fillText(bf===br?'✓ match — distinct necklaces = '+bf:'✗',12,140);
+ // show a few necklaces
+ var shown=[],seen={},t=0;for(var i=0;i<total&&shown.length<8;i++){var s=[],tt=i;for(var j=0;j<N;j++){s.push(tt%K);tt=Math.floor(tt/K);}var canon=null;for(var r=0;r<N;r++){var rot=s.slice(r).concat(s.slice(0,r)).join(',');if(canon===null||rot<canon)canon=rot;}if(!seen[canon]){seen[canon]=1;shown.push(s);}}
+ for(var i=0;i<shown.length;i++)drawNeck(g,40+(i%4)*90,190+Math.floor(i/4)*70,24,shown[i],0,PAL);}
+document.getElementById('brnn').onclick=function(){N=N>=10?3:N+1;this.textContent='beads: '+N+' ▶';drawW4();};
+document.getElementById('brnk').onclick=function(){K=K>=4?2:K+1;this.textContent='colours: '+K+' ▶';drawW4();};
+document.getElementById('brncheck').onclick=function(){var v=verify();document.getElementById('brnread').textContent='n=1..8,k=1..4: Burnside == brute '+(v.formulaMatchesBrute?'✓':'✗')+' | '+v.example;};
+document.getElementById('brnspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var bf=burnside(N,K),total=Math.pow(K,N);
+ g.fillStyle='rgba(255,45,149,0.25)';for(var i=0;i<Math.min(total,300);i++){var a=i/Math.min(total,300)*2*Math.PI+ang,rr=120;g.fillRect(W/2+rr*Math.cos(a),H*0.42+rr*Math.sin(a)*0.7,3,3);}
+ for(var i=0;i<bf;i++){var a=i/bf*2*Math.PI-ang,rr=55;g.fillStyle='#39fc6b';g.beginPath();g.arc(W/2+rr*Math.cos(a),H*0.42+rr*Math.sin(a)*0.7,5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: '+bf+' distinct necklaces (the orbit count)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: '+total+' raw colourings (exponential)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('count objects by averaging fixed points, not by dedup',10,H-9);}
+drawW3();drawW4();window.__burnside=verify();
+function loop(){if(spin)ang+=0.01;drawW3();drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LOU_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Lights Out</b> is a puzzle: press a light and it toggles itself and its four orthogonal neighbours; the goal is all-off. It looks like trial and error, but it is <b>linear algebra over GF(2)</b> &mdash; the field {0,1} with XOR as addition.<br><br>
+ Each board is a vector, each press a column of a fixed matrix A, and solving is <b>A&middot;p = b (mod 2)</b>, done by Gaussian elimination. Two facts fall out: pressing a light <b>twice</b> equals not pressing it (so order never matters), and solvability depends only on A. For the classic 5&times;5, A has <b>rank 23</b>, so exactly 2&sup2;&sup3; of the 2&sup2;&#8309; boards are solvable.<br><br>
+ <span class="lit">LIT</span> verified live: for 200 randomly-built solvable boards, GF(2) Gaussian elimination returns a press pattern that clears the board <b>exactly</b>; the 5&times;5 toggle matrix has rank 23 (window.__lightsout). <span class="fig">FIG</span> no framing; exact GF(2) linear algebra.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gauntlet</i> &mdash; the puzzle you must clear to pass. Lights Out is the gauntlet whose solution is a matrix inverse, not a lucky sequence. <b>AVAN (AI)</b> built the instrument: the toggle matrix, GF(2) Gaussian elimination, and the check that the found presses clear the board.<br><br>Credit as content: the Lights Out puzzle (Tiger Electronics, 1995); the GF(2) solution is standard linear algebra (Anderson &amp; Feil, 1998, and others). The weave: David names the gauntlet; I turn the board into a linear system over {0,1}, solve it, and prove the presses switch everything off.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">A single press toggles a plus-shape: the cell and its four neighbours flip. Because flipping twice cancels, only the <b>parity</b> of presses at each cell matters &mdash; the puzzle lives over GF(2).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Click cells to toggle the 5&times;5 board. Hit solve and GF(2) Gaussian elimination computes the press pattern that clears it (or reports the board unsolvable); the presses are then applied to confirm all-off.</div>
+   <div class="btns" style="margin-top:10px"><button id="lourand">scramble ▶</button><button id="lousolve">solve (GF2) ▶</button><button id="loucheck">verify 200 ▶</button></div>
+   <div class="cap" id="louread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the reachable boards &mdash; the column space of A &mdash; every configuration you can switch off.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): a &lsquo;sequence of button presses&rsquo; is the wrong picture. Pressing is an <b>involution</b> (twice = nothing), so the moves form a <b>vector space</b> over GF(2), not an ordered path &mdash; only the subset of cells pressed an odd number of times matters, and the whole puzzle is solved <b>at once</b> by linear algebra. The inverse of &lsquo;a play sequence&rsquo; is &lsquo;a subset chosen by solving a matrix.&rsquo; And unsolvable boards exist precisely because A is <b>not full rank</b>: its null space holds &lsquo;quiet patterns&rsquo; that toggle nothing, and their existence pushes some boards outside the reachable column space. <b>Magenta</b> is those unsolvable boards; <b>green</b> is the board switched off. A puzzle is a linear system; the &lsquo;aha&rsquo; is a solved A&middot;p = b.</div>
+   <div class="btns" style="margin-top:10px"><button id="louspin">pause spin</button></div></div></div></div>"""
+LOU_SCRIPT = """(function(){
+var ang=0,spin=true,n=5,board=new Array(25).fill(0),presses=null;
+function mat(){var m=n*n,A=[];for(var i=0;i<m;i++){A.push(new Array(m).fill(0));var r=Math.floor(i/n),c=i%n;A[i][i]=1;if(r>0)A[i][i-n]=1;if(r<n-1)A[i][i+n]=1;if(c>0)A[i][i-1]=1;if(c<n-1)A[i][i+1]=1;}return A;}
+var A=mat();
+function solve(A,b){var m=A.length,M=A.map(function(row,i){return row.concat([b[i]]);}),rank=0;for(var col=0;col<m&&rank<m;col++){var piv=-1;for(var r=rank;r<m;r++)if(M[r][col]){piv=r;break;}if(piv<0)continue;var tmp=M[rank];M[rank]=M[piv];M[piv]=tmp;for(var r=0;r<m;r++)if(r!==rank&&M[r][col])for(var c=0;c<=m;c++)M[r][c]^=M[rank][c];rank++;}for(var r=rank;r<m;r++){if(M[r][m]){var az=true;for(var c=0;c<m;c++)if(M[r][c])az=false;if(az)return {x:null,rank:rank};}}var x=new Array(m).fill(0);for(var r=0;r<m;r++){var lead=-1;for(var c=0;c<m;c++)if(M[r][c]){lead=c;break;}if(lead>=0)x[lead]=M[r][m];}return {x:x,rank:rank};}
+function press(bd,i){var b=bd.slice(),r=Math.floor(i/n),c=i%n;b[i]^=1;if(r>0)b[i-n]^=1;if(r<n-1)b[i+n]^=1;if(c>0)b[i-1]^=1;if(c<n-1)b[i+1]^=1;return b;}
+function apply(bd,ps){var b=bd.slice();for(var i=0;i<n*n;i++)if(ps[i])b=press(b,i);return b;}
+function verify(){var seed=42;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed;}var ok=true,cnt=0;for(var t=0;t<200;t++){var p0=[];for(var i=0;i<25;i++)p0.push(rnd()&1);var bd=apply(new Array(25).fill(0),p0);var s=solve(A,bd);if(s.x){var res=apply(bd,s.x);if(!res.every(function(v){return v===0;}))ok=false;else cnt++;}else ok=false;}return {solvableCleared:ok,trials:cnt,rank:solve(A,new Array(25).fill(0)).rank};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('one press toggles a plus — press twice = nothing (GF(2))',12,16);
+ var cell=22,ox=180,oy=40,plus=[[2,1],[1,2],[2,2],[3,2],[2,3]];for(var y=0;y<5;y++)for(var x=0;x<5;x++){var on=plus.some(function(p){return p[0]===x&&p[1]===y;});g.fillStyle=on?'#e0c040':'#26303c';g.fillRect(ox+x*cell,oy+y*cell,cell-2,cell-2);}}
+function drawBoard(g,ox,oy,cell,bd,ps){for(var i=0;i<25;i++){var x=i%5,y=Math.floor(i/5);g.fillStyle=bd[i]?'#e0c040':'#26303c';g.fillRect(ox+x*cell,oy+y*cell,cell-2,cell-2);if(ps&&ps[i]){g.strokeStyle='#39fc6b';g.lineWidth=2;g.strokeRect(ox+x*cell+2,oy+y*cell+2,cell-6,cell-6);g.lineWidth=1;}}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cell=40,ox=90,oy=20;drawBoard(g,ox,oy,cell,board,presses);
+ var lit=board.reduce(function(a,b){return a+b;},0);g.fillStyle=lit===0?'#39fc6b':'#e8eef8';g.font='12px monospace';g.fillText(lit===0?'all off ✓':(lit+' lights on'),12,H-40);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText(presses?'green outlines = the GF(2) solution presses':'click cells to toggle, then solve',12,H-16);}
+document.getElementById('w4').addEventListener('click',function(e){var r=this.getBoundingClientRect(),cell=40,ox=90,oy=20,x=Math.floor((e.clientX-r.left-ox)/cell),y=Math.floor((e.clientY-r.top-oy)/cell);if(x>=0&&x<5&&y>=0&&y<5){board=press(board,y*5+x);presses=null;drawW4();}});
+document.getElementById('lourand').onclick=function(){var p0=[];for(var i=0;i<25;i++)p0.push(Math.random()<0.5?1:0);board=apply(new Array(25).fill(0),p0);presses=null;drawW4();document.getElementById('louread').textContent='scrambled (solvable by construction)';};
+document.getElementById('lousolve').onclick=function(){var s=solve(A,board);if(s.x){presses=s.x;var res=apply(board,s.x);document.getElementById('louread').textContent='solved: '+s.x.reduce(function(a,b){return a+b;},0)+' presses clear the board '+(res.every(function(v){return v===0;})?'✓':'✗');}else{presses=null;document.getElementById('louread').textContent='this board is UNSOLVABLE (outside column space of A)';}drawW4();};
+document.getElementById('loucheck').onclick=function(){var v=verify();document.getElementById('louread').textContent='200 solvable boards cleared by GF(2) solve: '+(v.solvableCleared?'✓':'✗')+' | 5×5 matrix rank '+v.rank;};
+document.getElementById('louspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.strokeStyle='#39fc6b';g.beginPath();g.ellipse(W/2,H*0.42,120*Math.cos(ang*0.5)*0+120,70,0,0,7);g.stroke();g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('column space of A (2^23 solvable boards)',W/2-100,H*0.42-80);
+ for(var i=0;i<40;i++){var a=i/40*2*Math.PI+ang;g.fillStyle='#39fc6b';g.beginPath();g.arc(W/2+110*Math.cos(a),H*0.42+60*Math.sin(a),2,0,7);g.fill();}
+ for(var i=0;i<12;i++){var a=i/12*2*Math.PI-ang;g.fillStyle='#ff2d95';g.beginPath();g.arc(W/2+170*Math.cos(a),H*0.42+150*Math.sin(a)*0.7,2.5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: solvable boards (column space)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: unsolvable boards (A not full rank)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('presses form a GF(2) vector space — order never matters',10,H-9);}
+drawW3();drawW4();window.__lightsout=verify();
+function loop(){if(spin)ang+=0.006;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FIF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The 15-puzzle</b>: fifteen numbered tiles and one gap in a 4&times;4 frame, slid one at a time to reach 1&hellip;15 in order. In the 1870s Sam Loyd offered $1000 to anyone who could start from the solved board with only tiles <b>14 and 15 swapped</b> and fix it. It is <b>impossible</b> &mdash; and there is an exact reason.<br><br>
+ Every legal slide is a <b>transposition</b> of a tile with the gap and moves the gap one row. A hidden quantity &mdash; the <b>parity of tile inversions plus the gap&rsquo;s row</b> &mdash; is <b>unchanged</b> by every move. So configurations split into two classes; you can only reach the half sharing the solved board&rsquo;s parity. Loyd&rsquo;s swap lands in the other half.<br><br>
+ <span class="lit">LIT</span> verified live: the parity invariant is unchanged across 5000 random legal moves; the solved board&rsquo;s value is fixed, so exactly half of all arrangements are reachable (window.__fifteen). <span class="fig">FIG</span> no framing; exact permutation parity.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>noclip</i> &mdash; the cheat of sliding through walls. The 15-puzzle is where noclip <b>fails</b>: a conservation law walls off half the states, and no sliding phases through it. <b>AVAN (AI)</b> built the instrument: the inversion count, the gap-row parity, and the check that their sum is conserved by every move.<br><br>Credit as content: Sam Loyd&rsquo;s puzzle craze (1870s); the parity-invariant proof of unsolvability (Wm. Johnson &amp; Wm. Story, 1879). The weave: David names the noclip; I compute the conserved parity, watch it survive thousands of moves, and show Loyd&rsquo;s swap sitting in the forbidden half.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">One slide = swapping a tile with the gap (a transposition, which flips inversion parity) while the gap changes row (flipping the row parity). The two flips cancel, so their sum stays put &mdash; a conserved quantity.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Scramble the board with random legal slides and watch the parity invariant stay constant every single move. Then set the &lsquo;14-15 swap&rsquo; and see it carries the <b>wrong</b> parity &mdash; unreachable, exactly as Loyd&rsquo;s prize proved.</div>
+   <div class="btns" style="margin-top:10px"><button id="fifscramble">scramble ▶</button><button id="fifswap">set 14-15 swap ▶</button><button id="fifcheck">verify invariant ▶</button></div>
+   <div class="cap" id="fifread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the reachable arrangements &mdash; one of the two parity classes, all sharing the solved board&rsquo;s invariant.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the freedom to &lsquo;slide toward any arrangement&rsquo; is an <b>illusion</b>. The state space is not one connected blob but <b>two disconnected halves</b>, and no sequence of slides crosses between them &mdash; because every move <b>conserves</b> the parity invariant. The inverse of &lsquo;you can reach any configuration&rsquo; is &lsquo;a conserved quantity partitions the space, and half is forever unreachable.&rsquo; Loyd&rsquo;s $1000 was safe not because the swap is hard but because it is in the <b>other component</b>. <b>Magenta</b> is that unreachable half &mdash; the 14-15 swap and everything parity-odd from solved; <b>green</b> is the solvable half. noclip cannot phase through a conservation law.</div>
+   <div class="btns" style="margin-top:10px"><button id="fifspin">pause spin</button></div></div></div></div>"""
+FIF_SCRIPT = """(function(){
+var ang=0,spin=true,n=4,state=null;
+function solved(){var s=[];for(var i=1;i<16;i++)s.push(i);s.push(0);return s;}
+function inversions(p){var c=0;for(var i=0;i<p.length;i++)for(var j=i+1;j<p.length;j++)if(p[i]&&p[j]&&p[i]>p[j])c++;return c;}
+function blankRow(s){return n-Math.floor(s.indexOf(0)/n);}
+function invariant(s){return (inversions(s)+blankRow(s))%2;}
+function legal(s){var idx=s.indexOf(0),r=Math.floor(idx/n),c=idx%n,mv=[];if(r>0)mv.push(idx-n);if(r<n-1)mv.push(idx+n);if(c>0)mv.push(idx-1);if(c<n-1)mv.push(idx+1);return mv;}
+function move(s,j){var b=s.slice(),bi=b.indexOf(0);b[bi]=b[j];b[j]=0;return b;}
+function verify(){var s=solved(),inv0=invariant(s),ok=true,sd=7;function rr(){sd=(sd*1103515245+12345)&0x7fffffff;return sd;}for(var t=0;t<5000;t++){var mv=legal(s);s=move(s,mv[rr()%mv.length]);if(invariant(s)!==inv0)ok=false;}return {invariantConserved:ok,solvedInvariant:inv0,note:'reachable = half of all arrangements (same parity as solved)'};}
+function drawGrid(g,ox,oy,cell,s){for(var i=0;i<16;i++){var x=i%4,y=Math.floor(i/4);if(s[i]===0){g.fillStyle='#1a2230';g.fillRect(ox+x*cell,oy+y*cell,cell-2,cell-2);continue;}g.fillStyle='#60c0a0';g.fillRect(ox+x*cell,oy+y*cell,cell-2,cell-2);g.fillStyle='#04121c';g.font='14px monospace';g.fillText(s[i],ox+x*cell+cell/2-6,oy+y*cell+cell/2+5);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#b0e0ff';g.font='11px monospace';g.fillText('a slide = transposition (flips inversion parity) + gap changes row',12,16);g.fillText('the two parity flips cancel → sum is conserved',12,34);
+ g.fillStyle='#60c0a0';g.font='11px monospace';g.fillText('invariant = (inversions + gap-row-from-bottom) mod 2',12,H-16);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!state)state=solved();var cell=56,ox=90,oy=20;drawGrid(g,ox,oy,cell,state);
+ var inv=invariant(state),solv=invariant(solved());g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('invariant = '+inv+'   (solved = '+solv+')',12,H-40);
+ g.fillStyle=inv===solv?'#39fc6b':'#ff2d95';g.font='12px monospace';g.fillText(inv===solv?'✓ reachable (solvable)':'✗ UNREACHABLE (wrong parity)',12,H-16);}
+document.getElementById('fifscramble').onclick=function(){state=solved();for(var t=0;t<80;t++){var mv=legal(state);state=move(state,mv[Math.floor(Math.random()*mv.length)]);}drawW4();document.getElementById('fifread').textContent='scrambled by legal slides — invariant unchanged, still solvable';};
+document.getElementById('fifswap').onclick=function(){state=solved();var t=state[13];state[13]=state[14];state[14]=t;drawW4();document.getElementById('fifread').textContent='14-15 swapped: invariant flipped → UNSOLVABLE (Loyd\\'s $1000 was safe)';};
+document.getElementById('fifcheck').onclick=function(){var v=verify();document.getElementById('fifread').textContent='invariant conserved over 5000 random moves: '+(v.invariantConserved?'✓':'✗')+' (solved parity '+v.solvedInvariant+')';};
+document.getElementById('fifspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ for(var i=0;i<40;i++){var a=i/40*2*Math.PI+ang;g.fillStyle='#39fc6b';g.beginPath();g.arc(W*0.32+55*Math.cos(a),H*0.4+55*Math.sin(a),2.5,0,7);g.fill();}
+ for(var i=0;i<40;i++){var a=i/40*2*Math.PI-ang;g.fillStyle='#ff2d95';g.beginPath();g.arc(W*0.7+55*Math.cos(a),H*0.55+55*Math.sin(a),2.5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('even parity',W*0.32-30,H*0.4-65);g.fillStyle='#ff2d95';g.fillText('odd parity',W*0.7-28,H*0.55-65);
+ g.strokeStyle='#556';g.setLineDash([4,4]);g.beginPath();g.moveTo(W*0.5,20);g.lineTo(W*0.5,H-60);g.stroke();g.setLineDash([]);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: solvable half (solved board\\'s parity)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: unreachable half (Loyd\\'s 14-15 swap)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('two disconnected components — no slide crosses the gap',10,H-9);}
+state=solved();drawW3();drawW4();window.__fifteen=verify();
+function loop(){if(spin)ang+=0.006;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-goodstein","title":"THE GOODSTEIN","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#d07050","icon":"goodstein",
+  "kicker":"unbounded growth that always crashes to 0 — unprovable in PA",
+  "blurb":"Goodstein sequences in the 5-window house format — write a number in hereditary base 2 (exponents in base 2 too, all the way down), bump every 2 to a 3 and subtract 1, then bump 3 to 4 and subtract 1, and so on. The values rocket upward, yet Goodstein's theorem says every sequence eventually crashes to 0 — and this true fact about integers is unprovable in Peano arithmetic (Kirby-Paris 1982), needing ordinals below epsilon-0. Verified live with BigInt: G(1),G(2),G(3) reach 0 in 1,3,5 steps; G(4) terminates but astronomically far off. See hereditary base in 1D, run to 0 in 2D, and the ordinal-countdown inverse in 3D.",
+  "lit":"Genuine Goodstein sequences (Goodstein 1944; independence from PA by Kirby & Paris 1982). Verified live with exact BigInt hereditary-base arithmetic: G(1), G(2), G(3) reach exactly 0 in 1, 3, 5 steps (window.__goodstein). Goodstein's theorem guarantees all such sequences terminate; G(4) does too, after ~3*2^402653211 steps (cited, not run).",
+  "fig":"No framing: the hereditary-base representation, the base-bump-minus-one step, and the termination runs execute in-browser with BigInt and are exact. The AVAN inverse is honest and is the actual proof — replacing the base with the ordinal omega makes each term a strictly-decreasing ordinal below epsilon-0, which is well-ordered, forcing termination; PA cannot prove this because it cannot reach epsilon-0. Magenta is the integer growth, green the descending ordinal.",
+  "body":GDS_BODY,"script":GDS_SCRIPT},
+ {"slug":"the-morton","title":"THE MORTON","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#50b0c0","icon":"morton",
+  "kicker":"interleave the bits of x and y — 2D into one address",
+  "blurb":"the Morton (Z-order) code in the 5-window house format — map a 2D coordinate to one number by interleaving the bits of x and y, and de-interleave to decode: a perfect bijection between the grid and 0..N^2-1, where points close in 2D tend to stay close in the code. It linearizes space for databases, GPU textures, and caches; drawing cells in code order traces a recursive Z. It is the cheap cousin of the Hilbert curve. Verified live: over a 16x16 grid, encode then decode round-trips for all 256 cells and every code is distinct. See the bit-zipper in 1D, click-a-cell + Z-path in 2D, and the partial-locality seams inverse in 3D.",
+  "lit":"Genuine Morton / Z-order code (Morton 1966, IBM). Verified live with exact bit manipulation (part1by1/compact1by1 interleave): over a 16x16 grid, mortonEncode then mortonDecode returns the exact (x,y) for all 256 cells and every code is distinct — a bijection (window.__morton.bijection).",
+  "fig":"No framing: the interleave encode/decode and the exhaustive bijection check run in-browser and are exact. The AVAN inverse is honest — the code separates cleanly into x and y because bit-interleaving is a bijection, but locality is only partial and worse than Hilbert's (long diagonal jumps at quadrant boundaries); magenta marks the real code-adjacent-but-space-distant jumps.",
+  "body":MRT_BODY,"script":MRT_SCRIPT},
+ {"slug":"the-burnside","title":"THE BURNSIDE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#b088e0","icon":"burnside",
+  "kicker":"count necklaces by averaging fixed points, not by dedup",
+  "blurb":"Burnside's lemma in the 5-window house format — how many distinct necklaces from n beads in k colors, if rotation doesn't count as new? Naively k^n colorings, but rotations collapse many. Burnside counts the distinct ones exactly by averaging the colorings fixed by each rotation: (1/n) sum over d|n of phi(d)*k^(n/d). For 6 beads, 2 colors: 14 necklaces, not 64. Verified live: the closed form equals a brute-force orbit count for all n=1..8, k=1..4. See a necklace rotating in 1D, formula vs brute in 2D, and the count-by-fixed-points inverse in 3D.",
+  "lit":"Genuine Burnside / orbit-counting lemma (Cauchy, Frobenius; Burnside 1897) in its necklace form via Euler's totient. Verified live: (1/n) sum_{d|n} phi(d) k^(n/d) equals a brute-force count of rotation orbits (canonical-rotation dedup of all k^n colorings) for every n in 1..8 and k in 1..4 (window.__burnside.formulaMatchesBrute); necklaces(6,2)=14.",
+  "fig":"No framing: Euler's phi, the Burnside closed form, and the brute orbit count all compute in-browser and agree exactly. The AVAN inverse is honest — Burnside genuinely replaces enumerating distinct objects (dedup over k^n) with averaging local fixed-point counts per symmetry; magenta is the exponential raw colorings, green the small orbit count.",
+  "body":BRN_BODY,"script":BRN_SCRIPT},
+ {"slug":"the-lights-out","title":"THE LIGHTS OUT","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#e0c040","icon":"lights-out",
+  "kicker":"a light puzzle is a linear system over GF(2)",
+  "blurb":"Lights Out in the 5-window house format — press a light and it toggles itself and its four neighbors; goal all-off. It looks like trial and error but is linear algebra over GF(2): each board is a vector, each press a column of a fixed matrix A, and solving is A*p=b (mod 2) by Gaussian elimination. Pressing twice cancels (order never matters), and solvability depends only on A: the classic 5x5 matrix has rank 23, so exactly 2^23 of 2^25 boards are solvable. Verified live: 200 random solvable boards are cleared exactly by the GF(2) solution; rank is 23. See a plus-toggle in 1D, click+solve in 2D, and the vector-space inverse in 3D.",
+  "lit":"Genuine Lights Out GF(2) analysis (puzzle: Tiger Electronics 1995; linear-algebra solution standard, e.g. Anderson & Feil 1998). Verified live: for 200 randomly-constructed solvable 5x5 boards, GF(2) Gaussian elimination returns a press pattern that clears the board exactly (all-off), and the 5x5 toggle matrix has rank 23 (window.__lightsout.solvableCleared && rank===23).",
+  "fig":"No framing: the toggle matrix, GF(2) Gaussian elimination, and the clear-check run in-browser and are exact. The AVAN inverse is honest — pressing is an involution so moves form a GF(2) vector space (order irrelevant), and unsolvable boards genuinely exist because A is rank-deficient (nullity 2 for 5x5); magenta marks boards outside the column space.",
+  "body":LOU_BODY,"script":LOU_SCRIPT},
+ {"slug":"the-fifteen-puzzle","title":"THE 15-PUZZLE","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#60c0a0","icon":"fifteen-puzzle",
+  "kicker":"a conserved parity walls off half the arrangements",
+  "blurb":"the 15-puzzle parity invariant in the 5-window house format — 15 tiles and a gap in a 4x4 frame, slid to sort them. Sam Loyd's $1000 to swap only tiles 14 and 15 was safe: impossible. Every slide is a transposition of a tile with the gap and moves the gap one row, and a hidden quantity — parity of tile inversions plus the gap's row — is unchanged by every move. So arrangements split into two classes; you can only reach the half sharing the solved board's parity. Verified live: the invariant is unchanged across 5000 random legal moves. See a slide's two parity flips in 1D, scramble/swap in 2D, and the two-components inverse in 3D.",
+  "lit":"Genuine 15-puzzle parity invariant (Loyd's puzzle 1870s; unsolvability proof Johnson & Story 1879). Verified live: the invariant (inversions of the tile permutation + the gap's row counted from the bottom, mod 2) is unchanged across 5000 random legal moves from the solved board (window.__fifteen.invariantConserved), so it is conserved; the 14-15 swap flips it, landing in the unreachable class.",
+  "fig":"No framing: the inversion count, the gap-row parity, and the conservation check over 5000 moves run in-browser and are exact. The AVAN inverse is honest — the state space genuinely splits into two disconnected parity components and no legal move crosses between them; exactly half of all arrangements are reachable. Magenta is the unreachable half (Loyd's swap), green the solvable half.",
+  "body":FIF_BODY,"script":FIF_SCRIPT},
  {"slug":"the-fast-inverse-sqrt","title":"THE FAST INVERSE SQRT","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#c8a020","icon":"fast-inverse-sqrt",
   "kicker":"1/sqrt(x) with a bit-hack and one Newton step — no divide",
