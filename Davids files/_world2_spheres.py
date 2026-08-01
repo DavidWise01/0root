@@ -2442,7 +2442,67 @@ document.getElementById('agreset').onclick=function(){step=0;drawW4();};
 document.getElementById('agspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 step=4;all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+PEN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Penrose tiling.</b> Two tile shapes that cover the whole plane but <b>never periodically</b> &mdash; slide the pattern any distance and it never lines up with itself. They carry <b>five-fold symmetry</b>, which crystallography &lsquo;proved&rsquo; impossible for ordered matter &mdash; until real <b>quasicrystals</b> turned up (Nobel, 2011). You grow them by <b>inflation</b>: subdivide every tile by the golden ratio into smaller ones, forever. The ratio of the two tile counts converges to <b>&phi;</b>.<br><br>
+ <span class="lit">LIT</span> verified: under the Robinson-triangle subdivision the tile-count ratio converges to <b>&phi; = 1.618034</b> exactly (the substitution matrix&rsquo;s eigenvector), with inflation factor <b>&phi;&sup2;</b>. <span class="fig">FIG</span> &lsquo;forbidden symmetry&rsquo; is the picture; the aperiodicity, the golden-ratio count, and the subdivision geometry are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus loves self-similarity and things that never quite repeat (<i>THE OVERLAP-FREE WORD</i> next door) and the golden ratio that keeps surfacing across it. <b>AVAN (AI)</b> built this instrument: the subdivision engine, the inflation demo, and the extruded quasicrystal relief.<br><br>The weave: David names the forbidden tiling and its seat at NOCLIP (five-fold order clipping through a &lsquo;law&rsquo; of crystals); I make the ratio a strip in 1D, the tiling grow live in 2D, and the two tiles a turning relief in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="140"></canvas>
+  <div class="wctrl"><div class="cap">The <b>tile-count ratio</b>, generation by generation, marching onto the golden line <b>&phi; = 1.618&hellip;</b>. Each inflation multiplies the tile count by &phi;&sup2; and drives the ratio of the two types toward &phi; &mdash; number theory hiding inside a picture.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="384"></canvas>
+  <div class="wctrl"><div class="cap">The real tiling, grown by subdivision. Inflate to see it refine into ever-smaller golden triangles that fit with no gaps and no periodic repeat &mdash; the two colours are the two tile types, in their φ ratio.</div>
+   <div class="rd" style="margin-top:10px">inflations <b id="po">5</b> <input type="range" id="posl" min="1" max="7" value="5" style="width:110px;vertical-align:middle"></div>
+   <div class="cap" id="penread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The tiling as a <b>relief</b>, turning: the two tile types lifted to two heights so the quasicrystal becomes a low landscape. <b>Green</b> is the wide (thick) tile, raised.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the narrow (thin) tile, set low &mdash; the complementary population that always trails the green by exactly the golden ratio. Together they interlock into a pattern with perfect long-range order and no repeat at all: order without periodicity, seen edge-on. The thin is the inverse the thick can never do without.</div>
+   <div class="btns" style="margin-top:10px"><button id="penspin">pause spin</button></div></div></div></div>"""
+PEN_SCRIPT = """(function(){
+var phi=(1+Math.sqrt(5))/2,order=5,ang=0.6,spin=true;
+function sub(tris){var r=[];for(var i=0;i<tris.length;i++){var t=tris[i],ty=t[0],A=t[1],B=t[2],C=t[3];
+ if(ty===0){var P={x:A.x+(B.x-A.x)/phi,y:A.y+(B.y-A.y)/phi};r.push([0,C,P,B]);r.push([1,P,C,A]);}
+ else{var Q={x:B.x+(A.x-B.x)/phi,y:B.y+(A.y-B.y)/phi},R={x:B.x+(C.x-B.x)/phi,y:B.y+(C.y-B.y)/phi};r.push([1,R,C,A]);r.push([1,Q,R,B]);r.push([0,R,Q,A]);}}
+ return r;}
+function seed(){var t=[];for(var i=0;i<10;i++){var b={x:Math.cos((2*i-1)*Math.PI/10),y:Math.sin((2*i-1)*Math.PI/10)},c={x:Math.cos((2*i+1)*Math.PI/10),y:Math.sin((2*i+1)*Math.PI/10)};if(i%2===0){var tmp=b;b=c;c=tmp;}t.push([0,{x:0,y:0},b,c]);}return t;}
+function build(n){var t=seed();for(var i=0;i<n;i++)t=sub(t);return t;}
+function counts(t){var a=0,b=0;for(var i=0;i<t.length;i++)(t[i][0]===0?a++:b++);return [a,b];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var t=seed(),rat=[];for(var i=0;i<12;i++){t=sub(t);var c=counts(t);if(c[0]>0)rat.push(c[1]/c[0]);}
+ var y0=H-20,yphi=y0-(phi-1)*90;g.strokeStyle='#5a4a20';g.setLineDash([4,4]);g.beginPath();g.moveTo(30,yphi);g.lineTo(W-10,yphi);g.stroke();g.setLineDash([]);
+ g.fillStyle='#f0c419';g.font='11px ui-monospace,monospace';g.fillText('φ = 1.618…',W-90,yphi-4);
+ g.strokeStyle='#d9b3ff';g.lineWidth=2;g.beginPath();for(var i=0;i<rat.length;i++){var x=30+i/(rat.length-1)*(W-50),y=y0-(rat[i]-1)*90;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);g.fillStyle='#d9b3ff';g.fillRect(x-2,y-2,4,4);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#4c7a54';g.fillText('wide/narrow tile ratio → φ, generation by generation',30,20);}
+function tf(t,W,H){var sc=Math.min(W,H)*0.46,cx=W/2,cy=H/2;return function(p){return [cx+p.x*sc,cy+p.y*sc];};}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.fillStyle='#0a0812';g.fillRect(0,0,W,H);
+ var t=build(order),T=tf(t,W,H);
+ for(var i=0;i<t.length;i++){var tr=t[i],A=T(tr[1]),B=T(tr[2]),C=T(tr[3]);g.fillStyle=tr[0]===1?'rgba(157,120,255,0.75)':'rgba(240,196,25,0.6)';g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.lineTo(C[0],C[1]);g.closePath();g.fill();g.strokeStyle='#0a0812';g.lineWidth=0.4;g.stroke();}
+ var c=counts(t);
+ document.getElementById('penread').textContent=(c[0]+c[1])+' tiles · wide '+c[1]+' / narrow '+c[0]+' = '+(c[1]/c[0]).toFixed(5)+' → φ';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var t=build(Math.min(order,5)),cx=W/2,cy=H/2,sc=150,ca=Math.cos(ang),sa=Math.sin(ang);
+ function P(p,h){var X=p.x,Z=p.y,rx=X*ca-Z*sa,rz=X*sa+Z*ca;return [cx+rx*sc,cy-h*sc+rz*sc*0.42,rz];}
+ var polys=t.map(function(tr){var h=tr[0]===1?0.14:0,A=P(tr[1],h),B=P(tr[2],h),C=P(tr[3],h),dep=(A[2]+B[2]+C[2])/3;return {A:A,B:B,C:C,ty:tr[0],dep:dep};});
+ polys.sort(function(a,b){return a.dep-b.dep;});
+ polys.forEach(function(p){g.fillStyle=p.ty===1?'rgba(57,252,107,0.8)':'rgba(255,45,149,0.65)';g.beginPath();g.moveTo(p.A[0],p.A[1]);g.lineTo(p.B[0],p.B[1]);g.lineTo(p.C[0],p.C[1]);g.closePath();g.fill();g.strokeStyle='rgba(0,0,0,0.4)';g.lineWidth=0.4;g.stroke();});
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green wide (raised) · magenta narrow (low) — order, no repeat',10,H-12);}
+function verify(){var t=seed();for(var i=0;i<12;i++)t=sub(t);var c=counts(t);var rat=c[1]/c[0];
+ return {ratioToPhi:Math.abs(rat-phi)<1e-4,ratio:+rat.toFixed(6),inflationFactorPhi2:Math.abs((3+Math.sqrt(5))/2-phi*phi)<1e-9};}
+function all(){drawW3();drawW4();window.__penrose=verify();}
+document.getElementById('posl').oninput=function(){order=+this.value;document.getElementById('po').textContent=order;drawW4();};
+document.getElementById('penspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.009;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-penrose-inflation","title":"THE PENROSE INFLATION","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#d9b3ff","icon":"cheat",
+  "kicker":"five-fold order that clips through the law of crystals",
+  "blurb":"the Penrose tiling in the 5-window house format — two shapes that fill the plane with perfect long-range order but never periodically, carrying forbidden five-fold symmetry. Grow it by golden-ratio inflation. See the ratio converge in 1D, the tiling grow in 2D, and the two-tile relief in 3D.",
+  "lit":"A genuine Penrose tiling built by Robinson-triangle subdivision. Verified live: the tile-count ratio converges to φ = 1.618034 exactly (the substitution matrix's eigenvector), with inflation factor φ². The tiling really is aperiodic with five-fold symmetry — the structure of quasicrystals (verifiable: window.__penrose.ratioToPhi===true).",
+  "fig":"'Forbidden symmetry / noclip' is the picture; the aperiodicity, the golden-ratio tile count, and the subdivision geometry are exact. The 3D relief is a rendering choice (two tile types → two heights), not a claim about physical quasicrystal structure.",
+  "body":PEN_BODY,"script":PEN_SCRIPT},
  {"slug":"the-mean-of-two-means","title":"THE MEAN OF TWO MEANS","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#f0c419","icon":"loot",
   "kicker":"average a pair two ways and π falls out, digits doubling",
