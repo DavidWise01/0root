@@ -1,0 +1,102 @@
+# World II · THE FOLD — ESOTERIC SPHERE IDEA BANK
+Sourced 2026-07-31 by 5 domain-keeper agents. Each idea carries a CONCRETE in-browser-verifiable
+math claim (the honesty gate). Build in the 5-window house style; verify the claim live before sealing.
+Mark an idea `[BUILT]` when done. Prefer the obscure over the textbook. Some overlap across veins — pick distinct.
+
+Already built (do NOT rebuild): elementary CA, Turing machine, RPN stack, full-adder, BFS, Hamming(7,4),
+chaos game/Sierpinski, DFA÷3, LFSR, Gray code, Sieve, Huffman, Euclid GCD, DFT, Newton fractal, bitonic sort,
+Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, attention head, 3-2-1 compressor.
+
+═══════════════════════════════════════════════════════════════════════
+## VEIN A — EXOTIC NUMBER SYSTEMS, BASES & ARITHMETIC HARDWARE
+1. THE IMAGINARY BASE — Knuth quater-imaginary (base 2i, digits 0-3). CLAIM: every a+bi (a,b∈−8..8) round-trips uniquely.
+2. THE TWINDRAGON — base (−1+i), bits {0,1}. CLAIM: unique finite rep for a,b∈−8..8; depth-n fractions = 2^n (twindragon tile).
+3. THE GOLDEN RADIX — base-φ, exact ℤ[φ] arithmetic. CLAIM: every int 0..100 has unique no-"11" form collapsing to n.
+4. THE CARRYLESS FIELD — Nimber arithmetic (XOR add, recursive mult) = GF(16). CLAIM: field axioms + inverses exhaustive on {0..15}.
+5. THE IRRATIONAL ODOMETER — Ostrowski numeration from CF of α. CLAIM: digits obey CF bounds, decode exactly; φ-case = Zeckendorf.
+6. THE SUBSET ODOMETER — combinadics bijection 0..C(n,k)−1 ↔ k-subsets. CLAIM: rank∘unrank = id exhaustively for n=10,k=5.
+7. THE SPARSEST SIGNATURE — Non-Adjacent Form (signed binary {−1,0,1}). CLAIM: unique NAF −128..127, no adjacent nonzeros, min weight.
+8. THE MIRROR FIBONACCI — negaFibonacci coding (reaches negatives, no sign bit). CLAIM: unique no-"11" rep for −50..50.
+9. THE PERMUTATION CLOCK — factorial number system + Lehmer code. CLAIM: rank∘unrank bijection over all 720 perms of 6.
+10. THE LAZY COUNTER — skew binary (digits 0,1,2, one 2). CLAIM: unique canonical 0..2000; +1 touches ≤2 digits (O(1) carry).
+11. THE FIBONACCI PARTITION — Zeckendorf. CLAIM: greedy decomp 1..200 non-consecutive, sums exact, unique.
+12. THE RATIONAL TREE — Stern–Brocot. CLAIM: depth-12 all fractions lowest-terms, no repeats, each a mediant.
+13. THE THREE-WAY DIGIT — balanced ternary {−,0,+}. CLAIM: unique −40..40, negate=digit-flip; balance-scale weighing puzzle.
+14. THE REMAINDER LOOM — Residue Number System {3,5,7}, CRT. CLAIM: unique triples 0..104, CRT exact, componentwise +/× match mod 105.
+15. THE ROTATING SHIFT — CORDIC (shift+add trig). CLAIM: 20 iters give sin/cos within 1e-6 of Math over a sweep.
+
+═══════════════════════════════════════════════════════════════════════
+## VEIN B — AUTOMATA, TILINGS & MODELS OF COMPUTATION
+1. THE CYCLIC TAG — cyclic tag system (Cook's Rule-110 universality engine). CLAIM: re-derives documented word sequence step-by-step.
+2. THE BUSY BEAVER — n-state halting champions. CLAIM: BB(3) halts 21 steps/6 ones, BB(2) 6 steps/4 ones, re-simulated from blank.
+3. THE WANG DOMINOES — edge-colored tiles. CLAIM: backtracking fills N×N respecting colors; recolor one edge → 0 solutions (exhaustive).
+4. THE POST DOMINOES — Post Correspondence Problem. CLAIM: known solution concatenates equal top/bottom; unsolvable one → no match ≤bound.
+5. THE MARGOLUS MIRROR — reversible block CA (Critters). CLAIM: forward T then inverse T = exact start; particle count conserved.
+6. THE SKI FOREST — combinatory logic S,K,I. CLAIM: S K K x → x for sampled x; S(K S)K → B (composition), by rewriting to normal form.
+7. THE BETA REDUCER — untyped λ-calculus, Church numerals. CLAIM: MULT 2 3 β-reduces to Church 6; SUCC(SUCC ZERO)=2, structural compare.
+8. THE WIREWORLD FOUNDRY — 4-state CA logic. CLAIM: built XOR/AND gate matches truth table by running the CA and timing output.
+9. THE COLLATZ TAG — Collatz as 2-tag system (De Mol). CLAIM: tag output matches direct 3x+1 hailstone for sampled n.
+10. THE MINSKY COUNTERS — 2-counter machine (INC/DEC-branch). CLAIM: stored program computes m×n, halts with product, vs direct mult.
+11. THE PENROSE INFLATION — kites/darts substitution. CLAIM: tile-count ratio → φ (substitution-matrix eigenvalue), converging live.
+12. THE OVERLAP-FREE WORD — Thue–Morse (0→01,1→10). CLAIM: first N symbols contain no cube (exhaustive scan); matches popcount parity.
+13. THE TURMITE ZOO — Langton's ant & kin. CLAIM: ant builds the 104-step highway from blank grid (exact recurring period+displacement).
+14. THE RULE 110 GLIDERS — particle view of Rule 110. CLAIM: ether space-period 14/time-period 7; glider constant velocity; collision outcome.
+15. THE L-SYSTEM GARDEN — Lindenmayer A→AB,B→A. CLAIM: generation lengths = Fibonacci; bracketed turtle path branches per rules.
+
+═══════════════════════════════════════════════════════════════════════
+## VEIN C — CODING THEORY, CRYPTOGRAPHY & COMPRESSION
+1. THE SHORTEST WITNESS — Berlekamp–Massey (shortest LFSR for a sequence). CLAIM: recovered LFSR regenerates input; recovers known deg-n gen from 2n terms.
+2. THE NUMERAL — rANS (asymmetric numeral systems). CLAIM: encode→decode round-trips bytes; bits/symbol within a fraction of Shannon entropy.
+3. THE COUNTER OF MULTITUDES — HyperLogLog. CLAIM: distinct-count estimate within ~1.04/√m of exact Set over N uniques.
+4. THE GOLDEN CODE — Zeckendorf/Fibonacci self-delimiting code (ends "11"). CLAIM: greedy no-adjacent + sums to n; stream splits uniquely at "11".
+5. THE HOMOMORPH — Paillier (toy). CLAIM: Dec(Enc(a)·Enc(b))=a+b and Dec(Enc(a)^k)=k·a over random a,b,k.
+6. THE WHISPER NETWORK — LDPC bit-flipping decoder. CLAIM: corrupt valid codeword ≤k errors → iterative flipping restores (H·c=0).
+7. THE SQUARE ROOT IN THE RING — Tonelli–Shanks modular sqrt. CLAIM: returned r satisfies r²≡n (mod p); non-residues flagged via Legendre.
+8. THE OUROBOROS STRING — de Bruijn sequence. CLAIM: cyclic length b^k contains all b^k k-grams exactly once (enumerate windows).
+9. THE EXACT TRANSFORM — Number Theoretic Transform. CLAIM: NTT·pointwise·INTT = schoolbook convolution bit-for-bit (prime field, no rounding).
+10. THE THUMBPRINT — MinHash. CLAIM: fraction of matching min-hashes ≈ true Jaccard, converging with k.
+11. THE NEST — Cuckoo filter. CLAIM: no false negatives; measured FP-rate near theoretical for fingerprint size; supports deletes.
+12. THE FIXED BLOCK — Tunstall coding (variable-to-fixed, Huffman's dual). CLAIM: round-trips; equal codeword length; greedy fattest-leaf split.
+13. THE FIELD INVERSE — Rijndael GF(2⁸) inversion / AES S-box. CLAIM: b⊗b⁻¹=1 for all nonzero b; S-box∘S-box⁻¹=id over 256 bytes.
+14. THE MOST LIKELY PATH — Viterbi decoder. CLAIM: encode→inject ≤correctable errors→Viterbi recovers original bits over trials.
+15. THE PROBABLE PRIME — Miller–Rabin. CLAIM: composites fail ≥3/4 bases (miss ≤4^−t); primes always pass, vs trial-division oracle.
+
+═══════════════════════════════════════════════════════════════════════
+## VEIN D — ESOTERIC DATA STRUCTURES & GRAPH / STRING / DP ALGORITHMS
+1. THE ORACLE OF ECHOES — suffix automaton (DAWG). CLAIM: Σ(len−len[link]) = brute-force distinct-substring count; membership matches naive.
+2. THE THIMBLE ARMY — HyperLogLog. CLAIM: within ~2% rel error at 2^14 registers vs exact Set.size. (dup of C3 — pick one)
+3. THE FAILURE WEB — Aho-Corasick. CLAIM: one-pass (pattern,end) matches == per-pattern indexOf over 40 words / 5000 chars.
+4. THE HALVING TREE — van Emde Boas. CLAIM: succ/pred match sorted-array binary search over 10k ops; op-count ~ log log u.
+5. THE MIRROR SEEKER — Manacher. CLAIM: palindrome radii match O(n²) expand-around-center in one O(n) sweep (500 chars).
+6. THE ALTERNATING PATH — Hopcroft–Karp. CLAIM: matching size = slow baseline AND = min vertex cover (Kőnig), live.
+7. THE LAYERED FLOOD — Dinic max-flow. CLAIM: max flow = min cut every run on random networks.
+8. THE COIN-FLIP HEAP — Treap. CLAIM: in-order always sorted, heap-property on priorities, membership vs Set; height ~2log₂n.
+9. THE SPARSE ORACLE — Sparse Table RMQ. CLAIM: 5000 range-min via two power-of-two blocks match brute force; O(1)/query.
+10. THE FORGIVING SIEVE — Count-Min Sketch. CLAIM: estimate ≥ true and ≤ true+εN over 100k stream vs exact map.
+11. THE LOW-LINK MINER — Tarjan SCC. CLAIM: SCC partition == Kosaraju two-pass, up to relabeling.
+12. THE PROPHET'S JUMP — Skip list. CLAIM: ops match sorted ref over 3000; avg hops within const·log₂n.
+13. THE WELDER — Union-Find (path compression + rank). CLAIM: connectivity == brute BFS over 500 unions; avg follows ~flat (α(n)).
+14. THE LAZY LORD — Segment tree + lazy propagation. CLAIM: 4000 range-add/range-sum match naive array (no lost/double updates).
+15. THE FENWICK LADDER — Binary Indexed Tree (i&−i). CLAIM: prefix/range sums match cumulative array over 5000 ops; ~log₂n touches.
+
+═══════════════════════════════════════════════════════════════════════
+## VEIN E — SIGNAL / GRAPHICS / NUMERIC & UNCONVENTIONAL COMPUTING
+1. THE ONE-BIT RIVER — delta-sigma modulator. CLAIM: modulate 0.5·sin at OSR=64, reconstruct <0.01 RMS; noise shaping >20dB hi vs lo.
+2. THE DIGIT WITHOUT ITS PREDECESSORS — BBP formula. CLAIM: returns Nth hex digit of π (N=1→2, N=10, N=1000) vs reference, no prior digits.
+3. THE STRING THAT REMEMBERS — Karplus–Strong. CLAIM: fundamental = fs/(N+0.5) within <1 Hz (autocorr); energy decays monotonically.
+4. THE SINGLE EAR — Goertzel. CLAIM: single-bin magnitude = |X[k]| from full DFT to <1e-9; DTMF keypad detection.
+5. THE INTEGRATOR THAT NEVER DRIFTS — leapfrog/Verlet vs RK4. CLAIM: leapfrog |ΔE| bounded over 1e5 steps; RK4 secular drift.
+6. THE ORTHOGONAL SIGN-FLIP — Walsh–Hadamard transform. CLAIM: applied twice = N·identity (integer-exact); basis rows orthogonal (dots=0).
+7. THE LEDGER THAT LOSES NOTHING — Kahan summation. CLAIM: sum 1e6×0.1: naive float32 drifts, Kahan within ~1 ULP of exact.
+8. THE CURVE THAT FILLS THE PLANE — Hilbert curve. CLAIM: index↔(x,y) bijection over N×N; consecutive indices Manhattan-adjacent (=1).
+9. THE ELECTRON MAZE — Wireworld (dup of B8 — pick one). CLAIM: gate truth tables + period-verified clock.
+10. THE EMPTY CIRCLE LAW — Bowyer–Watson Delaunay. CLAIM: every triangle's circumcircle empty; maximizes min angle vs random triangulation.
+11. THE MEAN OF TWO MEANS — Gauss–Legendre AGM for π. CLAIM: π to >1e-14 in ~4 iters; correct-digit count roughly doubles each pass.
+12. THE POLITE SCATTER — Bridson Poisson-disk. CLAIM: all pairs ≥ r apart (no violations); blue-noise ring spectrum vs clumpy random.
+13. THE LOADED-DICE TABLE — Walker's alias method. CLAIM: 1e6 draws reproduce target probs <0.5%/outcome; O(1) per draw.
+14. THE FEATHERED EDGE — Xiaolin Wu antialiased line. CLAIM: two blended pixels per column sum to full intensity (energy conserved <1e-6).
+15. THE SPOTS THAT BREED — Gray–Scott reaction–diffusion (Turing patterns). CLAIM: mitosis regime → blob count grows; params move across phase map.
+
+═══════════════════════════════════════════════════════════════════════
+NOTE: dedup — HyperLogLog (C3/D2), Wireworld (B8/E9), Zeckendorf (A11/C4) appear twice; build once.
+~70 distinct concepts here = ~3.5 batches of 20. Re-run the keeper agents to refill when the bank runs low.
