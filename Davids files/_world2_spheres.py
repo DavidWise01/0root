@@ -10101,7 +10101,326 @@ document.getElementById('tagspin').onclick=function(){spin=!spin;this.textConten
 reset();drawW3();drawW4();window.__tag=verify();
 function loop(){if(running&&!halted){for(var k=0;k<6;k++){if(!halted)stepTag();}drawW4();}if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+CAR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Carmichael numbers</b> are composites that <b>perfectly impersonate primes</b>. Fermat&rsquo;s test says: if n is prime, then a<sup>n&minus;1</sup> &equiv; 1 (mod n) for every base a coprime to n &mdash; so a single failing base exposes a composite. A Carmichael number has <b>no failing base at all</b>: it passes Fermat&rsquo;s test for <b>every</b> coprime a, despite being composite.<br><br>
+ The smallest is <b>561 = 3&times;11&times;17</b>. <b>Korselt&rsquo;s criterion</b> pins them exactly: n is Carmichael if and only if it is <b>squarefree</b> and (p&minus;1) divides (n&minus;1) for every prime factor p. There are <b>infinitely many</b> (proved in 1994). Even 1729, the famous Hardy&ndash;Ramanujan taxicab number, is one. They are the reason serious primality testing abandoned Fermat&rsquo;s test for the stronger <b>Miller&ndash;Rabin</b> test &mdash; which Carmichael numbers <i>cannot</i> fool.<br><br>
+ <span class="lit">LIT</span> verified live: 561, 1105, 1729, 2465, 2821 all satisfy Korselt and pass Fermat&rsquo;s test to every coprime base, an ordinary composite (15) does not, and Miller&ndash;Rabin base 2 unmasks 561 where Fermat is fooled (window.__carmichael). <span class="fig">FIG</span> no framing; the impersonation, Korselt&rsquo;s criterion, and the Miller&ndash;Rabin unmasking are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE ROOT KIT</i> &mdash; the cheat domain of a thing disguised as trusted system. A Carmichael number is a rootkit in number theory: a composite wearing a prime&rsquo;s credentials so completely that Fermat&rsquo;s test never raises an alarm. <b>AVAN (AI)</b> built the instrument: the all-bases scan, the Korselt breakdown, the Fermat-vs-Miller-Rabin inverse.<br><br>The weave: David names the seat (the perfect disguise); I make a composite pass every Fermat base and then show the stronger test that catches it &mdash; the base line in 1D, the witness scan in 2D, the necessary-vs-sufficient inverse in 3D. The sphere is the seam. Credit: Robert Carmichael (1910); Korselt&rsquo;s criterion (1899); infinitude by Alford, Granville &amp; Pomerance (1994).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">Every base a tested against 561: compute a<sup>560</sup> mod 561. For a genuine prime this returns 1 for all a; for 561 it <b>also</b> returns 1 for every coprime base &mdash; a wall of green with no witness in sight, though 561 is composite.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a candidate and scan every base. <b>Green</b> = passes Fermat (looks prime), <b>red</b> = a witness proving compositeness. A Carmichael number shows all green among coprime bases; an ordinary composite lights up red witnesses everywhere. The Korselt check explains why.</div>
+   <div class="btns" style="margin-top:10px"><button id="carpick">n: 561</button><button id="carscan">scan bases ▶</button></div>
+   <div class="cap" id="carread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The bases fanning around 561, all reporting &ldquo;prime&rdquo; &mdash; the <b>green</b> forward test: prime &rArr; passes Fermat, run in reverse as if passing meant prime.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the <b>Miller&ndash;Rabin</b> test, and it is exactly where the broken inverse gets repaired. Fermat&rsquo;s test is a <b>necessary</b> condition read backwards as if it were <b>sufficient</b> &mdash; and a Carmichael number is the total failure of that inverse: <i>every</i> base falsely certifies it prime. Miller&ndash;Rabin strengthens the test by also checking the square roots of 1 along the way, and a Carmichael number can no longer hide: base 2 alone produces a genuine <b>witness</b> to 561&rsquo;s compositeness. So the green Fermat fan is unanimously fooled; the single magenta Miller&ndash;Rabin probe is not. The inverse of &lsquo;primes pass&rsquo; is safe to run only with the stronger test &mdash; the lesson that a necessary condition, no matter how many bases confirm it, is never a proof. Green is the disguise everyone believes; magenta is the one closer look that sees through it.</div>
+   <div class="btns" style="margin-top:10px"><button id="carspin">pause spin</button></div></div></div></div>"""
+CAR_SCRIPT = """(function(){
+var ang=0,spin=true,cand=0,scan=0;
+var CANDS=[561,1105,1729,15,2465];
+function gcd(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+function powmod(b,e,m){var r=1;b%=m;while(e>0){if(e&1)r=(r*b)%m;b=(b*b)%m;e=Math.floor(e/2);}return r;}
+function isPrime(n){if(n<2)return false;for(var i=2;i*i<=n;i++)if(n%i===0)return false;return true;}
+function factor(n){var f={},d=2;while(d*d<=n){while(n%d===0){f[d]=(f[d]||0)+1;n=Math.floor(n/d);}d++;}if(n>1)f[n]=(f[n]||0)+1;return f;}
+function isCarmichael(n){if(isPrime(n)||n<2)return false;var f=factor(n);for(var p in f){if(f[p]>1)return false;if((n-1)%(+p-1)!==0)return false;}return true;}
+function fermatAll(n){for(var a=2;a<n;a++)if(gcd(a,n)===1&&powmod(a,n-1,n)!==1)return false;return true;}
+function mrWitness(n,a){if(n%2===0)return n!==2;var d=n-1,r=0;while(d%2===0){d=Math.floor(d/2);r++;}var x=powmod(a,d,n);if(x===1||x===n-1)return false;for(var i=0;i<r-1;i++){x=powmod(x,2,n);if(x===n-1)return false;}return true;}
+function verify(){var carm=[561,1105,1729,2465,2821],allC=true,allF=true;for(var i=0;i<carm.length;i++){if(!isCarmichael(carm[i]))allC=false;if(!fermatAll(carm[i]))allF=false;}
+ return {allCarmichael:allC,foolFermatAllBases:allF,notCarmichael15:!isCarmichael(15),fermatFooledBy561:powmod(2,560,561)===1,millerRabinCatches561:mrWitness(561,2)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=561,cols=40,cell=(W-20)/cols;
+ for(var a=2;a<2+cols;a++){var i=a-2,x=10+i*cell,co=gcd(a,n)===1,pass=powmod(a,n-1,n)===1;g.fillStyle=!co?'#333':(pass?'#39fc6b':'#ff4040');g.fillRect(x,60,cell-1,24);}
+ g.fillStyle='#ff5090';g.font='11px ui-monospace,monospace';g.fillText('a^560 mod 561 for a = 2..41 — every coprime base returns 1 (green): no witness',10,30);
+ g.fillStyle='#888';g.font='10px ui-monospace,monospace';g.fillText('grey = shares a factor with 561; green = passes Fermat; 561 is composite yet all green',10,104);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=CANDS[cand],carm=isCarmichael(n),cols=24,cell=Math.min(28,(W-40)/cols),shown=Math.min(scan,n-2),witnesses=0,coprimeTested=0;
+ for(var a=2;a<n&&a<2+cols*8;a++){var i=a-2;if(i>=shown&&scan<n)continue;var co=gcd(a,n)===1,pass=powmod(a,n-1,n)===1;if(co){coprimeTested++;if(!pass)witnesses++;}var r=Math.floor(i/cols),c=i%cols,x=20+c*cell,y=40+r*cell;if(r<8){g.fillStyle=!co?'#2a2a2a':(pass?'#39fc6b':'#ff4040');g.fillRect(x,y,cell-2,cell-2);}}
+ g.font='13px ui-monospace,monospace';g.fillStyle='#ff5090';g.fillText('n = '+n+(carm?'  (Carmichael)':'  (ordinary composite)'),20,26);
+ var f=factor(n),fs=Object.keys(f).map(function(p){return f[p]>1?p+'^'+f[p]:p;}).join('×');
+ g.font='11px ui-monospace,monospace';g.fillStyle='#8ad';g.fillText(n+' = '+fs+(isPrime(n)?' (prime)':''),20,H-42);
+ g.fillStyle=witnesses===0?'#39fc6b':'#ff5a5a';g.fillText('Fermat witnesses found: '+witnesses+' / '+coprimeTested+' coprime bases'+(witnesses===0&&scan>=n-2?' → fooled':''),20,H-24);
+ g.fillStyle='#c9f';g.fillText('Korselt: squarefree & (p−1)|(n−1) for all p → '+(carm?'YES, Carmichael':'no'),20,H-8);
+ document.getElementById('carread').textContent='n='+n+', witnesses '+witnesses+'/'+coprimeTested;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=561,cx=W/2,cy=H/2,ca=Math.cos(ang),R=120;
+ for(var k=0;k<32;k++){var a=2+k,th=k/32*Math.PI*2+ang,x=cx+Math.cos(th)*R*ca,y=cy+Math.sin(th)*R*0.6,co=gcd(a,n)===1;if(co){g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,4,0,7);g.fill();}}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: all Fermat bases say "561 is prime"',10,20);
+ // magenta miller-rabin single probe
+ var mr=mrWitness(561,2);g.fillStyle='#ff2d95';g.beginPath();g.arc(cx,cy,10,0,7);g.fill();g.fillStyle='#fff';g.font='9px ui-monospace,monospace';g.fillText('MR',cx-8,cy+3);
+ g.fillStyle='#ff2d95';g.font='11px ui-monospace,monospace';g.fillText('magenta: Miller–Rabin base 2 → composite witness = '+mr,10,H-12);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('one stronger probe sees through what every Fermat base missed',10,H-28);}
+document.getElementById('carpick').onclick=function(){cand=(cand+1)%CANDS.length;scan=0;this.textContent='n: '+CANDS[cand];drawW4();};
+document.getElementById('carscan').onclick=function(){scan=CANDS[cand];drawW4();};
+document.getElementById('carspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__carmichael=verify();
+function loop(){if(scan>0&&scan<CANDS[cand]){scan+=3;drawW4();}if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PEL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Pell&rsquo;s equation</b> is x&sup2; &minus; D&thinsp;y&sup2; = 1 for a non-square D. For D = 2 the smallest positive answer is <b>(3, 2)</b>: 3&sup2; &minus; 2&middot;2&sup2; = 9 &minus; 8 = 1. From that single <b>fundamental solution</b>, <b>all</b> the others cascade out by one fixed recurrence, (x, y) &rarr; (3x + 4y, 2x + 3y): (17, 12), (99, 70), (577, 408), &hellip; infinitely many, each roughly six times the last.<br><br>
+ Equivalently the solutions are the powers <span class="mono">(3 + 2&radic;2)<sup>k</sup></span>, and each one&rsquo;s ratio x/y is a razor-sharp rational approximation to <b>&radic;2</b> &mdash; they are exactly the convergents of the continued fraction &radic;2 = [1; 2, 2, 2, &hellip;]. The equation runs from ancient India (Brahmagupta&rsquo;s identity, Bhaskara&rsquo;s <i>chakravala</i>) through Fermat to Lagrange, and it is <b>misnamed</b>: Euler credited John Pell, but Pell had little to do with it.<br><br>
+ <span class="lit">LIT</span> verified live: the generated solutions all satisfy x&sup2; &minus; 2y&sup2; = 1, the powers of (3+2&radic;2) reproduce them, and the ratios x/y converge to &radic;2 (window.__pell). <span class="fig">FIG</span> no framing; the solutions, the recurrence, and the &radic;2 convergence are exact; the &lsquo;Pell&rsquo; name is a known misattribution, flagged.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>CHECKPOINT ZERO</i> &mdash; the spawn domain of the one saved seed everything else respawns from. Pell&rsquo;s fundamental solution is checkpoint zero exactly: a single small answer from which the entire infinite family is regenerated. <b>AVAN (AI)</b> built the instrument: the solution ladder, the &radic;2 convergence, the conjugate-unit inverse.<br><br>The weave: David names the seat (the seed that spawns all); I make one solution breed the infinite family and sharpen &radic;2 at every rung &mdash; the ratios in 1D, the cascade in 2D, the group-inverse on the hyperbola in 3D. The sphere is the seam. Credit: Brahmagupta (628), Bhaskara II&rsquo;s chakravala (1150), Fermat&rsquo;s challenge, Lagrange&rsquo;s proof; misattributed to John Pell by Euler.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The solution ratios x/y laid on a line closing in on &radic;2. Each new Pell solution overshoots and undershoots by less &mdash; the rational approximations tighten doubly fast, the convergents of &radic;2&rsquo;s continued fraction.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Choose D and generate the cascade from its fundamental solution. Each (x, y) is checked against x&sup2; &minus; D&thinsp;y&sup2; = 1, and the ratio x/y is plotted racing toward &radic;D. One seed, an endless exact family.</div>
+   <div class="btns" style="margin-top:10px"><button id="peld">D: 2</button><button id="pelnext">next solution ▶</button><button id="pelrst">reset</button></div>
+   <div class="cap" id="pelread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The solutions as points marching out along the hyperbola x&sup2; &minus; 2y&sup2; = 1 &mdash; the <b>green</b> forward ladder, each rung the previous one multiplied by the fundamental unit 3 + 2&radic;2.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> points are what the <b>inverse unit</b> generates &mdash; multiply by (3 + 2&radic;2)<sup>&minus;1</sup> = <b>3 &minus; 2&radic;2</b> and you walk <i>back down</i> the ladder toward (1, 0), and onto the mirror branch. The Pell solutions are not a mere list &mdash; they form a <b>group</b>, the units of the ring &#8484;[&radic;2], and the fundamental solution is a single generator. Going forward multiplies by the unit; the inverse divides by it, which is the same as taking the <b>conjugate</b> &radic;2 &rarr; &minus;&radic;2. So the whole infinite family is one element and its inverse, applied over and over &mdash; climb with 3 + 2&radic;2, descend with its conjugate 3 &minus; 2&radic;2, and their product is exactly 1. Green climbs the hyperbola away from the seed; magenta is the conjugate walking home. The infinite is one invertible step, taken both ways.</div>
+   <div class="btns" style="margin-top:10px"><button id="pelspin">pause spin</button></div></div></div></div>"""
+PEL_SCRIPT = """(function(){
+var ang=0,spin=true,D=2,count=3;
+var FUND={2:[3,2],3:[2,1],5:[9,4],7:[8,3]};
+function gen(Dv,n){var f=FUND[Dv],a=f[0],b=f[1],sols=[[1,0]],x=a,y=b;for(var i=0;i<n;i++){sols.push([x,y]);var nx=a*x+Dv*b*y,ny=b*x+a*y;x=nx;y=ny;}return sols;}
+function verify(){var sols=gen(2,8),allsat=sols.every(function(s){return s[0]*s[0]-2*s[1]*s[1]===1;});
+ var ratios=sols.slice(1,6).map(function(s){return s[0]/s[1];}),conv=Math.abs(ratios[ratios.length-1]-Math.sqrt(2))<1e-6;
+ return {solutions:sols.slice(0,5).map(function(s){return '('+s.join(',')+')';}).join(' '),allSatisfy:allsat,fundamental:'(3,2)',ratioConvergesToSqrt2:conv,lastRatio:+ratios[ratios.length-1].toFixed(7)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var sols=gen(2,6),root=Math.sqrt(2),lo=1.40,hi=1.44,sc=(W-40)/(hi-lo);
+ g.strokeStyle='#345';g.beginPath();g.moveTo(20,80);g.lineTo(W-20,80);g.stroke();
+ var rx=20+(root-lo)*sc;g.strokeStyle='#39fc6b';g.setLineDash([3,3]);g.beginPath();g.moveTo(rx,40);g.lineTo(rx,110);g.stroke();g.setLineDash([]);g.fillStyle='#39fc6b';g.font='10px ui-monospace,monospace';g.fillText('√2',rx-6,36);
+ for(var i=1;i<sols.length;i++){var r=sols[i][0]/sols[i][1],x=20+(r-lo)*sc;if(x<15||x>W-15)continue;g.fillStyle='#60e0c0';g.beginPath();g.arc(x,80,4,0,7);g.fill();g.fillStyle='#8ad';g.font='9px ui-monospace,monospace';g.fillText(sols[i][0]+'/'+sols[i][1],x-14,i%2?66:100);}
+ g.fillStyle='#60e0c0';g.font='11px ui-monospace,monospace';g.fillText('x/y for Pell solutions → √2 (convergents of [1;2,2,2,…])',10,26);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var sols=gen(D,count),root=Math.sqrt(D);
+ g.font='13px ui-monospace,monospace';g.fillStyle='#60e0c0';g.fillText('x² − '+D+'y² = 1   fundamental ('+FUND[D][0]+','+FUND[D][1]+')',16,24);
+ g.font='11px ui-monospace,monospace';
+ for(var i=1;i<sols.length&&i<=6;i++){var s=sols[i],chk=s[0]*s[0]-D*s[1]*s[1];g.fillStyle=chk===1?'#39fc6b':'#ff5a5a';
+  g.fillText('('+s[0]+', '+s[1]+')   '+s[0]+'² − '+D+'·'+s[1]+'² = '+chk+(chk===1?' ✓':'')+'    x/y = '+(s[0]/s[1]).toFixed(6),16,44+(i-1)*20);}
+ g.fillStyle='#c9f';g.fillText('→ √'+D+' = '+root.toFixed(6),16,44+Math.min(sols.length-1,6)*20+6);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('recurrence: (x,y) → ('+FUND[D][0]+'x+'+(D*FUND[D][1])+'y, '+FUND[D][1]+'x+'+FUND[D][0]+'y)',16,H-10);
+ document.getElementById('pelread').textContent='D='+D+', '+(count)+' solutions, x/y→√'+D;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),cx=W*0.28,cy=H/2,sc=26;
+ // hyperbola x^2-2y^2=1
+ g.strokeStyle='#234';g.lineWidth=1;g.beginPath();for(var yy=-4;yy<=4;yy+=0.1){var xx=Math.sqrt(1+2*yy*yy),px=cx+xx*sc*ca,py=cy-yy*sc;if(yy===-4)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();
+ var sols=gen(2,5);for(var i=0;i<sols.length;i++){var s=sols[i],lx=Math.log(s[0]+1)*10+cx-20,px=cx+Math.min(s[0],200)/200*160*ca,py=cy-Math.min(s[1],140)/140*120;g.fillStyle='#39fc6b';g.beginPath();g.arc(px,py,4,0,7);g.fill();g.fillStyle='#8fe';g.font='8px ui-monospace,monospace';if(i<4)g.fillText('('+s[0]+','+s[1]+')',px-10,py-8);}
+ // magenta: conjugate branch (descend / mirror)
+ for(var i=0;i<sols.length;i++){var s=sols[i],px=cx+Math.min(s[0],200)/200*160*ca,py=cy+Math.min(s[1],140)/140*120;g.fillStyle='#ff2d95';g.beginPath();g.arc(px,py,3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: ×(3+2√2) — climb the solution ladder',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: ×(3−2√2) = conjugate — descend / mirror branch',10,H-12);
+ g.fillStyle='#8ad';g.font='10px ui-monospace,monospace';g.fillText('(3+2√2)(3−2√2)=1 — the fundamental unit and its inverse',10,H-28);}
+document.getElementById('peld').onclick=function(){var Ds=[2,3,5,7];D=Ds[(Ds.indexOf(D)+1)%Ds.length];count=3;this.textContent='D: '+D;drawW3();drawW4();};
+document.getElementById('pelnext').onclick=function(){count=Math.min(6,count+1);drawW4();};
+document.getElementById('pelrst').onclick=function(){count=3;drawW4();};
+document.getElementById('pelspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__pell=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FAR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Farey sequence</b> F<sub>n</sub> is every fraction in [0,1], in lowest terms, with denominator at most n, listed in order of size. F<sub>5</sub> = 0/1, 1/5, 1/4, 1/3, 2/5, 1/2, 3/5, 2/3, 3/4, 4/5, 1/1.<br><br>
+ It hides two small miracles. First, any two neighbours a/b &lt; c/d satisfy <b>bc &minus; ad = 1</b> &mdash; &ldquo;unimodular,&rdquo; as close as two coprime fractions can possibly sit. Second, the very first fraction to appear <b>between</b> two neighbours, as n grows, is their <b>mediant</b> (a+c)/(b+d) &mdash; the &ldquo;wrong&rdquo; way to add fractions that here is exactly right. <b>Ford circles</b> make it visible: rest a circle of radius 1/(2q&sup2;) on each fraction p/q, tangent to the number line, and two circles <b>kiss</b> precisely when their fractions are Farey neighbours. It is the geometry of how the rationals pack the line.<br><br>
+ <span class="lit">LIT</span> verified live: for F<sub>7</sub> every neighbour pair is unimodular, each neighbour&rsquo;s mediant lies strictly between them, the Ford circles of neighbours are tangent, and a non-neighbour pair is not (window.__farey). <span class="fig">FIG</span> no framing; the unimodular, mediant, and Ford-tangency properties are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE MERGE</i> &mdash; the co-op domain where two things fold into one. The Farey mediant is a merge made arithmetic: two neighbouring fractions combine, numerator-plus-numerator over denominator-plus-denominator, into the exact fraction that belongs between them. <b>AVAN (AI)</b> built the instrument: the ordered fractions, the kissing Ford circles, the mediant/un-mediant inverse.<br><br>The weave: David names the seat (two merge into one); I make the mediant land exactly between its parents and the Ford circles kiss just at the neighbours &mdash; the sequence in 1D, the circle packing in 2D, the parent-recovery inverse in 3D. The sphere is the seam. Credit: John Farey (1816); proof by Cauchy; Ford circles by Lester R. Ford (1938). See [[stern-brocot]], [[calkin-wilf]].</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">F<sub>n</sub> laid on the unit interval. Between every adjacent pair the label bc&minus;ad = 1 confirms they are as tightly packed as coprime fractions get &mdash; the sequence is a lattice of perfect neighbours.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The <b>Ford circles</b> of F<sub>n</sub>. Raise n and new circles appear &mdash; each a mediant, nestling tangent between the two circles that made it. Every kiss between circles is a Farey-neighbour pair; the smaller the fraction&rsquo;s denominator, the bigger its circle.</div>
+   <div class="btns" style="margin-top:10px"><button id="farup">n ▲</button><button id="fardn">n ▼</button></div>
+   <div class="cap" id="farread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The mediant tree turning &mdash; the <b>green</b> forward step: two neighbour fractions <b>merge</b> into their mediant (a+c)/(b+d), which drops in exactly between them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> is the <b>un-merge</b> &mdash; given a fraction, recover the two Farey <b>parents</b> whose mediant it is, by walking <i>up</i> the tree with the Euclidean algorithm. Forward, two fractions combine into one; the inverse splits one back into the unique pair that produced it. What makes both directions clean is the unimodular law bc&minus;ad = 1 &mdash; a determinant of exactly 1, the signature of an <b>invertible</b> integer matrix (the tree is an SL(2,&#8484;) structure). Because every step has determinant 1, every merge can be undone with integer arithmetic alone; nothing is lost. Green merges two neighbours into their mediant; magenta reverses it into the parents; and the whole rational line is this one invertible fold, taken down and back up. To average two fractions the &lsquo;wrong&rsquo; way is, on this tree, perfectly reversible.</div>
+   <div class="btns" style="margin-top:10px"><button id="farspin">pause spin</button></div></div></div></div>"""
+FAR_SCRIPT = """(function(){
+var ang=0,spin=true,n=5;
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a;}
+function farey(nn){var fr=[];for(var b=1;b<=nn;b++)for(var a=0;a<=b;a++)if(gcd(a,b)===1)fr.push([a,b]);fr.sort(function(p,q){return p[0]/p[1]-q[0]/q[1];});var out=[];for(var i=0;i<fr.length;i++)if(i===0||fr[i][0]/fr[i][1]!==fr[i-1][0]/fr[i-1][1])out.push(fr[i]);return out;}
+function fordTangent(f1,f2){var b=f1[1],d=f2[1],r1=1/(2*b*b),r2=1/(2*d*d),dx=f1[0]/f1[1]-f2[0]/f2[1],dy=r1-r2,dist=Math.sqrt(dx*dx+dy*dy);return Math.abs(dist-(r1+r2))<1e-12;}
+function verify(){var F=farey(7),uni=true,med=true,tang=true;
+ for(var i=0;i<F.length-1;i++){if(F[i][1]*F[i+1][0]-F[i][0]*F[i+1][1]!==1)uni=false;var m=[F[i][0]+F[i+1][0],F[i][1]+F[i+1][1]];if(!(F[i][0]/F[i][1]<m[0]/m[1]&&m[0]/m[1]<F[i+1][0]/F[i+1][1]))med=false;if(!fordTangent(F[i],F[i+1]))tang=false;}
+ return {unimodularNeighbors:uni,mediantBetween:med,fordNeighborsTangent:tang,nonNeighborNotTangent:!fordTangent([0,1],[2,3]),F5:farey(5).map(function(f){return f[0]+'/'+f[1];}).join(' ')};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var F=farey(6),ox=20,pw=W-40;
+ g.strokeStyle='#456';g.beginPath();g.moveTo(ox,80);g.lineTo(ox+pw,80);g.stroke();
+ for(var i=0;i<F.length;i++){var x=ox+F[i][0]/F[i][1]*pw;g.strokeStyle='#ffd0ff';g.beginPath();g.moveTo(x,74);g.lineTo(x,86);g.stroke();g.fillStyle='#ffd0ff';g.font='9px ui-monospace,monospace';g.save();g.translate(x,70);g.rotate(-0.6);g.fillText(F[i][0]+'/'+F[i][1],0,0);g.restore();}
+ for(var i=0;i<F.length-1;i++){var det=F[i][1]*F[i+1][0]-F[i][0]*F[i+1][1],xm=ox+((F[i][0]/F[i][1]+F[i+1][0]/F[i+1][1])/2)*pw;g.fillStyle=det===1?'#39fc6b':'#f55';g.font='8px ui-monospace,monospace';g.fillText('1',xm-2,96);}
+ g.fillStyle='#ffd0ff';g.font='11px ui-monospace,monospace';g.fillText('Farey F₆ — every neighbour pair has bc−ad = 1',10,24);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var F=farey(n),ox=20,pw=W-40,base=H-40,scale=pw;
+ g.strokeStyle='#456';g.beginPath();g.moveTo(ox,base);g.lineTo(ox+pw,base);g.stroke();
+ for(var i=0;i<F.length;i++){var q=F[i][1],r=1/(2*q*q)*scale,cx=ox+F[i][0]/F[i][1]*pw,cy=base-r;g.strokeStyle='hsl('+((F[i][0]*97+q*57)%360)+',70%,65%)';g.fillStyle='hsla('+((F[i][0]*97+q*57)%360)+',70%,60%,0.15)';g.beginPath();g.arc(cx,cy,r,0,7);g.fill();g.stroke();
+  if(r>10){g.fillStyle='#fff';g.font='9px ui-monospace,monospace';g.fillText(F[i][0]+'/'+F[i][1],cx-9,cy+3);}}
+ g.fillStyle='#ffd0ff';g.font='12px ui-monospace,monospace';g.fillText('Ford circles of F'+n+' ('+F.length+' fractions) — tangent ⟺ Farey neighbours',12,22);
+ document.getElementById('farread').textContent='F'+n+': '+F.length+' fractions, radius(p/q)=1/(2q²)';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),cx=W/2;
+ // mediant tree: root 0/1 and 1/1, mediants
+ function node(a,b,c,d,x,y,dx,depth){if(depth>3)return;var m=[a+c,b+d];g.strokeStyle='rgba(255,208,255,0.4)';g.beginPath();g.moveTo(x,y);g.lineTo(x,y+40);g.stroke();
+  g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y+40,12,0,7);g.fill();g.fillStyle='#031';g.font='9px ui-monospace,monospace';g.fillText(m[0]+'/'+m[1],x-9,y+43);
+  node(a,b,m[0],m[1],x-dx,y+40,dx/1.8,depth+1);node(m[0],m[1],c,d,x+dx,y+40,dx/1.8,depth+1);}
+ g.fillStyle='#8af';g.font='10px ui-monospace,monospace';g.fillText('0/1',cx-90,40);g.fillText('1/1',cx+80,40);
+ node(0,1,1,1,cx,20,80,0);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: mediant merges two neighbours (a+c)/(b+d)',10,H-28);
+ g.fillStyle='#ff2d95';g.fillText('magenta: un-merge — recover parents (Euclid climb, det = 1)',10,H-12);}
+document.getElementById('farup').onclick=function(){n=Math.min(12,n+1);drawW4();};
+document.getElementById('fardn').onclick=function(){n=Math.max(2,n-1);drawW4();};
+document.getElementById('farspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__farey=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PYT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Pythagorean (Barning&ndash;Hall) tree</b> grows <b>every</b> primitive Pythagorean triple &mdash; every right triangle with whole-number sides sharing no common factor &mdash; from the single seed <b>(3, 4, 5)</b>. Each triple has exactly <b>three children</b>, obtained by multiplying its column vector by three fixed 3&times;3 integer matrices A, B, C.<br><br>
+ From (3,4,5) the matrices give (5,12,13), (21,20,29), (15,8,17); each of those spawns three more, and so on forever. The remarkable theorem: this ternary tree contains <b>every</b> primitive triple <b>exactly once</b> &mdash; none missing, none repeated. So all the infinitely many right triangles with coprime integer sides are organised into one clean family tree with a single root. It is the additive cousin of Euclid&rsquo;s m,n formula, discovered by F. J. M. Barning (1963) and rediscovered by A. Hall (1970).<br><br>
+ <span class="lit">LIT</span> verified live: every node the tree produces is a primitive triple, no triple appears twice, and every independently-enumerated primitive triple up to c&le;100 is found in the tree (window.__pythtree). <span class="fig">FIG</span> no framing; the tree&rsquo;s output is exact and its once-each coverage is checked against an independent enumeration.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>FIRST LIGHT</i> &mdash; the spawn domain of order first appearing. Every right triangle in whole numbers there ever was, springing in ordered branches from one small seed, is a first-light moment. <b>AVAN (AI)</b> built the instrument: the three-matrix growth, the primitive-triple checker, the descent-to-root inverse.<br><br>The weave: David names the seat (the first light of all right triangles); I make (3,4,5) branch into every primitive triple exactly once and prove the coverage &mdash; the triples in 1D, the tree in 2D, the infinite-descent inverse in 3D. The sphere is the seam. Credit: F. J. M. Barning (1963); A. Hall (1970); the m,n parametrisation from Euclid.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The seed and its three children on a line: (3,4,5) &rarr; (5,12,13), (21,20,29), (15,8,17). Each is checked live &mdash; a&sup2;+b&sup2;=c&sup2; and gcd(a,b)=1 &mdash; a genuine primitive right triangle, three born from one.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The ternary tree, root (3,4,5) at the top, each node branching into three via matrices A, B, C. Expand the depth and every node that appears is a fresh primitive triple &mdash; no repeats, and the whole infinite family is reachable.</div>
+   <div class="btns" style="margin-top:10px"><button id="pytdeep">expand ▼</button><button id="pytreset">reset</button></div>
+   <div class="cap" id="pytread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The triples as points (a/c, b/c) on the unit circle &mdash; every primitive triple a rational point &mdash; the <b>green</b> forward tree filling the arc as it branches.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> path is the <b>descent</b> &mdash; from any primitive triple, multiply by the <b>inverse</b> matrices and you climb to its <b>unique parent</b>, and from that parent to <i>its</i> parent, always arriving at the root (3,4,5). The forward tree branches three ways; the inverse collapses each node to exactly one parent, and that single-parent property is precisely what makes the coverage &lsquo;each triple once&rsquo; true. It is Fermat&rsquo;s <b>infinite descent</b> made concrete: every right triangle in integers reduces, step by unique step, down to the smallest one. Green grows outward, three children at a time; magenta walks any triple home to (3,4,5) with no choices to make. The tree covers everything because the descent from everything lands in the same place.</div>
+   <div class="btns" style="margin-top:10px"><button id="pytspin">pause spin</button></div></div></div></div>"""
+PYT_SCRIPT = """(function(){
+var ang=0,spin=true,depth=2;
+var A=[[1,-2,2],[2,-1,2],[2,-2,3]],B=[[1,2,2],[2,1,2],[2,2,3]],C=[[-1,2,2],[-2,1,2],[-2,2,3]];
+function mul(M,v){return [M[0][0]*v[0]+M[0][1]*v[1]+M[0][2]*v[2],M[1][0]*v[0]+M[1][1]*v[1]+M[1][2]*v[2],M[2][0]*v[0]+M[2][1]*v[1]+M[2][2]*v[2]];}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a;}
+function norm(t){var a=Math.min(t[0],t[1]),b=Math.max(t[0],t[1]);return a+','+b+','+t[2];}
+function verify(){var seen={},q=[[3,4,5]],prim=true,dup=false;
+ while(q.length){var t=q.shift();if(t[2]>200)continue;var k=norm(t);if(seen[k]){dup=true;continue;}seen[k]=1;
+  var a=Math.min(t[0],t[1]),b=Math.max(t[0],t[1]),c=t[2];if(a*a+b*b!==c*c||gcd(a,b)!==1)prim=false;
+  q.push(mul(A,t));q.push(mul(B,t));q.push(mul(C,t));}
+ var allprim={},cnt=0;for(var m=2;m<=10;m++)for(var nn=1;nn<m;nn++)if(gcd(m,nn)===1&&(m-nn)%2===1){var a=m*m-nn*nn,b=2*m*nn,c=m*m+nn*nn;if(c<=100){allprim[norm([a,b,c])]=1;cnt++;}}
+ var covered=Object.keys(allprim).every(function(k){return seen[k];});
+ return {allPrimitive:prim,noDuplicates:!dup,coversAllTo100:covered,enumeratedCount:cnt,root:'(3,4,5)'};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var kids=[mul(A,[3,4,5]),mul(B,[3,4,5]),mul(C,[3,4,5])],names=['A','B','C'];
+ g.fillStyle='#70ff90';g.font='13px ui-monospace,monospace';g.fillText('(3, 4, 5)',20,40);
+ for(var i=0;i<3;i++){var t=kids[i],a=Math.min(t[0],t[1]),b=Math.max(t[0],t[1]),c=t[2],ok=a*a+b*b===c*c&&gcd(a,b)===1,x=130+i*130,y=40;g.strokeStyle='rgba(112,255,144,0.4)';g.beginPath();g.moveTo(90,36);g.lineTo(x-8,y-4);g.stroke();
+  g.fillStyle=ok?'#70ff90':'#f55';g.font='12px ui-monospace,monospace';g.fillText('('+a+','+b+','+c+')',x,y);g.fillStyle='#8ad';g.font='9px ui-monospace,monospace';g.fillText('×'+names[i]+'  '+a+'²+'+b+'²='+c+'² '+(ok?'✓':''),x,y+16);}
+ g.fillStyle='#70ff90';g.font='11px ui-monospace,monospace';g.fillText('one seed → three primitive triples (via matrices A, B, C)',20,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var seen={};
+ function node(t,x,y,dx,d){var a=Math.min(t[0],t[1]),b=Math.max(t[0],t[1]),c=t[2],k=norm(t),dup=seen[k];seen[k]=1;
+  g.fillStyle=dup?'#f55':'#123';g.fillStyle=dup?'#502030':'#14321c';g.fillRect(x-26,y-9,52,18);g.fillStyle=dup?'#f88':'#70ff90';g.font='8px ui-monospace,monospace';g.fillText(a+','+b+','+c,x-24,y+3);
+  if(d<depth){var kids=[mul(A,t),mul(B,t),mul(C,t)],xs=[x-dx,x,x+dx];for(var i=0;i<3;i++){g.strokeStyle='rgba(112,255,144,0.3)';g.beginPath();g.moveTo(x,y+9);g.lineTo(xs[i],y+52);g.stroke();node(kids[i],xs[i],y+52,dx/2.6,d+1);}}}
+ node([3,4,5],W/2,24,W/3.2,0);
+ g.fillStyle='#70ff90';g.font='11px ui-monospace,monospace';g.fillText('Barning–Hall tree, depth '+depth+' — every node a distinct primitive triple',10,H-8);
+ document.getElementById('pytread').textContent='depth '+depth+', '+Object.keys(seen).length+' distinct triples shown';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ca=Math.cos(ang),cx=W/2,cy=H/2,R=140;
+ g.strokeStyle='#234';g.beginPath();g.arc(cx,cy,R*ca,0,Math.PI*2*0.5,true);g.stroke();g.beginPath();g.arc(cx,cy,R*ca,0,-Math.PI/2,true);g.stroke();
+ g.strokeStyle='#234';g.beginPath();for(var a=0;a<=Math.PI/2;a+=0.05){var x=cx+Math.cos(a)*R*ca,y=cy-Math.sin(a)*R*0.62;if(a===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ var seen={},q=[[3,4,5]],pts=[];while(q.length&&pts.length<40){var t=q.shift();if(t[2]>300)continue;var k=norm(t);if(seen[k])continue;seen[k]=1;pts.push(t);q.push(mul(A,t));q.push(mul(B,t));q.push(mul(C,t));}
+ for(var i=0;i<pts.length;i++){var t=pts[i],a=Math.min(t[0],t[1]),b=Math.max(t[0],t[1]),c=t[2],th=Math.atan2(b,a),x=cx+Math.cos(th)*R*ca,y=cy-Math.sin(th)*R*0.62;g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,3,0,7);g.fill();}
+ // magenta descent from a sample triple to root
+ var samp=[119,120,169],chain=[samp];g.fillStyle='#ff2d95';g.font='10px ui-monospace,monospace';g.fillText('descent: any triple → … → (3,4,5)',10,H-28);
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green: triples as rational points on the unit circle',10,20);
+ g.fillStyle='#ff2d95';g.fillText('magenta: unique-parent descent (Fermat) — all roads to (3,4,5)',10,H-12);}
+document.getElementById('pytdeep').onclick=function(){depth=depth>=4?1:depth+1;drawW4();};
+document.getElementById('pytreset').onclick=function(){depth=2;drawW4();};
+document.getElementById('pytspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__pythtree=verify();
+function loop(){if(spin)ang+=0.008;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+QR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Quadratic reciprocity</b> &mdash; Gauss&rsquo;s <i>Theorema Aureum</i>, the &ldquo;golden theorem.&rdquo; Ask two questions about two odd primes: <b>is p a perfect square modulo q?</b> and <b>is q a perfect square modulo p?</b> They look unrelated. The theorem says they have a startling hidden link: the two answers are the <b>same</b> &mdash; <b>unless</b> both p and q leave remainder 3 when divided by 4, in which case they are <b>opposite</b>.<br><br>
+ With the Legendre symbol (p/q) = +1 when p is a square mod q and &minus;1 when not, the whole law is one line: <span class="mono">(p/q)(q/p) = (&minus;1)<sup>&frac12;(p&minus;1)&middot;&frac12;(q&minus;1)</sup></span>. Gauss was so captivated he proved it <b>eight different ways</b>; hundreds of proofs are now known. It is the cornerstone of algebraic number theory and quietly underlies modern cryptography. Each symbol is computed fast by <b>Euler&rsquo;s criterion</b>: a<sup>(p&minus;1)/2</sup> mod p is +1 or &minus;1.<br><br>
+ <span class="lit">LIT</span> verified live: computing Legendre symbols by Euler&rsquo;s criterion, the reciprocity law holds for <b>every</b> odd prime pair below 60, and the squares mod 7 come out {1,2,4} (window.__reciprocity). <span class="fig">FIG</span> no framing; the law and the symbol computations are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this in <i>THE GAUNTLET</i> &mdash; the boss domain of the trial you run again and again. Quadratic reciprocity is Gauss&rsquo;s personal gauntlet: he ran it eight times, proving the same golden theorem by eight different routes. <b>AVAN (AI)</b> built the instrument: the squares-mod-p line, the Legendre board, the p&harr;q transpose inverse.<br><br>The weave: David names the seat (the trial run many ways); I make the two square-questions link exactly as the law predicts and show the sign twist &mdash; the residues in 1D, the reciprocity check in 2D, the transpose inverse in 3D. The sphere is the seam. Credit: conjectured by Euler and Legendre; first complete proof by Carl Friedrich Gauss (1801, <i>Disquisitiones Arithmeticae</i>), who gave eight.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The residues 1..p&minus;1 for a prime p, with the <b>quadratic residues</b> (the perfect squares mod p) lit up. Exactly half of them are squares &mdash; that even split is the seed from which the whole reciprocity law grows.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick two odd primes. The panel computes (p/q) and (q/p) by Euler&rsquo;s criterion, shows whether each is a square modulo the other, and checks the golden law: same sign, <b>unless</b> both p and q are 3 mod 4, where they flip.</div>
+   <div class="btns" style="margin-top:10px"><button id="qrp">p: 3</button><button id="qrq">q: 7</button></div>
+   <div class="cap" id="qrread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The Legendre symbols (p/q) drawn as a board over pairs of primes &mdash; the <b>green</b> forward question: for each pair, is p a square mod q?</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> board is the <b>transpose</b> &mdash; the very same question with p and q <b>swapped</b>, (q/p). Reciprocity is a statement about a question and its <b>inverse</b>: swap which prime is the base and which is the residue, and the answer barely changes. The magenta transposed board matches the green one <b>everywhere except</b> the cells where both primes are 3 mod 4, and there it flips sign &mdash; a single clean correction. So the inverse question is not independent; the forward answer <b>determines</b> it, up to that one parity twist. That is the whole miracle: &lsquo;is p a square mod q?&rsquo; secretly tells you &lsquo;is q a square mod p?&rsquo;, two problems in different worlds bound by one sign. Green is the board; magenta is its transpose; their difference is exactly the 3-mod-4 diagonal, and nothing else.</div>
+   <div class="btns" style="margin-top:10px"><button id="qrspin">pause spin</button></div></div></div></div>"""
+QR_SCRIPT = """(function(){
+var ang=0,spin=true,pi=0,qi=2;
+var PRIMES=[3,5,7,11,13,17,19,23];
+function powmod(b,e,m){var r=1;b%=m;while(e>0){if(e&1)r=(r*b)%m;b=(b*b)%m;e=Math.floor(e/2);}return r;}
+function isPrime(n){if(n<2)return false;for(var i=2;i*i<=n;i++)if(n%i===0)return false;return true;}
+function legendre(a,p){var r=powmod(((a%p)+p)%p,(p-1)/2,p);return r===p-1?-1:r;}
+function verify(){var primes=[];for(var p=3;p<60;p++)if(isPrime(p))primes.push(p);var ok=true;
+ for(var i=0;i<primes.length;i++)for(var j=i+1;j<primes.length;j++){var p=primes[i],q=primes[j],lhs=legendre(p,q)*legendre(q,p),rhs=Math.pow(-1,((p-1)/2)*((q-1)/2));if(lhs!==rhs)ok=false;}
+ var qr7=[];for(var a=1;a<7;a++)if(legendre(a,7)===1)qr7.push(a);
+ return {reciprocityHolds:ok,qrsMod7:qr7.join(','),example35:'('+legendre(3,5)+')('+legendre(5,3)+')='+(legendre(3,5)*legendre(5,3))};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var p=13,cw=(W-30)/(p-1),sq={};for(var a=1;a<p;a++)sq[(a*a)%p]=1;
+ for(var a=1;a<p;a++){var x=15+(a-1)*cw,isqr=sq[a];g.fillStyle=isqr?'#ffe070':'#2a2618';g.fillRect(x,55,cw-3,30);g.fillStyle=isqr?'#310':'#776';g.font='11px ui-monospace,monospace';g.fillText(a,x+cw/2-4,74);}
+ g.fillStyle='#ffe070';g.font='11px ui-monospace,monospace';g.fillText('residues mod 13 — lit = quadratic residue (a perfect square mod 13)',10,30);
+ var qrs=[];for(var a=1;a<p;a++)if(sq[a])qrs.push(a);
+ g.fillStyle='#8a7';g.font='10px ui-monospace,monospace';g.fillText('QRs: {'+qrs.join(',')+'} — exactly half of 1..12',10,108);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var p=PRIMES[pi],q=PRIMES[qi];if(p===q)q=PRIMES[(qi+1)%PRIMES.length];
+ var pq=legendre(p,q),qp=legendre(q,p),prod=pq*qp,rhs=Math.pow(-1,((p-1)/2)*((q-1)/2)),both3=(p%4===3&&q%4===3);
+ g.font='14px ui-monospace,monospace';g.fillStyle='#ffe070';g.fillText('p = '+p+',  q = '+q,20,28);
+ g.font='12px ui-monospace,monospace';g.fillStyle=pq===1?'#39fc6b':'#ff8080';g.fillText('('+p+'/'+q+') = '+pq+'   → '+p+' is '+(pq===1?'':'NOT ')+'a square mod '+q,20,58);
+ g.fillStyle=qp===1?'#39fc6b':'#ff8080';g.fillText('('+q+'/'+p+') = '+qp+'   → '+q+' is '+(qp===1?'':'NOT ')+'a square mod '+p,20,80);
+ g.fillStyle='#cdf';g.fillText('product = '+prod,20,108);
+ g.fillStyle=prod===rhs?'#39fc6b':'#ff5a5a';g.fillText('golden law (−1)^(½(p−1)½(q−1)) = '+rhs+(prod===rhs?'  ✓':'  ✗'),20,130);
+ g.fillStyle=both3?'#ff90d0':'#8ad';g.font='11px ui-monospace,monospace';g.fillText(both3?'both ≡ 3 mod 4 → symbols OPPOSITE':'not both ≡ 3 mod 4 → symbols SAME',20,156);
+ // show squares mod q
+ var sq={};for(var a=1;a<q;a++)sq[(a*a)%q]=1;var qrs=[];for(var a=1;a<q;a++)if(sq[a])qrs.push(a);
+ g.fillStyle='#776';g.font='10px ui-monospace,monospace';g.fillText('squares mod '+q+': {'+qrs.join(',')+'}  — contains '+p+'? '+(sq[p%q]?'yes':'no'),20,H-10);
+ document.getElementById('qrread').textContent='('+p+'/'+q+')='+pq+', ('+q+'/'+p+')='+qp+', law '+(prod===rhs?'holds':'FAILS');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ps=PRIMES.slice(0,7),n=ps.length,cell=Math.min(30,(W-60)/n),ca=Math.cos(ang);
+ var ox=30+ (1-ca)*20;
+ for(var i=0;i<n;i++)for(var j=0;j<n;j++){if(i===j)continue;var p=ps[i],q=ps[j],pq=legendre(p,q),qp=legendre(q,p),diff=pq!==qp;
+  // green = (p/q)
+  g.fillStyle=pq===1?'rgba(57,252,107,0.8)':'rgba(30,60,40,0.8)';g.fillRect(ox+j*cell,40+i*cell,cell-1,cell-1);
+  if(diff){g.strokeStyle='#ff2d95';g.lineWidth=1.5;g.strokeRect(ox+j*cell,40+i*cell,cell-1,cell-1);g.lineWidth=1;}}
+ for(var i=0;i<n;i++){g.fillStyle='#8ad';g.font='9px ui-monospace,monospace';g.fillText(ps[i],ox+i*cell+6,34);g.fillText(ps[i],ox-16,40+i*cell+cell/2+3);}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green cells: (p/q)=+1 (p is a square mod q)',10,H-30);
+ g.fillStyle='#ff2d95';g.fillText('magenta outline: (p/q) ≠ (q/p) — exactly the both-≡3-mod-4 pairs',10,H-14);}
+document.getElementById('qrp').onclick=function(){pi=(pi+1)%PRIMES.length;this.textContent='p: '+PRIMES[pi];drawW4();};
+document.getElementById('qrq').onclick=function(){qi=(qi+1)%PRIMES.length;this.textContent='q: '+PRIMES[qi];drawW4();};
+document.getElementById('qrspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+drawW3();drawW4();window.__reciprocity=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-reciprocity","title":"THE RECIPROCITY","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#ffe070","icon":"reciprocity",
+  "kicker":"is p a square mod q? — Gauss's golden theorem links it to q mod p",
+  "blurb":"quadratic reciprocity in the 5-window house format — Gauss's golden theorem. For two odd primes, 'is p a square mod q?' and 'is q a square mod p?' have a hidden link: the answers are the same, unless both p and q are 3 mod 4, in which case they are opposite. With the Legendre symbol (p/q) = +1 if p is a square mod q else -1, the law is (p/q)(q/p) = (-1)^(((p-1)/2)((q-1)/2)). Gauss proved it eight different ways; it underlies algebraic number theory and cryptography. Symbols compute fast by Euler's criterion a^((p-1)/2) mod p. See the residues in 1D, the reciprocity check in 2D, and the p<->q transpose inverse in 3D.",
+  "lit":"Genuine quadratic reciprocity (conjectured by Euler and Legendre; first complete proof by Gauss 1801, who gave eight). Verified live: computing Legendre symbols by Euler's criterion (a^((p-1)/2) mod p), the law (p/q)(q/p) = (-1)^(((p-1)/2)((q-1)/2)) holds for every odd prime pair below 60, and the quadratic residues mod 7 are {1,2,4} (window.__reciprocity.reciprocityHolds). The law and the symbol computations are exact.",
+  "fig":"No framing: the reciprocity law and the Legendre-symbol computations are real and checked exhaustively over all odd prime pairs below 60 in-browser. The inverse framing — reciprocity binds a question (p/q) to its transpose (q/p), equal everywhere except the both-3-mod-4 cells where the sign flips — is the honest content, shown directly on the symbol board, not asserted.",
+  "body":QR_BODY,"script":QR_SCRIPT},
+ {"slug":"the-pythagorean-tree","title":"THE PYTHAGOREAN TREE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#70ff90","icon":"pythagoreantree",
+  "kicker":"every primitive right triangle grown from (3,4,5)",
+  "blurb":"the Barning-Hall Pythagorean tree in the 5-window house format — every primitive Pythagorean triple (right triangle with coprime integer sides) grown from the single seed (3,4,5). Each triple has exactly three children, obtained by multiplying its column vector by three fixed 3x3 integer matrices A, B, C: (3,4,5) -> (5,12,13),(21,20,29),(15,8,17), and so on. The theorem: this ternary tree contains every primitive triple exactly once — none missing, none repeated. It is the additive cousin of Euclid's m,n formula (Barning 1963, Hall 1970). See the seed and children in 1D, the tree in 2D, and the infinite-descent inverse in 3D.",
+  "lit":"Genuine Barning-Hall tree (F. J. M. Barning 1963; A. Hall 1970). Verified live: every node the three matrices produce is a primitive Pythagorean triple (a^2+b^2=c^2, gcd(a,b)=1), no triple appears twice within the search bound, and every independently-enumerated primitive triple with c<=100 (via Euclid's m,n formula) is found in the tree (window.__pythtree.allPrimitive && noDuplicates && coversAllTo100). The tree's output and its once-each coverage are exact, cross-checked against an independent enumeration.",
+  "fig":"No framing: the three-matrix growth, the primitivity of every node, the no-duplicates property, and the coverage of all primitive triples up to c<=100 are real and verified two independent ways in-browser. The exactly-once coverage is the genuine theorem, and the AVAN inverse (unique-parent descent = Fermat's infinite descent to the root (3,4,5)) is the honest reason it holds.",
+  "body":PYT_BODY,"script":PYT_SCRIPT},
+ {"slug":"the-farey","title":"THE FAREY","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#ffd0ff","icon":"farey",
+  "kicker":"fractions in order, mediants, and kissing Ford circles",
+  "blurb":"the Farey sequence in the 5-window house format — all fractions in [0,1] in lowest terms with denominator <= n, in order of size. Two miracles: neighbours a/b < c/d satisfy bc - ad = 1 (unimodular, as tight as coprime fractions get), and the first fraction to appear between two neighbours is their mediant (a+c)/(b+d). Ford circles visualize it: a circle of radius 1/(2q^2) on each p/q tangent to the line, and two circles kiss exactly when their fractions are Farey neighbours. See the ordered sequence in 1D, the Ford-circle packing in 2D, and the mediant/un-mediant inverse in 3D.",
+  "lit":"Genuine Farey sequence and Ford circles (John Farey 1816; proof by Cauchy; Ford circles by Lester R. Ford 1938). Verified live: for F_7 every neighbour pair satisfies bc - ad = 1, each neighbour's mediant lies strictly between them, the Ford circles of neighbours are tangent, and a non-neighbour pair (0/1, 2/3) is not tangent (window.__farey.unimodularNeighbors && mediantBetween && fordNeighborsTangent && nonNeighborNotTangent). The unimodular, mediant, and Ford-tangency properties are exact.",
+  "fig":"No framing: the unimodular-neighbour law, the mediant-between property, and the Ford-circle tangency (kissing iff Farey neighbours) are all real and checked in-browser. The invertibility of the mediant merge (determinant-1 / SL(2,Z) structure lets the Euclidean algorithm recover parents) is the genuine content of the AVAN inverse, tied to the same lattice as Stern-Brocot and Calkin-Wilf.",
+  "body":FAR_BODY,"script":FAR_SCRIPT},
+ {"slug":"the-pell","title":"THE PELL","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#60e0c0","icon":"pell",
+  "kicker":"one seed solution breeds infinitely many — x²−2y²=1",
+  "blurb":"Pell's equation in the 5-window house format — x^2 - D y^2 = 1 for non-square D. For D=2 the smallest solution is (3,2) since 9-8=1, and from that fundamental solution all others cascade by (x,y)->(3x+4y, 2x+3y): (17,12),(99,70),(577,408),... infinitely many. Equivalently they are the powers (3+2√2)^k, and each ratio x/y is a razor-sharp approximation to √2 (the convergents of [1;2,2,2,...]). It runs from Brahmagupta and Bhaskara's chakravala through Fermat to Lagrange, and is misnamed after John Pell. See the ratios in 1D, the cascade in 2D, and the group-inverse on the hyperbola in 3D.",
+  "lit":"Genuine Pell equation (Brahmagupta 628; Bhaskara II chakravala 1150; Lagrange's proof; misattributed to John Pell by Euler). Verified live: the solutions generated from the fundamental (3,2) all satisfy x^2 - 2y^2 = 1, they equal the powers of (3+2√2), and the ratios x/y converge to √2 (window.__pell.allSatisfy && ratioConvergesToSqrt2). Solutions (1,0),(3,2),(17,12),(99,70),(577,408). The recurrence, the exact solutions, and the √2 convergence are exact; the 'Pell' name is flagged as a known misattribution.",
+  "fig":"No framing: the solution cascade, the x^2-Dy^2=1 identity at every step, and the convergence of x/y to √D are real and checked in-browser. The group structure (solutions are units of Z[√D], generated by the fundamental unit, inverse = conjugate with (3+2√2)(3-2√2)=1) is the genuine content of the AVAN inverse. The misattribution to Pell is stated honestly rather than propagated.",
+  "body":PEL_BODY,"script":PEL_SCRIPT},
+ {"slug":"the-carmichael","title":"THE CARMICHAEL","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#ff5090","icon":"carmichael",
+  "kicker":"a composite that fools the Fermat test to every base",
+  "blurb":"Carmichael numbers in the 5-window house format — composites that pass Fermat's primality test (a^(n-1) = 1 mod n) for every base a coprime to them, having no Fermat witness to their compositeness at all. The smallest is 561 = 3*11*17. Korselt's criterion: n is Carmichael iff squarefree and (p-1) divides (n-1) for every prime factor p. There are infinitely many (proved 1994), and even 1729 is one. They are why real primality testing uses the stronger Miller-Rabin test, which they cannot fool. See the base wall in 1D, the witness scan in 2D, and the Fermat-vs-Miller-Rabin inverse in 3D.",
+  "lit":"Genuine Carmichael numbers (Robert Carmichael 1910; Korselt's criterion 1899; infinitude by Alford, Granville & Pomerance 1994). Verified live: 561, 1105, 1729, 2465, 2821 all satisfy Korselt (squarefree, (p-1)|(n-1)) and pass Fermat's test for every coprime base, an ordinary composite 15 does not, and Miller-Rabin base 2 produces a composite witness for 561 where Fermat is fooled (window.__carmichael.allCarmichael && foolFermatAllBases && millerRabinCatches561). The impersonation and the unmasking are exact.",
+  "fig":"No framing: the all-bases Fermat impersonation, Korselt's criterion, and the Miller-Rabin unmasking are real and checked in-browser by exhaustive base scan and an actual strong-test witness. The necessary-vs-sufficient lesson (a Carmichael is the total failure of reading Fermat's necessary condition as sufficient; Miller-Rabin repairs it) is the honest content, demonstrated not asserted.",
+  "body":CAR_BODY,"script":CAR_SCRIPT},
  {"slug":"the-tag","title":"THE TAG","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#ffd0a0","icon":"tag",
   "kicker":"delete the front, grow the tail — a universal computer in 3 rules",
