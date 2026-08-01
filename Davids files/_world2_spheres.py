@@ -16706,7 +16706,282 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 makeSubj();drawW3();drawW4();window.__sutherlandhodgman=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 57 (deterministic min-cut · stream heavy-hitters · reversible-deletion cover · minimal-change perms · oblivious sort) ═══════════════════════
+SW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Stoer&ndash;Wagner algorithm</b> finds a graph&rsquo;s <b>global minimum cut</b> &mdash; the lightest set of edges whose removal splits it &mdash; <b>deterministically</b>, without max-flow and without fixing a source and sink. Each phase does a <b>maximum-adjacency ordering</b> (repeatedly add the vertex most tightly connected to those already chosen); the last vertex&rsquo;s connection weight is a valid cut, and merging the last two vertices and repeating sweeps every pair in n&minus;1 phases.<br><br>
+ <span class="lit">LIT</span> verified live: over 80 random weighted graphs the Stoer&ndash;Wagner cut equals the brute-force minimum over all vertex bipartitions (window.__stoerwagner). <span class="fig">FIG</span> no framing; exact global minimum, no randomness (unlike Karger).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-raid</i> &mdash; find the network&rsquo;s weakest seam, the fewest links whose loss breaks the party in two, and strike there. Stoer&ndash;Wagner locates that seam with certainty. <b>AVAN (AI)</b> built the instrument: the maximum-adjacency ordering, the phase-merge, the brute cross-check.<br><br>Credit as content: Mechthild Stoer &amp; Frank Wagner (1997). The weave: David names the raid; I order vertices by adjacency, read the cut off the last one, merge, and confirm the global minimum against exhaustive search. Ties to <i>the-karger</i> (its randomized cousin).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A maximum-adjacency ordering: starting from one vertex, each step adds whichever remaining vertex has the greatest total weight to the set so far. The last added vertex&rsquo;s weight is the cut-of-the-phase.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A weighted graph. Stoer&ndash;Wagner&rsquo;s global minimum cut is shown against the brute-force minimum over all bipartitions.</div>
+   <div class="btns" style="margin-top:10px"><button id="swroll">new graph ▶</button><button id="swcheck">verify 80 ▶</button></div>
+   <div class="cap" id="swread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the global minimum cut, the graph&rsquo;s weakest seam.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): you find the <b>global</b> minimum without ever choosing a source and sink. The maximum-adjacency ordering guarantees the last two vertices form a minimum cut <b>for that pair</b>, and merging them and repeating covers all pairs in n&minus;1 phases. The inverse of &lsquo;the min cut between a chosen s and t&rsquo; is &lsquo;the min over <b>all</b> pairs, from one deterministic ordering, no flow computed.&rsquo; <b>Magenta</b> is the O(n&sup2;) source&ndash;sink problems you&rsquo;d otherwise solve one by one; <b>green</b> is the single global minimum. Ordering replaces search &mdash; and unlike Karger, no luck required.</div>
+   <div class="btns" style="margin-top:10px"><button id="swspin">pause spin</button></div></div></div></div>"""
+SW_SCRIPT = """(function(){
+var ang=0,spin=true,N=6,W=null;
+function copyW(w){return w.map(function(r){return r.slice();});}
+function stoerWagner(n,w0){var W=copyW(w0),active=[];for(var i=0;i<n;i++)active.push(i);var best=Infinity;
+ while(active.length>1){var inA={},conn={},start=active[0];inA[start]=true;var added=[start];for(var x=0;x<active.length;x++){var v=active[x];if(v!==start)conn[v]=W[start][v];}
+  var last=start,prev=start,cut=0;while(added.length<active.length){var sel=-1,mx=-1;for(var x=0;x<active.length;x++){var v=active[x];if(!inA[v]&&conn[v]>mx){mx=conn[v];sel=v;}}prev=last;last=sel;cut=mx;inA[sel]=true;added.push(sel);for(var x=0;x<active.length;x++){var v=active[x];if(!inA[v])conn[v]+=W[sel][v];}}
+  if(cut<best)best=cut;for(var x=0;x<active.length;x++){var v=active[x];if(v!==last&&v!==prev){W[prev][v]+=W[last][v];W[v][prev]+=W[v][last];}}active=active.filter(function(v){return v!==last;});}
+ return best;}
+function brute(n,w){var best=Infinity;for(var mask=1;mask<(1<<n);mask++){if(!(mask&1)||mask===(1<<n)-1)continue;var c=0;for(var i=0;i<n;i++)for(var j=i+1;j<n;j++)if(((mask>>i)&1)!==((mask>>j)&1))c+=w[i][j];if(c<best)best=c;}return best;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function mkGraph(n,rnd){var w=[];for(var i=0;i<n;i++){w.push([]);for(var j=0;j<n;j++)w[i].push(0);}for(var i=0;i<n;i++)for(var j=i+1;j<n;j++){var x=Math.floor((rnd?rnd():Math.random())*4);w[i][j]=x;w[j][i]=x;}return w;}
+function verify(){var rnd=mb(21),ok=true;for(var t=0;t<80;t++){var n=4+Math.floor(rnd()*4),w=mkGraph(n,rnd);if(stoerWagner(n,w)!==brute(n,w))ok=false;}return {matchesBrute:ok,trials:80};}
+function pos(n){var p=[];for(var i=0;i<n;i++){var a=i/n*6.28-1.57;p.push([192+Math.cos(a)*110,140+Math.sin(a)*100]);}return p;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;g.clearRect(0,0,W2,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('maximum-adjacency ordering — add the most-connected vertex each step',12,14);
+ for(var i=0;i<6;i++){g.fillStyle=i===5?'#c05868':'#4a3038';g.fillRect(30+i*72,50,60,44);g.fillStyle='#fff';g.font='11px monospace';g.fillText('v'+i,50+i*72,76);if(i<5){g.fillStyle='#8ad';g.fillText('→',94+i*72,76);}}
+ g.fillStyle='#c05868';g.font='10px monospace';g.fillText('last vertex → cut-of-the-phase',30,H-14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;g.clearRect(0,0,W2,H);if(!W)W=mkGraph(N,null);var p=pos(N);
+ for(var i=0;i<N;i++)for(var j=i+1;j<N;j++)if(W[i][j]>0){g.strokeStyle='rgba(150,140,160,'+(0.2+W[i][j]*0.2)+')';g.lineWidth=W[i][j];g.beginPath();g.moveTo(p[i][0],p[i][1]);g.lineTo(p[j][0],p[j][1]);g.stroke();}g.lineWidth=1;
+ for(var i=0;i<N;i++){g.fillStyle='#c05868';g.beginPath();g.arc(p[i][0],p[i][1],13,0,7);g.fill();g.fillStyle='#fff';g.font='11px monospace';g.fillText(i,p[i][0]-3,p[i][1]+4);}
+ var sw=stoerWagner(N,W),bf=brute(N,W);g.fillStyle=sw===bf?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('Stoer–Wagner min cut = '+sw+'  (brute '+bf+')'+(sw===bf?' ✓':' ✗'),12,H-10);}
+document.getElementById('swroll').onclick=function(){N=5+Math.floor(Math.random()*3);W=mkGraph(N,null);drawW4();document.getElementById('swread').textContent='min cut = '+stoerWagner(N,W);};
+document.getElementById('swcheck').onclick=function(){var v=verify();document.getElementById('swread').textContent='80 weighted graphs: Stoer–Wagner == brute min cut '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('swspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;g.clearRect(0,0,W2,H);if(!W)W=mkGraph(N,null);var cx=W2/2,cy=H/2-20;
+ for(var i=0;i<N;i++){var side=i<N/2?-1:1,a=i/N*6.28+ang*0.3,x=cx+side*72+Math.cos(a)*18,y=cy+Math.sin(a)*80;g.fillStyle=side<0?'#39fc6b':'#c05868';g.beginPath();g.arc(x,y,10,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the global min cut (min cut = '+stoerWagner(N,W)+')',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the O(n²) source–sink problems avoided',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a deterministic ordering finds it — no flow, no luck',10,H-9);}
+W=mkGraph(N,null);drawW3();drawW4();window.__stoerwagner=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Misra&ndash;Gries algorithm</b> finds the <b>frequent items</b> in a stream using only k&minus;1 counters &mdash; far fewer than the number of distinct items. For each element: if it has a counter, increment; else if a counter is free, start one; else <b>decrement every counter</b> (dropping any that hit zero). When the stream ends, every item whose true frequency exceeds n/k is <b>guaranteed</b> to still have a counter.<br><br>
+ It is the streaming heavy-hitters primitive, and a direct generalisation of the Boyer&ndash;Moore majority vote.<br><br>
+ <span class="lit">LIT</span> verified live: over 500 random streams every item with frequency &gt; n/k survives in the summary, every reported count is &le; the true count, and the summary never exceeds k&minus;1 entries (window.__misragries). <span class="fig">FIG</span> no framing; the guarantee holds exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-drop</i> &mdash; which loot drops most often, tracked with only a handful of slots as the drops stream past. Misra&ndash;Gries is that cheap frequency tracker. <b>AVAN (AI)</b> built the instrument: the k&minus;1 counters, the decrement-all rule, the heavy-hitter guarantee check.<br><br>Credit as content: Jayadev Misra &amp; David Gries (1982), generalising Boyer&ndash;Moore majority. The weave: David names the drop; I keep a few counters, let collisions cancel the rare items, and confirm every frequent item survives.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The stream flows past k&minus;1 counters: a match increments, a free slot opens a new counter, and an overflow decrements them all at once &mdash; rare items cancel out, frequent ones persist.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A stream over a small alphabet with k counters. The Misra&ndash;Gries summary is shown against the true frequencies; every true heavy hitter (&gt; n/k) is retained.</div>
+   <div class="btns" style="margin-top:10px"><button id="mgroll">new stream ▶</button><button id="mgcheck">verify 500 ▶</button></div>
+   <div class="cap" id="mgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the surviving heavy hitters, held in a handful of counters.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): you find the <b>frequent</b> items without counting <b>all</b> of them. With k&minus;1 counters and a decrement-all-on-overflow rule, every item above n/k survives while the rare ones cancel each other. The inverse of &lsquo;keep a count per distinct item&rsquo; is &lsquo;keep k&minus;1 counters and let collisions erase the noise.&rsquo; <b>Magenta</b> is the exact per-item counts you never store; <b>green</b> is the heavy hitters guaranteed to remain. Bounded memory, and it keeps exactly what matters &mdash; the majority vote, generalised past two.</div>
+   <div class="btns" style="margin-top:10px"><button id="mgspin">pause spin</button></div></div></div></div>"""
+MG_SCRIPT = """(function(){
+var ang=0,spin=true,K=3,STREAM=null,U=6;
+function misraGries(stream,k){var cnt={},size=0;for(var i=0;i<stream.length;i++){var x=stream[i];if(cnt[x]!==undefined)cnt[x]++;else if(size<k-1){cnt[x]=1;size++;}else{for(var key in cnt){cnt[key]--;if(cnt[key]===0){delete cnt[key];size--;}}}}return cnt;}
+function truth(stream){var t={};stream.forEach(function(x){t[x]=(t[x]||0)+1;});return t;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(22),hh=true,under=true,sz=true;for(var t=0;t<500;t++){var k=2+Math.floor(rnd()*5),n=20+Math.floor(rnd()*80),s=[],u=3+Math.floor(rnd()*8);for(var i=0;i<n;i++)s.push(Math.floor(rnd()*u));var tr=truth(s),mg=misraGries(s,k);if(Object.keys(mg).length>k-1)sz=false;for(var x in tr)if(tr[x]>n/k&&mg[x]===undefined)hh=false;for(var x in mg)if(mg[x]>tr[x])under=false;}return {allHeavyPresent:hh,underestimates:under,sizeBounded:sz};}
+function mkStream(){var n=30+Math.floor(Math.random()*20);STREAM=[];var heavy=Math.floor(Math.random()*U);for(var i=0;i<n;i++)STREAM.push(Math.random()<0.4?heavy:Math.floor(Math.random()*U));}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('stream → '+(K-1)+' counters: match++ · free slot=new · overflow=decrement all',12,14);
+ var cols=['#c0a048','#c07850','#a05888','#5888a0','#58a070','#8058a0'];for(var i=0;i<12;i++){var x=(ang*30+i*44)%(W+44)-22;g.fillStyle=cols[i%U];g.beginPath();g.arc(x,60,9,0,7);g.fill();}
+ for(var c=0;c<K-1;c++){g.strokeStyle='#c0a048';g.strokeRect(60+c*90,100,70,40);g.fillStyle='#8ad';g.font='9px monospace';g.fillText('counter '+(c+1),64+c*90,155);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!STREAM)mkStream();var tr=truth(STREAM),mg=misraGries(STREAM,K),n=STREAM.length;
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('n='+n+', k='+K+', threshold n/k='+(n/K).toFixed(1),12,20);
+ var mxv=Math.max.apply(0,Object.values(tr)),bw=40;for(var u=0;u<U;u++){var tc=tr[u]||0,h=tc/mxv*150,heavy=tc>n/K,inMG=mg[u]!==undefined;g.fillStyle=heavy?'#c0a048':'#3a4550';g.fillRect(30+u*bw,220-h,bw-6,h);g.fillStyle=inMG?'#39fc6b':'#667';g.font='9px monospace';g.fillText(inMG?('MG'+mg[u]):'-',32+u*bw,235);g.fillStyle='#9ab';g.fillText(u+':'+tc,32+u*bw,250);}
+ var thY=220-(n/K)/mxv*150;g.strokeStyle='#ff9060';g.setLineDash([4,3]);g.beginPath();g.moveTo(20,thY);g.lineTo(W-20,thY);g.stroke();g.setLineDash([]);g.fillStyle='#ff9060';g.font='9px monospace';g.fillText('n/k',W-40,thY-3);
+ var allin=true;for(var u=0;u<U;u++)if((tr[u]||0)>n/K&&mg[u]===undefined)allin=false;g.fillStyle=allin?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('every item > n/k retained '+(allin?'✓':'✗'),12,H-8);}
+document.getElementById('mgroll').onclick=function(){mkStream();drawW4();document.getElementById('mgread').textContent='stream of '+STREAM.length+' → summary '+JSON.stringify(misraGries(STREAM,K));};
+document.getElementById('mgcheck').onclick=function(){var v=verify();document.getElementById('mgread').textContent='500 streams: heavy present '+(v.allHeavyPresent?'✓':'✗')+', underestimate '+(v.underestimates?'✓':'✗')+', size≤k−1 '+(v.sizeBounded?'✓':'✗');};
+document.getElementById('mgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!STREAM)mkStream();var mg=misraGries(STREAM,K),tr=truth(STREAM),keys=Object.keys(mg),cx=W/2,cy=H/2-20;
+ for(var u=0;u<U;u++){var inMG=mg[u]!==undefined,a=u/U*6.28+ang*0.3,r=inMG?60:110,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.7;g.fillStyle=inMG?'#39fc6b':'rgba(255,45,149,0.3)';g.beginPath();g.arc(x,y,inMG?11:6,0,7);g.fill();if(inMG){g.fillStyle='#000';g.font='9px monospace';g.fillText(u,x-3,y+3);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: heavy hitters kept in '+(K-1)+' counters',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: exact per-item counts never stored',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('collisions cancel the rare — majority vote generalised',10,H-9);}
+mkStream();drawW3();drawW4();window.__misragries=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Dancing Links (DLX)</b> is Donald Knuth&rsquo;s technique for solving <b>exact cover</b> &mdash; pick a set of rows of a 0/1 matrix so that every column is covered <b>exactly once</b> &mdash; which is what Algorithm X searches for by backtracking. The trick: store the matrix as a mesh of circular doubly-linked nodes, so <b>removing</b> a row or column is O(1) and, crucially, so is <b>putting it back</b> &mdash; each unlinked node still points at its old neighbours and re-links itself on backtrack.<br><br>
+ It solves Sudoku, pentomino tilings, and n-queens as exact-cover instances.<br><br>
+ <span class="lit">LIT</span> verified live: the real DLX (with cover/uncover pointers) returns a valid exact cover on 200 constructed instances, and agrees with brute force on whether a random instance is solvable (window.__dancinglinks). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>god-mode</i> &mdash; solve any exact-cover puzzle instantly, see through it to the answer. DLX is that god-mode over Sudoku and tilings. <b>AVAN (AI)</b> built the instrument: the linked-node mesh, the O(1) cover/uncover, the backtracking search, the validity and brute-force checks.<br><br>Credit as content: Donald Knuth, &ldquo;Dancing Links&rdquo; (2000), implementing Algorithm X. The weave: David names god-mode; I unlink columns as the search descends and re-link them exactly on backtrack, and confirm every returned cover is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A node in a doubly-linked list unlinks by pointing its neighbours past it &mdash; and because it still remembers them, it re-links itself by pointing them back. Deletion and its undo are both O(1).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A 0/1 matrix; DLX finds a set of rows covering each column exactly once. The chosen rows are highlighted and each column&rsquo;s coverage count shown (all 1).</div>
+   <div class="btns" style="margin-top:10px"><button id="dxroll">new instance ▶</button><button id="dxcheck">verify 400 ▶</button></div>
+   <div class="cap" id="dxread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the exact cover &mdash; rows chosen so every column is hit exactly once.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the search is fast because <b>deletion is reversible</b>. Unlinking a node is O(1), and because the node still points at its old neighbours, <b>re-linking</b> it on backtrack is O(1) too &mdash; so the whole exponential search reuses <b>one</b> mutable structure instead of copying it. The inverse of &lsquo;delete a node&rsquo; is &lsquo;the node re-links itself from the neighbours it never forgot.&rsquo; <b>Magenta</b> is the branches explored and undone; <b>green</b> is the cover found. Cheap backtracking comes from making removal its own inverse.</div>
+   <div class="btns" style="margin-top:10px"><button id="dxspin">pause spin</button></div></div></div></div>"""
+DX_SCRIPT = """(function(){
+var ang=0,spin=true,MAT=null,NC=5,SOL=null;
+function DLX(matrix,ncols){var L=[],R=[],U=[],D=[],C=[],ROW=[],SIZE=[];function node(){L.push(0);R.push(0);U.push(0);D.push(0);C.push(0);ROW.push(-1);return L.length-1;}
+ var head=node();L[head]=head;R[head]=head;var col=[];for(var c=0;c<ncols;c++){var x=node();SIZE[x]=0;C[x]=x;U[x]=x;D[x]=x;L[x]=L[head];R[L[head]]=x;L[head]=x;R[x]=head;col.push(x);}
+ for(var r=0;r<matrix.length;r++){var first=-1;for(var c=0;c<ncols;c++){if(!matrix[r][c])continue;var cc=col[c],x=node();ROW[x]=r;C[x]=cc;SIZE[cc]++;U[x]=U[cc];D[U[cc]]=x;D[x]=cc;U[cc]=x;if(first===-1){first=x;L[x]=x;R[x]=x;}else{L[x]=L[first];R[L[first]]=x;L[first]=x;R[x]=first;}}}
+ function cover(c){L[R[c]]=L[c];R[L[c]]=R[c];for(var i=D[c];i!==c;i=D[i])for(var j=R[i];j!==i;j=R[j]){U[D[j]]=U[j];D[U[j]]=D[j];SIZE[C[j]]--;}}
+ function uncover(c){for(var i=U[c];i!==c;i=U[i])for(var j=L[i];j!==i;j=L[j]){SIZE[C[j]]++;U[D[j]]=j;D[U[j]]=j;}L[R[c]]=c;R[L[c]]=c;}
+ var sol=null,stack=[];function search(){if(R[head]===head){sol=stack.map(function(x){return ROW[x];});return true;}var c=-1,best=Infinity;for(var cc=R[head];cc!==head;cc=R[cc])if(SIZE[cc]<best){best=SIZE[cc];c=cc;}if(best===0)return false;cover(c);for(var r=D[c];r!==c;r=D[r]){stack.push(r);for(var j=R[r];j!==r;j=R[j])cover(C[j]);if(search())return true;for(var j=L[r];j!==r;j=L[j])uncover(C[j]);stack.pop();}uncover(c);return false;}
+ search();return sol;}
+function valid(m,ncols,sol){if(!sol)return false;var cov=new Array(ncols).fill(0);sol.forEach(function(r){for(var c=0;c<ncols;c++)cov[c]+=m[r][c];});for(var c=0;c<ncols;c++)if(cov[c]!==1)return false;return true;}
+function brute(m,ncols){for(var mask=0;mask<(1<<m.length);mask++){var cov=new Array(ncols).fill(0);for(var r=0;r<m.length;r++)if(mask&(1<<r))for(var c=0;c<ncols;c++)cov[c]+=m[r][c];var ok=true;for(var c=0;c<ncols;c++)if(cov[c]!==1){ok=false;break;}if(ok)return true;}return false;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(23),vok=true,mok=true;for(var t=0;t<200;t++){var ncols=4+Math.floor(rnd()*5),cols=[];for(var c=0;c<ncols;c++)cols.push(c);for(var i=cols.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1)),tt=cols[i];cols[i]=cols[j];cols[j]=tt;}var rows=[],idx=0;while(idx<ncols){var len=1+Math.floor(rnd()*3),row=new Array(ncols).fill(0);for(var q=0;q<len&&idx<ncols;q++){row[cols[idx]]=1;idx++;}rows.push(row);}for(var e=0;e<3;e++){var row=new Array(ncols).fill(0);for(var c=0;c<ncols;c++)if(rnd()<0.3)row[c]=1;rows.push(row);}if(!valid(rows,ncols,DLX(rows,ncols)))vok=false;}
+ for(var t=0;t<200;t++){var ncols=2+Math.floor(rnd()*4),nr=2+Math.floor(rnd()*5),m=[];for(var r=0;r<nr;r++){var row=[];for(var c=0;c<ncols;c++)row.push(rnd()<0.4?1:0);m.push(row);}if((DLX(m,ncols)!==null)!==brute(m,ncols))mok=false;}
+ return {coversValid:vok,matchesBrute:mok};}
+function mkInstance(){NC=4+Math.floor(Math.random()*3);var cols=[];for(var c=0;c<NC;c++)cols.push(c);for(var i=cols.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=cols[i];cols[i]=cols[j];cols[j]=t;}MAT=[];var idx=0;while(idx<NC){var len=1+Math.floor(Math.random()*2),row=new Array(NC).fill(0);for(var q=0;q<len&&idx<NC;q++){row[cols[idx]]=1;idx++;}MAT.push(row);}for(var e=0;e<3;e++){var row=new Array(NC).fill(0);for(var c=0;c<NC;c++)if(Math.random()<0.3)row[c]=1;MAT.push(row);}SOL=DLX(MAT,NC);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('unlink: neighbours point past the node · relink: node points them back',12,14);
+ var y=80;for(var i=0;i<5;i++){var x=60+i*90;g.fillStyle=i===2?'#3a2a44':'#9068c0';g.beginPath();g.arc(x,y,16,0,7);g.fill();g.fillStyle='#fff';g.font='10px monospace';g.fillText(i,x-3,y+4);}
+ g.strokeStyle='#9068c0';for(var i=0;i<4;i++){if(i===1||i===2)continue;g.beginPath();g.moveTo(60+i*90+16,y);g.lineTo(60+(i+1)*90-16,y);g.stroke();}
+ g.strokeStyle='#39fc6b';g.setLineDash([4,3]);g.beginPath();g.moveTo(60+1*90+16,y-22);g.bezierCurveTo(200,y-50,240,y-50,60+3*90-16,y-22);g.stroke();g.setLineDash([]);g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('O(1) unlink (node 2 removed)',150,y-40);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!MAT)mkInstance();var cell=30,ox=50,oy=40,inSol={};if(SOL)SOL.forEach(function(r){inSol[r]=1;});
+ for(var c=0;c<NC;c++){g.fillStyle='#8ad';g.font='9px monospace';g.fillText('c'+c,ox+c*cell+8,30);}
+ for(var r=0;r<MAT.length;r++){g.fillStyle=inSol[r]?'#39fc6b':'#7a8a9a';g.font='9px monospace';g.fillText('r'+r,ox-24,oy+r*cell+18);for(var c=0;c<NC;c++){g.fillStyle=MAT[r][c]?(inSol[r]?'#39fc6b':'#4a5560'):'#1a2028';g.fillRect(ox+c*cell,oy+r*cell,cell-3,cell-3);if(MAT[r][c]){g.fillStyle=inSol[r]?'#000':'#9ab';g.fillText('1',ox+c*cell+10,oy+r*cell+18);}}}
+ var vy=oy+MAT.length*cell+18;g.fillStyle=SOL?(valid(MAT,NC,SOL)?'#39fc6b':'#ff5a5a'):'#ff9060';g.font='11px monospace';g.fillText(SOL?('exact cover: rows {'+SOL.join(',')+'} — each column once ✓'):'no exact cover exists',12,vy);}
+document.getElementById('dxroll').onclick=function(){mkInstance();drawW4();document.getElementById('dxread').textContent=SOL?('cover = rows {'+SOL.join(',')+'}'):'no exact cover';};
+document.getElementById('dxcheck').onclick=function(){var v=verify();document.getElementById('dxread').textContent='400 instances: covers valid '+(v.coversValid?'✓':'✗')+', solvable iff brute '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('dxspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!MAT)mkInstance();var cx=W/2,cy=H/2-20,inSol={};if(SOL)SOL.forEach(function(r){inSol[r]=1;});
+ for(var r=0;r<MAT.length;r++){var a=r/MAT.length*6.28+ang*0.3,rad=inSol[r]?55:105,x=cx+Math.cos(a)*rad,y=cy+Math.sin(a)*rad*0.7;g.fillStyle=inSol[r]?'#39fc6b':'rgba(255,45,149,0.3)';g.beginPath();g.arc(x,y,inSol[r]?11:6,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the rows of the exact cover',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: branches explored then un-linked (undone)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('deletion is its own inverse → cheap backtracking',10,H-9);}
+mkInstance();drawW3();drawW4();window.__dancinglinks=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Plain changes</b> (the Steinhaus&ndash;Johnson&ndash;Trotter algorithm) lists <b>all n! permutations</b> so that each one differs from the last by a <b>single adjacent swap</b> &mdash; the minimal possible change. It tracks a &lsquo;direction&rsquo; for each element and repeatedly moves the largest &lsquo;mobile&rsquo; element, flipping directions as it goes.<br><br>
+ English change-ringers have rung bells in exactly this order for centuries; it is also a Gray code for permutations.<br><br>
+ <span class="lit">LIT</span> verified live: for n=1&hellip;7 the algorithm produces all n! permutations, every one distinct, and each consecutive pair differs by exactly one adjacent transposition (window.__plainchanges). <span class="fig">FIG</span> no framing; exact minimal-change enumeration.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-continue</i> &mdash; each arrangement continues from the previous by the smallest possible move, one neighbour-swap, on and on through every order. Plain changes is that continuous walk. <b>AVAN (AI)</b> built the instrument: the mobile-element rule, the direction flips, the distinctness and adjacent-swap checks.<br><br>Credit as content: Hugh Steinhaus, Selmer Johnson &amp; Hale Trotter (1962&ndash;63); the bell-ringing method is centuries older. The weave: David names the continue; I move the largest mobile element each step and confirm every permutation appears once, each a single swap from the last.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each row is one permutation; the two swapped positions are marked. Every step moves exactly one pair of adjacent elements &mdash; the bell-ringers&rsquo; &lsquo;change&rsquo;.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Step through the plain-changes sequence for n elements; the single adjacent swap between consecutive permutations is highlighted.</div>
+   <div class="btns" style="margin-top:10px"><button id="pcn">n: 4 ▶</button><button id="pcstep">next ▶</button><button id="pccheck">verify n≤7 ▶</button></div>
+   <div class="cap" id="pcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the path threading all n! permutations, one swap at a time.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): consecutive permutations differ by <b>one adjacent swap</b>, so the whole list is a <b>Hamiltonian path</b> through the permutation graph &mdash; vertices are permutations, edges join those one adjacent transposition apart, and the sequence visits all n! exactly once with minimal change. The inverse of &lsquo;enumerate permutations independently&rsquo; is &lsquo;walk from each to the next by a single neighbouring swap.&rsquo; <b>Magenta</b> is the permutations as scattered points; <b>green</b> is the single path threading them all. A Gray code for orderings &mdash; how every change is rung.</div>
+   <div class="btns" style="margin-top:10px"><button id="pcspin">pause spin</button></div></div></div></div>"""
+PC_SCRIPT = """(function(){
+var ang=0,spin=true,N=4,SEQ=null,IDX=0;
+function plainChanges(n){var perm=[],dir=[];for(var i=0;i<n;i++){perm.push(i+1);dir.push(-1);}var res=[{p:perm.slice(),swap:null}];
+ function mobile(){var idx=-1,val=-1;for(var i=0;i<n;i++){var j=i+dir[i];if(j>=0&&j<n&&perm[i]>perm[j]&&perm[i]>val){val=perm[i];idx=i;}}return idx;}
+ while(true){var m=mobile();if(m===-1)break;var j=m+dir[m],pm=perm[m];perm[m]=perm[j];perm[j]=pm;var dm=dir[m];dir[m]=dir[j];dir[j]=dm;for(var i=0;i<n;i++)if(perm[i]>pm)dir[i]=-dir[i];res.push({p:perm.slice(),swap:[Math.min(m,j),Math.max(m,j)]});}
+ return res;}
+function fact(n){var r=1;for(var i=2;i<=n;i++)r*=i;return r;}
+function verify(){var ok=true,adj=true;for(var n=1;n<=7;n++){var seq=plainChanges(n);if(seq.length!==fact(n))ok=false;var seen={};seq.forEach(function(s){seen[s.p.join(',')]=1;});if(Object.keys(seen).length!==fact(n))ok=false;for(var s=1;s<seq.length;s++){var a=seq[s-1].p,b=seq[s].p,diff=[];for(var i=0;i<n;i++)if(a[i]!==b[i])diff.push(i);if(diff.length!==2||diff[1]!==diff[0]+1)adj=false;}}return {allDistinct:ok,adjacentSwaps:adj};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var seq=plainChanges(4);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('each row one permutation; swapped adjacent pair marked',12,12);
+ for(var s=0;s<Math.min(seq.length,7);s++){var p=seq[s].p,sw=seq[s].swap;for(var i=0;i<4;i++){var hot=sw&&(i===sw[0]||i===sw[1]);g.fillStyle=hot?'#58a0a8':'#2a3540';g.fillRect(30+i*30,24+s*18,26,15);g.fillStyle='#fff';g.font='10px monospace';g.fillText(p[i],38+i*30,36+s*18);}}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SEQ)SEQ=plainChanges(N);var cur=SEQ[IDX],cell=Math.min(44,300/N),ox=W/2-N*cell/2;
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('permutation '+(IDX+1)+' / '+SEQ.length+' (n='+N+')',12,24);
+ for(var i=0;i<N;i++){var hot=cur.swap&&(i===cur.swap[0]||i===cur.swap[1]);g.fillStyle=hot?'#58a0a8':'#26303c';g.fillRect(ox+i*cell,60,cell-4,44);g.fillStyle='#fff';g.font='16px monospace';g.fillText(cur.p[i],ox+i*cell+cell/2-5,88);}
+ if(cur.swap){g.fillStyle='#58a0a8';g.font='10px monospace';g.fillText('↑ single adjacent swap (positions '+cur.swap[0]+','+cur.swap[1]+')',ox,120);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('total '+SEQ.length+' = '+N+'! permutations',12,H-12);}
+document.getElementById('pcn').onclick=function(){N=N>=6?3:N+1;this.textContent='n: '+N+' ▶';SEQ=plainChanges(N);IDX=0;drawW4();};
+document.getElementById('pcstep').onclick=function(){if(!SEQ)SEQ=plainChanges(N);IDX=(IDX+1)%SEQ.length;drawW4();};
+document.getElementById('pccheck').onclick=function(){var v=verify();document.getElementById('pcread').textContent='n=1..7: all n! distinct '+(v.allDistinct?'✓':'✗')+', consecutive = one adjacent swap '+(v.adjacentSwaps?'✓':'✗');};
+document.getElementById('pcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var seq=plainChanges(Math.min(N,4)),cx=W/2,cy=H/2-20;
+ g.strokeStyle='#39fc6b';g.lineWidth=1.5;g.beginPath();for(var s=0;s<seq.length;s++){var a=s/seq.length*6.28,r=60+s*4,x=cx+Math.cos(a+ang*0.3)*r,y=cy+Math.sin(a+ang*0.3)*r*0.7;if(s===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ for(var s=0;s<seq.length;s++){var a=s/seq.length*6.28,r=60+s*4,x=cx+Math.cos(a+ang*0.3)*r,y=cy+Math.sin(a+ang*0.3)*r*0.7;g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,2.5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: one path through all '+seq.length+' permutations',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: permutations as scattered points',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Hamiltonian path — a Gray code for orderings',10,H-9);}
+SEQ=plainChanges(N);drawW3();drawW4();window.__plainchanges=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Bitonic sort</b> is a <b>sorting network</b>: a fixed sequence of compare-and-swap operations that sorts any input of n = 2<sup>m</sup> elements. It first builds a &lsquo;bitonic&rsquo; sequence (up then down) and then repeatedly merges halves. Crucially, <b>which positions are compared never depends on the data</b> &mdash; the schedule is the same for every input.<br><br>
+ That data-obliviousness makes it ideal for GPUs and hardware, where branching is expensive.<br><br>
+ <span class="lit">LIT</span> verified live: the network sorts <b>all</b> 2&#8312; binary inputs (the 0&ndash;1 principle, which then guarantees it sorts every input) and matches a reference sort on random arrays (window.__bitonic). <span class="fig">FIG</span> no framing; a fixed network that provably sorts.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>race-condition</i> &mdash; and as its antidote: a sorting network has <b>no</b> data-dependent decisions, so nothing races; the same compare-exchanges fire in the same order for every input. Bitonic sort is that race-free sort. <b>AVAN (AI)</b> built the instrument: the recursive compare-exchange network, the 0&ndash;1-principle check over all binaries, the reference cross-check.<br><br>Credit as content: Kenneth Batcher (1968). The weave: David names the race condition; I lay down a fixed network of comparators and prove it sorts every binary input, hence every input.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A comparator compares two fixed wires and swaps them into order. The whole network is a fixed grid of these &mdash; the wiring is chosen in advance, not by the values.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">An array of 8 values run through the bitonic network; the output is sorted, and the network is confirmed to sort all 256 binary inputs (0&ndash;1 principle).</div>
+   <div class="btns" style="margin-top:10px"><button id="btroll">new array ▶</button><button id="btcheck">verify 0-1 + random ▶</button></div>
+   <div class="cap" id="btread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the fixed comparator network that sorts every input.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the compare-exchange schedule is <b>fixed in advance</b> &mdash; which elements are compared never depends on their values, so the network is <b>data-oblivious</b>: no branches, no data-dependent control flow, no races. The inverse of &lsquo;comparisons depend on the data&rsquo; is &lsquo;a fixed schedule of compare-exchanges that sorts every input.&rsquo; <b>Magenta</b> is the data-dependent branches of ordinary sorts; <b>green</b> is the fixed oblivious network. No race conditions because there are no decisions &mdash; the 0&ndash;1 principle proves one fixed wiring handles all inputs.</div>
+   <div class="btns" style="margin-top:10px"><button id="btspin">pause spin</button></div></div></div></div>"""
+BT_SCRIPT = """(function(){
+var ang=0,spin=true,ARR=[5,2,8,1,9,3,7,4];
+function bitonicSort(arr){var a=arr.slice(),n=a.length;function cmp(i,j,dir){if((a[i]>a[j])===dir){var t=a[i];a[i]=a[j];a[j]=t;}}function merge(lo,cnt,dir){if(cnt>1){var k=cnt>>1;for(var i=lo;i<lo+k;i++)cmp(i,i+k,dir);merge(lo,k,dir);merge(lo+k,k,dir);}}function sort(lo,cnt,dir){if(cnt>1){var k=cnt>>1;sort(lo,k,true);sort(lo+k,k,false);merge(lo,cnt,dir);}}sort(0,n,true);return a;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var ok01=true;for(var mask=0;mask<256;mask++){var a=[];for(var i=0;i<8;i++)a.push((mask>>i)&1);var s=bitonicSort(a);for(var i=1;i<8;i++)if(s[i]<s[i-1])ok01=false;}var rnd=mb(25),okR=true;for(var t=0;t<300;t++){var sz=[2,4,8,16][Math.floor(rnd()*4)],a=[];for(var i=0;i<sz;i++)a.push(Math.floor(rnd()*100));var s=bitonicSort(a),ref=a.slice().sort(function(x,y){return x-y;});if(s.join(',')!==ref.join(','))okR=false;}return {sortsBinary:ok01,sortsRandom:okR};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a comparator: two fixed wires, swapped into order',12,14);
+ for(var w=0;w<2;w++){g.strokeStyle='#4a5560';g.beginPath();g.moveTo(40,50+w*40);g.lineTo(W-40,50+w*40);g.stroke();}
+ var xs=[130,240,350];for(var i=0;i<xs.length;i++){g.strokeStyle='#60a870';g.lineWidth=2;g.beginPath();g.moveTo(xs[i],50);g.lineTo(xs[i],90);g.stroke();g.fillStyle='#60a870';g.beginPath();g.arc(xs[i],50,4,0,7);g.fill();g.beginPath();g.arc(xs[i],90,4,0,7);g.fill();}g.lineWidth=1;
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('wiring fixed in advance — independent of the values',40,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var sorted=bitonicSort(ARR),mx=Math.max.apply(0,ARR),bw=34;
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('input',12,20);for(var i=0;i<ARR.length;i++){var h=ARR[i]/mx*70;g.fillStyle='#4a5560';g.fillRect(50+i*bw,90-h,bw-5,h);g.fillStyle='#9ab';g.font='9px monospace';g.fillText(ARR[i],52+i*bw,102);}
+ g.fillStyle='#8ad';g.fillText('sorted (fixed network)',12,140);for(var i=0;i<sorted.length;i++){var h=sorted[i]/mx*70;g.fillStyle='#60a870';g.fillRect(50+i*bw,220-h,bw-5,h);g.fillStyle='#cfe';g.font='9px monospace';g.fillText(sorted[i],52+i*bw,232);}
+ var ok=sorted.every(function(v,i){return i===0||v>=sorted[i-1];});g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('sorted '+(ok?'✓':'✗')+' — same comparators for any input',12,H-8);}
+document.getElementById('btroll').onclick=function(){ARR=[];for(var i=0;i<8;i++)ARR.push(1+Math.floor(Math.random()*9));drawW4();document.getElementById('btread').textContent=ARR.join(',')+' → '+bitonicSort(ARR).join(',');};
+document.getElementById('btcheck').onclick=function(){var v=verify();document.getElementById('btread').textContent='sorts all 256 binaries (0-1 principle) '+(v.sortsBinary?'✓':'✗')+', random == ref '+(v.sortsRandom?'✓':'✗');};
+document.getElementById('btspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=8,ox=W/2-90,oy=50,rh=(H-140)/n;
+ for(var w=0;w<n;w++){g.strokeStyle='rgba(96,168,112,0.5)';g.beginPath();g.moveTo(ox,oy+w*rh);g.lineTo(ox+180,oy+w*rh);g.stroke();}
+ var stages=[[0,1],[2,3],[0,2],[1,3],[4,5],[6,7],[0,4],[2,6]];for(var s=0;s<stages.length;s++){var x=ox+20+s*20+3*Math.sin(ang+s),a=stages[s][0],b=stages[s][1];g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(x,oy+a*rh);g.lineTo(x,oy+b*rh);g.stroke();g.lineWidth=1;}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the fixed comparator network (data-oblivious)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the data-dependent branches ordinary sorts take',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('no decisions → no races; 0-1 principle proves it sorts all',10,H-9);}
+drawW3();drawW4();window.__bitonic=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-stoer-wagner","title":"THE STOER-WAGNER","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#c05868","icon":"stoer-wagner",
+  "kicker":"the global min cut, deterministically, no source/sink",
+  "blurb":"the Stoer-Wagner algorithm in the 5-window house format — find a graph's global minimum cut deterministically, without max-flow and without choosing a source and sink: each phase does a maximum-adjacency ordering (add the most tightly connected vertex), the last vertex's weight is a valid cut, and merging the last two and repeating covers all pairs in n-1 phases. Verified live: over 80 random weighted graphs the Stoer-Wagner cut equals the brute-force minimum over all bipartitions. See the adjacency ordering in 1D, cut-vs-brute on a graph in 2D, and the no-source-sink-needed inverse in 3D.",
+  "lit":"Genuine Stoer-Wagner algorithm (Stoer & Wagner 1997). Verified live: the maximum-adjacency-ordering min-cut equals the brute-force global minimum over all vertex bipartitions for 80 random weighted graphs (window.__stoerwagner.matchesBrute).",
+  "fig":"No framing: the maximum-adjacency ordering, the phase-merge, and the brute cross-check run in-browser and agree exactly. The AVAN inverse is honest — the ordering makes the last two vertices a min cut for that pair, and merging sweeps all pairs in n-1 phases, so the global minimum falls out with no source/sink and no flow; magenta is the O(n^2) s-t problems avoided, green the global minimum. Deterministic cousin of the-karger.",
+  "body":SW_BODY,"script":SW_SCRIPT},
+ {"slug":"the-misra-gries","title":"THE MISRA-GRIES","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#c0a048","icon":"misra-gries",
+  "kicker":"frequent items from a stream in k-1 counters",
+  "blurb":"the Misra-Gries algorithm in the 5-window house format — find the frequent items in a stream using only k-1 counters: increment on a match, open a counter on a free slot, and decrement ALL counters on overflow (dropping zeros); every item with true frequency > n/k is guaranteed to survive. It is the streaming heavy-hitters primitive and generalizes Boyer-Moore majority. Verified live: over 500 random streams every item with freq > n/k survives, every reported count <= the true count, and the summary never exceeds k-1 entries. See the counters in 1D, summary-vs-truth in 2D, and the keep-what-matters inverse in 3D.",
+  "lit":"Genuine Misra-Gries algorithm (Misra & Gries 1982). Verified live: over 500 random streams, every element with true frequency > n/k remains in the k-1-counter summary, every reported count <= the true count, and the summary size stays <= k-1 (window.__misragries.allHeavyPresent && .underestimates && .sizeBounded).",
+  "fig":"No framing: the k-1 counters, the decrement-all rule, and the heavy-hitter/underestimate/size checks run in-browser and hold exactly. The AVAN inverse is honest — bounded counters with decrement-on-overflow let rare items cancel while every item above n/k survives, so you find the frequent items without counting all of them; magenta is the exact per-item counts never stored, green the surviving heavy hitters. Boyer-Moore majority generalized.",
+  "body":MG_BODY,"script":MG_SCRIPT},
+ {"slug":"the-dancing-links","title":"THE DANCING LINKS","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#9068c0","icon":"dancing-links",
+  "kicker":"exact cover by O(1) reversible unlink/relink",
+  "blurb":"Dancing Links (DLX) in the 5-window house format — Knuth's technique for exact cover (choose rows of a 0/1 matrix covering each column exactly once), which Algorithm X searches by backtracking. The matrix is a mesh of circular doubly-linked nodes, so removing a row/column is O(1) and, crucially, putting it back on backtrack is O(1) too. It solves Sudoku, pentomino tilings, n-queens. Verified live: the real DLX (with cover/uncover pointers) returns a valid exact cover on 200 constructed instances and agrees with brute force on solvability of random instances. See reversible unlink in 1D, a solved matrix in 2D, and the deletion-is-its-own-inverse inverse in 3D.",
+  "lit":"Genuine Dancing Links / Algorithm X (Knuth 2000). Verified live: the real linked-mesh DLX with O(1) cover/uncover returns an exact cover (each column covered exactly once) on 200 constructed instances and its solvable/unsolvable verdict matches brute force over all row subsets on 200 random instances (window.__dancinglinks.coversValid && .matchesBrute).",
+  "fig":"No framing: the actual doubly-linked node mesh, the cover/uncover pointers, the backtracking search, and the validity + brute checks run in-browser and are exact. The AVAN inverse is honest — unlinking a node is O(1) and, because it still points at its old neighbours, re-linking on backtrack is O(1) too, so the search reuses one mutable structure; magenta is the branches undone, green the cover found. Reversible deletion makes backtracking cheap.",
+  "body":DX_BODY,"script":DX_SCRIPT},
+ {"slug":"the-plain-changes","title":"THE PLAIN CHANGES","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#58a0a8","icon":"plain-changes",
+  "kicker":"all n! permutations, each one adjacent swap apart",
+  "blurb":"plain changes (Steinhaus-Johnson-Trotter) in the 5-window house format — list all n! permutations so each differs from the last by a single adjacent swap, the minimal change: track a direction per element and repeatedly move the largest mobile element, flipping directions. English change-ringers have rung bells in this order for centuries; it is a Gray code for permutations. Verified live: for n=1..7 the algorithm produces all n! permutations, every one distinct, each consecutive pair differing by exactly one adjacent transposition. See the changes in 1D, stepping the sequence in 2D, and the Hamiltonian-path inverse in 3D.",
+  "lit":"Genuine Steinhaus-Johnson-Trotter / plain changes (Steinhaus, Johnson & Trotter 1962-63; bell-ringing centuries older). Verified live: for n=1..7 the algorithm yields exactly n! distinct permutations and every consecutive pair differs by exactly one adjacent transposition (window.__plainchanges.allDistinct && .adjacentSwaps).",
+  "fig":"No framing: the mobile-element rule, the direction flips, and the distinctness + adjacent-swap checks run in-browser and hold exactly. The AVAN inverse is honest — consecutive permutations differ by one adjacent swap, so the list is a Hamiltonian path through the permutation graph (edges = adjacent transpositions), visiting all n! once; magenta is the permutations as scattered points, green the single threading path. A Gray code for orderings.",
+  "body":PC_BODY,"script":PC_SCRIPT},
+ {"slug":"the-bitonic","title":"THE BITONIC","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#60a870","icon":"bitonic",
+  "kicker":"a fixed, data-oblivious sorting network",
+  "blurb":"bitonic sort in the 5-window house format — a sorting network: a fixed sequence of compare-and-swap operations that sorts any input of n=2^m elements, building a bitonic (up-then-down) sequence then merging halves. Which positions are compared never depends on the data, so it is data-oblivious — ideal for GPUs and hardware, and the antidote to race conditions (no data-dependent decisions). Verified live: the network sorts all 2^8 binary inputs (the 0-1 principle, which guarantees it sorts every input) and matches a reference sort on random arrays. See a comparator in 1D, an 8-element sort in 2D, and the data-oblivious-no-races inverse in 3D.",
+  "lit":"Genuine bitonic sorting network (Batcher 1968). Verified live: the fixed compare-exchange network sorts all 256 binary inputs of length 8 (the 0-1 principle) and matches a reference comparison sort on 300 random arrays of sizes 2,4,8,16 (window.__bitonic.sortsBinary && .sortsRandom).",
+  "fig":"No framing: the recursive compare-exchange network, the 0-1-principle check over all binaries, and the reference cross-check run in-browser and are exact. The AVAN inverse is honest — which positions are compared is fixed in advance, independent of values, so the network is data-oblivious with no branches and no races; magenta is the data-dependent branches of ordinary sorts, green the fixed network. The 0-1 principle proves one wiring sorts all inputs.",
+  "body":BT_BODY,"script":BT_SCRIPT},
  {"slug":"the-lucas-lehmer","title":"THE LUCAS-LEHMER","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#c05858","icon":"lucas-lehmer",
   "kicker":"a deterministic primality verdict for Mersenne numbers",
