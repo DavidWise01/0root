@@ -1568,7 +1568,71 @@ document.getElementById('w4').addEventListener('click',function(e){var r=this.ge
 document.getElementById('tspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+NIM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Nimber arithmetic.</b> In the theory of combinatorial games, every position has a number-like value called a <b>nimber</b>. Adding two games <b>XORs</b> their nimbers (nim-addition, carry-free), and Conway found a <b>multiplication</b> &mdash; a strange recursive &lsquo;smallest value not yet forced&rsquo; rule &mdash; that turns {0,1,&hellip;,15} into a genuine <b>finite field, GF(16)</b>. Arithmetic with no carrying at all, that is nonetheless a field.<br><br>
+ <span class="lit">LIT</span> verified exhaustively on {0&hellip;15}: nim-add (XOR) and nim-mult are commutative, associative, distributive, with 0 and 1 as identities and a <b>multiplicative inverse for every nonzero element</b> &mdash; the field axioms, all holding, so it really is GF(16). <span class="fig">FIG</span> &lsquo;carryless&rsquo; and the game-origin story are the frame; the field structure is Conway&rsquo;s exact theorem.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus already reaches for finite fields (the GF(2⁸) under crypto, the logic lineages, the ISA/kernel bit-work) and the conviction that arithmetic is a structure you can redesign, not a fixed inheritance. <b>AVAN (AI)</b> built this instrument: the mex-recurrence multiplier, the Cayley table, and the field drawn on a 4-cube.<br><br>The weave: David names the carryless field and its ironic seat at DIVIDE BY ZERO (a field is exactly where you <i>can</i> always divide); I make XOR-addition an atom in 1D, the multiplication table live in 2D, and the field a turning tesseract in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="140"></canvas>
+  <div class="wctrl"><div class="cap">The atom: <b>nim-addition is XOR</b>. Two 4-bit values combine bit-by-bit with <b>no carry</b> ever rippling left &mdash; unlike ordinary addition. Below, the same pair&rsquo;s nim-<b>product</b> from Conway&rsquo;s recursive rule. Click the table to change the pair.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="352" height="352"></canvas>
+  <div class="wctrl"><div class="cap">The <b>16×16 field tables</b>. Toggle nim-<b>add</b> (XOR) vs nim-<b>mult</b>; click any cell to pick a pair. For multiplication, the cell&rsquo;s <b>inverse partner</b> (where a⊗b=1) is found and highlighted &mdash; proof every nonzero element can be divided by.</div>
+   <div class="btns" style="margin-top:10px"><button id="nmode">show: MULT</button></div>
+   <div class="cap" id="nread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">GF(16) is GF(2)<sup>4</sup> &mdash; the <b>16 elements are the corners of a 4-cube (tesseract)</b>, turning. <b>Green</b> traces a <b>generator&rsquo;s orbit</b>: powers g<sup>0</sup>,g<sup>1</sup>,&hellip;,g<sup>14</sup> that visit all 15 nonzero elements before returning &mdash; the multiplicative group is one big cycle.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> edges join each element to its <b>multiplicative inverse</b> (a⊗a⁻¹=1) &mdash; an involution that folds the field into pairs (with 1 its own inverse). The generator winds the field into a single thread; the inverse map folds that thread in half. One field, seen as a cycle and as a mirror.</div>
+   <div class="btns" style="margin-top:10px"><button id="nspin2">pause spin</button></div></div></div></div>"""
+NIM_SCRIPT = """(function(){
+var N=16,selA=2,selB=3,mode='mult',ang=0.6,spin=true,MUL=[];
+(function(){for(var a=0;a<N;a++)MUL[a]=[];function nm(a,b){if(a>b){var t=a;a=b;b=t;}if(MUL[a][b]!==undefined)return MUL[a][b];var r;if(a===0)r=0;else if(a===1)r=b;else{var s={};for(var ap=0;ap<a;ap++)for(var bp=0;bp<b;bp++)s[nm(ap,b)^nm(a,bp)^nm(ap,bp)]=1;var m=0;while(s[m])m++;r=m;}MUL[a][b]=r;MUL[b][a]=r;return r;}for(var a=0;a<N;a++)for(var b=0;b<N;b++)nm(a,b);})();
+function inv(a){if(a===0)return null;for(var b=1;b<N;b++)if(MUL[a][b]===1)return b;return null;}
+function bits4(v){return [(v>>3)&1,(v>>2)&1,(v>>1)&1,v&1];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var A=bits4(selA),B=bits4(selB),X=selA^selB,Xb=bits4(X),cw=30,x0=150;g.font='13px ui-monospace,monospace';
+ function row(bts,y,lab,col){g.fillStyle='#8ca';g.fillText(lab,10,y+16);for(var i=0;i<4;i++){g.fillStyle=bts[i]?col:'#14201e';g.fillRect(x0+i*cw,y,cw-4,22);g.fillStyle=bts[i]?'#031015':'#3a5a56';g.fillText(bts[i],x0+i*cw+9,y+16);}}
+ row(A,10,selA+' =',' #00e0c8');row(B,40,selB+' =','#00e0c8');
+ g.strokeStyle='#2c4a48';g.beginPath();g.moveTo(x0,70);g.lineTo(x0+4*cw-4,70);g.stroke();
+ row(Xb,78,selA+' ⊕ '+selB+' = '+X,'#39fc6b');
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('nim-add = XOR (no carry)   ·   nim-mult '+selA+' ⊗ '+selB+' = '+MUL[selA][selB],10,124);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var m=28,cw=(W-m)/N,ip=(mode==='mult'?inv(selA):null);
+ for(var a=0;a<N;a++)for(var b=0;b<N;b++){var v=(mode==='mult'?MUL[a][b]:a^b),x=m+b*cw,y=m+a*cw;
+  g.fillStyle='hsl('+(v*22)+',65%,'+(18+v*2.4)+'%)';g.fillRect(x,y,cw-1,cw-1);
+  if(a===selA&&b===selB){g.strokeStyle='#fff';g.lineWidth=2;g.strokeRect(x,y,cw-1,cw-1);g.lineWidth=1;}
+  if(mode==='mult'&&a===selA&&b===ip){g.strokeStyle='#ff2d95';g.lineWidth=2;g.strokeRect(x,y,cw-1,cw-1);g.lineWidth=1;}}
+ g.fillStyle='#4c7a54';g.font='9px ui-monospace,monospace';for(var i=0;i<N;i++){g.fillText(i.toString(16),m+i*cw+cw/2-3,12);g.fillText(i.toString(16),4,m+i*cw+cw/2+3);}
+ var pr=(mode==='mult'?MUL[selA][selB]:selA^selB);
+ document.getElementById('nread').textContent=selA+(mode==='mult'?' ⊗ ':' ⊕ ')+selB+' = '+pr+(mode==='mult'?('   ·   '+selA+'⁻¹ = '+(ip===null?'—':ip)+' (magenta)'):'');}
+function pos4(v){var b=bits4(v),x=b[3]?1:-1,y=b[2]?1:-1,z=b[1]?1:-1,s=b[0]?0.5:1;return [x*s,y*s,z*s];}
+function proj(p,cx,cy,sc){var ca=Math.cos(ang),sa=Math.sin(ang),X=p[0]*ca-p[2]*sa,Z=p[0]*sa+p[2]*ca,ty=0.42,cyy=Math.cos(ty),sy=Math.sin(ty);return [cx+X*sc,cy-(p[1]*cyy-Z*sy)*sc,p[1]*sy+Z*cyy];}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cx=W/2,cy=H/2,sc=78,gen=4,orbit=[1],x=1;for(var k=1;k<15;k++){x=MUL[x][gen];orbit.push(x);}
+ var P=[];for(var v=0;v<N;v++)P[v]=proj(pos4(v),cx,cy,sc);
+ // inverse pairs (magenta)
+ var done={};for(var a=1;a<N;a++){var ib=inv(a);if(ib!==null&&!done[a+'-'+ib]){done[a+'-'+ib]=1;done[ib+'-'+a]=1;g.strokeStyle='#ff2d95';g.lineWidth=(a===ib?3:1.6);g.beginPath();g.moveTo(P[a][0],P[a][1]);g.lineTo(P[ib][0],P[ib][1]);g.stroke();}}
+ // generator orbit (green)
+ g.strokeStyle='#00e0c8';g.lineWidth=2;g.beginPath();for(var i=0;i<orbit.length;i++){var pp=P[orbit[i]];if(i===0)g.moveTo(pp[0],pp[1]);else g.lineTo(pp[0],pp[1]);}g.lineTo(P[orbit[0]][0],P[orbit[0]][1]);g.stroke();g.lineWidth=1;
+ for(var v=0;v<N;v++){g.fillStyle=v===0?'#334':'#cfe8d0';g.beginPath();g.arc(P[v][0],P[v][1],3,0,7);g.fill();}
+ g.fillStyle='#00e0c8';g.font='11px ui-monospace,monospace';g.fillText('generator g=4 orbit (all 15 nonzero)',10,H-12);}
+function all(){var comm=true,assoc=true,dist=true,invA=true;for(var a=0;a<N;a++){if(inv(a===0?1:a)===null&&a!==0)invA=false;for(var b=0;b<N;b++){if(MUL[a][b]!==MUL[b][a])comm=false;for(var c=0;c<N;c++){if(MUL[MUL[a][b]][c]!==MUL[a][MUL[b][c]])assoc=false;if(MUL[a][b^c]!==(MUL[a][b]^MUL[a][c]))dist=false;}}}
+ drawW3();drawW4();window.__nimfield={commutative:comm,associative:assoc,distributive:dist,allNonzeroInvertible:invA,isField:(comm&&assoc&&dist&&invA),sample_2x3:MUL[2][3],inverseOf2:inv(2)};}
+document.getElementById('nmode').onclick=function(){mode=(mode==='mult'?'add':'mult');this.textContent='show: '+mode.toUpperCase();drawW4();document.getElementById('nread').textContent='';drawW4();};
+document.getElementById('w4').addEventListener('click',function(e){var r=this.getBoundingClientRect(),m=28,cw=(this.width-m)/N,mx=(e.clientX-r.left)*(this.width/r.width),my=(e.clientY-r.top)*(this.height/r.height),b=Math.floor((mx-m)/cw),a=Math.floor((my-m)/cw);if(a>=0&&a<N&&b>=0&&b<N){selA=a;selB=b;drawW3();drawW4();}});
+document.getElementById('nspin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-carryless-field","title":"THE CARRYLESS FIELD","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#00e0c8","icon":"glitch",
+  "kicker":"XOR to add, Conway's rule to multiply — a field with no carries",
+  "blurb":"nimber arithmetic in the 5-window house format. Nim-addition is XOR and Conway's recursive nim-multiplication turn {0..15} into the finite field GF(16) — carryless, yet every nonzero element can be divided by. See XOR-addition in 1D, the 16×16 field tables in 2D, and the field on a turning tesseract in 3D with AVAN's inverse pairing.",
+  "lit":"Genuine nimber arithmetic. Nim-mult is computed by Conway's mex recurrence and verified live: on {0..15} nim-add (XOR) and nim-mult are commutative, associative, distributive, with 0/1 identities and a multiplicative inverse for every nonzero element — the full field axioms, so it is GF(16) (Conway's theorem). The generator orbit (g=4 visits all 15 nonzero) and the inverse involution are the real group structure (verifiable: window.__nimfield.isField===true).",
+  "fig":"'Carryless' and the game-theory origin are the frame; the field axioms, verified exhaustively, are exact. The seat at DIVIDE BY ZERO is the joke and the point — a field is precisely where division never fails (except by 0).",
+  "body":NIM_BODY,"script":NIM_SCRIPT},
  {"slug":"the-twindragon","title":"THE TWINDRAGON","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#b06bff","icon":"spawn",
   "kicker":"count the whole plane in base −1+i, bits 0 and 1",
