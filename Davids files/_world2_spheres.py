@@ -3502,7 +3502,75 @@ document.getElementById('tsnsl').oninput=function(){n=+this.value;document.getEl
 document.getElementById('tsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+SAM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The suffix automaton</b> (DAWG). The <b>smallest possible</b> finite automaton that recognises <b>exactly the set of all substrings</b> of a string &mdash; and it&rsquo;s built <b>online</b>, one character at a time, in <b>linear</b> time and space (at most 2n states). Its secret is the <b>endpos equivalence</b>: states group substrings that end at the same set of positions, which is why it is minimal. From this one machine you can count distinct substrings, test membership, or find the longest common substring of two strings.<br><br>
+ <span class="lit">LIT</span> verified: the number of distinct substrings, computed as &Sigma;(len[v]&minus;len[link[v]]) over states, equals a brute-force count of every distinct substring; membership queries match a naive scan; and the automaton stays within 2n states &mdash; over random strings. <span class="fig">FIG</span> &lsquo;the oracle of echoes&rsquo; is the picture; the endpos-minimality and the substring count are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus runs string machinery (<i>THE FAILURE WEB</i> right here in THE CHOKE POINT, <i>THE MIRROR SEEKER</i>, <i>THE SHORTEST WITNESS</i>) and the idea that a single small machine can hold an entire language. <b>AVAN (AI)</b> built this instrument: the online automaton, the substring counter, and the DAG with its suffix-link tree.<br><br>The weave: David names the oracle of echoes and its seat beside Aho&ndash;Corasick at THE CHOKE POINT (one automaton answers every query); I make the online growth a strip in 1D, the automaton live in 2D, and the DAG turning in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="150"></canvas>
+  <div class="wctrl"><div class="cap">The string arriving one character at a time, and the count of <b>distinct substrings</b> climbing with it. Each new letter can add many new substrings at once &mdash; the automaton absorbs them all in amortised constant work, never re-reading the past.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The automaton for a string: <b>states</b> laid out by length, <b>transitions</b> spelling substrings. Its distinct-substring count matches brute force exactly, and any query is accepted iff it&rsquo;s truly a substring &mdash; the whole language of echoes in one small graph.</div>
+   <div class="btns" style="margin-top:10px"><button id="sam0">abcbc</button><button id="sam1">banana</button><button id="sam2">abcabc</button></div>
+   <div class="cap" id="samread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The automaton in space, states arranged by length, turning. <b>Green</b> are the <b>forward transitions</b> &mdash; follow them from the start and you spell out every substring of the string.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> edges are the <b>suffix links</b> &mdash; and they form a <b>tree</b>, the exact backward shadow of the forward automaton. Forward, the machine spells substrings; backward, the suffix links group them by <b>where they end</b> (endpos). The transitions and the link-tree are two views of one string &mdash; the language and its inverse, prefix and endpos, folded together.</div>
+   <div class="btns" style="margin-top:10px"><button id="samspin">pause spin</button></div></div></div></div>"""
+SAM_SCRIPT = """(function(){
+var str='abcbc',ang=0.6,spin=true;
+function buildSAM(s){var L=[0],link=[-1],nxt=[{}],last=0,sz=1;
+ for(var i=0;i<s.length;i++){var c=s[i],cur=sz++;L.push(L[last]+1);link.push(-1);nxt.push({});var p=last;
+  while(p!==-1&&!(c in nxt[p])){nxt[p][c]=cur;p=link[p];}
+  if(p===-1)link[cur]=0;else{var q=nxt[p][c];if(L[p]+1===L[q])link[cur]=q;else{var cl=sz++;L.push(L[p]+1);link.push(link[q]);var cp={};for(var kk in nxt[q])cp[kk]=nxt[q][kk];nxt.push(cp);while(p!==-1&&nxt[p][c]===q){nxt[p][c]=cl;p=link[p];}link[q]=cl;link[cur]=cl;}}last=cur;}
+ return {L:L,link:link,nxt:nxt,sz:sz};}
+function distinct(sam){var s=0;for(var v=1;v<sam.sz;v++)s+=sam.L[v]-sam.L[sam.link[v]];return s;}
+function contains(sam,pat){var v=0;for(var i=0;i<pat.length;i++){if(!(pat[i] in sam.nxt[v]))return false;v=sam.nxt[v][pat[i]];}return true;}
+function brute(s){var set={};for(var i=0;i<s.length;i++)for(var j=i+1;j<=s.length;j++)set[s.substring(i,j)]=1;return Object.keys(set).length;}
+function layout(sam){var byL={},maxL=0;for(var v=0;v<sam.sz;v++){(byL[sam.L[v]]=byL[sam.L[v]]||[]).push(v);maxL=Math.max(maxL,sam.L[v]);}var pos=[];for(var l in byL)byL[l].forEach(function(v,i){pos[v]={l:+l,i:i,cnt:byL[l].length};});return {pos:pos,maxL:maxL};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var counts=[];for(var i=1;i<=str.length;i++)counts.push(brute(str.substring(0,i)));var mx=counts[counts.length-1]||1,cw=(W-16)/str.length;
+ g.strokeStyle='#6ad0d0';g.lineWidth=2;g.beginPath();for(var i=0;i<counts.length;i++){var x=8+(i+0.5)*cw,y=H-24-counts[i]/mx*90;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);g.fillStyle='#6ad0d0';g.fillRect(x-2,y-2,4,4);}g.stroke();g.lineWidth=1;
+ g.font='15px ui-monospace,monospace';for(var i=0;i<str.length;i++){g.fillStyle='#cfe8d0';g.fillText(str[i],8+i*cw+cw/2-5,H-6);}
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('distinct substrings after each char (final: '+mx+')',8,18);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var sam=buildSAM(str),lay=layout(sam),dx=(W-40)/(lay.maxL+1);
+ function XY(v){var p=lay.pos[v],dy=(H-90)/Math.max(1,p.cnt);return [24+p.l*dx,24+(p.i+0.5)*dy];}
+ for(var v=0;v<sam.sz;v++)for(var c in sam.nxt[v]){var A=XY(v),B=XY(sam.nxt[v][c]);g.strokeStyle='#2c6a6a';g.lineWidth=1.2;g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.stroke();g.fillStyle='#8ca';g.font='10px ui-monospace,monospace';g.fillText(c,(A[0]+B[0])/2-2,(A[1]+B[1])/2-2);}
+ for(var v=1;v<sam.sz;v++){if(sam.link[v]>=0){var A=XY(v),B=XY(sam.link[v]);g.strokeStyle='rgba(255,45,149,0.4)';g.beginPath();g.moveTo(A[0],A[1]);g.quadraticCurveTo((A[0]+B[0])/2,(A[1]+B[1])/2+22,B[0],B[1]);g.stroke();}}
+ for(var v=0;v<sam.sz;v++){var P=XY(v);g.fillStyle=v===0?'#ffd23f':'#16323a';g.beginPath();g.arc(P[0],P[1],6,0,7);g.fill();g.strokeStyle='#6ad0d0';g.stroke();}
+ var d=distinct(sam),b=brute(str);
+ g.fillStyle=d===b?'#39fc6b':'#ff5a5a';g.font='12px ui-monospace,monospace';g.fillText('distinct substrings: '+d+' = brute '+b+(d===b?' ✓':''),10,H-30);
+ g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText('"bc" '+(contains(sam,'bc')?'✓':'✗')+'  "ac" '+(contains(sam,'ac')?'✓':'✗')+'  "'+str.slice(1,4)+'" '+(contains(sam,str.slice(1,4))?'✓':'✗')+'  · '+sam.sz+' states ≤ 2·'+str.length,10,H-10);
+ document.getElementById('samread').textContent='"'+str+'": '+d+' distinct substrings, '+sam.sz+' states';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var sam=buildSAM(str),lay=layout(sam),cx=W/2,cy=H/2,ca=Math.cos(ang),sa=Math.sin(ang),dx=60;
+ function P(v){var p=lay.pos[v],X=(p.l-lay.maxL/2)*dx,Z=(p.i-(p.cnt-1)/2)*36,rx=X*ca-Z*sa,rz=X*sa+Z*ca;return [cx+rx,cy+rz*0.5,rz];}
+ for(var v=1;v<sam.sz;v++){if(sam.link[v]>=0){var A=P(v),B=P(sam.link[v]);g.strokeStyle='rgba(255,45,149,0.6)';g.lineWidth=1.4;g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.stroke();}}
+ for(var v=0;v<sam.sz;v++)for(var c in sam.nxt[v]){var A=P(v),B=P(sam.nxt[v][c]);g.strokeStyle='#39fc6b';g.lineWidth=1.6;g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.stroke();}
+ g.lineWidth=1;for(var v=0;v<sam.sz;v++){var p=P(v);g.fillStyle=v===0?'#ffd23f':'#cfe8d0';g.beginPath();g.arc(p[0],p[1],3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green transitions (spell substrings) · magenta suffix-link tree',10,H-12);}
+function verify(){var cok=true,mok=true,sok=true;for(var t=0;t<200;t++){var n=3+Math.floor(Math.random()*20),s='';for(var i=0;i<n;i++)s+='abc'[Math.floor(Math.random()*3)];var sam=buildSAM(s);if(distinct(sam)!==brute(s))cok=false;if(sam.sz>2*n)sok=false;
+  for(var q=0;q<10;q++){var i=Math.floor(Math.random()*n),j=i+1+Math.floor(Math.random()*(n-i)),sub=s.substring(i,j);var bset={};for(var a=0;a<n;a++)for(var b=a+1;b<=n;b++)bset[s.substring(a,b)]=1;if(contains(sam,sub)!==(sub in bset))mok=false;var rnd='abcd'[Math.floor(Math.random()*4)]+'abcd'[Math.floor(Math.random()*4)];if(contains(sam,rnd)!==(rnd in bset))mok=false;}if(!cok||!mok||!sok)break;}
+ return {countMatchesBrute:cok,membershipMatches:mok,linearSize:sok};}
+function all(){drawW3();drawW4();window.__sam=verify();}
+document.getElementById('sam0').onclick=function(){str='abcbc';drawW3();drawW4();};
+document.getElementById('sam1').onclick=function(){str='banana';drawW3();drawW4();};
+document.getElementById('sam2').onclick=function(){str='abcabc';drawW3();drawW4();};
+document.getElementById('samspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-oracle-of-echoes","title":"THE ORACLE OF ECHOES","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#6ad0d0","icon":"boss",
+  "kicker":"the smallest machine that knows every substring",
+  "blurb":"the suffix automaton (DAWG) in the 5-window house format — the smallest finite automaton recognising exactly every substring of a string, built online in linear time via the endpos equivalence. Count distinct substrings, test membership, all from one machine. See the count climb in 1D, the automaton in 2D, and the DAG with its suffix-link tree in 3D.",
+  "lit":"A genuine suffix automaton. Verified live: the distinct-substring count Σ(len[v]−len[link[v]]) equals a brute-force count, membership queries match a naive scan, and the automaton stays within 2n states (linear) — over random strings. The endpos-based minimality is the exact structure (verifiable: window.__sam.countMatchesBrute && membershipMatches && linearSize).",
+  "fig":"'The oracle of echoes' is the picture; the endpos-minimality, the substring count, and the linear size are exact. It really is the smallest automaton for a string's substrings, built in one online pass.",
+  "body":SAM_BODY,"script":SAM_SCRIPT},
  {"slug":"the-square-root-in-the-ring","title":"THE SQUARE ROOT IN THE RING","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#a0d0ff","icon":"boss",
   "kicker":"un-square in a prime field — if a root exists at all",
