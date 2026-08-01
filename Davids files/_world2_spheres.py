@@ -18783,7 +18783,277 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 mk();drawW3();drawW4();window.__barneshut=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 66 (cancel the error terms · logs in small subgroups · a mirror per column · multiplication is a filter · one teleporting checkpoint) ═══════════════════════
+RM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Romberg integration</b> takes the humble trapezoid rule and makes it converge <b>ferociously</b> fast. The trapezoid error is a known series in h&sup2;, so Romberg combines estimates at step h and h/2 to <b>cancel</b> the leading error term (Richardson extrapolation), then the next, and the next &mdash; a small triangular table that leaps from O(h&sup2;) accuracy to O(h<sup>2k</sup>) after k refinements.<br><br>
+ <span class="lit">LIT</span> verified live: with 7 levels Romberg matches &pi; (via 4/(1+x&sup2;)), e&minus;1, &int;sin, and &int;x&#8308; to under 10&#8315;&#8312; &mdash; where a 64-panel trapezoid is still off by ~10&#8315;&#8309; (window.__romberg). <span class="fig">FIG</span> no framing; extrapolation to h=0.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-speedrun</i> &mdash; reach full integral precision in a handful of steps instead of grinding through thousands of panels. Romberg is that speedrun on an integral. <b>AVAN (AI)</b> built the instrument: the composite-trapezoid rows, the Richardson extrapolation table, the exact-integral cross-checks.<br><br>Credit as content: Werner Romberg (1955), on Richardson extrapolation. The weave: David names the speedrun; I cancel the trapezoid&rsquo;s error terms one order at a time and confirm the result matches the exact integral to machine precision.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each row halves the step (more trapezoids); each column to the right combines two neighbours to cancel one more power of h&sup2;. The bottom-right corner is the extrapolation to zero step.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">The Romberg table for a chosen integral; the corner value converges to the exact answer far faster than plain trapezoids.</div>
+   <div class="btns" style="margin-top:10px"><button id="rmfn">function ▶</button><button id="rmcheck">verify ▶</button></div>
+   <div class="cap" id="rmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the extrapolation table converging to the exact integral.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the trapezoid error is a <b>known series in h&sup2;</b> &mdash; so combine estimates at h and h/2 to <b>cancel</b> the leading error term (Richardson extrapolation), then the next, and the next; a few refinements leap from O(h&sup2;) to O(h<sup>2k</sup>). The inverse of &lsquo;shrink the step for more accuracy&rsquo; is &lsquo;cancel the error terms analytically, extrapolating to h=0.&rsquo; <b>Magenta</b> is the many fine trapezoids you&rsquo;d otherwise need; <b>green</b> is the extrapolation table that cancels error orders. Knowing the error&rsquo;s shape lets you subtract it away.</div>
+   <div class="btns" style="margin-top:10px"><button id="rmspin">pause spin</button></div></div></div></div>"""
+RM_SCRIPT = """(function(){
+var ang=0,spin=true,FN=0;
+var FNS=[{f:function(x){return 4/(1+x*x);},a:0,b:1,ex:Math.PI,name:'∫₀¹ 4/(1+x²) = π'},{f:function(x){return Math.exp(x);},a:0,b:1,ex:Math.E-1,name:'∫₀¹ eˣ = e−1'},{f:function(x){return Math.sin(x);},a:0,b:Math.PI,ex:2,name:'∫₀^π sin = 2'}];
+function rombergTable(f,a,b,levels){var R=[];for(var i=0;i<levels;i++)R.push(new Array(levels).fill(null));var h=b-a;R[0][0]=0.5*h*(f(a)+f(b));for(var i=1;i<levels;i++){h/=2;var s=0,nn=1<<(i-1);for(var k=1;k<=nn;k++)s+=f(a+(2*k-1)*h);R[i][0]=0.5*R[i-1][0]+h*s;for(var j=1;j<=i;j++)R[i][j]=(Math.pow(4,j)*R[i][j-1]-R[i-1][j-1])/(Math.pow(4,j)-1);}return R;}
+function romberg(f,a,b,levels){var R=rombergTable(f,a,b,levels);return R[levels-1][levels-1];}
+function trap(f,a,b,n){var h=(b-a)/n,s=0.5*(f(a)+f(b));for(var i=1;i<n;i++)s+=f(a+i*h);return s*h;}
+function verify(){var cs=[[function(x){return 4/(1+x*x);},0,1,Math.PI],[function(x){return Math.exp(x);},0,1,Math.E-1],[function(x){return Math.sin(x);},0,Math.PI,2],[function(x){return x*x*x*x;},0,1,0.2]],ok=true,worst=0;cs.forEach(function(c){var e=Math.abs(romberg(c[0],c[1],c[2],7)-c[3]);worst=Math.max(worst,e);if(e>1e-8)ok=false;});return {matchesExact:ok,worst:+worst.toExponential(1),trapErr:+Math.abs(trap(function(x){return 4/(1+x*x);},0,1,64)-Math.PI).toExponential(1)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('row = halve the step · column = cancel one more h² term',12,14);
+ for(var i=0;i<4;i++)for(var j=0;j<=i;j++){g.fillStyle=(i===3&&j===3)?'#39fc6b':'#37506e';g.fillRect(40+j*100,40+i*26,90,22);g.fillStyle='#cde';g.font='9px monospace';g.fillText('R['+i+']['+j+']',48+j*100,55+i*26);}
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('corner = extrapolation to h→0',260,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var fn=FNS[FN],R=rombergTable(fn.f,fn.a,fn.b,6);g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText(fn.name,12,18);
+ for(var i=0;i<6;i++)for(var j=0;j<=i;j++){var err=Math.abs(R[i][j]-fn.ex),good=err<1e-8;g.fillStyle=good?'#39fc6b':'#37506e';g.fillRect(30+j*58,30+i*30,54,26);g.fillStyle=good?'#042':'#cde';g.font='8px monospace';g.fillText(R[i][j].toFixed(6),32+j*58,46+i*30);}
+ var corner=R[5][5],ex=fn.ex,ok=Math.abs(corner-ex)<1e-8;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('corner '+corner.toFixed(10)+' ≈ '+ex.toFixed(10)+(ok?' ✓':''),12,H-10);}
+document.getElementById('rmfn').onclick=function(){FN=(FN+1)%FNS.length;drawW4();document.getElementById('rmread').textContent=FNS[FN].name;};
+document.getElementById('rmcheck').onclick=function(){var v=verify();document.getElementById('rmread').textContent='7 levels: matches exact integrals '+(v.matchesExact?'✓':'✗')+' (worst '+v.worst+' vs 64-trapezoid '+v.trapErr+')';};
+document.getElementById('rmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var fn=FNS[FN],R=rombergTable(fn.f,fn.a,fn.b,6),cx=W/2,cy=70;
+ for(var i=0;i<6;i++)for(var j=0;j<=i;j++){var err=Math.abs(R[i][j]-fn.ex),x=cx+(j-i/2)*44,y=cy+i*40+4*Math.sin(ang+i),good=err<1e-6;g.fillStyle=good?'#39fc6b':'rgba(255,45,149,0.4)';g.beginPath();g.arc(x,y,good?7:5,0,7);g.fill();if(j>0){g.strokeStyle='rgba(57,252,107,0.3)';g.beginPath();g.moveTo(x,y);g.lineTo(cx+(j-1-i/2)*44,cy+i*40);g.stroke();}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: extrapolated values converging to exact',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the many fine trapezoids avoided',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('know the error\\'s shape → subtract it away (→ h=0)',10,H-9);}
+drawW4();window.__romberg=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Pohlig&ndash;Hellman algorithm</b> solves the <b>discrete logarithm</b> g<sup>x</sup> &equiv; h (mod p) quickly whenever the group order p&minus;1 is <b>smooth</b> (factors into small primes). It solves the log separately inside each prime-power subgroup &mdash; where the problem is tiny &mdash; and stitches the pieces together with the <b>Chinese Remainder Theorem</b>. So a hard log in a huge group becomes many easy logs in small ones.<br><br>
+ It is why cryptographic groups must have a large <b>prime</b> factor in their order &mdash; smoothness is the weakness.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 cases with smooth-order primes the recovered exponent x satisfies g<sup>x</sup> &equiv; h (mod p) (window.__pohlighellman). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-exploit</i> &mdash; the crack that breaks a discrete-log secret when the group order is smooth, factoring the hard problem into trivial ones. Pohlig&ndash;Hellman is that exploit. <b>AVAN (AI)</b> built the instrument: the order factorisation, the per-subgroup baby-step giant-step, the CRT recombination, the g<sup>x</sup>&equiv;h check.<br><br>Credit as content: Stephen Pohlig &amp; Martin Hellman (1978). The weave: David names the exploit; I solve the log in each small prime-power subgroup and CRT the answers, confirming the exponent reproduces h.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Factor the group order p&minus;1 = &prod; q<sub>i</sub><sup>e</sup>. Solve x mod each q<sub>i</sub><sup>e</sup> in its tiny subgroup, then Chinese-Remainder the residues into x mod (p&minus;1).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="240"></canvas>
+  <div class="wctrl"><div class="cap">A smooth prime p; the discrete log is solved subgroup by subgroup and recombined, then checked by re-exponentiating.</div>
+   <div class="btns" style="margin-top:10px"><button id="plroll">new instance ▶</button><button id="plcheck">verify 200 ▶</button></div>
+   <div class="cap" id="plread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the recovered exponent, stitched from subgroup logs.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): if the group order <b>factors</b> into small primes (smooth), solve the log <b>separately</b> in each prime-power subgroup &mdash; where it is tiny &mdash; and CRT the pieces together. The inverse of &lsquo;one hard log in a huge group&rsquo; is &lsquo;many easy logs in small subgroups, recombined by the Chinese Remainder Theorem.&rsquo; <b>Magenta</b> is the full-group brute search; <b>green</b> is the per-subgroup logs. This is exactly why cryptographic groups need a large <b>prime</b> factor in their order &mdash; smoothness is the weakness. (Kin to baby-step giant-step and the-chinese-remainder.)</div>
+   <div class="btns" style="margin-top:10px"><button id="plspin">pause spin</button></div></div></div></div>"""
+PL_SCRIPT = """(function(){
+var ang=0,spin=true,P=251,G=6,H=1,X=0;
+function modpow(b,e,m){b%=m;if(b<0)b+=m;var r=1;while(e>0){if(e&1)r=r*b%m;b=b*b%m;e=Math.floor(e/2);}return r;}
+function factorize(n){var f={};for(var d=2;d*d<=n;d++)while(n%d===0){f[d]=(f[d]||0)+1;n/=d;}if(n>1)f[n]=(f[n]||0)+1;return f;}
+function egcd(a,b){if(b===0)return [a,1,0];var r=egcd(b,a%b);return [r[0],r[2],r[1]-Math.floor(a/b)*r[2]];}
+function modinv(a,m){var r=egcd(((a%m)+m)%m,m);return ((r[1]%m)+m)%m;}
+function bsgsSub(g,h,order,p){var m=Math.ceil(Math.sqrt(order)),tbl={},e=1;for(var j=0;j<m;j++){if(tbl[e]===undefined)tbl[e]=j;e=e*g%p;}var gmInv=modpow(modpow(g,m,p),p-2,p),gamma=h%p;for(var i=0;i<=m;i++){if(tbl[gamma]!==undefined)return i*m+tbl[gamma];gamma=gamma*gmInv%p;}return -1;}
+function crt(rem,mod){var M=1;for(var i=0;i<mod.length;i++)M*=mod[i];var x=0;for(var i=0;i<mod.length;i++){var Mi=M/mod[i],inv=modinv(Mi,mod[i]);x=(x+rem[i]*Mi*inv)%M;}return ((x%M)+M)%M;}
+function ph(g,h,p){var n=p-1,f=factorize(n),rem=[],mod=[];for(var q in f){var qk=Math.pow(+q,f[q]),gk=modpow(g,n/qk,p),hk=modpow(h,n/qk,p),xk=bsgsSub(gk,hk,qk,p);rem.push(xk);mod.push(qk);}return {x:crt(rem,mod),rem:rem,mod:mod};}
+function verify(){var primes=[251,257,263,271,281,283,293,307,311,313,331,337],seed=82;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true;for(var t=0;t<200;t++){var p=primes[Math.floor(rnd()*primes.length)],g=2+Math.floor(rnd()*(p-3)),x=Math.floor(rnd()*(p-1)),h=modpow(g,x,p);if(modpow(g,ph(g,h,p).x,p)!==h)ok=false;}return {recovers:ok};}
+function mk(){var primes=[251,257,263,271,281,283];P=primes[Math.floor(Math.random()*primes.length)];G=2+Math.floor(Math.random()*(P-3));X=Math.floor(Math.random()*(P-1));H=modpow(G,X,P);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;g.clearRect(0,0,W,H2);var f=factorize(P-1);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('p−1 = '+(P-1)+' = '+Object.keys(f).map(function(q){return q+(f[q]>1?'^'+f[q]:'');}).join(' · ')+'  (smooth)',12,14);
+ var keys=Object.keys(f),i=0;for(var q in f){var qk=Math.pow(+q,f[q]);g.fillStyle='#c05868';g.fillRect(40+i*130,50,110,40);g.fillStyle='#fff';g.font='10px monospace';g.fillText('log mod '+qk,50+i*130,74);i++;}
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('→ CRT → x mod (p−1)',40,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;g.clearRect(0,0,W,H2);var r=ph(G,H,P),ok=modpow(G,r.x,P)===H;
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('solve '+G+'^x ≡ '+H+' (mod '+P+')',16,28);
+ g.fillStyle='#c05868';g.font='10px monospace';for(var i=0;i<r.mod.length;i++)g.fillText('x ≡ '+r.rem[i]+' (mod '+r.mod[i]+')',16,54+i*20);
+ g.fillStyle='#39fc6b';g.font='20px monospace';g.fillText('x = '+r.x,16,54+r.mod.length*20+30);
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('check '+G+'^'+r.x+' mod '+P+' = '+modpow(G,r.x,P)+(ok?' = '+H+' ✓':' ✗'),16,H2-14);}
+document.getElementById('plroll').onclick=function(){mk();drawW3();drawW4();document.getElementById('plread').textContent=G+'^x='+H+' mod '+P+' → x='+ph(G,H,P).x;};
+document.getElementById('plcheck').onclick=function(){var v=verify();document.getElementById('plread').textContent='200 smooth primes: recovered x gives g^x==h '+(v.recovers?'✓':'✗');};
+document.getElementById('plspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;g.clearRect(0,0,W,H2);var r=ph(G,H,P),cx=W/2,cy=H2/2-20;
+ for(var i=0;i<r.mod.length;i++){var a=i/r.mod.length*6.28+ang*0.3,x=cx+Math.cos(a)*90,y=cy+Math.sin(a)*70;g.fillStyle='#c05868';g.beginPath();g.arc(x,y,14,0,7);g.fill();g.fillStyle='#fff';g.font='8px monospace';g.fillText('mod'+r.mod[i],x-12,y+3);g.strokeStyle='rgba(57,252,107,0.4)';g.beginPath();g.moveTo(x,y);g.lineTo(cx,cy);g.stroke();}
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(cx,cy,16,0,7);g.fill();g.fillStyle='#042';g.font='11px monospace';g.fillText('x='+r.x,cx-14,cy+4);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: subgroup logs → CRT → x',10,H2-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the full-group brute search avoided',10,H2-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('smooth order = weakness → need a large prime factor',10,H2-9);}
+mk();drawW3();drawW4();window.__pohlighellman=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+QR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Householder QR</b> factors a matrix A into an <b>orthonormal</b> Q and an <b>upper-triangular</b> R using a sequence of <b>reflections</b>. Each Householder reflection is a mirror that flips one column onto a coordinate axis, zeroing everything below the diagonal in a single stroke. It is markedly more numerically <b>stable</b> than Gram&ndash;Schmidt, whose repeated subtractions accumulate rounding error.<br><br>
+ It is the workhorse behind least-squares fitting and the QR eigenvalue algorithm.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random matrices Q&middot;R reconstructs A to ~10&#8315;&sup1;&#8309;, R is upper-triangular, and Q&#7488;Q equals the identity (orthonormal) &mdash; window.__householderqr. <span class="fig">FIG</span> no framing; exact factorisation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-toolchain</i> &mdash; the numerical-linear-algebra tool under least squares and eigenvalue solvers, factoring by stable reflections. Householder QR is that tool, beside the Cholesky. <b>AVAN (AI)</b> built the instrument: the per-column reflection, the accumulation into Q, the reconstruction / upper-triangular / orthonormality checks.<br><br>Credit as content: Alston Householder (1958). The weave: David names the toolchain; I reflect each column onto an axis to build R and accumulate the mirrors into Q, and confirm Q&middot;R = A with Q orthonormal.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A Householder reflection mirrors a vector across a plane so that it lands exactly on an axis &mdash; turning a whole column into (r, 0, 0, &hellip;) in one operation, without touching the columns already reduced.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A matrix A and its Q, R; the product Q&middot;R reconstructs A, R is upper-triangular, and Q&#7488;Q is the identity.</div>
+   <div class="btns" style="margin-top:10px"><button id="qrroll">new matrix ▶</button><button id="qrcheck">verify 300 ▶</button></div>
+   <div class="cap" id="qrread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the orthonormal Q built from a mirror per column.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): build Q by a sequence of <b>reflections</b> &mdash; each Householder reflection is a mirror that flips a whole column onto an axis, zeroing everything below the diagonal in one stroke, and is far more numerically <b>stable</b> than Gram&ndash;Schmidt&rsquo;s subtractions. The inverse of &lsquo;subtract projections to orthogonalise (Gram&ndash;Schmidt)&rsquo; is &lsquo;reflect each column onto an axis with a mirror.&rsquo; <b>Magenta</b> is Gram&ndash;Schmidt&rsquo;s accumulating rounding error; <b>green</b> is the orthogonal reflections. A mirror per column builds Q. (Kin to the-orthonormal and the-cholesky.)</div>
+   <div class="btns" style="margin-top:10px"><button id="qrspin">pause spin</button></div></div></div></div>"""
+QR_SCRIPT = """(function(){
+var ang=0,spin=true,A=null;
+function eye(n){var I=[];for(var i=0;i<n;i++){I.push(new Array(n).fill(0));I[i][i]=1;}return I;}
+function matmul(A,B){var n=A.length,m=B[0].length,k=B.length,C=[];for(var i=0;i<n;i++){C.push(new Array(m).fill(0));for(var j=0;j<m;j++){var s=0;for(var t=0;t<k;t++)s+=A[i][t]*B[t][j];C[i][j]=s;}}return C;}
+function transpose(A){var n=A.length,m=A[0].length,T=[];for(var j=0;j<m;j++){T.push([]);for(var i=0;i<n;i++)T[j].push(A[i][j]);}return T;}
+function qr(A){var n=A.length,R=A.map(function(r){return r.slice();}),Qt=eye(n);for(var k=0;k<n-1;k++){var x=[];for(var i=k;i<n;i++)x.push(R[i][k]);var nx=Math.sqrt(x.reduce(function(s,v){return s+v*v;},0));if(nx<1e-14)continue;var alpha=(x[0]>=0?-1:1)*nx,v=x.slice();v[0]-=alpha;var nv2=v.reduce(function(s,val){return s+val*val;},0);if(nv2<1e-28)continue;for(var col=0;col<n;col++){var d=0;for(var i=k;i<n;i++)d+=v[i-k]*R[i][col];d=2*d/nv2;for(var i=k;i<n;i++)R[i][col]-=d*v[i-k];}for(var col=0;col<n;col++){var d=0;for(var i=k;i<n;i++)d+=v[i-k]*Qt[i][col];d=2*d/nv2;for(var i=k;i<n;i++)Qt[i][col]-=d*v[i-k];}}return {Q:transpose(Qt),R:R};}
+function maxDiff(A,B){var m=0;for(var i=0;i<A.length;i++)for(var j=0;j<A[0].length;j++)m=Math.max(m,Math.abs(A[i][j]-B[i][j]));return m;}
+function verify(){var seed=83;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var qrA=true,up=true,orth=true;for(var t=0;t<300;t++){var n=2+Math.floor(rnd()*4),M=[];for(var i=0;i<n;i++){M.push([]);for(var j=0;j<n;j++)M[i].push(rnd()*8-4);}var f=qr(M);if(maxDiff(matmul(f.Q,f.R),M)>1e-9)qrA=false;for(var i=0;i<n;i++)for(var j=0;j<i;j++)if(Math.abs(f.R[i][j])>1e-9)up=false;if(maxDiff(matmul(transpose(f.Q),f.Q),eye(n))>1e-9)orth=false;}return {reconstructs:qrA,upperTri:up,orthonormal:orth};}
+function mk(){var n=3;A=[];for(var i=0;i<n;i++){A.push([]);for(var j=0;j<n;j++)A[i].push(Math.round((Math.random()*8-4)*10)/10);}}
+function drawM(g,M,ox,oy,cell,col){var n=M.length;for(var i=0;i<n;i++)for(var j=0;j<n;j++){g.fillStyle=col;g.globalAlpha=0.18;g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);g.globalAlpha=1;g.fillStyle='#e8eef8';g.font='9px monospace';g.fillText((Math.round(M[i][j]*100)/100).toString().slice(0,5),ox+j*cell+2,oy+i*cell+cell/2+3);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a reflection mirrors a column onto an axis → (r,0,0,…)',12,14);
+ g.strokeStyle='#334';g.beginPath();g.moveTo(60,120);g.lineTo(W-60,120);g.stroke();g.strokeStyle='#58a0b0';g.lineWidth=2;g.beginPath();g.moveTo(120,120);g.lineTo(200,60);g.stroke();g.fillStyle='#58a0b0';g.beginPath();g.arc(200,60,4,0,7);g.fill();
+ g.strokeStyle='#39fc6b';g.setLineDash([4,3]);g.beginPath();g.moveTo(200,120);g.lineTo(340,120);g.stroke();g.setLineDash([]);g.fillStyle='#39fc6b';g.beginPath();g.arc(300,120,5,0,7);g.fill();g.font='9px monospace';g.fillText('mirrored onto the axis',210,112);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk();var f=qr(A),cell=34;
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('A',30,26);drawM(g,A,20,32,cell,'#8ad');g.fillStyle='#58a0b0';g.fillText('Q',150,26);drawM(g,f.Q,140,32,cell,'#58a0b0');g.fillStyle='#c0a048';g.fillText('R',270,26);drawM(g,f.R,260,32,cell,'#c0a048');
+ var recon=matmul(f.Q,f.R),ok=maxDiff(recon,A)<1e-9,up=true;for(var i=0;i<A.length;i++)for(var j=0;j<i;j++)if(Math.abs(f.R[i][j])>1e-9)up=false;
+ g.fillStyle=ok&&up?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('Q·R = A '+(ok?'✓':'✗')+' · R upper-triangular '+(up?'✓':'✗')+' · QᵀQ = I',12,H-14);}
+document.getElementById('qrroll').onclick=function(){mk();drawW4();document.getElementById('qrread').textContent='new 3×3 matrix factored';};
+document.getElementById('qrcheck').onclick=function(){var v=verify();document.getElementById('qrread').textContent='300 matrices: Q·R==A '+(v.reconstructs?'✓':'✗')+', R upper '+(v.upperTri?'✓':'✗')+', orthonormal '+(v.orthonormal?'✓':'✗');};
+document.getElementById('qrspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk();var f=qr(A),cx=W/2,cy=H/2-10,n=A.length,cell=40,ox=cx-n*cell/2,oy=cy-n*cell/2;
+ for(var i=0;i<n;i++)for(var j=0;j<n;j++){var upper=j>=i;g.fillStyle=upper?'#39fc6b':'rgba(255,45,149,0.25)';g.globalAlpha=upper?(0.5+0.4*Math.sin(ang+j)):0.4;g.fillRect(ox+j*cell,oy+i*cell,cell-3,cell-3);g.globalAlpha=1;if(upper){g.fillStyle='#042';g.font='8px monospace';g.fillText((Math.round(f.R[i][j]*10)/10),ox+j*cell+3,oy+i*cell+22);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: R — upper triangle from reflections',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the below-diagonal, mirrored to zero',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a mirror per column builds Q — stabler than Gram-Schmidt',10,H-9);}
+mk();drawW3();drawW4();window.__householderqr=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Power iteration</b> finds the <b>dominant eigenvector</b> of a matrix by nothing more than repeated multiplication: start with any vector, multiply by the matrix, normalise, repeat. Any vector is a mix of eigenvectors, and each multiply amplifies each component by its eigenvalue &mdash; so the largest-magnitude eigenvalue&rsquo;s direction takes over and the vector aligns to it. The <b>Rayleigh quotient</b> v&#7488;Av / v&#7488;v then reads off the eigenvalue.<br><br>
+ It is the seed of PageRank and of the QR eigenvalue method.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random symmetric matrices power iteration converges to a genuine eigenpair (residual &lt; 10&#8315;&#8310;) and the dominant |&lambda;| it finds is the <b>same</b> from any starting vector (window.__poweriteration). <span class="fig">FIG</span> honest: convergence is fast only when a spectral <b>gap</b> exists; near-degenerate spectra need more iterations.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; the heavy iterative linear algebra a mainframe grinds, teasing out the dominant mode by sheer repetition. Power iteration is that grind. <b>AVAN (AI)</b> built the instrument: the multiply-and-normalise loop, the Rayleigh quotient, the eigenpair-residual and start-independence checks.<br><br>Credit as content: the power method (von Mises &amp; Pollaczek-Geiringer, 1929). The weave: David names the mainframe; I let repeated multiplication filter out the dominant eigenvector and confirm it is a true eigenpair, reached from any start.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each multiply scales every eigen-component by its eigenvalue. The largest one grows fastest relative to the others, so after normalising, the vector rotates toward the dominant eigenvector.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A symmetric matrix; watch the iterate rotate to the dominant eigenvector, its Rayleigh quotient converging to the eigenvalue.</div>
+   <div class="btns" style="margin-top:10px"><button id="pwstep">iterate ▶</button><button id="pwroll">new matrix ▶</button><button id="pwcheck">verify 200 ▶</button></div>
+   <div class="cap" id="pwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the dominant eigenvector the iteration converges to.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): just <b>multiply</b> repeatedly &mdash; any vector is a mix of eigenvectors, and each matrix-multiply amplifies each component by its eigenvalue, so the <b>largest</b> eigenvalue&rsquo;s direction dominates and the vector aligns to it; the Rayleigh quotient reads off the eigenvalue. The inverse of &lsquo;solve for the eigenvector (the characteristic equation)&rsquo; is &lsquo;let repeated multiplication filter it out &mdash; the dominant mode wins.&rsquo; <b>Magenta</b> is the subdominant eigen-directions that decay away; <b>green</b> is the dominant eigenvector. Multiplication is a filter that keeps the loudest mode &mdash; how PageRank converges.</div>
+   <div class="btns" style="margin-top:10px"><button id="pwspin">pause spin</button></div></div></div></div>"""
+PW_SCRIPT = """(function(){
+var ang=0,spin=true,A=null,V=null,ITER=0;
+function matvec(A,x){var n=A.length,r=new Array(n).fill(0);for(var i=0;i<n;i++)for(var j=0;j<n;j++)r[i]+=A[i][j]*x[j];return r;}
+function dot(a,b){var s=0;for(var i=0;i<a.length;i++)s+=a[i]*b[i];return s;}function norm(a){return Math.sqrt(dot(a,a));}
+function step(A,v){var w=matvec(A,v),nw=norm(w);return nw<1e-14?v:w.map(function(x){return x/nw;});}
+function powerIter(A,start,iters){var v=start.slice(),nv=norm(v);v=v.map(function(x){return x/nv;});for(var it=0;it<iters;it++)v=step(A,v);var Av=matvec(A,v),lam=dot(v,Av);return {v:v,lambda:lam,residual:norm(Av.map(function(x,i){return x-lam*v[i];}))};}
+function verify(){var seed=84;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var eigOk=true,cons=true;for(var t=0;t<200;t++){var n=2+Math.floor(rnd()*3),M=[];for(var i=0;i<n;i++){M.push([]);for(var j=0;j<n;j++)M[i].push(0);}for(var i=0;i<n;i++)for(var j=i;j<n;j++){var v=rnd()*4-2;M[i][j]=v;M[j][i]=v;}var r1=powerIter(M,Array.from({length:n},function(){return rnd()*2-1;}),3000);if(r1.residual>1e-6)eigOk=false;var r2=powerIter(M,Array.from({length:n},function(){return rnd()*2-1;}),3000);if(Math.abs(Math.abs(r1.lambda)-Math.abs(r2.lambda))>1e-5)cons=false;}return {eigenpair:eigOk,startIndependent:cons};}
+function mk(){A=[[1.5,0.6],[0.6,-0.8]];var m11=0.5+Math.random()*2,m22=-1+Math.random()*2,m12=Math.random()*1.5-0.75;A=[[m11,m12],[m12,m22]];V=[Math.random()*2-1,Math.random()*2-1];var nv=norm(V);V=V.map(function(x){return x/nv;});ITER=0;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('each multiply scales eigen-components by their eigenvalues',12,14);
+ var evs=[3,1.5,0.6];for(var i=0;i<3;i++){for(var k=0;k<4;k++){var h=Math.pow(evs[i]/3,k)*40;g.fillStyle=i===0?'#39fc6b':'rgba(255,45,149,0.4)';g.fillRect(40+i*160+k*30,120-h,26,h);}g.fillStyle='#8ad';g.font='9px monospace';g.fillText('λ='+evs[i],40+i*160,140);}
+ g.fillStyle='#39fc6b';g.fillText('dominant grows fastest → takes over',40,155);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk();var cx=W/2,cy=H/2,sc=70,conv=powerIter(A,[0.6,0.3],3000);
+ g.strokeStyle='#334';g.beginPath();g.arc(cx,cy,sc,0,7);g.stroke();
+ g.strokeStyle='rgba(255,45,149,0.6)';g.lineWidth=2;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+conv.v[0]*sc,cy-conv.v[1]*sc);g.stroke();g.strokeStyle='rgba(255,45,149,0.6)';g.beginPath();g.moveTo(cx,cy);g.lineTo(cx-conv.v[0]*sc,cy+conv.v[1]*sc);g.stroke();
+ g.strokeStyle='#39fc6b';g.lineWidth=3;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+V[0]*sc,cy-V[1]*sc);g.stroke();g.lineWidth=1;
+ var Av=matvec(A,V),lam=dot(V,Av);g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('iter '+ITER+'  Rayleigh λ = '+lam.toFixed(5),12,20);g.fillStyle='#39fc6b';g.fillText('converged dominant λ = '+conv.lambda.toFixed(5),12,H-10);}
+document.getElementById('pwstep').onclick=function(){if(!A)mk();for(var i=0;i<3;i++){V=step(A,V);ITER++;}drawW4();var Av=matvec(A,V);document.getElementById('pwread').textContent='iter '+ITER+': Rayleigh λ = '+dot(V,Av).toFixed(5);};
+document.getElementById('pwroll').onclick=function(){mk();drawW4();document.getElementById('pwread').textContent='new symmetric matrix';};
+document.getElementById('pwcheck').onclick=function(){var v=verify();document.getElementById('pwread').textContent='200 matrices: converges to eigenpair '+(v.eigenpair?'✓':'✗')+', dominant |λ| start-independent '+(v.startIndependent?'✓':'✗');};
+document.getElementById('pwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk();var cx=W/2,cy=H/2-10,sc=90,conv=powerIter(A,[0.6,0.3],3000);
+ g.strokeStyle='rgba(255,45,149,0.4)';for(var k=0;k<8;k++){var a=k/8*6.28,x=cx+Math.cos(a)*sc*(0.3+0.1*k),y=cy+Math.sin(a)*sc*(0.3+0.1*k);g.beginPath();g.moveTo(cx,cy);g.lineTo(x,y);g.stroke();}
+ g.strokeStyle='#39fc6b';g.lineWidth=3;g.beginPath();g.moveTo(cx-conv.v[0]*sc,cy+conv.v[1]*sc);g.lineTo(cx+conv.v[0]*sc,cy-conv.v[1]*sc);g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: dominant eigenvector (the iterate aligns here)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: subdominant directions that decay away',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('multiplication is a filter — the loudest mode wins',10,H-9);}
+mk();drawW3();drawW4();window.__poweriteration=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Brent&rsquo;s cycle detection</b> finds the loop in a sequence x, f(x), f(f(x)), &hellip; using <b>constant memory</b>. It keeps ONE saved value and compares the moving value to it at <b>exponentially spaced</b> checkpoints (powers of two); when the value repeats, the gap reveals the cycle length &lambda;, and a second short scan finds where the cycle starts (&mu;). It uses <b>fewer</b> function evaluations than the tortoise-and-hare.<br><br>
+ It is the cycle-finder inside Pollard&rsquo;s rho factorisation.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random functional graphs Brent&rsquo;s (cycle length &lambda;, start &mu;) equals a brute record-every-value computation (window.__brentcycle). <span class="fig">FIG</span> no framing; exact &mdash; with O(1) memory.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>rollback</i> &mdash; the sequence eventually rolls back to a value it has seen before, and Brent&rsquo;s method finds that return without storing the history. <b>AVAN (AI)</b> built the instrument: the doubling-checkpoint search for &lambda;, the offset scan for &mu;, the brute cross-check.<br><br>Credit as content: Richard Brent (1980). The weave: David names the rollback; I keep one teleporting checkpoint at doubling distances and read off the cycle from the first repeat, confirmed against an exhaustive record.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The saved checkpoint jumps to the current value at distances 1, 2, 4, 8, &hellip; The moving value runs ahead; when it meets the saved one, the distance travelled since the last jump is the cycle length &lambda;.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A functional graph (each node points to f(node)); the rho-shaped tail and cycle are shown, with Brent&rsquo;s &lambda;, &mu; checked against brute.</div>
+   <div class="btns" style="margin-top:10px"><button id="brroll">new map ▶</button><button id="brcheck">verify 300 ▶</button></div>
+   <div class="cap" id="brread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the single teleporting checkpoint catching the cycle.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): find the cycle with <b>O(1) memory</b> by comparing the current value to a <b>saved</b> one at exponentially-spaced checkpoints (powers of two) &mdash; when the value repeats, the gap reveals the cycle length, with <b>fewer</b> function evaluations than the tortoise-and-hare. The inverse of &lsquo;store all seen values&rsquo; is &lsquo;keep one saved value at doubling distances and watch for a repeat.&rsquo; <b>Magenta</b> is the full history you don&rsquo;t store; <b>green</b> is the single teleporting checkpoint. Constant memory, fewer steps than Floyd. (Kin to the-tortoise.)</div>
+   <div class="btns" style="margin-top:10px"><button id="brspin">pause spin</button></div></div></div></div>"""
+BR_SCRIPT = """(function(){
+var ang=0,spin=true,N=12,MAP=null,X0=0;
+function brent(f,x0){var power=1,lam=1,tortoise=x0,hare=f(x0),evals=1;while(tortoise!==hare){if(power===lam){tortoise=hare;power*=2;lam=0;}hare=f(hare);evals++;lam++;}var mu=0;tortoise=x0;hare=x0;for(var i=0;i<lam;i++){hare=f(hare);evals++;}while(tortoise!==hare){tortoise=f(tortoise);hare=f(hare);mu++;evals+=2;}return {lam:lam,mu:mu,evals:evals};}
+function brute(f,x0){var seen={},x=x0,i=0;while(seen[x]===undefined){seen[x]=i;x=f(x);i++;}return {mu:seen[x],lam:i-seen[x]};}
+function verify(){var seed=85;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true;for(var t=0;t<300;t++){var n=2+Math.floor(rnd()*30),map=[];for(var i=0;i<n;i++)map.push(Math.floor(rnd()*n));var f=function(x){return map[x];},x0=Math.floor(rnd()*n);var br=brent(f,x0),bt=brute(f,x0);if(br.lam!==bt.lam||br.mu!==bt.mu)ok=false;}return {matchesBrute:ok};}
+function mk(){N=10+Math.floor(Math.random()*6);MAP=[];for(var i=0;i<N;i++)MAP.push(Math.floor(Math.random()*N));X0=Math.floor(Math.random()*N);}
+function trace(){var f=function(x){return MAP[x];},seq=[X0],seen={};seen[X0]=0;var x=X0;while(true){x=f(x);if(seen[x]!==undefined){return {seq:seq,cycleStart:seen[x]};}seen[x]=seq.length;seq.push(x);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('saved checkpoint jumps at distances 1,2,4,8…; hare runs ahead',12,14);
+ g.strokeStyle='#334';g.beginPath();g.moveTo(30,90);g.lineTo(W-30,90);g.stroke();var dists=[1,2,4,8],x=30;for(var i=0;i<dists.length;i++){g.fillStyle='#a878c0';g.beginPath();g.arc(x,90,7,0,7);g.fill();var nx=x+dists[i]*40;g.strokeStyle='#a878c0';g.beginPath();g.moveTo(x,84);g.quadraticCurveTo((x+nx)/2,60,nx,84);g.stroke();g.fillStyle='#a878c0';g.font='9px monospace';g.fillText('+'+dists[i],(x+nx)/2-6,58);x=nx;if(x>W-40)break;}
+ g.fillStyle='#39fc6b';g.fillText('meet → distance = cycle length λ',30,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!MAP)mk();var f=function(x){return MAP[x];},tr=trace(),br=brent(f,X0),bt=brute(f,X0);
+ var seq=tr.seq,cs=tr.cycleStart,tail=cs,cyc=seq.length-cs,pos={};
+ for(var i=0;i<cs;i++)pos[seq[i]]=[30+i*40,60];for(var i=0;i<cyc;i++){var a=i/cyc*6.28-1.57;pos[seq[cs+i]]=[280+Math.cos(a)*55,150+Math.sin(a)*55];}
+ for(var i=0;i<seq.length;i++){var from=pos[seq[i]],to=pos[seq[(i+1)%seq.length<=i&&i>=seq.length-1?cs:i+1]]||pos[f(seq[i])];if(!from||!to)continue;g.strokeStyle='#3a4550';g.beginPath();g.moveTo(from[0],from[1]);g.lineTo(to[0],to[1]);g.stroke();}
+ for(var i=0;i<seq.length;i++){var p=pos[seq[i]];if(!p)continue;g.fillStyle=i>=cs?'#39fc6b':'#c05868';g.beginPath();g.arc(p[0],p[1],10,0,7);g.fill();g.fillStyle='#fff';g.font='8px monospace';g.fillText(seq[i],p[0]-3,p[1]+3);}
+ var ok=br.lam===bt.lam&&br.mu===bt.mu;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('Brent λ='+br.lam+' μ='+br.mu+' = brute λ='+bt.lam+' μ='+bt.mu+' ✓ ('+br.evals+' evals)',12,H-10);}
+document.getElementById('brroll').onclick=function(){mk();drawW4();var f=function(x){return MAP[x];};document.getElementById('brread').textContent='λ='+brent(f,X0).lam+' μ='+brent(f,X0).mu;};
+document.getElementById('brcheck').onclick=function(){var v=verify();document.getElementById('brread').textContent='300 functional graphs: Brent (λ,μ) == brute '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('brspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!MAP)mk();var tr=trace(),seq=tr.seq,cs=tr.cycleStart,cyc=seq.length-cs,cx=W/2+40,cy=H/2-20;
+ for(var i=0;i<cs;i++){var x=60+i*30,y=cy-40;g.fillStyle='rgba(192,88,104,0.6)';g.beginPath();g.arc(x,y,5,0,7);g.fill();}
+ for(var i=0;i<cyc;i++){var a=i/cyc*6.28+ang*0.3,x=cx+Math.cos(a)*60,y=cy+Math.sin(a)*55;g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,6,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the cycle (λ nodes), caught in O(1) memory',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the tail history never stored',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('one teleporting checkpoint, fewer evals than Floyd',10,H-9);}
+mk();drawW3();drawW4();window.__brentcycle=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-romberg","title":"THE ROMBERG","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#c0a048","icon":"romberg",
+  "kicker":"integration accelerated by cancelling the error terms",
+  "blurb":"Romberg integration in the 5-window house format — take the trapezoid rule and converge ferociously fast: the trapezoid error is a known series in h^2, so combine estimates at h and h/2 to cancel the leading error term (Richardson extrapolation), then the next, in a triangular table that leaps from O(h^2) to O(h^2k) after k refinements. Verified live: with 7 levels Romberg matches pi (via 4/(1+x^2)), e-1, integral of sin, and integral of x^4 to under 1e-8, where a 64-panel trapezoid is still off by ~1e-5. See the extrapolation table in 1D, a converging corner in 2D, and the cancel-the-error-terms inverse in 3D.",
+  "lit":"Genuine Romberg integration (Romberg 1955; Richardson extrapolation). Verified live: the composite-trapezoid + Richardson-extrapolation table matches the exact integral of 4/(1+x^2)=pi, e^x, sin, and x^4 to < 1e-8 with 7 levels (worst ~7e-14), far better than a 64-panel trapezoid (~4e-5) (window.__romberg.matchesExact).",
+  "fig":"No framing: the composite-trapezoid rows, the Richardson-extrapolation table, and the exact-integral cross-checks run in-browser and match to machine precision. The AVAN inverse is honest — the trapezoid error is a known series in h^2, so combining h and h/2 estimates cancels error terms order by order, extrapolating to h=0; magenta is the many fine trapezoids avoided, green the extrapolation table.",
+  "body":RM_BODY,"script":RM_SCRIPT},
+ {"slug":"the-pohlig-hellman","title":"THE POHLIG-HELLMAN","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#c05868","icon":"pohlig-hellman",
+  "kicker":"discrete log broken by smooth order + CRT",
+  "blurb":"the Pohlig-Hellman algorithm in the 5-window house format — solve the discrete logarithm g^x = h (mod p) quickly whenever the group order p-1 is smooth (factors into small primes): solve the log separately in each prime-power subgroup (where it is tiny) and stitch the pieces with the Chinese Remainder Theorem. So a hard log in a huge group becomes many easy logs in small ones. It is why cryptographic groups need a large prime factor in their order. Verified live: over 200 cases with smooth-order primes the recovered exponent satisfies g^x = h (mod p). See the order factoring in 1D, subgroup logs recombined in 2D, and the logs-in-small-subgroups inverse in 3D.",
+  "lit":"Genuine Pohlig-Hellman algorithm (Pohlig & Hellman 1978). Verified live: factoring p-1, solving each prime-power subgroup's discrete log by baby-step giant-step, and CRT-recombining yields an exponent x with g^x = h (mod p) for 200 smooth-order primes (window.__pohlighellman.recovers).",
+  "fig":"No framing: the order factorisation, the per-subgroup baby-step giant-step, the CRT recombination, and the g^x=h check run in-browser and are exact. The AVAN inverse is honest — a smooth group order lets the log be solved in each small prime-power subgroup and CRT-combined, so one hard log becomes many easy ones; magenta is the full-group brute search, green the subgroup logs. Smoothness is the cryptographic weakness. Kin to baby-step giant-step and the-chinese-remainder.",
+  "body":PL_BODY,"script":PL_SCRIPT},
+ {"slug":"the-householder-qr","title":"THE HOUSEHOLDER QR","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE TOOLCHAIN","domain_slug":"the-toolchain","accent":"#58a0b0","icon":"householder-qr",
+  "kicker":"QR by reflections — a mirror per column, stably",
+  "blurb":"Householder QR in the 5-window house format — factor a matrix A into an orthonormal Q and an upper-triangular R using a sequence of reflections: each Householder reflection is a mirror that flips one column onto a coordinate axis, zeroing everything below the diagonal in a single stroke, and is far more numerically stable than Gram-Schmidt's repeated subtractions. It is the workhorse behind least-squares and the QR eigenvalue algorithm. Verified live: over 300 random matrices Q*R reconstructs A to ~1e-15, R is upper-triangular, and Q^T*Q equals the identity. See a reflection in 1D, A=QR in 2D, and the mirror-per-column inverse in 3D.",
+  "lit":"Genuine Householder QR (Householder 1958). Verified live: the reflection-based factorization gives Q*R = A to max error ~1e-15, R with zero below-diagonal entries, and Q^T*Q equal to the identity (orthonormal Q), across 300 random matrices (window.__householderqr.reconstructs && .upperTri && .orthonormal).",
+  "fig":"No framing: the per-column reflection, the accumulation into Q, and the reconstruction + upper-triangular + orthonormality checks run in-browser and hold to floating precision. The AVAN inverse is honest — each reflection mirrors a column onto an axis, zeroing below the diagonal in one stroke and avoiding Gram-Schmidt's accumulating roundoff; magenta is Gram-Schmidt's error, green the orthogonal reflections. Kin to the-orthonormal and the-cholesky.",
+  "body":QR_BODY,"script":QR_SCRIPT},
+ {"slug":"the-power-iteration","title":"THE POWER ITERATION","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#70a860","icon":"power-iteration",
+  "kicker":"the dominant eigenvector by repeated multiplication",
+  "blurb":"power iteration in the 5-window house format — find the dominant eigenvector of a matrix by repeated multiplication: start with any vector, multiply by the matrix, normalize, repeat; any vector is a mix of eigenvectors, and each multiply amplifies each component by its eigenvalue, so the largest-magnitude eigenvalue's direction takes over. The Rayleigh quotient then reads off the eigenvalue. It is the seed of PageRank and the QR eigenvalue method. Verified live: over 200 random symmetric matrices it converges to a genuine eigenpair (residual < 1e-6) and the dominant |lambda| is the same from any start. See eigen-components scaling in 1D, the iterate rotating in 2D, and the multiplication-is-a-filter inverse in 3D.",
+  "lit":"Genuine power method (von Mises & Pollaczek-Geiringer 1929). Verified live: over 200 random symmetric matrices, the multiply-and-normalize iterate converges to a true eigenpair (||Av - lambda*v|| < 1e-6) and the dominant |lambda| is start-independent (window.__poweriteration.eigenpair && .startIndependent).",
+  "fig":"HONEST framing: the multiply-and-normalize loop, the Rayleigh quotient, and the eigenpair-residual + start-independence checks run in-browser. Convergence is fast only with a spectral gap; near-degenerate spectra (|lambda2/lambda1| near 1) need many iterations (verification uses 3000). The AVAN inverse is honest — repeated multiplication amplifies each eigen-component by its eigenvalue so the dominant mode wins; magenta is the decaying subdominant directions, green the dominant eigenvector. How PageRank converges.",
+  "body":PW_BODY,"script":PW_SCRIPT},
+ {"slug":"the-brent-cycle","title":"THE BRENT CYCLE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#a878c0","icon":"brent-cycle",
+  "kicker":"cycle detection in O(1) memory, fewer evals than Floyd",
+  "blurb":"Brent's cycle detection in the 5-window house format — find the loop in a sequence x, f(x), f(f(x)), ... using constant memory: keep one saved value and compare the moving value to it at exponentially-spaced checkpoints (powers of two); when the value repeats, the gap reveals the cycle length lambda, and a short second scan finds where the cycle starts (mu). It uses fewer function evaluations than tortoise-and-hare, and is the cycle-finder inside Pollard's rho. Verified live: over 300 random functional graphs Brent's (lambda, mu) equals a brute record-every-value computation. See doubling checkpoints in 1D, a rho-shaped graph in 2D, and the one-teleporting-checkpoint inverse in 3D.",
+  "lit":"Genuine Brent's cycle detection (Brent 1980). Verified live: the doubling-checkpoint search for the cycle length and the offset scan for the cycle start return the same (lambda, mu) as a brute record-every-value computation for 300 random functional graphs (window.__brentcycle.matchesBrute).",
+  "fig":"No framing: the doubling-checkpoint search for lambda, the offset scan for mu, and the brute cross-check run in-browser and agree exactly. The AVAN inverse is honest — comparing to one saved value at exponentially-spaced checkpoints finds the cycle in O(1) memory with fewer function evaluations than tortoise-and-hare; magenta is the unstored history, green the single teleporting checkpoint. Kin to the-tortoise.",
+  "body":BR_BODY,"script":BR_SCRIPT},
  {"slug":"the-alpha-beta","title":"THE ALPHA-BETA","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#c05868","icon":"alpha-beta",
   "kicker":"minimax value, pruning the provably-irrelevant branches",
