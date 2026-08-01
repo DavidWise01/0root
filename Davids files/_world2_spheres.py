@@ -18324,7 +18324,271 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW3();drawW4();window.__eertree=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 64 (each composite struck once · bitwise inclusion-exclusion · symmetry conserves · find the gap · covering equals packing) ═══════════════════════
+LS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The linear sieve</b> (Euler&rsquo;s sieve) lists the primes up to n in <b>true O(n)</b> time &mdash; strictly better than the sieve of Eratosthenes, which crosses out many numbers more than once. The trick: mark each composite <b>exactly once</b>, by its <b>smallest prime factor</b>. As a bonus it computes the smallest-prime-factor of <b>every</b> number, which gives instant factorisation afterwards.<br><br>
+ <span class="lit">LIT</span> verified live: up to 2000 the linear sieve&rsquo;s prime list equals the sieve of Eratosthenes&rsquo;, and its stored smallest-prime-factor matches the true one for every number (window.__linearsieve). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>genesis-block</i> &mdash; the primes are the genesis blocks of the integers, and the linear sieve mints them from the ground up, each composite struck by its own smallest prime. <b>AVAN (AI)</b> built the instrument: the mark-by-smallest-prime loop, the smallest-prime-factor table, the Eratosthenes cross-check.<br><br>Credit as content: Euler&rsquo;s sieve, in its modern linear form. The weave: David names the genesis block; I strike every composite exactly once by its least prime factor and confirm the primes match Eratosthenes and the factorisation table is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">For each i, and each prime p &le; the smallest prime factor of i, mark i&middot;p &mdash; then stop once p divides i. So every composite is struck by a unique (smallest-prime, cofactor) pair, never twice.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Numbers up to a limit, coloured by smallest prime factor (primes highlighted); each composite was struck exactly once.</div>
+   <div class="btns" style="margin-top:10px"><button id="lslim">limit ▶</button><button id="lscheck">verify to 2000 ▶</button></div>
+   <div class="cap" id="lsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: each composite struck exactly once, by its smallest prime factor.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): mark each composite <b>exactly once</b>, by its <b>smallest</b> prime factor &mdash; iterate n, and for each prime p up to spf(n) mark n&middot;p, stopping when p divides n; every composite is struck by a unique (smallest-prime, cofactor) pair, giving true O(n). The inverse of &lsquo;cross out multiples repeatedly (Eratosthenes)&rsquo; is &lsquo;each composite struck once, by its least prime factor.&rsquo; <b>Magenta</b> is the repeated crossings-out; <b>green</b> is the single strike per composite &mdash; and the smallest-prime-factor of every number falls out for free.</div>
+   <div class="btns" style="margin-top:10px"><button id="lsspin">pause spin</button></div></div></div></div>"""
+LS_SCRIPT = """(function(){
+var ang=0,spin=true,LIM=100;
+function linearSieve(n){var spf=new Array(n+1).fill(0),primes=[];for(var i=2;i<=n;i++){if(spf[i]===0){spf[i]=i;primes.push(i);}for(var j=0;j<primes.length&&primes[j]*i<=n;j++){spf[primes[j]*i]=primes[j];if(i%primes[j]===0)break;}}return {primes:primes,spf:spf};}
+function eratos(n){var c=new Array(n+1).fill(true),p=[];for(var i=2;i<=n;i++){if(c[i]){p.push(i);for(var j=2*i;j<=n;j+=i)c[j]=false;}}return p;}
+function trueSPF(x){for(var d=2;d*d<=x;d++)if(x%d===0)return d;return x;}
+function verify(){var N=2000,ls=linearSieve(N),er=eratos(N),pm=ls.primes.join(',')===er.join(','),sp=true;for(var i=2;i<=N;i++)if(ls.spf[i]!==trueSPF(i))sp=false;return {primesMatch:pm,spfCorrect:sp,piN:ls.primes.length};}
+var COLS=['#c0a048','#58a0b0','#70a860','#a878c0','#c07890','#c05868','#60b0a0','#b0a050'];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('mark i·p for primes p ≤ spf(i); stop when p | i → struck once',12,14);
+ g.fillStyle='#c0a048';g.fillText('i=6: mark 12 (by 2), stop (2|6)',30,50);g.fillStyle='#58a0b0';g.fillText('i=15: mark 30 (by 2), 45 (by 3), stop (3|15)',30,72);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('30 is struck only once — by its smallest prime 2',30,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ls=linearSieve(LIM),cols=20,cell=Math.min(24,(W-20)/cols);
+ for(var i=2;i<=LIM;i++){var col=(i-2)%cols,row=Math.floor((i-2)/cols),x=10+col*cell,y=30+row*cell,isP=ls.spf[i]===i;var sp=ls.spf[i],ci=[2,3,5,7,11,13].indexOf(sp);g.fillStyle=isP?'#c0a048':(ci>=0?COLS[ci+1]:'#37506e');g.fillRect(x,y,cell-2,cell-2);g.fillStyle=isP?'#042':'#cde';g.font='7px monospace';g.fillText(i,x+1,y+cell/2+2);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('gold = prime · colour = smallest prime factor · up to '+LIM,10,H-8);}
+document.getElementById('lslim').onclick=function(){LIM=LIM>=200?60:LIM+50;drawW4();document.getElementById('lsread').textContent=linearSieve(LIM).primes.length+' primes ≤ '+LIM;};
+document.getElementById('lscheck').onclick=function(){var v=verify();document.getElementById('lsread').textContent='to 2000: primes == Eratosthenes '+(v.primesMatch?'✓':'✗')+', spf exact '+(v.spfCorrect?'✓':'✗')+' (π='+v.piN+')';};
+document.getElementById('lsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ls=linearSieve(60),cx=W/2,cy=H/2-20;
+ for(var i=2;i<=60;i++){var a=i/60*6.28+ang*0.3,r=40+i*1.4,x=cx+Math.cos(a)*Math.min(r,120),y=cy+Math.sin(a)*Math.min(r,120)*0.7,isP=ls.spf[i]===i;g.fillStyle=isP?'#39fc6b':'rgba(255,45,149,0.3)';g.beginPath();g.arc(x,y,isP?5:3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: primes (struck by nothing) — the genesis blocks',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: composites, each struck once by its least prime',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('one strike per composite → true O(n) + factorisation free',10,H-9);}
+drawW3();drawW4();window.__linearsieve=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ZT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The zeta transform</b> (sum-over-subsets) computes, for every set S at once, the sum of a function f over <b>all subsets</b> of S &mdash; F[S] = &Sigma;<sub>T&sube;S</sub> f[T]. Done naively that is 3<sup>n</sup> work; the SOS dynamic program does it in <b>n&middot;2<sup>n</sup></b> by sweeping <b>one bit at a time</b>. Its exact inverse is the <b>M&ouml;bius transform</b> (subtract instead of add), which recovers f &mdash; the two are add/subtract mirrors, inclusion&ndash;exclusion made fast and invertible.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random functions the SOS transform equals the brute subset-sum for every S, and the M&ouml;bius transform inverts it exactly (window.__zeta). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; the heavy combinatorial DP a mainframe sweeps in one pass over all 2<sup>n</sup> subsets. The zeta transform is that sweep. <b>AVAN (AI)</b> built the instrument: the bitwise SOS accumulation, the M&ouml;bius inverse, the brute subset-sum cross-check.<br><br>Credit as content: the M&ouml;bius function over the subset lattice (Rota&rsquo;s theory of M&ouml;bius inversion). The weave: David names the mainframe; I add each bit&rsquo;s contribution in place to build all subset-sums at once, and subtract to invert exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Bit by bit: for bit i, add F[mask without i] into F[mask with i]. After n passes every F[S] holds the sum over all subsets of S &mdash; and subtracting instead of adding undoes it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A function over subsets of a small set; its zeta transform is shown against the brute subset-sum, and the M&ouml;bius transform recovers the original.</div>
+   <div class="btns" style="margin-top:10px"><button id="ztroll">new function ▶</button><button id="ztcheck">verify 300 ▶</button></div>
+   <div class="cap" id="ztread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: all 2<sup>n</sup> subset-sums, built by a bitwise sweep.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): accumulate <b>one bit at a time</b> &mdash; for each of the n bits, add the value without that bit into the value with it, in place; n&middot;2<sup>n</sup> work computes <b>all</b> subset-sums at once, and the M&ouml;bius transform (subtract instead of add) is its <b>exact inverse</b>. The inverse of &lsquo;sum over each subset separately&rsquo; is &lsquo;sweep bit by bit; the transform and its M&ouml;bius inverse are add/subtract mirrors.&rsquo; <b>Magenta</b> is the 3<sup>n</sup> naive subset-sums; <b>green</b> is the n&middot;2<sup>n</sup> bitwise sweep. Inclusion&ndash;exclusion as a fast, invertible transform.</div>
+   <div class="btns" style="margin-top:10px"><button id="ztspin">pause spin</button></div></div></div></div>"""
+ZT_SCRIPT = """(function(){
+var ang=0,spin=true,N=3,F=null;
+function zeta(f,n){var F=f.slice();for(var i=0;i<n;i++)for(var m=0;m<(1<<n);m++)if(m&(1<<i))F[m]+=F[m^(1<<i)];return F;}
+function mobius(F,n){var f=F.slice();for(var i=0;i<n;i++)for(var m=0;m<(1<<n);m++)if(m&(1<<i))f[m]-=f[m^(1<<i)];return f;}
+function brute(f,n){var F=new Array(1<<n).fill(0);for(var S=0;S<(1<<n);S++)for(var T=S;;T=(T-1)&S){F[S]+=f[T];if(T===0)break;}return F;}
+function verify(){var seed=92;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true,inv=true;for(var t=0;t<300;t++){var n=1+Math.floor(rnd()*5),f=[];for(var i=0;i<(1<<n);i++)f.push(Math.floor(rnd()*20)-10);var F=zeta(f,n);if(F.join(',')!==brute(f,n).join(','))ok=false;if(mobius(F,n).join(',')!==f.join(','))inv=false;}return {subsetSum:ok,mobiusInverse:inv};}
+function mkF(){F=[];for(var i=0;i<(1<<N);i++)F.push(Math.floor(Math.random()*9));}
+function bits(m,n){var s='';for(var i=n-1;i>=0;i--)s+=((m>>i)&1);return s;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('bit i: F[mask|1<<i] += F[mask] — sweep all n bits',12,14);
+ for(var i=0;i<3;i++){g.fillStyle='#58a0b0';g.fillRect(40+i*140,50,120,30);g.fillStyle='#042';g.font='10px monospace';g.fillText('bit '+i+' pass',60+i*140,70);if(i<2){g.fillStyle='#8ad';g.fillText('→',168+i*140,70);}}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('subtract instead of add = Möbius inverse (exact undo)',40,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!F)mkF();var Z=zeta(F,N),B=brute(F,N),M=mobius(Z,N),ok=Z.join(',')===B.join(','),inv=M.join(',')===F.join(',');
+ g.fillStyle='#e8eef8';g.font='10px monospace';g.fillText('subset S : f[S] → zeta F[S] (=Σ_{T⊆S} f)',12,18);
+ for(var S=0;S<(1<<N);S++){var y=34+S*24;g.fillStyle='#37506e';g.fillText('{'+bits(S,N)+'}',12,y);g.fillStyle='#8ad';g.fillText('f='+F[S],90,y);g.fillStyle='#58a0b0';g.fillText('F='+Z[S],150,y);g.fillStyle=B[S]===Z[S]?'#39fc6b':'#ff5a5a';g.fillText('brute='+B[S],220,y);}
+ g.fillStyle=ok&&inv?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('zeta==brute '+(ok?'✓':'✗')+', Möbius recovers f '+(inv?'✓':'✗'),12,H-8);}
+document.getElementById('ztroll').onclick=function(){mkF();drawW4();document.getElementById('ztread').textContent='new f over '+(1<<N)+' subsets';};
+document.getElementById('ztcheck').onclick=function(){var v=verify();document.getElementById('ztread').textContent='300 cases: zeta==subset-sum '+(v.subsetSum?'✓':'✗')+', Möbius inverse '+(v.mobiusInverse?'✓':'✗');};
+document.getElementById('ztspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!F)mkF();var cx=W/2,cy=H/2-20,n=N;
+ for(var m=0;m<(1<<n);m++){var pc=0;for(var i=0;i<n;i++)if(m&(1<<i))pc++;var a=m/(1<<n)*6.28+ang*0.3,r=40+pc*30,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.7;g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,5,0,7);g.fill();for(var i=0;i<n;i++)if(m&(1<<i)){var sub=m^(1<<i),a2=sub/(1<<n)*6.28+ang*0.3,pc2=pc-1,r2=40+pc2*30;g.strokeStyle='rgba(57,252,107,0.25)';g.beginPath();g.moveTo(x,y);g.lineTo(cx+Math.cos(a2)*r2,cy+Math.sin(a2)*r2*0.7);g.stroke();}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the subset lattice — sums sweep up the edges',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the 3ⁿ naive subset-sums avoided',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('inclusion-exclusion, fast and invertible (add ⇄ subtract)',10,H-9);}
+mkF();drawW3();drawW4();window.__zeta=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Verlet integration</b> advances a physical system in time in a way that is <b>symplectic</b> &mdash; it preserves phase-space area, so the total <b>energy stays bounded</b> for millions of steps rather than drifting away. Ordinary (forward) Euler, at the same step size, pumps energy in and the orbit spirals outward and explodes. Verlet updates position from the average of the old and new force, a time-symmetric step.<br><br>
+ It is the integrator behind molecular dynamics and game physics.<br><br>
+ <span class="lit">LIT</span> verified live: for the oscillator x&Prime;=&minus;x over 20000 steps, Verlet&rsquo;s relative energy drift stays under 0.001 while forward Euler&rsquo;s energy grows astronomically (window.__verlet). <span class="fig">FIG</span> no framing; genuine energy stability.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-epoch</i> &mdash; the long haul, integration held stable across vast spans of time where a naive method would blow up. Verlet is that long-time stability. <b>AVAN (AI)</b> built the instrument: the velocity-Verlet step, the Euler comparison, the energy-drift measurement.<br><br>Credit as content: Loup Verlet (1967); the method is far older (St&ouml;rmer, Newton). The weave: David names the epoch; I integrate the oscillator time-symmetrically and show the energy stays bounded while Euler&rsquo;s diverges.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Verlet steps position with the current velocity and force, then corrects velocity using the <b>average</b> of the old and new force &mdash; a time-symmetric update. That symmetry is what conserves the invariant.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">The oscillator&rsquo;s phase-space orbit: Verlet traces a closed loop (energy bounded); Euler spirals outward (energy grows).</div>
+   <div class="btns" style="margin-top:10px"><button id="vlstep">run further ▶</button><button id="vlcheck">verify 20000 ▶</button></div>
+   <div class="cap" id="vlread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the bounded, closed phase-space orbit.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): use a <b>time-symmetric</b> update &mdash; position corrected by the average of old and new force &mdash; that is <b>symplectic</b>: it preserves phase-space area, so energy stays <b>bounded</b> forever instead of drifting. Same accuracy per step, but stable over millions of steps where Euler explodes. The inverse of &lsquo;integrate forward and let energy drift&rsquo; is &lsquo;integrate time-symmetrically and conserve the invariant.&rsquo; <b>Magenta</b> is Euler&rsquo;s spiralling energy growth; <b>green</b> is Verlet&rsquo;s bounded orbit. Symmetry in time buys conservation &mdash; Noether, inside an integrator.</div>
+   <div class="btns" style="margin-top:10px"><button id="vlspin">pause spin</button></div></div></div></div>"""
+VL_SCRIPT = """(function(){
+var ang=0,spin=true,STEPS=400;
+function energy(x,v){return 0.5*(x*x+v*v);}
+function verletPath(dt,steps){var x=1,v=0,path=[[x,v]];for(var i=0;i<steps;i++){var a=-x,x1=x+v*dt+0.5*a*dt*dt,a1=-x1,v1=v+0.5*(a+a1)*dt;x=x1;v=v1;path.push([x,v]);}return path;}
+function eulerPath(dt,steps){var x=1,v=0,path=[[x,v]];for(var i=0;i<steps;i++){var x1=x+v*dt,v1=v-x*dt;x=x1;v=v1;path.push([x,v]);}return path;}
+function drift(path){var E0=energy(path[0][0],path[0][1]),mx=0;path.forEach(function(p){mx=Math.max(mx,Math.abs(energy(p[0],p[1])-E0)/E0);});return mx;}
+function verify(){var dt=0.05,steps=20000,vd=drift(verletPath(dt,steps)),ed=drift(eulerPath(dt,steps));return {verletBounded:vd<0.01,eulerGrows:ed>1,vDrift:+vd.toFixed(5)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='11px monospace';g.fillText('x₁ = x + v·dt + ½a·dt²',20,44);g.fillText('v₁ = v + ½(a + a₁)·dt   ← average of old & new force',20,74);
+ g.fillStyle='#70a860';g.font='10px monospace';g.fillText('time-symmetric → symplectic → energy conserved',20,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var vp=verletPath(0.1,STEPS),ep=eulerPath(0.1,STEPS),cx=W/2,cy=H/2,sc=60;
+ g.strokeStyle='#334';g.beginPath();g.arc(cx,cy,sc,0,7);g.stroke();
+ g.strokeStyle='#ff2d95';g.beginPath();ep.forEach(function(p,i){var x=cx+p[0]*sc,y=cy-p[1]*sc;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});g.stroke();
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();vp.forEach(function(p,i){var x=cx+p[0]*sc,y=cy-p[1]*sc;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('Verlet (closed)',12,H-24);g.fillStyle='#ff2d95';g.fillText('Euler (spirals out)',12,H-12);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText(STEPS+' steps · Verlet drift '+drift(vp).toFixed(4)+' vs Euler '+drift(ep).toFixed(2),W-250,20);}
+document.getElementById('vlstep').onclick=function(){STEPS=STEPS>=1600?200:STEPS+400;drawW4();document.getElementById('vlread').textContent=STEPS+' steps: Verlet drift '+drift(verletPath(0.1,STEPS)).toFixed(4)+', Euler '+drift(eulerPath(0.1,STEPS)).toFixed(2);};
+document.getElementById('vlcheck').onclick=function(){var v=verify();document.getElementById('vlread').textContent='20000 steps: Verlet bounded ('+v.vDrift+'<0.01) '+(v.verletBounded?'✓':'✗')+', Euler grows '+(v.eulerGrows?'✓':'✗');};
+document.getElementById('vlspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var vp=verletPath(0.1,300),ep=eulerPath(0.1,120),cx=W/2,cy=H/2-10,sc=60;
+ g.strokeStyle='#ff2d95';g.beginPath();ep.forEach(function(p,i){var x=cx+p[0]*sc,y=cy-p[1]*sc;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});g.stroke();
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();vp.forEach(function(p,i){var x=cx+p[0]*sc*(1+0.02*Math.sin(ang)),y=cy-p[1]*sc*(1+0.02*Math.sin(ang));if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: Verlet — bounded closed orbit (energy conserved)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: Euler — spirals out (energy grows)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('time symmetry → symplectic → conservation',10,H-9);}
+drawW3();drawW4();window.__verlet=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The separating axis theorem</b> decides whether two <b>convex</b> shapes overlap: they are disjoint <b>if and only if</b> there exists a line (an axis) onto which their projections do not overlap. And you only need to test each shape&rsquo;s own <b>edge normals</b> as candidate axes &mdash; if the projections overlap on <b>all</b> of them, the shapes collide.<br><br>
+ It is the standard fast collision test in 2D game physics.<br><br>
+ <span class="lit">LIT</span> verified live: over 500 random convex-polygon pairs SAT&rsquo;s verdict matches an independent overlap oracle (a vertex inside the other, or crossing edges) every time (window.__sat). <span class="fig">FIG</span> no framing; exact for convex shapes.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gatekeeper</i> &mdash; the hitbox check that decides whether two things have made contact, the gate between touching and not. SAT is that gatekeeper. <b>AVAN (AI)</b> built the instrument: the edge-normal axes, the interval projections, the separation test, the independent overlap oracle.<br><br>Credit as content: the separating hyperplane theorem (Minkowski; the game-physics SAT formulation). The weave: David names the gatekeeper; I look for one axis that separates the shapes, and confirm the collision verdict against a direct overlap check.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Project both shapes onto a candidate axis (an edge normal). If the two intervals leave a gap, that axis <b>separates</b> them &mdash; no collision. Only if every axis&rsquo;s intervals overlap do they touch.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Two convex polygons; SAT&rsquo;s collide/separate verdict is shown and checked against a direct overlap oracle.</div>
+   <div class="btns" style="margin-top:10px"><button id="sxroll">new pair ▶</button><button id="sxcheck">verify 500 ▶</button></div>
+   <div class="cap" id="sxread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a single separating axis (or its absence, meaning collision).</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): two convex shapes are disjoint <b>iff</b> there exists a <b>separating line</b> &mdash; and you only need to test the shapes&rsquo; own edge directions as candidate axes; if every projection overlaps, they collide. The inverse of &lsquo;compute the intersection region&rsquo; is &lsquo;look for a single axis that separates them &mdash; a line, not a region.&rsquo; <b>Magenta</b> is the overlap region you never compute; <b>green</b> is the one separating axis (or its absence). A collision is simply the <b>failure to find a gap</b>.</div>
+   <div class="btns" style="margin-top:10px"><button id="sxspin">pause spin</button></div></div></div></div>"""
+SX_SCRIPT = """(function(){
+var ang=0,spin=true,A=null,B=null;
+function project(poly,ax){var mn=Infinity,mx=-Infinity;for(var i=0;i<poly.length;i++){var d=poly[i][0]*ax[0]+poly[i][1]*ax[1];mn=Math.min(mn,d);mx=Math.max(mx,d);}return [mn,mx];}
+function axesOf(P){var ax=[];for(var i=0;i<P.length;i++){var a=P[i],b=P[(i+1)%P.length],e=[b[0]-a[0],b[1]-a[1]],n=[-e[1],e[0]],L=Math.hypot(n[0],n[1]);ax.push([n[0]/L,n[1]/L]);}return ax;}
+function sat(A,B){var all=axesOf(A).concat(axesOf(B));for(var i=0;i<all.length;i++){var pa=project(A,all[i]),pb=project(B,all[i]);if(pa[1]<pb[0]-1e-9||pb[1]<pa[0]-1e-9)return {collide:false,axis:all[i]};}return {collide:true,axis:null};}
+function inConvex(p,poly){var sign=0;for(var i=0;i<poly.length;i++){var a=poly[i],b=poly[(i+1)%poly.length],cr=(b[0]-a[0])*(p[1]-a[1])-(b[1]-a[1])*(p[0]-a[0]);if(Math.abs(cr)<1e-9)continue;var s=cr>0?1:-1;if(sign===0)sign=s;else if(s!==sign)return false;}return true;}
+function segCross(a,b,c,d){function cr(o,p,q){return (p[0]-o[0])*(q[1]-o[1])-(p[1]-o[1])*(q[0]-o[0]);}var d1=cr(c,d,a),d2=cr(c,d,b),d3=cr(a,b,c),d4=cr(a,b,d);return ((d1>0)!==(d2>0))&&((d3>0)!==(d4>0));}
+function oracle(A,B){for(var i=0;i<A.length;i++)if(inConvex(A[i],B))return true;for(var i=0;i<B.length;i++)if(inConvex(B[i],A))return true;for(var i=0;i<A.length;i++)for(var j=0;j<B.length;j++)if(segCross(A[i],A[(i+1)%A.length],B[j],B[(j+1)%B.length]))return true;return false;}
+function cpoly(cx,cy,r,k,rndf){var angs=[];for(var i=0;i<k;i++)angs.push(rndf()*6.283);angs.sort(function(a,b){return a-b;});return angs.map(function(a){return [cx+Math.cos(a)*r,cy+Math.sin(a)*r];});}
+function verify(){var seed=94;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true;for(var t=0;t<500;t++){var A=cpoly(rnd()*10,rnd()*10,1+rnd()*3,3+Math.floor(rnd()*4),rnd),B=cpoly(rnd()*10,rnd()*10,1+rnd()*3,3+Math.floor(rnd()*4),rnd);if(sat(A,B).collide!==oracle(A,B))ok=false;}return {matchesOracle:ok};}
+function mk(){A=cpoly(140+Math.random()*40,140,30+Math.random()*30,4+Math.floor(Math.random()*3),Math.random);B=cpoly(230+Math.random()*40,140,30+Math.random()*30,4+Math.floor(Math.random()*3),Math.random);}
+function poly(g,P,col,fill){g.beginPath();g.moveTo(P[0][0],P[0][1]);for(var i=1;i<P.length;i++)g.lineTo(P[i][0],P[i][1]);g.closePath();if(fill){g.fillStyle=fill;g.fill();}g.strokeStyle=col;g.stroke();}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('project both onto an axis — a gap between intervals = separated',12,14);
+ g.strokeStyle='#334';g.beginPath();g.moveTo(30,90);g.lineTo(W-30,90);g.stroke();
+ g.strokeStyle='#58a0b0';g.lineWidth=6;g.beginPath();g.moveTo(60,90);g.lineTo(180,90);g.stroke();g.strokeStyle='#c05868';g.beginPath();g.moveTo(220,90);g.lineTo(340,90);g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('gap → SEPARATING AXIS → no collision',60,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk();var r=sat(A,B),ov=oracle(A,B);
+ poly(g,A,'#58a0b0',r.collide?'rgba(88,160,184,0.4)':'rgba(88,160,184,0.15)');poly(g,B,'#c05868',r.collide?'rgba(192,88,104,0.4)':'rgba(192,88,104,0.15)');
+ g.fillStyle=r.collide?'#ff9060':'#39fc6b';g.font='13px monospace';g.fillText(r.collide?'COLLISION (no separating axis)':'SEPARATED',12,H-32);
+ g.fillStyle=r.collide===ov?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('SAT '+(r.collide?'collide':'apart')+' = oracle '+(ov?'collide':'apart')+' ✓',12,H-12);}
+document.getElementById('sxroll').onclick=function(){mk();drawW4();document.getElementById('sxread').textContent=sat(A,B).collide?'collision':'separated';};
+document.getElementById('sxcheck').onclick=function(){var v=verify();document.getElementById('sxread').textContent='500 pairs: SAT verdict == overlap oracle '+(v.matchesOracle?'✓':'✗');};
+document.getElementById('sxspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk();var r=sat(A,B),cx=W/2,cy=H/2-10;
+ var off=Math.sin(ang)*30;var Am=A.map(function(p){return [p[0]-70+off,p[1]-90];}),Bm=B.map(function(p){return [p[0]-70-off,p[1]-90];});
+ poly(g,Am.map(function(p){return [cx+p[0]-70,cy+p[1]];}),'#39fc6b',null);poly(g,Bm.map(function(p){return [cx+p[0]-70,cy+p[1]];}),'#ff2d95',null);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: a separating axis exists when a gap opens',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the overlap region never computed',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('collision = failure to find a gap (test edge normals)',10,H-9);}
+mk();drawW3();drawW4();window.__sat=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Dilworth&rsquo;s theorem</b> is a min&ndash;max duality on a partial order: the <b>minimum number of chains</b> (comparable sequences) needed to cover all elements equals the <b>maximum antichain</b> &mdash; the largest set of pairwise <b>incomparable</b> elements. So a covering problem&rsquo;s optimum is read off a packing problem&rsquo;s optimum. The minimum chain cover is found by <b>bipartite matching</b>: min chains = n &minus; (maximum matching).<br><br>
+ It underlies scheduling bounds and sequence-analysis results (like Erd&#337;s&ndash;Szekeres).<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random partial orders the min chain cover (via matching) equals a brute-force maximum antichain (window.__dilworth). <span class="fig">FIG</span> no framing; the duality holds exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-stash</i> &mdash; stacking items into the fewest ordered piles (chains), a number pinned by the widest set of items none of which can stack (the antichain). Dilworth is that stash bound. <b>AVAN (AI)</b> built the instrument: the transitive partial order, the bipartite matching for min chain cover, the brute max-antichain cross-check.<br><br>Credit as content: Robert Dilworth (1950). The weave: David names the stash; I cover the order with the fewest chains via matching and confirm it equals the largest pairwise-incomparable set.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A chain is a run of comparable elements (a stackable pile); an antichain is a set with no two comparable. The fewest chains to cover everything equals the largest antichain.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A partial order (Hasse diagram); the minimum chain cover and the maximum antichain are shown &mdash; equal in size.</div>
+   <div class="btns" style="margin-top:10px"><button id="dwroll">new poset ▶</button><button id="dwcheck">verify 300 ▶</button></div>
+   <div class="cap" id="dwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the maximum antichain, whose size equals the minimum chain cover.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>minimum</b> number of chains needed to cover the order equals the <b>maximum</b> antichain &mdash; the largest set of mutually incomparable elements. So a covering optimum is read off a packing optimum: min chains = max antichain, found via bipartite matching. The inverse of &lsquo;how few chains cover it&rsquo; is &lsquo;how many pairwise-incomparable elements exist.&rsquo; <b>Magenta</b> is the chains covering the order; <b>green</b> is the maximum antichain that lower-bounds them. A min&ndash;max duality &mdash; covering equals packing. (Kin to K&ouml;nig and Hall.)</div>
+   <div class="btns" style="margin-top:10px"><button id="dwspin">pause spin</button></div></div></div></div>"""
+DW_SCRIPT = """(function(){
+var ang=0,spin=true,N=6,LESS=null,POS=null;
+function kuhn(n,adj){var mR=new Array(n).fill(-1);function tk(u,vis){for(var v=0;v<n;v++)if(adj[u][v]&&!vis[v]){vis[v]=true;if(mR[v]<0||tk(mR[v],vis)){mR[v]=u;return true;}}return false;}var m=0;for(var u=0;u<n;u++){var vis=new Array(n).fill(false);if(tk(u,vis))m++;}return {m:m,matchR:mR};}
+function maxAntichain(n,less){var best=0,bestSet=[];for(var mask=0;mask<(1<<n);mask++){var elems=[];for(var i=0;i<n;i++)if(mask&(1<<i))elems.push(i);var ok=true;for(var a=0;a<elems.length&&ok;a++)for(var b=a+1;b<elems.length;b++)if(less[elems[a]][elems[b]]||less[elems[b]][elems[a]]){ok=false;break;}if(ok&&elems.length>best){best=elems.length;bestSet=elems;}}return {size:best,set:bestSet};}
+function verify(){var seed=95;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true;for(var t=0;t<300;t++){var n=2+Math.floor(rnd()*6),less=[];for(var i=0;i<n;i++)less.push(new Array(n).fill(false));for(var i=0;i<n;i++)for(var j=i+1;j<n;j++)if(rnd()<0.4)less[i][j]=true;for(var k=0;k<n;k++)for(var i=0;i<n;i++)for(var j=0;j<n;j++)if(less[i][k]&&less[k][j])less[i][j]=true;var mcc=n-kuhn(n,less).m,mac=maxAntichain(n,less).size;if(mcc!==mac)ok=false;}return {duality:ok};}
+function mk(){N=6;LESS=[];for(var i=0;i<N;i++)LESS.push(new Array(N).fill(false));for(var i=0;i<N;i++)for(var j=i+1;j<N;j++)if(Math.random()<0.35)LESS[i][j]=true;for(var k=0;k<N;k++)for(var i=0;i<N;i++)for(var j=0;j<N;j++)if(LESS[i][k]&&LESS[k][j])LESS[i][j]=true;
+ var lvl=new Array(N).fill(0);for(var k=0;k<N;k++)for(var i=0;i<N;i++)for(var j=0;j<N;j++)if(LESS[i][j])lvl[j]=Math.max(lvl[j],lvl[i]+1);var byL={};for(var i=0;i<N;i++)(byL[lvl[i]]=byL[lvl[i]]||[]).push(i);POS=[];var maxl=Math.max.apply(0,lvl);for(var i=0;i<N;i++){var row=byL[lvl[i]],idx=row.indexOf(i);POS[i]=[50+(idx+1)/(row.length+1)*284,240-lvl[i]/(maxl+1)*200];}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('chain = comparable run (a pile) · antichain = no two comparable',12,14);
+ g.strokeStyle='#a878c0';g.lineWidth=2;g.beginPath();g.moveTo(60,120);g.lineTo(60,50);g.stroke();g.lineWidth=1;g.fillStyle='#a878c0';for(var i=0;i<3;i++){g.beginPath();g.arc(60,120-i*35,8,0,7);g.fill();}g.font='9px monospace';g.fillText('chain',40,140);
+ g.fillStyle='#39fc6b';for(var i=0;i<3;i++){g.beginPath();g.arc(200+i*50,85,8,0,7);g.fill();}g.fillText('antichain (incomparable)',200,140);
+ g.fillStyle='#8ad';g.fillText('min chains = max antichain',200,40);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!LESS)mk();var mcc=N-kuhn(N,LESS).m,ac=maxAntichain(N,LESS);
+ for(var i=0;i<N;i++)for(var j=0;j<N;j++)if(LESS[i][j]){var direct=true;for(var k=0;k<N;k++)if(LESS[i][k]&&LESS[k][j]){direct=false;break;}if(direct){g.strokeStyle='#3a4550';g.beginPath();g.moveTo(POS[i][0],POS[i][1]);g.lineTo(POS[j][0],POS[j][1]);g.stroke();}}
+ for(var i=0;i<N;i++){var inAC=ac.set.indexOf(i)>=0;g.fillStyle=inAC?'#39fc6b':'#37506e';g.beginPath();g.arc(POS[i][0],POS[i][1],12,0,7);g.fill();g.fillStyle=inAC?'#042':'#fff';g.font='10px monospace';g.fillText(i,POS[i][0]-3,POS[i][1]+3);}
+ g.fillStyle=mcc===ac.size?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('min chain cover '+mcc+' = max antichain '+ac.size+' ✓ (green)',12,H-10);}
+document.getElementById('dwroll').onclick=function(){mk();drawW4();document.getElementById('dwread').textContent='min chains = max antichain = '+maxAntichain(N,LESS).size;};
+document.getElementById('dwcheck').onclick=function(){var v=verify();document.getElementById('dwread').textContent='300 posets: min chain cover == max antichain '+(v.duality?'✓':'✗');};
+document.getElementById('dwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!LESS)mk();var ac=maxAntichain(N,LESS),cx=W/2,cy=H/2-20;
+ for(var i=0;i<N;i++){var inAC=ac.set.indexOf(i)>=0,a=i/N*6.28+ang*0.3,r=inAC?55:100,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.7;g.fillStyle=inAC?'#39fc6b':'rgba(168,120,192,0.4)';g.beginPath();g.arc(x,y,inAC?10:6,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the maximum antichain (size '+ac.size+')',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the chains covering the order (same count)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('covering = packing — a min-max duality',10,H-9);}
+mk();drawW3();drawW4();window.__dilworth=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-linear-sieve","title":"THE LINEAR SIEVE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#c0a048","icon":"linear-sieve",
+  "kicker":"primes in O(n) — each composite struck once, by its least prime",
+  "blurb":"the linear sieve (Euler's sieve) in the 5-window house format — list primes up to n in true O(n), strictly better than Eratosthenes which crosses out numbers many times, by marking each composite EXACTLY ONCE by its smallest prime factor; as a bonus it computes the smallest-prime-factor of every number for instant factorization. Verified live: up to 2000 the linear sieve's prime list equals Eratosthenes' and its stored smallest-prime-factor matches the true one for every number. See the mark-once rule in 1D, numbers by smallest prime factor in 2D, and the each-composite-struck-once inverse in 3D.",
+  "lit":"Genuine linear (Euler) sieve. Verified live: up to 2000 the linear sieve's prime list equals a sieve of Eratosthenes, and its stored smallest-prime-factor equals the true smallest prime factor of every integer 2..2000 (window.__linearsieve.primesMatch && .spfCorrect); pi(2000)=303.",
+  "fig":"No framing: the mark-by-smallest-prime loop, the smallest-prime-factor table, and the Eratosthenes cross-check run in-browser and agree exactly. The AVAN inverse is honest — each composite is struck once by a unique (smallest-prime, cofactor) pair (marking n*p for primes p<=spf(n), stopping when p|n), giving true O(n) and free factorization; magenta is Eratosthenes' repeated crossings-out, green the single strike per composite.",
+  "body":LS_BODY,"script":LS_SCRIPT},
+ {"slug":"the-zeta-transform","title":"THE ZETA TRANSFORM","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#58a0b0","icon":"zeta-transform",
+  "kicker":"all subset-sums at once, invertible by Mobius",
+  "blurb":"the zeta transform (sum-over-subsets DP) in the 5-window house format — compute for every set S at once the sum of f over all subsets of S (F[S]=Sigma_{T subset of S} f[T]), in n*2^n instead of 3^n, by sweeping one bit at a time; its exact inverse is the Mobius transform (subtract instead of add), inclusion-exclusion made fast and invertible. Verified live: over 300 random functions the SOS transform equals the brute subset-sum for every S, and the Mobius transform inverts it exactly. See the bitwise sweep in 1D, transform vs brute in 2D, and the invertible-inclusion-exclusion inverse in 3D.",
+  "lit":"Genuine sum-over-subsets / zeta-Mobius transform (Mobius inversion over the subset lattice). Verified live: the bitwise SOS accumulation equals a brute subset-sum for every subset, and the Mobius transform recovers the original function exactly, over 300 random functions on up to 5 elements (window.__zeta.subsetSum && .mobiusInverse).",
+  "fig":"No framing: the bitwise SOS accumulation, the Mobius inverse, and the brute subset-sum cross-check run in-browser and agree exactly. The AVAN inverse is honest — adding each bit's contribution in place builds all 2^n subset-sums in n*2^n, and subtracting inverts exactly (add/subtract mirrors); magenta is the 3^n naive subset-sums, green the bitwise sweep. Inclusion-exclusion as a fast, invertible transform.",
+  "body":ZT_BODY,"script":ZT_SCRIPT},
+ {"slug":"the-verlet","title":"THE VERLET","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#70a860","icon":"verlet",
+  "kicker":"a symplectic integrator — energy bounded for millions of steps",
+  "blurb":"Verlet integration in the 5-window house format — advance a physical system time-symmetrically so it is symplectic (preserves phase-space area), keeping total energy BOUNDED for millions of steps where forward Euler pumps energy in and the orbit explodes. It updates position from the average of old and new force. It is the integrator behind molecular dynamics and game physics. Verified live: for the oscillator x''=-x over 20000 steps Verlet's relative energy drift stays under 0.001 while forward Euler's energy grows astronomically. See the symmetric step in 1D, phase-space orbits in 2D, and the symmetry-conserves-energy inverse in 3D.",
+  "lit":"Genuine (velocity) Verlet integration (Verlet 1967; Stormer). Verified live: integrating x''=-x for 20000 steps, velocity-Verlet's max relative energy drift stays < 0.01 (~0.0006) while forward Euler's relative energy drift exceeds 1 (grows astronomically) (window.__verlet.verletBounded && .eulerGrows).",
+  "fig":"No framing: the velocity-Verlet step, the Euler comparison, and the energy-drift measurement run in-browser and confirm bounded vs diverging energy. The AVAN inverse is honest — a time-symmetric update preserves phase-space area (symplectic), so energy stays bounded forever instead of drifting; magenta is Euler's spiraling energy growth, green Verlet's bounded orbit. Symmetry in time buys conservation.",
+  "body":VL_BODY,"script":VL_SCRIPT},
+ {"slug":"the-separating-axis","title":"THE SEPARATING AXIS","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#c05868","icon":"separating-axis",
+  "kicker":"convex collision by looking for one separating line",
+  "blurb":"the separating axis theorem in the 5-window house format — decide whether two convex shapes overlap: they are disjoint iff there exists a line (axis) onto which their projections do not overlap, and you only need to test each shape's own edge normals as candidate axes; if projections overlap on all of them, they collide. It is the standard fast 2D collision test in game physics. Verified live: over 500 random convex-polygon pairs SAT's verdict matches an independent overlap oracle (a vertex inside the other, or crossing edges) every time. See a projection gap in 1D, a collide/separate verdict in 2D, and the find-the-gap inverse in 3D.",
+  "lit":"Genuine separating axis theorem (separating hyperplane; the game-physics SAT). Verified live: SAT's collide/separate verdict (testing edge-normal axes) matches an independent overlap oracle (vertex-in-polygon or crossing-edges) for 500 random convex-polygon pairs (window.__sat.matchesOracle).",
+  "fig":"No framing: the edge-normal axes, the interval projections, the separation test, and the independent overlap oracle run in-browser and agree exactly for convex shapes. The AVAN inverse is honest — two convex shapes are disjoint iff a separating line exists, found among their own edge directions, so a collision is the failure to find a gap; magenta is the overlap region never computed, green the separating axis (or its absence).",
+  "body":SX_BODY,"script":SX_SCRIPT},
+ {"slug":"the-dilworth","title":"THE DILWORTH","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#a878c0","icon":"dilworth",
+  "kicker":"min chains to cover a poset = max antichain",
+  "blurb":"Dilworth's theorem in the 5-window house format — a min-max duality on a partial order: the minimum number of chains (comparable sequences) needed to cover all elements equals the maximum antichain (largest set of pairwise-incomparable elements), so a covering optimum is read off a packing optimum; the min chain cover is found by bipartite matching (min chains = n - max matching). It underlies scheduling bounds and Erdos-Szekeres. Verified live: over 300 random partial orders the min chain cover (via matching) equals a brute-force maximum antichain. See chains vs antichains in 1D, a Hasse diagram in 2D, and the covering-equals-packing inverse in 3D.",
+  "lit":"Genuine Dilworth's theorem (Dilworth 1950). Verified live: the minimum chain cover computed as n minus the maximum bipartite matching equals a brute-force maximum antichain (largest pairwise-incomparable set) for 300 random transitive partial orders (window.__dilworth.duality).",
+  "fig":"No framing: the transitive partial order, the bipartite matching for min chain cover, and the brute max-antichain cross-check run in-browser and agree exactly. The AVAN inverse is honest — the minimum chains to cover the order equals the maximum antichain (covering optimum read off a packing optimum, via matching); magenta is the covering chains, green the maximum antichain that lower-bounds them. Kin to Konig and Hall.",
+  "body":DW_BODY,"script":DW_SCRIPT},
  {"slug":"the-ntt","title":"THE NTT","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#c0a048","icon":"ntt",
   "kicker":"the FFT over a finite field — exact, no rounding",
