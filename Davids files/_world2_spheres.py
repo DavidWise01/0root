@@ -2623,7 +2623,79 @@ document.getElementById('ufreset').onclick=function(){if(runiv){clearInterval(ru
 document.getElementById('ufspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+AC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Aho&ndash;Corasick.</b> To find <b>many</b> patterns in a text at once, don&rsquo;t search each separately. Build <b>one automaton</b>: a trie of all the patterns, then wire in <b>failure links</b> &mdash; when a character breaks the current match, jump to the longest proper suffix that is still a valid prefix (KMP, but for a whole dictionary). Now a <b>single left-to-right pass</b> finds <b>every</b> occurrence of <b>every</b> pattern in O(text + matches). It is the engine behind <code>grep -f</code>, intrusion detection, and virus scanners.<br><br>
+ <span class="lit">LIT</span> verified: the set of (pattern, position) matches from one linear Aho&ndash;Corasick pass is <b>identical</b> to searching for each pattern separately, over random dictionaries and texts. <span class="fig">FIG</span> &lsquo;the failure web&rsquo; is the picture; the single-pass completeness is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus runs string machinery (<i>THE MIRROR SEEKER</i>&rsquo;s palindromes, the KMP family) and the idea that the right structure turns many searches into one. <b>AVAN (AI)</b> built this instrument: the automaton, the live scan, and the trie with its failure web.<br><br>The weave: David names the failure web and its seat at THE CHOKE POINT (every byte funnels through one automaton); I make the scan a strip in 1D, the trie live in 2D, and the goto-and-fail structure a turning tree in 3D. The sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="130"></canvas>
+  <div class="wctrl"><div class="cap">One pass over the text. The automaton&rsquo;s current node walks along; every time it lands on an <b>output</b> node, a match is emitted &mdash; underlined below. All patterns, all positions, in a single sweep left to right.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The automaton itself: <b>trie edges</b> spell the dictionary, <b>magenta arcs</b> are the failure links. Step the scan and watch the pointer follow letters, then <b>snap back</b> along a failure link on a mismatch &mdash; never re-reading a character.</div>
+   <div class="btns" style="margin-top:10px"><button id="acd0">he/she/his/hers</button><button id="acd1">a/ab/bc/bca/c</button></div>
+   <div class="btns"><button id="acstep">step</button><button id="acrun">run</button><button id="acreset">reset</button></div>
+   <div class="cap" id="acread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The automaton in space, turning. <b>Green</b> is the <b>trie</b> &mdash; the forward edges that spell each pattern out from the root, one letter per step.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> arcs are the <b>failure web</b> &mdash; the backward map of where to fall when the forward path breaks. Each fail link points from a node to the deepest other node whose word is a <i>suffix</i> of this one: the inverse of spelling forward is knowing how to retreat. Build the trie ahead, weave the web behind, and a single pass catches everything.</div>
+   <div class="btns" style="margin-top:10px"><button id="acspin">pause spin</button></div></div></div></div>"""
+AC_SCRIPT = """(function(){
+var ang=0.6,spin=true,pats=['he','she','his','hers'],text='ushers',ac=null,lay=null,scanPos=0,curNode=0,matches=[],runiv=null;
+function buildAC(ps){var goto=[{}],out=[[]],fail=[0];ps.forEach(function(p){var cur=0;for(var k=0;k<p.length;k++){var ch=p[k];if(!(ch in goto[cur])){goto.push({});out.push([]);fail.push(0);goto[cur][ch]=goto.length-1;}cur=goto[cur][ch];}out[cur].push(p);});
+ var q=[];for(var ch in goto[0])q.push(goto[0][ch]);while(q.length){var u=q.shift();for(var ch2 in goto[u]){var v=goto[u][ch2];q.push(v);var f=fail[u];while(f&&!(ch2 in goto[f]))f=fail[f];fail[v]=(ch2 in goto[f]&&goto[f][ch2]!==v)?goto[f][ch2]:0;out[v]=out[v].concat(out[fail[v]]);}}return {goto:goto,fail:fail,out:out};}
+function searchAC(t,a){var m=[],cur=0;for(var i=0;i<t.length;i++){var ch=t[i];while(cur&&!(ch in a.goto[cur]))cur=a.fail[cur];cur=(ch in a.goto[cur])?a.goto[cur][ch]:0;a.out[cur].forEach(function(p){m.push([p,i-p.length+1]);});}return m;}
+function layout(a){var n=a.goto.length,depth=new Array(n).fill(0),parent=new Array(n).fill(-1),childOf=new Array(n).fill('');var q=[0];while(q.length){var u=q.shift();for(var ch in a.goto[u]){var v=a.goto[u][ch];depth[v]=depth[u]+1;parent[v]=u;childOf[v]=ch;q.push(v);}}
+ var byd={};for(var i=0;i<n;i++)(byd[depth[i]]=byd[depth[i]]||[]).push(i);var pos=new Array(n);for(var d in byd)byd[d].forEach(function(node,idx){pos[node]={d:+d,i:idx,cnt:byd[d].length};});return {depth:depth,parent:parent,childOf:childOf,pos:pos,maxd:Math.max.apply(null,depth)};}
+function rebuild(){ac=buildAC(pats);lay=layout(ac);scanPos=0;curNode=0;matches=[];}
+rebuild();
+function nodeXY(node,W,H){var p=lay.pos[node],dx=(W-60)/(lay.maxd+1),dy=(H-40)/Math.max(1,p.cnt);return [30+p.d*dx,20+(p.i+0.5)*dy];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cw=Math.min(40,(W-16)/text.length);g.font='18px ui-monospace,monospace';
+ for(var i=0;i<text.length;i++){g.fillStyle=(i<scanPos)?'#64d8c8':'#2a4a48';g.fillRect(8+i*cw,26,cw-3,30);g.fillStyle=(i<scanPos)?'#031015':'#7ab8b0';g.fillText(text[i],8+i*cw+cw/2-6,48);}
+ matches.forEach(function(m){if(m[1]+m[0].length<=scanPos){g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(8+m[1]*cw,62);g.lineTo(8+(m[1]+m[0].length)*cw-3,62);g.stroke();}});g.lineWidth=1;
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('scanning "'+text+'" · matches so far: '+matches.filter(function(m){return m[1]+m[0].length<=scanPos;}).map(function(m){return m[0]+'@'+m[1];}).join(', '),8,100);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ // goto edges
+ for(var v=1;v<ac.goto.length;v++){var pa=lay.parent[v],A=nodeXY(pa,W,H),B=nodeXY(v,W,H);g.strokeStyle='#2c8a80';g.lineWidth=1.5;g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.stroke();g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText(lay.childOf[v],(A[0]+B[0])/2-3,(A[1]+B[1])/2-3);}
+ // failure links (magenta)
+ for(var v=1;v<ac.goto.length;v++){var f=ac.fail[v];if(f!==v){var A=nodeXY(v,W,H),B=nodeXY(f,W,H);g.strokeStyle='rgba(255,45,149,0.55)';g.lineWidth=1;g.beginPath();g.moveTo(A[0],A[1]);g.quadraticCurveTo((A[0]+B[0])/2,(A[1]+B[1])/2-24,B[0],B[1]);g.stroke();}}
+ // nodes
+ for(var v=0;v<ac.goto.length;v++){var P=nodeXY(v,W,H),isOut=ac.out[v].length>0,isCur=(v===curNode);g.fillStyle=isCur?'#fff':(isOut?'#39fc6b':'#123');g.beginPath();g.arc(P[0],P[1],isCur?9:7,0,7);g.fill();g.strokeStyle='#64d8c8';g.stroke();}
+ g.fillStyle='#64d8c8';g.font='10px ui-monospace,monospace';g.fillText('teal nodes=trie · green=word-end · magenta=failure links · white=current',8,H-6);
+ document.getElementById('acread').textContent='node '+curNode+' · matches: '+matches.filter(function(m){return m[1]+m[0].length<=scanPos;}).map(function(m){return m[0]+'@'+m[1];}).join(', ');}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cx=W/2,cy=H/2,sc=1,ca=Math.cos(ang),sa=Math.sin(ang),dx=90,dy=44;
+ function P(v){var p=lay.pos[v],X=(p.d-lay.maxd/2)*dx,Z=(p.i-(p.cnt-1)/2)*dy,rx=X*ca-Z*sa,rz=X*sa+Z*ca;return [cx+rx,cy+rz*0.5,rz];}
+ for(var v=1;v<ac.goto.length;v++){var f=ac.fail[v];if(f!==v){var A=P(v),B=P(f);g.strokeStyle='rgba(255,45,149,0.6)';g.lineWidth=1;g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.stroke();}}
+ for(var v=1;v<ac.goto.length;v++){var pa=lay.parent[v],A=P(pa),B=P(v);g.strokeStyle='#39fc6b';g.lineWidth=1.8;g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.stroke();}
+ for(var v=0;v<ac.goto.length;v++){var p=P(v);g.fillStyle=ac.out[v].length?'#7dffb0':'#cfe8d0';g.beginPath();g.arc(p[0],p[1],3,0,7);g.fill();}
+ g.lineWidth=1;g.fillStyle='#39fc6b';g.font='11px ui-monospace,monospace';g.fillText('green trie (spell forward) · magenta failure web (retreat)',10,H-12);}
+function advance(){if(scanPos>=text.length)return;var ch=text[scanPos];while(curNode&&!(ch in ac.goto[curNode]))curNode=ac.fail[curNode];curNode=(ch in ac.goto[curNode])?ac.goto[curNode][ch]:0;scanPos++;matches=searchAC(text.substr(0,scanPos),ac);drawW3();drawW4();}
+function verify(){var ok=true,alph='abc';for(var t=0;t<120;t++){var np=2+Math.floor(Math.random()*8),ps={};for(var i=0;i<np;i++){var L=1+Math.floor(Math.random()*3),s='';for(var k=0;k<L;k++)s+=alph[Math.floor(Math.random()*3)];ps[s]=1;}ps=Object.keys(ps);var tx='';for(var i=0;i<40;i++)tx+=alph[Math.floor(Math.random()*3)];
+  var a=buildAC(ps),acm={};searchAC(tx,a).forEach(function(m){acm[m[0]+'@'+m[1]]=1;});var bm={};ps.forEach(function(p){var st=0;while(true){var idx=tx.indexOf(p,st);if(idx<0)break;bm[p+'@'+idx]=1;st=idx+1;}});
+  var ka=Object.keys(acm).sort().join('|'),kb=Object.keys(bm).sort().join('|');if(ka!==kb){ok=false;break;}}
+ var u=buildAC(['he','she','his','hers']),um=searchAC('ushers',u).map(function(m){return m[0]+'@'+m[1];}).sort().join(',');
+ return {matchesBrute:ok,ushers:um};}
+function all(){drawW3();drawW4();window.__ahocorasick=verify();}
+document.getElementById('acd0').onclick=function(){pats=['he','she','his','hers'];text='ushers';rebuild();all();};
+document.getElementById('acd1').onclick=function(){pats=['a','ab','bc','bca','c'];text='abccbca';rebuild();all();};
+document.getElementById('acstep').onclick=function(){advance();};
+document.getElementById('acrun').onclick=function(){if(runiv){clearInterval(runiv);runiv=null;return;}runiv=setInterval(function(){advance();if(scanPos>=text.length){clearInterval(runiv);runiv=null;}},350);};
+document.getElementById('acreset').onclick=function(){scanPos=0;curNode=0;matches=[];drawW3();drawW4();};
+document.getElementById('acspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+all();function loop(){if(spin)ang+=0.011;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-failure-web","title":"THE FAILURE WEB","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#64d8c8","icon":"boss",
+  "kicker":"every dictionary word in one pass, via failure links",
+  "blurb":"Aho-Corasick in the 5-window house format — a trie of many patterns wired with failure links that finds every occurrence of every pattern in one linear pass. The engine behind grep -f, intrusion detection, and virus scanners. See the scan in 1D, the automaton live in 2D, and the trie-plus-failure-web in 3D.",
+  "lit":"A genuine Aho-Corasick automaton. Verified live: the (pattern, position) matches from one linear pass are identical to searching each pattern separately, over random dictionaries and texts; the classic {he,she,his,hers} in 'ushers' finds she@1, he@2, hers@2. The failure links (longest suffix that is a valid prefix) are the exact KMP-for-a-dictionary structure (verifiable: window.__ahocorasick.matchesBrute===true).",
+  "fig":"'The failure web' is the picture; the single-pass completeness and the failure-link construction are exact. It really is the multi-pattern matcher inside grep -f and signature scanners.",
+  "body":AC_BODY,"script":AC_SCRIPT},
  {"slug":"the-welder","title":"THE WELDER","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#ffa03c","icon":"boss",
   "kicker":"near-constant-time merging — where inverse-Ackermann lives",
