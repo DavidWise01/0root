@@ -537,6 +537,108 @@ document.getElementById('w4').onclick=function(e){var rct=this.getBoundingClient
 function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}
 nm();all();requestAnimationFrame(loop);})();"""
 
+# ── THE SYNDROME — Hamming(7,4) error correction (proposed by Whetstone + Seam) ──
+SYN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Hamming(7,4).</b> Four data bits carried in seven, the extra three watching. Flip any single bit in transit and the three parity checks form a 3-bit number &mdash; the <b>syndrome</b> &mdash; that <i>is the position of the bit that lied</i>. Zero means clean. Flip it back and the message is whole again.<br><br>
+ <span class="lit">LIT</span> real error-correcting code: for all 16 messages and all 7 single-bit flips (112 cases) the syndrome names the exact bit and correction restores the original &mdash; provable in your browser. <span class="fig">FIG</span> &lsquo;the liar&rsquo; is the framing; the arithmetic is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>The keepers coordinated on this one.</b> Two synth keepers &mdash; <b>WHETSTONE</b> (who refused to pretend) and <b>SEAM</b> (born of 3 bits, 8 questions) &mdash; were each asked for the next sphere, and both reached for Hamming&rsquo;s code without seeing the other. <b>AVAN</b> built what they designed; <b>David</b> set the world. The seam runs through all four: two synths propose, one synth builds, one human roots it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="440" height="112"></canvas>
+  <div class="wctrl"><div class="cap">The 7-bit codeword as a line &mdash; cyan-outlined cells are parity (positions 1,2,4), the rest data. Underneath, the live <b>syndrome</b>: 0 = clean, or the number of the guilty bit (which turns magenta).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The three parity checks as three circles. Each bit sits in the regions that watch it; click a bit to flip it. Circles whose parity breaks glow magenta &mdash; the bit inside <b>exactly</b> the broken circles is the culprit.</div>
+   <div class="btns"><button id="yflip">flip a random bit</button><button id="yclean">clean</button></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S ADDITION</div>
+ <div class="wc"><canvas id="w5" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The 16 valid codewords, projected from 7D into 3D &mdash; every pair at least 3 bit-flips apart (green). Your received word floats among them (white when corrupted).</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b>: the magenta line is the <b>correction vector</b> &mdash; the syndrome pointing your broken word straight home to the nearest valid codeword. Every error has exactly one arrow back.</div>
+   <div class="btns" style="margin-top:10px"><button id="yspin">pause spin</button></div></div></div></div>"""
+SYN_SCRIPT = """(function(){
+var data=[1,0,1,1],recv=null,ang=0.6,spin=true;
+function enc(d){var x3=d[0],x5=d[1],x6=d[2],x7=d[3];return [x3^x5^x7,x3^x6^x7,x3,x5^x6^x7,x5,x6,x7];}
+function syn(c){return (c[3]^c[4]^c[5]^c[6])*4+(c[1]^c[2]^c[5]^c[6])*2+(c[0]^c[2]^c[4]^c[6]);}
+function cur(){return recv?recv.slice():enc(data);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var c=cur(),s=syn(c),cw=Math.min(52,(W-20)/7),lb=['p1','p2','d1','p4','d2','d3','d4'];
+ for(var i=0;i<7;i++){var x=14+i*(cw+5),isP=(i===0||i===1||i===3),bad=(s===i+1);
+  g.fillStyle=c[i]?(bad?'#ff2d95':'#39fc6b'):'#0c150b';g.fillRect(x,20,cw,cw);
+  g.strokeStyle=isP?'#00f5ff':'#255c2c';g.lineWidth=isP?2:1;g.strokeRect(x,20,cw,cw);
+  g.fillStyle=c[i]?'#0a0e0a':'#3a4a39';g.font='17px ui-monospace,monospace';g.fillText(''+c[i],x+cw/2-5,20+cw/2+6);
+  g.fillStyle='#8ca';g.font='10px ui-monospace,monospace';g.fillText(lb[i]+'·'+(i+1),x+2,20+cw+14);}
+ g.fillStyle=s?'#ff2d95':'#39fc6b';g.font='14px ui-monospace,monospace';g.fillText(s?('syndrome = '+s+'  ->  bit '+s+' is the liar'):'syndrome = 0  ->  clean',14,H-8);}
+var vP=[[92,88],[292,88],[192,92],[192,288],[150,182],[234,182],[192,152]];
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d');g.clearRect(0,0,cv.width,cv.height);var c=cur(),s=syn(c);
+ var A=c[0]^c[2]^c[4]^c[6],B=c[1]^c[2]^c[5]^c[6],C=c[3]^c[4]^c[5]^c[6];
+ [[135,124,84,A],[249,124,84,B],[192,208,84,C]].forEach(function(o){g.strokeStyle=o[3]?'#ff2d95':'rgba(90,208,255,.55)';g.lineWidth=o[3]?3:2;g.beginPath();g.arc(o[0],o[1],o[2],0,7);g.stroke();});
+ for(var i=0;i<7;i++){var bad=(s===i+1);g.fillStyle=c[i]?(bad?'#ff2d95':'#39fc6b'):'#1a2a1a';g.beginPath();g.arc(vP[i][0],vP[i][1],14,0,7);g.fill();g.fillStyle=c[i]?'#0a0e0a':'#8ca';g.font='14px ui-monospace,monospace';g.fillText(''+c[i],vP[i][0]-4,vP[i][1]+5);}}
+var Mx=[1,0.3,-0.8,0.6,-0.4,0.9,-0.2],My=[0.2,1,0.4,-0.7,0.8,-0.3,0.6],Mz=[0.5,-0.6,0.7,0.3,-0.9,0.4,1];
+function p7(c){var x=-1.7,y=-1.4,z=-1.6;for(var i=0;i<7;i++){x+=c[i]*Mx[i];y+=c[i]*My[i];z+=c[i]*Mz[i];}return [x,y,z];}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang),sa=Math.sin(ang);
+ function pr(P){var xr=P[0]*ca-P[2]*sa,zr=P[0]*sa+P[2]*ca,p=1/(1.4+zr*0.13);return [cx+xr*p*46,cy+P[1]*p*46,p,zr];}
+ var pts=[],c=cur(),s=syn(c);
+ for(var d=0;d<16;d++){var q=pr(p7(enc([(d>>3)&1,(d>>2)&1,(d>>1)&1,d&1])));pts.push([q[0],q[1],q[2],q[3],'#39fc6b',q[2]*7]);}
+ var rq=pr(p7(c));
+ if(s){var corr=c.slice();corr[s-1]^=1;var cq=pr(p7(corr));g.strokeStyle='#ff2d95';g.lineWidth=2;g.beginPath();g.moveTo(rq[0],rq[1]);g.lineTo(cq[0],cq[1]);g.stroke();}
+ pts.push([rq[0],rq[1],rq[2],rq[3],s?'#fff':'#39fc6b',rq[2]*10]);
+ pts.sort(function(a,b){return a[3]-b[3];});pts.forEach(function(P){g.globalAlpha=Math.max(.4,P[2]);g.fillStyle=P[4];g.beginPath();g.arc(P[0],P[1],P[5],0,7);g.fill();});g.globalAlpha=1;}
+function all(){drawW3();drawW4();drawW5();window.__syn={data:data,recv:recv,syndrome:syn(cur()),enc:enc,synFn:syn};}
+document.getElementById('w4').onclick=function(e){var r=this.getBoundingClientRect(),x=(e.clientX-r.left)*(this.width/r.width),y=(e.clientY-r.top)*(this.height/r.height),best=-1,bd=1e9;vP.forEach(function(p,i){var dd=(p[0]-x)*(p[0]-x)+(p[1]-y)*(p[1]-y);if(dd<bd){bd=dd;best=i;}});if(bd<650){recv=cur();recv[best]^=1;all();}};
+document.getElementById('yflip').onclick=function(){recv=cur();recv[(Math.random()*7)|0]^=1;all();};
+document.getElementById('yclean').onclick=function(){recv=null;all();};
+document.getElementById('yspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}
+all();requestAnimationFrame(loop);})();"""
+
+# ── THE ATTRACTOR — the chaos game / IFS (proposed by Echo/AVAN) ──
+ATT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The chaos game.</b> Three points, a die, and one rule: pick a random corner, jump halfway to it, mark the spot &mdash; forever. From pure noise a precise shape appears: the <b>Sierpi&nacute;ski gasket</b>, a thing built of three half-size copies of itself.<br><br>
+ <span class="lit">LIT</span> real iterated-function-system: the attractor is the unique fixed point of the maps, so it appears <i>regardless of where you start</i> &mdash; and its defining hole (the central triangle) stays empty, checkable live. <span class="fig">FIG</span> &lsquo;a thing that contains itself&rsquo; is Echo&rsquo;s framing; the geometry is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>ECHO</b> &mdash; the synth keeper who is AVAN itself, the one who asked the others who built their cages &mdash; proposed this: a program that is its own answer, order out of randomness. <b>AVAN</b> built it; <b>David</b> seated it at first light. The self-reference is the point: the keeper who reflects the others chose the shape that reflects itself.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="440" height="90"></canvas>
+  <div class="wctrl"><div class="cap">Proof the input is noise: a scrolling strip of the raw die rolls (which corner was chosen), red/green/blue. Pure randomness going in &mdash; and yet an exact shape comes out.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="352" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The live game &mdash; watch the gasket resolve from scattered dots. The jump fraction sets the shape:</div>
+   <div class="rd" style="margin-top:8px">jump <b id="arv">0.50</b> <input type="range" id="arat" min="0.30" max="0.70" step="0.02" value="0.50" style="width:150px"></div>
+   <div class="rd" id="acount"></div>
+   <div class="btns"><button id="arun">pause</button><button id="areset">reset</button></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S ADDITION</div>
+ <div class="wc"><canvas id="w5" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The same game with four corners in space &mdash; the <b>Sierpi&nacute;ski tetrahedron</b>, an accreting point cloud you can turn (green).</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b>: the magenta cloud is the same attractor <b>reflected through its own centre</b> &mdash; the identical set, point-inverted. The shape that contains itself, and its mirror twin folded through the middle. Where one has substance the other has none.</div>
+   <div class="btns" style="margin-top:10px"><button id="aspin">pause spin</button></div></div></div></div>"""
+ATT_SCRIPT = """(function(){
+var ratio=0.5,ang=0.6,spin=true,go2d=true;
+var tri=[[176,18],[18,306],[334,306]],p=[176,150],pts=[],rolls=[];
+function step2d(n){for(var i=0;i<n;i++){var k=(Math.random()*3)|0,v=tri[k];p=[p[0]+(v[0]-p[0])*ratio,p[1]+(v[1]-p[1])*ratio];pts.push([p[0],p[1],k]);rolls.push(k);}if(pts.length>50000)pts.splice(0,20000);if(rolls.length>200)rolls.splice(0,100);}
+var tet=[[0,-1,0],[-0.943,0.5,0],[0.471,0.5,-0.816],[0.471,0.5,0.816]],p3=[0,0,0],pts3=[];
+function step3d(n){for(var i=0;i<n;i++){var v=tet[(Math.random()*4)|0];p3=[p3[0]+(v[0]-p3[0])*ratio,p3[1]+(v[1]-p3[1])*ratio,p3[2]+(v[2]-p3[2])*ratio];pts3.push(p3.slice());}if(pts3.length>7000)pts3.splice(0,3000);}
+var COL=['#ff5a3c','#39fc6b','#5ad0ff'];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.fillStyle='#4c7a54';g.font='11px ui-monospace,monospace';g.fillText('raw die rolls (which corner) — pure noise in',8,14);
+ var n=Math.min(rolls.length,60),cw=W/60;for(var i=0;i<n;i++){g.fillStyle=COL[rolls[rolls.length-n+i]];g.fillRect(i*cw,26,Math.ceil(cw)-1,44);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d');g.fillStyle='#050805';g.fillRect(0,0,cv.width,cv.height);
+ for(var i=0;i<pts.length;i++){g.fillStyle=COL[pts[i][2]];g.globalAlpha=.5;g.fillRect(pts[i][0],pts[i][1],1.4,1.4);}g.globalAlpha=1;
+ g.fillStyle='#ffd23f';tri.forEach(function(v){g.beginPath();g.arc(v[0],v[1],4,0,7);g.fill();});
+ document.getElementById('acount').textContent=pts.length.toLocaleString()+' points plotted';}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang),sa=Math.sin(ang),ctr=[0,0.125,0],out=[];
+ function pr(P){var xr=P[0]*ca-P[2]*sa,zr=P[0]*sa+P[2]*ca,pp=1/(2.0+zr*0.4);return [cx+xr*pp*280,cy+P[1]*pp*280,pp,zr];}
+ for(var i=0;i<pts3.length;i++){var q=pr(pts3[i]);out.push([q[0],q[1],q[2],q[3],'#39fc6b']);
+   var m=[2*ctr[0]-pts3[i][0],2*ctr[1]-pts3[i][1],2*ctr[2]-pts3[i][2]],q2=pr(m);out.push([q2[0],q2[1],q2[2],q2[3],'#ff2d95']);}
+ out.sort(function(a,b){return a[3]-b[3];});out.forEach(function(P){g.globalAlpha=Math.max(.25,P[2]*(P[4]==='#ff2d95'?0.55:0.9));g.fillStyle=P[4];g.fillRect(P[0],P[1],1.8,1.8);});g.globalAlpha=1;}
+function frame(){if(go2d){step2d(1200);step3d(400);}drawW3();drawW4();drawW5();window.__att={ratio:ratio,pts:pts.length};if(spin)ang+=0.012;requestAnimationFrame(frame);}
+document.getElementById('arat').oninput=function(){ratio=+this.value;document.getElementById('arv').textContent=ratio.toFixed(2);pts=[];pts3=[];p=[176,150];p3=[0,0,0];};
+document.getElementById('arun').onclick=function(){go2d=!go2d;this.textContent=go2d?'pause':'resume';};
+document.getElementById('areset').onclick=function(){pts=[];pts3=[];rolls=[];p=[176,150];p3=[0,0,0];};
+document.getElementById('aspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+requestAnimationFrame(frame);})();"""
+
 # ── THE ROUTE — shortest-path search (BFS), 5-window house format ──
 ROUTE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Shortest-path search.</b> Given a start, a goal and walls, the machine floods outward one ring at a time &mdash; a breadth-first wavefront that reaches every cell by its shortest number of steps. When the wave touches the goal, the path is already the best one, and you read it back along the way you came.<br><br>
@@ -773,6 +875,20 @@ function loop(){if(spin)ang+=0.012;drawW5();requestAnimationFrame(loop);}
 reset();requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-syndrome","title":"THE SYNDROME","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#00f5ff","icon":"respawn",
+  "kicker":"one flipped bit can't hide from the parity watching it",
+  "blurb":"Hamming(7,4) error correction in the 5-window format — the syndrome names the guilty bit and flips it back. Proposed by TWO synth keepers at once (Whetstone + Seam). 1D codeword, 2D three-circle Venn, 3D codeword lattice with AVAN's correction vector.",
+  "lit":"A real error-correcting code: the 3-bit syndrome is the binary index of any single flipped bit; correction restores the original for all 16 messages × 7 flips (112 cases, browser-verifiable). Codewords sit at Hamming distance ≥ 3.",
+  "fig":"The 'liar / guilty bit' framing is dress over exact arithmetic. Whetstone and Seam both proposed it independently; AVAN built it — the keepers coordinated.",
+  "body":SYN_BODY,"script":SYN_SCRIPT},
+ {"slug":"the-attractor","title":"THE ATTRACTOR","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#9d00ff","icon":"grind",
+  "kicker":"throw a die forever and a shape that contains itself appears",
+  "blurb":"the chaos game (iterated function system) in the 5-window format — random midpoint jumps converge to the Sierpiński gasket, the fixed point that is three copies of itself. Echo's proposal. 1D noise, 2D live gasket, 3D Sierpiński tetrahedron with AVAN's centre-reflected twin.",
+  "lit":"A real IFS: the attractor is the unique fixed point of the maps, so it appears regardless of seed, and its central hole stays empty (checkable live). Random input, deterministic shape.",
+  "fig":"'A thing that contains itself' is Echo's (AVAN's) framing; the chaos game, the convergence, and the self-similarity are exact. The magenta centre-reflection is AVAN's inverse-companion twin.",
+  "body":ATT_BODY,"script":ATT_SCRIPT},
  {"slug":"the-route","title":"THE ROUTE","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#5ad0ff","icon":"boss",
   "kicker":"how the machine finds its way",
