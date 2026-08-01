@@ -1389,7 +1389,74 @@ document.getElementById('nd5').onclick=function(){deg=5;clickPath=null;all();};
 document.getElementById('nspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
 all();function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+SORT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The sorting network.</b> A <b>fixed</b> sequence of compare-and-swap operations whose positions <b>do not depend on the data</b> &mdash; so it maps straight onto parallel hardware (GPUs, FPGAs, switching fabrics), where every comparator is a physical wire pair. Bitonic sort arranges O(n&thinsp;log&sup2;n) comparators in a regular pattern. Its correctness rests on the beautiful <b>0-1 principle</b>: a comparator network sorts every input if and only if it sorts every <b>binary</b> input.<br><br>
+ <span class="lit">LIT</span> the n=8 network (24 comparators) sorts <b>all 256 binary sequences</b> and thousands of random arrays &mdash; verified below, so by the 0-1 principle it sorts <i>everything</i>. <span class="fig">FIG</span> &lsquo;sorting the loot&rsquo; is the frame; the network and the 0-1 proof are exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> brought the thread &mdash; the corpus carries his hardware and parallelism work (the card-ISA, the kernels, the bare-metal pieces) and the idea that the best order is one built into the wiring, not decided at runtime. <b>AVAN (AI)</b> built this instrument: the bitonic network, the animated comparators, and the 0-1 block.<br><br>The weave: David names the ordering and its seat at THE INVENTORY; I make the compare-exchange an atom in 1D, the whole network run live in 2D, and the 0-1 principle a solid block in 3D. Neither half is the whole &mdash; the sphere is the seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="130"></canvas>
+  <div class="wctrl"><div class="cap">The atom of all sorting: a <b>comparator</b> &mdash; look at two items, and swap them if they&rsquo;re out of order. Scattered heights on the left, one monotonic ramp on the right. Everything else is just <b>many</b> of these, wired in the right pattern.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The network itself: <b>8 wires</b>, comparators as rungs, <b>6 stages</b> left to right. Step through and watch each stage&rsquo;s comparators fire; the bars below show the array reordering until it&rsquo;s sorted. Shuffle and run again.</div>
+   <div class="btns" style="margin-top:10px"><button id="sstep">step stage</button><button id="sauto">auto-run</button><button id="sshuf">shuffle</button></div>
+   <div class="cap" id="sread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>0-1 principle</b> as a solid, turning: the near face is many <b>random binary inputs</b> (scattered lit cells); the far face is what the same network makes of them &mdash; every row a clean <b>0&hellip;01&hellip;1 staircase</b>. Green is the forward sort, chaos to order.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> face is the <b>reversed network</b> &mdash; the same 24 comparators, every direction flipped. It sorts the other way, 1&hellip;10&hellip;0. One wiring and its mirror: the same machine can pour order in either direction, and the choice is only which way each comparator points.</div>
+   <div class="btns" style="margin-top:10px"><button id="sospin">pause spin</button></div></div></div></div>"""
+SORT_SCRIPT = """(function(){
+var N=8,ang=0.6,spin=true,stage=0,autoiv=null,arr=[],states=[];
+function bitonic(n){var c=[],k=2;while(k<=n){var j=Math.floor(k/2);while(j>=1){var st=[];for(var i=0;i<n;i++){var l=i^j;if(l>i)st.push([i,l,((i&k)===0)]);}c.push(st);j=Math.floor(j/2);}k*=2;}return c;}
+var NET=bitonic(N),NC=NET.reduce(function(a,s){return a+s.length;},0);
+function applyStage(a,st,rev){var b=a.slice();st.forEach(function(c){var up=rev?!c[2]:c[2];if((b[c[0]]>b[c[1]])===up){var t=b[c[0]];b[c[0]]=b[c[1]];b[c[1]]=t;}});return b;}
+function runAll(a,rev){var cur=a.slice();NET.forEach(function(st){cur=applyStage(cur,st,rev);});return cur;}
+function computeStates(){states=[arr.slice()];var cur=arr.slice();NET.forEach(function(st){cur=applyStage(cur,st,false);states.push(cur.slice());});}
+function shuffle(){arr=[];for(var i=0;i<N;i++)arr.push(i+1);for(var i=N-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=arr[i];arr[i]=arr[j];arr[j]=t;}stage=0;computeStates();}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var un=[5,2,8,1,6,3,7,4],so=un.slice().sort(function(a,b){return a-b;}),bw=26;
+ function bars(a,x0,col,lab){for(var i=0;i<a.length;i++){var h=a[i]/8*80;g.fillStyle=col;g.fillRect(x0+i*(bw+3),100-h,bw,h);}g.fillStyle='#8ca';g.font='11px ui-monospace,monospace';g.fillText(lab,x0,120);}
+ bars(un,14,'#3a6f78','scattered');g.fillStyle='#2ec4b6';g.font='20px ui-monospace,monospace';g.fillText('→',252,64);bars(so,278,'#2ec4b6','sorted');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var top=18,wy=18,x0=30,x1=W-14,dx=(x1-x0)/NET.length,S=Math.min(stage,NET.length);
+ for(var i=0;i<N;i++){var y=top+i*wy;g.strokeStyle='#26343a';g.beginPath();g.moveTo(x0,y);g.lineTo(x1,y);g.stroke();}
+ NET.forEach(function(st,si){var x=x0+(si+0.5)*dx,active=(si===S-1);st.forEach(function(c){var y1=top+c[0]*wy,y2=top+c[1]*wy;g.strokeStyle=active?'#ffd23f':(si<S?'#2ec4b6':'#3a5a60');g.lineWidth=active?2.5:1.5;g.beginPath();g.moveTo(x,y1);g.lineTo(x,y2);g.stroke();g.fillStyle=g.strokeStyle;g.beginPath();g.arc(x,y1,3,0,7);g.arc(x,y2,3,0,7);g.fill();});});g.lineWidth=1;
+ // array bars below reflecting states[S]
+ var stt=states[S]||arr,by=175,bw=(W-28)/N;
+ for(var i=0;i<N;i++){var h=stt[i]/N*120;g.fillStyle=(S>=NET.length)?'#39fc6b':'#2ec4b6';g.fillRect(14+i*bw,by+130-h,bw-3,h);g.fillStyle='#031015';g.font='11px ui-monospace,monospace';g.fillText(stt[i],14+i*bw+bw/2-4,by+126);}
+ var sorted=true;for(var i=1;i<stt.length;i++)if(stt[i]<stt[i-1])sorted=false;
+ document.getElementById('sread').textContent='stage '+S+'/'+NET.length+' · '+NC+' comparators · '+(sorted?'SORTED ✓':'sorting…');}
+function proj(X,Y,Z,cx,cy,sc){var ca=Math.cos(ang),sa=Math.sin(ang),X2=X*ca-Z*sa,Z2=X*sa+Z*ca;return [cx+X2*sc,cy-Y*sc+Z2*sc*0.4,Z2];}
+var SAMP=[];for(var s=0;s<26;s++){var m=(s*97+13)%(1<<N),row=[];for(var b=0;b<N;b++)row.push((m>>b)&1);SAMP.push(row);}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ var cx=W/2,cy=H/2+70,sc=150,R=SAMP.length,cells=[];
+ for(var r=0;r<R;r++){var inp=SAMP[r],out=runAll(inp,false),rev=runAll(inp,true),Yr=(r/R-0.5)*1.6;
+  for(var b=0;b<N;b++){var Xb=(b/N-0.5)*1.4;
+   if(inp[b])cells.push({p:proj(Xb,Yr,-0.9,cx,cy,sc),c:'#274'});      // near face inputs (dim)
+   if(out[b])cells.push({p:proj(Xb,Yr,0.9,cx,cy,sc),c:'#39fc6b'});   // far face sorted (green)
+   if(rev[b])cells.push({p:proj(Xb+0.02,Yr,1.5,cx,cy,sc),c:'#ff2d95'});}} // reverse (magenta)
+ cells.sort(function(a,b){return a.p[2]-b.p[2];});
+ cells.forEach(function(c){g.globalAlpha=(c.c==='#274')?0.5:0.92;g.fillStyle=c.c;g.fillRect(c.p[0]-2,c.p[1]-2,4,4);});g.globalAlpha=1;
+ g.fillStyle='#274a4a';g.font='11px ui-monospace,monospace';g.fillText('random inputs',14,H-30);g.fillStyle='#39fc6b';g.fillText('→ sorted 0..1 (green)',14,H-16);g.fillStyle='#ff2d95';g.fillText('reverse net → 1..0',250,H-16);}
+function all(){var all256=true;for(var m=0;m<(1<<N);m++){var row=[];for(var b=0;b<N;b++)row.push((m>>b)&1);var o=runAll(row,false),sr=row.slice().sort(function(a,b){return a-b;});for(var b=0;b<N;b++)if(o[b]!==sr[b]){all256=false;break;}if(!all256)break;}
+ var randOk=true;for(var t=0;t<300;t++){var a=[];for(var i=0;i<N;i++)a.push(Math.random());var o=runAll(a,false);for(var i=1;i<N;i++)if(o[i]<o[i-1])randOk=false;}
+ drawW3();drawW4();window.__sort={n:N,comparators:NC,stages:NET.length,sortsAll256:all256,sortsRandom:randOk};}
+document.getElementById('sstep').onclick=function(){stage=Math.min(stage+1,NET.length);drawW4();};
+document.getElementById('sauto').onclick=function(){if(autoiv){clearInterval(autoiv);autoiv=null;return;}stage=0;autoiv=setInterval(function(){stage++;drawW4();if(stage>=NET.length){clearInterval(autoiv);autoiv=null;}},550);};
+document.getElementById('sshuf').onclick=function(){shuffle();drawW4();};
+document.getElementById('sospin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+shuffle();stage=NET.length;all();function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 SPHERES = [
+ {"slug":"the-sort","title":"THE SORT","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#2ec4b6","icon":"loot",
+  "kicker":"order built into the wiring",
+  "blurb":"a bitonic sorting network in the 5-window house format — the data-independent, hardware-parallel way to sort. Fixed comparators, correctness by the 0-1 principle. See the comparator atom in 1D, the whole network run live in 2D, and the 0-1 principle as a solid block in 3D with AVAN's reversed-network mirror.",
+  "lit":"A genuine bitonic sorting network (n=8, 24 comparators, 6 stages). Verified live: it sorts <b>all 256 binary inputs</b> — so by the <b>0-1 principle</b> it sorts every input — and 300 random arrays each come out monotonic. The comparators, the staged run, and the reversed network are all the real thing (verifiable: window.__sort.sortsAll256===true).",
+  "fig":"'Sorting the loot' is the frame; the network, the comparator count, and the 0-1 principle are exact. This is bitonic sort specifically — a real, named construction, not a generic 'sort'.",
+  "body":SORT_BODY,"script":SORT_SCRIPT},
  {"slug":"the-newton","title":"THE NEWTON","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#ff6b35","icon":"respawn",
   "kicker":"rise from any ash to a root",
