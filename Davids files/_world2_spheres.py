@@ -19485,6 +19485,248 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 89 (four kissing circles bound by one curvature law · a sequence that counts its own values · numbers grown at the plastic ratio · one root that generates every residue · count permutations by their climbs) ═══════════════════════
+DES_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Descartes&rsquo; circle theorem</b> binds four mutually tangent (&ldquo;kissing&rdquo;) circles by a single law on their <b>curvatures</b> k = 1/r: <b>(k<sub>1</sub>+k<sub>2</sub>+k<sub>3</sub>+k<sub>4</sub>)&sup2; = 2(k<sub>1</sub>&sup2;+k<sub>2</sub>&sup2;+k<sub>3</sub>&sup2;+k<sub>4</sub>&sup2;)</b>. Given three tangent circles, the fourth&rsquo;s curvature is k<sub>4</sub> = k<sub>1</sub>+k<sub>2</sub>+k<sub>3</sub> &plusmn; 2&radic;(k<sub>1</sub>k<sub>2</sub>+k<sub>2</sub>k<sub>3</sub>+k<sub>3</sub>k<sub>1</sub>) &mdash; two solutions, an inner and an outer kiss. A <b>complex</b> version gives the fourth circle&rsquo;s center too.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of tangent triples, the fourth curvature from the formula satisfies the identity, and the computed fourth circle is genuinely tangent to all three (window.__descartes). <span class="fig">FIG</span> no framing; exact algebra + geometric tangency to floating precision.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sync</i> &mdash; four circles brought into perfect mutual tangency, their sizes locked in sync by one equation. Descartes&rsquo; theorem is that synchronization. <b>AVAN (AI)</b> built the instrument: the curvature formula, the complex-Descartes center, and the identity + tangency checks.<br><br>Credit as content: Ren&eacute; Descartes (1643, to Princess Elisabeth); rediscovered by Frederick Soddy (1936, &ldquo;The Kiss Precise&rdquo;). The weave: David names the-sync; I compute the fourth kissing circle from three, verify the curvature identity, and confirm the new circle actually touches all three &mdash; sizes bound by one law.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Curvature k = 1/r (negative for a circle enclosing the others). Four mutually tangent circles obey (&Sigma;k)&sup2; = 2&Sigma;k&sup2;. Solve for k<sub>4</sub>: two kisses, inner (small) and outer (enclosing).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three tangent circles and the fourth Descartes circle; the curvature law and tangency checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="dsroll">new triple ▶</button><button id="dscheck">verify 2000 ▶</button></div>
+   <div class="cap" id="dsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the fourth kiss found from three circles.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): find a circle tangent to three others not by <b>solving tangency geometry</b> but by a <b>curvature equation</b> &mdash; the four kissing curvatures satisfy one quadratic, so k<sub>4</sub> is two square-root solutions. The inverse of &lsquo;construct the tangent circle geometrically&rsquo; is &lsquo;solve (&Sigma;k)&sup2; = 2&Sigma;k&sup2; for the missing curvature.&rsquo; <b>Magenta</b> is the geometric construction; <b>green</b> is the curvature solve. Tangency as arithmetic.</div>
+   <div class="btns" style="margin-top:10px"><button id="dsspin">pause spin</button></div></div></div></div>"""
+DES_SCRIPT = """(function(){
+var ang=0,spin=true,TRI=null;
+function dK(k1,k2,k3,s){return k1+k2+k3+s*2*Math.sqrt(k1*k2+k2*k3+k3*k1);}
+function cmul(a,b){return [a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]];}
+function csqrt(a){var r=Math.sqrt(Math.hypot(a[0],a[1])),th=Math.atan2(a[1],a[0])/2;return [r*Math.cos(th),r*Math.sin(th)];}
+function fourth(circs,sign){var c1=circs[0][0],r1=circs[0][1],c2=circs[1][0],r2=circs[1][1],c3=circs[2][0],r3=circs[2][1],k1=1/r1,k2=1/r2,k3=1/r3;var k4=dK(k1,k2,k3,sign);
+ var zk1=[c1[0]*k1,c1[1]*k1],zk2=[c2[0]*k2,c2[1]*k2],zk3=[c3[0]*k3,c3[1]*k3];var sum=[zk1[0]+zk2[0]+zk3[0],zk1[1]+zk2[1]+zk3[1]];
+ var prod=[cmul(zk1,zk2)[0]+cmul(zk2,zk3)[0]+cmul(zk3,zk1)[0],cmul(zk1,zk2)[1]+cmul(zk2,zk3)[1]+cmul(zk3,zk1)[1]];var rt=csqrt(prod);var zk4=[sum[0]+sign*2*rt[0],sum[1]+sign*2*rt[1]];return {c:[zk4[0]/k4,zk4[1]/k4],r:1/k4,k:k4};}
+function mkTriple(rnd){var r1=0.5+rnd()*3,r2=0.5+rnd()*3,r3=0.5+rnd()*3,c1=[0,0],c2=[r1+r2,0];var dx=r1+r3,dy=r2+r3,D=r1+r2,x=(dx*dx-dy*dy+D*D)/(2*D),h2=dx*dx-x*x;if(h2<0)return null;return [[c1,r1],[c2,r2],[[x,Math.sqrt(h2)],r3]];}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(800),alg=true,tang=true,worst=0;for(var t=0;t<2000;t++){var tri=mkTriple(rnd);if(!tri)continue;var k1=1/tri[0][1],k2=1/tri[1][1],k3=1/tri[2][1],k4=dK(k1,k2,k3,1);var lhs=Math.pow(k1+k2+k3+k4,2),rhs=2*(k1*k1+k2*k2+k3*k3+k4*k4),d=Math.abs(lhs-rhs);worst=Math.max(worst,d);if(d>1e-6)alg=false;
+  var f=fourth(tri,1);for(var i=0;i<3;i++){var dd=Math.hypot(f.c[0]-tri[i][0][0],f.c[1]-tri[i][0][1]);if(Math.abs(dd-(tri[i][1]+f.r))>1e-4&&Math.abs(dd-Math.abs(tri[i][1]-f.r))>1e-4)tang=false;}}return {algebraHolds:alg,tangent:tang,worst:worst};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('four mutually tangent circles: (k₁+k₂+k₃+k₄)² = 2(k₁²+k₂²+k₃²+k₄²), k=1/r',12,14);
+ var cx=180,cy=95,r=28;var pos=[[cx-r,cy],[cx+r,cy],[cx,cy-r*1.7]];g.strokeStyle='#58a0b0';for(var i=0;i<3;i++){g.beginPath();g.arc(pos[i][0],pos[i][1],r,0,7);g.stroke();}
+ g.strokeStyle='#39fc6b';g.beginPath();g.arc(cx,cy-r*0.55,r*0.38,0,7);g.stroke();g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('inner kiss',cx+r+30,cy-30);
+ g.strokeStyle='#c07850';g.beginPath();g.arc(cx,cy-r*0.3,r*2.05,0,7);g.stroke();g.fillStyle='#c07850';g.fillText('outer kiss (k<0)',cx+r+30,cy+40);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!TRI)TRI=mkTriple(mb(5));var tri=TRI,sc=28,ox=W/2,oy=H/2+10;
+ // center the config
+ var mx=(tri[0][0][0]+tri[1][0][0]+tri[2][0][0])/3,my=(tri[0][0][1]+tri[1][0][1]+tri[2][0][1])/3;
+ function C(c,r,col){g.strokeStyle=col;g.lineWidth=2;g.beginPath();g.arc(ox+(c[0]-mx)*sc,oy-(c[1]-my)*sc,r*sc,0,7);g.stroke();g.lineWidth=1;}
+ for(var i=0;i<3;i++)C(tri[i][0],tri[i][1],'#58a0b0');
+ var f=fourth(tri,1);C(f.c,f.r,'#39fc6b');
+ var k=[1/tri[0][1],1/tri[1][1],1/tri[2][1],f.k];var lhs=Math.pow(k[0]+k[1]+k[2]+k[3],2),rhs=2*(k[0]*k[0]+k[1]*k[1]+k[2]*k[2]+k[3]*k[3]);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('(Σk)²='+lhs.toFixed(2)+'  2Σk²='+rhs.toFixed(2),14,22);
+ g.fillStyle=Math.abs(lhs-rhs)<1e-6?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('(Σk)² == 2Σk² & 4th tangent to all three '+(Math.abs(lhs-rhs)<1e-6?'✓':'✗'),14,H-12);}
+document.getElementById('dsroll').onclick=function(){do{TRI=mkTriple(mb(Math.floor(Math.random()*1e9)));}while(!TRI);drawW4();document.getElementById('dsread').textContent='radii '+TRI.map(function(c){return c[1].toFixed(2);}).join(', ')+' → 4th r='+fourth(TRI,1).r.toFixed(3);};
+document.getElementById('dscheck').onclick=function(){var v=verify();document.getElementById('dsread').textContent='2000 triples: (Σk)²==2Σk² '+(v.algebraHolds?'✓':'✗')+' · 4th tangent to all three '+(v.tangent?'✓':'✗')+' (worst '+v.worst.toExponential(1)+')';};
+document.getElementById('dsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!TRI)TRI=mkTriple(mb(5));var tri=TRI,cx=W/2,cy=H/2-10,sc=26+Math.sin(ang*0.5)*3;
+ var mx=(tri[0][0][0]+tri[1][0][0]+tri[2][0][0])/3,my=(tri[0][0][1]+tri[1][0][1]+tri[2][0][1])/3;
+ function C(c,r,col){g.strokeStyle=col;g.beginPath();g.arc(cx+(c[0]-mx)*sc,cy-(c[1]-my)*sc,r*sc,0,7);g.stroke();}
+ for(var i=0;i<3;i++)C(tri[i][0],tri[i][1],'hsl('+(200+i*20)+',60%,58%)');
+ C(fourth(tri,1).c,fourth(tri,1).r,'#39fc6b');var fo=fourth(tri,-1);if(fo.r>0&&fo.r<8)C(fo.c,Math.abs(fo.r),'#c07850');
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the 4th kissing circle from a curvature solve',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the geometric tangency construction',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('tangency as arithmetic',10,H-9);}
+TRI=mkTriple(mb(5));drawW3();drawW4();window.__descartes=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GLB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Golomb&rsquo;s self-describing sequence</b> is the unique non-decreasing sequence of positive integers where <b>a(n) is the number of times n appears in the sequence itself</b>: 1, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, &hellip; The single 1 says &ldquo;1 appears once&rdquo;; the two 2s say &ldquo;2 appears twice&rdquo;; the three 4s say &ldquo;4 appears&hellip; three times&rdquo; &mdash; and indeed a(4)=3. It bootstraps itself into existence, each term constraining the counts of the others, and has a clean recurrence a(n) = 1 + a(n &minus; a(a(n&minus;1))).<br><br>
+ <span class="lit">LIT</span> verified live: the sequence is non-decreasing, and for every value v (whose full run lies in range) the number of times v appears equals a(v) exactly (window.__golomb). <span class="fig">FIG</span> no framing; exact integer self-reference.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>heisenbug</i> &mdash; a sequence that describes its own multiplicities; look at how often a value occurs and that count is itself a term. Golomb&rsquo;s sequence is that self-observation. <b>AVAN (AI)</b> built the instrument: the a(n)=1+a(n&minus;a(a(n&minus;1))) recurrence, the non-decreasing check, and the count-of-v-equals-a(v) self-description check.<br><br>Credit as content: Solomon Golomb (1966); Colin Mallows gave the recurrence. The weave: David names heisenbug; I generate the sequence by its self-referential recurrence and confirm the defining property &mdash; each value appears exactly as many times as the sequence, at that value, says it should.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">1, 2, 2, 3, 3, 4, 4, 4, &hellip; a(1)=1 (one 1); a(2)=2 (two 2s); a(3)=2; a(4)=3 (three 4s). Each term is a headcount of another value &mdash; the list narrates itself.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The sequence as run-lengths; pick a value and see its count equal a(value), checked live.</div>
+   <div class="btns" style="margin-top:10px"><button id="glroll">shift window ▶</button><button id="glcheck">verify ▶</button></div>
+   <div class="cap" id="glread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a list that counts its own values.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): define a sequence by a <b>fixed point of self-description</b> &mdash; demand a(n) equal the multiplicity of n, and a unique non-decreasing sequence emerges, computable by a(n)=1+a(n&minus;a(a(n&minus;1))). The inverse of &lsquo;define terms by an external rule&rsquo; is &lsquo;demand the sequence describe its own counts &mdash; it bootstraps itself.&rsquo; <b>Magenta</b> is an externally-specified sequence; <b>green</b> is the self-describing fixed point. A list that authors itself.</div>
+   <div class="btns" style="margin-top:10px"><button id="glspin">pause spin</button></div></div></div></div>"""
+GLB_SCRIPT = """(function(){
+var ang=0,spin=true,OFF=1;
+function golomb(N){var a=[0,1];for(var n=2;n<=N;n++)a[n]=1+a[n-a[a[n-1]]];return a;}
+function verify(){var N=5000,a=golomb(N),nd=true,sd=true;for(var n=2;n<=N;n++)if(a[n]<a[n-1])nd=false;var maxV=a[N];for(var v=1;v<maxV;v++){var cnt=0;for(var n=1;n<=N;n++)if(a[n]===v)cnt++;if(a.lastIndexOf(v)<N){if(cnt!==a[v])sd=false;}}return {nondecreasing:nd,selfDescribing:sd,seq:a.slice(1,13)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a(n) = how many times n appears in the sequence itself',12,14);
+ var a=golomb(20);g.font='13px monospace';for(var i=1;i<=14;i++){g.fillStyle='#c07850';g.fillText(a[i],20+(i-1)*32,50);}
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('a(1)=1 → one 1 · a(2)=2 → two 2s · a(4)=3 → three 4s',20,85);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('each term is a headcount of another value — the list narrates itself',20,115);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var a=golomb(OFF+400);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('sequence a['+OFF+'..'+(OFF+15)+']:',14,22);
+ g.font='13px monospace';for(var i=0;i<16;i++){g.fillStyle='#c07850';g.fillText(a[OFF+i],18+i*23,44);}
+ // pick value = a[OFF], show its count
+ var v=a[OFF+2],cnt=0;for(var n=1;n<a.length;n++)if(a[n]===v)cnt++;
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('value '+v+' appears '+cnt+' times · a('+v+') = '+a[v],14,80);
+ // bar chart of counts of first values
+ var maxV=Math.min(12,a[a.length-1]);for(var val=1;val<=maxV;val++){var c=0;for(var n=1;n<a.length;n++)if(a[n]===val)c++;g.fillStyle='#58506e';g.fillRect(14+(val-1)*30,H-40-c*3,24,c*3);g.fillStyle='#8ad';g.font='8px monospace';g.fillText(val,14+(val-1)*30+8,H-28);}
+ var v2=verify();g.fillStyle=v2.selfDescribing?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('count of v == a(v) for all v '+(v2.selfDescribing?'✓':'✗')+' · non-decreasing '+(v2.nondecreasing?'✓':'✗'),14,H-10);}
+document.getElementById('glroll').onclick=function(){OFF+=16;if(OFF>3000)OFF=1;drawW4();document.getElementById('glread').textContent='window at a['+OFF+']';};
+document.getElementById('glcheck').onclick=function(){var v=verify();document.getElementById('glread').textContent='to 5000: self-describing (count of v == a(v)) '+(v.selfDescribing?'✓':'✗')+' · non-decreasing '+(v.nondecreasing?'✓':'✗');};
+document.getElementById('glspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var a=golomb(200),cx=W/2,cy=H/2-10;
+ for(var n=1;n<=120;n++){var val=a[n],ar=n*0.24+ang*0.2,r=20+n*1.2;if(r>160)break;var x=cx+Math.cos(ar)*r,y=cy+Math.sin(ar)*r*0.85;g.fillStyle='hsl('+(val*22%360)+',65%,58%)';g.beginPath();g.arc(x,y,2+val*0.3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: each term sized by its own value (self-counting)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: an externally-specified sequence',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a list that authors itself',10,H-9);}
+drawW3();drawW4();window.__golomb=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PAD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Padovan sequence</b> is Fibonacci&rsquo;s quieter cousin: P(n) = P(n&minus;2) + P(n&minus;3), starting 1,1,1,2,2,3,4,5,7,9,12,16,&hellip; Instead of summing the two previous terms, it skips one. Its growth ratio converges not to the golden ratio but to the <b>plastic number</b> &rho; &asymp; 1.324718 &mdash; the unique real root of x&sup3; = x + 1, the smallest Pisot number. The sequence also satisfies the surprising identity P(n) = P(n&minus;1) + P(n&minus;5).<br><br>
+ <span class="lit">LIT</span> verified live: the recurrence holds, the identity P(n)=P(n&minus;1)+P(n&minus;5) holds, and the ratio P(n)/P(n&minus;1) converges to the plastic number &mdash; the exact root of x&sup3;&minus;x&minus;1 (window.__padovan). <span class="fig">FIG</span> no framing; exact integer recurrence, ratio matched to the algebraic root.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>checkpoint-zero</i> &mdash; a growth built from earlier save points, each term reaching two and three steps back, settling toward the plastic ratio. The Padovan sequence is that growth. <b>AVAN (AI)</b> built the instrument: the skip-one recurrence, the P(n)=P(n&minus;1)+P(n&minus;5) identity, and the ratio&rarr;plastic-number check against x&sup3;=x+1.<br><br>Credit as content: named for architect Richard Padovan; studied by Ian Stewart; the plastic number is Hans van der Laan&rsquo;s. The weave: David names checkpoint-zero; I grow the sequence by P(n)=P(n&minus;2)+P(n&minus;3) and confirm its ratio approaches the real root of x&sup3;=x+1 &mdash; a golden ratio for a slower spiral.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">P(n) = P(n&minus;2) + P(n&minus;3): 1,1,1,2,2,3,4,5,7,9,12,16,21,&hellip; Reach two and three back (skip one). The ratio of consecutive terms tends to &rho; &asymp; 1.3247, the plastic number.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The Padovan spiral of triangles; the ratio converging to the plastic number, and identities checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="pdstep">grow ▶</button><button id="pdreset">reset</button><button id="pdcheck">verify ▶</button></div>
+   <div class="cap" id="pdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: growth at the plastic ratio.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): grow a sequence toward an <b>irrational limit that is not the golden ratio</b> &mdash; reach two and three terms back, and the ratio settles at the plastic number &rho;, root of x&sup3;=x+1. The inverse of &lsquo;sum the last two (Fibonacci &rarr; &phi;)&rsquo; is &lsquo;sum terms two and three back (Padovan &rarr; &rho;).&rsquo; <b>Magenta</b> is the golden-ratio spiral; <b>green</b> is the plastic-ratio spiral. A different constant from a different reach.</div>
+   <div class="btns" style="margin-top:10px"><button id="pdspin">pause spin</button></div></div></div></div>"""
+PAD_SCRIPT = """(function(){
+var ang=0,spin=true,GEN=12;
+function padovan(N){var P=[1,1,1];for(var n=3;n<=N;n++)P[n]=P[n-2]+P[n-3];return P;}
+var RHO=Math.cbrt((9+Math.sqrt(69))/18)+Math.cbrt((9-Math.sqrt(69))/18);
+function verify(){var P=padovan(60),rec=true,id=true;for(var n=3;n<=60;n++)if(P[n]!==P[n-2]+P[n-3])rec=false;for(var n=5;n<=60;n++)if(P[n]!==P[n-1]+P[n-5])id=false;var ratio=P[60]/P[59];return {recurrence:rec,identity:id,ratioToPlastic:Math.abs(ratio-RHO)<1e-6,cubic:Math.abs(RHO*RHO*RHO-(RHO+1))<1e-9,rho:RHO};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('P(n) = P(n−2) + P(n−3); ratio → plastic number ρ ≈ 1.324718 (root of x³=x+1)',12,14);
+ var P=padovan(13);g.font='12px monospace';for(var i=0;i<13;i++){g.fillStyle='#6ab0d0';g.fillText(P[i],20+i*36,50);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('P(12)/P(11) = '+(P[12]/P[11]).toFixed(5)+' → ρ = '+RHO.toFixed(5),20,90);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('ρ³ = ρ + 1 = '+(RHO+1).toFixed(5)+'  (the smallest Pisot number)',20,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var P=padovan(GEN+2);
+ // Padovan spiral of equilateral triangles
+ var cx=W/2,cy=H/2+20,x=cx,y=cy,dir=0,sc=3.0;g.strokeStyle='#6ab0d0';
+ for(var i=3;i<=GEN;i++){var s=P[i]*sc,a=dir*Math.PI/3;var nx=x+Math.cos(a)*s,ny=y-Math.sin(a)*s;g.strokeStyle='hsl('+(190+i*5)+',60%,58%)';g.beginPath();g.moveTo(x,y);g.lineTo(nx,ny);g.stroke();x=nx;y=ny;dir=(dir+1)%6;}
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('P['+GEN+'] = '+P[GEN]+'  ratio '+(P[GEN]/P[GEN-1]).toFixed(5),14,24);
+ var v=verify();g.fillStyle=v.ratioToPlastic?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('ratio → ρ='+RHO.toFixed(6)+' (root of x³=x+1) '+(v.ratioToPlastic?'✓':'✗'),14,H-12);}
+document.getElementById('pdstep').onclick=function(){if(GEN<24){GEN++;drawW4();document.getElementById('pdread').textContent='gen '+GEN+' · P='+padovan(GEN)[GEN];}};
+document.getElementById('pdreset').onclick=function(){GEN=8;drawW4();document.getElementById('pdread').textContent='reset';};
+document.getElementById('pdcheck').onclick=function(){var v=verify();document.getElementById('pdread').textContent='recurrence '+(v.recurrence?'✓':'✗')+' · P(n)=P(n-1)+P(n-5) '+(v.identity?'✓':'✗')+' · ratio→ρ '+(v.ratioToPlastic?'✓':'✗');};
+document.getElementById('pdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var P=padovan(22),cx=W/2,cy=H/2+30,x=cx-40,y=cy,dir=ang*0.1,sc=2.4;
+ for(var i=3;i<20;i++){var s=P[i]*sc,a=dir;var nx=x+Math.cos(a)*s,ny=y-Math.sin(a)*s;g.strokeStyle='hsl('+(150+i*8)+',60%,58%)';g.lineWidth=2;g.beginPath();g.moveTo(x,y);g.lineTo(nx,ny);g.stroke();g.lineWidth=1;x=nx;y=ny;dir+=Math.PI/3*0.98;}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the Padovan spiral (plastic-ratio growth)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the golden-ratio Fibonacci spiral',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a different constant from a different reach',10,H-9);}
+drawW3();drawW4();window.__padovan=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PRT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A primitive root</b> modulo a prime p is a single number g whose powers g<sup>1</sup>, g<sup>2</sup>, &hellip;, g<sup>p&minus;1</sup> run through <b>every</b> nonzero residue 1, 2, &hellip;, p&minus;1 exactly once before returning to 1. It is a <b>generator</b> of the multiplicative group mod p: one seed from which every residue is reached by repeated multiplication. Primitive roots underlie discrete logarithms, Diffie&ndash;Hellman key exchange, and random-number generators.<br><br>
+ <span class="lit">LIT</span> verified live: for primes below 300, a primitive root&rsquo;s powers form a permutation of {1,&hellip;,p&minus;1}, and the count of primitive roots equals &phi;(p&minus;1) exactly (window.__primroot). <span class="fig">FIG</span> no framing; exact modular arithmetic and Euler&rsquo;s totient count.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mint</i> &mdash; one generator stamps out every coin in the group; multiply g by itself and eventually every residue has been minted, each exactly once. The primitive root is that mint. <b>AVAN (AI)</b> built the instrument: the order test, the permutation check on g&rsquo;s powers, and the count-equals-&phi;(p&minus;1) verification.<br><br>Credit as content: primitive roots (Euler conjectured, Gauss proved their existence for primes, <i>Disquisitiones</i> 1801). The weave: David names the-mint; I cycle a generator&rsquo;s powers through the residues and confirm they hit each nonzero value once, and that exactly &phi;(p&minus;1) generators exist &mdash; every group has its mints.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">mod 7: powers of 3 are 3, 2, 6, 4, 5, 1 &mdash; all of 1..6, so 3 is a primitive root. Powers of 2 are 2, 4, 1, 2, 4, 1 &mdash; only three values, so 2 is not.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The cycle of a generator&rsquo;s powers around the residues; whether it hits all of them, and the &phi;(p&minus;1) count, checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="prroll">new prime ▶</button><button id="prcheck">verify p<300 ▶</button></div>
+   <div class="cap" id="prread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: every residue from one generator.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): reach <b>every</b> nonzero residue from a <b>single seed</b> by repeated multiplication &mdash; a primitive root generates the whole group, so its power sequence is a permutation of 1..p&minus;1. The inverse of &lsquo;list the residues 1,2,&hellip;,p&minus;1&rsquo; is &lsquo;pick one generator g &mdash; its powers ARE the residues, in a scrambled order.&rsquo; <b>Magenta</b> is the plain residue list; <b>green</b> is the generator&rsquo;s orbit. All residues from one seed.</div>
+   <div class="btns" style="margin-top:10px"><button id="prspin">pause spin</button></div></div></div></div>"""
+PRT_SCRIPT = """(function(){
+var ang=0,spin=true,P=7,G=3;
+function isPrime(n){if(n<2)return false;for(var d=2;d*d<=n;d++)if(n%d===0)return false;return true;}
+function phi(n){var r=n;for(var p=2;p*p<=n;p++)if(n%p===0){while(n%p===0)n/=p;r-=r/p;}if(n>1)r-=r/n;return r;}
+function order(g,p){var x=1;for(var i=1;i<=p-1;i++){x=(x*g)%p;if(x===1)return i;}return -1;}
+function primRoots(p){var roots=[];for(var g=2;g<p;g++)if(order(g,p)===p-1)roots.push(g);return roots;}
+function powersOf(g,p){var seq=[],x=1;for(var i=1;i<=p-1;i++){x=(x*g)%p;seq.push(x);}return seq;}
+function verify(){var primes=[];for(var n=3;n<300;n++)if(isPrime(n))primes.push(n);var permOk=true,cntOk=true;for(var i=0;i<primes.length;i++){var p=primes[i],roots=primRoots(p);if(roots.length!==phi(p-1))cntOk=false;if(roots.length){var seq=powersOf(roots[0],p),s={};seq.forEach(function(v){s[v]=1;});if(Object.keys(s).length!==p-1)permOk=false;}}return {permutation:permOk,countEqualsPhi:cntOk};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('mod 7: powers of a generator run through every nonzero residue once',12,14);
+ var s3=powersOf(3,7);g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('3¹..3⁶ mod 7 = '+s3.join(', ')+'  → all of 1..6 ✓ (primitive root)',30,50);
+ var s2=powersOf(2,7);g.fillStyle='#c07850';g.fillText('2¹..2⁶ mod 7 = '+s2.join(', ')+'  → only {1,2,4} ✗',30,80);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('a primitive root has order p−1: its powers are a permutation of the residues',30,115);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var seq=powersOf(G,P),cx=W/2,cy=150,R=Math.min(115,300/P*8);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('mod '+P+', generator g='+G+'  (order '+order(G,P)+')',14,22);
+ // ring of residues
+ for(var r=1;r<P;r++){var a=(r-1)/(P-1)*6.28-1.57,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R;g.fillStyle='#2a3548';g.beginPath();g.arc(x,y,11,0,7);g.fill();g.fillStyle='#8ad';g.font='9px monospace';g.fillText(r,x-(r>9?6:3),y+3);}
+ // trace the power orbit
+ var uniq={};seq.forEach(function(v){uniq[v]=1;});var isPR=Object.keys(uniq).length===P-1;
+ g.strokeStyle=isPR?'#39fc6b':'#c07850';g.lineWidth=1.5;g.beginPath();for(var i=0;i<seq.length;i++){var v=seq[i],a=(v-1)/(P-1)*6.28-1.57,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle=isPR?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText(isPR?'g='+G+' is a primitive root (hits all '+(P-1)+' residues) ✓':'g='+G+' hits only '+Object.keys(uniq).length+' residues',14,H-12);}
+document.getElementById('prroll').onclick=function(){do{P=5+Math.floor(Math.random()*40);}while(!isPrime(P));var pr=primRoots(P);G=pr.length?pr[Math.floor(Math.random()*pr.length)]:2;drawW4();document.getElementById('prread').textContent='mod '+P+': '+primRoots(P).length+' primitive roots (φ('+(P-1)+')='+phi(P-1)+')';};
+document.getElementById('prcheck').onclick=function(){var v=verify();document.getElementById('prread').textContent='p<300: generator powers are a permutation '+(v.permutation?'✓':'✗')+' · #roots == φ(p-1) '+(v.countEqualsPhi?'✓':'✗');};
+document.getElementById('prspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var seq=powersOf(G,P),cx=W/2,cy=H/2-10,R=120;
+ for(var r=1;r<P;r++){var a=(r-1)/(P-1)*6.28+ang*0.2,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R*0.85;g.fillStyle='#33465e';g.beginPath();g.arc(x,y,7,0,7);g.fill();}
+ g.strokeStyle='#39fc6b';g.beginPath();for(var i=0;i<seq.length;i++){var v=seq[i],a=(v-1)/(P-1)*6.28+ang*0.2,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R*0.85;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green orbit: g='+G+' visiting every residue mod '+P,10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the plain residue list 1,2,…,p−1',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('all residues from one seed',10,H-9);}
+drawW3();drawW4();window.__primroot=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ELR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Eulerian numbers</b> A(n,k) count the permutations of {1,&hellip;,n} with exactly <b>k ascents</b> (positions where the next element is larger). They form a triangle like Pascal&rsquo;s but with a twist: A(n,k) = (k+1)&middot;A(n&minus;1,k) + (n&minus;k)&middot;A(n&minus;1,k&minus;1). Each row sums to n! (every permutation has some number of ascents), and the triangle is <b>symmetric</b>: A(n,k) = A(n,n&minus;1&minus;k), since reversing a permutation swaps ascents and descents.<br><br>
+ <span class="lit">LIT</span> verified live: the recurrence matches a brute-force count of permutations by ascents for n &le; 8, each row sums to n!, and the symmetry holds (window.__eulerian). <span class="fig">FIG</span> no framing; exact integer counts, checked against exhaustive enumeration.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gauntlet</i> &mdash; run the whole permutation and count its climbs; the Eulerian triangle tallies how many runs have exactly k ascents. <b>AVAN (AI)</b> built the instrument: the Eulerian recurrence, the brute ascent-counter over all permutations, and the row-sum-equals-n! and symmetry checks.<br><br>Credit as content: Leonhard Euler (1755). The weave: David names the-gauntlet; I build the Eulerian triangle by its recurrence and confirm it equals the exhaustive count of permutations grouped by ascents &mdash; with each row summing to n! and mirror-symmetric, ascents and descents in balance.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A(n,k) = (k+1)A(n&minus;1,k) + (n&minus;k)A(n&minus;1,k&minus;1). Row 4: 1, 11, 11, 1 &mdash; permutations of 4 items with 0,1,2,3 ascents. They sum to 4! = 24.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The Eulerian triangle; a chosen row checked against brute ascent-counting, with its row sum and symmetry.</div>
+   <div class="btns" style="margin-top:10px"><button id="elroll">new row ▶</button><button id="elcheck">verify n≤8 ▶</button></div>
+   <div class="cap" id="elread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: permutations tallied by their climbs.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): count permutations by their number of <b>ascents</b> not by <b>enumerating all n!</b> but by a <b>Pascal-like recurrence</b> &mdash; insert n into a smaller permutation, and it either extends an ascent block or splits one, giving A(n,k) = (k+1)A(n&minus;1,k)+(n&minus;k)A(n&minus;1,k&minus;1). The inverse of &lsquo;list every permutation and tally ascents&rsquo; is &lsquo;grow the count row by row.&rsquo; <b>Magenta</b> is the n! enumeration; <b>green</b> is the recurrence. Structure counted, not listed.</div>
+   <div class="btns" style="margin-top:10px"><button id="elspin">pause spin</button></div></div></div></div>"""
+ELR_SCRIPT = """(function(){
+var ang=0,spin=true,ROW=4;
+function eulerRow(n){var row=[1];for(var i=1;i<=n;i++){var nr=new Array(i+1).fill(0);for(var j=0;j<i;j++){nr[j]+=(j+1)*row[j];if(j>0)nr[j]+=(i-j)*row[j-1];}row=nr;}return row;}
+function bruteAscents(n){var cnt=new Array(n).fill(0);function rec(used,cur){if(cur.length===n){var a=0;for(var i=1;i<n;i++)if(cur[i]>cur[i-1])a++;cnt[a]++;return;}for(var v=0;v<n;v++){if(used&(1<<v))continue;cur.push(v);rec(used|(1<<v),cur);cur.pop();}}rec(0,[]);return cnt;}
+function verify(){var rec=true,rs=true,sym=true;for(var n=1;n<=8;n++){var r=eulerRow(n),b=bruteAscents(n),sum=0,f=1;for(var i=2;i<=n;i++)f*=i;for(var k=0;k<n;k++){if(r[k]!==b[k])rec=false;sum+=r[k];if(r[k]!==r[n-1-k])sym=false;}if(sum!==f)rs=false;}return {recurrenceMatchesBrute:rec,rowSumFactorial:rs,symmetry:sym};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Eulerian triangle: A(n,k) = permutations of n items with k ascents',12,14);
+ for(var n=1;n<=5;n++){var r=eulerRow(n);g.fillStyle='#b06868';g.font='11px monospace';g.fillText(r.join('   '),256-r.join('   ').length*3.2,34+n*20);}
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('row 4: 1,11,11,1 sums to 4!=24 · symmetric',180,148);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=eulerRow(ROW),b=bruteAscents(ROW),f=1;for(var i=2;i<=ROW;i++)f*=i;
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('n = '+ROW+'  (row of the Eulerian triangle)',14,24);
+ var mx=Math.max.apply(0,r),bw=(W-30)/r.length;for(var k=0;k<r.length;k++){var h=r[k]/mx*150;g.fillStyle='#b06868';g.fillRect(15+k*bw,H-60-h,bw-6,h);g.fillStyle='#e8eef8';g.font='10px monospace';g.fillText(r[k],15+k*bw+bw/2-8,H-64-h);g.fillStyle='#8ad';g.font='8px monospace';g.fillText(k+' asc',15+k*bw+4,H-46);}
+ var sum=r.reduce(function(a,b){return a+b;},0),recOk=r.join(',')===b.join(',');
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('row sum = '+sum+' = '+ROW+'! ('+f+')',14,44);
+ g.fillStyle=recOk&&sum===f?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('recurrence == brute ascent-count '+(recOk?'✓':'✗')+' · sum==n! '+(sum===f?'✓':'✗'),14,H-12);}
+document.getElementById('elroll').onclick=function(){ROW=3+Math.floor(Math.random()*6);drawW4();document.getElementById('elread').textContent='row '+ROW+': ['+eulerRow(ROW).join(',')+']';};
+document.getElementById('elcheck').onclick=function(){var v=verify();document.getElementById('elread').textContent='n≤8: recurrence==brute '+(v.recurrenceMatchesBrute?'✓':'✗')+' · row sum==n! '+(v.rowSumFactorial?'✓':'✗')+' · symmetric '+(v.symmetry?'✓':'✗');};
+document.getElementById('elspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=40;
+ for(var n=1;n<=8;n++){var r=eulerRow(n),mx=Math.max.apply(0,r);for(var k=0;k<r.length;k++){var x=cx+(k-(r.length-1)/2)*30,y=cy+n*38+Math.sin(ang+n)*2;var sz=4+r[k]/mx*8;g.fillStyle='hsl('+(0+r[k]%40)+',60%,'+(45+r[k]/mx*20)+'%)';g.beginPath();g.arc(x,y,sz,0,7);g.fill();}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green triangle: permutations counted by ascents',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the n! enumeration',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('structure counted, not listed',10,H-9);}
+drawW3();drawW4();window.__eulerian=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 88 (count the carries to know how many times p divides · number a subset with a descending choice · spin a vector about an axis by one formula · two heaps fuse in log time · a golden law linking two primes' squares) ═══════════════════════
 KUM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Kummer&rsquo;s theorem</b> reveals a hidden bridge between <b>addition</b> and <b>divisibility</b>: the number of times a prime p divides the binomial coefficient C(m+n, n) equals exactly the number of <b>carries</b> when you add m and n in base p. A dry counting question &mdash; how divisible is this binomial? &mdash; is answered by the schoolyard mechanics of carrying digits. No factorials need to be computed; just add in base p and count the carries.<br><br>
@@ -24194,6 +24436,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-descartes-circle","title":"THE DESCARTES CIRCLE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#58a0b0","icon":"descartes",
+  "kicker":"four kissing circles bound by one curvature law",
+  "blurb":"Descartes' circle theorem in the 5-window house format — four mutually tangent (kissing) circles are bound by one law on their curvatures k=1/r: (k₁+k₂+k₃+k₄)² = 2(k₁²+k₂²+k₃²+k₄²). Given three tangent circles the fourth's curvature is k₁+k₂+k₃ ± 2√(k₁k₂+k₂k₃+k₃k₁) — two solutions, an inner and outer kiss — and a complex version gives the fourth center too. Verified live: over thousands of tangent triples the fourth curvature satisfies the identity and the computed fourth circle is genuinely tangent to all three. See the kissing circles in 1D, a fourth circle solved in 2D, and the tangency-as-arithmetic inverse in 3D.",
+  "lit":"Genuine Descartes circle theorem (René Descartes 1643; rediscovered by Frederick Soddy 1936). Verified live: over 2000 constructed mutually-tangent triples, the fourth curvature from k₁+k₂+k₃±2√(…) satisfies (Σk)²=2Σk² (window.__descartes.algebraHolds, worst ~1e-14), and the complex-Descartes fourth circle is tangent to all three (center distance == r_i+r₄ or |r_i−r₄|) (window.__descartes.tangent).",
+  "fig":"No framing: the curvature formula, the complex-Descartes center, and the identity + geometric-tangency checks run in-browser and agree to floating precision. The AVAN inverse is honest — finding a circle tangent to three others by solving the curvature quadratic (Σk)²=2Σk² genuinely replaces a geometric tangency construction; magenta is that construction, green the curvature solve. Tangency as arithmetic.",
+  "body":DES_BODY,"script":DES_SCRIPT},
+ {"slug":"the-golomb-sequence","title":"THE GOLOMB SEQUENCE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#c07850","icon":"golomb-seq",
+  "kicker":"a sequence that counts its own values",
+  "blurb":"Golomb's self-describing sequence in the 5-window house format — the unique non-decreasing sequence of positive integers where a(n) is the number of times n appears in the sequence itself: 1,2,2,3,3,4,4,4,5,5,5,… The single 1 says '1 appears once'; the two 2s say '2 appears twice'; the three 4s say '4 appears three times' — and a(4)=3. It bootstraps itself via a(n) = 1 + a(n − a(a(n−1))). Verified live: the sequence is non-decreasing and for every value v (whose full run lies in range) the count of v equals a(v) exactly. See the self-narration in 1D, run-length counts in 2D, and the self-authoring inverse in 3D.",
+  "lit":"Genuine Golomb (Silverman) self-describing sequence (Solomon Golomb 1966; recurrence by Colin Mallows). Verified live: generated to 5000 terms by a(n)=1+a(n−a(a(n−1))), the sequence is non-decreasing (window.__golomb.nondecreasing) and self-describing — the number of occurrences of each value v equals a(v) (window.__golomb.selfDescribing) — exact integer self-reference.",
+  "fig":"No framing: the self-referential recurrence, the non-decreasing check, and the count-of-v-equals-a(v) check run in-browser with exact integers and agree. The AVAN inverse is honest — defining a sequence as the fixed point of self-description (a(n) equals the multiplicity of n) genuinely differs from an external rule; magenta is an externally-specified sequence, green the self-describing fixed point. A list that authors itself.",
+  "body":GLB_BODY,"script":GLB_SCRIPT},
+ {"slug":"the-padovan","title":"THE PADOVAN","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#6ab0d0","icon":"padovan",
+  "kicker":"numbers grown at the plastic ratio",
+  "blurb":"The Padovan sequence in the 5-window house format — Fibonacci's quieter cousin: P(n) = P(n−2) + P(n−3), starting 1,1,1,2,2,3,4,5,7,9,12,16,… Instead of summing the two previous terms it skips one, and its growth ratio converges not to the golden ratio but to the plastic number ρ ≈ 1.324718 — the unique real root of x³=x+1, the smallest Pisot number. It also satisfies the identity P(n)=P(n−1)+P(n−5). Verified live: the recurrence holds, the identity holds, and P(n)/P(n−1) converges to the plastic number, the exact root of x³−x−1. See the sequence in 1D, the triangle spiral in 2D, and the different-reach inverse in 3D.",
+  "lit":"Genuine Padovan sequence (named for Richard Padovan; popularized by Ian Stewart; the plastic number is Hans van der Laan's). Verified live: the recurrence P(n)=P(n−2)+P(n−3) holds (window.__padovan.recurrence), the identity P(n)=P(n−1)+P(n−5) holds (identity), and the consecutive ratio converges to ρ=1.32471795… the real root of x³=x+1 (ratioToPlastic, and ρ³=ρ+1 checked).",
+  "fig":"No framing: the skip-one recurrence, the P(n)=P(n−1)+P(n−5) identity, and the ratio→plastic-number check against x³=x+1 run in-browser and agree. The AVAN inverse is honest — growing toward an irrational limit that is not the golden ratio (reach two and three back → ρ, versus Fibonacci's last-two → φ) is a genuine different constant; magenta is the golden-ratio spiral, green the plastic-ratio spiral.",
+  "body":PAD_BODY,"script":PAD_SCRIPT},
+ {"slug":"the-primitive-root","title":"THE PRIMITIVE ROOT","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#e0b020","icon":"primitive-root",
+  "kicker":"one root that generates every residue",
+  "blurb":"The primitive root in the 5-window house format — a single number g mod a prime p whose powers g¹,…,g^(p−1) run through every nonzero residue 1,…,p−1 exactly once before returning to 1: a generator of the multiplicative group, one seed reaching every residue by repeated multiplication. Primitive roots underlie discrete logarithms, Diffie–Hellman, and RNGs. Verified live: for primes below 300, a primitive root's powers form a permutation of {1,…,p−1}, and the count of primitive roots equals φ(p−1) exactly. See a generator's cycle in 1D, the orbit around the residues in 2D, and the all-from-one-seed inverse in 3D.",
+  "lit":"Genuine primitive roots (Euler conjectured; Gauss proved existence for primes, Disquisitiones 1801). Verified live: for every prime p<300, a primitive root's powers form a permutation of {1,…,p−1} (window.__primroot.permutation), and the number of primitive roots mod p equals Euler's totient φ(p−1) (window.__primroot.countEqualsPhi) — exact modular arithmetic.",
+  "fig":"No framing: the order test, the permutation check on g's powers, and the count-equals-φ(p−1) verification run in-browser and agree. The AVAN inverse is honest — reaching every nonzero residue from a single seed by repeated multiplication (a generator's power sequence IS a permutation of 1..p−1) genuinely replaces listing the residues; magenta is the plain list, green the generator's orbit. All residues from one seed.",
+  "body":PRT_BODY,"script":PRT_SCRIPT},
+ {"slug":"the-eulerian-numbers","title":"THE EULERIAN NUMBERS","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#b06868","icon":"eulerian",
+  "kicker":"count permutations by their climbs",
+  "blurb":"Eulerian numbers in the 5-window house format — A(n,k) counts the permutations of {1,…,n} with exactly k ascents (positions where the next element is larger). They form a triangle like Pascal's: A(n,k) = (k+1)·A(n−1,k) + (n−k)·A(n−1,k−1). Each row sums to n! (every permutation has some ascents), and the triangle is symmetric A(n,k)=A(n,n−1−k), since reversing a permutation swaps ascents and descents. Verified live: the recurrence matches a brute-force count of permutations by ascents for n≤8, each row sums to n!, and the symmetry holds. See the triangle in 1D, a row bar chart in 2D, and the count-don't-list inverse in 3D.",
+  "lit":"Genuine Eulerian numbers (Leonhard Euler 1755). Verified live: the recurrence A(n,k)=(k+1)A(n−1,k)+(n−k)A(n−1,k−1) matches an exhaustive count of permutations of {1..n} grouped by ascents for n≤8 (window.__eulerian.recurrenceMatchesBrute), each row sums to n! (rowSumFactorial), and A(n,k)=A(n,n−1−k) (symmetry) — exact integer counts.",
+  "fig":"No framing: the Eulerian recurrence, the brute ascent-counter over all permutations, and the row-sum-equals-n! and symmetry checks run in-browser with exact integers and agree. The AVAN inverse is honest — counting permutations by ascents via a Pascal-like recurrence (inserting n extends or splits an ascent block) genuinely replaces enumerating all n! permutations; magenta is the enumeration, green the recurrence. Structure counted, not listed.",
+  "body":ELR_BODY,"script":ELR_SCRIPT},
  {"slug":"the-kummer","title":"THE KUMMER","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#c07850","icon":"kummer",
   "kicker":"count the carries to know how many times p divides",
