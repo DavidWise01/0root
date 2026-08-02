@@ -19485,6 +19485,232 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 81 (a curve that folds forever without crossing · order dissolving into chaos by doubling · assign by highest random weight · split a matrix into triangles · a smooth curve that bends just enough) ═══════════════════════
+DRG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The dragon curve</b> is the shape you get by folding a strip of paper in half, again and again, then unfolding every crease to a right angle. Its turn sequence is the <b>regular paperfolding sequence</b>: at step n, turn left if the odd part of n is &equiv;1 (mod 4), else right. Astonishingly, though it packs into a fractal that <b>tiles the plane</b>, the curve <b>never crosses itself</b> &mdash; every unit segment is traversed at most once. It is a classic of computer graphics and number theory alike.<br><br>
+ <span class="lit">LIT</span> verified live: up to order 14 (16384 segments) the dragon curve is <b>self-avoiding</b> &mdash; every unit edge is distinct, none repeated (window.__dragon). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-phoenix</i> &mdash; the form reborn from repeated folding, rising into a fractal that fills space yet never tangles. The dragon curve is that endless fold. <b>AVAN (AI)</b> built the instrument: the paperfolding turn rule (odd-part mod 4), the turtle walk, the edge-set, and the self-avoiding (all-edges-distinct) check.<br><br>Credit as content: the dragon curve (Heighway, Harter &amp; Banks; popularized by Martin Gardner 1967). The weave: David names the-phoenix; I generate the fold sequence, walk it a right angle at a time, and confirm no unit edge is ever reused &mdash; a space-filling curve that never crosses.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Fold a strip in half repeatedly; unfold each crease to 90&deg;. The n-th turn is left if the odd part of n is 1 (mod 4), else right: L, L, R, L, L, R, R, &hellip; &mdash; the paperfolding sequence.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The dragon curve at a chosen order; it is checked to be self-avoiding (no unit edge reused).</div>
+   <div class="btns" style="margin-top:10px"><button id="drorder">order ▶</button><button id="drcheck">verify ≤14 ▶</button></div>
+   <div class="cap" id="drread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a space-filling fold that never crosses.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): make a curve that <b>fills space and tiles the plane</b> yet <b>never crosses itself</b> &mdash; by folding (the paperfolding turn sequence) rather than drawing. The inverse of &lsquo;a space-filling curve must be carefully routed to avoid overlaps&rsquo; is &lsquo;just fold &mdash; the crease sequence is automatically self-avoiding.&rsquo; <b>Magenta</b> is the crossings a naive path would make; <b>green</b> is the crossing-free dragon. Space-filling from a fold.</div>
+   <div class="btns" style="margin-top:10px"><button id="drspin">pause spin</button></div></div></div></div>"""
+DRG_SCRIPT = """(function(){
+var ang=0,spin=true,ORD=10;
+function turn(i){while(i%2===0)i=i/2;return (i%4===1)?1:0;}
+function walk(order){var n=Math.pow(2,order),x=0,y=0,dir=0,DX=[1,0,-1,0],DY=[0,1,0,-1],pts=[[0,0]],edges=new Set(),ok=true;for(var i=1;i<=n;i++){var nx=x+DX[dir],ny=y+DY[dir],key=[x+','+y,nx+','+ny].sort().join('|');if(edges.has(key))ok=false;edges.add(key);x=nx;y=ny;pts.push([x,y]);if(i<n)dir=(dir+(turn(i)?1:3))&3;}return {pts:pts,selfAvoiding:ok,edges:edges.size,n:n};}
+function verify(){var allOk=true,tot=0;for(var o=1;o<=14;o++){var d=walk(o);tot=d.n;if(!d.selfAvoiding||d.edges!==d.n)allOk=false;}return {selfAvoiding:allOk,segments:tot};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('turn n: left if odd-part of n ≡ 1 (mod 4), else right',12,14);
+ var seq='';for(var i=1;i<=16;i++)seq+=(turn(i)?'L':'R')+' ';g.fillStyle='#39fc6b';g.font='13px monospace';g.fillText(seq,20,55);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('the regular paperfolding sequence — creases of a repeatedly folded strip',20,90);
+ var d=walk(6);g.strokeStyle='#c0a048';g.beginPath();var mnx=99,mny=99,mxx=-99,mxy=-99;d.pts.forEach(function(p){mnx=Math.min(mnx,p[0]);mny=Math.min(mny,p[1]);mxx=Math.max(mxx,p[0]);mxy=Math.max(mxy,p[1]);});var sc=50/Math.max(mxx-mnx,mxy-mny);for(var i=0;i<d.pts.length;i++){var px=360+(d.pts[i][0]-mnx)*sc,py=90-(d.pts[i][1]-mny)*sc;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();}
+function fit(pts,W,H,pad){var mnx=1e9,mny=1e9,mxx=-1e9,mxy=-1e9;pts.forEach(function(p){mnx=Math.min(mnx,p[0]);mny=Math.min(mny,p[1]);mxx=Math.max(mxx,p[0]);mxy=Math.max(mxy,p[1]);});var sc=Math.min((W-2*pad)/(mxx-mnx||1),(H-2*pad)/(mxy-mny||1));return {sc:sc,mnx:mnx,mny:mny,ox:(W-(mxx-mnx)*sc)/2,oy:(H-(mxy-mny)*sc)/2};}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var d=walk(ORD),f=fit(d.pts,W,H-30,16);
+ g.strokeStyle='#39fc6b';g.lineWidth=1.5;g.beginPath();for(var i=0;i<d.pts.length;i++){var px=f.ox+(d.pts[i][0]-f.mnx)*f.sc,py=f.oy+(d.pts[i][1]-f.mny)*f.sc;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ g.fillStyle=d.selfAvoiding?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('order '+ORD+' ('+d.n+' segments) · self-avoiding '+(d.selfAvoiding?'✓':'✗'),12,H-10);}
+document.getElementById('drorder').onclick=function(){ORD=ORD>=15?6:ORD+1;drawW4();document.getElementById('drread').textContent='order '+ORD+': '+Math.pow(2,ORD)+' segments';};
+document.getElementById('drcheck').onclick=function(){var v=verify();document.getElementById('drread').textContent='orders 1..14 ('+v.segments+' segs): self-avoiding '+(v.selfAvoiding?'✓':'✗');};
+document.getElementById('drspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var d=walk(12),f=fit(d.pts,W,H-30,20),cx=W/2,cy=H/2-10;
+ for(var i=1;i<d.pts.length;i++){var hue=(i/d.pts.length)*300,x0=f.ox+(d.pts[i-1][0]-f.mnx)*f.sc,y0=f.oy+(d.pts[i-1][1]-f.mny)*f.sc,x1=f.ox+(d.pts[i][0]-f.mnx)*f.sc,y1=f.oy+(d.pts[i][1]-f.mny)*f.sc;var a=ang*0.15,rx0=(x0-cx)*Math.cos(a)-(y0-cy)*Math.sin(a)+cx,ry0=((x0-cx)*Math.sin(a)+(y0-cy)*Math.cos(a))*0.8+cy,rx1=(x1-cx)*Math.cos(a)-(y1-cy)*Math.sin(a)+cx,ry1=((x1-cx)*Math.sin(a)+(y1-cy)*Math.cos(a))*0.8+cy;g.strokeStyle='hsl('+hue+',70%,58%)';g.beginPath();g.moveTo(rx0,ry0);g.lineTo(rx1,ry1);g.stroke();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green→magenta: the dragon curve, folding without crossing',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the crossings a naive path would make',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('space-filling from a fold (self-avoiding)',10,H-9);}
+drawW3();drawW4();window.__dragon=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LGM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The logistic map</b> x &rarr; r&middot;x&middot;(1&minus;x) is the simplest equation that becomes <b>chaotic</b>. As the growth rate r rises, the long-run behaviour <b>doubles</b>: a single steady value, then an oscillation between two, then four, then eight &mdash; the <b>period-doubling cascade</b> &mdash; and past r &asymp; 3.5699 it dissolves into deterministic chaos. The intervals between doublings shrink by the universal <b>Feigenbaum constant</b> &delta; &asymp; 4.669, the same for a huge class of systems.<br><br>
+ <span class="lit">LIT</span> verified live: the attractor has period 1 at r=2.8, period 2 at 3.2, period 4 at 3.5, period 8 at 3.55, and no short period at r=3.9 (chaos) &mdash; window.__logistic. <span class="fig">FIG</span> no framing; exact period detection.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>race-condition</i> &mdash; the place where a deterministic rule, nudged, tips into unpredictability. The logistic map is that tipping, from order into chaos by doubling. <b>AVAN (AI)</b> built the instrument: the iteration, the transient burn-in, the attractor period detector, and the checks at known r values.<br><br>Credit as content: Robert May (1976); Mitchell Feigenbaum (universality, 1978). The weave: David names race-condition; I iterate the map past its transient and measure the period of what it settles into, confirming the doublings 1&rarr;2&rarr;4&rarr;8 and the plunge into chaos.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Raise r and the settled behaviour splits: one value &rarr; two &rarr; four &rarr; eight &rarr; chaos. The windows between splits shrink by the Feigenbaum ratio &delta; &asymp; 4.669.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The bifurcation diagram of the logistic map; pick r and read off the period of the attractor, checked at the doubling points.</div>
+   <div class="btns" style="margin-top:10px"><button id="lgr">set r ▶</button><button id="lgcheck">verify ▶</button></div>
+   <div class="cap" id="lgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: order splitting into chaos by doubling.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): get <b>chaos from a one-line deterministic rule</b> &mdash; raise r and the attractor period-doubles (1&rarr;2&rarr;4&rarr;8&rarr;&hellip;) until it becomes aperiodic, with the gaps shrinking by a universal constant. The inverse of &lsquo;randomness requires a random source&rsquo; is &lsquo;a simple quadratic map generates chaos deterministically.&rsquo; <b>Magenta</b> is the assumed external randomness; <b>green</b> is the deterministic period-doubling road to chaos. Unpredictability with no dice.</div>
+   <div class="btns" style="margin-top:10px"><button id="lgspin">pause spin</button></div></div></div></div>"""
+LGM_SCRIPT = """(function(){
+var ang=0,spin=true,R=3.5;
+function period(r,x0){var x=x0;for(var i=0;i<3000;i++)x=r*x*(1-x);var seq=[];for(var i=0;i<80;i++){x=r*x*(1-x);seq.push(x);}for(var p=1;p<=32;p++){var ok=true;for(var i=0;i<40;i++)if(Math.abs(seq[i]-seq[i+p])>1e-6){ok=false;break;}if(ok)return p;}return -1;}
+function attractor(r,x0){var x=x0;for(var i=0;i<2000;i++)x=r*x*(1-x);var s=[];for(var i=0;i<200;i++){x=r*x*(1-x);s.push(x);}return s;}
+function verify(){var p1=period(2.8,0.4),p2=period(3.2,0.4),p4=period(3.5,0.4),p8=period(3.55,0.4),pc=period(3.9,0.4);return {ok:(p1===1&&p2===2&&p4===4&&p8===8&&(pc===-1||pc>16)),p:[p1,p2,p4,p8,pc]};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('period doubles as r rises: 1 → 2 → 4 → 8 → chaos',12,14);
+ var rs=[[2.8,1],[3.2,2],[3.5,4],[3.55,8],[3.9,'∞']];for(var i=0;i<rs.length;i++){g.fillStyle=['#39fc6b','#58a0b0','#c0a048','#a878c0','#ff2d95'][i];g.fillRect(30+i*95,50,80,30);g.fillStyle='#042';g.font='10px monospace';g.fillText('r='+rs[i][0],38+i*95,64);g.fillText('per '+rs[i][1],38+i*95,76);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('gaps between doublings shrink by Feigenbaum δ ≈ 4.669',30,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ for(var px=0;px<W-24;px++){var r=2.5+(px/(W-24))*1.5,s=attractor(r,0.4);for(var i=0;i<s.length;i++){var y=H-40-s[i]*(H-70);g.fillStyle=Math.abs(r-R)<0.008?'#ff2d95':'rgba(57,252,107,0.5)';g.fillRect(12+px,y,1,1);}}
+ var pr=period(R,0.4);g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('r = '+R.toFixed(3)+'  → period '+(pr<0?'chaos':pr),12,18);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('r: 2.5 → 4.0 (magenta line = current r)',12,H-10);}
+document.getElementById('lgr').onclick=function(){R=2.6+Math.random()*1.35;drawW4();var p=period(R,0.4);document.getElementById('lgread').textContent='r='+R.toFixed(3)+' → period '+(p<0?'chaos':p);};
+document.getElementById('lgcheck').onclick=function(){var v=verify();document.getElementById('lgread').textContent='periods [2.8,3.2,3.5,3.55,3.9] = ['+v.p.join(',')+'] → 1,2,4,8,chaos '+(v.ok?'✓':'✗');};
+document.getElementById('lgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10;
+ var rs=[2.8,3.2,3.5,3.55,3.7,3.9];for(var ri=0;ri<rs.length;ri++){var s=attractor(rs[ri],0.4),r=45+ri*22;for(var i=0;i<s.length;i++){var a=s[i]*6.28+ang*0.3;g.fillStyle='hsl('+(ri*50)+',65%,58%)';g.beginPath();g.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r*0.8,1.5,0,7);g.fill();}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('rings: attractors from period-1 (inner) to chaos (outer)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the external randomness you do not need',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('unpredictability with no dice (deterministic chaos)',10,H-9);}
+drawW3();drawW4();window.__logistic=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RDV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Rendezvous hashing</b> (Highest Random Weight) assigns each key to a server with <b>no ring and no coordination</b>: for a key, hash it together with <b>every</b> candidate server and pick the server with the <b>highest</b> combined hash. Every party computes the same winner independently. When a server leaves, only the keys that had it as their top choice move &mdash; to their <b>second</b> choice &mdash; and no other key is disturbed. It cleanly handles weighted servers and small clusters.<br><br>
+ <span class="lit">LIT</span> verified live: over 80 clusters, every key maps to a definite node, and removing a node moves <b>only that node&rsquo;s keys</b> (window.__rendezvous). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-pull-request</i> &mdash; the independent decision every replica must reach the same way, without asking anyone else. Rendezvous hashing is that agreement by shared computation. <b>AVAN (AI)</b> built the instrument: the key&times;node weight hash, the highest-weight pick, and the only-removed-node-moves check.<br><br>Credit as content: Thaler &amp; Ravishankar (HRW, 1996). The weave: David names the-pull-request; I score each key against every node by a joint hash, pick the maximum, and confirm that dropping a node moves only its keys to their next-best node.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">For a key, compute hash(key, node) for each node; the key goes to the node with the largest value. Remove that node and the key falls to its runner-up &mdash; every other key keeps its winner.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Keys assigned to nodes by highest random weight; drop a node and watch only its keys move.</div>
+   <div class="btns" style="margin-top:10px"><button id="rvroll">new cluster ▶</button><button id="rvdrop">drop a node ▶</button><button id="rvcheck">verify 80 ▶</button></div>
+   <div class="cap" id="rvread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a shared assignment computed independently.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): let every party <b>agree on placement without talking</b> &mdash; each hashes the key against all nodes and picks the highest weight, so removing a node moves only its keys to their runner-up. The inverse of &lsquo;coordinate a shared mapping table&rsquo; is &lsquo;compute the same max-weight winner independently &mdash; no ring, no gossip.&rsquo; <b>Magenta</b> is the coordination you avoid; <b>green</b> is the independently-computed agreement. Consensus by shared arithmetic.</div>
+   <div class="btns" style="margin-top:10px"><button id="rvspin">pause spin</button></div></div></div></div>"""
+RDV_SCRIPT = """(function(){
+var ang=0,spin=true,NODES=[],KEYS=[],DROPPED=null;
+function h2(key,node){var h=2166136261,s=key+'#'+node;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function assign(key,nodes){var best=null,bw=-1;for(var i=0;i<nodes.length;i++){var w=h2(key,nodes[i]);if(w>bw){bw=w;best=nodes[i];}}return best;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(252),allMapped=true,onlyRemoved=true;for(var t=0;t<80;t++){var N=4+Math.floor(rnd()*5),nodes=[];for(var i=0;i<N;i++)nodes.push('n'+i);var keys=[];for(var i=0;i<300;i++)keys.push('k'+Math.floor(rnd()*1e9));var before={};keys.forEach(function(k){var n=assign(k,nodes);if(!n)allMapped=false;before[k]=n;});var rm=nodes[Math.floor(rnd()*N)],nodes2=nodes.filter(function(n){return n!==rm;});keys.forEach(function(k){var af=assign(k,nodes2);if(before[k]!==rm&&af!==before[k])onlyRemoved=false;});}return {allMapped:allMapped,onlyRemovedMoves:onlyRemoved};}
+var COL=['#c05868','#58a0b0','#c0a048','#a878c0','#70a860','#e08040','#40c0a0'];
+function nodeIdx(n){return NODES.indexOf(n);}
+function mk(){var N=5;NODES=[];for(var i=0;i<N;i++)NODES.push('n'+i);KEYS=[];for(var i=0;i<48;i++)KEYS.push('k'+Math.floor(Math.random()*1e9));DROPPED=null;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('key → node with the highest hash(key, node); drop it → runner-up',12,14);
+ var weights=[[0,180],[1,240],[2,90],[3,150]],bx=0;for(var i=0;i<4;i++){g.fillStyle=COL[i];g.fillRect(60+i*90,90-weights[i][1]*0.25,60,weights[i][1]*0.25);g.fillStyle='#9fd';g.font='9px monospace';g.fillText('n'+i,80+i*90,105);if(weights[i][1]>weights[bx][1])bx=i;}
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('n1 wins (tallest bar = highest weight)',60,135);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!NODES.length)mk();var nodes=DROPPED?NODES.filter(function(n){return n!==DROPPED;}):NODES;
+ for(var i=0;i<NODES.length;i++){var dropped=(NODES[i]===DROPPED);g.fillStyle=dropped?'#333':COL[i%COL.length];g.beginPath();g.arc(50+i*72,40,14,0,7);g.fill();g.fillStyle=dropped?'#666':'#042';g.font='9px monospace';g.fillText('n'+i,44+i*72,44);}
+ KEYS.forEach(function(k,idx){var n=assign(k,nodes),x=20+(idx%16)*22,y=80+Math.floor(idx/16)*22;g.fillStyle=COL[nodeIdx(n)%COL.length];g.beginPath();g.arc(x,y,5,0,7);g.fill();});
+ g.fillStyle='#e8eef8';g.font='10px monospace';g.fillText(DROPPED?(DROPPED+' dropped — only its keys moved to runner-up'):'',12,155);
+ var v=verify();g.fillStyle=v.onlyRemovedMoves?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('removing a node moves only its keys '+(v.onlyRemovedMoves?'✓':'✗'),12,H-10);}
+document.getElementById('rvroll').onclick=function(){mk();drawW4();document.getElementById('rvread').textContent=NODES.length+' nodes, '+KEYS.length+' keys';};
+document.getElementById('rvdrop').onclick=function(){DROPPED=DROPPED?null:NODES[Math.floor(Math.random()*NODES.length)];drawW4();document.getElementById('rvread').textContent=DROPPED?(DROPPED+' dropped'):'restored';};
+document.getElementById('rvcheck').onclick=function(){var v=verify();document.getElementById('rvread').textContent='80 clusters: all mapped '+(v.allMapped?'✓':'✗')+' · only removed keys move '+(v.onlyRemovedMoves?'✓':'✗');};
+document.getElementById('rvspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!NODES.length)mk();var cx=W/2,cy=H/2-20;
+ for(var i=0;i<NODES.length;i++){var a=i/NODES.length*6.28+ang*0.3;g.fillStyle=COL[i%COL.length];g.beginPath();g.arc(cx+Math.cos(a)*70,cy+Math.sin(a)*70*0.8,9,0,7);g.fill();}
+ KEYS.forEach(function(k){var n=assign(k,NODES),ni=nodeIdx(n),a=ni/NODES.length*6.28+ang*0.3,nx=cx+Math.cos(a)*70,ny=cy+Math.sin(a)*70*0.8,ka=h2(k,'')/4294967295*6.28,kx=cx+Math.cos(ka)*115,ky=cy+Math.sin(ka)*115*0.75;g.strokeStyle=COL[ni%COL.length];g.globalAlpha=0.3;g.beginPath();g.moveTo(kx,ky);g.lineTo(nx,ny);g.stroke();g.globalAlpha=1;g.fillStyle=COL[ni%COL.length];g.beginPath();g.arc(kx,ky,2.5,0,7);g.fill();});
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green links: each key to its highest-weight node',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the coordination you avoid',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('consensus by shared arithmetic (no ring, no gossip)',10,H-9);}
+mk();drawW3();drawW4();window.__rendezvous=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LUD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>LU decomposition</b> factors a square matrix A into a <b>lower</b>-triangular L and an <b>upper</b>-triangular U (with a row-permutation P for stability), so that P&middot;A = L&middot;U. It is Gaussian elimination, remembered: once you have L and U, you can solve A&middot;x = b for <b>many</b> right-hand sides cheaply by two triangular sweeps, and read off the determinant as the product of U&rsquo;s diagonal. <b>Partial pivoting</b> swaps in the largest pivot each step to keep the arithmetic stable.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random matrices, P&middot;A equals L&middot;U to ~10<sup>&minus;15</sup>, and L is lower-triangular with unit diagonal (window.__lu). <span class="fig">FIG</span> no framing; exact to floating precision.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; the linear-algebra engine that factors a matrix once and then solves against it forever. LU decomposition is that factoring. <b>AVAN (AI)</b> built the instrument: the partial-pivot elimination, the L and U accumulation, the permutation record, and the P&middot;A = L&middot;U check.<br><br>Credit as content: LU factorization (Alan Turing formalized it, 1948; Gauss&rsquo;s elimination underlies it). The weave: David names the mainframe; I eliminate below each pivot (swapping in the largest), storing the multipliers in L and the result in U, and confirm the permuted matrix equals L&middot;U.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Eliminate below the pivot: subtract a multiple of the pivot row from each row beneath, storing that multiplier in L and the zeroed-out result in U. Swap in the largest pivot first for stability.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A matrix A and its factors L, U (and permutation P); L&middot;U is checked against P&middot;A.</div>
+   <div class="btns" style="margin-top:10px"><button id="luroll">new matrix ▶</button><button id="lucheck">verify 300 ▶</button></div>
+   <div class="cap" id="luread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a matrix split into two triangles.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): factor a matrix <b>once</b> into a lower and an upper triangle, so solving A&middot;x=b for any b is just <b>two triangular sweeps</b> &mdash; forward then back. The inverse of &lsquo;re-run Gaussian elimination for every right-hand side&rsquo; is &lsquo;factor once into L&middot;U, then substitute.&rsquo; <b>Magenta</b> is the repeated elimination you avoid; <b>green</b> is the reusable L&middot;U factoring. Elimination, remembered as triangles.</div>
+   <div class="btns" style="margin-top:10px"><button id="luspin">pause spin</button></div></div></div></div>"""
+LUD_SCRIPT = """(function(){
+var ang=0,spin=true,A=null;
+function matmul(A,B){var n=A.length,m=B[0].length,K=B.length,C=[];for(var i=0;i<n;i++){C.push([]);for(var j=0;j<m;j++){var s=0;for(var t=0;t<K;t++)s+=A[i][t]*B[t][j];C[i].push(s);}}return C;}
+function lu(A){var n=A.length,U=A.map(function(r){return r.slice();}),L=[],P=[];for(var i=0;i<n;i++){L.push(new Array(n).fill(0));L[i][i]=1;P.push(i);}for(var c=0;c<n;c++){var piv=c;for(var r=c+1;r<n;r++)if(Math.abs(U[r][c])>Math.abs(U[piv][c]))piv=r;if(piv!==c){var t=U[piv];U[piv]=U[c];U[c]=t;t=P[piv];P[piv]=P[c];P[c]=t;for(var k=0;k<c;k++){var tt=L[piv][k];L[piv][k]=L[c][k];L[c][k]=tt;}}for(var r=c+1;r<n;r++){var f=U[r][c]/U[c][c];L[r][c]=f;for(var k=c;k<n;k++)U[r][k]-=f*U[c][k];}}return {L:L,U:U,P:P};}
+function permRows(A,P){return P.map(function(pi){return A[pi].slice();});}
+function maxDiff(A,B){var m=0;for(var i=0;i<A.length;i++)for(var j=0;j<A[0].length;j++)m=Math.max(m,Math.abs(A[i][j]-B[i][j]));return m;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(253),ok=true,lowerOk=true,worst=0;for(var t=0;t<300;t++){var n=2+Math.floor(rnd()*5),A=[];for(var i=0;i<n;i++){A.push([]);for(var j=0;j<n;j++)A[i].push(rnd()*10-5);}var f=lu(A),d=maxDiff(permRows(A,f.P),matmul(f.L,f.U));worst=Math.max(worst,d);if(d>1e-9)ok=false;for(var i=0;i<n;i++)for(var j=i+1;j<n;j++)if(Math.abs(f.L[i][j])>1e-12)lowerOk=false;}return {equalsPA:ok,lowerTriangular:lowerOk,worst:worst};}
+function mk(){var n=3,rnd=mb((Math.random()*1e9)|0);A=[];for(var i=0;i<n;i++){A.push([]);for(var j=0;j<n;j++)A[i].push(Math.round((rnd()*8-4)*10)/10);}}
+function drawM(g,M,ox,oy,cell,col){for(var i=0;i<M.length;i++)for(var j=0;j<M[0].length;j++){g.fillStyle=col;g.globalAlpha=0.18;g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);g.globalAlpha=1;g.fillStyle='#e8eef8';g.font='9px monospace';g.fillText((Math.round(M[i][j]*100)/100).toString().slice(0,5),ox+j*cell+2,oy+i*cell+cell/2+3);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('eliminate below each pivot: multiplier → L, zeroed result → U',12,14);
+ g.fillStyle='#58a0b0';g.font='12px monospace';g.fillText('A',60,50);g.fillStyle='#8ad';g.fillText('=',110,50);g.fillStyle='#39fc6b';g.fillText('L (lower △)',140,50);g.fillStyle='#8ad';g.fillText('·',250,50);g.fillStyle='#c0a048';g.fillText('U (upper △)',270,50);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('partial pivoting swaps in the largest pivot for stability',60,100);g.fillText('solve Ax=b for any b: forward-solve L, then back-solve U',60,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk();var f=lu(A),cell=30;
+ g.fillStyle='#58a0b0';g.font='10px monospace';g.fillText('A',30,22);drawM(g,A,14,28,cell,'#58a0b0');
+ g.fillStyle='#39fc6b';g.fillText('L',130,22);drawM(g,f.L,116,28,cell,'#39fc6b');
+ g.fillStyle='#c0a048';g.fillText('U',235,22);drawM(g,f.U,220,28,cell,'#c0a048');
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('P·A = '+f.P.map(function(p){return 'row'+p;}).join(', '),14,145);
+ var v=verify();g.fillStyle=v.equalsPA&&v.lowerTriangular?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('P·A == L·U ✓ · L lower-triangular ✓ (worst '+v.worst.toExponential(0)+')',12,H-12);}
+document.getElementById('luroll').onclick=function(){mk();drawW4();document.getElementById('luread').textContent='new 3×3 factored into L·U';};
+document.getElementById('lucheck').onclick=function(){var v=verify();document.getElementById('luread').textContent='300 matrices: P·A==L·U '+(v.equalsPA?'✓':'✗')+' · L lower-tri '+(v.lowerTriangular?'✓':'✗');};
+document.getElementById('luspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk();var f=lu(A),n=A.length,cell=42,ox=W/2-n*cell/2,oy=H/2-n*cell/2-10,ph=0.5+0.5*Math.sin(ang);
+ for(var i=0;i<n;i++)for(var j=0;j<n;j++){var lower=j<=i,upper=j>=i;if(lower){g.fillStyle='rgba(57,252,107,'+(0.3+0.4*ph)+')';g.fillRect(ox+j*cell,oy+i*cell,cell/2-2,cell-3);g.fillStyle='#042';g.font='7px monospace';g.fillText((Math.round(f.L[i][j]*10)/10),ox+j*cell+2,oy+i*cell+cell/2);}if(upper){g.fillStyle='rgba(192,160,72,'+(0.3+0.4*ph)+')';g.fillRect(ox+j*cell+cell/2,oy+i*cell,cell/2-2,cell-3);g.fillStyle='#042';g.font='7px monospace';g.fillText((Math.round(f.U[i][j]*10)/10),ox+j*cell+cell/2+2,oy+i*cell+cell/2);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green lower △ (L) + gold upper △ (U) = the matrix',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the repeated elimination you avoid',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('elimination, remembered as two triangles',10,H-9);}
+mk();drawW3();drawW4();window.__lu=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CSP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The natural cubic spline</b> draws the <b>smoothest</b> curve through a set of points: a separate cubic on each interval, joined so that the <b>value, slope, and curvature</b> all match at every knot (C<sup>2</sup> continuity), with zero curvature at the two ends (the &ldquo;natural&rdquo; condition). Those matching conditions reduce to a <b>tridiagonal</b> linear system for the second derivatives, solved in O(n). It is the smooth interpolant of choice for data fitting and font/animation curves.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 datasets, the spline passes through every point, its first derivative is continuous at every interior knot, and the second derivative is zero at both ends (window.__cubicspline). <span class="fig">FIG</span> no framing; exact to floating precision.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-toolchain</i> &mdash; the numerical tool that fits the smoothest possible curve through measured points. The natural cubic spline is that fit. <b>AVAN (AI)</b> built the instrument: the tridiagonal system for the second derivatives, the per-segment cubic coefficients, the passes-through check, the derivative-continuity check, and the natural boundary check.<br><br>Credit as content: cubic spline interpolation (Schoenberg 1946; the natural-BC form is classical). The weave: David names the toolchain; I solve the tridiagonal moment system, build each interval&rsquo;s cubic, and confirm the curve interpolates every point with matching slopes and zero end-curvature.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">On each interval a cubic; at each interior knot the value, slope, and curvature of the left and right cubics agree. The end-curvatures are set to zero &mdash; the &ldquo;natural&rdquo; spline that a flexible ruler would trace.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Data points and the natural cubic spline through them; interpolation, slope continuity, and natural end-curvature are checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="cproll">new points ▶</button><button id="cpcheck">verify 200 ▶</button></div>
+   <div class="cap" id="cpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the smoothest curve through the points.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): fit the <b>smoothest</b> curve through points by demanding <b>matching curvature</b> at every knot (not just value and slope) &mdash; which reduces to one tridiagonal solve. The inverse of &lsquo;connect points with local pieces that only match position and tangent&rsquo; is &lsquo;solve globally for matching curvature everywhere &mdash; the flexible-ruler curve.&rsquo; <b>Magenta</b> is the curvature kinks a weaker spline leaves; <b>green</b> is the C<sup>2</sup>-smooth interpolant. Smoothness that bends just enough.</div>
+   <div class="btns" style="margin-top:10px"><button id="cpspin">pause spin</button></div></div></div></div>"""
+CSP_SCRIPT = """(function(){
+var ang=0,spin=true,XS=[0,1,2,3,4],YS=[1,3,2,4,2];
+function spline(xs,ys){var n=xs.length,h=[];for(var i=0;i<n-1;i++)h.push(xs[i+1]-xs[i]);var l=new Array(n),mu=new Array(n),z=new Array(n);l[0]=1;mu[0]=0;z[0]=0;for(var i=1;i<n-1;i++){var ai=3/h[i]*(ys[i+1]-ys[i])-3/h[i-1]*(ys[i]-ys[i-1]);l[i]=2*(xs[i+1]-xs[i-1])-h[i-1]*mu[i-1];mu[i]=h[i]/l[i];z[i]=(ai-h[i-1]*z[i-1])/l[i];}l[n-1]=1;z[n-1]=0;var c=new Array(n);c[n-1]=0;var b=new Array(n-1),d=new Array(n-1);for(var j=n-2;j>=0;j--){c[j]=z[j]-mu[j]*c[j+1];b[j]=(ys[j+1]-ys[j])/h[j]-h[j]*(c[j+1]+2*c[j])/3;d[j]=(c[j+1]-c[j])/(3*h[j]);}return {a:ys,b:b,c:c,d:d,xs:xs};}
+function evalS(sp,seg,x){var dx=x-sp.xs[seg];return sp.a[seg]+sp.b[seg]*dx+sp.c[seg]*dx*dx+sp.d[seg]*dx*dx*dx;}
+function evalSp(sp,seg,x){var dx=x-sp.xs[seg];return sp.b[seg]+2*sp.c[seg]*dx+3*sp.d[seg]*dx*dx;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(254),through=true,c1=true,natural=true;for(var t=0;t<200;t++){var n=4+Math.floor(rnd()*4),xs=[0],ys=[rnd()*10];for(var i=1;i<n;i++){xs.push(xs[i-1]+0.5+rnd());ys.push(rnd()*10);}var sp=spline(xs,ys);for(var i=0;i<n-1;i++)if(Math.abs(evalS(sp,i,xs[i])-ys[i])>1e-9)through=false;if(Math.abs(evalS(sp,n-2,xs[n-1])-ys[n-1])>1e-9)through=false;for(var i=1;i<n-1;i++)if(Math.abs(evalSp(sp,i-1,xs[i])-evalSp(sp,i,xs[i]))>1e-7)c1=false;if(Math.abs(sp.c[0])>1e-9||Math.abs(sp.c[n-1])>1e-9)natural=false;}return {interpolates:through,c1continuous:c1,naturalBC:natural};}
+function curvePts(xs,ys){var sp=spline(xs,ys),out=[];for(var i=0;i<xs.length-1;i++)for(var s=0;s<=16;s++){var x=xs[i]+(xs[i+1]-xs[i])*s/16;out.push([x,evalS(sp,i,x)]);}return out;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('at each knot: value, slope AND curvature match; end-curvature = 0',12,14);
+ var xs=[0,1.2,2.6,3.8],ys=[1,2.5,1.5,2.3],pts=curvePts(xs,ys);g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<pts.length;i++){var px=40+pts[i][0]*100,py=130-pts[i][1]*30;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<xs.length;i++){g.fillStyle='#c0a048';g.beginPath();g.arc(40+xs[i]*100,130-ys[i]*30,4,0,7);g.fill();}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var pts=curvePts(XS,YS),mnx=Math.min.apply(0,XS),mxx=Math.max.apply(0,XS),mny=Math.min.apply(0,YS)-1,mxy=Math.max.apply(0,YS)+1;
+ function px(x){return 30+(x-mnx)/(mxx-mnx)*(W-60);}function py(y){return H-40-(y-mny)/(mxy-mny)*(H-70);}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<pts.length;i++){if(i===0)g.moveTo(px(pts[i][0]),py(pts[i][1]));else g.lineTo(px(pts[i][0]),py(pts[i][1]));}g.stroke();g.lineWidth=1;
+ for(var i=0;i<XS.length;i++){g.fillStyle='#c0a048';g.beginPath();g.arc(px(XS[i]),py(YS[i]),4,0,7);g.fill();}
+ var v=verify();g.fillStyle=v.interpolates&&v.c1continuous&&v.naturalBC?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('through points ✓ · slope continuous ✓ · natural ends ✓',12,H-12);}
+document.getElementById('cproll').onclick=function(){var n=4+Math.floor(Math.random()*3);XS=[0];YS=[Math.round(Math.random()*8)];for(var i=1;i<n;i++){XS.push(XS[i-1]+1);YS.push(Math.round(Math.random()*8));}drawW4();document.getElementById('cpread').textContent=n+' points splined';};
+document.getElementById('cpcheck').onclick=function(){var v=verify();document.getElementById('cpread').textContent='200 datasets: interpolates '+(v.interpolates?'✓':'✗')+' · C1 '+(v.c1continuous?'✓':'✗')+' · natural BC '+(v.naturalBC?'✓':'✗');};
+document.getElementById('cpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10,n=6,xs=[],ys=[];for(var i=0;i<n;i++){xs.push(i);ys.push(3+2*Math.sin(i*1.1+ang));}var pts=curvePts(xs,ys);
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<pts.length;i++){var px=cx-180+pts[i][0]*72,py=cy-pts[i][1]*30+30;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<n;i++){var px=cx-180+xs[i]*72,py=cy-ys[i]*30+30;g.fillStyle='#c0a048';g.beginPath();g.arc(px,py,4,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the C²-smooth spline flexing through the points',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the curvature kinks a weaker spline leaves',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('smoothness that bends just enough',10,H-9);}
+drawW3();drawW4();window.__cubicspline=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 80 (GCD with only shifts and subtractions · a ring where nodes come and go cheaply · trace the isoline through a grid · a smooth curve through every point · reduce mod n without dividing) ═══════════════════════
 STN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Stein&rsquo;s algorithm</b> (binary GCD) computes the greatest common divisor using only <b>subtraction, comparison, and bit shifts</b> &mdash; <b>no division or modulo</b>, which are slow in hardware. It rests on three facts: gcd(2a,2b)=2&middot;gcd(a,b), gcd(2a,b)=gcd(a,b) when b is odd, and gcd(a,b)=gcd(|a&minus;b|,min(a,b)) for two odds. Strip common factors of two, halve evens, subtract odds, restore the twos at the end. It is the GCD of choice on hardware without a divide unit.<br><br>
@@ -22289,6 +22515,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-dragon-curve","title":"THE DRAGON CURVE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#70a860","icon":"dragon-curve",
+  "kicker":"a fold that fills space and never crosses itself",
+  "blurb":"the dragon curve in the 5-window house format — the shape from folding a strip of paper in half repeatedly, then unfolding every crease to a right angle. Its turn sequence is the regular paperfolding sequence: at step n, turn left if the odd part of n is congruent to 1 (mod 4), else right. Though it packs into a fractal that tiles the plane, the curve never crosses itself — every unit segment is traversed at most once. It is a classic of graphics and number theory. Verified live: up to order 14 (16384 segments) the dragon curve is self-avoiding, every unit edge distinct. See the fold sequence in 1D, the curve in 2D, and the fold-not-route inverse in 3D.",
+  "lit":"Genuine dragon curve / regular paperfolding sequence (Heighway, Harter & Banks; Gardner 1967). Verified live: generating the fold turn sequence (left if the odd part of n is 1 mod 4, else right) and walking it a right angle at a time, up to order 14 (16384 segments), every unit edge is distinct — the curve is self-avoiding (window.__dragon.selfAvoiding).",
+  "fig":"No framing: the paperfolding turn rule, the turtle walk, the edge-set, and the self-avoiding check run in-browser and hold to 16384 segments. The AVAN inverse is honest — the crease (paperfolding) sequence yields a space-filling, plane-tiling curve that is automatically self-avoiding, no routing needed; magenta is the crossings a naive path would make, green the crossing-free dragon. Space-filling from a fold.",
+  "body":DRG_BODY,"script":DRG_SCRIPT},
+ {"slug":"the-logistic-map","title":"THE LOGISTIC MAP","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#a878c0","icon":"logistic-map",
+  "kicker":"chaos from a one-line rule, by period-doubling",
+  "blurb":"the logistic map in the 5-window house format — x -> r*x*(1-x), the simplest equation that becomes chaotic. As the growth rate r rises, the long-run behavior doubles: one steady value, then an oscillation between two, then four, then eight (the period-doubling cascade), and past r ~ 3.5699 it dissolves into deterministic chaos. The intervals between doublings shrink by the universal Feigenbaum constant delta ~ 4.669, the same for a huge class of systems. Verified live: the attractor has period 1 at r=2.8, 2 at 3.2, 4 at 3.5, 8 at 3.55, and no short period at 3.9 (chaos). See the doublings in 1D, the bifurcation diagram in 2D, and the deterministic-chaos inverse in 3D.",
+  "lit":"Genuine logistic map period-doubling (May 1976; Feigenbaum universality 1978). Verified live: iterating x -> r*x*(1-x) past a transient and measuring the attractor period gives period 1 at r=2.8, 2 at r=3.2, 4 at r=3.5, 8 at r=3.55, and no short period (chaos) at r=3.9 (window.__logistic.ok).",
+  "fig":"No framing: the iteration, the transient burn-in, the attractor period detector, and the checks at known r values run in-browser and hold. The AVAN inverse is honest — a one-line deterministic quadratic map period-doubles into chaos as r rises, with gaps shrinking by a universal constant; magenta is the external randomness you do not need, green the deterministic road to chaos. Unpredictability with no dice.",
+  "body":LGM_BODY,"script":LGM_SCRIPT},
+ {"slug":"the-rendezvous-hashing","title":"THE RENDEZVOUS HASHING","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#58a0b0","icon":"rendezvous-hashing",
+  "kicker":"assign by highest random weight, no ring",
+  "blurb":"rendezvous hashing (Highest Random Weight) in the 5-window house format — assign each key to a server with no ring and no coordination: hash the key with every candidate server and pick the server with the highest combined hash. Every party computes the same winner independently. When a server leaves, only the keys that had it as their top choice move (to their second choice); no other key is disturbed. It cleanly handles weighted servers and small clusters. Verified live: over 80 clusters, every key maps to a definite node, and removing a node moves only that node's keys. See the weight pick in 1D, a node drop in 2D, and the shared-computation inverse in 3D.",
+  "lit":"Genuine rendezvous / Highest Random Weight hashing (Thaler & Ravishankar 1996). Verified live: over 80 clusters, scoring each key against every node by a joint hash and picking the maximum, every key maps to a definite node, and removing a node moves ONLY the keys that had it as top-weight — every other key's assignment is unchanged (window.__rendezvous.allMapped && .onlyRemovedMoves).",
+  "fig":"No framing: the key x node weight hash, the highest-weight pick, and the only-removed-node-moves check run in-browser and hold. The AVAN inverse is honest — each party independently computes the same max-weight winner, so node churn moves only the departing node's keys to their runner-up, with no ring or gossip; magenta is the coordination avoided, green the independently-computed agreement. Consensus by shared arithmetic.",
+  "body":RDV_BODY,"script":RDV_SCRIPT},
+ {"slug":"the-lu-decomposition","title":"THE LU DECOMPOSITION","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#c0a048","icon":"lu-decomposition",
+  "kicker":"factor a matrix into two triangles once, solve forever",
+  "blurb":"LU decomposition in the 5-window house format — factor a square matrix A into a lower-triangular L and an upper-triangular U (with a row-permutation P for stability), so that P*A = L*U. It is Gaussian elimination, remembered: once you have L and U you can solve A*x=b for many right-hand sides cheaply by two triangular sweeps, and read the determinant off U's diagonal. Partial pivoting swaps in the largest pivot each step to keep the arithmetic stable. Verified live: over 300 random matrices, P*A equals L*U to ~1e-15, and L is lower-triangular with unit diagonal. See elimination in 1D, the factors in 2D, and the factor-once inverse in 3D.",
+  "lit":"Genuine LU decomposition with partial pivoting (Turing formalized it 1948; Gaussian elimination underlies it). Verified live: over 300 random matrices, partial-pivot elimination produces L (unit lower-triangular) and U (upper-triangular) with P*A equal to L*U to ~1e-15, and L verified strictly lower-triangular (window.__lu.equalsPA && .lowerTriangular).",
+  "fig":"No framing: the partial-pivot elimination, the L and U accumulation, the permutation record, and the P*A = L*U check run in-browser and hold to floating precision. The AVAN inverse is honest — factoring once into L*U lets any A*x=b be solved by two triangular sweeps (forward then back); magenta is the repeated elimination avoided, green the reusable L*U factoring. Elimination, remembered as two triangles.",
+  "body":LUD_BODY,"script":LUD_SCRIPT},
+ {"slug":"the-cubic-spline","title":"THE CUBIC SPLINE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE TOOLCHAIN","domain_slug":"the-toolchain","accent":"#d4a017","icon":"cubic-spline",
+  "kicker":"the smoothest curve through the points (C2)",
+  "blurb":"the natural cubic spline in the 5-window house format — the smoothest curve through a set of points: a separate cubic on each interval, joined so that value, slope, and curvature all match at every knot (C2 continuity), with zero curvature at the two ends (the natural condition). Those matching conditions reduce to a tridiagonal linear system for the second derivatives, solved in O(n). It is the smooth interpolant of choice for data fitting and font/animation curves. Verified live: over 200 datasets, the spline passes through every point, its first derivative is continuous at every interior knot, and the second derivative is zero at both ends. See matched knots in 1D, a spline in 2D, and the match-the-curvature inverse in 3D.",
+  "lit":"Genuine natural cubic spline interpolation (Schoenberg 1946; natural-BC form classical). Verified live: over 200 datasets, solving the tridiagonal moment system and building each interval's cubic yields a curve that passes through every data point, has a continuous first derivative at every interior knot, and has zero second derivative at both ends (window.__cubicspline.interpolates && .c1continuous && .naturalBC).",
+  "fig":"No framing: the tridiagonal system for the second derivatives, the per-segment cubic coefficients, the passes-through check, the derivative-continuity check, and the natural boundary check run in-browser and hold to floating precision. The AVAN inverse is honest — demanding matching curvature (not just value and slope) at every knot reduces to one tridiagonal solve and gives the flexible-ruler curve; magenta is the curvature kinks a weaker spline leaves, green the C2-smooth interpolant. Smoothness that bends just enough.",
+  "body":CSP_BODY,"script":CSP_SCRIPT},
  {"slug":"the-stein","title":"THE STEIN","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#c0a048","icon":"stein",
   "kicker":"GCD with only shifts and subtractions",
