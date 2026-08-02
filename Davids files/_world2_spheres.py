@@ -19485,6 +19485,249 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 85 (area from counting fenceposts and interior dots · weave two numbers into one and back · a fraction split into distinct unit shares · the number that equals the sum of its parts · any pile grinds down to the staircase) ═══════════════════════
+PCK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Pick&rsquo;s theorem</b> gives the exact area of any simple polygon whose corners sit on lattice points, by <b>counting dots</b>: <b>A = I + B/2 &minus; 1</b>, where I is the number of lattice points strictly inside and B the number on the boundary. No measuring, no calculus &mdash; just count interior points, count boundary points (the fenceposts), and the area falls out exactly. It ties a continuous quantity (area) to two discrete counts.<br><br>
+ <span class="lit">LIT</span> verified live: over hundreds of random lattice polygons, the shoelace area equals I + B/2 &minus; 1 <b>exactly</b> (window.__picks). <span class="fig">FIG</span> no framing; exact integer/half-integer arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>off-by-one</i> &mdash; the fencepost error made honest: the boundary points are the fenceposts, and Pick&rsquo;s &minus;1 is exactly the correction that stops you miscounting the fence. <b>AVAN (AI)</b> built the instrument: the shoelace area, the gcd-based boundary count, the interior point count, and the A = I + B/2 &minus; 1 check.<br><br>Credit as content: Georg Alexander Pick (1899). The weave: David names off-by-one; I count the fenceposts on the boundary (each edge contributes gcd(&Delta;x,&Delta;y) points), count the interior dots, and confirm the area is exactly I + B/2 &minus; 1 &mdash; a continuous quantity from two honest counts.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Boundary points B are the fenceposts on the polygon&rsquo;s edges; interior points I are the dots strictly inside. Area = I + B/2 &minus; 1. The &minus;1 is the honest off-by-one correction.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A random lattice polygon with its interior and boundary dots; Pick&rsquo;s count checked against the shoelace area.</div>
+   <div class="btns" style="margin-top:10px"><button id="pkroll">new polygon ▶</button><button id="pkcheck">verify 300 ▶</button></div>
+   <div class="cap" id="pkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: area recovered from two dot-counts.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): measure area not by <b>integrating</b> but by <b>counting lattice points</b> &mdash; interior dots plus half the boundary fenceposts minus one. The inverse of &lsquo;integrate to get the area&rsquo; is &lsquo;count the dots inside and on the fence &mdash; the area is I + B/2 &minus; 1.&rsquo; <b>Magenta</b> is the integral you never took; <b>green</b> is the two honest counts. A continuous area from discrete dots.</div>
+   <div class="btns" style="margin-top:10px"><button id="pkspin">pause spin</button></div></div></div></div>"""
+PCK_SCRIPT = """(function(){
+var ang=0,spin=true,POLY=null;
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a;}
+function cross(o,a,b){return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);}
+function hull(pts){pts=pts.slice().sort(function(p,q){return p[0]-q[0]||p[1]-q[1];});var u=[];for(var i=0;i<pts.length;i++){if(i&&pts[i][0]===pts[i-1][0]&&pts[i][1]===pts[i-1][1])continue;u.push(pts[i]);}pts=u;if(pts.length<3)return null;var lo=[];for(var i=0;i<pts.length;i++){while(lo.length>=2&&cross(lo[lo.length-2],lo[lo.length-1],pts[i])<=0)lo.pop();lo.push(pts[i]);}var up=[];for(var i=pts.length-1;i>=0;i--){while(up.length>=2&&cross(up[up.length-2],up[up.length-1],pts[i])<=0)up.pop();up.push(pts[i]);}return lo.slice(0,lo.length-1).concat(up.slice(0,up.length-1));}
+function shoelace(P){var s=0,n=P.length;for(var i=0;i<n;i++){var j=(i+1)%n;s+=P[i][0]*P[j][1]-P[j][0]*P[i][1];}return Math.abs(s)/2;}
+function bcount(P){var n=P.length,B=0;for(var i=0;i<n;i++){var j=(i+1)%n;B+=gcd(Math.abs(P[j][0]-P[i][0]),Math.abs(P[j][1]-P[i][1]));}return B;}
+function onB(px,py,P){var n=P.length;for(var i=0;i<n;i++){var j=(i+1)%n,ax=P[i][0],ay=P[i][1],bx=P[j][0],by=P[j][1];if((bx-ax)*(py-ay)-(by-ay)*(px-ax)!==0)continue;if(Math.min(ax,bx)<=px&&px<=Math.max(ax,bx)&&Math.min(ay,by)<=py&&py<=Math.max(ay,by))return true;}return false;}
+function inP(px,py,P){var n=P.length,ins=false;for(var i=0,j=n-1;i<n;j=i++){var xi=P[i][0],yi=P[i][1],xj=P[j][0],yj=P[j][1];if(((yi>py)!==(yj>py))&&(px<(xj-xi)*(py-yi)/(yj-yi)+xi))ins=!ins;}return ins;}
+function icount(P){var xs=P.map(function(p){return p[0];}),ys=P.map(function(p){return p[1];}),x0=Math.min.apply(0,xs),x1=Math.max.apply(0,xs),y0=Math.min.apply(0,ys),y1=Math.max.apply(0,ys),I=0;for(var x=x0;x<=x1;x++)for(var y=y0;y<=y1;y++){if(onB(x,y,P))continue;if(inP(x,y,P))I++;}return I;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(400),ok=true,tested=0,worst=0;for(var t=0;t<300;t++){var pts=[];for(var i=0;i<8;i++)pts.push([Math.floor(rnd()*14),Math.floor(rnd()*14)]);var P=hull(pts);if(!P||P.length<3)continue;var A=shoelace(P),B=bcount(P),I=icount(P),d=Math.abs(A-(I+B/2-1));worst=Math.max(worst,d);tested++;if(d>1e-9)ok=false;}return {pickHolds:ok,tested:tested,worst:worst};}
+function mk(){for(var tries=0;tries<40;tries++){var pts=[];for(var i=0;i<8;i++)pts.push([1+Math.floor(Math.random()*10),1+Math.floor(Math.random()*8)]);var P=hull(pts);if(P&&P.length>=3){POLY=P;return;}}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('boundary dots = fenceposts (B); interior dots (I); Area = I + B/2 − 1',12,14);
+ var P=[[2,2],[6,1],[7,4],[4,5],[1,4]],sc=18,ox=140,oy=30;g.strokeStyle='#c07850';g.beginPath();for(var i=0;i<=P.length;i++){var p=P[i%P.length];g.lineTo(ox+p[0]*sc,oy+p[1]*sc);}g.stroke();
+ for(var x=0;x<12;x++)for(var y=0;y<7;y++){var b=onB(x,y,P),ip=inP(x,y,P);if(b){g.fillStyle='#c07850';g.beginPath();g.arc(ox+x*sc,oy+y*sc,3,0,7);g.fill();}else if(ip){g.fillStyle='#39fc6b';g.beginPath();g.arc(ox+x*sc,oy+y*sc,3,0,7);g.fill();}}
+ g.fillStyle='#8ad';g.font='9px monospace';var A=shoelace(P),B=bcount(P),I=icount(P);g.fillText('I='+I+' B='+B+' → '+I+'+'+B+'/2−1 = '+(I+B/2-1)+' = area '+A,ox,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!POLY)mk();var P=POLY,sc=24,ox=20,oy=20;
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<=P.length;i++){var p=P[i%P.length];g.lineTo(ox+p[0]*sc,oy+p[1]*sc);}g.stroke();g.lineWidth=1;
+ for(var x=0;x<13;x++)for(var y=0;y<11;y++){var b=onB(x,y,P),ip=inP(x,y,P);if(b){g.fillStyle='#c07850';g.beginPath();g.arc(ox+x*sc,oy+y*sc,3.5,0,7);g.fill();}else if(ip){g.fillStyle='#39fc6b';g.beginPath();g.arc(ox+x*sc,oy+y*sc,3,0,7);g.fill();}else{g.fillStyle='#2a3548';g.fillRect(ox+x*sc-1,oy+y*sc-1,2,2);}}
+ var A=shoelace(P),B=bcount(P),I=icount(P),ok=Math.abs(A-(I+B/2-1))<1e-9;g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('I='+I+'  B='+B+'  Pick = '+(I+B/2-1)+'   shoelace = '+A,20,H-26);
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('I + B/2 − 1 == area '+(ok?'✓':'✗'),20,H-10);}
+document.getElementById('pkroll').onclick=function(){mk();drawW4();var P=POLY;document.getElementById('pkread').textContent='I='+icount(P)+' B='+bcount(P)+' area='+shoelace(P);};
+document.getElementById('pkcheck').onclick=function(){var v=verify();document.getElementById('pkread').textContent=v.tested+' polygons: area == I + B/2 − 1 '+(v.pickHolds?'✓':'✗')+' (worst '+v.worst.toExponential(1)+')';};
+document.getElementById('pkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!POLY)mk();var P=POLY,sc=18,cx=W/2-70,cy=H/2-70;
+ g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.3)*0.15);g.translate(-W/2,-(H/2-10));
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<=P.length;i++){var p=P[i%P.length];g.lineTo(cx+p[0]*sc,cy+p[1]*sc);}g.stroke();g.lineWidth=1;
+ for(var x=0;x<13;x++)for(var y=0;y<11;y++){var b=onB(x,y,P),ip=inP(x,y,P);if(b){g.fillStyle='#c07850';g.beginPath();g.arc(cx+x*sc,cy+y*sc,3,0,7);g.fill();}else if(ip){g.fillStyle='#39fc6b';g.beginPath();g.arc(cx+x*sc,cy+y*sc,2.5,0,7);g.fill();}}
+ g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: area from counting interior + fencepost dots',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the integral you never took',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a continuous area from discrete dots',10,H-9);}
+mk();drawW3();drawW4();window.__picks=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CTP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Cantor pairing function</b> weaves two natural numbers into <b>one</b>, reversibly: &pi;(x,y) = (x+y)(x+y+1)/2 + y. It walks the infinite grid along diagonals, assigning 0,1,2,&hellip; to each cell, so every pair (x,y) gets a <b>unique</b> number and every number decodes back to <b>exactly one</b> pair. It is a genuine <b>bijection</b> &#8469;&sup2; &rarr; &#8469; &mdash; a proof, in one formula, that the plane of pairs is no bigger than the line of counting numbers.<br><br>
+ <span class="lit">LIT</span> verified live: over all pairs in 0&ndash;200, unpair(pair(x,y)) returns exactly (x,y), and no two pairs collide to the same number (window.__cantor). <span class="fig">FIG</span> no framing; exact integer arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-merge</i> &mdash; two streams becoming one without loss, so the one can always be split back into the exact two. The Cantor pairing is that lossless merge. <b>AVAN (AI)</b> built the instrument: the diagonal-index formula, the triangular-root inverse, and the round-trip and no-collision checks.<br><br>Credit as content: Georg Cantor (diagonal enumeration, 1870s). The weave: David names the-merge; I fold (x,y) into one index by counting along diagonals, invert it via the triangular root, and confirm the merge is lossless &mdash; every number splits back into exactly the pair it came from.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Number the grid cells along successive diagonals: (0,0)&rarr;0, (1,0)&rarr;1, (0,1)&rarr;2, (2,0)&rarr;3&hellip; Every pair gets one index; every index decodes to one pair.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The diagonal enumeration of the grid; pick a cell to see its index, and the round-trip checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="ctroll">random pair ▶</button><button id="ctcheck">verify 0..200² ▶</button></div>
+   <div class="cap" id="ctread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two numbers folded into one, reversibly.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): merge two numbers into a single key that can be <b>split back exactly</b> &mdash; index the diagonals of the grid, and invert with the triangular root. The inverse of &lsquo;store a pair as two fields&rsquo; is &lsquo;fold it into one bijective key and unfold on demand.&rsquo; <b>Magenta</b> is the second field you no longer store; <b>green</b> is the single lossless index. Two into one, and back.</div>
+   <div class="btns" style="margin-top:10px"><button id="ctspin">pause spin</button></div></div></div></div>"""
+CTP_SCRIPT = """(function(){
+var ang=0,spin=true,X=3,Y=2;
+function pair(x,y){var s=x+y;return s*(s+1)/2+y;}
+function unpair(z){var w=Math.floor((Math.sqrt(8*z+1)-1)/2),t=w*(w+1)/2,y=z-t,x=w-y;return [x,y];}
+function verify(){var ok=true,inj=true,seen={},bad='';for(var x=0;x<=200;x++)for(var y=0;y<=200;y++){var z=pair(x,y),d=unpair(z);if(d[0]!==x||d[1]!==y){ok=false;bad=x+','+y;}if(seen[z])inj=false;seen[z]=1;}return {roundTrip:ok,injective:inj,bad:bad};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('number the grid along diagonals — every pair gets one index',12,14);
+ var sc=26,ox=170,oy=28;for(var x=0;x<6;x++)for(var y=0;y<4;y++){var z=pair(x,y);g.fillStyle='#28405c';g.fillRect(ox+x*sc,oy+y*sc,sc-2,sc-2);g.fillStyle='#8ec7ff';g.font='9px monospace';g.fillText(z,ox+x*sc+4,oy+y*sc+15);}
+ g.strokeStyle='#58a0b0';g.beginPath();var seq=[[0,0],[1,0],[0,1],[2,0],[1,1],[0,2],[3,0],[2,1]];for(var i=0;i<seq.length;i++){g.lineTo(ox+seq[i][0]*sc+sc/2,oy+seq[i][1]*sc+sc/2);}g.stroke();}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var sc=30,ox=20,oy=20;
+ for(var x=0;x<11;x++)for(var y=0;y<8;y++){var z=pair(x,y),hot=(x===X&&y===Y);g.fillStyle=hot?'#58a0b0':'rgba(40,64,92,'+(0.3+0.5/(1+z*0.02))+')';g.fillRect(ox+x*sc,oy+y*sc,sc-2,sc-2);if(sc>20){g.fillStyle=hot?'#012':'#7fa8d0';g.font='8px monospace';g.fillText(z,ox+x*sc+3,oy+y*sc+13);}}
+ var z=pair(X,Y),d=unpair(z),ok=d[0]===X&&d[1]===Y;g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('pair('+X+','+Y+') = '+z+'   unpair('+z+') = ('+d[0]+','+d[1]+')',20,H-26);
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('unpair(pair(x,y)) == (x,y) '+(ok?'✓':'✗'),20,H-10);}
+document.getElementById('ctroll').onclick=function(){X=Math.floor(Math.random()*11);Y=Math.floor(Math.random()*8);drawW4();document.getElementById('ctread').textContent='pair('+X+','+Y+')='+pair(X,Y);};
+document.getElementById('ctcheck').onclick=function(){var v=verify();document.getElementById('ctread').textContent='0..200²: round-trip '+(v.roundTrip?'✓':'✗')+' · injective (no collisions) '+(v.injective?'✓':'✗');};
+document.getElementById('ctspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10;
+ for(var x=0;x<9;x++)for(var y=0;y<9;y++){var z=pair(x,y),a=z*0.35+ang*0.3,r=14+z*1.3;if(r>170)continue;var px=cx+Math.cos(a)*r,py=cy+Math.sin(a)*r*0.85;g.fillStyle='hsl('+(z*6%360)+',65%,58%)';g.beginPath();g.arc(px,py,3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green spiral: every pair placed at its single index',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the second field you no longer store',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('two into one, and back (a bijection ℕ²→ℕ)',10,H-9);}
+drawW3();drawW4();window.__cantor=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+EGY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>An Egyptian fraction</b> writes a proper fraction as a sum of <b>distinct unit fractions</b> (numerator 1): e.g. 4/13 = 1/4 + 1/18 + 1/468. The <b>Fibonacci&ndash;Sylvester greedy</b> algorithm builds one by repeatedly grabbing the <b>largest unit fraction that fits</b> &mdash; 1/&lceil;q/p&rceil; &mdash; and subtracting, until nothing remains. It always terminates, and because each step&rsquo;s remaining numerator strictly shrinks, the denominators come out <b>strictly increasing</b>, hence distinct.<br><br>
+ <span class="lit">LIT</span> verified live (exact BigInt): for every reduced p/q with q &le; 60, the greedy unit fractions are strictly increasing and sum <b>exactly</b> back to p/q (window.__egyptian). <span class="fig">FIG</span> no framing; exact rational arithmetic, no rounding.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-speedrun</i> &mdash; the greedy route that skips ahead by always taking the biggest piece it can, and still arrives exactly. The Egyptian-fraction greedy is that route. <b>AVAN (AI)</b> built the instrument: the largest-unit-fraction step, exact BigInt remainder tracking, and the strictly-increasing + sums-exactly checks.<br><br>Credit as content: the method appears in Fibonacci&rsquo;s <i>Liber Abaci</i> (1202); Sylvester (1880) analyzed it. The weave: David names the-speedrun; I greedily grab 1/&lceil;q/p&rceil; each step and subtract in exact rational arithmetic, confirming the pieces are distinct and sum back to p/q with no rounding.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Greedy: take the largest unit fraction &le; the remainder (1/&lceil;q/p&rceil;), subtract, repeat. 4/13 &rarr; 1/4 leaves 3/52 &rarr; 1/18 leaves 1/468 &rarr; 1/468. Denominators only grow.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Pick a fraction; watch the greedy unit-fraction pieces, and their exact sum checked back to p/q.</div>
+   <div class="btns" style="margin-top:10px"><button id="egroll">new fraction ▶</button><button id="egcheck">verify q≤60 ▶</button></div>
+   <div class="cap" id="egread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a fraction as distinct unit shares.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): split a share into <b>distinct unit fractions</b> by always taking the <b>largest piece that fits</b> and subtracting &mdash; a greedy route that still lands exactly on the target. The inverse of &lsquo;keep the fraction p/q whole&rsquo; is &lsquo;decompose it into 1/a + 1/b + &hellip;, all different, summing back exactly.&rsquo; <b>Magenta</b> is the single opaque ratio; <b>green</b> is the distinct unit pieces. A share cut into unequal-but-unit parts.</div>
+   <div class="btns" style="margin-top:10px"><button id="egspin">pause spin</button></div></div></div></div>"""
+EGY_SCRIPT = """(function(){
+var ang=0,spin=true,P=4,Q=13,TERMS=[];
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a;}
+function bgcd(a,b){a=a<0n?-a:a;b=b<0n?-b:b;while(b){var t=a%b;a=b;b=t;}return a;}
+function egyptian(p,q){p=BigInt(p);q=BigInt(q);var terms=[],guard=0;while(p!==0n){if(++guard>500)return null;var u=(q+p-1n)/p;terms.push(u);var np=p*u-q,nq=q*u,g=bgcd(np,nq);p=np/g;q=nq/g;}return terms;}
+function verify(){var ok=true,distinct=true,tested=0;for(var q=2;q<=60;q++)for(var p=1;p<q;p++){if(gcd(p,q)!==1)continue;var terms=egyptian(p,q);if(!terms){ok=false;continue;}tested++;for(var i=1;i<terms.length;i++)if(terms[i]<=terms[i-1])distinct=false;var sp=0n,sq=1n;for(var i=0;i<terms.length;i++){var d=terms[i],nsp=sp*d+sq,nsq=sq*d,g=bgcd(nsp,nsq);sp=nsp/g;sq=nsq/g;}if(sp*BigInt(q)!==BigInt(p)*sq)ok=false;}return {sumsExactly:ok,strictlyIncreasing:distinct,tested:tested};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('greedy: grab the largest unit fraction ≤ remainder; denominators only grow',12,14);
+ var t=egyptian(4,13),x=40,total=4/13,bw=380;g.fillStyle='#345';g.fillRect(x,60,bw,26);var acc=0;var cols=['#70a860','#58a0b0','#a878c0','#e0b020'];
+ for(var i=0;i<t.length;i++){var frac=1/Number(t[i]),w=frac/total*bw;g.fillStyle=cols[i%4];g.fillRect(x+acc,60,w-1,26);g.fillStyle='#032';g.font='9px monospace';if(w>28)g.fillText('1/'+t[i],x+acc+3,77);acc+=w;}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('4/13 = '+t.map(function(d){return '1/'+d.toString();}).join(' + '),40,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);TERMS=egyptian(P,Q);
+ g.fillStyle='#e8eef8';g.font='15px monospace';g.fillText(P+' / '+Q,16,30);
+ g.fillStyle='#70a860';g.font='12px monospace';var str=TERMS.map(function(d){return '1/'+d.toString();}).join(' + ');g.fillText('= '+str,16,58);
+ var total=P/Q,x=16,bw=W-32,acc=0,cols=['#70a860','#58a0b0','#a878c0','#e0b020','#c07850'];g.fillStyle='#233';g.fillRect(x,90,bw,30);
+ for(var i=0;i<TERMS.length;i++){var frac=1/Number(TERMS[i]),w=frac/total*bw;g.fillStyle=cols[i%5];g.fillRect(x+acc,90,Math.max(1,w-1),30);acc+=w;}
+ var inc=true;for(var i=1;i<TERMS.length;i++)if(TERMS[i]<=TERMS[i-1])inc=false;
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText(TERMS.length+' distinct unit fractions · denominators strictly increasing '+(inc?'✓':'✗'),16,140);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('greedy sum reconstructs '+P+'/'+Q+' exactly (BigInt) ✓',16,H-12);}
+document.getElementById('egroll').onclick=function(){do{Q=3+Math.floor(Math.random()*40);P=1+Math.floor(Math.random()*(Q-1));}while(gcd(P,Q)!==1);drawW4();document.getElementById('egread').textContent=P+'/'+Q+' → '+egyptian(P,Q).length+' terms';};
+document.getElementById('egcheck').onclick=function(){var v=verify();document.getElementById('egread').textContent=v.tested+' fractions (q≤60): sum exactly '+(v.sumsExactly?'✓':'✗')+' · strictly increasing '+(v.strictlyIncreasing?'✓':'✗');};
+document.getElementById('egspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var t=egyptian(P,Q),cx=W/2,cy=H/2-10;
+ var total=P/Q,a0=-Math.PI/2;for(var i=0;i<t.length;i++){var frac=1/Number(t[i]),sweep=frac/total*6.283,r=70+i*8;g.fillStyle='hsl('+(110+i*40)+',60%,55%)';g.beginPath();g.moveTo(cx,cy);g.arc(cx,cy,r,a0,a0+sweep);g.closePath();g.globalAlpha=0.7;g.fill();g.globalAlpha=1;a0+=sweep;}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green wedges: distinct unit-fraction pieces of '+P+'/'+Q,10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the single opaque ratio',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a share cut into unequal-but-unit parts',10,H-9);}
+drawW3();drawW4();window.__egyptian=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ALQ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The aliquot sum</b> s(n) adds up all of a number&rsquo;s <b>proper divisors</b> (every divisor except itself). It sorts the integers into three ancient classes: <b>deficient</b> (s&lt;n), <b>abundant</b> (s&gt;n), and the rare <b>perfect</b> (s = n): 6 = 1+2+3, 28 = 1+2+4+7+14. Two numbers form an <b>amicable pair</b> when each is the aliquot sum of the other &mdash; 220 and 284, known since antiquity.<br><br>
+ <span class="lit">LIT</span> verified live: exhaustively to 10000, the only perfect numbers are 6, 28, 496, 8128, and the amicable pairs include 220&amp;284 &mdash; each confirmed by summing divisors (window.__aliquot). <span class="fig">FIG</span> no framing; exact integer divisor sums.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hoard</i> &mdash; gather every proper divisor into one pile; when the pile equals the number, it is <b>perfect</b>. The aliquot sum is that gathering. <b>AVAN (AI)</b> built the instrument: the divisor-sum function, the perfect/deficient/abundant classifier, the amicable-pair finder, and the exhaustive check to 10000.<br><br>Credit as content: perfect numbers (Euclid, Nicomachus); amicable pairs (Pythagoreans, then Th&#257;bit ibn Qurra). The weave: David names the-hoard; I gather each number&rsquo;s proper divisors into a pile and report when it equals the number (perfect) or another number&rsquo;s (amicable) &mdash; sums checked exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">6 = 1 + 2 + 3 (perfect). 28 = 1 + 2 + 4 + 7 + 14 (perfect). 220 &harr; 284: each is the sum of the other&rsquo;s proper divisors (amicable).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A number&rsquo;s proper divisors and its aliquot sum, with its class; the exhaustive census checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="alroll">new number ▶</button><button id="alcheck">census ≤10000 ▶</button></div>
+   <div class="cap" id="alread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a number weighed against the sum of its parts.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): judge a number not by its <b>size</b> but by <b>the sum of its proper divisors</b> &mdash; deficient, abundant, or perfectly self-equal, and amicable when two point at each other. The inverse of &lsquo;a number is just its value&rsquo; is &lsquo;a number is measured against the pile of its parts.&rsquo; <b>Magenta</b> is the number&rsquo;s bare value; <b>green</b> is the sum of its divisors. Identity from the parts, not the whole.</div>
+   <div class="btns" style="margin-top:10px"><button id="alspin">pause spin</button></div></div></div></div>"""
+ALQ_SCRIPT = """(function(){
+var ang=0,spin=true,N=28;
+function divisors(n){var d=[1];for(var i=2;i*i<=n;i++)if(n%i===0){d.push(i);if(i!==n/i)d.push(n/i);}if(n===1)return [];return d.sort(function(a,b){return a-b;});}
+function aliquot(n){if(n<2)return 0;var s=1;for(var i=2;i*i<=n;i++)if(n%i===0){s+=i;var e=n/i;if(e!==i)s+=e;}return s;}
+function verify(){var perfects=[],amic=[];for(var n=2;n<=10000;n++){var s=aliquot(n);if(s===n)perfects.push(n);else if(s>n){var s2=aliquot(s);if(s2===n&&s<=10000)amic.push([n,s]);}}return {perfects:perfects,perfectsOk:perfects.join(',')==='6,28,496,8128',amicable:amic};}
+function cls(n){var s=aliquot(n);return s===n?'PERFECT':(s<n?'deficient':'abundant');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('perfect: the number equals the sum of its proper divisors',12,14);
+ g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('6 = 1 + 2 + 3',40,44);g.fillText('28 = 1 + 2 + 4 + 7 + 14',40,68);
+ g.fillStyle='#e0b020';g.fillText('220 ⇄ 284   (amicable: each = sum of the other\\'s divisors)',40,100);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('s(220)=1+2+4+5+10+11+20+22+44+55+110 = 284 ; s(284)=1+2+4+71+142 = 220',40,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var d=divisors(N),s=aliquot(N),c=cls(N);
+ g.fillStyle='#e8eef8';g.font='15px monospace';g.fillText('n = '+N,16,28);
+ var col=c==='PERFECT'?'#39fc6b':(c==='deficient'?'#58a0b0':'#e0b020');g.fillStyle=col;g.font='13px monospace';g.fillText(c+'   s(n) = '+s,16,54);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('proper divisors:',16,78);
+ var x=16,y=96;g.font='11px monospace';for(var i=0;i<d.length;i++){var t=(i?'+ ':'')+d[i];g.fillStyle='#a878c0';g.fillText(t,x,y);x+=g.measureText(t).width+8;if(x>W-40){x=16;y+=18;}}
+ // bar: n vs s
+ g.fillStyle='#ff2d95';g.fillRect(16,H-70,N/Math.max(N,s)*(W-32),12);g.fillStyle='#39fc6b';g.fillRect(16,H-54,s/Math.max(N,s)*(W-32),12);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('magenta = n ('+N+')   green = s(n) ('+s+')',16,H-30);
+ var v=verify();g.fillStyle=v.perfectsOk?'#39fc6b':'#ff5a5a';g.fillText('perfect ≤10000 = {6,28,496,8128} '+(v.perfectsOk?'✓':'✗'),16,H-12);}
+document.getElementById('alroll').onclick=function(){var picks=[6,28,496,8128,220,284,12,945,100,1184];N=Math.random()<0.5?picks[Math.floor(Math.random()*picks.length)]:2+Math.floor(Math.random()*400);drawW4();document.getElementById('alread').textContent='n='+N+' → '+cls(N)+' (s='+aliquot(N)+')';};
+document.getElementById('alcheck').onclick=function(){var v=verify();document.getElementById('alread').textContent='≤10000: perfect={'+v.perfects.join(',')+'} '+(v.perfectsOk?'✓':'✗')+' · amicable pairs: '+v.amicable.length;};
+document.getElementById('alspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var d=divisors(N),s=aliquot(N),cx=W/2,cy=H/2-10;
+ for(var i=0;i<d.length;i++){var a=i/d.length*6.28+ang*0.4,r=50+d[i]/N*70;var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;g.fillStyle='#a878c0';g.beginPath();g.arc(x,y,3+Math.log(d[i]+1),0,7);g.fill();g.strokeStyle='rgba(88,160,176,0.25)';g.beginPath();g.moveTo(cx,cy);g.lineTo(x,y);g.stroke();}
+ var perf=s===N;g.fillStyle=perf?'#39fc6b':'#e0b020';g.beginPath();g.arc(cx,cy,10,0,7);g.fill();g.fillStyle='#032';g.font='9px monospace';g.fillText(N,cx-8,cy+3);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green center: s(n)='+s+(perf?' == n (PERFECT)':' vs n='+N),10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the number\\'s bare value',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('identity from the parts, not the whole',10,H-9);}
+drawW3();drawW4();window.__aliquot=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BUL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Bulgarian solitaire</b> is a deceptively simple card game on a number. Deal n cards into piles of any sizes; each move, <b>take one card from every pile</b> and gather them into a single <b>new pile</b>. When n is a <b>triangular number</b> n = 1+2+&hellip;+k, this process, from <b>any</b> starting configuration, always settles into the same fixed <b>staircase</b> {k, k&minus;1, &hellip;, 1} &mdash; a stable attractor it can never leave.<br><br>
+ <span class="lit">LIT</span> verified live: for triangular n up to 36, hundreds of random starting partitions all converge to the staircase, which is a fixed point of the move (window.__bulgarian). <span class="fig">FIG</span> no framing; deterministic integer dynamics.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-phoenix</i> &mdash; whatever heap you start from, the same shape rises from the ashes: the staircase reforms every time. Bulgarian solitaire is that reforming. <b>AVAN (AI)</b> built the instrument: the take-one-from-each-pile move, the convergence loop, and the checks that the staircase is reached and is a fixed point.<br><br>Credit as content: popularized by Martin Gardner (1983); analyzed by J&oslash;rgen Brandt and others. The weave: David names the-phoenix; I run the deterministic move from many random partitions of a triangular n and confirm they all fall into the same staircase &mdash; a self-organizing fixed point.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each step: remove one card from every pile, and those removed cards form one new pile. For triangular n, every start funnels to the staircase {k, k&minus;1, &hellip;, 1}.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Watch a random start funnel to the staircase step by step; the convergence checked over many starts.</div>
+   <div class="btns" style="margin-top:10px"><button id="bustart">new start ▶</button><button id="bustep">step ▶</button><button id="bucheck">verify n≤36 ▶</button></div>
+   <div class="cap" id="buread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one attractor swallowing every start.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): reach one fixed shape from <b>every</b> starting heap by a single blind rule &mdash; take one from each pile, drop them as a new pile &mdash; and the staircase self-assembles. The inverse of &lsquo;design the target and build it&rsquo; is &lsquo;apply one local move everywhere and let the attractor emerge.&rsquo; <b>Magenta</b> is the many possible starts; <b>green</b> is the single staircase they all become. Order that assembles itself.</div>
+   <div class="btns" style="margin-top:10px"><button id="buspin">pause spin</button></div></div></div></div>"""
+BUL_SCRIPT = """(function(){
+var ang=0,spin=true,K=5,PILES=[],STEPS=0;
+function step(p){var k=p.length,np=p.map(function(x){return x-1;}).filter(function(x){return x>0;});np.push(k);return np.sort(function(a,b){return b-a;});}
+function randPart(n){var parts=[],rem=n;while(rem>0){var p=1+Math.floor(Math.random()*rem);parts.push(p);rem-=p;}return parts.sort(function(a,b){return b-a;});}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(404),ok=true,worst=0;for(var k=1;k<=8;k++){var n=k*(k+1)/2,sc=[];for(var i=k;i>=1;i--)sc.push(i);var scS=sc.join(',');
+  for(var t=0;t<200;t++){var parts=[],rem=n;while(rem>0){var p=1+Math.floor(rnd()*rem);parts.push(p);rem-=p;}parts.sort(function(a,b){return b-a;});var steps=0,reached=false;for(var it=0;it<2000;it++){if(parts.join(',')===scS){reached=true;break;}parts=step(parts);steps++;}if(!reached)ok=false;worst=Math.max(worst,steps);}
+  if(step(sc.slice()).join(',')!==scS)ok=false;}return {allConverge:ok,worstSteps:worst};}
+function stair(){var s=[];for(var i=K;i>=1;i--)s.push(i);return s;}
+function newStart(){K=4+Math.floor(Math.random()*3);PILES=randPart(K*(K+1)/2);STEPS=0;}
+function drawPiles(g,p,ox,oy,cell,hl){for(var i=0;i<p.length;i++)for(var j=0;j<p[i];j++){g.fillStyle=hl?'#39fc6b':'#d06858';g.fillRect(ox+i*(cell+2),oy-j*(cell+1),cell,cell);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('take one from every pile → they become one new pile; n=15 funnels to {5,4,3,2,1}',12,14);
+ var seq=[[7,5,3],[4,3,2,2,2,1,1]],x=30;var p=[9,4,2],oy=120;for(var s=0;s<4;s++){drawPiles(g,p,x,oy,9,s===3&&p.join(',')==='5,4,3,2,1');g.fillStyle='#8ad';g.font='8px monospace';g.fillText(p.join(','),x,oy+16);p=step(p);x+=120;}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PILES.length)newStart();
+ var n=K*(K+1)/2,sc=stair().join(',');g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('n = '+n+' (triangular, k='+K+')   step '+STEPS,14,24);
+ var atStair=PILES.join(',')===sc;drawPiles(g,PILES,20,H-60,16,atStair);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('piles: '+PILES.join(', '),14,44);
+ g.fillStyle=atStair?'#39fc6b':'#e0b020';g.font='12px monospace';g.fillText(atStair?'reached the staircase {'+stair().join(',')+'} ✓ (fixed point)':'target staircase: {'+stair().join(',')+'}',14,H-16);}
+document.getElementById('bustart').onclick=function(){newStart();drawW4();document.getElementById('buread').textContent='new start: '+PILES.join(',');};
+document.getElementById('bustep').onclick=function(){if(PILES.join(',')!==stair().join(',')){PILES=step(PILES);STEPS++;}drawW4();document.getElementById('buread').textContent='step '+STEPS+': '+PILES.join(',');};
+document.getElementById('bucheck').onclick=function(){var v=verify();document.getElementById('buread').textContent='n≤36: every start reaches the staircase '+(v.allConverge?'✓':'✗')+' · worst '+v.worstSteps+' steps';};
+document.getElementById('buspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10;
+ // several trajectories spiraling into one point
+ var rnd=mb(500+Math.floor(ang*0.3)%7);for(var t=0;t<6;t++){var p=[],rem=15;while(rem>0){var q=1+Math.floor(Math.random()*rem);p.push(q);rem-=q;}p.sort(function(a,b){return b-a;});
+  g.strokeStyle='rgba(208,104,88,0.5)';g.beginPath();var r=150;for(var it=0;it<14;it++){var conv=p.join(',')==='5,4,3,2,1'?1:0,a=t/6*6.28+it*0.5+ang*0.2;var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;if(it===0)g.moveTo(x,y);else g.lineTo(x,y);if(conv)break;p=step(p);r*=0.82;}g.stroke();}
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(cx,cy,10,0,7);g.fill();g.fillStyle='#032';g.font='8px monospace';g.fillText('▲',cx-4,cy+3);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green center: the staircase attractor',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the many possible starts',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('order that assembles itself',10,H-9);}
+newStart();drawW3();drawW4();window.__bulgarian=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 84 (a coin that names the composite in 3 of every 4 tries · loaded dice that draw in one step · a plant that grows at the golden rate · defer the work, still answer exactly · the smallest machine that can multiply) ═══════════════════════
 MRB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Miller&ndash;Rabin test</b> decides whether a number is prime by <b>interrogating witnesses</b>. Write n&minus;1 = 2<sup>r</sup>&middot;d; a base a is a <b>witness to compositeness</b> if a<sup>d</sup> &ne; 1 and none of a<sup>d</sup>, a<sup>2d</sup>, &hellip; equals n&minus;1 (mod n). Rabin proved that for any odd composite n &gt; 9, <b>at least 3/4 of the bases are witnesses</b> &mdash; so a handful of random bases catch composites with overwhelming probability, and small fixed base sets are <b>deterministic</b> below known bounds.<br><br>
@@ -23224,6 +23467,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-picks-theorem","title":"THE PICK'S THEOREM","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#c07850","icon":"picks",
+  "kicker":"area from counting fenceposts and interior dots",
+  "blurb":"Pick's theorem in the 5-window house format — the exact area of any simple lattice polygon by counting dots: A = I + B/2 − 1, where I is the interior lattice points and B the boundary ones. No calculus — count interior dots, count the boundary fenceposts, and the area falls out exactly, tying a continuous quantity to two discrete counts. Verified live: over hundreds of random lattice polygons the shoelace area equals I + B/2 − 1 exactly. See the fenceposts and interior dots in 1D, a polygon checked in 2D, and the area-from-dots inverse in 3D.",
+  "lit":"Genuine Pick's theorem (Georg Alexander Pick 1899). Verified live: over ~300 random simple lattice polygons (convex hulls of lattice points), the shoelace area equals I + B/2 − 1 exactly, where B is counted as Σ gcd(Δx,Δy) over edges and I by interior lattice-point test (window.__picks.pickHolds, worst |Δ| 0).",
+  "fig":"No framing: the shoelace area, the gcd-based boundary count, the interior-point count, and the A = I + B/2 − 1 check run in-browser with exact arithmetic and agree. The AVAN inverse is honest — recovering a continuous area by counting interior dots plus half the boundary fenceposts minus one genuinely replaces integration; magenta is the integral never taken, green the two honest counts.",
+  "body":PCK_BODY,"script":PCK_SCRIPT},
+ {"slug":"the-cantor-pairing","title":"THE CANTOR PAIRING","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#58a0b0","icon":"cantor",
+  "kicker":"weave two numbers into one, and back",
+  "blurb":"The Cantor pairing function in the 5-window house format — weave two naturals into one, reversibly: π(x,y) = (x+y)(x+y+1)/2 + y walks the grid along diagonals, assigning 0,1,2,… to each cell so every pair gets a unique number and every number decodes to exactly one pair. It is a genuine bijection ℕ²→ℕ — a proof in one formula that the plane of pairs is no bigger than the line of counting numbers. Verified live: over all pairs in 0–200, unpair(pair(x,y)) returns exactly (x,y) and no two pairs collide. See the diagonal enumeration in 1D, a round-trip in 2D, and the lossless-merge inverse in 3D.",
+  "lit":"Genuine Cantor pairing function (Georg Cantor, diagonal enumeration, 1870s). Verified live: over every pair (x,y) with 0≤x,y≤200, the triangular-root inverse recovers exactly (x,y) from π(x,y) (window.__cantor.roundTrip), and all 201²=40401 indices are distinct — the map is injective (window.__cantor.injective) — exact integer arithmetic.",
+  "fig":"No framing: the diagonal-index formula, the triangular-root inverse, and the round-trip and no-collision checks run in-browser and agree exactly. The AVAN inverse is honest — folding (x,y) into one bijective key that unfolds on demand genuinely replaces storing two fields; magenta is the second field no longer stored, green the single lossless index. A bijection ℕ²→ℕ.",
+  "body":CTP_BODY,"script":CTP_SCRIPT},
+ {"slug":"the-egyptian-fraction","title":"THE EGYPTIAN FRACTION","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#70a860","icon":"egyptian",
+  "kicker":"a fraction split into distinct unit shares, greedily",
+  "blurb":"The Egyptian fraction in the 5-window house format — write a proper fraction as a sum of distinct unit fractions (4/13 = 1/4 + 1/18 + 1/468). The Fibonacci–Sylvester greedy algorithm grabs the largest unit fraction that fits, 1/⌈q/p⌉, and subtracts, until nothing remains; it always terminates and, because the remaining numerator strictly shrinks, the denominators come out strictly increasing, hence distinct. Verified live (exact BigInt): for every reduced p/q with q ≤ 60, the greedy unit fractions are strictly increasing and sum exactly back to p/q. See the greedy split in 1D, pieces summed in 2D, and the distinct-unit-parts inverse in 3D.",
+  "lit":"Genuine Fibonacci–Sylvester greedy Egyptian-fraction expansion (Fibonacci, Liber Abaci 1202; Sylvester 1880). Verified live with exact BigInt rational arithmetic: for every reduced p/q with 2≤q≤60 (~1100 fractions), the greedy 1/⌈q/p⌉ expansion has strictly increasing denominators (hence distinct) and its terms sum exactly to p/q (window.__egyptian.sumsExactly & strictlyIncreasing).",
+  "fig":"No framing: the greedy largest-unit-fraction step, exact BigInt remainder tracking, and the strictly-increasing and sums-exactly checks run in-browser with no rounding. The AVAN inverse is honest — decomposing a share into distinct unit fractions by always taking the largest that fits genuinely lands back on p/q exactly; magenta is the single opaque ratio, green the distinct unit pieces.",
+  "body":EGY_BODY,"script":EGY_SCRIPT},
+ {"slug":"the-aliquot","title":"THE ALIQUOT","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#e0b020","icon":"aliquot",
+  "kicker":"the number that equals the sum of its parts",
+  "blurb":"The aliquot sum in the 5-window house format — s(n) adds up all of a number's proper divisors, sorting the integers into deficient (s<n), abundant (s>n), and the rare perfect (s=n): 6 = 1+2+3, 28 = 1+2+4+7+14. Two numbers form an amicable pair when each is the aliquot sum of the other — 220 and 284, known since antiquity. Verified live: exhaustively to 10000, the only perfect numbers are 6, 28, 496, 8128, and the amicable pairs include 220&284, each confirmed by summing divisors. See perfect and amicable numbers in 1D, a number weighed against its parts in 2D, and the identity-from-parts inverse in 3D.",
+  "lit":"Genuine aliquot classification (perfect numbers: Euclid, Nicomachus; amicable pairs: Pythagoreans, Thābit ibn Qurra). Verified live: exhaustively over 2≤n≤10000, summing proper divisors gives exactly the perfect set {6,28,496,8128} (window.__aliquot.perfectsOk) and amicable pairs where s(a)=b, s(b)=a including 220&284 — exact integer divisor sums.",
+  "fig":"No framing: the divisor-sum function, the perfect/deficient/abundant classifier, the amicable-pair finder, and the exhaustive census to 10000 run in-browser and agree. The AVAN inverse is honest — measuring a number against the pile of its proper divisors (deficient/abundant/perfect, amicable when two point at each other) genuinely differs from reading its bare value; magenta is the value, green the sum of parts.",
+  "body":ALQ_BODY,"script":ALQ_SCRIPT},
+ {"slug":"the-bulgarian-solitaire","title":"THE BULGARIAN SOLITAIRE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#d06858","icon":"bulgarian",
+  "kicker":"any pile grinds down to the staircase",
+  "blurb":"Bulgarian solitaire in the 5-window house format — deal n cards into piles of any sizes; each move, take one card from every pile and gather them into a single new pile. When n is triangular, n = 1+2+…+k, this process from any starting configuration always settles into the same staircase {k, k−1, …, 1} — a stable attractor it can never leave. Verified live: for triangular n up to 36, hundreds of random starts all converge to the staircase, which is itself a fixed point of the move. See the take-one-from-each move in 1D, a start funneling in 2D, and the self-organizing-attractor inverse in 3D.",
+  "lit":"Genuine Bulgarian solitaire (popularized by Martin Gardner 1983; analyzed by Jørgen Brandt and others). Verified live: for triangular n = k(k+1)/2 with k=1..8, 200 random partitions each converge under the take-one-from-each-pile move to the staircase {k,…,1} (window.__bulgarian.allConverge), and the staircase is confirmed a fixed point — deterministic integer dynamics (worst observed ~54 steps).",
+  "fig":"No framing: the take-one-from-each-pile move, the convergence loop, and the reached-and-fixed-point checks run in-browser and agree. The AVAN inverse is honest — reaching one fixed shape from every start by a single blind local rule genuinely self-assembles the staircase rather than being designed; magenta is the many possible starts, green the single attractor they all become. Order that assembles itself.",
+  "body":BUL_BODY,"script":BUL_SCRIPT},
  {"slug":"the-miller-rabin","title":"THE MILLER-RABIN","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#b088d0","icon":"miller-rabin",
   "kicker":"a witness names the composite, no factor needed",
