@@ -20,15 +20,15 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 3. THE GOLDEN RADIX — base-φ, exact ℤ[φ] arithmetic. CLAIM: every int 0..100 has unique no-"11" form collapsing to n.
 4. THE CARRYLESS FIELD — Nimber arithmetic (XOR add, recursive mult) = GF(16). CLAIM: field axioms + inverses exhaustive on {0..15}.
 5. THE IRRATIONAL ODOMETER — Ostrowski numeration from CF of α. CLAIM: digits obey CF bounds, decode exactly; φ-case = Zeckendorf.
-6. THE SUBSET ODOMETER — combinadics bijection 0..C(n,k)−1 ↔ k-subsets. CLAIM: rank∘unrank = id exhaustively for n=10,k=5.
-7. THE SPARSEST SIGNATURE — Non-Adjacent Form (signed binary {−1,0,1}). CLAIM: unique NAF −128..127, no adjacent nonzeros, min weight.
+6. THE SUBSET ODOMETER [BUILT] — combinadics bijection 0..C(n,k)−1 ↔ k-subsets. CLAIM: rank∘unrank = id exhaustively for n=10,k=5.
+7. THE SPARSEST SIGNATURE [BUILT] — Non-Adjacent Form (signed binary {−1,0,1}). CLAIM: unique NAF −128..127, no adjacent nonzeros, min weight.
 8. THE MIRROR FIBONACCI — negaFibonacci coding (reaches negatives, no sign bit). CLAIM: unique no-"11" rep for −50..50.
 9. THE PERMUTATION CLOCK — factorial number system + Lehmer code. CLAIM: rank∘unrank bijection over all 720 perms of 6.
 10. THE LAZY COUNTER — skew binary (digits 0,1,2, one 2). CLAIM: unique canonical 0..2000; +1 touches ≤2 digits (O(1) carry).
 11. THE FIBONACCI PARTITION — Zeckendorf. CLAIM: greedy decomp 1..200 non-consecutive, sums exact, unique.
 12. THE RATIONAL TREE — Stern–Brocot. CLAIM: depth-12 all fractions lowest-terms, no repeats, each a mediant.
 13. THE THREE-WAY DIGIT [BUILT] — balanced ternary {−,0,+}. CLAIM: unique −40..40, negate=digit-flip; balance-scale weighing puzzle.
-14. THE REMAINDER LOOM — Residue Number System {3,5,7}, CRT. CLAIM: unique triples 0..104, CRT exact, componentwise +/× match mod 105.
+14. THE REMAINDER LOOM [BUILT] — Residue Number System {3,5,7}, CRT. CLAIM: unique triples 0..104, CRT exact, componentwise +/× match mod 105.
 15. THE ROTATING SHIFT — CORDIC (shift+add trig). CLAIM: 20 iters give sin/cos within 1e-6 of Math over a sweep.
 
 ═══════════════════════════════════════════════════════════════════════
@@ -38,7 +38,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 3. THE WANG DOMINOES — edge-colored tiles. CLAIM: backtracking fills N×N respecting colors; recolor one edge → 0 solutions (exhaustive).
 4. THE POST DOMINOES — Post Correspondence Problem. CLAIM: known solution concatenates equal top/bottom; unsolvable one → no match ≤bound.
 5. THE MARGOLUS MIRROR — reversible block CA (Critters). CLAIM: forward T then inverse T = exact start; particle count conserved.
-6. THE SKI FOREST — combinatory logic S,K,I. CLAIM: S K K x → x for sampled x; S(K S)K → B (composition), by rewriting to normal form.
+6. THE SKI FOREST [BUILT] — combinatory logic S,K,I. CLAIM: S K K x → x for sampled x; S(K S)K → B (composition), by rewriting to normal form.
 7. THE BETA REDUCER [BUILT] — untyped λ-calculus, Church numerals. CLAIM: MULT 2 3 β-reduces to Church 6; SUCC(SUCC ZERO)=2, structural compare.
 8. THE WIREWORLD FOUNDRY — 4-state CA logic. CLAIM: built XOR/AND gate matches truth table by running the CA and timing output.
 9. THE COLLATZ TAG — Collatz as 2-tag system (De Mol). CLAIM: tag output matches direct 3x+1 hailstone for sampled n.
@@ -64,7 +64,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 11. THE NEST — Cuckoo filter. CLAIM: no false negatives; measured FP-rate near theoretical for fingerprint size; supports deletes.
 12. THE FIXED BLOCK — Tunstall coding (variable-to-fixed, Huffman's dual). CLAIM: round-trips; equal codeword length; greedy fattest-leaf split.
 13. THE FIELD INVERSE [BUILT] — Rijndael GF(2⁸) inversion / AES S-box. CLAIM: b⊗b⁻¹=1 for all nonzero b; S-box∘S-box⁻¹=id over 256 bytes.
-14. THE MOST LIKELY PATH — Viterbi decoder. CLAIM: encode→inject ≤correctable errors→Viterbi recovers original bits over trials.
+14. THE MOST LIKELY PATH [BUILT] — Viterbi decoder. CLAIM: encode→inject ≤correctable errors→Viterbi recovers original bits over trials.
 15. THE PROBABLE PRIME — Miller–Rabin. CLAIM: composites fail ≥3/4 bases (miss ≤4^−t); primes always pass, vs trial-division oracle.
 
 ═══════════════════════════════════════════════════════════════════════
@@ -93,7 +93,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 4. THE SINGLE EAR — Goertzel. CLAIM: single-bin magnitude = |X[k]| from full DFT to <1e-9; DTMF keypad detection.
 5. THE INTEGRATOR THAT NEVER DRIFTS — leapfrog/Verlet vs RK4. CLAIM: leapfrog |ΔE| bounded over 1e5 steps; RK4 secular drift.
 6. THE ORTHOGONAL SIGN-FLIP [BUILT] — Walsh–Hadamard transform. CLAIM: applied twice = N·identity (integer-exact); basis rows orthogonal (dots=0).
-7. THE LEDGER THAT LOSES NOTHING — Kahan summation. CLAIM: sum 1e6×0.1: naive float32 drifts, Kahan within ~1 ULP of exact.
+7. THE LEDGER THAT LOSES NOTHING [BUILT] — Kahan summation. CLAIM: sum 1e6×0.1: naive float32 drifts, Kahan within ~1 ULP of exact.
 8. THE CURVE THAT FILLS [BUILT] THE PLANE — Hilbert curve. CLAIM: index↔(x,y) bijection over N×N; consecutive indices Manhattan-adjacent (=1).
 9. THE ELECTRON MAZE — Wireworld (dup of B8 — pick one). CLAIM: gate truth tables + period-verified clock.
 10. THE EMPTY CIRCLE LAW — Bowyer–Watson Delaunay. CLAIM: every triangle's circumcircle empty; maximizes min angle vs random triangulation.

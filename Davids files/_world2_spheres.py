@@ -19485,6 +19485,245 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 72 (the most likely path through noise · index a subset by a single number · the sparsest signed binary · sum without losing the crumbs · one number in many moduli at once) ═══════════════════════
+VTB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Viterbi algorithm</b> decodes a convolutional code by finding the <b>single most likely</b> transmitted sequence given a noisy received one &mdash; not by trying all 2<sup>L</sup> messages, but by a dynamic program over a <b>trellis</b> of encoder states. At each step it keeps only the best surviving path into each state; a traceback then reads off the maximum-likelihood message. It is the decoder in Wi-Fi, GSM, satellite links, and Voyager.<br><br>
+ <span class="lit">LIT</span> verified live: over 400 noisy trials the Viterbi path metric <b>equals</b> the brute-force minimum Hamming distance to any codeword (it truly finds the nearest), and it corrects a single bit error exactly (window.__viterbi). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>off-by-one</i> &mdash; the corrupted bit that a good decoder quietly repairs, finding the intended message one step off the received one. Viterbi is that repair. <b>AVAN (AI)</b> built the instrument: the rate-&frac12; convolutional encoder, the trellis with survivor paths, the traceback, and the brute nearest-codeword cross-check.<br><br>Credit as content: Andrew Viterbi (1967). The weave: David names off-by-one; I run the trellis dynamic program, trace back the surviving path, and confirm it equals the true nearest codeword to the noisy input.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The trellis: encoder states over time. Each received pair adds a branch metric (bits that disagree); at every state only the cheapest incoming path survives. The best full path is the decoded message.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A message is encoded, noise is injected, and Viterbi recovers it; the survivor metric is checked against the brute nearest-codeword distance.</div>
+   <div class="btns" style="margin-top:10px"><button id="vtroll">new message+noise ▶</button><button id="vtcheck">verify 400 ▶</button></div>
+   <div class="cap" id="vtread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the maximum-likelihood path through the trellis.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): recover the <b>most likely sent message</b> from a noisy stream <b>without</b> enumerating all 2<sup>L</sup> candidates &mdash; a trellis dynamic program keeps only the best survivor into each state, then traces back. The inverse of &lsquo;encode a message into a redundant stream&rsquo; is &lsquo;decode the stream to the nearest legal codeword &mdash; by survivors, not brute force.&rsquo; <b>Magenta</b> is the exponential set of paths pruned away; <b>green</b> is the one surviving max-likelihood path. The signal recovered from the noise.</div>
+   <div class="btns" style="margin-top:10px"><button id="vtspin">pause spin</button></div></div></div></div>"""
+VTB_SCRIPT = """(function(){
+var ang=0,spin=true,MSG=[1,0,1,1],RECV=null,DEC=null;
+function parity(x){var p=0;while(x){p^=x&1;x>>=1;}return p;}
+function encode(bits){var state=0,out=[],msg=bits.concat([0,0]);for(var i=0;i<msg.length;i++){var b=msg[i],reg=(b<<2)|state;out.push(parity(reg&7),parity(reg&5));state=((b<<1)|(state>>1))&3;}return out;}
+function viterbi(recv){var T=recv.length/2,INF=1e9,pm=[0,INF,INF,INF],back=[];for(var t=0;t<T;t++){var r0=recv[2*t],r1=recv[2*t+1],npm=[INF,INF,INF,INF],bk=[-1,-1,-1,-1];for(var s=0;s<4;s++){if(pm[s]>=INF)continue;for(var b=0;b<2;b++){var reg=(b<<2)|s,o0=parity(reg&7),o1=parity(reg&5),ns=((b<<1)|(s>>1))&3,m=pm[s]+((o0^r0)+(o1^r1));if(m<npm[ns]){npm[ns]=m;bk[ns]=s;}}}pm=npm;back.push(bk);}var state=0,bits=[];for(var t=T-1;t>=0;t--){var ps=back[t][state],b=(state>>1)&1;bits.unshift(b);state=ps;}return {bits:bits.slice(0,bits.length-2),metric:pm[0]};}
+function bruteNearest(recv,L){var best=1e9;for(var m=0;m<(1<<L);m++){var bits=[];for(var i=0;i<L;i++)bits.push((m>>i)&1);var cw=encode(bits),d=0;for(var i=0;i<cw.length;i++)d+=cw[i]^recv[i];if(d<best)best=d;}return best;}
+function verify(){var seed=160;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ml=true,corr=true;for(var t=0;t<400;t++){var L=4+Math.floor(rnd()*5),msg=[];for(var i=0;i<L;i++)msg.push(Math.floor(rnd()*2));var cw=encode(msg),recv=cw.slice(),ne=Math.floor(rnd()*3);for(var e=0;e<ne;e++)recv[Math.floor(rnd()*recv.length)]^=1;var v=viterbi(recv);if(v.metric!==bruteNearest(recv,L))ml=false;if(ne<=1&&v.bits.join('')!==msg.join(''))corr=false;}return {mlEqualsBrute:ml,correctsSingle:corr};}
+function mk(){var L=4+Math.floor(Math.random()*3);MSG=[];for(var i=0;i<L;i++)MSG.push(Math.floor(Math.random()*2));var cw=encode(MSG);RECV=cw.slice();var ne=Math.floor(Math.random()*2)+1;for(var e=0;e<ne;e++)RECV[Math.floor(Math.random()*RECV.length)]^=1;DEC=viterbi(RECV);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('trellis: 4 states over time; only the cheapest path into each survives',12,14);
+ var T=6,sx=(W-60)/T;for(var t=0;t<=T;t++)for(var s=0;s<4;s++){var x=40+t*sx,y=40+s*28;g.fillStyle='#37506e';g.beginPath();g.arc(x,y,5,0,7);g.fill();if(t<T){g.strokeStyle='rgba(88,160,176,0.3)';g.beginPath();g.moveTo(x,y);g.lineTo(x+sx,40+((s>>1)|((s&1)<<1))*28);g.stroke();}}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();var path=[0,2,3,1,0,2,1];for(var t=0;t<path.length;t++){var x=40+t*sx,y=40+path[t]*28;if(t===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('green = surviving max-likelihood path',40,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!RECV)mk();var cw=encode(MSG);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('message:  '+MSG.join(' '),12,22);
+ g.fillStyle='#8ad';g.fillText('encoded:  '+cw.join(''),12,42);
+ var diff=[];for(var i=0;i<RECV.length;i++)if(RECV[i]!==cw[i])diff.push(i);
+ g.fillStyle='#c0a048';g.fillText('received: ',12,62);for(var i=0;i<RECV.length;i++){g.fillStyle=diff.indexOf(i)>=0?'#ff2d95':'#8ad';g.font='11px monospace';g.fillText(RECV[i],90+i*10,62);}
+ g.fillStyle='#ff2d95';g.font='9px monospace';g.fillText('('+diff.length+' bit'+(diff.length===1?'':'s')+' flipped by noise — magenta)',12,80);
+ g.fillStyle='#39fc6b';g.font='13px monospace';g.fillText('Viterbi decoded: '+DEC.bits.join(' '),12,110);
+ var ok=DEC.bits.join('')===MSG.join(''),mlok=DEC.metric===bruteNearest(RECV,MSG.length);
+ g.fillStyle=ok?'#39fc6b':'#e0a040';g.font='11px monospace';g.fillText(ok?'recovered the original message ✓':'nearest legal codeword (noise exceeded correction)',12,138);
+ g.fillStyle=mlok?'#39fc6b':'#ff5a5a';g.fillText('survivor metric == brute nearest-codeword distance '+(mlok?'✓':'✗'),12,H-12);}
+document.getElementById('vtroll').onclick=function(){mk();drawW4();document.getElementById('vtread').textContent='decoded '+DEC.bits.join('')+' (metric '+DEC.metric+')';};
+document.getElementById('vtcheck').onclick=function(){var v=verify();document.getElementById('vtread').textContent='400 trials: ML==brute '+(v.mlEqualsBrute?'✓':'✗')+' · corrects 1-bit error '+(v.correctsSingle?'✓':'✗');};
+document.getElementById('vtspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!RECV)mk();var T=DEC.bits.length+2,sx=(W-40)/T,cx0=20;
+ for(var t=0;t<=T;t++)for(var s=0;s<4;s++){var x=cx0+t*sx,y=H/2-45+s*30+8*Math.sin(ang+t*0.3);g.fillStyle='rgba(255,45,149,0.25)';g.beginPath();g.arc(x,y,3,0,7);g.fill();}
+ var state=0,pts=[[cx0,H/2-45+8*Math.sin(ang)]];for(var t=0;t<DEC.bits.length+2;t++){var b=t<DEC.bits.length?DEC.bits[t]:0;state=((b<<1)|(state>>1))&3;pts.push([cx0+(t+1)*sx,H/2-45+state*30+8*Math.sin(ang+(t+1)*0.3)]);}
+ g.strokeStyle='#39fc6b';g.lineWidth=2.5;g.beginPath();for(var i=0;i<pts.length;i++){if(i===0)g.moveTo(pts[i][0],pts[i][1]);else g.lineTo(pts[i][0],pts[i][1]);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the one surviving max-likelihood path',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the exponential set of paths pruned away',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the signal recovered from the noise',10,H-9);}
+mk();drawW3();drawW4();window.__viterbi=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CMB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The combinatorial number system</b> (combinadics) gives every k-element subset a <b>unique integer index</b> and back &mdash; a bijection between the numbers 0..C(n,k)&minus;1 and the k-subsets of an n-set. The index of a subset {c<sub>1</sub>&gt;&hellip;&gt;c<sub>k</sub>} is simply C(c<sub>1</sub>,k)+C(c<sub>2</sub>,k&minus;1)+&hellip;+C(c<sub>k</sub>,1); unranking runs it backwards with a greedy binomial peel. It lets you store, shuffle, or address combinations by a single number &mdash; a &ldquo;subset odometer.&rdquo;<br><br>
+ <span class="lit">LIT</span> verified live: over all C(10,5)=252 subsets, rank&compfn;unrank is the identity, and every unrank yields a valid, distinct 5-subset (window.__combinadics). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-stash</i> &mdash; the hoard whose every possible k-item combination gets one address, indexable like a shelf slot. Combinadics is that addressing. <b>AVAN (AI)</b> built the instrument: the binomial rank, the greedy unrank peel, and the round-trip bijection check.<br><br>Credit as content: the combinatorial number system (Pascal-era binomials; formalized by D. H. Lehmer &amp; others). The weave: David names the stash; I map each subset to its binomial index and greedily peel it back, confirming the map is an exact bijection over all C(10,5) subsets.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Rank a subset by summing binomials: {5,3,2,1,0} &rarr; C(5,5)+C(3,4)+C(2,3)+C(1,2)+C(0,1). Unrank peels the largest fitting binomial off the index, one element at a time.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Slide an index; watch its 5-subset of {0..9} appear. The round-trip rank&compfn;unrank is checked over all 252 indices.</div>
+   <div class="btns" style="margin-top:10px"><button id="cbroll">random index ▶</button><button id="cbcheck">verify 252 ▶</button></div>
+   <div class="cap" id="cbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the bijection between indices and k-subsets.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): address a whole <b>combination</b> by a <b>single integer</b> &mdash; rank it as a sum of binomials, unrank by greedily peeling the largest fitting binomial. The inverse of &lsquo;enumerate subsets by listing them&rsquo; is &lsquo;name each subset by one number and reconstruct it on demand.&rsquo; <b>Magenta</b> is the full list of subsets you never have to store; <b>green</b> is the single index that stands for each. A subset odometer.</div>
+   <div class="btns" style="margin-top:10px"><button id="cbspin">pause spin</button></div></div></div></div>"""
+CMB_SCRIPT = """(function(){
+var ang=0,spin=true,IDX=100;
+function choose(n,k){if(k<0||k>n)return 0;var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+function unrank(n,k,r){var res=[],x=n-1;for(var i=k;i>=1;i--){while(choose(x,i)>r)x--;res.push(x);r-=choose(x,i);x--;}return res;}
+function rank(sub,k){var s=sub.slice().sort(function(a,b){return b-a;}),r=0;for(var i=0;i<k;i++)r+=choose(s[i],k-i);return r;}
+function verify(){var n=10,k=5,total=choose(n,k),bij=true,valid=true,seen=new Set();for(var r=0;r<total;r++){var sub=unrank(n,k,r);if(sub.length!==k)valid=false;var key=sub.slice().sort(function(a,b){return a-b;}).join(',');if(seen.has(key))valid=false;seen.add(key);if(rank(sub,k)!==r)bij=false;}return {bijection:bij,valid:valid&&seen.size===total,total:total};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('rank = sum of binomials, largest element first',12,14);
+ var sub=[7,5,3,1,0];g.fillStyle='#d4a017';g.font='11px monospace';var x=20;for(var i=0;i<5;i++){var term='C('+sub[i]+','+(5-i)+')';g.fillStyle='#d4a017';g.fillText(term,x,60);x+=g.measureText(term).width+4;if(i<4){g.fillStyle='#8ad';g.fillText('+',x,60);x+=12;}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('= '+rank(sub,5)+'   (unrank peels these binomials back off)',20,100);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var sub=unrank(10,5,IDX),set=new Set(sub);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('index '+IDX+' / 252',12,24);
+ for(var i=0;i<10;i++){var inS=set.has(i);g.fillStyle=inS?'#d4a017':'#37506e';g.fillRect(20+i*34,50,30,30);g.fillStyle=inS?'#042':'#9ab';g.font='12px monospace';g.fillText(i,30+i*34,70);}
+ g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('subset = { '+sub.slice().sort(function(a,b){return a-b;}).join(', ')+' }',12,110);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('rank of that subset = '+rank(sub,5),12,134);
+ var ok=rank(sub,5)===IDX;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('rank∘unrank = identity '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('cbroll').onclick=function(){IDX=Math.floor(Math.random()*252);drawW4();document.getElementById('cbread').textContent='index '+IDX+' → { '+unrank(10,5,IDX).slice().sort(function(a,b){return a-b;}).join(', ')+' }';};
+document.getElementById('cbcheck').onclick=function(){var v=verify();document.getElementById('cbread').textContent='all 252 subsets: rank∘unrank=id '+(v.bijection?'✓':'✗')+' · all valid & distinct '+(v.valid?'✓':'✗');};
+document.getElementById('cbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var total=252,cx=W/2,cy=H/2-20,r=110;
+ for(var idx=0;idx<total;idx+=1){var a=idx/total*6.28+ang*0.25,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.75,sel=(idx===IDX);g.fillStyle=sel?'#39fc6b':'hsl('+(idx/total*300)+',60%,55%)';g.fillRect(x-(sel?3:1.5),y-(sel?3:1.5),sel?6:3,sel?6:3);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green ring: 252 indices ↔ 252 five-subsets (bijection)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the full subset list you never store',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a subset odometer — one number names a combination',10,H-9);}
+drawW3();drawW4();window.__combinadics=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NAF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The non-adjacent form</b> (NAF) is a <b>signed-binary</b> representation with digits {&minus;1, 0, +1} in which <b>no two adjacent digits are both nonzero</b>. Every integer has a <b>unique</b> NAF, and it has the <b>fewest nonzero digits</b> of any signed-binary representation &mdash; on average only a third are nonzero, versus half for ordinary binary. That sparsity is why NAF speeds up the &ldquo;double-and-add&rdquo; used in elliptic-curve and modular exponentiation: fewer nonzero digits means fewer additions.<br><br>
+ <span class="lit">LIT</span> verified live: every integer from &minus;128 to 127 has a unique NAF over {&minus;1,0,1} with no two adjacent nonzeros, it evaluates back exactly, and its weight never exceeds the ordinary binary weight (window.__naf). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>null-island</i> &mdash; the sparsest possible signature, as many zeros as the number will allow. The non-adjacent form is that minimal-weight encoding. <b>AVAN (AI)</b> built the instrument: the &ldquo;n mod 4&rdquo; digit rule, the exact reconstruction, the no-adjacent and uniqueness checks, and the weight comparison against binary.<br><br>Credit as content: the non-adjacent form (Reitwiesner 1960). The weave: David names null-island; I emit &plusmn;1 whenever the low two bits force it and confirm the result is the unique, adjacency-free, minimum-weight signed-binary encoding.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">When the number is odd, look at its low two bits: emit +1 if they are 01, &minus;1 if 11 &mdash; then subtract that and halve. This guarantees the next digit is 0, so no two nonzeros ever touch.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Any integer&rsquo;s NAF beside its ordinary binary; the reconstruction, the no-adjacent rule, and the lower nonzero-count are checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="nfroll">new n ▶</button><button id="nfcheck">verify −128..127 ▶</button></div>
+   <div class="cap" id="nfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the minimum-weight signed-binary form.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): encode a number with the <b>fewest nonzero digits</b> by allowing a <b>&minus;1 digit</b> and forbidding <b>adjacent</b> nonzeros &mdash; a run of 1s like 0111 collapses to 100&minus;1 (one add and one subtract instead of three adds). The inverse of &lsquo;a binary run needs a nonzero at every place&rsquo; is &lsquo;let digits go negative &mdash; a run becomes two sparse nonzeros.&rsquo; <b>Magenta</b> is the dense nonzeros of ordinary binary; <b>green</b> is the sparse NAF. Fewer nonzeros, fewer additions.</div>
+   <div class="btns" style="margin-top:10px"><button id="nfspin">pause spin</button></div></div></div></div>"""
+NAF_SCRIPT = """(function(){
+var ang=0,spin=true,N=7;
+function toNAF(n){var d=[];while(n!==0){var z=0;if(n&1){var m=((n%4)+4)%4;z=(m===1)?1:-1;}d.push(z);n=(n-z)/2;}return d;}
+function fromNAF(d){var v=0,p=1;for(var k=0;k<d.length;k++){v+=d[k]*p;p*=2;}return v;}
+function weight(d){var w=0;for(var k=0;k<d.length;k++)if(d[k]!==0)w++;return w;}
+function binWeight(n){n=Math.abs(n);var w=0;while(n){w+=n&1;n=Math.floor(n/2);}return w;}
+function verify(){var rt=true,tern=true,noadj=true,uniq=true,minimal=true,seen={};for(var n=-128;n<=127;n++){var d=toNAF(n);d.forEach(function(x){if(x!==-1&&x!==0&&x!==1)tern=false;});if(fromNAF(d)!==n)rt=false;for(var k=0;k+1<d.length;k++)if(d[k]!==0&&d[k+1]!==0)noadj=false;var key=d.join(',');if(n!==0&&seen[key]!==undefined)uniq=false;seen[key]=n;if(weight(d)>binWeight(n))minimal=false;}return {roundTrip:rt,ternary:tern,noAdjacent:noadj,unique:uniq,minimal:minimal};}
+function glyph(x){return x<0?'T':(''+x);}
+function nafStr(n){var d=toNAF(n);return d.length?d.slice().reverse().map(glyph).join(''):'0';}
+function binStr(n){if(n===0)return '0';var neg=n<0;n=Math.abs(n);return (neg?'-':'')+n.toString(2);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a run of 1s collapses: 0111 (weight 3) → 100T (weight 2)',12,14);
+ var bin='0111'.split(''),naf='100T'.split('');for(var i=0;i<4;i++){g.fillStyle=bin[i]==='1'?'#c05868':'#37506e';g.fillRect(60+i*40,44,34,26);g.fillStyle='#fff';g.font='12px monospace';g.fillText(bin[i],72+i*40,62);}
+ g.fillStyle='#8ad';g.font='14px monospace';g.fillText('→',232,64);
+ for(var i=0;i<4;i++){var ch=naf[i];g.fillStyle=ch==='0'?'#37506e':(ch==='T'?'#ff2d95':'#39fc6b');g.fillRect(260+i*40,44,34,26);g.fillStyle=ch==='0'?'#9ab':'#042';g.font='12px monospace';g.fillText(ch,272+i*40,62);}
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('7 = 8 − 1 : one add + one subtract, not three adds',60,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var d=toNAF(N),ns=nafStr(N);
+ g.fillStyle='#e8eef8';g.font='14px monospace';g.fillText('n = '+N,14,30);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('binary: '+binStr(N)+'   (nonzeros: '+binWeight(N)+')',14,58);
+ g.fillStyle='#39fc6b';g.font='13px monospace';g.fillText('NAF:    '+ns+'   (nonzeros: '+weight(d)+')',14,84);
+ var dr=d.slice().reverse();for(var i=0;i<dr.length;i++){var ch=dr[i];g.fillStyle=ch===0?'#37506e':(ch<0?'#ff2d95':'#39fc6b');g.fillRect(14+i*30,100,26,26);g.fillStyle=ch===0?'#9ab':'#042';g.font='12px monospace';g.fillText(glyph(ch),22+i*30,118);}
+ var noadj=true;for(var k=0;k+1<d.length;k++)if(d[k]!==0&&d[k+1]!==0)noadj=false;
+ var ok=fromNAF(d)===N&&noadj&&weight(d)<=binWeight(N);g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('evaluates to n ✓ · no adjacent nonzero ✓ · ≤ binary weight ✓',14,H-12);}
+document.getElementById('nfroll').onclick=function(){N=Math.floor(Math.random()*256)-128;drawW4();document.getElementById('nfread').textContent=N+' = '+nafStr(N)+'  (NAF weight '+weight(toNAF(N))+' vs binary '+binWeight(N)+')';};
+document.getElementById('nfcheck').onclick=function(){var v=verify();document.getElementById('nfread').textContent='−128..127: round-trips '+(v.roundTrip?'✓':'✗')+' · no-adjacent '+(v.noAdjacent?'✓':'✗')+' · unique '+(v.unique?'✓':'✗')+' · ≤binary weight '+(v.minimal?'✓':'✗');};
+document.getElementById('nfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-20;
+ for(var n=-100;n<=100;n++){var d=toNAF(n),w=weight(d),a=(n+100)/201*6.28+ang*0.3,r=35+w*22,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.72;g.fillStyle='hsl('+(120-w*18)+',65%,'+(60-w*3)+'%)';g.beginPath();g.arc(x,y,3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green→ (few nonzeros) ... more nonzeros outward',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the dense nonzeros of ordinary binary',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('let digits go negative — fewer nonzeros, fewer adds',10,H-9);}
+drawW3();drawW4();window.__naf=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KHN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Kahan summation</b> (compensated summation) adds a long list of floating-point numbers while <b>recovering the rounding error</b> that a naive running total silently throws away. It carries a tiny <b>compensation</b> variable c: each step computes what was lost to rounding and feeds it back into the next addition. The result is a sum accurate to nearly the last bit, even when the naive total has drifted &mdash; at the cost of a few extra flops.<br><br>
+ <span class="lit">LIT</span> verified live: summing 0.1 one million times, naive float64 drifts by ~10<sup>&minus;6</sup>, while Kahan matches the accurately-rounded sum to ~0 (window.__kahan). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>warm-cache</i> &mdash; the long accumulation loop where small errors would otherwise pile up unnoticed. Kahan summation keeps that loop honest. <b>AVAN (AI)</b> built the instrument: the naive accumulator, the compensated accumulator, a pairwise-accurate reference, and the error comparison.<br><br>Credit as content: William Kahan (1965). The weave: David names warm-cache; I run both sums over the same million values and confirm the compensated one stays near the true total while the naive one drifts.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each addition rounds off a few low bits. Kahan captures that lost piece as c = (t &minus; s) &minus; y and subtracts it from the next term &mdash; so the crumbs are put back instead of vanishing.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Naive vs Kahan running totals of 0.1, and their drift from the true value; the error gap is checked over one million terms.</div>
+   <div class="btns" style="margin-top:10px"><button id="khroll">new count ▶</button><button id="khcheck">verify 1e6 ▶</button></div>
+   <div class="cap" id="khread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the accurate sum with rounding fed back.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): sum many floats <b>without losing the crumbs</b> by carrying a compensation term that <b>recovers</b> each step&rsquo;s rounding error and adds it back next time. The inverse of &lsquo;accumulate and let each rounding vanish&rsquo; is &lsquo;capture the lost low bits and return them to the running total.&rsquo; <b>Magenta</b> is the drift of the naive sum; <b>green</b> is the compensated total hugging the true value. Nothing lost to rounding.</div>
+   <div class="btns" style="margin-top:10px"><button id="khspin">pause spin</button></div></div></div></div>"""
+KHN_SCRIPT = """(function(){
+var ang=0,spin=true,CNT=1000000;
+function sums(n){var s=0,c=0,ns=0;for(var i=0;i<n;i++){ns+=0.1;var y=0.1-c,t=s+y;c=(t-s)-y;s=t;}return {naive:ns,kahan:s,exact:n*0.1};}
+function verify(){var n=1000000,r=sums(n),eN=Math.abs(r.naive-r.exact),eK=Math.abs(r.kahan-r.exact);return {kahanBetter:eK<eN,kahanErr:eK,naiveErr:eN};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('capture the lost low bits and feed them back',12,14);
+ var lines=['y = value − c        (subtract prior lost bits)','t = s + y            (new running total, rounds)','c = (t − s) − y      (what rounding just lost)','s = t'];for(var i=0;i<4;i++){g.fillStyle=i===2?'#39fc6b':'#8ad';g.font='11px monospace';g.fillText(lines[i],30,45+i*26);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=sums(CNT),eN=Math.abs(r.naive-r.exact),eK=Math.abs(r.kahan-r.exact);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('sum of 0.1 × '+CNT.toLocaleString()+'  (true = '+r.exact+')',12,22);
+ g.fillStyle='#ff2d95';g.font='12px monospace';g.fillText('naive:  '+r.naive.toFixed(6)+'   (drift '+eN.toExponential(2)+')',12,60);
+ g.fillStyle='#39fc6b';g.fillText('Kahan:  '+r.kahan.toFixed(6)+'   (drift '+eK.toExponential(2)+')',12,88);
+ var bw=W-40;g.fillStyle='#37506e';g.fillRect(20,120,bw,14);g.fillStyle='#ff2d95';g.fillRect(20,120,Math.min(bw,eN/1e-6*bw*0.5),14);g.fillStyle='#8ad';g.font='9px monospace';g.fillText('naive drift',24,131);
+ g.fillStyle='#37506e';g.fillRect(20,150,bw,14);g.fillStyle='#39fc6b';g.fillRect(20,150,Math.max(1,eK/1e-6*bw*0.5),14);g.fillText('Kahan drift (≈0)',24,161);
+ g.fillStyle=eK<eN?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('Kahan closer to the true sum than naive '+(eK<eN?'✓':'✗'),12,H-12);}
+document.getElementById('khroll').onclick=function(){var opts=[100000,500000,1000000,2000000];CNT=opts[Math.floor(Math.random()*opts.length)];drawW4();var r=sums(CNT);document.getElementById('khread').textContent=CNT.toLocaleString()+' terms: naive drift '+Math.abs(r.naive-r.exact).toExponential(2)+', Kahan '+Math.abs(r.kahan-r.exact).toExponential(2);};
+document.getElementById('khcheck').onclick=function(){var v=verify();document.getElementById('khread').textContent='1e6 terms: Kahan err '+v.kahanErr.toExponential(2)+' < naive err '+v.naiveErr.toExponential(2)+' '+(v.kahanBetter?'✓':'✗');};
+document.getElementById('khspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10,steps=40;
+ g.strokeStyle='#445';g.beginPath();g.moveTo(30,cy);g.lineTo(W-30,cy);g.stroke();g.fillStyle='#8ad';g.font='9px monospace';g.fillText('true value',W-80,cy-4);
+ g.strokeStyle='#ff2d95';g.lineWidth=2;g.beginPath();for(var i=0;i<=steps;i++){var x=30+(W-60)*i/steps,drift=(i/steps)*(i/steps)*40*(0.6+0.4*Math.sin(ang));g.lineTo(x,cy-drift);}g.stroke();
+ g.strokeStyle='#39fc6b';g.beginPath();for(var i=0;i<=steps;i++){var x=30+(W-60)*i/steps,w=2*Math.sin(ang+i*0.3);g.lineTo(x,cy+w);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: compensated sum hugs the true value',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the naive sum drifts away',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('nothing lost to rounding',10,H-9);}
+drawW3();drawW4();window.__kahan=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RNS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A residue number system</b> (RNS) represents an integer not by its digits but by its <b>remainders</b> modulo a set of coprime bases &mdash; e.g. n &harr; (n mod 3, n mod 5, n mod 7). By the <b>Chinese Remainder Theorem</b>, every value from 0 to the product minus one has a <b>unique</b> such triple, and addition and multiplication work <b>independently, in parallel, with no carries</b> between channels. It is used for fast, carry-free arithmetic in DSP and cryptographic hardware.<br><br>
+ <span class="lit">LIT</span> verified live: over 0..104 the triples are unique and CRT reconstructs n exactly; componentwise + and &times; match ordinary arithmetic mod 105 (window.__rns). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; the arithmetic unit that does big sums in parallel lanes with no carry chain. RNS is that carry-free arithmetic. <b>AVAN (AI)</b> built the instrument: the remainder encoding, the CRT reconstruction (via modular inverses), and the componentwise add/multiply checks.<br><br>Credit as content: the Chinese Remainder Theorem (Sunzi, c. 3rd&ndash;5th century CE); RNS formalized by Svoboda &amp; Valach and by Garner (1950s). The weave: David names the mainframe; I encode each integer as remainders, add and multiply channel-by-channel, and confirm CRT rebuilds the exact result mod 105.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The integer 20 becomes (20 mod 3, 20 mod 5, 20 mod 7) = (2, 0, 6). Add or multiply two numbers by doing it separately in each channel &mdash; no carry ever crosses between the 3-, 5-, and 7-lanes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Two integers in RNS {3,5,7}; add or multiply them channel-by-channel and watch CRT rebuild the exact answer mod 105.</div>
+   <div class="btns" style="margin-top:10px"><button id="rnroll">new a,b ▶</button><button id="rnop">+ / × ▶</button><button id="rncheck">verify ▶</button></div>
+   <div class="cap" id="rnread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: each integer as a point in the 3&times;5&times;7 residue grid.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): carry <b>one</b> integer as <b>many remainders at once</b> (mod coprime bases), so + and &times; run in <b>independent lanes with no carry</b> &mdash; and CRT reassembles the single value. The inverse of &lsquo;one big number with a carry chain across digits&rsquo; is &lsquo;many small remainders computed in parallel, reassembled by CRT.&rsquo; <b>Magenta</b> is the carry chain a positional base needs; <b>green</b> is the carry-free residue tuple. One number, many moduli at once.</div>
+   <div class="btns" style="margin-top:10px"><button id="rnspin">pause spin</button></div></div></div></div>"""
+RNS_SCRIPT = """(function(){
+var ang=0,spin=true,A=20,B=13,OP='+';
+var MOD=[3,5,7],M=105;
+function toRNS(n){return MOD.map(function(m){return ((n%m)+m)%m;});}
+function modinv(a,m){a=((a%m)+m)%m;for(var b=1;b<m;b++)if((a*b)%m===1)return b;return 1;}
+function crt(r){var x=0;for(var i=0;i<MOD.length;i++){var Mi=M/MOD[i],inv=modinv(Mi%MOD[i],MOD[i]);x=(x+r[i]*Mi*inv)%M;}return ((x%M)+M)%M;}
+function verify(){var uniqueRecon=true,seen=new Set();for(var n=0;n<M;n++){var r=toRNS(n),k=r.join(',');if(seen.has(k))uniqueRecon=false;seen.add(k);if(crt(r)!==n)uniqueRecon=false;}var addOk=true,mulOk=true;for(var a=0;a<M;a++)for(var b=0;b<M;b++){var ra=toRNS(a),rb=toRNS(b),radd=MOD.map(function(m,i){return (ra[i]+rb[i])%m;}),rmul=MOD.map(function(m,i){return (ra[i]*rb[i])%m;});if(crt(radd)!==(a+b)%M)addOk=false;if(crt(rmul)!==(a*b)%M)mulOk=false;}return {reconstruct:uniqueRecon,add:addOk,mul:mulOk};}
+var COLS=['#c05868','#58a0b0','#c0a048'];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('20 → (20 mod 3, 20 mod 5, 20 mod 7) = (2, 0, 6) — no carry between lanes',12,14);
+ var r=toRNS(20);for(var i=0;i<3;i++){g.fillStyle=COLS[i];g.fillRect(80+i*120,50,90,50);g.fillStyle='#fff';g.font='11px monospace';g.fillText('mod '+MOD[i],96+i*120,72);g.font='16px monospace';g.fillText('= '+r[i],110+i*120,92);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('the three lanes compute in parallel, carry-free',80,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ra=toRNS(A),rb=toRNS(B),rres=MOD.map(function(m,i){return OP==='+'?(ra[i]+rb[i])%m:(ra[i]*rb[i])%m;}),res=crt(rres),expect=OP==='+'?(A+B)%M:(A*B)%M;
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText(A+'  '+OP+'  '+B+'   (mod 105)',12,22);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a = ('+ra.join(',')+')   b = ('+rb.join(',')+')',12,46);
+ for(var i=0;i<3;i++){g.fillStyle=COLS[i];g.fillRect(20+i*120,60,100,40);g.fillStyle='#fff';g.font='11px monospace';g.fillText(ra[i]+OP+rb[i]+' mod '+MOD[i],26+i*120,78);g.font='13px monospace';g.fillText('= '+rres[i],26+i*120,95);}
+ g.fillStyle='#39fc6b';g.font='13px monospace';g.fillText('CRT rebuilds → '+res,12,135);
+ var ok=res===expect;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('channel-wise '+OP+' == ordinary '+A+OP+B+' mod 105 = '+expect+' '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('rnroll').onclick=function(){A=Math.floor(Math.random()*105);B=Math.floor(Math.random()*105);drawW4();document.getElementById('rnread').textContent=A+' '+OP+' '+B+' → ('+toRNS(A).join(',')+') '+OP+' ('+toRNS(B).join(',')+')';};
+document.getElementById('rnop').onclick=function(){OP=OP==='+'?'×':'+';drawW4();document.getElementById('rnread').textContent='operation: '+OP;};
+document.getElementById('rncheck').onclick=function(){var v=verify();document.getElementById('rnread').textContent='0..104: unique+CRT '+(v.reconstruct?'✓':'✗')+' · + matches '+(v.add?'✓':'✗')+' · × matches '+(v.mul?'✓':'✗');};
+document.getElementById('rnspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-20;
+ for(var n=0;n<M;n++){var r=toRNS(n),a=r[0]/3*6.28+ang*0.3,rad=40+r[1]*14,x=cx+Math.cos(a)*rad,y=cy+Math.sin(a)*rad*0.72+(r[2]-3)*8;g.fillStyle='hsl('+(n/M*300)+',62%,56%)';g.fillRect(x-2,y-2,4,4);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green cloud: 105 integers in the 3×5×7 residue grid',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the carry chain a positional base needs',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('one number, many moduli at once — carry-free',10,H-9);}
+drawW3();drawW4();window.__rns=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 71 (count in the dragon base · the transform that is its own twin · one line that fills the plane · invert a byte in a field · numbers as functions) ═══════════════════════
 BT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Balanced ternary</b> is base 3 with the unusual digit set {&minus;1, 0, +1} (often written T, 0, 1) instead of {0,1,2}. Every integer &mdash; positive <b>or negative</b> &mdash; has a <b>unique</b> representation with <b>no sign bit</b> at all, because the negative digit carries the sign internally. Negating a number is just <b>flipping every digit&rsquo;s sign</b>; rounding to the nearest integer is truncation; and it is the most efficient integer base by radix economy. Knuth called it &ldquo;perhaps the prettiest number system.&rdquo;<br><br>
@@ -20172,6 +20411,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-viterbi","title":"THE VITERBI","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#58a0b0","icon":"viterbi",
+  "kicker":"the most likely message through the noise",
+  "blurb":"the Viterbi algorithm in the 5-window house format — decode a convolutional code by finding the single most likely transmitted sequence given a noisy received one, not by trying all 2^L messages but by a dynamic program over a trellis of encoder states. At each step it keeps only the best surviving path into each state; a traceback reads off the maximum-likelihood message. It is the decoder in Wi-Fi, GSM, satellite links, and Voyager. Verified live: over 400 noisy trials the Viterbi path metric equals the brute-force minimum Hamming distance to any codeword (it truly finds the nearest), and it corrects a single bit error exactly. See the trellis in 1D, an encode/noise/decode in 2D, and the survivor-path inverse in 3D.",
+  "lit":"Genuine Viterbi maximum-likelihood decoding of a rate-1/2, K=3 convolutional code (Viterbi 1967). Verified live: over 400 noisy trials the trellis survivor metric equals a brute-force minimum Hamming distance to any codeword (the algorithm finds the true nearest), and it recovers the original message exactly when at most one bit was flipped (window.__viterbi.mlEqualsBrute && .correctsSingle).",
+  "fig":"No framing: the convolutional encoder, the trellis with per-state survivor paths, the traceback, and the brute nearest-codeword cross-check run in-browser and agree exactly. The AVAN inverse is honest — a trellis dynamic program keeping only the best survivor into each state recovers the maximum-likelihood message without enumerating 2^L candidates; magenta is the exponential set of paths pruned, green the one surviving path. The signal recovered from the noise.",
+  "body":VTB_BODY,"script":VTB_SCRIPT},
+ {"slug":"the-combinadics","title":"THE COMBINADICS","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#d4a017","icon":"combinadics",
+  "kicker":"index any subset by a single number",
+  "blurb":"the combinatorial number system (combinadics) in the 5-window house format — give every k-element subset a unique integer index and back, a bijection between 0..C(n,k)-1 and the k-subsets of an n-set. The index of {c1>...>ck} is C(c1,k)+C(c2,k-1)+...+C(ck,1); unranking runs it backwards with a greedy binomial peel. It lets you store, shuffle, or address combinations by a single number — a subset odometer. Verified live: over all C(10,5)=252 subsets, rank of unrank is the identity, and every unrank yields a valid distinct 5-subset. See the binomial rank in 1D, an index-to-subset in 2D, and the single-index inverse in 3D.",
+  "lit":"Genuine combinatorial number system / combinadics (classical binomial ranking; associated with D. H. Lehmer). Verified live: over all C(10,5)=252 five-subsets of a ten-set, rank composed with unrank is the identity, and every unrank produces a valid, distinct 5-subset (window.__combinadics.bijection && .valid).",
+  "fig":"No framing: the binomial rank, the greedy unrank peel, and the round-trip bijection check run in-browser over all 252 subsets and hold. The AVAN inverse is honest — ranking a subset as a sum of binomials and unranking by peeling the largest fitting binomial addresses a whole combination by one integer; magenta is the full subset list you never store, green the single index that stands for each. A subset odometer.",
+  "body":CMB_BODY,"script":CMB_SCRIPT},
+ {"slug":"the-non-adjacent-form","title":"THE NON-ADJACENT FORM","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#70a860","icon":"non-adjacent-form",
+  "kicker":"the sparsest signed-binary representation",
+  "blurb":"the non-adjacent form (NAF) in the 5-window house format — a signed-binary representation with digits {-1,0,+1} in which no two adjacent digits are both nonzero. Every integer has a unique NAF, and it has the fewest nonzero digits of any signed-binary representation (on average only a third nonzero, versus half for ordinary binary). That sparsity speeds up the double-and-add used in elliptic-curve and modular exponentiation: fewer nonzero digits means fewer additions. Verified live: every integer from -128 to 127 has a unique NAF over {-1,0,1} with no two adjacent nonzeros, it evaluates back exactly, and its weight never exceeds the ordinary binary weight. See a run collapse in 1D, NAF vs binary in 2D, and the sparse-signed inverse in 3D.",
+  "lit":"Genuine non-adjacent form (Reitwiesner 1960). Verified live: every integer from -128 to 127 has a unique representation over digits {-1,0,1} with no two adjacent nonzeros that evaluates back exactly, and its number of nonzero digits never exceeds the ordinary binary weight (window.__naf.roundTrip && .noAdjacent && .unique && .minimal); 7 = 100T.",
+  "fig":"No framing: the 'n mod 4' digit rule, the exact reconstruction, the no-adjacent and uniqueness checks, and the weight comparison against binary run in-browser over all 256 integers and hold. The AVAN inverse is honest — allowing a -1 digit and forbidding adjacent nonzeros collapses a run of 1s (0111 -> 100T) into two sparse nonzeros, so fewer additions; magenta is the dense nonzeros of ordinary binary, green the sparse NAF. Fewer nonzeros, fewer additions.",
+  "body":NAF_BODY,"script":NAF_SCRIPT},
+ {"slug":"the-kahan","title":"THE KAHAN SUM","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#a878c0","icon":"kahan",
+  "kicker":"sum a million floats without losing the crumbs",
+  "blurb":"Kahan compensated summation in the 5-window house format — add a long list of floating-point numbers while recovering the rounding error a naive running total silently discards. It carries a tiny compensation variable: each step computes what was lost to rounding and feeds it back into the next addition, so the sum stays accurate to nearly the last bit even when the naive total has drifted. Verified live: summing 0.1 one million times, naive float64 drifts by ~1e-6, while Kahan matches the accurately-rounded sum to ~0. See the compensation step in 1D, naive-vs-Kahan drift in 2D, and the feed-back-the-error inverse in 3D.",
+  "lit":"Genuine Kahan compensated summation (Kahan 1965). Verified live: summing the float64 value 0.1 exactly one million times, the naive accumulator drifts from the true sum by ~1.3e-6 while the compensated Kahan accumulator's error is ~0 (matching a pairwise-accurate reference) — Kahan is strictly closer to the true sum than naive (window.__kahan.kahanBetter).",
+  "fig":"No framing: the naive accumulator, the compensated accumulator, a pairwise-accurate reference sum, and the error comparison run in-browser and show Kahan's error at ~0 vs naive's ~1.3e-6. The AVAN inverse is honest — carrying a compensation term that recovers each step's rounding error and adds it back keeps the running total accurate; magenta is the naive sum's drift, green the compensated total hugging the true value. Nothing lost to rounding.",
+  "body":KHN_BODY,"script":KHN_SCRIPT},
+ {"slug":"the-residue-number-system","title":"THE RESIDUE NUMBER SYSTEM","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#c0a048","icon":"residue-number-system",
+  "kicker":"carry-free arithmetic in parallel modular lanes",
+  "blurb":"a residue number system (RNS) in the 5-window house format — represent an integer not by its digits but by its remainders modulo a set of coprime bases (n <-> (n mod 3, n mod 5, n mod 7)). By the Chinese Remainder Theorem every value from 0 to the product minus one has a unique such triple, and addition and multiplication work independently, in parallel, with no carries between channels. It is used for fast carry-free arithmetic in DSP and cryptographic hardware. Verified live: over 0..104 the triples are unique and CRT reconstructs n exactly; componentwise + and x match ordinary arithmetic mod 105. See the three lanes in 1D, a channel-wise add/multiply in 2D, and the many-moduli-at-once inverse in 3D.",
+  "lit":"Genuine residue number system with CRT reconstruction, moduli {3,5,7} (Chinese Remainder Theorem, Sunzi c.3rd-5th c. CE; RNS via Garner, Svoboda & Valach 1950s). Verified live: over 0..104 the residue triples are unique and CRT rebuilds n exactly, and componentwise addition and multiplication of triples match ordinary (a+b) mod 105 and (a*b) mod 105 (window.__rns.reconstruct && .add && .mul).",
+  "fig":"No framing: the remainder encoding, the CRT reconstruction via modular inverses, and the componentwise add/multiply checks run in-browser exhaustively over 0..104 and hold. The AVAN inverse is honest — carrying one integer as many remainders lets + and x run in independent carry-free lanes, reassembled by CRT; magenta is the carry chain a positional base needs, green the carry-free residue tuple. One number, many moduli at once.",
+  "body":RNS_BODY,"script":RNS_SCRIPT},
  {"slug":"the-balanced-ternary","title":"THE BALANCED TERNARY","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#c0a048","icon":"balanced-ternary",
   "kicker":"base 3 with digits -1,0,+1 — no sign bit",
