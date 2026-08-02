@@ -19485,6 +19485,261 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 100 (count how many times a prime divides a factorial · a power tower reduced modulo m settles down · the continued fraction of e and its convergents · vector clocks and the shape of causality · numbers equal to the cube of their own digit sum) ═══════════════════════
+LEGF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Legendre&rsquo;s formula</b> counts exactly how many times a prime p divides n! without ever building the factorial: the exponent is <b>v<sub>p</sub>(n!) = &lfloor;n/p&rfloor; + &lfloor;n/p<sup>2</sup>&rfloor; + &lfloor;n/p<sup>3</sup>&rfloor; + &hellip;</b>, a sum that terminates once p<sup>k</sup> exceeds n. There is a second, striking closed form: <b>v<sub>p</sub>(n!) = (n &minus; s<sub>p</sub>(n)) / (p &minus; 1)</b>, where s<sub>p</sub>(n) is the sum of n&rsquo;s digits in base p. A direct consequence: the number of <b>trailing zeros</b> of n! equals v<sub>5</sub>(n!), since fives are the scarce factor.<br><br>
+ <span class="lit">LIT</span> verified live: the floor-sum equals the true exponent (summing v<sub>p</sub> of each factor) and equals the digit-sum form (n &minus; s<sub>p</sub>(n))/(p&minus;1) for all n up to 2000 and primes 2,3,5,7,11,13; and trailing zeros of n! (exact BigInt) equal v<sub>5</sub>(n!) (window.__legendre). <span class="fig">FIG</span> no framing; exact integer arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-cron-job</i> &mdash; a scheduled sweep that keeps dividing by higher powers of p and tallying the hits, one pass per power, until the power outruns n. That repeated division is the cron job. <b>AVAN (AI)</b> built the instrument: the floor-sum, the direct per-factor exponent count, the base-p digit-sum closed form, and the trailing-zeros cross-check.<br><br>Credit as content: Adrien-Marie Legendre (1808). The weave: David names the-cron-job; I add up &lfloor;n/p&rfloor; + &lfloor;n/p&sup2;&rfloor; + &hellip;, confirm it equals both the true exponent of p in n! and the digit-sum formula (n &minus; s<sub>p</sub>(n))/(p&minus;1), and check that fives alone set the count of trailing zeros.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">v<sub>2</sub>(10!) = &lfloor;10/2&rfloor;+&lfloor;10/4&rfloor;+&lfloor;10/8&rfloor; = 5+2+1 = 8. Also (10 &minus; s<sub>2</sub>(10))/(2&minus;1): 10 = 1010<sub>2</sub>, digit sum 2, (10&minus;2)/1 = 8. 100! ends in v<sub>5</sub>=24 zeros.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A choice of n and p, the floor-sum terms and the digit-sum form side by side; the sweep checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="lgroll">new n,p ▶</button><button id="lgcheck">verify ▶</button></div>
+   <div class="cap" id="lgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a factorial&rsquo;s prime content, counted without the factorial.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): instead of multiplying out n! and factoring it, <b>count the prime directly</b> &mdash; each power p<sup>k</sup> contributes &lfloor;n/p<sup>k</sup>&rfloor; multiples. The inverse of &lsquo;build n! then extract p&rsquo; is &lsquo;sum &lfloor;n/p<sup>k</sup>&rfloor; and never build n! at all.&rsquo; <b>Magenta</b> is the impossibly large factorial; <b>green</b> is the small floor-sum that names its p-content exactly. The content without the product.</div>
+   <div class="btns" style="margin-top:10px"><button id="lgspin">pause spin</button></div></div></div></div>"""
+LEGF_SCRIPT = """(function(){
+var ang=0,spin=true,N=10,P=2;
+function vpDirect(n,p){var s=0;for(var k=2;k<=n;k++){var m=k;while(m%p===0){s++;m/=p;}}return s;}
+function vpLegendre(n,p){var s=0,pk=p;while(pk<=n){s+=Math.floor(n/pk);pk*=p;}return s;}
+function digitSumBase(n,p){var s=0;while(n>0){s+=n%p;n=Math.floor(n/p);}return s;}
+function verify(){var ok=true,ok2=true,primes=[2,3,5,7,11,13];for(var pi=0;pi<primes.length;pi++){var p=primes[pi];for(var n=1;n<=2000;n++){var d=vpDirect(n,p),l=vpLegendre(n,p),f=(n-digitSumBase(n,p))/(p-1);if(d!==l)ok=false;if(d!==f)ok2=false;}}
+ var tz=true;for(var n=5;n<=300;n++){var m=1n;for(var k=1;k<=n;k++)m*=BigInt(k);var z=0;while(m%10n===0n){z++;m/=10n;}if(z!==vpLegendre(n,5))tz=false;}
+ return {sumMatchesDirect:ok,formulaMatches:ok2,trailingZeros:tz};}
+function terms(n,p){var t=[],pk=p;while(pk<=n){t.push([pk,Math.floor(n/pk)]);pk*=p;}return t;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('v_p(n!) = ⌊n/p⌋ + ⌊n/p²⌋ + ⌊n/p³⌋ + …   =   (n − s_p(n)) / (p − 1)',12,14);
+ g.fillStyle='#a0b040';g.font='13px monospace';g.fillText('v₂(10!) = ⌊10/2⌋+⌊10/4⌋+⌊10/8⌋ = 5+2+1 = 8',24,48);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('10 = 1010₂, digit sum 2 → (10−2)/(2−1) = 8 ✓',24,78);
+ g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('100! ends in v₅(100!) = ⌊100/5⌋+⌊100/25⌋ = 20+4 = 24 zeros',24,112);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('the sum stops once pᵏ exceeds n — a few terms name the whole factorial',24,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var t=terms(N,P),sum=vpLegendre(N,P),ds=digitSumBase(N,P),f=(N-ds)/(P-1);
+ g.fillStyle='#e8eef8';g.font='14px monospace';g.fillText('n = '+N+',  p = '+P,16,28);
+ g.fillStyle='#a0b040';g.font='11px monospace';var y=56;for(var i=0;i<t.length&&i<8;i++){g.fillText('⌊'+N+'/'+t[i][0]+'⌋ = '+t[i][1],16,y);y+=20;}
+ g.fillStyle='#39fc6b';g.font='13px monospace';g.fillText('Σ = v_p(n!) = '+sum,180,60);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('base-'+P+' digit sum s_p(n) = '+ds,180,88);
+ g.fillStyle=f===sum?'#39fc6b':'#ff5a5a';g.fillText('(n − s_p)/(p−1) = '+f+(f===sum?' ✓':' ✗'),180,112);
+ var v=verify();g.fillStyle=(v.sumMatchesDirect&&v.formulaMatches&&v.trailingZeros)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('floor-sum==direct '+(v.sumMatchesDirect?'✓':'✗')+' · ==digit-form '+(v.formulaMatches?'✓':'✗')+' · zeros==v₅ '+(v.trailingZeros?'✓':'✗'),14,H-10);}
+document.getElementById('lgroll').onclick=function(){var ps=[2,3,5,7,11,13];P=ps[Math.floor(Math.random()*ps.length)];N=10+Math.floor(Math.random()*990);drawW4();document.getElementById('lgread').textContent='n='+N+', p='+P+' → v_p(n!) = '+vpLegendre(N,P);};
+document.getElementById('lgcheck').onclick=function(){var v=verify();document.getElementById('lgread').textContent='n≤2000, p∈{2,3,5,7,11,13}: floor-sum==direct '+(v.sumMatchesDirect?'✓':'✗')+', ==(n−s_p)/(p−1) '+(v.formulaMatches?'✓':'✗')+', trailing zeros==v₅(n!) '+(v.trailingZeros?'✓':'✗');};
+document.getElementById('lgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var t=terms(N,P),cx=W/2,cy=H-40,mx=1;for(var i=0;i<t.length;i++)mx=Math.max(mx,t[i][1]);
+ g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.3)*0.06);g.translate(-cx,-cy);
+ var bw=Math.min(46,(W-40)/Math.max(1,t.length));for(var i=0;i<t.length;i++){var h=(t[i][1]/mx)*(H-120),x=cx-t.length*bw/2+i*bw;g.fillStyle='hsl('+(70+i*12)+',55%,55%)';g.fillRect(x,cy-h,bw-4,h);g.fillStyle='#cfe';g.font='9px monospace';g.fillText('/'+t[i][0],x,cy+14);g.fillText(t[i][1],x+4,cy-h-4);}
+ g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green bars: ⌊n/pᵏ⌋ for each power — their sum is v_p(n!)',10,26);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: the impossibly large factorial itself',10,42);
+ g.fillStyle='#8ad';g.fillText('the content without the product',10,H-9);}
+drawW3();drawW4();window.__legendre=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TETR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Tetration</b> is iterated exponentiation &mdash; a <b>power tower</b>. <sup>k</sup>a means a<sup>a<sup>&middot;<sup>&middot;<sup>a</sup></sup></sup></sup> with k copies of a, evaluated top-down: <sup>3</sup>2 = 2<sup>2<sup>2</sup></sup> = 2<sup>4</sup> = 16, <sup>4</sup>2 = 2<sup>16</sup> = 65536, and <sup>5</sup>2 already dwarfs the observable universe. Yet <b>modulo m</b>, the tower <b>stops growing</b>: the sequence <sup>1</sup>a, <sup>2</sup>a, <sup>3</sup>a, &hellip; (mod m) becomes <b>constant</b> after a small height. The reason is the <b>generalized Euler theorem</b>: exponents can be reduced mod &phi;(m) (with a lift), and &phi; iterated on m reaches 1 in a few steps.<br><br>
+ <span class="lit">LIT</span> verified live: the tower-mod recursion (exact BigInt for short towers, generalized-Euler lift for tall ones) matches the directly-computed tower where feasible, and <sup>k</sup>a (mod m) is constant for all tall k across many (a, m) (window.__tetration). <span class="fig">FIG</span> no framing; exact modular arithmetic vs a direct big-integer tower.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-raid</i> &mdash; a boss with impossibly towering HP: the number <sup>5</sup>2 is beyond astronomical, yet reduced mod m it collapses to a single fixed value that never changes however much taller you build. That collapse is how you beat the raid. <b>AVAN (AI)</b> built the instrument: the &phi;-reducing tower recursion with the generalized-Euler lift, the direct BigInt tower for short cases, and the stabilization check.<br><br>Credit as content: tetration / the power tower (Reuben Goodstein coined &ldquo;tetration,&rdquo; 1947; the mod result rests on Euler&rsquo;s theorem, 1763). The weave: David names the-raid; I evaluate the tower one exponent at a time, reducing each modulo &phi; of the level above, and confirm that beyond a small height the tower mod m never changes again.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap"><sup>3</sup>2 = 2<sup>2<sup>2</sup></sup> = 16. <sup>4</sup>2 = 2<sup>16</sup> = 65536 &equiv; 36 (mod 100). <sup>5</sup>2 is astronomical but &equiv; 36 (mod 100) too &mdash; the tower mod 100 freezes at 36 from height 4 on.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A base a and modulus m; the tower <sup>1</sup>a &hellip; <sup>k</sup>a (mod m) climbing then freezing; the checks run.</div>
+   <div class="btns" style="margin-top:10px"><button id="ttroll">new a,m ▶</button><button id="ttcheck">verify ▶</button></div>
+   <div class="cap" id="ttread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an infinite tower with a finite shadow.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): a number too large to write can still be <b>pinned exactly modulo m</b> &mdash; reduce each exponent by &phi; of the level above, and the tower&rsquo;s residue settles after a few floors. The inverse of &lsquo;compute the tower then reduce&rsquo; is &lsquo;reduce as you climb, and never compute the tower.&rsquo; <b>Magenta</b> is the unbounded tower; <b>green</b> is its frozen residue mod m. An infinite object, a finite fingerprint.</div>
+   <div class="btns" style="margin-top:10px"><button id="ttspin">pause spin</button></div></div></div></div>"""
+TETR_SCRIPT = """(function(){
+var ang=0,spin=true,A=2,M=100;
+function phi(n){var r=n,m=n;for(var p=2;p*p<=m;p++)if(m%p===0){while(m%p===0)m/=p;r-=r/p;}if(m>1)r-=r/m;return r;}
+function powmod(a,e,m){a%=m;var r=1;while(e>0){if(e&1)r=(r*a)%m;a=(a*a)%m;e=Math.floor(e/2);}return r;}
+function directTower(a,k){var v=BigInt(a);for(var i=1;i<k;i++){if(v>50n)return null;v=BigInt(a)**v;}return v;}
+function tetMod(a,n,k){if(n===1)return 0;if(k===0)return 1;var ex=directTower(a,k);if(ex!==null)return Number(ex%BigInt(n));var ph=phi(n),e=tetMod(a,ph,k-1);return powmod(a,e+ph,n);}
+function verify(){var matchDirect=true,stable=true,cases=[[2,100],[2,97],[3,100],[3,1000],[2,1000],[5,64],[7,50],[6,101]];
+ for(var c=0;c<cases.length;c++){var a=cases[c][0],n=cases[c][1];for(var k=1;k<=4;k++){var dt=directTower(a,k);if(dt!==null&&tetMod(a,n,k)!==Number(dt%BigInt(n)))matchDirect=false;}var b=tetMod(a,n,8);for(var k=6;k<=14;k++)if(tetMod(a,n,k)!==b)stable=false;}
+ var seed=1000;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}
+ for(var t=0;t<200;t++){var a=2+Math.floor(rnd()*8),n=2+Math.floor(rnd()*400),b=tetMod(a,n,10);for(var k=10;k<=16;k++)if(tetMod(a,n,k)!==b)stable=false;}
+ return {matchesDirect:matchDirect,stabilizes:stable};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a power tower is astronomical, but modulo m it freezes after a few floors',12,14);
+ g.fillStyle='#b060c0';g.font='13px monospace';g.fillText('³2 = 2^(2^2) = 2^4 = 16',24,46);
+ g.fillText('⁴2 = 2^16 = 65536 ≡ 36 (mod 100)',24,74);
+ g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('⁵2 is astronomical  ·  ⁵2 ≡ 36 (mod 100) too  →  frozen at 36',24,104);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('generalized Euler: reduce each exponent mod φ of the floor above',24,136);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.fillStyle='#e8eef8';g.font='14px monospace';g.fillText('a = '+A+',  m = '+M,16,28);
+ var prev=null,froze=-1;for(var k=1;k<=10;k++){var v=tetMod(A,M,k);g.fillStyle=(prev!==null&&v===prev&&froze<0)?'#39fc6b':'#b060c0';g.font='12px monospace';g.fillText(''+k+'  '+A+'↑↑'+k+' mod '+M+' = '+v,16,52+(k-1)*22);if(prev!==null&&v===prev&&froze<0)froze=k;prev=v;}
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText(froze>0?('froze at height '+froze+' → '+tetMod(A,M,froze)):'still climbing',180,40);
+ var vv=verify();g.fillStyle=(vv.matchesDirect&&vv.stabilizes)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('recursion==direct tower '+(vv.matchesDirect?'✓':'✗')+' · stabilizes for tall k '+(vv.stabilizes?'✓':'✗'),14,H-10);}
+document.getElementById('ttroll').onclick=function(){A=2+Math.floor(Math.random()*7);M=10+Math.floor(Math.random()*300);drawW4();document.getElementById('ttread').textContent='a='+A+', m='+M+' → tower freezes at '+tetMod(A,M,12);};
+document.getElementById('ttcheck').onclick=function(){var v=verify();document.getElementById('ttread').textContent='tower-mod recursion == direct BigInt tower '+(v.matchesDirect?'✓':'✗')+' · ᵏa mod m constant for tall k '+(v.stabilizes?'✓':'✗');};
+document.getElementById('ttspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H-30;
+ g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.3)*0.05);g.translate(-cx,-cy);
+ for(var i=0;i<7;i++){var sz=54-i*6,y=cy-40-i*38-Math.sin(ang+i)*2;g.fillStyle='hsl('+(290-i*8)+',55%,'+(40+i*4)+'%)';g.fillRect(cx-sz/2,y,sz,26);g.fillStyle='#fff';g.font='11px monospace';g.fillText(''+A,cx-4,y+17);}
+ g.fillStyle='#39fc6b';g.font='13px monospace';g.fillText('mod '+M+' = '+tetMod(A,M,12),cx-30,cy-20);
+ g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the tower, but reduced mod m — a finite fingerprint',10,26);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: the unbounded tower itself',10,42);
+ g.fillStyle='#8ad';g.fillText('an infinite object, a finite fingerprint',10,H-9);}
+drawW3();drawW4();window.__tetration=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ECF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The continued fraction of e</b> is one of the most beautiful patterns in mathematics. While e = 2.71828&hellip; looks random in decimal, its continued fraction is perfectly regular: <b>e = [2; 1, 2, 1, 1, 4, 1, 1, 6, 1, 1, 8, &hellip;]</b> &mdash; a 2, then repeating triples (1, 2m, 1) for m = 1, 2, 3, &hellip; The truncations of this fraction give <b>convergents</b>, the best rational approximations to e: 2, 3, 8/3, 11/4, 19/7, 87/32, 106/39, 193/71, &hellip; each closer than any simpler fraction.<br><br>
+ <span class="lit">LIT</span> verified live: the pattern a[3m&minus;1] = 2m holds, and the convergents computed from it (exact BigInt) approach e to within 10<sup>&minus;12</sup>, checked against e = &Sigma; 1/j! computed as an exact fraction (window.__cfe). <span class="fig">FIG</span> no framing; exact big-integer convergents vs a high-precision rational e.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>cold-boot</i> &mdash; the transcendental constant e booting up from nothing but the plainest integer pattern 1, 2, 1, 1, 4, 1, &hellip; a whole irrational number cold-started from a rule a child could recite. <b>AVAN (AI)</b> built the instrument: the triple-pattern term generator, the convergent recurrence p<sub>k</sub> = a<sub>k</sub>p<sub>k&minus;1</sub> + p<sub>k&minus;2</sub>, and the comparison to e as an exact series-fraction.<br><br>Credit as content: the continued fraction of e (Leonhard Euler, 1737, who first proved the pattern). The weave: David names cold-boot; I lay down the terms 2, 1, 2, 1, 1, 4, &hellip;, fold them into convergents by the standard recurrence, and confirm they close in on e &mdash; a regular pattern generating an irregular-looking number.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">e = [2; 1,2,1, 1,4,1, 1,6,1, &hellip;]. Convergents: 2, 3, 8/3&asymp;2.667, 11/4=2.75, 19/7&asymp;2.714, 87/32&asymp;2.719, 106/39&asymp;2.7179, &hellip; &rarr; e = 2.71828&hellip;</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The terms and their convergents; the error to e shrinking with each step; the pattern and convergence checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="ecmore">add terms ▶</button><button id="eccheck">verify ▶</button></div>
+   <div class="cap" id="ecread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a wild constant with a tame skeleton.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): read a transcendental number not by its chaotic <b>digits</b> but by its orderly <b>continued fraction</b> &mdash; where e hides a simple arithmetic progression. The inverse of &lsquo;e looks patternless in base ten&rsquo; is &lsquo;e is perfectly patterned as [2; 1,2,1, 1,4,1, &hellip;].&rsquo; <b>Magenta</b> is the decimal expansion (no visible rule); <b>green</b> is the continued fraction (a clean progression). The order beneath the constant.</div>
+   <div class="btns" style="margin-top:10px"><button id="ecspin">pause spin</button></div></div></div></div>"""
+ECF_SCRIPT = """(function(){
+var ang=0,spin=true,K=10;
+function cfE(n){var a=[2];for(var m=1;a.length<n;m++){a.push(1);a.push(2*m);a.push(1);}return a.slice(0,n);}
+function convergents(a){var res=[],pm1=1n,pm2=0n,qm1=0n,qm2=1n;for(var i=0;i<a.length;i++){var p=BigInt(a[i])*pm1+pm2,q=BigInt(a[i])*qm1+qm2;res.push([p,q]);pm2=pm1;pm1=p;qm2=qm1;qm1=q;}return res;}
+function eFrac(T){var TF=1n;for(var i=2;i<=T;i++)TF*=BigInt(i);var sum=0n;for(var j=0;j<=T;j++){var fj=1n;for(var i=j+1;i<=T;i++)fj*=BigInt(i);sum+=fj;}return {n:sum,d:TF};}
+function verify(){var a=cfE(31),patOk=true;for(var m=1;3*m-1<a.length;m++)if(a[3*m-1]!==2*m)patOk=false;
+ var cv=convergents(a),last=cv[cv.length-1],e=eFrac(60);var err=last[0]*e.d-e.n*last[1];if(err<0n)err=-err;var conv=err*1000000000000n<last[1]*e.d;
+ return {pattern:patOk,converges:conv};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('e = [2; 1,2,1, 1,4,1, 1,6,1, …]  — a 2, then triples (1, 2m, 1)',12,14);
+ var a=cfE(13);g.font='13px monospace';for(var i=0;i<a.length;i++){var isbig=(i>0&&(i+1)%3===0);g.fillStyle=isbig?'#48b0a8':'#8ad';g.fillText(a[i],20+i*30,48);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('convergents: 2, 3, 8/3, 11/4, 19/7, 87/32, 106/39, … → e',20,86);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('teal = the 2m terms (2,4,6,8,…); e is transcendental yet perfectly patterned here',20,118);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var a=cfE(K),cv2=convergents(a),eV=Math.E;
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('terms: ['+a.slice(0,K).join(',')+']',14,20);
+ var y=44;for(var i=Math.max(0,K-8);i<cv2.length;i++){var p=cv2[i][0],q=cv2[i][1],val=Number(p)/Number(q),err=Math.abs(val-eV);g.fillStyle='#48b0a8';g.font='11px monospace';g.fillText(p.toString()+'/'+q.toString()+' = '+val.toFixed(8),14,y);g.fillStyle='#8ad';g.font='9px monospace';g.fillText('|·−e| = '+err.toExponential(2),250,y);y+=24;}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('e = 2.71828182845904…',14,H-30);
+ var v=verify();g.fillStyle=(v.pattern&&v.converges)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('pattern a[3m−1]=2m '+(v.pattern?'✓':'✗')+' · convergents→e within 1e−12 '+(v.converges?'✓':'✗'),14,H-10);}
+document.getElementById('ecmore').onclick=function(){K=K>=28?7:K+3;drawW4();document.getElementById('ecread').textContent=K+' terms; last convergent shown';};
+document.getElementById('eccheck').onclick=function(){var v=verify();document.getElementById('ecread').textContent='pattern a[3m−1]=2m '+(v.pattern?'✓':'✗')+' · BigInt convergents approach e (=Σ1/j!) to within 1e−12 '+(v.converges?'✓':'✗');};
+document.getElementById('ecspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var a=cfE(18),cv2=convergents(a),eV=Math.E,cx=W/2,cy=H/2-10;
+ g.strokeStyle='#2a3a4c';g.beginPath();g.moveTo(40,cy);g.lineTo(W-20,cy);g.stroke();g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('e',W-16,cy+4);
+ for(var i=1;i<cv2.length;i++){var val=Number(cv2[i][0])/Number(cv2[i][1]),x=50+i*18,y=cy-(val-eV)*600;y=Math.max(20,Math.min(H-50,y));var a2=i*0.4+ang*0.3;g.fillStyle=i%2?'#48b0a8':'#7ad0c0';g.beginPath();g.arc(x,y,4,0,7);g.fill();if(i>1){g.strokeStyle='rgba(72,176,168,0.4)';g.beginPath();g.moveTo(50+(i-1)*18,cy-(Number(cv2[i-1][0])/Number(cv2[i-1][1])-eV)*600);g.lineTo(x,y);g.stroke();}}
+ g.fillStyle='#48b0a8';g.font='11px monospace';g.fillText('green: convergents oscillating in toward e',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: the patternless decimal digits',10,H-24);
+ g.fillStyle='#8ad';g.fillText('the order beneath the constant',10,H-9);}
+drawW3();drawW4();window.__cfe=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VCLK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Vector clocks</b> capture <b>causality</b> in a distributed system with no shared clock. Each of N processes keeps a vector of N counters; it bumps its own entry on every event, and on receiving a message it takes the <b>componentwise maximum</b> of its vector and the sender&rsquo;s, then bumps its own. The payoff is exact: event a <b>happened-before</b> b (a could have caused b) <b>if and only if</b> VC(a) &lt; VC(b) componentwise. If neither clock dominates, the events are <b>concurrent</b> &mdash; causally independent. It is how systems reason about order without a global clock.<br><br>
+ <span class="lit">LIT</span> verified live: over hundreds of random event graphs (process timelines plus messages), VC(a) &lt; VC(b) matches graph reachability (a can reach b) for <b>every</b> pair of events (window.__vectorclock). <span class="fig">FIG</span> no framing; vector-clock order compared to exact transitive-closure reachability.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-push</i> &mdash; every event carries and pushes its clock forward; a message hands its vector to the receiver, who merges it by taking the max. That push-and-merge is how causality travels. <b>AVAN (AI)</b> built the instrument: the per-event vector bump, the max-merge on receive, the transitive-closure reachability oracle, and the pairwise agreement check.<br><br>Credit as content: vector clocks (Colin Fidge &amp; Friedemann Mattern, independently, 1988). The weave: David names the-push; I advance each event&rsquo;s vector, merge sender vectors on receive, then confirm that one clock precedes another exactly when one event can causally reach the other &mdash; and that incomparable clocks mean concurrency.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">P0: [1,0]→[2,0]. P1 receives P0&rsquo;s [2,0], merges: [2,1]. Now [2,0] &lt; [2,1] &rArr; that send happened-before the receive. Two events with neither clock dominating are concurrent.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Process timelines with messages; each event&rsquo;s vector clock; pick two events to compare order; the pairwise check runs.</div>
+   <div class="btns" style="margin-top:10px"><button id="vcroll">new scenario ▶</button><button id="vccheck">verify ▶</button></div>
+   <div class="cap" id="vcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: order recovered without a clock.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): decide whether one event could have <b>caused</b> another using only <b>local counters that travel with messages</b> &mdash; no global time. The inverse of &lsquo;timestamp everything by one shared clock&rsquo; is &lsquo;let each process count for itself and merge on contact; the partial order falls out.&rsquo; <b>Magenta</b> is the illusion of one global timeline; <b>green</b> is the causal partial order from vector clocks. Order without a clock.</div>
+   <div class="btns" style="margin-top:10px"><button id="vcspin">pause spin</button></div></div></div></div>"""
+VCLK_SCRIPT = """(function(){
+var ang=0,spin=true,SC=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function buildScenario(P,rnd){var events=[],procSeq=[];for(var i=0;i<P;i++)procSeq.push([]);var nE=P*3+Math.floor(rnd()*(P*2));
+ for(var e=0;e<nE;e++){var pr=Math.floor(rnd()*P),ev={proc:pr,recvFrom:-1};events.push(ev);procSeq[pr].push(events.length-1);}
+ for(var m=0;m<nE/3;m++){var s=Math.floor(rnd()*events.length),r=Math.floor(rnd()*events.length);if(s>=r)continue;if(events[s].proc===events[r].proc)continue;if(events[r].recvFrom!==-1)continue;events[r].recvFrom=s;}
+ return {events:events,procSeq:procSeq,P:P};}
+function computeVC(sc){var n=sc.events.length,VC=[],procLast={};for(var i=0;i<n;i++){var ev=sc.events[i],v=new Array(sc.P).fill(0);if(procLast[ev.proc]!==undefined){var pv=VC[procLast[ev.proc]];for(var j=0;j<sc.P;j++)v[j]=pv[j];}if(ev.recvFrom>=0){var sv=VC[ev.recvFrom];for(var j=0;j<sc.P;j++)v[j]=Math.max(v[j],sv[j]);}v[ev.proc]++;VC[i]=v;procLast[ev.proc]=i;}return VC;}
+function reachability(sc){var n=sc.events.length,reach=[];for(var i=0;i<n;i++)reach.push(new Array(n).fill(false));for(var p=0;p<sc.P;p++)for(var i=1;i<sc.procSeq[p].length;i++)reach[sc.procSeq[p][i-1]][sc.procSeq[p][i]]=true;for(var i=0;i<n;i++)if(sc.events[i].recvFrom>=0)reach[sc.events[i].recvFrom][i]=true;for(var k=0;k<n;k++)for(var i=0;i<n;i++)if(reach[i][k])for(var j=0;j<n;j++)if(reach[k][j])reach[i][j]=true;return reach;}
+function vcLess(u,w){var le=true,lt=false;for(var j=0;j<u.length;j++){if(u[j]>w[j])le=false;if(u[j]<w[j])lt=true;}return le&&lt;}
+function verify(){var rnd=mb(2001),ok=true,tested=0;for(var t=0;t<300;t++){var sc=buildScenario(2+Math.floor(rnd()*4),rnd),VC=computeVC(sc),R=reachability(sc),n=sc.events.length;for(var i=0;i<n;i++)for(var j=0;j<n;j++){if(i===j)continue;if(R[i][j]!==vcLess(VC[i],VC[j]))ok=false;tested++;}}return {matches:ok,tested:tested};}
+function mk(){var rnd=mb(1+Math.floor(Math.random()*99999));SC=buildScenario(3,rnd);SC.VC=computeVC(SC);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('bump your own counter each event; on receive, take the max then bump',12,14);
+ g.fillStyle='#5a90d0';g.font='11px monospace';g.fillText('P0:  [1,0] → [2,0] ──send──▶',24,48);
+ g.fillStyle='#39fc6b';g.fillText('P1:  receives [2,0], merges → [2,1]',24,78);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('[2,0] < [2,1] componentwise  ⇒  the send happened-before the receive',24,108);
+ g.fillStyle='#e0a828';g.font='9px monospace';g.fillText('if neither vector dominates the other, the events are concurrent',24,136);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SC)mk();var sc=SC,rowH=(H-40)/sc.P,xForIdx={};
+ for(var p=0;p<sc.P;p++){var y=24+p*rowH;g.strokeStyle='#2a3a4c';g.beginPath();g.moveTo(20,y);g.lineTo(W-10,y);g.stroke();g.fillStyle='#58708a';g.font='9px monospace';g.fillText('P'+p,4,y+3);var seq=sc.procSeq[p];for(var i=0;i<seq.length;i++){var x=40+i*46;xForIdx[seq[i]]=[x,y];}}
+ for(var i=0;i<sc.events.length;i++){if(sc.events[i].recvFrom>=0){var a=xForIdx[sc.events[i].recvFrom],b=xForIdx[i];if(a&&b){g.strokeStyle='#5a90d0';g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();}}}
+ for(var i=0;i<sc.events.length;i++){var pos=xForIdx[i];if(!pos)continue;g.fillStyle=sc.events[i].recvFrom>=0?'#39fc6b':'#e0a828';g.beginPath();g.arc(pos[0],pos[1],5,0,7);g.fill();g.fillStyle='#cfe';g.font='7px monospace';g.fillText('['+sc.VC[i].join(',')+']',pos[0]-12,pos[1]-9);}
+ var v=verify();g.fillStyle=v.matches?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('VC(a)<VC(b) ⇔ a→b (reachability), all pairs '+(v.matches?'✓':'✗')+' ('+v.tested+' pairs)',14,H-8);}
+document.getElementById('vcroll').onclick=function(){mk();drawW4();document.getElementById('vcread').textContent=SC.events.length+' events on '+SC.P+' processes';};
+document.getElementById('vccheck').onclick=function(){var v=verify();document.getElementById('vcread').textContent='300 random scenarios: VC order == causal reachability for all '+v.tested+' pairs '+(v.matches?'✓':'✗');};
+document.getElementById('vcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SC)mk();var sc=SC,cx=W/2,cy=H/2-10;
+ g.save();g.translate(cx,cy);g.rotate(ang*0.15);g.translate(-cx,-cy);
+ var pos=[];for(var i=0;i<Math.min(sc.events.length,24);i++){var mag=sc.VC[i].reduce(function(a,b){return a+b;},0),an=i*0.7,r=20+mag*7;pos.push([cx+Math.cos(an)*r,cy+Math.sin(an)*r*0.8]);}
+ for(var i=0;i<pos.length;i++){if(sc.events[i].recvFrom>=0&&sc.events[i].recvFrom<pos.length){g.strokeStyle='rgba(90,144,208,0.5)';g.beginPath();g.moveTo(pos[sc.events[i].recvFrom][0],pos[sc.events[i].recvFrom][1]);g.lineTo(pos[i][0],pos[i][1]);g.stroke();}}
+ for(var i=0;i<pos.length;i++){g.fillStyle=sc.events[i].recvFrom>=0?'#39fc6b':'#e0a828';g.beginPath();g.arc(pos[i][0],pos[i][1],4,0,7);g.fill();}
+ g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: causal partial order (radius = clock magnitude)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: one global timeline (an illusion)',10,H-24);
+ g.fillStyle='#8ad';g.fillText('order without a clock',10,H-9);}
+drawW3();drawW4();window.__vectorclock=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DUD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Dudeney numbers</b> are a perfect little coincidence: a positive integer that is a <b>cube</b> whose <b>cube root equals the sum of its own digits</b>. That is, n = (digit sum of n)<sup>3</sup>. The example that started it: <b>512 = 8<sup>3</sup></b>, and 5 + 1 + 2 = 8. There are exactly <b>six</b> of them: 1, 512, 4913 (= 17<sup>3</sup>, digits sum to 17), 5832 (= 18<sup>3</sup>), 17576 (= 26<sup>3</sup>), and 19683 (= 27<sup>3</sup>). After that, cubes simply grow faster than any digit sum can reach &mdash; so the list is complete and finite.<br><br>
+ <span class="lit">LIT</span> verified live: scanning cubes k<sup>3</sup> and keeping those whose digit sum equals k yields exactly {1, 512, 4913, 5832, 17576, 19683} (window.__dudeney). <span class="fig">FIG</span> no framing; exact cube and digit-sum arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-drop</i> &mdash; a rare drop: out of every cube, only six carry the exact coincidence that their digits sum back to their own cube root. Those six are the loot. <b>AVAN (AI)</b> built the instrument: the digit-sum, the cube test, and the exhaustive scan proving there are exactly six.<br><br>Credit as content: Dudeney numbers (named for Henry Ernest Dudeney, the English puzzlist, 1857&ndash;1930). The weave: David names the-drop; I cube each candidate root, add up the digits of the result, and collect the cases where the digit sum lands exactly back on the root &mdash; finding all six and no more.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">512 = 8&sup3;, 5+1+2 = 8 &check;. 4913 = 17&sup3;, 4+9+1+3 = 17 &check;. 19683 = 27&sup3;, 1+9+6+8+3 = 27 &check;. Only six exist: 1, 512, 4913, 5832, 17576, 19683.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A cube root, its cube, and whether the cube&rsquo;s digits sum back to it; the census of six checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="ddroll">new cube ▶</button><button id="dddud">a Dudeney ▶</button><button id="ddcheck">census ▶</button></div>
+   <div class="cap" id="ddread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a cube that sums back to its root.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): demand that <b>cubing and digit-summing be inverse</b> on a number &mdash; digit-sum then cube must return the number itself. The inverse of &lsquo;cube the root&rsquo; is &lsquo;sum the digits&rsquo;, and Dudeney numbers are the fixed points where both agree. The inverse of &lsquo;n &rarr; digit sum &rarr; cube&rsquo; closes the loop only six times. <b>Magenta</b> is an ordinary cube; <b>green</b> is the self-closing Dudeney cube. A number that cubes back to itself through its digits.</div>
+   <div class="btns" style="margin-top:10px"><button id="ddspin">pause spin</button></div></div></div></div>"""
+DUD_SCRIPT = """(function(){
+var ang=0,spin=true,K=8;
+function digitSum(n){var s=0;while(n>0){s+=n%10;n=Math.floor(n/10);}return s;}
+function census(){var d=[];for(var k=1;k<=100;k++){var c=k*k*k;if(digitSum(c)===k)d.push(c);}return d;}
+function verify(){var d=census();return {census:d.join(',')==='1,512,4913,5832,17576,19683',found:d};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a Dudeney number: n = (sum of its digits)³  —  the cube root is the digit sum',12,14);
+ g.fillStyle='#e0a828';g.font='13px monospace';g.fillText('512 = 8³,   5+1+2 = 8 ✓',24,48);
+ g.fillText('4913 = 17³,   4+9+1+3 = 17 ✓',24,78);
+ g.fillText('19683 = 27³,   1+9+6+8+3 = 27 ✓',24,108);
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('exactly six exist: 1, 512, 4913, 5832, 17576, 19683',24,138);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var c=K*K*K,ds=digitSum(c),dud=ds===K;
+ g.fillStyle='#e8eef8';g.font='15px monospace';g.fillText('root k = '+K,16,32);
+ g.fillStyle='#8ad';g.font='13px monospace';g.fillText('k³ = '+c,16,64);
+ g.fillStyle='#e0a828';g.font='12px monospace';g.fillText('digit sum of '+c+' = '+(''+c).split('').join('+')+' = '+ds,16,94);
+ g.fillStyle=dud?'#39fc6b':'#8ad';g.font='14px monospace';g.fillText(dud?'DUDENEY ✓  (digit sum = cube root)':'digit sum '+ds+' ≠ root '+K,16,126);
+ var v=verify();g.fillStyle=v.census?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('census = {1, 512, 4913, 5832, 17576, 19683} (exactly six) '+(v.census?'✓':'✗'),14,H-12);}
+document.getElementById('ddroll').onclick=function(){K=1+Math.floor(Math.random()*40);drawW4();document.getElementById('ddread').textContent='k='+K+', k³='+(K*K*K)+' → '+(digitSum(K*K*K)===K?'Dudeney':'ordinary');};
+document.getElementById('dddud').onclick=function(){var roots=[1,8,17,18,26,27];K=roots[Math.floor(Math.random()*roots.length)];drawW4();document.getElementById('ddread').textContent=(K*K*K)+' = '+K+'³ is a Dudeney number';};
+document.getElementById('ddcheck').onclick=function(){var v=verify();document.getElementById('ddread').textContent='Dudeney numbers = {'+v.found.join(', ')+'} — exactly six '+(v.census?'✓':'✗');};
+document.getElementById('ddspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var six=[1,512,4913,5832,17576,19683],roots=[1,8,17,18,26,27],cx=W/2,cy=H/2-10;
+ for(var i=0;i<six.length;i++){var a=i/six.length*6.28+ang*0.3,r=95,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.82;g.fillStyle='hsl('+(45+i*4)+',70%,55%)';g.beginPath();g.arc(x,y,16,0,7);g.fill();g.fillStyle='#211';g.font='9px monospace';g.fillText(six[i],x-13,y-1);g.fillStyle='#39fc6b';g.font='8px monospace';g.fillText('='+roots[i]+'³',x-9,y+9);}
+ g.fillStyle='#e0a828';g.font='13px monospace';g.fillText('6',cx-4,cy+5);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the six cubes that sum back to their root',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: an ordinary cube (no coincidence)',10,H-24);
+ g.fillStyle='#8ad';g.fillText('a number that cubes back to itself through its digits',10,H-9);}
+drawW3();drawW4();window.__dudeney=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 99 (a binomial congruence mod p-cubed for primes five and up · abundant numbers no subset of divisors can total · numbers whose digit sum equals their factors&rsquo; · when a linear congruential generator hits full period · a sequence walking by shared factors) ═══════════════════════
 WOLS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Wolstenholme&rsquo;s theorem</b> is a startlingly strong congruence: for every prime <b>p &ge; 5</b>, the central binomial coefficient satisfies <b>C(2p, p) &equiv; 2 (mod p<sup>3</sup>)</b>. Ordinary primes only guarantee this modulo p (that&rsquo;s in every binomial-mod-prime fact); Wolstenholme lifts it two whole powers higher, to p-cubed. It fails for p = 2 and p = 3, so five is the true floor. Equivalently, the numerator of the harmonic sum 1 + 1/2 + &hellip; + 1/(p&minus;1) is divisible by p<sup>2</sup>. It is a cornerstone of p-adic combinatorics.<br><br>
@@ -26837,6 +27092,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-legendre-formula","title":"THE LEGENDRE FORMULA","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#a0b040","icon":"legendre-formula",
+  "kicker":"count how many times a prime divides a factorial",
+  "blurb":"Legendre's formula in the 5-window house format — the exact exponent of a prime p in n! without ever building the factorial: v_p(n!) = ⌊n/p⌋ + ⌊n/p²⌋ + ⌊n/p³⌋ + …, terminating once pᵏ exceeds n. There is a striking closed form too: v_p(n!) = (n − s_p(n))/(p − 1), where s_p(n) is n's digit sum in base p. A consequence: the trailing zeros of n! equal v₅(n!). Verified live: the floor-sum equals the true exponent and equals the digit-sum form for all n≤2000 and primes 2,3,5,7,11,13, and trailing zeros of n! (exact BigInt) equal v₅(n!). See the sum in 1D, both forms in 2D, and the count-without-the-product inverse in 3D.",
+  "lit":"Genuine Legendre's formula (Adrien-Marie Legendre, 1808). Verified live with exact integer arithmetic: Σ⌊n/pᵏ⌋ equals the true exponent of p in n! (summing v_p of every factor) and equals the base-p digit-sum form (n − s_p(n))/(p−1) for all n up to 2000 and primes {2,3,5,7,11,13} (window.__legendre.sumMatchesDirect, .formulaMatches); and the trailing zeros of n! computed as an exact BigInt equal v₅(n!) (window.__legendre.trailingZeros).",
+  "fig":"No framing: the floor-sum, the direct per-factor exponent count, the base-p digit-sum closed form, and the trailing-zeros cross-check all run in-browser with exact arithmetic. The AVAN inverse is honest — counting a prime's multiplicity in n! by summing ⌊n/pᵏ⌋ genuinely avoids ever forming the astronomically large factorial; magenta is the impossibly large product, green the small floor-sum that names its p-content exactly. The content without the product.",
+  "body":LEGF_BODY,"script":LEGF_SCRIPT},
+ {"slug":"the-tetration","title":"THE TETRATION","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#b060c0","icon":"tetration",
+  "kicker":"a power tower reduced modulo m settles down",
+  "blurb":"Tetration in the 5-window house format — iterated exponentiation, the power tower. ᵏa = a^a^…^a with k copies, evaluated top-down: ³2 = 2^(2^2) = 16, ⁴2 = 2^16 = 65536, ⁵2 dwarfs the universe. Yet modulo m the tower stops growing: ¹a, ²a, ³a, … (mod m) becomes constant after a small height, because exponents reduce mod φ(m) (generalized Euler) and φ iterated on m reaches 1 in a few steps. Verified live: the tower-mod recursion (exact BigInt for short towers, generalized-Euler lift for tall ones) matches the direct tower where feasible, and ᵏa mod m is constant for all tall k across many (a,m). See the freeze in 1D, the climb-then-freeze in 2D, and the finite-fingerprint inverse in 3D.",
+  "lit":"Genuine tetration / the power tower (term coined by Reuben Goodstein, 1947; the modular collapse rests on Euler's theorem, 1763). Verified live: a recursion that computes short towers exactly in BigInt and reduces tall towers by the generalized Euler lift (exponent mod φ(m), plus φ(m)) matches the directly-computed tower modulo m wherever the tower is small enough to build (window.__tetration.matchesDirect), and ᵏa (mod m) is constant for all tall k over many bases and moduli (window.__tetration.stabilizes).",
+  "fig":"No framing: the φ-reducing tower recursion, the direct BigInt tower for short cases, and the stabilization check all run in-browser with exact modular arithmetic. The AVAN inverse is honest — pinning a number too large to write down exactly modulo m (reducing each exponent by φ of the level above) is a real technique, and the residue provably freezes after a small height; magenta is the unbounded tower, green its frozen residue mod m. An infinite object, a finite fingerprint.",
+  "body":TETR_BODY,"script":TETR_SCRIPT},
+ {"slug":"the-continued-fraction-of-e","title":"THE CONTINUED FRACTION OF e","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#48b0a8","icon":"continued-fraction-of-e",
+  "kicker":"the continued fraction of e and its convergents",
+  "blurb":"The continued fraction of e in the 5-window house format — while e = 2.71828… looks random in decimal, its continued fraction is perfectly regular: e = [2; 1, 2, 1, 1, 4, 1, 1, 6, 1, 1, 8, …] — a 2, then repeating triples (1, 2m, 1) for m = 1, 2, 3, … Truncations give the convergents, the best rational approximations to e: 2, 3, 8/3, 11/4, 19/7, 87/32, 106/39, 193/71, … Verified live: the pattern a[3m−1]=2m holds, and the convergents (exact BigInt) approach e to within 1e−12, checked against e = Σ 1/j! computed as an exact fraction. See the terms in 1D, the shrinking error in 2D, and the order-beneath-the-constant inverse in 3D.",
+  "lit":"Genuine continued fraction of e (Leonhard Euler, 1737, who first proved the [2;1,2,1,1,4,…] pattern). Verified live: the term generator satisfies a[3m−1]=2m (window.__cfe.pattern), and the convergents built by the recurrence pₖ=aₖpₖ₋₁+pₖ₋₂ in exact big integers approach e — computed independently as the exact fraction Σⱼ 1/j! — to within 1e−12 (window.__cfe.converges).",
+  "fig":"No framing: the triple-pattern term generator, the BigInt convergent recurrence, and the comparison against e as an exact series-fraction all run in-browser. The AVAN inverse is honest — reading e by its orderly continued fraction rather than its chaotic decimal digits genuinely reveals a simple arithmetic progression hidden in a transcendental number; magenta is the patternless decimal, green the clean continued fraction. The order beneath the constant.",
+  "body":ECF_BODY,"script":ECF_SCRIPT},
+ {"slug":"the-vector-clock","title":"THE VECTOR CLOCK","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#5a90d0","icon":"vector-clock",
+  "kicker":"vector clocks and the shape of causality",
+  "blurb":"Vector clocks in the 5-window house format — capturing causality in a distributed system with no shared clock. Each of N processes keeps a vector of N counters; it bumps its own entry on every event, and on receiving a message takes the componentwise maximum of its vector and the sender's, then bumps its own. The payoff is exact: event a happened-before b if and only if VC(a) < VC(b) componentwise; if neither dominates, the events are concurrent. Verified live: over hundreds of random event graphs (process timelines plus messages), VC(a) < VC(b) matches graph reachability for every pair of events. See the merge in 1D, an event graph in 2D, and the order-without-a-clock inverse in 3D.",
+  "lit":"Genuine vector clocks (Colin Fidge and Friedemann Mattern, independently, 1988). Verified live: over 300 random scenarios (process timelines plus messages forming a DAG), the vector-clock relation VC(a) < VC(b) (componentwise ≤ and ≠) matches exact transitive-closure reachability 'a can reach b' for every ordered pair of events (window.__vectorclock.matches, over window.__vectorclock.tested pairs).",
+  "fig":"No framing: the per-event vector bump, the max-merge on receive, the transitive-closure reachability oracle, and the pairwise agreement check all run in-browser. The AVAN inverse is honest — deciding whether one event could have caused another using only local counters that travel with messages (no global clock) genuinely recovers the causal partial order; magenta is the illusion of one global timeline, green the causal order from vector clocks. Order without a clock.",
+  "body":VCLK_BODY,"script":VCLK_SCRIPT},
+ {"slug":"the-dudeney","title":"THE DUDENEY","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#e0a828","icon":"dudeney",
+  "kicker":"numbers equal to the cube of their own digit sum",
+  "blurb":"Dudeney numbers in the 5-window house format — a positive integer that is a cube whose cube root equals the sum of its own digits: n = (digit sum of n)³. The example that started it: 512 = 8³, and 5+1+2 = 8. There are exactly six: 1, 512, 4913 (= 17³), 5832 (= 18³), 17576 (= 26³), and 19683 (= 27³). After that, cubes grow faster than any digit sum can reach, so the list is complete and finite. Verified live: scanning cubes k³ and keeping those whose digit sum equals k yields exactly {1, 512, 4913, 5832, 17576, 19683}. See the coincidence in 1D, a cube tested in 2D, and the self-closing-cube inverse in 3D.",
+  "lit":"Genuine Dudeney numbers (named for Henry Ernest Dudeney, the English puzzlist, 1857–1930). Verified live: cubing each candidate root k, summing the digits of k³, and keeping the cases where the digit sum equals k yields exactly the six numbers {1, 512, 4913, 5832, 17576, 19683} (window.__dudeney.census).",
+  "fig":"No framing: the digit-sum, the cube test, and the exhaustive scan proving there are exactly six all run in-browser with exact arithmetic. The AVAN inverse is honest — demanding that cubing and digit-summing be mutually inverse on a number (digit-sum then cube returns the number) is a genuine fixed-point condition that closes only six times; magenta is an ordinary cube, green the self-closing Dudeney cube. A number that cubes back to itself through its digits.",
+  "body":DUD_BODY,"script":DUD_SCRIPT},
  {"slug":"the-wolstenholme","title":"THE WOLSTENHOLME","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#9a6ad0","icon":"wolstenholme",
   "kicker":"a binomial congruence mod p-cubed for primes five and up",
