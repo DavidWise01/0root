@@ -36,7 +36,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 1. THE CYCLIC TAG — cyclic tag system (Cook's Rule-110 universality engine). CLAIM: re-derives documented word sequence step-by-step.
 2. THE BUSY BEAVER — n-state halting champions. CLAIM: BB(3) halts 21 steps/6 ones, BB(2) 6 steps/4 ones, re-simulated from blank.
 3. THE WANG DOMINOES [BUILT] — edge-colored tiles. CLAIM: backtracking fills N×N respecting colors; recolor one edge → 0 solutions (exhaustive).
-4. THE POST DOMINOES — Post Correspondence Problem. CLAIM: known solution concatenates equal top/bottom; unsolvable one → no match ≤bound.
+4. THE POST DOMINOES [BUILT] — Post Correspondence Problem. CLAIM: known solution concatenates equal top/bottom; unsolvable one → no match ≤bound.
 5. THE MARGOLUS MIRROR — reversible block CA (Critters). CLAIM: forward T then inverse T = exact start; particle count conserved.
 6. THE SKI FOREST [BUILT] — combinatory logic S,K,I. CLAIM: S K K x → x for sampled x; S(K S)K → B (composition), by rewriting to normal form.
 7. THE BETA REDUCER [BUILT] — untyped λ-calculus, Church numerals. CLAIM: MULT 2 3 β-reduces to Church 6; SUCC(SUCC ZERO)=2, structural compare.
@@ -55,7 +55,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 2. THE NUMERAL [BUILT] — rANS (asymmetric numeral systems). CLAIM: encode→decode round-trips bytes; bits/symbol within a fraction of Shannon entropy.
 3. THE COUNTER OF MULTITUDES — HyperLogLog. CLAIM: distinct-count estimate within ~1.04/√m of exact Set over N uniques.
 4. THE GOLDEN CODE — Zeckendorf/Fibonacci self-delimiting code (ends "11"). CLAIM: greedy no-adjacent + sums to n; stream splits uniquely at "11".
-5. THE HOMOMORPH — Paillier (toy). CLAIM: Dec(Enc(a)·Enc(b))=a+b and Dec(Enc(a)^k)=k·a over random a,b,k.
+5. THE HOMOMORPH [BUILT] — Paillier (toy). CLAIM: Dec(Enc(a)·Enc(b))=a+b and Dec(Enc(a)^k)=k·a over random a,b,k.
 6. THE WHISPER NETWORK — LDPC bit-flipping decoder. CLAIM: corrupt valid codeword ≤k errors → iterative flipping restores (H·c=0).
 7. THE SQUARE ROOT IN THE RING — Tonelli–Shanks modular sqrt. CLAIM: returned r satisfies r²≡n (mod p); non-residues flagged via Legendre.
 8. THE OUROBOROS STRING — de Bruijn sequence. CLAIM: cyclic length b^k contains all b^k k-grams exactly once (enumerate windows).
@@ -96,7 +96,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 7. THE LEDGER THAT LOSES NOTHING [BUILT] — Kahan summation. CLAIM: sum 1e6×0.1: naive float32 drifts, Kahan within ~1 ULP of exact.
 8. THE CURVE THAT FILLS [BUILT] THE PLANE — Hilbert curve. CLAIM: index↔(x,y) bijection over N×N; consecutive indices Manhattan-adjacent (=1).
 9. THE ELECTRON MAZE — Wireworld (dup of B8 — pick one). CLAIM: gate truth tables + period-verified clock.
-10. THE EMPTY CIRCLE LAW — Bowyer–Watson Delaunay. CLAIM: every triangle's circumcircle empty; maximizes min angle vs random triangulation.
+10. THE EMPTY CIRCLE LAW [BUILT] — Bowyer–Watson Delaunay. CLAIM: every triangle's circumcircle empty; maximizes min angle vs random triangulation.
 11. THE MEAN OF TWO MEANS — Gauss–Legendre AGM for π. CLAIM: π to >1e-14 in ~4 iters; correct-digit count roughly doubles each pass.
 12. THE POLITE SCATTER [BUILT] — Bridson Poisson-disk. CLAIM: all pairs ≥ r apart (no violations); blue-noise ring spectrum vs clumpy random.
 13. THE LOADED-DICE TABLE — Walker's alias method. CLAIM: 1e6 draws reproduce target probs <0.5%/outcome; O(1) per draw.

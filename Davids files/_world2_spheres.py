@@ -19485,6 +19485,248 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 76 (add without decrypting · dominoes that can't be decided · rank a symbol through a tree of bits · triangles with empty hearts · an odometer whose wheels grow) ═══════════════════════
+PLR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Paillier cryptosystem</b> is <b>additively homomorphic</b>: you can <b>add two encrypted numbers without ever decrypting them</b>. Multiplying two ciphertexts yields an encryption of the <b>sum</b> of the plaintexts, and raising a ciphertext to a power k yields an encryption of the plaintext times k. Encryption is Enc(m,r) = g<sup>m</sup>&middot;r<sup>n</sup> mod n<sup>2</sup> with a fresh random r; the randomness makes every encryption of the same number look different, yet the algebra still lines up. It underpins private voting and encrypted aggregation.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 trials, Dec(Enc(a)&middot;Enc(b)) = a+b and Dec(Enc(a)<sup>k</sup>) = k&middot;a, all mod n (window.__paillier). <span class="fig">FIG</span> no framing; exact (toy 12-bit modulus).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-root-kit</i> &mdash; the deep capability to operate on data you cannot read. Paillier is that capability: arithmetic on ciphertext. <b>AVAN (AI)</b> built the instrument: the key schedule, the randomized encryption, the L-function decryption, and the homomorphic add / scalar-multiply checks (BigInt, r coprime to n).<br><br>Credit as content: Pascal Paillier (1999). The weave: David names the root-kit; I multiply ciphertexts and raise them to powers, then decrypt to confirm the plaintext really added and scaled &mdash; computation under the lock.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Enc(a) &times; Enc(b) mod n<sup>2</sup> is an encryption of a+b. Decrypting the product recovers the sum &mdash; the two numbers were added while both stayed sealed.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Encrypt a and b (fresh randomness each time), multiply the ciphertexts, decrypt &mdash; and watch a+b appear, never having decrypted a or b.</div>
+   <div class="btns" style="margin-top:10px"><button id="plroll">new a,b ▶</button><button id="plcheck">verify 200 ▶</button></div>
+   <div class="cap" id="plread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: arithmetic performed on sealed numbers.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): <b>add numbers you cannot see</b> &mdash; multiply their ciphertexts and the plaintexts add, thanks to g<sup>a</sup>&middot;g<sup>b</sup> = g<sup>a+b</sup>, with random r<sup>n</sup> factors that decryption strips away. The inverse of &lsquo;decrypt, add, re-encrypt&rsquo; is &lsquo;multiply the ciphertexts &mdash; the sum is already inside.&rsquo; <b>Magenta</b> is the plaintext you never expose; <b>green</b> is the sealed sum. Computation under the lock.</div>
+   <div class="btns" style="margin-top:10px"><button id="plspin">pause spin</button></div></div></div></div>"""
+PLR_SCRIPT = """(function(){
+var ang=0,spin=true,A=42,B=17;
+function egcd(a,b){if(b===0n)return [a,1n,0n];var r=egcd(b,a%b);return [r[0],r[2],r[1]-(a/b)*r[2]];}
+function modinv(a,m){var r=egcd(((a%m)+m)%m,m);return ((r[1]%m)+m)%m;}
+function modpow(b,e,m){b%=m;var r=1n;while(e>0n){if(e&1n)r=r*b%m;b=b*b%m;e>>=1n;}return r;}
+function lcmn(a,b){return a/egcd(a,b)[0]*b;}function gcdn(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+var p=61n,q=53n,n=p*q,n2=n*n,lam=lcmn(p-1n,q-1n),g=n+1n,mu=modinv(lam,n),N=Number(n);
+function L(x){return (x-1n)/n;}
+function enc(m,r){return (modpow(g,m,n2)*modpow(r,n,n2))%n2;}
+function dec(c){return (L(modpow(c,lam,n2))*mu)%n;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function coR(rnd){var r;do{r=BigInt(2+Math.floor(rnd()*(N-2)));}while(gcdn(r,n)!==1n);return r;}
+function verify(){var rnd=mb(200),addOk=true,mulOk=true;for(var t=0;t<200;t++){var a=BigInt(Math.floor(rnd()*N)),b=BigInt(Math.floor(rnd()*N)),k=BigInt(Math.floor(rnd()*20)),ca=enc(a,coR(rnd)),cb=enc(b,coR(rnd));if(dec((ca*cb)%n2)!==((a+b)%n))addOk=false;if(dec(modpow(ca,k,n2))!==((k*a)%n))mulOk=false;}return {add:addOk,scalarMul:mulOk};}
+function drawW3(){var cv=document.getElementById('w3'),g2=cv.getContext('2d'),W=cv.width,H=cv.height;g2.clearRect(0,0,W,H);g2.fillStyle='#8ad';g2.font='10px monospace';g2.fillText('Enc(a) × Enc(b) mod n² = Enc(a+b) — added while sealed',12,14);
+ g2.fillStyle='#a878c0';g2.fillRect(40,50,90,40);g2.fillStyle='#fff';g2.font='11px monospace';g2.fillText('Enc(a)',54,74);g2.fillStyle='#8ad';g2.fillText('×',140,74);g2.fillStyle='#a878c0';g2.fillRect(160,50,90,40);g2.fillStyle='#fff';g2.fillText('Enc(b)',174,74);
+ g2.fillStyle='#8ad';g2.fillText('→',260,74);g2.fillStyle='#39fc6b';g2.fillRect(285,50,110,40);g2.fillStyle='#042';g2.fillText('Enc(a+b)',298,74);
+ g2.fillStyle='#8ad';g2.font='9px monospace';g2.fillText('decrypt only at the very end → a+b',40,120);}
+function drawW4(){var cv=document.getElementById('w4'),g2=cv.getContext('2d'),W=cv.width,H=cv.height;g2.clearRect(0,0,W,H);var rnd=mb((Math.random()*1e9)|0),ca=enc(BigInt(A),coR(rnd)),cb=enc(BigInt(B),coR(rnd)),prod=(ca*cb)%n2,got=Number(dec(prod));
+ g2.fillStyle='#e8eef8';g2.font='13px monospace';g2.fillText('a = '+A+',  b = '+B,12,24);
+ g2.fillStyle='#a878c0';g2.font='9px monospace';g2.fillText('Enc(a) = '+ca.toString().slice(0,40),12,48);g2.fillText('Enc(b) = '+cb.toString().slice(0,40),12,64);
+ g2.fillStyle='#c0a048';g2.fillText('Enc(a)·Enc(b) mod n² = '+prod.toString().slice(0,34),12,88);
+ g2.fillStyle='#39fc6b';g2.font='13px monospace';g2.fillText('decrypt → '+got,12,116);
+ g2.fillStyle='#8ad';g2.font='11px monospace';g2.fillText('a + b mod n = '+((A+B)%N),12,140);
+ var ok=got===(A+B)%N;g2.fillStyle=ok?'#39fc6b':'#ff5a5a';g2.font='11px monospace';g2.fillText('added under encryption, a & b never decrypted '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('plroll').onclick=function(){A=Math.floor(Math.random()*1000);B=Math.floor(Math.random()*1000);drawW4();document.getElementById('plread').textContent='Enc('+A+')·Enc('+B+') decrypts to '+((A+B)%N);};
+document.getElementById('plcheck').onclick=function(){var v=verify();document.getElementById('plread').textContent='200 trials: Dec(Enc(a)·Enc(b))=a+b '+(v.add?'✓':'✗')+' · Dec(Enc(a)^k)=k·a '+(v.scalarMul?'✓':'✗');};
+document.getElementById('plspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g2=cv.getContext('2d'),W=cv.width,H=cv.height;g2.clearRect(0,0,W,H);var rnd=mb(7),cx=W/2,cy=H/2-20;
+ for(var i=0;i<80;i++){var m=i,c=enc(BigInt(m),coR(rnd)),cs=c.toString(2),a=i/80*6.28+ang*0.3,r=40+i,x=cx+Math.cos(a)*(40+(cs.length%50)),y=cy+Math.sin(a)*(40+(cs.length%50))*0.7;g2.fillStyle='hsl('+(i/80*300)+',60%,55%)';g2.beginPath();g2.arc(x,y,2.5,0,7);g2.fill();}
+ g2.fillStyle='#39fc6b';g2.font='11px monospace';g2.fillText('green: ciphertexts — each a scrambled sealed number',10,H-40);
+ g2.fillStyle='#ff2d95';g2.fillText('magenta idea: the plaintext you never expose',10,H-24);
+ g2.fillStyle='#8ad';g2.font='10px monospace';g2.fillText('computation under the lock (add without decrypting)',10,H-9);}
+drawW3();drawW4();window.__paillier=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PCP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Post Correspondence Problem</b> is a deceptively simple puzzle that is <b>undecidable</b>. You are given <b>dominoes</b>, each with a top string and a bottom string; you must find a <b>sequence</b> of them (repeats allowed) so the concatenated tops <b>exactly equal</b> the concatenated bottoms. No algorithm can decide, in general, whether a given set has a solution &mdash; yet for specific sets a bounded search either <b>finds</b> one or exhausts all short sequences.<br><br>
+ <span class="lit">LIT</span> verified live: a known solvable set yields a sequence whose tops equal its bottoms, while a &ldquo;top-heavy&rdquo; set (every top longer than its bottom) provably has <b>no</b> solution up to the search depth (window.__pcp). <span class="fig">FIG</span> the bounded solver is exact; general undecidability is cited, not run.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>segfault</i> &mdash; the crash you cannot always predict, mirroring a question no algorithm can always answer. The Post Correspondence Problem is that undecidable question in miniature. <b>AVAN (AI)</b> built the instrument: the domino match, the BFS over difference-strings, the solution verifier, and the top-heavy no-solution case.<br><br>Credit as content: Emil Post (1946). The weave: David names segfault; I search the tree of partial matches for a sequence whose tops meet its bottoms, and confirm a top-heavy set can never match &mdash; noting the general problem is undecidable.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Stack dominoes left to right; read the tops as one string and the bottoms as another. A solution is a sequence where those two strings come out <b>identical</b> &mdash; one side never gets ahead by the end.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A domino set; search for a matching sequence and watch the tops and bottoms line up character for character.</div>
+   <div class="btns" style="margin-top:10px"><button id="pcroll">toggle set ▶</button><button id="pccheck">verify ▶</button></div>
+   <div class="cap" id="pcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a sequence where tops and bottoms coincide.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): a puzzle stated in <b>strings and dominoes</b> encodes an <b>undecidable</b> question &mdash; is there any sequence making tops equal bottoms? A bounded search answers specific instances but no general algorithm can. The inverse of &lsquo;surely a string-matching puzzle is decidable&rsquo; is &lsquo;domino concatenation is Turing-powerful &mdash; undecidable.&rsquo; <b>Magenta</b> is the infinite unexplored sequences; <b>green</b> is the one that matches. Undecidability in dominoes.</div>
+   <div class="btns" style="margin-top:10px"><button id="pcspin">pause spin</button></div></div></div></div>"""
+PCP_SCRIPT = """(function(){
+var ang=0,spin=true,WHICH=0;
+var SETS=[{name:'solvable',dom:[['a','baa'],['ab','aa'],['bba','bb']]},{name:'top-heavy (unsolvable)',dom:[['ab','a'],['b','a'],['aab','a']]}];
+function solve(dom,maxDepth){var queue=[];for(var i=0;i<dom.length;i++){var t=dom[i][0],b=dom[i][1];if(t===b)return [i];if(t.indexOf(b)===0)queue.push({diff:t.slice(b.length),side:'T',seq:[i]});else if(b.indexOf(t)===0)queue.push({diff:b.slice(t.length),side:'B',seq:[i]});}
+ var seen=new Set(),head=0;while(head<queue.length){var st=queue[head++];if(st.seq.length>maxDepth)continue;var key=st.side+st.diff;if(seen.has(key))continue;seen.add(key);
+  for(var i=0;i<dom.length;i++){var t=dom[i][0],b=dom[i][1],top=(st.side==='T')?st.diff+t:t,bot=(st.side==='T')?b:st.diff+b,m=Math.min(top.length,bot.length),match=true;for(var j=0;j<m;j++)if(top[j]!==bot[j]){match=false;break;}if(!match)continue;
+   if(top===bot)return st.seq.concat([i]);if(top.length>bot.length)queue.push({diff:top.slice(bot.length),side:'T',seq:st.seq.concat([i])});else queue.push({diff:bot.slice(top.length),side:'B',seq:st.seq.concat([i])});}}return null;}
+function check(dom,seq){var t='',b='';seq.forEach(function(i){t+=dom[i][0];b+=dom[i][1];});return t===b;}
+function verify(){var sol=solve(SETS[0].dom,20),solOk=sol&&check(SETS[0].dom,sol),noSol=solve(SETS[1].dom,18)===null;return {solvableFound:!!solOk,topHeavyNone:noSol};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a sequence of dominoes where concatenated TOPS == concatenated BOTTOMS',12,14);
+ var seq=solve(SETS[0].dom,20),dom=SETS[0].dom,x=30;seq.forEach(function(i){var t=dom[i][0],b=dom[i][1],w=Math.max(t.length,b.length)*14+8;g.strokeStyle='#8ad';g.strokeRect(x,40,w,50);g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText(t,x+5,58);g.strokeStyle='#556';g.beginPath();g.moveTo(x,66);g.lineTo(x+w,66);g.stroke();g.fillStyle='#c0a048';g.fillText(b,x+5,82);x+=w+4;});
+ var top='',bot='';seq.forEach(function(i){top+=dom[i][0];bot+=dom[i][1];});g.fillStyle='#8ad';g.font='10px monospace';g.fillText('tops="'+top+'"  ==  bottoms="'+bot+'"  ✓',30,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var set=SETS[WHICH],sol=solve(set.dom,WHICH===0?20:18);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('set: '+set.name,12,20);
+ for(var i=0;i<set.dom.length;i++){g.strokeStyle='#8ad';g.strokeRect(20+i*90,34,80,44);g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText(set.dom[i][0],26+i*90,50);g.strokeStyle='#556';g.beginPath();g.moveTo(20+i*90,60);g.lineTo(100+i*90,60);g.stroke();g.fillStyle='#c0a048';g.fillText(set.dom[i][1],26+i*90,74);}
+ if(sol){var top='',bot='';sol.forEach(function(i){top+=set.dom[i][0];bot+=set.dom[i][1];});g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('solution: '+sol.map(function(i){return i+1;}).join(' '),12,110);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('tops:    '+top,12,130);g.fillText('bottoms: '+bot,12,146);g.fillStyle=top===bot?'#39fc6b':'#ff5a5a';g.fillText('tops == bottoms '+(top===bot?'✓':'✗'),12,H-10);}
+ else{g.fillStyle='#ff2d95';g.font='12px monospace';g.fillText('no solution found up to depth 18',12,110);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('every top is longer than its bottom → tops can never catch down',12,132);g.fillStyle='#39fc6b';g.fillText('correctly reports no solution ✓',12,H-10);}}
+document.getElementById('pcroll').onclick=function(){WHICH=1-WHICH;drawW4();document.getElementById('pcread').textContent=SETS[WHICH].name;};
+document.getElementById('pccheck').onclick=function(){var v=verify();document.getElementById('pcread').textContent='solvable set → matching sequence '+(v.solvableFound?'✓':'✗')+' · top-heavy → no solution '+(v.topHeavyNone?'✓':'✗');};
+document.getElementById('pcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var seq=solve(SETS[0].dom,20),dom=SETS[0].dom,cx=W/2,cy=H/2-20;
+ for(var rep=0;rep<3;rep++)for(var s=0;s<seq.length;s++){var i=seq[s],a=(rep*seq.length+s)/(3*seq.length)*6.28+ang*0.3,r=60+rep*30,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.75;g.fillStyle='#39fc6b';g.fillRect(x-14,y-9,28,8);g.fillStyle='#c0a048';g.fillRect(x-14,y+1,28,8);g.fillStyle='#042';g.font='7px monospace';g.fillText(dom[i][0],x-12,y-2);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green/gold: the matching sequence (tops over bottoms)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the infinite unexplored sequences',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('undecidability hidden in dominoes',10,H-9);}
+drawW3();drawW4();window.__pcp=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WVT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The wavelet tree</b> stores a sequence over an alphabet so it can answer <b>rank</b> (how many times symbol c appears in the first i positions) and <b>access</b> (what symbol is at position i) in <b>O(log &sigma;)</b> time &mdash; using near the sequence&rsquo;s entropy in space. It recursively splits the alphabet in half: a bitvector marks whether each symbol went to the lower or upper half, and the two halves recurse. Rank becomes a walk down the tree counting bits. It is a cornerstone of compressed text indexing (FM-indexes, succinct data structures).<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random sequences, access(i) returns the true symbol and rank<sub>c</sub>(i) equals a brute prefix count for every position and symbol (window.__wavelet). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-jackpot</i> &mdash; the big payout of succinct indexing: answer &ldquo;how many of this symbol so far?&rdquo; instantly, in tiny space. The wavelet tree is that index. <b>AVAN (AI)</b> built the instrument: the recursive alphabet split, the per-level bitvectors, the rank-by-bit-count walk, the access walk, and the brute cross-check.<br><br>Credit as content: Grossi, Gupta &amp; Vitter (2003). The weave: David names the jackpot; I split the alphabet level by level and walk the bitvectors to count a symbol&rsquo;s occurrences, confirming every rank and access matches a direct scan.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">At the root, each symbol becomes a bit: 0 if it is in the lower half of the alphabet, 1 if upper. The 0-symbols and 1-symbols each recurse into their own child &mdash; and rank walks down, counting bits, to tally any symbol.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A sequence and its wavelet tree; query rank of a symbol at a position and compare against a brute count.</div>
+   <div class="btns" style="margin-top:10px"><button id="wvroll">new sequence ▶</button><button id="wvcheck">verify 200 ▶</button></div>
+   <div class="cap" id="wvread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: rank and access via a tree of bitvectors.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): answer &ldquo;how many c&rsquo;s in the first i symbols?&rdquo; in <b>O(log &sigma;)</b> and near-entropy space by turning each symbol into a <b>bit per level</b> (lower/upper half) and recursing. The inverse of &lsquo;scan the sequence to count a symbol&rsquo; is &lsquo;walk a tree of bitvectors, counting bits.&rsquo; <b>Magenta</b> is the linear scan you avoid; <b>green</b> is the log-&sigma; bit walk. Counting by halving the alphabet.</div>
+   <div class="btns" style="margin-top:10px"><button id="wvspin">pause spin</button></div></div></div></div>"""
+WVT_SCRIPT = """(function(){
+var ang=0,spin=true,SEQ=[],SIGMA=4,WT=null,QC=0,QI=0;
+function build(seq,lo,hi){if(lo===hi)return {leaf:true,sym:lo};var mid=(lo+hi)>>1,bits=[],left=[],right=[];for(var i=0;i<seq.length;i++){if(seq[i]<=mid){bits.push(0);left.push(seq[i]);}else{bits.push(1);right.push(seq[i]);}}return {leaf:false,lo:lo,hi:hi,mid:mid,bits:bits,left:build(left,lo,mid),right:build(right,mid+1,hi)};}
+function access(node,i){if(node.leaf)return node.sym;var b=node.bits[i],r=0;for(var j=0;j<i;j++)if(node.bits[j]===b)r++;return b===0?access(node.left,r):access(node.right,r);}
+function rank(node,sym,i){if(node.leaf)return i;var b=(sym<=node.mid)?0:1,r=0;for(var j=0;j<i;j++)if(node.bits[j]===b)r++;return b===0?rank(node.left,sym,r):rank(node.right,sym,r);}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(201),accOk=true,rankOk=true;for(var t=0;t<200;t++){var sg=1+Math.floor(rnd()*6),len=1+Math.floor(rnd()*30),seq=[];for(var i=0;i<len;i++)seq.push(Math.floor(rnd()*(sg+1)));var wt=build(seq,0,sg);for(var i=0;i<len;i++)if(access(wt,i)!==seq[i])accOk=false;for(var c=0;c<=sg;c++)for(var i=0;i<=len;i++){var br=0;for(var j=0;j<i;j++)if(seq[j]===c)br++;if(rank(wt,c,i)!==br)rankOk=false;}}return {access:accOk,rank:rankOk};}
+function mk(){SIGMA=3+Math.floor(Math.random()*3);SEQ=[];var len=10+Math.floor(Math.random()*8);for(var i=0;i<len;i++)SEQ.push(Math.floor(Math.random()*(SIGMA+1)));WT=build(SEQ,0,SIGMA);QC=Math.floor(Math.random()*(SIGMA+1));QI=SEQ.length;}
+var COL=['#c05868','#58a0b0','#c0a048','#a878c0','#70a860','#e08040','#40c0a0'];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('root bit: 0 = symbol in lower half, 1 = upper half',12,14);
+ var seq=[0,3,1,2,0,3,1],mid=1;for(var i=0;i<seq.length;i++){g.fillStyle=COL[seq[i]];g.fillRect(40+i*56,40,50,24);g.fillStyle='#042';g.font='11px monospace';g.fillText('s'+seq[i],52+i*56,56);g.fillStyle=seq[i]<=mid?'#39fc6b':'#ff2d95';g.font='12px monospace';g.fillText(seq[i]<=mid?'0':'1',60+i*56,84);}
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('0s recurse left, 1s recurse right — rank counts bits down the tree',40,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!WT)mk();
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('sequence (σ='+(SIGMA+1)+' symbols):',12,18);
+ for(var i=0;i<SEQ.length;i++){g.fillStyle=COL[SEQ[i]];g.fillRect(12+i*20,26,18,18);g.fillStyle='#042';g.font='9px monospace';g.fillText(SEQ[i],18+i*20,39);}
+ // draw root bitvector
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('root bits:',12,64);for(var i=0;i<WT.bits.length;i++){g.fillStyle=WT.bits[i]?'#ff2d95':'#39fc6b';g.fillRect(70+i*16,54,14,12);g.fillStyle='#042';g.fillText(WT.bits[i],74+i*16,64);}
+ var r=rank(WT,QC,QI),brute=0;for(var j=0;j<QI;j++)if(SEQ[j]===QC)brute++;
+ g.fillStyle='#c0a048';g.font='11px monospace';g.fillText('rank(symbol '+QC+', prefix '+QI+') = '+r,12,100);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('brute count of symbol '+QC+' in first '+QI+' = '+brute,12,122);
+ var ok=r===brute;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('wavelet rank == brute count '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('wvroll').onclick=function(){mk();drawW4();document.getElementById('wvread').textContent='σ='+(SIGMA+1)+', len '+SEQ.length+', rank(s'+QC+')='+rank(WT,QC,QI);};
+document.getElementById('wvcheck').onclick=function(){var v=verify();document.getElementById('wvread').textContent='200 sequences: access==seq '+(v.access?'✓':'✗')+' · rank==brute prefix count '+(v.rank?'✓':'✗');};
+document.getElementById('wvspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!WT)mk();var cx=W/2;
+ function draw(node,x,y,sp,d){if(node.leaf){g.fillStyle=COL[node.sym%COL.length];g.beginPath();g.arc(x,y,6,0,7);g.fill();return;}for(var i=0;i<Math.min(node.bits.length,16);i++){g.fillStyle=node.bits[i]?'rgba(255,45,149,0.7)':'rgba(57,252,107,0.7)';g.fillRect(x-node.bits.length*2.5+i*5,y-3+3*Math.sin(ang+d),4,6);}if(node.left)draw(node.left,x-sp,y+55,sp/2,d+1);if(node.right)draw(node.right,x+sp,y+55,sp/2,d+1);}
+ draw(WT,cx,50,W/4.5,0);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green/magenta: per-level bitvectors (0=lower, 1=upper)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the linear scan you avoid',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('counting by halving the alphabet (O(log σ))',10,H-9);}
+mk();drawW3();drawW4();window.__wavelet=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DLN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Delaunay triangulation</b> connects a set of points into triangles so that <b>no point lies inside any triangle&rsquo;s circumcircle</b> &mdash; the &ldquo;empty circle&rdquo; property. Equivalently it <b>maximizes the smallest angle</b>, avoiding slivers, which is why it is the mesh of choice for interpolation, terrain, and finite elements. The <b>Bowyer&ndash;Watson</b> algorithm builds it incrementally: insert each point, delete every triangle whose circumcircle now contains it, and retriangulate the hole.<br><br>
+ <span class="lit">LIT</span> verified live: over 40 random point sets, <b>every</b> triangle&rsquo;s circumcircle is empty &mdash; no other input point falls inside it (thousands of checks) &mdash; window.__delaunay. <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sandbox</i> &mdash; the spatial playground, here wired into the mesh that best triangulates scattered points. Delaunay is that mesh. <b>AVAN (AI)</b> built the instrument: the in-circle predicate, the Bowyer&ndash;Watson incremental insertion, the super-triangle, and the empty-circumcircle verification.<br><br>Credit as content: Boris Delaunay (1934); Bowyer &amp; Watson (1981). The weave: David names the sandbox; I insert points one by one, carve out the triangles whose circumcircles swallow each new point, and confirm the finished mesh has every circumcircle empty.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The test for a triangle: draw the circle through its three vertices. If no other point sits inside that circle, the triangle is Delaunay. Bowyer&ndash;Watson deletes any triangle whose circle a new point invades.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A Delaunay triangulation of scattered points; every triangle&rsquo;s circumcircle is checked to contain no other point.</div>
+   <div class="btns" style="margin-top:10px"><button id="dlroll">new points ▶</button><button id="dlcheck">verify 40 ▶</button></div>
+   <div class="cap" id="dlread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a mesh whose every triangle has an empty circumcircle.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): triangulate points so <b>no triangle&rsquo;s circumcircle contains another point</b> &mdash; which maximizes the smallest angle, avoiding slivers &mdash; by inserting points and re-carving any circle a newcomer invades. The inverse of &lsquo;connect points into any triangulation&rsquo; is &lsquo;connect them so every circumcircle is empty &mdash; the fattest triangles.&rsquo; <b>Magenta</b> is the sliver triangles a bad triangulation makes; <b>green</b> is the empty-circle Delaunay mesh. The best triangles from a rule about circles.</div>
+   <div class="btns" style="margin-top:10px"><button id="dlspin">pause spin</button></div></div></div></div>"""
+DLN_SCRIPT = """(function(){
+var ang=0,spin=true,PTS=[],RES=null;
+function inCirc(ax,ay,bx,by,cx,cy,px,py){var a2=ax-px,b2=ay-py,c2=bx-px,d2=by-py,e2=cx-px,f2=cy-py,d=(a2*a2+b2*b2)*(c2*f2-e2*d2)-(c2*c2+d2*d2)*(a2*f2-e2*b2)+(e2*e2+f2*f2)*(a2*d2-c2*b2),o=(bx-ax)*(cy-ay)-(by-ay)*(cx-ax);return o>0?d>1e-9:d<-1e-9;}
+function bw(pts){var minx=Infinity,miny=Infinity,maxx=-Infinity,maxy=-Infinity;pts.forEach(function(p){minx=Math.min(minx,p[0]);miny=Math.min(miny,p[1]);maxx=Math.max(maxx,p[0]);maxy=Math.max(maxy,p[1]);});var dm=Math.max(maxx-minx,maxy-miny)||1,mx=(minx+maxx)/2,my=(miny+maxy)/2,st=[[mx-20*dm,my-dm],[mx,my+20*dm],[mx+20*dm,my-dm]],P=pts.concat(st),n=pts.length,tris=[[n,n+1,n+2]];
+ for(var ip=0;ip<n;ip++){var p=P[ip],bad=[];for(var ti=0;ti<tris.length;ti++){var t=tris[ti];if(inCirc(P[t[0]][0],P[t[0]][1],P[t[1]][0],P[t[1]][1],P[t[2]][0],P[t[2]][1],p[0],p[1]))bad.push(ti);}var edges={};bad.forEach(function(ti){var t=tris[ti];[[t[0],t[1]],[t[1],t[2]],[t[2],t[0]]].forEach(function(e){var k=Math.min(e[0],e[1])+','+Math.max(e[0],e[1]);edges[k]=(edges[k]||0)+1;});});tris=tris.filter(function(_,ti){return bad.indexOf(ti)<0;});for(var k in edges)if(edges[k]===1){var e=k.split(',').map(Number);tris.push([e[0],e[1],ip]);}}
+ return {tris:tris.filter(function(t){return t[0]<n&&t[1]<n&&t[2]<n;}),P:P,n:n};}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(202),ok=true,cnt=0;for(var t=0;t<40;t++){var np=6+Math.floor(rnd()*8),pts=[];for(var i=0;i<np;i++)pts.push([rnd()*100,rnd()*100]);var res=bw(pts);res.tris.forEach(function(tri){for(var q=0;q<res.n;q++){if(q===tri[0]||q===tri[1]||q===tri[2])continue;if(inCirc(res.P[tri[0]][0],res.P[tri[0]][1],res.P[tri[1]][0],res.P[tri[1]][1],res.P[tri[2]][0],res.P[tri[2]][1],res.P[q][0],res.P[q][1]))ok=false;cnt++;}});}return {emptyCircumcircle:ok,checks:cnt};}
+function mk(){PTS=[];var rnd=mb((Math.random()*1e9)|0);for(var i=0;i<14;i++)PTS.push([20+rnd()*340,20+rnd()*230]);RES=bw(PTS);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a triangle is Delaunay iff no other point lies inside its circumcircle',12,14);
+ var a=[120,110],b=[210,60],c=[260,120];g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();
+ var ax=(a[0]+b[0]+c[0])/3,ay=(a[1]+b[1]+c[1])/3,r=60;g.strokeStyle='rgba(88,160,176,0.6)';g.beginPath();g.arc(190,95,58,0,7);g.stroke();
+ [a,b,c].forEach(function(p){g.fillStyle='#c0a048';g.beginPath();g.arc(p[0],p[1],3,0,7);g.fill();});g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('empty circle → Delaunay',300,95);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!RES)mk();
+ g.strokeStyle='rgba(57,252,107,0.7)';g.lineWidth=1;RES.tris.forEach(function(t){g.beginPath();g.moveTo(RES.P[t[0]][0],RES.P[t[0]][1]);g.lineTo(RES.P[t[1]][0],RES.P[t[1]][1]);g.lineTo(RES.P[t[2]][0],RES.P[t[2]][1]);g.closePath();g.stroke();});
+ for(var i=0;i<PTS.length;i++){g.fillStyle='#c0a048';g.beginPath();g.arc(PTS[i][0],PTS[i][1],3,0,7);g.fill();}
+ var ok=true,cnt=0;RES.tris.forEach(function(tri){for(var q=0;q<RES.n;q++){if(q===tri[0]||q===tri[1]||q===tri[2])continue;if(inCirc(RES.P[tri[0]][0],RES.P[tri[0]][1],RES.P[tri[1]][0],RES.P[tri[1]][1],RES.P[tri[2]][0],RES.P[tri[2]][1],RES.P[q][0],RES.P[q][1]))ok=false;cnt++;}});
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText(RES.tris.length+' triangles · every circumcircle empty ('+cnt+' checks) '+(ok?'✓':'✗'),12,H-10);}
+document.getElementById('dlroll').onclick=function(){mk();drawW4();document.getElementById('dlread').textContent=RES.tris.length+' Delaunay triangles on '+PTS.length+' points';};
+document.getElementById('dlcheck').onclick=function(){var v=verify();document.getElementById('dlread').textContent='40 point sets: every circumcircle empty '+(v.emptyCircumcircle?'✓':'✗')+' ('+v.checks+' checks)';};
+document.getElementById('dlspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!RES)mk();var cx=W/2,cy=H/2-10;
+ g.strokeStyle='#39fc6b';g.lineWidth=1;RES.tris.forEach(function(t){var pts=[t[0],t[1],t[2]].map(function(vi){var px=(RES.P[vi][0]-190)*0.7,py=(RES.P[vi][1]-135)*0.7,a=ang*0.2;return [cx+px*Math.cos(a)-py*Math.sin(a),cy+(px*Math.sin(a)+py*Math.cos(a))*0.7];});g.beginPath();g.moveTo(pts[0][0],pts[0][1]);g.lineTo(pts[1][0],pts[1][1]);g.lineTo(pts[2][0],pts[2][1]);g.closePath();g.stroke();});
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green mesh: empty-circumcircle Delaunay triangulation',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the sliver triangles a bad mesh makes',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the best triangles from a rule about circles',10,H-9);}
+mk();drawW3();drawW4();window.__delaunay=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FCT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The factorial number system</b> is a <b>mixed-radix</b> positional system where the place values are <b>factorials</b> (1!, 2!, 3!, &hellip;) and the digit in place i may range only from 0 up to i. Every non-negative integer below m! has a <b>unique</b> such representation &mdash; it is an odometer whose wheels have <b>different sizes</b> (2, 3, 4, &hellip; positions). It is the natural index for permutations and the backbone of the Lehmer code.<br><br>
+ <span class="lit">LIT</span> verified live: over all 5040 integers 0..7!&minus;1, encode&compfn;decode is the identity, each digit stays within its rising radix, and all representations are distinct (window.__factbase). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-cron-job</i> &mdash; the odometer that ticks, but with wheels of growing size. The factorial base is that irregular odometer. <b>AVAN (AI)</b> built the instrument: the rising-radix digit extraction, the factorial place values, the round-trip, and the uniqueness enumeration.<br><br>Credit as content: the factorial number system (Charles-Ange Laisant 1888). The weave: David names the cron-job; I divide successively by 2, 3, 4, &hellip; to read off each digit and confirm every integer below m! maps to one and only one mixed-radix string.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Place values 1, 2, 6, 24, 120, &hellip; (the factorials). The lowest wheel has 2 positions, the next 3, then 4 &mdash; each wheel bigger than the last. A digit can never reach its own place&rsquo;s size.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Any integer below 7! in factorial base; the rising-radix digits and the round-trip are checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="ftstep">+1 ▶</button><button id="ftroll">random ▶</button><button id="ftcheck">verify 5040 ▶</button></div>
+   <div class="cap" id="ftread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an odometer with wheels of growing size.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): give each place a <b>different radix</b> &mdash; the i-th wheel has i+1 positions and weight i! &mdash; so every integer below m! gets a unique mixed-radix code. The inverse of &lsquo;one fixed base for every digit&rsquo; is &lsquo;let each wheel grow &mdash; factorial place values.&rsquo; <b>Magenta</b> is the wasted uniform-base range; <b>green</b> is the tight factorial odometer. Wheels that grow as they climb.</div>
+   <div class="btns" style="margin-top:10px"><button id="ftspin">pause spin</button></div></div></div></div>"""
+FCT_SCRIPT = """(function(){
+var ang=0,spin=true,N=1000,M=7;
+function fact(k){var f=1;for(var i=2;i<=k;i++)f*=i;return f;}
+function enc(n){var d=[];for(var i=0;i<M-1;i++){var radix=i+2;d.push(n%radix);n=Math.floor(n/radix);}return d;}
+function dec(d){var n=0;for(var i=0;i<d.length;i++)n+=d[i]*fact(i+1);return n;}
+function verify(){var Nf=fact(M),rt=true,range=true,uniq=true,seen=new Set();for(var n=0;n<Nf;n++){var d=enc(n);for(var i=0;i<d.length;i++)if(d[i]<0||d[i]>i+1)range=false;if(dec(d)!==n)rt=false;var k=d.join(',');if(seen.has(k))uniq=false;seen.add(k);}return {roundTrip:rt,radixOK:range,unique:uniq&&seen.size===Nf};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('place values are factorials; wheel i has i+1 positions',12,14);
+ var pv=[1,2,6,24,120],rad=[2,3,4,5,6];for(var i=0;i<5;i++){g.fillStyle='#c0a048';g.fillRect(50+i*88,45,74,30);g.fillStyle='#042';g.font='11px monospace';g.fillText(pv[4-i]+'!?',60+i*88,64);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('lowest wheel: 2 positions, next 3, next 4 ... — each bigger than the last',50,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var d=enc(N);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('n = '+N+' / '+(fact(M)-1),12,24);
+ for(var i=d.length-1;i>=0;i--){var ti=d.length-1-i;g.fillStyle='#58a0b0';g.fillRect(20+ti*58,45,50,40);g.fillStyle='#fff';g.font='16px monospace';g.fillText(d[i],40+ti*58,70);g.fillStyle='#8ad';g.font='8px monospace';g.fillText('×'+fact(i+1)+' (0-'+(i+1)+')',22+ti*58,98);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('= '+d.map(function(dd,i){return dd+'·'+fact(i+1);}).reverse().join(' + ')+' = '+dec(d),12,125);
+ var ok=dec(d)===N;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('digits within rising radix · round-trips '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('ftstep').onclick=function(){N=(N+1)%fact(M);drawW4();document.getElementById('ftread').textContent=N+' = ['+enc(N).slice().reverse().join(',')+']';};
+document.getElementById('ftroll').onclick=function(){N=Math.floor(Math.random()*fact(M));drawW4();document.getElementById('ftread').textContent=N+' = ['+enc(N).slice().reverse().join(',')+']';};
+document.getElementById('ftcheck').onclick=function(){var v=verify();document.getElementById('ftread').textContent='0..5039: round-trips '+(v.roundTrip?'✓':'✗')+' · digit≤radix '+(v.radixOK?'✓':'✗')+' · all unique '+(v.unique?'✓':'✗');};
+document.getElementById('ftspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-20,d=enc(N);
+ for(var i=0;i<M-1;i++){var radix=i+2,r=40+i*26;g.strokeStyle='rgba(120,140,160,0.3)';g.beginPath();g.arc(cx,cy,r,0,7);g.stroke();for(var p=0;p<radix;p++){var a=p/radix*6.28+ang*0.3*(i+1),x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;g.fillStyle=p===d[i]?'#39fc6b':'rgba(120,140,160,0.4)';g.beginPath();g.arc(x,y,p===d[i]?5:2,0,7);g.fill();}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: current digit on each wheel (radix 2,3,4,5,6,7)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the wasted range of a uniform base',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('wheels that grow as they climb — factorial odometer',10,H-9);}
+drawW3();drawW4();window.__factbase=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 75 (compression as one enormous number · a line drawn in shades of grey · a base that counts into the negatives · tiles that decide the undecidable · successor in log-log time) ═══════════════════════
 RAN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>rANS</b> (range Asymmetric Numeral System) is a modern entropy coder that encodes a whole message into a <b>single very large integer</b> &mdash; reaching near-optimal compression like arithmetic coding, but with the speed of table lookups. Each symbol folds into the state x by x &larr; &lfloor;x/f<sub>s</sub>&rfloor;&middot;M + (x mod f<sub>s</sub>) + c<sub>s</sub>, using its frequency f<sub>s</sub> and cumulative c<sub>s</sub>; decoding peels symbols back off in reverse. It powers Zstandard, LZFSE, and modern image codecs.<br><br>
@@ -21101,6 +21343,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-paillier","title":"THE PAILLIER","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE ROOT-KIT","domain_slug":"the-root-kit","accent":"#a878c0","icon":"paillier",
+  "kicker":"add two numbers without ever decrypting them",
+  "blurb":"the Paillier cryptosystem in the 5-window house format — additively homomorphic encryption: add two encrypted numbers without ever decrypting them. Multiplying two ciphertexts yields an encryption of the sum of the plaintexts, and raising a ciphertext to a power k yields an encryption of the plaintext times k. Encryption is Enc(m,r)=g^m*r^n mod n^2 with fresh random r, so every encryption of the same number looks different yet the algebra lines up. It underpins private voting and encrypted aggregation. Verified live: over 200 trials, Dec(Enc(a)*Enc(b))=a+b and Dec(Enc(a)^k)=k*a, all mod n. See the ciphertext product in 1D, an encrypted add in 2D, and the compute-under-lock inverse in 3D.",
+  "lit":"Genuine Paillier additively-homomorphic cryptosystem (Paillier 1999). Verified live over a toy 12-bit modulus (n=3233): across 200 trials with fresh randomness r coprime to n, Dec(Enc(a)*Enc(b) mod n^2) equals (a+b) mod n and Dec(Enc(a)^k mod n^2) equals (k*a) mod n (window.__paillier.add && .scalarMul).",
+  "fig":"No framing: the key schedule, the randomized encryption, the L-function decryption, and the homomorphic add / scalar-multiply checks run in-browser (BigInt, r coprime to n) and hold. The AVAN inverse is honest — multiplying ciphertexts adds plaintexts because g^a*g^b=g^(a+b), the random r^n factors stripped by decryption; magenta is the plaintext you never expose, green the sealed sum. Computation under the lock. (Toy modulus — illustrative, not production security.)",
+  "body":PLR_BODY,"script":PLR_SCRIPT},
+ {"slug":"the-post-correspondence","title":"THE POST CORRESPONDENCE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#58a0b0","icon":"post-correspondence",
+  "kicker":"a domino puzzle that is undecidable",
+  "blurb":"the Post Correspondence Problem in the 5-window house format — a deceptively simple puzzle that is undecidable. Given dominoes, each with a top string and a bottom string, find a sequence of them (repeats allowed) so the concatenated tops exactly equal the concatenated bottoms. No algorithm can decide in general whether a given set has a solution, yet for specific sets a bounded search either finds one or exhausts all short sequences. Verified live: a known solvable set yields a sequence whose tops equal its bottoms, while a top-heavy set (every top longer than its bottom) provably has no solution up to the search depth. See stacked dominoes in 1D, a search in 2D, and the undecidability inverse in 3D.",
+  "lit":"Genuine Post Correspondence Problem (Post 1946). Verified live: a known solvable domino set yields, via BFS over difference-strings, a sequence whose concatenated tops equal its concatenated bottoms, while a top-heavy set (every top strictly longer than its bottom) has no solution up to search depth 18 (window.__pcp.solvableFound && .topHeavyNone).",
+  "fig":"The bounded solver is exact; the general undecidability is CITED, not run (no algorithm can decide it — that is Post's theorem). The domino match, the BFS over difference-strings, the solution verifier, and the top-heavy no-solution case run in-browser. The AVAN inverse is honest — domino concatenation is Turing-powerful, so whole-instance solvability is undecidable; magenta is the infinite unexplored sequences, green the one that matches. Undecidability in dominoes.",
+  "body":PCP_BODY,"script":PCP_SCRIPT},
+ {"slug":"the-wavelet-tree","title":"THE WAVELET TREE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#d4a017","icon":"wavelet-tree",
+  "kicker":"rank a symbol in O(log sigma) by halving the alphabet",
+  "blurb":"the wavelet tree in the 5-window house format — store a sequence over an alphabet so it answers rank (how many times symbol c appears in the first i positions) and access (what symbol is at position i) in O(log sigma) time, using near the sequence's entropy in space. It recursively splits the alphabet in half: a bitvector marks whether each symbol went to the lower or upper half, and the halves recurse; rank becomes a walk down the tree counting bits. It is a cornerstone of compressed text indexing (FM-indexes). Verified live: over 200 random sequences, access(i) returns the true symbol and rank_c(i) equals a brute prefix count for every position and symbol. See the root bit split in 1D, a rank query in 2D, and the halving inverse in 3D.",
+  "lit":"Genuine wavelet tree (Grossi, Gupta & Vitter 2003). Verified live: over 200 random sequences, the recursive alphabet-splitting structure returns access(i) equal to the true symbol at i, and rank_c(i) equal to a brute prefix count of symbol c in the first i positions, for every position and symbol (window.__wavelet.access && .rank).",
+  "fig":"No framing: the recursive alphabet split, the per-level bitvectors, the rank-by-bit-count walk, the access walk, and the brute cross-check run in-browser and agree exactly. The AVAN inverse is honest — turning each symbol into a bit per level (lower/upper half) and recursing answers rank in O(log sigma) and near-entropy space; magenta is the linear scan you avoid, green the log-sigma bit walk. Counting by halving the alphabet.",
+  "body":WVT_BODY,"script":WVT_SCRIPT},
+ {"slug":"the-delaunay","title":"THE DELAUNAY","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#70a860","icon":"delaunay",
+  "kicker":"triangles with empty circumcircles — the fattest mesh",
+  "blurb":"Delaunay triangulation in the 5-window house format — connect points into triangles so that no point lies inside any triangle's circumcircle (the empty-circle property). Equivalently it maximizes the smallest angle, avoiding slivers, which is why it is the mesh of choice for interpolation, terrain, and finite elements. The Bowyer-Watson algorithm builds it incrementally: insert each point, delete every triangle whose circumcircle now contains it, and retriangulate the hole. Verified live: over 40 random point sets, every triangle's circumcircle is empty — no other input point falls inside it (thousands of checks). See the empty-circle test in 1D, a triangulation in 2D, and the empty-circumcircle inverse in 3D.",
+  "lit":"Genuine Delaunay triangulation via Bowyer-Watson (Delaunay 1934; Bowyer & Watson 1981). Verified live: over 40 random point sets, the incremental construction produces a triangulation in which every triangle's circumcircle contains no other input point (the empty-circle property), across thousands of in-circle checks (window.__delaunay.emptyCircumcircle).",
+  "fig":"No framing: the in-circle determinant predicate, the Bowyer-Watson incremental insertion, the super-triangle, and the empty-circumcircle verification run in-browser and hold. The AVAN inverse is honest — triangulating so no circumcircle contains another point maximizes the smallest angle (avoiding slivers); magenta is the sliver triangles a bad triangulation makes, green the empty-circle Delaunay mesh. The best triangles from a rule about circles.",
+  "body":DLN_BODY,"script":DLN_SCRIPT},
+ {"slug":"the-factorial-base","title":"THE FACTORIAL BASE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#c0a048","icon":"factorial-base",
+  "kicker":"a mixed-radix odometer with factorial place values",
+  "blurb":"the factorial number system in the 5-window house format — a mixed-radix positional system where the place values are factorials (1!, 2!, 3!, ...) and the digit in place i may range only from 0 up to i. Every non-negative integer below m! has a unique such representation — an odometer whose wheels have different sizes (2, 3, 4, ... positions). It is the natural index for permutations and the backbone of the Lehmer code. Verified live: over all 5040 integers 0..7!-1, encode of decode is the identity, each digit stays within its rising radix, and all representations are distinct. See the factorial place values in 1D, a stepping counter in 2D, and the growing-wheels inverse in 3D.",
+  "lit":"Genuine factorial number system (Laisant 1888). Verified live: over all 5040 integers from 0 to 7!-1, dividing successively by 2,3,4,... to read the digits and reconstructing by factorial place values is the identity, every digit i stays within 0..i+1, and all 5040 representations are distinct (window.__factbase.roundTrip && .radixOK && .unique).",
+  "fig":"No framing: the rising-radix digit extraction, the factorial place values, the round-trip, and the uniqueness enumeration run in-browser over all 5040 integers and hold. The AVAN inverse is honest — giving each place a different radix (the i-th wheel has i+1 positions, weight i!) gives every integer below m! a unique mixed-radix code; magenta is the wasted uniform-base range, green the tight factorial odometer. Wheels that grow as they climb.",
+  "body":FCT_BODY,"script":FCT_SCRIPT},
  {"slug":"the-rans","title":"THE rANS","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#58a0b0","icon":"rans",
   "kicker":"compress a whole message into one big integer",
