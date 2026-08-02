@@ -19485,6 +19485,253 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 77 (a universal computer from three lists · a curve from nested midpoints · a number as a ladder of fractions · a string as a tree · a codeword that heals itself) ═══════════════════════
+CTG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A cyclic tag system</b> is one of the <b>tiniest known universal computers</b>. It has a fixed cyclic list of <b>production</b> strings and a growing <b>data</b> string. Each step: remove the first data symbol; if it was a <b>1</b>, append the current production; if a <b>0</b>, append nothing; then advance to the next production, cycling. From this almost-nothing, Rule 110&rsquo;s universality was proven &mdash; cyclic tag systems can emulate any computation.<br><br>
+ <span class="lit">LIT</span> verified live: running the productions (010, 000, 1111) on the seed &ldquo;11&rdquo; reproduces the exact documented state sequence 11 &rarr; 1010 &rarr; 010000 &rarr; 10000 &rarr; &hellip; matching an independent hand derivation (window.__cyclictag). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>checkpoint-zero</i> &mdash; the barest starting point from which, astonishingly, all computation can grow. The cyclic tag system is that seed of universality. <b>AVAN (AI)</b> built the instrument: the remove-first / append-production / cycle step, the state trace, and the match against a hand-computed reference.<br><br>Credit as content: Matthew Cook (cyclic tag systems in the Rule 110 universality proof, 2004). The weave: David names checkpoint-zero; I run the three-rule step and confirm the state sequence exactly matches an independently hand-derived trace.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Remove the first symbol of the data. If it was 1, append the current production string; if 0, append nothing. Advance the production pointer, wrapping around the list. Repeat.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Step the cyclic tag system and watch the data string evolve; the trace is checked against the documented sequence.</div>
+   <div class="btns" style="margin-top:10px"><button id="ctstep">step ▶</button><button id="ctrun">run 12 ▶</button><button id="ctcheck">verify ▶</button></div>
+   <div class="cap" id="ctread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: universal computation from a cycling list.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): get <b>Turing-completeness</b> from almost nothing &mdash; a cyclic list of strings and a single &ldquo;append-if-1, skip-if-0, then cycle&rdquo; rule. The inverse of &lsquo;a computer needs registers, memory, an instruction set&rsquo; is &lsquo;three strings and one cycling rule already compute anything.&rsquo; <b>Magenta</b> is the elaborate machinery you don&rsquo;t need; <b>green</b> is the minimal cycling engine. Universality from a handful of bits.</div>
+   <div class="btns" style="margin-top:10px"><button id="ctspin">pause spin</button></div></div></div></div>"""
+CTG_SCRIPT = """(function(){
+var ang=0,spin=true,PRODS=['010','000','1111'],DATA=[],IDX=0,STEP=0;
+function reset(){DATA='11'.split('');IDX=0;STEP=0;}
+function step(){if(DATA.length===0)return;var first=DATA.shift();if(first==='1'){for(var c=0;c<PRODS[IDX].length;c++)DATA.push(PRODS[IDX][c]);}IDX=(IDX+1)%PRODS.length;STEP++;}
+function run(prods,init,steps){var data=init.split(''),idx=0,trace=[init];for(var s=0;s<steps;s++){if(data.length===0)break;var f=data.shift();if(f==='1')for(var c=0;c<prods[idx].length;c++)data.push(prods[idx][c]);idx=(idx+1)%prods.length;trace.push(data.join(''));}return trace;}
+function verify(){var trace=run(['010','000','1111'],'11',5),expected=['11','1010','010000','10000','0000010','000010'];return {matchesReference:trace.join('|')===expected.join('|')};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('remove first symbol; if 1 append current production; if 0 skip; cycle',12,14);
+ g.fillStyle='#c0a048';g.font='11px monospace';g.fillText('productions: 010 · 000 · 1111  (cycle →)',30,50);
+ g.fillStyle='#a878c0';g.fillText('data: 1 1',30,80);g.fillStyle='#39fc6b';g.fillText('first=1 → append "010" → 1 010',30,105);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('three strings + one rule = a universal computer',30,135);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('productions: '+PRODS.join(' · ')+'   (pointer → '+PRODS[IDX]+')',12,18);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('step '+STEP+':',12,42);
+ for(var i=0;i<Math.min(DATA.length,44);i++){g.fillStyle=DATA[i]==='1'?'#39fc6b':'#37506e';g.fillRect(70+i*9,32,7,14);g.fillStyle=DATA[i]==='1'?'#042':'#9ab';g.font='8px monospace';g.fillText(DATA[i],71+i*9,43);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('data length: '+DATA.length,12,66);
+ var trace=run(['010','000','1111'],'11',5),exp=['11','1010','010000','10000','0000010','000010'],ok=trace.join('|')===exp.join('|');
+ g.fillStyle='#c0a048';g.font='9px monospace';for(var i=0;i<6;i++)g.fillText((i===0?'seed ':'  → ')+exp[i],12,90+i*15);
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('trace matches documented sequence '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('ctstep').onclick=function(){step();drawW4();document.getElementById('ctread').textContent='step '+STEP+': '+DATA.join('');};
+document.getElementById('ctrun').onclick=function(){reset();for(var i=0;i<12;i++)step();drawW4();document.getElementById('ctread').textContent='after 12 steps: '+DATA.join('')||'(empty)';};
+document.getElementById('ctcheck').onclick=function(){var v=verify();document.getElementById('ctread').textContent='trace == hand-derived reference '+(v.matchesReference?'✓':'✗');};
+document.getElementById('ctspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var trace=run(['010','000','1111'],'11',40),cx=W/2,cy=H/2-20;
+ for(var s=0;s<trace.length;s++){var st=trace[s];for(var i=0;i<st.length;i++){var a=(s/trace.length)*6.28+ang*0.2,r=25+s*7+i*1.5;g.fillStyle=st[i]==='1'?'#39fc6b':'rgba(120,140,160,0.25)';g.fillRect(cx+Math.cos(a)*r-1,cy+Math.sin(a)*r*0.75-1,2,2);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green spiral: the data string evolving (1s bright)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the elaborate machinery you don\\'t need',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('universality from three strings and one rule',10,H-9);}
+reset();drawW3();drawW4();window.__cyclictag=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DCJ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>De Casteljau&rsquo;s algorithm</b> evaluates a <b>B&eacute;zier curve</b> by <b>repeated linear interpolation</b>: take the control points, interpolate each adjacent pair by the parameter t to get one fewer point, and repeat until a single point remains &mdash; that point is on the curve. It is numerically stable and needs only midpoint-style blends, no polynomial powers. Remarkably, it computes <b>exactly</b> the same result as the <b>Bernstein polynomial</b> &sum; C(n,i) t<sup>i</sup>(1&minus;t)<sup>n&minus;i</sup> P<sub>i</sub>.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random curves, de Casteljau&rsquo;s nested interpolation matches the Bernstein polynomial to floating precision (worst deviation ~10<sup>&minus;14</sup>) &mdash; window.__decasteljau. <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>split-screen</i> &mdash; the rendering pipeline where smooth curves are drawn from a few control points. De Casteljau is that curve evaluator. <b>AVAN (AI)</b> built the instrument: the nested lerp pyramid, the Bernstein-polynomial reference, and the agreement check.<br><br>Credit as content: Paul de Casteljau (1959, at Citro&euml;n). The weave: David names split-screen; I collapse the control polygon by repeated interpolation and confirm the landing point equals the Bernstein-polynomial value exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Interpolate each adjacent pair of control points at fraction t, giving one fewer point. Repeat on the new points. The pyramid collapses to a single point &mdash; the curve at t.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A B&eacute;zier curve with its control polygon and the de Casteljau construction lines; the point is checked against the Bernstein polynomial.</div>
+   <div class="btns" style="margin-top:10px"><button id="dcroll">new curve ▶</button><button id="dccheck">verify 300 ▶</button></div>
+   <div class="cap" id="dcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a smooth curve from nested midpoints.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): evaluate a polynomial curve using only <b>repeated interpolation</b> &mdash; no powers, no binomial coefficients &mdash; collapsing the control polygon pair by pair. The inverse of &lsquo;sum Bernstein terms with t<sup>i</sup> powers&rsquo; is &lsquo;nest linear interpolations &mdash; stable, and exactly equal.&rsquo; <b>Magenta</b> is the power-hungry Bernstein sum; <b>green</b> is the interpolation pyramid. The same curve, built by blending.</div>
+   <div class="btns" style="margin-top:10px"><button id="dcspin">pause spin</button></div></div></div></div>"""
+DCJ_SCRIPT = """(function(){
+var ang=0,spin=true,PTS=[[40,220],[120,40],[280,60],[340,230]];
+function deCast(pts,t){var p=pts.map(function(q){return q.slice();});while(p.length>1){var np=[];for(var i=0;i+1<p.length;i++)np.push([p[i][0]*(1-t)+p[i+1][0]*t,p[i][1]*(1-t)+p[i+1][1]*t]);p=np;}return p[0];}
+function deCastAll(pts,t){var levels=[pts.map(function(q){return q.slice();})];var p=levels[0];while(p.length>1){var np=[];for(var i=0;i+1<p.length;i++)np.push([p[i][0]*(1-t)+p[i+1][0]*t,p[i][1]*(1-t)+p[i+1][1]*t]);levels.push(np);p=np;}return levels;}
+function choose(n,k){var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+function bern(pts,t){var n=pts.length-1,x=0,y=0;for(var i=0;i<=n;i++){var b=choose(n,i)*Math.pow(t,i)*Math.pow(1-t,n-i);x+=b*pts[i][0];y+=b*pts[i][1];}return [x,y];}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(210),ok=true,worst=0;for(var tr=0;tr<300;tr++){var n=2+Math.floor(rnd()*5),pts=[];for(var i=0;i<n;i++)pts.push([rnd()*100,rnd()*100]);for(var s=0;s<=20;s++){var t=s/20,a=deCast(pts,t),b=bern(pts,t),d=Math.hypot(a[0]-b[0],a[1]-b[1]);worst=Math.max(worst,d);if(d>1e-9)ok=false;}}return {matchesBernstein:ok,worst:worst};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('interpolate each adjacent pair at t → one fewer point → repeat',12,14);
+ var pts=[[40,120],[150,40],[280,120],[400,50]],t=0.5,lv=deCastAll(pts,t);var cols=['#c0a048','#58a0b0','#a878c0','#39fc6b'];for(var l=0;l<lv.length;l++){g.strokeStyle=cols[l%4];g.beginPath();for(var i=0;i<lv[l].length;i++){if(i===0)g.moveTo(lv[l][i][0],lv[l][i][1]);else g.lineTo(lv[l][i][0],lv[l][i][1]);}g.stroke();for(var i=0;i<lv[l].length;i++){g.fillStyle=cols[l%4];g.beginPath();g.arc(lv[l][i][0],lv[l][i][1],3,0,7);g.fill();}}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.strokeStyle='#556';g.beginPath();for(var i=0;i<PTS.length;i++){if(i===0)g.moveTo(PTS[i][0],PTS[i][1]);else g.lineTo(PTS[i][0],PTS[i][1]);}g.stroke();
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var s=0;s<=60;s++){var p=deCast(PTS,s/60);if(s===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();g.lineWidth=1;
+ var t=0.5*(1+Math.sin(ang)),lv=deCastAll(PTS,t),cols=['#c0a048','#58a0b0','#a878c0'];for(var l=1;l<lv.length;l++){g.strokeStyle=cols[(l-1)%3];g.beginPath();for(var i=0;i<lv[l].length;i++){if(i===0)g.moveTo(lv[l][i][0],lv[l][i][1]);else g.lineTo(lv[l][i][0],lv[l][i][1]);}g.stroke();}
+ var pt=deCast(PTS,t);g.fillStyle='#fff';g.beginPath();g.arc(pt[0],pt[1],4,0,7);g.fill();
+ for(var i=0;i<PTS.length;i++){g.fillStyle='#c0a048';g.beginPath();g.arc(PTS[i][0],PTS[i][1],4,0,7);g.fill();}
+ var v=verify();g.fillStyle=v.matchesBernstein?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('de Casteljau == Bernstein polynomial '+(v.matchesBernstein?'✓':'✗')+' (worst '+v.worst.toExponential(0)+')',12,H-10);}
+document.getElementById('dcroll').onclick=function(){PTS=[];var n=3+Math.floor(Math.random()*3);for(var i=0;i<n;i++)PTS.push([30+Math.random()*320,40+Math.random()*200]);drawW4();document.getElementById('dcread').textContent=PTS.length+' control points';};
+document.getElementById('dccheck').onclick=function(){var v=verify();document.getElementById('dcread').textContent='300 curves: de Casteljau == Bernstein '+(v.matchesBernstein?'✓':'✗')+' (worst Δ '+v.worst.toExponential(1)+')';};
+document.getElementById('dcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10;
+ var pts=[[cx-90,cy+40],[cx-40,cy-70+20*Math.sin(ang)],[cx+40,cy-70-20*Math.sin(ang)],[cx+90,cy+40]];
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var s=0;s<=60;s++){var p=deCast(pts,s/60);if(s===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();g.lineWidth=1;
+ var t=(Math.sin(ang*1.3)+1)/2,lv=deCastAll(pts,t),cols=['#c0a048','#58a0b0','#a878c0'];for(var l=1;l<lv.length;l++){g.strokeStyle=cols[(l-1)%3];g.beginPath();for(var i=0;i<lv[l].length;i++){if(i===0)g.moveTo(lv[l][i][0],lv[l][i][1]);else g.lineTo(lv[l][i][0],lv[l][i][1]);}g.stroke();}
+ var pt=deCast(pts,t);g.fillStyle='#fff';g.beginPath();g.arc(pt[0],pt[1],4,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the Bézier curve from nested interpolations',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the power-hungry Bernstein sum',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the same curve, built by blending',10,H-9);}
+drawW3();drawW4();window.__decasteljau=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CFR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A continued fraction</b> writes a number as a<sub>0</sub> + 1/(a<sub>1</sub> + 1/(a<sub>2</sub> + &hellip;)) &mdash; a ladder of nested reciprocals. For a rational p/q the ladder is <b>finite</b> and the integer parts [a<sub>0</sub>; a<sub>1</sub>, a<sub>2</sub>, &hellip;] come straight from the <b>Euclidean algorithm</b>. Folding the ladder back up (the &ldquo;convergents&rdquo;) reconstructs p/q <b>exactly</b>, in lowest terms. Continued fractions give the <b>best rational approximations</b> of any number and underlie lattice reduction and Pell&rsquo;s equation.<br><br>
+ <span class="lit">LIT</span> verified live: over 500 random rationals, the continued fraction then reconstructed via convergents returns the exact reduced fraction (window.__contfrac). <span class="fig">FIG</span> no framing; exact integer arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hot-loop</i> &mdash; the Euclidean loop that peels a fraction into its integer parts. The continued fraction is what that loop is really computing. <b>AVAN (AI)</b> built the instrument: the Euclidean quotient sequence, the convergent fold-up, and the exact reconstruction check.<br><br>Credit as content: continued fractions (Euclid&rsquo;s algorithm, antiquity; theory by Wallis, Euler, Lagrange). The weave: David names the hot-loop; I read off the quotients as the fraction is reduced and fold them back into the exact reduced rational.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">415/93: 415 = 4&middot;93 + 43, so a<sub>0</sub>=4; then 93/43 gives a<sub>1</sub>=2; then 43/7 gives a<sub>2</sub>=6; then 7/1 gives a<sub>3</sub>=7. The quotients [4;2,6,7] are the continued fraction.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Any rational&rsquo;s continued fraction and its convergents; the fold-up is checked to reconstruct the exact reduced fraction.</div>
+   <div class="btns" style="margin-top:10px"><button id="cfroll">new fraction ▶</button><button id="cfcheck">verify 500 ▶</button></div>
+   <div class="cap" id="cfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a number as a finite ladder of reciprocals.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): express any rational as a <b>ladder of integer parts and reciprocals</b> &mdash; read straight off the Euclidean algorithm &mdash; whose fold-up reconstructs it exactly and gives the best rational approximations. The inverse of &lsquo;a fraction is one ratio p/q&rsquo; is &lsquo;a fraction is a finite ladder [a&#8320;;a&#8321;,a&#8322;,&hellip;].&rsquo; <b>Magenta</b> is the single opaque ratio; <b>green</b> is the revealing ladder. Euclid&rsquo;s algorithm, read as a number.</div>
+   <div class="btns" style="margin-top:10px"><button id="cfspin">pause spin</button></div></div></div></div>"""
+CFR_SCRIPT = """(function(){
+var ang=0,spin=true,P=415,Q=93;
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a;}
+function toCF(p,q){var cf=[];while(q!==0){cf.push(Math.floor(p/q));var r=p-Math.floor(p/q)*q;p=q;q=r;}return cf;}
+function fromCF(cf){var num=1,den=0;for(var i=cf.length-1;i>=0;i--){var t=num;num=cf[i]*num+den;den=t;}return [num,den];}
+function convergents(cf){var res=[],hm1=1,hm2=0,km1=0,km2=1;for(var i=0;i<cf.length;i++){var h=cf[i]*hm1+hm2,k=cf[i]*km1+km2;res.push([h,k]);hm2=hm1;hm1=h;km2=km1;km1=k;}return res;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(211),ok=true;for(var t=0;t<500;t++){var p=1+Math.floor(rnd()*1000),q=1+Math.floor(rnd()*1000),g=gcd(p,q),rp=p/g,rq=q/g,cf=toCF(p,q),rec=fromCF(cf);if(rec[0]!==rp||rec[1]!==rq)ok=false;}return {reconstructs:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the quotients of the Euclidean algorithm ARE the continued fraction',12,14);
+ var steps=['415 = 4·93 + 43   → a₀=4','93 = 2·43 + 7     → a₁=2','43 = 6·7 + 1      → a₂=6','7 = 7·1 + 0       → a₃=7'];for(var i=0;i<4;i++){g.fillStyle=i%2?'#58a0b0':'#c0a048';g.font='11px monospace';g.fillText(steps[i],40,45+i*26);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('415/93 = [4; 2, 6, 7]',300,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cf=toCF(P,Q),conv=convergents(cf),rec=fromCF(cf),gg=gcd(P,Q);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText(P+'/'+Q,12,24);
+ g.fillStyle='#39fc6b';g.font='13px monospace';g.fillText('= ['+cf[0]+'; '+cf.slice(1).join(', ')+']',12,50);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('convergents (best approximations):',12,76);var x=12;for(var i=0;i<conv.length;i++){var txt=conv[i][0]+'/'+conv[i][1];g.fillStyle='#c0a048';g.fillText(txt,x,96);x+=g.measureText(txt).width+14;}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('fold-up reconstructs: '+rec[0]+'/'+rec[1]+'   (reduced '+(P/gg)+'/'+(Q/gg)+')',12,124);
+ var ok=rec[0]===P/gg&&rec[1]===Q/gg;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('reconstructs the exact reduced fraction '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('cfroll').onclick=function(){P=1+Math.floor(Math.random()*1000);Q=1+Math.floor(Math.random()*1000);drawW4();document.getElementById('cfread').textContent=P+'/'+Q+' = ['+toCF(P,Q).join(',')+']';};
+document.getElementById('cfcheck').onclick=function(){var v=verify();document.getElementById('cfread').textContent='500 rationals: CF then convergent reconstructs reduced fraction '+(v.reconstructs?'✓':'✗');};
+document.getElementById('cfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cf=toCF(P,Q),cx=W/2,cy=60;
+ var y=cy,size=110;for(var i=0;i<Math.min(cf.length,6);i++){g.strokeStyle='#39fc6b';g.strokeRect(cx-size/2,y,size,34);g.fillStyle='#c0a048';g.font='12px monospace';g.fillText('a'+i+' = '+cf[i],cx-size/2+10,y+22);if(i<cf.length-1){g.fillStyle='#8ad';g.font='9px monospace';g.fillText('+ 1/',cx-size/2+size/2+8*Math.sin(ang),y+48);}y+=52;size*=0.86;cx+=6;}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green ladder: nested reciprocals [a₀;a₁,a₂,...]',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the single opaque ratio p/q',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Euclid\\'s algorithm, read as a number',10,H-9);}
+drawW3();drawW4();window.__contfrac=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ROP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A rope</b> stores a long string as a <b>balanced binary tree</b> whose leaves hold small pieces and whose internal nodes cache the <b>length</b> of their left subtree. This makes <b>concatenation</b> and <b>splitting</b> O(log n) &mdash; just re-link a few nodes, no copying &mdash; and indexing a walk down the tree using the cached lengths. It is the structure behind fast text editors and immutable string libraries, where inserting into a huge document must not copy it whole.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random strings, ropeIndex(i) returns the same character as the flat string at every position, and concatenating two ropes flattens to the exact concatenation (length and content) &mdash; window.__rope. <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-bounty</i> &mdash; the big reward of editing huge text cheaply: no whole-document copies. The rope is that reward. <b>AVAN (AI)</b> built the instrument: the balanced split into leaves, the left-length caches, the index walk, the O(1) concat, and the flatten cross-check.<br><br>Credit as content: Boehm, Atkinson &amp; Plass (&ldquo;Ropes: an Alternative to Strings&rdquo;, 1995). The weave: David names the-bounty; I break a string into a tree of pieces, walk the length caches to index any position, and confirm the tree flattens back to the exact string.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each internal node stores its left subtree&rsquo;s length. To find character i: if i is less than the left length, go left; otherwise subtract it and go right. A few hops reach the leaf holding position i.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A string as a rope tree; index any position by walking the length caches, and concatenate two ropes without copying.</div>
+   <div class="btns" style="margin-top:10px"><button id="rproll">new string ▶</button><button id="rpcheck">verify 200 ▶</button></div>
+   <div class="cap" id="rpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a string as a tree of pieces.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): make <b>concatenation and splitting O(log n)</b> by storing a string as a <b>balanced tree</b> of pieces with cached subtree lengths &mdash; editing re-links nodes instead of copying characters. The inverse of &lsquo;a string is one flat array you must copy to edit&rsquo; is &lsquo;a string is a tree &mdash; concat and split by re-linking.&rsquo; <b>Magenta</b> is the whole-array copy you avoid; <b>green</b> is the piece tree. Editing text without copying it.</div>
+   <div class="btns" style="margin-top:10px"><button id="rpspin">pause spin</button></div></div></div></div>"""
+ROP_SCRIPT = """(function(){
+var ang=0,spin=true,STR='the quick brown fox',ROPE=null,QI=0;
+function make(s){if(s.length<=4)return {leaf:true,str:s,len:s.length};var mid=s.length>>1,l=make(s.slice(0,mid)),r=make(s.slice(mid));return {leaf:false,left:l,right:r,len:l.len+r.len};}
+function index(node,i){if(node.leaf)return node.str[i];if(i<node.left.len)return index(node.left,i);return index(node.right,i-node.left.len);}
+function concat(a,b){return {leaf:false,left:a,right:b,len:a.len+b.len};}
+function toStr(node){if(node.leaf)return node.str;return toStr(node.left)+toStr(node.right);}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(212),idxOk=true,catOk=true,al='abcdefgh';for(var t=0;t<200;t++){var len=1+Math.floor(rnd()*40),s='';for(var i=0;i<len;i++)s+=al[Math.floor(rnd()*8)];var rope=make(s);for(var i=0;i<len;i++)if(index(rope,i)!==s[i])idxOk=false;var len2=1+Math.floor(rnd()*20),s2='';for(var i=0;i<len2;i++)s2+=al[Math.floor(rnd()*8)];var cat=concat(rope,make(s2));if(toStr(cat)!==s+s2||cat.len!==s.length+s2.length)catOk=false;}return {index:idxOk,concat:catOk};}
+function mk(){var words=['the quick brown fox','jumps over lazy dog','rope trees split fast','edit huge text cheaply'];STR=words[Math.floor(Math.random()*words.length)];ROPE=make(STR);QI=Math.floor(Math.random()*STR.length);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('each node caches its left length; index walks down using it',12,14);
+ g.fillStyle='#a878c0';g.fillRect(220,40,70,24);g.fillStyle='#fff';g.font='9px monospace';g.fillText('len(L)=6',228,56);
+ g.strokeStyle='#8ad';g.beginPath();g.moveTo(255,64);g.lineTo(150,95);g.moveTo(255,64);g.lineTo(360,95);g.stroke();
+ g.fillStyle='#58a0b0';g.fillRect(120,95,60,22);g.fillStyle='#fff';g.fillText('"the qu"',126,110);g.fillStyle='#58a0b0';g.fillRect(330,95,60,22);g.fillStyle='#fff';g.fillText('"ick..."',336,110);
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('index 8: 8 ≥ 6 → go right, look for index 2 in right piece',80,140);}
+function drawTree(g,node,x,y,sp,depth){if(!node)return;if(node.leaf){g.fillStyle='#58a0b0';g.fillRect(x-node.str.length*3.5,y,node.str.length*7+2,16);g.fillStyle='#042';g.font='8px monospace';g.fillText(node.str,x-node.str.length*3+1,y+11);return;}g.fillStyle='#a878c0';g.beginPath();g.arc(x,y,9,0,7);g.fill();g.fillStyle='#fff';g.font='8px monospace';g.fillText(node.left.len,x-4,y+3);if(depth<4){g.strokeStyle='rgba(120,180,140,0.5)';g.beginPath();g.moveTo(x,y+9);g.lineTo(x-sp,y+38);g.moveTo(x,y+9);g.lineTo(x+sp,y+38);g.stroke();drawTree(g,node.left,x-sp,y+40,sp/2,depth+1);drawTree(g,node.right,x+sp,y+40,sp/2,depth+1);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ROPE)mk();
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('"'+STR+'"  (len '+STR.length+')',12,16);
+ drawTree(g,ROPE,W/2,32,W/4.5,0);
+ var ch=index(ROPE,QI);g.fillStyle='#c0a048';g.font='11px monospace';g.fillText('index('+QI+') = "'+ch+'"',12,H-30);
+ var ok=ch===STR[QI]&&toStr(ROPE)===STR;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('rope index == flat string · flattens exactly '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('rproll').onclick=function(){mk();drawW4();document.getElementById('rpread').textContent='index('+QI+')="'+index(ROPE,QI)+'"';};
+document.getElementById('rpcheck').onclick=function(){var v=verify();document.getElementById('rpread').textContent='200 strings: index==flat '+(v.index?'✓':'✗')+' · concat flattens to a+b '+(v.concat?'✓':'✗');};
+document.getElementById('rpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ROPE)mk();var cx=W/2;
+ function draw(node,x,y,sp,d){if(!node)return;var yy=y+6*Math.sin(ang+d);if(node.leaf){g.fillStyle='#39fc6b';g.fillRect(x-10,yy-5,20,10);return;}g.fillStyle='#a878c0';g.beginPath();g.arc(x,yy,6,0,7);g.fill();if(d<4){g.strokeStyle='rgba(120,180,140,0.4)';g.beginPath();g.moveTo(x,yy);g.lineTo(x-sp,y+45);g.moveTo(x,yy);g.lineTo(x+sp,y+45);g.stroke();draw(node.left,x-sp,y+45,sp/2,d+1);draw(node.right,x+sp,y+45,sp/2,d+1);}}
+ draw(ROPE,cx,40,W/4,0);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green leaves: string pieces · violet nodes: length caches',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the whole-array copy you avoid',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('editing text without copying it (O(log n) concat/split)',10,H-9);}
+mk();drawW3();drawW4();window.__rope=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LDP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>An LDPC code</b> (low-density parity-check) protects data with a sparse set of <b>parity checks</b>: a valid codeword c satisfies H&middot;c = 0 (mod 2) for the parity-check matrix H. The classic <b>bit-flipping decoder</b> is beautifully simple: compute which checks fail, count for each bit how many failing checks it touches, and <b>flip the bit in the most failing checks</b>; repeat until all checks pass. LDPC codes approach the Shannon limit and protect Wi-Fi, 5G, and deep-space links.<br><br>
+ <span class="lit">LIT</span> verified live: over 400 valid codewords each hit by a single bit error, bit-flipping restores H&middot;c = 0 and recovers the original codeword &mdash; 400/400 (window.__ldpc). <span class="fig">FIG</span> the single-error case is exact for this code; heavier noise is not claimed.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-blue-screen</i> &mdash; the crash from corruption, here caught and healed before it shows. LDPC bit-flipping is that self-repair. <b>AVAN (AI)</b> built the instrument: the sparse parity-check matrix, the GF(2) null-space codeword generator, the syndrome, the flip-the-worst-bit loop, and the restore + recover check.<br><br>Credit as content: Robert Gallager (LDPC codes, 1962). The weave: David names the blue-screen; I flip a bit, run the bit-flipping decoder, and confirm the parity checks pass again and the original codeword returns.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A flipped bit makes every parity check it touches fail. That bit sits in more failing checks than any other &mdash; so flip the bit with the most failing checks, and the errors vanish.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A codeword, a single injected error, and the bit-flipping decoder restoring it; the syndrome and recovery are checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="ldroll">new error ▶</button><button id="ldcheck">verify 400 ▶</button></div>
+   <div class="cap" id="ldread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a codeword that heals its own errors.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): let a message <b>repair itself</b> by attaching <b>sparse parity checks</b> &mdash; failing checks vote on which bit is wrong, and flipping the most-accused bit restores H&middot;c=0. The inverse of &lsquo;a corrupted bit is lost&rsquo; is &lsquo;the parity checks vote it back &mdash; flip the most-accused bit.&rsquo; <b>Magenta</b> is the failing checks around the error; <b>green</b> is the healed codeword. Self-repair from a web of parities.</div>
+   <div class="btns" style="margin-top:10px"><button id="ldspin">pause spin</button></div></div></div></div>"""
+LDP_SCRIPT = """(function(){
+var ang=0,spin=true,H=null,BASIS=null,CW=null,RECV=null,ERRBIT=0,DEC=null;
+function nullSpace(H,n){var m=H.length,A=H.map(function(r){return r.slice();}),where=new Array(n).fill(-1),row=0;for(var col=0;col<n&&row<m;col++){var sel=-1;for(var i=row;i<m;i++)if(A[i][col]){sel=i;break;}if(sel<0)continue;var tmp=A[sel];A[sel]=A[row];A[row]=tmp;for(var i=0;i<m;i++)if(i!==row&&A[i][col])for(var j=0;j<n;j++)A[i][j]^=A[row][j];where[col]=row;row++;}var free=[];for(var c=0;c<n;c++)if(where[c]<0)free.push(c);var basis=[];free.forEach(function(fc){var x=new Array(n).fill(0);x[fc]=1;for(var c=0;c<n;c++)if(where[c]>=0)x[c]=A[where[c]][fc];basis.push(x);});return basis;}
+function synd(H,c){return H.map(function(row){var s=0;for(var j=0;j<row.length;j++)s^=row[j]&c[j];return s;});}
+function decode(H,r,maxIter){var c=r.slice(),n=c.length,m=H.length;for(var it=0;it<maxIter;it++){var s=synd(H,c);if(s.every(function(v){return v===0;}))return c;var unsat=new Array(n).fill(0);for(var i=0;i<m;i++)if(s[i])for(var j=0;j<n;j++)if(H[i][j])unsat[j]++;var best=0;for(var j=1;j<n;j++)if(unsat[j]>unsat[best])best=j;c[best]^=1;}return c;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function buildH(){var combos=[];for(var a=0;a<8;a++)for(var b=a+1;b<8;b++)for(var cc=b+1;cc<8;cc++)combos.push([a,b,cc]);var chosen=combos.slice(0,12),h=[];for(var i=0;i<8;i++)h.push(new Array(12).fill(0));for(var j=0;j<12;j++)chosen[j].forEach(function(chk){h[chk][j]=1;});return h;}
+function verify(){var h=buildH(),basis=nullSpace(h,12),rnd=mb(213),restored=0,recovered=0,trials=0;for(var t=0;t<400;t++){var c=new Array(12).fill(0);basis.forEach(function(bv){if(rnd()<0.5)for(var j=0;j<12;j++)c[j]^=bv[j];});var e=Math.floor(rnd()*12),r=c.slice();r[e]^=1;var dec=decode(h,r,20);trials++;if(synd(h,dec).every(function(v){return v===0;}))restored++;if(dec.join('')===c.join(''))recovered++;}return {restored:restored===trials,recovered:recovered===trials,trials:trials};}
+function mk(){H=buildH();BASIS=nullSpace(H,12);CW=new Array(12).fill(0);BASIS.forEach(function(bv){if(Math.random()<0.5)for(var j=0;j<12;j++)CW[j]^=bv[j];});ERRBIT=Math.floor(Math.random()*12);RECV=CW.slice();RECV[ERRBIT]^=1;DEC=decode(H,RECV,20);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;g.clearRect(0,0,W,H2);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a flipped bit fails every parity check it touches — flip the most-accused bit',12,14);
+ for(var i=0;i<12;i++){g.fillStyle=i===5?'#ff2d95':'#37506e';g.fillRect(30+i*38,50,30,24);g.fillStyle='#fff';g.font='9px monospace';g.fillText('b'+i,38+i*38,66);}
+ g.fillStyle='#ff2d95';g.font='9px monospace';g.fillText('b5 flipped → its 3 checks all fail → most accused → flip back',30,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;g.clearRect(0,0,W,H2);if(!H)mk();var sRecv=synd(H,RECV);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('codeword (12 bits), 1 error at b'+ERRBIT,12,18);
+ for(var i=0;i<12;i++){g.fillStyle=i===ERRBIT?'#ff2d95':(RECV[i]?'#39fc6b':'#37506e');g.fillRect(14+i*30,28,26,20);g.fillStyle=RECV[i]?'#042':'#9ab';g.font='10px monospace';g.fillText(RECV[i],23+i*30,42);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('syndrome (failing checks): '+sRecv.join(''),12,66);
+ g.fillStyle='#c0a048';g.font='11px monospace';g.fillText('after bit-flipping decode:',12,90);
+ for(var i=0;i<12;i++){g.fillStyle=DEC[i]?'#39fc6b':'#37506e';g.fillRect(14+i*30,98,26,20);g.fillStyle=DEC[i]?'#042':'#9ab';g.font='10px monospace';g.fillText(DEC[i],23+i*30,112);}
+ var restored=synd(H,DEC).every(function(v){return v===0;}),recov=DEC.join('')===CW.join('');
+ g.fillStyle=restored&&recov?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('H·c=0 restored '+(restored?'✓':'✗')+' · original recovered '+(recov?'✓':'✗'),12,H2-12);}
+document.getElementById('ldroll').onclick=function(){mk();drawW4();document.getElementById('ldread').textContent='error at b'+ERRBIT+' → '+(DEC.join('')===CW.join('')?'recovered':'miss');};
+document.getElementById('ldcheck').onclick=function(){var v=verify();document.getElementById('ldread').textContent='400 single-error trials: H·c=0 restored '+(v.restored?'✓':'✗')+' · original recovered '+(v.recovered?'✓':'✗');};
+document.getElementById('ldspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;g.clearRect(0,0,W,H2);if(!H)mk();var cx=W/2,cy=H2/2-20;
+ var bitPos=[];for(var j=0;j<12;j++){var a=j/12*6.28+ang*0.3;bitPos.push([cx+Math.cos(a)*95,cy+Math.sin(a)*95*0.75]);}
+ var chkPos=[];for(var i=0;i<8;i++){var a=i/8*6.28-ang*0.2;chkPos.push([cx+Math.cos(a)*45,cy+Math.sin(a)*45*0.75]);}
+ for(var i=0;i<8;i++)for(var j=0;j<12;j++)if(H[i][j]){g.strokeStyle='rgba(120,140,160,0.2)';g.beginPath();g.moveTo(chkPos[i][0],chkPos[i][1]);g.lineTo(bitPos[j][0],bitPos[j][1]);g.stroke();}
+ for(var i=0;i<8;i++){g.fillStyle='#c0a048';g.beginPath();g.arc(chkPos[i][0],chkPos[i][1],4,0,7);g.fill();}
+ for(var j=0;j<12;j++){g.fillStyle=DEC[j]?'#39fc6b':'#37506e';g.beginPath();g.arc(bitPos[j][0],bitPos[j][1],5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: bit nodes healed · gold: parity checks (all satisfied)',10,H2-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the failing checks around an error',10,H2-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('self-repair from a web of parities',10,H2-9);}
+mk();drawW3();drawW4();window.__ldpc=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 76 (add without decrypting · dominoes that can't be decided · rank a symbol through a tree of bits · triangles with empty hearts · an odometer whose wheels grow) ═══════════════════════
 PLR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Paillier cryptosystem</b> is <b>additively homomorphic</b>: you can <b>add two encrypted numbers without ever decrypting them</b>. Multiplying two ciphertexts yields an encryption of the <b>sum</b> of the plaintexts, and raising a ciphertext to a power k yields an encryption of the plaintext times k. Encryption is Enc(m,r) = g<sup>m</sup>&middot;r<sup>n</sup> mod n<sup>2</sup> with a fresh random r; the randomness makes every encryption of the same number look different, yet the algebra still lines up. It underpins private voting and encrypted aggregation.<br><br>
@@ -21343,6 +21590,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-cyclic-tag","title":"THE CYCLIC TAG","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#a878c0","icon":"cyclic-tag",
+  "kicker":"a universal computer from three strings and one rule",
+  "blurb":"a cyclic tag system in the 5-window house format — one of the tiniest known universal computers. It has a fixed cyclic list of production strings and a growing data string. Each step: remove the first data symbol; if it was a 1, append the current production; if a 0, append nothing; then advance to the next production, cycling. From this almost-nothing, Rule 110's universality was proven — cyclic tag systems can emulate any computation. Verified live: running productions (010, 000, 1111) on the seed '11' reproduces the exact documented state sequence 11 -> 1010 -> 010000 -> 10000 -> ... matching an independent hand derivation. See the step rule in 1D, the evolving data in 2D, and the minimal-engine inverse in 3D.",
+  "lit":"Genuine cyclic tag system (Cook, in the Rule 110 universality proof, 2004). Verified live: running the productions (010, 000, 1111) on seed '11', the remove-first / append-if-1 / cycle step reproduces the exact state sequence 11, 1010, 010000, 10000, 0000010, 000010 — matching an independent hand-derived reference (window.__cyclictag.matchesReference).",
+  "fig":"No framing: the remove-first / append-production / cycle step, the state trace, and the match against a hand-computed reference run in-browser and agree exactly. The AVAN inverse is honest — a cyclic list of strings and one 'append-if-1, skip-if-0, then cycle' rule is Turing-complete; magenta is the elaborate machinery you don't need, green the minimal cycling engine. Universality from a handful of bits.",
+  "body":CTG_BODY,"script":CTG_SCRIPT},
+ {"slug":"the-de-casteljau","title":"THE DE CASTELJAU","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#70a860","icon":"de-casteljau",
+  "kicker":"a Bezier curve from nested interpolation",
+  "blurb":"de Casteljau's algorithm in the 5-window house format — evaluate a Bezier curve by repeated linear interpolation: take the control points, interpolate each adjacent pair by parameter t to get one fewer point, and repeat until a single point remains — that point is on the curve. It is numerically stable and needs only midpoint-style blends, no polynomial powers. Remarkably, it computes exactly the same result as the Bernstein polynomial sum C(n,i) t^i (1-t)^(n-i) P_i. Verified live: over 300 random curves, de Casteljau's nested interpolation matches the Bernstein polynomial to floating precision (worst deviation ~1e-14). See the interpolation pyramid in 1D, a curve in 2D, and the blend-not-power inverse in 3D.",
+  "lit":"Genuine de Casteljau algorithm (de Casteljau 1959). Verified live: over 300 random control polygons and 21 sample parameters each, the nested-interpolation result equals the Bernstein polynomial value to floating precision (worst deviation ~1e-14) (window.__decasteljau.matchesBernstein).",
+  "fig":"No framing: the nested lerp pyramid, the Bernstein-polynomial reference, and the agreement check run in-browser and match to machine precision. The AVAN inverse is honest — collapsing the control polygon by repeated interpolation evaluates the curve with no powers or binomials, stably, and exactly equal to Bernstein; magenta is the power-hungry Bernstein sum, green the interpolation pyramid. The same curve, built by blending.",
+  "body":DCJ_BODY,"script":DCJ_SCRIPT},
+ {"slug":"the-continued-fraction","title":"THE CONTINUED FRACTION","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#c0a048","icon":"continued-fraction",
+  "kicker":"a number as a ladder of nested reciprocals",
+  "blurb":"continued fractions in the 5-window house format — write a number as a0 + 1/(a1 + 1/(a2 + ...)), a ladder of nested reciprocals. For a rational p/q the ladder is finite and the integer parts [a0; a1, a2, ...] come straight from the Euclidean algorithm. Folding the ladder back up (the convergents) reconstructs p/q exactly, in lowest terms. Continued fractions give the best rational approximations of any number and underlie lattice reduction and Pell's equation. Verified live: over 500 random rationals, the continued fraction then reconstructed via convergents returns the exact reduced fraction. See the Euclidean quotients in 1D, the convergents in 2D, and the ladder inverse in 3D.",
+  "lit":"Genuine continued fractions (Euclid's algorithm; theory by Wallis, Euler, Lagrange). Verified live: over 500 random rationals p/q, reading the quotients of the Euclidean algorithm as the continued fraction and folding the convergents back up reconstructs the exact reduced fraction (window.__contfrac.reconstructs); 415/93 = [4;2,6,7].",
+  "fig":"No framing: the Euclidean quotient sequence, the convergent fold-up, and the exact reconstruction check run in-browser over 500 rationals with exact integer arithmetic. The AVAN inverse is honest — expressing a rational as a ladder of integer parts and reciprocals (read off Euclid) reconstructs it exactly and gives the best rational approximations; magenta is the single opaque ratio, green the revealing ladder. Euclid's algorithm, read as a number.",
+  "body":CFR_BODY,"script":CFR_SCRIPT},
+ {"slug":"the-rope","title":"THE ROPE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE BOUNTY","domain_slug":"the-bounty","accent":"#d4a017","icon":"rope",
+  "kicker":"a long string as a balanced tree of pieces",
+  "blurb":"a rope in the 5-window house format — store a long string as a balanced binary tree whose leaves hold small pieces and whose internal nodes cache the length of their left subtree. This makes concatenation and splitting O(log n) — just re-link a few nodes, no copying — and indexing a walk down the tree using the cached lengths. It is the structure behind fast text editors and immutable string libraries, where inserting into a huge document must not copy it whole. Verified live: over 200 random strings, ropeIndex(i) returns the same character as the flat string at every position, and concatenating two ropes flattens to the exact concatenation (length and content). See the length-cache walk in 1D, a rope tree in 2D, and the no-copy inverse in 3D.",
+  "lit":"Genuine rope data structure (Boehm, Atkinson & Plass 1995). Verified live: over 200 random strings, indexing a position via the cached left-lengths returns the same character as the flat string at every position, and concatenating two ropes flattens to the exact concatenation with the correct total length (window.__rope.index && .concat).",
+  "fig":"No framing: the balanced split into leaves, the left-length caches, the index walk, the O(1) concat, and the flatten cross-check run in-browser and agree exactly. The AVAN inverse is honest — storing a string as a balanced tree of pieces with cached subtree lengths makes concat and split O(log n) by re-linking instead of copying; magenta is the whole-array copy you avoid, green the piece tree. Editing text without copying it.",
+  "body":ROP_BODY,"script":ROP_SCRIPT},
+ {"slug":"the-ldpc","title":"THE LDPC CODE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#58a0b0","icon":"ldpc",
+  "kicker":"a codeword that heals its own errors",
+  "blurb":"an LDPC code in the 5-window house format — low-density parity-check codes protect data with a sparse set of parity checks: a valid codeword c satisfies H*c = 0 (mod 2) for the parity-check matrix H. The classic bit-flipping decoder is beautifully simple: compute which checks fail, count for each bit how many failing checks it touches, and flip the bit in the most failing checks; repeat until all checks pass. LDPC codes approach the Shannon limit and protect Wi-Fi, 5G, and deep-space links. Verified live: over 400 valid codewords each hit by a single bit error, bit-flipping restores H*c = 0 and recovers the original codeword — 400/400. See the accused bit in 1D, a decode in 2D, and the self-repair inverse in 3D.",
+  "lit":"Genuine LDPC bit-flipping decoding (Gallager 1962). Verified live: over 400 valid codewords (from the GF(2) null space of a sparse H with distinct weight-3 columns) each corrupted by a single bit error, the bit-flipping decoder restores H*c = 0 and recovers the original codeword in all 400 trials (window.__ldpc.restored && .recovered).",
+  "fig":"Honestly scoped: single-error correction is exact for this code; heavier noise is NOT claimed (bit-flipping is a heuristic that can fail on many errors). The sparse parity-check matrix, the GF(2) null-space codeword generator, the syndrome, the flip-the-worst-bit loop, and the restore + recover check run in-browser. The AVAN inverse is honest — sparse parity checks vote on which bit is wrong, and flipping the most-accused bit restores H*c=0; magenta is the failing checks around the error, green the healed codeword. Self-repair from a web of parities.",
+  "body":LDP_BODY,"script":LDP_SCRIPT},
  {"slug":"the-paillier","title":"THE PAILLIER","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE ROOT-KIT","domain_slug":"the-root-kit","accent":"#a878c0","icon":"paillier",
   "kicker":"add two numbers without ever decrypting them",

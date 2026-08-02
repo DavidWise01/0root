@@ -33,7 +33,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 
 ═══════════════════════════════════════════════════════════════════════
 ## VEIN B — AUTOMATA, TILINGS & MODELS OF COMPUTATION
-1. THE CYCLIC TAG — cyclic tag system (Cook's Rule-110 universality engine). CLAIM: re-derives documented word sequence step-by-step.
+1. THE CYCLIC TAG [BUILT] — cyclic tag system (Cook's Rule-110 universality engine). CLAIM: re-derives documented word sequence step-by-step.
 2. THE BUSY BEAVER — n-state halting champions. CLAIM: BB(3) halts 21 steps/6 ones, BB(2) 6 steps/4 ones, re-simulated from blank.
 3. THE WANG DOMINOES [BUILT] — edge-colored tiles. CLAIM: backtracking fills N×N respecting colors; recolor one edge → 0 solutions (exhaustive).
 4. THE POST DOMINOES [BUILT] — Post Correspondence Problem. CLAIM: known solution concatenates equal top/bottom; unsolvable one → no match ≤bound.
@@ -56,7 +56,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 3. THE COUNTER OF MULTITUDES — HyperLogLog. CLAIM: distinct-count estimate within ~1.04/√m of exact Set over N uniques.
 4. THE GOLDEN CODE — Zeckendorf/Fibonacci self-delimiting code (ends "11"). CLAIM: greedy no-adjacent + sums to n; stream splits uniquely at "11".
 5. THE HOMOMORPH [BUILT] — Paillier (toy). CLAIM: Dec(Enc(a)·Enc(b))=a+b and Dec(Enc(a)^k)=k·a over random a,b,k.
-6. THE WHISPER NETWORK — LDPC bit-flipping decoder. CLAIM: corrupt valid codeword ≤k errors → iterative flipping restores (H·c=0).
+6. THE WHISPER NETWORK [BUILT] — LDPC bit-flipping decoder. CLAIM: corrupt valid codeword ≤k errors → iterative flipping restores (H·c=0).
 7. THE SQUARE ROOT IN THE RING — Tonelli–Shanks modular sqrt. CLAIM: returned r satisfies r²≡n (mod p); non-residues flagged via Legendre.
 8. THE OUROBOROS STRING — de Bruijn sequence. CLAIM: cyclic length b^k contains all b^k k-grams exactly once (enumerate windows).
 9. THE EXACT TRANSFORM — Number Theoretic Transform. CLAIM: NTT·pointwise·INTT = schoolbook convolution bit-for-bit (prime field, no rounding).
