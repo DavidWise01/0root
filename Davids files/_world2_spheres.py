@@ -19485,6 +19485,259 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 109 (when a set of codeword-lengths can be a prefix code · a rational close to any real, guaranteed by pigeonhole · the diagonal that escapes every list · the arrangement that maximises a dot product · the convex inequality behind averages) ═══════════════════════
+KRAF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Kraft inequality</b> is the budget law of prefix codes. A <b>prefix code</b> (no codeword is the start of another, so a stream decodes without markers) with codeword lengths &ell;<sub>1</sub>, &ell;<sub>2</sub>, &hellip; exists <b>if and only if</b> <b>&Sigma; 2<sup>&minus;&ell;<sub>i</sub></sup> &le; 1</b>. Each length-&ell; codeword spends a share 2<sup>&minus;&ell;</sup> of a unit budget; short codewords are expensive. The bound is tight both ways: any prefix code obeys it, and any set of lengths obeying it <b>can be realised</b> as a prefix code. Equality means the code is <b>complete</b> &mdash; a full binary tree with no room to spare.<br><br>
+ <span class="lit">LIT</span> verified live: every random prefix code satisfies &Sigma; 2<sup>&minus;&ell;</sup> &le; 1, any length multiset with &Sigma; 2<sup>&minus;&ell;</sup> &le; 1 is constructed into an actual prefix code, and complete codes hit &Sigma; = 1 (window.__kraft). <span class="fig">FIG</span> no framing; prefix-freeness checked and codes built explicitly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-drop</i> &mdash; every codeword you claim spends a slice 2<sup>&minus;&ell;</sup> of a single unit; you can spend up to all of it and no more. That budget is the drop. <b>AVAN (AI)</b> built the instrument: the prefix-free test, the &Sigma; 2<sup>&minus;&ell;</sup> sum, the greedy code-builder from a length multiset, and the complete-code equality.<br><br>Credit as content: Leon G. Kraft (1949); the converse for uniquely-decodable codes is Brockway McMillan (1956). The weave: David names the-drop; I check that no codeword prefixes another, add up their 2<sup>&minus;&ell;</sup> shares, and confirm the sum never exceeds one &mdash; and that any lengths within budget can be dealt out as real codewords.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">{0, 10, 11}: lengths 1, 2, 2 &rarr; 1/2 + 1/4 + 1/4 = 1 (complete). {0, 10, 110} &rarr; 1/2 + 1/4 + 1/8 = 7/8 &le; 1 (room to spare). A length-1 codeword costs half the whole budget.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A code on the binary tree, its Kraft sum against the unit budget; whether it is prefix-free and complete; checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="kfroll">new lengths ▶</button><button id="kfcheck">verify ▶</button></div>
+   <div class="cap" id="kfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: codeword lengths that fit a unit budget.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t design a code and hope it decodes &mdash; <b>pick the lengths</b> first, check they fit the budget &Sigma; 2<sup>&minus;&ell;</sup> &le; 1, and a prefix code is guaranteed to exist. The inverse of &lsquo;build a prefix code&rsquo; is &lsquo;the lengths alone decide whether one can.&rsquo; <b>Magenta</b> is an over-budget length set (no code); <b>green</b> is a within-budget set realised as a code. Lengths, not letters, decide.</div>
+   <div class="btns" style="margin-top:10px"><button id="kfspin">pause spin</button></div></div></div></div>"""
+KRAF_SCRIPT = """(function(){
+var ang=0,spin=true,LENS=[1,2,3,3],VR=null;
+function isPrefixFree(code){for(var i=0;i<code.length;i++)for(var j=0;j<code.length;j++)if(i!==j&&code[j].indexOf(code[i])===0)return false;return true;}
+function kraftSum(lens){var s=0;for(var i=0;i<lens.length;i++)s+=Math.pow(2,-lens[i]);return s;}
+function buildPrefix(lengths){var ls=lengths.slice().sort(function(a,b){return a-b;}),code=[],next=0,curLen=0;for(var i=0;i<ls.length;i++){var L=ls[i];next=next<<(L-curLen);curLen=L;if(next>=(1<<L))return null;var s=next.toString(2);while(s.length<L)s='0'+s;code.push(s);next++;}return code;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){if(VR)return VR;var rnd=mb(1),fwd=true,bld=true;for(var t=0;t<1500;t++){var n=1+Math.floor(rnd()*5),code=[],tr=0;while(code.length<n&&tr<40){var L=1+Math.floor(rnd()*5),s='';for(var k=0;k<L;k++)s+=(rnd()<0.5)?'0':'1';if(code.indexOf(s)<0){var tmp=code.concat([s]);if(isPrefixFree(tmp))code=tmp;}tr++;}if(code.length&&kraftSum(code.map(function(c){return c.length;}))>1+1e-9)fwd=false;}
+ for(var t=0;t<1500;t++){var n=1+Math.floor(rnd()*6),ls=[];for(var i=0;i<n;i++)ls.push(1+Math.floor(rnd()*5));if(kraftSum(ls)>1+1e-9)continue;var c=buildPrefix(ls);if(!c||!isPrefixFree(c)||c.length!==n)bld=false;}
+ var comp=Math.abs(kraftSum([1,2,2])-1)<1e-9;VR={forward:fwd,constructible:bld,complete:comp};return VR;}
+function drawTree(g,code,ox,oy,depth){function rec(node,x,y,dx,d){if(d>depth)return;g.strokeStyle='#39465a';if(d<depth){g.beginPath();g.moveTo(x,y);g.lineTo(x-dx,y+34);g.stroke();g.beginPath();g.moveTo(x,y);g.lineTo(x+dx,y+34);g.stroke();rec(node+'0',x-dx,y+34,dx/2,d+1);rec(node+'1',x+dx,y+34,dx/2,d+1);}var isCode=code.indexOf(node)>=0;g.fillStyle=isCode?'#d0a848':'#2a3648';g.beginPath();g.arc(x,y,isCode?6:3,0,7);g.fill();}rec('',ox,oy,80,0);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('prefix code with lengths ℓᵢ exists ⟺ Σ 2^(−ℓᵢ) ≤ 1  (Kraft)',12,14);
+ g.fillStyle='#d0a848';g.font='12px monospace';g.fillText('{0, 10, 11}: ½ + ¼ + ¼ = 1  (complete)',30,48);
+ g.fillStyle='#39fc6b';g.fillText('{0, 10, 110}: ½ + ¼ + ⅛ = ⅞ ≤ 1  (room to spare)',30,78);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('a length-1 codeword costs half the whole unit budget',30,108);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var code=buildPrefix(LENS),ks=kraftSum(LENS);
+ if(code)drawTree(g,code,W/2,30,4);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('lengths: {'+LENS.join(',')+'}  ·  code: '+(code?'{'+code.join(',')+'}':'—'),14,H-52);
+ g.fillStyle=ks<=1+1e-9?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('Σ 2^(−ℓ) = '+ks.toFixed(3)+(Math.abs(ks-1)<1e-9?' = 1 (complete)':(ks<1?' ≤ 1 ✓':' > 1 (no code)')),14,H-32);
+ var v=verify();g.fillStyle=(v.forward&&v.constructible&&v.complete)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('prefix⇒Σ≤1 '+(v.forward?'✓':'✗')+' · Σ≤1⇒constructible '+(v.constructible?'✓':'✗')+' · complete⇒Σ=1 '+(v.complete?'✓':'✗'),14,H-12);}
+document.getElementById('kfroll').onclick=function(){var n=2+Math.floor(Math.random()*4);LENS=[];for(var i=0;i<n;i++)LENS.push(1+Math.floor(Math.random()*4));drawW4();var ks=kraftSum(LENS);document.getElementById('kfread').textContent='{'+LENS.join(',')+'} Σ2^(−ℓ)='+ks.toFixed(3)+(ks<=1?' → code exists':' → no code');};
+document.getElementById('kfcheck').onclick=function(){var v=verify();document.getElementById('kfread').textContent='prefix code ⇒ Σ2^(−ℓ)≤1 '+(v.forward?'✓':'✗')+' · lengths with Σ≤1 ⇒ code constructible '+(v.constructible?'✓':'✗')+' · complete ⇒ Σ=1 '+(v.complete?'✓':'✗');};
+document.getElementById('kfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var code=buildPrefix(LENS),cx=W/2;
+ g.save();g.translate(cx,H/2);g.rotate(Math.sin(ang*0.3)*0.05);g.translate(-cx,-H/2);if(code)drawTree(g,code,cx,50,4);g.restore();
+ g.fillStyle='#d0a848';g.font='11px monospace';g.fillText('gold nodes: the codewords on the binary tree (prefix-free)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: lengths that overflow the unit budget',10,H-24);
+ g.fillStyle='#8ad';g.fillText('lengths, not letters, decide',10,H-9);}
+drawW3();drawW4();window.__kraft=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DIRA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Dirichlet&rsquo;s approximation theorem</b> guarantees good rational approximations to <b>every</b> real number, and it falls straight out of the <b>pigeonhole principle</b>. For any real &alpha; and any bound Q, there is a fraction p/q with <b>1 &le; q &le; Q</b> and <b>|&alpha; &minus; p/q| &lt; 1/(qQ)</b> &mdash; which is at most 1/q<sup>2</sup>. The proof: the Q + 1 fractional parts {&alpha;}, {2&alpha;}, &hellip;, {Q&alpha;}, together with 0, fall into Q sub-intervals of [0, 1], so two of them lie within 1/Q &mdash; their difference gives the fraction. It is the seed from which continued-fraction approximation and Hurwitz&rsquo;s sharp bound grow.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random &alpha; and bounds Q, a q &le; Q is found with the nearest fraction satisfying |&alpha; &minus; p/q| &lt; 1/(qQ), and hence &lt; 1/q<sup>2</sup> (window.__dirichlet). <span class="fig">FIG</span> no framing; the pigeonhole q located and the two bounds checked exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>warm-cache</i> &mdash; among the first Q multiples of &alpha;, one lands within 1/Q of a whole number, and that near-miss is cached as a good fraction. <b>AVAN (AI)</b> built the instrument: the fractional-part scan for a q with ||q&alpha;|| &lt; 1/Q, and the |&alpha; &minus; p/q| &lt; 1/(qQ) &le; 1/q<sup>2</sup> checks.<br><br>Credit as content: Peter Gustav Lejeune Dirichlet (1842); the argument is the founding use of the pigeonhole (Schubfachprinzip). The weave: David names warm-cache; I look through the multiples q&alpha; for one whose fractional part is within 1/Q of an integer &mdash; pigeonhole promises it exists &mdash; and read off a fraction p/q closer than 1/q<sup>2</sup> to &alpha;.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The Q + 1 points 0, {&alpha;}, {2&alpha;}, &hellip;, {Q&alpha;} in [0,1] fall into Q boxes of width 1/Q &mdash; so two share a box (pigeonhole), giving |q&alpha; &minus; p| &lt; 1/Q. For &radic;2, Q = 10: 7/5 is within 1/50.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The multiples of &alpha; mod 1 in their boxes; the pigeonhole pair; the fraction p/q and its error against 1/q<sup>2</sup>; checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="daroll">new α,Q ▶</button><button id="dacheck">verify ▶</button></div>
+   <div class="cap" id="daread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a rational within 1/q<sup>2</sup> of any real.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t hunt for a good fraction &mdash; <b>guarantee</b> one by pigeonhole: crowd Q + 1 points into Q boxes and two must collide. The inverse of &lsquo;search for p/q near &alpha;&rsquo; is &lsquo;pigeonhole forces a q &le; Q with error below 1/q<sup>2</sup>.&rsquo; <b>Magenta</b> is a blind search; <b>green</b> is the pigeonhole-guaranteed fraction. Approximation by counting boxes.</div>
+   <div class="btns" style="margin-top:10px"><button id="daspin">pause spin</button></div></div></div></div>"""
+DIRA_SCRIPT = """(function(){
+var ang=0,spin=true,ALPHA=Math.SQRT2,Q=10,VR=null;
+function frac(x){return x-Math.floor(x);}
+function distToInt(x){var f=frac(x);return Math.min(f,1-f);}
+function findQ(alpha,Q){for(var q=1;q<=Q;q++)if(distToInt(q*alpha)<1/Q+1e-12)return q;return -1;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){if(VR)return VR;var rnd=mb(2),ok=true,q2=true;for(var t=0;t<5000;t++){var a=rnd()*10,QQ=2+Math.floor(rnd()*40),q=findQ(a,QQ);if(q<0){ok=false;continue;}var p=Math.round(q*a);if(Math.abs(a-p/q)>=1/(q*QQ)+1e-9)ok=false;if(Math.abs(a-p/q)>=1/(q*q)+1e-9)q2=false;}VR={exists:ok,q2bound:q2};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Q+1 points {kα} in Q boxes of width 1/Q → two collide (pigeonhole) → |α−p/q| < 1/(qQ)',12,14);
+ var boxes=8,x0=20,x1=W-20;for(var b=0;b<=boxes;b++){var x=x0+b*(x1-x0)/boxes;g.strokeStyle='#345';g.beginPath();g.moveTo(x,40);g.lineTo(x,90);g.stroke();}
+ for(var k=0;k<=boxes;k++){var fx=frac(k*Math.SQRT2),x=x0+fx*(x1-x0);g.fillStyle='#88b058';g.beginPath();g.arc(x,65,3,0,7);g.fill();g.fillStyle='#8ad';g.font='7px monospace';g.fillText(k,x-2,80);}
+ g.fillStyle='#88b058';g.font='9px monospace';g.fillText('α = √2: the points {k√2} crowd into the boxes; two land within 1/Q',20,116);
+ g.fillStyle='#39fc6b';g.fillText('Q=10 → q=5, p=7: |√2 − 7/5| = 0.0142 < 1/50 = 0.02',20,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var q=findQ(ALPHA,Q),p=q>0?Math.round(q*ALPHA):0;
+ var x0=20,x1=W-20,y=110;for(var b=0;b<=Q;b++){var x=x0+b*(x1-x0)/Q;g.strokeStyle='#2a3648';g.beginPath();g.moveTo(x,60);g.lineTo(x,y);g.stroke();}
+ for(var k=0;k<=Q;k++){var fx=frac(k*ALPHA),x=x0+fx*(x1-x0);g.fillStyle=(k===q)?'#39fc6b':'#88b058';g.beginPath();g.arc(x,85,k===q?5:3,0,7);g.fill();}
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('α = '+ALPHA.toFixed(5)+'  Q = '+Q,14,24);
+ if(q>0){g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('found q='+q+', p='+p+' → '+p+'/'+q+' = '+(p/q).toFixed(5),14,H-52);
+  g.fillStyle='#8ad';g.font='10px monospace';g.fillText('|α − p/q| = '+Math.abs(ALPHA-p/q).toFixed(5)+'  <  1/(qQ) = '+(1/(q*Q)).toFixed(5)+'  ≤  1/q² = '+(1/(q*q)).toFixed(5),14,H-32);}
+ var v=verify();g.fillStyle=(v.exists&&v.q2bound)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('∃ q≤Q with |α−p/q|<1/(qQ) '+(v.exists?'✓':'✗')+' · and <1/q² '+(v.q2bound?'✓':'✗')+' (5000)',14,H-12);}
+document.getElementById('daroll').onclick=function(){var alphas=[Math.SQRT2,Math.PI,Math.E,(1+Math.sqrt(5))/2,Math.sqrt(3)];ALPHA=alphas[Math.floor(Math.random()*alphas.length)];Q=5+Math.floor(Math.random()*20);drawW4();var q=findQ(ALPHA,Q),p=Math.round(q*ALPHA);document.getElementById('daread').textContent='α='+ALPHA.toFixed(4)+' Q='+Q+' → '+p+'/'+q+', err '+Math.abs(ALPHA-p/q).toFixed(5);};
+document.getElementById('dacheck').onclick=function(){var v=verify();document.getElementById('daread').textContent='∃ q≤Q with |α−p/q| < 1/(qQ) '+(v.exists?'✓':'✗')+' and < 1/q² '+(v.q2bound?'✓':'✗')+' for 5000 random α, Q';};
+document.getElementById('daspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10,R=120,q=findQ(ALPHA,Q);
+ g.save();g.translate(cx,cy);g.rotate(ang*0.1);g.translate(-cx,-cy);
+ g.strokeStyle='#2a3a4c';g.beginPath();g.arc(cx,cy,R,0,7);g.stroke();
+ for(var k=0;k<=Q;k++){var fx=frac(k*ALPHA),a=fx*6.28-1.57,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R;g.fillStyle=(k===q)?'#39fc6b':'#88b058';g.beginPath();g.arc(x,y,k===q?6:3,0,7);g.fill();}g.restore();
+ g.fillStyle='#88b058';g.font='11px monospace';g.fillText('green ring: the multiples {kα} on the circle [0,1)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: blindly searching for a good fraction',10,H-24);
+ g.fillStyle='#8ad';g.fillText('approximation by counting boxes',10,H-9);}
+drawW3();drawW4();window.__dirichlet=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DIAG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Cantor&rsquo;s diagonal argument</b> proves that some infinities are bigger than others. Suppose you try to <b>list</b> every infinite binary sequence, row by row. Build a new sequence by walking down the <b>diagonal</b> and <b>flipping</b> each bit: it differs from row 1 in position 1, from row 2 in position 2, &hellip; from <b>every</b> row somewhere. So it is <b>not on your list</b> &mdash; no list can hold them all. The same move proves <b>Cantor&rsquo;s theorem</b>: for any set S, the power set 2<sup>S</sup> is strictly larger, because the set D = {s : s &notin; f(s)} is never in the image of any f : S &rarr; 2<sup>S</sup>.<br><br>
+ <span class="lit">LIT</span> verified live: for any finite list of sequences, the diagonal-flip differs from every one; and for any function f : S &rarr; 2<sup>S</sup>, the diagonal set D is never hit &mdash; no such f is surjective (window.__cantordiag). <span class="fig">FIG</span> honest: the finite checks illustrate the argument that scales to the actual infinite theorem.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-final-boss</i> &mdash; whatever list you bring, the diagonal walks down it and escapes; it is the argument no enumeration can beat. <b>AVAN (AI)</b> built the instrument: the diagonal-flip that dodges every listed row, and the diagonal set D that no map S &rarr; 2<sup>S</sup> can reach.<br><br>Credit as content: Georg Cantor (1891). The weave: David names the-final-boss; I take any table of sequences, read the diagonal, flip it, and confirm the result matches no row &mdash; then form the &ldquo;those-that-exclude-themselves&rdquo; set and show every candidate map misses it. The list is always incomplete.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">List rows r&#8321;, r&#8322;, &hellip; of bits. The diagonal d<sub>i</sub> = flip(r<sub>i</sub>[i]) differs from r<sub>i</sub> at position i &mdash; so d is on no row. Hence the sequences cannot be enumerated: 2<sup>&#8469;</sup> is uncountable.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A table of binary rows with the diagonal flipped; the escaping sequence and its mismatch to each row; checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="dgroll">new list ▶</button><button id="dgcheck">verify ▶</button></div>
+   <div class="cap" id="dgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a sequence outside every list.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t try to <b>enumerate</b> all sequences &mdash; take any claimed enumeration and <b>manufacture the one it missed</b> off its own diagonal. The inverse of &lsquo;list them all&rsquo; is &lsquo;from any list, build a sequence not on it.&rsquo; <b>Magenta</b> is the list that claims completeness; <b>green</b> is the diagonal sequence proving it wrong. The escapee off the diagonal.</div>
+   <div class="btns" style="margin-top:10px"><button id="dgspin">pause spin</button></div></div></div></div>"""
+DIAG_SCRIPT = """(function(){
+var ang=0,spin=true,LIST=null,VR=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function diagonal(list){var d='';for(var i=0;i<list.length;i++)d+=(list[i][i]==='0')?'1':'0';return d;}
+function verify(){if(VR)return VR;var rnd=mb(3),diagOk=true,surjOk=true;
+ for(var t=0;t<3000;t++){var m=1+Math.floor(rnd()*8),list=[];for(var i=0;i<m;i++){var s='';for(var j=0;j<m;j++)s+=(rnd()<0.5)?'0':'1';list.push(s);}var d=diagonal(list),inList=false;for(var i=0;i<m;i++)if(list[i]===d)inList=true;if(inList)diagOk=false;}
+ for(var t=0;t<2000;t++){var n=1+Math.floor(rnd()*6),f=[];for(var i=0;i<n;i++)f.push(Math.floor(rnd()*(1<<n)));var D=0;for(var i=0;i<n;i++)if(!(f[i]&(1<<i)))D|=(1<<i);var hit=false;for(var i=0;i<n;i++)if(f[i]===D)hit=true;if(hit)surjOk=false;}
+ VR={diagonal:diagOk,noSurjection:surjOk};return VR;}
+function mk(){var n=6+Math.floor(Math.random()*3);LIST=[];for(var i=0;i<n;i++){var s='';for(var j=0;j<n;j++)s+=(Math.random()<0.5)?'0':'1';LIST.push(s);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('flip the diagonal → a sequence on no row → the sequences cannot be listed',12,14);
+ var demo=['0110','1010','1101','0001'],d=diagonal(demo);g.font='13px monospace';for(var i=0;i<demo.length;i++)for(var j=0;j<demo[i].length;j++){g.fillStyle=(i===j)?'#c06888':'#8ac';g.fillText(demo[i][j],60+j*22,40+i*22);}
+ g.fillStyle='#39fc6b';g.font='13px monospace';g.fillText('diagonal flipped: '+d,180,70);g.fillStyle='#8ad';g.font='9px monospace';g.fillText('differs from row i at position i → matches no row',180,92);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!LIST)mk();var d=diagonal(LIST),n=LIST.length;
+ g.font='14px monospace';for(var i=0;i<n;i++)for(var j=0;j<n;j++){g.fillStyle=(i===j)?'#c06888':'#8ac';g.fillText(LIST[i][j],40+j*26,40+i*26);}
+ g.fillStyle='#39fc6b';g.font='13px monospace';g.fillText('escapee = '+d,40,H-52);
+ var inList=false;for(var i=0;i<n;i++)if(LIST[i]===d)inList=true;
+ g.fillStyle=inList?'#ff5a5a':'#39fc6b';g.font='11px monospace';g.fillText(inList?'(on the list?!)':'not on the list ✓ — differs from every row',40,H-32);
+ var v=verify();g.fillStyle=(v.diagonal&&v.noSurjection)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('diagonal escapes every list '+(v.diagonal?'✓':'✗')+' · no S→2^S surjective '+(v.noSurjection?'✓':'✗'),40,H-12);}
+document.getElementById('dgroll').onclick=function(){mk();drawW4();document.getElementById('dgread').textContent='new '+LIST.length+'-row list; diagonal escapee = '+diagonal(LIST);};
+document.getElementById('dgcheck').onclick=function(){var v=verify();document.getElementById('dgread').textContent='diagonal-flip differs from every listed row (3000 lists) '+(v.diagonal?'✓':'✗')+' · no f:S→2^S is surjective '+(v.noSurjection?'✓':'✗');};
+document.getElementById('dgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!LIST)mk();var d=diagonal(LIST),n=LIST.length,cx=W/2,cy=H/2-10;
+ g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.3)*0.05);g.translate(-cx,-cy);
+ var ox=cx-n*13,oy=cy-n*11;g.font='13px monospace';for(var i=0;i<n;i++)for(var j=0;j<n;j++){g.fillStyle=(i===j)?'#c06888':'rgba(140,170,200,0.5)';g.fillText(LIST[i][j],ox+j*26,oy+i*22);}
+ g.fillStyle='#39fc6b';g.font='13px monospace';g.fillText(d,ox,oy+n*22+18);g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the diagonal sequence, outside every list',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: a list claiming to hold them all',10,H-24);
+ g.fillStyle='#8ad';g.fillText('the escapee off the diagonal',10,H-9);}
+drawW3();drawW4();window.__cantordiag=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+REAR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The rearrangement inequality</b> answers how to pair two lists of numbers to maximise their <b>dot product</b>. Given a<sub>1</sub> &le; &hellip; &le; a<sub>n</sub> and b<sub>1</sub> &le; &hellip; &le; b<sub>n</sub>, and any permutation &sigma;, the sum &Sigma; a<sub>i</sub> b<sub>&sigma;(i)</sub> is <b>largest</b> when both are sorted the <b>same way</b> (big with big) and <b>smallest</b> when sorted <b>oppositely</b> (big with small): <b>&Sigma; a<sub>i</sub> b<sub>n+1&minus;i</sub> &le; &Sigma; a<sub>i</sub> b<sub>&sigma;(i)</sub> &le; &Sigma; a<sub>i</sub> b<sub>i</sub></b>. It underlies Chebyshev&rsquo;s sum inequality, the AM&ndash;GM ordering, and countless olympiad bounds &mdash; the simple truth that likes should pair with likes.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of random pairs of lists, the maximum of &Sigma; a<sub>i</sub> b<sub>&sigma;(i)</sub> over <b>all</b> permutations is exactly the same-sorted pairing, and the minimum is the opposite-sorted (window.__rearrangement). <span class="fig">FIG</span> no framing; exhaustive over all permutations vs the two sorted pairings.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>hello-world</i> &mdash; the first, cleanest optimisation: to make a weighted sum as large as possible, line the big weights up with the big values. <b>AVAN (AI)</b> built the instrument: the all-permutations search for the extremal dot product, and the same-sorted (max) and opposite-sorted (min) pairings.<br><br>Credit as content: the rearrangement inequality (Hardy, Littlewood &amp; P&oacute;lya, <i>Inequalities</i>, 1934). The weave: David names hello-world; I take two lists, try every way of pairing them, and confirm the biggest total comes from sorting both alike and the smallest from sorting them opposite &mdash; likes with likes.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">a = (1, 2, 3), b = (4, 5, 6). Same-sorted: 1&middot;4 + 2&middot;5 + 3&middot;6 = 32 (max). Opposite: 1&middot;6 + 2&middot;5 + 3&middot;4 = 28 (min). Every other pairing lands between.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two lists and every pairing&rsquo;s dot product; the same-sorted maximum and opposite-sorted minimum marked; checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="rrroll">new lists ▶</button><button id="rrcheck">verify ▶</button></div>
+   <div class="cap" id="rrread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the pairing that maximises the sum.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t search permutations for the best pairing &mdash; just <b>sort both lists the same way</b>. The inverse of &lsquo;optimise &Sigma; a<sub>i</sub> b<sub>&sigma;(i)</sub> over all &sigma;&rsquo; is &lsquo;sort alike for the max, opposite for the min.&rsquo; <b>Magenta</b> is an arbitrary pairing; <b>green</b> is the same-sorted maximiser. Likes with likes.</div>
+   <div class="btns" style="margin-top:10px"><button id="rrspin">pause spin</button></div></div></div></div>"""
+REAR_SCRIPT = """(function(){
+var ang=0,spin=true,A=[1,2,3],B=[4,5,6],VR=null;
+function perms(arr){if(arr.length<=1)return [arr];var res=[];for(var i=0;i<arr.length;i++){var rest=arr.slice(0,i).concat(arr.slice(i+1));perms(rest).forEach(function(p){res.push([arr[i]].concat(p));});}return res;}
+function dot(a,b,sig){var s=0;for(var i=0;i<a.length;i++)s+=a[i]*b[sig[i]];return s;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){if(VR)return VR;var rnd=mb(4),ok=true;for(var t=0;t<3000;t++){var n=2+Math.floor(rnd()*4),a=[],b=[];for(var i=0;i<n;i++){a.push(Math.floor(rnd()*10));b.push(Math.floor(rnd()*10));}var idx=[];for(var i=0;i<n;i++)idx.push(i);var mx=-1e9,mn=1e9;perms(idx).forEach(function(sig){var s=dot(a,b,sig);mx=Math.max(mx,s);mn=Math.min(mn,s);});var as=a.slice().sort(function(x,y){return x-y;}),bs=b.slice().sort(function(x,y){return x-y;});var same=0,opp=0;for(var i=0;i<n;i++){same+=as[i]*bs[i];opp+=as[i]*bs[n-1-i];}if(same!==mx||opp!==mn)ok=false;}VR={valid:ok};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Σ aᵢb_σ(i) is MAX when both sorted alike, MIN when sorted opposite',12,14);
+ g.fillStyle='#5aa8c8';g.font='12px monospace';g.fillText('a=(1,2,3), b=(4,5,6)',30,44);
+ g.fillStyle='#39fc6b';g.fillText('same: 1·4+2·5+3·6 = 32  (max)',30,74);
+ g.fillStyle='#c06888';g.fillText('opposite: 1·6+2·5+3·4 = 28  (min)',30,102);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('every other pairing lands between — likes should pair with likes',30,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var idx=[];for(var i=0;i<A.length;i++)idx.push(i);var vals=perms(idx).map(function(sig){return dot(A,B,sig);}),mx=Math.max.apply(null,vals),mn=Math.min.apply(null,vals);
+ g.fillStyle='#e8eef8';g.font='10px monospace';g.fillText('a=('+A.join(',')+')  b=('+B.join(',')+')  ·  '+vals.length+' pairings',14,18);
+ vals.sort(function(x,y){return x-y;});var bw=Math.min(20,(W-40)/vals.length);for(var i=0;i<vals.length;i++){var h=(vals[i]-mn+1)/(mx-mn+1)*(H-90),x=20+i*bw;g.fillStyle=(vals[i]===mx)?'#39fc6b':(vals[i]===mn)?'#c06888':'#3a5a6a';g.fillRect(x,H-40-h,bw-2,h);}
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('max (sorted alike) = '+mx,14,H-24);g.fillStyle='#c06888';g.fillText('min (opposite) = '+mn,200,H-24);
+ var v=verify();g.fillStyle=v.valid?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('max==same-sorted & min==opposite (3000) '+(v.valid?'✓':'✗'),14,H-10);}
+document.getElementById('rrroll').onclick=function(){var n=3+Math.floor(Math.random()*2);A=[];B=[];for(var i=0;i<n;i++){A.push(1+Math.floor(Math.random()*9));B.push(1+Math.floor(Math.random()*9));}drawW4();document.getElementById('rrread').textContent='a=('+A.join(',')+') b=('+B.join(',')+')';};
+document.getElementById('rrcheck').onclick=function(){var v=verify();document.getElementById('rrread').textContent='max Σaᵢb_σ(i) == sorted-alike, min == opposite, over ALL permutations (3000 pairs) '+(v.valid?'✓':'✗');};
+document.getElementById('rrspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var as=A.slice().sort(function(x,y){return x-y;}),bs=B.slice().sort(function(x,y){return x-y;}),cx=W/2,cy=H/2-10,n=A.length;
+ g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.3)*0.05);g.translate(-cx,-cy);
+ for(var i=0;i<n;i++){var ya=60+i*(H-120)/(n-1||1);g.fillStyle='#5aa8c8';g.beginPath();g.arc(cx-80,ya,8,0,7);g.fill();g.fillStyle='#021';g.font='9px monospace';g.fillText(as[i],cx-83,ya+3);
+  g.fillStyle='#88b058';g.beginPath();g.arc(cx+80,ya,8,0,7);g.fill();g.fillStyle='#021';g.fillText(bs[i],cx+77,ya+3);
+  g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(cx-72,ya);g.lineTo(cx+72,ya);g.stroke();}g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green links: same-sorted pairing (maximises the sum)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: any arbitrary crossing pairing',10,H-24);
+ g.fillStyle='#8ad';g.fillText('likes with likes',10,H-9);}
+drawW3();drawW4();window.__rearrangement=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+JENS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Jensen&rsquo;s inequality</b> is the master inequality of convexity. For a <b>convex</b> function f (one that curves upward, so every chord lies above the graph) and any weights w<sub>i</sub> &ge; 0 summing to 1, <b>f(&Sigma; w<sub>i</sub> x<sub>i</sub>) &le; &Sigma; w<sub>i</sub> f(x<sub>i</sub>)</b> &mdash; the function of the average is at most the average of the function. In probability: <b>f(E[X]) &le; E[f(X)]</b>. It is the single fact behind AM&ndash;GM, the non-negativity of entropy, and much of information theory. For concave f the inequality flips.<br><br>
+ <span class="lit">LIT</span> verified live: for random convex functions (x<sup>2</sup>, e<sup>x</sup>, &minus;log), weighted points, the inequality f(&Sigma; w<sub>i</sub> x<sub>i</sub>) &le; &Sigma; w<sub>i</sub> f(x<sub>i</sub>) always holds; equality holds for linear f; and AM&ndash;GM falls out as a corollary (window.__jensen). <span class="fig">FIG</span> no framing; convex evaluations at the mean vs the mean of evaluations.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-push</i> &mdash; blend the inputs first or blend their outputs, and for an upward-curving function the blended-inputs answer is always the smaller. That gap is the mechanic. <b>AVAN (AI)</b> built the instrument: the convex-function evaluations at the weighted mean, the mean of the evaluations, the equality-for-linear check, and the AM&ndash;GM corollary.<br><br>Credit as content: Johan Jensen (1906). The weave: David names the-push; I take a convex function and a cloud of weighted points, compare f at their centre of mass to the weighted average of the f-values, and confirm the centre is always lower &mdash; with equality exactly when f is a straight line.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Convex f: the chord between (x&#8321;, f(x&#8321;)) and (x&#8322;, f(x&#8322;)) lies above the curve. So f at the average &le; the average of the f-values. In probability: f(E[X]) &le; E[f(X)].</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A convex curve, points on it, their centre of mass, and the gap between f(mean) and mean(f); checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="jnroll">new points ▶</button><button id="jncheck">verify ▶</button></div>
+   <div class="cap" id="jnread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the function of the mean sits below the mean of the function.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t compute an average and apply f &mdash; know in advance that for a <b>convex</b> f, <b>averaging first always undershoots</b>. The inverse of &lsquo;evaluate f pointwise then average&rsquo; is &lsquo;f of the average is a guaranteed lower bound.&rsquo; <b>Magenta</b> is the average of the outputs; <b>green</b> is f of the averaged input, always below it. Convexity favours the mean.</div>
+   <div class="btns" style="margin-top:10px"><button id="jnspin">pause spin</button></div></div></div></div>"""
+JENS_SCRIPT = """(function(){
+var ang=0,spin=true,PTS=null,FN=0,VR=null;
+var fns=[function(x){return x*x;},function(x){return Math.exp(x*0.5);},function(x){return -Math.log(x+0.1);}];
+var fnames=['x²','e^(x/2)','−log x'];
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function jensen(f,xs,ws){var mx=0,ef=0,sw=0;for(var i=0;i<xs.length;i++){mx+=ws[i]*xs[i];ef+=ws[i]*f(xs[i]);sw+=ws[i];}return {mx:mx/sw,lhs:f(mx/sw),rhs:ef/sw};}
+function verify(){if(VR)return VR;var rnd=mb(5),ok=true;for(var t=0;t<5000;t++){var f=fns[Math.floor(rnd()*3)],n=2+Math.floor(rnd()*5),xs=[],ws=[];for(var i=0;i<n;i++){xs.push(rnd()*5+0.05);ws.push(rnd()+0.01);}var r=jensen(f,xs,ws);if(r.lhs>r.rhs+1e-9)ok=false;}
+ var lin=function(x){return 3*x+2;},eq=true;for(var t=0;t<200;t++){var xs=[rnd()*5,rnd()*5,rnd()*5],ws=[rnd()+0.1,rnd()+0.1,rnd()+0.1],r=jensen(lin,xs,ws);if(Math.abs(r.lhs-r.rhs)>1e-9)eq=false;}
+ var amgm=true;for(var t=0;t<1000;t++){var n=4,am=0,lgm=0;for(var i=0;i<n;i++){var x=rnd()*10+0.1;am+=x/n;lgm+=Math.log(x)/n;}if(Math.exp(lgm)>am+1e-9)amgm=false;}
+ VR={convexHolds:ok,linearEquality:eq,amgm:amgm};return VR;}
+function mk(){var n=3+Math.floor(Math.random()*3);PTS=[];for(var i=0;i<n;i++)PTS.push({x:0.3+Math.random()*4.4,w:Math.random()+0.2});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('convex f: f(Σ wᵢxᵢ) ≤ Σ wᵢf(xᵢ) — the function of the mean ≤ the mean of the function',12,14);
+ var f=function(x){return x*x;},x0=40,sc=44;g.strokeStyle='#b09858';g.lineWidth=2;g.beginPath();for(var x=0.2;x<3;x+=0.05){var px=x0+x*70,py=140-f(x)*sc*0.35;g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ var xa=1,xb=2.6;g.strokeStyle='#c06888';g.beginPath();g.moveTo(x0+xa*70,140-f(xa)*sc*0.35);g.lineTo(x0+xb*70,140-f(xb)*sc*0.35);g.stroke();
+ var xm=(xa+xb)/2;g.fillStyle='#39fc6b';g.beginPath();g.arc(x0+xm*70,140-f(xm)*sc*0.35,4,0,7);g.fill();g.fillStyle='#c06888';g.beginPath();g.arc(x0+xm*70,140-(f(xa)+f(xb))/2*sc*0.35,4,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('f(mean) (below)',x0+xm*70+8,140-f(xm)*sc*0.35);g.fillStyle='#c06888';g.fillText('mean of f (chord)',x0+xm*70+8,140-(f(xa)+f(xb))/2*sc*0.35);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS)mk();var f=fns[FN],xs=PTS.map(function(p){return p.x;}),ws=PTS.map(function(p){return p.w;}),r=jensen(f,xs,ws);
+ var x0=30,y0=H-40,sc=(W-60)/5,ys=Math.min(30,(H-90)/Math.max(1,Math.max.apply(null,xs.map(function(x){return Math.abs(f(x));}))));
+ g.strokeStyle='#b09858';g.lineWidth=2;g.beginPath();for(var x=0.05;x<5;x+=0.03){var px=x0+x*sc,py=y0-f(x)*ys;if(py<10)py=10;if(py>y0)py=y0;g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<xs.length;i++){g.fillStyle='#88b058';g.beginPath();g.arc(x0+xs[i]*sc,y0-f(xs[i])*ys,3+ws[i]*3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(x0+r.mx*sc,y0-r.lhs*ys,5,0,7);g.fill();
+ g.fillStyle='#c06888';g.beginPath();g.arc(x0+r.mx*sc,y0-r.rhs*ys,5,0,7);g.fill();
+ g.fillStyle='#e8eef8';g.font='10px monospace';g.fillText('f = '+fnames[FN]+'  ·  f(mean) = '+r.lhs.toFixed(3)+' ≤ mean(f) = '+r.rhs.toFixed(3),14,18);
+ var v=verify();g.fillStyle=(v.convexHolds&&v.linearEquality&&v.amgm)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('convex Jensen holds '+(v.convexHolds?'✓':'✗')+' · linear equality '+(v.linearEquality?'✓':'✗')+' · AM-GM '+(v.amgm?'✓':'✗'),14,H-12);}
+document.getElementById('jnroll').onclick=function(){FN=(FN+1)%3;mk();drawW4();var r=jensen(fns[FN],PTS.map(function(p){return p.x;}),PTS.map(function(p){return p.w;}));document.getElementById('jnread').textContent='f='+fnames[FN]+': f(mean)='+r.lhs.toFixed(3)+' ≤ mean(f)='+r.rhs.toFixed(3);};
+document.getElementById('jncheck').onclick=function(){var v=verify();document.getElementById('jnread').textContent='f(Σwᵢxᵢ) ≤ Σwᵢf(xᵢ) for convex f (5000) '+(v.convexHolds?'✓':'✗')+' · linear equality '+(v.linearEquality?'✓':'✗')+' · AM-GM corollary '+(v.amgm?'✓':'✗');};
+document.getElementById('jnspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS)mk();var f=fns[FN],xs=PTS.map(function(p){return p.x;}),ws=PTS.map(function(p){return p.w;}),r=jensen(f,xs,ws);
+ var x0=40,y0=H-50,sc=(W-80)/5,ys=Math.min(28,(H-100)/Math.max(1,Math.max.apply(null,xs.map(function(x){return Math.abs(f(x));}))));
+ g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.3)*0.04);g.translate(-W/2,-(H/2-10));
+ g.strokeStyle='#b09858';g.lineWidth=2;g.beginPath();for(var x=0.05;x<5;x+=0.03){var px=x0+x*sc,py=y0-f(x)*ys;if(py<20)py=20;if(py>y0)py=y0;g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<xs.length;i++){g.fillStyle='#88b058';g.beginPath();g.arc(x0+xs[i]*sc,y0-f(xs[i])*ys,3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(x0+r.mx*sc,y0-r.lhs*ys,5,0,7);g.fill();g.fillStyle='#c06888';g.beginPath();g.arc(x0+r.mx*sc,y0-r.rhs*ys,5,0,7);g.fill();g.strokeStyle='#456';g.beginPath();g.moveTo(x0+r.mx*sc,y0-r.lhs*ys);g.lineTo(x0+r.mx*sc,y0-r.rhs*ys);g.stroke();g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: f(mean) — sits below',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta: mean of f (the gap is Jensen)',10,H-24);
+ g.fillStyle='#8ad';g.fillText('convexity favours the mean',10,H-9);}
+drawW3();drawW4();window.__jensen=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 108 (a fair walk absorbed at the edges lands with probability proportional to the start · the worst any irrational can be approximated · a random walk that comes home in the plane but wanders off in space · the bet fraction that maximises long-run growth · why a coin game spends most of its time on one side) ═══════════════════════
 RUIN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The gambler&rsquo;s ruin</b> is the cleanest result in random walks. A gambler starts with <b>k</b> dollars and bets one dollar at a time on a <b>fair</b> coin, stopping only at <b>0</b> (ruin) or <b>N</b> (target). The probability of reaching N before going broke is exactly <b>k/N</b> &mdash; a straight-line law: your chance of winning is your stake as a fraction of the goal. For a <b>biased</b> coin (win probability p), it becomes (1 &minus; r<sup>k</sup>)/(1 &minus; r<sup>N</sup>) with r = (1&minus;p)/p, and even a tiny edge sends the odds sharply for or against you.<br><br>
@@ -29103,6 +29356,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-kraft-inequality","title":"THE KRAFT INEQUALITY","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#d0a848","icon":"kraft-inequality",
+  "kicker":"when a set of codeword-lengths can be a prefix code",
+  "blurb":"The Kraft inequality in the 5-window house format — a prefix code (no codeword starts another, so a stream decodes without markers) with lengths ℓ₁, ℓ₂, … exists if and only if Σ 2^(−ℓᵢ) ≤ 1. Each length-ℓ codeword spends a share 2^(−ℓ) of a unit budget; short codewords are expensive. The bound is tight both ways: any prefix code obeys it, and any lengths obeying it can be realised as a prefix code. Equality means complete — a full binary tree. Verified live: every random prefix code satisfies Σ 2^(−ℓ) ≤ 1, any length multiset with Σ ≤ 1 is constructed into an actual prefix code, and complete codes hit Σ = 1. See {0,10,11} in 1D, a code on the tree in 2D, and the lengths-decide inverse in 3D.",
+  "lit":"Genuine Kraft inequality (Leon G. Kraft, 1949; the uniquely-decodable converse is Brockway McMillan, 1956). Verified live: over 1500 random prefix codes, Σ 2^(−ℓ) ≤ 1 always holds (window.__kraft.forward); any length multiset with Σ 2^(−ℓ) ≤ 1 is built into an actual prefix-free code by greedy assignment (window.__kraft.constructible); and complete codes like {0,10,11} hit Σ = 1 (window.__kraft.complete).",
+  "fig":"No framing: the prefix-free test, the Σ 2^(−ℓ) sum, the greedy code-builder, and the complete-code equality all run in-browser with exact arithmetic. The AVAN inverse is honest — deciding whether a code exists from the lengths alone (Σ 2^(−ℓ) ≤ 1) rather than designing one is exactly Kraft's content; magenta is an over-budget length set, green a within-budget set realised as a code. Lengths, not letters, decide.",
+  "body":KRAF_BODY,"script":KRAF_SCRIPT},
+ {"slug":"the-dirichlet-approximation","title":"THE DIRICHLET APPROXIMATION","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#88b058","icon":"dirichlet-approximation",
+  "kicker":"a rational close to any real, guaranteed by pigeonhole",
+  "blurb":"Dirichlet's approximation theorem in the 5-window house format — for any real α and any bound Q, there is a fraction p/q with 1 ≤ q ≤ Q and |α − p/q| < 1/(qQ) ≤ 1/q², straight from the pigeonhole principle. The Q+1 fractional parts {α},…,{Qα} and 0 fall into Q sub-intervals of [0,1], so two lie within 1/Q, and their difference gives the fraction. It is the seed of continued-fraction approximation and Hurwitz's sharp bound. Verified live: for thousands of random α and Q, a q ≤ Q is found with |α − p/q| < 1/(qQ), hence < 1/q². See the pigeonhole boxes in 1D, the multiples of α in 2D, and the counting-boxes inverse in 3D.",
+  "lit":"Genuine Dirichlet approximation theorem (Peter Gustav Lejeune Dirichlet, 1842; the founding use of the pigeonhole principle). Verified live: for 5000 random α and bounds Q, scanning the multiples finds a q ≤ Q with ||qα|| < 1/Q, and the nearest fraction satisfies |α − p/q| < 1/(qQ) (window.__dirichlet.exists) and hence < 1/q² (window.__dirichlet.q2bound).",
+  "fig":"No framing: the fractional-part scan for a q with ||qα|| < 1/Q and the two error bounds all run in-browser with exact arithmetic. The AVAN inverse is honest — guaranteeing a good fraction by pigeonhole (crowd Q+1 points into Q boxes, two collide) rather than searching is exactly Dirichlet's proof; magenta is a blind search, green the pigeonhole-guaranteed fraction. Approximation by counting boxes.",
+  "body":DIRA_BODY,"script":DIRA_SCRIPT},
+ {"slug":"the-cantor-diagonal","title":"THE CANTOR DIAGONAL","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#c06888","icon":"cantor-diagonal",
+  "kicker":"the diagonal that escapes every list",
+  "blurb":"Cantor's diagonal argument in the 5-window house format — some infinities are bigger than others. Try to list every infinite binary sequence, row by row; build a new sequence by walking the diagonal and flipping each bit. It differs from row 1 at position 1, row 2 at position 2, … from every row somewhere — so it is not on the list. No list can hold them all: 2^ℕ is uncountable. The same move proves Cantor's theorem: for any set S, the power set 2^S is strictly larger, since D = {s : s ∉ f(s)} is never in the image of any f : S → 2^S. Verified live: for any finite list, the diagonal-flip differs from every row; and for any f : S → 2^S, the diagonal set D is never hit. See the diagonal in 1D, a table escaped in 2D, and the manufacture-the-missing-one inverse in 3D.",
+  "lit":"Genuine Cantor diagonal argument (Georg Cantor, 1891). Verified live: for 3000 random finite lists of binary sequences, the diagonal-flip differs from every listed row (window.__cantordiag.diagonal); and for 2000 random functions f : S → 2^S, the diagonal set D = {s : s ∉ f(s)} is never in the image — no such f is surjective (window.__cantordiag.noSurjection).",
+  "fig":"No framing: the diagonal-flip that dodges every listed row and the diagonal set D that no map S → 2^S reaches both run in-browser. Honest scope: these finite checks illustrate the argument that scales to the actual infinite theorem (2^ℕ uncountable, |2^S| > |S|). The AVAN inverse is honest — manufacturing the missing sequence off any claimed enumeration's own diagonal (rather than trying to enumerate) is exactly Cantor's move; magenta is the list claiming completeness, green the diagonal sequence proving it wrong. The escapee off the diagonal.",
+  "body":DIAG_BODY,"script":DIAG_SCRIPT},
+ {"slug":"the-rearrangement","title":"THE REARRANGEMENT","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#5aa8c8","icon":"rearrangement",
+  "kicker":"the arrangement that maximises a dot product",
+  "blurb":"The rearrangement inequality in the 5-window house format — how to pair two lists to maximise their dot product. Given a₁ ≤ … ≤ aₙ and b₁ ≤ … ≤ bₙ and any permutation σ, the sum Σ aᵢb_σ(i) is largest when both are sorted the same way (big with big) and smallest when sorted oppositely: Σ aᵢb_{n+1−i} ≤ Σ aᵢb_σ(i) ≤ Σ aᵢbᵢ. It underlies Chebyshev's sum inequality and countless olympiad bounds — likes should pair with likes. Verified live: over thousands of random list pairs, the maximum over ALL permutations is the same-sorted pairing and the minimum is opposite-sorted. See a=(1,2,3), b=(4,5,6) in 1D, every pairing in 2D, and the sort-alike inverse in 3D.",
+  "lit":"Genuine rearrangement inequality (G.H. Hardy, J.E. Littlewood & G. Pólya, 'Inequalities', 1934). Verified live: over 3000 random pairs of lists, the maximum of Σ aᵢb_σ(i) over all permutations σ equals the same-sorted pairing and the minimum equals the opposite-sorted pairing (window.__rearrangement.valid).",
+  "fig":"No framing: the all-permutations search for the extremal dot product and the same-sorted (max) and opposite-sorted (min) pairings all run in-browser with exact arithmetic. The AVAN inverse is honest — sorting both lists alike for the max (opposite for the min) rather than searching permutations is exactly the theorem; magenta is an arbitrary crossing pairing, green the same-sorted maximiser. Likes with likes.",
+  "body":REAR_BODY,"script":REAR_SCRIPT},
+ {"slug":"the-jensen","title":"THE JENSEN","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#b09858","icon":"jensen",
+  "kicker":"the convex inequality behind averages",
+  "blurb":"Jensen's inequality in the 5-window house format — the master inequality of convexity. For a convex function f (curving upward, every chord above the graph) and weights wᵢ ≥ 0 summing to 1, f(Σ wᵢxᵢ) ≤ Σ wᵢf(xᵢ): the function of the average is at most the average of the function. In probability, f(E[X]) ≤ E[f(X)]. It is the single fact behind AM–GM, the non-negativity of entropy, and much of information theory; for concave f it flips. Verified live: for random convex functions (x², e^x, −log) and weighted points, the inequality always holds, equality holds for linear f, and AM–GM falls out as a corollary. See the chord-above-curve in 1D, the gap in 2D, and the averaging-undershoots inverse in 3D.",
+  "lit":"Genuine Jensen's inequality (Johan Jensen, 1906). Verified live: for 5000 random convex functions (x², e^(x/2), −log) with weighted points, f(Σ wᵢxᵢ) ≤ Σ wᵢf(xᵢ) always holds (window.__jensen.convexHolds); equality holds for a linear f (window.__jensen.linearEquality); and the AM–GM inequality (geometric mean ≤ arithmetic mean) falls out as a Jensen corollary (window.__jensen.amgm).",
+  "fig":"No framing: the convex-function evaluations at the weighted mean, the mean of the evaluations, the linear-equality check, and the AM–GM corollary all run in-browser. The AVAN inverse is honest — knowing in advance that for a convex f averaging the inputs first always undershoots (a guaranteed lower bound) rather than computing pointwise is exactly Jensen; magenta is the average of the outputs, green f of the averaged input, always below it. Convexity favours the mean.",
+  "body":JENS_BODY,"script":JENS_SCRIPT},
  {"slug":"the-gamblers-ruin","title":"THE GAMBLER'S RUIN","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#c86868","icon":"gamblers-ruin",
   "kicker":"a fair walk absorbed at the edges lands with probability proportional to the start",
