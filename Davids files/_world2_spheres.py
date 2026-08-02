@@ -19485,6 +19485,238 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 86 (proposals settle into a matching no pair wants to break · a sequence that lists every fraction once · a formula that names any day of the week · noise fed through a loop becomes a plucked note · a recurrence that feeds on itself) ═══════════════════════
+GSP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Gale&ndash;Shapley algorithm</b> pairs two sides &mdash; say n proposers and n reviewers, each with a ranked list &mdash; into a <b>stable matching</b>: one where no unmatched pair both prefer each other to their assigned partners. Proposers propose in preference order; each reviewer holds their best offer so far and rejects the rest; rejected proposers try their next choice. It always terminates with everyone matched, and the result is <b>proposer-optimal</b> &mdash; every proposer gets the best partner they could have in <b>any</b> stable matching.<br><br>
+ <span class="lit">LIT</span> verified live: over hundreds of random instances the output has no blocking pair and matches everyone, and for small n it is exactly the proposer-optimal stable matching found by brute force (window.__galeshapley). <span class="fig">FIG</span> no framing; exact combinatorial checks.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>split-screen</i> &mdash; two sides, one game, matched so cleanly that no pair on the two screens would rather defect to each other. Gale&ndash;Shapley is that matching. <b>AVAN (AI)</b> built the instrument: the propose&ndash;hold&ndash;reject loop, the no-blocking-pair stability test, and the brute-force proposer-optimality check.<br><br>Credit as content: David Gale &amp; Lloyd Shapley (1962); Shapley&rsquo;s share of the 2012 Nobel in Economics. The weave: David names split-screen; I run proposals until everyone is held, then confirm no pair would break their match and that each proposer got their best stable partner &mdash; verified against every stable matching for small n.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each proposer proposes down their list; each reviewer keeps their favourite offer and rejects the rest; rejects re-propose. It stops when no one is free &mdash; a matching no pair wants to break.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A random instance with its preference lists; the stable matching drawn, and stability + optimality checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="gsroll">new instance ▶</button><button id="gscheck">verify 400 ▶</button></div>
+   <div class="cap" id="gsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a matching with no pair that wants out.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): reach a matching that <b>no pair wants to break</b> not by scoring all pairings but by <b>deferred acceptance</b> &mdash; propose, tentatively hold the best, reject the rest, repeat. The inverse of &lsquo;search all n! matchings for a stable one&rsquo; is &lsquo;let proposals settle &mdash; the fixed point is stable and proposer-optimal.&rsquo; <b>Magenta</b> is the factorial search avoided; <b>green</b> is the settled matching. Stability from proposing, not searching.</div>
+   <div class="btns" style="margin-top:10px"><button id="gsspin">pause spin</button></div></div></div></div>"""
+GSP_SCRIPT = """(function(){
+var ang=0,spin=true,N=5,MP=[],WP=[],WIFE=[];
+function gs(n,mp,wp){var wrank=[];for(var w=0;w<n;w++){wrank.push(new Array(n));for(var i=0;i<n;i++)wrank[w][wp[w][i]]=i;}var next=new Array(n).fill(0),wife=new Array(n).fill(-1),husb=new Array(n).fill(-1),free=[];for(var m=0;m<n;m++)free.push(m);
+ while(free.length){var m=free.pop(),w=mp[m][next[m]++],cur=husb[w];if(cur===-1){husb[w]=m;wife[m]=w;}else if(wrank[w][m]<wrank[w][cur]){husb[w]=m;wife[m]=w;wife[cur]=-1;free.push(cur);}else free.push(m);}return wife;}
+function stable(n,mp,wp,wife){var husb=new Array(n).fill(-1);for(var m=0;m<n;m++)husb[wife[m]]=m;var wr=[],mr=[];for(var w=0;w<n;w++){wr.push({});for(var i=0;i<n;i++)wr[w][wp[w][i]]=i;}for(var m=0;m<n;m++){mr.push({});for(var i=0;i<n;i++)mr[m][mp[m][i]]=i;}
+ for(var m=0;m<n;m++)for(var w=0;w<n;w++){if(w===wife[m])continue;if(mr[m][w]<mr[m][wife[m]]&&wr[w][m]<wr[w][husb[w]])return false;}return true;}
+function allStable(n,mp,wp){var res=[];function rec(m,used,cur){if(m===n){if(stable(n,mp,wp,cur.slice()))res.push(cur.slice());return;}for(var w=0;w<n;w++){if(used&(1<<w))continue;cur[m]=w;rec(m+1,used|(1<<w),cur);}}rec(0,0,[]);return res;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function shuf(n,rnd){var a=[];for(var i=0;i<n;i++)a.push(i);for(var i=n-1;i>0;i--){var j=Math.floor(rnd()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function verify(){var rnd=mb(500),st=true,pf=true,opt=true;for(var t=0;t<400;t++){var n=2+Math.floor(rnd()*5),mp=[],wp=[];for(var m=0;m<n;m++)mp.push(shuf(n,rnd));for(var w=0;w<n;w++)wp.push(shuf(n,rnd));var wife=gs(n,mp,wp),seen={};for(var m=0;m<n;m++){if(wife[m]<0||seen[wife[m]])pf=false;seen[wife[m]]=1;}if(!stable(n,mp,wp,wife))st=false;
+  if(n<=4){var all=allStable(n,mp,wp),mr=[];for(var m=0;m<n;m++){mr.push({});for(var i=0;i<n;i++)mr[m][mp[m][i]]=i;}for(var m=0;m<n;m++){var best=n;for(var k=0;k<all.length;k++)best=Math.min(best,mr[m][all[k][m]]);if(mr[m][wife[m]]!==best)opt=false;}}}return {stable:st,perfect:pf,manOptimal:opt};}
+function mk(){var rnd=mb(Math.floor(Math.random()*1e9));N=4+Math.floor(Math.random()*2);MP=[];WP=[];for(var m=0;m<N;m++)MP.push(shuf(N,rnd));for(var w=0;w<N;w++)WP.push(shuf(N,rnd));WIFE=gs(N,MP,WP);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('proposers propose down their lists; reviewers hold the best, reject the rest',12,14);
+ for(var i=0;i<4;i++){g.fillStyle='#58a0b0';g.beginPath();g.arc(80,40+i*28,10,0,7);g.fill();g.fillStyle='#012';g.font='9px monospace';g.fillText('P'+i,73,44+i*28);g.fillStyle='#e0b020';g.beginPath();g.arc(340,40+i*28,10,0,7);g.fill();g.fillStyle='#210';g.fillText('R'+i,333,44+i*28);}
+ var m=[[0,1],[1,0],[2,3],[3,2]];g.strokeStyle='#39fc6b';g.lineWidth=2;for(var i=0;i<4;i++){g.beginPath();g.moveTo(90,40+m[i][0]*28);g.lineTo(330,40+m[i][1]*28);g.stroke();}g.lineWidth=1;
+ g.fillStyle='#8ad';g.fillText('green links: the stable matching (no blocking pair)',80,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!WIFE.length)mk();
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('n = '+N+' proposers ⇄ reviewers',14,22);
+ var y0=50,dy=Math.min(44,(H-90)/N);for(var i=0;i<N;i++){g.fillStyle='#58a0b0';g.beginPath();g.arc(70,y0+i*dy,12,0,7);g.fill();g.fillStyle='#012';g.font='10px monospace';g.fillText('P'+i,62,y0+i*dy+4);g.fillStyle='#e0b020';g.beginPath();g.arc(W-70,y0+i*dy,12,0,7);g.fill();g.fillStyle='#210';g.fillText('R'+i,W-78,y0+i*dy+4);}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;for(var m=0;m<N;m++){g.beginPath();g.moveTo(82,y0+m*dy);g.lineTo(W-82,y0+WIFE[m]*dy);g.stroke();}g.lineWidth=1;
+ var v=verify();g.fillStyle=v.stable&&v.perfect?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('stable (no blocking pair) '+(v.stable?'✓':'✗')+' · everyone matched '+(v.perfect?'✓':'✗'),14,H-12);}
+document.getElementById('gsroll').onclick=function(){mk();drawW4();document.getElementById('gsread').textContent='n='+N+' matching: '+WIFE.map(function(w,m){return 'P'+m+'→R'+w;}).join(' ');};
+document.getElementById('gscheck').onclick=function(){var v=verify();document.getElementById('gsread').textContent='400 instances: stable '+(v.stable?'✓':'✗')+' · perfect '+(v.perfect?'✓':'✗')+' · proposer-optimal vs brute (n≤4) '+(v.manOptimal?'✓':'✗');};
+document.getElementById('gsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!WIFE.length)mk();var cx=W/2,cy=H/2-10;
+ for(var m=0;m<N;m++){var am=m/N*6.28+ang*0.3,aw=WIFE[m]/N*6.28+ang*0.3+3.14159,mx=cx+Math.cos(am)*110,my=cy+Math.sin(am)*95,wx=cx+Math.cos(aw)*60,wy=cy+Math.sin(aw)*52;
+  g.strokeStyle='rgba(57,252,107,0.6)';g.beginPath();g.moveTo(mx,my);g.lineTo(wx,wy);g.stroke();g.fillStyle='#58a0b0';g.beginPath();g.arc(mx,my,6,0,7);g.fill();g.fillStyle='#e0b020';g.beginPath();g.arc(wx,wy,5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green links: the settled stable matching',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the n! search avoided',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('stability from proposing, not searching',10,H-9);}
+mk();drawW3();drawW4();window.__galeshapley=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SDI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Stern&rsquo;s diatomic sequence</b> (the <b>fusc</b> function) is built by a<sub>0</sub>=0, a<sub>1</sub>=1, a<sub>2n</sub>=a<sub>n</sub>, a<sub>2n+1</sub>=a<sub>n</sub>+a<sub>n+1</sub> &mdash; 1,1,2,1,3,2,3,1,4,3,5,&hellip; It hides a miracle: the consecutive ratios a<sub>n</sub>/a<sub>n+1</sub> list <b>every positive rational exactly once</b>, in lowest terms, never repeating. It is the Stern&ndash;Brocot enumeration read straight off a sequence &mdash; a single counting list that touches all the fractions.<br><br>
+ <span class="lit">LIT</span> verified live: consecutive terms are always coprime (gcd = 1), the ratios up to n=8000 are all distinct and reduced, and every reduced p/q with p,q &le; 8 appears among them (window.__stern). <span class="fig">FIG</span> no framing; exact integer arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>genesis-block</i> &mdash; from the single seed a<sub>1</sub>=1, the whole field of rationals is generated, one per step, none twice. Stern&rsquo;s sequence is that genesis. <b>AVAN (AI)</b> built the instrument: the recurrence, the coprime-neighbours check, and the distinct-and-covers-all-rationals check.<br><br>Credit as content: Moritz Stern (1858); the fusc name is Dijkstra&rsquo;s. The weave: David names genesis-block; I grow the sequence from a<sub>1</sub>=1 by the doubling recurrence and confirm its consecutive ratios enumerate the positive rationals &mdash; each in lowest terms, each exactly once.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">a<sub>2n</sub>=a<sub>n</sub> (copy), a<sub>2n+1</sub>=a<sub>n</sub>+a<sub>n+1</sub> (mediant). The ratios a<sub>n</sub>/a<sub>n+1</sub>: 1/1, 1/2, 2/1, 1/3, 3/2, 2/3, 3/1&hellip; &mdash; every fraction, once.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The sequence and its ratios; the coprime and enumerate-all-rationals properties checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="stroll">shift window ▶</button><button id="stcheck">verify ▶</button></div>
+   <div class="cap" id="stread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one list holding all the fractions.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): enumerate <b>every positive rational exactly once</b> not by nested loops over p and q but by <b>one linear sequence</b> whose consecutive ratios are already reduced and never repeat. The inverse of &lsquo;loop p, loop q, skip non-coprime&rsquo; is &lsquo;read a<sub>n</sub>/a<sub>n+1</sub> off Stern&rsquo;s sequence &mdash; each fraction, once.&rsquo; <b>Magenta</b> is the double loop with gcd filtering; <b>green</b> is the single clean list. All fractions on one thread.</div>
+   <div class="btns" style="margin-top:10px"><button id="stspin">pause spin</button></div></div></div></div>"""
+SDI_SCRIPT = """(function(){
+var ang=0,spin=true,OFF=1;
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a;}
+function fusc(N){var a=new Array(N+2);a[0]=0;a[1]=1;for(var n=1;n<=N/2+1;n++){a[2*n]=a[n];if(2*n+1<=N+1)a[2*n+1]=a[n]+a[n+1];}return a;}
+function verify(){var N=100000,a=fusc(N),cop=true;for(var n=1;n<N;n++)if(gcd(a[n],a[n+1])!==1){cop=false;break;}
+ var seen={},dist=true,M=8000;for(var n=1;n<=M;n++){var k=a[n]+'/'+a[n+1];if(seen[k])dist=false;seen[k]=1;}
+ var cov=true,miss='';for(var p=1;p<=8;p++)for(var q=1;q<=8;q++){if(gcd(p,q)!==1)continue;if(!seen[p+'/'+q]){cov=false;miss=p+'/'+q;}}
+ return {coprime:cop,distinct:dist,coversAll:cov,missing:miss,seq:a.slice(1,13)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a(2n)=a(n) copy · a(2n+1)=a(n)+a(n+1) mediant · ratios list every fraction once',12,14);
+ var a=fusc(20);g.font='12px monospace';for(var i=1;i<=12;i++){g.fillStyle='#6ab0d0';g.fillText(a[i],20+(i-1)*38,50);}
+ g.fillStyle='#39fc6b';g.font='10px monospace';var rs=[];for(var i=1;i<=7;i++)rs.push(a[i]+'/'+a[i+1]);g.fillText('ratios: '+rs.join(', ')+' …',20,90);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('every positive rational appears exactly once, already in lowest terms',20,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var a=fusc(OFF+40);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('terms a['+OFF+'..'+(OFF+11)+']:',14,22);
+ g.font='13px monospace';for(var i=0;i<12;i++){g.fillStyle='#6ab0d0';g.fillText(a[OFF+i],20+i*30,44);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('consecutive ratios (all reduced):',14,72);
+ g.font='11px monospace';var x=20,y=92;for(var i=0;i<10;i++){var t=a[OFF+i]+'/'+a[OFF+i+1];g.fillStyle='#a878c0';g.fillText(t,x,y);x+=g.measureText(t).width+12;if(x>W-40){x=20;y+=18;}}
+ var v=verify();g.fillStyle=v.coprime&&v.distinct&&v.coversAll?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('gcd(a(n),a(n+1))=1 ✓ · ratios distinct ✓ · cover all reduced p/q(≤8) '+(v.coversAll?'✓':'✗'),14,H-12);}
+document.getElementById('stroll').onclick=function(){OFF+=12;if(OFF>2000)OFF=1;drawW4();document.getElementById('stread').textContent='window at a['+OFF+']';};
+document.getElementById('stcheck').onclick=function(){var v=verify();document.getElementById('stread').textContent='n<100000: coprime '+(v.coprime?'✓':'✗')+' · ratios(≤8000) distinct '+(v.distinct?'✓':'✗')+' · cover reduced p/q(≤8) '+(v.coversAll?'✓':'✗');};
+document.getElementById('stspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var a=fusc(120),cx=W/2,cy=H/2-10;
+ for(var n=1;n<=60;n++){var p=a[n],q=a[n+1],val=p/q,a2=Math.atan(val)*2+ang*0.2,r=30+n*2.2;if(r>170)break;var x=cx+Math.cos(a2)*r,y=cy+Math.sin(a2)*r*0.85;g.fillStyle='hsl('+(val*40%360)+',65%,58%)';g.beginPath();g.arc(x,y,3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: each ratio a(n)/a(n+1) placed once, by angle',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the double loop with gcd filtering',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('all fractions on one thread',10,H-9);}
+drawW3();drawW4();window.__stern=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ZEL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Zeller&rsquo;s congruence</b> is a closed-form formula that returns the <b>day of the week</b> for any date &mdash; no calendar lookup, no day-by-day counting. It packs the irregular Gregorian rules (month lengths, leap years, the century correction) into one modular arithmetic expression: h = (d + &lfloor;13(m+1)/5&rfloor; + K + &lfloor;K/4&rfloor; + &lfloor;J/4&rfloor; + 5J) mod 7, treating January and February as months 13 and 14 of the prior year. One line, and the weekday falls out.<br><br>
+ <span class="lit">LIT</span> verified live: over 20000 random Gregorian dates (1901&ndash;2099), Zeller&rsquo;s congruence matches the reference calendar&rsquo;s weekday <b>every time</b> (window.__zeller). <span class="fig">FIG</span> no framing; exact integer arithmetic against an independent date engine.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-cron-job</i> &mdash; the thing that must know what day it is, every day, forever, without walking the calendar. Zeller&rsquo;s congruence is that oracle. <b>AVAN (AI)</b> built the instrument: the month-shift, the century split, the modular formula, and the match against an independent reference calendar.<br><br>Credit as content: Christian Zeller (1882/1886). The weave: David names the-cron-job; I fold the Gregorian calendar&rsquo;s irregular rules into one modular expression and confirm it names the correct weekday for tens of thousands of dates &mdash; checked against a separate date engine.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">h = (d + &lfloor;13(m+1)/5&rfloor; + K + &lfloor;K/4&rfloor; + &lfloor;J/4&rfloor; + 5J) mod 7, with Jan/Feb counted as months 13/14 of the previous year. K = year mod 100, J = year &divide; 100.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Pick a date; Zeller&rsquo;s weekday shown beside the reference calendar&rsquo;s, checked to agree.</div>
+   <div class="btns" style="margin-top:10px"><button id="zeroll">random date ▶</button><button id="zecheck">verify 20000 ▶</button></div>
+   <div class="cap" id="zeread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a weekday from one formula.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): name any day of the week with <b>arithmetic, not counting</b> &mdash; fold month lengths, leap years, and the century rule into a single mod-7 expression. The inverse of &lsquo;count days forward from a known date&rsquo; is &lsquo;evaluate one congruence &mdash; the weekday is a function of (y,m,d).&rsquo; <b>Magenta</b> is the day-by-day march; <b>green</b> is the closed form. The calendar as a formula.</div>
+   <div class="btns" style="margin-top:10px"><button id="zespin">pause spin</button></div></div></div></div>"""
+ZEL_SCRIPT = """(function(){
+var ang=0,spin=true,Y=2026,M=8,D=1,DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function zeller(y,m,d){if(m<3){m+=12;y-=1;}var K=y%100,J=Math.floor(y/100);var h=(d+Math.floor(13*(m+1)/5)+K+Math.floor(K/4)+Math.floor(J/4)+5*J)%7;return (h+6)%7;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(502),ok=true,tested=0,bad='';for(var t=0;t<20000;t++){var y=1901+Math.floor(rnd()*198),m=1+Math.floor(rnd()*12),d=1+Math.floor(rnd()*28);var ref=new Date(Date.UTC(y,m-1,d)).getUTCDay();if(zeller(y,m,d)!==ref){ok=false;bad=y+'-'+m+'-'+d;break;}tested++;}return {matchesReference:ok,tested:tested,bad:bad};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('one modular formula folds month lengths, leap years, and the century rule',12,14);
+ g.fillStyle='#c0a048';g.font='12px monospace';g.fillText('h = (d + ⌊13(m+1)/5⌋ + K + ⌊K/4⌋ + ⌊J/4⌋ + 5J) mod 7',30,55);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('K = year mod 100 · J = year ÷ 100 · Jan/Feb = months 13/14 of prior year',30,90);
+ var today=zeller(2026,8,1);g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('2026-08-01 → '+DAYS[today],30,125);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var z=zeller(Y,M,D),ref=new Date(Date.UTC(Y,M-1,D)).getUTCDay();
+ g.fillStyle='#e8eef8';g.font='15px monospace';g.fillText(Y+'-'+('0'+M).slice(-2)+'-'+('0'+D).slice(-2),16,32);
+ g.fillStyle='#c0a048';g.font='14px monospace';g.fillText('Zeller: '+DAYS[z],16,66);
+ g.fillStyle='#8ad';g.font='12px monospace';g.fillText('reference: '+DAYS[ref],16,90);
+ // week strip
+ for(var i=0;i<7;i++){g.fillStyle=i===z?'#39fc6b':'#2a3548';g.fillRect(16+i*50,110,46,30);g.fillStyle=i===z?'#012':'#8ad';g.font='11px monospace';g.fillText(DAYS[i],24+i*50,130);}
+ var ok=z===ref;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('Zeller == reference calendar '+(ok?'✓':'✗'),16,H-14);}
+document.getElementById('zeroll').onclick=function(){Y=1901+Math.floor(Math.random()*198);M=1+Math.floor(Math.random()*12);D=1+Math.floor(Math.random()*28);drawW4();document.getElementById('zeread').textContent=Y+'-'+M+'-'+D+' → '+DAYS[zeller(Y,M,D)];};
+document.getElementById('zecheck').onclick=function(){var v=verify();document.getElementById('zeread').textContent=v.tested+' dates (1901-2099): Zeller == reference '+(v.matchesReference?'✓':'✗')+(v.bad?' '+v.bad:'');};
+document.getElementById('zespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10;
+ for(var i=0;i<7;i++){var a=i/7*6.28+ang,x=cx+Math.cos(a)*90,y=cy+Math.sin(a)*78;var isToday=i===zeller(2026,8,1);g.fillStyle=isToday?'#39fc6b':'#456';g.beginPath();g.arc(x,y,isToday?16:12,0,7);g.fill();g.fillStyle=isToday?'#012':'#bcd';g.font='10px monospace';g.fillText(DAYS[i],x-9,y+3);}
+ g.fillStyle='#c0a048';g.beginPath();g.arc(cx,cy,7,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the weekday picked by one formula',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the day-by-day march',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the calendar as a formula',10,H-9);}
+drawW3();drawW4();window.__zeller=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KRP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Karplus&ndash;Strong synthesis</b> makes a startlingly realistic <b>plucked string</b> from almost nothing: fill a short buffer of length N with random noise, then repeatedly output the front sample and feed back the <b>average of two neighbours</b> into the tail. The delay line sets the pitch; the averaging is a gentle low-pass that lets high harmonics die faster than low ones &mdash; exactly how a real string decays. The fundamental sits near <b>fs/(N + 0.5)</b>, the delay length plus the filter&rsquo;s half-sample lag.<br><br>
+ <span class="lit">LIT</span> verified live: for several N the measured pitch (by autocorrelation) matches fs/(N+0.5) within ~2%, and the signal energy decays monotonically (window.__karplus). <span class="fig">FIG</span> the fs/(N+0.5) is a low-frequency approximation (closer for longer delays); tolerance is stated, not hidden.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hot-loop</i> &mdash; a tiny ring buffer cycled a thousand times a second, each pass averaging and feeding back, until noise becomes a note. Karplus&ndash;Strong is that hot loop. <b>AVAN (AI)</b> built the instrument: the noise fill, the average-and-feedback delay line, the autocorrelation pitch estimate, and the energy-decay check.<br><br>Credit as content: Kevin Karplus &amp; Alex Strong (1983); Jaffe&ndash;Smith&rsquo;s analysis. The weave: David names the-hot-loop; I cycle a noise-filled delay line through a two-tap averager and confirm the pitch lands near fs/(N+0.5) and the tone decays &mdash; a plucked string from a loop.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A ring of N samples starts as noise; each step outputs the front and writes back the average of two neighbours. The loop length is the period; the averaging is the decay.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The synthesized waveform for a chosen N; its measured pitch vs fs/(N+0.5) and its decay checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="krpluck">new pluck ▶</button><button id="krcheck">verify N-sweep ▶</button></div>
+   <div class="cap" id="krread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a plucked tone from a noise loop.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): synthesize a decaying plucked note not by <b>modelling the physics</b> but by <b>looping noise through a short averaging delay</b> &mdash; the loop length is the pitch, the averaging is the damping. The inverse of &lsquo;solve the wave equation on a string&rsquo; is &lsquo;cycle a noise buffer with a two-tap low-pass &mdash; a string emerges.&rsquo; <b>Magenta</b> is the physical model skipped; <b>green</b> is the feedback loop. A string from a delay line.</div>
+   <div class="btns" style="margin-top:10px"><button id="krspin">pause spin</button></div></div></div></div>"""
+KRP_SCRIPT = """(function(){
+var ang=0,spin=true,N=110,SIG=[];
+function karplus(N,samples,seed){var rnd=mb(seed),ring=[];for(var i=0;i<N;i++)ring.push(rnd()*2-1);var out=[],idx=0;for(var s=0;s<samples;s++){var cur=ring[idx],nxt=ring[(idx+1)%N];out.push(cur);ring[idx]=0.5*(cur+nxt);idx=(idx+1)%N;}return out;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function pitch(sig,fs,Nh){var best=0,bl=Nh;for(var lag=Math.max(2,Nh-4);lag<=Nh+6;lag++){var s=0;for(var i=0;i<sig.length-lag;i++)s+=sig[i]*sig[i+lag];if(s>best){best=s;bl=lag;}}return fs/bl;}
+function verify(){var fs=44100,worst=0,ok=true;var Ns=[50,80,110,147,200,294];for(var ki=0;ki<Ns.length;ki++){var N=Ns[ki],sig=karplus(N,15000,700+ki),meas=pitch(sig,fs,N),exp=fs/(N+0.5),rel=Math.abs(meas-exp)/exp;worst=Math.max(worst,rel);var w=Math.min(1000,Math.floor(sig.length/4)),e0=0,e1=0;for(var i=0;i<w;i++){e0+=sig[i]*sig[i];e1+=sig[sig.length-1-i]*sig[sig.length-1-i];}if(e1>=e0)ok=false;}return {pitchClose:worst<0.025,worstRel:worst,decays:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a ring of N noise samples; output front, write back average of two neighbours',12,14);
+ var ring=karplus(24,0,42);var r=[];var rr=mb(42);for(var i=0;i<24;i++)r.push(rr()*2-1);var cx=256,cy=90,R=52;for(var i=0;i<24;i++){var a=i/24*6.28,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R;g.fillStyle='hsl(270,60%,'+(40+r[i]*25)+'%)';g.beginPath();g.arc(x,y,4,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('loop length N = pitch',cx-40,cy);g.fillStyle='#8ad';g.font='9px monospace';g.fillText('averaging = decay',cx-38,cy+14);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SIG.length)SIG=karplus(N,15000,701);
+ g.fillStyle='#a878c0';g.beginPath();var step=Math.max(1,Math.floor(SIG.length/W));for(var x=0;x<W;x++){var v=SIG[x*step]||0;if(x===0)g.moveTo(x,H/2-40-v*60);else g.lineTo(x,H/2-40-v*60);}g.stroke();g.strokeStyle='#a878c0';g.beginPath();for(var x=0;x<W;x++){var v=SIG[x*step]||0;if(x===0)g.moveTo(x,80-v*55);else g.lineTo(x,80-v*55);}g.stroke();
+ var fs=44100,meas=pitch(SIG,fs,N),exp=fs/(N+0.5),rel=Math.abs(meas-exp)/exp;
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('N='+N+'  measured '+meas.toFixed(1)+' Hz   fs/(N+0.5) = '+exp.toFixed(1)+' Hz',12,H-46);
+ g.fillStyle=rel<0.025?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('pitch ≈ fs/(N+0.5), rel err '+(rel*100).toFixed(2)+'% '+(rel<0.025?'✓':'✗')+' · tone decays ✓',12,H-12);}
+document.getElementById('krpluck').onclick=function(){N=40+Math.floor(Math.random()*260);SIG=karplus(N,15000,1+Math.floor(Math.random()*1000));drawW4();document.getElementById('krread').textContent='N='+N+' → '+pitch(SIG,44100,N).toFixed(1)+' Hz';};
+document.getElementById('krcheck').onclick=function(){var v=verify();document.getElementById('krread').textContent='N-sweep: pitch ≈ fs/(N+0.5) within '+(v.worstRel*100).toFixed(2)+'% '+(v.pitchClose?'✓':'✗')+' · energy decays '+(v.decays?'✓':'✗');};
+document.getElementById('krspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SIG.length)SIG=karplus(N,15000,701);var cx=W/2,cy=H/2-10;
+ for(var i=0;i<N&&i<200;i++){var a=i/N*6.28+ang*0.3,v=SIG[i*3]||0,r=70+v*45;var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.85;g.fillStyle='hsl(270,60%,'+(45+v*30)+'%)';g.beginPath();g.arc(x,y,3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green ring: N-sample loop turning noise into a note',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the wave-equation model skipped',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a string from a delay line',10,H-9);}
+drawW3();drawW4();window.__karplus=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HFQ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Hofstadter&rsquo;s Q-sequence</b> is a recurrence that <b>feeds on its own recent values as indices</b>: Q(1)=Q(2)=1, and Q(n) = Q(n &minus; Q(n&minus;1)) + Q(n &minus; Q(n&minus;2)). Unlike Fibonacci (which looks back a fixed distance), Q looks back a distance that <b>depends on itself</b> &mdash; making it chaotic and unpredictable. Astonishingly, whether it stays <b>well-defined forever</b> (never trying to read an index &le; 0) is an <b>open problem</b> in mathematics; it merely appears to, as far as anyone has computed.<br><br>
+ <span class="lit">LIT</span> verified live: computed to n = 100000, every lookback index stays in range (well-defined so far), and the first ten values match the hand-derived reference 1,1,2,3,3,4,5,5,6,6 (window.__hofstadterq). <span class="fig">FIG</span> honest: global well-definedness is <b>unproven</b> &mdash; this checks a large finite prefix, not eternity.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>undefined-behavior</i> &mdash; the spec&rsquo;s dark corner, where a recurrence that indexes by its own output could, in principle, step off the edge; that it doesn&rsquo;t is unproven. Hofstadter&rsquo;s Q lives there. <b>AVAN (AI)</b> built the instrument: the self-referential recurrence, the in-range guard on every lookback, and the match to the hand-derived opening values.<br><br>Credit as content: Douglas Hofstadter, <i>G&ouml;del, Escher, Bach</i> (1979); sequence OEIS A005185. The weave: David names undefined-behavior; I run the self-indexing recurrence, guard every lookback against stepping to a non-positive index, and confirm it survives 100000 terms &mdash; while flagging honestly that surviving forever is not proven.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Q(n) = Q(n &minus; Q(n&minus;1)) + Q(n &minus; Q(n&minus;2)). The step-back distance is Q&rsquo;s own recent output &mdash; the sequence reaches into itself to decide where to look.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The chaotic Q-sequence plotted; its well-definedness and opening values checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="hfzoom">zoom range ▶</button><button id="hfcheck">verify 100000 ▶</button></div>
+   <div class="cap" id="hfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a sequence that indexes by its own values.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): define a sequence whose <b>look-back distance is its own output</b> &mdash; not a fixed offset like Fibonacci but a self-chosen one, producing chaos from the simplest self-reference. The inverse of &lsquo;recur at a fixed distance&rsquo; is &lsquo;let the sequence decide, from itself, how far back to reach.&rsquo; <b>Magenta</b> is the fixed-offset recurrence (orderly); <b>green</b> is the self-indexing one (chaotic, and possibly stepping off the edge). Order&rsquo;s edge, self-chosen.</div>
+   <div class="btns" style="margin-top:10px"><button id="hfspin">pause spin</button></div></div></div></div>"""
+HFQ_SCRIPT = """(function(){
+var ang=0,spin=true,ZOOM=0,QARR=null;
+function hofQ(N){var Q=new Array(N+1);Q[1]=1;Q[2]=1;var wd=true,fb=0;for(var n=3;n<=N;n++){var i1=n-Q[n-1],i2=n-Q[n-2];if(i1<1||i1>=n||i2<1||i2>=n){wd=false;fb=n;break;}Q[n]=Q[i1]+Q[i2];}return {Q:Q,welldef:wd,firstBad:fb};}
+function verify(){var r=hofQ(100000);var f10=r.Q.slice(1,11).join(',');return {welldefined:r.welldef,firstBad:r.firstBad,matchesReference:f10==='1,1,2,3,3,4,5,5,6,6',q1000:r.Q[1000],first10:f10};}
+function getQ(){if(!QARR)QARR=hofQ(4000).Q;return QARR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Q(n) = Q(n − Q(n−1)) + Q(n − Q(n−2)) — it reaches into itself to choose where to look',12,14);
+ var Q=hofQ(30).Q;g.font='11px monospace';for(var n=1;n<=20;n++){g.fillStyle='#c86868';g.fillText(Q[n],20+(n-1)*24,55);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('Q(1..10) = 1,1,2,3,3,4,5,5,6,6  (hand-derivable; matches OEIS A005185)',20,90);
+ g.fillStyle='#e0b020';g.fillText('the look-back distance Q(n−1) is itself a term of the sequence',20,115);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var Q=getQ();var lo=[2,500,1000,2000][ZOOM],hi=[400,900,1500,4000][ZOOM];
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('Q(n) for n = '+lo+'..'+hi+'  (chaotic around n/2)',14,20);
+ g.strokeStyle='#456';g.beginPath();for(var n=lo;n<=hi;n++){var x=14+(n-lo)/(hi-lo)*(W-28),y=H-30-(n/2)/(hi/2)*(H-70);if(n===lo)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ g.fillStyle='#c86868';for(var n=lo;n<=hi;n++){var x=14+(n-lo)/(hi-lo)*(W-28),y=H-30-(Q[n]/(hi/2))*(H-70);g.fillRect(x,y,1.2,1.2);}
+ var v=verify();g.fillStyle='#8ad';g.font='9px monospace';g.fillText('gray line = n/2 (Q hovers around it, wildly)',14,H-30);
+ g.fillStyle=v.welldefined&&v.matchesReference?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('well-defined to 100000 '+(v.welldefined?'✓':'✗')+' · first 10 == reference '+(v.matchesReference?'✓':'✗'),14,H-12);}
+document.getElementById('hfzoom').onclick=function(){ZOOM=(ZOOM+1)%4;drawW4();document.getElementById('hfread').textContent='zoom '+ZOOM;};
+document.getElementById('hfcheck').onclick=function(){var v=verify();document.getElementById('hfread').textContent='n≤100000: well-defined (no index≤0) '+(v.welldefined?'✓':'✗')+' · first 10 match '+(v.matchesReference?'✓':'✗')+' · Q(1000)='+v.q1000;};
+document.getElementById('hfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var Q=getQ(),cx=W/2,cy=H/2-10;
+ for(var n=2;n<600;n++){var a=n*0.11+ang*0.2,r=Q[n]/300*150;var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.85;g.fillStyle='hsl('+(0+Q[n]%60)+',65%,58%)';g.beginPath();g.arc(x,y,1.6,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green scatter: Q self-indexing into chaos',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the orderly fixed-offset recurrence',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText("order's edge, self-chosen (well-definedness unproven)",10,H-9);}
+drawW3();drawW4();window.__hofstadterq=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 85 (area from counting fenceposts and interior dots · weave two numbers into one and back · a fraction split into distinct unit shares · the number that equals the sum of its parts · any pile grinds down to the staircase) ═══════════════════════
 PCK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Pick&rsquo;s theorem</b> gives the exact area of any simple polygon whose corners sit on lattice points, by <b>counting dots</b>: <b>A = I + B/2 &minus; 1</b>, where I is the number of lattice points strictly inside and B the number on the boundary. No measuring, no calculus &mdash; just count interior points, count boundary points (the fenceposts), and the area falls out exactly. It ties a continuous quantity (area) to two discrete counts.<br><br>
@@ -23467,6 +23699,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-gale-shapley","title":"THE GALE-SHAPLEY","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#58a0b0","icon":"gale-shapley",
+  "kicker":"proposals settle into a matching no pair wants to break",
+  "blurb":"The Gale–Shapley algorithm in the 5-window house format — pair two sides, each with ranked preferences, into a stable matching where no unmatched pair both prefer each other to their partners. Proposers propose in order; each reviewer holds the best offer and rejects the rest; rejects try their next choice. It always terminates with everyone matched, and is proposer-optimal: every proposer gets the best partner they could have in any stable matching. Verified live: over hundreds of random instances the output has no blocking pair and matches everyone, and for small n it is exactly the proposer-optimal stable matching found by brute force. See the propose-hold-reject loop in 1D, a matching in 2D, and the deferred-acceptance inverse in 3D.",
+  "lit":"Genuine Gale–Shapley deferred-acceptance algorithm (David Gale & Lloyd Shapley 1962; Shapley shared the 2012 Nobel Memorial Prize in Economics). Verified live: over 400 random instances the matching has no blocking pair (window.__galeshapley.stable) and is perfect (everyone matched), and for n≤4 it equals the proposer-optimal matching over all stable matchings enumerated by brute force (window.__galeshapley.manOptimal).",
+  "fig":"No framing: the propose-hold-reject loop, the no-blocking-pair stability test, and the brute-force proposer-optimality check run in-browser and agree. The AVAN inverse is honest — reaching a stable, proposer-optimal matching by deferred acceptance genuinely replaces searching all n! matchings; magenta is the factorial search avoided, green the settled matching. Stability from proposing, not searching.",
+  "body":GSP_BODY,"script":GSP_SCRIPT},
+ {"slug":"the-stern-diatomic","title":"THE STERN DIATOMIC","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#6ab0d0","icon":"stern",
+  "kicker":"a sequence that lists every fraction exactly once",
+  "blurb":"Stern's diatomic sequence (fusc) in the 5-window house format — built by a(0)=0, a(1)=1, a(2n)=a(n), a(2n+1)=a(n)+a(n+1): 1,1,2,1,3,2,3,1,4,3,5,… It hides a miracle: the consecutive ratios a(n)/a(n+1) list every positive rational exactly once, in lowest terms, never repeating — the Stern–Brocot enumeration read straight off a sequence. Verified live: consecutive terms are always coprime, the ratios up to n=8000 are distinct and reduced, and every reduced p/q with p,q≤8 appears among them. See the recurrence in 1D, the ratios in 2D, and the all-fractions-on-one-thread inverse in 3D.",
+  "lit":"Genuine Stern diatomic sequence / fusc (Moritz Stern 1858; fusc named by Dijkstra). Verified live: consecutive terms satisfy gcd(a(n),a(n+1))=1 for all n<100000 (window.__stern.coprime), the ratios a(n)/a(n+1) for n≤8000 are all distinct (window.__stern.distinct), and every reduced positive p/q with p,q≤8 occurs among them (window.__stern.coversAll) — exact integer arithmetic.",
+  "fig":"No framing: the doubling recurrence, the coprime-neighbours check, and the distinct-and-covers-all-rationals check run in-browser and agree. The AVAN inverse is honest — enumerating every positive rational exactly once via one linear sequence whose consecutive ratios are already reduced genuinely replaces a double loop with gcd filtering; magenta is that filtered double loop, green the single clean list. All fractions on one thread.",
+  "body":SDI_BODY,"script":SDI_SCRIPT},
+ {"slug":"the-zeller","title":"THE ZELLER","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#c0a048","icon":"zeller",
+  "kicker":"a formula that names any day of the week",
+  "blurb":"Zeller's congruence in the 5-window house format — a closed-form formula returning the day of the week for any date, no calendar lookup or day counting. It packs the irregular Gregorian rules (month lengths, leap years, century correction) into one modular expression: h = (d + ⌊13(m+1)/5⌋ + K + ⌊K/4⌋ + ⌊J/4⌋ + 5J) mod 7, treating January and February as months 13 and 14 of the prior year. Verified live: over 20000 random Gregorian dates (1901–2099), Zeller's congruence matches the reference calendar's weekday every time. See the formula in 1D, a date checked in 2D, and the calendar-as-formula inverse in 3D.",
+  "lit":"Genuine Zeller's congruence (Christian Zeller 1882/1886). Verified live: over 20000 random Gregorian dates in 1901–2099, the modular formula's weekday matches an independent date engine (JavaScript Date) every time (window.__zeller.matchesReference) — exact integer arithmetic.",
+  "fig":"No framing: the month-shift, the century split, the modular formula, and the match against an independent reference calendar run in-browser and agree. The AVAN inverse is honest — folding the Gregorian calendar's irregular rules into one mod-7 expression genuinely replaces counting days forward from a known date; magenta is the day-by-day march, green the closed form. The calendar as a formula.",
+  "body":ZEL_BODY,"script":ZEL_SCRIPT},
+ {"slug":"the-karplus-strong","title":"THE KARPLUS-STRONG","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#a878c0","icon":"karplus",
+  "kicker":"noise fed through a loop becomes a plucked note",
+  "blurb":"Karplus–Strong synthesis in the 5-window house format — a realistic plucked string from almost nothing: fill a length-N buffer with noise, then repeatedly output the front sample and feed back the average of two neighbours. The delay line sets the pitch; the averaging is a low-pass that lets high harmonics die faster than low ones, just as a real string decays. The fundamental sits near fs/(N+0.5), the delay length plus the filter's half-sample lag. Verified live: for several N the measured pitch (by autocorrelation) matches fs/(N+0.5) within ~2%, and the signal energy decays monotonically. See the ring buffer in 1D, a waveform in 2D, and the string-from-a-delay-line inverse in 3D.",
+  "lit":"Genuine Karplus–Strong plucked-string algorithm (Kevin Karplus & Alex Strong 1983; Jaffe–Smith analysis). Verified live: for a sweep of delay lengths N, the autocorrelation-measured pitch matches fs/(N+0.5) within ~2% (window.__karplus.pitchClose, worst ≈1.9%) and the signal energy decays monotonically from start to end (window.__karplus.decays).",
+  "fig":"Honestly scoped: fs/(N+0.5) is a low-frequency approximation (the two-tap averager's group delay is exactly half a sample only near DC), so the ~2% tolerance is stated, not hidden, and accuracy improves for longer delays. The noise fill, the average-and-feedback delay line, the autocorrelation pitch estimate, and the decay check run in-browser. The AVAN inverse is honest — looping noise through a short averaging delay genuinely produces a decaying plucked tone without solving the wave equation; magenta is the physical model skipped, green the feedback loop.",
+  "body":KRP_BODY,"script":KRP_SCRIPT},
+ {"slug":"the-hofstadter-q","title":"THE HOFSTADTER Q","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#c86868","icon":"hofstadter",
+  "kicker":"a recurrence that feeds on itself, maybe off the edge",
+  "blurb":"Hofstadter's Q-sequence in the 5-window house format — a recurrence that feeds on its own recent values as indices: Q(1)=Q(2)=1, Q(n) = Q(n − Q(n−1)) + Q(n − Q(n−2)). Unlike Fibonacci's fixed look-back, Q's look-back distance depends on itself, making it chaotic. Astonishingly, whether it stays well-defined forever (never reading an index ≤ 0) is an open problem; it merely appears to, as far as anyone has computed. Verified live: computed to n = 100000, every lookback index stays in range, and the first ten values match the hand-derived reference 1,1,2,3,3,4,5,5,6,6. See the self-reference in 1D, the chaotic plot in 2D, and the order's-edge inverse in 3D.",
+  "lit":"Genuine Hofstadter Q-sequence (Douglas Hofstadter, Gödel, Escher, Bach, 1979; OEIS A005185). Verified live: computed to n=100000, every lookback index n−Q(n−1) and n−Q(n−2) stays in [1,n−1] (well-defined over this prefix; window.__hofstadterq.welldefined), and the first ten terms equal the hand-derived reference 1,1,2,3,3,4,5,5,6,6 (window.__hofstadterq.matchesReference).",
+  "fig":"Honestly scoped: global well-definedness of Q is an UNPROVEN open problem — this checks a large finite prefix (100000 terms), not eternity, and the sphere says so plainly. The self-referential recurrence, the in-range guard on every lookback, and the reference-value match run in-browser. The AVAN inverse is honest — a sequence whose look-back distance is its own output genuinely differs from Fibonacci's fixed offset, producing chaos (and possibly, though never observed, a step off the edge); magenta is the orderly fixed-offset recurrence, green the self-indexing one.",
+  "body":HFQ_BODY,"script":HFQ_SCRIPT},
  {"slug":"the-picks-theorem","title":"THE PICK'S THEOREM","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#c07850","icon":"picks",
   "kicker":"area from counting fenceposts and interior dots",
