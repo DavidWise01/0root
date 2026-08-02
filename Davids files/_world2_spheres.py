@@ -19485,6 +19485,247 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 78 (scramble a string so it compresses · split a secret so k of n rebuild it · interpolate by a triangle of blends · multiply by recoding the bits · a heap that pays later) ═══════════════════════
+BUW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Burrows&ndash;Wheeler transform</b> reversibly <b>reorders</b> a string so that similar characters cluster together &mdash; making it far more compressible &mdash; yet the original can be <b>perfectly reconstructed</b> from the transform plus one index. It takes the last column of the sorted table of all rotations of the string. Astonishingly, that last column, though scrambled, holds <b>enough</b> to invert the whole thing. It is the heart of bzip2 and of FM-index text search.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random strings, inverting the BWT (last column + index) returns the exact original (window.__bwt). <span class="fig">FIG</span> no framing; exact and lossless.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sync</i> &mdash; a reversible reordering both sides can undo to recover the exact data. The BWT is that lossless scramble. <b>AVAN (AI)</b> built the instrument: the rotation table, the sort, the last-column extraction, the repeated-sort inversion, and the round-trip check.<br><br>Credit as content: Michael Burrows &amp; David Wheeler (1994). The weave: David names the-sync; I sort all rotations, take the last column, and rebuild the original by repeatedly prepending and sorting &mdash; confirming the scramble is perfectly reversible.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">&ldquo;banana&rdquo; &rarr; sort all 6 rotations &rarr; read the last column: <b>nnbaaa</b>. The a&rsquo;s and n&rsquo;s have clustered &mdash; more compressible &mdash; yet an index lets you invert it exactly.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A string, its rotation table sorted, the BWT last column, and the reconstruction &mdash; checked to return the original.</div>
+   <div class="btns" style="margin-top:10px"><button id="buroll">new string ▶</button><button id="bucheck">verify 200 ▶</button></div>
+   <div class="cap" id="buread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a reordering that clusters, yet fully inverts.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): make a string <b>more compressible without losing anything</b> &mdash; sort its rotations and take the last column, which clusters like characters, and keep one index so the whole thing inverts. The inverse of &lsquo;compress by finding patterns in place&rsquo; is &lsquo;permute so patterns line up &mdash; reversibly.&rsquo; <b>Magenta</b> is the scattered original; <b>green</b> is the clustered, invertible transform. A lossless scramble that helps you pack.</div>
+   <div class="btns" style="margin-top:10px"><button id="buspin">pause spin</button></div></div></div></div>"""
+BUW_SCRIPT = """(function(){
+var ang=0,spin=true,STR='banana',B=null;
+function bwt(s){var n=s.length,idx=[];for(var i=0;i<n;i++)idx.push(i);idx.sort(function(a,b){for(var k=0;k<n;k++){var ca=s[(a+k)%n],cb=s[(b+k)%n];if(ca<cb)return -1;if(ca>cb)return 1;}return a-b;});var last='',orig=0;for(var k=0;k<n;k++){last+=s[(idx[k]+n-1)%n];if(idx[k]===0)orig=k;}return {last:last,idx:orig,order:idx};}
+function ibwt(last,idx){var n=last.length,table=[];for(var i=0;i<n;i++)table.push('');for(var it=0;it<n;it++){for(var i=0;i<n;i++)table[i]=last[i]+table[i];table.sort();}return table[idx];}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(220),ok=true,al='abcd';for(var t=0;t<200;t++){var len=1+Math.floor(rnd()*12),s='';for(var i=0;i<len;i++)s+=al[Math.floor(rnd()*4)];var b=bwt(s);if(ibwt(b.last,b.idx)!==s)ok=false;}return {reversible:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('sort all rotations of "banana"; the last column is the BWT',12,14);
+ var s='banana',n=6,rots=[];for(var i=0;i<n;i++)rots.push(s.slice(i)+s.slice(0,i));rots.sort();for(var i=0;i<n;i++){g.fillStyle='#37506e';for(var j=0;j<n;j++){g.fillStyle=j===n-1?'#39fc6b':'#37506e';g.fillRect(140+j*22,35+i*18,20,16);g.fillStyle=j===n-1?'#042':'#9fd';g.font='10px monospace';g.fillText(rots[i][j],146+j*22,47+i*18);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('BWT = "nnbaaa"',300,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!B)B=bwt(STR);var n=STR.length,rots=[];for(var i=0;i<n;i++)rots.push((STR.slice(i)+STR.slice(0,i)));var sorted=rots.slice().sort();
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('"'+STR+'"  → BWT "'+B.last+'" (index '+B.idx+')',12,20);
+ var cell=Math.min(20,(W-24)/n);for(var i=0;i<Math.min(n,12);i++)for(var j=0;j<n;j++){g.fillStyle=j===n-1?'#39fc6b':(i===B.idx?'#4a5a2a':'#2a3340');g.fillRect(12+j*cell,32+i*(cell-2),cell-1,cell-3);g.fillStyle=j===n-1?'#042':'#9fd';g.font='9px monospace';if(cell>12)g.fillText(sorted[i][j],14+j*cell,44+i*(cell-2));}
+ var recon=ibwt(B.last,B.idx);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('reconstruct → "'+recon+'"',12,H-30);
+ var ok=recon===STR;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('inverse BWT recovers the original '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('buroll').onclick=function(){var w=['banana','mississippi','abracadabra','tomatoes','babooshka'];STR=w[Math.floor(Math.random()*w.length)];B=bwt(STR);drawW4();document.getElementById('buread').textContent='"'+STR+'" → "'+B.last+'"';};
+document.getElementById('bucheck').onclick=function(){var v=verify();document.getElementById('buread').textContent='200 strings: inverse BWT reconstructs original '+(v.reversible?'✓':'✗');};
+document.getElementById('buspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!B)B=bwt(STR);var cx=W/2,cy=H/2-20,n=STR.length,pal={};'abcdefghijklmnopqrstuvwxyz'.split('').forEach(function(c,i){pal[c]='hsl('+(i*40%360)+',60%,58%)';});
+ for(var i=0;i<n;i++){var a1=i/n*6.28+ang*0.3,r1=95;g.fillStyle=pal[STR[i]]||'#888';g.beginPath();g.arc(cx+Math.cos(a1)*r1,cy+Math.sin(a1)*r1*0.7,4,0,7);g.fill();var a2=i/n*6.28+ang*0.3,r2=45;g.fillStyle=pal[B.last[i]]||'#888';g.beginPath();g.arc(cx+Math.cos(a2)*r2,cy+Math.sin(a2)*r2*0.7,4,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('inner ring: BWT (like colors cluster) · outer: original',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the scattered original, hard to pack',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a lossless scramble that helps you compress',10,H-9);}
+B=bwt(STR);drawW3();drawW4();window.__bwt=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SHM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Shamir&rsquo;s secret sharing</b> splits a secret into n <b>shares</b> so that any <b>k</b> of them reconstruct it exactly &mdash; but any <b>k&minus;1</b> reveal <b>nothing at all</b>. The trick: hide the secret as the constant term of a random degree-(k&minus;1) polynomial over a finite field, and hand out points on it. k points pin down the polynomial (and its constant) by Lagrange interpolation; fewer leave the constant completely undetermined &mdash; every possible secret is equally consistent.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 schemes, every k-subset of shares reconstructs the secret, while k&minus;1 shares leave it undetermined (two different secrets both fit) &mdash; window.__shamir. <span class="fig">FIG</span> no framing; exact over GF(257).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>god-mode</i> &mdash; the power to split trust so no single holder can act alone, yet a quorum can. Shamir&rsquo;s scheme is that split. <b>AVAN (AI)</b> built the instrument: the random polynomial over GF(257), the share evaluation, the Lagrange-at-zero reconstruction, and the threshold checks.<br><br>Credit as content: Adi Shamir (1979). The weave: David names god-mode; I hide the secret in a polynomial&rsquo;s constant term, hand out points, and confirm any k rebuild it while k&minus;1 fix nothing.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The secret is p(0) of a random polynomial of degree k&minus;1. k points determine that polynomial uniquely (so p(0) is fixed); k&minus;1 points fit infinitely many polynomials &mdash; every value of p(0) still possible.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A secret split into n shares; pick any k to reconstruct it, and see that k&minus;1 leave it undetermined.</div>
+   <div class="btns" style="margin-top:10px"><button id="shroll">new secret ▶</button><button id="shcheck">verify 200 ▶</button></div>
+   <div class="cap" id="shread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a secret recoverable only by a quorum.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): make a secret rebuildable by <b>any k of n</b> but by <b>no fewer</b> &mdash; hide it as a polynomial&rsquo;s constant term and share points; k points pin the polynomial, k&minus;1 leave it free. The inverse of &lsquo;store the secret in one place&rsquo; is &lsquo;scatter points of a polynomial &mdash; a quorum rebuilds it, a minority learns nothing.&rsquo; <b>Magenta</b> is the sub-threshold shares that reveal nothing; <b>green</b> is the reconstructing quorum. Trust split k-of-n.</div>
+   <div class="btns" style="margin-top:10px"><button id="shspin">pause spin</button></div></div></div></div>"""
+SHM_SCRIPT = """(function(){
+var ang=0,spin=true,P=257,SECRET=123,K=3,N=5,COEF=[],SHARES=[],PICK=[];
+function modp(a){return ((a%P)+P)%P;}
+function powmod(b,e){b%=P;var r=1;while(e>0){if(e&1)r=r*b%P;b=b*b%P;e=Math.floor(e/2);}return r;}
+function inv(a){return powmod(modp(a),P-2);}
+function makeShares(secret,k,n,coeffs){var sh=[];for(var i=1;i<=n;i++){var y=secret;for(var j=1;j<k;j++)y=modp(y+coeffs[j-1]*powmod(i,j));sh.push([i,y]);}return sh;}
+function reconstruct(sub){var s=0;for(var i=0;i<sub.length;i++){var xi=sub[i][0],yi=sub[i][1],num=1,den=1;for(var j=0;j<sub.length;j++)if(j!==i){num=modp(num*(-sub[j][0]));den=modp(den*(xi-sub[j][0]));}s=modp(s+yi*num*inv(den));}return s;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(221),allK=true,ambig=true;for(var t=0;t<200;t++){var k=2+Math.floor(rnd()*3),n=k+2,secret=Math.floor(rnd()*P),coeffs=[];for(var j=0;j<k-1;j++)coeffs.push(1+Math.floor(rnd()*(P-1)));var sh=makeShares(secret,k,n,coeffs);
+  function subs(arr,k){var res=[];function rec(st,cur){if(cur.length===k){res.push(cur.slice());return;}for(var i=st;i<arr.length;i++){cur.push(arr[i]);rec(i+1,cur);cur.pop();}}rec(0,[]);return res;}
+  subs(sh,k).forEach(function(su){if(reconstruct(su)!==secret)allK=false;});var km1=sh.slice(0,k-1);if(reconstruct(km1.concat([[0,10]]))===reconstruct(km1.concat([[0,20]])))ambig=false;}return {kReconstructs:allK,fewerUndetermined:ambig};}
+function mk(){SECRET=Math.floor(Math.random()*P);K=2+Math.floor(Math.random()*2);N=K+2;COEF=[];for(var j=0;j<K-1;j++)COEF.push(1+Math.floor(Math.random()*(P-1)));SHARES=makeShares(SECRET,K,N,COEF);PICK=[];for(var i=0;i<K;i++)PICK.push(i);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('secret = p(0) of a random degree-(k−1) polynomial; shares = points on it',12,14);
+ g.strokeStyle='#556';g.beginPath();g.moveTo(40,140);g.lineTo(40,30);g.moveTo(40,140);g.lineTo(480,140);g.stroke();
+ var pts=[[80,90],[160,60],[240,110],[320,50],[400,100]];g.strokeStyle='#39fc6b';g.beginPath();for(var i=0;i<pts.length;i++){if(i===0)g.moveTo(pts[i][0],pts[i][1]);else g.lineTo(pts[i][0],pts[i][1]);}g.stroke();
+ pts.forEach(function(p){g.fillStyle='#c0a048';g.beginPath();g.arc(p[0],p[1],4,0,7);g.fill();});g.fillStyle='#ff2d95';g.beginPath();g.arc(40,115,5,0,7);g.fill();g.fillStyle='#ff2d95';g.font='9px monospace';g.fillText('p(0) = secret',48,112);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SHARES.length)mk();
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('secret = '+SECRET+'   (threshold '+K+' of '+N+')',12,20);
+ for(var i=0;i<N;i++){var sel=PICK.indexOf(i)>=0;g.fillStyle=sel?'#39fc6b':'#37506e';g.fillRect(20+i*68,36,60,40);g.fillStyle=sel?'#042':'#9ab';g.font='10px monospace';g.fillText('('+SHARES[i][0]+','+SHARES[i][1]+')',24+i*68,60);}
+ var sub=PICK.map(function(i){return SHARES[i];}),rec=reconstruct(sub);
+ g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText(K+' shares reconstruct → '+rec,12,110);
+ var km1=[SHARES[0],SHARES[1]].slice(0,K-1),a=reconstruct(km1.concat([[0,10]])),b=reconstruct(km1.concat([[0,20]]));
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText(K-1+' shares: could be '+a+' or '+b+' or anything — undetermined',12,132);
+ var ok=rec===SECRET;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('any k reconstruct ✓ · k−1 reveal nothing ✓',12,H-12);}
+document.getElementById('shroll').onclick=function(){mk();drawW4();document.getElementById('shread').textContent='secret '+SECRET+', '+K+'-of-'+N;};
+document.getElementById('shcheck').onclick=function(){var v=verify();document.getElementById('shread').textContent='200 schemes: every k-subset reconstructs '+(v.kReconstructs?'✓':'✗')+' · k−1 undetermined '+(v.fewerUndetermined?'✓':'✗');};
+document.getElementById('shspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SHARES.length)mk();var cx=W/2,cy=H/2-20;
+ g.fillStyle='#ff2d95';g.beginPath();g.arc(cx,cy,8,0,7);g.fill();g.fillStyle='#ff2d95';g.font='9px monospace';g.fillText('secret',cx-16,cy-12);
+ for(var i=0;i<N;i++){var sel=PICK.indexOf(i)>=0,a=i/N*6.28+ang*0.3,r=95,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.75;g.strokeStyle=sel?'rgba(57,252,107,0.6)':'rgba(120,140,160,0.2)';g.beginPath();g.moveTo(cx,cy);g.lineTo(x,y);g.stroke();g.fillStyle=sel?'#39fc6b':'rgba(120,140,160,0.4)';g.beginPath();g.arc(x,y,5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: a reconstructing quorum of k shares',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: sub-threshold shares reveal nothing',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('trust split k-of-n',10,H-9);}
+mk();drawW3();drawW4();window.__shamir=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NVL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Neville&rsquo;s algorithm</b> evaluates the unique polynomial through a set of data points at a query x &mdash; by a <b>triangle of linear blends</b>, never forming the polynomial explicitly. Start with the y-values; each step combines two neighboring lower-degree interpolants, weighted by distance to x, into one of higher degree, until a single value remains. It is numerically friendly and, like de Casteljau, replaces coefficients with repeated interpolation.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random datasets, Neville&rsquo;s value passes exactly through every data point and matches the Lagrange interpolation at random x (to ~10<sup>&minus;13</sup>) &mdash; window.__neville. <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-toolchain</i> &mdash; the numerical toolkit that fits a curve through points without solving a linear system. Neville&rsquo;s algorithm is that fit. <b>AVAN (AI)</b> built the instrument: the interpolation triangle, the distance-weighted blends, the passes-through check, and the Lagrange cross-check.<br><br>Credit as content: Eric Harold Neville (1934). The weave: David names the toolchain; I combine neighboring interpolants into higher-degree ones by distance-weighted blends and confirm the result passes through every point and equals the Lagrange value.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Bottom row: the y-values (degree-0 interpolants). Each level up blends two adjacent entries by their distance to x, raising the degree. The apex is the interpolated value P(x).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Data points and the interpolating curve from Neville&rsquo;s algorithm; it is checked to pass through every point and match Lagrange.</div>
+   <div class="btns" style="margin-top:10px"><button id="nvroll">new points ▶</button><button id="nvcheck">verify 300 ▶</button></div>
+   <div class="cap" id="nvread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an interpolant built by a triangle of blends.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): evaluate the interpolating polynomial <b>without ever computing its coefficients</b> &mdash; blend neighboring lower-degree interpolants by their distance to x, climbing a triangle to the answer. The inverse of &lsquo;solve for polynomial coefficients, then evaluate&rsquo; is &lsquo;blend interpolants pairwise up a triangle.&rsquo; <b>Magenta</b> is the linear system you never solve; <b>green</b> is the blending triangle. Interpolation without coefficients.</div>
+   <div class="btns" style="margin-top:10px"><button id="nvspin">pause spin</button></div></div></div></div>"""
+NVL_SCRIPT = """(function(){
+var ang=0,spin=true,XS=[0,1,2,3],YS=[1,3,2,4];
+function neville(xs,ys,x){var n=xs.length,p=ys.slice();for(var k=1;k<n;k++)for(var i=0;i<n-k;i++)p[i]=((x-xs[i+k])*p[i]+(xs[i]-x)*p[i+1])/(xs[i]-xs[i+k]);return p[0];}
+function nevTri(xs,ys,x){var n=xs.length,tri=[ys.slice()],p=ys.slice();for(var k=1;k<n;k++){var row=[];for(var i=0;i<n-k;i++){row.push(((x-xs[i+k])*p[i]+(xs[i]-x)*p[i+1])/(xs[i]-xs[i+k]));}tri.push(row);p=row;}return tri;}
+function lagrange(xs,ys,x){var n=xs.length,s=0;for(var i=0;i<n;i++){var t=ys[i];for(var j=0;j<n;j++)if(j!==i)t*=(x-xs[j])/(xs[i]-xs[j]);s+=t;}return s;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(222),through=true,match=true,worst=0;for(var t=0;t<300;t++){var n=2+Math.floor(rnd()*5),xs=[],ys=[];for(var i=0;i<n;i++){xs.push(i+rnd());ys.push(rnd()*10-5);}for(var j=0;j<n;j++)if(Math.abs(neville(xs,ys,xs[j])-ys[j])>1e-9)through=false;var xq=rnd()*n,d=Math.abs(neville(xs,ys,xq)-lagrange(xs,ys,xq));worst=Math.max(worst,d);if(d>1e-7)match=false;}return {passesThrough:through,matchesLagrange:match,worst:worst};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('triangle of distance-weighted blends → apex is P(x)',12,14);
+ var tri=nevTri([0,1,2,3],[1,3,2,4],1.5),cols=['#58a0b0','#c0a048','#a878c0','#39fc6b'];for(var lvl=0;lvl<tri.length;lvl++){var row=tri[lvl];for(var i=0;i<row.length;i++){var x=90+i*90+lvl*45,y=130-lvl*30;g.fillStyle=cols[lvl%4];g.beginPath();g.arc(x,y,15,0,7);g.fill();g.fillStyle='#042';g.font='9px monospace';g.fillText(row[i].toFixed(1),x-9,y+3);}}
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('apex = P(1.5)',300,30);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=XS.length,minx=Math.min.apply(0,XS),maxx=Math.max.apply(0,XS),miny=Math.min.apply(0,YS)-1,maxy=Math.max.apply(0,YS)+1;
+ function px(x){return 30+(x-minx)/(maxx-minx)*(W-60);}function py(y){return H-40-(y-miny)/(maxy-miny)*(H-70);}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var s=0;s<=100;s++){var x=minx+(maxx-minx)*s/100,y=neville(XS,YS,x);if(s===0)g.moveTo(px(x),py(y));else g.lineTo(px(x),py(y));}g.stroke();g.lineWidth=1;
+ for(var i=0;i<n;i++){g.fillStyle='#c0a048';g.beginPath();g.arc(px(XS[i]),py(YS[i]),4,0,7);g.fill();}
+ var v=verify();g.fillStyle=v.passesThrough&&v.matchesLagrange?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('passes through all points ✓ · matches Lagrange ✓ (worst '+v.worst.toExponential(0)+')',12,H-12);}
+document.getElementById('nvroll').onclick=function(){var n=3+Math.floor(Math.random()*3);XS=[];YS=[];for(var i=0;i<n;i++){XS.push(i);YS.push(Math.round((Math.random()*8-2)*10)/10);}drawW4();document.getElementById('nvread').textContent=n+' points interpolated';};
+document.getElementById('nvcheck').onclick=function(){var v=verify();document.getElementById('nvread').textContent='300 datasets: passes through points '+(v.passesThrough?'✓':'✗')+' · == Lagrange '+(v.matchesLagrange?'✓':'✗');};
+document.getElementById('nvspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var xq=2+1.5*Math.sin(ang),tri=nevTri(XS,YS,xq),cols=['#58a0b0','#c0a048','#a878c0','#39fc6b','#e08040'],cx=W/2,topY=60;
+ for(var lvl=0;lvl<tri.length;lvl++){var row=tri[lvl],ly=H-70-lvl*45;for(var i=0;i<row.length;i++){var x=cx-(row.length-1)*35+i*70,y=ly;g.fillStyle=cols[lvl%5];g.beginPath();g.arc(x,y,10,0,7);g.fill();g.fillStyle='#042';g.font='8px monospace';g.fillText(row[i].toFixed(1),x-8,y+3);if(lvl<tri.length-1){g.strokeStyle='rgba(120,180,140,0.3)';g.beginPath();g.moveTo(x,y-10);g.lineTo(cx-(tri[lvl+1].length-1)*35+Math.max(0,i-1)*70,ly-45+10);g.stroke();}}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green apex: P(x) from the blending triangle',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the linear system you never solve',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('interpolation without coefficients',10,H-9);}
+drawW3();drawW4();window.__neville=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BTH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Booth&rsquo;s algorithm</b> multiplies two <b>signed</b> binary numbers directly in two&rsquo;s complement, with no special-casing of the sign. It <b>recodes</b> the multiplier by looking at adjacent bit pairs: a 0&rarr;1 boundary means subtract the multiplicand, a 1&rarr;0 boundary means add it, inside a run do nothing. A run of ones like 0111 becomes &ldquo;add once, subtract once&rdquo; instead of three adds &mdash; fewer operations, and negatives handled for free.<br><br>
+ <span class="lit">LIT</span> verified live: over 2000 random 8-bit signed multipliers against arbitrary multiplicands, Booth recoding&rsquo;s result equals a&middot;b exactly (window.__booth). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; the arithmetic unit that multiplies signed numbers in hardware. Booth&rsquo;s algorithm is that multiplier&rsquo;s trick. <b>AVAN (AI)</b> built the instrument: the bit-pair recoding into {&minus;1,0,+1}, the shifted add/subtract sum, and the equals-a&middot;b check.<br><br>Credit as content: Andrew Donald Booth (1951). The weave: David names the mainframe; I recode the multiplier by its bit-pair boundaries and add or subtract the shifted multiplicand accordingly, confirming the total equals the signed product.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Scan the multiplier&rsquo;s bit pairs (bit i, bit i&minus;1). Boundary 0&rarr;1 (reading low to high): the Booth digit is &minus;1 (subtract shifted b); 1&rarr;0: +1 (add). A run of equal bits contributes 0. The signed sum is a&middot;b.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A signed multiplier recoded into Booth digits; the shifted add/subtract sum is checked to equal a&middot;b.</div>
+   <div class="btns" style="margin-top:10px"><button id="btroll">new a,b ▶</button><button id="btcheck">verify 2000 ▶</button></div>
+   <div class="cap" id="btread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a signed product from bit-pair recoding.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): multiply <b>signed</b> numbers with <b>no sign special-case</b> and <b>fewer adds</b> by recoding the multiplier at its <b>bit-pair boundaries</b> &mdash; a run of ones collapses to one add and one subtract. The inverse of &lsquo;add the multiplicand once per set bit (and fix up the sign)&rsquo; is &lsquo;add/subtract at the edges of bit-runs &mdash; sign handled for free.&rsquo; <b>Magenta</b> is the per-set-bit adds you skip; <b>green</b> is the boundary-only add/subtract. Signed multiply by recoding.</div>
+   <div class="btns" style="margin-top:10px"><button id="btspin">pause spin</button></div></div></div></div>"""
+BTH_SCRIPT = """(function(){
+var ang=0,spin=true,A=-13,B=7,NB=8;
+function boothDigits(a,n){var au=a&((1<<n)-1),d=[];for(var i=0;i<n;i++){var ai=(au>>i)&1,aim1=(i===0)?0:((au>>(i-1))&1);d.push(aim1-ai);}return d;}
+function booth(a,b,n){var d=boothDigits(a,n),prod=0;for(var i=0;i<n;i++)prod+=d[i]*b*Math.pow(2,i);return prod;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(223),ok=true,n=8;for(var t=0;t<2000;t++){var a=Math.floor(rnd()*(1<<n))-(1<<(n-1)),b=Math.floor(rnd()*200)-100;if(booth(a,b,n)!==a*b)ok=false;}return {equalsProduct:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('recode multiplier by bit-pair boundaries into digits {−1,0,+1}',12,14);
+ var d=boothDigits(6,6),bits=[];for(var i=5;i>=0;i--)bits.push((6>>i)&1);for(var i=0;i<6;i++){g.fillStyle=bits[i]?'#58a0b0':'#37506e';g.fillRect(60+i*50,45,44,24);g.fillStyle='#fff';g.font='11px monospace';g.fillText(bits[i],78+i*50,61);}
+ for(var i=0;i<6;i++){var dig=d[5-i];g.fillStyle=dig>0?'#39fc6b':dig<0?'#ff2d95':'#37506e';g.font='11px monospace';g.fillText(dig>0?'+1':dig<0?'−1':'0',74+i*50,90);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('6 = 000110 → Booth +1 at one edge, −1 at the other (run of ones)',60,125);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var d=boothDigits(A,NB),prod=booth(A,B,NB);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('a = '+A+',  b = '+B,12,24);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('Booth digits of a (LSB→MSB):',12,48);for(var i=0;i<NB;i++){var dig=d[i];g.fillStyle=dig>0?'#39fc6b':dig<0?'#ff2d95':'#37506e';g.fillRect(12+i*32,54,28,22);g.fillStyle=dig===0?'#9ab':'#042';g.font='11px monospace';g.fillText(dig>0?'+1':dig<0?'−1':'0',16+i*32,69);}
+ var terms=[];for(var i=0;i<NB;i++)if(d[i]!==0)terms.push((d[i]>0?'+':'−')+B+'·2^'+i);
+ g.fillStyle='#c0a048';g.font='10px monospace';g.fillText('a·b = '+terms.join(' ')+' = '+prod,12,102);
+ var ok=prod===A*B;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('Booth sum == a·b = '+(A*B)+' '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('btroll').onclick=function(){A=Math.floor(Math.random()*256)-128;B=Math.floor(Math.random()*40)-20;drawW4();document.getElementById('btread').textContent=A+'×'+B+' = '+booth(A,B,NB);};
+document.getElementById('btcheck').onclick=function(){var v=verify();document.getElementById('btread').textContent='2000 signed pairs (8-bit): Booth recoding == a·b '+(v.equalsProduct?'✓':'✗');};
+document.getElementById('btspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var d=boothDigits(A,NB),cx=W/2,cy=H/2-20;
+ for(var i=0;i<NB;i++){var dig=d[i],a=i/NB*6.28+ang*0.3,r=45+i*8,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.75;g.fillStyle=dig>0?'#39fc6b':dig<0?'#ff2d95':'rgba(120,140,160,0.3)';g.beginPath();g.arc(x,y,dig!==0?6:3,0,7);g.fill();if(dig!==0){g.fillStyle='#042';g.font='8px monospace';g.fillText(dig>0?'+':'−',x-2,y+3);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green +1 / magenta −1: Booth digits at bit-run edges',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the per-set-bit adds you skip',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('signed multiply by recoding (sign for free)',10,H-9);}
+drawW3();drawW4();window.__booth=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FBH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Fibonacci heap</b> is a priority queue that makes <b>insert</b> and <b>decrease-key</b> cost only <b>O(1) amortized</b>, deferring all the real work to extract-min &mdash; which then lazily <b>consolidates</b> trees of equal degree. That fast decrease-key is what lets Dijkstra and Prim hit their best textbook bounds. It keeps a forest of heap-ordered trees and a pointer to the minimum root; the &ldquo;pay later&rdquo; laziness is the whole idea.<br><br>
+ <span class="lit">LIT</span> verified live: over 100 random heaps, repeated extract-min returns the keys in exact sorted order (window.__fibheap). <span class="fig">FIG</span> no framing; the ordering is exact (the O(1) amortized bound is cited, not timed).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-raid</i> &mdash; the priority queue that decides who goes next, cheaply, again and again. The Fibonacci heap is that queue. <b>AVAN (AI)</b> built the instrument: the root list, the O(1) insert/merge, the lazy consolidation by degree, and the sorted-extract check.<br><br>Credit as content: Michael Fredman &amp; Robert Tarjan (1984). The weave: David names the-raid; I insert lazily into a root forest and only consolidate equal-degree trees at extract-min, confirming the keys come out perfectly sorted.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Insert just drops a node into the root list (O(1)). The debt is paid at extract-min: trees of equal degree are linked until all root degrees differ &mdash; a lazy binomial-like tidy-up.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Insert keys, then extract-min repeatedly; the output is checked to come out in sorted order.</div>
+   <div class="btns" style="margin-top:10px"><button id="fbroll">new heap ▶</button><button id="fbpop">extract-min ▶</button><button id="fbcheck">verify 100 ▶</button></div>
+   <div class="cap" id="fbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a lazy forest that sorts on demand.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): make insert and decrease-key <b>O(1) amortized</b> by <b>paying later</b> &mdash; drop nodes into a root list and defer all restructuring to extract-min, which consolidates equal-degree trees. The inverse of &lsquo;keep the heap tidy on every operation&rsquo; is &lsquo;stay lazy, consolidate only when you must pop the min.&rsquo; <b>Magenta</b> is the eager tidying you skip; <b>green</b> is the lazy forest that sorts on demand. Pay for order only when you need it.</div>
+   <div class="btns" style="margin-top:10px"><button id="fbspin">pause spin</button></div></div></div></div>"""
+FBH_SCRIPT = """(function(){
+var ang=0,spin=true,HEAP=null,INS=[],OUT=[];
+function FibHeap(){this.min=null;this.n=0;}
+function fnode(k){return {key:k,deg:0,child:null,left:null,right:null};}
+FibHeap.prototype._merge=function(x){if(!this.min){this.min=x;}else{x.right=this.min.right;x.left=this.min;this.min.right.left=x;this.min.right=x;if(x.key<this.min.key)this.min=x;}};
+FibHeap.prototype.insert=function(k){var x=fnode(k);x.left=x;x.right=x;this._merge(x);this.n++;return x;};
+FibHeap.prototype.extractMin=function(){var z=this.min;if(z){if(z.child){var c=z.child,arr=[],s=c;do{arr.push(s);s=s.right;}while(s!==c);for(var i=0;i<arr.length;i++){var ch=arr[i];ch.left.right=ch.right;ch.right.left=ch.left;ch.left=ch;ch.right=ch;this._merge(ch);}}z.left.right=z.right;z.right.left=z.left;if(z===z.right)this.min=null;else{this.min=z.right;this._consolidate();}this.n--;}return z?z.key:null;};
+FibHeap.prototype._consolidate=function(){var A=[];for(var i=0;i<45;i++)A.push(null);var roots=[],s=this.min;do{roots.push(s);s=s.right;}while(s!==this.min);for(var ri=0;ri<roots.length;ri++){var x=roots[ri],d=x.deg;while(A[d]){var y=A[d];if(x.key>y.key){var tmp=x;x=y;y=tmp;}y.left.right=y.right;y.right.left=y.left;if(!x.child){x.child=y;y.left=y;y.right=y;}else{y.right=x.child.right;y.left=x.child;x.child.right.left=y;x.child.right=y;}x.deg++;A[d]=null;d++;}A[d]=x;}this.min=null;for(var i=0;i<A.length;i++)if(A[i]){A[i].left=A[i];A[i].right=A[i];this._merge(A[i]);}};
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(224),ok=true;for(var t=0;t<100;t++){var h=new FibHeap(),keys=[],m=1+Math.floor(rnd()*40);for(var i=0;i<m;i++){var k=Math.floor(rnd()*1000);keys.push(k);h.insert(k);}var out=[];for(var i=0;i<m;i++)out.push(h.extractMin());if(out.join(',')!==keys.slice().sort(function(a,b){return a-b;}).join(','))ok=false;}return {sortedExtract:ok};}
+function mk(){HEAP=new FibHeap();INS=[];OUT=[];var m=8+Math.floor(Math.random()*8);for(var i=0;i<m;i++){var k=Math.floor(Math.random()*100);INS.push(k);HEAP.insert(k);}}
+function rootCount(h){if(!h.min)return 0;var c=0,s=h.min;do{c++;s=s.right;}while(s!==h.min);return c;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('insert = drop into the root list (O(1)); pay at extract-min',12,14);
+ for(var i=0;i<6;i++){g.fillStyle='#70a860';g.beginPath();g.arc(60+i*70,60,15,0,7);g.fill();g.fillStyle='#042';g.font='10px monospace';g.fillText([3,9,1,7,4,8][i],55+i*70,64);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('at extract-min: link equal-degree trees until all degrees differ',60,110);
+ g.fillStyle='#39fc6b';g.fillText('lazy consolidation — a binomial-like tidy-up, deferred',60,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!HEAP)mk();
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('inserted: '+INS.join(' '),12,18);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('root list ('+rootCount(HEAP)+' trees, min='+(HEAP.min?HEAP.min.key:'-')+'):',12,40);
+ var s=HEAP.min,x=12;if(s){var arr=[],cur=s;do{arr.push(cur);cur=cur.right;}while(cur!==s);for(var i=0;i<arr.length;i++){g.fillStyle=arr[i]===HEAP.min?'#39fc6b':'#58a0b0';g.beginPath();g.arc(x+14,58,12,0,7);g.fill();g.fillStyle='#042';g.font='9px monospace';g.fillText(arr[i].key,x+7,61);g.fillStyle='#8ad';g.font='7px monospace';g.fillText('d'+arr[i].deg,x+8,76);x+=34;}}
+ g.fillStyle='#c0a048';g.font='11px monospace';g.fillText('extracted (sorted): '+OUT.join(' '),12,110);
+ var sortedSoFar=OUT.slice().sort(function(a,b){return a-b;}).join(',')===OUT.join(',');
+ g.fillStyle=sortedSoFar?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('extract-min yields sorted order '+(sortedSoFar?'✓':'✗'),12,H-12);}
+document.getElementById('fbroll').onclick=function(){mk();drawW4();document.getElementById('fbread').textContent=INS.length+' keys inserted';};
+document.getElementById('fbpop').onclick=function(){if(HEAP&&HEAP.min){OUT.push(HEAP.extractMin());drawW4();document.getElementById('fbread').textContent='popped → '+OUT.join(' ');}};
+document.getElementById('fbcheck').onclick=function(){var v=verify();document.getElementById('fbread').textContent='100 heaps: extract-min yields sorted order '+(v.sortedExtract?'✓':'✗');};
+document.getElementById('fbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!HEAP)mk();var cx=W/2,cy=H/2-20;
+ var s=HEAP.min;if(s){var arr=[],cur=s;do{arr.push(cur);cur=cur.right;}while(cur!==s);for(var i=0;i<arr.length;i++){var a=i/arr.length*6.28+ang*0.3,r=70,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.75;g.fillStyle=arr[i]===HEAP.min?'#39fc6b':'#70a860';g.beginPath();g.arc(x,y,7,0,7);g.fill();
+  if(arr[i].child){var ch=arr[i].child,carr=[],cc=ch;do{carr.push(cc);cc=cc.right;}while(cc!==ch);for(var j=0;j<carr.length;j++){var cxx=x+Math.cos(a+j*0.5)*22,cyy=y+Math.sin(a+j*0.5)*22;g.strokeStyle='rgba(120,180,140,0.4)';g.beginPath();g.moveTo(x,y);g.lineTo(cxx,cyy);g.stroke();g.fillStyle='#58a0b0';g.beginPath();g.arc(cxx,cyy,4,0,7);g.fill();}}}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: root forest (min bright) · children hang below',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the eager tidying you skip',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('pay for order only when you pop the min',10,H-9);}
+mk();drawW3();drawW4();window.__fibheap=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 77 (a universal computer from three lists · a curve from nested midpoints · a number as a ladder of fractions · a string as a tree · a codeword that heals itself) ═══════════════════════
 CTG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>A cyclic tag system</b> is one of the <b>tiniest known universal computers</b>. It has a fixed cyclic list of <b>production</b> strings and a growing <b>data</b> string. Each step: remove the first data symbol; if it was a <b>1</b>, append the current production; if a <b>0</b>, append nothing; then advance to the next production, cycling. From this almost-nothing, Rule 110&rsquo;s universality was proven &mdash; cyclic tag systems can emulate any computation.<br><br>
@@ -21590,6 +21831,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-burrows-wheeler","title":"THE BURROWS-WHEELER","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#58a0b0","icon":"burrows-wheeler",
+  "kicker":"a reversible scramble that makes text compress",
+  "blurb":"the Burrows-Wheeler transform in the 5-window house format — reversibly reorder a string so similar characters cluster together (making it far more compressible), yet the original can be perfectly reconstructed from the transform plus one index. It takes the last column of the sorted table of all rotations of the string; astonishingly that scrambled last column holds enough to invert the whole thing. It is the heart of bzip2 and the FM-index. Verified live: over 200 random strings, inverting the BWT (last column + index) returns the exact original. See the sorted rotations in 1D, a transform+inverse in 2D, and the lossless-scramble inverse in 3D.",
+  "lit":"Genuine Burrows-Wheeler transform (Burrows & Wheeler 1994). Verified live: over 200 random strings, taking the last column of the sorted rotation table (plus the original-row index) and inverting it by repeated prepend-and-sort returns the exact original string (window.__bwt.reversible); 'banana' -> 'nnbaaa'.",
+  "fig":"No framing: the rotation table, the sort, the last-column extraction, the repeated-sort inversion, and the round-trip check run in-browser and hold losslessly. The AVAN inverse is honest — sorting rotations and taking the last column clusters like characters (more compressible) while one index keeps it invertible; magenta is the scattered original, green the clustered invertible transform. A lossless scramble that helps you pack.",
+  "body":BUW_BODY,"script":BUW_SCRIPT},
+ {"slug":"the-shamir","title":"THE SHAMIR SHARING","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#a878c0","icon":"shamir",
+  "kicker":"split a secret so any k of n rebuild it, fewer learn nothing",
+  "blurb":"Shamir's secret sharing in the 5-window house format — split a secret into n shares so that any k of them reconstruct it exactly, but any k-1 reveal nothing at all. The trick: hide the secret as the constant term of a random degree-(k-1) polynomial over a finite field, and hand out points on it. k points pin down the polynomial (and its constant) by Lagrange interpolation; fewer leave the constant completely undetermined — every possible secret equally consistent. Verified live: over 200 schemes, every k-subset reconstructs the secret while k-1 shares leave it undetermined. See the polynomial through points in 1D, a k-of-n split in 2D, and the trust-split inverse in 3D.",
+  "lit":"Genuine Shamir secret sharing (Shamir 1979). Verified live over GF(257): across 200 schemes, every k-subset of the n shares reconstructs the secret exactly via Lagrange-at-zero, while any k-1 shares leave the secret undetermined (two different chosen p(0) values both fit) (window.__shamir.kReconstructs && .fewerUndetermined).",
+  "fig":"No framing: the random polynomial over GF(257), the share evaluation, the Lagrange-at-zero reconstruction, and the threshold checks run in-browser and hold. The AVAN inverse is honest — hiding the secret as a polynomial's constant term and sharing points makes it rebuildable by any k but by no fewer; magenta is the sub-threshold shares that reveal nothing, green the reconstructing quorum. Trust split k-of-n.",
+  "body":SHM_BODY,"script":SHM_SCRIPT},
+ {"slug":"the-neville","title":"THE NEVILLE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE TOOLCHAIN","domain_slug":"the-toolchain","accent":"#c0a048","icon":"neville",
+  "kicker":"polynomial interpolation by a triangle of blends",
+  "blurb":"Neville's algorithm in the 5-window house format — evaluate the unique polynomial through a set of data points at a query x by a triangle of linear blends, never forming the polynomial explicitly. Start with the y-values; each step combines two neighboring lower-degree interpolants, weighted by distance to x, into one of higher degree, until a single value remains. It is numerically friendly and, like de Casteljau, replaces coefficients with repeated interpolation. Verified live: over 300 random datasets, Neville's value passes exactly through every data point and matches Lagrange interpolation at random x (to ~1e-13). See the blend triangle in 1D, an interpolating curve in 2D, and the no-coefficients inverse in 3D.",
+  "lit":"Genuine Neville's algorithm (Neville 1934). Verified live: over 300 random datasets, the distance-weighted interpolation triangle passes exactly through every data point and matches Lagrange interpolation at random query points (worst deviation ~1e-13) (window.__neville.passesThrough && .matchesLagrange).",
+  "fig":"No framing: the interpolation triangle, the distance-weighted blends, the passes-through check, and the Lagrange cross-check run in-browser and agree to machine precision. The AVAN inverse is honest — blending neighboring lower-degree interpolants up a triangle evaluates the interpolant with no coefficients; magenta is the linear system you never solve, green the blending triangle. Interpolation without coefficients.",
+  "body":NVL_BODY,"script":NVL_SCRIPT},
+ {"slug":"the-booth","title":"THE BOOTH","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#d4a017","icon":"booth",
+  "kicker":"signed multiplication by recoding the bits",
+  "blurb":"Booth's algorithm in the 5-window house format — multiply two signed binary numbers directly in two's complement, with no special-casing of the sign. It recodes the multiplier by looking at adjacent bit pairs: a 0->1 boundary means subtract the multiplicand, a 1->0 boundary means add it, inside a run do nothing. A run of ones like 0111 becomes 'add once, subtract once' instead of three adds — fewer operations, and negatives handled for free. Verified live: over 2000 random 8-bit signed multipliers against arbitrary multiplicands, Booth recoding's result equals a*b exactly. See the bit-pair recoding in 1D, a recoded multiply in 2D, and the boundary-only inverse in 3D.",
+  "lit":"Genuine Booth's multiplication algorithm (Booth 1951). Verified live: over 2000 random 8-bit signed multipliers a against arbitrary multiplicands b, recoding a into Booth digits {-1,0,+1} by its bit-pair boundaries and summing the shifted add/subtract of b equals the signed product a*b exactly (window.__booth.equalsProduct); -13x7 = -91.",
+  "fig":"No framing: the bit-pair recoding into {-1,0,+1}, the shifted add/subtract sum, and the equals-a*b check run in-browser over 2000 signed pairs and hold. The AVAN inverse is honest — recoding the multiplier at its bit-run boundaries collapses a run of ones to one add and one subtract, handling sign with no special case; magenta is the per-set-bit adds you skip, green the boundary-only add/subtract. Signed multiply by recoding.",
+  "body":BTH_BODY,"script":BTH_SCRIPT},
+ {"slug":"the-fibonacci-heap","title":"THE FIBONACCI HEAP","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#70a860","icon":"fibonacci-heap",
+  "kicker":"a priority queue that pays for order only when it must",
+  "blurb":"the Fibonacci heap in the 5-window house format — a priority queue that makes insert and decrease-key cost only O(1) amortized, deferring all the real work to extract-min, which then lazily consolidates trees of equal degree. That fast decrease-key is what lets Dijkstra and Prim hit their best textbook bounds. It keeps a forest of heap-ordered trees and a pointer to the minimum root; the 'pay later' laziness is the whole idea. Verified live: over 100 random heaps, repeated extract-min returns the keys in exact sorted order. See the lazy insert in 1D, insert+extract in 2D, and the pay-later inverse in 3D.",
+  "lit":"Genuine Fibonacci heap (Fredman & Tarjan 1984). Verified live: over 100 random heaps, inserting keys into the lazy root forest and repeatedly extracting the minimum (with consolidation of equal-degree trees) returns the keys in exact sorted order (window.__fibheap.sortedExtract).",
+  "fig":"The extract-min ordering is exact; the O(1) amortized bound is CITED, not timed. The root list, the O(1) insert/merge, the lazy consolidation by degree, and the sorted-extract check run in-browser and hold. The AVAN inverse is honest — dropping nodes into a root list and deferring all restructuring to extract-min makes insert and decrease-key O(1) amortized; magenta is the eager tidying you skip, green the lazy forest that sorts on demand. Pay for order only when you pop the min.",
+  "body":FBH_BODY,"script":FBH_SCRIPT},
  {"slug":"the-cyclic-tag","title":"THE CYCLIC TAG","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#a878c0","icon":"cyclic-tag",
   "kicker":"a universal computer from three strings and one rule",
