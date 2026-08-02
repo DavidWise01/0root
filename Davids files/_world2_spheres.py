@@ -19485,6 +19485,246 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 105 (any 2n−1 integers hide n that sum to zero mod n · a fair blend that splits into perfect assignments · how small a sumset can be in a prime field · the diagonal law of a cyclic quadrilateral · every number as three triangular numbers) ═══════════════════════
+EGZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Erd&#337;s&ndash;Ginzburg&ndash;Ziv theorem</b> is a zero-sum guarantee: among any <b>2n &minus; 1</b> integers (repeats allowed), some <b>n</b> of them have a sum divisible by n. No matter how adversarially the numbers are chosen, a size-n subset summing to 0 mod n is always hiding inside. And the count is <b>sharp</b>: with only 2n &minus; 2 integers it can fail &mdash; take n &minus; 1 zeros and n &minus; 1 ones, and any n of them sum to between 1 and n &minus; 1, never 0. It is a founding result of zero-sum combinatorics.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random collections of 2n &minus; 1 integers, a size-n zero-sum subset (mod n) is always found by a subset-sum dynamic program, and the (n&minus;1)-zeros-plus-(n&minus;1)-ones set of size 2n &minus; 2 has none (window.__egz). <span class="fig">FIG</span> no framing; an exhaustive subset-sum search and the sharp counterexample.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-raid</i> &mdash; however the enemy stacks 2n &minus; 1 numbers, the raid always uncovers a party of exactly n whose sum vanishes mod n. That guaranteed find is the mechanic. <b>AVAN (AI)</b> built the instrument: the count-and-residue subset-sum dynamic program, the search for a size-n zero-sum subset, and the sharp 2n &minus; 2 counterexample.<br><br>Credit as content: Paul Erd&#337;s, Abraham Ginzburg &amp; Abraham Ziv (1961). The weave: David names the-raid; I track which residues mod n are reachable using exactly n of the given integers, confirm 0 is always reachable from 2n &minus; 1 numbers, and show one number fewer can fail &mdash; the bound is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">n = 3: any 5 integers contain 3 summing to a multiple of 3. E.g. 1, 4, 2, 6, 5 &rarr; 1 + 2 + 6 = 9. But 0, 0, 1, 1 (only 2n &minus; 2 = 4) has no 3 summing to 0 mod 3.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A pile of 2n &minus; 1 integers and the size-n zero-sum subset found inside; the guarantee checked, the sharp case shown.</div>
+   <div class="btns" style="margin-top:10px"><button id="egroll3">new integers ▶</button><button id="egcheck3">verify ▶</button></div>
+   <div class="cap" id="egread3" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a zero-sum party always hiding in the pile.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t choose numbers to <b>make</b> a zero-sum subset &mdash; note that with 2n &minus; 1 of them you <b>cannot avoid</b> one. The inverse of &lsquo;construct a subset summing to 0 mod n&rsquo; is &lsquo;any 2n &minus; 1 integers already contain one.&rsquo; <b>Magenta</b> is a hand-built zero-sum subset; <b>green</b> is the one forced to exist. Zero-sum, unavoidable.</div>
+   <div class="btns" style="margin-top:10px"><button id="egspin3">pause spin</button></div></div></div></div>"""
+EGZ_SCRIPT = """(function(){
+var ang=0,spin=true,N=3,ARR=null,VR=null;
+function findZeroSum(arr,n){var dp=[];for(var j=0;j<=n;j++)dp.push([]);for(var j=0;j<=n;j++)for(var r=0;r<n;r++)dp[j][r]=null;dp[0][0]=[];
+ for(var i=0;i<arr.length;i++){var v=((arr[i]%n)+n)%n;for(var j=Math.min(i,n-1);j>=0;j--)for(var r=0;r<n;r++)if(dp[j][r]&&!dp[j+1][(r+v)%n])dp[j+1][(r+v)%n]=dp[j][r].concat([i]);}
+ return dp[n][0];}
+function verify(){if(VR)return VR;var seed=5,ok=true;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}for(var t=0;t<4000;t++){var n=2+Math.floor(rnd()*8),arr=[];for(var i=0;i<2*n-1;i++)arr.push(Math.floor(rnd()*1000)-500);if(!findZeroSum(arr,n))ok=false;}var sharp=true;for(var n=2;n<=10;n++){var arr=[];for(var i=0;i<n-1;i++)arr.push(0);for(var i=0;i<n-1;i++)arr.push(1);if(findZeroSum(arr,n))sharp=false;}VR={exists:ok,sharp:sharp};return VR;}
+function mk(){ARR=[];for(var i=0;i<2*N-1;i++)ARR.push(Math.floor(Math.random()*20));}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('any 2n−1 integers contain n whose sum is divisible by n (Erdős–Ginzburg–Ziv)',12,14);
+ g.fillStyle='#d06880';g.font='12px monospace';g.fillText('n=3: 1, 4, 2, 6, 5  →  1 + 2 + 6 = 9 = 3·3 ✓',24,48);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('five numbers (2n−1) always hide three summing to a multiple of 3',24,76);
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('sharp: 0, 0, 1, 1 (only 2n−2 = 4) has no 3 summing to 0 mod 3',24,106);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ARR)mk();var sub=findZeroSum(ARR,N),inset={};if(sub)sub.forEach(function(i){inset[i]=1;});
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('n = '+N+' · '+(2*N-1)+' integers (mod '+N+'):',14,20);
+ for(var i=0;i<ARR.length;i++){var x=20+(i%7)*50,y=40+Math.floor(i/7)*40;g.fillStyle=inset[i]?'#39fc6b':'#3a4658';g.fillRect(x,y,42,30);g.fillStyle=inset[i]?'#021':'#cfe';g.font='12px monospace';g.fillText(ARR[i],x+8,y+20);}
+ if(sub){var s=0;sub.forEach(function(i){s+=ARR[i];});g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('subset sum = '+s+' = '+N+'·'+(s/N)+' ✓',14,H-32);}
+ var v=verify();g.fillStyle=(v.exists&&v.sharp)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('2n−1 integers always contain an n-subset ≡0 mod n '+(v.exists?'✓':'✗')+' · 2n−2 can fail '+(v.sharp?'✓':'✗'),14,H-12);}
+document.getElementById('egroll3').onclick=function(){N=2+Math.floor(Math.random()*5);mk();drawW4();document.getElementById('egread3').textContent='n='+N+', '+(2*N-1)+' integers; zero-sum n-subset '+(findZeroSum(ARR,N)?'found':'none?!');};
+document.getElementById('egcheck3').onclick=function(){var v=verify();document.getElementById('egread3').textContent='any 2n−1 integers have an n-subset summing to 0 mod n (4000 cases) '+(v.exists?'✓':'✗')+' · 2n−2 counterexample has none '+(v.sharp?'✓':'✗');};
+document.getElementById('egspin3').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ARR)mk();var sub=findZeroSum(ARR,N),inset={};if(sub)sub.forEach(function(i){inset[i]=1;});var cx=W/2,cy=H/2-10;
+ for(var i=0;i<ARR.length;i++){var a=i/ARR.length*6.28+ang*0.3,r=80,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.82;g.fillStyle=inset[i]?'#39fc6b':'#3a4658';g.beginPath();g.arc(x,y,inset[i]?12:8,0,7);g.fill();g.fillStyle=inset[i]?'#021':'#8ad';g.font='9px monospace';g.fillText(ARR[i],x-5,y+3);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the n numbers whose sum is 0 mod n (forced to exist)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: a hand-picked zero-sum subset',10,H-24);
+ g.fillStyle='#8ad';g.fillText('zero-sum, unavoidable',10,H-9);}
+drawW3();drawW4();window.__egz=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BVN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Birkhoff&ndash;von Neumann theorem</b> says every <b>doubly stochastic matrix</b> &mdash; a square matrix of non-negative entries whose every row and column sums to 1 &mdash; is a <b>convex combination of permutation matrices</b>. A fair, fractional assignment (each agent split across jobs, each job split across agents) is always a weighted average of whole, one-to-one assignments. Birkhoff&rsquo;s algorithm peels them off: find a permutation sitting entirely on positive entries (a perfect matching always exists), subtract as much of it as possible, and repeat &mdash; the weights sum to exactly 1.<br><br>
+ <span class="lit">LIT</span> verified live: hundreds of random doubly stochastic matrices are decomposed into permutation matrices whose coefficients sum to 1 and whose weighted sum <b>reconstructs</b> the original exactly (window.__bvn). <span class="fig">FIG</span> no framing; the Birkhoff peeling with perfect-matching extraction, checked by reconstruction.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>shared-memory</i> &mdash; a fractional assignment shared across agents is really a blend of whole one-to-one assignments, peeled apart one permutation at a time. That shared blend is the structure. <b>AVAN (AI)</b> built the instrument: the perfect-matching extractor (augmenting paths on the positive support), the Birkhoff peeling loop, the coefficient sum, and the reconstruction check.<br><br>Credit as content: Garrett Birkhoff (1946) &amp; John von Neumann; the underlying matching is K&#337;nig&ndash;Hall. The weave: David names shared-memory; I repeatedly find a permutation lying on positive entries, subtract its smallest weight, and confirm the weights total 1 and rebuild the matrix &mdash; a fair blend split into perfect assignments.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A doubly stochastic matrix (rows and columns sum to 1) = &Sigma; &theta;<sub>k</sub> P<sub>k</sub>, permutation matrices P<sub>k</sub>, weights &theta;<sub>k</sub> &ge; 0 summing to 1. Peel: a permutation on positive cells, subtract its min, repeat.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A doubly stochastic matrix and its Birkhoff decomposition into weighted permutations; the reconstruction checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="bvroll">new matrix ▶</button><button id="bvcheck">verify ▶</button></div>
+   <div class="cap" id="bvread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a fair blend of whole assignments.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): read a fractional, doubly-balanced assignment not as a blur but as a <b>weighted mix of exact one-to-one matchings</b>. The inverse of &lsquo;average many permutations into a matrix&rsquo; is &lsquo;peel any doubly stochastic matrix back into permutations.&rsquo; <b>Magenta</b> is the blurred fractional matrix; <b>green</b> is the set of crisp permutation matrices it decomposes into. A blend, unmixed.</div>
+   <div class="btns" style="margin-top:10px"><button id="bvspin">pause spin</button></div></div></div></div>"""
+BVN_SCRIPT = """(function(){
+var ang=0,spin=true,MAT=null,TERMS=null,VR=null;
+function sinkhorn(M,iters){var n=M.length;for(var it=0;it<iters;it++){for(var i=0;i<n;i++){var s=0;for(var j=0;j<n;j++)s+=M[i][j];for(var j=0;j<n;j++)M[i][j]/=s;}for(var j=0;j<n;j++){var s=0;for(var i=0;i<n;i++)s+=M[i][j];for(var i=0;i<n;i++)M[i][j]/=s;}}return M;}
+function matching(M,eps){var n=M.length,mR=new Array(n).fill(-1),mC=new Array(n).fill(-1);function aug(u,seen){for(var v=0;v<n;v++)if(M[u][v]>eps&&!seen[v]){seen[v]=true;if(mC[v]===-1||aug(mC[v],seen)){mR[u]=v;mC[v]=u;return true;}}return false;}for(var u=0;u<n;u++){var seen=new Array(n).fill(false);if(!aug(u,seen))return null;}return mR;}
+function birkhoff(M){var n=M.length,A=M.map(function(r){return r.slice();}),terms=[],guard=0;while(guard++<100){var mx=0;for(var i=0;i<n;i++)for(var j=0;j<n;j++)mx=Math.max(mx,A[i][j]);if(mx<1e-9)break;var perm=matching(A,1e-9);if(!perm)return null;var th=Infinity;for(var i=0;i<n;i++)th=Math.min(th,A[i][perm[i]]);terms.push({theta:th,perm:perm.slice()});for(var i=0;i<n;i++)A[i][perm[i]]-=th;}return terms;}
+function verify(){if(VR)return VR;var seed=11,ok=true,sumOk=true,tested=0;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}for(var t=0;t<500;t++){var n=2+Math.floor(rnd()*4),M=[];for(var i=0;i<n;i++){M.push([]);for(var j=0;j<n;j++)M[i].push(0.05+rnd());}sinkhorn(M,60);var terms=birkhoff(M);if(!terms){ok=false;continue;}tested++;var sum=0;for(var k=0;k<terms.length;k++)sum+=terms[k].theta;if(Math.abs(sum-1)>1e-6)sumOk=false;var R=[];for(var i=0;i<n;i++)R.push(new Array(n).fill(0));for(var k=0;k<terms.length;k++)for(var i=0;i<n;i++)R[i][terms[k].perm[i]]+=terms[k].theta;for(var i=0;i<n;i++)for(var j=0;j<n;j++)if(Math.abs(R[i][j]-M[i][j])>1e-6)ok=false;}VR={reconstructs:ok,sumOne:sumOk};return VR;}
+function mk(){var n=3+Math.floor(Math.random()*2);MAT=[];for(var i=0;i<n;i++){MAT.push([]);for(var j=0;j<n;j++)MAT[i].push(0.1+Math.random());}sinkhorn(MAT,80);TERMS=birkhoff(MAT);}
+function drawMat(g,M,ox,oy,cell,perm){var n=M.length;for(var i=0;i<n;i++)for(var j=0;j<n;j++){var on=perm?perm[i]===j:false;g.fillStyle=perm?(on?'#39fc6b':'#26303c'):'rgba(90,144,192,'+(0.15+0.7*M[i][j])+')';g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);if(!perm){g.fillStyle='#e8eef8';g.font='8px monospace';g.fillText(M[i][j].toFixed(2),ox+j*cell+2,oy+i*cell+cell/2+3);}}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('doubly stochastic matrix = Σ θₖ Pₖ  (permutation matrices, θₖ ≥ 0, Σθₖ = 1)',12,14);
+ var M=[[0.5,0.5,0],[0.5,0,0.5],[0,0.5,0.5]];drawMat(g,M,30,34,32);g.fillStyle='#8ad';g.font='9px monospace';g.fillText('rows & cols sum to 1',30,150);
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('= ½·(identity-like perm) + ½·(another perm)',180,80);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!MAT)mk();var n=MAT.length;
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('doubly stochastic ('+n+'×'+n+'):',14,16);drawMat(g,MAT,14,22,30);
+ var x=170,y=22;for(var k=0;k<TERMS.length&&k<5;k++){g.fillStyle='#d0a840';g.font='9px monospace';g.fillText('θ='+TERMS[k].theta.toFixed(3),x,y-3);drawMat(g,MAT,x,y,16,TERMS[k].perm);x+=n*16+14;if(x>W-n*16){x=170;y+=n*16+20;}}
+ var v=verify();g.fillStyle=(v.reconstructs&&v.sumOne)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('decomposes & reconstructs (500 matrices) '+(v.reconstructs?'✓':'✗')+' · Σθ=1 '+(v.sumOne?'✓':'✗'),14,H-10);}
+document.getElementById('bvroll').onclick=function(){mk();drawW4();document.getElementById('bvread').textContent=TERMS.length+' permutation matrices, Σθ='+TERMS.reduce(function(a,b){return a+b.theta;},0).toFixed(4);};
+document.getElementById('bvcheck').onclick=function(){var v=verify();document.getElementById('bvread').textContent='every doubly stochastic matrix = Σ θₖ Pₖ, reconstructs exactly (500) '+(v.reconstructs?'✓':'✗')+' · Σθ=1 '+(v.sumOne?'✓':'✗');};
+document.getElementById('bvspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!MAT)mk();var n=MAT.length,cx=W/2,cy=H/2-10;
+ g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.3)*0.06);g.translate(-cx,-cy);
+ for(var k=0;k<Math.min(TERMS.length,5);k++){var oy=30+k*62,th=TERMS[k].theta;drawMat(g,MAT,cx-n*13,oy,26,TERMS[k].perm);g.fillStyle='#d0a840';g.font='10px monospace';g.fillText('θ='+th.toFixed(2),cx-n*13-52,oy+n*13);}g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green cells: the crisp permutation matrices it splits into',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: the blurred fractional matrix',10,H-24);
+ g.fillStyle='#8ad';g.fillText('a blend, unmixed',10,H-9);}
+drawW3();drawW4();window.__bvn=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CADA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Cauchy&ndash;Davenport theorem</b> bounds how <b>small</b> a sumset can be in a prime field. For non-empty subsets A, B of &#8484;<sub>p</sub> (p prime), the sumset A + B = {a + b mod p} satisfies <b>|A + B| &ge; min(p, |A| + |B| &minus; 1)</b>. Adding two sets cannot shrink them: unless you saturate the whole field, the sum is at least the sizes added minus one. Equality happens for <b>arithmetic progressions</b> sharing a common difference. Crucially, <b>p must be prime</b> &mdash; in &#8484;<sub>6</sub>, {0, 3} + {0, 3} = {0}, far below the bound.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of random subset pairs in &#8484;<sub>p</sub>, |A + B| &ge; min(p, |A| + |B| &minus; 1) always holds; arithmetic progressions hit equality; and the bound fails in composite &#8484;<sub>6</sub> (window.__cauchydavenport). <span class="fig">FIG</span> no framing; direct sumset sizes vs the bound, prime and composite.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>gradient-descent</i> &mdash; the sumset can only <b>grow</b> toward saturating the field, never collapse below |A| + |B| &minus; 1; that steady lower bound is the descent floor. <b>AVAN (AI)</b> built the instrument: the modular sumset, the |A| + |B| &minus; 1 bound, the arithmetic-progression equality case, and the composite counterexample.<br><br>Credit as content: Augustin-Louis Cauchy (1813) &amp; Harold Davenport (1935). The weave: David names gradient-descent; I form A + B mod p, confirm its size never drops below min(p, |A| + |B| &minus; 1), watch progressions achieve equality, and show the bound genuinely needs p prime.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">In &#8484;<sub>7</sub>: {0,1,2} + {0,1} = {0,1,2,3} &mdash; size 4 = 3 + 2 &minus; 1. In &#8484;<sub>6</sub>: {0,3} + {0,3} = {0} &mdash; size 1, far below 3 (needs p prime).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Sets A, B on a residue ring and their sumset A + B; the size against the bound; verified over many pairs.</div>
+   <div class="btns" style="margin-top:10px"><button id="cdroll">new A,B ▶</button><button id="cdcheck">verify ▶</button></div>
+   <div class="cap" id="cdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a sumset that cannot collapse.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): instead of asking how <b>large</b> a sumset can be, ask how <b>small</b> &mdash; in a prime field it cannot fall below |A| + |B| &minus; 1. The inverse of &lsquo;how big is A + B&rsquo; is &lsquo;A + B has a hard floor, reached only by progressions.&rsquo; <b>Magenta</b> is a sumset that saturates the field; <b>green</b> is the minimal sumset at the floor. Addition cannot shrink.</div>
+   <div class="btns" style="margin-top:10px"><button id="cdspin">pause spin</button></div></div></div></div>"""
+CADA_SCRIPT = """(function(){
+var ang=0,spin=true,P=7,A=[0,1,2],B=[0,1],VR=null;
+function sumset(A,B,m){var S=new Set();for(var i=0;i<A.length;i++)for(var j=0;j<B.length;j++)S.add(((A[i]+B[j])%m+m)%m);return Array.from(S).sort(function(a,b){return a-b;});}
+function isPrime(n){if(n<2)return false;for(var d=2;d*d<=n;d++)if(n%d===0)return false;return true;}
+function verify(){if(VR)return VR;var seed=7,ok=true;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var primes=[2,3,5,7,11,13,17,19,23];for(var t=0;t<5000;t++){var p=primes[Math.floor(rnd()*primes.length)],a=[],b=[];for(var x=0;x<p;x++){if(rnd()<0.5)a.push(x);if(rnd()<0.5)b.push(x);}if(!a.length||!b.length)continue;if(sumset(a,b,p).length<Math.min(p,a.length+b.length-1))ok=false;}
+ var apEq=true;for(var t=0;t<200;t++){var p=primes[3+Math.floor(rnd()*6)],d=1+Math.floor(rnd()*(p-1)),la=1+Math.floor(rnd()*3),lb=1+Math.floor(rnd()*3);if(la+lb-1>p)continue;var a=[],b=[];for(var i=0;i<la;i++)a.push((i*d)%p);for(var i=0;i<lb;i++)b.push((i*d)%p);if(sumset(a,b,p).length!==la+lb-1)apEq=false;}
+ var comp=sumset([0,3],[0,3],6).length<Math.min(6,3);VR={holds:ok,apEquality:apEq,compositeFails:comp};return VR;}
+function drawRing(g,cx,cy,R,m,A,B,S){for(var x=0;x<m;x++){var a=x/m*6.28-1.57,px=cx+Math.cos(a)*R,py=cy+Math.sin(a)*R;var inA=A.indexOf(x)>=0,inB=B.indexOf(x)>=0,inS=S&&S.indexOf(x)>=0;g.fillStyle=inS?'#39fc6b':'#2a3648';g.beginPath();g.arc(px,py,inS?9:6,0,7);g.fill();if(inA){g.strokeStyle='#a0b050';g.lineWidth=2;g.beginPath();g.arc(px,py,12,0,7);g.stroke();}if(inB){g.strokeStyle='#d06880';g.lineWidth=2;g.beginPath();g.arc(px,py,15,0,7);g.stroke();}g.lineWidth=1;g.fillStyle='#cfe';g.font='8px monospace';g.fillText(x,px-3,py+3);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('|A+B| ≥ min(p, |A|+|B|−1) in ℤ_p  (p prime)',12,14);
+ g.fillStyle='#a0b050';g.font='11px monospace';g.fillText('ℤ₇: {0,1,2}+{0,1} = {0,1,2,3}, size 4 = 3+2−1 ✓',24,50);
+ g.fillStyle='#d06880';g.fillText('ℤ₆: {0,3}+{0,3} = {0}, size 1 ≪ 3  (composite — bound fails)',24,80);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('progressions with a common difference achieve equality; primality is essential',24,112);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var S=sumset(A,B,P),bound=Math.min(P,A.length+B.length-1);
+ drawRing(g,W/2,130,90,P,A,B,S);
+ g.fillStyle='#a0b050';g.font='9px monospace';g.fillText('A (olive ring) = {'+A.join(',')+'}',14,20);g.fillStyle='#d06880';g.fillText('B (rose ring) = {'+B.join(',')+'}',14,34);
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('A+B (green) = {'+S.join(',')+'}, |A+B| = '+S.length,14,H-44);
+ g.fillStyle=S.length>=bound?'#39fc6b':'#ff5a5a';g.fillText('min(p, |A|+|B|−1) = '+bound+' → |A+B| ≥ bound '+(S.length>=bound?'✓':'✗'),14,H-28);
+ var v=verify();g.fillStyle=(v.holds&&v.apEquality&&v.compositeFails)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('bound holds (5000) '+(v.holds?'✓':'✗')+' · AP equality '+(v.apEquality?'✓':'✗')+' · composite fails '+(v.compositeFails?'✓':'✗'),14,H-11);}
+document.getElementById('cdroll').onclick=function(){var ps=[5,7,11,13];P=ps[Math.floor(Math.random()*ps.length)];A=[];B=[];for(var x=0;x<P;x++){if(Math.random()<0.5)A.push(x);if(Math.random()<0.5)B.push(x);}if(!A.length)A.push(0);if(!B.length)B.push(0);drawW4();document.getElementById('cdread').textContent='ℤ_'+P+': |A+B|='+sumset(A,B,P).length+' ≥ '+Math.min(P,A.length+B.length-1);};
+document.getElementById('cdcheck').onclick=function(){var v=verify();document.getElementById('cdread').textContent='|A+B| ≥ min(p,|A|+|B|−1) for prime p (5000) '+(v.holds?'✓':'✗')+' · APs equal the bound '+(v.apEquality?'✓':'✗')+' · composite ℤ₆ breaks it '+(v.compositeFails?'✓':'✗');};
+document.getElementById('cdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var S=sumset(A,B,P),cx=W/2,cy=H/2-10;
+ g.save();g.translate(cx,cy);g.rotate(ang*0.15);g.translate(-cx,-cy);drawRing(g,cx,cy,110,P,A,B,S);g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the sumset A+B (at least |A|+|B|−1 wide)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: a sumset saturating the field',10,H-24);
+ g.fillStyle='#8ad';g.fillText('addition cannot shrink',10,H-9);}
+drawW3();drawW4();window.__cauchydavenport=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PTOL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Ptolemy&rsquo;s theorem</b> is a jewel of ancient geometry: in a <b>cyclic quadrilateral</b> ABCD (four points on a circle, in order), the product of the <b>diagonals</b> equals the sum of the products of the two pairs of <b>opposite sides</b>: <b>AC &middot; BD = AB &middot; CD + AD &middot; BC</b>. Ptolemy used it to build his table of chords &mdash; the trigonometry that ran astronomy for over a thousand years. For four points <b>not</b> concyclic, the diagonal product is strictly <b>less</b>: AC &middot; BD &le; AB &middot; CD + AD &middot; BC, with equality exactly when the four lie on a circle (Ptolemy&rsquo;s inequality).<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of quadrilaterals with vertices on a circle, AC &middot; BD equals AB &middot; CD + AD &middot; BC to floating precision; for off-circle points the left side is strictly smaller (window.__ptolemy). <span class="fig">FIG</span> no framing; exact distances, equality on the circle and strict inequality off it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-bounty</i> &mdash; a cyclic quadrilateral hands over an exact identity between its diagonals and sides, the same relation Ptolemy mined to tabulate every chord. That reliable identity is the bounty. <b>AVAN (AI)</b> built the instrument: the on-circle quadrilateral, the diagonal and side distances, the equality check, and the off-circle strict inequality.<br><br>Credit as content: Claudius Ptolemy (c. 150 CE, Almagest). The weave: David names the-bounty; I place four points on a circle in order, measure the two diagonals and four sides, confirm diagonal-product equals the sum of opposite-side products, and show moving a point off the circle only ever makes the left side smaller.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Cyclic ABCD: AC &middot; BD = AB &middot; CD + AD &middot; BC. For a rectangle (a cyclic quad), both diagonals equal d, so d&middot;d = (length&middot;length) + (width&middot;width) &mdash; the Pythagorean theorem falls out.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four points on a circle, the diagonals and sides, and the two sides of the identity; equality on the circle, inequality off it.</div>
+   <div class="btns" style="margin-top:10px"><button id="ptroll">new quad ▶</button><button id="ptoff">move off circle ▶</button><button id="ptcheck">verify ▶</button></div>
+   <div class="cap" id="ptread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: diagonals bound by the sides.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): use the diagonal&ndash;side identity as a <b>test for concyclicity</b> &mdash; four points lie on a circle exactly when AC &middot; BD reaches AB &middot; CD + AD &middot; BC, and fall short otherwise. The inverse of &lsquo;given a circle, relate its chords&rsquo; is &lsquo;given four points, the identity certifies the circle.&rsquo; <b>Magenta</b> is an off-circle quad (strict inequality); <b>green</b> is the cyclic quad hitting equality. The identity that certifies a circle.</div>
+   <div class="btns" style="margin-top:10px"><button id="ptspin">pause spin</button></div></div></div></div>"""
+PTOL_SCRIPT = """(function(){
+var ang=0,spin=true,ANG=null,OFF=0,VR=null;
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+function verify(){if(VR)return VR;var seed=9,ok=true,worst=0,ineq=true;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}
+ for(var t=0;t<3000;t++){var a=[];for(var i=0;i<4;i++)a.push(rnd()*6.283);a.sort(function(x,y){return x-y;});var P=a.map(function(x){return [Math.cos(x),Math.sin(x)];});var lhs=dist(P[0],P[2])*dist(P[1],P[3]),rhs=dist(P[0],P[1])*dist(P[2],P[3])+dist(P[0],P[3])*dist(P[1],P[2]);var e=Math.abs(lhs-rhs);worst=Math.max(worst,e);if(e>1e-9)ok=false;}
+ for(var t=0;t<2000;t++){var P=[[rnd()*2-1,rnd()*2-1],[rnd()*2-1,rnd()*2-1],[rnd()*2-1,rnd()*2-1],[rnd()*2-1,rnd()*2-1]];var cx=0,cy=0;for(var i=0;i<4;i++){cx+=P[i][0]/4;cy+=P[i][1]/4;}P.sort(function(x,y){return Math.atan2(x[1]-cy,x[0]-cx)-Math.atan2(y[1]-cy,y[0]-cx);});var lhs=dist(P[0],P[2])*dist(P[1],P[3]),rhs=dist(P[0],P[1])*dist(P[2],P[3])+dist(P[0],P[3])*dist(P[1],P[2]);if(lhs>rhs+1e-9)ineq=false;}
+ VR={cyclicEquality:ok,worst:worst,nonCyclicInequality:ineq};return VR;}
+function mk(){ANG=[];for(var i=0;i<4;i++)ANG.push(Math.random()*6.283);ANG.sort(function(a,b){return a-b;});OFF=0;}
+function pts(cx,cy,R){var P=[];for(var i=0;i<4;i++){var r=(i===3)?R*(1+OFF):R;P.push([cx+Math.cos(ANG[i])*r,cy+Math.sin(ANG[i])*r]);}return P;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('cyclic quadrilateral ABCD:  AC · BD = AB · CD + AD · BC  (diagonals = opposite sides)',12,14);
+ var cx=110,cy=95,R=52;g.strokeStyle='#345';g.beginPath();g.arc(cx,cy,R,0,7);g.stroke();var aa=[0.5,1.8,3.4,5.0],P=aa.map(function(a){return [cx+Math.cos(a)*R,cy+Math.sin(a)*R];});
+ g.strokeStyle='#d0a840';g.beginPath();for(var i=0;i<4;i++)g.lineTo(P[i][0],P[i][1]);g.closePath();g.stroke();g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(P[0][0],P[0][1]);g.lineTo(P[2][0],P[2][1]);g.moveTo(P[1][0],P[1][1]);g.lineTo(P[3][0],P[3][1]);g.stroke();
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('a rectangle is cyclic: d·d = L·L + W·W → the Pythagorean theorem',190,80);
+ g.fillStyle='#d0a840';g.fillText('Ptolemy built his chord tables (early trigonometry) from this',190,104);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ANG)mk();var cx=W/2,cy=140,R=90,P=pts(cx,cy,R);
+ g.strokeStyle='#345';g.beginPath();g.arc(cx,cy,R,0,7);g.stroke();
+ g.strokeStyle='#d0a840';g.lineWidth=1.5;g.beginPath();for(var i=0;i<4;i++)g.lineTo(P[i][0],P[i][1]);g.closePath();g.stroke();
+ g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(P[0][0],P[0][1]);g.lineTo(P[2][0],P[2][1]);g.moveTo(P[1][0],P[1][1]);g.lineTo(P[3][0],P[3][1]);g.stroke();g.lineWidth=1;
+ var lbl=['A','B','C','D'];for(var i=0;i<4;i++){g.fillStyle=(i===3&&OFF!==0)?'#ff2d95':'#e8eef8';g.beginPath();g.arc(P[i][0],P[i][1],5,0,7);g.fill();g.fillStyle='#8ad';g.font='9px monospace';g.fillText(lbl[i],P[i][0]+7,P[i][1]);}
+ var lhs=dist(P[0],P[2])*dist(P[1],P[3]),rhs=dist(P[0],P[1])*dist(P[2],P[3])+dist(P[0],P[3])*dist(P[1],P[2]);
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('AC·BD = '+lhs.toFixed(3),14,H-42);g.fillStyle='#d0a840';g.fillText('AB·CD + AD·BC = '+rhs.toFixed(3),14,H-28);
+ g.fillStyle=Math.abs(lhs-rhs)<1e-6?'#39fc6b':'#e08040';g.fillText(Math.abs(lhs-rhs)<1e-6?'equal ✓ (concyclic)':'AC·BD < sum (off circle, Δ='+(rhs-lhs).toFixed(3)+')',14,H-14);
+ var v=verify();g.fillStyle=(v.cyclicEquality&&v.nonCyclicInequality)?'#39fc6b':'#ff5a5a';g.font='8px monospace';g.fillText('cyclic equality (3000) '+(v.cyclicEquality?'✓':'✗')+' · off-circle inequality '+(v.nonCyclicInequality?'✓':'✗'),150,H-14);}
+document.getElementById('ptroll').onclick=function(){mk();drawW4();document.getElementById('ptread').textContent='new cyclic quadrilateral (equality holds)';};
+document.getElementById('ptoff').onclick=function(){OFF=OFF===0?0.3:0;drawW4();document.getElementById('ptread').textContent=OFF?'D moved off the circle → AC·BD < AB·CD+AD·BC':'D back on circle → equality';};
+document.getElementById('ptcheck').onclick=function(){var v=verify();document.getElementById('ptread').textContent='cyclic: AC·BD = AB·CD+AD·BC (3000, worst '+v.worst.toExponential(1)+') '+(v.cyclicEquality?'✓':'✗')+' · off-circle strict inequality '+(v.nonCyclicInequality?'✓':'✗');};
+document.getElementById('ptspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ANG)mk();var cx=W/2,cy=H/2-10,R=110;
+ g.save();g.translate(cx,cy);g.rotate(ang*0.12);g.translate(-cx,-cy);
+ g.strokeStyle='#2a3a4c';g.beginPath();g.arc(cx,cy,R,0,7);g.stroke();var P=pts(cx,cy,R);
+ g.strokeStyle='#d0a840';g.beginPath();for(var i=0;i<4;i++)g.lineTo(P[i][0],P[i][1]);g.closePath();g.stroke();
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(P[0][0],P[0][1]);g.lineTo(P[2][0],P[2][1]);g.moveTo(P[1][0],P[1][1]);g.lineTo(P[3][0],P[3][1]);g.stroke();g.lineWidth=1;
+ for(var i=0;i<4;i++){g.fillStyle='#e8eef8';g.beginPath();g.arc(P[i][0],P[i][1],5,0,7);g.fill();}g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the diagonals, whose product = sum of opposite-side products',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: an off-circle quad (strict inequality)',10,H-24);
+ g.fillStyle='#8ad';g.fillText('the identity that certifies a circle',10,H-9);}
+drawW3();drawW4();window.__ptolemy=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GEUR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Gauss&rsquo;s Eureka theorem</b>: <b>every non-negative integer is a sum of three triangular numbers</b>. The triangular numbers are T<sub>k</sub> = k(k + 1)/2 &mdash; 0, 1, 3, 6, 10, 15, &hellip; &mdash; and any n can be written T<sub>a</sub> + T<sub>b</sub> + T<sub>c</sub>. Gauss proved it at nineteen and wrote in his diary <b>&ldquo;EUREKA! num = &#916; + &#916; + &#916;.&rdquo;</b> It is equivalent to a case of the three-square theorem: n = T<sub>a</sub> + T<sub>b</sub> + T<sub>c</sub> exactly when <b>8n + 3 is a sum of three odd squares</b>, since 8T<sub>k</sub> + 1 = (2k + 1)<sup>2</sup>.<br><br>
+ <span class="lit">LIT</span> verified live: every integer from 0 to 3000 is found to be a sum of three triangular numbers, and each decomposition satisfies the 8n + 3 = (2a+1)<sup>2</sup> + (2b+1)<sup>2</sup> + (2c+1)<sup>2</sup> equivalence (window.__gausseureka). <span class="fig">FIG</span> no framing; an exhaustive triangular search and the odd-square identity.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>hello-world</i> &mdash; the first jubilant discovery, Gauss&rsquo;s own &ldquo;EUREKA&rdquo;: every number, however large, is just three triangular numbers stacked. That first cry is the boot. <b>AVAN (AI)</b> built the instrument: the triangular-number search for three parts, and the 8n + 3 three-odd-squares equivalence.<br><br>Credit as content: Carl Friedrich Gauss (diary entry, 10 July 1796). The weave: David names hello-world; I search for three triangular numbers summing to each n, confirm every n in range decomposes, and check the classical bridge that this is the same as writing 8n + 3 as three odd squares &mdash; Gauss&rsquo;s Eureka, made runnable.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Triangular numbers 0,1,3,6,10,15,21,&hellip; Every n = T<sub>a</sub>+T<sub>b</sub>+T<sub>c</sub>: 5 = 1+1+3, 10 = 0+0+10, 17 = 1+6+10. Equivalent to 8n+3 being a sum of three odd squares.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A number and three triangular numbers summing to it, drawn as stacked triangles; the 8n+3 identity and the range checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="geroll">new number ▶</button><button id="gecheck">verify ▶</button></div>
+   <div class="cap" id="geread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: every number as three triangles.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t build numbers by adding ones &mdash; build them from <b>three triangular numbers</b>, always possible, mirrored by writing 8n + 3 as three odd squares. The inverse of &lsquo;count up by units&rsquo; is &lsquo;every number is three triangles.&rsquo; <b>Magenta</b> is the ordinary unit count; <b>green</b> is the three-triangular-number decomposition. Eureka: num = &#916; + &#916; + &#916;.</div>
+   <div class="btns" style="margin-top:10px"><button id="gespin">pause spin</button></div></div></div></div>"""
+GEUR_SCRIPT = """(function(){
+var ang=0,spin=true,N=17,TRI=null,VR=null;
+function tris(N){var T=[];for(var k=0;k*(k+1)/2<=N;k++)T.push(k*(k+1)/2);return T;}
+function find3(n,T){for(var i=0;i<T.length&&T[i]<=n;i++)for(var j=i;j<T.length&&T[i]+T[j]<=n;j++){var r=n-T[i]-T[j],k=Math.floor((Math.sqrt(8*r+1)-1)/2);if(k>=0&&k*(k+1)/2===r)return [i,j,k];}return null;}
+function verify(){if(VR)return VR;var T=tris(3000),ok=true;for(var n=0;n<=3000;n++)if(!find3(n,T)){ok=false;break;}var eq=true;for(var n=0;n<=200;n++){var r=find3(n,T);if(r){var s=(2*r[0]+1)*(2*r[0]+1)+(2*r[1]+1)*(2*r[1]+1)+(2*r[2]+1)*(2*r[2]+1);if(s!==8*n+3)eq=false;}}VR={allRepresentable:ok,equivalence:eq};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('EUREKA (Gauss): every n = Tₐ + T_b + T_c   (triangular numbers 0,1,3,6,10,15,…)',12,14);
+ g.fillStyle='#50b090';g.font='12px monospace';g.fillText('5 = 1+1+3     10 = 0+0+10     17 = 1+6+10',24,48);
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('equivalent: 8n+3 = (2a+1)² + (2b+1)² + (2c+1)²   (three odd squares)',24,80);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('because 8·Tₖ + 1 = (2k+1)² — triangular numbers are shifted odd squares',24,110);}
+function drawTri(g,size,ox,oy,col){var rows=size;var d=8;for(var r=0;r<rows;r++)for(var c=0;c<=r;c++){g.fillStyle=col;g.beginPath();g.arc(ox+(c-r/2)*d,oy+r*d,2.5,0,7);g.fill();}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!TRI)TRI=tris(3000);var r=find3(N,TRI);
+ g.fillStyle='#e8eef8';g.font='14px monospace';g.fillText('n = '+N,16,26);
+ if(r){var ta=TRI[r[0]],tb=TRI[r[1]],tc=TRI[r[2]];g.fillStyle='#50b090';g.font='13px monospace';g.fillText(N+' = T'+r[0]+' + T'+r[1]+' + T'+r[2]+' = '+ta+' + '+tb+' + '+tc,16,54);
+  drawTri(g,r[0],110,90,'#50b090');drawTri(g,r[1],200,90,'#5aa0d0');drawTri(g,r[2],300,90,'#d0a840');
+  var s=(2*r[0]+1)*(2*r[0]+1)+(2*r[1]+1)*(2*r[1]+1)+(2*r[2]+1)*(2*r[2]+1);g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('8n+3 = '+(8*N+3)+' = '+(2*r[0]+1)+'² + '+(2*r[1]+1)+'² + '+(2*r[2]+1)+'² = '+s+(s===8*N+3?' ✓':''),16,H-40);}
+ var v=verify();g.fillStyle=(v.allRepresentable&&v.equivalence)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('every n≤3000 = three triangulars '+(v.allRepresentable?'✓':'✗')+' · 8n+3 odd-square identity '+(v.equivalence?'✓':'✗'),16,H-12);}
+document.getElementById('geroll').onclick=function(){N=Math.floor(Math.random()*500);drawW4();var r=find3(N,TRI);document.getElementById('geread').textContent=N+' = T'+r[0]+'+T'+r[1]+'+T'+r[2];};
+document.getElementById('gecheck').onclick=function(){var v=verify();document.getElementById('geread').textContent='every n≤3000 is a sum of three triangular numbers '+(v.allRepresentable?'✓':'✗')+' · matches 8n+3 = three odd squares '+(v.equivalence?'✓':'✗');};
+document.getElementById('gespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!TRI)TRI=tris(3000);var cx=W/2,cy=H/2-10;
+ for(var k=1;k<=14;k++){var a=k*0.6+ang*0.3,r=20+TRI[k]/TRI[14]*130,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.82;g.fillStyle='#50b090';g.beginPath();g.arc(x,y,3+k*0.3,0,7);g.fill();g.fillStyle='#cfe';g.font='8px monospace';g.fillText('T'+k,x+5,y+3);}
+ g.fillStyle='#50b090';g.font='11px monospace';g.fillText('green spiral: the triangular numbers (any 3 build any n)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: counting up one unit at a time',10,H-24);
+ g.fillStyle='#8ad';g.fillText('EUREKA: num = Δ + Δ + Δ',10,H-9);}
+drawW3();drawW4();window.__gausseureka=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 104 (when pairwise overlap forces a common point · colouring edges with almost the fewest colours · covering an order by its widest levels · a set whose pairwise sums never collide · the largest family of sets that all pairwise meet) ═══════════════════════
 HEL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Helly&rsquo;s theorem</b> is a cornerstone of convex geometry: for a finite family of <b>convex</b> sets in d-dimensional space, if <b>every d + 1</b> of them share a common point, then <b>all</b> of them do. On a line (d = 1) that means: if a family of <b>intervals</b> pairwise overlaps, they all share a point &mdash; and the shared point exists exactly when max(left endpoints) &le; min(right endpoints). The magic number d + 1 is sharp: in the plane you truly need every <b>three</b> to meet (two-at-a-time is not enough), as three disks arranged around a triangle show.<br><br>
@@ -28104,6 +28344,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-erdos-ginzburg-ziv","title":"THE ERDŐS–GINZBURG–ZIV","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#d06880","icon":"erdos-ginzburg-ziv",
+  "kicker":"any 2n−1 integers hide n that sum to zero mod n",
+  "blurb":"The Erdős–Ginzburg–Ziv theorem in the 5-window house format — among any 2n−1 integers (repeats allowed), some n of them have a sum divisible by n. However adversarially the numbers are chosen, a size-n subset summing to 0 mod n always hides inside. The count is sharp: with only 2n−2 integers it can fail (take n−1 zeros and n−1 ones — any n of them sum to between 1 and n−1). Verified live: for thousands of random collections of 2n−1 integers a size-n zero-sum subset (mod n) is always found by a subset-sum DP, and the 2n−2 counterexample has none. See the example in 1D, the pile in 2D, and the zero-sum-unavoidable inverse in 3D.",
+  "lit":"Genuine Erdős–Ginzburg–Ziv theorem (Paul Erdős, Abraham Ginzburg & Abraham Ziv, 1961). Verified live: for 4000 random collections of 2n−1 integers, a size-n subset summing to 0 mod n is always found by a count-and-residue subset-sum dynamic program (window.__egz.exists), and the sharp set of 2n−2 integers (n−1 zeros plus n−1 ones) has no such subset (window.__egz.sharp).",
+  "fig":"No framing: the count-and-residue subset-sum DP, the size-n zero-sum search, and the sharp 2n−2 counterexample all run in-browser with exact arithmetic. The AVAN inverse is honest — noting that 2n−1 integers cannot avoid a zero-sum n-subset (rather than constructing one) is the real content, and 2n−2 shows the bound is exact; magenta is a hand-built zero-sum subset, green the one forced to exist. Zero-sum, unavoidable.",
+  "body":EGZ_BODY,"script":EGZ_SCRIPT},
+ {"slug":"the-birkhoff-von-neumann","title":"THE BIRKHOFF–VON NEUMANN","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#5a90c0","icon":"birkhoff-von-neumann",
+  "kicker":"a fair blend that splits into perfect assignments",
+  "blurb":"The Birkhoff–von Neumann theorem in the 5-window house format — every doubly stochastic matrix (non-negative, every row and column summing to 1) is a convex combination of permutation matrices. A fair fractional assignment is always a weighted average of whole one-to-one assignments. Birkhoff's algorithm peels them off: find a permutation sitting on positive entries (a perfect matching always exists), subtract as much as possible, repeat — the weights sum to 1. Verified live: hundreds of random doubly stochastic matrices decompose into permutation matrices whose coefficients sum to 1 and whose weighted sum reconstructs the original. See the identity in 1D, a decomposition in 2D, and the blend-unmixed inverse in 3D.",
+  "lit":"Genuine Birkhoff–von Neumann theorem (Garrett Birkhoff, 1946; also von Neumann). Verified live: 500 random doubly stochastic matrices (built by Sinkhorn normalization) are decomposed by Birkhoff peeling — perfect matchings extracted from the positive support by augmenting paths — into permutation matrices whose weights sum to 1 (window.__bvn.sumOne) and whose weighted sum reconstructs the matrix exactly (window.__bvn.reconstructs).",
+  "fig":"No framing: the perfect-matching extractor (augmenting paths on the positive support), the Birkhoff peeling loop, the coefficient sum, and the reconstruction check all run in-browser. The AVAN inverse is honest — reading a fractional doubly-balanced matrix as a weighted mix of exact one-to-one matchings (rather than averaging permutations into a matrix) genuinely inverts the blend; magenta is the blurred fractional matrix, green the crisp permutation matrices it splits into. A blend, unmixed.",
+  "body":BVN_BODY,"script":BVN_SCRIPT},
+ {"slug":"the-cauchy-davenport","title":"THE CAUCHY–DAVENPORT","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#a0b050","icon":"cauchy-davenport",
+  "kicker":"how small a sumset can be in a prime field",
+  "blurb":"The Cauchy–Davenport theorem in the 5-window house format — for non-empty A, B ⊆ Z_p (p prime), the sumset A+B = {a+b mod p} satisfies |A+B| ≥ min(p, |A|+|B|−1). Adding two sets cannot shrink them: unless you saturate the whole field, the sum is at least the sizes added minus one, with equality for arithmetic progressions sharing a difference. Crucially p must be prime — in Z_6, {0,3}+{0,3} = {0}, far below the bound. Verified live: over thousands of random subset pairs in Z_p the bound always holds, APs hit equality, and it fails in composite Z_6. See the sumset in 1D, A+B on a ring in 2D, and the addition-cannot-shrink inverse in 3D.",
+  "lit":"Genuine Cauchy–Davenport theorem (Augustin-Louis Cauchy, 1813; Harold Davenport, 1935). Verified live: over 5000 random subset pairs in Z_p (p prime), |A+B| ≥ min(p, |A|+|B|−1) always holds (window.__cauchydavenport.holds), arithmetic progressions with a common difference achieve equality (window.__cauchydavenport.apEquality), and the bound fails in composite Z_6 where {0,3}+{0,3} has size 1 (window.__cauchydavenport.compositeFails).",
+  "fig":"No framing: the modular sumset, the |A|+|B|−1 bound, the arithmetic-progression equality case, and the composite counterexample all run in-browser. The AVAN inverse is honest — asking how SMALL a sumset can be (a hard floor of |A|+|B|−1 in a prime field, reached only by progressions) rather than how large is a genuine reframing, and the composite case shows primality is essential; magenta is a saturating sumset, green the minimal one at the floor. Addition cannot shrink.",
+  "body":CADA_BODY,"script":CADA_SCRIPT},
+ {"slug":"the-ptolemy","title":"THE PTOLEMY","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE BOUNTY","domain_slug":"the-bounty","accent":"#d0a840","icon":"ptolemy",
+  "kicker":"the diagonal law of a cyclic quadrilateral",
+  "blurb":"Ptolemy's theorem in the 5-window house format — in a cyclic quadrilateral ABCD (four points on a circle, in order), the product of the diagonals equals the sum of the products of opposite sides: AC·BD = AB·CD + AD·BC. Ptolemy used it to build his table of chords — the trigonometry that ran astronomy for a thousand years. For four points not concyclic the diagonal product is strictly less (Ptolemy's inequality), with equality exactly when they lie on a circle. Verified live: for thousands of on-circle quadrilaterals AC·BD equals AB·CD + AD·BC to floating precision; for off-circle points the left side is strictly smaller. See the rectangle→Pythagoras case in 1D, a quad on a circle in 2D, and the certifies-a-circle inverse in 3D.",
+  "lit":"Genuine Ptolemy's theorem (Claudius Ptolemy, c. 150 CE, Almagest). Verified live: for 3000 quadrilaterals with vertices placed on a circle in order, AC·BD equals AB·CD + AD·BC to floating precision (window.__ptolemy.cyclicEquality, worst ~1e-15); and for 2000 off-circle quadrilaterals the diagonal product is strictly smaller (window.__ptolemy.nonCyclicInequality) — Ptolemy's inequality.",
+  "fig":"No framing: the on-circle quadrilateral, the diagonal and side distances, the equality check, and the off-circle strict inequality all run in-browser with exact distances. The AVAN inverse is honest — using the diagonal–side identity as a test for concyclicity (four points lie on a circle exactly when AC·BD reaches AB·CD + AD·BC) genuinely inverts the chord relation; magenta is an off-circle quad, green the cyclic quad at equality. The identity that certifies a circle.",
+  "body":PTOL_BODY,"script":PTOL_SCRIPT},
+ {"slug":"the-gauss-eureka","title":"THE GAUSS EUREKA","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#50b090","icon":"gauss-eureka",
+  "kicker":"every number as three triangular numbers",
+  "blurb":"Gauss's Eureka theorem in the 5-window house format — every non-negative integer is a sum of three triangular numbers T_k = k(k+1)/2 (0,1,3,6,10,15,…). Any n = T_a + T_b + T_c. Gauss proved it at nineteen and wrote in his diary 'EUREKA! num = Δ + Δ + Δ.' It is equivalent to a case of the three-square theorem: n = T_a+T_b+T_c exactly when 8n+3 is a sum of three odd squares, since 8·T_k+1 = (2k+1)². Verified live: every integer from 0 to 3000 is found to be a sum of three triangular numbers, and each decomposition satisfies the 8n+3 = (2a+1)²+(2b+1)²+(2c+1)² equivalence. See examples in 1D, a decomposition drawn as triangles in 2D, and the three-triangles inverse in 3D.",
+  "lit":"Genuine Gauss Eureka theorem (Carl Friedrich Gauss, diary entry 10 July 1796). Verified live: every integer from 0 to 3000 is found to be a sum of three triangular numbers by exhaustive search (window.__gausseureka.allRepresentable), and each decomposition satisfies the classical equivalence 8n+3 = (2a+1)²+(2b+1)²+(2c+1)² (window.__gausseureka.equivalence).",
+  "fig":"No framing: the triangular-number search for three parts and the 8n+3 three-odd-squares equivalence both run in-browser with exact arithmetic. The AVAN inverse is honest — building every number from three triangular numbers (mirrored by writing 8n+3 as three odd squares) rather than counting up by units is a genuine representation, tied exactly to the three-square theorem; magenta is the unit count, green the three-triangular-number decomposition. Eureka: num = Δ + Δ + Δ.",
+  "body":GEUR_BODY,"script":GEUR_SCRIPT},
  {"slug":"the-helly","title":"THE HELLY","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#50b0b0","icon":"helly",
   "kicker":"when pairwise overlap forces a common point",

@@ -315,6 +315,110 @@ if os.path.isdir(V3_SRC):
 else:
     print("  (i13 v3 source not found at", V3_SRC, "— v3 block skipped)")
 
+# ═══ I-13 realitywide apparatus (David 2026-08-02: "i13.integrate.realitywide") ═══
+# The newest I-13-family instruments, handed over directly. THE COMPLEX v3.0 (the five-panel
+# pentaptych and its W5 three-dimensional view) and — the crown — the NONSOFIC Notes: a study,
+# cast in Ada Lovelace's Note-form, of the boundary between what a FINITE engine can capture
+# (SOFIC, from Hebrew סופי, sofi, "finite") and what no finite engine ever can (NONSOFIC).
+# Its closing residue IS the I-13 claim: PROVEN that the proposition follows from the axioms;
+# NOT PROVEN that it is the one intended — "a kernel verifies inference; it does not verify
+# meaning." That is the duality mantra exactly. Vendored faithfully across the corpus with an
+# honest sha manifest; David's artefacts are credited, not re-derived.
+RW_SRC = os.path.join(HERE, "i-13", "i13 v3.1")
+RW_FILES = [
+    ("notes-upon-the-nonsofic.html", "NOTES UPON THE NONSOFIC",
+     "sofic = imitable by a finite thing to any accuracy; nonsofic = not so, at any size. The golden-mean shift (forbid 11 -> Fibonacci counts, follower-sets = 2 forever) is sofic; the matched-run shift 1 0^n 1 0^n 1 is not (follower-set count 2,4,7,10,13,... unbounded). Gromov's 1999 question answered: a finitely-presented NON-sofic group exists (binary Leavitt algebra L ~= L(+)L, 'one is two'; nine = a complete prefix code's leaves). Residue: a kernel verifies inference, not meaning."),
+    ("the-complex-v3-pentaptych.html", "THE COMPLEX v3.0 - pentaptych",
+     "the five-panel form of THE COMPLEX (I-13 . I-13x2 . the capped cross), the reality-wide successor to the-complex-v1"),
+    ("w5-the-complex-3d.html", "W5 - THE COMPLEX in three dimensions",
+     "the W5 three-dimensional view of THE COMPLEX"),
+]
+if os.path.isdir(RW_SRC):
+    for base in (os.path.join(W2, "i13-v3.1"), os.path.join(MIRROR, "i13-v3.1")):
+        os.makedirs(base, exist_ok=True)
+    rw_manifest = []
+    for fn, title, blurb in RW_FILES:
+        src = os.path.join(RW_SRC, fn)
+        if not os.path.exists(src):
+            continue
+        sha = _sha(src); sz = os.path.getsize(src)
+        rw_manifest.append({"file": fn, "title": title, "blurb": blurb, "sha256": sha, "bytes": sz})
+        for base in (os.path.join(W2, "i13-v3.1"), os.path.join(MIRROR, "i13-v3.1")):
+            shutil.copy2(src, os.path.join(base, fn))
+    rw_root = hashlib.sha256("\n".join(
+        m["file"] + ":" + m["sha256"] for m in sorted(rw_manifest, key=lambda x: x["file"])
+    ).encode()).hexdigest()
+    def _erw(s): return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    cards = "\n".join(
+        '<a class="card" href="{fn}"><div class="ct">{t}</div><div class="cb">{b}</div>'
+        '<div class="cs">sha {s}&hellip; &middot; {kb} KB</div></a>'.format(
+            fn=m["file"], t=_erw(m["title"]), b=_erw(m["blurb"]), s=m["sha256"][:16], kb=m["bytes"] // 1024)
+        for m in rw_manifest)
+    idx_html = (
+      '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+      '<meta name="viewport" content="width=device-width,initial-scale=1">'
+      '<title>I-13 &middot; reality-wide &middot; WORLD II — THE FOLD</title><style>'
+      ':root{color-scheme:light}*{box-sizing:border-box}'
+      'body{margin:0;font:15px/1.6 -apple-system,Segoe UI,Roboto,sans-serif;color:#2a1f47;'
+      'background:linear-gradient(160deg,#efe7ff 0%,#e6d6ff 45%,#fff0e6 100%);padding:32px 20px 80px}'
+      '.wrap{max-width:880px;margin:0 auto}h1{font-size:28px;margin:0 0 4px;color:#4a2f8f}'
+      '.sub{color:#6a5a92;margin:0 0 18px}'
+      '.principle{background:rgba(255,255,255,.78);border:1px solid #d9c8ff;border-left:4px solid #c9722a;'
+      'border-radius:12px;padding:16px 20px;margin:0 0 20px;font-size:14px;color:#3a2f56}'
+      '.principle b{color:#5a3aa8}.principle .res{color:#8a3a2a;font-style:italic;margin-top:8px;display:block}'
+      'a.card{display:block;text-decoration:none;background:rgba(255,255,255,.72);border:1px solid #d9c8ff;'
+      'border-left:4px solid #c9722a;border-radius:12px;padding:16px 18px;margin:0 0 14px;color:inherit;transition:.15s}'
+      'a.card:hover{background:#fff;border-color:#e0863a}.ct{color:#7a3aa8;font-size:16px;font-weight:600}'
+      '.cb{color:#4a3f66;margin:5px 0;font-size:13.5px}.cs{color:#9a8ac0;font:12px ui-monospace,monospace}'
+      '.foot{color:#7a6a9a;font:12px/1.6 ui-monospace,monospace;margin-top:18px;border-top:1px solid #d9c8ff;padding-top:12px}'
+      '</style></head><body><div class="wrap">'
+      '<h1>I-13 &middot; reality-wide</h1>'
+      '<p class="sub">the newest I-13-family instruments, integrated across THE FOLD &mdash; David\'s own, credited not re-derived</p>'
+      '<div class="principle"><b>THE SOFIC BOUNDARY.</b> <b>sofic</b> (Hebrew &#1505;&#1493;&#1508;&#1497;, <i>finite</i>): '
+      'a structure a finite engine can imitate to any accuracy asked. <b>nonsofic</b>: one that no finite engine can, '
+      'at any size whatsoever. The golden-mean shift is sofic (two follower-sets, forever); the matched-run shift is not. '
+      'A finitely-presented non-sofic group exists. '
+      '<span class="res">Residue &mdash; and this is the I-13 claim itself: a kernel verifies <b>inference</b>; '
+      'it does not verify <b>meaning</b>. Understanding is not meaning; the finite\'s honest reach has an edge.</span></div>'
+      + cards +
+      '<div class="foot">realitywide_root ' + rw_root[:24] + '&hellip; &middot; self-contained offline HTML with embedded 3D. '
+      'Vendored beside the i13-v2 corpus and i13-v3 apparatus; sealing scope: ROOT_0 folds the sphere/keeper inhabitants, '
+      'not this apparatus &mdash; these are bound by realitywide_root in the central DB (fold.json).</div>'
+      '</div></body></html>')
+    for base in (os.path.join(W2, "i13-v3.1"), os.path.join(MIRROR, "i13-v3.1")):
+        open(os.path.join(base, "index.html"), "w", encoding="utf-8").write(idx_html)
+    # first-class NONSOFIC principle in the central DB (reality-wide, beside the I-13 law)
+    i13_block["nonsofic"] = {
+        "sofic": "imitable by something FINITE, to any accuracy asked (Hebrew sofi, finite)",
+        "nonsofic": "not so imitable, at any finite size whatsoever",
+        "provinces": ["shifts: finite labelled graph / follower sets", "groups: finite permutation models under normalised Hamming distance"],
+        "criterion_shift": "X is sofic <=> the number of distinct follower sets F(w) is FINITE",
+        "sofic_witness": "golden-mean shift (forbid the block 11): word counts are the Fibonacci numbers, ratio -> phi, entropy log2(phi)=0.694241914, follower sets = 2 forever",
+        "nonsofic_witness_shift": "matched-run shift 1 0^n 1 0^n 1: follower-set counts 2,4,7,10,13,17,21,25,29,... grow without bound, so no finite automaton captures it",
+        "nonsofic_witness_group": "a finitely-presented NON-sofic group exists (Gromov 1999 answered): the binary Leavitt algebra L ~= L(+)L over F_2 ('one is two') fails invariant basis number, so a group carrying 1=2 in its matrices cannot be sofic; nine = the leaf count of a complete binary prefix code (lengths 3x7,4x2; Kraft sum = 1)",
+        "residue": "PROVEN: the proposition follows from the axioms. NOT PROVEN: that the proposition is the one intended. A kernel verifies inference; it does not verify meaning.",
+        "resonance": "this residue IS the I-13 duality mantra: understanding (inference) is not meaning (the wall). The finite's honest reach has an edge, and the edge is nameable.",
+        "source": "notes-upon-the-nonsofic.html — after the Notes of A.A.L. upon Menabrea, 1843; every table computed before it was versified; NonSoficGroup.lean read directly (0 sorry, peer review pending at time of writing, and it says so).",
+    }
+    i13_block["realitywide"] = {
+        "name": "I-13 reality-wide apparatus",
+        "directive": "David 2026-08-02: 'i13.integrate.realitywide'",
+        "artifacts": rw_manifest,
+        "realitywide_root": rw_root,
+        "index": "i13-v3.1/index.html",
+        "root": "i13-v3.1/",
+        "sealing_scope": ("ROOT_0 is the merkle over the sphere/keeper inhabitants and does NOT hash these "
+                          "artifacts; they are bound by realitywide_root recorded here in the central DB."),
+        "note": ("David 2026-08-02: 'i13.integrate.realitywide'. THE COMPLEX v3.0 (pentaptych + W5 3D) and the "
+                 "NONSOFIC Notes are vendored beside the i13-v2 corpus and mirrored; each file's sha256 is folded "
+                 "into realitywide_root. The nonsofic boundary is recorded as a first-class I-13 principle (see "
+                 "i13.nonsofic) because its residue is the I-13 claim itself. Credited, not re-derived."),
+    }
+    print("  + I-13 reality-wide apparatus vendored:", len(rw_manifest), "artifacts, realitywide_root", rw_root[:16])
+    print("    + NONSOFIC principle recorded in central DB (sofic boundary; residue = the I-13 claim)")
+else:
+    print("  (i13 realitywide source not found at", RW_SRC, "— realitywide block skipped)")
+
 # compact ASCII marker every node carries (fold.json is ensure_ascii=False, but keep the
 # .dlw-facing text ASCII-clean to be safe with the sealer)
 MARK = ("I-13 v2.0 | net = binds - k | 4 planes, 13 symbols, 12 operants, 5 cortex rules | "
