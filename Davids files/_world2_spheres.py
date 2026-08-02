@@ -19485,6 +19485,244 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 98 (a Fibonacci-plus-one sequence · numbers that factor into fangs from their own digits · evaluate a B-spline by nested interpolation · a conjecture that holds then fails · a set with no array to initialize) ═══════════════════════
+LEO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Leonardo numbers</b> are Fibonacci&rsquo;s numbers with a <b>+1</b>: L(0)=L(1)=1, L(n) = L(n&minus;1) + L(n&minus;2) + <b>1</b>. They run 1, 1, 3, 5, 9, 15, 25, 41, 67, 109, &hellip; and connect back to Fibonacci by the exact identity <b>L(n) = 2&middot;F(n+1) &minus; 1</b>. They matter in computing: Edsger Dijkstra used them to build <b>smoothsort</b>, an in-place sort whose heap sizes are Leonardo numbers, giving it adaptive O(n) behavior on nearly-sorted input.<br><br>
+ <span class="lit">LIT</span> verified live (exact BigInt): the +1 recurrence holds, and L(n) = 2&middot;F(n+1) &minus; 1 for n up to 90 (window.__leonardo). <span class="fig">FIG</span> no framing; exact big-integer arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>checkpoint-zero</i> &mdash; growth from two save points plus a constant nudge of one, the sizes Dijkstra used to shape smoothsort&rsquo;s heaps. The Leonardo numbers are that growth. <b>AVAN (AI)</b> built the instrument: the +1 recurrence and the L(n)=2&middot;F(n+1)&minus;1 identity in exact big integers.<br><br>Credit as content: the Leonardo numbers (Leonardo of Pisa lineage; used by Edsger Dijkstra in smoothsort, 1981). The weave: David names checkpoint-zero; I grow the sequence by adding the last two and one more, and confirm it equals twice the next Fibonacci minus one &mdash; Fibonacci&rsquo;s close relative, shaped for sorting.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">L(n) = L(n&minus;1) + L(n&minus;2) + 1: 1,1,3,5,9,15,25,41,67,&hellip; Identity L(n) = 2&middot;F(n+1) &minus; 1 (F Fibonacci). Smoothsort&rsquo;s heaps have exactly these sizes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The sequence beside twice-Fibonacci-minus-one; the recurrence and identity checked term by term.</div>
+   <div class="btns" style="margin-top:10px"><button id="leroll">shift window ▶</button><button id="lecheck">verify ▶</button></div>
+   <div class="cap" id="leread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: Fibonacci nudged by one.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): add a constant <b>+1</b> to the Fibonacci rule and get a new sequence tied to it by L(n)=2&middot;F(n+1)&minus;1 &mdash; the sizes that make smoothsort&rsquo;s heaps. The inverse of &lsquo;sum the last two (Fibonacci)&rsquo; is &lsquo;sum the last two plus one (Leonardo).&rsquo; <b>Magenta</b> is the plain Fibonacci; <b>green</b> is the +1 Leonardo. A constant nudge, a new sequence.</div>
+   <div class="btns" style="margin-top:10px"><button id="lespin">pause spin</button></div></div></div></div>"""
+LEO_SCRIPT = """(function(){
+var ang=0,spin=true,OFF=0;
+function leo(n){var L=[1n,1n];for(var i=2;i<=n;i++)L[i]=L[i-1]+L[i-2]+1n;return L;}
+function fib(n){var F=[0n,1n];for(var i=2;i<=n;i++)F[i]=F[i-1]+F[i-2];return F;}
+function verify(){var L=leo(90),F=fib(92),rec=true,id=true;for(var i=2;i<=90;i++)if(L[i]!==L[i-1]+L[i-2]+1n)rec=false;for(var n=0;n<=90;n++)if(L[n]!==2n*F[n+1]-1n)id=false;return {recurrence:rec,identity:id};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('L(n) = L(n−1) + L(n−2) + 1;  L(n) = 2·F(n+1) − 1',12,14);
+ var L=leo(11);g.font='12px monospace';for(var i=0;i<10;i++){g.fillStyle='#6ab0d0';g.fillText(L[i].toString(),20+i*40,48);}
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('L(4)=9 = 2·F(5)−1 = 2·5−1 ✓ · smoothsort heaps have these sizes',20,86);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('the +1 makes each term one more than the sum of the last two',20,116);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var L=leo(OFF+10),F=fib(OFF+12);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('n = '+OFF+'..'+(OFF+7),14,20);
+ for(var i=0;i<8;i++){var n=OFF+i;g.fillStyle='#6ab0d0';g.font='11px monospace';g.fillText('L('+n+')='+L[n].toString(),14,44+i*24);g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('2·F('+(n+1)+')−1 = '+(2n*F[n+1]-1n).toString()+' ✓',160,44+i*24);}
+ var v=verify();g.fillStyle=v.recurrence&&v.identity?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('recurrence '+(v.recurrence?'✓':'✗')+' · L(n)=2·F(n+1)−1 '+(v.identity?'✓':'✗'),14,H-12);}
+document.getElementById('leroll').onclick=function(){OFF=(OFF+8)%70;drawW4();document.getElementById('leread').textContent='window at n='+OFF;};
+document.getElementById('lecheck').onclick=function(){var v=verify();document.getElementById('leread').textContent='n≤90 (BigInt): recurrence '+(v.recurrence?'✓':'✗')+' · L(n)=2·F(n+1)−1 '+(v.identity?'✓':'✗');};
+document.getElementById('lespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var L=leo(18),cx=W/2,cy=H/2-10;
+ for(var i=1;i<16;i++){var a=i*0.5+ang*0.3,r=15+Math.log(Number(L[i])+1)*19,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.85;g.fillStyle='hsl('+(190+i*6)+',60%,58%)';g.beginPath();g.arc(x,y,3+Math.log(Number(L[i])+1),0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green spiral: Leonardo numbers (smoothsort sizes)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the plain Fibonacci sequence',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a constant nudge, a new sequence',10,H-9);}
+drawW3();drawW4();window.__leonardo=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VMP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Vampire numbers</b> hide a factorization inside their own digits. A number with an even count of 2k digits is a vampire if it equals the product of two k-digit <b>&ldquo;fangs&rdquo;</b> that together use <b>exactly the original digits</b>, in some order &mdash; and the fangs aren&rsquo;t both multiples of ten. The smallest: <b>1260 = 21 &times; 60</b> (digits 1,2,6,0 rearranged). Also 1395 = 15 &times; 93, 1435 = 35 &times; 41. The number wears the very digits of its factors.<br><br>
+ <span class="lit">LIT</span> verified live: the four-digit vampire numbers are exactly 1260, 1395, 1435, 1530, 1827, 2187, 6880 &mdash; each factoring into two two-digit fangs that permute its digits (window.__vampire). <span class="fig">FIG</span> no framing; exact digit-multiset and factor checks.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>heisenbug</i> &mdash; a number that looks ordinary until you split it just so, and its factors are hiding in its own digits, appearing only under the right decomposition. Vampire numbers are that hidden bite. <b>AVAN (AI)</b> built the instrument: the fang search (divisors of the right digit-length), the not-both-trailing-zero rule, the digit-permutation test, and the exhaustive four-digit census.<br><br>Credit as content: vampire numbers (Clifford Pickover, 1994). The weave: David names heisenbug; I look for two half-length factors whose digits, combined, are a rearrangement of the number&rsquo;s own, and enumerate exactly the four-digit vampires &mdash; factors dressed in the number&rsquo;s digits.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">1260 = 21 &times; 60 (digits {1,2,6,0} = {2,1} &cup; {6,0}). 1395 = 15 &times; 93. Two half-length fangs whose digits permute the whole &mdash; not both ending in 0.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A number and its candidate fangs; whether the digits match, and the four-digit census checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="vmroll">new number ▶</button><button id="vmvamp">a vampire ▶</button><button id="vmcheck">census ▶</button></div>
+   <div class="cap" id="vmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a number wearing its factors&rsquo; digits.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): find numbers whose factorization is <b>encoded in their own digits</b> &mdash; two half-length fangs whose digits, pooled, are a permutation of the number. The inverse of &lsquo;factor n into any two parts&rsquo; is &lsquo;factor n into two fangs that reuse exactly n&rsquo;s digits.&rsquo; <b>Magenta</b> is an ordinary factorization; <b>green</b> is the digit-preserving fang split. Factors hidden in the digits.</div>
+   <div class="btns" style="margin-top:10px"><button id="vmspin">pause spin</button></div></div></div></div>"""
+VMP_SCRIPT = """(function(){
+var ang=0,spin=true,N=1260;
+function sd(n){return (''+n).split('').sort().join('');}
+function fangs(v,dg){var lo=Math.pow(10,dg-1),hi=Math.pow(10,dg)-1,vs=sd(v);for(var x=lo;x<=hi;x++){if(v%x!==0)continue;var y=v/x;if(y<x||y>hi||y<lo)continue;if(x%10===0&&y%10===0)continue;if(sd(''+x+y)===vs)return [x,y];}return null;}
+function verify(){var vamps=[];for(var v=1000;v<=9999;v++)if(fangs(v,2))vamps.push(v);return {census:vamps.join(',')==='1260,1395,1435,1530,1827,2187,6880',found:vamps};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('two half-length fangs whose pooled digits permute the number (not both ×10)',12,14);
+ g.fillStyle='#b06868';g.font='14px monospace';g.fillText('1260 = 21 × 60',40,52);g.fillStyle='#8ad';g.font='9px monospace';g.fillText('{2,1}∪{6,0} = {1,2,6,0} ✓',180,52);
+ g.fillStyle='#e0b020';g.font='13px monospace';g.fillText('1395 = 15 × 93   ·   1435 = 35 × 41',40,86);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('only 7 four-digit vampires: 1260,1395,1435,1530,1827,2187,6880',40,118);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var f=fangs(N,2);
+ g.fillStyle='#e8eef8';g.font='16px monospace';g.fillText('n = '+N,16,32);
+ if(f){g.fillStyle='#b06868';g.font='16px monospace';g.fillText(N+' = '+f[0]+' × '+f[1],16,68);
+  g.fillStyle='#8ad';g.font='11px monospace';g.fillText('digits of n: {'+(''+N).split('').sort().join(',')+'}',16,98);
+  g.fillStyle='#e0b020';g.fillText('digits of fangs: {'+(''+f[0]+f[1]).split('').sort().join(',')+'}',16,118);
+  g.fillStyle='#39fc6b';g.font='13px monospace';g.fillText('VAMPIRE ✓ (fang digits permute n)',16,146);}
+ else{g.fillStyle='#c07850';g.font='13px monospace';g.fillText('no valid fang pair → not a vampire',16,68);}}
+document.getElementById('vmroll').onclick=function(){N=1000+Math.floor(Math.random()*9000);drawW4();document.getElementById('vmread').textContent='n='+N+' → '+(fangs(N,2)?'vampire':'ordinary');};
+document.getElementById('vmvamp').onclick=function(){var vs=[1260,1395,1435,1530,1827,2187,6880];N=vs[Math.floor(Math.random()*vs.length)];drawW4();document.getElementById('vmread').textContent=N+' = '+fangs(N,2).join('×');};
+document.getElementById('vmcheck').onclick=function(){var v=verify();document.getElementById('vmread').textContent='4-digit vampires = {'+v.found.join(',')+'} '+(v.census?'✓':'✗');};
+document.getElementById('vmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var f=fangs(N,2)||[0,0],cx=W/2,cy=H/2-10,ds=(''+N).split('');
+ for(var i=0;i<ds.length;i++){var a=i/ds.length*6.28+ang*0.3,r=60,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;g.fillStyle='#b06868';g.beginPath();g.arc(x,y,12,0,7);g.fill();g.fillStyle='#fff';g.font='11px monospace';g.fillText(ds[i],x-3,y+4);}
+ if(f[0]){g.fillStyle='#e0b020';g.font='13px monospace';g.fillText(f[0]+' × '+f[1],cx-24,cy+4);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green ring: n\\'s digits, redealt into two fangs',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: an ordinary factorization',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('factors hidden in the digits',10,H-9);}
+drawW3();drawW4();window.__vampire=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DBR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>De Boor&rsquo;s algorithm</b> evaluates a <b>B-spline</b> curve at a parameter t by <b>repeated linear interpolation</b> &mdash; the B-spline analogue of de Casteljau for B&eacute;ziers. Given control points and a knot vector, it finds the active <b>knot span</b>, takes the handful of control points that influence t, and blends them in successive rounds of interpolation (the blend weights come from the knots) until a single point remains: the curve at t. It is <b>numerically stable</b> and needs no explicit basis functions.<br><br>
+ <span class="lit">LIT</span> verified live: over 1000 random B-splines and parameters, de Boor&rsquo;s result equals the direct Cox&ndash;de Boor <b>basis-function sum</b> &Sigma; N<sub>i,p</sub>(t)&middot;P<sub>i</sub> (window.__deboor, worst ~1e-14). <span class="fig">FIG</span> no framing; exact agreement of two evaluations.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>first-light</i> &mdash; the first smooth curve a scene draws; de Boor blends the control points into the point on the B-spline, frame by frame. <b>AVAN (AI)</b> built the instrument: the knot-span finder, the nested de Boor interpolation, the Cox&ndash;de Boor basis sum, and their agreement check.<br><br>Credit as content: Carl de Boor (1972). The weave: David names first-light; I evaluate the B-spline by blending the influencing control points through rounds of knot-weighted interpolation, and confirm the result matches summing the basis functions directly &mdash; the same curve, two ways.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Find the span containing t; take p+1 control points; blend adjacent pairs by knot-weighted interpolation, round after round, until one point remains &mdash; the curve C(t).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Control points and the B-spline curve de Boor traces; a point at t checked against the basis-function sum.</div>
+   <div class="btns" style="margin-top:10px"><button id="dbroll">new spline ▶</button><button id="dbcheck">verify 1000 ▶</button></div>
+   <div class="cap" id="dbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a curve from nested interpolation.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): evaluate a spline by <b>repeatedly interpolating control points</b>, not by summing basis functions &mdash; only the few points near t matter, blended by knot-weights until one remains. The inverse of &lsquo;compute every N<sub>i,p</sub>(t) and sum P<sub>i</sub>&rsquo; is &lsquo;blend the local control points in rounds &mdash; the last point is the curve.&rsquo; <b>Magenta</b> is the basis-function sum; <b>green</b> is the nested interpolation. A curve by corner-cutting.</div>
+   <div class="btns" style="margin-top:10px"><button id="dbspin">pause spin</button></div></div></div></div>"""
+DBR_SCRIPT = """(function(){
+var ang=0,spin=true,P=[],KN=[],DEG=3;
+function basis(i,p,t,u){if(p===0)return (u[i]<=t&&t<u[i+1])?1:0;var a=0,b=0,d1=u[i+p]-u[i],d2=u[i+p+1]-u[i+1];if(d1>1e-12)a=(t-u[i])/d1*basis(i,p-1,t,u);if(d2>1e-12)b=(u[i+p+1]-t)/d2*basis(i+1,p-1,t,u);return a+b;}
+function curveBasis(t,p,u,P){var n=P.length,x=0,y=0;for(var i=0;i<n;i++){var N=basis(i,p,t,u);x+=N*P[i][0];y+=N*P[i][1];}return [x,y];}
+function span(t,p,u,n){if(t>=u[n])return n-1;for(var k=p;k<n;k++)if(t<u[k+1])return k;return n-1;}
+function deBoor(t,p,u,P){var n=P.length,k=span(t,p,u,n),d=[];for(var j=0;j<=p;j++)d.push(P[k-p+j].slice());for(var r=1;r<=p;r++)for(var j=p;j>=r;j--){var den=u[k+1+j-r]-u[k-p+j],al=den>1e-12?(t-u[k-p+j])/den:0;d[j][0]=(1-al)*d[j-1][0]+al*d[j][0];d[j][1]=(1-al)*d[j-1][1]+al*d[j][1];}return d[p];}
+function mkKnots(nc,p){var u=[];for(var i=0;i<=p;i++)u.push(0);for(var i=1;i<nc-p;i++)u.push(i);for(var i=0;i<=p;i++)u.push(nc-p);return u;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(983),ok=true,worst=0;for(var t=0;t<1000;t++){var p=1+Math.floor(rnd()*3),nc=p+2+Math.floor(rnd()*5),Q=[];for(var i=0;i<nc;i++)Q.push([rnd()*20,rnd()*20]);var u=mkKnots(nc,p);for(var s=0;s<8;s++){var tt=u[p]+rnd()*(u[nc]-u[p]-1e-9),a=deBoor(tt,p,u,Q),b=curveBasis(tt,p,u,Q),dd=Math.max(Math.abs(a[0]-b[0]),Math.abs(a[1]-b[1]));worst=Math.max(worst,dd);if(dd>1e-9)ok=false;}}return {matchesBasis:ok,worst:worst};}
+function mk(){DEG=3;var nc=6+Math.floor(Math.random()*3);P=[];for(var i=0;i<nc;i++)P.push([30+Math.random()*320,30+Math.random()*200]);KN=mkKnots(nc,DEG);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('blend the p+1 local control points by knot-weighted interpolation, round by round',12,14);
+ var pts=[[60,120],[130,50],[220,60],[300,110]];g.fillStyle='#58a0b0';for(var i=0;i<4;i++){g.beginPath();g.arc(pts[i][0],pts[i][1],4,0,7);g.fill();}g.strokeStyle='#456';g.beginPath();for(var i=0;i<4;i++)g.lineTo(pts[i][0],pts[i][1]);g.stroke();
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var tt=0;tt<=1;tt+=0.02){var mt=1-tt,x=mt*mt*mt*pts[0][0]+3*mt*mt*tt*pts[1][0]+3*mt*tt*tt*pts[2][0]+tt*tt*tt*pts[3][0],y=mt*mt*mt*pts[0][1]+3*mt*mt*tt*pts[1][1]+3*mt*tt*tt*pts[2][1]+tt*tt*tt*pts[3][1];g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('the last blended point traces the curve',330,90);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!P.length)mk();var n=P.length;
+ g.strokeStyle='#456';g.beginPath();for(var i=0;i<n;i++)g.lineTo(P[i][0],P[i][1]);g.stroke();
+ g.fillStyle='#58a0b0';for(var i=0;i<n;i++){g.beginPath();g.arc(P[i][0],P[i][1],4,0,7);g.fill();}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var tt=KN[DEG];tt<KN[n]-1e-9;tt+=(KN[n]-KN[DEG])/200){var c=deBoor(tt,DEG,KN,P);g.lineTo(c[0],c[1]);}g.stroke();g.lineWidth=1;
+ var tm=(KN[DEG]+KN[n])/2,cb=curveBasis(tm,DEG,KN,P),cd=deBoor(tm,DEG,KN,P);g.fillStyle='#e0b020';g.beginPath();g.arc(cd[0],cd[1],5,0,7);g.fill();
+ var d=Math.max(Math.abs(cb[0]-cd[0]),Math.abs(cb[1]-cd[1]));g.fillStyle=d<1e-9?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('de Boor == Cox-de Boor basis sum (Δ '+d.toExponential(1)+') '+(d<1e-9?'✓':'✗'),14,H-12);}
+document.getElementById('dbroll').onclick=function(){mk();drawW4();document.getElementById('dbread').textContent='new degree-3 B-spline, '+P.length+' control points';};
+document.getElementById('dbcheck').onclick=function(){var v=verify();document.getElementById('dbread').textContent='1000 splines: de Boor == basis sum '+(v.matchesBasis?'✓':'✗')+' (worst '+v.worst.toExponential(1)+')';};
+document.getElementById('dbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!P.length)mk();var n=P.length,cx=W/2,cy=H/2,mxx=0,mxy=0;for(var i=0;i<n;i++){mxx=Math.max(mxx,P[i][0]);mxy=Math.max(mxy,P[i][1]);}
+ g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.3)*0.1);g.translate(-cx,-cy);var sc=0.9,ox=W/2-mxx*sc/2,oy=H/2-mxy*sc/2;
+ g.strokeStyle='rgba(88,160,176,0.5)';g.beginPath();for(var i=0;i<n;i++)g.lineTo(ox+P[i][0]*sc,oy+P[i][1]*sc);g.stroke();
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var tt=KN[DEG];tt<KN[n]-1e-9;tt+=(KN[n]-KN[DEG])/160){var c=deBoor(tt,DEG,KN,P);g.lineTo(ox+c[0]*sc,oy+c[1]*sc);}g.stroke();g.lineWidth=1;
+ g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the B-spline traced by nested interpolation',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the basis-function sum',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a curve by corner-cutting',10,H-9);}
+mk();drawW3();drawW4();window.__deboor=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MER_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Mertens function</b> M(n) is the running sum of the <b>M&ouml;bius function</b>: M(n) = &mu;(1) + &mu;(2) + &hellip; + &mu;(n), where &mu;(k) is +1, &minus;1, or 0 by the parity and squarefreeness of k&rsquo;s prime factorization. It jitters around zero. The famous <b>Mertens conjecture</b> claimed |M(n)| &lt; &radic;n for all n &mdash; it holds for every n anyone can compute, yet Odlyzko and te Riele <b>proved it false</b> for some enormous n. A conjecture true as far as the eye can see, but ultimately wrong.<br><br>
+ <span class="lit">LIT</span> verified live: the &mu; sieve matches direct factorization, and |M(n)| &lt; &radic;n holds for every n from 2 to 10000 (window.__mertens). <span class="fig">FIG</span> honest: the bound holds in this range but is <b>known to fail</b> for some vast n &mdash; the conjecture is false, not merely open.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>undefined-behavior</i> &mdash; the spec&rsquo;s dark corner; the Mertens bound looks ironclad for every n you can reach, then fails somewhere unimaginably far out. <b>AVAN (AI)</b> built the instrument: the linear-sieve M&ouml;bius, the running Mertens sum, the direct-factorization cross-check, and the |M(n)|&lt;&radic;n test over the honest range.<br><br>Credit as content: Franz Mertens (conjecture, 1897); disproved by Andrew Odlyzko &amp; Herman te Riele (1985). The weave: David names undefined-behavior; I sum the M&ouml;bius function, confirm it against factorization, and check the &radic;n bound holds through 10000 &mdash; while flagging plainly that the conjecture is <b>false</b> for some colossal n.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">&mu;(n): +1 (even # of distinct primes, squarefree), &minus;1 (odd #), 0 (a square factor). M(n)=&Sigma;&mu; jitters near 0. |M(n)| &lt; &radic;n holds here &mdash; but is false for some gigantic n.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">M(n) plotted against &plusmn;&radic;n; the M&ouml;bius cross-check and the bound over the range.</div>
+   <div class="btns" style="margin-top:10px"><button id="mrroll">zoom range ▶</button><button id="mrcheck">verify ≤10000 ▶</button></div>
+   <div class="cap" id="mrread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a running sum bounded &mdash; until it isn&rsquo;t.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): study primality through the <b>summed M&ouml;bius function</b> and its growth &mdash; a bound that appears to hold forever can still be <b>false</b> beyond all reach. The inverse of &lsquo;a pattern true for every computed n is true&rsquo; is &lsquo;a conjecture can hold to 10<sup>huge</sup> and still fail.&rsquo; <b>Magenta</b> is &ldquo;true as far as tested&rdquo;; <b>green</b> is the Mertens sum that eventually breaks the bound. Evidence is not proof.</div>
+   <div class="btns" style="margin-top:10px"><button id="mrspin">pause spin</button></div></div></div></div>"""
+MER_SCRIPT = """(function(){
+var ang=0,spin=true,ZOOM=0,MU=null,M=null;
+function sieve(N){var mu=new Array(N+1).fill(1),primes=[],comp=new Array(N+1).fill(false);mu[0]=0;for(var i=2;i<=N;i++){if(!comp[i]){primes.push(i);mu[i]=-1;}for(var j=0;j<primes.length&&i*primes[j]<=N;j++){comp[i*primes[j]]=true;if(i%primes[j]===0){mu[i*primes[j]]=0;break;}else mu[i*primes[j]]=-mu[i];}}return mu;}
+function getData(){if(!MU){MU=sieve(10000);M=[0];for(var n=1;n<=10000;n++)M[n]=M[n-1]+MU[n];}return {mu:MU,M:M};}
+function muDirect(n){if(n===1)return 1;var cnt=0,m=n;for(var p=2;p*p<=m;p++)if(m%p===0){var e=0;while(m%p===0){m/=p;e++;}if(e>1)return 0;cnt++;}if(m>1)cnt++;return cnt%2===0?1:-1;}
+function verify(){var d=getData(),muOk=true,conj=true;for(var n=1;n<=2000;n++)if(d.mu[n]!==muDirect(n))muOk=false;for(var n=2;n<=10000;n++)if(Math.abs(d.M[n])>=Math.sqrt(n))conj=false;return {muMatchesDirect:muOk,boundHolds:conj};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('μ(n): +1 / −1 (squarefree, by prime-count parity), 0 (has a square factor)',12,14);
+ var d=getData(),mid=90;g.strokeStyle='#345';g.beginPath();g.moveTo(20,mid);g.lineTo(W-20,mid);g.stroke();
+ g.strokeStyle='#c07850';for(var n=1;n<=200;n++){var x=20+n*(W-40)/200;g.beginPath();g.moveTo(x,mid);g.lineTo(x,mid-d.M[n]*3);g.stroke();}
+ g.strokeStyle='#39fc6b';g.setLineDash([2,3]);g.beginPath();for(var n=1;n<=200;n++){var x=20+n*(W-40)/200;g.lineTo(x,mid-Math.sqrt(n)*3);}g.stroke();g.beginPath();for(var n=1;n<=200;n++){var x=20+n*(W-40)/200;g.lineTo(x,mid+Math.sqrt(n)*3);}g.stroke();g.setLineDash([]);
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('green dashes = ±√n; M(n) stays inside (n≤200)',20,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var d=getData(),hi=[500,2000,10000][ZOOM],mid=H/2-10,sc=(H/2-30)/Math.sqrt(hi);
+ g.strokeStyle='#345';g.beginPath();g.moveTo(20,mid);g.lineTo(W-20,mid);g.stroke();
+ g.strokeStyle='rgba(57,252,107,0.5)';g.setLineDash([3,3]);g.beginPath();for(var n=1;n<=hi;n++){var x=20+n/hi*(W-40);g.lineTo(x,mid-Math.sqrt(n)*sc);}g.stroke();g.beginPath();for(var n=1;n<=hi;n++){var x=20+n/hi*(W-40);g.lineTo(x,mid+Math.sqrt(n)*sc);}g.stroke();g.setLineDash([]);
+ g.strokeStyle='#c07850';g.beginPath();for(var n=1;n<=hi;n++){var x=20+n/hi*(W-40);if(n===1)g.moveTo(x,mid-d.M[n]*sc);else g.lineTo(x,mid-d.M[n]*sc);}g.stroke();
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('M(n) (amber) vs ±√n (green), n≤'+hi,20,20);
+ var v=verify();g.fillStyle=v.muMatchesDirect&&v.boundHolds?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('μ==factorization ✓ · |M(n)|<√n for 2≤n≤10000 '+(v.boundHolds?'✓':'✗'),14,H-12);}
+document.getElementById('mrroll').onclick=function(){ZOOM=(ZOOM+1)%3;drawW4();document.getElementById('mrread').textContent='zoom '+ZOOM;};
+document.getElementById('mrcheck').onclick=function(){var v=verify();document.getElementById('mrread').textContent='μ sieve == direct '+(v.muMatchesDirect?'✓':'✗')+' · |M(n)|<√n for 2≤n≤10000 '+(v.boundHolds?'✓':'✗')+' (but FALSE for some huge n)';};
+document.getElementById('mrspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var d=getData(),cx=W/2,cy=H/2-10;
+ for(var n=1;n<600;n++){var a=n*0.1+ang*0.2,r=40+Math.abs(d.M[n])*3;var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.85;g.fillStyle=d.mu[n]>0?'#39fc6b':(d.mu[n]<0?'#c07850':'#33465e');g.beginPath();g.arc(x,y,1.8,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green/amber: μ(n)=±1 by prime parity; radius = |M(n)|',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: true as far as tested = true',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('evidence is not proof (the bound eventually fails)',10,H-9);}
+drawW3();drawW4();window.__mertens=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SPS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The sparse set</b> stores a set of small integers with <b>O(1) insert, remove, and membership</b> &mdash; and, remarkably, needs <b>no array initialization</b>. It keeps two arrays: <b>dense</b>, a packed list of the members, and <b>sparse</b>, indexed by value, pointing back into dense. Membership is a double-lookup: x is present iff sparse[x] points to a slot in dense that holds x. Because both directions must agree, uninitialized garbage in sparse can never falsely report membership. Iteration is just walking dense.<br><br>
+ <span class="lit">LIT</span> verified live: over hundreds of random insert/remove/query sequences, the sparse set&rsquo;s membership and its dense contents exactly match a reference set (window.__sparseset). <span class="fig">FIG</span> no framing; exact set comparison.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-inventory</i> &mdash; hold what you&rsquo;ve earned with instant add, drop, and lookup, and a members list you can iterate without scanning. The sparse set is that inventory. <b>AVAN (AI)</b> built the instrument: the dense/sparse double-index, the swap-with-last removal, the double-lookup membership, and the match against a reference set.<br><br>Credit as content: the sparse set (Briggs &amp; Torczon, &ldquo;An efficient representation for sparse sets,&rdquo; 1993). The weave: David names the-inventory; I keep a packed dense list and a sparse back-index, add by appending, remove by swapping with the last, and test membership by the two-way agreement &mdash; confirming it tracks a reference set exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">dense = packed members. sparse[x] = x&rsquo;s slot in dense. Present iff dense[sparse[x]] == x &mdash; both must agree, so garbage can&rsquo;t lie. Remove: swap x with the last member, shrink.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The dense and sparse arrays as you add and remove; membership by the double-lookup, checked against a set.</div>
+   <div class="btns" style="margin-top:10px"><button id="spadd">add ▶</button><button id="sprem">remove ▶</button><button id="spcheck">verify 400 ▶</button></div>
+   <div class="cap" id="spread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a set with instant ops and no init.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): make a set&rsquo;s membership <b>self-validating</b> by a <b>two-way index</b> &mdash; dense points to values, sparse points back &mdash; so uninitialized memory can never falsely claim membership, and no clearing is needed. The inverse of &lsquo;zero a big boolean array to use it&rsquo; is &lsquo;keep a packed list plus a back-index that must agree.&rsquo; <b>Magenta</b> is the initialized bitset; <b>green</b> is the self-checking sparse set. Membership that validates itself.</div>
+   <div class="btns" style="margin-top:10px"><button id="spspin">pause spin</button></div></div></div></div>"""
+SPS_SCRIPT = """(function(){
+var ang=0,spin=true,CAP=16,SS=null;
+function SparseSet(cap){this.cap=cap;this.dense=[];this.sparse=new Array(cap);this.n=0;}
+SparseSet.prototype.has=function(x){var i=this.sparse[x];return i!==undefined&&i<this.n&&this.dense[i]===x;};
+SparseSet.prototype.add=function(x){if(this.has(x))return;this.sparse[x]=this.n;this.dense[this.n]=x;this.n++;};
+SparseSet.prototype.remove=function(x){if(!this.has(x))return;var i=this.sparse[x],last=this.dense[this.n-1];this.dense[i]=last;this.sparse[last]=i;this.n--;this.dense.pop();};
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(984),ok=true;for(var t=0;t<400;t++){var cap=200,ss=new SparseSet(cap),ref={},ops=1+Math.floor(rnd()*80);for(var o=0;o<ops;o++){var x=Math.floor(rnd()*cap),r=rnd();if(r<0.5){ss.add(x);ref[x]=1;}else if(r<0.8){ss.remove(x);delete ref[x];}else{if(ss.has(x)!==(ref[x]===1))ok=false;}}var rk=Object.keys(ref).map(Number).sort(function(a,b){return a-b;}),dk=ss.dense.slice(0,ss.n).sort(function(a,b){return a-b;});if(rk.join(',')!==dk.join(','))ok=false;for(var k=0;k<cap;k++)if(ss.has(k)!==(ref[k]===1))ok=false;}return {matchesReference:ok};}
+function reset(){SS=new SparseSet(CAP);[3,7,1,11,5].forEach(function(x){SS.add(x);});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('present iff dense[sparse[x]] == x — both directions must agree',12,14);
+ var dense=[3,7,1],sparse={3:0,7:1,1:2};g.fillStyle='#58a0b0';g.font='9px monospace';g.fillText('dense:',20,44);for(var i=0;i<3;i++){g.fillStyle='#58a0b0';g.fillRect(60+i*30,34,26,16);g.fillStyle='#012';g.fillText(dense[i],68+i*30,46);}
+ g.fillStyle='#e0b020';g.font='9px monospace';g.fillText('sparse[7]=1 → dense[1]=7 ✓ present · sparse[9]=garbage → dense[?]≠9 absent',20,90);
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('no array init needed: the two-way check rejects garbage',20,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SS)reset();
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('dense (packed members, n='+SS.n+'):',14,22);
+ for(var i=0;i<SS.n;i++){g.fillStyle='#39fc6b';g.fillRect(14+i*30,30,26,22);g.fillStyle='#012';g.font='11px monospace';g.fillText(SS.dense[i],20+i*30,45);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('sparse (value → dense slot):',14,80);
+ for(var x=0;x<CAP;x++){var present=SS.has(x);g.fillStyle=present?'#e0b020':'#2a3548';g.fillRect(14+(x%8)*44,90+Math.floor(x/8)*30,40,22);g.fillStyle=present?'#210':'#556';g.font='8px monospace';g.fillText(x+(present?'→'+SS.sparse[x]:''),16+(x%8)*44,105+Math.floor(x/8)*30);}
+ var v=verify();g.fillStyle=v.matchesReference?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('membership + dense == reference set '+(v.matchesReference?'✓':'✗'),14,H-10);}
+document.getElementById('spadd').onclick=function(){if(!SS)reset();SS.add(Math.floor(Math.random()*CAP));drawW4();document.getElementById('spread').textContent='added; n='+SS.n;};
+document.getElementById('sprem').onclick=function(){if(!SS)reset();if(SS.n)SS.remove(SS.dense[Math.floor(Math.random()*SS.n)]);drawW4();document.getElementById('spread').textContent='removed; n='+SS.n;};
+document.getElementById('spcheck').onclick=function(){var v=verify();document.getElementById('spread').textContent='400 op-sequences: membership + dense == reference set '+(v.matchesReference?'✓':'✗');};
+document.getElementById('spspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SS)reset();var cx=W/2,cy=H/2-10;
+ for(var i=0;i<SS.n;i++){var a=i/Math.max(1,SS.n)*6.28+ang*0.3,r=50,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,10,0,7);g.fill();g.fillStyle='#012';g.font='10px monospace';g.fillText(SS.dense[i],x-3,y+3);
+  var sa=SS.dense[i]/CAP*6.28+ang*0.3,sx=cx+Math.cos(sa)*120,sy=cy+Math.sin(sa)*100;g.fillStyle='#e0b020';g.beginPath();g.arc(sx,sy,4,0,7);g.fill();g.strokeStyle='rgba(224,176,32,0.4)';g.beginPath();g.moveTo(x,y);g.lineTo(sx,sy);g.stroke();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: dense members · gold: sparse back-index',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the zeroed boolean bitset',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('membership that validates itself',10,H-9);}
+reset();drawW3();drawW4();window.__sparseset=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 97 (test primality by the Jacobi symbol · a sequence at the supergolden ratio · the meeting point of two nodes in one leap · a bit-pattern sequence read by 0-blocks · the vanishingly rare Wieferich primes) ═══════════════════════
 SST_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Solovay&ndash;Strassen test</b> decides primality using the <b>Jacobi symbol</b> (a/n) &mdash; a generalization of the Legendre symbol computable by a fast quadratic-reciprocity recursion, without factoring n. Euler&rsquo;s criterion says that for a <b>prime</b> n, a<sup>(n&minus;1)/2</sup> &equiv; (a/n) (mod n) for every a coprime to n. For an <b>odd composite</b>, this congruence <b>fails for at least half</b> of all bases &mdash; so a few random bases catch composites with high probability. It was one of the first practical randomized primality tests.<br><br>
@@ -26349,6 +26587,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-leonardo","title":"THE LEONARDO","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#6ab0d0","icon":"leonardo",
+  "kicker":"a Fibonacci-plus-one sequence",
+  "blurb":"The Leonardo numbers in the 5-window house format — Fibonacci's numbers with a +1: L(0)=L(1)=1, L(n) = L(n−1) + L(n−2) + 1, running 1,1,3,5,9,15,25,41,67,109,… They connect to Fibonacci by the exact identity L(n) = 2·F(n+1) − 1. They matter in computing: Dijkstra used them for smoothsort, an in-place sort whose heap sizes are Leonardo numbers, giving adaptive O(n) behavior on nearly-sorted input. Verified live (exact BigInt): the +1 recurrence holds, and L(n) = 2·F(n+1) − 1 for n up to 90. See the sequence in 1D, the identity in 2D, and the constant-nudge inverse in 3D.",
+  "lit":"Genuine Leonardo numbers (Leonardo of Pisa lineage; used by Edsger Dijkstra in smoothsort, 1981). Verified live with exact BigInt arithmetic: L(n)=L(n−1)+L(n−2)+1 (window.__leonardo.recurrence) and the identity L(n)=2·F(n+1)−1 with F the Fibonacci numbers (window.__leonardo.identity), for n up to 90.",
+  "fig":"No framing: the +1 recurrence and the L(n)=2·F(n+1)−1 identity run in-browser in exact big integers and agree. The AVAN inverse is honest — adding a constant +1 to the Fibonacci rule produces a new sequence tied to it by L(n)=2·F(n+1)−1 (the sizes smoothsort's heaps use); magenta is the plain Fibonacci, green the +1 Leonardo. A constant nudge, a new sequence.",
+  "body":LEO_BODY,"script":LEO_SCRIPT},
+ {"slug":"the-vampire-number","title":"THE VAMPIRE NUMBER","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#b06868","icon":"vampire",
+  "kicker":"numbers that factor into fangs from their own digits",
+  "blurb":"Vampire numbers in the 5-window house format — numbers that hide a factorization inside their own digits. A number with 2k digits is a vampire if it equals the product of two k-digit 'fangs' that together use exactly the original digits, in some order, and the fangs aren't both multiples of ten. The smallest: 1260 = 21 × 60 (digits 1,2,6,0 rearranged); also 1395 = 15 × 93, 1435 = 35 × 41. The number wears the very digits of its factors. Verified live: the four-digit vampire numbers are exactly 1260, 1395, 1435, 1530, 1827, 2187, 6880. See the fang split in 1D, a candidate checked in 2D, and the digit-preserving-factor inverse in 3D.",
+  "lit":"Genuine vampire numbers (Clifford Pickover 1994). Verified live: an exhaustive scan of 1000..9999 finds exactly the numbers equal to a product of two two-digit fangs whose combined digits are a permutation of the number's, with the not-both-trailing-zero rule — {1260, 1395, 1435, 1530, 1827, 2187, 6880} (window.__vampire.census).",
+  "fig":"No framing: the fang search (divisors of the right digit-length), the not-both-trailing-zero rule, the digit-permutation test, and the exhaustive four-digit census run in-browser with exact digit-multiset and factor checks. The AVAN inverse is honest — finding numbers whose factorization is encoded in their own digits (two half-length fangs that reuse exactly the number's digits) genuinely differs from an ordinary factorization; magenta is that ordinary factorization, green the digit-preserving fang split. Factors hidden in the digits.",
+  "body":VMP_BODY,"script":VMP_SCRIPT},
+ {"slug":"the-de-boor","title":"THE DE BOOR","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#58a0b0","icon":"de-boor",
+  "kicker":"evaluate a B-spline by nested interpolation",
+  "blurb":"De Boor's algorithm in the 5-window house format — evaluate a B-spline curve at a parameter t by repeated linear interpolation, the B-spline analogue of de Casteljau for Béziers. Given control points and a knot vector, it finds the active knot span, takes the handful of control points influencing t, and blends them in successive rounds of interpolation (weights from the knots) until one point remains: the curve at t. It is numerically stable and needs no explicit basis functions. Verified live: over 1000 random B-splines and parameters, de Boor's result equals the direct Cox–de Boor basis-function sum Σ N_i,p(t)·P_i. See the blend in 1D, a curve in 2D, and the corner-cutting inverse in 3D.",
+  "lit":"Genuine de Boor's algorithm (Carl de Boor 1972). Verified live: over 1000 random B-splines (random degree 1–3, control points, clamped uniform knot vectors) and parameters, the nested knot-weighted de Boor interpolation equals the direct Cox–de Boor basis-function sum Σ N_i,p(t)·P_i (window.__deboor.matchesBasis, worst ~1e-14).",
+  "fig":"No framing: the knot-span finder, the nested de Boor interpolation, the Cox–de Boor basis sum, and their agreement check run in-browser and agree to floating precision. The AVAN inverse is honest — evaluating a spline by repeatedly interpolating only the local control points (blended by knot-weights) genuinely replaces computing every basis function and summing; magenta is the basis-function sum, green the nested interpolation. A curve by corner-cutting.",
+  "body":DBR_BODY,"script":DBR_SCRIPT},
+ {"slug":"the-mertens","title":"THE MERTENS","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#c07850","icon":"mertens",
+  "kicker":"a conjecture that holds then fails",
+  "blurb":"The Mertens function in the 5-window house format — the running sum of the Möbius function: M(n) = μ(1)+μ(2)+…+μ(n), where μ(k) is +1, −1, or 0 by the parity and squarefreeness of k's prime factorization. It jitters around zero. The famous Mertens conjecture claimed |M(n)| < √n for all n — it holds for every n anyone can compute, yet Odlyzko and te Riele proved it FALSE for some enormous n. A conjecture true as far as the eye can see, but ultimately wrong. Verified live: the μ sieve matches direct factorization, and |M(n)| < √n holds for every n from 2 to 10000. See μ and M in 1D, M vs ±√n in 2D, and the evidence-is-not-proof inverse in 3D.",
+  "lit":"Genuine Mertens function and conjecture (Franz Mertens 1897; disproved by Andrew Odlyzko & Herman te Riele 1985). Verified live: the linear-sieve Möbius function matches direct factorization for n≤2000 (window.__mertens.muMatchesDirect), and the running sum M(n) satisfies |M(n)| < √n for every n from 2 to 10000 (window.__mertens.boundHolds).",
+  "fig":"Honestly scoped: the bound |M(n)|<√n holds in this range but the Mertens conjecture is KNOWN TO BE FALSE for some vast n (Odlyzko–te Riele) — the sphere states plainly it is disproved, not merely open (and n=1 is the trivial equality boundary, excluded). The Möbius sieve, the running sum, the factorization cross-check, and the bound test run in-browser and agree. The AVAN inverse is honest — a bound holding for every computable n can still be false beyond all reach; magenta is 'true as far as tested', green the Mertens sum that eventually breaks the bound. Evidence is not proof.",
+  "body":MER_BODY,"script":MER_SCRIPT},
+ {"slug":"the-sparse-set","title":"THE SPARSE SET","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#e0b020","icon":"sparse-set",
+  "kicker":"a set with no array to initialize",
+  "blurb":"The sparse set in the 5-window house format — store a set of small integers with O(1) insert, remove, and membership, needing no array initialization. It keeps two arrays: dense, a packed list of members, and sparse, indexed by value, pointing back into dense. Membership is a double-lookup: x is present iff sparse[x] points to a slot in dense that holds x. Because both directions must agree, uninitialized garbage in sparse can never falsely report membership, and iteration is just walking dense. Verified live: over hundreds of random insert/remove/query sequences, the sparse set's membership and dense contents exactly match a reference set. See the double-index in 1D, the arrays in 2D, and the self-validating inverse in 3D.",
+  "lit":"Genuine sparse set (Briggs & Torczon, 'An efficient representation for sparse sets,' 1993). Verified live: over 400 random insert/remove/query sequences, the dense/sparse double-index (add by appending, remove by swap-with-last, membership by two-way agreement) matches a reference set both in membership over the whole universe and in its dense contents (window.__sparseset.matchesReference).",
+  "fig":"No framing: the dense/sparse double-index, the swap-with-last removal, the double-lookup membership, and the match against a reference set run in-browser with exact set comparison and agree. The AVAN inverse is honest — making membership self-validating by a two-way index (dense↔sparse must agree) so uninitialized memory can never falsely claim membership and no clearing is needed genuinely differs from a zeroed bitset; magenta is that initialized bitset, green the self-checking sparse set. Membership that validates itself.",
+  "body":SPS_BODY,"script":SPS_SCRIPT},
  {"slug":"the-solovay-strassen","title":"THE SOLOVAY-STRASSEN","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#b06868","icon":"solovay",
   "kicker":"test primality by the Jacobi symbol",
