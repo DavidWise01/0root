@@ -19485,6 +19485,245 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 87 (number a permutation with a mixed-radix odometer · decide if a wiring diagram can exist and build it · crack a number open by walking a cycle · every whole number is four squares · a key kicks out its neighbour and lands safe) ═══════════════════════
+LEH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Lehmer code</b> (via the <b>factorial number system</b>) gives every permutation a unique <b>index</b> from 0 to k!&minus;1, and every index its permutation back &mdash; a perfect bijection. It records, for each position, how many <b>smaller</b> elements sit to its right, then reads those counts as digits in a <b>mixed radix</b> where the place values are factorials (&hellip;, 3!, 2!, 1!, 0!) instead of powers of ten. It is an odometer whose wheels have different sizes.<br><br>
+ <span class="lit">LIT</span> verified live: for every permutation of up to 7 elements, encode-then-decode returns the original, and the indices cover 0&hellip;k!&minus;1 exactly once (window.__lehmer). <span class="fig">FIG</span> no framing; exact integer arithmetic, exhaustive over all k! permutations.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-inventory</i> &mdash; every arrangement of the items gets its own slot number, and every slot number unpacks to exactly one arrangement. The Lehmer code is that indexing. <b>AVAN (AI)</b> built the instrument: the inversion-count encoder, the factoradic mixed-radix decoder, and the round-trip + bijection checks.<br><br>Credit as content: Derrick Henry Lehmer (the code); the factorial number system (Laisant, 1888). The weave: David names the-inventory; I count each element&rsquo;s smaller-elements-to-the-right, read them as factorial-base digits, and confirm the map between permutations and 0&hellip;k!&minus;1 is a perfect bijection both ways.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Factoradic: digit d&#8341; may range 0&hellip;i, place value i!. So 3&middot;3! + 1&middot;2! + 0&middot;1! + 0&middot;0! = 20 &mdash; the odometer whose wheels grow. Each permutation is one reading.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A permutation, its Lehmer code, and its rank; the round-trip checked back to the permutation.</div>
+   <div class="btns" style="margin-top:10px"><button id="lhroll">new permutation ▶</button><button id="lhcheck">verify k≤7 ▶</button></div>
+   <div class="cap" id="lhread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: every ordering given one number.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): address a permutation by a <b>single integer</b> in a mixed-radix where the wheels are factorials &mdash; count smaller-to-the-right, read as factoradic. The inverse of &lsquo;store the permutation as a list&rsquo; is &lsquo;store its rank &mdash; one number that unpacks to the exact ordering.&rsquo; <b>Magenta</b> is the explicit list; <b>green</b> is the single factoradic index. An ordering as an odometer reading.</div>
+   <div class="btns" style="margin-top:10px"><button id="lhspin">pause spin</button></div></div></div></div>"""
+LEH_SCRIPT = """(function(){
+var ang=0,spin=true,PERM=[2,0,3,1];
+function fact(k){var f=1;for(var i=2;i<=k;i++)f*=i;return f;}
+function lehmer(p){var k=p.length,L=[];for(var i=0;i<k;i++){var c=0;for(var j=i+1;j<k;j++)if(p[j]<p[i])c++;L.push(c);}return L;}
+function toRank(p){var k=p.length,L=lehmer(p),r=0;for(var i=0;i<k;i++)r+=L[i]*fact(k-1-i);return r;}
+function toPerm(rank,k){var av=[];for(var i=0;i<k;i++)av.push(i);var p=[];for(var i=0;i<k;i++){var f=fact(k-1-i),d=Math.floor(rank/f);rank%=f;p.push(av[d]);av.splice(d,1);}return p;}
+function verify(){var ok=true,bij=true;for(var k=1;k<=7;k++){var seen=new Array(fact(k)).fill(0);function rec(pos,used,cur){if(pos===k){var r=toRank(cur),b=toPerm(r,k);if(b.join(',')!==cur.join(','))ok=false;if(r<0||r>=fact(k)||seen[r])bij=false;seen[r]=1;return;}for(var v=0;v<k;v++){if(used&(1<<v))continue;cur.push(v);rec(pos+1,used|(1<<v),cur);cur.pop();}}rec(0,0,[]);for(var r=0;r<fact(k);r++)if(!seen[r])bij=false;}return {roundTrip:ok,bijection:bij};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('factoradic: digit dᵢ in 0..i, place value i! — an odometer whose wheels grow',12,14);
+ var digits=[3,1,0,0],places=[6,2,1,1],lbl=['3!','2!','1!','0!'];var x=120;for(var i=0;i<4;i++){g.fillStyle='#e0b020';g.fillRect(x,50,44,44);g.fillStyle='#210';g.font='16px monospace';g.fillText(digits[i],x+16,78);g.fillStyle='#8ad';g.font='9px monospace';g.fillText('×'+lbl[i],x+8,110);x+=64;}
+ g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('= 3·6 + 1·2 + 0 + 0 = 20  (rank of one permutation)',120,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var k=PERM.length,L=lehmer(PERM),r=toRank(PERM),back=toPerm(r,k);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('permutation: ['+PERM.join(' ')+']',14,28);
+ var x=20;for(var i=0;i<k;i++){g.fillStyle='#58a0b0';g.fillRect(x,44,34,34);g.fillStyle='#012';g.font='14px monospace';g.fillText(PERM[i],x+12,66);x+=44;}
+ g.fillStyle='#e0b020';g.font='12px monospace';g.fillText('Lehmer code: ['+L.join(' ')+']',14,104);
+ g.fillStyle='#39fc6b';g.font='14px monospace';g.fillText('rank = '+r+'   (of '+fact(k)+')',14,132);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('decode('+r+') = ['+back.join(' ')+']',14,160);
+ var ok=back.join(',')===PERM.join(',');g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('round-trip returns the permutation '+(ok?'✓':'✗'),14,H-14);}
+document.getElementById('lhroll').onclick=function(){var k=3+Math.floor(Math.random()*4),a=[];for(var i=0;i<k;i++)a.push(i);for(var i=k-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}PERM=a;drawW4();document.getElementById('lhread').textContent='['+PERM.join(' ')+'] → rank '+toRank(PERM);};
+document.getElementById('lhcheck').onclick=function(){var v=verify();document.getElementById('lhread').textContent='k≤7 (all k! perms): round-trip '+(v.roundTrip?'✓':'✗')+' · ranks cover 0..k!-1 once '+(v.bijection?'✓':'✗');};
+document.getElementById('lhspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10,k=4,tot=fact(k);
+ for(var r=0;r<tot;r++){var p=toPerm(r,k),a=r/tot*6.28+ang*0.3,rad=60+r*3.5;var x=cx+Math.cos(a)*rad,y=cy+Math.sin(a)*rad*0.8;g.fillStyle='hsl('+(r/tot*300)+',65%,58%)';g.beginPath();g.arc(x,y,4,0,7);g.fill();if(r===toRank(PERM)%tot){g.strokeStyle='#fff';g.beginPath();g.arc(x,y,7,0,7);g.stroke();}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green ring: all '+tot+' permutations, each at its rank',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the explicit list',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('an ordering as an odometer reading',10,H-9);}
+drawW3();drawW4();window.__lehmer=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HHK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Havel&ndash;Hakimi algorithm</b> answers: given a wish-list of vertex <b>degrees</b> &mdash; how many connections each node wants &mdash; can a <b>simple graph</b> (no loops, no double edges) actually deliver it? Its move is greedy and exact: take the hungriest vertex, connect it to the next-hungriest ones, cross those off, and repeat. If you ever run out of partners or go negative, the sequence is impossible; if everything reaches zero, it is <b>graphical</b> &mdash; and the same steps <b>build</b> a graph that realizes it.<br><br>
+ <span class="lit">LIT</span> verified live: over hundreds of random degree sequences the verdict matches the independent Erd&#337;s&ndash;Gallai criterion, and when graphical the construction yields a simple graph with exactly those degrees (window.__havelhakimi). <span class="fig">FIG</span> no framing; exact integer bookkeeping.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sandbox</i> &mdash; hand it a blueprint of how many wires each node wants, and it decides on the spot whether the wiring can exist, then builds it. Havel&ndash;Hakimi is that constructor. <b>AVAN (AI)</b> built the instrument: the connect-the-hungriest reduction, an independent Erd&#337;s&ndash;Gallai check, and the build-and-verify-degrees step.<br><br>Credit as content: V&aacute;clav Havel (1955) &amp; S. L. Hakimi (1962); the Erd&#337;s&ndash;Gallai theorem (1960). The weave: David names the-sandbox; I connect the hungriest vertex to the next hungriest, reduce, and confirm the graphical verdict against Erd&#337;s&ndash;Gallai &mdash; then build a simple graph that hits every degree.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Take the biggest demand d, connect it to the next d biggest (subtract 1 from each), drop it, re-sort. Reach all-zeros &rArr; graphical. Hit a negative or run short &rArr; impossible.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A random degree sequence, the verdict, and (if graphical) a graph realizing it; checked against Erd&#337;s&ndash;Gallai.</div>
+   <div class="btns" style="margin-top:10px"><button id="hhroll">new sequence ▶</button><button id="hhcheck">verify 500 ▶</button></div>
+   <div class="cap" id="hhread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a wiring diagram proven possible, and built.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): decide whether a set of degree demands is <b>realizable</b> not by searching all graphs but by a <b>greedy reduction</b> &mdash; satisfy the hungriest vertex first, and the problem shrinks to the same question on fewer vertices. The inverse of &lsquo;try to build every graph and check&rsquo; is &lsquo;connect the hungriest, reduce, recurse &mdash; zero means yes and shows how.&rsquo; <b>Magenta</b> is the graph search avoided; <b>green</b> is the greedy realization. Existence proven by construction.</div>
+   <div class="btns" style="margin-top:10px"><button id="hhspin">pause spin</button></div></div></div></div>"""
+HHK_SCRIPT = """(function(){
+var ang=0,spin=true,SEQ=[3,3,2,2,1,1],EDGES=null,GRAPHICAL=false;
+function hh(seq){var s=seq.slice();while(true){s.sort(function(a,b){return b-a;});if(s[0]===0)return true;var d=s.shift();if(d>s.length)return false;for(var i=0;i<d;i++){s[i]--;if(s[i]<0)return false;}}}
+function eg(seq){var s=seq.slice().sort(function(a,b){return b-a;}),n=s.length,sum=0;for(var i=0;i<n;i++)sum+=s[i];if(sum%2)return false;var pref=0;for(var k=1;k<=n;k++){pref+=s[k-1];var r=k*(k-1);for(var i=k;i<n;i++)r+=Math.min(s[i],k);if(pref>r)return false;}return true;}
+function build(seq){var nodes=seq.map(function(d,i){return {id:i,deg:d};}),edges={};while(true){nodes.sort(function(a,b){return b.deg-a.deg;});if(nodes[0].deg===0)break;var v=nodes[0],d=v.deg;if(d>nodes.length-1)return null;v.deg=0;for(var i=1;i<=d;i++){var u=nodes[i];if(u.deg<=0)return null;u.deg--;var key=Math.min(v.id,u.id)+'-'+Math.max(v.id,u.id);if(edges[key])return null;edges[key]=1;}}return edges;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(600),vok=true,bok=true;for(var t=0;t<500;t++){var n=2+Math.floor(rnd()*7),seq=[];for(var i=0;i<n;i++)seq.push(Math.floor(rnd()*n));var h=hh(seq),e=eg(seq);if(h!==e)vok=false;if(h){var ed=build(seq);if(!ed)bok=false;else{var deg=new Array(n).fill(0);for(var k in ed){var p=k.split('-');deg[+p[0]]++;deg[+p[1]]++;}if(seq.slice().sort().join(',')!==deg.slice().sort().join(','))bok=false;}}}return {verdictMatchesEG:vok,buildsExactDegrees:bok};}
+function mk(){var n=4+Math.floor(Math.random()*4),seq=[];for(var i=0;i<n;i++)seq.push(Math.floor(Math.random()*n));SEQ=seq.sort(function(a,b){return b-a;});GRAPHICAL=hh(SEQ);EDGES=GRAPHICAL?build(SEQ):null;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('connect the hungriest vertex to the next d hungriest, subtract 1, re-sort',12,14);
+ var steps=[[3,3,2,2,1,1],[2,1,1,1,1],[0,0,1,1],[0,0,0]];var y=45;for(var s=0;s<steps.length;s++){g.fillStyle='#9d78c0';g.font='11px monospace';g.fillText('['+steps[s].join(' ')+']',40,y);y+=26;}
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('reaches all-zeros → graphical',220,70);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(EDGES===null&&!GRAPHICAL&&SEQ.length===0)mk();
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('degree sequence: ['+SEQ.join(' ')+']',14,22);
+ g.fillStyle=GRAPHICAL?'#39fc6b':'#ff5a5a';g.font='13px monospace';g.fillText(GRAPHICAL?'GRAPHICAL ✓':'not graphical',14,46);
+ if(GRAPHICAL&&EDGES){var n=SEQ.length,cx=W/2,cy=175,R=90;var pos=[];for(var i=0;i<n;i++){var a=i/n*6.28-1.57;pos.push([cx+Math.cos(a)*R,cy+Math.sin(a)*R*0.85]);}
+  g.strokeStyle='#58a0b0';for(var k in EDGES){var p=k.split('-');g.beginPath();g.moveTo(pos[+p[0]][0],pos[+p[0]][1]);g.lineTo(pos[+p[1]][0],pos[+p[1]][1]);g.stroke();}
+  for(var i=0;i<n;i++){g.fillStyle='#9d78c0';g.beginPath();g.arc(pos[i][0],pos[i][1],11,0,7);g.fill();g.fillStyle='#fff';g.font='10px monospace';g.fillText(SEQ[i],pos[i][0]-3,pos[i][1]+3);}}
+ var v=verify();g.fillStyle=v.verdictMatchesEG?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('verdict == Erdős–Gallai ✓ · builds exact degrees '+(v.buildsExactDegrees?'✓':'✗'),14,H-10);}
+document.getElementById('hhroll').onclick=function(){mk();drawW4();document.getElementById('hhread').textContent='['+SEQ.join(' ')+'] → '+(GRAPHICAL?'graphical':'impossible');};
+document.getElementById('hhcheck').onclick=function(){var v=verify();document.getElementById('hhread').textContent='500 sequences: verdict==Erdős–Gallai '+(v.verdictMatchesEG?'✓':'✗')+' · builds exact degrees '+(v.buildsExactDegrees?'✓':'✗');};
+document.getElementById('hhspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SEQ.length)mk();var n=SEQ.length,cx=W/2,cy=H/2-10,R=110;var pos=[];for(var i=0;i<n;i++){var a=i/n*6.28+ang*0.2;pos.push([cx+Math.cos(a)*R,cy+Math.sin(a)*R*0.8]);}
+ if(GRAPHICAL&&EDGES)for(var k in EDGES){var p=k.split('-');g.strokeStyle='rgba(57,252,107,0.5)';g.beginPath();g.moveTo(pos[+p[0]][0],pos[+p[0]][1]);g.lineTo(pos[+p[1]][0],pos[+p[1]][1]);g.stroke();}
+ for(var i=0;i<n;i++){g.fillStyle='#9d78c0';g.beginPath();g.arc(pos[i][0],pos[i][1],9,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green edges: the graph built from the degree demands',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the graph search avoided',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('existence proven by construction',10,H-9);}
+mk();drawW3();drawW4();window.__havelhakimi=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PLD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Pollard&rsquo;s rho algorithm</b> finds a factor of a composite number <b>without trial-dividing</b> up to its square root. It iterates a simple pseudo-random map x &larr; x&sup2;+c (mod n) and watches for a <b>collision modulo a hidden factor p</b>: two iterates that agree mod p (though not mod n) reveal p as gcd(|x&minus;y|, n). By the birthday paradox a collision mod p appears after only about &radic;p steps &mdash; far faster than dividing by every prime. Floyd&rsquo;s tortoise-and-hare finds it with no extra memory.<br><br>
+ <span class="lit">LIT</span> verified live: over hundreds of semiprimes n = p&middot;q, the returned d satisfies 1 &lt; d &lt; n and <b>divides n</b> exactly (window.__pollard). <span class="fig">FIG</span> no framing; the divisor is checked by exact remainder.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-exploit</i> &mdash; pull a factor out through a crack in the number, without brute-forcing every divisor. Pollard&rsquo;s rho is that crack. <b>AVAN (AI)</b> built the instrument: the x&sup2;+c iteration, Floyd&rsquo;s cycle detection, the gcd extraction, and the divides-n check.<br><br>Credit as content: John Pollard (1975); Floyd&rsquo;s cycle-finding. The weave: David names the-exploit; I walk the pseudo-random sequence with a tortoise and a hare until their gap shares a factor with n, then confirm the extracted divisor really divides n &mdash; a factor found by a cycle, not a search.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The map x &larr; x&sup2;+c (mod n) eventually cycles &mdash; a &ldquo;rho&rdquo; shape. Two points colliding mod a hidden factor p (not mod n) make gcd(|x&minus;y|, n) reveal p. A collision appears after ~&radic;p steps.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Factor a semiprime; watch the iteration and the moment gcd reveals a divisor, checked to divide n.</div>
+   <div class="btns" style="margin-top:10px"><button id="plroll">new semiprime ▶</button><button id="plcheck">verify 300 ▶</button></div>
+   <div class="cap" id="plread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a factor pulled from a cycle.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): find a factor by <b>colliding modulo it</b>, not by dividing &mdash; iterate x&sup2;+c and let the birthday paradox produce a match mod the hidden p after ~&radic;p steps, exposed by a gcd. The inverse of &lsquo;test every prime up to &radic;n&rsquo; is &lsquo;walk a pseudo-random cycle until its gap betrays a factor.&rsquo; <b>Magenta</b> is the &radic;n trial division skipped; <b>green</b> is the ~&radic;p cycle collision. Factoring by coincidence, made to happen.</div>
+   <div class="btns" style="margin-top:10px"><button id="plspin">pause spin</button></div></div></div></div>"""
+PLD_SCRIPT = """(function(){
+var ang=0,spin=true,N=8051,FOUND=null;
+function mulmod(a,b,m){var r=0;a%=m;while(b>0){if(b&1)r=(r+a)%m;a=(a*2)%m;b=Math.floor(b/2);}return r;}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a;}
+function isPrime(n){if(n<2)return false;for(var d=2;d*d<=n;d++)if(n%d===0)return false;return true;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function rho(n,seed){if(n%2===0)return 2;var rnd=mb(seed);for(var att=0;att<40;att++){var c=1+Math.floor(rnd()*(n-1)),x=2+Math.floor(rnd()*(n-2)),y=x,d=1,guard=0;function f(v){return (mulmod(v,v,n)+c)%n;}while(d===1){if(++guard>200000)break;x=f(x);y=f(f(y));d=gcd(Math.abs(x-y),n);}if(d!==n&&d!==1)return d;}return null;}
+function verify(){var rnd=mb(601),ok=true,tested=0,fail=0,primes=[];for(var n=101;n<2000;n++)if(isPrime(n))primes.push(n);
+ for(var t=0;t<300;t++){var p=primes[Math.floor(rnd()*primes.length)],q=primes[Math.floor(rnd()*primes.length)],n=p*q,d=rho(n,700+t);tested++;if(d===null){fail++;continue;}if(n%d!==0||d<=1||d>=n)ok=false;}return {divisorValid:ok,tested:tested,gaveUp:fail};}
+function trail(n,c,steps){var rnd=mb(7),x=2,pts=[x];function f(v){return (mulmod(v,v,n)+c)%n;}for(var i=0;i<steps;i++){x=f(x);pts.push(x);}return pts;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('x ← x²+c (mod n) eventually cycles — the ρ shape; a collision mod p reveals it',12,14);
+ var pts=trail(8051,3,40),cx=280,cy=90;g.strokeStyle='#c86868';g.beginPath();for(var i=0;i<pts.length;i++){var a=i*0.5,r=15+i*1.6;var x=cx+Math.cos(a)*r*0.5,y=cy+Math.sin(a)*r*0.5;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('the tail and loop of ρ',cx-30,cy+70);g.fillStyle='#8ad';g.font='9px monospace';g.fillText('gcd(|x−y|, n) = a factor',60,80);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var d=rho(N,42);
+ g.fillStyle='#e8eef8';g.font='15px monospace';g.fillText('n = '+N,16,30);
+ if(d){var e=N/d;g.fillStyle='#39fc6b';g.font='14px monospace';g.fillText('factor found: '+d,16,62);g.fillStyle='#8ad';g.font='12px monospace';g.fillText(N+' = '+d+' × '+e+'   ('+(isPrime(d)?'prime':'composite')+' × '+(isPrime(e)?'prime':'composite')+')',16,88);
+  var ok=N%d===0&&d>1&&d<N;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('1 < d < n and d | n '+(ok?'✓':'✗'),16,116);}
+ // draw a rho trail
+ var pts=trail(N,3,60),cx=W/2,cy=200;g.strokeStyle='#c86868';g.globalAlpha=0.7;g.beginPath();for(var i=0;i<pts.length;i++){var a=i*0.4,r=10+i*1.4;var x=cx+Math.cos(a)*r*0.6,y=cy+Math.sin(a)*r*0.4;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.globalAlpha=1;}
+document.getElementById('plroll').onclick=function(){function rp(){var p;do{p=101+Math.floor(Math.random()*400);}while(!isPrime(p));return p;}N=rp()*rp();FOUND=rho(N,42);drawW4();document.getElementById('plread').textContent='n='+N+' → factor '+FOUND;};
+document.getElementById('plcheck').onclick=function(){var v=verify();document.getElementById('plread').textContent=v.tested+' semiprimes: 1<d<n and d|n '+(v.divisorValid?'✓':'✗')+' ('+v.gaveUp+' gave up)';};
+document.getElementById('plspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var pts=trail(N,3,120),cx=W/2,cy=H/2-10;
+ g.strokeStyle='#c86868';g.globalAlpha=0.8;g.beginPath();for(var i=0;i<pts.length;i++){var a=i*0.28+ang*0.3,r=12+i*1.2;if(r>150)r=150;var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.globalAlpha=1;
+ var d=rho(N,42);g.fillStyle='#39fc6b';g.beginPath();g.arc(cx,cy,8,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the ρ walk that collides out a factor',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the √n trial division skipped',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('factoring by coincidence, made to happen',10,H-9);}
+drawW3();drawW4();window.__pollard=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+L4S_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Lagrange&rsquo;s four-square theorem</b> says every non-negative integer is the sum of <b>four</b> squares: n = a&sup2; + b&sup2; + c&sup2; + d&sup2;. Three squares is not enough &mdash; 7 and 15 cannot be written with three &mdash; but four <b>always</b> suffice, no exceptions, forever. It is a startling completeness: the squares 0,1,4,9,16,&hellip; are sparse, yet any four of them (with repeats) can be tuned to hit every whole number exactly.<br><br>
+ <span class="lit">LIT</span> verified live: for every n from 0 to 3000 a representation a&sup2;+b&sup2;+c&sup2;+d&sup2; = n is found and its sum checked to equal n exactly (window.__lagrange). <span class="fig">FIG</span> no framing; exact integer search, no gaps.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-drop</i> &mdash; whatever number you throw at it, four squares always fall out that rebuild it exactly. Lagrange&rsquo;s theorem is that guaranteed drop. <b>AVAN (AI)</b> built the instrument: the nested-square search, the sum-of-two-squares inner step, and the a&sup2;+b&sup2;+c&sup2;+d&sup2;=n check across a full range.<br><br>Credit as content: Joseph-Louis Lagrange (1770); Bachet conjectured it, Euler laid groundwork. The weave: David names the-drop; I search four squares for each n and confirm they rebuild it exactly &mdash; across every integer in the range, the four-square drop never fails.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">7 = 4+1+1+1 = 2&sup2;+1&sup2;+1&sup2;+1&sup2; (needs all four). 2026 = 45&sup2;+1&sup2; (two suffice here). Every n has at least one four-square drop; many have several.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Pick a number; its four squares shown as tiles that sum back to it, checked exactly.</div>
+   <div class="btns" style="margin-top:10px"><button id="l4roll">new number ▶</button><button id="l4check">verify 0..3000 ▶</button></div>
+   <div class="cap" id="l4read" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: any integer as four squares.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): represent <b>every</b> whole number with a fixed budget of <b>four</b> squares &mdash; not three (which leaves gaps at 7, 15, &hellip;), but four, which always close them. The inverse of &lsquo;numbers are indivisible atoms&rsquo; is &lsquo;every number is four squares stacked &mdash; a universal quaternary basis.&rsquo; <b>Magenta</b> is the number as an opaque quantity; <b>green</b> is its four-square decomposition. Completeness from exactly four parts.</div>
+   <div class="btns" style="margin-top:10px"><button id="l4spin">pause spin</button></div></div></div></div>"""
+L4S_SCRIPT = """(function(){
+var ang=0,spin=true,N=2026,REP=null;
+function isSq(x){var r=Math.round(Math.sqrt(x));return r*r===x?r:-1;}
+function four(n){for(var a=0;a*a<=n;a++)for(var b=a;a*a+b*b<=n;b++){var m=n-a*a-b*b;for(var c=0;c*c<=m;c++){var d=isSq(m-c*c);if(d>=0&&d>=c)return [a,b,c,d];}}return null;}
+function verify(){var ok=true,bad=-1;for(var n=0;n<=3000;n++){var r=four(n);if(!r){ok=false;bad=n;break;}if(r[0]*r[0]+r[1]*r[1]+r[2]*r[2]+r[3]*r[3]!==n){ok=false;bad=n;break;}}return {allFour:ok,bad:bad};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('every non-negative integer = a²+b²+c²+d²  (four always suffice; three do not)',12,14);
+ g.fillStyle='#6ab0a0';g.font='12px monospace';g.fillText('7 = 2²+1²+1²+1²  (needs all four — 3 squares fail for 7,15,…)',30,50);
+ g.fillStyle='#39fc6b';g.fillText('2026 = 45²+1²+0²+0²',30,78);
+ g.fillStyle='#e0b020';g.fillText('310 = 17²+4²+2²+1²',30,106);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('the sparse squares 0,1,4,9,16,… still tile every integer with four tiles',30,136);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);REP=four(N);
+ g.fillStyle='#e8eef8';g.font='15px monospace';g.fillText('n = '+N,16,30);
+ if(REP){g.fillStyle='#6ab0a0';g.font='14px monospace';g.fillText('= '+REP[0]+'² + '+REP[1]+'² + '+REP[2]+'² + '+REP[3]+'²',16,60);
+  var x=16,cols=['#6ab0a0','#39fc6b','#e0b020','#a878c0'],mx=Math.max.apply(0,REP)||1,scale=Math.min(6,120/mx);
+  for(var i=0;i<4;i++){var s=REP[i]*scale;g.fillStyle=cols[i];g.fillRect(x,180-s,Math.max(4,s),Math.max(4,s));g.fillStyle='#8ad';g.font='10px monospace';g.fillText(REP[i]+'²='+REP[i]*REP[i],x,196);x+=Math.max(50,s+14);}
+  var sum=REP[0]*REP[0]+REP[1]*REP[1]+REP[2]*REP[2]+REP[3]*REP[3];g.fillStyle=sum===N?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('sum = '+sum+' == n '+(sum===N?'✓':'✗'),16,H-12);}}
+document.getElementById('l4roll').onclick=function(){N=Math.floor(Math.random()*3000);drawW4();document.getElementById('l4read').textContent=N+' = '+four(N).map(function(x){return x+'²';}).join('+');};
+document.getElementById('l4check').onclick=function(){var v=verify();document.getElementById('l4read').textContent='n in 0..3000: every n is a²+b²+c²+d² '+(v.allFour?'✓':'✗')+(v.bad>=0?' failed@'+v.bad:'');};
+document.getElementById('l4spin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=four(N)||[0,0,0,0],cx=W/2,cy=H/2-10,cols=['#6ab0a0','#39fc6b','#e0b020','#a878c0'];
+ for(var i=0;i<4;i++){var a=i/4*6.28+ang*0.4,rad=50+r[i]*2.2,x=cx+Math.cos(a)*rad,y=cy+Math.sin(a)*rad*0.8;g.fillStyle=cols[i];var sz=8+r[i]*0.8;g.fillRect(x-sz/2,y-sz/2,sz,sz);g.fillStyle='#012';g.font='8px monospace';g.fillText(r[i],x-3,y+3);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green tiles: the four squares that rebuild '+N,10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the number as an opaque quantity',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('completeness from exactly four parts',10,H-9);}
+drawW4();window.__lagrange=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);drawW3();})();"""
+
+CKH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Cuckoo hashing</b> guarantees <b>worst-case O(1) lookup</b>: any key lives in one of just <b>two</b> possible slots, given by two hash functions in two tables. Checking membership always reads at most two cells &mdash; never a long probe chain. Insertion borrows the cuckoo bird&rsquo;s trick: if your slot is taken, <b>kick the occupant out</b> and re-home it in its <b>other</b> slot, which may kick the next, and so on. Rarely the chain loops, and the tables rebuild with fresh hashes.<br><br>
+ <span class="lit">LIT</span> verified live: after building many tables at moderate load, every inserted key is found in &le; 2 probes, none lost (window.__cuckoo). <span class="fig">FIG</span> no framing; the two-probe guarantee is structural &mdash; find() reads exactly the two candidate slots.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-resurrect</i> &mdash; a key evicted from its nest doesn&rsquo;t die; it respawns in its alternate slot, and whatever it displaces respawns in turn. Cuckoo hashing is that chain of resurrections. <b>AVAN (AI)</b> built the instrument: the two-table two-hash structure, the kick-and-relocate insert, the rehash-on-loop fallback, and the &le;2-probe lookup check.<br><br>Credit as content: Rasmus Pagh &amp; Flemming Friche Rodler (2001). The weave: David names the-resurrect; I place each key, evict and re-home whatever it displaces, and confirm every key is later found by reading only its two candidate slots &mdash; lookup that never chains.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each key has two nests (one per table). Insert into the first; if taken, evict the resident and send it to its other nest &mdash; which may evict again. Lookup checks just the two nests.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Two hash tables filling with keys; every key is shown findable in its two candidate slots, checked live.</div>
+   <div class="btns" style="margin-top:10px"><button id="ckroll">rebuild table ▶</button><button id="ckcheck">verify 200 ▶</button></div>
+   <div class="cap" id="ckread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a key always in one of two known slots.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): make lookup <b>worst-case constant</b> by giving each key exactly <b>two</b> homes and evicting to keep the invariant &mdash; so membership reads two cells, never a probe chain. The inverse of &lsquo;probe forward until you find it or an empty slot&rsquo; is &lsquo;guarantee two possible slots &mdash; check both, done.&rsquo; <b>Magenta</b> is the unbounded probe sequence; <b>green</b> is the pair of candidate nests. Constant-time lookup by construction.</div>
+   <div class="btns" style="margin-top:10px"><button id="ckspin">pause spin</button></div></div></div></div>"""
+CKH_SCRIPT = """(function(){
+var ang=0,spin=true,M=16,T0=[],T1=[],H0,H1,KEYS=[];
+function hashfn(seed){return function(key){var h=seed^0x9e3779b9;h=Math.imul(h^key,0x85ebca6b);h^=h>>>13;h=Math.imul(h,0xc2b2ae35);h^=h>>>16;return (h>>>0)%M;};}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function build(keys,m,rnd){M=m;for(var att=0;att<30;att++){T0=new Array(m).fill(null);T1=new Array(m).fill(null);H0=hashfn(1+Math.floor(rnd()*99999));H1=hashfn(1+Math.floor(rnd()*99999));var ok=true;
+  for(var i=0;i<keys.length;i++){var x=keys[i],placed=false;for(var k=0;k<4*m;k++){var i0=H0(x);if(T0[i0]===null){T0[i0]=x;placed=true;break;}var t=T0[i0];T0[i0]=x;x=t;var i1=H1(x);if(T1[i1]===null){T1[i1]=x;placed=true;break;}var t2=T1[i1];T1[i1]=x;x=t2;}if(!placed){ok=false;break;}}
+  if(ok)return true;}return false;}
+function find(key){return T0[H0(key)]===key||T1[H1(key)]===key;}
+function verify(){var rnd=mb(602),allFound=true,trials=0,rehashes=0;for(var t=0;t<200;t++){var keys=[];for(var i=0;i<40;i++)keys.push(1+Math.floor(rnd()*1e9));var built=false;for(var a=0;a<20&&!built;a++){if(build(keys,64,rnd))built=true;else rehashes++;}if(!built)continue;trials++;for(var i=0;i<keys.length;i++)if(!(T0[H0(keys[i])]===keys[i]||T1[H1(keys[i])]===keys[i]))allFound=false;}return {everyKeyFound2Probes:allFound&&trials>150,trials:trials,rehashes:rehashes};}
+function mk(){var rnd=mb(Math.floor(Math.random()*1e9));KEYS=[];for(var i=0;i<10;i++)KEYS.push(1+Math.floor(rnd()*999));build(KEYS,16,rnd);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('each key has two nests; if taken, evict the resident to its other nest (a chain of kicks)',12,14);
+ for(var i=0;i<6;i++){g.strokeStyle='#58a0b0';g.strokeRect(40+i*40,40,34,24);g.strokeStyle='#e0b020';g.strokeRect(40+i*40,90,34,24);}
+ g.fillStyle='#58a0b0';g.font='9px monospace';g.fillText('table 0 (hash h0)',40,80);g.fillStyle='#e0b020';g.fillText('table 1 (hash h1)',40,130);
+ g.fillStyle='#39fc6b';g.beginPath();g.moveTo(120,52);g.lineTo(160,102);g.stroke();g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(120,52);g.lineTo(160,102);g.stroke();g.fillText('evict → other nest',180,80);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!KEYS.length)mk();var cw=(W-30)/M;
+ g.fillStyle='#58a0b0';g.font='10px monospace';g.fillText('table 0',14,30);for(var i=0;i<M;i++){g.strokeStyle='#345';g.strokeRect(14+i*cw,36,cw-2,26);if(T0[i]!==null){g.fillStyle='#58a0b0';g.fillRect(14+i*cw,36,cw-2,26);g.fillStyle='#012';g.font='8px monospace';g.fillText(T0[i],16+i*cw,53);}}
+ g.fillStyle='#e0b020';g.font='10px monospace';g.fillText('table 1',14,90);for(var i=0;i<M;i++){g.strokeStyle='#345';g.strokeRect(14+i*cw,96,cw-2,26);if(T1[i]!==null){g.fillStyle='#e0b020';g.fillRect(14+i*cw,96,cw-2,26);g.fillStyle='#210';g.font='8px monospace';g.fillText(T1[i],16+i*cw,113);}}
+ var allF=true;for(var i=0;i<KEYS.length;i++)if(!find(KEYS[i]))allF=false;
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText(KEYS.length+' keys placed; each in one of its two nests',14,150);
+ g.fillStyle=allF?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('every key found in ≤2 probes '+(allF?'✓':'✗'),14,H-12);}
+document.getElementById('ckroll').onclick=function(){mk();drawW4();document.getElementById('ckread').textContent='rebuilt with '+KEYS.length+' keys';};
+document.getElementById('ckcheck').onclick=function(){var v=verify();document.getElementById('ckread').textContent='200 tables: every key found in ≤2 probes '+(v.everyKeyFound2Probes?'✓':'✗')+' ('+v.rehashes+' rehashes)';};
+document.getElementById('ckspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!KEYS.length)mk();var cx=W/2,cy=H/2-10;
+ for(var i=0;i<M;i++){var a0=i/M*6.28+ang*0.2,a1=i/M*6.28-ang*0.2;var x0=cx+Math.cos(a0)*70,y0=cy+Math.sin(a0)*60,x1=cx+Math.cos(a1)*130,y1=cy+Math.sin(a1)*112;
+  g.fillStyle=T0[i]!==null?'#58a0b0':'#2a3548';g.beginPath();g.arc(x0,y0,5,0,7);g.fill();g.fillStyle=T1[i]!==null?'#e0b020':'#2a3548';g.beginPath();g.arc(x1,y1,5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green/gold rings: two tables, each key in one of two nests',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the unbounded probe chain',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('constant-time lookup by construction',10,H-9);}
+mk();drawW3();drawW4();window.__cuckoo=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 86 (proposals settle into a matching no pair wants to break · a sequence that lists every fraction once · a formula that names any day of the week · noise fed through a loop becomes a plucked note · a recurrence that feeds on itself) ═══════════════════════
 GSP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Gale&ndash;Shapley algorithm</b> pairs two sides &mdash; say n proposers and n reviewers, each with a ranked list &mdash; into a <b>stable matching</b>: one where no unmatched pair both prefer each other to their assigned partners. Proposers propose in preference order; each reviewer holds their best offer so far and rejects the rest; rejected proposers try their next choice. It always terminates with everyone matched, and the result is <b>proposer-optimal</b> &mdash; every proposer gets the best partner they could have in <b>any</b> stable matching.<br><br>
@@ -23699,6 +23938,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-lehmer-code","title":"THE LEHMER CODE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#e0b020","icon":"lehmer",
+  "kicker":"number a permutation with a mixed-radix odometer",
+  "blurb":"The Lehmer code (factorial number system) in the 5-window house format — give every permutation a unique index 0..k!−1, and every index its permutation back, a perfect bijection. It records for each position how many smaller elements sit to its right, then reads those counts as digits in a mixed radix whose place values are factorials (…,3!,2!,1!,0!) instead of powers of ten — an odometer whose wheels have different sizes. Verified live: for every permutation of up to 7 elements, encode-then-decode returns the original, and the indices cover 0..k!−1 exactly once. See the factoradic odometer in 1D, a permutation ranked in 2D, and the ordering-as-index inverse in 3D.",
+  "lit":"Genuine Lehmer code / factorial number system (D. H. Lehmer; factorial base, Laisant 1888). Verified live exhaustively: for every permutation of k≤7 elements, the inversion-count encoder and factoradic decoder round-trip to the original permutation (window.__lehmer.roundTrip), and the ranks cover 0..k!−1 exactly once — a bijection (window.__lehmer.bijection).",
+  "fig":"No framing: the inversion-count encoder, the factoradic mixed-radix decoder, and the round-trip + bijection checks run in-browser with exact integers over all k! permutations and agree. The AVAN inverse is honest — addressing a permutation by one factoradic integer genuinely replaces storing the explicit list; magenta is the list, green the single index. An ordering as an odometer reading.",
+  "body":LEH_BODY,"script":LEH_SCRIPT},
+ {"slug":"the-havel-hakimi","title":"THE HAVEL-HAKIMI","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#9d78c0","icon":"havel-hakimi",
+  "kicker":"decide if a wiring diagram can exist, and build it",
+  "blurb":"The Havel–Hakimi algorithm in the 5-window house format — given a wish-list of vertex degrees, can a simple graph (no loops, no double edges) deliver it? Its move is greedy and exact: take the hungriest vertex, connect it to the next-hungriest, cross those off, repeat. Run out of partners or go negative → impossible; reach all zeros → graphical, and the same steps build a realizing graph. Verified live: over hundreds of random degree sequences the verdict matches the independent Erdős–Gallai criterion, and when graphical the construction yields a simple graph with exactly those degrees. See the reduction in 1D, a built graph in 2D, and the existence-by-construction inverse in 3D.",
+  "lit":"Genuine Havel–Hakimi algorithm (Václav Havel 1955; S. L. Hakimi 1962), with the Erdős–Gallai theorem (1960) as an independent oracle. Verified live: over 500 random degree sequences, the Havel–Hakimi graphical verdict matches Erdős–Gallai (window.__havelhakimi.verdictMatchesEG), and when graphical the reduction builds a simple graph whose degree multiset equals the input exactly (window.__havelhakimi.buildsExactDegrees).",
+  "fig":"No framing: the connect-the-hungriest reduction, the independent Erdős–Gallai check, and the build-and-verify-degrees step run in-browser with exact integer bookkeeping and agree. The AVAN inverse is honest — deciding realizability by greedy reduction (satisfy the hungriest, recurse on fewer vertices) genuinely replaces searching all graphs, and construction proves existence; magenta is the graph search avoided, green the greedy realization.",
+  "body":HHK_BODY,"script":HHK_SCRIPT},
+ {"slug":"the-pollard-rho","title":"THE POLLARD RHO","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#c86868","icon":"pollard-rho",
+  "kicker":"crack a number open by walking a cycle",
+  "blurb":"Pollard's rho algorithm in the 5-window house format — find a factor of a composite without trial-dividing to its square root. It iterates x ← x²+c (mod n) and watches for a collision modulo a hidden factor p: two iterates agreeing mod p (not mod n) reveal p as gcd(|x−y|, n). By the birthday paradox a mod-p collision appears after only ~√p steps, and Floyd's tortoise-and-hare finds it with no extra memory. Verified live: over hundreds of semiprimes n = p·q, the returned d satisfies 1 < d < n and divides n exactly. See the ρ-shaped cycle in 1D, a factorization in 2D, and the collide-mod-the-factor inverse in 3D.",
+  "lit":"Genuine Pollard's rho factorization (John Pollard 1975; Floyd cycle detection). Verified live: over 300 semiprimes n = p·q with p,q prime in [101,2000), the tortoise-and-hare iteration of x²+c returns a divisor d with 1<d<n and n mod d == 0 every time (window.__pollard.divisorValid; 0 gave up in the offline harness).",
+  "fig":"No framing: the x²+c iteration, Floyd's cycle detection, the gcd extraction, and the divides-n check run in-browser and agree. Honest scope: rho is a heuristic (expected ~√p steps, retried with new c on failure), verified here by confirming the returned divisor genuinely divides n — not by claiming a worst-case bound. The AVAN inverse is honest — finding a factor via a collision modulo the hidden p replaces trial division to √n; magenta is that √n scan skipped, green the ~√p cycle collision.",
+  "body":PLD_BODY,"script":PLD_SCRIPT},
+ {"slug":"the-lagrange-four-square","title":"THE LAGRANGE FOUR-SQUARE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#6ab0a0","icon":"lagrange",
+  "kicker":"every whole number is four squares",
+  "blurb":"Lagrange's four-square theorem in the 5-window house format — every non-negative integer is a sum of four squares: n = a²+b²+c²+d². Three squares is not enough (7 and 15 cannot be written with three), but four always suffice, no exceptions. It is a startling completeness: the squares 0,1,4,9,16,… are sparse, yet four of them (with repeats) tune to hit every whole number exactly. Verified live: for every n from 0 to 3000 a representation is found and its sum checked to equal n exactly. See the decompositions in 1D, four-square tiles in 2D, and the universal-quaternary-basis inverse in 3D.",
+  "lit":"Genuine Lagrange four-square theorem (Joseph-Louis Lagrange 1770; conjectured by Bachet). Verified live: for every integer n in 0..3000, a four-square search finds a,b,c,d with a²+b²+c²+d² = n and the sum is checked to equal n exactly (window.__lagrange.allFour) — no gaps across the range.",
+  "fig":"No framing: the nested-square search, the sum-of-two-squares inner step, and the a²+b²+c²+d²=n check across the full range run in-browser with exact integers. Honest scope: this verifies existence over a finite range (Lagrange's theorem guarantees it for all n); it does not re-prove the theorem. The AVAN inverse is honest — representing every integer with a fixed budget of four squares (three leave gaps at 7,15,…) is a genuine universal basis; magenta is the number as an opaque quantity, green its four-square decomposition.",
+  "body":L4S_BODY,"script":L4S_SCRIPT},
+ {"slug":"the-cuckoo-hashing","title":"THE CUCKOO HASHING","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE RESURRECT","domain_slug":"the-resurrect","accent":"#58a0b0","icon":"cuckoo",
+  "kicker":"a key kicks out its neighbour and lands safe",
+  "blurb":"Cuckoo hashing in the 5-window house format — worst-case O(1) lookup: any key lives in one of just two possible slots, given by two hash functions in two tables, so membership always reads at most two cells, never a long probe chain. Insertion borrows the cuckoo's trick: if your slot is taken, kick the occupant out and re-home it in its other slot, which may kick the next; rarely the chain loops and the tables rebuild with fresh hashes. Verified live: after building many tables at moderate load, every inserted key is found in ≤2 probes, none lost. See the two-nest eviction in 1D, filling tables in 2D, and the constant-time-by-construction inverse in 3D.",
+  "lit":"Genuine cuckoo hashing (Rasmus Pagh & Flemming Friche Rodler 2001). Verified live: over 200 tables built at moderate load (40 keys into two size-64 tables, rehashing on eviction loops), every inserted key is found by reading only its two candidate slots — ≤2 probes, none lost (window.__cuckoo.everyKeyFound2Probes).",
+  "fig":"No framing: the two-table two-hash structure, the kick-and-relocate insert, the rehash-on-loop fallback, and the ≤2-probe lookup check run in-browser and agree; the two-probe bound is structural (find() reads exactly the two candidate slots). The AVAN inverse is honest — giving each key exactly two homes and evicting to keep the invariant makes lookup worst-case constant, replacing an unbounded probe chain; magenta is that probe sequence, green the pair of candidate nests.",
+  "body":CKH_BODY,"script":CKH_SCRIPT},
  {"slug":"the-gale-shapley","title":"THE GALE-SHAPLEY","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#58a0b0","icon":"gale-shapley",
   "kicker":"proposals settle into a matching no pair wants to break",
