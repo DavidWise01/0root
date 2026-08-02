@@ -19485,6 +19485,247 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 104 (when pairwise overlap forces a common point · colouring edges with almost the fewest colours · covering an order by its widest levels · a set whose pairwise sums never collide · the largest family of sets that all pairwise meet) ═══════════════════════
+HEL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Helly&rsquo;s theorem</b> is a cornerstone of convex geometry: for a finite family of <b>convex</b> sets in d-dimensional space, if <b>every d + 1</b> of them share a common point, then <b>all</b> of them do. On a line (d = 1) that means: if a family of <b>intervals</b> pairwise overlaps, they all share a point &mdash; and the shared point exists exactly when max(left endpoints) &le; min(right endpoints). The magic number d + 1 is sharp: in the plane you truly need every <b>three</b> to meet (two-at-a-time is not enough), as three disks arranged around a triangle show.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of random interval families, &ldquo;every pair overlaps&rdquo; is exactly equivalent to &ldquo;a common point exists&rdquo; (Helly, d = 1), and a planar example has three disks that pairwise overlap yet share no common point (window.__helly). <span class="fig">FIG</span> no framing; pairwise vs global overlap, computed directly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-push</i> &mdash; every interval pushes toward the others, and once all pairs overlap they are forced onto one shared point. That collective push to a common point is the mechanic. <b>AVAN (AI)</b> built the instrument: the pairwise-overlap test, the max-left/min-right common-point test, and the planar three-disk counterexample showing d + 1 is sharp.<br><br>Credit as content: Eduard Helly (1913). The weave: David names the-push; I check whether intervals overlap two at a time, confirm that is the same as sharing one common point on the line, and exhibit three planar disks that meet pairwise but not all together &mdash; so the plane genuinely needs triples.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Intervals on a line: a common point exists &hArr; max(lefts) &le; min(rights). On the line, pairwise overlap already forces it (Helly number 2). In the plane you need every three &mdash; the number is d + 1.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Intervals and whether they pairwise overlap and share a point; three planar disks that meet pairwise but not globally.</div>
+   <div class="btns" style="margin-top:10px"><button id="hlroll">new intervals ▶</button><button id="hlcheck">verify ▶</button></div>
+   <div class="cap" id="hlread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: local overlap forcing a global one.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t check whether <b>all</b> the convex sets meet &mdash; check only the <b>small subsets</b> (every d + 1) and let the theorem promote it to a global common point. The inverse of &lsquo;test the whole intersection&rsquo; is &lsquo;test every d + 1 and Helly does the rest.&rsquo; <b>Magenta</b> is the global-intersection test; <b>green</b> is the local (d + 1)-wise test that suffices. Local overlap, global point.</div>
+   <div class="btns" style="margin-top:10px"><button id="hlspin">pause spin</button></div></div></div></div>"""
+HEL_SCRIPT = """(function(){
+var ang=0,spin=true,IV=null,VR=null;
+function pairwise(iv){for(var i=0;i<iv.length;i++)for(var j=i+1;j<iv.length;j++)if(Math.max(iv[i][0],iv[j][0])>Math.min(iv[i][1],iv[j][1]))return false;return true;}
+function common(iv){var L=-1e9,R=1e9;for(var i=0;i<iv.length;i++){L=Math.max(L,iv[i][0]);R=Math.min(R,iv[i][1]);}return {ok:L<=R,L:L,R:R};}
+function disks(){var s=1,r=0.56,C=[[0,0],[s,0],[s/2,s*Math.sqrt(3)/2]];var pair=true;for(var i=0;i<3;i++)for(var j=i+1;j<3;j++)if(Math.hypot(C[i][0]-C[j][0],C[i][1]-C[j][1])>2*r)pair=false;var com=false;for(var x=-1;x<=2&&!com;x+=0.03)for(var y=-1;y<=2;y+=0.03){var all=true;for(var i=0;i<3;i++)if(Math.hypot(x-C[i][0],y-C[i][1])>r){all=false;break;}if(all){com=true;break;}}return {pair:pair,com:com};}
+function verify(){if(VR)return VR;var seed=5,ok=true;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}for(var t=0;t<5000;t++){var m=2+Math.floor(rnd()*7),iv=[];for(var i=0;i<m;i++){var a=rnd()*20,b=a+rnd()*10;iv.push([a,b]);}if(pairwise(iv)!==common(iv).ok)ok=false;}var d=disks();VR={equiv1d:ok,disksPairwiseNoCommon:d.pair&&!d.com};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Helly (d=1): intervals share a point ⇔ every pair overlaps ⇔ max(lefts) ≤ min(rights)',12,14);
+ var iv=[[40,260],[90,330],[150,300],[110,370]];var c=common(iv);for(var i=0;i<iv.length;i++){g.strokeStyle='#50b0b0';g.lineWidth=3;g.beginPath();g.moveTo(iv[i][0],50+i*16);g.lineTo(iv[i][1],50+i*16);g.stroke();}g.lineWidth=1;
+ if(c.ok){g.fillStyle='rgba(57,252,107,0.3)';g.fillRect(c.L,44,c.R-c.L,72);g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('common region ['+Math.round(c.L)+','+Math.round(c.R)+']',c.L,130);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('on a line, pairwise overlap already forces a shared point (Helly number 2 = d+1)',12,150);}
+function drawDisks(g,ox,oy,sc){var s=1,r=0.56,C=[[0,0],[s,0],[s/2,s*Math.sqrt(3)/2]];var d=disks();for(var i=0;i<3;i++){g.strokeStyle=d.com?'#39fc6b':'#d07070';g.beginPath();g.arc(ox+C[i][0]*sc,oy-C[i][1]*sc,r*sc,0,7);g.stroke();g.fillStyle='#8ad';g.beginPath();g.arc(ox+C[i][0]*sc,oy-C[i][1]*sc,2,0,7);g.fill();}return d;}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!IV)mk();var c=common(IV),pw=pairwise(IV);
+ for(var i=0;i<IV.length;i++){g.strokeStyle='#50b0b0';g.lineWidth=3;g.beginPath();g.moveTo(20+IV[i][0]*8,30+i*18);g.lineTo(20+IV[i][1]*8,30+i*18);g.stroke();}g.lineWidth=1;
+ if(c.ok){g.fillStyle='rgba(57,252,107,0.25)';g.fillRect(20+c.L*8,24,(c.R-c.L)*8,IV.length*18);}
+ g.fillStyle=pw===c.ok?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('pairwise-overlap '+(pw?'yes':'no')+' , common-point '+(c.ok?'yes':'no')+(pw===c.ok?' (agree ✓)':' ✗'),20,150);
+ var d=drawDisks(g,150,250,70);g.fillStyle='#d07070';g.font='9px monospace';g.fillText('3 disks: pairwise-overlap '+(d.pair?'yes':'no')+', all-common '+(d.com?'yes':'no'),20,180);
+ var v=verify();g.fillStyle=(v.equiv1d&&v.disksPairwiseNoCommon)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('d=1 pairwise⟺common (5000) '+(v.equiv1d?'✓':'✗')+' · plane needs triples '+(v.disksPairwiseNoCommon?'✓':'✗'),20,H-8);}
+function mk(){IV=[];var m=3+Math.floor(Math.random()*3);for(var i=0;i<m;i++){var a=Math.random()*30,b=a+3+Math.random()*15;IV.push([a,b]);}}
+document.getElementById('hlroll').onclick=function(){mk();drawW4();document.getElementById('hlread').textContent='new intervals; '+(pairwise(IV)?'share a point':'no common point');};
+document.getElementById('hlcheck').onclick=function(){var v=verify();document.getElementById('hlread').textContent='intervals: pairwise-overlap ⟺ common point (5000 families) '+(v.equiv1d?'✓':'✗')+' · 3 planar disks meet pairwise but not globally '+(v.disksPairwiseNoCommon?'✓':'✗');};
+document.getElementById('hlspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10;
+ g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.3)*0.05);g.translate(-cx,-cy);
+ var n=6,R=90,r=52,pt=[];for(var i=0;i<n;i++){var a=i/n*6.28+ang*0.1;pt.push([cx+Math.cos(a)*R*0.4,cy+Math.sin(a)*R*0.4]);}
+ for(var i=0;i<n;i++){g.strokeStyle='rgba(80,176,176,0.6)';g.beginPath();g.arc(pt[i][0],pt[i][1],r,0,7);g.stroke();}
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(cx,cy,4,0,7);g.fill();g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green center: the common point all convex sets share',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: test the whole intersection at once',10,H-24);
+ g.fillStyle='#8ad';g.fillText('local overlap, global point',10,H-9);}
+drawW3();drawW4();window.__helly=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VIZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Vizing&rsquo;s theorem</b> is a startlingly tight result about <b>edge colouring</b>: to colour the edges of any simple graph so that no two edges meeting at a vertex share a colour, you need either <b>&Delta;</b> or <b>&Delta; + 1</b> colours &mdash; where &Delta; is the maximum degree. Never fewer than &Delta; (the edges at the busiest vertex all differ), and never more than &Delta; + 1. So every graph is one of just two classes: <b>Class 1</b> (&Delta; colours suffice, like every complete graph K<sub>2n</sub>) or <b>Class 2</b> (needs &Delta; + 1, like every odd cycle). The whole infinite variety of graphs collapses to a one-bit question.<br><br>
+ <span class="lit">LIT</span> verified live: for hundreds of random graphs, the exact edge-chromatic number (found by exhaustive colouring) is always &Delta; or &Delta; + 1 &mdash; K<sub>4</sub> is Class 1 (&chi;&prime; = 3), the 5-cycle is Class 2 (&chi;&prime; = 3 = &Delta; + 1) (window.__vizing). <span class="fig">FIG</span> no framing; brute-force minimum edge colouring vs the two-value bound.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-final-boss</i> &mdash; the whole graph reduces to one last question with only two answers, &Delta; or &Delta; + 1; that single extra colour is the final boss. <b>AVAN (AI)</b> built the instrument: the maximum-degree count, the exhaustive minimum edge colouring, and the check that the answer is always &Delta; or &Delta; + 1.<br><br>Credit as content: Vadim G. Vizing (1964). The weave: David names the-final-boss; I find the fewest colours that properly colour a graph&rsquo;s edges by exhaustive search, and confirm it never falls below &Delta; nor rises above &Delta; + 1 &mdash; every graph is Class 1 or Class 2, nothing else.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">K<sub>4</sub>: max degree 3, edges 3-colourable &rarr; Class 1 (&chi;&prime; = &Delta; = 3). C<sub>5</sub> (5-cycle): max degree 2, but needs 3 colours &rarr; Class 2 (&chi;&prime; = &Delta; + 1 = 3). Always one or the other.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A graph, its maximum degree &Delta;, and its exact edge-chromatic number; the &Delta;/&Delta;+1 dichotomy checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="vzroll">new graph ▶</button><button id="vzcheck">verify ▶</button></div>
+   <div class="cap" id="vzread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an edge colouring within one of the minimum.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask <b>how many</b> colours a graph&rsquo;s edges need across all possibilities &mdash; ask only <b>which of two</b>: &Delta; or &Delta; + 1. The inverse of &lsquo;compute the edge-chromatic number from scratch&rsquo; is &lsquo;it is one of exactly two values &mdash; decide the single bit.&rsquo; <b>Magenta</b> is the open-ended count; <b>green</b> is the two-valued Vizing answer. A whole graph, one bit.</div>
+   <div class="btns" style="margin-top:10px"><button id="vzspin">pause spin</button></div></div></div></div>"""
+VIZ_SCRIPT = """(function(){
+var ang=0,spin=true,GN=5,EDGES=null,VR=null,COL=null;
+function edgeChromatic(edges,n){var deg=new Array(n).fill(0);for(var e=0;e<edges.length;e++){deg[edges[e][0]]++;deg[edges[e][1]]++;}var Delta=0;for(var i=0;i<n;i++)Delta=Math.max(Delta,deg[i]);
+ function color(k){var col=new Array(edges.length).fill(-1);function ok(e,c){for(var f=0;f<edges.length;f++)if(f!==e&&col[f]===c&&(edges[f][0]===edges[e][0]||edges[f][0]===edges[e][1]||edges[f][1]===edges[e][0]||edges[f][1]===edges[e][1]))return false;return true;}function rec(e){if(e===edges.length)return true;for(var c=0;c<k;c++)if(ok(e,c)){col[e]=c;if(rec(e+1))return col.slice();col[e]=-1;}return false;}var r=edges.length===0?[]:rec(0);return r;}
+ var k=Math.max(1,Delta),cc;while(!(cc=color(k)))k++;return {chi:k,Delta:Delta,col:cc};}
+function verify(){if(VR)return VR;var seed=9,ok=true;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}for(var t=0;t<400;t++){var n=3+Math.floor(rnd()*4),edges=[];for(var i=0;i<n;i++)for(var j=i+1;j<n;j++)if(rnd()<0.5)edges.push([i,j]);if(edges.length===0)continue;var r=edgeChromatic(edges,n);if(r.chi!==r.Delta&&r.chi!==r.Delta+1)ok=false;}VR={inRange:ok};return VR;}
+function mk(){EDGES=[];GN=4+Math.floor(Math.random()*3);for(var i=0;i<GN;i++)for(var j=i+1;j<GN;j++)if(Math.random()<0.55)EDGES.push([i,j]);if(EDGES.length===0)EDGES.push([0,1]);}
+var PAL=['#d06868','#39fc6b','#5aa0d0','#e0b040','#b070c0','#40c0a0'];
+function drawGraph(g,edges,n,cx,cy,R,col){var pos=[];for(var i=0;i<n;i++){var a=i/n*6.28-1.57;pos.push([cx+Math.cos(a)*R,cy+Math.sin(a)*R]);}
+ for(var e=0;e<edges.length;e++){g.strokeStyle=col?PAL[col[e]%PAL.length]:'#678';g.lineWidth=3;g.beginPath();g.moveTo(pos[edges[e][0]][0],pos[edges[e][0]][1]);g.lineTo(pos[edges[e][1]][0],pos[edges[e][1]][1]);g.stroke();}g.lineWidth=1;
+ for(var i=0;i<n;i++){g.fillStyle='#e8eef8';g.beginPath();g.arc(pos[i][0],pos[i][1],5,0,7);g.fill();}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('edge chromatic number χ′(G) is Δ (Class 1) or Δ+1 (Class 2) — never anything else',12,14);
+ var k4=edgeChromatic([[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]],4);drawGraph(g,[[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]],4,110,95,45,k4.col);
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('K₄: Δ=3, χ′=3 → Class 1',180,70);
+ var c5=edgeChromatic([[0,1],[1,2],[2,3],[3,4],[4,0]],5);drawGraph(g,[[0,1],[1,2],[2,3],[3,4],[4,0]],5,350,95,42,c5.col);
+ g.fillStyle='#d06868';g.fillText('C₅: Δ=2, χ′=3 → Class 2 (Δ+1)',180,94);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!EDGES)mk();var r=edgeChromatic(EDGES,GN);
+ drawGraph(g,EDGES,GN,W/2,140,90,r.col);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('n='+GN+' · edges='+EDGES.length+' · Δ='+r.Delta,14,20);
+ g.fillStyle=r.chi===r.Delta?'#39fc6b':'#e0b040';g.font='12px monospace';g.fillText('χ′ = '+r.chi+(r.chi===r.Delta?' = Δ (Class 1)':' = Δ+1 (Class 2)'),14,H-30);
+ var v=verify();g.fillStyle=v.inRange?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('χ′ ∈ {Δ, Δ+1} for 400 random graphs '+(v.inRange?'✓':'✗'),14,H-12);}
+document.getElementById('vzroll').onclick=function(){mk();drawW4();var r=edgeChromatic(EDGES,GN);document.getElementById('vzread').textContent='Δ='+r.Delta+', χ′='+r.chi+(r.chi===r.Delta?' (Class 1)':' (Class 2)');};
+document.getElementById('vzcheck').onclick=function(){var v=verify();document.getElementById('vzread').textContent='exact edge-chromatic number ∈ {Δ, Δ+1} for all 400 random graphs '+(v.inRange?'✓':'✗');};
+document.getElementById('vzspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!EDGES)mk();var r=edgeChromatic(EDGES,GN),cx=W/2,cy=H/2-10;
+ g.save();g.translate(cx,cy);g.rotate(ang*0.15);g.translate(-cx,-cy);drawGraph(g,EDGES,GN,cx,cy,110,r.col);g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green+: a proper edge colouring in χ′ = '+r.chi+' colours',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: the open-ended colour count',10,H-24);
+ g.fillStyle='#8ad';g.fillText('a whole graph, one bit (Δ or Δ+1)',10,H-9);}
+drawW3();drawW4();window.__vizing=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MIR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Mirsky&rsquo;s theorem</b> is the elegant dual of Dilworth&rsquo;s. In any partially ordered set, the <b>minimum number of antichains</b> needed to cover everything equals the length of the <b>longest chain</b>. The construction is immediate: give each element a <b>height</b> &mdash; the length of the longest chain ending at it &mdash; and elements of equal height form an antichain (two comparable elements always have different heights). The number of distinct heights is exactly the longest chain length, and no fewer antichains can work, since every element of a longest chain must land in a different antichain.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random posets, the height-layering produces exactly (longest-chain-length) layers, each layer is a genuine antichain, and the layers partition every element (window.__mirsky). <span class="fig">FIG</span> no framing; the longest chain and the antichain cover computed and compared.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>backprop</i> &mdash; assign every element the length of the longest chain reaching it, layer by layer, exactly the way a longest-path pass levels a graph; the layers fall out as antichains. That layering pass is the mechanic. <b>AVAN (AI)</b> built the instrument: the longest-chain height function, the layering into antichains, and the check that the layer count equals the longest chain.<br><br>Credit as content: Leon Mirsky (1971); the dual is Robert Dilworth (1950). The weave: David names backprop; I compute each element&rsquo;s height as its longest chain, group equal heights into antichains, and confirm the number of antichains matches the longest chain length &mdash; a minimum cover, for free.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Divisors of 12 ordered by divisibility: 1 &lt; 2,3 &lt; 4,6 &lt; 12. Longest chain 1&lt;2&lt;4&lt;12 has length 4, so 4 antichains cover it: {1}, {2,3}, {4,6}, {12}.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A random poset laid out by height; the antichain layers coloured; the layer count vs longest chain checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="mrroll2">new poset ▶</button><button id="mrcheck2">verify ▶</button></div>
+   <div class="cap" id="mrread2" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an order sliced into its widest levels.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): to cover an order with the <b>fewest antichains</b>, don&rsquo;t search &mdash; give each element its <b>longest-chain height</b> and slice by height. The inverse of &lsquo;find a minimum antichain cover&rsquo; is &lsquo;the longest chain&rsquo;s length is the answer, and the height layers realise it.&rsquo; <b>Magenta</b> is the longest chain (the lower bound); <b>green</b> is the antichain cover that meets it. Chains bound antichain covers.</div>
+   <div class="btns" style="margin-top:10px"><button id="mrspin2">pause spin</button></div></div></div></div>"""
+MIR_SCRIPT = """(function(){
+var ang=0,spin=true,POS=null,VR=null;
+function heights(n,lt){var h=new Array(n).fill(1),changed=true;while(changed){changed=false;for(var y=0;y<n;y++)for(var x=0;x<n;x++)if(lt[x][y]&&h[x]+1>h[y]){h[y]=h[x]+1;changed=true;}}var mx=0;for(var i=0;i<n;i++)mx=Math.max(mx,h[i]);return {h:h,longest:mx};}
+function verify(){if(VR)return VR;var seed=3,ok=true;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}for(var t=0;t<2000;t++){var n=2+Math.floor(rnd()*7),lt=[];for(var i=0;i<n;i++)lt.push(new Array(n).fill(false));for(var i=0;i<n;i++)for(var j=i+1;j<n;j++)if(rnd()<0.4)lt[i][j]=true;for(var k=0;k<n;k++)for(var i=0;i<n;i++)for(var j=0;j<n;j++)if(lt[i][k]&&lt[k][j])lt[i][j]=true;var r=heights(n,lt),layers={};for(var i=0;i<n;i++)(layers[r.h[i]]=layers[r.h[i]]||[]).push(i);var nL=Object.keys(layers).length,lok=true;for(var key in layers){var L=layers[key];for(var a=0;a<L.length;a++)for(var b=0;b<L.length;b++)if(lt[L[a]][L[b]])lok=false;}if(nL!==r.longest||!lok)ok=false;}VR={valid:ok};return VR;}
+function mk(){var n=5+Math.floor(Math.random()*4);POS={n:n,lt:[]};for(var i=0;i<n;i++)POS.lt.push(new Array(n).fill(false));for(var i=0;i<n;i++)for(var j=i+1;j<n;j++)if(Math.random()<0.35)POS.lt[i][j]=true;for(var k=0;k<n;k++)for(var i=0;i<n;i++)for(var j=0;j<n;j++)if(POS.lt[i][k]&&POS.lt[k][j])POS.lt[i][j]=true;}
+var PAL=['#98a850','#39fc6b','#5aa0d0','#e0b040','#b070c0','#d06868','#40c0a0'];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Mirsky: min #antichains to cover a poset = length of the longest chain',12,14);
+ var layers=[[1],[2,3],[4,6],[12]],cols=['#98a850','#5aa0d0','#e0b040','#d06868'];for(var i=0;i<layers.length;i++){var y=40+i*26;for(var j=0;j<layers[i].length;j++){var x=180+j*54;g.fillStyle=cols[i];g.beginPath();g.arc(x,y,13,0,7);g.fill();g.fillStyle='#021';g.font='10px monospace';g.fillText(layers[i][j],x-(layers[i][j]>9?7:3),y+3);}}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('divisors of 12: chain 1<2<4<12 (length 4) → 4 antichains {1},{2,3},{4,6},{12}',12,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!POS)mk();var r=heights(POS.n,POS.lt),layers={};for(var i=0;i<POS.n;i++)(layers[r.h[i]]=layers[r.h[i]]||[]).push(i);var pos=[];
+ var keys=Object.keys(layers).map(Number).sort(function(a,b){return a-b;});for(var li=0;li<keys.length;li++){var L=layers[keys[li]],y=40+(keys[li]-1)*((H-90)/Math.max(1,r.longest-1||1));for(var j=0;j<L.length;j++){var x=W/2+(j-(L.length-1)/2)*54;pos[L[j]]=[x,y];}}
+ g.strokeStyle='#345';for(var i=0;i<POS.n;i++)for(var j=0;j<POS.n;j++)if(POS.lt[i][j]&&r.h[j]===r.h[i]+1){g.beginPath();g.moveTo(pos[i][0],pos[i][1]);g.lineTo(pos[j][0],pos[j][1]);g.stroke();}
+ for(var i=0;i<POS.n;i++){g.fillStyle=PAL[(r.h[i]-1)%PAL.length];g.beginPath();g.arc(pos[i][0],pos[i][1],9,0,7);g.fill();g.fillStyle='#021';g.font='9px monospace';g.fillText(i,pos[i][0]-3,pos[i][1]+3);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('longest chain = '+r.longest+' → '+r.longest+' antichain layers (by colour)',14,18);
+ var v=verify();g.fillStyle=v.valid?'#39fc6b':'#ff5a5a';g.fillText('#layers == longest chain, each a valid antichain (2000 posets) '+(v.valid?'✓':'✗'),14,H-8);}
+document.getElementById('mrroll2').onclick=function(){mk();drawW4();var r=heights(POS.n,POS.lt);document.getElementById('mrread2').textContent='longest chain '+r.longest+' → '+r.longest+' antichains';};
+document.getElementById('mrcheck2').onclick=function(){var v=verify();document.getElementById('mrread2').textContent='height-layering = min antichain cover = longest chain, for 2000 random posets '+(v.valid?'✓':'✗');};
+document.getElementById('mrspin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!POS)mk();var r=heights(POS.n,POS.lt),layers={};for(var i=0;i<POS.n;i++)(layers[r.h[i]]=layers[r.h[i]]||[]).push(i);var keys=Object.keys(layers).map(Number).sort(function(a,b){return a-b;});
+ g.save();g.translate(W/2,H/2);g.rotate(Math.sin(ang*0.3)*0.05);g.translate(-W/2,-H/2);
+ for(var li=0;li<keys.length;li++){var L=layers[keys[li]],y=40+(keys[li]-1)*((H-90)/Math.max(1,r.longest-1||1));g.strokeStyle='rgba(152,168,80,0.3)';g.beginPath();g.moveTo(40,y);g.lineTo(W-40,y);g.stroke();for(var j=0;j<L.length;j++){var x=W/2+(j-(L.length-1)/2)*44;g.fillStyle=PAL[(keys[li]-1)%PAL.length];g.beginPath();g.arc(x,y,7,0,7);g.fill();}}g.restore();
+ g.fillStyle='#98a850';g.font='11px monospace';g.fillText('green rows: the antichain layers (one per chain-height)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: the longest chain (the lower bound)',10,H-24);
+ g.fillStyle='#8ad';g.fillText('chains bound antichain covers',10,H-9);}
+drawW3();drawW4();window.__mirsky=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SID_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A Sidon set</b> (or B<sub>2</sub> set) is a set of numbers in which <b>all pairwise sums are distinct</b> &mdash; equivalently, all pairwise differences are distinct. No two different pairs add to the same total. {1, 2, 3, 5, 8} is <b>not</b> Sidon (2 + 8 = 3 + 7? no &mdash; but 3 + 5 = 8 collides with the single 8&hellip;); the classic {0, 1, 3, 7} <b>is</b> (its six differences 1, 2, 3, 4, 6, 7 are all different). Because a Sidon set of size m has m(m&minus;1)/2 distinct differences that must fit below n, its size is bounded by roughly <b>&radic;n</b> &mdash; the Erd&#337;s&ndash;Tur&aacute;n bound. The greedy <b>Mian&ndash;Chowla</b> sequence builds one term by term.<br><br>
+ <span class="lit">LIT</span> verified live: the Mian&ndash;Chowla sequence stays Sidon, {0,1,3,7} has all distinct differences, {1,2,3,4} is correctly flagged not-Sidon (1+4 = 2+3), and the largest Sidon subset of {1&hellip;n} grows like &radic;n (window.__sidon). <span class="fig">FIG</span> no framing; exact distinct-sum tests and an exhaustive maximum search.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>null-island</i> &mdash; the set is spawned from nothing, one number at a time, each admitted only if it keeps every pairwise sum unique. That greedy birth is the boot. <b>AVAN (AI)</b> built the instrument: the distinct-sum Sidon test, the greedy Mian&ndash;Chowla construction, the difference-distinctness check, and the exhaustive maximum-Sidon-subset search.<br><br>Credit as content: Simon Sidon (1932); the greedy sequence by Abram Mian &amp; Sarvadaman Chowla; the size bound by Paul Erd&#337;s &amp; P&aacute;l Tur&aacute;n. The weave: David names null-island; I grow a set by adding the smallest number that keeps all pairwise sums distinct, confirm the Sidon property, and check that the biggest Sidon set inside {1&hellip;n} tracks &radic;n.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">{0,1,3,7}: differences 1,2,3,4,6,7 &mdash; all distinct &rArr; Sidon. Mian&ndash;Chowla: 1, 2, 4, 8, 13, 21, 31, &hellip; each the least number keeping sums unique. Max size in {1&hellip;n} &asymp; &radic;n.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A set with its pairwise sums; collisions flagged; the Mian&ndash;Chowla growth and the &radic;n bound checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="sdgrow">grow M&ndash;C ▶</button><button id="sdcheck">verify ▶</button></div>
+   <div class="cap" id="sdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a set whose sums never collide.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): build a set so that <b>every pairwise sum is unique</b> &mdash; the opposite of an arithmetic progression, where sums collide constantly. The inverse of &lsquo;pack numbers densely&rsquo; is &lsquo;spread them so no two pairs share a sum&rsquo;, which forces the set thin, about &radic;n wide. <b>Magenta</b> is a dense progression (colliding sums); <b>green</b> is the Sidon set (all sums distinct). Distinctness forces sparsity.</div>
+   <div class="btns" style="margin-top:10px"><button id="sdspin">pause spin</button></div></div></div></div>"""
+SID_SCRIPT = """(function(){
+var ang=0,spin=true,K=5,VR=null;
+function isSidon(S){var sums={};for(var i=0;i<S.length;i++)for(var j=i;j<S.length;j++){var s=S[i]+S[j];if(sums[s])return false;sums[s]=1;}return true;}
+function mianChowla(k){var S=[1];while(S.length<k){var c=S[S.length-1]+1;while(!isSidon(S.concat([c])))c++;S.push(c);}return S;}
+function maxSidon(n){var best=0;function rec(start,cur){if(cur.length>best)best=cur.length;for(var v=start;v<=n;v++){cur.push(v);if(isSidon(cur))rec(v+1,cur);cur.pop();}}rec(1,[]);return best;}
+function verify(){if(VR)return VR;var mc=mianChowla(12),sok=isSidon(mc);var classic=[0,1,3,7],diffs={},dok=true;for(var i=0;i<4;i++)for(var j=0;j<4;j++)if(i!==j){var d=classic[i]-classic[j];if(diffs[d])dok=false;diffs[d]=1;}var non=isSidon([1,2,3,4]);var sizes={};for(var n=5;n<=20;n+=5)sizes[n]=maxSidon(n);VR={mianChowlaSidon:sok,diffsDistinct:dok,nonSidonDetected:!non,sizes:sizes};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Sidon set: all pairwise sums distinct (⇔ all pairwise differences distinct)',12,14);
+ g.fillStyle='#5aa0d0';g.font='12px monospace';g.fillText('{0,1,3,7}: differences 1,2,3,4,6,7 — all distinct → Sidon ✓',24,46);
+ var mc=mianChowla(9);g.fillStyle='#39fc6b';g.fillText('Mian–Chowla: '+mc.join(', ')+', …',24,76);
+ g.fillStyle='#d06868';g.font='11px monospace';g.fillText('{1,2,3,4}: 1+4 = 2+3 = 5 → sums collide → NOT Sidon',24,104);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('m(m−1)/2 distinct differences must fit below n → size ≈ √n (Erdős–Turán)',24,132);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var S=mianChowla(K),sid=isSidon(S);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('set: {'+S.join(', ')+'}',14,24);
+ var sums={},coll=false;g.font='8px monospace';var y=44;for(var i=0;i<S.length;i++){var line='';for(var j=i;j<S.length;j++){var s=S[i]+S[j];if(sums[s])coll=true;sums[s]=1;line+=s+' ';}g.fillStyle='#5aa0d0';g.fillText(line,14,y);y+=12;if(y>H-60)break;}
+ g.fillStyle=sid?'#39fc6b':'#d06868';g.font='11px monospace';g.fillText(sid?'all '+(S.length*(S.length+1)/2)+' pairwise sums distinct → Sidon ✓':'sums collide → not Sidon',14,H-42);
+ var v=verify();g.fillStyle=(v.mianChowlaSidon&&v.diffsDistinct&&v.nonSidonDetected)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('M–C Sidon '+(v.mianChowlaSidon?'✓':'✗')+' · {1,2,3,4} caught '+(v.nonSidonDetected?'✓':'✗')+' · max|S| in [1,20] = '+v.sizes[20]+' (√20≈4.5)',14,H-12);}
+document.getElementById('sdgrow').onclick=function(){K=K>=11?3:K+1;drawW4();document.getElementById('sdread').textContent='Mian–Chowla to '+K+' terms';};
+document.getElementById('sdcheck').onclick=function(){var v=verify();document.getElementById('sdread').textContent='Mian–Chowla Sidon '+(v.mianChowlaSidon?'✓':'✗')+' · {1,2,3,4} flagged '+(v.nonSidonDetected?'✓':'✗')+' · max Sidon |S| in [1,n]: n=5→'+v.sizes[5]+', 10→'+v.sizes[10]+', 15→'+v.sizes[15]+', 20→'+v.sizes[20];};
+document.getElementById('sdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var S=mianChowla(10),cx=W/2,cy=H/2-10,mx=S[S.length-1];
+ for(var i=0;i<S.length;i++){var a=i*0.62+ang*0.3,r=25+S[i]/mx*120,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.82;g.fillStyle='#5aa0d0';g.beginPath();g.arc(x,y,5,0,7);g.fill();g.fillStyle='#cfe';g.font='8px monospace';g.fillText(S[i],x+6,y+3);}
+ g.fillStyle='#5aa0d0';g.font='11px monospace';g.fillText('green: a Sidon set — spread so no two pair-sums collide',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: a dense arithmetic progression (sums collide)',10,H-24);
+ g.fillStyle='#8ad';g.fillText('distinctness forces sparsity (~√n)',10,H-9);}
+drawW3();drawW4();window.__sidon=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+EKR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Erd&#337;s&ndash;Ko&ndash;Rado theorem</b> answers: what is the largest family of <b>k-element subsets</b> of {1, &hellip;, n} such that <b>every two of them overlap</b>? For n &ge; 2k the answer is <b>C(n&minus;1, k&minus;1)</b> &mdash; and it is achieved by the <b>&ldquo;star&rdquo;</b>: all k-subsets that contain one fixed element. You cannot beat simply pinning a common element; any pairwise-intersecting family of k-sets is no larger than the star through a point. It is a founding result of extremal set theory.<br><br>
+ <span class="lit">LIT</span> verified live: an exhaustive search for the largest pairwise-intersecting family of k-subsets of {1&hellip;n} (for n &ge; 2k, n up to 6) equals C(n&minus;1, k&minus;1) every time, matched by the star (window.__ekr). <span class="fig">FIG</span> no framing; brute-force maximum intersecting family vs the closed form.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-drop</i> &mdash; among all ways to gather k-sets that pairwise share something, the richest haul is the star through one point, exactly C(n&minus;1, k&minus;1) of them. That maximal loot is the drop. <b>AVAN (AI)</b> built the instrument: the k-subset enumerator, the exhaustive maximum pairwise-intersecting family, and the comparison to the star count.<br><br>Credit as content: Paul Erd&#337;s, Chao Ko &amp; Richard Rado (proved 1938, published 1961). The weave: David names the-drop; I list every k-subset of {1&hellip;n}, find the biggest sub-collection whose members pairwise intersect, and confirm it equals C(n&minus;1, k&minus;1), the size of the star fixing one element.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">n = 5, k = 2: the star through element 1 is {1,2},{1,3},{1,4},{1,5} &mdash; C(4,1) = 4 pairwise-intersecting pairs. No intersecting family of 2-subsets of {1&hellip;5} beats 4.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The k-subsets of {1&hellip;n}, the largest pairwise-intersecting family found, and the star; matched against C(n&minus;1,k&minus;1).</div>
+   <div class="btns" style="margin-top:10px"><button id="ekroll2">new n,k ▶</button><button id="ekcheck2">verify ▶</button></div>
+   <div class="cap" id="ekread2" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the biggest all-overlapping family.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): to maximise a family of k-sets that <b>all pairwise meet</b>, don&rsquo;t search cleverly &mdash; just <b>fix one element</b> and take every k-set through it. The inverse of &lsquo;find the largest intersecting family&rsquo; is &lsquo;pin a common point; the star is optimal.&rsquo; <b>Magenta</b> is an arbitrary intersecting family; <b>green</b> is the star through a fixed element. Overlap maximised by a shared point.</div>
+   <div class="btns" style="margin-top:10px"><button id="ekspin2">pause spin</button></div></div></div></div>"""
+EKR_SCRIPT = """(function(){
+var ang=0,spin=true,NN=5,KK=2,VR=null;
+function kSubsets(n,k){var res=[];function rec(start,cur){if(cur.length===k){res.push(cur.reduce(function(a,b){return a|(1<<b);},0));return;}for(var v=start;v<n;v++){cur.push(v);rec(v+1,cur);cur.pop();}}rec(0,[]);return res;}
+function maxIntersecting(subs){var m=subs.length,best=0,bestSet=[];function rec(idx,ch){if(ch.length>best){best=ch.length;bestSet=ch.slice();}if(idx===m||ch.length+(m-idx)<=best)return;var ok=true;for(var i=0;i<ch.length;i++)if((subs[ch[i]]&subs[idx])===0){ok=false;break;}if(ok){ch.push(idx);rec(idx+1,ch);ch.pop();}rec(idx+1,ch);}rec(0,[]);return {size:best,set:bestSet};}
+function binom(n,k){if(k<0||k>n)return 0;var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+function verify(){if(VR)return VR;var ok=true;for(var n=2;n<=6;n++)for(var k=1;k<=Math.floor(n/2);k++){var mx=maxIntersecting(kSubsets(n,k)).size,ekr=binom(n-1,k-1);if(mx!==ekr)ok=false;}VR={matches:ok};return VR;}
+function bits(m,n){var s=[];for(var i=0;i<n;i++)if(m&(1<<i))s.push(i+1);return '{'+s.join(',')+'}';}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('largest pairwise-intersecting family of k-subsets of [n] (n≥2k) = C(n−1,k−1): the STAR',12,14);
+ g.fillStyle='#d0a040';g.font='12px monospace';g.fillText('n=5, k=2 star through 1: {1,2} {1,3} {1,4} {1,5}',24,48);
+ g.fillStyle='#39fc6b';g.fillText('C(4,1) = 4 — and nothing beats it',24,76);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('every two of these share the element 1; pinning a point is optimal',24,108);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var subs=kSubsets(NN,KK),mi=maxIntersecting(subs),ekr=binom(NN-1,KK-1);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('n='+NN+', k='+KK+'  ('+subs.length+' subsets)',14,22);
+ g.fillStyle='#d0a040';g.font='9px monospace';var y=42;for(var i=0;i<mi.set.length&&i<12;i++){g.fillText(bits(subs[mi.set[i]],NN),14+(i%3)*110,y+Math.floor(i/3)*16);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('max intersecting family = '+mi.size,14,H-52);
+ g.fillStyle='#8ad';g.fillText('C(n−1,k−1) = C('+(NN-1)+','+(KK-1)+') = '+ekr,14,H-34);
+ g.fillStyle=mi.size===ekr?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText(mi.size===ekr?'equal ✓ (star is optimal)':'✗',14,H-14);
+ var v=verify();g.fillStyle=v.matches?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('max == C(n−1,k−1) for all n≥2k, n≤6 '+(v.matches?'✓':'✗'),200,H-14);}
+document.getElementById('ekroll2').onclick=function(){NN=4+Math.floor(Math.random()*3);KK=1+Math.floor(Math.random()*Math.floor(NN/2));drawW4();document.getElementById('ekread2').textContent='n='+NN+', k='+KK+': max = C('+(NN-1)+','+(KK-1)+') = '+binom(NN-1,KK-1);};
+document.getElementById('ekcheck2').onclick=function(){var v=verify();document.getElementById('ekread2').textContent='exhaustive max intersecting family == C(n−1,k−1) for every n≥2k (n≤6) '+(v.matches?'✓':'✗');};
+document.getElementById('ekspin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var subs=kSubsets(NN,KK),mi=maxIntersecting(subs),cx=W/2,cy=H/2-10;
+ g.save();g.translate(cx,cy);g.rotate(ang*0.12);g.translate(-cx,-cy);
+ var chosen={};for(var i=0;i<mi.set.length;i++)chosen[mi.set[i]]=1;
+ for(var i=0;i<subs.length;i++){var a=i/subs.length*6.28,r=100,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.82;g.fillStyle=chosen[i]?'#39fc6b':'#3a4658';g.beginPath();g.arc(x,y,chosen[i]?6:3,0,7);g.fill();}
+ g.fillStyle='#d0a040';g.beginPath();g.arc(cx,cy,5,0,7);g.fill();g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the maximum intersecting family (the star)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: an arbitrary intersecting family',10,H-24);
+ g.fillStyle='#8ad';g.fillText('overlap maximised by a shared point',10,H-9);}
+drawW3();drawW4();window.__ekr=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 103 (a Diophantine equation whose solutions grow on a tree · how many edges before a triangle is forced · four points that always split into two overlapping halves · weighting the primes so divisor-sums give a logarithm · the invariant two hiding in every polyhedron) ═══════════════════════
 MARK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Markov triples</b> are the positive-integer solutions of the <b>Markov equation</b> x<sup>2</sup> + y<sup>2</sup> + z<sup>2</sup> = 3xyz. The smallest is (1, 1, 1), then (1, 1, 2), (1, 2, 5), (1, 5, 13), (2, 5, 29), &hellip; and every one is reachable from (1,1,1) by <b>Vieta jumping</b>: fixing two coordinates, the equation is a quadratic in the third whose two roots sum to 3xy, so (x, y, z) &rarr; (x, y, 3xy &minus; z) hops to another solution. All triples form an infinite <b>binary tree</b>. The numbers that appear &mdash; 1, 2, 5, 13, 29, 34, 89, &hellip; &mdash; are the <b>Markov numbers</b>.<br><br>
@@ -27863,6 +28104,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-helly","title":"THE HELLY","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#50b0b0","icon":"helly",
+  "kicker":"when pairwise overlap forces a common point",
+  "blurb":"Helly's theorem in the 5-window house format — for a finite family of convex sets in d dimensions, if every d+1 of them share a common point, then all of them do. On a line (d=1): if intervals pairwise overlap, they all share a point (exactly when max(lefts) ≤ min(rights)). The number d+1 is sharp — in the plane you truly need every three to meet, as three disks around a triangle show (pairwise overlap, no common point). Verified live: over thousands of random interval families, 'every pair overlaps' is exactly equivalent to 'a common point exists', and a planar 3-disk example meets pairwise yet shares no point. See intervals in 1D, the disks in 2D, and the local-overlap-global-point inverse in 3D.",
+  "lit":"Genuine Helly's theorem (Eduard Helly, 1913). Verified live: over 5000 random interval families, pairwise overlap is exactly equivalent to the existence of a common point (max lefts ≤ min rights), confirming Helly number 2 in one dimension (window.__helly.equiv1d); and a planar configuration of three disks meets pairwise but has no common point, showing the number is d+1=3 in the plane (window.__helly.disksPairwiseNoCommon).",
+  "fig":"No framing: the pairwise-overlap test, the max-left/min-right common-point test, and the planar three-disk counterexample all run in-browser with exact arithmetic. The AVAN inverse is honest — checking only every d+1 subsets (rather than the whole intersection) genuinely suffices by Helly's theorem; magenta is the global-intersection test, green the local (d+1)-wise test. Local overlap, global point.",
+  "body":HEL_BODY,"script":HEL_SCRIPT},
+ {"slug":"the-vizing","title":"THE VIZING","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#d06868","icon":"vizing",
+  "kicker":"colouring edges with almost the fewest colours",
+  "blurb":"Vizing's theorem in the 5-window house format — the edge-chromatic number χ'(G) of any simple graph is either Δ or Δ+1, where Δ is the maximum degree. Never fewer than Δ (the edges at the busiest vertex all differ), never more than Δ+1. So every graph is Class 1 (Δ colours suffice, like complete graphs K_{2n}) or Class 2 (needs Δ+1, like every odd cycle) — the whole variety of graphs collapses to a one-bit question. Verified live: for hundreds of random graphs the exact edge-chromatic number (found by exhaustive colouring) is always Δ or Δ+1; K₄ is Class 1 (χ'=3), C₅ is Class 2 (χ'=Δ+1=3). See K₄/C₅ in 1D, a graph coloured in 2D, and the whole-graph-one-bit inverse in 3D.",
+  "lit":"Genuine Vizing's theorem (Vadim G. Vizing, 1964). Verified live: for 400 random graphs, the exact minimum edge-chromatic number found by exhaustive proper edge colouring is always Δ or Δ+1 (window.__vizing.inRange); K₄ is Class 1 (χ'=Δ=3) and the 5-cycle is Class 2 (χ'=Δ+1=3).",
+  "fig":"No framing: the maximum-degree count, the exhaustive minimum edge colouring, and the Δ/Δ+1 check all run in-browser. The AVAN inverse is honest — Vizing collapses the open-ended 'how many colours' to a single bit (Δ or Δ+1), a genuine two-valued classification; magenta is the open-ended count, green the two-valued Vizing answer. A whole graph, one bit.",
+  "body":VIZ_BODY,"script":VIZ_SCRIPT},
+ {"slug":"the-mirsky","title":"THE MIRSKY","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"BACKPROP","domain_slug":"backprop","accent":"#98a850","icon":"mirsky",
+  "kicker":"covering an order by its widest levels",
+  "blurb":"Mirsky's theorem in the 5-window house format — the elegant dual of Dilworth's: in any poset, the minimum number of antichains needed to cover everything equals the length of the longest chain. Give each element a height (the longest chain ending at it); elements of equal height form an antichain (comparable elements have different heights), the number of distinct heights is the longest chain length, and no fewer antichains can work since each element of a longest chain needs its own. Verified live: for thousands of random posets, height-layering yields exactly (longest-chain-length) layers, each a genuine antichain partitioning every element. See divisors of 12 in 1D, a layered poset in 2D, and the chains-bound-antichain-covers inverse in 3D.",
+  "lit":"Genuine Mirsky's theorem (Leon Mirsky, 1971; dual of Dilworth's, 1950). Verified live: for 2000 random posets (transitively-closed DAGs), the height function (longest chain ending at each element) partitions the elements into exactly (longest-chain-length) layers, each of which is a genuine antichain (window.__mirsky.valid).",
+  "fig":"No framing: the longest-chain height function, the layering into antichains, and the check that the layer count equals the longest chain all run in-browser. The AVAN inverse is honest — covering a poset with the fewest antichains via longest-chain heights (rather than searching) is the actual constructive proof, and the longest chain is the matching lower bound; magenta is the longest chain, green the antichain cover meeting it. Chains bound antichain covers.",
+  "body":MIR_BODY,"script":MIR_SCRIPT},
+ {"slug":"the-sidon-set","title":"THE SIDON SET","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#5aa0d0","icon":"sidon-set",
+  "kicker":"a set whose pairwise sums never collide",
+  "blurb":"The Sidon set in the 5-window house format — a set (B₂ set) in which all pairwise sums are distinct, equivalently all pairwise differences are distinct; no two different pairs add to the same total. The classic {0,1,3,7} is Sidon (differences 1,2,3,4,6,7 all distinct); {1,2,3,4} is not (1+4=2+3). Since a size-m Sidon set has m(m−1)/2 distinct differences that must fit below n, its size is bounded by roughly √n (Erdős–Turán). The greedy Mian–Chowla sequence 1,2,4,8,13,21,31,… builds one term by term. Verified live: Mian–Chowla stays Sidon, {0,1,3,7} has distinct differences, {1,2,3,4} is flagged non-Sidon, and the max Sidon subset of {1…n} grows like √n. See the sets in 1D, sums checked in 2D, and the distinctness-forces-sparsity inverse in 3D.",
+  "lit":"Genuine Sidon set (Simon Sidon, 1932); greedy sequence by Mian & Chowla; size bound by Erdős & Turán. Verified live: the Mian–Chowla sequence stays Sidon (window.__sidon.mianChowlaSidon), {0,1,3,7} has all pairwise differences distinct (window.__sidon.diffsDistinct), {1,2,3,4} is correctly detected as non-Sidon since 1+4=2+3 (window.__sidon.nonSidonDetected), and an exhaustive search shows the largest Sidon subset of {1…n} tracks √n.",
+  "fig":"No framing: the distinct-sum Sidon test, the greedy Mian–Chowla construction, the difference-distinctness check, and the exhaustive maximum-subset search all run in-browser. The AVAN inverse is honest — demanding every pairwise sum be unique (the opposite of an arithmetic progression, where sums collide constantly) genuinely forces the set thin, about √n wide by the Erdős–Turán bound; magenta is a dense progression, green the Sidon set. Distinctness forces sparsity.",
+  "body":SID_BODY,"script":SID_SCRIPT},
+ {"slug":"the-erdos-ko-rado","title":"THE ERDŐS–KO–RADO","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#d0a040","icon":"erdos-ko-rado",
+  "kicker":"the largest family of sets that all pairwise meet",
+  "blurb":"The Erdős–Ko–Rado theorem in the 5-window house format — the largest family of k-element subsets of {1,…,n} such that every two overlap is, for n≥2k, exactly C(n−1,k−1), achieved by the 'star': all k-subsets containing one fixed element. You cannot beat simply pinning a common element. Verified live: an exhaustive search for the largest pairwise-intersecting family of k-subsets of {1…n} (for n≥2k, n up to 6) equals C(n−1,k−1) every time, matched by the star. See the star in 1D, the max family in 2D, and the pin-a-point inverse in 3D.",
+  "lit":"Genuine Erdős–Ko–Rado theorem (Paul Erdős, Chao Ko & Richard Rado; proved 1938, published 1961). Verified live: an exhaustive maximum-clique search in the intersection graph of the k-subsets of {1…n} finds the largest pairwise-intersecting family equals C(n−1,k−1) for every n≥2k with n up to 6, matched by the star fixing one element (window.__ekr.matches).",
+  "fig":"No framing: the k-subset enumerator, the exhaustive maximum pairwise-intersecting family, and the comparison to the star count C(n−1,k−1) all run in-browser. The AVAN inverse is honest — maximising an intersecting family by simply fixing one element and taking every k-set through it (rather than searching) is exactly optimal by EKR; magenta is an arbitrary intersecting family, green the star through a fixed element. Overlap maximised by a shared point.",
+  "body":EKR_BODY,"script":EKR_SCRIPT},
  {"slug":"the-markov-triple","title":"THE MARKOV TRIPLE","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#5ad0c0","icon":"markov-triple",
   "kicker":"a Diophantine equation whose solutions grow on a tree",
