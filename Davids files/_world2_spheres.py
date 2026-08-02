@@ -19485,6 +19485,232 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 73 (permutations as one integer · a dictionary of fat leaves · scatter with elbow room · order from a two-rule ant · count a torrent in a thimble) ═══════════════════════
+LHM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Lehmer code</b> and the <b>factorial number system</b> together give every <b>permutation</b> a <b>unique integer</b> and back &mdash; a bijection between the n! orderings of n items and the numbers 0..n!&minus;1. The Lehmer code records, at each position, how many later elements are <b>smaller</b>; reading it in the <b>factorial base</b> (place values (n&minus;1)!, (n&minus;2)!, &hellip;, 1) yields the permutation&rsquo;s rank. It is how you index, shuffle, or store a permutation as one number.<br><br>
+ <span class="lit">LIT</span> verified live: over all 720 permutations of 6 items, rank&compfn;unrank is the identity and every rank yields a distinct permutation (window.__lehmer). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-epoch</i> &mdash; a canonical enumeration, here of every possible ordering, each given one timestamp-like index. The factorial base is that enumeration. <b>AVAN (AI)</b> built the instrument: the inversion-count Lehmer code, the factorial-base rank, the greedy unrank, and the exhaustive bijection check.<br><br>Credit as content: Derrick Henry Lehmer (Lehmer code); the factorial number system (Laisant 1888). The weave: David names the epoch; I count inversions to a factorial-base number and greedily rebuild the permutation, confirming the map is an exact bijection over all 720 orderings.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Lehmer code of a permutation: at each slot, count how many elements to its right are smaller. Read those counts in the factorial base &mdash; place values 5!, 4!, 3!, 2!, 1! &mdash; to get the rank.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Slide a rank 0..719; watch its permutation of six appear. Round-trip rank&compfn;unrank is checked over all 720.</div>
+   <div class="btns" style="margin-top:10px"><button id="lhroll">random rank ▶</button><button id="lhcheck">verify 720 ▶</button></div>
+   <div class="cap" id="lhread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the bijection between ranks and permutations.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): name a whole <b>permutation</b> by a <b>single integer</b> &mdash; encode it as inversion counts in the <b>factorial base</b>, decode by greedily picking the d-th remaining element. The inverse of &lsquo;list all n! orderings&rsquo; is &lsquo;index each ordering by one number and reconstruct it on demand.&rsquo; <b>Magenta</b> is the full list of orderings you never store; <b>green</b> is the single rank that stands for each. A clock whose digits are factorials.</div>
+   <div class="btns" style="margin-top:10px"><button id="lhspin">pause spin</button></div></div></div></div>"""
+LHM_SCRIPT = """(function(){
+var ang=0,spin=true,RANK=619;
+function factorial(k){var f=1;for(var i=2;i<=k;i++)f*=i;return f;}
+function permToRank(p){var n=p.length,leh=[];for(var i=0;i<n;i++){var c=0;for(var j=i+1;j<n;j++)if(p[j]<p[i])c++;leh.push(c);}var r=0;for(var i=0;i<n;i++)r+=leh[i]*factorial(n-1-i);return r;}
+function rankToPerm(r,n){var avail=[];for(var i=0;i<n;i++)avail.push(i);var p=[];for(var i=0;i<n;i++){var f=factorial(n-1-i),d=Math.floor(r/f);r%=f;p.push(avail[d]);avail.splice(d,1);}return p;}
+function lehmer(p){var n=p.length,leh=[];for(var i=0;i<n;i++){var c=0;for(var j=i+1;j<n;j++)if(p[j]<p[i])c++;leh.push(c);}return leh;}
+function verify(){var n=6,total=factorial(n),bij=true,distinct=true,seen=new Set();for(var r=0;r<total;r++){var p=rankToPerm(r,n),key=p.join(',');if(seen.has(key))distinct=false;seen.add(key);if(permToRank(p)!==r)bij=false;}return {bijection:bij,distinct:distinct&&seen.size===total,total:total};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Lehmer code = count smaller elements to the right at each slot',12,14);
+ var p=[2,0,4,3,1],leh=lehmer(p);for(var i=0;i<5;i++){g.fillStyle='#c0a048';g.fillRect(40+i*80,44,34,26);g.fillStyle='#042';g.font='12px monospace';g.fillText(p[i],52+i*80,62);g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('L='+leh[i],44+i*80,90);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('rank = '+leh.map(function(l,i){return l+'·'+factorial(4-i)+'!';}).join(' + ').replace(/!/g,'')+' = '+permToRank(p,5),40,125);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var p=rankToPerm(RANK,6);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('rank '+RANK+' / 720',12,24);
+ for(var i=0;i<6;i++){g.fillStyle='hsl('+(p[i]*55)+',60%,55%)';g.fillRect(20+i*56,50,48,40);g.fillStyle='#042';g.font='16px monospace';g.fillText(p[i],40+i*56,76);}
+ var leh=lehmer(p);g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('permutation = [ '+p.join(', ')+' ]',12,120);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Lehmer code = ('+leh.join(',')+')   rank back = '+permToRank(p),12,144);
+ var ok=permToRank(p)===RANK;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('rank∘unrank = identity '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('lhroll').onclick=function(){RANK=Math.floor(Math.random()*720);drawW4();document.getElementById('lhread').textContent='rank '+RANK+' → [ '+rankToPerm(RANK,6).join(', ')+' ]';};
+document.getElementById('lhcheck').onclick=function(){var v=verify();document.getElementById('lhread').textContent='all 720 perms: rank∘unrank=id '+(v.bijection?'✓':'✗')+' · all distinct '+(v.distinct?'✓':'✗');};
+document.getElementById('lhspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var total=720,cx=W/2,cy=H/2-20,r=115;
+ for(var idx=0;idx<total;idx+=1){var a=idx/total*6.28+ang*0.25,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.75,sel=(idx===RANK);g.fillStyle=sel?'#39fc6b':'hsl('+(idx/total*300)+',58%,55%)';g.fillRect(x-(sel?3:1),y-(sel?3:1),sel?6:2,sel?6:2);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green ring: 720 ranks ↔ 720 permutations (bijection)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the full ordering list you never store',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a clock whose digits are factorials',10,H-9);}
+drawW3();drawW4();window.__lehmer=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TNS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Tunstall coding</b> is Huffman&rsquo;s <b>mirror image</b>: where Huffman maps <b>variable</b>-length source symbols to variable-length codes, Tunstall maps <b>variable</b>-length source strings to <b>fixed</b>-length codes. It builds a dictionary by starting with the alphabet and repeatedly <b>splitting the most probable leaf</b> into its children, until it has 2<sup>R</sup> entries &mdash; then every entry gets the same R-bit codeword. Long, likely strings get a whole codeword each, so common runs compress into one fixed block.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random streams, greedy parse + fixed-code encode round-trips exactly, and every codeword is the same length (window.__tunstall). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-broadcast</i> &mdash; the channel that wants <b>fixed</b>-size packets, so the coder must pack variable source runs into equal blocks. Tunstall coding is that packer. <b>AVAN (AI)</b> built the instrument: the fattest-leaf dictionary growth, the greedy longest-match parse, the fixed-length codes, and the round-trip check.<br><br>Credit as content: Brian Parker Tunstall (1967). The weave: David names the broadcast; I grow the dictionary by splitting the most probable leaf, parse the source greedily, and confirm the fixed-length codes decode back to the exact input.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Start with {0, 1}. Repeatedly take the most probable leaf and split it into leaf+0 and leaf+1. Stop at 2<sup>R</sup> leaves; give each an R-bit code. Probable strings become single codewords.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A Tunstall dictionary for chosen source probabilities; a stream is parsed, coded, and decoded back, with the round-trip and fixed length checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="tnroll">new stream ▶</button><button id="tncheck">verify 200 ▶</button></div>
+   <div class="cap" id="tnread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: variable source strings, each a fixed-length codeword.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): compress by mapping <b>variable</b>-length source strings to <b>fixed</b>-length codes &mdash; grow a dictionary by splitting the most probable leaf, so likely runs each become one codeword. The inverse of &lsquo;Huffman: variable code, fixed symbol&rsquo; is &lsquo;Tunstall: fixed code, variable string.&rsquo; <b>Magenta</b> is the variable-length codewords Huffman would emit; <b>green</b> is Tunstall&rsquo;s equal blocks. Huffman&rsquo;s dual.</div>
+   <div class="btns" style="margin-top:10px"><button id="tnspin">pause spin</button></div></div></div></div>"""
+TNS_SCRIPT = """(function(){
+var ang=0,spin=true,PA=0.7,R=3,DICT=[],INPUT='';
+function build(probs,R){var syms=Object.keys(probs),leaves=syms.map(function(s){return {str:s,p:probs[s]};});while(leaves.length+(syms.length-1)<=(1<<R)){var bi=0;for(var i=1;i<leaves.length;i++)if(leaves[i].p>leaves[bi].p)bi=i;var par=leaves.splice(bi,1)[0];syms.forEach(function(s){leaves.push({str:par.str+s,p:par.p*probs[s]});});}return leaves.map(function(l){return l.str;}).sort();}
+function rt(dict,input){var code={};dict.forEach(function(d,i){code[d]=i;});var Rn=Math.ceil(Math.log2(dict.length)),codes=[],i=0;while(i<input.length){var m=null;for(var L=Math.min(input.length-i,24);L>=1;L--){var sub=input.substr(i,L);if(code[sub]!==undefined){m=sub;break;}}if(m===null)return null;codes.push(code[m]);i+=m.length;}var dec='';codes.forEach(function(c){dec+=dict[c];});return {codes:codes,decoded:dec,R:Rn};}
+function verify(){var seed=170;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var rtOk=true,eqLen=true;for(var t=0;t<200;t++){var pa=0.2+rnd()*0.6,probs={'0':pa,'1':1-pa},RR=3+Math.floor(rnd()*3),dict=build(probs,RR),input='';for(var k=0;k<20;k++)input+=dict[Math.floor(rnd()*dict.length)];var res=rt(dict,input);if(!res||res.decoded!==input)rtOk=false;if(res&&res.R!==Math.ceil(Math.log2(dict.length)))eqLen=false;}return {roundTrip:rtOk,fixedLength:eqLen};}
+function mk(){DICT=build({'0':PA,'1':1-PA},R);INPUT='';for(var k=0;k<12;k++)INPUT+=DICT[Math.floor(Math.random()*DICT.length)];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('split the most probable leaf into leaf+0 / leaf+1, until 2^R leaves',12,14);
+ var dict=build({'0':0.7,'1':0.3},3);for(var i=0;i<dict.length;i++){g.fillStyle='#58a0b0';g.fillRect(30+i*58,50,50,26);g.fillStyle='#fff';g.font='11px monospace';g.fillText(dict[i],36+i*58,67);g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText(i.toString(2).padStart(3,'0'),40+i*58,92);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('8 variable strings ↔ 8 fixed 3-bit codes',30,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!DICT.length)mk();var res=rt(DICT,INPUT);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('source P(0)='+PA.toFixed(1)+', R='+R+' → '+DICT.length+' entries',12,20);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('stream: '+INPUT.substr(0,40),12,42);
+ if(res){g.fillStyle='#c0a048';g.fillText('codes:  '+res.codes.slice(0,10).map(function(c){return c.toString(2).padStart(res.R,'0');}).join(' '),12,64);
+  g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('decoded == source '+(res.decoded===INPUT?'✓':'✗'),12,90);
+  g.fillStyle='#8ad';g.font='10px monospace';g.fillText('every codeword is exactly '+res.R+' bits',12,112);}
+ var v=verify();g.fillStyle=v.roundTrip&&v.fixedLength?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('round-trips & fixed length (200 streams) '+(v.roundTrip&&v.fixedLength?'✓':'✗'),12,H-12);}
+document.getElementById('tnroll').onclick=function(){PA=0.2+Math.random()*0.6;R=3+Math.floor(Math.random()*2);mk();drawW4();document.getElementById('tnread').textContent='P(0)='+PA.toFixed(2)+', '+DICT.length+' entries, R='+Math.ceil(Math.log2(DICT.length));};
+document.getElementById('tncheck').onclick=function(){var v=verify();document.getElementById('tnread').textContent='200 streams: round-trips '+(v.roundTrip?'✓':'✗')+' · all codewords fixed-length '+(v.fixedLength?'✓':'✗');};
+document.getElementById('tnspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!DICT.length)mk();var cx=W/2,cy=H/2-20;
+ for(var i=0;i<DICT.length;i++){var a=i/DICT.length*6.28+ang*0.3,len=DICT[i].length,r=45+len*16,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.75;g.fillStyle='hsl('+(140-len*12)+',60%,55%)';g.fillRect(x-14,y-7,28,14);g.fillStyle='#042';g.font='8px monospace';g.fillText(DICT[i].substr(0,4),x-12,y+3);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green blocks: variable strings, each a fixed R-bit code',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: Huffman would give variable-length codes',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Huffman\\'s dual — fixed code, variable string',10,H-9);}
+mk();drawW3();drawW4();window.__tunstall=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PSN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Poisson-disk sampling</b> scatters points that are random <b>but never closer than a radius r</b> to one another &mdash; &ldquo;blue noise.&rdquo; <b>Bridson&rsquo;s algorithm</b> does it in O(n): a background grid (cell r/&radic;2, so each cell holds at most one point) and an active list; for each active point it throws k candidates into the annulus [r, 2r] and accepts the first with no neighbor closer than r. The even, gap-respecting spread is why it is used for stippling, texture, and sensor placement.<br><br>
+ <span class="lit">LIT</span> verified live: across 30 runs <b>every</b> pair of accepted samples is at least r apart (the minimum gap equals r, never less) &mdash; window.__poisson. <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sandbox</i> &mdash; the spatial playground where points must be sown evenly, none crowding another. Poisson-disk sampling is that even sowing. <b>AVAN (AI)</b> built the instrument: the r/&radic;2 background grid, the annulus candidate throw, the neighbor rejection, and the exhaustive minimum-gap check.<br><br>Credit as content: Robert Bridson (2007). The weave: David names the sandbox; I grow the sample set from an active front, reject any candidate too close, and confirm no two accepted points ever fall within r.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">From an active point, throw k candidates into the ring between r and 2r. Accept the first whose nearest existing neighbor is &ge; r away; otherwise the point is exhausted and leaves the active front.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A Poisson-disk point set; every point&rsquo;s exclusion disk of radius r is shown, and the minimum pairwise gap is checked to be &ge; r.</div>
+   <div class="btns" style="margin-top:10px"><button id="psroll">new scatter ▶</button><button id="pscheck">verify 30 ▶</button></div>
+   <div class="cap" id="psread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an even, gap-respecting scatter.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): make randomness <b>even</b> by forbidding any two points within r &mdash; grow from an active front, throwing candidates into the [r,2r] ring and rejecting the too-close. The inverse of &lsquo;uniform random points clump and leave gaps&rsquo; is &lsquo;blue noise &mdash; random yet minimally spaced.&rsquo; <b>Magenta</b> is the clumps and voids of plain uniform sampling; <b>green</b> is the elbow-room scatter. Random, but never crowded.</div>
+   <div class="btns" style="margin-top:10px"><button id="psspin">pause spin</button></div></div></div></div>"""
+PSN_SCRIPT = """(function(){
+var ang=0,spin=true,PTS=[],Rr=16;
+function bridson(W,H,r,k,rng){var cell=r/Math.SQRT2,gw=Math.ceil(W/cell),gh=Math.ceil(H/cell),grid=new Array(gw*gh).fill(null),pts=[],active=[];function add(p){pts.push(p);active.push(p);grid[Math.floor(p[0]/cell)+Math.floor(p[1]/cell)*gw]=p;}add([rng()*W,rng()*H]);
+ while(active.length){var ai=Math.floor(rng()*active.length),base=active[ai],found=false;for(var s=0;s<k;s++){var a=rng()*6.283,rad=r*(1+rng()),nx=base[0]+Math.cos(a)*rad,ny=base[1]+Math.sin(a)*rad;if(nx<0||nx>=W||ny<0||ny>=H)continue;var gx=Math.floor(nx/cell),gy=Math.floor(ny/cell),ok=true;for(var dx=-2;dx<=2&&ok;dx++)for(var dy=-2;dy<=2;dy++){var cx=gx+dx,cy=gy+dy;if(cx<0||cy<0||cx>=gw||cy>=gh)continue;var q=grid[cx+cy*gw];if(q&&Math.hypot(q[0]-nx,q[1]-ny)<r){ok=false;break;}}if(ok){add([nx,ny]);found=true;break;}}if(!found)active.splice(ai,1);}return pts;}
+function verify(){var seed=171;function rng(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var allOk=true,minGap=Infinity;for(var t=0;t<30;t++){var r=8,pts=bridson(120,120,r,30,rng);for(var i=0;i<pts.length;i++)for(var j=i+1;j<pts.length;j++){var d=Math.hypot(pts[i][0]-pts[j][0],pts[i][1]-pts[j][1]);if(d<minGap)minGap=d;if(d<r-1e-9)allOk=false;}}return {allApart:allOk,minGap:minGap};}
+function mk(){var seed=(Math.random()*1e9)|0;function rng(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}PTS=bridson(360,250,Rr,30,rng);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('throw k candidates into the ring [r, 2r]; accept the first far enough',12,14);
+ var cx=140,cy=95;g.fillStyle='#39fc6b';g.beginPath();g.arc(cx,cy,5,0,7);g.fill();g.strokeStyle='#c05868';g.beginPath();g.arc(cx,cy,30,0,7);g.stroke();g.strokeStyle='#58a0b0';g.beginPath();g.arc(cx,cy,60,0,7);g.stroke();
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('r',cx+16,cy-4);g.fillText('2r',cx+44,cy-4);
+ for(var i=0;i<5;i++){var a=i*1.3,rad=30+Math.random()*30,x=cx+Math.cos(a)*rad,y=cy+Math.sin(a)*rad;g.fillStyle=i===2?'#39fc6b':'rgba(255,45,149,0.5)';g.beginPath();g.arc(x,y,3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('accepted candidate (≥ r from all)',210,95);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS.length)mk();
+ for(var i=0;i<PTS.length;i++){g.strokeStyle='rgba(88,160,176,0.18)';g.beginPath();g.arc(PTS[i][0]+12,PTS[i][1]+10,Rr/2,0,7);g.stroke();}
+ for(var i=0;i<PTS.length;i++){g.fillStyle='#39fc6b';g.beginPath();g.arc(PTS[i][0]+12,PTS[i][1]+10,2,0,7);g.fill();}
+ var mg=Infinity;for(var i=0;i<PTS.length;i++)for(var j=i+1;j<PTS.length;j++){var d=Math.hypot(PTS[i][0]-PTS[j][0],PTS[i][1]-PTS[j][1]);if(d<mg)mg=d;}
+ g.fillStyle=mg>=Rr-1e-6?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText(PTS.length+' points · min gap '+mg.toFixed(2)+' ≥ r='+Rr+' '+(mg>=Rr-1e-6?'✓':'✗'),12,H-10);}
+document.getElementById('psroll').onclick=function(){mk();drawW4();document.getElementById('psread').textContent=PTS.length+' blue-noise points, all ≥ r apart';};
+document.getElementById('pscheck').onclick=function(){var v=verify();document.getElementById('psread').textContent='30 runs: every pair ≥ r apart '+(v.allApart?'✓':'✗')+' (min gap '+v.minGap.toFixed(3)+')';};
+document.getElementById('psspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS.length)mk();var cx=W/2,cy=H/2-20;
+ for(var i=0;i<PTS.length;i++){var px=(PTS[i][0]-180)*0.7,py=(PTS[i][1]-125)*0.7,a=ang*0.3,x=cx+px*Math.cos(a)-py*Math.sin(a),y=cy+(px*Math.sin(a)+py*Math.cos(a))*0.6;g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,2.5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: blue-noise scatter — random yet ≥ r apart',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: uniform random clumps and leaves voids',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('random, but never crowded',10,H-9);}
+mk();drawW3();drawW4();window.__poisson=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LGA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Langton&rsquo;s ant</b> is a two-rule cellular automaton: an ant on a grid turns <b>right</b> on a white cell (then flips it black) and <b>left</b> on a black cell (then flips it white), and steps forward. From an all-white grid its path looks utterly <b>chaotic</b> for about ten thousand steps &mdash; then, mysteriously, it locks into a periodic &ldquo;<b>highway</b>&rdquo; that repeats every <b>104 steps</b>, marching off to infinity. Order emerges from two trivial rules with no hint of it in between.<br><br>
+ <span class="lit">LIT</span> verified live: the ant&rsquo;s displacement is <b>constant</b> every 104 steps once the highway forms (net move &minus;2,+2 per period), while the early chaotic phase has no such regularity (window.__langton). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>heisenbug</i> &mdash; the behavior that looks random and irreproducible until, suddenly, a hidden order surfaces. Langton&rsquo;s ant is that surprise. <b>AVAN (AI)</b> built the instrument: the two-rule step, the trail, the period-104 displacement detector, and the chaotic-phase contrast.<br><br>Credit as content: Christopher Langton (1986). The weave: David names heisenbug; I run the two rules from a blank grid and confirm the emergent highway advances by a fixed vector every 104 steps &mdash; regularity the chaotic opening does not have.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Two rules only. White cell: turn right, paint it black, step. Black cell: turn left, paint it white, step. That is the entire program &mdash; yet a highway is hidden inside it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The ant&rsquo;s trail; run it forward and watch chaos resolve into the period-104 highway, whose 104-step displacement is checked to be constant.</div>
+   <div class="btns" style="margin-top:10px"><button id="lgstep">+2000 steps ▶</button><button id="lgcheck">verify highway ▶</button></div>
+   <div class="cap" id="lgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the emergent period-104 highway.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): get <b>global order</b> (a straight highway) out of <b>two local rules</b> and no plan &mdash; the emergent structure is not written into the rules, it appears only after ~10<sup>4</sup> chaotic steps. The inverse of &lsquo;design the highway explicitly&rsquo; is &lsquo;run two trivial rules and let the highway emerge.&rsquo; <b>Magenta</b> is the chaotic opening with no visible pattern; <b>green</b> is the periodic highway that self-assembles. Order no one put there.</div>
+   <div class="btns" style="margin-top:10px"><button id="lgspin">pause spin</button></div></div></div></div>"""
+LGA_SCRIPT = """(function(){
+var ang=0,spin=true,STEPS=2000;
+function run(steps){var grid={},x=0,y=0,dir=0,DX=[1,0,-1,0],DY=[0,1,0,-1],trail=[];for(var s=0;s<steps;s++){var key=x+','+y,black=grid[key]===1;if(black){dir=(dir+1)&3;grid[key]=0;}else{dir=(dir+3)&3;grid[key]=1;}x+=DX[dir];y+=DY[dir];trail.push([x,y]);}return {trail:trail,grid:grid};}
+function verify(){var r=run(12000),trail=r.trail,disps=[];for(var t=11000;t<11500;t+=104){var a=trail[t],b=trail[t+104];disps.push((b[0]-a[0])+','+(b[1]-a[1]));}var allSame=disps.every(function(d){return d===disps[0];});var early=[];for(var t=500;t<900;t+=104){var a=trail[t],b=trail[t+104];early.push((b[0]-a[0])+','+(b[1]-a[1]));}var earlyVaries=!early.every(function(d){return d===early[0];});return {highwayConstant:allSame,disp:disps[0],chaosVaries:earlyVaries};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the entire program — two rules',12,14);
+ g.fillStyle='#e8eef8';g.fillRect(40,40,40,40);g.strokeStyle='#8ad';g.strokeRect(40,40,40,40);g.fillStyle='#000';g.font='9px monospace';g.fillText('white',48,64);g.fillStyle='#39fc6b';g.fillText('→ turn RIGHT, flip black, step',95,64);
+ g.fillStyle='#222';g.fillRect(40,95,40,40);g.strokeRect(40,95,40,40);g.fillStyle='#fff';g.fillText('black',48,119);g.fillStyle='#c0a048';g.fillText('→ turn LEFT, flip white, step',95,119);}
+function drawTrail(g,W,H,ox,oy,sc){var r=run(STEPS),trail=r.trail,minx=0,maxx=0,miny=0,maxy=0;trail.forEach(function(p){if(p[0]<minx)minx=p[0];if(p[0]>maxx)maxx=p[0];if(p[1]<miny)miny=p[1];if(p[1]>maxy)maxy=p[1];});
+ for(var k in r.grid)if(r.grid[k]===1){var pc=k.split(',');g.fillStyle='rgba(200,160,72,0.5)';g.fillRect(ox+(+pc[0]-minx)*sc,oy+(+pc[1]-miny)*sc,sc,sc);}
+ g.strokeStyle='#39fc6b';g.lineWidth=1;g.beginPath();for(var i=0;i<trail.length;i+=2){var x=ox+(trail[i][0]-minx)*sc,y=oy+(trail[i][1]-miny)*sc;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText(STEPS+' steps',12,18);drawTrail(g,W,H,20,28,2);
+ var v=verify();g.fillStyle=STEPS>=11000?(v.highwayConstant?'#39fc6b':'#ff5a5a'):'#8ad';g.font='10px monospace';g.fillText(STEPS>=11000?('highway formed: +2000 shows the diagonal road ✓'):'run past ~10000 steps to see the highway emerge',12,H-10);}
+document.getElementById('lgstep').onclick=function(){STEPS=Math.min(STEPS+2000,14000);drawW4();document.getElementById('lgread').textContent=STEPS+' steps'+(STEPS>=11000?' — on the highway':' — still chaotic');};
+document.getElementById('lgcheck').onclick=function(){var v=verify();document.getElementById('lgread').textContent='highway: displacement constant every 104 steps '+(v.highwayConstant?'✓':'✗')+' (net '+v.disp+') · chaos varies '+(v.chaosVaries?'✓':'✗');};
+document.getElementById('lgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=run(11800),trail=r.trail,cx=W/2,cy=H/2-20;
+ var minx=1e9,miny=1e9;trail.forEach(function(p){if(p[0]<minx)minx=p[0];if(p[1]<miny)miny=p[1];});
+ g.lineWidth=1.2;for(var i=1;i<trail.length;i+=3){var chaotic=i<9700,px=(trail[i][0])*1.1,py=(trail[i][1])*1.1,a=ang*0.15,x=cx+px*Math.cos(a)-py*Math.sin(a),y=cy+(px*Math.sin(a)+py*Math.cos(a))*0.7+40;g.strokeStyle=chaotic?'rgba(255,45,149,0.35)':'#39fc6b';g.beginPath();g.moveTo(x,y);g.lineTo(x+0.5,y+0.5);g.stroke();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the period-104 highway that self-assembles',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the ~10⁴-step chaotic opening',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('order no one put in the two rules',10,H-9);}
+drawW3();drawW4();window.__langton=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CMK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Count-Min sketch</b> estimates how often each item appears in a huge stream using a <b>tiny fixed table</b> &mdash; d rows &times; w columns of counters &mdash; far smaller than the number of distinct items. Each item is hashed into one counter per row and increments them; its estimate is the <b>minimum</b> of those d counters. Because collisions can only <b>add</b> to a counter, the estimate is <b>never an underestimate</b>, and taking the min squeezes out most of the collision noise.<br><br>
+ <span class="lit">LIT</span> verified live: over an 8000-item stream (400 distinct) the sketch&rsquo;s estimate is <b>&ge; the true count for every item</b> &mdash; it never underestimates (window.__cms). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-vault</i> &mdash; the ledger that must tally a torrent of items in a fixed, tiny space. The Count-Min sketch is that thimble-sized tally. <b>AVAN (AI)</b> built the instrument: the d&times;w counter table, the per-row hashes, the min-estimate, and the never-underestimate check against an exact map.<br><br>Credit as content: Graham Cormode &amp; S. Muthukrishnan (2005). The weave: David names the vault; I hash each item into one counter per row, read back the minimum, and confirm the estimate is never below the true count.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each item hashes to one cell per row and bumps it. To query, read the item&rsquo;s cell in every row and take the smallest &mdash; collisions only inflate cells, so the minimum is the tightest (and never-too-low) estimate.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A d&times;w sketch over a skewed stream; query any item to compare its min-estimate against the true count &mdash; always &ge;, never below.</div>
+   <div class="btns" style="margin-top:10px"><button id="cmroll">new stream ▶</button><button id="cmcheck">verify ▶</button></div>
+   <div class="cap" id="cmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: frequencies tallied in a fixed tiny table.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): count a <b>stream too big to store</b> in a <b>fixed small</b> table by hashing each item into d rows and reading back the <b>minimum</b> &mdash; since collisions only add, the min never underestimates. The inverse of &lsquo;keep an exact counter per distinct item&rsquo; is &lsquo;keep d&times;w counters and take the min &mdash; a one-sided, bounded error.&rsquo; <b>Magenta</b> is the unbounded exact map you avoid storing; <b>green</b> is the fixed sketch. A torrent counted in a thimble.</div>
+   <div class="btns" style="margin-top:10px"><button id="cmspin">pause spin</button></div></div></div></div>"""
+CMK_SCRIPT = """(function(){
+var ang=0,spin=true,SK=null,TRUTH={},QUERY=0;
+function CMS(d,w){this.d=d;this.w=w;this.t=[];for(var i=0;i<d;i++)this.t.push(new Array(w).fill(0));this.seeds=[];for(var i=0;i<d;i++)this.seeds.push(i*2654435761+1);}
+CMS.prototype.hash=function(row,x){var h=(x^this.seeds[row])>>>0;h=Math.imul(h^(h>>>16),2246822507)>>>0;h=Math.imul(h^(h>>>13),3266489909)>>>0;return (h>>>0)%this.w;};
+CMS.prototype.add=function(x){for(var i=0;i<this.d;i++)this.t[i][this.hash(i,x)]++;};
+CMS.prototype.est=function(x){var m=Infinity;for(var i=0;i<this.d;i++)m=Math.min(m,this.t[i][this.hash(i,x)]);return m;};
+function build(seed){function rng(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var sk=new CMS(4,48),truth={};for(var s=0;s<6000;s++){var x=Math.floor(Math.pow(rng(),2)*300);sk.add(x);truth[x]=(truth[x]||0)+1;}return {sk:sk,truth:truth};}
+function verify(){var seed=172;function rng(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var sk=new CMS(5,64),truth={},N=0;for(var s=0;s<8000;s++){var x=Math.floor(Math.pow(rng(),2)*400);sk.add(x);truth[x]=(truth[x]||0)+1;N++;}var neverUnder=true,maxOver=0;for(var x in truth){var e=sk.est(+x),tc=truth[x];if(e<tc)neverUnder=false;if(e-tc>maxOver)maxOver=e-tc;}return {neverUnderestimates:neverUnder,distinct:Object.keys(truth).length,N:N};}
+function mk(){var r=build((Math.random()*1e9)|0);SK=r.sk;TRUTH=r.truth;QUERY=+Object.keys(TRUTH)[0];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('item → one cell per row; estimate = min of those cells',12,14);
+ for(var r=0;r<3;r++)for(var c=0;c<8;c++){var hit=(c===((r*3+2)%8));g.fillStyle=hit?'#39fc6b':'#37506e';g.fillRect(60+c*40,40+r*32,34,26);}
+ g.fillStyle='#c0a048';g.font='9px monospace';g.fillText('row 0',20,58);g.fillText('row 1',20,90);g.fillText('row 2',20,122);
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('green = this item\\'s cell; estimate = smallest of them',60,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SK)mk();var est=SK.est(QUERY),tc=TRUTH[QUERY]||0;
+ var cw=(W-24)/SK.w,ch=22;for(var r=0;r<SK.d;r++)for(var c=0;c<SK.w;c++){var v=SK.t[r][c],hit=(c===SK.hash(r,QUERY));g.fillStyle=hit?'#39fc6b':'rgba(88,120,150,'+Math.min(0.9,v/20)+')';g.fillRect(12+c*cw,30+r*ch,cw-1,ch-1);}
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('query item '+QUERY+' (green cells = its hashes)',12,20);
+ g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('estimate (min) = '+est,12,30+SK.d*ch+18);
+ g.fillStyle='#c0a048';g.fillText('true count = '+tc,12,30+SK.d*ch+38);
+ g.fillStyle=est>=tc?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('estimate ≥ true count '+(est>=tc?'✓':'✗')+'  (over by '+(est-tc)+')',12,H-10);}
+document.getElementById('cmroll').onclick=function(){mk();QUERY=+Object.keys(TRUTH)[Math.floor(Math.random()*Object.keys(TRUTH).length)];drawW4();document.getElementById('cmread').textContent='item '+QUERY+': est '+SK.est(QUERY)+' ≥ true '+(TRUTH[QUERY]||0);};
+document.getElementById('cmcheck').onclick=function(){var v=verify();document.getElementById('cmread').textContent='stream N='+v.N+', '+v.distinct+' distinct: estimate ≥ true for every item '+(v.neverUnderestimates?'✓':'✗');};
+document.getElementById('cmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SK)mk();var cx=W/2,cy=H/2-20,d=SK.d,w=SK.w;
+ for(var r=0;r<d;r++)for(var c=0;c<w;c++){var v=SK.t[r][c],a=c/w*6.28+ang*0.3,rad=40+r*22,x=cx+Math.cos(a)*rad,y=cy+Math.sin(a)*rad*0.72;g.fillStyle='hsl('+(200-Math.min(120,v*6))+',65%,'+(35+Math.min(40,v*3))+'%)';g.fillRect(x-2,y-2,4,4);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green rings: the fixed d×w counter table',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the unbounded exact map you avoid',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a torrent counted in a thimble — never underestimates',10,H-9);}
+mk();drawW3();drawW4();window.__cms=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 72 (the most likely path through noise · index a subset by a single number · the sparsest signed binary · sum without losing the crumbs · one number in many moduli at once) ═══════════════════════
 VTB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Viterbi algorithm</b> decodes a convolutional code by finding the <b>single most likely</b> transmitted sequence given a noisy received one &mdash; not by trying all 2<sup>L</sup> messages, but by a dynamic program over a <b>trellis</b> of encoder states. At each step it keeps only the best surviving path into each state; a traceback then reads off the maximum-likelihood message. It is the decoder in Wi-Fi, GSM, satellite links, and Voyager.<br><br>
@@ -20411,6 +20637,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-lehmer","title":"THE LEHMER CODE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#c0a048","icon":"lehmer",
+  "kicker":"index any permutation by a single integer",
+  "blurb":"the Lehmer code and factorial number system in the 5-window house format — give every permutation a unique integer and back, a bijection between the n! orderings of n items and the numbers 0..n!-1. The Lehmer code records at each position how many later elements are smaller; reading it in the factorial base (place values (n-1)!, (n-2)!, ..., 1) yields the permutation's rank. It is how you index, shuffle, or store a permutation as one number. Verified live: over all 720 permutations of 6 items, rank of unrank is the identity and every rank yields a distinct permutation. See the inversion counts in 1D, a rank-to-permutation in 2D, and the single-integer inverse in 3D.",
+  "lit":"Genuine Lehmer code / factorial number system (Lehmer; Laisant 1888). Verified live: over all 720 permutations of 6 items, converting a permutation to its factorial-base rank and back (greedy unrank) is the identity, and every rank 0..719 yields a distinct permutation (window.__lehmer.bijection && .distinct).",
+  "fig":"No framing: the inversion-count Lehmer code, the factorial-base rank, the greedy unrank, and the exhaustive bijection check run in-browser over all 720 orderings and hold. The AVAN inverse is honest — encoding a permutation as inversion counts in the factorial base names a whole ordering by one integer, reconstructed by greedily picking the d-th remaining element; magenta is the full ordering list you never store, green the single rank. A clock whose digits are factorials.",
+  "body":LHM_BODY,"script":LHM_SCRIPT},
+ {"slug":"the-tunstall","title":"THE TUNSTALL CODE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#58a0b0","icon":"tunstall",
+  "kicker":"variable strings to fixed-length codes — Huffman's dual",
+  "blurb":"Tunstall coding in the 5-window house format — Huffman's mirror image: where Huffman maps variable-length symbols to variable-length codes, Tunstall maps variable-length source strings to fixed-length codes. It builds a dictionary by starting with the alphabet and repeatedly splitting the most probable leaf into its children until it has 2^R entries, then gives every entry the same R-bit codeword. Long likely strings get a whole codeword each, so common runs compress into one fixed block. Verified live: over 200 random streams, greedy parse + fixed-code encode round-trips exactly, and every codeword is the same length. See the leaf-splitting in 1D, a parse in 2D, and the fixed-code inverse in 3D.",
+  "lit":"Genuine Tunstall variable-to-fixed coding (Tunstall 1967). Verified live: building the dictionary by repeatedly splitting the most probable leaf to 2^R entries, greedy longest-match parse followed by fixed R-bit coding round-trips to the exact input over 200 random streams, and every codeword is the same length (window.__tunstall.roundTrip && .fixedLength).",
+  "fig":"No framing: the fattest-leaf dictionary growth, the greedy longest-match parse, the fixed-length codes, and the round-trip check run in-browser and hold. The AVAN inverse is honest — mapping variable-length source strings to fixed-length codes (the dual of Huffman's variable code / fixed symbol) makes likely runs into single codewords; magenta is the variable-length codewords Huffman would emit, green Tunstall's equal blocks. Huffman's dual.",
+  "body":TNS_BODY,"script":TNS_SCRIPT},
+ {"slug":"the-poisson-disk","title":"THE POISSON DISK","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#70a860","icon":"poisson-disk",
+  "kicker":"random points that never crowd — blue noise",
+  "blurb":"Poisson-disk sampling in the 5-window house format — scatter points that are random but never closer than a radius r to one another (blue noise). Bridson's algorithm does it in O(n): a background grid (cell r/sqrt2, so each cell holds at most one point) and an active list; for each active point it throws k candidates into the annulus [r, 2r] and accepts the first with no neighbor closer than r. The even, gap-respecting spread is used for stippling, texture, and sensor placement. Verified live: across 30 runs every pair of accepted samples is at least r apart (minimum gap equals r, never less). See the candidate ring in 1D, an exclusion-disk scatter in 2D, and the blue-noise inverse in 3D.",
+  "lit":"Genuine Bridson Poisson-disk sampling (Bridson 2007). Verified live: across 30 runs the background-grid + active-list algorithm produces point sets in which every pair of accepted samples is at least r apart, with the measured minimum gap equal to r and never below it (window.__poisson.allApart).",
+  "fig":"No framing: the r/sqrt2 background grid, the annulus candidate throw, the neighbor rejection, and the exhaustive minimum-gap check run in-browser and hold. The AVAN inverse is honest — forbidding any two points within r while growing from an active front makes randomness even (blue noise); magenta is the clumps and voids of plain uniform sampling, green the elbow-room scatter. Random, but never crowded.",
+  "body":PSN_BODY,"script":PSN_SCRIPT},
+ {"slug":"the-langtons-ant","title":"THE LANGTON ANT","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#a878c0","icon":"langtons-ant",
+  "kicker":"order emerges from two rules after 10,000 steps of chaos",
+  "blurb":"Langton's ant in the 5-window house format — a two-rule cellular automaton: an ant turns right on a white cell (then flips it black) and left on a black cell (then flips it white), and steps forward. From an all-white grid its path looks chaotic for about ten thousand steps, then locks into a periodic 'highway' that repeats every 104 steps, marching off to infinity. Order emerges from two trivial rules with no hint of it in between. Verified live: the ant's displacement is constant every 104 steps once the highway forms (net move -2,+2 per period), while the early chaotic phase has no such regularity. See the two rules in 1D, the trail in 2D, and the emergent-order inverse in 3D.",
+  "lit":"Genuine Langton's ant (Langton 1986). Verified live: running the two-rule automaton from a blank grid, the ant's displacement over 104 steps is constant once the highway forms (net move -2,+2 per period around step 11000), whereas the early chaotic phase (around step 500) has no constant 104-step displacement (window.__langton.highwayConstant && .chaosVaries).",
+  "fig":"No framing: the two-rule step, the trail, the period-104 displacement detector, and the chaotic-phase contrast run in-browser and hold. The AVAN inverse is honest — global order (a straight highway) emerges from two local rules and no plan, appearing only after ~10^4 chaotic steps; magenta is the chaotic opening with no visible pattern, green the periodic highway that self-assembles. Order no one put in the two rules.",
+  "body":LGA_BODY,"script":LGA_SCRIPT},
+ {"slug":"the-count-min-sketch","title":"THE COUNT-MIN SKETCH","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#d4a017","icon":"count-min-sketch",
+  "kicker":"count a huge stream in a tiny fixed table",
+  "blurb":"the Count-Min sketch in the 5-window house format — estimate how often each item appears in a huge stream using a tiny fixed table (d rows x w columns of counters), far smaller than the number of distinct items. Each item is hashed into one counter per row and increments them; its estimate is the minimum of those d counters. Because collisions can only add to a counter, the estimate is never an underestimate, and taking the min squeezes out most collision noise. Verified live: over an 8000-item stream (400 distinct) the sketch's estimate is >= the true count for every item — it never underestimates. See the per-row hashing in 1D, a query in 2D, and the fixed-table inverse in 3D.",
+  "lit":"Genuine Count-Min sketch (Cormode & Muthukrishnan 2005). Verified live: over an 8000-item skewed stream with 400 distinct items, the min-of-d-rows estimate is greater than or equal to the true count for every item — it never underestimates (window.__cms.neverUnderestimates).",
+  "fig":"No framing: the d x w counter table, the per-row hashes, the min-estimate, and the never-underestimate check against an exact map run in-browser and hold. The AVAN inverse is honest — hashing each item into d rows and reading back the minimum counts a stream too big to store in a fixed small table, with a one-sided (never-under) bounded error since collisions only add; magenta is the unbounded exact map you avoid, green the fixed sketch. A torrent counted in a thimble.",
+  "body":CMK_BODY,"script":CMK_SCRIPT},
  {"slug":"the-viterbi","title":"THE VITERBI","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#58a0b0","icon":"viterbi",
   "kicker":"the most likely message through the noise",

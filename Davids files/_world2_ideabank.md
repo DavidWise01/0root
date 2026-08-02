@@ -23,7 +23,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 6. THE SUBSET ODOMETER [BUILT] — combinadics bijection 0..C(n,k)−1 ↔ k-subsets. CLAIM: rank∘unrank = id exhaustively for n=10,k=5.
 7. THE SPARSEST SIGNATURE [BUILT] — Non-Adjacent Form (signed binary {−1,0,1}). CLAIM: unique NAF −128..127, no adjacent nonzeros, min weight.
 8. THE MIRROR FIBONACCI — negaFibonacci coding (reaches negatives, no sign bit). CLAIM: unique no-"11" rep for −50..50.
-9. THE PERMUTATION CLOCK — factorial number system + Lehmer code. CLAIM: rank∘unrank bijection over all 720 perms of 6.
+9. THE PERMUTATION CLOCK [BUILT] — factorial number system + Lehmer code. CLAIM: rank∘unrank bijection over all 720 perms of 6.
 10. THE LAZY COUNTER — skew binary (digits 0,1,2, one 2). CLAIM: unique canonical 0..2000; +1 touches ≤2 digits (O(1) carry).
 11. THE FIBONACCI PARTITION — Zeckendorf. CLAIM: greedy decomp 1..200 non-consecutive, sums exact, unique.
 12. THE RATIONAL TREE — Stern–Brocot. CLAIM: depth-12 all fractions lowest-terms, no repeats, each a mediant.
@@ -45,7 +45,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 10. THE MINSKY COUNTERS — 2-counter machine (INC/DEC-branch). CLAIM: stored program computes m×n, halts with product, vs direct mult.
 11. THE PENROSE INFLATION — kites/darts substitution. CLAIM: tile-count ratio → φ (substitution-matrix eigenvalue), converging live.
 12. THE OVERLAP-FREE WORD — Thue–Morse (0→01,1→10). CLAIM: first N symbols contain no cube (exhaustive scan); matches popcount parity.
-13. THE TURMITE ZOO — Langton's ant & kin. CLAIM: ant builds the 104-step highway from blank grid (exact recurring period+displacement).
+13. THE TURMITE ZOO [BUILT] — Langton's ant & kin. CLAIM: ant builds the 104-step highway from blank grid (exact recurring period+displacement).
 14. THE RULE 110 GLIDERS — particle view of Rule 110. CLAIM: ether space-period 14/time-period 7; glider constant velocity; collision outcome.
 15. THE L-SYSTEM GARDEN — Lindenmayer A→AB,B→A. CLAIM: generation lengths = Fibonacci; bracketed turtle path branches per rules.
 
@@ -62,7 +62,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 9. THE EXACT TRANSFORM — Number Theoretic Transform. CLAIM: NTT·pointwise·INTT = schoolbook convolution bit-for-bit (prime field, no rounding).
 10. THE THUMBPRINT — MinHash. CLAIM: fraction of matching min-hashes ≈ true Jaccard, converging with k.
 11. THE NEST — Cuckoo filter. CLAIM: no false negatives; measured FP-rate near theoretical for fingerprint size; supports deletes.
-12. THE FIXED BLOCK — Tunstall coding (variable-to-fixed, Huffman's dual). CLAIM: round-trips; equal codeword length; greedy fattest-leaf split.
+12. THE FIXED BLOCK [BUILT] — Tunstall coding (variable-to-fixed, Huffman's dual). CLAIM: round-trips; equal codeword length; greedy fattest-leaf split.
 13. THE FIELD INVERSE [BUILT] — Rijndael GF(2⁸) inversion / AES S-box. CLAIM: b⊗b⁻¹=1 for all nonzero b; S-box∘S-box⁻¹=id over 256 bytes.
 14. THE MOST LIKELY PATH [BUILT] — Viterbi decoder. CLAIM: encode→inject ≤correctable errors→Viterbi recovers original bits over trials.
 15. THE PROBABLE PRIME — Miller–Rabin. CLAIM: composites fail ≥3/4 bases (miss ≤4^−t); primes always pass, vs trial-division oracle.
@@ -78,7 +78,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 7. THE LAYERED FLOOD — Dinic max-flow. CLAIM: max flow = min cut every run on random networks.
 8. THE COIN-FLIP HEAP — Treap. CLAIM: in-order always sorted, heap-property on priorities, membership vs Set; height ~2log₂n.
 9. THE SPARSE ORACLE — Sparse Table RMQ. CLAIM: 5000 range-min via two power-of-two blocks match brute force; O(1)/query.
-10. THE FORGIVING SIEVE — Count-Min Sketch. CLAIM: estimate ≥ true and ≤ true+εN over 100k stream vs exact map.
+10. THE FORGIVING SIEVE [BUILT] — Count-Min Sketch. CLAIM: estimate ≥ true and ≤ true+εN over 100k stream vs exact map.
 11. THE LOW-LINK MINER — Tarjan SCC. CLAIM: SCC partition == Kosaraju two-pass, up to relabeling.
 12. THE PROPHET'S JUMP — Skip list. CLAIM: ops match sorted ref over 3000; avg hops within const·log₂n.
 13. THE WELDER — Union-Find (path compression + rank). CLAIM: connectivity == brute BFS over 500 unions; avg follows ~flat (α(n)).
@@ -98,7 +98,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 9. THE ELECTRON MAZE — Wireworld (dup of B8 — pick one). CLAIM: gate truth tables + period-verified clock.
 10. THE EMPTY CIRCLE LAW — Bowyer–Watson Delaunay. CLAIM: every triangle's circumcircle empty; maximizes min angle vs random triangulation.
 11. THE MEAN OF TWO MEANS — Gauss–Legendre AGM for π. CLAIM: π to >1e-14 in ~4 iters; correct-digit count roughly doubles each pass.
-12. THE POLITE SCATTER — Bridson Poisson-disk. CLAIM: all pairs ≥ r apart (no violations); blue-noise ring spectrum vs clumpy random.
+12. THE POLITE SCATTER [BUILT] — Bridson Poisson-disk. CLAIM: all pairs ≥ r apart (no violations); blue-noise ring spectrum vs clumpy random.
 13. THE LOADED-DICE TABLE — Walker's alias method. CLAIM: 1e6 draws reproduce target probs <0.5%/outcome; O(1) per draw.
 14. THE FEATHERED EDGE — Xiaolin Wu antialiased line. CLAIM: two blended pixels per column sum to full intensity (energy conserved <1e-6).
 15. THE SPOTS THAT BREED — Gray–Scott reaction–diffusion (Turing patterns). CLAIM: mitosis regime → blob count grows; params move across phase map.
