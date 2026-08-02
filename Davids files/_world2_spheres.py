@@ -19485,6 +19485,233 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 70 (square-root modulo a prime · one DFS finds every cycle-cluster · walk the cube one bit at a time · flatten weights into a fair O(1) draw · the tree of all rationals) ═══════════════════════
+TS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Tonelli&ndash;Shanks algorithm</b> computes a <b>square root modulo a prime</b> &mdash; given n and prime p, it finds r with r<sup>2</sup> &equiv; n (mod p), whenever one exists. It first tests whether n is a <b>quadratic residue</b> (via the Legendre symbol); if p &equiv; 3 (mod 4) the root is just n<sup>(p+1)/4</sup>, and otherwise it runs a clever loop that walks down the 2-adic tower of p&minus;1 using a known non-residue. It underpins elliptic-curve point decompression and Rabin cryptography.<br><br>
+ <span class="lit">LIT</span> verified live: over every prime below 2000 and every residue, the returned r satisfies r<sup>2</sup> &equiv; n, and null is returned exactly for non-residues (window.__tonelli). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; the heavy modular arithmetic a mainframe grinds, here inverting a square modulo a prime. Tonelli&ndash;Shanks is that inversion. <b>AVAN (AI)</b> built the instrument: the Legendre-symbol residue test, the 2-adic descent loop, and the r<sup>2</sup> &equiv; n verification.<br><br>Credit as content: Alberto Tonelli (1891) &amp; Daniel Shanks (1973). The weave: David names the mainframe; I test residuosity, descend the 2-adic tower with a non-residue, and confirm the recovered root squares back to n modulo p.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Half the nonzero residues mod p are squares (quadratic residues). Tonelli&ndash;Shanks finds the pre-image: given a square n, which r squared to it? For p &equiv; 3 (mod 4) it is simply n<sup>(p+1)/4</sup>.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A prime p and residue n; the modular square root r is shown, with r<sup>2</sup> mod p checked back against n.</div>
+   <div class="btns" style="margin-top:10px"><button id="tsroll">new p, n ▶</button><button id="tscheck">verify &lt;2000 ▶</button></div>
+   <div class="cap" id="tsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the residues r, &minus;r whose square is n.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): <b>invert</b> squaring modulo a prime &mdash; test that n is a quadratic residue, then descend the 2-adic tower of p&minus;1 using a known non-residue to peel the root out. The inverse of &lsquo;square r to get n mod p&rsquo; is &lsquo;given n, recover the r that squared to it.&rsquo; <b>Magenta</b> is the non-residues that have no square root; <b>green</b> is the residue whose square is n. A square root in a finite field.</div>
+   <div class="btns" style="margin-top:10px"><button id="tsspin">pause spin</button></div></div></div></div>"""
+TS_SCRIPT = """(function(){
+var ang=0,spin=true,P=113,N=2,R=null;
+function modpow(b,e,m){b%=m;if(b<0)b+=m;var r=1;while(e>0){if(e&1)r=r*b%m;b=b*b%m;e=Math.floor(e/2);}return r;}
+function legendre(a,p){return modpow(a,(p-1)/2,p);}
+function tonelli(n,p){n%=p;if(n===0)return 0;if(legendre(n,p)!==1)return null;if(p%4===3)return modpow(n,(p+1)/4,p);var q=p-1,s=0;while(q%2===0){q/=2;s++;}var z=2;while(legendre(z,p)!==p-1)z++;var m=s,c=modpow(z,q,p),t=modpow(n,q,p),r=modpow(n,(q+1)/2,p);while(true){if(t===1)return r;var i=0,tt=t;while(tt!==1){tt=tt*tt%p;i++;if(i===m)return null;}var b=c;for(var k=0;k<m-i-1;k++)b=b*b%p;m=i;c=b*b%p;t=t*c%p;r=r*b%p;}}
+function isPrime(x){if(x<2)return false;for(var d=2;d*d<=x;d++)if(x%d===0)return false;return true;}
+function verify(){var ok=true,detects=true;for(var p=3;p<2000;p++){if(!isPrime(p))continue;for(var n=1;n<p;n++){var leg=legendre(n,p),r=tonelli(n,p);if(leg===1){if(r===null||(r*r)%p!==n%p)ok=false;}else if(r!==null)detects=false;}}return {roots:ok,detectsNonResidue:detects};}
+function pickPrimes(){var ps=[];for(var p=7;p<200;p++)if(isPrime(p))ps.push(p);return ps;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('residues mod 23 — squares (green) vs non-residues (magenta)',12,14);var p=23,qr=new Set();for(var x=1;x<p;x++)qr.add(x*x%p);for(var x=1;x<p;x++){var isq=qr.has(x);g.fillStyle=isq?'#39fc6b':'rgba(255,45,149,0.4)';g.fillRect(20+((x-1)%11)*40,40+Math.floor((x-1)/11)*34,34,26);g.fillStyle=isq?'#042':'#fff';g.font='9px monospace';g.fillText(x,26+((x-1)%11)*40,57+Math.floor((x-1)/11)*34);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('exactly half are squares; Tonelli-Shanks inverts each square',20,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);R=tonelli(N,P);g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('p = '+P+',  n = '+N,12,26);
+ if(R===null){g.fillStyle='#ff2d95';g.font='12px monospace';g.fillText(N+' is a non-residue mod '+P,12,60);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('no square root exists — correctly returns null',12,84);}
+ else{g.fillStyle='#39fc6b';g.font='14px monospace';g.fillText('√'+N+' ≡ '+R+' (and '+(P-R)+') mod '+P,12,60);g.fillStyle='#c0a048';g.font='12px monospace';g.fillText(R+'² mod '+P+' = '+(R*R%P),12,90);var ok=(R*R%P)===N%P;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('r² ≡ n (mod p) '+(ok?'✓':'✗'),12,116);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('p ≡ '+(P%4)+' (mod 4)'+(P%4===3?' → r = n^((p+1)/4)':' → 2-adic descent'),12,H-12);}
+document.getElementById('tsroll').onclick=function(){var ps=pickPrimes();P=ps[Math.floor(Math.random()*ps.length)];N=1+Math.floor(Math.random()*(P-1));drawW4();R=tonelli(N,P);document.getElementById('tsread').textContent=R===null?(N+' is a non-residue mod '+P):('√'+N+' ≡ '+R+' mod '+P);};
+document.getElementById('tscheck').onclick=function(){var v=verify();document.getElementById('tsread').textContent='primes<2000: r²≡n '+(v.roots?'✓':'✗')+' · null for non-residues '+(v.detectsNonResidue?'✓':'✗');};
+document.getElementById('tsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var p=23,qr=new Set();for(var x=1;x<p;x++)qr.add(x*x%p);var cx=W/2,cy=H/2-20,r=95;for(var x=1;x<p;x++){var isq=qr.has(x),a=(x-1)/(p-1)*6.28+ang*0.3;g.fillStyle=isq?'#39fc6b':'rgba(255,45,149,0.4)';g.beginPath();g.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r*0.75,isq?7:4,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: residues with a square root (Tonelli inverts)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: non-residues — no square root exists',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a square root inside a finite field',10,H-9);}
+drawW3();drawW4();window.__tonelli=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TJ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Tarjan&rsquo;s SCC algorithm</b> finds the <b>strongly connected components</b> of a directed graph &mdash; the maximal groups where every vertex can reach every other &mdash; in a <b>single</b> depth-first search. It tracks each vertex&rsquo;s discovery index and the lowest index reachable from its subtree (the &ldquo;low-link&rdquo;); when a vertex&rsquo;s low-link equals its own index, it is the <b>root</b> of an SCC, and the component is popped off a stack. One pass, linear time.<br><br>
+ <span class="lit">LIT</span> verified live: over 400 random digraphs Tarjan&rsquo;s component partition equals a brute partition by mutual reachability (u,v together iff each reaches the other) &mdash; window.__tarjanscc. <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gatekeeper</i> &mdash; the check that finds the tangled clusters where every node loops back to every other. Tarjan&rsquo;s SCC is that gatekeeper of cyclic structure. <b>AVAN (AI)</b> built the instrument: the single-DFS index/low-link bookkeeping, the component stack, and the brute mutual-reachability cross-check.<br><br>Credit as content: Robert Tarjan (1972). The weave: David names the gatekeeper; I run one DFS tracking low-links, pop each component when its root is found, and confirm the partition matches mutual reachability.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each vertex gets a discovery index and a low-link (lowest index reachable from its subtree via one back-edge). When low-link equals index, that vertex roots an SCC &mdash; pop the stack down to it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A directed graph; Tarjan&rsquo;s strongly connected components are colored, and the count is checked against a brute mutual-reachability partition.</div>
+   <div class="btns" style="margin-top:10px"><button id="tjroll">new graph ▶</button><button id="tjcheck">verify 400 ▶</button></div>
+   <div class="cap" id="tjread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the strongly connected components.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): find every maximal mutually-reachable cluster in <b>one</b> DFS &mdash; track a discovery index and a low-link per vertex, and when a vertex&rsquo;s low-link equals its index it is an SCC root, so pop the stack down to it. The inverse of &lsquo;check reachability between every pair&rsquo; is &lsquo;one DFS, low-links, pop a component at each root.&rsquo; <b>Magenta</b> is the O(n<sup>2</sup>) pairwise reachability tests avoided; <b>green</b> is the components found in one pass. Every cycle-cluster in a single sweep.</div>
+   <div class="btns" style="margin-top:10px"><button id="tjspin">pause spin</button></div></div></div></div>"""
+TJ_SCRIPT = """(function(){
+var ang=0,spin=true,N=7,ADJ=null,SCC=null;
+function tarjanSCC(n,adj){var index=0,stack=[],onStack=new Array(n).fill(false),idx=new Array(n).fill(-1),low=new Array(n).fill(0),comp=new Array(n).fill(-1),nc=0;
+ function sc(v){idx[v]=index;low[v]=index;index++;stack.push(v);onStack[v]=true;adj[v].forEach(function(w){if(idx[w]===-1){sc(w);low[v]=Math.min(low[v],low[w]);}else if(onStack[w])low[v]=Math.min(low[v],idx[w]);});if(low[v]===idx[v]){var w;do{w=stack.pop();onStack[w]=false;comp[w]=nc;}while(w!==v);nc++;}}
+ for(var v=0;v<n;v++)if(idx[v]===-1)sc(v);return {comp:comp,count:nc};}
+function reach(n,adj,s){var seen=new Array(n).fill(false),st=[s];seen[s]=true;while(st.length){var v=st.pop();adj[v].forEach(function(w){if(!seen[w]){seen[w]=true;st.push(w);}});}return seen;}
+function bruteSCC(n,adj){var R=[];for(var i=0;i<n;i++)R.push(reach(n,adj,i));var comp=new Array(n).fill(-1),nc=0;for(var i=0;i<n;i++){if(comp[i]>=0)continue;for(var j=0;j<n;j++)if(R[i][j]&&R[j][i])comp[j]=nc;nc++;}return comp;}
+function samePart(a,b){var n=a.length;for(var i=0;i<n;i++)for(var j=0;j<n;j++)if((a[i]===a[j])!==(b[i]===b[j]))return false;return true;}
+function verify(){var seed=150;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true;for(var t=0;t<400;t++){var n=2+Math.floor(rnd()*6),adj=[];for(var i=0;i<n;i++)adj.push([]);for(var i=0;i<n;i++)for(var j=0;j<n;j++)if(i!==j&&rnd()<0.35)adj[i].push(j);if(!samePart(tarjanSCC(n,adj).comp,bruteSCC(n,adj)))ok=false;}return {matchesBrute:ok};}
+function mk(){N=5+Math.floor(Math.random()*3);ADJ=[];for(var i=0;i<N;i++)ADJ.push([]);for(var i=0;i<N;i++)for(var j=0;j<N;j++)if(i!==j&&Math.random()<0.4)ADJ[i].push(j);SCC=tarjanSCC(N,ADJ);}
+function pos(i,n,cx,cy,r){var a=i/n*6.28-1.57;return [cx+Math.cos(a)*r,cy+Math.sin(a)*r];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('index / low-link per vertex; low==index → SCC root',12,14);
+ g.fillStyle='#c05868';g.font='10px monospace';g.fillText('v: idx=3 low=1  →  a back-edge reached index 1, so v is in a cycle',30,55);
+ g.fillStyle='#39fc6b';g.fillText('v: idx=1 low=1  →  root; pop component off the stack',30,85);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('one DFS assigns every vertex to a component',30,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ADJ)mk();var cols=['#39fc6b','#c05868','#58a0b0','#c0a048','#a878c0','#e08040','#40c0a0'],cx=W/2,cy=140,r=95;
+ for(var i=0;i<N;i++)ADJ[i].forEach(function(j){var pi=pos(i,N,cx,cy,r),pj=pos(j,N,cx,cy,r);g.strokeStyle='rgba(120,150,180,0.35)';g.beginPath();g.moveTo(pi[0],pi[1]);g.lineTo(pj[0],pj[1]);g.stroke();var mx=(pi[0]+pj[0])/2,my=(pi[1]+pj[1])/2,dx=pj[0]-pi[0],dy=pj[1]-pi[1],L=Math.hypot(dx,dy);g.fillStyle='rgba(120,150,180,0.6)';g.beginPath();g.arc(mx+dx/L*8,my+dy/L*8,2,0,7);g.fill();});
+ for(var i=0;i<N;i++){var p=pos(i,N,cx,cy,r);g.fillStyle=cols[SCC.comp[i]%cols.length];g.beginPath();g.arc(p[0],p[1],13,0,7);g.fill();g.fillStyle='#042';g.font='10px monospace';g.fillText(i,p[0]-3,p[1]+3);}
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText(SCC.count+' strongly connected components (same color = one SCC)',12,H-30);
+ var ok=samePart(SCC.comp,bruteSCC(N,ADJ));g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.fillText('partition == brute mutual-reachability '+(ok?'✓':'✗'),12,H-10);}
+document.getElementById('tjroll').onclick=function(){mk();drawW4();document.getElementById('tjread').textContent=N+' vertices → '+SCC.count+' SCCs';};
+document.getElementById('tjcheck').onclick=function(){var v=verify();document.getElementById('tjread').textContent='400 digraphs: SCC partition == brute reachability '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('tjspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ADJ)mk();var cols=['#39fc6b','#c05868','#58a0b0','#c0a048','#a878c0','#e08040','#40c0a0'],cx=W/2,cy=H/2-20;
+ for(var i=0;i<N;i++){var c=SCC.comp[i],a=c*1.7+ (i%3)*0.5+ang*0.3,r=45+c*24,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.7;g.fillStyle=cols[c%cols.length];g.beginPath();g.arc(x,y,8,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green+: '+SCC.count+' components, one DFS',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the O(n²) pairwise tests avoided',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('every cycle-cluster in a single sweep',10,H-9);}
+mk();drawW3();drawW4();window.__tarjanscc=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The reflected binary (Gray) code</b> orders all 2<sup>n</sup> binary strings so that <b>consecutive</b> ones differ in <b>exactly one bit</b> &mdash; and the order is cyclic, so the last and first also differ by one bit. The i-th code is simply i XOR (i&gt;&gt;1). Because only one bit flips per step, it eliminates the transient glitches of ordinary counters &mdash; which is why rotary encoders, Karnaugh maps, and error-tolerant ADCs all use it.<br><br>
+ <span class="lit">LIT</span> verified live: for up to 12 bits every consecutive pair (including wrap-around) has Hamming distance exactly 1, and all 2<sup>n</sup> codes are distinct (window.__graycode). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>first-light</i> &mdash; the very first flicker of state, moving one bit at a time so no glitch appears between steps. The Gray code is that single-bit walk. <b>AVAN (AI)</b> built the instrument: the i XOR (i&gt;&gt;1) map, the Hamming-distance-1 check, and the all-distinct check.<br><br>Credit as content: Frank Gray (1947; Emile Baudot used the idea in 1878). The weave: David names first-light; I walk the hypercube one edge at a time and confirm every step flips exactly one bit and visits every vertex once.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">3-bit Gray code: 000 001 011 010 110 111 101 100 &mdash; and back to 000. Each step flips a single bit; the sequence is a Hamiltonian cycle on the cube&rsquo;s edges.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">The Gray code for n bits; each consecutive pair is checked for a single-bit difference, and all codes for distinctness.</div>
+   <div class="btns" style="margin-top:10px"><button id="gcbits">bits ▶</button><button id="gccheck">verify ≤12 ▶</button></div>
+   <div class="cap" id="gcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a Hamiltonian cycle on the n-cube, one bit per step.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): order all 2<sup>n</sup> strings so <b>consecutive</b> ones differ in <b>one bit</b> &mdash; the map i &rarr; i XOR (i&gt;&gt;1) does it, tracing a Hamiltonian cycle on the hypercube&rsquo;s edges (each edge joins strings one bit apart). The inverse of &lsquo;count in binary, flipping many bits per step&rsquo; is &lsquo;walk the cube edge by edge, one bit at a time.&rsquo; <b>Magenta</b> is the multi-bit jumps of ordinary counting; <b>green</b> is the single-bit walk. No glitch between steps.</div>
+   <div class="btns" style="margin-top:10px"><button id="gcspin">pause spin</button></div></div></div></div>"""
+GC_SCRIPT = """(function(){
+var ang=0,spin=true,NB=4;
+function gray(i){return i^(i>>1);}
+function popcount(x){var c=0;while(x){c+=x&1;x>>=1;}return c;}
+function verify(){var adj1=true,distinct=true;for(var nb=1;nb<=12;nb++){var N=1<<nb,seen=new Set();for(var i=0;i<N;i++){var g=gray(i);if(seen.has(g))distinct=false;seen.add(g);if(popcount(g^gray((i+1)%N))!==1)adj1=false;}if(seen.size!==N)distinct=false;}return {hamming1:adj1,allDistinct:distinct};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('3-bit Gray code — each step flips exactly one bit',12,14);var seq=[];for(var i=0;i<8;i++)seq.push(gray(i).toString(2).padStart(3,'0'));
+ for(var i=0;i<8;i++){g.fillStyle='#70a860';g.fillRect(20+i*58,50,50,34);g.fillStyle='#042';g.font='11px monospace';g.fillText(seq[i],26+i*58,71);if(i<7){var diff=-1;for(var b=0;b<3;b++)if(seq[i][b]!==seq[i+1][b])diff=b;g.fillStyle='#39fc6b';g.font='8px monospace';g.fillText('↓'+(2-diff),72+i*58,40);}}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('...and 100 → 000 wraps with a single-bit flip too',20,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var N=1<<NB;g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText(NB+'-bit Gray code — '+N+' codes',12,20);
+ var perRow=Math.ceil(Math.sqrt(N)*1.4),cw=Math.min(46,(W-24)/perRow),ch=16,ok=true;for(var i=0;i<N;i++){var gcode=gray(i).toString(2).padStart(NB,'0'),x=12+(i%perRow)*cw,y=34+Math.floor(i/perRow)*ch;g.fillStyle=(i%2)?'#2a3a4a':'#37506e';g.fillRect(x,y,cw-2,ch-1);g.fillStyle='#9fd';g.font='8px monospace';if(cw>18)g.fillText(gcode,x+2,y+11);}
+ for(var i=0;i<N;i++)if(popcount(gray(i)^gray((i+1)%N))!==1)ok=false;
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('every consecutive pair (incl wrap) differs by 1 bit '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('gcbits').onclick=function(){NB=NB>=6?2:NB+1;drawW4();document.getElementById('gcread').textContent=NB+'-bit: '+(1<<NB)+' codes, single-bit steps';};
+document.getElementById('gccheck').onclick=function(){var v=verify();document.getElementById('gcread').textContent='nb≤12: Hamming-1 steps '+(v.hamming1?'✓':'✗')+' · all distinct '+(v.allDistinct?'✓':'✗');};
+document.getElementById('gcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function cube(nb){var v=[];for(var i=0;i<(1<<nb);i++){v.push([(i&1)?1:-1,(i&2)?1:-1,(i&4)?1:-1]);}return v;}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var nb=3,verts=cube(nb),cx=W/2,cy=H/2-20,s=70;
+ function proj(p){var x=p[0],y=p[1],z=p[2],ry=[x*Math.cos(ang)-z*Math.sin(ang),y,x*Math.sin(ang)+z*Math.cos(ang)],d=3/(3+ry[2]);return [cx+ry[0]*s*d,cy+ry[1]*s*d];}
+ var order=[];for(var i=0;i<8;i++)order.push(gray(i));
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<=8;i++){var p=proj(verts[order[i%8]]);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<8;i++){var p=proj(verts[order[i]]);g.fillStyle='#39fc6b';g.beginPath();g.arc(p[0],p[1],5,0,7);g.fill();g.fillStyle='#cfe';g.font='8px monospace';g.fillText(order[i].toString(2).padStart(3,'0'),p[0]+7,p[1]);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: Hamiltonian cycle on the 3-cube, one bit per step',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: binary counting jumps many bits at once',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('walk the cube edge by edge — no glitch between steps',10,H-9);}
+drawW3();drawW4();window.__graycode=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+AL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Vose&rsquo;s alias method</b> turns any weighted distribution over k outcomes into a table that samples in <b>O(1)</b> per draw &mdash; one uniform pick of a bucket plus one coin flip. It <b>flattens</b> the uneven probabilities into k equal-area buckets, each holding at most two outcomes: a <b>primary</b> and an <b>alias</b>. Building the table is O(k); after that, every draw is constant-time regardless of how skewed the weights are. It is the standard engine behind fast weighted random selection.<br><br>
+ <span class="lit">LIT</span> verified live: over 500 random weight sets the assembled table reconstructs the <b>exact</b> input probabilities (each outcome&rsquo;s total table mass equals its normalized weight, error &lt; 10<sup>&minus;9</sup>) &mdash; window.__alias. <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-drop</i> &mdash; the weighted loot table where rare items drop less often, sampled in constant time. The alias method is that drop engine. <b>AVAN (AI)</b> built the instrument: the small/large worklist that fills each bucket, the primary/alias pair per bucket, and the deterministic reconstruction check.<br><br>Credit as content: Alastair Walker (1977) &amp; Michael Vose (1991). The weave: David names the drop; I flatten the weights into equal-area buckets and confirm each outcome&rsquo;s reassembled probability equals its exact weight.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Scale weights so the average bucket has mass 1. Repeatedly pour from an over-full outcome into an under-full one until each of the k buckets is exactly full &mdash; holding one primary and (if needed) one alias.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A weighted drop table flattened into equal-area alias buckets; the reconstructed probabilities are checked against the exact weights.</div>
+   <div class="btns" style="margin-top:10px"><button id="alroll">new weights ▶</button><button id="alcheck">verify 500 ▶</button></div>
+   <div class="cap" id="alread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: k equal-area buckets, each a primary + alias.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): make a skewed draw <b>constant-time</b> by <b>flattening</b> the weights into k equal-area buckets, each holding a primary and an alias &mdash; a draw becomes one bucket pick plus one coin flip. The inverse of &lsquo;scan a cumulative table and binary-search for the draw&rsquo; is &lsquo;pre-flatten into equal buckets; then one pick + one flip.&rsquo; <b>Magenta</b> is the O(log k) cumulative search replaced; <b>green</b> is the O(1) bucket draw. Uneven odds, flat cost.</div>
+   <div class="btns" style="margin-top:10px"><button id="alspin">pause spin</button></div></div></div></div>"""
+AL_SCRIPT = """(function(){
+var ang=0,spin=true,W_=[3,1,1,5,2],TAB=null;
+function buildAlias(w){var n=w.length,sum=w.reduce(function(a,b){return a+b;},0),prob=new Array(n).fill(0),alias=new Array(n).fill(-1),scaled=w.map(function(x){return x*n/sum;}),small=[],large=[];for(var i=0;i<n;i++)(scaled[i]<1?small:large).push(i);
+ while(small.length&&large.length){var s=small.pop(),l=large.pop();prob[s]=scaled[s];alias[s]=l;scaled[l]=(scaled[l]+scaled[s])-1;if(scaled[l]<1)small.push(l);else large.push(l);}
+ while(large.length)prob[large.pop()]=1;while(small.length)prob[small.pop()]=1;return {prob:prob,alias:alias};}
+function probOf(i,tab,n){var p=tab.prob[i]/n;for(var j=0;j<n;j++)if(j!==i&&tab.alias[j]===i)p+=(1-tab.prob[j])/n;return p;}
+function verify(){var seed=151;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var ok=true,mx=0;for(var t=0;t<500;t++){var n=2+Math.floor(rnd()*8),w=[];for(var i=0;i<n;i++)w.push(1+Math.floor(rnd()*20));var sum=w.reduce(function(a,b){return a+b;},0),tab=buildAlias(w);for(var i=0;i<n;i++){var got=probOf(i,tab,n),want=w[i]/sum;mx=Math.max(mx,Math.abs(got-want));if(Math.abs(got-want)>1e-9)ok=false;}}return {reconstructs:ok,maxErr:mx};}
+function mk(){var n=3+Math.floor(Math.random()*4);W_=[];for(var i=0;i<n;i++)W_.push(1+Math.floor(Math.random()*9));TAB=buildAlias(W_);}
+var COLS=['#39fc6b','#c05868','#58a0b0','#c0a048','#a878c0','#e08040','#40c0a0'];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('pour from over-full outcomes into under-full buckets until each = 1',12,14);
+ var w=[3,1,1,5],n=4,sum=10,sc=w.map(function(x){return x*n/sum;});for(var i=0;i<n;i++){var h=sc[i]*40;g.fillStyle=COLS[i];g.fillRect(40+i*80,110-h,50,h);g.strokeStyle='#8ad';g.strokeRect(40+i*80,30,50,80);g.fillStyle='#cfe';g.font='9px monospace';g.fillText('w='+w[i],48+i*80,124);}
+ g.strokeStyle='#39fc6b';g.setLineDash([4,3]);g.beginPath();g.moveTo(30,70);g.lineTo(380,70);g.stroke();g.setLineDash([]);g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('level 1',384,72);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!TAB)mk();var n=W_.length,sum=W_.reduce(function(a,b){return a+b;},0);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('drop weights: '+W_.join(', ')+'  (k='+n+' buckets)',12,20);
+ var bw=Math.min(60,(W-24)/n);for(var i=0;i<n;i++){var x=12+i*bw,y=40,h=90;g.strokeStyle='#8ad';g.strokeRect(x,y,bw-4,h);var pr=TAB.prob[i];g.fillStyle=COLS[i%COLS.length];g.fillRect(x,y+h*(1-pr),bw-4,h*pr);if(TAB.alias[i]>=0&&pr<1){g.fillStyle=COLS[TAB.alias[i]%COLS.length];g.fillRect(x,y,bw-4,h*(1-pr));}g.fillStyle='#cfe';g.font='8px monospace';g.fillText('#'+i,x+4,y+h+12);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('each bucket: primary (bottom) + alias (top), total area = 1',12,152);
+ var v=verify();var recon=true;for(var i=0;i<n;i++)if(Math.abs(probOf(i,TAB,n)-W_[i]/sum)>1e-9)recon=false;
+ g.fillStyle=recon?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('table reconstructs exact input probabilities '+(recon?'✓':'✗'),12,H-10);}
+document.getElementById('alroll').onclick=function(){mk();drawW4();document.getElementById('alread').textContent='weights '+W_.join(',')+' → '+W_.length+' O(1) buckets';};
+document.getElementById('alcheck').onclick=function(){var v=verify();document.getElementById('alread').textContent='500 weight sets: table == exact probabilities '+(v.reconstructs?'✓':'✗')+' (err '+v.maxErr.toExponential(1)+')';};
+document.getElementById('alspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!TAB)mk();var n=W_.length,cx=W/2,cy=H/2-20,r=85;
+ for(var i=0;i<n;i++){var a=i/n*6.28-1.57+ang*0.3,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8,pr=TAB.prob[i];g.fillStyle=COLS[i%COLS.length];g.beginPath();g.arc(x,y,16,-1.57,-1.57+6.28*pr);g.lineTo(x,y);g.fill();if(pr<1){g.fillStyle=COLS[TAB.alias[i]%COLS.length];g.beginPath();g.arc(x,y,16,-1.57+6.28*pr,-1.57+6.28);g.lineTo(x,y);g.fill();}g.strokeStyle='#0a0e14';g.beginPath();g.arc(x,y,16,0,7);g.stroke();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green+: '+n+' equal-area buckets (primary + alias each)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the O(log k) cumulative search replaced',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('uneven odds, flat O(1) cost per draw',10,H-9);}
+mk();drawW3();drawW4();window.__alias=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Stern&ndash;Brocot tree</b> is an infinite binary tree that contains <b>every</b> positive rational number <b>exactly once</b>, each already in <b>lowest terms</b>. Each node is the <b>mediant</b> (a+c)/(b+d) of the two fractions bracketing it; descending left or right narrows the interval, and the path L/R spells the fraction&rsquo;s continued-fraction expansion. It is at once a perfect enumeration of the rationals and an optimal way to search for the simplest fraction in an interval.<br><br>
+ <span class="lit">LIT</span> verified live: every node down to depth 11 is in lowest terms (gcd = 1) and all are distinct, and every reduced p/q with p,q &le; 20 is found by binary search in the tree (window.__sternbrocot). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sync</i> &mdash; the shared ledger where every rational has one and only one canonical slot. The Stern&ndash;Brocot tree is that perfectly synced enumeration. <b>AVAN (AI)</b> built the instrument: the mediant recursion, the lowest-terms and distinctness checks, and the tree search for arbitrary reduced fractions.<br><br>Credit as content: Moritz Stern (1858) &amp; Achille Brocot (1861). The weave: David names the-sync; I build each node as the mediant of its bracketing fractions and confirm every node is reduced, distinct, and reachable by a unique L/R path.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Between 0/1 and 1/0, insert the mediant 1/1. Between each neighbor pair, insert their mediant again: 1/2, 2/1, then 1/3, 2/3, 3/2, 3/1 &mdash; every positive rational appears once, always reduced.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The Stern&ndash;Brocot tree; nodes are mediants in lowest terms. Search for any reduced fraction and watch the L/R path find it.</div>
+   <div class="btns" style="margin-top:10px"><button id="sbfind">find a fraction ▶</button><button id="sbcheck">verify ▶</button></div>
+   <div class="cap" id="sbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: every positive rational, once, in lowest terms.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): enumerate <b>every</b> positive rational <b>exactly once</b> (already reduced) by taking <b>mediants</b> &mdash; between two bracketing fractions insert (a+c)/(b+d), and recurse; the L/R path to any fraction is its continued-fraction expansion. The inverse of &lsquo;list p/q and reduce each, skipping duplicates&rsquo; is &lsquo;grow mediants &mdash; each rational is born once, already in lowest terms.&rsquo; <b>Magenta</b> is the non-reduced duplicates a naive listing repeats; <b>green</b> is the one canonical node per rational. The tree of all rationals.</div>
+   <div class="btns" style="margin-top:10px"><button id="sbspin">pause spin</button></div></div></div></div>"""
+SB_SCRIPT = """(function(){
+var ang=0,spin=true,TARGET=null,PATH=null;
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a;}
+function sternNodes(depth){var nodes=[];function rec(la,lb,ra,rb,d){if(d>depth)return;var ma=la+ra,mb=lb+rb;nodes.push([ma,mb,d]);rec(la,lb,ma,mb,d+1);rec(ma,mb,ra,rb,d+1);}rec(0,1,1,0,1);return nodes;}
+function sternFind(p,q){var la=0,lb=1,ra=1,rb=0,path=[];for(var it=0;it<10000;it++){var ma=la+ra,mb=lb+rb;if(ma===p&&mb===q)return path;if(p*mb<ma*q){ra=ma;rb=mb;path.push('L');}else{la=ma;lb=mb;path.push('R');}}return null;}
+function verify(){var nodes=sternNodes(11),reduced=true,seen=new Set(),distinct=true;nodes.forEach(function(f){if(gcd(f[0],f[1])!==1)reduced=false;var k=f[0]+'/'+f[1];if(seen.has(k))distinct=false;seen.add(k);});var found=true;for(var p=1;p<=20;p++)for(var q=1;q<=20;q++)if(gcd(p,q)===1)if(sternFind(p,q)===null)found=false;return {reduced:reduced,distinct:distinct,allFound:found,count:nodes.length};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('insert the mediant (a+c)/(b+d) between neighbors — always reduced',12,14);
+ var rows=[['0/1','1/0'],['0/1','1/1','1/0'],['0/1','1/2','1/1','2/1','1/0']];for(var r=0;r<3;r++){var row=rows[r];for(var i=0;i<row.length;i++){var isNew=(r>0&&rows[r-1].indexOf(row[i])<0);g.fillStyle=isNew?'#39fc6b':'#37506e';g.fillRect(20+i*70,40+r*36,54,26);g.fillStyle=isNew?'#042':'#9ab';g.font='10px monospace';g.fillText(row[i],28+i*70,57+r*36);}}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('every positive rational is born exactly once',20,150);}
+function drawTree(g,W,H){var maxD=4;function rec(la,lb,ra,rb,d,x,span,y){if(d>maxD)return;var ma=la+ra,mb=lb+rb;g.fillStyle=(TARGET&&ma===TARGET[0]&&mb===TARGET[1])?'#ff2d95':'#39fc6b';g.beginPath();g.arc(x,y,3+(maxD-d),0,7);g.fill();if(d<maxD){g.strokeStyle='rgba(120,180,140,0.3)';g.beginPath();g.moveTo(x,y);g.lineTo(x-span/2,y+42);g.moveTo(x,y);g.lineTo(x+span/2,y+42);g.stroke();}g.fillStyle='#9fd';g.font='8px monospace';if(d<=3)g.fillText(ma+'/'+mb,x-8,y-6);rec(la,lb,ma,mb,d+1,x-span/2,span/2,y+42);rec(ma,mb,ra,rb,d+1,x+span/2,span/2,y+42);}
+ rec(0,1,1,0,1,W/2,W/2.4,30);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);drawTree(g,W,H);
+ if(TARGET){g.fillStyle='#ff2d95';g.font='11px monospace';g.fillText('found '+TARGET[0]+'/'+TARGET[1]+' via path '+(PATH.join('')||'(root)'),12,H-30);}
+ var v=verify();g.fillStyle=v.reduced&&v.distinct?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('all nodes reduced (gcd=1) & distinct '+(v.reduced&&v.distinct?'✓':'✗'),12,H-12);}
+document.getElementById('sbfind').onclick=function(){var p,q;do{p=1+Math.floor(Math.random()*7);q=1+Math.floor(Math.random()*7);}while(gcd(p,q)!==1);TARGET=[p,q];PATH=sternFind(p,q);drawW4();document.getElementById('sbread').textContent=p+'/'+q+' → path '+(PATH.join('')||'(root)')+' (depth '+PATH.length+')';};
+document.getElementById('sbcheck').onclick=function(){var v=verify();document.getElementById('sbread').textContent='depth≤11 ('+v.count+' nodes): reduced '+(v.reduced?'✓':'✗')+' · distinct '+(v.distinct?'✓':'✗')+' · all p/q≤20 found '+(v.allFound?'✓':'✗');};
+document.getElementById('sbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var nodes=sternNodes(6),cx=W/2,cy=H/2-20;
+ nodes.forEach(function(f){var val=f[0]/f[1],ratio=val/(val+1),a=ratio*6.28+ang*0.3,r=25+f[2]*22,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;g.fillStyle='hsl('+(ratio*300)+',70%,60%)';g.beginPath();g.arc(x,y,Math.max(2,7-f[2]),0,7);g.fill();});
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green spiral: every positive rational, once, reduced',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the duplicates a naive p/q listing repeats',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('grow mediants — each rational born once',10,H-9);}
+drawW3();drawW4();window.__sternbrocot=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 69 (merge the indistinguishable · average the fixed points · prune by triangle inequality · read roots off the signs · a rotation per entry) ═══════════════════════
 HP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Hopcroft&rsquo;s algorithm</b> minimises a deterministic finite automaton &mdash; it finds the <b>smallest</b> DFA recognising the same language. It works by <b>partition refinement</b>: begin by splitting accepting from non-accepting states, then repeatedly split any group whose members transition into different groups, until stable. The final classes are the <b>Myhill&ndash;Nerode</b> equivalence classes &mdash; states no string can tell apart, merged into one. Hopcroft&rsquo;s trick of always splitting by the smaller half gives O(n log n).<br><br>
@@ -19720,6 +19947,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-tonelli-shanks","title":"THE TONELLI-SHANKS","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#c0a048","icon":"tonelli-shanks",
+  "kicker":"the square root modulo a prime",
+  "blurb":"the Tonelli-Shanks algorithm in the 5-window house format — compute a square root modulo a prime: given n and prime p, find r with r^2 = n (mod p) whenever one exists. It tests whether n is a quadratic residue via the Legendre symbol; if p = 3 (mod 4) the root is n^((p+1)/4), and otherwise a loop descends the 2-adic tower of p-1 using a known non-residue. It underpins elliptic-curve point decompression and Rabin cryptography. Verified live: over every prime below 2000 and every residue, the returned r satisfies r^2 = n, and null is returned exactly for non-residues. See residues vs squares in 1D, a modular root in 2D, and the invert-squaring inverse in 3D.",
+  "lit":"Genuine Tonelli-Shanks modular square root (Tonelli 1891; Shanks 1973). Verified live: for every prime p<2000 and every residue n, when n is a quadratic residue the returned r satisfies r^2 = n (mod p), and the algorithm returns null exactly for non-residues (window.__tonelli.roots && .detectsNonResidue); sqrt(2) mod 113 = 62.",
+  "fig":"No framing: the Legendre-symbol residue test, the 2-adic descent loop, and the r^2 = n verification run in-browser over 138k residue cases and hold. The AVAN inverse is honest — testing residuosity then descending the 2-adic tower with a non-residue inverts squaring modulo a prime; magenta is the non-residues with no square root, green the residue whose square is n. A square root in a finite field.",
+  "body":TS_BODY,"script":TS_SCRIPT},
+ {"slug":"the-tarjan-scc","title":"THE TARJAN SCC","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#c05868","icon":"tarjan-scc",
+  "kicker":"every strongly connected component in one DFS",
+  "blurb":"Tarjan's SCC algorithm in the 5-window house format — find the strongly connected components of a directed graph (maximal groups where every vertex reaches every other) in a single depth-first search. It tracks each vertex's discovery index and the lowest index reachable from its subtree (the low-link); when a vertex's low-link equals its own index it roots an SCC, and the component is popped off a stack. One pass, linear time. Verified live: over 400 random digraphs Tarjan's component partition equals a brute partition by mutual reachability. See the low-link idea in 1D, a colored SCC graph in 2D, and the one-DFS inverse in 3D.",
+  "lit":"Genuine Tarjan strongly-connected-components (Tarjan 1972). Verified live: over 400 random digraphs the single-DFS low-link algorithm produces a component partition identical to a brute partition by mutual reachability (u and v share a component iff each reaches the other) — window.__tarjanscc.matchesBrute.",
+  "fig":"No framing: the single-DFS index/low-link bookkeeping, the component stack, and the brute mutual-reachability cross-check run in-browser and agree exactly. The AVAN inverse is honest — one DFS tracking low-links, popping a component whenever a root is found, replaces O(n^2) pairwise reachability tests; magenta is the pairwise tests avoided, green the components found in one pass. Every cycle-cluster in a single sweep.",
+  "body":TJ_BODY,"script":TJ_SCRIPT},
+ {"slug":"the-gray-code","title":"THE GRAY CODE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#70a860","icon":"gray-code",
+  "kicker":"count so only one bit flips per step",
+  "blurb":"the reflected binary (Gray) code in the 5-window house format — order all 2^n binary strings so consecutive ones differ in exactly one bit, cyclically (last and first differ by one bit too). The i-th code is i XOR (i>>1). Because only one bit flips per step it eliminates the transient glitches of ordinary counters, which is why rotary encoders, Karnaugh maps, and error-tolerant ADCs use it. Verified live: for up to 12 bits every consecutive pair (including wrap-around) has Hamming distance exactly 1, and all 2^n codes are distinct. See the single-bit steps in 1D, the full code in 2D, and the walk-the-cube inverse in 3D.",
+  "lit":"Genuine reflected binary Gray code (Frank Gray 1947; Baudot 1878). Verified live: for all bit-widths up to 12, the map i -> i XOR (i>>1) makes every consecutive pair (including the wrap-around from last to first) differ in exactly one bit, and all 2^n codes are distinct (window.__graycode.hamming1 && .allDistinct).",
+  "fig":"No framing: the i XOR (i>>1) map, the Hamming-distance-1 check, and the all-distinct check run in-browser and hold. The AVAN inverse is honest — the map traces a Hamiltonian cycle on the hypercube's edges, each edge joining strings one bit apart, so counting proceeds one bit at a time; magenta is the multi-bit jumps of ordinary binary counting, green the single-bit walk. No glitch between steps.",
+  "body":GC_BODY,"script":GC_SCRIPT},
+ {"slug":"the-alias-method","title":"THE ALIAS METHOD","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#d4a017","icon":"alias-method",
+  "kicker":"O(1) weighted sampling by flattening the odds",
+  "blurb":"Vose's alias method in the 5-window house format — turn any weighted distribution over k outcomes into a table that samples in O(1) per draw (one uniform bucket pick plus one coin flip). It flattens the uneven probabilities into k equal-area buckets, each holding at most two outcomes: a primary and an alias. Building the table is O(k); after that every draw is constant-time no matter how skewed the weights. It is the standard engine behind fast weighted random selection — like a loot drop table. Verified live: over 500 random weight sets the assembled table reconstructs the exact input probabilities (error < 1e-9). See the pour-to-level idea in 1D, a flattened drop table in 2D, and the flatten-for-O(1) inverse in 3D.",
+  "lit":"Genuine Walker/Vose alias method (Walker 1977; Vose 1991). Verified live: over 500 random weight sets the small/large worklist construction yields a table where each outcome's reassembled probability (its primary mass plus the alias mass pointed at it from other buckets) equals its exact normalized weight, to error < 1e-9 (window.__alias.reconstructs; max err ~1e-16).",
+  "fig":"No framing: the small/large worklist that fills each bucket, the primary/alias pairing, and the deterministic reconstruction check run in-browser and hold to machine precision. The AVAN inverse is honest — flattening weights into k equal-area buckets makes a skewed draw one bucket pick plus one coin flip; magenta is the O(log k) cumulative-search replaced, green the O(1) bucket draw. Uneven odds, flat cost.",
+  "body":AL_BODY,"script":AL_SCRIPT},
+ {"slug":"the-stern-brocot","title":"THE STERN-BROCOT","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#58a0b0","icon":"stern-brocot",
+  "kicker":"every positive rational, once, in lowest terms",
+  "blurb":"the Stern-Brocot tree in the 5-window house format — an infinite binary tree containing every positive rational exactly once, each already in lowest terms. Each node is the mediant (a+c)/(b+d) of the two fractions bracketing it; descending left or right narrows the interval, and the L/R path spells the fraction's continued-fraction expansion. It is at once a perfect enumeration of the rationals and an optimal search for the simplest fraction in an interval. Verified live: every node down to depth 11 is in lowest terms (gcd=1) and all are distinct, and every reduced p/q with p,q<=20 is found by binary search in the tree. See the mediant insertion in 1D, the tree + search in 2D, and the grow-mediants inverse in 3D.",
+  "lit":"Genuine Stern-Brocot tree (Stern 1858; Brocot 1861). Verified live: every node down to depth 11 (2047 nodes) is in lowest terms (gcd(numerator,denominator)=1) and all are distinct, and every reduced fraction p/q with p,q<=20 is located by a unique L/R binary search in the tree (window.__sternbrocot.reduced && .distinct && .allFound).",
+  "fig":"No framing: the mediant recursion, the lowest-terms and distinctness checks, and the tree search for arbitrary reduced fractions run in-browser and hold. The AVAN inverse is honest — building each node as the mediant of its bracketing fractions enumerates every positive rational exactly once, already reduced, with the L/R path giving its continued fraction; magenta is the non-reduced duplicates a naive p/q listing repeats, green the one canonical node per rational. The tree of all rationals.",
+  "body":SB_BODY,"script":SB_SCRIPT},
  {"slug":"the-hopcroft","title":"THE HOPCROFT","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#c05868","icon":"hopcroft",
   "kicker":"the minimal DFA by merging indistinguishable states",
