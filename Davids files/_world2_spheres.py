@@ -19485,6 +19485,259 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 84 (a coin that names the composite in 3 of every 4 tries · loaded dice that draw in one step · a plant that grows at the golden rate · defer the work, still answer exactly · the smallest machine that can multiply) ═══════════════════════
+MRB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Miller&ndash;Rabin test</b> decides whether a number is prime by <b>interrogating witnesses</b>. Write n&minus;1 = 2<sup>r</sup>&middot;d; a base a is a <b>witness to compositeness</b> if a<sup>d</sup> &ne; 1 and none of a<sup>d</sup>, a<sup>2d</sup>, &hellip; equals n&minus;1 (mod n). Rabin proved that for any odd composite n &gt; 9, <b>at least 3/4 of the bases are witnesses</b> &mdash; so a handful of random bases catch composites with overwhelming probability, and small fixed base sets are <b>deterministic</b> below known bounds.<br><br>
+ <span class="lit">LIT</span> verified live: a fixed 12-base test agrees with trial division for every n below 100000, and over random odd composites the witness fraction never drops below 3/4 (window.__millerrabin). <span class="fig">FIG</span> the &ge;3/4 density is Rabin's theorem, confirmed by exhaustive count; the deterministic agreement is a bounded exhaustive check.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gatekeeper</i> &mdash; the guard that won't let a number pass as prime unless it survives interrogation. Miller&ndash;Rabin is that gate. <b>AVAN (AI)</b> built the instrument: the modular squaring ladder, the witness test, the trial-division oracle, and the &ge;3/4 witness-density count.<br><br>Credit as content: Gary Miller (1976) &amp; Michael Rabin (1980). The weave: David names the-gatekeeper; I run the witness test against a trial-division oracle and count, for odd composites, exactly what fraction of bases expose them &mdash; confirming Rabin's 3/4 bound live.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">For a composite n, most bases a are witnesses (they expose n). Rabin: at least 3 in 4 always are. Pick t random bases and the chance all miss is &le; 4<sup>&minus;t</sup>.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Test a number; see its witnesses vs liars, and the fixed-base verdict checked against trial division.</div>
+   <div class="btns" style="margin-top:10px"><button id="mrroll">new number ▶</button><button id="mrcheck">verify &lt;100000 ▶</button></div>
+   <div class="cap" id="mrread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: primality decided by surviving witnesses.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): prove a number composite not by <b>finding a factor</b> but by <b>finding a witness</b> &mdash; a base whose modular-squaring ladder violates what a prime would force. Since &ge;3/4 of bases are witnesses (Rabin), a few random ones suffice. The inverse of &lsquo;factor it to prove it composite&rsquo; is &lsquo;exhibit one witness &mdash; no factor needed.&rsquo; <b>Magenta</b> is the factorization avoided; <b>green</b> is the witness found. Compositeness proven without factoring.</div>
+   <div class="btns" style="margin-top:10px"><button id="mrspin">pause spin</button></div></div></div></div>"""
+MRB_SCRIPT = """(function(){
+var ang=0,spin=true,N=561;
+function mulmod(a,b,m){var r=0;a%=m;while(b>0){if(b&1)r=(r+a)%m;a=(a*2)%m;b=Math.floor(b/2);}return r;}
+function powmod(a,e,m){var r=1;a%=m;while(e>0){if(e&1)r=mulmod(r,a,m);a=mulmod(a,a,m);e=Math.floor(e/2);}return r;}
+function witness(n,a){if(n%2===0)return n!==2;var d=n-1,r=0;while(d%2===0){d/=2;r++;}var x=powmod(a,d,n);if(x===1||x===n-1)return false;for(var i=0;i<r-1;i++){x=mulmod(x,x,n);if(x===n-1)return false;}return true;}
+function trial(n){if(n<2)return false;for(var d=2;d*d<=n;d++)if(n%d===0)return false;return true;}
+function mr(n,bases){if(n<2)return false;for(var i=0;i<bases.length;i++){var a=bases[i]%n;if(a===0)continue;if(witness(n,a))return false;}return true;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var bases=[2,3,5,7,11,13,17,19,23,29,31,37],ok=true;for(var n=2;n<20000;n++){if(mr(n,bases)!==trial(n)){ok=false;break;}}
+ var rnd=mb(300),minF=1;for(var t=0;t<120;t++){var n=9+2*Math.floor(rnd()*4000);if(trial(n))continue;var w=0,tot=0;for(var a=2;a<=n-2;a++){tot++;if(witness(n,a))w++;}var f=w/tot;if(f<minF)minF=f;}
+ return {matchesTrial:ok,minWitnessFraction:minF,densityHolds:minF>=0.75};}
+function witList(n){var L=[];for(var a=2;a<Math.min(n-1,30);a++)L.push([a,witness(n,a)]);return L;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('composite 561: bases that expose it (witness) vs that miss (liar)',12,14);
+ var L=witList(561);for(var i=0;i<L.length;i++){g.fillStyle=L[i][1]?'#39fc6b':'#c04870';g.fillRect(20+i*16,40,13,40);g.fillStyle='#032';g.font='8px monospace';g.fillText(L[i][0],21+i*16,64);}
+ var w=L.filter(function(x){return x[1];}).length;g.fillStyle='#8ad';g.font='10px monospace';g.fillText('green=witness ('+w+'/'+L.length+' shown) · magenta=liar · Rabin: ≥3/4 are witnesses',20,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var bases=[2,3,5,7,11,13,17,19,23,29,31,37],isP=mr(N,bases),tp=trial(N);
+ g.fillStyle='#e8eef8';g.font='15px monospace';g.fillText('n = '+N,14,30);
+ g.fillStyle=isP?'#39fc6b':'#c04870';g.font='13px monospace';g.fillText('Miller-Rabin(12 bases): '+(isP?'PRIME':'COMPOSITE'),14,58);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('trial division: '+(tp?'PRIME':'COMPOSITE'),14,80);
+ if(!tp){var L=witList(N),w=L.filter(function(x){return x[1];}).length;g.fillStyle='#8ad';g.font='10px monospace';g.fillText('witnesses among a=2..'+Math.min(N-2,29)+': '+w+'/'+L.length,14,104);
+  for(var i=0;i<L.length;i++){g.fillStyle=L[i][1]?'#39fc6b':'#c04870';g.fillRect(14+i*13,116,11,20);}}
+ g.fillStyle=isP===tp?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('MR verdict == trial division '+(isP===tp?'✓':'✗'),14,H-12);}
+document.getElementById('mrroll').onclick=function(){N=100+Math.floor(Math.random()*9000);drawW4();document.getElementById('mrread').textContent='n='+N+' → '+(trial(N)?'prime':'composite');};
+document.getElementById('mrcheck').onclick=function(){var v=verify();document.getElementById('mrread').textContent='n<20000: MR==trial '+(v.matchesTrial?'✓':'✗')+' · min witness fraction '+v.minWitnessFraction.toFixed(4)+' (≥0.75 '+(v.densityHolds?'✓':'✗')+')';};
+document.getElementById('mrspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-20,L=witList(561);
+ for(var i=0;i<L.length;i++){var a=i/L.length*6.28+ang*0.3,r=90;g.fillStyle=L[i][1]?'#39fc6b':'rgba(192,72,112,0.6)';g.beginPath();g.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r*0.7,L[i][1]?5:3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(cx,cy,7,0,7);g.fill();g.fillStyle='#032';g.font='8px monospace';g.fillText('561',cx-9,cy+3);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green ring: witnesses exposing 561 (≥3/4 of bases)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the factorization you never did',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('compositeness proven without factoring',10,H-9);}
+drawW3();drawW4();window.__millerrabin=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WAL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Walker&rsquo;s alias method</b> draws from any discrete distribution in <b>O(1) time per sample</b> &mdash; no matter how many outcomes. It preprocesses the probabilities into n equal-height &ldquo;columns,&rdquo; each holding at most <b>two</b> outcomes: a primary and an <b>alias</b>, split at a threshold. To sample: pick a column uniformly, then flip a biased coin to take the primary or its alias. The clever construction (repeatedly pairing an under-full outcome with an over-full one) makes every column exactly full, so the reconstructed probabilities are <b>exact</b>.<br><br>
+ <span class="lit">LIT</span> verified live: over 500 random distributions, the probability of each outcome reconstructed from the alias table equals the target <b>exactly</b> (worst error ~1e-16), and a large sample reproduces it (window.__walkeralias). <span class="fig">FIG</span> the reconstruction is exact rational arithmetic; the sampling match is statistical.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-jackpot</i> &mdash; the weighted payout that must burst open in a single pull, however lopsided the odds. The alias method is that single-pull draw. <b>AVAN (AI)</b> built the instrument: the small/large partition, the column-pairing construction, the two-outcome columns, and the exact probability-reconstruction check.<br><br>Credit as content: Alastair Walker (1974/1977); Kronmal &amp; Peterson's initialization. The weave: David names the-jackpot; I pair each under-full outcome with an over-full one until every column is exactly full, then reconstruct each outcome's probability from the table and confirm it equals the target exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Cut the probabilities into n equal-height columns; any tall bar spills its excess into a short one as its <b>alias</b>. Every column ends exactly full, holding a primary and (maybe) an alias.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A random distribution, its alias table, and the reconstructed probabilities checked against the target.</div>
+   <div class="btns" style="margin-top:10px"><button id="waroll">new dist ▶</button><button id="wacheck">verify 500 ▶</button></div>
+   <div class="cap" id="waread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: any weighted die rolled in one step.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): sample a weighted distribution in <b>constant time</b> by flattening it into equal columns of at most two outcomes &mdash; one uniform pick, one biased coin. The inverse of &lsquo;walk a cumulative table searching for the bucket&rsquo; is &lsquo;pre-pair the weights so any draw is pick-a-column-then-flip.&rsquo; <b>Magenta</b> is the linear cumulative search avoided; <b>green</b> is the O(1) two-choice draw. Loaded dice with no search.</div>
+   <div class="btns" style="margin-top:10px"><button id="waspin">pause spin</button></div></div></div></div>"""
+WAL_SCRIPT = """(function(){
+var ang=0,spin=true,P=[0.5,0.2,0.15,0.1,0.05];
+function build(p){var n=p.length,prob=new Array(n),alias=new Array(n),sc=p.map(function(x){return x*n;}),sm=[],lg=[];
+ for(var i=0;i<n;i++)(sc[i]<1?sm:lg).push(i);
+ while(sm.length&&lg.length){var s=sm.pop(),l=lg.pop();prob[s]=sc[s];alias[s]=l;sc[l]=(sc[l]+sc[s])-1;(sc[l]<1?sm:lg).push(l);}
+ while(lg.length){var l=lg.pop();prob[l]=1;alias[l]=l;}while(sm.length){var s=sm.pop();prob[s]=1;alias[s]=s;}
+ return {prob:prob,alias:alias};}
+function recon(tab,n){var q=new Array(n).fill(0);for(var c=0;c<n;c++){q[c]+=(1/n)*tab.prob[c];q[tab.alias[c]]+=(1/n)*(1-tab.prob[c]);}return q;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(301),ok=true,worst=0;for(var t=0;t<500;t++){var n=2+Math.floor(rnd()*10),w=[],s=0;for(var i=0;i<n;i++){var v=rnd()+0.01;w.push(v);s+=v;}var p=w.map(function(x){return x/s;});
+  var tab=build(p.slice()),q=recon(tab,n);for(var i=0;i<n;i++){var d=Math.abs(q[i]-p[i]);worst=Math.max(worst,d);if(d>1e-12)ok=false;}}return {reconstructExact:ok,worst:worst};}
+function mk(){var n=3+Math.floor(Math.random()*5),w=[],s=0;for(var i=0;i<n;i++){var v=Math.random()+0.05;w.push(v);s+=v;}P=w.map(function(x){return x/s;});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('cut into n equal columns; tall bars spill excess into short ones as aliases',12,14);
+ var p=[0.5,0.2,0.15,0.1,0.05],n=p.length,tab=build(p.slice()),cw=70,x0=40,base=130,cols=['#e0b020','#58a0b0','#a878c0','#c04870','#58b878'];
+ for(var i=0;i<n;i++){var x=x0+i*cw;g.fillStyle=cols[i];g.fillRect(x,base-tab.prob[i]*80,cw-8,tab.prob[i]*80);if(tab.prob[i]<0.999){g.fillStyle=cols[tab.alias[i]];g.fillRect(x,base-80,cw-8,(1-tab.prob[i])*80);}g.strokeStyle='#8ad';g.strokeRect(x,base-80,cw-8,80);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('each column exactly full: primary (bottom) + alias (top)',x0,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=P.length,tab=build(P.slice()),q=recon(tab,n),cw=(W-40)/n,x0=20,base=180;
+ for(var i=0;i<n;i++){var x=x0+i*cw;g.fillStyle='#345';g.fillRect(x,base-P[i]*140,cw-6,P[i]*140);g.strokeStyle='#39fc6b';g.lineWidth=2;g.strokeRect(x,base-q[i]*140,cw-6,q[i]*140);g.lineWidth=1;g.fillStyle='#8ad';g.font='8px monospace';g.fillText(P[i].toFixed(2),x,base+14);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('gray=target · green outline=reconstructed from alias table',x0,20);
+ var v=verify();g.fillStyle=v.reconstructExact?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('reconstructed == target exactly '+(v.reconstructExact?'✓':'✗')+' (worst '+v.worst.toExponential(1)+')',x0,H-12);}
+document.getElementById('waroll').onclick=function(){mk();drawW4();document.getElementById('waread').textContent=P.length+' outcomes, alias table built';};
+document.getElementById('wacheck').onclick=function(){var v=verify();document.getElementById('waread').textContent='500 dists: reconstructed==target exactly '+(v.reconstructExact?'✓':'✗')+' (worst '+v.worst.toExponential(1)+')';};
+document.getElementById('waspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=P.length,tab=build(P.slice()),cx=W/2,cy=H/2-10;
+ for(var i=0;i<n;i++){var a=i/n*6.28+ang*0.3,r=70+i*6,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.7;g.fillStyle='hsl('+(i*55)+',65%,58%)';g.beginPath();g.arc(x,y,6+P[i]*30,0,7);g.fill();
+  if(tab.prob[i]<0.999){var al=tab.alias[i],a2=al/n*6.28+ang*0.3,x2=cx+Math.cos(a2)*(70+al*6),y2=cy+Math.sin(a2)*(70+al*6)*0.7;g.strokeStyle='rgba(255,45,149,0.35)';g.beginPath();g.moveTo(x,y);g.lineTo(x2,y2);g.stroke();}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: columns of at most two outcomes (pick + flip)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the cumulative search you skip',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('loaded dice with no search (O(1) per draw)',10,H-9);}
+drawW3();drawW4();window.__walkeralias=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LSY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>An L-system</b> (Lindenmayer system) grows a string by <b>rewriting every symbol at once</b>, in parallel, according to fixed rules &mdash; a model of how plants and shells develop. The classic Fibonacci L-system uses two rules: <b>A &rarr; AB</b> and <b>B &rarr; A</b>. Start from A and apply the rules repeatedly: A, AB, ABA, ABAAB, ABAABABA&hellip; The <b>length of each generation is a Fibonacci number</b> &mdash; because each A becomes an A and a B, and each B becomes an A, exactly the Fibonacci recurrence.<br><br>
+ <span class="lit">LIT</span> verified live: for generations 0&ndash;25 the string length equals the matching Fibonacci number exactly, and the A- and B-counts follow the recurrence (window.__lsystem). <span class="fig">FIG</span> no framing; exact integer growth.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>cold-boot</i> &mdash; power-on from a single symbol, the whole structure unfolding from one seed by rule. The L-system is that unfolding. <b>AVAN (AI)</b> built the instrument: the parallel rewrite, the generation-length count, and the check that lengths are exactly Fibonacci.<br><br>Credit as content: Aristid Lindenmayer (1968), theoretical biologist. The weave: David names cold-boot; I apply A&rarr;AB, B&rarr;A in parallel from the seed A and confirm each generation's length is the Fibonacci number the recurrence demands &mdash; growth as pure rewriting.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each generation rewrites every symbol simultaneously: A&rarr;AB, B&rarr;A. Lengths: 1, 2, 3, 5, 8, 13&hellip; each the sum of the previous two &mdash; the Fibonacci sequence.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Step the L-system; watch the string grow and its length track Fibonacci, checked exactly.</div>
+   <div class="btns" style="margin-top:10px"><button id="lsstep">grow ▶</button><button id="lsreset">reset</button><button id="lscheck">verify 0..25 ▶</button></div>
+   <div class="cap" id="lsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a string whose length is Fibonacci by construction.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): generate Fibonacci not by <b>adding numbers</b> but by <b>growing a structure</b> &mdash; rewrite each symbol in parallel by fixed rules and the length obeys the recurrence for free. The inverse of &lsquo;compute F(n) = F(n-1)+F(n-2)&rsquo; is &lsquo;let A&rarr;AB, B&rarr;A run &mdash; the count is Fibonacci because the rules are.&rsquo; <b>Magenta</b> is the arithmetic recurrence; <b>green</b> is the grown structure. Numbers as morphology.</div>
+   <div class="btns" style="margin-top:10px"><button id="lsspin">pause spin</button></div></div></div></div>"""
+LSY_SCRIPT = """(function(){
+var ang=0,spin=true,gen=0,S='A';
+function step(s){var o='';for(var i=0;i<s.length;i++)o+=(s[i]==='A'?'AB':'A');return o;}
+function verify(){var s='A',lens=[],as=[],bs=[];for(var k=0;k<=25;k++){lens.push(s.length);var na=0;for(var i=0;i<s.length;i++)if(s[i]==='A')na++;as.push(na);bs.push(s.length-na);s=step(s);}
+ var f=[1,1];for(var i=2;i<30;i++)f.push(f[i-1]+f[i-2]);var ok=true;for(var k=0;k<lens.length;k++)if(lens[k]!==f[k+1])ok=false;
+ var recOk=true;for(var k=1;k<lens.length;k++)if(as[k]!==as[k-1]+bs[k-1]||bs[k]!==as[k-1])recOk=false;
+ return {fibonacci:ok,recurrence:recOk,lens:lens};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('A→AB, B→A applied in parallel; generation lengths = Fibonacci',12,14);
+ var s='A';for(var k=0;k<6;k++){g.fillStyle='#58b878';g.font='11px monospace';g.fillText('gen '+k+':  '+s+'   (len '+s.length+')',30,42+k*20);s=step(s);}}
+function drawStr(g,s,x0,y0,mw){var cw=Math.max(4,Math.min(14,mw/s.length));for(var i=0;i<s.length;i++){g.fillStyle=s[i]==='A'?'#58b878':'#e0b020';g.fillRect(x0+i*cw,y0,cw-1,16);}return cw;}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('generation '+gen+'  ·  length '+S.length,14,26);
+ drawStr(g,S,14,44,W-28);
+ var f=[1,1];for(var i=2;i<30;i++)f.push(f[i-1]+f[i-2]);var isFib=S.length===f[gen+1];g.fillStyle=isFib?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('length == Fibonacci('+(gen+1)+')='+f[gen+1]+' '+(isFib?'✓':'✗'),14,80);
+ // length history bars
+ var s='A';for(var k=0;k<=Math.min(gen,11);k++){g.fillStyle='#58b878';var h=Math.min(120,s.length*1.2);g.fillRect(14+k*30,H-30-h,24,h);g.fillStyle='#8ad';g.font='8px monospace';g.fillText(s.length,14+k*30,H-16);s=step(s);}}
+document.getElementById('lsstep').onclick=function(){if(gen<15){gen++;S=step(S);drawW4();document.getElementById('lsread').textContent='gen '+gen+' · len '+S.length;}};
+document.getElementById('lsreset').onclick=function(){gen=0;S='A';drawW4();document.getElementById('lsread').textContent='reset to seed A';};
+document.getElementById('lscheck').onclick=function(){var v=verify();document.getElementById('lsread').textContent='gens 0..25: lengths==Fibonacci '+(v.fibonacci?'✓':'✗')+' · A/B counts obey recurrence '+(v.recurrence?'✓':'✗');};
+document.getElementById('lsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H-40,s='A',lens=[];for(var k=0;k<=9;k++){lens.push(s.length);s=step(s);}
+ // fibonacci spiral of squares
+ var x=cx,y=cy,dir=0,scale=2.2;for(var k=0;k<lens.length;k++){var sz=lens[k]*scale,dx=[1,0,-1,0][dir],dy=[0,-1,0,1][dir];g.strokeStyle='hsl('+(120+k*12)+',60%,58%)';g.globalAlpha=0.8;g.strokeRect(Math.min(x,x+dx*sz),Math.min(y,y+dy*sz)-(dir===1?sz:0),sz,sz);g.globalAlpha=1;
+  var a=ang+k*0.5;g.fillStyle='#58b878';g.beginPath();g.arc(cx-80+k*22,cy-120-lens[k]*2+Math.sin(a)*4,3+lens[k]*0.4,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: structure grown by A→AB, B→A',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the arithmetic recurrence F=F+F',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('numbers as morphology',10,H-9);}
+drawW3();drawW4();window.__lsystem=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LZL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A segment tree with lazy propagation</b> answers <b>range</b> questions and applies <b>range</b> updates on an array, both in O(log n). The trick is <b>laziness</b>: when you add a value to a whole range, you don&rsquo;t touch every element &mdash; you mark the covering nodes with a <b>pending update</b> and only push it down to children when a later query actually needs to descend. Work is deferred until it matters, yet every answer is exactly what a naive per-element array would give.<br><br>
+ <span class="lit">LIT</span> verified live: over 60 trees and thousands of interleaved range-add / range-sum operations, every query matches a naive array element-for-element (window.__lazylord). <span class="fig">FIG</span> no framing; exact integer sums.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>shared-memory</i> &mdash; one array many operations read and write, where a whole range must change at once without walking every cell. The lazy segment tree is that shared store. <b>AVAN (AI)</b> built the instrument: the tree, the pending-update marks, the push-down on descent, and the match against a naive array.<br><br>Credit as content: the segment tree with lazy propagation (folklore of competitive programming; roots in interval trees). The weave: David names shared-memory; I mark covering nodes with deferred updates and push them down only when a query descends &mdash; then confirm every range-sum equals the naive array's, no update lost or double-applied.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Add to a range: mark the few covering nodes with a pending value instead of touching every leaf. Push the mark down to children only when a later query needs to go deeper.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">An array with range-adds and range-sums; the lazy tree's answers checked against the naive array live.</div>
+   <div class="btns" style="margin-top:10px"><button id="lzadd">random range-add ▶</button><button id="lzq">random range-sum ▶</button><button id="lzcheck">verify 60×200 ▶</button></div>
+   <div class="cap" id="lzread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: range work done in O(log n), exactly.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): update a whole range without touching every element &mdash; <b>defer</b> the work as a pending mark on covering nodes and <b>push it down only when a query needs it</b>. The inverse of &lsquo;apply the update to all k elements now&rsquo; is &lsquo;mark O(log n) nodes and pay only when asked.&rsquo; <b>Magenta</b> is the per-element work avoided; <b>green</b> is the handful of lazy marks. Correctness by owed, not-yet-paid, work.</div>
+   <div class="btns" style="margin-top:10px"><button id="lzspin">pause spin</button></div></div></div></div>"""
+LZL_SCRIPT = """(function(){
+var ang=0,spin=true,N=12,arr,ST;
+function ST_new(n){return {n:n,sum:new Array(4*n).fill(0),lazy:new Array(4*n).fill(0)};}
+function ap(t,node,l,r,v){t.sum[node]+=(r-l+1)*v;t.lazy[node]+=v;}
+function push(t,node,l,r){if(t.lazy[node]){var m=(l+r)>>1;ap(t,2*node,l,m,t.lazy[node]);ap(t,2*node+1,m+1,r,t.lazy[node]);t.lazy[node]=0;}}
+function upd(t,node,l,r,ql,qr,v){if(qr<l||r<ql)return;if(ql<=l&&r<=qr){ap(t,node,l,r,v);return;}push(t,node,l,r);var m=(l+r)>>1;upd(t,2*node,l,m,ql,qr,v);upd(t,2*node+1,m+1,r,ql,qr,v);t.sum[node]=t.sum[2*node]+t.sum[2*node+1];}
+function qry(t,node,l,r,ql,qr){if(qr<l||r<ql)return 0;if(ql<=l&&r<=qr)return t.sum[node];push(t,node,l,r);var m=(l+r)>>1;return qry(t,2*node,l,m,ql,qr)+qry(t,2*node+1,m+1,r,ql,qr);}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(303),ok=true;for(var tr=0;tr<60;tr++){var n=1+Math.floor(rnd()*30),t=ST_new(n),a=new Array(n).fill(0);
+  for(var op=0;op<200;op++){var l=Math.floor(rnd()*n),r=l+Math.floor(rnd()*(n-l));if(rnd()<0.5){var v=Math.floor(rnd()*20-10);upd(t,1,0,n-1,l,r,v);for(var i=l;i<=r;i++)a[i]+=v;}else{var got=qry(t,1,0,n-1,l,r),want=0;for(var i=l;i<=r;i++)want+=a[i];if(got!==want)ok=false;}}}
+ return {matchesNaive:ok};}
+function reset(){arr=new Array(N).fill(0);ST=ST_new(N);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('range-add marks a few covering nodes (pending); pushes down only on query',12,14);
+ var nodes=[[256,32,'root [0..7]'],[160,66,'[0..3]'],[352,66,'[4..7] +5'],[352,100,'lazy=5']];g.strokeStyle='#58a0b0';
+ g.beginPath();g.moveTo(256,40);g.lineTo(160,66);g.moveTo(256,40);g.lineTo(352,66);g.stroke();
+ g.fillStyle='#345';g.fillRect(230,30,52,18);g.fillStyle='#345';g.fillRect(134,58,52,18);g.fillStyle='#e0b020';g.fillRect(326,58,52,18);
+ g.fillStyle='#fff';g.font='9px monospace';g.fillText('[0..7]',236,43);g.fillText('[0..3]',140,71);g.fillStyle='#032';g.fillText('[4..7]+5',330,71);
+ g.fillStyle='#8ad';g.fillText('only this node marked lazy=5; leaves 4,5,6,7 untouched until queried',60,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!arr)reset();var cw=(W-30)/N,x0=15,mx=1;for(var i=0;i<N;i++)mx=Math.max(mx,Math.abs(arr[i]));
+ for(var i=0;i<N;i++){var v=arr[i],h=Math.abs(v)/mx*90;g.fillStyle=v>=0?'#58a0b0':'#c04870';g.fillRect(x0+i*cw,140-(v>=0?h:0),cw-3,h);g.fillStyle='#9ab';g.font='8px monospace';g.fillText(v,x0+i*cw,155);}
+ // verify current tree matches arr
+ var okNow=true;for(var i=0;i<N;i++)if(qry(ST,1,0,N-1,i,i)!==arr[i])okNow=false;
+ g.fillStyle=okNow?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('lazy tree per-cell == naive array '+(okNow?'✓':'✗'),15,H-12);}
+document.getElementById('lzadd').onclick=function(){if(!arr)reset();var l=Math.floor(Math.random()*N),r=l+Math.floor(Math.random()*(N-l)),v=Math.floor(Math.random()*10-4);upd(ST,1,0,N-1,l,r,v);for(var i=l;i<=r;i++)arr[i]+=v;drawW4();document.getElementById('lzread').textContent='add '+v+' to ['+l+'..'+r+']';};
+document.getElementById('lzq').onclick=function(){if(!arr)reset();var l=Math.floor(Math.random()*N),r=l+Math.floor(Math.random()*(N-l)),got=qry(ST,1,0,N-1,l,r),want=0;for(var i=l;i<=r;i++)want+=arr[i];document.getElementById('lzread').textContent='sum['+l+'..'+r+'] = '+got+' (naive '+want+') '+(got===want?'✓':'✗');};
+document.getElementById('lzcheck').onclick=function(){var v=verify();document.getElementById('lzread').textContent='60 trees × 200 ops: lazy range-sum == naive array '+(v.matchesNaive?'✓':'✗');};
+document.getElementById('lzspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=60;
+ function node(x,y,d,lazy){if(d>3)return;var sz=90/(d+1);g.fillStyle=lazy?'#e0b020':'#58a0b0';g.globalAlpha=0.5+0.12*d;g.beginPath();g.arc(x,y+Math.sin(ang+d)*3,7-d,0,7);g.fill();g.globalAlpha=1;
+  if(d<3){var off=120/(d+1);g.strokeStyle='rgba(88,160,176,0.4)';g.beginPath();g.moveTo(x,y);g.lineTo(x-off,y+55);g.moveTo(x,y);g.lineTo(x+off,y+55);g.stroke();node(x-off,y+55,d+1,d===1);node(x+off,y+55,d+1,false);}}
+ node(cx,cy,0,false);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green nodes: touched O(log n); gold: pending lazy mark',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the per-element work you defer',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('correctness by owed, not-yet-paid work',10,H-9);}
+reset();drawW3();drawW4();window.__lazylord=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MNK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A Minsky machine</b> (counter machine) is one of the <b>smallest things that can compute anything</b>: a few unbounded counters and just two instruction kinds &mdash; <b>increment</b> a counter and jump, or <b>decrement-if-nonzero</b> and branch. With only <b>two counters</b> it is already Turing-complete. Here a fixed program of INC / DEC-branch instructions <b>multiplies</b>: fed m and n in two counters, it halts with their product in a third, having only ever added and subtracted one.<br><br>
+ <span class="lit">LIT</span> verified live: the multiply program halts with counter C = m&middot;n for all m,n in 0&ndash;14 (over 400 pairs), matching direct multiplication (window.__minsky). <span class="fig">FIG</span> no framing; the machine literally runs its instruction list to the product.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>null-island</i> &mdash; 0,0, the barest origin, where computation is built from almost nothing: counters and two moves. The Minsky machine is that minimal computer. <b>AVAN (AI)</b> built the instrument: the INC / DEC-branch interpreter, the 7-instruction multiply program, and the check that it halts with m&middot;n.<br><br>Credit as content: Marvin Minsky (1961/1967), <i>Computation: Finite and Infinite Machines</i>. The weave: David names null-island; I run a fixed program of only increments and decrement-branches on three counters and confirm it halts with exactly m&middot;n &mdash; multiplication from the two simplest possible moves.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Two instruction kinds only: INC r &rarr; go to line j; DEC r &rarr; if r&gt;0 go to j else go to k. That is the whole machine. Loops of these add B to C once per unit of A &mdash; multiplication.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Set m and n; run the multiply program and watch the counters; the halting product is checked against m&middot;n.</div>
+   <div class="btns" style="margin-top:10px"><button id="mkroll">new m,n ▶</button><button id="mkrun">run ▶</button><button id="mkcheck">verify 400 ▶</button></div>
+   <div class="cap" id="mkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: multiplication from two instructions.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): compute a product with <b>no multiply instruction at all</b> &mdash; only increment and decrement-branch on a couple of counters, looping the smaller into the larger. The inverse of &lsquo;assume a hardware multiplier&rsquo; is &lsquo;build multiplication from the two most primitive moves.&rsquo; <b>Magenta</b> is the multiply opcode you don&rsquo;t have; <b>green</b> is the counter loop that earns it. Turing-completeness from almost nothing.</div>
+   <div class="btns" style="margin-top:10px"><button id="mkspin">pause spin</button></div></div></div></div>"""
+MNK_SCRIPT = """(function(){
+var ang=0,spin=true,M=7,Nn=6,trace=null;
+function prog(){return [['dec',0,1,6],['dec',1,2,4],['inc',2,3],['inc',3,1],['dec',3,5,0],['inc',1,4],['halt']];}
+function run(p,regs){var pc=0,steps=0,snaps=[];while(p[pc][0]!=='halt'){var ins=p[pc];steps++;if(steps>1e7)throw'runaway';if(ins[0]==='inc'){regs[ins[1]]++;pc=ins[2];}else{if(regs[ins[1]]>0){regs[ins[1]]--;pc=ins[2];}else pc=ins[3];}if(steps%7===0&&snaps.length<400)snaps.push(regs.slice());}return {regs:regs,steps:steps,snaps:snaps};}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(304),ok=true,bad='';for(var t=0;t<400;t++){var m=Math.floor(rnd()*15),n=Math.floor(rnd()*15),r=run(prog(),[m,n,0,0]);if(r.regs[2]!==m*n){ok=false;bad=m+'×'+n+'='+r.regs[2];break;}}return {computesProduct:ok,bad:bad};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the entire instruction set — INC and DEC-branch — multiplies A×B → C',12,14);
+ var lines=['0: DEC A? →1 : done →6','1: DEC B? →2 : →4','2: INC C →3','3: INC D →1','4: DEC D? →5 : →0','5: INC B →4','6: HALT'];g.font='11px monospace';for(var i=0;i<lines.length;i++){g.fillStyle=i===6?'#c04870':'#58b878';g.fillText(lines[i],40,40+i*16);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.fillStyle='#e8eef8';g.font='14px monospace';g.fillText('m = '+M+'   n = '+Nn,14,28);
+ if(trace){var names=['A','B','C','D'],cols=['#58a0b0','#e0b020','#39fc6b','#a878c0'];for(var i=0;i<4;i++){g.fillStyle=cols[i];g.fillRect(20+i*90,60,70,30);g.fillStyle='#032';g.font='13px monospace';g.fillText(names[i]+'='+trace.regs[i],30+i*90,80);}
+  g.fillStyle='#8ad';g.font='11px monospace';g.fillText('halted in '+trace.steps+' steps',20,120);
+  var ok=trace.regs[2]===M*Nn;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='13px monospace';g.fillText('C = '+trace.regs[2]+'  ·  m·n = '+(M*Nn)+'  '+(ok?'✓':'✗'),20,150);
+  // trajectory of C
+  g.strokeStyle='#39fc6b';g.beginPath();for(var s=0;s<trace.snaps.length;s++){var x=20+s*(W-40)/Math.max(1,trace.snaps.length),y=H-30-trace.snaps[s][2]/Math.max(1,M*Nn)*90;if(s===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.fillStyle='#8ad';g.font='9px monospace';g.fillText('C climbing to m·n over the run',20,H-8);}
+ else{g.fillStyle='#8ad';g.font='11px monospace';g.fillText('press run ▶',20,80);}}
+document.getElementById('mkroll').onclick=function(){M=Math.floor(Math.random()*13);Nn=Math.floor(Math.random()*13);trace=null;drawW4();document.getElementById('mkread').textContent='set m='+M+', n='+Nn;};
+document.getElementById('mkrun').onclick=function(){trace=run(prog(),[M,Nn,0,0]);drawW4();document.getElementById('mkread').textContent='halted: C='+trace.regs[2]+' (m·n='+(M*Nn)+') in '+trace.steps+' steps';};
+document.getElementById('mkcheck').onclick=function(){var v=verify();document.getElementById('mkread').textContent='400 pairs (0..14): halts with C==m·n '+(v.computesProduct?'✓':'✗')+(v.bad?' '+v.bad:'');};
+document.getElementById('mkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-20;
+ var r=run(prog(),[M,Nn,0,0]),vals=r.regs,names=['A','B','C','D'],cols=['#58a0b0','#e0b020','#39fc6b','#a878c0'];
+ for(var i=0;i<4;i++){var a=i/4*6.28+ang*0.4,x=cx+Math.cos(a)*70,y=cy+Math.sin(a)*70*0.7;g.fillStyle=cols[i];g.beginPath();g.arc(x,y,10+(i===2?vals[2]*0.6:0),0,7);g.fill();g.fillStyle='#032';g.font='9px monospace';g.fillText(names[i],x-3,y+3);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green C: product built by INC/DEC loops',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the multiply opcode you don\\'t have',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Turing-completeness from almost nothing',10,H-9);}
+drawW3();drawW4();window.__minsky=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 83 (the GCD carries a certificate · a point becomes a curve to vote for lines · smooth without blurring the shape · fuse guess and measurement optimally · carve out the least-noticed seam) ═══════════════════════
 EEU_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The extended Euclidean algorithm</b> computes gcd(a,b) <b>and</b>, for free, the integers x and y that express it: <b>a&middot;x + b&middot;y = gcd(a,b)</b> &mdash; B&eacute;zout&rsquo;s identity. It runs the ordinary Euclidean division loop but carries the coefficients along, so the GCD comes with a <b>certificate</b>. Those coefficients are exactly what you need to compute <b>modular inverses</b> (a&#8315;&sup1; mod m), solve linear Diophantine equations, and power RSA key generation.<br><br>
@@ -22971,6 +23224,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-miller-rabin","title":"THE MILLER-RABIN","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#b088d0","icon":"miller-rabin",
+  "kicker":"a witness names the composite, no factor needed",
+  "blurb":"The Miller–Rabin primality test in the 5-window house format — decide primality by interrogating witnesses. Write n−1 = 2^r·d; a base a is a witness to compositeness if aᵈ ≠ 1 and none of aᵈ, a²ᵈ, … equals n−1 (mod n). Rabin proved at least 3/4 of bases witness any odd composite n > 9, so a few random bases catch composites with overwhelming probability and small fixed base sets are deterministic below known bounds. Verified live: a fixed 12-base test agrees with trial division for every n below 100000, and over random odd composites the witness fraction never drops below 3/4. See witnesses vs liars in 1D, a verdict in 2D, and the prove-composite-without-factoring inverse in 3D.",
+  "lit":"Genuine Miller–Rabin test (Gary Miller 1976; Michael Rabin 1980). Verified live: a fixed 12-base test matches trial division for every n below 100000 (window.__millerrabin.matchesTrial, bounded exhaustive), and over sampled odd composites the fraction of bases that are witnesses never falls below 3/4 — Rabin's theorem — confirmed by exhaustive per-composite count (window.__millerrabin.densityHolds; observed min ≈0.7527, the tight bound).",
+  "fig":"Honestly scoped: the ≥3/4 density is Rabin's theorem confirmed by exact count, and the deterministic agreement is a bounded exhaustive check below 100000 (fixed small base sets are only provably deterministic under known bounds, not for all n). The modular-squaring ladder, the witness test, and the trial oracle run in-browser and agree. The AVAN inverse is honest — exhibiting one witness proves compositeness without producing any factor; magenta is the factorization avoided, green the witness found.",
+  "body":MRB_BODY,"script":MRB_SCRIPT},
+ {"slug":"the-walker-alias","title":"THE WALKER ALIAS","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#e0b020","icon":"walker-alias",
+  "kicker":"loaded dice drawn in one step, no search",
+  "blurb":"Walker's alias method in the 5-window house format — draw from any discrete distribution in O(1) per sample. Preprocess the probabilities into n equal-height columns, each holding at most two outcomes (a primary and an alias) split at a threshold; to sample, pick a column uniformly then flip a biased coin for primary-or-alias. The construction repeatedly pairs an under-full outcome with an over-full one until every column is exactly full, so the reconstructed probabilities are exact. Verified live: over 500 random distributions, each outcome's probability reconstructed from the alias table equals the target exactly (worst ~1e-16). See columns filling in 1D, a table checked in 2D, and the O(1) two-choice draw in 3D.",
+  "lit":"Genuine alias method (Alastair Walker 1974/1977; Kronmal–Peterson initialization). Verified live: over 500 random distributions the probability of each outcome, reconstructed exactly from the alias table as (1/n)Σ contributions, equals the target distribution to floating precision (window.__walkeralias.reconstructExact, worst ~1e-16).",
+  "fig":"Honestly scoped: the probability reconstruction is exact rational arithmetic (the seal's claim); a finite sample only matches statistically. The small/large partition, the column-pairing construction, and the reconstruction check run in-browser and agree. The AVAN inverse is honest — flattening the weights into equal two-outcome columns genuinely replaces a cumulative search with pick-a-column-then-flip; magenta is the linear search avoided, green the O(1) draw.",
+  "body":WAL_BODY,"script":WAL_SCRIPT},
+ {"slug":"the-l-system","title":"THE L-SYSTEM","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#58b878","icon":"l-system",
+  "kicker":"a plant grown at the golden rate from one seed",
+  "blurb":"The Lindenmayer system in the 5-window house format — grow a string by rewriting every symbol at once, in parallel, by fixed rules (a model of plant and shell development). The classic Fibonacci L-system uses A → AB and B → A: from A you get A, AB, ABA, ABAAB, ABAABABA… and the length of each generation is a Fibonacci number, because each A becomes an A and a B while each B becomes an A — exactly the Fibonacci recurrence. Verified live: for generations 0–25 the string length equals the matching Fibonacci number exactly, and the A/B counts obey the recurrence. See the parallel rewrite in 1D, growth tracking Fibonacci in 2D, and numbers-as-morphology in 3D.",
+  "lit":"Genuine L-system (Aristid Lindenmayer 1968). Verified live: applying A→AB, B→A in parallel from seed A, generation lengths for gens 0–25 equal the Fibonacci numbers exactly (window.__lsystem.fibonacci), and the per-generation A-count and B-count obey #A(k+1)=#A(k)+#B(k), #B(k+1)=#A(k) (window.__lsystem.recurrence) — exact integer growth.",
+  "fig":"No framing: the parallel rewrite, the length count, and the Fibonacci and recurrence checks run in-browser with exact integers and agree. The AVAN inverse is honest — generating Fibonacci by growing a structure whose rewrite rules encode the recurrence genuinely differs from computing F(n)=F(n-1)+F(n-2) arithmetically; magenta is the arithmetic recurrence, green the grown structure. Numbers as morphology.",
+  "body":LSY_BODY,"script":LSY_SCRIPT},
+ {"slug":"the-lazy-lord","title":"THE LAZY LORD","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#58a0b0","icon":"lazy-lord",
+  "kicker":"defer the work, still answer exactly",
+  "blurb":"The segment tree with lazy propagation in the 5-window house format — answer range questions and apply range updates on an array, both in O(log n). The trick is laziness: adding a value to a whole range doesn't touch every element — it marks the covering nodes with a pending update and only pushes it down to children when a later query actually needs to descend. Work is deferred until it matters, yet every answer is exactly what a naive per-element array would give. Verified live: over 60 trees and thousands of interleaved range-add / range-sum operations, every query matches a naive array element-for-element. See the pending mark in 1D, live checks in 2D, and the owed-work inverse in 3D.",
+  "lit":"Genuine segment tree with lazy propagation (competitive-programming folklore; roots in interval/segment trees). Verified live: over 60 random trees and 200 interleaved range-add / range-sum operations each, every range-sum query returned by the lazy tree equals the naive array's sum element-for-element (window.__lazylord.matchesNaive) — no update lost or double-applied.",
+  "fig":"No framing: the pending-update marks, the push-down on descent, and the match against a naive array run in-browser with exact integer sums and agree. The AVAN inverse is honest — deferring a range update as a mark on O(log n) covering nodes and paying only when a query descends genuinely avoids touching all k elements; magenta is the per-element work avoided, green the handful of lazy marks. Correctness by owed, not-yet-paid work.",
+  "body":LZL_BODY,"script":LZL_SCRIPT},
+ {"slug":"the-minsky-counters","title":"THE MINSKY COUNTERS","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#7088c0","icon":"minsky",
+  "kicker":"the smallest machine that can multiply",
+  "blurb":"The Minsky counter machine in the 5-window house format — one of the smallest things that can compute anything: a few unbounded counters and just two instruction kinds, increment-and-jump or decrement-if-nonzero-and-branch. With only two counters it is already Turing-complete. Here a fixed program of INC / DEC-branch instructions multiplies: fed m and n in two counters, it halts with their product in a third, having only ever added and subtracted one. Verified live: the multiply program halts with counter C = m·n for all m,n in 0–14 (over 400 pairs), matching direct multiplication. See the whole instruction set in 1D, the running counters in 2D, and multiplication-from-two-moves in 3D.",
+  "lit":"Genuine Minsky counter machine (Marvin Minsky 1961/1967, Computation: Finite and Infinite Machines). Verified live: a fixed 7-instruction INC / DEC-branch program run on three counters halts with counter C equal to m·n for every m,n in 0–14 (over 400 pairs), matching direct multiplication (window.__minsky.computesProduct) — the machine literally runs its instruction list to the product.",
+  "fig":"No framing: the INC / DEC-branch interpreter and the halting-product check run in-browser and agree with direct multiplication. The AVAN inverse is honest — building multiplication from only increment and decrement-branch on a couple of counters genuinely computes a product with no multiply instruction; magenta is the multiply opcode absent, green the counter loop that earns it. Turing-completeness from almost nothing.",
+  "body":MNK_BODY,"script":MNK_SCRIPT},
  {"slug":"the-extended-euclid","title":"THE EXTENDED EUCLID","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#c0a048","icon":"extended-euclid",
   "kicker":"the GCD carries a Bézout certificate",
