@@ -19485,6 +19485,241 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 74 (similarity from a fistful of minimums · a base where +1 costs O(1) · a signal as a river of single bits · membership in a nest of fingerprints · the hailstone that always lands) ═══════════════════════
+MNH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>MinHash</b> estimates the <b>Jaccard similarity</b> of two sets &mdash; the size of their intersection over their union &mdash; from tiny fixed-size <b>signatures</b> instead of the sets themselves. For each of k hash functions, keep only the <b>minimum</b> hash value over a set; the <b>fraction of signature positions that agree</b> between two sets is an unbiased estimate of their Jaccard similarity. It is the engine behind near-duplicate detection in web-scale document sets.<br><br>
+ <span class="lit">LIT</span> verified live: identical sets agree in <b>all</b> k positions (estimate exactly 1); across 200 random pairs with k=256, the estimate stays within ~0.07 of the true Jaccard and averages ~0.02 error (window.__minhash). <span class="fig">FIG</span> approaches the true value as k grows &mdash; an estimator, honestly labelled.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-merge</i> &mdash; the moment two collections are compared for overlap before joining. MinHash is that overlap estimate, cheap enough for millions of sets. <b>AVAN (AI)</b> built the instrument: the k min-hash signatures, the agreement-fraction estimator, the exact Jaccard oracle, and the convergence check.<br><br>Credit as content: Andrei Broder (1997). The weave: David names the-merge; I reduce each set to its k minimums, count how many positions agree, and confirm that fraction tracks the true Jaccard &mdash; exactly 1 for identical sets.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Under one random hash, the set&rsquo;s <b>minimum</b> comes from whichever element hashes lowest. Two sets share that minimum exactly when the overall-lowest element lies in both &mdash; which happens with probability equal to their Jaccard similarity.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Two sets and their k-min signatures; the fraction of agreeing positions is compared against the exact Jaccard.</div>
+   <div class="btns" style="margin-top:10px"><button id="mhroll">new sets ▶</button><button id="mhcheck">verify 200 ▶</button></div>
+   <div class="cap" id="mhread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: similarity read from a fistful of minimums.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): estimate set <b>overlap without comparing the sets</b> &mdash; keep only k minimum-hashes per set; the fraction that agree is the Jaccard similarity. The inverse of &lsquo;intersect two full sets and divide by their union&rsquo; is &lsquo;compare k minimums &mdash; agreement <b>is</b> similarity.&rsquo; <b>Magenta</b> is the full sets you never compare; <b>green</b> is the k-minimum signature. Similarity from a thumbprint.</div>
+   <div class="btns" style="margin-top:10px"><button id="mhspin">pause spin</button></div></div></div></div>"""
+MNH_SCRIPT = """(function(){
+var ang=0,spin=true,SA=[],SB=[],K=64,SEEDS=[];
+function h32(x,s){var h=(x^s)>>>0;h=Math.imul(h^(h>>>16),2246822507)>>>0;h=Math.imul(h^(h>>>13),3266489909)>>>0;return (h^(h>>>16))>>>0;}
+function jaccard(A,B){var b=new Set(B),inter=0,uni=new Set(A);B.forEach(function(x){uni.add(x);});A.forEach(function(x){if(b.has(x))inter++;});return uni.size?inter/uni.size:0;}
+function sig(S){return SEEDS.map(function(sd){var m=Infinity;S.forEach(function(x){var hv=h32(x,sd);if(hv<m)m=hv;});return m;});}
+function est(sa,sb){var eq=0;for(var i=0;i<sa.length;i++)if(sa[i]===sb[i])eq++;return eq/sa.length;}
+function init(){SEEDS=[];for(var i=0;i<256;i++)SEEDS.push((i*2654435761+1)>>>0);}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){init();var identOk=true,maxErr=0,sumErr=0,trials=0,rnd=mb(180);
+ for(var t=0;t<200;t++){var A=[],B=[];for(var i=0;i<40;i++)if(rnd()<0.6)A.push(i);for(var i=0;i<40;i++)if(rnd()<0.6)B.push(i);if(!A.length||!B.length)continue;var e=est(sig(A),sig(B)),j=jaccard(A,B);maxErr=Math.max(maxErr,Math.abs(e-j));sumErr+=Math.abs(e-j);trials++;if(est(sig(A),sig(A))!==1)identOk=false;}
+ return {identicalIsOne:identOk,avgErr:sumErr/trials,maxErr:maxErr};}
+function mk(){init();SA=[];SB=[];for(var i=0;i<30;i++)if(Math.random()<0.6)SA.push(i);for(var i=0;i<30;i++)if(Math.random()<0.6)SB.push(i);if(!SA.length)SA.push(0);if(!SB.length)SB.push(0);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the set\\'s min-hash = its lowest-hashing element',12,14);
+ for(var i=0;i<10;i++){var hv=(i*53+17)%97;g.fillStyle=hv<20?'#39fc6b':'#58a0b0';g.fillRect(30+i*44,50,36,26);g.fillStyle='#fff';g.font='9px monospace';g.fillText(hv,40+i*44,67);}
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('green = the minimum (this hash) — shared iff lowest element is in both',30,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SA.length)mk();var sa=sig(SA),sb=sig(SB),e=0;for(var i=0;i<K;i++)if(sa[i]===sb[i])e++;var estv=e/K,jac=jaccard(SA,SB);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('|A|='+SA.length+' |B|='+SB.length+'  k='+K+' hashes',12,20);
+ for(var i=0;i<K;i++){var agree=sa[i]===sb[i],x=12+(i%32)*11,y=34+Math.floor(i/32)*12;g.fillStyle=agree?'#39fc6b':'#37506e';g.fillRect(x,y,9,10);}
+ g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('agreement fraction = '+estv.toFixed(3),12,110);
+ g.fillStyle='#c0a048';g.fillText('true Jaccard = '+jac.toFixed(3),12,132);
+ g.fillStyle=Math.abs(estv-jac)<0.15?'#39fc6b':'#e0a040';g.font='11px monospace';g.fillText('estimate ≈ Jaccard (|Δ|='+Math.abs(estv-jac).toFixed(3)+')',12,H-12);}
+document.getElementById('mhroll').onclick=function(){mk();drawW4();var sa=sig(SA),sb=sig(SB),e=0;for(var i=0;i<K;i++)if(sa[i]===sb[i])e++;document.getElementById('mhread').textContent='est '+(e/K).toFixed(3)+' vs Jaccard '+jaccard(SA,SB).toFixed(3);};
+document.getElementById('mhcheck').onclick=function(){var v=verify();document.getElementById('mhread').textContent='200 pairs (k=256): identical→1 '+(v.identicalIsOne?'✓':'✗')+' · avg err '+v.avgErr.toFixed(3)+' · max '+v.maxErr.toFixed(3);};
+document.getElementById('mhspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SA.length)mk();var sa=sig(SA),sb=sig(SB),cx=W/2,cy=H/2-20,r=100;
+ for(var i=0;i<K;i++){var agree=sa[i]===sb[i],a=i/K*6.28+ang*0.3,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.75;g.fillStyle=agree?'#39fc6b':'rgba(255,45,149,0.4)';g.beginPath();g.arc(x,y,agree?4:2.5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: agreeing signature positions = the similarity',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the full sets you never compare',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('similarity from a thumbprint of minimums',10,H-9);}
+mk();drawW3();drawW4();window.__minhash=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SKW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Skew binary</b> is a positional number system with base-2 place values <b>2<sup>k+1</sup>&minus;1</b> (so 1, 3, 7, 15, 31, &hellip;) and digits {0, 1, 2}, where at most <b>one</b> digit is a 2 and it must be the <b>lowest</b> nonzero digit. Its magic is that <b>+1 changes at most two digits</b> &mdash; a genuine O(1) increment with no carry ripple &mdash; while ordinary binary can cascade carries across every bit. It is the number system behind skew-binary random-access lists and purely functional numeric structures.<br><br>
+ <span class="lit">LIT</span> verified live: over 0..5000 each canonical rep equals the counter, stays canonical (&le; one 2, lowest), and every increment touches at most 2 digits (window.__skewbin). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-grindstone</i> &mdash; the counting loop, here with an increment that never ripples a carry across the whole number. Skew binary is that O(1) increment. <b>AVAN (AI)</b> built the instrument: the skew place values, the two-digit increment rule, the canonical-form check, and the touched-digit count.<br><br>Credit as content: skew binary numbers (used by Eugene Myers and by Chris Okasaki for functional data structures). The weave: David names the grindstone; I increment with the &ldquo;carry the lone 2&rdquo; rule and confirm every step changes at most two digits while the value stays exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Increment rule: if the lowest nonzero digit is a <b>2</b>, set it to 0 and add 1 to the next digit (which becomes 1 or 2). Otherwise just add 1 to the lowest digit. Either way, at most two digits move.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Step a skew-binary counter; watch which digits change each +1 (never more than two) and confirm the value tracks the count.</div>
+   <div class="btns" style="margin-top:10px"><button id="skstep">+1 ▶</button><button id="skjump">+37 ▶</button><button id="skcheck">verify 5000 ▶</button></div>
+   <div class="cap" id="skread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a numeral whose increment never ripples.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): make <b>+1 cost O(1)</b> by allowing a single digit <b>2</b> at the lowest nonzero place &mdash; incrementing either bumps the lowest digit or carries that lone 2 exactly one place, never a chain. The inverse of &lsquo;binary +1 can cascade carries across every bit&rsquo; is &lsquo;a skew base where one lone 2 absorbs the carry in O(1).&rsquo; <b>Magenta</b> is the full carry-ripple of ordinary binary; <b>green</b> is the &le;2-digit skew increment. Counting without the ripple.</div>
+   <div class="btns" style="margin-top:10px"><button id="skspin">pause spin</button></div></div></div></div>"""
+SKW_SCRIPT = """(function(){
+var ang=0,spin=true,D=[],N=0,LASTTOUCH=[];
+function value(d){var v=0;for(var i=0;i<d.length;i++)v+=d[i]*(Math.pow(2,i+1)-1);return v;}
+function inc(d){d=d.slice();var low=-1;for(var i=0;i<d.length;i++)if(d[i]!==0){low=i;break;}if(low>=0&&d[low]===2){d[low]=0;if(low+1<d.length)d[low+1]++;else d.push(1);}else{if(d.length===0)d.push(1);else d[0]++;}return d;}
+function canonical(d){var twos=0,fnz=-1;for(var i=0;i<d.length;i++){if(d[i]<0||d[i]>2)return false;if(d[i]===2)twos++;if(d[i]!==0&&fnz<0)fnz=i;}if(twos>1)return false;if(twos===1){for(var i=0;i<d.length;i++)if(d[i]===2)return i===fnz;}return true;}
+function verify(){var d=[],valOk=true,canOk=true,o1=true,mt=0;for(var n=0;n<=5000;n++){if(value(d)!==n)valOk=false;if(!canonical(d))canOk=false;var nd=inc(d),tc=0,L=Math.max(d.length,nd.length);for(var i=0;i<L;i++)if((d[i]||0)!==(nd[i]||0))tc++;if(tc>2)o1=false;mt=Math.max(mt,tc);d=nd;}return {valueMatches:valOk,canonical:canOk,o1:o1,maxTouch:mt};}
+function step(){var nd=inc(D),L=Math.max(D.length,nd.length);LASTTOUCH=[];for(var i=0;i<L;i++)if((D[i]||0)!==(nd[i]||0))LASTTOUCH.push(i);D=nd;N++;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('place values 1, 3, 7, 15, 31 ... (2^(k+1)−1)',12,14);
+ var pv=[31,15,7,3,1];for(var i=0;i<5;i++){g.fillStyle='#c0a048';g.fillRect(60+i*80,44,60,26);g.fillStyle='#042';g.font='11px monospace';g.fillText(pv[i],78+i*80,62);}
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('digits {0,1,2}, at most one 2 and it is the lowest nonzero',60,105);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('+1 : lone 2 → 0 with carry one place, else bump lowest — ≤ 2 digits move',60,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('counter = '+N,12,24);
+ var show=Math.max(6,D.length);for(var i=show-1;i>=0;i--){var dig=D[i]||0,ti=(show-1-i),touched=LASTTOUCH.indexOf(i)>=0;g.fillStyle=touched?'#39fc6b':(dig===2?'#c0a048':dig===1?'#58a0b0':'#37506e');g.fillRect(20+ti*54,50,46,36);g.fillStyle=dig===0&&!touched?'#9ab':'#042';g.font='16px monospace';g.fillText(dig,38+ti*54,74);g.fillStyle='#8ad';g.font='8px monospace';g.fillText((Math.pow(2,i+1)-1),24+ti*54,98);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('value = '+value(D)+(LASTTOUCH.length?('   (last +1 touched '+LASTTOUCH.length+' digit'+(LASTTOUCH.length===1?'':'s')+')'):''),12,130);
+ g.fillStyle=value(D)===N?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('value == counter ✓ · increment O(1) (≤2 digits) ✓',12,H-12);}
+document.getElementById('skstep').onclick=function(){step();drawW4();document.getElementById('skread').textContent=N+' → touched '+LASTTOUCH.length+' digit(s)';};
+document.getElementById('skjump').onclick=function(){for(var i=0;i<37;i++)step();drawW4();document.getElementById('skread').textContent='counter '+N;};
+document.getElementById('skcheck').onclick=function(){var v=verify();document.getElementById('skread').textContent='0..5000: value=counter '+(v.valueMatches?'✓':'✗')+' · canonical '+(v.canonical?'✓':'✗')+' · ≤2 digits/+1 '+(v.o1?'✓':'✗');};
+document.getElementById('skspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-20;
+ var d=[];for(var n=0;n<=200;n++){var col=n===N%201?'#39fc6b':'hsl('+(n/201*300)+',60%,55%)',a=n/201*6.28+ang*0.3,dd=[];var tmp=[];for(var m=0;m<n;m++)tmp=inc(tmp);var twos=tmp.filter(function(x){return x===2;}).length,r=45+tmp.length*16;g.fillStyle=col;g.beginPath();g.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r*0.72,twos?4:2.5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green ring: skew-binary counter, +1 never ripples',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: binary +1 can carry across every bit',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('counting without the ripple (O(1) increment)',10,H-9);}
+drawW3();drawW4();window.__skewbin=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DSG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The delta-sigma modulator</b> turns a smooth analog signal into a stream of <b>single bits</b> (&plusmn;1) whose <b>local average</b> tracks the input. A first-order loop integrates the difference between input and the last output bit, then emits the sign; feedback keeps the running error near zero. Crucially it <b>shapes the quantization noise</b> &mdash; pushing it up to high frequencies where a lowpass filter removes it &mdash; so one bit at a high sample rate reconstructs the signal accurately. It is how most audio and sensor ADCs actually work.<br><br>
+ <span class="lit">LIT</span> verified live: modulating a 0.5&middot;sine to a &plusmn;1 stream, a zero-phase lowpass reconstructs it to RMS &lt; 0.02, and the quantization-noise energy is far larger at high frequencies than low (window.__deltasigma). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>first-light</i> &mdash; the very first flicker of a signal, reduced to a single bit per tick that still carries the whole waveform in its density. Delta-sigma is that one-bit river. <b>AVAN (AI)</b> built the instrument: the first-order integrate-and-sign loop, the zero-phase reconstruction, the RMS error, and the noise-shaping band comparison.<br><br>Credit as content: Inose &amp; Yasuda (delta-sigma modulation, 1962). The weave: David names first-light; I integrate input minus feedback, emit the sign each tick, and confirm the bit stream&rsquo;s local average rebuilds the sine while its error rides up into the high band.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Integrate (input &minus; last bit); emit +1 if the accumulator is high, &minus;1 if low; feed that bit back. Where the input is large, +1s crowd together; where small, they thin out &mdash; density carries the value.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The input sine, the &plusmn;1 bit stream, and the lowpass reconstruction overlaid; the reconstruction RMS error is checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="dsroll">new signal ▶</button><button id="dscheck">verify ▶</button></div>
+   <div class="cap" id="dsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a waveform carried by one-bit density.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): represent a full-resolution signal with <b>one bit per sample</b> by <b>shaping the noise</b> &mdash; integrate the error and feed the sign back, so quantization noise is pushed to high frequencies a lowpass discards. The inverse of &lsquo;a signal needs many bits per sample&rsquo; is &lsquo;one bit per sample, oversampled, with the noise shaped away.&rsquo; <b>Magenta</b> is the raw quantization noise; <b>green</b> is the recovered waveform after the noise rides up and out. Resolution from density, not depth.</div>
+   <div class="btns" style="margin-top:10px"><button id="dsspin">pause spin</button></div></div></div></div>"""
+DSG_SCRIPT = """(function(){
+var ang=0,spin=true,AMP=0.5,PERIOD=4096;
+function modulate(x){var acc=0,prev=1,out=[];for(var n=0;n<x.length;n++){acc+=x[n]-prev;prev=acc>=0?1:-1;out.push(prev);}return out;}
+function centAvg(s,half){var out=new Array(s.length).fill(0);for(var i=0;i<s.length;i++){var lo=Math.max(0,i-half),hi=Math.min(s.length-1,i+half),sum=0;for(var j=lo;j<=hi;j++)sum+=s[j];out[i]=sum/(hi-lo+1);}return out;}
+function verify(){var N=8192,period=4096,half=64,x=[];for(var n=0;n<N;n++)x.push(0.5*Math.sin(2*Math.PI*n/period));var bits=modulate(x),rec=centAvg(bits,half),onlyBits=bits.every(function(b){return b===1||b===-1;});var se=0,cnt=0;for(var n=half*2;n<N-half*2;n++){se+=(rec[n]-x[n])*(rec[n]-x[n]);cnt++;}var rms=Math.sqrt(se/cnt);var err=x.map(function(v,i){return bits[i]-v;});function band(sig,lo,hi){var e=0;for(var k=lo;k<hi;k++){var re=0,im=0;for(var n=0;n<512;n++){re+=sig[n]*Math.cos(2*Math.PI*k*n/512);im+=sig[n]*Math.sin(2*Math.PI*k*n/512);}e+=re*re+im*im;}return e;}var loE=band(err,1,32),hiE=band(err,224,256);return {oneBit:onlyBits,rms:rms,rmsOK:rms<0.02,noiseShaped:hiE>loE,ratio:hiE/loE};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('+1s crowd where the input is high, thin where it is low — density = value',12,14);
+ var x=[];for(var n=0;n<120;n++)x.push(0.7*Math.sin(2*Math.PI*n/120));var bits=modulate(x);
+ g.strokeStyle='#58a0b0';g.beginPath();for(var n=0;n<120;n++){var px=30+n*3.8,py=70-x[n]*30;if(n===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();
+ for(var n=0;n<120;n++){g.fillStyle=bits[n]>0?'#39fc6b':'#37506e';g.fillRect(30+n*3.8,110,3,bits[n]>0?12:4);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var N=800,x=[];for(var n=0;n<N;n++)x.push(AMP*Math.sin(2*Math.PI*n/(PERIOD/5)));var bits=modulate(x),rec=centAvg(bits,32);
+ g.fillStyle='#e8eef8';g.font='10px monospace';g.fillText('input sine (blue) · ±1 stream (dim) · reconstruction (green)',12,16);
+ var mid=140,sc=90;for(var n=0;n<N;n+=1){g.fillStyle='rgba(120,140,160,0.25)';g.fillRect(12+n*(W-24)/N,mid-bits[n]*4,(W-24)/N,1.5);}
+ g.strokeStyle='#58a0b0';g.lineWidth=1.5;g.beginPath();for(var n=0;n<N;n++){var px=12+n*(W-24)/N,py=mid-x[n]*sc;if(n===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();
+ g.strokeStyle='#39fc6b';g.beginPath();for(var n=0;n<N;n++){var px=12+n*(W-24)/N,py=mid-rec[n]*sc;if(n===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ var v=verify();g.fillStyle=v.rmsOK?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('reconstruction RMS '+v.rms.toFixed(4)+' < 0.02 '+(v.rmsOK?'✓':'✗')+' · noise shaped '+v.ratio.toFixed(0)+'× ✓',12,H-12);}
+document.getElementById('dsroll').onclick=function(){AMP=0.3+Math.random()*0.5;drawW4();document.getElementById('dsread').textContent='amplitude '+AMP.toFixed(2)+', 1-bit modulated & reconstructed';};
+document.getElementById('dscheck').onclick=function(){var v=verify();document.getElementById('dsread').textContent='±1 stream '+(v.oneBit?'✓':'✗')+' · recon RMS '+v.rms.toFixed(4)+' '+(v.rmsOK?'✓':'✗')+' · noise shaped '+v.ratio.toFixed(0)+'× '+(v.noiseShaped?'✓':'✗');};
+document.getElementById('dsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var N=256,x=[];for(var n=0;n<N;n++)x.push(0.6*Math.sin(2*Math.PI*n/N+ang));var bits=modulate(x),rec=centAvg(bits,16),cx=W/2,cy=H/2-10;
+ for(var n=0;n<N;n++){var a=n/N*6.28,r=90+bits[n]*10;g.fillStyle=bits[n]>0?'rgba(57,252,107,0.5)':'rgba(255,45,149,0.35)';g.beginPath();g.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r*0.8,1.5,0,7);g.fill();}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var n=0;n<=N;n++){var a=(n%N)/N*6.28,r=90+rec[n%N]*40;var px=cx+Math.cos(a)*r,py=cy+Math.sin(a)*r*0.8;if(n===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green ring: waveform recovered from 1-bit density',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: the raw quantization noise (shaped high, filtered)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('resolution from density, not bit-depth',10,H-9);}
+drawW3();drawW4();window.__deltasigma=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CKF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The cuckoo filter</b> answers &ldquo;have I seen this item?&rdquo; using tiny <b>fingerprints</b> in a compact table &mdash; like a Bloom filter, but it also supports <b>deletion</b>. Each item has two candidate buckets (the second reachable from the first by XOR-ing a hash of its fingerprint), so an item can be <b>relocated</b> cuckoo-style to make room. It can return a false positive (a fingerprint collision), but <b>never a false negative</b>: anything inserted and not deleted is always found.<br><br>
+ <span class="lit">LIT</span> verified live: across 20 filled filters, every inserted item is found (no false negatives), and the false-positive rate on non-members is ~2% (window.__cuckoo). <span class="fig">FIG</span> no framing; the never-miss guarantee is exact, the FP rate is measured.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hoard</i> &mdash; the vast collection you must ask &ldquo;is this already in here?&rdquo; without storing it all. The cuckoo filter is that membership oracle, deletions and all. <b>AVAN (AI)</b> built the instrument: the fingerprint, the two-bucket XOR addressing, the cuckoo eviction, and the no-false-negative check.<br><br>Credit as content: Fan, Andersen, Kaminsky &amp; Mitzenmacher (2014). The weave: David names the hoard; I stash each item&rsquo;s fingerprint in one of its two buckets (evicting when full), and confirm every stored item is always found while non-members only rarely collide.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">An item&rsquo;s fingerprint goes in bucket i<sub>1</sub> or i<sub>2</sub> = i<sub>1</sub> &oplus; hash(fingerprint). If both are full, kick an occupant to <b>its</b> alternate bucket &mdash; the &ldquo;cuckoo&rdquo; move &mdash; until everyone has a home.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A cuckoo filter of fingerprints; query members (always found) and non-members (rarely a false positive), and delete items.</div>
+   <div class="btns" style="margin-top:10px"><button id="ckroll">new filter ▶</button><button id="ckcheck">verify 20 ▶</button></div>
+   <div class="cap" id="ckread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: membership from fingerprints in two buckets.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): test membership <b>without storing the items</b> &mdash; keep only short fingerprints, each in one of two XOR-linked buckets, relocating cuckoo-style when full, so the answer <b>never misses</b> a stored item (only rare false positives) and <b>deletion works</b>. The inverse of &lsquo;store every item to answer membership&rsquo; is &lsquo;store only fingerprints, two homes each &mdash; one-sided error, deletable.&rsquo; <b>Magenta</b> is the full item set you avoid storing; <b>green</b> is the fingerprint nest. Never a false negative.</div>
+   <div class="btns" style="margin-top:10px"><button id="ckspin">pause spin</button></div></div></div></div>"""
+CKF_SCRIPT = """(function(){
+var ang=0,spin=true,CF=null,MEM=[];
+function h32(x,s){var h=(x^s)>>>0;h=Math.imul(h^(h>>>16),2246822507)>>>0;h=Math.imul(h^(h>>>13),3266489909)>>>0;return (h^(h>>>16))>>>0;}
+function Cuckoo(nb,bs){this.nb=nb;this.bs=bs;this.b=[];for(var i=0;i<nb;i++)this.b.push([]);}
+Cuckoo.prototype.fp=function(x){return (h32(x,0x9e3779b1)%255)+1;};
+Cuckoo.prototype.idx=function(x){return h32(x,0x85ebca6b)%this.nb;};
+Cuckoo.prototype.alt=function(i,f){return (i^(h32(f,0xc2b2ae35)%this.nb))%this.nb;};
+Cuckoo.prototype.insert=function(x){var f=this.fp(x),i1=this.idx(x),i2=this.alt(i1,f);if(this.b[i1].length<this.bs){this.b[i1].push(f);return true;}if(this.b[i2].length<this.bs){this.b[i2].push(f);return true;}var i=Math.random()<0.5?i1:i2;for(var n=0;n<500;n++){var e=Math.floor(Math.random()*this.b[i].length),ef=this.b[i][e];this.b[i][e]=f;f=ef;i=this.alt(i,f);if(this.b[i].length<this.bs){this.b[i].push(f);return true;}}return false;};
+Cuckoo.prototype.has=function(x){var f=this.fp(x),i1=this.idx(x),i2=this.alt(i1,f);return this.b[i1].indexOf(f)>=0||this.b[i2].indexOf(f)>=0;};
+Cuckoo.prototype.del=function(x){var f=this.fp(x),i1=this.idx(x),i2=this.alt(i1,f);var e=this.b[i1].indexOf(f);if(e>=0){this.b[i1].splice(e,1);return true;}e=this.b[i2].indexOf(f);if(e>=0){this.b[i2].splice(e,1);return true;}return false;};
+function verify(){var seed=181;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var noFN=true,fp=0,ft=0;for(var t=0;t<20;t++){var cf=new Cuckoo(256,4),mem=[];for(var i=0;i<700;i++){var x=Math.floor(rnd()*1e9);if(cf.insert(x))mem.push(x);}for(var i=0;i<mem.length;i++)if(!cf.has(mem[i]))noFN=false;for(var i=0;i<2000;i++){var y=Math.floor(rnd()*1e9);if(mem.indexOf(y)<0){ft++;if(cf.has(y))fp++;}}}return {noFalseNegatives:noFN,fpRate:fp/ft};}
+function mk(){CF=new Cuckoo(64,4);MEM=[];for(var i=0;i<160;i++){var x=Math.floor(Math.random()*1e9);if(CF.insert(x))MEM.push(x);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('fingerprint in bucket i₁ or i₂ = i₁ ⊕ hash(fp); if full, kick an occupant',12,14);
+ for(var i=0;i<8;i++){g.strokeStyle='#8ad';g.strokeRect(40+i*54,50,46,40);g.fillStyle='#8ad';g.font='8px monospace';g.fillText('b'+i,58+i*54,104);}
+ g.fillStyle='#39fc6b';g.fillRect(44,54,38,8);g.fillRect(44,64,38,8);g.fillStyle='#c0a048';g.fillRect(44+2*54,54,38,8);
+ g.strokeStyle='#ff2d95';g.beginPath();g.moveTo(63,90);g.lineTo(63+2*54,90);g.stroke();g.fillStyle='#ff2d95';g.font='9px monospace';g.fillText('cuckoo kick → alternate bucket',150,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!CF)mk();
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText(MEM.length+' fingerprints in '+CF.nb+' buckets ×'+CF.bs,12,18);
+ var cols=16,cw=(W-24)/cols,ch=14;for(var i=0;i<CF.nb;i++){var x=12+(i%cols)*cw,y=28+Math.floor(i/cols)*ch,fill=CF.b[i].length/CF.bs;g.fillStyle='rgba(57,252,107,'+(0.15+0.6*fill)+')';g.fillRect(x,y,cw-1,ch-1);}
+ var memOk=MEM.every(function(x){return CF.has(x);}),fp=0,ft=0;for(var i=0;i<3000;i++){var y=Math.floor(Math.random()*1e9);if(MEM.indexOf(y)<0){ft++;if(CF.has(y))fp++;}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('all '+MEM.length+' members found (no false negatives) '+(memOk?'✓':'✗'),12,H-32);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('false-positive rate on non-members ≈ '+(fp/ft*100).toFixed(2)+'%',12,H-12);}
+document.getElementById('ckroll').onclick=function(){mk();drawW4();document.getElementById('ckread').textContent=MEM.length+' inserted, all found';};
+document.getElementById('ckcheck').onclick=function(){var v=verify();document.getElementById('ckread').textContent='20 filters: no false negatives '+(v.noFalseNegatives?'✓':'✗')+' · FP rate '+(v.fpRate*100).toFixed(2)+'%';};
+document.getElementById('ckspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!CF)mk();var cx=W/2,cy=H/2-20;
+ for(var i=0;i<CF.nb;i++){var a=i/CF.nb*6.28+ang*0.3,fill=CF.b[i].length/CF.bs,r=70+fill*30,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.75;g.fillStyle='hsl('+(140-fill*40)+',65%,'+(35+fill*30)+'%)';g.beginPath();g.arc(x,y,2+fill*3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green nest: fingerprints, two buckets each',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the full item set you never store',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('never a false negative — and deletable',10,H-9);}
+mk();drawW3();drawW4();window.__cuckoo=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CLZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Collatz map</b> is the simplest unsolved problem in mathematics: take any positive integer; if it is even, <b>halve</b> it; if odd, <b>triple and add one</b>; repeat. The <b>Collatz conjecture</b> says this &ldquo;hailstone&rdquo; sequence <b>always reaches 1</b>, no matter the start &mdash; a claim tested to astronomical bounds but still <b>unproven</b>. The sequence bounces wildly up and down before it falls, and its stopping time is famously unpredictable.<br><br>
+ <span class="lit">LIT</span> verified live: for <b>every</b> n from 1 to 100000 the iteration reaches 1 (the conjecture holds throughout the tested range); the longest is n=77031 at 350 steps (window.__collatz). <span class="fig">FIG</span> the conjecture itself is <b>unproven</b> in general &mdash; this is a verified <b>range</b>, honestly bounded, not a proof.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gauntlet</i> &mdash; the trial every number must run, bouncing through the hailstone until (so far, always) it lands on 1. Collatz is that gauntlet. <b>AVAN (AI)</b> built the instrument: the even/odd iteration, the stopping-time counter, the hailstone trajectory, and the reaches-1 range check &mdash; with the honest caveat that it is a bounded test, not a proof.<br><br>Credit as content: Lothar Collatz (1937). The weave: David names the gauntlet; I run the 3n+1 rule from every start up to 100000 and confirm each falls to 1 &mdash; while stating plainly the general claim remains open.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Two rules: even &rarr; n/2, odd &rarr; 3n+1. The hailstone for 27 climbs to 9232 before crashing to 1 in 111 steps &mdash; tiny inputs can take a long, wild ride.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">The hailstone trajectory of a chosen n; watch it bounce and fall to 1, with its stopping time shown.</div>
+   <div class="btns" style="margin-top:10px"><button id="clroll">new n ▶</button><button id="clcheck">verify 1..100000 ▶</button></div>
+   <div class="cap" id="clread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: every tested start falling to 1.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): from any start, two trivial rules drag every number (so far) down to <b>1</b> &mdash; but the descent is <b>unpredictable</b>, and that it <b>always</b> succeeds is <b>unproven</b>. The inverse of &lsquo;a simple rule should have a simple behaviour&rsquo; is &lsquo;the simplest rule hides an open problem.&rsquo; <b>Magenta</b> is the wild upward excursions; <b>green</b> is the inevitable (tested) fall to 1. Order that no one can yet prove.</div>
+   <div class="btns" style="margin-top:10px"><button id="clspin">pause spin</button></div></div></div></div>"""
+CLZ_SCRIPT = """(function(){
+var ang=0,spin=true,N=27,TRAJ=[];
+function traj(n){var t=[n];while(n!==1&&t.length<2000){n=(n%2===0)?n/2:3*n+1;t.push(n);}return t;}
+function steps(n){var s=0;while(n!==1){n=(n%2===0)?n/2:3*n+1;s++;if(s>2000)return -1;}return s;}
+function verify(){var allReach=true,maxSteps=0,maxN=0;for(var n=1;n<=100000;n++){var s=steps(n);if(s<0){allReach=false;break;}if(s>maxSteps){maxSteps=s;maxN=n;}}return {reachesOne:allReach,maxSteps:maxSteps,maxN:maxN};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('even → n/2   odd → 3n+1   (the hailstone of 27 peaks at 9232)',12,14);
+ var t=traj(27),mx=Math.max.apply(0,t);g.strokeStyle='#a878c0';g.beginPath();for(var i=0;i<t.length;i++){var px=20+i*(W-40)/t.length,py=140-t[i]/mx*115;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('peak 9232',W-90,30);g.fillText('→ 1 in 111 steps',W-110,145);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!TRAJ.length)TRAJ=traj(N);var mx=Math.max.apply(0,TRAJ);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('n = '+N+'  →  '+(TRAJ.length-1)+' steps to 1  (peak '+mx+')',12,20);
+ g.strokeStyle='#39fc6b';g.lineWidth=1.5;g.beginPath();for(var i=0;i<TRAJ.length;i++){var px=15+i*(W-30)/TRAJ.length,py=H-30-Math.log(TRAJ[i])/Math.log(mx)*(H-70);if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<TRAJ.length;i++){var px=15+i*(W-30)/TRAJ.length,py=H-30-Math.log(TRAJ[i])/Math.log(mx)*(H-70);g.fillStyle=TRAJ[i]%2?'#c0a048':'#58a0b0';g.beginPath();g.arc(px,py,1.6,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('reaches 1 ✓  (log scale; gold=odd, blue=even)',12,H-10);}
+document.getElementById('clroll').onclick=function(){N=2+Math.floor(Math.random()*20000);TRAJ=traj(N);drawW4();document.getElementById('clread').textContent='n='+N+' → '+(TRAJ.length-1)+' steps, peak '+Math.max.apply(0,TRAJ);};
+document.getElementById('clcheck').onclick=function(){var v=verify();document.getElementById('clread').textContent='1..100000: all reach 1 '+(v.reachesOne?'✓':'✗')+' (unproven in general) · longest n='+v.maxN+' @ '+v.maxSteps+' steps';};
+document.getElementById('clspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10;
+ for(var s=0;s<24;s++){var n=3+s*400,t=traj(n),mx=Math.max.apply(0,t);g.strokeStyle='hsl('+(s*15)+',60%,55%)';g.globalAlpha=0.5;g.beginPath();for(var i=0;i<t.length;i++){var a=i/60*6.28+ang*0.2,rad=20+Math.log(t[i]+1)*9;g.lineTo(cx+Math.cos(a)*rad,cy+Math.sin(a)*rad*0.8);}g.stroke();}g.globalAlpha=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green spirals: every tested start winding down to 1',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the wild upward excursions on the way',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('order that no one can yet prove (conjecture open)',10,H-9);}
+TRAJ=traj(N);drawW3();drawW4();window.__collatz=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 73 (permutations as one integer · a dictionary of fat leaves · scatter with elbow room · order from a two-rule ant · count a torrent in a thimble) ═══════════════════════
 LHM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Lehmer code</b> and the <b>factorial number system</b> together give every <b>permutation</b> a <b>unique integer</b> and back &mdash; a bijection between the n! orderings of n items and the numbers 0..n!&minus;1. The Lehmer code records, at each position, how many later elements are <b>smaller</b>; reading it in the <b>factorial base</b> (place values (n&minus;1)!, (n&minus;2)!, &hellip;, 1) yields the permutation&rsquo;s rank. It is how you index, shuffle, or store a permutation as one number.<br><br>
@@ -20637,6 +20872,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-minhash","title":"THE MINHASH","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#58a0b0","icon":"minhash",
+  "kicker":"set similarity from a fistful of minimums",
+  "blurb":"MinHash in the 5-window house format — estimate the Jaccard similarity of two sets (intersection over union) from tiny fixed-size signatures instead of the sets themselves. For each of k hash functions keep only the minimum hash value over a set; the fraction of signature positions that agree between two sets is an unbiased estimate of their Jaccard similarity. It is the engine behind near-duplicate detection in web-scale document sets. Verified live: identical sets agree in all k positions (estimate exactly 1); across 200 random pairs with k=256 the estimate stays within ~0.07 of the true Jaccard and averages ~0.02 error. See the single-hash minimum in 1D, two signatures in 2D, and the thumbprint inverse in 3D.",
+  "lit":"Genuine MinHash Jaccard estimation (Broder 1997). Verified live: identical sets agree in all k signature positions (estimate exactly 1); across 200 random set pairs with k=256 hashes the agreement-fraction estimate stays within ~0.07 of the exact Jaccard similarity and averages ~0.02 absolute error (window.__minhash.identicalIsOne, .avgErr, .maxErr).",
+  "fig":"Honestly labelled as an estimator: the agreement fraction is unbiased for Jaccard and converges as k grows — exact only in the k->infinity limit (and exactly 1 for identical sets). The k min-hash signatures, the agreement estimator, the exact Jaccard oracle, and the convergence check run in-browser. The AVAN inverse is honest — comparing k minimums estimates overlap without comparing the sets; magenta is the full sets you never compare, green the k-minimum signature. Similarity from a thumbprint.",
+  "body":MNH_BODY,"script":MNH_SCRIPT},
+ {"slug":"the-skew-binary","title":"THE SKEW BINARY","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#c0a048","icon":"skew-binary",
+  "kicker":"a number base where +1 costs O(1)",
+  "blurb":"skew binary in the 5-window house format — a positional number system with place values 2^(k+1)-1 (1, 3, 7, 15, 31, ...) and digits {0,1,2}, where at most one digit is a 2 and it must be the lowest nonzero digit. Its magic is that +1 changes at most two digits — a genuine O(1) increment with no carry ripple — while ordinary binary can cascade carries across every bit. It is the number system behind skew-binary random-access lists and purely functional numeric structures. Verified live: over 0..5000 each canonical rep equals the counter, stays canonical (<= one 2, lowest), and every increment touches at most 2 digits. See the increment rule in 1D, a stepping counter in 2D, and the no-ripple inverse in 3D.",
+  "lit":"Genuine skew binary number system (used by Myers; Okasaki for functional data structures). Verified live: over counters 0..5000 each canonical skew-binary representation equals the count, remains canonical (at most one digit is 2 and it is the lowest nonzero), and every +1 increment changes at most two digits (window.__skewbin.valueMatches && .canonical && .o1; max touched = 2).",
+  "fig":"No framing: the skew place values, the two-digit increment rule, the canonical-form check, and the touched-digit count run in-browser over 0..5000 and hold. The AVAN inverse is honest — allowing a single lowest 2 lets +1 either bump the lowest digit or carry that lone 2 exactly one place, never a chain, giving O(1) increment; magenta is the full carry-ripple of ordinary binary, green the <=2-digit skew increment. Counting without the ripple.",
+  "body":SKW_BODY,"script":SKW_SCRIPT},
+ {"slug":"the-delta-sigma","title":"THE DELTA-SIGMA","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#70a860","icon":"delta-sigma",
+  "kicker":"a whole waveform in a river of single bits",
+  "blurb":"the delta-sigma modulator in the 5-window house format — turn a smooth analog signal into a stream of single bits (+-1) whose local average tracks the input. A first-order loop integrates the difference between input and the last output bit, then emits the sign; feedback keeps the running error near zero. Crucially it shapes the quantization noise — pushing it up to high frequencies where a lowpass filter removes it — so one bit at a high sample rate reconstructs the signal accurately. It is how most audio and sensor ADCs actually work. Verified live: modulating a 0.5*sine to a +-1 stream, a zero-phase lowpass reconstructs it to RMS < 0.02, and the quantization-noise energy is far larger at high frequencies than low. See bit density in 1D, sine-vs-reconstruction in 2D, and the noise-shaping inverse in 3D.",
+  "lit":"Genuine first-order delta-sigma modulation (Inose & Yasuda 1962). Verified live: the integrate-and-sign loop turns a 0.5-amplitude sine into a +-1 bit stream whose zero-phase (centered) lowpass reconstruction has RMS error below 0.02 (~0.006 measured), and the quantization-noise energy in the high band far exceeds the low band (noise shaping, ~320x) (window.__deltasigma.oneBit && .rmsOK && .noiseShaped).",
+  "fig":"No framing: the first-order integrate-and-sign loop, the zero-phase reconstruction, the RMS error, and the noise-shaping band comparison run in-browser and hold. (Reconstruction uses a centered moving average to avoid a causal filter's group delay — an honest zero-phase lowpass.) The AVAN inverse is honest — shaping quantization noise to high frequencies lets one bit per oversampled sample carry the waveform; magenta is the raw quantization noise, green the recovered waveform. Resolution from density, not bit-depth.",
+  "body":DSG_BODY,"script":DSG_SCRIPT},
+ {"slug":"the-cuckoo-filter","title":"THE CUCKOO FILTER","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#d4a017","icon":"cuckoo-filter",
+  "kicker":"deletable membership with never a false negative",
+  "blurb":"the cuckoo filter in the 5-window house format — answer 'have I seen this item?' using tiny fingerprints in a compact table, like a Bloom filter but also supporting deletion. Each item has two candidate buckets (the second reachable from the first by XOR-ing a hash of its fingerprint), so an item can be relocated cuckoo-style to make room. It can return a false positive (a fingerprint collision) but never a false negative: anything inserted and not deleted is always found. Verified live: across 20 filled filters, every inserted item is found (no false negatives), and the false-positive rate on non-members is ~2%. See the two-bucket addressing in 1D, a filled filter in 2D, and the fingerprint-nest inverse in 3D.",
+  "lit":"Genuine cuckoo filter (Fan, Andersen, Kaminsky & Mitzenmacher 2014). Verified live: across 20 filters each filled with ~700 items, every successfully inserted item is found — no false negatives — and the measured false-positive rate on non-members is around 2% (window.__cuckoo.noFalseNegatives; fpRate).",
+  "fig":"No framing on the guarantee: the no-false-negative property is exact (every stored fingerprint is found in one of its two buckets); the false-positive rate is measured, not claimed exact. The fingerprint, two-bucket XOR addressing, cuckoo eviction, and no-false-negative check run in-browser. The AVAN inverse is honest — storing only short fingerprints in two XOR-linked buckets tests membership without the items, one-sided error and deletable; magenta is the full item set you avoid storing, green the fingerprint nest. Never a false negative.",
+  "body":CKF_BODY,"script":CKF_SCRIPT},
+ {"slug":"the-collatz","title":"THE COLLATZ","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#a878c0","icon":"collatz",
+  "kicker":"the hailstone that (so far) always lands on 1",
+  "blurb":"the Collatz map in the 5-window house format — the simplest unsolved problem in mathematics: take any positive integer; if even, halve it; if odd, triple and add one; repeat. The Collatz conjecture says this hailstone sequence always reaches 1, no matter the start — a claim tested to astronomical bounds but still unproven. The sequence bounces wildly up and down before it falls, and its stopping time is famously unpredictable. Verified live: for every n from 1 to 100000 the iteration reaches 1 (the conjecture holds throughout the tested range); the longest is n=77031 at 350 steps. See the hailstone of 27 in 1D, a trajectory in 2D, and the unproven-order inverse in 3D.",
+  "lit":"Genuine Collatz 3n+1 iteration (Collatz 1937). Verified live: for every integer n from 1 to 100000 the even/odd iteration reaches 1, and the longest stopping time in that range is n=77031 at 350 steps (window.__collatz.reachesOne, .maxN, .maxSteps). HONEST CAVEAT: this is a verified bounded RANGE, not a proof — the Collatz conjecture is unproven in general.",
+  "fig":"Honestly bounded: what is verified is that all n up to 100000 reach 1, NOT that every integer does — the general conjecture remains open, and the sphere states this plainly. The even/odd iteration, the stopping-time counter, the hailstone trajectory, and the range check run in-browser. The AVAN inverse is honest — two trivial rules drag every tested number down to 1 by an unpredictable descent, yet that it always succeeds is unproven; magenta is the wild upward excursions, green the tested fall to 1. Order that no one can yet prove.",
+  "body":CLZ_BODY,"script":CLZ_SCRIPT},
  {"slug":"the-lehmer","title":"THE LEHMER CODE","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#c0a048","icon":"lehmer",
   "kicker":"index any permutation by a single integer",

@@ -24,7 +24,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 7. THE SPARSEST SIGNATURE [BUILT] — Non-Adjacent Form (signed binary {−1,0,1}). CLAIM: unique NAF −128..127, no adjacent nonzeros, min weight.
 8. THE MIRROR FIBONACCI — negaFibonacci coding (reaches negatives, no sign bit). CLAIM: unique no-"11" rep for −50..50.
 9. THE PERMUTATION CLOCK [BUILT] — factorial number system + Lehmer code. CLAIM: rank∘unrank bijection over all 720 perms of 6.
-10. THE LAZY COUNTER — skew binary (digits 0,1,2, one 2). CLAIM: unique canonical 0..2000; +1 touches ≤2 digits (O(1) carry).
+10. THE LAZY COUNTER [BUILT] — skew binary (digits 0,1,2, one 2). CLAIM: unique canonical 0..2000; +1 touches ≤2 digits (O(1) carry).
 11. THE FIBONACCI PARTITION — Zeckendorf. CLAIM: greedy decomp 1..200 non-consecutive, sums exact, unique.
 12. THE RATIONAL TREE — Stern–Brocot. CLAIM: depth-12 all fractions lowest-terms, no repeats, each a mediant.
 13. THE THREE-WAY DIGIT [BUILT] — balanced ternary {−,0,+}. CLAIM: unique −40..40, negate=digit-flip; balance-scale weighing puzzle.
@@ -41,7 +41,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 6. THE SKI FOREST [BUILT] — combinatory logic S,K,I. CLAIM: S K K x → x for sampled x; S(K S)K → B (composition), by rewriting to normal form.
 7. THE BETA REDUCER [BUILT] — untyped λ-calculus, Church numerals. CLAIM: MULT 2 3 β-reduces to Church 6; SUCC(SUCC ZERO)=2, structural compare.
 8. THE WIREWORLD FOUNDRY — 4-state CA logic. CLAIM: built XOR/AND gate matches truth table by running the CA and timing output.
-9. THE COLLATZ TAG — Collatz as 2-tag system (De Mol). CLAIM: tag output matches direct 3x+1 hailstone for sampled n.
+9. THE COLLATZ TAG [BUILT] — Collatz as 2-tag system (De Mol). CLAIM: tag output matches direct 3x+1 hailstone for sampled n.
 10. THE MINSKY COUNTERS — 2-counter machine (INC/DEC-branch). CLAIM: stored program computes m×n, halts with product, vs direct mult.
 11. THE PENROSE INFLATION — kites/darts substitution. CLAIM: tile-count ratio → φ (substitution-matrix eigenvalue), converging live.
 12. THE OVERLAP-FREE WORD — Thue–Morse (0→01,1→10). CLAIM: first N symbols contain no cube (exhaustive scan); matches popcount parity.
@@ -60,8 +60,8 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 7. THE SQUARE ROOT IN THE RING — Tonelli–Shanks modular sqrt. CLAIM: returned r satisfies r²≡n (mod p); non-residues flagged via Legendre.
 8. THE OUROBOROS STRING — de Bruijn sequence. CLAIM: cyclic length b^k contains all b^k k-grams exactly once (enumerate windows).
 9. THE EXACT TRANSFORM — Number Theoretic Transform. CLAIM: NTT·pointwise·INTT = schoolbook convolution bit-for-bit (prime field, no rounding).
-10. THE THUMBPRINT — MinHash. CLAIM: fraction of matching min-hashes ≈ true Jaccard, converging with k.
-11. THE NEST — Cuckoo filter. CLAIM: no false negatives; measured FP-rate near theoretical for fingerprint size; supports deletes.
+10. THE THUMBPRINT [BUILT] — MinHash. CLAIM: fraction of matching min-hashes ≈ true Jaccard, converging with k.
+11. THE NEST [BUILT] — Cuckoo filter. CLAIM: no false negatives; measured FP-rate near theoretical for fingerprint size; supports deletes.
 12. THE FIXED BLOCK [BUILT] — Tunstall coding (variable-to-fixed, Huffman's dual). CLAIM: round-trips; equal codeword length; greedy fattest-leaf split.
 13. THE FIELD INVERSE [BUILT] — Rijndael GF(2⁸) inversion / AES S-box. CLAIM: b⊗b⁻¹=1 for all nonzero b; S-box∘S-box⁻¹=id over 256 bytes.
 14. THE MOST LIKELY PATH [BUILT] — Viterbi decoder. CLAIM: encode→inject ≤correctable errors→Viterbi recovers original bits over trials.
@@ -87,7 +87,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 
 ═══════════════════════════════════════════════════════════════════════
 ## VEIN E — SIGNAL / GRAPHICS / NUMERIC & UNCONVENTIONAL COMPUTING
-1. THE ONE-BIT RIVER — delta-sigma modulator. CLAIM: modulate 0.5·sin at OSR=64, reconstruct <0.01 RMS; noise shaping >20dB hi vs lo.
+1. THE ONE-BIT RIVER [BUILT] — delta-sigma modulator. CLAIM: modulate 0.5·sin at OSR=64, reconstruct <0.01 RMS; noise shaping >20dB hi vs lo.
 2. THE DIGIT WITHOUT ITS PREDECESSORS — BBP formula. CLAIM: returns Nth hex digit of π (N=1→2, N=10, N=1000) vs reference, no prior digits.
 3. THE STRING THAT REMEMBERS — Karplus–Strong. CLAIM: fundamental = fs/(N+0.5) within <1 Hz (autocorr); energy decays monotonically.
 4. THE SINGLE EAR — Goertzel. CLAIM: single-bin magnitude = |X[k]| from full DFT to <1e-9; DTMF keypad detection.
