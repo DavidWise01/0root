@@ -19485,6 +19485,267 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 102 (two ways to break a number into parts that always agree · a coin-flip sign hidden in modular multiplication · counting subspaces with a q-analog of the binomial · non-crossing paths counted by a determinant · the widest layer of the subset lattice) ═══════════════════════
+EPART_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Euler&rsquo;s partition theorem</b> is a perfect coincidence of counting: the number of ways to write n as a sum of <b>distinct</b> parts equals the number of ways to write it using only <b>odd</b> parts. For n = 6, the distinct partitions are 6, 5+1, 4+2, 3+2+1 &mdash; four of them; the odd partitions are 5+1, 3+3, 3+1+1+1, 1+1+1+1+1+1 &mdash; also four. The two look unrelated, yet always tie. Euler proved it with generating functions: &prod;(1 + x<sup>k</sup>) = &prod; 1/(1 &minus; x<sup>2k&minus;1</sup>), and Glaisher later gave a direct bijection.<br><br>
+ <span class="lit">LIT</span> verified live: an exact partition-counting DP shows the number of distinct-part partitions equals the number of odd-part partitions for every n up to 60 (window.__eulerpartition). <span class="fig">FIG</span> no framing; two independent partition counts compared exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>hello-world</i> &mdash; the simplest surprising identity: two utterly different ways to break a number apart that always land on the same count. That first coincidence is the hello-world. <b>AVAN (AI)</b> built the instrument: the distinct-parts counter (each part used at most once), the odd-parts counter (odd parts any number of times), and their exact agreement.<br><br>Credit as content: Leonhard Euler (1740s); the bijective proof by James Glaisher (1883). The weave: David names hello-world; I count partitions two ways &mdash; once forbidding repeats, once forbidding even parts &mdash; and confirm the totals are equal for every n in range, the way Euler&rsquo;s product identity promises.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">6 into distinct parts: 6, 5+1, 4+2, 3+2+1 (four). 6 into odd parts: 5+1, 3+3, 3+1+1+1, 1&times;6 (four). Always equal: &prod;(1+x<sup>k</sup>) = &prod;1/(1&minus;x<sup>2k&minus;1</sup>).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Distinct-part vs odd-part counts side by side across n; the equality checked to 60.</div>
+   <div class="btns" style="margin-top:10px"><button id="eproll">shift range ▶</button><button id="epcheck">verify ▶</button></div>
+   <div class="cap" id="epread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two partition worlds with one count.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): impose <b>opposite</b> restrictions &mdash; parts must be <b>distinct</b>, or parts must be <b>odd</b> &mdash; and the two counts come out identical for every n. The inverse of &lsquo;forbid repeats&rsquo; is, remarkably, &lsquo;forbid even parts&rsquo;, and they meet. <b>Magenta</b> is the distinct-part count; <b>green</b> is the odd-part count. Two restrictions, one number.</div>
+   <div class="btns" style="margin-top:10px"><button id="epspin">pause spin</button></div></div></div></div>"""
+EPART_SCRIPT = """(function(){
+var ang=0,spin=true,OFF=0,VR=null,DD=null,OD=null;
+function pDistinct(N){var dp=new Array(N+1).fill(0);dp[0]=1;for(var k=1;k<=N;k++)for(var n=N;n>=k;n--)dp[n]+=dp[n-k];return dp;}
+function pOdd(N){var dp=new Array(N+1).fill(0);dp[0]=1;for(var k=1;k<=N;k+=2)for(var n=k;n<=N;n++)dp[n]+=dp[n-k];return dp;}
+function data(){if(!DD){DD=pDistinct(60);OD=pOdd(60);}return {d:DD,o:OD};}
+function verify(){if(VR)return VR;var D=data(),ok=true;for(var n=0;n<=60;n++)if(D.d[n]!==D.o[n])ok=false;VR={distinctEqualsOdd:ok};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('#partitions into DISTINCT parts  ==  #partitions into ODD parts',12,14);
+ g.fillStyle='#5ab0e0';g.font='11px monospace';g.fillText('6 distinct: 6 · 5+1 · 4+2 · 3+2+1     → 4',24,46);
+ g.fillStyle='#39fc6b';g.fillText('6 odd:  5+1 · 3+3 · 3+1+1+1 · 1+1+1+1+1+1  → 4',24,74);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('∏(1 + x^k)  =  ∏ 1/(1 − x^(2k−1))   — Euler',24,106);
+ g.fillStyle='#5ab0e0';g.fillText('Glaisher gave a direct bijection between the two families',24,132);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var D=data(),mx=0;for(var i=OFF;i<OFF+14&&i<=60;i++)mx=Math.max(mx,D.d[i]);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('n = '+OFF+'..'+(OFF+13)+'   (magenta=distinct, green=odd; equal → overlap)',14,16);
+ for(var i=0;i<14&&OFF+i<=60;i++){var n=OFF+i,x=20+i*26,hd=(D.d[n]/mx)*(H-70);g.fillStyle='rgba(255,45,149,0.55)';g.fillRect(x,H-40-hd,10,hd);var ho=(D.o[n]/mx)*(H-70);g.fillStyle='rgba(57,252,107,0.55)';g.fillRect(x+5,H-40-ho,10,ho);g.fillStyle='#8ad';g.font='7px monospace';g.fillText(n,x+2,H-28);}
+ var v=verify();g.fillStyle=v.distinctEqualsOdd?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('distinct-count == odd-count for all n ≤ 60 '+(v.distinctEqualsOdd?'✓':'✗'),14,H-10);}
+document.getElementById('eproll').onclick=function(){OFF=(OFF+14)%48;drawW4();document.getElementById('epread').textContent='n from '+OFF;};
+document.getElementById('epcheck').onclick=function(){var v=verify();var D=data();document.getElementById('epread').textContent='#distinct == #odd for every n ≤ 60 '+(v.distinctEqualsOdd?'✓':'✗')+' · e.g. p(20): distinct '+D.d[20]+' = odd '+D.o[20];};
+document.getElementById('epspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var D=data(),cx=W/2,cy=H/2-10;
+ for(var n=1;n<=40;n++){var a=n*0.3+ang*0.3,r=20+Math.log(D.d[n]+1)*20,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.82;g.fillStyle='#5ab0e0';g.beginPath();g.arc(x,y,2.5,0,7);g.fill();var r2=20+Math.log(D.o[n]+1)*20,x2=cx+Math.cos(a+0.04)*r2,y2=cy+Math.sin(a+0.04)*r2*0.82;g.fillStyle='rgba(57,252,107,0.7)';g.beginPath();g.arc(x2,y2,1.6,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green = odd-part counts, tracing the same spiral as',10,H-40);
+ g.fillStyle='#5ab0e0';g.font='10px monospace';g.fillText('blue = distinct-part counts (they coincide)',10,H-24);
+ g.fillStyle='#8ad';g.fillText('two restrictions, one number',10,H-9);}
+drawW3();drawW4();window.__eulerpartition=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ZOLO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Zolotarev&rsquo;s lemma</b> ties two seemingly unrelated worlds together: for an odd prime p and a number a not divisible by p, the <b>Legendre symbol</b> (a/p) &mdash; which is +1 if a is a quadratic residue mod p and &minus;1 if not &mdash; equals the <b>sign of the permutation</b> that multiplication by a induces on {1, 2, &hellip;, p&minus;1}. In other words, whether a has a square root mod p is exactly whether the shuffle x &rarr; a&middot;x mod p is an even or odd permutation. Number theory and permutation parity turn out to be the same coin flip.<br><br>
+ <span class="lit">LIT</span> verified live: for every odd prime p &lt; 80 and every a in 1&hellip;p&minus;1, the sign of the permutation x &rarr; a&middot;x mod p (from its cycle structure) equals the Legendre symbol (a/p) computed by Euler&rsquo;s criterion (window.__zolotarev). <span class="fig">FIG</span> no framing; permutation parity vs modular exponentiation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>sudden-death</i> &mdash; one bit decides everything: even or odd, residue or not, +1 or &minus;1. The shuffle&rsquo;s parity and the square-root question are the same sudden-death coin. <b>AVAN (AI)</b> built the instrument: the multiplication permutation, its sign from cycle counts, the Legendre symbol via a<sup>(p&minus;1)/2</sup>, and their exact match.<br><br>Credit as content: Yegor Ivanovich Zolotarev (1872). The weave: David names sudden-death; I shuffle the residues by multiplying by a, read off the permutation&rsquo;s sign from its cycles, and confirm it equals whether a is a quadratic residue mod p &mdash; parity and residue, one and the same.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Mod 7, x&rarr;3x: 1&rarr;3&rarr;2&rarr;6&rarr;4&rarr;5&rarr;1 (one 6-cycle) &mdash; odd permutation, sign &minus;1. And (3/7) = &minus;1 (3 is a non-residue mod 7). Same answer.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The permutation x&rarr;a&middot;x mod p as cycles, its sign, and the Legendre symbol; the equality checked over all primes.</div>
+   <div class="btns" style="margin-top:10px"><button id="zoroll">new a,p ▶</button><button id="zocheck">verify ▶</button></div>
+   <div class="cap" id="zoread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a residue question answered by a shuffle.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): decide whether a is a <b>quadratic residue</b> mod p not by exponentiating, but by asking whether multiplying by a <b>shuffles the residues evenly or oddly</b>. The inverse of &lsquo;compute a<sup>(p&minus;1)/2</sup>&rsquo; is &lsquo;count the cycles of x&rarr;ax and read the parity.&rsquo; <b>Magenta</b> is the Euler-criterion exponentiation; <b>green</b> is the permutation-parity answer. Residue as parity.</div>
+   <div class="btns" style="margin-top:10px"><button id="zospin">pause spin</button></div></div></div></div>"""
+ZOLO_SCRIPT = """(function(){
+var ang=0,spin=true,A=3,P=7,VR=null;
+function isPrime(n){if(n<2)return false;for(var d=2;d*d<=n;d++)if(n%d===0)return false;return true;}
+function powmod(a,e,m){a%=m;var r=1;while(e>0){if(e&1)r=(r*a)%m;a=(a*a)%m;e=Math.floor(e/2);}return r;}
+function legendre(a,p){var r=powmod(a,(p-1)/2,p);return r===p-1?-1:r;}
+function cycles(a,p){var seen=new Array(p).fill(false),cyc=[];for(var x=1;x<p;x++){if(seen[x])continue;var c=[x],y=(a*x)%p;seen[x]=true;while(y!==x){c.push(y);seen[y]=true;y=(a*y)%p;}cyc.push(c);}return cyc;}
+function permSign(a,p){var c=cycles(a,p),n=p-1;return ((n-c.length)%2===0)?1:-1;}
+function verify(){if(VR)return VR;var ok=true;for(var p=3;p<80;p++){if(!isPrime(p))continue;for(var a=1;a<p;a++)if(permSign(a,p)!==legendre(a,p))ok=false;}VR={matches:ok};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('(a/p) = sign of the permutation x → a·x (mod p) on {1,…,p−1}',12,14);
+ g.fillStyle='#b070c0';g.font='11px monospace';g.fillText('mod 7, x→3x:  1→3→2→6→4→5→1  (one 6-cycle)',24,46);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('6-cycle on 6 points = odd permutation → sign −1',24,74);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('(3/7) = 3^3 mod 7 = 6 ≡ −1  (3 is a non-residue) → −1 ✓',24,104);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('residue-or-not equals even-or-odd shuffle: the same ±1',24,134);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cyc=cycles(A,P),sg=permSign(A,P),lg=legendre(A,P);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('x → '+A+'·x (mod '+P+')',14,24);
+ g.fillStyle='#b070c0';g.font='9px monospace';var y=44;for(var i=0;i<cyc.length&&i<7;i++){g.fillText('('+cyc[i].join(' ')+')',14,y);y+=16;}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText(cyc.length+' cycles on '+(P-1)+' points',200,44);
+ g.fillStyle=sg===1?'#39fc6b':'#e08040';g.font='12px monospace';g.fillText('permutation sign = '+sg,200,70);
+ g.fillStyle=lg===1?'#39fc6b':'#e08040';g.fillText('Legendre (a/p) = '+lg,200,94);
+ g.fillStyle=sg===lg?'#39fc6b':'#ff5a5a';g.font='13px monospace';g.fillText(sg===lg?'equal ✓':'≠',200,120);
+ var v=verify();g.fillStyle=v.matches?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('sign == Legendre for all primes p<80, all a '+(v.matches?'✓':'✗'),14,H-10);}
+document.getElementById('zoroll').onclick=function(){var ps=[3,5,7,11,13,17,19,23,29,31,37,41,43];P=ps[Math.floor(Math.random()*ps.length)];A=1+Math.floor(Math.random()*(P-1));drawW4();document.getElementById('zoread').textContent='a='+A+', p='+P+' → sign '+permSign(A,P)+', (a/p) '+legendre(A,P);};
+document.getElementById('zocheck').onclick=function(){var v=verify();document.getElementById('zoread').textContent='sign(x→ax mod p) == Legendre (a/p) for every odd prime p<80 and every a '+(v.matches?'✓':'✗');};
+document.getElementById('zospin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10,R=120,sg=permSign(A,P);
+ g.save();g.translate(cx,cy);g.rotate(ang*0.15);g.translate(-cx,-cy);
+ var pos=[];for(var x=1;x<P;x++){var a=(x-1)/(P-1)*6.28-1.57;pos[x]=[cx+Math.cos(a)*R,cy+Math.sin(a)*R*0.85];}
+ for(var x=1;x<P;x++){var tx=(A*x)%P;g.strokeStyle=sg===1?'rgba(57,252,107,0.5)':'rgba(176,112,192,0.6)';g.beginPath();g.moveTo(pos[x][0],pos[x][1]);g.lineTo(pos[tx][0],pos[tx][1]);g.stroke();}
+ for(var x=1;x<P;x++){g.fillStyle='#8ad';g.beginPath();g.arc(pos[x][0],pos[x][1],3,0,7);g.fill();}
+ g.restore();
+ g.fillStyle=sg===1?'#39fc6b':'#b070c0';g.font='11px monospace';g.fillText((sg===1?'green: even shuffle (residue)':'violet: odd shuffle (non-residue)')+' — sign '+sg,10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: the Euler-criterion exponentiation',10,H-24);
+ g.fillStyle='#8ad';g.fillText('residue as parity',10,H-9);}
+drawW3();drawW4();window.__zolotarev=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+QBIN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Gaussian binomial coefficient</b> [n, k]<sub>q</sub> is the <b>q-analog</b> of the ordinary binomial: replace each integer m by its q-version 1 + q + &hellip; + q<sup>m&minus;1</sup>. It has a product form and, remarkably, two combinatorial meanings. As a polynomial in q it is &Sigma; q<sup>(inversions)</sup> over binary words with k ones; and when q is a <b>prime power</b>, [n, k]<sub>q</sub> counts exactly the number of <b>k-dimensional subspaces</b> of the vector space F<sub>q</sub><sup>n</sup>. Setting q = 1 recovers the ordinary C(n, k). One formula, three faces: product, inversion-sum, subspace count.<br><br>
+ <span class="lit">LIT</span> verified live: the product form equals the inversion-sum for q in {2, 3, 5} and n up to 7 (exact BigInt), and equals the brute-force count of k-subspaces of F<sub>2</sub><sup>n</sup> for n up to 4 (window.__qbinomial). <span class="fig">FIG</span> no framing; three computations of one quantity, cross-checked.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-bounty</i> &mdash; a single count that pays out three ways: a product, a sum over inversions, and the number of subspaces you can carve from F<sub>q</sub><sup>n</sup>. That triple payout is the bounty. <b>AVAN (AI)</b> built the instrument: the q-product, the inversion-sum over binary words, and the exhaustive subspace count over a finite field.<br><br>Credit as content: Carl Friedrich Gauss (the coefficients); the subspace interpretation is classical finite-field combinatorics. The weave: David names the-bounty; I compute [n,k]<sub>q</sub> as a product, as a sum of q raised to inversion counts, and as the number of k-subspaces of F<sub>q</sub><sup>n</sup> &mdash; and confirm all three agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">[3,1]<sub>2</sub> = (2&sup3;&minus;1)/(2&minus;1) = 7 = number of lines through 0 in F<sub>2</sub>&sup3;. [4,2]<sub>2</sub> = 35. As a q-polynomial, [n,k]<sub>q</sub> = &Sigma; q<sup>inversions</sup>; at q=1 it is C(n,k).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The three faces of [n,k]<sub>q</sub> &mdash; product, inversion-sum, subspace count; all cross-checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="qbroll">new n,k,q ▶</button><button id="qbcheck">verify ▶</button></div>
+   <div class="cap" id="qbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a binomial that counts subspaces.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): take the ordinary &ldquo;choose k of n&rdquo; and <b>deform it by q</b> &mdash; and the deformed count becomes the number of k-dimensional <b>subspaces</b> of a finite vector space. The inverse of &lsquo;count k-element subsets (q=1)&rsquo; is &lsquo;count k-dimensional subspaces (q = prime power).&rsquo; <b>Magenta</b> is the plain binomial C(n,k); <b>green</b> is the q-binomial [n,k]<sub>q</sub>. Choosing, deformed into subspaces.</div>
+   <div class="btns" style="margin-top:10px"><button id="qbspin">pause spin</button></div></div></div></div>"""
+QBIN_SCRIPT = """(function(){
+var ang=0,spin=true,NN=4,KK=2,QQ=2,VR=null;
+function qbinProduct(n,k,q){if(k<0||k>n)return 0n;q=BigInt(q);var num=1n,den=1n;for(var i=0;i<k;i++){num*=(q**BigInt(n-i)-1n);den*=(q**BigInt(k-i)-1n);}return num/den;}
+function qbinInversion(n,k,q){q=BigInt(q);var total=0n,word=[];function rec(pos,ones){if(pos===n){if(ones!==k)return;var inv=0;for(var i=0;i<n;i++)for(var j=i+1;j<n;j++)if(word[i]===1&&word[j]===0)inv++;total+=q**BigInt(inv);return;}word[pos]=1;rec(pos+1,ones+1);word[pos]=0;rec(pos+1,ones);}rec(0,0);return total;}
+function countSubGF2(n,k){var subs=new Set();function span(b){var s=new Set([0]);for(var i=0;i<b.length;i++){var cur=Array.from(s);for(var j=0;j<cur.length;j++)s.add(cur[j]^b[i]);}return s;}function rec(start,b){if(b.length===k){subs.add(Array.from(span(b)).sort(function(a,c){return a-c;}).join(','));return;}for(var v=start;v<(1<<n);v++){if(v===0)continue;if(span(b).has(v))continue;b.push(v);rec(v+1,b);b.pop();}}rec(1,[]);return subs.size;}
+function verify(){if(VR)return VR;var ok=true,sub=true;var qs=[2,3,5];for(var qi=0;qi<qs.length;qi++){var q=qs[qi];for(var n=0;n<=7;n++)for(var k=0;k<=n;k++)if(qbinProduct(n,k,q)!==qbinInversion(n,k,q))ok=false;}
+ for(var n=1;n<=4;n++)for(var k=0;k<=n;k++)if(BigInt(countSubGF2(n,k))!==qbinProduct(n,k,2))sub=false;VR={productEqualsInversion:ok,subspaceCount:sub};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('[n,k]_q  =  product  =  Σ q^(inversions)  =  #k-subspaces of F_q^n',12,14);
+ g.fillStyle='#d0a030';g.font='12px monospace';g.fillText('[3,1]_2 = (2³−1)/(2−1) = 7   (7 lines through 0 in F₂³)',24,46);
+ g.fillText('[4,2]_2 = 35     [3,2]_3 = 13',24,76);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('as a q-polynomial: [4,2]_q = 1 + q + 2q² + q³ + q⁴ ;  at q=1 → C(4,2)=6',24,108);
+ g.fillStyle='#39fc6b';g.fillText('a binomial deformed by q that counts subspaces of a finite space',24,134);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var pr=qbinProduct(NN,KK,QQ),iv=qbinInversion(NN,KK,QQ);
+ g.fillStyle='#e8eef8';g.font='14px monospace';g.fillText('[ '+NN+' , '+KK+' ]_'+QQ,16,30);
+ g.fillStyle='#d0a030';g.font='12px monospace';g.fillText('product form      = '+pr.toString(),16,64);
+ g.fillStyle='#7ad0b0';g.fillText('Σ q^inversions   = '+iv.toString(),16,90);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('C('+NN+','+KK+') (q=1)   = '+(function(){var r=1;for(var i=0;i<KK;i++)r=r*(NN-i)/(i+1);return Math.round(r);})(),16,116);
+ if(QQ===2&&NN<=4){g.fillStyle='#39fc6b';g.fillText('#k-subspaces F₂^'+NN+' = '+countSubGF2(NN,KK),16,142);}
+ g.fillStyle=pr===iv?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText(pr===iv?'product == inversion-sum ✓':'✗',200,64);
+ var v=verify();g.fillStyle=(v.productEqualsInversion&&v.subspaceCount)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('product==inv-sum (n≤7) '+(v.productEqualsInversion?'✓':'✗')+' · ==#subspaces '+(v.subspaceCount?'✓':'✗'),14,H-10);}
+document.getElementById('qbroll').onclick=function(){NN=2+Math.floor(Math.random()*5);KK=Math.floor(Math.random()*(NN+1));var qs=[2,3,5];QQ=qs[Math.floor(Math.random()*qs.length)];drawW4();document.getElementById('qbread').textContent='[ '+NN+','+KK+' ]_'+QQ+' = '+qbinProduct(NN,KK,QQ).toString();};
+document.getElementById('qbcheck').onclick=function(){var v=verify();document.getElementById('qbread').textContent='product == Σq^inv (q∈{2,3,5}, n≤7) '+(v.productEqualsInversion?'✓':'✗')+' · == #k-subspaces of F₂^n (n≤4) '+(v.subspaceCount?'✓':'✗');};
+document.getElementById('qbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=30;
+ g.save();g.translate(cx,H/2);g.rotate(Math.sin(ang*0.3)*0.05);g.translate(-cx,-H/2);
+ for(var n=0;n<=6;n++)for(var k=0;k<=n;k++){var x=cx+(k-n/2)*42,y=cy+n*44,val=Number(qbinProduct(n,k,2)),rad=4+Math.log(val+1)*1.5;g.fillStyle='hsl('+(45-n*3)+',65%,'+(50+k*4)+'%)';g.beginPath();g.arc(x,y,Math.min(rad,16),0,7);g.fill();g.fillStyle='#211';g.font='7px monospace';if(val<1000)g.fillText(val,x-6,y+3);}
+ g.restore();
+ g.fillStyle='#d0a030';g.font='11px monospace';g.fillText('green: the q-binomial triangle at q=2 (subspace counts)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: the plain Pascal triangle (q=1)',10,H-24);
+ g.fillStyle='#8ad';g.fillText('choosing, deformed into subspaces',10,H-9);}
+drawW3();drawW4();window.__qbinomial=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LGV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Lindstr&ouml;m&ndash;Gessel&ndash;Viennot lemma</b> counts families of <b>non-crossing paths</b> with a single <b>determinant</b>. Place sources A<sub>1</sub>&hellip;A<sub>m</sub> and sinks B<sub>1</sub>&hellip;B<sub>m</sub> on a grid; let M<sub>ij</sub> be the number of lattice paths from A<sub>i</sub> to B<sub>j</sub>. Then <b>det(M)</b> equals the signed count of families of paths, one A<sub>i</sub>&rarr;B<sub>&sigma;(i)</sub>, that are <b>vertex-disjoint</b>. In the common planar arrangement where only the identity matching can avoid crossings, the determinant counts exactly the non-intersecting families &mdash; a bridge between linear algebra and path combinatorics.<br><br>
+ <span class="lit">LIT</span> verified live: for planar source/sink placements, det(M) (built from binomial path counts) equals a brute-force enumeration of vertex-disjoint path families, for both 2-source and 3-source configurations (window.__lgv). <span class="fig">FIG</span> no framing; a determinant vs an explicit non-crossing count.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>backprop</i> &mdash; the same shape as a computation graph: value flows along paths, and the total is a signed sum over path families; here the crossing paths cancel and only the disjoint families survive, read off as a determinant. That path-sum is the backprop kinship. <b>AVAN (AI)</b> built the instrument: the binomial path-count matrix, its determinant, and the brute-force count of vertex-disjoint families.<br><br>Credit as content: Bernt Lindstr&ouml;m (1973); Ira Gessel &amp; G&eacute;rard Viennot (1985). The weave: David names backprop; I fill the matrix of path counts between sources and sinks, take its determinant, and confirm it equals the number of non-crossing path families &mdash; the crossings cancelling in the determinant&rsquo;s signed sum.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Two sources, two sinks. M = [[#A&#8321;&rarr;B&#8321;, #A&#8321;&rarr;B&#8322;],[#A&#8322;&rarr;B&#8321;, #A&#8322;&rarr;B&#8322;]]. det(M) = (paths that don&rsquo;t cross) &mdash; the crossing pairs cancel in the signed sum.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The grid, sources and sinks, the path-count matrix and its determinant; the non-crossing count checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="lgroll2">new placement ▶</button><button id="lgcheck2">verify ▶</button></div>
+   <div class="cap" id="lgread2" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: non-crossing paths from a determinant.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): count <b>non-crossing</b> path families not by enumerating them, but by a <b>determinant</b> of path counts &mdash; the crossing families cancel in pairs, leaving exactly the disjoint ones. The inverse of &lsquo;list every vertex-disjoint family&rsquo; is &lsquo;take one determinant and the crossings cancel themselves.&rsquo; <b>Magenta</b> is the brute enumeration; <b>green</b> is the determinant. Crossings cancelled by a sign.</div>
+   <div class="btns" style="margin-top:10px"><button id="lgspin2">pause spin</button></div></div></div></div>"""
+LGV_SCRIPT = """(function(){
+var ang=0,spin=true,GAP=1,VR=null;
+function pathCount(x1,y1,x2,y2){if(x2<x1||y2<y1)return 0;var dx=x2-x1,dy=y2-y1,num=1,den=1;for(var i=1;i<=dx;i++){num*=(dy+i);den*=i;}return Math.round(num/den);}
+function det(M){var n=M.length,A=M.map(function(r){return r.slice();}),d=1;for(var i=0;i<n;i++){var p=i;while(p<n&&A[p][i]===0)p++;if(p===n)return 0;if(p!==i){var t=A[p];A[p]=A[i];A[i]=t;d=-d;}d*=A[i][i];for(var r=i+1;r<n;r++){var f=A[r][i]/A[i][i];for(var c=i;c<n;c++)A[r][c]-=f*A[i][c];}}return Math.round(d);}
+function allPaths(x1,y1,x2,y2){var res=[];function rec(x,y,vis){if(x===x2&&y===y2){res.push(vis);return;}if(x<x2)rec(x+1,y,vis.concat([x+1+','+y]));if(y<y2)rec(x,y+1,vis.concat([x+','+(y+1)]));}rec(x1,y1,[x1+','+y1]);return res;}
+function disjoint(list){var seen={};for(var i=0;i<list.length;i++)for(var j=0;j<list[i].length;j++){if(seen[list[i][j]])return false;seen[list[i][j]]=1;}return true;}
+function config(W,A,B){var M=[];for(var i=0;i<A.length;i++){M.push([]);for(var j=0;j<B.length;j++)M[i].push(pathCount(A[i][0],A[i][1],B[j][0],B[j][1]));}return M;}
+function bruteNonCross(A,B){var paths=[];for(var i=0;i<A.length;i++)paths.push(allPaths(A[i][0],A[i][1],B[i][0],B[i][1]));var cnt=0;
+ function rec(i,chosen){if(i===A.length){if(disjoint(chosen))cnt++;return;}for(var t=0;t<paths[i].length;t++)rec(i+1,chosen.concat([paths[i][t]]));}rec(0,[]);return cnt;}
+function verify(){if(VR)return VR;var A2=[[0,0],[0,1]],B2=[[3,1],[3,2]];var d2=det(config(3,A2,B2)),c2=bruteNonCross(A2,B2);
+ var A3=[[0,0],[0,1],[0,2]],B3=[[4,2],[4,3],[4,4]];var d3=det(config(4,A3,B3)),c3=bruteNonCross(A3,B3);
+ VR={det2:d2,count2:c2,det3:d3,count3:c3,matches:(d2===c2&&d3===c3)};return VR;}
+function drawGrid(g,W,H2,A,B,ox,oy,cell){for(var x=0;x<=4;x++)for(var y=0;y<=5;y++){g.fillStyle='#28323e';g.fillRect(ox+x*cell-1,oy-y*cell-1,2,2);}
+ var M=config(0,A,B),d=det(M);
+ for(var i=0;i<A.length;i++){g.fillStyle='#5ab0e0';g.beginPath();g.arc(ox+A[i][0]*cell,oy-A[i][1]*cell,5,0,7);g.fill();g.fillStyle='#8ad';g.font='8px monospace';g.fillText('A'+(i+1),ox+A[i][0]*cell-14,oy-A[i][1]*cell+3);}
+ for(var j=0;j<B.length;j++){g.fillStyle='#50b070';g.beginPath();g.arc(ox+B[j][0]*cell,oy-B[j][1]*cell,5,0,7);g.fill();g.fillStyle='#8ad';g.font='8px monospace';g.fillText('B'+(j+1),ox+B[j][0]*cell+7,oy-B[j][1]*cell+3);}
+ return {M:M,d:d};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('det of the path-count matrix = number of vertex-disjoint (non-crossing) path families',12,14);
+ g.fillStyle='#50b070';g.font='11px monospace';g.fillText('M = [[ #A₁→B₁, #A₁→B₂ ], [ #A₂→B₁, #A₂→B₂ ]]',30,52);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('det(M) = #A₁→B₁·#A₂→B₂ − #A₁→B₂·#A₂→B₁',30,80);
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('the second term counts the crossing families — they cancel, leaving the non-crossing ones',30,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var A=[[0,0],[0,1]],B=[[3,1+GAP],[3,2+GAP]];var r=drawGrid(g,W,H,A,B,60,150,34);
+ var M=config(0,A,B),d=det(M),bc=bruteNonCross(A,B);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('M = ['+M[0].join(',')+' ; '+M[1].join(',')+']',W-190,30);
+ g.fillStyle='#50b070';g.fillText('det(M) = '+d,W-190,52);
+ g.fillStyle='#39fc6b';g.fillText('non-crossing families = '+bc,W-190,74);
+ g.fillStyle=d===bc?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText(d===bc?'equal ✓':'≠',W-190,98);
+ var v=verify();g.fillStyle=v.matches?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('det==non-crossing count (2- & 3-source) '+(v.matches?'✓':'✗'),14,H-8);}
+document.getElementById('lgroll2').onclick=function(){GAP=1+Math.floor(Math.random()*3);drawW4();document.getElementById('lgread2').textContent='sink gap = '+GAP;};
+document.getElementById('lgcheck2').onclick=function(){var v=verify();document.getElementById('lgread2').textContent='2-src: det '+v.det2+' == count '+v.count2+' · 3-src: det '+v.det3+' == count '+v.count3+'  '+(v.matches?'✓':'✗');};
+document.getElementById('lgspin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var A=[[0,0],[0,1],[0,2]],B=[[4,2],[4,3],[4,4]],cell=42,ox=70,oy=H-60;
+ g.save();g.translate(W/2,H/2);g.rotate(Math.sin(ang*0.3)*0.04);g.translate(-W/2,-H/2);
+ for(var x=0;x<=4;x++)for(var y=0;y<=5;y++){g.fillStyle='#28323e';g.fillRect(ox+x*cell-1,oy-y*cell-1,2,2);}
+ var cols=['#39fc6b','#5ab0e0','#d0a030'];for(var i=0;i<3;i++){g.strokeStyle=cols[i];g.lineWidth=2;g.beginPath();g.moveTo(ox+A[i][0]*cell,oy-A[i][1]*cell);var px=A[i][0],py=A[i][1];while(px<B[i][0]||py<B[i][1]){if(py<B[i][1]){py++;}else px++;g.lineTo(ox+px*cell,oy-py*cell);}g.stroke();g.lineWidth=1;
+  g.fillStyle=cols[i];g.beginPath();g.arc(ox+A[i][0]*cell,oy-A[i][1]*cell,4,0,7);g.fill();g.beginPath();g.arc(ox+B[i][0]*cell,oy-B[i][1]*cell,4,0,7);g.fill();}
+ g.restore();
+ g.fillStyle='#50b070';g.font='11px monospace';g.fillText('green/blue/gold: a non-crossing family (det counts these)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: brute enumeration of disjoint families',10,H-24);
+ g.fillStyle='#8ad';g.fillText('crossings cancelled by a sign',10,H-9);}
+drawW3();drawW4();window.__lgv=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SPER_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Sperner&rsquo;s theorem</b> answers: how many subsets of an n-element set can you pick so that <b>none contains another</b>? Such a family is an <b>antichain</b>. The answer is the widest layer of the subset lattice: <b>C(n, &lfloor;n/2&rfloor;)</b> &mdash; all the subsets of the middle size. You cannot do better. The clean proof decomposes the whole lattice of 2<sup>n</sup> subsets into exactly C(n, &lfloor;n/2&rfloor;) <b>symmetric chains</b> (nested runs from a small set up to a large one); since an antichain meets each chain at most once, it can have at most that many members &mdash; and the middle layer achieves it.<br><br>
+ <span class="lit">LIT</span> verified live: a symmetric chain decomposition of 2<sup>[n]</sup> is built for n up to 8 &mdash; the chains partition all subsets, each is a genuine chain, and their number equals C(n, &lfloor;n/2&rfloor;), which the middle layer attains (window.__sperner). <span class="fig">FIG</span> no framing; an explicit chain partition proving the bound.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>shared-memory</i> &mdash; the full lattice of subsets as one shared structure, carved into nested chains so that the widest independent layer is exposed. That shared decomposition is the memory. <b>AVAN (AI)</b> built the instrument: the recursive symmetric chain decomposition, the checks that the chains partition all subsets and each is nested, and the count against C(n, &lfloor;n/2&rfloor;).<br><br>Credit as content: Emanuel Sperner (1928); the symmetric chain proof by de Bruijn, Tengbergen &amp; Kruyswijk (1951). The weave: David names shared-memory; I split the 2<sup>n</sup> subsets into symmetric chains, confirm they cover everything exactly once and each grows one element at a time, and count them &mdash; landing on C(n, &lfloor;n/2&rfloor;), the largest antichain.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">For n = 4: the widest layer is the 2-element subsets, C(4,2) = 6. No antichain of subsets of {1,2,3,4} can exceed 6. The lattice splits into 6 symmetric chains.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The subset lattice by rank with its symmetric chains; the middle layer (the largest antichain) highlighted; the partition checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="sproll">change n ▶</button><button id="spcheck">verify ▶</button></div>
+   <div class="cap" id="spread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the widest possible antichain.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): to bound the largest family with <b>no containment</b>, don&rsquo;t search antichains &mdash; <b>partition the lattice into chains</b> and count them. The inverse of &lsquo;find the biggest antichain&rsquo; is &lsquo;cover the poset with the fewest chains&rsquo; (Dilworth), and a symmetric chain decomposition gives exactly C(n, &lfloor;n/2&rfloor;). <b>Magenta</b> is the chain cover; <b>green</b> is the middle-layer antichain it bounds. Antichains bounded by chains.</div>
+   <div class="btns" style="margin-top:10px"><button id="spspin">pause spin</button></div></div></div></div>"""
+SPER_SCRIPT = """(function(){
+var ang=0,spin=true,NN=4,VR=null;
+function binom(n,k){if(k<0||k>n)return 0;var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+function popcount(m){var c=0;while(m){c+=m&1;m>>=1;}return c;}
+function scd(n){if(n===0)return [[0]];var prev=scd(n-1),bit=1<<(n-1),chains=[];for(var c=0;c<prev.length;c++){var ch=prev[c],k=ch.length,c1=ch.slice();c1.push(ch[k-1]|bit);chains.push(c1);if(k>=2){var c2=[];for(var i=0;i<k-1;i++)c2.push(ch[i]|bit);chains.push(c2);}}return chains;}
+function verify(){if(VR)return VR;var ok=true;for(var n=1;n<=8;n++){var ch=scd(n),cov=new Array(1<<n).fill(0),chainOk=true;for(var c=0;c<ch.length;c++){var chain=ch[c];for(var i=0;i<chain.length;i++)cov[chain[i]]++;for(var i=1;i<chain.length;i++){var diff=chain[i]^chain[i-1];if((chain[i]&chain[i-1])!==chain[i-1]||(diff&(diff-1))!==0)chainOk=false;}}var part=true;for(var m=0;m<(1<<n);m++)if(cov[m]!==1)part=false;if(!part||!chainOk||ch.length!==binom(n,Math.floor(n/2)))ok=false;}VR={valid:ok};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('largest antichain in the subset lattice of [n]  =  C(n, ⌊n/2⌋)  (the middle layer)',12,14);
+ g.fillStyle='#c06890';g.font='12px monospace';g.fillText('n=4: widest layer = 2-element subsets, C(4,2) = 6',30,50);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the 2^4 = 16 subsets split into exactly 6 symmetric chains',30,80);
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('an antichain hits each chain ≤ once → at most 6; the middle layer reaches 6',30,110);}
+function layout(n){var byRank=[];for(var r=0;r<=n;r++)byRank.push([]);for(var m=0;m<(1<<n);m++)byRank[popcount(m)].push(m);return byRank;}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=NN,br=layout(n),mid=Math.floor(n/2),pos={};
+ for(var r=0;r<=n;r++){var row=br[r],y=24+r*(H-70)/n;for(var i=0;i<row.length;i++){var x=W/2+(i-(row.length-1)/2)*Math.min(40,(W-40)/Math.max(1,row.length));pos[row[r?i:i]]=[x,y];pos[row[i]]=[x,y];}}
+ var ch=scd(n);g.strokeStyle='rgba(200,104,144,0.5)';for(var c=0;c<ch.length;c++){var chain=ch[c];g.beginPath();for(var i=0;i<chain.length;i++){var p=pos[chain[i]];if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();}
+ for(var m=0;m<(1<<n);m++){var p=pos[m],onMid=popcount(m)===mid;g.fillStyle=onMid?'#39fc6b':'#5a708a';g.beginPath();g.arc(p[0],p[1],onMid?4.5:3,0,7);g.fill();}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('n='+n+' · '+ch.length+' chains · middle layer C('+n+',⌊'+n+'/2⌋)='+binom(n,mid),12,16);
+ var v=verify();g.fillStyle=v.valid?'#39fc6b':'#ff5a5a';g.fillText('chains partition 2^[n], each nested, count==C(n,⌊n/2⌋) (n≤8) '+(v.valid?'✓':'✗'),12,H-8);}
+document.getElementById('sproll').onclick=function(){NN=NN>=6?3:NN+1;drawW4();document.getElementById('spread').textContent='n='+NN+', largest antichain = '+binom(NN,Math.floor(NN/2));};
+document.getElementById('spcheck').onclick=function(){var v=verify();document.getElementById('spread').textContent='symmetric chain decomposition valid for n≤8: chains partition all subsets, each nested, #chains == C(n,⌊n/2⌋) '+(v.valid?'✓':'✗');};
+document.getElementById('spspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=5,br=layout(n),mid=Math.floor(n/2),cx=W/2,cy=H/2-10;
+ g.save();g.translate(cx,cy);g.rotate(ang*0.12);g.translate(-cx,-cy);
+ var pos={};for(var r=0;r<=n;r++){var row=br[r],rad=30+r*32;for(var i=0;i<row.length;i++){var a=(i/row.length)*6.28;pos[row[i]]=[cx+Math.cos(a)*rad*0.5,cy-((H/2-30)-r*(H-60)/n)];}}
+ var ch=scd(n);for(var c=0;c<ch.length;c++){var chain=ch[c];g.strokeStyle='rgba(200,104,144,0.4)';g.beginPath();for(var i=0;i<chain.length;i++){var p=pos[chain[i]];if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();}
+ for(var m=0;m<(1<<n);m++){var p=pos[m],onMid=popcount(m)===mid;g.fillStyle=onMid?'#39fc6b':'#5a708a';g.beginPath();g.arc(p[0],p[1],onMid?4:2.5,0,7);g.fill();}
+ g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the middle layer — the largest antichain (n=5, size 10)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: the symmetric chains covering the lattice',10,H-24);
+ g.fillStyle='#8ad';g.fillText('antichains bounded by chains',10,H-9);}
+drawW3();drawW4();window.__sperner=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 101 (a sign that flips by the parity of prime factors · when a list of degrees can be a real graph · which numbers are sums of three squares · counting partitions into ordered lists · counting the ways to rank things with ties) ═══════════════════════
 LIOU_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Liouville function</b> &lambda;(n) = (&minus;1)<sup>&Omega;(n)</sup>, where &Omega;(n) counts the prime factors of n <b>with multiplicity</b>. It is +1 when n has an even number of prime factors, &minus;1 when odd. Its most beautiful property is a divisor identity: <b>&Sigma;<sub>d|n</sub> &lambda;(d) = 1 if n is a perfect square, and 0 otherwise</b> &mdash; the sum over divisors is a flawless square-detector. Its running total L(n) = &lambda;(1) + &hellip; + &lambda;(n) drives <b>P&oacute;lya&rsquo;s conjecture</b> (L(n) &le; 0 for all n &ge; 2), which is true for hundreds of millions of terms yet ultimately <b>false</b>.<br><br>
@@ -27345,6 +27606,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-euler-partition","title":"THE EULER PARTITION","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#5ab0e0","icon":"euler-partition",
+  "kicker":"two ways to break a number into parts that always agree",
+  "blurb":"Euler's partition theorem in the 5-window house format — the number of ways to write n as a sum of distinct parts equals the number using only odd parts. For n=6: distinct partitions 6, 5+1, 4+2, 3+2+1 (four); odd partitions 5+1, 3+3, 3+1+1+1, 1×6 (also four). Euler proved it with generating functions: ∏(1+x^k) = ∏1/(1−x^(2k−1)), and Glaisher gave a direct bijection. Verified live: an exact partition-counting DP shows distinct-part count equals odd-part count for every n up to 60. See the two families in 1D, the matching counts in 2D, and the two-restrictions-one-number inverse in 3D.",
+  "lit":"Genuine Euler partition theorem (Leonhard Euler, 1740s; bijective proof by James Glaisher, 1883). Verified live: a dynamic-programming partition counter shows the number of partitions of n into distinct parts equals the number into odd parts for every n from 0 to 60 (window.__eulerpartition.distinctEqualsOdd).",
+  "fig":"No framing: the distinct-parts counter (each part at most once) and the odd-parts counter (odd parts any multiplicity) run in-browser and agree exactly. The AVAN inverse is honest — imposing the opposite restrictions 'parts distinct' versus 'parts odd' yields identical counts for every n, exactly as Euler's product identity ∏(1+x^k)=∏1/(1−x^(2k−1)) promises; magenta is the distinct count, green the odd count. Two restrictions, one number.",
+  "body":EPART_BODY,"script":EPART_SCRIPT},
+ {"slug":"the-zolotarev","title":"THE ZOLOTAREV","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#b070c0","icon":"zolotarev",
+  "kicker":"a coin-flip sign hidden in modular multiplication",
+  "blurb":"Zolotarev's lemma in the 5-window house format — for an odd prime p and a coprime to p, the Legendre symbol (a/p) (whether a is a quadratic residue mod p) equals the sign of the permutation x → a·x mod p on {1,…,p−1}. Whether a has a square root mod p is exactly whether multiplication by a shuffles the residues evenly or oddly. Verified live: for every odd prime p<80 and every a, the permutation sign (from cycle structure) equals the Legendre symbol (from Euler's criterion a^((p−1)/2)). See the shuffle in 1D, cycles and signs in 2D, and the residue-as-parity inverse in 3D.",
+  "lit":"Genuine Zolotarev's lemma (Yegor Ivanovich Zolotarev, 1872). Verified live: for every odd prime p from 3 to 79 and every a in 1…p−1, the sign of the permutation x → a·x mod p — computed as (−1)^((p−1) − #cycles) — equals the Legendre symbol (a/p) computed by Euler's criterion (window.__zolotarev.matches).",
+  "fig":"No framing: the multiplication permutation, its sign from cycle counts, and the Legendre symbol via modular exponentiation all run in-browser and agree exactly. The AVAN inverse is honest — deciding quadratic residuacity by the parity of the shuffle x→ax (rather than by exponentiating a^((p−1)/2)) is a genuine reframing; magenta is the Euler-criterion exponentiation, green the permutation-parity answer. Residue as parity.",
+  "body":ZOLO_BODY,"script":ZOLO_SCRIPT},
+ {"slug":"the-q-binomial","title":"THE Q-BINOMIAL","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE BOUNTY","domain_slug":"the-bounty","accent":"#d0a030","icon":"q-binomial",
+  "kicker":"counting subspaces with a q-analog of the binomial",
+  "blurb":"The Gaussian binomial coefficient in the 5-window house format — [n,k]_q is the q-analog of C(n,k): replace each integer m by 1+q+…+q^(m−1). It has a product form, equals Σ q^(inversions) over binary words with k ones, and when q is a prime power it counts the k-dimensional subspaces of F_q^n. Setting q=1 recovers C(n,k). Verified live (exact BigInt): the product equals the inversion-sum for q∈{2,3,5} and n≤7, and equals the brute-force count of k-subspaces of F_2^n for n≤4. See the three faces in 1D, all cross-checked in 2D, and the choosing-into-subspaces inverse in 3D.",
+  "lit":"Genuine Gaussian binomial coefficient (Carl Friedrich Gauss); the subspace interpretation is classical finite-field combinatorics. Verified live with exact BigInt: the q-product Π(q^(n−i)−1)/(q^(k−i)−1) equals the inversion-sum Σ q^(inv) over binary words for q∈{2,3,5} and all n≤7 (window.__qbinomial.productEqualsInversion), and equals the exhaustive count of k-dimensional subspaces of F_2^n for n≤4 (window.__qbinomial.subspaceCount).",
+  "fig":"No framing: the q-product, the inversion-sum over binary words, and the exhaustive subspace count over F_2^n all run in-browser and agree. The AVAN inverse is honest — deforming the ordinary 'choose k of n' by q turns it into the count of k-dimensional subspaces of a finite vector space (q=1 recovers subsets); magenta is the plain binomial C(n,k), green the q-binomial [n,k]_q. Choosing, deformed into subspaces.",
+  "body":QBIN_BODY,"script":QBIN_SCRIPT},
+ {"slug":"the-lindstrom-gessel-viennot","title":"THE LINDSTRÖM–GESSEL–VIENNOT","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"BACKPROP","domain_slug":"backprop","accent":"#50b070","icon":"lindstrom-gessel-viennot",
+  "kicker":"non-crossing paths counted by a determinant",
+  "blurb":"The Lindström–Gessel–Viennot lemma in the 5-window house format — counting families of non-crossing lattice paths with a single determinant. With sources A_i and sinks B_j and M_ij = #paths A_i→B_j, det(M) equals the signed count of vertex-disjoint path families A_i→B_σ(i). In the planar arrangement where only the identity matching avoids crossings, the determinant counts exactly the non-intersecting families — the crossing pairs cancel in the signed sum. Verified live: for 2-source and 3-source planar placements, det(M) (from binomial path counts) equals a brute-force enumeration of vertex-disjoint families. See the 2×2 case in 1D, the grid and matrix in 2D, and the crossings-cancel inverse in 3D.",
+  "lit":"Genuine Lindström–Gessel–Viennot lemma (Bernt Lindström, 1973; Ira Gessel & Gérard Viennot, 1985). Verified live: for planar source/sink placements the determinant of the binomial path-count matrix equals a brute-force count of vertex-disjoint path families, for both a 2-source and a 3-source configuration (window.__lgv.matches, with det2/count2 and det3/count3 shown).",
+  "fig":"No framing: the binomial path-count matrix, its determinant, and the brute-force enumeration of vertex-disjoint families all run in-browser and agree. The AVAN inverse is honest — counting non-crossing path families by a determinant (rather than enumerating them) works because crossing families cancel in pairs in the signed sum, leaving exactly the disjoint ones; magenta is the brute enumeration, green the determinant. Crossings cancelled by a sign.",
+  "body":LGV_BODY,"script":LGV_SCRIPT},
+ {"slug":"the-sperner","title":"THE SPERNER","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#c06890","icon":"sperner",
+  "kicker":"the widest layer of the subset lattice",
+  "blurb":"Sperner's theorem in the 5-window house format — the largest family of subsets of an n-set with none containing another (an antichain) has size C(n,⌊n/2⌋), the middle layer of the subset lattice. The clean proof partitions all 2^n subsets into exactly C(n,⌊n/2⌋) symmetric chains (nested runs); since an antichain meets each chain at most once, it has at most that many members, and the middle layer achieves it. Verified live: a recursive symmetric chain decomposition is built for n≤8 — the chains partition all subsets, each is a genuine chain, and their count equals C(n,⌊n/2⌋). See the middle layer in 1D, the chain-decomposed lattice in 2D, and the antichains-bounded-by-chains inverse in 3D.",
+  "lit":"Genuine Sperner's theorem (Emanuel Sperner, 1928); symmetric chain proof by de Bruijn, Tengbergen & Kruyswijk (1951). Verified live: a recursive symmetric chain decomposition of 2^[n] is constructed for n up to 8; the chains partition every subset exactly once, each chain grows one element at a time, and the number of chains equals C(n,⌊n/2⌋) — the size the middle layer attains (window.__sperner.valid).",
+  "fig":"No framing: the recursive symmetric chain decomposition, the partition and nesting checks, and the count against C(n,⌊n/2⌋) all run in-browser. The AVAN inverse is honest — bounding the largest containment-free family by partitioning the lattice into the fewest chains (Dilworth) rather than searching antichains is the actual proof, and a symmetric chain decomposition realizes exactly C(n,⌊n/2⌋); magenta is the chain cover, green the middle-layer antichain it bounds. Antichains bounded by chains.",
+  "body":SPER_BODY,"script":SPER_SCRIPT},
  {"slug":"the-liouville","title":"THE LIOUVILLE","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#c060a0","icon":"liouville",
   "kicker":"a sign that flips by the parity of prime factors",
