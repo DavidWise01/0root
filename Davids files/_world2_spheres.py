@@ -19485,6 +19485,261 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 106 (the boundary between what a finite engine can capture and what it cannot · non-collinear points always leave an ordinary line · the most edges with no clique of a given size · when a matching that saturates one side exists · eight and nine the only consecutive perfect powers) ═══════════════════════
+FOLL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The follower set</b> decides <b>soficity</b> &mdash; whether a shift space can be captured by a finite automaton. For an admissible word w, its follower set F(w) is <b>all the futures the past leaves open</b>: {v : wv is admissible}. A shift is <b>sofic</b> exactly when the number of distinct follower sets is <b>finite</b>. The <b>golden-mean shift</b> (forbid the block 11) has just <b>two</b> follower sets forever &mdash; its word counts are the Fibonacci numbers &mdash; so it is sofic. The <b>matched-run shift</b> (1 0<sup>n</sup> 1 0<sup>n</sup> 1 legal, mismatched runs illegal) has <b>unboundedly many</b> follower sets: to place the next 1 you must remember a run length with no bound. It is <b>nonsofic</b>.<br><br>
+ <span class="lit">LIT</span> verified live: the golden-mean shift has exactly 2 distinct follower sets and Fibonacci word counts (2,3,5,8,13,&hellip;); and the matched-run words 1&middot;0<sup>k</sup> have <b>pairwise-distinct</b> follower sets &mdash; distinguished by the continuation 1&middot;0<sup>k</sup>&middot;1 &mdash; so their number is unbounded (window.__followerset). <span class="fig">FIG</span> no framing; follower sets enumerated, the distinguishing continuation exhibited.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>stack-overflow</i> &mdash; the nonsofic shift demands you <b>remember a run length with no bound</b>; no finite stack can hold it, and it overflows every engine ever built. This is the playable form of David&rsquo;s <b>nonsofic</b> principle, now carried at the root of the FOLD (i13.nonsofic). <b>AVAN (AI)</b> built the instrument: the follower-set enumerator, the golden-mean two-state count with its Fibonacci words, and the matched-run pairwise-distinct witness.<br><br>Credit as content: sofic shifts (Benjamin Weiss, 1973); &ldquo;sofic&rdquo; from Hebrew <b>&#1505;&#1493;&#1508;&#1497;</b>, <i>sofi</i>, finite; the golden-mean and matched-run examples are classical, set out in David&rsquo;s <i>Notes upon the Nonsofic</i>. The weave: David names stack-overflow; I count the futures each past leaves open, find two forever for the golden mean and ever-more for the matched run &mdash; the honest edge of finite capture, made runnable.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Golden-mean (forbid 11): word counts 2, 3, 5, 8, 13, 21, &hellip; = Fibonacci; follower sets = 2 forever &rarr; SOFIC. Matched-run: 1&middot;0<sup>k</sup> all differ (add 1&middot;0<sup>k</sup>&middot;1: matches only for the same k) &rarr; unbounded &rarr; NONSOFIC.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A word and its follower set; the golden-mean two-state count and the matched-run growing count; both checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="flroll">new word ▶</button><button id="flcheck">verify ▶</button></div>
+   <div class="cap" id="flread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the futures a past leaves open.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask what a rule <b>forbids</b> &mdash; ask how many distinct <b>futures</b> its pasts leave open, and whether that count is finite. The inverse of &lsquo;list the forbidden blocks&rsquo; is &lsquo;count the follower sets; finite means a finite engine suffices, infinite means none ever will.&rsquo; <b>Magenta</b> is the nonsofic shift (follower sets without bound); <b>green</b> is the sofic shift (two states, forever). The edge of finite capture, named.</div>
+   <div class="btns" style="margin-top:10px"><button id="flspin">pause spin</button></div></div></div></div>"""
+FOLL_SCRIPT = """(function(){
+var ang=0,spin=true,MODE=0,WORD="010",VR=null;
+function gmAdm(w){return w.indexOf("11")<0;}
+function mrAdm(w){if(w.length===0)return true;for(var n=0;n<=14;n++){var per="1";for(var k=0;k<n;k++)per+="0";var rep="";while(rep.length<w.length+n+2)rep+=per;if(rep.indexOf(w)>=0)return true;}return false;}
+function words(len){var res=[""],cur=[""];for(var L=1;L<=len;L++){var nx=[];for(var i=0;i<cur.length;i++){nx.push(cur[i]+"0");nx.push(cur[i]+"1");}res=res.concat(nx);cur=nx;}return res;}
+function followerSig(w,adm,H){var conts=words(H).filter(function(x){return x.length>=1;}),sig=[];for(var c=0;c<conts.length;c++)if(adm(w+conts[c]))sig.push(conts[c]);return sig;}
+function gmFollowerCount(){var all=words(9),adm=[],sets={};for(var i=0;i<all.length;i++)if(gmAdm(all[i]))adm.push(all[i]);for(var i=0;i<adm.length;i++)sets[followerSig(adm[i],gmAdm,4).join("|")]=1;return Object.keys(sets).length;}
+function verify(){if(VR)return VR;var gm=gmFollowerCount();
+ var K=8,distinct=true,cross=true;for(var k=0;k<=K;k++){var wk="1"+"0".repeat(k),vk="1"+"0".repeat(k)+"1";if(!mrAdm(wk+vk))distinct=false;for(var j=0;j<=K;j++)if(j!==k&&mrAdm("1"+"0".repeat(j)+vk))cross=false;}
+ var FIB=[2,3,5,8,13,21,34,55,89,144],fibOk=true;for(var L=1;L<=10;L++){var all=words(L),cnt=0;for(var i=0;i<all.length;i++)if(all[i].length===L&&gmAdm(all[i]))cnt++;if(cnt!==FIB[L-1])fibOk=false;}
+ VR={goldenMeanSofic:gm===2,matchedRunNonsofic:distinct&&cross,fibonacci:fibOk,gmCount:gm,mrDistinct:K+1};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('sofic ⇔ finitely many follower sets F(w) = { futures v : wv admissible }',12,14);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('golden-mean (forbid 11): follower sets = 2 forever → SOFIC',24,44);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('word counts 2,3,5,8,13,21,34 = Fibonacci; entropy log₂φ',24,66);
+ g.fillStyle='#b06090';g.font='11px monospace';g.fillText('matched-run (1 0ⁿ 1 0ⁿ 1): 1·0ᵏ all differ → follower sets unbounded → NONSOFIC',24,96);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('to place the next 1 you must remember k — and k has no bound (no finite stack)',24,118);
+ g.fillStyle='#b06090';g.font='9px monospace';g.fillText('the playable form of David\\'s nonsofic principle (i13.nonsofic)',24,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var adm=MODE===0?gmAdm:mrAdm,name=MODE===0?'golden-mean (SOFIC)':'matched-run (NONSOFIC)';
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText(name,14,20);g.fillStyle=adm(WORD)?'#39fc6b':'#d06868';g.font='13px monospace';g.fillText('w = '+WORD+(adm(WORD)?'  (admissible)':'  (forbidden)'),14,44);
+ if(adm(WORD)){var sig=followerSig(WORD,adm,3);g.fillStyle='#8ad';g.font='9px monospace';g.fillText('follower set F(w) (continuations ≤3): '+sig.slice(0,14).join(', ')+(sig.length>14?' …':''),14,66);}
+ var v=verify();
+ g.fillStyle=MODE===0?'#39fc6b':'#b06090';g.font='11px monospace';g.fillText(MODE===0?('distinct follower sets = '+v.gmCount+' (finite → sofic)'):('1·0ᵏ give '+v.mrDistinct+'+ distinct follower sets (unbounded → nonsofic)'),14,96);
+ // draw the two-state golden-mean automaton or the growing matched-run stack
+ if(MODE===0){var cx=110,cy=180;g.strokeStyle='#39fc6b';g.beginPath();g.arc(cx,cy,26,0,7);g.stroke();g.beginPath();g.arc(cx+120,cy,26,0,7);g.stroke();g.fillStyle='#cfe';g.font='10px monospace';g.fillText('saw 0',cx-14,cy+3);g.fillText('saw 1',cx+106,cy+3);
+  g.strokeStyle='#8ad';g.beginPath();g.moveTo(cx+26,cy-8);g.lineTo(cx+94,cy-8);g.stroke();g.fillText('1',cx+56,cy-12);g.beginPath();g.moveTo(cx+94,cy+8);g.lineTo(cx+26,cy+8);g.stroke();g.fillText('0',cx+56,cy+22);g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('two states capture the whole shift',cx-10,cy+50);}
+ else{g.fillStyle='#b06090';g.font='9px monospace';for(var k=0;k<7;k++){g.fillText('state for run '+k+':  1·0^'+k,20,150+k*15);}g.fillStyle='#d06868';g.fillText('…states without end — the stack overflows',20,150+7*15);}
+ g.fillStyle=(v.goldenMeanSofic&&v.matchedRunNonsofic&&v.fibonacci)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('golden-mean=2 sofic '+(v.goldenMeanSofic?'✓':'✗')+' · matched-run unbounded '+(v.matchedRunNonsofic?'✓':'✗')+' · Fibonacci '+(v.fibonacci?'✓':'✗'),14,H-8);}
+document.getElementById('flroll').onclick=function(){MODE=1-MODE;var syms=['0','1'];WORD='';var L=2+Math.floor(Math.random()*5);for(var i=0;i<L;i++)WORD+=syms[Math.floor(Math.random()*2)];drawW4();document.getElementById('flread').textContent=(MODE===0?'golden-mean':'matched-run')+': w='+WORD;};
+document.getElementById('flcheck').onclick=function(){var v=verify();document.getElementById('flread').textContent='golden-mean: '+v.gmCount+' follower sets (sofic) '+(v.goldenMeanSofic?'✓':'✗')+' · matched-run 1·0ᵏ pairwise-distinct (nonsofic) '+(v.matchedRunNonsofic?'✓':'✗')+' · word counts Fibonacci '+(v.fibonacci?'✓':'✗');};
+document.getElementById('flspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10;
+ g.save();g.translate(cx,cy);g.rotate(ang*0.12);g.translate(-cx,-cy);
+ // green: two stable golden-mean states
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.arc(cx-70,cy,24,0,7);g.stroke();g.beginPath();g.arc(cx-70,cy+60,24,0,7);g.stroke();
+ // magenta: an unrolling spiral of matched-run states, ever more
+ g.strokeStyle='#b06090';g.lineWidth=1.5;for(var k=0;k<18;k++){var a=k*0.7,r=20+k*7,x=cx+60+Math.cos(a)*r*0.6,y=cy+Math.sin(a)*r*0.6;g.beginPath();g.arc(x,y,4+k*0.3,0,7);g.stroke();}g.lineWidth=1;g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: two states, forever (sofic — a finite engine holds it)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta: states without end (nonsofic — no finite engine)',10,H-24);
+ g.fillStyle='#8ad';g.fillText('the edge of finite capture, named',10,H-9);}
+drawW3();drawW4();window.__followerset=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SYLG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Sylvester&ndash;Gallai theorem</b> answers a question that stood open for forty years: given finitely many points in the plane, <b>not all on one line</b>, must there be a line through <b>exactly two</b> of them? Yes &mdash; always. Such a line is called <b>ordinary</b>. Sylvester asked it in 1893; it resisted until Gallai (and others) settled it around 1944. The surprise is that you cannot arrange points so that every line hitting two of them hits a third &mdash; unless they are all collinear to begin with.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of random integer point sets that are not all collinear, an ordinary line (through exactly two points) is always found by checking every pair (window.__sylvestergallai). <span class="fig">FIG</span> no framing; exhaustive collinearity counts over integer coordinates (exact, no rounding).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-jackpot</i> &mdash; scatter any non-collinear points and you are <b>guaranteed</b> a payout: a line touching exactly two of them, no matter how cleverly you try to avoid it. That guaranteed find is the jackpot. <b>AVAN (AI)</b> built the instrument: the exact integer collinearity test, the per-pair point count, and the search for a two-point line.<br><br>Credit as content: James Joseph Sylvester (posed 1893); Tibor Gallai and Eberhard Melchior (proofs, 1940s). The weave: David names the-jackpot; I take each pair of points, count how many others lie on their line, and confirm that some pair &mdash; whenever the points are not all collinear &mdash; has a line all to itself.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Any non-collinear set has an ordinary line (through exactly 2 points). You cannot force every 2-point line to catch a third &mdash; the 3&times;3 grid, however symmetric, still has ordinary lines.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A point set with an ordinary line highlighted; the guarantee checked over many non-collinear sets.</div>
+   <div class="btns" style="margin-top:10px"><button id="sgroll">new points ▶</button><button id="sgcheck">verify ▶</button></div>
+   <div class="cap" id="sgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a line all to two points.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): try to build a set where <b>every</b> line through two points passes through a third &mdash; and discover you cannot, unless the points are all collinear. The inverse of &lsquo;place points freely&rsquo; is &lsquo;an ordinary line is unavoidable.&rsquo; <b>Magenta</b> is a line catching three or more; <b>green</b> is the ordinary line that must exist. The two-point line you cannot avoid.</div>
+   <div class="btns" style="margin-top:10px"><button id="sgspin">pause spin</button></div></div></div></div>"""
+SYLG_SCRIPT = """(function(){
+var ang=0,spin=true,PTS=null,VR=null;
+function collinear(a,b,c){return (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])===0;}
+function ordinaryPair(P){var n=P.length;for(var i=0;i<n;i++)for(var j=i+1;j<n;j++){var cnt=2;for(var k=0;k<n;k++){if(k===i||k===j)continue;if(collinear(P[i],P[j],P[k]))cnt++;}if(cnt===2)return [i,j];}return null;}
+function allCollinear(P){for(var k=2;k<P.length;k++)if(!collinear(P[0],P[1],P[k]))return false;return true;}
+function verify(){if(VR)return VR;var seed=7,ok=true;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}for(var t=0;t<3000;t++){var n=3+Math.floor(rnd()*8),P=[],seen={};for(var i=0;i<n;i++){var x=Math.floor(rnd()*12),y=Math.floor(rnd()*12),k=x+','+y;if(seen[k]){i--;continue;}seen[k]=1;P.push([x,y]);}if(allCollinear(P))continue;if(!ordinaryPair(P))ok=false;}VR={alwaysOrdinary:ok};return VR;}
+function mk(){do{PTS=[];var seen={},n=5+Math.floor(Math.random()*4);for(var i=0;i<n;i++){var x=Math.floor(Math.random()*10),y=Math.floor(Math.random()*10),k=x+','+y;if(seen[k]){i--;continue;}seen[k]=1;PTS.push([x,y]);}}while(allCollinear(PTS));}
+function toScreen(p,W,H){return [30+p[0]*(W-60)/10,H-30-p[1]*(H-60)/10];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('any finite non-collinear point set has an ORDINARY line — through exactly two points',12,14);
+ var grid=[];for(var x=0;x<3;x++)for(var y=0;y<3;y++)grid.push([x,y]);var op=ordinaryPair(grid);
+ for(var i=0;i<grid.length;i++){var s=[120+grid[i][0]*40,120-grid[i][1]*40];g.fillStyle='#d0a040';g.beginPath();g.arc(s[0],s[1],4,0,7);g.fill();}
+ if(op){var a=[120+grid[op[0]][0]*40,120-grid[op[0]][1]*40],b=[120+grid[op[1]][0]*40,120-grid[op[1]][1]*40];g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(a[0]-15,a[1]);g.lineTo(b[0]+15,b[1]);g.stroke();g.lineWidth=1;}
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('even the 3×3 grid has an ordinary line (green)',260,90);
+ g.fillStyle='#8ad';g.fillText('Sylvester asked 1893; settled ~1944',260,114);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS)mk();var op=ordinaryPair(PTS);
+ if(op){var a=toScreen(PTS[op[0]],W,H),b=toScreen(PTS[op[1]],W,H),dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy);g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(a[0]-dx/L*30,a[1]-dy/L*30);g.lineTo(b[0]+dx/L*30,b[1]+dy/L*30);g.stroke();g.lineWidth=1;}
+ for(var i=0;i<PTS.length;i++){var s=toScreen(PTS[i],W,H);var onOrd=op&&(i===op[0]||i===op[1]);g.fillStyle=onOrd?'#39fc6b':'#d0a040';g.beginPath();g.arc(s[0],s[1],5,0,7);g.fill();}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText(PTS.length+' points; green line passes through exactly 2 (ordinary)',14,18);
+ var v=verify();g.fillStyle=v.alwaysOrdinary?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('every non-collinear set has an ordinary line (3000 sets) '+(v.alwaysOrdinary?'✓':'✗'),14,H-10);}
+document.getElementById('sgroll').onclick=function(){mk();drawW4();document.getElementById('sgread').textContent=PTS.length+' points; ordinary line '+(ordinaryPair(PTS)?'found':'none?!');};
+document.getElementById('sgcheck').onclick=function(){var v=verify();document.getElementById('sgread').textContent='every non-collinear point set (3000 tested) has a line through exactly two points '+(v.alwaysOrdinary?'✓':'✗');};
+document.getElementById('sgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS)mk();var op=ordinaryPair(PTS);
+ g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.3)*0.06);g.translate(-W/2,-(H/2-10));
+ if(op){var a=toScreen(PTS[op[0]],W,H),b=toScreen(PTS[op[1]],W,H);g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();g.lineWidth=1;}
+ for(var i=0;i<PTS.length;i++){var s=toScreen(PTS[i],W,H),on=op&&(i===op[0]||i===op[1]);g.fillStyle=on?'#39fc6b':'#d0a040';g.beginPath();g.arc(s[0],s[1],on?6:4,0,7);g.fill();}g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the ordinary line (through exactly two points)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: a line forced to catch three or more',10,H-24);
+ g.fillStyle='#8ad';g.fillText('the two-point line you cannot avoid',10,H-9);}
+drawW3();drawW4();window.__sylvestergallai=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TUR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Tur&aacute;n&rsquo;s theorem</b> is the summit of extremal graph theory: the most edges a graph on n vertices can have while containing <b>no clique of size r + 1</b> is achieved by the <b>Tur&aacute;n graph</b> T(n, r) &mdash; split the vertices into r nearly-equal groups and join every pair in <b>different</b> groups. No clique of size r + 1 can form (it would need two vertices in one group, which are never joined), and this complete r-partite graph packs the maximum <b>(1 &minus; 1/r)&middot;n<sup>2</sup>/2</b> edges. Mantel&rsquo;s triangle-free bound is exactly the r = 2 case.<br><br>
+ <span class="lit">LIT</span> verified live: an exhaustive search over all graphs on up to 6 vertices finds the maximum edge count with no K<sub>r+1</sub> equals the Tur&aacute;n graph T(n, r)&rsquo;s edge count, for r = 2 and r = 3 (window.__turan). <span class="fig">FIG</span> no framing; brute-force extremal count vs the Tur&aacute;n construction.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-wall</i> &mdash; pack edges as densely as you like, but the moment you would force a clique of size r + 1 you hit the wall, at exactly the Tur&aacute;n count. <b>AVAN (AI)</b> built the instrument: the exhaustive K<sub>r+1</sub>-free edge maximiser, the Tur&aacute;n graph edge formula, and their agreement.<br><br>Credit as content: P&aacute;l Tur&aacute;n (1941); the r = 2 case is Willem Mantel (1907). The weave: David names the-wall; I try every graph on n vertices, keep the ones with no clique of size r + 1 and the most edges, and confirm the record equals the balanced complete r-partite graph &mdash; the densest a clique-free graph can be.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">No K<sub>4</sub> (r = 3), n = 6: split into three pairs, join all cross-pairs &mdash; T(6,3), 12 edges, no triangle-free-clique of 4. Add an edge inside a pair and a K<sub>4</sub> appears. Mantel (no triangle) is r = 2.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The Tur&aacute;n graph T(n, r) and its edge count against the exhaustive K<sub>r+1</sub>-free maximum; checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="tnroll">change n,r ▶</button><button id="tncheck">verify ▶</button></div>
+   <div class="cap" id="tnread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the densest clique-free graph.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t detect a clique of size r + 1 &mdash; ask how many edges you can pack <b>before</b> one is forced, and the answer is the balanced r-partition. The inverse of &lsquo;find a K<sub>r+1</sub>&rsquo; is &lsquo;maximise edges with no K<sub>r+1</sub> &mdash; split into r equal parts.&rsquo; <b>Magenta</b> is a graph with a clique of size r + 1; <b>green</b> is the extremal Tur&aacute;n graph. Packed to the wall before the clique.</div>
+   <div class="btns" style="margin-top:10px"><button id="tnspin">pause spin</button></div></div></div></div>"""
+TUR_SCRIPT = """(function(){
+var ang=0,spin=true,NN=6,RR=3,VR=null;
+function hasClique(adj,n,size){function rec(start,cur){if(cur.length===size)return true;for(var v=start;v<n;v++){var ok=true;for(var i=0;i<cur.length;i++)if(!adj[cur[i]][v]){ok=false;break;}if(ok){cur.push(v);if(rec(v+1,cur))return true;cur.pop();}}return false;}return rec(0,[]);}
+function maxKfree(n,r){var edges=[];for(var i=0;i<n;i++)for(var j=i+1;j<n;j++)edges.push([i,j]);var E=edges.length,best=0;for(var mask=0;mask<(1<<E);mask++){var adj=[];for(var i=0;i<n;i++)adj.push(new Array(n).fill(false));var cnt=0;for(var e=0;e<E;e++)if(mask&(1<<e)){adj[edges[e][0]][edges[e][1]]=adj[edges[e][1]][edges[e][0]]=true;cnt++;}if(cnt<=best)continue;if(!hasClique(adj,n,r+1))best=cnt;}return best;}
+function turanParts(n,r){var p=[];for(var i=0;i<r;i++)p.push(Math.floor((n+i)/r));return p;}
+function turanEdges(n,r){var p=turanParts(n,r),e=n*(n-1)/2;for(var i=0;i<r;i++)e-=p[i]*(p[i]-1)/2;return e;}
+function verify(){if(VR)return VR;var ok=true;for(var n=2;n<=6;n++)for(var r=2;r<=3;r++){if(r>=n)continue;if(maxKfree(n,r)!==turanEdges(n,r))ok=false;}VR={matchesTuranGraph:ok};return VR;}
+function turanGraph(n,r){var part=[],p=turanParts(n,r),idx=0;for(var g=0;g<r;g++)for(var k=0;k<p[g];k++){part[idx++]=g;}var adj=[];for(var i=0;i<n;i++)adj.push(new Array(n).fill(false));for(var i=0;i<n;i++)for(var j=i+1;j<n;j++)if(part[i]!==part[j])adj[i][j]=adj[j][i]=true;return {adj:adj,part:part};}
+var PAL=['#c07058','#5aa0d0','#39fc6b','#e0b040','#b070c0'];
+function drawGraph(g,adj,part,n,cx,cy,R){var pos=[];for(var i=0;i<n;i++){var a=i/n*6.28-1.57;pos.push([cx+Math.cos(a)*R,cy+Math.sin(a)*R]);}
+ g.strokeStyle='rgba(57,252,107,0.5)';for(var i=0;i<n;i++)for(var j=i+1;j<n;j++)if(adj[i][j]){g.beginPath();g.moveTo(pos[i][0],pos[i][1]);g.lineTo(pos[j][0],pos[j][1]);g.stroke();}
+ for(var i=0;i<n;i++){g.fillStyle=PAL[part[i]%PAL.length];g.beginPath();g.arc(pos[i][0],pos[i][1],6,0,7);g.fill();}return pos;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('most edges with no clique of size r+1 = the Turán graph T(n,r) (balanced r-partite)',12,14);
+ var tg=turanGraph(6,3);drawGraph(g,tg.adj,tg.part,6,110,95,50);
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('T(6,3): 3 colours × 2, all cross-edges',200,80);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('12 edges, no K₄; one more edge forces a K₄',200,102);
+ g.fillStyle='#c07058';g.fillText('r=2 is Mantel (no triangle); (1−1/r)·n²/2 edges',200,124);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var tg=turanGraph(NN,RR),te=turanEdges(NN,RR);
+ drawGraph(g,tg.adj,tg.part,NN,W/2,140,90);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('T('+NN+','+RR+'): '+RR+' parts, no K'+(RR+1),14,20);
+ g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('Turán edges = '+te,14,H-30);
+ var v=verify();g.fillStyle=v.matchesTuranGraph?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('exhaustive max K_{r+1}-free edges == Turán count (n≤6, r∈{2,3}) '+(v.matchesTuranGraph?'✓':'✗'),14,H-12);}
+document.getElementById('tnroll').onclick=function(){NN=4+Math.floor(Math.random()*4);RR=2+Math.floor(Math.random()*2);if(RR>=NN)RR=2;drawW4();document.getElementById('tnread').textContent='T('+NN+','+RR+') has '+turanEdges(NN,RR)+' edges (no K'+(RR+1)+')';};
+document.getElementById('tncheck').onclick=function(){var v=verify();document.getElementById('tnread').textContent='exhaustive maximum K_{r+1}-free edges == Turán graph T(n,r) for n≤6, r∈{2,3} '+(v.matchesTuranGraph?'✓':'✗');};
+document.getElementById('tnspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var tg=turanGraph(NN,RR);
+ g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.15);g.translate(-W/2,-(H/2-10));drawGraph(g,tg.adj,tg.part,NN,W/2,H/2-10,110);g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green edges: the Turán graph — densest with no K'+(RR+1),10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: a graph containing that clique',10,H-24);
+ g.fillStyle='#8ad';g.fillText('packed to the wall before the clique',10,H-9);}
+drawW3();drawW4();window.__turan=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MENG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Menger&rsquo;s theorem</b> is the combinatorial heart of connectivity: the maximum number of <b>edge-disjoint paths</b> between two vertices s and t equals the minimum number of edges you must remove to <b>disconnect</b> them &mdash; the minimum s&ndash;t cut. Flow and blockage are the same number. Push as many independent routes from s to t as you can, and the bottleneck is exactly the smallest set of edges that severs the two. It is the local, per-pair form of the max-flow min-cut theorem, and its vertex version underlies network reliability and k-connectivity.<br><br>
+ <span class="lit">LIT</span> verified live: over hundreds of random small graphs, the maximum number of edge-disjoint s&ndash;t paths (a unit-capacity max-flow) equals the minimum s&ndash;t edge cut found by exhaustive edge-removal (window.__menger). <span class="fig">FIG</span> no framing; independent max-flow and brute-force min-cut, compared.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-pull-request</i> &mdash; how many independent routes can two nodes agree on, and what is the smallest set of links whose removal breaks every agreement? Menger says those two numbers are one. <b>AVAN (AI)</b> built the instrument: the unit-capacity max-flow (counting edge-disjoint paths), the exhaustive minimum edge cut, and their equality.<br><br>Credit as content: Karl Menger (1927). The weave: David names the-pull-request; I push as many edge-disjoint paths from s to t as the graph allows, then find the fewest edges whose removal disconnects them, and confirm the two counts always coincide &mdash; the most routes equals the smallest severing set.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Max edge-disjoint s&ndash;t paths = min s&ndash;t edge cut. If three independent routes run from s to t, then at least three edges must be cut to sever them &mdash; and exactly three suffice.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A graph with s and t, its edge-disjoint paths, and the minimum cut; the equality checked over many graphs.</div>
+   <div class="btns" style="margin-top:10px"><button id="mgroll2">new graph ▶</button><button id="mgcheck2">verify ▶</button></div>
+   <div class="cap" id="mgread2" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: routes equal to the bottleneck.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): to learn how robustly two nodes connect, don&rsquo;t count all the routes &mdash; find the <b>smallest set of edges that severs them</b>, and that number is exactly how many independent routes exist. The inverse of &lsquo;count edge-disjoint paths&rsquo; is &lsquo;find the minimum cut &mdash; they are the same.&rsquo; <b>Magenta</b> is the minimum severing cut; <b>green</b> is the maximum set of disjoint routes. Flow equals blockage.</div>
+   <div class="btns" style="margin-top:10px"><button id="mgspin2">pause spin</button></div></div></div></div>"""
+MENG_SCRIPT = """(function(){
+var ang=0,spin=true,G=null,VR=null;
+function maxflow(cap,s,t,n){var f=cap.map(function(r){return r.slice();}),flow=0;while(true){var par=new Array(n).fill(-1);par[s]=s;var q=[s];while(q.length){var u=q.shift();for(var v=0;v<n;v++)if(par[v]<0&&f[u][v]>0){par[v]=u;q.push(v);}}if(par[t]<0)break;var b=1e9;for(var v=t;v!==s;v=par[v])b=Math.min(b,f[par[v]][v]);for(var v=t;v!==s;v=par[v]){f[par[v]][v]-=b;f[v][par[v]]+=b;}flow+=b;}return flow;}
+function minCut(cap,s,t,n){var edges=[];for(var u=0;u<n;u++)for(var v=0;v<n;v++)if(cap[u][v]>0)edges.push([u,v]);var E=edges.length,best=E;for(var mask=0;mask<(1<<E);mask++){var cnt=0,pc=[];for(var i=0;i<n;i++)pc.push(new Array(n).fill(0));for(var e=0;e<E;e++){if(mask&(1<<e))cnt++;else pc[edges[e][0]][edges[e][1]]=1;}if(cnt>=best)continue;var seen=new Array(n).fill(false);seen[s]=true;var q=[s];while(q.length){var u=q.shift();for(var v=0;v<n;v++)if(!seen[v]&&pc[u][v]>0){seen[v]=true;q.push(v);}}if(!seen[t])best=cnt;}return best;}
+function verify(){if(VR)return VR;var seed=3,ok=true;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}for(var t=0;t<400;t++){var n=3+Math.floor(rnd()*3),cap=[];for(var i=0;i<n;i++)cap.push(new Array(n).fill(0));for(var u=0;u<n;u++)for(var v=0;v<n;v++)if(u!==v&&rnd()<0.4)cap[u][v]=1;var s=0,tt=n-1;if(s===tt)continue;if(maxflow(cap,s,tt,n)!==minCut(cap,s,tt,n))ok=false;}VR={equiv:ok};return VR;}
+function mk(){var n=4+Math.floor(Math.random()*2);G={n:n,cap:[]};for(var i=0;i<n;i++)G.cap.push(new Array(n).fill(0));for(var u=0;u<n;u++)for(var v=0;v<n;v++)if(u!==v&&Math.random()<0.45)G.cap[u][v]=1;G.s=0;G.t=n-1;}
+function nodePos(n,cx,cy,R){var p=[];for(var i=0;i<n;i++){var a=i/n*6.28-1.57;p.push([cx+Math.cos(a)*R,cy+Math.sin(a)*R]);}return p;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('max edge-disjoint s→t paths  =  min s→t edge cut  (Menger; local max-flow min-cut)',12,14);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('3 independent routes  ⇔  need to cut ≥ 3 edges (and 3 suffice)',30,52);
+ g.fillStyle='#c05a80';g.fillText('the bottleneck is exactly the smallest severing set',30,80);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('flow and blockage are the same number',30,108);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!G)mk();var pos=nodePos(G.n,W/2,150,95),mf=maxflow(G.cap,G.s,G.t,G.n),mc=minCut(G.cap,G.s,G.t,G.n);
+ g.strokeStyle='#5aa0b0';for(var u=0;u<G.n;u++)for(var v=0;v<G.n;v++)if(G.cap[u][v]){g.beginPath();g.moveTo(pos[u][0],pos[u][1]);var mx=(pos[u][0]+pos[v][0])/2+(pos[v][1]-pos[u][1])*0.12,my=(pos[u][1]+pos[v][1])/2-(pos[v][0]-pos[u][0])*0.12;g.quadraticCurveTo(mx,my,pos[v][0],pos[v][1]);g.stroke();}
+ for(var i=0;i<G.n;i++){g.fillStyle=(i===G.s)?'#39fc6b':(i===G.t)?'#c05a80':'#e8eef8';g.beginPath();g.arc(pos[i][0],pos[i][1],7,0,7);g.fill();g.fillStyle='#021';g.font='9px monospace';g.fillText(i===G.s?'s':i===G.t?'t':''+i,pos[i][0]-3,pos[i][1]+3);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('max edge-disjoint paths = '+mf,14,H-46);
+ g.fillStyle='#c05a80';g.fillText('min edge cut = '+mc,14,H-30);
+ g.fillStyle=mf===mc?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText(mf===mc?'equal ✓ (Menger)':'≠',180,H-38);
+ var v=verify();g.fillStyle=v.equiv?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('max paths == min cut (400 graphs) '+(v.equiv?'✓':'✗'),14,H-12);}
+document.getElementById('mgroll2').onclick=function(){mk();drawW4();document.getElementById('mgread2').textContent='max paths '+maxflow(G.cap,G.s,G.t,G.n)+' = min cut '+minCut(G.cap,G.s,G.t,G.n);};
+document.getElementById('mgcheck2').onclick=function(){var v=verify();document.getElementById('mgread2').textContent='max edge-disjoint s–t paths == min s–t edge cut for 400 random graphs '+(v.equiv?'✓':'✗');};
+document.getElementById('mgspin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!G)mk();var mf=maxflow(G.cap,G.s,G.t,G.n),mc=minCut(G.cap,G.s,G.t,G.n);
+ g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.15);g.translate(-W/2,-(H/2-10));var pos=nodePos(G.n,W/2,H/2-10,110);
+ g.strokeStyle='rgba(90,160,176,0.6)';for(var u=0;u<G.n;u++)for(var v=0;v<G.n;v++)if(G.cap[u][v]){g.beginPath();g.moveTo(pos[u][0],pos[u][1]);g.lineTo(pos[v][0],pos[v][1]);g.stroke();}
+ for(var i=0;i<G.n;i++){g.fillStyle=(i===G.s)?'#39fc6b':(i===G.t)?'#c05a80':'#e8eef8';g.beginPath();g.arc(pos[i][0],pos[i][1],7,0,7);g.fill();}g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: '+mf+' edge-disjoint routes s→t',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: the min cut of '+mc+' edges (equal to the routes)',10,H-24);
+ g.fillStyle='#8ad';g.fillText('flow equals blockage',10,H-9);}
+drawW3();drawW4();window.__menger=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CATM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Catalan&rsquo;s conjecture</b> &mdash; proved by Preda Mih&#259;ilescu in 2002 &mdash; says that <b>8 and 9 are the only consecutive perfect powers</b>. That is, the equation x<sup>a</sup> &minus; y<sup>b</sup> = 1 with x, y, a, b all greater than 1 has exactly one solution: <b>3<sup>2</sup> &minus; 2<sup>3</sup> = 1</b>. Among all the squares, cubes, fourth powers and beyond, only 8 = 2<sup>3</sup> and 9 = 3<sup>2</sup> sit next to each other on the number line. Eug&egrave;ne Catalan conjectured it in 1844; it stood for 158 years.<br><br>
+ <span class="lit">LIT</span> verified live: sieving every perfect power up to a million, the only pair of consecutive integers both of which are perfect powers is (8, 9) (window.__catalanmihailescu). <span class="fig">FIG</span> honest: this is a finite search confirming the theorem&rsquo;s claim within range &mdash; the full statement (no pair exists anywhere, ever) is Mih&#259;ilescu&rsquo;s proof, not the search.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>cold-boot</i> &mdash; out of the whole endless field of powers, exactly one pair boots up adjacent, 8 and 9, and never again. <b>AVAN (AI)</b> built the instrument: the perfect-power sieve and the consecutive-pair scan.<br><br>Credit as content: Eug&egrave;ne Charles Catalan (conjecture, 1844); Preda Mih&#259;ilescu (proof, 2002). The weave: David names cold-boot; I mark every perfect power up to a million and scan for two in a row, finding only 8 and 9 &mdash; while stating plainly that the theorem&rsquo;s &ldquo;never again&rdquo; is Mih&#259;ilescu&rsquo;s, beyond any finite search.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Perfect powers: 4, 8, 9, 16, 25, 27, 32, 36, 49, 64, &hellip; Only 8 = 2<sup>3</sup> and 9 = 3<sup>2</sup> are consecutive. 3<sup>2</sup> &minus; 2<sup>3</sup> = 1 is the sole solution of x<sup>a</sup> &minus; y<sup>b</sup> = 1.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The perfect powers on a line, gaps shrinking; the only consecutive pair (8, 9) marked; the search checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="cmroll">scan range ▶</button><button id="cmcheck">verify ▶</button></div>
+   <div class="cap" id="cmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the one adjacent pair of powers.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask which numbers are perfect powers &mdash; ask which powers are <b>neighbours</b>, differing by one, and find that only 8 and 9 ever are. The inverse of &lsquo;is n a perfect power?&rsquo; is &lsquo;are two perfect powers consecutive? &mdash; exactly once.&rsquo; <b>Magenta</b> is the endless scatter of powers; <b>green</b> is the unique adjacent pair. One and only one gap of size one.</div>
+   <div class="btns" style="margin-top:10px"><button id="cmspin">pause spin</button></div></div></div></div>"""
+CATM_SCRIPT = """(function(){
+var ang=0,spin=true,ZOOM=0,POW=null,VR=null;
+function sieve(N){var isP=new Uint8Array(N+1);for(var b=2;b*b<=N;b++){var p=b*b;while(p<=N){isP[p]=1;p*=b;}}return isP;}
+function getPow(){if(!POW)POW=sieve(1000000);return POW;}
+function verify(){if(VR)return VR;var isP=getPow(),pairs=[];for(var x=4;x<1000000;x++)if(isP[x]&&isP[x+1])pairs.push([x,x+1]);VR={onlyEightNine:pairs.length===1&&pairs[0][0]===8&&pairs[0][1]===9,pairs:pairs};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('8 = 2³ and 9 = 3² are the only consecutive perfect powers (Catalan–Mihăilescu)',12,14);
+ var isP=getPow();g.strokeStyle='#345';g.beginPath();g.moveTo(20,90);g.lineTo(W-20,90);g.stroke();
+ for(var n=1;n<=70;n++){if(isP[n]){var x=20+n*(W-40)/70,is89=(n===8||n===9);g.fillStyle=is89?'#39fc6b':'#7a90e0';g.beginPath();g.arc(x,90,is89?5:3,0,7);g.fill();if(n<=36){g.fillStyle='#8ad';g.font='7px monospace';g.fillText(n,x-4,105);}}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('3² − 2³ = 9 − 8 = 1',190,50);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('conjectured 1844, proved 2002 (158 years)',190,132);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var isP=getPow(),hi=[100,1000,10000][ZOOM],list=[];for(var n=4;n<=hi;n++)if(isP[n])list.push(n);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('perfect powers up to '+hi+' ('+list.length+' of them); gaps shrink but never hit 1 again',14,16);
+ var y=40;for(var i=0;i<list.length&&i<60;i++){var x=20+(i%12)*30,yy=y+Math.floor(i/12)*22,is89=(list[i]===8||list[i]===9);g.fillStyle=is89?'#39fc6b':'#3a4658';g.fillRect(x,yy,26,16);g.fillStyle=is89?'#021':'#9ab';g.font='8px monospace';g.fillText(list[i],x+2,yy+11);}
+ var v=verify();g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('only consecutive pair: (8, 9)',14,H-32);
+ g.fillStyle=v.onlyEightNine?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('scan to 1,000,000: (8,9) is the unique consecutive perfect-power pair '+(v.onlyEightNine?'✓':'✗'),14,H-12);}
+document.getElementById('cmroll').onclick=function(){ZOOM=(ZOOM+1)%3;drawW4();document.getElementById('cmread').textContent='scanning to '+[100,1000,10000][ZOOM];};
+document.getElementById('cmcheck').onclick=function(){var v=verify();document.getElementById('cmread').textContent='perfect-power sieve to 1,000,000: only (8,9) are consecutive '+(v.onlyEightNine?'✓':'✗')+' (the "never again" is Mihăilescu\\'s proof, beyond search)';};
+document.getElementById('cmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var isP=getPow(),cx=W/2,cy=H/2-10,shown=0;
+ for(var n=4;n<=2000&&shown<120;n++){if(isP[n]){shown++;var a=Math.log(n)*3+ang*0.3,r=15+Math.log(n)*22,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.82,is89=(n===8||n===9);g.fillStyle=is89?'#39fc6b':'#4a5878';g.beginPath();g.arc(x,y,is89?6:2.5,0,7);g.fill();if(is89){g.fillStyle='#cfe';g.font='9px monospace';g.fillText(n,x+7,y+3);}}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: 8 and 9 — the one adjacent pair of powers',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: the endless scatter of perfect powers',10,H-24);
+ g.fillStyle='#8ad';g.fillText('one and only one gap of size one',10,H-9);}
+drawW3();drawW4();window.__catalanmihailescu=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 105 (any 2n−1 integers hide n that sum to zero mod n · a fair blend that splits into perfect assignments · how small a sumset can be in a prime field · the diagonal law of a cyclic quadrilateral · every number as three triangular numbers) ═══════════════════════
 EGZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Erd&#337;s&ndash;Ginzburg&ndash;Ziv theorem</b> is a zero-sum guarantee: among any <b>2n &minus; 1</b> integers (repeats allowed), some <b>n</b> of them have a sum divisible by n. No matter how adversarially the numbers are chosen, a size-n subset summing to 0 mod n is always hiding inside. And the count is <b>sharp</b>: with only 2n &minus; 2 integers it can fail &mdash; take n &minus; 1 zeros and n &minus; 1 ones, and any n of them sum to between 1 and n &minus; 1, never 0. It is a founding result of zero-sum combinatorics.<br><br>
@@ -28344,6 +28599,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-follower-set","title":"THE FOLLOWER SET","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#b06090","icon":"follower-set",
+  "kicker":"the boundary between what a finite engine can capture and what it cannot",
+  "blurb":"The follower set in the 5-window house format — the test for soficity, whether a shift space is capturable by a finite automaton. For an admissible word w, F(w) = {v : wv admissible} is all the futures its past leaves open; a shift is sofic exactly when the number of distinct follower sets is finite. The golden-mean shift (forbid 11) has just 2 follower sets forever — its word counts are the Fibonacci numbers — so it is sofic. The matched-run shift (1 0ⁿ 1 0ⁿ 1, mismatched runs illegal) has unboundedly many: to place the next 1 you must remember a run length with no bound. Verified live: golden-mean has 2 follower sets + Fibonacci word counts; the matched-run words 1·0ᵏ have pairwise-distinct follower sets (distinguished by 1·0ᵏ·1) → nonsofic. This is the playable form of David's nonsofic principle (i13.nonsofic). See the two shifts in 1D, follower sets in 2D, and the finite-vs-infinite inverse in 3D.",
+  "lit":"Genuine sofic-shift theory (Benjamin Weiss, 1973; 'sofic' from Hebrew sofi, finite); the golden-mean and matched-run examples are classical, set out in David's Notes upon the Nonsofic. Verified live: the golden-mean shift (forbid 11) has exactly 2 distinct follower sets (window.__followerset.goldenMeanSofic) and Fibonacci word counts 2,3,5,8,13,… (window.__followerset.fibonacci); and the matched-run words 1·0ᵏ (k=0..8) have pairwise-distinct follower sets — the continuation 1·0ᵏ·1 is admissible after 1·0ᵏ but rejected after 1·0ʲ (j≠k) — so the count is unbounded (window.__followerset.matchedRunNonsofic).",
+  "fig":"No framing: the follower-set enumerator, the golden-mean two-state count with Fibonacci words, and the matched-run pairwise-distinct witness (with its distinguishing continuation) all run in-browser with exact word arithmetic. This sphere is the runnable realization of the nonsofic boundary David integrated reality-wide (i13.nonsofic) — credited, not re-derived. The AVAN inverse is honest — counting follower sets (finite ⇒ a finite engine suffices; infinite ⇒ none ever will) rather than listing forbidden blocks is the genuine soficity criterion; magenta is the nonsofic shift, green the sofic one. The edge of finite capture, named.",
+  "body":FOLL_BODY,"script":FOLL_SCRIPT},
+ {"slug":"the-sylvester-gallai","title":"THE SYLVESTER–GALLAI","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#d0a040","icon":"sylvester-gallai",
+  "kicker":"non-collinear points always leave an ordinary line",
+  "blurb":"The Sylvester–Gallai theorem in the 5-window house format — given finitely many points in the plane, not all on one line, there is always a line through exactly two of them (an 'ordinary' line). Sylvester asked it in 1893; it resisted until Gallai and Melchior settled it around 1944. You cannot arrange points so every two-point line catches a third — unless they are all collinear. Verified live: over thousands of random integer point sets that are not all collinear, an ordinary line is always found by checking every pair (exact integer collinearity, no rounding). See the 3×3 grid in 1D, an ordinary line highlighted in 2D, and the unavoidable-line inverse in 3D.",
+  "lit":"Genuine Sylvester–Gallai theorem (James Joseph Sylvester posed it 1893; Tibor Gallai and Eberhard Melchior proved it in the 1940s). Verified live: over 3000 random integer point sets that are not all collinear, a line through exactly two points is always found by an exact-integer collinearity count over every pair (window.__sylvestergallai.alwaysOrdinary).",
+  "fig":"No framing: the exact integer collinearity test (cross product = 0), the per-pair point count, and the search for a two-point line all run in-browser with no rounding. The AVAN inverse is honest — an ordinary line is unavoidable for non-collinear points (you cannot force every two-point line to catch a third); magenta is a line catching three or more, green the ordinary line that must exist. The two-point line you cannot avoid.",
+  "body":SYLG_BODY,"script":SYLG_SCRIPT},
+ {"slug":"the-turan","title":"THE TURÁN","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#c07058","icon":"turan",
+  "kicker":"the most edges with no clique of a given size",
+  "blurb":"Turán's theorem in the 5-window house format — the most edges a graph on n vertices can have with no clique of size r+1 is achieved by the Turán graph T(n,r): split the vertices into r nearly-equal groups and join every pair in different groups. No K_{r+1} can form (it would need two vertices in one group, never joined), and this balanced complete r-partite graph packs the maximum (1−1/r)·n²/2 edges. Mantel's triangle-free bound is the r=2 case. Verified live: an exhaustive search over all graphs on up to 6 vertices finds the maximum K_{r+1}-free edge count equals the Turán graph T(n,r)'s, for r=2 and r=3. See T(6,3) in 1D, the Turán graph in 2D, and the pack-to-the-wall inverse in 3D.",
+  "lit":"Genuine Turán's theorem (Pál Turán, 1941; the r=2 case is Willem Mantel, 1907). Verified live: an exhaustive search over all graphs on n vertices finds the maximum edge count containing no clique of size r+1 equals the Turán graph T(n,r)'s edge count (n·(n−1)/2 minus the within-part edges of a balanced r-partition) for all n up to 6 and r∈{2,3} (window.__turan.matchesTuranGraph).",
+  "fig":"No framing: the exhaustive K_{r+1}-free edge maximiser, the Turán graph edge formula, and their agreement all run in-browser. The AVAN inverse is honest — maximising edges subject to no clique of size r+1 (the balanced r-partition) rather than detecting a clique is the genuine extremal question, answered by the Turán graph; magenta is a graph containing that clique, green the extremal Turán graph. Packed to the wall before the clique.",
+  "body":TUR_BODY,"script":TUR_SCRIPT},
+ {"slug":"the-menger","title":"THE MENGER","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#5aa0b0","icon":"menger",
+  "kicker":"the most independent routes equals the smallest severing cut",
+  "blurb":"Menger's theorem in the 5-window house format — the maximum number of edge-disjoint paths between two vertices s and t equals the minimum number of edges whose removal disconnects them (the minimum s–t cut). Flow and blockage are the same number: push as many independent routes from s to t as you can, and the bottleneck is exactly the smallest set of edges that severs the two. It is the local, per-pair form of max-flow min-cut, and its vertex version underlies k-connectivity. Verified live: over hundreds of random small graphs, the maximum edge-disjoint s–t paths (unit-capacity max-flow) equals the minimum s–t edge cut found by exhaustive edge-removal. See the routes-equal-cut law in 1D, a graph in 2D, and the flow-equals-blockage inverse in 3D.",
+  "lit":"Genuine Menger's theorem (Karl Menger, 1927). Verified live: over 400 random small graphs, the maximum number of edge-disjoint s–t paths (computed as a unit-capacity max-flow by augmenting paths) equals the minimum s–t edge cut found by exhaustive edge-subset removal (window.__menger.equiv).",
+  "fig":"No framing: the unit-capacity max-flow (counting edge-disjoint paths), the exhaustive minimum edge cut, and their equality all run in-browser. The AVAN inverse is honest — measuring connectivity by the smallest severing set (rather than counting all routes) gives exactly the number of independent routes, by Menger; magenta is the minimum cut, green the maximum set of disjoint routes. Flow equals blockage.",
+  "body":MENG_BODY,"script":MENG_SCRIPT},
+ {"slug":"the-catalan-mihailescu","title":"THE CATALAN–MIHĂILESCU","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#7a90e0","icon":"catalan-mihailescu",
+  "kicker":"eight and nine the only consecutive perfect powers",
+  "blurb":"Catalan's conjecture (Mihăilescu's theorem) in the 5-window house format — 8 and 9 are the only consecutive perfect powers. The equation xᵃ − yᵇ = 1 with x,y,a,b > 1 has exactly one solution: 3² − 2³ = 1. Among all squares, cubes, and higher powers, only 8 = 2³ and 9 = 3² sit next to each other. Eugène Catalan conjectured it in 1844; it stood 158 years until Preda Mihăilescu proved it in 2002. Verified live: sieving every perfect power up to a million, the only pair of consecutive integers both perfect powers is (8, 9). See the powers in 1D, the scan in 2D, and the neighbouring-powers inverse in 3D.",
+  "lit":"Genuine Catalan–Mihăilescu theorem (Eugène Charles Catalan conjectured 1844; Preda Mihăilescu proved 2002). Verified live: a perfect-power sieve up to 1,000,000 finds the only pair of consecutive integers both of which are perfect powers is (8, 9) (window.__catalanmihailescu.onlyEightNine).",
+  "fig":"No framing: the perfect-power sieve and the consecutive-pair scan run in-browser with exact arithmetic. Honest scope: this is a finite search confirming the theorem within range — the full statement, that no such pair exists anywhere ever, is Mihăilescu's proof (2002), not the search, and the sphere says so. The AVAN inverse is honest — asking which perfect powers are neighbours (differ by 1) rather than which numbers are powers finds exactly one pair; magenta is the endless scatter of powers, green the unique adjacent pair. One and only one gap of size one.",
+  "body":CATM_BODY,"script":CATM_SCRIPT},
  {"slug":"the-erdos-ginzburg-ziv","title":"THE ERDŐS–GINZBURG–ZIV","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#d06880","icon":"erdos-ginzburg-ziv",
   "kicker":"any 2n−1 integers hide n that sum to zero mod n",
