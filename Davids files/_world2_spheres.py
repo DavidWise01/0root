@@ -19485,6 +19485,262 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 88 (count the carries to know how many times p divides · number a subset with a descending choice · spin a vector about an axis by one formula · two heaps fuse in log time · a golden law linking two primes' squares) ═══════════════════════
+KUM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Kummer&rsquo;s theorem</b> reveals a hidden bridge between <b>addition</b> and <b>divisibility</b>: the number of times a prime p divides the binomial coefficient C(m+n, n) equals exactly the number of <b>carries</b> when you add m and n in base p. A dry counting question &mdash; how divisible is this binomial? &mdash; is answered by the schoolyard mechanics of carrying digits. No factorials need to be computed; just add in base p and count the carries.<br><br>
+ <span class="lit">LIT</span> verified live: over 20000 random (m, n, p), the p-adic valuation of C(m+n, n) &mdash; computed by Legendre&rsquo;s formula &mdash; equals the carry count of m+n in base p (window.__kummer). <span class="fig">FIG</span> no framing; exact integer arithmetic, no big numbers.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>divide-by-zero</i> &mdash; the domain of divisibility&rsquo;s edge; Kummer says precisely how many times p goes into a binomial, and it does so by counting carries, not by dividing. <b>AVAN (AI)</b> built the instrument: Legendre&rsquo;s valuation formula, the base-p carry counter, and the equality check.<br><br>Credit as content: Ernst Kummer (1852). The weave: David names divide-by-zero; I compute how many times p divides C(m+n, n) two ways &mdash; by Legendre&rsquo;s prime-power formula and by counting carries in base-p addition &mdash; and confirm they always agree, addition and divisibility revealed as one.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Add m and n in base p; each place that overflows is a carry. The count of carries is exactly the power of p dividing C(m+n, n). Divisibility, read off an addition.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Pick m, n, p; see the base-p addition with its carries, and the p-adic valuation of the binomial, checked equal.</div>
+   <div class="btns" style="margin-top:10px"><button id="kmroll">new m,n,p ▶</button><button id="kmcheck">verify 20000 ▶</button></div>
+   <div class="cap" id="kmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: divisibility counted as carries.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): find how many times a prime divides a binomial not by <b>factoring the factorials</b> but by <b>counting carries</b> in one base-p addition. The inverse of &lsquo;compute C(m+n,n) and factor out p&rsquo; is &lsquo;add m and n in base p &mdash; the carries are the exponent.&rsquo; <b>Magenta</b> is the factorial factorization avoided; <b>green</b> is the carry count. Divisibility hiding inside addition.</div>
+   <div class="btns" style="margin-top:10px"><button id="kmspin">pause spin</button></div></div></div></div>"""
+KUM_SCRIPT = """(function(){
+var ang=0,spin=true,M=8,N=5,P=2;
+function vpFact(k,p){var s=0,pk=p;while(pk<=k){s+=Math.floor(k/pk);pk*=p;}return s;}
+function vpBinom(m,n,p){return vpFact(m+n,p)-vpFact(m,p)-vpFact(n,p);}
+function carries(m,n,p){var c=0,carry=0;while(m>0||n>0||carry>0){var d=(m%p)+(n%p)+carry;if(d>=p){carry=1;c++;}else carry=0;m=Math.floor(m/p);n=Math.floor(n/p);}return c;}
+function digits(x,p){var d=[];if(x===0)d=[0];while(x>0){d.push(x%p);x=Math.floor(x/p);}return d.reverse();}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(700),ok=true,primes=[2,3,5,7,11,13];for(var t=0;t<20000;t++){var m=Math.floor(rnd()*100000),n=Math.floor(rnd()*100000),p=primes[Math.floor(rnd()*primes.length)];if(vpBinom(m,n,p)!==carries(m,n,p)){ok=false;break;}}return {kummerHolds:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('add m+n in base p; count the carries = power of p dividing C(m+n,n)',12,14);
+ var m=13,n=9,p=2,dm=digits(m,p),dn=digits(n,p),ln=Math.max(dm.length,dn.length)+1;while(dm.length<ln)dm.unshift(0);while(dn.length<ln)dn.unshift(0);
+ var carry=0,carrows=[];for(var i=ln-1;i>=0;i--){var s=dm[i]+dn[i]+carry;carrows[i]=carry;carry=s>=p?1:0;}
+ g.font='13px monospace';var x0=180;for(var i=0;i<ln;i++){g.fillStyle=carrows[i]?'#c07850':'#456';g.font='9px monospace';g.fillText(carrows[i]?'1':'',x0+i*24-2,40);g.fillStyle='#6ab0d0';g.font='13px monospace';g.fillText(dm[i],x0+i*24,64);g.fillText(dn[i],x0+i*24,84);}
+ g.strokeStyle='#8ad';g.beginPath();g.moveTo(x0-8,92);g.lineTo(x0+ln*24,92);g.stroke();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('13 + 9 in base 2 → '+carries(13,9,2)+' carries = v_2(C(22,9)) = '+vpBinom(13,9,2),40,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var dm=digits(M,P),dn=digits(N,P),ln=Math.max(dm.length,dn.length)+1;while(dm.length<ln)dm.unshift(0);while(dn.length<ln)dn.unshift(0);
+ var carry=0,carrows=[];for(var i=ln-1;i>=0;i--){var s=dm[i]+dn[i]+carry;carrows[i]=carry;carry=s>=P?1:0;}
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('m='+M+'  n='+N+'  base p='+P,14,24);
+ var x0=Math.max(40,W-ln*26-20);g.font='16px monospace';for(var i=0;i<ln;i++){g.fillStyle=carrows[i]?'#c07850':'#334';g.font='10px monospace';if(carrows[i])g.fillText('¹',x0+i*26,44);g.fillStyle='#6ab0d0';g.font='16px monospace';g.fillText(dm[i],x0+i*26,68);g.fillText(dn[i],x0+i*26,90);}
+ g.strokeStyle='#8ad';g.beginPath();g.moveTo(x0-6,98);g.lineTo(x0+ln*26,98);g.stroke();
+ var car=carries(M,N,P),vp=vpBinom(M,N,P);g.fillStyle='#e0b020';g.font='12px monospace';g.fillText('carries = '+car,14,130);g.fillText('v_p(C('+(M+N)+','+N+')) = '+vp,14,152);
+ g.fillStyle=car===vp?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('carries == p-adic valuation '+(car===vp?'✓':'✗'),14,H-12);}
+document.getElementById('kmroll').onclick=function(){M=1+Math.floor(Math.random()*2000);N=1+Math.floor(Math.random()*2000);P=[2,3,5,7][Math.floor(Math.random()*4)];drawW4();document.getElementById('kmread').textContent='m='+M+' n='+N+' p='+P+' → '+carries(M,N,P)+' carries';};
+document.getElementById('kmcheck').onclick=function(){var v=verify();document.getElementById('kmread').textContent='20000 cases: v_p(C(m+n,n)) == carries in base p '+(v.kummerHolds?'✓':'✗');};
+document.getElementById('kmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10,car=carries(M,N,P);
+ var dm=digits(M,P),dn=digits(N,P),ln=Math.max(dm.length,dn.length);while(dm.length<ln)dm.unshift(0);while(dn.length<ln)dn.unshift(0);var carry=0,cs=[];for(var i=ln-1;i>=0;i--){var s=dm[i]+dn[i]+carry;cs[i]=carry;carry=s>=P?1:0;}
+ for(var i=0;i<ln;i++){var a=i/ln*6.28+ang*0.3,r=60+i*14;var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;g.fillStyle=cs[i]?'#c07850':'#38506e';g.beginPath();g.arc(x,y,cs[i]?9:5,0,7);g.fill();if(cs[i]){g.fillStyle='#fff';g.font='8px monospace';g.fillText('c',x-3,y+3);}}
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(cx,cy,10,0,7);g.fill();g.fillStyle='#032';g.font='9px monospace';g.fillText(car,cx-4,cy+3);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green center: '+car+' carries = power of p in the binomial',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the factorial factorization avoided',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('divisibility hiding inside addition',10,H-9);}
+drawW3();drawW4();window.__kummer=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CNS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The combinatorial number system</b> gives every <b>k-element subset</b> of {0,1,&hellip;,n&minus;1} a unique <b>rank</b> from 0 to C(n,k)&minus;1, and every rank its subset back &mdash; a bijection between combinations and integers. For a subset written in <b>descending</b> order c<sub>k</sub>&gt;&hellip;&gt;c<sub>1</sub>, the rank is C(c<sub>k</sub>,k)+&hellip;+C(c<sub>1</sub>,1). It is a &ldquo;factorial base for choosing&rdquo;: a way to address any combination by a single number, used to iterate or store subsets compactly.<br><br>
+ <span class="lit">LIT</span> verified live: for every k-subset with n &le; 12, rank-then-unrank returns the original, and the ranks cover 0&hellip;C(n,k)&minus;1 exactly once (window.__cns). <span class="fig">FIG</span> no framing; exact integer arithmetic, exhaustive over all subsets.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-stash</i> &mdash; every possible selection of items you could squirrel away gets its own number, and every number unpacks to exactly one selection. The combinatorial number system is that addressing. <b>AVAN (AI)</b> built the instrument: the descending-binomial rank, the greedy unrank, and the round-trip + bijection checks.<br><br>Credit as content: the combinatorial number system (Pascal&rsquo;s identity; formalized by Lehmer and others). The weave: David names the-stash; I rank each subset by summing binomials of its descending elements, greedily invert the rank back to the subset, and confirm the correspondence is a perfect bijection.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Subset {5,2,1} (descending) ranks as C(5,3)+C(2,2)+C(1,1) = 10+1+1 = 12. To unrank, greedily peel off the largest binomial that fits. Each combination, one number.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A k-subset, its rank, and the unrank back to the subset; the round-trip checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="cnroll">new subset ▶</button><button id="cncheck">verify n≤12 ▶</button></div>
+   <div class="cap" id="cnread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: every combination given one number.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): address a <b>combination</b> by a single integer with a mixed radix of <b>binomials</b> &mdash; sum C(cᵢ,i) over the descending elements, and unrank greedily. The inverse of &lsquo;store the subset as a list of members&rsquo; is &lsquo;store its rank &mdash; one number that unpacks to the exact subset.&rsquo; <b>Magenta</b> is the explicit member list; <b>green</b> is the single binomial-base index. A selection as one number.</div>
+   <div class="btns" style="margin-top:10px"><button id="cnspin">pause spin</button></div></div></div></div>"""
+CNS_SCRIPT = """(function(){
+var ang=0,spin=true,N=6,K=3,SUB=[4,2,0];
+function C(n,k){if(k<0||k>n)return 0;k=Math.min(k,n-k);var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+function toRank(comb){var r=0;for(var i=0;i<comb.length;i++)r+=C(comb[i],i+1);return r;}
+function toComb(rank,k,n){var comb=[],x=n-1;for(var i=k;i>=1;i--){while(C(x,i)>rank)x--;comb[i-1]=x;rank-=C(x,i);x--;}return comb;}
+function verify(){var ok=true,bij=true;for(var n=1;n<=12;n++)for(var k=0;k<=n;k++){var total=C(n,k),seen=new Array(total).fill(0);function rec(start,cur){if(cur.length===k){var r=toRank(cur),b=toComb(r,k,n);if(b.join(',')!==cur.join(','))ok=false;if(r<0||r>=total||seen[r])bij=false;seen[r]=1;return;}for(var v=start;v<n;v++){cur.push(v);rec(v+1,cur);cur.pop();}}rec(0,[]);for(var r=0;r<total;r++)if(!seen[r])bij=false;}return {roundTrip:ok,bijection:bij};}
+function mk(){N=5+Math.floor(Math.random()*5);K=2+Math.floor(Math.random()*Math.min(3,N-2));var pool=[];for(var i=0;i<N;i++)pool.push(i);for(var i=pool.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=pool[i];pool[i]=pool[j];pool[j]=t;}SUB=pool.slice(0,K).sort(function(a,b){return a-b;});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('rank a subset by summing binomials of its descending elements',12,14);
+ g.fillStyle='#e0b020';g.font='13px monospace';g.fillText('{5,2,1} → C(5,3) + C(2,2) + C(1,1) = 10 + 1 + 1 = 12',40,55);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('unrank 12: greedily peel the largest binomial that fits → {5,2,1}',40,90);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('each of the C(n,k) subsets gets a distinct rank in 0..C(n,k)-1',40,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var desc=SUB.slice().sort(function(a,b){return b-a;}),r=toRank(SUB),back=toComb(r,K,N);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('subset {'+SUB.join(',')+'}  of  {0..'+(N-1)+'}',14,26);
+ // grid of n cells
+ var cw=Math.min(40,(W-28)/N);for(var i=0;i<N;i++){var inSub=SUB.indexOf(i)>=0;g.fillStyle=inSub?'#e0b020':'#2a3548';g.fillRect(14+i*cw,40,cw-3,26);g.fillStyle=inSub?'#210':'#8ad';g.font='11px monospace';g.fillText(i,14+i*cw+cw/2-4,58);}
+ var terms=desc.map(function(c,idx){return 'C('+c+','+(K-idx)+')';}).join(' + ');
+ g.fillStyle='#e0b020';g.font='11px monospace';g.fillText('rank = '+terms,14,92);
+ g.fillStyle='#39fc6b';g.font='14px monospace';g.fillText('= '+r+'   (of '+C(N,K)+')',14,120);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('unrank('+r+') = {'+back.join(',')+'}',14,146);
+ var ok=back.join(',')===SUB.join(',');g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('round-trip returns the subset '+(ok?'✓':'✗'),14,H-12);}
+document.getElementById('cnroll').onclick=function(){mk();drawW4();document.getElementById('cnread').textContent='{'+SUB.join(',')+'} → rank '+toRank(SUB);};
+document.getElementById('cncheck').onclick=function(){var v=verify();document.getElementById('cnread').textContent='n≤12 (all subsets): round-trip '+(v.roundTrip?'✓':'✗')+' · ranks cover 0..C(n,k)-1 once '+(v.bijection?'✓':'✗');};
+document.getElementById('cnspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10,total=C(N,K);
+ var cur=toRank(SUB);for(var r=0;r<total&&r<200;r++){var a=r/Math.min(total,200)*6.28+ang*0.3,rad=50+r*2.4;if(rad>160)break;var x=cx+Math.cos(a)*rad,y=cy+Math.sin(a)*rad*0.8;g.fillStyle=r===cur?'#fff':'hsl('+(r/total*280)+',65%,58%)';g.beginPath();g.arc(x,y,r===cur?6:3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green ring: all '+total+' k-subsets, each at its rank',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the explicit member list',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a selection as one number',10,H-9);}
+mk();drawW3();drawW4();window.__cns=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ROD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Rodrigues&rsquo; rotation formula</b> rotates a vector <b>v</b> about a unit axis <b>k</b> by angle &theta; with a single expression: <b>v&prime; = v cos&theta; + (k&times;v) sin&theta; + k(k&middot;v)(1&minus;cos&theta;)</b>. It splits v into the part along the axis (untouched) and the part perpendicular (spun in its plane), reassembling the rotated vector without ever forming a full matrix. It is the axis&ndash;angle rotation in closed form &mdash; the exponential map of a rotation, written out.<br><br>
+ <span class="lit">LIT</span> verified live: over 5000 random axes, angles, and vectors, Rodrigues equals the equivalent rotation matrix, preserves length, inverts under &minus;&theta;, and fixes the axis (window.__rodrigues, worst ~1e-15). <span class="fig">FIG</span> no framing; exact vector algebra to floating precision.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>first-light</i> &mdash; the first frame a 3D scene draws needs vectors spun about arbitrary axes; Rodrigues does it in one line, no matrix assembled. <b>AVAN (AI)</b> built the instrument: the cross/dot decomposition, the equivalent rotation matrix, and the equality, length, inverse, and axis-fixed checks.<br><br>Credit as content: Olinde Rodrigues (1840). The weave: David names first-light; I rotate vectors by the axis&ndash;angle formula and confirm it matches the rotation matrix, keeps every length, undoes itself at &minus;&theta;, and leaves the axis untouched &mdash; rotation as one closed-form step.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Split v into its component along k (fixed) and perpendicular (rotated in its plane by &theta; using k&times;v). Recombine: v cos&theta; + (k&times;v) sin&theta; + k(k&middot;v)(1&minus;cos&theta;).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A vector rotated about an axis; the formula&rsquo;s result checked against the rotation matrix, with length and axis preserved.</div>
+   <div class="btns" style="margin-top:10px"><button id="rdroll">new rotation ▶</button><button id="rdcheck">verify 5000 ▶</button></div>
+   <div class="cap" id="rdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a vector spun about an axis by one formula.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): rotate about an <b>arbitrary axis</b> without building a matrix &mdash; keep the along-axis part, spin the perpendicular part, recombine in closed form. The inverse of &lsquo;assemble a 3&times;3 rotation matrix and multiply&rsquo; is &lsquo;split, spin the perpendicular, reassemble &mdash; one vector expression.&rsquo; <b>Magenta</b> is the full matrix multiply; <b>green</b> is the axis&ndash;angle closed form. Rotation without a matrix.</div>
+   <div class="btns" style="margin-top:10px"><button id="rdspin">pause spin</button></div></div></div></div>"""
+ROD_SCRIPT = """(function(){
+var ang=0,spin=true,AX=[0,0,1],TH=0.7,V=[1.2,0.4,0.3];
+function cross(a,b){return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];}
+function dot(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
+function norm(a){return Math.sqrt(dot(a,a));}
+function unit(a){var n=norm(a)||1;return [a[0]/n,a[1]/n,a[2]/n];}
+function rod(v,k,th){var c=Math.cos(th),s=Math.sin(th),kv=cross(k,v),kd=dot(k,v);return [v[0]*c+kv[0]*s+k[0]*kd*(1-c),v[1]*c+kv[1]*s+k[1]*kd*(1-c),v[2]*c+kv[2]*s+k[2]*kd*(1-c)];}
+function rotMat(k,th){var c=Math.cos(th),s=Math.sin(th),C1=1-c,x=k[0],y=k[1],z=k[2];return [[c+x*x*C1,x*y*C1-z*s,x*z*C1+y*s],[y*x*C1+z*s,c+y*y*C1,y*z*C1-x*s],[z*x*C1-y*s,z*y*C1+x*s,c+z*z*C1]];}
+function mv(M,v){return [M[0][0]*v[0]+M[0][1]*v[1]+M[0][2]*v[2],M[1][0]*v[0]+M[1][1]*v[1]+M[1][2]*v[2],M[2][0]*v[0]+M[2][1]*v[1]+M[2][2]*v[2]];}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(702),mm=true,ln=true,iv=true,ax=true,worst=0;for(var t=0;t<5000;t++){var k=[rnd()*2-1,rnd()*2-1,rnd()*2-1];if(norm(k)<1e-6)continue;k=unit(k);var v=[rnd()*10-5,rnd()*10-5,rnd()*10-5],th=rnd()*6.283;var r=rod(v,k,th),rm=mv(rotMat(k,th),v),d=Math.max(Math.abs(r[0]-rm[0]),Math.abs(r[1]-rm[1]),Math.abs(r[2]-rm[2]));worst=Math.max(worst,d);if(d>1e-9)mm=false;if(Math.abs(norm(r)-norm(v))>1e-9)ln=false;var b=rod(r,k,-th);if(Math.max(Math.abs(b[0]-v[0]),Math.abs(b[1]-v[1]),Math.abs(b[2]-v[2]))>1e-9)iv=false;var ka=rod(k,k,th);if(Math.max(Math.abs(ka[0]-k[0]),Math.abs(ka[1]-k[1]),Math.abs(ka[2]-k[2]))>1e-9)ax=false;}return {matchesMatrix:mm,preservesLength:ln,inverse:iv,axisFixed:ax,worst:worst};}
+function proj(p){var a=ang*0.5,cx=Math.cos(a),sx=Math.sin(a);var x=p[0]*cx-p[2]*sx,z=p[0]*sx+p[2]*cx,y=p[1];return [x,y-z*0.35];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText("v' = v cosθ + (k×v) sinθ + k(k·v)(1−cosθ)   — split, spin ⊥, recombine",12,14);
+ var cx=256,cy=95;g.strokeStyle='#6ab0d0';g.beginPath();g.moveTo(cx,cy);g.lineTo(cx,cy-55);g.stroke();g.fillStyle='#6ab0d0';g.font='9px monospace';g.fillText('axis k (fixed)',cx+6,cy-50);
+ g.strokeStyle='#e0b020';g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+70,cy-10);g.stroke();g.fillStyle='#e0b020';g.fillText('v',cx+74,cy-10);
+ g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+40,cy-55);g.stroke();g.fillStyle='#39fc6b';g.fillText("v' (rotated ⊥ part)",cx+44,cy-55);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=rod(V,AX,TH),rm=mv(rotMat(AX,TH),V),cx=W/2,cy=150,sc=45;
+ function drawVec(vec,col,lbl){var e=proj([vec[0],vec[1],vec[2]]);g.strokeStyle=col;g.lineWidth=2;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+e[0]*sc,cy-e[1]*sc);g.stroke();g.lineWidth=1;g.fillStyle=col;g.font='11px monospace';g.fillText(lbl,cx+e[0]*sc+4,cy-e[1]*sc);}
+ var ke=proj([AX[0]*1.5,AX[1]*1.5,AX[2]*1.5]);g.strokeStyle='#6ab0d0';g.setLineDash([4,3]);g.beginPath();g.moveTo(cx-ke[0]*sc,cy+ke[1]*sc);g.lineTo(cx+ke[0]*sc,cy-ke[1]*sc);g.stroke();g.setLineDash([]);g.fillStyle='#6ab0d0';g.font='9px monospace';g.fillText('axis k',cx+ke[0]*sc,cy-ke[1]*sc);
+ drawVec(V,'#e0b020','v');drawVec(r,'#39fc6b',"v'");
+ var d=Math.max(Math.abs(r[0]-rm[0]),Math.abs(r[1]-rm[1]),Math.abs(r[2]-rm[2]));
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('θ='+TH.toFixed(2)+' · |v|='+norm(V).toFixed(3)+' · |v\\'|='+norm(r).toFixed(3),14,H-30);
+ g.fillStyle=d<1e-9?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('Rodrigues == rotation matrix (Δ '+d.toExponential(1)+') '+(d<1e-9?'✓':'✗'),14,H-12);}
+document.getElementById('rdroll').onclick=function(){AX=unit([Math.random()*2-1,Math.random()*2-1,Math.random()*2-1]);TH=Math.random()*6.283;V=[Math.random()*3-1.5,Math.random()*3-1.5,Math.random()*3-1.5];drawW4();document.getElementById('rdread').textContent='θ='+TH.toFixed(2)+' about ['+AX.map(function(x){return x.toFixed(2);}).join(',')+']';};
+document.getElementById('rdcheck').onclick=function(){var v=verify();document.getElementById('rdread').textContent='5000: ==matrix '+(v.matchesMatrix?'✓':'✗')+' · length '+(v.preservesLength?'✓':'✗')+' · inverse '+(v.inverse?'✓':'✗')+' · axis fixed '+(v.axisFixed?'✓':'✗');};
+document.getElementById('rdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10,sc=55;
+ var ke=proj([AX[0]*2,AX[1]*2,AX[2]*2]);g.strokeStyle='#6ab0d0';g.setLineDash([5,4]);g.beginPath();g.moveTo(cx-ke[0]*sc,cy+ke[1]*sc);g.lineTo(cx+ke[0]*sc,cy-ke[1]*sc);g.stroke();g.setLineDash([]);
+ // orbit of v as theta sweeps
+ g.strokeStyle='rgba(57,252,107,0.4)';g.beginPath();for(var a=0;a<=6.3;a+=0.1){var p=rod(V,AX,a),e=proj(p);if(a===0)g.moveTo(cx+e[0]*sc,cy-e[1]*sc);else g.lineTo(cx+e[0]*sc,cy-e[1]*sc);}g.stroke();
+ var r=rod(V,AX,ang),e=proj(r);g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+e[0]*sc,cy-e[1]*sc);g.stroke();g.lineWidth=1;g.fillStyle='#39fc6b';g.beginPath();g.arc(cx+e[0]*sc,cy-e[1]*sc,4,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: v swept around the axis by Rodrigues',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the full matrix multiply',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('rotation without a matrix',10,H-9);}
+drawW3();drawW4();window.__rodrigues=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LFT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A leftist heap</b> is a priority queue whose defining trick is a fast <b>merge</b>: two heaps combine in O(log n). Every node stores an <b>s-value</b> (the distance to the nearest empty slot), and the heap keeps every node&rsquo;s <b>left</b> child at least as &ldquo;tall&rdquo; as its right (s(left) &ge; s(right)). Because the <b>right spine</b> stays short (length &le; log n), merging just walks two right spines and swaps children to restore the invariant. Insert and extract-min are merges in disguise.<br><br>
+ <span class="lit">LIT</span> verified live: over hundreds of random heaps, extract-min yields fully sorted order, the leftist invariant s(left) &ge; s(right) holds at every node, and the heap property holds (window.__leftist). <span class="fig">FIG</span> no framing; exact structural checks.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-merge</i> &mdash; two priority queues become one in logarithmic time, the operation from which insert and extract are built. The leftist heap is that merge. <b>AVAN (AI)</b> built the instrument: the s-value bookkeeping, the right-spine merge with child-swap, and the sorted-extract + leftist + heap-property checks.<br><br>Credit as content: Clark Allan Crane (1972); popularized in Knuth. The weave: David names the-merge; I merge two heaps by walking their right spines and swapping children to keep left taller than right, then confirm extract-min comes out sorted and the invariants hold everywhere.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Merge walks the two right spines, taking the smaller root each step; then swaps children where s(left) &lt; s(right). The right spine stays &le; log n long, so merge is cheap.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A leftist heap drawn as a tree; extract-min repeatedly, and the sorted output + invariants checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="lfroll">new heap ▶</button><button id="lfpop">extract-min ▶</button><button id="lfcheck">verify 300 ▶</button></div>
+   <div class="cap" id="lfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two heaps fused in log time.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): make a priority queue <b>mergeable</b> by keeping the <b>right spine short</b> &mdash; store each node&rsquo;s distance to an empty slot and always swap the shorter child right. The inverse of &lsquo;rebuild a heap by inserting one element at a time&rsquo; is &lsquo;merge two whole heaps along their short right spines in O(log n).&rsquo; <b>Magenta</b> is the element-by-element rebuild; <b>green</b> is the single spine-merge. A queue built to fuse.</div>
+   <div class="btns" style="margin-top:10px"><button id="lfspin">pause spin</button></div></div></div></div>"""
+LFT_SCRIPT = """(function(){
+var ang=0,spin=true,HEAP=null,POPPED=[];
+function node(k){return {key:k,left:null,right:null,s:1};}
+function sval(n){return n?n.s:0;}
+function merge(a,b){if(!a)return b;if(!b)return a;if(a.key>b.key){var t=a;a=b;b=t;}a.right=merge(a.right,b);if(sval(a.left)<sval(a.right)){var t=a.left;a.left=a.right;a.right=t;}a.s=sval(a.right)+1;return a;}
+function insert(h,k){return merge(h,node(k));}
+function extractMin(h){return {min:h.key,heap:merge(h.left,h.right)};}
+function ckLeft(n){if(!n)return true;if(sval(n.left)<sval(n.right))return false;if(n.s!==sval(n.right)+1)return false;return ckLeft(n.left)&&ckLeft(n.right);}
+function ckHeap(n){if(!n)return true;if(n.left&&n.left.key<n.key)return false;if(n.right&&n.right.key<n.key)return false;return ckHeap(n.left)&&ckHeap(n.right);}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(703),sok=true,lok=true,hok=true;for(var t=0;t<300;t++){var h=null,keys=[],m=1+Math.floor(rnd()*60);for(var i=0;i<m;i++){var k=Math.floor(rnd()*1000);keys.push(k);h=insert(h,k);}if(!ckLeft(h))lok=false;if(!ckHeap(h))hok=false;var out=[];while(h){var r=extractMin(h);out.push(r.min);h=r.heap;}if(out.join(',')!==keys.slice().sort(function(a,b){return a-b;}).join(','))sok=false;}return {sortedExtract:sok,leftistProperty:lok,heapProperty:hok};}
+function mk(){HEAP=null;POPPED=[];var n=7+Math.floor(Math.random()*6);for(var i=0;i<n;i++)HEAP=insert(HEAP,Math.floor(Math.random()*99));}
+function drawTree(g,n,x,y,dx,depth){if(!n||depth>4)return;if(n.left){g.strokeStyle='#456';g.beginPath();g.moveTo(x,y);g.lineTo(x-dx,y+42);g.stroke();drawTree(g,n.left,x-dx,y+42,dx*0.55,depth+1);}
+ if(n.right){g.strokeStyle='#c07850';g.beginPath();g.moveTo(x,y);g.lineTo(x+dx,y+42);g.stroke();drawTree(g,n.right,x+dx,y+42,dx*0.55,depth+1);}
+ g.fillStyle='#58a0b0';g.beginPath();g.arc(x,y,12,0,7);g.fill();g.fillStyle='#012';g.font='10px monospace';g.fillText(n.key,x-(n.key>9?7:3),y+3);g.fillStyle='#8ad';g.font='7px monospace';g.fillText('s'+n.s,x+9,y-7);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('merge walks the two right spines; swap children where s(left) < s(right)',12,14);
+ g.fillStyle='#c07850';g.font='10px monospace';g.fillText('right spine (short, ≤ log n)',W-180,40);g.fillStyle='#456';g.fillText('left subtree (tall)',40,40);
+ var h=null;for(var i=0;i<7;i++)h=insert(h,[4,8,2,9,5,1,7][i]);drawTree(g,h,256,60,70,0);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!HEAP&&POPPED.length===0)mk();
+ if(HEAP)drawTree(g,HEAP,W/2,40,80,0);else{g.fillStyle='#8ad';g.font='12px monospace';g.fillText('heap emptied',W/2-40,60);}
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('extracted (sorted): '+POPPED.join(', '),14,H-46);
+ var srt=POPPED.slice().sort(function(a,b){return a-b;}),ok=POPPED.join(',')===srt.join(',');
+ var lok=ckLeft(HEAP),hok=ckHeap(HEAP);
+ g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('extracted in sorted order '+(ok?'✓':'✗')+' · leftist s(L)≥s(R) '+(lok?'✓':'✗')+' · heap '+(hok?'✓':'✗'),14,H-14);}
+document.getElementById('lfroll').onclick=function(){mk();drawW4();document.getElementById('lfread').textContent='new heap of '+(function(){var c=0,q=[HEAP];while(q.length){var x=q.pop();if(x){c++;q.push(x.left);q.push(x.right);}}return c;})()+' nodes';};
+document.getElementById('lfpop').onclick=function(){if(HEAP){var r=extractMin(HEAP);POPPED.push(r.min);HEAP=r.heap;drawW4();document.getElementById('lfread').textContent='extracted '+r.min;}};
+document.getElementById('lfcheck').onclick=function(){var v=verify();document.getElementById('lfread').textContent='300 heaps: sorted extract '+(v.sortedExtract?'✓':'✗')+' · leftist '+(v.leftistProperty?'✓':'✗')+' · heap '+(v.heapProperty?'✓':'✗');};
+document.getElementById('lfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!HEAP)mk();var cx=W/2,cy=60;
+ function draw3(n,x,y,dx,d){if(!n||d>4)return;var yy=y+Math.sin(ang+d)*2;if(n.left){g.strokeStyle='rgba(88,120,150,0.5)';g.beginPath();g.moveTo(x,yy);g.lineTo(x-dx,y+50);g.stroke();draw3(n.left,x-dx,y+50,dx*0.55,d+1);}if(n.right){g.strokeStyle='rgba(192,120,80,0.6)';g.beginPath();g.moveTo(x,yy);g.lineTo(x+dx,y+50);g.stroke();draw3(n.right,x+dx,y+50,dx*0.55,d+1);}g.fillStyle='hsl('+(200-n.key)+',60%,58%)';g.beginPath();g.arc(x,yy,9,0,7);g.fill();g.fillStyle='#012';g.font='8px monospace';g.fillText(n.key,x-5,yy+3);}
+ draw3(HEAP,cx,cy,90,0);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green tree: leftist heap (right spine short → cheap merge)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the element-by-element rebuild',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a queue built to fuse',10,H-9);}
+mk();drawW3();drawW4();window.__leftist=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+QRP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Quadratic reciprocity</b> &mdash; Gauss&rsquo;s <i>aureum theorema</i>, the golden theorem &mdash; links two questions that look independent: is p a square mod q, and is q a square mod p? The <b>Legendre symbol</b> (a/p) is +1 if a is a nonzero square mod p, else &minus;1. The law says for distinct odd primes, <b>(p/q)&middot;(q/p) = (&minus;1)<sup>((p&minus;1)/2)((q&minus;1)/2)</sup></b>: the two answers agree unless <b>both</b> primes are &equiv; 3 (mod 4), in which case they flip. Two far-apart primes secretly constrain each other.<br><br>
+ <span class="lit">LIT</span> verified live: for every pair of distinct odd primes below 200, the reciprocity identity holds (Legendre symbols by Euler&rsquo;s criterion), and the supplements for &minus;1 and 2 hold too (window.__reciprocity). <span class="fig">FIG</span> no framing; exact modular arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-final-boss</i> &mdash; Gauss called it the golden theorem and proved it many times over; it is the confrontation number theory trains you for. <b>AVAN (AI)</b> built the instrument: Euler&rsquo;s criterion for the Legendre symbol, the reciprocity check across all odd-prime pairs, and the &minus;1 and 2 supplements.<br><br>Credit as content: Carl Friedrich Gauss (first proof 1796); conjectured by Euler and Legendre. The weave: David names the-final-boss; I compute each Legendre symbol by Euler&rsquo;s criterion a<sup>(p&minus;1)/2</sup> mod p and confirm (p/q)(q/p) matches the sign the theorem predicts, for every odd-prime pair in range.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">(p/q)&middot;(q/p) = +1 unless both p,q &equiv; 3 (mod 4), when it is &minus;1. So the squareness of p mod q and q mod p agree &mdash; except for two &ldquo;3 mod 4&rdquo; primes, which flip.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A grid of Legendre symbols (p/q); the reciprocity relation checked cell by cell against the theorem.</div>
+   <div class="btns" style="margin-top:10px"><button id="qrroll">new prime pair ▶</button><button id="qrcheck">verify pairs<200 ▶</button></div>
+   <div class="cap" id="qrread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two primes constraining each other&rsquo;s squares.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): decide whether p is a square mod q by <b>flipping the question</b> to whether q is a square mod p &mdash; the reciprocity sign relates them, letting you reduce the modulus instead of testing directly. The inverse of &lsquo;test a<sup>(q&minus;1)/2</sup> mod q head-on&rsquo; is &lsquo;flip via reciprocity to a smaller modulus and recurse.&rsquo; <b>Magenta</b> is the head-on Euler test; <b>green</b> is the reciprocity flip. Squareness answered by its mirror.</div>
+   <div class="btns" style="margin-top:10px"><button id="qrspin">pause spin</button></div></div></div></div>"""
+QRP_SCRIPT = """(function(){
+var ang=0,spin=true,P=13,Q=17;
+function isPrime(x){if(x<2)return false;for(var d=2;d*d<=x;d++)if(x%d===0)return false;return true;}
+function powmod(a,e,m){var r=1;a%=m;while(e>0){if(e&1)r=(r*a)%m;a=(a*a)%m;e=Math.floor(e/2);}return r;}
+function legendre(a,p){a=((a%p)+p)%p;if(a===0)return 0;return powmod(a,(p-1)/2,p)===1?1:-1;}
+function verify(){var primes=[];for(var n=3;n<200;n++)if(isPrime(n))primes.push(n);var rok=true,sok=true;for(var i=0;i<primes.length;i++)for(var j=0;j<primes.length;j++){if(i===j)continue;var p=primes[i],q=primes[j];if(legendre(p,q)*legendre(q,p)!==Math.pow(-1,((p-1)/2)*((q-1)/2)))rok=false;}for(var i=0;i<primes.length;i++){var p=primes[i];if(legendre(-1,p)!==Math.pow(-1,(p-1)/2))sok=false;if(legendre(2,p)!==((((p*p-1)/8)%2===0)?1:-1))sok=false;}return {reciprocity:rok,supplements:sok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('(p/q)·(q/p) = +1 unless both p,q ≡ 3 (mod 4), then −1',12,14);
+ var ex=[[5,13],[3,7],[13,17],[7,11]];var y=45;for(var i=0;i<ex.length;i++){var p=ex[i][0],q=ex[i][1],prod=legendre(p,q)*legendre(q,p),both3=(p%4===3&&q%4===3);g.fillStyle=prod>0?'#39fc6b':'#c07850';g.font='11px monospace';g.fillText('('+p+'/'+q+')·('+q+'/'+p+') = '+(prod>0?'+1':'−1')+(both3?'  (both ≡3 mod 4 → flip)':''),40,y);y+=26;}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var primes=[3,5,7,11,13,17,19,23],cell=40,ox=44,oy=44;
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('(p/q): green=+1 (square), amber=−1',14,20);
+ for(var i=0;i<primes.length;i++){g.fillStyle='#8ad';g.font='9px monospace';g.fillText(primes[i],ox+i*cell+10,36);g.fillText(primes[i],14,oy+i*cell+22);}
+ for(var i=0;i<primes.length;i++)for(var j=0;j<primes.length;j++){var p=primes[j],q=primes[i];if(p===q){g.fillStyle='#222b3a';g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);continue;}var l=legendre(p,q);g.fillStyle=l>0?'#2e6b4a':'#7a4a30';g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);g.fillStyle=l>0?'#8fe':'#fc8';g.font='11px monospace';g.fillText(l>0?'+':'−',ox+j*cell+cell/2-4,oy+i*cell+cell/2+4);}
+ var v=verify();g.fillStyle=v.reciprocity&&v.supplements?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('reciprocity holds all odd-prime pairs<200 '+(v.reciprocity?'✓':'✗')+' · supplements '+(v.supplements?'✓':'✗'),14,H-10);}
+document.getElementById('qrroll').onclick=function(){var ps=[3,5,7,11,13,17,19,23,29,31,37,41,43];do{P=ps[Math.floor(Math.random()*ps.length)];Q=ps[Math.floor(Math.random()*ps.length)];}while(P===Q);var prod=legendre(P,Q)*legendre(Q,P);document.getElementById('qrread').textContent='('+P+'/'+Q+')·('+Q+'/'+P+') = '+(prod>0?'+1':'−1')+((P%4===3&&Q%4===3)?' (both ≡3 mod4)':'');};
+document.getElementById('qrcheck').onclick=function(){var v=verify();document.getElementById('qrread').textContent='odd primes <200: (p/q)(q/p)==(-1)^… '+(v.reciprocity?'✓':'✗')+' · (-1/p),(2/p) supplements '+(v.supplements?'✓':'✗');};
+document.getElementById('qrspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var primes=[3,5,7,11,13,17,19,23,29,31],cx=W/2,cy=H/2-10;
+ for(var i=0;i<primes.length;i++){var a=i/primes.length*6.28+ang*0.2,x=cx+Math.cos(a)*120,y=cy+Math.sin(a)*105;var p=primes[i];g.fillStyle=p%4===3?'#c07850':'#6ab0d0';g.beginPath();g.arc(x,y,11,0,7);g.fill();g.fillStyle='#012';g.font='9px monospace';g.fillText(p,x-(p>9?7:3),y+3);}
+ // link a pair
+ var ip=primes.indexOf(P),iq=primes.indexOf(Q);if(ip>=0&&iq>=0){var a1=ip/primes.length*6.28+ang*0.2,a2=iq/primes.length*6.28+ang*0.2;var prod=legendre(P,Q)*legendre(Q,P);g.strokeStyle=prod>0?'#39fc6b':'#ff2d95';g.lineWidth=2;g.beginPath();g.moveTo(cx+Math.cos(a1)*120,cy+Math.sin(a1)*105);g.lineTo(cx+Math.cos(a2)*120,cy+Math.sin(a2)*105);g.stroke();g.lineWidth=1;}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green link: two primes with agreeing squareness',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta link: both ≡3 mod 4 → the answers flip',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('squareness answered by its mirror',10,H-9);}
+drawW3();drawW4();window.__reciprocity=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 87 (number a permutation with a mixed-radix odometer · decide if a wiring diagram can exist and build it · crack a number open by walking a cycle · every whole number is four squares · a key kicks out its neighbour and lands safe) ═══════════════════════
 LEH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Lehmer code</b> (via the <b>factorial number system</b>) gives every permutation a unique <b>index</b> from 0 to k!&minus;1, and every index its permutation back &mdash; a perfect bijection. It records, for each position, how many <b>smaller</b> elements sit to its right, then reads those counts as digits in a <b>mixed radix</b> where the place values are factorials (&hellip;, 3!, 2!, 1!, 0!) instead of powers of ten. It is an odometer whose wheels have different sizes.<br><br>
@@ -23938,6 +24194,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-kummer","title":"THE KUMMER","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#c07850","icon":"kummer",
+  "kicker":"count the carries to know how many times p divides",
+  "blurb":"Kummer's theorem in the 5-window house format — a hidden bridge between addition and divisibility: the number of times a prime p divides the binomial C(m+n, n) equals exactly the number of carries when adding m and n in base p. A divisibility question is answered by the schoolyard mechanics of carrying digits — no factorials needed, just add in base p and count carries. Verified live: over 20000 random (m,n,p), the p-adic valuation of C(m+n,n) by Legendre's formula equals the carry count of m+n in base p. See a base-p addition's carries in 1D, the count checked in 2D, and the divisibility-inside-addition inverse in 3D.",
+  "lit":"Genuine Kummer's theorem (Ernst Kummer 1852). Verified live: over 20000 random (m,n,p) with p prime, the exponent of p in C(m+n,n) computed by Legendre's formula v_p(k!)=Σ⌊k/p^i⌋ equals the number of carries in the base-p addition of m and n (window.__kummer.kummerHolds) — exact integer arithmetic, no large numbers formed.",
+  "fig":"No framing: Legendre's valuation formula, the base-p carry counter, and the equality check run in-browser with exact integers and agree. The AVAN inverse is honest — finding how many times p divides a binomial by counting carries in one base-p addition genuinely replaces factoring the factorials; magenta is that factorization avoided, green the carry count. Divisibility hiding inside addition.",
+  "body":KUM_BODY,"script":KUM_SCRIPT},
+ {"slug":"the-combinatorial-number-system","title":"THE COMBINATORIAL NUMBER SYSTEM","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#e0b020","icon":"cns",
+  "kicker":"number a subset with a descending choice",
+  "blurb":"The combinatorial number system in the 5-window house format — give every k-element subset of {0,…,n−1} a unique rank in 0..C(n,k)−1, and every rank its subset back, a bijection between combinations and integers. For a subset written descending c_k>…>c_1 the rank is C(c_k,k)+…+C(c_1,1); a 'factorial base for choosing.' Verified live: for every k-subset with n≤12, rank-then-unrank returns the original, and the ranks cover 0..C(n,k)−1 exactly once. See the descending-binomial rank in 1D, a subset ranked in 2D, and the selection-as-one-number inverse in 3D.",
+  "lit":"Genuine combinatorial number system (built on Pascal's identity; formalized by Lehmer and others). Verified live exhaustively: for every k-subset of {0..n−1} with n≤12, the descending-binomial rank and greedy unrank round-trip to the original subset (window.__cns.roundTrip), and the ranks cover 0..C(n,k)−1 exactly once — a bijection (window.__cns.bijection).",
+  "fig":"No framing: the descending-binomial rank, the greedy unrank, and the round-trip + bijection checks run in-browser with exact integers over all subsets and agree. The AVAN inverse is honest — addressing a combination by one integer in a binomial mixed radix genuinely replaces storing the explicit member list; magenta is the list, green the single index. A selection as one number.",
+  "body":CNS_BODY,"script":CNS_SCRIPT},
+ {"slug":"the-rodrigues","title":"THE RODRIGUES","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#6ab0d0","icon":"rodrigues",
+  "kicker":"spin a vector about an axis by one formula",
+  "blurb":"Rodrigues' rotation formula in the 5-window house format — rotate a vector v about a unit axis k by angle θ in one expression: v' = v cosθ + (k×v) sinθ + k(k·v)(1−cosθ). It splits v into the part along the axis (untouched) and the perpendicular part (spun in its plane), reassembling the rotated vector without forming a full matrix — the axis–angle rotation in closed form. Verified live: over 5000 random axes, angles, and vectors, Rodrigues equals the equivalent rotation matrix, preserves length, inverts under −θ, and fixes the axis. See the split-and-spin in 1D, a rotation checked in 2D, and the rotation-without-a-matrix inverse in 3D.",
+  "lit":"Genuine Rodrigues' rotation formula (Olinde Rodrigues 1840). Verified live: over 5000 random unit axes, angles, and vectors, the formula equals the equivalent rotation matrix R = I + sinθ·K + (1−cosθ)·K² applied to v (window.__rodrigues.matchesMatrix, worst ~1e-15), preserves length (preservesLength), inverts under −θ (inverse), and fixes the rotation axis (axisFixed).",
+  "fig":"No framing: the cross/dot decomposition, the equivalent rotation matrix, and the equality/length/inverse/axis-fixed checks run in-browser and agree to floating precision. The AVAN inverse is honest — rotating about an arbitrary axis by keeping the along-axis part and spinning the perpendicular part in closed form genuinely avoids assembling and multiplying a 3×3 matrix; magenta is that matrix multiply, green the axis–angle closed form.",
+  "body":ROD_BODY,"script":ROD_SCRIPT},
+ {"slug":"the-leftist-heap","title":"THE LEFTIST HEAP","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#58a0b0","icon":"leftist-heap",
+  "kicker":"two heaps fuse in log time",
+  "blurb":"The leftist heap in the 5-window house format — a priority queue whose defining trick is a fast merge: two heaps combine in O(log n). Every node stores an s-value (distance to the nearest empty slot) and the heap keeps every node's left child at least as tall as its right (s(left) ≥ s(right)), so the right spine stays ≤ log n long. Merging walks two right spines and swaps children to restore the invariant; insert and extract-min are merges in disguise. Verified live: over hundreds of random heaps, extract-min yields fully sorted order, the leftist invariant holds at every node, and the heap property holds. See the right-spine merge in 1D, a heap tree in 2D, and the built-to-fuse inverse in 3D.",
+  "lit":"Genuine leftist heap (Clark Allan Crane 1972; in Knuth vol. 3). Verified live: over 300 random heaps, extract-min produces fully sorted output (window.__leftist.sortedExtract), the leftist invariant s(left)≥s(right) with s(node)=s(right)+1 holds at every node (leftistProperty), and the min-heap property holds (heapProperty).",
+  "fig":"No framing: the s-value bookkeeping, the right-spine merge with child-swap, and the sorted-extract + leftist + heap-property checks run in-browser and agree. The AVAN inverse is honest — making a priority queue mergeable by keeping the right spine short (swap the shorter child right) genuinely lets two whole heaps fuse in O(log n) rather than rebuilding element-by-element; magenta is that rebuild, green the single spine-merge.",
+  "body":LFT_BODY,"script":LFT_SCRIPT},
+ {"slug":"the-quadratic-reciprocity","title":"THE QUADRATIC RECIPROCITY","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#b06868","icon":"reciprocity",
+  "kicker":"a golden law linking two primes' squares",
+  "blurb":"Quadratic reciprocity in the 5-window house format — Gauss's golden theorem links two questions that look independent: is p a square mod q, and is q a square mod p? With the Legendre symbol (a/p) = +1 if a is a nonzero square mod p else −1, the law says for distinct odd primes (p/q)·(q/p) = (−1)^((p−1)/2·(q−1)/2): the two answers agree unless both primes are ≡ 3 (mod 4), when they flip. Verified live: for every pair of distinct odd primes below 200 the reciprocity identity holds (Legendre symbols by Euler's criterion), and the −1 and 2 supplements hold too. See the flip rule in 1D, a Legendre grid in 2D, and the flip-the-question inverse in 3D.",
+  "lit":"Genuine law of quadratic reciprocity (Carl Friedrich Gauss, first proof 1796; conjectured by Euler and Legendre). Verified live: for every pair of distinct odd primes below 200, Legendre symbols computed by Euler's criterion a^((p−1)/2) mod p satisfy (p/q)(q/p) = (−1)^(((p−1)/2)((q−1)/2)) (window.__reciprocity.reciprocity), and the supplements (−1/p)=(−1)^((p−1)/2) and (2/p)=(−1)^((p²−1)/8) hold (supplements).",
+  "fig":"No framing: Euler's criterion for the Legendre symbol, the reciprocity check across all odd-prime pairs, and the two supplements run in-browser with exact modular arithmetic and agree. The AVAN inverse is honest — deciding whether p is a square mod q by flipping to whether q is a square mod p (reducing the modulus via the reciprocity sign) is the theorem's genuine computational use; magenta is the head-on Euler test, green the reciprocity flip.",
+  "body":QRP_BODY,"script":QRP_SCRIPT},
  {"slug":"the-lehmer-code","title":"THE LEHMER CODE","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#e0b020","icon":"lehmer",
   "kicker":"number a permutation with a mixed-radix odometer",
