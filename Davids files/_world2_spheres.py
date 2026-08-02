@@ -19485,6 +19485,256 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 99 (a binomial congruence mod p-cubed for primes five and up · abundant numbers no subset of divisors can total · numbers whose digit sum equals their factors&rsquo; · when a linear congruential generator hits full period · a sequence walking by shared factors) ═══════════════════════
+WOLS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Wolstenholme&rsquo;s theorem</b> is a startlingly strong congruence: for every prime <b>p &ge; 5</b>, the central binomial coefficient satisfies <b>C(2p, p) &equiv; 2 (mod p<sup>3</sup>)</b>. Ordinary primes only guarantee this modulo p (that&rsquo;s in every binomial-mod-prime fact); Wolstenholme lifts it two whole powers higher, to p-cubed. It fails for p = 2 and p = 3, so five is the true floor. Equivalently, the numerator of the harmonic sum 1 + 1/2 + &hellip; + 1/(p&minus;1) is divisible by p<sup>2</sup>. It is a cornerstone of p-adic combinatorics.<br><br>
+ <span class="lit">LIT</span> verified live (exact BigInt): C(2p,p) &equiv; 2 (mod p<sup>3</sup>) for every prime p from 5 to 101, and p = 3 gives residue 18, not 2 &mdash; so the p&ge;5 floor is real (window.__wolstenholme). <span class="fig">FIG</span> no framing; exact big-integer modular arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-final-boss</i> &mdash; the ordinary fact (binomial mod p) is the henchman; Wolstenholme is the boss behind it, the same coefficient pinned two powers deeper, mod p-cubed, and only for primes five and up. <b>AVAN (AI)</b> built the instrument: the exact central-binomial in big integers, the mod-p<sup>3</sup> reduction, the sweep over primes 5..101, and the p=3 counterexample.<br><br>Credit as content: Joseph Wolstenholme (1862). The weave: David names the-final-boss; I compute C(2p,p) exactly, reduce it modulo p-cubed, and confirm it equals 2 for every prime from 5 to 101 while 3 falls short &mdash; a congruence far stronger than primality alone requires.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">C(10,5) = 252 &equiv; 2 (mod 5<sup>3</sup>=125): 252 &minus; 2 = 250 = 2&middot;125. C(14,7) = 3432 &equiv; 2 (mod 343). But C(6,3) = 20 &equiv; 18 (mod 27) &mdash; p=3 fails, so p &ge; 5.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A prime p, its C(2p,p) and the residue mod p-cubed; the sweep over primes 5..101 checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="wonext">next prime ▶</button><button id="wocheck">verify 5..101 ▶</button></div>
+   <div class="cap" id="woread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a congruence pinned two powers deep.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): take the weak fact &lsquo;C(2p,p) &equiv; 2 (mod p)&rsquo; and ask how <b>deep</b> it really holds &mdash; the answer is mod p<sup>3</sup>, for primes five and up. The inverse of &lsquo;a congruence holds mod p&rsquo; is &lsquo;how many powers of p does it truly survive.&rsquo; <b>Magenta</b> is the shallow mod-p fact; <b>green</b> is the deep mod-p<sup>3</sup> Wolstenholme congruence. Strength measured in powers of p.</div>
+   <div class="btns" style="margin-top:10px"><button id="wospin">pause spin</button></div></div></div></div>"""
+WOLS_SCRIPT = """(function(){
+var ang=0,spin=true,PI=0,PRIMES=[];
+function isPrime(n){if(n<2)return false;for(var d=2;d*d<=n;d++)if(n%d===0)return false;return true;}
+for(var p=5;p<=101;p++)if(isPrime(p))PRIMES.push(p);
+function binomB(n,k){var num=1n,den=1n;for(var i=0;i<k;i++){num*=BigInt(n-i);den*=BigInt(i+1);}return num/den;}
+function resid(p){var c=binomB(2*p,p),p3=BigInt(p)*BigInt(p)*BigInt(p);return ((c-2n)%p3+p3)%p3;}
+function verify(){var ok=true;for(var i=0;i<PRIMES.length;i++)if(resid(PRIMES[i])!==0n)ok=false;var c3=binomB(6,3),f3=((c3-2n)%27n+27n)%27n;return {holds:ok,p3fails:f3===18n};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('C(2p,p) ≡ 2 (mod p³) for every prime p ≥ 5 — two powers deeper than mod p',12,14);
+ g.fillStyle='#9a6ad0';g.font='13px monospace';g.fillText('C(10,5)=252 ≡ 2 (mod 125):  252−2 = 250 = 2·125 ✓',24,50);
+ g.fillText('C(14,7)=3432 ≡ 2 (mod 343):  3432−2 = 3430 = 10·343 ✓',24,80);
+ g.fillStyle='#ff7a7a';g.font='12px monospace';g.fillText('C(6,3)=20 ≡ 18 (mod 27) ✗  → p=3 fails, floor is p ≥ 5',24,112);
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('primality only forces mod p; Wolstenholme forces mod p-cubed',24,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var p=PRIMES[PI],c=binomB(2*p,p),p3=BigInt(p)*BigInt(p)*BigInt(p),r=((c-2n)%p3+p3)%p3;
+ g.fillStyle='#e8eef8';g.font='14px monospace';g.fillText('p = '+p,16,30);
+ g.fillStyle='#9a6ad0';g.font='12px monospace';g.fillText('C('+(2*p)+','+p+') = '+c.toString().slice(0,26)+(c.toString().length>26?'…':''),16,60);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('mod p³ (p³ = '+p3.toString()+')',16,88);
+ g.fillStyle=r===2n?'#39fc6b':'#ff5a5a';g.font='15px monospace';g.fillText('C(2p,p) mod p³ = '+r.toString()+'  '+(r===2n?'≡ 2 ✓':'✗'),16,120);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('(residue of C−2 is 0, so C ≡ 2)',16,142);
+ var v=verify();g.fillStyle=v.holds&&v.p3fails?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('all primes 5..101: C(2p,p)≡2 mod p³ '+(v.holds?'✓':'✗')+' · p=3 residue 18 (fails) '+(v.p3fails?'✓':'✗'),14,H-12);}
+document.getElementById('wonext').onclick=function(){PI=(PI+1)%PRIMES.length;drawW4();document.getElementById('woread').textContent='p = '+PRIMES[PI];};
+document.getElementById('wocheck').onclick=function(){var v=verify();document.getElementById('woread').textContent='primes 5..101: C(2p,p)≡2 (mod p³) '+(v.holds?'✓':'✗')+' · p=3 gives 18 not 2, so floor p≥5 '+(v.p3fails?'✓':'✗');};
+document.getElementById('wospin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10;
+ for(var i=0;i<PRIMES.length;i++){var p=PRIMES[i],a=i*0.42+ang*0.3,r=30+i*7,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.82;var ok=(((binomB(2*p,p)-2n)%(BigInt(p)*BigInt(p)*BigInt(p)))===0n);g.fillStyle=ok?'hsl('+(270-i*3)+',55%,62%)':'#ff5a5a';g.beginPath();g.arc(x,y,4,0,7);g.fill();g.fillStyle='#8ad';g.font='8px monospace';if(i%2===0)g.fillText(p,x+5,y+3);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green spiral: primes where C(2p,p) ≡ 2 (mod p³)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the shallow mod-p fact',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('strength measured in powers of p',10,H-9);}
+drawW3();drawW4();window.__wolstenholme=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WEIRD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Weird numbers</b> are a rare pathology of divisors. A number is <b>abundant</b> when its proper divisors sum to <b>more</b> than itself, and <b>semiperfect</b> when some <b>subset</b> of those divisors sums to <b>exactly</b> itself. A <b>weird number</b> is abundant <b>but not</b> semiperfect &mdash; it overflows, yet no combination of its parts can reconstruct it. The smallest is <b>70</b>: divisors 1, 2, 5, 7, 10, 14, 35 sum to 74 (&gt; 70), but no subset totals 70. They are surprisingly scarce: 70, 836, 4030, 5830, &hellip;<br><br>
+ <span class="lit">LIT</span> verified live: an exhaustive scan (each candidate tested for abundance, then a subset-sum check for semiperfectness) finds exactly 70, 836, 4030, 5830, 7192, 7912, 9272, 10430, 10570, 10792, 10990, 11410, 11690, 12110, 12530, 12670 below 13000 (window.__weird). <span class="fig">FIG</span> no framing; exact divisor sums and subset-sum DP.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>divide-by-zero</i> &mdash; the pathological corner: a number whose divisors overflow it, yet refuse to add back up to it in any combination. That refusal is the weirdness. <b>AVAN (AI)</b> built the instrument: the proper-divisor sum, the abundance test, the subset-sum dynamic program for semiperfectness, and the exhaustive census.<br><br>Credit as content: weird numbers (Stan Benkoski, 1972; studied by Benkoski &amp; Erd&#337;s). The weave: David names divide-by-zero; I sum each number&rsquo;s proper divisors, keep the abundant ones, then run a subset-sum to ask whether any combination equals the number &mdash; the ones that say no are weird.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">70: divisors {1,2,5,7,10,14,35} sum 74 &gt; 70 (abundant). No subset sums to 70 (not semiperfect) &rArr; weird. Compare 12 = 1+2+3+6 (semiperfect, not weird).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A number, its divisor sum, and whether a subset reaches it; the census below 13000 checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="wdroll">new number ▶</button><button id="wdweird">a weird one ▶</button><button id="wdcheck">census ▶</button></div>
+   <div class="cap" id="wdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: parts that overflow but never reassemble.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): among abundant numbers, isolate the ones where <b>no subset of divisors reconstructs the whole</b> &mdash; excess without expressibility. The inverse of &lsquo;abundant means the parts are more than enough&rsquo; is &lsquo;but can any combination of them actually total the number?&rsquo; <b>Magenta</b> is a semiperfect abundant number (a subset works); <b>green</b> is the weird number (none does). Enough parts, no valid sum.</div>
+   <div class="btns" style="margin-top:10px"><button id="wdspin">pause spin</button></div></div></div></div>"""
+WEIRD_SCRIPT = """(function(){
+var ang=0,spin=true,N=70,CENSUS=null;
+function properDivisors(n){var d=[];for(var i=1;i<=n/2;i++)if(n%i===0)d.push(i);return d;}
+function isSemiperfect(n,divs){var reach=new Uint8Array(n+1);reach[0]=1;for(var i=0;i<divs.length;i++){var dd=divs[i];for(var s=n;s>=dd;s--)if(reach[s-dd])reach[s]=1;}return reach[n]===1;}
+function divSum(d){var s=0;for(var i=0;i<d.length;i++)s+=d[i];return s;}
+function isWeird(n){var d=properDivisors(n);if(divSum(d)<=n)return false;return !isSemiperfect(n,d);}
+function getCensus(){if(!CENSUS){var w=[];for(var n=2;n<=13000;n++)if(isWeird(n))w.push(n);CENSUS=w;}return CENSUS;}
+function verify(){var w=getCensus();return {census:w.join(',')==='70,836,4030,5830,7192,7912,9272,10430,10570,10792,10990,11410,11690,12110,12530,12670',found:w};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('weird = abundant (divisors sum over n) AND not semiperfect (no subset totals n)',12,14);
+ g.fillStyle='#c85a5a';g.font='12px monospace';g.fillText('70: {1,2,5,7,10,14,35} sum 74 > 70 (abundant), no subset = 70 → WEIRD',20,48);
+ g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('12: {1,2,3,4,6} sum 16 > 12, but 1+2+3+6 = 12 → semiperfect, not weird',20,82);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('below 13000 only sixteen are weird: 70, 836, 4030, 5830, … , 12670',20,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var d=properDivisors(N),ds=divSum(d),ab=ds>N,semi=ab?isSemiperfect(N,d):true;
+ g.fillStyle='#e8eef8';g.font='15px monospace';g.fillText('n = '+N,16,30);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('divisors: {'+d.join(',')+'}',16,56);
+ g.fillStyle=ab?'#e0b020':'#556';g.font='11px monospace';g.fillText('sum = '+ds+(ab?' > '+N+' (abundant)':' ≤ '+N+' (not abundant)'),16,80);
+ g.fillStyle=ab?(semi?'#39fc6b':'#c85a5a'):'#556';g.font='11px monospace';g.fillText(ab?(semi?'a subset totals '+N+' (semiperfect)':'NO subset totals '+N+' (not semiperfect)'):'—',16,104);
+ var weird=ab&&!semi;g.fillStyle=weird?'#c85a5a':'#8ad';g.font='14px monospace';g.fillText(weird?'WEIRD ✓':'not weird',16,134);
+ var v=verify();g.fillStyle=v.census?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('census below 13000 == known 16 weird numbers '+(v.census?'✓':'✗'),14,H-12);}
+document.getElementById('wdroll').onclick=function(){N=2+Math.floor(Math.random()*900);drawW4();var d=properDivisors(N);document.getElementById('wdread').textContent='n='+N+' → '+(isWeird(N)?'weird':'not weird');};
+document.getElementById('wdweird').onclick=function(){var w=getCensus();N=w[Math.floor(Math.random()*w.length)];drawW4();document.getElementById('wdread').textContent=N+' is weird (abundant, not semiperfect)';};
+document.getElementById('wdcheck').onclick=function(){var v=verify();document.getElementById('wdread').textContent='weird numbers below 13000 = {'+v.found.join(',')+'} '+(v.census?'✓':'✗');};
+document.getElementById('wdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var d=properDivisors(N),cx=W/2,cy=H/2-10,semi=isSemiperfect(N,d),ab=divSum(d)>N,weird=ab&&!semi;
+ for(var i=0;i<d.length;i++){var a=i/Math.max(1,d.length)*6.28+ang*0.3,r=40+Math.log(d[i]+1)*16,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.82;g.fillStyle=weird?'#c85a5a':'#39fc6b';g.beginPath();g.arc(x,y,4+Math.log(d[i]+1),0,7);g.fill();g.fillStyle='#012';g.font='8px monospace';g.fillText(d[i],x-4,y+3);}
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('n='+N,cx-12,cy+4);
+ g.fillStyle=weird?'#c85a5a':'#39fc6b';g.font='11px monospace';g.fillText(weird?'green: a weird number\\'s divisors — no subset reassembles it':'green: divisors (a subset totals n)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: a semiperfect number (a subset works)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('enough parts, no valid sum',10,H-9);}
+drawW3();drawW4();window.__weird=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SMTH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Smith numbers</b> are composites with a digit coincidence: the <b>sum of the number&rsquo;s own digits</b> equals the <b>sum of the digits of all its prime factors</b>, counted with multiplicity. The smallest is <b>4 = 2&times;2</b>: digit sum of 4 is 4, and 2 + 2 = 4. Also <b>22 = 2&times;11</b> (2+2 = 2+1+1 = 4), <b>27 = 3<sup>3</sup></b> (9 = 3+3+3), <b>58 = 2&times;29</b> (13 = 2+2+9). Primes are excluded by definition (they would trivially match). Named after Harold Smith, whose phone number 493-7775 is one.<br><br>
+ <span class="lit">LIT</span> verified live: an exhaustive scan (factor each composite, compare digit sums) reproduces the known census 4, 22, 27, 58, 85, 94, 121, &hellip; below 1100 &mdash; fifty Smith numbers (window.__smith). <span class="fig">FIG</span> no framing; exact factorization and digit sums.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-bounty</i> &mdash; a found curio: a composite whose digits secretly sum to the very same total as the digits of its prime factors. That coincidence is the bounty. <b>AVAN (AI)</b> built the instrument: the digit-sum, the trial-division factorization with multiplicity, the composite filter, and the exhaustive census.<br><br>Credit as content: Smith numbers (Albert Wilansky, 1982, named for his brother-in-law Harold Smith). The weave: David names the-bounty; I add up a number&rsquo;s digits, then add up the digits of every prime in its factorization, and collect the composites where the two totals coincide.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">4 = 2&times;2: digitsum(4)=4, 2+2=4 &check;. 58 = 2&times;29: digitsum(58)=13, digitsum(2)+digitsum(29)=2+2+9=13 &check;. 27 = 3<sup>3</sup>: 9 = 3+3+3 &check;.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A number&rsquo;s factorization, its two digit sums side by side; the census below 1100 checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="smroll">new number ▶</button><button id="smsmith">a Smith ▶</button><button id="smcheck">census ▶</button></div>
+   <div class="cap" id="smread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a number whose digits echo its factors&rsquo;.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): instead of adding a number&rsquo;s digits, add the digits of its <b>prime factorization</b> &mdash; and collect the composites where the two sums agree. The inverse of &lsquo;read the digits of n&rsquo; is &lsquo;read the digits of what n is made of.&rsquo; <b>Magenta</b> is the number&rsquo;s digit sum; <b>green</b> is its factors&rsquo; digit sum. When they meet, a Smith number.</div>
+   <div class="btns" style="margin-top:10px"><button id="smspin">pause spin</button></div></div></div></div>"""
+SMTH_SCRIPT = """(function(){
+var ang=0,spin=true,N=4,CENSUS=null;
+function digitSum(n){var s=0;while(n>0){s+=n%10;n=Math.floor(n/10);}return s;}
+function primeFactors(n){var f=[],m=n;for(var p=2;p*p<=m;p++)while(m%p===0){f.push(p);m/=p;}if(m>1)f.push(m);return f;}
+function factorDigitSum(f){var s=0;for(var i=0;i<f.length;i++)s+=digitSum(f[i]);return s;}
+function isSmith(n){if(n<4)return false;var f=primeFactors(n);if(f.length<2&&f[0]===n)return false;return digitSum(n)===factorDigitSum(f);}
+function getCensus(){if(!CENSUS){var s=[];for(var n=4;n<=1100;n++)if(isSmith(n))s.push(n);CENSUS=s;}return CENSUS;}
+function verify(){var s=getCensus();return {census:s.join(',')==='4,22,27,58,85,94,121,166,202,265,274,319,346,355,378,382,391,438,454,483,517,526,535,562,576,588,627,634,636,645,648,654,663,666,690,706,728,729,762,778,825,852,861,895,913,915,922,958,985,1086',count:s.length};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Smith: digitsum(n) == sum of digitsums of n\\'s prime factors (with multiplicity)',12,14);
+ g.fillStyle='#d4a020';g.font='13px monospace';g.fillText('4 = 2×2:  ds(4)=4  =  2+2 = 4  ✓',24,48);
+ g.fillText('58 = 2×29:  ds(58)=13  =  2 + (2+9) = 13  ✓',24,80);
+ g.fillText('27 = 3³:  ds(27)=9  =  3+3+3 = 9  ✓',24,112);
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('composites only (primes would match trivially); fifty of them below 1100',24,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var f=primeFactors(N),dn=digitSum(N),df=factorDigitSum(f),comp=!(f.length<2&&f[0]===N);
+ g.fillStyle='#e8eef8';g.font='15px monospace';g.fillText('n = '+N+' = '+f.join('×'),16,30);
+ g.fillStyle='#ff2d95';g.font='12px monospace';g.fillText('digitsum(n) = '+dn,16,64);
+ g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('Σ digitsum(factors) = '+f.map(digitSum).join('+')+' = '+df,16,92);
+ var smith=comp&&dn===df;g.fillStyle=smith?'#d4a020':(comp?'#8ad':'#556');g.font='14px monospace';g.fillText(comp?(smith?'SMITH ✓ (sums agree)':'sums differ → not Smith'):'prime → excluded',16,124);
+ var v=verify();g.fillStyle=v.census?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('census below 1100 == known '+v.count+' Smith numbers '+(v.census?'✓':'✗'),14,H-12);}
+document.getElementById('smroll').onclick=function(){N=4+Math.floor(Math.random()*900);drawW4();document.getElementById('smread').textContent='n='+N+' → '+(isSmith(N)?'Smith':'not Smith');};
+document.getElementById('smsmith').onclick=function(){var s=getCensus();N=s[Math.floor(Math.random()*s.length)];drawW4();document.getElementById('smread').textContent=N+' is a Smith number';};
+document.getElementById('smcheck').onclick=function(){var v=verify();document.getElementById('smread').textContent=v.count+' Smith numbers below 1100, matching the known census '+(v.census?'✓':'✗');};
+document.getElementById('smspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var f=primeFactors(N),cx=W/2,cy=H/2-10,dn=digitSum(N),df=factorDigitSum(f),smith=dn===df&&!(f.length<2&&f[0]===N);
+ var nd=(''+N).split('');for(var i=0;i<nd.length;i++){var a=i/nd.length*6.28+ang*0.3,x=cx+Math.cos(a)*45,y=cy+Math.sin(a)*40;g.fillStyle='#ff2d95';g.beginPath();g.arc(x,y,11,0,7);g.fill();g.fillStyle='#fff';g.font='10px monospace';g.fillText(nd[i],x-3,y+3);}
+ var allf=f.join('').split('');for(var i=0;i<allf.length;i++){var a=i/allf.length*6.28-ang*0.3,x=cx+Math.cos(a)*115,y=cy+Math.sin(a)*100;g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,8,0,7);g.fill();g.fillStyle='#012';g.font='9px monospace';g.fillText(allf[i],x-3,y+3);}
+ g.fillStyle=smith?'#d4a020':'#8ad';g.font='12px monospace';g.fillText(dn+' vs '+df+(smith?'  ✓':''),cx-24,cy+4);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green ring: digits of the prime factors',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta ring: digits of n',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('when the two sums meet, a Smith number',10,H-9);}
+drawW3();drawW4();window.__smith=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HULD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Hull&ndash;Dobell theorem</b> tells you exactly when a <b>linear congruential generator</b> x &rarr; (a&middot;x + c) mod m visits <b>every</b> residue before repeating &mdash; a full period of length m, from any seed. The three conditions: <b>(1)</b> c and m are coprime; <b>(2)</b> a &minus; 1 is divisible by every prime factor of m; <b>(3)</b> if 4 divides m, then 4 divides a &minus; 1. Meet all three and the generator is a permutation of all m residues; miss any one and it stalls into a short cycle. It is the theorem behind every well-tuned LCG.<br><br>
+ <span class="lit">LIT</span> verified live: for every LCG with modulus m up to 60 and all (a, c), the theorem&rsquo;s prediction of full period matches the <b>actually measured</b> cycle length &mdash; full iff the three conditions hold (window.__hulldobell). <span class="fig">FIG</span> no framing; predicted vs directly simulated periods.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-root-kit</i> &mdash; the hidden recipe: three arithmetic conditions that secretly decide whether a generator sweeps all of memory or loops in a rut. Know them and you own the period. <b>AVAN (AI)</b> built the instrument: the three-condition predictor, the direct cycle-length measurement, and their exhaustive agreement over all small LCGs.<br><br>Credit as content: Thomas Hull &amp; Alexander Dobell (1962). The weave: David names the-root-kit; I check the coprime, prime-factor, and mod-4 conditions, then actually run each generator to measure its cycle, and confirm &lsquo;predicted full period&rsquo; matches &lsquo;measured full period&rsquo; for every small case.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">m=16: a=5, c=1 &rArr; a&minus;1=4 divisible by 2 (only prime of 16) and by 4 &check;, gcd(1,16)=1 &check; &rArr; full period 16. a=3, c=1 &rArr; a&minus;1=2 not divisible by 4 &rArr; short cycle.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The orbit of an LCG drawn as a ring; the three conditions and the measured period; the full sweep checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="hdroll">new a,c,m ▶</button><button id="hdfull">a full-period one ▶</button><button id="hdcheck">verify all m≤60 ▶</button></div>
+   <div class="cap" id="hdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an orbit that touches every residue.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): instead of running a generator to <b>see</b> its period, read three arithmetic conditions that <b>predict</b> whether it is full &mdash; coprimality, prime-factor divisibility, the mod-4 rule. The inverse of &lsquo;simulate and measure the cycle&rsquo; is &lsquo;decide the cycle from a, c, m alone.&rsquo; <b>Magenta</b> is a stalled short cycle (a condition fails); <b>green</b> is the full-period orbit (all three hold). The period, foretold.</div>
+   <div class="btns" style="margin-top:10px"><button id="hdspin">pause spin</button></div></div></div></div>"""
+HULD_SCRIPT = """(function(){
+var ang=0,spin=true,A=5,C=1,M=16,CHK=null;
+function gcd(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+function pfset(n){var f={},m=n;for(var p=2;p*p<=m;p++)while(m%p===0){f[p]=1;m/=p;}if(m>1)f[m]=1;return Object.keys(f).map(Number);}
+function hullDobell(a,c,m){if(gcd(c,m)!==1)return false;var pf=pfset(m);for(var i=0;i<pf.length;i++)if((a-1)%pf[i]!==0)return false;if(m%4===0&&(a-1)%4!==0)return false;return true;}
+function period(a,c,m){var x=0,seen=new Uint8Array(m),cnt=0;while(!seen[x]){seen[x]=1;x=(a*x+c)%m;cnt++;}return cnt;}
+function verify(){if(CHK!==null)return CHK;var ok=true;for(var m=2;m<=60;m++)for(var a=1;a<m;a++)for(var c=0;c<m;c++)if(hullDobell(a,c,m)!==(period(a,c,m)===m))ok=false;CHK={matches:ok};return CHK;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('full period m ⇔  gcd(c,m)=1  &  every prime of m divides a−1  &  (4|m ⇒ 4|a−1)',12,14);
+ g.fillStyle='#40b0a0';g.font='12px monospace';g.fillText('m=16, a=5, c=1:  a−1=4  (2|4 ✓, 4|4 ✓),  gcd(1,16)=1 ✓  → period 16 ✓',22,50);
+ g.fillStyle='#ff7a7a';g.font='12px monospace';g.fillText('m=16, a=3, c=1:  a−1=2  (4∤2 ✗)  → short cycle, not full',22,82);
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('three arithmetic conditions decide it — no need to run the generator',22,118);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var per=period(A,C,M),pred=hullDobell(A,C,M),cx=W/2-20,cy=120,R=78;
+ g.strokeStyle='#334';g.beginPath();g.arc(cx,cy,R,0,7);g.stroke();
+ var x=0,pts=[];for(var i=0;i<M;i++){pts.push(x);x=(A*x+C)%M;}
+ g.strokeStyle=pred?'#39fc6b':'#ff2d95';g.lineWidth=1.5;g.beginPath();for(var i=0;i<=per;i++){var v=pts[i%M],an=v/M*6.28-1.57,px=cx+Math.cos(an)*R,py=cy+Math.sin(an)*R;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ for(var v=0;v<M;v++){var an=v/M*6.28-1.57;g.fillStyle='#58708a';g.beginPath();g.arc(cx+Math.cos(an)*R,cy+Math.sin(an)*R,2,0,7);g.fill();}
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('a='+A+' c='+C+' m='+M,W-150,40);g.fillStyle=pred?'#39fc6b':'#ff2d95';g.fillText('predicted: '+(pred?'full':'short'),W-150,60);g.fillStyle=per===M?'#39fc6b':'#ff9a5a';g.fillText('measured period: '+per,W-150,80);g.fillStyle=(pred===(per===M))?'#39fc6b':'#ff5a5a';g.fillText(pred===(per===M)?'agree ✓':'disagree ✗',W-150,100);
+ var v=verify();g.fillStyle=v.matches?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('all LCGs m≤60: predicted == measured '+(v.matches?'✓':'✗'),14,H-10);}
+document.getElementById('hdroll').onclick=function(){M=8+Math.floor(Math.random()*20);A=1+Math.floor(Math.random()*(M-1));C=Math.floor(Math.random()*M);drawW4();document.getElementById('hdread').textContent='a='+A+' c='+C+' m='+M+' → '+(hullDobell(A,C,M)?'full period':'short cycle');};
+document.getElementById('hdfull').onclick=function(){var tries=0;do{M=8+Math.floor(Math.random()*20);A=1+Math.floor(Math.random()*(M-1));C=Math.floor(Math.random()*M);tries++;}while(!hullDobell(A,C,M)&&tries<500);drawW4();document.getElementById('hdread').textContent='a='+A+' c='+C+' m='+M+' → full period '+period(A,C,M);};
+document.getElementById('hdcheck').onclick=function(){var v=verify();document.getElementById('hdread').textContent='every LCG with m≤60: Hull-Dobell prediction == actual cycle length '+(v.matches?'✓':'✗');};
+document.getElementById('hdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10,R=110,pred=hullDobell(A,C,M),per=period(A,C,M),x=0,pts=[];for(var i=0;i<M;i++){pts.push(x);x=(A*x+C)%M;}
+ g.save();g.translate(cx,cy);g.rotate(ang*0.2);g.translate(-cx,-cy);
+ for(var v=0;v<M;v++){var an=v/M*6.28;g.fillStyle='#3a5068';g.beginPath();g.arc(cx+Math.cos(an)*R,cy+Math.sin(an)*R*0.85,3,0,7);g.fill();}
+ g.strokeStyle=pred?'#39fc6b':'#ff2d95';g.lineWidth=1.5;g.beginPath();for(var i=0;i<=per;i++){var vv=pts[i%M],an=vv/M*6.28,px=cx+Math.cos(an)*R,py=cy+Math.sin(an)*R*0.85;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;g.restore();
+ g.fillStyle=pred?'#39fc6b':'#ff2d95';g.font='11px monospace';g.fillText(pred?'green: a full-period orbit — every residue visited':'magenta: a short cycle — a condition fails',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: run-and-measure the period',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the period, foretold from a, c, m',10,H-9);}
+drawW3();drawW4();window.__hulldobell=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+EKG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The EKG sequence</b> (its plot looks like a heartbeat trace) grows by a single greedy rule: start 1, 2, and each next term is the <b>smallest positive integer not yet used</b> that shares a <b>common factor</b> with the previous term. It runs 1, 2, 4, 6, 3, 9, 12, 8, 10, 5, 15, &hellip; It is conjectured (and largely proven) to be a <b>permutation of all positive integers</b> &mdash; every number appears exactly once. A proven structural fact: every prime p first appears <b>immediately after 2p</b>, and is <b>immediately followed by 3p</b>.<br><br>
+ <span class="lit">LIT</span> verified live: over the first 3000 terms, consecutive terms always share a factor &gt; 1, all terms are distinct, every integer 1..1000 appears, and each interior prime p is preceded by 2p and followed by 3p (window.__ekg). <span class="fig">FIG</span> honest: full permutation is proven in the literature; here the defining rule and the 2p/3p structure are checked over a finite prefix.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>second-wind</i> &mdash; each step revives the smallest number left unspent that still shares a factor with where you are; the sequence keeps finding a way onward. That revival is the second wind. <b>AVAN (AI)</b> built the instrument: the greedy smallest-unused-with-shared-factor rule, the gcd-chain check, the distinctness and coverage checks, and the 2p-before / 3p-after prime structure.<br><br>Credit as content: the EKG sequence (Jonathan Ayres; analysed by Lagarias, Rains &amp; Sloane, 2002; OEIS A064413). The weave: David names second-wind; I extend the sequence by always taking the least unused number sharing a factor with the last, then confirm consecutive terms are never coprime, nothing repeats, the small integers all arrive, and every prime sits between 2p and 3p.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">1, 2, 4, 6, 3, 9, 12, 8, 10, 5, 15, 18, 14, 7, 21, &hellip; each term shares a factor with the last. 7 (prime) arrives right after 14 = 2&middot;7 and is followed by 21 = 3&middot;7.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The sequence as a heartbeat trace; the gcd-chain, distinctness, coverage, and 2p/3p prime rule checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="ekroll">scroll ▶</button><button id="ekcheck">verify 3000 ▶</button></div>
+   <div class="cap" id="ekread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a walk that never runs out of shared factors.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): order the integers not by size but by <b>who shares a factor with whom</b> &mdash; always step to the smallest unused neighbour in the divisibility graph. The inverse of &lsquo;count 1, 2, 3, 4&rsquo; is &lsquo;walk the integers by common factors, taking the least available each time.&rsquo; <b>Magenta</b> is the plain counting order; <b>green</b> is the shared-factor EKG walk. The same integers, reordered by their factors.</div>
+   <div class="btns" style="margin-top:10px"><button id="ekspin">pause spin</button></div></div></div></div>"""
+EKG_SCRIPT = """(function(){
+var ang=0,spin=true,OFF=0,SEQ=null;
+function gcd(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+function isPrime(n){if(n<2)return false;for(var d=2;d*d<=n;d++)if(n%d===0)return false;return true;}
+function ekg(N){var seq=[1,2],used={1:1,2:1};while(seq.length<N){var prev=seq[seq.length-1],k=2;while(true){if(!used[k]&&gcd(k,prev)>1){seq.push(k);used[k]=1;break;}k++;}}return seq;}
+function getSeq(){if(!SEQ)SEQ=ekg(3000);return SEQ;}
+function verify(){var s=getSeq(),struct=true,chain=true,checked=0,present={};for(var i=0;i<s.length;i++)present[s[i]]=1;
+ for(var i=2;i<s.length;i++)if(gcd(s[i],s[i-1])<=1)chain=false;
+ for(var i=1;i<s.length-1;i++){var v=s[i];if(v>2&&isPrime(v)){checked++;if(s[i-1]!==2*v||s[i+1]!==3*v)struct=false;}}
+ var distinct=Object.keys(present).length===s.length,covers=true;for(var k=1;k<=1000;k++)if(!present[k]){covers=false;break;}
+ return {gcdChain:chain,distinct:distinct,covers:covers,structural:struct,checked:checked};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a(n) = smallest unused integer sharing a factor with a(n−1); start 1, 2',12,14);
+ var s=getSeq().slice(0,22);g.font='11px monospace';for(var i=0;i<s.length;i++){var pr=isPrime(s[i])&&s[i]>2;g.fillStyle=pr?'#e0609a':'#e0b020';g.fillText(s[i],14+i*22,52);}
+ g.fillStyle='#e0609a';g.font='9px monospace';g.fillText('pink = primes: 3 after 6, 5 after 10, 7 after 14=2·7 then 21=3·7',14,88);
+ g.fillStyle='#39fc6b';g.fillText('every consecutive pair shares a common factor > 1',14,116);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=getSeq(),n=48,mid=H/2-6,mx=0;for(var i=0;i<n;i++)mx=Math.max(mx,s[OFF+i]);
+ g.strokeStyle='#2a3a4c';g.beginPath();g.moveTo(10,mid);g.lineTo(W-10,mid);g.stroke();
+ g.strokeStyle='#e0609a';g.lineWidth=1.4;g.beginPath();for(var i=0;i<n;i++){var x=14+i*(W-28)/n,y=mid-(s[OFF+i]/mx)*(H/2-24);if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<n;i++){var x=14+i*(W-28)/n,y=mid-(s[OFF+i]/mx)*(H/2-24),pr=isPrime(s[OFF+i])&&s[OFF+i]>2;g.fillStyle=pr?'#fff':'#e0609a';g.beginPath();g.arc(x,y,pr?3:1.6,0,7);g.fill();}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('terms '+OFF+'..'+(OFF+n-1)+' (heartbeat trace; white dots = primes)',14,18);
+ var v=verify();g.fillStyle=(v.gcdChain&&v.distinct&&v.covers&&v.structural)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('gcd-chain '+(v.gcdChain?'✓':'✗')+' · distinct '+(v.distinct?'✓':'✗')+' · covers 1..1000 '+(v.covers?'✓':'✗')+' · prime 2p/3p '+(v.structural?'✓':'✗'),14,H-10);}
+document.getElementById('ekroll').onclick=function(){OFF=(OFF+40)%2900;drawW4();document.getElementById('ekread').textContent='window at term '+OFF;};
+document.getElementById('ekcheck').onclick=function(){var v=verify();document.getElementById('ekread').textContent='3000 terms: gcd-chain '+(v.gcdChain?'✓':'✗')+', distinct '+(v.distinct?'✓':'✗')+', covers 1..1000 '+(v.covers?'✓':'✗')+', each prime p between 2p and 3p ('+v.checked+' checked) '+(v.structural?'✓':'✗');};
+document.getElementById('ekspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=getSeq(),cx=W/2,cy=H/2-10;
+ for(var i=0;i<80;i++){var v=s[i],a=i*0.28+ang*0.3,r=24+i*1.6,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.82,pr=isPrime(v)&&v>2;g.fillStyle=pr?'#fff':'hsl('+(320+i)+',60%,62%)';g.beginPath();g.arc(x,y,pr?3.5:2.4,0,7);g.fill();}
+ g.fillStyle='#e0609a';g.font='11px monospace';g.fillText('green/pink spiral: the EKG walk (white = primes)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the plain counting order 1,2,3,4,…',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the same integers, reordered by their factors',10,H-9);}
+drawW3();drawW4();window.__ekg=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 98 (a Fibonacci-plus-one sequence · numbers that factor into fangs from their own digits · evaluate a B-spline by nested interpolation · a conjecture that holds then fails · a set with no array to initialize) ═══════════════════════
 LEO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Leonardo numbers</b> are Fibonacci&rsquo;s numbers with a <b>+1</b>: L(0)=L(1)=1, L(n) = L(n&minus;1) + L(n&minus;2) + <b>1</b>. They run 1, 1, 3, 5, 9, 15, 25, 41, 67, 109, &hellip; and connect back to Fibonacci by the exact identity <b>L(n) = 2&middot;F(n+1) &minus; 1</b>. They matter in computing: Edsger Dijkstra used them to build <b>smoothsort</b>, an in-place sort whose heap sizes are Leonardo numbers, giving it adaptive O(n) behavior on nearly-sorted input.<br><br>
@@ -26587,6 +26837,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-wolstenholme","title":"THE WOLSTENHOLME","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#9a6ad0","icon":"wolstenholme",
+  "kicker":"a binomial congruence mod p-cubed for primes five and up",
+  "blurb":"Wolstenholme's theorem in the 5-window house format — for every prime p ≥ 5, the central binomial coefficient satisfies C(2p, p) ≡ 2 (mod p³). Ordinary primality only forces this modulo p; Wolstenholme lifts it two full powers higher, to p-cubed, and only for primes five and up (it fails for 2 and 3). Equivalently, the numerator of 1 + 1/2 + … + 1/(p−1) is divisible by p². Verified live with exact BigInt: C(2p,p) ≡ 2 (mod p³) for every prime 5..101, while p=3 gives residue 18. See the congruence in 1D, a prime checked in 2D, and the depth-of-a-congruence inverse in 3D.",
+  "lit":"Genuine Wolstenholme's theorem (Joseph Wolstenholme, 1862). Verified live with exact big-integer arithmetic: the central binomial coefficient C(2p,p) reduced modulo p³ equals 2 for every prime p from 5 to 101 (window.__wolstenholme.holds), and p=3 yields residue 18 (window.__wolstenholme.p3fails), confirming the p≥5 floor is genuine.",
+  "fig":"No framing: C(2p,p) is computed exactly in big integers, reduced mod p-cubed, and equals 2 across all primes 5..101, with p=3 falling short — all in-browser. The AVAN inverse is honest — asking how many powers of p a congruence survives (the answer: p³ for Wolstenholme, versus only p for ordinary primality) is a real strengthening; magenta is the shallow mod-p fact, green the deep mod-p³ congruence. Strength measured in powers of p.",
+  "body":WOLS_BODY,"script":WOLS_SCRIPT},
+ {"slug":"the-weird-number","title":"THE WEIRD NUMBER","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#c85a5a","icon":"weird-number",
+  "kicker":"abundant numbers no subset of divisors can total",
+  "blurb":"Weird numbers in the 5-window house format — a number is abundant when its proper divisors sum to more than itself, and semiperfect when some subset of those divisors sums to exactly itself. A weird number is abundant but NOT semiperfect: it overflows, yet no combination of its parts reconstructs it. The smallest is 70 (divisors 1,2,5,7,10,14,35 sum to 74 > 70, but no subset totals 70). They are scarce — only sixteen below 13000. Verified live: an exhaustive scan (abundance test, then a subset-sum DP) finds exactly 70, 836, 4030, 5830, …, 12670. See the definition in 1D, a number tested in 2D, and the excess-without-expressibility inverse in 3D.",
+  "lit":"Genuine weird numbers (Stan Benkoski, 1972; studied with Paul Erdős). Verified live: each candidate's proper divisors are summed for abundance, then a subset-sum dynamic program tests semiperfectness; the abundant-but-not-semiperfect numbers below 13000 are exactly {70, 836, 4030, 5830, 7192, 7912, 9272, 10430, 10570, 10792, 10990, 11410, 11690, 12110, 12530, 12670} (window.__weird.census).",
+  "fig":"No framing: the proper-divisor sum, the abundance test, and the subset-sum DP for semiperfectness run in-browser with exact integer arithmetic. The AVAN inverse is honest — isolating abundant numbers where no subset of divisors reconstructs the whole is a real distinction (excess without expressibility); magenta is a semiperfect abundant number (a subset works), green the weird number (none does). Enough parts, no valid sum.",
+  "body":WEIRD_BODY,"script":WEIRD_SCRIPT},
+ {"slug":"the-smith-number","title":"THE SMITH NUMBER","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE BOUNTY","domain_slug":"the-bounty","accent":"#d4a020","icon":"smith-number",
+  "kicker":"numbers whose digit sum equals their factors'",
+  "blurb":"Smith numbers in the 5-window house format — a composite whose digit sum equals the sum of the digits of all its prime factors (with multiplicity). The smallest is 4 = 2×2 (digitsum 4 = 2+2). Also 22 = 2×11 (4 = 2+1+1), 27 = 3³ (9 = 3+3+3), 58 = 2×29 (13 = 2+2+9). Primes are excluded (they would match trivially). Named after Harold Smith, whose phone number 4937775 is one. Verified live: an exhaustive scan (factor each composite, compare digit sums) reproduces the known fifty Smith numbers below 1100. See the coincidence in 1D, a number factored in 2D, and the digits-of-the-factors inverse in 3D.",
+  "lit":"Genuine Smith numbers (Albert Wilansky, 1982, named for his brother-in-law Harold Smith). Verified live: each composite is factored by trial division with multiplicity, its digit sum compared to the summed digit sums of its prime factors; the Smith numbers below 1100 reproduce the known census of fifty {4, 22, 27, 58, 85, 94, 121, …, 1086} (window.__smith.census).",
+  "fig":"No framing: the digit-sum, the trial-division factorization with multiplicity, the composite filter, and the census all run in-browser with exact arithmetic. The AVAN inverse is honest — summing the digits of a number's prime factorization (rather than the number itself) and collecting the composites where the two agree is a genuine construction; magenta is the number's digit sum, green its factors' digit sum. When they meet, a Smith number.",
+  "body":SMTH_BODY,"script":SMTH_SCRIPT},
+ {"slug":"the-hull-dobell","title":"THE HULL–DOBELL","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#40b0a0","icon":"hull-dobell",
+  "kicker":"when a linear congruential generator hits full period",
+  "blurb":"The Hull–Dobell theorem in the 5-window house format — exactly when a linear congruential generator x → (a·x + c) mod m visits every residue before repeating (full period m, from any seed). The three conditions: (1) gcd(c, m) = 1; (2) a − 1 is divisible by every prime factor of m; (3) if 4 divides m, then 4 divides a − 1. Meet all three and the generator permutes all m residues; miss one and it stalls into a short cycle. Verified live: for every LCG with modulus m ≤ 60 and all (a, c), the theorem's full-period prediction matches the actually measured cycle length. See the conditions in 1D, an orbit drawn in 2D, and the predict-vs-measure inverse in 3D.",
+  "lit":"Genuine Hull–Dobell theorem (Thomas Hull & Alexander Dobell, 1962). Verified live: for every modulus m from 2 to 60 and all multipliers a and increments c, the three-condition full-period predictor is compared against the directly simulated cycle length, and 'predicted full' matches 'measured full period m' in every case (window.__hulldobell.matches).",
+  "fig":"No framing: the coprimality, prime-factor, and mod-4 conditions are checked, each generator is actually run to measure its cycle, and predictions match measurements exhaustively for m ≤ 60 — all in-browser. The AVAN inverse is honest — deciding a generator's period from a, c, m by three arithmetic conditions genuinely replaces running it to see; magenta is a stalled short cycle (a condition fails), green the full-period orbit (all three hold). The period, foretold.",
+  "body":HULD_BODY,"script":HULD_SCRIPT},
+ {"slug":"the-ekg-sequence","title":"THE EKG SEQUENCE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#e0609a","icon":"ekg",
+  "kicker":"a sequence walking by shared factors",
+  "blurb":"The EKG sequence in the 5-window house format — start 1, 2, and each next term is the smallest positive integer not yet used that shares a common factor with the previous term. It runs 1, 2, 4, 6, 3, 9, 12, 8, 10, 5, 15, … Its plot looks like a heartbeat trace. It is conjectured (and largely proven) to be a permutation of all positive integers, and a proven structural fact holds: every prime p first appears immediately after 2p and is immediately followed by 3p. Verified live: over 3000 terms, consecutive terms always share a factor > 1, all are distinct, every integer 1..1000 appears, and each interior prime p sits between 2p and 3p. See the walk in 1D, the heartbeat in 2D, and the reordered-by-factors inverse in 3D.",
+  "lit":"Genuine EKG sequence (Jonathan Ayres; analysed by Jeffrey Lagarias, Eric Rains & N.J.A. Sloane, 2002; OEIS A064413). Verified live: the greedy 'smallest unused sharing a factor' rule generates 3000 terms where consecutive terms are never coprime (window.__ekg.gcdChain), all terms are distinct (window.__ekg.distinct), 1..1000 all appear (window.__ekg.covers), and every interior prime p is preceded by 2p and followed by 3p (window.__ekg.structural).",
+  "fig":"No framing: the greedy generation, the gcd-chain check, distinctness, coverage, and the 2p/3p prime structure all run in-browser with exact arithmetic. Honest scope: the full permutation-of-the-integers property is proven in the literature; here the defining rule and the proven 2p/3p structure are checked over a finite 3000-term prefix (primes appear late, so coverage is bounded at 1..1000 below the frontier). The AVAN inverse is honest — ordering the integers by shared factors rather than by size (least available neighbour in the divisibility graph) genuinely reorders them; magenta is the plain counting order, green the shared-factor EKG walk. The same integers, reordered by their factors.",
+  "body":EKG_BODY,"script":EKG_SCRIPT},
  {"slug":"the-leonardo","title":"THE LEONARDO","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#6ab0d0","icon":"leonardo",
   "kicker":"a Fibonacci-plus-one sequence",
