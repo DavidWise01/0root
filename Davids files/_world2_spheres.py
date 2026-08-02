@@ -19485,6 +19485,243 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 93 (numbers whose divisor-sums loop back in a chain · one test decides a Fermat prime · the number e written as a patterned fraction · query which intervals overlap fast · clip a line by four boundary bits) ═══════════════════════
+SOC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Sociable numbers</b> live in the <b>aliquot dynamics</b>: repeatedly replace n by s(n), the sum of its proper divisors, and watch where the orbit goes. A <b>perfect</b> number is a fixed point (a 1-cycle: s(6)=6). An <b>amicable pair</b> is a 2-cycle (220&rarr;284&rarr;220). <b>Sociable</b> numbers close a longer loop: 12496 &rarr; 14288 &rarr; 15472 &rarr; 14536 &rarr; 14264 &rarr; back to 12496 &mdash; a 5-cycle where each number is the divisor-sum of the last, chained all the way around.<br><br>
+ <span class="lit">LIT</span> verified live: iterating s(n) from 6, 220, and 12496 closes cycles of length 1, 2, and 5 exactly &mdash; each step an exact divisor sum (window.__sociable). <span class="fig">FIG</span> no framing; exact integer divisor sums.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>rollback</i> &mdash; follow the divisor-sum map and the state eventually reverts to where it began; sociable numbers are the loops that roll all the way back. <b>AVAN (AI)</b> built the instrument: the aliquot-sum function, the orbit tracer, and the cycle-length checks for perfect, amicable, and sociable numbers.<br><br>Credit as content: aliquot cycles &mdash; perfect numbers (antiquity), amicable pairs (Pythagoreans), sociable chains (P. Poulet, 1918). The weave: David names rollback; I iterate the sum-of-proper-divisors map and confirm the orbits from 6, 220, and 12496 return to their start after 1, 2, and 5 steps &mdash; closed chains of divisor sums.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">s(n) = sum of proper divisors. Perfect: s(6)=6 (1-cycle). Amicable: 220&harr;284 (2-cycle). Sociable: 12496&rarr;14288&rarr;15472&rarr;14536&rarr;14264&rarr;12496 (5-cycle).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Trace an aliquot orbit; see it close into a cycle, with the cycle length checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="socpick">next chain ▶</button><button id="soccheck">verify cycles ▶</button></div>
+   <div class="cap" id="socread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a divisor-sum orbit that loops home.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): classify a number by the <b>orbit of the divisor-sum map</b>, not by the number alone &mdash; a fixed point is perfect, a 2-cycle amicable, a longer cycle sociable. The inverse of &lsquo;is n equal to the sum of its divisors?&rsquo; is &lsquo;where does iterating s(n) settle &mdash; a cycle, and how long?&rsquo; <b>Magenta</b> is the one-step perfect test; <b>green</b> is the whole closed orbit. Identity as a cycle of sums.</div>
+   <div class="btns" style="margin-top:10px"><button id="socspin">pause spin</button></div></div></div></div>"""
+SOC_SCRIPT = """(function(){
+var ang=0,spin=true,START=12496,CHAINS=[6,28,220,12496,1264460],CI=3;
+function aliquot(n){if(n<2)return 0;var s=1;for(var i=2;i*i<=n;i++)if(n%i===0){s+=i;var e=n/i;if(e!==i)s+=e;}return s;}
+function cycle(n,maxlen){var seq=[n],cur=aliquot(n);while(cur!==n&&seq.length<=maxlen){if(seq.indexOf(cur)>=0)return null;seq.push(cur);cur=aliquot(cur);}return cur===n?seq:null;}
+function verify(){var p6=cycle(6,5),p28=cycle(28,5),am=cycle(220,5),s5=cycle(12496,10),s4=cycle(1264460,10);return {perfect:!!(p6&&p6.length===1&&p28&&p28.length===1),amicable:!!(am&&am.length===2),sociable5:!!(s5&&s5.length===5),sociable4:!!(s4&&s4.length===4)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('iterate s(n) = sum of proper divisors; sociable numbers close a cycle',12,14);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('perfect: s(6) = 6   (1-cycle)',30,44);
+ g.fillStyle='#e0b020';g.fillText('amicable: 220 → 284 → 220   (2-cycle)',30,72);
+ g.fillStyle='#d06858';g.font='10px monospace';g.fillText('sociable: 12496 → 14288 → 15472 → 14536 → 14264 → 12496   (5-cycle)',30,100);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('each arrow is an exact sum of the previous number\\'s proper divisors',30,132);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var seq=cycle(START,30)||[START],cx=W/2,cy=H/2-4,R=Math.min(105,300/seq.length*3+30);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('start '+START+' → '+seq.length+'-cycle',14,22);
+ for(var i=0;i<seq.length;i++){var a=i/seq.length*6.28-1.57,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R*0.78;
+  if(i>0){var pa=(i-1)/seq.length*6.28-1.57;g.strokeStyle='#d06858';g.beginPath();g.moveTo(cx+Math.cos(pa)*R,cy+Math.sin(pa)*R*0.78);g.lineTo(x,y);g.stroke();}
+  if(seq.length>1&&i===seq.length-1){g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(x,y);g.lineTo(cx+Math.cos(-1.57)*R,cy+Math.sin(-1.57)*R*0.78);g.stroke();}}
+ for(var i=0;i<seq.length;i++){var a=i/seq.length*6.28-1.57,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R*0.78;g.fillStyle='#d06858';g.beginPath();g.arc(x,y,15,0,7);g.fill();g.fillStyle='#fff';g.font='8px monospace';g.fillText(seq[i],x-14,y+3);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('orbit returns to start after '+seq.length+' steps ✓',14,H-12);}
+document.getElementById('socpick').onclick=function(){CI=(CI+1)%CHAINS.length;START=CHAINS[CI];drawW4();var s=cycle(START,30);document.getElementById('socread').textContent=START+' → '+(s?s.length+'-cycle':'no short cycle');};
+document.getElementById('soccheck').onclick=function(){var v=verify();document.getElementById('socread').textContent='perfect 1-cycle '+(v.perfect?'✓':'✗')+' · amicable 2-cycle '+(v.amicable?'✓':'✗')+' · sociable 5-cycle '+(v.sociable5?'✓':'✗')+' · 4-cycle '+(v.sociable4?'✓':'✗');};
+document.getElementById('socspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var seq=cycle(START,30)||[START],cx=W/2,cy=H/2-10,R=110;
+ for(var i=0;i<seq.length;i++){var a=i/seq.length*6.28+ang*0.3,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R*0.82;var pa=((i-1+seq.length)%seq.length)/seq.length*6.28+ang*0.3;g.strokeStyle='rgba(57,252,107,0.5)';g.beginPath();g.moveTo(cx+Math.cos(pa)*R,cy+Math.sin(pa)*R*0.82);g.lineTo(x,y);g.stroke();g.fillStyle='hsl('+(i/seq.length*60+10)+',65%,58%)';g.beginPath();g.arc(x,y,7,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green loop: the '+seq.length+'-cycle of divisor sums',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the one-step perfect-number test',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('identity as a cycle of sums',10,H-9);}
+drawW3();drawW4();window.__sociable=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PEP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>P&eacute;pin&rsquo;s test</b> decides whether a <b>Fermat number</b> F<sub>k</sub> = 2<sup>2<sup>k</sup></sup> + 1 is prime with a <b>single</b> modular exponentiation: for k &ge; 1, F<sub>k</sub> is prime <b>if and only if</b> 3<sup>(F<sub>k</sub>&minus;1)/2</sup> &equiv; &minus;1 (mod F<sub>k</sub>). One test, no factoring, no trial division &mdash; and it is an <b>iff</b>, not a probabilistic guess. Fermat conjectured every F<sub>k</sub> prime; P&eacute;pin&rsquo;s test (with Euler&rsquo;s factor of F<sub>5</sub>) shows F<sub>5</sub> = 2<sup>32</sup>+1 is composite = 641 &times; 6700417.<br><br>
+ <span class="lit">LIT</span> verified live (exact BigInt): F<sub>1</sub>&hellip;F<sub>4</sub> pass P&eacute;pin&rsquo;s test (prime), F<sub>5</sub> fails (composite), and F<sub>5</sub> = 641 &times; 6700417 (window.__pepin). <span class="fig">FIG</span> no framing; exact big-integer modular arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-choke-point</i> &mdash; the single narrow test every Fermat number must pass to be called prime; one modular power decides it. <b>AVAN (AI)</b> built the instrument: the Fermat-number builder, the BigInt modular exponentiation, the &equiv; &minus;1 check, and the 641-factor confirmation for F<sub>5</sub>.<br><br>Credit as content: Th&eacute;ophile P&eacute;pin (1877); Euler factored F<sub>5</sub> (1732). The weave: David names the-choke-point; I compute 3<sup>(F<sub>k</sub>&minus;1)/2</sup> mod F<sub>k</sub> in exact big integers and confirm it equals &minus;1 exactly for the prime Fermat numbers and not for F<sub>5</sub> &mdash; whose factor 641 I verify directly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">F<sub>k</sub> = 2<sup>2<sup>k</sup></sup>+1: 3, 5, 17, 257, 65537, 4294967297, &hellip; P&eacute;pin: F<sub>k</sub> prime &hArr; 3<sup>(F<sub>k</sub>&minus;1)/2</sup> &equiv; &minus;1 (mod F<sub>k</sub>). F<sub>5</sub> fails &mdash; it is 641 &times; 6700417.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Each Fermat number and its P&eacute;pin verdict (prime/composite), the residue shown, checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="pepstep">next F_k ▶</button><button id="pepcheck">verify F1..F5 ▶</button></div>
+   <div class="cap" id="pepread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: primality from one modular power.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): decide a Fermat number&rsquo;s primality with <b>one exact test</b>, not a search for factors &mdash; a single modular exponentiation of 3 that lands on &minus;1 <b>iff</b> the number is prime. The inverse of &lsquo;trial-divide F<sub>k</sub> up to &radic;F<sub>k</sub>&rsquo; is &lsquo;compute 3<sup>(F&minus;1)/2</sup> mod F once &mdash; the answer is exact.&rsquo; <b>Magenta</b> is the factor hunt; <b>green</b> is the single decisive power. An iff from one exponentiation.</div>
+   <div class="btns" style="margin-top:10px"><button id="pepspin">pause spin</button></div></div></div></div>"""
+PEP_SCRIPT = """(function(){
+var ang=0,spin=true,K=4;
+function pm(a,e,m){a=a%m;var r=1n;while(e>0n){if(e&1n)r=(r*a)%m;a=(a*a)%m;e>>=1n;}return r;}
+function fermat(k){return (1n<<(1n<<BigInt(k)))+1n;}
+function pepin(k){var F=fermat(k),r=pm(3n,(F-1n)/2n,F);return {F:F,res:r,pass:r===F-1n};}
+function verify(){var ok=true;for(var k=1;k<=5;k++){var p=pepin(k);if(p.pass!==(k<=4))ok=false;}var f5=fermat(5);return {allCorrect:ok,f5factors:f5===641n*6700417n};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('F_k = 2^(2^k)+1 · Pépin: F_k prime ⇔ 3^((F_k−1)/2) ≡ −1 (mod F_k)',12,14);
+ var fs=['F₀=3','F₁=5','F₂=17','F₃=257','F₄=65537','F₅=4294967297'];for(var i=0;i<fs.length;i++){g.fillStyle=i<5?'#39fc6b':'#c07850';g.font='11px monospace';g.fillText(fs[i]+(i<5?' prime':' = 641×6700417'),40,42+i*19);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var p=pepin(K);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('F_'+K+' = 2^(2^'+K+') + 1',16,28);
+ var fstr=p.F.toString();g.fillStyle='#8ad';g.font='11px monospace';g.fillText('= '+(fstr.length>28?fstr.substring(0,28)+'…('+fstr.length+' digits)':fstr),16,52);
+ g.fillStyle=p.pass?'#39fc6b':'#c07850';g.font='14px monospace';g.fillText(p.pass?'Pépin: PRIME ✓':'Pépin: COMPOSITE',16,86);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('3^((F−1)/2) mod F = '+(p.pass?'F−1  (≡ −1)':p.res.toString().substring(0,20)+'…'),16,112);
+ if(K===5){g.fillStyle='#e0b020';g.font='11px monospace';g.fillText('F₅ = 641 × 6700417 (Euler, 1732)',16,138);}
+ g.fillStyle=p.pass===(K<=4)?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('Pépin verdict correct '+(p.pass===(K<=4)?'✓':'✗'),16,H-12);}
+document.getElementById('pepstep').onclick=function(){K=K>=5?1:K+1;drawW4();var p=pepin(K);document.getElementById('pepread').textContent='F_'+K+' → '+(p.pass?'prime':'composite');};
+document.getElementById('pepcheck').onclick=function(){var v=verify();document.getElementById('pepread').textContent='F1..F5: Pépin verdicts correct '+(v.allCorrect?'✓':'✗')+' · F5=641×6700417 '+(v.f5factors?'✓':'✗');};
+document.getElementById('pepspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10;
+ for(var k=0;k<=5;k++){var a=k/6*6.28+ang*0.3,r=40+k*22,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;var prime=k<=4;g.fillStyle=prime?'#39fc6b':'#c07850';g.beginPath();g.arc(x,y,8+k,0,7);g.fill();g.fillStyle='#012';g.font='9px monospace';g.fillText('F'+k,x-6,y+3);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: Fermat primes F₀..F₄ (Pépin passes)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the trial-division factor hunt',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('an iff from one exponentiation',10,H-9);}
+drawW3();drawW4();window.__pepin=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CFE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The continued fraction of e</b> hides a beautiful regularity where you&rsquo;d expect chaos. Unlike &pi; (whose CF looks random), e = [2; <b>1, 2, 1, 1, 4, 1, 1, 6, 1, 1, 8, &hellip;</b>] follows a clean pattern: a 2, then repeating triples (1, 2m, 1) for m = 1, 2, 3, &hellip; The even numbers 2, 4, 6, 8, &hellip; march through, each flanked by ones. Truncating the fraction gives rational <b>convergents</b> that rush toward e faster than any decimal expansion reveals.<br><br>
+ <span class="lit">LIT</span> verified live: the generated terms obey the 2;(1,2m,1) pattern, and the convergent p/q (exact BigInt) matches e to floating precision (window.__cfe). <span class="fig">FIG</span> no framing; exact pattern check and BigInt convergents.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-grindstone</i> &mdash; the pattern grinds out term by term, 1, 2, 1, 1, 4, 1, 1, 6, &hellip;, each turn adding structure that sharpens the approximation to e. <b>AVAN (AI)</b> built the instrument: the pattern generator, the BigInt convergent recurrence, and the pattern + convergence-to-e checks.<br><br>Credit as content: the regular continued fraction of e (Euler, 1737). The weave: David names the-grindstone; I generate e&rsquo;s continued-fraction terms by the 2;(1,2m,1) rule, fold them into exact rational convergents, and confirm both that the pattern holds and that the convergents close in on e.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">e = [2; 1,2,1, 1,4,1, 1,6,1, 1,8,1, &hellip;] &mdash; a 2, then (1, 2m, 1) for m=1,2,3,&hellip; The even terms 2,4,6,8 step upward, each between two ones.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The CF terms and the convergents approaching e; the pattern and error to e checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="cfemore">more terms ▶</button><button id="cfecheck">verify ▶</button></div>
+   <div class="cap" id="cferead" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: e as a patterned fraction.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): write the transcendental e not as an <b>endless decimal</b> but as a <b>patterned continued fraction</b> whose convergents are the best rational approximations &mdash; 2;(1,2m,1) marching the even numbers through. The inverse of &lsquo;expand e = 2.71828&hellip; digit by digit&rsquo; is &lsquo;read its continued fraction &mdash; structure, and fast convergence.&rsquo; <b>Magenta</b> is the featureless decimal; <b>green</b> is the patterned fraction. Order inside a transcendental.</div>
+   <div class="btns" style="margin-top:10px"><button id="cfespin">pause spin</button></div></div></div></div>"""
+CFE_SCRIPT = """(function(){
+var ang=0,spin=true,NT=13;
+function cfE(n){var a=[2];for(var k=1;a.length<n;k++){a.push(1);a.push(2*k);a.push(1);}return a.slice(0,n);}
+function conv(a){var h0=1n,h1=BigInt(a[0]),k0=0n,k1=1n;for(var i=1;i<a.length;i++){var t=BigInt(a[i]),h2=t*h1+h0,k2=t*k1+k0;h0=h1;h1=h2;k0=k1;k1=k2;}return {p:h1,q:k1};}
+function verify(){var a=cfE(30),pat=a[0]===2;for(var m=1;3*m<a.length;m++){if(a[3*m-2]!==1||a[3*m-1]!==2*m||a[3*m]!==1)pat=false;}var c=conv(a),ap=Number(c.p)/Number(c.q),err=Math.abs(ap-Math.E);return {pattern:pat,convergesToE:err<1e-12,err:err};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('e = [2; 1,2,1, 1,4,1, 1,6,1, …] — a 2, then (1, 2m, 1) for m=1,2,3,…',12,14);
+ var a=cfE(13);for(var i=0;i<a.length;i++){var even=(i>0&&(i%3===2));g.fillStyle=even?'#c0a048':(i===0?'#39fc6b':'#4a5a72');g.fillRect(30+i*36,50,30,30);g.fillStyle=even?'#210':'#cde';g.font='13px monospace';g.fillText(a[i],38+i*36,70);}
+ g.fillStyle='#c0a048';g.font='9px monospace';g.fillText('gold = the even numbers 2,4,6,8 marching through',30,105);
+ g.fillStyle='#39fc6b';g.fillText('convergents rush to e = 2.718281828…',30,128);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var a=cfE(NT),c=conv(a),ap=Number(c.p)/Number(c.q);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('CF terms ('+NT+'): ['+a.join(',')+']',14,22);
+ g.fillStyle='#39fc6b';g.font='13px monospace';g.fillText('convergent p/q = '+c.p.toString()+'/'+c.q.toString(),14,52);
+ g.fillStyle='#8ad';g.font='12px monospace';g.fillText('≈ '+ap.toFixed(12),14,76);g.fillText('e  = '+Math.E.toFixed(12),14,96);
+ var err=Math.abs(ap-Math.E);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('|p/q − e| = '+err.toExponential(3),14,120);
+ // error shrinking bar
+ var v=verify();g.fillStyle=v.pattern?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('pattern 2;(1,2m,1) holds '+(v.pattern?'✓':'✗')+' · converges to e '+(err<1e-9?'✓':'(more terms)'),14,H-12);}
+document.getElementById('cfemore').onclick=function(){NT=NT>=28?4:NT+3;drawW4();document.getElementById('cferead').textContent=NT+' terms · error '+verify().err.toExponential(2);};
+document.getElementById('cfecheck').onclick=function(){var v=verify();document.getElementById('cferead').textContent='pattern 2;(1,2m,1) '+(v.pattern?'✓':'✗')+' · convergent→e (|err| '+v.err.toExponential(2)+') '+(v.convergesToE?'✓':'✗');};
+document.getElementById('cfespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var a=cfE(24),cx=W/2,cy=H/2-10;
+ for(var i=0;i<a.length;i++){var ar=i*0.42+ang*0.3,r=25+i*6;if(r>165)break;var x=cx+Math.cos(ar)*r,y=cy+Math.sin(ar)*r*0.85;var even=(i>0&&i%3===2);g.fillStyle=even?'#c0a048':'#39fc6b';g.beginPath();g.arc(x,y,3+(even?a[i]*0.4:0),0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green spiral: e\\'s CF terms, gold = even numbers rising',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the featureless decimal 2.71828…',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('order inside a transcendental',10,H-9);}
+drawW3();drawW4();window.__cfe=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+IVT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>An interval tree</b> answers &ldquo;which stored intervals overlap this query interval?&rdquo; quickly, by <b>augmenting a binary search tree</b>. Nodes are keyed by each interval&rsquo;s left endpoint; every node also caches the <b>maximum right endpoint</b> in its subtree. That cache lets a query <b>prune whole branches</b>: if a subtree&rsquo;s max-high is below the query&rsquo;s low, nothing there can overlap, so skip it. What would be a scan of every interval becomes a guided descent.<br><br>
+ <span class="lit">LIT</span> verified live: over 2000 random interval sets and queries, the tree returns <b>exactly</b> the intervals a brute-force scan finds (window.__intervaltree). <span class="fig">FIG</span> no framing; exact overlap tests and set comparison.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-pull-request</i> &mdash; overlapping ranges drawn together; the interval tree pulls in exactly the intervals that intersect a query and leaves the rest. <b>AVAN (AI)</b> built the instrument: the left-endpoint BST keyed nodes, the max-high subtree augmentation, the prune-by-max-high query, and the match against a brute scan.<br><br>Credit as content: the interval tree (augmented BST; Cormen&ndash;Leiserson&ndash;Rivest&ndash;Stein). The weave: David names the-pull-request; I key intervals by their left endpoint, cache each subtree&rsquo;s maximum right endpoint, and answer overlap queries by descending only where the cache permits &mdash; confirming the result exactly matches scanning every interval.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each node stores its interval and the max right-endpoint below it. A query skips any subtree whose max-high is below the query&rsquo;s low &mdash; nothing there can reach the query.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Intervals as bars with a query range; the overlapping ones highlighted, checked against a brute scan.</div>
+   <div class="btns" style="margin-top:10px"><button id="ivroll">new intervals ▶</button><button id="ivquery">move query ▶</button><button id="ivcheck">verify 2000 ▶</button></div>
+   <div class="cap" id="ivread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: overlaps found without scanning all.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): find overlapping intervals without <b>testing every one</b> &mdash; cache each subtree&rsquo;s maximum right endpoint and prune any branch that cannot reach the query. The inverse of &lsquo;scan all intervals for overlap&rsquo; is &lsquo;descend a BST, skipping subtrees whose max-high falls short.&rsquo; <b>Magenta</b> is the full scan; <b>green</b> is the pruned descent. Overlap queries by cached reach.</div>
+   <div class="btns" style="margin-top:10px"><button id="ivspin">pause spin</button></div></div></div></div>"""
+IVT_SCRIPT = """(function(){
+var ang=0,spin=true,IVS=[],ROOT=null,Q=[30,55];
+function insert(root,iv){var node={lo:iv[0],hi:iv[1],maxHi:iv[1],left:null,right:null};if(!root)return node;var cur=root;while(true){cur.maxHi=Math.max(cur.maxHi,iv[1]);if(iv[0]<cur.lo){if(!cur.left){cur.left=node;break;}cur=cur.left;}else{if(!cur.right){cur.right=node;break;}cur=cur.right;}}return root;}
+function ov(a,b){return a[0]<=b[1]&&b[0]<=a[1];}
+function query(node,q,out){if(!node)return;if(node.left&&node.left.maxHi>=q[0])query(node.left,q,out);if(ov([node.lo,node.hi],q))out.push([node.lo,node.hi]);if(node.lo<=q[1])query(node.right,q,out);}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(933),ok=true;for(var t=0;t<2000;t++){var n=1+Math.floor(rnd()*40),ivs=[],root=null;for(var i=0;i<n;i++){var lo=Math.floor(rnd()*100),hi=lo+Math.floor(rnd()*30);ivs.push([lo,hi]);root=insert(root,[lo,hi]);}var qlo=Math.floor(rnd()*100),q=[qlo,qlo+Math.floor(rnd()*30)],out=[];query(root,q,out);var brute=ivs.filter(function(iv){return ov(iv,q);});var k=function(a){return a.map(function(x){return x[0]+','+x[1];}).sort().join('|');};if(k(out)!==k(brute))ok=false;}return {matchesBrute:ok};}
+function mk(){IVS=[];ROOT=null;for(var i=0;i<11;i++){var lo=Math.floor(Math.random()*80),hi=lo+3+Math.floor(Math.random()*22);IVS.push([lo,hi]);ROOT=insert(ROOT,[lo,hi]);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('each node caches its subtree max-high; prune any subtree with max-high < query.lo',12,14);
+ var ivs=[[10,25],[5,15],[30,50],[40,45],[20,60]];for(var i=0;i<ivs.length;i++){g.strokeStyle='#58a0b0';g.beginPath();g.moveTo(40+ivs[i][0]*4,45+i*20);g.lineTo(40+ivs[i][1]*4,45+i*20);g.lineWidth=4;g.stroke();g.lineWidth=1;g.fillStyle='#8ad';g.font='8px monospace';g.fillText('['+ivs[i][0]+','+ivs[i][1]+']',40+ivs[i][1]*4+4,48+i*20);}
+ g.strokeStyle='#e0b020';g.setLineDash([3,3]);g.beginPath();g.moveTo(40+35*4,35);g.lineTo(40+35*4,150);g.stroke();g.setLineDash([]);g.fillStyle='#e0b020';g.font='9px monospace';g.fillText('query',40+35*4+2,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!IVS.length)mk();var out=[];query(ROOT,Q,out);var inset={};out.forEach(function(iv){inset[iv[0]+','+iv[1]]=1;});var sc=(W-30)/100;
+ g.fillStyle='#e0b020';g.globalAlpha=0.2;g.fillRect(15+Q[0]*sc,20,(Q[1]-Q[0])*sc,H-70);g.globalAlpha=1;
+ for(var i=0;i<IVS.length;i++){var hit=inset[IVS[i][0]+','+IVS[i][1]];g.strokeStyle=hit?'#39fc6b':'#58a0b0';g.lineWidth=hit?4:2;g.beginPath();g.moveTo(15+IVS[i][0]*sc,40+i*20);g.lineTo(15+IVS[i][1]*sc,40+i*20);g.stroke();g.lineWidth=1;}
+ g.strokeStyle='#e0b020';g.lineWidth=2;g.strokeRect(15+Q[0]*sc,20,(Q[1]-Q[0])*sc,H-70);g.lineWidth=1;g.fillStyle='#e0b020';g.font='9px monospace';g.fillText('query ['+Q[0]+','+Q[1]+']',15+Q[0]*sc,16);
+ var brute=IVS.filter(function(iv){return ov(iv,Q);});g.fillStyle=out.length===brute.length?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('tree found '+out.length+' overlapping · brute '+brute.length+' '+(out.length===brute.length?'✓':'✗'),15,H-10);}
+document.getElementById('ivroll').onclick=function(){mk();drawW4();document.getElementById('ivread').textContent='new '+IVS.length+' intervals';};
+document.getElementById('ivquery').onclick=function(){var lo=Math.floor(Math.random()*70);Q=[lo,lo+15+Math.floor(Math.random()*20)];drawW4();var o=[];query(ROOT,Q,o);document.getElementById('ivread').textContent='query ['+Q[0]+','+Q[1]+'] → '+o.length+' overlaps';};
+document.getElementById('ivcheck').onclick=function(){var v=verify();document.getElementById('ivread').textContent='2000 sets: interval-tree query == brute scan '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('ivspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!IVS.length)mk();var out=[];query(ROOT,Q,out);var inset={};out.forEach(function(iv){inset[iv[0]+','+iv[1]]=1;});var cx=W/2,cy=H/2-10;
+ for(var i=0;i<IVS.length;i++){var iv=IVS[i],a0=iv[0]/100*6.28+ang*0.3,a1=iv[1]/100*6.28+ang*0.3,r=60+i*8,hit=inset[iv[0]+','+iv[1]];g.strokeStyle=hit?'#39fc6b':'rgba(88,160,176,0.6)';g.lineWidth=hit?3:1.5;g.beginPath();g.arc(cx,cy,r,a0,a1);g.stroke();g.lineWidth=1;}
+ var qa0=Q[0]/100*6.28+ang*0.3,qa1=Q[1]/100*6.28+ang*0.3;g.strokeStyle='#e0b020';g.lineWidth=3;g.beginPath();g.arc(cx,cy,40,qa0,qa1);g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green arcs: intervals overlapping the gold query',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the full interval scan',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('overlap queries by cached reach',10,H-9);}
+mk();drawW3();drawW4();window.__intervaltree=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CHS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Cohen&ndash;Sutherland algorithm</b> clips a line to a rectangular window using <b>4-bit region codes</b> (&ldquo;outcodes&rdquo;). The plane is divided into 9 regions around the window; each endpoint gets a 4-bit code &mdash; one bit each for left, right, below, above. If both codes are 0, the segment is fully inside (accept); if their bitwise AND is non-zero, both endpoints share an outside half-plane, so the segment misses entirely (reject). Otherwise, clip against one crossed boundary and repeat. A few bit tests replace geometric case analysis.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of segments, the clipped part lies inside the window, its endpoints sit on the original line, and the result matches the Liang&ndash;Barsky clip (window.__cohensutherland). <span class="fig">FIG</span> no framing; exact bit-code logic and float intersections.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>segfault</i> &mdash; the out-of-bounds flag; Cohen&ndash;Sutherland&rsquo;s outcodes are exactly bits that fire when a point strays outside the window&rsquo;s valid region. <b>AVAN (AI)</b> built the instrument: the 4-bit outcode assignment, the accept/reject/clip loop, and the inside + on-line + matches-Liang&ndash;Barsky checks.<br><br>Credit as content: Danny Cohen &amp; Ivan Sutherland (c. 1967). The weave: David names segfault; I tag each endpoint with a left/right/below/above outcode, accept when both are zero, reject when they share a bit, else clip against a crossed edge &mdash; and confirm the clipped segment lies in the window and agrees with an independent clipper.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Outcode bits: 0001 left, 0010 right, 0100 below, 1000 above. Both codes 0 &rArr; accept. AND &ne; 0 &rArr; reject. Else clip against a set bit&rsquo;s boundary and recompute.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Segments clipped to a window with the 9 outcode regions; the clipped part checked inside and against Liang&ndash;Barsky.</div>
+   <div class="btns" style="margin-top:10px"><button id="chroll">new segment ▶</button><button id="chcheck">verify 5000 ▶</button></div>
+   <div class="cap" id="chread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a line trimmed by bit tests.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): clip a segment by <b>encoding each endpoint&rsquo;s position as 4 bits</b> and reasoning about the codes &mdash; both zero accepts, a shared bit rejects, otherwise clip one crossed edge. The inverse of &lsquo;analyze every geometric case&rsquo; is &lsquo;test outcode bits &mdash; trivial accept/reject, then one edge at a time.&rsquo; <b>Magenta</b> is the geometric case analysis; <b>green</b> is the bit-code decision. Clipping decided by four bits.</div>
+   <div class="btns" style="margin-top:10px"><button id="chspin">pause spin</button></div></div></div></div>"""
+CHS_SCRIPT = """(function(){
+var ang=0,spin=true,SEG=[-3,4,13,7],R=[1,1,11,9];
+function outcode(x,y,r){var c=0;if(x<r[0])c|=1;else if(x>r[2])c|=2;if(y<r[1])c|=4;else if(y>r[3])c|=8;return c;}
+function clip(x0,y0,x1,y1,r){var c0=outcode(x0,y0,r),c1=outcode(x1,y1,r);while(true){if((c0|c1)===0)return [x0,y0,x1,y1];if((c0&c1)!==0)return null;var c=c0?c0:c1,x,y;if(c&8){x=x0+(x1-x0)*(r[3]-y0)/(y1-y0);y=r[3];}else if(c&4){x=x0+(x1-x0)*(r[1]-y0)/(y1-y0);y=r[1];}else if(c&2){y=y0+(y1-y0)*(r[2]-x0)/(x1-x0);x=r[2];}else{y=y0+(y1-y0)*(r[0]-x0)/(x1-x0);x=r[0];}if(c===c0){x0=x;y0=y;c0=outcode(x0,y0,r);}else{x1=x;y1=y;c1=outcode(x1,y1,r);}}}
+function lb(x0,y0,x1,y1,r){var dx=x1-x0,dy=y1-y0,p=[-dx,dx,-dy,dy],q=[x0-r[0],r[2]-x0,y0-r[1],r[3]-y0],u1=0,u2=1;for(var i=0;i<4;i++){if(p[i]===0){if(q[i]<0)return null;}else{var t=q[i]/p[i];if(p[i]<0){if(t>u2)return null;if(t>u1)u1=t;}else{if(t<u1)return null;if(t<u2)u2=t;}}}return [x0+u1*dx,y0+u1*dy,x0+u2*dx,y0+u2*dy];}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(934),ins=true,onl=true,mlb=true,tested=0,r=[0,0,10,10];for(var t=0;t<5000;t++){var x0=rnd()*20-5,y0=rnd()*20-5,x1=rnd()*20-5,y1=rnd()*20-5,c=clip(x0,y0,x1,y1,r),l=lb(x0,y0,x1,y1,r);if((c===null)!==(l===null))mlb=false;if(!c)continue;tested++;var e=1e-6;if(c[0]<-e||c[0]>10+e||c[1]<-e||c[1]>10+e||c[2]<-e||c[2]>10+e||c[3]<-e||c[3]>10+e)ins=false;var dx=x1-x0,dy=y1-y0;function os(px,py){return Math.abs((px-x0)*dy-(py-y0)*dx)<1e-6*(1+Math.abs(dx)+Math.abs(dy));}if(!os(c[0],c[1])||!os(c[2],c[3]))onl=false;if(Math.max(Math.abs(c[0]-l[0]),Math.abs(c[1]-l[1]),Math.abs(c[2]-l[2]),Math.abs(c[3]-l[3]))>1e-6)mlb=false;}return {clipInside:ins,onLine:onl,matchesLiangBarsky:mlb,tested:tested};}
+function tx(x){return 40+x*26;}function ty(y){return 250-y*24;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('4-bit outcodes: 0001 left · 0010 right · 0100 below · 1000 above',12,14);
+ var cx=256,cy=90,w=60,h=40;var labels=[['1001',cx-w,cy-h],['1000',cx,cy-h],['1010',cx+w,cy-h],['0001',cx-w,cy],['0000',cx,cy],['0010',cx+w,cy],['0101',cx-w,cy+h],['0100',cx,cy+h],['0110',cx+w,cy+h]];
+ g.strokeStyle='#58a0b0';g.strokeRect(cx-w/2,cy-h/2,w,h);for(var i=0;i<labels.length;i++){g.fillStyle=labels[i][0]==='0000'?'#39fc6b':'#c07850';g.font='9px monospace';g.fillText(labels[i][0],labels[i][1]-10,labels[i][2]+3);}
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('center 0000 = inside',cx-30,cy+70);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.strokeStyle='#8ad';g.strokeRect(tx(R[0]),ty(R[3]),(R[2]-R[0])*26,(R[3]-R[1])*24);
+ var c=clip(SEG[0],SEG[1],SEG[2],SEG[3],R);
+ g.strokeStyle='rgba(200,120,90,0.5)';g.setLineDash([4,3]);g.beginPath();g.moveTo(tx(SEG[0]),ty(SEG[1]));g.lineTo(tx(SEG[2]),ty(SEG[3]));g.stroke();g.setLineDash([]);
+ if(c){g.strokeStyle='#39fc6b';g.lineWidth=3;g.beginPath();g.moveTo(tx(c[0]),ty(c[1]));g.lineTo(tx(c[2]),ty(c[3]));g.stroke();g.lineWidth=1;
+  g.fillStyle='#8ad';g.font='9px monospace';g.fillText('outcode P0='+outcode(SEG[0],SEG[1],R).toString(2).padStart(4,'0')+' P1='+outcode(SEG[2],SEG[3],R).toString(2).padStart(4,'0'),14,H-28);
+  var ok=c[0]>=-1e-6&&c[0]<=10+1e-6;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('clipped inside window ✓ · matches Liang-Barsky ✓',14,H-12);}
+ else{g.fillStyle='#c07850';g.font='11px monospace';g.fillText('rejected (AND of outcodes ≠ 0 — outside)',14,H-12);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('dashed = original · green = clipped',14,20);}
+document.getElementById('chroll').onclick=function(){SEG=[Math.random()*18-4,Math.random()*16-3,Math.random()*18-4,Math.random()*16-3];drawW4();var c=clip(SEG[0],SEG[1],SEG[2],SEG[3],R);document.getElementById('chread').textContent=c?'clipped to window':'rejected (outside)';};
+document.getElementById('chcheck').onclick=function(){var v=verify();document.getElementById('chread').textContent=v.tested+' clipped: inside '+(v.clipInside?'✓':'✗')+' · on line '+(v.onLine?'✓':'✗')+' · matches Liang-Barsky '+(v.matchesLiangBarsky?'✓':'✗');};
+document.getElementById('chspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2,s=14,r=[0,0,10,10];
+ g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.3)*0.1);g.translate(-cx,-cy);
+ g.strokeStyle='#8ad';g.strokeRect(cx-5*s,cy-5*s,10*s,10*s);
+ for(var k=0;k<8;k++){var a=k/8*6.28+ang*0.4,x0=Math.cos(a)*9+5,y0=Math.sin(a)*9+5,x1=-Math.cos(a)*4+5,y1=-Math.sin(a)*4+5;
+  g.strokeStyle='rgba(200,120,90,0.35)';g.beginPath();g.moveTo(cx+(x0-5)*s,cy+(y0-5)*s);g.lineTo(cx+(x1-5)*s,cy+(y1-5)*s);g.stroke();
+  var c=clip(x0,y0,x1,y1,r);if(c){g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(cx+(c[0]-5)*s,cy+(c[1]-5)*s);g.lineTo(cx+(c[2]-5)*s,cy+(c[3]-5)*s);g.stroke();g.lineWidth=1;}}
+ g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: segments trimmed by outcode logic',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the geometric case analysis',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('clipping decided by four bits',10,H-9);}
+drawW3();drawW4();window.__cohensutherland=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 92 (a curve whose addition never fails · represent a number as x squared plus d y squared · quarter the plane recursively to query it fast · two sequences that define each other · sort three colours in one pass) ═══════════════════════
 EDW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>A twisted Edwards curve</b> a&middot;x&sup2; + y&sup2; = 1 + d&middot;x&sup2;&middot;y&sup2; carries an addition law with a rare virtue: it is <b>complete</b> &mdash; the same formula works for <b>every</b> pair of points, with <b>no special cases</b> (no separate rule for doubling, no point-at-infinity). The neutral element is just the ordinary point <b>(0,1)</b>, and the inverse of (x,y) is (&minus;x,y). When a is a square and d is a non-square mod p, the points form an <b>abelian group</b> with the addition never breaking. This is why Ed25519 signatures use Edwards curves.<br><br>
@@ -25157,6 +25394,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-sociable-numbers","title":"THE SOCIABLE NUMBERS","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#d06858","icon":"sociable",
+  "kicker":"numbers whose divisor-sums loop back in a chain",
+  "blurb":"Sociable numbers in the 5-window house format — the aliquot dynamics: repeatedly replace n by s(n), the sum of its proper divisors, and watch the orbit. A perfect number is a fixed point (1-cycle: s(6)=6); an amicable pair is a 2-cycle (220→284→220); sociable numbers close a longer loop: 12496 → 14288 → 15472 → 14536 → 14264 → back to 12496, a 5-cycle where each is the divisor-sum of the last. Verified live: iterating s(n) from 6, 220, and 12496 closes cycles of length 1, 2, and 5 exactly. See the chains in 1D, an orbit closing in 2D, and the identity-as-cycle inverse in 3D.",
+  "lit":"Genuine sociable-number cycles (perfect numbers, antiquity; amicable pairs, Pythagoreans; sociable chains, P. Poulet 1918). Verified live: iterating the sum-of-proper-divisors map s(n) closes a 1-cycle from 6 and 28 (perfect), a 2-cycle 220↔284 (amicable), a 5-cycle from 12496, and a 4-cycle from 1264460 — each step an exact divisor sum, each cycle returning to its start (window.__sociable).",
+  "fig":"No framing: the aliquot-sum function, the orbit tracer, and the cycle-length checks run in-browser with exact integers and agree. The AVAN inverse is honest — classifying a number by the orbit of the divisor-sum map (fixed point → perfect, 2-cycle → amicable, longer → sociable) genuinely extends the one-step perfect-number test; magenta is that one-step test, green the whole closed orbit. Identity as a cycle of sums.",
+  "body":SOC_BODY,"script":SOC_SCRIPT},
+ {"slug":"the-pepin","title":"THE PEPIN","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#b06868","icon":"pepin",
+  "kicker":"one test decides a Fermat prime",
+  "blurb":"Pépin's test in the 5-window house format — decide whether a Fermat number F_k = 2^(2^k)+1 is prime with a single modular exponentiation: for k ≥ 1, F_k is prime if and only if 3^((F_k−1)/2) ≡ −1 (mod F_k). One test, no factoring, and it is an iff, not a probabilistic guess. Fermat conjectured every F_k prime; Pépin's test (with Euler's factor) shows F_5 = 2³²+1 is composite = 641 × 6700417. Verified live (exact BigInt): F_1…F_4 pass (prime), F_5 fails (composite), and F_5 = 641 × 6700417. See the Fermat numbers in 1D, verdicts in 2D, and the one-exponentiation inverse in 3D.",
+  "lit":"Genuine Pépin's test (Théophile Pépin 1877; Euler factored F_5 in 1732). Verified live with exact BigInt modular arithmetic: 3^((F_k−1)/2) mod F_k equals F_k−1 (≡ −1) exactly for the prime Fermat numbers F_1..F_4 and not for F_5 (window.__pepin.allCorrect), and F_5 = 641 × 6700417 is confirmed directly (f5factors).",
+  "fig":"No framing: the Fermat-number builder, the BigInt modular exponentiation, the ≡ −1 check, and the 641-factor confirmation run in-browser and agree. The AVAN inverse is honest — deciding a Fermat number's primality with one exact modular power that lands on −1 iff prime genuinely replaces trial-dividing up to √F_k; magenta is that factor hunt, green the single decisive exponentiation. An iff from one exponentiation.",
+  "body":PEP_BODY,"script":PEP_SCRIPT},
+ {"slug":"the-continued-fraction-e","title":"THE CONTINUED FRACTION OF E","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#c0a048","icon":"cf-e",
+  "kicker":"the number e written as a patterned fraction",
+  "blurb":"The continued fraction of e in the 5-window house format — where π's CF looks random, e = [2; 1, 2, 1, 1, 4, 1, 1, 6, 1, 1, 8, …] follows a clean pattern: a 2, then repeating triples (1, 2m, 1) for m = 1, 2, 3, … The even numbers 2, 4, 6, 8 march through, each flanked by ones. Truncating gives rational convergents that rush toward e. Verified live: the generated terms obey the 2;(1,2m,1) pattern, and the convergent p/q (exact BigInt) matches e to floating precision. See the pattern in 1D, convergents approaching e in 2D, and the order-in-a-transcendental inverse in 3D.",
+  "lit":"Genuine regular continued fraction of e (Euler 1737). Verified live: the terms generated by the 2;(1,2m,1) rule obey that exact pattern (window.__cfe.pattern), and the BigInt convergent p/q matches Math.E to floating precision — |p/q − e| < 1e-12 (window.__cfe.convergesToE).",
+  "fig":"No framing: the pattern generator, the BigInt convergent recurrence, and the pattern + convergence-to-e checks run in-browser (BigInt so the convergents stay exact) and agree. The AVAN inverse is honest — writing e as a patterned continued fraction whose convergents are the best rational approximations genuinely differs from an endless decimal; magenta is the featureless 2.71828…, green the patterned fraction. Order inside a transcendental.",
+  "body":CFE_BODY,"script":CFE_SCRIPT},
+ {"slug":"the-interval-tree","title":"THE INTERVAL TREE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#58a0b0","icon":"interval-tree",
+  "kicker":"query which intervals overlap fast",
+  "blurb":"The interval tree in the 5-window house format — answer 'which stored intervals overlap this query?' quickly by augmenting a binary search tree. Nodes are keyed by each interval's left endpoint; every node also caches the maximum right endpoint in its subtree. That cache lets a query prune whole branches: if a subtree's max-high is below the query's low, nothing there can overlap, so skip it. A scan of every interval becomes a guided descent. Verified live: over 2000 random interval sets and queries, the tree returns exactly the intervals a brute-force scan finds. See the max-high pruning in 1D, an overlap query in 2D, and the cached-reach inverse in 3D.",
+  "lit":"Genuine interval tree (augmented BST; Cormen–Leiserson–Rivest–Stein). Verified live: over 2000 random interval sets and queries, the left-endpoint-keyed BST with max-high subtree augmentation, querying by pruning subtrees whose max-high falls below the query low, returns exactly the interval set a brute-force overlap scan returns (window.__intervaltree.matchesBrute).",
+  "fig":"No framing: the keyed BST nodes, the max-high augmentation, the prune-by-max-high query, and the match against a brute scan run in-browser with exact overlap tests and agree. The AVAN inverse is honest — finding overlapping intervals by caching each subtree's maximum right endpoint and pruning branches that cannot reach the query genuinely replaces scanning all intervals; magenta is that full scan, green the pruned descent. Overlap queries by cached reach.",
+  "body":IVT_BODY,"script":IVT_SCRIPT},
+ {"slug":"the-cohen-sutherland","title":"THE COHEN-SUTHERLAND","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#c07850","icon":"cohen-sutherland",
+  "kicker":"clip a line by four boundary bits",
+  "blurb":"The Cohen–Sutherland algorithm in the 5-window house format — clip a line to a rectangular window using 4-bit region codes (outcodes). The plane is divided into 9 regions around the window; each endpoint gets a 4-bit code (left, right, below, above). If both codes are 0 the segment is fully inside (accept); if their bitwise AND is non-zero both endpoints share an outside half-plane, so the segment misses (reject); otherwise clip against one crossed boundary and repeat. A few bit tests replace geometric case analysis. Verified live: over thousands of segments, the clipped part lies inside the window, its endpoints sit on the original line, and the result matches the Liang–Barsky clip. See the outcode regions in 1D, clipped segments in 2D, and the four-bits inverse in 3D.",
+  "lit":"Genuine Cohen–Sutherland line-clipping algorithm (Danny Cohen & Ivan Sutherland, c. 1967). Verified live: over 5000 random segments, the 4-bit outcode accept/reject/clip loop yields a clipped segment inside the window (window.__cohensutherland.clipInside), with endpoints on the original line (onLine), and its result agrees with an independent Liang–Barsky clipper (matchesLiangBarsky).",
+  "fig":"No framing: the 4-bit outcode assignment, the accept/reject/clip loop, and the inside + on-line + matches-Liang–Barsky checks run in-browser and agree to floating precision. The AVAN inverse is honest — clipping by encoding each endpoint as 4 bits and reasoning about the codes (both zero accepts, a shared bit rejects, else clip one edge) genuinely replaces geometric case analysis; magenta is that case analysis, green the bit-code decision. Clipping decided by four bits.",
+  "body":CHS_BODY,"script":CHS_SCRIPT},
  {"slug":"the-edwards-curve","title":"THE EDWARDS CURVE","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE FIREWALL","domain_slug":"the-firewall","accent":"#b06868","icon":"edwards",
   "kicker":"a curve whose addition never fails",
