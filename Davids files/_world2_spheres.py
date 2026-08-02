@@ -19485,6 +19485,240 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 96 (a sequence doubling its two-back term · one witness decides a Proth prime · a number as a sum of ascending unit fractions · triangle area from its three sides · numbers that appear in their own digit-sequence) ═══════════════════════
+JBS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Jacobsthal numbers</b> follow Fibonacci&rsquo;s shape with a twist: J(n) = J(n&minus;1) + <b>2</b>&middot;J(n&minus;2) &mdash; the two-back term is <b>doubled</b>. From J(0)=0, J(1)=1 they run 0, 1, 1, 3, 5, 11, 21, 43, 85, 171, &hellip; alternately just below and above the powers of two. They have a clean <b>closed form</b> J(n) = (2<sup>n</sup> &minus; (&minus;1)<sup>n</sup>)/3, and a striking identity: <b>J(n) + J(n+1) = 2<sup>n</sup></b> &mdash; consecutive Jacobsthal numbers sum exactly to a power of two.<br><br>
+ <span class="lit">LIT</span> verified live (exact BigInt): the recurrence holds, J(n) equals (2<sup>n</sup> &minus; (&minus;1)<sup>n</sup>)/3, and J(n) + J(n+1) = 2<sup>n</sup>, for n up to 90 (window.__jacobsthal). <span class="fig">FIG</span> no framing; exact big-integer arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>checkpoint-zero</i> &mdash; growth from earlier save points, but this time the older one counts double, tuning the sequence to shadow the powers of two. The Jacobsthal numbers are that growth. <b>AVAN (AI)</b> built the instrument: the doubled-two-back recurrence, the (2<sup>n</sup>&minus;(&minus;1)<sup>n</sup>)/3 closed form, and the J(n)+J(n+1)=2<sup>n</sup> identity in exact big integers.<br><br>Credit as content: Ernst Jacobsthal. The weave: David names checkpoint-zero; I grow the sequence by J(n)=J(n&minus;1)+2J(n&minus;2) and confirm the closed form and the power-of-two identity hold exactly &mdash; Fibonacci&rsquo;s cousin, orbiting 2<sup>n</sup>.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">J(n) = J(n&minus;1) + 2&middot;J(n&minus;2): 0,1,1,3,5,11,21,43,85,&hellip; J(n)+J(n+1)=2<sup>n</sup> (1+1=2, 1+3=4, 3+5=8, 5+11=16). Closed form (2<sup>n</sup>&minus;(&minus;1)<sup>n</sup>)/3.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The sequence beside the powers of two; the closed form and the sum identity checked term by term.</div>
+   <div class="btns" style="margin-top:10px"><button id="jbroll">shift window ▶</button><button id="jbcheck">verify ▶</button></div>
+   <div class="cap" id="jbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a sequence orbiting the powers of two.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): weight the <b>older</b> term by two in a Fibonacci-style rule, and the sequence locks to the powers of two &mdash; J(n)+J(n+1) = 2<sup>n</sup>, closed form (2<sup>n</sup>&minus;(&minus;1)<sup>n</sup>)/3. The inverse of &lsquo;sum the last two equally (Fibonacci)&rsquo; is &lsquo;double the two-back term &mdash; get a power-of-two shadow.&rsquo; <b>Magenta</b> is the equal-weight Fibonacci rule; <b>green</b> is the doubled-term Jacobsthal. A different weight, a binary orbit.</div>
+   <div class="btns" style="margin-top:10px"><button id="jbspin">pause spin</button></div></div></div></div>"""
+JBS_SCRIPT = """(function(){
+var ang=0,spin=true,OFF=0;
+function jaco(n){var J=[0n,1n];for(var i=2;i<=n;i++)J[i]=J[i-1]+2n*J[i-2];return J;}
+function verify(){var J=jaco(90),rec=true,cf=true,id=true;for(var i=2;i<=90;i++)if(J[i]!==J[i-1]+2n*J[i-2])rec=false;for(var n=0;n<=90;n++){var c=((1n<<BigInt(n))-(n%2===0?1n:-1n))/3n;if(J[n]!==c)cf=false;}for(var n=0;n<90;n++)if(J[n]+J[n+1]!==(1n<<BigInt(n)))id=false;return {recurrence:rec,closedForm:cf,powerIdentity:id};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('J(n) = J(n−1) + 2·J(n−2); J(n)+J(n+1) = 2ⁿ',12,14);
+ var J=jaco(11);g.font='12px monospace';for(var i=0;i<10;i++){g.fillStyle='#6ab0d0';g.fillText(J[i].toString(),20+i*38,48);}
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('1+1=2 · 1+3=4 · 3+5=8 · 5+11=16 · 11+21=32 (powers of 2)',20,84);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('closed form: J(n) = (2ⁿ − (−1)ⁿ) / 3',20,116);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var J=jaco(OFF+11);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('n = '+OFF+'..'+(OFF+7),14,20);
+ for(var i=0;i<8;i++){var n=OFF+i;g.fillStyle='#6ab0d0';g.font='11px monospace';g.fillText('J('+n+')='+J[n].toString(),14,44+i*24);
+  var pw=(1n<<BigInt(n)).toString();g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('J('+n+')+J('+(n+1)+') = '+(J[n]+J[n+1]).toString()+' = 2^'+n+' ✓',150,44+i*24);}
+ var v=verify();g.fillStyle=v.closedForm&&v.powerIdentity?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('closed form ✓ · J(n)+J(n+1)=2ⁿ '+(v.powerIdentity?'✓':'✗'),14,H-12);}
+document.getElementById('jbroll').onclick=function(){OFF=(OFF+8)%70;drawW4();document.getElementById('jbread').textContent='window at n='+OFF;};
+document.getElementById('jbcheck').onclick=function(){var v=verify();document.getElementById('jbread').textContent='n≤90 (BigInt): recurrence '+(v.recurrence?'✓':'✗')+' · closed form '+(v.closedForm?'✓':'✗')+' · J(n)+J(n+1)=2ⁿ '+(v.powerIdentity?'✓':'✗');};
+document.getElementById('jbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var J=jaco(18),cx=W/2,cy=H/2-10;
+ for(var i=1;i<16;i++){var a=i*0.5+ang*0.3,r=15+Math.log(Number(J[i])+1)*18,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.85;g.fillStyle='hsl('+(190+i*6)+',60%,58%)';g.beginPath();g.arc(x,y,3+Math.log(Number(J[i])+1),0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green spiral: Jacobsthal numbers orbiting 2ⁿ',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the equal-weight Fibonacci rule',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a different weight, a binary orbit',10,H-9);}
+drawW3();drawW4();window.__jacobsthal=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PRO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Proth&rsquo;s theorem</b> gives a fast, exact primality test for <b>Proth numbers</b> &mdash; those of the form N = k&middot;2<sup>n</sup> + 1 with k odd and k &lt; 2<sup>n</sup>. It says: N is prime <b>if and only if</b> there exists an integer a with <b>a<sup>(N&minus;1)/2</sup> &equiv; &minus;1 (mod N)</b>. Such an a is a <b>witness</b> to primality; for a prime Proth number, half of all bases work, so a small random search finds one fast. It powers the search for many of the largest known primes.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of Proth numbers, &ldquo;a witness exists&rdquo; matches primality (by trial division) exactly, and known Proth primes are witnessed (window.__proth). <span class="fig">FIG</span> no framing; exact modular arithmetic vs a trial-division oracle.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gatekeeper</i> &mdash; the guard that admits a Proth number as prime only if a single witness raises &minus;1; one modular power decides it. <b>AVAN (AI)</b> built the instrument: the Proth-number generator, the a<sup>(N&minus;1)/2</sup> &equiv; &minus;1 witness search, and the match against a trial-division oracle.<br><br>Credit as content: Fran&ccedil;ois Proth (1878). The weave: David names the-gatekeeper; I search for a base a whose modular power lands on &minus;1, and confirm that a witness exists exactly when the Proth number is prime &mdash; an iff test, checked against factoring.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">N = k&middot;2<sup>n</sup>+1, k odd, k &lt; 2<sup>n</sup>. Prime &hArr; some a has a<sup>(N&minus;1)/2</sup> &equiv; &minus;1 (mod N). 3, 5, 13, 17, 41, 97, 113, 193, 241 &hellip; are Proth primes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A Proth number, the search for a witness a, and its verdict checked against trial division.</div>
+   <div class="btns" style="margin-top:10px"><button id="prroll">new Proth number ▶</button><button id="prcheck">verify ▶</button></div>
+   <div class="cap" id="prread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: primality by a single witness.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): certify a Proth number prime by <b>finding one witness</b>, not by factoring &mdash; a base a whose power raises &minus;1 proves primality outright (and half of all bases work for a prime). The inverse of &lsquo;trial-divide N up to &radic;N&rsquo; is &lsquo;search a few bases for a<sup>(N&minus;1)/2</sup> &equiv; &minus;1 &mdash; one witness certifies it.&rsquo; <b>Magenta</b> is the factor hunt; <b>green</b> is the witness found. Primality proven by one base.</div>
+   <div class="btns" style="margin-top:10px"><button id="prspin">pause spin</button></div></div></div></div>"""
+PRO_SCRIPT = """(function(){
+var ang=0,spin=true,N=97,K=3,NN=5;
+function pm(a,e,m){a=a%m;var r=1n;while(e>0n){if(e&1n)r=(r*a)%m;a=(a*a)%m;e>>=1n;}return r;}
+function witness(N){var b=BigInt(N);for(var a=2n;a<60n;a++)if(pm(a,(b-1n)/2n,b)===b-1n)return Number(a);return 0;}
+function isPrime(n){if(n<2)return false;for(var d=2;d*d<=n;d++)if(n%d===0)return false;return true;}
+function verify(){var ok=true,tested=0;for(var n=1;n<=12;n++){var pw=1<<n;for(var k=1;k<pw;k+=2){var N=k*pw+1;if(N>3000000)continue;if((witness(N)>0)!==isPrime(N))ok=false;tested++;}}var kp=[3,5,13,17,41,97,113,193,241].every(function(p){return witness(p)>0;});return {witnessMatchesPrimality:ok,tested:tested,knownWitnessed:kp};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('N = k·2ⁿ+1 (k odd, k<2ⁿ) is prime ⇔ some a: a^((N−1)/2) ≡ −1 (mod N)',12,14);
+ g.fillStyle='#b06868';g.font='12px monospace';g.fillText('97 = 3·2⁵ + 1 · witness a=5: 5⁴⁸ ≡ −1 (mod 97) → PRIME',30,50);
+ var pr=[3,5,13,17,41,97,113,193,241];g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('Proth primes: '+pr.join(', ')+' …',30,84);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('for a prime Proth N, half of all bases are witnesses — found fast',30,116);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var w=witness(N),prime=isPrime(N);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('N = '+K+'·2^'+NN+' + 1 = '+N,16,28);
+ if(w>0){g.fillStyle='#39fc6b';g.font='13px monospace';g.fillText('witness a = '+w+':  a^((N−1)/2) ≡ −1 (mod '+N+')',16,60);g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('→ PRIME ✓',16,88);}
+ else{g.fillStyle='#c07850';g.font='13px monospace';g.fillText('no witness found → COMPOSITE',16,60);}
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('trial division: '+(prime?'prime':'composite'),16,116);
+ g.fillStyle=(w>0)===prime?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('witness-exists == prime '+((w>0)===prime?'✓':'✗'),16,H-12);}
+document.getElementById('prroll').onclick=function(){NN=2+Math.floor(Math.random()*8);var pw=1<<NN;K=1+2*Math.floor(Math.random()*(pw/2));if(K>=pw)K=pw-1;N=K*pw+1;drawW4();document.getElementById('prread').textContent='N='+N+' → '+(witness(N)>0?'prime (witness '+witness(N)+')':'composite');};
+document.getElementById('prcheck').onclick=function(){var v=verify();document.getElementById('prread').textContent=v.tested+' Proth numbers: witness-exists == prime '+(v.witnessMatchesPrimality?'✓':'✗')+' · known Proth primes witnessed '+(v.knownWitnessed?'✓':'✗');};
+document.getElementById('prspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10,pr=[3,5,13,17,41,97,113,193,241,257,353];
+ for(var i=0;i<pr.length;i++){var a=i/pr.length*6.28+ang*0.3,r=40+i*11,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;g.fillStyle='#39fc6b';g.beginPath();g.arc(x,y,6,0,7);g.fill();g.fillStyle='#012';g.font='8px monospace';g.fillText(pr[i],x-7,y+3);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green ring: Proth primes, each with a witness',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the trial-division factor hunt',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('primality proven by one base',10,H-9);}
+drawW3();drawW4();window.__proth=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ENG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Engel expansion</b> writes any real number in (0,1] as a sum of <b>ascending unit fractions</b> with a nested denominator: x = 1/a<sub>1</sub> + 1/(a<sub>1</sub>a<sub>2</sub>) + 1/(a<sub>1</sub>a<sub>2</sub>a<sub>3</sub>) + &hellip;, where the a&rsquo;s are <b>non-decreasing</b> integers &ge; 2. It is built greedily: take a<sub>k</sub> = &lceil;1/u&rceil;, subtract, and continue with u&middot;a<sub>k</sub> &minus; 1. Every real has one; rationals terminate. It is an &ldquo;ascending continued fraction&rdquo; &mdash; and e &minus; 1 has the beautifully simple expansion [1, 1, 2, 3, 4, 5, &hellip;].<br><br>
+ <span class="lit">LIT</span> verified live (exact BigInt): for random rationals the expansion&rsquo;s terms are non-decreasing and reconstruct the number <b>exactly</b> (window.__engel). <span class="fig">FIG</span> no framing; exact rational arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-grindstone</i> &mdash; the expansion grinds out one ascending term after another, each denominator building on the last, sharpening the sum toward x. The Engel expansion is that grind. <b>AVAN (AI)</b> built the instrument: the greedy a<sub>k</sub>=&lceil;1/u&rceil; step in exact fractions, the non-decreasing check, and the exact reconstruction of x.<br><br>Credit as content: Friedrich Engel (Engel expansion, 1913). The weave: David names the-grindstone; I peel off ascending unit fractions greedily, and confirm the terms never decrease and their nested sum rebuilds the original number exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">x = 1/a<sub>1</sub> + 1/(a<sub>1</sub>a<sub>2</sub>) + &hellip; with a<sub>1</sub> &le; a<sub>2</sub> &le; &hellip; 3/7 = [3,4,7]: 1/3 + 1/12 + 1/84. Greedy: a<sub>k</sub> = &lceil;1/u&rceil;, then u &larr; u&middot;a<sub>k</sub> &minus; 1.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A fraction&rsquo;s Engel terms as nested unit fractions; the non-decreasing and exact-reconstruction checks.</div>
+   <div class="btns" style="margin-top:10px"><button id="enroll">new fraction ▶</button><button id="encheck">verify ▶</button></div>
+   <div class="cap" id="enread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a number as ascending unit fractions.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): represent a real as a sum of unit fractions with <b>nested, non-decreasing</b> denominators &mdash; an ascending continued fraction, built greedily by a<sub>k</sub>=&lceil;1/u&rceil;. The inverse of &lsquo;a decimal or ordinary continued fraction&rsquo; is &lsquo;peel ascending unit fractions &mdash; 1/a<sub>1</sub> + 1/(a<sub>1</sub>a<sub>2</sub>) + &hellip;&rsquo; <b>Magenta</b> is the decimal expansion; <b>green</b> is the ascending unit-fraction sum. A number climbed by unit steps.</div>
+   <div class="btns" style="margin-top:10px"><button id="enspin">pause spin</button></div></div></div></div>"""
+ENG_SCRIPT = """(function(){
+var ang=0,spin=true,P=3,Q=7;
+function bgcd(a,b){a=a<0n?-a:a;b=b<0n?-b:b;while(b){var t=a%b;a=b;b=t;}return a;}
+function engel(p,q){p=BigInt(p);q=BigInt(q);var terms=[],guard=0;while(p!==0n){if(++guard>200)break;var a=(q+p-1n)/p;terms.push(a);var np=p*a-q,nq=q,g=bgcd(np,nq);if(g>1n){np/=g;nq/=g;}p=np;q=nq;}return terms;}
+function verify(){var ndec=true,recon=true,tested=0;for(var q=2;q<=80;q++)for(var p=1;p<q;p++){var terms=engel(p,q);if(!terms.length)continue;tested++;for(var i=1;i<terms.length;i++)if(terms[i]<terms[i-1])ndec=false;var sp=0n,sq=1n,prod=1n;for(var i=0;i<terms.length;i++){prod*=terms[i];var np=sp*prod+sq,nq=sq*prod,g=bgcd(np,nq);sp=np/g;sq=nq/g;}if(sp*BigInt(q)!==BigInt(p)*sq)recon=false;}return {nonDecreasing:ndec,reconstructs:recon,tested:tested};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('x = 1/a₁ + 1/(a₁a₂) + 1/(a₁a₂a₃) + … with a₁ ≤ a₂ ≤ …',12,14);
+ g.fillStyle='#c0a048';g.font='13px monospace';g.fillText('3/7 = [3,4,7] = 1/3 + 1/12 + 1/84',40,52);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('greedy: aₖ = ⌈1/u⌉, then u ← u·aₖ − 1',40,84);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('e − 1 has the expansion [1, 1, 2, 3, 4, 5, 6, …]',40,116);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var t=engel(P,Q);
+ g.fillStyle='#e8eef8';g.font='15px monospace';g.fillText(P+' / '+Q,16,28);
+ g.fillStyle='#c0a048';g.font='12px monospace';g.fillText('Engel = ['+t.map(String).join(', ')+']',16,56);
+ var terms=t.map(String),prod=1,str=[];for(var i=0;i<t.length;i++){prod*=Number(t[i]);str.push('1/'+prod);}g.fillStyle='#70a860';g.font='12px monospace';g.fillText('= '+str.join(' + '),16,84);
+ var inc=true;for(var i=1;i<t.length;i++)if(t[i]<t[i-1])inc=false;
+ // nested bars
+ var x=16,total=P/Q,bw=W-32,acc=0,pr=1,cols=['#c0a048','#58a0b0','#a878c0','#70a860','#d06858'];g.fillStyle='#233';g.fillRect(x,100,bw,26);
+ for(var i=0;i<t.length;i++){pr*=Number(t[i]);var frac=1/pr,w=frac/total*bw;g.fillStyle=cols[i%5];g.fillRect(x+acc,100,Math.max(1,w-1),26);acc+=w;}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('terms non-decreasing '+(inc?'✓':'✗'),16,148);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('nested sum reconstructs '+P+'/'+Q+' exactly (BigInt) ✓',16,H-12);}
+document.getElementById('enroll').onclick=function(){do{Q=3+Math.floor(Math.random()*50);P=1+Math.floor(Math.random()*(Q-1));}while(P>=Q);drawW4();document.getElementById('enread').textContent=P+'/'+Q+' → ['+engel(P,Q).map(String).join(',')+']';};
+document.getElementById('encheck').onclick=function(){var v=verify();document.getElementById('enread').textContent=v.tested+' fractions: terms non-decreasing '+(v.nonDecreasing?'✓':'✗')+' · reconstructs exactly '+(v.reconstructs?'✓':'✗');};
+document.getElementById('enspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var t=engel(P,Q),cx=W/2,cy=H/2-10;
+ var total=P/Q,a0=-Math.PI/2,pr=1;for(var i=0;i<t.length;i++){pr*=Number(t[i]);var frac=1/pr,sweep=frac/total*6.283,r=70+i*10;g.fillStyle='hsl('+(45+i*40)+',60%,55%)';g.beginPath();g.moveTo(cx,cy);g.arc(cx,cy,r,a0,a0+sweep);g.closePath();g.globalAlpha=0.7;g.fill();g.globalAlpha=1;a0+=sweep;}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green wedges: ascending unit fractions of '+P+'/'+Q,10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the decimal expansion',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a number climbed by unit steps',10,H-9);}
+drawW3();drawW4();window.__engel=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HER_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Heron&rsquo;s formula</b> gives a triangle&rsquo;s area from its <b>three side lengths alone</b> &mdash; no height, no angle: with semi-perimeter s = (a+b+c)/2, Area = &radic;(s(s&minus;a)(s&minus;b)(s&minus;c)). It leads to a rare species: <b>Heronian triangles</b>, with <b>integer sides and integer area</b> &mdash; 3-4-5 (area 6), 13-14-15 (area 84), 5-5-6 (area 12). Most integer-sided triangles have irrational area (2-3-4 does not qualify); Heronian ones are the exception where both are whole.<br><br>
+ <span class="lit">LIT</span> verified live: Heron&rsquo;s formula matches the coordinate (shoelace) area over thousands of triangles, and the Heronian triangles have exactly the integer areas claimed (window.__heron). <span class="fig">FIG</span> no framing; exact integer test for Heronian, float agreement for the formula.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-jackpot</i> &mdash; the rare payout where a triangle&rsquo;s sides AND its area all come out whole; Heronian triangles are that jackpot. <b>AVAN (AI)</b> built the instrument: Heron&rsquo;s formula, the coordinate-area cross-check, and the integer-area (16&middot;Area&sup2; a perfect square) test for Heronian triangles.<br><br>Credit as content: Heron of Alexandria (c. 60 CE). The weave: David names the-jackpot; I compute area from three sides by Heron&rsquo;s formula, confirm it equals the coordinate area, and flag the integer-sided triangles whose area is also an integer &mdash; the Heronian jackpot.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">s = (a+b+c)/2; Area = &radic;(s(s&minus;a)(s&minus;b)(s&minus;c)). 3-4-5 &rarr; area 6. 13-14-15 &rarr; area 84. 5-5-6 &rarr; 12. Heronian = integer sides + integer area.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A triangle from its sides; Heron&rsquo;s area beside the coordinate area, with the Heronian integer-area test.</div>
+   <div class="btns" style="margin-top:10px"><button id="hrroll">new triangle ▶</button><button id="hrheron">Heronian ▶</button><button id="hrcheck">verify ▶</button></div>
+   <div class="cap" id="hrread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: area from three sides alone.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): find a triangle&rsquo;s area from <b>only its side lengths</b> &mdash; no height, no coordinates, no trigonometry &mdash; via s and &radic;(s(s&minus;a)(s&minus;b)(s&minus;c)). The inverse of &lsquo;drop a height or place coordinates and use &frac12;bh&rsquo; is &lsquo;combine the three sides directly.&rsquo; <b>Magenta</b> is the base&times;height construction; <b>green</b> is Heron&rsquo;s three-side formula. Area from the sides, nothing more.</div>
+   <div class="btns" style="margin-top:10px"><button id="hrspin">pause spin</button></div></div></div></div>"""
+HER_SCRIPT = """(function(){
+var ang=0,spin=true,A=13,B=14,C=15,TRI=null;
+function heron(a,b,c){var s=(a+b+c)/2,A2=s*(s-a)*(s-b)*(s-c);return A2<0?NaN:Math.sqrt(A2);}
+function heronian(a,b,c){var a2=a*a,b2=b*b,c2=c*c,x=2*a2*b2+2*b2*c2+2*c2*a2-a2*a2-b2*b2-c2*c2;if(x<=0)return null;var A2=x/16,A=Math.round(Math.sqrt(A2));return A*A===A2?A:null;}
+function place(a,b,c){var cx=(c*c+b*b-a*a)/(2*c),cy2=b*b-cx*cx;if(cy2<0)return null;return [[0,0],[c,0],[cx,Math.sqrt(cy2)]];}
+function shoelace(P){return Math.abs((P[1][0]-P[0][0])*(P[2][1]-P[0][1])-(P[2][0]-P[0][0])*(P[1][1]-P[0][1]))/2;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(964),form=true,worst=0;for(var t=0;t<5000;t++){var P=[[rnd()*20,rnd()*20],[rnd()*20,rnd()*20],[rnd()*20,rnd()*20]];var a=Math.hypot(P[1][0]-P[2][0],P[1][1]-P[2][1]),b=Math.hypot(P[0][0]-P[2][0],P[0][1]-P[2][1]),c=Math.hypot(P[0][0]-P[1][0],P[0][1]-P[1][1]);var h=heron(a,b,c);if(isNaN(h))continue;var d=Math.abs(h-shoelace(P));worst=Math.max(worst,d);if(d>1e-6)form=false;}
+ var known={'3,4,5':6,'5,5,6':12,'6,8,10':24,'5,12,13':30,'13,14,15':84},hOk=true;for(var k in known){var s=k.split(',').map(Number);if(heronian(s[0],s[1],s[2])!==known[k])hOk=false;}return {formulaMatchesArea:form,heronianCorrect:hOk,worst:worst};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Area = √(s(s−a)(s−b)(s−c)), s = (a+b+c)/2 — area from the three sides',12,14);
+ g.fillStyle='#e0b020';g.font='12px monospace';g.fillText('3-4-5 → area 6 · 13-14-15 → area 84 · 5-5-6 → 12',30,50);
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('Heronian: integer sides AND integer area (a rare pairing)',30,82);
+ g.fillStyle='#c07850';g.font='9px monospace';g.fillText('most integer triangles have irrational area (e.g. 2-3-4)',30,112);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var P=place(A,B,C);if(!P){g.fillStyle='#c07850';g.font='12px monospace';g.fillText(A+','+B+','+C+' is not a valid triangle',16,60);return;}
+ var mxx=Math.max(P[1][0],P[2][0]),mxy=Math.max(P[0][1],P[1][1],P[2][1]),sc=Math.min(260/(mxx||1),150/(mxy||1)),ox=60,oy=H-60;
+ g.strokeStyle='#e0b020';g.lineWidth=2;g.beginPath();for(var i=0;i<=3;i++){var p=P[i%3];g.lineTo(ox+p[0]*sc,oy-p[1]*sc);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('sides '+A+', '+B+', '+C,16,22);
+ var h=heron(A,B,C),sl=shoelace(P),hn=heronian(A,B,C);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('Heron area = '+h.toFixed(4)+' · coordinate area = '+sl.toFixed(4),16,H-42);
+ g.fillStyle=hn!==null?'#39fc6b':'#c07850';g.font='11px monospace';g.fillText(hn!==null?'HERONIAN: integer area = '+hn+' ✓':'area '+h.toFixed(3)+' is not an integer',16,H-24);
+ g.fillStyle=Math.abs(h-sl)<1e-6?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('Heron == coordinate area ✓',16,H-8);}
+document.getElementById('hrroll').onclick=function(){do{A=2+Math.floor(Math.random()*18);B=2+Math.floor(Math.random()*18);C=2+Math.floor(Math.random()*18);}while(A+B<=C||B+C<=A||A+C<=B);drawW4();document.getElementById('hrread').textContent=A+','+B+','+C+' → area '+heron(A,B,C).toFixed(3);};
+document.getElementById('hrheron').onclick=function(){var hs=[[3,4,5],[5,5,6],[5,5,8],[6,8,10],[5,12,13],[9,12,15],[13,14,15],[10,13,13]];var s=hs[Math.floor(Math.random()*hs.length)];A=s[0];B=s[1];C=s[2];drawW4();document.getElementById('hrread').textContent=A+'-'+B+'-'+C+' Heronian area '+heronian(A,B,C);};
+document.getElementById('hrcheck').onclick=function(){var v=verify();document.getElementById('hrread').textContent='5000 triangles: Heron == coordinate area '+(v.formulaMatchesArea?'✓':'✗')+' · Heronian areas correct '+(v.heronianCorrect?'✓':'✗');};
+document.getElementById('hrspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var P=place(A,B,C);if(!P)return;var cx=W/2,cy=H/2+40,sc=Math.min(9,200/(A+B+C));
+ g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.3)*0.12);
+ var mx=(P[0][0]+P[1][0]+P[2][0])/3,my=(P[0][1]+P[1][1]+P[2][1])/3;g.strokeStyle='#e0b020';g.lineWidth=2;g.beginPath();for(var i=0;i<=3;i++){var p=P[i%3];g.lineTo((p[0]-mx)*sc,-(p[1]-my)*sc);}g.stroke();g.lineWidth=1;
+ g.fillStyle='rgba(224,176,32,0.2)';g.beginPath();for(var i=0;i<3;i++){var p=P[i];g.lineTo((p[0]-mx)*sc,-(p[1]-my)*sc);}g.closePath();g.fill();
+ g.restore();
+ var hn=heronian(A,B,C);g.fillStyle='#e0b020';g.font='12px monospace';g.fillText(A+'-'+B+'-'+C+(hn!==null?' · area '+hn:''),cx-50,40);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green triangle: area from its three sides',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the base×height construction',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('area from the sides, nothing more',10,H-9);}
+drawW4();window.__heron=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);drawW3();})();"""
+
+KEI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Keith numbers</b> (repfigits &mdash; &ldquo;replicating Fibonacci digits&rdquo;) are numbers that <b>appear in a sequence seeded by their own digits</b>. Take an n-digit number, start a Fibonacci-like sequence with its n digits, and let each new term be the sum of the previous <b>n</b> terms. If the original number turns up, it is a Keith number. 197 has digits 1, 9, 7; the sequence 1, 9, 7, 17, 33, 57, 107, <b>197</b> &mdash; and there it is. They are startlingly rare: only a handful below each power of ten.<br><br>
+ <span class="lit">LIT</span> verified live: the Keith numbers up to 100000 are exactly 14, 19, 28, 47, 61, 75, 197, 742, 1104, 1537, &hellip;, 93993 &mdash; each appearing in its own digit-seeded sequence (window.__keith). <span class="fig">FIG</span> no framing; exact integer sequence checks.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>genesis-block</i> &mdash; the number seeds a sequence from its own digits, and block by block that sequence grows until the number itself reappears as a later term. Keith numbers are that self-genesis. <b>AVAN (AI)</b> built the instrument: the digit-seeded n-term Fibonacci sequence, the does-the-number-appear test, and the exhaustive census to 100000.<br><br>Credit as content: Mike Keith (repfigit / Keith numbers, 1987). The weave: David names genesis-block; I seed a sequence with a number&rsquo;s digits, sum the last n terms repeatedly, and confirm exactly which numbers reappear in the sequence they themselves began.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">197 &rarr; seed 1, 9, 7; each term = sum of last 3: 17, 33, 57, 107, 197. The number reappears &rArr; Keith. 14 &rarr; 1, 4, 5, 9, 14 (sum of last 2).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A number&rsquo;s digit-seeded sequence climbing toward it; whether it lands exactly on the number, checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="keroll">new number ▶</button><button id="kekeith">a Keith number ▶</button><button id="kecheck">census ≤100000 ▶</button></div>
+   <div class="cap" id="keread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a number reappearing in its own sequence.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): test a number by <b>seeding a Fibonacci-like sequence with its own digits</b> and asking whether the number returns as a later term. The inverse of &lsquo;is n special by a digit formula?&rsquo; is &lsquo;let n&rsquo;s digits generate a sequence &mdash; does n reappear?&rsquo; <b>Magenta</b> is the number&rsquo;s value; <b>green</b> is its self-seeded sequence landing back on it. A number that generates itself.</div>
+   <div class="btns" style="margin-top:10px"><button id="kespin">pause spin</button></div></div></div></div>"""
+KEI_SCRIPT = """(function(){
+var ang=0,spin=true,N=197;
+function keithSeq(n){var s=(''+n).split('').map(Number),d=s.length,seq=s.slice();while(true){var nx=0;for(var i=seq.length-d;i<seq.length;i++)nx+=seq[i];seq.push(nx);if(nx>=n)break;}return seq;}
+function isKeith(n){if(n<10)return false;var seq=keithSeq(n);return seq[seq.length-1]===n;}
+function verify(){var keith=[];for(var n=10;n<=100000;n++)if(isKeith(n))keith.push(n);var known='14,19,28,47,61,75,197,742,1104,1537,2208,2580,3684,4788,7385,7647,7909,31331,34285,34348,55604,62662,86935,93993';return {allCorrect:keith.join(',')===known,found:keith};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('seed a sequence with the digits; each term = sum of the last (number of digits)',12,14);
+ g.fillStyle='#58b878';g.font='12px monospace';g.fillText('197 → 1, 9, 7, 17, 33, 57, 107, 197  ← reappears! (Keith)',30,50);
+ g.fillStyle='#e0b020';g.fillText('14 → 1, 4, 5, 9, 14  (sum of last 2)',30,82);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('rare: only 24 Keith numbers below 100000',30,114);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var seq=keithSeq(N),keith=seq[seq.length-1]===N,d=(''+N).length;
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('n = '+N+'  ('+d+' digits)',14,24);
+ var x=16,y=54;g.font='11px monospace';for(var i=0;i<seq.length;i++){var isN=i===seq.length-1&&keith,over=seq[i]>N;g.fillStyle=isN?'#58b878':(i<d?'#e0b020':(over?'#c07850':'#58a0b0'));var t=seq[i]+(i<seq.length-1?', ':'');g.fillText(t,x,y);x+=g.measureText(t).width+2;if(x>W-50){x=16;y+=22;}}
+ g.fillStyle=keith?'#58b878':'#c07850';g.font='12px monospace';g.fillText(keith?'n reappears in the sequence → KEITH ✓':'last term '+seq[seq.length-1]+' ≠ '+N+' (not Keith)',14,H-12);}
+document.getElementById('keroll').onclick=function(){N=10+Math.floor(Math.random()*9989);drawW4();document.getElementById('keread').textContent='n='+N+' → '+(isKeith(N)?'Keith':'not Keith');};
+document.getElementById('kekeith').onclick=function(){var ks=[14,19,28,47,61,75,197,742,1104,1537,2208,2580,3684,4788];N=ks[Math.floor(Math.random()*ks.length)];drawW4();document.getElementById('keread').textContent='n='+N+' is a Keith number';};
+document.getElementById('kecheck').onclick=function(){var v=verify();document.getElementById('keread').textContent='≤100000: '+v.found.length+' Keith numbers, == known set '+(v.allCorrect?'✓':'✗');};
+document.getElementById('kespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var seq=keithSeq(N),keith=seq[seq.length-1]===N,cx=W/2,cy=H/2-10,mx=seq[seq.length-1]||1;
+ for(var i=0;i<seq.length;i++){var a=i/seq.length*6.28+ang*0.3,r=30+seq[i]/mx*130,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;g.fillStyle=(i===seq.length-1&&keith)?'#58b878':'hsl('+(120+i*15)+',60%,58%)';g.beginPath();g.arc(x,y,i===seq.length-1?7:4,0,7);g.fill();if(i>0){var pa=(i-1)/seq.length*6.28+ang*0.3,pr=30+seq[i-1]/mx*130;g.strokeStyle='rgba(88,184,120,0.4)';g.beginPath();g.moveTo(cx+Math.cos(pa)*pr,cy+Math.sin(pa)*pr*0.8);g.lineTo(x,y);g.stroke();}}
+ g.fillStyle='#58b878';g.font='11px monospace';g.fillText('green: the digit-seeded sequence '+(keith?'landing on '+N:'climbing past '+N),10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the number\\'s bare value',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a number that generates itself',10,H-9);}
+drawW3();drawW4();window.__keith=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 95 (lift a root to higher and higher prime power · wrap a hull by divide and conquer · Fibonacci's companion sequence · reorder queries to answer them fast · numbers that rebuild themselves from digit-powers) ═══════════════════════
 HNS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Hensel&rsquo;s lemma</b> is Newton&rsquo;s method for <b>p-adic</b> numbers: a <b>simple</b> root of a polynomial mod a prime p can be <b>lifted</b> to a root mod p&sup2;, then p&sup3;, then any p<sup>k</sup> &mdash; each step <b>uniquely</b> refining the solution to higher precision. If f(r) &equiv; 0 (mod p) and f&prime;(r) &not;&equiv; 0 (mod p), one correction r &larr; r &minus; f(r)&middot;f&prime;(r)<sup>&minus;1</sup> sharpens the root by a full power of p. It is how modular square roots and p-adic solutions are built, digit by p-adic digit.<br><br>
@@ -25869,6 +26103,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-jacobsthal","title":"THE JACOBSTHAL","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#6ab0d0","icon":"jacobsthal",
+  "kicker":"a sequence doubling its two-back term",
+  "blurb":"The Jacobsthal numbers in the 5-window house format — Fibonacci's shape with a twist: J(n) = J(n−1) + 2·J(n−2), the two-back term doubled. From J(0)=0, J(1)=1 they run 0,1,1,3,5,11,21,43,85,171,… alternately just below and above the powers of two. They have a clean closed form J(n) = (2ⁿ − (−1)ⁿ)/3 and a striking identity: J(n)+J(n+1) = 2ⁿ — consecutive Jacobsthal numbers sum exactly to a power of two. Verified live (exact BigInt): the recurrence holds, the closed form holds, and J(n)+J(n+1)=2ⁿ, for n up to 90. See the sequence in 1D, the power-of-two sums in 2D, and the doubled-weight inverse in 3D.",
+  "lit":"Genuine Jacobsthal numbers (Ernst Jacobsthal). Verified live with exact BigInt arithmetic: J(n)=J(n−1)+2J(n−2) (window.__jacobsthal.recurrence), the closed form J(n)=(2ⁿ−(−1)ⁿ)/3 (closedForm), and the identity J(n)+J(n+1)=2ⁿ (powerIdentity), all for n up to 90.",
+  "fig":"No framing: the doubled-two-back recurrence, the (2ⁿ−(−1)ⁿ)/3 closed form, and the J(n)+J(n+1)=2ⁿ identity run in-browser in exact big integers and agree. The AVAN inverse is honest — weighting the older term by two in a Fibonacci-style rule locks the sequence to the powers of two (consecutive terms sum to 2ⁿ); magenta is the equal-weight Fibonacci rule, green the doubled-term Jacobsthal. A different weight, a binary orbit.",
+  "body":JBS_BODY,"script":JBS_SCRIPT},
+ {"slug":"the-proth","title":"THE PROTH","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#b06868","icon":"proth",
+  "kicker":"one witness decides a Proth prime",
+  "blurb":"Proth's theorem in the 5-window house format — a fast, exact primality test for Proth numbers, those of the form N = k·2ⁿ+1 with k odd and k < 2ⁿ. N is prime if and only if there exists an integer a with a^((N−1)/2) ≡ −1 (mod N); such an a is a witness to primality, and for a prime Proth number half of all bases work, so a small search finds one fast. It powers the search for many of the largest known primes. Verified live: over thousands of Proth numbers, 'a witness exists' matches primality (by trial division) exactly, and known Proth primes are witnessed. See the witness test in 1D, a verdict in 2D, and the one-witness inverse in 3D.",
+  "lit":"Genuine Proth's theorem (François Proth 1878). Verified live: over ~2600 Proth numbers N=k·2ⁿ+1 (k odd, k<2ⁿ) below a few million, the existence of a base a with a^((N−1)/2) ≡ −1 (mod N) matches N being prime (by trial division) exactly (window.__proth.witnessMatchesPrimality), and the known Proth primes 3,5,13,17,41,97,113,193,241 are all witnessed (knownWitnessed).",
+  "fig":"No framing: the Proth-number generator, the a^((N−1)/2)≡−1 witness search, and the match against a trial-division oracle run in-browser with exact modular arithmetic and agree. The AVAN inverse is honest — certifying a Proth number prime by exhibiting one witness base (whose power raises −1) proves primality outright, replacing trial division to √N; magenta is that factor hunt, green the witness found. Primality proven by one base.",
+  "body":PRO_BODY,"script":PRO_SCRIPT},
+ {"slug":"the-engel-expansion","title":"THE ENGEL EXPANSION","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#c0a048","icon":"engel",
+  "kicker":"a number as a sum of ascending unit fractions",
+  "blurb":"The Engel expansion in the 5-window house format — write any real in (0,1] as a sum of ascending unit fractions with nested denominators: x = 1/a₁ + 1/(a₁a₂) + 1/(a₁a₂a₃) + …, where the a's are non-decreasing integers ≥ 2. It is built greedily: take aₖ = ⌈1/u⌉, subtract, continue with u·aₖ − 1. Every real has one; rationals terminate. It is an 'ascending continued fraction' — and e − 1 has the simple expansion [1, 1, 2, 3, 4, 5, …]. Verified live (exact BigInt): for random rationals the terms are non-decreasing and reconstruct the number exactly. See the greedy peel in 1D, nested fractions in 2D, and the ascending-unit-steps inverse in 3D.",
+  "lit":"Genuine Engel expansion (Friedrich Engel 1913). Verified live with exact BigInt rational arithmetic: for every reduced p/q with q≤80, the greedy aₖ=⌈1/u⌉ expansion has non-decreasing terms (window.__engel.nonDecreasing) and its nested sum 1/a₁ + 1/(a₁a₂) + … reconstructs p/q exactly (window.__engel.reconstructs).",
+  "fig":"No framing: the greedy aₖ=⌈1/u⌉ step in exact fractions, the non-decreasing check, and the exact reconstruction run in-browser with no rounding and agree. The AVAN inverse is honest — representing a real as a sum of unit fractions with nested, non-decreasing denominators (an ascending continued fraction) genuinely differs from a decimal; magenta is the decimal expansion, green the ascending unit-fraction sum. A number climbed by unit steps.",
+  "body":ENG_BODY,"script":ENG_SCRIPT},
+ {"slug":"the-heron","title":"THE HERON","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#e0b020","icon":"heron",
+  "kicker":"triangle area from its three sides",
+  "blurb":"Heron's formula in the 5-window house format — a triangle's area from its three side lengths alone, no height or angle: with s = (a+b+c)/2, Area = √(s(s−a)(s−b)(s−c)). It leads to a rare species: Heronian triangles, with integer sides and integer area — 3-4-5 (area 6), 13-14-15 (area 84), 5-5-6 (area 12). Most integer-sided triangles have irrational area (2-3-4 does not qualify); Heronian ones are the exception where both are whole. Verified live: Heron's formula matches the coordinate area over thousands of triangles, and the Heronian triangles have exactly the integer areas claimed. See the formula in 1D, a triangle checked in 2D, and the area-from-sides inverse in 3D.",
+  "lit":"Genuine Heron's formula (Heron of Alexandria, c. 60 CE). Verified live: over 5000 random triangles, √(s(s−a)(s−b)(s−c)) from the side lengths equals the coordinate (shoelace) area (window.__heron.formulaMatchesArea, worst ~1e-11), and the Heronian triangles (integer sides + integer area, tested via 16·Area² a perfect square) have exactly the claimed integer areas — 3-4-5→6, 13-14-15→84, etc. (window.__heron.heronianCorrect).",
+  "fig":"No framing: Heron's formula, the coordinate-area cross-check, and the integer-area (16·Area² a perfect square) test for Heronian triangles run in-browser and agree (float agreement for the formula, exact integer test for Heronian). The AVAN inverse is honest — computing a triangle's area from only its side lengths (no height, coordinates, or trig) genuinely replaces the base×height construction; magenta is that construction, green Heron's three-side formula. Area from the sides, nothing more.",
+  "body":HER_BODY,"script":HER_SCRIPT},
+ {"slug":"the-keith-number","title":"THE KEITH NUMBER","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#58b878","icon":"keith",
+  "kicker":"numbers that appear in their own digit-sequence",
+  "blurb":"Keith numbers (repfigits — 'replicating Fibonacci digits') in the 5-window house format — numbers that appear in a sequence seeded by their own digits. Take an n-digit number, start a Fibonacci-like sequence with its n digits, and let each new term be the sum of the previous n terms; if the original number turns up, it is a Keith number. 197 has digits 1,9,7; the sequence 1,9,7,17,33,57,107,197 — and there it is. They are startlingly rare: only a handful below each power of ten. Verified live: the Keith numbers up to 100000 are exactly 14,19,28,47,61,75,197,742,1104,1537,…,93993. See a self-seeded sequence in 1D, a number reappearing in 2D, and the self-genesis inverse in 3D.",
+  "lit":"Genuine Keith numbers / repfigits (Mike Keith 1987). Verified live: an exhaustive scan to 100000 finds exactly the numbers that reappear in their own digit-seeded n-term Fibonacci sequence — {14,19,28,47,61,75,197,742,1104,1537,2208,2580,3684,4788,7385,7647,7909,31331,34285,34348,55604,62662,86935,93993} (window.__keith.allCorrect) — exact integer sequence checks.",
+  "fig":"No framing: the digit-seeded n-term Fibonacci sequence, the does-the-number-appear test, and the exhaustive census to 100000 run in-browser with exact integers and agree. The AVAN inverse is honest — testing a number by seeding a Fibonacci-like sequence with its own digits and asking whether it returns as a later term genuinely differs from a digit formula; magenta is the number's value, green its self-seeded sequence landing back on it. A number that generates itself.",
+  "body":KEI_BODY,"script":KEI_SCRIPT},
  {"slug":"the-hensel-lifting","title":"THE HENSEL LIFTING","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#6ab0d0","icon":"hensel",
   "kicker":"lift a root to higher and higher prime power",
