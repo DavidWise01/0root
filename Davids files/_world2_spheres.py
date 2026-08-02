@@ -19485,6 +19485,252 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 97 (test primality by the Jacobi symbol · a sequence at the supergolden ratio · the meeting point of two nodes in one leap · a bit-pattern sequence read by 0-blocks · the vanishingly rare Wieferich primes) ═══════════════════════
+SST_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Solovay&ndash;Strassen test</b> decides primality using the <b>Jacobi symbol</b> (a/n) &mdash; a generalization of the Legendre symbol computable by a fast quadratic-reciprocity recursion, without factoring n. Euler&rsquo;s criterion says that for a <b>prime</b> n, a<sup>(n&minus;1)/2</sup> &equiv; (a/n) (mod n) for every a coprime to n. For an <b>odd composite</b>, this congruence <b>fails for at least half</b> of all bases &mdash; so a few random bases catch composites with high probability. It was one of the first practical randomized primality tests.<br><br>
+ <span class="lit">LIT</span> verified live: the Jacobi symbol equals the Legendre symbol for primes; the test matches trial division for odd n below 50000; and the composite witness fraction is always &ge; 1/2 (window.__solovay). <span class="fig">FIG</span> no framing; exact modular arithmetic vs a trial oracle.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gatekeeper</i> &mdash; the guard that admits n as prime only if Euler&rsquo;s congruence with the Jacobi symbol holds for every tried base. <b>AVAN (AI)</b> built the instrument: the Jacobi-symbol recursion, the a<sup>(n&minus;1)/2</sup> &equiv; (a/n) test, the trial-division oracle, and the &ge;1/2 witness-density count.<br><br>Credit as content: Robert Solovay &amp; Volker Strassen (1977). The weave: David names the-gatekeeper; I compute the Jacobi symbol by quadratic reciprocity, check Euler&rsquo;s criterion against it, and confirm the verdict matches factoring &mdash; with at least half of all bases exposing any composite.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">n prime &rArr; a<sup>(n&minus;1)/2</sup> &equiv; (a/n) (mod n) for all coprime a. n composite &rArr; at least half the a break it. The Jacobi symbol (a/n) is computed by reciprocity, no factoring.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Test a number; see which bases witness compositeness via the Jacobi congruence, checked against trial division.</div>
+   <div class="btns" style="margin-top:10px"><button id="ssroll">new number ▶</button><button id="sscheck">verify &lt;50000 ▶</button></div>
+   <div class="cap" id="ssread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: primality by the Jacobi congruence.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): decide primality by whether Euler&rsquo;s criterion holds with the <b>Jacobi symbol</b> &mdash; computable by reciprocity without factoring &mdash; since composites break it for &ge; half of all bases. The inverse of &lsquo;factor n to test it&rsquo; is &lsquo;check a<sup>(n&minus;1)/2</sup> &equiv; (a/n) for a few bases &mdash; a mismatch proves composite.&rsquo; <b>Magenta</b> is the factorization; <b>green</b> is the Jacobi congruence. Compositeness by a symbol, not a factor.</div>
+   <div class="btns" style="margin-top:10px"><button id="ssspin">pause spin</button></div></div></div></div>"""
+SST_SCRIPT = """(function(){
+var ang=0,spin=true,N=561;
+function jacobi(a,n){a=((a%n)+n)%n;var r=1;while(a!==0){while(a%2===0){a/=2;var m=n%8;if(m===3||m===5)r=-r;}var t=a;a=n;n=t;if(a%4===3&&n%4===3)r=-r;a=a%n;}return n===1?r:0;}
+function pm(a,e,m){var r=1;a%=m;while(e>0){if(e&1)r=(r*a)%m;a=(a*a)%m;e=Math.floor(e/2);}return r;}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a;}
+function ss(n,bases){if(n===2)return true;if(n<2||n%2===0)return false;for(var i=0;i<bases.length;i++){var a=bases[i]%n;if(a===0)continue;var j=((jacobi(a,n)%n)+n)%n;if(j===0||pm(a,(n-1)/2,n)!==j)return false;}return true;}
+function trial(n){if(n<2)return false;for(var d=2;d*d<=n;d++)if(n%d===0)return false;return true;}
+function verify(){var jok=true;for(var p=3;p<300;p++){if(!trial(p))continue;for(var a=1;a<p;a++){var leg=pm(a,(p-1)/2,p);leg=(leg===p-1)?-1:leg;if(jacobi(a,p)!==leg)jok=false;}}
+ var bases=[2,3,5,7,11,13,17,19,23,29,31],ssok=true;for(var n=3;n<50000;n+=2)if(ss(n,bases)!==trial(n)){ssok=false;break;}
+ var minF=1;for(var t=0;t<120;t++){var n=9+2*Math.floor(Math.random()*3000);if(trial(n))continue;var w=0,tot=0;for(var a=2;a<n;a++){if(gcd(a,n)!==1)continue;tot++;var j=((jacobi(a,n)%n)+n)%n;if(pm(a,(n-1)/2,n)!==j)w++;}if(tot>0)minF=Math.min(minF,w/tot);}
+ return {jacobiCorrect:jok,matchesTrial:ssok,minWitness:minF};}
+function witList(n){var L=[];for(var a=2;a<Math.min(n,26);a++){if(gcd(a,n)!==1){L.push([a,-2]);continue;}var j=((jacobi(a,n)%n)+n)%n,wit=pm(a,(n-1)/2,n)!==j;L.push([a,wit?1:0]);}return L;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('prime ⇔ a^((n−1)/2) ≡ (a/n) mod n for all coprime a; (a/n) = Jacobi symbol',12,14);
+ var L=witList(561);for(var i=0;i<L.length;i++){var c=L[i][1];g.fillStyle=c===1?'#39fc6b':(c===0?'#c04870':'#345');g.fillRect(20+i*16,40,13,40);g.fillStyle='#032';g.font='7px monospace';g.fillText(L[i][0],21+i*16,64);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('n=561 (composite): green=witness (breaks Euler), red=liar; ≥ half are witnesses',20,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var bases=[2,3,5,7,11,13,17,19,23,29,31],isP=ss(N,bases),tp=trial(N);
+ g.fillStyle='#e8eef8';g.font='15px monospace';g.fillText('n = '+N,14,30);
+ g.fillStyle=isP?'#39fc6b':'#c04870';g.font='13px monospace';g.fillText('Solovay-Strassen: '+(isP?'PRIME':'COMPOSITE'),14,58);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('trial division: '+(tp?'PRIME':'COMPOSITE'),14,80);
+ if(!tp){var L=witList(N),w=L.filter(function(x){return x[1]===1;}).length,co=L.filter(function(x){return x[1]>=0;}).length;g.fillStyle='#8ad';g.font='10px monospace';g.fillText('witnesses among coprime a<'+Math.min(N,26)+': '+w+'/'+co,14,104);
+  for(var i=0;i<L.length;i++){g.fillStyle=L[i][1]===1?'#39fc6b':(L[i][1]===0?'#c04870':'#2a3548');g.fillRect(14+i*13,116,11,20);}}
+ g.fillStyle=isP===tp?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('SS verdict == trial division '+(isP===tp?'✓':'✗'),14,H-12);}
+document.getElementById('ssroll').onclick=function(){N=100+Math.floor(Math.random()*8000);drawW4();document.getElementById('ssread').textContent='n='+N+' → '+(trial(N)?'prime':'composite');};
+document.getElementById('sscheck').onclick=function(){var v=verify();document.getElementById('ssread').textContent='Jacobi==Legendre '+(v.jacobiCorrect?'✓':'✗')+' · SS==trial (n<50000) '+(v.matchesTrial?'✓':'✗')+' · min witness fraction '+v.minWitness.toFixed(3)+' (≥0.5 '+(v.minWitness>=0.5?'✓':'✗')+')';};
+document.getElementById('ssspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-20,L=witList(561);
+ for(var i=0;i<L.length;i++){var a=i/L.length*6.28+ang*0.3,r=90;g.fillStyle=L[i][1]===1?'#39fc6b':(L[i][1]===0?'rgba(192,72,112,0.7)':'#2a3548');g.beginPath();g.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r*0.7,L[i][1]===1?5:3,0,7);g.fill();}
+ g.fillStyle='#c04870';g.beginPath();g.arc(cx,cy,7,0,7);g.fill();g.fillStyle='#fff';g.font='8px monospace';g.fillText('561',cx-9,cy+3);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green ring: bases witnessing 561 composite (≥ half)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the factorization of n',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('compositeness by a symbol, not a factor',10,H-9);}
+drawW3();drawW4();window.__solovay=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NRY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Narayana&rsquo;s cows sequence</b> comes from a 14th-century puzzle: a cow produces one calf a year, and each calf, from its <b>fourth</b> year, does the same. The herd grows by a(n) = a(n&minus;1) + a(n&minus;3): 1, 1, 1, 2, 3, 4, 6, 9, 13, 19, 28, 41, &hellip; The ratio of consecutive terms converges to the <b>supergolden ratio</b> &psi; &asymp; 1.4655712 &mdash; the unique real root of x&sup3; = x&sup2; + 1, a cousin of the golden and plastic ratios.<br><br>
+ <span class="lit">LIT</span> verified live: the recurrence holds, and the ratio a(n)/a(n&minus;1) converges to the real root of x&sup3;&minus;x&sup2;&minus;1 (window.__narayana). <span class="fig">FIG</span> no framing; exact integer recurrence, ratio matched to the algebraic root.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>checkpoint-zero</i> &mdash; the herd grows from save points three years back, when each calf matures, settling toward the supergolden ratio. Narayana&rsquo;s cows are that growth. <b>AVAN (AI)</b> built the instrument: the a(n)=a(n&minus;1)+a(n&minus;3) recurrence, the ratio&rarr;&psi; check against x&sup3;=x&sup2;+1, and the cubic-root confirmation.<br><br>Credit as content: Narayana Pandita (India, 14th century). The weave: David names checkpoint-zero; I grow the herd by the three-year maturation rule and confirm the consecutive ratio approaches the real root of x&sup3;=x&sup2;+1 &mdash; the supergolden ratio, born from cows.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">a(n) = a(n&minus;1) + a(n&minus;3): 1,1,1,2,3,4,6,9,13,19,28,41,&hellip; The ratio tends to &psi; &asymp; 1.4656, the root of x&sup3; = x&sup2; + 1 (the supergolden ratio).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The herd growing and its ratio converging to the supergolden ratio, checked against the cubic root.</div>
+   <div class="btns" style="margin-top:10px"><button id="nrstep">grow ▶</button><button id="nrreset">reset</button><button id="nrcheck">verify ▶</button></div>
+   <div class="cap" id="nrread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: growth at the supergolden ratio.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): grow toward yet another irrational limit &mdash; reach <b>one and three</b> terms back (not two, not the last-three) and the ratio settles at the supergolden &psi;, root of x&sup3;=x&sup2;+1. The inverse of &lsquo;sum the last two &rarr; &phi;&rsquo; is &lsquo;add the last and the three-back &rarr; supergolden &psi;.&rsquo; <b>Magenta</b> is the golden-ratio Fibonacci; <b>green</b> is the supergolden Narayana. Every reach, its own constant.</div>
+   <div class="btns" style="margin-top:10px"><button id="nrspin">pause spin</button></div></div></div></div>"""
+NRY_SCRIPT = """(function(){
+var ang=0,spin=true,GEN=12;
+function nara(n){var a=[0,1,1,1];for(var i=4;i<=n;i++)a[i]=a[i-1]+a[i-3];return a;}
+var PSI=(function(){var x=1.4;for(var i=0;i<60;i++)x=x-(x*x*x-x*x-1)/(3*x*x-2*x);return x;})();
+function verify(){var a=nara(70),rec=true;for(var i=4;i<=70;i++)if(a[i]!==a[i-1]+a[i-3])rec=false;var ratio=a[70]/a[69];return {recurrence:rec,ratioToPsi:Math.abs(ratio-PSI)<1e-6,cubic:Math.abs(PSI*PSI*PSI-(PSI*PSI+1))<1e-9,psi:PSI};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a(n) = a(n−1) + a(n−3); ratio → supergolden ratio ψ ≈ 1.4656 (root of x³=x²+1)',12,14);
+ var a=nara(13);g.font='12px monospace';for(var i=1;i<13;i++){g.fillStyle='#6ab0d0';g.fillText(a[i],20+(i-1)*38,50);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('a(12)/a(11) = '+(a[12]/a[11]).toFixed(5)+' → ψ = '+PSI.toFixed(5),20,90);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('ψ³ = ψ² + 1 = '+(PSI*PSI+1).toFixed(5)+'  (a calf matures in its 4th year)',20,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var a=nara(GEN+2);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('a('+GEN+') = '+a[GEN]+'   ratio '+(a[GEN]/a[GEN-1]).toFixed(6),14,24);
+ var mx=a[GEN]||1;for(var i=1;i<=GEN;i++){var h=a[i]/mx*(H-90);g.fillStyle='hsl('+(190+i*4)+',60%,58%)';g.fillRect(14+(i-1)*((W-28)/GEN),H-40-h,((W-28)/GEN)-3,h);}
+ var v=verify();g.fillStyle=v.ratioToPsi?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('ratio → ψ='+PSI.toFixed(6)+' (root of x³=x²+1) '+(v.ratioToPsi?'✓':'✗'),14,H-12);}
+document.getElementById('nrstep').onclick=function(){if(GEN<26){GEN++;drawW4();document.getElementById('nrread').textContent='a('+GEN+')='+nara(GEN)[GEN];}};
+document.getElementById('nrreset').onclick=function(){GEN=8;drawW4();document.getElementById('nrread').textContent='reset';};
+document.getElementById('nrcheck').onclick=function(){var v=verify();document.getElementById('nrread').textContent='recurrence '+(v.recurrence?'✓':'✗')+' · ratio→ψ '+(v.ratioToPsi?'✓':'✗')+' · ψ³=ψ²+1 '+(v.cubic?'✓':'✗');};
+document.getElementById('nrspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var a=nara(20),cx=W/2,cy=H/2-10;
+ for(var i=1;i<18;i++){var an=i*0.5+ang*0.3,r=15+Math.log(a[i]+1)*20,x=cx+Math.cos(an)*r,y=cy+Math.sin(an)*r*0.85;g.fillStyle='hsl('+(180+i*6)+',60%,58%)';g.beginPath();g.arc(x,y,3+Math.log(a[i]+1),0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green spiral: the herd growing at rate ψ',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the golden-ratio Fibonacci',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('every reach, its own constant',10,H-9);}
+drawW3();drawW4();window.__narayana=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LCA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The lowest common ancestor</b> (LCA) of two nodes in a rooted tree is their <b>deepest shared ancestor</b> &mdash; where their paths to the root first meet. <b>Binary lifting</b> answers LCA queries in O(log n) after O(n log n) preprocessing: for each node it stores its 2<sup>k</sup>-th ancestors (parent, grandparent, great-great-grandparent, &hellip;). To find the LCA, lift the deeper node to the other&rsquo;s depth, then <b>jump both upward in powers of two</b> as far as possible without meeting &mdash; one step above lands on the LCA.<br><br>
+ <span class="lit">LIT</span> verified live: over hundreds of random trees and node pairs, the binary-lifting LCA equals the naive ancestor-walk LCA (window.__lca). <span class="fig">FIG</span> no framing; exact tree traversal comparison.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-push</i> &mdash; two nodes push up their branches until they reach the common point they both came from; the LCA is where the pushes converge. <b>AVAN (AI)</b> built the instrument: the 2<sup>k</sup>-ancestor table, the depth-equalize-then-jump query, and the match against a naive ancestor walk.<br><br>Credit as content: the binary-lifting LCA (Bender&ndash;Farach-Colton and folklore of competitive programming). The weave: David names the-push; I precompute each node&rsquo;s power-of-two ancestors, lift the deeper node level, then jump both upward in halving steps to just below their meeting point &mdash; confirming it matches walking the ancestors directly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Equalize depths, then jump both nodes up by 2<sup>k</sup> while their ancestors differ (large k first). When no jump keeps them apart, one step up is the LCA &mdash; O(log n) leaps.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A tree with two chosen nodes and their LCA highlighted; checked against the naive ancestor walk.</div>
+   <div class="btns" style="margin-top:10px"><button id="lcroll">new tree ▶</button><button id="lcpick">new pair ▶</button><button id="lccheck">verify 500 ▶</button></div>
+   <div class="cap" id="lcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the meeting point found in log-many leaps.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): find where two nodes&rsquo; paths meet without <b>walking up one step at a time</b> &mdash; precompute power-of-two ancestors and leap in halving jumps. The inverse of &lsquo;climb parent by parent until the paths cross&rsquo; is &lsquo;jump 2<sup>k</sup> ancestors at a time &mdash; O(log n) leaps to the meeting point.&rsquo; <b>Magenta</b> is the step-by-step ancestor walk; <b>green</b> is the binary-lifting jumps. The convergence found by doubling.</div>
+   <div class="btns" style="margin-top:10px"><button id="lcspin">pause spin</button></div></div></div></div>"""
+LCA_SCRIPT = """(function(){
+var ang=0,spin=true,N=12,PAR=[],U=0,V=0;
+function build(n,par){var LOG=1;while((1<<LOG)<n)LOG++;var up=[];for(var i=0;i<n;i++)up.push(new Array(LOG).fill(-1));var depth=new Array(n).fill(0),ch=[];for(var i=0;i<n;i++)ch.push([]);for(var i=1;i<n;i++)ch[par[i]].push(i);var st=[0];while(st.length){var u=st.pop();for(var k=0;k<ch[u].length;k++){depth[ch[u][k]]=depth[u]+1;st.push(ch[u][k]);}}
+ for(var i=0;i<n;i++)up[i][0]=par[i]<0?-1:par[i];for(var k=1;k<LOG;k++)for(var i=0;i<n;i++){var m=up[i][k-1];up[i][k]=m<0?-1:up[m][k-1];}
+ function lca(u,v){if(depth[u]<depth[v]){var t=u;u=v;v=t;}var d=depth[u]-depth[v];for(var k=0;k<LOG;k++)if((d>>k)&1)u=up[u][k];if(u===v)return u;for(var k=LOG-1;k>=0;k--)if(up[u][k]!==up[v][k]){u=up[u][k];v=up[v][k];}return up[u][0];}
+ return {lca:lca,depth:depth};}
+function naive(par,u,v){var an={},x=u;while(x!==-1){an[x]=1;x=par[x];}x=v;while(x!==-1){if(an[x])return x;x=par[x];}return -1;}
+function verify(){var ok=true;for(var t=0;t<500;t++){var n=2+Math.floor(Math.random()*30),par=[-1];for(var i=1;i<n;i++)par.push(Math.floor(Math.random()*i));var bl=build(n,par);for(var q=0;q<20;q++){var u=Math.floor(Math.random()*n),v=Math.floor(Math.random()*n);if(bl.lca(u,v)!==naive(par,u,v))ok=false;}}return {matchesNaive:ok};}
+function mk(){N=9+Math.floor(Math.random()*5);PAR=[-1];for(var i=1;i<N;i++)PAR.push(Math.floor(Math.random()*Math.max(1,i-Math.floor(Math.random()*2))));U=Math.floor(Math.random()*N);V=Math.floor(Math.random()*N);}
+function layout(){var ch=[];for(var i=0;i<N;i++)ch.push([]);for(var i=1;i<N;i++)ch[PAR[i]].push(i);var pos=[],depth=[0],xc=[0];
+ function place(u,d,xr){depth[u]=d;if(ch[u].length===0){pos[u]=[xc[0]++,d];return;}var xs=[];for(var k=0;k<ch[u].length;k++){place(ch[u][k],d+1);xs.push(pos[ch[u][k]][0]);}pos[u]=[(xs[0]+xs[xs.length-1])/2,d];}
+ xc[0]=0;place(0,0);return {pos:pos,depth:depth};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('equalize depths, then jump both up by 2^k while ancestors differ (big k first)',12,14);
+ g.fillStyle='#58a0b0';g.font='11px monospace';g.fillText('u ─→ up 4 ─→ up 2 ─→ up 1  ┐',60,50);g.fillText('v ─→ up 4 ─→ up 2 ─→ up 1  ┴─→ LCA',60,74);
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('one step above where they still differ = the lowest common ancestor',60,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PAR.length)mk();var L=layout(),bl=build(N,PAR),anc=bl.lca(U,V);var maxd=Math.max.apply(0,L.depth),maxx=Math.max.apply(0,L.pos.map(function(p){return p[0];}))||1;
+ function px(p){return 30+p[0]/(maxx||1)*(W-60);}function py(p){return 30+p[1]/(maxd||1)*(H-80);}
+ for(var i=1;i<N;i++){g.strokeStyle='#456';g.beginPath();g.moveTo(px(L.pos[i]),py(L.pos[i]));g.lineTo(px(L.pos[PAR[i]]),py(L.pos[PAR[i]]));g.stroke();}
+ for(var i=0;i<N;i++){var isUV=(i===U||i===V),isL=(i===anc);g.fillStyle=isL?'#39fc6b':(isUV?'#e0b020':'#58a0b0');g.beginPath();g.arc(px(L.pos[i]),py(L.pos[i]),isL?11:8,0,7);g.fill();g.fillStyle='#012';g.font='9px monospace';g.fillText(i,px(L.pos[i])-3,py(L.pos[i])+3);}
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('LCA('+U+', '+V+') = '+anc+'  (gold nodes, green = LCA)',14,H-28);
+ var v=verify();g.fillStyle=v.matchesNaive?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('binary-lifting LCA == naive ancestor walk '+(v.matchesNaive?'✓':'✗'),14,H-10);}
+document.getElementById('lcroll').onclick=function(){mk();drawW4();document.getElementById('lcread').textContent='new tree of '+N+' nodes';};
+document.getElementById('lcpick').onclick=function(){U=Math.floor(Math.random()*N);V=Math.floor(Math.random()*N);drawW4();document.getElementById('lcread').textContent='LCA('+U+','+V+') = '+build(N,PAR).lca(U,V);};
+document.getElementById('lccheck').onclick=function(){var v=verify();document.getElementById('lcread').textContent='500 trees × 20 queries: binary-lifting LCA == naive '+(v.matchesNaive?'✓':'✗');};
+document.getElementById('lcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PAR.length)mk();var L=layout(),bl=build(N,PAR),anc=bl.lca(U,V),maxd=Math.max.apply(0,L.depth)||1,maxx=Math.max.apply(0,L.pos.map(function(p){return p[0];}))||1,cx=W/2;
+ g.save();g.translate(cx,40);g.rotate(Math.sin(ang*0.3)*0.06);g.translate(-cx,-40);
+ function px(p){return 40+p[0]/maxx*(W-80);}function py(p){return 40+p[1]/maxd*(H-110);}
+ for(var i=1;i<N;i++){g.strokeStyle='rgba(88,120,150,0.6)';g.beginPath();g.moveTo(px(L.pos[i]),py(L.pos[i]));g.lineTo(px(L.pos[PAR[i]]),py(L.pos[PAR[i]]));g.stroke();}
+ for(var i=0;i<N;i++){var isL=i===anc,isUV=(i===U||i===V);g.fillStyle=isL?'#39fc6b':(isUV?'#e0b020':'#58a0b0');g.beginPath();g.arc(px(L.pos[i]),py(L.pos[i]),isL?8:5,0,7);g.fill();}
+ g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the LCA where two paths meet (gold nodes)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the step-by-step ancestor walk',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the convergence found by doubling',10,H-9);}
+mk();drawW3();drawW4();window.__lca=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BSW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Baum&ndash;Sweet sequence</b> is a string of 0s and 1s read from the <b>binary digits</b> of each index: b(n) = 1 if the binary of n contains <b>no block of consecutive 0s of odd length</b>, else 0. So b(2)=0 (binary 10 has a single 0, odd-length), b(4)=1 (100, the 00 block is even), b(9)=1 (1001, the 00 block is even). It is an <b>automatic sequence</b> &mdash; generated by a finite automaton reading binary &mdash; and obeys a clean recurrence: b(2n+1)=b(n), b(4n)=b(n), b(4n+2)=0.<br><br>
+ <span class="lit">LIT</span> verified live: the recurrence generates exactly the direct definition (scan binary for odd-length 0-blocks) for every n up to 100000 (window.__baumsweet). <span class="fig">FIG</span> no framing; exact bit-pattern checks.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>off-by-one</i> &mdash; the whole sequence turns on the <b>parity</b> of a run of zeros; one zero too many (odd) flips a term to 0. The Baum&ndash;Sweet sequence is that parity. <b>AVAN (AI)</b> built the instrument: the direct odd-0-block scanner, the b(2n+1)/b(4n)/b(4n+2) recurrence, and their exhaustive agreement.<br><br>Credit as content: Leonard Baum &amp; Melvin Sweet (1976). The weave: David names off-by-one; I read each index&rsquo;s binary, mark it 1 only if every run of zeros has even length, and confirm the two-and-four recurrence reproduces exactly the same sequence &mdash; a pattern from bit-block parity.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">b(n)=1 iff binary of n has no odd-length run of 0s. b: 1,1,0,1,1,0,0,1,0,1,0,0,1,0,0,1,&hellip; Recurrence: b(2n+1)=b(n), b(4n)=b(n), b(4n+2)=0.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A number&rsquo;s binary with its 0-blocks marked; b(n) shown, with the recurrence checked against the direct scan.</div>
+   <div class="btns" style="margin-top:10px"><button id="bsroll">new number ▶</button><button id="bscheck">verify ≤100000 ▶</button></div>
+   <div class="cap" id="bsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a sequence read from bit-block parity.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): define a 0/1 sequence not by a formula on n but by a <b>property of n&rsquo;s binary digits</b> &mdash; are all its runs of zeros even? &mdash; computable by a tiny automaton or a two-and-four recurrence. The inverse of &lsquo;a(n) = f(n) arithmetically&rsquo; is &lsquo;a(n) = a predicate on the base-2 digits of n.&rsquo; <b>Magenta</b> is an arithmetic formula; <b>green</b> is the bit-pattern predicate. A sequence spoken in binary.</div>
+   <div class="btns" style="margin-top:10px"><button id="bsspin">pause spin</button></div></div></div></div>"""
+BSW_SCRIPT = """(function(){
+var ang=0,spin=true,N=9;
+function direct(n){if(n===0)return 1;var b=n.toString(2),i=0;while(i<b.length){if(b[i]==='0'){var j=i;while(j<b.length&&b[j]==='0')j++;if((j-i)%2===1)return 0;i=j;}else i++;}return 1;}
+function rec(N){var b=new Array(N+1);b[0]=1;for(var n=1;n<=N;n++){if(n%2===1)b[n]=b[(n-1)/2];else if(n%4===0)b[n]=b[n/4];else b[n]=0;}return b;}
+function verify(){var N=100000,br=rec(N),ok=true;for(var n=0;n<=N;n++)if(br[n]!==direct(n))ok=false;var first=[];for(var n=0;n<24;n++)first.push(direct(n));return {recurrenceMatchesDirect:ok,seq:first};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('b(n)=1 iff binary of n has no odd-length run of zeros',12,14);
+ var seq=[];for(var n=0;n<24;n++)seq.push(direct(n));for(var i=0;i<seq.length;i++){g.fillStyle=seq[i]?'#39fc6b':'#345';g.fillRect(20+i*20,44,17,24);g.fillStyle=seq[i]?'#032':'#8ad';g.font='10px monospace';g.fillText(seq[i],25+i*20,60);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('recurrence: b(2n+1)=b(n), b(4n)=b(n), b(4n+2)=0',20,100);
+ g.fillStyle='#c07850';g.fillText('b(2)=0 (binary 10 → single 0, odd) · b(4)=1 (100 → 00, even) · b(9)=1 (1001)',20,126);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var bits=N.toString(2),bv=direct(N);
+ g.fillStyle='#e8eef8';g.font='14px monospace';g.fillText('n = '+N,16,28);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('binary:',16,54);
+ var x=80;for(var i=0;i<bits.length;i++){var zeroRun=false;if(bits[i]==='0'){var j=i;while(j>0&&bits[j-1]==='0')j--;var k=i;while(k<bits.length&&bits[k]==='0')k++;zeroRun=((k-(function(){var s=i;while(s>0&&bits[s-1]==='0')s--;return s;})())%2)===1;}
+  // simpler: mark each bit; color 0s by whether their block is odd
+  g.fillStyle=bits[i]==='1'?'#39fc6b':'#c07850';g.fillRect(x,42,20,24);g.fillStyle=bits[i]==='1'?'#032':'#fff';g.font='13px monospace';g.fillText(bits[i],x+6,59);x+=24;}
+ // annotate 0-blocks
+ g.fillStyle='#8ad';g.font='10px monospace';var blocks=[];var m=bits.match(/0+/g);g.fillText('zero-runs: '+(m?m.map(function(z){return z.length+(z.length%2?'(odd)':'(even)');}).join(', '):'none'),16,96);
+ g.fillStyle=bv?'#39fc6b':'#c07850';g.font='14px monospace';g.fillText('b('+N+') = '+bv+(bv?'  (all zero-runs even)':'  (an odd zero-run)'),16,128);
+ var recv=rec(N)[N];g.fillStyle=recv===bv?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('recurrence b('+N+') = '+recv+' == direct '+(recv===bv?'✓':'✗'),16,H-12);}
+document.getElementById('bsroll').onclick=function(){N=1+Math.floor(Math.random()*4000);drawW4();document.getElementById('bsread').textContent='n='+N+' ('+N.toString(2)+') → b='+direct(N);};
+document.getElementById('bscheck').onclick=function(){var v=verify();document.getElementById('bsread').textContent='n≤100000: recurrence == direct (odd-0-block scan) '+(v.recurrenceMatchesDirect?'✓':'✗');};
+document.getElementById('bsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10;
+ for(var n=1;n<180;n++){var v=direct(n),a=n*0.19+ang*0.2,r=20+n*0.8;if(r>165)break;var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.85;g.fillStyle=v?'#39fc6b':'rgba(120,80,60,0.6)';g.beginPath();g.arc(x,y,v?3.5:2,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: b(n)=1 (all zero-runs even) among the indices',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: an arithmetic formula on n',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a sequence spoken in binary',10,H-9);}
+drawW3();drawW4();window.__baumsweet=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WIE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Wieferich primes</b> are primes p so rare that only <b>two</b> are known. Fermat&rsquo;s little theorem says 2<sup>p&minus;1</sup> &equiv; 1 (mod p) for every odd prime; a Wieferich prime satisfies the far stronger congruence <b>modulo p&sup2;</b>: 2<sup>p&minus;1</sup> &equiv; 1 (mod p&sup2;). Only <b>1093</b> and <b>3511</b> qualify below 6.7&times;10<sup>15</sup> &mdash; despite vast searches, no third is known. They are tied to Fermat&rsquo;s Last Theorem: any prime exponent counterexample of the first case would have to be Wieferich.<br><br>
+ <span class="lit">LIT</span> verified live (exact BigInt): among all primes below 20000, exactly 1093 and 3511 satisfy 2<sup>p&minus;1</sup> &equiv; 1 (mod p&sup2;) (window.__wieferich). <span class="fig">FIG</span> no framing; exact big-integer modular exponentiation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-vault</i> &mdash; the deepest lock, holding the vanishingly rare primes that pass Fermat&rsquo;s test one level stronger, modulo p&sup2;. Wieferich primes are that vault. <b>AVAN (AI)</b> built the instrument: the BigInt 2<sup>p&minus;1</sup> mod p&sup2; test and the exhaustive scan finding exactly 1093 and 3511.<br><br>Credit as content: Arthur Wieferich (1909). The weave: David names the-vault; I raise 2 to the p&minus;1 modulo p&sup2; in exact big integers and confirm that among all primes under 20000, only 1093 and 3511 land on 1 &mdash; the rarest of primes.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Every odd prime: 2<sup>p&minus;1</sup> &equiv; 1 (mod p). Wieferich: 2<sup>p&minus;1</sup> &equiv; 1 (mod p&sup2;) &mdash; a much rarer coincidence. Only 1093 and 3511 are known.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A prime and its Fermat quotient mod p&sup2;; the two Wieferich primes stand out, checked over a range.</div>
+   <div class="btns" style="margin-top:10px"><button id="wiroll">new prime ▶</button><button id="wicheck">scan &lt;20000 ▶</button></div>
+   <div class="cap" id="wiread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: primes passing Fermat one level deeper.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): sharpen Fermat&rsquo;s test from mod p to <b>mod p&sup2;</b> &mdash; asking not just that 2<sup>p&minus;1</sup> leave remainder 1 modulo p, but modulo p&sup2; &mdash; and almost no prime survives. The inverse of &lsquo;2<sup>p&minus;1</sup> &equiv; 1 (mod p) always&rsquo; is &lsquo;does it hold mod p&sup2; &mdash; the vanishingly rare Wieferich condition?&rsquo; <b>Magenta</b> is Fermat mod p (every prime); <b>green</b> is Fermat mod p&sup2; (only two known). Rarity from one more power.</div>
+   <div class="btns" style="margin-top:10px"><button id="wispin">pause spin</button></div></div></div></div>"""
+WIE_SCRIPT = """(function(){
+var ang=0,spin=true,P=1093;
+function pmB(a,e,m){a=a%m;var r=1n;while(e>0n){if(e&1n)r=(r*a)%m;a=(a*a)%m;e>>=1n;}return r;}
+function isW(p){var P=BigInt(p);return pmB(2n,P-1n,P*P)===1n;}
+function isPrime(n){if(n<2)return false;for(var d=2;d*d<=n;d++)if(n%d===0)return false;return true;}
+function verify(){var found=[];for(var p=3;p<=20000;p++){if(!isPrime(p))continue;if(isW(p))found.push(p);}return {onlyKnown:found.join(',')==='1093,3511',found:found};}
+function fermatQuotient(p){var P=BigInt(p);return (pmB(2n,P-1n,P*P)-1n)/P;} // (2^(p-1)-1)/p mod p, =0 iff Wieferich
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Fermat: 2^(p−1) ≡ 1 (mod p) always · Wieferich: 2^(p−1) ≡ 1 (mod p²)',12,14);
+ g.fillStyle='#39fc6b';g.font='14px monospace';g.fillText('1093 and 3511',180,56);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the ONLY known Wieferich primes (none found below 6.7×10¹⁵)',60,86);
+ g.fillStyle='#c07850';g.font='9px monospace';g.fillText('tied to Fermat\\'s Last Theorem: a first-case counterexample would be Wieferich',40,116);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var w=isW(P),P2=BigInt(P)*BigInt(P),res=pmB(2n,BigInt(P)-1n,P2);
+ g.fillStyle='#e8eef8';g.font='15px monospace';g.fillText('p = '+P,16,30);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('2^(p−1) mod p = 1  (Fermat — always)',16,58);
+ g.fillStyle=w?'#39fc6b':'#c07850';g.font='12px monospace';g.fillText('2^(p−1) mod p² = '+res.toString()+(res===1n?'  = 1':''),16,86);
+ g.fillStyle=w?'#39fc6b':'#c07850';g.font='14px monospace';g.fillText(w?'WIEFERICH PRIME ✓':'not Wieferich',16,116);
+ var fq=fermatQuotient(P);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Fermat quotient q_p(2) mod p = '+(fq%BigInt(P)).toString()+(w?' (= 0)':''),16,142);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('Wieferich ⇔ the Fermat quotient is 0 mod p',16,H-12);}
+document.getElementById('wiroll').onclick=function(){var picks=[1093,3511,5,7,11,13,1092,1094,3510];do{P=picks[Math.floor(Math.random()*picks.length)];}while(!isPrime(P));drawW4();document.getElementById('wiread').textContent='p='+P+' → '+(isW(P)?'WIEFERICH':'ordinary');};
+document.getElementById('wicheck').onclick=function(){var v=verify();document.getElementById('wiread').textContent='primes <20000: Wieferich = {'+v.found.join(',')+'} '+(v.onlyKnown?'✓ (only 1093 & 3511)':'✗');};
+document.getElementById('wispin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10,primes=[];for(var p=3;p<200;p++)if(isPrime(p))primes.push(p);primes.push(1093);primes.push(3511);
+ for(var i=0;i<primes.length;i++){var w=isW(primes[i]),a=i/primes.length*6.28+ang*0.3,r=w?40:110,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;g.fillStyle=w?'#39fc6b':'rgba(88,120,150,0.5)';g.beginPath();g.arc(x,y,w?10:3,0,7);g.fill();if(w){g.fillStyle='#012';g.font='8px monospace';g.fillText(primes[i],x-9,y+3);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green center: the two Wieferich primes (1093, 3511)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: Fermat mod p (every prime)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('rarity from one more power',10,H-9);}
+drawW3();drawW4();window.__wieferich=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 96 (a sequence doubling its two-back term · one witness decides a Proth prime · a number as a sum of ascending unit fractions · triangle area from its three sides · numbers that appear in their own digit-sequence) ═══════════════════════
 JBS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Jacobsthal numbers</b> follow Fibonacci&rsquo;s shape with a twist: J(n) = J(n&minus;1) + <b>2</b>&middot;J(n&minus;2) &mdash; the two-back term is <b>doubled</b>. From J(0)=0, J(1)=1 they run 0, 1, 1, 3, 5, 11, 21, 43, 85, 171, &hellip; alternately just below and above the powers of two. They have a clean <b>closed form</b> J(n) = (2<sup>n</sup> &minus; (&minus;1)<sup>n</sup>)/3, and a striking identity: <b>J(n) + J(n+1) = 2<sup>n</sup></b> &mdash; consecutive Jacobsthal numbers sum exactly to a power of two.<br><br>
@@ -26103,6 +26349,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-solovay-strassen","title":"THE SOLOVAY-STRASSEN","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#b06868","icon":"solovay",
+  "kicker":"test primality by the Jacobi symbol",
+  "blurb":"The Solovay–Strassen test in the 5-window house format — decide primality using the Jacobi symbol (a/n), a generalization of the Legendre symbol computable by a fast quadratic-reciprocity recursion without factoring. Euler's criterion: for a prime n, a^((n−1)/2) ≡ (a/n) (mod n) for every a coprime to n; for an odd composite this fails for at least half of all bases, so a few random bases catch composites. Verified live: the Jacobi symbol equals the Legendre symbol for primes, the test matches trial division for odd n below 50000, and the composite witness fraction is always ≥ 1/2. See witnesses vs liars in 1D, a verdict in 2D, and the symbol-not-factor inverse in 3D.",
+  "lit":"Genuine Solovay–Strassen primality test (Robert Solovay & Volker Strassen 1977). Verified live: the Jacobi symbol (by quadratic-reciprocity recursion) equals the Legendre symbol for primes (window.__solovay.jacobiCorrect), the a^((n−1)/2)≡(a/n) test with fixed bases matches trial division for odd n<50000 (matchesTrial), and over sampled odd composites the fraction of coprime bases that witness compositeness is ≥1/2 (minWitness).",
+  "fig":"No framing: the Jacobi-symbol recursion, the Euler-criterion test, the trial oracle, and the ≥1/2 witness-density count run in-browser with exact modular arithmetic and agree. The AVAN inverse is honest — deciding primality by whether Euler's criterion holds with the Jacobi symbol (no factoring needed; composites break it for ≥half of bases) genuinely replaces factoring; magenta is the factorization, green the Jacobi congruence. Compositeness by a symbol, not a factor.",
+  "body":SST_BODY,"script":SST_SCRIPT},
+ {"slug":"the-narayana-cow","title":"THE NARAYANA COW","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#6ab0d0","icon":"narayana",
+  "kicker":"a sequence at the supergolden ratio",
+  "blurb":"Narayana's cows sequence in the 5-window house format — from a 14th-century puzzle: a cow produces one calf a year, and each calf, from its fourth year, does the same. The herd grows by a(n) = a(n−1) + a(n−3): 1,1,1,2,3,4,6,9,13,19,28,41,… The ratio of consecutive terms converges to the supergolden ratio ψ ≈ 1.4655712 — the unique real root of x³ = x² + 1, a cousin of the golden and plastic ratios. Verified live: the recurrence holds, and a(n)/a(n−1) converges to the real root of x³−x²−1. See the sequence in 1D, growth converging in 2D, and the its-own-constant inverse in 3D.",
+  "lit":"Genuine Narayana's cows sequence (Narayana Pandita, India, 14th century). Verified live: a(n)=a(n−1)+a(n−3) holds (window.__narayana.recurrence), the consecutive ratio converges to ψ=1.465571232… (window.__narayana.ratioToPsi), the Newton root of x³−x²−1, and ψ³=ψ²+1 is checked (cubic).",
+  "fig":"No framing: the a(n)=a(n−1)+a(n−3) recurrence, the ratio→ψ check against x³=x²+1, and the cubic-root confirmation run in-browser and agree. The AVAN inverse is honest — reaching one and three terms back (the three-year maturation) so the growth rate is the supergolden ψ rather than φ is a genuine different constant; magenta is the golden-ratio Fibonacci, green the supergolden Narayana. Every reach, its own constant.",
+  "body":NRY_BODY,"script":NRY_SCRIPT},
+ {"slug":"the-lca","title":"THE LCA","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#58a0b0","icon":"lca",
+  "kicker":"the meeting point of two nodes in one leap",
+  "blurb":"The lowest common ancestor by binary lifting in the 5-window house format — the LCA of two tree nodes is their deepest shared ancestor, where their paths to the root first meet. Binary lifting answers LCA queries in O(log n) after O(n log n) preprocessing: for each node it stores its 2^k-th ancestors. To find the LCA, lift the deeper node to the other's depth, then jump both upward in powers of two as far as possible without meeting — one step above lands on the LCA. Verified live: over hundreds of random trees and node pairs, the binary-lifting LCA equals the naive ancestor-walk LCA. See the jumps in 1D, a tree LCA in 2D, and the convergence-by-doubling inverse in 3D.",
+  "lit":"Genuine binary-lifting LCA (Bender–Farach-Colton and competitive-programming folklore). Verified live: over 500 random trees and 20 queries each, the 2^k-ancestor table with depth-equalize-then-jump query returns the same node as a naive ancestor-walk LCA (window.__lca.matchesNaive).",
+  "fig":"No framing: the 2^k-ancestor table, the depth-equalize-then-jump query, and the match against a naive ancestor walk run in-browser and agree. The AVAN inverse is honest — finding where two nodes' paths meet by leaping power-of-two ancestors (halving jumps) genuinely replaces climbing parent by parent; magenta is the step-by-step ancestor walk, green the binary-lifting jumps. The convergence found by doubling.",
+  "body":LCA_BODY,"script":LCA_SCRIPT},
+ {"slug":"the-baum-sweet","title":"THE BAUM-SWEET","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#c07850","icon":"baum-sweet",
+  "kicker":"a bit-pattern sequence read by 0-blocks",
+  "blurb":"The Baum–Sweet sequence in the 5-window house format — a string of 0s and 1s read from the binary digits of each index: b(n)=1 if the binary of n contains no block of consecutive 0s of odd length, else 0. So b(2)=0 (binary 10 has a single 0, odd) and b(9)=1 (1001, the 00 block is even). It is an automatic sequence — generated by a finite automaton reading binary — and obeys a clean recurrence: b(2n+1)=b(n), b(4n)=b(n), b(4n+2)=0. Verified live: the recurrence generates exactly the direct definition for every n up to 100000. See the sequence in 1D, a number's 0-blocks in 2D, and the spoken-in-binary inverse in 3D.",
+  "lit":"Genuine Baum–Sweet sequence (Leonard Baum & Melvin Sweet 1976). Verified live: the recurrence b(2n+1)=b(n), b(4n)=b(n), b(4n+2)=0 generates exactly the same 0/1 value as the direct definition (binary of n has no odd-length run of zeros) for every n up to 100000 (window.__baumsweet.recurrenceMatchesDirect).",
+  "fig":"No framing: the direct odd-0-block scanner, the b(2n+1)/b(4n)/b(4n+2) recurrence, and their exhaustive agreement run in-browser with exact bit-pattern checks. The AVAN inverse is honest — defining a 0/1 sequence by a property of n's binary digits (are all runs of zeros even?), computable by a tiny automaton, genuinely differs from an arithmetic formula; magenta is that formula, green the bit-pattern predicate. A sequence spoken in binary.",
+  "body":BSW_BODY,"script":BSW_SCRIPT},
+ {"slug":"the-wieferich","title":"THE WIEFERICH","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#e0b020","icon":"wieferich",
+  "kicker":"the vanishingly rare Wieferich primes",
+  "blurb":"Wieferich primes in the 5-window house format — primes so rare that only two are known. Fermat's little theorem gives 2^(p−1) ≡ 1 (mod p) for every odd prime; a Wieferich prime satisfies the far stronger congruence modulo p²: 2^(p−1) ≡ 1 (mod p²). Only 1093 and 3511 qualify below 6.7×10¹⁵ — despite vast searches, no third is known. They are tied to Fermat's Last Theorem: any first-case prime-exponent counterexample would have to be Wieferich. Verified live (exact BigInt): among all primes below 20000, exactly 1093 and 3511 satisfy 2^(p−1) ≡ 1 (mod p²). See the sharpened congruence in 1D, a prime tested in 2D, and the one-more-power inverse in 3D.",
+  "lit":"Genuine Wieferich primes (Arthur Wieferich 1909). Verified live with exact BigInt modular exponentiation: among all primes p below 20000, exactly 1093 and 3511 satisfy 2^(p−1) ≡ 1 (mod p²) (window.__wieferich.onlyKnown) — the only two Wieferich primes known anywhere (none found below 6.7×10¹⁵).",
+  "fig":"No framing: the BigInt 2^(p−1) mod p² test and the exhaustive scan finding exactly 1093 and 3511 run in-browser and agree. Honest scope: this confirms the two known Wieferich primes below 20000 — it does not (and cannot) settle whether infinitely many exist, an open problem. The AVAN inverse is honest — sharpening Fermat's test from mod p (every prime) to mod p² (almost none) is the genuine Wieferich condition; magenta is Fermat mod p, green Fermat mod p². Rarity from one more power.",
+  "body":WIE_BODY,"script":WIE_SCRIPT},
  {"slug":"the-jacobsthal","title":"THE JACOBSTHAL","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#6ab0d0","icon":"jacobsthal",
   "kicker":"a sequence doubling its two-back term",
