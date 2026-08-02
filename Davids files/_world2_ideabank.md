@@ -22,7 +22,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 5. THE IRRATIONAL ODOMETER — Ostrowski numeration from CF of α. CLAIM: digits obey CF bounds, decode exactly; φ-case = Zeckendorf.
 6. THE SUBSET ODOMETER [BUILT] — combinadics bijection 0..C(n,k)−1 ↔ k-subsets. CLAIM: rank∘unrank = id exhaustively for n=10,k=5.
 7. THE SPARSEST SIGNATURE [BUILT] — Non-Adjacent Form (signed binary {−1,0,1}). CLAIM: unique NAF −128..127, no adjacent nonzeros, min weight.
-8. THE MIRROR FIBONACCI — negaFibonacci coding (reaches negatives, no sign bit). CLAIM: unique no-"11" rep for −50..50.
+8. THE MIRROR FIBONACCI [BUILT] — negaFibonacci coding (reaches negatives, no sign bit). CLAIM: unique no-"11" rep for −50..50.
 9. THE PERMUTATION CLOCK [BUILT] — factorial number system + Lehmer code. CLAIM: rank∘unrank bijection over all 720 perms of 6.
 10. THE LAZY COUNTER [BUILT] — skew binary (digits 0,1,2, one 2). CLAIM: unique canonical 0..2000; +1 touches ≤2 digits (O(1) carry).
 11. THE FIBONACCI PARTITION — Zeckendorf. CLAIM: greedy decomp 1..200 non-consecutive, sums exact, unique.
@@ -35,7 +35,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 ## VEIN B — AUTOMATA, TILINGS & MODELS OF COMPUTATION
 1. THE CYCLIC TAG — cyclic tag system (Cook's Rule-110 universality engine). CLAIM: re-derives documented word sequence step-by-step.
 2. THE BUSY BEAVER — n-state halting champions. CLAIM: BB(3) halts 21 steps/6 ones, BB(2) 6 steps/4 ones, re-simulated from blank.
-3. THE WANG DOMINOES — edge-colored tiles. CLAIM: backtracking fills N×N respecting colors; recolor one edge → 0 solutions (exhaustive).
+3. THE WANG DOMINOES [BUILT] — edge-colored tiles. CLAIM: backtracking fills N×N respecting colors; recolor one edge → 0 solutions (exhaustive).
 4. THE POST DOMINOES — Post Correspondence Problem. CLAIM: known solution concatenates equal top/bottom; unsolvable one → no match ≤bound.
 5. THE MARGOLUS MIRROR — reversible block CA (Critters). CLAIM: forward T then inverse T = exact start; particle count conserved.
 6. THE SKI FOREST [BUILT] — combinatory logic S,K,I. CLAIM: S K K x → x for sampled x; S(K S)K → B (composition), by rewriting to normal form.
@@ -52,7 +52,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 ═══════════════════════════════════════════════════════════════════════
 ## VEIN C — CODING THEORY, CRYPTOGRAPHY & COMPRESSION
 1. THE SHORTEST WITNESS — Berlekamp–Massey (shortest LFSR for a sequence). CLAIM: recovered LFSR regenerates input; recovers known deg-n gen from 2n terms.
-2. THE NUMERAL — rANS (asymmetric numeral systems). CLAIM: encode→decode round-trips bytes; bits/symbol within a fraction of Shannon entropy.
+2. THE NUMERAL [BUILT] — rANS (asymmetric numeral systems). CLAIM: encode→decode round-trips bytes; bits/symbol within a fraction of Shannon entropy.
 3. THE COUNTER OF MULTITUDES — HyperLogLog. CLAIM: distinct-count estimate within ~1.04/√m of exact Set over N uniques.
 4. THE GOLDEN CODE — Zeckendorf/Fibonacci self-delimiting code (ends "11"). CLAIM: greedy no-adjacent + sums to n; stream splits uniquely at "11".
 5. THE HOMOMORPH — Paillier (toy). CLAIM: Dec(Enc(a)·Enc(b))=a+b and Dec(Enc(a)^k)=k·a over random a,b,k.
@@ -72,7 +72,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 1. THE ORACLE OF ECHOES — suffix automaton (DAWG). CLAIM: Σ(len−len[link]) = brute-force distinct-substring count; membership matches naive.
 2. THE THIMBLE ARMY — HyperLogLog. CLAIM: within ~2% rel error at 2^14 registers vs exact Set.size. (dup of C3 — pick one)
 3. THE FAILURE WEB — Aho-Corasick. CLAIM: one-pass (pattern,end) matches == per-pattern indexOf over 40 words / 5000 chars.
-4. THE HALVING TREE — van Emde Boas. CLAIM: succ/pred match sorted-array binary search over 10k ops; op-count ~ log log u.
+4. THE HALVING TREE [BUILT] — van Emde Boas. CLAIM: succ/pred match sorted-array binary search over 10k ops; op-count ~ log log u.
 5. THE MIRROR SEEKER — Manacher. CLAIM: palindrome radii match O(n²) expand-around-center in one O(n) sweep (500 chars).
 6. THE ALTERNATING PATH — Hopcroft–Karp. CLAIM: matching size = slow baseline AND = min vertex cover (Kőnig), live.
 7. THE LAYERED FLOOD — Dinic max-flow. CLAIM: max flow = min cut every run on random networks.
@@ -100,7 +100,7 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 11. THE MEAN OF TWO MEANS — Gauss–Legendre AGM for π. CLAIM: π to >1e-14 in ~4 iters; correct-digit count roughly doubles each pass.
 12. THE POLITE SCATTER [BUILT] — Bridson Poisson-disk. CLAIM: all pairs ≥ r apart (no violations); blue-noise ring spectrum vs clumpy random.
 13. THE LOADED-DICE TABLE — Walker's alias method. CLAIM: 1e6 draws reproduce target probs <0.5%/outcome; O(1) per draw.
-14. THE FEATHERED EDGE — Xiaolin Wu antialiased line. CLAIM: two blended pixels per column sum to full intensity (energy conserved <1e-6).
+14. THE FEATHERED EDGE [BUILT] — Xiaolin Wu antialiased line. CLAIM: two blended pixels per column sum to full intensity (energy conserved <1e-6).
 15. THE SPOTS THAT BREED — Gray–Scott reaction–diffusion (Turing patterns). CLAIM: mitosis regime → blob count grows; params move across phase map.
 
 ═══════════════════════════════════════════════════════════════════════

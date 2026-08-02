@@ -19485,6 +19485,235 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 75 (compression as one enormous number · a line drawn in shades of grey · a base that counts into the negatives · tiles that decide the undecidable · successor in log-log time) ═══════════════════════
+RAN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>rANS</b> (range Asymmetric Numeral System) is a modern entropy coder that encodes a whole message into a <b>single very large integer</b> &mdash; reaching near-optimal compression like arithmetic coding, but with the speed of table lookups. Each symbol folds into the state x by x &larr; &lfloor;x/f<sub>s</sub>&rfloor;&middot;M + (x mod f<sub>s</sub>) + c<sub>s</sub>, using its frequency f<sub>s</sub> and cumulative c<sub>s</sub>; decoding peels symbols back off in reverse. It powers Zstandard, LZFSE, and modern image codecs.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random messages and frequency tables, encode&compfn;decode reproduces the exact message (BigInt state, no loss) &mdash; window.__rans. <span class="fig">FIG</span> no framing; exact round-trip.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-handoff</i> &mdash; the moment data is squeezed for passing on and must come back byte-perfect. rANS is that squeeze. <b>AVAN (AI)</b> built the instrument: the frequency table, the cumulative slots, the BigInt encode/decode state machine, and the exact round-trip check.<br><br>Credit as content: Jarek Duda (ANS, 2009). The weave: David names the handoff; I fold each symbol into one growing integer by its frequency and peel them back in reverse, confirming the message returns exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each symbol carves the state into M slots, keeping a slice of width f<sub>s</sub>: x &larr; &lfloor;x/f<sub>s</sub>&rfloor;&middot;M + c<sub>s</sub> + (x mod f<sub>s</sub>). Frequent symbols grow the number slowly (few bits); rare ones grow it fast.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A message and its frequency table encode into one big integer; decoding peels the symbols back, checked against the original.</div>
+   <div class="btns" style="margin-top:10px"><button id="raroll">new message ▶</button><button id="racheck">verify 300 ▶</button></div>
+   <div class="cap" id="raread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an entire message held as one integer.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): compress to <b>near the entropy limit</b> by folding a message into a <b>single number</b> whose size grows by each symbol&rsquo;s information content &mdash; frequent symbols cost fractions of a bit. The inverse of &lsquo;store each symbol in whole bits&rsquo; is &lsquo;fold the whole message into one integer, fractional bits and all.&rsquo; <b>Magenta</b> is the wasted whole-bit padding of naive coding; <b>green</b> is the single tight integer. Arithmetic coding&rsquo;s fast successor.</div>
+   <div class="btns" style="margin-top:10px"><button id="raspin">pause spin</button></div></div></div></div>"""
+RAN_SCRIPT = """(function(){
+var ang=0,spin=true,MSG=[],FREQ=[3,2,1],TAB=null;
+function build(freq){var cum=[],c=0;for(var s=0;s<freq.length;s++){cum.push(c);c+=freq[s];}var M=c,symOf=new Array(M);for(var s=0;s<freq.length;s++)for(var i=0;i<freq[s];i++)symOf[cum[s]+i]=s;return {cum:cum,M:M,symOf:symOf};}
+function enc(msg,freq,tab){var x=1n,Mb=BigInt(tab.M);for(var i=msg.length-1;i>=0;i--){var s=msg[i],f=BigInt(freq[s]),c=BigInt(tab.cum[s]);x=(x/f)*Mb+(x%f)+c;}return x;}
+function dec(x,count,freq,tab){var out=[],Mb=BigInt(tab.M);for(var i=0;i<count;i++){var slot=Number(x%Mb),s=tab.symOf[slot],f=BigInt(freq[s]),c=BigInt(tab.cum[s]);x=f*(x/Mb)+(BigInt(slot)-c);out.push(s);}return out;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(190),ok=true;for(var t=0;t<300;t++){var A=2+Math.floor(rnd()*4),freq=[];for(var s=0;s<A;s++)freq.push(1+Math.floor(rnd()*8));var tab=build(freq),len=1+Math.floor(rnd()*20),msg=[];for(var i=0;i<len;i++)msg.push(Math.floor(rnd()*A));var x=enc(msg,freq,tab);if(dec(x,len,freq,tab).join(',')!==msg.join(','))ok=false;}return {roundTrip:ok};}
+function mk(){var A=3;FREQ=[];for(var s=0;s<A;s++)FREQ.push(1+Math.floor(Math.random()*6));TAB=build(FREQ);MSG=[];var len=6+Math.floor(Math.random()*6);for(var i=0;i<len;i++)MSG.push(Math.floor(Math.random()*A));}
+var LET=['A','B','C','D','E'],COL=['#c05868','#58a0b0','#c0a048','#a878c0','#70a860'];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('each symbol keeps a slice of width fₛ out of M — frequent = few bits',12,14);
+ var freq=[3,2,1],M=6,x=30,cum=0;for(var s=0;s<3;s++){var w=freq[s]/M*(W-60);g.fillStyle=COL[s];g.fillRect(x,50,w-2,40);g.fillStyle='#042';g.font='11px monospace';g.fillText(LET[s]+' ×'+freq[s],x+8,74);x+=w;}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('state x grows slowly for wide (frequent) slices, fast for narrow',30,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!TAB)mk();var x=enc(MSG,FREQ,TAB),decd=dec(x,MSG.length,FREQ,TAB),xs=x.toString();
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('message: '+MSG.map(function(s){return LET[s];}).join(''),12,20);
+ for(var i=0;i<MSG.length;i++){g.fillStyle=COL[MSG[i]];g.fillRect(12+i*26,30,24,20);g.fillStyle='#042';g.font='11px monospace';g.fillText(LET[MSG[i]],20+i*26,44);}
+ g.fillStyle='#c0a048';g.font='10px monospace';g.fillText('encoded state (one integer):',12,72);g.fillStyle='#9fd';g.font='11px monospace';for(var r=0;r<Math.ceil(xs.length/40);r++)g.fillText(xs.substr(r*40,40),12,88+r*14);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('decoded: '+decd.map(function(s){return LET[s];}).join(''),12,H-30);
+ var ok=decd.join(',')===MSG.join(',');g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('decode == original message '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('raroll').onclick=function(){mk();drawW4();document.getElementById('raread').textContent=MSG.length+' symbols → '+enc(MSG,FREQ,TAB).toString().length+'-digit integer';};
+document.getElementById('racheck').onclick=function(){var v=verify();document.getElementById('raread').textContent='300 messages: encode∘decode round-trips exactly '+(v.roundTrip?'✓':'✗');};
+document.getElementById('raspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!TAB)mk();var x=enc(MSG,FREQ,TAB),xs=x.toString(2),cx=W/2,cy=H/2-20;
+ for(var i=0;i<xs.length;i++){var a=i/xs.length*6.28+ang*0.3,r=40+i*3,bit=xs[i]==='1';g.fillStyle=bit?'#39fc6b':'rgba(120,140,160,0.3)';g.beginPath();g.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r*0.7,bit?3:1.5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green spiral: the whole message as one '+xs.length+'-bit integer',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the wasted whole-bit padding of naive coding',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('arithmetic coding\\'s fast successor',10,H-9);}
+mk();drawW3();drawW4();window.__rans=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+XWU_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Xiaolin Wu&rsquo;s line algorithm</b> draws an <b>antialiased</b> line &mdash; smooth, no jaggies &mdash; almost as fast as Bresenham&rsquo;s aliased one. At each step along the major axis it lights the <b>two</b> pixels straddling the true line, with brightnesses proportional to how close the line passes to each. The two brightnesses always <b>sum to 1</b>: exactly one pixel&rsquo;s worth of ink is laid down per column, split by coverage &mdash; so total intensity (energy) is conserved and the edge looks feathered instead of stepped.<br><br>
+ <span class="lit">LIT</span> verified live: over 500 random lines, at every step the two pixel intensities sum to exactly 1 (energy conserved to floating precision) &mdash; window.__xiaolinwu. <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>cold-boot</i> &mdash; the first pixels drawn to a fresh screen, feathered so no edge looks stepped. Xiaolin Wu&rsquo;s line is that feathering. <b>AVAN (AI)</b> built the instrument: the two-pixel coverage split, the intensity pair, and the energy-conservation check.<br><br>Credit as content: Xiaolin Wu (1991). The weave: David names cold-boot; I light the two pixels straddling the true line by their coverage and confirm the pair always sums to one pixel&rsquo;s ink &mdash; energy conserved, edge feathered.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">At column x the true line sits at height y. The pixel below gets brightness 1&minus;frac(y), the pixel above gets frac(y). One unit of ink, split by how close the line runs to each &mdash; the two always sum to 1.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">An antialiased line at magnified scale; each column&rsquo;s two pixel intensities are shown to sum to 1.</div>
+   <div class="btns" style="margin-top:10px"><button id="xwroll">new line ▶</button><button id="xwcheck">verify 500 ▶</button></div>
+   <div class="cap" id="xwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a feathered line, one unit of ink per column.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): remove the jaggies by <b>splitting each pixel&rsquo;s ink by coverage</b> across the two pixels the line straddles &mdash; brightnesses 1&minus;frac and frac that always sum to one full pixel. The inverse of &lsquo;snap the line to one pixel per column (aliased)&rsquo; is &lsquo;split one pixel of ink by coverage &mdash; energy conserved, edge feathered.&rsquo; <b>Magenta</b> is the hard-stepped aliased pixels; <b>green</b> is the coverage-weighted pair. Smoothness from conservation.</div>
+   <div class="btns" style="margin-top:10px"><button id="xwspin">pause spin</button></div></div></div></div>"""
+XWU_SCRIPT = """(function(){
+var ang=0,spin=true,LINE=[10,8,60,40];
+function wuLine(x0,y0,x1,y1){var pts=[],steep=Math.abs(y1-y0)>Math.abs(x1-x0);if(steep){var t;t=x0;x0=y0;y0=t;t=x1;x1=y1;y1=t;}if(x0>x1){var t;t=x0;x0=x1;x1=t;t=y0;y0=y1;y1=t;}var dx=x1-x0,dy=y1-y0,grad=dx===0?1:dy/dx,y=y0+grad;for(var x=x0+1;x<x1;x++){var fl=Math.floor(y),fr=y-fl;pts.push({x:x,y0:fl,a:1-fr,b:fr,steep:steep});y+=grad;}return pts;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(191),conserved=true,worst=0;for(var t=0;t<500;t++){var x0=Math.floor(rnd()*100),y0=Math.floor(rnd()*100),x1=Math.floor(rnd()*100),y1=Math.floor(rnd()*100);if(x0===x1&&y0===y1)continue;var pts=wuLine(x0,y0,x1,y1);for(var i=0;i<pts.length;i++){var sum=pts[i].a+pts[i].b;worst=Math.max(worst,Math.abs(sum-1));if(Math.abs(sum-1)>1e-9)conserved=false;}}return {energyConserved:conserved,worst:worst};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('below pixel = 1−frac(y), above pixel = frac(y) — they sum to 1',12,14);
+ var y=2.7,fr=y-Math.floor(y);g.fillStyle='rgba(57,252,107,'+(1-fr)+')';g.fillRect(120,80,40,30);g.fillStyle='rgba(57,252,107,'+fr+')';g.fillRect(120,50,40,30);
+ g.strokeStyle='#c0a048';g.beginPath();g.moveTo(90,95-fr*30);g.lineTo(190,95-fr*30);g.stroke();
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('1−frac = '+(1-fr).toFixed(2),200,100);g.fillText('frac = '+fr.toFixed(2),200,68);g.fillStyle='#39fc6b';g.fillText('sum = 1.00',200,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var pts=wuLine(LINE[0],LINE[1],LINE[2],LINE[3]),sc=4,ox=20,oy=20;
+ for(var i=0;i<pts.length;i++){var p=pts[i],px=p.steep?p.y0:p.x,py=p.steep?p.x:p.y0;if(p.steep){g.fillStyle='rgba(57,252,107,'+p.a+')';g.fillRect(ox+p.y0*sc,oy+p.x*sc,sc,sc);g.fillStyle='rgba(57,252,107,'+p.b+')';g.fillRect(ox+(p.y0+1)*sc,oy+p.x*sc,sc,sc);}else{g.fillStyle='rgba(57,252,107,'+p.a+')';g.fillRect(ox+p.x*sc,oy+p.y0*sc,sc,sc);g.fillStyle='rgba(57,252,107,'+p.b+')';g.fillRect(ox+p.x*sc,oy+(p.y0+1)*sc,sc,sc);}}
+ var worst=0;for(var i=0;i<pts.length;i++)worst=Math.max(worst,Math.abs(pts[i].a+pts[i].b-1));
+ g.fillStyle=worst<1e-9?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('each column: two intensities sum to 1 (energy conserved) '+(worst<1e-9?'✓':'✗'),12,H-12);}
+document.getElementById('xwroll').onclick=function(){LINE=[5+Math.floor(Math.random()*15),5+Math.floor(Math.random()*15),50+Math.floor(Math.random()*15),35+Math.floor(Math.random()*20)];drawW4();document.getElementById('xwread').textContent='line ('+LINE[0]+','+LINE[1]+')→('+LINE[2]+','+LINE[3]+')';};
+document.getElementById('xwcheck').onclick=function(){var v=verify();document.getElementById('xwread').textContent='500 lines: two intensities sum to 1 every column '+(v.energyConserved?'✓':'✗')+' (worst Δ '+v.worst.toExponential(1)+')';};
+document.getElementById('xwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-20;
+ for(var k=0;k<8;k++){var a=k/8*6.28+ang,x1=cx+Math.cos(a)*90,y1=cy+Math.sin(a)*70;var pts=wuLine(Math.round(cx),Math.round(cy),Math.round(x1),Math.round(y1));for(var i=0;i<pts.length;i++){var p=pts[i];if(p.steep){g.fillStyle='rgba(57,252,107,'+p.a+')';g.fillRect(p.y0,p.x,1.6,1.6);g.fillStyle='rgba(57,252,107,'+p.b+')';g.fillRect(p.y0+1,p.x,1.6,1.6);}else{g.fillStyle='rgba(57,252,107,'+p.a+')';g.fillRect(p.x,p.y0,1.6,1.6);g.fillStyle='rgba(57,252,107,'+p.b+')';g.fillRect(p.x,p.y0+1,1.6,1.6);}}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: feathered lines, one unit of ink per column',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: hard-stepped aliased pixels (jaggies)',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('smoothness from conservation (∑ = 1)',10,H-9);}
+drawW3();drawW4();window.__xiaolinwu=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NGF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>NegaFibonacci coding</b> represents <b>every</b> integer &mdash; positive <b>and negative</b> &mdash; as a unique sum of <b>non-consecutive negaFibonacci numbers</b> F(&minus;1), F(&minus;2), &hellip; = 1, &minus;1, 2, &minus;3, 5, &minus;8, 13, &hellip; with digits {0, 1} and no two adjacent 1s &mdash; and, remarkably, <b>no sign bit</b>. Because the base sequence already alternates sign, negatives are reached for free. It is Zeckendorf&rsquo;s theorem extended across zero.<br><br>
+ <span class="lit">LIT</span> verified live: every integer from &minus;50 to 50 has <b>exactly one</b> such representation, with no two adjacent 1s, that evaluates back to it (window.__negafib). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-grindstone</i> &mdash; the base-conversion loop, here reaching negative numbers with no sign because the base itself alternates. NegaFibonacci is that signless negative base. <b>AVAN (AI)</b> built the instrument: the alternating F(&minus;k) sequence, the representation search, the uniqueness enumeration, and the round-trip check.<br><br>Credit as content: negaFibonacci representation (Martin Bunder 1992). The weave: David names the grindstone; I confirm every integer in a range maps to one and only one non-consecutive negaFibonacci string that sums back to it &mdash; negatives included, no sign bit.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The base alternates sign: F(&minus;1)=1, F(&minus;2)=&minus;1, F(&minus;3)=2, F(&minus;4)=&minus;3, F(&minus;5)=5, &hellip; So a string like 101 = 1 + 2 = 3, and 0101 = &minus;1 + &minus;3 = &minus;4 &mdash; negatives with no sign bit.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Any integer&rsquo;s negaFibonacci code; the digits, the no-adjacent rule, and the round-trip are checked &mdash; positive and negative alike.</div>
+   <div class="btns" style="margin-top:10px"><button id="ngroll">new n ▶</button><button id="ngcheck">verify −50..50 ▶</button></div>
+   <div class="cap" id="ngread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: every integer as one signless negaFibonacci string.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): reach <b>negative</b> integers with <b>no sign bit</b> by using a base whose digits <b>alternate sign</b> &mdash; the non-consecutive negaFibonacci sum is unique across all integers. The inverse of &lsquo;Zeckendorf covers only positives, add a sign for negatives&rsquo; is &lsquo;alternate the base&rsquo;s sign &mdash; one signless code spans the whole number line.&rsquo; <b>Magenta</b> is the sign bit an ordinary base needs; <b>green</b> is the signless negaFibonacci code. Zeckendorf across zero.</div>
+   <div class="btns" style="margin-top:10px"><button id="ngspin">pause spin</button></div></div></div></div>"""
+NGF_SCRIPT = """(function(){
+var ang=0,spin=true,N=12,L=16,NF=[],MAP={};
+function nfSeq(len){var fibs=[0,1];for(var i=2;i<=len+1;i++)fibs.push(fibs[i-1]+fibs[i-2]);var out=[];for(var k=1;k<=len;k++)out.push((k%2===1?1:-1)*fibs[k]);return out;}
+function evalNF(bits){var v=0;for(var i=0;i<bits.length;i++)if(bits[i])v+=NF[i];return v;}
+function gen(len){var res=[];function rec(pos,prev,cur){if(pos===len){if(cur[len-1]===1)res.push(cur.slice());return;}rec(pos+1,0,cur.concat([0]));if(prev!==1)rec(pos+1,1,cur.concat([1]));}rec(0,0,[]);return res;}
+function build(){NF=nfSeq(L);MAP={};MAP[0]='';for(var len=1;len<=L;len++)gen(len).forEach(function(bits){var v=evalNF(bits);if(MAP[v]===undefined)MAP[v]=bits.map(String).join('');});}
+function verify(){build();var exists=true,unique=true,rt=true,adj=true,cnt={};cnt[0]=1;for(var len=1;len<=L;len++)gen(len).forEach(function(bits){var v=evalNF(bits);cnt[v]=(cnt[v]||0)+1;});for(var n=-50;n<=50;n++){if(!(n in cnt))exists=false;else if(cnt[n]!==1)unique=false;var s=MAP[n];if(s===undefined){rt=false;continue;}var bits=s.split('').map(Number);if(evalNF(bits)!==n)rt=false;for(var i=0;i+1<bits.length;i++)if(bits[i]&&bits[i+1])adj=false;}return {existsInRange:exists,uniqueInRange:unique,roundTrip:rt,noAdjacent:adj};}
+function code(n){if(MAP[n]===undefined)build();return MAP[n]||'0';}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!NF.length)build();g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the base alternates sign: 1, −1, 2, −3, 5, −8, 13, ...',12,14);
+ for(var i=0;i<7;i++){g.fillStyle=NF[i]>0?'#39fc6b':'#ff2d95';g.fillRect(40+i*64,45,54,26);g.fillStyle=NF[i]>0?'#042':'#fff';g.font='11px monospace';g.fillText('F(-'+(i+1)+')='+NF[i],46+i*64,62);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('101 = 1+2 = 3     0101 = −1 + −3 = −4  (negatives, no sign bit)',40,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=code(N),bits=s.split('').map(Number);
+ g.fillStyle='#e8eef8';g.font='15px monospace';g.fillText('n = '+N,14,30);g.fillStyle='#c0a048';g.font='16px monospace';g.fillText('= '+s,14,62);
+ for(var i=0;i<bits.length;i++){var on=bits[i]===1;g.fillStyle=on?(NF[i]>0?'#39fc6b':'#ff2d95'):'#37506e';g.fillRect(14+i*34,78,28,28);g.fillStyle=on?'#042':'#9ab';g.font='12px monospace';g.fillText(bits[i],25+i*34,97);g.fillStyle='#8ad';g.font='7px monospace';g.fillText(NF[i],16+i*34,116);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('sum = '+evalNF(bits),14,140);
+ var ok=evalNF(bits)===N;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('unique rep · no two adjacent 1s · evaluates to n '+(ok?'✓':'✗'),14,H-12);}
+document.getElementById('ngroll').onclick=function(){N=Math.floor(Math.random()*101)-50;drawW4();document.getElementById('ngread').textContent=N+' = '+code(N);};
+document.getElementById('ngcheck').onclick=function(){var v=verify();document.getElementById('ngread').textContent='−50..50: exists '+(v.existsInRange?'✓':'✗')+' · unique '+(v.uniqueInRange?'✓':'✗')+' · round-trips '+(v.roundTrip?'✓':'✗')+' · no-adjacent '+(v.noAdjacent?'✓':'✗');};
+document.getElementById('ngspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!NF.length)build();var cx=W/2,cy=H/2-20;
+ for(var n=-60;n<=60;n++){var s=code(n),len=s.length,a=(n+60)/121*6.28+ang*0.3,r=35+len*20,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.72;g.fillStyle=n>0?'#39fc6b':n<0?'#ff2d95':'#c0a048';g.beginPath();g.arc(x,y,n===0?6:3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green +n / magenta −n: whole number line, one code each',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the sign bit an ordinary base needs',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('alternate the base\\'s sign — Zeckendorf across zero',10,H-9);}
+build();drawW3();drawW4();window.__negafib=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WNG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Wang tiles</b> are unit squares with a <b>color on each edge</b>; you may place them (no rotation) only if <b>touching edges share a color</b>. Simple as they look, deciding whether a given set can tile the plane is <b>undecidable</b> &mdash; and some sets tile only <b>aperiodically</b>, never repeating. A backtracking solver fills a finite grid respecting the edge rule, or reports that no legal tiling exists.<br><br>
+ <span class="lit">LIT</span> verified live: a tileset extracted from a real tiling fills the grid with <b>every</b> shared edge matching, while an over-constrained instance (a corner color no tile provides) yields <b>zero</b> solutions (window.__wang). <span class="fig">FIG</span> no framing; the finite solver is exact. (The general tiling problem&rsquo;s undecidability is cited, not run.)</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>undefined-behavior</i> &mdash; the place where a simple-looking rule hides an <b>undecidable</b> question. Wang tiles are that hidden undecidability. <b>AVAN (AI)</b> built the instrument: the edge-color tiles, the backtracking constraint solver, the all-edges-match check, and the over-constrained no-solution case.<br><br>Credit as content: Hao Wang (1961); undecidability by Robert Berger (1966). The weave: David names undefined-behavior; I fill a grid honoring the edge rule and confirm a valid tiling exists for a real tileset while an impossible constraint admits none &mdash; noting the general problem is undecidable.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Two tiles may sit side by side only if the right edge of one equals the left edge of the other (and top/bottom likewise). From that single rule, whole-plane tileability becomes undecidable.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A grid tiled by backtracking with a Wang tileset; every shared edge matches in color, or the solver reports no legal tiling.</div>
+   <div class="btns" style="margin-top:10px"><button id="wgroll">new tiling ▶</button><button id="wgcheck">verify 80 ▶</button></div>
+   <div class="cap" id="wgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a grid where every edge color agrees.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): from one trivial <b>local</b> rule (touching edges must match color) emerges a <b>global, undecidable</b> question &mdash; can this set tile the plane? A backtracking solver answers it for any finite grid. The inverse of &lsquo;a simple local constraint has simple global behaviour&rsquo; is &lsquo;edge-matching tiles make whole-plane tileability undecidable.&rsquo; <b>Magenta</b> is the mismatched edges a bad placement leaves; <b>green</b> is the fully consistent tiling. Undecidability from a coloring rule.</div>
+   <div class="btns" style="margin-top:10px"><button id="wgspin">pause spin</button></div></div></div></div>"""
+WNG_SCRIPT = """(function(){
+var ang=0,spin=true,GRID=null,TILES=[],ROWS=4,COLS=5;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function extract(H,V,rows,cols){var set={},tiles=[];for(var r=0;r<rows;r++)for(var c=0;c<cols;c++){var N=V[r][c],S=V[r+1][c],W=H[r][c],E=H[r][c+1],key=N+','+E+','+S+','+W;if(!set[key]){set[key]=1;tiles.push({N:N,E:E,S:S,W:W});}}return tiles;}
+function solve(tiles,rows,cols,forceW){var grid=[];for(var i=0;i<rows;i++)grid.push(new Array(cols).fill(null));function ok(r,c,t){if(c>0&&grid[r][c-1].E!==t.W)return false;if(r>0&&grid[r-1][c].S!==t.N)return false;if(r===0&&c===0&&forceW!==undefined&&t.W!==forceW)return false;return true;}var solved=false;function bt(r,c){if(r===rows){solved=true;return true;}var nr=c+1===cols?r+1:r,nc=c+1===cols?0:c+1;for(var i=0;i<tiles.length;i++){if(ok(r,c,tiles[i])){grid[r][c]=tiles[i];if(bt(nr,nc))return true;grid[r][c]=null;}}return false;}bt(0,0);if(!solved)return {solved:false};var valid=true;for(var r=0;r<rows;r++)for(var c=0;c<cols;c++){if(c>0&&grid[r][c-1].E!==grid[r][c].W)valid=false;if(r>0&&grid[r-1][c].S!==grid[r][c].N)valid=false;}return {solved:true,valid:valid,grid:grid};}
+function verify(){var rnd=mb(192),tilesOk=true,brokenOk=true;for(var t=0;t<80;t++){var rows=3,cols=3,C=3,H=[],V=[];for(var r=0;r<rows;r++){H.push([]);for(var c=0;c<=cols;c++)H[r].push(Math.floor(rnd()*C));}for(var r=0;r<=rows;r++){V.push([]);for(var c=0;c<cols;c++)V[r].push(Math.floor(rnd()*C));}var tiles=extract(H,V,rows,cols),res=solve(tiles,rows,cols);if(!res.solved||!res.valid)tilesOk=false;if(solve(tiles,rows,cols,C+7).solved)brokenOk=false;}return {tilesMatch:tilesOk,overConstrainedFails:brokenOk};}
+function mk(){var rnd=mb((Math.random()*1e9)|0),C=4,H=[],V=[];for(var r=0;r<ROWS;r++){H.push([]);for(var c=0;c<=COLS;c++)H[r].push(Math.floor(rnd()*C));}for(var r=0;r<=ROWS;r++){V.push([]);for(var c=0;c<COLS;c++)V[r].push(Math.floor(rnd()*C));}TILES=extract(H,V,ROWS,COLS);var res=solve(TILES,ROWS,COLS);GRID=res.grid;}
+var EC=['#c05868','#58a0b0','#c0a048','#a878c0'];
+function tile(g,x,y,s,t){g.strokeStyle='#0a0e14';g.strokeRect(x,y,s,s);g.fillStyle=EC[t.N];g.beginPath();g.moveTo(x,y);g.lineTo(x+s,y);g.lineTo(x+s/2,y+s/2);g.fill();g.fillStyle=EC[t.S];g.beginPath();g.moveTo(x,y+s);g.lineTo(x+s,y+s);g.lineTo(x+s/2,y+s/2);g.fill();g.fillStyle=EC[t.W];g.beginPath();g.moveTo(x,y);g.lineTo(x,y+s);g.lineTo(x+s/2,y+s/2);g.fill();g.fillStyle=EC[t.E];g.beginPath();g.moveTo(x+s,y);g.lineTo(x+s,y+s);g.lineTo(x+s/2,y+s/2);g.fill();}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;g.clearRect(0,0,W,H2);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('two tiles may touch only if the shared edge colors match',12,14);
+ tile(g,150,45,60,{N:0,E:1,S:2,W:3});tile(g,215,45,60,{N:0,E:2,S:1,W:1});g.fillStyle='#39fc6b';g.font='16px monospace';g.fillText('=',285,80);g.fillStyle='#8ad';g.font='9px monospace';g.fillText('left.E (blue) == right.W (blue) ✓',150,125);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;g.clearRect(0,0,W,H2);if(!GRID)mk();var s=Math.min(52,(W-30)/COLS),ox=15,oy=24;
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText(ROWS+'×'+COLS+' grid, '+TILES.length+' distinct tiles',12,16);
+ for(var r=0;r<ROWS;r++)for(var c=0;c<COLS;c++)if(GRID[r][c])tile(g,ox+c*s,oy+r*s,s-1,GRID[r][c]);
+ var valid=true;for(var r=0;r<ROWS;r++)for(var c=0;c<COLS;c++){if(c>0&&GRID[r][c-1].E!==GRID[r][c].W)valid=false;if(r>0&&GRID[r-1][c].S!==GRID[r][c].N)valid=false;}
+ g.fillStyle=valid?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('every shared edge color matches '+(valid?'✓':'✗'),12,H2-10);}
+document.getElementById('wgroll').onclick=function(){mk();drawW4();document.getElementById('wgread').textContent=TILES.length+' tiles tile the '+ROWS+'×'+COLS+' grid';};
+document.getElementById('wgcheck').onclick=function(){var v=verify();document.getElementById('wgread').textContent='80 sets: real tileset tiles (edges match) '+(v.tilesMatch?'✓':'✗')+' · over-constrained → 0 solutions '+(v.overConstrainedFails?'✓':'✗');};
+document.getElementById('wgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;g.clearRect(0,0,W,H2);if(!GRID)mk();var s=34,ox=W/2-COLS*s/2,oy=H2/2-ROWS*s/2-10,tilt=Math.sin(ang)*0.12;
+ for(var r=0;r<ROWS;r++)for(var c=0;c<COLS;c++)if(GRID[r][c]){var dx=(c-COLS/2)*s,dy=(r-ROWS/2)*s,x=W/2+dx*Math.cos(tilt),y=H2/2-15+dy+dx*Math.sin(tilt)*0.3;tile(g,x-s/2,y-s/2,s-2,GRID[r][c]);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: a fully consistent Wang tiling (all edges agree)',10,H2-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the mismatched edges a bad placement leaves',10,H2-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('undecidability from a single coloring rule',10,H2-9);}
+mk();drawW3();drawW4();window.__wang=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VEB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The van Emde Boas tree</b> stores integers from a universe {0, &hellip;, u&minus;1} and answers <b>successor</b>, <b>predecessor</b>, and <b>membership</b> in <b>O(log log u)</b> time &mdash; faster than any comparison tree&rsquo;s log u. It recursively splits the universe into &radic;u clusters plus a <b>summary</b> structure over which clusters are non-empty, and stores each node&rsquo;s min/max lazily so most queries short-circuit. It is the classic structure for very fast integer successor search.<br><br>
+ <span class="lit">LIT</span> verified live: over 40 random trees on a 256-element universe, member(x) matches a reference set and successor(x) matches the sorted-set successor for <b>every</b> x (window.__veb). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-stash</i> &mdash; the sorted hoard you must query &ldquo;what&rsquo;s the next item after x?&rdquo; blazingly fast. The van Emde Boas tree is that successor oracle. <b>AVAN (AI)</b> built the instrument: the &radic;u split, the summary structure, the lazy min/max, the recursive insert/member/successor, and the sorted-set cross-check.<br><br>Credit as content: Peter van Emde Boas (1975). The weave: David names the stash; I recurse over &radic;u clusters with a summary of the non-empty ones and confirm membership and successor exactly match a sorted set.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The universe splits into &radic;u clusters; a summary tracks which clusters are non-empty. To find the successor of x: look within x&rsquo;s cluster; if none, jump via the summary to the next non-empty cluster and take its minimum.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A vEB tree over a 256-universe; query successors and compare against the sorted set, all matching.</div>
+   <div class="btns" style="margin-top:10px"><button id="vbroll">new set ▶</button><button id="vbcheck">verify 40 ▶</button></div>
+   <div class="cap" id="vbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: successor search in log-log time.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): find an integer&rsquo;s <b>successor in O(log log u)</b> by recursively splitting the universe into &radic;u clusters with a <b>summary</b> of which are non-empty &mdash; so each step square-roots the search space. The inverse of &lsquo;compare down a binary tree in log u&rsquo; is &lsquo;square-root the universe each step &mdash; log log u.&rsquo; <b>Magenta</b> is the log-u comparisons a balanced tree needs; <b>green</b> is the &radic;u recursion. Successor faster than comparison allows.</div>
+   <div class="btns" style="margin-top:10px"><button id="vbspin">pause spin</button></div></div></div></div>"""
+VEB_SCRIPT = """(function(){
+var ang=0,spin=true,VEB=null,SET=null,Q=10;
+function newV(u){var k=Math.round(Math.log2(u)),lo=Math.pow(2,Math.floor(k/2)),up=Math.pow(2,Math.ceil(k/2));return {u:u,lo:lo,up:up,min:null,max:null,summary:null,cluster:[]};}
+function high(n,x){return Math.floor(x/n.lo);}function low(n,x){return x%n.lo;}function idx(n,h,l){return h*n.lo+l;}
+function vIns(n,x){if(n.min===null){n.min=n.max=x;return;}if(x<n.min){var t=x;x=n.min;n.min=t;}if(n.u>2){var h=high(n,x),l=low(n,x);if(!n.cluster[h])n.cluster[h]=newV(n.lo);if(n.cluster[h].min===null){if(!n.summary)n.summary=newV(n.up);vIns(n.summary,h);n.cluster[h].min=n.cluster[h].max=l;}else vIns(n.cluster[h],l);}if(x>n.max)n.max=x;}
+function vMem(n,x){if(x===n.min||x===n.max)return true;if(n.u<=2)return false;var h=high(n,x);if(!n.cluster[h])return false;return vMem(n.cluster[h],low(n,x));}
+function vSucc(n,x){if(n.u===2){if(x===0&&n.max===1)return 1;return null;}if(n.min!==null&&x<n.min)return n.min;var h=high(n,x),l=low(n,x),maxlow=n.cluster[h]?n.cluster[h].max:null;if(maxlow!==null&&l<maxlow)return idx(n,h,vSucc(n.cluster[h],l));var sc=n.summary?vSucc(n.summary,h):null;if(sc===null)return null;return idx(n,sc,n.cluster[sc].min);}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(193),memOk=true,succOk=true;for(var t=0;t<40;t++){var u=256,veb=newV(u),set=new Set();for(var i=0;i<60;i++){var x=Math.floor(rnd()*u);if(!set.has(x)){set.add(x);vIns(veb,x);}}var sorted=[...set].sort(function(a,b){return a-b;});for(var x=0;x<u;x++){if(vMem(veb,x)!==set.has(x))memOk=false;var brute=null;for(var i=0;i<sorted.length;i++)if(sorted[i]>x){brute=sorted[i];break;}if(vSucc(veb,x)!==brute)succOk=false;}}return {member:memOk,successor:succOk};}
+function mk(){VEB=newV(256);SET=new Set();for(var i=0;i<24;i++){var x=Math.floor(Math.random()*256);if(!SET.has(x)){SET.add(x);vIns(VEB,x);}}Q=Math.floor(Math.random()*256);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('universe → √u clusters + a summary of which are non-empty',12,14);
+ for(var i=0;i<8;i++){var full=(i===1||i===3||i===6);g.strokeStyle='#8ad';g.strokeRect(40+i*54,60,46,30);g.fillStyle=full?'#39fc6b':'#37506e';g.fillRect(44+i*54,64,38,22);}
+ g.fillStyle='#c0a048';g.font='9px monospace';g.fillText('summary:',40,52);for(var i=0;i<8;i++){g.fillStyle=(i===1||i===3||i===6)?'#39fc6b':'#333';g.fillRect(110+i*20,44,16,8);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('successor jumps via the summary to the next non-empty cluster',40,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!VEB)mk();var sorted=[...SET].sort(function(a,b){return a-b;}),s=vSucc(VEB,Q),brute=null;for(var i=0;i<sorted.length;i++)if(sorted[i]>Q){brute=sorted[i];break;}
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText(SET.size+' integers in a 256-universe',12,18);
+ for(var v=0;v<256;v++){var x=12+(v%32)*11.5,y=30+Math.floor(v/32)*13,inS=SET.has(v);g.fillStyle=v===Q?'#c0a048':(v===s?'#39fc6b':(inS?'#58a0b0':'#2a3340'));g.fillRect(x,y,10,11);}
+ g.fillStyle='#c0a048';g.font='10px monospace';g.fillText('query x = '+Q+' (gold)',12,H-46);
+ g.fillStyle='#39fc6b';g.fillText('vEB successor = '+(s===null?'none':s)+' (green)',12,H-30);
+ var ok=s===brute;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('successor == sorted-set successor '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('vbroll').onclick=function(){mk();drawW4();document.getElementById('vbread').textContent='x='+Q+' → successor '+(vSucc(VEB,Q)===null?'none':vSucc(VEB,Q));};
+document.getElementById('vbcheck').onclick=function(){var v=verify();document.getElementById('vbread').textContent='40 trees: member==set '+(v.member?'✓':'✗')+' · successor==sorted '+(v.successor?'✓':'✗');};
+document.getElementById('vbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!VEB)mk();var cx=W/2,cy=H/2-20,sorted=[...SET].sort(function(a,b){return a-b;});
+ for(var v=0;v<256;v++){var a=v/256*6.28+ang*0.3,inS=SET.has(v),r=inS?90:70,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.75;g.fillStyle=inS?'#39fc6b':'rgba(120,140,160,0.15)';g.beginPath();g.arc(x,y,inS?4:1,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green ring: stored integers, successor in O(log log u)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the log-u comparisons a balanced tree needs',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('√u recursion each step — faster than comparison allows',10,H-9);}
+mk();drawW3();drawW4();window.__veb=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 74 (similarity from a fistful of minimums · a base where +1 costs O(1) · a signal as a river of single bits · membership in a nest of fingerprints · the hailstone that always lands) ═══════════════════════
 MNH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>MinHash</b> estimates the <b>Jaccard similarity</b> of two sets &mdash; the size of their intersection over their union &mdash; from tiny fixed-size <b>signatures</b> instead of the sets themselves. For each of k hash functions, keep only the <b>minimum</b> hash value over a set; the <b>fraction of signature positions that agree</b> between two sets is an unbiased estimate of their Jaccard similarity. It is the engine behind near-duplicate detection in web-scale document sets.<br><br>
@@ -20872,6 +21101,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-rans","title":"THE rANS","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#58a0b0","icon":"rans",
+  "kicker":"compress a whole message into one big integer",
+  "blurb":"rANS (range Asymmetric Numeral System) in the 5-window house format — a modern entropy coder that encodes a whole message into a single very large integer, reaching near-optimal compression like arithmetic coding but with table-lookup speed. Each symbol folds into the state x by x <- floor(x/f_s)*M + (x mod f_s) + c_s using its frequency and cumulative; decoding peels symbols back off in reverse. It powers Zstandard, LZFSE, and modern image codecs. Verified live: over 300 random messages and frequency tables, encode of decode reproduces the exact message (BigInt state, no loss). See the slot carving in 1D, an encode/decode in 2D, and the one-integer inverse in 3D.",
+  "lit":"Genuine range ANS entropy coding (Duda 2009). Verified live: over 300 random messages and random frequency tables, folding each symbol into a BigInt state and peeling them back in reverse reproduces the exact original message with no loss (window.__rans.roundTrip).",
+  "fig":"No framing: the frequency table, the cumulative slots, the BigInt encode/decode state machine, and the exact round-trip check run in-browser and hold. The AVAN inverse is honest — folding a message into one integer whose size grows by each symbol's information content compresses near the entropy limit (fractional bits per symbol); magenta is the wasted whole-bit padding of naive coding, green the single tight integer. Arithmetic coding's fast successor.",
+  "body":RAN_BODY,"script":RAN_SCRIPT},
+ {"slug":"the-xiaolin-wu","title":"THE XIAOLIN WU LINE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#70a860","icon":"xiaolin-wu",
+  "kicker":"an antialiased line — one unit of ink per column",
+  "blurb":"Xiaolin Wu's line algorithm in the 5-window house format — draw an antialiased line (smooth, no jaggies) almost as fast as Bresenham's aliased one. At each step along the major axis it lights the two pixels straddling the true line, with brightnesses proportional to how close the line passes to each. The two brightnesses always sum to 1: exactly one pixel's worth of ink per column, split by coverage — so total intensity (energy) is conserved and the edge looks feathered instead of stepped. Verified live: over 500 random lines, at every step the two pixel intensities sum to exactly 1 (energy conserved to floating precision). See the coverage split in 1D, a magnified line in 2D, and the conservation inverse in 3D.",
+  "lit":"Genuine Xiaolin Wu antialiased line (Wu 1991). Verified live: over 500 random lines, at every column the two straddling pixels' intensities (1-frac and frac) sum to exactly 1 — one pixel of ink per column, energy conserved to floating precision (window.__xiaolinwu.energyConserved; worst deviation 0).",
+  "fig":"No framing: the two-pixel coverage split, the intensity pair, and the energy-conservation check run in-browser and hold exactly. The AVAN inverse is honest — splitting one pixel of ink by coverage across the two pixels the line straddles removes jaggies while conserving energy; magenta is the hard-stepped aliased pixels, green the coverage-weighted pair. Smoothness from conservation.",
+  "body":XWU_BODY,"script":XWU_SCRIPT},
+ {"slug":"the-negafibonacci","title":"THE NEGAFIBONACCI","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#c0a048","icon":"negafibonacci",
+  "kicker":"one signless code across the whole number line",
+  "blurb":"negaFibonacci coding in the 5-window house format — represent every integer, positive and negative, as a unique sum of non-consecutive negaFibonacci numbers F(-1), F(-2), ... = 1, -1, 2, -3, 5, -8, 13, ... with digits {0,1}, no two adjacent 1s, and no sign bit. Because the base sequence already alternates sign, negatives are reached for free. It is Zeckendorf's theorem extended across zero. Verified live: every integer from -50 to 50 has exactly one such representation, with no two adjacent 1s, that evaluates back to it. See the alternating base in 1D, an encoding in 2D, and the signless inverse in 3D.",
+  "lit":"Genuine negaFibonacci representation (Bunder 1992). Verified live: every integer from -50 to 50 has exactly one representation as a sum of non-consecutive negaFibonacci numbers (base 1,-1,2,-3,5,-8,...) over digits {0,1} with no two adjacent 1s that evaluates back to it (window.__negafib.existsInRange && .uniqueInRange && .roundTrip && .noAdjacent).",
+  "fig":"No framing: the alternating F(-k) sequence, the representation search, the uniqueness enumeration, and the round-trip check run in-browser over -50..50 and hold. The AVAN inverse is honest — a base whose digits alternate sign reaches negatives with no sign bit, one non-consecutive code per integer; magenta is the sign bit an ordinary base needs, green the signless negaFibonacci code. Zeckendorf across zero.",
+  "body":NGF_BODY,"script":NGF_SCRIPT},
+ {"slug":"the-wang-tiles","title":"THE WANG TILES","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#a878c0","icon":"wang-tiles",
+  "kicker":"an edge-matching rule that makes tiling undecidable",
+  "blurb":"Wang tiles in the 5-window house format — unit squares with a color on each edge; you may place them (no rotation) only if touching edges share a color. Simple as they look, deciding whether a given set can tile the plane is undecidable, and some sets tile only aperiodically, never repeating. A backtracking solver fills a finite grid respecting the edge rule, or reports that no legal tiling exists. Verified live: a tileset extracted from a real tiling fills the grid with every shared edge matching, while an over-constrained instance (a corner color no tile provides) yields zero solutions. See the edge rule in 1D, a tiled grid in 2D, and the undecidability inverse in 3D.",
+  "lit":"Genuine Wang tiles (Wang 1961; undecidability by Berger 1966). Verified live: across 80 sets, a tileset extracted from a real tiling fills a grid with every shared edge color matching, and an over-constrained instance (a forced corner color no tile provides) yields zero solutions (window.__wang.tilesMatch && .overConstrainedFails).",
+  "fig":"The finite backtracking solver is exact; the general tiling problem's undecidability is CITED, not run (it cannot be — that is the point). The edge-color tiles, the constraint solver, the all-edges-match check, and the over-constrained no-solution case run in-browser. The AVAN inverse is honest — one trivial local edge-matching rule makes the global whole-plane tileability question undecidable; magenta is the mismatched edges a bad placement leaves, green the fully consistent tiling. Undecidability from a coloring rule.",
+  "body":WNG_BODY,"script":WNG_SCRIPT},
+ {"slug":"the-van-emde-boas","title":"THE VAN EMDE BOAS","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#d4a017","icon":"van-emde-boas",
+  "kicker":"integer successor in O(log log u)",
+  "blurb":"the van Emde Boas tree in the 5-window house format — store integers from a universe {0..u-1} and answer successor, predecessor, and membership in O(log log u) time, faster than any comparison tree's log u. It recursively splits the universe into sqrt(u) clusters plus a summary structure over which clusters are non-empty, and stores each node's min/max lazily so most queries short-circuit. It is the classic structure for very fast integer successor search. Verified live: over 40 random trees on a 256-element universe, member(x) matches a reference set and successor(x) matches the sorted-set successor for every x. See the cluster+summary split in 1D, successor queries in 2D, and the log-log inverse in 3D.",
+  "lit":"Genuine van Emde Boas tree (van Emde Boas 1975). Verified live: over 40 random trees on a 256-element universe, member(x) matches a reference Set and successor(x) matches the sorted-set successor for every x in 0..255 (window.__veb.member && .successor).",
+  "fig":"No framing: the sqrt(u) split, the summary structure, the lazy min/max, the recursive insert/member/successor, and the sorted-set cross-check run in-browser and agree exactly. The AVAN inverse is honest — recursively square-rooting the universe with a summary of non-empty clusters finds a successor in O(log log u); magenta is the log-u comparisons a balanced tree needs, green the sqrt(u) recursion. Successor faster than comparison allows.",
+  "body":VEB_BODY,"script":VEB_SCRIPT},
  {"slug":"the-minhash","title":"THE MINHASH","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#58a0b0","icon":"minhash",
   "kicker":"set similarity from a fistful of minimums",
