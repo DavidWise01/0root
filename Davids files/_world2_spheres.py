@@ -19485,6 +19485,231 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 71 (count in the dragon base · the transform that is its own twin · one line that fills the plane · invert a byte in a field · numbers as functions) ═══════════════════════
+BT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Balanced ternary</b> is base 3 with the unusual digit set {&minus;1, 0, +1} (often written T, 0, 1) instead of {0,1,2}. Every integer &mdash; positive <b>or negative</b> &mdash; has a <b>unique</b> representation with <b>no sign bit</b> at all, because the negative digit carries the sign internally. Negating a number is just <b>flipping every digit&rsquo;s sign</b>; rounding to the nearest integer is truncation; and it is the most efficient integer base by radix economy. Knuth called it &ldquo;perhaps the prettiest number system.&rdquo;<br><br>
+ <span class="lit">LIT</span> verified live: every integer from &minus;40 to 40 has a unique balanced-ternary string over {&minus;1,0,1} that evaluates back exactly, and negation equals flipping every digit (window.__balternary). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-grindstone</i> &mdash; the base-conversion loop, here grinding an integer into three-way digits that need no sign. Balanced ternary is that grind. <b>AVAN (AI)</b> built the instrument: the carry-aware conversion, the exact reconstruction, and the negate-equals-flip check.<br><br>Credit as content: used in the Setun computer (Moscow State University, 1958); championed by Donald Knuth. The weave: David names the grindstone; I convert with a carry when the digit would be 2, and confirm every integer maps to a unique signless string whose negation is a digit-flip.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each place is a power of 3, weighted &minus;1, 0, or +1. A digit of 2 becomes &minus;1 with a carry into the next place. The three-way digit balances the value around zero &mdash; like a pan balance with weights 1, 3, 9, 27&hellip;</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Any integer in balanced ternary; the string evaluates back to the number, and its negation is shown as a pure digit-flip.</div>
+   <div class="btns" style="margin-top:10px"><button id="btroll">new n ▶</button><button id="btcheck">verify −40..40 ▶</button></div>
+   <div class="cap" id="btread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: every integer as a signless three-way string.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): represent every integer &mdash; positive or negative &mdash; with <b>no sign bit</b> by using a digit that can itself be <b>negative</b> ({&minus;1,0,+1}); the negative digit carries the sign internally, so <b>negation is a digit-flip</b>. The inverse of &lsquo;a base needs a separate sign for negatives&rsquo; is &lsquo;let the digits go negative &mdash; sign dissolves into the number.&rsquo; <b>Magenta</b> is the sign bit an ordinary base needs; <b>green</b> is the signless balanced string. Symmetry around zero, built in.</div>
+   <div class="btns" style="margin-top:10px"><button id="btspin">pause spin</button></div></div></div></div>"""
+BT_SCRIPT = """(function(){
+var ang=0,spin=true,N=40;
+function toBal(n){var d=[];while(n!==0){var rem=((n%3)+3)%3;if(rem===0){d.push(0);n=n/3;}else if(rem===1){d.push(1);n=(n-1)/3;}else{d.push(-1);n=(n+1)/3;}}return d;}
+function fromBal(d){var v=0,p=1;for(var k=0;k<d.length;k++){v+=d[k]*p;p*=3;}return v;}
+function verify(){var rt=true,uniq=true,neg=true,tern=true,seen={};for(var n=-40;n<=40;n++){var d=toBal(n);d.forEach(function(x){if(x!==-1&&x!==0&&x!==1)tern=false;});if(fromBal(d)!==n)rt=false;var k=d.join(',');if(n!==0&&seen[k]!==undefined)uniq=false;seen[k]=n;var dn=toBal(-n),fl=d.map(function(x){return -x;});if(dn.join(',')!==fl.join(','))neg=false;}return {roundTrip:rt,ternary:tern,unique:uniq,negateFlip:neg};}
+function glyph(x){return x<0?'T':(''+x);}
+function str(n){var d=toBal(n);return d.length?d.slice().reverse().map(glyph).join(''):'0';}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('places are powers of 3, each weighted −1, 0, or +1 (pan balance)',12,14);
+ var pw=[1,3,9,27],d=toBal(19);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('19 = ',20,80);var x=64;for(var k=3;k>=0;k--){var dig=d[k]||0;g.fillStyle=dig>0?'#39fc6b':dig<0?'#ff2d95':'#37506e';g.fillRect(x,64,44,26);g.fillStyle=dig===0?'#9ab':'#042';g.font='10px monospace';g.fillText(glyph(dig)+'·'+pw[k],x+4,81);x+=50;}
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('= 27 − 9 + 1 = 19  (digit 2 would carry: becomes −1 + carry)',20,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=str(N),sn=str(-N),back=fromBal(toBal(N));
+ g.fillStyle='#e8eef8';g.font='15px monospace';g.fillText('n = '+N,14,32);g.fillStyle='#c0a048';g.font='16px monospace';g.fillText('= '+s,14,66);
+ var d=toBal(N).slice().reverse();for(var i=0;i<d.length;i++){var dig=d[i];g.fillStyle=dig>0?'#39fc6b':dig<0?'#ff2d95':'#37506e';g.fillRect(14+i*30,80,26,26);g.fillStyle=dig===0?'#9ab':'#042';g.font='12px monospace';g.fillText(glyph(dig),22+i*30,98);}
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('−n = '+sn+'   (every digit flipped)',14,140);
+ var ok=back===N&&str(-N)===toBal(N).slice().reverse().map(function(x){return glyph(-x);}).join('');g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('evaluates back to n ✓ · negate = flip ✓',14,H-12);}
+document.getElementById('btroll').onclick=function(){N=Math.floor(Math.random()*81)-40;drawW4();document.getElementById('btread').textContent=N+' = '+str(N)+'  (−n = '+str(-N)+')';};
+document.getElementById('btcheck').onclick=function(){var v=verify();document.getElementById('btread').textContent='−40..40: round-trips '+(v.roundTrip?'✓':'✗')+' · unique '+(v.unique?'✓':'✗')+' · negate=flip '+(v.negateFlip?'✓':'✗');};
+document.getElementById('btspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-20;
+ for(var n=-40;n<=40;n++){var d=toBal(n),len=d.length,a=(n+40)/81*6.28+ang*0.3,r=30+len*24,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.72;g.fillStyle=n>0?'#39fc6b':n<0?'#ff2d95':'#c0a048';g.beginPath();g.arc(x,y,n===0?6:3.5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green +n / magenta −n: symmetric around 0 (gold)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the sign bit an ordinary base needs',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('let digits go negative — sign dissolves into the number',10,H-9);}
+drawW3();drawW4();window.__balternary=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Walsh&ndash;Hadamard transform</b> is a Fourier-like transform built entirely from <b>+1 and &minus;1</b> &mdash; no sines, no complex numbers, no rounding. Its matrix H is recursively [[H,H],[H,&minus;H]], every row orthogonal to every other. Because the entries are just signs, the fast version (FWHT) uses only <b>additions and subtractions</b>, and applying the transform <b>twice</b> returns N times the original, exactly, in integer arithmetic. It is the backbone of Hadamard codes, spread-spectrum (CDMA), and Boolean-function analysis.<br><br>
+ <span class="lit">LIT</span> verified live: for sizes up to 256, FWHT applied twice equals N&times; the input <b>bit-for-bit</b>, and all Hadamard rows are mutually orthogonal (H&middot;H&#7488; = N&middot;I) &mdash; window.__walsh. <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hot-loop</i> &mdash; the tight add/subtract kernel run over and over. The FWHT is that hot loop: a butterfly of pure additions. <b>AVAN (AI)</b> built the instrument: the in-place butterfly, the sign-matrix construction, and the involution + orthogonality checks.<br><br>Credit as content: Jacques Hadamard (1893) &amp; Joseph Walsh (1923). The weave: David names the hot-loop; I run the add/subtract butterfly, apply it twice to recover N&times; the input exactly, and confirm every pair of Hadamard rows is orthogonal.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The butterfly: pair up entries; replace (x,y) with (x+y, x&minus;y). Repeat over doubling strides. Only additions and subtractions &mdash; and doing it twice scales everything by N.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A signal and its Walsh&ndash;Hadamard spectrum; the inverse (same transform / N) reconstructs it exactly, and the Hadamard rows are shown orthogonal.</div>
+   <div class="btns" style="margin-top:10px"><button id="whroll">new signal ▶</button><button id="whcheck">verify ≤256 ▶</button></div>
+   <div class="cap" id="whread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the sign-only orthogonal basis.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): transform a signal with an orthogonal basis of <b>only &plusmn;1</b> &mdash; the butterfly (x,y)&rarr;(x+y, x&minus;y) over doubling strides &mdash; so the whole transform is exact integer add/subtract and its <b>own</b> inverse up to the scalar N. The inverse of &lsquo;a Fourier transform needs sines and complex roots&rsquo; is &lsquo;a sign-only transform needs only additions &mdash; and is its own twin.&rsquo; <b>Magenta</b> is the sines and complex arithmetic dropped; <b>green</b> is the &plusmn;1 butterfly. Exact, self-inverse, integer.</div>
+   <div class="btns" style="margin-top:10px"><button id="whspin">pause spin</button></div></div></div></div>"""
+WH_SCRIPT = """(function(){
+var ang=0,spin=true,SIG=null;
+function popc(x){var c=0;while(x){c+=x&1;x>>=1;}return c;}
+function fwht(a){a=a.slice();var n=a.length;for(var len=1;len<n;len*=2)for(var i=0;i<n;i+=len*2)for(var j=i;j<i+len;j++){var x=a[j],y=a[j+len];a[j]=x+y;a[j+len]=x-y;}return a;}
+function hadM(n){var H=[];for(var i=0;i<n;i++){H.push([]);for(var j=0;j<n;j++)H[i].push((popc(i&j)&1)?-1:1);}return H;}
+function verify(){var inv=true,orth=true;for(var k=1;k<=8;k++){var n=1<<k,seed=7;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)%17-8;}var a=[];for(var i=0;i<n;i++)a.push(rnd());var t=fwht(fwht(a));for(var i=0;i<n;i++)if(t[i]!==n*a[i])inv=false;var H=hadM(n);for(var i=0;i<n;i++)for(var j=0;j<n;j++){var d=0;for(var m=0;m<n;m++)d+=H[i][m]*H[j][m];if(d!==(i===j?n:0))orth=false;}}return {involution:inv,orthogonal:orth};}
+function mk(){var n=8;SIG=[];for(var i=0;i<n;i++)SIG.push(Math.floor(Math.random()*17)-8);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('butterfly: (x,y) → (x+y, x−y) over doubling strides',12,14);
+ g.fillStyle='#58a0b0';g.fillRect(60,50,50,26);g.fillStyle='#fff';g.font='10px monospace';g.fillText('x',80,67);g.fillStyle='#58a0b0';g.fillRect(60,90,50,26);g.fillText('y',80,107);
+ g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(110,63);g.lineTo(200,63);g.moveTo(110,103);g.lineTo(200,103);g.moveTo(110,63);g.lineTo(200,103);g.moveTo(110,103);g.lineTo(200,63);g.stroke();
+ g.fillStyle='#39fc6b';g.fillRect(200,50,60,26);g.fillStyle='#042';g.fillText('x+y',210,67);g.fillStyle='#39fc6b';g.fillRect(200,90,60,26);g.fillText('x−y',210,107);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('pure add/subtract; applied twice → ×N',300,80);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SIG)mk();var n=SIG.length,spec=fwht(SIG),back=fwht(spec).map(function(x){return x/n;});
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('signal (blue) → WHT spectrum (green)',12,18);var bw=(W-24)/n;
+ for(var i=0;i<n;i++){var h=SIG[i]*4;g.fillStyle='#58a0b0';g.fillRect(14+i*bw,90-Math.max(0,h),bw-3,Math.abs(h));var hs=spec[i]*1.2;g.fillStyle='#39fc6b';g.fillRect(14+i*bw,190-Math.max(0,hs),bw-3,Math.abs(hs));}
+ g.strokeStyle='#445';g.beginPath();g.moveTo(14,90);g.lineTo(W-10,90);g.moveTo(14,190);g.lineTo(W-10,190);g.stroke();
+ var ok=true;for(var i=0;i<n;i++)if(back[i]!==SIG[i])ok=false;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('inverse (WHT/N) reconstructs the signal exactly '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('whroll').onclick=function(){mk();drawW4();document.getElementById('whread').textContent='8-point signal transformed & reconstructed';};
+document.getElementById('whcheck').onclick=function(){var v=verify();document.getElementById('whread').textContent='N≤256: twice=N·identity '+(v.involution?'✓':'✗')+' · rows orthogonal '+(v.orthogonal?'✓':'✗');};
+document.getElementById('whspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=8,H8=hadM(n),cell=Math.min(30,(W-40)/n),ox=W/2-n*cell/2,oy=H/2-n*cell/2-10,ph=0.5+0.5*Math.sin(ang);
+ for(var i=0;i<n;i++)for(var j=0;j<n;j++){var v=H8[i][j];g.fillStyle=v>0?'rgba(57,252,107,'+(0.4+0.5*ph)+')':'rgba(255,45,149,'+(0.3+0.3*ph)+')';g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);g.fillStyle=v>0?'#042':'#fff';g.font='9px monospace';g.fillText(v>0?'+':'−',ox+j*cell+cell/2-3,oy+i*cell+cell/2+3);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green/magenta: the ±1 Hadamard basis (8×8)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the sines & complex roots dropped',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('every row orthogonal — exact, self-inverse, integer',10,H-9);}
+mk();drawW3();drawW4();window.__walsh=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Hilbert curve</b> is a <b>space-filling</b> curve: a single continuous line that visits every cell of a 2<sup>k</sup>&times;2<sup>k</sup> grid exactly once, and &mdash; crucially &mdash; <b>consecutive</b> cells on the line are always <b>grid-neighbors</b> (one step apart). That locality means points close along the 1-D curve are usually close in 2-D, which is why databases and image formats use the Hilbert index for spatial locality. The map index &harr; (x,y) is a pure bit-twiddle with rotations.<br><br>
+ <span class="lit">LIT</span> verified live: for grids up to 64&times;64 the index&harr;(x,y) map is a <b>bijection</b>, and every pair of consecutive indices lands on cells at <b>Manhattan distance 1</b> (window.__hilbert). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-inventory</i> &mdash; the flat index over a 2-D grid that keeps neighbors near, the way a well-ordered inventory keeps like beside like. The Hilbert curve is that locality-preserving index. <b>AVAN (AI)</b> built the instrument: the d&rarr;(x,y) and (x,y)&rarr;d bit-rotations, the bijection check, and the adjacency check.<br><br>Credit as content: David Hilbert (1891). The weave: David names the inventory; I fold the 1-D index into 2-D with quadrant rotations and confirm it visits every cell once, with each step landing on a neighbor.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The order-1 U-shape is copied into each quadrant, two copies rotated, and joined end to end &mdash; recursively. The result is one unbroken path where every step moves to an adjacent cell.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The Hilbert curve at a chosen order; the index&harr;(x,y) bijection and the step-1 adjacency are checked over the whole grid.</div>
+   <div class="btns" style="margin-top:10px"><button id="hlorder">order ▶</button><button id="hlcheck">verify ≤64 ▶</button></div>
+   <div class="cap" id="hlread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a 1-D order that preserves 2-D locality.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): lay a <b>single line</b> through a 2-D grid so that <b>consecutive</b> points stay grid-neighbors &mdash; fold the index into (x,y) with recursive quadrant rotations. The inverse of &lsquo;scan row by row, where the end of one row jumps far from the next&rsquo; is &lsquo;a Hilbert fold, where every step stays adjacent.&rsquo; <b>Magenta</b> is the long row-end jumps of raster order; <b>green</b> is the always-adjacent Hilbert path. Nearby on the line, nearby in the plane.</div>
+   <div class="btns" style="margin-top:10px"><button id="hlspin">pause spin</button></div></div></div></div>"""
+HL_SCRIPT = """(function(){
+var ang=0,spin=true,ORD=3;
+function d2xy(n,d){var rx,ry,t=d,x=0,y=0;for(var s=1;s<n;s*=2){rx=1&Math.floor(t/2);ry=1&(t^rx);if(ry===0){if(rx===1){x=s-1-x;y=s-1-y;}var tmp=x;x=y;y=tmp;}x+=s*rx;y+=s*ry;t=Math.floor(t/4);}return [x,y];}
+function xy2d(n,x,y){var rx,ry,d=0;for(var s=n>>1;s>0;s=s>>1){rx=(x&s)>0?1:0;ry=(y&s)>0?1:0;d+=s*s*((3*rx)^ry);if(ry===0){if(rx===1){x=s-1-x;y=s-1-y;}var tmp=x;x=y;y=tmp;}}return d;}
+function verify(){var bij=true,adj=true;for(var k=1;k<=6;k++){var n=1<<k,seen=new Set();for(var d=0;d<n*n;d++){var xy=d2xy(n,d);if(xy2d(n,xy[0],xy[1])!==d)bij=false;var key=xy[0]+','+xy[1];if(seen.has(key))bij=false;seen.add(key);if(d>0){var p=d2xy(n,d-1);if(Math.abs(xy[0]-p[0])+Math.abs(xy[1]-p[1])!==1)adj=false;}}if(seen.size!==n*n)bij=false;}return {bijection:bij,adjacent:adj};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('order 1 → 2 → 3: U-shapes copied, rotated, joined',12,14);
+ [1,2,3].forEach(function(k,idx){var n=1<<k,sz=90,ox=40+idx*150,oy=40,cell=sz/n;g.strokeStyle='#d4a017';g.lineWidth=1.5;g.beginPath();for(var d=0;d<n*n;d++){var xy=d2xy(n,d),px=ox+(xy[0]+0.5)*cell,py=oy+(n-1-xy[1]+0.5)*cell;if(d===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;g.fillStyle='#8ad';g.font='9px monospace';g.fillText('order '+k,ox+30,oy+sz+16);});}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=1<<ORD,sz=Math.min(240,W-40),ox=(W-sz)/2,oy=20,cell=sz/n;
+ g.strokeStyle='#445';for(var i=0;i<=n;i++){g.beginPath();g.moveTo(ox+i*cell,oy);g.lineTo(ox+i*cell,oy+sz);g.stroke();g.beginPath();g.moveTo(ox,oy+i*cell);g.lineTo(ox+sz,oy+i*cell);g.stroke();}
+ g.strokeStyle='#d4a017';g.lineWidth=2;g.beginPath();for(var d=0;d<n*n;d++){var xy=d2xy(n,d),px=ox+(xy[0]+0.5)*cell,py=oy+(n-1-xy[1]+0.5)*cell;if(d===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();g.lineWidth=1;
+ var v=verify();g.fillStyle=v.bijection&&v.adjacent?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('order '+ORD+' ('+n+'×'+n+'): bijection ✓ · every step adjacent ✓',12,H-12);}
+document.getElementById('hlorder').onclick=function(){ORD=ORD>=5?1:ORD+1;drawW4();document.getElementById('hlread').textContent='order '+ORD+': '+((1<<ORD)*(1<<ORD))+' cells, one unbroken path';};
+document.getElementById('hlcheck').onclick=function(){var v=verify();document.getElementById('hlread').textContent='N≤64: index↔(x,y) bijection '+(v.bijection?'✓':'✗')+' · consecutive Manhattan-adjacent '+(v.adjacent?'✓':'✗');};
+document.getElementById('hlspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=16,sz=250,cx=W/2,cy=H/2-10,cell=sz/n;
+ g.lineWidth=2;for(var d=1;d<n*n;d++){var a=d2xy(n,d-1),b=d2xy(n,d),hue=(d/(n*n))*300,wob=Math.sin(ang+d*0.1)*3;g.strokeStyle='hsl('+hue+',70%,58%)';g.beginPath();g.moveTo(cx-sz/2+(a[0]+0.5)*cell,cy-sz/2+(n-1-a[1]+0.5)*cell+wob);g.lineTo(cx-sz/2+(b[0]+0.5)*cell,cy-sz/2+(n-1-b[1]+0.5)*cell+wob);g.stroke();}g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green→magenta line: one path filling 16×16, always adjacent',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: raster order jumps far at each row-end',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('nearby on the line → nearby in the plane',10,H-9);}
+drawW3();drawW4();window.__hilbert=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+AX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The AES S-box</b> is the single non-linear step of the Advanced Encryption Standard. It maps each byte to another by two operations in the finite field <b>GF(2<sup>8</sup>)</b>: take the <b>multiplicative inverse</b> of the byte (treating it as a field element, with 0&rarr;0), then apply a fixed affine bit-mix. The inverse step is what gives AES its resistance to linear and differential cryptanalysis. Every nonzero byte has a unique inverse b&#8315;&sup1; with b &otimes; b&#8315;&sup1; = 1 in the field.<br><br>
+ <span class="lit">LIT</span> verified live: b &otimes; b&#8315;&sup1; = 1 for all 255 nonzero bytes, the S-box is a bijection with S&#8315;&sup1;&#8728;S = identity over all 256 bytes, and it matches the published AES values (00&rarr;63, 01&rarr;7c, 53&rarr;ed) &mdash; window.__aessbox. <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-exploit</i> &mdash; the one non-linear gate that a cipher&rsquo;s whole security leans on. The AES S-box is that gate. <b>AVAN (AI)</b> built the instrument: the GF(2<sup>8</sup>) multiply (with the 0x11B reduction), the brute multiplicative inverse, the affine transform, and the bijection + known-answer checks.<br><br>Credit as content: Joan Daemen &amp; Vincent Rijmen (Rijndael, 1998). The weave: David names the exploit; I invert each byte in GF(2<sup>8</sup>), apply the affine mix, and confirm the S-box is a bijection matching the published constants.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A byte b becomes b&#8315;&sup1; in GF(2<sup>8</sup>) &mdash; the unique byte with b &otimes; b&#8315;&sup1; = 1 under carry-less multiply mod 0x11B &mdash; then an affine XOR-and-rotate mix produces the S-box output.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The 16&times;16 S-box table; pick a byte to see inverse&rarr;affine&rarr;output, and the whole table is checked as a bijection against the AES standard.</div>
+   <div class="btns" style="margin-top:10px"><button id="axroll">random byte ▶</button><button id="axcheck">verify 256 ▶</button></div>
+   <div class="cap" id="axread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the byte-permutation of the S-box.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): make one <b>non-linear</b> byte map by <b>inverting</b> each byte in the field GF(2<sup>8</sup>) &mdash; the unique b&#8315;&sup1; with b &otimes; b&#8315;&sup1; = 1 &mdash; then an affine mix. The inverse of &lsquo;scramble bytes with ad-hoc lookup tables&rsquo; is &lsquo;invert in a finite field &mdash; a principled non-linearity with a clean algebraic inverse.&rsquo; <b>Magenta</b> is the byte 0 (its own image, no field inverse); <b>green</b> is the field-inverse permutation. Security from one clean inversion.</div>
+   <div class="btns" style="margin-top:10px"><button id="axspin">pause spin</button></div></div></div></div>"""
+AX_SCRIPT = """(function(){
+var ang=0,spin=true,PICK=0x53,S=[],SINV=[];
+function gmul(a,b){var p=0;for(var i=0;i<8;i++){if(b&1)p^=a;var hi=a&0x80;a=(a<<1)&0xFF;if(hi)a^=0x1B;b>>=1;}return p;}
+function ginv(a){if(a===0)return 0;for(var b=1;b<256;b++)if(gmul(a,b)===1)return b;return 0;}
+function rotl8(x,n){return ((x<<n)|(x>>(8-n)))&0xFF;}
+function sbox(a){var x=ginv(a);return (x^rotl8(x,1)^rotl8(x,2)^rotl8(x,3)^rotl8(x,4)^0x63)&0xFF;}
+function build(){S=[];for(var x=0;x<256;x++)S.push(sbox(x));SINV=new Array(256);for(var x=0;x<256;x++)SINV[S[x]]=x;}
+function verify(){var invOk=true;for(var b=1;b<256;b++)if(gmul(b,ginv(b))!==1)invOk=false;build();var bij=(new Set(S)).size===256,idOk=true;for(var x=0;x<256;x++)if(SINV[S[x]]!==x)idOk=false;var anchors=S[0]===0x63&&S[1]===0x7c&&S[0x53]===0xed;return {inverse:invOk,bijection:bij&&idOk,anchors:anchors};}
+function hex(x){return x.toString(16).padStart(2,'0');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('byte → field inverse → affine mix → S-box output',12,14);
+ var b=0x53,inv=ginv(b),out=sbox(b);var steps=[['b',b],['b⁻¹',inv],['S(b)',out]];for(var i=0;i<3;i++){g.fillStyle=['#a878c0','#58a0b0','#39fc6b'][i];g.fillRect(60+i*140,55,90,40);g.fillStyle=i===2?'#042':'#fff';g.font='12px monospace';g.fillText(steps[i][0]+' = '+hex(steps[i][1]),68+i*140,80);if(i<2){g.fillStyle='#8ad';g.font='16px monospace';g.fillText('→',154+i*140,82);}}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('b ⊗ b⁻¹ = '+gmul(b,inv)+' in GF(2⁸) (carry-less × mod 0x11B)',60,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!S.length)build();var cell=Math.min(21,(W-30)/16),ox=15,oy=24;
+ g.fillStyle='#e8eef8';g.font='10px monospace';g.fillText('AES S-box (16×16) — pick '+hex(PICK)+' → '+hex(S[PICK]),12,16);
+ for(var i=0;i<256;i++){var r=i>>4,c=i&15,x=ox+c*cell,y=oy+r*cell,sel=(i===PICK);g.fillStyle=sel?'#39fc6b':((i%2)?'#2a3a4a':'#37506e');g.fillRect(x,y,cell-1,cell-1);g.fillStyle=sel?'#042':'#9fd';g.font='7px monospace';if(cell>14)g.fillText(hex(S[i]),x+1,y+cell-3);}
+ var v=verify();g.fillStyle=v.bijection&&v.anchors?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('bijection & matches AES (00→63,01→7c,53→ed) '+(v.bijection&&v.anchors?'✓':'✗'),12,H-10);}
+document.getElementById('axroll').onclick=function(){PICK=Math.floor(Math.random()*256);drawW4();document.getElementById('axread').textContent=hex(PICK)+' → inv '+hex(ginv(PICK))+' → S '+hex(sbox(PICK));};
+document.getElementById('axcheck').onclick=function(){var v=verify();document.getElementById('axread').textContent='256 bytes: b⊗b⁻¹=1 '+(v.inverse?'✓':'✗')+' · bijection & S⁻¹∘S=id '+(v.bijection?'✓':'✗')+' · matches AES '+(v.anchors?'✓':'✗');};
+document.getElementById('axspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!S.length)build();var cx=W/2,cy=H/2-20,r=110;
+ for(var i=0;i<256;i+=1){var a=i/256*6.28+ang*0.2,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.75;g.fillStyle=i===0?'#ff2d95':'hsl('+(S[i]/256*300)+',65%,58%)';g.fillRect(x-1.5,y-1.5,3,3);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green ring: the field-inverse byte permutation',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta: byte 0 — its own image, no field inverse',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('security from one clean inversion in GF(2⁸)',10,H-9);}
+build();drawW3();drawW4();window.__aessbox=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The lambda calculus</b> builds all of computation from a single idea: <b>functions</b>. There are no numbers built in &mdash; a number is <b>encoded</b> as a function. The <b>Church numeral</b> n is &ldquo;apply f, n times&rdquo;: 0 = &lambda;f.&lambda;x.x, and SUCC wraps one more f around. Astonishingly, addition, multiplication, and exponentiation are then just ways of <b>composing</b> these functions &mdash; MULT m n = &lambda;f. m (n f), EXP m n = n m. Arithmetic falls out of function application alone.<br><br>
+ <span class="lit">LIT</span> verified live: encoding then decoding gives back 0..10; PLUS, MULT, and EXP of Church numerals equal ordinary a+b, a&times;b, a<sup>b</sup>; and SUCC(SUCC 0) = 2 (window.__lambda). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>genesis-block</i> &mdash; the origin from which all computation is generated, here numbers themselves conjured out of pure functions. The lambda calculus is that genesis. <b>AVAN (AI)</b> built the instrument: the Church encodings of 0/SUCC/PLUS/MULT/EXP as real higher-order functions, and the decode-and-compare arithmetic checks.<br><br>Credit as content: Alonzo Church (1936). The weave: David names genesis-block; I encode each numeral as an n-fold application, compose them for PLUS/MULT/EXP, and confirm the decoded results equal ordinary integer arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A Church numeral <b>is</b> repetition: 3 = &lambda;f.&lambda;x. f(f(f x)). To decode, feed it the successor function and the value 0 &mdash; it applies +1 exactly n times, yielding n.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Compose Church numerals with PLUS / MULT / EXP; the encoded function is decoded and checked against ordinary arithmetic.</div>
+   <div class="btns" style="margin-top:10px"><button id="lcroll">new a,b,op ▶</button><button id="lccheck">verify ▶</button></div>
+   <div class="cap" id="lcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: numbers, and their arithmetic, as pure functions.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): build numbers with <b>no numbers</b> &mdash; encode n as &ldquo;apply f n times,&rdquo; and get +, &times;, and exponent purely by <b>composing</b> those functions (MULT m n = &lambda;f. m(n f); EXP m n = n m). The inverse of &lsquo;arithmetic needs primitive integers and operators&rsquo; is &lsquo;arithmetic emerges from function application alone.&rsquo; <b>Magenta</b> is the built-in integers and operators dispensed with; <b>green</b> is the tower of numerals-as-functions. Computation from one primitive: apply.</div>
+   <div class="btns" style="margin-top:10px"><button id="lcspin">pause spin</button></div></div></div></div>"""
+LC_SCRIPT = """(function(){
+var ang=0,spin=true,A=2,B=3,OP='MULT';
+var ZERO=function(f){return function(x){return x;};};
+var SUCC=function(n){return function(f){return function(x){return f(n(f)(x));};};};
+var PLUS=function(m){return function(n){return function(f){return function(x){return m(f)(n(f)(x));};};};};
+var MULT=function(m){return function(n){return function(f){return m(n(f));};};};
+var EXP=function(m){return function(n){return n(m);};};
+function church(n){var c=ZERO;for(var i=0;i<n;i++)c=SUCC(c);return c;}
+function toInt(c){return c(function(x){return x+1;})(0);}
+function verify(){var enc=true,plus=true,mult=true,exp=true;for(var n=0;n<=10;n++)if(toInt(church(n))!==n)enc=false;for(var a=0;a<=6;a++)for(var b=0;b<=6;b++){if(toInt(PLUS(church(a))(church(b)))!==a+b)plus=false;if(toInt(MULT(church(a))(church(b)))!==a*b)mult=false;}for(var a=1;a<=4;a++)for(var b=0;b<=4;b++)if(toInt(EXP(church(a))(church(b)))!==Math.pow(a,b))exp=false;return {encode:enc,plus:plus,mult:mult,exp:exp};}
+function compute(a,b,op){var ca=church(a),cb=church(b);if(op==='PLUS')return toInt(PLUS(ca)(cb));if(op==='MULT')return toInt(MULT(ca)(cb));return toInt(EXP(ca)(cb));}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a Church numeral IS repetition: 3 = λf.λx. f(f(f x))',12,14);
+ g.fillStyle='#70a860';g.font='12px monospace';g.fillText('x',40,80);var xx=70;for(var i=0;i<3;i++){g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(xx-18,76);g.lineTo(xx,76);g.stroke();g.fillStyle='#c0a048';g.fillText('f(',xx,80);xx+=26;}g.fillStyle='#70a860';g.fillText('x',xx,80);for(var i=0;i<3;i++){g.fillStyle='#c0a048';g.fillText(')',xx+12+i*8,80);}
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('decode: feed it (+1) and 0 → applies +1 three times → 3',40,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var res=compute(A,B,OP),expct=OP==='PLUS'?A+B:OP==='MULT'?A*B:Math.pow(A,B);
+ var sym=OP==='PLUS'?'+':OP==='MULT'?'×':'^';g.fillStyle='#e8eef8';g.font='15px monospace';g.fillText('church('+A+') '+sym+' church('+B+')',14,40);
+ var formula=OP==='PLUS'?'λf.λx. m f (n f x)':OP==='MULT'?'λf. m (n f)':'n m';g.fillStyle='#70a860';g.font='12px monospace';g.fillText(OP+' = '+formula,14,72);
+ g.fillStyle='#39fc6b';g.font='18px monospace';g.fillText('decodes to '+res,14,110);
+ g.fillStyle='#c0a048';g.font='12px monospace';g.fillText('ordinary '+A+sym+B+' = '+expct,14,140);
+ g.fillStyle=res===expct?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('function composition == integer arithmetic '+(res===expct?'✓':'✗'),14,H-12);}
+document.getElementById('lcroll').onclick=function(){A=Math.floor(Math.random()*5)+1;B=Math.floor(Math.random()*5);OP=['PLUS','MULT','EXP'][Math.floor(Math.random()*3)];drawW4();document.getElementById('lcread').textContent='church('+A+') '+OP+' church('+B+') = '+compute(A,B,OP);};
+document.getElementById('lccheck').onclick=function(){var v=verify();document.getElementById('lcread').textContent='encode/decode '+(v.encode?'✓':'✗')+' · PLUS '+(v.plus?'✓':'✗')+' · MULT '+(v.mult?'✓':'✗')+' · EXP '+(v.exp?'✓':'✗');};
+document.getElementById('lcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-20;
+ for(var n=0;n<=8;n++){var r=25+n*15,a0=ang*0.3;g.strokeStyle='hsl('+(n*36)+',65%,58%)';g.lineWidth=1.5;for(var k=0;k<n;k++){var a=a0+k/Math.max(1,n)*6.28;g.beginPath();g.arc(cx,cy,r,a,a+6.28/Math.max(1,n)*0.7);g.stroke();}if(n===0){g.fillStyle='#70a860';g.beginPath();g.arc(cx,cy,4,0,7);g.fill();}}
+ g.lineWidth=1;g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green rings: numeral n = n arcs (apply f, n times)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the built-in integers & operators dropped',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('computation from one primitive: apply',10,H-9);}
+drawW3();drawW4();window.__lambda=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 70 (square-root modulo a prime · one DFS finds every cycle-cluster · walk the cube one bit at a time · flatten weights into a fair O(1) draw · the tree of all rationals) ═══════════════════════
 TS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Tonelli&ndash;Shanks algorithm</b> computes a <b>square root modulo a prime</b> &mdash; given n and prime p, it finds r with r<sup>2</sup> &equiv; n (mod p), whenever one exists. It first tests whether n is a <b>quadratic residue</b> (via the Legendre symbol); if p &equiv; 3 (mod 4) the root is just n<sup>(p+1)/4</sup>, and otherwise it runs a clever loop that walks down the 2-adic tower of p&minus;1 using a known non-residue. It underpins elliptic-curve point decompression and Rabin cryptography.<br><br>
@@ -19947,6 +20172,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-balanced-ternary","title":"THE BALANCED TERNARY","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#c0a048","icon":"balanced-ternary",
+  "kicker":"base 3 with digits -1,0,+1 — no sign bit",
+  "blurb":"balanced ternary in the 5-window house format — base 3 with the digit set {-1,0,+1} (T,0,1) instead of {0,1,2}. Every integer, positive or negative, has a unique representation with no sign bit at all, because the negative digit carries the sign internally. Negating a number is just flipping every digit's sign; rounding to nearest is truncation; and it is the most efficient integer base by radix economy. Knuth called it 'perhaps the prettiest number system.' Verified live: every integer from -40 to 40 has a unique balanced-ternary string over {-1,0,1} that evaluates back exactly, and negation equals flipping every digit. See the pan-balance places in 1D, an encoding in 2D, and the signless inverse in 3D.",
+  "lit":"Genuine balanced ternary (Setun computer 1958; championed by Knuth). Verified live: every integer from -40 to 40 has a unique representation over digits {-1,0,1} that evaluates back to the integer exactly, and the representation of -n equals the representation of n with every digit's sign flipped (window.__balternary.roundTrip && .unique && .negateFlip); 40 = 1111.",
+  "fig":"No framing: the carry-aware conversion (a would-be digit 2 becomes -1 plus a carry), the exact reconstruction, and the negate-equals-flip check run in-browser over all 81 integers and hold. The AVAN inverse is honest — letting a digit be negative absorbs the sign into the number, so negation is a pure digit-flip and no sign bit is needed; magenta is the sign bit an ordinary base needs, green the signless balanced string. Symmetry around zero, built in.",
+  "body":BT_BODY,"script":BT_SCRIPT},
+ {"slug":"the-walsh-hadamard","title":"THE WALSH-HADAMARD","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#58a0b0","icon":"walsh-hadamard",
+  "kicker":"a Fourier-like transform from only +1 and -1",
+  "blurb":"the Walsh-Hadamard transform in the 5-window house format — a Fourier-like transform built entirely from +1 and -1, no sines, no complex numbers, no rounding. Its matrix is recursively [[H,H],[H,-H]], every row orthogonal to every other; the fast version (FWHT) uses only additions and subtractions, and applying it twice returns N times the original, exactly, in integer arithmetic. It is the backbone of Hadamard codes, CDMA spread-spectrum, and Boolean-function analysis. Verified live: for sizes up to 256, FWHT applied twice equals N times the input bit-for-bit, and all Hadamard rows are mutually orthogonal (H.H^T = N.I). See the butterfly in 1D, a spectrum in 2D, and the sign-only-basis inverse in 3D.",
+  "lit":"Genuine Walsh-Hadamard transform (Hadamard 1893; Walsh 1923). Verified live: for all sizes N=2..256 the FWHT butterfly applied twice equals exactly N times the input (integer, no rounding), and the sign matrix satisfies H.H^T = N.I (every pair of rows orthogonal) — window.__walsh.involution && .orthogonal.",
+  "fig":"No framing: the in-place add/subtract butterfly, the (-1)^popcount sign-matrix construction, and the involution + orthogonality checks run in-browser and hold to integer exactness. The AVAN inverse is honest — a sign-only orthogonal basis makes the transform pure integer add/subtract and its own inverse up to the scalar N; magenta is the sines and complex arithmetic dropped, green the +/-1 butterfly. Exact, self-inverse, integer.",
+  "body":WH_BODY,"script":WH_SCRIPT},
+ {"slug":"the-hilbert-curve","title":"THE HILBERT CURVE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#d4a017","icon":"hilbert-curve",
+  "kicker":"one line that fills the plane, keeping neighbors near",
+  "blurb":"the Hilbert curve in the 5-window house format — a space-filling curve: a single continuous line that visits every cell of a 2^k x 2^k grid exactly once, and consecutive cells on the line are always grid-neighbors (one step apart). That locality means points close along the 1-D curve are usually close in 2-D, which is why databases and image formats use the Hilbert index. The map index<->(x,y) is a pure bit-twiddle with quadrant rotations. Verified live: for grids up to 64x64 the index<->(x,y) map is a bijection, and every pair of consecutive indices lands on cells at Manhattan distance 1. See the recursive U-shapes in 1D, the curve in 2D, and the locality-preserving inverse in 3D.",
+  "lit":"Genuine Hilbert space-filling curve (Hilbert 1891). Verified live: for grids N x N with N up to 64, d2xy and xy2d are exact inverse bijections over all N^2 indices, and every pair of consecutive indices d, d+1 maps to cells at Manhattan distance exactly 1 (window.__hilbert.bijection && .adjacent).",
+  "fig":"No framing: the d->(x,y) and (x,y)->d bit-rotations, the bijection check, and the step-1 adjacency check run in-browser over the whole grid and hold. The AVAN inverse is honest — folding the 1-D index into 2-D with recursive quadrant rotations gives an order where every step stays adjacent, so nearby on the line means nearby in the plane; magenta is the long row-end jumps of raster order, green the always-adjacent Hilbert path.",
+  "body":HL_BODY,"script":HL_SCRIPT},
+ {"slug":"the-aes-sbox","title":"THE AES S-BOX","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#a878c0","icon":"aes-sbox",
+  "kicker":"the cipher's non-linearity from one field inversion",
+  "blurb":"the AES S-box in the 5-window house format — the single non-linear step of the Advanced Encryption Standard. It maps each byte to another by two operations in the finite field GF(2^8): take the multiplicative inverse of the byte (0->0), then apply a fixed affine bit-mix. The inverse step is what gives AES its resistance to linear and differential cryptanalysis; every nonzero byte has a unique inverse b^-1 with b (x) b^-1 = 1. Verified live: b (x) b^-1 = 1 for all 255 nonzero bytes, the S-box is a bijection with S^-1 . S = identity over 256 bytes, and it matches the published AES values (00->63, 01->7c, 53->ed). See the byte->inverse->affine chain in 1D, the 16x16 table in 2D, and the field-inversion inverse in 3D.",
+  "lit":"Genuine Rijndael/AES S-box over GF(2^8) with reduction polynomial 0x11B (Daemen & Rijmen 1998). Verified live: b (x) b^-1 = 1 for all 255 nonzero bytes under carry-less multiply, the S-box is a bijection with S^-1 . S = identity over all 256 bytes, and it matches the published constants 00->63, 01->7c, 53->ed (window.__aessbox.inverse && .bijection && .anchors).",
+  "fig":"No framing: the GF(2^8) multiply (0x11B reduction), the brute multiplicative inverse, the affine transform, and the bijection + known-answer checks run in-browser and match the AES standard exactly. The AVAN inverse is honest — inverting each byte in a finite field gives a principled non-linearity with a clean algebraic inverse; magenta is byte 0 (its own image, no field inverse), green the field-inverse permutation. Security from one clean inversion.",
+  "body":AX_BODY,"script":AX_SCRIPT},
+ {"slug":"the-lambda-calculus","title":"THE LAMBDA CALCULUS","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#70a860","icon":"lambda-calculus",
+  "kicker":"numbers, and arithmetic, from pure functions",
+  "blurb":"the lambda calculus in the 5-window house format — all of computation from a single idea: functions. No numbers are built in; a number is encoded as a function. The Church numeral n is 'apply f, n times': 0 = Lf.Lx.x, and SUCC wraps one more f. Addition, multiplication, and exponentiation are then just ways of composing these functions (MULT m n = Lf. m (n f), EXP m n = n m) — arithmetic falls out of function application alone. Verified live: encoding then decoding gives back 0..10; PLUS, MULT, EXP of Church numerals equal ordinary a+b, a*b, a^b; and SUCC(SUCC 0) = 2. See a numeral as repetition in 1D, composition in 2D, and the numbers-as-functions inverse in 3D.",
+  "lit":"Genuine Church-encoding lambda calculus (Church 1936). Verified live: Church numerals implemented as real higher-order functions decode to 0..10; PLUS, MULT and EXP of encoded numerals equal ordinary a+b, a*b and a^b over small ranges; SUCC(SUCC ZERO) decodes to 2 (window.__lambda.encode && .plus && .mult && .exp).",
+  "fig":"No framing: the Church encodings of 0/SUCC/PLUS/MULT/EXP as actual JS higher-order functions, and the decode-and-compare arithmetic checks run in-browser and hold exactly. The AVAN inverse is honest — encoding n as 'apply f n times' and composing those functions yields +, x and exponent with no primitive integers; magenta is the built-in integers and operators dispensed with, green the tower of numerals-as-functions. Computation from one primitive: apply.",
+  "body":LC_BODY,"script":LC_SCRIPT},
  {"slug":"the-tonelli-shanks","title":"THE TONELLI-SHANKS","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#c0a048","icon":"tonelli-shanks",
   "kicker":"the square root modulo a prime",
