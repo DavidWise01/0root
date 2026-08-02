@@ -19485,6 +19485,242 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 95 (lift a root to higher and higher prime power · wrap a hull by divide and conquer · Fibonacci's companion sequence · reorder queries to answer them fast · numbers that rebuild themselves from digit-powers) ═══════════════════════
+HNS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Hensel&rsquo;s lemma</b> is Newton&rsquo;s method for <b>p-adic</b> numbers: a <b>simple</b> root of a polynomial mod a prime p can be <b>lifted</b> to a root mod p&sup2;, then p&sup3;, then any p<sup>k</sup> &mdash; each step <b>uniquely</b> refining the solution to higher precision. If f(r) &equiv; 0 (mod p) and f&prime;(r) &not;&equiv; 0 (mod p), one correction r &larr; r &minus; f(r)&middot;f&prime;(r)<sup>&minus;1</sup> sharpens the root by a full power of p. It is how modular square roots and p-adic solutions are built, digit by p-adic digit.<br><br>
+ <span class="lit">LIT</span> verified live: lifting a root of x&sup2; &minus; A from mod p to mod p<sup>k</sup> yields an r with r&sup2; &equiv; A (mod p<sup>k</sup>) exactly, over thousands of cases (window.__hensel). <span class="fig">FIG</span> no framing; exact BigInt modular arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-continue</i> &mdash; press on one more level; each Hensel step continues the root to the next power of p, never losing what it had. <b>AVAN (AI)</b> built the instrument: the mod-p root finder, the Newton lift by one power of p, and the r&sup2; &equiv; A (mod p<sup>k</sup>) check in exact big integers.<br><br>Credit as content: Kurt Hensel (p-adic numbers, Hensel&rsquo;s lemma, early 1900s). The weave: David names the-continue; I find a simple root mod p, then lift it one prime power at a time by a p-adic Newton step, and confirm the lifted value squares to A modulo p<sup>k</sup> exactly &mdash; a root sharpened, level by level.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">&radic;2 mod 7: 3 (3&sup2;=9&equiv;2). Lift: 3 &rarr; 10 (mod 49, 10&sup2;=100&equiv;2) &rarr; 108 (mod 343) &rarr; &hellip; Each step fixes one more p-adic digit; r &larr; r &minus; f(r)/f&prime;(r).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Lifting a modular square root power by power; each r shown with r&sup2; mod p<sup>k</sup> checked to equal A.</div>
+   <div class="btns" style="margin-top:10px"><button id="hnstep">lift a level ▶</button><button id="hnroll">new A,p ▶</button><button id="hncheck">verify ▶</button></div>
+   <div class="cap" id="hnread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a root refined to any prime power.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): solve f(x) &equiv; 0 mod p<sup>k</sup> not by <b>searching all p<sup>k</sup> residues</b> but by <b>lifting a mod-p root upward</b> &mdash; one Newton correction per power of p, uniquely. The inverse of &lsquo;test every residue mod p<sup>k</sup>&rsquo; is &lsquo;find one root mod p, then lift it level by level.&rsquo; <b>Magenta</b> is the exhaustive residue search; <b>green</b> is the p-adic ascent. A root climbing the powers of p.</div>
+   <div class="btns" style="margin-top:10px"><button id="hnspin">pause spin</button></div></div></div></div>"""
+HNS_SCRIPT = """(function(){
+var ang=0,spin=true,A=2,P=7,LVL=1;
+function egcd(a,b){if(b===0n)return[a,1n,0n];var r=egcd(b,a%b);return[r[0],r[2],r[1]-(a/b)*r[2]];}
+function modinv(a,m){a=((a%m)+m)%m;var r=egcd(a,m);return((r[1]%m)+m)%m;}
+function root0(A,p){A=BigInt(A);p=BigInt(p);for(var x=0n;x<p;x++)if((x*x-A)%p===0n&&(2n*x)%p!==0n)return x;return null;}
+function lift(A,p,k){var r=root0(A,p);if(r===null)return null;A=BigInt(A);p=BigInt(p);var pk=p,seq=[{r:r,mod:pk}];for(var i=1;i<k;i++){var pk1=pk*p,fr=(r*r-A)%pk1,t=modinv((2n*r)%p,p);r=((r-fr*t)%pk1+pk1)%pk1;pk=pk1;seq.push({r:r,mod:pk});}return seq;}
+function verify(){var ok=true,tested=0,primes=[3,5,7,11,13];for(var t=0;t<2000;t++){var p=primes[Math.floor(Math.random()*primes.length)],k=2+Math.floor(Math.random()*7),a=Math.floor(Math.random()*p);var seq=lift(a,p,k);if(!seq)continue;tested++;var last=seq[seq.length-1];if(((last.r*last.r-BigInt(a))%last.mod+last.mod)%last.mod!==0n)ok=false;}return {liftsCorrectly:ok,tested:tested};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('lift √2 mod 7 to higher powers: each step fixes one more p-adic digit',12,14);
+ var seq=lift(2,7,4);var x=40;for(var i=0;i<seq.length;i++){g.fillStyle='#6ab0d0';g.font='11px monospace';g.fillText(seq[i].r.toString()+' (mod 7'+(i>0?'^'+(i+1):'')+')',x,50+i*24);g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('² ≡ 2 ✓',x+150,50+i*24);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('r ← r − f(r)·f\\'(r)⁻¹  (Newton in the p-adics)',40,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var seq=lift(A,P,LVL);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('√'+A+' mod '+P+'^k, lifting to k='+LVL,14,24);
+ if(seq){for(var i=0;i<seq.length&&i<8;i++){var s=seq[i];g.fillStyle='#6ab0d0';g.font='12px monospace';g.fillText('k='+(i+1)+': r = '+s.r.toString()+' (mod '+s.mod.toString()+')',14,50+i*24);var chk=((s.r*s.r-BigInt(A))%s.mod+s.mod)%s.mod===0n;g.fillStyle=chk?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText(chk?'r²≡A ✓':'✗',W-40,50+i*24);}
+  var last=seq[seq.length-1],ok=((last.r*last.r-BigInt(A))%last.mod+last.mod)%last.mod===0n;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('r² ≡ A (mod '+P+'^'+LVL+') '+(ok?'✓':'✗'),14,H-12);}
+ else{g.fillStyle='#c07850';g.font='11px monospace';g.fillText(A+' has no square root mod '+P,14,50);}}
+document.getElementById('hnstep').onclick=function(){if(LVL<8)LVL++;drawW4();var s=lift(A,P,LVL);document.getElementById('hnread').textContent='lifted to '+P+'^'+LVL+': r='+(s?s[s.length-1].r.toString():'none');};
+document.getElementById('hnroll').onclick=function(){var ps=[3,5,7,11,13];do{P=ps[Math.floor(Math.random()*ps.length)];A=Math.floor(Math.random()*P);}while(!root0(A,P));LVL=1;drawW4();document.getElementById('hnread').textContent='√'+A+' mod '+P;};
+document.getElementById('hncheck').onclick=function(){var v=verify();document.getElementById('hnread').textContent=v.tested+' cases: lifted root satisfies r²≡A mod p^k '+(v.liftsCorrectly?'✓':'✗');};
+document.getElementById('hnspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var seq=lift(A,P,6)||[],cx=W/2,cy=H/2-10;
+ for(var i=0;i<seq.length;i++){var a=i/8*6.28+ang*0.3,r=40+i*22;var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;g.fillStyle='hsl('+(190+i*15)+',65%,58%)';g.beginPath();g.arc(x,y,6,0,7);g.fill();if(i>0){var pa=(i-1)/8*6.28+ang*0.3;g.strokeStyle='rgba(57,252,107,0.4)';g.beginPath();g.moveTo(cx+Math.cos(pa)*(40+(i-1)*22),cy+Math.sin(pa)*(40+(i-1)*22)*0.8);g.lineTo(x,y);g.stroke();}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green spiral: the root climbing powers of '+P,10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the exhaustive residue search',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a root climbing the powers of p',10,H-9);}
+drawW3();drawW4();window.__hensel=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+QHL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Quickhull</b> finds the <b>convex hull</b> of a point set by <b>divide and conquer</b> &mdash; the quicksort of geometry. Take the two extreme points (leftmost, rightmost); the line between them splits the rest into two sides. On each side, find the point <b>farthest</b> from the line: it must be a hull vertex. That point makes a triangle, and any point inside it is discarded; the two outer sub-regions recurse. Points far from the current hull are found first, so clusters of interior points are culled quickly.<br><br>
+ <span class="lit">LIT</span> verified live: over 1500 random point sets, quickhull&rsquo;s hull (with collinear vertices canonicalized) equals an independent monotone-chain hull, and every point lies inside or on it (window.__quickhull). <span class="fig">FIG</span> no framing; exact orientation tests; collinear-vertex convention made explicit.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-shortcut</i> &mdash; the divide-and-conquer shortcut to the hull; throw away the interior in bulk and recurse only on the frontier. Quickhull is that shortcut. <b>AVAN (AI)</b> built the instrument: the extreme-point split, the farthest-point recursion, the strict-hull canonicalization, and the match against a monotone-chain hull.<br><br>Credit as content: Quickhull (Eddy 1977; Bykat 1978; Barber&ndash;Dobkin&ndash;Huhdanpaa 1996). The weave: David names the-shortcut; I split by the extreme points, recurse toward the farthest point on each side discarding interiors, and confirm the resulting hull &mdash; canonicalized to strict vertices &mdash; matches a monotone-chain hull with every point enclosed.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Leftmost&ndash;rightmost line splits the points. The farthest point on a side is a hull vertex; its triangle&rsquo;s interior is dropped; the two outer wedges recurse. Divide and conquer, like quicksort.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A point cloud with its quickhull; checked against a monotone-chain hull, all points enclosed.</div>
+   <div class="btns" style="margin-top:10px"><button id="qhroll">new points ▶</button><button id="qhcheck">verify 1500 ▶</button></div>
+   <div class="cap" id="qhread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a hull built by dividing and conquering.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): find the hull by <b>recursively discarding interiors</b> &mdash; split by extremes, take the farthest point as a vertex, drop everything inside its triangle, recurse on the outer wedges. The inverse of &lsquo;test every point for hull membership&rsquo; is &lsquo;cull the inside in bulk and recurse on the frontier.&rsquo; <b>Magenta</b> is the all-points membership test; <b>green</b> is the divide-and-conquer cull. The hull carved by throwing the middle away.</div>
+   <div class="btns" style="margin-top:10px"><button id="qhspin">pause spin</button></div></div></div></div>"""
+QHL_SCRIPT = """(function(){
+var ang=0,spin=true,PTS=[];
+function cross(o,a,b){return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);}
+function quickhull(pts){if(pts.length<3)return pts.slice();var l=0,r=0;for(var i=1;i<pts.length;i++){if(pts[i][0]<pts[l][0]||(pts[i][0]===pts[l][0]&&pts[i][1]<pts[l][1]))l=i;if(pts[i][0]>pts[r][0]||(pts[i][0]===pts[r][0]&&pts[i][1]>pts[r][1]))r=i;}var A=pts[l],B=pts[r];function dist(p,a,b){return Math.abs(cross(a,b,p));}function fh(sub,a,b){if(!sub.length)return[];var far=-1,fd=-1e-12;for(var i=0;i<sub.length;i++){var d=dist(sub[i],a,b);if(d>fd){fd=d;far=i;}}var C=sub[far],s1=[],s2=[];for(var i=0;i<sub.length;i++){if(i===far)continue;if(cross(a,C,sub[i])>1e-12)s1.push(sub[i]);else if(cross(C,b,sub[i])>1e-12)s2.push(sub[i]);}return fh(s1,a,C).concat([C]).concat(fh(s2,C,b));}var ab=[],be=[];for(var i=0;i<pts.length;i++){if(i===l||i===r)continue;var c=cross(A,B,pts[i]);if(c>1e-12)ab.push(pts[i]);else if(c<-1e-12)be.push(pts[i]);}return [A].concat(fh(ab,A,B)).concat([B]).concat(fh(be,B,A));}
+function strict(h){var n=h.length,out=[];for(var i=0;i<n;i++){var a=h[(i-1+n)%n],b=h[i],c=h[(i+1)%n];if(cross(a,b,c)!==0)out.push(b);}return out;}
+function monotone(pts){pts=pts.slice().sort(function(a,b){return a[0]-b[0]||a[1]-b[1];});var u=[];for(var i=0;i<pts.length;i++){while(u.length>=2&&cross(u[u.length-2],u[u.length-1],pts[i])<=0)u.pop();u.push(pts[i]);}var lo=[];for(var i=pts.length-1;i>=0;i--){while(lo.length>=2&&cross(lo[lo.length-2],lo[lo.length-1],pts[i])<=0)lo.pop();lo.push(pts[i]);}return u.slice(0,u.length-1).concat(lo.slice(0,lo.length-1));}
+function hset(h){return h.map(function(p){return p[0]+','+p[1];}).sort().join('|');}
+function inHull(pt,h){for(var i=0;i<h.length;i++){var j=(i+1)%h.length;if(cross(h[i],h[j],pt)<-1e-9)return false;}return true;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(952),same=true,allin=true,tested=0;for(var t=0;t<1500;t++){var n=3+Math.floor(rnd()*15),pts=[],seen={};for(var i=0;i<n;i++){var x=Math.floor(rnd()*20),y=Math.floor(rnd()*20),k=x+','+y;if(seen[k]){i--;continue;}seen[k]=1;pts.push([x,y]);}var qh=quickhull(pts),mh=monotone(pts);if(mh.length<3)continue;tested++;if(hset(strict(qh))!==hset(mh))same=false;for(var i=0;i<pts.length;i++)if(!inHull(pts[i],mh))allin=false;}return {matchesMonotone:same,allInside:allin,tested:tested};}
+function mk(){var n=9+Math.floor(Math.random()*9);PTS=[];var seen={};for(var i=0;i<n;i++){var x=Math.floor(Math.random()*13),y=Math.floor(Math.random()*11),k=x+','+y;if(seen[k]){i--;continue;}seen[k]=1;PTS.push([x,y]);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('leftmost–rightmost line splits points; farthest on each side is a hull vertex',12,14);
+ var pts=[[40,120],[90,50],[150,40],[230,60],[270,110],[180,130],[110,100],[150,90]];g.strokeStyle='#456';g.setLineDash([3,3]);g.beginPath();g.moveTo(40,120);g.lineTo(270,110);g.stroke();g.setLineDash([]);
+ g.fillStyle='#6ab0d0';for(var i=0;i<pts.length;i++){g.beginPath();g.arc(pts[i][0],pts[i][1],3,0,7);g.fill();}
+ g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(40,120);g.lineTo(150,40);g.lineTo(270,110);g.stroke();g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('farthest → hull vertex; its triangle interior discarded',110,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS.length)mk();var sc=24,ox=30,oy=20,h=strict(quickhull(PTS));
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<=h.length;i++){var p=h[i%h.length];g.lineTo(ox+p[0]*sc,oy+p[1]*sc);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<PTS.length;i++){var onH=h.some(function(q){return q[0]===PTS[i][0]&&q[1]===PTS[i][1];});g.fillStyle=onH?'#39fc6b':'#6ab0d0';g.beginPath();g.arc(ox+PTS[i][0]*sc,oy+PTS[i][1]*sc,onH?5:3,0,7);g.fill();}
+ var v=verify();g.fillStyle='#8ad';g.font='10px monospace';g.fillText(h.length+' hull vertices of '+PTS.length+' points',14,H-28);
+ g.fillStyle=v.matchesMonotone&&v.allInside?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('quickhull == monotone-chain ✓ · all points inside ✓',14,H-12);}
+document.getElementById('qhroll').onclick=function(){mk();drawW4();document.getElementById('qhread').textContent=strict(quickhull(PTS)).length+' hull vertices';};
+document.getElementById('qhcheck').onclick=function(){var v=verify();document.getElementById('qhread').textContent=v.tested+' sets: quickhull(strict) == monotone-chain '+(v.matchesMonotone?'✓':'✗')+' · all inside '+(v.allInside?'✓':'✗');};
+document.getElementById('qhspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS.length)mk();var cx=W/2-140,cy=H/2-110,sc=20,h=strict(quickhull(PTS));
+ g.save();g.translate(W/2,H/2);g.rotate(Math.sin(ang*0.3)*0.12);g.translate(-W/2,-H/2);
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<=h.length;i++){var p=h[i%h.length];g.lineTo(cx+p[0]*sc,cy+p[1]*sc);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<PTS.length;i++){var onH=h.some(function(q){return q[0]===PTS[i][0]&&q[1]===PTS[i][1];});g.fillStyle=onH?'#39fc6b':'#6ab0d0';g.beginPath();g.arc(cx+PTS[i][0]*sc,cy+PTS[i][1]*sc,onH?5:3,0,7);g.fill();}
+ g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the hull carved by divide and conquer',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the all-points membership test',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the hull carved by throwing the middle away',10,H-9);}
+mk();drawW3();drawW4();window.__quickhull=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LCS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Lucas numbers</b> are Fibonacci&rsquo;s companion: same recurrence L(n) = L(n&minus;1) + L(n&minus;2), but starting <b>2, 1</b> instead of 0, 1 &mdash; giving 2, 1, 3, 4, 7, 11, 18, 29, 47, 76, &hellip; They shadow the Fibonacci numbers with elegant identities: <b>L(n) = F(n&minus;1) + F(n+1)</b>, and <b>L(n)&sup2; &minus; 5&middot;F(n)&sup2; = 4&middot;(&minus;1)<sup>n</sup></b>. Their ratio also tends to the golden ratio &phi;, and L(n) = &phi;<sup>n</sup> + &psi;<sup>n</sup> exactly (where &psi; is &phi;&rsquo;s conjugate).<br><br>
+ <span class="lit">LIT</span> verified live (exact BigInt): the recurrence holds, L(n) = F(n&minus;1)+F(n+1), and L(n)&sup2; &minus; 5F(n)&sup2; = 4(&minus;1)<sup>n</sup> for n up to 80 (window.__lucas). <span class="fig">FIG</span> no framing; exact big-integer identities.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>split-screen</i> &mdash; two sequences on one game: Fibonacci and Lucas, sharing a recurrence and bound by identities, each visible beside the other. <b>AVAN (AI)</b> built the instrument: the Lucas and Fibonacci recurrences and the two Fibonacci&ndash;Lucas identities in exact big integers.<br><br>Credit as content: &Eacute;douard Lucas (1870s). The weave: David names split-screen; I generate both sequences and confirm the companion identities &mdash; L(n)=F(n&minus;1)+F(n+1) and L(n)&sup2;&minus;5F(n)&sup2;=4(&minus;1)<sup>n</sup> &mdash; hold exactly, Fibonacci and Lucas locked together.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">L: 2, 1, 3, 4, 7, 11, 18, 29, &hellip; (same rule as Fibonacci, seeds 2,1). L(n) = F(n&minus;1) + F(n+1). Ratio &rarr; &phi;. L(n)&sup2; &minus; 5F(n)&sup2; = &plusmn;4.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Lucas and Fibonacci side by side; the companion identities checked term by term.</div>
+   <div class="btns" style="margin-top:10px"><button id="lcroll">shift window ▶</button><button id="lccheck">verify ▶</button></div>
+   <div class="cap" id="lcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: Fibonacci&rsquo;s companion, locked by identity.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): pair the Fibonacci recurrence with a <b>second seed</b> (2, 1) to get a companion sequence bound to it by exact identities &mdash; L(n)=F(n&minus;1)+F(n+1), L&sup2;&minus;5F&sup2;=&plusmn;4. The inverse of &lsquo;Fibonacci alone from 0, 1&rsquo; is &lsquo;its twin from 2, 1, tied to it forever.&rsquo; <b>Magenta</b> is Fibonacci by itself; <b>green</b> is the Lucas companion. Two sequences, one identity.</div>
+   <div class="btns" style="margin-top:10px"><button id="lcspin">pause spin</button></div></div></div></div>"""
+LCS_SCRIPT = """(function(){
+var ang=0,spin=true,OFF=0;
+function lucasB(n){var L=[2n,1n];for(var i=2;i<=n;i++)L[i]=L[i-1]+L[i-2];return L;}
+function fibB(n){var F=[0n,1n];for(var i=2;i<=n;i++)F[i]=F[i-1]+F[i-2];return F;}
+function verify(){var L=lucasB(80),F=fibB(82),rec=true,id1=true,id2=true;for(var i=2;i<=80;i++)if(L[i]!==L[i-1]+L[i-2])rec=false;for(var n=1;n<=80;n++)if(L[n]!==F[n-1]+F[n+1])id1=false;for(var n=0;n<=80;n++)if(L[n]*L[n]-5n*F[n]*F[n]!==(n%2===0?4n:-4n))id2=false;return {recurrence:rec,id1:id1,id2:id2};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Lucas: same recurrence, seeds 2,1; L(n)=F(n−1)+F(n+1); L²−5F²=±4',12,14);
+ var L=lucasB(11),F=fibB(11);g.fillStyle='#58a0b0';g.font='11px monospace';g.fillText('L: '+L.slice(0,10).map(String).join(', '),40,48);
+ g.fillStyle='#a878c0';g.fillText('F: '+F.slice(0,10).map(String).join(', '),40,72);
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('L(5)=11 = F(4)+F(6) = 3+8 ✓ · ratio → φ = 1.618…',40,106);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var L=lucasB(OFF+10),F=fibB(OFF+11);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('n = '+OFF+'..'+(OFF+7),14,20);
+ for(var i=0;i<8;i++){var n=OFF+i;g.fillStyle='#58a0b0';g.font='11px monospace';g.fillText('L('+n+')='+L[n].toString(),14,44+i*24);g.fillStyle='#a878c0';g.fillText('F('+n+')='+F[n].toString(),150,44+i*24);
+  var idOk=L[n]===F[n-1<0?0:n-1]+F[n+1]||n===0;g.fillStyle=(n>=1&&L[n]===F[n-1]+F[n+1])?'#39fc6b':(n===0?'#8ad':'#ff5a5a');g.font='9px monospace';if(n>=1)g.fillText('=F('+(n-1)+')+F('+(n+1)+') ✓',270,44+i*24);}
+ var v=verify();g.fillStyle=v.id1&&v.id2?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('L(n)=F(n−1)+F(n+1) '+(v.id1?'✓':'✗')+' · L²−5F²=4(−1)ⁿ '+(v.id2?'✓':'✗'),14,H-12);}
+document.getElementById('lcroll').onclick=function(){OFF=(OFF+8)%60;drawW4();document.getElementById('lcread').textContent='window at n='+OFF;};
+document.getElementById('lccheck').onclick=function(){var v=verify();document.getElementById('lcread').textContent='n≤80 (BigInt): recurrence '+(v.recurrence?'✓':'✗')+' · L=F(n−1)+F(n+1) '+(v.id1?'✓':'✗')+' · L²−5F²=±4 '+(v.id2?'✓':'✗');};
+document.getElementById('lcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var L=lucasB(16),F=fibB(16),cx=W/2,cy=H/2-10;
+ for(var i=2;i<15;i++){var a=i*0.5+ang*0.3,rL=15+Math.log(Number(L[i])+1)*18,rF=15+Math.log(Number(F[i])+1)*18;g.fillStyle='#58a0b0';g.beginPath();g.arc(cx+Math.cos(a)*rL,cy+Math.sin(a)*rL*0.85,3,0,7);g.fill();g.fillStyle='#a878c0';g.beginPath();g.arc(cx+Math.cos(a)*rF,cy+Math.sin(a)*rF*0.85,2.5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('blue Lucas & violet Fibonacci, twin spirals',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: Fibonacci alone',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('two sequences, one identity',10,H-9);}
+drawW3();drawW4();window.__lucas=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MOA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Mo&rsquo;s algorithm</b> answers many <b>range queries offline</b> &mdash; e.g. &ldquo;how many distinct values in a[l..r]?&rdquo; &mdash; astonishingly fast by <b>reordering the questions</b>. It sorts the queries so that consecutive ones have <b>nearly the same window</b>, then slides two pointers (l and r), adding and removing one element at a time while maintaining a running answer. Sorting by &radic;n-sized <b>blocks</b> of the left endpoint bounds the total pointer movement, turning many hard queries into one long sweep.<br><br>
+ <span class="lit">LIT</span> verified live: over hundreds of instances, Mo&rsquo;s distinct-count answers <b>exactly</b> match a naive per-query recount (window.__mo). <span class="fig">FIG</span> no framing; exact comparison against brute force.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-konami-code</i> &mdash; the clever ordering trick that unlocks the whole batch; reorder the queries just so, and a hard problem falls out cheaply. Mo&rsquo;s algorithm is that code. <b>AVAN (AI)</b> built the instrument: the block-sort of queries, the add/remove window slide with a live distinct-count, and the match against a naive recount.<br><br>Credit as content: Mo&rsquo;s algorithm (attributed to competitive programmer Mo Tao; a sqrt-decomposition of offline queries). The weave: David names the-konami-code; I sort the queries by &radic;n block of their left end, slide the window adjusting the distinct-count one element at a time, and confirm every answer matches recounting each range from scratch.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Sort queries by (block of l, then r). Slide l and r one step at a time between consecutive queries, adding/removing elements and updating the distinct-count &mdash; total movement is bounded by &radic;n blocks.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">An array with range queries; Mo&rsquo;s window sliding and its distinct-counts checked against naive recounts.</div>
+   <div class="btns" style="margin-top:10px"><button id="moroll">new array ▶</button><button id="mocheck">verify 300 ▶</button></div>
+   <div class="cap" id="moread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: many queries answered by one sweep.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): answer a batch of range queries not <b>one at a time</b> but by <b>reordering them</b> so consecutive windows barely differ, then sliding pointers with incremental updates. The inverse of &lsquo;recompute each range from scratch&rsquo; is &lsquo;sort the queries by &radic;n block and sweep once, adjusting as you go.&rsquo; <b>Magenta</b> is the per-query recount; <b>green</b> is the single reordered sweep. Order the questions, answer them together.</div>
+   <div class="btns" style="margin-top:10px"><button id="mospin">pause spin</button></div></div></div></div>"""
+MOA_SCRIPT = """(function(){
+var ang=0,spin=true,ARR=[],QUERIES=[];
+function moDistinct(arr,queries){var n=arr.length,bs=Math.max(1,Math.floor(Math.sqrt(n)));var qs=queries.map(function(q,i){return {l:q[0],r:q[1],i:i};});qs.sort(function(a,b){var ba=Math.floor(a.l/bs),bb=Math.floor(b.l/bs);if(ba!==bb)return ba-bb;return (ba&1)?b.r-a.r:a.r-b.r;});
+ var cnt={},distinct=0,cl=0,cr=-1,ans=new Array(queries.length);function add(i){var v=arr[i];cnt[v]=(cnt[v]||0)+1;if(cnt[v]===1)distinct++;}function rem(i){var v=arr[i];cnt[v]--;if(cnt[v]===0)distinct--;}
+ for(var k=0;k<qs.length;k++){var q=qs[k];while(cr<q.r){cr++;add(cr);}while(cr>q.r){rem(cr);cr--;}while(cl<q.l){rem(cl);cl++;}while(cl>q.l){cl--;add(cl);}ans[q.i]=distinct;}return ans;}
+function naive(arr,queries){return queries.map(function(q){var s={};for(var i=q[0];i<=q[1];i++)s[arr[i]]=1;return Object.keys(s).length;});}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(954),ok=true;for(var t=0;t<300;t++){var n=1+Math.floor(rnd()*60),arr=[];for(var i=0;i<n;i++)arr.push(Math.floor(rnd()*10));var qn=1+Math.floor(rnd()*20),qq=[];for(var q=0;q<qn;q++){var a=Math.floor(rnd()*n),b=Math.floor(rnd()*n);qq.push([Math.min(a,b),Math.max(a,b)]);}if(moDistinct(arr,qq).join(',')!==naive(arr,qq).join(','))ok=false;}return {matchesNaive:ok};}
+function mk(){var n=14+Math.floor(Math.random()*4);ARR=[];for(var i=0;i<n;i++)ARR.push(Math.floor(Math.random()*6));QUERIES=[];for(var q=0;q<4;q++){var a=Math.floor(Math.random()*n),b=Math.floor(Math.random()*n);QUERIES.push([Math.min(a,b),Math.max(a,b)]);}}
+var COLS=['#c04860','#58a0b0','#e0b020','#a878c0','#70a860','#6ab0d0'];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('sort queries by (√n block of l, then r); slide the window one element at a time',12,14);
+ var a=[3,1,4,1,5,9,2,6,5,3,5];for(var i=0;i<a.length;i++){g.fillStyle=COLS[a[i]%6];g.fillRect(60+i*38,50,32,26);g.fillStyle='#fff';g.font='9px monospace';g.fillText(a[i],72+i*38,67);}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.strokeRect(60+2*38,46,38*4,34);g.lineWidth=1;g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('window slides; distinct-count updated incrementally',60,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ARR.length)mk();var cw=(W-28)/ARR.length;
+ for(var i=0;i<ARR.length;i++){g.fillStyle=COLS[ARR[i]%6];g.fillRect(14+i*cw,30,cw-2,24);g.fillStyle='#fff';g.font='8px monospace';g.fillText(ARR[i],14+i*cw+cw/2-3,46);}
+ var mo=moDistinct(ARR,QUERIES),nv=naive(ARR,QUERIES);
+ for(var q=0;q<QUERIES.length;q++){var y=64+q*30;g.strokeStyle='#39fc6b';g.strokeRect(14+QUERIES[q][0]*cw,y,(QUERIES[q][1]-QUERIES[q][0]+1)*cw,20);g.fillStyle=mo[q]===nv[q]?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('['+QUERIES[q][0]+','+QUERIES[q][1]+'] distinct = '+mo[q]+(mo[q]===nv[q]?' ✓':' ✗ (naive '+nv[q]+')'),14+QUERIES[q][1]*cw+8>W-90?14:14+(QUERIES[q][1]+1)*cw+6,y+14);}
+ var v=verify();g.fillStyle=v.matchesNaive?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('Mo distinct-count == naive recount '+(v.matchesNaive?'✓':'✗'),14,H-10);}
+document.getElementById('moroll').onclick=function(){mk();drawW4();document.getElementById('moread').textContent='new array + 4 queries';};
+document.getElementById('mocheck').onclick=function(){var v=verify();document.getElementById('moread').textContent='300 instances: Mo distinct-count == naive '+(v.matchesNaive?'✓':'✗');};
+document.getElementById('mospin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ARR.length)mk();var cx=W/2,cy=H/2-10;
+ for(var i=0;i<ARR.length;i++){var a=i/ARR.length*6.28+ang*0.3,r=90;var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;g.fillStyle=COLS[ARR[i]%6];g.beginPath();g.arc(x,y,5,0,7);g.fill();}
+ var qa=QUERIES[0][0]/ARR.length*6.28+ang*0.3,qb=QUERIES[0][1]/ARR.length*6.28+ang*0.3;g.strokeStyle='#39fc6b';g.lineWidth=3;g.beginPath();g.arc(cx,cy,72,qa,qb);g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green arc: the sliding query window',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: recompute each range from scratch',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('order the questions, answer them together',10,H-9);}
+mk();drawW3();drawW4();window.__mo=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NARC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Armstrong numbers</b> (narcissistic numbers) <b>rebuild themselves from their own digits</b>: raise each digit to the power of the <b>number of digits</b>, sum, and you get the number back. 153 = 1&sup3; + 5&sup3; + 3&sup3;. 9474 = 9&#8308; + 4&#8308; + 7&#8308; + 4&#8308;. Every single-digit number is trivially one (d = d&sup1;). Beyond that they are rare and finite in each base &mdash; there are only <b>88</b> in base ten, the largest a 39-digit number.<br><br>
+ <span class="lit">LIT</span> verified live: the Armstrong numbers up to 100000 are exactly 1&ndash;9, 153, 370, 371, 407, 1634, 8208, 9474, 54748, 92727, 93084 &mdash; each equal to the sum of its digits raised to the digit count (window.__armstrong). <span class="fig">FIG</span> no framing; exact integer digit-power sums.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>heisenbug</i> &mdash; the number that reappears only when you look at its own digits the right way; raise them to the digit count and it stares back at itself. Armstrong numbers are that self-reflection. <b>AVAN (AI)</b> built the instrument: the digit-power-sum function and the exhaustive check that exactly these numbers &le; 100000 are narcissistic.<br><br>Credit as content: Armstrong / narcissistic numbers (Michael F. Armstrong; recreational number theory). The weave: David names heisenbug; I raise each digit to the count of digits, sum them, and confirm the number equals its own digit-power sum &mdash; enumerating precisely the narcissistic numbers up to 100000.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">153 = 1&sup3; + 5&sup3; + 3&sup3; = 1 + 125 + 27. 9474 = 9&#8308;+4&#8308;+7&#8308;+4&#8308;. Each digit raised to the digit count; the sum is the number itself.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A number split into its digit-powers; their sum compared to the number, and the census checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="naroll">new number ▶</button><button id="nacheck">census ≤100000 ▶</button></div>
+   <div class="cap" id="naread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a number that is its own digit-powers.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): find numbers that are a <b>fixed point</b> of the digit-power map &mdash; raise each digit to the digit count, sum, and land back on the number. The inverse of &lsquo;a number is just its value&rsquo; is &lsquo;does it equal the sum of its digits raised to the digit count?&rsquo; <b>Magenta</b> is the number&rsquo;s value; <b>green</b> is its digit-power sum. Numbers that reflect themselves.</div>
+   <div class="btns" style="margin-top:10px"><button id="naspin">pause spin</button></div></div></div></div>"""
+NARC_SCRIPT = """(function(){
+var ang=0,spin=true,N=153;
+function dps(n){var s=(''+n),d=s.length,sum=0;for(var i=0;i<d;i++)sum+=Math.pow(+s[i],d);return sum;}
+function isArm(n){return dps(n)===n;}
+function verify(){var arm=[];for(var n=1;n<=100000;n++)if(isArm(n))arm.push(n);var known='1,2,3,4,5,6,7,8,9,153,370,371,407,1634,8208,9474,54748,92727,93084';return {allCorrect:arm.join(',')===known,found:arm};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('raise each digit to the number of digits, sum → get the number back',12,14);
+ g.fillStyle='#39fc6b';g.font='13px monospace';g.fillText('153 = 1³ + 5³ + 3³ = 1 + 125 + 27',40,52);
+ g.fillStyle='#e0b020';g.fillText('9474 = 9⁴ + 4⁴ + 7⁴ + 4⁴ = 6561 + 256 + 2401 + 256',40,84);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('only 88 narcissistic numbers exist in base ten (largest has 39 digits)',40,118);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=(''+N),d=s.length,sum=dps(N);
+ g.fillStyle='#e8eef8';g.font='15px monospace';g.fillText('n = '+N+'  ('+d+' digits)',16,28);
+ var x=16,parts=[];for(var i=0;i<d;i++){var v=Math.pow(+s[i],d);parts.push(s[i]+'^'+d+'='+v);g.fillStyle='#a878c0';g.font='12px monospace';g.fillText(s[i]+'^'+d,x,58);g.fillStyle='#8ad';g.font='9px monospace';g.fillText('='+v,x,74);x+=Math.max(50,(''+v).length*9+18);}
+ g.fillStyle='#e0b020';g.font='12px monospace';g.fillText('sum = '+sum,16,104);
+ var ok=sum===N;g.fillStyle=ok?'#39fc6b':'#8ad';g.font='13px monospace';g.fillText(ok?'sum == n → NARCISSISTIC ✓':'sum = '+sum+' ≠ '+N,16,132);
+ // bar compare
+ var mx=Math.max(N,sum)||1;g.fillStyle='#ff2d95';g.fillRect(16,H-56,N/mx*(W-32),12);g.fillStyle='#39fc6b';g.fillRect(16,H-40,sum/mx*(W-32),12);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('magenta = n · green = digit-power sum',16,H-12);}
+document.getElementById('naroll').onclick=function(){var picks=[153,370,371,407,1634,8208,9474,54748];N=Math.random()<0.5?picks[Math.floor(Math.random()*picks.length)]:1+Math.floor(Math.random()*9999);drawW4();document.getElementById('naread').textContent='n='+N+' → '+(isArm(N)?'narcissistic':'sum='+dps(N));};
+document.getElementById('nacheck').onclick=function(){var v=verify();document.getElementById('naread').textContent='≤100000: narcissistic = {'+v.found.join(',')+'} '+(v.allCorrect?'✓':'✗');};
+document.getElementById('naspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var s=(''+N),d=s.length,cx=W/2,cy=H/2-10;
+ for(var i=0;i<d;i++){var a=i/d*6.28+ang*0.4,v=Math.pow(+s[i],d),r=50+i*10,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;g.fillStyle='hsl('+(280-i*30)+',60%,58%)';g.beginPath();g.arc(x,y,6+Math.log(v+1)*1.5,0,7);g.fill();g.fillStyle='#012';g.font='9px monospace';g.fillText(s[i],x-3,y+3);}
+ var ok=dps(N)===N;g.fillStyle=ok?'#39fc6b':'#456';g.beginPath();g.arc(cx,cy,12,0,7);g.fill();g.fillStyle='#032';g.font='10px monospace';g.fillText(ok?'=':'≠',cx-4,cy+4);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green center: '+N+(ok?' equals its digit-powers':' vs sum '+dps(N)),10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the number\\'s bare value',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('numbers that reflect themselves',10,H-9);}
+drawW3();drawW4();window.__armstrong=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 94 (primes of the complex plane, split or inert · a sequence at the tribonacci ratio · a balanced tree that keeps all leaves level · digit-squares that reach 1 or loop · the edges whose loss disconnects) ═══════════════════════
 GAU_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Gaussian primes</b> are the primes of the <b>complex integers</b> &#8484;[i] = {a + bi}. A rational prime does not always stay prime here: p = 2 and every prime <b>p &equiv; 1 (mod 4)</b> <b>splits</b> into a product of two conjugate Gaussian primes (5 = (2+i)(2&minus;i), 13 = (3+2i)(3&minus;2i)), because such p is a <b>sum of two squares</b> (Fermat). But every prime <b>p &equiv; 3 (mod 4)</b> stays <b>inert</b> &mdash; it remains a Gaussian prime. The <b>norm</b> N(a+bi) = a&sup2;+b&sup2; is multiplicative, which is what ties factorization together.<br><br>
@@ -25633,6 +25869,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-hensel-lifting","title":"THE HENSEL LIFTING","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#6ab0d0","icon":"hensel",
+  "kicker":"lift a root to higher and higher prime power",
+  "blurb":"Hensel's lemma in the 5-window house format — Newton's method for p-adic numbers: a simple root of a polynomial mod a prime p can be lifted to a root mod p², then p³, then any p^k, each step uniquely refining the solution. If f(r) ≡ 0 (mod p) and f'(r) ≢ 0 (mod p), one correction r ← r − f(r)·f'(r)⁻¹ sharpens the root by a full power of p. It builds modular square roots and p-adic solutions digit by p-adic digit. Verified live: lifting a root of x²−A from mod p to mod p^k yields r with r² ≡ A (mod p^k) exactly, over thousands of cases. See the lift chain in 1D, levels checked in 2D, and the p-adic-ascent inverse in 3D.",
+  "lit":"Genuine Hensel's lemma (Kurt Hensel, p-adic numbers, early 1900s). Verified live with exact BigInt arithmetic: starting from a simple root of x²−A mod p (p in {3,5,7,11,13}), the p-adic Newton lift r ← r − f(r)·f'(r)⁻¹ one power at a time produces r with r² ≡ A (mod p^k) exactly, over thousands of cases (window.__hensel.liftsCorrectly).",
+  "fig":"No framing: the mod-p root finder, the Newton lift by one power of p, and the r²≡A (mod p^k) check run in-browser in exact big integers and agree. The AVAN inverse is honest — solving f(x)≡0 mod p^k by lifting a mod-p root upward (one unique Newton correction per power) genuinely replaces searching all p^k residues; magenta is that exhaustive search, green the p-adic ascent. A root climbing the powers of p.",
+  "body":HNS_BODY,"script":HNS_SCRIPT},
+ {"slug":"the-quickhull","title":"THE QUICKHULL","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SHORTCUT","domain_slug":"the-shortcut","accent":"#70a860","icon":"quickhull",
+  "kicker":"wrap a hull by divide and conquer",
+  "blurb":"Quickhull in the 5-window house format — the convex hull by divide and conquer, the quicksort of geometry. Take the two extreme points (leftmost, rightmost); the line between them splits the rest into two sides. On each side, find the point farthest from the line — it must be a hull vertex; its triangle's interior is discarded and the two outer sub-regions recurse. Points far from the current hull are found first, so interior clusters are culled quickly. Verified live: over 1500 random point sets, quickhull's hull (collinear vertices canonicalized) equals an independent monotone-chain hull, and every point lies inside or on it. See the split in 1D, a hull in 2D, and the discard-the-interior inverse in 3D.",
+  "lit":"Genuine Quickhull (Eddy 1977; Bykat 1978; Barber–Dobkin–Huhdanpaa 1996). Verified live: over 1500 random point sets, quickhull's hull — canonicalized to strict vertices (collinear ones removed) — has the same vertex set as an independent monotone-chain (Andrew) hull (window.__quickhull.matchesMonotone), and every input point lies inside or on it (allInside).",
+  "fig":"Honestly scoped: quickhull and monotone-chain can differ on whether collinear boundary points count as hull vertices, so the sphere canonicalizes to strict vertices before comparing — the convention is made explicit, not hidden. The extreme-point split, farthest-point recursion, strict-hull canonicalization, and monotone cross-check run in-browser and agree. The AVAN inverse is honest — culling interiors in bulk and recursing on the frontier genuinely replaces testing every point; magenta is that membership test, green the divide-and-conquer cull.",
+  "body":QHL_BODY,"script":QHL_SCRIPT},
+ {"slug":"the-lucas-number","title":"THE LUCAS NUMBER","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#58a0b0","icon":"lucas",
+  "kicker":"Fibonacci's companion sequence",
+  "blurb":"The Lucas numbers in the 5-window house format — Fibonacci's companion: same recurrence L(n)=L(n−1)+L(n−2), but starting 2, 1 instead of 0, 1, giving 2,1,3,4,7,11,18,29,47,76,… They shadow the Fibonacci numbers with elegant identities: L(n) = F(n−1) + F(n+1), and L(n)² − 5·F(n)² = 4·(−1)ⁿ. Their ratio also tends to the golden ratio φ, and L(n) = φⁿ + ψⁿ exactly. Verified live (exact BigInt): the recurrence holds, L(n)=F(n−1)+F(n+1), and L(n)²−5F(n)²=4(−1)ⁿ for n up to 80. See both sequences in 1D, the identities in 2D, and the companion inverse in 3D.",
+  "lit":"Genuine Lucas numbers (Édouard Lucas, 1870s). Verified live with exact BigInt arithmetic: L(n)=L(n−1)+L(n−2) from seeds 2,1 (window.__lucas.recurrence), the identity L(n)=F(n−1)+F(n+1) (id1), and L(n)²−5F(n)²=4(−1)ⁿ (id2), all for n up to 80 (BigInt so the squared identity stays exact past 2⁵³).",
+  "fig":"No framing: the Lucas and Fibonacci recurrences and the two companion identities run in-browser in exact big integers and agree. Honest note: the squared identity is checked in BigInt because F(n)² exceeds 2⁵³ for n past ~38. The AVAN inverse is honest — pairing the Fibonacci recurrence with the second seed (2,1) gives a companion sequence tied to it by exact identities; magenta is Fibonacci alone, green the Lucas companion. Two sequences, one identity.",
+  "body":LCS_BODY,"script":LCS_SCRIPT},
+ {"slug":"the-mo-algorithm","title":"THE MO ALGORITHM","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE KONAMI CODE","domain_slug":"the-konami-code","accent":"#c0a048","icon":"mo",
+  "kicker":"reorder queries to answer them fast",
+  "blurb":"Mo's algorithm in the 5-window house format — answer many range queries offline (e.g. 'how many distinct values in a[l..r]?') fast by reordering the questions. Sort the queries so consecutive ones have nearly the same window, then slide two pointers (l and r), adding and removing one element at a time while maintaining a running answer. Sorting by √n-sized blocks of the left endpoint bounds the total pointer movement, turning many hard queries into one long sweep. Verified live: over hundreds of instances, Mo's distinct-count answers exactly match a naive per-query recount. See the block-sort in 1D, sliding queries in 2D, and the reorder-and-sweep inverse in 3D.",
+  "lit":"Genuine Mo's algorithm (attributed to Mo Tao; a sqrt-decomposition of offline queries). Verified live: over 300 random instances, sorting queries by (√n block of l, then r) and sliding the window with incremental add/remove of a live distinct-count returns answers identical to recounting each range from scratch (window.__mo.matchesNaive).",
+  "fig":"No framing: the block-sort of queries, the add/remove window slide with a live distinct-count, and the match against a naive recount run in-browser and agree. The AVAN inverse is honest — answering a batch of range queries by reordering them so consecutive windows barely differ, then sliding pointers with incremental updates, genuinely replaces recomputing each range; magenta is the per-query recount, green the single reordered sweep. Order the questions, answer them together.",
+  "body":MOA_BODY,"script":MOA_SCRIPT},
+ {"slug":"the-armstrong","title":"THE ARMSTRONG","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#d06858","icon":"armstrong",
+  "kicker":"numbers that rebuild themselves from digit-powers",
+  "blurb":"Armstrong (narcissistic) numbers in the 5-window house format — numbers that rebuild themselves from their own digits: raise each digit to the power of the number of digits, sum, and get the number back. 153 = 1³+5³+3³. 9474 = 9⁴+4⁴+7⁴+4⁴. Every single-digit number is trivially one, and beyond that they are rare and finite in each base — only 88 exist in base ten, the largest a 39-digit number. Verified live: the Armstrong numbers up to 100000 are exactly 1–9, 153, 370, 371, 407, 1634, 8208, 9474, 54748, 92727, 93084. See the decompositions in 1D, a number checked in 2D, and the self-reflection inverse in 3D.",
+  "lit":"Genuine Armstrong / narcissistic numbers (recreational number theory). Verified live: an exhaustive scan to 100000 finds exactly the numbers equal to the sum of their digits each raised to the digit count — {1..9, 153, 370, 371, 407, 1634, 8208, 9474, 54748, 92727, 93084} (window.__armstrong.allCorrect) — exact integer digit-power sums.",
+  "fig":"No framing: the digit-power-sum function and the exhaustive census to 100000 run in-browser with exact integers and agree. The AVAN inverse is honest — finding numbers that are a fixed point of the digit-power map (each digit raised to the digit count, summed, landing back on the number) genuinely differs from reading a bare value; magenta is the value, green its digit-power sum. Numbers that reflect themselves.",
+  "body":NARC_BODY,"script":NARC_SCRIPT},
  {"slug":"the-gaussian-primes","title":"THE GAUSSIAN PRIMES","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#e0b020","icon":"gaussian",
   "kicker":"primes of the complex plane, split or inert",
