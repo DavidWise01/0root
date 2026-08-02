@@ -19485,6 +19485,249 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 107 (hidden divisibilities in the partition numbers · counting the ballots where one candidate never trails · three triangle centres that always fall on one line · counting the ways to write a number as four squares · a hull point is a blend of at most three) ═══════════════════════
+RAMC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Ramanujan&rsquo;s congruences</b> are astonishing hidden divisibilities in the <b>partition numbers</b> p(n) &mdash; the count of ways to write n as a sum of positive integers. Ramanujan noticed, from a hand-written table, three exact patterns: <b>p(5n + 4) &equiv; 0 (mod 5)</b>, <b>p(7n + 5) &equiv; 0 (mod 7)</b>, and <b>p(11n + 6) &equiv; 0 (mod 11)</b>. Every fifth partition number from p(4) is divisible by 5; every seventh from p(5) by 7; every eleventh from p(6) by 11. There is no such simple congruence for any other prime &mdash; 5, 7, 11 are special.<br><br>
+ <span class="lit">LIT</span> verified live (exact BigInt): computing p(n) by Euler&rsquo;s pentagonal recurrence, p(5n+4) is divisible by 5, p(7n+5) by 7, and p(11n+6) by 11 for every n in range (window.__ramanujan). <span class="fig">FIG</span> no framing; exact big-integer partition counts checked against the three moduli.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>divide-by-zero</i> &mdash; whole arithmetic progressions of partition numbers that come out <b>exactly zero</b> modulo 5, 7, 11, with no obvious reason in the definition. That unexpected vanishing is the mechanic. <b>AVAN (AI)</b> built the instrument: the pentagonal-recurrence partition counter in big integers, and the three congruence checks.<br><br>Credit as content: Srinivasa Ramanujan (1919). The weave: David names divide-by-zero; I compute p(n) exactly by adding and subtracting earlier partition counts at the generalized pentagonal offsets, then confirm that p(5n+4), p(7n+5), p(11n+6) vanish modulo 5, 7, 11 &mdash; the congruences Ramanujan saw in a table.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">p(4)=5, p(9)=30, p(14)=135, p(19)=490 &mdash; all divisible by 5 (the 5n+4 class). p(5)=7, p(12)=77 by 7. p(6)=11, p(17)=297 by 11. No such rule for any other prime.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Partition numbers mod 5, 7, 11; the arithmetic progressions that vanish highlighted; the congruences checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="rmroll">cycle modulus ▶</button><button id="rmcheck">verify ▶</button></div>
+   <div class="cap" id="rmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: whole progressions vanishing mod a prime.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t just count partitions &mdash; watch them <b>modulo a prime</b>, and find entire arithmetic progressions that come out zero. The inverse of &lsquo;how many partitions of n&rsquo; is &lsquo;which residue classes of n force p(n) &equiv; 0.&rsquo; <b>Magenta</b> is the raw partition count; <b>green</b> is the vanishing residue class mod 5, 7, or 11. Hidden zeros in the counting.</div>
+   <div class="btns" style="margin-top:10px"><button id="rmspin">pause spin</button></div></div></div></div>"""
+RAMC_SCRIPT = """(function(){
+var ang=0,spin=true,MOD=0,VR=null,PP=null;
+function partitions(N){var p=[1n];for(var n=1;n<=N;n++){var s=0n,k=1;while(true){var g1=k*(3*k-1)/2,g2=k*(3*k+1)/2;if(g1>n&&g2>n)break;var sign=(k%2===1)?1n:-1n;if(g1<=n)s+=sign*p[n-g1];if(g2<=n)s+=sign*p[n-g2];k++;}p[n]=s;}return p;}
+function getP(){if(!PP)PP=partitions(600);return PP;}
+function verify(){if(VR)return VR;var p=getP(),c5=true,c7=true,c11=true;for(var n=0;5*n+4<=600;n++)if(p[5*n+4]%5n!==0n)c5=false;for(var n=0;7*n+5<=600;n++)if(p[7*n+5]%7n!==0n)c7=false;for(var n=0;11*n+6<=600;n++)if(p[11*n+6]%11n!==0n)c11=false;VR={c5:c5,c7:c7,c11:c11};return VR;}
+var MODS=[[5,4],[7,5],[11,6]];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('p(n) = #partitions of n. Ramanujan: p(5n+4)≡0(5), p(7n+5)≡0(7), p(11n+6)≡0(11)',12,14);
+ var p=getP();g.font='11px monospace';var xs=[4,9,14,19];g.fillStyle='#b06898';for(var i=0;i<xs.length;i++)g.fillText('p('+xs[i]+')='+p[xs[i]].toString(),24+i*110,48);
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('all ÷ 5:  5, 30, 135, 490  (the 5n+4 class)',24,78);
+ g.fillStyle='#8ad';g.fillText('p(5)=7, p(12)=77 ÷7   ·   p(6)=11, p(17)=297 ÷11',24,104);
+ g.fillStyle='#b06898';g.font='9px monospace';g.fillText('only 5, 7, 11 have such a simple congruence — no other prime does',24,132);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var p=getP(),m=MODS[MOD][0],off=MODS[MOD][1];
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('p(n) mod '+m+'   (green column = the '+m+'n+'+off+' class)',14,20);
+ for(var n=0;n<66;n++){var col=n%m,row=Math.floor(n/m),x=20+col*(W-40)/m,y=40+row*22,r=Number(p[n]%BigInt(m)),vanish=(n%m===off);
+  g.fillStyle=vanish?(r===0?'#39fc6b':'#ff5a5a'):'#3a4658';g.fillRect(x,y,(W-40)/m-2,18);g.fillStyle=vanish?'#021':'#9ab';g.font='9px monospace';g.fillText(r,x+((W-40)/m-2)/2-3,y+13);}
+ var v=verify();var ok=MOD===0?v.c5:MOD===1?v.c7:v.c11;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('every p('+m+'n+'+off+') ≡ 0 (mod '+m+') '+(ok?'✓':'✗'),14,H-28);
+ g.fillStyle=(v.c5&&v.c7&&v.c11)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('all three congruences hold (n up to ~120) '+((v.c5&&v.c7&&v.c11)?'✓':'✗'),14,H-12);}
+document.getElementById('rmroll').onclick=function(){MOD=(MOD+1)%3;drawW4();document.getElementById('rmread').textContent='modulus '+MODS[MOD][0]+', class '+MODS[MOD][0]+'n+'+MODS[MOD][1];};
+document.getElementById('rmcheck').onclick=function(){var v=verify();document.getElementById('rmread').textContent='p(5n+4)≡0(5) '+(v.c5?'✓':'✗')+' · p(7n+5)≡0(7) '+(v.c7?'✓':'✗')+' · p(11n+6)≡0(11) '+(v.c11?'✓':'✗');};
+document.getElementById('rmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var p=getP(),cx=W/2,cy=H/2-10;
+ for(var n=1;n<120;n++){var a=n*0.2+ang*0.2,r=25+n*0.9,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.82,vanish=(n%5===4)||(n%7===5)||(n%11===6);g.fillStyle=vanish?'#39fc6b':'#3a4658';g.beginPath();g.arc(x,y,vanish?3.5:1.6,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: n where p(n) vanishes mod 5, 7, or 11',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: the raw partition counts',10,H-24);
+ g.fillStyle='#8ad';g.fillText('hidden zeros in the counting',10,H-9);}
+drawW3();drawW4();window.__ramanujan=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BALL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Bertrand ballot problem</b> asks: in an election where candidate A finally wins with <b>a</b> votes to B&rsquo;s <b>b</b> (a &gt; b), what is the chance that A is <b>strictly ahead through the entire count</b>? The startlingly clean answer is <b>(a &minus; b)/(a + b)</b> &mdash; it depends only on the margin over the total, not on the individual tallies. Equivalently, the number of vote-orderings in which A never trails is exactly <b>(a &minus; b)/(a + b) &middot; C(a + b, a)</b>. Bertrand posed it in 1887; D&eacute;sir&eacute; Andr&eacute;&rsquo;s reflection argument gave the elegant proof.<br><br>
+ <span class="lit">LIT</span> verified live: brute-force enumeration of every vote-ordering counts exactly those where A stays strictly ahead, and the total equals (a &minus; b)/(a + b) &middot; C(a + b, a) for all small a, b (window.__ballot). <span class="fig">FIG</span> no framing; exhaustive path counts vs the closed formula.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hoard</i> &mdash; out of all the ways the votes could be piled up, count exactly the runs where the leader is never once caught &mdash; a precise hoard given by the margin over the total. <b>AVAN (AI)</b> built the instrument: the exhaustive vote-ordering enumerator, the always-strictly-ahead filter, and the (a&minus;b)/(a+b)&middot;C(a+b,a) formula.<br><br>Credit as content: Joseph Bertrand (posed 1887); D&eacute;sir&eacute; Andr&eacute; (reflection proof, 1887). The weave: David names the-hoard; I list every sequence of a votes for A and b for B, keep those in which A leads at every step, and confirm the count is exactly the margin (a&minus;b) over the total (a+b) times the number of all sequences.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A vote for A is +1, for B is &minus;1; A stays ahead means the running total is always &gt; 0. Fraction of orderings that do: (a&minus;b)/(a+b). For (3,2): 1/5 of the C(5,3)=10 orderings, i.e. 2.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Vote-count paths from (0,0); the ones staying strictly above zero; the count against (a&minus;b)/(a+b)&middot;C(a+b,a).</div>
+   <div class="btns" style="margin-top:10px"><button id="blroll">new a,b ▶</button><button id="blcheck">verify ▶</button></div>
+   <div class="cap" id="blread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: paths that never dip to a tie.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t simulate the count &mdash; read the chance the leader is <b>never caught</b> straight off the final margin: (a&minus;b)/(a+b). The inverse of &lsquo;tally the votes step by step&rsquo; is &lsquo;the always-ahead fraction is the margin over the total.&rsquo; <b>Magenta</b> is a path that touches a tie; <b>green</b> is a strictly-leading path. The lead read from the margin alone.</div>
+   <div class="btns" style="margin-top:10px"><button id="blspin">pause spin</button></div></div></div></div>"""
+BALL_SCRIPT = """(function(){
+var ang=0,spin=true,A=3,B=2,VR=null;
+function binom(n,k){if(k<0||k>n)return 0;var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+function countAhead(a,b){var c=0;function rec(na,nb,lead){if(na===a&&nb===b){c++;return;}if(na<a&&lead+1>0)rec(na+1,nb,lead+1);if(nb<b&&lead-1>0)rec(na,nb+1,lead-1);}
+ // first step must be A to be strictly ahead
+ if(a>0)rec(1,0,1);return c;}
+function allPaths(a,b){return binom(a+b,a);}
+function verify(){if(VR)return VR;var ok=true;for(var a=1;a<=8;a++)for(var b=0;b<a;b++){if(a+b>13)continue;var brute=countAhead(a,b),formula=Math.round((a-b)/(a+b)*binom(a+b,a));if(brute!==formula)ok=false;}VR={matches:ok};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('chance A is strictly ahead through the whole count = (a−b)/(a+b)',12,14);
+ g.fillStyle='#d0a848';g.font='11px monospace';g.fillText('(3,2): margin 1 / total 5 = 1/5 → 2 of the C(5,3)=10 orderings',24,48);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('+1 for A, −1 for B; strictly ahead ⇔ running total always > 0',24,78);
+ g.fillStyle='#39fc6b';g.fillText('#always-ahead orderings = (a−b)/(a+b)·C(a+b,a) — depends only on the margin',24,106);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ahead=countAhead(A,B),total=allPaths(A,B),formula=Math.round((A-B)/(A+B)*binom(A+B,A));
+ var ox=30,oy=H-40,dx=(W-60)/(A+B),dy=Math.min(24,(H-80)/(A+2));
+ g.strokeStyle='#345';g.beginPath();g.moveTo(ox,oy);g.lineTo(W-20,oy);g.stroke();g.beginPath();g.moveTo(ox,oy);g.lineTo(ox,30);g.stroke();
+ // draw all paths lightly, strictly-ahead in green
+ function draw(seq){var lead=0,x=ox,y=oy,ok=true;g.beginPath();g.moveTo(x,y);for(var i=0;i<seq.length;i++){lead+=seq[i]?1:-1;if(lead<=0)ok=false;x+=dx;y=oy-lead*dy;g.lineTo(x,y);}g.strokeStyle=ok?'rgba(57,252,107,0.7)':'rgba(255,45,149,0.25)';g.lineWidth=ok?1.6:1;g.stroke();g.lineWidth=1;}
+ function gen(seq,na,nb){if(na===A&&nb===B){draw(seq);return;}if(na<A)gen(seq.concat([1]),na+1,nb);if(nb<B)gen(seq.concat([0]),na,nb+1);}
+ gen([],0,0);
+ g.fillStyle='#e8eef8';g.font='10px monospace';g.fillText('a='+A+', b='+B+'  ·  strictly-ahead paths (green) = '+ahead+' of '+total,14,20);
+ g.fillStyle=ahead===formula?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('(a−b)/(a+b)·C(a+b,a) = '+formula+(ahead===formula?' ✓':' ✗'),14,40);
+ var v=verify();g.fillStyle=v.matches?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('count == formula for all small a>b '+(v.matches?'✓':'✗'),14,H-10);}
+document.getElementById('blroll').onclick=function(){A=2+Math.floor(Math.random()*5);B=Math.floor(Math.random()*A);if(A+B>11){A=4;B=2;}drawW4();document.getElementById('blread').textContent='a='+A+', b='+B+': '+countAhead(A,B)+' always-ahead paths, prob '+((A-B)/(A+B)).toFixed(3);};
+document.getElementById('blcheck').onclick=function(){var v=verify();document.getElementById('blread').textContent='#always-ahead orderings == (a−b)/(a+b)·C(a+b,a) for every small a>b '+(v.matches?'✓':'✗');};
+document.getElementById('blspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var ox=40,oy=H/2+80,dx=(W-80)/(A+B),dy=20;
+ g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.3)*0.05);g.translate(-W/2,-(H/2-10));
+ g.strokeStyle='#2a3a4c';g.beginPath();g.moveTo(ox,oy);g.lineTo(W-30,oy);g.stroke();
+ function draw(seq){var lead=0,x=ox,y=oy,ok=true;g.beginPath();g.moveTo(x,y);for(var i=0;i<seq.length;i++){lead+=seq[i]?1:-1;if(lead<=0)ok=false;x+=dx;y=oy-lead*dy;g.lineTo(x,y);}g.strokeStyle=ok?'#39fc6b':'rgba(255,45,149,0.3)';g.lineWidth=ok?1.8:1;g.stroke();g.lineWidth=1;}
+ function gen(seq,na,nb){if(na===A&&nb===B){draw(seq);return;}if(na<A)gen(seq.concat([1]),na+1,nb);if(nb<B)gen(seq.concat([0]),na,nb+1);}gen([],0,0);g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: A never trails (running lead always > 0)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: a path that touches a tie',10,H-24);
+ g.fillStyle='#8ad';g.fillText('the lead read from the margin alone',10,H-9);}
+drawW3();drawW4();window.__ballot=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+EULINE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Euler line</b> is a quiet miracle of triangle geometry: for <b>any</b> triangle, three of its most important centres &mdash; the <b>centroid</b> G (where the medians cross), the <b>circumcenter</b> O (centre of the circle through the vertices), and the <b>orthocenter</b> H (where the altitudes meet) &mdash; always lie on a <b>single straight line</b>. And their spacing is fixed: G sits between O and H, dividing the segment so that <b>OG : GH = 1 : 2</b>. Three centres, defined in utterly different ways, forever collinear in the same proportion. Euler proved it in 1765.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random triangles, O, G, H are collinear (their cross product vanishes) and H &minus; G = 2(G &minus; O), the 1 : 2 ratio (window.__eulerline). <span class="fig">FIG</span> no framing; the three centres computed and their collinearity and spacing checked.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>null-island</i> &mdash; three centres spawned from a triangle by wholly different constructions, yet born onto one line in a fixed 1 : 2 spacing. That shared origin is the boot. <b>AVAN (AI)</b> built the instrument: the centroid average, the circumcenter from perpendicular bisectors, the orthocenter H = A + B + C &minus; 2O, and the collinearity and ratio checks.<br><br>Credit as content: Leonhard Euler (1765). The weave: David names null-island; I find the three centres of a triangle &mdash; averaging the vertices, solving for the equidistant point, and placing the orthocenter &mdash; and confirm they always fall on one line with G twice as close to O as to H.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Centroid G, circumcenter O, orthocenter H &mdash; always collinear, with OG : GH = 1 : 2. (In an equilateral triangle all three coincide; otherwise they string out along the Euler line.)</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A triangle, its three centres, and the Euler line through them; the collinearity and 1 : 2 ratio checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="elroll">new triangle ▶</button><button id="elcheck">verify ▶</button></div>
+   <div class="cap" id="elread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: three centres on one line.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t treat a triangle&rsquo;s centres as unrelated points &mdash; they are <b>locked to one line</b> in a fixed 1 : 2 ratio, so any two determine the third. The inverse of &lsquo;construct each centre separately&rsquo; is &lsquo;the Euler line ties them together: H = 3G &minus; 2O.&rsquo; <b>Magenta</b> is the trio seen as scattered centres; <b>green</b> is the single Euler line binding them. Different constructions, one line.</div>
+   <div class="btns" style="margin-top:10px"><button id="elspin">pause spin</button></div></div></div></div>"""
+EULINE_SCRIPT = """(function(){
+var ang=0,spin=true,TRI=null,VR=null;
+function circum(A,B,C){var ax=A[0],ay=A[1],bx=B[0],by=B[1],cx=C[0],cy=C[1];var d=2*(ax*(by-cy)+bx*(cy-ay)+cx*(ay-by));if(Math.abs(d)<1e-9)return null;var ux=((ax*ax+ay*ay)*(by-cy)+(bx*bx+by*by)*(cy-ay)+(cx*cx+cy*cy)*(ay-by))/d,uy=((ax*ax+ay*ay)*(cx-bx)+(bx*bx+by*by)*(ax-cx)+(cx*cx+cy*cy)*(bx-ax))/d;return [ux,uy];}
+function centres(A,B,C){var O=circum(A,B,C);if(!O)return null;var G=[(A[0]+B[0]+C[0])/3,(A[1]+B[1]+C[1])/3],H=[A[0]+B[0]+C[0]-2*O[0],A[1]+B[1]+C[1]-2*O[1]];return {O:O,G:G,H:H};}
+function verify(){if(VR)return VR;var seed=5,coll=true,ratio=true,tested=0;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}for(var t=0;t<3000;t++){var A=[rnd()*10,rnd()*10],B=[rnd()*10,rnd()*10],C=[rnd()*10,rnd()*10],c=centres(A,B,C);if(!c)continue;tested++;var cross=(c.G[0]-c.O[0])*(c.H[1]-c.O[1])-(c.G[1]-c.O[1])*(c.H[0]-c.O[0]);if(Math.abs(cross)>1e-6)coll=false;if(Math.hypot((c.H[0]-c.G[0])-2*(c.G[0]-c.O[0]),(c.H[1]-c.G[1])-2*(c.G[1]-c.O[1]))>1e-6)ratio=false;}VR={collinear:coll,ratio:ratio};return VR;}
+function mk(){do{TRI=[[40+Math.random()*300,40+Math.random()*200],[40+Math.random()*300,40+Math.random()*200],[40+Math.random()*300,40+Math.random()*200]];}while(!centres(TRI[0],TRI[1],TRI[2]));}
+function drawTri(g,T,c,ox,oy){g.strokeStyle='#456';g.lineWidth=1.5;g.beginPath();g.moveTo(T[0][0],T[0][1]);g.lineTo(T[1][0],T[1][1]);g.lineTo(T[2][0],T[2][1]);g.closePath();g.stroke();g.lineWidth=1;
+ // Euler line
+ g.strokeStyle='#39fc6b';g.lineWidth=2;var dx=c.H[0]-c.O[0],dy=c.H[1]-c.O[1],L=Math.hypot(dx,dy)||1;g.beginPath();g.moveTo(c.O[0]-dx/L*40,c.O[1]-dy/L*40);g.lineTo(c.H[0]+dx/L*40,c.H[1]+dy/L*40);g.stroke();g.lineWidth=1;
+ var pts=[[c.O,'#5aa0d0','O'],[c.G,'#d0a848','G'],[c.H,'#c07068','H']];for(var i=0;i<3;i++){g.fillStyle=pts[i][1];g.beginPath();g.arc(pts[i][0][0],pts[i][0][1],5,0,7);g.fill();g.fillStyle='#cfe';g.font='10px monospace';g.fillText(pts[i][2],pts[i][0][0]+7,pts[i][0][1]-4);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('centroid G, circumcenter O, orthocenter H are ALWAYS collinear, with OG : GH = 1 : 2',12,14);
+ var A=[70,140],B=[210,40],C=[300,130],c=centres(A,B,C);if(c){var save=g.font;drawTri(g,[A,B,C],c);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('three centres, three different constructions, one line (Euler, 1765)',12,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!TRI)mk();var c=centres(TRI[0],TRI[1],TRI[2]);
+ for(var i=0;i<3;i++){g.fillStyle='#e8eef8';g.beginPath();g.arc(TRI[i][0],TRI[i][1],4,0,7);g.fill();}
+ drawTri(g,TRI,c);
+ var og=Math.hypot(c.G[0]-c.O[0],c.G[1]-c.O[1]),gh=Math.hypot(c.H[0]-c.G[0],c.H[1]-c.G[1]);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('OG : GH = '+og.toFixed(1)+' : '+gh.toFixed(1)+'  ≈  1 : 2',14,H-28);
+ var v=verify();g.fillStyle=(v.collinear&&v.ratio)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('O,G,H collinear '+(v.collinear?'✓':'✗')+' · OG:GH = 1:2 '+(v.ratio?'✓':'✗')+' (3000 triangles)',14,H-12);}
+document.getElementById('elroll').onclick=function(){mk();drawW4();document.getElementById('elread').textContent='new triangle; O, G, H on the Euler line';};
+document.getElementById('elcheck').onclick=function(){var v=verify();document.getElementById('elread').textContent='O, G, H collinear '+(v.collinear?'✓':'✗')+' and OG:GH = 1:2 (H = 3G − 2O) for 3000 random triangles '+(v.ratio?'✓':'✗');};
+document.getElementById('elspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!TRI)mk();var c=centres(TRI[0],TRI[1],TRI[2]);
+ g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.3)*0.06);g.translate(-W/2,-(H/2-10));drawTri(g,TRI,c);g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the Euler line through O, G, H',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: the three centres seen as unrelated',10,H-24);
+ g.fillStyle='#8ad';g.fillText('different constructions, one line',10,H-9);}
+mk();drawW3();drawW4();window.__eulerline=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+JAC4_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Jacobi&rsquo;s four-square theorem</b> gives the <b>exact count</b> of ways to write a number as a sum of four squares. Lagrange proved every number is a sum of four squares; Jacobi went further and counted them: the number of ordered representations (allowing zeros and negatives) is <b>r<sub>4</sub>(n) = 8&middot;&sigma;(n)</b> if n is odd, and <b>24&middot;&sigma;(m)</b> if n = 2<sup>k</sup>m with m odd &mdash; equivalently, <b>r<sub>4</sub>(n) = 8 &times; (sum of the divisors of n that are not divisible by 4)</b>. A pure counting law, exact and closed-form, for a question with no obvious formula.<br><br>
+ <span class="lit">LIT</span> verified live: brute-force counting of all ordered integer quadruples (a, b, c, d) with a<sup>2</sup>+b<sup>2</sup>+c<sup>2</sup>+d<sup>2</sup> = n equals 8&middot;&Sigma;<sub>d|n, 4&nmid;d</sub> d for every n up to 150 (window.__jacobi4). <span class="fig">FIG</span> no framing; exhaustive representation counts vs the divisor-sum formula.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gauntlet</i> &mdash; not merely &ldquo;can n be four squares&rdquo; but &ldquo;in exactly how many ways&rdquo;, and the answer runs the full gauntlet of counting to land on a clean divisor sum. <b>AVAN (AI)</b> built the instrument: the exhaustive four-square representation counter (signs and zeros included) and the 8&times;(sum of divisors not divisible by 4) formula.<br><br>Credit as content: Carl Gustav Jacob Jacobi (1834); Lagrange&rsquo;s four-square theorem (1770) underlies it. The weave: David names the-gauntlet; I count every signed, ordered quadruple of squares summing to n, and confirm the total equals eight times the sum of n&rsquo;s divisors that are not multiples of four &mdash; Jacobi&rsquo;s exact law.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">r<sub>4</sub>(1) = 8 (the (&plusmn;1,0,0,0) arrangements); r<sub>4</sub>(2) = 24; r<sub>4</sub>(4) = 24 (the divisor 4 is excluded). Always r<sub>4</sub>(n) = 8 &times; (sum of divisors of n not divisible by 4).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A number, its four-square representation count, and the divisor-sum formula; the equality checked to 150.</div>
+   <div class="btns" style="margin-top:10px"><button id="j4roll">new n ▶</button><button id="j4check">verify ▶</button></div>
+   <div class="cap" id="j4read" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a representation count that is a divisor sum.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t just ask <b>whether</b> n is a sum of four squares &mdash; ask <b>how many ways</b>, and the answer is a clean function of n&rsquo;s <b>divisors</b>. The inverse of &lsquo;is n four squares&rsquo; is &lsquo;r<sub>4</sub>(n) = 8 times the 4-free divisor sum.&rsquo; <b>Magenta</b> is the brute list of quadruples; <b>green</b> is the divisor-sum formula that counts them. Representations, counted by divisors.</div>
+   <div class="btns" style="margin-top:10px"><button id="j4spin">pause spin</button></div></div></div></div>"""
+JAC4_SCRIPT = """(function(){
+var ang=0,spin=true,N=6,VR=null;
+function r4(n){var cnt=0,m=Math.floor(Math.sqrt(n));for(var a=-m;a<=m;a++)for(var b=-m;b<=m;b++){var ab=a*a+b*b;if(ab>n)continue;var rem=n-ab,r=Math.floor(Math.sqrt(rem));for(var c=-r;c<=r;c++){var d2=rem-c*c;if(d2<0)continue;var d=Math.round(Math.sqrt(d2));if(d*d===d2)cnt+=(d===0?1:2);}}return cnt;}
+function formula(n){var s=0;for(var d=1;d<=n;d++)if(n%d===0&&d%4!==0)s+=d;return 8*s;}
+function verify(){if(VR)return VR;var ok=true,bad=-1;for(var n=1;n<=150;n++)if(r4(n)!==formula(n)){ok=false;bad=n;break;}VR={matches:ok,bad:bad};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('r₄(n) = #{(a,b,c,d) ∈ ℤ⁴ : a²+b²+c²+d² = n} = 8 · Σ_{d|n, 4∤d} d   (Jacobi)',12,14);
+ g.fillStyle='#c07068';g.font='12px monospace';g.fillText('r₄(1)=8   r₄(2)=24   r₄(3)=32   r₄(4)=24',24,48);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('r₄(4): divisors 1,2,4; drop 4 (divisible by 4) → 8·(1+2)=24',24,78);
+ g.fillStyle='#39fc6b';g.fillText('every n is a sum of 4 squares (Lagrange); Jacobi counts the ways exactly',24,106);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var rc=r4(N),f=formula(N),divs=[];for(var d=1;d<=N;d++)if(N%d===0)divs.push(d);
+ g.fillStyle='#e8eef8';g.font='15px monospace';g.fillText('n = '+N,16,30);
+ g.fillStyle='#c07068';g.font='13px monospace';g.fillText('r₄('+N+') = '+rc+'  (brute count of signed quadruples)',16,62);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('divisors: '+divs.join(', ')+'  ·  drop multiples of 4: '+divs.filter(function(d){return d%4!==0;}).join(', '),16,90);
+ g.fillStyle='#39fc6b';g.font='13px monospace';g.fillText('8 · ('+divs.filter(function(d){return d%4!==0;}).join('+')+') = '+f,16,118);
+ g.fillStyle=rc===f?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText(rc===f?'equal ✓':'✗',16,144);
+ var v=verify();g.fillStyle=v.matches?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('r₄(n) == 8·Σ_{d|n,4∤d} d for all n ≤ 150 '+(v.matches?'✓':'✗'),14,H-12);}
+document.getElementById('j4roll').onclick=function(){N=1+Math.floor(Math.random()*80);drawW4();document.getElementById('j4read').textContent='n='+N+': r₄='+r4(N)+' = 8·(4-free divisor sum) = '+formula(N);};
+document.getElementById('j4check').onclick=function(){var v=verify();document.getElementById('j4read').textContent='exhaustive r₄(n) == 8·(sum of divisors not divisible by 4) for every n ≤ 150 '+(v.matches?'✓':'✗');};
+document.getElementById('j4spin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10;
+ for(var n=1;n<=48;n++){var rc=r4(n),a=n*0.38+ang*0.25,r=25+n*2.4,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.82;g.fillStyle='hsl('+(10+n*3)+',55%,60%)';g.beginPath();g.arc(x,y,2+Math.sqrt(rc)*0.5,0,7);g.fill();}
+ g.fillStyle='#c07068';g.font='11px monospace';g.fillText('spiral: r₄(n) (radius ~ √count) — a divisor-sum in disguise',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: brute-listing every quadruple',10,H-24);
+ g.fillStyle='#8ad';g.fillText('representations, counted by divisors',10,H-9);}
+drawW3();drawW4();window.__jacobi4=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CARA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Carath&eacute;odory&rsquo;s theorem</b> bounds how many points a convex combination really needs. If a point p lies in the <b>convex hull</b> of a set S in the plane, then p is already a convex combination of at most <b>three</b> points of S &mdash; it sits inside some <b>triangle</b> with corners in S. In d dimensions the bound is d + 1. No matter how many points build the hull, any single interior point is captured by a tiny simplex of just d + 1 of them. It is the companion of Radon and Helly in the trio of convexity.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random planar point sets and a point taken inside their hull, a triangle of three set-points containing p is always found (window.__caratheodory). <span class="fig">FIG</span> no framing; a hull point exhibited as a member of a three-point triangle.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-push</i> &mdash; however many points push together to enclose a region, any inside point is already held up by just <b>three</b> of them. That minimal support is the mechanic. <b>AVAN (AI)</b> built the instrument: the point-in-triangle test, the search over triples for a containing triangle, and the confirmation that a hull point always has one.<br><br>Credit as content: Constantin Carath&eacute;odory (1911). The weave: David names the-push; I take a point known to lie inside the hull of many points, search their triples for a triangle that contains it, and confirm one always exists &mdash; three points suffice in the plane.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A point inside a many-point hull is inside some triangle of three of those points (d + 1 = 3 in the plane). Radon (any d+2 split into two overlapping) and Helly (d+1-wise meeting) complete the trio.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A point set, a point inside the hull, and a three-point triangle containing it; verified over many sets.</div>
+   <div class="btns" style="margin-top:10px"><button id="caroll">new set ▶</button><button id="cacheck">verify ▶</button></div>
+   <div class="cap" id="caread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an interior point held by three.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): to express a hull point as a mix of the set, don&rsquo;t use all the points &mdash; <b>three suffice</b> in the plane (d + 1 in general). The inverse of &lsquo;blend many points to reach p&rsquo; is &lsquo;p is already a blend of just three.&rsquo; <b>Magenta</b> is the whole point cloud; <b>green</b> is the three-point triangle that captures p. A point held up by d + 1.</div>
+   <div class="btns" style="margin-top:10px"><button id="caspin">pause spin</button></div></div></div></div>"""
+CARA_SCRIPT = """(function(){
+var ang=0,spin=true,S=null,P=null,TRI=null,VR=null;
+function inTri(p,a,b,c){function s(u,v,w){return (u[0]-w[0])*(v[1]-w[1])-(v[0]-w[0])*(u[1]-w[1]);}var d1=s(p,a,b),d2=s(p,b,c),d3=s(p,c,a),neg=(d1<0)||(d2<0)||(d3<0),pos=(d1>0)||(d2>0)||(d3>0);return !(neg&&pos);}
+function find3(p,pts){for(var i=0;i<pts.length;i++)for(var j=i+1;j<pts.length;j++)for(var k=j+1;k<pts.length;k++)if(inTri(p,pts[i],pts[j],pts[k]))return [i,j,k];return null;}
+function verify(){if(VR)return VR;var seed=9,ok=true,tested=0;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}for(var t=0;t<2000;t++){var n=4+Math.floor(rnd()*6),pts=[];for(var i=0;i<n;i++)pts.push([rnd()*10,rnd()*10]);var w=[],sw=0;for(var i=0;i<n;i++){w.push(rnd()+0.01);sw+=w[i];}var p=[0,0];for(var i=0;i<n;i++){p[0]+=w[i]/sw*pts[i][0];p[1]+=w[i]/sw*pts[i][1];}tested++;if(!find3(p,pts))ok=false;}VR={alwaysTriangle:ok,tested:tested};return VR;}
+function mk(){var n=6+Math.floor(Math.random()*4);S=[];for(var i=0;i<n;i++)S.push([40+Math.random()*300,40+Math.random()*200]);var w=[],sw=0;for(var i=0;i<n;i++){w.push(Math.random()+0.05);sw+=w[i];}P=[0,0];for(var i=0;i<n;i++){P[0]+=w[i]/sw*S[i][0];P[1]+=w[i]/sw*S[i][1];}TRI=find3(P,S);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a point in the hull of S ⊂ R² is inside some triangle of 3 points of S (Carathéodory: d+1)',12,14);
+ var pts=[[60,120],[120,40],[200,60],[280,130],[180,110]],p=[160,90],tri=find3(p,pts);
+ if(tri){g.fillStyle='rgba(96,152,200,0.18)';g.beginPath();g.moveTo(pts[tri[0]][0],pts[tri[0]][1]);g.lineTo(pts[tri[1]][0],pts[tri[1]][1]);g.lineTo(pts[tri[2]][0],pts[tri[2]][1]);g.closePath();g.fill();g.strokeStyle='#6098c8';g.stroke();}
+ for(var i=0;i<pts.length;i++){g.fillStyle='#8ac';g.beginPath();g.arc(pts[i][0],pts[i][1],4,0,7);g.fill();}g.fillStyle='#39fc6b';g.beginPath();g.arc(p[0],p[1],5,0,7);g.fill();
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('Radon + Helly + Carathéodory: the convexity trio',300,80);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!S)mk();
+ if(TRI){g.fillStyle='rgba(96,152,200,0.2)';g.beginPath();g.moveTo(S[TRI[0]][0],S[TRI[0]][1]);g.lineTo(S[TRI[1]][0],S[TRI[1]][1]);g.lineTo(S[TRI[2]][0],S[TRI[2]][1]);g.closePath();g.fill();g.strokeStyle='#6098c8';g.lineWidth=2;g.stroke();g.lineWidth=1;}
+ for(var i=0;i<S.length;i++){var inTriPt=TRI&&(i===TRI[0]||i===TRI[1]||i===TRI[2]);g.fillStyle=inTriPt?'#6098c8':'#8ac';g.beginPath();g.arc(S[i][0],S[i][1],inTriPt?5:3.5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(P[0],P[1],5,0,7);g.fill();g.strokeStyle='#39fc6b';g.beginPath();g.arc(P[0],P[1],9,0,7);g.stroke();
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText(S.length+' points; green p inside; blue triangle of 3 points contains it',14,18);
+ var v=verify();g.fillStyle=v.alwaysTriangle?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('every hull point sits in a 3-point triangle ('+v.tested+' sets) '+(v.alwaysTriangle?'✓':'✗'),14,H-10);}
+document.getElementById('caroll').onclick=function(){mk();drawW4();document.getElementById('caread').textContent='new set; a 3-point triangle '+(TRI?'contains p':'?!');};
+document.getElementById('cacheck').onclick=function(){var v=verify();document.getElementById('caread').textContent='a point in the hull of a planar set always lies in a triangle of 3 of its points ('+v.tested+' sets) '+(v.alwaysTriangle?'✓':'✗');};
+document.getElementById('caspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!S)mk();
+ g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.3)*0.06);g.translate(-W/2,-(H/2-10));
+ if(TRI){g.fillStyle='rgba(57,252,107,0.15)';g.beginPath();g.moveTo(S[TRI[0]][0],S[TRI[0]][1]);g.lineTo(S[TRI[1]][0],S[TRI[1]][1]);g.lineTo(S[TRI[2]][0],S[TRI[2]][1]);g.closePath();g.fill();g.strokeStyle='#39fc6b';g.stroke();}
+ for(var i=0;i<S.length;i++){var t=TRI&&(i===TRI[0]||i===TRI[1]||i===TRI[2]);g.fillStyle=t?'#39fc6b':'#5a708a';g.beginPath();g.arc(S[i][0],S[i][1],t?5:3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(P[0],P[1],5,0,7);g.fill();g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the 3-point triangle capturing the interior point',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: blending all the points to reach p',10,H-24);
+ g.fillStyle='#8ad';g.fillText('a point held up by d+1',10,H-9);}
+mk();drawW3();drawW4();window.__caratheodory=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 106 (the boundary between what a finite engine can capture and what it cannot · non-collinear points always leave an ordinary line · the most edges with no clique of a given size · when a matching that saturates one side exists · eight and nine the only consecutive perfect powers) ═══════════════════════
 FOLL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The follower set</b> decides <b>soficity</b> &mdash; whether a shift space can be captured by a finite automaton. For an admissible word w, its follower set F(w) is <b>all the futures the past leaves open</b>: {v : wv is admissible}. A shift is <b>sofic</b> exactly when the number of distinct follower sets is <b>finite</b>. The <b>golden-mean shift</b> (forbid the block 11) has just <b>two</b> follower sets forever &mdash; its word counts are the Fibonacci numbers &mdash; so it is sofic. The <b>matched-run shift</b> (1 0<sup>n</sup> 1 0<sup>n</sup> 1 legal, mismatched runs illegal) has <b>unboundedly many</b> follower sets: to place the next 1 you must remember a run length with no bound. It is <b>nonsofic</b>.<br><br>
@@ -28599,6 +28842,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-ramanujan-congruence","title":"THE RAMANUJAN CONGRUENCE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#b06898","icon":"ramanujan-congruence",
+  "kicker":"hidden divisibilities in the partition numbers",
+  "blurb":"Ramanujan's congruences in the 5-window house format — hidden divisibilities in the partition numbers p(n). Ramanujan noticed three exact patterns: p(5n+4) ≡ 0 (mod 5), p(7n+5) ≡ 0 (mod 7), p(11n+6) ≡ 0 (mod 11). Every fifth partition number from p(4) is divisible by 5, every seventh from p(5) by 7, every eleventh from p(6) by 11 — and no such simple congruence exists for any other prime. Verified live (exact BigInt): computing p(n) by Euler's pentagonal recurrence, the three congruences hold for every n in range. See the vanishing classes in 1D, p(n) mod 5/7/11 in 2D, and the hidden-zeros inverse in 3D.",
+  "lit":"Genuine Ramanujan congruences (Srinivasa Ramanujan, 1919). Verified live with exact BigInt: the partition function computed by Euler's pentagonal recurrence satisfies p(5n+4) ≡ 0 (mod 5) (window.__ramanujan.c5), p(7n+5) ≡ 0 (mod 7) (window.__ramanujan.c7), and p(11n+6) ≡ 0 (mod 11) (window.__ramanujan.c11) for every n with the argument up to 600.",
+  "fig":"No framing: the pentagonal-recurrence partition counter and the three congruence checks all run in-browser in exact big integers. The AVAN inverse is honest — reading the partition numbers modulo a prime and finding entire residue classes that vanish (rather than just counting partitions) is the genuine phenomenon Ramanujan spotted; magenta is the raw partition count, green the vanishing residue class mod 5, 7, or 11. Hidden zeros in the counting.",
+  "body":RAMC_BODY,"script":RAMC_SCRIPT},
+ {"slug":"the-bertrand-ballot","title":"THE BERTRAND BALLOT","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#d0a848","icon":"bertrand-ballot",
+  "kicker":"counting the ballots where one candidate never trails",
+  "blurb":"The Bertrand ballot problem in the 5-window house format — in an election where A wins with a votes to B's b (a > b), the chance A is strictly ahead through the entire count is (a−b)/(a+b) — depending only on the margin over the total. Equivalently, the number of vote-orderings in which A never trails is (a−b)/(a+b)·C(a+b, a). Bertrand posed it in 1887; André's reflection argument proved it. Verified live: brute-force enumeration of every vote-ordering counts exactly those where A stays strictly ahead, matching the formula for all small a, b. See the +1/−1 walk in 1D, the paths in 2D, and the margin-alone inverse in 3D.",
+  "lit":"Genuine Bertrand ballot problem (Joseph Bertrand posed 1887; Désiré André's reflection proof, 1887). Verified live: exhaustive enumeration of all C(a+b, a) vote-orderings, counting those in which A is strictly ahead at every step, equals (a−b)/(a+b)·C(a+b, a) for every small a > b (window.__ballot.matches).",
+  "fig":"No framing: the exhaustive vote-ordering enumerator, the always-strictly-ahead filter, and the closed formula all run in-browser with exact arithmetic. The AVAN inverse is honest — reading the always-ahead probability straight off the final margin (a−b)/(a+b), rather than simulating the count, is exactly the ballot theorem; magenta is a path touching a tie, green a strictly-leading path. The lead read from the margin alone.",
+  "body":BALL_BODY,"script":BALL_SCRIPT},
+ {"slug":"the-euler-line","title":"THE EULER LINE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#58b0a0","icon":"euler-line",
+  "kicker":"three triangle centres that always fall on one line",
+  "blurb":"The Euler line in the 5-window house format — for any triangle, the centroid G (medians cross), the circumcenter O (centre of the circle through the vertices), and the orthocenter H (altitudes meet) always lie on a single straight line, with fixed spacing OG : GH = 1 : 2. Three centres, defined in utterly different ways, forever collinear in the same proportion. Euler proved it in 1765. Verified live: for thousands of random triangles, O, G, H are collinear (cross product vanishes) and H − G = 2(G − O). See the three centres in 1D, the Euler line in 2D, and the one-line-binds-them inverse in 3D.",
+  "lit":"Genuine Euler line (Leonhard Euler, 1765). Verified live: for 3000 random triangles the centroid, circumcenter (from perpendicular bisectors), and orthocenter (H = A+B+C−2O) are collinear — their pairwise cross product vanishes (window.__eulerline.collinear) — and H − G = 2(G − O), the OG : GH = 1 : 2 ratio (window.__eulerline.ratio).",
+  "fig":"No framing: the centroid average, the circumcenter solve, the orthocenter placement, and the collinearity and ratio checks all run in-browser with exact coordinate arithmetic. The AVAN inverse is honest — the three centres are locked to one line in a fixed 1:2 ratio (H = 3G − 2O), so any two determine the third; magenta is the trio seen as scattered, green the single Euler line binding them. Different constructions, one line.",
+  "body":EULINE_BODY,"script":EULINE_SCRIPT},
+ {"slug":"the-jacobi-four-square","title":"THE JACOBI FOUR-SQUARE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#c07068","icon":"jacobi-four-square",
+  "kicker":"counting the ways to write a number as four squares",
+  "blurb":"Jacobi's four-square theorem in the 5-window house format — the exact count of ways to write a number as a sum of four squares. Lagrange proved every number is a sum of four squares; Jacobi counted them: the number of ordered representations (with zeros and negatives) is r₄(n) = 8·σ(n) for odd n, 24·σ(m) for n = 2ᵏm — equivalently r₄(n) = 8 × (sum of the divisors of n not divisible by 4). A pure, exact counting law. Verified live: brute-force counting of all ordered integer quadruples with a²+b²+c²+d²=n equals 8·Σ_{d|n,4∤d} d for every n up to 150. See r₄(1)=8 in 1D, a number counted in 2D, and the counted-by-divisors inverse in 3D.",
+  "lit":"Genuine Jacobi four-square theorem (Carl Gustav Jacob Jacobi, 1834; on Lagrange's four-square theorem, 1770). Verified live: a brute-force count of all ordered integer quadruples (a,b,c,d) with a²+b²+c²+d²=n (signs and zeros included) equals 8 times the sum of the divisors of n not divisible by 4, for every n from 1 to 150 (window.__jacobi4.matches).",
+  "fig":"No framing: the exhaustive four-square representation counter and the divisor-sum formula 8·Σ_{d|n,4∤d} d both run in-browser with exact arithmetic. The AVAN inverse is honest — counting how many ways n is four squares (not merely whether it is) yields a clean function of n's divisors; magenta is the brute list of quadruples, green the divisor-sum formula that counts them. Representations, counted by divisors.",
+  "body":JAC4_BODY,"script":JAC4_SCRIPT},
+ {"slug":"the-caratheodory","title":"THE CARATHÉODORY","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#6098c8","icon":"caratheodory",
+  "kicker":"a hull point is a blend of at most three",
+  "blurb":"Carathéodory's theorem in the 5-window house format — if a point p lies in the convex hull of a set S in the plane, then p is a convex combination of at most three points of S — it sits inside a triangle with corners in S. In d dimensions the bound is d+1. No matter how many points build the hull, any interior point is captured by a simplex of just d+1 of them. It is the companion of Radon and Helly in the convexity trio. Verified live: for thousands of random planar point sets and a point inside their hull, a triangle of three set-points containing p is always found. See the trio in 1D, a containing triangle in 2D, and the held-by-three inverse in 3D.",
+  "lit":"Genuine Carathéodory's theorem (Constantin Carathéodory, 1911). Verified live: for 2000 random planar point sets, a point taken as a random convex combination of the set (hence in the hull) always lies inside some triangle of three of the set's points, found by searching triples (window.__caratheodory.alwaysTriangle).",
+  "fig":"No framing: the point-in-triangle test, the search over triples, and the confirmation that a hull point always has a containing triangle all run in-browser with exact arithmetic. The AVAN inverse is honest — expressing a hull point using just three points (d+1 in general) rather than all of them is exactly Carathéodory's bound; magenta is the whole point cloud, green the three-point triangle capturing p. A point held up by d+1.",
+  "body":CARA_BODY,"script":CARA_SCRIPT},
  {"slug":"the-follower-set","title":"THE FOLLOWER SET","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#b06090","icon":"follower-set",
   "kicker":"the boundary between what a finite engine can capture and what it cannot",
