@@ -19485,6 +19485,237 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 82 (satisfy the clauses by chasing implications · trap every eigenvalue in a disc · the one true rotation of a necklace · a sieve of quadratic forms · the lower envelope of a pencil of lines) ═══════════════════════
+SAT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>2-SAT</b> asks whether a set of clauses, each an OR of <b>two</b> literals, can all be satisfied &mdash; and unlike general SAT (NP-complete), it is solvable in <b>linear time</b>. The trick: each clause (a &or; b) becomes two <b>implications</b>, &not;a &rarr; b and &not;b &rarr; a, forming a graph. The formula is satisfiable <b>iff no variable and its negation land in the same strongly connected component</b>; a valid assignment is then read straight off the component order.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random instances, the SCC-based verdict matches a brute-force check of all 2<sup>n</sup> assignments, and the extracted assignment satisfies every clause (window.__twosat). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gatekeeper</i> &mdash; the check that decides, quickly, whether a web of two-way constraints can all be met. 2-SAT is that decision. <b>AVAN (AI)</b> built the instrument: the implication graph, the Tarjan SCC condensation, the same-component test, the component-order assignment, and the brute cross-check.<br><br>Credit as content: Aspvall, Plass &amp; Tarjan (linear-time 2-SAT, 1979). The weave: David names the-gatekeeper; I turn each clause into two implications, condense the graph into components, and confirm satisfiability exactly matches brute force with a valid assignment.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">(a &or; b) means: if a is false then b must be true, and if b is false then a must be true. Follow every such implication; if a variable can force both itself and its negation, the formula is unsatisfiable.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A set of 2-clauses; the implication graph is condensed and checked, and a satisfying assignment is shown when one exists.</div>
+   <div class="btns" style="margin-top:10px"><button id="saroll">new formula ▶</button><button id="sacheck">verify 300 ▶</button></div>
+   <div class="cap" id="saread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: satisfiability decided by component structure.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): decide a whole web of two-literal constraints in <b>linear time</b> by turning clauses into <b>implications</b> and asking whether any variable and its negation share a strongly connected component. The inverse of &lsquo;try all 2<sup>n</sup> assignments&rsquo; is &lsquo;chase implications, condense to components &mdash; satisfiability falls out.&rsquo; <b>Magenta</b> is the exponential assignment search avoided; <b>green</b> is the linear implication graph. Constraints solved by reachability.</div>
+   <div class="btns" style="margin-top:10px"><button id="saspin">pause spin</button></div></div></div></div>"""
+SAT_SCRIPT = """(function(){
+var ang=0,spin=true,NV=3,CLAUSES=[],RES=null;
+function tarjan(n,adj){var idx=0,st=[],on=new Array(n).fill(false),I=new Array(n).fill(-1),L=new Array(n).fill(0),comp=new Array(n).fill(-1),nc=0;function sc(v){I[v]=idx;L[v]=idx;idx++;st.push(v);on[v]=true;adj[v].forEach(function(w){if(I[w]===-1){sc(w);L[v]=Math.min(L[v],L[w]);}else if(on[w])L[v]=Math.min(L[v],I[w]);});if(L[v]===I[v]){var w;do{w=st.pop();on[w]=false;comp[w]=nc;}while(w!==v);nc++;}}for(var v=0;v<n;v++)if(I[v]===-1)sc(v);return comp;}
+function node(v,val){return 2*v+(val?1:0);}
+function twoSat(nVars,clauses){var n=2*nVars,adj=[];for(var i=0;i<n;i++)adj.push([]);clauses.forEach(function(cl){var av=cl[0],as=cl[1],bv=cl[2],bs=cl[3];adj[node(av,!as)].push(node(bv,bs));adj[node(bv,!bs)].push(node(av,as));});var comp=tarjan(n,adj);for(var v=0;v<nVars;v++)if(comp[node(v,true)]===comp[node(v,false)])return null;var a=[];for(var v=0;v<nVars;v++)a.push(comp[node(v,true)]<comp[node(v,false)]);return a;}
+function bruteSat(nVars,clauses){for(var m=0;m<(1<<nVars);m++){var val=[];for(var v=0;v<nVars;v++)val.push((m>>v)&1?true:false);var ok=true;for(var i=0;i<clauses.length;i++){var cl=clauses[i];if(!((val[cl[0]]===cl[1])||(val[cl[2]]===cl[3]))){ok=false;break;}}if(ok)return true;}return false;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(260),ok=true;for(var t=0;t<300;t++){var nv=2+Math.floor(rnd()*5),nc=1+Math.floor(rnd()*8),cls=[];for(var i=0;i<nc;i++)cls.push([Math.floor(rnd()*nv),rnd()<0.5,Math.floor(rnd()*nv),rnd()<0.5]);var a=twoSat(nv,cls),sat=a!==null;if(sat!==bruteSat(nv,cls))ok=false;if(sat){var good=true;cls.forEach(function(cl){if(!((a[cl[0]]===cl[1])||(a[cl[2]]===cl[3])))good=false;});if(!good)ok=false;}}return {matchesBrute:ok};}
+function lit(v,s){return (s?'':'¬')+'x'+v;}
+function mk(){NV=3+Math.floor(Math.random()*2);CLAUSES=[];var nc=NV+1+Math.floor(Math.random()*2);for(var i=0;i<nc;i++)CLAUSES.push([Math.floor(Math.random()*NV),Math.random()<0.5,Math.floor(Math.random()*NV),Math.random()<0.5]);RES=twoSat(NV,CLAUSES);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('(a ∨ b) → two implications: ¬a→b and ¬b→a',12,14);
+ g.fillStyle='#58a0b0';g.fillRect(60,50,50,26);g.fillStyle='#fff';g.font='11px monospace';g.fillText('¬a',74,67);g.fillStyle='#39fc6b';g.font='14px monospace';g.fillText('→',120,68);g.fillStyle='#58a0b0';g.fillRect(150,50,50,26);g.fillStyle='#fff';g.font='11px monospace';g.fillText('b',168,67);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('unsatisfiable iff some x and ¬x land in the same SCC',60,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!CLAUSES.length)mk();
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText(NV+' variables, '+CLAUSES.length+' clauses:',12,18);
+ var y=38;CLAUSES.forEach(function(cl,i){if(i<6){g.fillStyle='#8ad';g.font='11px monospace';g.fillText('('+lit(cl[0],cl[1])+' ∨ '+lit(cl[2],cl[3])+')',20,y);y+=18;}});
+ if(RES){g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('SATISFIABLE',220,50);var ax=220,ay=70;RES.forEach(function(v,i){g.fillStyle=v?'#39fc6b':'#c05868';g.fillRect(ax+(i%4)*40,ay,34,20);g.fillStyle='#042';g.font='9px monospace';g.fillText('x'+i+'='+(v?'T':'F'),ax+(i%4)*40+2,ay+14);});}
+ else{g.fillStyle='#ff2d95';g.font='12px monospace';g.fillText('UNSATISFIABLE',220,50);g.fillStyle='#8ad';g.font='9px monospace';g.fillText('some x, ¬x in same SCC',220,72);}
+ var v=verify();g.fillStyle=v.matchesBrute?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('SCC verdict == brute force (300 instances) '+(v.matchesBrute?'✓':'✗'),12,H-10);}
+document.getElementById('saroll').onclick=function(){mk();drawW4();document.getElementById('saread').textContent=RES?'satisfiable':'unsatisfiable';};
+document.getElementById('sacheck').onclick=function(){var v=verify();document.getElementById('saread').textContent='300 instances: SCC verdict == brute & assignment valid '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('saspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!CLAUSES.length)mk();var cx=W/2,cy=H/2-20,n=2*NV;
+ var adj=[];for(var i=0;i<n;i++)adj.push([]);CLAUSES.forEach(function(cl){adj[node(cl[0],!cl[1])].push(node(cl[2],cl[3]));adj[node(cl[2],!cl[3])].push(node(cl[0],cl[1]));});
+ var pos=[];for(var i=0;i<n;i++){var a=i/n*6.28+ang*0.3;pos.push([cx+Math.cos(a)*90,cy+Math.sin(a)*90*0.75]);}
+ for(var i=0;i<n;i++)adj[i].forEach(function(j){g.strokeStyle='rgba(88,160,176,0.4)';g.beginPath();g.moveTo(pos[i][0],pos[i][1]);g.lineTo(pos[j][0],pos[j][1]);g.stroke();});
+ for(var i=0;i<n;i++){g.fillStyle=RES?'#39fc6b':'#ff2d95';g.beginPath();g.arc(pos[i][0],pos[i][1],5,0,7);g.fill();g.fillStyle='#042';g.font='7px monospace';g.fillText((i%2?'':'¬')+'x'+Math.floor(i/2),pos[i][0]-6,pos[i][1]+2);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green nodes: literals + implications ('+(RES?'satisfiable':'unsat')+')',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the 2^n assignment search avoided',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('constraints solved by reachability',10,H-9);}
+mk();drawW3();drawW4();window.__twosat=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GSH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Gershgorin&rsquo;s circle theorem</b> pins down <b>where a matrix&rsquo;s eigenvalues can be</b> without computing them: every eigenvalue lies within at least one <b>Gershgorin disc</b> &mdash; a disc centered at a diagonal entry a<sub>ii</sub>, with radius equal to the sum of the absolute values of the <b>off-diagonal</b> entries in that row. A few cheap sums bound the whole spectrum, which is invaluable for stability analysis and preconditioning.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random symmetric matrices, <b>every</b> (Jacobi-computed) eigenvalue falls inside a Gershgorin disc, and the eigenvalues sum to the trace (window.__gershgorin). <span class="fig">FIG</span> no framing; exact containment.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; the matrix engine that bounds a spectrum with a glance at the rows. Gershgorin&rsquo;s theorem is that glance. <b>AVAN (AI)</b> built the instrument: the row-radius discs, an independent Jacobi eigensolver, the every-eigenvalue-in-a-disc check, and the sum-equals-trace sanity check.<br><br>Credit as content: Semyon Gershgorin (1931). The weave: David names the mainframe; I draw each row&rsquo;s disc from its diagonal and off-diagonal sum, compute the eigenvalues independently, and confirm each one is trapped in a disc.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Row i gives a disc: center at a<sub>ii</sub>, radius = &Sigma;<sub>j&ne;i</sub> |a<sub>ij</sub>|. Every eigenvalue of the matrix must sit inside the union of these discs &mdash; no eigenvalue escapes them all.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A symmetric matrix, its Gershgorin discs on the real line, and its eigenvalues &mdash; each checked to lie inside a disc.</div>
+   <div class="btns" style="margin-top:10px"><button id="gsroll">new matrix ▶</button><button id="gscheck">verify 300 ▶</button></div>
+   <div class="cap" id="gsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: eigenvalues trapped inside row-discs.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): <b>bound the spectrum without solving for it</b> &mdash; each row draws a disc (diagonal &plusmn; off-diagonal sum), and every eigenvalue must lie in the union. The inverse of &lsquo;compute the eigenvalues to know their range&rsquo; is &lsquo;read a disc off each row &mdash; they trap the whole spectrum.&rsquo; <b>Magenta</b> is the full eigen-solve you can skip for a bound; <b>green</b> is the row-disc that traps them. Localizing eigenvalues by rows.</div>
+   <div class="btns" style="margin-top:10px"><button id="gsspin">pause spin</button></div></div></div></div>"""
+GSH_SCRIPT = """(function(){
+var ang=0,spin=true,A=null;
+function jacobiEig(A){var n=A.length,a=A.map(function(r){return r.slice();});for(var sw=0;sw<200;sw++){var off=0;for(var i=0;i<n;i++)for(var j=i+1;j<n;j++)off+=a[i][j]*a[i][j];if(off<1e-24)break;for(var p=0;p<n;p++)for(var q=p+1;q<n;q++){if(Math.abs(a[p][q])<1e-18)continue;var th=(a[q][q]-a[p][p])/(2*a[p][q]),t=(th>=0?1:-1)/(Math.abs(th)+Math.sqrt(th*th+1)),c=1/Math.sqrt(t*t+1),s=t*c;for(var i=0;i<n;i++){var aip=a[i][p],aiq=a[i][q];a[i][p]=c*aip-s*aiq;a[i][q]=s*aip+c*aiq;}for(var i=0;i<n;i++){var api=a[p][i],aqi=a[q][i];a[p][i]=c*api-s*aqi;a[q][i]=s*api+c*aqi;}}}var ev=[];for(var i=0;i<n;i++)ev.push(a[i][i]);return ev;}
+function discs(A){var n=A.length,d=[];for(var i=0;i<n;i++){var r=0;for(var j=0;j<n;j++)if(j!==i)r+=Math.abs(A[i][j]);d.push([A[i][i],r]);}return d;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(261),allIn=true,traceOk=true;for(var t=0;t<300;t++){var n=2+Math.floor(rnd()*4),M=[];for(var i=0;i<n;i++)M.push(new Array(n).fill(0));for(var i=0;i<n;i++)for(var j=i;j<n;j++){var v=rnd()*10-5;M[i][j]=v;M[j][i]=v;}var ev=jacobiEig(M),ds=discs(M),tr=0;for(var i=0;i<n;i++)tr+=M[i][i];if(Math.abs(ev.reduce(function(a,b){return a+b;},0)-tr)>1e-6)traceOk=false;ev.forEach(function(l){var inS=false;ds.forEach(function(d){if(Math.abs(l-d[0])<=d[1]+1e-6)inS=true;});if(!inS)allIn=false;});}return {allInDisc:allIn,sumEqualsTrace:traceOk};}
+function mk(){var n=3,rnd=mb((Math.random()*1e9)|0);A=[];for(var i=0;i<n;i++)A.push(new Array(n).fill(0));for(var i=0;i<n;i++)for(var j=i;j<n;j++){var v=Math.round((rnd()*8-4)*10)/10;A[i][j]=v;A[j][i]=v;}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('disc i: center aᵢᵢ, radius Σⱼ≠ᵢ|aᵢⱼ| — eigenvalues stay inside the union',12,14);
+ var cx=256,cy=95;g.strokeStyle='#556';g.beginPath();g.moveTo(30,cy);g.lineTo(480,cy);g.stroke();
+ var ds=[[-2,1.5,'#58a0b0'],[1,2,'#c0a048'],[4,1,'#a878c0']];ds.forEach(function(d){var c=cx+d[0]*40;g.strokeStyle=d[2];g.beginPath();g.arc(c,cy,d[1]*40,3.14,6.28);g.stroke();g.fillStyle=d[2];g.beginPath();g.arc(c,cy,3,0,7);g.fill();});
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('every eigenvalue lies under one of these arcs',30,145);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk();var ev=jacobiEig(A),ds=discs(A),all=ev.concat(ds.map(function(d){return d[0]+d[1];})).concat(ds.map(function(d){return d[0]-d[1];})),mn=Math.min.apply(0,all)-1,mx=Math.max.apply(0,all)+1,cx=function(x){return 30+(x-mn)/(mx-mn)*(W-60);},cy=150;
+ g.strokeStyle='#556';g.beginPath();g.moveTo(20,cy);g.lineTo(W-20,cy);g.stroke();
+ var COL=['#58a0b0','#c0a048','#a878c0','#70a860'];ds.forEach(function(d,i){var c=cx(d[0]),rr=(cx(d[0]+d[1])-c);g.strokeStyle=COL[i%COL.length];g.beginPath();g.arc(c,cy,rr,3.14,6.28);g.stroke();g.fillStyle=COL[i%COL.length];g.beginPath();g.arc(c,cy,3,0,7);g.fill();});
+ ev.forEach(function(l){g.fillStyle='#39fc6b';g.beginPath();g.arc(cx(l),cy,5,0,7);g.fill();g.fillStyle='#39fc6b';g.font='8px monospace';g.fillText(l.toFixed(1),cx(l)-8,cy-10);});
+ var v=verify();g.fillStyle=v.allInDisc?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('every eigenvalue (green) inside a disc '+(v.allInDisc?'✓':'✗'),12,H-10);}
+document.getElementById('gsroll').onclick=function(){mk();drawW4();document.getElementById('gsread').textContent='eigenvalues: '+jacobiEig(A).map(function(x){return x.toFixed(1);}).join(', ');};
+document.getElementById('gscheck').onclick=function(){var v=verify();document.getElementById('gsread').textContent='300 matrices: every eigenvalue in a disc '+(v.allInDisc?'✓':'✗')+' · sum==trace '+(v.sumEqualsTrace?'✓':'✗');};
+document.getElementById('gsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk();var ev=jacobiEig(A),ds=discs(A),cx=W/2,cy=H/2-10,sc=20;
+ var COL=['#58a0b0','#c0a048','#a878c0','#70a860'];ds.forEach(function(d,i){g.strokeStyle=COL[i%COL.length];g.globalAlpha=0.5;g.beginPath();g.arc(cx+d[0]*sc,cy,d[1]*sc,0,7);g.stroke();g.globalAlpha=1;});
+ ev.forEach(function(l){var a=ang+l;g.fillStyle='#39fc6b';g.beginPath();g.arc(cx+l*sc,cy+8*Math.sin(a),5,0,7);g.fill();});
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green dots: eigenvalues, each trapped in a row-disc',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the full eigen-solve you can skip',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('localizing eigenvalues by rows',10,H-9);}
+mk();drawW3();drawW4();window.__gershgorin=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LRT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Booth&rsquo;s least-rotation algorithm</b> finds the <b>lexicographically smallest rotation</b> of a string in <b>linear time</b> &mdash; the canonical form of a &ldquo;necklace,&rdquo; where all rotations are considered equivalent. Instead of trying every rotation (O(n<sup>2</sup>)), it runs a KMP-style failure-function scan over the doubled string, sliding a candidate start and jumping past mismatches. It is how you canonicalize cyclic sequences &mdash; circular DNA, polygon encodings, necklace enumeration.<br><br>
+ <span class="lit">LIT</span> verified live: over 500 random strings, Booth&rsquo;s rotation index gives the exact same rotation as a brute-force minimum over all rotations (window.__leastrotation). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-stash</i> &mdash; the hoard where every cyclic arrangement collapses to one canonical key, so duplicates that differ only by rotation are recognized as one. Booth&rsquo;s algorithm mints that key. <b>AVAN (AI)</b> built the instrument: the doubled-string failure scan, the candidate-start slide, and the brute-minimum cross-check.<br><br>Credit as content: Kellogg Booth (1980). The weave: David names the-stash; I scan the doubled string with a failure function, sliding the best start past mismatches, and confirm the resulting rotation equals the true minimum over all rotations.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A necklace &ldquo;bbaab&rdquo; has rotations bbaab, baabb, aabbb, abbba, bbbaa. The smallest is <b>aabbb</b> &mdash; that rotation is the canonical form. Booth finds its start index in one linear pass.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A string as a necklace; Booth&rsquo;s least rotation is highlighted and checked against the brute minimum over all rotations.</div>
+   <div class="btns" style="margin-top:10px"><button id="lrroll">new necklace ▶</button><button id="lrcheck">verify 500 ▶</button></div>
+   <div class="cap" id="lrread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the one canonical rotation of a necklace.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): give a cyclic sequence a <b>single canonical form</b> &mdash; its lexicographically least rotation &mdash; found in <b>linear time</b> by a failure-function scan of the doubled string. The inverse of &lsquo;compare all n rotations to find the smallest&rsquo; is &lsquo;one KMP-style pass picks the least rotation.&rsquo; <b>Magenta</b> is the O(n<sup>2</sup>) all-rotations comparison; <b>green</b> is the single canonical key. One name for every rotation.</div>
+   <div class="btns" style="margin-top:10px"><button id="lrspin">pause spin</button></div></div></div></div>"""
+LRT_SCRIPT = """(function(){
+var ang=0,spin=true,S='bbaab',K=0;
+function least(s){var n=s.length,f=new Array(2*n).fill(-1),k=0;for(var j=1;j<2*n;j++){var sj=s[j%n],i=f[j-k-1];while(i!==-1&&sj!==s[(k+i+1)%n]){if(sj<s[(k+i+1)%n])k=j-i-1;i=f[i];}if(i===-1&&sj!==s[(k+i+1)%n]){if(sj<s[(k+0)%n])k=j;f[j-k]=-1;}else f[j-k]=i+1;}return k;}
+function bruteK(s){var n=s.length,best=null,bk=0;for(var k=0;k<n;k++){var r=s.slice(k)+s.slice(0,k);if(best===null||r<best){best=r;bk=k;}}return bk;}
+function rot(s,k){return s.slice(k)+s.slice(0,k);}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(262),ok=true,al='abc';for(var t=0;t<500;t++){var len=1+Math.floor(rnd()*12),s='';for(var i=0;i<len;i++)s+=al[Math.floor(rnd()*3)];if(rot(s,least(s))!==rot(s,bruteK(s)))ok=false;}return {matchesBrute:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('all rotations of "bbaab"; the lexicographically smallest is the canonical form',12,14);
+ var rots=['bbaab','baabb','aabbb','abbba','bbbaa'],best=2;for(var i=0;i<5;i++){g.fillStyle=i===best?'#39fc6b':'#37506e';g.fillRect(60+i*84,50,74,26);g.fillStyle=i===best?'#042':'#9fd';g.font='12px monospace';g.fillText(rots[i],66+i*84,68);}
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('aabbb = the least rotation (green)',60,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);K=least(S);var n=S.length,cx=W/2,cy=120,r=70;
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('necklace "'+S+'" → least rotation "'+rot(S,K)+'"',12,20);
+ for(var i=0;i<n;i++){var a=i/n*6.28-1.57,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;g.fillStyle=i===K?'#39fc6b':'#58a0b0';g.beginPath();g.arc(x,y,13,0,7);g.fill();g.fillStyle=i===K?'#042':'#fff';g.font='12px monospace';g.fillText(S[i],x-4,y+4);}
+ var startA=K/n*6.28-1.57;g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+Math.cos(startA)*(r-16),cy+Math.sin(startA)*(r-16));g.stroke();
+ var ok=rot(S,K)===rot(S,bruteK(S));g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('Booth least rotation == brute minimum '+(ok?'✓':'✗'),12,H-10);}
+document.getElementById('lrroll').onclick=function(){var al='abc',len=4+Math.floor(Math.random()*4);S='';for(var i=0;i<len;i++)S+=al[Math.floor(Math.random()*3)];drawW4();document.getElementById('lrread').textContent='"'+S+'" → "'+rot(S,least(S))+'"';};
+document.getElementById('lrcheck').onclick=function(){var v=verify();document.getElementById('lrread').textContent='500 strings: Booth least rotation == brute '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('lrspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=S.length,cx=W/2,cy=H/2-20,r=85;K=least(S);
+ for(var i=0;i<n;i++){var a=(i-K)/n*6.28-1.57+ang*0.3,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8,ch=S[(K+i)%n];g.fillStyle='hsl('+(ch.charCodeAt(0)*40%360)+',60%,58%)';g.beginPath();g.arc(x,y,10,0,7);g.fill();g.fillStyle='#042';g.font='11px monospace';g.fillText(ch,x-4,y+4);if(i===0){g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.arc(x,y,14,0,7);g.stroke();g.lineWidth=1;}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green ring: the necklace read from its canonical start',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the O(n²) all-rotations comparison',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('one name for every rotation (canonical form)',10,H-9);}
+drawW3();drawW4();window.__leastrotation=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ATK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The sieve of Atkin</b> finds primes using <b>quadratic forms</b> instead of marking multiples. A number (with the small primes handled separately) is prime if it is a solution to one of three modular equations an <b>odd</b> number of times: 4x&sup2;+y&sup2; (for n mod 12 &isin; {1,5}), 3x&sup2;+y&sup2; (n mod 12 = 7), or 3x&sup2;&minus;y&sup2; with x&gt;y (n mod 12 = 11) &mdash; then the multiples of prime squares are removed. It is asymptotically faster than Eratosthenes.<br><br>
+ <span class="lit">LIT</span> verified live: the sieve of Atkin&rsquo;s prime list up to 5000 is <b>identical</b> to trial division (669 primes) &mdash; window.__atkin. <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>genesis-block</i> &mdash; the generation of the primes from scratch, here by counting solutions to quadratic forms rather than crossing off multiples. The sieve of Atkin is that generation. <b>AVAN (AI)</b> built the instrument: the three quadratic-form toggles by residue mod 12, the square-multiple removal, and the equals-trial-division check.<br><br>Credit as content: A. O. L. Atkin &amp; Daniel Bernstein (2004). The weave: David names genesis-block; I toggle candidates by the parity of their quadratic-form solution counts, strip prime-square multiples, and confirm the primes match trial division exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Toggle n whenever a quadratic form (4x&sup2;+y&sup2;, 3x&sup2;+y&sup2;, or 3x&sup2;&minus;y&sup2;) equals it, subject to n&rsquo;s residue mod 12. An <b>odd</b> number of hits marks a candidate; then remove multiples of prime squares.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The sieve of Atkin&rsquo;s primes up to a limit; the set is checked against trial division.</div>
+   <div class="btns" style="margin-top:10px"><button id="atlimit">limit ▶</button><button id="atcheck">verify ▶</button></div>
+   <div class="cap" id="atread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: primes found by quadratic forms.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): find primes by counting solutions to <b>quadratic forms</b> (mod 12) rather than crossing off multiples &mdash; an odd solution-count flags a candidate, then prime-square multiples are removed. The inverse of &lsquo;mark every multiple of every prime (Eratosthenes)&rsquo; is &lsquo;toggle by quadratic-form parity, then strip squares.&rsquo; <b>Magenta</b> is the multiple-marking of Eratosthenes; <b>green</b> is the quadratic-form sieve. Primes from parabolas, not multiples.</div>
+   <div class="btns" style="margin-top:10px"><button id="atspin">pause spin</button></div></div></div></div>"""
+ATK_SCRIPT = """(function(){
+var ang=0,spin=true,LIMIT=1000;
+function atkin(limit){var sieve=new Array(limit+1).fill(false);for(var x=1;x*x<=limit;x++)for(var y=1;y*y<=limit;y++){var n=4*x*x+y*y;if(n<=limit&&(n%12===1||n%12===5))sieve[n]=!sieve[n];n=3*x*x+y*y;if(n<=limit&&n%12===7)sieve[n]=!sieve[n];n=3*x*x-y*y;if(x>y&&n<=limit&&n%12===11)sieve[n]=!sieve[n];}for(var r=5;r*r<=limit;r++)if(sieve[r])for(var i=r*r;i<=limit;i+=r*r)sieve[i]=false;var p=[];if(limit>=2)p.push(2);if(limit>=3)p.push(3);for(var a=5;a<=limit;a++)if(sieve[a])p.push(a);return p;}
+function trial(limit){var p=[];for(var n=2;n<=limit;n++){var isP=true;for(var d=2;d*d<=n;d++)if(n%d===0){isP=false;break;}if(isP)p.push(n);}return p;}
+function verify(){var a=atkin(5000),tp=trial(5000);return {matchesTrial:a.join(',')===tp.join(','),count:a.length};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('toggle n by quadratic-form solution parity (mod 12), then strip squares',12,14);
+ var forms=['4x²+y²  (n mod 12 ∈ {1,5})','3x²+y²  (n mod 12 = 7)','3x²−y², x>y  (n mod 12 = 11)'];for(var i=0;i<3;i++){g.fillStyle=['#58a0b0','#c0a048','#a878c0'][i];g.font='11px monospace';g.fillText(forms[i],40,50+i*28);}
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('odd number of hits → prime candidate; remove multiples of squares',40,135);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var primes=atkin(LIMIT),pset=new Set(primes);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('primes up to '+LIMIT+': '+primes.length+' found',12,18);
+ var cols=Math.floor((W-24)/8),shown=Math.min(LIMIT,cols*28);for(var n=2;n<=shown;n++){var x=12+((n-2)%cols)*8,y=28+Math.floor((n-2)/cols)*8;g.fillStyle=pset.has(n)?'#39fc6b':'#2a3340';g.fillRect(x,y,6,6);}
+ var v=verify();g.fillStyle=v.matchesTrial?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('Atkin primes == trial division (669 up to 5000) '+(v.matchesTrial?'✓':'✗'),12,H-10);}
+document.getElementById('atlimit').onclick=function(){var opts=[500,1000,2000,5000];LIMIT=opts[Math.floor(Math.random()*opts.length)];drawW4();document.getElementById('atread').textContent=atkin(LIMIT).length+' primes up to '+LIMIT;};
+document.getElementById('atcheck').onclick=function(){var v=verify();document.getElementById('atread').textContent='up to 5000: Atkin == trial division ('+v.count+' primes) '+(v.matchesTrial?'✓':'✗');};
+document.getElementById('atspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var primes=atkin(600),cx=W/2,cy=H/2-10;
+ primes.forEach(function(p,i){var a=p*0.3+ang*0.2,r=20+Math.sqrt(p)*4.5;g.fillStyle='hsl('+(p%360)+',65%,58%)';g.beginPath();g.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r*0.8,2,0,7);g.fill();});
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green spiral: primes to 600 by quadratic-form sieving',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the multiple-marking of Eratosthenes',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('primes from parabolas, not multiples',10,H-9);}
+drawW3();drawW4();window.__atkin=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LCH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Li Chao tree</b> maintains a set of <b>lines</b> and answers &ldquo;which line is <b>lowest</b> at this x?&rdquo; in O(log) time &mdash; it stores the <b>lower envelope</b> of a pencil of lines. Each node owns the line that dominates the middle of its x-range; a new line either replaces it or is pushed to the half where it might win. It powers the <b>convex-hull trick</b> for speeding up dynamic programming, turning O(n<sup>2</sup>) DP transitions into O(n log n).<br><br>
+ <span class="lit">LIT</span> verified live: over 200 trees, the Li Chao query returns exactly the minimum of all inserted lines at each x, matching a brute-force scan (window.__lichao). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>split-screen</i> &mdash; the many lines drawn at once, of which only the lowest at each point is seen. The Li Chao tree keeps that lower envelope. <b>AVAN (AI)</b> built the instrument: the recursive dominate-the-midpoint insertion, the descend-to-the-winning-half push, the log-time query, and the brute-minimum cross-check.<br><br>Credit as content: Li Chao (the segment-tree-of-lines technique). The weave: David names split-screen; I insert each line so the node keeps whichever dominates its midpoint and pushes the other down, and confirm the query returns the true minimum line at every x.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Many lines; at each x only the <b>lowest</b> matters. Their lower envelope is a piecewise-linear convex curve. A Li Chao tree stores it so any x-query returns the winning line in O(log) time.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A set of lines and their lower envelope; query any x and compare the Li Chao result to a brute minimum.</div>
+   <div class="btns" style="margin-top:10px"><button id="lcroll">new lines ▶</button><button id="lccheck">verify 200 ▶</button></div>
+   <div class="cap" id="lcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the lower envelope of a pencil of lines.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): answer &ldquo;lowest line at x&rdquo; in <b>O(log)</b> by storing lines in a tree where each node keeps whichever <b>dominates its midpoint</b> and pushes the loser to the half it might still win. The inverse of &lsquo;scan every line at every query&rsquo; is &lsquo;keep the lower envelope in a tree &mdash; query in log time.&rsquo; <b>Magenta</b> is the linear scan per query avoided; <b>green</b> is the stored envelope. The minimum line, in log time.</div>
+   <div class="btns" style="margin-top:10px"><button id="lcspin">pause spin</button></div></div></div></div>"""
+LCH_SCRIPT = """(function(){
+var ang=0,spin=true,LINES=[],TREE=null;
+function LiChao(lo,hi){this.lo=lo;this.hi=hi;this.line=null;this.left=null;this.right=null;}
+LiChao.prototype.f=function(ln,x){return ln[0]*x+ln[1];};
+LiChao.prototype.add=function(nw){if(!this.line){this.line=nw;return;}var m=(this.lo+this.hi)>>1,lo=this.f(nw,this.lo)<this.f(this.line,this.lo),mid=this.f(nw,m)<this.f(this.line,m);if(mid){var t=this.line;this.line=nw;nw=t;}if(this.hi-this.lo<=1)return;if(lo!==mid){if(!this.left)this.left=new LiChao(this.lo,m);this.left.add(nw);}else{if(!this.right)this.right=new LiChao(m,this.hi);this.right.add(nw);}};
+LiChao.prototype.query=function(x){var r=this.line?this.f(this.line,x):Infinity,m=(this.lo+this.hi)>>1;if(x<m&&this.left)r=Math.min(r,this.left.query(x));else if(x>=m&&this.right)r=Math.min(r,this.right.query(x));return r;};
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(263),ok=true;for(var t=0;t<200;t++){var tree=new LiChao(0,1000),lines=[],nl=1+Math.floor(rnd()*12);for(var i=0;i<nl;i++){var ln=[Math.floor(rnd()*20-10),Math.floor(rnd()*200-100)];lines.push(ln);tree.add(ln.slice());}for(var q=0;q<20;q++){var x=Math.floor(rnd()*1000),got=tree.query(x),brute=Infinity;lines.forEach(function(ln){brute=Math.min(brute,ln[0]*x+ln[1]);});if(got!==brute)ok=false;}}return {matchesBrute:ok};}
+function mk(){LINES=[];TREE=new LiChao(0,384);var nl=4+Math.floor(Math.random()*4);for(var i=0;i<nl;i++){var ln=[Math.round((Math.random()*2-1)*10)/10,Math.random()*100+80];LINES.push(ln);TREE.add(ln.slice());}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('many lines; the lower envelope is their piecewise-linear minimum',12,14);
+ var lines=[[-0.15,90],[0.1,40],[0.35,20],[-0.05,70]];for(var i=0;i<lines.length;i++){g.strokeStyle='rgba(120,140,160,0.5)';g.beginPath();g.moveTo(30,140-(lines[i][0]*30+lines[i][1]));g.lineTo(480,140-(lines[i][0]*450+lines[i][1]));g.stroke();}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var px=30;px<=480;px+=4){var x=px-30,mn=1e9;lines.forEach(function(l){mn=Math.min(mn,l[0]*x+l[1]);});g.lineTo(px,140-mn);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('green = lower envelope',360,30);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!LINES.length)mk();
+ LINES.forEach(function(l){g.strokeStyle='rgba(120,140,160,0.4)';g.beginPath();g.moveTo(0,H-40-(l[0]*0+l[1])*1.2);g.lineTo(W,H-40-(l[0]*W+l[1])*1.2);g.stroke();});
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var x=0;x<W;x+=3){var y=TREE.query(x);g.lineTo(x,H-40-y*1.2);}g.stroke();g.lineWidth=1;
+ var v=verify();g.fillStyle=v.matchesBrute?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText(LINES.length+' lines · query == brute min (200 trees) '+(v.matchesBrute?'✓':'✗'),12,H-12);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('green = Li Chao lower envelope',12,18);}
+document.getElementById('lcroll').onclick=function(){mk();drawW4();document.getElementById('lcread').textContent=LINES.length+' lines in the tree';};
+document.getElementById('lccheck').onclick=function(){var v=verify();document.getElementById('lcread').textContent='200 trees: query min == brute min '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('lcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!LINES.length)mk();var cx=W/2,cy=H/2-10;
+ LINES.forEach(function(l,i){var a=ang*0.2+i*0.3;g.strokeStyle='rgba(120,140,160,0.3)';g.beginPath();g.moveTo(cx-140,cy-(l[0]*(-140)+l[1]-140)*0.6);g.lineTo(cx+140,cy-(l[0]*140+l[1]-140)*0.6);g.stroke();});
+ g.strokeStyle='#39fc6b';g.lineWidth=2.5;g.beginPath();for(var x=-140;x<=140;x+=4){var q=TREE.query(x+192);g.lineTo(cx+x,cy-(q-140)*0.6+12*Math.sin(ang+x*0.02));}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the lower envelope of a pencil of lines',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the linear scan per query avoided',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the minimum line, in log time',10,H-9);}
+mk();drawW3();drawW4();window.__lichao=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 81 (a curve that folds forever without crossing · order dissolving into chaos by doubling · assign by highest random weight · split a matrix into triangles · a smooth curve that bends just enough) ═══════════════════════
 DRG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The dragon curve</b> is the shape you get by folding a strip of paper in half, again and again, then unfolding every crease to a right angle. Its turn sequence is the <b>regular paperfolding sequence</b>: at step n, turn left if the odd part of n is &equiv;1 (mod 4), else right. Astonishingly, though it packs into a fractal that <b>tiles the plane</b>, the curve <b>never crosses itself</b> &mdash; every unit segment is traversed at most once. It is a classic of computer graphics and number theory alike.<br><br>
@@ -22515,6 +22746,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-2-sat","title":"THE 2-SAT","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#58a0b0","icon":"2-sat",
+  "kicker":"satisfy two-literal clauses in linear time",
+  "blurb":"2-SAT in the 5-window house format — decide whether clauses, each an OR of two literals, can all be satisfied, in linear time (unlike NP-complete general SAT). Each clause (a OR b) becomes two implications, not-a -> b and not-b -> a, forming a graph; the formula is satisfiable iff no variable and its negation land in the same strongly connected component, and a valid assignment is read from the component order. Verified live: over 300 random instances, the SCC-based verdict matches a brute-force check of all 2^n assignments, and the extracted assignment satisfies every clause. See the implication in 1D, a formula in 2D, and the reachability inverse in 3D.",
+  "lit":"Genuine linear-time 2-SAT (Aspvall, Plass & Tarjan 1979). Verified live: over 300 random instances, building the implication graph and condensing it with Tarjan SCC gives a satisfiability verdict identical to a brute-force check of all 2^n assignments, and the extracted assignment (by component order) satisfies every clause (window.__twosat.matchesBrute).",
+  "fig":"No framing: the implication graph, the Tarjan SCC condensation, the same-component test, the component-order assignment, and the brute cross-check run in-browser and agree exactly. The AVAN inverse is honest — turning each clause into two implications and asking whether any variable and its negation share an SCC decides satisfiability in linear time; magenta is the 2^n assignment search avoided, green the implication graph. Constraints solved by reachability.",
+  "body":SAT_BODY,"script":SAT_SCRIPT},
+ {"slug":"the-gershgorin","title":"THE GERSHGORIN","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#c0a048","icon":"gershgorin",
+  "kicker":"trap every eigenvalue in a disc, without solving",
+  "blurb":"Gershgorin's circle theorem in the 5-window house format — pin down where a matrix's eigenvalues can be without computing them: every eigenvalue lies within at least one Gershgorin disc, centered at a diagonal entry a_ii with radius equal to the sum of the absolute off-diagonal entries in that row. A few cheap sums bound the whole spectrum, invaluable for stability analysis and preconditioning. Verified live: over 300 random symmetric matrices, every (Jacobi-computed) eigenvalue falls inside a Gershgorin disc, and the eigenvalues sum to the trace. See a row-disc in 1D, discs on the line in 2D, and the localize-by-rows inverse in 3D.",
+  "lit":"Genuine Gershgorin circle theorem (Gershgorin 1931). Verified live: over 300 random symmetric matrices, every eigenvalue (computed independently by a Jacobi eigensolver) lies within a Gershgorin disc (center a_ii, radius sum of off-diagonal magnitudes), and the eigenvalues sum to the trace as a sanity check (window.__gershgorin.allInDisc && .sumEqualsTrace).",
+  "fig":"No framing: the row-radius discs, an independent Jacobi eigensolver, the every-eigenvalue-in-a-disc check, and the sum-equals-trace check run in-browser and hold. The AVAN inverse is honest — each row draws a disc (diagonal +/- off-diagonal sum) and every eigenvalue must lie in the union, bounding the spectrum with no eigen-solve; magenta is the full solve you can skip for a bound, green the row-disc that traps them. Localizing eigenvalues by rows.",
+  "body":GSH_BODY,"script":GSH_SCRIPT},
+ {"slug":"the-least-rotation","title":"THE LEAST ROTATION","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#a878c0","icon":"least-rotation",
+  "kicker":"the canonical rotation of a necklace, in O(n)",
+  "blurb":"Booth's least-rotation algorithm in the 5-window house format — find the lexicographically smallest rotation of a string in linear time, the canonical form of a necklace where all rotations are equivalent. Instead of trying every rotation (O(n^2)), it runs a KMP-style failure-function scan over the doubled string, sliding a candidate start and jumping past mismatches. It is how you canonicalize cyclic sequences (circular DNA, polygon encodings, necklace enumeration). Verified live: over 500 random strings, Booth's rotation index gives the exact same rotation as a brute-force minimum over all rotations. See the necklace rotations in 1D, a canonical form in 2D, and the one-name inverse in 3D.",
+  "lit":"Genuine Booth least-rotation algorithm (Booth 1980). Verified live: over 500 random strings, the doubled-string failure-function scan returns a rotation index whose rotation equals the brute-force lexicographically-minimum rotation over all n rotations (window.__leastrotation.matchesBrute); 'bbaab' -> 'aabbb'.",
+  "fig":"No framing: the doubled-string failure scan, the candidate-start slide, and the brute-minimum cross-check run in-browser and agree exactly. The AVAN inverse is honest — a KMP-style pass over the doubled string finds the least rotation in linear time, giving a cyclic sequence one canonical form; magenta is the O(n^2) all-rotations comparison, green the single canonical key. One name for every rotation.",
+  "body":LRT_BODY,"script":LRT_SCRIPT},
+ {"slug":"the-sieve-of-atkin","title":"THE SIEVE OF ATKIN","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#70a860","icon":"sieve-of-atkin",
+  "kicker":"primes from quadratic forms, not multiples",
+  "blurb":"the sieve of Atkin in the 5-window house format — find primes using quadratic forms instead of marking multiples. A number (with small primes handled separately) is prime if it solves one of three modular equations an odd number of times: 4x^2+y^2 (n mod 12 in {1,5}), 3x^2+y^2 (n mod 12 = 7), or 3x^2-y^2 with x>y (n mod 12 = 11), then multiples of prime squares are removed. It is asymptotically faster than Eratosthenes. Verified live: the sieve of Atkin's prime list up to 5000 is identical to trial division (669 primes). See the quadratic forms in 1D, a prime grid in 2D, and the parabola-sieve inverse in 3D.",
+  "lit":"Genuine sieve of Atkin (Atkin & Bernstein 2004). Verified live: toggling candidates by the parity of their quadratic-form solution counts (mod 12) and removing multiples of prime squares produces exactly the same primes up to 5000 as trial division (669 primes) — window.__atkin.matchesTrial.",
+  "fig":"No framing: the three quadratic-form toggles by residue mod 12, the square-multiple removal, and the equals-trial-division check run in-browser and match exactly. The AVAN inverse is honest — counting solutions to quadratic forms (odd count flags a candidate) then stripping prime-square multiples finds primes without marking every multiple; magenta is the multiple-marking of Eratosthenes, green the quadratic-form sieve. Primes from parabolas, not multiples.",
+  "body":ATK_BODY,"script":ATK_SCRIPT},
+ {"slug":"the-li-chao","title":"THE LI CHAO TREE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#d4a017","icon":"li-chao",
+  "kicker":"the lowest line at any x, in log time",
+  "blurb":"the Li Chao tree in the 5-window house format — maintain a set of lines and answer 'which line is lowest at this x?' in O(log) time, storing the lower envelope of a pencil of lines. Each node owns the line that dominates the middle of its x-range; a new line either replaces it or is pushed to the half where it might win. It powers the convex-hull trick for speeding up dynamic programming, turning O(n^2) DP transitions into O(n log n). Verified live: over 200 trees, the Li Chao query returns exactly the minimum of all inserted lines at each x, matching a brute-force scan. See the lower envelope in 1D, a query in 2D, and the stored-envelope inverse in 3D.",
+  "lit":"Genuine Li Chao tree (the segment-tree-of-lines technique). Verified live: over 200 trees with random lines and queries, the recursive dominate-the-midpoint insertion and log-time query return exactly the minimum of all inserted lines at each x, matching a brute-force scan (window.__lichao.matchesBrute).",
+  "fig":"No framing: the recursive dominate-the-midpoint insertion, the descend-to-the-winning-half push, the log-time query, and the brute-minimum cross-check run in-browser and agree exactly. The AVAN inverse is honest — keeping at each node whichever line dominates its midpoint and pushing the loser to the half it might still win stores the lower envelope for O(log) queries; magenta is the linear scan per query avoided, green the stored envelope. The minimum line, in log time.",
+  "body":LCH_BODY,"script":LCH_SCRIPT},
  {"slug":"the-dragon-curve","title":"THE DRAGON CURVE","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#70a860","icon":"dragon-curve",
   "kicker":"a fold that fills space and never crosses itself",
