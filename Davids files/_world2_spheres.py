@@ -19485,6 +19485,259 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 101 (a sign that flips by the parity of prime factors · when a list of degrees can be a real graph · which numbers are sums of three squares · counting partitions into ordered lists · counting the ways to rank things with ties) ═══════════════════════
+LIOU_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Liouville function</b> &lambda;(n) = (&minus;1)<sup>&Omega;(n)</sup>, where &Omega;(n) counts the prime factors of n <b>with multiplicity</b>. It is +1 when n has an even number of prime factors, &minus;1 when odd. Its most beautiful property is a divisor identity: <b>&Sigma;<sub>d|n</sub> &lambda;(d) = 1 if n is a perfect square, and 0 otherwise</b> &mdash; the sum over divisors is a flawless square-detector. Its running total L(n) = &lambda;(1) + &hellip; + &lambda;(n) drives <b>P&oacute;lya&rsquo;s conjecture</b> (L(n) &le; 0 for all n &ge; 2), which is true for hundreds of millions of terms yet ultimately <b>false</b>.<br><br>
+ <span class="lit">LIT</span> verified live: &Sigma;<sub>d|n</sub>&lambda;(d) equals 1 exactly on perfect squares (n up to 2000), &lambda; is multiplicative on coprime pairs, and L(n) &le; 0 holds for 2 &le; n &le; 600 (window.__liouville). <span class="fig">FIG</span> honest: P&oacute;lya&rsquo;s conjecture holds in this range but is <b>known false</b> &mdash; the first counterexample is n = 906150257.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>undefined-behavior</i> &mdash; the same dark corner as Mertens: a running sign-sum that looks safely one-signed for every n you can reach, then flips far beyond sight. That deferred flip is the undefined behavior. <b>AVAN (AI)</b> built the instrument: the &Omega;-parity sign, the divisor-sum square-detector, the multiplicativity check, and the P&oacute;lya sum over the honest range.<br><br>Credit as content: Joseph Liouville (the function, mid-1800s); the summatory conjecture by George P&oacute;lya (1919), disproved by C.&nbsp;B.&nbsp;Haselgrove (1958), least counterexample later pinned to n = 906150257. The weave: David names undefined-behavior; I sign each n by the parity of its prime-factor count, confirm the divisor sum detects squares exactly, and check P&oacute;lya&rsquo;s bound over the reachable range &mdash; flagging plainly that it fails far out.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">&lambda;(n) = (&minus;1)<sup>&Omega;(n)</sup>: &lambda;(12) = &minus;1 (12 = 2&middot;2&middot;3, &Omega;=3), &lambda;(16) = +1 (&Omega;=4). &Sigma;<sub>d|9</sub>&lambda;(d) = &lambda;(1)+&lambda;(3)+&lambda;(9) = 1&minus;1+1 = 1 (9 is a square).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">&lambda;(n) as a walk and the divisor-sum square-detector; the identity and P&oacute;lya&rsquo;s bound checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="livroll">zoom ▶</button><button id="livcheck">verify ▶</button></div>
+   <div class="cap" id="livread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a sign that sums to a square-detector.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): sign every integer by the <b>parity of its prime-factor count</b>, and the divisor-sum turns into a perfect <b>square detector</b> &mdash; while the running total hides a conjecture true for ages then false. The inverse of &lsquo;a bound true for every computed n is true&rsquo; is &lsquo;it can hold past 10<sup>8</sup> and still fail.&rsquo; <b>Magenta</b> is &ldquo;one-signed as far as tested&rdquo;; <b>green</b> is the Liouville sum that eventually breaks P&oacute;lya. Evidence is not proof.</div>
+   <div class="btns" style="margin-top:10px"><button id="livspin">pause spin</button></div></div></div></div>"""
+LIOU_SCRIPT = """(function(){
+var ang=0,spin=true,ZOOM=0,LAM=null,DS=null,VR=null;
+function build(){if(LAM)return;var N=2000;LAM=new Array(N+1).fill(1);var spf=new Array(N+1).fill(0);for(var i=2;i<=N;i++)if(!spf[i])for(var j=i;j<=N;j+=i)if(!spf[j])spf[j]=i;
+ for(var n=2;n<=N;n++){var m=n,c=0;while(m>1){var p=spf[m];while(m%p===0){m/=p;c++;}}LAM[n]=(c%2===0)?1:-1;}
+ DS=new Array(N+1).fill(0);for(var d=1;d<=N;d++)for(var m=d;m<=N;m+=d)DS[m]+=LAM[d];}
+function verify(){if(VR)return VR;build();var N=2000,idOk=true,polya=true;for(var n=1;n<=N;n++){var sq=(Math.round(Math.sqrt(n))*Math.round(Math.sqrt(n))===n)?1:0;if(DS[n]!==sq)idOk=false;}
+ function gcd(a,b){while(b){var x=a%b;a=b;b=x;}return a;}var seed=11;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var mult=true;for(var t=0;t<500;t++){var a=2+Math.floor(rnd()*900),b=2+Math.floor(rnd()*900);if(a<=2000&&b<=2000&&a*b<=2000&&gcd(a,b)===1)if(LAM[a*b]!==LAM[a]*LAM[b])mult=false;}
+ var L=0;for(var n=1;n<=600;n++){L+=LAM[n];if(n>=2&&L>0)polya=false;}
+ VR={divisorSum:idOk,multiplicative:mult,polya:polya};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);build();g.fillStyle='#8ad';g.font='10px monospace';g.fillText('λ(n) = (−1)^Ω(n): sign by the parity of the prime-factor count (with multiplicity)',12,14);
+ g.fillStyle='#c060a0';g.font='12px monospace';g.fillText('λ(12) = −1  (12 = 2·2·3, Ω=3)      λ(16) = +1  (Ω=4)',24,46);
+ g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('Σ_{d|9} λ(d) = λ(1)+λ(3)+λ(9) = 1−1+1 = 1   (9 is a square)',24,78);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('Σ_{d|8} λ(d) = 1−1+1−1 = 0   (8 is not a square)',24,106);
+ g.fillStyle='#c060a0';g.font='9px monospace';g.fillText('the divisor-sum of λ is a perfect-square detector: 1 on squares, 0 elsewhere',24,136);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);build();var hi=[200,800,2000][ZOOM],mid=70,L=0;
+ g.strokeStyle='#345';g.beginPath();g.moveTo(20,mid);g.lineTo(W-10,mid);g.stroke();
+ g.strokeStyle='#c060a0';g.beginPath();for(var n=1;n<=hi;n++){L+=LAM[n];var x=20+n/hi*(W-30),y=mid-L*(ZOOM===0?1.4:(ZOOM===1?0.6:0.28));if(n===1)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('L(n) = Σ λ(k), n ≤ '+hi+'  (stays ≤ 0 here — Pólya)',20,20);
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('green square-ticks below: n where Σ_{d|n}λ(d)=1 (perfect squares)',20,H-40);
+ for(var k=1;k*k<=hi;k++){var x=20+(k*k)/hi*(W-30);g.fillStyle='#39fc6b';g.fillRect(x-1,H-34,2,8);}
+ var v=verify();g.fillStyle=(v.divisorSum&&v.multiplicative&&v.polya)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('Σλ(d)=[square] '+(v.divisorSum?'✓':'✗')+' · multiplicative '+(v.multiplicative?'✓':'✗')+' · Pólya L≤0 (n≤600) '+(v.polya?'✓':'✗'),14,H-10);}
+document.getElementById('livroll').onclick=function(){ZOOM=(ZOOM+1)%3;drawW4();document.getElementById('livread').textContent='zoom '+ZOOM;};
+document.getElementById('livcheck').onclick=function(){var v=verify();document.getElementById('livread').textContent='Σ_{d|n}λ(d)=[n square] '+(v.divisorSum?'✓':'✗')+' · λ multiplicative '+(v.multiplicative?'✓':'✗')+' · Pólya L(n)≤0 for 2≤n≤600 '+(v.polya?'✓':'✗')+' (but FALSE at n=906150257)';};
+document.getElementById('livspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);build();var cx=W/2,cy=H/2-10;
+ for(var n=1;n<420;n++){var a=n*0.11+ang*0.2,r=36+n*0.16;var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.85;var sq=Math.round(Math.sqrt(n))*Math.round(Math.sqrt(n))===n;g.fillStyle=sq?'#39fc6b':(LAM[n]>0?'#7ad0b0':'#c060a0');g.beginPath();g.arc(x,y,sq?3.5:1.6,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green dots: perfect squares (where Σ_{d|n}λ(d)=1)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: one-signed as far as tested = one-signed',10,H-24);
+ g.fillStyle='#8ad';g.fillText('evidence is not proof (Pólya fails at 906150257)',10,H-9);}
+drawW3();drawW4();window.__liouville=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+EGAL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Erd&#337;s&ndash;Gallai theorem</b> decides whether a list of numbers can be the <b>degrees of a real simple graph</b>. A non-increasing sequence d<sub>1</sub> &ge; &hellip; &ge; d<sub>n</sub> is <b>graphical</b> if and only if its sum is even and, <b>for every k</b>, &Sigma;<sub>i&le;k</sub> d<sub>i</sub> &le; k(k&minus;1) + &Sigma;<sub>i&gt;k</sub> min(d<sub>i</sub>, k). The left side is the demand of the top k vertices; the right side is the most those edges can be absorbed &mdash; k(k&minus;1) among themselves plus what the rest can accept. It is the exact companion to the Havel&ndash;Hakimi reduction, reached by a completely different route.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of random sequences the Erd&#337;s&ndash;Gallai verdict matches the independent Havel&ndash;Hakimi reduction, and whenever a sequence is graphical a simple graph is <b>constructed</b> that realizes exactly those degrees (window.__erdosgallai). <span class="fig">FIG</span> no framing; two independent criteria and an explicit realization.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-pull-request</i> &mdash; a proposed list of degrees is submitted; the theorem reviews it and either merges it into a real graph or rejects it as unrealizable. That review-and-merge is the pull request. <b>AVAN (AI)</b> built the instrument: the k-by-k Erd&#337;s&ndash;Gallai inequalities, the independent Havel&ndash;Hakimi reduction, and the constructive realization that recovers the degrees.<br><br>Credit as content: Paul Erd&#337;s &amp; Tibor Gallai (1960); the companion reduction by V&aacute;clav Havel (1955) &amp; S.&nbsp;L.&nbsp;Hakimi (1962). The weave: David names the-pull-request; I test the even-sum and the k-inequalities, confirm the verdict against Havel&ndash;Hakimi, and when a sequence passes I build a graph that actually has those degrees.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">[3,3,3,3] is graphical (the 4-cycle plus diagonals, K&#8324;). [3,3,1,1] is not: the two degree-3 vertices must connect to everyone, forcing the last two to degree 2, not 1.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A degree sequence, the k-inequalities, and a realizing graph when one exists; the verdict cross-checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="egroll">new sequence ▶</button><button id="eggraph">a graphical one ▶</button><button id="egcheck">verify ▶</button></div>
+   <div class="cap" id="egread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a list of degrees that becomes a graph.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): go <b>backward</b> from a wish-list of vertex degrees to a graph that has them &mdash; or a proof that none can. The inverse of &lsquo;count the degrees of a graph&rsquo; is &lsquo;given the degrees, is there a graph, and build it.&rsquo; <b>Magenta</b> is an unrealizable sequence (some inequality fails); <b>green</b> is a graphical one, drawn as a real graph. Degrees back into a graph.</div>
+   <div class="btns" style="margin-top:10px"><button id="egspin">pause spin</button></div></div></div></div>"""
+EGAL_SCRIPT = """(function(){
+var ang=0,spin=true,SEQ=[3,3,3,3],ADJ=null,VR=null;
+function erdosGallai(seq){var d=seq.slice().sort(function(a,b){return b-a;}),n=d.length,sum=0;for(var i=0;i<n;i++)sum+=d[i];if(sum%2!==0)return false;var pre=[0];for(var i=0;i<n;i++)pre.push(pre[i]+d[i]);for(var k=1;k<=n;k++){var lhs=pre[k],rhs=k*(k-1);for(var i=k;i<n;i++)rhs+=Math.min(d[i],k);if(lhs>rhs)return false;}return true;}
+function havelHakimi(seq){var d=seq.slice();while(true){d.sort(function(a,b){return b-a;});if(d[0]===0)return true;var D=d.shift();if(D>d.length)return false;for(var i=0;i<D;i++){d[i]--;if(d[i]<0)return false;}}}
+function realize(seq){var n=seq.length,nodes=[];for(var i=0;i<n;i++)nodes.push({id:i,deg:seq[i]});var adj=[];for(var i=0;i<n;i++)adj.push({});
+ while(true){nodes.sort(function(a,b){return b.deg-a.deg;});if(nodes[0].deg===0)break;var v=nodes[0],D=v.deg;if(D>nodes.length-1)return null;v.deg=0;for(var i=1;i<=D;i++){if(nodes[i].deg<=0)return null;if(adj[v.id][nodes[i].id])return null;adj[v.id][nodes[i].id]=1;adj[nodes[i].id][v.id]=1;nodes[i].deg--;}}return adj;}
+function verify(){if(VR)return VR;var seed=22;function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var agree=true,realOk=true;for(var t=0;t<3000;t++){var n=2+Math.floor(rnd()*9),seq=[];for(var i=0;i<n;i++)seq.push(Math.floor(rnd()*n));var eg=erdosGallai(seq),hh=havelHakimi(seq);if(eg!==hh)agree=false;if(eg){var adj=realize(seq);if(!adj){realOk=false;}else{var got=[];for(var i=0;i<n;i++)got.push(Object.keys(adj[i]).length);got.sort(function(a,b){return a-b;});var ds=seq.slice().sort(function(a,b){return a-b;});if(got.join(',')!==ds.join(','))realOk=false;}}}VR={agree:agree,realizes:realOk};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('graphical ⇔ even sum & for every k: Σ_{i≤k} d_i ≤ k(k−1) + Σ_{i>k} min(d_i,k)',12,14);
+ g.fillStyle='#5ab0c0';g.font='12px monospace';g.fillText('[3,3,3,3] → K₄ (graphical ✓)',30,50);
+ g.fillStyle='#ff7a7a';g.fillText('[3,3,1,1] → not graphical ✗',30,80);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('two degree-3 vertices connect to all others → the last two forced to degree 2, not 1',30,110);
+ g.fillStyle='#39fc6b';g.fillText('the k-inequalities pass for all k exactly when a realizing graph exists',30,136);}
+function drawGraph(g,adj,seq,ox,oy,R){var n=seq.length,pos=[];for(var i=0;i<n;i++){var a=i/n*6.28-1.57;pos.push([ox+Math.cos(a)*R,oy+Math.sin(a)*R]);}
+ if(adj){g.strokeStyle='#5ab0c0';for(var i=0;i<n;i++)for(var j in adj[i])if(+j>i){g.beginPath();g.moveTo(pos[i][0],pos[i][1]);g.lineTo(pos[+j][0],pos[+j][1]);g.stroke();}}
+ for(var i=0;i<n;i++){g.fillStyle=adj?'#39fc6b':'#c05a80';g.beginPath();g.arc(pos[i][0],pos[i][1],7,0,7);g.fill();g.fillStyle='#021';g.font='9px monospace';g.fillText(seq[i],pos[i][0]-3,pos[i][1]+3);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var eg=erdosGallai(SEQ),hh=havelHakimi(SEQ);ADJ=eg?realize(SEQ):null;
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('degrees: ['+SEQ.slice().sort(function(a,b){return b-a;}).join(',')+']',14,22);
+ g.fillStyle=eg?'#39fc6b':'#c05a80';g.font='12px monospace';g.fillText(eg?'GRAPHICAL ✓':'not graphical ✗',14,44);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('Erdős–Gallai '+(eg?'pass':'fail')+' · Havel–Hakimi '+(hh?'pass':'fail')+(eg===hh?' (agree)':' (DISAGREE)'),14,62);
+ drawGraph(g,ADJ,SEQ.slice().sort(function(a,b){return b-a;}),W/2,175,80);
+ var v=verify();g.fillStyle=(v.agree&&v.realizes)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('EG==HH & realization matches degrees (3000 seqs) '+((v.agree&&v.realizes)?'✓':'✗'),14,H-10);}
+document.getElementById('egroll').onclick=function(){var n=3+Math.floor(Math.random()*5);SEQ=[];for(var i=0;i<n;i++)SEQ.push(Math.floor(Math.random()*n));drawW4();document.getElementById('egread').textContent='['+SEQ.join(',')+'] → '+(erdosGallai(SEQ)?'graphical':'not graphical');};
+document.getElementById('eggraph').onclick=function(){var n=3+Math.floor(Math.random()*5),seq;do{seq=[];for(var i=0;i<n;i++)seq.push(Math.floor(Math.random()*n));}while(!erdosGallai(seq));SEQ=seq;drawW4();document.getElementById('egread').textContent='['+SEQ.join(',')+'] is graphical — realized as a simple graph';};
+document.getElementById('egcheck').onclick=function(){var v=verify();document.getElementById('egread').textContent='3000 sequences: Erdős–Gallai == Havel–Hakimi '+(v.agree?'✓':'✗')+' · realization has exactly the given degrees '+(v.realizes?'✓':'✗');};
+document.getElementById('egspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var eg=erdosGallai(SEQ),adj=eg?realize(SEQ):null,sq=SEQ.slice().sort(function(a,b){return b-a;});
+ g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.2);g.translate(-W/2,-(H/2-10));drawGraph(g,adj,sq,W/2,H/2-10,110);g.restore();
+ g.fillStyle=eg?'#39fc6b':'#c05a80';g.font='11px monospace';g.fillText(eg?'green: a realizing graph (degrees on nodes)':'magenta: unrealizable degree sequence',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: degrees with no possible graph',10,H-24);
+ g.fillStyle='#8ad';g.fillText('degrees back into a graph',10,H-9);}
+drawW3();drawW4();window.__erdosgallai=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+THREE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Legendre&rsquo;s three-square theorem</b> pins down exactly which numbers are a sum of three squares. A non-negative integer n is expressible as <b>a<sup>2</sup> + b<sup>2</sup> + c<sup>2</sup></b> <b>if and only if</b> n is <b>not</b> of the form <b>4<sup>a</sup>(8b + 7)</b>. So 7 fails (it is 8&middot;0+7), 28 = 4&middot;7 fails, 15 fails &mdash; but every other number, from 6 = 1+1+4 to 30 = 1+4+25, works. It is the sharp companion to Lagrange&rsquo;s four-square theorem (four squares always suffice): three squares suffice for all but a thin, precisely-described family.<br><br>
+ <span class="lit">LIT</span> verified live: an exhaustive search for a<sup>2</sup>+b<sup>2</sup>+c<sup>2</sup> = n agrees with the arithmetic test &ldquo;n is not 4<sup>a</sup>(8b+7)&rdquo; for every n up to 3000 (window.__threesquares). <span class="fig">FIG</span> no framing; brute-force representability vs the closed-form forbidden set.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-choke-point</i> &mdash; almost every number passes as a sum of three squares; only the thin channel 4<sup>a</sup>(8b+7) is blocked. That forbidden channel is the choke point. <b>AVAN (AI)</b> built the instrument: the exhaustive three-square search, the 4<sup>a</sup>(8b+7) forbidden-form test, and their exact agreement.<br><br>Credit as content: Adrien-Marie Legendre (1797&ndash;1798); Carl Friedrich Gauss gave a deeper count. The weave: David names the-choke-point; I try every a, b, c for each n, and confirm the successes are exactly the numbers that are not 4<sup>a</sup>(8b+7) &mdash; a sharp line between the representable and the blocked.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">6 = 1+1+4, 30 = 1+4+25 &mdash; fine. Forbidden: 7 = 8&middot;0+7, 15 = 8&middot;1+7, 28 = 4&middot;7, 60 = 4&middot;15, 112 = 16&middot;7. Everything not of the form 4<sup>a</sup>(8b+7) is a sum of three squares.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A number, a three-square representation if one exists, and the forbidden-form test; the agreement checked to 3000.</div>
+   <div class="btns" style="margin-top:10px"><button id="throll">new number ▶</button><button id="thforbid">a forbidden one ▶</button><button id="thcheck">verify ▶</button></div>
+   <div class="cap" id="thread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: three squares for almost every number.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): instead of searching every triple to test one number, <b>name the exception set directly</b> &mdash; a number needs a fourth square exactly when it is 4<sup>a</sup>(8b+7). The inverse of &lsquo;search for a,b,c&rsquo; is &lsquo;a single arithmetic test decides representability.&rsquo; <b>Magenta</b> is a forbidden 4<sup>a</sup>(8b+7) number; <b>green</b> is a number shown as three squares. The blocked, named exactly.</div>
+   <div class="btns" style="margin-top:10px"><button id="thspin">pause spin</button></div></div></div></div>"""
+THREE_SCRIPT = """(function(){
+var ang=0,spin=true,N=30,VR=null;
+function rep3(n){for(var a=0;a*a<=n;a++)for(var b=a;a*a+b*b<=n;b++){var r=n-a*a-b*b,c=Math.round(Math.sqrt(r));if(c*c===r)return [a,b,c];}return null;}
+function forbidden(n){if(n===0)return false;while(n%4===0)n/=4;return n%8===7;}
+function verify(){if(VR)return VR;var ok=true;for(var n=1;n<=3000;n++){var d=!!rep3(n),f=!forbidden(n);if(d!==f){ok=false;break;}}VR={matches:ok};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('n = a² + b² + c²  ⇔  n is NOT of the form 4^a·(8b+7)',12,14);
+ g.fillStyle='#b0a040';g.font='12px monospace';g.fillText('6 = 1+1+4    30 = 1+4+25    ✓ (representable)',26,48);
+ g.fillStyle='#ff7a7a';g.fillText('forbidden: 7, 15, 28=4·7, 60=4·15, 112=16·7',26,80);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('7 = 8·0+7, 15 = 8·1+7 → in the blocked family; these need a 4th square',26,110);
+ g.fillStyle='#39fc6b';g.fillText('four squares always suffice (Lagrange); three suffice except on 4^a(8b+7)',26,136);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=rep3(N),f=forbidden(N);
+ g.fillStyle='#e8eef8';g.font='16px monospace';g.fillText('n = '+N,16,32);
+ if(r){g.fillStyle='#b0a040';g.font='15px monospace';g.fillText(N+' = '+r[0]+'² + '+r[1]+'² + '+r[2]+'²',16,68);g.fillStyle='#8ad';g.font='11px monospace';g.fillText('= '+(r[0]*r[0])+' + '+(r[1]*r[1])+' + '+(r[2]*r[2]),16,92);g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('sum of three squares ✓',16,120);}
+ else{g.fillStyle='#c05a80';g.font='14px monospace';g.fillText('no three-square representation',16,68);var m=N;var pw=0;while(m%4===0){m/=4;pw++;}g.fillStyle='#8ad';g.font='11px monospace';g.fillText(N+' = 4^'+pw+'·'+m+',  '+m+' ≡ 7 (mod 8) → forbidden',16,96);}
+ g.fillStyle=f?'#c05a80':'#39fc6b';g.font='10px monospace';g.fillText('forbidden-form test: '+(f?'4^a(8b+7) → blocked':'not 4^a(8b+7) → representable'),16,146);
+ var v=verify();g.fillStyle=v.matches?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('search == forbidden-form test for all n ≤ 3000 '+(v.matches?'✓':'✗'),14,H-10);}
+document.getElementById('throll').onclick=function(){N=1+Math.floor(Math.random()*500);drawW4();document.getElementById('thread').textContent='n='+N+' → '+(rep3(N)?'sum of three squares':'forbidden (needs 4 squares)');};
+document.getElementById('thforbid').onclick=function(){var f=[7,15,23,28,31,39,47,60,71,79,87,92,112,124];N=f[Math.floor(Math.random()*f.length)];drawW4();document.getElementById('thread').textContent=N+' is of the form 4^a(8b+7) — not a sum of three squares';};
+document.getElementById('thcheck').onclick=function(){var v=verify();document.getElementById('thread').textContent='exhaustive three-square search == "not 4^a(8b+7)" for every n ≤ 3000 '+(v.matches?'✓':'✗');};
+document.getElementById('thspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10;
+ for(var n=1;n<300;n++){var a=n*0.13+ang*0.2,r=34+n*0.24,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.85,f=forbidden(n);g.fillStyle=f?'#c05a80':'#b0a040';g.beginPath();g.arc(x,y,f?3.2:1.7,0,7);g.fill();}
+ g.fillStyle='#c05a80';g.font='11px monospace';g.fillText('magenta dots: forbidden 4^a(8b+7) (need a fourth square)',10,H-40);
+ g.fillStyle='#b0a040';g.font='10px monospace';g.fillText('gold: the sums of three squares (almost everything)',10,H-24);
+ g.fillStyle='#8ad';g.fillText('the blocked, named exactly',10,H-9);}
+drawW3();drawW4();window.__threesquares=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LAH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Lah numbers</b> L(n, k) count the ways to sort n labelled items into <b>k non-empty ordered lists</b> &mdash; where, unlike set partitions, the <b>order within each list matters</b>. They have a clean closed form, <b>L(n, k) = C(n&minus;1, k&minus;1) &middot; n! / k!</b>, and a recurrence L(n, k) = L(n&minus;1, k&minus;1) + (n + k &minus; 1) L(n&minus;1, k). They are the exact coefficients that convert between the two great factorial bases: the <b>rising factorial</b> equals a Lah-weighted sum of <b>falling factorials</b>, x<sup>(n&#773;)</sup> = &Sigma;<sub>k</sub> L(n, k) x<sup>(k&#818;)</sup>.<br><br>
+ <span class="lit">LIT</span> verified live (exact BigInt): the closed form equals the recurrence for all n up to 12, and the basis-change identity x<sup>(n rising)</sup> = &Sigma;<sub>k</sub> L(n,k) x<sup>(k falling)</sup> holds for integer x (window.__lah). <span class="fig">FIG</span> no framing; exact big-integer combinatorics and polynomial identities.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-inventory</i> &mdash; not just which items go in which pile, but the <b>order</b> they are stacked in each pile; Lah numbers count exactly those ordered arrangements. That ordered inventory is the drop. <b>AVAN (AI)</b> built the instrument: the closed form C(n&minus;1,k&minus;1)&middot;n!/k!, the two-term recurrence, and the rising/falling factorial basis-change identity.<br><br>Credit as content: Ivo Lah (1954). The weave: David names the-inventory; I compute L(n,k) by its closed form and by its recurrence and confirm they agree exactly, then verify the Lah numbers convert rising factorials into falling factorials &mdash; the connective tissue between the two factorial bases.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">L(n,k) = C(n&minus;1,k&minus;1)&middot;n!/k!. L(3,1)=6 (one list, all orders of 3), L(3,2)=6, L(3,3)=1. Row sums are the &ldquo;Lah&rdquo; totals. They send x<sup>(n&#773;)</sup> to &Sigma; L(n,k) x<sup>(k&#818;)</sup>.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The Lah triangle by closed form and recurrence; the rising/falling identity at a chosen x; both checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="lahroll">new x ▶</button><button id="lahcheck">verify ▶</button></div>
+   <div class="cap" id="lahread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: partitions into <b>ordered</b> lists.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): count set partitions where the <b>order inside each block matters</b>, and the same numbers become the <b>change-of-basis</b> between rising and falling factorials. The inverse of &lsquo;unordered blocks (Stirling)&rsquo; is &lsquo;ordered lists (Lah)&rsquo;, and they translate one factorial basis into the other. <b>Magenta</b> is the unordered Stirling count; <b>green</b> is the ordered Lah count. Order inside the blocks.</div>
+   <div class="btns" style="margin-top:10px"><button id="lahspin">pause spin</button></div></div></div></div>"""
+LAH_SCRIPT = """(function(){
+var ang=0,spin=true,X=3,VR=null,LT=null;
+function binomB(n,k){if(k<0||k>n)return 0n;var num=1n,den=1n;for(var i=0;i<k;i++){num*=BigInt(n-i);den*=BigInt(i+1);}return num/den;}
+function factB(n){var r=1n;for(var i=2;i<=n;i++)r*=BigInt(i);return r;}
+function lahClosed(n,k){if(k===0)return n===0?1n:0n;return binomB(n-1,k-1)*factB(n)/factB(k);}
+function lahTri(N){if(LT)return LT;var M=12;var L=[];for(var n=0;n<=M;n++){L.push([]);for(var k=0;k<=M;k++)L[n].push(0n);}L[0][0]=1n;for(var n=1;n<=M;n++)for(var k=1;k<=n;k++)L[n][k]=L[n-1][k-1]+BigInt(n+k-1)*L[n-1][k];LT=L;return L;}
+function risingB(x,n){var r=1n;for(var i=0;i<n;i++)r*=BigInt(x+i);return r;}
+function fallingB(x,k){var r=1n;for(var i=0;i<k;i++)r*=BigInt(x-i);return r;}
+function verify(){if(VR)return VR;var N=12,L=lahTri(N),cfOk=true,idOk=true;for(var n=1;n<=N;n++)for(var k=1;k<=n;k++)if(L[n][k]!==lahClosed(n,k))cfOk=false;
+ for(var x=1;x<=8;x++)for(var n=1;n<=10;n++){var s=0n;for(var k=1;k<=n;k++)s+=L[n][k]*fallingB(x,k);if(s!==risingB(x,n))idOk=false;}VR={closedForm:cfOk,factorialIdentity:idOk};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('L(n,k) = C(n−1,k−1)·n!/k!  — ways to sort n items into k non-empty ORDERED lists',12,14);
+ var L=lahTri(6);g.font='11px monospace';for(var n=1;n<=5;n++){for(var k=1;k<=n;k++){g.fillStyle=(n===3)?'#d08840':'#7a90a8';g.fillText(L[n][k].toString(),40+k*46,36+n*20);}}
+ g.fillStyle='#d08840';g.font='9px monospace';g.fillText('row 3: L(3,1)=6, L(3,2)=6, L(3,3)=1',260,72);
+ g.fillStyle='#39fc6b';g.fillText('x^(n rising) = Σ_k L(n,k) · x^(k falling)',260,96);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var L=lahTri(12);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Lah triangle (closed form == recurrence):',14,18);
+ for(var n=1;n<=7;n++)for(var k=1;k<=n;k++){g.fillStyle='#d08840';g.font='9px monospace';g.fillText(L[n][k].toString(),18+k*44,32+n*17);}
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('identity at x = '+X+':',14,180);
+ var n=4,s=0n,parts=[];for(var k=1;k<=n;k++){s+=L[n][k]*fallingB(X,k);parts.push('L(4,'+k+')·('+X+')_'+k);}
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('Σ_k L(4,k)·('+X+')^(k fall) = '+s.toString(),14,202);
+ g.fillStyle='#8ad';g.fillText('('+X+')^(4 rise) = '+risingB(X,4).toString()+(s===risingB(X,4)?'  ✓ equal':'  ✗'),14,222);
+ var v=verify();g.fillStyle=(v.closedForm&&v.factorialIdentity)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('closed form==recurrence '+(v.closedForm?'✓':'✗')+' · rising=Σ L·falling '+(v.factorialIdentity?'✓':'✗'),14,H-10);}
+document.getElementById('lahroll').onclick=function(){X=1+Math.floor(Math.random()*8);drawW4();document.getElementById('lahread').textContent='identity checked at x='+X;};
+document.getElementById('lahcheck').onclick=function(){var v=verify();document.getElementById('lahread').textContent='closed form C(n−1,k−1)·n!/k! == recurrence (n≤12) '+(v.closedForm?'✓':'✗')+' · x^(n rising)=Σ L(n,k)x^(k falling) '+(v.factorialIdentity?'✓':'✗');};
+document.getElementById('lahspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var L=lahTri(9),cx=W/2,cy=60;
+ g.save();g.translate(cx,H/2);g.rotate(Math.sin(ang*0.3)*0.05);g.translate(-cx,-H/2);
+ for(var n=1;n<=8;n++)for(var k=1;k<=n;k++){var x=cx+(k-n/2-0.5)*40,y=cy+n*32,val=Number(L[n][k]),rad=4+Math.log(val+1)*1.6;g.fillStyle='hsl('+(30+n*4)+',60%,'+(45+k*4)+'%)';g.beginPath();g.arc(x,y,Math.min(rad,15),0,7);g.fill();}
+ g.restore();
+ g.fillStyle='#d08840';g.font='11px monospace';g.fillText('green: the Lah triangle — partitions into ordered lists',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: unordered blocks (Stirling numbers)',10,H-24);
+ g.fillStyle='#8ad';g.fillText('order inside the blocks',10,H-9);}
+drawW3();drawW4();window.__lah=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FUB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Fubini numbers</b> (also called <b>ordered Bell numbers</b>) count the ways to <b>rank n items allowing ties</b> &mdash; the number of <b>weak orderings</b>, or equivalently the ordered set partitions. They run 1, 1, 3, 13, 75, 541, 4683, &hellip; For 3 items there are 13 outcomes: all-tied, one clear winner (3 ways &times; 2), full strict orders (6), and so on. Two clean formulas produce them: <b>a(n) = &Sigma;<sub>k</sub> k! &middot; S(n, k)</b> (Stirling numbers of the second kind, times the k! orderings of the blocks), and the recurrence <b>a(n) = &Sigma;<sub>i=1</sub><sup>n</sup> C(n, i) a(n&minus;i)</b>.<br><br>
+ <span class="lit">LIT</span> verified live (exact BigInt): &Sigma;<sub>k</sub> k!&middot;S(n,k) equals the binomial recurrence for all n up to 9, and both equal a <b>direct brute-force count</b> of weak orderings for n up to 6 (window.__fubini). <span class="fig">FIG</span> no framing; two formulas cross-checked against an explicit enumeration.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>null-island</i> &mdash; the origin where orderings are born: from nothing, count every way a set of items can finish a race with ties allowed, spawning the sequence 1, 1, 3, 13, 75, &hellip; That spawning is the boot. <b>AVAN (AI)</b> built the instrument: the Stirling-weighted sum &Sigma; k!&middot;S(n,k), the binomial recurrence, and the direct enumeration of weak orderings.<br><br>Credit as content: Fubini / ordered Bell numbers (studied by Louis Comtet and others; the &ldquo;Fubini&rdquo; name from the count of terms in an iterated integral). The weave: David names null-island; I compute the orderings by k!&middot;S(n,k), confirm it against the binomial recurrence, and check both against a brute-force count of every weak ordering &mdash; all three agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">a(n) = 1, 1, 3, 13, 75, 541, 4683, &hellip; For 3 items: 1 all-tied + 6 with one item alone atop or below a tied pair + 6 strict orders = 13 weak orderings.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The three ways to compute a(n) side by side; the weak orderings of a small set enumerated; all checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="fbroll">step n ▶</button><button id="fbcheck">verify ▶</button></div>
+   <div class="cap" id="fbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: rankings with ties allowed.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): count set partitions where the <b>blocks are ordered</b> &mdash; rankings that allow ties &mdash; and the plain Bell number becomes the far larger ordered Bell number. The inverse of &lsquo;unordered partitions (Bell)&rsquo; is &lsquo;ordered partitions / weak orderings (Fubini)&rsquo;, counted by &Sigma; k!&middot;S(n,k). <b>Magenta</b> is the Bell number (blocks unordered); <b>green</b> is the Fubini number (blocks ranked). Order among the blocks.</div>
+   <div class="btns" style="margin-top:10px"><button id="fbspin">pause spin</button></div></div></div></div>"""
+FUB_SCRIPT = """(function(){
+var ang=0,spin=true,NN=3,VR=null;
+function binomB(n,k){if(k<0||k>n)return 0n;var num=1n,den=1n;for(var i=0;i<k;i++){num*=BigInt(n-i);den*=BigInt(i+1);}return num/den;}
+function stir2(N){var S=[];for(var n=0;n<=N;n++){S.push([]);for(var k=0;k<=N;k++)S[n].push(0n);}S[0][0]=1n;for(var n=1;n<=N;n++)for(var k=1;k<=n;k++)S[n][k]=BigInt(k)*S[n-1][k]+S[n-1][k-1];return S;}
+function fubSum(n,S){var s=0n,f=1n;for(var k=0;k<=n;k++){if(k===0){s+=(n===0?1n:0n);}else{f*=BigInt(k);s+=f*S[n][k];}}return s;}
+function fubRec(N){var a=[1n];for(var n=1;n<=N;n++){var s=0n;for(var i=1;i<=n;i++)s+=binomB(n,i)*a[n-i];a.push(s);}return a;}
+function bell(N){var S=stir2(N),b=[];for(var n=0;n<=N;n++){var s=0n;for(var k=0;k<=n;k++)s+=S[n][k];b.push(s);}return b;}
+function countWeak(n){if(n===0)return 1;var count=0,ranks=new Array(n).fill(0);function rec(i){if(i===n){var mx=0,used={};for(var j=0;j<n;j++){used[ranks[j]]=1;if(ranks[j]>mx)mx=ranks[j];}for(var r=0;r<=mx;r++)if(!used[r])return;count++;return;}for(var r=0;r<n;r++){ranks[i]=r;rec(i+1);}}rec(0);return count;}
+function verify(){if(VR)return VR;var N=9,S=stir2(N),rec=fubRec(N),sumOk=true,dirOk=true;for(var n=0;n<=N;n++)if(fubSum(n,S)!==rec[n])sumOk=false;for(var n=0;n<=6;n++)if(BigInt(countWeak(n))!==rec[n])dirOk=false;VR={sumForm:sumOk,directCount:dirOk};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Fubini a(n) = weak orderings of n items (rankings with ties) = Σ_k k!·S(n,k)',12,14);
+ var rec=fubRec(7);g.font='13px monospace';for(var i=0;i<8;i++){g.fillStyle=i===3?'#7aa0e0':'#8ad';g.fillText(rec[i].toString(),24+i*52,48);}
+ g.fillStyle='#7aa0e0';g.font='9px monospace';g.fillText('3 items → 13: [1 all-tied] + [6 one-apart] + [6 strict orders]',24,84);
+ g.fillStyle='#39fc6b';g.fillText('also a(n) = Σ_i C(n,i) a(n−i) — and both match a direct count',24,114);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var S=stir2(9),rec=fubRec(9),n=NN;
+ g.fillStyle='#e8eef8';g.font='14px monospace';g.fillText('n = '+n,16,28);
+ g.fillStyle='#7aa0e0';g.font='11px monospace';g.fillText('Σ_k k!·S('+n+',k) = '+fubSum(n,S).toString(),16,58);
+ g.fillStyle='#39fc6b';g.fillText('Σ_i C('+n+',i)·a('+n+'−i) = '+rec[n].toString(),16,84);
+ if(n<=6){g.fillStyle='#e0b020';g.fillText('direct weak-ordering count = '+countWeak(n),16,110);}
+ else{g.fillStyle='#556';g.fillText('direct count shown for n ≤ 6',16,110);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Bell (unordered) B('+n+') = '+bell(9)[n].toString()+'  vs  Fubini '+rec[n].toString(),16,140);
+ var v=verify();g.fillStyle=(v.sumForm&&v.directCount)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('Σk!S(n,k)==recurrence '+(v.sumForm?'✓':'✗')+' · ==direct count (n≤6) '+(v.directCount?'✓':'✗'),14,H-10);}
+document.getElementById('fbroll').onclick=function(){NN=NN>=8?1:NN+1;drawW4();document.getElementById('fbread').textContent='n='+NN+', a(n)='+fubRec(9)[NN].toString();};
+document.getElementById('fbcheck').onclick=function(){var v=verify();document.getElementById('fbread').textContent='Σ_k k!·S(n,k) == binomial recurrence (n≤9) '+(v.sumForm?'✓':'✗')+' · both == direct weak-ordering count (n≤6) '+(v.directCount?'✓':'✗');};
+document.getElementById('fbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var rec=fubRec(8),bl=bell(8),cx=W/2,cy=H-40,mx=Number(rec[7]);
+ g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.3)*0.05);g.translate(-cx,-cy);
+ for(var n=1;n<=7;n++){var h=(Number(rec[n])/mx)*(H-110),bh=(Number(bl[n])/mx)*(H-110),x=cx-7*24+n*24;g.fillStyle='#7aa0e0';g.fillRect(x,cy-h,10,h);g.fillStyle='rgba(255,45,149,0.5)';g.fillRect(x+11,cy-bh,10,bh);g.fillStyle='#8ad';g.font='8px monospace';g.fillText(n,x+4,cy+12);}
+ g.restore();
+ g.fillStyle='#7aa0e0';g.font='11px monospace';g.fillText('green bars: Fubini (ranked blocks) — grows far faster',10,24);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta bars: Bell (unordered blocks)',10,40);
+ g.fillStyle='#8ad';g.fillText('order among the blocks',10,H-9);}
+drawW3();drawW4();window.__fubini=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 100 (count how many times a prime divides a factorial · a power tower reduced modulo m settles down · the continued fraction of e and its convergents · vector clocks and the shape of causality · numbers equal to the cube of their own digit sum) ═══════════════════════
 LEGF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Legendre&rsquo;s formula</b> counts exactly how many times a prime p divides n! without ever building the factorial: the exponent is <b>v<sub>p</sub>(n!) = &lfloor;n/p&rfloor; + &lfloor;n/p<sup>2</sup>&rfloor; + &lfloor;n/p<sup>3</sup>&rfloor; + &hellip;</b>, a sum that terminates once p<sup>k</sup> exceeds n. There is a second, striking closed form: <b>v<sub>p</sub>(n!) = (n &minus; s<sub>p</sub>(n)) / (p &minus; 1)</b>, where s<sub>p</sub>(n) is the sum of n&rsquo;s digits in base p. A direct consequence: the number of <b>trailing zeros</b> of n! equals v<sub>5</sub>(n!), since fives are the scarce factor.<br><br>
@@ -27092,6 +27345,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-liouville","title":"THE LIOUVILLE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#c060a0","icon":"liouville",
+  "kicker":"a sign that flips by the parity of prime factors",
+  "blurb":"The Liouville function in the 5-window house format — λ(n) = (−1)^Ω(n), where Ω(n) counts prime factors with multiplicity: +1 for an even count, −1 for odd. Its beautiful divisor identity: Σ_{d|n} λ(d) = 1 if n is a perfect square, 0 otherwise — a flawless square-detector. Its running total L(n) drives Pólya's conjecture (L(n) ≤ 0 for n ≥ 2), true for hundreds of millions of terms yet ultimately false (first counterexample n = 906150257). Verified live: the divisor-sum equals [n is square] for n≤2000, λ is multiplicative, and L(n)≤0 for 2≤n≤600. See the square-detector in 1D, the L-walk in 2D, and the evidence-is-not-proof inverse in 3D.",
+  "lit":"Genuine Liouville function (Joseph Liouville, mid-1800s). Verified live: the divisor-sum Σ_{d|n}λ(d) (computed by sieve) equals 1 exactly on perfect squares for all n up to 2000 (window.__liouville.divisorSum), λ is multiplicative on coprime pairs (window.__liouville.multiplicative), and Pólya's bound L(n)≤0 holds for 2≤n≤600 (window.__liouville.polya).",
+  "fig":"No framing: the Ω-parity sign, the sieve-based divisor-sum square-detector, the multiplicativity check, and the Pólya sum all run in-browser with exact integer arithmetic. Honest scope: Pólya's conjecture holds throughout the reachable range but is known FALSE, with least counterexample n=906150257 — the same 'true then false' lesson as Mertens. The AVAN inverse is honest — signing integers by prime-factor parity turns the divisor-sum into a perfect square-detector, while the running total hides a conjecture true for ages then false; magenta is 'one-signed as far as tested', green the Liouville sum that eventually breaks Pólya. Evidence is not proof.",
+  "body":LIOU_BODY,"script":LIOU_SCRIPT},
+ {"slug":"the-erdos-gallai","title":"THE ERDŐS–GALLAI","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#5ab0c0","icon":"erdos-gallai",
+  "kicker":"when a list of degrees can be a real graph",
+  "blurb":"The Erdős–Gallai theorem in the 5-window house format — deciding whether a list of numbers can be the degrees of a real simple graph. A non-increasing sequence is graphical iff its sum is even and, for every k, Σ_{i≤k} d_i ≤ k(k−1) + Σ_{i>k} min(d_i, k). The left side is the demand of the top k vertices; the right is the most those edges can be absorbed. It is the exact companion to the Havel–Hakimi reduction by a different route. Verified live: over 3000 random sequences the Erdős–Gallai verdict matches the independent Havel–Hakimi reduction, and every graphical sequence is realized by a constructed simple graph with exactly those degrees. See the criterion in 1D, a realizing graph in 2D, and the degrees-back-into-a-graph inverse in 3D.",
+  "lit":"Genuine Erdős–Gallai theorem (Paul Erdős & Tibor Gallai, 1960); companion reduction by Václav Havel (1955) & S.L. Hakimi (1962). Verified live: over 3000 random sequences the Erdős–Gallai k-inequalities give the same graphical/not verdict as an independent Havel–Hakimi reduction (window.__erdosgallai.agree), and every graphical sequence is realized by a constructed simple graph whose degrees match exactly (window.__erdosgallai.realizes).",
+  "fig":"No framing: the k-by-k Erdős–Gallai inequalities, the independent Havel–Hakimi reduction, and the constructive realization all run in-browser with exact arithmetic and cross-check each other. The AVAN inverse is honest — going backward from a wish-list of vertex degrees to a graph that has them (or a proof none exists) is a genuine inverse of degree-counting; magenta is an unrealizable sequence, green a graphical one drawn as a real graph. Degrees back into a graph.",
+  "body":EGAL_BODY,"script":EGAL_SCRIPT},
+ {"slug":"the-three-squares","title":"THE THREE SQUARES","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#b0a040","icon":"three-squares",
+  "kicker":"which numbers are sums of three squares",
+  "blurb":"Legendre's three-square theorem in the 5-window house format — a non-negative integer n is a sum of three squares a²+b²+c² if and only if n is NOT of the form 4^a(8b+7). So 7, 15, and 28=4·7 fail, but everything else works, from 6=1+1+4 to 30=1+4+25. It is the sharp companion to Lagrange's four-square theorem (four squares always suffice): three suffice for all but a thin, precisely-described family. Verified live: an exhaustive search for a²+b²+c²=n agrees with the arithmetic test 'n is not 4^a(8b+7)' for every n up to 3000. See the forbidden forms in 1D, a representation in 2D, and the name-the-exception inverse in 3D.",
+  "lit":"Genuine Legendre three-square theorem (Adrien-Marie Legendre, 1797–98; deeper counting by Gauss). Verified live: an exhaustive search over a,b,c for each n agrees with the closed-form forbidden-set test 'n ≠ 4^a(8b+7)' for every n from 1 to 3000 (window.__threesquares.matches).",
+  "fig":"No framing: the exhaustive three-square search and the 4^a(8b+7) forbidden-form test run in-browser with exact arithmetic and agree exactly. The AVAN inverse is honest — replacing a triple-search with a single arithmetic test that names the exception set directly (a number needs a fourth square exactly when it is 4^a(8b+7)) is a real closed-form characterization; magenta is a forbidden number, green a number shown as three squares. The blocked, named exactly.",
+  "body":THREE_BODY,"script":THREE_SCRIPT},
+ {"slug":"the-lah","title":"THE LAH","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#d08840","icon":"lah",
+  "kicker":"counting partitions into ordered lists",
+  "blurb":"Lah numbers in the 5-window house format — L(n,k) counts the ways to sort n labelled items into k non-empty ordered lists, where the order within each list matters. They have a closed form L(n,k) = C(n−1,k−1)·n!/k! and a recurrence L(n,k) = L(n−1,k−1) + (n+k−1)L(n−1,k). They are the exact coefficients converting between the two factorial bases: the rising factorial equals a Lah-weighted sum of falling factorials, x^(n rising) = Σ_k L(n,k) x^(k falling). Verified live (exact BigInt): closed form equals recurrence for n≤12, and the rising=Σ L·falling identity holds for integer x. See the triangle in 1D, the identity in 2D, and the ordered-blocks inverse in 3D.",
+  "lit":"Genuine Lah numbers (Ivo Lah, 1954). Verified live with exact BigInt: the closed form C(n−1,k−1)·n!/k! equals the two-term recurrence L(n,k)=L(n−1,k−1)+(n+k−1)L(n−1,k) for all n up to 12 (window.__lah.closedForm), and the basis-change identity x^(n rising) = Σ_k L(n,k)·x^(k falling) holds for integer x (window.__lah.factorialIdentity).",
+  "fig":"No framing: the closed form, the recurrence, and the rising/falling factorial identity all run in-browser in exact big integers and agree. The AVAN inverse is honest — counting set partitions where the order inside each block matters (Lah) genuinely differs from the unordered Stirling count, and the same numbers translate one factorial basis into the other; magenta is the unordered Stirling count, green the ordered Lah count. Order inside the blocks.",
+  "body":LAH_BODY,"script":LAH_SCRIPT},
+ {"slug":"the-fubini","title":"THE FUBINI","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#7aa0e0","icon":"fubini",
+  "kicker":"counting the ways to rank things with ties",
+  "blurb":"The Fubini (ordered Bell) numbers in the 5-window house format — counting the ways to rank n items allowing ties, i.e. the weak orderings, or ordered set partitions. They run 1, 1, 3, 13, 75, 541, 4683, … For 3 items there are 13 outcomes. Two formulas produce them: a(n) = Σ_k k!·S(n,k) (Stirling numbers of the second kind times the k! orderings of the blocks), and the recurrence a(n) = Σ_{i=1}^n C(n,i) a(n−i). Verified live (exact BigInt): Σ k!·S(n,k) equals the binomial recurrence for n≤9, and both equal a direct brute-force count of weak orderings for n≤6. See the sequence in 1D, the three computations in 2D, and the ranked-blocks inverse in 3D.",
+  "lit":"Genuine Fubini / ordered Bell numbers (studied by Louis Comtet and others; the 'Fubini' name from counting terms in an iterated integral). Verified live with exact BigInt: Σ_k k!·S(n,k) equals the binomial recurrence Σ_i C(n,i)a(n−i) for all n up to 9 (window.__fubini.sumForm), and both equal a direct brute-force enumeration of weak orderings for n up to 6 (window.__fubini.directCount).",
+  "fig":"No framing: the Stirling-weighted sum, the binomial recurrence, and the direct enumeration of weak orderings all run in-browser (BigInt) and agree. The AVAN inverse is honest — counting set partitions where the blocks are ranked (weak orderings) genuinely differs from and far exceeds the unordered Bell count; magenta is the Bell number, green the Fubini number. Order among the blocks.",
+  "body":FUB_BODY,"script":FUB_SCRIPT},
  {"slug":"the-legendre-formula","title":"THE LEGENDRE FORMULA","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#a0b040","icon":"legendre-formula",
   "kicker":"count how many times a prime divides a factorial",
