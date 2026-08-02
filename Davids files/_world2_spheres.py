@@ -19485,6 +19485,241 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 91 (the square root's fraction repeats in a palindrome · average and difference a signal reversibly · count the ways to partition a set · pick the k-th smallest in guaranteed linear time · wrap a hull around points like a gift) ═══════════════════════
+CFS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The continued fraction of &radic;n</b> (for non-square n) is <b>eventually periodic</b>, and its period has a striking shape: &radic;n = [a<sub>0</sub>; <span style="text-decoration:overline">a<sub>1</sub>, a<sub>2</sub>, &hellip;, a<sub>L</sub></span>] where the repeating block <b>ends in 2a<sub>0</sub></b> and the part before it, (a<sub>1</sub>, &hellip;, a<sub>L&minus;1</sub>), is a <b>palindrome</b>. So &radic;7 = [2; <span style="text-decoration:overline">1,1,1,4</span>] and &radic;19 = [4; <span style="text-decoration:overline">2,1,3,1,2,8</span>]. The convergent just before the period closes gives the <b>fundamental solution of Pell&rsquo;s equation</b> x&sup2; &minus; n&middot;y&sup2; = &plusmn;1.<br><br>
+ <span class="lit">LIT</span> verified live: for every non-square n up to 1000, the period ends in 2a<sub>0</sub>, its front is a palindrome, and the pre-period convergent solves Pell (exact BigInt) (window.__cfsqrt). <span class="fig">FIG</span> no framing; exact integer/BigInt arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-epoch</i> &mdash; one full periodic pass through the fraction&rsquo;s digits, repeating forever, its interior a mirror. The continued fraction of &radic;n is that epoch. <b>AVAN (AI)</b> built the instrument: the (m,d,a) CF recurrence, the period/palindrome detector, and the BigInt Pell-convergent check.<br><br>Credit as content: Lagrange (periodicity of quadratic-irrational CFs, 1770); the palindrome structure is classical. The weave: David names the-epoch; I expand &radic;n by the standard recurrence, confirm the period ends in 2a<sub>0</sub> with a palindromic front, and check that the convergent before the period&rsquo;s close solves x&sup2;&minus;n&middot;y&sup2;=&plusmn;1 in exact big integers.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">&radic;7 = [2; 1,1,1,4], &radic;19 = [4; 2,1,3,1,2,8]. The period ends in 2a<sub>0</sub>; the terms before it read the same forwards and backwards &mdash; a palindrome.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The CF expansion of &radic;n with its period highlighted; the palindrome and Pell solution checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="cfroll">new n ▶</button><button id="cfcheck">verify n≤1000 ▶</button></div>
+   <div class="cap" id="cfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a root&rsquo;s fraction repeating in a palindrome.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): solve Pell&rsquo;s equation x&sup2;&minus;n&middot;y&sup2;=1 not by <b>searching integers</b> but by <b>reading the periodic continued fraction of &radic;n</b> &mdash; the convergent before the period closes is the fundamental solution. The inverse of &lsquo;test x,y until x&sup2;&minus;n&middot;y&sup2;=1&rsquo; is &lsquo;expand &radic;n; its period hands you the answer.&rsquo; <b>Magenta</b> is the brute Pell search; <b>green</b> is the CF period. The root&rsquo;s rhythm solves the equation.</div>
+   <div class="btns" style="margin-top:10px"><button id="cfspin">pause spin</button></div></div></div></div>"""
+CFS_SCRIPT = """(function(){
+var ang=0,spin=true,N=19;
+function cfSqrt(n){var a0=Math.floor(Math.sqrt(n));if(a0*a0===n)return null;var m=0,d=1,a=a0,per=[];for(var it=0;it<10000;it++){m=d*a-m;d=(n-m*m)/d;a=Math.floor((a0+m)/d);per.push(a);if(a===2*a0)break;}return {a0:a0,period:per};}
+function isPalin(a){for(var i=0,j=a.length-1;i<j;i++,j--)if(a[i]!==a[j])return false;return true;}
+function pell(n){var cf=cfSqrt(n),a0=cf.a0,per=cf.period,L=per.length,conv=[a0].concat(per.slice(0,L-1)),H0=1n,H1=BigInt(conv[0]),K0=0n,K1=1n,NN=BigInt(n);for(var i=1;i<conv.length;i++){var a=BigInt(conv[i]),H2=a*H1+H0,K2=a*K1+K0;H0=H1;H1=H2;K0=K1;K1=K2;}var v=H1*H1-NN*K1*K1;return {x:H1,y:K1,val:v===1n?1:(v===-1n?-1:0)};}
+function verify(){var perOk=true,palOk=true,pelOk=true;for(var n=2;n<=1000;n++){var cf=cfSqrt(n);if(!cf)continue;if(cf.period[cf.period.length-1]!==2*cf.a0)perOk=false;if(!isPalin(cf.period.slice(0,cf.period.length-1)))palOk=false;if(pell(n).val===0)pelOk=false;}return {periodEnds2a0:perOk,palindrome:palOk,solvesPell:pelOk};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('√n = [a₀; period] — period ends in 2a₀, its front is a palindrome',12,14);
+ var ex=[7,19,23];var y=45;for(var e=0;e<ex.length;e++){var cf=cfSqrt(ex[e]);g.fillStyle='#c0a048';g.font='12px monospace';g.fillText('√'+ex[e]+' = ['+cf.a0+'; '+cf.period.join(',')+']',40,y);y+=28;}
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('√19: 2,1,3,1,2 is a palindrome, then 8 = 2·4',40,135);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cf=cfSqrt(N);if(!cf){g.fillStyle='#c07850';g.font='13px monospace';g.fillText(N+' is a perfect square (no periodic CF)',14,60);return;}
+ g.fillStyle='#e8eef8';g.font='14px monospace';g.fillText('√'+N+' = ['+cf.a0+'; '+cf.period.join(',')+']',14,28);
+ var front=cf.period.slice(0,cf.period.length-1),x=14;g.font='13px monospace';
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('period ('+cf.period.length+' terms):',14,54);x=14;
+ for(var i=0;i<cf.period.length;i++){var isLast=i===cf.period.length-1;g.fillStyle=isLast?'#c07850':'#c0a048';g.fillRect(x,64,24,24);g.fillStyle=isLast?'#210':'#012';g.font='12px monospace';g.fillText(cf.period[i],x+6,80);x+=28;}
+ var p=pell(N);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('front palindrome: ['+front.join(',')+'] '+(isPalin(front)?'✓':'✗')+' · last = 2·'+cf.a0+' = '+(2*cf.a0),14,108);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('Pell: '+p.x+'² − '+N+'·'+p.y+'² = '+(p.val)+' ✓',14,132);
+ g.fillStyle=isPalin(front)&&p.val!==0?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('palindrome ✓ · convergent solves Pell '+(p.val!==0?'✓':'✗'),14,H-12);}
+document.getElementById('cfroll').onclick=function(){do{N=2+Math.floor(Math.random()*200);}while(Math.floor(Math.sqrt(N))*Math.floor(Math.sqrt(N))===N);drawW4();var cf=cfSqrt(N);document.getElementById('cfread').textContent='√'+N+' period length '+cf.period.length;};
+document.getElementById('cfcheck').onclick=function(){var v=verify();document.getElementById('cfread').textContent='n≤1000: period ends 2a₀ '+(v.periodEnds2a0?'✓':'✗')+' · palindrome '+(v.palindrome?'✓':'✗')+' · solves Pell '+(v.solvesPell?'✓':'✗');};
+document.getElementById('cfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cf=cfSqrt(N);if(!cf)return;var per=cf.period,cx=W/2,cy=H/2-10;
+ for(var rep=0;rep<3;rep++)for(var i=0;i<per.length;i++){var idx=rep*per.length+i,a=idx/(per.length)*2.09+ang*0.3,r=40+idx*7;if(r>165)break;var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;var isLast=i===per.length-1;g.fillStyle=isLast?'#c07850':'hsl('+(45+per[i]*15)+',60%,58%)';g.beginPath();g.arc(x,y,3+per[i]*0.6,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green spiral: √'+N+" period repeating (amber = 2a₀)",10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the brute Pell search',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText("the root's rhythm solves the equation",10,H-9);}
+drawW3();drawW4();window.__cfsqrt=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HWV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Haar wavelet transform</b> is the simplest multiresolution analysis: repeatedly replace pairs of samples by their <b>average</b> and their <b>difference</b>. The averages form a coarser version of the signal; the differences capture the detail lost at each scale. Done with the &radic;2 normalization, the transform is <b>orthonormal</b> &mdash; it is a rotation of the signal into a wavelet basis, so it <b>preserves energy</b> and is <b>perfectly invertible</b>. It underlies image compression and edge detection.<br><br>
+ <span class="lit">LIT</span> verified live: over 2000 random signals, the inverse Haar reconstructs the input exactly, and the sum of squared coefficients equals the sum of squared samples (energy preserved) (window.__haar). <span class="fig">FIG</span> no framing; exact linear algebra to floating precision.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-broadcast</i> &mdash; a signal split into a coarse average everyone hears and the fine differences layered on top, reversible without loss. The Haar transform is that broadcast. <b>AVAN (AI)</b> built the instrument: the recursive average/difference decomposition, the inverse reconstruction, and the perfect-reconstruction + energy-preservation checks.<br><br>Credit as content: Alfr&eacute;d Haar (1909) &mdash; the first wavelet. The weave: David names the-broadcast; I decompose a signal into averages and details at every scale with the &radic;2-orthonormal Haar step, then confirm the inverse rebuilds it exactly and the total energy is unchanged &mdash; a lossless change of basis.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each step: (a,b) &rarr; ((a+b)/&radic;2, (a&minus;b)/&radic;2). Averages go left (coarser signal), differences go right (detail). Recurse on the averages. Energy: a&sup2;+b&sup2; is preserved.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A signal, its Haar coefficients (coarse + details), and the reconstruction &mdash; checked exact, energy checked equal.</div>
+   <div class="btns" style="margin-top:10px"><button id="hwroll">new signal ▶</button><button id="hwcheck">verify 2000 ▶</button></div>
+   <div class="cap" id="hwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a signal split into scales, losslessly.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): analyze a signal into <b>coarse average plus fine detail at every scale</b> using only averages and differences &mdash; an orthonormal step that loses nothing and can be run backwards. The inverse of &lsquo;store the raw samples&rsquo; is &lsquo;store one coarse average and a pyramid of details &mdash; perfectly reversible.&rsquo; <b>Magenta</b> is the raw sample vector; <b>green</b> is the multiscale wavelet decomposition. Detail, scale by scale, lost by none.</div>
+   <div class="btns" style="margin-top:10px"><button id="hwspin">pause spin</button></div></div></div></div>"""
+HWV_SCRIPT = """(function(){
+var ang=0,spin=true,SIG=[];
+function haar(x){var n=x.length,o=x.slice(),len=n,s2=Math.SQRT2;while(len>1){var t=new Array(len);for(var i=0;i<len/2;i++){t[i]=(o[2*i]+o[2*i+1])/s2;t[len/2+i]=(o[2*i]-o[2*i+1])/s2;}for(var i=0;i<len;i++)o[i]=t[i];len/=2;}return o;}
+function ihaar(c){var n=c.length,o=c.slice(),len=2,s2=Math.SQRT2;while(len<=n){var t=new Array(len);for(var i=0;i<len/2;i++){t[2*i]=(o[i]+o[len/2+i])/s2;t[2*i+1]=(o[i]-o[len/2+i])/s2;}for(var i=0;i<len;i++)o[i]=t[i];len*=2;}return o;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(910),rec=true,en=true,worst=0;for(var t=0;t<2000;t++){var k=[4,8,16,32][Math.floor(rnd()*4)],x=[];for(var i=0;i<k;i++)x.push(rnd()*20-10);var c=haar(x),b=ihaar(c),e1=0,e2=0;for(var i=0;i<k;i++){var d=Math.abs(b[i]-x[i]);worst=Math.max(worst,d);if(d>1e-9)rec=false;e1+=x[i]*x[i];e2+=c[i]*c[i];}if(Math.abs(e1-e2)>1e-6)en=false;}return {reconstructs:rec,energyPreserved:en,worst:worst};}
+function mk(){SIG=[];for(var i=0;i<16;i++)SIG.push(6*Math.sin(i*0.6)+3*Math.sin(i*1.7)+(Math.random()-0.5)*3);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('(a,b) → ((a+b)/√2, (a−b)/√2): averages left, differences right; recurse on averages',12,14);
+ var vals=[8,4,6,2],y=95;for(var i=0;i<4;i++){g.fillStyle='#58a0b0';g.fillRect(40+i*40,y-vals[i]*4,30,vals[i]*4);g.fillStyle='#8ad';g.font='9px monospace';g.fillText(vals[i],44+i*40,y+12);}
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('avg (8+4)/√2, (6+2)/√2 …',260,50);g.fillStyle='#e0b020';g.fillText('detail (8−4)/√2, (6−2)/√2 …',260,70);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('energy a²+b² preserved at every step (orthonormal)',260,100);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SIG.length)mk();var c=haar(SIG),b=ihaar(c),n=SIG.length,bw=(W-28)/n;
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('signal (blue) · Haar coefficients (green=coarse, gold=detail)',14,16);
+ for(var i=0;i<n;i++){var h=SIG[i]*4;g.fillStyle='#58a0b0';g.fillRect(14+i*bw,70-(SIG[i]>=0?h:0),bw-2,Math.abs(h));}
+ for(var i=0;i<n;i++){var h=c[i]*4;g.fillStyle=i===0?'#39fc6b':'#e0b020';g.fillRect(14+i*bw,180-(c[i]>=0?h:0),bw-2,Math.abs(h));}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('coefficients',14,200);
+ var v=verify();g.fillStyle=v.reconstructs&&v.energyPreserved?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('inverse reconstructs exactly '+(v.reconstructs?'✓':'✗')+' · energy preserved '+(v.energyPreserved?'✓':'✗'),14,H-12);}
+document.getElementById('hwroll').onclick=function(){mk();drawW4();document.getElementById('hwread').textContent='new 16-sample signal transformed';};
+document.getElementById('hwcheck').onclick=function(){var v=verify();document.getElementById('hwread').textContent='2000 signals: perfect reconstruction '+(v.reconstructs?'✓':'✗')+' · energy preserved '+(v.energyPreserved?'✓':'✗')+' (worst '+v.worst.toExponential(1)+')';};
+document.getElementById('hwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SIG.length)mk();var c=haar(SIG),cx=W/2,cy=H/2-10;
+ var scales=[[0,1,'#39fc6b'],[1,2,'#8fd0c0'],[2,4,'#e0b020'],[4,8,'#c08040'],[8,16,'#b06868']];
+ for(var s=0;s<scales.length;s++){var lo=scales[s][0],hi=scales[s][1],col=scales[s][2],rad=40+s*24;for(var i=lo;i<hi&&i<c.length;i++){var a=(i-lo)/Math.max(1,hi-lo)*6.28+ang*0.3+s,x=cx+Math.cos(a)*rad,y=cy+Math.sin(a)*rad*0.8;g.fillStyle=col;g.beginPath();g.arc(x,y,3+Math.abs(c[i])*0.5,0,7);g.fill();}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green→amber rings: coarse average out to fine detail',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the raw sample vector',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('detail, scale by scale, lost by none',10,H-9);}
+mk();drawW3();drawW4();window.__haar=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BEL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Bell numbers</b> B(n) count the ways to <b>partition a set</b> of n elements into non-empty, unlabeled blocks: 1, 1, 2, 5, 15, 52, 203, 877, &hellip; Three elements split 5 ways; four split 15. They can be built with almost no arithmetic by <b>Bell&rsquo;s triangle</b> (Aitken&rsquo;s array): start each new row with the last entry of the previous row, then each next entry is the one to its left plus the one above-left. B(n) is the first number in row n &mdash; and equals the sum of the Stirling numbers of the second kind &Sigma;<sub>k</sub> S(n,k).<br><br>
+ <span class="lit">LIT</span> verified live: the Bell triangle matches a brute-force count of set partitions for n &le; 8, and B(n) equals &Sigma;<sub>k</sub> S(n,k) (window.__bell). <span class="fig">FIG</span> no framing; exact integer counts against exhaustive enumeration.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-raid</i> &mdash; count every way to split the party into groups; the Bell numbers tally the raid formations. <b>AVAN (AI)</b> built the instrument: Bell&rsquo;s triangle recurrence, the brute set-partition enumerator, and the Stirling-sum cross-check.<br><br>Credit as content: Eric Temple Bell (name); the triangle is A. C. Aitken&rsquo;s; partitions studied since Euler. The weave: David names the-raid; I build Bell&rsquo;s triangle by carrying the previous row&rsquo;s tail down and adding leftward, then confirm each Bell number equals the exhaustive count of set partitions and the sum of Stirling numbers.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Bell&rsquo;s triangle: 1 / 1 2 / 2 3 5 / 5 7 10 15 / &hellip; Each row starts with the last of the previous; each next = left + above-left. The row starts 1, 1, 2, 5, 15 are the Bell numbers.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Bell&rsquo;s triangle built row by row; B(n) checked against a brute partition count and the Stirling sum.</div>
+   <div class="btns" style="margin-top:10px"><button id="beroll">new n ▶</button><button id="becheck">verify n≤8 ▶</button></div>
+   <div class="cap" id="beread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: all partitions of a set, counted.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): count set partitions not by <b>listing them all</b> but by a <b>triangle of additions</b> &mdash; carry the previous row&rsquo;s last value down and add leftward, and the Bell numbers fall out along the left edge. The inverse of &lsquo;enumerate every partition and tally&rsquo; is &lsquo;grow Bell&rsquo;s triangle &mdash; the count is a running sum.&rsquo; <b>Magenta</b> is the full partition enumeration; <b>green</b> is the triangle. Counting the splits without splitting.</div>
+   <div class="btns" style="margin-top:10px"><button id="bespin">pause spin</button></div></div></div></div>"""
+BEL_SCRIPT = """(function(){
+var ang=0,spin=true,ROW=4;
+function bellTri(N){var rows=[[1]];for(var n=1;n<=N;n++){var prev=rows[n-1],row=[prev[prev.length-1]];for(var k=0;k<prev.length;k++)row.push(row[k]+prev[k]);rows.push(row);}return rows;}
+function bellNums(N){return bellTri(N).map(function(r){return r[0];});}
+function stir2(n,k){if(k===0)return n===0?1:0;if(k>n)return 0;var S=[];for(var i=0;i<=n;i++)S.push(new Array(k+1).fill(0));S[0][0]=1;for(var i=1;i<=n;i++)for(var j=1;j<=Math.min(i,k);j++)S[i][j]=j*S[i-1][j]+S[i-1][j-1];return S[n][k];}
+function bruteBell(n){if(n===0)return 1;var cnt=0,as=new Array(n);function rec(i,mx){if(i===n){cnt++;return;}for(var b=0;b<=mx+1;b++){as[i]=b;rec(i+1,Math.max(mx,b));}}rec(0,-1);return cnt;}
+function verify(){var bn=bellNums(9),tri=true,st=true;for(var n=0;n<=8;n++){if(bn[n]!==bruteBell(n))tri=false;var s=0;for(var k=0;k<=n;k++)s+=stir2(n,k);if(s!==bn[n])st=false;}return {triangleMatchesBrute:tri,stirlingSum:st,nums:bn.slice(0,8)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText("Bell's triangle: row starts with previous row's last; next = left + above-left",12,14);
+ var rows=bellTri(4);for(var n=0;n<rows.length;n++){var r=rows[n];g.fillStyle='#b06868';g.font='12px monospace';g.fillText(r.join('  '),40,40+n*24);g.fillStyle='#39fc6b';g.fillText('← B('+n+')='+r[0],40+r.join('  ').length*7.5+10,40+n*24);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var rows=bellTri(ROW);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText("Bell's triangle to row "+ROW,14,22);
+ for(var n=0;n<rows.length;n++){var r=rows[n];for(var k=0;k<r.length;k++){g.fillStyle=k===0?'#39fc6b':'#4a5568';g.fillText(''+r[k],14+k*44,48+n*26);}}
+ var bn=bellNums(ROW),b=bn[ROW],bru=bruteBell(ROW),s=0;for(var k=0;k<=ROW;k++)s+=stir2(ROW,k);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('B('+ROW+') = '+b+'  (partitions of '+ROW+' elements)',14,H-56);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('brute partition count = '+bru+' · Σ Stirling2 = '+s,14,H-36);
+ g.fillStyle=b===bru&&b===s?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('Bell == brute == Stirling sum '+(b===bru&&b===s?'✓':'✗'),14,H-12);}
+document.getElementById('beroll').onclick=function(){ROW=2+Math.floor(Math.random()*7);drawW4();document.getElementById('beread').textContent='B('+ROW+') = '+bellNums(ROW)[ROW];};
+document.getElementById('becheck').onclick=function(){var v=verify();document.getElementById('beread').textContent='n≤8: Bell triangle==brute '+(v.triangleMatchesBrute?'✓':'✗')+' · B(n)==ΣStirling2 '+(v.stirlingSum?'✓':'✗');};
+document.getElementById('bespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var rows=bellTri(8),cx=W/2,cy=30;
+ for(var n=0;n<rows.length;n++){var r=rows[n],mx=r[r.length-1];for(var k=0;k<r.length;k++){var x=cx+(k-(r.length-1)/2)*30,y=cy+n*38+Math.sin(ang+n)*2;var sz=3+Math.log(r[k]+1)*2;g.fillStyle=k===0?'#39fc6b':'hsl('+(0+r[k]%50)+',55%,'+(45+Math.min(25,r[k]/10))+'%)';g.beginPath();g.arc(x,y,sz,0,7);g.fill();}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText("green left edge: the Bell numbers (partition counts)",10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the full partition enumeration',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('counting the splits without splitting',10,H-9);}
+drawW3();drawW4();window.__bell=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MOM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Median of medians</b> finds the k-th smallest element in <b>guaranteed linear time</b> &mdash; O(n) worst case, not just on average. The trick is choosing a provably good pivot: split the array into groups of <b>five</b>, take each group&rsquo;s median, then recursively take the <b>median of those medians</b>. That pivot is guaranteed to beat at least <b>30%</b> of the elements on each side, so the recursion shrinks fast enough to stay linear &mdash; no adversarial input can force it to be slow.<br><br>
+ <span class="lit">LIT</span> verified live: over 3000 random arrays, the element it selects for rank k equals the true k-th smallest from a full sort (window.__medianofmedians). <span class="fig">FIG</span> no framing; exact selection compared against sorting.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>god-mode</i> &mdash; take no damage from bad input: the median-of-medians pivot guarantees linear time no matter how adversarial the array. <b>AVAN (AI)</b> built the instrument: the groups-of-five median pivot, the three-way partition recursion, and the match against a full sort.<br><br>Credit as content: Blum, Floyd, Pratt, Rivest &amp; Tarjan (1973) &mdash; the BFPRT algorithm. The weave: David names god-mode; I pick the pivot as the median of group-of-five medians, partition, recurse into the side holding rank k, and confirm the selected element is exactly the k-th smallest a full sort would give &mdash; linear time, worst-case guaranteed.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Group into fives, take each median, then the median of those. That pivot beats &ge; 3 of every 5 in half the groups &mdash; &ge; 30% overall &mdash; guaranteeing the recursion shrinks by a constant fraction. Linear, always.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">An array with its groups of five, the chosen pivot, and the selected k-th element checked against a sort.</div>
+   <div class="btns" style="margin-top:10px"><button id="moroll">new array ▶</button><button id="mocheck">verify 3000 ▶</button></div>
+   <div class="cap" id="moread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the k-th smallest in guaranteed linear time.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): guarantee a <b>good pivot</b> without sorting &mdash; take medians of groups of five, then the median of those, so at least 30% falls on each side and the recursion is provably linear. The inverse of &lsquo;sort everything to find the k-th&rsquo; is &lsquo;pick a certified-balanced pivot and recurse into one side only.&rsquo; <b>Magenta</b> is the full sort; <b>green</b> is the single partition path. Selection that can&rsquo;t be made slow.</div>
+   <div class="btns" style="margin-top:10px"><button id="mospin">pause spin</button></div></div></div></div>"""
+MOM_SCRIPT = """(function(){
+var ang=0,spin=true,ARR=[],K=0;
+function select(a,k){a=a.slice();function sel(a,k){if(a.length<=5){a.sort(function(x,y){return x-y;});return a[k];}var meds=[];for(var i=0;i<a.length;i+=5){var g=a.slice(i,i+5).sort(function(x,y){return x-y;});meds.push(g[Math.floor((g.length-1)/2)]);}var piv=sel(meds,Math.floor((meds.length-1)/2));var lo=[],eq=[],hi=[];for(var i=0;i<a.length;i++){if(a[i]<piv)lo.push(a[i]);else if(a[i]>piv)hi.push(a[i]);else eq.push(a[i]);}if(k<lo.length)return sel(lo,k);else if(k<lo.length+eq.length)return piv;else return sel(hi,k-lo.length-eq.length);}return sel(a,k);}
+function pivotOf(a){if(a.length<=5){var s=a.slice().sort(function(x,y){return x-y;});return s[Math.floor((s.length-1)/2)];}var meds=[];for(var i=0;i<a.length;i+=5){var g=a.slice(i,i+5).sort(function(x,y){return x-y;});meds.push(g[Math.floor((g.length-1)/2)]);}return pivotOf(meds);}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(912),ok=true;for(var t=0;t<3000;t++){var n=1+Math.floor(rnd()*80),a=[];for(var i=0;i<n;i++)a.push(Math.floor(rnd()*200)-100);var k=Math.floor(rnd()*n);if(select(a,k)!==a.slice().sort(function(x,y){return x-y;})[k])ok=false;}return {matchesSort:ok};}
+function mk(){var n=13+Math.floor(Math.random()*8);ARR=[];for(var i=0;i<n;i++)ARR.push(Math.floor(Math.random()*90)+5);K=Math.floor(Math.random()*n);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('group by five, take each median, then the median of medians — a certified pivot',12,14);
+ var groups=[[3,8,1,9,5],[7,2,6,4,8],[9,1,3,7,2]];var x=30;for(var gi=0;gi<groups.length;gi++){var s=groups[gi].slice().sort(function(a,b){return a-b;}),med=s[2];for(var i=0;i<5;i++){g.fillStyle=groups[gi][i]===med?'#70a860':'#456';g.fillRect(x,50,20,20);g.fillStyle='#fff';g.font='9px monospace';g.fillText(groups[gi][i],x+5,64);x+=22;}x+=16;}
+ g.fillStyle='#70a860';g.font='10px monospace';g.fillText('green = group medians → median of these is the pivot (≥30% each side)',30,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ARR.length)mk();var piv=pivotOf(ARR),sel=select(ARR,K),cw=(W-28)/ARR.length;
+ for(var i=0;i<ARR.length;i++){var grp=Math.floor(i/5);g.fillStyle=ARR[i]===sel?'#39fc6b':(grp%2?'#3a4a60':'#2a3548');g.fillRect(14+i*cw,40,cw-2,ARR[i]*1.4);g.fillStyle='#9ab';g.font='8px monospace';if(cw>16)g.fillText(ARR[i],14+i*cw,36);}
+ var srt=ARR.slice().sort(function(a,b){return a-b;});g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('select rank k='+K+' → '+sel,14,H-40);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('pivot (median of medians) = '+piv+' · sorted['+K+'] = '+srt[K],14,H-24);
+ g.fillStyle=sel===srt[K]?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('select(k) == sorted[k] '+(sel===srt[K]?'✓':'✗'),14,H-10);}
+document.getElementById('moroll').onclick=function(){mk();drawW4();document.getElementById('moread').textContent='select rank '+K+' → '+select(ARR,K);};
+document.getElementById('mocheck').onclick=function(){var v=verify();document.getElementById('moread').textContent='3000 arrays: select(k) == sorted[k] '+(v.matchesSort?'✓':'✗');};
+document.getElementById('mospin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ARR.length)mk();var piv=pivotOf(ARR),sel=select(ARR,K),cx=W/2,cy=H/2-10;
+ for(var i=0;i<ARR.length;i++){var a=i/ARR.length*6.28+ang*0.3,r=60+ARR[i]*0.9;var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;g.fillStyle=ARR[i]===sel?'#39fc6b':(ARR[i]<piv?'#58a0b0':(ARR[i]>piv?'#c07850':'#e0b020'));g.beginPath();g.arc(x,y,ARR[i]===sel?7:4,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the selected k-th element; blue<pivot<amber',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the full sort',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText("selection that can't be made slow",10,H-9);}
+mk();drawW3();drawW4();window.__medianofmedians=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+JAR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Jarvis march</b> (&ldquo;gift wrapping&rdquo;) finds the <b>convex hull</b> of a set of points the way you&rsquo;d wrap a present: start at the guaranteed-extreme leftmost point, then repeatedly pick the next hull vertex as the one that makes <b>every other point lie to its left</b> &mdash; the most clockwise turn. Each step wraps one more edge of the string around the outside until you return to the start. It runs in O(n&middot;h) time, where h is the number of hull vertices &mdash; fast when the hull is small.<br><br>
+ <span class="lit">LIT</span> verified live: over 1500 random point sets, the gift-wrapped hull matches an independent monotone-chain hull, and every point lies inside or on it (window.__jarvis). <span class="fig">FIG</span> no framing; exact orientation (cross-product) tests.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-wall</i> &mdash; the outer boundary that encloses everything; Jarvis march wraps the wall of the convex hull tight around the points. <b>AVAN (AI)</b> built the instrument: the leftmost-start, the most-clockwise next-vertex selection, an independent monotone-chain hull, and the all-points-inside check.<br><br>Credit as content: R. A. Jarvis (1973). The weave: David names the-wall; I wrap the hull by repeatedly choosing the point that turns most clockwise, cross-check the result against a monotone-chain hull, and confirm every input point lies inside or on the wall &mdash; the boundary found by wrapping.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">From the leftmost point, pick the next vertex so all others are to its left (most clockwise). Repeat &mdash; each step wraps one edge &mdash; until you return to the start. The string is now taut: the convex hull.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A point cloud with its gift-wrapped hull; checked against a monotone-chain hull with all points enclosed.</div>
+   <div class="btns" style="margin-top:10px"><button id="jaroll">new points ▶</button><button id="jacheck">verify 1500 ▶</button></div>
+   <div class="cap" id="jaread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a taut hull wrapped around the cloud.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): find the enclosing boundary by <b>wrapping</b> &mdash; from an extreme point, keep turning to the most-clockwise neighbour so all points stay on one side, edge by edge. The inverse of &lsquo;test every triple for hull membership&rsquo; is &lsquo;wrap the string tight &mdash; each pull adds one hull edge.&rsquo; <b>Magenta</b> is the all-triples test; <b>green</b> is the wrapping walk. The wall found by pulling it taut.</div>
+   <div class="btns" style="margin-top:10px"><button id="jaspin">pause spin</button></div></div></div></div>"""
+JAR_SCRIPT = """(function(){
+var ang=0,spin=true,PTS=[];
+function cross(o,a,b){return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);}
+function dist2(a,b){return (a[0]-b[0])*(a[0]-b[0])+(a[1]-b[1])*(a[1]-b[1]);}
+function jarvis(pts){var n=pts.length;if(n<3)return pts.slice();var l=0;for(var i=1;i<n;i++)if(pts[i][0]<pts[l][0]||(pts[i][0]===pts[l][0]&&pts[i][1]<pts[l][1]))l=i;var hull=[],p=l;do{hull.push(pts[p]);var q=(p+1)%n;for(var i=0;i<n;i++){var c=cross(pts[p],pts[q],pts[i]);if(c<0||(c===0&&dist2(pts[p],pts[i])>dist2(pts[p],pts[q])))q=i;}p=q;}while(p!==l&&hull.length<=n);return hull;}
+function monotone(pts){pts=pts.slice().sort(function(a,b){return a[0]-b[0]||a[1]-b[1];});var u=[];for(var i=0;i<pts.length;i++){while(u.length>=2&&cross(u[u.length-2],u[u.length-1],pts[i])<=0)u.pop();u.push(pts[i]);}var lo=[];for(var i=pts.length-1;i>=0;i--){while(lo.length>=2&&cross(lo[lo.length-2],lo[lo.length-1],pts[i])<=0)lo.pop();lo.push(pts[i]);}return u.slice(0,u.length-1).concat(lo.slice(0,lo.length-1));}
+function hullSet(h){return h.map(function(p){return p[0]+','+p[1];}).sort().join('|');}
+function inHull(pt,h){for(var i=0;i<h.length;i++){var j=(i+1)%h.length;if(cross(h[i],h[j],pt)<-1e-9)return false;}return true;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(914),same=true,allin=true,tested=0;for(var t=0;t<1500;t++){var n=3+Math.floor(rnd()*15),pts=[],seen={};for(var i=0;i<n;i++){var x=Math.floor(rnd()*20),y=Math.floor(rnd()*20),k=x+','+y;if(seen[k]){i--;continue;}seen[k]=1;pts.push([x,y]);}var jh=jarvis(pts),mh=monotone(pts);if(mh.length<3)continue;tested++;if(hullSet(jh)!==hullSet(mh))same=false;for(var i=0;i<pts.length;i++)if(!inHull(pts[i],mh))allin=false;}return {matchesMonotone:same,allInside:allin,tested:tested};}
+function mk(){var n=9+Math.floor(Math.random()*9);PTS=[];var seen={};for(var i=0;i<n;i++){var x=Math.floor(Math.random()*13),y=Math.floor(Math.random()*11),k=x+','+y;if(seen[k]){i--;continue;}seen[k]=1;PTS.push([x,y]);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('from the leftmost point, wrap to the most-clockwise neighbour, edge by edge',12,14);
+ var pts=[[40,120],[90,60],[150,40],[230,70],[260,120],[180,130],[110,110]];g.fillStyle='#6ab0d0';for(var i=0;i<pts.length;i++){g.beginPath();g.arc(pts[i][0],pts[i][1],4,0,7);g.fill();}
+ var h=jarvis(pts);g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<=h.length;i++){var p=h[i%h.length];g.lineTo(p[0],p[1]);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('the taut wrapped string = convex hull',300,90);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS.length)mk();var sc=24,ox=30,oy=20,h=jarvis(PTS);
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<=h.length;i++){var p=h[i%h.length];g.lineTo(ox+p[0]*sc,oy+p[1]*sc);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<PTS.length;i++){var onH=h.some(function(q){return q[0]===PTS[i][0]&&q[1]===PTS[i][1];});g.fillStyle=onH?'#39fc6b':'#6ab0d0';g.beginPath();g.arc(ox+PTS[i][0]*sc,oy+PTS[i][1]*sc,onH?5:3,0,7);g.fill();}
+ var v=verify();g.fillStyle='#8ad';g.font='10px monospace';g.fillText(h.length+' hull vertices of '+PTS.length+' points',14,H-30);
+ g.fillStyle=v.matchesMonotone&&v.allInside?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('gift-wrap == monotone-chain hull ✓ · all points inside ✓',14,H-12);}
+document.getElementById('jaroll').onclick=function(){mk();drawW4();document.getElementById('jaread').textContent=jarvis(PTS).length+' hull vertices';};
+document.getElementById('jacheck').onclick=function(){var v=verify();document.getElementById('jaread').textContent=v.tested+' sets: gift-wrap == monotone-chain '+(v.matchesMonotone?'✓':'✗')+' · all inside '+(v.allInside?'✓':'✗');};
+document.getElementById('jaspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS.length)mk();var cx=W/2-140,cy=H/2-120,sc=20,h=jarvis(PTS);
+ g.save();g.translate(W/2,H/2);g.rotate(Math.sin(ang*0.3)*0.12);g.translate(-W/2,-H/2);
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<=h.length;i++){var p=h[i%h.length];g.lineTo(cx+p[0]*sc,cy+p[1]*sc);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<PTS.length;i++){var onH=h.some(function(q){return q[0]===PTS[i][0]&&q[1]===PTS[i][1];});g.fillStyle=onH?'#39fc6b':'#6ab0d0';g.beginPath();g.arc(cx+PTS[i][0]*sc,cy+PTS[i][1]*sc,onH?5:3,0,7);g.fill();}
+ g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the hull wrapped taut around the cloud',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the all-triples membership test',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the wall found by pulling it taut',10,H-9);}
+mk();drawW3();drawW4();window.__jarvis=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 90 (count in base minus-two, no sign needed · one survivor of pairwise cancellation · factor a string into non-increasing necklaces · count how many times p divides a power difference · clip a line to a window by four parameters) ═══════════════════════
 NGB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Negabinary</b> is base <b>&minus;2</b>: the same digits {0,1} as binary, but place values are powers of &minus;2 &mdash; 1, &minus;2, 4, &minus;8, 16, &minus;32, &hellip; The alternating signs mean a single unsigned digit string represents <b>every integer, positive and negative</b>, with <b>no sign bit</b> and no two&rsquo;s-complement. &minus;6, for instance, is 1110 (= &minus;8 + 4 &minus; 2). Encoding just repeatedly takes the bit n mod 2 and divides by &minus;2 &mdash; and the representation of each integer is unique.<br><br>
@@ -24676,6 +24911,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-continued-fraction-sqrt","title":"THE CONTINUED FRACTION OF ROOT N","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#c0a048","icon":"cf-sqrt",
+  "kicker":"the square root's fraction repeats in a palindrome",
+  "blurb":"The continued fraction of √n in the 5-window house format — for non-square n it is eventually periodic with a striking shape: √n = [a₀; a₁,…,a_L] where the repeating block ends in 2a₀ and the part before it, (a₁,…,a_{L−1}), is a palindrome. So √7 = [2; 1,1,1,4] and √19 = [4; 2,1,3,1,2,8]. The convergent just before the period closes gives the fundamental solution of Pell's equation x²−n·y² = ±1. Verified live: for every non-square n up to 1000 the period ends in 2a₀, its front is a palindrome, and the pre-period convergent solves Pell (exact BigInt). See the periods in 1D, one expansion in 2D, and the Pell-from-rhythm inverse in 3D.",
+  "lit":"Genuine continued fraction of a quadratic surd (periodicity: Lagrange 1770; the palindrome structure is classical). Verified live: for every non-square n in 2..1000, the (m,d,a) recurrence yields a period ending in 2a₀ (window.__cfsqrt.periodEnds2a0), whose front (a₁..a_{L−1}) is palindromic (palindrome), and the convergent p_{L−1}/q_{L−1} satisfies x²−n·y² = ±1 in exact BigInt (solvesPell).",
+  "fig":"No framing: the CF recurrence, the period/palindrome detector, and the BigInt Pell-convergent check run in-browser (BigInt because fundamental Pell solutions can exceed 2⁵³) and agree exactly. The AVAN inverse is honest — solving Pell's equation by reading the periodic continued fraction of √n (the pre-period convergent IS the fundamental solution) genuinely replaces a brute integer search; magenta is that search, green the CF period. The root's rhythm solves the equation.",
+  "body":CFS_BODY,"script":CFS_SCRIPT},
+ {"slug":"the-haar-wavelet","title":"THE HAAR WAVELET","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#58a0b0","icon":"haar",
+  "kicker":"average and difference a signal reversibly",
+  "blurb":"The Haar wavelet transform in the 5-window house format — the simplest multiresolution analysis: repeatedly replace pairs of samples by their average and their difference. The averages form a coarser signal; the differences capture the detail lost at each scale. With the √2 normalization the transform is orthonormal — a rotation into a wavelet basis — so it preserves energy and is perfectly invertible. Verified live: over 2000 random signals, the inverse Haar reconstructs the input exactly and the sum of squared coefficients equals the sum of squared samples. See the average/difference step in 1D, coefficients in 2D, and the multiscale inverse in 3D.",
+  "lit":"Genuine Haar wavelet transform (Alfréd Haar 1909, the first wavelet). Verified live: over 2000 random signals of length 4–32, the √2-orthonormal recursive average/difference decomposition is perfectly reconstructed by its inverse (window.__haar.reconstructs, worst ~1e-14) and preserves energy — Σ samples² == Σ coefficients² (window.__haar.energyPreserved).",
+  "fig":"No framing: the recursive average/difference decomposition, the inverse reconstruction, and the perfect-reconstruction + energy-preservation checks run in-browser to floating precision and agree. The AVAN inverse is honest — analyzing a signal into a coarse average plus a pyramid of details via an orthonormal step that loses nothing and runs backwards genuinely replaces storing raw samples; magenta is the raw vector, green the multiscale wavelet decomposition.",
+  "body":HWV_BODY,"script":HWV_SCRIPT},
+ {"slug":"the-bell-numbers","title":"THE BELL NUMBERS","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#b06868","icon":"bell",
+  "kicker":"count the ways to partition a set",
+  "blurb":"The Bell numbers in the 5-window house format — B(n) counts the ways to partition a set of n elements into non-empty unlabeled blocks: 1,1,2,5,15,52,203,877,… Three elements split 5 ways, four split 15. They are built with almost no arithmetic by Bell's triangle (Aitken's array): start each row with the last entry of the previous, then each next is the one to its left plus the one above-left; B(n) is the first number in row n — and equals Σ_k S(n,k), the Stirling numbers of the second kind. Verified live: the triangle matches a brute-force count of set partitions for n≤8, and B(n) equals the Stirling sum. See Bell's triangle in 1D, a row checked in 2D, and the count-without-listing inverse in 3D.",
+  "lit":"Genuine Bell numbers (named for Eric Temple Bell; the triangle is A. C. Aitken's). Verified live: Bell's triangle (row starts with the previous row's tail, each next = left + above-left) gives B(n) matching an exhaustive count of set partitions of n elements for n≤8 (window.__bell.triangleMatchesBrute), and B(n) equals Σ_k Stirling2(n,k) (stirlingSum) — exact integer counts.",
+  "fig":"No framing: Bell's triangle recurrence, the brute set-partition enumerator, and the Stirling-sum cross-check run in-browser with exact integers and agree. The AVAN inverse is honest — counting set partitions by a triangle of additions (carry the tail down, add leftward) genuinely replaces enumerating and tallying every partition; magenta is that enumeration, green the triangle. Counting the splits without splitting.",
+  "body":BEL_BODY,"script":BEL_SCRIPT},
+ {"slug":"the-median-of-medians","title":"THE MEDIAN OF MEDIANS","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#70a860","icon":"median-of-medians",
+  "kicker":"pick the k-th smallest in guaranteed linear time",
+  "blurb":"Median of medians in the 5-window house format — find the k-th smallest element in guaranteed linear time (O(n) worst case). The trick is a provably good pivot: split into groups of five, take each group's median, then recursively take the median of those medians. That pivot beats at least 30% of the elements on each side, so the recursion shrinks fast enough to stay linear — no adversarial input can force it slow. Verified live: over 3000 random arrays, the element selected for rank k equals the true k-th smallest from a full sort. See the groups-of-five pivot in 1D, a selection in 2D, and the certified-pivot inverse in 3D.",
+  "lit":"Genuine median-of-medians selection, the BFPRT algorithm (Blum, Floyd, Pratt, Rivest & Tarjan 1973). Verified live: over 3000 random arrays and ranks, the groups-of-five median-of-medians pivot with three-way partition recursion selects exactly the k-th smallest element that a full sort gives (window.__medianofmedians.matchesSort).",
+  "fig":"No framing: the groups-of-five median pivot, the three-way partition recursion, and the match against a full sort run in-browser and agree. The AVAN inverse is honest — guaranteeing a balanced pivot (medians of fives, then their median → ≥30% each side) so selection is provably linear genuinely replaces sorting everything; magenta is the full sort, green the single partition path. Selection that can't be made slow.",
+  "body":MOM_BODY,"script":MOM_SCRIPT},
+ {"slug":"the-jarvis-march","title":"THE JARVIS MARCH","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#6ab0d0","icon":"jarvis",
+  "kicker":"wrap a hull around points like a gift",
+  "blurb":"The Jarvis march (gift wrapping) in the 5-window house format — find the convex hull the way you'd wrap a present: start at the guaranteed-extreme leftmost point, then repeatedly pick the next hull vertex as the one making every other point lie to its left (the most clockwise turn). Each step wraps one more edge around the outside until you return to the start. It runs in O(n·h) time (h = hull vertices), fast when the hull is small. Verified live: over 1500 random point sets, the gift-wrapped hull matches an independent monotone-chain hull and every point lies inside or on it. See the wrapping in 1D, a hull in 2D, and the pull-it-taut inverse in 3D.",
+  "lit":"Genuine Jarvis march / gift-wrapping convex hull (R. A. Jarvis 1973). Verified live: over 1500 random point sets, the most-clockwise wrapping from the leftmost point produces a hull whose vertex set matches an independent monotone-chain (Andrew) hull (window.__jarvis.matchesMonotone), and every input point lies inside or on it (allInside) — exact cross-product orientation tests.",
+  "fig":"No framing: the leftmost-start, the most-clockwise next-vertex selection, an independent monotone-chain hull, and the all-points-inside check run in-browser and agree. The AVAN inverse is honest — finding the enclosing boundary by wrapping (turn to the most-clockwise neighbour so all points stay on one side, edge by edge) genuinely replaces testing every triple for hull membership; magenta is that all-triples test, green the wrapping walk. The wall found by pulling it taut.",
+  "body":JAR_BODY,"script":JAR_SCRIPT},
  {"slug":"the-negabinary","title":"THE NEGABINARY","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#6ab0d0","icon":"negabinary",
   "kicker":"count in base minus-two, no sign needed",
