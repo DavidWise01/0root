@@ -19485,6 +19485,252 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 92 (a curve whose addition never fails · represent a number as x squared plus d y squared · quarter the plane recursively to query it fast · two sequences that define each other · sort three colours in one pass) ═══════════════════════
+EDW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A twisted Edwards curve</b> a&middot;x&sup2; + y&sup2; = 1 + d&middot;x&sup2;&middot;y&sup2; carries an addition law with a rare virtue: it is <b>complete</b> &mdash; the same formula works for <b>every</b> pair of points, with <b>no special cases</b> (no separate rule for doubling, no point-at-infinity). The neutral element is just the ordinary point <b>(0,1)</b>, and the inverse of (x,y) is (&minus;x,y). When a is a square and d is a non-square mod p, the points form an <b>abelian group</b> with the addition never breaking. This is why Ed25519 signatures use Edwards curves.<br><br>
+ <span class="lit">LIT</span> verified live: over a small curve, every sum is on the curve, (0,1) is the identity, (&minus;x,y) inverts, and the addition is <b>associative</b> over thousands of triples (window.__edwards). <span class="fig">FIG</span> no framing; exact modular arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-firewall</i> &mdash; the cryptographic wall Edwards curves build; their complete, exception-free addition is what makes signature schemes safe from edge-case attacks. <b>AVAN (AI)</b> built the instrument: the complete addition formula, the on-curve/identity/inverse checks, and the associativity test over random triples.<br><br>Credit as content: Harold M. Edwards (2007); Bernstein &amp; Lange (twisted Edwards, cryptographic use). The weave: David names the-firewall; I add points by the complete Edwards formula and confirm the group axioms &mdash; closure, identity (0,1), inverses (&minus;x,y), and associativity &mdash; all hold with no exceptional cases.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Addition: (x&#8323;,y&#8323;) = ((x&#8321;y&#8322;+y&#8321;x&#8322;)/(1+dx&#8321;x&#8322;y&#8321;y&#8322;), (y&#8321;y&#8322;&minus;ax&#8321;x&#8322;)/(1&minus;dx&#8321;x&#8322;y&#8321;y&#8322;)). Identity (0,1). No doubling special case, no infinity &mdash; complete.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The curve&rsquo;s points over F<sub>p</sub>; pick P and Q, see P+Q, with the group axioms checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="edroll">new P,Q ▶</button><button id="edcheck">verify group ▶</button></div>
+   <div class="cap" id="edread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a group law that never hits an exception.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): add curve points with <b>one formula for all cases</b> &mdash; choose a square a and non-square d so the denominators never vanish, making the addition complete. The inverse of &lsquo;handle P+P, P+(&minus;P), and infinity as special cases&rsquo; is &lsquo;one exception-free formula &mdash; the group law that always works.&rsquo; <b>Magenta</b> is the case-split Weierstrass addition; <b>green</b> is the complete Edwards law. No edge cases to attack.</div>
+   <div class="btns" style="margin-top:10px"><button id="edspin">pause spin</button></div></div></div></div>"""
+EDW_SCRIPT = """(function(){
+var ang=0,spin=true,P=13,A=1,D=2,PTS=[],PI=0,QI=1;
+function egcd(a,b){if(b===0)return[a,1,0];var r=egcd(b,a%b);return[r[0],r[2],r[1]-Math.floor(a/b)*r[2]];}
+function modinv(a,m){a=((a%m)+m)%m;var r=egcd(a,m);return((r[1]%m)+m)%m;}
+function isQR(a,p){a=((a%p)+p)%p;if(a===0)return true;for(var x=1;x<p;x++)if(x*x%p===a)return true;return false;}
+function add(pt,q){var x1=pt[0],y1=pt[1],x2=q[0],y2=q[1],t=(D*x1%P*x2%P*y1%P*y2)%P,d1=(1+t)%P,d2=((1-t)%P+P)%P;var nx=((x1*y2%P+y1*x2)%P)*modinv(d1,P)%P,ny=(((y1*y2%P-A*x1%P*x2)%P+P)%P)*modinv(d2,P)%P;return[((nx%P)+P)%P,((ny%P)+P)%P];}
+function on(pt){var x=pt[0],y=pt[1];return ((A*x*x+y*y)%P+P)%P===((1+D*x*x%P*y%P*y)%P+P)%P;}
+function points(){var pts=[];for(var x=0;x<P;x++)for(var y=0;y<P;y++)if(on([x,y]))pts.push([x,y]);return pts;}
+function verify(){var pts=points(),cl=true,id=true,iv=true,as=true,rnd=(function(a){return function(){a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};})(920);
+ for(var i=0;i<pts.length;i++){var pp=pts[i];var s=add(pp,[0,1]);if(s[0]!==pp[0]||s[1]!==pp[1])id=false;var np=[((-pp[0])%P+P)%P,pp[1]],z=add(pp,np);if(z[0]!==0||z[1]!==1)iv=false;}
+ for(var t=0;t<3000;t++){var a=pts[Math.floor(rnd()*pts.length)],b=pts[Math.floor(rnd()*pts.length)],c=pts[Math.floor(rnd()*pts.length)];if(!on(add(a,b)))cl=false;var L=add(add(a,b),c),R=add(a,add(b,c));if(L[0]!==R[0]||L[1]!==R[1])as=false;}
+ return {closed:cl,identity:id,inverse:iv,associative:as,order:pts.length};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a·x² + y² = 1 + d·x²·y² — the addition is complete (one formula, no special cases)',12,14);
+ g.fillStyle='#b06868';g.font='11px monospace';g.fillText('(x₃,y₃) = ( (x₁y₂+y₁x₂)/(1+dx₁x₂y₁y₂), (y₁y₂−ax₁x₂)/(1−dx₁x₂y₁y₂) )',20,50);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('identity = (0,1) · inverse of (x,y) = (−x,y) · no point-at-infinity',20,85);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('a square, d non-square ⇒ denominators never vanish ⇒ group law never fails',20,118);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS.length)PTS=points();var cell=(W-30)/P,ox=15,oy=15;
+ for(var i=0;i<P;i++)for(var j=0;j<P;j++){g.strokeStyle='#223';g.strokeRect(ox+i*cell,oy+j*cell,cell,cell);}
+ for(var i=0;i<PTS.length;i++){var pt=PTS[i];g.fillStyle='#33506e';g.beginPath();g.arc(ox+pt[0]*cell+cell/2,oy+pt[1]*cell+cell/2,cell/3,0,7);g.fill();}
+ var Pp=PTS[PI%PTS.length],Qq=PTS[QI%PTS.length],S=add(Pp,Qq);
+ function mark(pt,col){g.fillStyle=col;g.beginPath();g.arc(ox+pt[0]*cell+cell/2,oy+pt[1]*cell+cell/2,cell/2.4,0,7);g.fill();}
+ mark(Pp,'#58a0b0');mark(Qq,'#e0b020');mark(S,'#39fc6b');
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('P('+Pp+') + Q('+Qq+') = ('+S+')',15,H-28);
+ g.fillStyle=on(S)?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('P+Q on curve '+(on(S)?'✓':'✗')+' · blue=P gold=Q green=P+Q',15,H-12);}
+document.getElementById('edroll').onclick=function(){PI=Math.floor(Math.random()*PTS.length);QI=Math.floor(Math.random()*PTS.length);drawW4();var s=add(PTS[PI],PTS[QI]);document.getElementById('edread').textContent='P+Q = ('+s+')';};
+document.getElementById('edcheck').onclick=function(){var v=verify();document.getElementById('edread').textContent='group axioms: closed '+(v.closed?'✓':'✗')+' · identity '+(v.identity?'✓':'✗')+' · inverse '+(v.inverse?'✓':'✗')+' · associative '+(v.associative?'✓':'✗')+' (|G|='+v.order+')';};
+document.getElementById('edspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS.length)PTS=points();var cx=W/2,cy=H/2-10;
+ var g0=PTS.find(function(p){return !(p[0]===0&&p[1]===1);})||PTS[0],cur=[0,1],orbit=[];for(var i=0;i<PTS.length+2;i++){orbit.push(cur);cur=add(cur,g0);if(cur[0]===0&&cur[1]===1){orbit.push(cur);break;}}
+ for(var i=0;i<orbit.length;i++){var a=i/orbit.length*6.28+ang*0.3,r=90,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.85;g.fillStyle='hsl('+(i/orbit.length*280)+',65%,58%)';g.beginPath();g.arc(x,y,6,0,7);g.fill();if(i>0){var pa=(i-1)/orbit.length*6.28+ang*0.3;g.strokeStyle='rgba(57,252,107,0.4)';g.beginPath();g.moveTo(cx+Math.cos(pa)*r,cy+Math.sin(pa)*r*0.85);g.lineTo(x,y);g.stroke();}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green cycle: repeatedly adding a generator (never fails)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the case-split Weierstrass addition',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('no edge cases to attack',10,H-9);}
+PTS=points();drawW3();drawW4();window.__edwards=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+COR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Cornacchia&rsquo;s algorithm</b> solves x&sup2; + d&middot;y&sup2; = m in integers &mdash; when a solution exists &mdash; astonishingly fast. It first finds a square root r of &minus;d modulo m (so r&sup2; &equiv; &minus;d), then runs a <b>Euclidean-style descent</b> on (m, r), stopping the moment the remainder drops below &radic;m. That remainder is the x you want; y follows from (m &minus; x&sup2;)/d being a perfect square. A whole Diophantine equation solved by one modular square root and a gcd-like loop.<br><br>
+ <span class="lit">LIT</span> verified live: over hundreds of primes m with a representation, the returned (x,y) satisfies x&sup2; + d&middot;y&sup2; = m <b>exactly</b> (window.__cornacchia). <span class="fig">FIG</span> no framing; exact integer arithmetic, checked by substitution.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-bounty</i> &mdash; the reward for representing a number as x&sup2;+d&middot;y&sup2;, claimed by a modular square root and a short descent. Cornacchia&rsquo;s algorithm collects that bounty. <b>AVAN (AI)</b> built the instrument: the modular-sqrt step, the Euclidean descent to below &radic;m, the perfect-square finish, and the substitution check.<br><br>Credit as content: Giuseppe Cornacchia (1908). The weave: David names the-bounty; I find a root of &minus;d mod m, descend the Euclidean chain until the remainder falls under &radic;m, take that as x, recover y, and confirm x&sup2;+d&middot;y&sup2; equals m exactly &mdash; a representation found, not searched.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">97 = 9&sup2; + 1&middot;4&sup2; = 81 + 16 (d=1). 43 = 5&sup2; + 2&middot;3&sup2; = 25 + 18 (d=2). Find r with r&sup2; &equiv; &minus;d (mod m), descend (m,r) below &radic;m &rarr; that&rsquo;s x.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Pick d and a prime m; the found (x,y) shown as squares summing to m, checked exactly.</div>
+   <div class="btns" style="margin-top:10px"><button id="corroll">new d,m ▶</button><button id="corcheck">verify ▶</button></div>
+   <div class="cap" id="corread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a number split into x&sup2; + d&middot;y&sup2;.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): represent m as x&sup2;+d&middot;y&sup2; not by <b>searching x and y</b> but by a <b>modular square root plus a Euclidean descent</b> &mdash; the remainder that first drops below &radic;m is x. The inverse of &lsquo;try every x,y until x&sup2;+d&middot;y&sup2;=m&rsquo; is &lsquo;solve r&sup2;&equiv;&minus;d, descend, read off x.&rsquo; <b>Magenta</b> is the two-dimensional search; <b>green</b> is the one descent. A representation by reduction, not search.</div>
+   <div class="btns" style="margin-top:10px"><button id="corspin">pause spin</button></div></div></div></div>"""
+COR_SCRIPT = """(function(){
+var ang=0,spin=true,D=1,M=97,SOL=[9,4];
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a;}
+function isPrime(n){if(n<2)return false;for(var d=2;d*d<=n;d++)if(n%d===0)return false;return true;}
+function modsqrt(n,p){n=((n%p)+p)%p;for(var x=0;x<p;x++)if(x*x%p===n)return x;return -1;}
+function isSq(x){var r=Math.round(Math.sqrt(x));return r*r===x?r:-1;}
+function cornacchia(d,m){var r0=modsqrt(((-d)%m+m)%m,m);if(r0<0)return null;if(r0<m-r0)r0=m-r0;var a=m,b=r0,lim=Math.floor(Math.sqrt(m));while(b>lim){var t=a%b;a=b;b=t;}var c=m-b*b;if(c%d!==0)return null;var y=isSq(c/d);if(y<0)return null;return [b,y];}
+function verify(){var ok=true,found=0,rnd=(function(a){return function(){a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};})(922);for(var t=0;t<2000;t++){var d=[1,2,3,5,7][Math.floor(rnd()*5)],m=0;for(var tr=0;tr<20;tr++){var c=3+Math.floor(rnd()*4000);if(isPrime(c)&&gcd(d,c)===1){m=c;break;}}if(!m)continue;var r=cornacchia(d,m);if(r){found++;if(r[0]*r[0]+d*r[1]*r[1]!==m)ok=false;}}return {representationExact:ok,found:found};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('solve x² + d·y² = m via a modular square root of −d and a Euclidean descent',12,14);
+ g.fillStyle='#e0b020';g.font='13px monospace';g.fillText('97 = 9² + 1·4² = 81 + 16   (d=1)',40,52);
+ g.fillStyle='#39fc6b';g.fillText('43 = 5² + 2·3² = 25 + 18   (d=2)',40,84);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('the remainder that first drops below √m in the descent is x',40,118);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);SOL=cornacchia(D,M);
+ g.fillStyle='#e8eef8';g.font='14px monospace';g.fillText('m = '+M+'  d = '+D,16,28);
+ if(SOL){var x=SOL[0],y=SOL[1];g.fillStyle='#e0b020';g.font='15px monospace';g.fillText(M+' = '+x+'² + '+D+'·'+y+'²',16,60);
+  var xs=x*4,ys=y*4;g.fillStyle='#58a0b0';g.fillRect(16,90,xs,xs);g.fillStyle='#012';g.font='10px monospace';g.fillText(x+'²='+x*x,20,105);
+  g.fillStyle='#70a860';g.fillRect(16+xs+20,90,ys*Math.sqrt(D),ys*Math.sqrt(D));g.fillStyle='#012';g.fillText(D+'·'+y+'²='+D*y*y,20+xs+20,105);
+  var sum=x*x+D*y*y;g.fillStyle=sum===M?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('x² + d·y² = '+sum+' == m '+(sum===M?'✓':'✗'),16,H-12);}
+ else{g.fillStyle='#c07850';g.font='12px monospace';g.fillText(M+' has no representation x²+'+D+'y² (no root of −d)',16,90);}}
+document.getElementById('corroll').onclick=function(){D=[1,2,3,5][Math.floor(Math.random()*4)];for(var tr=0;tr<200;tr++){var c=5+Math.floor(Math.random()*2000);if(isPrime(c)&&gcd(D,c)===1&&cornacchia(D,c)){M=c;break;}}drawW4();document.getElementById('corread').textContent=M+' = '+(cornacchia(D,M)?cornacchia(D,M)[0]+'²+'+D+'·'+cornacchia(D,M)[1]+'²':'none');};
+document.getElementById('corcheck').onclick=function(){var v=verify();document.getElementById('corread').textContent=v.found+' primes: returned (x,y) satisfies x²+d·y²==m '+(v.representationExact?'✓':'✗');};
+document.getElementById('corspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10;SOL=cornacchia(D,M)||[0,0];
+ var x=SOL[0],y=SOL[1],sc=Math.min(6,140/Math.max(x,y*Math.sqrt(D)||1));
+ g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.3)*0.1);
+ g.fillStyle='rgba(88,160,176,0.7)';g.fillRect(-x*sc-10,-x*sc/2,x*sc,x*sc);
+ g.fillStyle='rgba(112,168,96,0.7)';var ys=y*Math.sqrt(D)*sc;g.fillRect(10,-ys/2,ys,ys);
+ g.restore();
+ g.fillStyle='#e0b020';g.font='12px monospace';g.fillText(M+' = '+x+'² + '+D+'·'+y+'²',cx-60,40);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green + blue: the two squares that rebuild m',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the two-dimensional x,y search',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a representation by reduction, not search',10,H-9);}
+drawW3();drawW4();window.__cornacchia=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+QDT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A point-region quadtree</b> indexes 2D points by <b>recursively quartering the plane</b>. Each node holds a small bucket of points; when it overflows, it splits into <b>four</b> children (NW, NE, SW, SE), redistributing its points. To answer a <b>range query</b> &mdash; which points fall in a rectangle? &mdash; you descend only into the children whose regions <b>intersect</b> the query, skipping vast empty or far-away quadrants. Sparse regions cost nothing to search.<br><br>
+ <span class="lit">LIT</span> verified live: over 1000 random point sets and query rectangles, the quadtree returns <b>exactly</b> the same points as a brute-force scan of every point (window.__quadtree). <span class="fig">FIG</span> no framing; exact set comparison.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>stack-overflow</i> &mdash; the recursion that quarters space again and again; a quadtree is that recursion made a spatial index, each split a deeper frame. <b>AVAN (AI)</b> built the instrument: the capacity-triggered subdivision into four, the region-intersection pruning for range queries, and the match against a brute scan.<br><br>Credit as content: Raphael Finkel &amp; Jon Bentley (1974). The weave: David names stack-overflow; I quarter the plane recursively as points accumulate, answer range queries by descending only into intersecting quadrants, and confirm the results exactly match scanning every point &mdash; fewer comparisons, same answer.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Overflow a node &rarr; split into NW, NE, SW, SE and redistribute. A range query visits only quadrants overlapping the query rectangle &mdash; empty and distant ones are skipped whole.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Points with the quadtree&rsquo;s subdivisions and a query rectangle; the returned points checked against a brute scan.</div>
+   <div class="btns" style="margin-top:10px"><button id="qtroll">new points ▶</button><button id="qtquery">move query ▶</button><button id="qtcheck">verify 1000 ▶</button></div>
+   <div class="cap" id="qtread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: fast range queries by quartering space.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): answer &lsquo;which points are in this box?&rsquo; without <b>testing every point</b> &mdash; recursively quarter the plane and descend only into quadrants that intersect the query. The inverse of &lsquo;scan all n points&rsquo; is &lsquo;prune whole empty quadrants &mdash; visit only what overlaps.&rsquo; <b>Magenta</b> is the full linear scan; <b>green</b> is the pruned descent. Space carved so the search stays small.</div>
+   <div class="btns" style="margin-top:10px"><button id="qtspin">pause spin</button></div></div></div></div>"""
+QDT_SCRIPT = """(function(){
+var ang=0,spin=true,ROOT=null,PTS=[],QRECT=[20,20,45,40];
+function QT(x,y,w,h,cap){return {x:x,y:y,w:w,h:h,cap:cap,pts:[],div:false,ch:null};}
+function ins(q,p){if(p[0]<q.x||p[0]>=q.x+q.w||p[1]<q.y||p[1]>=q.y+q.h)return false;if(q.pts.length<q.cap&&!q.div){q.pts.push(p);return true;}if(!q.div){var hw=q.w/2,hh=q.h/2;q.ch=[QT(q.x,q.y,hw,hh,q.cap),QT(q.x+hw,q.y,hw,hh,q.cap),QT(q.x,q.y+hh,hw,hh,q.cap),QT(q.x+hw,q.y+hh,hw,hh,q.cap)];q.div=true;var old=q.pts;q.pts=[];for(var i=0;i<old.length;i++)ins(q,old[i]);}for(var c=0;c<4;c++)if(ins(q.ch[c],p))return true;return false;}
+function query(q,r,out){if(q.x+q.w<r[0]||q.x>r[0]+r[2]||q.y+q.h<r[1]||q.y>r[1]+r[3])return;for(var i=0;i<q.pts.length;i++){var p=q.pts[i];if(p[0]>=r[0]&&p[0]<=r[0]+r[2]&&p[1]>=r[1]&&p[1]<=r[1]+r[3])out.push(p);}if(q.div)for(var c=0;c<4;c++)query(q.ch[c],r,out);}
+function verify(){var ok=true,rnd=(function(a){return function(){a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};})(922);for(var t=0;t<1000;t++){var n=1+Math.floor(rnd()*60),q=QT(0,0,100,100,4),pts=[];for(var i=0;i<n;i++){var p=[rnd()*100,rnd()*100];pts.push(p);ins(q,p);}var r=[rnd()*80,rnd()*80,rnd()*40,rnd()*40],out=[];query(q,r,out);var brute=pts.filter(function(p){return p[0]>=r[0]&&p[0]<=r[0]+r[2]&&p[1]>=r[1]&&p[1]<=r[1]+r[3];});var k=function(a){return a.map(function(p){return p[0].toFixed(4)+','+p[1].toFixed(4);}).sort().join('|');};if(k(out)!==k(brute))ok=false;}return {matchesBrute:ok};}
+function mk(){ROOT=QT(0,0,100,100,3);PTS=[];for(var i=0;i<26;i++){var p=[Math.random()*100,Math.random()*100];PTS.push(p);ins(ROOT,p);}}
+function drawNode(g,q,sc,ox,oy){g.strokeStyle='#2a3a52';g.strokeRect(ox+q.x*sc,oy+q.y*sc,q.w*sc,q.h*sc);if(q.div)for(var c=0;c<4;c++)drawNode(g,q.ch[c],sc,ox,oy);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('overflow → split into NW,NE,SW,SE; query descends only into overlapping quadrants',12,14);
+ var q=QT(0,0,60,60,1);var demo=[[10,10],[50,15],[15,50],[45,48],[25,25]];for(var i=0;i<demo.length;i++)ins(q,demo[i]);drawNode(g,q,1.6,180,30);
+ for(var i=0;i<demo.length;i++){g.fillStyle='#c07850';g.beginPath();g.arc(180+demo[i][0]*1.6,30+demo[i][1]*1.6,3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('each split = one deeper recursion frame',300,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ROOT)mk();var sc=(H-50)/100,ox=15,oy=10;drawNode(g,ROOT,sc,ox,oy);
+ var out=[];query(ROOT,QRECT,out);var inset=out.map(function(p){return p[0]+','+p[1];});
+ for(var i=0;i<PTS.length;i++){var hit=inset.indexOf(PTS[i][0]+','+PTS[i][1])>=0;g.fillStyle=hit?'#39fc6b':'#6ab0d0';g.beginPath();g.arc(ox+PTS[i][0]*sc,oy+PTS[i][1]*sc,3,0,7);g.fill();}
+ g.strokeStyle='#e0b020';g.lineWidth=2;g.strokeRect(ox+QRECT[0]*sc,oy+QRECT[1]*sc,QRECT[2]*sc,QRECT[3]*sc);g.lineWidth=1;
+ var brute=PTS.filter(function(p){return p[0]>=QRECT[0]&&p[0]<=QRECT[0]+QRECT[2]&&p[1]>=QRECT[1]&&p[1]<=QRECT[1]+QRECT[3];});
+ g.fillStyle=out.length===brute.length?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('query found '+out.length+' points · brute '+brute.length+' '+(out.length===brute.length?'✓':'✗'),15,H-10);}
+document.getElementById('qtroll').onclick=function(){mk();drawW4();document.getElementById('qtread').textContent='new '+PTS.length+' points indexed';};
+document.getElementById('qtquery').onclick=function(){QRECT=[Math.random()*55,Math.random()*55,20+Math.random()*30,20+Math.random()*30];drawW4();var o=[];query(ROOT,QRECT,o);document.getElementById('qtread').textContent='query rect → '+o.length+' points';};
+document.getElementById('qtcheck').onclick=function(){var v=verify();document.getElementById('qtread').textContent='1000 sets: quadtree query == brute scan '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('qtspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ROOT)mk();var sc=2.4,ox=W/2-120,oy=H/2-120;
+ g.save();g.translate(W/2,H/2);g.rotate(Math.sin(ang*0.3)*0.08);g.translate(-W/2,-H/2);
+ (function dr(q,d){g.strokeStyle='hsl('+(200-d*20)+',50%,'+(30+d*8)+'%)';g.strokeRect(ox+q.x*sc,oy+q.y*sc,q.w*sc,q.h*sc);if(q.div)for(var c=0;c<4;c++)dr(q.ch[c],d+1);})(ROOT,0);
+ for(var i=0;i<PTS.length;i++){g.fillStyle='#39fc6b';g.beginPath();g.arc(ox+PTS[i][0]*sc,oy+PTS[i][1]*sc,2.5,0,7);g.fill();}
+ g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: points in a plane quartered by density',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the full linear scan',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('space carved so the search stays small',10,H-9);}
+mk();drawW3();drawW4();window.__quadtree=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HFM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Hofstadter&rsquo;s Female and Male sequences</b> are defined by <b>mutual recursion</b> &mdash; each needs the other to take a step: F(0)=1, M(0)=0, and F(n) = n &minus; M(F(n&minus;1)), M(n) = n &minus; F(M(n&minus;1)). Neither can be computed alone; they must be unrolled <b>together</b>, each new term of one reaching into the other. From this tangle emerge two clean interleaving sequences: F = 1,1,2,2,3,3,4,5,5,6,6,&hellip; and M = 0,0,1,2,2,3,4,4,5,6,6,&hellip;<br><br>
+ <span class="lit">LIT</span> verified live: computed to 100000, both are well-defined (every lookback index in range), and the opening values match the reference sequences (window.__hofstadterfm). <span class="fig">FIG</span> no framing; exact integer mutual recursion.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>race-condition</i> &mdash; two sequences reading each other&rsquo;s values as they go; get the order wrong and one reads the other before it&rsquo;s ready. The Female/Male recursion is that careful interleaving. <b>AVAN (AI)</b> built the instrument: the paired recurrence (computing M before F each step so the reads are valid), the in-range guard, and the reference-value match.<br><br>Credit as content: Douglas Hofstadter, <i>G&ouml;del, Escher, Bach</i> (1979); OEIS A005378 (Female) &amp; A005379 (Male). The weave: David names race-condition; I unroll F and M together in the order that keeps every cross-reference valid, and confirm both stay well-defined and match their reference sequences &mdash; two threads that only make sense entwined.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">F(n) = n &minus; M(F(n&minus;1)) needs M; M(n) = n &minus; F(M(n&minus;1)) needs F. Each step: compute M(n), then F(n). F: 1,1,2,2,3,3,4,5,&hellip; M: 0,0,1,2,2,3,4,4,&hellip;</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The two sequences plotted together; the well-definedness and reference match checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="hfzoom">zoom ▶</button><button id="hfcheck">verify 100000 ▶</button></div>
+   <div class="cap" id="hfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two sequences that only exist together.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): define two sequences <b>each in terms of the other</b>, unrolled in the one order that keeps every cross-reference valid &mdash; compute M(n) before F(n) so the reads are ready. The inverse of &lsquo;define a sequence by itself&rsquo; is &lsquo;let two sequences co-define, entwined, computed in lockstep.&rsquo; <b>Magenta</b> is a self-contained recurrence; <b>green</b> is the mutually-recursive pair. Meaning only in the entanglement.</div>
+   <div class="btns" style="margin-top:10px"><button id="hfspin">pause spin</button></div></div></div></div>"""
+HFM_SCRIPT = """(function(){
+var ang=0,spin=true,ZOOM=0,DATA=null;
+function hofFM(N){var F=[1],M=[0],wd=true;for(var n=1;n<=N;n++){var mi=M[n-1];if(mi<0||mi>=n){wd=false;break;}M[n]=n-F[mi];var fi=F[n-1];if(fi<0||fi>n){wd=false;break;}F[n]=n-M[fi];}return {F:F,M:M,welldef:wd};}
+function verify(){var r=hofFM(100000);var Fok=r.F.slice(0,11).join(',')==='1,1,2,2,3,3,4,5,5,6,6',Mok=r.M.slice(0,11).join(',')==='0,0,1,2,2,3,4,4,5,6,6';return {welldefined:r.welldef,fMatches:Fok,mMatches:Mok,F:r.F.slice(0,11)};}
+function getD(){if(!DATA)DATA=hofFM(2000);return DATA;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('F(n)=n−M(F(n−1)) needs M · M(n)=n−F(M(n−1)) needs F — compute together',12,14);
+ var d=hofFM(11);g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('F: '+d.F.slice(0,11).join(', '),40,50);g.fillStyle='#a878c0';g.fillText('M: '+d.M.slice(0,11).join(', '),40,74);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('each step: compute M(n), then F(n) — order keeps the cross-reads valid',40,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var d=getD(),lo=[0,200,800][ZOOM],hi=[120,400,1400][ZOOM];
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('F (green) and M (violet), n = '+lo+'..'+hi,14,20);
+ var mx=Math.max(d.F[hi],d.M[hi]);function pl(arr,col){g.strokeStyle=col;g.beginPath();for(var n=lo;n<=hi;n++){var x=14+(n-lo)/(hi-lo)*(W-28),y=H-30-arr[n]/mx*(H-60);if(n===lo)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();}
+ pl(d.F,'#39fc6b');pl(d.M,'#a878c0');
+ var v=verify();g.fillStyle=v.welldefined&&v.fMatches&&v.mMatches?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('well-defined to 100000 '+(v.welldefined?'✓':'✗')+' · F & M match reference '+(v.fMatches&&v.mMatches?'✓':'✗'),14,H-10);}
+document.getElementById('hfzoom').onclick=function(){ZOOM=(ZOOM+1)%3;drawW4();document.getElementById('hfread').textContent='zoom '+ZOOM;};
+document.getElementById('hfcheck').onclick=function(){var v=verify();document.getElementById('hfread').textContent='n≤100000: well-defined '+(v.welldefined?'✓':'✗')+' · F matches '+(v.fMatches?'✓':'✗')+' · M matches '+(v.mMatches?'✓':'✗');};
+document.getElementById('hfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var d=getD(),cx=W/2,cy=H/2-10;
+ for(var n=1;n<300;n++){var aF=n*0.12+ang*0.2,rF=20+d.F[n]*0.7,aM=n*0.12+ang*0.2,rM=20+d.M[n]*0.7;if(rF>165)break;g.fillStyle='#39fc6b';g.beginPath();g.arc(cx+Math.cos(aF)*rF,cy+Math.sin(aF)*rF*0.85,1.6,0,7);g.fill();g.fillStyle='#a878c0';g.beginPath();g.arc(cx+Math.cos(aM)*rM,cy+Math.sin(aM)*rM*0.85,1.6,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green F & violet M spiraling, entwined',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: a self-contained recurrence',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('meaning only in the entanglement',10,H-9);}
+drawW3();drawW4();window.__hofstadterfm=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DFL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Dutch national flag problem</b> (Dijkstra) sorts an array of three values &mdash; think red, white, blue, or &lt;, =, &gt; a pivot &mdash; into three contiguous bands in a <b>single pass</b>, in place, with <b>three pointers</b>. A <i>low</i> and <i>mid</i> pointer advance from the front, a <i>high</i> from the back; each element mid meets is swapped into the correct band and the pointers close in. No counting, no second pass &mdash; the array is partitioned by the time mid crosses high. It is the heart of three-way quicksort.<br><br>
+ <span class="lit">LIT</span> verified live: over 3000 random arrays and pivots, the one-pass partition leaves everything &lt; pivot, then =, then &gt;, and the output is a permutation of the input (window.__dutch). <span class="fig">FIG</span> no framing; exact ordering and multiset checks.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>hello-world</i> &mdash; the small, classic exercise everyone meets; the Dutch flag is that first taste of an in-place three-way partition. <b>AVAN (AI)</b> built the instrument: the low/mid/high pointer sweep, the swap-into-band logic, and the partitioned + permutation checks.<br><br>Credit as content: Edsger W. Dijkstra (the Dutch national flag problem). The weave: David names hello-world; I sweep one mid pointer, swapping small elements to the front band and large ones to the back band, and confirm the array ends partitioned into &lt;, =, &gt; with the same multiset of values &mdash; sorted three ways in a single pass.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Three pointers: low, mid, high. If a[mid] &lt; pivot, swap to low and advance both; if &gt; pivot, swap to high and shrink; if =, just advance mid. One sweep partitions the array.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">An array of three colours partitioned in one pass; the &lt;/=/&gt; bands and permutation checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="dfroll">new array ▶</button><button id="dfcheck">verify 3000 ▶</button></div>
+   <div class="cap" id="dfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: three colours banded in one sweep.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): partition three categories in <b>one in-place pass</b>, not by counting then rewriting &mdash; three pointers close inward, each element swapped straight into its band. The inverse of &lsquo;count each colour, then fill the array&rsquo; is &lsquo;sweep once, swapping into place &mdash; done when mid meets high.&rsquo; <b>Magenta</b> is the count-then-rewrite two passes; <b>green</b> is the single pointer sweep. Sorted three ways, one pass.</div>
+   <div class="btns" style="margin-top:10px"><button id="dfspin">pause spin</button></div></div></div></div>"""
+DFL_SCRIPT = """(function(){
+var ang=0,spin=true,ARR=[],PIV=1;
+function dutch(arr,pivot){arr=arr.slice();var lo=0,mid=0,hi=arr.length-1;while(mid<=hi){if(arr[mid]<pivot){var t=arr[lo];arr[lo]=arr[mid];arr[mid]=t;lo++;mid++;}else if(arr[mid]>pivot){var t=arr[mid];arr[mid]=arr[hi];arr[hi]=t;hi--;}else mid++;}return {arr:arr,lo:lo,hi:hi};}
+function verify(){var pOk=true,permOk=true,rnd=(function(a){return function(){a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};})(924);for(var t=0;t<3000;t++){var n=1+Math.floor(rnd()*60),a=[];for(var i=0;i<n;i++)a.push(Math.floor(rnd()*7)-3);var piv=Math.floor(rnd()*7)-3,r=dutch(a,piv),out=r.arr,phase=0,good=true;for(var i=0;i<out.length;i++){if(out[i]<piv){if(phase>0)good=false;}else if(out[i]===piv){if(phase>1)good=false;phase=Math.max(phase,1);}else phase=2;}if(!good)pOk=false;if(out.slice().sort(function(x,y){return x-y;}).join(',')!==a.slice().sort(function(x,y){return x-y;}).join(','))permOk=false;}return {partitioned:pOk,permutation:permOk};}
+function mk(){var n=12+Math.floor(Math.random()*8);ARR=[];for(var i=0;i<n;i++)ARR.push(Math.floor(Math.random()*3));PIV=1;}
+function colr(v){return v<PIV?'#c04860':(v===PIV?'#e8eef0':'#3a70c0');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('low/mid/high pointers: <pivot→front, >pivot→back, =→advance; one sweep',12,14);
+ var a=[2,0,1,2,0,1,0,2],piv=1,cols=a.map(function(v){return v<piv?'#c04860':(v===piv?'#e8eef0':'#3a70c0');});for(var i=0;i<a.length;i++){g.fillStyle=cols[i];g.fillRect(60+i*44,50,38,30);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('red < pivot · white = pivot · blue > pivot',60,110);
+ var r=(function(){var arr=a.slice(),lo=0,mid=0,hi=arr.length-1;while(mid<=hi){if(arr[mid]<piv){var t=arr[lo];arr[lo]=arr[mid];arr[mid]=t;lo++;mid++;}else if(arr[mid]>piv){var t=arr[mid];arr[mid]=arr[hi];arr[hi]=t;hi--;}else mid++;}return arr;})();
+ for(var i=0;i<r.length;i++){g.fillStyle=r[i]<piv?'#c04860':(r[i]===piv?'#e8eef0':'#3a70c0');g.fillRect(60+i*44,125,38,20);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ARR.length)mk();var r=dutch(ARR,PIV),cw=(W-28)/ARR.length;
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('input:',14,24);for(var i=0;i<ARR.length;i++){g.fillStyle=colr(ARR[i]);g.fillRect(14+i*cw,32,cw-2,26);}
+ g.fillStyle='#8ad';g.fillText('partitioned (one pass):',14,90);for(var i=0;i<r.arr.length;i++){g.fillStyle=colr(r.arr[i]);g.fillRect(14+i*cw,98,cw-2,26);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('bands: [0..'+(r.lo-1)+'] < pivot · ['+r.lo+'..'+r.hi+'] = pivot · ['+(r.hi+1)+'..] > pivot',14,140);
+ var v=verify();g.fillStyle=v.partitioned&&v.permutation?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('partitioned <,=,> '+(v.partitioned?'✓':'✗')+' · permutation of input '+(v.permutation?'✓':'✗'),14,H-10);}
+document.getElementById('dfroll').onclick=function(){mk();drawW4();document.getElementById('dfread').textContent='new '+ARR.length+'-element array partitioned';};
+document.getElementById('dfcheck').onclick=function(){var v=verify();document.getElementById('dfread').textContent='3000 arrays: partitioned <,=,> '+(v.partitioned?'✓':'✗')+' · permutation '+(v.permutation?'✓':'✗');};
+document.getElementById('dfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ARR.length)mk();var r=dutch(ARR,PIV),cx=W/2,cy=H/2-10;
+ for(var i=0;i<r.arr.length;i++){var a=i/r.arr.length*6.28+ang*0.3,rad=70+(r.arr[i]-PIV)*24,x=cx+Math.cos(a)*rad,y=cy+Math.sin(a)*rad*0.8;g.fillStyle=colr(r.arr[i]);g.beginPath();g.arc(x,y,5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('three bands by radius: <pivot, =pivot, >pivot',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the count-then-rewrite two passes',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('sorted three ways, one pass',10,H-9);}
+mk();drawW3();drawW4();window.__dutch=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 91 (the square root's fraction repeats in a palindrome · average and difference a signal reversibly · count the ways to partition a set · pick the k-th smallest in guaranteed linear time · wrap a hull around points like a gift) ═══════════════════════
 CFS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The continued fraction of &radic;n</b> (for non-square n) is <b>eventually periodic</b>, and its period has a striking shape: &radic;n = [a<sub>0</sub>; <span style="text-decoration:overline">a<sub>1</sub>, a<sub>2</sub>, &hellip;, a<sub>L</sub></span>] where the repeating block <b>ends in 2a<sub>0</sub></b> and the part before it, (a<sub>1</sub>, &hellip;, a<sub>L&minus;1</sub>), is a <b>palindrome</b>. So &radic;7 = [2; <span style="text-decoration:overline">1,1,1,4</span>] and &radic;19 = [4; <span style="text-decoration:overline">2,1,3,1,2,8</span>]. The convergent just before the period closes gives the <b>fundamental solution of Pell&rsquo;s equation</b> x&sup2; &minus; n&middot;y&sup2; = &plusmn;1.<br><br>
@@ -24911,6 +25157,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-edwards-curve","title":"THE EDWARDS CURVE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FIREWALL","domain_slug":"the-firewall","accent":"#b06868","icon":"edwards",
+  "kicker":"a curve whose addition never fails",
+  "blurb":"The twisted Edwards curve in the 5-window house format — a·x² + y² = 1 + d·x²·y² carries an addition law with a rare virtue: it is complete, the same formula works for every pair of points with no special cases (no separate doubling rule, no point-at-infinity). The neutral element is the ordinary point (0,1) and the inverse of (x,y) is (−x,y); when a is a square and d is a non-square mod p, the points form an abelian group with the addition never breaking. This is why Ed25519 uses Edwards curves. Verified live: over a small curve, every sum is on the curve, (0,1) is the identity, (−x,y) inverts, and the addition is associative over thousands of triples. See the complete formula in 1D, points added in 2D, and the exception-free group law in 3D.",
+  "lit":"Genuine twisted Edwards curve (Harold M. Edwards 2007; Bernstein & Lange). Verified live over a·x²+y²=1+d·x²·y² mod 13 with a a square and d a non-square (completeness): every sum lies on the curve (window.__edwards.closed), (0,1) is the identity, (−x,y) is the inverse, and the addition is associative over 3000 random triples (window.__edwards.associative).",
+  "fig":"No framing: the complete addition formula, the on-curve/identity/inverse checks, and the associativity test over random triples run in-browser with exact modular arithmetic and agree. The AVAN inverse is honest — choosing a square a and non-square d so the denominators never vanish gives one exception-free addition for all cases, genuinely replacing the case-split Weierstrass rules (doubling, infinity); magenta is that case-split addition, green the complete Edwards law. No edge cases to attack.",
+  "body":EDW_BODY,"script":EDW_SCRIPT},
+ {"slug":"the-cornacchia","title":"THE CORNACCHIA","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE BOUNTY","domain_slug":"the-bounty","accent":"#e0b020","icon":"cornacchia",
+  "kicker":"represent a number as x squared plus d y squared",
+  "blurb":"Cornacchia's algorithm in the 5-window house format — solve x² + d·y² = m in integers (when a solution exists) astonishingly fast. It first finds a square root r of −d modulo m (r² ≡ −d), then runs a Euclidean-style descent on (m, r), stopping the moment the remainder drops below √m; that remainder is x, and y follows from (m − x²)/d being a perfect square. A whole Diophantine equation solved by one modular square root and a gcd-like loop. Verified live: over hundreds of primes m with a representation, the returned (x,y) satisfies x² + d·y² = m exactly. See representations in 1D, squares summing to m in 2D, and the reduce-don't-search inverse in 3D.",
+  "lit":"Genuine Cornacchia's algorithm (Giuseppe Cornacchia 1908). Verified live: over ~800 primes m (with d in {1,2,3,5,7}, gcd(d,m)=1) that have a representation, the modular-sqrt-plus-Euclidean-descent returns (x,y) satisfying x² + d·y² = m exactly, checked by substitution (window.__cornacchia.representationExact).",
+  "fig":"No framing: the modular-sqrt step, the Euclidean descent to below √m, the perfect-square finish, and the substitution check run in-browser with exact integers and agree (the algorithm correctly returns nothing when no representation exists — verified only on solvable cases). The AVAN inverse is honest — representing m as x²+d·y² by a modular square root and a descent (the remainder first below √m is x) genuinely replaces a two-dimensional x,y search; magenta is that search, green the one descent.",
+  "body":COR_BODY,"script":COR_SCRIPT},
+ {"slug":"the-quadtree","title":"THE QUADTREE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#c07850","icon":"quadtree",
+  "kicker":"quarter the plane recursively to query it fast",
+  "blurb":"The point-region quadtree in the 5-window house format — index 2D points by recursively quartering the plane. Each node holds a small bucket; when it overflows it splits into four children (NW, NE, SW, SE), redistributing its points. To answer a range query — which points fall in a rectangle? — you descend only into children whose regions intersect the query, skipping vast empty or far-away quadrants. Verified live: over 1000 random point sets and query rectangles, the quadtree returns exactly the same points as a brute-force scan. See the subdivision in 1D, a query in 2D, and the pruned-descent inverse in 3D.",
+  "lit":"Genuine point-region quadtree (Raphael Finkel & Jon Bentley 1974). Verified live: over 1000 random point sets and query rectangles, the capacity-triggered four-way subdivision with region-intersection pruning returns exactly the point set a brute-force scan of every point returns (window.__quadtree.matchesBrute).",
+  "fig":"No framing: the capacity-triggered subdivision into four, the region-intersection pruning for range queries, and the match against a brute scan run in-browser with exact set comparison and agree. The AVAN inverse is honest — answering 'which points are in this box?' by descending only into intersecting quadrants genuinely replaces scanning all n points; magenta is the full linear scan, green the pruned descent. Space carved so the search stays small.",
+  "body":QDT_BODY,"script":QDT_SCRIPT},
+ {"slug":"the-hofstadter-female-male","title":"THE HOFSTADTER FEMALE-MALE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#a878c0","icon":"hofstadter-fm",
+  "kicker":"two sequences that define each other",
+  "blurb":"Hofstadter's Female and Male sequences in the 5-window house format — defined by mutual recursion, each needing the other to take a step: F(0)=1, M(0)=0, F(n) = n − M(F(n−1)), M(n) = n − F(M(n−1)). Neither can be computed alone; they must be unrolled together, each new term reaching into the other. From this tangle emerge two interleaving sequences: F = 1,1,2,2,3,3,4,5,5,6,6,… and M = 0,0,1,2,2,3,4,4,5,6,6,… Verified live: computed to 100000, both are well-defined and the opening values match the reference sequences. See the mutual recurrence in 1D, both plotted in 2D, and the entanglement inverse in 3D.",
+  "lit":"Genuine Hofstadter Female/Male sequences (Douglas Hofstadter, Gödel, Escher, Bach 1979; OEIS A005378 Female, A005379 Male). Verified live: computed to 100000 with M(n) evaluated before F(n) each step (so cross-references are valid), both stay well-defined — every lookback index in range (window.__hofstadterfm.welldefined) — and F and M match their reference sequences 1,1,2,2,3,3,4,5,5,6,6 and 0,0,1,2,2,3,4,4,5,6,6 (fMatches, mMatches).",
+  "fig":"No framing: the paired recurrence (computing M before F each step so reads are valid), the in-range guard, and the reference-value match run in-browser with exact integers. The AVAN inverse is honest — defining two sequences each in terms of the other, unrolled in the one order that keeps every cross-reference valid, genuinely differs from a self-contained recurrence; magenta is that self-contained form, green the mutually-recursive pair. Meaning only in the entanglement.",
+  "body":HFM_BODY,"script":HFM_SCRIPT},
+ {"slug":"the-dutch-national-flag","title":"THE DUTCH NATIONAL FLAG","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#70a860","icon":"dutch-flag",
+  "kicker":"sort three colours in one pass",
+  "blurb":"The Dutch national flag problem in the 5-window house format — Dijkstra's one-pass, in-place, three-pointer partition of an array of three values (red/white/blue, or <,=,> a pivot) into three contiguous bands. A low and mid pointer advance from the front, a high from the back; each element mid meets is swapped into the correct band and the pointers close in — no counting, no second pass. It is the heart of three-way quicksort. Verified live: over 3000 random arrays and pivots, the one-pass partition leaves everything < pivot, then =, then >, and the output is a permutation of the input. See the three pointers in 1D, a partition in 2D, and the one-sweep inverse in 3D.",
+  "lit":"Genuine Dutch national flag algorithm (Edsger W. Dijkstra). Verified live: over 3000 random arrays and pivots, the low/mid/high pointer sweep with swap-into-band logic leaves the array partitioned into < pivot, then = pivot, then > pivot (window.__dutch.partitioned), and the output is a permutation of the input — same multiset (window.__dutch.permutation).",
+  "fig":"No framing: the low/mid/high pointer sweep, the swap-into-band logic, and the partitioned + permutation checks run in-browser with exact ordering and multiset comparison and agree. The AVAN inverse is honest — partitioning three categories in one in-place pass (three pointers close inward, each element swapped straight into its band) genuinely replaces counting each colour then rewriting; magenta is that count-then-rewrite two passes, green the single pointer sweep. Sorted three ways, one pass.",
+  "body":DFL_BODY,"script":DFL_SCRIPT},
  {"slug":"the-continued-fraction-sqrt","title":"THE CONTINUED FRACTION OF ROOT N","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#c0a048","icon":"cf-sqrt",
   "kicker":"the square root's fraction repeats in a palindrome",
