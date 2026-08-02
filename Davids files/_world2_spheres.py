@@ -19485,6 +19485,246 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 90 (count in base minus-two, no sign needed · one survivor of pairwise cancellation · factor a string into non-increasing necklaces · count how many times p divides a power difference · clip a line to a window by four parameters) ═══════════════════════
+NGB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Negabinary</b> is base <b>&minus;2</b>: the same digits {0,1} as binary, but place values are powers of &minus;2 &mdash; 1, &minus;2, 4, &minus;8, 16, &minus;32, &hellip; The alternating signs mean a single unsigned digit string represents <b>every integer, positive and negative</b>, with <b>no sign bit</b> and no two&rsquo;s-complement. &minus;6, for instance, is 1110 (= &minus;8 + 4 &minus; 2). Encoding just repeatedly takes the bit n mod 2 and divides by &minus;2 &mdash; and the representation of each integer is unique.<br><br>
+ <span class="lit">LIT</span> verified live: over every integer from &minus;2000 to 2000, decode(encode(n)) returns n, and all representations are distinct (window.__negabinary). <span class="fig">FIG</span> no framing; exact integer arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>null-island</i> &mdash; the origin where positive and negative meet; negabinary spans both sides of zero from one unsigned string, no sign attached. <b>AVAN (AI)</b> built the instrument: the mod-2 / divide-by-&minus;2 encoder, the alternating-place-value decoder, and the round-trip + uniqueness checks.<br><br>Credit as content: negative-base numeration (Vittorio Gr&uuml;nwald 1885; studied by Knuth). The weave: David names null-island; I encode integers in base &minus;2 by taking bits and dividing by &minus;2, decode by alternating place values, and confirm every integer round-trips to a unique string &mdash; signs carried by the base itself.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Place values 1, &minus;2, 4, &minus;8, 16, &hellip; So 1110 = 1&middot;(&minus;8) + 1&middot;4 + 1&middot;(&minus;2) + 0 = &minus;6. The alternating signs let one digit string reach any integer, no sign bit.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A number, its base-&minus;2 digits with their signed place values, and the round-trip checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="ngroll">new number ▶</button><button id="ngcheck">verify -2000..2000 ▶</button></div>
+   <div class="cap" id="ngread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: negatives represented with no sign.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): represent signed integers with <b>no sign bit and no two&rsquo;s-complement</b> &mdash; let the <b>base carry the signs</b> by making it negative, so alternating place values reach below zero. The inverse of &lsquo;store magnitude plus a sign&rsquo; is &lsquo;use base &minus;2 &mdash; one unsigned string is already signed.&rsquo; <b>Magenta</b> is the separate sign bit; <b>green</b> is the signless negabinary string. The sign folded into the base.</div>
+   <div class="btns" style="margin-top:10px"><button id="ngspin">pause spin</button></div></div></div></div>"""
+NGB_SCRIPT = """(function(){
+var ang=0,spin=true,N=-6;
+function toNega(n){if(n===0)return [0];var d=[];while(n!==0){var r=((n%2)+2)%2;d.push(r);n=(n-r)/-2;}return d.reverse();}
+function fromNega(d){var v=0,p=1;for(var i=d.length-1;i>=0;i--){v+=d[i]*p;p*=-2;}return v;}
+function verify(){var ok=true,uniq=true,seen={};for(var n=-2000;n<=2000;n++){var d=toNega(n);if(fromNega(d)!==n)ok=false;var k=d.join('');if(seen[k]!==undefined&&seen[k]!==n)uniq=false;seen[k]=n;}return {roundTrip:ok,unique:uniq};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('base −2: place values 1, −2, 4, −8, 16, … (alternating signs)',12,14);
+ var d=toNega(-6),pv=[];var p=1;for(var i=d.length-1;i>=0;i--){pv.unshift(p);p*=-2;}
+ var x=140;for(var i=0;i<d.length;i++){g.fillStyle=d[i]?'#6ab0d0':'#334';g.fillRect(x,45,40,32);g.fillStyle=d[i]?'#012':'#8ad';g.font='16px monospace';g.fillText(d[i],x+15,67);g.fillStyle=pv[i]<0?'#c07850':'#8ea';g.font='9px monospace';g.fillText(pv[i],x+6,95);x+=52;}
+ g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('1110₋₂ = −8 + 4 − 2 + 0 = −6',140,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var d=toNega(N),pv=[];var p=1;for(var i=d.length-1;i>=0;i--){pv.unshift(p);p*=-2;}
+ g.fillStyle='#e8eef8';g.font='15px monospace';g.fillText('n = '+N,16,30);
+ var x=16,cw=Math.min(42,(W-32)/d.length);for(var i=0;i<d.length;i++){g.fillStyle=d[i]?'#6ab0d0':'#2a3548';g.fillRect(x,48,cw-3,30);g.fillStyle=d[i]?'#012':'#8ad';g.font='15px monospace';g.fillText(d[i],x+cw/2-6,70);g.fillStyle=pv[i]<0?'#c07850':'#8fe';g.font='8px monospace';g.fillText(pv[i],x+2,92);x+=cw;}
+ g.fillStyle='#e0b020';g.font='12px monospace';g.fillText(N+' = '+d.join('')+'₋₂',16,116);
+ var back=fromNega(d);g.fillStyle=back===N?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('decode('+d.join('')+') = '+back+' == n '+(back===N?'✓':'✗'),16,H-12);}
+document.getElementById('ngroll').onclick=function(){N=Math.floor(Math.random()*4000)-2000;drawW4();document.getElementById('ngread').textContent=N+' = '+toNega(N).join('')+'₋₂';};
+document.getElementById('ngcheck').onclick=function(){var v=verify();document.getElementById('ngread').textContent='-2000..2000: decode(encode(n))==n '+(v.roundTrip?'✓':'✗')+' · representations unique '+(v.unique?'✓':'✗');};
+document.getElementById('ngspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10;
+ for(var n=-30;n<=30;n++){var d=toNega(n),a=(n+30)/60*6.28+ang*0.2,r=40+d.length*18;var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;g.fillStyle=n<0?'#c07850':(n>0?'#6ab0d0':'#39fc6b');g.beginPath();g.arc(x,y,3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green(0) · blue(+) · amber(−): all from unsigned strings',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the separate sign bit',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the sign folded into the base',10,H-9);}
+drawW3();drawW4();window.__negabinary=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BMM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Boyer&ndash;Moore majority vote</b> finds an element appearing in <b>more than half</b> a stream using <b>O(1) memory</b> &mdash; one candidate and one counter. Sweep once: if the counter is zero, adopt the current element as candidate; if the next matches, increment; if not, decrement. Matching and non-matching elements <b>cancel in pairs</b>, so if a true majority exists it cannot be fully cancelled &mdash; it is the last one standing. A single verification pass confirms whether the survivor really is a majority.<br><br>
+ <span class="lit">LIT</span> verified live: over 3000 random arrays (with and without a majority), the O(1)-space vote plus a verify pass returns exactly what a brute frequency count does (window.__majority). <span class="fig">FIG</span> no framing; exact counting comparison.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>sudden-death</i> &mdash; every unlike pair knocks each other out, and one element strikes through them all to survive; if a majority exists, it is the last standing. Boyer&ndash;Moore is that sudden death. <b>AVAN (AI)</b> built the instrument: the candidate/counter cancellation sweep, the verification pass, and the match against a brute frequency count.<br><br>Credit as content: Robert S. Boyer &amp; J Strother Moore (1981). The weave: David names sudden-death; I let each unlike pair cancel, keep the survivor as candidate, verify its true count, and confirm it agrees with a full frequency tally &mdash; a majority found in constant memory.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Counter starts at 0: adopt a candidate; +1 on a match, &minus;1 on a mismatch. Unlike pairs cancel. A true majority (&gt; n/2) can never be fully cancelled &mdash; it survives as the candidate.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A stream with the running candidate and counter; the survivor verified against a brute majority count.</div>
+   <div class="btns" style="margin-top:10px"><button id="bmroll">new stream ▶</button><button id="bmcheck">verify 3000 ▶</button></div>
+   <div class="cap" id="bmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a majority found in constant memory.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): find the majority element with <b>one counter, not a hash of counts</b> &mdash; cancel unlike pairs so the over-half element survives, then verify in a second pass. The inverse of &lsquo;count every element&rsquo;s frequency&rsquo; is &lsquo;cancel opposites &mdash; the majority is what remains.&rsquo; <b>Magenta</b> is the full frequency table; <b>green</b> is the single surviving candidate. Majority by cancellation.</div>
+   <div class="btns" style="margin-top:10px"><button id="bmspin">pause spin</button></div></div></div></div>"""
+BMM_SCRIPT = """(function(){
+var ang=0,spin=true,ARR=[3,3,4,2,3,3,5,3],SYM=['●','▲','■','◆','★'];
+function bm(arr){var cand=null,cnt=0;for(var i=0;i<arr.length;i++){if(cnt===0){cand=arr[i];cnt=1;}else if(arr[i]===cand)cnt++;else cnt--;}var c=0;for(var i=0;i<arr.length;i++)if(arr[i]===cand)c++;return c>arr.length/2?cand:null;}
+function brute(arr){var m={},b=null;for(var i=0;i<arr.length;i++){m[arr[i]]=(m[arr[i]]||0)+1;if(m[arr[i]]>arr.length/2)b=arr[i];}return b;}
+function trace(arr){var cand=null,cnt=0,tr=[];for(var i=0;i<arr.length;i++){if(cnt===0){cand=arr[i];cnt=1;}else if(arr[i]===cand)cnt++;else cnt--;tr.push([cand,cnt]);}return tr;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(901),ok=true;for(var t=0;t<3000;t++){var n=1+Math.floor(rnd()*40),arr=[];if(rnd()<0.5){var maj=Math.floor(rnd()*5);for(var i=0;i<n;i++)arr.push(rnd()<0.6?maj:Math.floor(rnd()*5));}else for(var i=0;i<n;i++)arr.push(Math.floor(rnd()*5));if(bm(arr)!==brute(arr))ok=false;}return {matchesBrute:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('+1 on a match, −1 on a mismatch; unlike pairs cancel, the majority survives',12,14);
+ var a=[3,3,4,2,3,3,5,3],tr=trace(a);for(var i=0;i<a.length;i++){g.fillStyle=a[i]===3?'#b06868':'#456';g.beginPath();g.arc(50+i*54,55,13,0,7);g.fill();g.fillStyle='#fff';g.font='11px monospace';g.fillText(a[i],46+i*54,59);g.fillStyle='#8ad';g.font='8px monospace';g.fillText('c'+tr[i][1],42+i*54,80);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('survivor = 3 (appears 5 of 8 > half) ✓',50,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var tr=trace(ARR),cw=Math.min(40,(W-28)/ARR.length),cols=['#b06868','#58a0b0','#e0b020','#a878c0','#70a860'];
+ for(var i=0;i<ARR.length;i++){g.fillStyle=cols[ARR[i]%5];g.beginPath();g.arc(20+i*cw,44,Math.min(13,cw/2-2),0,7);g.fill();g.fillStyle='#012';g.font='10px monospace';g.fillText(ARR[i],17+i*cw,48);g.fillStyle='#8ad';g.font='8px monospace';g.fillText(tr[i][1],17+i*cw,66);}
+ var res=bm(ARR),bru=brute(ARR);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('candidate survives: '+(res===null?'(no majority)':res),14,100);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('brute majority: '+(bru===null?'(none)':bru),14,122);
+ g.fillStyle=res===bru?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('O(1) vote == brute majority '+(res===bru?'✓':'✗'),14,H-12);}
+document.getElementById('bmroll').onclick=function(){var n=6+Math.floor(Math.random()*10);ARR=[];if(Math.random()<0.6){var m=Math.floor(Math.random()*4);for(var i=0;i<n;i++)ARR.push(Math.random()<0.62?m:Math.floor(Math.random()*4));}else for(var i=0;i<n;i++)ARR.push(Math.floor(Math.random()*4));drawW4();document.getElementById('bmread').textContent='survivor: '+(bm(ARR)===null?'no majority':bm(ARR));};
+document.getElementById('bmcheck').onclick=function(){var v=verify();document.getElementById('bmread').textContent='3000 arrays: O(1) vote == brute majority '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('bmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10,cols=['#b06868','#58a0b0','#e0b020','#a878c0','#70a860'],res=bm(ARR);
+ for(var i=0;i<ARR.length;i++){var a=i/ARR.length*6.28+ang*0.3,r=70+((ARR[i]===res)?30:0);var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;g.fillStyle=cols[ARR[i]%5];g.beginPath();g.arc(x,y,ARR[i]===res?7:4,0,7);g.fill();if(ARR[i]===res){g.strokeStyle='#39fc6b';g.beginPath();g.arc(x,y,10,0,7);g.stroke();}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green ring: the surviving majority element',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the full frequency table',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('majority by cancellation',10,H-9);}
+drawW3();drawW4();window.__majority=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LYD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Lyndon factorization</b> (Chen&ndash;Fox&ndash;Lyndon) splits any string <b>uniquely</b> into a sequence of <b>Lyndon words</b> in <b>non-increasing</b> order. A Lyndon word is one that is strictly <b>smaller than all its rotations</b> &mdash; an &ldquo;aperiodic necklace&rdquo; with a canonical starting point. <b>Duval&rsquo;s algorithm</b> computes the factorization in linear time and constant extra space, in one left-to-right scan. Every string has exactly one such factorization; &ldquo;banana&rdquo; becomes b &middot; an &middot; an &middot; a.<br><br>
+ <span class="lit">LIT</span> verified live: over 3000 random strings, Duval&rsquo;s factors concatenate back to the input, each factor is a Lyndon word, and the factors are non-increasing (window.__lyndon). <span class="fig">FIG</span> no framing; exact string comparisons.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-handoff</i> &mdash; the string is passed hand to hand into a chain of canonical necklaces, each no larger than the last. Duval&rsquo;s scan is that handoff. <b>AVAN (AI)</b> built the instrument: Duval&rsquo;s one-pass factorizer, the is-Lyndon rotation test, and the concatenation + non-increasing checks.<br><br>Credit as content: K. T. Chen, R. H. Fox &amp; R. C. Lyndon (existence/uniqueness, 1958); Jean-Pierre Duval (linear algorithm, 1983). The weave: David names the-handoff; I run Duval&rsquo;s scan to cut the string into Lyndon words, verify each is strictly smaller than its rotations, and confirm the pieces are non-increasing and rebuild the input.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A Lyndon word is strictly smaller than every rotation of itself. Duval scans once, cutting the string into non-increasing Lyndon pieces: banana &rarr; b | an | an | a.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A string factored by Duval; each Lyndon piece shown, with the concatenation and non-increasing order checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="lyroll">new string ▶</button><button id="lycheck">verify 3000 ▶</button></div>
+   <div class="cap" id="lyread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a string as unique non-increasing necklaces.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): decompose a string into a <b>canonical, unique</b> sequence of aperiodic necklaces (Lyndon words) in one linear scan &mdash; each strictly smaller than its rotations, the pieces non-increasing. The inverse of &lsquo;treat the string as one opaque block&rsquo; is &lsquo;cut it into its unique Lyndon factorization &mdash; a normal form.&rsquo; <b>Magenta</b> is the undivided string; <b>green</b> is the necklace factorization. A canonical cut, always the same.</div>
+   <div class="btns" style="margin-top:10px"><button id="lyspin">pause spin</button></div></div></div></div>"""
+LYD_SCRIPT = """(function(){
+var ang=0,spin=true,STR='banana',FACT=['b','an','an','a'];
+function duval(s){var n=s.length,i=0,f=[];while(i<n){var j=i+1,k=i;while(j<n&&s[k]<=s[j]){if(s[k]<s[j])k=i;else k++;j++;}while(i<=k){f.push(s.substring(i,i+j-k));i+=j-k;}}return f;}
+function isLyndon(w){for(var r=1;r<w.length;r++){if(w.substring(r)+w.substring(0,r)<=w)return false;}return w.length>0;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(902),al='abc',cc=true,ly=true,ni=true;for(var t=0;t<3000;t++){var len=1+Math.floor(rnd()*14),s='';for(var i=0;i<len;i++)s+=al[Math.floor(rnd()*3)];var f=duval(s);if(f.join('')!==s)cc=false;for(var i=0;i<f.length;i++)if(!isLyndon(f[i]))ly=false;for(var i=1;i<f.length;i++)if(f[i-1]<f[i])ni=false;}return {concat:cc,allLyndon:ly,nonIncreasing:ni};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a Lyndon word is strictly smaller than all its rotations (an aperiodic necklace)',12,14);
+ g.fillStyle='#58a0b0';g.font='11px monospace';g.fillText("'an' rotations: an, na → an < na ✓ (Lyndon)",40,44);
+ g.fillStyle='#c07850';g.fillText("'aa' rotations: aa, aa → aa = aa ✗ (not Lyndon, periodic)",40,68);
+ var f=duval('banana'),x=40;g.font='13px monospace';g.fillStyle='#8ad';g.fillText('banana →',40,110);x=130;for(var i=0;i<f.length;i++){g.fillStyle='#39fc6b';g.fillText(f[i],x,110);x+=f[i].length*9+8;g.fillStyle='#456';if(i<f.length-1)g.fillText('|',x-6,110);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);FACT=duval(STR);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText("string: '"+STR+"'",14,26);
+ var x=14,cols=['#39fc6b','#58a0b0','#e0b020','#a878c0','#70a860','#b06868'];
+ for(var i=0;i<FACT.length;i++){var w=FACT[i].length*13+8;g.fillStyle=cols[i%6];g.fillRect(x,44,w,28);g.fillStyle='#012';g.font='14px monospace';g.fillText(FACT[i],x+4,64);x+=w+6;if(x>W-40){x=14;}}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText(FACT.length+' Lyndon factors (non-increasing):',14,96);
+ g.fillStyle='#a878c0';g.font='11px monospace';g.fillText(FACT.join(' ≥ '),14,116);
+ var cc=FACT.join('')===STR,ly=FACT.every(isLyndon),ni=true;for(var i=1;i<FACT.length;i++)if(FACT[i-1]<FACT[i])ni=false;
+ g.fillStyle=cc&&ly&&ni?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('concat==input '+(cc?'✓':'✗')+' · each Lyndon '+(ly?'✓':'✗')+' · non-increasing '+(ni?'✓':'✗'),14,H-12);}
+document.getElementById('lyroll').onclick=function(){var al='abc',len=4+Math.floor(Math.random()*8);STR='';for(var i=0;i<len;i++)STR+=al[Math.floor(Math.random()*3)];drawW4();document.getElementById('lyread').textContent="'"+STR+"' → "+duval(STR).join(' | ');};
+document.getElementById('lycheck').onclick=function(){var v=verify();document.getElementById('lyread').textContent='3000 strings: concat==input '+(v.concat?'✓':'✗')+' · each Lyndon '+(v.allLyndon?'✓':'✗')+' · non-increasing '+(v.nonIncreasing?'✓':'✗');};
+document.getElementById('lyspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var f=duval(STR),cx=W/2,cy=H/2-10,cols=['#39fc6b','#58a0b0','#e0b020','#a878c0','#70a860','#b06868'];
+ var base=60;for(var fi=0;fi<f.length;fi++){var w=f[fi],rr=base+fi*22;g.strokeStyle=cols[fi%6];g.beginPath();for(var c=0;c<=w.length;c++){var a=c/w.length*6.28+ang*0.3+fi;var x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr*0.8;if(c===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+  for(var c=0;c<w.length;c++){var a=c/w.length*6.28+ang*0.3+fi,x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr*0.8;g.fillStyle=cols[fi%6];g.beginPath();g.arc(x,y,4,0,7);g.fill();g.fillStyle='#012';g.font='7px monospace';g.fillText(w[c],x-2,y+2);}}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green rings: each Lyndon factor as a necklace',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the undivided string',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a canonical cut, always the same',10,H-9);}
+drawW3();drawW4();window.__lyndon=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LTE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Lifting the Exponent (LTE)</b> is an olympiad power tool: for an <b>odd prime</b> p, if p divides a&minus;b but divides <b>neither</b> a nor b, then the number of times p divides a<sup>n</sup>&minus;b<sup>n</sup> is beautifully simple: <b>v<sub>p</sub>(a<sup>n</sup>&minus;b<sup>n</sup>) = v<sub>p</sub>(a&minus;b) + v<sub>p</sub>(n)</b>. The whole exponent of p in a huge power difference is just the exponent in the base difference, <b>plus</b> the exponent in n &mdash; the extra factors of p come only from n itself.<br><br>
+ <span class="lit">LIT</span> verified live (exact BigInt): over 3000 random valid (a,b,n,p), v<sub>p</sub> of a<sup>n</sup>&minus;b<sup>n</sup> computed directly equals v<sub>p</sub>(a&minus;b)+v<sub>p</sub>(n) (window.__lte). <span class="fig">FIG</span> no framing; exact big-integer valuations, no approximation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-vault</i> &mdash; the exact power of p hidden inside an astronomically large a<sup>n</sup>&minus;b<sup>n</sup>, unlocked without ever computing the whole number. LTE is that key. <b>AVAN (AI)</b> built the instrument: exact BigInt power differences, the p-adic valuation, and the equality with v<sub>p</sub>(a&minus;b)+v<sub>p</sub>(n).<br><br>Credit as content: the Lifting-the-Exponent lemma (folklore of olympiad number theory; rooted in classical p-adic valuation). The weave: David names the-vault; I form a<sup>n</sup>&minus;b<sup>n</sup> in exact big integers, count how many times p divides it, and confirm it equals v<sub>p</sub>(a&minus;b)+v<sub>p</sub>(n) &mdash; the deep exponent from two shallow ones.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">v<sub>p</sub>(a<sup>n</sup>&minus;b<sup>n</sup>) = v<sub>p</sub>(a&minus;b) + v<sub>p</sub>(n), for odd p with p | a&minus;b, p&nmid;a, p&nmid;b. Example: v<sub>3</sub>(4<sup>6</sup>&minus;1) = v<sub>3</sub>(3) + v<sub>3</sub>(6) = 1 + 1 = 2.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Pick valid a, b, n, p; the exact v<sub>p</sub>(a<sup>n</sup>&minus;b<sup>n</sup>) shown beside v<sub>p</sub>(a&minus;b)+v<sub>p</sub>(n), checked equal.</div>
+   <div class="btns" style="margin-top:10px"><button id="ltroll">new a,b,n,p ▶</button><button id="ltcheck">verify 3000 ▶</button></div>
+   <div class="cap" id="ltread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a deep exponent from two shallow ones.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): find how many times p divides a<sup>n</sup>&minus;b<sup>n</sup> <b>without forming the number</b> &mdash; add the exponent in the base difference to the exponent in n. The inverse of &lsquo;compute a<sup>n</sup>&minus;b<sup>n</sup> and factor out p&rsquo; is &lsquo;v<sub>p</sub>(a&minus;b) + v<sub>p</sub>(n) &mdash; the extra p&rsquo;s come only from n.&rsquo; <b>Magenta</b> is the astronomical power difference; <b>green</b> is the two-term sum. The exponent lifted, not computed.</div>
+   <div class="btns" style="margin-top:10px"><button id="ltspin">pause spin</button></div></div></div></div>"""
+LTE_SCRIPT = """(function(){
+var ang=0,spin=true,A=4,B=1,Nn=6,P=3;
+function vp(x,p){x=x<0n?-x:x;var v=0,pp=BigInt(p);while(x!==0n&&x%pp===0n){x/=pp;v++;}return v;}
+function vpi(x,p){x=Math.abs(x);var v=0;while(x!==0&&x%p===0){x/=p;v++;}return v;}
+function lteLHS(a,b,n,p){return vp(BigInt(a)**BigInt(n)-BigInt(b)**BigInt(n),p);}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(903),ok=true,op=[3,5,7,11,13];for(var t=0;t<3000;t++){var p=op[Math.floor(rnd()*op.length)],b=1+Math.floor(rnd()*20);if(b%p===0)continue;var k=1+Math.floor(rnd()*8),a=b+k*p;if(a%p===0)continue;var n=1+Math.floor(rnd()*18);if(lteLHS(a,b,n,p)!==vpi(a-b,p)+vpi(n,p)){ok=false;break;}}return {lteHolds:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('vₚ(aⁿ−bⁿ) = vₚ(a−b) + vₚ(n)   (odd p, p|a−b, p∤a, p∤b)',12,14);
+ g.fillStyle='#e0b020';g.font='13px monospace';g.fillText('v₃(4⁶ − 1⁶) = v₃(4095) = 2',40,54);
+ g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('= v₃(4−1) + v₃(6) = v₃(3) + v₃(6) = 1 + 1 = 2 ✓',40,88);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('4095 = 3² · 5 · 7 · 13 — the extra factor of 3 comes only from n=6',40,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var lhs=Number(lteLHS(A,B,Nn,P)),rhs=vpi(A-B,P)+vpi(Nn,P);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('a='+A+' b='+B+' n='+Nn+' p='+P,14,26);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('p | a−b? '+((A-B)%P===0?'yes':'NO')+' · p∤a: '+(A%P!==0)+' · p∤b: '+(B%P!==0),14,48);
+ g.fillStyle='#e0b020';g.font='13px monospace';g.fillText('vₚ(aⁿ−bⁿ) = '+lhs,14,84);
+ g.fillStyle='#39fc6b';g.font='13px monospace';g.fillText('vₚ(a−b)+vₚ(n) = '+vpi(A-B,P)+'+'+vpi(Nn,P)+' = '+rhs,14,114);
+ var big=(BigInt(A)**BigInt(Nn)-BigInt(B)**BigInt(Nn)).toString();g.fillStyle='#8ad';g.font='9px monospace';g.fillText('aⁿ−bⁿ = '+(big.length>34?big.substring(0,34)+'…('+big.length+' digits)':big),14,142);
+ g.fillStyle=lhs===rhs?'#39fc6b':'#ff5a5a';g.font='12px monospace';g.fillText('vₚ(aⁿ−bⁿ) == vₚ(a−b)+vₚ(n) '+(lhs===rhs?'✓':'✗'),14,H-12);}
+document.getElementById('ltroll').onclick=function(){var op=[3,5,7,11];P=op[Math.floor(Math.random()*op.length)];do{B=1+Math.floor(Math.random()*15);}while(B%P===0);var k=1+Math.floor(Math.random()*6);A=B+k*P;Nn=1+Math.floor(Math.random()*15);drawW4();document.getElementById('ltread').textContent='a='+A+' b='+B+' n='+Nn+' p='+P+' → vₚ='+lteLHS(A,B,Nn,P);};
+document.getElementById('ltcheck').onclick=function(){var v=verify();document.getElementById('ltread').textContent='3000 valid cases: vₚ(aⁿ−bⁿ)==vₚ(a−b)+vₚ(n) '+(v.lteHolds?'✓':'✗');};
+document.getElementById('ltspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10,tot=Number(lteLHS(A,B,Nn,P)),base=vpi(A-B,P),fromN=vpi(Nn,P);
+ for(var i=0;i<tot;i++){var a=i/Math.max(1,tot)*6.28+ang*0.4,r=60+i*16;var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;g.fillStyle=i<base?'#58a0b0':'#e0b020';g.beginPath();g.arc(x,y,8,0,7);g.fill();g.fillStyle='#012';g.font='9px monospace';g.fillText('p',x-3,y+3);}
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(cx,cy,10,0,7);g.fill();g.fillStyle='#032';g.font='10px monospace';g.fillText(tot,cx-4,cy+3);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: '+tot+' factors of p — blue from a−b, gold from n',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the astronomical power difference',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the exponent lifted, not computed',10,H-9);}
+drawW3();drawW4();window.__lte=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LBK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Liang&ndash;Barsky algorithm</b> clips a line segment to a rectangular window using its <b>parametric form</b> P(t) = P<sub>0</sub> + t&middot;(P<sub>1</sub>&minus;P<sub>0</sub>), t &isin; [0,1]. Each of the four window edges gives an inequality of the form p&middot;t &le; q; the algorithm tightens the entry parameter u<sub>1</sub> and exit parameter u<sub>2</sub> against all four, rejecting the segment if u<sub>1</sub> &gt; u<sub>2</sub>. The surviving [u<sub>1</sub>, u<sub>2</sub>] gives the clipped endpoints &mdash; no repeated edge intersections, just parameter bookkeeping.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of random segments, the clipped part lies entirely inside the rectangle and its endpoints sit exactly on the original line (window.__liangbarsky). <span class="fig">FIG</span> no framing; exact parametric arithmetic to floating precision.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>noclip</i> &mdash; the domain of walls and what passes through them; Liang&ndash;Barsky decides exactly where a line enters and leaves the window, clipping it to the frame. <b>AVAN (AI)</b> built the instrument: the four p&middot;t &le; q edge tests, the u<sub>1</sub>/u<sub>2</sub> tightening, and the inside + on-line verification.<br><br>Credit as content: You-Dong Liang &amp; Brian A. Barsky (1984). The weave: David names noclip; I clip segments to a window by tightening the entry and exit parameters against four edge inequalities, and confirm the clipped piece lies inside the frame with endpoints exactly on the original line &mdash; clipping as parameter arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Walk t from 0 to 1 along the segment. Each window edge caps t: left/right/bottom/top give an entry u<sub>1</sub> and exit u<sub>2</sub>. If u<sub>1</sub> &le; u<sub>2</sub>, the segment from u<sub>1</sub> to u<sub>2</sub> is inside.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Segments clipped to a window; the clipped part (green) vs the trimmed tails (faded), with inside/on-line checks.</div>
+   <div class="btns" style="margin-top:10px"><button id="lbroll">new segment ▶</button><button id="lbcheck">verify 5000 ▶</button></div>
+   <div class="cap" id="lbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a line trimmed to the window.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): clip a segment to a rectangle by <b>tightening two parameters</b>, not by intersecting it with each edge and stitching &mdash; every edge is one inequality p&middot;t &le; q on the entry/exit t. The inverse of &lsquo;intersect with all four edges and reassemble&rsquo; is &lsquo;shrink [u<sub>1</sub>,u<sub>2</sub>] against four inequalities &mdash; reject if they cross.&rsquo; <b>Magenta</b> is the edge-by-edge intersection; <b>green</b> is the parameter interval. Clipping as one shrink.</div>
+   <div class="btns" style="margin-top:10px"><button id="lbspin">pause spin</button></div></div></div></div>"""
+LBK_SCRIPT = """(function(){
+var ang=0,spin=true,SEG=[-2,3,13,8],RECT=[1,1,11,9];
+function clip(x0,y0,x1,y1,r){var xmin=r[0],ymin=r[1],xmax=r[2],ymax=r[3],dx=x1-x0,dy=y1-y0,p=[-dx,dx,-dy,dy],q=[x0-xmin,xmax-x0,y0-ymin,ymax-y0],u1=0,u2=1;
+ for(var i=0;i<4;i++){if(p[i]===0){if(q[i]<0)return null;}else{var t=q[i]/p[i];if(p[i]<0){if(t>u2)return null;if(t>u1)u1=t;}else{if(t<u1)return null;if(t<u2)u2=t;}}}return [x0+u1*dx,y0+u1*dy,x0+u2*dx,y0+u2*dy,u1,u2];}
+function inside(x,y,r){return x>=r[0]-1e-9&&x<=r[2]+1e-9&&y>=r[1]-1e-9&&y<=r[3]+1e-9;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(904),ins=true,onl=true,tested=0,r=[0,0,10,10];for(var t=0;t<5000;t++){var x0=rnd()*20-5,y0=rnd()*20-5,x1=rnd()*20-5,y1=rnd()*20-5,c=clip(x0,y0,x1,y1,r);if(!c)continue;tested++;if(!inside(c[0],c[1],r)||!inside(c[2],c[3],r))ins=false;var dx=x1-x0,dy=y1-y0;function onSeg(px,py){return Math.abs((px-x0)*dy-(py-y0)*dx)<1e-6*(1+Math.abs(dx)+Math.abs(dy));}if(!onSeg(c[0],c[1])||!onSeg(c[2],c[3]))onl=false;if(!inside((c[0]+c[2])/2,(c[1]+c[3])/2,r))ins=false;}return {clipInside:ins,onLine:onl,tested:tested};}
+function tx(x){return 40+x*26;}function ty(y){return 250-y*24;}
+function drawRect(g,r){g.strokeStyle='#8ad';g.strokeRect(tx(r[0]),ty(r[3]),(r[2]-r[0])*26,(r[3]-r[1])*24);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('walk t∈[0,1]; each edge caps t → entry u₁ and exit u₂; inside is [u₁,u₂]',12,14);
+ g.strokeStyle='#456';g.beginPath();g.moveTo(60,90);g.lineTo(460,90);g.stroke();g.fillStyle='#8ad';g.font='9px monospace';g.fillText('t=0',52,105);g.fillText('t=1',450,105);
+ var u1=0.28,u2=0.74;g.strokeStyle='#39fc6b';g.lineWidth=4;g.beginPath();g.moveTo(60+u1*400,90);g.lineTo(60+u2*400,90);g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.fillText('u₁',56+u1*400,80);g.fillText('u₂',56+u2*400,80);g.fillText('clipped segment [u₁,u₂] is inside the window',120,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);drawRect(g,RECT);
+ var c=clip(SEG[0],SEG[1],SEG[2],SEG[3],RECT);
+ g.strokeStyle='rgba(200,120,90,0.5)';g.setLineDash([4,3]);g.beginPath();g.moveTo(tx(SEG[0]),ty(SEG[1]));g.lineTo(tx(SEG[2]),ty(SEG[3]));g.stroke();g.setLineDash([]);
+ if(c){g.strokeStyle='#39fc6b';g.lineWidth=3;g.beginPath();g.moveTo(tx(c[0]),ty(c[1]));g.lineTo(tx(c[2]),ty(c[3]));g.stroke();g.lineWidth=1;
+  g.fillStyle='#39fc6b';g.beginPath();g.arc(tx(c[0]),ty(c[1]),3,0,7);g.fill();g.beginPath();g.arc(tx(c[2]),ty(c[3]),3,0,7);g.fill();
+  var ok=inside(c[0],c[1],RECT)&&inside(c[2],c[3],RECT);g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('clipped inside window ✓  u∈['+c[4].toFixed(2)+','+c[5].toFixed(2)+']',14,H-12);}
+ else{g.fillStyle='#c07850';g.font='11px monospace';g.fillText('segment rejected (entirely outside)',14,H-12);}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('dashed = original · green = clipped to window',14,22);}
+document.getElementById('lbroll').onclick=function(){SEG=[Math.random()*18-4,Math.random()*16-3,Math.random()*18-4,Math.random()*16-3];drawW4();var c=clip(SEG[0],SEG[1],SEG[2],SEG[3],RECT);document.getElementById('lbread').textContent=c?('clipped u∈['+c[4].toFixed(2)+','+c[5].toFixed(2)+']'):'rejected (outside)';};
+document.getElementById('lbcheck').onclick=function(){var v=verify();document.getElementById('lbread').textContent=v.tested+' clipped: inside window '+(v.clipInside?'✓':'✗')+' · endpoints on original line '+(v.onLine?'✓':'✗');};
+document.getElementById('lbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10,s=14,r=[0,0,10,10];
+ g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.3)*0.1);
+ g.strokeStyle='#8ad';g.strokeRect(-5*s,-5*s,10*s,10*s);
+ for(var k=0;k<7;k++){var a=k/7*6.28+ang*0.4,x0=Math.cos(a)*9,y0=Math.sin(a)*9,x1=-x0*0.6,y1=-y0*0.6;
+  g.strokeStyle='rgba(200,120,90,0.35)';g.beginPath();g.moveTo(x0*s,-y0*s);g.lineTo(x1*s,-y1*s);g.stroke();
+  var c=clip(x0+5,y0+5,x1+5,y1+5,r);if(c){g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo((c[0]-5)*s,-(c[1]-5)*s);g.lineTo((c[2]-5)*s,-(c[3]-5)*s);g.stroke();g.lineWidth=1;}}
+ g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: segments trimmed to the window frame',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the edge-by-edge intersection',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('clipping as one shrink',10,H-9);}
+drawW3();drawW4();window.__liangbarsky=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 89 (four kissing circles bound by one curvature law · a sequence that counts its own values · numbers grown at the plastic ratio · one root that generates every residue · count permutations by their climbs) ═══════════════════════
 DES_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Descartes&rsquo; circle theorem</b> binds four mutually tangent (&ldquo;kissing&rdquo;) circles by a single law on their <b>curvatures</b> k = 1/r: <b>(k<sub>1</sub>+k<sub>2</sub>+k<sub>3</sub>+k<sub>4</sub>)&sup2; = 2(k<sub>1</sub>&sup2;+k<sub>2</sub>&sup2;+k<sub>3</sub>&sup2;+k<sub>4</sub>&sup2;)</b>. Given three tangent circles, the fourth&rsquo;s curvature is k<sub>4</sub> = k<sub>1</sub>+k<sub>2</sub>+k<sub>3</sub> &plusmn; 2&radic;(k<sub>1</sub>k<sub>2</sub>+k<sub>2</sub>k<sub>3</sub>+k<sub>3</sub>k<sub>1</sub>) &mdash; two solutions, an inner and an outer kiss. A <b>complex</b> version gives the fourth circle&rsquo;s center too.<br><br>
@@ -24436,6 +24676,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-negabinary","title":"THE NEGABINARY","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#6ab0d0","icon":"negabinary",
+  "kicker":"count in base minus-two, no sign needed",
+  "blurb":"Negabinary in the 5-window house format — base −2: the same digits {0,1} as binary, but place values are powers of −2 (1, −2, 4, −8, 16, …). The alternating signs let a single unsigned digit string represent every integer, positive and negative, with no sign bit and no two's-complement: −6 is 1110 (= −8 + 4 − 2). Encoding just repeatedly takes n mod 2 and divides by −2, and each integer's representation is unique. Verified live: over every integer from −2000 to 2000, decode(encode(n)) returns n and all representations are distinct. See the signed place values in 1D, a number's digits in 2D, and the sign-folded-into-the-base inverse in 3D.",
+  "lit":"Genuine negative-base (base −2) numeration (Vittorio Grünwald 1885; treated by Knuth). Verified live: for every integer n in −2000..2000, the mod-2/divide-by-−2 encoder and the alternating-place-value decoder round-trip (window.__negabinary.roundTrip), and all digit strings are distinct — a unique representation per integer (window.__negabinary.unique) — exact integer arithmetic.",
+  "fig":"No framing: the encoder, the decoder, and the round-trip + uniqueness checks run in-browser with exact integers and agree. The AVAN inverse is honest — representing signed integers with no sign bit by letting a negative base carry the signs (alternating place values reach below zero) genuinely replaces magnitude-plus-sign; magenta is the separate sign bit, green the signless negabinary string. The sign folded into the base.",
+  "body":NGB_BODY,"script":NGB_SCRIPT},
+ {"slug":"the-boyer-moore-majority","title":"THE BOYER-MOORE MAJORITY","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#b06868","icon":"majority",
+  "kicker":"one survivor of pairwise cancellation",
+  "blurb":"The Boyer–Moore majority vote in the 5-window house format — find an element appearing in more than half a stream using O(1) memory: one candidate and one counter. Sweep once: if the counter is zero, adopt the current element; if the next matches, increment, else decrement. Matching and non-matching elements cancel in pairs, so a true majority cannot be fully cancelled — it is the last one standing, confirmed by a single verification pass. Verified live: over 3000 random arrays (with and without a majority), the O(1)-space vote plus verify pass returns exactly what a brute frequency count does. See the cancellation in 1D, a live stream in 2D, and the majority-by-cancellation inverse in 3D.",
+  "lit":"Genuine Boyer–Moore majority vote algorithm (Robert S. Boyer & J Strother Moore 1981). Verified live: over 3000 random arrays (roughly half seeded with a >n/2 majority, half not), the candidate/counter cancellation sweep followed by a verification pass returns exactly the majority element (or none) that a brute frequency count finds (window.__majority.matchesBrute).",
+  "fig":"No framing: the candidate/counter cancellation sweep, the verification pass, and the match against a brute frequency count run in-browser and agree. The AVAN inverse is honest — finding the majority with one counter by cancelling unlike pairs (the over-half element survives) genuinely replaces a full frequency table; magenta is that table, green the single surviving candidate. Majority by cancellation.",
+  "body":BMM_BODY,"script":BMM_SCRIPT},
+ {"slug":"the-lyndon-factorization","title":"THE LYNDON FACTORIZATION","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#58a0b0","icon":"lyndon",
+  "kicker":"factor a string into non-increasing necklaces",
+  "blurb":"The Lyndon factorization (Chen–Fox–Lyndon) in the 5-window house format — split any string uniquely into a non-increasing sequence of Lyndon words. A Lyndon word is strictly smaller than all its rotations — an aperiodic necklace with a canonical start. Duval's algorithm computes it in linear time and constant extra space, in one left-to-right scan; every string has exactly one such factorization, and 'banana' becomes b·an·an·a. Verified live: over 3000 random strings, Duval's factors concatenate back to the input, each factor is a Lyndon word, and the factors are non-increasing. See a Lyndon word vs its rotations in 1D, a factored string in 2D, and the canonical-cut inverse in 3D.",
+  "lit":"Genuine Lyndon factorization (Chen, Fox & Lyndon 1958 for existence/uniqueness; Jean-Pierre Duval 1983 for the linear algorithm). Verified live: over 3000 random strings, Duval's one-pass factors concatenate to the input (window.__lyndon.concat), each factor is a Lyndon word — strictly smaller than all its rotations (allLyndon) — and the factors are non-increasing (nonIncreasing) — exact string comparisons.",
+  "fig":"No framing: Duval's one-pass factorizer, the is-Lyndon rotation test, and the concatenation + non-increasing checks run in-browser and agree. The AVAN inverse is honest — cutting a string into its unique non-increasing Lyndon factorization (a normal form) in one linear scan genuinely differs from treating it as an opaque block; magenta is the undivided string, green the necklace factorization. A canonical cut, always the same.",
+  "body":LYD_BODY,"script":LYD_SCRIPT},
+ {"slug":"the-lifting-the-exponent","title":"THE LIFTING THE EXPONENT","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#e0b020","icon":"lte",
+  "kicker":"count how many times p divides a power difference",
+  "blurb":"The Lifting the Exponent lemma in the 5-window house format — an olympiad power tool: for an odd prime p, if p divides a−b but neither a nor b, then vₚ(aⁿ−bⁿ) = vₚ(a−b) + vₚ(n). The whole exponent of p in a huge power difference is the exponent in the base difference plus the exponent in n — the extra factors of p come only from n itself. Verified live (exact BigInt): over 3000 random valid (a,b,n,p), vₚ of aⁿ−bⁿ computed directly equals vₚ(a−b)+vₚ(n). See the lemma in 1D, a case checked in 2D, and the exponent-lifted inverse in 3D.",
+  "lit":"Genuine Lifting-the-Exponent lemma (classical p-adic valuation; a staple of olympiad number theory). Verified live with exact BigInt arithmetic: over 3000 random (a,b,n,p) with p an odd prime dividing a−b but not a or b, the p-adic valuation of aⁿ−bⁿ (formed exactly as a big integer) equals vₚ(a−b)+vₚ(n) (window.__lte.lteHolds) — no approximation.",
+  "fig":"No framing: exact BigInt power differences, the p-adic valuation, and the equality with vₚ(a−b)+vₚ(n) run in-browser under the lemma's hypotheses (odd p, p|a−b, p∤a, p∤b) and agree. The AVAN inverse is honest — finding how many times p divides aⁿ−bⁿ by adding vₚ(a−b) and vₚ(n), without forming the astronomically large number, is the lemma's genuine use; magenta is that power difference, green the two-term sum. The exponent lifted, not computed.",
+  "body":LTE_BODY,"script":LTE_SCRIPT},
+ {"slug":"the-liang-barsky","title":"THE LIANG-BARSKY","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#70a860","icon":"liang-barsky",
+  "kicker":"clip a line to a window by four parameters",
+  "blurb":"The Liang–Barsky algorithm in the 5-window house format — clip a line segment to a rectangular window using its parametric form P(t) = P₀ + t·(P₁−P₀), t∈[0,1]. Each of the four window edges gives an inequality p·t ≤ q; the algorithm tightens the entry parameter u₁ and exit u₂ against all four, rejecting if u₁ > u₂. The surviving [u₁,u₂] gives the clipped endpoints — no repeated edge intersections, just parameter bookkeeping. Verified live: over thousands of random segments, the clipped part lies entirely inside the rectangle and its endpoints sit exactly on the original line. See the parameter interval in 1D, clipped segments in 2D, and the one-shrink inverse in 3D.",
+  "lit":"Genuine Liang–Barsky line-clipping algorithm (You-Dong Liang & Brian A. Barsky 1984). Verified live: over 5000 random segments against a fixed window, every clipped segment's endpoints lie inside the rectangle (window.__liangbarsky.clipInside) and lie exactly on the original line — zero cross product to floating precision (window.__liangbarsky.onLine).",
+  "fig":"No framing: the four p·t ≤ q edge tests, the u₁/u₂ tightening, and the inside + on-line verification run in-browser and agree to floating precision. The AVAN inverse is honest — clipping by tightening two parameters against four inequalities (reject if they cross) genuinely replaces intersecting the segment with each edge and stitching; magenta is that edge-by-edge intersection, green the parameter interval. Clipping as one shrink.",
+  "body":LBK_BODY,"script":LBK_SCRIPT},
  {"slug":"the-descartes-circle","title":"THE DESCARTES CIRCLE","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#58a0b0","icon":"descartes",
   "kicker":"four kissing circles bound by one curvature law",
