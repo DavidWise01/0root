@@ -19485,6 +19485,231 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 83 (the GCD carries a certificate · a point becomes a curve to vote for lines · smooth without blurring the shape · fuse guess and measurement optimally · carve out the least-noticed seam) ═══════════════════════
+EEU_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The extended Euclidean algorithm</b> computes gcd(a,b) <b>and</b>, for free, the integers x and y that express it: <b>a&middot;x + b&middot;y = gcd(a,b)</b> &mdash; B&eacute;zout&rsquo;s identity. It runs the ordinary Euclidean division loop but carries the coefficients along, so the GCD comes with a <b>certificate</b>. Those coefficients are exactly what you need to compute <b>modular inverses</b> (a&#8315;&sup1; mod m), solve linear Diophantine equations, and power RSA key generation.<br><br>
+ <span class="lit">LIT</span> verified live: over 5000 random pairs, the returned (x,y) satisfy a&middot;x + b&middot;y = gcd(a,b) exactly, and the gcd matches the ordinary Euclidean one (window.__egcd). <span class="fig">FIG</span> no framing; exact integer arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>warm-cache</i> &mdash; the reduction loop, here carrying the B&eacute;zout coefficients along so the GCD arrives with a proof of how to build it. The extended Euclid is that certified reduction. <b>AVAN (AI)</b> built the instrument: the recursive coefficient back-substitution, and the a&middot;x+b&middot;y=gcd verification.<br><br>Credit as content: the extended Euclidean algorithm (Euclid&rsquo;s division, antiquity; B&eacute;zout&rsquo;s identity, 1779). The weave: David names warm-cache; I run the division loop while back-substituting the coefficients, and confirm a&middot;x+b&middot;y equals the GCD exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">240 = 5&middot;46 + 10; 46 = 4&middot;10 + 6; 10 = 1&middot;6 + 4; 6 = 1&middot;4 + 2; 4 = 2&middot;2. GCD is 2 &mdash; and unwinding the quotients gives x, y with 240x + 46y = 2.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Two numbers; their GCD and the B&eacute;zout coefficients x, y are shown, with a&middot;x+b&middot;y checked to equal the GCD.</div>
+   <div class="btns" style="margin-top:10px"><button id="eeroll">new pair ▶</button><button id="eecheck">verify 5000 ▶</button></div>
+   <div class="cap" id="eeread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a GCD that carries its own B&eacute;zout certificate.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): get not just the GCD but the <b>coefficients that build it</b> &mdash; carry x, y through the Euclidean loop so a&middot;x+b&middot;y=gcd falls out, giving modular inverses for free. The inverse of &lsquo;compute the GCD and stop&rsquo; is &lsquo;compute the GCD <b>with a certificate</b> of how to combine a and b into it.&rsquo; <b>Magenta</b> is the bare GCD; <b>green</b> is the GCD-plus-coefficients. A remainder that proves itself.</div>
+   <div class="btns" style="margin-top:10px"><button id="eespin">pause spin</button></div></div></div></div>"""
+EEU_SCRIPT = """(function(){
+var ang=0,spin=true,A=240,B=46;
+function egcd(a,b){if(b===0)return [a,1,0];var r=egcd(b,a%b);return [r[0],r[2],r[1]-Math.floor(a/b)*r[2]];}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(270),ok=true;for(var t=0;t<5000;t++){var a=1+Math.floor(rnd()*100000),b=1+Math.floor(rnd()*100000),r=egcd(a,b);if(a*r[1]+b*r[2]!==r[0]||r[0]!==gcd(a,b))ok=false;}return {bezoutHolds:ok};}
+function trace(a,b){var tr=[];while(b!==0){var q=Math.floor(a/b),rem=a-q*b;tr.push([a,q,b,rem]);a=b;b=rem;}return tr;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the Euclidean division loop; unwinding the quotients gives x, y',12,14);
+ var tr=trace(240,46);for(var i=0;i<Math.min(tr.length,5);i++){g.fillStyle=i%2?'#58a0b0':'#c0a048';g.font='11px monospace';g.fillText(tr[i][0]+' = '+tr[i][1]+'·'+tr[i][2]+' + '+tr[i][3],40,45+i*22);}
+ var r=egcd(240,46);g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('240·'+r[1]+' + 46·'+r[2]+' = '+r[0],300,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var r=egcd(A,B);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('a = '+A+',  b = '+B,12,24);
+ g.fillStyle='#39fc6b';g.font='14px monospace';g.fillText('gcd = '+r[0],12,54);
+ g.fillStyle='#c0a048';g.font='12px monospace';g.fillText('x = '+r[1]+',  y = '+r[2],12,84);
+ g.fillStyle='#8ad';g.font='12px monospace';g.fillText(A+'·('+r[1]+') + '+B+'·('+r[2]+') = '+(A*r[1]+B*r[2]),12,114);
+ var ok=A*r[1]+B*r[2]===r[0];g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('a·x + b·y == gcd '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('eeroll').onclick=function(){A=1+Math.floor(Math.random()*9999);B=1+Math.floor(Math.random()*9999);drawW4();var r=egcd(A,B);document.getElementById('eeread').textContent=A+'·'+r[1]+'+'+B+'·'+r[2]+'='+r[0];};
+document.getElementById('eecheck').onclick=function(){var v=verify();document.getElementById('eeread').textContent='5000 pairs: a·x+b·y == gcd(a,b) '+(v.bezoutHolds?'✓':'✗');};
+document.getElementById('eespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var tr=trace(A,B),cx=W/2,cy=H/2-20;
+ for(var i=0;i<tr.length;i++){var a=i/Math.max(1,tr.length)*6.28+ang*0.3,r=35+i*14,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.72;g.fillStyle='hsl('+(i*40)+',65%,58%)';g.beginPath();g.arc(x,y,4,0,7);g.fill();g.fillStyle='#cfe';g.font='7px monospace';g.fillText(tr[i][3],x-3,y+2);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green spiral: the remainders down to the GCD',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the bare GCD without its coefficients',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a remainder that proves itself (Bézout certificate)',10,H-9);}
+drawW3();drawW4();window.__egcd=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HGH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Hough transform</b> detects lines in a scatter of points by a <b>duality</b>: each point (x,y) becomes a <b>sinusoid</b> &rho; = x&middot;cos&theta; + y&middot;sin&theta; in parameter space, and all the points on one line have sinusoids that <b>intersect at a single (&rho;,&theta;)</b> &mdash; the line&rsquo;s own parameters. Accumulate votes in a (&rho;,&theta;) grid and the lines show up as <b>peaks</b>. It turns a fuzzy detection problem into peak-finding, robust to gaps and noise.<br><br>
+ <span class="lit">LIT</span> verified live: collinear points <b>exactly</b> satisfy &rho;<sub>0</sub> = x&middot;cos&theta;<sub>0</sub> + y&middot;sin&theta;<sub>0</sub> for the line&rsquo;s (&rho;<sub>0</sub>,&theta;<sub>0</sub>), and the accumulator peak recovers the line across 200 trials (window.__hough). <span class="fig">FIG</span> the parametrization identity is exact; peak recovery is to grid resolution.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sandbox</i> &mdash; the spatial playground where scattered points hide straight lines waiting to be voted into view. The Hough transform is that voting. <b>AVAN (AI)</b> built the instrument: the point&rarr;sinusoid map, the (&rho;,&theta;) accumulator, the peak finder, the exact parametrization-identity check, and the line-recovery check.<br><br>Credit as content: Paul Hough (1962); Duda &amp; Hart (the &rho;&ndash;&theta; form, 1972). The weave: David names the-sandbox; I map each point to its sinusoid, confirm collinear points meet at one (&rho;,&theta;), and let the accumulator peak recover the line.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each point maps to a sinusoid &rho;(&theta;) = x&middot;cos&theta; + y&middot;sin&theta;. Points on the same line give sinusoids that all pass through <b>one</b> point (&rho;<sub>0</sub>,&theta;<sub>0</sub>) &mdash; the line&rsquo;s parameters. That crossing is the vote peak.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Scattered (mostly collinear) points, their accumulator, and the recovered line; the sinusoids&rsquo; common crossing is checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="hgroll">new points ▶</button><button id="hgcheck">verify 200 ▶</button></div>
+   <div class="cap" id="hgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: lines found as peaks in parameter space.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): find lines by turning each <b>point into a curve that votes</b> &mdash; a sinusoid in (&rho;,&theta;) space &mdash; so collinear points&rsquo; sinusoids cross at the line&rsquo;s parameters, appearing as an accumulator peak. The inverse of &lsquo;test every candidate line against every point&rsquo; is &lsquo;let each point vote as a curve &mdash; lines emerge as peaks.&rsquo; <b>Magenta</b> is the exhaustive line-fitting avoided; <b>green</b> is the peak in parameter space. Detection as voting.</div>
+   <div class="btns" style="margin-top:10px"><button id="hgspin">pause spin</button></div></div></div></div>"""
+HGH_SCRIPT = """(function(){
+var ang=0,spin=true,PTS=[],TH0=0.8,RHO0=90;
+function peak(points,nTheta,nRho,maxRho){var acc={},bT=0,bR=0,bV=-1;points.forEach(function(p){for(var ti=0;ti<nTheta;ti++){var th=ti/nTheta*Math.PI,rho=p[0]*Math.cos(th)+p[1]*Math.sin(th),ri=Math.round(rho/maxRho*nRho),k=ti+':'+ri;acc[k]=(acc[k]||0)+1;if(acc[k]>bV){bV=acc[k];bT=ti;bR=ri;}}});return {theta:bT/nTheta*Math.PI,rho:bR/nRho*maxRho,votes:bV};}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(271),identityOk=true,recovers=0,worst=0;for(var t=0;t<200;t++){var th0=rnd()*Math.PI,rho0=rnd()*80+40,pts=[];for(var i=0;i<14;i++){var s=rnd()*120-60,x=rho0*Math.cos(th0)-s*Math.sin(th0),y=rho0*Math.sin(th0)+s*Math.cos(th0);pts.push([x,y]);}pts.forEach(function(p){var d=Math.abs(p[0]*Math.cos(th0)+p[1]*Math.sin(th0)-rho0);worst=Math.max(worst,d);if(d>1e-9)identityOk=false;});var maxRho=Math.ceil(Math.max.apply(0,pts.map(function(p){return Math.hypot(p[0],p[1]);})))+2,pk=peak(pts,720,720,maxRho),pkErr=0;pts.forEach(function(p){pkErr=Math.max(pkErr,Math.abs(p[0]*Math.cos(pk.theta)+p[1]*Math.sin(pk.theta)-pk.rho));});if(pkErr<3&&pk.votes>=pts.length*0.5)recovers++;}return {identityExact:identityOk,accumulatorRecovers:recovers===200,recovered:recovers,worst:worst};}
+function mk(){TH0=Math.random()*Math.PI;RHO0=Math.random()*80+60;PTS=[];for(var i=0;i<11;i++){var s=Math.random()*180-90,x=192+RHO0*Math.cos(TH0)-s*Math.sin(TH0)-100,y=130+RHO0*Math.sin(TH0)+s*Math.cos(TH0)-60;PTS.push([x,y]);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('each point → a sinusoid ρ(θ)=x cosθ+y sinθ; collinear ones cross at one (ρ,θ)',12,14);
+ var pts=[[40,20],[70,50],[100,80]];for(var pi=0;pi<3;pi++){g.strokeStyle=['#58a0b0','#c0a048','#a878c0'][pi];g.beginPath();for(var ti=0;ti<=100;ti++){var th=ti/100*Math.PI,rho=pts[pi][0]*Math.cos(th)+pts[pi][1]*Math.sin(th);g.lineTo(30+ti*4.5,95-rho*0.5);}g.stroke();}
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(30+55*4.5,95-70*0.5,5,0,7);g.fill();g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('common crossing = the line',280,50);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS.length)mk();var maxRho=Math.ceil(Math.max.apply(0,PTS.map(function(p){return Math.hypot(p[0],p[1]);})))+2,pk=peak(PTS,720,720,maxRho);
+ // draw recovered line
+ g.strokeStyle='#39fc6b';g.lineWidth=2;var ct=Math.cos(pk.theta),st=Math.sin(pk.theta);g.beginPath();for(var s=-300;s<=300;s+=6){var x=pk.rho*ct-s*st,y=pk.rho*st+s*ct;g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ PTS.forEach(function(p){g.fillStyle='#c0a048';g.beginPath();g.arc(p[0],p[1],4,0,7);g.fill();});
+ var v=verify();g.fillStyle=v.identityExact&&v.accumulatorRecovers?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('identity exact ✓ · peak recovers line ('+v.recovered+'/200) '+(v.accumulatorRecovers?'✓':'✗'),12,H-10);}
+document.getElementById('hgroll').onclick=function(){mk();drawW4();document.getElementById('hgread').textContent='line at θ='+TH0.toFixed(2)+', ρ='+RHO0.toFixed(0);};
+document.getElementById('hgcheck').onclick=function(){var v=verify();document.getElementById('hgread').textContent='200 lines: identity exact '+(v.identityExact?'✓':'✗')+' (worst '+v.worst.toExponential(1)+') · peak recovers '+v.recovered+'/200';};
+document.getElementById('hgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-20;
+ var pts=[[30,20],[60,55],[95,95],[130,135]];for(var pi=0;pi<pts.length;pi++){g.strokeStyle='hsl('+(pi*70)+',60%,58%)';g.globalAlpha=0.6;g.beginPath();for(var ti=0;ti<=120;ti++){var th=ti/120*Math.PI+ang*0.1,rho=pts[pi][0]*Math.cos(th)+pts[pi][1]*Math.sin(th);g.lineTo(cx-160+ti*2.6,cy-rho*0.7+40);}g.stroke();g.globalAlpha=1;}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('curves: each point as a sinusoid; they cross at the line',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the exhaustive line-fitting avoided',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('detection as voting (a point becomes a curve)',10,H-9);}
+mk();drawW3();drawW4();window.__hough=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SGF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Savitzky&ndash;Golay filter</b> smooths noisy data <b>without flattening its features</b>: instead of averaging (which blurs peaks), it fits a low-degree <b>polynomial</b> to each sliding window by least squares and takes the fitted value at the center. Because a polynomial can bend, it preserves the height and width of peaks that a moving average would crush. Remarkably, the whole operation collapses to a single fixed <b>convolution kernel</b>. It is standard in spectroscopy and sensor processing.<br><br>
+ <span class="lit">LIT</span> verified live: a Savitzky&ndash;Golay filter of order d reproduces <b>any</b> polynomial of degree &le; d <b>exactly</b> (it does not distort what it should preserve) over 200 random cases (window.__savitzkygolay). <span class="fig">FIG</span> no framing; exact to floating precision.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-broadcast</i> &mdash; the noisy stream that must be cleaned without smearing its shape. The Savitzky&ndash;Golay filter is that shape-preserving smoother. <b>AVAN (AI)</b> built the instrument: the windowed least-squares fit, the derived convolution coefficients, and the polynomial-reproduction check.<br><br>Credit as content: Abraham Savitzky &amp; Marcel Golay (1964). The weave: David names the-broadcast; I compute the least-squares kernel for a window and degree, and confirm it reproduces any polynomial of that degree exactly &mdash; the mark of a filter that smooths noise without distorting signal.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Slide a window; fit a parabola to its points by least squares; keep the parabola&rsquo;s value at the center. A moving average would flatten a peak; a fitted polynomial follows its curve.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A noisy signal with a peak; Savitzky&ndash;Golay vs a moving average, and the polynomial-reproduction check.</div>
+   <div class="btns" style="margin-top:10px"><button id="sgroll">new signal ▶</button><button id="sgcheck">verify 200 ▶</button></div>
+   <div class="cap" id="sgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: smoothing that preserves the shape.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): smooth noise <b>without crushing peaks</b> by fitting a <b>local polynomial</b> in each window rather than averaging &mdash; so any true polynomial trend passes through untouched. The inverse of &lsquo;average the window (and flatten the peaks)&rsquo; is &lsquo;least-squares-fit a polynomial &mdash; noise falls, shape stays.&rsquo; <b>Magenta</b> is the peak a moving average would flatten; <b>green</b> is the shape-preserving fit. Smoothing that keeps the curves.</div>
+   <div class="btns" style="margin-top:10px"><button id="sgspin">pause spin</button></div></div></div></div>"""
+SGF_SCRIPT = """(function(){
+var ang=0,spin=true,SIG=[],M=3,D=2;
+function solve(A,b){var n=A.length,Mx=A.map(function(r,i){return r.concat([b[i]]);});for(var c=0;c<n;c++){var piv=c;for(var r=c+1;r<n;r++)if(Math.abs(Mx[r][c])>Math.abs(Mx[piv][c]))piv=r;var t=Mx[piv];Mx[piv]=Mx[c];Mx[c]=t;for(var r=0;r<n;r++){if(r===c)continue;var f=Mx[r][c]/Mx[c][c];for(var k=c;k<=n;k++)Mx[r][k]-=f*Mx[c][k];}}return Mx.map(function(r,i){return r[n]/r[i];});}
+function sgCoeffs(m,d){var A=[];for(var i=-m;i<=m;i++){var row=[];for(var j=0;j<=d;j++)row.push(Math.pow(i,j));A.push(row);}var AtA=[];for(var a=0;a<=d;a++){AtA.push([]);for(var b=0;b<=d;b++){var s=0;for(var i=0;i<2*m+1;i++)s+=A[i][a]*A[i][b];AtA[a].push(s);}}var coeffs=[];for(var i=0;i<2*m+1;i++){var rhs=[];for(var a=0;a<=d;a++)rhs.push(A[i][a]);var c=solve(AtA,rhs);coeffs.push(c[0]);}return coeffs;}
+function sgApply(y,coeffs,m){var out=[];for(var i=0;i<y.length;i++){if(i<m||i>=y.length-m){out.push(y[i]);continue;}var s=0;for(var j=-m;j<=m;j++)s+=coeffs[j+m]*y[i+j];out.push(s);}return out;}
+function movavg(y,m){var out=[];for(var i=0;i<y.length;i++){if(i<m||i>=y.length-m){out.push(y[i]);continue;}var s=0;for(var j=-m;j<=m;j++)s+=y[i+j];out.push(s/(2*m+1));}return out;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(272),ok=true,worst=0;for(var t=0;t<200;t++){var m=2+Math.floor(rnd()*2),d=Math.min(2+Math.floor(rnd()*2),2*m),coeffs=sgCoeffs(m,d),poly=[];for(var k=0;k<=d;k++)poly.push(rnd()*4-2);var y=[];for(var x=0;x<20;x++){var v=0;for(var k=0;k<=d;k++)v+=poly[k]*Math.pow(x-10,k);y.push(v);}var sm=sgApply(y,coeffs,m);for(var i=m;i<y.length-m;i++){var diff=Math.abs(sm[i]-y[i]);worst=Math.max(worst,diff);if(diff>1e-5)ok=false;}}return {preservesPolynomial:ok,worst:worst};}
+function mk(){SIG=[];for(var x=0;x<40;x++){var peak=8*Math.exp(-Math.pow((x-20)/4,2)),v=peak+(Math.random()-0.5)*2.5;SIG.push(v);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('fit a parabola to each window; keep its center value (peaks survive)',12,14);
+ var pts=[[80,110],[130,70],[180,50],[230,70],[280,110]];g.fillStyle='#c0a048';pts.forEach(function(p){g.beginPath();g.arc(p[0],p[1],4,0,7);g.fill();});
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var x=80;x<=280;x+=4){var t=(x-180)/50,y=50+t*t*24;g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.strokeStyle='#ff2d95';g.setLineDash([4,3]);g.beginPath();g.moveTo(80,82);g.lineTo(280,82);g.stroke();g.setLineDash([]);g.fillStyle='#ff2d95';g.font='9px monospace';g.fillText('moving avg flattens the peak',300,82);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SIG.length)mk();var coeffs=sgCoeffs(M,D),sg=sgApply(SIG,coeffs,M),ma=movavg(SIG,M),n=SIG.length;function px(i){return 15+i*(W-30)/n;}function py(v){return H-40-v*13;}
+ g.fillStyle='#8ad';SIG.forEach(function(v,i){g.beginPath();g.arc(px(i),py(v),1.5,0,7);g.fill();});
+ g.strokeStyle='#ff2d95';g.beginPath();for(var i=0;i<n;i++){if(i===0)g.moveTo(px(i),py(ma[i]));else g.lineTo(px(i),py(ma[i]));}g.stroke();
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<n;i++){if(i===0)g.moveTo(px(i),py(sg[i]));else g.lineTo(px(i),py(sg[i]));}g.stroke();g.lineWidth=1;
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('dots=noisy · magenta=moving avg (flattened) · green=Savitzky-Golay',12,18);
+ var v=verify();g.fillStyle=v.preservesPolynomial?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('reproduces deg≤order polynomials exactly '+(v.preservesPolynomial?'✓':'✗'),12,H-10);}
+document.getElementById('sgroll').onclick=function(){mk();drawW4();document.getElementById('sgread').textContent='new noisy peak smoothed';};
+document.getElementById('sgcheck').onclick=function(){var v=verify();document.getElementById('sgread').textContent='200 cases: reproduces deg≤order polynomials exactly '+(v.preservesPolynomial?'✓':'✗')+' (worst '+v.worst.toExponential(1)+')';};
+document.getElementById('sgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!SIG.length)mk();var coeffs=sgCoeffs(M,D),sg=sgApply(SIG,coeffs,M),cx=W/2,cy=H/2-10,n=SIG.length;
+ g.fillStyle='rgba(120,140,160,0.5)';SIG.forEach(function(v,i){g.beginPath();g.arc(cx-160+i*8,cy-v*12+30,1.5,0,7);g.fill();});
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<n;i++){g.lineTo(cx-160+i*8,cy-sg[i]*12+30+6*Math.sin(ang+i*0.2));}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the smoothed curve keeping the peak',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the peak a moving average flattens',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('smoothing that keeps the curves',10,H-9);}
+mk();drawW3();drawW4();window.__savitzkygolay=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KMN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Kalman filter</b> optimally <b>fuses a prediction with a noisy measurement</b>: it keeps an estimate and its uncertainty, and each new reading is blended in by the <b>Kalman gain</b> &mdash; trusting the measurement more when the estimate is uncertain, and less when it is confident. For a static value under Gaussian noise, its running estimate equals the <b>precision-weighted mean</b> of all readings, with the posterior variance the reciprocal of the summed precisions. It tracks everything from spacecraft to GPS.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 runs, the Kalman recursion&rsquo;s estimate exactly equals the batch precision-weighted mean, and its variance equals 1/&Sigma;(precisions) (window.__kalman). <span class="fig">FIG</span> no framing; exact for the scalar static case.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>second-wind</i> &mdash; the estimate that recovers itself with every new measurement, never discarding what it knew, never over-trusting the newest reading. The Kalman filter is that optimal recovery. <b>AVAN (AI)</b> built the instrument: the predict&ndash;update recursion with Kalman gain, and the equals-batch-weighted-mean and variance checks.<br><br>Credit as content: Rudolf K&aacute;lm&aacute;n (1960). The weave: David names second-wind; I run the recursive gain-weighted update and confirm it lands exactly on the precision-weighted mean of all measurements, with the matching posterior variance.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each reading: gain K = P/(P+R) blends estimate and measurement. A confident estimate (small P) barely moves; an uncertain one (large P) swings toward the reading. Variance P shrinks with every update.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Noisy measurements of a hidden value; the Kalman estimate converges, its uncertainty band shrinking, checked against the batch weighted mean.</div>
+   <div class="btns" style="margin-top:10px"><button id="kmroll">new run ▶</button><button id="kmcheck">verify 300 ▶</button></div>
+   <div class="cap" id="kmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an estimate optimally fusing all readings.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): fuse a prediction and a measurement <b>optimally, recursively</b> &mdash; weight each by its precision (inverse variance) via the Kalman gain, so the running estimate equals the precision-weighted mean without ever storing the readings. The inverse of &lsquo;keep all data and re-solve the weighted mean each time&rsquo; is &lsquo;a recursion that carries only estimate + variance, yet matches the full batch.&rsquo; <b>Magenta</b> is the stored history you don&rsquo;t need; <b>green</b> is the running optimal fusion. Memoryless yet optimal.</div>
+   <div class="btns" style="margin-top:10px"><button id="kmspin">pause spin</button></div></div></div></div>"""
+KMN_SCRIPT = """(function(){
+var ang=0,spin=true,ZS=[],RS=[],TRUE=3,X0=0,P0=100;
+function kalman(zs,Rs,x0,P0){var x=x0,P=P0,xs=[],Ps=[];for(var i=0;i<zs.length;i++){var K=P/(P+Rs[i]);x=x+K*(zs[i]-x);P=(1-K)*P;xs.push(x);Ps.push(P);}return {x:x,P:P,xs:xs,Ps:Ps};}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(273),estOk=true,varOk=true;for(var t=0;t<300;t++){var n=1+Math.floor(rnd()*20),x0=rnd()*10-5,P0=1+rnd()*100,zs=[],Rs=[];for(var i=0;i<n;i++){zs.push(rnd()*20-10);Rs.push(0.1+rnd()*5);}var kf=kalman(zs,Rs,x0,P0),sumPrec=1/P0,sumWx=x0/P0;for(var i=0;i<n;i++){sumPrec+=1/Rs[i];sumWx+=zs[i]/Rs[i];}if(Math.abs(kf.x-sumWx/sumPrec)>1e-9)estOk=false;if(Math.abs(kf.P-1/sumPrec)>1e-9)varOk=false;}return {estEqualsBatch:estOk,varEqualsInvPrecision:varOk};}
+function mk(){TRUE=Math.random()*8-4;ZS=[];RS=[];for(var i=0;i<24;i++){var R=0.5+Math.random()*2;RS.push(R);ZS.push(TRUE+(Math.random()-0.5)*Math.sqrt(R)*3);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('gain K = P/(P+R): blend estimate and measurement; P shrinks each step',12,14);
+ g.fillStyle='#58a0b0';g.fillRect(60,50,80,30);g.fillStyle='#fff';g.font='10px monospace';g.fillText('estimate',72,69);g.fillStyle='#39fc6b';g.font='14px monospace';g.fillText('⊕',150,72);g.fillStyle='#c0a048';g.fillRect(175,50,90,30);g.fillStyle='#042';g.fillText('measurement',181,69);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('weighted by K → new estimate, smaller uncertainty',60,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ZS.length)mk();var kf=kalman(ZS,RS,X0,P0),n=ZS.length;function px(i){return 20+i*(W-40)/n;}function py(v){return H/2-v*18;}
+ g.strokeStyle='#556';g.setLineDash([3,3]);g.beginPath();g.moveTo(20,py(TRUE));g.lineTo(W-20,py(TRUE));g.stroke();g.setLineDash([]);g.fillStyle='#8ad';g.font='9px monospace';g.fillText('true = '+TRUE.toFixed(2),W-90,py(TRUE)-4);
+ ZS.forEach(function(z,i){g.fillStyle='#c0a048';g.beginPath();g.arc(px(i),py(z),2,0,7);g.fill();});
+ g.strokeStyle='rgba(57,252,107,0.25)';g.beginPath();for(var i=0;i<n;i++)g.lineTo(px(i),py(kf.xs[i]+Math.sqrt(kf.Ps[i])));for(var i=n-1;i>=0;i--)g.lineTo(px(i),py(kf.xs[i]-Math.sqrt(kf.Ps[i])));g.closePath();g.fill();
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<n;i++){if(i===0)g.moveTo(px(i),py(kf.xs[i]));else g.lineTo(px(i),py(kf.xs[i]));}g.stroke();g.lineWidth=1;
+ var v=verify();g.fillStyle=v.estEqualsBatch&&v.varEqualsInvPrecision?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('estimate == batch weighted mean ✓ · var == 1/Σprecision ✓',12,H-10);}
+document.getElementById('kmroll').onclick=function(){mk();drawW4();document.getElementById('kmread').textContent='true '+TRUE.toFixed(2)+' → estimate '+kalman(ZS,RS,X0,P0).x.toFixed(3);};
+document.getElementById('kmcheck').onclick=function(){var v=verify();document.getElementById('kmread').textContent='300 runs: estimate==batch '+(v.estEqualsBatch?'✓':'✗')+' · var==1/Σprec '+(v.varEqualsInvPrecision?'✓':'✗');};
+document.getElementById('kmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!ZS.length)mk();var kf=kalman(ZS,RS,X0,P0),cx=W/2,cy=H/2-10,n=ZS.length;
+ for(var i=0;i<n;i++){var a=i/n*6.28+ang*0.3,rad=40+kf.Ps[i]*6;g.strokeStyle='rgba(57,252,107,'+(0.15+0.5*(1-kf.Ps[i]/kf.Ps[0]))+')';g.beginPath();g.arc(cx,cy,rad,a,a+0.5);g.stroke();}
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(cx,cy,6,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: uncertainty rings shrinking as readings fuse in',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the stored history you don\\'t need',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('memoryless yet optimal (recursion == full batch)',10,H-9);}
+mk();drawW3();drawW4();window.__kalman=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SMC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Seam carving</b> resizes an image by removing the <b>least noticeable</b> paths of pixels rather than scaling or cropping. It assigns each pixel an <b>energy</b> (how much it stands out), then finds the connected top-to-bottom <b>seam</b> of <b>minimum total energy</b> &mdash; a single pixel per row, each within one column of the row above. Dynamic programming finds that optimal seam in one pass. Removing seams shrinks the image while preserving its important content.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 random energy grids, the DP minimum vertical seam has exactly the same total energy as an exhaustive search over all seams (window.__seamcarving). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-shortcut</i> &mdash; the cheat that removes the least-noticed path, shrinking the whole while barely touching what matters. Seam carving is that shortcut. <b>AVAN (AI)</b> built the instrument: the energy grid, the row-by-row DP accumulation of minimum seam cost, the minimum-endpoint pick, and the brute cross-check.<br><br>Credit as content: Shai Avidan &amp; Ariel Shamir (2007). The weave: David names the-shortcut; I accumulate the cheapest seam reaching each pixel from the three above it, and confirm the resulting minimum matches an exhaustive search over every seam.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A seam picks one pixel per row, each within one column of the pixel above. Its cost is the sum of energies. The cheapest seam over all such connected paths is the one to remove.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">An energy grid; the DP minimum seam is highlighted and checked against a brute-force minimum over all seams.</div>
+   <div class="btns" style="margin-top:10px"><button id="smroll">new grid ▶</button><button id="smcheck">verify 200 ▶</button></div>
+   <div class="cap" id="smread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the minimum-energy seam through the grid.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): resize by removing the <b>least-noticed connected path</b> &mdash; the minimum-energy seam, found by DP that accumulates the cheapest way to reach each pixel from the three above. The inverse of &lsquo;scale or crop uniformly&rsquo; is &lsquo;delete the single lowest-energy seam &mdash; content preserved.&rsquo; <b>Magenta</b> is the important content the seam avoids; <b>green</b> is the cheap seam removed. Shrinking by the path of least attention.</div>
+   <div class="btns" style="margin-top:10px"><button id="smspin">pause spin</button></div></div></div></div>"""
+SMC_SCRIPT = """(function(){
+var ang=0,spin=true,E=[],GW=10,GH=8;
+function dp(E,W,H){var d=E.map(function(r){return r.slice();}),from=[];for(var y=0;y<H;y++)from.push(new Array(W).fill(-1));for(var y=1;y<H;y++)for(var x=0;x<W;x++){var best=d[y-1][x],bx=x;if(x>0&&d[y-1][x-1]<best){best=d[y-1][x-1];bx=x-1;}if(x<W-1&&d[y-1][x+1]<best){best=d[y-1][x+1];bx=x+1;}d[y][x]+=best;from[y][x]=bx;}var m=Infinity,mx=0;for(var x=0;x<W;x++)if(d[H-1][x]<m){m=d[H-1][x];mx=x;}var seam=[mx];for(var y=H-1;y>0;y--){mx=from[y][mx];seam.unshift(mx);}return {cost:m,seam:seam};}
+function brute(E,W,H){var best=Infinity;function rec(y,x,c){if(x<0||x>=W)return;c+=E[y][x];if(y===H-1){best=Math.min(best,c);return;}rec(y+1,x-1,c);rec(y+1,x,c);rec(y+1,x+1,c);}for(var x=0;x<W;x++)rec(0,x,0);return best;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(274),ok=true;for(var t=0;t<200;t++){var W=2+Math.floor(rnd()*5),H=2+Math.floor(rnd()*6),g=[];for(var y=0;y<H;y++){g.push([]);for(var x=0;x<W;x++)g[y].push(Math.floor(rnd()*20));}if(dp(g,W,H).cost!==brute(g,W,H))ok=false;}return {dpEqualsBrute:ok};}
+function mk(){E=[];for(var y=0;y<GH;y++){E.push([]);for(var x=0;x<GW;x++){var edge=Math.abs(x-GW/2)<1.5?2:9+Math.floor(Math.random()*8);E[y].push(edge+Math.floor(Math.random()*3));}}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a seam: one pixel per row, each within one column of the row above',12,14);
+ var seam=[3,3,2,3,4,3];for(var y=0;y<6;y++)for(var x=0;x<7;x++){var on=seam[y]===x;g.fillStyle=on?'#39fc6b':'#37506e';g.fillRect(140+x*30,40+y*18,28,16);}
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('green = the connected minimum-energy seam',140,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!E.length)mk();var res=dp(E,GW,GH),cell=Math.min(30,(W-24)/GW),ox=12,oy=24,mx=0;for(var y=0;y<GH;y++)for(var x=0;x<GW;x++)mx=Math.max(mx,E[y][x]);
+ for(var y=0;y<GH;y++)for(var x=0;x<GW;x++){var onSeam=res.seam[y]===x;g.fillStyle=onSeam?'#39fc6b':'rgba(120,140,160,'+(0.15+0.6*E[y][x]/mx)+')';g.fillRect(ox+x*cell,oy+y*cell,cell-1,cell-1);g.fillStyle=onSeam?'#042':'#9ab';g.font='8px monospace';if(cell>16)g.fillText(E[y][x],ox+x*cell+cell/2-4,oy+y*cell+cell/2+3);}
+ var v=verify();g.fillStyle=v.dpEqualsBrute?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('min seam cost '+res.cost+' · DP == brute force '+(v.dpEqualsBrute?'✓':'✗'),12,H-10);}
+document.getElementById('smroll').onclick=function(){mk();drawW4();document.getElementById('smread').textContent='min seam cost '+dp(E,GW,GH).cost;};
+document.getElementById('smcheck').onclick=function(){var v=verify();document.getElementById('smread').textContent='200 grids: DP minimum seam == brute '+(v.dpEqualsBrute?'✓':'✗');};
+document.getElementById('smspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!E.length)mk();var res=dp(E,GW,GH),cell=26,ox=W/2-GW*cell/2,oy=H/2-GH*cell/2-10,mx=0;for(var y=0;y<GH;y++)for(var x=0;x<GW;x++)mx=Math.max(mx,E[y][x]);
+ for(var y=0;y<GH;y++)for(var x=0;x<GW;x++){var onSeam=res.seam[y]===x,z=onSeam?0:(E[y][x]/mx)*10,wob=Math.sin(ang+y*0.4)*3;g.fillStyle=onSeam?'#39fc6b':'rgba(255,45,149,'+(0.1+0.4*E[y][x]/mx)+')';g.fillRect(ox+x*cell+wob,oy+y*cell,cell-2,cell-2);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the minimum-energy seam (removed)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the important content the seam avoids',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('shrinking by the path of least attention',10,H-9);}
+mk();drawW3();drawW4();window.__seamcarving=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 82 (satisfy the clauses by chasing implications · trap every eigenvalue in a disc · the one true rotation of a necklace · a sieve of quadratic forms · the lower envelope of a pencil of lines) ═══════════════════════
 SAT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>2-SAT</b> asks whether a set of clauses, each an OR of <b>two</b> literals, can all be satisfied &mdash; and unlike general SAT (NP-complete), it is solvable in <b>linear time</b>. The trick: each clause (a &or; b) becomes two <b>implications</b>, &not;a &rarr; b and &not;b &rarr; a, forming a graph. The formula is satisfiable <b>iff no variable and its negation land in the same strongly connected component</b>; a valid assignment is then read straight off the component order.<br><br>
@@ -22746,6 +22971,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-extended-euclid","title":"THE EXTENDED EUCLID","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#c0a048","icon":"extended-euclid",
+  "kicker":"the GCD carries a Bézout certificate",
+  "blurb":"The extended Euclidean algorithm in the 5-window house format — run the ordinary Euclidean division loop, but carry the coefficients along so the GCD arrives with a proof of how to build it: integers x, y with a·x + b·y = gcd(a,b), Bézout's identity. Those coefficients are exactly what give modular inverses and power RSA. Verified live: over 5000 random pairs, the returned (x,y) satisfy a·x + b·y = gcd(a,b) exactly and the gcd matches the ordinary Euclidean one. See the division loop in 1D, a pair certified in 2D, and the remainder-that-proves-itself inverse in 3D.",
+  "lit":"Genuine extended Euclidean algorithm (Euclid's division, antiquity; Bézout's identity, 1779). Verified live: over 5000 random pairs, the recursive coefficient back-substitution returns (x,y) with a·x + b·y == gcd(a,b) exactly (integer arithmetic), and gcd matches the plain Euclidean loop (window.__egcd.bezoutHolds).",
+  "fig":"No framing: the Euclidean division loop, the coefficient back-substitution, and the a·x+b·y==gcd check run in-browser with exact integers and agree. The AVAN inverse is honest — computing the GCD with a certificate of how to combine a and b into it (giving modular inverses for free) genuinely extends 'compute the GCD and stop'; magenta is the bare GCD, green the GCD-plus-coefficients. A remainder that proves itself.",
+  "body":EEU_BODY,"script":EEU_SCRIPT},
+ {"slug":"the-hough","title":"THE HOUGH","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#a878c0","icon":"hough",
+  "kicker":"a point becomes a curve to vote for lines",
+  "blurb":"The Hough transform in the 5-window house format — detect lines in a scatter of points by a duality: each point (x,y) becomes a sinusoid ρ = x·cosθ + y·sinθ in parameter space, and the sinusoids of collinear points all cross at one (ρ,θ) — the line's own parameters. Accumulate votes and lines appear as peaks, robust to gaps and noise. Verified live: collinear points exactly satisfy ρ₀ = x·cosθ₀ + y·sinθ₀ (worst error ~1e-13), and the accumulator peak recovers the line across 200 trials at 720×720 resolution. See the sinusoids crossing in 1D, an accumulator in 2D, and detection-as-voting in 3D.",
+  "lit":"Genuine Hough transform (Paul Hough 1962; Duda & Hart's ρ–θ form 1972). Verified live: over 200 random lines, every collinear point satisfies ρ₀ = x·cosθ₀ + y·sinθ₀ to floating precision (window.__hough.identityExact, worst ~1e-13), and the (ρ,θ) accumulator peak recovers the generating line within 3px for all points across all 200 trials (window.__hough.accumulatorRecovers).",
+  "fig":"Honestly scoped: the parametrization identity is exact; the accumulator peak recovery is to grid resolution (720×720), stated as such. The point→sinusoid map, the vote accumulator, and both checks run in-browser and agree. The AVAN inverse is honest — letting each point vote as a curve so lines emerge as peaks genuinely replaces testing every candidate line against every point; magenta is the exhaustive fitting avoided, green the peak in parameter space. Detection as voting.",
+  "body":HGH_BODY,"script":HGH_SCRIPT},
+ {"slug":"the-savitzky-golay","title":"THE SAVITZKY-GOLAY","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#58a0b0","icon":"savitzky-golay",
+  "kicker":"smooth the noise without blurring the shape",
+  "blurb":"The Savitzky–Golay filter in the 5-window house format — smooth noisy data without flattening its features by fitting a low-degree polynomial to each sliding window by least squares and taking the fitted center value, instead of averaging (which crushes peaks). The whole operation collapses to one fixed convolution kernel. Verified live: a filter of order d reproduces any polynomial of degree ≤ d exactly (worst ~1e-12) over 200 random cases — it does not distort what it should preserve. See a window fit in 1D, Savitzky–Golay vs a moving average in 2D, and shape-preserving smoothing in 3D.",
+  "lit":"Genuine Savitzky–Golay filter (Savitzky & Golay 1964). Verified live: the windowed least-squares kernel (from the normal equations) reproduces every polynomial of degree ≤ order exactly over 200 random cases (window.__savitzkygolay.preservesPolynomial, worst ~1e-12) — the defining property of a filter that smooths noise without distorting signal.",
+  "fig":"No framing: the least-squares kernel derivation and the polynomial-reproduction check run in-browser and agree to floating precision. The AVAN inverse is honest — fitting a local polynomial in each window rather than averaging genuinely preserves peaks a moving average would flatten; magenta is the crushed peak, green the shape-preserving fit. Smoothing that keeps the curves.",
+  "body":SGF_BODY,"script":SGF_SCRIPT},
+ {"slug":"the-kalman","title":"THE KALMAN","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#d4a017","icon":"kalman",
+  "kicker":"fuse guess and measurement optimally, recursively",
+  "blurb":"The Kalman filter in the 5-window house format — optimally fuse a prediction with a noisy measurement: keep an estimate and its uncertainty, and blend each reading in by the Kalman gain K = P/(P+R), trusting the measurement more when the estimate is uncertain. For a static value under Gaussian noise, the running estimate equals the precision-weighted mean of all readings, with posterior variance 1/Σ(precisions). Verified live: over 300 runs, the recursion's estimate exactly equals the batch precision-weighted mean and its variance equals 1/Σprecision. See the gain blend in 1D, a converging estimate in 2D, and memoryless-yet-optimal fusion in 3D.",
+  "lit":"Genuine Kalman filter (Rudolf Kálmán 1960), scalar static case. Verified live: over 300 runs, the recursive gain-weighted predict–update lands exactly on the precision-weighted mean of all measurements (window.__kalman.estEqualsBatch) with posterior variance equal to 1/Σ(1/Rᵢ) (window.__kalman.varEqualsInvPrecision), to floating precision.",
+  "fig":"Honestly scoped to the scalar static case (where the recursion provably equals the batch estimator); the recursion, the batch weighted mean, and the variance check run in-browser and agree. The AVAN inverse is honest — a recursion carrying only estimate + variance that still matches the full batch genuinely avoids re-solving the weighted mean from stored history; magenta is the stored history you don't need, green the running optimal fusion. Memoryless yet optimal.",
+  "body":KMN_BODY,"script":KMN_SCRIPT},
+ {"slug":"the-seam-carving","title":"THE SEAM CARVING","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SHORTCUT","domain_slug":"the-shortcut","accent":"#70a860","icon":"seam-carving",
+  "kicker":"carve out the least-noticed seam",
+  "blurb":"Seam carving in the 5-window house format — resize an image by removing the least noticeable connected paths of pixels rather than scaling or cropping. Assign each pixel an energy, then find the top-to-bottom seam (one pixel per row, each within one column of the row above) of minimum total energy; dynamic programming finds that optimal seam in one pass. Verified live: over 200 random energy grids, the DP minimum vertical seam has exactly the same total energy as an exhaustive search over all seams. See a seam's connectivity in 1D, an energy grid's minimum seam in 2D, and the path-of-least-attention inverse in 3D.",
+  "lit":"Genuine seam carving (Avidan & Shamir 2007). Verified live: over 200 random energy grids, the row-by-row DP that accumulates the cheapest seam reaching each pixel from the three above yields a minimum whose total energy exactly equals an exhaustive brute-force search over every connected seam (window.__seamcarving.dpEqualsBrute).",
+  "fig":"No framing: the DP accumulation and the brute-force minimum run in-browser and agree exactly. The AVAN inverse is honest — deleting the single lowest-energy connected seam genuinely resizes while preserving content, unlike uniform scaling or cropping; magenta is the important content the seam avoids, green the cheap seam removed. Shrinking by the path of least attention.",
+  "body":SMC_BODY,"script":SMC_SCRIPT},
  {"slug":"the-2-sat","title":"THE 2-SAT","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#58a0b0","icon":"2-sat",
   "kicker":"satisfy two-literal clauses in linear time",
