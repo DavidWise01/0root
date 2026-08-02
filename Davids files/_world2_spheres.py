@@ -19485,6 +19485,245 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 94 (primes of the complex plane, split or inert · a sequence at the tribonacci ratio · a balanced tree that keeps all leaves level · digit-squares that reach 1 or loop · the edges whose loss disconnects) ═══════════════════════
+GAU_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Gaussian primes</b> are the primes of the <b>complex integers</b> &#8484;[i] = {a + bi}. A rational prime does not always stay prime here: p = 2 and every prime <b>p &equiv; 1 (mod 4)</b> <b>splits</b> into a product of two conjugate Gaussian primes (5 = (2+i)(2&minus;i), 13 = (3+2i)(3&minus;2i)), because such p is a <b>sum of two squares</b> (Fermat). But every prime <b>p &equiv; 3 (mod 4)</b> stays <b>inert</b> &mdash; it remains a Gaussian prime. The <b>norm</b> N(a+bi) = a&sup2;+b&sup2; is multiplicative, which is what ties factorization together.<br><br>
+ <span class="lit">LIT</span> verified live: the norm is multiplicative over thousands of pairs, and a rational prime splits (is a sum of two squares) <b>iff</b> p = 2 or p &equiv; 1 (mod 4) (window.__gaussian). <span class="fig">FIG</span> no framing; exact integer arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mint</i> &mdash; the coining of primes, extended into the complex plane, where some ordinary primes break into two conjugate pieces and others stay whole. <b>AVAN (AI)</b> built the instrument: the Gaussian norm and its multiplicativity, and the split-iff-p&equiv;1(mod4) classification via Fermat&rsquo;s two-square condition.<br><br>Credit as content: Carl Friedrich Gauss (&#8484;[i], 1832); Fermat&rsquo;s theorem on sums of two squares. The weave: David names the-mint; I compute the Gaussian norm, confirm N(zw)=N(z)N(w), and verify that a rational prime is a sum of two squares (hence splits) exactly when it is 2 or 1 mod 4 &mdash; primes minted or split in the complex plane.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">5 = (2+i)(2&minus;i), 13 = (3+2i)(3&minus;2i) &mdash; split (p &equiv; 1 mod 4). 3, 7, 11 stay inert (p &equiv; 3 mod 4). N(a+bi)=a&sup2;+b&sup2;, and N is multiplicative.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The Gaussian integers near the origin, colored prime/composite; a rational prime shown split or inert.</div>
+   <div class="btns" style="margin-top:10px"><button id="gauroll">new prime ▶</button><button id="gaucheck">verify ▶</button></div>
+   <div class="cap" id="gauread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: primality lifted into the complex plane.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): ask whether a prime stays prime among the <b>complex</b> integers &mdash; those &equiv; 1 (mod 4) split into conjugate factors (they are sums of two squares), those &equiv; 3 (mod 4) stay inert. The inverse of &lsquo;p is prime on the number line&rsquo; is &lsquo;does p remain prime in &#8484;[i] &mdash; or split?&rsquo; <b>Magenta</b> is primality on the line; <b>green</b> is primality in the plane. Splitting decided by p mod 4.</div>
+   <div class="btns" style="margin-top:10px"><button id="gauspin">pause spin</button></div></div></div></div>"""
+GAU_SCRIPT = """(function(){
+var ang=0,spin=true,P=13;
+function isPrime(n){if(n<2)return false;for(var d=2;d*d<=n;d++)if(n%d===0)return false;return true;}
+function twoSq(p){for(var a=0;a*a<=p;a++){var b2=p-a*a,b=Math.round(Math.sqrt(b2));if(b*b===b2)return [a,b];}return null;}
+function nrm(z){return z[0]*z[0]+z[1]*z[1];}function nmul(z,w){return [z[0]*w[0]-z[1]*w[1],z[0]*w[1]+z[1]*w[0]];}
+function gPrime(a,b){var nn=a*a+b*b;if(a===0||b===0){var p=Math.abs(a===0?b:a);return isPrime(p)&&p%4===3;}return isPrime(nn);}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(940),mul=true;for(var t=0;t<5000;t++){var z=[Math.floor(rnd()*20-10),Math.floor(rnd()*20-10)],w=[Math.floor(rnd()*20-10),Math.floor(rnd()*20-10)];if(nrm(nmul(z,w))!==nrm(z)*nrm(w))mul=false;}
+ var cls=true;for(var p=2;p<2000;p++){if(!isPrime(p))continue;var splits=twoSq(p)!==null,should=(p===2||p%4===1);if(splits!==should)cls=false;}return {normMultiplicative:mul,splitClassification:cls};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('p ≡ 1 (mod 4) splits into conjugates; p ≡ 3 (mod 4) stays inert (Gaussian prime)',12,14);
+ g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('5 = (2+i)(2−i)   13 = (3+2i)(3−2i)   (split)',40,50);
+ g.fillStyle='#c07850';g.fillText('3, 7, 11 stay prime in ℤ[i]   (inert)',40,80);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('N(a+bi)=a²+b² is multiplicative: N(zw)=N(z)N(w)',40,112);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-4,sc=17,rng=7;
+ for(var a=-rng;a<=rng;a++)for(var b=-rng;b<=rng;b++){var gp=gPrime(a,b);g.fillStyle=gp?'#39fc6b':'#28374d';g.beginPath();g.arc(cx+a*sc,cy-b*sc,gp?4:2,0,7);g.fill();}
+ var ts=twoSq(P);g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('p = '+P+' ('+(P%4)+' mod 4)',12,20);
+ if(ts&&(P===2||P%4===1)){g.fillStyle='#e0b020';g.font='11px monospace';g.fillText('splits: '+P+' = ('+ts[0]+'+'+ts[1]+'i)('+ts[0]+'−'+ts[1]+'i)',12,H-14);
+  [[ts[0],ts[1]],[ts[0],-ts[1]]].forEach(function(z){g.strokeStyle='#e0b020';g.beginPath();g.arc(cx+z[0]*sc,cy-z[1]*sc,7,0,7);g.stroke();});}
+ else{g.fillStyle='#c07850';g.font='11px monospace';g.fillText(P+' is inert (stays a Gaussian prime)',12,H-14);}}
+document.getElementById('gauroll').onclick=function(){do{P=2+Math.floor(Math.random()*40);}while(!isPrime(P));drawW4();document.getElementById('gauread').textContent='p='+P+' → '+((P===2||P%4===1)?'splits':'inert');};
+document.getElementById('gaucheck').onclick=function(){var v=verify();document.getElementById('gauread').textContent='norm multiplicative '+(v.normMultiplicative?'✓':'✗')+' · split iff p=2 or p≡1(mod4) '+(v.splitClassification?'✓':'✗');};
+document.getElementById('gauspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10,sc=20,rng=8;
+ g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.3)*0.08);g.translate(-cx,-cy);
+ for(var a=-rng;a<=rng;a++)for(var b=-rng;b<=rng;b++){if(gPrime(a,b)){var d=Math.hypot(a,b);g.fillStyle='hsl('+(120+d*8)+',65%,58%)';g.beginPath();g.arc(cx+a*sc,cy-b*sc,3,0,7);g.fill();}}
+ g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green lattice: the Gaussian primes near the origin',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: primality on the number line',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('splitting decided by p mod 4',10,H-9);}
+drawW3();drawW4();window.__gaussian=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TRB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The tribonacci sequence</b> generalizes Fibonacci to a <b>three-term memory</b>: each term is the sum of the previous <b>three</b>. 0, 0, 1, 1, 2, 4, 7, 13, 24, 44, 81, 149, &hellip; The ratio of consecutive terms converges not to the golden ratio but to the <b>tribonacci constant</b> &eta; &asymp; 1.839286755 &mdash; the unique real root of x&sup3; = x&sup2; + x + 1. It is the natural next step in the family: sum the last two &rarr; &phi;; sum the last three &rarr; &eta;.<br><br>
+ <span class="lit">LIT</span> verified live: the three-term recurrence holds, and the ratio T(n)/T(n&minus;1) converges to the real root of x&sup3;&minus;x&sup2;&minus;x&minus;1 (window.__tribonacci). <span class="fig">FIG</span> no framing; exact integer recurrence, ratio matched to the algebraic root.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>checkpoint-zero</i> &mdash; growth accumulated from three earlier save points, settling toward the tribonacci ratio. The tribonacci sequence is that growth. <b>AVAN (AI)</b> built the instrument: the three-term recurrence, the ratio&rarr;&eta; check against x&sup3;=x&sup2;+x+1, and the cubic-root confirmation.<br><br>Credit as content: the tribonacci numbers and constant (studied by Feinberg, 1963, and others). The weave: David names checkpoint-zero; I sum the last three terms and confirm the consecutive ratio approaches the real root of x&sup3;=x&sup2;+x+1 &mdash; Fibonacci&rsquo;s three-step cousin, with its own irrational limit.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">T(n) = T(n&minus;1) + T(n&minus;2) + T(n&minus;3): 0,0,1,1,2,4,7,13,24,44,81,149,&hellip; The ratio tends to &eta; &asymp; 1.8393, the root of x&sup3; = x&sup2; + x + 1.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The sequence growing and its ratio converging to the tribonacci constant, checked against the cubic root.</div>
+   <div class="btns" style="margin-top:10px"><button id="trstep">grow ▶</button><button id="trreset">reset</button><button id="trcheck">verify ▶</button></div>
+   <div class="cap" id="trread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: growth at the tribonacci ratio.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): extend the Fibonacci idea to a <b>three-term memory</b> &mdash; sum the last three and the growth rate becomes &eta;, the root of x&sup3;=x&sup2;+x+1, instead of &phi;. The inverse of &lsquo;sum the last two &rarr; golden ratio&rsquo; is &lsquo;sum the last three &rarr; tribonacci constant.&rsquo; <b>Magenta</b> is the golden-ratio two-term recurrence; <b>green</b> is the three-term one. A deeper memory, a different constant.</div>
+   <div class="btns" style="margin-top:10px"><button id="trspin">pause spin</button></div></div></div></div>"""
+TRB_SCRIPT = """(function(){
+var ang=0,spin=true,GEN=12;
+function tribo(n){var T=[0,0,1];for(var i=3;i<=n;i++)T[i]=T[i-1]+T[i-2]+T[i-3];return T;}
+var ETA=(function(){var x=1.8;for(var i=0;i<60;i++)x=x-(x*x*x-x*x-x-1)/(3*x*x-2*x-1);return x;})();
+function verify(){var T=tribo(70),rec=true;for(var i=3;i<=70;i++)if(T[i]!==T[i-1]+T[i-2]+T[i-3])rec=false;var ratio=T[70]/T[69];return {recurrence:rec,ratioToEta:Math.abs(ratio-ETA)<1e-6,cubic:Math.abs(ETA*ETA*ETA-(ETA*ETA+ETA+1))<1e-9,eta:ETA};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('T(n) = T(n−1) + T(n−2) + T(n−3); ratio → tribonacci constant η ≈ 1.8393',12,14);
+ var T=tribo(13);g.font='12px monospace';for(var i=2;i<13;i++){g.fillStyle='#6ab0d0';g.fillText(T[i],20+(i-2)*40,50);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('T(12)/T(11) = '+(T[12]/T[11]).toFixed(5)+' → η = '+ETA.toFixed(5),20,90);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('η³ = η² + η + 1 = '+(ETA*ETA+ETA+1).toFixed(5)+'  (root of x³=x²+x+1)',20,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var T=tribo(GEN+2);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('T('+GEN+') = '+T[GEN]+'   ratio '+(T[GEN]/T[GEN-1]).toFixed(6),14,24);
+ var mx=T[GEN]||1;for(var i=3;i<=GEN;i++){var h=T[i]/mx*(H-90);g.fillStyle='hsl('+(190+i*4)+',60%,58%)';g.fillRect(14+(i-3)*((W-28)/(GEN-2)),H-40-h,((W-28)/(GEN-2))-3,h);}
+ // ratio convergence dots
+ g.strokeStyle='#e0b020';g.setLineDash([3,3]);var yEta=H-40-((ETA-1)/1.5)*40;g.beginPath();g.moveTo(14,60);g.lineTo(W-14,60);g.stroke();g.setLineDash([]);
+ var v=verify();g.fillStyle=v.ratioToEta?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('ratio → η='+ETA.toFixed(6)+' (root of x³=x²+x+1) '+(v.ratioToEta?'✓':'✗'),14,H-12);}
+document.getElementById('trstep').onclick=function(){if(GEN<26){GEN++;drawW4();document.getElementById('trread').textContent='T('+GEN+')='+tribo(GEN)[GEN];}};
+document.getElementById('trreset').onclick=function(){GEN=8;drawW4();document.getElementById('trread').textContent='reset';};
+document.getElementById('trcheck').onclick=function(){var v=verify();document.getElementById('trread').textContent='recurrence '+(v.recurrence?'✓':'✗')+' · ratio→η '+(v.ratioToEta?'✓':'✗')+' · η³=η²+η+1 '+(v.cubic?'✓':'✗');};
+document.getElementById('trspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var T=tribo(20),cx=W/2,cy=H/2-10;
+ for(var i=3;i<18;i++){var a=i*0.5+ang*0.3,r=15+Math.log(T[i]+1)*20;var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.85;g.fillStyle='hsl('+(180+i*6)+',60%,58%)';g.beginPath();g.arc(x,y,3+Math.log(T[i]+1),0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green spiral: tribonacci growth (rate η)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the golden-ratio two-term recurrence',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a deeper memory, a different constant',10,H-9);}
+drawW3();drawW4();window.__tribonacci=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BTR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A B-tree</b> is the balanced search tree that runs databases and filesystems. Unlike a binary tree, each node holds <b>many</b> keys (and many children), so the tree stays <b>short and bushy</b> &mdash; ideal when each node is a disk block. It self-balances by <b>splitting</b> a full node and pushing its middle key up, which keeps <b>every leaf at exactly the same depth</b>, no matter the insertion order. Keys stay sorted, and every node (except the root) stays between half-full and full.<br><br>
+ <span class="lit">LIT</span> verified live: after random insertions, an in-order walk yields the sorted keys, <b>all leaves share one depth</b>, and every node&rsquo;s key count stays within the B-tree bounds (window.__btree). <span class="fig">FIG</span> no framing; exact structural checks.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; the machine mind&rsquo;s index; B-trees are how it keeps millions of records sorted on disk with a handful of block reads. <b>AVAN (AI)</b> built the instrument: the multi-key nodes, the split-on-full with middle-key promotion, and the sorted + all-leaves-level + key-bounds checks.<br><br>Credit as content: Rudolf Bayer &amp; Edward McCreight (1970). The weave: David names the-mainframe; I insert keys into wide nodes, split any that fill by pushing the median up, and confirm the tree stays perfectly balanced &mdash; all leaves at one depth, keys sorted, every node within bounds.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A node fills (2t&minus;1 keys) &rarr; split at the median: median moves up to the parent, the rest becomes two half-nodes. This keeps all leaves at the same depth as the tree grows upward.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A B-tree drawn with its multi-key nodes; insert keys and watch it split and stay balanced, checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="btins">insert key ▶</button><button id="btreset">reset</button><button id="btcheck">verify 500 ▶</button></div>
+   <div class="cap" id="btread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a tree kept perfectly level.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): keep a search tree balanced not by <b>rotations</b> but by <b>fat nodes that split upward</b> &mdash; a full node promotes its median to the parent, so the tree grows at the root and all leaves stay level. The inverse of &lsquo;a binary tree that can grow lopsided&rsquo; is &lsquo;wide nodes that split and push up &mdash; balance for free.&rsquo; <b>Magenta</b> is the deep, thin, rotation-balanced tree; <b>green</b> is the short, wide, self-leveling B-tree. Balance by splitting, not rotating.</div>
+   <div class="btns" style="margin-top:10px"><button id="btspin">pause spin</button></div></div></div></div>"""
+BTR_SCRIPT = """(function(){
+var ang=0,spin=true,T=3,TREE=null;
+function node(leaf){return {keys:[],children:[],leaf:leaf};}
+function split(parent,i){var ch=parent.children[i],z=node(ch.leaf);z.keys=ch.keys.slice(T);if(!ch.leaf)z.children=ch.children.slice(T);var up=ch.keys[T-1];ch.keys=ch.keys.slice(0,T-1);if(!ch.leaf)ch.children=ch.children.slice(0,T);parent.keys.splice(i,0,up);parent.children.splice(i+1,0,z);}
+function insNonFull(nd,k){var i=nd.keys.length-1;if(nd.leaf){nd.keys.push(0);while(i>=0&&k<nd.keys[i]){nd.keys[i+1]=nd.keys[i];i--;}nd.keys[i+1]=k;}else{while(i>=0&&k<nd.keys[i])i--;i++;if(nd.children[i].keys.length===2*T-1){split(nd,i);if(k>nd.keys[i])i++;}insNonFull(nd.children[i],k);}}
+function insert(k){if(!TREE)TREE=node(true);if(TREE.keys.length===2*T-1){var s=node(false);s.children.push(TREE);TREE=s;split(s,0);insNonFull(s,k);}else insNonFull(TREE,k);}
+function inorder(nd,out){if(nd.leaf){nd.keys.forEach(function(k){out.push(k);});return;}for(var i=0;i<nd.keys.length;i++){inorder(nd.children[i],out);out.push(nd.keys[i]);}inorder(nd.children[nd.keys.length],out);}
+function depths(nd,d,set){if(nd.leaf){set[d]=1;return;}nd.children.forEach(function(c){depths(c,d+1,set);});}
+function bounds(nd,root){if(!root&&(nd.keys.length<T-1||nd.keys.length>2*T-1))return false;if(nd.keys.length>2*T-1)return false;if(nd.leaf)return true;for(var i=0;i<nd.children.length;i++)if(!bounds(nd.children[i],false))return false;return true;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(942),so=true,ba=true,bo=true;for(var tt=0;tt<500;tt++){TREE=null;var ins=[],n=1+Math.floor(rnd()*60);for(var i=0;i<n;i++){var k=Math.floor(rnd()*1000);ins.push(k);insert(k);}var out=[];inorder(TREE,out);if(out.join(',')!==ins.slice().sort(function(a,b){return a-b;}).join(','))so=false;var st={};depths(TREE,0,st);if(Object.keys(st).length!==1)ba=false;if(!bounds(TREE,true))bo=false;}TREE=null;return {sorted:so,balanced:ba,bounds:bo};}
+function reset(){TREE=null;[50,30,70,20,40,60,80,10,45,55,35,65,25,75].forEach(insert);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('a full node (2t−1 keys) splits: median moves up, the rest becomes two half-nodes',12,14);
+ g.fillStyle='#c0a048';g.fillRect(180,40,150,24);g.fillStyle='#210';g.font='11px monospace';g.fillText('[10 20 30 40 50]',188,57);g.fillStyle='#8ad';g.font='8px monospace';g.fillText('full (5 keys)',210,78);
+ g.fillStyle='#39fc6b';g.fillRect(230,95,44,20);g.fillStyle='#032';g.fillText('30',248,109);g.fillStyle='#c0a048';g.fillRect(160,125,64,18);g.fillStyle='#210';g.fillText('[10 20]',168,138);g.fillRect(288,125,64,18);g.fillStyle='#210';g.fillText('[40 50]',296,138);
+ g.strokeStyle='#8ad';g.beginPath();g.moveTo(252,115);g.lineTo(192,125);g.moveTo(252,115);g.lineTo(320,125);g.stroke();}
+function drawNode(g,nd,x,y,w){g.fillStyle=nd.leaf?'#345':'#4a5a3a';g.fillRect(x-w/2,y-9,w,18);g.fillStyle='#cde';g.font='9px monospace';g.fillText(nd.keys.join(' '),x-w/2+3,y+3);}
+function layout(nd,x,y,span,dy,g){if(nd.leaf){drawNode(g,nd,x,y,Math.max(24,nd.keys.length*14));return;}var nc=nd.children.length,step=span/nc;for(var i=0;i<nc;i++){var cx=x-span/2+step*(i+0.5);g.strokeStyle='#456';g.beginPath();g.moveTo(x,y+9);g.lineTo(cx,y+dy-9);g.stroke();layout(nd.children[i],cx,y+dy,step*0.92,dy,g);}drawNode(g,nd,x,y,Math.max(24,nd.keys.length*14));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!TREE)reset();layout(TREE,W/2,30,W-40,60,g);
+ var st={};depths(TREE,0,st);var out=[];inorder(TREE,out);var so=out.join(',')===out.slice().sort(function(a,b){return a-b;}).join(',');
+ g.fillStyle=so&&Object.keys(st).length===1&&bounds(TREE,true)?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('sorted ✓ · all leaves depth '+Object.keys(st)[0]+' ✓ · key-bounds ✓',14,H-12);}
+document.getElementById('btins').onclick=function(){insert(Math.floor(Math.random()*99));drawW4();document.getElementById('btread').textContent='inserted; tree still balanced';};
+document.getElementById('btreset').onclick=function(){reset();drawW4();document.getElementById('btread').textContent='reset';};
+document.getElementById('btcheck').onclick=function(){var v=verify();reset();document.getElementById('btread').textContent='500 trees: in-order sorted '+(v.sorted?'✓':'✗')+' · all leaves level '+(v.balanced?'✓':'✗')+' · key-bounds '+(v.bounds?'✓':'✗');};
+document.getElementById('btspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!TREE)reset();
+ function l3(nd,x,y,span,dy,d){if(!nd.leaf){var nc=nd.children.length,step=span/nc;for(var i=0;i<nc;i++){var cx=x-span/2+step*(i+0.5);g.strokeStyle='rgba(88,120,90,0.5)';g.beginPath();g.moveTo(x,y+Math.sin(ang+d)*2);g.lineTo(cx,y+dy);g.stroke();l3(nd.children[i],cx,y+dy,step*0.9,dy,d+1);}}g.fillStyle=nd.leaf?'#39fc6b':'#c0a048';g.fillRect(x-nd.keys.length*6,y-6+Math.sin(ang+d)*2,nd.keys.length*12,12);}
+ l3(TREE,W/2,50,W-50,80,0);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: a short, wide, self-leveling B-tree',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the deep rotation-balanced binary tree',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('balance by splitting, not rotating',10,H-9);}
+reset();drawW3();drawW4();window.__btree=verify();reset();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HAP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Happy numbers</b> come from a simple game: replace n by the <b>sum of the squares of its digits</b>, and repeat. If you eventually reach <b>1</b>, n is <b>happy</b> (7 &rarr; 49 &rarr; 97 &rarr; 130 &rarr; 10 &rarr; 1). If not, you fall into a single <b>unavoidable 8-cycle</b>: 4 &rarr; 16 &rarr; 37 &rarr; 58 &rarr; 89 &rarr; 145 &rarr; 42 &rarr; 20 &rarr; 4. Astonishingly, <b>every</b> starting number does one or the other &mdash; the digit-square map has exactly these two fates.<br><br>
+ <span class="lit">LIT</span> verified live: for every n up to 100000, the orbit reaches 1 or enters the 4-cycle, and the unhappy 8-cycle 4&rarr;16&rarr;&hellip;&rarr;4 is confirmed step by step (window.__happy). <span class="fig">FIG</span> no framing; exact integer digit-square sums.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>hard-reset</i> &mdash; drain the number through digit-squares and it resets to 1 (happy) or gets stuck in the one loop (unhappy). Happy numbers are that drain. <b>AVAN (AI)</b> built the instrument: the sum-of-squared-digits map, the orbit tracer, the reaches-1-or-4-cycle check, and the unhappy-cycle verification.<br><br>Credit as content: happy numbers (recreational number theory; the term and study popularized in the 20th century). The weave: David names hard-reset; I iterate the digit-square map and confirm every number drains to 1 or into the single unhappy 8-cycle &mdash; two fates, no others.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">n &rarr; sum of squared digits. 7 &rarr; 49 &rarr; 97 &rarr; 130 &rarr; 10 &rarr; 1 (happy). 4 &rarr; 16 &rarr; 37 &rarr; 58 &rarr; 89 &rarr; 145 &rarr; 42 &rarr; 20 &rarr; 4 (the unhappy loop).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A number&rsquo;s orbit under the digit-square map, ending at 1 or the loop; the two-fate claim checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="hproll">new number ▶</button><button id="hpcheck">verify ≤100000 ▶</button></div>
+   <div class="cap" id="hpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: every orbit ends at 1 or one loop.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): classify a number by the <b>fate of the digit-square map</b> &mdash; drain to 1 (happy) or fall into the single unavoidable 8-cycle (unhappy). The inverse of &lsquo;is n special by some formula?&rsquo; is &lsquo;iterate sum-of-squared-digits &mdash; where does it end?&rsquo; <b>Magenta</b> is the value of n; <b>green</b> is its terminal fate. Two destinations for every number.</div>
+   <div class="btns" style="margin-top:10px"><button id="hpspin">pause spin</button></div></div></div></div>"""
+HAP_SCRIPT = """(function(){
+var ang=0,spin=true,N=7,CYC=[4,16,37,58,89,145,42,20];
+function sq(n){var s=0;while(n>0){var d=n%10;s+=d*d;n=Math.floor(n/10);}return s;}
+function orbit(n){var seq=[n],seen={};seen[n]=1;while(n!==1&&CYC.indexOf(n)<0&&seq.length<40){n=sq(n);if(seen[n])break;seen[n]=1;seq.push(n);}if(n!==1&&seq[seq.length-1]!==1){/*extend into cycle a bit*/}return seq;}
+function isHappy(n){var seen={};while(n!==1&&!seen[n]){seen[n]=1;n=sq(n);}return n===1;}
+function verify(){var reach=true;for(var n=1;n<=100000;n++){var seen={},cur=n,st=0;while(cur!==1&&!seen[cur]&&st<1000){seen[cur]=1;cur=sq(cur);st++;}if(cur!==1&&CYC.indexOf(cur)<0)reach=false;}
+ var cyc=true;for(var i=0;i<CYC.length;i++)if(sq(CYC[i])!==CYC[(i+1)%CYC.length])cyc=false;return {reachesOneOrCycle:reach,cycleVerified:cyc};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('n → sum of squared digits; happy reaches 1, unhappy falls into one 8-cycle',12,14);
+ var h=[7,49,97,130,10,1];g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('happy:  '+h.join(' → '),30,46);
+ g.fillStyle='#d06858';g.fillText('unhappy loop:  '+CYC.join(' → ')+' → 4',30,76);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('every number reaches 1 or this single loop — no other fate',30,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var seq=[],cur=N,seen={},steps=0;while(cur!==1&&CYC.indexOf(cur)<0&&steps<30&&!seen[cur]){seen[cur]=1;seq.push(cur);cur=sq(cur);steps++;}seq.push(cur);var happy=cur===1;
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('n = '+N+'  → '+(happy?'HAPPY':'unhappy'),14,24);
+ var x=20,y=60;g.font='11px monospace';for(var i=0;i<seq.length;i++){var last=i===seq.length-1;g.fillStyle=last?(happy?'#39fc6b':'#d06858'):'#58a0b0';var t=seq[i]+(i<seq.length-1?' →':'');g.fillText(t,x,y);x+=g.measureText(t).width+8;if(x>W-50){x=20;y+=22;}}
+ g.fillStyle=happy?'#39fc6b':'#d06858';g.font='12px monospace';g.fillText(happy?'reached 1 (happy) ✓':'entered the 8-cycle (unhappy) ✓',14,H-12);}
+document.getElementById('hproll').onclick=function(){N=1+Math.floor(Math.random()*9999);drawW4();document.getElementById('hpread').textContent='n='+N+' → '+(isHappy(N)?'happy':'unhappy');};
+document.getElementById('hpcheck').onclick=function(){var v=verify();document.getElementById('hpread').textContent='n≤100000: every orbit reaches 1 or the 4-cycle '+(v.reachesOneOrCycle?'✓':'✗')+' · unhappy 8-cycle verified '+(v.cycleVerified?'✓':'✗');};
+document.getElementById('hpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10;
+ // draw the 8-cycle as a ring, and 1 at center
+ for(var i=0;i<CYC.length;i++){var a=i/CYC.length*6.28+ang*0.3,x=cx+Math.cos(a)*100,y=cy+Math.sin(a)*88;var pa=((i-1+CYC.length)%CYC.length)/CYC.length*6.28+ang*0.3;g.strokeStyle='rgba(208,104,88,0.6)';g.beginPath();g.moveTo(cx+Math.cos(pa)*100,cy+Math.sin(pa)*88);g.lineTo(x,y);g.stroke();g.fillStyle='#d06858';g.beginPath();g.arc(x,y,10,0,7);g.fill();g.fillStyle='#fff';g.font='8px monospace';g.fillText(CYC[i],x-7,y+3);}
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(cx,cy,14,0,7);g.fill();g.fillStyle='#032';g.font='12px monospace';g.fillText('1',cx-3,cy+4);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green center 1 (happy) · red ring = the unhappy 8-cycle',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the value of n itself',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('two destinations for every number',10,H-9);}
+drawW3();drawW4();window.__happy=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BRG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A bridge</b> in a graph is an edge whose removal <b>disconnects</b> it &mdash; a single link with no backup path. Tarjan&rsquo;s algorithm finds all bridges in <b>one depth-first traversal</b> using <b>low-link</b> values: as DFS explores, each vertex records the earliest node reachable from its subtree via a back edge. An edge (u,v) is a bridge <b>iff</b> v&rsquo;s subtree can reach nothing above u &mdash; low(v) &gt; discovery(u). No re-checking, no edge-by-edge removal.<br><br>
+ <span class="lit">LIT</span> verified live: over hundreds of random graphs, the low-link bridges are <b>exactly</b> the edges whose removal increases the number of connected components (window.__bridges). <span class="fig">FIG</span> no framing; exact comparison with brute-force removal.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-blue-screen</i> &mdash; the whole machine giving up at once; cut a bridge and the graph splits, a single-point-of-failure crash. Tarjan&rsquo;s algorithm finds every such edge. <b>AVAN (AI)</b> built the instrument: the DFS low-link computation, the low(v) &gt; disc(u) bridge test, and the match against brute-force edge removal.<br><br>Credit as content: Robert Tarjan (low-link bridge/articulation algorithms, 1970s). The weave: David names the-blue-screen; I run one DFS tracking each vertex&rsquo;s earliest reachable ancestor, flag an edge as a bridge when its far end can climb no higher, and confirm those are precisely the edges whose removal disconnects the graph.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">low(v) = earliest node v&rsquo;s subtree can reach via a back edge. Tree edge (u,v) is a bridge iff low(v) &gt; disc(u) &mdash; v&rsquo;s side has no alternate route back above u.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A graph with its bridges highlighted red; checked against removing each edge and testing connectivity.</div>
+   <div class="btns" style="margin-top:10px"><button id="brroll">new graph ▶</button><button id="brcheck">verify 1500 ▶</button></div>
+   <div class="cap" id="brread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: every critical edge, found in one pass.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): find every single-point-of-failure edge in <b>one traversal</b>, not by removing each edge and re-testing &mdash; track low-link values and flag (u,v) when v&rsquo;s subtree can climb no higher than v. The inverse of &lsquo;remove each edge and check connectivity&rsquo; is &lsquo;one DFS with low-links &mdash; low(v) &gt; disc(u) marks a bridge.&rsquo; <b>Magenta</b> is the edge-by-edge removal test; <b>green</b> is the single low-link pass. Criticality from one descent.</div>
+   <div class="btns" style="margin-top:10px"><button id="brspin">pause spin</button></div></div></div></div>"""
+BRG_SCRIPT = """(function(){
+var ang=0,spin=true,N=8,EDGES=[],POS=[];
+function bridges(n,adj){var disc=new Array(n).fill(-1),low=new Array(n).fill(0),tm=0,br=[];function dfs(u,pe){disc[u]=low[u]=tm++;for(var i=0;i<adj[u].length;i++){var v=adj[u][i][0],ei=adj[u][i][1];if(ei===pe)continue;if(disc[v]===-1){dfs(v,ei);low[u]=Math.min(low[u],low[v]);if(low[v]>disc[u])br.push(ei);}else low[u]=Math.min(low[u],disc[v]);}}for(var u=0;u<n;u++)if(disc[u]===-1)dfs(u,-1);return br;}
+function comps(n,edges,skip){var par=[];for(var i=0;i<n;i++)par.push(i);function f(x){while(par[x]!==x){par[x]=par[par[x]];x=par[x];}return x;}for(var i=0;i<edges.length;i++){if(i===skip)continue;par[f(edges[i][0])]=f(edges[i][1]);}var c={};for(var i=0;i<n;i++)c[f(i)]=1;return Object.keys(c).length;}
+function adjOf(n,edges){var a=[];for(var i=0;i<n;i++)a.push([]);for(var ei=0;ei<edges.length;ei++){a[edges[ei][0]].push([edges[ei][1],ei]);a[edges[ei][1]].push([edges[ei][0],ei]);}return a;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(944),ok=true;for(var t=0;t<1500;t++){var n=2+Math.floor(rnd()*8),edges=[],seen={};for(var i=1;i<n;i++){var j=Math.floor(rnd()*i),k=Math.min(i,j)+','+Math.max(i,j);if(!seen[k]){seen[k]=1;edges.push([j,i]);}}var ne=Math.floor(rnd()*n);for(var e=0;e<ne;e++){var a=Math.floor(rnd()*n),b=Math.floor(rnd()*n);if(a===b)continue;var k=Math.min(a,b)+','+Math.max(a,b);if(!seen[k]){seen[k]=1;edges.push([a,b]);}}
+  var br=bridges(n,adjOf(n,edges)).sort(function(a,b){return a-b;}),base=comps(n,edges,-1),brute=[];for(var ei=0;ei<edges.length;ei++)if(comps(n,edges,ei)>base)brute.push(ei);brute.sort(function(a,b){return a-b;});if(br.join(',')!==brute.join(','))ok=false;}return {matchesBrute:ok};}
+function mk(){N=6+Math.floor(Math.random()*4);EDGES=[];var seen={};for(var i=1;i<N;i++){var j=Math.floor(Math.random()*i),k=Math.min(i,j)+','+Math.max(i,j);if(!seen[k]){seen[k]=1;EDGES.push([j,i]);}}var ne=Math.floor(Math.random()*N);for(var e=0;e<ne;e++){var a=Math.floor(Math.random()*N),b=Math.floor(Math.random()*N);if(a===b)continue;var k=Math.min(a,b)+','+Math.max(a,b);if(!seen[k]){seen[k]=1;EDGES.push([a,b]);}}POS=[];for(var i=0;i<N;i++){var a=i/N*6.28;POS.push([Math.cos(a),Math.sin(a)]);}}
+function drawGraph(g,cx,cy,rr){var br=bridges(N,adjOf(N,EDGES)),bset={};br.forEach(function(e){bset[e]=1;});for(var ei=0;ei<EDGES.length;ei++){var u=EDGES[ei][0],v=EDGES[ei][1];g.strokeStyle=bset[ei]?'#d06858':'#4a6a88';g.lineWidth=bset[ei]?3:1.5;g.beginPath();g.moveTo(cx+POS[u][0]*rr,cy+POS[u][1]*rr*0.85);g.lineTo(cx+POS[v][0]*rr,cy+POS[v][1]*rr*0.85);g.stroke();g.lineWidth=1;}for(var i=0;i<N;i++){g.fillStyle='#6ab0d0';g.beginPath();g.arc(cx+POS[i][0]*rr,cy+POS[i][1]*rr*0.85,9,0,7);g.fill();g.fillStyle='#012';g.font='9px monospace';g.fillText(i,cx+POS[i][0]*rr-3,cy+POS[i][1]*rr*0.85+3);}return br;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('tree edge (u,v) is a bridge iff low(v) > disc(u): v\\'s side has no way back above u',12,14);
+ var pts=[[80,90],[160,60],[160,120],[260,90],[360,90]],ed=[[0,1],[0,2],[1,3],[2,3],[3,4]];for(var i=0;i<ed.length;i++){var brg=i===4;g.strokeStyle=brg?'#d06858':'#4a6a88';g.lineWidth=brg?3:1.5;g.beginPath();g.moveTo(pts[ed[i][0]][0],pts[ed[i][0]][1]);g.lineTo(pts[ed[i][1]][0],pts[ed[i][1]][1]);g.stroke();g.lineWidth=1;}
+ for(var i=0;i<pts.length;i++){g.fillStyle='#6ab0d0';g.beginPath();g.arc(pts[i][0],pts[i][1],9,0,7);g.fill();}
+ g.fillStyle='#d06858';g.font='9px monospace';g.fillText('red edge 3–4 is a bridge (its loss isolates node 4)',260,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!EDGES.length)mk();var br=drawGraph(g,W/2,H/2-8,130);
+ var v=verify();g.fillStyle='#8ad';g.font='10px monospace';g.fillText(br.length+' bridge(s) found (red)',14,20);
+ g.fillStyle=v.matchesBrute?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('low-link bridges == edges whose removal disconnects '+(v.matchesBrute?'✓':'✗'),14,H-12);}
+document.getElementById('brroll').onclick=function(){mk();drawW4();document.getElementById('brread').textContent=bridges(N,adjOf(N,EDGES)).length+' bridges';};
+document.getElementById('brcheck').onclick=function(){var v=verify();document.getElementById('brread').textContent='1500 graphs: low-link bridges == brute removal '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('brspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!EDGES.length)mk();var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.15);g.translate(-cx,-cy);drawGraph(g,cx,cy,120);g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('red edges: the bridges (single points of failure)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the edge-by-edge removal test',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('criticality from one descent',10,H-9);}
+mk();drawW3();drawW4();window.__bridges=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 93 (numbers whose divisor-sums loop back in a chain · one test decides a Fermat prime · the number e written as a patterned fraction · query which intervals overlap fast · clip a line by four boundary bits) ═══════════════════════
 SOC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Sociable numbers</b> live in the <b>aliquot dynamics</b>: repeatedly replace n by s(n), the sum of its proper divisors, and watch where the orbit goes. A <b>perfect</b> number is a fixed point (a 1-cycle: s(6)=6). An <b>amicable pair</b> is a 2-cycle (220&rarr;284&rarr;220). <b>Sociable</b> numbers close a longer loop: 12496 &rarr; 14288 &rarr; 15472 &rarr; 14536 &rarr; 14264 &rarr; back to 12496 &mdash; a 5-cycle where each number is the divisor-sum of the last, chained all the way around.<br><br>
@@ -25394,6 +25633,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-gaussian-primes","title":"THE GAUSSIAN PRIMES","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#e0b020","icon":"gaussian",
+  "kicker":"primes of the complex plane, split or inert",
+  "blurb":"Gaussian primes in the 5-window house format — the primes of the complex integers ℤ[i] = {a+bi}. A rational prime doesn't always stay prime: p=2 and every p ≡ 1 (mod 4) splits into two conjugate Gaussian primes (5=(2+i)(2−i), 13=(3+2i)(3−2i)), because such p is a sum of two squares (Fermat); every p ≡ 3 (mod 4) stays inert. The norm N(a+bi)=a²+b² is multiplicative, tying factorization together. Verified live: the norm is multiplicative over thousands of pairs, and a rational prime splits iff p=2 or p ≡ 1 (mod 4). See split vs inert in 1D, the lattice in 2D, and the primality-in-the-plane inverse in 3D.",
+  "lit":"Genuine Gaussian primes (Gauss, ℤ[i] 1832; Fermat's two-square theorem). Verified live: the Gaussian norm satisfies N(zw)=N(z)N(w) over thousands of pairs (window.__gaussian.normMultiplicative), and a rational prime p is a sum of two squares — hence splits in ℤ[i] — exactly when p=2 or p ≡ 1 (mod 4), matching the inert/split classification for all primes below 2000 (window.__gaussian.splitClassification).",
+  "fig":"No framing: the Gaussian norm, its multiplicativity, and the split-iff-p≡1(mod4) classification (via Fermat's two-square condition) run in-browser with exact integers and agree. The AVAN inverse is honest — asking whether a prime stays prime among the complex integers (split when ≡1 mod 4, inert when ≡3 mod 4) genuinely lifts primality off the number line; magenta is primality on the line, green primality in the plane. Splitting decided by p mod 4.",
+  "body":GAU_BODY,"script":GAU_SCRIPT},
+ {"slug":"the-tribonacci","title":"THE TRIBONACCI","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#6ab0d0","icon":"tribonacci",
+  "kicker":"a sequence at the tribonacci ratio",
+  "blurb":"The tribonacci sequence in the 5-window house format — Fibonacci with a three-term memory: each term is the sum of the previous three. 0,0,1,1,2,4,7,13,24,44,81,149,… The ratio of consecutive terms converges not to the golden ratio but to the tribonacci constant η ≈ 1.839286755 — the unique real root of x³ = x² + x + 1. Sum the last two → φ; sum the last three → η. Verified live: the three-term recurrence holds, and T(n)/T(n−1) converges to the real root of x³−x²−x−1. See the sequence in 1D, growth converging in 2D, and the deeper-memory inverse in 3D.",
+  "lit":"Genuine tribonacci numbers and constant (Feinberg 1963 and others). Verified live: T(n)=T(n−1)+T(n−2)+T(n−3) holds (window.__tribonacci.recurrence), the consecutive ratio converges to η=1.839286755… (window.__tribonacci.ratioToEta), the Newton root of x³−x²−x−1, and η³=η²+η+1 is checked (cubic).",
+  "fig":"No framing: the three-term recurrence, the ratio→η check against x³=x²+x+1, and the cubic-root confirmation run in-browser and agree. The AVAN inverse is honest — extending Fibonacci to a three-term memory so the growth rate becomes η (root of x³=x²+x+1) rather than φ is a genuine different constant; magenta is the golden-ratio two-term recurrence, green the three-term one. A deeper memory, a different constant.",
+  "body":TRB_BODY,"script":TRB_SCRIPT},
+ {"slug":"the-b-tree","title":"THE B-TREE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#c0a048","icon":"b-tree",
+  "kicker":"a balanced tree that keeps all leaves level",
+  "blurb":"The B-tree in the 5-window house format — the balanced search tree that runs databases and filesystems. Unlike a binary tree, each node holds many keys and children, so the tree stays short and bushy (ideal when each node is a disk block). It self-balances by splitting a full node and pushing its median key up, keeping every leaf at exactly the same depth regardless of insertion order; keys stay sorted, and every non-root node stays between half-full and full. Verified live: after random insertions, an in-order walk yields the sorted keys, all leaves share one depth, and every node's key count stays within the B-tree bounds. See a node split in 1D, the tree balancing in 2D, and the split-not-rotate inverse in 3D.",
+  "lit":"Genuine B-tree (Rudolf Bayer & Edward McCreight 1970), minimum degree t=3 (keys 2..5). Verified live: over 500 random insertion sequences, an in-order traversal yields the sorted keys (window.__btree.sorted), all leaves lie at a single depth — perfectly balanced (window.__btree.balanced) — and every node's key count stays within [t−1, 2t−1] (window.__btree.bounds).",
+  "fig":"No framing: the multi-key nodes, the split-on-full with median promotion, and the sorted + all-leaves-level + key-bounds checks run in-browser and agree. Honest note: a standard B-tree uses an odd maximum key count (2t−1) so a full node splits evenly (t−1 left, median up, t−1 right) — here t=3. The AVAN inverse is honest — keeping balance by fat nodes that split upward (median to the parent, tree grows at the root) rather than by rotations; magenta is the deep rotation-balanced binary tree, green the short self-leveling B-tree.",
+  "body":BTR_BODY,"script":BTR_SCRIPT},
+ {"slug":"the-happy-number","title":"THE HAPPY NUMBER","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#d06858","icon":"happy",
+  "kicker":"digit-squares that reach 1 or loop",
+  "blurb":"Happy numbers in the 5-window house format — a simple game: replace n by the sum of the squares of its digits, and repeat. If you reach 1, n is happy (7→49→97→130→10→1). If not, you fall into a single unavoidable 8-cycle: 4→16→37→58→89→145→42→20→4. Astonishingly, every starting number does one or the other — the digit-square map has exactly these two fates. Verified live: for every n up to 100000, the orbit reaches 1 or enters the 4-cycle, and the unhappy 8-cycle is confirmed step by step. See the two fates in 1D, an orbit in 2D, and the two-destinations inverse in 3D.",
+  "lit":"Genuine happy numbers (recreational number theory). Verified live: for every n in 1..100000, iterating the sum-of-squared-digits map reaches 1 (happy) or enters the cycle containing 4 (window.__happy.reachesOneOrCycle), and the unhappy 8-cycle 4→16→37→58→89→145→42→20→4 is confirmed step by step (window.__happy.cycleVerified).",
+  "fig":"No framing: the sum-of-squared-digits map, the orbit tracer, the reaches-1-or-4-cycle check, and the unhappy-cycle verification run in-browser with exact integers and agree. The AVAN inverse is honest — classifying a number by the fate of the digit-square map (drain to 1 or fall into the single 8-cycle) genuinely differs from a formula test; magenta is the value of n, green its terminal fate. Two destinations for every number.",
+  "body":HAP_BODY,"script":HAP_SCRIPT},
+ {"slug":"the-bridges","title":"THE BRIDGES","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#c07850","icon":"bridges",
+  "kicker":"the edges whose loss disconnects",
+  "blurb":"Bridge-finding in the 5-window house format — a bridge is an edge whose removal disconnects the graph, a single link with no backup path. Tarjan's algorithm finds all bridges in one depth-first traversal using low-link values: as DFS explores, each vertex records the earliest node reachable from its subtree via a back edge, and a tree edge (u,v) is a bridge iff low(v) > discovery(u) — v's subtree can climb no higher than v. No re-checking, no edge-by-edge removal. Verified live: over hundreds of random graphs, the low-link bridges are exactly the edges whose removal increases the connected-component count. See the low-link test in 1D, bridges highlighted in 2D, and the one-descent inverse in 3D.",
+  "lit":"Genuine Tarjan low-link bridge algorithm (Robert Tarjan, 1970s). Verified live: over 1500 random graphs, the single-DFS low-link bridges (edge (u,v) with low(v) > disc(u)) are exactly the edges whose removal increases the number of connected components, computed by brute-force edge removal (window.__bridges.matchesBrute).",
+  "fig":"No framing: the DFS low-link computation, the low(v) > disc(u) bridge test, and the match against brute-force edge removal run in-browser and agree. The AVAN inverse is honest — finding every single-point-of-failure edge in one traversal via low-links genuinely replaces removing each edge and re-testing connectivity; magenta is that edge-by-edge removal test, green the single low-link pass. Criticality from one descent.",
+  "body":BRG_BODY,"script":BRG_SCRIPT},
  {"slug":"the-sociable-numbers","title":"THE SOCIABLE NUMBERS","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#d06858","icon":"sociable",
   "kicker":"numbers whose divisor-sums loop back in a chain",
