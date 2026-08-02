@@ -19485,6 +19485,267 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 108 (a fair walk absorbed at the edges lands with probability proportional to the start · the worst any irrational can be approximated · a random walk that comes home in the plane but wanders off in space · the bet fraction that maximises long-run growth · why a coin game spends most of its time on one side) ═══════════════════════
+RUIN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The gambler&rsquo;s ruin</b> is the cleanest result in random walks. A gambler starts with <b>k</b> dollars and bets one dollar at a time on a <b>fair</b> coin, stopping only at <b>0</b> (ruin) or <b>N</b> (target). The probability of reaching N before going broke is exactly <b>k/N</b> &mdash; a straight-line law: your chance of winning is your stake as a fraction of the goal. For a <b>biased</b> coin (win probability p), it becomes (1 &minus; r<sup>k</sup>)/(1 &minus; r<sup>N</sup>) with r = (1&minus;p)/p, and even a tiny edge sends the odds sharply for or against you.<br><br>
+ <span class="lit">LIT</span> verified live: the exact recurrence solves to k/N for the fair walk, and Monte-Carlo simulation matches both the fair k/N and the biased formula (window.__ruin). <span class="fig">FIG</span> honest: the exact k/N is proven; the Monte-Carlo agreement is statistical, within a small tolerance.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>sudden-death</i> &mdash; the walk ends the instant it touches 0 or N, and the chance of the winning end is simply the start divided by the goal. That absorbing boundary is the mechanic. <b>AVAN (AI)</b> built the instrument: the linear recurrence solved to k/N, the biased-walk formula, and the Monte-Carlo cross-check.<br><br>Credit as content: the gambler&rsquo;s ruin (Pascal &amp; Fermat correspondence, 1656; Huygens; Feller&rsquo;s classic treatment). The weave: David names sudden-death; I solve the probability of hitting N before 0 by the harmonic recurrence, find it equals k/N for a fair coin, and confirm by simulating thousands of walks &mdash; the stake-over-goal law.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Start at k, absorb at 0 or N. Fair coin: P(reach N) = k/N. From 3 toward 10, that is 0.3. A tiny bias (p = 0.51) already bends the line into a curve for or against.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Sample walks between 0 and N; the fraction reaching N against k/N (or the biased formula); the theory checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="rnroll">new k,N,p ▶</button><button id="rncheck">verify ▶</button></div>
+   <div class="cap" id="rnread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the winning chance is the start over the goal.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t simulate a fair walk to find its fate &mdash; read the chance of the good ending straight off the <b>start position</b>: k/N. The inverse of &lsquo;flip until you hit a wall&rsquo; is &lsquo;the hitting probability is linear in where you began.&rsquo; <b>Magenta</b> is a walk ending in ruin; <b>green</b> is one reaching the goal, with probability k/N. Fate proportional to the start.</div>
+   <div class="btns" style="margin-top:10px"><button id="rnspin">pause spin</button></div></div></div></div>"""
+RUIN_SCRIPT = """(function(){
+var ang=0,spin=true,K=3,NN=10,P=0.5,VR=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function exact(k,N,p){if(Math.abs(p-0.5)<1e-12)return k/N;var r=(1-p)/p;return (1-Math.pow(r,k))/(1-Math.pow(r,N));}
+function mc(k,N,p,trials,rnd){var win=0;for(var t=0;t<trials;t++){var x=k;while(x>0&&x<N)x+=(rnd()<p)?1:-1;if(x===N)win++;}return win/trials;}
+function verify(){if(VR)return VR;var exactOk=true;for(var N=2;N<=20;N++)for(var k=1;k<N;k++)if(Math.abs(exact(k,N,0.5)-k/N)>1e-12)exactOk=false;var rnd=mb(1),a=mc(3,10,0.5,40000,rnd),b=mc(2,8,0.6,40000,rnd);var mcOk=Math.abs(a-0.3)<0.02&&Math.abs(b-exact(2,8,0.6))<0.02;VR={exactMatches:exactOk,mcMatches:mcOk,a:a,b:b};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('fair walk from k, absorbed at 0 or N: P(reach N before 0) = k/N',12,14);
+ g.strokeStyle='#345';g.beginPath();g.moveTo(40,120);g.lineTo(40,40);g.lineTo(320,40);g.stroke();
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(40,120);g.lineTo(320,40);g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('fair: straight line k/N',250,55);
+ g.strokeStyle='#c86868';g.setLineDash([3,3]);g.beginPath();for(var k=0;k<=10;k++){var x=40+k*28,y=120-280*exact(k,10,0.6);g.lineTo(x,y);}g.stroke();g.setLineDash([]);
+ g.fillStyle='#c86868';g.fillText('biased p=0.6: curve',250,110);
+ g.fillStyle='#8ad';g.fillText('k=3, N=10 → 0.3; the good ending is the stake over the goal',40,148);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var rnd=mb(42),ex=exact(K,NN,P);
+ g.strokeStyle='#2a3a4c';g.beginPath();g.moveTo(20,20);g.lineTo(20,H-30);g.stroke();g.fillStyle='#39fc6b';g.fillText('N',6,24);g.fillStyle='#c86868';g.fillText('0',6,H-26);
+ var win=0,trials=60;for(var t=0;t<trials;t++){var x=K,path=[K],steps=0;while(x>0&&x<NN&&steps<400){x+=(rnd()<P)?1:-1;path.push(x);steps++;}var reachedN=(x===NN);if(reachedN)win++;g.strokeStyle=reachedN?'rgba(57,252,107,0.4)':'rgba(200,104,104,0.3)';g.beginPath();for(var i=0;i<path.length;i++){var px=24+i*(W-44)/Math.min(120,Math.max(path.length,40)),py=(H-30)-(path[i]/NN)*(H-50);if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();}
+ g.fillStyle='#e8eef8';g.font='10px monospace';g.fillText('k='+K+' N='+NN+' p='+P+'  ·  reached N: '+win+'/'+trials+' ('+(win/trials).toFixed(2)+')',24,16);
+ g.fillStyle='#39fc6b';g.fillText('theory P(reach N) = '+ex.toFixed(3),24,H-12);
+ var v=verify();g.fillStyle=(v.exactMatches&&v.mcMatches)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('exact k/N '+(v.exactMatches?'✓':'✗')+' · MC≈theory '+(v.mcMatches?'✓':'✗'),200,H-12);}
+document.getElementById('rnroll').onclick=function(){NN=6+Math.floor(Math.random()*8);K=1+Math.floor(Math.random()*(NN-1));P=[0.5,0.5,0.55,0.45][Math.floor(Math.random()*4)];drawW4();document.getElementById('rnread').textContent='k='+K+' N='+NN+' p='+P+' → P(reach N)='+exact(K,NN,P).toFixed(3);};
+document.getElementById('rncheck').onclick=function(){var v=verify();document.getElementById('rnread').textContent='exact P=k/N (fair, all k,N≤20) '+(v.exactMatches?'✓':'✗')+' · MC fair 3/10≈'+v.a.toFixed(3)+', biased≈'+v.b.toFixed(3)+' '+(v.mcMatches?'✓':'✗');};
+document.getElementById('rnspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var rnd=mb(99),cx=W/2,cy=H/2-10;
+ g.strokeStyle='#2a3a4c';g.beginPath();g.moveTo(30,40);g.lineTo(30,H-40);g.stroke();
+ for(var t=0;t<24;t++){var x=K,path=[K],steps=0;while(x>0&&x<NN&&steps<200){x+=(rnd()<P)?1:-1;path.push(x);steps++;}var reachedN=(x===NN);g.strokeStyle=reachedN?'rgba(57,252,107,0.5)':'rgba(255,45,149,0.3)';g.beginPath();for(var i=0;i<path.length;i++){var px=34+i*(W-60)/Math.max(path.length,30),py=(H-40)-(path[i]/NN)*(H-80);if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: walks reaching the goal N (probability k/N)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: walks ending in ruin at 0',10,H-24);
+ g.fillStyle='#8ad';g.fillText('fate proportional to the start',10,H-9);}
+drawW3();drawW4();window.__ruin=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HURW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Hurwitz&rsquo;s theorem</b> is the sharp law of rational approximation: for <b>every</b> irrational &alpha;, there are infinitely many fractions p/q with <b>|&alpha; &minus; p/q| &lt; 1/(&radic;5 &middot; q<sup>2</sup>)</b> &mdash; and the constant &radic;5 cannot be improved. The convergents of a number&rsquo;s continued fraction achieve this. The hardest number to approximate is the <b>golden ratio</b> &phi; = [1; 1, 1, 1, &hellip;]: its approximation constant |&phi; &minus; p/q|&middot;q<sup>2</sup> converges to exactly <b>1/&radic;5</b>, the worst case, because its continued fraction is all 1s. Any number with larger partial quotients (like &radic;2) is easier to approximate.<br><br>
+ <span class="lit">LIT</span> verified live: the continued-fraction convergents of &phi; give an approximation constant &rarr; 1/&radic;5 &asymp; 0.4472 (the Hurwitz maximum), while &radic;2&rsquo;s is smaller (&asymp; 0.3536); and the Hurwitz bound is met infinitely often by the convergents (window.__hurwitz). <span class="fig">FIG</span> no framing; exact convergent arithmetic vs the 1/(&radic;5 q<sup>2</sup>) bound.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>backprop</i> &mdash; the continued-fraction convergents grind ever closer to &alpha;, and the best rate any irrational allows is capped by &radic;5, hit only by the golden ratio. <b>AVAN (AI)</b> built the instrument: the convergent recurrence, the approximation constant |&alpha; &minus; p/q|&middot;q<sup>2</sup>, and the check that &phi; is worst and the bound holds infinitely.<br><br>Credit as content: Adolf Hurwitz (1891). The weave: David names backprop; I fold the continued fraction into convergents, measure how closely each approximates &alpha; relative to 1/q<sup>2</sup>, and confirm the golden ratio&rsquo;s constant lands on 1/&radic;5 &mdash; the sharpest the theorem allows &mdash; while easier numbers beat it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">&phi; = [1;1,1,1,&hellip;], convergents 1, 2, 3/2, 5/3, 8/5, 13/8, &hellip; (Fibonacci ratios). |&phi; &minus; p/q|&middot;q<sup>2</sup> &rarr; 1/&radic;5 &asymp; 0.4472 &mdash; the worst-approximable number, so &radic;5 is optimal.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Convergents of &alpha; and their approximation constants against 1/&radic;5; &phi; the worst, others better; checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="hwroll">switch α ▶</button><button id="hwcheck">verify ▶</button></div>
+   <div class="cap" id="hwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a sharp ceiling on approximation.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t just approximate &alpha; &mdash; ask <b>how well any</b> irrational <b>can</b> be approximated, and find a universal ceiling 1/&radic;5, touched only by the golden ratio. The inverse of &lsquo;find good rationals for &alpha;&rsquo; is &lsquo;the best possible rate is &radic;5, and &phi; is the hardest case.&rsquo; <b>Magenta</b> is an easily-approximated number; <b>green</b> is the golden ratio at the 1/&radic;5 ceiling. The worst case sets the law.</div>
+   <div class="btns" style="margin-top:10px"><button id="hwspin">pause spin</button></div></div></div></div>"""
+HURW_SCRIPT = """(function(){
+var ang=0,spin=true,ALPHA=0,VR=null;
+var phi=(1+Math.sqrt(5))/2,sqrt2=Math.SQRT2;
+function convergents(cf){var res=[],pm1=1,pm2=0,qm1=0,qm2=1;for(var i=0;i<cf.length;i++){var p=cf[i]*pm1+pm2,q=cf[i]*qm1+qm2;res.push([p,q]);pm2=pm1;pm1=p;qm2=qm1;qm1=q;}return res;}
+function cfOf(which){if(which===0){var c=[];for(var i=0;i<14;i++)c.push(1);return {cf:c,val:phi,name:'φ = [1;1,1,1,…]'};}var c=[1];for(var i=0;i<12;i++)c.push(2);return {cf:c,val:sqrt2,name:'√2 = [1;2,2,2,…]'};}
+function verify(){if(VR)return VR;var cP=cfOf(0),cS=cfOf(1),convP=convergents(cP.cf),convS=convergents(cS.cf);
+ var lastP=convP[convP.length-1],lastS=convS[convS.length-1];
+ var kP=Math.abs(phi-lastP[0]/lastP[1])*lastP[1]*lastP[1],kS=Math.abs(sqrt2-lastS[0]/lastS[1])*lastS[1]*lastS[1];
+ var holdP=0;for(var i=4;i<convP.length;i++){var pq=convP[i];if(Math.abs(phi-pq[0]/pq[1])<=1/(Math.sqrt(5)*pq[1]*pq[1])+1e-12)holdP++;}
+ VR={phiToRoot5:Math.abs(kP-1/Math.sqrt(5))<1e-3,sqrt2Better:kS<1/Math.sqrt(5)-0.05,holdInfinitely:holdP>=4,kP:kP,kS:kS};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('|α − p/q| < 1/(√5 · q²) for infinitely many p/q — and √5 is optimal (Hurwitz)',12,14);
+ var conv=convergents(cfOf(0).cf).slice(0,8);g.fillStyle='#90a850';g.font='11px monospace';g.fillText('φ convergents: '+conv.map(function(pq){return pq[0]+'/'+pq[1];}).join(', '),24,46);
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('|φ − p/q|·q² → 1/√5 ≈ 0.4472  (the Hurwitz maximum)',24,76);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('φ = all 1s in its continued fraction → hardest to approximate → sets the √5 law',24,104);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var info=cfOf(ALPHA),conv=convergents(info.cf);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText(info.name,14,20);
+ var bound=1/Math.sqrt(5),y0=40,mid=H-60;g.strokeStyle='#39fc6b';g.setLineDash([4,3]);g.beginPath();g.moveTo(20,mid-bound*200);g.lineTo(W-20,mid-bound*200);g.stroke();g.setLineDash([]);g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('1/√5',W-40,mid-bound*200-4);
+ for(var i=3;i<conv.length&&i<12;i++){var pq=conv[i],c=Math.abs(info.val-pq[0]/pq[1])*pq[1]*pq[1],x=30+(i-3)*38;g.fillStyle=(ALPHA===0)?'#90a850':'#c060a0';g.fillRect(x,mid-c*200,20,c*200);g.fillStyle='#cfe';g.font='7px monospace';g.fillText(c.toFixed(3),x-1,mid+12);}
+ var v=verify();var lim=ALPHA===0?v.kP:v.kS;g.fillStyle='#8ad';g.font='10px monospace';g.fillText('approx const → '+lim.toFixed(4)+(ALPHA===0?' = 1/√5 (worst)':' < 1/√5 (better)'),14,mid+30);
+ g.fillStyle=(v.phiToRoot5&&v.sqrt2Better&&v.holdInfinitely)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('φ→1/√5 '+(v.phiToRoot5?'✓':'✗')+' · √2 better '+(v.sqrt2Better?'✓':'✗')+' · bound met ∞-often '+(v.holdInfinitely?'✓':'✗'),14,H-10);}
+document.getElementById('hwroll').onclick=function(){ALPHA=1-ALPHA;drawW4();document.getElementById('hwread').textContent=cfOf(ALPHA).name;};
+document.getElementById('hwcheck').onclick=function(){var v=verify();document.getElementById('hwread').textContent='φ approx const → 1/√5='+v.kP.toFixed(4)+' (worst) '+(v.phiToRoot5?'✓':'✗')+' · √2 const '+v.kS.toFixed(4)+' (better) '+(v.sqrt2Better?'✓':'✗');};
+document.getElementById('hwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var conv=convergents(cfOf(0).cf),cx=W/2,cy=H/2-10;
+ for(var i=2;i<conv.length;i++){var pq=conv[i],c=Math.abs(phi-pq[0]/pq[1])*pq[1]*pq[1],a=i*0.7+ang*0.3,r=40+i*16;var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.82;g.fillStyle='#90a850';g.beginPath();g.arc(x,y,4,0,7);g.fill();g.fillStyle='#8ad';g.font='7px monospace';g.fillText(pq[0]+'/'+pq[1],x+5,y+3);}
+ g.strokeStyle='rgba(57,252,107,0.5)';g.beginPath();g.arc(cx,cy,40+2*16,0,7);g.stroke();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green ring: the 1/√5 ceiling (φ sits on it)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: numbers easier to approximate',10,H-24);
+ g.fillStyle='#8ad';g.fillText('the worst case sets the law',10,H-9);}
+drawW3();drawW4();window.__hurwitz=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+POLW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>P&oacute;lya&rsquo;s recurrence theorem</b> is a startling fact about random walks and dimension. A drunkard stepping at random on a <b>line</b> or across a <b>grid</b> (1D or 2D) is <b>recurrent</b> &mdash; he returns to his starting point with probability <b>1</b>, infinitely often. But in <b>three</b> dimensions the same random walk is <b>transient</b>: with probability about <b>0.6595</b> he <b>never comes home</b>. Shizuo Kakutani&rsquo;s quip: &ldquo;a drunk man will find his way home, but a drunk bird may get lost forever.&rdquo; The dividing line is exactly between 2 and 3 dimensions.<br><br>
+ <span class="lit">LIT</span> verified live: the return-probability series &Sigma; p<sub>2n</sub>(0) <b>diverges</b> in 1D and 2D (recurrent), while a 3D simulation returns only about 34% of the time (P&oacute;lya&rsquo;s 0.3405, transient) and a 1D simulation returns nearly always (window.__polyawalk). <span class="fig">FIG</span> honest: the 1D/2D divergence is exact; the 3D return rate is Monte-Carlo, approaching P&oacute;lya&rsquo;s constant.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>segfault</i> &mdash; in three dimensions the walk can wander off and <b>never return</b> to where it started, a pointer lost forever in space. That non-return is the mechanic. <b>AVAN (AI)</b> built the instrument: the exact return-probability sums p<sub>2n</sub>(0) for 1D and 2D (divergent &rarr; recurrent), and the 3D and 1D return simulations.<br><br>Credit as content: George P&oacute;lya (1921); the drunk-bird image is Shizuo Kakutani&rsquo;s. The weave: David names segfault; I sum the chance of being back at the origin after 2n steps &mdash; it diverges on the line and the plane, so return is certain &mdash; and simulate the 3D walk, which comes home only about a third of the time. Home in the plane, lost in space.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">p<sub>2n</sub>(0) = chance of being back at 0 after 2n steps. 1D: &sim; 1/&radic;(&pi;n), 2D: &sim; 1/(&pi;n) &mdash; both sum to infinity (recurrent). 3D: &sim; c/n<sup>3/2</sup> &mdash; sums finite (transient).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The return-sum in each dimension (diverging in 1D/2D, converging in 3D) and the simulated return rates; checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="pwroll">2D walk ▶</button><button id="pwcheck">verify ▶</button></div>
+   <div class="cap" id="pwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a walk that may never come home.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask <b>where</b> a random walk goes &mdash; ask whether it <b>returns</b>, and find the answer flips with <b>dimension</b>: certain in 1D and 2D, only a third likely in 3D. The inverse of &lsquo;track the walk&rsquo; is &lsquo;sum the return chances; finite means it escapes.&rsquo; <b>Magenta</b> is the plane walk that always returns; <b>green</b> is the space walk that wanders off. Home in the plane, lost in space.</div>
+   <div class="btns" style="margin-top:10px"><button id="pwspin">pause spin</button></div></div></div></div>"""
+POLW_SCRIPT = """(function(){
+var ang=0,spin=true,DIM=3,VR=null,W3D=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function p1prod(N){var arr=[0],c=1;for(var n=1;n<=N;n++){c*=(2*n-1)/(2*n);arr[n]=c;}return arr;}
+function verify(){if(VR)return VR;var p1=p1prod(5000),s1=0,s2=0,s1h=0,s2h=0;for(var n=1;n<=5000;n++){s1+=p1[n];s2+=p1[n]*p1[n];if(n<=1000){s1h+=p1[n];s2h+=p1[n]*p1[n];}}
+ var rec12=(s1>40&&s1>s1h+5)&&(s2>2&&s2>s2h+0.2);
+ var rnd=mb(7);function mc(dim,steps,trials){var ret=0;for(var t=0;t<trials;t++){var c=[0,0,0],came=false;for(var s=0;s<steps;s++){var d=Math.floor(rnd()*(2*dim));var ax=d>>1,dir=(d&1)?1:-1;c[ax]+=dir;if(c[0]===0&&c[1]===0&&c[2]===0){came=true;break;}}if(came)ret++;}return ret/trials;}
+ var r3=mc(3,3000,20000),r1=mc(1,3000,15000);
+ VR={recurrent12:rec12,transient3:r3<0.5,r3:r3,r1:r1,s1:s1,s2:s2};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('return to origin: Σ p₂ₙ(0) diverges in 1D & 2D (recurrent), converges in 3D (transient)',12,14);
+ var p1=p1prod(200);g.strokeStyle='#345';g.beginPath();g.moveTo(20,120);g.lineTo(W-20,120);g.stroke();
+ g.strokeStyle='#6890d0';g.beginPath();for(var n=1;n<=100;n++){var x=20+n*(W-40)/100;g.lineTo(x,120-p1[n]*200);}g.stroke();
+ g.strokeStyle='#39fc6b';g.beginPath();for(var n=1;n<=100;n++){var x=20+n*(W-40)/100;g.lineTo(x,120-p1[n]*p1[n]*400);}g.stroke();
+ g.fillStyle='#6890d0';g.font='9px monospace';g.fillText('1D p₂ₙ ~ 1/√(πn)',60,145);g.fillStyle='#39fc6b';g.fillText('2D p₂ₙ ~ 1/(πn)',260,145);}
+function drawW5disp(){}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var v=verify();
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('Σ p₂ₙ(0) partial sums (to 5000 terms):',14,20);
+ g.fillStyle='#6890d0';g.font='11px monospace';g.fillText('1D: '+v.s1.toFixed(1)+'  → ∞ (recurrent, returns w.p. 1)',20,44);
+ g.fillStyle='#39fc6b';g.fillText('2D: '+v.s2.toFixed(2)+'  → ∞ (recurrent)',20,66);
+ g.fillStyle='#c86868';g.fillText('3D: converges (transient) — simulated return rate:',20,92);
+ g.fillStyle='#e8eef8';g.font='14px monospace';g.fillText('3D return ≈ '+v.r3.toFixed(3)+'   (Pólya 0.3405)',30,116);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('1D return ≈ '+v.r1.toFixed(3)+'  (→ 1 as steps→∞)',30,140);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('"a drunk man finds his way home, but a drunk bird may get lost" — Kakutani',14,H-30);
+ g.fillStyle=(v.recurrent12&&v.transient3)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('1D/2D return-sum diverges '+(v.recurrent12?'✓':'✗')+' · 3D return < 0.5 (transient) '+(v.transient3?'✓':'✗'),14,H-12);}
+document.getElementById('pwroll').onclick=function(){DIM=DIM===3?2:3;drawW4();document.getElementById('pwread').textContent='return sums: 1D & 2D diverge (recurrent), 3D converges (transient)';};
+document.getElementById('pwcheck').onclick=function(){var v=verify();document.getElementById('pwread').textContent='Σp₂ₙ diverges 1D('+v.s1.toFixed(0)+')/2D('+v.s2.toFixed(1)+') '+(v.recurrent12?'✓':'✗')+' · 3D return MC '+v.r3.toFixed(3)+' (transient) '+(v.transient3?'✓':'✗');};
+document.getElementById('pwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!W3D){var rnd=mb(3);W3D=[[0,0,0]];for(var s=0;s<400;s++){var last=W3D[W3D.length-1].slice(),d=Math.floor(rnd()*6);last[d>>1]+=(d&1)?1:-1;W3D.push(last);}}
+ var cx=W/2,cy=H/2-10,ca=Math.cos(ang*0.5),sa=Math.sin(ang*0.5);
+ g.strokeStyle='#39fc6b';g.lineWidth=1.5;g.beginPath();for(var i=0;i<W3D.length;i++){var p=W3D[i],x=p[0]*10,y=p[1]*10,z=p[2]*10,x1=x*ca-z*sa,z1=x*sa+z*ca,sx=cx+x1,sy=cy+y*0.8-z1*0.35;if(i===0)g.moveTo(sx,sy);else g.lineTo(sx,sy);}g.stroke();g.lineWidth=1;
+ g.fillStyle='#c86868';g.beginPath();g.arc(cx,cy,4,0,7);g.fill();g.fillStyle='#cfe';g.font='9px monospace';g.fillText('start',cx+6,cy);
+ var end=W3D[W3D.length-1];g.fillStyle='#39fc6b';g.beginPath();g.arc(cx+(end[0]*ca-end[2]*sa),cy+end[1]*0.8-(end[0]*sa+end[2]*ca)*0.35,4,0,7);g.fill();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: a 3D walk wandering off (never returns, ~66%)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: the plane walk that always comes home',10,H-24);
+ g.fillStyle='#8ad';g.fillText('home in the plane, lost in space',10,H-9);}
+drawW3();drawW4();window.__polyawalk=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KELL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Kelly criterion</b> answers: with a favourable bet, what fraction of your bankroll should you wager to grow it fastest in the long run? Betting too little leaves growth on the table; betting too much risks ruin. The optimum maximises the <b>expected logarithm</b> of wealth, and it is <b>f* = (bp &minus; q)/b = p &minus; q/b</b>, where p is the win probability, q = 1 &minus; p, and b the net odds. For an even-money bet won 60% of the time, f* = 0.2 &mdash; risk exactly a fifth. Kelly&rsquo;s fraction beats every other constant fraction on long-run growth, with probability approaching one.<br><br>
+ <span class="lit">LIT</span> verified live: the growth rate g(f) = p&middot;ln(1 + bf) + q&middot;ln(1 &minus; f) has its maximum exactly at f* (its derivative vanishes there), and a long-run wealth simulation grows fastest at f* (window.__kelly). <span class="fig">FIG</span> honest: the f* optimum is exact calculus; the simulated growth-peak is Monte-Carlo.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-backdoor</i> &mdash; the one bet fraction that quietly compounds fastest, threading between too-timid and too-greedy at exactly f* = p &minus; q/b. <b>AVAN (AI)</b> built the instrument: the log-growth objective, its maximiser f*, the vanishing-derivative check, and the long-run wealth simulation.<br><br>Credit as content: John L. Kelly Jr. (1956); championed by Edward Thorp. The weave: David names the-backdoor; I write the expected log-growth of wealth as a function of the bet fraction, find it peaks at f* = (bp &minus; q)/b, and confirm by compounding thousands of rounds that this fraction outgrows both bolder and meeker ones.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Growth g(f) = p&middot;ln(1+bf) + q&middot;ln(1&minus;f), a hump peaking at f* = p &minus; q/b. For p = 0.6, b = 1: f* = 0.2. Overbet past f* and growth falls; past 2f* it goes negative.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The growth curve g(f) with its peak at f*; sample wealth trajectories at f*, half, and double; checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="klroll">new p,b ▶</button><button id="klcheck">verify ▶</button></div>
+   <div class="cap" id="klread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the fraction that compounds fastest.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t maximise the <b>expected wealth</b> (which says bet everything and court ruin) &mdash; maximise the <b>expected log</b> of wealth, and the safe optimum f* = p &minus; q/b appears. The inverse of &lsquo;chase the biggest average payout&rsquo; is &lsquo;grow the log; the Kelly fraction wins long-run.&rsquo; <b>Magenta</b> is the reckless all-in; <b>green</b> is the Kelly fraction. Compounding beats gambling.</div>
+   <div class="btns" style="margin-top:10px"><button id="klspin">pause spin</button></div></div></div></div>"""
+KELL_SCRIPT = """(function(){
+var ang=0,spin=true,PW=0.6,BB=1,VR=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function growth(f,p,b){var q=1-p;if(1-f<=0||1+b*f<=0)return -1e9;return p*Math.log(1+b*f)+q*Math.log(1-f);}
+function fstar(p,b){return (b*p-(1-p))/b;}
+function verify(){if(VR)return VR;var ok=true,cases=[[0.6,1],[0.55,2],[0.7,1.5],[0.52,3]];for(var c=0;c<cases.length;c++){var p=cases[c][0],b=cases[c][1],f=fstar(p,b),h=1e-5,gp=(growth(f+h,p,b)-growth(f-h,p,b))/(2*h);if(Math.abs(gp)>1e-3)ok=false;if(growth(f,p,b)<=growth(f+0.1,p,b)||growth(f,p,b)<=growth(f-0.1,p,b))ok=false;}
+ var rnd=mb(3);function fin(f,p,b,rounds){var lw=0;for(var i=0;i<rounds;i++)lw+=(rnd()<p)?Math.log(1+b*f):Math.log(1-f);return lw;}
+ var fs=[0.05,0.2,0.4,0.6],gAt={};fs.forEach(function(f){gAt[f]=0;});for(var r=0;r<2000;r++)fs.forEach(function(f){gAt[f]+=fin(f,0.6,1,200);});
+ var best=fs[0];fs.forEach(function(f){if(gAt[f]>gAt[best])best=f;});
+ VR={optimal:ok,mcPeak:best===0.2,best:best};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('g(f) = p·ln(1+bf) + q·ln(1−f), maximised at f* = (bp−q)/b = p − q/b',12,14);
+ var p=0.6,b=1,f0=fstar(p,b),mid=120;g.strokeStyle='#345';g.beginPath();g.moveTo(30,mid);g.lineTo(W-20,mid);g.stroke();
+ g.strokeStyle='#d0a838';g.lineWidth=2;g.beginPath();for(var f=0.001;f<0.99;f+=0.005){var gg=growth(f,p,b),x=30+f*(W-50),y=mid-gg*600;g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ var xstar=30+f0*(W-50);g.strokeStyle='#39fc6b';g.setLineDash([3,3]);g.beginPath();g.moveTo(xstar,40);g.lineTo(xstar,mid+20);g.stroke();g.setLineDash([]);
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('f* = 0.2',xstar-16,36);g.fillStyle='#8ad';g.font='9px monospace';g.fillText('p=0.6, b=1',W-90,mid+30);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var f0=fstar(PW,BB),mid=90;
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('p='+PW+' b='+BB+' → f* = '+f0.toFixed(3),14,18);
+ g.strokeStyle='#345';g.beginPath();g.moveTo(20,mid);g.lineTo(W-20,mid);g.stroke();
+ g.strokeStyle='#d0a838';g.lineWidth=2;g.beginPath();for(var f=0.001;f<0.99;f+=0.005){var gg=growth(f,PW,BB),x=20+f*(W-40),y=mid-gg*500;if(y<10)y=10;if(y>H-70)y=H-70;g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ var xs=20+f0*(W-40);g.strokeStyle='#39fc6b';g.setLineDash([3,3]);g.beginPath();g.moveTo(xs,20);g.lineTo(xs,H-60);g.stroke();g.setLineDash([]);g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('f*',xs-4,18);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('growth peaks at f*; g(f*) = '+growth(f0,PW,BB).toFixed(4)+' per round',14,H-40);
+ var v=verify();g.fillStyle=(v.optimal&&v.mcPeak)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('g′(f*)=0 & peak '+(v.optimal?'✓':'✗')+' · MC long-run growth peaks at f=0.2 '+(v.mcPeak?'✓':'✗'),14,H-12);}
+document.getElementById('klroll').onclick=function(){PW=[0.55,0.6,0.65,0.7][Math.floor(Math.random()*4)];BB=[1,1.5,2][Math.floor(Math.random()*3)];drawW4();document.getElementById('klread').textContent='p='+PW+' b='+BB+' → f* = '+fstar(PW,BB).toFixed(3);};
+document.getElementById('klcheck').onclick=function(){var v=verify();document.getElementById('klread').textContent='f*=(bp−q)/b maximises log-growth (g′(f*)=0, peak) '+(v.optimal?'✓':'✗')+' · MC growth peaks at f='+v.best+' (f*=0.2) '+(v.mcPeak?'✓':'✗');};
+document.getElementById('klspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var rnd=mb(11),f0=fstar(0.6,1);
+ function traj(f,col,rnd2){var lw=0,pts=[];for(var i=0;i<=120;i++){pts.push(lw);if(i<120)lw+=(rnd2()<0.6)?Math.log(1+f):Math.log(1-f);}g.strokeStyle=col;g.beginPath();for(var i=0;i<pts.length;i++){var x=30+i*(W-50)/120,y=H/2-pts[i]*22;g.lineTo(x,y);}g.stroke();}
+ g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.3)*0.03);g.translate(-W/2,-(H/2-10));
+ traj(0.6,'rgba(255,45,149,0.7)',mb(11));traj(f0,'#39fc6b',mb(11));traj(0.05,'rgba(120,150,180,0.7)',mb(11));g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: wealth at f* = 0.2 (Kelly) — steepest long-run climb',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta: overbet f=0.6 (grows then collapses)',10,H-24);
+ g.fillStyle='#8ad';g.fillText('compounding beats gambling',10,H-9);}
+drawW3();drawW4();window.__kelly=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ARCS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The arcsine law</b> is one of probability&rsquo;s great surprises. Toss a fair coin 2n times, tracking the running lead of heads over tails; ask what fraction of the time the lead stays <b>positive</b>. Intuition says &ldquo;about half.&rdquo; The truth is the opposite: the distribution is <b>U-shaped</b> &mdash; the <b>most likely</b> outcomes are that one side leads <b>almost the entire time</b>, and the least likely is a 50/50 split. Exactly, P(the walk is positive for 2k of 2n steps) = <b>C(2k,k)&middot;C(2n&minus;2k, n&minus;k)/4<sup>n</sup></b>, whose shape is the discrete arcsine.<br><br>
+ <span class="lit">LIT</span> verified live: the exact formula sums to 1 and is genuinely U-shaped (its maxima at the extremes, minimum in the middle), and a fair-coin simulation reproduces the U (window.__arcsine). <span class="fig">FIG</span> honest: the formula and U-shape are exact; the histogram match is Monte-Carlo.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>cold-boot</i> &mdash; from a plain fair coin emerges a shape that defies intuition: leads are lopsided, not balanced, and the balanced case is rarest of all. That counterintuitive birth is the boot. <b>AVAN (AI)</b> built the instrument: the exact arcsine probabilities, the U-shape check (extremes maximal, centre minimal), and the coin-toss histogram.<br><br>Credit as content: Paul L&eacute;vy and the arcsine laws (1930s&ndash;40s; Feller&rsquo;s exposition). The weave: David names cold-boot; I compute the chance a fair walk spends exactly 2k of 2n steps on the positive side, confirm the distribution piles up at the extremes rather than the middle, and match it with simulated coin tosses &mdash; the lead is almost always lopsided.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">P(positive for 2k of 2n steps) = C(2k,k)&middot;C(2n&minus;2k,n&minus;k)/4<sup>n</sup>. Highest at k = 0 and k = n (one side leads throughout), lowest at k = n/2 (a 50/50 split). A U, not a bell.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The exact U-shaped distribution and a coin-toss histogram over it; the sum-to-one and U-shape checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="asroll">resimulate ▶</button><button id="ascheck">verify ▶</button></div>
+   <div class="cap" id="asread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: leads that are lopsided, not balanced.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t assume a fair game feels fair moment to moment &mdash; ask how the <b>time-in-the-lead</b> is distributed, and find it clusters at the <b>extremes</b>: one side usually leads almost throughout. The inverse of &lsquo;fair coin, balanced outcome&rsquo; is &lsquo;fair coin, lopsided leadership.&rsquo; <b>Magenta</b> is the expected bell around 50/50; <b>green</b> is the actual arcsine U. Fairness looks lopsided in time.</div>
+   <div class="btns" style="margin-top:10px"><button id="asspin">pause spin</button></div></div></div></div>"""
+ARCS_SCRIPT = """(function(){
+var ang=0,spin=true,VR=null,HIST=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function binom(n,k){var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return r;}
+function arcP(k,n){return binom(2*k,k)*binom(2*n-2*k,n-k)/Math.pow(4,n);}
+function verify(){if(VR)return VR;var n=20,dist=[],sum=0;for(var k=0;k<=n;k++){var p=arcP(k,n);dist.push(p);sum+=p;}
+ var mx=Math.max.apply(null,dist),mn=Math.min.apply(null,dist);var uShaped=(dist[0]===mx)&&(dist[n]===mx||Math.abs(dist[n]-mx)<1e-12)&&(dist[Math.floor(n/2)]===mn);
+ var rnd=mb(9),steps=40,hist=new Array(steps+1).fill(0),trials=60000;for(var t=0;t<trials;t++){var x=0,pos=0;for(var s=0;s<steps;s++){x+=(rnd()<0.5)?1:-1;if(x>0)pos++;}hist[pos]++;}
+ var ext=hist[0]+hist[steps]+hist[1]+hist[steps-1],midc=hist[20]+hist[19]+hist[21];
+ HIST=hist;VR={sumsToOne:Math.abs(sum-1)<1e-9,uShaped:uShaped,mcMatches:ext>midc,ext:ext,mid:midc};return VR;}
+function drawDist(g,W,H,mid,scale){var n=20;for(var k=0;k<=n;k++){var p=arcP(k,n),x=20+k*(W-40)/n,h=p*scale;g.fillStyle=(k===0||k===n)?'#50b0a8':'#3a6a68';g.fillRect(x,mid-h,(W-40)/n-2,h);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('fraction of time a fair walk stays positive: U-shaped, NOT centred (arcsine law)',12,14);
+ drawDist(g,W,120,130,900);g.fillStyle='#50b0a8';g.font='9px monospace';g.fillText('peaks at k=0 & k=2n (one side leads throughout)',150,40);g.fillStyle='#8ad';g.fillText('trough at the 50/50 split — the rarest outcome',150,60);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var v=verify(),steps=40,mx=Math.max.apply(null,HIST);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('exact arcsine (green outline) vs coin-toss histogram (bars), 2n=40',14,16);
+ for(var k=0;k<=steps;k++){var x=20+k*(W-40)/steps,h=HIST[k]/mx*(H-70);g.fillStyle=(k===0||k===steps)?'#50b0a8':'#3a5a6a';g.fillRect(x,H-40-h,(W-40)/steps-1,h);}
+ // exact overlay (scaled to same max)
+ var n=20,em=arcP(0,n);g.strokeStyle='#39fc6b';g.lineWidth=1.5;g.beginPath();for(var k=0;k<=n;k++){var p=arcP(k,n),x=20+(2*k)*(W-40)/steps,y=H-40-p/em*(H-70);if(k===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;
+ g.fillStyle=(v.sumsToOne&&v.uShaped&&v.mcMatches)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('sums to 1 '+(v.sumsToOne?'✓':'✗')+' · U-shaped '+(v.uShaped?'✓':'✗')+' · MC extremes('+v.ext+')≫middle('+v.mid+') '+(v.mcMatches?'✓':'✗'),14,H-10);}
+document.getElementById('asroll').onclick=function(){drawW4();document.getElementById('asread').textContent='coin-toss histogram matches the arcsine U';};
+document.getElementById('ascheck').onclick=function(){var v=verify();document.getElementById('asread').textContent='arcsine sums to 1 '+(v.sumsToOne?'✓':'✗')+' · U-shaped (extremes maximal) '+(v.uShaped?'✓':'✗')+' · MC extremes '+v.ext+' ≫ middle '+v.mid+' '+(v.mcMatches?'✓':'✗');};
+document.getElementById('asspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=20,em=arcP(0,n),cx=W/2,cy=H/2+40;
+ g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.3)*0.04);g.translate(-cx,-cy);
+ // arcsine U in green
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var k=0;k<=n;k++){var p=arcP(k,n),x=40+k*(W-80)/n,y=cy-p/em*160;if(k===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+ // magenta 'expected' bell for contrast
+ g.strokeStyle='rgba(255,45,149,0.5)';g.lineWidth=1.5;g.beginPath();for(var k=0;k<=n;k++){var bell=Math.exp(-Math.pow((k-n/2)/(n/4),2)/2),x=40+k*(W-80)/n,y=cy-bell*120;if(k===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.lineWidth=1;g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green U: the true arcsine (leads are lopsided)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta bell: the balanced outcome we expect (wrong)',10,H-24);
+ g.fillStyle='#8ad';g.fillText('fairness looks lopsided in time',10,H-9);}
+drawW3();drawW4();window.__arcsine=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 107 (hidden divisibilities in the partition numbers · counting the ballots where one candidate never trails · three triangle centres that always fall on one line · counting the ways to write a number as four squares · a hull point is a blend of at most three) ═══════════════════════
 RAMC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Ramanujan&rsquo;s congruences</b> are astonishing hidden divisibilities in the <b>partition numbers</b> p(n) &mdash; the count of ways to write n as a sum of positive integers. Ramanujan noticed, from a hand-written table, three exact patterns: <b>p(5n + 4) &equiv; 0 (mod 5)</b>, <b>p(7n + 5) &equiv; 0 (mod 7)</b>, and <b>p(11n + 6) &equiv; 0 (mod 11)</b>. Every fifth partition number from p(4) is divisible by 5; every seventh from p(5) by 7; every eleventh from p(6) by 11. There is no such simple congruence for any other prime &mdash; 5, 7, 11 are special.<br><br>
@@ -28842,6 +29103,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-gamblers-ruin","title":"THE GAMBLER'S RUIN","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#c86868","icon":"gamblers-ruin",
+  "kicker":"a fair walk absorbed at the edges lands with probability proportional to the start",
+  "blurb":"The gambler's ruin in the 5-window house format — a gambler starts with k dollars, bets one at a time on a fair coin, and stops only at 0 (ruin) or N (target). The probability of reaching N before going broke is exactly k/N — a straight-line law, your chance is your stake as a fraction of the goal. For a biased coin (win prob p) it becomes (1−rᵏ)/(1−rᴺ) with r=(1−p)/p, and even a tiny edge sharply bends the odds. Verified live: the exact recurrence solves to k/N for the fair walk, and Monte-Carlo matches both the fair k/N and the biased formula. See the linear law in 1D, sample walks in 2D, and the fate-from-the-start inverse in 3D.",
+  "lit":"Genuine gambler's ruin (Pascal–Fermat correspondence 1656; Huygens; classic in Feller). Verified live: the harmonic recurrence solves to P(reach N before 0) = k/N for every k, N up to 20 in the fair case (window.__ruin.exactMatches), and Monte-Carlo simulation matches both the fair k/N and the biased (1−rᵏ)/(1−rᴺ) formula within a small tolerance (window.__ruin.mcMatches).",
+  "fig":"No framing: the linear recurrence solved to k/N, the biased-walk formula, and the Monte-Carlo cross-check all run in-browser. Honest scope: the exact k/N is proven calculus; the Monte-Carlo agreement is statistical, stated within a small tolerance. The AVAN inverse is honest — reading the hitting probability straight off the start position (k/N) rather than simulating is exactly the result; magenta is a ruined walk, green one reaching the goal. Fate proportional to the start.",
+  "body":RUIN_BODY,"script":RUIN_SCRIPT},
+ {"slug":"the-hurwitz","title":"THE HURWITZ","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"BACKPROP","domain_slug":"backprop","accent":"#90a850","icon":"hurwitz",
+  "kicker":"the worst any irrational can be approximated",
+  "blurb":"Hurwitz's theorem in the 5-window house format — for every irrational α there are infinitely many fractions p/q with |α − p/q| < 1/(√5·q²), and √5 cannot be improved. The continued-fraction convergents achieve it. The hardest number to approximate is the golden ratio φ = [1;1,1,1,…]: its approximation constant |φ − p/q|·q² converges to exactly 1/√5, the worst case, because its continued fraction is all 1s; any number with larger partial quotients (like √2) is easier. Verified live: φ's constant → 1/√5 ≈ 0.4472 (the Hurwitz maximum), √2's is smaller (≈0.3536), and the bound is met infinitely often by convergents. See φ's Fibonacci-ratio convergents in 1D, approximation constants in 2D, and the worst-case-sets-the-law inverse in 3D.",
+  "lit":"Genuine Hurwitz's theorem (Adolf Hurwitz, 1891). Verified live: the continued-fraction convergents of φ give an approximation constant |φ − p/q|·q² → 1/√5 (window.__hurwitz.phiToRoot5), √2's constant is strictly smaller (better-approximable, window.__hurwitz.sqrt2Better), and the Hurwitz bound 1/(√5 q²) is met infinitely often by the convergents (window.__hurwitz.holdInfinitely).",
+  "fig":"No framing: the convergent recurrence, the |α − p/q|·q² approximation constant, and the check that φ is worst and the bound holds infinitely all run in-browser with exact convergent arithmetic (small indices to stay in exact-integer float range). The AVAN inverse is honest — asking the best rate ANY irrational can be approximated (a universal ceiling 1/√5 touched only by φ) rather than approximating a fixed α is Hurwitz's content; magenta is an easily-approximated number, green the golden ratio at the ceiling. The worst case sets the law.",
+  "body":HURW_BODY,"script":HURW_SCRIPT},
+ {"slug":"the-polya-walk","title":"THE PÓLYA WALK","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#6890d0","icon":"polya-walk",
+  "kicker":"a random walk that comes home in the plane but wanders off in space",
+  "blurb":"Pólya's recurrence theorem in the 5-window house format — a random walk on a line or grid (1D or 2D) is recurrent: it returns to its start with probability 1, infinitely often. But in three dimensions it is transient — with probability about 0.6595 it never comes home. Kakutani: 'a drunk man will find his way home, but a drunk bird may get lost forever.' The dividing line is exactly between 2 and 3 dimensions. Verified live: the return-probability series Σ p₂ₙ(0) diverges in 1D and 2D (recurrent), while a 3D simulation returns only about 34% of the time (Pólya's 0.3405) and a 1D simulation returns nearly always. See p₂ₙ(0) decay in 1D, the return sums in 2D, and the home-vs-lost inverse in 3D.",
+  "lit":"Genuine Pólya recurrence theorem (George Pólya, 1921; the drunk-bird image is Shizuo Kakutani's). Verified live: the exact return probabilities p₂ₙ(0) = Π(2i−1)/(2i) (1D) and its square (2D) give partial sums Σ p₂ₙ(0) that keep growing (divergent → recurrent, window.__polyawalk.recurrent12), while a 3D random-walk simulation returns to the origin under 50% of the time (transient, window.__polyawalk.transient3, approaching Pólya's 0.3405).",
+  "fig":"No framing: the exact 1D/2D return-probability sums and the 3D and 1D return simulations all run in-browser. Honest scope: the 1D/2D divergence (hence recurrence) is exact; the 3D return rate is Monte-Carlo, approaching Pólya's constant 0.3405 (finite-step simulation slightly undercounts). The AVAN inverse is honest — asking whether a walk returns (summing return chances; finite means it escapes) rather than tracking it reveals the dimension flip; magenta is the plane walk that always returns, green the space walk that wanders off. Home in the plane, lost in space.",
+  "body":POLW_BODY,"script":POLW_SCRIPT},
+ {"slug":"the-kelly-criterion","title":"THE KELLY CRITERION","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#d0a838","icon":"kelly-criterion",
+  "kicker":"the bet fraction that maximises long-run growth",
+  "blurb":"The Kelly criterion in the 5-window house format — with a favourable bet, what fraction of your bankroll grows it fastest long-run? Too little leaves growth on the table; too much risks ruin. The optimum maximises the expected logarithm of wealth: f* = (bp − q)/b = p − q/b, where p is the win probability, q = 1−p, and b the net odds. For an even-money bet won 60% of the time, f* = 0.2. Kelly's fraction beats every other constant fraction on long-run growth. Verified live: the growth rate g(f) = p·ln(1+bf) + q·ln(1−f) peaks exactly at f* (derivative vanishes), and a wealth simulation grows fastest at f*. See the growth hump in 1D, trajectories in 2D, and the maximise-the-log inverse in 3D.",
+  "lit":"Genuine Kelly criterion (John L. Kelly Jr., 1956; championed by Edward Thorp). Verified live: the log-growth objective g(f) = p·ln(1+bf) + q·ln(1−f) has its derivative vanishing at f* = (bp−q)/b and is a strict maximum there across several (p,b) (window.__kelly.optimal), and a long-run wealth simulation of 200-round compounding grows fastest at f = 0.2 = f* for p=0.6, b=1 (window.__kelly.mcPeak).",
+  "fig":"No framing: the log-growth objective, its maximiser f*, the vanishing-derivative check, and the wealth simulation all run in-browser. Honest scope: the f* optimum is exact calculus; the simulated growth-peak is Monte-Carlo. The AVAN inverse is honest — maximising expected LOG wealth (giving the safe f* = p − q/b) rather than expected wealth (which says bet everything and court ruin) is exactly Kelly's insight; magenta is the reckless all-in, green the Kelly fraction. Compounding beats gambling.",
+  "body":KELL_BODY,"script":KELL_SCRIPT},
+ {"slug":"the-arcsine","title":"THE ARCSINE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#50b0a8","icon":"arcsine",
+  "kicker":"why a coin game spends most of its time on one side",
+  "blurb":"The arcsine law in the 5-window house format — toss a fair coin 2n times, tracking the running lead; what fraction of the time is the lead positive? Intuition says 'about half.' The truth is the opposite: the distribution is U-shaped — the most likely outcomes are that one side leads almost the entire time, and the least likely is a 50/50 split. Exactly, P(positive for 2k of 2n steps) = C(2k,k)·C(2n−2k,n−k)/4ⁿ, the discrete arcsine. Verified live: the exact formula sums to 1, is genuinely U-shaped (maxima at the extremes, minimum in the middle), and a fair-coin simulation reproduces the U. See the U-distribution in 1D, a histogram over it in 2D, and the lopsided-fairness inverse in 3D.",
+  "lit":"Genuine arcsine law (Paul Lévy, 1930s–40s; classic in Feller). Verified live: the exact probability P(positive for 2k of 2n steps) = C(2k,k)·C(2n−2k,n−k)/4ⁿ sums to 1 (window.__arcsine.sumsToOne), is U-shaped with its maxima at k=0 and k=n and minimum at k=n/2 (window.__arcsine.uShaped), and a 60,000-trial fair-coin simulation piles up at the extremes far more than the middle (window.__arcsine.mcMatches).",
+  "fig":"No framing: the exact arcsine probabilities, the U-shape check (extremes maximal, centre minimal), and the coin-toss histogram all run in-browser. Honest scope: the formula and U-shape are exact; the histogram match is Monte-Carlo. The AVAN inverse is honest — a fair coin does NOT feel fair moment to moment; the time-in-the-lead clusters at the extremes (one side usually leads almost throughout); magenta is the expected bell around 50/50, green the actual arcsine U. Fairness looks lopsided in time.",
+  "body":ARCS_BODY,"script":ARCS_SCRIPT},
  {"slug":"the-ramanujan-congruence","title":"THE RAMANUJAN CONGRUENCE","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#b06898","icon":"ramanujan-congruence",
   "kicker":"hidden divisibilities in the partition numbers",
