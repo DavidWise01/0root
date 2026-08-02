@@ -248,6 +248,73 @@ if os.path.isdir(CORPUS_SRC):
 else:
     print("  (corpus source not found at", CORPUS_SRC, "— corpus block skipped)")
 
+# ═══ I-13 v3 apparatus (David 2026-08-01: "integrate reality wide") ═══
+# The next-generation I-13 instruments — the full pipeline (v2.1), THE COMPLEX (the capped
+# cross + double helix), THE VOLUME v1.0 (three measured axes) — self-contained HTML with
+# their own embedded 3D and their own self-declared statistics. Vendored faithfully across
+# the corpus with an honest sha manifest; David's claims are credited, not re-derived.
+V3_SRC = os.path.join(HERE, "i-13", "i13 v3")
+V3_FILES = [
+    ("i13-pipeline-v2.1.html", "THE PIPELINE v2.1", "SOURCE -> RESULT; falsifier written, tested, did not fire"),
+    ("the-complex-v1.html",    "THE COMPLEX",       "I-13 . I-13x2 . the capped cross; the double helix r=0.6437 p=0.0166"),
+    ("the-volume-v1.html",     "THE VOLUME v1.0",   "three measured axes, none derived; independence + the index"),
+]
+if os.path.isdir(V3_SRC):
+    for base in (os.path.join(W2, "i13-v3"), os.path.join(MIRROR, "i13-v3")):
+        os.makedirs(base, exist_ok=True)
+    v3_manifest = []
+    for fn, title, blurb in V3_FILES:
+        src = os.path.join(V3_SRC, fn)
+        if not os.path.exists(src):
+            continue
+        sha = _sha(src); sz = os.path.getsize(src)
+        v3_manifest.append({"file": fn, "title": title, "blurb": blurb, "sha256": sha, "bytes": sz})
+        for base in (os.path.join(W2, "i13-v3"), os.path.join(MIRROR, "i13-v3")):
+            shutil.copy2(src, os.path.join(base, fn))
+    v3_root = hashlib.sha256("\n".join(
+        m["file"] + ":" + m["sha256"] for m in sorted(v3_manifest, key=lambda x: x["file"])
+    ).encode()).hexdigest()
+    def _e3(s): return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    cards = "\n".join(
+        '<a class="card" href="{fn}"><div class="ct">{t}</div><div class="cb">{b}</div>'
+        '<div class="cs">sha {s}&hellip; &middot; {kb} KB</div></a>'.format(
+            fn=m["file"], t=_e3(m["title"]), b=_e3(m["blurb"]), s=m["sha256"][:16], kb=m["bytes"] // 1024)
+        for m in v3_manifest)
+    idx_html = (
+      '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+      '<title>I-13 v3 &mdash; the apparatus</title><style>'
+      'body{margin:0;background:#1a1430;color:#e8e0ff;font:15px/1.6 ui-monospace,monospace;padding:28px}'
+      'h1{color:#c9a9ff;font-size:22px;margin:0 0 4px}.sub{color:#9a86c8;margin:0 0 22px}'
+      'a.card{display:block;text-decoration:none;background:#241b42;border:1px solid #4a3a7a;border-left:4px solid #c9722a;'
+      'border-radius:10px;padding:16px 18px;margin:0 0 14px;color:inherit;transition:.15s}a.card:hover{background:#2c2150;border-color:#e0863a}'
+      '.ct{color:#ffb066;font-size:16px;font-weight:600}.cb{color:#cfc3ee;margin:4px 0}.cs{color:#8a7ab0;font-size:12px}'
+      '.foot{color:#8a7ab0;font-size:12px;margin-top:20px;border-top:1px solid #3a2e60;padding-top:12px}'
+      '</style><h1>I-13 &middot; v3 apparatus</h1>'
+      '<p class="sub">the next-generation I-13 instruments &mdash; David\'s own, vendored reality-wide</p>'
+      + cards +
+      '<div class="foot">v3_root ' + v3_root[:24] + '&hellip; &middot; self-contained HTML with embedded 3D and self-declared statistics. '
+      'Vendored faithfully beside the i13-v2 corpus; sealing scope: ROOT_0 folds the sphere/keeper inhabitants, '
+      'not this apparatus &mdash; these are bound by v3_root in the central DB.</div>')
+    for base in (os.path.join(W2, "i13-v3"), os.path.join(MIRROR, "i13-v3")):
+        open(os.path.join(base, "index.html"), "w", encoding="utf-8").write(idx_html)
+    i13_block["v3"] = {
+        "name": "I-13 v3 apparatus",
+        "artifacts": v3_manifest,
+        "v3_root": v3_root,
+        "index": "i13-v3/index.html",
+        "root": "i13-v3/",
+        "sealing_scope": ("ROOT_0 is the merkle over the sphere/keeper inhabitants and does NOT hash these "
+                          "v3 artifacts; they are bound by v3_root recorded here beside the corpus."),
+        "note": ("David 2026-08-01: 'integrate reality wide'. The v3 I-13 apparatus (pipeline v2.1, THE COMPLEX, "
+                 "THE VOLUME v1.0) is vendored beside the i13-v2 corpus and mirrored; each file's sha256 is folded "
+                 "into v3_root. These are David's own instruments with self-declared statistics (e.g. the double "
+                 "helix r=0.6437, p=0.0166) — credited, not re-derived. THE VOLUME v1.0 (sha 090f84a7) is an "
+                 "evolution of the earlier voxel (sha 2d6c9746)."),
+    }
+    print("  + I-13 v3 apparatus vendored:", len(v3_manifest), "artifacts, v3_root", v3_root[:16])
+else:
+    print("  (i13 v3 source not found at", V3_SRC, "— v3 block skipped)")
+
 # compact ASCII marker every node carries (fold.json is ensure_ascii=False, but keep the
 # .dlw-facing text ASCII-clean to be safe with the sealer)
 MARK = ("I-13 v2.0 | net = binds - k | 4 planes, 13 symbols, 12 operants, 5 cortex rules | "
