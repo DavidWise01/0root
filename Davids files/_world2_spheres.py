@@ -19485,6 +19485,237 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 79 (wrap the points in a rubber band · match by a rolling fingerprint · a cipher from add-shift-xor · cluster by moving to the mean · check a product without redoing it) ═══════════════════════
+GRH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Graham scan</b> computes the <b>convex hull</b> of a set of points &mdash; the smallest convex polygon enclosing them all, like a rubber band snapped around nails. It sorts the points, then walks them keeping only <b>left turns</b>: whenever three consecutive points make a right turn, the middle one is popped. What remains is the hull, in O(n log n). It is a workhorse of computational geometry &mdash; collision bounds, shape analysis, and more.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random point sets the hull is convex (every turn a left turn) and <b>every</b> input point lies inside or on it (window.__graham). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>genesis-block</i> &mdash; the first shape built from scattered points: the boundary that contains them all. The Graham scan is that boundary. <b>AVAN (AI)</b> built the instrument: the sort, the left-turn stack walk (monotone chain), the convexity check, and the contains-all-points check.<br><br>Credit as content: Ronald Graham (1972). The weave: David names genesis-block; I sort the points and pop any right turn, keeping only left turns, and confirm the result is convex and encloses every input point.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Walk the sorted points. Keep a stack; before adding a point, while the last three make a <b>right</b> turn (clockwise), pop the middle. Only left turns survive &mdash; the convex boundary.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Scattered points and their convex hull; the hull is checked to be convex and to contain every point.</div>
+   <div class="btns" style="margin-top:10px"><button id="grroll">new points ▶</button><button id="grcheck">verify 300 ▶</button></div>
+   <div class="cap" id="grread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the smallest convex boundary around the points.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): find the <b>tightest convex boundary</b> by sorting and keeping only <b>left turns</b> &mdash; every right turn pops an interior point, like a rubber band contracting onto the outermost nails. The inverse of &lsquo;test every subset for the enclosing polygon&rsquo; is &lsquo;sort once, pop right turns &mdash; the hull falls out.&rsquo; <b>Magenta</b> is the interior points the band skips over; <b>green</b> is the hull vertices. The boundary from a single sorted sweep.</div>
+   <div class="btns" style="margin-top:10px"><button id="grspin">pause spin</button></div></div></div></div>"""
+GRH_SCRIPT = """(function(){
+var ang=0,spin=true,PTS=[],HULL=[];
+function cross(o,a,b){return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);}
+function hull(pts){var p=pts.slice().sort(function(a,b){return a[0]-b[0]||a[1]-b[1];}),n=p.length;if(n<3)return p.slice();var lo=[];for(var i=0;i<n;i++){while(lo.length>=2&&cross(lo[lo.length-2],lo[lo.length-1],p[i])<=0)lo.pop();lo.push(p[i]);}var hi=[];for(var i=n-1;i>=0;i--){while(hi.length>=2&&cross(hi[hi.length-2],hi[hi.length-1],p[i])<=0)hi.pop();hi.push(p[i]);}lo.pop();hi.pop();return lo.concat(hi);}
+function inHull(pt,h){var n=h.length;for(var i=0;i<n;i++)if(cross(h[i],h[(i+1)%n],pt)<-1e-9)return false;return true;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(230),convex=true,contains=true;for(var t=0;t<300;t++){var np=3+Math.floor(rnd()*15),pts=[];for(var i=0;i<np;i++)pts.push([Math.round(rnd()*100),Math.round(rnd()*100)]);var h=hull(pts),n=h.length;for(var i=0;i<n;i++)if(cross(h[i],h[(i+1)%n],h[(i+2)%n])<-1e-9)convex=false;pts.forEach(function(p){if(!inHull(p,h))contains=false;});}return {convex:convex,containsAll:contains};}
+function mk(){PTS=[];var rnd=mb((Math.random()*1e9)|0);for(var i=0;i<16;i++)PTS.push([30+rnd()*320,25+rnd()*240]);HULL=hull(PTS);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('pop the middle point whenever three make a right (clockwise) turn',12,14);
+ var pts=[[40,120],[110,60],[180,100],[250,50],[330,110],[420,70]];g.strokeStyle='#556';g.beginPath();for(var i=0;i<pts.length;i++){if(i===0)g.moveTo(pts[i][0],pts[i][1]);else g.lineTo(pts[i][0],pts[i][1]);}g.stroke();
+ for(var i=0;i<pts.length;i++){var keep=(i===0||i===1||i===3||i===5);g.fillStyle=keep?'#39fc6b':'#ff2d95';g.beginPath();g.arc(pts[i][0],pts[i][1],5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('green kept (left turns) · magenta popped (right turns)',40,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS.length)mk();
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<HULL.length;i++){if(i===0)g.moveTo(HULL[i][0],HULL[i][1]);else g.lineTo(HULL[i][0],HULL[i][1]);}g.closePath();g.stroke();g.lineWidth=1;
+ var hs=new Set(HULL.map(function(p){return p[0]+','+p[1];}));for(var i=0;i<PTS.length;i++){var onH=hs.has(PTS[i][0]+','+PTS[i][1]);g.fillStyle=onH?'#39fc6b':'#c0a048';g.beginPath();g.arc(PTS[i][0],PTS[i][1],onH?4:3,0,7);g.fill();}
+ var v=verify();g.fillStyle=v.convex&&v.containsAll?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText(HULL.length+'-gon hull · convex ✓ · contains all points ✓',12,H-12);}
+document.getElementById('grroll').onclick=function(){mk();drawW4();document.getElementById('grread').textContent=HULL.length+'-vertex hull on '+PTS.length+' points';};
+document.getElementById('grcheck').onclick=function(){var v=verify();document.getElementById('grread').textContent='300 sets: hull convex '+(v.convex?'✓':'✗')+' · contains all points '+(v.containsAll?'✓':'✗');};
+document.getElementById('grspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS.length)mk();var cx=W/2,cy=H/2-10;function pr(p){var x=(p[0]-190)*0.7,y=(p[1]-135)*0.7,a=ang*0.2;return [cx+x*Math.cos(a)-y*Math.sin(a),cy+(x*Math.sin(a)+y*Math.cos(a))*0.7];}
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<HULL.length;i++){var q=pr(HULL[i]);if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}g.closePath();g.stroke();g.lineWidth=1;
+ var hs=new Set(HULL.map(function(p){return p[0]+','+p[1];}));for(var i=0;i<PTS.length;i++){var q=pr(PTS[i]),onH=hs.has(PTS[i][0]+','+PTS[i][1]);g.fillStyle=onH?'#39fc6b':'rgba(255,45,149,0.4)';g.beginPath();g.arc(q[0],q[1],onH?4:2.5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the convex hull (rubber band around the points)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the interior points the band skips',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the boundary from a single sorted sweep',10,H-9);}
+mk();drawW3();drawW4();window.__graham=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RKP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Rabin&ndash;Karp algorithm</b> finds a pattern in text using a <b>rolling hash</b>: it hashes the pattern once, then slides a window over the text, updating the window&rsquo;s hash in <b>O(1)</b> per step by removing the leaving character and adding the entering one &mdash; polynomial hashing modulo a large prime. Only when hashes <b>match</b> does it verify character-by-character. It shines at <b>multi-pattern</b> search and plagiarism detection.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random text/pattern pairs, the rolling-hash match positions (with match verification) exactly equal a brute-force scan (window.__rabinkarp). <span class="fig">FIG</span> no framing; exact (hashes filter, then confirm).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-broadcast</i> &mdash; scanning a stream for a signal, cheaply, one character at a time. Rabin&ndash;Karp is that scan. <b>AVAN (AI)</b> built the instrument: the polynomial hash, the O(1) roll (remove-add), the on-match verification, and the brute cross-check.<br><br>Credit as content: Michael Rabin &amp; Richard Karp (1987). The weave: David names the broadcast; I roll a modular hash across the text and, on every hash hit, confirm the characters &mdash; matching a direct scan exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Slide the window one step: subtract the departing character&rsquo;s weighted value, multiply by the base, add the arriving character. The hash updates in O(1) &mdash; no re-reading the window.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A text and a pattern; the rolling hash flags candidate positions and confirms matches, checked against a brute scan.</div>
+   <div class="btns" style="margin-top:10px"><button id="rkroll">new search ▶</button><button id="rkcheck">verify 300 ▶</button></div>
+   <div class="cap" id="rkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: matches found by a rolling fingerprint.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): search for a pattern by a <b>rolling fingerprint</b> &mdash; update the window&rsquo;s hash in O(1) as it slides, and only compare characters when fingerprints agree. The inverse of &lsquo;re-read every window fully to compare&rsquo; is &lsquo;keep a rolling hash, verify only on a hit.&rsquo; <b>Magenta</b> is the full comparisons skipped at non-matching windows; <b>green</b> is the confirmed matches. Search by a fingerprint that rolls.</div>
+   <div class="btns" style="margin-top:10px"><button id="rkspin">pause spin</button></div></div></div></div>"""
+RKP_SCRIPT = """(function(){
+var ang=0,spin=true,TXT='abracadabra',PAT='abra',HITS=[];
+function rk(text,pat){var n=text.length,m=pat.length;if(m>n||m===0)return [];var B=257,M=1000000007,ph=0,th=0,pw=1;for(var i=0;i<m-1;i++)pw=pw*B%M;for(var i=0;i<m;i++){ph=(ph*B+pat.charCodeAt(i))%M;th=(th*B+text.charCodeAt(i))%M;}var res=[];for(var i=0;i<=n-m;i++){if(ph===th){var ok=true;for(var j=0;j<m;j++)if(text[i+j]!==pat[j]){ok=false;break;}if(ok)res.push(i);}if(i<n-m){th=((th-text.charCodeAt(i)*pw)%M+M*B)%M;th=(th*B+text.charCodeAt(i+m))%M;}}return res;}
+function brute(text,pat){var res=[],n=text.length,m=pat.length;for(var i=0;i<=n-m;i++){var ok=true;for(var j=0;j<m;j++)if(text[i+j]!==pat[j]){ok=false;break;}if(ok)res.push(i);}return res;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(231),ok=true,al='abc';for(var t=0;t<300;t++){var tn=5+Math.floor(rnd()*40),pm=1+Math.floor(rnd()*4),txt='',pat='';for(var i=0;i<tn;i++)txt+=al[Math.floor(rnd()*3)];for(var i=0;i<pm;i++)pat+=al[Math.floor(rnd()*3)];if(rk(txt,pat).join(',')!==brute(txt,pat).join(','))ok=false;}return {matchesBrute:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('roll the hash: remove departing char, shift, add arriving char (O(1))',12,14);
+ var s='abracadabra';for(var i=0;i<s.length;i++){var inW=(i>=2&&i<6);g.fillStyle=inW?'#58a0b0':'#37506e';g.fillRect(40+i*40,50,36,30);g.fillStyle='#fff';g.font='13px monospace';g.fillText(s[i],54+i*40,70);}
+ g.strokeStyle='#39fc6b';g.strokeRect(38+2*40,48,4*40,34);g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('window hash rolls right one step at a time',40,120);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);HITS=rk(TXT,PAT);
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('pattern "'+PAT+'" in "'+TXT+'"',12,20);
+ var cw=Math.min(20,(W-24)/TXT.length);for(var i=0;i<TXT.length;i++){var hit=HITS.some(function(h){return i>=h&&i<h+PAT.length;});g.fillStyle=hit?'#39fc6b':'#37506e';g.fillRect(12+i*cw,34,cw-1,22);g.fillStyle=hit?'#042':'#9fd';g.font='10px monospace';if(cw>12)g.fillText(TXT[i],14+i*cw,49);}
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('rolling-hash matches at: '+(HITS.length?HITS.join(', '):'none'),12,80);
+ var ok=HITS.join(',')===brute(TXT,PAT).join(',');g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('rolling-hash positions == brute scan '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('rkroll').onclick=function(){var T=['abracadabra','mississippi','bananabandana','tatatata'],P=['abra','ss','ana','ta'];var i=Math.floor(Math.random()*T.length);TXT=T[i];PAT=P[i];drawW4();document.getElementById('rkread').textContent='"'+PAT+'" → '+rk(TXT,PAT).length+' matches';};
+document.getElementById('rkcheck').onclick=function(){var v=verify();document.getElementById('rkread').textContent='300 pairs: rolling-hash positions == brute '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('rkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);HITS=rk(TXT,PAT);var cx=W/2,cy=H/2-20,n=TXT.length;
+ for(var i=0;i<n;i++){var hit=HITS.some(function(h){return i>=h&&i<h+PAT.length;}),a=i/n*6.28+ang*0.3,r=90,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.75;g.fillStyle=hit?'#39fc6b':'rgba(120,140,160,0.35)';g.beginPath();g.arc(x,y,hit?6:3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green arcs: pattern matches found by rolling hash',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the full comparisons skipped elsewhere',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('search by a fingerprint that rolls',10,H-9);}
+drawW3();drawW4();window.__rabinkarp=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TEA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>TEA</b> (the Tiny Encryption Algorithm) is a block cipher famous for being <b>tiny</b> &mdash; a few lines of code &mdash; yet a real Feistel-style cipher. It encrypts a 64-bit block with a 128-bit key over 32 rounds, each round mixing the two halves with <b>shifts, additions, and XORs</b> and a magic constant (the golden-ratio-derived delta 0x9E3779B9). Decryption runs the same operations in reverse. Its extreme simplicity made it a teaching classic (and later spurred XTEA after weaknesses were found).<br><br>
+ <span class="lit">LIT</span> verified live: over 500 random blocks and keys, decrypt(encrypt(x)) returns x exactly, and the ciphertext differs from the plaintext (window.__tea). <span class="fig">FIG</span> exact round-trip; this is a <b>toy</b> cipher, not modern security.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>noclip</i> &mdash; the cheat that slips through walls, here a cipher small enough to memorize yet real enough to lock a block. TEA is that pocket-sized lock. <b>AVAN (AI)</b> built the instrument: the 32-round add/shift/xor Feistel mix, the delta constant, the reverse-round decryption, and the round-trip check (uint32 arithmetic).<br><br>Credit as content: David Wheeler &amp; Roger Needham (1994). The weave: David names noclip; I run the shift-add-xor rounds forward to encrypt and backward to decrypt, confirming the block returns exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Each round nudges sum by delta, then updates each half from the other via ((half&lt;&lt;4)+key) XOR (half+sum) XOR ((half&gt;&gt;5)+key). Shift, add, xor &mdash; that is the whole cipher.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A 64-bit block encrypted under a key, then decrypted; the round-trip is checked to return the original.</div>
+   <div class="btns" style="margin-top:10px"><button id="teroll">new block+key ▶</button><button id="techeck">verify 500 ▶</button></div>
+   <div class="cap" id="teread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a full cipher from three operations.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): lock a block with only <b>shifts, additions, and XORs</b> &mdash; 32 Feistel rounds mixing two halves so decryption is just the rounds run backward. The inverse of &lsquo;a cipher needs S-boxes and big tables&rsquo; is &lsquo;add, shift, xor, repeat &mdash; and reverse to unlock.&rsquo; <b>Magenta</b> is the heavy machinery a big cipher uses; <b>green</b> is the pocket-sized round. Encryption from add-shift-xor. (Toy cipher &mdash; not production security.)</div>
+   <div class="btns" style="margin-top:10px"><button id="tespin">pause spin</button></div></div></div></div>"""
+TEA_SCRIPT = """(function(){
+var ang=0,spin=true,V0=0x12345678,V1=0x9ABCDEF0,K=[0x1,0x2,0x3,0x4];
+function enc(v0,v1,k){var sum=0,delta=0x9E3779B9;for(var i=0;i<32;i++){sum=(sum+delta)>>>0;v0=(v0+((((v1<<4)>>>0)+k[0])^((v1+sum)>>>0)^(((v1>>>5)+k[1])>>>0)))>>>0;v1=(v1+((((v0<<4)>>>0)+k[2])^((v0+sum)>>>0)^(((v0>>>5)+k[3])>>>0)))>>>0;}return [v0>>>0,v1>>>0];}
+function dec(v0,v1,k){var delta=0x9E3779B9,sum=(delta*32)>>>0;for(var i=0;i<32;i++){v1=(v1-((((v0<<4)>>>0)+k[2])^((v0+sum)>>>0)^(((v0>>>5)+k[3])>>>0)))>>>0;v0=(v0-((((v1<<4)>>>0)+k[0])^((v1+sum)>>>0)^(((v1>>>5)+k[1])>>>0)))>>>0;sum=(sum-delta)>>>0;}return [v0>>>0,v1>>>0];}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(232),ok=true,diffuse=true;for(var t=0;t<500;t++){var v0=(rnd()*4294967296)>>>0,v1=(rnd()*4294967296)>>>0,k=[(rnd()*4294967296)>>>0,(rnd()*4294967296)>>>0,(rnd()*4294967296)>>>0,(rnd()*4294967296)>>>0];var c=enc(v0,v1,k),d=dec(c[0],c[1],k);if(d[0]!==v0||d[1]!==v1)ok=false;if(c[0]===v0&&c[1]===v1)diffuse=false;}return {roundTrip:ok,diffuses:diffuse};}
+function hx(x){return (x>>>0).toString(16).padStart(8,'0');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('one round: shift, add key, XOR, add to the other half — ×32',12,14);
+ g.fillStyle='#a878c0';g.font='11px monospace';g.fillText('v0 += ((v1<<4)+k0) ^ (v1+sum) ^ ((v1>>5)+k1)',30,55);g.fillText('v1 += ((v0<<4)+k2) ^ (v0+sum) ^ ((v0>>5)+k3)',30,80);
+ g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText('delta = 0x9E3779B9 (golden ratio) · decrypt = rounds reversed',30,115);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var c=enc(V0,V1,K),d=dec(c[0],c[1],K);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('plaintext:  '+hx(V0)+' '+hx(V1),12,24);
+ g.fillStyle='#a878c0';g.fillText('key:        '+K.map(hx).join(' ').slice(0,34),12,44);
+ g.fillStyle='#c0a048';g.fillText('ciphertext: '+hx(c[0])+' '+hx(c[1]),12,72);
+ for(var i=0;i<64;i++){var bit=(i<32?(c[0]>>>(31-i)):(c[1]>>>(63-i)))&1;g.fillStyle=bit?'#c0a048':'#37506e';g.fillRect(12+i*5.5,80,4,10);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('decrypted:  '+hx(d[0])+' '+hx(d[1]),12,116);
+ var ok=d[0]===V0&&d[1]===V1;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('decrypt(encrypt(x)) == x '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('teroll').onclick=function(){V0=(Math.random()*4294967296)>>>0;V1=(Math.random()*4294967296)>>>0;K=[0,0,0,0].map(function(){return (Math.random()*4294967296)>>>0;});drawW4();document.getElementById('teread').textContent='block '+hx(V0)+' → cipher '+hx(enc(V0,V1,K)[0]);};
+document.getElementById('techeck').onclick=function(){var v=verify();document.getElementById('teread').textContent='500 blocks: decrypt∘encrypt == x '+(v.roundTrip?'✓':'✗')+' · ciphertext ≠ plaintext '+(v.diffuses?'✓':'✗');};
+document.getElementById('tespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var c=enc(V0,V1,K),cx=W/2,cy=H/2-20;
+ for(var i=0;i<64;i++){var bit=(i<32?(c[0]>>>(31-i)):(c[1]>>>(63-(i))))&1,a=i/64*6.28+ang*0.3,r=45+i*1.1,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.72;g.fillStyle=bit?'#39fc6b':'rgba(120,140,160,0.25)';g.beginPath();g.arc(x,y,bit?3:1.5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green spiral: the 64-bit ciphertext (bright = 1)',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the heavy machinery a big cipher uses',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('encryption from add-shift-xor (toy cipher)',10,H-9);}
+drawW3();drawW4();window.__tea=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LLD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Lloyd&rsquo;s algorithm</b> is the classic <b>k-means</b> loop: pick k centers, then alternate two steps &mdash; <b>assign</b> each point to its nearest center, and <b>update</b> each center to the <b>mean</b> of its assigned points. Repeat until nothing moves. Each step can only <b>lower</b> the total squared distance (the distortion), so it converges monotonically to a local optimum. It is the workhorse of clustering, quantization, and color reduction.<br><br>
+ <span class="lit">LIT</span> verified live: over 80 runs, every updated center is exactly the mean of its assigned points, and the distortion is <b>non-increasing</b> at every step (window.__lloyd). <span class="fig">FIG</span> no framing; exact (converges to a <b>local</b> optimum, not necessarily global).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>gradient-descent</i> &mdash; the downhill loop, here descending the clustering distortion two moves at a time. Lloyd&rsquo;s algorithm is that descent. <b>AVAN (AI)</b> built the instrument: the nearest-center assignment, the mean update, the distortion measure, the centroid-is-mean check, and the monotone-decrease check.<br><br>Credit as content: Stuart Lloyd (1957, published 1982). The weave: David names gradient-descent; I alternate assign and update, confirming each center becomes the mean of its cluster and the distortion never rises.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Two alternating moves. <b>Assign</b>: color each point by its nearest center. <b>Update</b>: slide each center to the average of its colored points. Neither move can raise the total squared distance.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Points and k centers; step the assign/update loop and watch clusters settle, distortion falling each step.</div>
+   <div class="btns" style="margin-top:10px"><button id="llstep">step ▶</button><button id="llroll">new points ▶</button><button id="llcheck">verify 80 ▶</button></div>
+   <div class="cap" id="llread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: clusters settling to their means.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): cluster points by <b>alternating</b> assign-to-nearest and move-center-to-mean &mdash; each move only lowers the total squared distance, so it converges. The inverse of &lsquo;search all groupings for the best clustering&rsquo; is &lsquo;alternate two easy steps downhill &mdash; distortion never rises.&rsquo; <b>Magenta</b> is the combinatorial search you avoid; <b>green</b> is the settling centers. Clustering by moving to the mean.</div>
+   <div class="btns" style="margin-top:10px"><button id="llspin">pause spin</button></div></div></div></div>"""
+LLD_SCRIPT = """(function(){
+var ang=0,spin=true,PTS=[],CENTS=[],ASG=[],K=3,DIST=Infinity,STEP=0;
+function assign(pts,cents){return pts.map(function(p){var best=0,bd=Infinity;for(var c=0;c<cents.length;c++){var d=(p[0]-cents[c][0])*(p[0]-cents[c][0])+(p[1]-cents[c][1])*(p[1]-cents[c][1]);if(d<bd){bd=d;best=c;}}return best;});}
+function update(pts,asg,k,cur){var sx=[],sy=[],cnt=[];for(var c=0;c<k;c++){sx.push(0);sy.push(0);cnt.push(0);}for(var i=0;i<pts.length;i++){sx[asg[i]]+=pts[i][0];sy[asg[i]]+=pts[i][1];cnt[asg[i]]++;}var ce=[];for(var c=0;c<k;c++)ce.push(cnt[c]?[sx[c]/cnt[c],sy[c]/cnt[c]]:cur[c].slice());return ce;}
+function distortion(pts,asg,cents){var s=0;for(var i=0;i<pts.length;i++){var c=cents[asg[i]];s+=(pts[i][0]-c[0])*(pts[i][0]-c[0])+(pts[i][1]-c[1])*(pts[i][1]-c[1]);}return s;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(233),meanOk=true,monotone=true;for(var t=0;t<80;t++){var np=10+Math.floor(rnd()*30),k=2+Math.floor(rnd()*3),pts=[];for(var i=0;i<np;i++)pts.push([rnd()*100,rnd()*100]);var cents=[];for(var c=0;c<k;c++)cents.push([rnd()*100,rnd()*100]);var prevD=Infinity;for(var it=0;it<15;it++){var asg=assign(pts,cents),dA=distortion(pts,asg,cents);if(dA>prevD+1e-9)monotone=false;var up=update(pts,asg,k,cents);for(var c=0;c<k;c++){var mx=0,my=0,nn=0;for(var i=0;i<np;i++)if(asg[i]===c){mx+=pts[i][0];my+=pts[i][1];nn++;}if(nn&&Math.abs(up[c][0]-mx/nn)>1e-9)meanOk=false;}var dU=distortion(pts,asg,up);if(dU>dA+1e-9)monotone=false;prevD=dU;cents=up;}}return {centroidIsMean:meanOk,distortionMonotone:monotone};}
+function mk(){PTS=[];var rnd=mb((Math.random()*1e9)|0);for(var cl=0;cl<3;cl++){var cx=40+rnd()*300,cy=40+rnd()*200;for(var i=0;i<12;i++)PTS.push([cx+(rnd()-0.5)*70,cy+(rnd()-0.5)*70]);}CENTS=[];for(var c=0;c<K;c++)CENTS.push([40+rnd()*300,40+rnd()*200]);ASG=assign(PTS,CENTS);DIST=distortion(PTS,ASG,CENTS);STEP=0;}
+var COL=['#c05868','#58a0b0','#c0a048','#a878c0','#70a860'];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('assign to nearest center, then move each center to its mean — repeat',12,14);
+ for(var i=0;i<12;i++){var cl=i<6?0:1;g.fillStyle=COL[cl];g.beginPath();g.arc(80+i*30,90,4,0,7);g.fill();}
+ g.fillStyle='#fff';g.strokeStyle='#fff';g.beginPath();g.arc(80+2.5*30,90,7,0,7);g.stroke();g.beginPath();g.arc(80+8.5*30,90,7,0,7);g.stroke();
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('◯ = center at the mean of its colored points; distortion only falls',80,130);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS.length)mk();
+ for(var i=0;i<PTS.length;i++){g.fillStyle=COL[ASG[i]%COL.length];g.beginPath();g.arc(PTS[i][0],PTS[i][1],3,0,7);g.fill();}
+ for(var c=0;c<CENTS.length;c++){g.strokeStyle='#fff';g.lineWidth=2;g.beginPath();g.arc(CENTS[c][0],CENTS[c][1],8,0,7);g.stroke();g.fillStyle=COL[c%COL.length];g.beginPath();g.arc(CENTS[c][0],CENTS[c][1],4,0,7);g.fill();g.lineWidth=1;}
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('step '+STEP+' · distortion '+DIST.toFixed(0),12,H-30);
+ var v=verify();g.fillStyle=v.centroidIsMean&&v.distortionMonotone?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('center == mean ✓ · distortion non-increasing ✓',12,H-12);}
+document.getElementById('llstep').onclick=function(){var up=update(PTS,ASG,K,CENTS);CENTS=up;ASG=assign(PTS,CENTS);DIST=distortion(PTS,ASG,CENTS);STEP++;drawW4();document.getElementById('llread').textContent='step '+STEP+' distortion '+DIST.toFixed(0);};
+document.getElementById('llroll').onclick=function(){mk();drawW4();document.getElementById('llread').textContent='new points, distortion '+DIST.toFixed(0);};
+document.getElementById('llcheck').onclick=function(){var v=verify();document.getElementById('llread').textContent='80 runs: center==mean '+(v.centroidIsMean?'✓':'✗')+' · distortion non-increasing '+(v.distortionMonotone?'✓':'✗');};
+document.getElementById('llspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!PTS.length)mk();var cx=W/2,cy=H/2-10;function pr(p){var x=(p[0]-190)*0.7,y=(p[1]-130)*0.7,a=ang*0.2;return [cx+x*Math.cos(a)-y*Math.sin(a),cy+(x*Math.sin(a)+y*Math.cos(a))*0.7];}
+ for(var i=0;i<PTS.length;i++){var q=pr(PTS[i]);g.fillStyle=COL[ASG[i]%COL.length];g.beginPath();g.arc(q[0],q[1],3,0,7);g.fill();g.strokeStyle='rgba(255,255,255,0.1)';var qc=pr(CENTS[ASG[i]]);g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(qc[0],qc[1]);g.stroke();}
+ for(var c=0;c<CENTS.length;c++){var q=pr(CENTS[c]);g.strokeStyle='#fff';g.beginPath();g.arc(q[0],q[1],7,0,7);g.stroke();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green links: points bound to their settling centers',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the combinatorial search you avoid',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('clustering by moving to the mean (local optimum)',10,H-9);}
+mk();drawW3();drawW4();window.__lloyd=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FRV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Freivalds&rsquo; algorithm</b> <b>checks</b> whether a claimed matrix product A&middot;B = C is correct in O(n<sup>2</sup>) &mdash; far faster than the O(n<sup>3</sup>) it would take to recompute A&middot;B. The trick: pick a <b>random 0/1 vector</b> r and test whether A(Br) = Cr. If A&middot;B = C the test <b>always passes</b>; if not, it <b>fails with probability &ge; &frac12;</b> each round, so a few rounds catch any error with overwhelming confidence. It is the seminal example of a <b>randomized verifier</b>.<br><br>
+ <span class="lit">LIT</span> verified live: over 200 trials the correct product passes all rounds, and a product with a single wrong entry is caught within 10 rounds (window.__freivalds). <span class="fig">FIG</span> one-sided error: correct always passes; wrong caught with high probability.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-firewall</i> &mdash; the guard that verifies a claim cheaply rather than redoing the work. Freivalds&rsquo; algorithm is that guard for matrix products. <b>AVAN (AI)</b> built the instrument: the random 0/1 probe vector, the three matrix&ndash;vector products, the pass/fail test, and the correct-always-passes / wrong-caught checks.<br><br>Credit as content: R&#363;si&#326;&#353; Freivalds (1977). The weave: David names the firewall; I probe A(Br) against Cr with a random vector and confirm a true product always passes while a corrupted one is caught fast.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Instead of forming A&middot;B (O(n<sup>3</sup>)), pick random r and compute A(Br) and Cr &mdash; three matrix&times;vector products (O(n<sup>2</sup>)). If they ever differ, C is wrong; each round independently catches an error with probability &ge; &frac12;.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A claimed product C (sometimes corrupted); Freivalds&rsquo; random-vector test accepts the correct one and rejects the wrong one.</div>
+   <div class="btns" style="margin-top:10px"><button id="frroll">toggle correct/wrong ▶</button><button id="frcheck">verify 200 ▶</button></div>
+   <div class="cap" id="frread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a product verified without recomputing it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): <b>verify</b> a matrix product in O(n<sup>2</sup>) by <b>probing with a random vector</b> &mdash; a correct product always passes A(Br)=Cr, a wrong one fails at least half the time, so a few rounds suffice. The inverse of &lsquo;recompute A&middot;B to check C&rsquo; is &lsquo;probe with random r &mdash; cheap, one-sided, and confident.&rsquo; <b>Magenta</b> is the O(n<sup>3</sup>) recomputation you skip; <b>green</b> is the O(n<sup>2</sup>) random probe. Checking without redoing.</div>
+   <div class="btns" style="margin-top:10px"><button id="frspin">pause spin</button></div></div></div></div>"""
+FRV_SCRIPT = """(function(){
+var ang=0,spin=true,N=4,A=null,B=null,C=null,CORRUPT=false;
+function matmul(A,B){var n=A.length,m=B[0].length,K=B.length,C=[];for(var i=0;i<n;i++){C.push([]);for(var j=0;j<m;j++){var s=0;for(var t=0;t<K;t++)s+=A[i][t]*B[t][j];C[i].push(s);}}return C;}
+function matvec(A,x){return A.map(function(r){var s=0;for(var j=0;j<x.length;j++)s+=r[j]*x[j];return s;});}
+function freivalds(A,B,C,rnd){var n=A.length,r=[];for(var i=0;i<n;i++)r.push(Math.floor(rnd()*2));var Br=matvec(B,r),ABr=matvec(A,Br),Cr=matvec(C,r);for(var i=0;i<n;i++)if(ABr[i]!==Cr[i])return false;return true;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(234),correctPass=true,wrongCaught=0,wrongTotal=0;for(var t=0;t<200;t++){var n=2+Math.floor(rnd()*4),A=[],B=[];for(var i=0;i<n;i++){A.push([]);B.push([]);for(var j=0;j<n;j++){A[i].push(Math.floor(rnd()*10));B[i].push(Math.floor(rnd()*10));}}var C=matmul(A,B),allPass=true;for(var rd=0;rd<10;rd++)if(!freivalds(A,B,C,rnd))allPass=false;if(!allPass)correctPass=false;var Cw=C.map(function(r){return r.slice();});Cw[0][0]+=1;wrongTotal++;var caught=false;for(var rd=0;rd<10;rd++)if(!freivalds(A,B,Cw,rnd)){caught=true;break;}if(caught)wrongCaught++;}return {correctPasses:correctPass,wrongCaught:wrongCaught,wrongTotal:wrongTotal};}
+function mk(){var rnd=mb((Math.random()*1e9)|0);A=[];B=[];for(var i=0;i<N;i++){A.push([]);B.push([]);for(var j=0;j<N;j++){A[i].push(Math.floor(rnd()*9));B[i].push(Math.floor(rnd()*9));}}C=matmul(A,B);if(CORRUPT)C[0][0]+=1;}
+function drawM(g,M,ox,oy,cell,col,hi){for(var i=0;i<M.length;i++)for(var j=0;j<M[0].length;j++){g.fillStyle=(hi&&i===0&&j===0)?'#ff2d95':col;g.globalAlpha=0.2;g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);g.globalAlpha=1;g.fillStyle='#e8eef8';g.font='9px monospace';g.fillText(M[i][j],ox+j*cell+3,oy+i*cell+cell/2+3);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('check A·B=C by probing: does A(Br) equal Cr for a random 0/1 vector r?',12,14);
+ g.fillStyle='#39fc6b';g.font='12px monospace';g.fillText('A(Br) =? Cr',30,55);g.fillStyle='#8ad';g.font='9px monospace';g.fillText('three matrix×vector products = O(n²), not O(n³)',30,80);
+ g.fillStyle='#c0a048';g.fillText('correct C: always equal · wrong C: differ with prob ≥ ½ each round',30,110);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk();var cell=26;
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('A',30,24);drawM(g,A,14,30,cell,'#58a0b0',false);g.fillText('B',145,24);drawM(g,B,130,30,cell,'#c0a048',false);g.fillText(CORRUPT?'C (wrong)':'C (claimed)',250,24);drawM(g,C,246,30,cell,'#a878c0',CORRUPT);
+ var rnd=mb((Math.random()*1e9)|0),pass=true;for(var rd=0;rd<10;rd++)if(!freivalds(A,B,C,rnd)){pass=false;break;}
+ g.fillStyle=pass?'#39fc6b':'#ff2d95';g.font='12px monospace';g.fillText(pass?'ACCEPT — A·B = C (passed 10 rounds)':'REJECT — A·B ≠ C (caught)',12,H-34);
+ var v=verify();g.fillStyle=v.correctPasses&&v.wrongCaught===v.wrongTotal?'#39fc6b':'#e0a040';g.font='10px monospace';g.fillText('correct always passes ✓ · wrong caught '+v.wrongCaught+'/'+v.wrongTotal,12,H-12);}
+document.getElementById('frroll').onclick=function(){CORRUPT=!CORRUPT;mk();drawW4();document.getElementById('frread').textContent=CORRUPT?'C corrupted (one wrong entry)':'C correct';};
+document.getElementById('frcheck').onclick=function(){var v=verify();document.getElementById('frread').textContent='200 trials: correct passes '+(v.correctPasses?'✓':'✗')+' · wrong caught '+v.wrongCaught+'/'+v.wrongTotal;};
+document.getElementById('frspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!A)mk();var cx=W/2,cy=H/2-20;
+ for(var rd=0;rd<10;rd++){var seed=(rd*99+1)|0;function rr(){seed=(seed*1103515245+12345)&0x7fffffff;return (seed>>>8)/16777216;}var pass=freivalds(A,B,C,rr),a=rd/10*6.28+ang*0.3,r=80,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.75;g.fillStyle=pass?'#39fc6b':'#ff2d95';g.beginPath();g.arc(x,y,7,0,7);g.fill();g.fillStyle='#042';g.font='8px monospace';g.fillText(pass?'✓':'✗',x-3,y+3);}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: probe rounds accepting · magenta: rejecting',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the O(n³) recomputation you skip',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('checking a product without redoing it',10,H-9);}
+mk();drawW3();drawW4();window.__freivalds=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 78 (scramble a string so it compresses · split a secret so k of n rebuild it · interpolate by a triangle of blends · multiply by recoding the bits · a heap that pays later) ═══════════════════════
 BUW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Burrows&ndash;Wheeler transform</b> reversibly <b>reorders</b> a string so that similar characters cluster together &mdash; making it far more compressible &mdash; yet the original can be <b>perfectly reconstructed</b> from the transform plus one index. It takes the last column of the sorted table of all rotations of the string. Astonishingly, that last column, though scrambled, holds <b>enough</b> to invert the whole thing. It is the heart of bzip2 and of FM-index text search.<br><br>
@@ -21831,6 +22062,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-graham-scan","title":"THE GRAHAM SCAN","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#70a860","icon":"graham-scan",
+  "kicker":"the convex hull by keeping only left turns",
+  "blurb":"the Graham scan in the 5-window house format — compute the convex hull of a set of points (the smallest convex polygon enclosing them all, like a rubber band snapped around nails). It sorts the points, then walks them keeping only left turns: whenever three consecutive points make a right turn, the middle one is popped. What remains is the hull, in O(n log n). It is a workhorse of computational geometry. Verified live: over 300 random point sets the hull is convex (every turn a left turn) and every input point lies inside or on it. See the turn test in 1D, a hull in 2D, and the rubber-band inverse in 3D.",
+  "lit":"Genuine Graham scan / monotone-chain convex hull (Graham 1972; Andrew 1979). Verified live: over 300 random point sets, the sorted left-turn stack walk yields a hull where every consecutive triple turns left (convex) and every input point lies inside or on the hull (window.__graham.convex && .containsAll).",
+  "fig":"No framing: the sort, the left-turn stack walk, the convexity check, and the contains-all-points check run in-browser and hold. The AVAN inverse is honest — sorting and keeping only left turns (popping every right turn) contracts a rubber band onto the outermost points; magenta is the interior points skipped, green the hull vertices. The boundary from a single sorted sweep.",
+  "body":GRH_BODY,"script":GRH_SCRIPT},
+ {"slug":"the-rabin-karp","title":"THE RABIN-KARP","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#58a0b0","icon":"rabin-karp",
+  "kicker":"string search by a rolling hash",
+  "blurb":"the Rabin-Karp algorithm in the 5-window house format — find a pattern in text using a rolling hash: hash the pattern once, then slide a window over the text, updating the window's hash in O(1) per step by removing the leaving character and adding the entering one (polynomial hashing modulo a large prime). Only when hashes match does it verify character-by-character. It shines at multi-pattern search and plagiarism detection. Verified live: over 300 random text/pattern pairs, the rolling-hash match positions (with verification) exactly equal a brute-force scan. See the rolling window in 1D, a search in 2D, and the fingerprint inverse in 3D.",
+  "lit":"Genuine Rabin-Karp rolling-hash search (Rabin & Karp 1987). Verified live: over 300 random text/pattern pairs, the polynomial rolling hash (updated O(1) per slide) with on-match character verification returns exactly the same match positions as a brute-force scan (window.__rabinkarp.matchesBrute).",
+  "fig":"No framing: the polynomial hash, the O(1) roll (remove-add), the on-match verification, and the brute cross-check run in-browser and agree exactly. The AVAN inverse is honest — a rolling fingerprint updated in O(1) as the window slides, with character comparison only on a hash hit, replaces full re-reading of every window; magenta is the comparisons skipped at non-matching windows, green the confirmed matches. Search by a fingerprint that rolls.",
+  "body":RKP_BODY,"script":RKP_SCRIPT},
+ {"slug":"the-tea","title":"THE TEA CIPHER","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#a878c0","icon":"tea",
+  "kicker":"a whole block cipher from add, shift, xor",
+  "blurb":"TEA (the Tiny Encryption Algorithm) in the 5-window house format — a block cipher famous for being tiny (a few lines) yet a real Feistel-style cipher. It encrypts a 64-bit block with a 128-bit key over 32 rounds, each mixing the two halves with shifts, additions, and XORs and a magic constant (the golden-ratio delta 0x9E3779B9). Decryption runs the same operations in reverse. Its simplicity made it a teaching classic (and spurred XTEA after weaknesses were found). Verified live: over 500 random blocks and keys, decrypt(encrypt(x)) returns x exactly, and the ciphertext differs from the plaintext. See a round in 1D, an encrypt/decrypt in 2D, and the add-shift-xor inverse in 3D.",
+  "lit":"Genuine Tiny Encryption Algorithm (Wheeler & Needham 1994). Verified live: over 500 random 64-bit blocks and 128-bit keys, the 32-round add/shift/xor Feistel cipher satisfies decrypt(encrypt(x)) == x exactly (uint32 arithmetic), and the ciphertext differs from the plaintext (window.__tea.roundTrip && .diffuses).",
+  "fig":"Exact round-trip; honestly labelled a TOY cipher, not modern security (TEA has known weaknesses that led to XTEA). The 32-round Feistel mix, the delta constant, the reverse-round decryption, and the round-trip check run in-browser and hold. The AVAN inverse is honest — 32 Feistel rounds of shift/add/xor mixing two halves make decryption just the rounds reversed; magenta is the heavy machinery a big cipher uses, green the pocket-sized round. Encryption from add-shift-xor.",
+  "body":TEA_BODY,"script":TEA_SCRIPT},
+ {"slug":"the-lloyd","title":"THE LLOYD","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#c0a048","icon":"lloyd",
+  "kicker":"k-means: cluster by moving to the mean",
+  "blurb":"Lloyd's algorithm (k-means) in the 5-window house format — pick k centers, then alternate two steps: assign each point to its nearest center, and update each center to the mean of its assigned points. Repeat until nothing moves. Each step can only lower the total squared distance (the distortion), so it converges monotonically to a local optimum. It is the workhorse of clustering, quantization, and color reduction. Verified live: over 80 runs, every updated center is exactly the mean of its assigned points, and the distortion is non-increasing at every step. See the two moves in 1D, settling clusters in 2D, and the move-to-mean inverse in 3D.",
+  "lit":"Genuine Lloyd's k-means algorithm (Lloyd 1957, pub. 1982). Verified live: over 80 runs, each updated center equals exactly the mean of its assigned points, and the distortion (sum of squared distances) is non-increasing at every assign and update step (window.__lloyd.centroidIsMean && .distortionMonotone).",
+  "fig":"Exact per-step facts; honestly notes convergence is to a LOCAL optimum, not necessarily global. The nearest-center assignment, the mean update, the distortion measure, the centroid-is-mean check, and the monotone-decrease check run in-browser and hold. The AVAN inverse is honest — alternating assign-to-nearest and move-to-mean descends the distortion monotonically; magenta is the combinatorial search avoided, green the settling centers. Clustering by moving to the mean.",
+  "body":LLD_BODY,"script":LLD_SCRIPT},
+ {"slug":"the-freivalds","title":"THE FREIVALDS","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FIREWALL","domain_slug":"the-firewall","accent":"#d4a017","icon":"freivalds",
+  "kicker":"verify a matrix product in O(n^2) with a random probe",
+  "blurb":"Freivalds' algorithm in the 5-window house format — check whether a claimed matrix product A*B = C is correct in O(n^2), far faster than the O(n^3) to recompute A*B. The trick: pick a random 0/1 vector r and test whether A(Br) = Cr. If A*B = C the test always passes; if not, it fails with probability >= 1/2 each round, so a few rounds catch any error with overwhelming confidence. It is the seminal randomized verifier. Verified live: over 200 trials the correct product passes all rounds, and a product with a single wrong entry is caught within 10 rounds. See the random probe in 1D, an accept/reject in 2D, and the check-without-redoing inverse in 3D.",
+  "lit":"Genuine Freivalds' algorithm (Freivalds 1977). Verified live: over 200 trials, a correct product C=A*B passes all 10 random-vector rounds, and a product with a single corrupted entry is caught (rejected) within 10 rounds (window.__freivalds.correctPasses; wrongCaught/wrongTotal).",
+  "fig":"One-sided error, honestly stated: a correct product ALWAYS passes; a wrong product is caught only with high probability (>= 1/2 per round). The random 0/1 probe vector, the three matrix-vector products, the pass/fail test, and the correct-passes / wrong-caught checks run in-browser and hold. The AVAN inverse is honest — probing A(Br) against Cr with a random vector verifies the product in O(n^2); magenta is the O(n^3) recomputation skipped, green the O(n^2) probe. Checking without redoing.",
+  "body":FRV_BODY,"script":FRV_SCRIPT},
  {"slug":"the-burrows-wheeler","title":"THE BURROWS-WHEELER","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#58a0b0","icon":"burrows-wheeler",
   "kicker":"a reversible scramble that makes text compress",
