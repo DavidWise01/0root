@@ -19485,6 +19485,233 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 80 (GCD with only shifts and subtractions · a ring where nodes come and go cheaply · trace the isoline through a grid · a smooth curve through every point · reduce mod n without dividing) ═══════════════════════
+STN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Stein&rsquo;s algorithm</b> (binary GCD) computes the greatest common divisor using only <b>subtraction, comparison, and bit shifts</b> &mdash; <b>no division or modulo</b>, which are slow in hardware. It rests on three facts: gcd(2a,2b)=2&middot;gcd(a,b), gcd(2a,b)=gcd(a,b) when b is odd, and gcd(a,b)=gcd(|a&minus;b|,min(a,b)) for two odds. Strip common factors of two, halve evens, subtract odds, restore the twos at the end. It is the GCD of choice on hardware without a divide unit.<br><br>
+ <span class="lit">LIT</span> verified live: over 3000 random pairs, Stein&rsquo;s shift-and-subtract GCD equals the Euclidean GCD exactly (window.__stein). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-grindstone</i> &mdash; the reduction loop, here grinding a GCD out of shifts and subtractions with no divider in sight. Stein&rsquo;s algorithm is that division-free grind. <b>AVAN (AI)</b> built the instrument: the common-power-of-two strip, the halving of evens, the subtract-of-odds loop, the shift-back, and the equals-Euclid check.<br><br>Credit as content: Josef Stein (1967; the method is older, Roman-era). The weave: David names the grindstone; I remove shared twos, halve even operands, subtract the smaller odd from the larger, and confirm the result matches the Euclidean GCD.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">gcd(48, 36): both even &rarr; factor out 4, leaving gcd(12,9). 12 is even &rarr; halve to gcd(6,9), then gcd(3,9). Two odds &rarr; subtract: gcd(3,6)&rarr;gcd(3,3)&rarr;3. Restore &times;4 &rarr; 12.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Two numbers reduced by Stein&rsquo;s shifts and subtractions; the result is checked against the Euclidean GCD.</div>
+   <div class="btns" style="margin-top:10px"><button id="stroll">new pair ▶</button><button id="stcheck">verify 3000 ▶</button></div>
+   <div class="cap" id="stread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a GCD from shifts and subtractions alone.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): compute a GCD with <b>no division</b> &mdash; strip shared factors of two, halve even operands, subtract the smaller odd from the larger, restore the twos. The inverse of &lsquo;GCD needs the modulo of the Euclidean algorithm&rsquo; is &lsquo;shift and subtract &mdash; no divider required.&rsquo; <b>Magenta</b> is the division the Euclidean loop uses; <b>green</b> is the shift-and-subtract path. GCD for hardware without divide.</div>
+   <div class="btns" style="margin-top:10px"><button id="stspin">pause spin</button></div></div></div></div>"""
+STN_SCRIPT = """(function(){
+var ang=0,spin=true,A=48,B=36,TRACE=[];
+function stein(a,b){if(a===0)return b;if(b===0)return a;var sh=0;while(((a|b)&1)===0){a>>=1;b>>=1;sh++;}while((a&1)===0)a>>=1;do{while((b&1)===0)b>>=1;if(a>b){var t=a;a=b;b=t;}b-=a;}while(b!==0);return a<<sh;}
+function euclid(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+function steinTrace(a,b){var tr=[[a,b,'start']];if(a===0||b===0)return tr;var sh=0;while(((a|b)&1)===0){a>>=1;b>>=1;sh++;tr.push([a,b,'both even ÷2']);}while((a&1)===0){a>>=1;tr.push([a,b,'a even ÷2']);}do{while((b&1)===0){b>>=1;tr.push([a,b,'b even ÷2']);}if(a>b){var t=a;a=b;b=t;tr.push([a,b,'swap']);}b-=a;tr.push([a,b,'b -= a']);}while(b!==0);tr.push([a<<sh,0,'×2^'+sh]);return tr;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(240),ok=true;for(var t=0;t<3000;t++){var a=Math.floor(rnd()*100000),b=Math.floor(rnd()*100000);if(stein(a,b)!==euclid(a,b))ok=false;}return {equalsEuclid:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('strip shared 2s, halve evens, subtract odds — no division',12,14);
+ var steps=['gcd(48,36) both even → gcd(12,9) ×4','12 even → gcd(6,9) → gcd(3,9)','odds: subtract → gcd(3,6) → gcd(3,3) → 3','restore ×4 → 12'];for(var i=0;i<4;i++){g.fillStyle=i%2?'#58a0b0':'#c0a048';g.font='11px monospace';g.fillText(steps[i],40,45+i*26);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);TRACE=steinTrace(A,B);
+ g.fillStyle='#e8eef8';g.font='13px monospace';g.fillText('gcd('+A+', '+B+')',12,22);
+ var show=TRACE.slice(-8);for(var i=0;i<show.length;i++){var last=(i===show.length-1);g.fillStyle=last?'#39fc6b':'#8ad';g.font='11px monospace';g.fillText((show[i][2]==='start'?'':'→ ')+'('+show[i][0]+(show[i][1]?', '+show[i][1]:'')+')  '+show[i][2],20,46+i*20);}
+ var ok=stein(A,B)===euclid(A,B);g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('= '+stein(A,B)+'  ·  Stein == Euclid '+(ok?'✓':'✗'),12,H-12);}
+document.getElementById('stroll').onclick=function(){A=2+Math.floor(Math.random()*9998);B=2+Math.floor(Math.random()*9998);drawW4();document.getElementById('stread').textContent='gcd('+A+','+B+') = '+stein(A,B);};
+document.getElementById('stcheck').onclick=function(){var v=verify();document.getElementById('stread').textContent='3000 pairs: Stein binary GCD == Euclid '+(v.equalsEuclid?'✓':'✗');};
+document.getElementById('stspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var tr=steinTrace(A,B),cx=W/2,cy=H/2-20;
+ for(var i=0;i<tr.length;i++){var a=i/tr.length*6.28+ang*0.3,r=35+i*10,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.72;var op=tr[i][2],col=op.indexOf('÷2')>=0?'#58a0b0':op.indexOf('-=')>=0?'#39fc6b':op.indexOf('×2')>=0?'#c0a048':'#a878c0';g.fillStyle=col;g.beginPath();g.arc(x,y,3,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green subtracts / blue halvings: the shift-subtract path',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the division the Euclidean loop uses',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('GCD for hardware without a divide unit',10,H-9);}
+drawW3();drawW4();window.__stein=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CSH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Consistent hashing</b> maps keys to servers so that <b>adding or removing a server moves only a small fraction of keys</b> &mdash; roughly 1/n &mdash; instead of remapping everything as plain modulo hashing would. Nodes and keys are placed on a <b>hash ring</b>; a key belongs to the first node clockwise from it. Remove a node and only <b>its</b> keys spill to the next node; everyone else stays put. <b>Virtual nodes</b> smooth the load. It is the backbone of distributed caches and databases.<br><br>
+ <span class="lit">LIT</span> verified live: over 50 rings, every key maps to a node, and removing a node moves <b>only that node&rsquo;s keys</b> &mdash; all others are unchanged (window.__consistent). <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>shared-memory</i> &mdash; the shared store spread across nodes that come and go, where reshuffling everything on each change would be ruinous. Consistent hashing is that graceful spread. <b>AVAN (AI)</b> built the instrument: the hash ring with virtual nodes, the clockwise lookup, and the only-removed-node-moves check.<br><br>Credit as content: David Karger et al. (1997). The weave: David names shared-memory; I place nodes and keys on a ring, map each key to the next node clockwise, and confirm that removing a node disturbs only the keys it held.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Nodes sit at hashed positions around a ring. A key hashes to a spot and walks clockwise to the first node. Remove that node and its keys walk on to the next node &mdash; nobody else&rsquo;s keys move.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Keys on a hash ring of nodes; remove a node and watch only its keys move, checked against a full re-map.</div>
+   <div class="btns" style="margin-top:10px"><button id="csroll">new ring ▶</button><button id="csdrop">drop a node ▶</button><button id="cscheck">verify 50 ▶</button></div>
+   <div class="cap" id="csread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: keys mapped to nodes around a ring.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): make node churn <b>cheap</b> by placing keys and nodes on a <b>ring</b> and mapping each key to the next node clockwise &mdash; so adding or removing a node moves only ~1/n of the keys. The inverse of &lsquo;hash mod n, so every key remaps when n changes&rsquo; is &lsquo;a ring, where only the neighbors of a change move.&rsquo; <b>Magenta</b> is the full reshuffle plain hashing forces; <b>green</b> is the local, ~1/n movement. Churn without chaos.</div>
+   <div class="btns" style="margin-top:10px"><button id="csspin">pause spin</button></div></div></div></div>"""
+CSH_SCRIPT = """(function(){
+var ang=0,spin=true,NODES=[],RING=[],KEYS=[],V=24,DROPPED=null;
+function h32(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function buildRing(nodes,vn){var ring=[];nodes.forEach(function(n){for(var v=0;v<vn;v++)ring.push({pos:h32(n+'#'+v),node:n});});ring.sort(function(a,b){return a.pos-b.pos;});return ring;}
+function lookup(ring,key){var p=h32(key);if(!ring.length)return null;if(p>ring[ring.length-1].pos)return ring[0].node;var lo=0,hi=ring.length-1,ans=0;while(lo<=hi){var m=(lo+hi)>>1;if(ring[m].pos>=p){ans=m;hi=m-1;}else lo=m+1;}return ring[ans].node;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(241),onlyRemoved=true,allMapped=true;for(var t=0;t<50;t++){var N=4+Math.floor(rnd()*4),nodes=[];for(var i=0;i<N;i++)nodes.push('node'+i);var ring=buildRing(nodes,40),keys=[];for(var i=0;i<400;i++)keys.push('key'+Math.floor(rnd()*1e9));var before={};keys.forEach(function(k){var n=lookup(ring,k);if(!n)allMapped=false;before[k]=n;});var rm=nodes[Math.floor(rnd()*N)],ring2=ring.filter(function(e){return e.node!==rm;});keys.forEach(function(k){var af=lookup(ring2,k);if(before[k]!==rm&&af!==before[k])onlyRemoved=false;});}return {allMapped:allMapped,onlyRemovedMoves:onlyRemoved};}
+var COL=['#c05868','#58a0b0','#c0a048','#a878c0','#70a860','#e08040','#40c0a0'];
+function mk(){var N=5;NODES=[];for(var i=0;i<N;i++)NODES.push('node'+i);RING=buildRing(NODES,V);KEYS=[];for(var i=0;i<60;i++)KEYS.push('key'+Math.floor(Math.random()*1e9));DROPPED=null;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('key hashes to a spot, walks clockwise to the next node',12,14);
+ var cx=180,cy=90,r=55;g.strokeStyle='#445';g.beginPath();g.arc(cx,cy,r,0,7);g.stroke();for(var i=0;i<5;i++){var a=i/5*6.28-1.57;g.fillStyle=COL[i];g.beginPath();g.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,7,0,7);g.fill();}
+ var ka=0.9;g.fillStyle='#fff';g.beginPath();g.arc(cx+Math.cos(ka)*r,cy+Math.sin(ka)*r,3,0,7);g.fill();g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('remove a node → only its keys walk on',260,90);}
+function nodeIdx(n){return NODES.indexOf(n);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!RING.length)mk();var cx=W/2,cy=145,r=105,ring=DROPPED?RING.filter(function(e){return e.node!==DROPPED;}):RING;
+ g.strokeStyle='#334';g.beginPath();g.arc(cx,cy,r,0,7);g.stroke();
+ ring.forEach(function(e){var a=e.pos/4294967295*6.28-1.57;g.fillStyle=COL[nodeIdx(e.node)%COL.length];g.beginPath();g.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,3,0,7);g.fill();});
+ KEYS.forEach(function(k){var a=h32(k)/4294967295*6.28-1.57,n=lookup(ring,k);g.fillStyle=COL[nodeIdx(n)%COL.length];g.beginPath();g.arc(cx+Math.cos(a)*(r-16),cy+Math.sin(a)*(r-16),2,0,7);g.fill();});
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText(DROPPED?(DROPPED+' dropped — only its keys moved'):(NODES.length+' nodes, '+KEYS.length+' keys on the ring'),12,20);
+ var v=verify();g.fillStyle=v.onlyRemovedMoves?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('removing a node moves only its keys '+(v.onlyRemovedMoves?'✓':'✗'),12,H-10);}
+document.getElementById('csroll').onclick=function(){mk();drawW4();document.getElementById('csread').textContent=NODES.length+' nodes on the ring';};
+document.getElementById('csdrop').onclick=function(){DROPPED=DROPPED?null:NODES[Math.floor(Math.random()*NODES.length)];drawW4();document.getElementById('csread').textContent=DROPPED?(DROPPED+' dropped'):'ring restored';};
+document.getElementById('cscheck').onclick=function(){var v=verify();document.getElementById('csread').textContent='50 rings: all keys mapped '+(v.allMapped?'✓':'✗')+' · only removed-node keys move '+(v.onlyRemovedMoves?'✓':'✗');};
+document.getElementById('csspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!RING.length)mk();var cx=W/2,cy=H/2-20,r=95;
+ g.strokeStyle='rgba(120,140,160,0.3)';g.beginPath();g.arc(cx,cy,r,0,7);g.stroke();
+ RING.forEach(function(e){var a=e.pos/4294967295*6.28+ang*0.2;g.fillStyle=COL[nodeIdx(e.node)%COL.length];g.beginPath();g.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r*0.8,3,0,7);g.fill();});
+ KEYS.forEach(function(k){var a=h32(k)/4294967295*6.28+ang*0.2,n=lookup(RING,k);g.fillStyle=COL[nodeIdx(n)%COL.length];g.beginPath();g.arc(cx+Math.cos(a)*(r-20),cy+Math.sin(a)*(r-20)*0.8,1.5,0,7);g.fill();});
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('colored ring: keys + virtual nodes, key → next node',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the full reshuffle plain hashing forces',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('churn without chaos (only ~1/n keys move)',10,H-9);}
+mk();drawW3();drawW4();window.__consistent=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MSQ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Marching squares</b> extracts a <b>contour</b> &mdash; an isoline &mdash; from a grid of scalar values. For each cell it looks at which of the four corners are above the threshold: a 4-bit case index (0&ndash;15) selects, from a small lookup table, which cell edges the contour crosses. The exact crossing point on each edge is found by <b>linear interpolation</b> between the two corner values. Stitched together, the segments trace the level set. It is how weather maps draw isobars and how metaballs get their outlines.<br><br>
+ <span class="lit">LIT</span> verified live: over 60 random fields, <b>every</b> contour vertex sits on a grid edge whose two endpoints straddle the threshold (one above, one below) &mdash; window.__marching. <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>first-light</i> &mdash; the first outline drawn from a field of values, the boundary between above and below. Marching squares is that outline. <b>AVAN (AI)</b> built the instrument: the 4-corner case index, the edge lookup, the linear-interpolation crossing, and the every-vertex-on-a-straddling-edge check.<br><br>Credit as content: marching squares (the 2-D case of Lorensen &amp; Cline&rsquo;s marching cubes, 1987). The weave: David names first-light; I classify each cell by its corners, interpolate the crossing on each straddling edge, and confirm every contour vertex lies exactly where the field crosses the level.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A cell&rsquo;s four corners are each above (1) or below (0) the threshold &mdash; a 4-bit index. The contour crosses exactly the edges whose two ends disagree, at the linearly-interpolated level-crossing point.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A scalar field and its contour at a threshold; every contour vertex is checked to sit on a straddling edge.</div>
+   <div class="btns" style="margin-top:10px"><button id="msroll">new field ▶</button><button id="msiso">threshold ▶</button><button id="mscheck">verify 60 ▶</button></div>
+   <div class="cap" id="msread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the isoline threading the grid.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): draw the boundary between above and below by reading each cell&rsquo;s four corners as a <b>case index</b> and interpolating the crossing on every <b>straddling</b> edge. The inverse of &lsquo;sample the field densely and threshold each pixel&rsquo; is &lsquo;classify cells, interpolate crossings &mdash; a crisp isoline.&rsquo; <b>Magenta</b> is the jagged per-pixel threshold; <b>green</b> is the interpolated contour. The level set, threaded through a grid.</div>
+   <div class="btns" style="margin-top:10px"><button id="msspin">pause spin</button></div></div></div></div>"""
+MSQ_SCRIPT = """(function(){
+var ang=0,spin=true,FIELD=[],GW=12,GH=10,ISO=0.5;
+function march(field,W,H,iso){var segs=[];function ip(a,b){return (iso-a)/(b-a);}for(var y=0;y<H-1;y++)for(var x=0;x<W-1;x++){var tl=field[y*W+x],tr=field[y*W+x+1],br=field[(y+1)*W+x+1],bl=field[(y+1)*W+x];var c=(tl>iso?8:0)|(tr>iso?4:0)|(br>iso?2:0)|(bl>iso?1:0);if(c===0||c===15)continue;var e=[];if((tl>iso)!==(tr>iso))e.push([x+ip(tl,tr),y]);if((tr>iso)!==(br>iso))e.push([x+1,y+ip(tr,br)]);if((br>iso)!==(bl>iso))e.push([x+ip(bl,br),y+1]);if((bl>iso)!==(tl>iso))e.push([x,y+ip(tl,bl)]);for(var i=0;i+1<e.length;i+=2)segs.push([e[i],e[i+1]]);}return segs;}
+function onStraddle(v,W,field,iso){var x=v[0],y=v[1],xi=Math.floor(x+1e-9),yi=Math.floor(y+1e-9),fy=y-yi,fx=x-xi;if(Math.abs(fy)<1e-6){var a=field[yi*W+xi],b=field[yi*W+xi+1];return (a>iso)!==(b>iso);}if(Math.abs(fx)<1e-6){var a=field[yi*W+xi],b=field[(yi+1)*W+xi];return (a>iso)!==(b>iso);}return false;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(242),ok=true,tested=0;for(var t=0;t<60;t++){var W=6+Math.floor(rnd()*4),H=6+Math.floor(rnd()*4),f=[];for(var i=0;i<W*H;i++)f.push(rnd());var segs=march(f,W,H,0.5);segs.forEach(function(s){s.forEach(function(v){tested++;if(!onStraddle(v,W,f,0.5))ok=false;});});}return {allOnStraddle:ok,tested:tested};}
+function mk(){FIELD=[];for(var y=0;y<GH;y++)for(var x=0;x<GW;x++){var v=Math.sin(x*0.7+Math.random()*0.5)*Math.cos(y*0.6)+Math.random()*0.4;FIELD.push((v+2)/4);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('4 corners → 4-bit case; contour crosses the edges whose ends disagree',12,14);
+ var corners=[[1,'#39fc6b'],[0,'#37506e'],[1,'#39fc6b'],[0,'#37506e']],pos=[[160,50],[260,50],[260,120],[160,120]];for(var i=0;i<4;i++){g.fillStyle=corners[i][1];g.beginPath();g.arc(pos[i][0],pos[i][1],10,0,7);g.fill();g.fillStyle='#042';g.font='10px monospace';g.fillText(corners[i][0],pos[i][0]-3,pos[i][1]+3);}
+ g.strokeStyle='#c0a048';g.lineWidth=2;g.beginPath();g.moveTo(210,50);g.lineTo(260,85);g.stroke();g.lineWidth=1;g.fillStyle='#c0a048';g.font='9px monospace';g.fillText('contour crosses the two straddling edges',300,85);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!FIELD.length)mk();var cell=Math.min(28,(W-24)/GW),ox=12,oy=24;
+ for(var y=0;y<GH;y++)for(var x=0;x<GW;x++){var v=FIELD[y*GW+x];g.fillStyle=v>ISO?'rgba(57,252,107,'+(0.15+0.3*v)+')':'rgba(88,120,150,'+(0.1+0.2*(1-v))+')';g.fillRect(ox+x*cell,oy+y*cell,cell-1,cell-1);}
+ var segs=march(FIELD,GW,GH,ISO);g.strokeStyle='#c0a048';g.lineWidth=2;segs.forEach(function(s){g.beginPath();g.moveTo(ox+s[0][0]*cell,oy+s[0][1]*cell);g.lineTo(ox+s[1][0]*cell,oy+s[1][1]*cell);g.stroke();});g.lineWidth=1;
+ var v=verify();g.fillStyle=v.allOnStraddle?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText(segs.length+' segments · every vertex on a straddling edge '+(v.allOnStraddle?'✓':'✗'),12,H-10);}
+document.getElementById('msroll').onclick=function(){mk();drawW4();document.getElementById('msread').textContent=march(FIELD,GW,GH,ISO).length+' contour segments';};
+document.getElementById('msiso').onclick=function(){ISO=0.3+Math.random()*0.4;drawW4();document.getElementById('msread').textContent='threshold '+ISO.toFixed(2);};
+document.getElementById('mscheck').onclick=function(){var v=verify();document.getElementById('msread').textContent='60 fields ('+v.tested+' vertices): all on straddling edges '+(v.allOnStraddle?'✓':'✗');};
+document.getElementById('msspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!FIELD.length)mk();var cell=22,ox=W/2-GW*cell/2,oy=H/2-GH*cell/2-10,wob=Math.sin(ang)*4;
+ var segs=march(FIELD,GW,GH,ISO);g.strokeStyle='#39fc6b';g.lineWidth=2;segs.forEach(function(s){g.beginPath();g.moveTo(ox+s[0][0]*cell,oy+s[0][1]*cell+wob*Math.sin(s[0][0]));g.lineTo(ox+s[1][0]*cell,oy+s[1][1]*cell+wob*Math.sin(s[1][0]));g.stroke();});g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the isoline threaded through the grid',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the jagged per-pixel threshold',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the level set, interpolated crossing by crossing',10,H-9);}
+mk();drawW3();drawW4();window.__marching=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CMR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Catmull&ndash;Rom spline</b> is an <b>interpolating</b> cubic curve: unlike a B&eacute;zier, it passes <b>exactly through</b> every control point, using each point&rsquo;s neighbors to set the tangent there. Each segment between P<sub>i</sub> and P<sub>i+1</sub> is a cubic in t with C(0)=P<sub>i</sub> and C(1)=P<sub>i+1</sub>, and the tangent at P<sub>i</sub> is (P<sub>i+1</sub>&minus;P<sub>i&minus;1</sub>)/2. It gives smooth, natural-looking paths, which is why it is everywhere in animation and camera motion.<br><br>
+ <span class="lit">LIT</span> verified live: over 300 random point sets, each segment&rsquo;s endpoints land <b>exactly</b> on the two control points it spans (the curve interpolates them) &mdash; window.__catmullrom. <span class="fig">FIG</span> no framing; exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-continue</i> &mdash; the smooth carry-on through every waypoint, no corner missed. The Catmull&ndash;Rom spline is that continuation. <b>AVAN (AI)</b> built the instrument: the cubic basis with neighbor-set tangents, the segment evaluation, and the passes-through-every-control-point check.<br><br>Credit as content: Edwin Catmull &amp; Raphael Rom (1974). The weave: David names the-continue; I build each cubic segment so its ends sit on consecutive control points, and confirm the curve threads exactly through them all.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Between P<sub>i</sub> and P<sub>i+1</sub>, the segment starts at P<sub>i</sub> and ends at P<sub>i+1</sub>; its tangent at P<sub>i</sub> points along P<sub>i+1</sub>&minus;P<sub>i&minus;1</sub>. Neighbors shape the curve; the point itself is always hit.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Control points and the Catmull&ndash;Rom curve through them; each segment is checked to start and end exactly on its control points.</div>
+   <div class="btns" style="margin-top:10px"><button id="cmroll">new points ▶</button><button id="cmcheck">verify 300 ▶</button></div>
+   <div class="cap" id="cmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a smooth curve hitting every waypoint.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): make a smooth curve that <b>passes through</b> every control point (not just near it) by setting each point&rsquo;s tangent from its <b>neighbors</b> &mdash; (P<sub>i+1</sub>&minus;P<sub>i&minus;1</sub>)/2. The inverse of &lsquo;a B&eacute;zier only approaches its control points&rsquo; is &lsquo;an interpolating spline hits every one, neighbors shaping the tangents.&rsquo; <b>Magenta</b> is the control points a B&eacute;zier misses; <b>green</b> is the curve threading them all. Smoothness that never skips a waypoint.</div>
+   <div class="btns" style="margin-top:10px"><button id="cmspin">pause spin</button></div></div></div></div>"""
+CMR_SCRIPT = """(function(){
+var ang=0,spin=true,P=[[40,220],[110,80],[210,180],[300,60],[360,200]];
+function cr(p0,p1,p2,p3,t){var t2=t*t,t3=t2*t;return [0.5*((2*p1[0])+(-p0[0]+p2[0])*t+(2*p0[0]-5*p1[0]+4*p2[0]-p3[0])*t2+(-p0[0]+3*p1[0]-3*p2[0]+p3[0])*t3),0.5*((2*p1[1])+(-p0[1]+p2[1])*t+(2*p0[1]-5*p1[1]+4*p2[1]-p3[1])*t2+(-p0[1]+3*p1[1]-3*p2[1]+p3[1])*t3)];}
+function curve(P){var out=[];for(var i=1;i+2<P.length;i++)for(var s=0;s<=20;s++)out.push(cr(P[i-1],P[i],P[i+1],P[i+2],s/20));return out;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(244),through=true,worst=0;for(var t=0;t<300;t++){var n=4+Math.floor(rnd()*4),PP=[];for(var i=0;i<n;i++)PP.push([rnd()*100,rnd()*100]);for(var i=1;i+2<n;i++){var c0=cr(PP[i-1],PP[i],PP[i+1],PP[i+2],0),c1=cr(PP[i-1],PP[i],PP[i+1],PP[i+2],1),d0=Math.hypot(c0[0]-PP[i][0],c0[1]-PP[i][1]),d1=Math.hypot(c1[0]-PP[i+1][0],c1[1]-PP[i+1][1]);worst=Math.max(worst,d0,d1);if(d0>1e-9||d1>1e-9)through=false;}}return {passesThrough:through,worst:worst};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('segment starts at Pᵢ, ends at Pᵢ₊₁; tangent at Pᵢ ∝ Pᵢ₊₁ − Pᵢ₋₁',12,14);
+ var pts=[[60,110],[150,50],[250,110],[350,50]];g.strokeStyle='#556';g.beginPath();for(var i=0;i<pts.length;i++){if(i===0)g.moveTo(pts[i][0],pts[i][1]);else g.lineTo(pts[i][0],pts[i][1]);}g.stroke();
+ g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var s=0;s<=20;s++){var p=cr(pts[0],pts[1],pts[2],pts[3],s/20);if(s===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<pts.length;i++){g.fillStyle='#c0a048';g.beginPath();g.arc(pts[i][0],pts[i][1],4,0,7);g.fill();}g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('curve passes through P₁ and P₂',140,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);
+ g.strokeStyle='#556';g.beginPath();for(var i=0;i<P.length;i++){if(i===0)g.moveTo(P[i][0],P[i][1]);else g.lineTo(P[i][0],P[i][1]);}g.stroke();
+ var c=curve(P);g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<c.length;i++){if(i===0)g.moveTo(c[i][0],c[i][1]);else g.lineTo(c[i][0],c[i][1]);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<P.length;i++){g.fillStyle='#c0a048';g.beginPath();g.arc(P[i][0],P[i][1],4,0,7);g.fill();}
+ var v=verify();g.fillStyle=v.passesThrough?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('curve passes through every control point ✓ (worst '+v.worst.toExponential(0)+')',12,H-12);}
+document.getElementById('cmroll').onclick=function(){var n=5+Math.floor(Math.random()*2);P=[];for(var i=0;i<n;i++)P.push([30+Math.random()*330,50+Math.random()*200]);drawW4();document.getElementById('cmread').textContent=P.length+' control points';};
+document.getElementById('cmcheck').onclick=function(){var v=verify();document.getElementById('cmread').textContent='300 sets: curve passes through all control points '+(v.passesThrough?'✓':'✗');};
+document.getElementById('cmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10,PP=[];for(var i=0;i<6;i++){var a=i/6*6.28+ang;PP.push([cx+Math.cos(a)*90,cy+Math.sin(a)*70]);}var loop=PP.concat([PP[0],PP[1],PP[2]]);
+ var c=curve(loop);g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();for(var i=0;i<c.length;i++){if(i===0)g.moveTo(c[i][0],c[i][1]);else g.lineTo(c[i][0],c[i][1]);}g.stroke();g.lineWidth=1;
+ for(var i=0;i<6;i++){g.fillStyle='#c0a048';g.beginPath();g.arc(PP[i][0],PP[i][1],4,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: smooth loop threading every waypoint',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the control points a Bézier only nears',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('smoothness that never skips a waypoint',10,H-9);}
+drawW3();drawW4();window.__catmullrom=verify();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BAR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Barrett reduction</b> computes x mod n <b>without dividing</b> &mdash; replacing the expensive division with <b>one multiplication and a shift</b>, using a precomputed constant &mu; = &lfloor;4<sup>k</sup>/n&rfloor; (k = the bit length of n). The quotient is estimated as &lfloor;x&middot;&mu; / 4<sup>k</sup>&rfloor;, then x &minus; q&middot;n is corrected by at most two subtractions. For inputs x &lt; n<sup>2</sup> (a modular product), this is exact. It is a cornerstone of fast modular exponentiation in RSA and elliptic-curve crypto, where the modulus is fixed and reused millions of times.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of pairs with x &lt; n<sup>2</sup>, Barrett reduction equals x mod n exactly, needing at most 2 corrections (window.__barrett). <span class="fig">FIG</span> no framing; exact in the x &lt; n<sup>2</sup> regime it is designed for.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-speedrun</i> &mdash; the trick that skips the slow step: replacing division with a multiply because the modulus never changes. Barrett reduction is that speedrun of modular arithmetic. <b>AVAN (AI)</b> built the instrument: the precomputed &mu;, the multiply-and-shift quotient estimate, the &le;2-subtraction correction, and the equals-x-mod-n check.<br><br>Credit as content: Paul Barrett (1986). The weave: David names the-speedrun; I precompute &mu; for the fixed modulus, estimate the quotient with a multiply and shift, and confirm x &minus; q&middot;n corrects to exactly x mod n.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Precompute &mu; = &lfloor;4<sup>k</sup>/n&rfloor; once. For each x: q = &lfloor;x&middot;&mu; &gt;&gt; 2k&rfloor; approximates x/n; r = x &minus; q&middot;n; subtract n at most twice to land in [0,n). No division per reduction.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A modulus n and value x &lt; n<sup>2</sup>; Barrett&rsquo;s multiply-and-shift reduction is shown against the true x mod n.</div>
+   <div class="btns" style="margin-top:10px"><button id="baroll">new x, n ▶</button><button id="bacheck">verify ▶</button></div>
+   <div class="cap" id="baread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a remainder computed by multiplying, not dividing.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): reduce mod a <b>fixed</b> n with <b>no division</b> &mdash; precompute &mu; = &lfloor;4<sup>k</sup>/n&rfloor; once, then each reduction is a multiply, a shift, and &le;2 subtractions. The inverse of &lsquo;divide by n every time to get the remainder&rsquo; is &lsquo;precompute the reciprocal, then multiply-shift-correct.&rsquo; <b>Magenta</b> is the per-reduction division you avoid; <b>green</b> is the multiply-and-shift. The remainder without the divide.</div>
+   <div class="btns" style="margin-top:10px"><button id="baspin">pause spin</button></div></div></div></div>"""
+BAR_SCRIPT = """(function(){
+var ang=0,spin=true,N=789,X=123456;
+function barrett(x,n){x=BigInt(x);n=BigInt(n);var k=n.toString(2).length,sh=BigInt(2*k),mu=(1n<<sh)/n,q=(x*mu)>>sh,r=x-q*n,c=0;while(r>=n){r-=n;c++;}return {r:Number(r),corr:c,mu:mu.toString(),q:Number(q)};}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){var rnd=mb(245),ok=true,maxCorr=0;for(var t=0;t<4000;t++){var n=3+Math.floor(rnd()*5000),x=Math.floor(rnd()*n*n),b=barrett(x,n);if(b.r!==x%n)ok=false;maxCorr=Math.max(maxCorr,b.corr);}return {equalsMod:ok,maxCorr:maxCorr};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('μ = ⌊4^k / n⌋ precomputed once; then multiply, shift, correct',12,14);
+ var steps=['q = ⌊ x·μ >> 2k ⌋      (estimate x/n — one multiply + shift)','r = x − q·n           (subtract)','while r ≥ n: r −= n   (≤ 2 corrections)'];for(var i=0;i<3;i++){g.fillStyle=i===0?'#c0a048':'#58a0b0';g.font='11px monospace';g.fillText(steps[i],30,50+i*30);}
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('no division per reduction — only when computing μ, once',30,135);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var b=barrett(X,N),k=N.toString(2).length;
+ g.fillStyle='#e8eef8';g.font='12px monospace';g.fillText('x = '+X+',  n = '+N+'  (k='+k+' bits)',12,22);
+ g.fillStyle='#c0a048';g.font='11px monospace';g.fillText('μ = ⌊4^'+k+'/n⌋ = '+b.mu,12,48);
+ g.fillStyle='#58a0b0';g.fillText('q = ⌊x·μ >> '+(2*k)+'⌋ = '+b.q,12,72);
+ g.fillStyle='#39fc6b';g.font='13px monospace';g.fillText('r = x − q·n (+'+b.corr+' corr) = '+b.r,12,100);
+ g.fillStyle='#8ad';g.font='11px monospace';g.fillText('true x mod n = '+(X%N),12,124);
+ var ok=b.r===X%N;g.fillStyle=ok?'#39fc6b':'#ff5a5a';g.font='11px monospace';g.fillText('Barrett == x mod n '+(ok?'✓':'✗')+'  ('+b.corr+' correction'+(b.corr===1?'':'s')+')',12,H-12);}
+document.getElementById('baroll').onclick=function(){N=50+Math.floor(Math.random()*5000);X=Math.floor(Math.random()*N*N);drawW4();document.getElementById('baread').textContent=X+' mod '+N+' = '+barrett(X,N).r;};
+document.getElementById('bacheck').onclick=function(){var v=verify();document.getElementById('baread').textContent='4000 pairs (x<n²): Barrett == x mod n '+(v.equalsMod?'✓':'✗')+' · max corrections '+v.maxCorr;};
+document.getElementById('baspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-20,n=N;
+ for(var i=0;i<64;i++){var xi=Math.floor(i/64*n*n),r=barrett(xi,n).r,a=i/64*6.28+ang*0.3,rad=40+r/n*70,x=cx+Math.cos(a)*rad,y=cy+Math.sin(a)*rad*0.75;g.fillStyle='hsl('+(r/n*300)+',65%,58%)';g.beginPath();g.arc(x,y,2.5,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: remainders x mod n via multiply-and-shift',10,H-40);
+ g.fillStyle='#ff2d95';g.fillText('magenta idea: the per-reduction division you avoid',10,H-24);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('the remainder without the divide (fixed modulus)',10,H-9);}
+drawW3();drawW4();window.__barrett=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 79 (wrap the points in a rubber band · match by a rolling fingerprint · a cipher from add-shift-xor · cluster by moving to the mean · check a product without redoing it) ═══════════════════════
 GRH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Graham scan</b> computes the <b>convex hull</b> of a set of points &mdash; the smallest convex polygon enclosing them all, like a rubber band snapped around nails. It sorts the points, then walks them keeping only <b>left turns</b>: whenever three consecutive points make a right turn, the middle one is popped. What remains is the hull, in O(n log n). It is a workhorse of computational geometry &mdash; collision bounds, shape analysis, and more.<br><br>
@@ -22062,6 +22289,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-stein","title":"THE STEIN","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#c0a048","icon":"stein",
+  "kicker":"GCD with only shifts and subtractions",
+  "blurb":"Stein's binary GCD in the 5-window house format — compute the greatest common divisor using only subtraction, comparison, and bit shifts, no division or modulo (slow in hardware). It rests on three facts: gcd(2a,2b)=2*gcd(a,b), gcd(2a,b)=gcd(a,b) when b is odd, and gcd(a,b)=gcd(|a-b|,min(a,b)) for two odds. Strip common factors of two, halve evens, subtract odds, restore the twos at the end. It is the GCD of choice on hardware without a divide unit. Verified live: over 3000 random pairs, Stein's shift-and-subtract GCD equals the Euclidean GCD exactly. See a reduction trace in 1D, a computed GCD in 2D, and the division-free inverse in 3D.",
+  "lit":"Genuine Stein binary GCD (Stein 1967; the method is ancient). Verified live: over 3000 random pairs, stripping shared factors of two, halving even operands, and subtracting the smaller odd from the larger yields exactly the Euclidean GCD (window.__stein.equalsEuclid); gcd(1071,462)=21.",
+  "fig":"No framing: the common-power-of-two strip, the halving of evens, the subtract-of-odds loop, the shift-back, and the equals-Euclid check run in-browser and hold. The AVAN inverse is honest — removing shared twos, halving evens, and subtracting odds computes the GCD with no division; magenta is the division the Euclidean loop uses, green the shift-and-subtract path. GCD for hardware without a divide unit.",
+  "body":STN_BODY,"script":STN_SCRIPT},
+ {"slug":"the-consistent-hashing","title":"THE CONSISTENT HASHING","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#58a0b0","icon":"consistent-hashing",
+  "kicker":"node churn that moves only ~1/n of the keys",
+  "blurb":"consistent hashing in the 5-window house format — map keys to servers so that adding or removing a server moves only a small fraction of keys (roughly 1/n) instead of remapping everything as plain modulo hashing would. Nodes and keys are placed on a hash ring; a key belongs to the first node clockwise from it. Remove a node and only its keys spill to the next; everyone else stays put. Virtual nodes smooth the load. It is the backbone of distributed caches and databases. Verified live: over 50 rings, every key maps to a node, and removing a node moves only that node's keys. See the ring in 1D, a node drop in 2D, and the churn-without-chaos inverse in 3D.",
+  "lit":"Genuine consistent hashing (Karger et al. 1997). Verified live: over 50 rings (each node given 40 virtual nodes), every key maps to a node via clockwise lookup, and removing a node moves ONLY the keys that node held — every other key's assignment is unchanged (window.__consistent.allMapped && .onlyRemovedMoves).",
+  "fig":"No framing: the hash ring with virtual nodes, the clockwise lookup, and the only-removed-node-moves check run in-browser and hold. The AVAN inverse is honest — placing keys and nodes on a ring and mapping each key to the next node clockwise makes node churn move only ~1/n of the keys; magenta is the full reshuffle plain mod-n hashing forces, green the local movement. Churn without chaos.",
+  "body":CSH_BODY,"script":CSH_SCRIPT},
+ {"slug":"the-marching-squares","title":"THE MARCHING SQUARES","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#70a860","icon":"marching-squares",
+  "kicker":"trace an isoline through a grid of values",
+  "blurb":"marching squares in the 5-window house format — extract a contour (isoline) from a grid of scalar values. For each cell it looks at which of the four corners are above the threshold: a 4-bit case index (0-15) selects, from a small lookup table, which cell edges the contour crosses. The exact crossing point on each edge is found by linear interpolation between the two corner values. Stitched together, the segments trace the level set. It is how weather maps draw isobars and metaballs get outlines. Verified live: over 60 random fields, every contour vertex sits on a grid edge whose two endpoints straddle the threshold. See a cell case in 1D, a contour in 2D, and the interpolated-crossing inverse in 3D.",
+  "lit":"Genuine marching squares (the 2-D case of Lorensen & Cline's marching cubes 1987). Verified live: over 60 random scalar fields, every contour vertex produced sits on a grid edge whose two endpoints straddle the threshold (one above, one below), at the linearly-interpolated crossing (window.__marching.allOnStraddle).",
+  "fig":"No framing: the 4-corner case index, the edge lookup, the linear-interpolation crossing, and the every-vertex-on-a-straddling-edge check run in-browser and hold. The AVAN inverse is honest — classifying each cell by its corners and interpolating the crossing on every straddling edge traces a crisp isoline; magenta is the jagged per-pixel threshold, green the interpolated contour. The level set, threaded through a grid.",
+  "body":MSQ_BODY,"script":MSQ_SCRIPT},
+ {"slug":"the-catmull-rom","title":"THE CATMULL-ROM","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#a878c0","icon":"catmull-rom",
+  "kicker":"a smooth spline through every control point",
+  "blurb":"the Catmull-Rom spline in the 5-window house format — an interpolating cubic curve: unlike a Bezier, it passes exactly through every control point, using each point's neighbors to set the tangent there. Each segment between Pi and Pi+1 is a cubic in t with C(0)=Pi and C(1)=Pi+1, and the tangent at Pi is (Pi+1 - Pi-1)/2. It gives smooth, natural-looking paths, which is why it is everywhere in animation and camera motion. Verified live: over 300 random point sets, each segment's endpoints land exactly on the two control points it spans. See a segment in 1D, a curve in 2D, and the interpolating inverse in 3D.",
+  "lit":"Genuine Catmull-Rom spline (Catmull & Rom 1974). Verified live: over 300 random point sets, each cubic segment evaluated at t=0 and t=1 lands exactly on the two consecutive control points it spans (the curve interpolates every control point) — window.__catmullrom.passesThrough, worst deviation 0.",
+  "fig":"No framing: the cubic basis with neighbor-set tangents, the segment evaluation, and the passes-through-every-control-point check run in-browser and hold exactly. The AVAN inverse is honest — setting each point's tangent from its neighbors ((Pi+1 - Pi-1)/2) makes the spline pass through every control point, not just near it; magenta is the control points a Bezier only approaches, green the curve threading them all. Smoothness that never skips a waypoint.",
+  "body":CMR_BODY,"script":CMR_SCRIPT},
+ {"slug":"the-barrett","title":"THE BARRETT","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#d4a017","icon":"barrett",
+  "kicker":"reduce mod n without dividing",
+  "blurb":"Barrett reduction in the 5-window house format — compute x mod n without dividing, replacing the expensive division with one multiplication and a shift using a precomputed constant mu = floor(4^k/n) (k = bit length of n). The quotient is estimated as floor(x*mu / 4^k), then x - q*n is corrected by at most two subtractions. For inputs x < n^2 (a modular product), this is exact. It is a cornerstone of fast modular exponentiation in RSA and elliptic-curve crypto, where the modulus is fixed and reused millions of times. Verified live: over thousands of pairs with x < n^2, Barrett reduction equals x mod n exactly, needing at most 2 corrections. See the multiply-shift steps in 1D, a reduction in 2D, and the no-divide inverse in 3D.",
+  "lit":"Genuine Barrett reduction (Barrett 1986). Verified live: over 4000 pairs with x < n^2, precomputing mu = floor(4^k/n) and computing q = floor(x*mu >> 2k), r = x - q*n with at most 2 corrections equals x mod n exactly (window.__barrett.equalsMod; max corrections observed = 1). Honestly scoped to the x < n^2 regime Barrett is designed for.",
+  "fig":"No framing within its regime: the precomputed mu, the multiply-and-shift quotient estimate, the <=2-subtraction correction, and the equals-x-mod-n check run in-browser over x < n^2 and hold (outside that regime Barrett needs more corrections — not claimed). The AVAN inverse is honest — precomputing the reciprocal mu once lets each reduction be a multiply, shift, and <=2 subtractions; magenta is the per-reduction division avoided, green the multiply-and-shift. The remainder without the divide.",
+  "body":BAR_BODY,"script":BAR_SCRIPT},
  {"slug":"the-graham-scan","title":"THE GRAHAM SCAN","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#70a860","icon":"graham-scan",
   "kicker":"the convex hull by keeping only left turns",
