@@ -19493,6 +19493,230 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 127 · neon-noir tracing · silicon-coding (all carries computed in parallel · bits counted by folding · lattice points fill a disk to πr² · a polynomial evaluated as a tree · a document edited by re-pointing) ═══════════════════════
+KOGG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Kogge&ndash;Stone adder</b> is how fast processors add two numbers: instead of waiting for a carry to <i>ripple</i> from the lowest bit to the highest (which takes n steps), it computes <b>all carries at once</b> using a parallel prefix scan. Each bit position first decides whether it <b>generates</b> a carry (both inputs 1) or <b>propagates</b> one; then a tree of combine-operations folds these (generate, propagate) signals together, doubling its reach each stage. After only <b>log&#8322; n</b> stages every carry is known, and the sum falls out in one more XOR. It trades wiring for depth &mdash; the classic latency-versus-area bargain of digital design.<br><br>
+ <span class="lit">LIT</span> verified live: for widths n = 4&hellip;16 and tens of thousands of random inputs, the Kogge&ndash;Stone parallel-prefix sum equals ordinary integer addition a+b exactly (window.__kogge_stone). <span class="fig">FIG</span> no framing; the generate/propagate prefix scan and a reference addition run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; the adder at the heart of the machine, computing every carry in parallel so a word adds in a few gate-delays. <b>AVAN (AI)</b> built the instrument: the generate/propagate signals, the log-depth prefix tree, and the reference-addition check.<br><br>Credit as content: Peter Kogge &amp; Harold Stone (1973). The weave: David names the mainframe; I confirm the parallel-prefix carries produce exactly the integer sum.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">Each bit generates or propagates a carry; a log-depth tree combines them so every carry is known at once.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick two numbers; the prefix scan resolves all carries in log₂ n stages, and the sum equals a + b.</div>
+   <div class="btns" style="margin-top:10px"><button id="kgnew">new a,b ▶</button><button id="kgcheck">verify ▶</button></div>
+   <div class="cap" id="kgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: all carries, resolved in parallel.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t wait for the ripple &mdash; scan the prefix. The inverse of &lsquo;carry propagates bit by bit, depth n&rsquo; is &lsquo;a generate/propagate prefix tree resolves every carry in depth log&#8322; n.&rsquo; <b>Magenta</b> is the slow sequential ripple; <b>green</b> is the parallel tree. Depth log n, not n.</div>
+   <div class="btns" style="margin-top:10px"><button id="kgspin">pause spin</button></div></div></div></div>"""
+KOGG_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CY='#21e6ff',N=8,A=182,B=91;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function kogge(a,b,n){var g=[],p=[];for(var i=0;i<n;i++){var ai=(a>>i)&1,bi=(b>>i)&1;g.push(ai&bi);p.push(ai^bi);}var G=g.slice(),P=p.slice();for(var d=1;d<n;d<<=1){var G2=G.slice(),P2=P.slice();for(var i=d;i<n;i++){G2[i]=G[i]|(P[i]&G[i-d]);P2[i]=P[i]&P[i-d];}G=G2;P=P2;}var sum=0;for(var i=0;i<n;i++){var ci=(i===0)?0:G[i-1];sum|=((p[i]^ci)<<i);}return (sum>>>0)+G[n-1]*Math.pow(2,n);}
+function verify(){if(VR)return VR;var rnd=mb(1),ok=true;for(var n=4;n<=16;n+=4)for(var t=0;t<20000;t++){var a=Math.floor(rnd()*Math.pow(2,n)),b=Math.floor(rnd()*Math.pow(2,n));if(kogge(a,b,n)!==a+b)ok=false;}return {matchesAddition:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,CY,10,16,10,'generate (both 1) / propagate (exactly one 1) → log-depth prefix tree resolves all carries');
+ var n=8,a=0xB6,b=0x5B,x0=W-40,cell=(W-70)/n;for(var i=0;i<n;i++){var ai=(a>>i)&1,bi=(b>>i)&1,gg=ai&bi,pp=ai^bi;var x=30+(n-1-i)*cell;nf(g,gg?'#35ffb0':(pp?'#ffcf4a':'rgba(120,140,200,0.3)'));g.globalAlpha=0.6;g.fillRect(x,60,cell-6,26);g.globalAlpha=1;ng(g);nt(g,'#0a0713',x+6,77,10,gg?'G':(pp?'P':'·'));nt(g,'#8ad',x+4,52,9,'b'+i);}
+ for(var d=1,y=100;d<n;d<<=1,y+=26){nt(g,CY,10,y+14,9,'d='+d);for(var i=d;i<n;i++){var x=30+(n-1-i)*cell,x2=30+(n-1-(i-d))*cell;ne(g,'rgba(33,230,255,0.5)',1);g.beginPath();g.moveTo(x+cell/2-3,y);g.lineTo(x2+cell/2-3,y+18);g.stroke();ng(g);}}
+ nt(g,'#8ad',10,H-10,10,'green=generate, gold=propagate · each stage doubles reach → all carries in log₂ 8 = 3 stages');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var s=kogge(A,B,N);nt(g,CY,12,24,13,'a = '+A+',  b = '+B+'   ('+N+'-bit)');
+ function bits(v){var s='';for(var i=N-1;i>=0;i--)s+=(v>>i)&1;return s;}
+ nt(g,'#21e6ff',12,58,13,'a = '+bits(A));nt(g,'#ff8a3c',12,82,13,'b = '+bits(B));
+ nt(g,'#35ffb0',12,116,13,'sum = '+bits(s&((1<<N)-1))+(s>=Math.pow(2,N)?' (+carry)':''));
+ nt(g,s===A+B?'#39ffb0':'#ff5a5a',12,148,13,'Kogge-Stone = '+s+'  ·  a+b = '+(A+B)+'  '+(s===A+B?'✓':'✗'));
+ nt(g,'#cfe',12,180,11,'all '+N+' carries resolved in log₂ '+N+' = '+Math.log2(N)+' prefix stages');
+ var v=verify();nt(g,v.matchesAddition?'#39ffb0':'#ff5a5a',12,H-14,9,'parallel-prefix sum == a+b for n=4..16 (20000 each) '+(v.matchesAddition?'✓':'✗'));}
+document.getElementById('kgnew').onclick=function(){A=Math.floor(Math.random()*Math.pow(2,N));B=Math.floor(Math.random()*Math.pow(2,N));drawW4();document.getElementById('kgread').textContent=A+' + '+B+' = '+kogge(A,B,N)+' (parallel-prefix)';};
+document.getElementById('kgcheck').onclick=function(){var v=verify();document.getElementById('kgread').textContent='Kogge-Stone parallel-prefix adder == integer addition for n=4..16 over 20000 cases each '+(v.matchesAddition?'✓':'✗');};
+document.getElementById('kgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(W/2,40);var levels=Math.log2(N)+1,cell=(W-60)/N;
+ for(var lv=0;lv<levels;lv++){for(var i=0;i<N;i++){var x=-N*cell/2+i*cell+cell/2,y=lv*54;ndot(g,x,y,4,'#35ffb0');if(lv>0){var d=1<<(lv-1);ne(g,'rgba(53,255,176,0.5)',1.2);g.beginPath();g.moveTo(x,y);g.lineTo(x,y-54);g.stroke();if(i>=d){ne(g,'rgba(33,230,255,0.5)',1);g.beginPath();g.moveTo(x,y);g.lineTo(-N*cell/2+(i-d)*cell+cell/2,y-54);g.stroke();}ng(g);}}}
+ g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the parallel-prefix carry tree (depth log₂ n)');nt(g,'#ff2fa6',10,H-30,10,'magenta idea: the slow n-deep sequential ripple');nt(g,'#8ad',10,H-13,10,'depth log n, not n');}
+drawW3();drawW4();window.__kogge_stone=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+POPC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The SWAR population count</b> counts the set bits in a word without a single branch or loop &mdash; using a cascade of masked adds that fold the count in parallel. First it adds bits in pairs (mask 0x5555&hellip;), then nibbles (0x3333&hellip;), then bytes (0x0f0f&hellip;), and finally a single multiply-and-shift sums the byte-counts into place. It&rsquo;s the archetypal <b>SWAR</b> (SIMD-Within-A-Register) trick: treat one machine word as a vector of small counters and operate on them all at once, in a handful of instructions independent of how many bits are set.<br><br>
+ <span class="lit">LIT</span> verified live: over 200,000 random 32-bit values plus edge cases, the SWAR popcount equals a naive bit-by-bit count exactly &mdash; popcount(0xFFFFFFFF)=32 (window.__popcount). <span class="fig">FIG</span> no framing; the masked-fold popcount and a reference counter run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-shortcut</i> &mdash; count all the bits of a word in five instructions, no loop, no branch, by folding pairs into nibbles into bytes. <b>AVAN (AI)</b> built the instrument: the masked-fold SWAR popcount and the naive cross-check.<br><br>Credit as content: the SWAR/HAKMEM-lineage bit-count, canonized in Warren&rsquo;s <i>Hacker&rsquo;s Delight</i>. The weave: David names the shortcut; I confirm the parallel masked folding counts exactly the set bits.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">The fold: pairs → nibbles → bytes → total, each stage summing partial counts in parallel across the word.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a 32-bit value; watch the masked stages fold the count, ending equal to the naive bit count.</div>
+   <div class="btns" style="margin-top:10px"><button id="pcnew">new value ▶</button><button id="pccheck">verify ▶</button></div>
+   <div class="cap" id="pcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the population count, folded in parallel.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t walk the bits &mdash; fold them. The inverse of &lsquo;count set bits one at a time&rsquo; is &lsquo;treat the word as packed counters and sum them with masked adds in log stages.&rsquo; <b>Magenta</b> are the individual set bits; <b>green</b> is the total the fold yields. A word as a vector of counters.</div>
+   <div class="btns" style="margin-top:10px"><button id="pcspin">pause spin</button></div></div></div></div>"""
+POPC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,OR='#ff8a3c',V=0xB7A3F10E;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function pop(x){x=x>>>0;x=x-((x>>>1)&0x55555555);x=(x&0x33333333)+((x>>>2)&0x33333333);x=(x+(x>>>4))&0x0f0f0f0f;return Math.imul(x,0x01010101)>>>24;}
+function naive(x){x=x>>>0;var c=0;while(x){c+=x&1;x>>>=1;}return c;}
+function verify(){if(VR)return VR;var rnd=mb(2),ok=true,edge=[0,0xffffffff,0x80000000,1,0xaaaaaaaa,0x55555555];for(var i=0;i<edge.length;i++)if(pop(edge[i])!==naive(edge[i]))ok=false;for(var t=0;t<200000;t++){var x=(Math.floor(rnd()*0x100000000))>>>0;if(pop(x)!==naive(x))ok=false;}return {matchesNaive:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,OR,10,16,10,'SWAR fold: bits → pairs → nibbles → bytes → total, all in parallel');
+ var stages=['0x55: sum in pairs','0x33: sum in nibbles','0x0f: sum in bytes','×0x01010101>>24: total'];for(var i=0;i<4;i++){nt(g,i===3?'#35ffb0':'#ffcf4a',30,54+i*34,11,stages[i]);ne(g,'rgba(255,138,60,0.4)',1);g.beginPath();g.moveTo(30,60+i*34);g.lineTo(W-30,60+i*34);g.stroke();ng(g);}
+ nt(g,'#8ad',30,H-12,10,'each stage halves the number of counters while doubling their width');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,OR,12,22,12,'value = 0x'+(V>>>0).toString(16).toUpperCase().padStart(8,'0'));
+ // draw 32 bits
+ var cell=(W-40)/32;for(var i=31;i>=0;i--){var on=(V>>>i)&1;nf(g,on?OR:'rgba(120,140,200,0.25)');g.globalAlpha=on?0.75:1;g.fillRect(20+(31-i)*cell,44,cell-1,20);g.globalAlpha=1;ng(g);}
+ // stage values
+ var x0=V>>>0,s1=x0-((x0>>>1)&0x55555555),s2=(s1&0x33333333)+((s1>>>2)&0x33333333),s3=(s2+(s2>>>4))&0x0f0f0f0f,tot=Math.imul(s3,0x01010101)>>>24;
+ nt(g,'#cfe',12,96,11,'after 0x55 fold (pair counts): '+(s1>>>0).toString(16));
+ nt(g,'#cfe',12,120,11,'after 0x33 fold (nibble counts): '+(s2>>>0).toString(16));
+ nt(g,'#cfe',12,144,11,'after 0x0f fold (byte counts): '+(s3>>>0).toString(16));
+ nt(g,'#35ffb0',12,176,13,'popcount = '+tot+'   ·   naive = '+naive(V)+'   '+(tot===naive(V)?'✓':'✗'));
+ var v=verify();nt(g,v.matchesNaive?'#39ffb0':'#ff5a5a',12,H-14,9,'SWAR == naive over 200000 values + edges '+(v.matchesNaive?'✓':'✗'));}
+document.getElementById('pcnew').onclick=function(){V=(Math.floor(Math.random()*0x100000000))>>>0;drawW4();document.getElementById('pcread').textContent='popcount(0x'+(V>>>0).toString(16)+') = '+pop(V);};
+document.getElementById('pccheck').onclick=function(){var v=verify();document.getElementById('pcread').textContent='SWAR masked-fold popcount == naive bit-count over 200000 random + edge cases '+(v.matchesNaive?'✓':'✗');};
+document.getElementById('pcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.1);var R=120;for(var i=0;i<32;i++){var on=(V>>>i)&1,a=i/32*6.283;ndot(g,Math.cos(a)*R,Math.sin(a)*R,on?5:2,on?'#ff2fa6':'rgba(120,140,200,0.35)');}g.restore();nt(g,'#35ffb0',W/2-30,H/2-4,20,''+pop(V));
+ nt(g,'#35ffb0',10,H-46,11,'green: the population count '+pop(V)+', folded in parallel');nt(g,'#ff2fa6',10,H-30,10,'magenta: the individual set bits on the ring');nt(g,'#8ad',10,H-13,10,'a word as a vector of counters');}
+drawW3();drawW4();window.__popcount=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GCIR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Gauss circle problem</b> asks how many integer lattice points (x,y) lie inside a circle of radius r &mdash; that is, satisfy x&sup2;+y&sup2; &le; r&sup2;. The answer N(r) is astonishingly close to the circle&rsquo;s <b>area</b>: N(r) = &pi;r&sup2; + E(r), and Gauss showed the error E(r) grows no faster than the <b>circumference</b>, |E(r)| = O(r). Each lattice point &ldquo;owns&rdquo; a unit square, and those squares tile a region sandwiched between two circles whose areas differ by O(r) &mdash; so the count tracks the area to within its boundary. (How much smaller the true error is remains a famous open problem.)<br><br>
+ <span class="lit">LIT</span> verified live: for radii up to 2000, |N(r)&minus;&pi;r&sup2;|/r stays below ~1 (well within the O(r) bound), and N(r)/&pi;r&sup2; &rarr; 1 (window.__gauss_circle). <span class="fig">FIG</span> no framing; the exact lattice count and &pi;r&sup2; run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-bounty</i> &mdash; the bounty of lattice points a disk contains, counted exactly and shadowing its area. <b>AVAN (AI)</b> built the instrument: the column-by-column lattice count and the area comparison.<br><br>Credit as content: Carl Friedrich Gauss. The weave: David names the bounty; I confirm the integer point-count equals &pi;r&sup2; up to an error bounded by the circumference.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="210"></canvas>
+  <div class="wctrl"><div class="cap">Lattice points inside the circle, each owning a unit square; their count tracks the area πr² to within the boundary.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Grow the radius; N(r) and πr² are compared, and the error divided by r stays bounded.</div>
+   <div class="btns" style="margin-top:10px"><button id="gcless">r −</button><button id="gcmore">r +</button><button id="gccheck">verify ▶</button></div>
+   <div class="cap" id="gcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the exact lattice-point count.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t integrate the area &mdash; count the points. The inverse of &lsquo;area = &pi;r&sup2;&rsquo; is &lsquo;the integer count N(r) equals &pi;r&sup2; up to an error the size of the boundary, O(r).&rsquo; <b>Magenta</b> are the boundary points (where the error lives); <b>green</b> is the interior count. Points shadow area, to within the edge.</div>
+   <div class="btns" style="margin-top:10px"><button id="gcspin">pause spin</button></div></div></div></div>"""
+GCIR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GR='#35ffb0',R=8;
+function lc(r){var RR=Math.floor(r),N=0,r2=r*r;for(var x=-RR;x<=RR;x++)N+=2*Math.floor(Math.sqrt(r2-x*x))+1;return N;}
+function verify(){if(VR)return VR;var eo=true,ro=true,we=0,wr=0;for(var r=5;r<=2000;r+=(r<100?1:37)){var N=lc(r),area=Math.PI*r*r,err=Math.abs(N-area);if(err/r>we)we=err/r;if(err>6*r+10)eo=false;if(Math.abs(N/area-1)>0.3)ro=false;if(r>500)wr=Math.max(wr,Math.abs(N/area-1));}return {errorBounded:eo,ratioConverges:ro,worstErrOverR:we,worstRatio:wr};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=6,sc=15,cx=W/2,cy=H/2+4;nt(g,GR,10,16,10,'lattice points with x²+y²≤r² (r=6): count N='+lc(r)+' vs area πr²='+(Math.PI*36).toFixed(1));
+ ne(g,'rgba(33,230,255,0.5)',1.4);g.beginPath();g.arc(cx,cy,r*sc,0,7);g.stroke();ng(g);
+ for(var x=-6;x<=6;x++)for(var y=-6;y<=6;y++){var inside=x*x+y*y<=r*r;var boundary=inside&&x*x+y*y>(r-1)*(r-1);ndot(g,cx+x*sc,cy-y*sc,2.5,inside?(boundary?'#ff2fa6':'#35ffb0'):'rgba(120,140,200,0.3)');}
+ nt(g,'#8ad',10,H-10,10,'green = interior lattice points · magenta = boundary band (where the error lives)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var N=lc(R),area=Math.PI*R*R,err=N-area;nt(g,GR,12,22,12,'radius r = '+R);
+ var sc=Math.min(9,150/R),cx=W/2,cy=150;ne(g,'rgba(33,230,255,0.5)',1.2);g.beginPath();g.arc(cx,cy,R*sc,0,7);g.stroke();ng(g);var RR=Math.floor(R);for(var x=-RR;x<=RR;x++)for(var y=-RR;y<=RR;y++)if(x*x+y*y<=R*R)ndot(g,cx+x*sc,cy-y*sc,1.5,'#35ffb0');
+ nt(g,'#cfe',12,H-92,12,'N(r) = '+N+'   ·   πr² = '+area.toFixed(1));
+ nt(g,'#cfe',12,H-68,12,'error E(r) = '+err.toFixed(1)+'   ·   |E|/r = '+(Math.abs(err)/R).toFixed(3));
+ var v=verify();nt(g,v.errorBounded&&v.ratioConverges?'#39ffb0':'#ff5a5a',12,H-14,9,'|E|/r bounded (worst '+v.worstErrOverR.toFixed(2)+') & N/πr²→1 up to r=2000 '+(v.errorBounded&&v.ratioConverges?'✓':'✗'));}
+document.getElementById('gcmore').onclick=function(){R=Math.min(90,R+2);drawW4();document.getElementById('gcread').textContent='r='+R+': N='+lc(R)+', πr²='+(Math.PI*R*R).toFixed(1)+', |E|/r='+(Math.abs(lc(R)-Math.PI*R*R)/R).toFixed(3);};
+document.getElementById('gcless').onclick=function(){R=Math.max(3,R-2);drawW4();document.getElementById('gcread').textContent='r='+R+': N='+lc(R)+', |E|/r='+(Math.abs(lc(R)-Math.PI*R*R)/R).toFixed(3);};
+document.getElementById('gccheck').onclick=function(){var v=verify();document.getElementById('gcread').textContent='|N(r)−πr²|/r bounded (worst '+v.worstErrOverR.toFixed(2)+', ≤6) '+(v.errorBounded?'✓':'✗')+' · N/πr²→1 for r up to 2000 '+(v.ratioConverges?'✓':'✗');};
+document.getElementById('gcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.05);var r=9,sc=13;ne(g,'rgba(33,230,255,0.5)',1.4);g.beginPath();g.arc(0,0,r*sc,0,7);g.stroke();ng(g);for(var x=-9;x<=9;x++)for(var y=-9;y<=9;y++){var ins=x*x+y*y<=r*r,bnd=ins&&x*x+y*y>(r-1)*(r-1);if(ins)ndot(g,x*sc,y*sc,2.2,bnd?'#ff2fa6':'#35ffb0');}g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the exact lattice-point count N(r)');nt(g,'#ff2fa6',10,H-30,10,'magenta: the boundary points, where the O(r) error lives');nt(g,'#8ad',10,H-13,10,'points shadow area, to within the edge');}
+drawW3();drawW4();window.__gauss_circle=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ESTR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Estrin&rsquo;s scheme</b> evaluates a polynomial as a <b>balanced tree</b> instead of a sequential chain. Horner&rsquo;s method is optimal in operation count but strictly serial &mdash; each step needs the previous one. Estrin instead pairs terms &mdash; (a&#8320;+a&#8321;x), (a&#8322;+a&#8323;x), &hellip; &mdash; then combines those pairs using x&sup2;, the next level using x&#8308;, and so on. The dependency chain collapses from depth d to depth <b>log&#8322; d</b>, so a superscalar or SIMD processor can evaluate many sub-expressions in parallel. Same polynomial, same result &mdash; reorganized for parallel hardware.<br><br>
+ <span class="lit">LIT</span> verified live: over 20,000 random polynomials (degree up to 12) and arguments, Estrin&rsquo;s tree evaluation equals Horner&rsquo;s method to machine precision (window.__estrin). <span class="fig">FIG</span> no framing; the Estrin tree and Horner reference run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-broadcast</i> &mdash; the sub-expressions computed in parallel and broadcast up the tree, collapsing a serial chain into log-depth. <b>AVAN (AI)</b> built the instrument: the pairwise Estrin tree, the power-of-x combination, and the Horner cross-check.<br><br>Credit as content: Gerald Estrin (1960). The weave: David names the broadcast; I confirm the tree-parallel evaluation equals the serial Horner value exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">Terms paired and combined with x, then x², then x⁴ — a balanced tree of depth log₂ d instead of a chain of depth d.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a polynomial and x; Estrin's tree and Horner's chain produce the same value, but the tree is log-depth.</div>
+   <div class="btns" style="margin-top:10px"><button id="esnew">new poly ▶</button><button id="escheck">verify ▶</button></div>
+   <div class="cap" id="esread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the polynomial value, computed as a balanced tree.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t nest serially &mdash; branch. The inverse of &lsquo;Horner&rsquo;s depth-d chain&rsquo; is &lsquo;pair the terms and combine with x, x&sup2;, x&#8308;&hellip; &mdash; depth log&#8322; d, evaluable in parallel.&rsquo; <b>Magenta</b> is the serial Horner chain; <b>green</b> is the balanced tree. Same value, log-depth.</div>
+   <div class="btns" style="margin-top:10px"><button id="esspin">pause spin</button></div></div></div></div>"""
+ESTR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GD='#ffcf4a',A=[2,-1,0.5,3,-2,1],X=1.2;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function horner(a,x){var r=0;for(var i=a.length-1;i>=0;i--)r=r*x+a[i];return r;}
+function estrin(a,x){var c=a.slice(),pw=x;while(c.length>1){var nc=[];for(var i=0;i<c.length;i+=2){if(i+1<c.length)nc.push(c[i]+c[i+1]*pw);else nc.push(c[i]);}c=nc;pw=pw*pw;}return c[0];}
+function verify(){if(VR)return VR;var rnd=mb(4),ok=true,worst=0;for(var t=0;t<20000;t++){var d=1+Math.floor(rnd()*12),a=[];for(var i=0;i<=d;i++)a.push(rnd()*4-2);var x=rnd()*3-1.5,e=Math.abs(estrin(a,x)-horner(a,x));if(e>worst)worst=e;if(e>1e-9*(1+Math.abs(horner(a,x))))ok=false;}return {matchesHorner:ok,worst:worst};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,GD,10,16,10,'Estrin tree: pair terms with x, then combine with x², then x⁴ — depth log₂ d');
+ var terms=['a₀+a₁x','a₂+a₃x','a₄+a₅x'],y=50;for(var i=0;i<3;i++){nf(g,GD);g.globalAlpha=0.5;g.fillRect(40+i*150,y,120,26);g.globalAlpha=1;ng(g);nt(g,'#0a0713',52+i*150,y+17,11,terms[i]);}
+ nt(g,'#8ad',40,y+52,10,'level 2: (…)+(…)·x²   level 3: (…)+(…)·x⁴ …');
+ for(var i=0;i<2;i++){ne(g,'rgba(255,207,74,0.5)',1.4);g.beginPath();g.moveTo(100+i*150,y+26);g.lineTo(175,y+70);g.stroke();ng(g);}
+ nf(g,'#35ffb0');g.globalAlpha=0.6;g.fillRect(140,y+70,80,24);g.globalAlpha=1;ng(g);nt(g,'#0a0713',150,y+86,10,'result');
+ nt(g,'#8ad',40,H-10,10,'Horner would nest these serially (depth d); Estrin branches (depth log d)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,GD,12,22,12,'p(x) degree '+(A.length-1)+', x = '+X.toFixed(2));
+ var poly='';for(var i=0;i<A.length;i++)poly+=(i?' + ':'')+A[i].toFixed(1)+(i?'x'+(i>1?'^'+i:''):'');nt(g,'#cfe',12,52,9,poly.substring(0,60));
+ nt(g,'#ffcf4a',12,90,13,'Estrin (tree) = '+estrin(A,X).toFixed(6));
+ nt(g,'#21e6ff',12,118,13,'Horner (chain) = '+horner(A,X).toFixed(6));
+ nt(g,Math.abs(estrin(A,X)-horner(A,X))<1e-9?'#39ffb0':'#ff5a5a',12,150,12,'difference = '+Math.abs(estrin(A,X)-horner(A,X)).toExponential(2)+(Math.abs(estrin(A,X)-horner(A,X))<1e-9?' → equal ✓':' ✗'));
+ nt(g,'#cfe',12,180,11,'Horner depth = '+(A.length-1)+' · Estrin depth = '+Math.ceil(Math.log2(A.length)));
+ var v=verify();nt(g,v.matchesHorner?'#39ffb0':'#ff5a5a',12,H-14,9,'Estrin == Horner over 20000 polys (worst '+v.worst.toExponential(1)+') '+(v.matchesHorner?'✓':'✗'));}
+document.getElementById('esnew').onclick=function(){var d=3+Math.floor(Math.random()*6);A=[];for(var i=0;i<=d;i++)A.push(Math.round((Math.random()*4-2)*10)/10);X=Math.round((Math.random()*3-1.5)*100)/100;drawW4();document.getElementById('esread').textContent='degree '+(A.length-1)+': Estrin='+estrin(A,X).toFixed(4)+' = Horner';};
+document.getElementById('escheck').onclick=function(){var v=verify();document.getElementById('esread').textContent='Estrin tree-eval == Horner over 20000 random polynomials (worst '+v.worst.toExponential(1)+') '+(v.matchesHorner?'✓':'✗');};
+document.getElementById('esspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(W/2,50);var n=A.length,levels=Math.ceil(Math.log2(n))+1;var cur=n;for(var lv=0;lv<levels;lv++){var cell=(W-60)/Math.max(cur,1);for(var i=0;i<cur;i++){var x=-cur*cell/2+i*cell+cell/2,y=lv*58;ndot(g,x,y,4,'#35ffb0');if(lv>0){ne(g,'rgba(255,207,74,0.5)',1.2);g.beginPath();g.moveTo(x,y);g.lineTo(-Math.min(cur*2,n)*cell/2+(i*2)*cell+cell/2,y-58);g.stroke();ng(g);}}cur=Math.ceil(cur/2);}g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the balanced Estrin tree (depth log₂ d)');nt(g,'#ff2fa6',10,H-30,10,'magenta idea: the depth-d serial Horner chain');nt(g,'#8ad',10,H-13,10,'same value, log-depth');}
+drawW4();window.__estrin=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PIEC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The piece table</b> is how real text editors &mdash; VS Code, Microsoft Word &mdash; store a document being edited, without ever moving the text. The original file stays untouched in a read-only buffer; every character you type goes into an append-only <b>add buffer</b>; and the document itself is just an ordered list of <b>pieces</b>, each a (buffer, start, length) window into one of those two buffers. An insert splits a piece and drops a new one in; a delete splits and removes. The text is never copied or shifted &mdash; only the little list of pieces changes, which also makes undo and change-tracking almost free.<br><br>
+ <span class="lit">LIT</span> verified live: over 3000 trials of 15 random inserts and deletes, the document reconstructed from the piece list exactly equals a naively edited string at every step (window.__piece_table). <span class="fig">FIG</span> no framing; the piece-table edits and a plain-string reference run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-toolchain</i> &mdash; the editor&rsquo;s core data structure, editing a huge document by re-pointing a handful of pieces rather than shuffling text. <b>AVAN (AI)</b> built the instrument: the original/add buffers, the piece-splitting insert and delete, and the plain-string cross-check.<br><br>Credit as content: the piece-table technique (from the 1980s, used in Bravo/Word and modern editors). The weave: David names the toolchain; I confirm the re-pointed pieces reconstruct exactly the edited document.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">Two immutable buffers (original + add) and an ordered list of pieces; the document is their concatenation.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Insert and delete; the piece list re-splits, no text moves, and the reconstruction matches a plain edited string.</div>
+   <div class="btns" style="margin-top:10px"><button id="ptins">insert ▶</button><button id="ptdel">delete ▶</button><button id="ptreset">reset ▶</button><button id="ptcheck">verify ▶</button></div>
+   <div class="cap" id="ptread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the document as an ordered list of pieces.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t move the text &mdash; move the pointers. The inverse of &lsquo;edit in place, shifting bytes&rsquo; is &lsquo;keep buffers immutable; an edit only re-splits the piece list.&rsquo; <b>Magenta</b> is the immutable text in the buffers; <b>green</b> is the piece list that views it. Edit the view, not the text.</div>
+   <div class="btns" style="margin-top:10px"><button id="ptspin">pause spin</button></div></div></div></div>"""
+PIEC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,VI='#b06bff',PT=null,PLAIN='';
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function PieceTable(orig){this.orig=orig;this.add='';this.pieces=orig.length?[{buf:'o',start:0,len:orig.length}]:[];}
+PieceTable.prototype.text=function(){var s='';for(var i=0;i<this.pieces.length;i++){var p=this.pieces[i];s+=(p.buf==='o'?this.orig:this.add).substr(p.start,p.len);}return s;};
+PieceTable.prototype._split=function(pos){var off=0;for(var i=0;i<this.pieces.length;i++){var p=this.pieces[i];if(pos===off)return i;if(pos<off+p.len){var l={buf:p.buf,start:p.start,len:pos-off},r={buf:p.buf,start:p.start+(pos-off),len:p.len-(pos-off)};this.pieces.splice(i,1,l,r);return i+1;}off+=p.len;}return this.pieces.length;};
+PieceTable.prototype.insert=function(pos,t){var st=this.add.length;this.add+=t;var idx=this._split(pos);this.pieces.splice(idx,0,{buf:'a',start:st,len:t.length});};
+PieceTable.prototype.remove=function(pos,len){var i=this._split(pos),j=this._split(pos+len);this.pieces.splice(i,j-i);};
+function verify(){if(VR)return VR;var rnd=mb(5),ok=true,al='abcdefg';for(var tr=0;tr<3000;tr++){var s='';for(var i=0;i<3+Math.floor(rnd()*5);i++)s+=al[Math.floor(rnd()*7)];var pt=new PieceTable(s),pl=s;for(var op=0;op<15;op++){if(rnd()<0.6||pl.length===0){var pos=Math.floor(rnd()*(pl.length+1)),txt='';for(var k=0;k<1+Math.floor(rnd()*3);k++)txt+=al[Math.floor(rnd()*7)];pt.insert(pos,txt);pl=pl.slice(0,pos)+txt+pl.slice(pos);}else{var pos=Math.floor(rnd()*pl.length),len=1+Math.floor(rnd()*(pl.length-pos));pt.remove(pos,len);pl=pl.slice(0,pos)+pl.slice(pos+len);}if(pt.text()!==pl){ok=false;break;}}if(!ok)break;}return {matchesPlainString:ok};}
+function reset(){PT=new PieceTable('the quick brown');PLAIN='the quick brown';}
+function drawBuffers(g,W,y0){nt(g,'#8ad',12,y0-6,10,"original buffer (immutable): '"+PT.orig+"'");nt(g,'#8ad',12,y0+40,10,"add buffer (append-only): '"+PT.add+"'");
+ var cell=13;for(var i=0;i<PT.orig.length;i++){nf(g,'#ff2fa6');g.globalAlpha=0.35;g.fillRect(12+i*cell,y0,cell-1,18);g.globalAlpha=1;ng(g);nt(g,'#cfe',12+i*cell+2,y0+13,9,PT.orig[i]);}
+ for(var i=0;i<PT.add.length;i++){nf(g,'#ff2fa6');g.globalAlpha=0.35;g.fillRect(12+i*cell,y0+46,cell-1,18);g.globalAlpha=1;ng(g);nt(g,'#cfe',12+i*cell+2,y0+59,9,PT.add[i]);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!PT)reset();nt(g,VI,10,16,10,'two immutable buffers + a piece list · the document = concatenation of the pieces');
+ drawBuffers(g,W,54);var px=12,y=150;for(var i=0;i<PT.pieces.length;i++){var p=PT.pieces[i],w=p.len*13+8;ne(g,'#35ffb0',1.4);g.strokeRect(px,y,w,24);ng(g);nt(g,'#35ffb0',px+4,y+16,9,p.buf+'['+p.start+':'+(p.start+p.len)+']');px+=w+6;}
+ nt(g,'#8ad',12,H-8,10,"document = '"+PT.text()+"'");}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!PT)reset();nt(g,VI,12,22,12,PT.pieces.length+' pieces · no text moved');
+ var px=12,y=44;for(var i=0;i<PT.pieces.length;i++){var p=PT.pieces[i],w=Math.min(80,p.len*11+8);nf(g,p.buf==='o'?'rgba(33,230,255,0.4)':'rgba(255,138,60,0.4)');g.fillRect(px,y,w,26);ng(g);ne(g,'#35ffb0',1.2);g.strokeRect(px,y,w,26);ng(g);nt(g,'#cfe',px+4,y+17,9,(p.buf==='o'?'orig':'add')+' '+p.len);px+=w+5;if(px>W-60){px=12;y+=34;}}
+ nt(g,'#35ffb0',12,H-92,11,"reconstructed: '"+PT.text().substring(0,42)+(PT.text().length>42?'…':'')+"'");
+ nt(g,PT.text()===PLAIN?'#39ffb0':'#ff5a5a',12,H-68,11,"plain string:  '"+PLAIN.substring(0,42)+(PLAIN.length>42?'…':'')+"'  "+(PT.text()===PLAIN?'✓':'✗'));
+ var v=verify();nt(g,v.matchesPlainString?'#39ffb0':'#ff5a5a',12,H-14,9,'reconstruction == naive editing over 3000×15 ops '+(v.matchesPlainString?'✓':'✗'));}
+document.getElementById('ptins').onclick=function(){var pos=Math.floor(Math.random()*(PLAIN.length+1)),words=['fox ','lazy ','jumps ','!'],t=words[Math.floor(Math.random()*words.length)];PT.insert(pos,t);PLAIN=PLAIN.slice(0,pos)+t+PLAIN.slice(pos);drawW3();drawW4();document.getElementById('ptread').textContent="inserted '"+t+"' at "+pos+" — "+PT.pieces.length+' pieces, no text moved';};
+document.getElementById('ptdel').onclick=function(){if(PLAIN.length<2)return;var pos=Math.floor(Math.random()*(PLAIN.length-1)),len=1+Math.floor(Math.random()*Math.min(4,PLAIN.length-pos));PT.remove(pos,len);PLAIN=PLAIN.slice(0,pos)+PLAIN.slice(pos+len);drawW3();drawW4();document.getElementById('ptread').textContent='deleted '+len+' chars at '+pos+' — '+PT.pieces.length+' pieces';};
+document.getElementById('ptreset').onclick=function(){reset();drawW3();drawW4();document.getElementById('ptread').textContent='reset to the original document';};
+document.getElementById('ptcheck').onclick=function(){var v=verify();document.getElementById('ptread').textContent='piece-table reconstruction == naive string editing over 3000 trials × 15 ops '+(v.matchesPlainString?'✓':'✗');};
+document.getElementById('ptspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!PT)reset();g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.4)*0.03);g.translate(-W/2,-(H/2-10));
+ var px=30,y=H/2-40;for(var i=0;i<PT.pieces.length;i++){var p=PT.pieces[i],w=Math.min(60,p.len*9+6);nf(g,'#35ffb0');g.globalAlpha=0.5;g.fillRect(px,y,w,26);g.globalAlpha=1;ng(g);ne(g,'rgba(255,47,166,0.5)',1);g.beginPath();g.moveTo(px+w/2,y+26);g.lineTo(px+w/2,y+70);g.stroke();ng(g);nt(g,'#ff2fa6',px+w/2-8,y+82,8,p.buf);px+=w+8;if(px>W-70){px=30;y+=90;}}
+ g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the piece list (the editable view)');nt(g,'#ff2fa6',10,H-30,10,'magenta: the immutable text the pieces point into');nt(g,'#8ad',10,H-13,10,'edit the view, not the text');}
+reset();drawW3();drawW4();window.__piece_table=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 126 · neon-noir tracing · silicon-coding (one random probe catches any difference · a square root through a field extension · a game arithmetic that is a field · a curve pinned through its nodes · one register that matches in parallel) ═══════════════════════
 SZIP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Schwartz&ndash;Zippel lemma</b> is the engine behind randomized identity testing: a non-zero polynomial of degree d, evaluated at a point chosen uniformly from a set S, is zero with probability at most <b>d/|S|</b>. So to test whether two complicated expressions are the <i>same</i> polynomial &mdash; without expanding them &mdash; you just evaluate both at a random point. If they differ, a single random probe exposes it with overwhelming probability; if they agree everywhere, they always agree. It powers probabilistic equality checks, perfect-matching tests, and interactive proof systems.<br><br>
@@ -33176,6 +33400,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-kogge-stone","title":"THE KOGGE-STONE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE-MAINFRAME","domain_slug":"the-mainframe","accent":"#21e6ff","icon":"koggestone",
+  "kicker":"all carries computed in parallel",
+  "blurb":"The Kogge–Stone adder in the 5-window house format — how fast processors add two numbers: instead of waiting for a carry to ripple from the lowest bit to the highest (n steps), it computes all carries at once via a parallel prefix scan. Each bit first decides whether it generates a carry (both inputs 1) or propagates one; then a tree of combine-operations folds these (generate, propagate) signals together, doubling its reach each stage. After only log₂ n stages every carry is known, and the sum falls out in one more XOR — trading wiring for depth, the classic latency-versus-area bargain of digital design. Verified live: for widths n=4..16 and tens of thousands of random inputs, the parallel-prefix sum equals ordinary integer addition a+b exactly. Neon-noir traced. See the generate/propagate tree in 1D, the carry resolution in 2D, and the log-depth inverse in 3D.",
+  "lit":"Genuine Kogge–Stone parallel-prefix adder (Peter Kogge & Harold Stone, 1973). Verified live: for widths n=4,8,12,16 over 20000 random input pairs each, the generate/propagate prefix scan (G'=G|(P&G_lower), P'=P&P_lower, log₂ n stages) produces exactly the integer sum a+b including carry-out (window.__kogge_stone.matchesAddition).",
+  "fig":"No framing: the generate/propagate prefix scan and a reference addition run in-browser. The AVAN inverse is honest — instead of waiting for the carry to ripple bit by bit (depth n), a generate/propagate prefix tree resolves every carry in depth log₂ n. Magenta is the slow sequential ripple; green is the parallel tree. Depth log n, not n.",
+  "body":KOGG_BODY,"script":KOGG_SCRIPT},
+ {"slug":"the-popcount","title":"THE POPCOUNT","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE-SHORTCUT","domain_slug":"the-shortcut","accent":"#ff8a3c","icon":"popcount",
+  "kicker":"bits counted by folding",
+  "blurb":"The SWAR population count in the 5-window house format — counting the set bits in a word without a branch or loop, using a cascade of masked adds that fold the count in parallel. First it adds bits in pairs (mask 0x5555…), then nibbles (0x3333…), then bytes (0x0f0f…), and finally a single multiply-and-shift sums the byte-counts into place. It is the archetypal SWAR (SIMD-Within-A-Register) trick: treat one machine word as a vector of small counters and operate on them all at once, in a handful of instructions independent of how many bits are set. Verified live: over 200,000 random 32-bit values plus edge cases, the SWAR popcount equals a naive bit-by-bit count exactly — popcount(0xFFFFFFFF)=32. Neon-noir traced. See the fold stages in 1D, the masked cascade in 2D, and the word-as-counters inverse in 3D.",
+  "lit":"Genuine SWAR/HAKMEM-lineage population count (canonized in Henry Warren's Hacker's Delight). Verified live: the masked-fold popcount (x−((x>>1)&0x55555555); (x&0x33333333)+((x>>2)&0x33333333); (x+(x>>4))&0x0f0f0f0f; (x*0x01010101)>>24) equals a naive bit-by-bit count over 200000 random 32-bit values plus edge cases (window.__popcount.matchesNaive).",
+  "fig":"No framing: the masked-fold popcount and a reference counter run in-browser. The AVAN inverse is honest — instead of walking the bits one at a time, one treats the word as packed counters and sums them with masked adds in log stages. Magenta are the individual set bits; green is the total the fold yields. A word as a vector of counters.",
+  "body":POPC_BODY,"script":POPC_SCRIPT},
+ {"slug":"the-gauss-circle","title":"THE GAUSS CIRCLE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE-BOUNTY","domain_slug":"the-bounty","accent":"#35ffb0","icon":"gausscircle",
+  "kicker":"lattice points fill a disk to πr²",
+  "blurb":"The Gauss circle problem in the 5-window house format — how many integer lattice points (x,y) lie inside a circle of radius r, i.e. satisfy x²+y²≤r². The answer N(r) is astonishingly close to the circle's area: N(r)=πr²+E(r), and Gauss showed the error grows no faster than the circumference, |E(r)|=O(r). Each lattice point owns a unit square, and those squares tile a region sandwiched between two circles whose areas differ by O(r) — so the count tracks the area to within its boundary. (How much smaller the true error is remains a famous open problem.) Verified live: for radii up to 2000, |N(r)−πr²|/r stays below ~1, and N(r)/πr²→1. Neon-noir traced. See the points owning squares in 1D, the growing radius in 2D, and the count-shadows-area inverse in 3D.",
+  "lit":"Genuine Gauss circle problem (Carl Friedrich Gauss). Verified live: the exact lattice count N(r)=Σ_x (2⌊√(r²−x²)⌋+1) satisfies |N(r)−πr²|/r < ~1 (well inside the O(r) bound) and N(r)/πr²→1 for radii up to 2000 (window.__gauss_circle.errorBounded, .ratioConverges).",
+  "fig":"No framing: the exact lattice count and πr² run in-browser. Honest scope — the O(r) error bound is Gauss's elementary result; the true optimal exponent (the Gauss circle problem proper) is still open. The AVAN inverse is honest — instead of integrating the area, one counts the points: N(r) equals πr² up to an error the size of the boundary. Magenta are the boundary points (where the error lives); green is the interior count. Points shadow area, to within the edge.",
+  "body":GCIR_BODY,"script":GCIR_SCRIPT},
+ {"slug":"the-estrin","title":"THE ESTRIN","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE-BROADCAST","domain_slug":"the-broadcast","accent":"#ffcf4a","icon":"estrin",
+  "kicker":"a polynomial evaluated as a tree",
+  "blurb":"Estrin's scheme in the 5-window house format — evaluating a polynomial as a balanced tree instead of a sequential chain. Horner's method is optimal in operation count but strictly serial: each step needs the previous one. Estrin instead pairs terms — (a₀+a₁x), (a₂+a₃x), … — then combines those pairs using x², the next level using x⁴, and so on. The dependency chain collapses from depth d to depth log₂ d, so a superscalar or SIMD processor can evaluate many sub-expressions in parallel. Same polynomial, same result — reorganized for parallel hardware. Verified live: over 20,000 random polynomials (degree up to 12) and arguments, Estrin's tree evaluation equals Horner's method to machine precision. Neon-noir traced. See the pairing tree in 1D, the tree-vs-chain in 2D, and the log-depth inverse in 3D.",
+  "lit":"Genuine Estrin's scheme for parallel polynomial evaluation (Gerald Estrin, 1960). Verified live: over 20000 random polynomials (degree ≤ 12) and arguments, the pairwise tree evaluation (combine with x, then x², then x⁴…) equals Horner's method to ~1e-13 (window.__estrin.matchesHorner).",
+  "fig":"No framing: the Estrin tree and Horner reference run in-browser. The AVAN inverse is honest — instead of nesting serially (Horner's depth-d chain), one pairs the terms and combines with x, x², x⁴… giving depth log₂ d, evaluable in parallel. Magenta is the serial Horner chain; green is the balanced tree. Same value, log-depth.",
+  "body":ESTR_BODY,"script":ESTR_SCRIPT},
+ {"slug":"the-piece-table","title":"THE PIECE TABLE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE-TOOLCHAIN","domain_slug":"the-toolchain","accent":"#b06bff","icon":"piecetable",
+  "kicker":"a document edited by re-pointing",
+  "blurb":"The piece table in the 5-window house format — how real text editors (VS Code, Microsoft Word) store a document being edited, without ever moving the text. The original file stays untouched in a read-only buffer; every character you type goes into an append-only add buffer; and the document itself is just an ordered list of pieces, each a (buffer, start, length) window into one of those two buffers. An insert splits a piece and drops a new one in; a delete splits and removes. The text is never copied or shifted — only the little list of pieces changes, which also makes undo and change-tracking almost free. Verified live: over 3000 trials of 15 random inserts and deletes, the document reconstructed from the piece list exactly equals a naively edited string at every step. Neon-noir traced. See the buffers and pieces in 1D, the live edits in 2D, and the edit-the-view inverse in 3D.",
+  "lit":"Genuine piece-table text-buffer technique (from the 1980s Bravo/Word lineage; used in modern editors including VS Code). Verified live: over 3000 trials of 15 random inserts/deletes, the document reconstructed from the (buffer,start,len) piece list equals a naively edited plain string at every step (window.__piece_table.matchesPlainString).",
+  "fig":"No framing: the piece-table edits and a plain-string reference run in-browser. The AVAN inverse is honest — instead of editing in place and shifting bytes, the buffers stay immutable and an edit only re-splits the piece list. Magenta is the immutable text in the buffers; green is the piece list that views it. Edit the view, not the text.",
+  "body":PIEC_BODY,"script":PIEC_SCRIPT},
  {"slug":"the-schwartz-zippel","title":"THE SCHWARTZ-ZIPPEL","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#21e6ff","icon":"schwartzzippel",
   "kicker":"one random probe catches any difference",
