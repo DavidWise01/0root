@@ -19493,6 +19493,246 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 130 · neon-noir tracing · silicon-coding (√n blocks answer range sums · a Bernoulli denominator read off from primes · a code that ends in 11 · overlapping windows cancel their aliasing · a stack that needs no lock) ═══════════════════════
+SQRD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Square-root decomposition</b> is the simplest way to answer <b>range queries</b> fast. Split an array of n elements into blocks of size about &radic;n and precompute a summary (here, a sum) for each block. To sum any range, add the few loose elements at the two ends one by one, and for the whole blocks in between just add their precomputed sums &mdash; so any query touches at most about <b>2&radic;n</b> items instead of n. A point update fixes one element and its block&rsquo;s summary in O(1). It is the humble ancestor of segment trees and Fenwick trees &mdash; less powerful, but astonishingly easy and general (it works for any associative summary).<br><br>
+ <span class="lit">LIT</span> verified live: over 3000 arrays and 30 mixed operations each, block range-sums with point updates exactly equal a brute-force recomputation (window.__sqrt_decomposition). <span class="fig">FIG</span> no framing; the block summaries and a brute-force sum run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-cron-job</i> &mdash; the array carved into regular blocks, each keeping a running summary the query hops across. <b>AVAN (AI)</b> built the instrument: the &radic;n blocking, the partial-plus-whole-block query, the point update, and the brute-force check.<br><br>Credit as content: square-root decomposition is classic algorithmic folklore. The weave: David names the cron job; I confirm the block sums answer every range query exactly, in O(&radic;n).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">The array split into √n blocks, each with a sum; a range adds loose ends element-by-element and whole blocks in one hop.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a range; the sum uses partial ends plus whole-block sums, matching a brute-force total.</div>
+   <div class="btns" style="margin-top:10px"><button id="sdq">new range ▶</button><button id="sdu">update ▶</button><button id="sdcheck">verify ▶</button></div>
+   <div class="cap" id="sdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the range sum, in O(√n) steps.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t add every element &mdash; hop the blocks. The inverse of &lsquo;scan the range, O(n)&rsquo; is &lsquo;precompute &radic;n block sums; a range is a few loose ends plus whole-block jumps, O(&radic;n).&rsquo; <b>Magenta</b> is the element-by-element scan; <b>green</b> is the block hops. Summaries turn a scan into jumps.</div>
+   <div class="btns" style="margin-top:10px"><button id="sdspin">pause spin</button></div></div></div></div>"""
+SQRD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CY='#21e6ff',ARR=null,B=0,L=0,R=0;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function build(arr){var n=arr.length,b=Math.max(1,Math.floor(Math.sqrt(n))),bl=[];for(var i=0;i<n;i+=b){var s=0;for(var j=i;j<Math.min(i+b,n);j++)s+=arr[j];bl.push(s);}return {a:arr.slice(),b:b,blocks:bl};}
+function query(S,l,r){var s=0,i=l;while(i<=r&&i%S.b!==0){s+=S.a[i];i++;}while(i+S.b-1<=r){s+=S.blocks[Math.floor(i/S.b)];i+=S.b;}while(i<=r){s+=S.a[i];i++;}return s;}
+function upd(S,i,v){S.blocks[Math.floor(i/S.b)]+=v-S.a[i];S.a[i]=v;}
+function verify(){if(VR)return VR;var rnd=mb(1),ok=true;for(var t=0;t<3000;t++){var n=1+Math.floor(rnd()*60),arr=[];for(var i=0;i<n;i++)arr.push(Math.floor(rnd()*100));var sd=build(arr),ref=arr.slice();for(var op=0;op<30;op++){if(rnd()<0.4){var i=Math.floor(rnd()*n),v=Math.floor(rnd()*100);upd(sd,i,v);ref[i]=v;}else{var l=Math.floor(rnd()*n),r=l+Math.floor(rnd()*(n-l)),br=0;for(var k=l;k<=r;k++)br+=ref[k];if(query(sd,l,r)!==br){ok=false;break;}}}if(!ok)break;}return {matchesBrute:ok};}
+var S=null;
+function mk(){var rnd=Math.random,n=16+Math.floor(rnd()*9),arr=[];for(var i=0;i<n;i++)arr.push(Math.floor(rnd()*20));S=build(arr);L=Math.floor(rnd()*n);R=L+Math.floor(rnd()*(n-L));}
+function drawArr(g,W,y,cell,hiL,hiR){var n=S.a.length;for(var i=0;i<n;i++){var inR=(i>=hiL&&i<=hiR);var blk=Math.floor(i/S.b);nf(g,inR?(i%S.b===0||i===hiL?'#35ffb0':'#21e6ff'):'rgba(120,140,200,0.25)');g.globalAlpha=inR?0.6:1;g.fillRect(20+i*cell,y,cell-2,26);g.globalAlpha=1;ng(g);nt(g,'#cfe',20+i*cell+cell/2-6,y+17,10,''+S.a[i]);if(i%S.b===0){ne(g,'rgba(255,207,74,0.6)',1.4);g.beginPath();g.moveTo(20+i*cell-1,y-4);g.lineTo(20+i*cell-1,y+30);g.stroke();ng(g);}}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!S)mk();nt(g,CY,10,16,10,'array split into √n blocks (gold bars) · each block stores its sum');
+ var cell=(W-40)/S.a.length;drawArr(g,W,50,cell,-1,-1);
+ var by=100;for(var bi=0;bi<S.blocks.length;bi++){nf(g,'#ffcf4a');g.globalAlpha=0.3;g.fillRect(20+bi*S.b*cell,by,S.b*cell-2,24);g.globalAlpha=1;ng(g);nt(g,'#ffcf4a',20+bi*S.b*cell+4,by+16,11,'Σ='+S.blocks[bi]);}
+ nt(g,'#8ad',20,150,10,'block size = √'+S.a.length+' ≈ '+S.b+' · a range = loose ends (elementwise) + whole blocks (one hop each)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!S)mk();var cell=(W-40)/S.a.length;nt(g,CY,12,22,12,'range ['+L+', '+R+'] · block size '+S.b);
+ drawArr(g,W,50,cell,L,R);
+ var q=query(S,L,R),br=0;for(var k=L;k<=R;k++)br+=S.a[k];
+ nt(g,'#35ffb0',12,120,12,'√n-decomp sum = '+q+'   ·   brute-force = '+br);
+ nt(g,q===br?'#39ffb0':'#ff5a5a',12,148,12,q===br?'match ✓':'MISMATCH ✗');
+ var touched=0,i=L;while(i<=R&&i%S.b!==0){touched++;i++;}while(i+S.b-1<=R){touched++;i+=S.b;}while(i<=R){touched++;i++;}
+ nt(g,'#cfe',12,176,11,'touched '+touched+' items (vs '+(R-L+1)+' brute) — O(√n)');
+ var v=verify();nt(g,v.matchesBrute?'#39ffb0':'#ff5a5a',12,H-14,9,'block range-sum + update == brute over 3000×30 ops '+(v.matchesBrute?'✓':'✗'));}
+document.getElementById('sdq').onclick=function(){var n=S.a.length;L=Math.floor(Math.random()*n);R=L+Math.floor(Math.random()*(n-L));drawW4();document.getElementById('sdread').textContent='range ['+L+','+R+'] sum = '+query(S,L,R);};
+document.getElementById('sdu').onclick=function(){var i=Math.floor(Math.random()*S.a.length),v=Math.floor(Math.random()*20);upd(S,i,v);drawW3();drawW4();document.getElementById('sdread').textContent='updated index '+i+' → '+v+' (block sum fixed in O(1))';};
+document.getElementById('sdcheck').onclick=function(){var v=verify();document.getElementById('sdread').textContent='√n-decomposition range-sum + point update == brute over 3000 arrays × 30 ops '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('sdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!S)mk();g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.4)*0.03);g.translate(-W/2,-(H/2-10));
+ var n=S.a.length,cell=(W-40)/n,y=H/2-10;for(var i=0;i<n;i++){var inR=(i>=L&&i<=R);ndot(g,20+i*cell+cell/2,y,inR?4:2,inR?'#35ffb0':'rgba(255,47,166,0.4)');}
+ for(var bi=0;bi*S.b<n;bi++){var bs=bi*S.b,be=Math.min(bs+S.b-1,n-1);if(bs>=L&&be<=R){ne(g,'#35ffb0',2);g.beginPath();g.moveTo(20+bs*cell+cell/2,y-16);g.lineTo(20+be*cell+cell/2,y-16);g.stroke();ng(g);}}
+ g.restore();nt(g,'#35ffb0',10,H-46,11,'green: whole-block hops (one add each) covering the range middle');nt(g,'#ff2fa6',10,H-30,10,'magenta: the O(n) element-by-element scan it replaces');nt(g,'#8ad',10,H-13,10,'summaries turn a scan into jumps');}
+mk();drawW3();drawW4();window.__sqrt_decomposition=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VSTC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The von Staudt&ndash;Clausen theorem</b> reveals the exact <b>denominator</b> of every Bernoulli number. The Bernoulli numbers B<sub>2n</sub> are wild rationals with enormous numerators &mdash; yet their denominators are astonishingly simple: the denominator of B<sub>2n</sub> is precisely the <b>product of the primes p for which (p&minus;1) divides 2n</b>. So denom(B<sub>2</sub>)=6=2&middot;3, denom(B<sub>10</sub>)=66=2&middot;3&middot;11, and 2 and 3 divide <i>every</i> even-index Bernoulli denominator (since p&minus;1&isin;{1,2} always divides 2n). A messy fraction&rsquo;s bottom half is read straight off a divisibility condition on primes.<br><br>
+ <span class="lit">LIT</span> verified live: computing the Bernoulli numbers exactly as reduced fractions, the denominator of B<sub>2n</sub> equals &prod;<sub>(p&minus;1)|2n</sub> p for every n from 1 to 15 (window.__von_staudt). <span class="fig">FIG</span> no framing; the exact-fraction Bernoulli recurrence and the prime product run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-vault</i> &mdash; a fraction whose denominator is a locked product of primes, opened by one divisibility rule. <b>AVAN (AI)</b> built the instrument: the exact rational Bernoulli recurrence (BigInt fractions), the divisor-prime product, and the denominator match.<br><br>Credit as content: Karl von Staudt &amp; Thomas Clausen (independently, 1840). The weave: David names the vault; I confirm each Bernoulli denominator is exactly the product of the primes p with (p&minus;1)|2n.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">B_2n as a reduced fraction; its denominator is the product of primes p where (p−1) divides 2n.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick n; see B_2n, the primes p with (p−1)|2n, and their product — exactly the denominator.</div>
+   <div class="btns" style="margin-top:10px"><button id="vsprev">◀</button><button id="vsnext">▶</button><button id="vscheck">verify ▶</button></div>
+   <div class="cap" id="vsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the denominator of B_2n.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t reduce the fraction &mdash; read the primes. The inverse of &lsquo;compute B<sub>2n</sub> and simplify&rsquo; is &lsquo;its denominator is &prod; p over primes with (p&minus;1)|2n.&rsquo; <b>Magenta</b> are the qualifying primes; <b>green</b> is their product, the denominator. The bottom is written in primes.</div>
+   <div class="btns" style="margin-top:10px"><button id="vsspin">pause spin</button></div></div></div></div>"""
+VSTC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,OR='#ff8a3c',NI=5;
+function isPrime(n){if(n<2)return false;for(var i=2;i*i<=n;i++)if(n%i===0)return false;return true;}
+function gcdB(a,b){a=a<0n?-a:a;b=b<0n?-b:b;while(b){var t=a%b;a=b;b=t;}return a;}
+function fmk(n,d){if(d<0n){n=-n;d=-d;}var g=gcdB(n,d)||1n;return {n:n/g,d:d/g};}
+function fadd(x,y){return fmk(x.n*y.d+y.n*x.d,x.d*y.d);}
+function fmul(x,y){return fmk(x.n*y.n,x.d*y.d);}
+function binom(n,k){var r=1n;for(var i=0n;i<BigInt(k);i++)r=r*(BigInt(n)-i)/(i+1n);return r;}
+function bern(M){var B=[{n:1n,d:1n}];for(var m=1;m<=M;m++){var s={n:0n,d:1n};for(var k=0;k<m;k++)s=fadd(s,fmul({n:binom(m+1,k),d:1n},B[k]));B.push(fmul({n:-1n,d:BigInt(m+1)},s));}return B;}
+var B=bern(30);
+function primesFor(n){var ps=[];for(var p=2;p<=2*n+1;p++)if(isPrime(p)&&(2*n)%(p-1)===0)ps.push(p);return ps;}
+function prod(ps){var r=1n;for(var i=0;i<ps.length;i++)r*=BigInt(ps[i]);return r;}
+function verify(){if(VR)return VR;var ok=true;for(var n=1;n<=15;n++)if(B[2*n].d!==prod(primesFor(n)))ok=false;return {matches:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,OR,10,16,10,'Bernoulli B₂ₙ as a reduced fraction · denominator = ∏ primes p with (p−1)|2n');
+ var rows=[[1,'B₂'],[2,'B₄'],[3,'B₆'],[5,'B₁₀']];for(var ri=0;ri<rows.length;ri++){var n=rows[ri][0],y=48+ri*38;nt(g,'#cfe',20,y,12,rows[ri][1]+' = '+B[2*n].n+'/'+B[2*n].d);var ps=primesFor(n);nt(g,'#ff2fa6',230,y,11,'primes (p−1)|'+(2*n)+': '+ps.join('·')+' = '+prod(ps));}
+ nt(g,'#35ffb0',20,H-12,10,'2 and 3 divide every even-index denominator (p−1∈{1,2} always divides 2n)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=NI,ps=primesFor(n);nt(g,OR,12,24,13,'n = '+n+'   →   B_'+(2*n));
+ var frac=B[2*n].n+' / '+B[2*n].d;nt(g,'#cfe',12,58,frac.length>34?10:13,'B_'+(2*n)+' = '+frac);
+ nt(g,'#ff2fa6',12,96,12,'primes p with (p−1) | '+(2*n)+':');var x=30;for(var i=0;i<ps.length;i++){nf(g,'#ff2fa6');g.globalAlpha=0.55;g.fillRect(x,110,44,30);g.globalAlpha=1;ng(g);nt(g,'#0a0713',x+12,130,13,''+ps[i]);x+=54;}
+ nt(g,'#35ffb0',12,170,13,'product = '+prod(ps)+'   ·   denom(B_'+(2*n)+') = '+B[2*n].d);
+ nt(g,B[2*n].d===prod(ps)?'#39ffb0':'#ff5a5a',12,198,12,B[2*n].d===prod(ps)?'match ✓':'✗');
+ var v=verify();nt(g,v.matches?'#39ffb0':'#ff5a5a',12,H-14,9,'denom(B_2n) == ∏ primes (p−1)|2n for n=1..15 '+(v.matches?'✓':'✗'));}
+document.getElementById('vsnext').onclick=function(){NI=NI%15+1;drawW4();document.getElementById('vsread').textContent='n='+NI+': denom(B_'+(2*NI)+') = '+B[2*NI].d+' = '+primesFor(NI).join('·');};
+document.getElementById('vsprev').onclick=function(){NI=(NI+13)%15+1;drawW4();document.getElementById('vsread').textContent='n='+NI+': denom = '+B[2*NI].d;};
+document.getElementById('vscheck').onclick=function(){var v=verify();document.getElementById('vsread').textContent='denominator of B_2n == ∏ primes p with (p−1)|2n, verified exactly for n=1..15 '+(v.matches?'✓':'✗');};
+document.getElementById('vsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var ps=primesFor(NI);g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.1);var R=110;for(var i=0;i<ps.length;i++){var a=i/Math.max(1,ps.length)*6.283-1.57,x=Math.cos(a)*R,y=Math.sin(a)*R;ndot(g,x,y,10,'#ff2fa6');nt(g,'#0a0713',x-6,y+4,12,''+ps[i]);}g.restore();nt(g,'#35ffb0',W/2-40,20,13,'denom '+B[2*NI].d);
+ nt(g,'#35ffb0',10,H-46,11,'green: the denominator, a product of primes');nt(g,'#ff2fa6',10,H-30,10,'magenta: the primes p with (p−1)|2n');nt(g,'#8ad',10,H-13,10,'the bottom is written in primes');}
+drawW4();window.__von_staudt=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FIBC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Fibonacci coding</b> turns a positive integer into a <b>self-delimiting</b> bit string using the Fibonacci numbers as place values. Because every integer has a unique <b>Zeckendorf</b> representation &mdash; a sum of non-consecutive Fibonacci numbers &mdash; its bits never contain two adjacent 1s. Fibonacci coding writes those bits low-to-high and then appends one extra <b>1</b>, so the codeword <i>ends</i> in &ldquo;11&rdquo; and &ldquo;11&rdquo; appears nowhere else inside it. That makes the code a prefix code you can pack end-to-end with no separators: a decoder just splits the stream at every &ldquo;11&rdquo;. It is also robust &mdash; a single bit flip corrupts at most a couple of adjacent values, not the whole stream.<br><br>
+ <span class="lit">LIT</span> verified live: over 20,000 integers, encode/decode round-trips, every codeword ends in &ldquo;11&rdquo; with no earlier &ldquo;11&rdquo;, and a concatenated stream of many codewords parses back uniquely (window.__fibonacci_coding). <span class="fig">FIG</span> no framing; the Zeckendorf encoding and the split-at-11 parse run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>off-by-one</i> &mdash; one extra 1 appended to the Zeckendorf bits turns a bare number into a codeword that announces its own end. <b>AVAN (AI)</b> built the instrument: the Zeckendorf encoder, the terminating 11, the decoder, and the unique-parse check.<br><br>Credit as content: Fibonacci coding (from Zeckendorf&rsquo;s theorem; Apostolico &amp; Fraenkel formalized the universal code, 1987). The weave: David names off-by-one; I confirm the &ldquo;11&rdquo; terminator makes the stream self-delimiting and uniquely parseable.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">A number's Zeckendorf bits (no adjacent 1s) plus a terminating 1 → the codeword ends in 11, found nowhere earlier.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Encode several numbers, pack them end-to-end, and watch the decoder split the stream at every 11 — recovering each value.</div>
+   <div class="btns" style="margin-top:10px"><button id="fbnew">new numbers ▶</button><button id="fbcheck">verify ▶</button></div>
+   <div class="cap" id="fbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the stream, split cleanly at each 11.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t send lengths &mdash; let each code announce its end. The inverse of &lsquo;fixed-width fields&rsquo; is &lsquo;Zeckendorf bits have no 11, so a terminating 11 is a boundary that appears nowhere else.&rsquo; <b>Magenta</b> is a &ldquo;11&rdquo; boundary; <b>green</b> is the uniquely-parsed stream. The code carries its own delimiter.</div>
+   <div class="btns" style="margin-top:10px"><button id="fbspin">pause spin</button></div></div></div></div>"""
+FIBC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GR='#35ffb0',NUMS=[12,7,25],STREAM='';
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function fibs(max){var F=[1,2];while(F[F.length-1]<=max)F.push(F[F.length-1]+F[F.length-2]);return F;}
+function enc(n){var F=fibs(n),bits=[];for(var i=F.length-1;i>=0;i--){if(F[i]<=n){bits[i]=1;n-=F[i];}else bits[i]=0;}var hi=bits.length-1;while(hi>=0&&!bits[hi])hi--;var c='';for(var i=0;i<=hi;i++)c+=bits[i];return c+'1';}
+function dec(code){var F=fibs(1e15),n=0;for(var i=0;i<code.length-1;i++)if(code[i]==='1')n+=F[i];return n;}
+function verify(){if(VR)return VR;var rnd=mb(3),rt=true,e11=true,up=true;for(var t=0;t<20000;t++){var n=1+Math.floor(rnd()*100000),c=enc(n);if(dec(c)!==n)rt=false;if(c.slice(-2)!=='11'||c.slice(0,-2).indexOf('11')>=0)e11=false;}
+ for(var t=0;t<3000;t++){var seq=[],st='',k=1+Math.floor(rnd()*8);for(var i=0;i<k;i++){var v=1+Math.floor(rnd()*5000);seq.push(v);st+=enc(v);}var parsed=[],cur='';for(var i=0;i<st.length;i++){cur+=st[i];if(cur.length>=2&&cur.slice(-2)==='11'){parsed.push(dec(cur));cur='';}}if(parsed.join(',')!==seq.join(','))up=false;}
+ return {roundTrip:rt,ends11:e11,uniqueParse:up};}
+function buildStream(){STREAM='';NUMS.forEach(function(v){STREAM+=enc(v);});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=25,c=enc(25),F=fibs(25);nt(g,GR,10,16,10,'25 = Zeckendorf bits (no adjacent 1s) + terminating 1 → code "'+c+'"');
+ var cell=40,x0=30;for(var i=0;i<c.length;i++){var term=(i>=c.length-2);nf(g,c[i]==='1'?(term?'#ff2fa6':GR):'rgba(120,140,200,0.25)');g.globalAlpha=c[i]==='1'?0.7:1;g.fillRect(x0+i*cell,50,cell-4,34);g.globalAlpha=1;ng(g);nt(g,'#0a0713',x0+i*cell+cell/2-4,72,14,c[i]);if(i<c.length-1)nt(g,'#8ad',x0+i*cell+4,100,9,'F'+i+'='+F[i]);else nt(g,'#ff2fa6',x0+i*cell-2,100,9,'stop');}
+ nt(g,'#35ffb0',30,140,11,'decode: sum F_i where bit i (excluding terminator) = '+dec(c));nt(g,'#ff2fa6',30,166,10,'the final "11" appears nowhere else → self-delimiting');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!STREAM)buildStream();nt(g,GR,12,22,12,'numbers ['+NUMS.join(', ')+'] packed end-to-end:');
+ var cell=Math.min(20,(W-30)/STREAM.length),x0=15;
+ var parsed=[],cur='',boundaries={};for(var i=0;i<STREAM.length;i++){cur+=STREAM[i];if(cur.length>=2&&cur.slice(-2)==='11'){parsed.push(dec(cur));boundaries[i]=1;cur='';}}
+ for(var i=0;i<STREAM.length;i++){var b=boundaries[i]||boundaries[i-1];nf(g,STREAM[i]==='1'?(b?'#ff2fa6':GR):'rgba(120,140,200,0.25)');g.globalAlpha=STREAM[i]==='1'?0.7:1;g.fillRect(x0+i*cell,50,cell-1,26);g.globalAlpha=1;ng(g);nt(g,'#cfe',x0+i*cell+cell/2-3,68,9,STREAM[i]);}
+ nt(g,'#35ffb0',12,110,11,'split at each "11" → parsed ['+parsed.join(', ')+']');
+ nt(g,parsed.join(',')===NUMS.join(',')?'#39ffb0':'#ff5a5a',12,134,11,parsed.join(',')===NUMS.join(',')?'recovers the numbers ✓':'✗');
+ var v=verify();nt(g,v.roundTrip&&v.ends11&&v.uniqueParse?'#39ffb0':'#ff5a5a',12,H-14,9,'round-trip · ends-in-11 · unique parse (20000/3000) '+(v.roundTrip&&v.uniqueParse?'✓':'✗'));}
+document.getElementById('fbnew').onclick=function(){NUMS=[];var k=2+Math.floor(Math.random()*3);for(var i=0;i<k;i++)NUMS.push(1+Math.floor(Math.random()*60));buildStream();drawW4();document.getElementById('fbread').textContent='['+NUMS.join(',')+'] → stream of '+STREAM.length+' bits, parses back uniquely';};
+document.getElementById('fbcheck').onclick=function(){var v=verify();document.getElementById('fbread').textContent='encode/decode round-trip '+(v.roundTrip?'✓':'✗')+' · every code ends in 11, no earlier 11 '+(v.ends11?'✓':'✗')+' · concatenated stream parses uniquely '+(v.uniqueParse?'✓':'✗');};
+document.getElementById('fbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!STREAM)buildStream();g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.4)*0.02);g.translate(-W/2,-(H/2-10));
+ var cell=Math.min(18,(W-40)/STREAM.length),x0=(W-STREAM.length*cell)/2,cur='';for(var i=0;i<STREAM.length;i++){cur+=STREAM[i];var boundary=(cur.length>=2&&cur.slice(-2)==='11');ndot(g,x0+i*cell+cell/2,H/2-10,boundary?6:3,boundary?'#ff2fa6':GR);if(boundary)cur='';}
+ g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the bit stream, split cleanly at each 11');nt(g,'#ff2fa6',10,H-30,10,'magenta: the "11" boundaries that self-delimit');nt(g,'#8ad',10,H-13,10,'the code carries its own delimiter');}
+buildStream();drawW3();drawW4();window.__fibonacci_coding=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MDCT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The MDCT</b> (modified discrete cosine transform) is the transform at the heart of MP3, AAC, Vorbis, and Opus. It is <b>lapped</b>: it works on <b>overlapping</b> blocks of 2N samples but outputs only N coefficients each, so despite the 50% overlap there is no increase in data. That looks impossible &mdash; N numbers can&rsquo;t invert 2N samples &mdash; and indeed a single block can&rsquo;t. The magic is <b>time-domain aliasing cancellation (TDAC)</b>: each inverse block carries an aliased error, but with the right symmetric window (satisfying w[n]&sup2;+w[n+N]&sup2;=1) the aliases of neighbouring blocks are <b>equal and opposite</b>, so overlap-adding them reconstructs the signal <i>exactly</i>. Critical sampling and perfect reconstruction at once.<br><br>
+ <span class="lit">LIT</span> verified live: framing a signal into 50%-overlapping windows, MDCT then IMDCT then overlap-add reconstructs the interior samples to ~1e-14 (window.__mdct). <span class="fig">FIG</span> no framing; the MDCT/IMDCT sums and the overlap-add run in-browser (interior samples, which have full overlap).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sync</i> &mdash; overlapping windows brought into sync so their aliasing terms cancel and the signal returns seamlessly. <b>AVAN (AI)</b> built the instrument: the sine window, the MDCT and IMDCT, the overlap-add, and the reconstruction check.<br><br>Credit as content: Princen, Johnson &amp; Bradley (TDAC / MDCT, 1986&ndash;87). The weave: David names the sync; I confirm the overlapped inverse blocks cancel their aliasing and reconstruct the signal exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="210"></canvas>
+  <div class="wctrl"><div class="cap">Two 50%-overlapping windows; each inverse block carries aliasing, but neighbours cancel on overlap-add.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A signal, framed and transformed; the reconstruction (green) lies exactly on the original (interior) after overlap-add.</div>
+   <div class="btns" style="margin-top:10px"><button id="mdnew">new signal ▶</button><button id="mdcheck">verify ▶</button></div>
+   <div class="cap" id="mdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the reconstructed signal, seamless across blocks.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t transform blocks independently &mdash; overlap them. The inverse of &lsquo;N coefficients can&rsquo;t invert 2N samples&rsquo; is &lsquo;each block&rsquo;s aliasing is cancelled by its neighbour&rsquo;s on overlap-add (TDAC).&rsquo; <b>Magenta</b> is the aliasing a lone block leaves; <b>green</b> is the exact reconstruction once neighbours overlap. Overlap makes it invertible.</div>
+   <div class="btns" style="margin-top:10px"><button id="mdspin">pause spin</button></div></div></div></div>"""
+MDCT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GD='#ffcf4a',N=16,SIG=null,RECON=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function win(N){var w=[];for(var n=0;n<2*N;n++)w.push(Math.sin(Math.PI/(2*N)*(n+0.5)));return w;}
+function mdct(x,w,N){var X=[];for(var k=0;k<N;k++){var s=0;for(var n=0;n<2*N;n++)s+=w[n]*x[n]*Math.cos(Math.PI/N*(n+0.5+N/2)*(k+0.5));X.push(s);}return X;}
+function imdct(X,w,N){var y=[];for(var n=0;n<2*N;n++){var s=0;for(var k=0;k<N;k++)s+=X[k]*Math.cos(Math.PI/N*(n+0.5+N/2)*(k+0.5));y.push(w[n]*(2/N)*s);}return y;}
+function verify(){if(VR)return VR;var rnd=mb(4),ok=true,worst=0,W=win(8);for(var t=0;t<400;t++){var F=6,L=(F+1)*8,sig=[];for(var i=0;i<L;i++)sig.push(rnd()*2-1);var rc=new Array(L).fill(0);for(var f=0;f<F;f++){var st=f*8,fr=sig.slice(st,st+16),y=imdct(mdct(fr,W,8),W,8);for(var n=0;n<16;n++)rc[st+n]+=y[n];}for(var i=8;i<L-8;i++){var e=Math.abs(rc[i]-sig[i]);if(e>worst)worst=e;if(e>1e-9)ok=false;}}return {perfectRecon:ok,worst:worst};}
+function mk(){var rnd=Math.random,F=5,L=(F+1)*N;SIG=[];for(var i=0;i<L;i++)SIG.push(Math.sin(i*0.3)*0.6+Math.sin(i*0.11)*0.4+(rnd()*2-1)*0.1);var W=win(N);RECON=new Array(L).fill(0);for(var f=0;f<F;f++){var st=f*N,fr=SIG.slice(st,st+2*N),y=imdct(mdct(fr,W,N),W,N);for(var n=0;n<2*N;n++)RECON[st+n]+=y[n];}}
+function drawSig(g,sig,recon,x0,y0,w,h,lo,hi){function sy(v){return y0-((v+1.2)/2.4)*h;}ne(g,'rgba(255,207,74,0.4)',1);g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+w,y0);g.stroke();ng(g);
+ ne(g,'#ff8a3c',2);g.beginPath();for(var i=lo;i<hi;i++){var x=x0+(i-lo)/(hi-lo)*w;if(i===lo)g.moveTo(x,sy(sig[i]));else g.lineTo(x,sy(sig[i]));}g.stroke();ng(g);
+ if(recon){ne(g,'#35ffb0',1.4);g.setLineDash([3,3]);g.beginPath();for(var i=lo;i<hi;i++){var x=x0+(i-lo)/(hi-lo)*w;if(i===lo)g.moveTo(x,sy(recon[i]));else g.lineTo(x,sy(recon[i]));}g.stroke();g.setLineDash([]);ng(g);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var w=win(8);nt(g,GD,10,16,10,'two 50%-overlap sine windows: w[n]²+w[n+N]²=1 → aliasing cancels on overlap-add (TDAC)');
+ var x0=30,ww=W-60;for(var f=0;f<2;f++){ne(g,f?'#b06bff':'#ffcf4a',1.8);g.beginPath();for(var n=0;n<16;n++){var x=x0+(f*8+n)/(24)*ww,y=140-w[n]*90;if(n===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();ng(g);}
+ nt(g,'#8ad',30,H-12,10,'each window overlaps its neighbour by N; the summed squares are flat → perfect reconstruction');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!SIG)mk();nt(g,GD,12,20,12,'signal (orange) vs reconstruction (green dashed) — interior');
+ drawSig(g,SIG,RECON,20,150,W-40,180,N,SIG.length-N);
+ var worst=0;for(var i=N;i<SIG.length-N;i++)worst=Math.max(worst,Math.abs(RECON[i]-SIG[i]));
+ nt(g,worst<1e-9?'#39ffb0':'#ff5a5a',12,H-46,11,'max |reconstruction − original| (interior) = '+worst.toExponential(2)+(worst<1e-9?' → exact ✓':''));
+ var v=verify();nt(g,v.perfectRecon?'#39ffb0':'#ff5a5a',12,H-14,9,'MDCT→IMDCT→overlap-add reconstructs interior exactly (400 signals, worst '+v.worst.toExponential(1)+') '+(v.perfectRecon?'✓':'✗'));}
+document.getElementById('mdnew').onclick=function(){mk();drawW4();document.getElementById('mdread').textContent='new signal — MDCT/IMDCT/overlap-add reconstructs the interior exactly';};
+document.getElementById('mdcheck').onclick=function(){var v=verify();document.getElementById('mdread').textContent='lapped MDCT with sine window reconstructs interior to '+v.worst.toExponential(1)+' over 400 signals '+(v.perfectRecon?'✓':'✗');};
+document.getElementById('mdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!SIG)mk();g.save();g.translate(0,Math.sin(ang*0.4)*5);drawSig(g,SIG,RECON,30,H/2,W-60,150,N,SIG.length-N);g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the reconstruction, seamless across block boundaries');nt(g,'#ff2fa6',10,H-30,10,'magenta idea: the aliasing a lone block would leave');nt(g,'#8ad',10,H-13,10,'overlap makes it invertible');}
+mk();drawW3();drawW4();window.__mdct=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TREB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Treiber stack</b> is the classic <b>lock-free</b> stack: many threads push and pop with <i>no locks at all</i>, using one atomic instruction &mdash; <b>compare-and-swap</b> (CAS). To push, a thread reads the current top, points its new node at it, then CAS-es the top from the value it read to its new node. If another thread slipped in first, the top no longer matches what was read, the CAS fails, and the thread simply <b>retries</b> from the new top. No thread ever blocks another; the structure makes progress even if some threads stall. It is the foundation of lock-free programming &mdash; correct under <i>any</i> interleaving.<br><br>
+ <span class="lit">LIT</span> verified live: simulating a cooperative scheduler that interleaves concurrent CAS pushes arbitrarily, over 20,000 random interleavings every pushed value survives &mdash; no lost updates, no duplicates (window.__treiber). <span class="fig">FIG</span> honest scope: this models the CAS retry loop; the classic <b>ABA</b> hazard (a freed-and-reused node) is the known caveat that real implementations guard against.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gatekeeper</i> &mdash; the atomic compare-and-swap is the single gate every push must pass, and if it&rsquo;s moved, you try again. <b>AVAN (AI)</b> built the instrument: the read-modify-CAS push, a step-interleaving scheduler, and the no-lost-update check.<br><br>Credit as content: R. Kent Treiber (IBM, 1986). The weave: David names the gatekeeper; I confirm the CAS retry loop loses no pushes under arbitrary interleaving.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="210"></canvas>
+  <div class="wctrl"><div class="cap">A push: read top → point new node at it → CAS top. If top moved, the CAS fails and the thread retries.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Interleave several threads pushing at once; whatever the schedule, the final stack holds every pushed value.</div>
+   <div class="btns" style="margin-top:10px"><button id="trsim">interleave ▶</button><button id="trthreads">threads +</button><button id="trcheck">verify ▶</button></div>
+   <div class="cap" id="trread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the stack with every push intact.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t take a lock &mdash; retry a compare-and-swap. The inverse of &lsquo;serialize with a mutex&rsquo; is &lsquo;read the top, swing the pointer atomically, and retry if it moved.&rsquo; <b>Magenta</b> is a failed CAS (someone got there first) forcing a retry; <b>green</b> is the stack with all pushes preserved. Progress without locks.</div>
+   <div class="btns" style="margin-top:10px"><button id="trspin">pause spin</button></div></div></div></div>"""
+TREB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,VI='#b06bff',T=4,LASTGOT=null,RETRIES=0;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function sim(T,rnd,track){var nodes=[{val:null,next:0}],head=0,threads=[],retries=0;for(var t=0;t<T;t++){nodes.push({val:1000+t,next:0});threads.push({idx:t+1,state:0,oldHead:0,done:false});}
+ var remaining=T,guard=0;while(remaining>0&&guard<1000000){guard++;var live=[];for(var i=0;i<threads.length;i++)if(!threads[i].done)live.push(threads[i]);var th=live[Math.floor(rnd()*live.length)];
+  if(th.state===0){th.oldHead=head;nodes[th.idx].next=th.oldHead;th.state=1;}else{if(head===th.oldHead){head=th.idx;th.done=true;remaining--;}else{th.state=0;retries++;}}}
+ var got=[],cur=head;while(cur!==0){got.push(nodes[cur].val);cur=nodes[cur].next;}if(track)RETRIES=retries;return got;}
+function verify(){if(VR)return VR;var rnd=mb(5),noLoss=true,noDup=true;for(var t=0;t<20000;t++){var TT=2+Math.floor(rnd()*10),got=sim(TT,rnd,false).slice().sort(function(a,b){return a-b;}),ex=[];for(var i=0;i<TT;i++)ex.push(1000+i);if(got.join(',')!==ex.join(','))noLoss=false;var seen=new Set();for(var i=0;i<got.length;i++){if(seen.has(got[i]))noDup=false;seen.add(got[i]);}}return {noLoss:noLoss,noDup:noDup};}
+function runSim(){var rnd=Math.random;LASTGOT=sim(T,function(){return Math.random();},true);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,VI,10,16,10,'push: (1) read top  (2) new.next = top  (3) CAS top → new · if top moved, retry');
+ var steps=['read top','node.next = top','CAS(top, old, new)','success → top = new'];for(var i=0;i<4;i++){var y=50+i*36;nf(g,i===3?'#35ffb0':VI);g.globalAlpha=0.5;g.fillRect(40,y,260,26);g.globalAlpha=1;ng(g);nt(g,'#0a0713',52,y+17,12,steps[i]);if(i<3){ne(g,VI,1.4);g.beginPath();g.moveTo(170,y+26);g.lineTo(170,y+36);g.stroke();ng(g);}}
+ nt(g,'#ff2fa6',320,120,11,'if CAS fails');nt(g,'#ff2fa6',320,138,11,'(top changed):');nt(g,'#ff2fa6',320,156,11,'go back to (1)');
+ nt(g,'#8ad',40,H-12,10,'no locks — a stalled thread never blocks the others; failed CAS just retries');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!LASTGOT)runSim();nt(g,VI,12,22,12,T+' threads pushing concurrently · '+RETRIES+' CAS retries');
+ var sorted=LASTGOT.slice().sort(function(a,b){return a-b;}),ex=[];for(var i=0;i<T;i++)ex.push(1000+i);var ok=sorted.join(',')===ex.join(',');
+ nt(g,'#cfe',12,52,11,'final stack (top→bottom):');var y=74;for(var i=0;i<LASTGOT.length;i++){nf(g,'#35ffb0');g.globalAlpha=0.55;g.fillRect(W/2-40,y,80,24);g.globalAlpha=1;ng(g);nt(g,'#0a0713',W/2-14,y+16,11,'v'+(LASTGOT[i]-1000));y+=28;}
+ nt(g,ok?'#39ffb0':'#ff5a5a',12,H-46,11,'all '+T+' pushes present, none lost or duplicated '+(ok?'✓':'✗'));
+ var v=verify();nt(g,v.noLoss&&v.noDup?'#39ffb0':'#ff5a5a',12,H-14,9,'no lost updates & no duplicates over 20000 random interleavings '+(v.noLoss&&v.noDup?'✓':'✗'));}
+document.getElementById('trsim').onclick=function(){runSim();drawW4();document.getElementById('trread').textContent=T+' threads interleaved, '+RETRIES+' retries → all '+T+' pushes survived';};
+document.getElementById('trthreads').onclick=function(){T=T>=12?2:T+1;runSim();drawW4();document.getElementById('trread').textContent='now '+T+' threads — final stack still holds every push';};
+document.getElementById('trcheck').onclick=function(){var v=verify();document.getElementById('trread').textContent='CAS pushes lose no updates '+(v.noLoss?'✓':'✗')+' & no duplicates '+(v.noDup?'✓':'✗')+' over 20000 random interleavings';};
+document.getElementById('trspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!LASTGOT)runSim();g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.4)*0.03);g.translate(-W/2,-(H/2-10));
+ var y0=50;for(var i=0;i<LASTGOT.length;i++){var y=y0+i*32;ndot(g,W/2,y,8,'#35ffb0');nt(g,'#0a0713',W/2-8,y+4,10,'v'+(LASTGOT[i]-1000));if(i>0){ne(g,'rgba(53,255,176,0.5)',1.4);g.beginPath();g.moveTo(W/2,y-24);g.lineTo(W/2,y-8);g.stroke();ng(g);}}
+ nt(g,'#ff2fa6',20,H/2,10,RETRIES+' retries');g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the stack with every concurrent push intact');nt(g,'#ff2fa6',10,H-30,10,'magenta: failed CAS attempts that simply retried');nt(g,'#8ad',10,H-13,10,'progress without locks');}
+runSim();drawW3();drawW4();window.__treiber=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 129 · neon-noir tracing · silicon-coding (partial products crushed in parallel · a number in factorial base · one pointer holds both neighbors · nearest found by pruning a metric tree · two heaps merged along right paths) ═══════════════════════
 WALL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Wallace tree</b> is how fast hardware <b>multiplies</b>. A schoolbook multiply forms one <b>partial product</b> per bit of the multiplier and adds them in sequence &mdash; slow, because each add waits for the last. Wallace instead crushes the whole stack of partial products in parallel using <b>3:2 compressors</b> (full adders): each takes three rows and outputs two &mdash; a sum row and a carry row &mdash; preserving the total, since x+y+z = sum + 2&middot;carry. Layer after layer the height falls 3&rarr;2 until only two rows remain, which a single carry-propagate adder finishes. The depth is <b>logarithmic</b> in the number of partial products, which is why multipliers use it.<br><br>
@@ -33854,6 +34094,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-sqrt-decomposition","title":"THE SQRT DECOMPOSITION","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE-CRON-JOB","domain_slug":"the-cron-job","accent":"#21e6ff","icon":"sqrtdecomp",
+  "kicker":"√n blocks answer range sums",
+  "blurb":"Square-root decomposition in the 5-window house format — the simplest way to answer range queries fast. Split an array of n elements into blocks of size about √n and precompute a summary (here, a sum) for each block. To sum any range, add the few loose elements at the two ends one by one, and for the whole blocks in between just add their precomputed sums — so any query touches at most about 2√n items instead of n. A point update fixes one element and its block's summary in O(1). It is the humble ancestor of segment trees and Fenwick trees — less powerful, but astonishingly easy and general (it works for any associative summary). Verified live: over 3000 arrays and 30 mixed operations each, block range-sums with point updates exactly equal a brute-force recomputation. Neon-noir traced. See the blocked array in 1D, the partial+whole-block query in 2D, and the scan-into-jumps inverse in 3D.",
+  "lit":"Genuine square-root decomposition (classic algorithmic folklore; ancestor of segment/Fenwick trees). Verified live: over 3000 random arrays × 30 mixed operations, √n-block range-sums (loose ends elementwise + whole blocks by summary) with O(1) point updates exactly equal a brute-force recomputation (window.__sqrt_decomposition.matchesBrute).",
+  "fig":"No framing: the block summaries and a brute-force sum run in-browser. The AVAN inverse is honest — instead of scanning the whole range (O(n)), precomputed √n block sums turn a range into a few loose ends plus whole-block jumps, O(√n). Magenta is the element-by-element scan; green is the block hops. Summaries turn a scan into jumps.",
+  "body":SQRD_BODY,"script":SQRD_SCRIPT},
+ {"slug":"the-von-staudt-clausen","title":"THE VON STAUDT-CLAUSEN","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE-VAULT","domain_slug":"the-vault","accent":"#ff8a3c","icon":"vonstaudt",
+  "kicker":"a Bernoulli denominator read off from primes",
+  "blurb":"The von Staudt–Clausen theorem in the 5-window house format — revealing the exact denominator of every Bernoulli number. The Bernoulli numbers B_2n are wild rationals with enormous numerators, yet their denominators are astonishingly simple: the denominator of B_2n is precisely the product of the primes p for which (p−1) divides 2n. So denom(B_2)=6=2·3, denom(B_10)=66=2·3·11, and 2 and 3 divide every even-index Bernoulli denominator (since p−1∈{1,2} always divides 2n). A messy fraction's bottom half is read straight off a divisibility condition on primes. Verified live: computing the Bernoulli numbers exactly as reduced fractions (BigInt), the denominator of B_2n equals ∏_{(p−1)|2n} p for every n from 1 to 15. Neon-noir traced. See the fraction in 1D, the primes and product in 2D, and the read-off-the-primes inverse in 3D.",
+  "lit":"Genuine von Staudt–Clausen theorem (Karl von Staudt & Thomas Clausen, independently 1840). Verified live: computing Bernoulli numbers exactly as reduced BigInt fractions via the recurrence, the denominator of B_2n equals ∏ of primes p with (p−1)|2n for every n=1..15 (e.g. denom(B_10)=66=2·3·11) (window.__von_staudt.matches).",
+  "fig":"No framing: the exact-fraction Bernoulli recurrence and the prime product run in-browser. The AVAN inverse is honest — instead of computing B_2n and reducing the fraction, its denominator is read directly from a divisibility rule: ∏ p over primes with (p−1)|2n. Magenta are the qualifying primes; green is their product, the denominator. The bottom is written in primes.",
+  "body":VSTC_BODY,"script":VSTC_SCRIPT},
+ {"slug":"the-fibonacci-coding","title":"THE FIBONACCI CODING","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF-BY-ONE","domain_slug":"off-by-one","accent":"#35ffb0","icon":"fibcoding",
+  "kicker":"a code that ends in 11",
+  "blurb":"Fibonacci coding in the 5-window house format — turning a positive integer into a self-delimiting bit string using the Fibonacci numbers as place values. Because every integer has a unique Zeckendorf representation (a sum of non-consecutive Fibonacci numbers), its bits never contain two adjacent 1s. Fibonacci coding writes those bits low-to-high and then appends one extra 1, so the codeword ends in '11' and '11' appears nowhere else inside it. That makes the code a prefix code you can pack end-to-end with no separators: a decoder just splits the stream at every '11'. It is also robust — a single bit flip corrupts at most a couple of adjacent values, not the whole stream. Verified live: over 20,000 integers, encode/decode round-trips, every codeword ends in '11' with no earlier '11', and a concatenated stream of many codewords parses back uniquely. Neon-noir traced. See the bits + terminator in 1D, the packed stream parse in 2D, and the carries-its-own-delimiter inverse in 3D.",
+  "lit":"Genuine Fibonacci coding (from Zeckendorf's theorem; Apostolico & Fraenkel formalized it as a universal code, 1987). Verified live: over 20000 integers, the Zeckendorf-bits + terminating-1 encode/decode round-trips, every codeword ends in '11' with no earlier '11', and over 3000 concatenated multi-codeword streams the split-at-'11' decoder recovers the exact sequence (window.__fibonacci_coding.roundTrip, .ends11, .uniqueParse).",
+  "fig":"No framing: the Zeckendorf encoding and the split-at-11 parse run in-browser. Distinct from the Zeckendorf representation itself — this is the self-delimiting universal CODE built on it. The AVAN inverse is honest — instead of sending explicit lengths, each codeword announces its own end: Zeckendorf bits contain no '11', so a terminating '11' is a boundary appearing nowhere else. Magenta is a '11' boundary; green is the uniquely-parsed stream. The code carries its own delimiter.",
+  "body":FIBC_BODY,"script":FIBC_SCRIPT},
+ {"slug":"the-mdct","title":"THE MDCT","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE-SYNC","domain_slug":"the-sync","accent":"#ffcf4a","icon":"mdct",
+  "kicker":"overlapping windows cancel their aliasing",
+  "blurb":"The MDCT (modified discrete cosine transform) in the 5-window house format — the transform at the heart of MP3, AAC, Vorbis, and Opus. It is lapped: it works on overlapping blocks of 2N samples but outputs only N coefficients each, so despite the 50% overlap there is no increase in data. That looks impossible — N numbers can't invert 2N samples — and indeed a single block can't. The magic is time-domain aliasing cancellation (TDAC): each inverse block carries an aliased error, but with the right symmetric window (satisfying w[n]²+w[n+N]²=1) the aliases of neighbouring blocks are equal and opposite, so overlap-adding them reconstructs the signal exactly. Critical sampling and perfect reconstruction at once. Verified live: framing a signal into 50%-overlapping windows, MDCT then IMDCT then overlap-add reconstructs the interior samples to ~1e-14. Neon-noir traced. See the overlapping windows in 1D, the reconstruction in 2D, and the overlap-makes-invertible inverse in 3D.",
+  "lit":"Genuine MDCT / time-domain aliasing cancellation (Princen, Johnson & Bradley, 1986–87), the transform behind MP3/AAC/Vorbis/Opus. Verified live: with the sine window (w[n]²+w[n+N]²=1), framing a signal into 50%-overlapping 2N-windows and doing MDCT→IMDCT→overlap-add reconstructs the interior samples to ~1e-14 over 400 random signals (window.__mdct.perfectRecon).",
+  "fig":"No framing: the MDCT/IMDCT sums and the overlap-add run in-browser (interior samples, which have full overlap on both sides). The AVAN inverse is honest — a single block's N coefficients can't invert its 2N samples, but overlapping blocks whose aliasing is equal and opposite cancel on overlap-add (TDAC), giving exact reconstruction. Magenta is the aliasing a lone block leaves; green is the exact reconstruction. Overlap makes it invertible.",
+  "body":MDCT_BODY,"script":MDCT_SCRIPT},
+ {"slug":"the-treiber","title":"THE TREIBER STACK","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE-GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#b06bff","icon":"treiber",
+  "kicker":"a stack that needs no lock",
+  "blurb":"The Treiber stack in the 5-window house format — the classic lock-free stack: many threads push and pop with no locks at all, using one atomic instruction, compare-and-swap (CAS). To push, a thread reads the current top, points its new node at it, then CAS-es the top from the value it read to its new node. If another thread slipped in first, the top no longer matches what was read, the CAS fails, and the thread simply retries from the new top. No thread ever blocks another; the structure makes progress even if some threads stall. It is the foundation of lock-free programming — correct under any interleaving. Verified live: simulating a cooperative scheduler that interleaves concurrent CAS pushes arbitrarily, over 20,000 random interleavings every pushed value survives — no lost updates, no duplicates. Neon-noir traced. See the CAS retry loop in 1D, the interleaved threads in 2D, and the progress-without-locks inverse in 3D.",
+  "lit":"Genuine Treiber stack (R. Kent Treiber, IBM, 1986), the foundational lock-free stack. Verified live: a cooperative scheduler interleaving each thread's read→set-next→CAS steps (CAS succeeds only if the top is unchanged, else retry) loses no pushes and produces no duplicates over 20000 random interleavings of 2–11 concurrent pushers (window.__treiber.noLoss, .noDup).",
+  "fig":"Honest scope: this models the CAS retry loop under a simulated interleaving; the classic ABA hazard (a node freed and reused so a stale pointer's CAS wrongly succeeds) is the known caveat real implementations guard against (tagged pointers, hazard pointers). The AVAN inverse is honest — instead of a mutex serializing access, one reads the top, swings the pointer with an atomic CAS, and retries if it moved. Magenta is a failed CAS forcing a retry; green is the stack with all pushes preserved. Progress without locks.",
+  "body":TREB_BODY,"script":TREB_SCRIPT},
  {"slug":"the-wallace-tree","title":"THE WALLACE TREE","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE-MAINFRAME","domain_slug":"the-mainframe","accent":"#21e6ff","icon":"wallace",
   "kicker":"partial products crushed in parallel",
