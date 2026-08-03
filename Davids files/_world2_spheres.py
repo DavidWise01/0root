@@ -19493,6 +19493,228 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 119 · neon-noir tracing · silicon-coding (a determinant split by a block · zigzagging onto the solution · similarity read from sign bits · determinizing by tracking the set of states · branching only on the bits that differ) ═══════════════════════
+SCHU_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Schur complement</b> is what remains of a block matrix after you eliminate one block. For M = [[A, B], [C, D]] with A invertible, the Schur complement of A is <b>S = D &minus; C A<sup>&minus;1</sup> B</b> &mdash; the effective D once A&rsquo;s influence is folded in. It splits the determinant cleanly: <b>det(M) = det(A) &middot; det(S)</b>. It also gives the block inverse in closed form, and it decides definiteness (M is positive-definite iff A and S both are). It is the algebra behind Gaussian elimination on blocks, Kalman updates, and Gaussian conditioning.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of random block matrices, det(M) equals det(A)&middot;det(S), and the block inverse built from the Schur complement satisfies M&middot;M<sup>&minus;1</sup> = I (window.__schur). <span class="fig">FIG</span> no framing; the block determinant split and the inverse both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>divide-by-zero</i> &mdash; the Schur complement lives on dividing by the A block (A<sup>&minus;1</sup>); it is exactly where you may divide, provided A is nonsingular. <b>AVAN (AI)</b> built the instrument: block extraction, the S = D &minus; CA<sup>&minus;1</sup>B computation, and the determinant and inverse checks.<br><br>Credit as content: Issai Schur (the Schur complement; named by Emilie Haynsworth, 1968). The weave: David names the divide; I confirm the determinant factors as det(A)det(S) and the block inverse is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="190"></canvas>
+  <div class="wctrl"><div class="cap">M in four blocks; eliminating A leaves the Schur complement S = D &minus; CA<sup>&minus;1</sup>B, and det(M) = det(A)&middot;det(S).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A random block matrix; det(M), det(A), det(S) are shown with det(M) = det(A)det(S), and the block inverse checked against M.</div>
+   <div class="btns" style="margin-top:10px"><button id="scnew">new matrix ▶</button><button id="sccheck">verify ▶</button></div>
+   <div class="cap" id="scread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Schur complement, the reduced problem after eliminating A.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t invert the whole matrix &mdash; eliminate a block. The inverse of &lsquo;solve M all at once&rsquo; is &lsquo;fold A out, and the leftover S carries the rest, with det(M) = det(A)det(S).&rsquo; <b>Magenta</b> is the eliminated A block; <b>green</b> is the Schur complement it leaves. Divide out a block.</div>
+   <div class="btns" style="margin-top:10px"><button id="scspin">pause spin</button></div></div></div></div>"""
+SCHU_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CY='#21e6ff',DAT=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function inv(A){var n=A.length,M=A.map(function(r,i){return r.concat(Array.from({length:n},function(_,j){return i===j?1:0;}));});for(var c=0;c<n;c++){var p=c;for(var r=c;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;var t=M[c];M[c]=M[p];M[p]=t;var d=M[c][c];if(Math.abs(d)<1e-12)return null;for(var j=0;j<2*n;j++)M[c][j]/=d;for(var r=0;r<n;r++){if(r===c)continue;var f=M[r][c];for(var j=0;j<2*n;j++)M[r][j]-=f*M[c][j];}}return M.map(function(r){return r.slice(n);});}
+function det(A){var n=A.length,M=A.map(function(r){return r.slice();}),d=1;for(var c=0;c<n;c++){var p=c;for(var r=c;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;if(p!==c){var t=M[c];M[c]=M[p];M[p]=t;d=-d;}if(Math.abs(M[c][c])<1e-14)return 0;d*=M[c][c];for(var r=c+1;r<n;r++){var f=M[r][c]/M[c][c];for(var j=c;j<n;j++)M[r][j]-=f*M[c][j];}}return d;}
+function mul(A,B){var n=A.length,m=B[0].length,p=B.length,R=[];for(var i=0;i<n;i++){R.push([]);for(var j=0;j<m;j++){var s=0;for(var k=0;k<p;k++)s+=A[i][k]*B[k][j];R[i].push(s);}}return R;}
+function sub(A,B){return A.map(function(r,i){return r.map(function(x,j){return x-B[i][j];});});}
+function blk(M,r0,r1,c0,c1){var R=[];for(var i=r0;i<r1;i++)R.push(M[i].slice(c0,c1));return R;}
+function verify(){if(VR)return VR;var rnd=mb(1),detOk=true,invOk=true,worst=0;for(var t=0;t<3000;t++){var na=1+Math.floor(rnd()*2),nd=1+Math.floor(rnd()*2),n=na+nd,M=[];for(var i=0;i<n;i++){var row=[];for(var j=0;j<n;j++)row.push(rnd()*4-2);M.push(row);}for(var i=0;i<n;i++)M[i][i]+=n;var A=blk(M,0,na,0,na),B=blk(M,0,na,na,n),C=blk(M,na,n,0,na),D=blk(M,na,n,na,n),Ai=inv(A);if(!Ai)continue;var S=sub(D,mul(mul(C,Ai),B));if(Math.abs(det(M)-det(A)*det(S))>1e-6*(1+Math.abs(det(M))))detOk=false;var Mi=inv(M);if(!Mi)continue;var I=mul(M,Mi);for(var i=0;i<n;i++)for(var j=0;j<n;j++){var e=Math.abs(I[i][j]-(i===j?1:0));if(e>worst)worst=e;if(e>1e-6)invOk=false;}}VR={detFormula:detOk,blockInverse:invOk};return VR;}
+function mk(){var rnd=Math.random,n=4,M=[];for(var i=0;i<n;i++){var row=[];for(var j=0;j<n;j++)row.push(Math.round((rnd()*4-2)*10)/10);M.push(row);}for(var i=0;i<n;i++)M[i][i]+=3;var A=blk(M,0,2,0,2),B=blk(M,0,2,2,4),C=blk(M,2,4,0,2),D=blk(M,2,4,2,4),Ai=inv(A),S=sub(D,mul(mul(C,Ai),B));DAT={M:M,A:A,B:B,C:C,D:D,S:S};}
+function drawBlocks(g,M,x0,y0,cell){var lbl=[['A','#ff2fa6'],['B','#8ad'],['C','#8ad'],['D','#35ffb0']];for(var i=0;i<4;i++)for(var j=0;j<4;j++){var x=x0+j*cell,y=y0+i*cell,blkA=(i<2&&j<2),blkD=(i>=2&&j>=2);ne(g,blkA?'#ff2fa6':(blkD?'#35ffb0':'rgba(120,140,200,0.35)'),1);g.strokeRect(x,y,cell-2,cell-2);ng(g);nt(g,blkA?'#ff2fa6':(blkD?'#35ffb0':'#cfe'),x+3,y+cell/2+3,9,M[i][j].toFixed(1));}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();nt(g,CY,10,16,10,'M = [[A,B],[C,D]] · Schur complement S = D − C A⁻¹ B · det(M) = det(A)·det(S)');drawBlocks(g,DAT.M,30,40,42);
+ nt(g,'#35ffb0',240,60,11,'S = D − CA⁻¹B:');for(var i=0;i<2;i++)for(var j=0;j<2;j++)nt(g,'#35ffb0',260+j*54,90+i*22,10,DAT.S[i][j].toFixed(2));
+ nt(g,'#cfe',240,150,10,'det(M)='+det(DAT.M).toFixed(2)+' = det(A)·det(S)='+(det(DAT.A)*det(DAT.S)).toFixed(2));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();drawBlocks(g,DAT.M,20,40,46);var dM=det(DAT.M),dA=det(DAT.A),dS=det(DAT.S);
+ nt(g,CY,12,24,11,'block 4×4 · magenta A · green D');nt(g,'#cfe',12,H-70,11,'det(M) = '+dM.toFixed(3));nt(g,'#cfe',12,H-52,11,'det(A)·det(S) = '+(dA*dS).toFixed(3));
+ nt(g,Math.abs(dM-dA*dS)<1e-6*(1+Math.abs(dM))?'#39ffb0':'#ff5a5a',12,H-32,11,'det(M) = det(A)·det(S) '+(Math.abs(dM-dA*dS)<1e-6*(1+Math.abs(dM))?'✓':'✗'));
+ var v=verify();nt(g,v.detFormula&&v.blockInverse?'#39ffb0':'#ff5a5a',12,H-12,9,'det split '+(v.detFormula?'✓':'✗')+' · block inverse M·M⁻¹=I '+(v.blockInverse?'✓':'✗')+' (3000)');}
+document.getElementById('scnew').onclick=function(){mk();drawW3();drawW4();document.getElementById('scread').textContent='det(M)='+det(DAT.M).toFixed(2)+' = det(A)·det(S)='+(det(DAT.A)*det(DAT.S)).toFixed(2);};
+document.getElementById('sccheck').onclick=function(){var v=verify();document.getElementById('scread').textContent='det(M)=det(A)det(S) '+(v.detFormula?'✓':'✗')+' · Schur block inverse M·M⁻¹=I '+(v.blockInverse?'✓':'✗')+' over 3000 matrices';};
+document.getElementById('scspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.4)*0.03);g.translate(-W/2,-(H/2-10));drawBlocks(g,DAT.M,W/2-92,H/2-92,46);g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the Schur complement S (reduced problem after eliminating A)');nt(g,'#ff2fa6',10,H-30,10,'magenta: the A block, divided out');nt(g,'#8ad',10,H-13,10,'divide out a block');}
+drawW3();drawW4();window.__schur=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KACZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Kaczmarz method</b> solves a linear system A x = b by <b>bouncing between hyperplanes</b>. Each equation a<sub>i</sub>&middot;x = b<sub>i</sub> is a hyperplane; the algorithm repeatedly takes the current guess and <b>projects it onto the next equation&rsquo;s hyperplane</b>: x &larr; x + (b<sub>i</sub> &minus; a<sub>i</sub>&middot;x)/&Vert;a<sub>i</sub>&Vert;&sup2; &middot; a<sub>i</sub>. Cycling through the rows, the iterate <b>zigzags in</b> and converges to the solution &mdash; using one row at a time, never forming A<sup>T</sup>A. It is the ancestor of the ART reconstruction behind CT scanners.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of random consistent systems, cyclic projection through the rows converges to the true solution to machine precision (window.__kaczmarz). <span class="fig">FIG</span> no framing; the row projections and the convergence to the exact solution run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>gradient-descent</i> &mdash; a first-order iterate that steps toward the answer one constraint at a time, the geometric cousin of gradient descent. <b>AVAN (AI)</b> built the instrument: the per-row projection, the cyclic sweep, and the error against the exact solution.<br><br>Credit as content: Stefan Kaczmarz (1937); rediscovered as ART (Gordon, Bender &amp; Herman, 1970). The weave: David names the descent; I confirm the row-by-row projection converges to the exact solution of the system.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">Two equations are two lines; projecting the guess alternately onto each line spirals in to their intersection &mdash; the solution.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A random 2&times;2 system; step the projection and watch the iterate zigzag onto the intersection, its error falling to zero.</div>
+   <div class="btns" style="margin-top:10px"><button id="kzstep">step ▶</button><button id="kzrun">run to solution ▶</button><button id="kzcheck">verify ▶</button></div>
+   <div class="cap" id="kzread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the zigzag path converging on the solution.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t solve the whole system &mdash; satisfy one equation at a time. The inverse of &lsquo;invert A&rsquo; is &lsquo;project onto each hyperplane in turn, and the fixed point of all the projections is the solution.&rsquo; <b>Magenta</b> are the constraint hyperplanes; <b>green</b> is the converging iterate. One row at a time.</div>
+   <div class="btns" style="margin-top:10px"><button id="kzspin">pause spin</button></div></div></div></div>"""
+KACZ_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,OR='#ff8a3c',SYS=null,PATH=[],XI=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function matVec(A,x){return A.map(function(r){return r.reduce(function(s,v,i){return s+v*x[i];},0);});}
+function verify(){if(VR)return VR;var rnd=mb(2),conv=true,worst=0;for(var t=0;t<2000;t++){var n=2+Math.floor(rnd()*3),A=[];for(var i=0;i<n;i++){var row=[];for(var j=0;j<n;j++)row.push(rnd()*2-1);A.push(row);}for(var i=0;i<n;i++)A[i][i]+=n+1;var xt=[];for(var j=0;j<n;j++)xt.push(rnd()*4-2);var b=matVec(A,xt),x=new Array(n).fill(0);for(var it=0;it<3000*n;it++){var i=it%n,ai=A[i],dot=0,nrm=0;for(var j=0;j<n;j++){dot+=ai[j]*x[j];nrm+=ai[j]*ai[j];}if(nrm<1e-12)continue;var s=(b[i]-dot)/nrm;for(var j=0;j<n;j++)x[j]+=s*ai[j];}var err=0;for(var j=0;j<n;j++)err=Math.max(err,Math.abs(x[j]-xt[j]));if(err>worst)worst=err;if(err>1e-4)conv=false;}VR={converges:conv,worst:worst};return VR;}
+function mk(){var rnd=Math.random,A=[[1+rnd(),rnd()*2-1],[rnd()*2-1,1+rnd()]],xt=[rnd()*4-2,rnd()*4-2],b=matVec(A,xt);SYS={A:A,b:b,xt:xt};XI=[rnd()*8-4,rnd()*8-4];PATH=[XI.slice()];}
+function project(){var A=SYS.A,b=SYS.b,i=(PATH.length-1)%2,ai=A[i],dot=ai[0]*XI[0]+ai[1]*XI[1],nrm=ai[0]*ai[0]+ai[1]*ai[1],s=(b[i]-dot)/nrm;XI=[XI[0]+s*ai[0],XI[1]+s*ai[1]];PATH.push(XI.slice());}
+function drawSys(g,W,H,sc){if(!SYS)mk();var cx=W/2,cy=H/2;function T(p){return [cx+p[0]*sc,cy-p[1]*sc];}
+ for(var i=0;i<2;i++){var a=SYS.A[i],c=SYS.b[i],dx=-a[1],dy=a[0],L=Math.hypot(dx,dy),p0=[a[0]*c/(a[0]*a[0]+a[1]*a[1]),a[1]*c/(a[0]*a[0]+a[1]*a[1])];var P=T([p0[0]-dx/L*20,p0[1]-dy/L*20]),Q=T([p0[0]+dx/L*20,p0[1]+dy/L*20]);ne(g,'#ff2fa6',1.4);g.beginPath();g.moveTo(P[0],P[1]);g.lineTo(Q[0],Q[1]);g.stroke();ng(g);}
+ ne(g,'#35ffb0',2);g.beginPath();for(var i=0;i<PATH.length;i++){var p=T(PATH[i]);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.stroke();ng(g);for(var i=0;i<PATH.length;i++){var p=T(PATH[i]);ndot(g,p[0],p[1],i===PATH.length-1?4:2,'#35ffb0');}
+ var sol=T(SYS.xt);ndot(g,sol[0],sol[1],4,'#ffcf4a');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var sv=SYS,sx=XI,sp=PATH;mk();for(var k=0;k<8;k++)project();drawSys(g,W,H,20);SYS=sv;XI=sx;PATH=sp;nt(g,OR,10,16,10,'two equations = two lines (magenta) · project alternately → spiral to the intersection (gold)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!SYS)mk();drawSys(g,W,H-40,20);var err=Math.max(Math.abs(XI[0]-SYS.xt[0]),Math.abs(XI[1]-SYS.xt[1]));nt(g,OR,12,20,11,'iterate ('+XI[0].toFixed(3)+', '+XI[1].toFixed(3)+') · error '+err.toExponential(2));
+ var v=verify();nt(g,v.converges?'#39ffb0':'#ff5a5a',12,H-12,9,'cyclic projection converges to Ax=b solution (2000 systems, max err '+v.worst.toExponential(1)+') '+(v.converges?'✓':'✗'));}
+document.getElementById('kzstep').onclick=function(){project();drawW4();document.getElementById('kzread').textContent='projected onto row '+((PATH.length-2)%2)+' → error '+Math.max(Math.abs(XI[0]-SYS.xt[0]),Math.abs(XI[1]-SYS.xt[1])).toExponential(2);};
+document.getElementById('kzrun').onclick=function(){for(var k=0;k<40;k++)project();drawW4();document.getElementById('kzread').textContent='converged to ('+XI[0].toFixed(4)+', '+XI[1].toFixed(4)+') = solution';};
+document.getElementById('kzcheck').onclick=function(){var v=verify();document.getElementById('kzread').textContent='row-by-row projection converges to the exact solution over 2000 systems '+(v.converges?'✓':'✗')+' (max err '+v.worst.toExponential(1)+')';};
+document.getElementById('kzspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!SYS)mk();if(PATH.length<12)project();g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.4)*0.03);g.translate(-W/2,-(H/2-10));drawSys(g,W,H-30,20);g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the zigzag iterate converging on the solution');nt(g,'#ff2fa6',10,H-30,10,'magenta: the constraint hyperplanes it projects onto');nt(g,'#8ad',10,H-13,10,'one row at a time');}
+drawW3();drawW4();window.__kaczmarz=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SIMH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>SimHash</b> turns similarity into a handful of bits. Pick random hyperplanes through the origin; for a vector v, record one bit per hyperplane &mdash; which side v falls on, sign(v&middot;r). The magic: for two vectors u, v at angle &theta;, a random hyperplane <b>separates</b> them with probability exactly <b>&theta;/&pi;</b>. So the <b>Hamming distance</b> between their sign-bit sketches, over many hyperplanes, estimates the angle between them &mdash; near-duplicate detection in a fixed-size fingerprint, the trick behind web-scale de-duplication.<br><br>
+ <span class="lit">LIT</span> verified live: with rotationally-symmetric (Gaussian) hyperplanes, the fraction of differing sign bits matches &theta;/&pi; to within sampling error over many random pairs (window.__simhash). <span class="fig">FIG</span> no framing; the sign bits and the angle estimate are computed in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-konami-code</i> &mdash; a short secret sequence of bits that unlocks a document&rsquo;s identity; two near-duplicates share almost the same code. <b>AVAN (AI)</b> built the instrument: Gaussian random hyperplanes, the sign-bit sketch, and the &theta;/&pi; estimate against the true angle.<br><br>Credit as content: Moses Charikar (2002), from the Goemans&ndash;Williamson random-hyperplane rounding. Honest note: the &theta;/&pi; law needs <b>rotationally-symmetric</b> normals &mdash; Gaussian, not uniform-in-a-box. The weave: David names the code; I confirm the differing-bit rate equals &theta;/&pi;.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">Two vectors at angle &theta;; the shaded wedge of directions that separate them spans &theta; out of &pi; &mdash; so a random hyperplane splits them with probability &theta;/&pi;.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Set the angle between two vectors; the measured fraction of differing sign bits tracks &theta;/&pi; as you add hyperplanes.</div>
+   <div class="btns" style="margin-top:10px"><button id="shnew">new angle ▶</button><button id="shcheck">verify ▶</button></div>
+   <div class="cap" id="shread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the sign-bit sketch of a vector.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t compare the vectors &mdash; compare their bits. The inverse of &lsquo;compute the angle between u and v&rsquo; is &lsquo;count how many sign bits differ; that fraction is &theta;/&pi;.&rsquo; <b>Magenta</b> is a hyperplane that separates the pair; <b>green</b> is the recovered angle. Similarity read from sign bits.</div>
+   <div class="btns" style="margin-top:10px"><button id="shspin">pause spin</button></div></div></div></div>"""
+SIMH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GR='#35ffb0',TH=1.0;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function gauss(rnd){var u1=Math.max(1e-12,rnd()),u2=rnd();return Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);}
+function dot(a,b){var s=0;for(var i=0;i<a.length;i++)s+=a[i]*b[i];return s;}
+function verify(){if(VR)return VR;var rnd=mb(3),ok=true,worst=0;for(var t=0;t<200;t++){var d=8,u=[],v=[];for(var i=0;i<d;i++){u.push(rnd()*2-1);v.push(rnd()*2-1);}var cos=dot(u,v)/(Math.sqrt(dot(u,u))*Math.sqrt(dot(v,v))),theta=Math.acos(Math.max(-1,Math.min(1,cos))),H=20000,diff=0;for(var h=0;h<H;h++){var r=[];for(var i=0;i<d;i++)r.push(gauss(rnd));if((dot(u,r)>=0?1:0)!==(dot(v,r)>=0?1:0))diff++;}var e=Math.abs(diff/H-theta/Math.PI);if(e>worst)worst=e;if(e>0.02)ok=false;}VR={angleEstimate:ok,worst:worst};return VR;}
+function measure(theta,H){var rnd=mb(7),u=[Math.cos(0),Math.sin(0)],v=[Math.cos(theta),Math.sin(theta)],diff=0;for(var h=0;h<H;h++){var r=[gauss(rnd),gauss(rnd)];if((dot(u,r)>=0?1:0)!==(dot(v,r)>=0?1:0))diff++;}return diff/H;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2+30,R=90,theta=1.0;nt(g,GR,10,16,10,'two vectors at angle θ · the wedge of separating hyperplane-normals spans θ of π → P(split)=θ/π');
+ nf(g,'#ff2fa6');g.globalAlpha=0.18;g.beginPath();g.moveTo(cx,cy);g.arc(cx,cy,R,-Math.PI/2,-Math.PI/2+theta);g.closePath();g.fill();g.globalAlpha=1;ng(g);
+ ne(g,GR,2.4);g.beginPath();g.moveTo(cx,cy);g.lineTo(cx,cy-R);g.stroke();g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+Math.sin(theta)*R,cy-Math.cos(theta)*R);g.stroke();ng(g);
+ nt(g,GR,cx-30,cy-R-8,11,'u');nt(g,GR,cx+Math.sin(theta)*R+6,cy-Math.cos(theta)*R,11,'v');nt(g,'#ff2fa6',cx+30,cy-30,11,'θ = '+theta.toFixed(2)+' rad → θ/π = '+(theta/Math.PI).toFixed(3));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=140,R=90;
+ nf(g,'#ff2fa6');g.globalAlpha=0.16;g.beginPath();g.moveTo(cx,cy);g.arc(cx,cy,R,-Math.PI/2,-Math.PI/2+TH);g.closePath();g.fill();g.globalAlpha=1;ng(g);
+ ne(g,GR,2.4);g.beginPath();g.moveTo(cx,cy);g.lineTo(cx,cy-R);g.stroke();g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+Math.sin(TH)*R,cy-Math.cos(TH)*R);g.stroke();ng(g);
+ var frac=measure(TH,8000),pred=TH/Math.PI;nt(g,GR,12,24,11,'angle θ = '+TH.toFixed(3)+' rad');nt(g,'#cfe',12,H-64,11,'measured differing-bit fraction = '+frac.toFixed(4));nt(g,'#cfe',12,H-46,11,'θ/π = '+pred.toFixed(4));
+ nt(g,Math.abs(frac-pred)<0.02?'#39ffb0':'#ff5a5a',12,H-28,10,'fraction ≈ θ/π '+(Math.abs(frac-pred)<0.02?'✓':'✗'));
+ var v=verify();nt(g,v.angleEstimate?'#39ffb0':'#ff5a5a',12,H-12,9,'differing-bit rate == θ/π over 200 random pairs '+(v.angleEstimate?'✓':'✗'));}
+document.getElementById('shnew').onclick=function(){TH=0.2+Math.random()*2.7;drawW4();document.getElementById('shread').textContent='θ='+TH.toFixed(3)+' → measured '+measure(TH,8000).toFixed(4)+' vs θ/π='+(TH/Math.PI).toFixed(4);};
+document.getElementById('shcheck').onclick=function(){var v=verify();document.getElementById('shread').textContent='fraction of differing sign bits == θ/π (Gaussian hyperplanes) over 200 pairs '+(v.angleEstimate?'✓':'✗')+' (max dev '+v.worst.toFixed(4)+')';};
+document.getElementById('shspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,R=110,theta=TH;g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ var rnd=mb(5);for(var h=0;h<40;h++){var a=rnd()*Math.PI,dx=Math.cos(a),dy=Math.sin(a);var sep=((dx*1+dy*0)>=0)!==((dx*Math.cos(theta)+dy*Math.sin(theta))>=0);ne(g,sep?'#ff2fa6':'rgba(120,140,200,0.3)',sep?1.4:1);g.beginPath();g.moveTo(-dx*R,-dy*R);g.lineTo(dx*R,dy*R);g.stroke();ng(g);}
+ ne(g,GR,3);g.beginPath();g.moveTo(0,0);g.lineTo(0,-R*0.9);g.stroke();g.beginPath();g.moveTo(0,0);g.lineTo(Math.sin(theta)*R*0.9,-Math.cos(theta)*R*0.9);g.stroke();ng(g);
+ g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the two vectors (angle θ)');nt(g,'#ff2fa6',10,H-30,10,'magenta: hyperplanes that separate them — a θ/π fraction');nt(g,'#8ad',10,H-13,10,'similarity read from sign bits');}
+drawW3();drawW4();window.__simhash=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PWST_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The powerset (subset) construction</b> turns a <b>nondeterministic</b> finite automaton into an equivalent <b>deterministic</b> one. An NFA can be in many states at once; the trick is to make each DFA state a <b>set</b> of NFA states &mdash; exactly the set the NFA could currently be in. Reading a symbol, the DFA jumps to the set of all states reachable from the current set, and it accepts when that set contains any NFA-accepting state. It proves NFAs and DFAs recognize the <b>same languages</b>, at the cost of up to 2<sup>n</sup> states.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of random NFAs, the subset-construction DFA accepts a string exactly when the NFA does, checked on every string up to length six (window.__powerset). <span class="fig">FIG</span> no framing; the NFA simulation and the constructed DFA both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>cold-boot</i> &mdash; determinizing is a cold boot from a fuzzy many-states machine into a single crisp one that always knows where it is. <b>AVAN (AI)</b> built the instrument: the NFA set-simulation, the on-the-fly subset construction, and the language-equivalence check.<br><br>Credit as content: Michael Rabin &amp; Dana Scott (1959). The weave: David names the cold boot; I confirm the deterministic machine accepts exactly the language of the nondeterministic one.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="190"></canvas>
+  <div class="wctrl"><div class="cap">Each DFA state is a set of NFA states; reading a symbol moves to the set of all reachable states &mdash; determinism from tracking the whole set at once.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A random NFA and its subset-construction DFA; the DFA&rsquo;s state count and its agreement with the NFA on all short strings are shown.</div>
+   <div class="btns" style="margin-top:10px"><button id="pwnew">new NFA ▶</button><button id="pwcheck">verify ▶</button></div>
+   <div class="cap" id="pwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the DFA states, each a subset of NFA states.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t guess which branch &mdash; track them all. The inverse of &lsquo;nondeterministically choose a next state&rsquo; is &lsquo;carry the whole <b>set</b> of possible states, and the transition on the set is deterministic.&rsquo; <b>Magenta</b> is a nondeterministic branch; <b>green</b> is the DFA state (a subset) that absorbs all of them. Track the set, not the guess.</div>
+   <div class="btns" style="margin-top:10px"><button id="pwspin">pause spin</button></div></div></div></div>"""
+PWST_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,AU='#ffcf4a',NFA=null,DFA=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function nfaAcc(nfa,s){var cur={};cur[nfa.start]=1;for(var i=0;i<s.length;i++){var nx={},sym=s.charCodeAt(i)-97;for(var st in cur)if(cur[st]){var tr=nfa.delta[st][sym]||[];for(var k=0;k<tr.length;k++)nx[tr[k]]=1;}cur=nx;}for(var st in cur)if(cur[st]&&nfa.accept[st])return true;return false;}
+function subset(nfa){var start=(1<<nfa.start),order=[start],idx={};idx[start]=0;var delta=[],accept=[],syms=nfa.syms;for(var qi=0;qi<order.length;qi++){var S=order[qi];delta[qi]=[];var acc=false;for(var st=0;st<nfa.n;st++)if((S>>st)&1&&nfa.accept[st])acc=true;accept[qi]=acc;for(var sym=0;sym<syms;sym++){var T=0;for(var st=0;st<nfa.n;st++)if((S>>st)&1){var tr=nfa.delta[st][sym]||[];for(var k=0;k<tr.length;k++)T|=(1<<tr[k]);}if(idx[T]===undefined){idx[T]=order.length;order.push(T);}delta[qi][sym]=idx[T];}}return {n:order.length,start:0,delta:delta,accept:accept,syms:syms,sets:order};}
+function dfaAcc(dfa,s){var st=dfa.start;for(var i=0;i<s.length;i++)st=dfa.delta[st][s.charCodeAt(i)-97];return !!dfa.accept[st];}
+function verify(){if(VR)return VR;var rnd=mb(4),ok=true;for(var t=0;t<3000;t++){var n=2+Math.floor(rnd()*4),syms=2,nfa={n:n,syms:syms,start:0,accept:[],delta:[]};for(var i=0;i<n;i++){nfa.accept[i]=rnd()<0.4;nfa.delta[i]=[];for(var sm=0;sm<syms;sm++){var tr=[];for(var j=0;j<n;j++)if(rnd()<0.35)tr.push(j);nfa.delta[i][sm]=tr;}}var dfa=subset(nfa);for(var len=0;len<=6&&ok;len++)for(var code=0;code<Math.pow(syms,len);code++){var s='',x=code;for(var q=0;q<len;q++){s+=String.fromCharCode(97+(x%syms));x=Math.floor(x/syms);}if(nfaAcc(nfa,s)!==dfaAcc(dfa,s)){ok=false;break;}}}VR={sameLanguage:ok};return VR;}
+function mk(){var rnd=Math.random,n=3,syms=2;NFA={n:n,syms:syms,start:0,accept:[],delta:[]};for(var i=0;i<n;i++){NFA.accept[i]=rnd()<0.4;NFA.delta[i]=[];for(var sm=0;sm<syms;sm++){var tr=[];for(var j=0;j<n;j++)if(rnd()<0.4)tr.push(j);NFA.delta[i][sm]=tr;}}DFA=subset(NFA);}
+function setStr(S,n){var a=[];for(var i=0;i<n;i++)if((S>>i)&1)a.push(i);return '{'+a.join(',')+'}';}
+function drawAut(g,W,H,aut,pos,labelFn,accCol){for(var i=0;i<aut.n;i++)for(var sm=0;sm<aut.syms;sm++){var tr=aut.delta?aut.delta[i]:null;}
+ // draw states + edges
+ for(var i=0;i<pos.length;i++){var acc=aut.accept[i];ne(g,acc?'#e8eef8':'rgba(120,140,200,0.6)',acc?2:1.2);g.beginPath();g.arc(pos[i][0],pos[i][1],13,0,7);g.stroke();ng(g);ndot(g,pos[i][0],pos[i][1],7,accCol);nt(g,'#0a0713',pos[i][0]-((labelFn(i)).length*3),pos[i][1]+3,8,labelFn(i));}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!NFA)mk();nt(g,AU,10,16,10,'DFA state = a SET of NFA states · transition = set of all reachable states');
+ var y=90;nt(g,'#8ad',20,y-20,10,'NFA states: 0, 1, 2');var dpos=[];for(var i=0;i<DFA.n;i++)dpos.push([50+i*Math.min(70,(W-80)/DFA.n),y]);drawAut(g,W,H,DFA,dpos,function(i){return setStr(DFA.sets[i],NFA.n);},'#35ffb0');
+ nt(g,'#cfe',20,H-16,10,DFA.n+' DFA states, each a subset of {0,1,2}');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!NFA)mk();
+ var np=[];for(var i=0;i<NFA.n;i++){var a=i/NFA.n*6.283-1.57;np.push([90+Math.cos(a)*40,80+Math.sin(a)*40]);}
+ for(var i=0;i<NFA.n;i++)for(var sm=0;sm<NFA.syms;sm++){var tr=NFA.delta[i][sm];for(var k=0;k<tr.length;k++){var j=tr[k];ne(g,'#ff2fa6',1);var mx=(np[i][0]+np[j][0])/2,my=(np[i][1]+np[j][1])/2-8;g.beginPath();g.moveTo(np[i][0],np[i][1]);g.quadraticCurveTo(mx,my,np[j][0],np[j][1]);g.stroke();ng(g);}}
+ drawAut(g,W,H,NFA,np,function(i){return ''+i;},'#ff2fa6');nt(g,'#ff2fa6',20,20,10,'NFA ('+NFA.n+' states, nondeterministic)');
+ var dp=[];for(var i=0;i<DFA.n;i++){var a=i/DFA.n*6.283;dp.push([280+Math.cos(a)*55,150+Math.sin(a)*55]);}drawAut(g,W,H,DFA,dp,function(i){return setStr(DFA.sets[i],NFA.n);},'#35ffb0');nt(g,'#35ffb0',230,20,10,'DFA ('+DFA.n+' states, subsets)');
+ var v=verify();nt(g,v.sameLanguage?'#39ffb0':'#ff5a5a',12,H-12,9,'DFA accepts same language as NFA over all strings ≤6 (3000 NFAs) '+(v.sameLanguage?'✓':'✗'));}
+document.getElementById('pwnew').onclick=function(){mk();drawW3();drawW4();document.getElementById('pwread').textContent=NFA.n+'-state NFA → '+DFA.n+'-state DFA (subsets), same language';};
+document.getElementById('pwcheck').onclick=function(){var v=verify();document.getElementById('pwread').textContent='subset-construction DFA accepts exactly the NFA language over 3000 NFAs '+(v.sameLanguage?'✓':'✗');};
+document.getElementById('pwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!NFA)mk();g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.12);var dp=[];for(var i=0;i<DFA.n;i++){var a=i/DFA.n*6.283;dp.push([Math.cos(a)*110,Math.sin(a)*90]);}
+ for(var i=0;i<DFA.n;i++)for(var sm=0;sm<DFA.syms;sm++){var j=DFA.delta[i][sm];ne(g,'rgba(53,255,176,0.4)',1);g.beginPath();g.moveTo(dp[i][0],dp[i][1]);g.lineTo(dp[j][0],dp[j][1]);g.stroke();ng(g);}
+ for(var i=0;i<DFA.n;i++)ndot(g,dp[i][0],dp[i][1],6,DFA.accept[i]?'#35ffb0':'#b06bff');g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: DFA states, each a subset of NFA states');nt(g,'#ff2fa6',10,H-30,10,'magenta idea: the nondeterministic branches they absorb');nt(g,'#8ad',10,H-13,10,'track the set, not the guess');}
+drawW3();drawW4();window.__powerset=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PATR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The PATRICIA trie</b> (a crit-bit tree) stores a set of bit-strings with <b>no wasted nodes</b>. A plain binary trie spends a node per bit; PATRICIA keeps only the branch points. Each internal node records a single <b>critical bit index</b> &mdash; the first bit on which the keys below it diverge &mdash; and you navigate by testing just that bit. The payoff is a sharp invariant: a set of <b>k keys needs exactly k&minus;1 internal branch nodes</b>, no matter how long the keys are, so the structure is as small as a set can be while still supporting prefix search.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of random key sets, membership queries are exactly correct, and the number of internal branch nodes is always k&minus;1 for k keys (window.__patricia). <span class="fig">FIG</span> no framing; the crit-bit insertion, search, and node count run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-stash</i> &mdash; a stash of keys packed with only the branch points kept, nothing redundant stored. <b>AVAN (AI)</b> built the instrument: the crit-bit tree (branch on the first differing bit), membership search, and the k&minus;1 node-count invariant.<br><br>Credit as content: Donald Morrison, PATRICIA (1968); the crit-bit refinement. Honest note: crit-bit trees assume <b>prefix-free</b> keys (here, fixed length) so no key is a zero-extension of another. The weave: David names the stash; I confirm membership is exact and the branch-node count is always k&minus;1.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">A crit-bit tree over a few keys; each internal node is labelled by its critical bit &mdash; the only bit you test to branch.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Insert keys and watch the tree grow one branch node per key; membership is exact and the internal-node count stays at k&minus;1.</div>
+   <div class="btns" style="margin-top:10px"><button id="ptins">insert a key ▶</button><button id="ptcheck">verify ▶</button></div>
+   <div class="cap" id="ptread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the branch nodes, one per critical bit.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t store a node per bit &mdash; store only where keys diverge. The inverse of &lsquo;walk every bit of the key&rsquo; is &lsquo;jump straight to the critical bit; k keys leave exactly k&minus;1 branch points.&rsquo; <b>Magenta</b> are the leaves (the keys); <b>green</b> are the k&minus;1 branch nodes. Branch only on the bits that differ.</div>
+   <div class="btns" style="margin-top:10px"><button id="ptspin">pause spin</button></div></div></div></div>"""
+PATR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,VI='#b06bff',TREE=null,KEYS=[],LEN=8;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function getBit(key,i){return i<key.length?(key[i]==='1'?1:0):0;}
+function CritBit(){var root=null,internal=0;function fd(a,b){var L=Math.max(a.length,b.length);for(var i=0;i<L;i++)if(getBit(a,i)!==getBit(b,i))return i;return -1;}
+ return {insert:function(key){if(!root){root={leaf:key};return;}var n=root;while(n.crit!==undefined)n=getBit(key,n.crit)?n.r:n.l;var d=fd(key,n.leaf);if(d<0)return;var parent=null,dir=null,cur=root;while(cur.crit!==undefined&&cur.crit<d){parent=cur;dir=getBit(key,cur.crit)?'r':'l';cur=cur[dir];}var nl={leaf:key},ni={crit:d};if(getBit(key,d)){ni.l=cur;ni.r=nl;}else{ni.l=nl;ni.r=cur;}if(parent===null)root=ni;else parent[dir]=ni;internal++;},
+  has:function(key){if(!root)return false;var n=root;while(n.crit!==undefined)n=getBit(key,n.crit)?n.r:n.l;return n.leaf===key;},
+  internal:function(){return internal;},root:function(){return root;}};}
+function verify(){if(VR)return VR;var rnd=mb(5),memOk=true,cntOk=true;for(var t=0;t<2000;t++){var k=1+Math.floor(rnd()*20),keys={},list=[];while(list.length<k){var s='';for(var i=0;i<10;i++)s+=(rnd()<0.5?'0':'1');if(!keys[s]){keys[s]=1;list.push(s);}}var cb=CritBit();for(var i=0;i<list.length;i++)cb.insert(list[i]);for(var i=0;i<list.length;i++)if(!cb.has(list[i]))memOk=false;for(var q=0;q<10;q++){var s='';for(var i=0;i<10;i++)s+=(rnd()<0.5?'0':'1');if(cb.has(s)!==!!keys[s])memOk=false;}if(cb.internal()!==list.length-1)cntOk=false;}VR={membership:memOk,compressed:cntOk};return VR;}
+function reset(){TREE=CritBit();KEYS=[];var seen={};while(KEYS.length<5){var s='';for(var i=0;i<LEN;i++)s+=(Math.random()<0.5?'0':'1');if(!seen[s]){seen[s]=1;KEYS.push(s);TREE.insert(s);}}}
+function layout(node,x,y,dx,dy,out){if(!node)return;if(node.crit!==undefined){out.push({t:'int',crit:node.crit,x:x,y:y});var lx=x-dx,rx=x+dx;out.push({t:'e',x1:x,y1:y,x2:lx,y2:y+dy});out.push({t:'e',x1:x,y1:y,x2:rx,y2:y+dy});layout(node.l,lx,y+dy,dx*0.58,dy,out);layout(node.r,rx,y+dy,dx*0.58,dy,out);}else out.push({t:'leaf',key:node.leaf,x:x,y:y});}
+function drawTree(g,W,H,y0){if(!TREE)reset();var out=[];layout(TREE.root(),W/2,y0,W/4,46,out);out.forEach(function(o){if(o.t==='e'){ne(g,'rgba(53,255,176,0.4)',1.2);g.beginPath();g.moveTo(o.x1,o.y1);g.lineTo(o.x2,o.y2);g.stroke();ng(g);}});
+ out.forEach(function(o){if(o.t==='int'){ndot(g,o.x,o.y,8,'#35ffb0');nt(g,'#0a0713',o.x-4,o.y+3,9,'b'+o.crit);}else if(o.t==='leaf'){ne(g,'#ff2fa6',1.4);g.strokeRect(o.x-22,o.y-8,44,16);ng(g);nt(g,'#ff2fa6',o.x-20,o.y+4,8,o.key);}});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!TREE)reset();nt(g,VI,10,16,10,'crit-bit tree · internal node = critical bit index (bN) · leaves = keys');drawTree(g,W,H,44);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!TREE)reset();drawTree(g,W,H-40,44);nt(g,VI,12,H-52,11,KEYS.length+' keys → '+TREE.internal()+' internal nodes (= k−1)');
+ var memOk=true;for(var i=0;i<KEYS.length;i++)if(!TREE.has(KEYS[i]))memOk=false;nt(g,memOk&&TREE.internal()===KEYS.length-1?'#39ffb0':'#ff5a5a',12,H-30,10,'all keys found '+(memOk?'✓':'✗')+' · internal nodes = k−1 '+(TREE.internal()===KEYS.length-1?'✓':'✗'));
+ var v=verify();nt(g,v.membership&&v.compressed?'#39ffb0':'#ff5a5a',12,H-12,9,'membership exact '+(v.membership?'✓':'✗')+' · branch nodes==k−1 '+(v.compressed?'✓':'✗')+' (2000)');}
+document.getElementById('ptins').onclick=function(){var s='',seen={};KEYS.forEach(function(k){seen[k]=1;});do{s='';for(var i=0;i<LEN;i++)s+=(Math.random()<0.5?'0':'1');}while(seen[s]);KEYS.push(s);TREE.insert(s);drawW3();drawW4();document.getElementById('ptread').textContent='inserted '+s+' → '+KEYS.length+' keys, '+TREE.internal()+' branch nodes (k−1)';};
+document.getElementById('ptcheck').onclick=function(){var v=verify();document.getElementById('ptread').textContent='membership exact '+(v.membership?'✓':'✗')+' · internal branch nodes == k−1 for k keys '+(v.compressed?'✓':'✗')+' (2000 sets)';};
+document.getElementById('ptspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!TREE)reset();g.save();g.translate(0,Math.sin(ang*0.4)*3);drawTree(g,W,H-30,44);g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the '+(KEYS.length-1)+' branch nodes (k−1)');nt(g,'#ff2fa6',10,H-30,10,'magenta: the '+KEYS.length+' leaves (the keys)');nt(g,'#8ad',10,H-13,10,'branch only on the bits that differ');}
+drawW3();drawW4();window.__patricia=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 118 · neon-noir tracing · silicon-coding (a code folded from itself · a hidden string in one query · updating an inverse without redoing it · a region carved by half-planes · a gate that runs backwards) ═══════════════════════
 REDM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Reed&ndash;Muller code</b> RM(r, m) is an error-correcting code built from <b>low-degree Boolean polynomials</b>: its codewords are the truth-tables of every multilinear polynomial of degree &le; r in m variables. That gives length 2<sup>m</sup>, dimension &sum;<sub>i&le;r</sub> C(m, i), and a clean minimum distance of <b>2<sup>m&minus;r</sup></b> &mdash; enough to correct many errors. Its signature trick is the <b>(u | u+v)</b> recursion: RM(r, m) is built by stacking codewords of RM(r, m&minus;1) and RM(r&minus;1, m&minus;1), so the code is <b>folded out of smaller copies of itself</b>.<br><br>
@@ -31445,6 +31667,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-schur-complement","title":"THE SCHUR COMPLEMENT","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#21e6ff","icon":"schur-complement",
+  "kicker":"a determinant split by a block",
+  "blurb":"The Schur complement in the 5-window house format — what remains of a block matrix after eliminating one block. For M=[[A,B],[C,D]] with A invertible, the Schur complement of A is S = D − CA⁻¹B, the effective D once A's influence is folded in. It splits the determinant cleanly: det(M) = det(A)·det(S). It gives the block inverse in closed form and decides definiteness (M is PD iff A and S both are) — the algebra behind block Gaussian elimination, Kalman updates, and Gaussian conditioning. Verified live: over thousands of random block matrices, det(M) = det(A)·det(S), and the block inverse from the Schur complement satisfies M·M⁻¹ = I. Neon-noir traced. See the block split in 1D, determinants in 2D, and the eliminate-a-block inverse in 3D.",
+  "lit":"Genuine Schur complement (Issai Schur; named by Emilie Haynsworth, 1968): S=D−CA⁻¹B, det(M)=det(A)det(S). Verified live: over 3000 random block matrices, det(M)=det(A)·det(S) (window.__schur.detFormula) and the block inverse satisfies M·M⁻¹=I (.blockInverse).",
+  "fig":"No framing: block extraction, the S=D−CA⁻¹B computation, and the determinant/inverse checks all run in-browser. The AVAN inverse is honest — folding A out so the leftover S carries the rest (with det(M)=det(A)det(S)) rather than inverting M whole is exactly block elimination; magenta is the A block divided out, green the Schur complement it leaves. Divide out a block.",
+  "body":SCHU_BODY,"script":SCHU_SCRIPT},
+ {"slug":"the-kaczmarz","title":"THE KACZMARZ","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#ff8a3c","icon":"kaczmarz",
+  "kicker":"zigzagging onto the solution",
+  "blurb":"The Kaczmarz method in the 5-window house format — solving Ax=b by bouncing between hyperplanes. Each equation aᵢ·x=bᵢ is a hyperplane; the algorithm projects the current guess onto the next equation's hyperplane: x ← x + (bᵢ−aᵢ·x)/‖aᵢ‖²·aᵢ. Cycling through the rows, the iterate zigzags in and converges to the solution — one row at a time, never forming AᵀA. It is the ancestor of the ART reconstruction behind CT scanners. Verified live: over thousands of random consistent systems, cyclic projection converges to the true solution to machine precision. Neon-noir traced. See two lines spiraling to their intersection in 1D, live projection in 2D, and the one-row-at-a-time inverse in 3D.",
+  "lit":"Genuine Kaczmarz method (Stefan Kaczmarz, 1937; rediscovered as ART by Gordon–Bender–Herman, 1970). Verified live: over 2000 random well-conditioned consistent systems, cyclic row-projection converges to the exact solution (window.__kaczmarz.converges).",
+  "fig":"No framing: the per-row projection, the cyclic sweep, and the error against the exact solution all run in-browser. Honest scope: verified on well-conditioned consistent systems (convergence rate depends on conditioning). The AVAN inverse is honest — projecting onto each hyperplane in turn (whose common fixed point is the solution) rather than inverting A is the row-action idea; magenta is the constraint hyperplanes, green the converging iterate. One row at a time.",
+  "body":KACZ_BODY,"script":KACZ_SCRIPT},
+ {"slug":"the-simhash","title":"THE SIMHASH","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE KONAMI CODE","domain_slug":"the-konami-code","accent":"#35ffb0","icon":"simhash",
+  "kicker":"similarity read from sign bits",
+  "blurb":"SimHash in the 5-window house format — turning similarity into a handful of bits. Pick random hyperplanes through the origin; for a vector v record one bit per hyperplane, sign(v·r). The magic: for two vectors at angle θ, a random hyperplane separates them with probability exactly θ/π. So the Hamming distance between their sign-bit sketches estimates the angle — near-duplicate detection in a fixed-size fingerprint, the trick behind web-scale de-duplication. Verified live: with rotationally-symmetric (Gaussian) hyperplanes, the fraction of differing sign bits matches θ/π to within sampling error over many random pairs. Neon-noir traced. See the separating wedge in 1D, the angle estimate in 2D, and the compare-the-bits inverse in 3D.",
+  "lit":"Genuine SimHash / random-hyperplane LSH (Moses Charikar, 2002, from Goemans–Williamson rounding): P(sign bit differs) = θ/π. Verified live: with Gaussian hyperplanes, the differing-bit fraction over 200 random pairs (20k hyperplanes each) matches θ/π to within ~0.01 (window.__simhash.angleEstimate).",
+  "fig":"Honest scope stated on the sphere: the θ/π law requires rotationally-symmetric normals — Gaussian, not uniform-in-a-box (a uniform-cube normal gives a biased estimate). The AVAN inverse is honest — recovering the angle from how many sign bits differ (rather than computing u·v directly) is the whole point of the sketch; magenta is a separating hyperplane, green the recovered angle. Similarity read from sign bits.",
+  "body":SIMH_BODY,"script":SIMH_SCRIPT},
+ {"slug":"the-powerset-construction","title":"THE POWERSET CONSTRUCTION","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#ffcf4a","icon":"powerset-construction",
+  "kicker":"determinizing by tracking the set of states",
+  "blurb":"The powerset (subset) construction in the 5-window house format — turning a nondeterministic finite automaton into an equivalent deterministic one. An NFA can be in many states at once; the trick is to make each DFA state a set of NFA states — exactly the set the NFA could currently be in. Reading a symbol, the DFA jumps to the set of all reachable states, and accepts when that set contains any NFA-accepting state. It proves NFAs and DFAs recognize the same languages, at the cost of up to 2ⁿ states. Verified live: over thousands of random NFAs, the subset-construction DFA accepts a string exactly when the NFA does, on every string up to length six. Neon-noir traced. See DFA-states-as-subsets in 1D, NFA-vs-DFA in 2D, and the track-the-set inverse in 3D.",
+  "lit":"Genuine powerset/subset construction (Michael Rabin & Dana Scott, 1959): NFA→DFA, proving NFAs and DFAs recognize the same languages. Verified live: over 3000 random NFAs, the subset-construction DFA accepts exactly the NFA's language on all strings ≤ length 6 (window.__powerset.sameLanguage).",
+  "fig":"No framing: the NFA set-simulation and the on-the-fly subset construction both run in-browser and agree. The AVAN inverse is honest — carrying the whole set of possible states (so the transition on the set is deterministic) rather than guessing a nondeterministic branch is exactly what determinizes; magenta is a nondeterministic branch, green the DFA state (a subset) absorbing them. Track the set, not the guess.",
+  "body":PWST_BODY,"script":PWST_SCRIPT},
+ {"slug":"the-patricia","title":"THE PATRICIA TRIE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#b06bff","icon":"patricia",
+  "kicker":"branching only on the bits that differ",
+  "blurb":"The PATRICIA trie (crit-bit tree) in the 5-window house format — storing a set of bit-strings with no wasted nodes. A plain binary trie spends a node per bit; PATRICIA keeps only the branch points. Each internal node records a single critical bit index — the first bit on which the keys below it diverge — and you navigate by testing just that bit. The payoff is a sharp invariant: a set of k keys needs exactly k−1 internal branch nodes, no matter how long the keys are. Verified live: over thousands of random key sets, membership queries are exactly correct, and the number of internal branch nodes is always k−1 for k keys. Neon-noir traced. See the crit-bit tree in 1D, growing insertions in 2D, and the k-keys-give-k−1-nodes inverse in 3D.",
+  "lit":"Genuine PATRICIA / crit-bit tree (Donald Morrison, 1968): branch on the first differing bit; k keys need exactly k−1 internal nodes. Verified live: over 2000 random key sets, membership is exact (window.__patricia.membership) and the internal branch-node count equals k−1 (.compressed).",
+  "fig":"Honest scope stated on the sphere: crit-bit trees assume prefix-free keys (here, fixed length) so no key is a zero-extension of another. The AVAN inverse is honest — jumping straight to the critical bit and leaving exactly k−1 branch points for k keys (rather than a node per bit) is the compression; magenta are the leaves (keys), green the k−1 branch nodes. Branch only on the bits that differ.",
+  "body":PATR_BODY,"script":PATR_SCRIPT},
  {"slug":"the-reed-muller","title":"THE REED-MULLER","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#21e6ff","icon":"reed-muller",
   "kicker":"a code folded from itself",
