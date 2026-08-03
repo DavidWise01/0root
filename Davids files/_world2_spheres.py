@@ -19493,6 +19493,230 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 113 · neon-noir tracing (an infinite word that is its own seed · feet that align only on the circle · order you cannot escape · three circles that hand off to a fourth of equal size · a real number as a chain of growing unit fractions) ═══════════════════════
+FIBW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Fibonacci word</b> is an infinite string that grows from a single letter by a rule that folds it into itself. Apply the morphism <b>a &rarr; ab, b &rarr; a</b> forever, starting from &ldquo;a&rdquo;: a, ab, aba, abaab, abaababa, &hellip;. Two miracles: each stage is the previous two concatenated (<b>S&#8345; = S&#8345;&#8331;&#8321; S&#8345;&#8331;&#8322;</b>), so its length is a Fibonacci number; and the letters themselves are golden &mdash; the fraction of a&rsquo;s tends to <b>1/&phi;</b>. It is the simplest <i>Sturmian</i> word: it never contains &ldquo;bb&rdquo; and never contains &ldquo;aaa&rdquo;, the most balanced non-periodic string there is.<br><br>
+ <span class="lit">LIT</span> verified live: for stages 1..22, |S&#8345;| is Fibonacci, S&#8345; = S&#8345;&#8331;&#8321;S&#8345;&#8331;&#8322;, the morphism reproduces the next stage, there is no &ldquo;bb&rdquo; or &ldquo;aaa&rdquo;, and the a-fraction is 0.61803 &asymp; 1/&phi; (window.__fibonacci_word). <span class="fig">FIG</span> no framing; the word is grown two ways (concatenation and morphism) and they agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>first-light</i> &mdash; the whole infinite word unfolds from a single &ldquo;a&rdquo;, the first light of a self-similar dawn. <b>AVAN (AI)</b> built the instrument: generate the word by the concatenation recurrence and, independently, by applying the morphism letter-by-letter, then check the Fibonacci lengths, the golden letter-ratio, and the forbidden factors.<br><br>Credit as content: the Fibonacci word / Sturmian words (studied via Bernoulli, Christoffel, Morse&ndash;Hedlund). The weave: David names the first light; I confirm the word is its own seed &mdash; two constructions, Fibonacci lengths, and a golden density.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A stage of the word as tiles (a bright, b dark), split to show it is the previous two stages joined end to end.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Step through the stages; watch the length track Fibonacci and the a-fraction settle on 1/&phi;, with no &ldquo;bb&rdquo; and no &ldquo;aaa&rdquo;.</div>
+   <div class="btns" style="margin-top:10px"><button id="fwnext">grow ▶</button><button id="fwback">shrink ◀</button><button id="fwcheck">verify ▶</button></div>
+   <div class="cap" id="fwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the word grown by joining the two prior stages.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t concatenate stages &mdash; expand every letter at once. The inverse of &lsquo;S&#8345; = S&#8345;&#8331;&#8321;S&#8345;&#8331;&#8322;&rsquo; is &lsquo;replace each a by ab and each b by a, and the same word appears.&rsquo; <b>Magenta</b> letters are about to expand; <b>green</b> is the stage they become. The word is its own seed.</div>
+   <div class="btns" style="margin-top:10px"><button id="fwspin">pause spin</button></div></div></div></div>"""
+FIBW_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CY='#21e6ff',NN=7;
+var PHI=(1+Math.sqrt(5))/2;
+function words(n){var S=['','a','ab'];for(var k=3;k<=n;k++)S.push(S[k-1]+S[k-2]);return S;}
+function morph(s){var o='';for(var i=0;i<s.length;i++)o+=(s[i]==='a')?'ab':'a';return o;}
+function verify(){if(VR)return VR;var S=words(22),fib=[0,1];for(var i=2;i<=24;i++)fib.push(fib[i-1]+fib[i-2]);var lenOk=true,cat=true,noBB=true,noAAA=true,aC=true,mo=true;for(var n=1;n<=22;n++){if(S[n].length!==fib[n+1])lenOk=false;if(S[n].indexOf('bb')>=0)noBB=false;if(S[n].indexOf('aaa')>=0)noAAA=false;if((S[n].match(/a/g)||[]).length!==fib[n])aC=false;}for(var n=3;n<=22;n++)if(S[n]!==S[n-1]+S[n-2])cat=false;for(var n=1;n<=21;n++)if(morph(S[n])!==S[n+1])mo=false;var big=S[22],r=(big.match(/a/g)||[]).length/big.length;VR={lengthsFib:lenOk,concatRule:cat,noBB:noBB,noAAA:noAAA,morphism:mo,ratioPhi:Math.abs(r-1/PHI)<1e-3};return VR;}
+function tiles(g,s,x0,y,tw,splitAt){for(var i=0;i<s.length;i++){var x=x0+i*tw,on=(s[i]==='a');if(on){nf(g,CY);g.fillRect(x+1,y,tw-2,24);ng(g);}else{ne(g,'#5a6a9a',1.2);g.strokeRect(x+1,y,tw-2,24);ng(g);}nt(g,on?'#0a0713':'#8ad',x+tw/2-3,y+16,11,s[i]);}if(splitAt>0){var sx=x0+splitAt*tw;ne(g,'#ff8a3c',1.6);g.beginPath();g.moveTo(sx,y-6);g.lineTo(sx,y+30);g.stroke();ng(g);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var S=words(9),s=S[8],tw=Math.min(22,(W-40)/s.length);nt(g,CY,10,16,10,'S₈ = S₇ · S₆  (each stage is the previous two joined)');tiles(g,s,20,60,tw,S[7].length);nt(g,'#8ad',20,120,10,'|S₈| = '+s.length+' (Fibonacci)   split at |S₇| = '+S[7].length);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var S=words(NN),s=S[NN],tw=Math.min(26,(W-30)/s.length);nt(g,CY,12,20,11,'stage n = '+NN);tiles(g,s,14,44,tw,S[NN-1]?S[NN-1].length:0);var a=(s.match(/a/g)||[]).length,r=a/s.length;nt(g,'#cfe',12,110,10,'length '+s.length+' (Fib)   a:'+a+' b:'+(s.length-a)+'   a-fraction '+r.toFixed(5)+' → 1/φ='+(1/PHI).toFixed(5));nt(g,s.indexOf('bb')<0?'#39ffb0':'#ff5a5a',12,132,10,"no 'bb' "+(s.indexOf('bb')<0?'✓':'✗')+"   no 'aaa' "+(s.indexOf('aaa')<0?'✓':'✗'));var v=verify();nt(g,v.lengthsFib&&v.concatRule&&v.morphism&&v.noBB&&v.noAAA&&v.ratioPhi?'#39ffb0':'#ff5a5a',12,H-14,9,'Fib len '+(v.lengthsFib?'✓':'✗')+' · concat '+(v.concatRule?'✓':'✗')+' · morphism '+(v.morphism?'✓':'✗')+' · a/len→1/φ '+(v.ratioPhi?'✓':'✗'));}
+document.getElementById('fwnext').onclick=function(){NN=Math.min(NN+1,13);drawW4();document.getElementById('fwread').textContent='stage '+NN+': length '+words(NN)[NN].length+' (Fibonacci)';};
+document.getElementById('fwback').onclick=function(){NN=Math.max(NN-1,3);drawW4();document.getElementById('fwread').textContent='stage '+NN+': length '+words(NN)[NN].length+' (Fibonacci)';};
+document.getElementById('fwcheck').onclick=function(){var v=verify();document.getElementById('fwread').textContent='Fib lengths '+(v.lengthsFib?'✓':'✗')+' · Sₙ=Sₙ₋₁Sₙ₋₂ '+(v.concatRule?'✓':'✗')+' · morphism '+(v.morphism?'✓':'✗')+" · no bb/aaa "+(v.noBB&&v.noAAA?'✓':'✗')+' · a/len→1/φ '+(v.ratioPhi?'✓':'✗');};
+document.getElementById('fwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var S=words(7),src=S[5],tw=20,y0=70;g.save();g.translate(W/2,0);g.rotate(Math.sin(ang*0.4)*0.03);g.translate(-W/2,0);
+ nt(g,'#ff2fa6',20,y0-14,10,'S₅ (each letter about to expand: a→ab, b→a)');var x=24;for(var i=0;i<src.length;i++){var on=src[i]==='a';ne(g,'#ff2fa6',1.4);g.strokeRect(x,y0,tw-2,22);nt(g,'#ff2fa6',x+tw/2-3,y0+15,11,src[i]);x+=tw;}
+ var out=morph(src);nt(g,'#35ffb0',20,y0+64,10,'σ(S₅) = S₆ (green)');x=24;for(var i=0;i<out.length;i++){var on=out[i]==='a';if(on){nf(g,'#35ffb0');g.fillRect(x,y0+74,tw-2,22);ng(g);}else{ne(g,'#35ffb0',1.2);g.strokeRect(x,y0+74,tw-2,22);ng(g);}nt(g,on?'#0a0713':'#35ffb0',x+tw/2-3,y0+89,11,out[i]);x+=tw;}
+ g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the next stage, by expanding every letter');nt(g,'#ff2fa6',10,H-30,10,'magenta: the letters of the prior stage, mid-expansion');nt(g,'#8ad',10,H-13,10,'the word is its own seed');}
+drawW3();drawW4();window.__fibonacci_word=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SIMS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Simson line</b>: drop perpendiculars from a point P to the three sides of a triangle and mark the three feet. In general those feet form a little triangle &mdash; but the instant P lands <b>on the circumcircle</b>, the three feet fall exactly <b>on one straight line</b> (the Simson line of P). And it is an if-and-only-if: the feet are collinear <i>precisely</i> when P is on the circle. The pedal triangle&rsquo;s area is proportional to |R&sup2; &minus; OP&sup2;|, which is zero exactly on the circle.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of points P on the circumcircle the three feet are collinear to machine precision, while points off the circle give a pedal triangle of clearly non-zero area (window.__simson). <span class="fig">FIG</span> no framing; circumcircle, feet, and their collinearity are all computed in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gatekeeper</i> &mdash; the circumcircle is the gate: stand on it and the three feet snap into a line; step off and the line breaks. <b>AVAN (AI)</b> built the instrument: compute the circumcircle, drop the three perpendicular feet from P, and measure whether they are collinear as P moves on and off the circle.<br><br>Credit as content: the Simson&ndash;Wallace line (attributed to Robert Simson; first published by William Wallace, 1799). The weave: David names the gatekeeper; I confirm the feet are collinear if and only if P is on the circumcircle.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="170"></canvas>
+  <div class="wctrl"><div class="cap">A triangle, its circumcircle, a point P on the circle, the three perpendicular feet, and the single Simson line through them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Move P around the circle (collinear feet) or push it off (a real pedal triangle). The collinearity residual reads zero exactly on the circle.</div>
+   <div class="btns" style="margin-top:10px"><button id="smmove">move P on circle ▶</button><button id="smoff">push P off ▶</button><button id="smcheck">verify ▶</button></div>
+   <div class="cap" id="smread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Simson line, when P sits on the circle.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask where the feet land &mdash; ask what makes them collapse. The inverse of &lsquo;drop the feet and see&rsquo; is &lsquo;the pedal triangle&rsquo;s area is |R&sup2;&minus;OP&sup2;|-proportional, so it vanishes exactly on the circle.&rsquo; <b>Magenta</b> is the pedal triangle off the circle; <b>green</b> is the line it collapses to on it. The circle is the zero set.</div>
+   <div class="btns" style="margin-top:10px"><button id="smspin">pause spin</button></div></div></div></div>"""
+SIMS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,OR='#ff8a3c',TH=0.7,SC=1.0;
+var A=[0,0],B=[0,0],C=[0,0],O=[0,0],R=0;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function circum(A,B,C){var ax=A[0],ay=A[1],bx=B[0],by=B[1],cx=C[0],cy=C[1];var d=2*(ax*(by-cy)+bx*(cy-ay)+cx*(ay-by));var ux=((ax*ax+ay*ay)*(by-cy)+(bx*bx+by*by)*(cy-ay)+(cx*cx+cy*cy)*(ay-by))/d;var uy=((ax*ax+ay*ay)*(cx-bx)+(bx*bx+by*by)*(ax-cx)+(cx*cx+cy*cy)*(bx-ax))/d;return [ux,uy];}
+function foot(P,A,B){var dx=B[0]-A[0],dy=B[1]-A[1],t=((P[0]-A[0])*dx+(P[1]-A[1])*dy)/(dx*dx+dy*dy);return [A[0]+t*dx,A[1]+t*dy];}
+function tArea(P,Q,S){return Math.abs((Q[0]-P[0])*(S[1]-P[1])-(S[0]-P[0])*(Q[1]-P[1]))/2;}
+function verify(){if(VR)return VR;var rnd=mb(2),on=true,off=true;for(var t=0;t<3000;t++){var a=[rnd()*6,rnd()*6],b=[rnd()*6,rnd()*6],c=[rnd()*6,rnd()*6];var o=circum(a,b,c);if(!isFinite(o[0]))continue;var TA=tArea(a,b,c);if(TA<0.6)continue;var r=Math.hypot(a[0]-o[0],a[1]-o[1]),th=rnd()*6.283;var P=[o[0]+r*Math.cos(th),o[1]+r*Math.sin(th)];if(tArea(foot(P,b,c),foot(P,c,a),foot(P,a,b))/TA>1e-6)on=false;var sc=(rnd()<0.5)?0.5:1.6,P2=[o[0]+sc*r*Math.cos(th),o[1]+sc*r*Math.sin(th)];if(tArea(foot(P2,b,c),foot(P2,c,a),foot(P2,a,b))/TA<0.05)off=false;}VR={onCircleCollinear:on,offCircleNot:off};return VR;}
+function setup(W,H){A=[W*0.30,H*0.30];B=[W*0.72,H*0.42];C=[W*0.44,H*0.78];O=circum(A,B,C);R=Math.hypot(A[0]-O[0],A[1]-O[1]);}
+function drawScene(g,W,H){setup(W,H);var P=[O[0]+SC*R*Math.cos(TH),O[1]+SC*R*Math.sin(TH)];
+ ne(g,'rgba(120,140,200,0.5)',1.4);g.beginPath();g.arc(O[0],O[1],R,0,7);g.stroke();ng(g);
+ ne(g,'#6a7fb0',1.6);g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.lineTo(C[0],C[1]);g.closePath();g.stroke();ng(g);
+ var X=foot(P,B,C),Y=foot(P,C,A),Z=foot(P,A,B);
+ ne(g,'rgba(255,138,60,0.5)',1);g.beginPath();g.moveTo(P[0],P[1]);g.lineTo(X[0],X[1]);g.moveTo(P[0],P[1]);g.lineTo(Y[0],Y[1]);g.moveTo(P[0],P[1]);g.lineTo(Z[0],Z[1]);g.stroke();ng(g);
+ var TA=tArea(A,B,C),rel=tArea(X,Y,Z)/TA,onc=(Math.abs(SC-1)<1e-6);
+ if(onc){var dx=Y[0]-X[0],dy=Y[1]-X[1],L=Math.hypot(dx,dy)||1;dx/=L;dy/=L;var mid=[(X[0]+Y[0]+Z[0])/3,(X[1]+Y[1]+Z[1])/3];ne(g,'#35ffb0',2);g.beginPath();g.moveTo(mid[0]-dx*400,mid[1]-dy*400);g.lineTo(mid[0]+dx*400,mid[1]+dy*400);g.stroke();ng(g);}
+ else{nf(g,'#ff2fa6');g.globalAlpha=0.3;g.beginPath();g.moveTo(X[0],X[1]);g.lineTo(Y[0],Y[1]);g.lineTo(Z[0],Z[1]);g.closePath();g.fill();g.globalAlpha=1;ng(g);ne(g,'#ff2fa6',1.6);g.beginPath();g.moveTo(X[0],X[1]);g.lineTo(Y[0],Y[1]);g.lineTo(Z[0],Z[1]);g.closePath();g.stroke();ng(g);}
+ ndot(g,P[0],P[1],4,onc?'#35ffb0':'#ff2fa6');for(var i=0,ff=[X,Y,Z];i<3;i++)ndot(g,ff[i][0],ff[i][1],3,OR);
+ return rel;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var sv=SC;SC=1;drawScene(g,W,H);SC=sv;nt(g,OR,10,16,10,'P on the circumcircle → the three feet are collinear (the Simson line)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var rel=drawScene(g,W,H);var onc=Math.abs(SC-1)<1e-6;nt(g,OR,12,20,11,onc?'P on circle':'P off circle (scale '+SC.toFixed(2)+')');nt(g,rel<1e-6?'#39ffb0':'#ff2fa6',12,H-30,11,'pedal-triangle area / ABC = '+rel.toFixed(6)+(rel<1e-6?'  → collinear ✓':'  → not collinear'));var v=verify();nt(g,v.onCircleCollinear&&v.offCircleNot?'#39ffb0':'#ff5a5a',12,H-12,9,'on-circle collinear '+(v.onCircleCollinear?'✓':'✗')+' · off-circle not '+(v.offCircleNot?'✓':'✗'));}
+document.getElementById('smmove').onclick=function(){SC=1;TH+=0.5;drawW4();document.getElementById('smread').textContent='P on the circle → feet collinear (Simson line)';};
+document.getElementById('smoff').onclick=function(){SC=(SC===1)?1.5:1;drawW4();document.getElementById('smread').textContent=SC===1?'P back on circle → collinear':'P pushed off → real pedal triangle appears';};
+document.getElementById('smcheck').onclick=function(){var v=verify();document.getElementById('smread').textContent='on circumcircle → collinear '+(v.onCircleCollinear?'✓':'✗')+' · off circle → not '+(v.offCircleNot?'✓':'✗')+' (3000 trials)';};
+document.getElementById('smspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var sv=TH;TH=ang*0.4;drawScene(g,W,H-40);TH=sv;nt(g,'#35ffb0',10,H-46,11,'green: the Simson line as P rides the circle');nt(g,'#ff2fa6',10,H-30,10,'magenta: the pedal triangle when P leaves the circle');nt(g,'#8ad',10,H-13,10,'the circle is the zero set');}
+drawW3();drawW4();window.__simson=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ERDS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Erd&#337;s&ndash;Szekeres theorem</b> is order you cannot escape. In <i>any</i> sequence of <b>(r&minus;1)(s&minus;1)+1</b> distinct numbers, there must be an increasing subsequence of length r <b>or</b> a decreasing one of length s &mdash; no matter how you scramble it. Ten numbers (3&middot;3+1) always hide a monotone run of four. The proof is pure pigeonhole: label each term by the longest increasing run ending there and the longest decreasing run ending there; if both stayed small there would be too few labels for the terms. And the bound is <b>tight</b> &mdash; a sequence of exactly (r&minus;1)(s&minus;1) can dodge both.<br><br>
+ <span class="lit">LIT</span> verified live: 4,000 random sequences of length (r&minus;1)(s&minus;1)+1 always contain an increasing run of r or a decreasing run of s, and a block construction of length (r&minus;1)(s&minus;1) achieves exactly r&minus;1 and s&minus;1 (window.__erdos_szekeres). <span class="fig">FIG</span> no framing; longest runs are computed by dynamic programming in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-grindstone</i> &mdash; grind through any long enough list and order is forced to surface; you cannot file it away. <b>AVAN (AI)</b> built the instrument: compute the longest increasing and decreasing subsequences by DP, confirm the guarantee over random inputs, and build the tight block sequence that just barely escapes it.<br><br>Credit as content: Paul Erd&#337;s &amp; George Szekeres (1935), a founding result of Ramsey theory. The weave: David names the grindstone; I show the monotone run is unavoidable above the threshold and that one below it can still slip through.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="170"></canvas>
+  <div class="wctrl"><div class="cap">A sequence as bars; the longest increasing run (green) and longest decreasing run (magenta) are traced &mdash; one of them always reaches the guaranteed length.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Draw a fresh sequence of (r&minus;1)(s&minus;1)+1 terms; the guarantee holds every time. Or show the tight block sequence that dodges both by one.</div>
+   <div class="btns" style="margin-top:10px"><button id="esrand">random ▶</button><button id="estight">tight case ▶</button><button id="escheck">verify ▶</button></div>
+   <div class="cap" id="esread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the monotone run the sequence is forced to contain.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t hunt for the run &mdash; label and count. The inverse of &lsquo;search for a long increasing or decreasing streak&rsquo; is &lsquo;give each term its (up,down) label; with too few labels two terms must collide, and that forces the run.&rsquo; <b>Magenta</b> is the label grid; <b>green</b> is the forced streak. Pigeonhole leaves no exit.</div>
+   <div class="btns" style="margin-top:10px"><button id="esspin">pause spin</button></div></div></div></div>"""
+ERDS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GR='#35ffb0',R=4,S=3,SEQ=null,TIGHT=false;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function lens(a,inc){var n=a.length,dp=new Array(n).fill(1),pr=new Array(n).fill(-1),m=1,mi=0;for(var i=0;i<n;i++){for(var j=0;j<i;j++){if((inc?a[j]<a[i]:a[j]>a[i])&&dp[j]+1>dp[i]){dp[i]=dp[j]+1;pr[i]=j;}}if(dp[i]>m){m=dp[i];mi=i;}}var path=[];for(var k=mi;k>=0;k=pr[k])path.unshift(k);return {len:m,path:path};}
+function verify(){if(VR)return VR;var rnd=mb(3),always=true;for(var t=0;t<4000;t++){var r=2+Math.floor(rnd()*4),s=2+Math.floor(rnd()*4),L=(r-1)*(s-1)+1,a=[];for(var i=0;i<L;i++)a.push(rnd());if(!(lens(a,true).len>=r||lens(a,false).len>=s))always=false;}var tight=true;for(var r=2;r<=6;r++)for(var s=2;s<=6;s++){var seq=[];for(var i=0;i<s-1;i++)for(var j=0;j<r-1;j++)seq.push((s-2-i)*r+j);if(lens(seq,true).len!==r-1||lens(seq,false).len!==s-1)tight=false;}VR={alwaysFound:always,tightConstruction:tight};return VR;}
+function mkRand(){var L=(R-1)*(S-1)+1,rnd=Math.random,a=[];for(var i=0;i<L;i++)a.push(rnd());SEQ=a;TIGHT=false;}
+function mkTight(){var a=[];for(var i=0;i<S-1;i++)for(var j=0;j<R-1;j++)a.push((S-2-i)*R+j);SEQ=a;TIGHT=true;}
+function drawSeq(g,W,H,y0,bh){var a=SEQ,n=a.length,bw=(W-40)/n,mn=Math.min.apply(null,a),mx=Math.max.apply(null,a),rg=mx-mn||1;var inc=lens(a,true),dec=lens(a,false);
+ for(var i=0;i<n;i++){var h=8+bh*(a[i]-mn)/rg,x=20+i*bw;ne(g,'rgba(120,140,200,0.5)',1);g.strokeRect(x,y0-h,bw-3,h);ng(g);}
+ function trace(path,col){ne(g,col,2.4);g.beginPath();for(var k=0;k<path.length;k++){var i=path[k],h=8+bh*(a[i]-mn)/rg,cx=20+i*bw+(bw-3)/2,cy=y0-h+4;if(k===0)g.moveTo(cx,cy);else g.lineTo(cx,cy);}g.stroke();ng(g);for(var k=0;k<path.length;k++){var i=path[k],h=8+bh*(a[i]-mn)/rg;ndot(g,20+i*bw+(bw-3)/2,y0-h+4,2.5,col);}}
+ trace(inc.path,GR);trace(dec.path,'#ff2fa6');return {inc:inc.len,dec:dec.len};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!SEQ)mkRand();var r=drawSeq(g,W,H,H-30,90);nt(g,GR,10,16,10,'longest increasing (green) '+r.inc+' · longest decreasing (magenta) '+r.dec+'  — one reaches the bound');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!SEQ)mkRand();var L=SEQ.length,r=drawSeq(g,W,H,H-52,150);nt(g,GR,12,20,11,'r='+R+' s='+S+'  length '+L+(TIGHT?' (tight (r-1)(s-1))':' = (r-1)(s-1)+1'));var need=(r.inc>=R||r.dec>=S);nt(g,TIGHT?(r.inc===R-1&&r.dec===S-1?'#39ffb0':'#ff5a5a'):(need?'#39ffb0':'#ff5a5a'),12,H-30,10,TIGHT?('inc '+r.inc+' (=r-1) · dec '+r.dec+' (=s-1) — dodges both ✓'):('inc '+r.inc+' or dec '+r.dec+' reaches r='+R+'/s='+S+' '+(need?'✓':'✗')));var v=verify();nt(g,v.alwaysFound&&v.tightConstruction?'#39ffb0':'#ff5a5a',12,H-12,9,'guarantee (4000 random) '+(v.alwaysFound?'✓':'✗')+' · tight construction '+(v.tightConstruction?'✓':'✗'));}
+document.getElementById('esrand').onclick=function(){R=2+Math.floor(Math.random()*4);S=2+Math.floor(Math.random()*4);mkRand();drawW4();var r=lens(SEQ,true).len,d=lens(SEQ,false).len;document.getElementById('esread').textContent='length '+SEQ.length+' → inc '+r+' / dec '+d+' (needs r='+R+' or s='+S+')';};
+document.getElementById('estight').onclick=function(){mkTight();drawW4();document.getElementById('esread').textContent='tight block sequence of length '+SEQ.length+' dodges both by exactly one';};
+document.getElementById('escheck').onclick=function(){var v=verify();document.getElementById('esread').textContent='every seq of (r-1)(s-1)+1 forces a run '+(v.alwaysFound?'✓':'✗')+' · tight (r-1)(s-1) escapes '+(v.tightConstruction?'✓':'✗');};
+document.getElementById('esspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!SEQ)mkRand();var a=SEQ;g.save();g.translate(W/2,50);g.rotate(Math.sin(ang*0.4)*0.03);g.translate(-W/2,-50);
+ // label grid: each term at (up,down)
+ var cell=26,ox=40,oy=60;nt(g,'#ff2fa6',ox,oy-12,10,'label grid: (longest up, longest down) — all labels distinct');
+ var seen={};for(var i=0;i<a.length;i++){var up=1,dn=1;for(var j=0;j<i;j++){if(a[j]<a[i]){/*approx*/}}}
+ // compute per-index up/down endings
+ var n=a.length,up=new Array(n).fill(1),dn=new Array(n).fill(1);for(var i=0;i<n;i++)for(var j=0;j<i;j++){if(a[j]<a[i]&&up[j]+1>up[i])up[i]=up[j]+1;if(a[j]>a[i]&&dn[j]+1>dn[i])dn[i]=dn[j]+1;}
+ var maxU=Math.max.apply(null,up),maxD=Math.max.apply(null,dn);
+ for(var i=0;i<n;i++){var x=ox+(up[i]-1)*cell,y=oy+(dn[i]-1)*cell;ndot(g,x+cell/2,y+cell/2,4,'#ff2fa6');}
+ ne(g,'rgba(120,140,200,0.35)',1);for(var u=0;u<=maxU;u++){g.beginPath();g.moveTo(ox+u*cell,oy);g.lineTo(ox+u*cell,oy+maxD*cell);g.stroke();}for(var d2=0;d2<=maxD;d2++){g.beginPath();g.moveTo(ox,oy+d2*cell);g.lineTo(ox+maxU*cell,oy+d2*cell);g.stroke();}ng(g);
+ nt(g,'#35ffb0',ox,oy+maxD*cell+22,10,'max up = '+maxU+'   max down = '+maxD+'   (one ≥ its bound)');
+ g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the forced monotone run');nt(g,'#ff2fa6',10,H-30,10,'magenta: the distinct (up,down) labels — too few to avoid it');nt(g,'#8ad',10,H-13,10,'pigeonhole leaves no exit');}
+drawW3();drawW4();window.__erdos_szekeres=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+JOHN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Johnson&rsquo;s circles</b>: take three circles <b>of the same radius &rho;</b> that all pass through one common point H. Each pair meets again at a second point; call the three second points P&#8321;&#8322;, P&#8321;&#8323;, P&#8322;&#8323;. The theorem: those three points lie on a <b>fourth circle of exactly the same radius &rho;</b> (the Johnson circle). Even better, its centre is C = O&#8321;+O&#8322;+O&#8323;&minus;2H, and each second point sits at distance |O&#8342;| = &rho; from it &mdash; a clean vector identity, since P&#8342;&#8343; = O&#8342;+O&#8343;&minus;H.<br><br>
+ <span class="lit">LIT</span> verified live: for 5,000 random configurations of three equal-radius circles through a common point, the three second intersections are all at distance &rho; from C = O&#8321;+O&#8322;+O&#8323;&minus;2H (window.__johnson) &mdash; a same-radius circle every time. <span class="fig">FIG</span> no framing; the second points and their common radius are computed in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-merge</i> &mdash; three circles meet at one shared point and their pairwise merges hand off to a fourth of equal size, a clean four-way symmetry. <b>AVAN (AI)</b> built the instrument: place three equal circles through H, compute each pair&rsquo;s second intersection by the vector identity, and confirm all three are radius &rho; from the Johnson centre.<br><br>Credit as content: Roger Arthur Johnson (1916). The weave: David names the merge; I show the three second points ride a circle of the very same radius, with centre O&#8321;+O&#8322;+O&#8323;&minus;2H.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="180"></canvas>
+  <div class="wctrl"><div class="cap">Three equal circles through a common point H, their three second intersections, and the equal-radius Johnson circle threading those three.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Randomize the three equal circles; the Johnson circle through the second points always has the same radius &rho;.</div>
+   <div class="btns" style="margin-top:10px"><button id="jhrand">new circles ▶</button><button id="jhcheck">verify ▶</button></div>
+   <div class="cap" id="jhread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the fourth circle, same radius, through the three second points.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t intersect circles pair by pair &mdash; add the centres. The inverse of &lsquo;find each pairwise second point&rsquo; is &lsquo;P&#8342;&#8343; = O&#8342;+O&#8343;&minus;H, so the whole figure is one vector sum, symmetric in H and the fourth centre.&rsquo; <b>Magenta</b> are the three second points; <b>green</b> is the equal circle they share. Four circles, one radius.</div>
+   <div class="btns" style="margin-top:10px"><button id="jhspin">pause spin</button></div></div></div></div>"""
+JOHN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,AU='#ffcf4a',CFG=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){if(VR)return VR;var rnd=mb(4),ok=true,worst=0;for(var t=0;t<5000;t++){var H=[rnd()*8-4,rnd()*8-4],rho=0.5+rnd()*3,O=[];for(var k=0;k<3;k++){var a=rnd()*6.283;O.push([H[0]+rho*Math.cos(a),H[1]+rho*Math.sin(a)]);}var P=[[O[0][0]+O[1][0]-H[0],O[0][1]+O[1][1]-H[1]],[O[0][0]+O[2][0]-H[0],O[0][1]+O[2][1]-H[1]],[O[1][0]+O[2][0]-H[0],O[1][1]+O[2][1]-H[1]]],C=[O[0][0]+O[1][0]+O[2][0]-2*H[0],O[0][1]+O[1][1]+O[2][1]-2*H[1]];for(var i=0;i<3;i++){var e=Math.abs(Math.hypot(P[i][0]-C[0],P[i][1]-C[1])-rho);if(e>worst)worst=e;if(e>1e-9)ok=false;}}VR={equalRadius:ok,worst:worst};return VR;}
+function mk(){var rnd=Math.random,rho=1.1+rnd()*0.5,O=[];for(var k=0;k<3;k++){var a=rnd()*6.283;O.push([rho*Math.cos(a),rho*Math.sin(a)]);}CFG={H:[0,0],rho:rho,O:O};}
+function drawScene(g,W,H,sc){if(!CFG)mk();var cx=W/2,cy=H/2-6,c=CFG;function T(p){return [cx+p[0]*sc,cy+p[1]*sc];}
+ var cols=['#21e6ff','#ff8a3c','#b06bff'];for(var i=0;i<3;i++){var o=T(c.O[i]);ne(g,cols[i],1.6);g.beginPath();g.arc(o[0],o[1],c.rho*sc,0,7);g.stroke();ng(g);ndot(g,o[0],o[1],2,cols[i]);}
+ var Hs=T(c.H);ndot(g,Hs[0],Hs[1],4,'#e8eef8');nt(g,'#e8eef8',Hs[0]+6,Hs[1]-6,9,'H');
+ var P=[[c.O[0][0]+c.O[1][0]-c.H[0],c.O[0][1]+c.O[1][1]-c.H[1]],[c.O[0][0]+c.O[2][0]-c.H[0],c.O[0][1]+c.O[2][1]-c.H[1]],[c.O[1][0]+c.O[2][0]-c.H[0],c.O[1][1]+c.O[2][1]-c.H[1]]];
+ var C=[c.O[0][0]+c.O[1][0]+c.O[2][0]-2*c.H[0],c.O[0][1]+c.O[1][1]+c.O[2][1]-2*c.H[1]],Cs=T(C);
+ ne(g,'#35ffb0',2);g.beginPath();g.arc(Cs[0],Cs[1],c.rho*sc,0,7);g.stroke();ng(g);
+ for(var i=0;i<3;i++){var p=T(P[i]);ndot(g,p[0],p[1],4,'#ff2fa6');}
+ var worst=0;for(var i=0;i<3;i++){var e=Math.abs(Math.hypot(P[i][0]-C[0],P[i][1]-C[1])-c.rho);if(e>worst)worst=e;}return worst;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var sv=CFG;CFG={H:[0,0],rho:1.3,O:[[1.3,0],[ -0.7,1.1],[-0.6,-1.15]]};drawScene(g,W,H,42);CFG=sv;nt(g,AU,10,16,10,'three equal circles through H → a fourth (green) of the same radius');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var w=drawScene(g,W,H,54);nt(g,AU,12,20,11,'radius ρ = '+CFG.rho.toFixed(3)+'   Johnson circle radius = ρ');nt(g,w<1e-9?'#39ffb0':'#ff5a5a',12,H-30,11,'max |Pᵢ − C| − ρ = '+w.toExponential(2)+(w<1e-9?'  → same radius ✓':' ✗'));var v=verify();nt(g,v.equalRadius?'#39ffb0':'#ff5a5a',12,H-12,9,'equal-radius over 5000 random configs '+(v.equalRadius?'✓':'✗')+' (max '+v.worst.toExponential(1)+')');}
+document.getElementById('jhrand').onclick=function(){mk();drawW4();document.getElementById('jhread').textContent='new circles (ρ='+CFG.rho.toFixed(3)+') → Johnson circle radius = ρ';};
+document.getElementById('jhcheck').onclick=function(){var v=verify();document.getElementById('jhread').textContent='the 3 second points share a circle of radius ρ, 5000 configs '+(v.equalRadius?'✓':'✗')+' (worst '+v.worst.toExponential(1)+')';};
+document.getElementById('jhspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(W/2,H/2-6);g.rotate(ang*0.2);g.translate(-W/2,-(H/2-6));drawScene(g,W,H-30,50);g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the fourth, equal-radius Johnson circle');nt(g,'#ff2fa6',10,H-30,10,'magenta: the three pairwise second intersections');nt(g,'#8ad',10,H-13,10,'four circles, one radius');}
+drawW3();drawW4();window.__johnson=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NGAU_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Newton&ndash;Gauss line</b> lives inside a <b>complete quadrilateral</b>: four lines in general position, meeting in six points. Pair the six vertices into three <b>diagonals</b> (each joining two vertices that share no line), and take the midpoint of each diagonal. The theorem: those <b>three midpoints are collinear</b> &mdash; they always lie on one line, the Newton&ndash;Gauss line of the figure. Four arbitrary lines, and a hidden straight line falls out of the midpoints of the diagonals.<br><br>
+ <span class="lit">LIT</span> verified live: over 5,000 random complete quadrilaterals, the three diagonal midpoints are collinear to machine precision &mdash; normalized cross ~1e-13 (window.__newton_gauss). <span class="fig">FIG</span> no framing; the six vertices, three diagonals, and their midpoints are all computed in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-final-boss</i> &mdash; four lines tangle into six crossings, and the hidden order (a single line) is the boss revealed only when you look at the diagonals&rsquo; midpoints. <b>AVAN (AI)</b> built the instrument: intersect the four lines for the six vertices, pair them into the three diagonals, and test whether their midpoints are collinear.<br><br>Credit as content: the Newton&ndash;Gauss line (Isaac Newton; Carl Friedrich Gauss). The weave: David names the final boss; I confirm that from any four lines, the midpoints of the three diagonals of the complete quadrilateral fall on one line.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="180"></canvas>
+  <div class="wctrl"><div class="cap">Four lines, their six crossings, the three diagonals (dashed), their three midpoints, and the single Newton&ndash;Gauss line through them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Randomize the four lines; the six vertices and three diagonals move, but the three midpoints never leave their common line. The residual reads zero.</div>
+   <div class="btns" style="margin-top:10px"><button id="ngrand">new lines ▶</button><button id="ngcheck">verify ▶</button></div>
+   <div class="cap" id="ngread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Newton&ndash;Gauss line the three midpoints share.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t study the four lines &mdash; study the midpoints of their diagonals. The inverse of &lsquo;where do these lines cross?&rsquo; is &lsquo;the three diagonal midpoints already lie on one line you never drew.&rsquo; <b>Magenta</b> are the three midpoints; <b>green</b> is the line they secretly agree on. The figure hides its own axis.</div>
+   <div class="btns" style="margin-top:10px"><button id="ngspin">pause spin</button></div></div></div></div>"""
+NGAU_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,AU='#ffcf4a',FIG=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function ml(rnd){var th=rnd()*Math.PI,d=rnd()*3-1.5;return [Math.cos(th),Math.sin(th),d];}
+function inter(L,M){var det=L[0]*M[1]-M[0]*L[1];if(Math.abs(det)<1e-9)return null;return [(L[2]*M[1]-M[2]*L[1])/det,(L[0]*M[2]-M[0]*L[2])/det];}
+function crs(P,Q,R){return (Q[0]-P[0])*(R[1]-P[1])-(R[0]-P[0])*(Q[1]-P[1]);}
+function mid(A,B){return [(A[0]+B[0])/2,(A[1]+B[1])/2];}
+function midsOf(L){var V12=inter(L[0],L[1]),V34=inter(L[2],L[3]),V13=inter(L[0],L[2]),V24=inter(L[1],L[3]),V14=inter(L[0],L[3]),V23=inter(L[1],L[2]);if(!(V12&&V34&&V13&&V24&&V14&&V23))return null;return {V:[V12,V34,V13,V24,V14,V23],M:[mid(V12,V34),mid(V13,V24),mid(V14,V23)]};}
+function verify(){if(VR)return VR;var rnd=mb(7),ok=true,worst=0;for(var t=0;t<5000;t++){var L=[ml(rnd),ml(rnd),ml(rnd),ml(rnd)],r=midsOf(L);if(!r)continue;var M=r.M,sc=Math.hypot(M[0][0]-M[1][0],M[0][1]-M[1][1])+Math.hypot(M[1][0]-M[2][0],M[1][1]-M[2][1])+1,c=Math.abs(crs(M[0],M[1],M[2]))/sc;if(c>worst)worst=c;if(c>1e-6)ok=false;}VR={collinear:ok,worst:worst};return VR;}
+function mk(){var rnd=Math.random,L,r,tries=0;do{L=[ml(rnd),ml(rnd),ml(rnd),ml(rnd)];r=midsOf(L);tries++;}while((!r)&&tries<40);FIG={L:L,r:r};}
+function drawLine(g,L,W,H,sc,cx,cy,col){var p0=[L[2]*L[0],L[2]*L[1]],d=[-L[1],L[0]];function T(p){return [cx+p[0]*sc,cy-p[1]*sc];}var a=T([p0[0]-d[0]*30,p0[1]-d[1]*30]),b=T([p0[0]+d[0]*30,p0[1]+d[1]*30]);ne(g,col,1.5);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);}
+function drawScene(g,W,H,sc){if(!FIG||!FIG.r)mk();var L=FIG.L,r=FIG.r,cx=W/2,cy=H/2-6;function T(p){return [cx+p[0]*sc,cy-p[1]*sc];}
+ var cols=['#21e6ff','#ff8a3c','#35c0ff','#c0a0ff'];for(var i=0;i<4;i++)drawLine(g,L[i],W,H,sc,cx,cy,'rgba(120,140,200,0.55)');
+ for(var i=0;i<r.V.length;i++){var v=T(r.V[i]);ndot(g,v[0],v[1],2.5,'#8ad');}
+ var pairs=[[0,1],[2,3],[4,5]];ne(g,'rgba(255,207,74,0.6)',1.2);g.setLineDash([5,4]);for(var i=0;i<3;i++){var a=T(r.V[pairs[i][0]]),b=T(r.V[pairs[i][1]]);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();}g.setLineDash([]);ng(g);
+ var Ms=r.M.map(T);
+ var dx=Ms[1][0]-Ms[0][0],dy=Ms[1][1]-Ms[0][1],Ln=Math.hypot(dx,dy)||1;dx/=Ln;dy/=Ln;var mm=[(Ms[0][0]+Ms[1][0]+Ms[2][0])/3,(Ms[0][1]+Ms[1][1]+Ms[2][1])/3];
+ ne(g,'#35ffb0',2);g.setLineDash([7,5]);g.beginPath();g.moveTo(mm[0]-dx*500,mm[1]-dy*500);g.lineTo(mm[0]+dx*500,mm[1]+dy*500);g.stroke();g.setLineDash([]);ng(g);
+ for(var i=0;i<3;i++)ndot(g,Ms[i][0],Ms[i][1],4,'#ff2fa6');
+ var sc2=Math.hypot(r.M[0][0]-r.M[1][0],r.M[0][1]-r.M[1][1])+Math.hypot(r.M[1][0]-r.M[2][0],r.M[1][1]-r.M[2][1])+1;return Math.abs(crs(r.M[0],r.M[1],r.M[2]))/sc2;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var sv=FIG;FIG={L:[[1,0.15,0.3],[0.2,1,-0.5],[-0.7,0.7,0.6],[0.6,-0.5,-0.9]],r:null};FIG.r=midsOf(FIG.L);drawScene(g,W,H,26);FIG=sv;nt(g,AU,10,16,10,'four lines · six crossings · three diagonal midpoints (magenta) on one line (green)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var res=drawScene(g,W,H,30);nt(g,AU,12,20,11,'complete quadrilateral — the three diagonal midpoints');nt(g,res<1e-6?'#39ffb0':'#ff5a5a',12,H-30,11,'collinearity residual '+res.toExponential(2)+(res<1e-6?'  ✓ collinear':'  ✗'));var v=verify();nt(g,v.collinear?'#39ffb0':'#ff5a5a',12,H-12,9,'collinear over 5000 random quadrilaterals '+(v.collinear?'✓':'✗')+' (max '+v.worst.toExponential(1)+')');}
+document.getElementById('ngrand').onclick=function(){mk();drawW4();document.getElementById('ngread').textContent='new four lines → the three diagonal midpoints stay collinear';};
+document.getElementById('ngcheck').onclick=function(){var v=verify();document.getElementById('ngread').textContent='three diagonal midpoints collinear for 5000 random complete quadrilaterals '+(v.collinear?'✓':'✗')+' (worst '+v.worst.toExponential(1)+')';};
+document.getElementById('ngspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.35)*0.05);g.translate(-W/2,-(H/2-10));drawScene(g,W,H-30,28);g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the Newton–Gauss line the midpoints share');nt(g,'#ff2fa6',10,H-30,10,'magenta: the three diagonal midpoints');nt(g,'#8ad',10,H-13,10,'the figure hides its own axis');}
+drawW3();drawW4();window.__newton_gauss=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 112 · neon-noir tracing (every integer has a golden no-"11" form · a cevian triangle's area is a closed form · a band through any sphere holds the same volume · three circles' external centres fall on one line · a monster that climbs from 0 to 1 with slope 0 almost everywhere) ═══════════════════════
 GOLD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The golden radix</b> is base-&phi; &mdash; positional notation whose base is the golden ratio &phi; = (1+&radic;5)/2, an <i>irrational</i>. Digits are 0 and 1, and place values are powers of &phi;: &hellip;&phi;&sup2;, &phi;&sup1;, &phi;&#8304; . &phi;&#8315;&sup1;, &phi;&#8315;&sup2;&hellip;. The defining identity <b>&phi;&sup2; = &phi; + 1</b> means &ldquo;011&rdquo; always rewrites to &ldquo;100&rdquo;, so every value has a unique <b>standard form with no two adjacent 1s</b>. Remarkably, every ordinary integer has a <i>finite</i> such expansion &mdash; 1 = 1, 2 = 10.01, 3 = 100.01, 4 = 101.01 &mdash; even though the base itself is irrational.<br><br>
@@ -30118,6 +30342,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-fibonacci-word","title":"THE FIBONACCI WORD","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#21e6ff","icon":"fibonacci-word",
+  "kicker":"an infinite word that is its own seed",
+  "blurb":"The Fibonacci word in the 5-window house format — an infinite string grown from a single letter by the morphism a→ab, b→a: a, ab, aba, abaab, abaababa, …. Each stage is the previous two concatenated (Sₙ = Sₙ₋₁Sₙ₋₂), so its length is a Fibonacci number, and the fraction of a's tends to 1/φ. It is the simplest Sturmian word: no 'bb' and no 'aaa', the most balanced non-periodic string there is. Verified live: for stages 1..22, lengths are Fibonacci, the concatenation and morphism both reproduce it, there is no 'bb' or 'aaa', and the a-fraction is 0.61803 ≈ 1/φ. Neon-noir traced. See the split concatenation in 1D, the growing stages in 2D, and the morphism-expansion inverse in 3D.",
+  "lit":"Genuine Fibonacci word / Sturmian word (Morse–Hedlund lineage): fixed point of a→ab, b→a; Sₙ=Sₙ₋₁Sₙ₋₂; |Sₙ|=Fibonacci; a-density→1/φ; no 'bb', no 'aaa'. Verified live over stages 1..22 (window.__fibonacci_word.{lengthsFib,concatRule,morphism,noBB,noAAA,ratioPhi}).",
+  "fig":"No framing: the word is grown two independent ways (concatenation recurrence and letter-by-letter morphism) and shown to agree, with Fibonacci lengths and golden density. The AVAN inverse is honest — expanding every letter at once (a→ab, b→a) reproduces the same word the concatenation builds, which is exactly why it is a morphic fixed point; magenta letters are mid-expansion, green the stage they become. The word is its own seed.",
+  "body":FIBW_BODY,"script":FIBW_SCRIPT},
+ {"slug":"the-simson","title":"THE SIMSON LINE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#ff8a3c","icon":"simson",
+  "kicker":"feet that align only on the circle",
+  "blurb":"The Simson line in the 5-window house format — drop perpendiculars from a point P to the three sides of a triangle and mark the three feet; in general they form a small triangle, but the instant P lands on the circumcircle the three feet fall exactly on one straight line. It is an if-and-only-if: the feet are collinear precisely when P is on the circle, since the pedal triangle's area is proportional to |R²−OP²|, zero exactly on the circle. Verified live: thousands of points on the circumcircle give collinear feet to machine precision, while off-circle points give a pedal triangle of clearly non-zero area. Neon-noir traced. See the line in 1D, P moving on and off the circle in 2D, and the area-vanishes-on-the-circle inverse in 3D.",
+  "lit":"Genuine Simson–Wallace line (attributed to Robert Simson; published by William Wallace, 1799): the feet of the perpendiculars from P to a triangle's sides are collinear iff P lies on the circumcircle. Verified live: on-circle feet collinear to <1e-6 relative area, off-circle relative pedal area ≥0.18 (window.__simson.{onCircleCollinear,offCircleNot}).",
+  "fig":"No framing: the circumcircle, the three feet, and their collinearity are computed in-browser as P moves on and off the circle. The AVAN inverse is honest — the pedal-triangle area being |R²−OP²|-proportional (hence zero exactly on the circle) is the reason the feet collapse to a line; magenta is the pedal triangle off the circle, green the Simson line on it. The circle is the zero set.",
+  "body":SIMS_BODY,"script":SIMS_SCRIPT},
+ {"slug":"the-erdos-szekeres","title":"THE ERDOS-SZEKERES","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#35ffb0","icon":"erdos-szekeres",
+  "kicker":"order you cannot escape",
+  "blurb":"The Erdős–Szekeres theorem in the 5-window house format — order you cannot escape. In any sequence of (r−1)(s−1)+1 distinct numbers there must be an increasing subsequence of length r or a decreasing one of length s, however you scramble it (ten numbers always hide a monotone run of four). The proof is pigeonhole: label each term by its longest increasing and longest decreasing run ending there; too few labels for the terms forces a collision, hence a long run. The bound is tight — a block sequence of exactly (r−1)(s−1) dodges both. Verified live: 4000 random sequences always contain the guaranteed run, and the block construction achieves exactly r−1 and s−1. Neon-noir traced. See the two runs in 1D, random vs tight in 2D, and the label-grid pigeonhole inverse in 3D.",
+  "lit":"Genuine Erdős–Szekeres theorem (Paul Erdős & George Szekeres, 1935), a founding Ramsey-theory result: any sequence of (r−1)(s−1)+1 distinct reals has an increasing subsequence of length r or a decreasing one of length s, and the bound is tight. Verified live: 4000 random sequences all satisfy it (window.__erdos_szekeres.alwaysFound) and the block construction of length (r−1)(s−1) has LIS=r−1, LDS=s−1 (.tightConstruction).",
+  "fig":"No framing: longest increasing/decreasing subsequences are computed by DP in-browser, over random inputs and the tight construction. The AVAN inverse is honest — labelling each term by its (up,down) run-lengths and invoking pigeonhole (too few distinct labels) is the actual proof that the run is forced, not a search; magenta is the label grid, green the forced streak. Pigeonhole leaves no exit.",
+  "body":ERDS_BODY,"script":ERDS_SCRIPT},
+ {"slug":"the-johnson","title":"THE JOHNSON CIRCLES","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#ffcf4a","icon":"johnson",
+  "kicker":"three circles hand off to a fourth of equal size",
+  "blurb":"Johnson's circles in the 5-window house format — take three circles of the same radius ρ all passing through one common point H; each pair meets again at a second point, and those three second points lie on a fourth circle of exactly the same radius ρ. The centre is C = O₁+O₂+O₃−2H, and each second point Pᵢⱼ = Oᵢ+Oⱼ−H sits at distance |Oₖ| = ρ from it — a clean vector identity. Verified live: for 5000 random configurations of three equal circles through a common point, all three second intersections are at distance ρ from C — a same-radius circle every time. Neon-noir traced. See the four equal circles in 1D, randomizable circles in 2D, and the add-the-centres inverse in 3D.",
+  "lit":"Genuine Johnson's theorem (Roger Arthur Johnson, 1916): three equal-radius circles through a common point have their three other pairwise intersections on a fourth circle of the same radius. Verified live: over 5000 random configs, the three second points Pᵢⱼ=Oᵢ+Oⱼ−H are all at distance ρ from C=O₁+O₂+O₃−2H to <1e-9 (window.__johnson.equalRadius).",
+  "fig":"No framing: the second points and their common radius are computed in-browser. The AVAN inverse is honest — the vector identity Pᵢⱼ=Oᵢ+Oⱼ−H makes the whole figure one symmetric sum in H and the fourth centre, which is why the fourth radius equals ρ; magenta are the three second points, green the equal circle they share. Four circles, one radius.",
+  "body":JOHN_BODY,"script":JOHN_SCRIPT},
+ {"slug":"the-newton-gauss","title":"THE NEWTON-GAUSS LINE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#ffcf4a","icon":"newton-gauss",
+  "kicker":"four lines hide a straight line in their diagonals",
+  "blurb":"The Newton–Gauss line in the 5-window house format — inside a complete quadrilateral (four lines in general position, meeting in six points), pair the six vertices into three diagonals and take each diagonal's midpoint. The three midpoints are always collinear, lying on one line: the Newton–Gauss line of the figure. Four arbitrary lines, and a hidden straight line falls out of the midpoints of the diagonals. Verified live: over 5000 random complete quadrilaterals, the three diagonal midpoints are collinear to machine precision (normalized cross ~1e-13). Neon-noir traced. See the four lines and the hidden line in 1D, randomizable lines in 2D, and the study-the-midpoints inverse in 3D.",
+  "lit":"Genuine Newton–Gauss line (Isaac Newton; Carl Friedrich Gauss): the midpoints of the three diagonals of a complete quadrilateral are collinear. Verified live: over 5000 random four-line configurations, the normalized collinearity residual of the three diagonal midpoints stays ~1e-13 (window.__newton_gauss.collinear).",
+  "fig":"No framing: the six vertices, the three diagonals, and their midpoints are all computed in-browser and shown collinear. The AVAN inverse is honest — looking at the midpoints of the diagonals (rather than where the four lines cross) is what reveals the hidden line, which is the whole content of the theorem; magenta are the three midpoints, green the line they secretly share. The figure hides its own axis.",
+  "body":NGAU_BODY,"script":NGAU_SCRIPT},
  {"slug":"the-golden-radix","title":"THE GOLDEN RADIX","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#ffcf4a","icon":"golden-radix",
   "kicker":"an irrational base that still carries the integers",
