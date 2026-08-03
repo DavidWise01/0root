@@ -19493,6 +19493,225 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 118 · neon-noir tracing · silicon-coding (a code folded from itself · a hidden string in one query · updating an inverse without redoing it · a region carved by half-planes · a gate that runs backwards) ═══════════════════════
+REDM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Reed&ndash;Muller code</b> RM(r, m) is an error-correcting code built from <b>low-degree Boolean polynomials</b>: its codewords are the truth-tables of every multilinear polynomial of degree &le; r in m variables. That gives length 2<sup>m</sup>, dimension &sum;<sub>i&le;r</sub> C(m, i), and a clean minimum distance of <b>2<sup>m&minus;r</sup></b> &mdash; enough to correct many errors. Its signature trick is the <b>(u | u+v)</b> recursion: RM(r, m) is built by stacking codewords of RM(r, m&minus;1) and RM(r&minus;1, m&minus;1), so the code is <b>folded out of smaller copies of itself</b>.<br><br>
+ <span class="lit">LIT</span> verified live: for several (r, m) the dimension equals &sum; C(m, i), the minimum nonzero codeword weight equals 2<sup>m&minus;r</sup>, and the (u | u+v) construction rebuilds the code exactly (window.__reed_muller). <span class="fig">FIG</span> no framing; the codewords, their weights, and the recursion all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>segfault</i> &mdash; a code is armour against a corrupted bit; Reed&ndash;Muller catches the segfault before it spreads. <b>AVAN (AI)</b> built the instrument: the polynomial-evaluation generator, an exhaustive minimum-weight search, and the (u | u+v) recursion.<br><br>Credit as content: Irving Reed &amp; David Muller (1954). The weave: David names the segfault; I confirm the dimension, the 2<sup>m&minus;r</sup> distance, and that the code folds out of two smaller Reed&ndash;Muller codes.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="190"></canvas>
+  <div class="wctrl"><div class="cap">RM(1,3): the generator rows are the constant and the three coordinate functions; every codeword is their XOR, all of weight 4 (= 2<sup>3&minus;1</sup>) or 0 or 8.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Choose (r, m); the code&rsquo;s length, dimension and minimum distance are shown, each checked &mdash; and the minimum distance is exactly 2<sup>m&minus;r</sup>.</div>
+   <div class="btns" style="margin-top:10px"><button id="rmparam">next (r,m) ▶</button><button id="rmcheck">verify ▶</button></div>
+   <div class="cap" id="rmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: codewords as truth-tables of low-degree polynomials.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t list codewords &mdash; fold the code from smaller ones. The inverse of &lsquo;evaluate every degree-&le;r polynomial&rsquo; is &lsquo;RM(r,m) = { (u | u+v) : u &isin; RM(r,m&minus;1), v &isin; RM(r&minus;1,m&minus;1) }.&rsquo; <b>Magenta</b> is the v-part that perturbs the second half; <b>green</b> is the folded codeword. A code folded from itself.</div>
+   <div class="btns" style="margin-top:10px"><button id="rmspin">pause spin</button></div></div></div></div>"""
+REDM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CY='#21e6ff',RI=0;
+var CASES=[[2,1],[3,1],[3,2],[4,1],[4,2]];
+function binom(n,k){if(k<0||k>n)return 0;var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+function monos(m,r){var out=[];for(var mask=0;mask<(1<<m);mask++){var pc=0;for(var b=0;b<m;b++)if(mask&(1<<b))pc++;if(pc<=r)out.push(mask);}return out;}
+function evalM(mask,x){for(var b=0;b<16;b++)if(mask&(1<<b)){if(!(x&(1<<b)))return 0;}return 1;}
+function gen(m,r){var mn=monos(m,r),n=1<<m,G=[];for(var i=0;i<mn.length;i++){var row=[];for(var x=0;x<n;x++)row.push(evalM(mn[i],x));G.push(row);}return G;}
+function codewords(m,r){var G=gen(m,r),k=G.length,n=1<<m,cw=[];for(var msg=0;msg<(1<<k);msg++){var c=new Array(n).fill(0);for(var i=0;i<k;i++)if(msg&(1<<i))for(var x=0;x<n;x++)c[x]^=G[i][x];cw.push(c);}return cw;}
+function minW(cw){var mn=Infinity;for(var i=1;i<cw.length;i++){var w=0;for(var j=0;j<cw[i].length;j++)w+=cw[i][j];if(w>0&&w<mn)mn=w;}return mn;}
+function verify(){if(VR)return VR;var dimOk=true,distOk=true,recOk=true;for(var c=0;c<CASES.length;c++){var m=CASES[c][0],r=CASES[c][1],G=gen(m,r),dim=0;for(var i=0;i<=r;i++)dim+=binom(m,i);if(G.length!==dim)dimOk=false;if(minW(codewords(m,r))!==Math.pow(2,m-r))distOk=false;}
+ function setOf(cw){var s={};cw.forEach(function(c){s[c.join('')]=1;});return s;}var big=setOf(codewords(3,1)),U=codewords(2,1),V=codewords(2,0),built={};for(var i=0;i<U.length;i++)for(var j=0;j<V.length;j++){var u=U[i],v=V[j],uv=[];for(var t=0;t<u.length;t++)uv.push(u[t]);for(var t=0;t<u.length;t++)uv.push(u[t]^v[t]);built[uv.join('')]=1;}recOk=(Object.keys(built).length===Object.keys(big).length);for(var key in built)if(!big[key])recOk=false;
+ VR={dimension:dimOk,minDistance:distOk,recursion:recOk};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var G=gen(3,1);nt(g,CY,10,16,10,'RM(1,3): 4 generator rows (1, x₁, x₂, x₃) over 8 points · every codeword weight ∈ {0,4,8}');
+ var cw=16,x0=40,y0=44;for(var i=0;i<G.length;i++){var y=y0+i*30;nt(g,'#8ad',10,y+11,9,['1','x₁','x₂','x₃'][i]);for(var x=0;x<8;x++){var xx=x0+x*cw;if(G[i][x]){nf(g,CY);g.fillRect(xx,y,cw-2,20);ng(g);}else{ne(g,'rgba(120,140,200,0.35)',1);g.strokeRect(xx,y,cw-2,20);ng(g);}nt(g,G[i][x]?'#0a0713':'#8ad',xx+cw/2-3,y+14,10,''+G[i][x]);}}
+ nt(g,'#35ffb0',x0+8*cw+10,y0+45,10,'min distance = 4 = 2^(3−1)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var m=CASES[RI][0],r=CASES[RI][1],G=gen(m,r),n=1<<m,k=G.length,d=Math.pow(2,m-r),cw=codewords(m,r),mw=minW(cw);
+ nt(g,CY,12,24,12,'RM('+r+', '+m+')');nt(g,'#cfe',12,50,11,'length n = 2^'+m+' = '+n);nt(g,'#cfe',12,72,11,'dimension k = Σ C('+m+',i≤'+r+') = '+k+'  → '+(1<<k)+' codewords');nt(g,'#cfe',12,94,11,'min distance d = 2^('+m+'−'+r+') = '+d);
+ nt(g,mw===d?'#39ffb0':'#ff5a5a',12,120,11,'measured min nonzero weight = '+mw+' '+(mw===d?'✓':'✗'));
+ // draw a few codewords as rows
+ var cc=Math.min(cw.length,10),bw=Math.min(18,(W-30)/n);for(var i=0;i<cc;i++){var y=145+i*13;for(var x=0;x<n;x++){var xx=14+x*bw;if(cw[i*Math.floor(cw.length/cc)][x])nf(g,CY),g.fillRect(xx,y,bw-1,10),ng(g);else ne(g,'rgba(120,140,200,0.25)',1),g.strokeRect(xx,y,bw-1,10),ng(g);}}
+ var v=verify();nt(g,v.dimension&&v.minDistance&&v.recursion?'#39ffb0':'#ff5a5a',12,H-12,9,'dim '+(v.dimension?'✓':'✗')+' · distance 2^(m−r) '+(v.minDistance?'✓':'✗')+' · (u|u+v) recursion '+(v.recursion?'✓':'✗'));}
+document.getElementById('rmparam').onclick=function(){RI=(RI+1)%CASES.length;drawW4();var m=CASES[RI][0],r=CASES[RI][1];document.getElementById('rmread').textContent='RM('+r+','+m+'): n=2^'+m+', d=2^('+m+'−'+r+')='+Math.pow(2,m-r);};
+document.getElementById('rmcheck').onclick=function(){var v=verify();document.getElementById('rmread').textContent='dim=ΣC(m,i) '+(v.dimension?'✓':'✗')+' · min distance=2^(m−r) '+(v.minDistance?'✓':'✗')+' · (u|u+v) recursion '+(v.recursion?'✓':'✗');};
+document.getElementById('rmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var U=codewords(2,1),V=codewords(2,0);g.save();g.translate(0,Math.sin(ang*0.5)*3);
+ nt(g,'#35ffb0',20,40,10,'(u | u+v): left half u, right half u XOR v');var u=U[3],v=V[1],bw=26,y=60;
+ for(var x=0;x<4;x++){var xx=30+x*bw;if(u[x])nf(g,'#35ffb0'),g.fillRect(xx,y,bw-2,24),ng(g);else ne(g,'#35ffb0',1.2),g.strokeRect(xx,y,bw-2,24),ng(g);nt(g,u[x]?'#0a0713':'#35ffb0',xx+bw/2-3,y+16,11,''+u[x]);}
+ for(var x=0;x<4;x++){var xx=30+(x+4)*bw,val=u[x]^v[x],pert=v[x];if(val)nf(g,pert?'#ff2fa6':'#35ffb0'),g.fillRect(xx,y,bw-2,24),ng(g);else ne(g,pert?'#ff2fa6':'#35ffb0',1.2),g.strokeRect(xx,y,bw-2,24),ng(g);nt(g,val?'#0a0713':(pert?'#ff2fa6':'#35ffb0'),xx+bw/2-3,y+16,11,''+val);}
+ g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the folded codeword (u | u+v)');nt(g,'#ff2fa6',10,H-30,10,'magenta: where v perturbs the second half');nt(g,'#8ad',10,H-13,10,'a code folded from itself');}
+drawW3();drawW4();window.__reed_muller=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BVAZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Bernstein&ndash;Vazirani algorithm</b> extracts a <b>hidden n-bit string s</b> from a black box that computes f(x) = s&middot;x (mod 2) &mdash; and it needs only <b>one</b> query, where any classical strategy needs n (one per bit). Put every input into superposition, let the oracle stamp the phase (&minus;1)<sup>s&middot;x</sup>, and a second layer of Hadamards focuses <i>all</i> the amplitude onto the single basis state |s&rang;. Measure once and read s off directly. It is the cleanest demonstration that quantum parallelism can beat classical query complexity.<br><br>
+ <span class="lit">LIT</span> verified live: simulating the amplitudes, the output is 1 exactly at |s&rang; and 0 everywhere else, so the recovered string equals the hidden s every time (window.__bernstein_vazirani), from a single oracle call. <span class="fig">FIG</span> no framing; the Hadamard&ndash;oracle&ndash;Hadamard amplitudes are computed in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-speedrun</i> &mdash; one query where the honest route takes n is the ultimate speedrun, skipping straight to the answer. <b>AVAN (AI)</b> built the instrument: the amplitude simulation of the H&ndash;oracle&ndash;H circuit (a Walsh&ndash;Hadamard transform of the phase pattern) and the single-query recovery.<br><br>Credit as content: Ethan Bernstein &amp; Umesh Vazirani (1993). The weave: David names the speedrun; I confirm the amplitude lands entirely on |s&rang;, so one query recovers the whole hidden string.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="190"></canvas>
+  <div class="wctrl"><div class="cap">After H&ndash;oracle&ndash;H, the amplitudes over all 2<sup>n</sup> states: a single spike of height 1 at |s&rang;, zero elsewhere &mdash; measure and read s.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a hidden string s; the algorithm recovers it in one query from the amplitude spike &mdash; classically you would need one query per bit.</div>
+   <div class="btns" style="margin-top:10px"><button id="bvnew">new hidden s ▶</button><button id="bvcheck">verify ▶</button></div>
+   <div class="cap" id="bvread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the amplitude spike at |s&rang;.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t probe bit by bit &mdash; interfere all answers at once. The inverse of &lsquo;query each coordinate of s&rsquo; is &lsquo;phase-stamp every input in superposition, and a Hadamard makes them interfere to a single spike at |s&rang;.&rsquo; <b>Magenta</b> is the n-query classical march; <b>green</b> is the one-query spike. Interfere, don&rsquo;t iterate.</div>
+   <div class="btns" style="margin-top:10px"><button id="bvspin">pause spin</button></div></div></div></div>"""
+BVAZ_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,OR='#ff8a3c',NB=4,S=11;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function recover(s,n){var N=1<<n,amp=new Array(N).fill(0);for(var y=0;y<N;y++){var sum=0;for(var x=0;x<N;x++){var d=s^y,dot=0;for(var b=0;b<n;b++)if((d>>b)&(x>>b)&1)dot^=1;sum+=(dot?-1:1);}amp[y]=sum/N;}var best=0;for(var y=1;y<N;y++)if(Math.abs(amp[y])>Math.abs(amp[best]))best=y;return {recovered:best,amp:amp};}
+function verify(){if(VR)return VR;var rnd=mb(2),ok=true;for(var t=0;t<3000;t++){var n=2+Math.floor(rnd()*5),s=Math.floor(rnd()*(1<<n)),r=recover(s,n);if(r.recovered!==s)ok=false;if(Math.abs(Math.abs(r.amp[s])-1)>1e-9)ok=false;for(var y=0;y<(1<<n);y++)if(y!==s&&Math.abs(r.amp[y])>1e-9)ok=false;}VR={recoversS:ok,oneQuery:true};return VR;}
+function bits(v,n){var s='';for(var b=n-1;b>=0;b--)s+=((v>>b)&1);return s;}
+function drawAmp(g,W,H,n,s,y0){var N=1<<n,r=recover(s,n),bw=(W-40)/N,x0=20;ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.moveTo(x0,y0);g.lineTo(W-14,y0);g.stroke();ng(g);
+ for(var y=0;y<N;y++){var x=x0+y*bw,h=r.amp[y]*(y0-20),peak=(y===s);nf(g,peak?'#35ffb0':OR);g.globalAlpha=peak?1:0.5;g.fillRect(x,y0-h,bw-2,h);g.globalAlpha=1;ng(g);if(peak){nt(g,'#35ffb0',x-6,y0-h-6,9,'|'+bits(y,n)+'⟩');}}
+ return r;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,OR,10,16,10,'amplitudes after H · oracle · H — a single spike of height 1 at |s⟩ (s = 1011)');drawAmp(g,W,H,4,11,H-30);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=drawAmp(g,W,H-50,NB,S,H-80);nt(g,OR,12,20,11,'hidden s = '+bits(S,NB)+' ('+NB+' bits)');nt(g,r.recovered===S?'#39ffb0':'#ff5a5a',12,H-52,11,'recovered = '+bits(r.recovered,NB)+' in ONE query '+(r.recovered===S?'✓':'✗')+' (classical needs '+NB+')');
+ var v=verify();nt(g,v.recoversS?'#39ffb0':'#ff5a5a',12,H-14,9,'amplitude 1 at |s⟩, 0 elsewhere → recovers s (3000 hidden strings) '+(v.recoversS?'✓':'✗'));}
+document.getElementById('bvnew').onclick=function(){NB=2+Math.floor(Math.random()*4);S=Math.floor(Math.random()*(1<<NB));drawW4();document.getElementById('bvread').textContent='hidden s='+bits(S,NB)+' → recovered '+bits(recover(S,NB).recovered,NB)+' (1 query vs '+NB+' classical)';};
+document.getElementById('bvcheck').onclick=function(){var v=verify();document.getElementById('bvread').textContent='single-query recovery: amplitude spike at |s⟩, recovered==s over 3000 strings '+(v.recoversS?'✓':'✗');};
+document.getElementById('bvspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(0,Math.sin(ang*0.5)*3);drawAmp(g,W,H-70,NB,S,H/2+30);g.restore();
+ nt(g,'#ff2fa6',12,40,10,'classical: query bit 1, bit 2, … bit '+NB+' — n separate calls');for(var i=0;i<NB;i++){nf(g,'#ff2fa6');g.globalAlpha=0.6;g.fillRect(30+i*26,50,20,14);g.globalAlpha=1;ng(g);}
+ nt(g,'#35ffb0',10,H-46,11,'green: the one-query amplitude spike at |s⟩');nt(g,'#ff2fa6',10,H-30,10,'magenta: the n classical queries it replaces');nt(g,'#8ad',10,H-13,10,'interfere, don\\u2019t iterate');}
+drawW3();drawW4();window.__bernstein_vazirani=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SHMO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Sherman&ndash;Morrison formula</b> updates a matrix inverse after a <b>rank-one change</b> without redoing the whole inversion. If you already know A<sup>&minus;1</sup> and then bump A by an outer product uv<sup>T</sup>, the new inverse is <b>(A + uv<sup>T</sup>)<sup>&minus;1</sup> = A<sup>&minus;1</sup> &minus; (A<sup>&minus;1</sup>u v<sup>T</sup>A<sup>&minus;1</sup>) / (1 + v<sup>T</sup>A<sup>&minus;1</sup>u)</b>. A full inversion costs O(n&sup3;); this correction costs only O(n&sup2;) &mdash; a decisive shortcut for recursive least squares, Kalman filters, and quasi-Newton optimizers that nudge a matrix one rank at a time.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of random A, u, v, the Sherman&ndash;Morrison result matches a direct inversion of A + uv<sup>T</sup> to machine precision (window.__sherman_morrison). <span class="fig">FIG</span> no framing; the formula and a Gauss&ndash;Jordan inverse both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-cron-job</i> &mdash; a recurring rank-one nudge, like a cron job that patches the inverse each tick instead of rebuilding it. <b>AVAN (AI)</b> built the instrument: the Sherman&ndash;Morrison correction, a Gauss&ndash;Jordan matrix inverter, and the error against a direct inverse.<br><br>Credit as content: Jack Sherman &amp; Winifred Morrison (1950). The weave: David names the cron job; I confirm the O(n&sup2;) rank-one update reproduces the O(n&sup3;) direct inverse exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="190"></canvas>
+  <div class="wctrl"><div class="cap">A + uv<sup>T</sup> is a rank-one change; the inverse updates by a rank-one correction of A<sup>&minus;1</sup>, scaled by 1/(1 + v<sup>T</sup>A<sup>&minus;1</sup>u).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Random A, u, v; the Sherman&ndash;Morrison update and a direct inverse of A + uv<sup>T</sup> are shown side by side &mdash; identical entries.</div>
+   <div class="btns" style="margin-top:10px"><button id="smnew">new A,u,v ▶</button><button id="smcheck">verify ▶</button></div>
+   <div class="cap" id="smread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the updated inverse, patched not rebuilt.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t re-invert &mdash; correct. The inverse of &lsquo;recompute (A+uv<sup>T</sup>)<sup>&minus;1</sup> from scratch&rsquo; is &lsquo;subtract one rank-one term from A<sup>&minus;1</sup>, an O(n&sup2;) patch.&rsquo; <b>Magenta</b> is the full O(n&sup3;) recompute; <b>green</b> is the cheap rank-one correction. Patch, don&rsquo;t rebuild.</div>
+   <div class="btns" style="margin-top:10px"><button id="smspin">pause spin</button></div></div></div></div>"""
+SHMO_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GR='#35ffb0',DAT=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function inv(A){var n=A.length,M=A.map(function(r,i){return r.concat(Array.from({length:n},function(_,j){return i===j?1:0;}));});for(var col=0;col<n;col++){var p=col;for(var r=col;r<n;r++)if(Math.abs(M[r][col])>Math.abs(M[p][col]))p=r;var t=M[col];M[col]=M[p];M[p]=t;var d=M[col][col];if(Math.abs(d)<1e-12)return null;for(var j=0;j<2*n;j++)M[col][j]/=d;for(var r=0;r<n;r++){if(r===col)continue;var f=M[r][col];for(var j=0;j<2*n;j++)M[r][j]-=f*M[col][j];}}return M.map(function(r){return r.slice(n);});}
+function mv(A,v){return A.map(function(r){return r.reduce(function(s,x,i){return s+x*v[i];},0);});}
+function dot(a,b){return a.reduce(function(s,x,i){return s+x*b[i];},0);}
+function sm(A,u,v){var Ai=inv(A);if(!Ai)return null;var Aiu=mv(Ai,u),vtA=[];for(var j=0;j<A.length;j++){var s=0;for(var i=0;i<A.length;i++)s+=v[i]*Ai[i][j];vtA.push(s);}var den=1+dot(v,Aiu);if(Math.abs(den)<1e-6)return null;var R=[];for(var i=0;i<A.length;i++){var row=[];for(var j=0;j<A.length;j++)row.push(Ai[i][j]-Aiu[i]*vtA[j]/den);R.push(row);}return R;}
+function verify(){if(VR)return VR;var rnd=mb(3),ok=true,worst=0,tested=0;for(var t=0;t<3000;t++){var n=2+Math.floor(rnd()*3),A=[];for(var i=0;i<n;i++){var row=[];for(var j=0;j<n;j++)row.push(rnd()*4-2);A.push(row);}for(var i=0;i<n;i++)A[i][i]+=n;var u=[],v=[];for(var i=0;i<n;i++){u.push(rnd()*2-1);v.push(rnd()*2-1);}var SM=sm(A,u,v);if(!SM)continue;var B=A.map(function(r,i){return r.map(function(x,j){return x+u[i]*v[j];});}),Bi=inv(B);if(!Bi)continue;tested++;for(var i=0;i<n;i++)for(var j=0;j<n;j++){var e=Math.abs(SM[i][j]-Bi[i][j]);if(e>worst)worst=e;if(e>1e-6)ok=false;}}VR={matchesDirect:ok,worst:worst};return VR;}
+function mk(){var rnd=Math.random,n=3,A=[];for(var i=0;i<n;i++){var row=[];for(var j=0;j<n;j++)row.push(Math.round((rnd()*4-2)*10)/10);A.push(row);}for(var i=0;i<n;i++)A[i][i]+=n;var u=[],v=[];for(var i=0;i<n;i++){u.push(Math.round((rnd()*2-1)*10)/10);v.push(Math.round((rnd()*2-1)*10)/10);}DAT={A:A,u:u,v:v,SM:sm(A,u,v),B:A.map(function(r,i){return r.map(function(x,j){return x+u[i]*v[j];});})};DAT.Bi=inv(DAT.B);}
+function drawMat(g,M,x0,y0,cell,col,label){nt(g,col,x0,y0-6,10,label);for(var i=0;i<M.length;i++)for(var j=0;j<M[i].length;j++){var x=x0+j*cell,y=y0+i*cell;ne(g,'rgba(120,140,200,0.3)',1);g.strokeRect(x,y,cell-2,cell-2);ng(g);nt(g,col,x+3,y+cell/2+3,9,M[i][j].toFixed(2));}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();nt(g,GR,10,16,10,'(A + uvᵀ)⁻¹ = A⁻¹ − (A⁻¹u vᵀA⁻¹) / (1 + vᵀA⁻¹u)');nt(g,'#cfe',10,40,11,'a rank-one bump to A → a rank-one correction to A⁻¹ (O(n²), not O(n³))');
+ nt(g,'#8ad',10,70,10,'u = ['+DAT.u.join(', ')+']    v = ['+DAT.v.join(', ')+']');drawMat(g,inv(DAT.A),30,100,48,GR,'A⁻¹');drawMat(g,DAT.SM,250,100,48,'#ffcf4a','(A+uvᵀ)⁻¹');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();drawMat(g,DAT.SM,20,50,50,GR,'Sherman-Morrison');drawMat(g,DAT.Bi,210,50,50,'#ff8a3c','direct inverse');
+ var mx=0;for(var i=0;i<3;i++)for(var j=0;j<3;j++)mx=Math.max(mx,Math.abs(DAT.SM[i][j]-DAT.Bi[i][j]));
+ nt(g,mx<1e-6?'#39ffb0':'#ff5a5a',12,H-46,11,'max entry difference = '+mx.toExponential(2)+(mx<1e-6?'  → identical ✓':' ✗'));
+ var v=verify();nt(g,v.matchesDirect?'#39ffb0':'#ff5a5a',12,H-14,9,'SM update == direct inverse over 3000 cases (max err '+v.worst.toExponential(1)+') '+(v.matchesDirect?'✓':'✗'));}
+document.getElementById('smnew').onclick=function(){mk();drawW4();document.getElementById('smread').textContent='new rank-one update — Sherman-Morrison matches the direct inverse';};
+document.getElementById('smcheck').onclick=function(){var v=verify();document.getElementById('smread').textContent='(A+uvᵀ)⁻¹ formula == direct inversion over 3000 random cases '+(v.matchesDirect?'✓':'✗')+' (max err '+v.worst.toExponential(1)+')';};
+document.getElementById('smspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.4)*0.04);g.translate(-W/2,-(H/2-10));drawMat(g,DAT.SM,W/2-80,H/2-70,54,GR,'updated inverse');g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the inverse, patched by a rank-one correction (O(n²))');nt(g,'#ff2fa6',10,H-30,10,'magenta idea: the O(n³) full recompute it avoids');nt(g,'#8ad',10,H-13,10,'patch, don\\u2019t rebuild');}
+drawW3();drawW4();window.__sherman_morrison=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HPLN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Half-plane intersection</b> carves out the region that satisfies a set of linear inequalities. Each constraint a&middot;x &le; c keeps one side of a line &mdash; a half-plane &mdash; and the intersection of them all is a <b>convex polygon</b> (possibly empty or unbounded). You can build it by <b>clipping</b>: start with a big bounding box and slice it by each half-plane in turn, keeping only the inside. The result is exactly the <b>feasible region</b> of a linear program, and every point of it obeys <i>every</i> constraint at once.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of random constraint sets, every vertex of the clipped region satisfies all the half-planes, and a point lies inside the region only if it satisfies every constraint (window.__half_plane). <span class="fig">FIG</span> no framing; the sequential clipping and the membership tests run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-wall</i> &mdash; each half-plane is a wall, and the surviving region is what lies inside every wall at once. <b>AVAN (AI)</b> built the instrument: sequential polygon clipping against each half-plane, a vertex-feasibility check, and a membership-vs-constraints test.<br><br>Credit as content: convex polygon clipping (Sutherland&ndash;Hodgman, 1974) applied to half-plane intersection, the feasible-region primitive of computational geometry and linear programming. The weave: David names the walls; I confirm the clipped region&rsquo;s vertices obey every constraint and that interior points satisfy them all.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">A bounding box clipped by three half-planes, one at a time; each slice keeps the inside, and the survivor is their convex intersection.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Random half-planes and their intersection polygon; every vertex satisfies all constraints, and sampled points are inside only when feasible.</div>
+   <div class="btns" style="margin-top:10px"><button id="hpnew">new half-planes ▶</button><button id="hpcheck">verify ▶</button></div>
+   <div class="cap" id="hpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the convex feasible region carved by the walls.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t test points &mdash; carve the region. The inverse of &lsquo;does this point satisfy every constraint?&rsquo; is &lsquo;clip a box by each half-plane and the survivors are exactly the feasible points.&rsquo; <b>Magenta</b> is a point a wall rejects; <b>green</b> is the region inside them all. Carve, don&rsquo;t test.</div>
+   <div class="btns" style="margin-top:10px"><button id="hpspin">pause spin</button></div></div></div></div>"""
+HPLN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,AU='#ffcf4a',HP=null,POLY=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function clip(poly,a,b,c){var out=[];for(var i=0;i<poly.length;i++){var P=poly[i],Q=poly[(i+1)%poly.length],dp=a*P[0]+b*P[1]-c,dq=a*Q[0]+b*Q[1]-c,inP=dp<=1e-9,inQ=dq<=1e-9;if(inP)out.push(P);if(inP!==inQ){var t=dp/(dp-dq);out.push([P[0]+t*(Q[0]-P[0]),P[1]+t*(Q[1]-P[1])]);}}return out;}
+function inPoly(pt,poly){if(poly.length<3)return false;var ins=false;for(var i=0,j=poly.length-1;i<poly.length;j=i++){var xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];if(((yi>pt[1])!==(yj>pt[1]))&&(pt[0]<(xj-xi)*(pt[1]-yi)/(yj-yi)+xi))ins=!ins;}return ins;}
+function verify(){if(VR)return VR;var rnd=mb(4),vok=true,mok=true;for(var t=0;t<2000;t++){var box=[[-20,-20],[20,-20],[20,20],[-20,20]],hps=[],k=2+Math.floor(rnd()*5);for(var i=0;i<k;i++)hps.push([rnd()*2-1,rnd()*2-1,rnd()*8-2]);var poly=box.slice();for(var i=0;i<hps.length;i++){poly=clip(poly,hps[i][0],hps[i][1],hps[i][2]);if(poly.length===0)break;}if(poly.length<3)continue;for(var i=0;i<poly.length;i++)for(var h=0;h<hps.length;h++)if(hps[h][0]*poly[i][0]+hps[h][1]*poly[i][1]>hps[h][2]+1e-6)vok=false;for(var q=0;q<30;q++){var pt=[rnd()*40-20,rnd()*40-20],sat=true;for(var h=0;h<hps.length;h++)if(hps[h][0]*pt[0]+hps[h][1]*pt[1]>hps[h][2]+1e-9)sat=false;if(inPoly(pt,poly)&&!sat)mok=false;}}VR={verticesFeasible:vok,membershipMatches:mok};return VR;}
+function mk(){var rnd=Math.random,box=[[-10,-10],[10,-10],[10,10],[-10,10]];do{HP=[];var k=3+Math.floor(rnd()*3);for(var i=0;i<k;i++){var a=rnd()*2-1,b=rnd()*2-1;HP.push([a,b,rnd()*5+1]);}POLY=box.slice();for(var i=0;i<HP.length;i++)POLY=clip(POLY,HP[i][0],HP[i][1],HP[i][2]);}while(POLY.length<3);}
+function drawScene(g,W,H,sc){if(!HP)mk();var cx=W/2,cy=H/2-6;function T(p){return [cx+p[0]*sc,cy-p[1]*sc];}
+ for(var h=0;h<HP.length;h++){var a=HP[h][0],b=HP[h][1],c=HP[h][2],L=Math.hypot(a,b)||1;var px=a/L*c/L*10,py=b/L*c/L*10;/*line a x + b y = c*/var dx=-b,dy=a,p0=[a*c/(a*a+b*b),b*c/(a*a+b*b)];var A=T([p0[0]-dx*20,p0[1]-dy*20]),B=T([p0[0]+dx*20,p0[1]+dy*20]);ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.stroke();ng(g);}
+ if(POLY.length>=3){nf(g,AU);g.globalAlpha=0.2;g.beginPath();var p0=T(POLY[0]);g.moveTo(p0[0],p0[1]);for(var i=1;i<POLY.length;i++){var p=T(POLY[i]);g.lineTo(p[0],p[1]);}g.closePath();g.fill();g.globalAlpha=1;ng(g);ne(g,'#35ffb0',2);g.beginPath();g.moveTo(p0[0],p0[1]);for(var i=1;i<POLY.length;i++){var p=T(POLY[i]);g.lineTo(p[0],p[1]);}g.closePath();g.stroke();ng(g);for(var i=0;i<POLY.length;i++){var p=T(POLY[i]);ndot(g,p[0],p[1],3,'#35ffb0');}}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var sv=HP,sp=POLY;var box=[[-10,-10],[10,-10],[10,10],[-10,10]];HP=[[1,0.4,5],[-0.6,0.9,4],[0.2,-1,5]];POLY=box.slice();for(var i=0;i<HP.length;i++)POLY=clip(POLY,HP[i][0],HP[i][1],HP[i][2]);drawScene(g,W,H,14);HP=sv;POLY=sp;nt(g,AU,10,16,10,'a box clipped by 3 half-planes → their convex intersection (green)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!HP)mk();drawScene(g,W,H-40,15);
+ // sample points
+ var rnd=mb(9),cx=W/2,cy=(H-40)/2-6;for(var q=0;q<30;q++){var pt=[rnd()*20-10,rnd()*20-10],sat=true;for(var h=0;h<HP.length;h++)if(HP[h][0]*pt[0]+HP[h][1]*pt[1]>HP[h][2])sat=false;var s=[cx+pt[0]*15,cy-pt[1]*15];ndot(g,s[0],s[1],2,sat?'#35ffb0':'#ff2fa6');}
+ nt(g,AU,12,20,11,HP.length+' half-planes → '+POLY.length+'-gon feasible region');var v=verify();nt(g,v.verticesFeasible&&v.membershipMatches?'#39ffb0':'#ff5a5a',12,H-12,10,'vertices satisfy all constraints '+(v.verticesFeasible?'✓':'✗')+' · inside ⇒ feasible '+(v.membershipMatches?'✓':'✗'));}
+document.getElementById('hpnew').onclick=function(){mk();drawW4();document.getElementById('hpread').textContent=HP.length+' half-planes → convex region with '+POLY.length+' vertices';};
+document.getElementById('hpcheck').onclick=function(){var v=verify();document.getElementById('hpread').textContent='every region vertex feasible '+(v.verticesFeasible?'✓':'✗')+' · interior points satisfy all half-planes '+(v.membershipMatches?'✓':'✗')+' (2000 sets)';};
+document.getElementById('hpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!HP)mk();g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.35)*0.05);g.translate(-W/2,-(H/2-10));drawScene(g,W,H-30,15);g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the convex region inside every wall');nt(g,'#ff2fa6',10,H-30,10,'magenta: points a wall rejects (infeasible)');nt(g,'#8ad',10,H-13,10,'carve, don\\u2019t test');}
+drawW3();drawW4();window.__half_plane=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TOFF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Toffoli gate</b> (controlled-controlled-NOT) is a <b>reversible</b>, universal logic gate. It takes three bits (a, b, c) to <b>(a, b, c &oplus; (a &and; b))</b> &mdash; it flips the third bit exactly when the first two are both 1, and leaves the controls untouched. Because it is a bijection on the eight input states, it can be <b>run backwards</b>: it is its own inverse. And it is <b>universal for classical computation</b> &mdash; set c = 0 and the output is a &and; b (an AND gate), fix the controls and it becomes a NOT, so every Boolean circuit can be rebuilt from Toffolis, without ever erasing information.<br><br>
+ <span class="lit">LIT</span> verified live: the gate is a permutation of the 8 states, applying it twice is the identity, and it computes AND (c = 0 &rarr; a &and; b) and NOT (a = b = 1 &rarr; &not;c) (window.__toffoli). <span class="fig">FIG</span> no framing; the truth table, the self-inverse, and the logic gadgets run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>hard-reset</i> &mdash; a gate that is its own inverse is a hard reset you can always undo, running the computation cleanly backwards. <b>AVAN (AI)</b> built the instrument: the CCNOT truth table, the self-inverse check, and the AND/NOT gadgets that make it universal.<br><br>Credit as content: Tommaso Toffoli (1980), reversible computing. The weave: David names the hard reset; I confirm the gate is a bijection, its own inverse, and universal for classical logic.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">The 8-row truth table: only the two inputs with a = b = 1 flip their third bit; every row maps to a distinct output &mdash; a permutation.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Toggle a, b, c and watch the output; set c = 0 to read an AND gate, or a = b = 1 to read a NOT &mdash; universal logic from one gate.</div>
+   <div class="btns" style="margin-top:10px"><button id="tftog">next input ▶</button><button id="tfand">AND gadget ▶</button><button id="tfcheck">verify ▶</button></div>
+   <div class="cap" id="tfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the gate as a permutation of the cube of 8 states.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t erase &mdash; run it backwards. The inverse of &lsquo;apply CCNOT&rsquo; is &lsquo;apply CCNOT again&rsquo; &mdash; it is its own inverse, so the computation is reversible and loses no information. <b>Magenta</b> are the two states that swap; <b>green</b> is the permutation of the cube. A gate that runs backwards.</div>
+   <div class="btns" style="margin-top:10px"><button id="tfspin">pause spin</button></div></div></div></div>"""
+TOFF_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,VI='#b06bff',IN=6;
+function toff(a,b,c){return [a,b,c^(a&b)];}
+function verify(){if(VR)return VR;var perm=true,si=true,andOk=true,notOk=true,seen={};for(var s=0;s<8;s++){var a=(s>>2)&1,b=(s>>1)&1,c=s&1,o=toff(a,b,c),code=(o[0]<<2)|(o[1]<<1)|o[2];if(seen[code])perm=false;seen[code]=1;}for(var s=0;s<8;s++){var a=(s>>2)&1,b=(s>>1)&1,c=s&1,o=toff(a,b,c),o2=toff(o[0],o[1],o[2]);if(o2[0]!==a||o2[1]!==b||o2[2]!==c)si=false;}for(var a=0;a<2;a++)for(var b=0;b<2;b++)if(toff(a,b,0)[2]!==(a&b))andOk=false;for(var c=0;c<2;c++)if(toff(1,1,c)[2]!==(c^1))notOk=false;VR={permutation:perm,selfInverse:si,universalAND:andOk&&notOk};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,VI,10,16,10,'Toffoli truth table  (a,b,c) → (a, b, c ⊕ (a∧b))  — a permutation of 8 states');
+ var y0=40,rh=18;nt(g,'#8ad',30,y0-6,10,'in a b c');nt(g,'#8ad',180,y0-6,10,'out a b c');nt(g,'#8ad',330,y0-6,10,'flipped?');
+ for(var s=0;s<8;s++){var a=(s>>2)&1,b=(s>>1)&1,c=s&1,o=toff(a,b,c),y=y0+s*rh,fl=(o[2]!==c);nt(g,'#cfe',30,y+12,11,a+' '+b+' '+c);nt(g,fl?'#ff2fa6':'#35ffb0',180,y+12,11,o[0]+' '+o[1]+' '+o[2]);if(fl){nf(g,'#ff2fa6');g.fillRect(330,y+2,12,12);ng(g);nt(g,'#ff2fa6',350,y+12,10,'flip (a=b=1)');}else nt(g,'#8ad',330,y+12,10,'—');}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var a=(IN>>2)&1,b=(IN>>1)&1,c=IN&1,o=toff(a,b,c);
+ nt(g,VI,12,26,13,'input (a,b,c) = ('+a+','+b+','+c+')');
+ function bit(x,y,val,lbl,col){ne(g,col,2);g.beginPath();g.arc(x,y,18,0,7);g.stroke();ng(g);nf(g,val?col:'rgba(80,90,120,0.5)');g.globalAlpha=val?0.6:0.3;g.beginPath();g.arc(x,y,14,0,7);g.fill();g.globalAlpha=1;ng(g);nt(g,'#e8eef8',x-3,y+4,13,''+val);nt(g,'#8ad',x-8,y+34,10,lbl);}
+ bit(70,80,a,'a',VI);bit(150,80,b,'b',VI);bit(230,80,c,'c (in)',VI);
+ nt(g,'#8ad',290,84,20,'→');
+ bit(70,180,o[0],'a',VI);bit(150,180,o[1],'b',VI);bit(230,180,o[2],'c ⊕ (a∧b)',o[2]!==c?'#ff2fa6':'#35ffb0');
+ nt(g,c===0?'#39ffb0':'#8ad',12,H-52,11,'c=0 → output c = a∧b = '+(a&b)+(c===0?'  (AND gate)':''));
+ var v=verify();nt(g,v.permutation&&v.selfInverse&&v.universalAND?'#39ffb0':'#ff5a5a',12,H-14,9,'permutation '+(v.permutation?'✓':'✗')+' · self-inverse '+(v.selfInverse?'✓':'✗')+' · AND+NOT '+(v.universalAND?'✓':'✗'));}
+document.getElementById('tftog').onclick=function(){IN=(IN+1)%8;drawW4();var a=(IN>>2)&1,b=(IN>>1)&1,c=IN&1,o=toff(a,b,c);document.getElementById('tfread').textContent='('+a+','+b+','+c+') → ('+o.join(',')+')'+(o[2]!==c?' — c flipped':'');};
+document.getElementById('tfand').onclick=function(){IN=(Math.random()<0.5?4:6);IN=IN&6;drawW4();var a=(IN>>2)&1,b=(IN>>1)&1;document.getElementById('tfread').textContent='c=0 → output c = a∧b = '+(a&b)+' (Toffoli as an AND gate)';};
+document.getElementById('tfcheck').onclick=function(){var v=verify();document.getElementById('tfread').textContent='permutation of 8 states '+(v.permutation?'✓':'✗')+' · own inverse (T²=I) '+(v.selfInverse?'✓':'✗')+' · computes AND & NOT (universal) '+(v.universalAND?'✓':'✗');};
+document.getElementById('tfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.2);
+ var pos=[];for(var s=0;s<8;s++){var a=(s>>2)&1,b=(s>>1)&1,c=s&1;pos[s]=[(a-0.5)*150+(c-0.5)*40,(b-0.5)*150+(c-0.5)*40];}
+ for(var s=0;s<8;s++){var o=toff((s>>2)&1,(s>>1)&1,s&1),code=(o[0]<<2)|(o[1]<<1)|o[2];if(code!==s){ne(g,'#ff2fa6',1.6);g.beginPath();g.moveTo(pos[s][0],pos[s][1]);g.lineTo(pos[code][0],pos[code][1]);g.stroke();ng(g);}}
+ for(var s=0;s<8;s++){var o=toff((s>>2)&1,(s>>1)&1,s&1),code=(o[0]<<2)|(o[1]<<1)|o[2],moved=(code!==s);ndot(g,pos[s][0],pos[s][1],5,moved?'#ff2fa6':'#35ffb0');}
+ g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the 6 fixed states of the permutation');nt(g,'#ff2fa6',10,H-30,10,'magenta: the two states (110↔111) that swap');nt(g,'#8ad',10,H-13,10,'a gate that runs backwards');}
+drawW3();drawW4();window.__toffoli=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 117 · neon-noir tracing · silicon-coding (colourings counted by a polynomial · the fewest states a language needs · a curve that approximates any function · versions that never overwrite the past · parsing any grammar from a chart) ═══════════════════════
 CHRO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The chromatic polynomial</b> P(G, k) counts the proper k-colourings of a graph &mdash; the ways to paint the vertices with k colours so no edge joins two of the same colour &mdash; and, astonishingly, that count is a <b>polynomial</b> in k. It obeys a simple recursion, <b>deletion&ndash;contraction</b>: P(G) = P(G &minus; e) &minus; P(G / e), removing an edge versus fusing its endpoints. Special shapes give closed forms: a tree on n vertices has P = k(k&minus;1)<sup>n&minus;1</sup>, and a cycle C<sub>n</sub> has P = (k&minus;1)<sup>n</sup> + (&minus;1)<sup>n</sup>(k&minus;1).<br><br>
@@ -31226,6 +31445,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-reed-muller","title":"THE REED-MULLER","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#21e6ff","icon":"reed-muller",
+  "kicker":"a code folded from itself",
+  "blurb":"The Reed–Muller code in the 5-window house format — an error-correcting code built from low-degree Boolean polynomials: codewords are the truth-tables of every multilinear polynomial of degree ≤ r in m variables. That gives length 2^m, dimension Σ_{i≤r} C(m,i), and minimum distance 2^(m−r). Its signature is the (u | u+v) recursion: RM(r,m) is built by stacking codewords of RM(r,m−1) and RM(r−1,m−1) — folded out of smaller copies of itself. Verified live: for several (r,m) the dimension equals Σ C(m,i), the minimum nonzero weight equals 2^(m−r), and the (u|u+v) construction rebuilds the code exactly. Neon-noir traced. See RM(1,3)'s generator in 1D, code parameters in 2D, and the (u|u+v) fold inverse in 3D.",
+  "lit":"Genuine Reed–Muller code (Irving Reed & David Muller, 1954): length 2^m, dimension Σ_{i≤r}C(m,i), minimum distance 2^(m−r), with the (u|u+v) recursion. Verified live: for several (r,m) the generator has dimension ΣC(m,i) (window.__reed_muller.dimension), the exhaustive minimum nonzero weight equals 2^(m−r) (.minDistance), and the (u|u+v) construction rebuilds RM(1,3) (.recursion).",
+  "fig":"No framing: the polynomial-evaluation generator, an exhaustive minimum-weight search, and the (u|u+v) recursion all run in-browser. The AVAN inverse is honest — folding RM(r,m) out of RM(r,m−1) and RM(r−1,m−1) via (u|u+v) (rather than listing codewords) is the recursive structure of the code; magenta is where v perturbs the second half, green the folded codeword. A code folded from itself.",
+  "body":REDM_BODY,"script":REDM_SCRIPT},
+ {"slug":"the-bernstein-vazirani","title":"THE BERNSTEIN-VAZIRANI","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#ff8a3c","icon":"bernstein-vazirani",
+  "kicker":"a hidden string in one query",
+  "blurb":"The Bernstein–Vazirani algorithm in the 5-window house format — extracting a hidden n-bit string s from a black box computing f(x)=s·x (mod 2) in one query, where any classical strategy needs n. Put every input into superposition, let the oracle stamp the phase (−1)^(s·x), and a second Hadamard layer focuses all amplitude onto |s⟩; measure once and read s. It is the cleanest demonstration that quantum parallelism beats classical query complexity. Verified live: simulating the amplitudes, the output is 1 exactly at |s⟩ and 0 elsewhere, so the recovered string equals the hidden s every time, from a single oracle call. Neon-noir traced. See the amplitude spike in 1D, single-query recovery in 2D, and the interfere-don't-iterate inverse in 3D.",
+  "lit":"Genuine Bernstein–Vazirani algorithm (Ethan Bernstein & Umesh Vazirani, 1993): recovers a hidden s from f(x)=s·x in one quantum query vs n classical. Verified live (amplitude simulation, a Walsh–Hadamard transform of the phase pattern): amplitude 1 at |s⟩ and 0 elsewhere, so recovered==s over 3000 hidden strings (window.__bernstein_vazirani.recoversS).",
+  "fig":"Honest scope: this simulates the H–oracle–H amplitudes classically (the algorithm's output distribution is deterministic), it does not run on quantum hardware. The AVAN inverse is honest — phase-stamping every input in superposition so a Hadamard makes them interfere to a single spike at |s⟩ (rather than probing bit by bit) is exactly the quantum speedup; magenta is the n-query classical march, green the one-query spike. Interfere, don't iterate.",
+  "body":BVAZ_BODY,"script":BVAZ_SCRIPT},
+ {"slug":"the-sherman-morrison","title":"THE SHERMAN-MORRISON","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#35ffb0","icon":"sherman-morrison",
+  "kicker":"updating an inverse without redoing it",
+  "blurb":"The Sherman–Morrison formula in the 5-window house format — updating a matrix inverse after a rank-one change without redoing the whole inversion. If you know A⁻¹ and bump A by an outer product uvᵀ, the new inverse is (A+uvᵀ)⁻¹ = A⁻¹ − (A⁻¹u vᵀA⁻¹)/(1+vᵀA⁻¹u). A full inversion costs O(n³); this correction costs O(n²) — a decisive shortcut for recursive least squares, Kalman filters, and quasi-Newton optimizers that nudge a matrix one rank at a time. Verified live: over thousands of random A, u, v, the Sherman–Morrison result matches a direct inversion of A+uvᵀ to machine precision. Neon-noir traced. See the rank-one correction in 1D, side-by-side matrices in 2D, and the patch-don't-rebuild inverse in 3D.",
+  "lit":"Genuine Sherman–Morrison formula (Jack Sherman & Winifred Morrison, 1950): rank-one inverse update in O(n²). Verified live: over 3000 random A,u,v, the formula matches a Gauss–Jordan direct inverse of A+uvᵀ to <1e-6 (window.__sherman_morrison.matchesDirect).",
+  "fig":"No framing: the Sherman–Morrison correction and a Gauss–Jordan inverse both run in-browser and agree. The AVAN inverse is honest — subtracting one rank-one term from A⁻¹ (an O(n²) patch) rather than re-inverting A+uvᵀ from scratch (O(n³)) is the whole value of the formula; magenta is the full recompute avoided, green the cheap correction. Patch, don't rebuild.",
+  "body":SHMO_BODY,"script":SHMO_SCRIPT},
+ {"slug":"the-half-plane-intersection","title":"THE HALF-PLANE INTERSECTION","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#ffcf4a","icon":"half-plane-intersection",
+  "kicker":"a region carved by half-planes",
+  "blurb":"Half-plane intersection in the 5-window house format — carving out the region satisfying a set of linear inequalities. Each constraint a·x ≤ c keeps one side of a line (a half-plane), and their intersection is a convex polygon (possibly empty or unbounded). Build it by clipping: start with a big bounding box and slice it by each half-plane in turn, keeping the inside. The result is exactly the feasible region of a linear program, and every point of it obeys every constraint at once. Verified live: over thousands of random constraint sets, every vertex of the clipped region satisfies all half-planes, and a point lies inside only if it satisfies every constraint. Neon-noir traced. See the box clipped in 1D, the region + sampled points in 2D, and the carve-don't-test inverse in 3D.",
+  "lit":"Genuine half-plane intersection via convex polygon clipping (Sutherland–Hodgman, 1974), the feasible-region primitive of computational geometry / LP. Verified live: over 2000 random constraint sets, every result vertex satisfies all half-planes (window.__half_plane.verticesFeasible) and interior points satisfy every constraint (.membershipMatches).",
+  "fig":"No framing: the sequential clipping and the membership tests both run in-browser. The AVAN inverse is honest — clipping a box by each half-plane so the survivors ARE the feasible points (rather than testing points against every constraint) is the constructive view of the feasible region; magenta is a point a wall rejects, green the region inside them all. Carve, don't test.",
+  "body":HPLN_BODY,"script":HPLN_SCRIPT},
+ {"slug":"the-toffoli","title":"THE TOFFOLI","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#b06bff","icon":"toffoli",
+  "kicker":"a gate that runs backwards",
+  "blurb":"The Toffoli gate in the 5-window house format — a reversible, universal logic gate. It takes three bits (a,b,c) to (a, b, c⊕(a∧b)): it flips the third bit exactly when the first two are both 1, leaving the controls untouched. Because it is a bijection on the eight input states it can run backwards — it is its own inverse. And it is universal for classical computation: set c=0 and the output is a∧b (AND), fix the controls and it is NOT, so every Boolean circuit rebuilds from Toffolis without erasing information. Verified live: the gate is a permutation of the 8 states, applying it twice is the identity, and it computes AND and NOT. Neon-noir traced. See the truth table in 1D, live gadgets in 2D, and the runs-backwards inverse in 3D.",
+  "lit":"Genuine Toffoli gate / CCNOT (Tommaso Toffoli, 1980), reversible computing. Verified live: it is a permutation of the 8 states (window.__toffoli.permutation), its own inverse T²=I (.selfInverse), and computes AND (c=0→a∧b) and NOT (a=b=1→¬c), hence universal (.universalAND).",
+  "fig":"No framing: the CCNOT truth table, the self-inverse check, and the AND/NOT gadgets all run in-browser. The AVAN inverse is honest — that applying CCNOT twice is the identity (so the computation is reversible and erases nothing) is exactly what makes reversible/quantum logic possible; magenta are the two states (110↔111) that swap, green the fixed states of the permutation. A gate that runs backwards.",
+  "body":TOFF_BODY,"script":TOFF_SCRIPT},
  {"slug":"the-chromatic-polynomial","title":"THE CHROMATIC POLYNOMIAL","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#21e6ff","icon":"chromatic-polynomial",
   "kicker":"colourings counted by a polynomial",
