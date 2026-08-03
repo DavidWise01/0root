@@ -19493,6 +19493,219 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 122 · neon-noir tracing · silicon-coding (a hidden mask pinned by linear equations · two squares that never repeat a pair · a cipher that is a matrix · a set split into equal power sums · residues that are a perfect difference set) ═══════════════════════
+SIMN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Simon&rsquo;s algorithm</b> finds a <b>hidden bit-mask s</b> that a black box conceals, with an <b>exponential</b> speedup over any classical method. The promise: the function is two-to-one with f(x) = f(x &oplus; s) for a secret s. Classically you must hunt for a colliding pair, needing about 2<sup>n/2</sup> queries; Simon&rsquo;s quantum circuit instead returns, each run, a <b>random vector y with y&middot;s = 0</b> (mod 2). Gather about n&minus;1 independent such y and a little <b>linear algebra over GF(2)</b> pins s down exactly &mdash; a handful of queries where classical needs exponentially many.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of hidden masks, collecting n&minus;1 independent measurement vectors and solving the GF(2) system recovers s every time (window.__simon). <span class="fig">FIG</span> honest scope: the quantum measurement distribution (uniform over y with y&middot;s = 0) is simulated classically; the linear-algebra recovery is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>noclip</i> &mdash; the algorithm phases straight through the exponential wall a classical search hits, no-clipping past the collision hunt. <b>AVAN (AI)</b> built the instrument: the measurement sampler (uniform over the orthogonal complement of s) and the GF(2) Gaussian elimination that solves for s.<br><br>Credit as content: Daniel Simon (1994), the problem that inspired Shor. The weave: David names the noclip; I confirm n&minus;1 measurements and a GF(2) solve recover the hidden mask exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="190"></canvas>
+  <div class="wctrl"><div class="cap">The oracle is two-to-one: x and x &oplus; s collide. Each measurement returns a y orthogonal to s &mdash; a linear constraint on the secret.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Collect measurement vectors y (each with y&middot;s = 0); once n&minus;1 are independent, the GF(2) solve returns the hidden s.</div>
+   <div class="btns" style="margin-top:10px"><button id="smsamp">sample y ▶</button><button id="smsolve">solve for s ▶</button><button id="smcheck">verify ▶</button></div>
+   <div class="cap" id="smread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the recovered mask s.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t hunt for a collision &mdash; collect constraints. The inverse of &lsquo;search for x, x&oplus;s that match&rsquo; is &lsquo;each quantum run hands you a y &perp; s, and n&minus;1 of them determine s by linear algebra.&rsquo; <b>Magenta</b> are the orthogonality equations; <b>green</b> is the single mask that satisfies them all. Constraints, not search.</div>
+   <div class="btns" style="margin-top:10px"><button id="smspin">pause spin</button></div></div></div></div>"""
+SIMN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CY='#21e6ff',NB=4,S=11,VECS=[];
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function par(x){var p=0;while(x){p^=1;x&=x-1;}return p;}
+function rankGF2(vecs,n){var rows=vecs.slice(),m=rows.length,r=0;for(var col=0;col<n&&r<m;col++){var piv=-1;for(var i=r;i<m;i++)if((rows[i]>>col)&1){piv=i;break;}if(piv<0)continue;var t=rows[r];rows[r]=rows[piv];rows[piv]=t;for(var i=0;i<m;i++)if(i!==r&&((rows[i]>>col)&1))rows[i]^=rows[r];r++;}return r;}
+function solve(vecs,n){var rows=vecs.slice(),m=rows.length,pc=[],r=0;for(var col=0;col<n&&r<m;col++){var piv=-1;for(var i=r;i<m;i++)if((rows[i]>>col)&1){piv=i;break;}if(piv<0)continue;var t=rows[r];rows[r]=rows[piv];rows[piv]=t;for(var i=0;i<m;i++)if(i!==r&&((rows[i]>>col)&1))rows[i]^=rows[r];pc.push(col);r++;}var isP=new Array(n).fill(false);pc.forEach(function(c){isP[c]=true;});var free=-1;for(var c=0;c<n;c++)if(!isP[c]){free=c;break;}if(free<0)return 0;var s=(1<<free);for(var i=0;i<pc.length;i++)if((rows[i]>>free)&1)s|=(1<<pc[i]);return s;}
+function verify(){if(VR)return VR;var rnd=mb(1),ok=true;for(var t=0;t<3000;t++){var n=2+Math.floor(rnd()*5),s=1+Math.floor(rnd()*((1<<n)-1)),vecs=[],rank=0,g=0;while(rank<n-1&&g<500){g++;var y=Math.floor(rnd()*(1<<n));if(par(y&s)!==0)continue;if(rankGF2(vecs.concat([y]),n)>rank){vecs.push(y);rank++;}}if(rank<n-1)continue;if(solve(vecs,n)!==s)ok=false;}VR={recoversS:ok};return VR;}
+function bits(v,n){var s='';for(var b=n-1;b>=0;b--)s+=((v>>b)&1);return s;}
+function sample(){var g=0;while(g<200){g++;var y=Math.floor(Math.random()*(1<<NB));if(par(y&S)===0&&y!==0){if(rankGF2(VECS.concat([y]),NB)>rankGF2(VECS,NB)){VECS.push(y);return y;}}}return null;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,CY,10,16,10,'oracle is 2-to-1: f(x) = f(x ⊕ s) · each measurement y satisfies y·s = 0');
+ var s=3,N=8,cw=48,x0=30,y=60;for(var x=0;x<N;x++){var px=x0+x*cw,partner=x^s,col=(x<partner)?'#35ffb0':'#8ad';ndot(g,px,y,6,col);nt(g,'#cfe',px-6,y+22,9,bits(x,3));if(x<partner){var pp=x0+partner*cw;ne(g,'#35ffb0',1.4);g.beginPath();g.moveTo(px,y);g.quadraticCurveTo((px+pp)/2,y-24,pp,y);g.stroke();ng(g);}}
+ nt(g,'#35ffb0',30,120,10,'green arcs join colliding pairs x and x⊕s (here s=011)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,CY,12,22,11,'hidden s = '+bits(S,NB)+' ('+NB+' bits) · measurements collected: '+VECS.length+'/'+(NB-1));
+ for(var i=0;i<VECS.length;i++)nt(g,'#cfe',20,50+i*20,11,'y'+(i+1)+' = '+bits(VECS[i],NB)+'   (y·s = 0)');
+ var rank=rankGF2(VECS,NB);if(rank>=NB-1){var rec=solve(VECS,NB);nt(g,rec===S?'#39ffb0':'#ff5a5a',20,H-46,12,'solved: s = '+bits(rec,NB)+' '+(rec===S?'✓':'✗'));}else nt(g,'#8ad',20,H-46,11,'need '+(NB-1-rank)+' more independent measurement(s)');
+ var v=verify();nt(g,v.recoversS?'#39ffb0':'#ff5a5a',12,H-14,9,'n−1 measurements + GF(2) solve recovers s (3000 masks) '+(v.recoversS?'✓':'✗'));}
+document.getElementById('smsamp').onclick=function(){var y=sample();drawW4();document.getElementById('smread').textContent=y!==null?('measured y = '+bits(y,NB)+' (independent, y·s=0)'):'no new independent vector';};
+document.getElementById('smsolve').onclick=function(){while(rankGF2(VECS,NB)<NB-1&&sample());var rec=rankGF2(VECS,NB)>=NB-1?solve(VECS,NB):null;drawW4();document.getElementById('smread').textContent=rec!==null?('recovered s = '+bits(rec,NB)+(rec===S?' ✓ (matches hidden)':' ✗')):'collecting…';};
+document.getElementById('smcheck').onclick=function(){var v=verify();document.getElementById('smread').textContent='n−1 measurements (y·s=0) + GF(2) elimination recover the hidden s over 3000 masks '+(v.recoversS?'✓':'✗');};
+document.getElementById('smspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.4)*0.03);g.translate(-W/2,-(H/2-10));
+ var y0=60;nt(g,'#ff2fa6',40,y0-14,10,'y·s = 0 equations (magenta constraints)');for(var i=0;i<Math.min(VECS.length,4);i++)nt(g,'#ff2fa6',50,y0+i*22,11,bits(VECS[i],NB)+' · s = 0');
+ nt(g,'#35ffb0',40,y0+120,11,'unique nonzero solution: s = '+bits(S,NB));var bx=50,by=y0+140;for(var b=NB-1;b>=0;b--){var on=(S>>b)&1;if(on)nf(g,'#35ffb0'),g.fillRect(bx,by,22,22),ng(g);else ne(g,'#35ffb0',1.2),g.strokeRect(bx,by,22,22),ng(g);nt(g,on?'#0a0713':'#35ffb0',bx+8,by+15,12,''+on);bx+=26;}
+ g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the mask s the constraints pin down');nt(g,'#ff2fa6',10,H-30,10,'magenta: the y·s=0 equations from each measurement');nt(g,'#8ad',10,H-13,10,'constraints, not search');}
+drawW3();drawW4();window.__simon=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GRLA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A Graeco-Latin square</b> overlays two Latin squares so that <b>no ordered pair ever repeats</b>. A Latin square of order n fills an n&times;n grid so each symbol appears once per row and once per column; two of them are <b>orthogonal</b> if pairing them cell-by-cell yields all n&sup2; possible ordered pairs exactly once. Euler asked whether they exist for every n and famously conjectured &ldquo;no&rdquo; for n &equiv; 2 (mod 4) &mdash; but he was <b>wrong</b>: a Graeco-Latin square exists for every order <b>except 2 and 6</b>. For odd n, the pair L = (i+j) mod n and M = (2i+j) mod n does the job.<br><br>
+ <span class="lit">LIT</span> verified live: for every odd n from 3 to 15, L and M are each Latin squares (a permutation in every row and column) and orthogonal (all n&sup2; pairs distinct) (window.__graeco_latin). <span class="fig">FIG</span> honest scope: this construction covers odd n; 2 and 6 are the only orders with no Graeco-Latin square (Euler&ndash;Bose&ndash;Shrikhande&ndash;Parker).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-pull-request</i> &mdash; two independent squares merged into one without a single conflicting pair, the clean merge every pull request wants. <b>AVAN (AI)</b> built the instrument: the (i+j, 2i+j) construction, the Latin-square check per row and column, and the orthogonality test over all n&sup2; pairs.<br><br>Credit as content: Leonhard Euler (1782, the &ldquo;36 officers&rdquo;); the conjecture disproved by Bose, Shrikhande &amp; Parker (1959). The weave: David names the pull request; I confirm the two squares merge with every ordered pair appearing exactly once.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">A Graeco-Latin square: each cell carries a number (from L) and a colour (from M); no number&ndash;colour pair repeats.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick an odd order n; the overlaid squares are shown, each Latin, and all n&sup2; ordered pairs appear exactly once.</div>
+   <div class="btns" style="margin-top:10px"><button id="glnext">next n ▶</button><button id="glcheck">verify ▶</button></div>
+   <div class="cap" id="glread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the two orthogonal squares as one grid of unique pairs.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t check the two squares apart &mdash; check that their overlay never repeats. The inverse of &lsquo;are L and M each Latin?&rsquo; is &lsquo;does (L, M) hit all n&sup2; pairs exactly once?&rsquo; &mdash; that is orthogonality. <b>Magenta</b> is a pair; <b>green</b> is the grid where none repeats. No pair twice.</div>
+   <div class="btns" style="margin-top:10px"><button id="glspin">pause spin</button></div></div></div></div>"""
+GRLA_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,OR='#ff8a3c',NI=0;
+var ORDERS=[3,5,7,9,11];
+var PAL=['#35ffb0','#21e6ff','#ffcf4a','#ff8a3c','#b06bff','#ff2fa6','#7cf','#fc7','#c9f','#9fc','#fca'];
+function build(n){var L=[],M=[];for(var i=0;i<n;i++){L.push([]);M.push([]);for(var j=0;j<n;j++){L[i].push((i+j)%n);M[i].push((2*i+j)%n);}}return {L:L,M:M};}
+function isLatin(S,n){for(var i=0;i<n;i++){var r={},c={};for(var j=0;j<n;j++){r[S[i][j]]=1;c[S[j][i]]=1;}if(Object.keys(r).length!==n||Object.keys(c).length!==n)return false;}return true;}
+function orth(L,M,n){var seen={};for(var i=0;i<n;i++)for(var j=0;j<n;j++){var k=L[i][j]+','+M[i][j];if(seen[k])return false;seen[k]=1;}return true;}
+function verify(){if(VR)return VR;var la=true,oo=true;for(var n=3;n<=15;n+=2){var g=build(n);if(!isLatin(g.L,n)||!isLatin(g.M,n))la=false;if(!orth(g.L,g.M,n))oo=false;}VR={bothLatin:la,orthogonal:oo};return VR;}
+function drawSquare(g,n,x0,y0,cell){var gr=build(n);for(var i=0;i<n;i++)for(var j=0;j<n;j++){var x=x0+j*cell,y=y0+i*cell;nf(g,PAL[gr.M[i][j]%PAL.length]);g.globalAlpha=0.5;g.fillRect(x,y,cell-2,cell-2);g.globalAlpha=1;ng(g);ne(g,'rgba(120,140,200,0.3)',1);g.strokeRect(x,y,cell-2,cell-2);ng(g);nt(g,'#0a0713',x+cell/2-3,y+cell/2+3,Math.min(12,cell*0.4),''+gr.L[i][j]);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,OR,10,16,10,'order 5 Graeco-Latin: number (L) + colour (M) · no number-colour pair repeats');drawSquare(g,5,W/2-90,36,32);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=ORDERS[NI],cell=Math.min(40,(W-40)/n);drawSquare(g,n,(W-n*cell)/2,44,cell);var gr=build(n);
+ nt(g,OR,12,24,11,'order n = '+n);nt(g,isLatin(gr.L,n)&&isLatin(gr.M,n)?'#39ffb0':'#ff5a5a',12,H-46,10,'both L, M are Latin squares '+(isLatin(gr.L,n)&&isLatin(gr.M,n)?'✓':'✗')+' · orthogonal (all '+(n*n)+' pairs distinct) '+(orth(gr.L,gr.M,n)?'✓':'✗'));
+ var v=verify();nt(g,v.bothLatin&&v.orthogonal?'#39ffb0':'#ff5a5a',12,H-14,9,'both Latin '+(v.bothLatin?'✓':'✗')+' · orthogonal for odd n 3..15 '+(v.orthogonal?'✓':'✗'));}
+document.getElementById('glnext').onclick=function(){NI=(NI+1)%ORDERS.length;drawW4();var n=ORDERS[NI];document.getElementById('glread').textContent='order '+n+' → '+(n*n)+' ordered pairs, each appearing exactly once';};
+document.getElementById('glcheck').onclick=function(){var v=verify();document.getElementById('glread').textContent='L,M both Latin '+(v.bothLatin?'✓':'✗')+' · orthogonal (all n² pairs distinct) for odd n 3..15 '+(v.orthogonal?'✓':'✗');};
+document.getElementById('glspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=ORDERS[NI],cell=Math.min(44,(W-40)/n);g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.4)*0.03);g.translate(-W/2,-(H/2-10));drawSquare(g,n,(W-n*cell)/2,(H-30-n*cell)/2,cell);g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the overlay where every (number,colour) pair is unique');nt(g,'#ff2fa6',10,H-30,10,'magenta idea: a repeated pair — which orthogonality forbids');nt(g,'#8ad',10,H-13,10,'no pair twice');}
+drawW3();drawW4();window.__graeco_latin=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HILL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Hill cipher</b> is encryption as <b>matrix multiplication</b>. Turn letters into numbers 0&ndash;25, group them into vectors, and multiply each by a secret <b>key matrix K modulo 26</b>: c = K&middot;p (mod 26). To decrypt, multiply by the inverse matrix, p = K<sup>&minus;1</sup>&middot;c (mod 26). The catch is arithmetic: K is invertible mod 26 exactly when its determinant is <b>coprime to 26</b> (odd and not a multiple of 13). It was the first cipher to encrypt several letters at once, hiding letter frequencies inside linear algebra.<br><br>
+ <span class="lit">LIT</span> verified live: for every key with determinant coprime to 26, encrypting then decrypting recovers the plaintext exactly, and the modular inverse exists precisely when the determinant is coprime to 26 (window.__hill_cipher). <span class="fig">FIG</span> no framing; the modular matrix multiply and inverse run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-root-kit</i> &mdash; a key matrix is the root kit that locks and unlocks the message, the same tool both ways. <b>AVAN (AI)</b> built the instrument: modular matrix multiplication, the determinant-coprimality test, the modular inverse, and the encrypt&ndash;decrypt round-trip.<br><br>Credit as content: Lester S. Hill (1929). The weave: David names the root kit; I confirm the round-trip recovers the plaintext and that the key is invertible exactly when its determinant is coprime to 26.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="190"></canvas>
+  <div class="wctrl"><div class="cap">A plaintext pair as a vector, multiplied by the key matrix mod 26 to a ciphertext pair; the inverse matrix carries it back.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick an invertible key matrix; encrypt a short word into ciphertext and decrypt it back &mdash; the round-trip returns the original.</div>
+   <div class="btns" style="margin-top:10px"><button id="hlnew">new key ▶</button><button id="hlcheck">verify ▶</button></div>
+   <div class="cap" id="hlread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the ciphertext, the plaintext vector rotated by K.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t invent a separate decoder &mdash; invert the matrix. The inverse of &lsquo;c = K p (mod 26)&rsquo; is &lsquo;p = K<sup>&minus;1</sup> c (mod 26)&rsquo;, the same key run backwards, valid exactly when det(K) is coprime to 26. <b>Magenta</b> is the ciphertext; <b>green</b> is the plaintext the inverse restores. The key unlocks itself.</div>
+   <div class="btns" style="margin-top:10px"><button id="hlspin">pause spin</button></div></div></div></div>"""
+HILL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GR='#35ffb0',K=null,Ki=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function egcd(a,b){if(b===0)return [a,1,0];var r=egcd(b,a%b);return [r[0],r[2],r[1]-Math.floor(a/b)*r[2]];}
+function modinv(a,m){a=((a%m)+m)%m;var r=egcd(a,m);if(r[0]!==1)return null;return ((r[1]%m)+m)%m;}
+function det2(K){return ((K[0][0]*K[1][1]-K[0][1]*K[1][0])%26+26)%26;}
+function inv2(K){var di=modinv(det2(K),26);if(di===null)return null;return [[((K[1][1]*di)%26+26)%26,((-K[0][1]*di)%26+26)%26],[((-K[1][0]*di)%26+26)%26,((K[0][0]*di)%26+26)%26]];}
+function mv(A,x){return A.map(function(r){return ((r[0]*x[0]+r[1]*x[1])%26+26)%26;});}
+function verify(){if(VR)return VR;var rnd=mb(3),rt=true,ni=true,tested=0;for(var t=0;t<4000;t++){var Kt=[[Math.floor(rnd()*26),Math.floor(rnd()*26)],[Math.floor(rnd()*26),Math.floor(rnd()*26)]],Kii=inv2(Kt),cop=(modinv(det2(Kt),26)!==null);if(cop!==(Kii!==null))ni=false;if(!Kii)continue;tested++;var p=[Math.floor(rnd()*26),Math.floor(rnd()*26)],c=mv(Kt,p),d=mv(Kii,c);if(d[0]!==p[0]||d[1]!==p[1])rt=false;}VR={roundTrip:rt,requiresInvertible:ni};return VR;}
+function mk(){var rnd=Math.random;do{K=[[Math.floor(rnd()*26),Math.floor(rnd()*26)],[Math.floor(rnd()*26),Math.floor(rnd()*26)]];Ki=inv2(K);}while(!Ki);}
+function L(v){return String.fromCharCode(65+v);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!K)mk();nt(g,GR,10,16,10,'c = K · p (mod 26)   ·   plaintext pair → ciphertext pair');
+ var p=[7,4],c=mv(K,p);nt(g,'#cfe',30,60,12,'p = ['+p.join(',')+'] = "'+L(p[0])+L(p[1])+'"');nt(g,GR,30,90,12,'K = [['+K[0].join(',')+'],['+K[1].join(',')+']]');nt(g,'#ffcf4a',30,120,12,'c = K·p mod 26 = ['+c.join(',')+'] = "'+L(c[0])+L(c[1])+'"');nt(g,'#35ffb0',30,150,12,'K⁻¹·c = ['+mv(Ki,c).join(',')+'] = "'+L(mv(Ki,c)[0])+L(mv(Ki,c)[1])+'" (back to p)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!K)mk();nt(g,GR,12,22,11,'key K = [['+K[0].join(', ')+'], ['+K[1].join(', ')+']]  det='+det2(K));
+ var word=[7,4,11,11],ct=[],pt=[];for(var i=0;i<word.length;i+=2){var blk=[word[i],word[i+1]],c=mv(K,blk),d=mv(Ki,c);ct.push(c[0],c[1]);pt.push(d[0],d[1]);}
+ nt(g,'#cfe',12,60,12,'plaintext:  '+word.map(L).join(' '));nt(g,'#ffcf4a',12,90,12,'ciphertext: '+ct.map(L).join(' '));nt(g,'#35ffb0',12,120,12,'decrypted:  '+pt.map(L).join(' '));
+ nt(g,pt.join(',')===word.join(',')?'#39ffb0':'#ff5a5a',12,H-46,11,'encrypt → decrypt round-trip '+(pt.join(',')===word.join(',')?'✓ recovered':'✗'));
+ var v=verify();nt(g,v.roundTrip&&v.requiresInvertible?'#39ffb0':'#ff5a5a',12,H-14,9,'round-trip (4000 keys) '+(v.roundTrip?'✓':'✗')+' · invertible ⟺ det coprime to 26 '+(v.requiresInvertible?'✓':'✗'));}
+document.getElementById('hlnew').onclick=function(){mk();drawW3();drawW4();document.getElementById('hlread').textContent='new key det='+det2(K)+' (coprime to 26) → encrypt/decrypt round-trips';};
+document.getElementById('hlcheck').onclick=function(){var v=verify();document.getElementById('hlread').textContent='Kp then K⁻¹c recovers plaintext (4000 keys) '+(v.roundTrip?'✓':'✗')+' · K invertible ⟺ det coprime to 26 '+(v.requiresInvertible?'✓':'✗');};
+document.getElementById('hlspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!K)mk();var cx=W/2,cy=H/2-10,p=[7,4],c=mv(K,p);g.save();g.translate(cx,cy);g.rotate(ang*0.15);
+ function vec(v,col,lbl){var e=[v[0]/26*100-50,-(v[1]/26*100-50)];ne(g,col,2.4);g.beginPath();g.moveTo(0,0);g.lineTo(e[0],e[1]);g.stroke();ng(g);ndot(g,e[0],e[1],4,col);nt(g,col,e[0]+4,e[1],9,lbl);}
+ vec(p,'#8ad','p');vec(c,'#ffcf4a','c=Kp');vec(mv(Ki,c),'#35ffb0','K⁻¹c=p');g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the plaintext K⁻¹ restores from the ciphertext');nt(g,'#ffcf4a',10,H-30,10,'gold: the ciphertext c = K·p mod 26');nt(g,'#8ad',10,H-13,10,'the key unlocks itself');}
+drawW3();drawW4();window.__hill_cipher=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PTES_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Prouhet&ndash;Tarry&ndash;Escott problem</b> asks to split numbers into two sets with <b>equal power sums</b> &mdash; equal totals, equal sums of squares, of cubes, and so on, as high as possible. Prouhet&rsquo;s beautiful answer: take 0, 1, &hellip;, 2<sup>k</sup>&minus;1 and split them by the <b>Thue&ndash;Morse parity</b> of each number (even or odd count of 1-bits). Then the two halves have <b>&sum;a<sup>p</sup> = &sum;b<sup>p</sup> for every power p from 0 up to k&minus;1</b> &mdash; matched sums, matched square-sums, all the way to the (k&minus;1)-th &mdash; and they finally differ at power k. The same sequence that avoids repetition balances the powers.<br><br>
+ <span class="lit">LIT</span> verified live: for k = 2..8, the Thue&ndash;Morse split has equal sums of p-th powers for all p &lt; k, and unequal sums at p = k (window.__prouhet). <span class="fig">FIG</span> no framing; the power sums of both halves are computed in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-inventory</i> &mdash; two inventories that balance not just in count but in every weighted total, matched power by power. <b>AVAN (AI)</b> built the instrument: the Thue&ndash;Morse parity split and the power-sum comparison across p.<br><br>Credit as content: Eug&egrave;ne Prouhet (1851); Tarry &amp; Escott (later). The weave: David names the inventory; I confirm the Thue&ndash;Morse halves match in every power sum up to k&minus;1 and part ways at k.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="190"></canvas>
+  <div class="wctrl"><div class="cap">0..2<sup>k</sup>&minus;1 split by Thue&ndash;Morse parity into set A and set B; the two sets have equal sums, equal square-sums, and so on.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick k; the two Thue&ndash;Morse halves are shown with their power sums &sum;a<sup>p</sup> and &sum;b<sup>p</sup> equal for every p below k.</div>
+   <div class="btns" style="margin-top:10px"><button id="ptnext">next k ▶</button><button id="ptcheck">verify ▶</button></div>
+   <div class="cap" id="ptread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the two halves, matched in every power sum.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t search for a balanced split &mdash; read it off the parity. The inverse of &lsquo;find two sets with equal power sums&rsquo; is &lsquo;split 0..2<sup>k</sup>&minus;1 by Thue&ndash;Morse parity, and the powers balance up to k&minus;1 for free.&rsquo; <b>Magenta</b> is set B; <b>green</b> is set A &mdash; equal in every low power. Parity balances the powers.</div>
+   <div class="btns" style="margin-top:10px"><button id="ptspin">pause spin</button></div></div></div></div>"""
+PTES_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,AU='#ffcf4a',KK=3;
+function par(x){var p=0;while(x){p^=1;x&=x-1;}return p;}
+function split(k){var A=[],B=[];for(var x=0;x<(1<<k);x++){if(par(x)===0)A.push(x);else B.push(x);}return {A:A,B:B};}
+function psum(S,p){var s=0;for(var i=0;i<S.length;i++)s+=Math.pow(S[i],p);return s;}
+function verify(){if(VR)return VR;var eq=true,tight=true;for(var k=2;k<=8;k++){var s=split(k);for(var p=0;p<k;p++)if(Math.abs(psum(s.A,p)-psum(s.B,p))>1e-6)eq=false;if(Math.abs(psum(s.A,k)-psum(s.B,k))<1e-6)tight=false;}VR={equalPowerSums:eq,tightAtK:tight};return VR;}
+function drawSets(g,W,H,k,y0){var s=split(k),N=1<<k,cw=(W-40)/N,x0=20;for(var x=0;x<N;x++){var px=x0+x*cw,inA=(par(x)===0);nf(g,inA?'#35ffb0':'#ff2fa6');g.globalAlpha=0.6;g.fillRect(px,y0,cw-2,20);g.globalAlpha=1;ng(g);if(cw>14)nt(g,'#0a0713',px+2,y0+14,8,''+x);}nt(g,'#35ffb0',x0,y0-6,9,'A (even parity)');nt(g,'#ff2fa6',x0+N*cw/2,y0-6,9,'B (odd parity)');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,AU,10,16,10,'0..2^k−1 split by Thue-Morse parity → A (green) & B (magenta) with equal power sums');drawSets(g,W,H,4,70);var s=split(4);nt(g,'#cfe',20,120,10,'Σa=Σb='+psum(s.A,1)+'  ·  Σa²=Σb²='+psum(s.A,2)+'  ·  Σa³=Σb³='+psum(s.A,3));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);drawSets(g,W,H-40,KK,60);var s=split(KK);nt(g,AU,12,22,11,'k = '+KK+' · '+(1<<KK)+' numbers split into two sets of '+(1<<(KK-1)));
+ var y=100;for(var p=0;p<KK;p++){var sa=psum(s.A,p),sb=psum(s.B,p),eq=Math.abs(sa-sb)<1e-6;nt(g,eq?'#39ffb0':'#ff5a5a',20,y,10,'p='+p+': Σaᵖ='+sa+' , Σbᵖ='+sb+' '+(eq?'= ✓':'≠'));y+=17;}
+ var sk=psum(s.A,KK),sbk=psum(s.B,KK);nt(g,'#8ad',20,y+2,10,'p='+KK+': Σaᵖ='+sk+' ≠ Σbᵖ='+sbk+' (they part here)');
+ var v=verify();nt(g,v.equalPowerSums&&v.tightAtK?'#39ffb0':'#ff5a5a',12,H-12,9,'equal power sums p<k '+(v.equalPowerSums?'✓':'✗')+' · unequal at p=k '+(v.tightAtK?'✓':'✗')+' (k=2..8)');}
+document.getElementById('ptnext').onclick=function(){KK=2+((KK-1)%6);drawW4();var s=split(KK);document.getElementById('ptread').textContent='k='+KK+' → Σaᵖ=Σbᵖ for p=0..'+(KK-1)+' (e.g. Σa='+psum(s.A,1)+'=Σb)';};
+document.getElementById('ptcheck').onclick=function(){var v=verify();document.getElementById('ptread').textContent='Thue-Morse split: equal Σaᵖ=Σbᵖ for all p<k '+(v.equalPowerSums?'✓':'✗')+' · unequal at p=k '+(v.tightAtK?'✓':'✗')+' (k=2..8)';};
+document.getElementById('ptspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(0,Math.sin(ang*0.4)*3);drawSets(g,W,H-40,KK,70);g.restore();var s=split(KK);
+ var y=130;for(var p=0;p<Math.min(KK,4);p++)nt(g,'#35ffb0',20,y+p*18,10,'Σaᵖ = Σbᵖ = '+psum(s.A,p)+'  (p='+p+')');
+ nt(g,'#35ffb0',10,H-46,11,'green: set A — equal to B in every power sum up to k−1');nt(g,'#ff2fa6',10,H-30,10,'magenta: set B, the Thue-Morse-odd half');nt(g,'#8ad',10,H-13,10,'parity balances the powers');}
+drawW3();drawW4();window.__prouhet=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PALY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Paley construction</b> turns the <b>quadratic residues</b> of a prime into a perfectly balanced combinatorial design. Take a prime p &equiv; 3 (mod 4) and collect the nonzero squares mod p &mdash; the quadratic residues. This set of size (p&minus;1)/2 is a <b>cyclic difference set</b>: every nonzero residue arises as a difference of two residues the <b>same number of times</b>, exactly (p&minus;3)/4. Because p &equiv; 3 (mod 4), &minus;1 is a <b>non-residue</b>, which makes the set &ldquo;skew&rdquo; and gives the Paley graph and Paley&rsquo;s Hadamard matrices. Structure from squaring.<br><br>
+ <span class="lit">LIT</span> verified live: for every prime p &equiv; 3 (mod 4) up to 59, each nonzero residue is a difference of two quadratic residues exactly (p&minus;3)/4 times, and &minus;1 is always a non-residue (window.__paley). <span class="fig">FIG</span> no framing; the residues and their differences are enumerated in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-blue-screen</i> &mdash; residues that look like noise but hide a perfectly regular difference pattern, order behind the static. <b>AVAN (AI)</b> built the instrument: the quadratic-residue set, the difference-count over all pairs, and the &minus;1-non-residue check.<br><br>Credit as content: Raymond Paley (1933). The weave: David names the blue screen; I confirm the residues form a difference set with every difference appearing (p&minus;3)/4 times, and that &minus;1 is a non-residue.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">The residues 0..p&minus;1 around a circle; quadratic residues highlighted &mdash; a set whose pairwise differences hit every value equally often.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a prime p &equiv; 3 (mod 4); the quadratic residues and the count of each nonzero difference are shown &mdash; all equal to (p&minus;3)/4.</div>
+   <div class="btns" style="margin-top:10px"><button id="panext">next prime ▶</button><button id="pacheck">verify ▶</button></div>
+   <div class="cap" id="paread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the quadratic-residue set on the cycle.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t list the squares &mdash; count their differences. The inverse of &lsquo;which numbers are squares mod p?&rsquo; is &lsquo;every nonzero value is a difference of two of them the same number of times&rsquo; &mdash; a difference set. <b>Magenta</b> is a difference; <b>green</b> is the residue set that spreads them evenly. Structure from squaring.</div>
+   <div class="btns" style="margin-top:10px"><button id="paspin">pause spin</button></div></div></div></div>"""
+PALY_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,VI='#b06bff',PI=0;
+var PRIMES=[7,11,19,23,31,43,47,59];
+function isPrime(n){if(n<2)return false;for(var i=2;i*i<=n;i++)if(n%i===0)return false;return true;}
+function QRset(p){var q={};for(var x=1;x<p;x++)q[(x*x)%p]=1;return Object.keys(q).map(Number);}
+function diffCounts(p){var qr=QRset(p),cnt=new Array(p).fill(0);for(var i=0;i<qr.length;i++)for(var j=0;j<qr.length;j++)if(i!==j)cnt[((qr[i]-qr[j])%p+p)%p]++;return cnt;}
+function verify(){if(VR)return VR;var ds=true,mo=true;for(var pi=0;pi<PRIMES.length;pi++){var p=PRIMES[pi],cnt=diffCounts(p),lam=(p-3)/4,qr=QRset(p);for(var d=1;d<p;d++)if(cnt[d]!==lam)ds=false;if(qr.indexOf(p-1)>=0)mo=false;}VR={differenceSet:ds,minusOneNonResidue:mo};return VR;}
+function drawCircle(g,W,H,p,cx,cy,R){var qr={};QRset(p).forEach(function(r){qr[r]=1;});for(var i=0;i<p;i++){var a=i/p*6.283-1.57,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R;ndot(g,x,y,qr[i]?6:3,qr[i]?'#35ffb0':'rgba(120,140,200,0.5)');if(p<=24)nt(g,qr[i]?'#35ffb0':'#8ad',x-4,y+(y>cy?12:-8),8,''+i);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,VI,10,16,10,'quadratic residues mod 11 (green) · their pairwise differences hit every nonzero value equally');drawCircle(g,W,H,11,W/2,H/2+6,72);var qr=QRset(11);nt(g,'#35ffb0',20,H-16,10,'QR = {'+qr.join(',')+'} · each difference appears (p−3)/4 = 2 times');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var p=PRIMES[PI];drawCircle(g,W,H-70,p,W/2,(H-70)/2+6,Math.min(90,W/3));var cnt=diffCounts(p),lam=(p-3)/4,allEq=true;for(var d=1;d<p;d++)if(cnt[d]!==lam)allEq=false;
+ nt(g,VI,12,22,11,'p = '+p+' (≡3 mod 4) · QR size (p−1)/2 = '+((p-1)/2)+' · λ = (p−3)/4 = '+lam);
+ nt(g,allEq?'#39ffb0':'#ff5a5a',12,H-46,10,'every nonzero difference appears exactly '+lam+' times '+(allEq?'✓':'✗')+' · −1 non-residue '+(QRset(p).indexOf(p-1)<0?'✓':'✗'));
+ var v=verify();nt(g,v.differenceSet&&v.minusOneNonResidue?'#39ffb0':'#ff5a5a',12,H-14,9,'difference set '+(v.differenceSet?'✓':'✗')+' · −1 non-residue '+(v.minusOneNonResidue?'✓':'✗')+' (primes ≡3 mod4 to 59)');}
+document.getElementById('panext').onclick=function(){PI=(PI+1)%PRIMES.length;drawW4();var p=PRIMES[PI];document.getElementById('paread').textContent='p='+p+' → QR difference set, each difference '+((p-3)/4)+' times';};
+document.getElementById('pacheck').onclick=function(){var v=verify();document.getElementById('paread').textContent='QR is a difference set (each nonzero diff (p−3)/4 times) '+(v.differenceSet?'✓':'✗')+' · −1 non-residue '+(v.minusOneNonResidue?'✓':'✗');};
+document.getElementById('paspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var p=PRIMES[PI];g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.1);
+ var qr={};QRset(p).forEach(function(r){qr[r]=1;});var R=110;for(var i=0;i<p;i++){var a=i/p*6.283,x=Math.cos(a)*R,y=Math.sin(a)*R;if(qr[i])ndot(g,x,y,5,'#35ffb0');else ndot(g,x,y,2,'rgba(120,140,200,0.4)');}
+ // draw a few difference chords
+ var qrl=QRset(p);for(var t=0;t<qrl.length&&t<6;t++){var a1=qrl[t]/p*6.283,a2=qrl[(t+1)%qrl.length]/p*6.283;ne(g,'rgba(255,47,166,0.4)',1);g.beginPath();g.moveTo(Math.cos(a1)*R,Math.sin(a1)*R);g.lineTo(Math.cos(a2)*R,Math.sin(a2)*R);g.stroke();ng(g);}
+ g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the quadratic-residue set (a difference set)');nt(g,'#ff2fa6',10,H-30,10,'magenta: differences — each value hit (p−3)/4 times');nt(g,'#8ad',10,H-13,10,'structure from squaring');}
+drawW3();drawW4();window.__paley=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 121 · neon-noir tracing · silicon-coding (symmetry shrinks the recurrence to three terms · constant-or-balanced in one question · the frequent survive eviction · the largest amount you cannot make · all-pairs min-cuts in one tree) ═══════════════════════
 LANC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Lanczos iteration</b> is Arnoldi&rsquo;s method with the luck of <b>symmetry</b>. For a symmetric matrix, the Krylov orthogonalization collapses from a full Gram&ndash;Schmidt to a <b>three-term recurrence</b>: each new basis vector needs only the previous two, A q<sub>j</sub> = &beta;<sub>j&minus;1</sub> q<sub>j&minus;1</sub> + &alpha;<sub>j</sub> q<sub>j</sub> + &beta;<sub>j</sub> q<sub>j+1</sub>. The result is a small <b>symmetric tridiagonal</b> matrix T &mdash; just diagonals &alpha; and off-diagonals &beta; &mdash; whose eigenvalues (Ritz values) approximate the huge matrix&rsquo;s. It is the engine for the eigenvalues of enormous sparse symmetric systems.<br><br>
@@ -32079,6 +32292,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-simon","title":"THE SIMON","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#21e6ff","icon":"simon",
+  "kicker":"a hidden mask pinned by linear equations",
+  "blurb":"Simon's algorithm in the 5-window house format — finding a hidden bit-mask s a black box conceals, with an exponential speedup over any classical method. The promise: the function is two-to-one with f(x)=f(x⊕s). Classically you must hunt for a colliding pair (~2^(n/2) queries); Simon's quantum circuit instead returns, each run, a random vector y with y·s=0 (mod 2). Gather about n−1 independent such y and linear algebra over GF(2) pins s exactly. Verified live: over thousands of hidden masks, collecting n−1 independent measurement vectors and solving the GF(2) system recovers s every time. Neon-noir traced. See the 2-to-1 oracle in 1D, the GF(2) solve in 2D, and the constraints-not-search inverse in 3D.",
+  "lit":"Genuine Simon's algorithm (Daniel Simon, 1994), the problem that inspired Shor: exponential quantum speedup for hidden-XOR-mask. Verified live: over 3000 hidden masks, n−1 independent measurement vectors (each y·s=0) plus GF(2) Gaussian elimination recover s exactly (window.__simon.recoversS).",
+  "fig":"Honest scope: the quantum measurement distribution (uniform over y with y·s=0) is simulated classically; the linear-algebra recovery is exact. The AVAN inverse is honest — collecting orthogonality constraints y·s=0 and solving over GF(2) (rather than hunting for a colliding pair) is exactly Simon's exponential advantage; magenta are the equations, green the single mask satisfying them all. Constraints, not search.",
+  "body":SIMN_BODY,"script":SIMN_SCRIPT},
+ {"slug":"the-graeco-latin","title":"THE GRAECO-LATIN SQUARE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#ff8a3c","icon":"graeco-latin",
+  "kicker":"two squares that never repeat a pair",
+  "blurb":"The Graeco-Latin square in the 5-window house format — overlaying two Latin squares so no ordered pair ever repeats. A Latin square of order n fills an n×n grid so each symbol appears once per row and column; two are orthogonal if pairing them cell-by-cell yields all n² ordered pairs exactly once. Euler conjectured none exist for n≡2 (mod 4) — but he was wrong: a Graeco-Latin square exists for every order except 2 and 6. For odd n, L=(i+j) mod n and M=(2i+j) mod n do the job. Verified live: for every odd n from 3 to 15, L and M are each Latin squares and orthogonal (all n² pairs distinct). Neon-noir traced. See the overlay in 1D, adjustable order in 2D, and the no-pair-twice inverse in 3D.",
+  "lit":"Genuine Graeco-Latin (orthogonal Latin) squares (Euler 1782, the '36 officers'; conjecture disproved by Bose, Shrikhande & Parker, 1959): exist for all n except 2 and 6. Verified live: for odd n=3..15, L=(i+j)%n and M=(2i+j)%n are both Latin (window.__graeco_latin.bothLatin) and orthogonal (.orthogonal).",
+  "fig":"Honest scope: this construction covers odd n; 2 and 6 are the only orders with no Graeco-Latin square. The AVAN inverse is honest — checking that the overlay (L,M) hits all n² pairs exactly once (rather than checking L and M as Latin squares separately) is the definition of orthogonality; magenta is a pair, green the grid where none repeats. No pair twice.",
+  "body":GRLA_BODY,"script":GRLA_SCRIPT},
+ {"slug":"the-hill-cipher","title":"THE HILL CIPHER","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#35ffb0","icon":"hill-cipher",
+  "kicker":"a cipher that is a matrix",
+  "blurb":"The Hill cipher in the 5-window house format — encryption as matrix multiplication. Turn letters into numbers 0–25, group into vectors, and multiply each by a secret key matrix K mod 26: c = K·p (mod 26); decrypt with the inverse, p = K⁻¹·c (mod 26). K is invertible mod 26 exactly when its determinant is coprime to 26 (odd and not a multiple of 13). It was the first cipher to encrypt several letters at once, hiding letter frequencies inside linear algebra. Verified live: for every key with determinant coprime to 26, encrypting then decrypting recovers the plaintext exactly, and the modular inverse exists precisely when the determinant is coprime to 26. Neon-noir traced. See the vector encrypt in 1D, a word round-trip in 2D, and the invert-the-matrix inverse in 3D.",
+  "lit":"Genuine Hill cipher (Lester S. Hill, 1929), the first polygraphic cipher via matrix multiplication mod 26. Verified live: over 4000 keys, encrypt c=Kp then decrypt p=K⁻¹c recovers plaintext (window.__hill_cipher.roundTrip), and K is invertible mod 26 iff det(K) is coprime to 26 (.requiresInvertible).",
+  "fig":"No framing: the modular matrix multiply, the determinant-coprimality test, the modular inverse, and the round-trip all run in-browser. The AVAN inverse is honest — inverting the key matrix mod 26 (rather than inventing a separate decoder) is what decrypts, valid exactly when det(K) is coprime to 26; magenta is the ciphertext, green the plaintext the inverse restores. The key unlocks itself.",
+  "body":HILL_BODY,"script":HILL_SCRIPT},
+ {"slug":"the-prouhet-tarry-escott","title":"THE PROUHET-TARRY-ESCOTT","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#ffcf4a","icon":"prouhet-tarry-escott",
+  "kicker":"a set split into equal power sums",
+  "blurb":"The Prouhet–Tarry–Escott problem in the 5-window house format — splitting numbers into two sets with equal power sums (equal totals, sums of squares, of cubes, as high as possible). Prouhet's answer: take 0..2^k−1 and split by the Thue–Morse parity of each number (even or odd count of 1-bits). Then the two halves have Σaᵖ = Σbᵖ for every power p from 0 up to k−1 — matched sums, square-sums, all the way to the (k−1)-th — and they finally differ at power k. The same sequence that avoids repetition balances the powers. Verified live: for k=2..8, the Thue–Morse split has equal sums of p-th powers for all p<k, and unequal sums at p=k. Neon-noir traced. See the split in 1D, power sums in 2D, and the parity-balances-the-powers inverse in 3D.",
+  "lit":"Genuine Prouhet–Tarry–Escott / Prouhet's theorem (Eugène Prouhet, 1851): the Thue–Morse split of 0..2^k−1 gives two sets with equal p-th power sums for all p<k. Verified live: for k=2..8, Σaᵖ=Σbᵖ for all p<k (window.__prouhet.equalPowerSums) and Σaᵖ≠Σbᵖ at p=k (.tightAtK).",
+  "fig":"No framing: the power sums of both Thue–Morse halves are computed in-browser and compared. The AVAN inverse is honest — reading a balanced split off the Thue–Morse parity (which balances all powers up to k−1 for free) rather than searching for equal-power-sum sets is Prouhet's insight; magenta is set B, green set A, equal in every low power. Parity balances the powers.",
+  "body":PTES_BODY,"script":PTES_SCRIPT},
+ {"slug":"the-paley","title":"THE PALEY","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#b06bff","icon":"paley",
+  "kicker":"residues that are a perfect difference set",
+  "blurb":"The Paley construction in the 5-window house format — turning the quadratic residues of a prime into a perfectly balanced combinatorial design. Take a prime p≡3 (mod 4) and collect the nonzero squares mod p (the quadratic residues). This set of size (p−1)/2 is a cyclic difference set: every nonzero residue arises as a difference of two residues exactly (p−3)/4 times. Because p≡3 (mod 4), −1 is a non-residue, which makes the set 'skew' and gives the Paley graph and Paley's Hadamard matrices. Structure from squaring. Verified live: for every prime p≡3 (mod 4) up to 59, each nonzero residue is a difference of two quadratic residues exactly (p−3)/4 times, and −1 is always a non-residue. Neon-noir traced. See residues on a circle in 1D, difference counts in 2D, and the count-the-differences inverse in 3D.",
+  "lit":"Genuine Paley construction (Raymond Paley, 1933): for prime p≡3 mod 4, the quadratic residues form a (p,(p−1)/2,(p−3)/4) cyclic difference set, with −1 a non-residue (giving Paley graphs / Hadamard matrices). Verified live: for primes p≡3 mod4 to 59, every nonzero difference of two QRs occurs exactly (p−3)/4 times (window.__paley.differenceSet) and −1 is a non-residue (.minusOneNonResidue).",
+  "fig":"No framing: the quadratic-residue set, the difference-count over all pairs, and the −1-non-residue check all run in-browser. The AVAN inverse is honest — counting how often each value is a difference of two residues (revealing every value appears equally, a difference set) rather than merely listing the squares is what exposes the design; magenta is a difference, green the residue set spreading them evenly. Structure from squaring.",
+  "body":PALY_BODY,"script":PALY_SCRIPT},
  {"slug":"the-lanczos","title":"THE LANCZOS","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#21e6ff","icon":"lanczos",
   "kicker":"symmetry shrinks the recurrence to three terms",
