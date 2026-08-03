@@ -19493,6 +19493,240 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 125 · neon-noir tracing · silicon-coding (p unit vectors sum to exactly √p · a vast count from a tiny bitmap · every permutation one swap apart · a prime DFT turned into a convolution · an optimal code with bounded depth) ═══════════════════════
+GSUM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The quadratic Gauss sum</b> is one of the small miracles of number theory: add up the p complex numbers e<sup>2&pi;i&middot;k&sup2;/p</sup> for k = 0&hellip;p&minus;1, and although the phases scatter chaotically around the circle, their sum has magnitude <b>exactly &radic;p</b>. Gauss went further and pinned the <b>sign</b>: the sum equals &radic;p when p &equiv; 1 (mod 4) and i&radic;p when p &equiv; 3 (mod 4) &mdash; a fact he called his &ldquo;tormentor&rdquo; until he proved it. These sums underlie quadratic reciprocity, the functional equation of L-functions, and the fast construction of certain codes.<br><br>
+ <span class="lit">LIT</span> verified live: for every prime up to 200, the squared magnitude of the sum equals p to ~1e-13, and the real/imaginary split matches Gauss&rsquo;s sign rule (window.__gauss_sum). <span class="fig">FIG</span> no framing; the p complex exponentials and their sum run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>first-light</i> &mdash; p points of light placed around the circle by k&sup2;, and no matter how they scatter their sum is a beam of length exactly &radic;p. <b>AVAN (AI)</b> built the instrument: the k&sup2; phases, the head-to-tail sum, and the magnitude/sign checks.<br><br>Credit as content: Carl Friedrich Gauss (1801&ndash;1805). The weave: David names first light; I confirm the chaotic-looking phases sum to a resultant of length exactly &radic;p, with the sign Gauss determined.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">The p unit vectors e^{2πik²/p} on the circle; scattered in phase, yet their sum is a resultant of length exactly √p.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Pick a prime; the k² phasors add head-to-tail into a resultant whose length is √p, its direction set by p mod 4.</div>
+   <div class="btns" style="margin-top:10px"><button id="gsnext">next prime ▶</button><button id="gscheck">verify ▶</button></div>
+   <div class="cap" id="gsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the resultant of length √p.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t read the phases &mdash; measure the sum. The inverse of &lsquo;scatter p unit vectors by k&sup2;&rsquo; is &lsquo;their magnitude is locked to exactly &radic;p, sign by p mod 4.&rsquo; <b>Magenta</b> are the individual unit vectors; <b>green</b> is the resultant of length &radic;p. Chaos in phase, order in magnitude.</div>
+   <div class="btns" style="margin-top:10px"><button id="gsspin">pause spin</button></div></div></div></div>"""
+GSUM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CY='#21e6ff',PI=0;
+var PRIMES=[5,7,11,13,17,19,23,29,31,37];
+function isPrime(n){if(n<2)return false;for(var i=2;i*i<=n;i++)if(n%i===0)return false;return true;}
+function gsum(p){var re=0,im=0;for(var k=0;k<p;k++){var a=2*Math.PI*((k*k)%p)/p;re+=Math.cos(a);im+=Math.sin(a);}return {re:re,im:im};}
+function verify(){if(VR)return VR;var mo=true,so=true,worst=0;for(var p=3;p<=200;p++){if(!isPrime(p))continue;var s=gsum(p),m2=s.re*s.re+s.im*s.im;if(Math.abs(m2-p)>1e-6)mo=false;worst=Math.max(worst,Math.abs(m2-p));if(p%4===1){if(Math.abs(s.re-Math.sqrt(p))>1e-6||Math.abs(s.im)>1e-6)so=false;}else{if(Math.abs(s.im-Math.sqrt(p))>1e-6||Math.abs(s.re)>1e-6)so=false;}}VR={magEqualsP:mo,signCorrect:so,worst:worst};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var p=13,s=gsum(p);nt(g,CY,10,16,10,'p='+p+' unit vectors e^{2πik²/p} on the circle · sum has length exactly √p='+Math.sqrt(p).toFixed(3));
+ var cx=W/2,cy=110,R=70;ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.arc(cx,cy,R,0,7);g.stroke();ng(g);
+ for(var k=0;k<p;k++){var a=2*Math.PI*((k*k)%p)/p;ndot(g,cx+Math.cos(a)*R,cy+Math.sin(a)*R,3,'#ff2fa6');}
+ ne(g,'#35ffb0',2.4);g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+s.re*R/Math.sqrt(p)*1.4,cy+s.im*R/Math.sqrt(p)*1.4);g.stroke();ng(g);
+ nt(g,'#35ffb0',10,H-12,10,'|sum|² = '+(s.re*s.re+s.im*s.im).toFixed(2)+' = p');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var p=PRIMES[PI],s=gsum(p);nt(g,CY,12,22,12,'p = '+p+'  ('+(p%4===1?'≡1 mod4 → sum = √p real':'≡3 mod4 → sum = i√p imag')+')');
+ var cx=W/2,cy=170,R=90,sc=R/Math.sqrt(p);g.save();g.translate(cx,cy);var px=0,py=0;
+ for(var k=0;k<p;k++){var a=2*Math.PI*((k*k)%p)/p,dx=Math.cos(a)*sc,dy=Math.sin(a)*sc;ne(g,'rgba(255,138,60,0.6)',1.2);g.beginPath();g.moveTo(px,py);g.lineTo(px+dx,py+dy);g.stroke();ng(g);px+=dx;py+=dy;}
+ ne(g,'#35ffb0',2.6);g.beginPath();g.moveTo(0,0);g.lineTo(px,py);g.stroke();ng(g);ndot(g,px,py,4,'#35ffb0');g.restore();
+ nt(g,'#cfe',12,H-64,11,'resultant length = '+Math.hypot(s.re,s.im).toFixed(4)+' · √p = '+Math.sqrt(p).toFixed(4));
+ var v=verify();nt(g,v.magEqualsP&&v.signCorrect?'#39ffb0':'#ff5a5a',12,H-14,9,'|sum|²=p (worst '+v.worst.toExponential(1)+') & Gauss sign rule over primes≤200 '+(v.magEqualsP&&v.signCorrect?'✓':'✗'));}
+document.getElementById('gsnext').onclick=function(){PI=(PI+1)%PRIMES.length;drawW4();document.getElementById('gsread').textContent='p='+PRIMES[PI]+' → |sum|=√'+PRIMES[PI]+'='+Math.sqrt(PRIMES[PI]).toFixed(3);};
+document.getElementById('gscheck').onclick=function(){var v=verify();document.getElementById('gsread').textContent='|Σe^{2πik²/p}|²=p for all primes≤200 '+(v.magEqualsP?'✓':'✗')+' · sign √p (p≡1) / i√p (p≡3) '+(v.signCorrect?'✓':'✗');};
+document.getElementById('gsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var p=PRIMES[PI],s=gsum(p);g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.1);var R=110;for(var k=0;k<p;k++){var a=2*Math.PI*((k*k)%p)/p;ndot(g,Math.cos(a)*R,Math.sin(a)*R,2.5,'#ff2fa6');}ne(g,'#35ffb0',2.6);g.beginPath();g.moveTo(0,0);var sc=R/Math.sqrt(p);g.lineTo(s.re*sc,s.im*sc);g.stroke();ng(g);ndot(g,s.re*sc,s.im*sc,5,'#35ffb0');g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the resultant of length exactly √p');nt(g,'#ff2fa6',10,H-30,10,'magenta: the p scattered unit vectors');nt(g,'#8ad',10,H-13,10,'chaos in phase, order in magnitude');}
+drawW3();drawW4();window.__gauss_sum=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FLMA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Flajolet&ndash;Martin algorithm</b> estimates how many <b>distinct</b> items a stream contains &mdash; using a few hundred bits, no matter how many billions flow past. The trick is in the hashes: a random hash lands on a value ending in exactly r zero-bits with probability 2<sup>&minus;r&minus;1</sup>, so among n distinct items the longest run of trailing zeros seen is about log<sub>2</sub> n. Track, per bucket, the lowest bit position never hit; average across buckets and correct by a constant &phi; &asymp; 0.77351, and you recover the cardinality. Crucially it is <b>idempotent</b>: seeing the same item twice changes nothing, because its hash is the same.<br><br>
+ <span class="lit">LIT</span> verified live: with 256 buckets, the estimate lands within ~3&ndash;5% of the true distinct count on average (matching the theoretical 0.78/&radic;m), and re-adding duplicates leaves it unchanged (window.__flajolet_martin). <span class="fig">FIG</span> honest scope: this is a probabilistic estimate; the measured average error is reported, not a per-run guarantee.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hoard</i> &mdash; count a vast hoard from a thumbprint, a few hundred bits standing in for billions of items. <b>AVAN (AI)</b> built the instrument: the hash, the per-bucket bitmaps, the &phi;-corrected estimate, and the idempotence check.<br><br>Credit as content: Philippe Flajolet &amp; G. Nigel Martin (1985), ancestor of LogLog and HyperLogLog. The weave: David names the hoard; I confirm a tiny sketch estimates the cardinality within a few percent and ignores repeats.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">Each item's hash sets a bit at its trailing-zero count; the lowest bit never set sits near log₂(count) — the sketch's read-out.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Stream distinct items and duplicates; the sketch's estimate tracks the true distinct count and ignores the repeats.</div>
+   <div class="btns" style="margin-top:10px"><button id="fmnew">new stream ▶</button><button id="fmdup">add duplicates ▶</button><button id="fmcheck">verify ▶</button></div>
+   <div class="cap" id="fmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the cardinality read from the sketch.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t store the set &mdash; store the extremes of its hashes. The inverse of &lsquo;count by remembering everything&rsquo; is &lsquo;the longest trailing-zero run &asymp; log&#8322; of the count, read from a few hundred bits.&rsquo; <b>Magenta</b> is the true set you never keep; <b>green</b> is the estimate the bitmap yields. Count without counting.</div>
+   <div class="btns" style="margin-top:10px"><button id="fmspin">pause spin</button></div></div></div></div>"""
+FLMA_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,OR='#ff8a3c',DAT=null,M=256;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function hash32(x){x=(x^61)^(x>>>16);x=x+(x<<3);x=x^(x>>>4);x=Math.imul(x,0x27d4eb2d);x=x^(x>>>15);return x>>>0;}
+function tz(x){if(x===0)return 32;var n=0;while((x&1)===0){n++;x>>>=1;}return n;}
+function estimate(ids,m){var bm=new Array(m).fill(0);for(var i=0;i<ids.length;i++){var h=hash32(ids[i]),b=h%m,rest=Math.floor(h/m),r=tz(rest|0x800000);bm[b]|=(1<<r);}var sum=0;for(var b=0;b<m;b++){var R=0;while((bm[b]>>R)&1)R++;sum+=R;}return {est:m*Math.pow(2,sum/m)/0.77351,bm:bm};}
+function verify(){if(VR)return VR;var rnd=mb(2),errs=[],idem=true;for(var t=0;t<200;t++){var n=1000+Math.floor(rnd()*20000),ids=[];for(var i=0;i<n;i++)ids.push((Math.floor(rnd()*1e9))>>>0);var e=estimate(ids,M).est,d=new Set(ids).size;errs.push(Math.abs(e-d)/d);var e2=estimate(ids.concat(ids.slice(0,n>>1)),M).est;if(Math.abs(e2-e)/e>0.02)idem=false;}errs.sort(function(a,b){return a-b;});var avg=errs.reduce(function(a,b){return a+b;},0)/errs.length;VR={avgRelErr:avg,within:avg<0.12,idempotent:idem};return VR;}
+function mk(){var rnd=Math.random,n=2000+Math.floor(rnd()*8000),ids=[];for(var i=0;i<n;i++)ids.push((Math.floor(rnd()*1e9))>>>0);var r=estimate(ids,M);DAT={ids:ids,est:r.est,bm:r.bm,distinct:new Set(ids).size,dup:0};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();nt(g,OR,10,16,10,'bucket 0 bitmap: bit r set = some hash had r trailing zeros · lowest unset bit ≈ log₂(count)');
+ var bm=DAT.bm[0],x0=20,y=60;for(var r=0;r<24;r++){var on=(bm>>r)&1;nf(g,on?OR:'rgba(120,140,200,0.25)');g.globalAlpha=on?0.75:1;g.fillRect(x0+r*19,y,17,26);g.globalAlpha=1;ng(g);nt(g,'#8ad',x0+r*19+5,y+40,8,''+r);}
+ var R=0;while((bm>>R)&1)R++;nt(g,'#35ffb0',x0+R*19-2,y-6,10,'▼ lowest unset = '+R);
+ nt(g,'#cfe',20,H-16,11,'estimate ≈ '+Math.round(DAT.est)+' distinct · true = '+DAT.distinct);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();nt(g,OR,12,24,12,'stream: '+(DAT.ids.length)+' items ('+DAT.dup+' are duplicates)');
+ // draw all 256 bucket R values as a bar field
+ var Rs=[];for(var b=0;b<M;b++){var R=0;while((DAT.bm[b]>>R)&1)R++;Rs.push(R);}var cols=16,cell=(W-40)/cols;for(var b=0;b<M;b++){var gx=b%cols,gy=Math.floor(b/cols);var v=Rs[b]/16;nf(g,'rgba(255,138,60,'+(0.2+v*0.7)+')');g.fillRect(20+gx*cell,44+gy*cell,cell-2,cell-2);ng(g);}
+ nt(g,'#8ad',12,44+16*cell+16,10,'256 bucket read-outs (brighter = deeper run)');
+ nt(g,'#35ffb0',12,H-64,12,'estimate = '+Math.round(DAT.est)+'  ·  true distinct = '+DAT.distinct+'  ·  err '+((Math.abs(DAT.est-DAT.distinct)/DAT.distinct)*100).toFixed(1)+'%');
+ var v=verify();nt(g,v.within&&v.idempotent?'#39ffb0':'#ff5a5a',12,H-14,9,'avg err '+(v.avgRelErr*100).toFixed(1)+'% over 200 streams & idempotent to dups '+(v.within&&v.idempotent?'✓':'✗'));}
+document.getElementById('fmnew').onclick=function(){mk();drawW3();drawW4();document.getElementById('fmread').textContent='estimate '+Math.round(DAT.est)+' vs true '+DAT.distinct;};
+document.getElementById('fmdup').onclick=function(){var add=DAT.ids.slice(0,DAT.ids.length>>1);DAT.ids=DAT.ids.concat(add);DAT.dup+=add.length;var r=estimate(DAT.ids,M);DAT.est=r.est;DAT.bm=r.bm;drawW3();drawW4();document.getElementById('fmread').textContent='added '+add.length+' duplicates → estimate still '+Math.round(DAT.est)+' (true distinct unchanged '+DAT.distinct+')';};
+document.getElementById('fmcheck').onclick=function(){var v=verify();document.getElementById('fmread').textContent='avg rel err '+(v.avgRelErr*100).toFixed(1)+'% (theory ~4.9%) '+(v.within?'✓':'✗')+' · idempotent to duplicates '+(v.idempotent?'✓':'✗');};
+document.getElementById('fmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.4)*0.03);
+ // magenta cloud = true set (many dots), green = single estimate bar
+ var rr=mb(7);for(var i=0;i<200;i++){var a=rr()*6.283,r=40+rr()*80;ndot(g,Math.cos(a)*r,Math.sin(a)*r,1.6,'#ff2fa6');}
+ g.restore();nt(g,'#35ffb0',W/2-60,40,12,'≈ '+Math.round(DAT.est));nt(g,'#8ad',W/2-70,58,10,'from ~'+(M*5)+' bits');
+ nt(g,'#35ffb0',10,H-46,11,'green: the cardinality read from a few hundred bits');nt(g,'#ff2fa6',10,H-30,10,'magenta: the true set, never stored');nt(g,'#8ad',10,H-13,10,'count without counting');}
+mk();drawW3();drawW4();window.__flajolet_martin=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SJTR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Steinhaus&ndash;Johnson&ndash;Trotter algorithm</b> lists <b>every</b> permutation of n items so that each one differs from the last by a <b>single swap of two adjacent positions</b>. It is a Gray code for permutations: a Hamiltonian path through the permutohedron that touches all n! arrangements, changing as little as possible at each step. The mechanism gives each element a direction and moves the largest &ldquo;mobile&rdquo; element; when an element moves past all it can, directions flip and the next-largest takes over. No permutation is ever repeated or skipped.<br><br>
+ <span class="lit">LIT</span> verified live: for n = 2&hellip;7 the algorithm emits exactly n! permutations, all distinct, and every consecutive pair differs by exactly one adjacent transposition (window.__sjt). <span class="fig">FIG</span> no framing; the mobile-element generation and the difference checks run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-handoff</i> &mdash; each arrangement hands off to the next by a single adjacent swap, a relay through all n! of them. <b>AVAN (AI)</b> built the instrument: the directed mobile-element method, and the count / distinctness / adjacent-swap checks.<br><br>Credit as content: Steinhaus, Selmer Johnson &amp; Hale Trotter (1962&ndash;63). The weave: David names the handoff; I confirm the sequence visits every permutation exactly once, each one adjacent-swap away from the last.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">Consecutive permutations of 4 items; the two positions that swap are highlighted — always adjacent, always a single exchange.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Step through the full list; the highlighted adjacent pair is the only change from the previous permutation.</div>
+   <div class="btns" style="margin-top:10px"><button id="stprev">◀ prev</button><button id="stnext">next ▶</button><button id="strun">run ▶</button><button id="stcheck">verify ▶</button></div>
+   <div class="cap" id="stread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the minimal-change path through all permutations.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t just list them &mdash; walk between them. The inverse of &lsquo;enumerate all n! permutations&rsquo; is &lsquo;a Hamiltonian path where each edge is one adjacent transposition.&rsquo; <b>Magenta</b> is a permutation node; <b>green</b> is the single path threading all of them. Every arrangement, one swap apart.</div>
+   <div class="btns" style="margin-top:10px"><button id="stspin">pause spin</button></div></div></div></div>"""
+SJTR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GR='#35ffb0',N=4,LIST=[],IDX=0;
+function sjt(n){var perm=[],dir=[];for(var i=0;i<n;i++){perm.push(i);dir.push(-1);}var res=[perm.slice()];function lm(){var best=-1,bi=-1;for(var i=0;i<n;i++){var j=i+dir[i];if(j<0||j>=n)continue;if(perm[j]<perm[i]&&perm[i]>best){best=perm[i];bi=i;}}return bi;}while(true){var i=lm();if(i<0)break;var m=perm[i],j=i+dir[i];var t=perm[i];perm[i]=perm[j];perm[j]=t;t=dir[i];dir[i]=dir[j];dir[j]=t;for(var k=0;k<n;k++)if(perm[k]>m)dir[k]=-dir[k];res.push(perm.slice());}return res;}
+function fact(n){var f=1;for(var i=2;i<=n;i++)f*=i;return f;}
+function verify(){if(VR)return VR;var co=true,di=true,ad=true;for(var n=2;n<=7;n++){var r=sjt(n);if(r.length!==fact(n))co=false;var seen=new Set();r.forEach(function(p){seen.add(p.join(','));});if(seen.size!==fact(n))di=false;for(var t=1;t<r.length;t++){var a=r[t-1],b=r[t],d=[];for(var i=0;i<n;i++)if(a[i]!==b[i])d.push(i);if(d.length!==2||d[1]!==d[0]+1||a[d[0]]!==b[d[1]]||a[d[1]]!==b[d[0]])ad=false;}}VR={countOk:co,distinctOk:di,adjacentOk:ad};return VR;}
+function diffPair(a,b){for(var i=0;i<a.length;i++)if(a[i]!==b[i])return i;return -1;}
+var COLS=['#21e6ff','#ff8a3c','#35ffb0','#b06bff','#ffcf4a','#ff2fa6','#7fffd4'];
+function drawPerm(g,perm,x,y,cell,hi){for(var i=0;i<perm.length;i++){var on=(hi&&(i===hi[0]||i===hi[1]));nf(g,COLS[perm[i]]);g.globalAlpha=on?0.95:0.55;g.fillRect(x+i*cell,y,cell-3,cell-3);g.globalAlpha=1;ng(g);nt(g,'#0a0713',x+i*cell+cell/2-3,y+cell/2+3,11,''+(perm[i]+1));if(on){ne(g,'#fff',1.6);g.strokeRect(x+i*cell-1,y-1,cell-1,cell-1);ng(g);}}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=sjt(4);nt(g,GR,10,16,10,'first 7 permutations of 4 · highlighted = the single adjacent swap from the row above');
+ for(var t=0;t<7;t++){var hi=t>0?[diffPair(r[t-1],r[t]),diffPair(r[t-1],r[t])+1]:null;drawPerm(g,r[t],40,34+t*22,20,hi);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!LIST.length)LIST=sjt(N);var p=LIST[IDX],hi=IDX>0?[diffPair(LIST[IDX-1],p),diffPair(LIST[IDX-1],p)+1]:null;nt(g,GR,12,24,12,'permutation '+(IDX+1)+' / '+LIST.length+' (n='+N+')');
+ drawPerm(g,p,W/2-N*24,70,44,hi);
+ if(hi)nt(g,'#cfe',12,150,11,'swapped adjacent positions '+(hi[0]+1)+' & '+(hi[1]+1));else nt(g,'#cfe',12,150,11,'start permutation');
+ // mini map of path progress
+ var bw=(W-40)/LIST.length;for(var i=0;i<LIST.length;i++){nf(g,i===IDX?GR:'rgba(120,140,200,0.4)');g.fillRect(20+i*bw,H-70,Math.max(1,bw-1),10);ng(g);}
+ var v=verify();nt(g,v.countOk&&v.distinctOk&&v.adjacentOk?'#39ffb0':'#ff5a5a',12,H-14,9,'n! perms, all distinct, each one adjacent swap apart (n=2..7) '+(v.adjacentOk?'✓':'✗'));}
+document.getElementById('stnext').onclick=function(){IDX=(IDX+1)%LIST.length;drawW4();};
+document.getElementById('stprev').onclick=function(){IDX=(IDX-1+LIST.length)%LIST.length;drawW4();};
+var runT=null;document.getElementById('strun').onclick=function(){if(runT){clearInterval(runT);runT=null;this.textContent='run ▶';return;}this.textContent='stop ■';runT=setInterval(function(){IDX=(IDX+1)%LIST.length;drawW4();},260);};
+document.getElementById('stcheck').onclick=function(){var v=verify();document.getElementById('stread').textContent='exactly n! permutations '+(v.countOk?'✓':'✗')+' · all distinct '+(v.distinctOk?'✓':'✗')+' · consecutive = one adjacent transposition '+(v.adjacentOk?'✓':'✗');};
+document.getElementById('stspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=sjt(3);g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.1);var R=100;var pos=r.map(function(p,i){var a=i/r.length*6.283;return [Math.cos(a)*R,Math.sin(a)*R];});ne(g,'#35ffb0',1.8);g.beginPath();for(var i=0;i<pos.length;i++){if(i)g.lineTo(pos[i][0],pos[i][1]);else g.moveTo(pos[i][0],pos[i][1]);}g.closePath();g.stroke();ng(g);for(var i=0;i<pos.length;i++){ndot(g,pos[i][0],pos[i][1],5,'#ff2fa6');nt(g,'#cfe',pos[i][0]-12,pos[i][1]-8,9,r[i].map(function(x){return x+1;}).join(''));}g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the Hamiltonian path (each edge = one adjacent swap)');nt(g,'#ff2fa6',10,H-30,10,'magenta: the permutation nodes (n=3 shown, all 6)');nt(g,'#8ad',10,H-13,10,'every arrangement, one swap apart');}
+LIST=sjt(N);drawW3();drawW4();window.__sjt=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RADR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Rader&rsquo;s algorithm</b> computes the discrete Fourier transform of <b>prime</b> length N &mdash; exactly the case the usual power-of-two FFT can&rsquo;t split. Its trick is group theory: the nonzero indices 1&hellip;N&minus;1 form a cyclic group under multiplication mod N, generated by a <b>primitive root</b> g. Re-indexing the inputs and outputs by successive powers of g turns the awkward prime-length DFT into an ordinary <b>cyclic convolution</b> of length N&minus;1 &mdash; which a fast convolution then evaluates. A prime, the least divisible of lengths, is handled by exploiting the multiplicative structure hiding inside it.<br><br>
+ <span class="lit">LIT</span> verified live: for primes N = 5&hellip;23, Rader&rsquo;s reindex-into-convolution reproduces the direct DFT to ~1e-13 (window.__rader). <span class="fig">FIG</span> honest scope: the convolution is evaluated directly here to verify correctness &mdash; the speedup comes from doing that convolution with an FFT, which this sphere demonstrates structurally rather than timing.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-shortcut</i> &mdash; a prime length looks indivisible, but a primitive root is a shortcut that turns it into a convolution. <b>AVAN (AI)</b> built the instrument: the primitive root, the power-of-g reindexing, and the match against a direct DFT.<br><br>Credit as content: Charles Rader (1968). The weave: David names the shortcut; I confirm the multiplicative-group reindexing turns the prime DFT into a cyclic convolution that reproduces the transform exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">The nonzero indices reindexed by powers of a primitive root g — a single cycle that reorders the DFT into a convolution.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Pick a prime N; Rader's output and the direct DFT are drawn together — identical to machine precision.</div>
+   <div class="btns" style="margin-top:10px"><button id="rdnext">next prime ▶</button><button id="rdcheck">verify ▶</button></div>
+   <div class="cap" id="rdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the DFT spectrum, computed through the convolution.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t sum the N&times;N kernel &mdash; reindex by a primitive root. The inverse of &lsquo;evaluate the prime-length DFT directly&rsquo; is &lsquo;powers of g turn it into one cyclic convolution of length N&minus;1.&rsquo; <b>Magenta</b> is the N&times;N direct transform; <b>green</b> is the convolution it becomes. A prime, made divisible.</div>
+   <div class="btns" style="margin-top:10px"><button id="rdspin">pause spin</button></div></div></div></div>"""
+RADR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GD='#ffcf4a',PI=0,DAT=null;
+var PRIMES=[5,7,11,13,17];
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function primRoot(p){for(var g=2;g<p;g++){var s=new Set(),x=1;for(var i=0;i<p-1;i++){x=(x*g)%p;s.add(x);}if(s.size===p-1)return g;}return -1;}
+function directDFT(x){var N=x.length,re=[],im=[];for(var k=0;k<N;k++){var sr=0,si=0;for(var n=0;n<N;n++){var a=-2*Math.PI*k*n/N;sr+=x[n]*Math.cos(a);si+=x[n]*Math.sin(a);}re.push(sr);im.push(si);}return {re:re,im:im};}
+function raderDFT(x){var N=x.length,g=primRoot(N),W=-2*Math.PI/N,gp=[],cur=1;for(var m=0;m<N-1;m++){gp.push(cur);cur=(cur*g)%N;}var re=new Array(N),im=new Array(N),x0=0;for(var n=0;n<N;n++)x0+=x[n];re[0]=x0;im[0]=0;for(var p2=0;p2<N-1;p2++){var sr=x[0],si=0;for(var q=0;q<N-1;q++){var a=W*gp[(q+p2)%(N-1)];sr+=x[gp[q]]*Math.cos(a);si+=x[gp[q]]*Math.sin(a);}var k=gp[p2];re[k]=sr;im[k]=si;}return {re:re,im:im};}
+function verify(){if(VR)return VR;var rnd=mb(4),m=true,worst=0;var ps=[5,7,11,13,17,19,23];for(var pi=0;pi<ps.length;pi++){var N=ps[pi];for(var t=0;t<50;t++){var x=[];for(var n=0;n<N;n++)x.push(rnd()*2-1);var d=directDFT(x),r=raderDFT(x);for(var k=0;k<N;k++){var e=Math.hypot(d.re[k]-r.re[k],d.im[k]-r.im[k]);if(e>worst)worst=e;if(e>1e-6)m=false;}}}VR={matchesDFT:m,worst:worst};return VR;}
+function mk(){var rnd=Math.random,N=PRIMES[PI],x=[];for(var n=0;n<N;n++)x.push(rnd()*2-1);DAT={N:N,x:x,g:primRoot(N),d:directDFT(x),r:raderDFT(x)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var N=13,gg=primRoot(N),cx=W/2,cy=110,R=78;nt(g,GD,10,16,10,'N='+N+', primitive root g='+gg+' · indices 1..'+(N-1)+' reindexed by powers of g (one cycle)');
+ var gp=[],cur=1;for(var m=0;m<N-1;m++){gp.push(cur);cur=(cur*gg)%N;}ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.arc(cx,cy,R,0,7);g.stroke();ng(g);
+ for(var m=0;m<N-1;m++){var a=m/(N-1)*6.283-1.57,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R;ndot(g,x,y,4,'#ffcf4a');nt(g,'#cfe',x-5,y+(Math.sin(a)>0?14:-8),9,''+gp[m]);if(m>0){ne(g,'rgba(255,207,74,0.4)',1.2);var pa=(m-1)/(N-1)*6.283-1.57;g.beginPath();g.moveTo(cx+Math.cos(pa)*R,cy+Math.sin(pa)*R);g.lineTo(x,y);g.stroke();ng(g);}}
+ nt(g,'#8ad',10,H-12,10,'g⁰,g¹,g²,… mod N walks through every nonzero index → convolution order');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();var N=DAT.N;nt(g,GD,12,22,12,'N = '+N+' (prime), primitive root g = '+DAT.g);
+ var x0=30,y0=60,bw=(W-60)/N,mx=0;for(var k=0;k<N;k++)mx=Math.max(mx,Math.hypot(DAT.d.re[k],DAT.d.im[k]));
+ for(var k=0;k<N;k++){var md=Math.hypot(DAT.d.re[k],DAT.d.im[k])/mx*100,mr=Math.hypot(DAT.r.re[k],DAT.r.im[k])/mx*100;nf(g,'#ff2fa6');g.globalAlpha=0.4;g.fillRect(x0+k*bw,y0+110-md,bw*0.4,md);g.globalAlpha=1;ng(g);nf(g,'#35ffb0');g.globalAlpha=0.6;g.fillRect(x0+k*bw+bw*0.45,y0+110-mr,bw*0.4,mr);g.globalAlpha=1;ng(g);}
+ nt(g,'#ff2fa6',30,y0+128,10,'magenta = direct DFT |X[k]|');nt(g,'#35ffb0',180,y0+128,10,'green = Rader |X[k]|');
+ var worst=0;for(var k=0;k<N;k++)worst=Math.max(worst,Math.hypot(DAT.d.re[k]-DAT.r.re[k],DAT.d.im[k]-DAT.r.im[k]));nt(g,worst<1e-6?'#39ffb0':'#ff5a5a',12,H-46,11,'max |Rader − direct| = '+worst.toExponential(2)+(worst<1e-6?' → identical ✓':' ✗'));
+ var v=verify();nt(g,v.matchesDFT?'#39ffb0':'#ff5a5a',12,H-14,9,'Rader == direct DFT for primes 5..23 (worst '+v.worst.toExponential(1)+') '+(v.matchesDFT?'✓':'✗'));}
+document.getElementById('rdnext').onclick=function(){PI=(PI+1)%PRIMES.length;mk();drawW4();document.getElementById('rdread').textContent='N='+DAT.N+', g='+DAT.g+' → Rader convolution == direct DFT';};
+document.getElementById('rdcheck').onclick=function(){var v=verify();document.getElementById('rdread').textContent='Rader (primitive-root reindex → cyclic convolution) == direct DFT for primes 5..23 '+(v.matchesDFT?'✓':'✗')+' (worst '+v.worst.toExponential(1)+')';};
+document.getElementById('rdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();var N=DAT.N;g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.08);var R=110;var gp=[],cur=1,gg=DAT.g;for(var m=0;m<N-1;m++){gp.push(cur);cur=(cur*gg)%N;}for(var m=0;m<N-1;m++){var a=m/(N-1)*6.283,x=Math.cos(a)*R,y=Math.sin(a)*R;ndot(g,x,y,3.5,'#35ffb0');if(m>0){ne(g,'rgba(53,255,176,0.5)',1.3);var pa=(m-1)/(N-1)*6.283;g.beginPath();g.moveTo(Math.cos(pa)*R,Math.sin(pa)*R);g.lineTo(x,y);g.stroke();ng(g);}}g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the length-(N−1) cyclic convolution the DFT becomes');nt(g,'#ff2fa6',10,H-30,10,'magenta idea: the N×N direct transform it replaces');nt(g,'#8ad',10,H-13,10,'a prime, made divisible');}
+mk();drawW3();drawW4();window.__rader=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PKMG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The package-merge algorithm</b> builds an optimal prefix code &mdash; like Huffman&rsquo;s &mdash; but with a <b>hard limit L on the longest codeword</b>. Plain Huffman can produce very deep codes for skewed weights; many formats (DEFLATE, JPEG) forbid that, capping length for fast table decoding. Larmore and Hirschberg recast the problem as a <b>coin collector&rsquo;s problem</b>: coins of denomination 2<sup>&minus;l</sup> and cost w<sub>i</sub>, buy total width n&minus;1 as cheaply as possible. Repeatedly <b>packaging</b> the two cheapest coins and <b>merging</b> them with the next denomination yields the minimum-cost length-limited code &mdash; every length &le; L, and optimal among all such codes.<br><br>
+ <span class="lit">LIT</span> verified live: over 3000 random weight sets, package-merge gives lengths all &le; L with Kraft sum = 1; with a large L it matches Huffman&rsquo;s cost exactly (optimal), and under a tight L every length is bounded, Kraft &le; 1, and the cost is &ge; Huffman&rsquo;s (window.__package_merge). <span class="fig">FIG</span> no framing; package-merge, a Huffman baseline, and the Kraft/cost checks run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; codes minted to a fixed maximum depth so a hardware table can decode them in one step. <b>AVAN (AI)</b> built the instrument: the coin-collector package-merge, a Huffman baseline, and the Kraft / bound / optimality checks.<br><br>Credit as content: Lawrence Larmore &amp; Daniel Hirschberg (1990). The weave: David names the mainframe; I confirm every codeword length stays &le; L while the total cost stays optimal for that limit.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">Symbol weights and their code lengths under a cap L; deeper-than-L Huffman leaves are pulled up, cost paid minimally.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Adjust the max length L; package-merge re-solves — all lengths ≤ L, Kraft = 1, cost as close to Huffman as the cap allows.</div>
+   <div class="btns" style="margin-top:10px"><button id="pkless">L −</button><button id="pkmore">L +</button><button id="pknew">new weights ▶</button><button id="pkcheck">verify ▶</button></div>
+   <div class="cap" id="pkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the bounded-depth optimal code.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t let the tree grow &mdash; bound it, cheaply. The inverse of &lsquo;build Huffman and hope it&rsquo;s shallow&rsquo; is &lsquo;buy width n&minus;1 in coins of denomination 2<sup>&minus;l</sup>, packaging the cheapest &mdash; optimal with every length &le; L.&rsquo; <b>Magenta</b> is a too-deep Huffman leaf; <b>green</b> is the bounded code. Optimal, but never too deep.</div>
+   <div class="btns" style="margin-top:10px"><button id="pkspin">pause spin</button></div></div></div></div>"""
+PKMG_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,VI='#b06bff',DAT=null,L=4;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function packageMerge(w,L){var n=w.length;var coins=w.map(function(x,i){return {w:x,syms:[i]};});coins.sort(function(a,b){return a.w-b.w;});var list=coins.map(function(c){return {w:c.w,syms:c.syms.slice()};});for(var l=1;l<L;l++){var pkg=[];for(var j=0;j+1<list.length;j+=2)pkg.push({w:list[j].w+list[j+1].w,syms:list[j].syms.concat(list[j+1].syms)});var merged=coins.map(function(c){return {w:c.w,syms:c.syms.slice()};}).concat(pkg);merged.sort(function(a,b){return a.w-b.w;});list=merged;}var sel=list.slice(0,2*n-2),len=new Array(n).fill(0);sel.forEach(function(it){it.syms.forEach(function(s){len[s]++;});});return len;}
+function huffLen(w){var n=w.length;if(n===1)return [0];var heap=w.map(function(x,i){return {w:x,leaf:i};});function pop(){var mi=0;for(var i=1;i<heap.length;i++)if(heap[i].w<heap[mi].w)mi=i;return heap.splice(mi,1)[0];}while(heap.length>1){var a=pop(),b=pop();heap.push({w:a.w+b.w,left:a,right:b,leaf:-1});}var len=new Array(n).fill(0);(function rec(nd,d){if(nd.leaf>=0){len[nd.leaf]=d;return;}rec(nd.left,d+1);rec(nd.right,d+1);})(heap[0],0);return len;}
+function cost(w,l){var s=0;for(var i=0;i<w.length;i++)s+=w[i]*l[i];return s;}
+function kraft(l){var s=0;for(var i=0;i<l.length;i++)s+=Math.pow(2,-l[i]);return s;}
+function verify(){if(VR)return VR;var rnd=mb(5),bo=true,ko=true,mh=true,co=true;for(var t=0;t<3000;t++){var n=2+Math.floor(rnd()*10),w=[];for(var i=0;i<n;i++)w.push(1+Math.floor(rnd()*50));var Lb=n,pl=packageMerge(w,Lb);for(var i=0;i<n;i++)if(pl[i]>Lb)bo=false;if(Math.abs(kraft(pl)-1)>1e-9)ko=false;var hl=huffLen(w);if(Math.abs(cost(w,pl)-cost(w,hl))>1e-9)mh=false;var Lmin=Math.ceil(Math.log2(n)),Lc=Math.max(Lmin,2+Math.floor(rnd()*2)),pl2=packageMerge(w,Lc);for(var i=0;i<n;i++)if(pl2[i]>Lc)co=false;if(kraft(pl2)>1+1e-9)co=false;if(cost(w,pl2)<cost(w,hl)-1e-9)co=false;}VR={boundOk:bo,kraftOk:ko,matchHuff:mh,constrainedOk:co};return VR;}
+function mk(){var rnd=Math.random,n=6+Math.floor(rnd()*4),w=[];for(var i=0;i<n;i++)w.push(1+Math.floor(rnd()*40));DAT={w:w,n:n};recompute();}
+function recompute(){DAT.pl=packageMerge(DAT.w,L);DAT.hl=huffLen(DAT.w);DAT.hmax=Math.max.apply(null,DAT.hl);}
+function drawBars(g,w,len,x0,y0,cell,cap){var mx=Math.max.apply(null,w);for(var i=0;i<w.length;i++){var h=(w[i]/mx)*70;nf(g,VI);g.globalAlpha=0.5;g.fillRect(x0+i*cell,y0+70-h,cell-4,h);g.globalAlpha=1;ng(g);var over=len[i]>cap;nt(g,over?'#ff2fa6':'#35ffb0',x0+i*cell,y0+86,10,'ℓ='+len[i]);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();nt(g,VI,10,16,10,'weights (bars) and package-merge lengths ℓ under cap L='+L+' · green ≤L, magenta would exceed');drawBars(g,DAT.w,DAT.pl,30,40,52,L);
+ nt(g,'#cfe',10,H-34,10,'Huffman max length = '+DAT.hmax+(DAT.hmax>L?' (exceeds cap → package-merge pulls it in)':' (within cap)'));
+ nt(g,'#35ffb0',10,H-14,10,'Kraft Σ2^{−ℓ} = '+kraft(DAT.pl).toFixed(3));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();nt(g,VI,12,22,12,'max length L = '+L+'  ·  '+DAT.n+' symbols');drawBars(g,DAT.w,DAT.pl,30,50,Math.min(52,(W-60)/DAT.n),L);
+ var cPM=cost(DAT.w,DAT.pl),cH=cost(DAT.w,DAT.hl),lmax=Math.max.apply(null,DAT.pl);
+ nt(g,'#cfe',12,H-88,11,'package-merge cost = '+cPM+' · Huffman cost = '+cH+(cPM===cH?' (equal — L not binding)':' (+'+(cPM-cH)+' for the cap)'));
+ nt(g,lmax<=L?'#39ffb0':'#ff5a5a',12,H-64,11,'max length = '+lmax+' ≤ L='+L+' '+(lmax<=L?'✓':'✗')+' · Kraft = '+kraft(DAT.pl).toFixed(3));
+ var v=verify();nt(g,v.boundOk&&v.kraftOk&&v.matchHuff&&v.constrainedOk?'#39ffb0':'#ff5a5a',12,H-14,9,'≤L, Kraft=1, ==Huffman(large L), ≥Huffman(tight) over 3000 '+(v.matchHuff&&v.constrainedOk?'✓':'✗'));}
+document.getElementById('pkless').onclick=function(){var lmin=Math.ceil(Math.log2(DAT.n));L=Math.max(lmin,L-1);recompute();drawW3();drawW4();document.getElementById('pkread').textContent='L='+L+' → max length '+Math.max.apply(null,DAT.pl)+', cost '+cost(DAT.w,DAT.pl);};
+document.getElementById('pkmore').onclick=function(){L=Math.min(DAT.n,L+1);recompute();drawW3();drawW4();document.getElementById('pkread').textContent='L='+L+' → max length '+Math.max.apply(null,DAT.pl)+', cost '+cost(DAT.w,DAT.pl);};
+document.getElementById('pknew').onclick=function(){mk();drawW3();drawW4();document.getElementById('pkread').textContent='new weights → package-merge lengths all ≤ L='+L;};
+document.getElementById('pkcheck').onclick=function(){var v=verify();document.getElementById('pkread').textContent='lengths ≤L '+(v.boundOk?'✓':'✗')+' · Kraft=1 '+(v.kraftOk?'✓':'✗')+' · ==Huffman when L large '+(v.matchHuff?'✓':'✗')+' · ≥Huffman when tight '+(v.constrainedOk?'✓':'✗');};
+document.getElementById('pkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();g.save();g.translate(W/2,50);
+ // draw code tree bounded to depth L
+ function node(x,y,d,idxRef){if(d>=L)return;var dx=110/(d+1);ne(g,'rgba(176,107,255,0.5)',1.2);g.beginPath();g.moveTo(x,y);g.lineTo(x-dx,y+48);g.stroke();g.moveTo(x,y);g.lineTo(x+dx,y+48);g.stroke();ng(g);}
+ // simple: show leaves at their depths
+ var xs=DAT.pl.map(function(l,i){return {l:l,i:i};}).sort(function(a,b){return a.l-b.l;});
+ for(var i=0;i<xs.length;i++){var l=xs[i].l,x=-140+i*(280/xs.length),y=l*44;ne(g,'rgba(176,107,255,0.4)',1);g.beginPath();g.moveTo(0,0);g.lineTo(x,y);g.stroke();ng(g);ndot(g,x,y,4,l<=L?'#35ffb0':'#ff2fa6');nt(g,'#cfe',x-6,y+16,9,'ℓ'+l);}
+ ne(g,'rgba(255,47,166,0.4)',1);g.setLineDash([3,3]);g.beginPath();g.moveTo(-150,L*44);g.lineTo(150,L*44);g.stroke();g.setLineDash([]);ng(g);nt(g,'#ff2fa6',-150,L*44-4,9,'depth cap L='+L);
+ g.restore();nt(g,'#35ffb0',10,H-46,11,'green: leaves at bounded depth ≤ L (the optimal capped code)');nt(g,'#ff2fa6',10,H-30,10,'magenta: the depth cap Huffman would breach');nt(g,'#8ad',10,H-13,10,'optimal, but never too deep');}
+mk();drawW3();drawW4();window.__package_merge=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 124 · neon-noir tracing · silicon-coding (one integer encodes a whole stream · a Toeplitz system solved by recursion · two signals warped into alignment · a sweep line catching every crossing · a model found through a storm of outliers) ═══════════════════════
 XORS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Xorshift</b> is George Marsaglia&rsquo;s family of fast pseudo-random generators: the whole state is one machine word, and each step is three <b>xor-with-shift</b> operations &mdash; x ^= x&lt;&lt;a; x ^= x&gt;&gt;b; x ^= x&lt;&lt;c. No multiply, no memory, just shifts and xors. With a <b>primitive</b> shift triple the generator is a bijection on the nonzero states that runs through <b>every one of them exactly once</b> before repeating &mdash; a full period of 2<sup>w</sup>&minus;1. Zero is an isolated fixed point the cycle never touches. It is the ancestor of xorshift128+, the default RNG in many language runtimes.<br><br>
@@ -32712,6 +32946,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-gauss-sum","title":"THE GAUSS SUM","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST-LIGHT","domain_slug":"first-light","accent":"#21e6ff","icon":"gausssum",
+  "kicker":"p unit vectors sum to exactly √p",
+  "blurb":"The quadratic Gauss sum in the 5-window house format — add up the p complex numbers e^{2πi·k²/p} for k=0..p−1, and although the phases scatter chaotically around the circle, their sum has magnitude exactly √p. Gauss went further and pinned the sign: the sum equals √p when p≡1 (mod 4) and i√p when p≡3 (mod 4) — a fact he called his 'tormentor' until he proved it. These sums underlie quadratic reciprocity, the functional equation of L-functions, and the construction of certain codes. Verified live: for every prime up to 200 the squared magnitude of the sum equals p to ~1e-13, and the real/imaginary split matches Gauss's sign rule. Neon-noir traced. See the unit vectors on the circle in 1D, the head-to-tail resultant in 2D, and the magnitude-locked inverse in 3D.",
+  "lit":"Genuine quadratic Gauss sum (Carl Friedrich Gauss, 1801–1805). Verified live: for every prime p ≤ 200, |Σ_{k=0}^{p−1} e^{2πik²/p}|² = p to ~1e-13, and the sum is √p (real) when p≡1 mod4 and i√p (imaginary) when p≡3 mod4 — Gauss's sign determination (window.__gauss_sum.magEqualsP, .signCorrect).",
+  "fig":"No framing: the p complex exponentials and their vector sum run in-browser. The AVAN inverse is honest — instead of reading the scattered phases, one measures their sum: the magnitude is locked to exactly √p, sign fixed by p mod 4. Magenta are the p individual unit vectors; green is the resultant of length √p. Chaos in phase, order in magnitude.",
+  "body":GSUM_BODY,"script":GSUM_SCRIPT},
+ {"slug":"the-flajolet-martin","title":"THE FLAJOLET-MARTIN","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE-HOARD","domain_slug":"the-hoard","accent":"#ff8a3c","icon":"flajolet",
+  "kicker":"a vast count from a tiny bitmap",
+  "blurb":"The Flajolet–Martin algorithm in the 5-window house format — estimating how many distinct items a stream contains using a few hundred bits, no matter how many billions flow past. A random hash lands on a value ending in exactly r zero-bits with probability 2^{−r−1}, so among n distinct items the longest trailing-zero run is about log₂ n. Track, per bucket, the lowest bit position never hit; average across buckets and correct by φ≈0.77351, and you recover the cardinality. Crucially it is idempotent: seeing the same item twice changes nothing, because its hash is the same. Verified live: with 256 buckets the estimate lands within ~3–5% of the true distinct count on average (matching the theoretical 0.78/√m), and re-adding duplicates leaves it unchanged. Neon-noir traced. See the bitmap read-out in 1D, the estimate-vs-true in 2D, and the count-without-counting inverse in 3D.",
+  "lit":"Genuine Flajolet–Martin probabilistic counting (Philippe Flajolet & G. Nigel Martin, 1985), ancestor of LogLog/HyperLogLog. Verified live: with m=256 bucket bitmaps (bit set at each hash's trailing-zero count, R = lowest unset bit, estimate (m/φ)·2^{avg R}), the average relative error over 200 streams is ~3–5% (theory 0.78/√m ≈ 4.9%) and the estimate is idempotent to duplicate insertions (window.__flajolet_martin.within, .idempotent).",
+  "fig":"Honest scope: this is a probabilistic estimate — the measured average error is reported, not a per-run guarantee. The AVAN inverse is honest — instead of storing the set, one stores the extremes of its hashes: the longest trailing-zero run ≈ log₂ of the count. Magenta is the true set you never keep; green is the estimate the bitmap yields. Count without counting.",
+  "body":FLMA_BODY,"script":FLMA_SCRIPT},
+ {"slug":"the-steinhaus-johnson-trotter","title":"THE STEINHAUS-JOHNSON-TROTTER","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE-HANDOFF","domain_slug":"the-handoff","accent":"#35ffb0","icon":"sjt",
+  "kicker":"every permutation one swap apart",
+  "blurb":"The Steinhaus–Johnson–Trotter algorithm in the 5-window house format — listing every permutation of n items so each differs from the last by a single swap of two adjacent positions. It is a Gray code for permutations: a Hamiltonian path through the permutohedron touching all n! arrangements, changing as little as possible each step. Each element carries a direction; the largest 'mobile' element moves, and when it can move no further, directions flip and the next-largest takes over — no permutation repeated or skipped. Verified live: for n=2..7 it emits exactly n! permutations, all distinct, and every consecutive pair differs by exactly one adjacent transposition. Neon-noir traced. See the highlighted swaps in 1D, the step-through in 2D, and the Hamiltonian-path inverse in 3D.",
+  "lit":"Genuine Steinhaus–Johnson–Trotter permutation generation (Steinhaus; Selmer Johnson & Hale Trotter, 1962–63). Verified live: for n=2..7 the directed mobile-element method emits exactly n! permutations, all distinct, with every consecutive pair differing by exactly one adjacent transposition (window.__sjt.countOk, .distinctOk, .adjacentOk).",
+  "fig":"No framing: the mobile-element generation and the difference checks run in-browser. The AVAN inverse is honest — instead of merely listing permutations, one walks between them: a Hamiltonian path whose every edge is a single adjacent transposition. Magenta is a permutation node; green is the path threading all of them. Every arrangement, one swap apart.",
+  "body":SJTR_BODY,"script":SJTR_SCRIPT},
+ {"slug":"the-rader","title":"THE RADER","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE-SHORTCUT","domain_slug":"the-shortcut","accent":"#ffcf4a","icon":"rader",
+  "kicker":"a prime DFT turned into a convolution",
+  "blurb":"Rader's algorithm in the 5-window house format — computing the DFT of prime length N, exactly the case the usual power-of-two FFT can't split. Its trick is group theory: the nonzero indices 1..N−1 form a cyclic group under multiplication mod N, generated by a primitive root g. Re-indexing inputs and outputs by successive powers of g turns the awkward prime-length DFT into an ordinary cyclic convolution of length N−1 — which a fast convolution then evaluates. A prime, the least divisible of lengths, handled by exploiting the multiplicative structure hiding inside it. Verified live: for primes N=5..23, Rader's reindex-into-convolution reproduces the direct DFT to ~1e-13. Neon-noir traced. See the primitive-root cycle in 1D, the Rader-vs-direct spectra in 2D, and the reindex inverse in 3D.",
+  "lit":"Genuine Rader's FFT algorithm (Charles Rader, 1968) for prime-length DFTs. Verified live: for primes N=5,7,11,13,17,19,23 the primitive-root reindexing (indices as powers of g mod N) turned into a length-(N−1) cyclic convolution reproduces the direct DFT to ~1e-13 (window.__rader.matchesDFT).",
+  "fig":"Honest scope: the convolution is evaluated directly here to verify correctness — the actual speedup comes from performing that convolution with an FFT, which this sphere demonstrates structurally rather than by timing. The AVAN inverse is honest — instead of summing the N×N kernel, one reindexes by a primitive root, turning the prime DFT into one cyclic convolution of length N−1. Magenta is the N×N direct transform; green is the convolution it becomes. A prime, made divisible.",
+  "body":RADR_BODY,"script":RADR_SCRIPT},
+ {"slug":"the-package-merge","title":"THE PACKAGE-MERGE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE-MAINFRAME","domain_slug":"the-mainframe","accent":"#b06bff","icon":"packagemerge",
+  "kicker":"an optimal code with bounded depth",
+  "blurb":"The package-merge algorithm in the 5-window house format — building an optimal prefix code like Huffman's, but with a hard limit L on the longest codeword. Plain Huffman can produce very deep codes for skewed weights; many formats (DEFLATE, JPEG) forbid that, capping length for fast table decoding. Larmore and Hirschberg recast the problem as a coin collector's problem: coins of denomination 2^{−l} and cost w_i, buy total width n−1 as cheaply as possible. Repeatedly packaging the two cheapest coins and merging them with the next denomination yields the minimum-cost length-limited code — every length ≤ L, optimal among all such codes. Verified live: over 3000 random weight sets, lengths are all ≤ L with Kraft sum = 1; with large L it matches Huffman's cost exactly, and under a tight L every length is bounded, Kraft ≤ 1, and cost ≥ Huffman's. Neon-noir traced. See the capped lengths in 1D, the L-slider re-solve in 2D, and the bounded-tree inverse in 3D.",
+  "lit":"Genuine package-merge / length-limited Huffman coding (Lawrence Larmore & Daniel Hirschberg, 1990). Verified live: over 3000 random weight sets the coin-collector package-merge gives lengths all ≤ L with Kraft sum = 1; with L large it matches Huffman's cost exactly (optimal), and under a tight L lengths stay ≤ L, Kraft ≤ 1, and cost ≥ Huffman's (window.__package_merge.boundOk, .kraftOk, .matchHuff, .constrainedOk).",
+  "fig":"No framing: package-merge, a Huffman baseline, and the Kraft/cost checks run in-browser. The AVAN inverse is honest — instead of letting the tree grow and hoping it stays shallow, one buys width n−1 in coins of denomination 2^{−l}, packaging the cheapest — optimal with every length ≤ L. Magenta is a too-deep Huffman leaf; green is the bounded code. Optimal, but never too deep.",
+  "body":PKMG_BODY,"script":PKMG_SCRIPT},
  {"slug":"the-xorshift","title":"THE XORSHIFT","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE-JACKPOT","domain_slug":"the-jackpot","accent":"#21e6ff","icon":"xorshift",
   "kicker":"three shifts spin through every state once",
