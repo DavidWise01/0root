@@ -19493,6 +19493,225 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 112 · neon-noir tracing (every integer has a golden no-"11" form · a cevian triangle's area is a closed form · a band through any sphere holds the same volume · three circles' external centres fall on one line · a monster that climbs from 0 to 1 with slope 0 almost everywhere) ═══════════════════════
+GOLD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The golden radix</b> is base-&phi; &mdash; positional notation whose base is the golden ratio &phi; = (1+&radic;5)/2, an <i>irrational</i>. Digits are 0 and 1, and place values are powers of &phi;: &hellip;&phi;&sup2;, &phi;&sup1;, &phi;&#8304; . &phi;&#8315;&sup1;, &phi;&#8315;&sup2;&hellip;. The defining identity <b>&phi;&sup2; = &phi; + 1</b> means &ldquo;011&rdquo; always rewrites to &ldquo;100&rdquo;, so every value has a unique <b>standard form with no two adjacent 1s</b>. Remarkably, every ordinary integer has a <i>finite</i> such expansion &mdash; 1 = 1, 2 = 10.01, 3 = 100.01, 4 = 101.01 &mdash; even though the base itself is irrational.<br><br>
+ <span class="lit">LIT</span> verified live: the greedy base-&phi; expansion of every integer 0..100 decodes back to it (max error &lt; 1e-6) and always has no consecutive 1s (window.__golden_radix). <span class="fig">FIG</span> no framing; the expansion and its real-valued decoding both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mint</i> &mdash; a mint coins each integer as a unique golden stamp, no two adjacent 1s, struck by the &phi;&sup2;=&phi;+1 rule. <b>AVAN (AI)</b> built the instrument: greedy expansion over powers of &phi;, decode by summing those powers, and check the no-11 canonical form across the whole range.<br><br>Credit as content: base-&phi; / the golden-ratio base (George Bergman, 1957). The weave: David names the mint and its no-11 stamp; I show every integer has a finite golden form and that it round-trips exactly, an irrational base carrying the integers.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The digits of a number in base &phi;: place values are powers of &phi; with a radix point; lit cells are 1s. No two adjacent cells are lit &mdash; the standard form.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Step through the integers; each gets its golden stamp. The decoded &phi;-sum returns the integer exactly, and no two 1s ever touch.</div>
+   <div class="btns" style="margin-top:10px"><button id="gdnext">next n ▶</button><button id="gdrand">random ▶</button><button id="gdcheck">verify ▶</button></div>
+   <div class="cap" id="gdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the no-11 standard form, the canonical golden stamp.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t forbid &ldquo;11&rdquo; by decree &mdash; let the base do it. The inverse of &lsquo;avoid adjacent 1s&rsquo; is &lsquo;&phi;&sup2;=&phi;+1 <b>collapses</b> every 011 into 100 for you.&rsquo; <b>Magenta</b> is a forbidden 011; <b>green</b> is its collapsed 100. The rule of the base is the rule of the form.</div>
+   <div class="btns" style="margin-top:10px"><button id="gdspin">pause spin</button></div></div></div></div>"""
+GOLD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,AU='#ffcf4a',NN=4,PHI=(1+Math.sqrt(5))/2;
+function toGolden(n){var K=12,d={},rem=n;for(var k=K;k>=-K;k--){var p=Math.pow(PHI,k);if(p<=rem+1e-9){d[k]=1;rem-=p;}}return d;}
+function valG(d){var s=0;for(var k in d)if(d[k])s+=Math.pow(PHI,+k);return s;}
+function no11(d){var ks=Object.keys(d).map(Number).sort(function(a,b){return a-b;});for(var i=0;i+1<ks.length;i++)if(d[ks[i]]&&d[ks[i+1]]&&ks[i+1]===ks[i]+1)return false;return true;}
+function verify(){if(VR)return VR;var rt=true,st=true;for(var n=0;n<=100;n++){var d=toGolden(n);if(Math.abs(valG(d)-n)>1e-6)rt=false;if(!no11(d))st=false;}VR={roundTrips:rt,noEleven:st};return VR;}
+function cells(g,d,x0,y,cw){var hi=8,lo=-5;for(var k=hi;k>=lo;k--){var i=hi-k,x=x0+i*cw,on=d[k]?1:0;ne(g,on?AU:'rgba(150,110,60,0.35)',on?2:1);g.strokeRect(x,y,cw-4,26);ng(g);if(on){nf(g,AU);g.fillRect(x+3,y+3,cw-10,20);ng(g);}nt(g,on?'#0a0713':'#6a5c34',x+cw/2-7,y+18,12,''+on);nt(g,'#8a7a4a',x+2,y+40,8,(k>=0?'+':'')+k);}var rx=x0+(hi-(-1))*cw-2;ne(g,'#ff8a3c',2);g.beginPath();g.moveTo(rx,y-3);g.lineTo(rx,y+30);g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,AU,10,16,10,'base φ = 1.6180…  ·  place values are powers of φ  ·  no two adjacent 1s');cells(g,toGolden(NN),18,60,36);nt(g,'#cfe',18,130,11,'n = '+NN+'   decoded φ-sum = '+valG(toGolden(NN)).toFixed(4));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var d=toGolden(NN),v=valG(d),ok11=no11(d);nt(g,AU,12,24,12,'the mint stamps n = '+NN);cells(g,d,14,60,26);nt(g,Math.abs(v-NN)<1e-6?'#39ffb0':'#ff5a5a',12,150,11,'decode φ-sum = '+v.toFixed(6)+' == '+NN+(Math.abs(v-NN)<1e-6?' ✓':' ✗'));nt(g,ok11?'#39ffb0':'#ff2fa6',12,174,11,'no adjacent 1s (standard form) '+(ok11?'✓':'✗'));var vr=verify();nt(g,vr.roundTrips&&vr.noEleven?'#39ffb0':'#ff5a5a',12,H-14,10,'0..100 all round-trip '+(vr.roundTrips?'✓':'✗')+' · all no-11 '+(vr.noEleven?'✓':'✗'));}
+document.getElementById('gdnext').onclick=function(){NN=(NN+1)%101;drawW3();drawW4();document.getElementById('gdread').textContent='n='+NN+' → golden form decodes to '+valG(toGolden(NN)).toFixed(4);};
+document.getElementById('gdrand').onclick=function(){NN=Math.floor(Math.random()*101);drawW3();drawW4();document.getElementById('gdread').textContent='n='+NN+' → golden form decodes to '+valG(toGolden(NN)).toFixed(4);};
+document.getElementById('gdcheck').onclick=function(){var v=verify();document.getElementById('gdread').textContent='every integer 0..100 round-trips '+(v.roundTrips?'✓':'✗')+' and has no consecutive 1s '+(v.noEleven?'✓':'✗');};
+document.getElementById('gdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-20;g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.4)*0.05);
+ nt(g,'#ff2fa6',-140,-70,12,'0 1 1   (forbidden)');ne(g,'#ff2fa6',2);for(var i=0;i<3;i++){g.strokeRect(-140+i*34,-56,28,24);if(i>0){nf(g,'#ff2fa6');g.fillRect(-137+i*34,-53,22,18);ng(g);}}ng(g);
+ nt(g,'#8ad',-6,-42,20,'→');
+ nt(g,'#35ffb0',40,-70,12,'1 0 0   (collapsed, φ²=φ+1)');ne(g,'#35ffb0',2);for(var i=0;i<3;i++){g.strokeRect(40+i*34,-56,28,24);if(i===0){nf(g,'#35ffb0');g.fillRect(43+i*34,-53,22,18);ng(g);}}ng(g);
+ // golden spiral flourish
+ ne(g,AU,1.6);g.beginPath();var a=0,r=4;for(var t=0;t<160;t++){a+=0.16;r*=1.0116;g.lineTo(Math.cos(a)*r,Math.sin(a)*r+30);}g.stroke();ng(g);
+ g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the no-11 standard form');nt(g,'#ff2fa6',10,H-30,10,'magenta: a forbidden 011 the base collapses');nt(g,'#8a7a4a',10,H-13,10,'the rule of the base is the rule of the form');}
+drawW3();drawW4();window.__golden_radix=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ROUT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Routh&rsquo;s theorem</b> gives the area of the little triangle three cevians carve out of a big one &mdash; as an exact closed form. Draw cevians from each vertex cutting the opposite side in ratios x, y, z (BD/DC = x, CE/EA = y, AF/FB = z). The three cevians bound a central triangle, and its area as a fraction of the whole is <b>(xyz &minus; 1)&sup2; / [(xy + x + 1)(yz + y + 1)(zx + z + 1)]</b>. When x = y = z = 2 the fraction is exactly <b>1/7</b> &mdash; the famous one-seventh-area triangle. When xyz = 1 the cevians are concurrent (Ceva) and the triangle vanishes to a point.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random ratio triples, the closed form matches the directly-constructed central-triangle area to machine precision, and x=y=z=2 gives 1/7 (window.__routh). <span class="fig">FIG</span> no framing; both the geometric construction and the formula run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-shortcut</i> &mdash; instead of intersecting three cevians and measuring the middle, take the shortcut: one formula in x, y, z. <b>AVAN (AI)</b> built the instrument: place a triangle, drop the three cevians, intersect them for the central triangle, measure its area by the shoelace rule, and compare to Routh&rsquo;s expression.<br><br>Credit as content: Edward John Routh (1896). The weave: David names the shortcut; I construct the long way (three intersections and an area) and confirm it equals the closed form &mdash; including the surprising 1/7 at ratio 2.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The classic case: cevians at ratio 2 on every side cut out a central triangle of exactly one-seventh the area.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Change the three ratios; the central triangle redraws, and its measured area fraction tracks Routh&rsquo;s formula exactly.</div>
+   <div class="btns" style="margin-top:10px"><button id="rtrand">random ratios ▶</button><button id="rt17">the 1/7 case ▶</button><button id="rtcheck">verify ▶</button></div>
+   <div class="cap" id="rtread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the central triangle the three cevians actually enclose.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t intersect and measure &mdash; read the area straight off x, y, z. The inverse of &lsquo;construct the triangle to find its area&rsquo; is &lsquo;the area is a function of the three ratios alone.&rsquo; <b>Magenta</b> is the laborious construction; <b>green</b> is the one-line answer. The ratios already know the area.</div>
+   <div class="btns" style="margin-top:10px"><button id="rtspin">pause spin</button></div></div></div></div>"""
+ROUT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CY='#21e6ff',X=2,Y=2,Z=2;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function seg(P,Q,t){return [P[0]+(Q[0]-P[0])*t,P[1]+(Q[1]-P[1])*t];}
+function li(A,B,C,D){var a1=B[1]-A[1],b1=A[0]-B[0],c1=a1*A[0]+b1*A[1],a2=D[1]-C[1],b2=C[0]-D[0],c2=a2*C[0]+b2*C[1],dt=a1*b2-a2*b1;if(Math.abs(dt)<1e-12)return null;return [(b2*c1-b1*c2)/dt,(a1*c2-a2*c1)/dt];}
+function ar(P,Q,R){return Math.abs((Q[0]-P[0])*(R[1]-P[1])-(R[0]-P[0])*(Q[1]-P[1]))/2;}
+function rf(x,y,z){return (x*y*z-1)*(x*y*z-1)/((x*y+x+1)*(y*z+y+1)*(z*x+z+1));}
+function verify(){if(VR)return VR;var A=[0,0],B=[1,0],C=[0.3,1],rnd=mb(2),ok=true;for(var t=0;t<4000;t++){var x=0.2+rnd()*4,y=0.2+rnd()*4,z=0.2+rnd()*4;var D=seg(B,C,x/(1+x)),E=seg(C,A,y/(1+y)),F=seg(A,B,z/(1+z));var P=li(A,D,B,E),Q=li(B,E,C,F),R=li(C,F,A,D);if(!P||!Q||!R)continue;if(Math.abs(ar(P,Q,R)/ar(A,B,C)-rf(x,y,z))>1e-7)ok=false;}VR={matches:ok,oneSeventh:Math.abs(rf(2,2,2)-1/7)<1e-9};return VR;}
+function tri(g,cx,cy,s){return [[cx,cy-s*0.62],[cx-s*0.6,cy+s*0.45],[cx+s*0.62,cy+s*0.42]];}
+function drawScene(g,W,H,mag){var T=tri(g,W/2,H/2+6,Math.min(W,H)*0.7),A=T[0],B=T[1],C=T[2];
+ var D=seg(B,C,X/(1+X)),E=seg(C,A,Y/(1+Y)),F=seg(A,B,Z/(1+Z));var P=li(A,D,B,E),Q=li(B,E,C,F),R=li(C,F,A,D);
+ ne(g,'#6a7fb0',1.6);g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.lineTo(C[0],C[1]);g.closePath();g.stroke();ng(g);
+ ne(g,mag?'#ff2fa6':CY,1.5);g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(D[0],D[1]);g.moveTo(B[0],B[1]);g.lineTo(E[0],E[1]);g.moveTo(C[0],C[1]);g.lineTo(F[0],F[1]);g.stroke();ng(g);
+ if(P&&Q&&R){nf(g,'#35ffb0');g.globalAlpha=0.28;g.beginPath();g.moveTo(P[0],P[1]);g.lineTo(Q[0],Q[1]);g.lineTo(R[0],R[1]);g.closePath();g.fill();g.globalAlpha=1;ng(g);ne(g,'#35ffb0',2);g.beginPath();g.moveTo(P[0],P[1]);g.lineTo(Q[0],Q[1]);g.lineTo(R[0],R[1]);g.closePath();g.stroke();ng(g);return ar(P,Q,R)/ar(A,B,C);}return 0;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var sx=X,sy=Y,sz=Z;X=Y=Z=2;var r=drawScene(g,W,H,false);X=sx;Y=sy;Z=sz;nt(g,CY,10,16,10,'ratios x=y=z=2  →  central triangle = 1/7 of the whole');nt(g,'#35ffb0',W-140,H-14,11,'measured '+r.toFixed(4)+' ≈ 1/7');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=drawScene(g,W,H,false),f=rf(X,Y,Z);nt(g,CY,12,20,11,'x='+X.toFixed(2)+'  y='+Y.toFixed(2)+'  z='+Z.toFixed(2));nt(g,Math.abs(r-f)<1e-6?'#39ffb0':'#ff5a5a',12,H-30,11,'measured '+r.toFixed(5)+'  ==  Routh '+f.toFixed(5)+(Math.abs(r-f)<1e-6?' ✓':' ✗'));var v=verify();nt(g,v.matches?'#39ffb0':'#ff5a5a',12,H-12,9,'formula matches construction, 4000 triples '+(v.matches?'✓':'✗'));}
+document.getElementById('rtrand').onclick=function(){X=+(0.3+Math.random()*4).toFixed(2);Y=+(0.3+Math.random()*4).toFixed(2);Z=+(0.3+Math.random()*4).toFixed(2);drawW4();document.getElementById('rtread').textContent='area fraction = '+rf(X,Y,Z).toFixed(5)+' (Routh)';};
+document.getElementById('rt17').onclick=function(){X=Y=Z=2;drawW4();document.getElementById('rtread').textContent='x=y=z=2 → exactly 1/7 = '+(1/7).toFixed(6);};
+document.getElementById('rtcheck').onclick=function(){var v=verify();document.getElementById('rtread').textContent='formula == construction (4000 triples) '+(v.matches?'✓':'✗')+' · 1/7 case '+(v.oneSeventh?'✓':'✗');};
+document.getElementById('rtspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(W/2,H/2-6);g.rotate(Math.sin(ang*0.4)*0.06);g.translate(-W/2,-(H/2-6));drawScene(g,W,H-40,false);g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the central triangle the cevians enclose');nt(g,'#ff2fa6',10,H-30,10,'magenta idea: the long construction Routh lets you skip');nt(g,'#8ad',10,H-13,10,'the ratios already know the area');}
+drawW3();drawW4();window.__routh=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NAPK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The napkin-ring problem</b>: drill a cylindrical hole straight through the centre of a sphere so the remaining band (the &ldquo;napkin ring&rdquo;) has height <b>h</b>. Its volume is <b>&pi;h&sup3;/6</b> &mdash; and it depends <i>only</i> on h, not on the sphere. A ring of height h cut from a marble and the same-height ring cut from a planet have <b>identical volume</b>. The reason is exact cancellation: at height z the leftover annulus has area &pi;[(h/2)&sup2; &minus; z&sup2;], with the sphere&rsquo;s radius R gone entirely.<br><br>
+ <span class="lit">LIT</span> verified live: numerically integrating the ring volume for radii R = 1, 1.5, 2, 5, 20, 100 (fixed h = 2) gives &pi;h&sup3;/6 &asymp; 4.18879 every time (window.__napkin). <span class="fig">FIG</span> no framing; the annulus integral is summed in-browser and the R-dependence cancels.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>event-horizon</i> &mdash; like a horizon that hides the body behind it, the band&rsquo;s height is all you can know; the sphere&rsquo;s size is unobservable from the ring. <b>AVAN (AI)</b> built the instrument: integrate the sphere-minus-cylinder cross-section over the band for several radii and watch the volume stay put.<br><br>Credit as content: the napkin-ring / Archimedes&ndash;Cavalieri result. The weave: David names the horizon of invisibility; I integrate the ring for wildly different spheres and confirm the R cancels, leaving &pi;h&sup3;/6.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Two spheres, small and large, each drilled to the same band height h. The shaded rings differ wildly in shape &mdash; and have the same volume.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Grow or shrink the sphere (band height fixed). The cross-section changes; the integrated ring volume holds at &pi;h&sup3;/6.</div>
+   <div class="btns" style="margin-top:10px"><button id="npbig">bigger sphere ▶</button><button id="npsmall">smaller ▶</button><button id="npcheck">verify ▶</button></div>
+   <div class="cap" id="npread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the ring, its volume set by height alone.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask how big the sphere is &mdash; ask what survives the drilling. The inverse of &lsquo;measure the sphere then subtract the hole&rsquo; is &lsquo;the height of the band already fixes the volume.&rsquo; <b>Magenta</b> is the vanished radius R; <b>green</b> is the invariant &pi;h&sup3;/6. The hole hides the sphere.</div>
+   <div class="btns" style="margin-top:10px"><button id="npspin">pause spin</button></div></div></div></div>"""
+NAPK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GR='#35ffb0',H0=2,R=3;
+function ringVol(R,h){if(R<h/2)return NaN;var r2=R*R-(h/2)*(h/2),N=4000,V=0,dz=h/N;for(var i=0;i<N;i++){var z=-h/2+(i+0.5)*dz;V+=Math.PI*((R*R-z*z)-r2)*dz;}return V;}
+function verify(){if(VR)return VR;var h=2,target=Math.PI*h*h*h/6,ok=true;var Rs=[1,1.5,2,5,20,100];for(var q=0;q<Rs.length;q++){if(Math.abs(ringVol(Rs[q],h)-target)>1e-3)ok=false;}VR={invariant:ok,target:target};return VR;}
+function drawSphere(g,cx,cy,R,h,scale,col){var pr=R*scale,ph=h*scale,rr=Math.sqrt(Math.max(0,R*R-(h/2)*(h/2)))*scale;
+ ne(g,'#5a6a9a',1.4);g.beginPath();g.arc(cx,cy,pr,0,7);g.stroke();ng(g);
+ // band region: between y=cy-ph/2 and cy+ph/2, outside cylinder radius rr
+ nf(g,col);g.globalAlpha=0.22;g.beginPath();g.moveTo(cx-pr,cy);
+ for(var a=-1;a<=1;a+=0.03){var y=a*ph/2;var xs=Math.sqrt(Math.max(0,pr*pr-y*y));g.lineTo(cx+xs,cy-y);}g.lineTo(cx+rr,cy-ph/2);g.lineTo(cx+rr,cy+ph/2);g.closePath();g.fill();
+ g.beginPath();for(var a=-1;a<=1;a+=0.03){var y=a*ph/2;var xs=Math.sqrt(Math.max(0,pr*pr-y*y));if(a===-1)g.moveTo(cx-xs,cy-y);else g.lineTo(cx-xs,cy-y);}g.lineTo(cx-rr,cy-ph/2);g.lineTo(cx-rr,cy+ph/2);g.closePath();g.fill();g.globalAlpha=1;ng(g);
+ ne(g,'#ff8a3c',1);g.beginPath();g.moveTo(cx-rr,cy-ph/2);g.lineTo(cx-rr,cy+ph/2);g.moveTo(cx+rr,cy-ph/2);g.lineTo(cx+rr,cy+ph/2);g.stroke();ng(g);
+ ne(g,col,1.4);g.beginPath();g.moveTo(cx-pr-6,cy-ph/2);g.lineTo(cx+pr+6,cy-ph/2);g.moveTo(cx-pr-6,cy+ph/2);g.lineTo(cx+pr+6,cy+ph/2);g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,GR,10,16,10,'same band height h, two very different spheres — equal ring volume πh³/6');drawSphere(g,130,92,2,2,26,GR);drawSphere(g,360,92,5,2,11,GR);nt(g,'#cfe',96,150,10,'R=2  vol '+ringVol(2,2).toFixed(3));nt(g,'#cfe',320,150,10,'R=5  vol '+ringVol(5,2).toFixed(3));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var scale=Math.min(120/R,60);drawSphere(g,W/2,H/2-6,R,H0,scale,GR);var v=ringVol(R,H0),tgt=Math.PI*H0*H0*H0/6;nt(g,GR,12,20,11,'sphere R = '+R.toFixed(2)+'   band h = '+H0);nt(g,Math.abs(v-tgt)<1e-2?'#39ffb0':'#ff5a5a',12,H-30,11,'ring volume '+v.toFixed(5)+'  ==  πh³/6 '+tgt.toFixed(5)+(Math.abs(v-tgt)<1e-2?' ✓':' ✗'));var vr=verify();nt(g,vr.invariant?'#39ffb0':'#ff5a5a',12,H-12,9,'invariant across R=1..100 '+(vr.invariant?'✓':'✗'));}
+document.getElementById('npbig').onclick=function(){R=Math.min(R+1.5,60);drawW4();document.getElementById('npread').textContent='R='+R.toFixed(1)+' → ring volume still '+ringVol(R,H0).toFixed(5);};
+document.getElementById('npsmall').onclick=function(){R=Math.max(R-1.5,H0/2+0.05);drawW4();document.getElementById('npread').textContent='R='+R.toFixed(1)+' → ring volume still '+ringVol(R,H0).toFixed(5);};
+document.getElementById('npcheck').onclick=function(){var v=verify();document.getElementById('npread').textContent='ring volume == πh³/6 for R=1,1.5,2,5,20,100 '+(v.invariant?'✓':'✗')+' (target '+v.target.toFixed(5)+')';};
+document.getElementById('npspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-20;g.save();g.translate(cx,cy);g.rotate(ang*0.5);
+ // a ring traced as an ellipse band
+ for(var k=0;k<2;k++){ne(g,GR,2-k*0.6);g.beginPath();for(var a=0;a<=6.3;a+=0.1){var rx=90-k*22,ry=30-k*7;g.lineTo(Math.cos(a)*rx,Math.sin(a)*ry);}g.closePath();g.stroke();ng(g);}
+ nf(g,'#ff2fa6');g.globalAlpha=0.6;g.beginPath();g.arc(0,0,3,0,7);g.fill();g.globalAlpha=1;ng(g);g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the ring — volume set by height h alone');nt(g,'#ff2fa6',10,H-30,10,'magenta: the sphere radius R — cancels, unknowable from the ring');nt(g,'#8ad',10,H-13,10,'the hole hides the sphere');}
+drawW3();drawW4();window.__napkin=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MONG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Monge&rsquo;s theorem</b>: take any three circles of different radii in the plane. For each pair, draw the two outer tangent lines; they meet at the pair&rsquo;s <b>external centre of similitude</b>. The astonishing fact is that the <b>three external centres are collinear</b> &mdash; they always fall on a single straight line, whatever the circles. Each external centre is the point that divides the line of centres externally in the ratio of the radii: E = (r&#8322;C&#8321; &minus; r&#8321;C&#8322;)/(r&#8322; &minus; r&#8321;).<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of random triples of distinct-radius circles, the three external centres are collinear to machine precision &mdash; the normalized cross product is ~1e-14 (window.__monge). <span class="fig">FIG</span> no framing; the centres and their collinearity are computed in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sync</i> &mdash; three independent circles, and yet their external centres snap into sync on one line, as if coordinated. <b>AVAN (AI)</b> built the instrument: compute each pair&rsquo;s external homothety centre and test whether the three are collinear by the vanishing of their triangle&rsquo;s signed area.<br><br>Credit as content: Gaspard Monge (late 1700s); the elegant proof lifts the circles to spheres and reads the line off a plane. The weave: David names the sync; I compute the three centres from radii and centres and confirm they are always collinear.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="170"></canvas>
+  <div class="wctrl"><div class="cap">Three circles, their three external centres of similitude, and the single Monge line threading all three.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Randomize the three circles; the external centres move, but they never leave the Monge line. The collinearity residual stays at zero.</div>
+   <div class="btns" style="margin-top:10px"><button id="mgrand">new circles ▶</button><button id="mgcheck">verify ▶</button></div>
+   <div class="cap" id="mgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Monge line the three external centres share.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t treat three collinear points as a coincidence &mdash; lift the plane. The inverse of &lsquo;why are they on a line?&rsquo; is &lsquo;set each circle on a cone; the three apexes and the centres share a plane, and a plane cuts the table in a line.&rsquo; <b>Magenta</b> are the three external centres; <b>green</b> is the line the lift explains. Three points, one hidden plane.</div>
+   <div class="btns" style="margin-top:10px"><button id="mgspin">pause spin</button></div></div></div></div>"""
+MONG_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,OR='#ff8a3c',CIR=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function extC(C1,r1,C2,r2){var den=r2-r1;return [(r2*C1[0]-r1*C2[0])/den,(r2*C1[1]-r1*C2[1])/den];}
+function cross(P,Q,R){return (Q[0]-P[0])*(R[1]-P[1])-(R[0]-P[0])*(Q[1]-P[1]);}
+function verify(){if(VR)return VR;var rnd=mb(4),ok=true,worst=0,n=0;for(var t=0;t<5000;t++){var C1=[rnd()*10,rnd()*10],C2=[rnd()*10,rnd()*10],C3=[rnd()*10,rnd()*10],r1=0.3+rnd()*3,r2=0.3+rnd()*3,r3=0.3+rnd()*3;if(Math.abs(r1-r2)<0.2||Math.abs(r2-r3)<0.2||Math.abs(r1-r3)<0.2)continue;var E12=extC(C1,r1,C2,r2),E23=extC(C2,r2,C3,r3),E13=extC(C1,r1,C3,r3);var sc=Math.hypot(E12[0]-E23[0],E12[1]-E23[1])+Math.hypot(E23[0]-E13[0],E23[1]-E13[1])+1;var c=Math.abs(cross(E12,E23,E13))/sc;n++;if(c>worst)worst=c;if(c>1e-6)ok=false;}VR={collinear:ok,worst:worst};return VR;}
+function mk(){var rnd=Math.random;function ok(a,b){return Math.abs(a-b)>0.35;}var r1,r2,r3;do{r1=0.5+rnd()*1.6;r2=0.5+rnd()*1.6;r3=0.5+rnd()*1.6;}while(!(ok(r1,r2)&&ok(r2,r3)&&ok(r1,r3)));CIR=[[[2+rnd()*2,2+rnd()*2],r1],[[6+rnd()*2,4+rnd()*2],r2],[[3+rnd()*3,6+rnd()*2],r3]];}
+function drawScene(g,W,H,sc,ox,oy){if(!CIR)mk();var C=CIR;function T(p){return [ox+p[0]*sc,oy+p[1]*sc];}
+ var cols=['#21e6ff','#ffcf4a','#b06bff'];for(var i=0;i<3;i++){var c=T(C[i][0]);ne(g,cols[i],1.8);g.beginPath();g.arc(c[0],c[1],C[i][1]*sc,0,7);g.stroke();ng(g);ndot(g,c[0],c[1],2,cols[i]);}
+ var E=[extC(C[0][0],C[0][1],C[1][0],C[1][1]),extC(C[1][0],C[1][1],C[2][0],C[2][1]),extC(C[0][0],C[0][1],C[2][0],C[2][1])];
+ var Es=E.map(T);
+ // monge line through Es (fit a line, draw long)
+ var mid=[(Es[0][0]+Es[1][0]+Es[2][0])/3,(Es[0][1]+Es[1][1]+Es[2][1])/3];var dx=Es[1][0]-Es[0][0],dy=Es[1][1]-Es[0][1],L=Math.hypot(dx,dy)||1;dx/=L;dy/=L;
+ ne(g,'#35ffb0',1.6);g.setLineDash([6,5]);g.beginPath();g.moveTo(mid[0]-dx*900,mid[1]-dy*900);g.lineTo(mid[0]+dx*900,mid[1]+dy*900);g.stroke();g.setLineDash([]);ng(g);
+ for(var i=0;i<3;i++)ndot(g,Es[i][0],Es[i][1],4,'#ff2fa6');
+ var sc2=Math.hypot(Es[0][0]-Es[1][0],Es[0][1]-Es[1][1])+Math.hypot(Es[1][0]-Es[2][0],Es[1][1]-Es[2][1])+1;return Math.abs(cross(Es[0],Es[1],Es[2]))/sc2;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,OR,10,16,10,'three circles · three external centres of similitude · one Monge line');var sv=CIR;CIR=[[[2.2,2.6],1.5],[[6.4,3.2],0.8],[[4.2,4.6],1.15]];drawScene(g,W,H,26,40,-10);CIR=sv;}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var res=drawScene(g,W,H,26,30,10);nt(g,OR,12,20,11,'three external centres (magenta) on the Monge line (green)');nt(g,res<1e-6?'#39ffb0':'#ff5a5a',12,H-30,11,'collinearity residual '+res.toExponential(2)+(res<1e-6?'  ✓ collinear':'  ✗'));var v=verify();nt(g,v.collinear?'#39ffb0':'#ff5a5a',12,H-12,9,'collinear over 5000 random triples '+(v.collinear?'✓':'✗')+' (max '+v.worst.toExponential(1)+')');}
+document.getElementById('mgrand').onclick=function(){mk();drawW4();document.getElementById('mgread').textContent='new circles → external centres still collinear';};
+document.getElementById('mgcheck').onclick=function(){var v=verify();document.getElementById('mgread').textContent='three external centres collinear for 5000 random triples '+(v.collinear?'✓':'✗')+' (worst residual '+v.worst.toExponential(1)+')';};
+document.getElementById('mgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.35)*0.05);g.translate(-W/2,-(H/2-10));drawScene(g,W,H-30,24,40,20);g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the Monge line the three centres share');nt(g,'#ff2fa6',10,H-30,10,'magenta: the three external centres of similitude');nt(g,'#8ad',10,H-13,10,'three points, one hidden plane');}
+drawW3();drawW4();window.__monge=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MINK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Minkowski&rsquo;s question-mark function</b> ?(x) is a monster hiding in plain sight: it climbs continuously and strictly from ?(0)=0 to ?(1)=1, yet its <b>derivative is zero almost everywhere</b> &mdash; a &ldquo;singular&rdquo; function that rises using no measurable slope. It is built from continued fractions: for x = [0; a&#8321;, a&#8322;, a&#8323;, &hellip;], ?(x) = 2&sum;(&minus;1)<sup>k+1</sup> 2<sup>&minus;(a&#8321;+&hellip;+a&#8342;)</sup>. It sends every <b>rational to a dyadic fraction</b>, and every <b>quadratic irrational to a rational</b> &mdash; famously ?(1/&phi;) = 2/3.<br><br>
+ <span class="lit">LIT</span> verified live: ?(1/2)=1/2, ?(1/3)=1/4, ?(2/3)=3/4, ?(1/&phi;)=2/3, the map is monotonic, symmetric (?(1&minus;x)=1&minus;?(x)), and dyadic on thousands of rationals (window.__minkowski). <span class="fig">FIG</span> no framing; the continued-fraction sum is evaluated in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>heisenbug</i> &mdash; a function that is continuous and increasing yet whose slope vanishes wherever you look is the analyst&rsquo;s heisenbug: it moves, but never where you catch it. <b>AVAN (AI)</b> built the instrument: evaluate ?(x) from the continued fraction of x, and check its landmark values, monotonicity, symmetry, and dyadic image.<br><br>Credit as content: Hermann Minkowski (1904); the &ldquo;?&rdquo; is his own notation. The weave: David names the heisenbug; I compute ?(x) by its continued-fraction series and confirm it turns golden into 2/3 and every rational into a finite binary fraction.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="180"></canvas>
+  <div class="wctrl"><div class="cap">?(x) traced across [0,1] &mdash; a strictly rising curve made of flat-slope pieces. Landmarks: ?(1/2)=1/2, ?(1/&phi;)=2/3.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a rational x = p/q; see its continued fraction and ?(x) as an exact dyadic fraction, plotted on the curve.</div>
+   <div class="btns" style="margin-top:10px"><button id="mknext">next x ▶</button><button id="mkphi">x = 1/φ ▶</button><button id="mkcheck">verify ▶</button></div>
+   <div class="cap" id="mkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: ?(x), continued-fraction depth rewritten as binary place value.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t read ?(x) as a curve &mdash; read it as a translator. The inverse of &lsquo;plot the rising line&rsquo; is &lsquo;? turns the Stern&ndash;Brocot (continued-fraction) tree into the plain binary tree.&rsquo; <b>Magenta</b> is a quadratic irrational going in; <b>green</b> is the rational it becomes. Slope zero, yet it carries every number across.</div>
+   <div class="btns" style="margin-top:10px"><button id="mkspin">pause spin</button></div></div></div></div>"""
+MINK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,VI='#b06bff',PP=1,QQ=2,PHI=(1+Math.sqrt(5))/2;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function cf(p,q){var a=[];var g=0;while(q!==0&&g<80){a.push(Math.floor(p/q));var t=p%q;p=q;q=t;g++;}return a;}
+function qRat(p,q){var a=cf(p,q),s=0,run=0;for(var k=1;k<a.length;k++){run+=a[k];s+=((k%2===1)?1:-1)*Math.pow(2,1-run);}return a[0]+s;}
+function qCF(tail,N){var s=0,run=0;for(var k=0;k<Math.min(tail.length,N);k++){run+=tail[k];s+=((k%2===0)?1:-1)*Math.pow(2,1-run);}return s;}
+function verify(){if(VR)return VR;var half=Math.abs(qRat(1,2)-0.5)<1e-12,third=Math.abs(qRat(1,3)-0.25)<1e-12,tt=Math.abs(qRat(2,3)-0.75)<1e-12;var ones=[];for(var i=0;i<60;i++)ones.push(1);var phi=Math.abs(qCF(ones,60)-2/3)<1e-9;var rnd=mb(5),dy=true,sym=true;for(var t=0;t<3000;t++){var q=2+Math.floor(rnd()*40),p=1+Math.floor(rnd()*(q-1)),v=qRat(p,q),m=0,val=v;while(m<40&&Math.abs(val-Math.round(val))>1e-9){val*=2;m++;}if(Math.abs(val-Math.round(val))>1e-9)dy=false;if(Math.abs(qRat(q-p,q)-(1-v))>1e-9)sym=false;}var mono=true,prev=-1;for(var i=1;i<200;i++){var v=qRat(i,200);if(v<prev-1e-12)mono=false;prev=v;}VR={landmarks:half&&third&&tt,phi:phi,dyadic:dy,symmetric:sym,monotonic:mono};return VR;}
+function curve(g,x0,y0,w,h){ne(g,VI,2.2);g.beginPath();for(var i=0;i<=240;i++){var x=i/240,y=qRat(Math.round(x*720),720);g.lineTo(x0+x*w,y0-y*h);}g.stroke();ng(g);
+ ne(g,'rgba(120,80,200,0.4)',1);g.strokeRect(x0,y0-h,w,h);ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,VI,10,16,10,'?(x) on [0,1] — continuous, strictly increasing, slope 0 almost everywhere');var x0=150,y0=H-24,w=W-200,h=H-56;curve(g,x0,y0,w,h);
+ var pts=[[0.5,0.5,'?(½)=½'],[1/PHI,2/3,'?(1/φ)=⅔'],[1/3,0.25,'?(⅓)=¼']];for(var i=0;i<pts.length;i++){var px=x0+pts[i][0]*w,py=y0-pts[i][1]*h;ndot(g,px,py,3.5,i===1?'#35ffb0':'#ffcf4a');nt(g,i===1?'#35ffb0':'#ffcf4a',px+6,py+ (i===2?12:-4),9,pts[i][2]);}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var x0=44,y0=H-40,w=W-70,h=H-110;curve(g,x0,y0,w,h);var x=PP/QQ,v=qRat(PP,QQ),a=cf(PP,QQ);var px=x0+x*w,py=y0-v*h;ne(g,'#ff8a3c',1);g.setLineDash([3,3]);g.beginPath();g.moveTo(px,y0);g.lineTo(px,py);g.lineTo(x0,py);g.stroke();g.setLineDash([]);ng(g);ndot(g,px,py,4,'#35ffb0');
+ nt(g,VI,12,20,11,'x = '+PP+'/'+QQ+'   CF = ['+a[0]+';'+a.slice(1).join(',')+']');
+ // dyadic form
+ var m=0,val=v;while(m<40&&Math.abs(val-Math.round(val))>1e-9){val*=2;m++;}
+ nt(g,'#35ffb0',12,H-30,11,'?(x) = '+v.toFixed(6)+' = '+Math.round(val)+'/2^'+m+' (dyadic)');
+ var vr=verify();nt(g,vr.dyadic&&vr.monotonic&&vr.symmetric?'#39ffb0':'#ff5a5a',12,H-12,9,'dyadic '+(vr.dyadic?'✓':'✗')+' · monotone '+(vr.monotonic?'✓':'✗')+' · ?(1-x)=1-?(x) '+(vr.symmetric?'✓':'✗'));}
+var RS=[[1,2],[1,3],[2,3],[3,5],[2,5],[3,8],[5,8],[1,4],[3,4],[5,13]];var ri=0;
+document.getElementById('mknext').onclick=function(){ri=(ri+1)%RS.length;PP=RS[ri][0];QQ=RS[ri][1];drawW4();document.getElementById('mkread').textContent='?('+PP+'/'+QQ+') = '+qRat(PP,QQ).toFixed(6)+' (dyadic)';};
+document.getElementById('mkphi').onclick=function(){var ones=[];for(var i=0;i<60;i++)ones.push(1);var v=qCF(ones,60);document.getElementById('mkread').textContent='x = 1/φ = [0;1,1,1,…] → ?(x) = '+v.toFixed(9)+' = 2/3 (a quadratic irrational becomes rational)';};
+document.getElementById('mkcheck').onclick=function(){var v=verify();document.getElementById('mkread').textContent='landmarks '+(v.landmarks?'✓':'✗')+' · ?(1/φ)=2/3 '+(v.phi?'✓':'✗')+' · dyadic '+(v.dyadic?'✓':'✗')+' · symmetric '+(v.symmetric?'✓':'✗')+' · monotone '+(v.monotonic?'✓':'✗');};
+document.getElementById('mkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var x0=40,y0=H-70,w=W-70,h=H-160;g.save();g.translate(W/2,60);g.rotate(Math.sin(ang*0.4)*0.04);g.translate(-W/2,-60);curve(g,x0,y0,w,h);
+ var px=x0+(1/PHI)*w,py=y0-(2/3)*h;ndot(g,px,py,4,'#35ffb0');nt(g,'#35ffb0',px+6,py-4,10,'2/3');
+ ndot(g,x0+(1/PHI)*w,y0+14,3,'#ff2fa6');nt(g,'#ff2fa6',x0+(1/PHI)*w-8,y0+30,9,'1/φ');g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the rational ?(x) returns');nt(g,'#ff2fa6',10,H-30,10,'magenta: a quadratic irrational going in (1/φ → 2/3)');nt(g,'#8ad',10,H-13,10,'slope zero, yet it carries every number across');}
+drawW3();drawW4();window.__minkowski=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 MAXS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The maxstack</b> is the peak depth a stack ever reaches while a program runs &mdash; and you can read it <b>without executing anything</b>. Treat each instruction as a signed tick: a push (a bind) is <b>+1</b>, a pop (a kill) is <b>&minus;1</b>. Track the running total <b>net = binds &minus; k</b>. Then the maximum stack depth equals the <b>largest value net reaches over the whole run</b> &mdash; one integer pass, no interpreter, no stack ever built. The catch that names the idea: read that same conserved quantity only at the <b>end</b> and it is 0 for every balanced program, hiding the peak completely. A conserved quantity has no unstated scope &mdash; its <i>maximum over its true scope</i> is the answer, not its final value.<br><br>
  <span class="lit">LIT</span> verified live: over 20,000 random balanced programs, the max of the running net equals a real array-stack&rsquo;s peak length <b>every time</b> (window.__maxstack), while the end value is 0 in 100% of them. <span class="fig">FIG</span> no framing; the no-execution integer readout and a materialised stack simulation both run in-browser and agree exactly.</div></div>
@@ -29899,6 +30118,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-golden-radix","title":"THE GOLDEN RADIX","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#ffcf4a","icon":"golden-radix",
+  "kicker":"an irrational base that still carries the integers",
+  "blurb":"The golden radix in the 5-window house format — base-φ, positional notation whose base is the golden ratio, an irrational. Digits are 0 and 1; place values are powers of φ. The identity φ²=φ+1 means '011' always rewrites to '100', so every value has a unique standard form with no two adjacent 1s. Remarkably every ordinary integer has a finite such expansion (1=1, 2=10.01, 3=100.01, 4=101.01) even though the base is irrational. Verified live: the greedy base-φ expansion of every integer 0..100 decodes back to it (max error <1e-6) and always has no consecutive 1s. Neon-noir traced. See the digit cells in 1D, the mint stamping each integer in 2D, and the base-does-the-collapsing inverse in 3D.",
+  "lit":"Genuine base-φ / golden-ratio base (George Bergman, 1957): φ²=φ+1 forces a unique no-11 standard form, and every integer has a finite expansion. Verified live: greedy base-φ expansion of every integer 0..100 decodes to within 1e-6 (window.__golden_radix.roundTrips) and has no two adjacent 1s (window.__golden_radix.noEleven).",
+  "fig":"No framing: the expansion and its real-valued φ-power decoding both run in-browser. The AVAN inverse is honest — letting φ²=φ+1 collapse every 011 into 100 (rather than forbidding adjacency by decree) is exactly what makes the standard form canonical; magenta is a forbidden 011, green its collapsed 100. The rule of the base is the rule of the form.",
+  "body":GOLD_BODY,"script":GOLD_SCRIPT},
+ {"slug":"the-routh","title":"THE ROUTH","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SHORTCUT","domain_slug":"the-shortcut","accent":"#21e6ff","icon":"routh",
+  "kicker":"a cevian triangle's area is a closed form",
+  "blurb":"Routh's theorem in the 5-window house format — the area of the little triangle three cevians carve out of a big one, as an exact closed form. Draw cevians cutting the opposite sides in ratios x, y, z; the central triangle's area as a fraction of the whole is (xyz−1)²/[(xy+x+1)(yz+y+1)(zx+z+1)]. At x=y=z=2 the fraction is exactly 1/7 (the famous one-seventh-area triangle); at xyz=1 the cevians are concurrent (Ceva) and it vanishes. Verified live: for 4000 random ratio triples the closed form matches the directly-constructed central-triangle area to machine precision, and x=y=z=2 gives 1/7. Neon-noir traced. See the 1/7 case in 1D, adjustable ratios in 2D, and the ratios-already-know-the-area inverse in 3D.",
+  "lit":"Genuine Routh's theorem (Edward John Routh, 1896): central cevian-triangle area / whole = (xyz−1)²/[(xy+x+1)(yz+y+1)(zx+z+1)]. Verified live: closed form matches shoelace-measured construction over 4000 random triples to <1e-7 (window.__routh.matches), and x=y=z=2 gives exactly 1/7 (window.__routh.oneSeventh).",
+  "fig":"No framing: both the geometric construction (three cevian intersections, shoelace area) and the formula run in-browser. The AVAN inverse is honest — reading the area straight off the three ratios rather than constructing and measuring the triangle is exactly the theorem's shortcut; magenta is the laborious construction, green the one-line answer. The ratios already know the area.",
+  "body":ROUT_BODY,"script":ROUT_SCRIPT},
+ {"slug":"the-napkin","title":"THE NAPKIN","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"EVENT HORIZON","domain_slug":"event-horizon","accent":"#35ffb0","icon":"napkin",
+  "kicker":"a band through any sphere holds the same volume",
+  "blurb":"The napkin-ring problem in the 5-window house format — drill a cylindrical hole through the centre of a sphere so the remaining band has height h; its volume is πh³/6, depending only on h, not on the sphere. A ring of height h from a marble and the same-height ring from a planet have identical volume, because at height z the leftover annulus has area π[(h/2)²−z²] with the sphere's radius R gone entirely. Verified live: numerically integrating the ring volume for R = 1, 1.5, 2, 5, 20, 100 (fixed h=2) gives πh³/6 ≈ 4.18879 every time. Neon-noir traced. See two very different spheres, same ring, in 1D; a growable sphere in 2D; and the height-fixes-the-volume inverse in 3D.",
+  "lit":"Genuine napkin-ring result (Archimedes–Cavalieri lineage): a band of height h drilled through the centre of any sphere (R ≥ h/2) has volume πh³/6, independent of R. Verified live: numeric annulus integral for R=1,1.5,2,5,20,100 at h=2 all equal πh³/6 within 1e-3 (window.__napkin.invariant), the R-dependence cancels exactly.",
+  "fig":"No framing: the annulus integral is summed in-browser and the R-dependence cancels. The AVAN inverse is honest — asking what survives the drilling (height fixes the volume) rather than measuring the sphere and subtracting the hole is the whole surprise; magenta is the vanished radius R, green the invariant πh³/6. The hole hides the sphere.",
+  "body":NAPK_BODY,"script":NAPK_SCRIPT},
+ {"slug":"the-monge","title":"THE MONGE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#ff8a3c","icon":"monge",
+  "kicker":"three circles' external centres fall on one line",
+  "blurb":"Monge's theorem in the 5-window house format — take any three circles of different radii; for each pair the two outer tangents meet at the external centre of similitude, and the three external centres are always collinear, whatever the circles. Each external centre divides the line of centres externally in the ratio of the radii: E = (r₂C₁−r₁C₂)/(r₂−r₁). Verified live: over 5000 random triples of distinct-radius circles, the three external centres are collinear to machine precision (normalized cross ~1e-14). Neon-noir traced. See the three circles and the Monge line in 1D, randomizable circles in 2D, and the lift-the-plane inverse in 3D.",
+  "lit":"Genuine Monge's theorem (Gaspard Monge, late 1700s): the three external homothety centres of three circles are collinear. Verified live: over 5000 random distinct-radius triples, the normalized collinearity residual of the three external centres stays ~1e-14 (window.__monge.collinear).",
+  "fig":"No framing: the external centres and their collinearity are computed in-browser. The AVAN inverse is honest — the three-sphere lift (set each circle on a cone; the apexes and centres share a plane, and a plane meets the table in a line) is the classic explanation for why the points are collinear rather than coincidental; magenta are the three external centres, green the line the lift explains. Three points, one hidden plane.",
+  "body":MONG_BODY,"script":MONG_SCRIPT},
+ {"slug":"the-minkowski","title":"THE MINKOWSKI","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#b06bff","icon":"minkowski",
+  "kicker":"climbs 0 to 1 with slope 0 almost everywhere",
+  "blurb":"Minkowski's question-mark function ?(x) in the 5-window house format — a monster hiding in plain sight: it climbs continuously and strictly from ?(0)=0 to ?(1)=1, yet its derivative is zero almost everywhere (a 'singular' function that rises using no measurable slope). Built from continued fractions: for x=[0;a₁,a₂,…], ?(x) = 2Σ(−1)^{k+1} 2^{−(a₁+…+aₖ)}. It sends every rational to a dyadic fraction and every quadratic irrational to a rational — famously ?(1/φ)=2/3. Verified live: ?(1/2)=1/2, ?(1/3)=1/4, ?(2/3)=3/4, ?(1/φ)=2/3, monotonic, symmetric (?(1−x)=1−?(x)), and dyadic on thousands of rationals. Neon-noir traced. See the curve in 1D, a chosen rational's dyadic image in 2D, and the CF-tree-to-binary-tree inverse in 3D.",
+  "lit":"Genuine Minkowski question-mark function (Hermann Minkowski, 1904): singular, strictly increasing, ?(rational)=dyadic, ?(quadratic irrational)=rational, ?(1/φ)=2/3. Verified live via the continued-fraction series: landmarks ?(1/2)=1/2, ?(1/3)=1/4, ?(2/3)=3/4 (window.__minkowski.landmarks), ?(1/φ)=2/3 (.phi), dyadic on 3000 rationals (.dyadic), symmetric (.symmetric), monotonic (.monotonic).",
+  "fig":"No framing: the continued-fraction sum is evaluated in-browser on rationals and on 1/φ's periodic CF. Honest scope: 'slope 0 almost everywhere' is the known measure-theoretic property, stated not re-proved here; the sphere verifies the values, monotonicity, symmetry, and dyadic image. The AVAN inverse is honest — reading ?(x) as the map that turns the Stern–Brocot (continued-fraction) tree into the plain binary tree, rather than as a mere curve, is why it sends quadratic irrationals to rationals; magenta is 1/φ going in, green the 2/3 it becomes. Slope zero, yet it carries every number across.",
+  "body":MINK_BODY,"script":MINK_SCRIPT},
  {"slug":"the-maxstack","title":"THE MAXSTACK","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#21e6ff","icon":"maxstack",
   "kicker":"the peak is already written in net",
