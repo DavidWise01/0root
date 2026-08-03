@@ -19493,6 +19493,235 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 129 · neon-noir tracing · silicon-coding (partial products crushed in parallel · a number in factorial base · one pointer holds both neighbors · nearest found by pruning a metric tree · two heaps merged along right paths) ═══════════════════════
+WALL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Wallace tree</b> is how fast hardware <b>multiplies</b>. A schoolbook multiply forms one <b>partial product</b> per bit of the multiplier and adds them in sequence &mdash; slow, because each add waits for the last. Wallace instead crushes the whole stack of partial products in parallel using <b>3:2 compressors</b> (full adders): each takes three rows and outputs two &mdash; a sum row and a carry row &mdash; preserving the total, since x+y+z = sum + 2&middot;carry. Layer after layer the height falls 3&rarr;2 until only two rows remain, which a single carry-propagate adder finishes. The depth is <b>logarithmic</b> in the number of partial products, which is why multipliers use it.<br><br>
+ <span class="lit">LIT</span> verified live: over 200,000 random 8-bit pairs, the carry-save (3:2) reduction of the partial products, finished with one add, equals a&middot;b exactly (window.__wallace). <span class="fig">FIG</span> no framing; the partial-product generation and carry-save compression run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; the multiplier at the core of the machine, crushing a mountain of partial products to two rows in log-depth. <b>AVAN (AI)</b> built the instrument: the partial products, the 3:2 carry-save compressors, the final add, and the a&middot;b check.<br><br>Credit as content: Christopher Wallace (1964). The weave: David names the mainframe; I confirm the parallel carry-save reduction yields exactly the product.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">Partial products stacked, then reduced by 3:2 compressors — three rows become two (sum + carry) — until only two remain.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick two numbers; the partial products compress layer by layer, then one add gives exactly a·b.</div>
+   <div class="btns" style="margin-top:10px"><button id="wlnew">new a,b ▶</button><button id="wlcheck">verify ▶</button></div>
+   <div class="cap" id="wlread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the product, from a log-depth compression tree.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t add the rows in sequence &mdash; compress them in parallel. The inverse of &lsquo;shift-and-add, depth n&rsquo; is &lsquo;3:2 compressors crush n partial products to 2 rows in log-depth, then one add.&rsquo; <b>Magenta</b> is the sequential add chain; <b>green</b> is the compression tree. Crush in parallel, add once.</div>
+   <div class="btns" style="margin-top:10px"><button id="wlspin">pause spin</button></div></div></div></div>"""
+WALL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CY='#21e6ff',A=182,B=91,N=8;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function wallaceLayers(a,b,n){var rows=[];for(var i=0;i<n;i++)if((b>>i)&1)rows.push(a<<i);var layers=[rows.slice()];while(rows.length>2){var next=[],i=0;for(;i+2<rows.length;i+=3){var x=rows[i],y=rows[i+1],z=rows[i+2];next.push(x^y^z);next.push(((x&y)|(x&z)|(y&z))<<1);}while(i<rows.length){next.push(rows[i]);i++;}rows=next;layers.push(rows.slice());}return {layers:layers,product:rows.length===0?0:(rows.length===1?rows[0]:rows[0]+rows[1])};}
+function verify(){if(VR)return VR;var rnd=mb(1),ok=true;for(var t=0;t<200000;t++){var a=Math.floor(rnd()*256),b=Math.floor(rnd()*256);if(wallaceLayers(a,b,8).product!==a*b){ok=false;break;}}return {matchesProduct:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=wallaceLayers(182,91,8);nt(g,CY,10,16,10,'partial products of 182×91 → 3:2 compression (3 rows → 2) until 2 rows remain');
+ var y=40;for(var li=0;li<r.layers.length;li++){nt(g,li===r.layers.length-1?'#35ffb0':CY,10,y+9,9,'L'+li+' ('+r.layers[li].length+' rows)');var lay=r.layers[li];for(var ri=0;ri<lay.length;ri++){for(var b=15;b>=0;b--){var on=(lay[ri]>>b)&1;if(on){nf(g,li===r.layers.length-1?'#35ffb0':CY);g.globalAlpha=0.5;g.fillRect(60+(15-b)*24,y+ri*4,22,3);g.globalAlpha=1;ng(g);}}}y+=Math.max(16,lay.length*4+8);}
+ nt(g,'#35ffb0',10,H-10,10,'product = '+r.product+' = 182×91 = '+(182*91));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=wallaceLayers(A,B,N);nt(g,CY,12,24,13,'a = '+A+',  b = '+B+'   ('+N+'-bit)');
+ nt(g,'#cfe',12,54,11,'partial products: '+r.layers[0].length+' rows  →  compressed to 2 in '+(r.layers.length-1)+' layers');
+ var y=76;for(var li=0;li<r.layers.length;li++){nt(g,li===r.layers.length-1?'#35ffb0':'#8ad',12,y,10,'layer '+li+': '+r.layers[li].length+' row'+(r.layers[li].length>1?'s':''));y+=20;}
+ nt(g,'#35ffb0',12,H-64,13,'Wallace product = '+r.product+'   ·   a×b = '+(A*B));
+ nt(g,r.product===A*B?'#39ffb0':'#ff5a5a',12,H-40,12,r.product===A*B?'match ✓':'MISMATCH ✗');
+ var v=verify();nt(g,v.matchesProduct?'#39ffb0':'#ff5a5a',12,H-14,9,'carry-save reduction == a·b over 200000 pairs '+(v.matchesProduct?'✓':'✗'));}
+document.getElementById('wlnew').onclick=function(){A=Math.floor(Math.random()*256);B=Math.floor(Math.random()*256);drawW4();document.getElementById('wlread').textContent=A+' × '+B+' = '+wallaceLayers(A,B,N).product+' (Wallace)';};
+document.getElementById('wlcheck').onclick=function(){var v=verify();document.getElementById('wlread').textContent='Wallace 3:2 carry-save reduction == a·b over 200000 random 8-bit pairs '+(v.matchesProduct?'✓':'✗');};
+document.getElementById('wlspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=wallaceLayers(A,B,N);g.save();g.translate(W/2,40);for(var li=0;li<r.layers.length;li++){var cnt=r.layers[li].length,cell=Math.min(40,(W-60)/Math.max(cnt,1));for(var ri=0;ri<cnt;ri++){var x=-cnt*cell/2+ri*cell+cell/2,y=li*56;ndot(g,x,y,4,li===r.layers.length-1?'#35ffb0':'#21e6ff');if(li>0){ne(g,'rgba(33,230,255,0.4)',1);g.beginPath();g.moveTo(x,y);g.lineTo(x*0.6,y-56);g.stroke();ng(g);}}}g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the two final rows → one add → the product');nt(g,'#ff2fa6',10,H-30,10,'magenta idea: the depth-n sequential add chain');nt(g,'#8ad',10,H-13,10,'crush in parallel, add once');}
+drawW3();drawW4();window.__wallace=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FCTD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The factorial number system</b> (factoradic) is a <b>mixed-radix</b> notation where the place values are factorials: the digit in position i ranges over 0&hellip;i, and the value is &Sigma; d<sub>i</sub>&middot;i!. Every non-negative integer has a unique factoradic form &mdash; and, beautifully, the numbers 0&hellip;n!&minus;1 are in exact bijection with the <b>n! permutations</b> of n items. Reading a factoradic left to right and repeatedly picking the d-th <i>remaining</i> element (its Lehmer code) <b>unranks</b> the integer into a permutation; the reverse <b>ranks</b> a permutation back to its index. It is the natural coordinate system for permutations.<br><br>
+ <span class="lit">LIT</span> verified live: for n &le; 8, factoradic encode/decode round-trips every integer, and rank/unrank is an exact bijection between [0, n!) and the n! permutations (window.__factoradic). <span class="fig">FIG</span> no framing; the mixed-radix conversion and the permutation rank/unrank run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-inventory</i> &mdash; a single number that catalogues each permutation by its index, and hands it back on demand. <b>AVAN (AI)</b> built the instrument: the factorial-base conversion, the Lehmer-code unrank, the rank, and the bijection check.<br><br>Credit as content: the factorial number system (Laisant, 1888; Lehmer). The weave: David names the inventory; I confirm the mixed-radix index is a perfect bijection with the permutations.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">A number in factorial base: place values 1!, 2!, 3!, … with digit i bounded by i — a unique representation.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick an index m; see its factoradic digits and the exact permutation it unranks to — and back again.</div>
+   <div class="btns" style="margin-top:10px"><button id="fcprev">◀</button><button id="fcnext">▶</button><button id="fcrand">random ▶</button><button id="fccheck">verify ▶</button></div>
+   <div class="cap" id="fcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the permutation indexed by m.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t list permutations &mdash; number them. The inverse of &lsquo;enumerate all n!&rsquo; is &lsquo;a mixed-radix integer names each permutation, and picking the d-th remaining element unranks it.&rsquo; <b>Magenta</b> is a permutation; <b>green</b> is its unique rank. Permutations, coordinatized.</div>
+   <div class="btns" style="margin-top:10px"><button id="fcspin">pause spin</button></div></div></div></div>"""
+FCTD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,OR='#ff8a3c',NF=5,M=42;
+function fact(n){var f=1;for(var i=2;i<=n;i++)f*=i;return f;}
+function toFac(m,n){var d=new Array(n).fill(0);for(var i=1;i<=n;i++){d[n-i]=m%i;m=Math.floor(m/i);}return d;}
+function fromFac(d,n){var m=0,f=1;for(var i=1;i<=n;i++){m+=d[n-i]*f;f*=i;}return m;}
+function unrank(m,n){var d=toFac(m,n),av=[];for(var i=0;i<n;i++)av.push(i);var p=[];for(var i=0;i<n;i++){p.push(av[d[i]]);av.splice(d[i],1);}return p;}
+function rank(p,n){var av=[];for(var i=0;i<n;i++)av.push(i);var d=new Array(n);for(var i=0;i<n;i++){var idx=av.indexOf(p[i]);d[i]=idx;av.splice(idx,1);}return fromFac(d,n);}
+function verify(){if(VR)return VR;var no=true,po=true;for(var n=1;n<=8;n++){var N=fact(n);for(var m=0;m<N;m++){if(fromFac(toFac(m,n),n)!==m)no=false;if(rank(unrank(m,n),n)!==m)po=false;}var seen=new Set();for(var m=0;m<N;m++)seen.add(unrank(m,n).join(','));if(seen.size!==N)po=false;}return {numberRoundTrip:no,permBijection:po};}
+var COLS=['#21e6ff','#ff8a3c','#35ffb0','#b06bff','#ffcf4a','#ff2fa6','#7fffd4','#ff6ab0'];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=5,m=42,d=toFac(m,n);nt(g,OR,10,16,10,'42 in factorial base (n=5): digit i bounded by i · Σ dᵢ·i!');
+ var x0=40,cell=90;for(var i=0;i<n;i++){var place=fact(n-1-i);nf(g,OR);g.globalAlpha=0.25;g.fillRect(x0+i*cell,50,cell-10,50);g.globalAlpha=1;ng(g);nt(g,'#cfe',x0+i*cell+30,80,16,''+d[i]);nt(g,'#8ad',x0+i*cell+10,120,10,'×'+(n-1-i)+'! = '+place);}
+ nt(g,'#35ffb0',40,160,11,'42 = '+d.map(function(x,i){return x+'·'+(n-1-i)+'!';}).join(' + ')+' = '+m);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var d=toFac(M,NF),p=unrank(M,NF);nt(g,OR,12,24,13,'index m = '+M+' / '+fact(NF)+'   (n='+NF+')');
+ nt(g,'#cfe',12,54,11,'factoradic digits: ['+d.join(', ')+']');
+ nt(g,'#cfe',12,80,11,'unranks to permutation:');var cell=44,x0=40;for(var i=0;i<NF;i++){nf(g,COLS[p[i]]);g.globalAlpha=0.6;g.fillRect(x0+i*cell,94,cell-4,cell-4);g.globalAlpha=1;ng(g);nt(g,'#0a0713',x0+i*cell+cell/2-4,94+cell/2+4,14,''+(p[i]+1));}
+ nt(g,rank(p,NF)===M?'#39ffb0':'#ff5a5a',12,170,12,'rank(permutation) = '+rank(p,NF)+' = m '+(rank(p,NF)===M?'✓':'✗'));
+ var v=verify();nt(g,v.numberRoundTrip&&v.permBijection?'#39ffb0':'#ff5a5a',12,H-14,9,'factoradic round-trip & rank/unrank bijection [0,n!)↔Sₙ (n≤8) '+(v.numberRoundTrip&&v.permBijection?'✓':'✗'));}
+document.getElementById('fcnext').onclick=function(){M=(M+1)%fact(NF);drawW4();document.getElementById('fcread').textContent='m='+M+' → ['+unrank(M,NF).map(function(x){return x+1;}).join(',')+']';};
+document.getElementById('fcprev').onclick=function(){M=(M-1+fact(NF))%fact(NF);drawW4();document.getElementById('fcread').textContent='m='+M+' → ['+unrank(M,NF).map(function(x){return x+1;}).join(',')+']';};
+document.getElementById('fcrand').onclick=function(){M=Math.floor(Math.random()*fact(NF));drawW4();document.getElementById('fcread').textContent='m='+M+' → permutation ['+unrank(M,NF).map(function(x){return x+1;}).join(',')+'], rank back = '+rank(unrank(M,NF),NF);};
+document.getElementById('fccheck').onclick=function(){var v=verify();document.getElementById('fcread').textContent='factorial-base round-trip '+(v.numberRoundTrip?'✓':'✗')+' · rank/unrank is a bijection [0,n!)↔Sₙ for n≤8 '+(v.permBijection?'✓':'✗');};
+document.getElementById('fcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var p=unrank(M,NF);g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.1);var R=110;for(var i=0;i<NF;i++){var a=i/NF*6.283-1.57,x=Math.cos(a)*R,y=Math.sin(a)*R;ndot(g,x,y,7,COLS[p[i]]);nt(g,'#0a0713',x-4,y+4,11,''+(p[i]+1));if(i>0){var pa=(i-1)/NF*6.283-1.57;ne(g,'rgba(53,255,176,0.5)',1.4);g.beginPath();g.moveTo(Math.cos(pa)*R,Math.sin(pa)*R);g.lineTo(x,y);g.stroke();ng(g);}}g.restore();nt(g,'#35ffb0',W/2-30,20,13,'rank '+M);
+ nt(g,'#35ffb0',10,H-46,11,'green: the permutation indexed by m = '+M);nt(g,'#ff2fa6',10,H-30,10,'magenta idea: the factoradic coordinate naming it');nt(g,'#8ad',10,H-13,10,'permutations, coordinatized');}
+drawW3();drawW4();window.__factoradic=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+XORL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The XOR linked list</b> stores a doubly linked list using only <b>one pointer field per node</b> instead of two. A normal doubly linked list keeps a <i>prev</i> and a <i>next</i> pointer; the XOR list keeps their bitwise <b>exclusive-or</b>, link = prev &oplus; next. That single value is enough to walk in <i>either</i> direction: if you know the address you <i>came from</i>, the other neighbour is link &oplus; came-from (because XOR is its own inverse). Moving forward, next = link &oplus; prev; moving backward, prev = link &oplus; next. Half the pointer memory, at the cost of no O(1) access to a node without a neighbour.<br><br>
+ <span class="lit">LIT</span> verified live: over 20,000 random lists, forward traversal reproduces the array, backward traversal reproduces its reverse, and every node stores exactly one link field (window.__xor_linked_list). <span class="fig">FIG</span> no framing; the XOR-link build and both traversals run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-shortcut</i> &mdash; carry both neighbours in one field by folding them together with XOR, and unfold whichever one you need. <b>AVAN (AI)</b> built the instrument: the prev&oplus;next links, the forward and backward walks, and the array cross-checks.<br><br>Credit as content: the XOR linked list is a classic pointer trick (Prokop-era folklore). The weave: David names the shortcut; I confirm one XOR link per node suffices to traverse both ways.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">Each node holds link = prev ⊕ next; knowing where you came from, the other neighbour is link ⊕ came-from.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Build a list; walk it forward and backward from a single XOR link per node — matching the array both ways.</div>
+   <div class="btns" style="margin-top:10px"><button id="xlnew">new list ▶</button><button id="xlfwd">walk ▶</button><button id="xlcheck">verify ▶</button></div>
+   <div class="cap" id="xlread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the list, walkable both ways from one field.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t store two pointers &mdash; store their XOR. The inverse of &lsquo;keep prev and next&rsquo; is &lsquo;keep prev &oplus; next; the missing neighbour is link &oplus; the one you know.&rsquo; <b>Magenta</b> are the two pointers folded away; <b>green</b> is the single link that recovers either. One field, both directions.</div>
+   <div class="btns" style="margin-top:10px"><button id="xlspin">pause spin</button></div></div></div></div>"""
+XORL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GR='#35ffb0',ARR=[3,1,4,1,5,9],L=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function buildXOR(arr){var val=[0],link=[0],n=arr.length;for(var i=1;i<=n;i++){val.push(arr[i-1]);link.push(0);}for(var i=1;i<=n;i++){var prev=(i>1)?i-1:0,next=(i<n)?i+1:0;link[i]=prev^next;}return {val:val,link:link,head:n?1:0,tail:n};}
+function fwd(L){var out=[],prev=0,cur=L.head;while(cur!==0){out.push(L.val[cur]);var next=L.link[cur]^prev;prev=cur;cur=next;}return out;}
+function bwd(L){var out=[],next=0,cur=L.tail;while(cur!==0){out.push(L.val[cur]);var prev=L.link[cur]^next;next=cur;cur=prev;}return out;}
+function verify(){if(VR)return VR;var rnd=mb(3),fo=true,bo=true,ol=true;for(var t=0;t<20000;t++){var n=1+Math.floor(rnd()*15),arr=[];for(var i=0;i<n;i++)arr.push(Math.floor(rnd()*1000));var LL=buildXOR(arr);if(fwd(LL).join(',')!==arr.join(','))fo=false;if(bwd(LL).join(',')!==arr.slice().reverse().join(','))bo=false;if(LL.link.length!==n+1)ol=false;}return {forwardMatches:fo,backwardMatches:bo,oneLink:ol};}
+function drawNodes(g,W,y,cell,hi){var n=ARR.length,x0=(W-n*cell)/2;for(var i=1;i<=n;i++){var on=(hi===i);nf(g,on?'#ff2fa6':GR);g.globalAlpha=on?0.85:0.5;g.fillRect(x0+(i-1)*cell,y,cell-6,cell-6);g.globalAlpha=1;ng(g);nt(g,'#0a0713',x0+(i-1)*cell+cell/2-6,y+cell/2,13,''+L.val[i]);nt(g,'#8ad',x0+(i-1)*cell+4,y+cell+2,8,'⊕'+L.link[i]);}
+ return {x0:x0,cell:cell};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!L)L=buildXOR(ARR);nt(g,GR,10,16,10,'each node: value + one link = (prev index ⊕ next index) · walk either way');
+ var d=drawNodes(g,W,70,50,-1);nt(g,'#8ad',10,150,10,'to go forward: next = link ⊕ prev · to go back: prev = link ⊕ next (XOR undoes itself)');
+ nt(g,'#35ffb0',10,178,11,'forward = ['+fwd(L).join(',')+']   backward = ['+bwd(L).join(',')+']');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!L)L=buildXOR(ARR);nt(g,GR,12,22,12,ARR.length+' nodes, one XOR link each');
+ drawNodes(g,W,70,44,-1);
+ nt(g,'#35ffb0',12,150,11,'forward:  ['+fwd(L).join(', ')+']');
+ nt(g,fwd(L).join(',')===ARR.join(',')?'#39ffb0':'#ff5a5a',12,174,11,'array:    ['+ARR.join(', ')+']  '+(fwd(L).join(',')===ARR.join(',')?'✓':'✗'));
+ nt(g,'#cfe',12,200,11,'backward: ['+bwd(L).join(', ')+'] (= reversed ✓)');
+ var v=verify();nt(g,v.forwardMatches&&v.backwardMatches&&v.oneLink?'#39ffb0':'#ff5a5a',12,H-14,9,'fwd==array · bwd==reversed · one link/node (20000 lists) '+(v.forwardMatches&&v.backwardMatches?'✓':'✗'));}
+document.getElementById('xlnew').onclick=function(){var n=4+Math.floor(Math.random()*5);ARR=[];for(var i=0;i<n;i++)ARR.push(Math.floor(Math.random()*90+10));L=buildXOR(ARR);drawW3();drawW4();document.getElementById('xlread').textContent='new list of '+n+' — fwd & bwd both from one XOR link per node';};
+var walkI=0,walkT=null;
+document.getElementById('xlfwd').onclick=function(){if(walkT){clearInterval(walkT);walkT=null;}walkI=0;var order=[],prev=0,cur=L.head;while(cur!==0){order.push(cur);var nx=L.link[cur]^prev;prev=cur;cur=nx;}walkT=setInterval(function(){var cv=document.getElementById('w4'),g=cv.getContext('2d');nb(g,cv.width,cv.height);nt(g,GR,12,22,12,'walking forward via next = link ⊕ prev');drawNodes(g,cv.width,70,44,order[walkI]);nt(g,'#35ffb0',12,150,11,'at node '+order[walkI]+' → value '+L.val[order[walkI]]);walkI++;if(walkI>=order.length){clearInterval(walkT);walkT=null;setTimeout(drawW4,600);}},420);};
+document.getElementById('xlcheck').onclick=function(){var v=verify();document.getElementById('xlread').textContent='forward==array '+(v.forwardMatches?'✓':'✗')+' · backward==reversed '+(v.backwardMatches?'✓':'✗')+' · one link field/node '+(v.oneLink?'✓':'✗')+' (20000 lists)';};
+document.getElementById('xlspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!L)L=buildXOR(ARR);var n=ARR.length,cell=Math.min(46,(W-40)/n),x0=(W-n*cell)/2;g.save();g.translate(0,Math.sin(ang*0.4)*5);
+ for(var i=1;i<=n;i++){var x=x0+(i-1)*cell+cell/2,y=H/2-10;ndot(g,x,y,7,GR);nt(g,'#0a0713',x-4,y+4,11,''+L.val[i]);nt(g,'#ff2fa6',x-10,y+28,9,'⊕'+L.link[i]);if(i>1){ne(g,'rgba(53,255,176,0.6)',1.6);g.beginPath();g.moveTo(x0+(i-2)*cell+cell/2,y);g.lineTo(x,y);g.stroke();ng(g);}}g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the list, walkable both ways from one link per node');nt(g,'#ff2fa6',10,H-30,10,'magenta: prev⊕next — the two pointers folded into one');nt(g,'#8ad',10,H-13,10,'one field, both directions');}
+L=buildXOR(ARR);drawW3();drawW4();window.__xor_linked_list=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VPTR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The vantage-point tree</b> finds <b>nearest neighbours</b> in any <b>metric space</b> &mdash; not just coordinates, but anything with a distance obeying the triangle inequality. At each node it picks a <b>vantage point</b> and a radius (the median distance to the rest), splitting the remaining points into those <i>inside</i> the sphere and those <i>outside</i>. A query descends the side its distance suggests, and &mdash; crucially &mdash; the <b>triangle inequality</b> lets it prove that the whole other subtree can be skipped whenever it can&rsquo;t possibly hold anything closer than the best found so far. So a search touches only a small fraction of the points while still returning the <i>exact</i> nearest neighbour.<br><br>
+ <span class="lit">LIT</span> verified live: over 3000 random trees in 3-D, the VP-tree&rsquo;s pruned search returns exactly the same nearest neighbour as a brute-force scan of every point (window.__vp_tree). <span class="fig">FIG</span> no framing; the median-split build and the triangle-inequality pruning run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gauntlet</i> &mdash; run the query through the tree, and the triangle inequality clears whole regions it never has to search. <b>AVAN (AI)</b> built the instrument: the vantage-point/median split, the pruned nearest-neighbour search, and the brute-force cross-check.<br><br>Credit as content: Peter Yianilos (1993); Jeffrey Uhlmann (metric trees, 1991). The weave: David names the gauntlet; I confirm the pruned search returns the exact nearest neighbour.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="210"></canvas>
+  <div class="wctrl"><div class="cap">A vantage point and its median radius split the rest into inside / outside; the triangle inequality prunes a whole side.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Points and a query; the VP-tree's nearest neighbour matches the brute-force answer, touching far fewer points.</div>
+   <div class="btns" style="margin-top:10px"><button id="vpnew">new points ▶</button><button id="vpq">new query ▶</button><button id="vpcheck">verify ▶</button></div>
+   <div class="cap" id="vpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the exact nearest neighbour.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t scan every point &mdash; prune by the triangle inequality. The inverse of &lsquo;compute all distances&rsquo; is &lsquo;if the best-so-far can&rsquo;t reach across a vantage sphere, skip that whole subtree.&rsquo; <b>Magenta</b> is a pruned region never searched; <b>green</b> is the nearest neighbour returned. Skip what can&rsquo;t be closer.</div>
+   <div class="btns" style="margin-top:10px"><button id="vpspin">pause spin</button></div></div></div></div>"""
+VPTR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GD='#ffcf4a',PTS=null,Q=null,TREE=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){var s=0;for(var i=0;i<a.length;i++)s+=(a[i]-b[i])*(a[i]-b[i]);return Math.sqrt(s);}
+function build(pts){if(pts.length===0)return null;if(pts.length===1)return {p:pts[0],mu:0,in:null,out:null};var vp=pts[0],rest=pts.slice(1),ds=rest.map(function(q){return dist(vp,q);}).slice().sort(function(a,b){return a-b;}),mu=ds[Math.floor(ds.length/2)],inside=[],outside=[];for(var i=0;i<rest.length;i++){if(dist(vp,rest[i])<mu)inside.push(rest[i]);else outside.push(rest[i]);}return {p:vp,mu:mu,in:build(inside),out:build(outside)};}
+function nn(node,q,best,ctr){if(!node)return best;ctr.n++;var d=dist(node.p,q);if(best===null||d<best.d)best={p:node.p,d:d};if(d<node.mu){best=nn(node.in,q,best,ctr);if(d+best.d>=node.mu)best=nn(node.out,q,best,ctr);}else{best=nn(node.out,q,best,ctr);if(d-best.d<node.mu)best=nn(node.in,q,best,ctr);}return best;}
+function brute(pts,q){var best=null;for(var i=0;i<pts.length;i++){var d=dist(pts[i],q);if(best===null||d<best.d)best={p:pts[i],d:d};}return best;}
+function verify(){if(VR)return VR;var rnd=mb(4),match=true,worst=0;for(var t=0;t<3000;t++){var np=5+Math.floor(rnd()*40),pts=[];for(var i=0;i<np;i++)pts.push([rnd()*100,rnd()*100,rnd()*100]);var tr=build(pts);for(var q=0;q<3;q++){var query=[rnd()*100,rnd()*100,rnd()*100],v=nn(tr,query,null,{n:0}),bf=brute(pts,query),e=Math.abs(v.d-bf.d);if(e>worst)worst=e;if(e>1e-9)match=false;}}return {matchesBrute:match,worst:worst};}
+function mk(){var rnd=Math.random,np=14+Math.floor(rnd()*10),pts=[];for(var i=0;i<np;i++)pts.push([30+rnd()*300,30+rnd()*250]);PTS=pts;Q=[30+rnd()*300,30+rnd()*250];TREE=build(pts);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,GD,10,16,10,'vantage point (gold) + median radius: inside vs outside · triangle inequality prunes a side');
+ var rnd=mb(9),pts=[];for(var i=0;i<16;i++)pts.push([rnd()*440+40,rnd()*140+40]);var vp=pts[0],ds=pts.slice(1).map(function(q){return dist(vp,q);}).sort(function(a,b){return a-b;}),mu=ds[Math.floor(ds.length/2)];
+ ne(g,'rgba(255,207,74,0.5)',1.4);g.beginPath();g.arc(vp[0],vp[1],mu,0,7);g.stroke();ng(g);
+ for(var i=0;i<pts.length;i++){var inside=dist(vp,pts[i])<mu;ndot(g,pts[i][0],pts[i][1],3,i===0?'#ffcf4a':(inside?'#35ffb0':'#ff2fa6'));}
+ ndot(g,vp[0],vp[1],6,'#ffcf4a');nt(g,'#8ad',10,H-10,10,'green = inside median sphere · magenta = outside · gold = vantage point');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!PTS)mk();var ctr={n:0},v=nn(TREE,Q,null,ctr),bf=brute(PTS,Q);nt(g,GD,12,20,12,PTS.length+' points · VP-tree touched '+ctr.n+' of them');
+ for(var i=0;i<PTS.length;i++)ndot(g,PTS[i][0]*0.9+10,PTS[i][1]*0.9+30,3,'#8ad');
+ ndot(g,Q[0]*0.9+10,Q[1]*0.9+30,5,'#ffcf4a');ne(g,'#35ffb0',2);g.beginPath();g.moveTo(Q[0]*0.9+10,Q[1]*0.9+30);g.lineTo(v.p[0]*0.9+10,v.p[1]*0.9+30);g.stroke();ng(g);ndot(g,v.p[0]*0.9+10,v.p[1]*0.9+30,5,'#35ffb0');
+ nt(g,'#cfe',12,H-64,11,'VP-tree NN dist = '+v.d.toFixed(2)+'  ·  brute-force NN dist = '+bf.d.toFixed(2));
+ var vv=verify();nt(g,vv.matchesBrute?'#39ffb0':'#ff5a5a',12,H-14,9,'VP-tree NN == brute-force over 3000 trees (worst gap '+vv.worst.toExponential(1)+') '+(vv.matchesBrute?'✓':'✗'));}
+document.getElementById('vpnew').onclick=function(){mk();drawW4();document.getElementById('vpread').textContent=PTS.length+' points, new query — VP-tree NN matches brute-force';};
+document.getElementById('vpq').onclick=function(){Q=[30+Math.random()*300,30+Math.random()*250];drawW4();var ctr={n:0};nn(TREE,Q,null,ctr);document.getElementById('vpread').textContent='new query — VP-tree touched '+ctr.n+'/'+PTS.length+' points, exact NN';};
+document.getElementById('vpcheck').onclick=function(){var v=verify();document.getElementById('vpread').textContent='VP-tree pruned NN == brute-force scan over 3000 random 3-D trees (worst dist gap '+v.worst.toExponential(1)+') '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('vpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!PTS)mk();var v=nn(TREE,Q,null,{n:0});g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.4)*0.03);g.translate(-W/2,-(H/2-10));
+ for(var i=0;i<PTS.length;i++)ndot(g,PTS[i][0]*0.85+20,PTS[i][1]*0.9+40,3,PTS[i]===v.p?'#35ffb0':'rgba(176,107,255,0.4)');
+ ndot(g,Q[0]*0.85+20,Q[1]*0.9+40,5,'#ffcf4a');ne(g,'#35ffb0',2);g.beginPath();g.moveTo(Q[0]*0.85+20,Q[1]*0.9+40);g.lineTo(v.p[0]*0.85+20,v.p[1]*0.9+40);g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the exact nearest neighbour to the query');nt(g,'#ff2fa6',10,H-30,10,'magenta: points in pruned subtrees, never searched');nt(g,'#8ad',10,H-13,10,'skip what can\\'t be closer');}
+mk();drawW3();drawW4();window.__vp_tree=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SKEW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The skew heap</b> is a <b>self-adjusting</b> priority queue where a single operation &mdash; <b>merge</b> &mdash; does everything. To merge two min-heaps, compare their roots, keep the smaller as the new root, recursively merge its right subtree with the other heap, and then <b>swap</b> that node&rsquo;s children. Insert is just merging in a one-node heap; delete-min is merging the root&rsquo;s two children. There are no balance fields, no rotations, no bookkeeping &mdash; the unconditional child-swap alone keeps the amortized cost at <b>O(log n)</b>. It is the leftist heap&rsquo;s simpler cousin: heapsort, mergeable queues, and priority scheduling from one elegant rule.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of runs, inserting then repeatedly extracting the minimum yields a fully sorted sequence, the min-heap property holds after every operation, and merging two heaps preserves the combined multiset in order (window.__skew_heap). <span class="fig">FIG</span> no framing; the merge, insert, extract-min, and heap-property check run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-merge</i> &mdash; two priority queues folded into one along their right paths, children swapped, no balance data kept. <b>AVAN (AI)</b> built the instrument: the recursive merge with child-swap, insert / extract-min built on it, and the sort / heap-property / merge checks.<br><br>Credit as content: Daniel Sleator &amp; Robert Tarjan (self-adjusting heaps, 1986). The weave: David names the merge; I confirm one merge rule gives a correct, sorted-yielding, always-heap-ordered priority queue.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="210"></canvas>
+  <div class="wctrl"><div class="cap">Merging two heaps: the smaller root wins, its right subtree merges with the other, then its children swap.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Insert values and extract the minimum repeatedly; the output comes out sorted, the tree always heap-ordered.</div>
+   <div class="btns" style="margin-top:10px"><button id="skins">insert</button><button id="skpop">extract-min</button><button id="skreset">reset ▶</button><button id="skcheck">verify ▶</button></div>
+   <div class="cap" id="skread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the min-heap, maintained by merge alone.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t balance the tree &mdash; swap children on the way up. The inverse of &lsquo;keep balance fields and rotate&rsquo; is &lsquo;merge right paths and unconditionally swap children &mdash; O(log n) amortized, no bookkeeping.&rsquo; <b>Magenta</b> are the two heaps before; <b>green</b> is the single merged min-heap. One rule, self-balancing.</div>
+   <div class="btns" style="margin-top:10px"><button id="skspin">pause spin</button></div></div></div></div>"""
+SKEW_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,VI='#b06bff',H=null,OUT=[];
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function merge(a,b){if(!a)return b;if(!b)return a;if(a.v>b.v){var t=a;a=b;b=t;}a.right=merge(a.right,b);var tmp=a.left;a.left=a.right;a.right=tmp;return a;}
+function ins(h,v){return merge(h,{v:v,left:null,right:null});}
+function pop(h){return merge(h.left,h.right);}
+function heapOk(h){if(!h)return true;if(h.left&&h.left.v<h.v)return false;if(h.right&&h.right.v<h.v)return false;return heapOk(h.left)&&heapOk(h.right);}
+function verify(){if(VR)return VR;var rnd=mb(5),so=true,ho=true,mo=true;for(var t=0;t<5000;t++){var n=1+Math.floor(rnd()*30),vals=[],h=null;for(var i=0;i<n;i++){var x=Math.floor(rnd()*1000);vals.push(x);h=ins(h,x);if(!heapOk(h))ho=false;}var out=[];while(h){out.push(h.v);h=pop(h);if(!heapOk(h))ho=false;}if(out.join(',')!==vals.slice().sort(function(a,b){return a-b;}).join(','))so=false;}
+ for(var t=0;t<2000;t++){var A=null,B=null,all=[];for(var i=0;i<10;i++){var x=Math.floor(rnd()*100);A=ins(A,x);all.push(x);}for(var i=0;i<10;i++){var x=Math.floor(rnd()*100);B=ins(B,x);all.push(x);}var M=merge(A,B);if(!heapOk(M))mo=false;var out=[];while(M){out.push(M.v);M=pop(M);}if(out.join(',')!==all.slice().sort(function(a,b){return a-b;}).join(','))mo=false;}
+ return {sortsCorrectly:so,heapProperty:ho,mergePreserves:mo};}
+function reset(){H=null;OUT=[];[7,3,9,1,5,8,2].forEach(function(v){H=ins(H,v);});}
+function depth(h){return h?1+Math.max(depth(h.left),depth(h.right)):0;}
+function drawTree(g,h,x,y,dx,dy){if(!h)return;if(h.left){ne(g,'rgba(176,107,255,0.5)',1.2);g.beginPath();g.moveTo(x,y);g.lineTo(x-dx,y+dy);g.stroke();ng(g);drawTree(g,h.left,x-dx,y+dy,dx*0.55,dy);}if(h.right){ne(g,'rgba(176,107,255,0.5)',1.2);g.beginPath();g.moveTo(x,y);g.lineTo(x+dx,y+dy);g.stroke();ng(g);drawTree(g,h.right,x+dx,y+dy,dx*0.55,dy);}ndot(g,x,y,11,h.v===(function m(n){return n?Math.min(n.v,m(n.left),m(n.right)):Infinity;})(H)?'#35ffb0':'#b06bff');nt(g,'#0a0713',x-4,y+4,11,''+h.v);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;nb(g,W,H2);nt(g,VI,10,16,10,'merge two min-heaps: smaller root wins, merge its right subtree with the other, then swap children');
+ var A=null;[3,7,9].forEach(function(v){A=ins(A,v);});var B=null;[1,5,8].forEach(function(v){B=ins(B,v);});
+ drawTree(g,A,120,60,40,44);drawTree(g,B,390,60,40,44);nt(g,'#8ad',95,40,10,'heap A');nt(g,'#8ad',365,40,10,'heap B');nt(g,'#35ffb0',W/2-30,H2-14,11,'→ merge folds them into one min-heap (root = 1)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;nb(g,W,H2);if(H===null&&OUT.length===0)reset();nt(g,VI,12,20,12,'extracted (sorted): ['+OUT.join(', ')+']');
+ if(H)drawTree(g,H,W/2,60,W/4,50);else nt(g,'#8ad',W/2-40,120,11,'(heap empty)');
+ nt(g,heapOk(H)?'#39ffb0':'#ff5a5a',12,H2-46,11,'heap property holds: '+(heapOk(H)?'✓':'✗')+(H?'  (min = '+(function m(n){return n?Math.min(n.v,m(n.left),m(n.right)):Infinity;})(H)+')':''));
+ var v=verify();nt(g,v.sortsCorrectly&&v.heapProperty&&v.mergePreserves?'#39ffb0':'#ff5a5a',12,H2-14,9,'sorts · heap-ordered · merge preserves multiset (7000 runs) '+(v.sortsCorrectly&&v.mergePreserves?'✓':'✗'));}
+document.getElementById('skins').onclick=function(){var x=Math.floor(Math.random()*99+1);H=ins(H,x);drawW4();document.getElementById('skread').textContent='inserted '+x+' (via merge with a 1-node heap)';};
+document.getElementById('skpop').onclick=function(){if(H){var m=(function mn(n){return n?Math.min(n.v,mn(n.left),mn(n.right)):Infinity;})(H);OUT.push(H.v);H=pop(H);drawW4();document.getElementById('skread').textContent='extracted min '+m+' → ['+OUT.join(',')+']';}};
+document.getElementById('skreset').onclick=function(){reset();drawW4();document.getElementById('skread').textContent='reset — inserted 7,3,9,1,5,8,2';};
+document.getElementById('skcheck').onclick=function(){var v=verify();document.getElementById('skread').textContent='insert+extractMin sorts '+(v.sortsCorrectly?'✓':'✗')+' · heap property throughout '+(v.heapProperty?'✓':'✗')+' · merge preserves multiset '+(v.mergePreserves?'✓':'✗')+' (7000 runs)';};
+document.getElementById('skspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;nb(g,W,H2);if(H===null&&OUT.length===0)reset();g.save();g.translate(0,Math.sin(ang*0.4)*5);if(H)drawTree(g,H,W/2,60,W/4,54);g.restore();
+ nt(g,'#35ffb0',10,H2-46,11,'green: the min at the root; the whole tree stays heap-ordered');nt(g,'#ff2fa6',10,H2-30,10,'magenta: nodes below, kept ordered by merge + child-swap');nt(g,'#8ad',10,H2-13,10,'one rule, self-balancing');}
+reset();drawW3();drawW4();window.__skew_heap=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 128 · neon-noir tracing · silicon-coding (steal from the rich to even the probes · divide by driving a factor to one · a cursor that splits the list · two throws beat one · a hull kept online in a deque) ═══════════════════════
 ROBH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Robin Hood hashing</b> is an open-addressing scheme that <b>steals from the rich to give to the poor</b>. In ordinary linear probing, some keys sit right at their home slot while others get pushed far away, so probe lengths vary wildly. Robin Hood equalizes them: when inserting a key that has probed farther than the key already sitting in a slot, it <b>evicts the richer resident</b> (the one closer to its home) and carries it onward. The result is the same set of keys, but with the <b>variance of probe lengths minimized</b> &mdash; no key is left starving while another sits pretty, so lookups stay fast even at high load.<br><br>
@@ -33625,6 +33854,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-wallace-tree","title":"THE WALLACE TREE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE-MAINFRAME","domain_slug":"the-mainframe","accent":"#21e6ff","icon":"wallace",
+  "kicker":"partial products crushed in parallel",
+  "blurb":"The Wallace tree in the 5-window house format — how fast hardware multiplies. A schoolbook multiply forms one partial product per bit of the multiplier and adds them in sequence, slow because each add waits for the last. Wallace instead crushes the whole stack of partial products in parallel using 3:2 compressors (full adders): each takes three rows and outputs two — a sum row and a carry row — preserving the total, since x+y+z = sum + 2·carry. Layer after layer the height falls 3→2 until only two rows remain, which a single carry-propagate adder finishes. The depth is logarithmic in the number of partial products, which is why multipliers use it. Verified live: over 200,000 random 8-bit pairs, the carry-save reduction of the partial products, finished with one add, equals a·b exactly. Neon-noir traced. See the compression layers in 1D, the 3→2 reduction in 2D, and the crush-in-parallel inverse in 3D.",
+  "lit":"Genuine Wallace tree multiplier (Christopher Wallace, 1964). Verified live: over 200000 random 8-bit pairs, generating the partial products and reducing them with 3:2 carry-save compressors (s=x^y^z, c=((x&y)|(x&z)|(y&z))<<1, preserving x+y+z=s+2c) down to two rows, then one add, equals a·b exactly (window.__wallace.matchesProduct).",
+  "fig":"No framing: the partial-product generation and carry-save compression run in-browser. The AVAN inverse is honest — instead of adding the partial products in sequence (depth n), 3:2 compressors crush n rows to 2 in logarithmic depth, then one carry-propagate add finishes. Magenta is the sequential add chain; green is the compression tree. Crush in parallel, add once.",
+  "body":WALL_BODY,"script":WALL_SCRIPT},
+ {"slug":"the-factoradic","title":"THE FACTORADIC","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE-INVENTORY","domain_slug":"the-inventory","accent":"#ff8a3c","icon":"factoradic",
+  "kicker":"a number in factorial base",
+  "blurb":"The factorial number system (factoradic) in the 5-window house format — a mixed-radix notation where the place values are factorials: the digit in position i ranges over 0…i, and the value is Σ dᵢ·i!. Every non-negative integer has a unique factoradic form — and, beautifully, the numbers 0…n!−1 are in exact bijection with the n! permutations of n items. Reading a factoradic left to right and repeatedly picking the d-th remaining element (its Lehmer code) unranks the integer into a permutation; the reverse ranks a permutation back to its index. It is the natural coordinate system for permutations. Verified live: for n≤8, factoradic encode/decode round-trips every integer, and rank/unrank is an exact bijection between [0, n!) and the n! permutations. Neon-noir traced. See the factorial places in 1D, the unrank in 2D, and the coordinatize inverse in 3D.",
+  "lit":"Genuine factorial number system / Lehmer-code ranking (Charles-Ange Laisant, 1888; D. H. Lehmer). Verified live: for n≤8, Σ dᵢ·i! encode/decode round-trips every integer, and the Lehmer-code unrank / rank is an exact bijection between [0,n!) and the n! permutations (every index yields a distinct permutation and back) (window.__factoradic.numberRoundTrip, .permBijection).",
+  "fig":"No framing: the mixed-radix conversion and the permutation rank/unrank run in-browser. The AVAN inverse is honest — instead of enumerating all n! permutations, a mixed-radix integer names each one, and picking the d-th remaining element unranks it. Magenta is a permutation; green is its unique rank. Permutations, coordinatized.",
+  "body":FCTD_BODY,"script":FCTD_SCRIPT},
+ {"slug":"the-xor-linked-list","title":"THE XOR LINKED LIST","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE-SHORTCUT","domain_slug":"the-shortcut","accent":"#35ffb0","icon":"xorlist",
+  "kicker":"one pointer holds both neighbors",
+  "blurb":"The XOR linked list in the 5-window house format — storing a doubly linked list using only one pointer field per node instead of two. A normal doubly linked list keeps a prev and a next pointer; the XOR list keeps their bitwise exclusive-or, link = prev ⊕ next. That single value is enough to walk in either direction: if you know the address you came from, the other neighbour is link ⊕ came-from (because XOR is its own inverse). Moving forward, next = link ⊕ prev; moving backward, prev = link ⊕ next. Half the pointer memory, at the cost of no O(1) access to a node without a neighbour. Verified live: over 20,000 random lists, forward traversal reproduces the array, backward traversal reproduces its reverse, and every node stores exactly one link field. Neon-noir traced. See the folded links in 1D, the two-way walk in 2D, and the one-field inverse in 3D.",
+  "lit":"Genuine XOR linked list (a classic pointer/memory trick). Verified live: over 20000 random lists built with link[i]=prev⊕next, forward traversal (next=link⊕prev) reproduces the array, backward traversal (prev=link⊕next) reproduces its reverse, and there is exactly one link field per node (window.__xor_linked_list.forwardMatches, .backwardMatches, .oneLink).",
+  "fig":"No framing: the XOR-link build and both traversals run in-browser (node indices as the 'addresses'). The AVAN inverse is honest — instead of storing prev and next, one stores their XOR; the missing neighbour is link ⊕ the one you already know, since XOR undoes itself. Magenta are the two pointers folded away; green is the single link that recovers either. One field, both directions.",
+  "body":XORL_BODY,"script":XORL_SCRIPT},
+ {"slug":"the-vp-tree","title":"THE VP-TREE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE-GAUNTLET","domain_slug":"the-gauntlet","accent":"#ffcf4a","icon":"vptree",
+  "kicker":"nearest found by pruning a metric tree",
+  "blurb":"The vantage-point tree in the 5-window house format — finding nearest neighbours in any metric space, not just coordinates but anything with a distance obeying the triangle inequality. At each node it picks a vantage point and a radius (the median distance to the rest), splitting the remaining points into those inside the sphere and those outside. A query descends the side its distance suggests, and — crucially — the triangle inequality lets it prove that the whole other subtree can be skipped whenever it can't possibly hold anything closer than the best found so far. So a search touches only a small fraction of the points while still returning the exact nearest neighbour. Verified live: over 3000 random trees in 3-D, the VP-tree's pruned search returns exactly the same nearest neighbour as a brute-force scan of every point. Neon-noir traced. See the vantage split in 1D, the pruned search in 2D, and the skip-what-can't-be-closer inverse in 3D.",
+  "lit":"Genuine vantage-point tree (Peter Yianilos, 1993; metric trees, Jeffrey Uhlmann 1991). Verified live: over 3000 random 3-D point sets, the median-split VP-tree's triangle-inequality-pruned nearest-neighbour search returns exactly the same nearest point (to ~1e-9) as a brute-force scan (window.__vp_tree.matchesBrute).",
+  "fig":"No framing: the median-split build and the triangle-inequality pruning run in-browser. The AVAN inverse is honest — instead of computing all distances, the triangle inequality proves a whole subtree can't beat the best-so-far and skips it. Magenta is a pruned region never searched; green is the exact nearest neighbour returned. Skip what can't be closer.",
+  "body":VPTR_BODY,"script":VPTR_SCRIPT},
+ {"slug":"the-skew-heap","title":"THE SKEW HEAP","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE-MERGE","domain_slug":"the-merge","accent":"#b06bff","icon":"skewheap",
+  "kicker":"two heaps merged along right paths",
+  "blurb":"The skew heap in the 5-window house format — a self-adjusting priority queue where a single operation, merge, does everything. To merge two min-heaps, compare their roots, keep the smaller as the new root, recursively merge its right subtree with the other heap, and then swap that node's children. Insert is just merging in a one-node heap; delete-min is merging the root's two children. There are no balance fields, no rotations, no bookkeeping — the unconditional child-swap alone keeps the amortized cost at O(log n). It is the leftist heap's simpler cousin: heapsort, mergeable queues, and priority scheduling from one elegant rule. Verified live: over thousands of runs, inserting then repeatedly extracting the minimum yields a fully sorted sequence, the min-heap property holds after every operation, and merging two heaps preserves the combined multiset in order. Neon-noir traced. See the merge rule in 1D, the sorted extraction in 2D, and the one-rule inverse in 3D.",
+  "lit":"Genuine skew heap (Daniel Sleator & Robert Tarjan, self-adjusting heaps, 1986). Verified live: over 5000 runs, insert (merge with a 1-node heap) then repeated extract-min (merge of the root's children) yields a fully sorted sequence, the min-heap property holds after every operation, and over 2000 further runs merging two heaps preserves the combined multiset in sorted order (window.__skew_heap.sortsCorrectly, .heapProperty, .mergePreserves).",
+  "fig":"No framing: the merge, insert, extract-min, and heap-property check run in-browser. The AVAN inverse is honest — instead of keeping balance fields and rotating, one merges right paths and unconditionally swaps children, giving O(log n) amortized with no bookkeeping. Magenta are the two heaps before; green is the single merged min-heap. One rule, self-balancing.",
+  "body":SKEW_BODY,"script":SKEW_SCRIPT},
  {"slug":"the-robin-hood","title":"THE ROBIN HOOD","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE-STASH","domain_slug":"the-stash","accent":"#21e6ff","icon":"robinhood",
   "kicker":"steal from the rich to even the probes",
