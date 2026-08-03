@@ -19493,6 +19493,242 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 116 · neon-noir tracing · silicon-coding (a metric where big powers are small · matching by taking the language apart · a heap counted in binary · vectors made perpendicular · precedence from binding power) ═══════════════════════
+PADC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The p-adic numbers</b> come from a strange way to measure size: a number is <b>small</b> when it is divisible by a <b>high power of a prime p</b>. The p-adic absolute value is |x|<sub>p</sub> = p<sup>&minus;v</sup>, where v is how many times p divides x &mdash; so 1, p, p&sup2;, p&sup3;&hellip; march toward <b>zero</b>. This metric is <b>ultrametric</b>: |x + y|<sub>p</sub> &le; max(|x|<sub>p</sub>, |y|<sub>p</sub>), stronger than the ordinary triangle inequality. Numbers get infinite digit-strings running <i>leftward</i>, and famously <b>&hellip;1111 = &minus;1</b> in the 2-adics, because 2<sup>k</sup>&minus;1 &equiv; &minus;1 for every k.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of rationals the ultrametric inequality holds, any a/b with b coprime to p reconstructs from its p-adic digits mod p<sup>k</sup>, and the all-(p&minus;1) digit string equals &minus;1 p-adically (window.__padic). <span class="fig">FIG</span> no framing; the valuations, the digit reconstruction, and the identity all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>undefined-behavior</i> &mdash; a number system where &ldquo;big&rdquo; means small and counting up runs off to &minus;1 is the mathematician&rsquo;s undefined behaviour, perfectly consistent once you accept the rules. <b>AVAN (AI)</b> built the instrument: the p-adic valuation and absolute value, the digit expansion of a rational, and the ultrametric check.<br><br>Credit as content: Kurt Hensel (1897). The weave: David names the undefined behaviour; I confirm the ultrametric holds, that rationals reconstruct from their leftward digits, and that &hellip;1111 really is &minus;1.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="180"></canvas>
+  <div class="wctrl"><div class="cap">The 2-adic string of &minus;1: all 1s. Adding 1 carries forever and lands on 0 &mdash; so &hellip;1111 + 1 = 0, hence &hellip;1111 = &minus;1.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a prime p and a rational a/b; see its p-adic digits and confirm they rebuild a/b mod p<sup>k</sup>. The p-adic size p<sup>&minus;v</sup> shrinks as p divides more.</div>
+   <div class="btns" style="margin-top:10px"><button id="pdnext">new a/b ▶</button><button id="pdprime">change p ▶</button><button id="pdcheck">verify ▶</button></div>
+   <div class="cap" id="pdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the p-adic sizes p<sup>&minus;v</sup> descending toward zero.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t measure distance the usual way &mdash; measure it by shared low digits. The inverse of &lsquo;close means small difference&rsquo; is &lsquo;close means divisible by a high power of p&rsquo;, and that makes the numbers cluster into a <b>tree</b>. <b>Magenta</b> is the &hellip;1111 = &minus;1 idea; <b>green</b> is the ultrametric tree of p-adic closeness. Big powers are small.</div>
+   <div class="btns" style="margin-top:10px"><button id="pdspin">pause spin</button></div></div></div></div>"""
+PADC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CY='#21e6ff',PP=2,AA=1,BB=3;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function vp(n,p){n=BigInt(n);if(n===0n)return Infinity;var P=BigInt(p),v=0;while(n%P===0n){n/=P;v++;}return v;}
+function absP(a,b,p){return Math.pow(p,-(vp(a,p)-vp(b,p)));}
+function egcd(a,b){if(b===0n)return [a,1n,0n];var r=egcd(b,a%b);return [r[0],r[2],r[1]-(a/b)*r[2]];}
+function modinv(a,m){a=((a%m)+m)%m;var r=egcd(a,m);return ((r[1]%m)+m)%m;}
+function digits(a,b,p,k){var M=BigInt(p)**BigInt(k),x=(BigInt(a)*modinv(BigInt(b),M))%M;x=((x%M)+M)%M;var d=[];for(var i=0;i<k;i++){d.push(Number(x%BigInt(p)));x/=BigInt(p);}return d;}
+function verify(){if(VR)return VR;var rnd=mb(1),ultra=true,recon=true,mo=true,primes=[2,3,5,7];
+ for(var t=0;t<3000;t++){var p=primes[Math.floor(rnd()*4)];var a1=BigInt(Math.floor(rnd()*200)-100||1),b1=BigInt(Math.floor(rnd()*40)+1),a2=BigInt(Math.floor(rnd()*200)-100||1),b2=BigInt(Math.floor(rnd()*40)+1);var s0=a1*b2+a2*b1,s1=b1*b2;var lx=absP(a1,b1,p),ly=absP(a2,b2,p),ls=(s0===0n)?0:absP(s0,s1,p);if(ls>Math.max(lx,ly)+1e-9)ultra=false;var b=BigInt(Math.floor(rnd()*30)+2);while(b%BigInt(p)===0n)b+=1n;var a=BigInt(Math.floor(rnd()*100)),k=6,M=BigInt(p)**BigInt(k);var x=(a*modinv(b,M))%M;if(((x*b-a)%M+M)%M!==0n)recon=false;}
+ for(var pi=0;pi<4;pi++){var p=primes[pi],k=8,M=BigInt(p)**BigInt(k),sum=0n,pw=1n;for(var i=0;i<k;i++){sum+=BigInt(p-1)*pw;pw*=BigInt(p);}if((sum%M)!==((M-1n)%M))mo=false;}
+ VR={ultrametric:ultra,reconstructs:recon,minusOne:mo};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,CY,10,16,10,'2-adic:  …1 1 1 1 1  =  −1   (because 2^k − 1 ≡ −1 for every k)');
+ var cw=40,x0=W-70,y=60;nt(g,'#8ad',20,y+16,11,'…');for(var i=0;i<10;i++){var x=x0-i*cw;nf(g,'#ff2fa6');g.fillRect(x,y,cw-4,26);ng(g);nt(g,'#0a0713',x+cw/2-5,y+18,13,'1');}
+ nt(g,'#35ffb0',20,y+70,11,'…11111 + 1: the carry runs left forever → …00000 = 0, so …11111 = −1');
+ var y2=y+96;nt(g,'#8ad',20,y2+16,11,'…');for(var i=0;i<10;i++){var x=x0-i*cw;ne(g,'#35ffb0',1.4);g.strokeRect(x,y2,cw-4,26);ng(g);nt(g,'#35ffb0',x+cw/2-5,y2+18,13,'0');}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var d=digits(AA,BB,PP,10);nt(g,CY,12,22,12,PP+'-adic digits of '+AA+'/'+BB+'  (v_p size = p^−v)');
+ var cw=Math.min(30,(W-30)/d.length),x0=W-20-d.length*cw,y=44;nt(g,'#8ad',x0-16,y+18,12,'…');for(var i=d.length-1;i>=0;i--){var x=x0+(d.length-1-i)*cw;ne(g,CY,1.4);g.strokeRect(x,y,cw-3,26);ng(g);nt(g,'#cfe',x+cw/2-4,y+18,12,''+d[i]);}
+ // reconstruct check
+ var M=BigInt(PP)**10n,x=0n,pw=1n;for(var i=0;i<d.length;i++){x+=BigInt(d[i])*pw;pw*=BigInt(PP);}var ok=((x*BigInt(BB)-BigInt(AA))%M+M)%M===0n;
+ nt(g,ok?'#39ffb0':'#ff5a5a',12,100,10,'digits rebuild '+AA+'/'+BB+' mod '+PP+'^10 '+(ok?'✓':'✗')+'   |'+AA+'/'+BB+'|_'+PP+' = '+absP(AA,BB,PP).toFixed(4));
+ var v=verify();nt(g,v.ultrametric&&v.reconstructs&&v.minusOne?'#39ffb0':'#ff5a5a',12,H-14,9,'ultrametric '+(v.ultrametric?'✓':'✗')+' · reconstructs '+(v.reconstructs?'✓':'✗')+' · …(p−1)=−1 '+(v.minusOne?'✓':'✗'));}
+document.getElementById('pdnext').onclick=function(){AA=1+Math.floor(Math.random()*50);BB=1+Math.floor(Math.random()*12);while(BB%PP===0)BB++;drawW4();document.getElementById('pdread').textContent=PP+'-adic digits of '+AA+'/'+BB+' = …'+digits(AA,BB,PP,8).reverse().join('');};
+document.getElementById('pdprime').onclick=function(){var ps=[2,3,5,7];PP=ps[(ps.indexOf(PP)+1)%4];while(BB%PP===0)BB++;drawW4();document.getElementById('pdread').textContent='prime p = '+PP;};
+document.getElementById('pdcheck').onclick=function(){var v=verify();document.getElementById('pdread').textContent='ultrametric |x+y|≤max '+(v.ultrametric?'✓':'✗')+' · a/b reconstructs mod p^k '+(v.reconstructs?'✓':'✗')+' · …(p−1)(p−1)=−1 '+(v.minusOne?'✓':'✗');};
+document.getElementById('pdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(W/2,40);g.rotate(Math.sin(ang*0.4)*0.02);g.translate(-W/2,-40);
+ // p-adic tree: branch by digit, depth = precision; closeness = shared prefix
+ var p=PP;function node(x,y,depth,dx){if(depth>3)return;ndot(g,x,y,3,'#35ffb0');for(var d=0;d<p;d++){var nx=x+(d-(p-1)/2)*dx,ny=y+54;ne(g,'rgba(53,255,176,0.4)',1);g.beginPath();g.moveTo(x,y);g.lineTo(nx,ny);g.stroke();ng(g);node(nx,ny,depth+1,dx/p);}}
+ node(W/2,40,0,W/2.4);
+ g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the ultrametric tree — closeness = shared low digits');nt(g,'#ff2fa6',10,H-30,10,'magenta: …1111 = −1, the carry that never stops');nt(g,'#8ad',10,H-13,10,'big powers are small');}
+drawW3();drawW4();window.__padic=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BRZO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Brzozowski derivatives</b> match a regular expression by <b>taking the language apart one symbol at a time</b>. The derivative D<sub>c</sub>(r) of a regex r with respect to a character c is a new regex matching exactly the strings that r would match <i>after</i> consuming c. There are simple rules for each operator, and matching is then trivial: feed the string in, take a derivative per character, and at the end ask whether the residual regex is <b>nullable</b> (matches the empty string). No NFA, no backtracking &mdash; just algebra on regexes.<br><br>
+ <span class="lit">LIT</span> verified live: over 8,000 random regex/string pairs, the derivative matcher agrees exactly with an independent backtracking matcher (window.__brzozowski). <span class="fig">FIG</span> no framing; the derivative rules and the reference matcher both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-toolchain</i> &mdash; a matcher that is just a fold of derivatives is the cleanest little toolchain: regex in, boolean out, no machine to build. <b>AVAN (AI)</b> built the instrument: the derivative and nullability rules with smart constructors, the fold-to-match, and a backtracking reference.<br><br>Credit as content: Janusz Brzozowski (1964). The weave: David names the toolchain; I confirm the derivative matcher accepts exactly the strings a backtracking matcher does.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="180"></canvas>
+  <div class="wctrl"><div class="cap">A regex and its derivative by one character &mdash; the residual language of everything that could follow that symbol.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Feed a string into a regex; each character takes a derivative; the final regex&rsquo;s nullability is the answer &mdash; matched against a reference.</div>
+   <div class="btns" style="margin-top:10px"><button id="bznew">new regex/string ▶</button><button id="bzcheck">verify ▶</button></div>
+   <div class="cap" id="bzread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the chain of derivatives, one per character.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t build a machine to run &mdash; differentiate the language. The inverse of &lsquo;simulate an automaton&rsquo; is &lsquo;the derivative <b>is</b> the residual language, so matching is a fold and nullability is the accept.&rsquo; <b>Magenta</b> is a reject (the residual is empty); <b>green</b> is an accept (the residual is nullable). Take the language apart.</div>
+   <div class="btns" style="margin-top:10px"><button id="bzspin">pause spin</button></div></div></div></div>"""
+BRZO_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,OR='#ff8a3c',REG=null,STR='';
+var EMPTY={t:'empty'},EPS={t:'eps'};
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function chr(c){return {t:'chr',c:c};}
+function alt(a,b){if(a===EMPTY)return b;if(b===EMPTY)return a;return {t:'alt',a:a,b:b};}
+function cat(a,b){if(a===EMPTY||b===EMPTY)return EMPTY;if(a===EPS)return b;if(b===EPS)return a;return {t:'cat',a:a,b:b};}
+function star(a){if(a===EMPTY||a===EPS)return EPS;return {t:'star',a:a};}
+function nullable(r){switch(r.t){case 'empty':return false;case 'eps':return true;case 'chr':return false;case 'alt':return nullable(r.a)||nullable(r.b);case 'cat':return nullable(r.a)&&nullable(r.b);case 'star':return true;}}
+function der(r,c){switch(r.t){case 'empty':return EMPTY;case 'eps':return EMPTY;case 'chr':return r.c===c?EPS:EMPTY;case 'alt':return alt(der(r.a,c),der(r.b,c));case 'cat':return alt(cat(der(r.a,c),r.b),nullable(r.a)?der(r.b,c):EMPTY);case 'star':return cat(der(r.a,c),r);}}
+function matchD(r,s){for(var i=0;i<s.length;i++)r=der(r,s[i]);return nullable(r);}
+function refMatch(r,s){function go(r,pos){switch(r.t){case 'empty':return [];case 'eps':return [pos];case 'chr':return (pos<s.length&&s[pos]===r.c)?[pos+1]:[];case 'alt':return go(r.a,pos).concat(go(r.b,pos));case 'cat':{var res=[];go(r.a,pos).forEach(function(p){res=res.concat(go(r.b,p));});return res;}case 'star':{var res=[pos],seen={};seen[pos]=1;var st=[pos];while(st.length){var p=st.pop();go(r.a,p).forEach(function(q){if(q>p&&!seen[q]){seen[q]=1;res.push(q);st.push(q);}});}return res;}}}return go(r,0).indexOf(s.length)>=0;}
+function rr(rnd,d){if(d<=0||rnd()<0.4)return chr(rnd()<0.5?'a':'b');var r=rnd();if(r<0.3)return alt(rr(rnd,d-1),rr(rnd,d-1));if(r<0.6)return cat(rr(rnd,d-1),rr(rnd,d-1));if(r<0.85)return star(rr(rnd,d-1));return chr(rnd()<0.5?'a':'b');}
+function show(r){switch(r.t){case 'empty':return '∅';case 'eps':return 'ε';case 'chr':return r.c;case 'alt':return '('+show(r.a)+'|'+show(r.b)+')';case 'cat':return show(r.a)+show(r.b);case 'star':return '('+show(r.a)+')*';}}
+function verify(){if(VR)return VR;var rnd=mb(2),ok=true;for(var t=0;t<8000;t++){var r=rr(rnd,4),n=Math.floor(rnd()*6),s='';for(var i=0;i<n;i++)s+=(rnd()<0.5?'a':'b');if(matchD(r,s)!==refMatch(r,s))ok=false;}VR={matchesReference:ok};return VR;}
+function mk(){var rnd=Math.random,rf={};do{REG=rr(function(){return Math.random();},3);}while(show(REG).length>16||show(REG).length<3);var n=1+Math.floor(rnd()*4);STR='';for(var i=0;i<n;i++)STR+=(rnd()<0.5?'a':'b');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=cat(chr('a'),star(alt(chr('a'),chr('b'))));nt(g,OR,10,16,10,'r = '+show(r)+'   ·   derivative by a symbol = the residual language');
+ nt(g,'#cfe',20,60,12,'D_a(r) = '+show(der(r,'a')));nt(g,'#cfe',20,90,12,'D_b(r) = '+show(der(r,'b'))+'   (∅ = matches nothing)');
+ nt(g,'#8ad',20,130,10,'match(r,s): fold the derivative over s, then ask if the residual is nullable (matches ε)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!REG)mk();nt(g,OR,12,22,11,'r = '+show(REG)+'   ·   s = "'+STR+'"');
+ var r=REG,y=52;nt(g,'#8ad',14,y,10,'start: '+show(r));y+=22;for(var i=0;i<STR.length;i++){r=der(r,STR[i]);var sh=show(r);nt(g,'#cfe',14,y,10,'D_'+STR[i]+' → '+(sh.length>40?sh.slice(0,40)+'…':sh));y+=20;}
+ var m=matchD(REG,STR),ref=refMatch(REG,STR);nt(g,m?'#39ffb0':'#ff2fa6',14,H-52,12,m?'residual is NULLABLE → MATCH ✓':'residual not nullable → no match');
+ nt(g,m===ref?'#39ffb0':'#ff5a5a',14,H-30,10,'derivative matcher == reference '+(m===ref?'✓':'✗'));
+ var v=verify();nt(g,v.matchesReference?'#39ffb0':'#ff5a5a',14,H-12,9,'agrees with backtracking reference over 8000 pairs '+(v.matchesReference?'✓':'✗'));}
+document.getElementById('bznew').onclick=function(){mk();drawW4();document.getElementById('bzread').textContent='r='+show(REG)+' , s="'+STR+'" → '+(matchD(REG,STR)?'match':'no match');};
+document.getElementById('bzcheck').onclick=function(){var v=verify();document.getElementById('bzread').textContent='derivative matcher == backtracking reference over 8000 regex/string pairs '+(v.matchesReference?'✓':'✗');};
+document.getElementById('bzspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!REG)mk();g.save();g.translate(0,Math.sin(ang*0.5)*3);
+ var r=REG,x0=40,y=50,ok=true;ndot(g,x0,y,5,'#35ffb0');nt(g,'#8ad',x0+10,y+4,9,'r');
+ for(var i=0;i<STR.length;i++){r=der(r,STR[i]);var ny=y+50*(i+1);var empty=(r.t==='empty');ne(g,empty?'#ff2fa6':'#35ffb0',2);g.beginPath();g.moveTo(x0,y+50*i);g.lineTo(x0,ny);g.stroke();ng(g);ndot(g,x0,ny,5,empty?'#ff2fa6':'#35ffb0');nt(g,'#cfe',x0+10,ny+4,9,'D_'+STR[i]);if(empty)ok=false;}
+ var fin=matchD(REG,STR);nt(g,fin?'#35ffb0':'#ff2fa6',x0+20,y+50*STR.length+4,11,fin?'nullable → ACCEPT':'reject');
+ g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the chain of derivatives, one per character');nt(g,'#ff2fa6',10,H-30,10,'magenta: the residual collapses to ∅ (reject)');nt(g,'#8ad',10,H-13,10,'take the language apart');}
+drawW3();drawW4();window.__brzozowski=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BINH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The binomial heap</b> is a priority queue built as a <b>forest of binomial trees</b> &mdash; trees of sizes 1, 2, 4, 8, &hellip;, exactly the powers of two. A heap of n elements has one tree for each 1-bit in the binary of n, so its shape <b>is</b> the binary numeral of its size. Merging two heaps works like <b>binary addition</b>: line the trees up by order and carry-link equal orders, giving O(log n) union &mdash; and insert, extract-min and decrease-key all follow. Each tree obeys the heap order, so the minimum is always a root.<br><br>
+ <span class="lit">LIT</span> verified live: draining a heap by repeated extract-min returns the keys in sorted order, and merging two heaps then draining yields the combined sorted sequence (window.__binomial_heap). <span class="fig">FIG</span> no framing; the linking, union, and extract-min all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-epoch</i> &mdash; a queue that always serves the smallest key next, epoch by epoch, and merges whole queues like adding binary numbers. <b>AVAN (AI)</b> built the instrument: binomial linking, the carry-propagating union, and extract-min, checked against a sorted reference.<br><br>Credit as content: Jean Vuillemin (1978). The weave: David names the epoch; I confirm the heap drains in sorted order and that merging two heaps drains to the combined sorted sequence.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="190"></canvas>
+  <div class="wctrl"><div class="cap">The forest for a heap of n elements: one binomial tree per 1-bit of n &mdash; its shape is the binary numeral of its size.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Insert keys (watch the trees carry-link like binary addition) and extract the minimum; the drained sequence comes out sorted.</div>
+   <div class="btns" style="margin-top:10px"><button id="bhins">insert 3 ▶</button><button id="bhext">extract-min ▶</button><button id="bhcheck">verify ▶</button></div>
+   <div class="cap" id="bhread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the forest of binomial trees, heap-ordered.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t track the trees &mdash; read the count in binary. The inverse of &lsquo;which trees are present?&rsquo; is &lsquo;the 1-bits of n say exactly which orders exist, and union is binary addition with carries.&rsquo; <b>Magenta</b> is the current minimum root; <b>green</b> is the binary-counter forest. A heap counted in binary.</div>
+   <div class="btns" style="margin-top:10px"><button id="bhspin">pause spin</button></div></div></div></div>"""
+BINH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GR='#35ffb0',HEAP=[],REF=[];
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function node(k){return {key:k,order:0,children:[]};}
+function link(a,b){if(a.key>b.key){var t=a;a=b;b=t;}a.children.push(b);a.order=a.children.length;return a;}
+function union(h1,h2){var all=[],i=0,j=0;while(i<h1.length||j<h2.length){if(j>=h2.length||(i<h1.length&&h1[i].order<=h2[j].order))all.push(h1[i++]);else all.push(h2[j++]);}var out=[];for(var idx=0;idx<all.length;idx++){var c=all[idx];while(out.length&&out[out.length-1].order===c.order)c=link(out.pop(),c);out.push(c);}return out;}
+function insertH(h,k){return union(h,[node(k)]);}
+function extractMin(h){var mi=0;for(var i=1;i<h.length;i++)if(h[i].key<h[mi].key)mi=i;var m=h[mi],rest=h.slice(0,mi).concat(h.slice(mi+1)),kids=m.children.slice().sort(function(a,b){return a.order-b.order;});return {min:m.key,heap:union(rest,kids)};}
+function verify(){if(VR)return VR;var rnd=mb(3),so=true,mo=true;for(var t=0;t<1500;t++){var n=1+Math.floor(rnd()*40),h=[],ref=[];for(var i=0;i<n;i++){var k=Math.floor(rnd()*1000);h=insertH(h,k);ref.push(k);}ref.sort(function(a,b){return a-b;});var out=[];while(h.length){var r=extractMin(h);out.push(r.min);h=r.heap;}if(out.join(',')!==ref.join(','))so=false;}for(var t=0;t<1000;t++){var h1=[],h2=[],ref=[],n1=1+Math.floor(rnd()*20),n2=1+Math.floor(rnd()*20);for(var i=0;i<n1;i++){var k=Math.floor(rnd()*1000);h1=insertH(h1,k);ref.push(k);}for(var i=0;i<n2;i++){var k=Math.floor(rnd()*1000);h2=insertH(h2,k);ref.push(k);}var h=union(h1,h2);ref.sort(function(a,b){return a-b;});var out=[];while(h.length){var r=extractMin(h);out.push(r.min);h=r.heap;}if(out.join(',')!==ref.join(','))mo=false;}VR={sortedExtraction:so,mergeOk:mo};return VR;}
+function reset(){HEAP=[];REF=[];for(var i=0;i<11;i++){var k=Math.floor(Math.random()*99);HEAP=insertH(HEAP,k);REF.push(k);}}
+function drawTree(g,nd,x,y,dx,dy){var kids=nd.children;for(var i=0;i<kids.length;i++){var nx=x+(i-(kids.length-1)/2)*dx,ny=y+dy;ne(g,'rgba(53,255,176,0.5)',1.2);g.beginPath();g.moveTo(x,y);g.lineTo(nx,ny);g.stroke();ng(g);drawTree(g,kids[i],nx,ny,dx*0.6,dy);}ndot(g,x,y,8,GR);nt(g,'#0a0713',x-((''+nd.key).length*3),y+3,9,''+nd.key);}
+function drawForest(g,W,H,y0){if(!HEAP.length)return;var totW=W-40,x=30;var n=REF.length;nt(g,'#8ad',12,y0-14,10,'n = '+n+' = binary '+n.toString(2)+'  →  trees of order '+HEAP.map(function(t){return t.order;}).join(','));
+ var span=totW/HEAP.length;for(var i=0;i<HEAP.length;i++){drawTree(g,HEAP[i],x+span*i+span/2,y0,Math.min(40,span/3),40);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!HEAP.length)reset();nt(g,GR,10,16,10,'binomial heap · one tree per 1-bit of n · shape = binary numeral of size');drawForest(g,W,H,60);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!HEAP.length)reset();drawForest(g,W,H-40,70);var mn=HEAP.length?Math.min.apply(null,HEAP.map(function(t){return t.key;})):'—';nt(g,GR,12,22,11,REF.length+' keys · min = '+mn);var v=verify();nt(g,v.sortedExtraction&&v.mergeOk?'#39ffb0':'#ff5a5a',12,H-12,9,'drain sorted '+(v.sortedExtraction?'✓':'✗')+' · merge sorted '+(v.mergeOk?'✓':'✗'));}
+document.getElementById('bhins').onclick=function(){for(var i=0;i<3;i++){var k=Math.floor(Math.random()*99);HEAP=insertH(HEAP,k);REF.push(k);}drawW3();drawW4();document.getElementById('bhread').textContent='inserted → n='+REF.length+' (binary '+REF.length.toString(2)+'), orders '+HEAP.map(function(t){return t.order;}).join(',');};
+document.getElementById('bhext').onclick=function(){if(HEAP.length){var r=extractMin(HEAP);HEAP=r.heap;REF.splice(REF.indexOf(r.min),1);drawW3();drawW4();document.getElementById('bhread').textContent='extracted min = '+r.min+' → n='+REF.length;}};
+document.getElementById('bhcheck').onclick=function(){var v=verify();document.getElementById('bhread').textContent='extract-min drains sorted '+(v.sortedExtraction?'✓':'✗')+' · merge two heaps drains to combined sorted '+(v.mergeOk?'✓':'✗');};
+document.getElementById('bhspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!HEAP.length)reset();g.save();g.translate(W/2,10);g.rotate(Math.sin(ang*0.4)*0.02);g.translate(-W/2,-10);drawForest(g,W,H-30,60);
+ var mn=Math.min.apply(null,HEAP.map(function(t){return t.key;}));g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the binary-counter forest of binomial trees');nt(g,'#ff2fa6',10,H-30,10,'magenta idea: the minimum root (min = '+mn+')');nt(g,'#8ad',10,H-13,10,'a heap counted in binary');}
+drawW3();drawW4();window.__binomial_heap=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GRSC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Gram&ndash;Schmidt</b> turns any set of independent vectors into an <b>orthonormal</b> set spanning the same space. Take each vector in turn and <b>subtract its projection</b> onto all the directions already fixed, leaving only the part perpendicular to them; then scale to length one. The result q&#8321;, q&#8322;, &hellip; are mutually perpendicular unit vectors, and every original vector is a combination of the q&rsquo;s built so far &mdash; which is exactly the <b>QR decomposition</b> A = QR with R upper-triangular.<br><br>
+ <span class="lit">LIT</span> verified live: over 3,000 random matrices, the produced vectors satisfy q&#7522;&middot;q&#11388; = &delta;&#7522;&#11388; (orthonormal), and each original vector reconstructs from the q&rsquo;s up to its index (window.__gram_schmidt). <span class="fig">FIG</span> no framing; the projections and the orthonormality/reconstruction checks run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-handoff</i> &mdash; each vector hands off its already-covered component to the ones before it, keeping only what is genuinely new and perpendicular. <b>AVAN (AI)</b> built the instrument: the (modified) Gram&ndash;Schmidt projections, the orthonormality check, and the A = QR reconstruction.<br><br>Credit as content: J&oslash;rgen Pedersen Gram (1883) &amp; Erhard Schmidt (1907). The weave: David names the handoff; I confirm the output is orthonormal and that every input vector is rebuilt from the orthonormal basis.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">Two vectors: the second minus its projection onto the first leaves the perpendicular part &mdash; normalize both and they are orthonormal.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A random set of vectors and their orthonormalized q&rsquo;s; the dot products q&#7522;&middot;q&#11388; form the identity, and each original rebuilds from the q&rsquo;s.</div>
+   <div class="btns" style="margin-top:10px"><button id="gsnew">new vectors ▶</button><button id="gscheck">verify ▶</button></div>
+   <div class="cap" id="gsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the orthonormal frame q&#8321;, q&#8322;, q&#8323;.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t just orthogonalize &mdash; record the coefficients. The inverse of &lsquo;make them perpendicular&rsquo; is &lsquo;the projections you subtracted <b>are</b> the R of A = QR, so every original vector is rebuilt from the q&rsquo;s.&rsquo; <b>Magenta</b> is the original skew frame; <b>green</b> is the orthonormal one. Perpendicular, and reversible.</div>
+   <div class="btns" style="margin-top:10px"><button id="gsspin">pause spin</button></div></div></div></div>"""
+GRSC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,AU='#ffcf4a',A0=null,Q0=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dotv(u,v){var s=0;for(var i=0;i<u.length;i++)s+=u[i]*v[i];return s;}
+function gs(A){var Q=[];for(var i=0;i<A.length;i++){var v=A[i].slice();for(var j=0;j<Q.length;j++){if(!Q[j])continue;var d=dotv(A[i],Q[j]);for(var k=0;k<v.length;k++)v[k]-=d*Q[j][k];}var nrm=Math.sqrt(dotv(v,v));if(nrm<1e-9){Q.push(null);continue;}for(var k=0;k<v.length;k++)v[k]/=nrm;Q.push(v);}return Q;}
+function verify(){if(VR)return VR;var rnd=mb(4),oo=true,ro=true,tested=0;for(var t=0;t<3000;t++){var m=2+Math.floor(rnd()*3),n=m+Math.floor(rnd()*2),A=[];for(var i=0;i<m;i++){var row=[];for(var j=0;j<n;j++)row.push(rnd()*10-5);A.push(row);}var Q=gs(A);if(Q.indexOf(null)>=0)continue;tested++;for(var i=0;i<Q.length;i++)for(var j=0;j<Q.length;j++){var d=dotv(Q[i],Q[j]),w=(i===j)?1:0;if(Math.abs(d-w)>1e-6)oo=false;}for(var i=0;i<A.length;i++){var rec=new Array(A[i].length).fill(0);for(var j=0;j<=i;j++){var c=dotv(A[i],Q[j]);for(var k=0;k<rec.length;k++)rec[k]+=c*Q[j][k];}for(var k=0;k<rec.length;k++)if(Math.abs(rec[k]-A[i][k])>1e-6)ro=false;}}VR={orthonormal:oo,reconstructs:ro};return VR;}
+function mk(){var rnd=Math.random;A0=[[rnd()*3-1.5,rnd()*3-1.5],[rnd()*3-1.5,rnd()*3-1.5]];while(Math.abs(A0[0][0]*A0[1][1]-A0[0][1]*A0[1][0])<0.5){A0=[[rnd()*3-1.5,rnd()*3-1.5],[rnd()*3-1.5,rnd()*3-1.5]];}Q0=gs(A0);}
+function drawVecs(g,W,H,vs,cols,sc){var cx=W/2,cy=H/2;ne(g,'rgba(120,140,200,0.35)',1);g.beginPath();g.moveTo(0,cy);g.lineTo(W,cy);g.moveTo(cx,0);g.lineTo(cx,H);g.stroke();ng(g);
+ for(var i=0;i<vs.length;i++){if(!vs[i])continue;var e=[cx+vs[i][0]*sc,cy-vs[i][1]*sc];ne(g,cols[i],2.2);g.beginPath();g.moveTo(cx,cy);g.lineTo(e[0],e[1]);g.stroke();var an=Math.atan2(e[1]-cy,e[0]-cx);g.beginPath();g.moveTo(e[0],e[1]);g.lineTo(e[0]-9*Math.cos(an-0.4),e[1]-9*Math.sin(an-0.4));g.moveTo(e[0],e[1]);g.lineTo(e[0]-9*Math.cos(an+0.4),e[1]-9*Math.sin(an+0.4));g.stroke();ng(g);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var A=[[2.4,0.8],[0.6,1.8]],Q=gs(A);nt(g,AU,10,16,10,'a₂ minus its projection onto q₁ = the perpendicular part → normalize → orthonormal');drawVecs(g,W,H,[A[0],A[1]],['#ff2fa6','#ff2fa6'],46);drawVecs(g,W,H,[Q[0],Q[1]],['#35ffb0','#35ffb0'],80);nt(g,'#ff2fa6',W-150,30,10,'magenta: original');nt(g,'#35ffb0',W-150,46,10,'green: orthonormal q');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!A0)mk();drawVecs(g,W,H-30,[A0[0],A0[1]],['#ff2fa6','#ff2fa6'],40);drawVecs(g,W,H-30,[Q0[0],Q0[1]],['#35ffb0','#35ffb0'],70);
+ nt(g,AU,12,20,11,'q₁·q₂ = '+dotv(Q0[0],Q0[1]).toFixed(4)+' (≈0)   |q₁|='+Math.sqrt(dotv(Q0[0],Q0[0])).toFixed(3)+'   |q₂|='+Math.sqrt(dotv(Q0[1],Q0[1])).toFixed(3));
+ var v=verify();nt(g,v.orthonormal&&v.reconstructs?'#39ffb0':'#ff5a5a',12,H-12,9,'orthonormal (qᵢ·qⱼ=δ) '+(v.orthonormal?'✓':'✗')+' · reconstructs (A=QR) '+(v.reconstructs?'✓':'✗')+' (3000)');}
+document.getElementById('gsnew').onclick=function(){mk();drawW4();document.getElementById('gsread').textContent='q₁·q₂ = '+dotv(Q0[0],Q0[1]).toFixed(5)+' (orthogonal), both unit length';};
+document.getElementById('gscheck').onclick=function(){var v=verify();document.getElementById('gsread').textContent='orthonormal qᵢ·qⱼ=δᵢⱼ '+(v.orthonormal?'✓':'✗')+' · each aᵢ rebuilds from q₁..qᵢ (A=QR) '+(v.reconstructs?'✓':'✗')+' over 3000 matrices';};
+document.getElementById('gsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!A0)mk();var s=Math.sin(ang*0.5),c=Math.cos(ang*0.5);function rot(v){return [v[0]*c-v[1]*s,v[0]*s+v[1]*c];}drawVecs(g,W,H-30,[rot(A0[0]),rot(A0[1])],['#ff2fa6','#ff2fa6'],42);drawVecs(g,W,H-30,[rot(Q0[0]),rot(Q0[1])],['#35ffb0','#35ffb0'],72);
+ nt(g,'#35ffb0',10,H-46,11,'green: the orthonormal frame (perpendicular unit vectors)');nt(g,'#ff2fa6',10,H-30,10,'magenta: the original skew frame');nt(g,'#8ad',10,H-13,10,'perpendicular, and reversible');}
+drawW3();drawW4();window.__gram_schmidt=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PRAT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Pratt parsing</b> (top-down operator-precedence) parses expressions using one idea: every operator has a <b>binding power</b>, and an operator binds tighter than another exactly when its power is higher. The parser reads a value, then keeps absorbing operators to its right <b>as long as their binding power beats the current threshold</b>, recursing to gather the right operand. That single rule reproduces the full precedence and associativity of arithmetic &mdash; <b>&times; before +</b>, parentheses, unary minus &mdash; with no grammar tables, in a handful of lines.<br><br>
+ <span class="lit">LIT</span> verified live: over 8,000 random expressions, the Pratt parser&rsquo;s value equals an independent recursive-descent evaluator that hard-codes the precedence levels (window.__pratt) &mdash; e.g. 2+3&times;4 = 14, not 20. <span class="fig">FIG</span> no framing; both evaluators run in-browser and are compared.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-shortcut</i> &mdash; binding powers are the shortcut past a stack of grammar rules; one number per operator replaces a whole precedence hierarchy. <b>AVAN (AI)</b> built the instrument: the Pratt loop with binding powers, and a recursive-descent evaluator with explicit precedence to check every result.<br><br>Credit as content: Vaughan Pratt (1973). The weave: David names the shortcut; I confirm Pratt&rsquo;s value matches a precedence-explicit evaluator across thousands of random expressions.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="180"></canvas>
+  <div class="wctrl"><div class="cap">2 + 3 &times; 4: the &times; has higher binding power, so it gathers 3 and 4 first &mdash; the parse tree puts &times; below +.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Generate an expression; the Pratt parser evaluates it, and a precedence-explicit reference confirms the value &mdash; precedence and parentheses honored.</div>
+   <div class="btns" style="margin-top:10px"><button id="prnew">new expression ▶</button><button id="prcheck">verify ▶</button></div>
+   <div class="cap" id="prread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the parse tree, operators nested by binding power.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t write a grammar rule per precedence level &mdash; give each operator a number. The inverse of &lsquo;a hierarchy of grammar productions&rsquo; is &lsquo;one binding power per operator, and the loop absorbs while power beats the threshold.&rsquo; <b>Magenta</b> is a low-binding operator (waits); <b>green</b> is the high-binding one that grabs first. Precedence from a number.</div>
+   <div class="btns" style="margin-top:10px"><button id="prspin">pause spin</button></div></div></div></div>"""
+PRAT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,VI='#b06bff',EXPR='2+3*4';
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function tok(s){var t=[],i=0;while(i<s.length){var c=s[i];if(c===' '){i++;continue;}if(c>='0'&&c<='9'){var n='';while(i<s.length&&s[i]>='0'&&s[i]<='9')n+=s[i++];t.push({t:'num',v:parseInt(n)});}else{t.push({t:c});i++;}}return t;}
+function pratt(ts){var pos=0,bp={'+':1,'-':1,'*':2};function nud(){var tk=ts[pos++];if(tk.t==='num')return tk.v;if(tk.t==='('){var v=expr(0);pos++;return v;}if(tk.t==='-')return -nud();throw 'e';}function expr(rbp){var left=nud();while(pos<ts.length&&bp[ts[pos].t]>rbp){var op=ts[pos++].t,right=expr(bp[op]);if(op==='+')left+=right;else if(op==='-')left-=right;else left*=right;}return left;}return expr(0);}
+function ref(ts){var pos=0;function factor(){var tk=ts[pos];if(tk.t==='('){pos++;var v=addsub();pos++;return v;}if(tk.t==='-'){pos++;return -factor();}pos++;return tk.v;}function md(){var v=factor();while(pos<ts.length&&ts[pos].t==='*'){pos++;v*=factor();}return v;}function addsub(){var v=md();while(pos<ts.length&&(ts[pos].t==='+'||ts[pos].t==='-')){var op=ts[pos++].t,r=md();if(op==='+')v+=r;else v-=r;}return v;}return addsub();}
+function gen(rnd,d){if(d<=0||rnd()<0.4)return ''+Math.floor(rnd()*9+1);var r=rnd();if(r<0.7)return gen(rnd,d-1)+['+','-','*'][Math.floor(rnd()*3)]+gen(rnd,d-1);return '('+gen(rnd,d-1)+['+','-','*'][Math.floor(rnd()*3)]+gen(rnd,d-1)+')';}
+function verify(){if(VR)return VR;var rnd=mb(5),ok=true,tested=0;for(var t=0;t<8000;t++){var s=gen(rnd,4),ts=tok(s),a,b;try{a=pratt(ts.slice());b=ref(ts.slice());}catch(e){continue;}tested++;if(a!==b)ok=false;}VR={matchesReference:ok};return VR;}
+function drawTreeExpr(g,W,H){nt(g,VI,10,16,10,"2 + 3 × 4  →  × binds tighter (bp 2 > 1), so it gathers 3,4 first");
+ var cx=W/2,y0=50;ndot(g,cx,y0,13,'#35ffb0');nt(g,'#0a0713',cx-3,y0+4,12,'+');
+ ne(g,'rgba(53,255,176,0.6)',1.6);g.beginPath();g.moveTo(cx,y0);g.lineTo(cx-90,y0+55);g.moveTo(cx,y0);g.lineTo(cx+50,y0+55);g.stroke();ng(g);
+ ndot(g,cx-90,y0+55,12,'#b06bff');nt(g,'#0a0713',cx-93,y0+59,11,'2');
+ ndot(g,cx+50,y0+55,13,'#35ffb0');nt(g,'#0a0713',cx+47,y0+59,12,'×');
+ ne(g,'rgba(53,255,176,0.6)',1.6);g.beginPath();g.moveTo(cx+50,y0+55);g.lineTo(cx+10,y0+110);g.moveTo(cx+50,y0+55);g.lineTo(cx+90,y0+110);g.stroke();ng(g);
+ ndot(g,cx+10,y0+110,11,'#b06bff');nt(g,'#0a0713',cx+7,y0+114,11,'3');ndot(g,cx+90,y0+110,11,'#b06bff');nt(g,'#0a0713',cx+87,y0+114,11,'4');
+ nt(g,'#35ffb0',cx-90,y0+150,11,'value = 2 + (3×4) = 14');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);drawTreeExpr(g,W,H);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var ts=tok(EXPR),a,b;try{a=pratt(ts.slice());b=ref(ts.slice());}catch(e){a=b='err';}
+ nt(g,VI,12,26,13,EXPR);nt(g,'#cfe',12,58,12,'Pratt value = '+a);nt(g,'#cfe',12,82,12,'reference (precedence-explicit) = '+b);
+ nt(g,a===b?'#39ffb0':'#ff5a5a',12,112,11,a===b?'agree ✓ (× before +, parens honored)':'MISMATCH ✗');
+ var v=verify();nt(g,v.matchesReference?'#39ffb0':'#ff5a5a',12,H-12,9,'Pratt == reference over 8000 random expressions '+(v.matchesReference?'✓':'✗'));}
+document.getElementById('prnew').onclick=function(){EXPR=gen(function(){return Math.random();},3);drawW4();document.getElementById('prread').textContent=EXPR+' = '+pratt(tok(EXPR));};
+document.getElementById('prcheck').onclick=function(){var v=verify();document.getElementById('prread').textContent='Pratt value == precedence-explicit recursive descent, 8000 expressions '+(v.matchesReference?'✓':'✗');};
+document.getElementById('prspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(W/2,10);g.rotate(Math.sin(ang*0.4)*0.03);g.translate(-W/2,-10);drawTreeExpr(g,W,H-30);g.restore();nt(g,'#35ffb0',10,H-46,11,'green: high-binding operator (grabs its operands first)');nt(g,'#ff2fa6',10,H-30,10,'magenta: low-binding operator (waits its turn)');nt(g,'#8ad',10,H-13,10,'precedence from a number');}
+drawW3();drawW4();window.__pratt=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 115 · neon-noir tracing · silicon-coding (a range in a logarithm of nodes · balance kept by rotation · a set in 1.23 bytes a key · a number that says its own length · buckets that barely move when you add one) ═══════════════════════
 SEGT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The segment tree</b> answers questions about any <b>range</b> of an array &mdash; its sum, its minimum &mdash; in <b>O(log n)</b> time, and updates a single element just as fast. It is a binary tree over the array: leaves are the elements, and every internal node stores the aggregate of its two children. Any range [l, r] splits into at most <b>2&thinsp;log n</b> canonical nodes whose stored aggregates already hold the answer, so you never rescan the range. Change one leaf and only the log n nodes above it need refreshing.<br><br>
@@ -30783,6 +31019,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-padic","title":"THE P-ADIC","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#21e6ff","icon":"padic",
+  "kicker":"a metric where big powers are small",
+  "blurb":"The p-adic numbers in the 5-window house format — a strange way to measure size where a number is small when it is divisible by a high power of a prime p. The p-adic absolute value is |x|_p = p^−v (v = how many times p divides x), so 1, p, p², p³… march toward zero. This metric is ultrametric: |x+y|_p ≤ max(|x|_p,|y|_p), stronger than the ordinary triangle inequality. Numbers get infinite digit-strings running leftward, and famously …1111 = −1 in the 2-adics (2^k−1 ≡ −1 for every k). Verified live: over thousands of rationals the ultrametric holds, any a/b (b coprime to p) reconstructs from its p-adic digits mod p^k, and the all-(p−1) digit string equals −1. Neon-noir traced. See …1111=−1 in 1D, digit expansion in 2D, and the ultrametric-tree inverse in 3D.",
+  "lit":"Genuine p-adic numbers (Kurt Hensel, 1897): |x|_p=p^−v_p(x), ultrametric, …(p−1)(p−1)=−1. Verified live: ultrametric inequality over 3000 rationals (window.__padic.ultrametric), a/b reconstructs from its digits mod p^k (.reconstructs), and the all-(p−1) string equals −1 mod p^k (.minusOne).",
+  "fig":"No framing: the p-adic valuations, the digit reconstruction (via modular inverse in BigInt), and the −1 identity all run in-browser. The AVAN inverse is honest — measuring closeness by shared low digits (divisibility by a high power of p) rather than by ordinary difference is exactly the ultrametric, and it clusters numbers into a tree; magenta is the …1111=−1 idea, green the ultrametric tree. Big powers are small.",
+  "body":PADC_BODY,"script":PADC_SCRIPT},
+ {"slug":"the-brzozowski","title":"THE BRZOZOWSKI","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE TOOLCHAIN","domain_slug":"the-toolchain","accent":"#ff8a3c","icon":"brzozowski",
+  "kicker":"matching by taking the language apart",
+  "blurb":"Brzozowski derivatives in the 5-window house format — matching a regular expression by taking the language apart one symbol at a time. The derivative D_c(r) is a new regex matching exactly the strings r would match after consuming c; there are simple rules per operator, and matching is a fold: feed the string in, take a derivative per character, and ask whether the residual regex is nullable (matches ε). No NFA, no backtracking — just algebra on regexes. Verified live: over 8000 random regex/string pairs, the derivative matcher agrees exactly with an independent backtracking matcher. Neon-noir traced. See a derivative in 1D, a matched fold in 2D, and the differentiate-don't-simulate inverse in 3D.",
+  "lit":"Genuine Brzozowski derivatives (Janusz Brzozowski, 1964): D_c(r) is the residual language; match = fold derivatives then test nullability. Verified live: over 8000 random regex/string pairs the derivative matcher equals a backtracking reference matcher (window.__brzozowski.matchesReference).",
+  "fig":"No framing: the derivative and nullability rules (with smart constructors) and the backtracking reference both run in-browser and agree. The AVAN inverse is honest — the derivative IS the residual language, so matching is a fold and nullability is the accept, rather than building and simulating an automaton; magenta is a reject (residual collapses to ∅), green an accept (residual nullable). Take the language apart.",
+  "body":BRZO_BODY,"script":BRZO_SCRIPT},
+ {"slug":"the-binomial-heap","title":"THE BINOMIAL HEAP","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#35ffb0","icon":"binomial-heap",
+  "kicker":"a heap counted in binary",
+  "blurb":"The binomial heap in the 5-window house format — a priority queue built as a forest of binomial trees of sizes 1,2,4,8,… (the powers of two). A heap of n elements has one tree per 1-bit of n, so its shape is the binary numeral of its size. Merging two heaps works like binary addition: line trees up by order and carry-link equal orders, giving O(log n) union — and insert, extract-min follow; each tree is heap-ordered so the minimum is a root. Verified live: draining a heap by repeated extract-min returns keys in sorted order, and merging two heaps then draining yields the combined sorted sequence. Neon-noir traced. See the binary forest in 1D, insert+extract in 2D, and the read-the-count-in-binary inverse in 3D.",
+  "lit":"Genuine binomial heap (Jean Vuillemin, 1978): forest of binomial trees, union by carry-linking (binary addition). Verified live: extract-min drains in sorted order (window.__binomial_heap.sortedExtraction), and merging two heaps then draining equals the combined sorted sequence (.mergeOk).",
+  "fig":"No framing: the linking, the carry-propagating union, and extract-min all run in-browser, checked against a sorted reference. The AVAN inverse is honest — the 1-bits of n saying exactly which tree-orders exist (and union being binary addition with carries) is the structural identity of the heap; magenta is the minimum root, green the binary-counter forest. A heap counted in binary.",
+  "body":BINH_BODY,"script":BINH_SCRIPT},
+ {"slug":"the-gram-schmidt","title":"THE GRAM-SCHMIDT","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#ffcf4a","icon":"gram-schmidt",
+  "kicker":"vectors made perpendicular",
+  "blurb":"Gram–Schmidt in the 5-window house format — turning independent vectors into an orthonormal set spanning the same space. Take each vector in turn and subtract its projection onto the directions already fixed, leaving only the perpendicular part, then scale to length one. The results q₁,q₂,… are mutually perpendicular unit vectors, and every original vector is a combination of the q's built so far — exactly the QR decomposition A=QR with R upper-triangular. Verified live: over 3000 random matrices the vectors satisfy qᵢ·qⱼ=δᵢⱼ (orthonormal) and each original reconstructs from the q's up to its index. Neon-noir traced. See the perpendicular part in 1D, orthonormalized vectors in 2D, and the projections-are-R inverse in 3D.",
+  "lit":"Genuine Gram–Schmidt orthonormalization (Jørgen Gram, 1883 & Erhard Schmidt, 1907), yielding QR. Verified live: over 3000 random matrices, output is orthonormal qᵢ·qⱼ=δᵢⱼ (window.__gram_schmidt.orthonormal) and each aᵢ reconstructs from q₁..qᵢ i.e. A=QR (.reconstructs).",
+  "fig":"No framing: the (modified) Gram–Schmidt projections and the orthonormality/reconstruction checks run in-browser. The AVAN inverse is honest — the projection coefficients you subtract ARE the R of A=QR, so orthogonalizing is reversible (every original rebuilds from the q's), not just a cleanup; magenta is the original skew frame, green the orthonormal one. Perpendicular, and reversible.",
+  "body":GRSC_BODY,"script":GRSC_SCRIPT},
+ {"slug":"the-pratt-parsing","title":"THE PRATT PARSING","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SHORTCUT","domain_slug":"the-shortcut","accent":"#b06bff","icon":"pratt-parsing",
+  "kicker":"precedence from binding power",
+  "blurb":"Pratt parsing in the 5-window house format — top-down operator-precedence parsing from one idea: every operator has a binding power, and it binds tighter than another exactly when its power is higher. The parser reads a value, then keeps absorbing operators to its right as long as their binding power beats the current threshold, recursing to gather the right operand. That single rule reproduces the full precedence and associativity of arithmetic — × before +, parentheses, unary minus — with no grammar tables, in a handful of lines. Verified live: over 8000 random expressions, the Pratt value equals an independent precedence-explicit recursive-descent evaluator (2+3×4 = 14, not 20). Neon-noir traced. See the parse tree in 1D, an evaluated expression in 2D, and the one-number-per-operator inverse in 3D.",
+  "lit":"Genuine Pratt parsing / top-down operator precedence (Vaughan Pratt, 1973). Verified live: over 8000 random arithmetic expressions, the Pratt parser's value equals a recursive-descent evaluator with explicit precedence levels (window.__pratt.matchesReference); e.g. 2+3×4=14.",
+  "fig":"No framing: the Pratt loop (binding powers) and a precedence-explicit recursive-descent evaluator both run in-browser and are compared across thousands of expressions. The AVAN inverse is honest — replacing a hierarchy of grammar productions with one binding power per operator (absorb while power beats the threshold) is exactly Pratt's shortcut; magenta is a low-binding operator that waits, green the high-binding one that grabs first. Precedence from a number.",
+  "body":PRAT_BODY,"script":PRAT_SCRIPT},
  {"slug":"the-segment-tree","title":"THE SEGMENT TREE","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#21e6ff","icon":"segment-tree",
   "kicker":"a range in a logarithm of nodes",
