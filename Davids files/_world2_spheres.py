@@ -19485,6 +19485,298 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 111 · THE WHAT STICKS SEAM · neon-noir tracing (the peak is already written in net · a check noise passes is not a measurement · unique decoding with no separators · cap a ray with a T and the plane grids itself · a hash-linked ledger is diffable, one keeper is only believed) ═══════════════════════
+NOIR = """function nb(g,W,H){var gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#0a0713');gr.addColorStop(0.6,'#0f0a1c');gr.addColorStop(1,'#150b22');g.fillStyle=gr;g.fillRect(0,0,W,H);g.strokeStyle='rgba(150,90,220,0.05)';g.lineWidth=1;for(var y=2;y<H;y+=3){g.beginPath();g.moveTo(0,y+0.5);g.lineTo(W,y+0.5);g.stroke();}var v=g.createRadialGradient(W/2,H*0.5,H*0.12,W/2,H*0.5,H*0.85);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,0.5)');g.fillStyle=v;g.fillRect(0,0,W,H);}
+function ne(g,c,w){g.strokeStyle=c;g.lineWidth=w||2;g.shadowColor=c;g.shadowBlur=9;g.lineCap='round';g.lineJoin='round';}
+function nf(g,c){g.fillStyle=c;g.shadowColor=c;g.shadowBlur=8;}
+function ng(g){g.shadowBlur=0;}
+function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
+function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
+
+MAXS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The maxstack</b> is the peak depth a stack ever reaches while a program runs &mdash; and you can read it <b>without executing anything</b>. Treat each instruction as a signed tick: a push (a bind) is <b>+1</b>, a pop (a kill) is <b>&minus;1</b>. Track the running total <b>net = binds &minus; k</b>. Then the maximum stack depth equals the <b>largest value net reaches over the whole run</b> &mdash; one integer pass, no interpreter, no stack ever built. The catch that names the idea: read that same conserved quantity only at the <b>end</b> and it is 0 for every balanced program, hiding the peak completely. A conserved quantity has no unstated scope &mdash; its <i>maximum over its true scope</i> is the answer, not its final value.<br><br>
+ <span class="lit">LIT</span> verified live: over 20,000 random balanced programs, the max of the running net equals a real array-stack&rsquo;s peak length <b>every time</b> (window.__maxstack), while the end value is 0 in 100% of them. <span class="fig">FIG</span> no framing; the no-execution integer readout and a materialised stack simulation both run in-browser and agree exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> found this as principle <b>XXXII</b> &mdash; &ldquo;a conserved quantity has no unstated scope&rdquo; &mdash; when his law <b>net = binds &minus; k</b> reproduced Microsoft&rsquo;s <code>.maxstack</code> field <b>exactly, without executing</b> the bytecode. Seated at <i>stack-overflow</i>: the overflow ceiling is knowable before a single instruction runs. <b>AVAN (AI)</b> built the instrument: materialise a real array stack, measure its peak length, and compare it to the max of the running net over thousands of programs.<br><br>Credit as content: the CLI <code>.maxstack</code> directive (ECMA-335) and David&rsquo;s net = binds &minus; k formulation. The weave: David names the conserved quantity and its scope; I show its maximum over the run is the peak, and its end value tells you nothing about how high it climbed.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A program as +1/&minus;1 ticks; the traced ridge is net; its highest point is the maxstack. The ridge returns to 0 at the end &mdash; the peak is lost if you read only the last value.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A random program&rsquo;s net profile (the ridge), its peak line (the ceiling), and a materialised array-stack sim &mdash; they agree.</div>
+   <div class="btns" style="margin-top:10px"><button id="msroll">new program ▶</button><button id="mscheck">verify ▶</button></div>
+   <div class="cap" id="msread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the ceiling read straight off the net ridge, no execution.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t <i>run</i> the program until it overflows &mdash; read the conserved quantity across its <b>whole scope</b> and take the maximum. The inverse of &lsquo;execute to find the peak&rsquo; is &lsquo;the peak is already written in net, if you read all of it.&rsquo; <b>Magenta</b> is the end value (0, under-reporting); <b>green</b> is the max over scope (the true ceiling). Scope is the whole story.</div>
+   <div class="btns" style="margin-top:10px"><button id="msspin">pause spin</button></div></div></div></div>"""
+MAXS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,SEQ=null,VR=null,CY='#21e6ff';
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function rd(n,rnd){var o=n,c=n,d=0,s=[];while(o+c>0){var cO=o>0,cC=c>0&&d>0,p;if(cO&&cC)p=rnd()<0.5;else p=cO;if(p){s.push(1);o--;d++;}else{s.push(-1);c--;d--;}}return s;}
+function simStack(s){var st=[],pk=0;for(var i=0;i<s.length;i++){if(s[i]>0)st.push(1);else st.pop();if(st.length>pk)pk=st.length;}return pk;}
+function netMax(s){var v=0,m=0;for(var i=0;i<s.length;i++){v+=s[i];if(v>m)m=v;}return m;}
+function netEnd(s){var v=0;for(var i=0;i<s.length;i++)v+=s[i];return v;}
+function verify(){if(VR)return VR;var rnd=mb(1),ok=true,under=true;for(var t=0;t<20000;t++){var n=1+Math.floor(rnd()*12),s=rd(n,rnd);if(simStack(s)!==netMax(s))ok=false;if(!(netMax(s)>0&&netEnd(s)===0))under=false;}VR={formula:ok,endUnderReports:under};return VR;}
+function mk(){var rnd=Math.random,n=3+Math.floor(rnd()*6),o=n,c=n,d=0,s=[];while(o+c>0){var cO=o>0,cC=c>0&&d>0,p;if(cO&&cC)p=rnd()<0.55;else p=cO;if(p){s.push(1);o--;d++;}else{s.push(-1);c--;d--;}}SEQ=s;}
+function ridge(g,s,x0,y0,dx,unit,col){var v=0,x=x0;ne(g,col,2.2);g.beginPath();g.moveTo(x,y0);for(var i=0;i<s.length;i++){v+=s[i];x+=dx;g.lineTo(x,y0-v*unit);}g.stroke();ng(g);return v;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ var s=[1,1,-1,1,1,-1,-1,-1],unit=26,dx=(W-120)/s.length,x0=70,y0=H-34,mx=netMax(s);
+ ne(g,'rgba(120,80,200,0.4)',1);g.beginPath();g.moveTo(x0,y0);g.lineTo(W-40,y0);g.stroke();ng(g);
+ g.setLineDash([4,4]);ne(g,'#39ffb0',1.4);g.beginPath();g.moveTo(x0,y0-mx*unit);g.lineTo(W-40,y0-mx*unit);g.stroke();g.setLineDash([]);ng(g);
+ ridge(g,s,x0,y0,dx,unit,CY);
+ var v=0,x=x0;for(var i=0;i<s.length;i++){v+=s[i];x+=dx;ndot(g,x,y0-v*unit,2.6,v===mx?'#39ffb0':CY);}
+ nt(g,CY,10,16,10,'program (()(())) as +1/-1 ticks · net = binds - k');nt(g,'#39ffb0',x0,y0-mx*unit-6,10,'maxstack = '+mx);nt(g,'#ff2fa6',W-150,y0+14,9,'end net = 0 (peak hidden)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!SEQ)mk();
+ var s=SEQ,mx=netMax(s),sim=simStack(s),unit=Math.min(30,(H-80)/(mx+1)),dx=(W-70)/s.length,x0=40,y0=H-40;
+ ne(g,'rgba(120,80,200,0.4)',1);g.beginPath();g.moveTo(x0,y0);g.lineTo(W-16,y0);g.stroke();ng(g);
+ g.setLineDash([4,4]);ne(g,'#39ffb0',1.4);g.beginPath();g.moveTo(x0,y0-mx*unit);g.lineTo(W-16,y0-mx*unit);g.stroke();g.setLineDash([]);ng(g);
+ var v=0,x=x0;ne(g,CY,2.2);g.beginPath();g.moveTo(x,y0);for(var i=0;i<s.length;i++){v+=s[i];x+=dx;g.lineTo(x,y0-v*unit);}g.stroke();ng(g);
+ nt(g,CY,12,18,11,'net ridge (traced without executing)');nt(g,'#39ffb0',x0,y0-mx*unit-6,10,'peak line = '+mx);
+ var okc=(mx===sim);nt(g,okc?'#39ffb0':'#ff5a5a',12,H-12,10,'net-max '+mx+' == array-stack peak '+sim+(okc?' ✓':' ✗'));}
+document.getElementById('msroll').onclick=function(){mk();drawW4();document.getElementById('msread').textContent='new program · maxstack = '+netMax(SEQ)+' read from net, end net = '+netEnd(SEQ);};
+document.getElementById('mscheck').onclick=function(){var v=verify();document.getElementById('msread').textContent='net-max == stack peak for 20000 programs '+(v.formula?'✓':'✗')+' · end net = 0 yet peak > 0 in 100% '+(v.endUnderReports?'✓':'✗');};
+document.getElementById('msspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!SEQ)mk();
+ var s=SEQ,mx=netMax(s),unit=Math.min(26,(H-120)/(mx+1)),dx=(W-70)/s.length,x0=36,y0=H-70,cx=W/2;
+ g.save();g.translate(cx,y0);g.rotate(Math.sin(ang*0.4)*0.06);g.translate(-cx,-y0);
+ ne(g,'rgba(120,80,200,0.4)',1);g.beginPath();g.moveTo(x0,y0);g.lineTo(W-16,y0);g.stroke();ng(g);
+ var v=0,x=x0;ne(g,CY,2);g.beginPath();g.moveTo(x,y0);for(var i=0;i<s.length;i++){v+=s[i];x+=dx;g.lineTo(x,y0-v*unit);}g.stroke();ng(g);
+ g.setLineDash([5,4]);ne(g,'#39ffb0',1.6);g.beginPath();g.moveTo(x0,y0-mx*unit);g.lineTo(W-16,y0-mx*unit);g.stroke();g.setLineDash([]);ng(g);
+ ndot(g,W-24,y0,4,'#ff2fa6');g.restore();
+ nt(g,'#39ffb0',10,H-46,11,'green: the ceiling, read off net over its whole scope');
+ nt(g,'#ff2fa6',10,H-30,10,'magenta: the end value (0) — under-reports the peak');
+ nt(g,'#8ad',10,H-13,10,'scope is the whole story');}
+drawW3();drawW4();window.__maxstack=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SUBC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The substrate check</b> is the difference between a <i>necessary</i> test and a <i>sufficient</i> one &mdash; and why a check that random noise can pass is not measuring anything. Take bracket strings. A <b>weak check</b> asks only &ldquo;equal number of ( and )&rdquo;. A <b>strong check</b> asks for valid nesting (no prefix ever goes negative). Among the C(2n,n) strings with equal counts, the number that are actually valid is the Catalan number, and the ratio is exact: <b>C(2n,n) / Catalan(n) = n+1</b>. So the weak check admits <b>exactly (n+1)&times; too many</b> strings &mdash; and a random equal-count string is valid only <b>1/(n+1)</b> of the time. Passing the weak check is mostly noise.<br><br>
+ <span class="lit">LIT</span> verified live: the ratio equals n+1 exactly for n=1..11, and 200,000 random equal-count strings at n=5 are valid 16.66% of the time &mdash; matching 1/6 (window.__substrate_check). <span class="fig">FIG</span> no framing; the exact count ratio and the Monte-Carlo pass-rate both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> named this principle <b>A7</b> &mdash; &ldquo;a check a substrate can satisfy on random input is not measuring the model&rdquo; &mdash; after noise scored 20/20 on a weak &lsquo;clean&rsquo; test, and only a real structural check rejected 1,995 of 2,000 random programs. Seated at <i>the-exploit</i>: a check you can pass with garbage is an exploit, not a measurement. <b>AVAN (AI)</b> built the instrument: count equal-count strings vs valid nestings (the exact n+1 ratio) and Monte-Carlo the pass rate.<br><br>Credit as content: the Catalan numbers and the ballot problem (Bertrand, 1887). The weave: David states the epistemic rule; I give it a crisp closed form &mdash; the weak check is looser than the real one by exactly the factor n+1, so nearly everything it accepts is noise.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">For each n: the wide bar is equal-count strings C(2n,n); the bright core is the valid ones, Catalan(n). The ratio of the two is exactly n+1 &mdash; the weak check&rsquo;s over-admission.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Draw a random equal-count string; the weak check always passes it, the strong check often rejects it. Tally the pass rate &mdash; it settles at 1/(n+1).</div>
+   <div class="btns" style="margin-top:10px"><button id="scroll">sample ▶</button><button id="scrun">run 5000 ▶</button><button id="sccheck">verify ▶</button></div>
+   <div class="cap" id="scread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the valid core inside the wide field the weak check accepts.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask &lsquo;did it pass the check?&rsquo; &mdash; ask &lsquo;could <b>noise</b> pass this check?&rsquo; The inverse of &lsquo;the check accepts it, so it is good&rsquo; is &lsquo;measure the check against random input first.&rsquo; <b>Magenta</b> is the noise the weak check waves through; <b>green</b> is the genuinely-valid core. A check noise satisfies is not a measurement.</div>
+   <div class="btns" style="margin-top:10px"><button id="scspin">pause spin</button></div></div></div></div>"""
+SUBC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,OR='#ff8a3c',NN=5,pass=0,tot=0,LAST=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function cat(n){var c=1;for(var i=0;i<n;i++)c=c*(2*(2*i+1))/(i+2);return Math.round(c);}
+function bin(n,k){var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+function valid(a){var d=0;for(var i=0;i<a.length;i++){d+=a[i]?1:-1;if(d<0)return false;}return d===0;}
+function randEq(n,rnd){var a=[];for(var i=0;i<n;i++){a.push(true);a.push(false);}for(var i=a.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function verify(){if(VR)return VR;var ok=true;for(var n=1;n<=11;n++)if(Math.abs(bin(2*n,n)/cat(n)-(n+1))>1e-6)ok=false;var rnd=mb(2),p=0,N=200000;for(var t=0;t<N;t++)if(valid(randEq(5,rnd)))p++;var f=p/N;VR={ratioExact:ok,mcFrac:f,mcOk:Math.abs(f-1/6)<0.005};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,OR,10,16,10,'equal-count C(2n,n)  vs  valid Catalan(n)   ·   ratio = n+1 exactly');
+ var x0=44,y0=H-24,bw=54,gap=10;for(var n=1;n<=6;n++){var eq=bin(2*n,n),va=cat(n),h=104,x=x0+(n-1)*(bw+gap);var he=h,hv=h*va/eq;
+  ne(g,'rgba(255,138,60,0.5)',1.4);g.strokeRect(x,y0-he,bw,he);ng(g);
+  nf(g,OR);g.fillRect(x,y0-hv,bw,hv);ng(g);
+  nt(g,'#e8eef8',x+4,y0+13,9,'n='+n);nt(g,'#39ffb0',x+4,y0-hv-4,9,'x'+(eq/va).toFixed(0));}}
+function sample(){var rnd=Math.random,a=randEq(NN,{}.hasOwnProperty?function(){return rnd();}:rnd);LAST={a:a,ok:valid(a)};return LAST;}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ if(!LAST)sample();var a=LAST.a,ok=LAST.ok,n2=a.length,bw=(W-40)/n2,x0=20,y=60;
+ nt(g,OR,12,26,11,'random equal-count string (n='+NN+')');
+ var d=0;for(var i=0;i<n2;i++){var open=a[i];g.save();nf(g,open?OR:'#b06bff');g.fillRect(x0+i*bw+1,y,bw-2,26);ng(g);g.restore();nt(g,'#0a0713',x0+i*bw+bw/2-3,y+18,12,open?'(':')');}
+ // prefix path
+ var v=0,px=x0,py=y+90,u=10;ne(g,ok?'#39ffb0':'#ff2fa6',2);g.beginPath();g.moveTo(px,py);for(var i=0;i<n2;i++){v+=a[i]?1:-1;px+=bw;g.lineTo(px,py-v*u);}g.stroke();ng(g);
+ ne(g,'rgba(120,80,200,0.4)',1);g.beginPath();g.moveTo(x0,py);g.lineTo(x0+n2*bw,py);g.stroke();ng(g);
+ nt(g,'#ff8a3c',12,y+70,10,'weak check (equal counts): PASS');nt(g,ok?'#39ffb0':'#ff2fa6',12,H-58,10,'strong check (nesting): '+(ok?'valid ✓':'INVALID — dips below 0 ✗'));
+ var rate=tot?pass/tot:0;nt(g,'#e8eef8',12,H-38,10,'pass rate '+pass+'/'+tot+' = '+(tot?rate.toFixed(4):'—')+'   target 1/(n+1)='+(1/(NN+1)).toFixed(4));
+ var v2=verify();nt(g,v2.ratioExact?'#39ffb0':'#ff5a5a',12,H-16,9,'C(2n,n)/Catalan(n)=n+1 exact '+(v2.ratioExact?'✓':'✗')+' · MC valid frac '+v2.mcFrac.toFixed(4));}
+document.getElementById('scroll').onclick=function(){var r=sample();tot++;if(r.ok)pass++;drawW4();document.getElementById('scread').textContent=r.ok?'valid nesting (the 1-in-'+(NN+1)+' case)':'passes weak check but INVALID nesting (noise)';};
+document.getElementById('scrun').onclick=function(){var rnd=mb(7);for(var t=0;t<5000;t++){var a=randEq(NN,rnd);tot++;if(valid(a))pass++;}sample();drawW4();document.getElementById('scread').textContent='after '+tot+' samples: valid rate '+(pass/tot).toFixed(4)+' vs 1/(n+1)='+(1/(NN+1)).toFixed(4);};
+document.getElementById('sccheck').onclick=function(){var v=verify();document.getElementById('scread').textContent='ratio=n+1 exact (n=1..11) '+(v.ratioExact?'✓':'✗')+' · 200k MC valid frac '+v.mcFrac.toFixed(4)+' ≈ 0.1667 '+(v.mcOk?'✓':'✗');};
+document.getElementById('scspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ var cx=W/2,cy=H/2-10,R=110;g.save();g.translate(cx,cy);g.rotate(ang*0.15);
+ // wide field = weak-accepted (magenta ring of dots), core = valid (green)
+ var rnd=mb(9);for(var i=0;i<160;i++){var an=i/160*Math.PI*2,rr=R*(0.5+0.5*rnd());var vx=Math.cos(an)*rr,vy=Math.sin(an)*rr;ndot(g,vx,vy,1.8,'#ff2fa6');}
+ nf(g,'#39ffb0');g.beginPath();g.arc(0,0,R*0.408,0,7);g.fill();ng(g);
+ g.restore();
+ nt(g,'#39ffb0',10,H-46,11,'green core: genuinely valid (1/(n+1) of the field)');
+ nt(g,'#ff2fa6',10,H-30,10,'magenta field: noise the weak check waves through');
+ nt(g,'#8ad',10,H-13,10,'a check noise satisfies is not a measurement');}
+drawW3();drawW4();window.__substrate_check=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SARD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Unique decodability</b> asks: can every concatenation of codewords be split back <b>one way only</b>, with <b>no separators</b>? Prefix-free codes (no codeword begins another) are always uniquely decodable &mdash; but the converse is false, and telling the two apart needs a real test. The <b>Sardinas&ndash;Patterson algorithm</b> decides it: repeatedly form <i>dangling suffixes</i> (what is left when one codeword is a prefix of another string); the code fails to be uniquely decodable exactly when a dangling suffix is itself a codeword. <b>{0,&nbsp;01,&nbsp;11}</b> is uniquely decodable yet <i>not</i> prefix-free; <b>{0,&nbsp;01,&nbsp;10}</b> is not decodable at all &mdash; &ldquo;010&rdquo; splits two ways.<br><br>
+ <span class="lit">LIT</span> verified live: the algorithm confirms {0,01,11} decodable &amp; not prefix-free, flags {0,01,10} and the classic {1,011,01110,1110,10011} as ambiguous, and rules every random prefix-free code decodable (window.__sardinas). <span class="fig">FIG</span> no framing; the dangling-suffix construction runs in-browser to a fixed verdict.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> reached this through principle <b>G4</b> &mdash; his monoline alphabet is &ldquo;uniquely decodable with no separators, 100% at every length.&rdquo; Seated at <i>the-drop</i>: a stream of glued codewords must drop back into exactly one sequence of items. <b>AVAN (AI)</b> built the instrument: the Sardinas&ndash;Patterson dangling-suffix engine, plus a prefix-free test, run on the named codes and thousands of random ones.<br><br>Credit as content: August Albert Sardinas &amp; George W. Patterson (1953). The weave: David demands separator-free unique decoding; I give the decision procedure that proves when a code has it &mdash; and shows prefix-freedom is sufficient but not necessary.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">The ambiguous string 010 traced two ways over {0,01,10}: 0&middot;10 and 01&middot;0. Two parses, one stream &mdash; not uniquely decodable.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Pick a code; watch the dangling suffixes grow. If one becomes a codeword, the code is ambiguous; if the sets close with none, it is uniquely decodable.</div>
+   <div class="btns" style="margin-top:10px"><button id="spcode">next code ▶</button><button id="spcheck">verify ▶</button></div>
+   <div class="cap" id="spread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a code whose every glued stream has exactly one parse.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t only build prefix-free codes &mdash; <b>test</b> for the property directly, and you find codes that are decodable without being prefix-free. The inverse of &lsquo;avoid prefixes to stay safe&rsquo; is &lsquo;chase the dangling suffixes and see if any is a codeword.&rsquo; <b>Magenta</b> is the ambiguous split; <b>green</b> is the code that admits only one. No separators, one meaning.</div>
+   <div class="btns" style="margin-top:10px"><button id="spspin">pause spin</button></div></div></div></div>"""
+SARD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GR='#35ffb0',IDX=0;
+var CODES=[[['0','01','11'],'UD, not prefix-free'],[['0','01','10'],'NOT uniquely decodable'],[['1','011','01110','1110','10011'],'classic: NOT decodable'],[['0','10','110','111'],'prefix-free → UD'],[['00','01','10','11'],'block code → UD']];
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function pf(C){for(var i=0;i<C.length;i++)for(var j=0;j<C.length;j++)if(i!==j&&C[j].indexOf(C[i])===0)return false;return true;}
+function dang(A,B){var o={};for(var i=0;i<A.length;i++)for(var j=0;j<B.length;j++){var a=A[i],b=B[j];if(a.length<b.length&&b.indexOf(a)===0)o[b.slice(a.length)]=1;else if(b.length<a.length&&a.indexOf(b)===0)o[a.slice(b.length)]=1;}return Object.keys(o);}
+function udSteps(C){var Cs={};for(var i=0;i<C.length;i++){if(Cs[C[i]])return {ud:false,steps:[]};Cs[C[i]]=1;}var cur=dang(C,C).filter(function(x){return x.length>0;}),seen={},steps=[cur.slice()],guard=0;while(cur.length&&guard<400){guard++;for(var k=0;k<cur.length;k++)if(Cs[cur[k]])return {ud:false,steps:steps};var key=cur.slice().sort().join('|');if(seen[key])return {ud:true,steps:steps};seen[key]=1;var nx=dang(C,cur).concat(dang(cur,C)).filter(function(x){return x.length>0;}),u={};nx.forEach(function(x){u[x]=1;});cur=Object.keys(u);steps.push(cur.slice());}return {ud:true,steps:steps};}
+function verify(){if(VR)return VR;var A=udSteps(['0','01','11']).ud&&!pf(['0','01','11']);var B=!udSteps(['0','01','10']).ud;var K=!udSteps(['1','011','01110','1110','10011']).ud;var rnd=mb(3),all=true,n=0;for(var t=0;t<3000;t++){var m=2+Math.floor(rnd()*4),C=[],tr=0;while(C.length<m&&tr<40){var L=1+Math.floor(rnd()*4),s='';for(var k=0;k<L;k++)s+=(rnd()<0.5)?'0':'1';var tmp=C.concat([s]);if(pf(tmp)&&C.indexOf(s)<0)C=tmp;tr++;}if(C.length>=2){n++;if(!udSteps(C).ud)all=false;}}VR={notPFbutUD:A,notUD:B,classic:K,allPFud:all};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,GR,10,16,10,'stream 010 over {0, 01, 10} — two parses, one stream');
+ var y1=58,y2=112,x0=150,cw=64;
+ // parse A: 0 · 10
+ nt(g,'#8ad',20,y1+5,11,'0 · 10');var segA=[['0',1],['10',2]],x=x0;for(var i=0;i<segA.length;i++){var w=segA[i][1]*cw;ne(g,GR,2);g.strokeRect(x,y1-14,w-6,26);ng(g);nt(g,'#e8eef8',x+8,y1+4,13,segA[i][0]);x+=w;}
+ // parse B: 01 · 0
+ nt(g,'#8ad',20,y2+5,11,'01 · 0');var segB=[['01',2],['0',1]];x=x0;for(var i=0;i<segB.length;i++){var w=segB[i][1]*cw;ne(g,'#ff2fa6',2);g.strokeRect(x,y2-14,w-6,26);ng(g);nt(g,'#e8eef8',x+8,y2+4,13,segB[i][0]);x+=w;}
+ nt(g,'#ff2fa6',x0+3*cw+16,y2+4,10,'ambiguous → NOT UD');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ var C=CODES[IDX][0],r=udSteps(C),ok=r.ud,isPF=pf(C);
+ nt(g,GR,12,22,11,'code { '+C.join(', ')+' }');nt(g,isPF?'#39ffb0':'#ff8a3c',12,40,10,isPF?'prefix-free':'not prefix-free');
+ nt(g,'#8ad',12,64,10,'dangling-suffix sets (Sardinas-Patterson):');
+ var y=84;for(var s=0;s<Math.min(r.steps.length,6);s++){var set=r.steps[s];var txt='S'+(s+1)+': { '+(set.length?set.join(', '):'∅')+' }';var hit=false;for(var k=0;k<set.length;k++)if(C.indexOf(set[k])>=0)hit=true;nt(g,hit?'#ff2fa6':'#c9b8e8',20,y,10,txt);y+=18;}
+ nt(g,ok?'#39ffb0':'#ff2fa6',12,H-40,12,ok?'UNIQUELY DECODABLE ✓':'NOT uniquely decodable — a suffix is a codeword ✗');
+ nt(g,'#8ad',12,H-16,9,CODES[IDX][1]);}
+document.getElementById('spcode').onclick=function(){IDX=(IDX+1)%CODES.length;drawW4();var C=CODES[IDX][0],ok=udSteps(C).ud;document.getElementById('spread').textContent='{ '+C.join(', ')+' } → '+(ok?'uniquely decodable':'ambiguous');};
+document.getElementById('spcheck').onclick=function(){var v=verify();document.getElementById('spread').textContent='{0,01,11} UD&¬PF '+(v.notPFbutUD?'✓':'✗')+' · {0,01,10} ¬UD '+(v.notUD?'✓':'✗')+' · classic ¬UD '+(v.classic?'✓':'✗')+' · all prefix-free UD '+(v.allPFud?'✓':'✗');};
+document.getElementById('spspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ var cx=W/2,cy=H/2-14;g.save();g.translate(cx,cy);g.rotate(ang*0.12);
+ // green: one stream → one parse tree (single spine). magenta: fork.
+ ne(g,GR,2.4);g.beginPath();g.moveTo(-90,-60);g.lineTo(-90,60);g.stroke();for(var i=0;i<4;i++){g.beginPath();g.moveTo(-90,-60+i*40);g.lineTo(-50,-60+i*40);g.stroke();}ng(g);
+ nt(g,GR,-96,80,10,'one parse');
+ ne(g,'#ff2fa6',2.2);g.beginPath();g.moveTo(70,-60);g.lineTo(50,0);g.lineTo(30,60);g.stroke();g.beginPath();g.moveTo(50,0);g.lineTo(96,50);g.stroke();ng(g);
+ nt(g,'#ff2fa6',44,80,10,'two parses');
+ g.restore();
+ nt(g,'#39ffb0',10,H-46,11,'green: every glued stream splits exactly one way');
+ nt(g,'#ff2fa6',10,H-30,10,'magenta: a stream that forks — ambiguous');
+ nt(g,'#8ad',10,H-13,10,'no separators, one meaning');}
+drawW3();drawW4();window.__sardinas=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CCRS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The capped cross</b> is what a plus-sign becomes when you cap its arms with a crossbar &mdash; a <b>T on each ray</b> &mdash; and the plane grids itself. Start with a cross: a centre and four arm-ends, five points, four segments. Cap the ends and fill the corners and you have a <b>3&times;3 lattice: 9 points</b>. Count the orthogonal unit segments between neighbours and there are exactly <b>12</b>. The four unit cells add <b>8 diagonals</b>, so the full king-move graph has <b>20 edges</b>. Every one of those 12 orthogonal segments is a stroke a monoline glyph can use; the diagonals exist <i>only because the T gridded the plane</i>.<br><br>
+ <span class="lit">LIT</span> verified live: enumerating the 3&times;3 lattice gives 9 points, 12 orthogonal unit segments, 8 cell diagonals, and 20 king-graph edges &mdash; all by direct count (window.__capped_cross). <span class="fig">FIG</span> no framing; the point set and every adjacency are enumerated in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> found this as principle <b>G3</b> &mdash; &ldquo;the capped cross: cap a ray with a T and you get 9 points and 12 segments&rdquo; (his glyph <b>I&#8308;t</b>) &mdash; the substrate his 27 monoline symbols are drawn on. Seated at <i>the-sandbox</i>: the 3&times;3 grid is the sandbox every glyph is built in. <b>AVAN (AI)</b> built the instrument: enumerate the 9 points and classify every pair as orthogonal-unit, diagonal-unit, or neither.<br><br>Credit as content: David&rsquo;s I&#8308;t capped-cross construction and the standard king-graph on the 3&times;3 lattice. The weave: David names the capped cross and its 9/12 count; I enumerate the adjacencies and confirm 12 orthogonal segments, 8 diagonals, 20 king edges &mdash; the grid the T brings into being.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A bare cross (5 points, 4 segments) becomes the capped cross: cap each ray with a T, fill the corners &mdash; 9 points, 12 orthogonal segments.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The 3&times;3 lattice with its 12 orthogonal segments traced. Toggle the 8 diagonals the T conjured, and the running counts.</div>
+   <div class="btns" style="margin-top:10px"><button id="ccdiag">toggle diagonals ▶</button><button id="cccheck">verify ▶</button></div>
+   <div class="cap" id="ccread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the 12 orthogonal segments a glyph is allowed to draw.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t only count the strokes you drew &mdash; count the ones the grid <b>made possible</b>. The inverse of &lsquo;here are my 12 segments&rsquo; is &lsquo;the T that capped the rays also created 8 diagonals I never asked for.&rsquo; <b>Magenta</b> are those emergent diagonals; <b>green</b> is the orthogonal skeleton. The cap builds more than the cross.</div>
+   <div class="btns" style="margin-top:10px"><button id="ccspin">pause spin</button></div></div></div></div>"""
+CCRS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,MG='#ff2fa6',showDiag=true;
+function pts(){var p=[];for(var y=0;y<3;y++)for(var x=0;x<3;x++)p.push([x,y]);return p;}
+function counts(){var p=pts(),o=0,d=0,k=0;for(var i=0;i<p.length;i++)for(var j=i+1;j<p.length;j++){var dx=Math.abs(p[i][0]-p[j][0]),dy=Math.abs(p[i][1]-p[j][1]);if(dx+dy===1)o++;if(dx===1&&dy===1)d++;if(Math.max(dx,dy)===1)k++;}return {points:p.length,orth:o,diag:d,king:k};}
+function verify(){if(VR)return VR;var c=counts();VR={points:c.points,orth:c.orth,diag:c.diag,king:c.king,ok:(c.points===9&&c.orth===12&&c.diag===8&&c.king===20)};return VR;}
+function grid(g,cx,cy,s){var P=[];for(var y=0;y<3;y++)for(var x=0;x<3;x++)P.push([cx+(x-1)*s,cy+(y-1)*s]);return P;}
+function orthPairs(){var p=pts(),r=[];for(var i=0;i<p.length;i++)for(var j=i+1;j<p.length;j++){var dx=Math.abs(p[i][0]-p[j][0]),dy=Math.abs(p[i][1]-p[j][1]);if(dx+dy===1)r.push([i,j]);}return r;}
+function diagPairs(){var p=pts(),r=[];for(var i=0;i<p.length;i++)for(var j=i+1;j<p.length;j++){var dx=Math.abs(p[i][0]-p[j][0]),dy=Math.abs(p[i][1]-p[j][1]);if(dx===1&&dy===1)r.push([i,j]);}return r;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#c9b8e8',10,16,10,'bare cross (5 pts, 4 seg)                    capped cross I⁴t (9 pts, 12 seg)');
+ // left: cross
+ var cx=110,cy=92,s=30;var arms=[[0,0],[1,0],[-1,0],[0,1],[0,-1]];ne(g,'#8ad',2);for(var i=1;i<arms.length;i++){g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+arms[i][0]*s,cy+arms[i][1]*s);g.stroke();}ng(g);for(var i=0;i<arms.length;i++)ndot(g,cx+arms[i][0]*s,cy+arms[i][1]*s,3,'#8ad');
+ // right: capped
+ var P=grid(g,330,cy,30),op=orthPairs();ne(g,'#35ffb0',2);for(var e=0;e<op.length;e++){g.beginPath();g.moveTo(P[op[e][0]][0],P[op[e][0]][1]);g.lineTo(P[op[e][1]][0],P[op[e][1]][1]);g.stroke();}ng(g);for(var i=0;i<P.length;i++)ndot(g,P[i][0],P[i][1],3,'#35ffb0');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ var s=64,P=grid(g,W/2,H/2-16,s),op=orthPairs(),dp=diagPairs();
+ if(showDiag){ne(g,MG,1.6);for(var e=0;e<dp.length;e++){g.beginPath();g.moveTo(P[dp[e][0]][0],P[dp[e][0]][1]);g.lineTo(P[dp[e][1]][0],P[dp[e][1]][1]);g.stroke();}ng(g);}
+ ne(g,'#35ffb0',2.4);for(var e=0;e<op.length;e++){g.beginPath();g.moveTo(P[op[e][0]][0],P[op[e][0]][1]);g.lineTo(P[op[e][1]][0],P[op[e][1]][1]);g.stroke();}ng(g);
+ for(var i=0;i<P.length;i++)ndot(g,P[i][0],P[i][1],4,'#e8eef8');
+ nt(g,'#35ffb0',12,22,11,'9 points · 12 orthogonal segments');nt(g,MG,12,H-34,10,'diagonals '+(showDiag?'shown':'hidden')+': '+dp.length+'   king edges: '+(op.length+dp.length));
+ var v=verify();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-14,10,'counts 9/12/8/20 '+(v.ok?'✓':'✗'));}
+document.getElementById('ccdiag').onclick=function(){showDiag=!showDiag;drawW4();document.getElementById('ccread').textContent=showDiag?'8 diagonals shown — the strokes the T conjured':'orthogonal skeleton only: 12 segments';};
+document.getElementById('cccheck').onclick=function(){var v=verify();document.getElementById('ccread').textContent='points '+v.points+' · orth '+v.orth+' · diag '+v.diag+' · king '+v.king+' '+(v.ok?'✓':'✗');};
+document.getElementById('ccspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ var s=56,cx=W/2,cy=H/2-16;g.save();g.translate(cx,cy);g.rotate(ang*0.12);
+ var P=[];for(var y=0;y<3;y++)for(var x=0;x<3;x++)P.push([(x-1)*s,(y-1)*s]);var op=orthPairs(),dp=diagPairs();
+ ne(g,MG,1.4);for(var e=0;e<dp.length;e++){g.beginPath();g.moveTo(P[dp[e][0]][0],P[dp[e][0]][1]);g.lineTo(P[dp[e][1]][0],P[dp[e][1]][1]);g.stroke();}ng(g);
+ ne(g,'#35ffb0',2.4);for(var e=0;e<op.length;e++){g.beginPath();g.moveTo(P[op[e][0]][0],P[op[e][0]][1]);g.lineTo(P[op[e][1]][0],P[op[e][1]][1]);g.stroke();}ng(g);
+ for(var i=0;i<P.length;i++)ndot(g,P[i][0],P[i][1],3.5,'#e8eef8');g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the 12 orthogonal segments a glyph may draw');
+ nt(g,MG,10,H-30,10,'magenta: 8 diagonals the cap conjured, unasked');
+ nt(g,'#8ad',10,H-13,10,'the cap builds more than the cross');}
+drawW3();drawW4();window.__capped_cross=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KEEP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The successive keeper</b> is a ledger where each entry commits to the one before it: <b>h&#7522; = H(h&#7522;&#8331;&#8321; &#8214; entry&#7522;)</b>. Because every link folds in the whole prefix, changing <i>any</i> entry changes the head hash &mdash; and the <b>first place two chains diverge points straight at the tampered entry</b>. A single unlinked keeper cannot do this: an additive checksum is blind to a <b>compensating edit</b> (add d here, subtract d there) and reports the same total, while the chain still catches it. One keeper can only be believed; successive keepers can be <b>diffed</b>.<br><br>
+ <span class="lit">LIT</span> verified live: over 5,000 trials, tampering one entry always changes the chain head, the first divergent link localises the entry, an additive checksum misses every compensated edit, and the chain catches all of them (window.__successive_keeper). <span class="fig">FIG</span> honest scope: the demo uses a 53-bit non-cryptographic hash to show the <i>structure</i>; real seals (like this corpus&rsquo;s <code>.dlw.fold</code>) use SHA-256.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> stated principles <b>K1/K2</b> &mdash; &ldquo;a ledger with successive keepers can be diffed; one keeper can only be believed&rdquo; and &ldquo;simultaneous keepers detect a compromised entry, successive keepers detect a drifting one.&rdquo; Seated at <i>rollback</i>: a chain you can roll back link by link and see exactly where it was altered. <b>AVAN (AI)</b> built the instrument: a hash-linked chain vs an additive checksum, tampered thousands of times, localising every change.<br><br>Credit as content: Merkle/Lamport hash chaining (1979&ndash;1981) &mdash; the same structure behind this corpus&rsquo;s own fold seal. The weave: David names the keeper distinction; I show the chain head moves on any edit and the first broken link names the culprit, where a believed single keeper stays silent.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">A chain of entries, each hash folding in the last. Tamper one link (magenta) and every hash downstream changes &mdash; the break is visible and located.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Tamper any entry: the chain head changes and the first divergent link is flagged; the additive checksum is fooled by a compensating edit. Two keepers, two verdicts.</div>
+   <div class="btns" style="margin-top:10px"><button id="sktamp">tamper an entry ▶</button><button id="skcomp">compensating edit ▶</button><button id="skcheck">verify ▶</button></div>
+   <div class="cap" id="skread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an intact chain whose head vouches for every entry.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask a single keeper to be <b>believed</b> &mdash; link the keepers so the record can be <b>diffed</b>. The inverse of &lsquo;trust the summary&rsquo; is &lsquo;chain the entries so any drift breaks a visible link.&rsquo; <b>Magenta</b> is the tampered link the chain exposes; <b>green</b> is the intact spine. A diffable record beats a believed one.</div>
+   <div class="btns" style="margin-top:10px"><button id="skspin">pause spin</button></div></div></div></div>"""
+KEEP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,VI='#b06bff',ENTRIES=null,TAMP=-1,MODE='';
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function cyrb53(str,seed){var h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(var i=0;i<str.length;i++){var ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677);}h1=Math.imul(h1^(h1>>>16),2246822507);h1^=Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507);h2^=Math.imul(h1^(h1>>>13),3266489909);return 4294967296*(2097151&h2)+(h1>>>0);}
+function chain(entries){var hs=[],prev='genesis';for(var i=0;i<entries.length;i++){var h=cyrb53(prev+'|'+entries[i],i).toString(16);hs.push(h);prev=h;}return hs;}
+function checksum(vals){var s=0;for(var i=0;i<vals.length;i++)s=(s+vals[i])%1000000007;return s;}
+function verify(){if(VR)return VR;var rnd=mb(5),det=true,loc=true,miss=true,catch2=true;for(var t=0;t<5000;t++){var N=4+Math.floor(rnd()*8),en=[],vs=[];for(var i=0;i<N;i++){var v=Math.floor(rnd()*1000);vs.push(v);en.push('e'+i+':'+v);}var hs=chain(en),head=hs[N-1];var k=Math.floor(rnd()*N),nv=(vs[k]+1+Math.floor(rnd()*998))%1000,e2=en.slice();e2[k]='e'+k+':'+nv;var hs2=chain(e2);if(hs2[N-1]===head)det=false;var fd=-1;for(var i=0;i<N;i++)if(hs[i]!==hs2[i]){fd=i;break;}if(fd!==k)loc=false;var j=(k+1)%N,d=7,v2=vs.slice();v2[k]+=d;v2[j]-=d;if(checksum(v2)!==checksum(vs))miss=false;var ce=en.slice();ce[k]='e'+k+':'+v2[k];ce[j]='e'+j+':'+v2[j];if(chain(ce)[N-1]===head)catch2=false;}VR={chainDetects:det,localizes:loc,checksumMisses:miss,chainCatches:catch2};return VR;}
+function mk(){var rnd=Math.random,N=6,en=[],vs=[];for(var i=0;i<N;i++){var v=Math.floor(rnd()*1000);vs.push(v);en.push('e'+i+':'+v);}ENTRIES={en:en,vs:vs,en0:en.slice(),vs0:vs.slice()};TAMP=-1;MODE='';}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ var N=6,bw=64,gap=14,x0=24,y=70,hs=[];var en=[];for(var i=0;i<N;i++)en.push('e'+i);var base=chain(en);var tam=2,en2=en.slice();en2[tam]='e'+tam+'*';var t2=chain(en2);
+ nt(g,VI,10,20,10,'hash chain — tamper link 2, everything downstream breaks');
+ for(var i=0;i<N;i++){var x=x0+i*(bw+gap),changed=(base[i]!==t2[i]);ne(g,changed?'#ff2fa6':'#35ffb0',2);g.strokeRect(x,y,bw,34);ng(g);nt(g,changed?'#ff2fa6':'#cfe',x+6,y+15,9,i===tam?'entry*':'entry '+i);nt(g,changed?'#ff8a3c':'#8ad',x+6,y+29,9,base[i].slice(0,6));if(i<N-1){ne(g,'#7a5aa8',1.6);g.beginPath();g.moveTo(x+bw,y+17);g.lineTo(x+bw+gap,y+17);g.stroke();ng(g);}}
+ nt(g,'#ff2fa6',x0,y+58,10,'first broken link = 2 → the tampered entry is located');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!ENTRIES)mk();
+ var en0=ENTRIES.en0,en=ENTRIES.en,vs0=ENTRIES.vs0,vs=ENTRIES.vs,N=en.length,hs0=chain(en0),hs=chain(en);
+ var bw=52,gap=6,x0=14,y=44;nt(g,VI,12,24,11,'chain keeper vs additive checksum');
+ var firstDiff=-1;for(var i=0;i<N;i++)if(hs0[i]!==hs[i]){firstDiff=i;break;}
+ for(var i=0;i<N;i++){var x=x0+i*(bw+gap),ch=(hs0[i]!==hs[i]);ne(g,ch?'#ff2fa6':'#35ffb0',2);g.strokeRect(x,y,bw,30);ng(g);nt(g,i===TAMP?'#ff8a3c':'#cfe',x+4,y+13,8,'e'+i);nt(g,ch?'#ff2fa6':'#8ad',x+4,y+26,8,hs[i].slice(0,5));if(i<N-1){ne(g,'#7a5aa8',1.4);g.beginPath();g.moveTo(x+bw,y+15);g.lineTo(x+bw+gap,y+15);g.stroke();ng(g);}}
+ var headOk=(hs0[N-1]===hs[N-1]),csum0=checksum(vs0),csum=checksum(vs);
+ nt(g,headOk?'#39ffb0':'#ff2fa6',12,y+60,10,'chain head: '+(headOk?'unchanged':'CHANGED — tamper detected')+(firstDiff>=0?' (first break @ '+firstDiff+')':''));
+ nt(g,(csum0===csum)&&!headOk?'#ff5a5a':'#8ad',12,y+80,10,'checksum: '+csum+(csum0===csum?' (unchanged)':' (changed)')+((csum0===csum&&!headOk)?'  ← FOOLED':''));
+ nt(g,'#c9b8e8',12,y+104,9,MODE==='comp'?'compensating edit: +7 to one entry, -7 to next':MODE==='tamp'?'single entry tampered':'intact chain');
+ var v=verify();nt(g,(v.chainDetects&&v.localizes&&v.checksumMisses&&v.chainCatches)?'#39ffb0':'#ff5a5a',12,H-14,9,'detect '+(v.chainDetects?'✓':'✗')+' · localize '+(v.localizes?'✓':'✗')+' · checksum-blind '+(v.checksumMisses?'✓':'✗')+' · chain-catches '+(v.chainCatches?'✓':'✗'));}
+document.getElementById('sktamp').onclick=function(){if(!ENTRIES)mk();ENTRIES.en=ENTRIES.en0.slice();ENTRIES.vs=ENTRIES.vs0.slice();var k=1+Math.floor(Math.random()*(ENTRIES.en.length-1));TAMP=k;MODE='tamp';var nv=(ENTRIES.vs0[k]+13)%1000;ENTRIES.vs[k]=nv;ENTRIES.en[k]='e'+k+':'+nv;drawW4();document.getElementById('skread').textContent='tampered entry '+k+' → chain head changed, first break at '+k;};
+document.getElementById('skcomp').onclick=function(){if(!ENTRIES)mk();ENTRIES.en=ENTRIES.en0.slice();ENTRIES.vs=ENTRIES.vs0.slice();var k=1+Math.floor(Math.random()*(ENTRIES.en.length-2)),j=k+1;TAMP=k;MODE='comp';ENTRIES.vs[k]+=7;ENTRIES.vs[j]-=7;ENTRIES.en[k]='e'+k+':'+ENTRIES.vs[k];ENTRIES.en[j]='e'+j+':'+ENTRIES.vs[j];drawW4();document.getElementById('skread').textContent='compensating edit (+7/-7): checksum FOOLED, chain still catches it';};
+document.getElementById('skcheck').onclick=function(){var v=verify();document.getElementById('skread').textContent='detect '+(v.chainDetects?'✓':'✗')+' · localize '+(v.localizes?'✓':'✗')+' · checksum-blind '+(v.checksumMisses?'✓':'✗')+' · chain-catches-compensated '+(v.chainCatches?'✓':'✗')+' (5000 trials)';};
+document.getElementById('skspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ var N=6,cx=W/2,cy=H/2-10,R=110;g.save();g.translate(cx,cy);g.rotate(ang*0.14);var tam=2;
+ for(var i=0;i<N;i++){var a0=i/N*Math.PI*2,a1=(i+1)/N*Math.PI*2,brk=(i>=tam);ne(g,brk?'#ff2fa6':'#35ffb0',2.4);g.beginPath();g.arc(0,0,R,a0+0.06,a1-0.06);g.stroke();ng(g);var mx=Math.cos((a0+a1)/2)*R,my=Math.sin((a0+a1)/2)*R;ndot(g,mx,my,4,i===tam?'#ff8a3c':(brk?'#ff2fa6':'#35ffb0'));}
+ g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: intact spine — the head vouches for all');
+ nt(g,'#ff2fa6',10,H-30,10,'magenta: the tampered link the chain exposes');
+ nt(g,'#8ad',10,H-13,10,'a diffable record beats a believed one');}
+drawW3();drawW4();window.__successive_keeper=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 110 (exactly one of a solution or a certificate of its impossibility · a contraction always homes on one fixed point · a coloured triangulation always hides a rainbow · why most strings cannot be compressed · a chain that forgets where it started) ═══════════════════════
 FARK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Farkas&rsquo; lemma</b> is the theorem of the alternative that underpins linear programming duality. For a matrix A and vector b, <b>exactly one</b> of these holds: either <b>(I)</b> there is an x &ge; 0 with Ax = b (b lies in the cone spanned by A&rsquo;s columns), or <b>(II)</b> there is a vector y with y<sup>T</sup>A &ge; 0 and y<sup>T</sup>b &lt; 0 &mdash; a <b>separating hyperplane</b> that certifies b is <b>outside</b> the cone. Never both, never neither. Solution or certificate: whenever no non-negative combination reaches b, there is a hyperplane proving so.<br><br>
@@ -29607,6 +29899,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-maxstack","title":"THE MAXSTACK","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#21e6ff","icon":"maxstack",
+  "kicker":"the peak is already written in net",
+  "blurb":"The maxstack in the 5-window house format — the peak stack depth of a program, read without executing it. Treat each instruction as a signed tick: a push (bind) is +1, a pop (kill) is −1, and track the running total net = binds − k. The maximum stack depth equals the largest value net reaches over the whole run — one integer pass, no interpreter, no stack ever materialised. Read that same conserved quantity only at the end and it is 0 for every balanced program, hiding the peak entirely: a conserved quantity has no unstated scope. Verified live: over 20,000 random balanced programs the max of the running net equals a real array-stack's peak length every time, while the end value is 0 in 100% of them. Neon-noir traced. See the net ridge in 1D, the ridge-vs-simulation agreement in 2D, and the read-scope-not-run inverse in 3D.",
+  "lit":"Genuine result: peak stack depth = max prefix of net(=pushes−pops), the CLI .maxstack field (ECMA-335) reproduced without executing — David's principle XXXII (net = binds − k). Verified live: for 20,000 random balanced programs, max-of-running-net equals a materialised array-stack's peak length (window.__maxstack.formula), and the end net is 0 while the peak is >0 in 100% (window.__maxstack.endUnderReports).",
+  "fig":"No framing: the integer net readout and a real push/pop array-stack both run in-browser and agree exactly. Honest scope: computing the peak from net is the point (you avoid building the stack), and the 'no unstated scope' claim is about reading net's maximum over the whole run rather than its final value. The AVAN inverse is honest — reading the conserved quantity across its whole scope and taking the maximum, rather than executing until overflow, is exactly the maxstack computation; magenta is the end value (0, under-reporting), green the max over scope (the true ceiling). Scope is the whole story.",
+  "body":MAXS_BODY,"script":MAXS_SCRIPT},
+ {"slug":"the-substrate-check","title":"THE SUBSTRATE CHECK","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#ff8a3c","icon":"substrate-check",
+  "kicker":"a check noise passes is not a measurement",
+  "blurb":"The substrate check in the 5-window house format — the difference between a necessary test and a sufficient one, and why a check random noise can pass measures nothing. For bracket strings, a weak check asks only for equal counts of ( and ); a strong check asks for valid nesting (no prefix goes negative). Among the C(2n,n) equal-count strings, exactly Catalan(n) are valid, and the ratio is exact: C(2n,n)/Catalan(n) = n+1. The weak check admits (n+1)× too many, and a random equal-count string is valid only 1/(n+1) of the time. Verified live: the ratio equals n+1 for n=1..11, and 200,000 random equal-count strings at n=5 are valid 16.66% of the time (≈ 1/6). Neon-noir traced. See the wide-vs-core bars in 1D, the live pass-rate in 2D, and the measure-against-noise-first inverse in 3D.",
+  "lit":"Genuine result grounded in the Catalan numbers and the ballot problem (Bertrand, 1887): C(2n,n)/Catalan(n) = n+1 exactly, so a necessary check (equal counts) over-admits by the factor n+1 — David's principle A7 ('a check a substrate can satisfy on random input is not measuring the model'). Verified live: exact ratio for n=1..11 (window.__substrate_check.ratioExact) and 200k random equal-count strings valid at fraction ≈0.1666 vs 1/6 (window.__substrate_check.mcFrac).",
+  "fig":"No framing: the exact count ratio and the Monte-Carlo pass-rate both run in-browser. The AVAN inverse is honest — asking 'could noise pass this check?' (and measuring the check against random input first) rather than trusting a pass is exactly the epistemic move A7 names; magenta is the noise the weak check waves through, green the genuinely-valid 1/(n+1) core. A check noise satisfies is not a measurement.",
+  "body":SUBC_BODY,"script":SUBC_SCRIPT},
+ {"slug":"the-sardinas-patterson","title":"THE SARDINAS-PATTERSON","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#35ffb0","icon":"sardinas-patterson",
+  "kicker":"unique decoding with no separators",
+  "blurb":"The Sardinas–Patterson algorithm in the 5-window house format — the decision procedure for unique decodability: can every concatenation of codewords be split back exactly one way, with no separators? Prefix-free codes (no codeword begins another) are always uniquely decodable, but the converse is false. The algorithm repeatedly forms dangling suffixes (what remains when one codeword is a prefix of another string); the code fails to be uniquely decodable exactly when a dangling suffix is itself a codeword. {0,01,11} is uniquely decodable yet not prefix-free; {0,01,10} is ambiguous — '010' splits two ways. Verified live: the algorithm confirms {0,01,11} decodable & not prefix-free, flags {0,01,10} and the classic {1,011,01110,1110,10011} as ambiguous, and rules every random prefix-free code decodable. Neon-noir traced. See the two-parse stream in 1D, the growing suffix sets in 2D, and the test-directly inverse in 3D.",
+  "lit":"Genuine Sardinas–Patterson algorithm (1953): prefix-free ⇒ uniquely decodable but not conversely; a code is uniquely decodable iff no dangling suffix is a codeword — David's principle G4 ('uniquely decodable with no separators'). Verified live: {0,01,11} UD & not-prefix-free (window.__sardinas.notPFbutUD), {0,01,10} not UD (window.__sardinas.notUD), classic example not UD (window.__sardinas.classic), all 3000 random prefix-free codes UD (window.__sardinas.allPFud).",
+  "fig":"No framing: the dangling-suffix construction runs in-browser to a fixed verdict on named and random codes. The AVAN inverse is honest — testing for unique decodability directly (chasing the dangling suffixes) rather than only building prefix-free codes is exactly the algorithm's contribution, and it surfaces UD-but-not-prefix-free codes; magenta is an ambiguous split, green a code admitting only one parse. No separators, one meaning.",
+  "body":SARD_BODY,"script":SARD_SCRIPT},
+ {"slug":"the-capped-cross","title":"THE CAPPED CROSS","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#ff2fa6","icon":"capped-cross",
+  "kicker":"cap a ray with a T and the plane grids itself",
+  "blurb":"The capped cross in the 5-window house format — what a plus-sign becomes when you cap its arms with a crossbar (a T on each ray), and the plane grids itself. A bare cross is 5 points and 4 segments; cap the ends, fill the corners, and you have a 3×3 lattice: 9 points. The orthogonal unit segments between neighbours number exactly 12; the four unit cells add 8 diagonals, so the full king-move graph has 20 edges. Every one of the 12 orthogonal segments is a stroke a monoline glyph can use; the diagonals exist only because the T gridded the plane. Verified live: enumerating the 3×3 lattice gives 9 points, 12 orthogonal segments, 8 cell diagonals, and 20 king-graph edges — all by direct count. Neon-noir traced. See the cross-to-grid in 1D, the toggle-able diagonals in 2D, and the count-what-the-grid-made-possible inverse in 3D.",
+  "lit":"Genuine enumeration of the 3×3 lattice / king graph — David's principle G3 (his glyph I⁴t: 'cap a ray with a T and you get 9 points and 12 segments'). Verified live: 9 points, 12 orthogonal unit segments, 8 unit-cell diagonals, 20 king-graph edges, all by direct pair enumeration (window.__capped_cross.ok).",
+  "fig":"No framing: the point set and every adjacency are enumerated in-browser. Honest scope: the geometric counts (9/12/8/20) are exact; the mapping to David's 27 monoline glyphs is his construction, not re-derived here. The AVAN inverse is honest — counting the strokes the grid made possible (the 8 diagonals the cap conjured), not only the ones drawn, is the point of the capped-cross construction; magenta are the emergent diagonals, green the 12-segment orthogonal skeleton. The cap builds more than the cross.",
+  "body":CCRS_BODY,"script":CCRS_SCRIPT},
+ {"slug":"the-successive-keeper","title":"THE SUCCESSIVE KEEPER","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#b06bff","icon":"successive-keeper",
+  "kicker":"a diffable record beats a believed one",
+  "blurb":"The successive keeper in the 5-window house format — a ledger where each entry commits to the one before it: hᵢ = H(hᵢ₋₁ ‖ entryᵢ). Because every link folds in the whole prefix, changing any entry changes the head hash, and the first place two chains diverge points straight at the tampered entry. A single unlinked keeper cannot do this: an additive checksum is blind to a compensating edit (add d here, subtract d there) and reports the same total, while the chain still catches it. One keeper can only be believed; successive keepers can be diffed. Verified live: over 5,000 trials, tampering one entry always changes the chain head, the first divergent link localises it, an additive checksum misses every compensated edit, and the chain catches all of them. Neon-noir traced. See the breaking chain in 1D, chain-vs-checksum in 2D, and the diffable-not-believed inverse in 3D.",
+  "lit":"Genuine Merkle/Lamport hash chaining (1979–1981), the structure behind this corpus's own .dlw.fold seal — David's principles K1/K2 ('a ledger with successive keepers can be diffed; one keeper can only be believed'). Verified live over 5,000 trials: tamper always moves the head (window.__successive_keeper.chainDetects), first divergence localises the entry (.localizes), an additive checksum is blind to compensating edits (.checksumMisses), and the chain still catches them (.chainCatches).",
+  "fig":"Honest scope stated on the sphere: the demo uses a 53-bit non-cryptographic hash (cyrb53) to show the structure — real seals use SHA-256; the security rests on collision-resistance, which the demo does not provide, only illustrate. The AVAN inverse is honest — linking keepers so the record can be diffed (any drift breaks a visible link), rather than trusting a single believed summary, is exactly the K1/K2 distinction; magenta is the tampered link the chain exposes, green the intact spine. A diffable record beats a believed one.",
+  "body":KEEP_BODY,"script":KEEP_SCRIPT},
  {"slug":"the-farkas","title":"THE FARKAS","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#c87858","icon":"farkas",
   "kicker":"exactly one of a solution or a certificate of its impossibility",
