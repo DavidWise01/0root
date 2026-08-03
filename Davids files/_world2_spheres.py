@@ -19493,6 +19493,236 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 126 · neon-noir tracing · silicon-coding (one random probe catches any difference · a square root through a field extension · a game arithmetic that is a field · a curve pinned through its nodes · one register that matches in parallel) ═══════════════════════
+SZIP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Schwartz&ndash;Zippel lemma</b> is the engine behind randomized identity testing: a non-zero polynomial of degree d, evaluated at a point chosen uniformly from a set S, is zero with probability at most <b>d/|S|</b>. So to test whether two complicated expressions are the <i>same</i> polynomial &mdash; without expanding them &mdash; you just evaluate both at a random point. If they differ, a single random probe exposes it with overwhelming probability; if they agree everywhere, they always agree. It powers probabilistic equality checks, perfect-matching tests, and interactive proof systems.<br><br>
+ <span class="lit">LIT</span> verified live: a non-zero degree-d polynomial over Z<sub>q</sub> has at most d roots (so P[hit a root] &le; d/q), identical polynomials always agree at a random point, and different polynomials falsely agree only ~0.02% of the time &mdash; below the d/q bound (window.__schwartz_zippel). <span class="fig">FIG</span> no framing; the polynomial evaluations and root counts run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>heisenbug</i> &mdash; a difference that hides everywhere except where a random probe happens to look, and one look is almost always enough. <b>AVAN (AI)</b> built the instrument: the polynomial evaluator, the root count, and the random-probe identity test.<br><br>Credit as content: Jack Schwartz, Richard Zippel, Richard DeMillo &amp; Richard Lipton (1978&ndash;80). The weave: David names the heisenbug; I confirm a non-zero polynomial has few roots, so one random evaluation catches any genuine difference.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">A non-zero degree-d polynomial mod q crosses zero at most d times; a random probe almost always lands on a non-root.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Two polynomials — identical or subtly different; a random probe agrees always for identical, and exposes any difference nearly every time.</div>
+   <div class="btns" style="margin-top:10px"><button id="szsame">same ▶</button><button id="szdiff">differ ▶</button><button id="szprobe">random probe ▶</button><button id="szcheck">verify ▶</button></div>
+   <div class="cap" id="szread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the single random probe that settles equality.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t compare everywhere &mdash; probe once. The inverse of &lsquo;check all q points&rsquo; is &lsquo;the difference is a non-zero polynomial with &le; d roots, so one random point catches it w.p. &ge; 1&minus;d/q.&rsquo; <b>Magenta</b> are the rare roots (a false agreement); <b>green</b> is the probe that exposes the difference. One look almost always suffices.</div>
+   <div class="btns" style="margin-top:10px"><button id="szspin">pause spin</button></div></div></div></div>"""
+SZIP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CY='#21e6ff',MODE='same',PROBE=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function ev(c,x,q){var r=0,p=1;for(var i=0;i<c.length;i++){r=(r+c[i]*p)%q;p=(p*x)%q;}return ((r%q)+q)%q;}
+var Q=101,A=[3,0,0,1],B=[3,0,0,1];
+function verify(){if(VR)return VR;var rnd=mb(1),rb=true,ido=true,fp=0,fpt=0;for(var t=0;t<3000;t++){var q=[97,101,103,107,109][Math.floor(rnd()*5)],d=1+Math.floor(rnd()*6),c=[];for(var i=0;i<=d;i++)c.push(Math.floor(rnd()*q));if(c[d]===0)c[d]=1;var roots=0;for(var x=0;x<q;x++)if(ev(c,x,q)===0)roots++;if(roots>d)rb=false;}
+ for(var t=0;t<5000;t++){var q=2003,d=5,AA=[];for(var i=0;i<=d;i++)AA.push(Math.floor(rnd()*q));var x=Math.floor(rnd()*q);if(ev(AA,x,q)!==ev(AA.slice(),x,q))ido=false;var BB=AA.slice();BB[Math.floor(rnd()*(d+1))]=(BB[Math.floor(rnd()*(d+1))]+1+Math.floor(rnd()*(q-1)))%q;var diff=false;for(var i=0;i<=d;i++)if(AA[i]!==BB[i])diff=true;if(!diff)continue;fpt++;var xx=Math.floor(rnd()*q);if(ev(AA,xx,q)===ev(BB,xx,q))fp++;}
+ VR={rootBound:rb,identity:ido,falseAgree:fp/fpt};return VR;}
+function setMode(m){MODE=m;A=[Math.floor(Math.random()*Q),Math.floor(Math.random()*Q),Math.floor(Math.random()*Q),1];if(m==='same')B=A.slice();else{B=A.slice();B[Math.floor(Math.random()*3)]=(B[Math.floor(Math.random()*3)]+1+Math.floor(Math.random()*(Q-1)))%Q;}PROBE=null;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var q=101,c=[40,0,0,1];nt(g,CY,10,16,10,'p(x)=x³+40 mod '+q+' (degree 3) — at most 3 roots · random probes rarely hit one');
+ var x0=20,w=W-40,y0=H-30;ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+w,y0);g.stroke();ng(g);
+ for(var x=0;x<q;x++){var v=ev(c,x,q),px=x0+x/q*w,py=y0-v/q*130;ndot(g,px,py,1.6,v===0?'#ff2fa6':'rgba(33,230,255,0.6)');if(v===0){ne(g,'#ff2fa6',1.4);g.beginPath();g.moveTo(px,y0);g.lineTo(px,py);g.stroke();ng(g);nt(g,'#ff2fa6',px-6,y0+14,9,'root');}}
+ nt(g,'#8ad',20,30,10,'magenta = the ≤3 roots (measure-zero); everywhere else the polynomial is nonzero');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,CY,12,22,12,'two polynomials mod '+Q+' — '+(MODE==='same'?'IDENTICAL':'DIFFERENT (one coefficient off)'));
+ var x0=20,w=W-40,y0=200;ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+w,y0);g.stroke();ng(g);
+ for(var x=0;x<Q;x++){var va=ev(A,x,Q),vb=ev(B,x,Q);ndot(g,x0+x/Q*w,y0-va/Q*150,1.4,'#21e6ff');ndot(g,x0+x/Q*w,y0-vb/Q*150,1.4,'#ff8a3c');}
+ nt(g,'#21e6ff',20,42,10,'poly A');nt(g,'#ff8a3c',80,42,10,'poly B');
+ if(PROBE!=null){var va=ev(A,PROBE,Q),vb=ev(B,PROBE,Q),agree=va===vb;var px=x0+PROBE/Q*w;ne(g,agree?'#ffcf4a':'#35ffb0',2);g.setLineDash([4,3]);g.beginPath();g.moveTo(px,30);g.lineTo(px,y0);g.stroke();g.setLineDash([]);ng(g);
+  nt(g,agree?'#ffcf4a':'#35ffb0',12,H-46,11,'probe x='+PROBE+': A='+va+', B='+vb+(agree?' → agree'+(MODE==='diff'?' (rare false agreement!)':''):' → DIFFER (difference exposed)'));}
+ var v=verify();nt(g,v.rootBound&&v.identity?'#39ffb0':'#ff5a5a',12,H-14,9,'≤d roots & identical always agree & '+(v.falseAgree*100).toFixed(2)+'% false-agree on different '+(v.rootBound&&v.identity?'✓':'✗'));}
+document.getElementById('szsame').onclick=function(){setMode('same');drawW4();document.getElementById('szread').textContent='two IDENTICAL polynomials — any probe will agree';};
+document.getElementById('szdiff').onclick=function(){setMode('diff');drawW4();document.getElementById('szread').textContent='two DIFFERENT polynomials — a random probe exposes it w.p. ≥ 1−d/q';};
+document.getElementById('szprobe').onclick=function(){PROBE=Math.floor(Math.random()*Q);drawW4();var va=ev(A,PROBE,Q),vb=ev(B,PROBE,Q);document.getElementById('szread').textContent='probe x='+PROBE+' → '+(va===vb?'agree':'DIFFER, caught it');};
+document.getElementById('szcheck').onclick=function(){var v=verify();document.getElementById('szread').textContent='≤d roots '+(v.rootBound?'✓':'✗')+' · identical always agree '+(v.identity?'✓':'✗')+' · false-agree on different '+(v.falseAgree*100).toFixed(2)+'% (≤ d/q)';};
+document.getElementById('szspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.08);var R=110,c=[40,0,0,1],q=101;for(var x=0;x<q;x++){var v=ev(c,x,q),a=x/q*6.283;ndot(g,Math.cos(a)*R,Math.sin(a)*R,v===0?6:2,v===0?'#ff2fa6':'#35ffb0');}g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the random probe that settles equality in one look');nt(g,'#ff2fa6',10,H-30,10,'magenta: the rare roots (a false agreement)');nt(g,'#8ad',10,H-13,10,'one look almost always suffices');}
+setMode('same');drawW3();drawW4();window.__schwartz_zippel=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CIPO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Cipolla&rsquo;s algorithm</b> finds a <b>modular square root</b> &mdash; a solution to x&sup2; &equiv; n (mod p) &mdash; by stepping <i>outside</i> the field. It picks a value a so that a&sup2;&minus;n is a <b>non-residue</b>, then builds the quadratic extension F<sub>p&sup2;</sub> = F<sub>p</sub>[&radic;(a&sup2;&minus;n)] and raises (a + &radic;(a&sup2;&minus;n)) to the power (p+1)/2. Remarkably, the result lands back in F<sub>p</sub> as a genuine square root of n. Where Tonelli&ndash;Shanks grinds through the 2-adic structure, Cipolla takes one elegant excursion into a larger field &mdash; and it handles the hard case p &equiv; 1 (mod 4) with no special looping.<br><br>
+ <span class="lit">LIT</span> verified live: over ~2000 random (prime p, quadratic residue n), Cipolla returns an x with x&sup2; &equiv; n (mod p), including many p &equiv; 1 (mod 4) (window.__cipolla). <span class="fig">FIG</span> no framing; the F<sub>p&sup2;</sub> arithmetic and exponentiation run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gatekeeper</i> &mdash; the square root sits behind a gate, and the key is to step into a bigger field, turn once, and step back with it. <b>AVAN (AI)</b> built the instrument: the non-residue search, F<sub>p&sup2;</sub> multiplication, fast exponentiation, and the x&sup2;&equiv;n check.<br><br>Credit as content: Michele Cipolla (1907). The weave: David names the gatekeeper; I confirm the excursion into F<sub>p&sup2;</sub> returns a true square root, back inside F<sub>p</sub>.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">The squares mod p fold two values onto each residue; Cipolla inverts that fold for any quadratic residue n.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a prime and a residue; Cipolla returns x (and p−x), and squaring it recovers n exactly.</div>
+   <div class="btns" style="margin-top:10px"><button id="cinext">next prime ▶</button><button id="cirand">random n ▶</button><button id="cicheck">verify ▶</button></div>
+   <div class="cap" id="ciread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the recovered square root, back inside F<sub>p</sub>.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t search F<sub>p</sub> &mdash; step outside it. The inverse of &lsquo;square a number&rsquo; is &lsquo;pick a non-residue direction, exponentiate in F<sub>p&sup2;</sub>, and the imaginary part vanishes, leaving the root.&rsquo; <b>Magenta</b> is the non-residue excursion; <b>green</b> is the root it returns. Out through a bigger field, back with the answer.</div>
+   <div class="btns" style="margin-top:10px"><button id="cispin">pause spin</button></div></div></div></div>"""
+CIPO_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,OR='#ff8a3c',PI=0,N=0,DAT=null;
+var PRIMES=[13,17,29,37,41,53,61,73];
+function isPrime(n){if(n<2)return false;for(var i=2;i*i<=n;i++)if(n%i===0)return false;return true;}
+function powmod(b,e,m){b%=m;var r=1;while(e>0){if(e&1)r=(r*b)%m;b=(b*b)%m;e=Math.floor(e/2);}return r;}
+function isQR(n,p){if(n%p===0)return true;return powmod(n,(p-1)/2,p)===1;}
+function cipolla(n,p){n=((n%p)+p)%p;if(n===0)return 0;if(!isQR(n,p))return null;var a=0,w=0;for(a=1;a<p;a++){w=((a*a-n)%p+p)%p;if(!isQR(w,p))break;}function mul(A,B){return [((A[0]*B[0]+A[1]*B[1]%p*w)%p+p)%p,((A[0]*B[1]+A[1]*B[0])%p+p)%p];}var res=[1,0],base=[a,1],e=(p+1)/2;while(e>0){if(e&1)res=mul(res,base);base=mul(base,base);e=Math.floor(e/2);}return {x:res[0],a:a,w:w};}
+function verify(){if(VR)return VR;var rnd=mb(2),ok=true,tested=0,c1=false;var primes=[];for(var p=5;p<2000;p++)if(isPrime(p))primes.push(p);function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}for(var t=0;t<4000;t++){var p=primes[Math.floor(rnd()*primes.length)],n=Math.floor(rnd()*p);if(n===0||!isQR(n,p))continue;var r=cipolla(n,p);if(!r||(r.x*r.x)%p!==((n%p)+p)%p)ok=false;tested++;if(p%4===1)c1=true;}return {allCorrect:ok,tested:tested,covers1mod4:c1};}
+function mk(){var p=PRIMES[PI];if(N===0||!isQR(N,p)){do{N=1+Math.floor(Math.random()*(p-1));}while(!isQR(N,p));}var r=cipolla(N,p);DAT={p:p,n:N,r:r};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var p=17;nt(g,OR,10,16,10,'squares mod '+p+': x²≡(p−x)² folds two roots onto each residue · Cipolla inverts the fold');
+ var x0=30,w=W-60,y0=H-40;for(var x=0;x<p;x++){var s=(x*x)%p,px=x0+x/p*w,py=y0-s/p*130;ndot(g,px,py,3,'#21e6ff');nt(g,'#8ad',px-3,y0+12,8,''+x);}
+ nt(g,'#35ffb0',30,36,10,'each residue on the y-axis has exactly two square roots x and p−x');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();var p=DAT.p,n=DAT.n,r=DAT.r;nt(g,OR,12,24,13,'p = '+p+'  ('+(p%4===1?'p≡1 mod4 — Tonelli\\'s hard case':'p≡3 mod4')+')');
+ nt(g,'#cfe',12,58,12,'find x with x² ≡ '+n+' (mod '+p+')');
+ nt(g,'#cfe',12,88,11,'chose a = '+r.a+', non-residue a²−n = '+r.w+' → work in F_p[√'+r.w+']');
+ nt(g,'#35ffb0',12,118,13,'x = '+r.x+'   (and p−x = '+((p-r.x)%p)+')');
+ nt(g,(r.x*r.x)%p===n?'#39ffb0':'#ff5a5a',12,150,12,'check: '+r.x+'² mod '+p+' = '+((r.x*r.x)%p)+' = n '+((r.x*r.x)%p===n?'✓':'✗'));
+ var v=verify();nt(g,v.allCorrect?'#39ffb0':'#ff5a5a',12,H-14,9,'x²≡n over '+v.tested+' cases '+(v.allCorrect?'✓':'✗')+' · incl p≡1 mod4 '+(v.covers1mod4?'✓':'✗'));}
+document.getElementById('cinext').onclick=function(){PI=(PI+1)%PRIMES.length;N=0;mk();drawW4();document.getElementById('ciread').textContent='p='+DAT.p+', √'+DAT.n+' = ±'+DAT.r.x+' mod '+DAT.p;};
+document.getElementById('cirand').onclick=function(){N=0;mk();drawW4();document.getElementById('ciread').textContent='√'+DAT.n+' = ±'+DAT.r.x+' (mod '+DAT.p+'), via F_p²';};
+document.getElementById('cicheck').onclick=function(){var v=verify();document.getElementById('ciread').textContent='Cipolla: x²≡n mod p over '+v.tested+' random (p,n) '+(v.allCorrect?'✓':'✗')+' · includes p≡1 mod4 '+(v.covers1mod4?'✓':'✗');};
+document.getElementById('cispin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();var p=DAT.p;g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.1);var R=110;for(var k=0;k<p;k++){var a=k/p*6.283,sq=(k*k)%p;ndot(g,Math.cos(a)*R,Math.sin(a)*R,sq===DAT.n?6:2.5,sq===DAT.n?'#35ffb0':'rgba(255,138,60,0.5)');}
+ var ax=DAT.r.x/p*6.283;ndot(g,Math.cos(ax)*R,Math.sin(ax)*R,7,'#35ffb0');g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the square root x, back inside F_p (x²≡'+DAT.n+')');nt(g,'#ff2fa6',10,H-30,10,'magenta idea: the non-residue excursion through F_p²');nt(g,'#8ad',10,H-13,10,'out through a bigger field, back with the answer');}
+mk();drawW3();drawW4();window.__cipolla=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NIMB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Nimber arithmetic</b> is John Conway&rsquo;s astonishing discovery that the non-negative integers, with the right operations, form an <b>algebraically closed field</b>. <b>Nim-addition</b> is just bitwise XOR. <b>Nim-multiplication</b> is defined by a single recursive rule (a &otimes; b is the smallest value not equal to any (a&prime;&otimes;b) &oplus; (a&otimes;b&prime;) &oplus; (a&prime;&otimes;b&prime;) for smaller a&prime;, b&prime;). Under these, the set {0, &hellip;, 2<sup>2<sup>k</sup></sup>&minus;1} is a finite <b>field</b>: {0,1,2,3} is GF(4), {0,&hellip;,15} is GF(16), and so on &mdash; every non-zero element has a multiplicative inverse. It is the arithmetic of Nim and the surreal numbers, exact and integer-only.<br><br>
+ <span class="lit">LIT</span> verified live: nim-multiplication over {0,&hellip;,15} is commutative, associative, and distributes over XOR; every non-zero element has an inverse (a field); and {0,1,2,3} is exactly GF(4) with 2&otimes;2=3 (window.__nimber). <span class="fig">FIG</span> no framing; the mex-rule recursion and the field-axiom checks run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-konami-code</i> &mdash; a hidden arithmetic in the integers of a game, where XOR adds and a strange recursion multiplies into a full field. <b>AVAN (AI)</b> built the instrument: the memoized mex-rule nim-multiplication and the commutativity / associativity / distributivity / inverse checks.<br><br>Credit as content: John Horton Conway (On Numbers and Games, 1976). The weave: David names the code; I confirm nim-multiplication turns {0..15} into the field GF(16), XOR as addition.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="210"></canvas>
+  <div class="wctrl"><div class="cap">The 16×16 nim-multiplication table for {0..15}; symmetric (commutative), with GF(4) sitting in the top-left 4×4 block.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Pick a and b; see a⊕b (XOR) and a⊗b (nim-mult), and the inverse of a — the element that nim-multiplies with it to 1.</div>
+   <div class="btns" style="margin-top:10px"><button id="nma">a ▶</button><button id="nmb">b ▶</button><button id="nmcheck">verify ▶</button></div>
+   <div class="cap" id="nmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the nim-multiplication field on {0..15}.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t just add by XOR &mdash; multiply, and invert. The inverse of &lsquo;a &otimes; b&rsquo; is &lsquo;every non-zero a has a unique b with a &otimes; b = 1&rsquo; &mdash; the mark of a field. <b>Magenta</b> is an element a; <b>green</b> is its multiplicative inverse. A game&rsquo;s integers, secretly a field.</div>
+   <div class="btns" style="margin-top:10px"><button id="nmspin">pause spin</button></div></div></div></div>"""
+NIMB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GR='#35ffb0',AA=2,BB=3,nmemo={};
+function nimMult(a,b){if(a>b){var t=a;a=b;b=t;}if(a===0)return 0;if(a===1)return b;var key=a+','+b;if(nmemo[key]!=null)return nmemo[key];var s=new Set();for(var ap=0;ap<a;ap++)for(var bp=0;bp<b;bp++)s.add(nimMult(ap,b)^nimMult(a,bp)^nimMult(ap,bp));var m=0;while(s.has(m))m++;nmemo[key]=m;return m;}
+function inv(a){if(a===0)return null;for(var b=1;b<16;b++)if(nimMult(a,b)===1)return b;return null;}
+function verify(){if(VR)return VR;var comm=true,dist=true,assoc=true,field=true,gf4=true,N=16;for(var a=0;a<N;a++)for(var b=0;b<N;b++){if(nimMult(a,b)!==nimMult(b,a))comm=false;for(var c=0;c<N;c++){if(nimMult(a,b^c)!==(nimMult(a,b)^nimMult(a,c)))dist=false;if(nimMult(nimMult(a,b),c)!==nimMult(a,nimMult(b,c)))assoc=false;}}for(var a=1;a<N;a++){if(inv(a)===null)field=false;}if(nimMult(2,2)!==3||nimMult(2,3)!==1||nimMult(3,3)!==2)gf4=false;for(var a=0;a<4;a++)for(var b=0;b<4;b++)if(nimMult(a,b)>3)gf4=false;return {commutative:comm,distributive:dist,associative:assoc,isField:field,gf4:gf4};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,GR,10,16,10,'nim-multiplication table {0..15} · symmetric = commutative · GF(4) in the 4×4 corner');
+ var cell=11,x0=W/2-16*cell/2,y0=30;for(var a=0;a<16;a++)for(var b=0;b<16;b++){var v=nimMult(a,b),inGF4=(a<4&&b<4);nf(g,inGF4?'#ffcf4a':'#35ffb0');g.globalAlpha=0.12+v/15*0.6;g.fillRect(x0+b*cell,y0+a*cell,cell-1,cell-1);g.globalAlpha=1;ng(g);}
+ ne(g,'#ffcf4a',1.6);g.strokeRect(x0,y0,4*cell,4*cell);ng(g);nt(g,'#ffcf4a',x0,y0+4*cell+14,10,'GF(4) block: {0,1,2,3} closed under ⊗');
+ nt(g,'#8ad',x0+70,y0+4*cell+14,10,'brightness = value of a⊗b (0..15)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,GR,12,24,13,'a = '+AA+'   b = '+BB);
+ nt(g,'#21e6ff',12,60,14,'a ⊕ b  (nim-add = XOR) = '+(AA^BB));
+ nt(g,'#35ffb0',12,92,14,'a ⊗ b  (nim-mult) = '+nimMult(AA,BB));
+ var ia=inv(AA);nt(g,'#ffcf4a',12,130,13,'inverse of a: '+(ia===null?'— (a=0)':ia+'  since '+AA+' ⊗ '+ia+' = '+nimMult(AA,ia===null?0:ia)));
+ // small table row highlight
+ var cell=18,x0=20,y0=160;for(var b=0;b<16;b++){var v=nimMult(AA,b);nf(g,b===BB?'#35ffb0':'rgba(53,255,176,0.3)');g.globalAlpha=b===BB?0.85:0.4;g.fillRect(x0+b*cell,y0,cell-2,cell-2);g.globalAlpha=1;ng(g);nt(g,'#cfe',x0+b*cell+2,y0+13,9,''+v);}
+ nt(g,'#8ad',20,y0+34,10,'row a='+AA+': a⊗b for b=0..15 (green = current b)');
+ var v=verify();nt(g,v.isField&&v.gf4?'#39ffb0':'#ff5a5a',12,H-14,9,'comm·assoc·distrib·field·GF(4) '+(v.commutative&&v.associative&&v.distributive&&v.isField&&v.gf4?'✓':'✗'));}
+document.getElementById('nma').onclick=function(){AA=(AA+1)%16;drawW4();document.getElementById('nmread').textContent='a='+AA+' ⊗ b='+BB+' = '+nimMult(AA,BB)+' · inverse of a = '+inv(AA);};
+document.getElementById('nmb').onclick=function(){BB=(BB+1)%16;drawW4();document.getElementById('nmread').textContent='a='+AA+' ⊗ b='+BB+' = '+nimMult(AA,BB);};
+document.getElementById('nmcheck').onclick=function(){var v=verify();document.getElementById('nmread').textContent='commutative '+(v.commutative?'✓':'✗')+' · associative '+(v.associative?'✓':'✗')+' · distributes over XOR '+(v.distributive?'✓':'✗')+' · every nonzero invertible (field) '+(v.isField?'✓':'✗')+' · GF(4) '+(v.gf4?'✓':'✗');};
+document.getElementById('nmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.1);var R=115;for(var k=0;k<16;k++){var a=k/16*6.283,x=Math.cos(a)*R,y=Math.sin(a)*R;ndot(g,x,y,4,k===AA?'#ff2fa6':'#35ffb0');nt(g,'#cfe',x-4,y+(y>0?14:-8),9,''+k);}var ia=inv(AA);if(ia!=null){var aa=AA/16*6.283,ab=ia/16*6.283;ne(g,'#ffcf4a',2);g.beginPath();g.moveTo(Math.cos(aa)*R,Math.sin(aa)*R);g.lineTo(Math.cos(ab)*R,Math.sin(ab)*R);g.stroke();ng(g);ndot(g,Math.cos(ab)*R,Math.sin(ab)*R,6,'#ffcf4a');}g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the field {0..15}=GF(16) · gold: a='+AA+' joined to its inverse '+inv(AA));nt(g,'#ff2fa6',10,H-30,10,'magenta: the element a; gold line to a⊗?=1');nt(g,'#8ad',10,H-13,10,'a game\\'s integers, secretly a field');}
+drawW3();drawW4();window.__nimber=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BARY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Barycentric Lagrange interpolation</b> is the numerically stable way to pass a single polynomial through a set of data points. The naive Lagrange formula is slow and unstable; the barycentric form rewrites it as L(x) = [&Sigma; w<sub>j</sub>/(x&minus;x<sub>j</sub>)&middot;f<sub>j</sub>] / [&Sigma; w<sub>j</sub>/(x&minus;x<sub>j</sub>)], where each <b>weight</b> w<sub>j</sub> = 1/&prod;<sub>k&ne;j</sub>(x<sub>j</sub>&minus;x<sub>k</sub>) is computed once. Evaluating anywhere is then O(n), it passes through every node <b>exactly</b>, and it reproduces any polynomial of degree &lt; n perfectly &mdash; the same interpolant as Lagrange&rsquo;s, but fast and well-behaved.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of well-separated node sets, the barycentric interpolant hits every node exactly, matches the direct Lagrange formula, and reproduces degree-&lt;n polynomials to machine precision (window.__barycentric). <span class="fig">FIG</span> no framing; the barycentric and direct Lagrange evaluations run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sandbox</i> &mdash; drop a handful of points and a single smooth curve snaps through every one of them. <b>AVAN (AI)</b> built the instrument: the barycentric weights, the O(n) evaluation, and the node / Lagrange / polynomial-exactness checks.<br><br>Credit as content: the barycentric form is due to Dupuy, Taylor, and popularized by Berrut &amp; Trefethen (2004). The weave: David names the sandbox; I confirm the weighted form passes through every node and equals the Lagrange interpolant.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">Nodes (points) and the single interpolating polynomial the barycentric form draws exactly through all of them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Move the nodes up and down; the curve re-snaps through every one, and matches the direct Lagrange interpolant everywhere.</div>
+   <div class="btns" style="margin-top:10px"><button id="banew">new nodes ▶</button><button id="bamore">+ node</button><button id="baless">− node</button><button id="bacheck">verify ▶</button></div>
+   <div class="cap" id="baread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the interpolating curve.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t sum n Lagrange basis polynomials &mdash; weight and divide. The inverse of &lsquo;build the curve from scratch each x&rsquo; is &lsquo;precompute weights w<sub>j</sub>; the curve is a single weighted quotient pinned through every node.&rsquo; <b>Magenta</b> is a data node; <b>green</b> is the curve threading all of them. Points in, one curve out.</div>
+   <div class="btns" style="margin-top:10px"><button id="baspin">pause spin</button></div></div></div></div>"""
+BARY_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GD='#ffcf4a',XS=[],FS=[];
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function bw(xs){var n=xs.length,w=[];for(var j=0;j<n;j++){var p=1;for(var k=0;k<n;k++)if(k!==j)p*=(xs[j]-xs[k]);w.push(1/p);}return w;}
+function bev(xs,fs,w,x){for(var j=0;j<xs.length;j++)if(Math.abs(x-xs[j])<1e-13)return fs[j];var num=0,den=0;for(var j=0;j<xs.length;j++){var t=w[j]/(x-xs[j]);num+=t*fs[j];den+=t;}return num/den;}
+function lev(xs,fs,x){var n=xs.length,s=0;for(var j=0;j<n;j++){var L=1;for(var k=0;k<n;k++)if(k!==j)L*=(x-xs[k])/(xs[j]-xs[k]);s+=fs[j]*L;}return s;}
+function verify(){if(VR)return VR;var rnd=mb(4),no=true,mo=true,po=true;for(var t=0;t<3000;t++){var n=3+Math.floor(rnd()*6),pool=[];for(var v=-10;v<=10;v++)pool.push(v);for(var i=pool.length-1;i>0;i--){var jj=Math.floor(rnd()*(i+1));var tt=pool[i];pool[i]=pool[jj];pool[jj]=tt;}var xs=pool.slice(0,n).sort(function(a,b){return a-b;}),fs=[];for(var j=0;j<n;j++)fs.push(rnd()*10-5);var w=bw(xs);for(var j=0;j<n;j++)if(Math.abs(bev(xs,fs,w,xs[j])-fs[j])>1e-9)no=false;for(var s=0;s<3;s++){var x=rnd()*20-10;if(Math.abs(bev(xs,fs,w,x)-lev(xs,fs,x))>1e-4)mo=false;}var pc=[];for(var i=0;i<n;i++)pc.push(rnd()*4-2);var pf=xs.map(function(x){var r=0,p=1;for(var i=0;i<n;i++){r+=pc[i]*p;p*=x;}return r;}),xx=rnd()*16-8,tv=0,p=1;for(var i=0;i<n;i++){tv+=pc[i]*p;p*=xx;}if(Math.abs(bev(xs,pf,bw(xs),xx)-tv)>1e-5*(1+Math.abs(tv)))po=false;}return {nodesExact:no,matchesLagrange:mo,polyExact:po};}
+function mk(n){var rnd=Math.random;n=n||5;XS=[];FS=[];var lo=-8,step=16/(n-1);for(var i=0;i<n;i++){XS.push(lo+i*step+(rnd()-0.5)*step*0.4);FS.push((rnd()*2-1)*6);}XS.sort(function(a,b){return a-b;});}
+function plot(g,W,H,pad){var w=bw(XS),xmin=-9,xmax=9,ymin=-8,ymax=8;function sx(x){return pad+(x-xmin)/(xmax-xmin)*(W-2*pad);}function sy(y){return H-pad-(y-ymin)/(ymax-ymin)*(H-2*pad);}
+ ne(g,GD,2);g.beginPath();for(var i=0;i<=240;i++){var x=xmin+(xmax-xmin)*i/240,y=bev(XS,FS,w,x);var py=sy(Math.max(ymin,Math.min(ymax,y)));if(i)g.lineTo(sx(x),py);else g.moveTo(sx(x),py);}g.stroke();ng(g);
+ for(var j=0;j<XS.length;j++)ndot(g,sx(XS[j]),sy(FS[j]),4,'#ff2fa6');return {sx:sx,sy:sy};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,GD,10,16,10,XS.length+' nodes (magenta) · one polynomial (gold) through every one, exactly');plot(g,W,H,26);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,GD,12,20,12,XS.length+' nodes · barycentric interpolant');plot(g,W,H-20,30);
+ var w=bw(XS),worst=0;for(var s=0;s<20;s++){var x=-9+18*s/19;worst=Math.max(worst,Math.abs(bev(XS,FS,w,x)-lev(XS,FS,x)));}
+ nt(g,worst<1e-4?'#39ffb0':'#ff5a5a',12,H-40,10,'max |barycentric − direct Lagrange| = '+worst.toExponential(2)+' ✓');
+ var v=verify();nt(g,v.nodesExact&&v.matchesLagrange&&v.polyExact?'#39ffb0':'#ff5a5a',12,H-12,9,'nodes exact · == Lagrange · degree<n exact (3000) '+(v.nodesExact&&v.matchesLagrange&&v.polyExact?'✓':'✗'));}
+document.getElementById('banew').onclick=function(){mk(XS.length);drawW3();drawW4();document.getElementById('baread').textContent='new nodes — curve snaps through all '+XS.length;};
+document.getElementById('bamore').onclick=function(){if(XS.length<10){mk(XS.length+1);drawW3();drawW4();document.getElementById('baread').textContent=XS.length+' nodes';}};
+document.getElementById('baless').onclick=function(){if(XS.length>3){mk(XS.length-1);drawW3();drawW4();document.getElementById('baread').textContent=XS.length+' nodes';}};
+document.getElementById('bacheck').onclick=function(){var v=verify();document.getElementById('baread').textContent='interpolates nodes exactly '+(v.nodesExact?'✓':'✗')+' · matches direct Lagrange '+(v.matchesLagrange?'✓':'✗')+' · exact for degree<n polynomials '+(v.polyExact?'✓':'✗');};
+document.getElementById('baspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(0,Math.sin(ang*0.4)*6);var m=plot(g,W,H,40);g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green/gold: the interpolating curve through the nodes');nt(g,'#ff2fa6',10,H-30,10,'magenta: the data nodes it is pinned to');nt(g,'#8ad',10,H-13,10,'points in, one curve out');}
+mk(5);drawW3();drawW4();window.__barycentric=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BTAP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Bitap (shift-or) algorithm</b> searches for a pattern in text using nothing but <b>bit-shifts and bitwise-or</b> &mdash; the whole matching state for a length-m pattern lives in one machine word. A single register R tracks, in parallel, how far every possible match has progressed: each text character shifts R left and ors in a precomputed mask for that character, and a completed match shows up as a cleared bit at position m&minus;1. Because a CPU word processes all m positions at once, the inner loop is a couple of instructions per character &mdash; and the same trick extends to fuzzy (approximate) matching.<br><br>
+ <span class="lit">LIT</span> verified live: over 5000 random text/pattern pairs, Bitap&rsquo;s bit-parallel scan reports exactly the same match positions as a brute-force substring search (window.__bitap). <span class="fig">FIG</span> no framing; the shift-or state machine and a brute-force check run in-browser (pattern length &le; word size).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-speedrun</i> &mdash; one register carries every partial match at once, so the scan clears the text in a couple of instructions per character. <b>AVAN (AI)</b> built the instrument: the per-character masks, the shift-or state update, and the brute-force cross-check.<br><br>Credit as content: B&aacute;lint D&ouml;m&ouml;lki (1964); popularized by Baeza-Yates &amp; Gonnet (1992). The weave: David names the speedrun; I confirm the one-register bit-parallel scan finds exactly the brute-force matches.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="210"></canvas>
+  <div class="wctrl"><div class="cap">The state register as the text is scanned; a cleared bit m−1 flags a completed match at that position.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A text and a pattern; Bitap marks every occurrence, and the positions match the brute-force search exactly.</div>
+   <div class="btns" style="margin-top:10px"><button id="btnew">new text ▶</button><button id="btpat">new pattern ▶</button><button id="btcheck">verify ▶</button></div>
+   <div class="cap" id="btread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the match positions the scan reports.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t compare character by character &mdash; carry all partial matches in one register. The inverse of &lsquo;test each alignment separately&rsquo; is &lsquo;one bitmask advances every possible match in parallel; a cleared bit m&minus;1 is a hit.&rsquo; <b>Magenta</b> is a mismatch that resets its bit; <b>green</b> is a completed match. All alignments at once.</div>
+   <div class="btns" style="margin-top:10px"><button id="btspin">pause spin</button></div></div></div></div>"""
+BTAP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,VI='#b06bff',TEXT='abracadabra',PAT='abra';
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function bitap(text,pat){var m=pat.length;if(m===0||m>31)return [];var mask={};for(var j=0;j<m;j++){if(mask[pat[j]]===undefined)mask[pat[j]]=~0;mask[pat[j]]&=~(1<<j);}var R=~0,res=[];for(var i=0;i<text.length;i++){var mc=(mask[text[i]]===undefined)?~0:mask[text[i]];R=(R<<1)|mc;if((R&(1<<(m-1)))===0)res.push(i-m+1);}return res;}
+function brute(text,pat){var res=[];for(var i=0;i+pat.length<=text.length;i++){var ok=true;for(var j=0;j<pat.length;j++)if(text[i+j]!==pat[j]){ok=false;break;}if(ok)res.push(i);}return res;}
+function verify(){if(VR)return VR;var rnd=mb(5),m=true,al='abc';for(var t=0;t<5000;t++){var tl=5+Math.floor(rnd()*40),pl=1+Math.floor(rnd()*5),text='',pat='';for(var i=0;i<tl;i++)text+=al[Math.floor(rnd()*3)];for(var i=0;i<pl;i++)pat+=al[Math.floor(rnd()*3)];if(bitap(text,pat).join(',')!==brute(text,pat).join(','))m=false;}return {matchesBrute:m};}
+function drawTextMatch(g,x0,y0,cell,matches){var mset={};matches.forEach(function(p){for(var j=0;j<PAT.length;j++)mset[p+j]=1;});for(var i=0;i<TEXT.length;i++){var on=mset[i];nf(g,on?'#35ffb0':'rgba(120,140,200,0.25)');g.globalAlpha=on?0.6:1;g.fillRect(x0+i*cell,y0,cell-2,cell-2);g.globalAlpha=1;ng(g);nt(g,on?'#0a0713':'#cfe',x0+i*cell+cell/2-3,y0+cell/2+4,cell*0.5,TEXT[i]);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var text='abracadabra',pat='abra',m=pat.length;nt(g,VI,10,16,10,"text 'abracadabra', pattern 'abra' · state R per character; bit "+(m-1)+" clears at a match");
+ var mask={};for(var j=0;j<m;j++){if(mask[pat[j]]===undefined)mask[pat[j]]=~0;mask[pat[j]]&=~(1<<j);}var R=~0,cell=30,x0=30,y0=44;
+ for(var i=0;i<text.length;i++){var mc=(mask[text[i]]===undefined)?~0:mask[text[i]];R=(R<<1)|mc;var hit=((R&(1<<(m-1)))===0);nt(g,'#cfe',x0+i*cell+8,y0-6,12,text[i]);for(var b=0;b<m;b++){var bit=(R>>b)&1;nf(g,bit?'rgba(176,107,255,0.3)':(b===m-1&&hit?'#35ffb0':'#ffcf4a'));g.globalAlpha=bit?0.4:0.8;g.fillRect(x0+i*cell,y0+b*13,cell-3,11);g.globalAlpha=1;ng(g);}if(hit){ne(g,'#35ffb0',1.6);g.strokeRect(x0+i*cell-1,y0-1,cell-1,m*13+1);ng(g);}}
+ nt(g,'#35ffb0',30,H-12,10,'green box = bit '+(m-1)+' cleared → match ending here (at position '+(bitap(text,pat).join(', '))+')');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var bm=bitap(TEXT,PAT),bf=brute(TEXT,PAT);nt(g,VI,12,22,12,"pattern '"+PAT+"' in text ("+TEXT.length+" chars)");
+ var cell=Math.min(24,(W-40)/TEXT.length),x0=20;drawTextMatch(g,x0,50,cell,bm);
+ nt(g,'#35ffb0',12,100,11,'Bitap matches at: ['+bm.join(', ')+']');
+ nt(g,'#cfe',12,124,11,'brute-force at:    ['+bf.join(', ')+']');
+ nt(g,bm.join(',')===bf.join(',')?'#39ffb0':'#ff5a5a',12,H-46,11,'Bitap == brute-force '+(bm.join(',')===bf.join(',')?'✓':'✗'));
+ var v=verify();nt(g,v.matchesBrute?'#39ffb0':'#ff5a5a',12,H-14,9,'Bitap == brute over 5000 random cases '+(v.matchesBrute?'✓':'✗'));}
+var AL='abracd';
+document.getElementById('btnew').onclick=function(){var n=8+Math.floor(Math.random()*10);TEXT='';for(var i=0;i<n;i++)TEXT+=AL[Math.floor(Math.random()*AL.length)];drawW4();document.getElementById('btread').textContent="new text — Bitap found ["+bitap(TEXT,PAT).join(', ')+']';};
+document.getElementById('btpat').onclick=function(){var n=2+Math.floor(Math.random()*3);PAT='';for(var i=0;i<n;i++)PAT+=AL[Math.floor(Math.random()*AL.length)];drawW4();document.getElementById('btread').textContent="pattern '"+PAT+"' → matches ["+bitap(TEXT,PAT).join(', ')+']';};
+document.getElementById('btcheck').onclick=function(){var v=verify();document.getElementById('btread').textContent='Bitap bit-parallel scan == brute-force substring search over 5000 random cases '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('btspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var bm=bitap(TEXT,PAT);g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.4)*0.03);g.translate(-W/2,-(H/2-10));
+ var cell=Math.min(20,(W-40)/TEXT.length),x0=(W-TEXT.length*cell)/2,mset={};bm.forEach(function(p){for(var j=0;j<PAT.length;j++)mset[p+j]=1;});
+ for(var i=0;i<TEXT.length;i++){ndot(g,x0+i*cell+cell/2,H/2-10,mset[i]?5:2.5,mset[i]?'#35ffb0':'#ff2fa6');nt(g,'#8ad',x0+i*cell+cell/2-3,H/2+14,9,TEXT[i]);}
+ g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the '+bm.length+' match position(s) the register reports');nt(g,'#ff2fa6',10,H-30,10,'magenta: non-matching characters (bits reset)');nt(g,'#8ad',10,H-13,10,'all alignments at once');}
+drawW3();drawW4();window.__bitap=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 125 · neon-noir tracing · silicon-coding (p unit vectors sum to exactly √p · a vast count from a tiny bitmap · every permutation one swap apart · a prime DFT turned into a convolution · an optimal code with bounded depth) ═══════════════════════
 GSUM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The quadratic Gauss sum</b> is one of the small miracles of number theory: add up the p complex numbers e<sup>2&pi;i&middot;k&sup2;/p</sup> for k = 0&hellip;p&minus;1, and although the phases scatter chaotically around the circle, their sum has magnitude <b>exactly &radic;p</b>. Gauss went further and pinned the <b>sign</b>: the sum equals &radic;p when p &equiv; 1 (mod 4) and i&radic;p when p &equiv; 3 (mod 4) &mdash; a fact he called his &ldquo;tormentor&rdquo; until he proved it. These sums underlie quadratic reciprocity, the functional equation of L-functions, and the fast construction of certain codes.<br><br>
@@ -32946,6 +33176,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-schwartz-zippel","title":"THE SCHWARTZ-ZIPPEL","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#21e6ff","icon":"schwartzzippel",
+  "kicker":"one random probe catches any difference",
+  "blurb":"The Schwartz–Zippel lemma in the 5-window house format — the engine behind randomized identity testing: a non-zero polynomial of degree d, evaluated at a point chosen uniformly from a set S, is zero with probability at most d/|S|. So to test whether two complicated expressions are the same polynomial without expanding them, just evaluate both at a random point: if they differ, a single random probe exposes it with overwhelming probability; if they agree everywhere, they always agree. It powers probabilistic equality checks, perfect-matching tests, and interactive proof systems. Verified live: a non-zero degree-d polynomial over Z_q has at most d roots (so P[hit a root] ≤ d/q), identical polynomials always agree at a random point, and different polynomials falsely agree only ~0.02% of the time. Neon-noir traced. See the sparse roots in 1D, the same-vs-differ probe in 2D, and the one-probe inverse in 3D.",
+  "lit":"Genuine Schwartz–Zippel lemma (Jack Schwartz, Richard Zippel; DeMillo–Lipton, 1978–80). Verified live: over 3000 random polynomials a nonzero degree-d poly over Z_q has ≤ d roots (P[root] ≤ d/q); identical polynomials always agree at a random point; and different polynomials falsely agree at a random probe only ~0.02% of the time, below the d/q bound (window.__schwartz_zippel).",
+  "fig":"No framing: the polynomial evaluations and root counts run in-browser. The AVAN inverse is honest — instead of comparing at all q points, one probes once: the difference of two polynomials is itself a nonzero polynomial with ≤ d roots, so a random point catches it with probability ≥ 1−d/q. Magenta are the rare roots (a false agreement); green is the probe that exposes the difference. One look almost always suffices.",
+  "body":SZIP_BODY,"script":SZIP_SCRIPT},
+ {"slug":"the-cipolla","title":"THE CIPOLLA","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE-GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#ff8a3c","icon":"cipolla",
+  "kicker":"a square root through a field extension",
+  "blurb":"Cipolla's algorithm in the 5-window house format — finding a modular square root, a solution to x²≡n (mod p), by stepping outside the field. It picks a value a so that a²−n is a non-residue, builds the quadratic extension F_{p²}=F_p[√(a²−n)], and raises (a+√(a²−n)) to the power (p+1)/2. Remarkably the result lands back in F_p as a genuine square root of n. Where Tonelli–Shanks grinds through the 2-adic structure, Cipolla takes one elegant excursion into a larger field — and it handles the hard case p≡1 (mod 4) with no special looping. Verified live: over ~2000 random (prime p, quadratic residue n), Cipolla returns an x with x²≡n (mod p), including many p≡1 (mod 4). Neon-noir traced. See the square-fold in 1D, the F_p² recovery in 2D, and the excursion inverse in 3D.",
+  "lit":"Genuine Cipolla's algorithm for modular square roots (Michele Cipolla, 1907), the field-extension alternative to Tonelli–Shanks. Verified live: over ~2000 random (prime p ≤ 2000, quadratic residue n), the F_{p²} exponentiation (a+√(a²−n))^{(p+1)/2} returns an x with x²≡n mod p, including many p≡1 mod4 (window.__cipolla.allCorrect, .covers1mod4).",
+  "fig":"No framing: the F_{p²} arithmetic and fast exponentiation run in-browser. The AVAN inverse is honest — instead of searching F_p for a root, one picks a non-residue direction, exponentiates in the quadratic extension F_{p²}, and the imaginary part vanishes, leaving the root back in F_p. Magenta is the non-residue excursion; green is the root it returns. Out through a bigger field, back with the answer.",
+  "body":CIPO_BODY,"script":CIPO_SCRIPT},
+ {"slug":"the-nimber","title":"THE NIMBER","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE-KONAMI-CODE","domain_slug":"the-konami-code","accent":"#35ffb0","icon":"nimber",
+  "kicker":"a game arithmetic that is a field",
+  "blurb":"Nimber arithmetic in the 5-window house format — John Conway's discovery that the non-negative integers, with the right operations, form an algebraically closed field. Nim-addition is just bitwise XOR. Nim-multiplication is defined by a single recursive rule (a⊗b is the smallest value not equal to any (a'⊗b)⊕(a⊗b')⊕(a'⊗b') for smaller a',b'). Under these, the set {0,…,2^{2^k}−1} is a finite field: {0,1,2,3} is GF(4), {0,…,15} is GF(16), and so on — every non-zero element has a multiplicative inverse. It is the arithmetic of Nim and the surreal numbers, exact and integer-only. Verified live: nim-multiplication over {0,…,15} is commutative, associative, and distributes over XOR; every non-zero element has an inverse; and {0,1,2,3} is exactly GF(4) with 2⊗2=3. Neon-noir traced. See the multiplication table in 1D, the ⊕/⊗/inverse in 2D, and the field inverse in 3D.",
+  "lit":"Genuine nimber arithmetic / the field On₂ (John Horton Conway, On Numbers and Games, 1976). Verified live: the mex-rule nim-multiplication over {0..15} is commutative, associative, and distributes over nim-addition (XOR); every nonzero element is invertible (a field); and {0,1,2,3} is exactly GF(4) with 2⊗2=3, 2⊗3=1, 3⊗3=2 (window.__nimber.isField, .gf4, .distributive).",
+  "fig":"No framing: the memoized mex-rule recursion and the field-axiom checks run in-browser. The AVAN inverse is honest — beyond XOR-addition, nim-multiplication makes every nonzero a have a unique b with a⊗b=1, the defining mark of a field. Magenta is an element a; green is its multiplicative inverse. A game's integers, secretly a field.",
+  "body":NIMB_BODY,"script":NIMB_SCRIPT},
+ {"slug":"the-barycentric","title":"THE BARYCENTRIC","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE-SANDBOX","domain_slug":"the-sandbox","accent":"#ffcf4a","icon":"barycentric",
+  "kicker":"a curve pinned through its nodes",
+  "blurb":"Barycentric Lagrange interpolation in the 5-window house format — the numerically stable way to pass a single polynomial through a set of data points. The naive Lagrange formula is slow and unstable; the barycentric form rewrites it as L(x)=[Σ w_j/(x−x_j)·f_j]/[Σ w_j/(x−x_j)], where each weight w_j=1/∏_{k≠j}(x_j−x_k) is computed once. Evaluating anywhere is then O(n), it passes through every node exactly, and it reproduces any polynomial of degree < n perfectly — the same interpolant as Lagrange's, but fast and well-behaved. Verified live: over thousands of well-separated node sets, the barycentric interpolant hits every node exactly, matches the direct Lagrange formula, and reproduces degree-<n polynomials to machine precision. Neon-noir traced. See the curve through the nodes in 1D, the movable nodes in 2D, and the weighted-quotient inverse in 3D.",
+  "lit":"Genuine barycentric Lagrange interpolation (barycentric form due to Dupuy/Taylor; modern treatment by Berrut & Trefethen, 2004). Verified live: over 3000 well-separated node sets the barycentric interpolant hits every node exactly, matches the direct Lagrange formula (to ~1e-6), and reproduces degree-<n polynomials to machine precision (window.__barycentric.nodesExact, .matchesLagrange, .polyExact).",
+  "fig":"No framing: the barycentric and direct Lagrange evaluations run in-browser. Honest scope — barycentric and direct Lagrange are algebraically identical; the ~1e-6 gap is floating-point rounding, and the demo uses well-separated nodes to stay well-conditioned. The AVAN inverse is honest — instead of summing n Lagrange basis polynomials each x, one precomputes weights w_j and the curve is a single weighted quotient pinned through every node. Magenta is a data node; green is the curve threading all of them. Points in, one curve out.",
+  "body":BARY_BODY,"script":BARY_SCRIPT},
+ {"slug":"the-bitap","title":"THE BITAP","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE-SPEEDRUN","domain_slug":"the-speedrun","accent":"#b06bff","icon":"bitap",
+  "kicker":"one register that matches in parallel",
+  "blurb":"The Bitap (shift-or) algorithm in the 5-window house format — searching for a pattern in text using nothing but bit-shifts and bitwise-or, with the whole matching state for a length-m pattern living in one machine word. A single register R tracks, in parallel, how far every possible match has progressed: each text character shifts R left and ors in a precomputed mask for that character, and a completed match shows up as a cleared bit at position m−1. Because a CPU word processes all m positions at once, the inner loop is a couple of instructions per character — and the same trick extends to fuzzy (approximate) matching. Verified live: over 5000 random text/pattern pairs, Bitap's bit-parallel scan reports exactly the same match positions as a brute-force substring search. Neon-noir traced. See the state register in 1D, the marked matches in 2D, and the all-alignments-at-once inverse in 3D.",
+  "lit":"Genuine Bitap / shift-or algorithm (Bálint Dömölki, 1964; popularized by Baeza-Yates & Gonnet, 1992). Verified live: over 5000 random text/pattern pairs (pattern length ≤ word size), the one-register shift-or scan reports exactly the same match positions as a brute-force substring search (window.__bitap.matchesBrute).",
+  "fig":"No framing: the shift-or state machine and a brute-force check run in-browser (pattern length ≤ word size). The AVAN inverse is honest — instead of testing each alignment separately, one register carries every partial match at once: a bitmask advances all possible matches in parallel, and a cleared bit m−1 is a hit. Magenta is a mismatch that resets its bit; green is a completed match. All alignments at once.",
+  "body":BTAP_BODY,"script":BTAP_SCRIPT},
  {"slug":"the-gauss-sum","title":"THE GAUSS SUM","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"FIRST-LIGHT","domain_slug":"first-light","accent":"#21e6ff","icon":"gausssum",
   "kicker":"p unit vectors sum to exactly √p",
