@@ -19485,6 +19485,257 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 drawW4();window.__schroder=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 110 (exactly one of a solution or a certificate of its impossibility · a contraction always homes on one fixed point · a coloured triangulation always hides a rainbow · why most strings cannot be compressed · a chain that forgets where it started) ═══════════════════════
+FARK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Farkas&rsquo; lemma</b> is the theorem of the alternative that underpins linear programming duality. For a matrix A and vector b, <b>exactly one</b> of these holds: either <b>(I)</b> there is an x &ge; 0 with Ax = b (b lies in the cone spanned by A&rsquo;s columns), or <b>(II)</b> there is a vector y with y<sup>T</sup>A &ge; 0 and y<sup>T</sup>b &lt; 0 &mdash; a <b>separating hyperplane</b> that certifies b is <b>outside</b> the cone. Never both, never neither. Solution or certificate: whenever no non-negative combination reaches b, there is a hyperplane proving so.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of random 2D instances, exactly one of &ldquo;b is in the cone of the columns&rdquo; and &ldquo;a separating y exists&rdquo; holds &mdash; the two alternatives are perfect complements (window.__farkas). <span class="fig">FIG</span> no framing; cone-membership and the separating certificate computed exactly and shown mutually exclusive.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-choke-point</i> &mdash; either b squeezes through as a non-negative mix of the columns, or a single hyperplane is the choke that blocks it; there is no third case. That separating cut is the mechanic. <b>AVAN (AI)</b> built the instrument: the conical-hull membership test (via Carath&eacute;odory pairs) and the exact separating-hyperplane search (perpendicular to an extreme ray).<br><br>Credit as content: Gyula Farkas (1902). The weave: David names the-choke-point; I check whether b is a non-negative combination of the columns, and if not, produce a y that keeps every column on one side while pushing b to the other &mdash; confirming exactly one of the two always holds.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Either b = &Sigma; &lambda;<sub>j</sub> a<sub>j</sub> with &lambda; &ge; 0 (inside the cone), or a hyperplane y with all a<sub>j</sub> on the &ge; 0 side and b strictly below. Solution or certificate &mdash; exactly one.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Column rays, the cone they span, and b &mdash; either inside (solution) or with a separating line (certificate); checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="fkroll">new instance ▶</button><button id="fkcheck">verify ▶</button></div>
+   <div class="cap" id="fkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a solution or a proof there is none.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): when Ax = b, x &ge; 0 has <b>no</b> solution, don&rsquo;t just fail &mdash; produce a <b>certificate</b>, a hyperplane that proves it impossible. The inverse of &lsquo;search for a feasible x&rsquo; is &lsquo;infeasibility comes with a separating y that certifies it.&rsquo; <b>Magenta</b> is a b outside the cone; <b>green</b> is the separating hyperplane certifying it. Every no has a witness.</div>
+   <div class="btns" style="margin-top:10px"><button id="fkspin">pause spin</button></div></div></div></div>"""
+FARK_SCRIPT = """(function(){
+var ang=0,spin=true,COLS=null,B=null,VR=null;
+function inCone(cols,b){for(var i=0;i<cols.length;i++){var a=cols[i];if(Math.abs(a[0]*b[1]-a[1]*b[0])<1e-9){var t=(Math.abs(a[0])>1e-9)?b[0]/a[0]:b[1]/a[1];if(t>=-1e-9)return true;}}for(var i=0;i<cols.length;i++)for(var j=i+1;j<cols.length;j++){var a=cols[i],c=cols[j],det=a[0]*c[1]-a[1]*c[0];if(Math.abs(det)<1e-9)continue;var l1=(b[0]*c[1]-b[1]*c[0])/det,l2=(a[0]*b[1]-a[1]*b[0])/det;if(l1>=-1e-9&&l2>=-1e-9)return true;}return false;}
+function separator(cols,b){for(var s=-1;s<=1;s+=2)for(var j=0;j<cols.length;j++){var y=[-s*cols[j][1],s*cols[j][0]];if(Math.abs(y[0])<1e-12&&Math.abs(y[1])<1e-12)continue;var ok=true;for(var i=0;i<cols.length;i++)if(y[0]*cols[i][0]+y[1]*cols[i][1]<-1e-9){ok=false;break;}if(ok&&(y[0]*b[0]+y[1]*b[1])<-1e-9)return y;}return null;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){if(VR)return VR;var rnd=mb(1),ok=true;for(var t=0;t<4000;t++){var m=2+Math.floor(rnd()*3),cols=[];for(var i=0;i<m;i++)cols.push([rnd()*4-2,rnd()*4-2]);var b=[rnd()*4-2,rnd()*4-2];if(inCone(cols,b)===!!separator(cols,b))ok=false;}VR={exactlyOne:ok};return VR;}
+function mk(){var m=2+Math.floor(Math.random()*2);COLS=[];for(var i=0;i<m;i++){var a=Math.random()*2.4-0.4;COLS.push([Math.cos(a)*1.5,Math.sin(a)*1.5]);}B=[Math.random()*3-1,Math.random()*3-0.5];}
+function toS(p,cx,cy){return [cx+p[0]*50,cy-p[1]*50];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('exactly one: (I) b = Σλⱼaⱼ, λ≥0  OR  (II) ∃y: y·aⱼ≥0 ∀j, y·b<0  (Farkas)',12,14);
+ var cx=120,cy=95,cols=[[1.2,0.4],[0.3,1.3]],b=[1.6,0.5];g.fillStyle='rgba(200,120,88,0.15)';g.beginPath();g.moveTo(cx,cy);g.lineTo(toS(cols[0],cx,cy)[0]*1.5-cx*0.5,toS(cols[0],cx,cy)[1]*1.5-cy*0.5);g.lineTo(toS(cols[1],cx,cy)[0]*1.5-cx*0.5,toS(cols[1],cx,cy)[1]*1.5-cy*0.5);g.closePath();g.fill();
+ for(var i=0;i<2;i++){var s=toS(cols[i],cx,cy);g.strokeStyle='#c87858';g.beginPath();g.moveTo(cx,cy);g.lineTo(s[0],s[1]);g.stroke();}
+ var sb=toS(b,cx,cy);g.fillStyle='#39fc6b';g.beginPath();g.arc(sb[0],sb[1],4,0,7);g.fill();g.fillStyle='#8ad';g.font='9px monospace';g.fillText('b inside cone → solution',sb[0]+8,sb[1]);
+ g.fillStyle='#c87858';g.fillText('cone of columns (terracotta)',230,120);g.fillStyle='#39fc6b';g.fillText('b outside → a separating line certifies it',230,140);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!COLS)mk();var cx=W/2,cy=H/2,inc=inCone(COLS,B),sep=separator(COLS,B);
+ // cone fill
+ g.strokeStyle='#c87858';g.lineWidth=2;for(var i=0;i<COLS.length;i++){var s=toS([COLS[i][0]*3,COLS[i][1]*3],cx,cy);g.beginPath();g.moveTo(cx,cy);g.lineTo(s[0],s[1]);g.stroke();}g.lineWidth=1;
+ if(sep){var p=[-sep[1]*3,sep[0]*3],q=[sep[1]*3,-sep[0]*3];g.strokeStyle='#39fc6b';g.lineWidth=2;g.setLineDash([5,4]);g.beginPath();g.moveTo(toS(p,cx,cy)[0],toS(p,cx,cy)[1]);g.lineTo(toS(q,cx,cy)[0],toS(q,cx,cy)[1]);g.stroke();g.setLineDash([]);g.lineWidth=1;}
+ var sb=toS(B,cx,cy);g.fillStyle=inc?'#39fc6b':'#ff2d95';g.beginPath();g.arc(sb[0],sb[1],6,0,7);g.fill();
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText(inc?'b IN cone → (I) solution x≥0 exists':'b OUT of cone → (II) separating y certifies',14,20);
+ g.fillStyle=(inc!==!!sep)?'#39fc6b':'#ff5a5a';g.font='10px monospace';g.fillText('(I) '+(inc?'yes':'no')+' · (II) '+(sep?'yes':'no')+(inc!==!!sep?'  → exactly one ✓':' ✗'),14,H-30);
+ var v=verify();g.fillStyle=v.exactlyOne?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('exactly one alternative (4000 instances) '+(v.exactlyOne?'✓':'✗'),14,H-12);}
+document.getElementById('fkroll').onclick=function(){mk();drawW4();document.getElementById('fkread').textContent=inCone(COLS,B)?'b in cone → solution exists':'b outside → separating certificate';};
+document.getElementById('fkcheck').onclick=function(){var v=verify();document.getElementById('fkread').textContent='exactly one of (b∈cone) / (separating y exists) for 4000 random instances '+(v.exactlyOne?'✓':'✗');};
+document.getElementById('fkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!COLS)mk();var cx=W/2,cy=H/2-10,inc=inCone(COLS,B),sep=separator(COLS,B);
+ g.save();g.translate(cx,cy);g.rotate(ang*0.1);g.translate(-cx,-cy);
+ g.strokeStyle='#c87858';g.lineWidth=2;for(var i=0;i<COLS.length;i++){var s=toS([COLS[i][0]*3,COLS[i][1]*3],cx,cy);g.beginPath();g.moveTo(cx,cy);g.lineTo(s[0],s[1]);g.stroke();}g.lineWidth=1;
+ if(sep){var p=[-sep[1]*3,sep[0]*3],q=[sep[1]*3,-sep[0]*3];g.strokeStyle='#39fc6b';g.lineWidth=2;g.beginPath();g.moveTo(toS(p,cx,cy)[0],toS(p,cx,cy)[1]);g.lineTo(toS(q,cx,cy)[0],toS(q,cx,cy)[1]);g.stroke();g.lineWidth=1;}
+ var sb=toS(B,cx,cy);g.fillStyle=inc?'#39fc6b':'#ff2d95';g.beginPath();g.arc(sb[0],sb[1],6,0,7);g.fill();g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText(sep?'green: the separating hyperplane (certificate)':'green: b inside the cone (a solution exists)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: a b outside the cone, no solution',10,H-24);
+ g.fillStyle='#8ad';g.fillText('every no has a witness',10,H-9);}
+drawW3();drawW4();window.__farkas=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BANA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Banach fixed-point theorem</b> (the contraction mapping principle) guarantees a unique meeting point. A map f is a <b>contraction</b> if it shrinks distances by a fixed factor L &lt; 1: |f(x) &minus; f(y)| &le; L&middot;|x &minus; y|. On a complete space, such an f has <b>exactly one fixed point</b> x* = f(x*), and <b>iterating from anywhere</b> &mdash; x, f(x), f(f(x)), &hellip; &mdash; converges to it, with error shrinking <b>geometrically</b>: |x<sub>n</sub> &minus; x*| &le; L<sup>n</sup>|x<sub>0</sub> &minus; x*|. It is the engine behind Newton&rsquo;s method, differential-equation existence, and fractal iterated function systems.<br><br>
+ <span class="lit">LIT</span> verified live: affine contractions f(x) = ax + b (|a| &lt; 1) converge to b/(1&minus;a) from every start, with error exactly |a|<sup>n</sup> times the initial; different starts reach the same point (uniqueness); and iterating cosine homes on the Dottie number 0.739085 (window.__banach). <span class="fig">FIG</span> no framing; convergence, geometric rate, and uniqueness checked exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>null-island</i> &mdash; wherever you start, keep applying the map and you are pulled inexorably to the one fixed point; the starting island is forgotten. <b>AVAN (AI)</b> built the instrument: the affine-contraction iteration to b/(1&minus;a), the L<sup>n</sup> geometric-rate check, the uniqueness test, and the cosine-to-Dottie demonstration.<br><br>Credit as content: Stefan Banach (1922). The weave: David names null-island; I iterate a distance-shrinking map from many starting points, watch them all funnel to the same fixed point at a geometric rate, and confirm the fixed point is unique &mdash; the contraction remembers nothing but its destination.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">f(x) = ax + b, |a| &lt; 1: the cobweb x &rarr; f(x) spirals into x* = b/(1&minus;a). cos(x) iterated from anything &rarr; the Dottie number 0.739085. Each step multiplies the error by |a|.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The cobweb diagram of a contraction converging to its fixed point; the geometric error decay; checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="bnroll">new map ▶</button><button id="bncheck">verify ▶</button></div>
+   <div class="cap" id="bnread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: all starts funnel to one point.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t <b>solve</b> x = f(x) directly &mdash; <b>iterate</b> the contraction and let it converge; the shrinking guarantees a unique answer. The inverse of &lsquo;find the fixed point&rsquo; is &lsquo;apply the map repeatedly from anywhere &mdash; it homes there.&rsquo; <b>Magenta</b> is a scatter of starting points; <b>green</b> is the single fixed point they all reach. Iteration finds what solving cannot.</div>
+   <div class="btns" style="margin-top:10px"><button id="bnspin">pause spin</button></div></div></div></div>"""
+BANA_SCRIPT = """(function(){
+var ang=0,spin=true,A=0.6,B=1.2,VR=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function verify(){if(VR)return VR;var rnd=mb(2),conv=true,rate=true,uniq=true;for(var t=0;t<3000;t++){var a=rnd()*1.8-0.9,b=rnd()*4-2,xs=b/(1-a),x=rnd()*20-10;for(var i=0;i<200;i++)x=a*x+b;if(Math.abs(x-xs)>1e-6)conv=false;var y=rnd()*20-10,e0=Math.abs(y-xs);for(var i=0;i<5;i++)y=a*y+b;if(Math.abs(Math.abs(y-xs)-Math.pow(Math.abs(a),5)*e0)>1e-9)rate=false;var u=100,v=-100;for(var i=0;i<300;i++){u=a*u+b;v=a*v+b;}if(Math.abs(u-v)>1e-6)uniq=false;}var d=0.5;for(var i=0;i<100;i++)d=Math.cos(d);VR={converges:conv,geometric:rate,unique:uniq,dottie:d};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('contraction |f(x)−f(y)| ≤ L|x−y|, L<1 ⇒ unique fixed point, iteration converges',12,14);
+ // cobweb of f(x)=0.6x+1.2, x*=3
+ var ox=40,oy=140,sc=26,xs=B/(1-A);g.strokeStyle='#345';g.beginPath();g.moveTo(ox,oy);g.lineTo(ox+120,oy-120);g.stroke();g.fillStyle='#8ad';g.font='8px monospace';g.fillText('y=x',ox+122,oy-116);
+ g.strokeStyle='#50b0a0';g.beginPath();g.moveTo(ox,oy-B*sc);g.lineTo(ox+120,oy-(A*(120/sc)+B)*sc);g.stroke();g.fillText('y=0.6x+1.2',ox+80,oy-90);
+ var x=0.3;g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(ox+x*sc,oy);for(var i=0;i<12;i++){var fx=A*x+B;g.lineTo(ox+x*sc,oy-fx*sc);g.lineTo(ox+fx*sc,oy-fx*sc);x=fx;}g.stroke();
+ g.fillStyle='#39fc6b';g.font='9px monospace';g.fillText('spirals into x* = '+xs.toFixed(1),ox+130,oy-40);
+ g.fillStyle='#8ad';g.fillText('cos(x) iterated → Dottie 0.739085',300,150);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var xs=B/(1-A),ox=30,oy=H-40,sc=(W-60)/8;
+ g.strokeStyle='#345';g.beginPath();g.moveTo(ox,oy);g.lineTo(ox+8*sc,oy-8*sc);g.stroke();
+ g.strokeStyle='#50b0a0';g.lineWidth=1.5;g.beginPath();for(var xx=-1;xx<8;xx+=0.1){var fx=A*xx+B;g.lineTo(ox+xx*sc,oy-fx*sc);}g.stroke();g.lineWidth=1;
+ var x=0.2;g.strokeStyle='#39fc6b';g.lineWidth=1.5;g.beginPath();g.moveTo(ox+x*sc,oy);for(var i=0;i<20;i++){var fx=A*x+B;g.lineTo(ox+x*sc,oy-fx*sc);g.lineTo(ox+fx*sc,oy-fx*sc);x=fx;}g.stroke();g.lineWidth=1;
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(ox+xs*sc,oy-xs*sc,5,0,7);g.fill();
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('f(x) = '+A.toFixed(2)+'x + '+B.toFixed(2)+'  →  x* = '+xs.toFixed(3),14,18);
+ var v=verify();g.fillStyle=(v.converges&&v.geometric&&v.unique)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('converges '+(v.converges?'✓':'✗')+' · rate |a|^n '+(v.geometric?'✓':'✗')+' · unique '+(v.unique?'✓':'✗')+' · Dottie '+v.dottie.toFixed(5),14,H-12);}
+document.getElementById('bnroll').onclick=function(){A=Math.random()*1.4-0.7;B=Math.random()*3-1;drawW4();document.getElementById('bnread').textContent='f(x)='+A.toFixed(2)+'x+'+B.toFixed(2)+' → x*='+(B/(1-A)).toFixed(3);};
+document.getElementById('bncheck').onclick=function(){var v=verify();document.getElementById('bnread').textContent='affine contraction converges to b/(1−a) '+(v.converges?'✓':'✗')+' · error |a|^n '+(v.geometric?'✓':'✗')+' · unique fixed point '+(v.unique?'✓':'✗')+' · cos→'+v.dottie.toFixed(6);};
+document.getElementById('bnspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var cx=W/2,cy=H/2-10;
+ // 2D contraction toward a fixed point: many starts spiral in
+ var fp=[cx,cy];g.save();g.translate(cx,cy);g.rotate(ang*0.1);g.translate(-cx,-cy);
+ for(var s=0;s<14;s++){var a=s/14*6.28,px=cx+Math.cos(a)*130,py=cy+Math.sin(a)*110;g.strokeStyle='#39fc6b';g.beginPath();g.moveTo(px,py);for(var i=0;i<20;i++){px=fp[0]+(px-fp[0])*0.8+(py-fp[1])*0.15;py=fp[1]+(py-fp[1])*0.8-(px-fp[0])*0.15;g.lineTo(px,py);}g.stroke();}
+ g.fillStyle='#39fc6b';g.beginPath();g.arc(fp[0],fp[1],5,0,7);g.fill();g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: every start spirals into the one fixed point',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: scattered starting points',10,H-24);
+ g.fillStyle='#8ad';g.fillText('iteration finds what solving cannot',10,H-9);}
+drawW3();drawW4();window.__banach=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SPRL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Sperner&rsquo;s lemma</b> is the combinatorial heart of Brouwer&rsquo;s fixed-point theorem. Triangulate a triangle whose corners are coloured 1, 2, 3. Colour the rest under the <b>Sperner rule</b>: a vertex on the edge between corners i and j may only take colour i or j (corners keep their own). Then no matter how you colour the interior, there is always at least one small triangle whose three vertices carry <b>all three colours</b> &mdash; a &ldquo;rainbow&rdquo; triangle. In fact the number of rainbow triangles is always <b>odd</b>, so one can never vanish. It is a discrete, checkable proof that a continuous map on a triangle must have a fixed point.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of random Sperner-valid colourings of triangulated triangles, the count of fully-coloured small triangles is always <b>odd</b> (hence at least one) (window.__sperner_lemma). <span class="fig">FIG</span> no framing; the Sperner rule enforced and rainbow triangles counted exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>shared-memory</i> &mdash; three colours share the boundary under a strict rule, and however the interior is filled, a rainbow cell is forced to appear. That guaranteed cell is the mechanic. <b>AVAN (AI)</b> built the instrument: the triangular grid, the Sperner boundary constraints, the interior colouring, and the odd rainbow-triangle count.<br><br>Credit as content: Emanuel Sperner (1928); its equivalence to Brouwer&rsquo;s fixed-point theorem is classical (Knaster&ndash;Kuratowski&ndash;Mazurkiewicz). The weave: David names shared-memory; I subdivide a triangle, colour it obeying the boundary rule, and count the small triangles that show all three colours &mdash; always an odd number, so a rainbow always exists.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">Corners get colours 1, 2, 3. Edge i&ndash;j vertices take only i or j. Interior: anything. A rainbow triangle (all three colours) must appear &mdash; and their count is odd, so it never drops to zero.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A Sperner-coloured triangulation with its rainbow triangles highlighted; the odd count checked over many colourings.</div>
+   <div class="btns" style="margin-top:10px"><button id="splroll">recolour ▶</button><button id="splcheck">verify ▶</button></div>
+   <div class="cap" id="splread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a rainbow cell forced to exist.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t search a continuous map for a fixed point &mdash; <b>colour a triangulation</b> and let the parity <b>force</b> a rainbow cell, the discrete shadow of that fixed point. The inverse of &lsquo;prove a map has a fixed point&rsquo; is &lsquo;a Sperner colouring always hides an odd number of rainbows.&rsquo; <b>Magenta</b> is the colouring you chose; <b>green</b> is the rainbow triangle it cannot avoid. Parity forces the fixed point.</div>
+   <div class="btns" style="margin-top:10px"><button id="splspin">pause spin</button></div></div></div></div>"""
+SPRL_SCRIPT = """(function(){
+var ang=0,spin=true,K=5,SEEDN=7,VR=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function colorGrid(K,seed){var rnd=mb(seed),color={};function key(i,j){return i+','+j;}for(var i=0;i<=K;i++)for(var j=0;j<=K-i;j++){var c;if(i===0&&j===0)c=1;else if(i===K&&j===0)c=2;else if(i===0&&j===K)c=3;else if(j===0)c=(rnd()<0.5)?1:2;else if(i===0)c=(rnd()<0.5)?1:3;else if(i+j===K)c=(rnd()<0.5)?2:3;else c=1+Math.floor(rnd()*3);color[key(i,j)]=c;}return color;}
+function rainbowList(K,color){function key(i,j){return i+','+j;}var list=[];for(var i=0;i<K;i++)for(var j=0;j<K-i;j++){var cs=[color[key(i,j)],color[key(i+1,j)],color[key(i,j+1)]];if(cs[0]!==cs[1]&&cs[1]!==cs[2]&&cs[0]!==cs[2])list.push([[i,j],[i+1,j],[i,j+1]]);}for(var i=0;i<K;i++)for(var j=0;j<K-i-1;j++){var cs=[color[key(i+1,j)],color[key(i,j+1)],color[key(i+1,j+1)]];if(cs[0]!==cs[1]&&cs[1]!==cs[2]&&cs[0]!==cs[2])list.push([[i+1,j],[i,j+1],[i+1,j+1]]);}return list;}
+function verify(){if(VR)return VR;var odd=true,geq=true;for(var t=0;t<3000;t++){var k=2+Math.floor(mb(t+1)()*5),r=rainbowList(k,colorGrid(k,t+100)).length;if(r%2!==1)odd=false;if(r<1)geq=false;}VR={odd:odd,atLeastOne:geq};return VR;}
+var COL=['#0000','#c05a5a','#5a8ac0','#5ac07a'];
+function pos(i,j,K,ox,oy,sz){var x=ox+(i*0.5+j)*sz,y=oy-i*sz*0.866;return [x,y];}
+function draw(g,K,seed,ox,oy,sz){var color=colorGrid(K,seed),rl=rainbowList(K,color);function key(i,j){return i+','+j;}
+ rl.forEach(function(tri){g.fillStyle='rgba(57,252,107,0.35)';g.beginPath();for(var t=0;t<3;t++){var p=pos(tri[t][0],tri[t][1],K,ox,oy,sz);if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.closePath();g.fill();g.strokeStyle='#39fc6b';g.stroke();});
+ for(var i=0;i<=K;i++)for(var j=0;j<=K-i;j++){var p=pos(i,j,K,ox,oy,sz);g.fillStyle=COL[color[key(i,j)]];g.beginPath();g.arc(p[0],p[1],4,0,7);g.fill();}
+ return rl.length;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('Sperner-coloured triangulation ⇒ ODD number of rainbow (all-3-colour) small triangles',12,14);
+ var n=draw(g,4,3,110,140,26);g.fillStyle='#39fc6b';g.font='10px monospace';g.fillText(n+' rainbow triangle'+(n>1?'s':'')+' (odd)',260,80);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('corners 1/2/3; edge i–j only i or j; interior free',260,104);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=draw(g,K,SEEDN,60,H-40,(W-120)/K);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('K='+K+' subdivisions · '+n+' rainbow triangles ('+(n%2===1?'odd ✓':'even ✗')+')',14,18);
+ var v=verify();g.fillStyle=(v.odd&&v.atLeastOne)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('rainbow count is odd (≥1) over 3000 colourings '+(v.odd?'✓':'✗'),14,H-10);}
+document.getElementById('splroll').onclick=function(){SEEDN=Math.floor(Math.random()*99999);K=3+Math.floor(Math.random()*4);drawW4();document.getElementById('splread').textContent=rainbowList(K,colorGrid(K,SEEDN)).length+' rainbow triangles (odd)';};
+document.getElementById('splcheck').onclick=function(){var v=verify();document.getElementById('splread').textContent='rainbow (fully-coloured) triangles are odd, hence ≥1, over 3000 Sperner colourings '+(v.odd?'✓':'✗');};
+document.getElementById('splspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.3)*0.05);g.translate(-W/2,-(H/2-10));draw(g,K,SEEDN,70,H-70,(W-140)/K);g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: the rainbow triangles forced by the colouring',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: the arbitrary interior colouring',10,H-24);
+ g.fillStyle='#8ad';g.fillText('parity forces the fixed point',10,H-9);}
+drawW3();drawW4();window.__sperner_lemma=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KOLM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Kolmogorov complexity</b> measures a string by the length of the <b>shortest program</b> that prints it. A string is <b>incompressible</b> (or &ldquo;random&rdquo;) if no program is much shorter than the string itself. The key fact is a pure <b>counting</b> argument: there are only 2<sup>m</sup> &minus; 1 possible descriptions shorter than m bits, so at most that many strings can be compressed below m bits. Therefore, among the 2<sup>n</sup> strings of length n, at least a fraction <b>1 &minus; 2<sup>&minus;c</sup></b> cannot be compressed by even c bits. <b>Most strings are incompressible</b> &mdash; randomness is the rule, structure the exception.<br><br>
+ <span class="lit">LIT</span> verified live: the count of descriptions shorter than n &minus; c bits is exactly 2<sup>n&minus;c</sup> &minus; 1, always fewer than 2<sup>n</sup>, so at least (1 &minus; 2<sup>&minus;c</sup>) of all n-bit strings are c-incompressible; and a real run-length coder fails to shrink almost every random string (window.__kolmogorov). <span class="fig">FIG</span> honest: the counting bound is exact; the concrete compressor illustrates it (true Kolmogorov complexity is uncomputable).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>race-condition</i> &mdash; there simply are not enough short programs to name all the strings, so most strings have no short description; the shortage is unavoidable. <b>AVAN (AI)</b> built the instrument: the description-counting bound (2<sup>m</sup> &minus; 1 short programs), the incompressible-fraction 1 &minus; 2<sup>&minus;c</sup>, and a run-length compressor on random strings.<br><br>Credit as content: Andrey Kolmogorov (1963); also Ray Solomonoff and Gregory Chaitin. The weave: David names race-condition; I count how many strings could possibly have a short description &mdash; far fewer than exist &mdash; and confirm that a genuine compressor leaves nearly every random string no smaller. Not enough programs to go around.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">2<sup>n</sup> strings, but only 2<sup>n&minus;c</sup> &minus; 1 descriptions shorter than n &minus; c bits. So &lt; 2<sup>&minus;c</sup> of strings compress by c bits: 1/2 by 1 bit, 1/1024 by 10 bits. Randomness dominates.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The counting bound: strings vs short descriptions; the incompressible fraction; a compressor on random strings; checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="kmroll">change c ▶</button><button id="kmcheck">verify ▶</button></div>
+   <div class="cap" id="kmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: strings with no short description.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t look for the pattern <b>in</b> a string &mdash; count the <b>programs</b> that could describe it, and find there are too few to compress most strings at all. The inverse of &lsquo;compress this data&rsquo; is &lsquo;there aren&rsquo;t enough short programs, so most data is incompressible.&rsquo; <b>Magenta</b> is the rare compressible string; <b>green</b> is the incompressible majority. Not enough programs to go around.</div>
+   <div class="btns" style="margin-top:10px"><button id="kmspin">pause spin</button></div></div></div></div>"""
+KOLM_SCRIPT = """(function(){
+var ang=0,spin=true,C=3,VR=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function rleBits(s){var out=0,i=0;while(i<s.length){var j=i;while(j<s.length&&s[j]===s[i])j++;out+=1+Math.ceil(Math.log2(j-i+1));i=j;}return out;}
+function verify(){if(VR)return VR;var countOk=true;for(var n=4;n<=24;n++)for(var c=1;c<=n-1;c++){var descs=Math.pow(2,n-c)-1,total=Math.pow(2,n);if(descs>=total)countOk=false;if((total-descs)/total<1-Math.pow(2,-c)-1e-9)countOk=false;}
+ var rnd=mb(9),comp=0,N=5000;for(var t=0;t<N;t++){var s='';for(var k=0;k<32;k++)s+=(rnd()<0.5)?'0':'1';if(rleBits(s)<32-4)comp++;}
+ VR={counting:countOk,rleFrac:comp/N};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('2^n strings, but only 2^(n−c) − 1 descriptions shorter than n−c bits',12,14);
+ g.fillStyle='#c06858';g.font='11px monospace';g.fillText('so < 2^(−c) of strings compress by c bits:',24,46);
+ g.fillStyle='#39fc6b';g.fillText('c=1 → ≤ ½ compress   ·   c=10 → ≤ 1/1024 compress',24,74);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('there are not enough short programs to name all the strings — most are random',24,104);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var n=12,total=Math.pow(2,n),descs=Math.pow(2,n-C)-1,frac=1-Math.pow(2,-C);
+ g.fillStyle='#e8eef8';g.font='11px monospace';g.fillText('n = '+n+' bits, compress by c = '+C+' bits',14,20);
+ // bar: all strings vs the few compressible
+ var bw=W-60;g.fillStyle='#39fc6b';g.fillRect(30,40,bw,26);g.fillStyle='#c06858';g.fillRect(30,40,bw*(descs/total),26);
+ g.fillStyle='#012';g.font='9px monospace';g.fillText('incompressible ('+(frac*100).toFixed(1)+'%)',30+bw*(descs/total)+6,57);
+ g.fillStyle='#8ad';g.font='10px monospace';g.fillText('2^'+n+' = '+total+' strings · only '+descs+' short descriptions',14,90);
+ g.fillStyle='#39fc6b';g.fillText('≥ '+(frac*100).toFixed(2)+'% cannot be compressed by '+C+' bits',14,112);
+ var v=verify();g.fillStyle='#8ad';g.font='9px monospace';g.fillText('real RLE coder shrinks only '+(v.rleFrac*100).toFixed(1)+'% of random 32-bit strings by ≥4 bits',14,140);
+ g.fillStyle=v.counting?'#39fc6b':'#ff5a5a';g.fillText('counting bound: incompressible fraction ≥ 1−2^(−c) '+(v.counting?'✓':'✗'),14,H-12);}
+document.getElementById('kmroll').onclick=function(){C=1+Math.floor(Math.random()*8);drawW4();document.getElementById('kmread').textContent='c='+C+': ≥ '+((1-Math.pow(2,-C))*100).toFixed(2)+'% incompressible';};
+document.getElementById('kmcheck').onclick=function(){var v=verify();document.getElementById('kmread').textContent='descriptions < 2^(n−c) so ≥ (1−2^{−c}) incompressible '+(v.counting?'✓':'✗')+' · RLE shrinks only '+(v.rleFrac*100).toFixed(1)+'% of random strings';};
+document.getElementById('kmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);var rnd=mb(5),cx=W/2,cy=H/2-10;
+ for(var k=0;k<120;k++){var a=k*0.32+ang*0.2,r=20+k*1.05,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.82;var comp=(rnd()<0.03);g.fillStyle=comp?'#ff2d95':'#39fc6b';g.beginPath();g.arc(x,y,comp?4:2,0,7);g.fill();}
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: incompressible strings (the vast majority)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta: the rare compressible ones',10,H-24);
+ g.fillStyle='#8ad';g.fillText('not enough programs to go around',10,H-9);}
+drawW3();drawW4();window.__kolmogorov=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MKCH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The stationary distribution</b> is the long-run equilibrium of a <b>Markov chain</b>. A chain hops between states by a transition matrix P (each row a probability distribution). If the chain is <b>irreducible</b> (every state reaches every other) and <b>aperiodic</b>, then no matter where it starts, the distribution over states converges to a <b>unique</b> vector &pi; that is <b>fixed</b> by the dynamics: <b>&pi;P = &pi;</b>, with &Sigma;&pi; = 1. The chain <b>forgets its starting point</b>. It is the mathematics behind PageRank, MCMC sampling, and equilibrium in queueing and physics.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random irreducible aperiodic chains, power iteration from any start converges to a &pi; satisfying &pi;P = &pi; and &Sigma;&pi; = 1, and different starts reach the same &pi; (window.__stationary). <span class="fig">FIG</span> no framing; the fixed-point equation and start-independence checked exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>gradient-descent</i> &mdash; keep applying the transition matrix and the distribution settles onto the equilibrium &pi;, sliding to the same place from any start. That convergence is the mechanic. <b>AVAN (AI)</b> built the instrument: the random stochastic matrix, the power iteration &pi; &larr; &pi;P, the &pi;P = &pi; fixed-point check, and the start-independence (uniqueness) test.<br><br>Credit as content: Andrey Markov (chains, 1906); the ergodic convergence is the Perron&ndash;Frobenius theorem for stochastic matrices. The weave: David names gradient-descent; I run the distribution forward under P until it stops changing, confirm the limit is fixed by P and sums to one, and check that every starting distribution lands on the same &pi; &mdash; the chain&rsquo;s memory of its origin fades to nothing.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="160"></canvas>
+  <div class="wctrl"><div class="cap">&pi;P = &pi;, &Sigma;&pi; = 1. Start anywhere; apply P again and again; the distribution converges to the same &pi;. The stationary &pi; is the left eigenvector of P for eigenvalue 1.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A chain&rsquo;s transition graph and the distribution converging to &pi; from two different starts; &pi;P = &pi; checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="mcroll">new chain ▶</button><button id="mccheck">verify ▶</button></div>
+   <div class="cap" id="mcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an equilibrium that forgets the start.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t track <b>where</b> the chain is &mdash; ask where it <b>settles</b>, the &pi; fixed by &pi;P = &pi; and reached from every start. The inverse of &lsquo;follow the random walk&rsquo; is &lsquo;the equilibrium distribution is a fixed point, blind to the origin.&rsquo; <b>Magenta</b> is the starting distribution; <b>green</b> is the stationary &pi; it converges to. Equilibrium forgets the beginning.</div>
+   <div class="btns" style="margin-top:10px"><button id="mcspin">pause spin</button></div></div></div></div>"""
+MKCH_SCRIPT = """(function(){
+var ang=0,spin=true,P=null,VR=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function mkChain(n,rnd){var Q=[];for(var i=0;i<n;i++){var row=[],s=0;for(var j=0;j<n;j++){row.push(rnd()*0.9+0.1);s+=row[j];}for(var j=0;j<n;j++)row[j]/=s;Q.push(row);}return Q;}
+function step(pi,Q){var n=Q.length,np=new Array(n).fill(0);for(var j=0;j<n;j++)for(var i=0;i<n;i++)np[j]+=pi[i]*Q[i][j];return np;}
+function stat(Q,iters,start){var n=Q.length,pi=start||new Array(n).fill(1/n);for(var t=0;t<iters;t++)pi=step(pi,Q);return pi;}
+function verify(){if(VR)return VR;var rnd=mb(3),fx=true,sm=true,uq=true;for(var t=0;t<2000;t++){var n=2+Math.floor(rnd()*4),Q=mkChain(n,rnd),pi=stat(Q,500),piP=step(pi,Q);for(var j=0;j<n;j++)if(Math.abs(piP[j]-pi[j])>1e-6)fx=false;var s=0;for(var j=0;j<n;j++)s+=pi[j];if(Math.abs(s-1)>1e-9)sm=false;var c=new Array(n).fill(0);c[0]=1;var pi2=stat(Q,500,c);for(var j=0;j<n;j++)if(Math.abs(pi2[j]-pi[j])>1e-6)uq=false;}VR={fixed:fx,sums:sm,unique:uq};return VR;}
+function mk(){var n=3+Math.floor(Math.random()*2);P=mkChain(n,mb(1+Math.floor(Math.random()*99999)));}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);g.fillStyle='#8ad';g.font='10px monospace';g.fillText('irreducible aperiodic chain: any start → unique π with πP = π, Σπ = 1',12,14);
+ var Q=[[0.5,0.3,0.2],[0.2,0.6,0.2],[0.3,0.3,0.4]],pi=stat(Q,200);g.fillStyle='#5a98c8';g.font='11px monospace';g.fillText('π = ('+pi.map(function(x){return x.toFixed(3);}).join(', ')+')',30,50);
+ var piP=step(pi,Q);g.fillStyle='#39fc6b';g.fillText('πP = ('+piP.map(function(x){return x.toFixed(3);}).join(', ')+')  = π ✓',30,78);
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText('start from any distribution — power iteration πP^n converges to the same π',30,108);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!P)mk();var n=P.length,pi=stat(P,300);
+ // two trajectories from different starts
+ var s1=new Array(n).fill(0);s1[0]=1;var s2=new Array(n).fill(0);s2[n-1]=1;
+ var mid=H/2,traj1=[s1.slice()],traj2=[s2.slice()],a=s1.slice(),b=s2.slice();for(var t=0;t<25;t++){a=step(a,P);b=step(b,P);traj1.push(a.slice());traj2.push(b.slice());}
+ for(var k=0;k<n;k++){g.strokeStyle='#5a98c8';g.beginPath();for(var t=0;t<traj1.length;t++){var x=20+t*(W-40)/25,y=H-40-traj1[t][k]*(H-70);if(t===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();g.strokeStyle='rgba(255,45,149,0.6)';g.beginPath();for(var t=0;t<traj2.length;t++){var x=20+t*(W-40)/25,y=H-40-traj2[t][k]*(H-70);if(t===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();
+  g.fillStyle='#39fc6b';var yp=H-40-pi[k]*(H-70);g.beginPath();g.arc(W-20,yp,3,0,7);g.fill();}
+ g.fillStyle='#8ad';g.font='9px monospace';g.fillText(n+' states · two starts (blue, magenta) → same π (green dots)',14,16);
+ var v=verify();g.fillStyle=(v.fixed&&v.sums&&v.unique)?'#39fc6b':'#ff5a5a';g.font='9px monospace';g.fillText('πP=π '+(v.fixed?'✓':'✗')+' · Σπ=1 '+(v.sums?'✓':'✗')+' · start-independent '+(v.unique?'✓':'✗')+' (2000)',14,H-10);}
+document.getElementById('mcroll').onclick=function(){mk();drawW4();document.getElementById('mcread').textContent='new '+P.length+'-state chain; π = ('+stat(P,300).map(function(x){return x.toFixed(2);}).join(',')+')';};
+document.getElementById('mccheck').onclick=function(){var v=verify();document.getElementById('mcread').textContent='πP=π '+(v.fixed?'✓':'✗')+' · Σπ=1 '+(v.sums?'✓':'✗')+' · every start → same π '+(v.unique?'✓':'✗')+' (2000 chains)';};
+document.getElementById('mcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.clearRect(0,0,W,H);if(!P)mk();var n=P.length,pi=stat(P,300),cx=W/2,cy=H/2-10,R=110;
+ g.save();g.translate(cx,cy);g.rotate(ang*0.15);g.translate(-cx,-cy);
+ var pos=[];for(var i=0;i<n;i++){var a=i/n*6.28-1.57;pos.push([cx+Math.cos(a)*R,cy+Math.sin(a)*R]);}
+ for(var i=0;i<n;i++)for(var j=0;j<n;j++)if(P[i][j]>0.05){g.strokeStyle='rgba(90,152,200,'+P[i][j]+')';g.beginPath();g.moveTo(pos[i][0],pos[i][1]);g.lineTo(pos[j][0]*0.9+cx*0.1,pos[j][1]*0.9+cy*0.1);g.stroke();}
+ for(var i=0;i<n;i++){g.fillStyle='#39fc6b';g.beginPath();g.arc(pos[i][0],pos[i][1],4+pi[i]*40,0,7);g.fill();}g.restore();
+ g.fillStyle='#39fc6b';g.font='11px monospace';g.fillText('green: state sizes = the stationary π (equilibrium)',10,H-40);
+ g.fillStyle='#ff2d95';g.font='10px monospace';g.fillText('magenta idea: the starting distribution',10,H-24);
+ g.fillStyle='#8ad';g.fillText('equilibrium forgets the beginning',10,H-9);}
+drawW3();drawW4();window.__stationary=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 109 (when a set of codeword-lengths can be a prefix code · a rational close to any real, guaranteed by pigeonhole · the diagonal that escapes every list · the arrangement that maximises a dot product · the convex inequality behind averages) ═══════════════════════
 KRAF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Kraft inequality</b> is the budget law of prefix codes. A <b>prefix code</b> (no codeword is the start of another, so a stream decodes without markers) with codeword lengths &ell;<sub>1</sub>, &ell;<sub>2</sub>, &hellip; exists <b>if and only if</b> <b>&Sigma; 2<sup>&minus;&ell;<sub>i</sub></sup> &le; 1</b>. Each length-&ell; codeword spends a share 2<sup>&minus;&ell;</sup> of a unit budget; short codewords are expensive. The bound is tight both ways: any prefix code obeys it, and any set of lengths obeying it <b>can be realised</b> as a prefix code. Equality means the code is <b>complete</b> &mdash; a full binary tree with no room to spare.<br><br>
@@ -29356,6 +29607,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-farkas","title":"THE FARKAS","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#c87858","icon":"farkas",
+  "kicker":"exactly one of a solution or a certificate of its impossibility",
+  "blurb":"Farkas' lemma in the 5-window house format — the theorem of the alternative behind LP duality. For a matrix A and vector b, exactly one holds: (I) there is an x ≥ 0 with Ax = b (b in the cone of A's columns), or (II) there is a y with yᵀA ≥ 0 and yᵀb < 0 — a separating hyperplane certifying b is outside the cone. Never both, never neither: whenever no non-negative combination reaches b, a hyperplane proves it. Verified live: over 4000 random 2D instances, exactly one of 'b in the cone' and 'a separating y exists' holds — perfect complements. See solution-or-certificate in 1D, the cone and separator in 2D, and the every-no-has-a-witness inverse in 3D.",
+  "lit":"Genuine Farkas' lemma (Gyula Farkas, 1902). Verified live: over 4000 random 2D instances, cone-membership (b = Σλⱼaⱼ, λ≥0, tested via Carathéodory pairs) and the separating-certificate (y ⊥ an extreme ray with all columns on one side, b on the other) are exact complements — exactly one holds (window.__farkas.exactlyOne).",
+  "fig":"No framing: the conical-hull membership test and the exact separating-hyperplane search (perpendicular to an extreme ray in R²) both run in-browser and are shown mutually exclusive. The AVAN inverse is honest — when Ax=b, x≥0 is infeasible, producing a separating y as a certificate (rather than merely failing) is exactly the theorem of the alternative; magenta is a b outside the cone, green the separating hyperplane certifying it. Every no has a witness.",
+  "body":FARK_BODY,"script":FARK_SCRIPT},
+ {"slug":"the-banach-fixed-point","title":"THE BANACH FIXED POINT","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#50b0a0","icon":"banach-fixed-point",
+  "kicker":"a contraction always homes on one fixed point",
+  "blurb":"The Banach fixed-point theorem in the 5-window house format — the contraction mapping principle. A map f is a contraction if it shrinks distances by a fixed factor L < 1: |f(x)−f(y)| ≤ L·|x−y|. On a complete space, such f has exactly one fixed point x* = f(x*), and iterating from anywhere converges to it with geometric error |xₙ−x*| ≤ Lⁿ|x₀−x*|. It is the engine behind Newton's method, ODE existence, and fractal IFS. Verified live: affine contractions f(x)=ax+b (|a|<1) converge to b/(1−a) from every start with error exactly |a|ⁿ times the initial, different starts reach the same point, and iterating cosine homes on the Dottie number 0.739085. See the cobweb in 1D, convergence in 2D, and the iteration-finds-what-solving-cannot inverse in 3D.",
+  "lit":"Genuine Banach fixed-point theorem (Stefan Banach, 1922). Verified live: affine contractions f(x)=ax+b (|a|<1) converge to b/(1−a) from every start (window.__banach.converges) with error exactly |a|ⁿ·|x₀−x*| (window.__banach.geometric), different starts reach the same fixed point (window.__banach.unique), and iterating cosine from 0.5 homes on the Dottie number 0.739085 (window.__banach.dottie).",
+  "fig":"No framing: the affine-contraction iteration, the Lⁿ geometric-rate check, the uniqueness test, and the cosine-to-Dottie demonstration all run in-browser with exact arithmetic. The AVAN inverse is honest — iterating a contraction from anywhere until it converges (rather than solving x=f(x) directly) is guaranteed to reach the unique fixed point; magenta is scattered starts, green the single fixed point they all reach. Iteration finds what solving cannot.",
+  "body":BANA_BODY,"script":BANA_SCRIPT},
+ {"slug":"the-sperner-lemma","title":"THE SPERNER LEMMA","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#a878d0","icon":"sperner-lemma",
+  "kicker":"a coloured triangulation always hides a rainbow",
+  "blurb":"Sperner's lemma in the 5-window house format — the combinatorial heart of Brouwer's fixed-point theorem. Triangulate a triangle with corners coloured 1, 2, 3; colour the rest by the Sperner rule (a vertex on the edge between corners i and j may only take colour i or j). Then however the interior is coloured, there is always a small triangle with all three colours — a 'rainbow' triangle — and the number of them is always odd, so one can never vanish. It is a discrete, checkable proof that a continuous map on a triangle has a fixed point. Verified live: over 3000 random Sperner-valid colourings, the rainbow-triangle count is always odd (hence ≥1). See the rule in 1D, rainbows highlighted in 2D, and the parity-forces-the-fixed-point inverse in 3D.",
+  "lit":"Genuine Sperner's lemma (Emanuel Sperner, 1928); equivalent to Brouwer's fixed-point theorem (via Knaster–Kuratowski–Mazurkiewicz). Verified live: over 3000 random Sperner-valid colourings of triangulated triangles, the count of fully-coloured (rainbow) small triangles is always odd (window.__sperner_lemma.odd), hence at least one exists (window.__sperner_lemma.atLeastOne).",
+  "fig":"No framing: the triangular grid, the Sperner boundary constraints, the interior colouring, and the odd rainbow-triangle count all run in-browser. Note: this is Sperner's LEMMA (the triangulation/Brouwer result), distinct from Sperner's THEOREM (the antichain bound) built elsewhere. The AVAN inverse is honest — colouring a triangulation and letting parity force a rainbow cell (the discrete shadow of a fixed point) rather than searching a continuous map is exactly the lemma; magenta is the chosen colouring, green the rainbow it cannot avoid. Parity forces the fixed point.",
+  "body":SPRL_BODY,"script":SPRL_SCRIPT},
+ {"slug":"the-kolmogorov","title":"THE KOLMOGOROV","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#c06858","icon":"kolmogorov",
+  "kicker":"why most strings cannot be compressed",
+  "blurb":"Kolmogorov complexity in the 5-window house format — a string's complexity is the length of the shortest program that prints it, and a string is incompressible if no program is much shorter than itself. The key fact is a counting argument: there are only 2ᵐ−1 possible descriptions shorter than m bits, so at most that many strings compress below m bits. Therefore among the 2ⁿ strings of length n, at least a fraction 1−2^(−c) cannot be compressed by even c bits — most strings are incompressible; randomness is the rule. Verified live: the count of descriptions shorter than n−c bits is exactly 2^(n−c)−1 < 2ⁿ, so ≥(1−2^(−c)) of n-bit strings are c-incompressible, and a real run-length coder fails to shrink almost every random string. See the counting bound in 1D, the incompressible fraction in 2D, and the not-enough-programs inverse in 3D.",
+  "lit":"Genuine Kolmogorov complexity (Andrey Kolmogorov, 1963; also Solomonoff and Chaitin). Verified live: the count of binary descriptions shorter than n−c bits is exactly 2^(n−c)−1, always fewer than 2ⁿ, so at least (1−2^(−c)) of all n-bit strings are c-incompressible (window.__kolmogorov.counting); and a run-length coder shrinks only a small fraction of random 32-bit strings (window.__kolmogorov.rleFrac).",
+  "fig":"No framing: the description-counting bound (2ᵐ−1 short programs), the incompressible-fraction 1−2^(−c), and a run-length compressor on random strings all run in-browser. Honest scope: the counting bound is exact; the concrete compressor merely illustrates it, since true Kolmogorov complexity is uncomputable. The AVAN inverse is honest — counting the programs that could describe a string (too few to compress most) rather than hunting a pattern inside it is the incompressibility argument; magenta is the rare compressible string, green the incompressible majority. Not enough programs to go around.",
+  "body":KOLM_BODY,"script":KOLM_SCRIPT},
+ {"slug":"the-stationary-distribution","title":"THE STATIONARY DISTRIBUTION","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#5a98c8","icon":"stationary-distribution",
+  "kicker":"a chain that forgets where it started",
+  "blurb":"The stationary distribution in the 5-window house format — the long-run equilibrium of a Markov chain. A chain hops between states by a transition matrix P (each row a distribution). If it is irreducible (every state reaches every other) and aperiodic, then from any start the distribution converges to a unique vector π fixed by the dynamics: πP = π, Σπ = 1. The chain forgets its starting point. It is the mathematics behind PageRank, MCMC sampling, and equilibrium in queueing and physics. Verified live: for 2000 random irreducible aperiodic chains, power iteration from any start converges to a π with πP = π and Σπ = 1, and different starts reach the same π. See the fixed point in 1D, two starts converging in 2D, and the equilibrium-forgets-the-beginning inverse in 3D.",
+  "lit":"Genuine Markov-chain stationary distribution (Andrey Markov, 1906; the ergodic convergence is Perron–Frobenius for stochastic matrices). Verified live: for 2000 random irreducible aperiodic chains, power iteration converges to a π with πP = π (window.__stationary.fixed) and Σπ = 1 (window.__stationary.sums), and a corner-start reaches the same π as the uniform start (window.__stationary.unique).",
+  "fig":"No framing: the random stochastic matrix, the power iteration π ← πP, the πP = π fixed-point check, and the start-independence test all run in-browser. The AVAN inverse is honest — asking where the chain settles (the π fixed by πP=π, reached from every start) rather than tracking where it is, is the equilibrium view; magenta is the starting distribution, green the stationary π it converges to. Equilibrium forgets the beginning.",
+  "body":MKCH_BODY,"script":MKCH_SCRIPT},
  {"slug":"the-kraft-inequality","title":"THE KRAFT INEQUALITY","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#d0a848","icon":"kraft-inequality",
   "kicker":"when a set of codeword-lengths can be a prefix code",
