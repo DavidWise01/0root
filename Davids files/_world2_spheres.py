@@ -5093,7 +5093,7 @@ document.getElementById('lvspin').onclick=function(){spin=!spin;this.textContent
 drawW3();drawW4();window.__lev=verify();
 function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
-GOLD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+GLDN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The golden-ratio sequence.</b> Drop points into the interval [0,1) by the rule x<sub>n</sub> = fractional part of <b>n&middot;&phi;</b>, where &phi; = 1.618&hellip; is the golden ratio. The result spreads <b>more evenly than random</b> &mdash; random points clump and leave gaps; these never do. &phi; is the &lsquo;<b>most irrational</b>&rsquo; number (its continued fraction is all 1s, the hardest to approximate by fractions), so the sequence resists every rational rhythm that would make it repeat and pile up.<br><br>
  Two exact facts make it beautiful. The <b>three-gap theorem</b>: at <i>every</i> step n, the points cut the circle into arcs of <b>at most three distinct lengths</b> &mdash; never four. And the <b>discrepancy</b> (how far the point count in any interval strays from its fair share) shrinks like log N / N &mdash; near the theoretical best, far better than random&rsquo;s 1/&radic;N.<br><br>
  <span class="lit">LIT</span> verified live: this page confirms the three-gap theorem for every n up to 400 (never more than 3 gap lengths), and that the golden sequence&rsquo;s star discrepancy is <b>several times smaller</b> than an equal number of random points (window.__golden.threeGap &amp;&amp; goldenMoreUniform). <span class="fig">FIG</span> &lsquo;most irrational&rsquo; is a nickname; the three-gap count and the lower discrepancy are exact.</div></div>
@@ -5112,7 +5112,7 @@ GOLD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT
   <div class="wctrl"><div class="cap">The same &phi;, in two dimensions: a <b>sunflower</b> &mdash; point n at radius &radic;n, angle n&middot;(golden angle). <b>Green</b>, the seeds of a real phyllotaxis spiral, turning.</div>
    <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the <b>magenta</b> seeds are the newest, always landing in the widest gap left by the rest. Evenness usually means randomness &mdash; but random clumps. This is the inverse: a <b>fully deterministic</b> rule that is <i>more</i> uniform than chance, because it is built on the number that most stubbornly refuses to be a ratio. Nature uses exactly this to pack sunflower seeds and pinecone scales without waste. Order that looks like the best possible randomness &mdash; the green is the whole spiral, the magenta is irrationality filling the last gap, forever, without ever repeating.</div>
    <div class="btns" style="margin-top:10px"><button id="gdspin">pause spin</button></div></div></div></div>"""
-GOLD_SCRIPT = """(function(){
+GLDN_SCRIPT = """(function(){
 var PHI=(1+Math.sqrt(5))/2,GA=Math.PI*(3-Math.sqrt(5)),ang=0,spin=true,N=13,seedv=3;
 function frac(x){return x-Math.floor(x);}
 function starDisc(pts){var p=pts.slice().sort(function(a,b){return a-b;}),n=p.length,D=0;for(var i=0;i<n;i++){D=Math.max(D,Math.abs((i+1)/n-p[i]),Math.abs(i/n-p[i]));}return D;}
@@ -19493,6 +19493,231 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 128 · neon-noir tracing · silicon-coding (steal from the rich to even the probes · divide by driving a factor to one · a cursor that splits the list · two throws beat one · a hull kept online in a deque) ═══════════════════════
+ROBH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Robin Hood hashing</b> is an open-addressing scheme that <b>steals from the rich to give to the poor</b>. In ordinary linear probing, some keys sit right at their home slot while others get pushed far away, so probe lengths vary wildly. Robin Hood equalizes them: when inserting a key that has probed farther than the key already sitting in a slot, it <b>evicts the richer resident</b> (the one closer to its home) and carries it onward. The result is the same set of keys, but with the <b>variance of probe lengths minimized</b> &mdash; no key is left starving while another sits pretty, so lookups stay fast even at high load.<br><br>
+ <span class="lit">LIT</span> verified live: over 400 tables at 85% load, every key remains retrievable, and both the variance and the maximum of the probe lengths are &le; plain linear probing on the same keys (window.__robin_hood). <span class="fig">FIG</span> no framing; the displacement insert, the lookup, and a linear-probing baseline run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-stash</i> &mdash; even out the stash so no key hoards a short probe while another is banished far away. <b>AVAN (AI)</b> built the instrument: the steal-from-the-rich insert, the probe-aware lookup, and the linear-probing comparison.<br><br>Credit as content: Pedro Celis (Robin Hood Hashing, 1986). The weave: David names the stash; I confirm the displacement rule keeps every key findable while shrinking the spread of probe lengths.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">Slots with each key's probe distance; when a poorer key meets a richer resident, they swap — evening the distances.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Fill a table; the probe-length histogram stays tight, with lower variance and max than linear probing.</div>
+   <div class="btns" style="margin-top:10px"><button id="rhnew">new keys ▶</button><button id="rhcheck">verify ▶</button></div>
+   <div class="cap" id="rhread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the balanced probe-length distribution.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t let the first arrival keep the short probe &mdash; steal it. The inverse of &lsquo;probe forward and settle&rsquo; is &lsquo;if you&rsquo;ve travelled farther than the resident, take its slot and carry it on&rsquo; &mdash; minimizing probe variance. <b>Magenta</b> is a long, starving probe; <b>green</b> is the evened-out distribution. Fairness by eviction.</div>
+   <div class="btns" style="margin-top:10px"><button id="rhspin">pause spin</button></div></div></div></div>"""
+ROBH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CY='#21e6ff',M=64,DAT=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function rhHash(k,m){var x=(k^61)^(k>>>16);x=(x+(x<<3))>>>0;x=x^(x>>>4);x=Math.imul(x,0x27d4eb2d)>>>0;return (x^(x>>>15))%m;}
+function robinHood(keys,m){var slot=new Array(m).fill(null),dist=new Array(m).fill(0);for(var i=0;i<keys.length;i++){var k=keys[i],d=0,pos=rhHash(k,m);while(slot[pos]!==null){if(dist[pos]<d){var tk=slot[pos],td=dist[pos];slot[pos]=k;dist[pos]=d;k=tk;d=td;}pos=(pos+1)%m;d++;}slot[pos]=k;dist[pos]=d;}return {slot:slot,dist:dist};}
+function rhFind(slot,dist,k,m){var pos=rhHash(k,m),d=0;while(slot[pos]!==null){if(slot[pos]===k)return true;if(dist[pos]<d)return false;pos=(pos+1)%m;d++;}return false;}
+function linear(keys,m){var slot=new Array(m).fill(null),probe=[];for(var i=0;i<keys.length;i++){var k=keys[i],home=rhHash(k,m),d=0;while(slot[(home+d)%m]!==null)d++;slot[(home+d)%m]=k;probe.push(d);}return probe;}
+function vari(a){var mn=a.reduce(function(x,y){return x+y;},0)/a.length,v=0;a.forEach(function(x){v+=(x-mn)*(x-mn);});return v/a.length;}
+function verify(){if(VR)return VR;var rnd=mb(1),af=true,vo=true,mo=true;for(var t=0;t<400;t++){var m=128,nk=Math.floor(m*0.85),keys=[],seen={};while(keys.length<nk){var k=Math.floor(rnd()*1e9)>>>0;if(!seen[k]){seen[k]=1;keys.push(k);}}var rh=robinHood(keys,m);for(var i=0;i<keys.length;i++)if(!rhFind(rh.slot,rh.dist,keys[i],m))af=false;var rhP=[];for(var i=0;i<m;i++)if(rh.slot[i]!==null)rhP.push(rh.dist[i]);var lp=linear(keys,m);if(vari(rhP)>vari(lp)+1e-9)vo=false;if(Math.max.apply(null,rhP)>Math.max.apply(null,lp))mo=false;}return {allFound:af,varLower:vo,maxLower:mo};}
+function mk(){var rnd=Math.random,nk=Math.floor(M*0.8),keys=[],seen={};while(keys.length<nk){var k=Math.floor(rnd()*1e9)>>>0;if(!seen[k]){seen[k]=1;keys.push(k);}}var rh=robinHood(keys,M);var rhP=[];for(var i=0;i<M;i++)if(rh.slot[i]!==null)rhP.push(rh.dist[i]);DAT={rh:rh,rhP:rhP,lp:linear(keys,M),keys:keys};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();nt(g,CY,10,16,10,'slots (color = probe distance from home) · Robin Hood swaps a poorer key past a richer resident');
+ var cell=(W-40)/M,mx=Math.max.apply(null,DAT.rh.dist);for(var i=0;i<M;i++){var occ=DAT.rh.slot[i]!==null,d=DAT.rh.dist[i];nf(g,occ?'hsl('+(200-d/(mx+1)*200)+',80%,55%)':'rgba(120,140,200,0.15)');g.globalAlpha=occ?0.7:1;g.fillRect(20+i*cell,60,cell-1,30);g.globalAlpha=1;ng(g);}
+ nt(g,'#8ad',20,H-14,10,'blue = home slot (probe 0), warmer = farther · Robin Hood keeps the far ones rare');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();nt(g,CY,12,22,12,'probe-length histogram: Robin Hood vs linear probing ('+DAT.keys.length+' keys)');
+ var maxd=Math.max(Math.max.apply(null,DAT.rhP),Math.max.apply(null,DAT.lp)),bins=maxd+1;var hR=new Array(bins).fill(0),hL=new Array(bins).fill(0);DAT.rhP.forEach(function(d){hR[d]++;});DAT.lp.forEach(function(d){hL[d]++;});
+ var bw=(W-40)/bins,mxc=Math.max(Math.max.apply(null,hR),Math.max.apply(null,hL));for(var b=0;b<bins;b++){var hr=hR[b]/mxc*120,hl=hL[b]/mxc*120,x=20+b*bw;nf(g,'#35ffb0');g.globalAlpha=0.6;g.fillRect(x,180-hr,bw*0.4,hr);g.globalAlpha=1;ng(g);nf(g,'#ff2fa6');g.globalAlpha=0.4;g.fillRect(x+bw*0.45,180-hl,bw*0.4,hl);g.globalAlpha=1;ng(g);nt(g,'#8ad',x,196,9,''+b);}
+ nt(g,'#35ffb0',20,H-64,10,'green = Robin Hood (var '+vari(DAT.rhP).toFixed(2)+', max '+Math.max.apply(null,DAT.rhP)+')');nt(g,'#ff2fa6',210,H-64,10,'magenta = linear (var '+vari(DAT.lp).toFixed(2)+', max '+Math.max.apply(null,DAT.lp)+')');
+ var v=verify();nt(g,v.allFound&&v.varLower&&v.maxLower?'#39ffb0':'#ff5a5a',12,H-14,9,'all found · variance & max ≤ linear over 400 tables @85% '+(v.allFound&&v.varLower&&v.maxLower?'✓':'✗'));}
+document.getElementById('rhnew').onclick=function(){mk();drawW3();drawW4();document.getElementById('rhread').textContent='new table — RH max probe '+Math.max.apply(null,DAT.rhP)+' vs linear '+Math.max.apply(null,DAT.lp);};
+document.getElementById('rhcheck').onclick=function(){var v=verify();document.getElementById('rhread').textContent='all keys retrievable '+(v.allFound?'✓':'✗')+' · probe variance ≤ linear '+(v.varLower?'✓':'✗')+' · max probe ≤ linear '+(v.maxLower?'✓':'✗')+' (400 tables @85%)';};
+document.getElementById('rhspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.08);var R=120;for(var i=0;i<M;i++){var occ=DAT.rh.slot[i]!==null,d=DAT.rh.dist[i],a=i/M*6.283;if(occ)ndot(g,Math.cos(a)*R,Math.sin(a)*R,2+d,d>=3?'#ff2fa6':'#35ffb0');}g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the evened-out probe distribution (most keys near home)');nt(g,'#ff2fa6',10,H-30,10,'magenta: the rare long probes Robin Hood suppresses');nt(g,'#8ad',10,H-13,10,'fairness by eviction');}
+mk();drawW3();drawW4();window.__robin_hood=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GLDS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Goldschmidt&rsquo;s algorithm</b> divides two numbers using only <b>multiplication</b> &mdash; no subtraction, no digit-at-a-time long division. To compute a/b, write it as a fraction N/D with N=a, D=b, and repeatedly multiply <i>both</i> by the same factor f = 2&minus;D. Each step drives the denominator toward 1 (quadratically, doubling correct digits per iteration), and since numerator and denominator are scaled together the value N/D never changes &mdash; so when D&rarr;1, the numerator <b>is</b> the quotient a/b. Because the two multiplications each step are independent, hardware can pipeline them, which is why Goldschmidt division appears in real floating-point units.<br><br>
+ <span class="lit">LIT</span> verified live: over 50,000 random pairs (with the denominator scaled into a convergent range), the Goldschmidt result equals a/b to ~1e-9 (window.__goldschmidt). <span class="fig">FIG</span> no framing; the scale-and-converge iteration runs in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>gradient-descent</i> &mdash; iterate a simple update that converges on the answer, here driving a denominator to one and reading off the quotient. <b>AVAN (AI)</b> built the instrument: the scaling into range, the (2&minus;D) multiplicative iteration, and the a/b check.<br><br>Credit as content: Robert Goldschmidt (1964). The weave: David names the descent; I confirm multiplying numerator and denominator by (2&minus;D) drives D&rarr;1 and leaves the quotient in the numerator.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">N and D both multiplied by (2−D) each step: D marches to 1 (quadratically), N marches to the quotient a/b.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a and b; watch |D−1| collapse to zero and N converge on a/b, doubling correct digits each iteration.</div>
+   <div class="btns" style="margin-top:10px"><button id="gdnew">new a,b ▶</button><button id="gdcheck">verify ▶</button></div>
+   <div class="cap" id="gdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the quotient, read off when D reaches 1.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t divide digit by digit &mdash; multiply the denominator to one. The inverse of &lsquo;long division&rsquo; is &lsquo;scale N and D together by (2&minus;D) until D=1; the numerator is a/b.&rsquo; <b>Magenta</b> is the shrinking gap |D&minus;1|; <b>green</b> is the converged quotient. Division as convergence.</div>
+   <div class="btns" style="margin-top:10px"><button id="gdspin">pause spin</button></div></div></div></div>"""
+GLDS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,OR='#ff8a3c',A=355,B=113;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function goldTrace(a,b){var sign=1;if(b<0){b=-b;sign=-1;}if(a<0){a=-a;sign=-sign;}var s=0,bb=b;while(bb>=1){bb/=2;s++;}while(bb<0.5){bb*=2;s--;}var N=a*Math.pow(2,-s),D=bb,tr=[];for(var i=0;i<40&&Math.abs(D-1)>1e-15;i++){tr.push({N:sign*N,D:D});var f=2-D;N*=f;D*=f;}tr.push({N:sign*N,D:D});return {q:sign*N,tr:tr};}
+function verify(){if(VR)return VR;var rnd=mb(2),ok=true,worst=0;for(var t=0;t<50000;t++){var a=rnd()*2000-1000,b=rnd()*2000-1000;if(Math.abs(b)<1e-6)continue;var q=goldTrace(a,b).q,e=Math.abs(q-a/b);if(e>worst)worst=e;if(e>1e-9*(1+Math.abs(a/b)))ok=false;}return {converges:ok,worst:worst};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=goldTrace(355,113);nt(g,OR,10,16,10,'a/b = 355/113 · each step ×(2−D): D→1, N→quotient (doubling digits)');
+ var x0=30,w=W-60,y0=H-40;ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.moveTo(x0,y0-100);g.lineTo(x0+w,y0-100);g.stroke();ng(g);nt(g,'#8ad',x0,y0-104,9,'D=1');
+ for(var i=0;i<r.tr.length;i++){var x=x0+i/(r.tr.length-1)*w;ndot(g,x,y0-r.tr[i].D*100,4,'#ff8a3c');nt(g,'#8ad',x-4,y0+6,8,'i'+i);}
+ nt(g,'#35ffb0',30,30,10,'quotient = '+r.q.toFixed(9)+' (355/113 = '+(355/113).toFixed(9)+')');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=goldTrace(A,B);nt(g,OR,12,22,12,'a = '+A.toFixed(2)+',  b = '+B.toFixed(2));
+ nt(g,'#cfe',12,50,11,'iteration:  D  (→1)      |D−1|');for(var i=0;i<Math.min(r.tr.length,8);i++){nt(g,'#ffcf4a',20,72+i*20,10,'i='+i+'  D='+r.tr[i].D.toFixed(8)+'   '+Math.abs(r.tr[i].D-1).toExponential(1));}
+ nt(g,'#35ffb0',12,H-64,13,'Goldschmidt a/b = '+r.q.toFixed(8)+'   ·   direct = '+(A/B).toFixed(8));
+ nt(g,Math.abs(r.q-A/B)<1e-8?'#39ffb0':'#ff5a5a',12,H-40,11,'difference = '+Math.abs(r.q-A/B).toExponential(2)+(Math.abs(r.q-A/B)<1e-8?' ✓':' ✗'));
+ var v=verify();nt(g,v.converges?'#39ffb0':'#ff5a5a',12,H-14,9,'Goldschmidt == a/b over 50000 pairs (worst '+v.worst.toExponential(1)+') '+(v.converges?'✓':'✗'));}
+document.getElementById('gdnew').onclick=function(){A=Math.round((Math.random()*2000-1000)*100)/100;B=Math.round((Math.random()*400-200)*100)/100;if(Math.abs(B)<1)B=50;drawW4();document.getElementById('gdread').textContent=A.toFixed(1)+'/'+B.toFixed(1)+' = '+goldTrace(A,B).q.toFixed(6)+' in '+goldTrace(A,B).tr.length+' steps';};
+document.getElementById('gdcheck').onclick=function(){var v=verify();document.getElementById('gdread').textContent='Goldschmidt (×(2−D) iteration) == a/b over 50000 random pairs (worst '+v.worst.toExponential(1)+') '+(v.converges?'✓':'✗');};
+document.getElementById('gdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=goldTrace(A,B);g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.4)*0.02);
+ var x0=-140,w=280,y0=90;ne(g,'rgba(255,47,166,0.5)',1.4);g.beginPath();for(var i=0;i<r.tr.length;i++){var x=x0+i/(Math.max(1,r.tr.length-1))*w,y=y0-Math.min(1,Math.abs(r.tr[i].D-1))*140;if(i)g.lineTo(x,y);else g.moveTo(x,y);}g.stroke();ng(g);
+ ne(g,'#35ffb0',1.6);g.setLineDash([4,3]);g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+w,y0);g.stroke();g.setLineDash([]);ng(g);nt(g,'#35ffb0',x0,y0-4,10,'quotient reached');
+ g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the quotient, read off when D=1');nt(g,'#ff2fa6',10,H-30,10,'magenta: the shrinking gap |D−1| (quadratic)');nt(g,'#8ad',10,H-13,10,'division as convergence');}
+drawW3();drawW4();window.__goldschmidt=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ZIPP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The zipper</b> is a purely functional data structure for editing a sequence (or tree) at a moving <b>focus</b>, with O(1) local operations and no mutation. A list zipper splits the sequence into three parts: the elements to the <b>left</b> of the cursor (held reversed, so the nearest is on top), the <b>focused</b> element, and the elements to the <b>right</b>. Moving the cursor pops from one side and pushes to the other; inserting or deleting at the focus touches only the front of a list. Nothing is copied or shifted &mdash; the whole sequence is always recoverable as left ++ [focus] ++ right, which makes undo and immutable sharing natural.<br><br>
+ <span class="lit">LIT</span> verified live: over 5000 runs of 20 random moves, inserts, and deletes, the list reconstructed from the zipper exactly equals the same edits applied to a plain array with a cursor index (window.__zipper). <span class="fig">FIG</span> no framing; the zipper operations and a plain-array reference run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>noclip</i> &mdash; a cursor that moves freely through the structure and edits in place without ever shifting the rest. <b>AVAN (AI)</b> built the instrument: the left/focus/right split, the move/insert/delete operations, and the plain-array cross-check.<br><br>Credit as content: G&eacute;rard Huet (&ldquo;The Zipper&rdquo;, 1997). The weave: David names noclip; I confirm the three-part split reconstructs exactly the edited sequence at every step.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">The sequence split into left / focus / right; the document is always left ++ focus ++ right.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Move the cursor and edit at the focus; the reconstruction stays equal to a plain array with the same edits.</div>
+   <div class="btns" style="margin-top:10px"><button id="zpl">◀ left</button><button id="zpr">right ▶</button><button id="zpi">insert</button><button id="zpd">delete</button><button id="zpc">verify ▶</button></div>
+   <div class="cap" id="zpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the sequence, reconstructed from the split.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t index into an array &mdash; carry the context. The inverse of &lsquo;edit arr[i], shifting the tail&rsquo; is &lsquo;split at the focus; insert/delete touch only the front of a list, O(1).&rsquo; <b>Magenta</b> is the focus; <b>green</b> is the whole sequence it sits inside. The cursor carries its context.</div>
+   <div class="btns" style="margin-top:10px"><button id="zpspin">pause spin</button></div></div></div></div>"""
+ZIPP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GR='#35ffb0',Z=null,ARR=null,CUR=0;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function Zipper(arr){this.left=[];this.right=arr.slice();}
+Zipper.prototype.toList=function(){return this.left.concat(this.right);};
+Zipper.prototype.right_=function(){if(this.right.length)this.left.push(this.right.shift());};
+Zipper.prototype.left_=function(){if(this.left.length)this.right.unshift(this.left.pop());};
+Zipper.prototype.insert=function(v){this.right.unshift(v);};
+Zipper.prototype.del=function(){if(this.right.length)this.right.shift();};
+Zipper.prototype.pos=function(){return this.left.length;};
+function verify(){if(VR)return VR;var rnd=mb(3),ok=true;for(var t=0;t<5000;t++){var init=[];for(var i=0;i<3+Math.floor(rnd()*5);i++)init.push(Math.floor(rnd()*100));var z=new Zipper(init),arr=init.slice(),cur=0;for(var op=0;op<20;op++){var r=rnd();if(r<0.25){z.right_();if(cur<arr.length)cur++;}else if(r<0.5){z.left_();if(cur>0)cur--;}else if(r<0.75){var v=Math.floor(rnd()*100);z.insert(v);arr.splice(cur,0,v);}else{z.del();if(cur<arr.length)arr.splice(cur,1);}if(z.toList().join(',')!==arr.join(',')||z.pos()!==cur){ok=false;break;}}if(!ok)break;}return {matchesArray:ok};}
+function reset(){Z=new Zipper([3,1,4,1,5,9,2]);ARR=[3,1,4,1,5,9,2];CUR=0;}
+function drawSeq(g,W,y,cell){var L=Z.left,R=Z.right,total=L.length+R.length,x0=(W-total*cell)/2;
+ for(var i=0;i<L.length;i++){nf(g,'#21e6ff');g.globalAlpha=0.5;g.fillRect(x0+i*cell,y,cell-3,cell-3);g.globalAlpha=1;ng(g);nt(g,'#cfe',x0+i*cell+cell/2-3,y+cell/2+3,11,''+L[i]);}
+ for(var i=0;i<R.length;i++){var foc=(i===0);nf(g,foc?'#ff2fa6':'#ffcf4a');g.globalAlpha=foc?0.85:0.4;g.fillRect(x0+(L.length+i)*cell,y,cell-3,cell-3);g.globalAlpha=1;ng(g);nt(g,'#0a0713',x0+(L.length+i)*cell+cell/2-3,y+cell/2+3,11,''+R[i]);if(foc){ne(g,'#ff2fa6',1.8);g.strokeRect(x0+L.length*cell-1,y-1,cell-1,cell-1);ng(g);}}
+ return {x0:x0,cell:cell};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!Z)reset();nt(g,GR,10,16,10,'left (blue) / focus (magenta) / right (gold) · document = left ++ [focus] ++ right');
+ drawSeq(g,W,80,34);nt(g,'#8ad',20,150,10,"left = ["+Z.left.join(',')+"]   focus = "+(Z.right[0]!=null?Z.right[0]:'(end)')+"   right = ["+Z.right.slice(1).join(',')+"]");
+ nt(g,'#35ffb0',20,176,11,"reconstruct = ["+Z.toList().join(',')+"]");}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!Z)reset();nt(g,GR,12,22,12,'cursor at position '+Z.pos()+' / '+Z.toList().length);
+ drawSeq(g,W,70,30);
+ nt(g,'#35ffb0',12,150,11,"zipper: ["+Z.toList().join(',')+"]");
+ nt(g,Z.toList().join(',')===ARR.join(',')?'#39ffb0':'#ff5a5a',12,174,11,"array:  ["+ARR.join(',')+"]  "+(Z.toList().join(',')===ARR.join(',')?'✓':'✗'));
+ var v=verify();nt(g,v.matchesArray?'#39ffb0':'#ff5a5a',12,H-14,9,'zipper == plain-array edits over 5000×20 ops '+(v.matchesArray?'✓':'✗'));}
+document.getElementById('zpr').onclick=function(){Z.right_();if(CUR<ARR.length)CUR++;drawW3();drawW4();document.getElementById('zpread').textContent='moved right → cursor '+Z.pos();};
+document.getElementById('zpl').onclick=function(){Z.left_();if(CUR>0)CUR--;drawW3();drawW4();document.getElementById('zpread').textContent='moved left → cursor '+Z.pos();};
+document.getElementById('zpi').onclick=function(){var v=Math.floor(Math.random()*90+10);Z.insert(v);ARR.splice(CUR,0,v);drawW3();drawW4();document.getElementById('zpread').textContent='inserted '+v+' at focus (O(1), no shift)';};
+document.getElementById('zpd').onclick=function(){Z.del();if(CUR<ARR.length)ARR.splice(CUR,1);drawW3();drawW4();document.getElementById('zpread').textContent='deleted at focus';};
+document.getElementById('zpc').onclick=function(){var v=verify();document.getElementById('zpread').textContent='zipper reconstruction == plain-array cursor edits over 5000 runs × 20 ops '+(v.matchesArray?'✓':'✗');};
+document.getElementById('zpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!Z)reset();g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.4)*0.03);g.translate(-W/2,-(H/2-10));
+ var list=Z.toList(),cell=Math.min(30,(W-40)/list.length),x0=(W-list.length*cell)/2;for(var i=0;i<list.length;i++){var foc=(i===Z.pos());ndot(g,x0+i*cell+cell/2,H/2-10,foc?7:3.5,foc?'#ff2fa6':'#35ffb0');nt(g,'#8ad',x0+i*cell+cell/2-3,H/2+14,9,''+list[i]);}
+ g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the sequence, reconstructed from left/focus/right');nt(g,'#ff2fa6',10,H-30,10,'magenta: the focus the cursor sits on');nt(g,'#8ad',10,H-13,10,'the cursor carries its context');}
+reset();drawW3();drawW4();window.__zipper=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+P2CH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The power of two choices</b> is a startling result in randomized load balancing. Throw n balls into n bins at random and the fullest bin holds about <b>log n / log log n</b> balls. But give each ball <b>two</b> random bins and let it pick the emptier one, and the fullest bin drops to about <b>log log n / log 2</b> &mdash; an <i>exponential</i> improvement, from logarithmic to double-logarithmic, for the cost of one extra look. A tiny bit of choice tames the worst case. It underlies real hashing, load balancers, and distributed schedulers &mdash; &ldquo;the two-choice paradigm.&rdquo;<br><br>
+ <span class="lit">LIT</span> verified live: with n=2000 balls and bins, the average maximum load is ~6 with one choice but ~3 with two choices, and the two-choice max is &le; the one-choice max in every trial (window.__power_of_two_choices). <span class="fig">FIG</span> honest scope: this is a randomized average over trials; the measured max loads are reported, not a worst-case guarantee.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>shared-memory</i> &mdash; distribute work across shared bins so no one bin becomes a hot spot, using just one extra glance. <b>AVAN (AI)</b> built the instrument: the one-choice and two-choice ball-throwing and the max-load comparison.<br><br>Credit as content: Azar, Broder, Karlin &amp; Upfal (1994); Mitzenmacher&rsquo;s thesis. The weave: David names shared memory; I confirm two choices collapse the maximum load from logarithmic to doubly-logarithmic.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="210"></canvas>
+  <div class="wctrl"><div class="cap">Bin loads for one choice (tall spikes) versus two choices (flat) — the same balls, a far lower peak.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Throw balls with one or two choices; the maximum load with two choices stays far below one choice.</div>
+   <div class="btns" style="margin-top:10px"><button id="p2throw">throw ▶</button><button id="p2n">n ×2</button><button id="p2check">verify ▶</button></div>
+   <div class="cap" id="p2read" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the flat two-choice load profile.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t place blindly &mdash; peek twice. The inverse of &lsquo;one random bin, peak ~log n / log log n&rsquo; is &lsquo;two random bins, take the lighter &mdash; peak ~log log n.&rsquo; <b>Magenta</b> is the tall one-choice spike; <b>green</b> is the flattened two-choice profile. One extra look, exponentially flatter.</div>
+   <div class="btns" style="margin-top:10px"><button id="p2spin">pause spin</button></div></div></div></div>"""
+P2CH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GD='#ffcf4a',N=512,BINS1=null,BINS2=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function throwB(n,choices,rnd){var b=new Array(n).fill(0);for(var i=0;i<n;i++){var best=Math.floor(rnd()*n);for(var c=1;c<choices;c++){var cand=Math.floor(rnd()*n);if(b[cand]<b[best])best=cand;}b[best]++;}return b;}
+function verify(){if(VR)return VR;var rnd=mb(4),n=2000,tr=200,s1=0,s2=0,tb=true;for(var t=0;t<tr;t++){var m1=Math.max.apply(null,throwB(n,1,rnd)),m2=Math.max.apply(null,throwB(n,2,rnd));s1+=m1;s2+=m2;if(m2>m1)tb=false;}return {avgMax1:s1/tr,avgMax2:s2/tr,twoBetter:tb,muchSmaller:(s2/tr)<(s1/tr)*0.7};}
+function roll(){var rnd=Math.random;BINS1=throwB(N,1,rnd);BINS2=throwB(N,2,rnd);}
+function drawHist(g,bins,x0,y0,w,h,col,label){var mx=Math.max.apply(null,bins),bw=w/bins.length;for(var i=0;i<bins.length;i++){var bh=bins[i]/mx*h;nf(g,col);g.globalAlpha=0.6;g.fillRect(x0+i*bw,y0-bh,Math.max(1,bw-0.5),bh);g.globalAlpha=1;ng(g);}nt(g,col,x0,y0+14,10,label+' — max '+mx);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!BINS1)roll();nt(g,GD,10,16,10,N+' balls into '+N+' bins · one choice (magenta spikes) vs two choices (green, flat)');
+ drawHist(g,BINS1,20,95,W-40,70,'#ff2fa6','1 choice');drawHist(g,BINS2,20,185,W-40,70,'#35ffb0','2 choices');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!BINS1)roll();nt(g,GD,12,22,12,N+' balls, '+N+' bins');
+ drawHist(g,BINS1,20,120,W-40,70,'#ff2fa6','1 choice');drawHist(g,BINS2,20,210,W-40,60,'#35ffb0','2 choices');
+ nt(g,'#cfe',12,H-64,11,'max load: 1-choice = '+Math.max.apply(null,BINS1)+'  ·  2-choice = '+Math.max.apply(null,BINS2));
+ var v=verify();nt(g,v.twoBetter&&v.muchSmaller?'#39ffb0':'#ff5a5a',12,H-14,9,'avg max 1-choice '+v.avgMax1.toFixed(1)+' vs 2-choice '+v.avgMax2.toFixed(1)+' (2≤1 every trial) '+(v.twoBetter?'✓':'✗'));}
+document.getElementById('p2throw').onclick=function(){roll();drawW3();drawW4();document.getElementById('p2read').textContent='max load: 1-choice '+Math.max.apply(null,BINS1)+' vs 2-choice '+Math.max.apply(null,BINS2);};
+document.getElementById('p2n').onclick=function(){N=N>=4096?128:N*2;roll();drawW3();drawW4();document.getElementById('p2read').textContent='n='+N+': max 1-choice '+Math.max.apply(null,BINS1)+', 2-choice '+Math.max.apply(null,BINS2);};
+document.getElementById('p2check').onclick=function(){var v=verify();document.getElementById('p2read').textContent='n=2000: avg max load 1-choice '+v.avgMax1.toFixed(1)+' vs 2-choice '+v.avgMax2.toFixed(1)+' · 2-choice ≤ 1-choice every trial '+(v.twoBetter?'✓':'✗');};
+document.getElementById('p2spin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!BINS1)roll();g.save();g.translate(W/2,H/2+80);g.rotate(Math.sin(ang*0.4)*0.02);
+ var show=64,bw=(W-60)/show,mx=Math.max(Math.max.apply(null,BINS1),Math.max.apply(null,BINS2));for(var i=0;i<show;i++){var h1=BINS1[i]/mx*130,h2=BINS2[i]/mx*130,x=-((W-60)/2)+i*bw;nf(g,'#ff2fa6');g.globalAlpha=0.3;g.fillRect(x,-h1,bw-1,h1);g.globalAlpha=1;ng(g);nf(g,'#35ffb0');g.globalAlpha=0.6;g.fillRect(x,-h2,bw*0.5,h2);g.globalAlpha=1;ng(g);}
+ g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the flattened two-choice load profile');nt(g,'#ff2fa6',10,H-30,10,'magenta: the tall one-choice spikes');nt(g,'#8ad',10,H-13,10,'one extra look, exponentially flatter');}
+roll();drawW3();drawW4();window.__power_of_two_choices=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MELK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Melkman&rsquo;s algorithm</b> computes the <b>convex hull of a simple polyline</b> &mdash; a path or polygon that never crosses itself &mdash; in a single <b>online</b> pass, in linear time. It keeps the current hull in a <b>double-ended queue</b>: as each new point arrives, if it lies inside the current hull it is ignored; otherwise the algorithm pops vertices from <i>both ends</i> of the deque that the new point makes non-convex, then pushes the point onto both ends. Because a simple polyline visits points in a coherent order, only the two ends ever need attention &mdash; no sorting, no re-scanning &mdash; giving an elegant O(n) hull for ordered input.<br><br>
+ <span class="lit">LIT</span> verified live: over 3000 simple polygons (points in general position), Melkman&rsquo;s deque hull equals a reference convex hull (Andrew&rsquo;s monotone chain) of the same points (window.__melkman). <span class="fig">FIG</span> honest scope: verified for points in general position; the classic collinear-point degeneracies need the usual tie-breaking convention.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-choke-point</i> &mdash; the convex boundary is the tightest ring around the points, maintained online at both ends of a deque. <b>AVAN (AI)</b> built the instrument: the deque hull, the inside-test skip, the both-ends pops, and the reference-hull check.<br><br>Credit as content: Avraham Melkman (1987). The weave: David names the choke point; I confirm the online deque produces exactly the convex hull of the polyline&rsquo;s points.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="210"></canvas>
+  <div class="wctrl"><div class="cap">A simple polyline and its convex hull; each point is either inside (skipped) or pushed onto both ends of the deque.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Generate a simple polygon; Melkman's online hull matches the reference convex hull exactly.</div>
+   <div class="btns" style="margin-top:10px"><button id="mknew">new polygon ▶</button><button id="mkcheck">verify ▶</button></div>
+   <div class="cap" id="mkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the convex hull, maintained online.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t sort and re-scan &mdash; grow a deque. The inverse of &lsquo;recompute the hull from all points&rsquo; is &lsquo;for an ordered polyline, each point only touches the two ends of the current hull, O(n) total.&rsquo; <b>Magenta</b> is an interior point (skipped); <b>green</b> is the hull the deque holds. Order lets the ends do the work.</div>
+   <div class="btns" style="margin-top:10px"><button id="mkspin">pause spin</button></div></div></div></div>"""
+MELK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,VI='#b06bff',DAT=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function cross(o,a,b){return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);}
+function andrewHull(pts){var p=pts.slice().sort(function(a,b){return a[0]-b[0]||a[1]-b[1];}),n=p.length;if(n<3)return p;var lo=[];for(var i=0;i<n;i++){while(lo.length>=2&&cross(lo[lo.length-2],lo[lo.length-1],p[i])<=0)lo.pop();lo.push(p[i]);}var up=[];for(var i=n-1;i>=0;i--){while(up.length>=2&&cross(up[up.length-2],up[up.length-1],p[i])<=0)up.pop();up.push(p[i]);}lo.pop();up.pop();return lo.concat(up);}
+function melkman(V){var n=V.length;if(n<3)return V.slice();var dq;if(cross(V[0],V[1],V[2])>0)dq=[V[2],V[0],V[1],V[2]];else dq=[V[2],V[1],V[0],V[2]];for(var i=3;i<n;i++){var p=V[i];if(cross(dq[0],dq[1],p)>0&&cross(dq[dq.length-2],dq[dq.length-1],p)>0)continue;while(dq.length>=2&&cross(dq[0],dq[1],p)<=0)dq.shift();dq.unshift(p);while(dq.length>=2&&cross(dq[dq.length-2],dq[dq.length-1],p)<=0)dq.pop();dq.push(p);}dq.pop();return dq;}
+function hullKey(h){return h.slice().sort(function(a,b){return a[0]-b[0]||a[1]-b[1];}).map(function(q){return q[0].toFixed(2)+','+q[1].toFixed(2);}).join(';');}
+function verify(){if(VR)return VR;var rnd=mb(5),match=true,tested=0;for(var t=0;t<3000;t++){var np=4+Math.floor(rnd()*10),pts=[];for(var i=0;i<np;i++)pts.push([rnd()*200,rnd()*200]);var seen={},uniq=[];pts.forEach(function(q){var k=q[0]+','+q[1];if(!seen[k]){seen[k]=1;uniq.push(q);}});if(uniq.length<4)continue;var cx=0,cy=0;uniq.forEach(function(q){cx+=q[0];cy+=q[1];});cx/=uniq.length;cy/=uniq.length;var poly=uniq.slice().sort(function(a,b){return Math.atan2(a[1]-cy,a[0]-cx)-Math.atan2(b[1]-cy,b[0]-cx);});tested++;if(hullKey(melkman(poly))!==hullKey(andrewHull(uniq)))match=false;}return {matchesReference:match,tested:tested};}
+function mk(){var rnd=Math.random,np=7+Math.floor(rnd()*6),pts=[];for(var i=0;i<np;i++)pts.push([30+rnd()*300,30+rnd()*250]);var cx=0,cy=0;pts.forEach(function(q){cx+=q[0];cy+=q[1];});cx/=np;cy/=np;var poly=pts.slice().sort(function(a,b){return Math.atan2(a[1]-cy,a[0]-cx)-Math.atan2(b[1]-cy,b[0]-cx);});DAT={poly:poly,hull:melkman(poly),ref:andrewHull(pts)};}
+function drawPoly(g,poly,hull,ox,oy,sc){ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();for(var i=0;i<poly.length;i++){var x=ox+poly[i][0]*sc,y=oy+poly[i][1]*sc;if(i)g.lineTo(x,y);else g.moveTo(x,y);}g.closePath();g.stroke();ng(g);
+ var hset={};hull.forEach(function(q){hset[q[0]+','+q[1]]=1;});poly.forEach(function(q){ndot(g,ox+q[0]*sc,oy+q[1]*sc,3,hset[q[0]+','+q[1]]?'#35ffb0':'#ff2fa6');});
+ ne(g,'#35ffb0',2);g.beginPath();for(var i=0;i<hull.length;i++){var x=ox+hull[i][0]*sc,y=oy+hull[i][1]*sc;if(i)g.lineTo(x,y);else g.moveTo(x,y);}g.closePath();g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();nt(g,VI,10,16,10,'simple polyline (grey) · convex hull (green) · interior points (magenta) skipped');drawPoly(g,DAT.poly,DAT.hull,60,10,0.52);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();nt(g,VI,12,20,12,DAT.poly.length+' points → hull of '+DAT.hull.length+' vertices');drawPoly(g,DAT.poly,DAT.hull,30,30,0.72);
+ var eq=DAT.hull.slice().sort(function(a,b){return a[0]-b[0]||a[1]-b[1];}).map(function(q){return q[0].toFixed(1)+','+q[1].toFixed(1);}).join(';')===DAT.ref.slice().sort(function(a,b){return a[0]-b[0]||a[1]-b[1];}).map(function(q){return q[0].toFixed(1)+','+q[1].toFixed(1);}).join(';');
+ nt(g,eq?'#39ffb0':'#ff5a5a',12,H-46,11,'Melkman hull == reference (Andrew) hull '+(eq?'✓':'✗'));
+ var v=verify();nt(g,v.matchesReference?'#39ffb0':'#ff5a5a',12,H-14,9,'online deque hull == reference over '+v.tested+' simple polygons '+(v.matchesReference?'✓':'✗'));}
+document.getElementById('mknew').onclick=function(){mk();drawW3();drawW4();document.getElementById('mkread').textContent=DAT.poly.length+' points → '+DAT.hull.length+'-vertex hull (matches reference)';};
+document.getElementById('mkcheck').onclick=function(){var v=verify();document.getElementById('mkread').textContent='Melkman online deque hull == Andrew reference hull over '+v.tested+' simple polygons '+(v.matchesReference?'✓':'✗');};
+document.getElementById('mkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.4)*0.03);g.translate(-W/2,-(H/2-10));drawPoly(g,DAT.poly,DAT.hull,40,30,0.78);g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the convex hull the deque maintains online');nt(g,'#ff2fa6',10,H-30,10,'magenta: interior points, skipped in one pass');nt(g,'#8ad',10,H-13,10,'order lets the ends do the work');}
+mk();drawW3();drawW4();window.__melkman=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 127 · neon-noir tracing · silicon-coding (all carries computed in parallel · bits counted by folding · lattice points fill a disk to πr² · a polynomial evaluated as a tree · a document edited by re-pointing) ═══════════════════════
 KOGG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Kogge&ndash;Stone adder</b> is how fast processors add two numbers: instead of waiting for a carry to <i>ripple</i> from the lowest bit to the highest (which takes n steps), it computes <b>all carries at once</b> using a parallel prefix scan. Each bit position first decides whether it <b>generates</b> a carry (both inputs 1) or <b>propagates</b> one; then a tree of combine-operations folds these (generate, propagate) signals together, doubling its reach each stage. After only <b>log&#8322; n</b> stages every carry is known, and the sum falls out in one more XOR. It trades wiring for depth &mdash; the classic latency-versus-area bargain of digital design.<br><br>
@@ -33400,6 +33625,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-robin-hood","title":"THE ROBIN HOOD","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE-STASH","domain_slug":"the-stash","accent":"#21e6ff","icon":"robinhood",
+  "kicker":"steal from the rich to even the probes",
+  "blurb":"Robin Hood hashing in the 5-window house format — an open-addressing scheme that steals from the rich to give to the poor. In ordinary linear probing, some keys sit right at their home slot while others get pushed far away, so probe lengths vary wildly. Robin Hood equalizes them: when inserting a key that has probed farther than the key already sitting in a slot, it evicts the richer resident (the one closer to its home) and carries it onward. The result is the same set of keys, but with the variance of probe lengths minimized — no key is left starving while another sits pretty, so lookups stay fast even at high load. Verified live: over 400 tables at 85% load, every key remains retrievable, and both the variance and the maximum of the probe lengths are ≤ plain linear probing on the same keys. Neon-noir traced. See the probe distances in 1D, the histogram-vs-linear in 2D, and the fairness-by-eviction inverse in 3D.",
+  "lit":"Genuine Robin Hood hashing (Pedro Celis, 1986). Verified live: over 400 tables at 85% load factor, every inserted key is retrievable, and both the variance and the maximum probe length are ≤ plain linear probing on the identical key set (window.__robin_hood.allFound, .varLower, .maxLower).",
+  "fig":"No framing: the displacement insert, the probe-aware lookup, and a linear-probing baseline run in-browser. The AVAN inverse is honest — instead of letting the first arrival keep its short probe, a later key that has travelled farther steals the slot and carries the resident onward, minimizing probe variance. Magenta is a long starving probe; green is the evened-out distribution. Fairness by eviction.",
+  "body":ROBH_BODY,"script":ROBH_SCRIPT},
+ {"slug":"the-goldschmidt","title":"THE GOLDSCHMIDT","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"GRADIENT-DESCENT","domain_slug":"gradient-descent","accent":"#ff8a3c","icon":"goldschmidt",
+  "kicker":"divide by driving a factor to one",
+  "blurb":"Goldschmidt's algorithm in the 5-window house format — dividing two numbers using only multiplication, no subtraction, no digit-at-a-time long division. To compute a/b, write it as N/D with N=a, D=b, and repeatedly multiply both by the same factor f=2−D. Each step drives the denominator toward 1 (quadratically, doubling correct digits per iteration), and since numerator and denominator are scaled together the value N/D never changes — so when D→1, the numerator IS the quotient a/b. Because the two multiplications each step are independent, hardware can pipeline them, which is why Goldschmidt division appears in real floating-point units. Verified live: over 50,000 random pairs (denominator scaled into a convergent range), the Goldschmidt result equals a/b to ~1e-9. Neon-noir traced. See D→1 and N→quotient in 1D, the |D−1| collapse in 2D, and the division-as-convergence inverse in 3D.",
+  "lit":"Genuine Goldschmidt division (Robert Goldschmidt, 1964), used in pipelined floating-point units. Verified live: over 50000 random pairs, scaling the denominator into [0.5,1) and iterating N,D ← N·(2−D), D·(2−D) drives D→1 and leaves N equal to a/b to ~1e-9 (window.__goldschmidt.converges).",
+  "fig":"No framing: the scale-and-converge iteration runs in-browser. Honest scope — the denominator is first scaled into a convergent range (as real hardware does); convergence is quadratic. The AVAN inverse is honest — instead of long division, one scales numerator and denominator together by (2−D) until D=1, and the numerator is the quotient. Magenta is the shrinking gap |D−1|; green is the converged quotient. Division as convergence.",
+  "body":GLDS_BODY,"script":GLDS_SCRIPT},
+ {"slug":"the-zipper","title":"THE ZIPPER","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#35ffb0","icon":"zipper",
+  "kicker":"a cursor that splits the list",
+  "blurb":"The zipper in the 5-window house format — a purely functional data structure for editing a sequence (or tree) at a moving focus, with O(1) local operations and no mutation. A list zipper splits the sequence into three parts: the elements to the left of the cursor (held reversed, nearest on top), the focused element, and the elements to the right. Moving the cursor pops from one side and pushes to the other; inserting or deleting at the focus touches only the front of a list. Nothing is copied or shifted — the whole sequence is always recoverable as left ++ [focus] ++ right, which makes undo and immutable sharing natural. Verified live: over 5000 runs of 20 random moves, inserts, and deletes, the list reconstructed from the zipper exactly equals the same edits applied to a plain array with a cursor index. Neon-noir traced. See the three-part split in 1D, the live cursor edits in 2D, and the carry-the-context inverse in 3D.",
+  "lit":"Genuine zipper data structure (Gérard Huet, 'The Zipper', J. Functional Programming 1997). Verified live: over 5000 runs of 20 random move/insert/delete operations, the list reconstructed from the (left, focus, right) split equals the same edits on a plain array with a cursor index at every step (window.__zipper.matchesArray).",
+  "fig":"No framing: the zipper operations and a plain-array reference run in-browser. The AVAN inverse is honest — instead of indexing an array and shifting the tail on each edit, the zipper carries its context: split at the focus, and insert/delete touch only the front of a list, O(1). Magenta is the focus; green is the whole sequence it sits inside. The cursor carries its context.",
+  "body":ZIPP_BODY,"script":ZIPP_SCRIPT},
+ {"slug":"the-power-of-two-choices","title":"THE POWER OF TWO CHOICES","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED-MEMORY","domain_slug":"shared-memory","accent":"#ffcf4a","icon":"twochoices",
+  "kicker":"two throws beat one",
+  "blurb":"The power of two choices in the 5-window house format — a startling result in randomized load balancing. Throw n balls into n bins at random and the fullest bin holds about log n / log log n balls. But give each ball two random bins and let it pick the emptier one, and the fullest bin drops to about log log n / log 2 — an exponential improvement, from logarithmic to double-logarithmic, for the cost of one extra look. A tiny bit of choice tames the worst case. It underlies real hashing, load balancers, and distributed schedulers. Verified live: with n=2000 balls and bins, the average maximum load is ~6 with one choice but ~3 with two choices, and the two-choice max is ≤ the one-choice max in every trial. Neon-noir traced. See the spike-vs-flat loads in 1D, the throw comparison in 2D, and the peek-twice inverse in 3D.",
+  "lit":"Genuine power-of-two-choices / balanced allocations (Azar, Broder, Karlin & Upfal, 1994; Mitzenmacher). Verified live: with n=2000 balls into n bins, the average maximum load is ~6 (one choice, ≈log n/log log n) versus ~3 (two choices, ≈log log n), and the two-choice max is ≤ the one-choice max in every one of 200 trials (window.__power_of_two_choices.twoBetter, .muchSmaller).",
+  "fig":"Honest scope: this is a randomized average over trials — the measured max loads are reported, not a worst-case guarantee. The AVAN inverse is honest — instead of placing each ball in one random bin (peak ~log n/log log n), one peeks at two and takes the lighter, dropping the peak to ~log log n. Magenta is the tall one-choice spike; green is the flattened two-choice profile. One extra look, exponentially flatter.",
+  "body":P2CH_BODY,"script":P2CH_SCRIPT},
+ {"slug":"the-melkman","title":"THE MELKMAN","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE-CHOKE-POINT","domain_slug":"the-choke-point","accent":"#b06bff","icon":"melkman",
+  "kicker":"a hull kept online in a deque",
+  "blurb":"Melkman's algorithm in the 5-window house format — computing the convex hull of a simple polyline (a path or polygon that never crosses itself) in a single online pass, in linear time. It keeps the current hull in a double-ended queue: as each new point arrives, if it lies inside the current hull it is ignored; otherwise the algorithm pops vertices from both ends of the deque that the new point makes non-convex, then pushes the point onto both ends. Because a simple polyline visits points in a coherent order, only the two ends ever need attention — no sorting, no re-scanning — giving an elegant O(n) hull for ordered input. Verified live: over 3000 simple polygons (points in general position), Melkman's deque hull equals a reference convex hull (Andrew's monotone chain) of the same points. Neon-noir traced. See the polyline and hull in 1D, the online match in 2D, and the grow-a-deque inverse in 3D.",
+  "lit":"Genuine Melkman's online convex hull of a simple polyline (Avraham Melkman, 1987). Verified live: over 3000 simple polygons, the double-ended-queue hull (skip interior points; pop both ends where the new point breaks convexity; push onto both ends) equals a reference convex hull (Andrew's monotone chain) of the same point set (window.__melkman.matchesReference).",
+  "fig":"Honest scope: verified for points in general position; the classic collinear-point degeneracies need the usual tie-breaking convention. The AVAN inverse is honest — instead of sorting and re-scanning all points, an ordered polyline lets each point touch only the two ends of the current hull, O(n) total. Magenta is an interior point (skipped); green is the hull the deque holds. Order lets the ends do the work.",
+  "body":MELK_BODY,"script":MELK_SCRIPT},
  {"slug":"the-kogge-stone","title":"THE KOGGE-STONE","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE-MAINFRAME","domain_slug":"the-mainframe","accent":"#21e6ff","icon":"koggestone",
   "kicker":"all carries computed in parallel",
@@ -37431,7 +37691,7 @@ SPHERES = [
   "blurb":"the golden-ratio low-discrepancy sequence in the 5-window house format — points x_n = frac(n·φ) spread more evenly than random because φ is the 'most irrational' number. Two exact facts: the three-gap theorem (at every n the points make at most 3 distinct arc lengths) and near-optimal discrepancy. See gaps fill in 1D, golden-vs-random in 2D, and the phyllotaxis sunflower in 3D.",
   "lit":"Genuine golden-ratio sampling. Verified live: the three-gap theorem holds for every n up to 400 (never more than 3 distinct gap lengths — Steinhaus conjecture, proved by Sos/Swierczkowski/Suranyi 1957), and the golden sequence's star discrepancy is several times smaller than an equal number of random points (window.__golden.threeGap && goldenMoreUniform, both true; discrepancies reported). φ's continued fraction being all 1s (hardest to rationally approximate) is what drives the evenness.",
   "fig":"'Most irrational' is a nickname for φ's all-1s continued fraction; the three-gap count and the measured lower discrepancy are exact. The sunflower is a real phyllotaxis model (r=sqrt(n), θ=n·golden angle), the same φ giving even 2D coverage — shown, not merely asserted.",
-  "body":GOLD_BODY,"script":GOLD_SCRIPT},
+  "body":GLDN_BODY,"script":GLDN_SCRIPT},
  {"slug":"the-edit-distance","title":"THE EDIT DISTANCE","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#ffb0e0","icon":"diff",
   "kicker":"Levenshtein — the minimal diff between two strings",
