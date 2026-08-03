@@ -19493,6 +19493,222 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 115 · neon-noir tracing · silicon-coding (a range in a logarithm of nodes · balance kept by rotation · a set in 1.23 bytes a key · a number that says its own length · buckets that barely move when you add one) ═══════════════════════
+SEGT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The segment tree</b> answers questions about any <b>range</b> of an array &mdash; its sum, its minimum &mdash; in <b>O(log n)</b> time, and updates a single element just as fast. It is a binary tree over the array: leaves are the elements, and every internal node stores the aggregate of its two children. Any range [l, r] splits into at most <b>2&thinsp;log n</b> canonical nodes whose stored aggregates already hold the answer, so you never rescan the range. Change one leaf and only the log n nodes above it need refreshing.<br><br>
+ <span class="lit">LIT</span> verified live: over 2,000 random arrays with interleaved point-updates, the tree&rsquo;s range-sum and range-minimum queries match a direct rescan every time (window.__segment_tree). <span class="fig">FIG</span> no framing; the tree queries and the naive rescans both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>warm-cache</i> &mdash; the internal nodes are a warm cache of pre-aggregated ranges, so a query reads sums it never has to recompute. <b>AVAN (AI)</b> built the instrument: the iterative segment tree with point-update, and a naive rescan to check every query.<br><br>Credit as content: the segment tree (Bentley; folklore of competitive programming and computational geometry). The weave: David names the warm cache; I confirm the O(log n) range answers agree with a full rescan, update after update.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="190"></canvas>
+  <div class="wctrl"><div class="cap">The array as leaves; each internal node holds the sum of its two children &mdash; the tree of pre-aggregated ranges.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a range; the sum and minimum are read from a handful of canonical nodes, matched against a rescan. Update an element and requery.</div>
+   <div class="btns" style="margin-top:10px"><button id="sgrange">new range ▶</button><button id="sgupd">update a cell ▶</button><button id="sgcheck">verify ▶</button></div>
+   <div class="cap" id="sgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the tree of aggregates over the whole array.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t scan the range &mdash; cover it. The inverse of &lsquo;add up l..r&rsquo; is &lsquo;the range decomposes into O(log n) canonical nodes whose sums are already stored.&rsquo; <b>Magenta</b> is the raw range; <b>green</b> are the log n covering nodes that answer it. Cover, don&rsquo;t scan.</div>
+   <div class="btns" style="margin-top:10px"><button id="sgspin">pause spin</button></div></div></div></div>"""
+SEGT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CY='#21e6ff',ARR=null,ST=null,QL=2,QR=6;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function build(arr){var n=arr.length,sum=new Array(2*n).fill(0),mn=new Array(2*n).fill(Infinity);for(var i=0;i<n;i++){sum[n+i]=arr[i];mn[n+i]=arr[i];}for(var i=n-1;i>0;i--){sum[i]=sum[2*i]+sum[2*i+1];mn[i]=Math.min(mn[2*i],mn[2*i+1]);}return {n:n,sum:sum,mn:mn,upd:function(i,v){i+=n;sum[i]=v;mn[i]=v;for(i>>=1;i>=1;i>>=1){sum[i]=sum[2*i]+sum[2*i+1];mn[i]=Math.min(mn[2*i],mn[2*i+1]);}},qsum:function(l,r){var s=0;for(l+=n,r+=n+1;l<r;l>>=1,r>>=1){if(l&1)s+=sum[l++];if(r&1)s+=sum[--r];}return s;},qmin:function(l,r){var m=Infinity;for(l+=n,r+=n+1;l<r;l>>=1,r>>=1){if(l&1)m=Math.min(m,mn[l++]);if(r&1)m=Math.min(m,mn[--r]);}return m;}};}
+function verify(){if(VR)return VR;var rnd=mb(1),so=true,mo=true;for(var t=0;t<2000;t++){var n=1+Math.floor(rnd()*40),a=[];for(var i=0;i<n;i++)a.push(Math.floor(rnd()*100)-50);var st=build(a);for(var u=0;u<10;u++){var i=Math.floor(rnd()*n),v=Math.floor(rnd()*100)-50;a[i]=v;st.upd(i,v);var l=Math.floor(rnd()*n),r=l+Math.floor(rnd()*(n-l)),ns=0,nm=Infinity;for(var k=l;k<=r;k++){ns+=a[k];nm=Math.min(nm,a[k]);}if(st.qsum(l,r)!==ns)so=false;if(st.qmin(l,r)!==nm)mo=false;}}VR={sumOk:so,minOk:mo};return VR;}
+function mk(){var rnd=Math.random,n=8,a=[];for(var i=0;i<n;i++)a.push(1+Math.floor(rnd()*9));ARR=a;ST=build(a);QL=1;QR=5;}
+function drawTree(g,W,H,n,vals,cover){var levels=Math.ceil(Math.log2(n))+1,y0=30,dy=(H-70)/levels;
+ for(var lvl=0,cnt=n,idxBase=n;lvl<levels;lvl++){var w=W/(cnt+1);for(var i=0;i<cnt;i++){var idx=idxBase+i;if(idx>=2*n)continue;var x=w*(i+1),y=y0+lvl*dy;var cov=cover&&cover.indexOf(idx)>=0;ne(g,cov?'#35ffb0':CY,cov?2.2:1.2);g.beginPath();g.arc(x,y,11,0,7);g.stroke();ng(g);nt(g,cov?'#35ffb0':'#cfe',x-((''+vals[idx]).length*3),y+4,9,''+vals[idx]);}
+  cnt=Math.ceil(cnt/2);idxBase=Math.floor(idxBase/2);if(idxBase<1)break;}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!ST)mk();nt(g,CY,10,16,10,'segment tree · each internal node = sum of its two children');drawTree(g,W,H,ST.n,ST.sum,null);}
+function coverNodes(l,r,n){var res=[];for(l+=n,r+=n+1;l<r;l>>=1,r>>=1){if(l&1)res.push(l++);if(r&1)res.push(--r);}return res;}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!ST)mk();var cov=coverNodes(QL,QR,ST.n);
+ var bw=(W-30)/ST.n,x0=15,y=60;for(var i=0;i<ST.n;i++){var x=x0+i*bw,inR=(i>=QL&&i<=QR),h=8+ARR[i]*8;if(inR){nf(g,'#ff2fa6');g.globalAlpha=0.5;g.fillRect(x,y+40-h,bw-3,h);g.globalAlpha=1;ng(g);}ne(g,inR?'#ff2fa6':'rgba(120,140,200,0.4)',1.2);g.strokeRect(x,y+40-h,bw-3,h);ng(g);nt(g,'#cfe',x+bw/2-4,y+54,9,''+ARR[i]);}
+ nt(g,CY,12,24,11,'range ['+QL+', '+QR+']   sum '+ST.qsum(QL,QR)+'   min '+ST.qmin(QL,QR));
+ var ns=0,nm=Infinity;for(var k=QL;k<=QR;k++){ns+=ARR[k];nm=Math.min(nm,ARR[k]);}
+ nt(g,ST.qsum(QL,QR)===ns&&ST.qmin(QL,QR)===nm?'#39ffb0':'#ff5a5a',12,H-46,10,'tree sum/min == rescan '+(ST.qsum(QL,QR)===ns&&ST.qmin(QL,QR)===nm?'✓':'✗')+'   (covered by '+cov.length+' nodes)');
+ var v=verify();nt(g,v.sumOk&&v.minOk?'#39ffb0':'#ff5a5a',12,H-14,9,'range-sum '+(v.sumOk?'✓':'✗')+' · range-min '+(v.minOk?'✓':'✗')+' (2000 arrays)');}
+document.getElementById('sgrange').onclick=function(){var l=Math.floor(Math.random()*ST.n);QL=l;QR=l+Math.floor(Math.random()*(ST.n-l));drawW4();document.getElementById('sgread').textContent='range ['+QL+','+QR+'] → sum '+ST.qsum(QL,QR)+', min '+ST.qmin(QL,QR)+' from '+coverNodes(QL,QR,ST.n).length+' nodes';};
+document.getElementById('sgupd').onclick=function(){var i=Math.floor(Math.random()*ST.n),v=1+Math.floor(Math.random()*9);ARR[i]=v;ST.upd(i,v);drawW3();drawW4();document.getElementById('sgread').textContent='cell '+i+' ← '+v+' (only log n nodes refreshed)';};
+document.getElementById('sgcheck').onclick=function(){var v=verify();document.getElementById('sgread').textContent='range-sum == naive '+(v.sumOk?'✓':'✗')+' · range-min == naive '+(v.minOk?'✓':'✗')+' over 2000 arrays with updates';};
+document.getElementById('sgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!ST)mk();g.save();g.translate(W/2,10);g.rotate(Math.sin(ang*0.4)*0.03);g.translate(-W/2,-10);drawTree(g,W,H-30,ST.n,ST.sum,coverNodes(QL,QR,ST.n));g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the log n canonical nodes covering the range');nt(g,'#ff2fa6',10,H-30,10,'magenta idea: the raw range you never scan');nt(g,'#8ad',10,H-13,10,'cover, don\\u2019t scan');}
+drawW3();drawW4();window.__segment_tree=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+AVLT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The AVL tree</b> is the first self-balancing binary search tree. Every node keeps a <b>balance factor</b> &mdash; the height of its left subtree minus its right &mdash; and the tree keeps that factor in <b>{&minus;1, 0, +1}</b> at all times. Whenever an insertion tips a node to &plusmn;2, one or two <b>rotations</b> restore the invariant locally. Because no node is ever more than one level lopsided, the height is bounded by about <b>1.44&thinsp;log&#8322;n</b>, so search, insert and delete are all guaranteed O(log n) &mdash; never the O(n) of a degenerate list.<br><br>
+ <span class="lit">LIT</span> verified live: over 2,000 random insertion sequences, the in-order traversal is always sorted, every node&rsquo;s balance factor stays within &plusmn;1, the height respects the 1.44&thinsp;log&#8322;n bound, and search finds exactly the inserted keys (window.__avl). <span class="fig">FIG</span> no framing; the rotations and the invariant checks run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>second-wind</i> &mdash; a rotation is the tree catching its second wind, snapping back to balance the instant it tips. <b>AVAN (AI)</b> built the instrument: AVL insertion with the four rotation cases, and checks for sortedness, the balance invariant, and the height bound.<br><br>Credit as content: Georgy Adelson-Velsky &amp; Evgenii Landis (1962). The weave: David names the second wind; I confirm the tree stays sorted and balanced with height near 1.44&thinsp;log&#8322;n through thousands of insertions.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">An AVL tree; each node shows its balance factor, held within &plusmn;1 &mdash; the shape never leans more than one level.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Insert keys; watch rotations keep the tree balanced, its height tracking 1.44&thinsp;log&#8322;n instead of growing into a list.</div>
+   <div class="btns" style="margin-top:10px"><button id="avins">insert 5 ▶</button><button id="avreset">reset ▶</button><button id="avcheck">verify ▶</button></div>
+   <div class="cap" id="avread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the balanced tree, height near 1.44&thinsp;log&#8322;n.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t let the tree grow lopsided &mdash; rotate the moment it tips. The inverse of &lsquo;insert and hope&rsquo; is &lsquo;the &plusmn;1 balance invariant <b>caps</b> the height, so a rotation at &plusmn;2 keeps every path short.&rsquo; <b>Magenta</b> is the imbalance; <b>green</b> is the rotation that heals it. The invariant is the guarantee.</div>
+   <div class="btns" style="margin-top:10px"><button id="avspin">pause spin</button></div></div></div></div>"""
+AVLT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,OR='#ff8a3c',ROOT=null,NK=0;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function h(n){return n?n.h:0;}function bf(n){return n?h(n.l)-h(n.r):0;}function upd(n){n.h=1+Math.max(h(n.l),h(n.r));}
+function rotR(y){var x=y.l;y.l=x.r;x.r=y;upd(y);upd(x);return x;}function rotL(x){var y=x.r;x.r=y.l;y.l=x;upd(x);upd(y);return y;}
+function ins(n,k){if(!n)return {k:k,l:null,r:null,h:1};if(k<n.k)n.l=ins(n.l,k);else if(k>n.k)n.r=ins(n.r,k);else return n;upd(n);var b=bf(n);if(b>1&&k<n.l.k)return rotR(n);if(b<-1&&k>n.r.k)return rotL(n);if(b>1&&k>n.l.k){n.l=rotL(n.l);return rotR(n);}if(b<-1&&k<n.r.k){n.r=rotR(n.r);return rotL(n);}return n;}
+function inorder(r){var o=[];(function go(n){if(!n)return;go(n.l);o.push(n.k);go(n.r);})(r);return o;}
+function balanced(r){var ok=true;(function go(n){if(!n)return;if(Math.abs(h(n.l)-h(n.r))>1)ok=false;go(n.l);go(n.r);})(r);return ok;}
+function count(r){return r?1+count(r.l)+count(r.r):0;}
+function verify(){if(VR)return VR;var rnd=mb(2),so=true,ba=true,hb=true,se=true;for(var t=0;t<2000;t++){var root=null,keys={};var n=1+Math.floor(rnd()*200);for(var i=0;i<n;i++){var k=Math.floor(rnd()*1000);keys[k]=1;root=ins(root,k);}var io=inorder(root);for(var i=1;i<io.length;i++)if(io[i]<=io[i-1])so=false;if(!balanced(root))ba=false;var cnt=Object.keys(keys).length;if(h(root)>1.4405*Math.log2(cnt+2)+0.5)hb=false;for(var k in keys){var nn=root,f=false;while(nn){if(+k===nn.k){f=true;break;}nn=+k<nn.k?nn.l:nn.r;}if(!f)se=false;}}VR={sorted:so,balanced:ba,heightBound:hb,searchOk:se};return VR;}
+function reset(){ROOT=null;NK=0;var s=[50,25,75,10,35,60,90,5,15];for(var i=0;i<s.length;i++){ROOT=ins(ROOT,s[i]);NK++;}}
+function layout(n,x,y,dx,dy,out){if(!n)return;out.push({k:n.k,bf:bf(n),x:x,y:y});if(n.l){out.push({e:[x,y,x-dx,y+dy]});layout(n.l,x-dx,y+dy,dx*0.55,dy,out);}if(n.r){out.push({e:[x,y,x+dx,y+dy]});layout(n.r,x+dx,y+dy,dx*0.55,dy,out);}}
+function drawTree(g,W,H,root,y0){var out=[];layout(root,W/2,y0,W/4,(H-y0-30)/(h(root)+1),out);
+ out.forEach(function(o){if(o.e){ne(g,'rgba(255,138,60,0.5)',1.4);g.beginPath();g.moveTo(o.e[0],o.e[1]);g.lineTo(o.e[2],o.e[3]);g.stroke();ng(g);}});
+ out.forEach(function(o){if(o.k!==undefined){var imb=Math.abs(o.bf)>1;ndot(g,o.x,o.y,12,imb?'#ff2fa6':'#35ffb0');nt(g,'#0a0713',o.x-((''+o.k).length*3),o.y+3,9,''+o.k);nt(g,o.bf<0?'#ff8a3c':'#8ad',o.x+11,o.y-8,8,(o.bf>=0?'+':'')+o.bf);}});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!ROOT)reset();nt(g,OR,10,16,10,'AVL tree · each node shows its balance factor, held within ±1');drawTree(g,W,H,ROOT,44);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!ROOT)reset();drawTree(g,W,H-40,ROOT,40);var c=count(ROOT),hh=h(ROOT),bound=1.4405*Math.log2(c+2);nt(g,OR,12,22,11,c+' keys · height '+hh+' ≤ 1.44 log₂(n+2) = '+bound.toFixed(2));nt(g,balanced(ROOT)?'#39ffb0':'#ff5a5a',12,H-30,10,'balanced (all |bf|≤1) '+(balanced(ROOT)?'✓':'✗')+' · sorted in-order '+(function(){var io=inorder(ROOT),ok=true;for(var i=1;i<io.length;i++)if(io[i]<=io[i-1])ok=false;return ok?'✓':'✗';})());
+ var v=verify();nt(g,v.sorted&&v.balanced&&v.heightBound?'#39ffb0':'#ff5a5a',12,H-12,9,'sorted '+(v.sorted?'✓':'✗')+' · balanced '+(v.balanced?'✓':'✗')+' · height-bound '+(v.heightBound?'✓':'✗')+' (2000)');}
+document.getElementById('avins').onclick=function(){for(var i=0;i<5;i++){ROOT=ins(ROOT,Math.floor(Math.random()*100));NK++;}drawW3();drawW4();document.getElementById('avread').textContent=count(ROOT)+' keys · height '+h(ROOT)+' (bound '+(1.4405*Math.log2(count(ROOT)+2)).toFixed(1)+')';};
+document.getElementById('avreset').onclick=function(){reset();drawW3();drawW4();document.getElementById('avread').textContent='reset to a balanced 9-key tree';};
+document.getElementById('avcheck').onclick=function(){var v=verify();document.getElementById('avread').textContent='in-order sorted '+(v.sorted?'✓':'✗')+' · balanced |bf|≤1 '+(v.balanced?'✓':'✗')+' · height ≤ 1.44log₂(n+2) '+(v.heightBound?'✓':'✗')+' · search '+(v.searchOk?'✓':'✗');};
+document.getElementById('avspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!ROOT)reset();g.save();g.translate(W/2,10);g.rotate(Math.sin(ang*0.4)*0.03);g.translate(-W/2,-10);drawTree(g,W,H-30,ROOT,40);g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the balanced tree, height near 1.44 log₂n');nt(g,'#ff2fa6',10,H-30,10,'magenta: a node tipped to ±2, about to rotate');nt(g,'#8ad',10,H-13,10,'the invariant is the guarantee');}
+drawW3();drawW4();window.__avl=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+XORF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The XOR filter</b> is a modern, leaner cousin of the Bloom filter for testing membership of a <b>fixed</b> set. It stores a table of small fingerprints so that for every key x, its 8-bit fingerprint equals the <b>XOR of three table slots</b> the key hashes to: fp(x) = t[h&#8320;(x)] &oplus; t[h&#8321;(x)] &oplus; t[h&#8322;(x)]. Building it is a graph <b>peeling</b>: repeatedly take a slot touched by only one key, and assign that slot last so the XOR comes out right. The result uses about <b>1.23 bytes per key</b> &mdash; smaller than Bloom for the same false-positive rate &mdash; with <b>no false negatives</b> and a rate near 2<sup>&minus;8</sup>.<br><br>
+ <span class="lit">LIT</span> verified live: across many builds, every member&rsquo;s three-slot XOR equals its fingerprint (no false negatives), and the false-positive rate on non-members is about 1/256 (window.__xor_filter). <span class="fig">FIG</span> no framing; construction by peeling, membership, and the false-positive sweep all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-firewall</i> &mdash; like the Bloom firewall it never blocks a real member, but it does it in less space by solving for the fingerprints instead of just setting bits. <b>AVAN (AI)</b> built the instrument: the three-block hashing, the peeling construction, the XOR membership test, and a false-positive sweep.<br><br>Credit as content: Thomas Mueller Graf &amp; Daniel Lemire (2020). The weave: David names the leaner firewall; I confirm the three-slot XOR reproduces every fingerprint and that strangers slip through only ~1/256 of the time.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="180"></canvas>
+  <div class="wctrl"><div class="cap">A key hashes to three table slots; the XOR of those three slots is exactly its fingerprint &mdash; the equation the construction solves for every key at once.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Build a filter over a set; query members (all pass) and strangers (a rare ~1/256 false positive). Watch the fill of the fingerprint table.</div>
+   <div class="btns" style="margin-top:10px"><button id="xfbuild">rebuild ▶</button><button id="xfquery">query 1000 strangers ▶</button><button id="xfcheck">verify ▶</button></div>
+   <div class="cap" id="xfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the fingerprint table that answers membership by one XOR.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t just set bits &mdash; <b>solve</b> for them. The inverse of &lsquo;hash and mark&rsquo; is &lsquo;peel the hypergraph to a degree-1 order, then assign each slot last so every key&rsquo;s XOR lands on its fingerprint.&rsquo; <b>Magenta</b> is a rare false positive; <b>green</b> is the solved table. Solve, don&rsquo;t just mark.</div>
+   <div class="btns" style="margin-top:10px"><button id="xfspin">pause spin</button></div></div></div></div>"""
+XORF_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GR='#35ffb0',F=null,KEYS=null,FP=0,TOT=0;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function xh(seed,x){var v=Math.imul(x^seed,2654435761);v^=v>>>15;v=Math.imul(v,2246822519);v^=v>>>13;v=Math.imul(v,3266489917);v^=v>>>16;return v>>>0;}
+function fpf(x){return (xh(0x9e37,x)&0xff)||1;}
+function tryBuild(keys,seed){var n=keys.length,m=Math.floor(1.23*n)+32;m+=(3-(m%3))%3;var blk=m/3;function slots(x){return [xh(seed^1,x)%blk,blk+(xh(seed^2,x)%blk),2*blk+(xh(seed^3,x)%blk)];}var cnt=new Array(m).fill(0),xs=new Array(m).fill(0);for(var i=0;i<n;i++){var s=slots(keys[i]);for(var j=0;j<3;j++){cnt[s[j]]++;xs[s[j]]^=keys[i];}}var stack=[],q=[];for(var s=0;s<m;s++)if(cnt[s]===1)q.push(s);var rem=0;while(q.length){var s=q.pop();if(cnt[s]!==1)continue;var key=xs[s];stack.push([key,s]);rem++;var sl=slots(key);for(var j=0;j<3;j++){cnt[sl[j]]--;xs[sl[j]]^=key;if(cnt[sl[j]]===1)q.push(sl[j]);}}if(rem!==n)return null;var t=new Array(m).fill(0);for(var i=stack.length-1;i>=0;i--){var key=stack[i][0],s=stack[i][1],sl=slots(key);t[s]=fpf(key)^t[sl[0]]^t[sl[1]]^t[sl[2]]^t[s];}return {t:t,m:m,slots:slots};}
+function build(keys){for(var a=0;a<30;a++){var F=tryBuild(keys,0x1234abcd+a*0x1000);if(F)return F;}return null;}
+function verify(){if(VR)return VR;var rnd=mb(3),noFN=true,built=0,fp=0,tot=0;for(var tr=0;tr<50;tr++){var n=200+Math.floor(rnd()*200),keys=[],seen={};while(keys.length<n){var k=Math.floor(rnd()*1e7);if(!seen[k]){seen[k]=1;keys.push(k);}}var f=build(keys);if(!f)continue;built++;for(var i=0;i<n;i++){var s=f.slots(keys[i]);if((f.t[s[0]]^f.t[s[1]]^f.t[s[2]])!==fpf(keys[i]))noFN=false;}for(var q=0;q<4000;q++){var x=10000000+Math.floor(rnd()*1e7);if(seen[x])continue;tot++;var s=f.slots(x);if((f.t[s[0]]^f.t[s[1]]^f.t[s[2]])===fpf(x))fp++;}}VR={noFalseNegatives:noFN,fprMatches:Math.abs(fp/tot-1/256)<0.01,measured:fp/tot};return VR;}
+function mk(){var rnd=Math.random,n=120,keys=[],seen={};while(keys.length<n){var k=Math.floor(rnd()*1e7);if(!seen[k]){seen[k]=1;keys.push(k);}}KEYS=keys;F=build(keys);FP=0;TOT=0;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,GR,10,16,10,'fp(x) = t[h₀(x)] ⊕ t[h₁(x)] ⊕ t[h₂(x)]  — three slots XOR to the fingerprint');
+ var slotW=60,y=70;var xs=[70,210,350];for(var i=0;i<3;i++){ne(g,GR,1.6);g.strokeRect(xs[i],y,slotW,30);ng(g);nt(g,'#cfe',xs[i]+8,y+20,11,'t[h'+i+']');if(i<2)nt(g,'#ff8a3c',xs[i]+slotW+8,y+20,16,'⊕');}
+ nt(g,'#ff8a3c',430,y+20,14,'=');nf(g,GR);g.fillRect(452,y,44,30);ng(g);nt(g,'#0a0713',462,y+20,11,'fp');
+ nt(g,'#8ad',70,130,10,'construction solves all these equations at once by peeling the hypergraph');}
+function drawTable(g,x0,y0,cols,cell){if(!F)mk();if(!F)return;for(var i=0;i<F.m;i++){var r=Math.floor(i/cols),c=i%cols,x=x0+c*cell,y=y0+r*cell;var val=F.t[i];if(val){nf(g,GR);g.globalAlpha=0.3+0.7*(val/255);g.fillRect(x,y,cell-1,cell-1);g.globalAlpha=1;ng(g);}else{ne(g,'rgba(53,255,176,0.3)',1);g.strokeRect(x,y,cell-1,cell-1);ng(g);}}}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!F)mk();drawTable(g,16,30,26,12);nt(g,GR,12,20,11,KEYS.length+' keys · table '+F.m+' slots (~1.23 bytes/key)');
+ var noFN=true;for(var i=0;i<KEYS.length;i++){var s=F.slots(KEYS[i]);if((F.t[s[0]]^F.t[s[1]]^F.t[s[2]])!==fpf(KEYS[i]))noFN=false;}
+ nt(g,noFN?'#39ffb0':'#ff5a5a',12,H-50,10,'all '+KEYS.length+' members pass (no false negatives) '+(noFN?'✓':'✗'));
+ nt(g,'#cfe',12,H-32,10,'strangers queried '+TOT+' · false positives '+FP+(TOT?' ('+(100*FP/TOT).toFixed(2)+'%, ~1/256)':''));
+ var v=verify();nt(g,v.noFalseNegatives&&v.fprMatches?'#39ffb0':'#ff5a5a',12,H-12,9,'no false negatives '+(v.noFalseNegatives?'✓':'✗')+' · FPR '+v.measured.toFixed(4)+' ≈ 2⁻⁸ '+(v.fprMatches?'✓':'✗'));}
+document.getElementById('xfbuild').onclick=function(){mk();drawW3();drawW4();document.getElementById('xfread').textContent='rebuilt over '+KEYS.length+' keys → '+F.m+' slots';};
+document.getElementById('xfquery').onclick=function(){for(var q=0;q<1000;q++){var x=10000000+Math.floor(Math.random()*1e7);TOT++;var s=F.slots(x);if((F.t[s[0]]^F.t[s[1]]^F.t[s[2]])===fpf(x))FP++;}drawW4();document.getElementById('xfread').textContent=TOT+' strangers queried → '+FP+' false positives ('+(100*FP/TOT).toFixed(2)+'%)';};
+document.getElementById('xfcheck').onclick=function(){var v=verify();document.getElementById('xfread').textContent='no false negatives '+(v.noFalseNegatives?'✓':'✗')+' · measured FPR '+v.measured.toFixed(4)+' ≈ 1/256 '+(v.fprMatches?'✓':'✗');};
+document.getElementById('xfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!F)mk();g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.12);
+ var R=120;for(var i=0;i<F.m;i++){var a=i/F.m*6.283,rr=R*(0.55+0.45*(F.t[i]/255));if(F.t[i])ndot(g,Math.cos(a)*rr,Math.sin(a)*rr,1.8,GR);}
+ ndot(g,Math.cos(1.1)*R*0.4,Math.sin(1.1)*R*0.4,4,'#ff2fa6');
+ g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the solved fingerprint table');nt(g,'#ff2fa6',10,H-30,10,'magenta: a rare ~1/256 false positive');nt(g,'#8ad',10,H-13,10,'solve, don\\u2019t just mark');}
+drawW3();drawW4();window.__xor_filter=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ELIA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Elias gamma coding</b> is a self-delimiting code for positive integers &mdash; no length field, no separators, yet a stream of them decodes unambiguously. To encode n: write <b>&lfloor;log&#8322;n&rfloor; zeros</b>, then the plain binary of n (which begins with a 1). The leading zeros tell the decoder exactly how many more bits to read. Its length is <b>2&lfloor;log&#8322;n&rfloor; + 1</b> bits, so small numbers stay tiny &mdash; it is a <b>universal</b> code, near-optimal when small values dominate.<br><br>
+ <span class="lit">LIT</span> verified live: encode&ndash;decode round-trips for thousands of integers, every code length equals 2&lfloor;log&#8322;n&rfloor;+1, and a concatenated stream splits back into the exact original list with no separators (window.__elias). <span class="fig">FIG</span> no framing; encoder, decoder, and the length formula all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hoard</i> &mdash; a hoard of numbers packed with no wasted bits and no separators, each one saying its own length. <b>AVAN (AI)</b> built the instrument: the unary-length-plus-binary encoder, a streaming decoder, and the length-formula check.<br><br>Credit as content: Peter Elias (1975). The weave: David names the packed hoard; I confirm the code round-trips, hits length 2&lfloor;log&#8322;n&rfloor;+1, and that a glued stream decodes uniquely.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="170"></canvas>
+  <div class="wctrl"><div class="cap">A number&rsquo;s gamma code: a run of zeros (the length in unary) then the binary value &mdash; the zeros say how many bits follow.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a value and see its code and length; then decode a glued stream of several numbers back into the original list.</div>
+   <div class="btns" style="margin-top:10px"><button id="elnext">next n ▶</button><button id="elstream">decode a stream ▶</button><button id="elcheck">verify ▶</button></div>
+   <div class="cap" id="elread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the packed bitstream, no separators between numbers.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t store a length field &mdash; let the number carry its own. The inverse of &lsquo;where does this number end?&rsquo; is &lsquo;count the leading zeros; that many more bits complete it.&rsquo; <b>Magenta</b> is the unary length marker; <b>green</b> is the value it delimits. The number says its own length.</div>
+   <div class="btns" style="margin-top:10px"><button id="elspin">pause spin</button></div></div></div></div>"""
+ELIA_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,AU='#ffcf4a',NN=19;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function enc(n){var b=n.toString(2),L=b.length-1,s='';for(var i=0;i<L;i++)s+='0';return s+b;}
+function decStream(bits){var out=[],i=0;while(i<bits.length){var z=0;while(bits[i]==='0'){z++;i++;}var chunk=bits.substr(i,z+1);i+=z+1;out.push(parseInt(chunk,2));}return out;}
+function verify(){if(VR)return VR;var rnd=mb(4),rt=true,lo=true,so=true;for(var t=0;t<5000;t++){var n=1+Math.floor(rnd()*100000),e=enc(n);if(decStream(e)[0]!==n)rt=false;if(e.length!==2*Math.floor(Math.log2(n))+1)lo=false;}for(var t=0;t<2000;t++){var k=1+Math.floor(rnd()*8),nums=[],bits='';for(var i=0;i<k;i++){var n=1+Math.floor(rnd()*5000);nums.push(n);bits+=enc(n);}if(decStream(bits).join(',')!==nums.join(','))so=false;}VR={roundTrip:rt,lengthFormula:lo,streamDecodes:so};return VR;}
+function drawBits(g,bits,split,x0,y,cw){for(var i=0;i<bits.length;i++){var x=x0+i*cw,zone=i<split;if(bits[i]==='1'){nf(g,zone?'#ff2fa6':AU);g.fillRect(x,y,cw-2,26);ng(g);}else{ne(g,zone?'#ff2fa6':'rgba(255,207,74,0.4)',1.2);g.strokeRect(x,y,cw-2,26);ng(g);}nt(g,bits[i]==='1'?'#0a0713':(zone?'#ff2fa6':'#8a7a4a'),x+cw/2-3,y+17,11,bits[i]);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=19,e=enc(n),L=e.length-Math.ceil(e.length/2+0.5),split=Math.floor(Math.log2(n));nt(g,AU,10,16,10,'gamma('+n+') = '+split+' zeros (length in unary) · then binary '+n.toString(2));drawBits(g,e,split,30,60,26);nt(g,'#ff2fa6',30,120,10,'← '+split+' zeros say "read '+(split+1)+' more bits"');nt(g,AU,200,120,10,'value bits →');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var e=enc(NN),split=Math.floor(Math.log2(NN));nt(g,AU,12,22,11,'n = '+NN+'   code '+e+'   length '+e.length);drawBits(g,e,split,14,40,Math.min(26,(W-30)/e.length));
+ nt(g,e.length===2*Math.floor(Math.log2(NN))+1?'#39ffb0':'#ff5a5a',12,100,10,'length '+e.length+' == 2⌊log₂n⌋+1 = '+(2*Math.floor(Math.log2(NN))+1)+' '+(e.length===2*Math.floor(Math.log2(NN))+1?'✓':'✗'));
+ nt(g,decStream(e)[0]===NN?'#39ffb0':'#ff5a5a',12,120,10,'decode → '+decStream(e)[0]+' '+(decStream(e)[0]===NN?'✓':'✗'));
+ var v=verify();nt(g,v.roundTrip&&v.lengthFormula&&v.streamDecodes?'#39ffb0':'#ff5a5a',12,H-12,9,'round-trip '+(v.roundTrip?'✓':'✗')+' · length formula '+(v.lengthFormula?'✓':'✗')+' · stream '+(v.streamDecodes?'✓':'✗'));}
+document.getElementById('elnext').onclick=function(){NN=1+Math.floor(Math.random()*500);drawW4();document.getElementById('elread').textContent='n='+NN+' → '+enc(NN)+' ('+enc(NN).length+' bits)';};
+document.getElementById('elstream').onclick=function(){var nums=[],bits='';for(var i=0;i<5;i++){var n=1+Math.floor(Math.random()*60);nums.push(n);bits+=enc(n);}document.getElementById('elread').textContent='['+nums.join(',')+'] → '+bits+' → decode → ['+decStream(bits).join(',')+']';};
+document.getElementById('elcheck').onclick=function(){var v=verify();document.getElementById('elread').textContent='round-trip '+(v.roundTrip?'✓':'✗')+' · length=2⌊log₂n⌋+1 '+(v.lengthFormula?'✓':'✗')+' · glued stream decodes uniquely '+(v.streamDecodes?'✓':'✗');};
+document.getElementById('elspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var nums=[3,9,1,20,6],bits='';nums.forEach(function(n){bits+=enc(n);});g.save();g.translate(0,Math.sin(ang*0.5)*3);
+ var cw=Math.min(16,(W-40)/bits.length),x0=20,y=H/2-14,pos=0;for(var q=0;q<nums.length;q++){var e=enc(nums[q]),split=Math.floor(Math.log2(nums[q]));for(var i=0;i<e.length;i++){var x=x0+(pos+i)*cw,zone=i<split;if(e[i]==='1'){nf(g,zone?'#ff2fa6':'#35ffb0');g.fillRect(x,y,cw-1,22);ng(g);}else{ne(g,zone?'#ff2fa6':'rgba(53,255,176,0.4)',1);g.strokeRect(x,y,cw-1,22);ng(g);}}pos+=e.length;}
+ g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: values, packed with no separators ['+nums.join(',')+']');nt(g,'#ff2fa6',10,H-30,10,'magenta: each number\\u2019s unary length marker');nt(g,'#8ad',10,H-13,10,'the number says its own length');}
+drawW3();drawW4();window.__elias=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+JMPH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Jump consistent hashing</b> maps a key to one of N buckets so that when N grows, <b>almost no keys move</b> &mdash; and it does so with <b>no lookup table</b>, in a few lines and O(1) memory. It replays a tiny pseudo-random sequence seeded by the key, and each &ldquo;jump&rdquo; decides whether the key hops to a higher bucket; the last bucket it lands on is the answer. Two guarantees fall out: the keys spread <b>uniformly</b> across buckets, and going from N to N+1 buckets relocates only about <b>1/(N+1)</b> of the keys &mdash; and every one that moves goes <b>straight to the new bucket</b>, never shuffling among the old ones.<br><br>
+ <span class="lit">LIT</span> verified live: 100,000 keys spread within a few percent of uniform across the buckets, and growing N&rarr;N+1 moves a fraction ~1/(N+1) of keys, each landing exactly on the new bucket (window.__jump). <span class="fig">FIG</span> no framing; the hash, the distribution, and the remap count all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-push</i> &mdash; adding a node pushes only its fair share of keys onto the newcomer, leaving everyone else untouched. <b>AVAN (AI)</b> built the instrument: the jump hash with a 64-bit LCG, a uniformity check, and a remap sweep from N to N+1.<br><br>Credit as content: John Lamping &amp; Eric Veach (Google, 2014). The weave: David names the push; I confirm the spread is uniform and that only ~1/(N+1) of keys move, all to the new bucket.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="180"></canvas>
+  <div class="wctrl"><div class="cap">Keys spread across the buckets &mdash; a near-flat histogram, no lookup table behind it, just a replayed pseudo-random sequence per key.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Add a bucket; only about 1/(N+1) of the keys move, and every one of them jumps straight to the new bucket &mdash; the rest stay put.</div>
+   <div class="btns" style="margin-top:10px"><button id="jmadd">add a bucket ▶</button><button id="jmrem">remove ▶</button><button id="jmcheck">verify ▶</button></div>
+   <div class="cap" id="jmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: keys resting in their buckets, spread evenly.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t rehash everything when a node joins &mdash; move only the newcomer&rsquo;s share. The inverse of &lsquo;N changed, recompute all&rsquo; is &lsquo;only ~1/(N+1) of keys jump, and only ever <b>onto</b> the new bucket.&rsquo; <b>Magenta</b> are the keys that move; <b>green</b> are the many that stay. Add a node, barely disturb the rest.</div>
+   <div class="btns" style="margin-top:10px"><button id="jmspin">pause spin</button></div></div></div></div>"""
+JMPH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,VI='#b06bff',N=8,T=4000;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function jump(key,buckets){var b=-1n,j=0n,k=BigInt(key>>>0)&0xffffffffffffffffn,B=BigInt(buckets);while(j<B){b=j;k=(k*2862933555777941757n+1n)&0xffffffffffffffffn;var r=Number((k>>33n)+1n);j=BigInt(Math.floor((Number(b)+1)*(2147483648/r)));}return Number(b);}
+function verify(){if(VR)return VR;var uniform=true,minimal=true,toNew=true,NN=10,TT=100000,counts=new Array(NN).fill(0);for(var key=0;key<TT;key++)counts[jump(key,NN)]++;var exp=TT/NN;for(var i=0;i<NN;i++)if(Math.abs(counts[i]-exp)/exp>0.06)uniform=false;var moved=0;for(var key=0;key<TT;key++){var a=jump(key,NN),b=jump(key,NN+1);if(a!==b){moved++;if(b!==NN)toNew=false;}}if(Math.abs(moved/TT-1/(NN+1))>0.01)minimal=false;VR={uniform:uniform,minimalRemap:minimal,movesToNew:toNew,frac:moved/TT};return VR;}
+function hist(N){var c=new Array(N).fill(0);for(var key=0;key<T;key++)c[jump(key,N)]++;return c;}
+function drawHist(g,W,H,N,moved){var c=hist(N),bw=(W-40)/N,x0=20,y0=H-40,mx=Math.max.apply(null,c);for(var i=0;i<N;i++){var h=(c[i]/mx)*(H-90),x=x0+i*bw,isNew=(moved&&i===N-1);nf(g,isNew?'#ff2fa6':VI);g.globalAlpha=0.55;g.fillRect(x,y0-h,bw-4,h);g.globalAlpha=1;ng(g);ne(g,isNew?'#ff2fa6':VI,1.2);g.strokeRect(x,y0-h,bw-4,h);ng(g);nt(g,'#cfe',x+bw/2-6,y0+13,9,'#'+i);}return c;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,VI,10,16,10,T+' keys spread across '+N+' buckets · near-flat, no lookup table');drawHist(g,W,H,N,false);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);drawHist(g,W,H,N,false);nt(g,VI,12,20,11,N+' buckets · '+T+' keys');var v=verify();nt(g,v.uniform?'#39ffb0':'#ff5a5a',12,H-30,10,'uniform spread (within ~6%) '+(v.uniform?'✓':'✗')+' · N→N+1 moves '+(100*v.frac).toFixed(1)+'% ≈ 1/(N+1)');nt(g,v.minimalRemap&&v.movesToNew?'#39ffb0':'#ff5a5a',12,H-12,9,'minimal remap '+(v.minimalRemap?'✓':'✗')+' · moved keys go only to new bucket '+(v.movesToNew?'✓':'✗'));}
+document.getElementById('jmadd').onclick=function(){var before={};for(var key=0;key<T;key++)before[key]=jump(key,N);N++;var moved=0;for(var key=0;key<T;key++)if(jump(key,N)!==before[key])moved++;drawW3();drawW4();document.getElementById('jmread').textContent='added bucket #'+(N-1)+' → '+moved+' of '+T+' keys moved ('+(100*moved/T).toFixed(1)+'%), all onto #'+(N-1);};
+document.getElementById('jmrem').onclick=function(){if(N>2)N--;drawW3();drawW4();document.getElementById('jmread').textContent='now '+N+' buckets';};
+document.getElementById('jmcheck').onclick=function(){var v=verify();document.getElementById('jmread').textContent='uniform '+(v.uniform?'✓':'✗')+' · N→N+1 remaps '+(100*v.frac).toFixed(2)+'% ≈ 1/(N+1) '+(v.minimalRemap?'✓':'✗')+' · only to new bucket '+(v.movesToNew?'✓':'✗');};
+document.getElementById('jmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.1);
+ var R=120,shown=400;for(var key=0;key<shown;key++){var a=key/shown*6.283,bk=jump(key,N),bkn=jump(key,N+1),moved=(bk!==bkn);ndot(g,Math.cos(a)*R,Math.sin(a)*R,moved?3:1.6,moved?'#ff2fa6':'#35ffb0');}
+ g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: keys that stay put when a bucket is added');nt(g,'#ff2fa6',10,H-30,10,'magenta: the ~1/(N+1) that move — all to the new bucket');nt(g,'#8ad',10,H-13,10,'add a node, barely disturb the rest');}
+drawW3();drawW4();window.__jump=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 114 · neon-noir tracing · silicon-coding (search that prunes itself · a set that never says no wrongly · a shorter view of the same lattice · a search that never looks back · the cycles a graph cannot leave) ═══════════════════════
 DPLL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>DPLL</b> (Davis&ndash;Putnam&ndash;Logemann&ndash;Loveland) is the backtracking search under every modern SAT solver. Given a Boolean formula in conjunctive normal form &mdash; an AND of OR-clauses &mdash; it decides whether some assignment of true/false to the variables makes it true. Two moves make it fast: <b>unit propagation</b> (a clause down to one literal <i>forces</i> that literal, cascading), and <b>backtracking</b> (pick a variable, try true, and on a dead end back up and try false). It either returns a satisfying assignment or proves none exists.<br><br>
@@ -30567,6 +30783,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-segment-tree","title":"THE SEGMENT TREE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#21e6ff","icon":"segment-tree",
+  "kicker":"a range in a logarithm of nodes",
+  "blurb":"The segment tree in the 5-window house format — answering range questions (sum, minimum) over an array in O(log n), with point updates just as fast. It is a binary tree over the array: leaves are elements, every internal node the aggregate of its two children. Any range [l,r] splits into at most 2 log n canonical nodes whose stored aggregates already hold the answer, so you never rescan; changing one leaf refreshes only the log n nodes above it. Verified live: over 2000 random arrays with interleaved point-updates, range-sum and range-min queries match a direct rescan every time. Neon-noir traced. See the aggregate tree in 1D, range queries in 2D, and the range-decomposes-into-log-n-nodes inverse in 3D.",
+  "lit":"Genuine segment tree (Bentley; a staple of computational geometry and competitive programming): O(log n) range aggregate + point update via a binary tree of aggregates. Verified live: over 2000 random arrays with updates, range-sum (window.__segment_tree.sumOk) and range-min (.minOk) equal a naive rescan.",
+  "fig":"No framing: the iterative tree queries and the naive rescans both run in-browser and agree after every update. The AVAN inverse is honest — a range covering into O(log n) canonical nodes whose sums are precomputed (rather than scanning l..r) is exactly what buys the logarithm; magenta is the raw range, green the log-n covering nodes. Cover, don't scan.",
+  "body":SEGT_BODY,"script":SEGT_SCRIPT},
+ {"slug":"the-avl","title":"THE AVL TREE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#ff8a3c","icon":"avl",
+  "kicker":"balance kept by rotation",
+  "blurb":"The AVL tree in the 5-window house format — the first self-balancing binary search tree. Every node keeps a balance factor (left height minus right), held in {−1,0,+1}; when an insertion tips a node to ±2, one or two rotations restore the invariant locally. Because no node is ever more than one level lopsided, the height stays near 1.44 log₂n, so search/insert/delete are all guaranteed O(log n) — never the O(n) of a degenerate list. Verified live: over 2000 random insertion sequences, the in-order traversal is always sorted, every balance factor stays within ±1, the height respects the 1.44 log₂n bound, and search finds exactly the inserted keys. Neon-noir traced. See balance factors in 1D, live insertion+rotation in 2D, and the invariant-caps-the-height inverse in 3D.",
+  "lit":"Genuine AVL tree (Georgy Adelson-Velsky & Evgenii Landis, 1962), the first self-balancing BST. Verified live over 2000 random insertion sequences: in-order sorted (window.__avl.sorted), balance factor within ±1 everywhere (.balanced), height ≤ 1.4405 log₂(n+2) (.heightBound), search correct (.searchOk).",
+  "fig":"No framing: the four rotation cases and the invariant checks run in-browser. The AVAN inverse is honest — the ±1 balance invariant is what caps the height at ~1.44 log₂n (a rotation at ±2 keeps every path short), rather than inserting and hoping; magenta is a node tipped to ±2, green the rotation that heals it. The invariant is the guarantee.",
+  "body":AVLT_BODY,"script":AVLT_SCRIPT},
+ {"slug":"the-xor-filter","title":"THE XOR FILTER","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FIREWALL","domain_slug":"the-firewall","accent":"#35ffb0","icon":"xor-filter",
+  "kicker":"a set in 1.23 bytes a key",
+  "blurb":"The XOR filter in the 5-window house format — a modern, leaner cousin of the Bloom filter for a fixed set. It stores a table of small fingerprints so every key x satisfies fp(x) = t[h₀(x)] ⊕ t[h₁(x)] ⊕ t[h₂(x)]. Building it is a graph peeling: repeatedly take a slot touched by only one key and assign it last so the XOR comes out right. It uses ~1.23 bytes per key (smaller than Bloom for the same rate), with no false negatives and a false-positive rate near 2⁻⁸. Verified live: across many builds, every member's three-slot XOR equals its fingerprint, and the false-positive rate on non-members is about 1/256. Neon-noir traced. See the XOR equation in 1D, build+query in 2D, and the peel-and-solve inverse in 3D.",
+  "lit":"Genuine XOR filter (Thomas Mueller Graf & Daniel Lemire, 2020): static membership via fp(x)=⊕ of 3 slots, built by hypergraph peeling, ~1.23 bytes/key. Verified live: every member's three-slot XOR equals its fingerprint — no false negatives (window.__xor_filter.noFalseNegatives) — and the measured FPR on non-members ≈ 1/256 (.fprMatches).",
+  "fig":"No framing: the peeling construction, the XOR membership test, and a false-positive sweep all run in-browser (retrying the peel with a new seed on the rare failure, as the real algorithm does). The AVAN inverse is honest — solving for the table by peeling to a degree-1 order (rather than just setting bits) is what makes the three-slot XOR reproduce every fingerprint; magenta is a rare false positive, green the solved table. Solve, don't just mark.",
+  "body":XORF_BODY,"script":XORF_SCRIPT},
+ {"slug":"the-elias-gamma","title":"THE ELIAS GAMMA","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#ffcf4a","icon":"elias-gamma",
+  "kicker":"a number that says its own length",
+  "blurb":"Elias gamma coding in the 5-window house format — a self-delimiting code for positive integers with no length field and no separators, yet a stream decodes unambiguously. To encode n: write ⌊log₂n⌋ zeros, then the plain binary of n (which begins with a 1); the leading zeros tell the decoder how many more bits to read. Its length is 2⌊log₂n⌋+1 bits, so small numbers stay tiny — a universal code, near-optimal when small values dominate. Verified live: encode–decode round-trips for thousands of integers, every length equals 2⌊log₂n⌋+1, and a concatenated stream splits back into the exact original list. Neon-noir traced. See the code in 1D, a decoded stream in 2D, and the number-carries-its-own-length inverse in 3D.",
+  "lit":"Genuine Elias gamma code (Peter Elias, 1975): universal, self-delimiting code for positive integers; length 2⌊log₂n⌋+1. Verified live: encode/decode round-trip over 5000 integers (window.__elias.roundTrip), length equals the formula (.lengthFormula), and a concatenated stream decodes uniquely (.streamDecodes).",
+  "fig":"No framing: encoder, streaming decoder, and the length-formula check all run in-browser. The AVAN inverse is honest — letting the number carry its own length (count the leading zeros; that many more bits complete it) rather than storing a separate length field is exactly what makes it self-delimiting; magenta is the unary length marker, green the value it delimits. The number says its own length.",
+  "body":ELIA_BODY,"script":ELIA_SCRIPT},
+ {"slug":"the-jump-hash","title":"THE JUMP CONSISTENT HASH","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#b06bff","icon":"jump-hash",
+  "kicker":"buckets that barely move when you add one",
+  "blurb":"Jump consistent hashing in the 5-window house format — mapping a key to one of N buckets so that when N grows, almost no keys move, with no lookup table and O(1) memory. It replays a tiny pseudo-random sequence seeded by the key; each 'jump' decides whether the key hops to a higher bucket, and the last it lands on is the answer. Two guarantees: keys spread uniformly, and going N→N+1 relocates only ~1/(N+1) of keys — each moving straight to the new bucket, never shuffling among the old ones. Verified live: 100,000 keys spread within a few percent of uniform, and N→N+1 moves ~1/(N+1) of keys, each landing on the new bucket. Neon-noir traced. See the flat histogram in 1D, add-a-bucket in 2D, and the move-only-the-newcomer's-share inverse in 3D.",
+  "lit":"Genuine jump consistent hash (John Lamping & Eric Veach, Google, 2014): table-free, O(1)-memory consistent hashing. Verified live: 100k keys uniform within ~6% across buckets (window.__jump.uniform), N→N+1 moves a fraction ≈ 1/(N+1) (.minimalRemap), and every moved key goes only to the new bucket (.movesToNew).",
+  "fig":"No framing: the jump hash (a 64-bit LCG via BigInt), the distribution, and the N→N+1 remap sweep all run in-browser. The AVAN inverse is honest — moving only the newcomer's ~1/(N+1) share (all onto the new bucket) rather than rehashing everything is the whole point of consistent hashing; magenta are the keys that move, green the many that stay. Add a node, barely disturb the rest.",
+  "body":JMPH_BODY,"script":JMPH_SCRIPT},
  {"slug":"the-dpll","title":"THE DPLL","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#21e6ff","icon":"dpll",
   "kicker":"a search that prunes itself",
