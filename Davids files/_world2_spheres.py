@@ -19493,6 +19493,274 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 163 · neon-noir · silicon-coding (signed distances from the circumcenter summing to R+r · four incenters of a cyclic quad forming a rectangle · six side-extension points on one circle · a generalized Ptolemy for tangent circles · every integer a sum of few polygonal numbers) ═══════════════════════
+CARN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Carnot&rsquo;s theorem</b> is a hidden conservation law of the triangle. Take any triangle, its circumcentre O (centre of the circle through all three vertices), and drop a perpendicular from O to each of the three sides. The three <b>signed</b> distances &mdash; positive when O lies on the same side of a line as the opposite vertex, negative otherwise &mdash; always sum to exactly <b>R + r</b>, the circumradius plus the inradius: d<sub>a</sub> + d<sub>b</sub> + d<sub>c</sub> = R + r. The sign convention matters only for obtuse triangles, where O falls outside. Equivalently, cos A + cos B + cos C = 1 + r/R &mdash; the same identity in angle form.<br><br>
+ <span class="lit">LIT</span> verified live: for tens of thousands of random triangles, the sum of the three signed circumcentre-to-side distances equals R + r to ~1e-13, and independently cos A + cos B + cos C equals 1 + r/R (window.__carnot). <span class="fig">FIG</span> no framing; the circumcentre, the signed distances, R, and r are all computed independently in-browser and agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>garbage-collection</i> &mdash; the return: three distances, however they scatter, are always collected back to the fixed budget R + r. <b>AVAN (AI)</b> built the instrument: the circumcentre, the signed side-distances, R, r, and the cos-sum identity.<br><br>Credit as content: Lazare Carnot (French geometer, c.1803). The weave: David names the collected budget; I confirm d<sub>a</sub>+d<sub>b</sub>+d<sub>c</sub> = R+r and cos A+cos B+cos C = 1+r/R.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A triangle, its circumcentre O, and the three perpendiculars to the sides — their signed lengths sum to R+r.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle triangles; dₐ+d_b+d_c is checked equal to R+r, and cosA+cosB+cosC equal to 1+r/R.</div>
+   <div class="btns" style="margin-top:10px"><button id="cnnext">next triangle ▶</button><button id="cncheck">verify ▶</button></div>
+   <div class="cap" id="cnread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the fixed budget R + r.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t measure the three distances separately &mdash; read their sum as one conserved quantity. The inverse of &lsquo;three signed distances&rsquo; is &lsquo;one budget R + r they always collect to&rsquo;. <b>Magenta</b> are the three signed circumcentre-to-side distances; <b>green</b> is the R + r they stack up to. Three distances, one conserved sum.</div>
+   <div class="btns" style="margin-top:10px"><button id="cnspin">pause spin</button></div></div></div></div>"""
+CARN_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+function circum(A,B,C){var ax=A[0],ay=A[1],bx=B[0],by=B[1],cx=C[0],cy=C[1],d=2*(ax*(by-cy)+bx*(cy-ay)+cx*(ay-by));var ux=((ax*ax+ay*ay)*(by-cy)+(bx*bx+by*by)*(cy-ay)+(cx*cx+cy*cy)*(ay-by))/d,uy=((ax*ax+ay*ay)*(cx-bx)+(bx*bx+by*by)*(ax-cx)+(cx*cx+cy*cy)*(bx-ax))/d;return [ux,uy];}
+function sdist(P,U,V,ref){var abx=V[0]-U[0],aby=V[1]-U[1],L=Math.hypot(abx,aby),cr=(P[0]-U[0])*aby-(P[1]-U[1])*abx,cf=(ref[0]-U[0])*aby-(ref[1]-U[1])*abx,d=Math.abs(cr)/L;return cr*cf>=0?d:-d;}
+function footPt(P,U,V){var abx=V[0]-U[0],aby=V[1]-U[1],t=((P[0]-U[0])*abx+(P[1]-U[1])*aby)/(abx*abx+aby*aby);return [U[0]+t*abx,U[1]+t*aby];}
+var ang=0,spin=true,VR=null,A=[-1.7,-1.0],B=[1.9,-1.2],C=[0.2,1.8];
+function selftest(){if(VR)return VR;var rng=mb(1),ok=true,idOk=true,worst=0;for(var t=0;t<40000;t++){var a=[rng()*4-2,rng()*4-2],b=[rng()*4-2,rng()*4-2],c=[rng()*4-2,rng()*4-2],ar=Math.abs((b[0]-a[0])*(c[1]-a[1])-(c[0]-a[0])*(b[1]-a[1]))/2;if(ar<0.1)continue;var la=dist(b,c),lb=dist(c,a),lc=dist(a,b),s=(la+lb+lc)/2,r=ar/s,R=la*lb*lc/(4*ar),O=circum(a,b,c),sum=sdist(O,b,c,a)+sdist(O,c,a,b)+sdist(O,a,b,c),e=Math.abs(sum-(R+r));if(e>worst)worst=e;if(e>1e-8)ok=false;var cA=(lb*lb+lc*lc-la*la)/(2*lb*lc),cB=(la*la+lc*lc-lb*lb)/(2*la*lc),cC=(la*la+lb*lb-lc*lc)/(2*la*lb);if(Math.abs((cA+cB+cC)-(1+r/R))>1e-9)idOk=false;}VR={ok:ok,idOk:idOk,worst:worst};return VR;}
+function tp(cv,q){return [cv.width/2+q[0]*62,cv.height/2+18-q[1]*62];}
+function metrics(){var la=dist(B,C),lb=dist(C,A),lc=dist(A,B),ar=Math.abs((B[0]-A[0])*(C[1]-A[1])-(C[0]-A[0])*(B[1]-A[1]))/2,s=(la+lb+lc)/2,r=ar/s,R=la*lb*lc/(4*ar),O=circum(A,B,C);return {la:la,lb:lb,lc:lc,s:s,r:r,R:R,O:O,da:sdist(O,B,C,A),db:sdist(O,C,A,B),dc:sdist(O,A,B,C)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var m=metrics();nt(g,'#ffcf4a',10,16,10,'circumcentre O, perpendiculars to the 3 sides — signed sum = R+r');
+ var a=tp(cv,A),b=tp(cv,B),c=tp(cv,C),o=tp(cv,m.O);ne(g,'rgba(150,160,210,0.6)',1.8);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.arc(o[0],o[1],m.R*62,0,6.2832);g.stroke();ng(g);
+ [[B,C],[C,A],[A,B]].forEach(function(sd){var f=tp(cv,footPt(m.O,sd[0],sd[1]));ne(g,'#ff2fa6',1.6);g.beginPath();g.moveTo(o[0],o[1]);g.lineTo(f[0],f[1]);g.stroke();ng(g);ndot(g,f[0],f[1],2.5,'#ff2fa6');});
+ [[a,'A'],[b,'B'],[c,'C']].forEach(function(x){ndot(g,x[0][0],x[0][1],4,'#9cf');nt(g,'#9cf',x[0][0]+5,x[0][1],10,x[1]);});ndot(g,o[0],o[1],5,'#35ffb0');nt(g,'#35ffb0',o[0]+6,o[1],10,'O');
+ nt(g,'#8ad',10,H-8,9,'dₐ+d_b+d_c = '+(m.da+m.db+m.dc).toFixed(3)+'   R+r = '+(m.R+m.r).toFixed(3));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var m=metrics();nt(g,'#ffcf4a',12,20,12,'Carnot: Σ signed dist == R + r');
+ nt(g,'#ff2fa6',16,54,12,'dₐ = '+m.da.toFixed(4)+'   d_b = '+m.db.toFixed(4)+'   d_c = '+m.dc.toFixed(4));
+ nt(g,'#35ffb0',16,82,13,'sum = '+(m.da+m.db+m.dc).toFixed(6));
+ nt(g,'#9cf',16,110,13,'R + r = '+m.R.toFixed(4)+' + '+m.r.toFixed(4)+' = '+(m.R+m.r).toFixed(6));
+ nt(g,Math.abs((m.da+m.db+m.dc)-(m.R+m.r))<1e-6?'#39ffb0':'#ff5a5a',16,138,13,Math.abs((m.da+m.db+m.dc)-(m.R+m.r))<1e-6?'equal ✓':'✗');
+ var cA=(m.lb*m.lb+m.lc*m.lc-m.la*m.la)/(2*m.lb*m.lc),cB=(m.la*m.la+m.lc*m.lc-m.lb*m.lb)/(2*m.la*m.lc),cC=(m.la*m.la+m.lb*m.lb-m.lc*m.lc)/(2*m.la*m.lb);
+ nt(g,'#8ad',16,166,10,'cosA+cosB+cosC = '+(cA+cB+cC).toFixed(5)+' = 1+r/R = '+(1+m.r/m.R).toFixed(5));
+ var v=selftest();nt(g,v.ok&&v.idOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×40000 △: Σd=R+r ('+v.ok+', worst '+v.worst.toExponential(1)+') · cos-identity '+v.idOk);
+ nt(g,'#8ad',12,H-16,9,'signs matter only for obtuse triangles (O outside)');}
+function newTri(seed){var rng=mb(seed);for(var k=0;k<400;k++){var a=[rng()*3.4-1.7,rng()*3.4-1.7],b=[rng()*3.4-1.7,rng()*3.4-1.7],c=[rng()*3.4-1.7,rng()*3.4-1.7],ar=Math.abs((b[0]-a[0])*(c[1]-a[1])-(c[0]-a[0])*(b[1]-a[1]))/2;if(ar>0.6){A=a;B=b;C=c;return;}}}
+document.getElementById('cnnext').onclick=function(){newTri((Date.now()&16383)+1);drawW3();drawW4();var m=metrics();document.getElementById('cnread').textContent='new △ — Σ signed dist = '+(m.da+m.db+m.dc).toFixed(4)+' = R+r = '+(m.R+m.r).toFixed(4);};
+document.getElementById('cncheck').onclick=function(){var v=selftest();document.getElementById('cnread').textContent='dₐ+d_b+d_c == R+r for random triangles (40000): '+v.ok+' · cosA+cosB+cosC == 1+r/R: '+v.idOk;};
+document.getElementById('cnspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var m=metrics(),cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ var ds=[m.da,m.db,m.dc],cols=['#ff2fa6','#ff6ab0','#ff9ad0'],sc=70,y=60,acc=0;
+ nt(g,'#8ad',-70,-90,10,'stack the three signed distances →');
+ for(var i=0;i<3;i++){var h=ds[i]*sc;ne(g,cols[i],6);g.beginPath();g.moveTo(-40,y-acc);g.lineTo(-40,y-acc-h);g.stroke();ng(g);acc+=h;}
+ var tot=(m.R+m.r)*sc;ne(g,'#35ffb0',6);g.beginPath();g.moveTo(30,y);g.lineTo(30,y-tot);g.stroke();ng(g);nt(g,'#35ffb0',44,y-tot/2,11,'R+r');
+ ndot(g,-40,y-acc,4,'#35ffb0');ndot(g,30,y-tot,4,'#35ffb0');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the conserved budget R+r = '+(m.R+m.r).toFixed(3));nt(g,'#ff2fa6',10,H-34,10,'magenta: the three signed circumcentre-to-side distances');nt(g,'#8ad',10,H-14,10,'three distances, one conserved sum');}
+drawW3();drawW4();window.__carnot=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+JAPN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Japanese theorem for cyclic quadrilaterals</b> is a small miracle of hidden order. Take any four points A, B, C, D on a circle, forming a cyclic quadrilateral. From the four vertices, form the four triangles that each drop one vertex: &triangle;ABC, &triangle;BCD, &triangle;CDA, &triangle;DAB. Find the <b>incentre</b> (centre of the inscribed circle) of each. The astonishing fact: those four incentres always form a <b>rectangle</b> &mdash; four right angles, no matter how irregular the original quadrilateral. The result is named for the <i>sangaku</i> tradition of theorems inscribed on wooden tablets in Edo-period Japanese temples.<br><br>
+ <span class="lit">LIT</span> verified live: for tens of thousands of random cyclic quadrilaterals, the four incentres are equidistant from their common centroid and centrally symmetric &mdash; the defining conditions of a rectangle &mdash; to ~1e-6 (window.__japanese). <span class="fig">FIG</span> no framing; the four incentres and the rectangle test are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-toolchain</i> &mdash; the spawn: four scattered incentres compile, every time, into a clean rectangle. <b>AVAN (AI)</b> built the instrument: the four triangle incentres and the rectangle test (equidistant from centroid + central symmetry).<br><br>Credit as content: the Japanese <i>sangaku</i> tradition (Edo period); the cyclic-quadrilateral form attributed to Carnot. The weave: David names the compile; I confirm the four incentres form a rectangle.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A cyclic quadrilateral, its four sub-triangle incentres, and the rectangle they always form.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle quadrilaterals; the four incentres are checked to form a rectangle (right angles, equal diagonals).</div>
+   <div class="btns" style="margin-top:10px"><button id="jpnext">next quad ▶</button><button id="jpcheck">verify ▶</button></div>
+   <div class="cap" id="jpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the rectangle the four incentres form.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t read four separate incentres &mdash; read the single rectangle they encode. The inverse of &lsquo;four triangle incentres&rsquo; is &lsquo;one rectangle with four right angles&rsquo;, guaranteed for any cyclic quad. <b>Magenta</b> are the four incentres (and their triangles); <b>green</b> is the rectangle they lock into. Scattered centres, one hidden rectangle.</div>
+   <div class="btns" style="margin-top:10px"><button id="jpspin">pause spin</button></div></div></div></div>"""
+JAPN_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+function incenter(A,B,C){var a=dist(B,C),b=dist(C,A),c=dist(A,B),p=a+b+c;return [(a*A[0]+b*B[0]+c*C[0])/p,(a*A[1]+b*B[1]+c*C[1])/p];}
+var ang=0,spin=true,VR=null,QA=[0.6,2.0,3.6,5.3];
+function incs(angs){var P=angs.map(function(a){return [Math.cos(a),Math.sin(a)];}),A=P[0],B=P[1],C=P[2],D=P[3];return [incenter(A,B,C),incenter(B,C,D),incenter(C,D,A),incenter(D,A,B)];}
+function rectErr(I){var G=[(I[0][0]+I[1][0]+I[2][0]+I[3][0])/4,(I[0][1]+I[1][1]+I[2][1]+I[3][1])/4],rr=I.map(function(p){return dist(p,G);}),rmax=Math.max.apply(null,rr),rmin=Math.min.apply(null,rr),eqR=(rmax-rmin)/(rmax+1e-9);var p1=Math.hypot((I[0][0]+I[2][0])-(I[1][0]+I[3][0]),(I[0][1]+I[2][1])-(I[1][1]+I[3][1])),p2=Math.hypot((I[0][0]+I[1][0])-(I[2][0]+I[3][0]),(I[0][1]+I[1][1])-(I[2][1]+I[3][1])),p3=Math.hypot((I[0][0]+I[3][0])-(I[1][0]+I[2][0]),(I[0][1]+I[3][1])-(I[1][1]+I[2][1])),par=Math.min(p1,p2,p3);return Math.max(eqR,par/(rmax+1e-9));}
+function selftest(){if(VR)return VR;var rng=mb(2),ok=true,worst=0,n=0;for(var t=0;t<30000;t++){var angs=[rng()*6.2832,rng()*6.2832,rng()*6.2832,rng()*6.2832].sort(function(x,y){return x-y;}),okS=true;for(var i=0;i<4;i++){var gp=(angs[(i+1)%4]-angs[i]+6.2832)%6.2832;if(gp<0.25)okS=false;}if(!okS)continue;var e=rectErr(incs(angs));if(e>worst)worst=e;if(e>1e-6)ok=false;n++;}VR={ok:ok,worst:worst,n:n};return VR;}
+function tp(cv,q){return [cv.width/2+q[0]*95,cv.height/2+8-q[1]*95];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'cyclic quad ABCD → incentres of △ABC,△BCD,△CDA,△DAB form a rectangle');
+ var cx=W/2,cy=H/2+8,R=95;ne(g,'rgba(120,140,200,0.35)',1);g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();ng(g);
+ var P=QA.map(function(a){return [Math.cos(a),Math.sin(a)];});ne(g,'rgba(150,160,210,0.6)',1.6);g.beginPath();for(var i=0;i<4;i++){var p=tp(cv,P[i]);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.closePath();g.stroke();ng(g);
+ var nm=['A','B','C','D'];P.forEach(function(pp,i){var p=tp(cv,pp);ndot(g,p[0],p[1],4,'#9cf');nt(g,'#9cf',p[0]+5,p[1],10,nm[i]);});
+ var I=incs(QA);ne(g,'#35ffb0',2);g.beginPath();for(var i=0;i<4;i++){var q=tp(cv,I[i]);if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}g.closePath();g.stroke();ng(g);
+ I.forEach(function(ii){var q=tp(cv,ii);ndot(g,q[0],q[1],4,'#ff2fa6');});
+ nt(g,'#8ad',10,H-8,9,'the four magenta incentres form the green rectangle (rect-error '+rectErr(I).toExponential(1)+')');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var I=incs(QA),err=rectErr(I);nt(g,'#21e6ff',12,20,12,'do the 4 incentres form a rectangle?');
+ var G=[(I[0][0]+I[1][0]+I[2][0]+I[3][0])/4,(I[0][1]+I[1][1]+I[2][1]+I[3][1])/4],rr=I.map(function(p){return dist(p,G);});
+ nt(g,'#9cf',16,54,11,'distances of incentres from centroid:');
+ for(var i=0;i<4;i++)nt(g,'#ff2fa6',24,78+i*22,11,'r'+(i+1)+' = '+rr[i].toFixed(5));
+ nt(g,'#35ffb0',16,176,11,'all equal (concyclic about centroid) → diagonals equal');
+ nt(g,err<1e-6?'#39ffb0':'#ff5a5a',16,202,13,err<1e-6?'RECTANGLE ✓ (error '+err.toExponential(1)+')':'✗ '+err.toExponential(1));
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.n+' cyclic quads: 4 incentres form a rectangle = '+v.ok+' (worst '+v.worst.toExponential(1)+')');
+ nt(g,'#8ad',12,H-16,9,'a sangaku theorem: hidden right angles in any cyclic quad');}
+function newQuad(seed){var rng=mb(seed);for(var k=0;k<300;k++){var angs=[rng()*6.2832,rng()*6.2832,rng()*6.2832,rng()*6.2832].sort(function(x,y){return x-y;}),okS=true;for(var i=0;i<4;i++){var gp=(angs[(i+1)%4]-angs[i]+6.2832)%6.2832;if(gp<0.45)okS=false;}if(okS){QA=angs;return;}}}
+document.getElementById('jpnext').onclick=function(){newQuad((Date.now()&16383)+1);drawW3();drawW4();document.getElementById('jpread').textContent='new cyclic quad — rectangle error = '+rectErr(incs(QA)).toExponential(2)+' (≈ 0)';};
+document.getElementById('jpcheck').onclick=function(){var v=selftest();document.getElementById('jpread').textContent='4 incentres of a cyclic quad form a rectangle ('+v.n+' quads): '+v.ok;};
+document.getElementById('jpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var I=incs(QA),cx=W/2,cy=H/2-10,G=[(I[0][0]+I[1][0]+I[2][0]+I[3][0])/4,(I[0][1]+I[1][1]+I[2][1]+I[3][1])/4];g.save();g.translate(cx,cy);g.rotate(ang*0.05);var sc=150;
+ var P=QA.map(function(a){return [Math.cos(a),Math.sin(a)];});ne(g,'rgba(150,160,210,0.3)',1.2);g.beginPath();for(var i=0;i<4;i++){var p=[(P[i][0]-G[0])*sc,-(P[i][1]-G[1])*sc];if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.closePath();g.stroke();ng(g);
+ ne(g,'#35ffb0',2.4);g.beginPath();for(var i=0;i<4;i++){var q=[(I[i][0]-G[0])*sc,-(I[i][1]-G[1])*sc];if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}g.closePath();g.stroke();ng(g);
+ I.forEach(function(ii){var q=[(ii[0]-G[0])*sc,-(ii[1]-G[1])*sc];ndot(g,q[0],q[1],4,'#ff2fa6');});ndot(g,0,0,3,'#8ad');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the rectangle the four incentres always form');nt(g,'#ff2fa6',10,H-34,10,'magenta: the four sub-triangle incentres');nt(g,'#8ad',10,H-14,10,'scattered centres, one hidden rectangle');}
+drawW3();drawW4();window.__japanese=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CNWY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Conway&rsquo;s circle theorem</b> (John Horton Conway) is a six-point surprise. Take any triangle and, at each vertex, extend the two sides <b>beyond that vertex by the length of the side opposite it</b>: beyond B extend both adjoining side-lines by b (= CA), beyond C by c (= AB), beyond A by a (= BC). This produces six new endpoints. The theorem: all <b>six lie on a single circle</b> &mdash; the Conway circle &mdash; centred at the triangle&rsquo;s <b>incentre</b> I, with radius exactly &radic;(r&sup2; + s&sup2;), where r is the inradius and s the semiperimeter. The proof is a one-line consequence: each extension lands a distance s from the point where the incircle touches that side.<br><br>
+ <span class="lit">LIT</span> verified live: for tens of thousands of random triangles, all six extension points are equidistant from the incentre, at distance &radic;(r&sup2;+s&sup2;), to ~1e-13 (window.__conwaycircle). <span class="fig">FIG</span> no framing; the incentre, r, s, and the six points are all computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mint</i> &mdash; the loot: extend the sides by the opposite lengths and six points are minted, all on one perfect circle. <b>AVAN (AI)</b> built the instrument: the six side-extension points, the incentre, and the radius &radic;(r&sup2;+s&sup2;).<br><br>Credit as content: John Horton Conway. The weave: David names the mint; I confirm the six points share the circle of radius &radic;(r&sup2;+s&sup2;) about the incentre.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A triangle with its sides extended by the opposite lengths — the six endpoints all land on the Conway circle.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle triangles; all six distances to the incentre are checked equal to √(r²+s²).</div>
+   <div class="btns" style="margin-top:10px"><button id="cwnext">next triangle ▶</button><button id="cwcheck">verify ▶</button></div>
+   <div class="cap" id="cwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Conway circle, radius √(r²+s²) about the incentre.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t track six loose endpoints &mdash; read the one circle they share. The inverse of &lsquo;six side-extension points&rsquo; is &lsquo;one circle of radius &radic;(r&sup2;+s&sup2;) about the incentre&rsquo;. <b>Magenta</b> are the six extension points; <b>green</b> is the circle they all sit on. Six points, one minted circle.</div>
+   <div class="btns" style="margin-top:10px"><button id="cwspin">pause spin</button></div></div></div></div>"""
+CNWY_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+function incenter(A,B,C){var a=dist(B,C),b=dist(C,A),c=dist(A,B),p=a+b+c;return [(a*A[0]+b*B[0]+c*C[0])/p,(a*A[1]+b*B[1]+c*C[1])/p];}
+function udir(P,Q){var dx=Q[0]-P[0],dy=Q[1]-P[1],L=Math.hypot(dx,dy);return [dx/L,dy/L];}
+var ang=0,spin=true,VR=null,A=[-1.5,-1.0],B=[1.8,-1.1],C=[0.0,1.7];
+function conwayPts(A,B,C){var a=dist(B,C),b=dist(C,A),c=dist(A,B),uBC=udir(B,C),uCA=udir(C,A),uAB=udir(A,B);
+ return [[B[0]-uBC[0]*b,B[1]-uBC[1]*b],[C[0]+uBC[0]*c,C[1]+uBC[1]*c],[C[0]-uCA[0]*c,C[1]-uCA[1]*c],[A[0]+uCA[0]*a,A[1]+uCA[1]*a],[A[0]-uAB[0]*a,A[1]-uAB[1]*a],[B[0]+uAB[0]*b,B[1]+uAB[1]*b]];}
+function metrics(A,B,C){var a=dist(B,C),b=dist(C,A),c=dist(A,B),ar=Math.abs((B[0]-A[0])*(C[1]-A[1])-(C[0]-A[0])*(B[1]-A[1]))/2,s=(a+b+c)/2,r=ar/s;return {I:incenter(A,B,C),r:r,s:s,Rc:Math.sqrt(r*r+s*s)};}
+function selftest(){if(VR)return VR;var rng=mb(3),ok=true,worst=0;for(var t=0;t<40000;t++){var a=[rng()*4-2,rng()*4-2],b=[rng()*4-2,rng()*4-2],c=[rng()*4-2,rng()*4-2],ar=Math.abs((b[0]-a[0])*(c[1]-a[1])-(c[0]-a[0])*(b[1]-a[1]))/2;if(ar<0.1)continue;var m=metrics(a,b,c),P=conwayPts(a,b,c),e=0;for(var i=0;i<6;i++)e=Math.max(e,Math.abs(dist(P[i],m.I)-m.Rc));if(e>worst)worst=e;if(e>1e-8)ok=false;}VR={ok:ok,worst:worst};return VR;}
+function fit(cv){var P=conwayPts(A,B,C),xs=P.map(function(p){return p[0];}).concat([A[0],B[0],C[0]]),ys=P.map(function(p){return p[1];}).concat([A[1],B[1],C[1]]),mnx=Math.min.apply(null,xs),mxx=Math.max.apply(null,xs),mny=Math.min.apply(null,ys),mxy=Math.max.apply(null,ys),sc=Math.min((cv.width-50)/(mxx-mnx),(cv.height-60)/(mxy-mny)),cx=(mnx+mxx)/2,cy=(mny+mxy)/2;return {sc:sc,cx:cx,cy:cy};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'sides extended by opposite lengths → six points on the Conway circle');
+ var f=fit(cv),m=metrics(A,B,C),P=conwayPts(A,B,C);function tp(q){return [W/2+(q[0]-f.cx)*f.sc,H/2+10-(q[1]-f.cy)*f.sc];}
+ var I=tp(m.I);ne(g,'#35ffb0',1.8);g.beginPath();g.arc(I[0],I[1],m.Rc*f.sc,0,6.2832);g.stroke();ng(g);
+ var a=tp(A),b=tp(B),c=tp(C);ne(g,'rgba(150,160,210,0.7)',1.8);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ P.forEach(function(pp){var p=tp(pp);ne(g,'rgba(176,107,255,0.4)',1);g.beginPath();g.moveTo(I[0],I[1]);g.lineTo(p[0],p[1]);g.stroke();ng(g);ndot(g,p[0],p[1],4,'#ff2fa6');});
+ [[a,'A'],[b,'B'],[c,'C']].forEach(function(x){ndot(g,x[0][0],x[0][1],4,'#9cf');nt(g,'#9cf',x[0][0]+5,x[0][1],10,x[1]);});ndot(g,I[0],I[1],4,'#35ffb0');nt(g,'#35ffb0',I[0]+6,I[1],10,'I');
+ nt(g,'#8ad',10,H-8,9,'all six magenta points at radius √(r²+s²) = '+m.Rc.toFixed(3)+' from incentre I');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var m=metrics(A,B,C),P=conwayPts(A,B,C);nt(g,'#b06bff',12,20,12,'six distances to incentre vs √(r²+s²)');
+ nt(g,'#9cf',16,50,11,'r = '+m.r.toFixed(4)+'   s = '+m.s.toFixed(4)+'   √(r²+s²) = '+m.Rc.toFixed(5));
+ var e=0;for(var i=0;i<6;i++){var d=dist(P[i],m.I);e=Math.max(e,Math.abs(d-m.Rc));nt(g,'#ff2fa6',24,76+i*20,10,'|IP'+(i+1)+'| = '+d.toFixed(6));}
+ nt(g,e<1e-6?'#39ffb0':'#ff5a5a',16,204,13,e<1e-6?'all six equal √(r²+s²) ✓':'✗ '+e.toExponential(1));
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×40000 △: six points concyclic about incentre = '+v.ok+' (worst '+v.worst.toExponential(1)+')');
+ nt(g,'#8ad',12,H-16,9,'each extension lands distance s from the incircle touch-point');}
+function newTri(seed){var rng=mb(seed);for(var k=0;k<400;k++){var a=[rng()*3.2-1.6,rng()*3.2-1.6],b=[rng()*3.2-1.6,rng()*3.2-1.6],c=[rng()*3.2-1.6,rng()*3.2-1.6],ar=Math.abs((b[0]-a[0])*(c[1]-a[1])-(c[0]-a[0])*(b[1]-a[1]))/2;if(ar>0.6){A=a;B=b;C=c;return;}}}
+document.getElementById('cwnext').onclick=function(){newTri((Date.now()&16383)+1);drawW3();drawW4();var m=metrics(A,B,C);document.getElementById('cwread').textContent='new △ — Conway radius √(r²+s²) = '+m.Rc.toFixed(4)+', all six points on it';};
+document.getElementById('cwcheck').onclick=function(){var v=selftest();document.getElementById('cwread').textContent='six side-extension points concyclic about incentre (40000 △): '+v.ok;};
+document.getElementById('cwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var m=metrics(A,B,C),P=conwayPts(A,B,C),cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);var sc=110/m.Rc;
+ ne(g,'#35ffb0',2.4);g.beginPath();g.arc(0,0,m.Rc*sc,0,6.2832);g.stroke();ng(g);
+ P.forEach(function(pp){var q=[(pp[0]-m.I[0])*sc,-(pp[1]-m.I[1])*sc];ne(g,'rgba(255,47,166,0.5)',1.2);g.beginPath();g.moveTo(0,0);g.lineTo(q[0],q[1]);g.stroke();ng(g);ndot(g,q[0],q[1],4,'#ff2fa6');});
+ ndot(g,0,0,4,'#35ffb0');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the Conway circle, radius √(r²+s²) = '+m.Rc.toFixed(3));nt(g,'#ff2fa6',10,H-34,10,'magenta: the six side-extension points');nt(g,'#8ad',10,H-14,10,'six points, one minted circle');}
+drawW3();drawW4();window.__conwaycircle=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CASE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Casey&rsquo;s theorem</b> is Ptolemy&rsquo;s theorem for <b>circles</b>. Ptolemy says: for four points on a circle in order, the products of opposite chord-pairs relate as AC&middot;BD = AB&middot;CD + AD&middot;BC. Casey generalizes each point to a whole circle tangent to a common circle. Replace the four points by four circles all internally tangent to one enclosing circle, in cyclic order, and replace each chord by the <b>tangent length</b> t<sub>ij</sub> (the length of the common tangent segment) between circles i and j. Then the very same relation holds: <b>t<sub>12</sub>&middot;t<sub>34</sub> + t<sub>23</sub>&middot;t<sub>14</sub> = t<sub>13</sub>&middot;t<sub>24</sub></b>. Shrink the circles to points and it collapses back to Ptolemy.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random configurations of four circles internally tangent to a circle, the tangent lengths satisfy t<sub>12</sub>t<sub>34</sub> + t<sub>23</sub>t<sub>14</sub> = t<sub>13</sub>t<sub>24</sub> to ~1e-15, and the point-circle limit reproduces Ptolemy exactly (window.__casey). <span class="fig">FIG</span> no framing; the centres, tangent lengths, and the relation are all computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-epoch</i> &mdash; the grind toward generality: Ptolemy&rsquo;s point-relation, ground outward until points become circles and chords become tangent lengths. <b>AVAN (AI)</b> built the instrument: the four tangent circles, the six tangent lengths, and the Ptolemy-form relation.<br><br>Credit as content: John Casey (Irish geometer, 1866); Ptolemy of Alexandria for the point case. The weave: David names the generalization; I confirm t<sub>12</sub>t<sub>34</sub>+t<sub>23</sub>t<sub>14</sub> = t<sub>13</sub>t<sub>24</sub>.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Four circles inside a circle, with the tangent segments between them — the Casey (generalized Ptolemy) relation.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle configurations; t₁₂t₃₄ + t₂₃t₁₄ is checked equal to t₁₃t₂₄.</div>
+   <div class="btns" style="margin-top:10px"><button id="csnext">next config ▶</button><button id="cscheck">verify ▶</button></div>
+   <div class="cap" id="csread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the satisfied Ptolemy-form relation among tangent lengths.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t treat points and circles as different problems &mdash; read circles as fattened points. The inverse of &lsquo;Ptolemy for four points&rsquo; is &lsquo;Casey for four tangent circles&rsquo;, the same relation with tangent lengths for chords. <b>Magenta</b> are the six tangent lengths; <b>green</b> is the equality t<sub>12</sub>t<sub>34</sub>+t<sub>23</sub>t<sub>14</sub> = t<sub>13</sub>t<sub>24</sub>. Points fattened into circles, one relation.</div>
+   <div class="btns" style="margin-top:10px"><button id="csspin">pause spin</button></div></div></div></div>"""
+CASE_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+var ang=0,spin=true,VR=null,CFG=null;
+function genCfg(seed){var rng=mb(seed);for(var k=0;k<400;k++){var angs=[rng()*6.2832,rng()*6.2832,rng()*6.2832,rng()*6.2832].sort(function(x,y){return x-y;}),okS=true;for(var i=0;i<4;i++){var gp=(angs[(i+1)%4]-angs[i]+6.2832)%6.2832;if(gp<0.5)okS=false;}if(!okS)continue;var rho=[0.04+rng()*0.13,0.04+rng()*0.13,0.04+rng()*0.13,0.04+rng()*0.13];return {angs:angs,rho:rho,C:angs.map(function(a,i){return [(1-rho[i])*Math.cos(a),(1-rho[i])*Math.sin(a)];})};}return {angs:[0.4,1.8,3.3,5.0],rho:[0.08,0.1,0.07,0.09],C:[[0.4,1.8],[0,0],[0,0],[0,0]]};}
+function tlen(cfg,i,j){var d=dist(cfg.C[i],cfg.C[j]),v=d*d-(cfg.rho[i]-cfg.rho[j])*(cfg.rho[i]-cfg.rho[j]);return v>0?Math.sqrt(v):0;}
+function relErr(cfg){var t12=tlen(cfg,0,1),t34=tlen(cfg,2,3),t23=tlen(cfg,1,2),t14=tlen(cfg,0,3),t13=tlen(cfg,0,2),t24=tlen(cfg,1,3);return {lhs:t12*t34+t23*t14,rhs:t13*t24,t:[t12,t34,t23,t14,t13,t24]};}
+function selftest(){if(VR)return VR;var rng=mb(4),ok=true,worst=0,n=0;for(var trial=0;trial<30000;trial++){var angs=[rng()*6.2832,rng()*6.2832,rng()*6.2832,rng()*6.2832].sort(function(x,y){return x-y;}),okS=true;for(var i=0;i<4;i++){var gp=(angs[(i+1)%4]-angs[i]+6.2832)%6.2832;if(gp<0.4)okS=false;}if(!okS)continue;var rho=[0.02+rng()*0.15,0.02+rng()*0.15,0.02+rng()*0.15,0.02+rng()*0.15],cfg={angs:angs,rho:rho,C:angs.map(function(a,i){return [(1-rho[i])*Math.cos(a),(1-rho[i])*Math.sin(a)];})},re=relErr(cfg),e=Math.abs(re.lhs-re.rhs)/(re.rhs+1e-9);if(e>worst)worst=e;if(e>1e-7)ok=false;n++;}var aa=[0.3,1.4,2.9,4.7],Pp=aa.map(function(a){return [Math.cos(a),Math.sin(a)];});function ch(i,j){return dist(Pp[i],Pp[j]);}var ptol=Math.abs((ch(0,1)*ch(2,3)+ch(1,2)*ch(0,3))-ch(0,2)*ch(1,3));VR={ok:ok,worst:worst,n:n,ptol:ptol<1e-9};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'4 circles tangent inside a circle — tangent lengths obey Ptolemy');
+ var cx=W/2,cy=H/2+10,R=Math.min(115,(H-70)/2);ne(g,'rgba(120,140,200,0.5)',1.6);g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();ng(g);
+ function tp(q){return [cx+q[0]*R,cy-q[1]*R];}var nm=['1','2','3','4'];
+ for(var i=0;i<4;i++){var p=tp(CFG.C[i]);ne(g,'rgba(255,138,60,0.8)',1.6);g.beginPath();g.arc(p[0],p[1],CFG.rho[i]*R,0,6.2832);g.stroke();ng(g);nt(g,'#ffce9a',p[0]-3,p[1]+3,10,nm[i]);}
+ var pairs=[[0,1],[1,2],[2,3],[0,3]];pairs.forEach(function(pr){var a=tp(CFG.C[pr[0]]),b=tp(CFG.C[pr[1]]);ne(g,'rgba(255,47,166,0.55)',1.2);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);});
+ var diag=[[0,2],[1,3]];diag.forEach(function(pr){var a=tp(CFG.C[pr[0]]),b=tp(CFG.C[pr[1]]);ne(g,'rgba(53,255,176,0.5)',1.2);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);});
+ var re=relErr(CFG);nt(g,'#8ad',10,H-8,9,'t₁₂t₃₄+t₂₃t₁₄ = '+re.lhs.toFixed(4)+'   t₁₃t₂₄ = '+re.rhs.toFixed(4));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var re=relErr(CFG);nt(g,'#ff8a3c',12,20,12,'Casey: t₁₂t₃₄ + t₂₃t₁₄ == t₁₃t₂₄');
+ var lbl=['t₁₂','t₃₄','t₂₃','t₁₄','t₁₃','t₂₄'];for(var i=0;i<6;i++)nt(g,i<4?'#ff2fa6':'#35ffb0',16+(i%2)*180,54+Math.floor(i/2)*24,11,lbl[i]+' = '+re.t[i].toFixed(4));
+ nt(g,'#ff2fa6',16,140,12,'t₁₂t₃₄ + t₂₃t₁₄ = '+re.lhs.toFixed(6));
+ nt(g,'#35ffb0',16,166,12,'t₁₃t₂₄ = '+re.rhs.toFixed(6));
+ nt(g,Math.abs(re.lhs-re.rhs)<1e-6?'#39ffb0':'#ff5a5a',16,192,13,Math.abs(re.lhs-re.rhs)<1e-6?'equal ✓':'✗');
+ var v=selftest();nt(g,v.ok&&v.ptol?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.n+' configs: '+v.ok+' (worst rel '+v.worst.toExponential(1)+') · point-limit→Ptolemy '+v.ptol);
+ nt(g,'#8ad',12,H-16,9,'shrink the circles to points → Ptolemy for four concyclic points');}
+document.getElementById('csnext').onclick=function(){CFG=genCfg((Date.now()&16383)+1);drawW3();drawW4();var re=relErr(CFG);document.getElementById('csread').textContent='new config — t₁₂t₃₄+t₂₃t₁₄ = '+re.lhs.toFixed(4)+' = t₁₃t₂₄ = '+re.rhs.toFixed(4);};
+document.getElementById('cscheck').onclick=function(){var v=selftest();document.getElementById('csread').textContent='t₁₂t₃₄+t₂₃t₁₄ == t₁₃t₂₄ for tangent circles ('+v.n+'): '+v.ok+' · reduces to Ptolemy: '+v.ptol;};
+document.getElementById('csspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var re=relErr(CFG),cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ var R=110;ne(g,'rgba(120,140,200,0.35)',1.2);g.beginPath();g.arc(0,0,R,0,6.2832);g.stroke();ng(g);
+ var P=CFG.C.map(function(q){return [q[0]*R,-q[1]*R];});var pairs=[[0,1],[1,2],[2,3],[0,3]];pairs.forEach(function(pr){ne(g,'#ff2fa6',1.6);g.beginPath();g.moveTo(P[pr[0]][0],P[pr[0]][1]);g.lineTo(P[pr[1]][0],P[pr[1]][1]);g.stroke();ng(g);});
+ [[0,2],[1,3]].forEach(function(pr){ne(g,'#35ffb0',2);g.beginPath();g.moveTo(P[pr[0]][0],P[pr[0]][1]);g.lineTo(P[pr[1]][0],P[pr[1]][1]);g.stroke();ng(g);});
+ for(var i=0;i<4;i++){ne(g,'rgba(255,138,60,0.7)',1.4);g.beginPath();g.arc(P[i][0],P[i][1],CFG.rho[i]*R,0,6.2832);g.stroke();ng(g);ndot(g,P[i][0],P[i][1],2,'#ffce9a');}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green (diagonals): t₁₃t₂₄ = '+re.rhs.toFixed(3)+' = magenta sum');nt(g,'#ff2fa6',10,H-34,10,'magenta (sides): t₁₂t₃₄ + t₂₃t₁₄ = '+re.lhs.toFixed(3));nt(g,'#8ad',10,H-14,10,'points fattened into circles, one relation');}
+CFG=genCfg(7);drawW3();drawW4();window.__casey=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FPOL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Fermat&rsquo;s polygonal number theorem</b> is one of the great cheat-codes of arithmetic. The k-gonal numbers are the figurate numbers you get by stacking polygons: triangular (1, 3, 6, 10, &hellip;), square (1, 4, 9, 16, &hellip;), pentagonal (1, 5, 12, 22, &hellip;), and so on. Fermat claimed &mdash; and it is true &mdash; that <b>every positive integer is the sum of at most k of the k-gonal numbers</b>: at most 3 triangular numbers, at most 4 squares, at most 5 pentagonal, at most 6 hexagonal, forever. Gauss proved the triangular case (his diary: &lsquo;EYPHKA! num = &Delta;+&Delta;+&Delta;&rsquo;), Lagrange the four-squares case, and Cauchy the general theorem in 1813.<br><br>
+ <span class="lit">LIT</span> verified live: a dynamic-programming search confirms that every integer up to 2000 is a sum of at most k k-gonal numbers, for k = 3 through 8 &mdash; and the bound is sharp (the maximum needed is exactly k) (window.__fermatpolygonal). <span class="fig">FIG</span> no framing; the k-gonal numbers and the minimal representations are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-konami-code</i> &mdash; the cheat: any number whatsoever cracks open into at most k k-gonal pieces, a universal shortcut. <b>AVAN (AI)</b> built the instrument: the k-gonal numbers and the minimum-count decomposition for every n.<br><br>Credit as content: Pierre de Fermat (conjecture, 1638); Gauss (triangular), Lagrange (squares), Augustin-Louis Cauchy (general proof, 1813). The weave: David names the cheat; I confirm every n &le; 2000 needs at most k k-gonal numbers.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A chosen n broken into its fewest k-gonal pieces — never more than k of them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle k and n; the minimum number of k-gonal numbers summing to n is checked to be ≤ k.</div>
+   <div class="btns" style="margin-top:10px"><button id="fpk">next k ▶</button><button id="fpn">next n ▶</button><button id="fpcheck">verify ▶</button></div>
+   <div class="cap" id="fpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the integer n, reachable by at most k k-gonal numbers.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t build n up &mdash; crack it down. The inverse of &lsquo;the integer n&rsquo; is &lsquo;its decomposition into at most k k-gonal numbers&rsquo;, a shortcut guaranteed to exist. <b>Magenta</b> are the k-gonal pieces; <b>green</b> is the n they sum to. Any number, at most k figurate pieces.</div>
+   <div class="btns" style="margin-top:10px"><button id="fpspin">pause spin</button></div></div></div></div>"""
+FPOL_SCRIPT = """(function(){""" + NOIR + """
+function gonal(k,n){return ((k-2)*n*n-(k-4)*n)/2;}
+var ang=0,spin=true,VR=null,dk=5,dn=137;
+function gonList(k,N){var g=[];for(var i=1;gonal(k,i)<=N;i++)g.push(gonal(k,i));return g;}
+function minRep(k,n){var g=gonList(k,n),dp=new Array(n+1).fill(999),prev=new Array(n+1).fill(-1);dp[0]=0;for(var gi=0;gi<g.length;gi++)for(var v=g[gi];v<=n;v++)if(dp[v-g[gi]]+1<dp[v]){dp[v]=dp[v-g[gi]]+1;prev[v]=g[gi];}var pieces=[],x=n;while(x>0){pieces.push(prev[x]);x-=prev[x];}return {count:dp[n],pieces:pieces};}
+function selftest(){if(VR)return VR;var N=2000,ok=true,rows=[];for(var k=3;k<=8;k++){var g=gonList(k,N),dp=new Array(N+1).fill(999);dp[0]=0;for(var gi=0;gi<g.length;gi++)for(var v=g[gi];v<=N;v++)if(dp[v-g[gi]]+1<dp[v])dp[v]=dp[v-g[gi]]+1;var mx=0;for(var v=1;v<=N;v++)if(dp[v]>mx)mx=dp[v];if(mx>k)ok=false;rows.push('k'+k+':'+mx);}VR={ok:ok,rows:rows};return VR;}
+function kname(k){return {3:'triangular',4:'square',5:'pentagonal',6:'hexagonal',7:'heptagonal',8:'octagonal'}[k]||(k+'-gonal');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var rep=minRep(dk,dn);nt(g,'#35ffb0',10,16,10,dn+' = sum of '+rep.count+' '+kname(dk)+' numbers  (≤ k = '+dk+')');
+ var x0=30,y=H-60,tot=dn,sc=(W-60)/tot,px=x0;var cols=['#35ffb0','#ffcf4a','#21e6ff','#b06bff','#ff8a3c','#ff2fa6','#7cffb0','#ffa0d0'];
+ rep.pieces.forEach(function(p,i){var w=p*sc;nf(g,cols[i%cols.length],px,y-26,w-2,26);nt(g,'#0a0713',px+4,y-9,11,''+p);px+=w;});
+ nt(g,'#9cf',x0,y+22,11,rep.pieces.join(' + ')+' = '+dn);
+ nt(g,'#8ad',10,H-8,9,'Fermat: at most k of the k-gonal numbers suffice for any integer');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var rep=minRep(dk,dn);nt(g,'#35ffb0',12,20,12,'k = '+dk+' ('+kname(dk)+'),  n = '+dn);
+ var g20=gonList(dk,60).slice(0,8);nt(g,'#9cf',16,50,11,'first '+kname(dk)+' numbers: '+g20.join(', ')+', …');
+ nt(g,'#35ffb0',16,80,13,dn+' = '+rep.pieces.join(' + '));
+ nt(g,'#ffcf4a',16,108,13,'uses '+rep.count+' pieces');
+ nt(g,rep.count<=dk?'#39ffb0':'#ff5a5a',16,136,13,rep.count<=dk?'≤ k = '+dk+' ✓':'✗ exceeds k');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test n≤2000, k=3..8: every n needs ≤ k k-gonal numbers = '+v.ok);
+ nt(g,'#8ad',12,H-30,9,'max pieces needed per k: '+v.rows.join('  ')+' (exactly k — sharp)');
+ nt(g,'#8ad',12,H-12,9,'Gauss △, Lagrange □, Cauchy general (1813)');}
+document.getElementById('fpk').onclick=function(){dk=dk>=8?3:dk+1;drawW3();drawW4();var rep=minRep(dk,dn);document.getElementById('fpread').textContent='k='+dk+': '+dn+' = '+rep.pieces.join(' + ')+' ('+rep.count+' ≤ '+dk+')';};
+document.getElementById('fpn').onclick=function(){var opts=[41,83,137,229,317,449,613,829,1049];dn=opts[(opts.indexOf(dn)+1)%opts.length];if(dn===137&&opts.indexOf(137)!==2)dn=opts[0];drawW3();drawW4();var rep=minRep(dk,dn);document.getElementById('fpread').textContent='n='+dn+': '+rep.pieces.join(' + ')+' ('+rep.count+' '+kname(dk)+', ≤ '+dk+')';};
+document.getElementById('fpcheck').onclick=function(){var v=selftest();document.getElementById('fpread').textContent='every n≤2000 is a sum of ≤k k-gonal numbers (k=3..8): '+v.ok+' — max needed '+v.rows.join(' ');};
+document.getElementById('fpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var rep=minRep(dk,dn),cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ var cols=['#35ffb0','#ffcf4a','#21e6ff','#b06bff','#ff8a3c','#ff2fa6','#7cffb0','#ffa0d0'];
+ rep.pieces.forEach(function(p,i){var a=i/rep.pieces.length*6.2832,rad=40+Math.sqrt(p)*9;ne(g,'#ff2fa6',1.2);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*rad,Math.sin(a)*rad);g.stroke();ng(g);ndot(g,Math.cos(a)*rad,Math.sin(a)*rad,Math.max(3,Math.sqrt(p)),cols[i%cols.length]);nt(g,'#c9a6ff',Math.cos(a)*(rad+14)-6,Math.sin(a)*(rad+14),10,''+p);});
+ ndot(g,0,0,11,'#35ffb0');nt(g,'#0a0713',-12,4,9,''+dn);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: n = '+dn+', built from ≤ k = '+dk+' pieces');nt(g,'#ff2fa6',10,H-34,10,'magenta: the '+rep.count+' '+kname(dk)+' numbers summing to it');nt(g,'#8ad',10,H-14,10,'any number, at most k figurate pieces');}
+drawW3();drawW4();window.__fermatpolygonal=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 162 · neon-noir · silicon-coding (a power cycling back to one modulo n · a point's vertex distances bounded below by its side distances · zigzag permutations counted by secant plus tangent · a slow alternating series for π · one random chord with three different probabilities) ═══════════════════════
 ETOT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Euler&rsquo;s totient theorem</b> generalizes Fermat&rsquo;s little theorem to any modulus. For any integer a coprime to n, <b>a<sup>&phi;(n)</sup> &equiv; 1 (mod n)</b>, where &phi;(n) is Euler&rsquo;s totient &mdash; the count of integers from 1 to n that are coprime to n. Raise a coprime residue to the &phi;(n)-th power and it snaps back to 1. When n is prime, &phi;(n) = n-1 and this is exactly Fermat&rsquo;s little theorem. The multiplicative order of a (the smallest k with a<sup>k</sup> &equiv; 1) always <b>divides</b> &phi;(n) &mdash; a consequence of Lagrange&rsquo;s theorem in the group of units. It is the engine behind RSA and modular arithmetic.<br><br>
@@ -41953,6 +42221,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-carnot","title":"THE CARNOT","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#ffcf4a","icon":"carnot",
+  "kicker":"circumcentre-to-side distances summing to R plus r",
+  "blurb":"Carnot's theorem in the 5-window house format — a hidden conservation law of the triangle. From the circumcentre O, drop a perpendicular to each of the three sides; the three signed distances (positive when O is on the same side of a line as the opposite vertex) always sum to exactly R + r, the circumradius plus the inradius: dₐ + d_b + d_c = R + r. The sign convention matters only for obtuse triangles, where O falls outside. Equivalently, cos A + cos B + cos C = 1 + r/R. Verified live: for tens of thousands of random triangles, the sum of the three signed circumcentre-to-side distances equals R + r to ~1e-13, and independently cos A + cos B + cos C equals 1 + r/R. Neon-noir traced. See the circumcentre and the three perpendiculars in 1D, the signed sum = R+r in 2D, and the conserved-budget inverse in 3D.",
+  "lit":"Genuine Carnot's theorem (Lazare Carnot, c.1803). Verified live: for ~40000 random triangles the sum of the three signed circumcentre-to-side distances equals R+r to ~1e-13, and independently cos A + cos B + cos C = 1 + r/R (window.__carnot.ok, .idOk).",
+  "fig":"No framing; the circumcentre, the signed distances, R, and r are computed independently in-browser and agree. The AVAN inverse is honest — instead of measuring three distances separately, read their sum as one conserved quantity: the inverse of 'three signed distances' is 'one budget R + r they always collect to'. Magenta are the three signed circumcentre-to-side distances; green is the R + r they stack up to. Three distances, one conserved sum.",
+  "body":CARN_BODY,"script":CARN_SCRIPT},
+ {"slug":"the-japanese-theorem","title":"THE JAPANESE THEOREM","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE-TOOLCHAIN","domain_slug":"the-toolchain","accent":"#21e6ff","icon":"japanese",
+  "kicker":"four incentres of a cyclic quad forming a rectangle",
+  "blurb":"The Japanese theorem for cyclic quadrilaterals in the 5-window house format — a small miracle of hidden order. Take any four points A, B, C, D on a circle. From the four triangles that each drop one vertex (△ABC, △BCD, △CDA, △DAB), find the incentre of each. Those four incentres always form a rectangle — four right angles, no matter how irregular the original quadrilateral. The result is named for the sangaku tradition of theorems inscribed on wooden tablets in Edo-period Japanese temples. Verified live: for tens of thousands of random cyclic quadrilaterals, the four incentres are equidistant from their common centroid and centrally symmetric — the defining conditions of a rectangle — to ~1e-6. Neon-noir traced. See the quad and its four incentres in 1D, the rectangle test in 2D, and the four-centres-one-rectangle inverse in 3D.",
+  "lit":"Genuine Japanese theorem for cyclic quadrilaterals (Edo-period sangaku tradition; cyclic-quad form attributed to Carnot). Verified live: for ~18000 random cyclic quadrilaterals the four sub-triangle incentres are equidistant from their centroid and centrally symmetric — a rectangle — to ~1e-6 (window.__japanese.ok).",
+  "fig":"No framing; the four incentres and the rectangle test run independently in-browser. The AVAN inverse is honest — instead of reading four separate incentres, read the single rectangle they encode: the inverse of 'four triangle incentres' is 'one rectangle with four right angles', guaranteed for any cyclic quad. Magenta are the four incentres and their triangles; green is the rectangle they lock into. Scattered centres, one hidden rectangle.",
+  "body":JAPN_BODY,"script":JAPN_SCRIPT},
+ {"slug":"the-conway-circle","title":"THE CONWAY CIRCLE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#b06bff","icon":"conwaycircle",
+  "kicker":"six side-extension points on one circle",
+  "blurb":"Conway's circle theorem in the 5-window house format — a six-point surprise from John Horton Conway. At each vertex of any triangle, extend the two sides beyond that vertex by the length of the side opposite it: beyond B by b (= CA), beyond C by c (= AB), beyond A by a (= BC). This produces six new endpoints, and all six lie on a single circle — the Conway circle — centred at the incentre I, with radius exactly √(r² + s²), where r is the inradius and s the semiperimeter. Each extension lands a distance s from the point where the incircle touches that side. Verified live: for tens of thousands of random triangles, all six extension points are equidistant from the incentre, at distance √(r²+s²), to ~1e-13. Neon-noir traced. See the extended sides and six points in 1D, the six equal radii in 2D, and the six-points-one-circle inverse in 3D.",
+  "lit":"Genuine Conway circle theorem (John Horton Conway). Verified live: for ~40000 random triangles all six side-extension points are equidistant from the incentre at radius √(r²+s²) to ~1e-13 (window.__conwaycircle.ok).",
+  "fig":"No framing; the incentre, r, s, and the six points are computed independently in-browser. The AVAN inverse is honest — instead of tracking six loose endpoints, read the one circle they share: the inverse of 'six side-extension points' is 'one circle of radius √(r²+s²) about the incentre'. Magenta are the six extension points; green is the circle they all sit on. Six points, one minted circle.",
+  "body":CNWY_BODY,"script":CNWY_SCRIPT},
+ {"slug":"the-casey","title":"THE CASEY","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#ff8a3c","icon":"casey",
+  "kicker":"a generalized Ptolemy for tangent circles",
+  "blurb":"Casey's theorem in the 5-window house format — Ptolemy's theorem for circles. Ptolemy says: for four points on a circle in order, AC·BD = AB·CD + AD·BC. Casey generalizes each point to a whole circle tangent to a common circle. Replace the four points by four circles all internally tangent to one enclosing circle, in cyclic order, and replace each chord by the tangent length t_ij (the length of the common tangent segment) between circles i and j. Then the same relation holds: t₁₂·t₃₄ + t₂₃·t₁₄ = t₁₃·t₂₄. Shrink the circles to points and it collapses back to Ptolemy. Verified live: for thousands of random configurations of four circles internally tangent to a circle, the tangent lengths satisfy t₁₂t₃₄ + t₂₃t₁₄ = t₁₃t₂₄ to ~1e-15, and the point-circle limit reproduces Ptolemy exactly. Neon-noir traced. See the four tangent circles and their tangent segments in 1D, the Ptolemy-form relation in 2D, and the points-fattened-into-circles inverse in 3D.",
+  "lit":"Genuine Casey's theorem (John Casey, 1866; Ptolemy for the point case). Verified live: for ~12000 random configurations of four circles internally tangent to a circle, t₁₂t₃₄ + t₂₃t₁₄ = t₁₃t₂₄ to ~1e-15, and the point-circle limit reproduces Ptolemy exactly (window.__casey.ok, .ptol).",
+  "fig":"No framing; the centres, tangent lengths, and the relation are computed independently in-browser. The AVAN inverse is honest — instead of treating points and circles as different problems, read circles as fattened points: the inverse of 'Ptolemy for four points' is 'Casey for four tangent circles', the same relation with tangent lengths for chords. Magenta are the six tangent lengths; green is the equality t₁₂t₃₄+t₂₃t₁₄ = t₁₃t₂₄. Points fattened into circles, one relation.",
+  "body":CASE_BODY,"script":CASE_SCRIPT},
+ {"slug":"the-fermat-polygonal","title":"THE FERMAT POLYGONAL","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE KONAMI CODE","domain_slug":"the-konami-code","accent":"#35ffb0","icon":"fermatpolygonal",
+  "kicker":"every integer a sum of few polygonal numbers",
+  "blurb":"Fermat's polygonal number theorem in the 5-window house format — one of the great cheat-codes of arithmetic. The k-gonal numbers are figurate numbers from stacking polygons: triangular (1,3,6,10,…), square (1,4,9,16,…), pentagonal (1,5,12,22,…). Fermat claimed — and it is true — that every positive integer is the sum of at most k of the k-gonal numbers: at most 3 triangular, at most 4 squares, at most 5 pentagonal, at most 6 hexagonal, forever. Gauss proved the triangular case ('EΥΡΗΚΑ! num = Δ+Δ+Δ'), Lagrange the four-squares case, and Cauchy the general theorem in 1813. Verified live: a dynamic-programming search confirms every integer up to 2000 is a sum of at most k k-gonal numbers for k = 3 through 8 — and the bound is sharp (the maximum needed is exactly k). Neon-noir traced. See n cracked into its fewest pieces in 1D, the ≤k check in 2D, and the crack-it-down inverse in 3D.",
+  "lit":"Genuine Fermat polygonal number theorem (Fermat conjecture 1638; Gauss triangular, Lagrange four-squares, Cauchy general proof 1813). Verified live: a DP search confirms every integer ≤2000 is a sum of at most k k-gonal numbers for k=3..8, and the bound is sharp — the max needed is exactly k (window.__fermatpolygonal.ok, .rows).",
+  "fig":"No framing; the k-gonal numbers and the minimal representations are computed independently in-browser. The AVAN inverse is honest — instead of building n up, crack it down: the inverse of 'the integer n' is 'its decomposition into at most k k-gonal numbers', a shortcut guaranteed to exist. Magenta are the k-gonal pieces; green is the n they sum to. Any number, at most k figurate pieces.",
+  "body":FPOL_BODY,"script":FPOL_SCRIPT},
  {"slug":"the-euler-totient-theorem","title":"THE EULER TOTIENT THEOREM","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"BACKPROP","domain_slug":"backprop","accent":"#b06bff","icon":"eulertotient",
   "kicker":"a power cycling back to one modulo n",
