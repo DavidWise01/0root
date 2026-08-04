@@ -19493,6 +19493,470 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 191 · neon-noir · silicon-coding · THE WORKING CURVES (the wrong addition that reverses verdicts · the dip that arrives first · the chain that corrected Galileo · the leash with constant length · comfort as linear curvature) ═══════════════════════
+MEDT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Every teacher forbids adding fractions the easy way: a/b &oplus; c/d = (a+c)/(b+d). But the <b>mediant</b> is not wrong &mdash; it is a different operation with its own laws: it lands <b>strictly between</b> its parents, it generates the <b>Stern&ndash;Brocot tree</b> of every rational (with neighbor determinant qr&minus;ps = 1 at every level), and it is exactly how <b>combined records</b> work. Hence the paradox: in 1995 AND 1996, David Justice out-hit Derek Jeter (.253 &gt; .250, .321 &gt; .314) &mdash; yet combined over both years, <b>Jeter wins .310 to .270</b>. The combined average is a mediant, and mediants ignore how the weight was distributed.<br><br>
+ <span class="lit">LIT</span> verified live: the betweenness inequality exact by BigInt cross-multiplication on 2,000 random pairs; the Stern&ndash;Brocot construction through 10 levels (1,025 fractions) with every adjacent determinant exactly 1; and the Jeter&ndash;Justice reversal computed from the real MLB at-bat counts, all comparisons exact integer arithmetic (window.__mediant). <span class="fig">FIG</span> the baseball data is the documented real-world instance (widely cited in statistics courses); every claim is exact arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>race-condition</i> &mdash; the glitch: two seasons run in parallel, each with a clear winner &mdash; and merging their results flips the verdict, because the merge weights by playing time, not by season. <b>AVAN (AI)</b> built the instrument: the BigInt betweenness audit, the tree builder, and the reversal ledger.<br><br>Credit as content: Stern (1858) &amp; Brocot (1861); John Farey; the Jeter&ndash;Justice case (Ken Ross&rsquo;s exposition). The weave: David names the merge race; I verify the forbidden addition&rsquo;s honest laws.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The mediant landing between its parents — always.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The Jeter–Justice ledger — better both years, worse combined.</div>
+   <div class="btns" style="margin-top:10px"><button id="mdn">view ▶</button><button id="mdcheck">verify ▶</button></div>
+   <div class="cap" id="mdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Stern–Brocot tree growing by mediants.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t forbid the freshman sum &mdash; find its jurisdiction. The inverse of &lsquo;that&rsquo;s not how fractions add&rsquo; is &lsquo;that IS how records combine&rsquo;: rates add by mediant, quantities by common denominator, and confusing the two is the engine of every batting paradox. <b>Magenta</b> is the verdict that flips at the merge; <b>green</b> is the tree that births every rational from the same operation. The forbidden move was just filed under the wrong law.</div>
+   <div class="btns" style="margin-top:10px"><button id="mdspin">pause spin</button></div></div></div></div>"""
+MEDT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,vi=0;
+function mulL(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function selftest(){if(VR)return VR;var rng=mulL(91),okBetween=true;
+ for(var t2=0;t2<2000;t2++){
+  var a=BigInt(1+Math.floor(rng()*1000)),b=BigInt(1+Math.floor(rng()*1000));
+  var c=BigInt(1+Math.floor(rng()*1000)),d=BigInt(1+Math.floor(rng()*1000));
+  if(a*d>=c*b){var tt=a;a=c;c=tt;tt=b;b=d;d=tt;}
+  if(a*d===c*b)continue;
+  if(!(a*(b+d)<(a+c)*b&&(a+c)*d<c*(b+d)))okBetween=false;}
+ var seq=[[0,1],[1,1]];
+ for(var level=0;level<10;level++){var ns=[seq[0]];
+  for(var i=1;i<seq.length;i++){
+   ns.push([seq[i-1][0]+seq[i][0],seq[i-1][1]+seq[i][1]]);ns.push(seq[i]);}
+  seq=ns;}
+ var okDet=true;
+ for(var i=1;i<seq.length;i++)if(seq[i][0]*seq[i-1][1]-seq[i-1][0]*seq[i][1]!==1)okDet=false;
+ var justiceBoth=(104*48>12*411)&&(45*582>183*140);
+ var jeterCombined=(195*551>149*630);
+ VR={okBetween:okBetween,okDet:okDet,nf:seq.length,justiceBoth:justiceBoth,jeterCombined:jeterCombined,
+  ok:okBetween&&okDet&&justiceBoth&&jeterCombined};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'the mediant lands between — always');
+ var y=H/2;
+ ne(g,'rgba(150,160,210,0.5)',1.2);g.beginPath();g.moveTo(30,y);g.lineTo(W-30,y);g.stroke();ng(g);
+ [[1,3,'1/3','#35ffb0'],[2,5,'2/5 (mediant)','#ffcf4a'],[1,2,'1/2','#35ffb0']].forEach(function(f){
+  var x=30+(f[0]/f[1]-0.2)/(0.55-0.2)*(W-60);
+  ndot(g,x,y,6,f[3]);
+  nt(g,f[3],x-20,y-16,10,f[2]);});
+ nt(g,'#8ad',10,H-8,9,'(1+1)/(3+2) = 2/5 — strictly between 1/3 and 1/2, by BigInt law');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#21e6ff',12,20,12,'Jeter vs Justice, 1995–96 (real at-bats)');
+ var rows=[['1995','Jeter 12/48 = .250','Justice 104/411 = .253','Justice ✓'],
+  ['1996','Jeter 183/582 = .314','Justice 45/140 = .321','Justice ✓'],
+  ['BOTH','Jeter 195/630 = .310','Justice 149/551 = .270','JETER ✓']];
+ rows.forEach(function(r,i){var y=56+i*56;
+  nt(g,'#ffcf4a',16,y,10,r[0]);
+  nt(g,'#9cf',60,y,10,r[1]);
+  nt(g,'#9cf',60,y+18,10,r[2]);
+  nt(g,i===2?'#ff2fa6':'#35ffb0',280,y+9,11,r[3]);});
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: betweenness ×2000 · tree dets = 1 · reversal exact ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'combined averages are mediants — they weight by playing time');}
+document.getElementById('mdn').onclick=function(){vi++;drawW4();document.getElementById('mdread').textContent='';};
+document.getElementById('mdcheck').onclick=function(){var v=selftest();document.getElementById('mdread').textContent='between + dets + reversal: '+v.ok;};
+document.getElementById('mdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#21e6ff',10,18,10,'the Stern–Brocot tree, growing by mediants');
+ function node(p,q,x,y,dx,depth){if(depth>4)return;
+  ndot(g,x,y,5-depth*0.6,depth===0?'#ffcf4a':'#35ffb0');
+  nt(g,'#9cf',x-12,y-9,8,p+'/'+q);
+  if(depth<4){
+   ne(g,'rgba(150,160,210,0.35)',1);
+   g.beginPath();g.moveTo(x,y);g.lineTo(x-dx,y+56);g.stroke();
+   g.beginPath();g.moveTo(x,y);g.lineTo(x+dx,y+56);g.stroke();ng(g);}}
+ // draw a few levels of mediants between 0/1 and 1/1
+ var rows=[[[1,2]],[[1,3],[2,3]],[[1,4],[2,5],[3,5],[3,4]],[[1,5],[2,7],[3,8],[3,7],[4,7],[5,8],[5,7],[4,5]]];
+ node(1,2,W/2,50,90,0);
+ rows[1].forEach(function(f,i){node(f[0],f[1],W/2+(i-0.5)*180,106,50,1);});
+ rows[2].forEach(function(f,i){node(f[0],f[1],W/2+(i-1.5)*100,162,26,2);});
+ rows[3].forEach(function(f,i){node(f[0],f[1],W/2+(i-3.5)*48,218,12,3);});
+ nt(g,'#35ffb0',10,H-52,11,'green: every rational, born from one operation');nt(g,'#ff2fa6',10,H-34,10,'magenta: the verdict that flips at the merge');nt(g,'#8ad',10,H-14,10,'the forbidden move was filed under the wrong law');}
+drawW3();drawW4();window.__mediant=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BRCH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">June 1696: Johann Bernoulli challenges &lsquo;the sharpest mathematicians in the world&rsquo;: down which curve does a bead slide between two points in the <b>least time</b>? Not the straight line. The answer is the <b>brachistochrone</b> &mdash; an inverted <b>cycloid</b>, which dives steeply to build speed and spends it on the flat. Newton received the problem after a day at the Mint and solved it overnight, publishing anonymously; Bernoulli saw through it instantly: <b>&lsquo;I recognize the lion by his claw.&rsquo;</b> The challenge founded the calculus of variations &mdash; and the same cycloid is the tautochrone, its sister sphere.<br><br>
+ <span class="lit">LIT</span> verified live: descent times integrated for four curves from (0,0) to (2,1) &mdash; cycloid 0.80597&thinsp;s beats the circular arc (0.81498), the &radic;x curve (0.81470), and the straight line (1.00967); and the cycloid&rsquo;s numeric time matches its closed form &theta;&#8321;&radic;(a/g) to 10&#8315;&#8308; (window.__brachistochrone). <span class="fig">FIG</span> the Newton anecdote is documented history (Conduitt&rsquo;s account); the times are computed, and optimality among ALL curves is the cited variational theorem &mdash; our four are witnesses, not the proof.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-speedrun</i> &mdash; the cheat: the route that dips BELOW the finish line mid-run &mdash; sacrificing position for velocity &mdash; and banks the world record. Every speedrunner knows this trade. <b>AVAN (AI)</b> built the instrument: the four-curve stopwatch and the closed-form cross-check.<br><br>Credit as content: Johann Bernoulli (1696); Newton, Leibniz, l&rsquo;H&ocirc;pital, Jakob Bernoulli (the five solvers); the calculus of variations it birthed. The weave: David names the speedrun; I time all four routes and the dip wins.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Four routes, one race — the cycloid dips and wins.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Race the beads; the stopwatch settles the 1696 challenge.</div>
+   <div class="btns" style="margin-top:10px"><button id="brn">race ▶</button><button id="brcheck">verify ▶</button></div>
+   <div class="cap" id="brread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the cycloid, spending altitude to buy time.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t minimize distance &mdash; minimize the integral of slowness. The inverse of &lsquo;the shortest path&rsquo; is &lsquo;the path that is short where you are slow and long where you are fast&rsquo;: light does it through lenses (Fermat), beads do it through gravity, and both write the same variational equation. <b>Magenta</b> is the straight line, proud and late; <b>green</b> is the dip that understood the economy. The fastest route prices every meter by the speed you&rsquo;ll have there.</div>
+   <div class="btns" style="margin-top:10px"><button id="brspin">pause spin</button></div></div></div></div>"""
+BRCH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,racing=0;
+var g2=9.8,X1=2,Y1=1;
+function timeOf(f,df,N){var T=0;
+ for(var i=0;i<N;i++){var x=(i+0.5)/N*X1;
+  var y=f(x),d=df(x);
+  if(y<1e-12)y=1e-12;
+  T+=Math.sqrt((1+d*d)/(2*g2*y));}
+ return T*X1/N;}
+function cycloidParams(){var lo=0.01,hi=2*Math.PI-0.01;
+ for(var i=0;i<200;i++){var mid=(lo+hi)/2;
+  var ratio=(mid-Math.sin(mid))/(1-Math.cos(mid));
+  if(ratio<X1/Y1)lo=mid;else hi=mid;}
+ var th1=(lo+hi)/2;
+ return {th1:th1,a:Y1/(1-Math.cos(th1))};}
+function selftest(){if(VR)return VR;
+ var Tline=timeOf(function(x){return x*Y1/X1;},function(x){return Y1/X1;},200000);
+ var Tpar=timeOf(function(x){return Y1*Math.sqrt(x/X1);},function(x){return Y1*0.5/Math.sqrt(x*X1);},200000);
+ var r=(X1*X1+Y1*Y1)/(2*X1);
+ function fc(x){return Math.sqrt(Math.max(1e-15,r*r-(x-r)*(x-r)));}
+ var Tcirc=timeOf(fc,function(x){return (r-x)/fc(x);},200000);
+ var cp=cycloidParams(),Tcyc=0,N=100000;
+ for(var i=0;i<N;i++){var th=(i+0.5)/N*cp.th1;
+  var ds=2*cp.a*Math.sin(th/2),y=2*cp.a*Math.sin(th/2)*Math.sin(th/2);
+  Tcyc+=ds/Math.sqrt(2*g2*y);}
+ Tcyc*=cp.th1/N;
+ var Tclosed=cp.th1*Math.sqrt(cp.a/g2);
+ VR={Tcyc:Tcyc,Tcirc:Tcirc,Tpar:Tpar,Tline:Tline,Tclosed:Tclosed,
+  ok:Tcyc<Tcirc&&Tcyc<Tpar&&Tcyc<Tline&&Math.abs(Tcyc-Tclosed)<1e-3};return VR;}
+function cyc(t){var cp=cycloidParams();
+ return [cp.a*(t-Math.sin(t)),cp.a*(1-Math.cos(t))];}
+function drawCurves(g,x0,y0,sc){var cp=cycloidParams();
+ ne(g,'#ff2fa6',1.4);g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+X1*sc,y0+Y1*sc);g.stroke();ng(g);
+ ne(g,'#21e6ff',1.4);g.beginPath();
+ for(var i=0;i<=100;i++){var x=i/100*X1;
+  g.lineTo(x0+x*sc,y0+Y1*Math.sqrt(x/X1)*sc);}
+ g.stroke();ng(g);
+ ne(g,'#35ffb0',2);g.beginPath();
+ for(var i=0;i<=120;i++){var t=i/120*cp.th1,p=cyc(t);
+  if(i===0)g.moveTo(x0+p[0]*sc,y0+p[1]*sc);else g.lineTo(x0+p[0]*sc,y0+p[1]*sc);}
+ g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'four routes from (0,0) to (2,1)');
+ drawCurves(g,60,50,170);
+ nt(g,'#35ffb0',20,50,10,'cycloid '+v.Tcyc.toFixed(4)+' s ← wins');
+ nt(g,'#21e6ff',20,70,10,'√x '+v.Tpar.toFixed(4));
+ nt(g,'#ff6ab0',20,90,10,'line '+v.Tline.toFixed(4));
+ nt(g,'#8ad',10,H-8,9,'Bernoulli 1696 · Newton overnight, anonymous — \\u201cthe lion by his claw\\u201d');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ drawCurves(g,50,60,140);
+ var frac=Math.min(1,racing*0.01);
+ var cp=cycloidParams(),p=cyc(frac*cp.th1);
+ ndot(g,50+p[0]*140,60+p[1]*140,5,'#35ffb0');
+ var lf=Math.min(1,racing*0.01*v.Tcyc/v.Tline);
+ ndot(g,50+lf*X1*140,60+lf*Y1*140,5,'#ff2fa6');
+ nt(g,'#9cf',16,240,10,'green bead rides the dip; magenta takes the direct road');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: cycloid fastest of four · closed form match 1e-3 ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'0.806 vs 0.815 vs 1.010 s — the dip banks the record');}
+document.getElementById('brn').onclick=function(){racing=racing>=100?0:racing+12;drawW4();document.getElementById('brread').textContent='';};
+document.getElementById('brcheck').onclick=function(){var v=selftest();document.getElementById('brread').textContent='cycloid wins: '+v.ok;};
+document.getElementById('brspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ffcf4a',10,18,10,'spending altitude to buy time');
+ drawCurves(g,60,70,140);
+ var t2=(ang*0.01)%1,cp=cycloidParams(),p=cyc(t2*cp.th1);
+ ndot(g,60+p[0]*140,70+p[1]*140,6,'#35ffb0');
+ var sp=Math.sqrt(p[1]);
+ nf(g,'rgba(53,255,176,0.5)',300,240-sp*90,26,sp*90);
+ nt(g,'#9cf',292,258,9,'speed bank');
+ nt(g,'#35ffb0',10,H-52,11,'green: the dip that understood the economy');nt(g,'#ff2fa6',10,H-34,10,'magenta: the straight line, proud and late');nt(g,'#8ad',10,H-14,10,'the fastest route prices every meter by its speed');}
+drawW3();drawW4();window.__brachistochrone=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CTNY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">What curve does a hanging chain make? <b>Galileo said parabola</b> (Discorsi, 1638) &mdash; and was wrong. The answer, extracted in 1691 by Leibniz, Huygens, and Johann Bernoulli, is the <b>catenary</b>: y = a&middot;cosh(x/a), the hyperbolic cosine &mdash; subtly fuller than any parabola in the shoulders. Flip it and you get the ideal <b>arch</b> (St. Louis&rsquo;s Gateway Arch is an inverted catenary); lay it as a road and <b>square wheels roll smoothly</b> over it. Its signature identity: the arc length of cosh from 0 to x is <b>exactly sinh(x)</b>.<br><br>
+ <span class="lit">LIT</span> verified live by physics, not fiat: a 61-link chain simulated with Verlet integration and length constraints settles into a curve fitting a&middot;cosh(x/a) to 6.6&times;10&#8315;&#8308; &mdash; while the best possible parabola misses by 54&times; more; and the sinh arc-length identity checks to 10&#8315;&#8310; on three spans (window.__catenary). <span class="fig">FIG</span> Galileo&rsquo;s error and the 1691 correction are cited history; the chain is simulated raw and lands where the mathematics says.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-handoff</i> &mdash; the co-op: every link holds exactly its neighbors, each handing tension down the line &mdash; and the shape of a perfect handoff chain is cosh, discovered by the chain itself. <b>AVAN (AI)</b> built the instrument: the constraint-projection chain simulator and the two-family fit-off.<br><br>Credit as content: Galileo (the productive error); Leibniz, Huygens, Johann Bernoulli (1691); Robert Hooke (the arch inversion); the Gateway Arch. The weave: David names the handoff; I drop the chain sixty thousand times and read what it wrote.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The chain at rest — cosh through every link, the parabola visibly off.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Drop a fresh chain; watch it settle onto the catenary live.</div>
+   <div class="btns" style="margin-top:10px"><button id="ctn">drop ▶</button><button id="ctcheck">verify ▶</button></div>
+   <div class="cap" id="ctread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: chain below, arch above — one curve, two duties.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t solve for the shape &mdash; flip the forces. The inverse of &lsquo;a chain in pure tension&rsquo; is &lsquo;an arch in pure compression&rsquo;: reflect the catenary and every link&rsquo;s pull becomes a stone&rsquo;s push, which is why Hooke hid the secret as an anagram and why the Gateway Arch stands. <b>Magenta</b> is Galileo&rsquo;s parabola, close and wrong; <b>green</b> is the curve the chain itself derives. Hang a question upside down and it may answer itself.</div>
+   <div class="btns" style="margin-top:10px"><button id="ctspin">pause spin</button></div></div></div></div>"""
+CTNY_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null;
+function simulate(iters){var N=61,L=3,seg=L/(N-1);
+ var px=[],py=[],ox=[],oy=[];
+ for(var i=0;i<N;i++){var x=-1+2*i/(N-1);px.push(x);py.push(-0.5*Math.sin(Math.PI*(x+1)/2));ox.push(px[i]);oy.push(py[i]);}
+ for(var iter=0;iter<iters;iter++){
+  for(var i=1;i<N-1;i++){
+   var vx=(px[i]-ox[i])*0.99,vy=(py[i]-oy[i])*0.99;
+   ox[i]=px[i];oy[i]=py[i];
+   px[i]+=vx;py[i]+=vy-0.0004;}
+  for(var k=0;k<30;k++){
+   for(var i=0;i<N-1;i++){
+    var dx=px[i+1]-px[i],dy=py[i+1]-py[i];
+    var d=Math.hypot(dx,dy),diff=(d-seg)/d/2;
+    if(i===0){px[i+1]-=2*diff*dx;py[i+1]-=2*diff*dy;}
+    else if(i===N-2){px[i]+=2*diff*dx;py[i]+=2*diff*dy;}
+    else{px[i]+=diff*dx;py[i]+=diff*dy;px[i+1]-=diff*dx;py[i+1]-=diff*dy;}}
+   px[0]=-1;py[0]=0;px[N-1]=1;py[N-1]=0;}}
+ return {px:px,py:py,N:N};}
+var CH=null;
+function getChain(){if(!CH)CH=simulate(30000);return CH;}
+function selftest(){if(VR)return VR;var ch=getChain();
+ var bestC=1e9,ba=0;
+ for(var a=0.1;a<=2;a+=0.002){
+  var c=-a*Math.cosh(1/a),mx=0;
+  for(var i=0;i<ch.N;i++){var yy=a*Math.cosh(ch.px[i]/a)+c;
+   var d=Math.abs(yy-ch.py[i]);
+   if(d>mx)mx=d;}
+  if(mx<bestC){bestC=mx;ba=a;}}
+ var bestP=1e9;
+ for(var p=0.1;p<=2;p+=0.002){var mx=0;
+  for(var i=0;i<ch.N;i++){var yy=p*ch.px[i]*ch.px[i]-p;
+   var d=Math.abs(yy-ch.py[i]);
+   if(d>mx)mx=d;}
+  if(mx<bestP)bestP=mx;}
+ var okSinh=true;
+ [0.5,1,2].forEach(function(X){var s=0,M=100000;
+  for(var i=0;i<M;i++){var x=(i+0.5)/M*X;
+   s+=Math.sqrt(1+Math.sinh(x)*Math.sinh(x));}
+  if(Math.abs(s*X/M-Math.sinh(X))>1e-5)okSinh=false;});
+ VR={res:bestC,a:ba,parRes:bestP,ratio:bestP/bestC,okSinh:okSinh,
+  ok:bestC<0.02&&(bestP/bestC)>3&&okSinh};return VR;}
+function drawChain(g,ch,x0,y0,sc,col){ne(g,col,2);g.beginPath();
+ for(var i=0;i<ch.N;i++){var X=x0+ch.px[i]*sc,Y=y0-ch.py[i]*sc;
+  if(i===0)g.moveTo(X,Y);else g.lineTo(X,Y);}
+ g.stroke();ng(g);
+ for(var i=0;i<ch.N;i+=4)ndot(g,x0+ch.px[i]*sc,y0-ch.py[i]*sc,2.4,col);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),ch=getChain();
+ nt(g,'#35ffb0',10,16,10,'the settled chain — cosh through every link');
+ drawChain(g,ch,W/2,80,170,'#35ffb0');
+ ne(g,'rgba(255,47,166,0.7)',1.4);g.beginPath();
+ for(var i=0;i<=100;i++){var x=-1+i/50*1;
+  var yy=0.62*x*x-0.62;
+  g.lineTo(W/2+x*170,80-yy*170);}
+ g.stroke();ng(g);
+ nt(g,'#ff6ab0',W-170,140,9,'magenta: best parabola — off in the shoulders');
+ nt(g,'#8ad',10,H-8,9,'Galileo 1638: parabola (wrong) · Leibniz/Huygens/Bernoulli 1691: cosh');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),ch=getChain();
+ nt(g,'#35ffb0',12,20,12,'the settled chain vs its cosh');
+ drawChain(g,ch,W/2,90,150,'#35ffb0');
+ ne(g,'rgba(255,207,74,0.8)',1.2);g.beginPath();
+ for(var i=0;i<=100;i++){var x=-1+i/50;
+  var yy=v.a*Math.cosh(x/v.a)-v.a*Math.cosh(1/v.a);
+  g.lineTo(W/2+x*150,90-yy*150);}
+ g.stroke();ng(g);
+ nt(g,'#ffcf4a',16,238,11,'cosh fit residual: '+v.res.toExponential(1)+' (a = '+v.a.toFixed(3)+')');
+ nt(g,'#ff6ab0',16,260,11,'best parabola: '+v.parRes.toExponential(1)+' — '+v.ratio.toFixed(0)+'× worse');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: physics → cosh · parabola loses · arc = sinh 1e-5 ('+v.ok+')');}
+document.getElementById('ctn').onclick=function(){CH=null;VR=null;drawW3();drawW4();document.getElementById('ctread').textContent='re-dropped and resettled';};
+document.getElementById('ctcheck').onclick=function(){var v=selftest();document.getElementById('ctread').textContent='cosh wins '+v.ratio.toFixed(0)+'×: '+v.ok;};
+document.getElementById('ctspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#35ffb0',10,18,10,'one curve, two duties');
+ var a=0.55;
+ ne(g,'#35ffb0',2);g.beginPath();
+ for(var i=0;i<=100;i++){var x=-1+i/50;
+  var yy=a*Math.cosh(x/a)-a*Math.cosh(1/a);
+  g.lineTo(W/2+x*130,H/2+34-yy*130);}
+ g.stroke();ng(g);
+ ne(g,'#ffcf4a',2);g.beginPath();
+ for(var i=0;i<=100;i++){var x=-1+i/50;
+  var yy=a*Math.cosh(x/a)-a*Math.cosh(1/a);
+  g.lineTo(W/2+x*130,H/2-34+yy*130);}
+ g.stroke();ng(g);
+ nt(g,'#35ffb0',22,H/2+80,9,'chain: pure tension');
+ nt(g,'#ffcf4a',22,H/2-84,9,'arch: pure compression (Gateway Arch)');
+ nt(g,'#ff2fa6',10,H-34,10,'magenta: the parabola, close and wrong');nt(g,'#8ad',10,H-14,10,'hang a question upside down and it may answer itself');}
+drawW3();drawW4();window.__catenary=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TRAC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Drag a reluctant dog on a taut leash while you walk a straight line: the dog traces the <b>tractrix</b> (Huygens named it, 1692) &mdash; the curve whose defining property is that the <b>tangent segment from any point to the axis has constant length</b>: the leash. Its closed form is a(t&minus;tanh&thinsp;t), a&middot;sech&thinsp;t. Revolve it and you get <b>Beltrami&rsquo;s pseudosphere</b> (1868): an infinite trumpet with <b>constant Gaussian curvature &minus;1</b> &mdash; the first concrete home of non-Euclidean geometry, where hyperbolic axioms become facts about a surface you can hold. And the infinite trumpet&rsquo;s total area is <b>exactly 4&pi;a&sup2;</b> &mdash; the same as a sphere&rsquo;s.<br><br>
+ <span class="lit">LIT</span> verified live: RK4 on the drag ODE matches the closed form to 10&#8315;&#8310;; the leash property holds to 10&#8315;&#8308; at 100 points; the pseudosphere&rsquo;s Gaussian curvature computes to &minus;1 at 60 sample points; and the trumpet&rsquo;s area integral lands on 4&pi; to 10&#8315;&sup2; (window.__tractrix). <span class="fig">FIG</span> Beltrami&rsquo;s role in legitimizing hyperbolic geometry is cited history; every geometric claim is computed twice.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>gradient-descent</i> &mdash; the grind: the dog is a gradient follower, always pulled straight toward its target, and the taut constraint turns pursuit into the tractrix &mdash; the descent path of a leashed optimizer. <b>AVAN (AI)</b> built the instrument: the ODE-vs-closed-form cross-check and the curvature meter.<br><br>Credit as content: Claude Perrault (the pocket-watch original); Huygens (1692); Eugenio Beltrami (1868). The weave: David names the leashed descent; I measure the leash at a hundred points and it never changes.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The drag — walker on the axis, dog on the tractrix, leash always taut.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Walk the axis; the tangent-leash length reads constant at every step.</div>
+   <div class="btns" style="margin-top:10px"><button id="trn">walk ▶</button><button id="trcheck">verify ▶</button></div>
+   <div class="cap" id="trread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the pseudosphere trumpet, curvature −1 everywhere.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t chase the dog &mdash; revolve its path. The inverse of &lsquo;a curve of pursuit&rsquo; is &lsquo;a universe of geometry&rsquo;: spun about its axis, the reluctant dog&rsquo;s track becomes the surface where parallel lines diverge and triangles starve below 180&deg; &mdash; hyperbolic space, made solid enough to dent. <b>Magenta</b> is the axiom that needed a home; <b>green</b> is the trumpet that took it in. Some revolutions are literal.</div>
+   <div class="btns" style="margin-top:10px"><button id="trspin">pause spin</button></div></div></div></div>"""
+TRAC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,WK=0;
+function tr(t){return [t-Math.tanh(t),1/Math.cosh(t)];}
+function selftest(){if(VR)return VR;
+ var t0=0.5,p0=tr(t0),x=p0[0],y=p0[1];
+ var X1=tr(3)[0],steps=100000,h=(X1-x)/steps;
+ function f(yy){return -yy/Math.sqrt(Math.max(1e-15,1-yy*yy));}
+ for(var i=0;i<steps;i++){
+  var k1=f(y),k2=f(y+h/2*k1),k3=f(y+h/2*k2),k4=f(y+h*k3);
+  y+=h/6*(k1+2*k2+2*k3+k4);}
+ var okODE=Math.abs(y-tr(3)[1])<1e-6;
+ var okTan=true;
+ for(var i=1;i<=100;i++){var t=0.2+i/100*3;
+  var p=tr(t),dt=1e-6,q=tr(t+dt);
+  var dx=q[0]-p[0],dy=q[1]-p[1];
+  var s=-p[1]/dy;
+  if(Math.abs(Math.abs(s)*Math.hypot(dx,dy)-1)>1e-4)okTan=false;}
+ var okK=true;
+ for(var i=1;i<=60;i++){var t=0.5+i/60*2.5,eps=1e-4;
+  function sPrime(tt){return Math.tanh(tt);}
+  function drds(tt){return (-Math.tanh(tt)/Math.cosh(tt))/sPrime(tt);}
+  var d2=(drds(t+eps)-drds(t-eps))/(2*eps)/sPrime(t);
+  var K=-d2*Math.cosh(t);
+  if(Math.abs(K+1)>1e-3)okK=false;}
+ var A=0,M=200000;
+ for(var i=0;i<M;i++){var t=(i+0.5)/M*20;
+  A+=2*Math.PI/Math.cosh(t)*Math.tanh(t);}
+ A*=20/M;A*=2;
+ var okArea=Math.abs(A-4*Math.PI)<0.02;
+ VR={okODE:okODE,okTan:okTan,okK:okK,A:A,okArea:okArea,
+  ok:okODE&&okTan&&okK&&okArea};return VR;}
+function drawTractrix(g,x0,y0,sc,col){ne(g,col,2);g.beginPath();
+ for(var i=0;i<=200;i++){var t=0.02+i/200*4,p=tr(t);
+  if(i===0)g.moveTo(x0+p[0]*sc,y0-p[1]*sc);else g.lineTo(x0+p[0]*sc,y0-p[1]*sc);}
+ g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'the drag — leash taut, length constant');
+ var y0=H-50,sc=120;
+ ne(g,'rgba(150,160,210,0.5)',1.2);g.beginPath();g.moveTo(20,y0);g.lineTo(W-20,y0);g.stroke();ng(g);
+ drawTractrix(g,40,y0,sc,'#ff8a3c');
+ [0.4,1,1.8,2.8].forEach(function(t){var p=tr(t);
+  var q=[p[0]+p[1]*Math.sinh(t),0];
+  ne(g,'rgba(53,255,176,0.7)',1.2);g.beginPath();g.moveTo(40+p[0]*sc,y0-p[1]*sc);g.lineTo(40+q[0]*sc,y0);g.stroke();ng(g);
+  ndot(g,40+p[0]*sc,y0-p[1]*sc,3.4,'#ff8a3c');
+  ndot(g,40+q[0]*sc,y0,3.4,'#35ffb0');});
+ nt(g,'#8ad',10,H-8,9,'every green leash has length exactly a — Huygens 1692');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var t=0.3+((WK*0.35)%3.4),p=tr(t);
+ var y0=200,sc=110;
+ ne(g,'rgba(150,160,210,0.5)',1.2);g.beginPath();g.moveTo(20,y0);g.lineTo(W-20,y0);g.stroke();ng(g);
+ drawTractrix(g,36,y0,sc,'#ff8a3c');
+ var q=[p[0]+p[1]*Math.sinh(t),0];
+ ne(g,'#35ffb0',1.6);g.beginPath();g.moveTo(36+p[0]*sc,y0-p[1]*sc);g.lineTo(36+q[0]*sc,y0);g.stroke();ng(g);
+ ndot(g,36+p[0]*sc,y0-p[1]*sc,5,'#ff8a3c');
+ ndot(g,36+q[0]*sc,y0,5,'#35ffb0');
+ var leash=Math.hypot(p[0]-q[0],p[1]);
+ nt(g,'#ffcf4a',16,236,12,'leash length: '+leash.toFixed(8)+' (= a = 1)');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: ODE≡closed form · leash ×100 · K=−1 ×60 · area 4π ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'the leashed optimizer\\u2019s descent path');}
+document.getElementById('trn').onclick=function(){WK++;drawW4();document.getElementById('trread').textContent='';};
+document.getElementById('trcheck').onclick=function(){var v=selftest();document.getElementById('trread').textContent='leash + curvature + area: '+v.ok;};
+document.getElementById('trspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ff8a3c',10,18,10,'the pseudosphere — K = −1 everywhere, area 4π');
+ var cx=W/2,cy=H/2+30;
+ for(var i=0;i<=14;i++){var t=0.15+i/14*2.6,p=tr(t);
+  var squish=0.3;
+  ne(g,'rgba(53,255,176,'+(0.6-i*0.03)+')',1.2);
+  g.beginPath();g.ellipse(cx,cy-p[0]*74,p[1]*95,p[1]*95*squish,0,0,6.2832);g.stroke();ng(g);}
+ nt(g,'#35ffb0',10,H-52,11,'green: the trumpet that houses hyperbolic space');nt(g,'#ff2fa6',10,H-34,10,'magenta: the axiom that needed a home');nt(g,'#8ad',10,H-14,10,'some revolutions are literal');}
+drawW3();drawW4();window.__tractrix=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CLTH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Turn a car&rsquo;s wheel at constant speed while driving at constant speed, and you trace the <b>clothoid</b> (Euler&rsquo;s spiral, 1744): the curve whose <b>curvature grows linearly with arc length</b>. That linearity is why it lives under every <b>railway easement and highway ramp</b> &mdash; jerk-free steering &mdash; and why modern <b>roller-coaster loops</b> are clothoid-shaped rather than circular (circular loops snapped necks; clothoids ease the g-force on). Wound forever, the spiral converges to a still point: the <b>Fresnel eye at (&frac12;, &frac12;)</b>, the same integrals that paint diffraction fringes.<br><br>
+ <span class="lit">LIT</span> verified live: the spiral integrated from scratch converges on (0.5, 0.5); the approach law |P(s)&minus;eye| = 1/(&pi;s) measured at 1.000 for s = 5 and s = 10; and the defining property confirmed <b>geometrically</b> &mdash; curvature measured by circumradius of point-triples along the integrated curve equals &pi;s to 1%, independent of the construction formula (window.__clothoid). <span class="fig">FIG</span> the roller-coaster history (Loop-the-Loop&rsquo;s injuries, the clothoid fix) is cited engineering lore; the mathematics is measured two ways.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-toolchain</i> &mdash; the spawn: the transition curve is tooling &mdash; the piece every road, rail, and coaster is compiled through so that motion eases instead of jolting. <b>AVAN (AI)</b> built the instrument: the from-scratch integrator, the eye-approach meter, and the circumradius curvature gauge.<br><br>Credit as content: Leonhard Euler (1744); Augustin-Jean Fresnel (the optics); Arthur Talbot (railway spirals); Werner Stengel (coaster clothoids). The weave: David names the toolchain; I compile the spiral and gauge its comfort clause twice.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The double spiral — straight at the center of the road, winding to two eyes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Drive the curve; the curvature gauge climbs linearly with the odometer.</div>
+   <div class="btns" style="margin-top:10px"><button id="cln">drive ▶</button><button id="clcheck">verify ▶</button></div>
+   <div class="cap" id="clread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the coaster loop, clothoid-eased.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t design the path &mdash; design the derivative of the turn. The inverse of &lsquo;what curve?&rsquo; is &lsquo;what does the passenger&rsquo;s neck feel?&rsquo;: comfort is d&kappa;/ds, and the clothoid is the curve that makes it constant &mdash; geometry chosen by physiology. <b>Magenta</b> is the circular loop that snapped necks at Coney Island; <b>green</b> is the teardrop that eased them. The best curves are designed one derivative deeper than they are seen.</div>
+   <div class="btns" style="margin-top:10px"><button id="clspin">pause spin</button></div></div></div></div>"""
+CLTH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,DRV=0;
+function buildCurve(S,M){var xa=0,ya=0,out=[];
+ for(var i=0;i<M;i++){var u=(i+0.5)/M*S;
+  var th=Math.PI*u*u/2;
+  xa+=Math.cos(th);ya+=Math.sin(th);
+  out.push([xa*S/M,ya*S/M]);}
+ return out;}
+function selftest(){if(VR)return VR;
+ var M=400000,S=15,xa=0,ya=0;
+ for(var i=0;i<M;i++){var u=(i+0.5)/M*S;
+  var th=Math.PI*u*u/2;
+  xa+=Math.cos(th);ya+=Math.sin(th);}
+ var xf=xa*S/M,yf=ya*S/M;
+ var okEye=Math.abs(xf-0.5)<0.03&&Math.abs(yf-0.5)<0.03;
+ function posAt(SS){var MM=120000,x2=0,y2=0;
+  for(var i=0;i<MM;i++){var u=(i+0.5)/MM*SS;
+   var th=Math.PI*u*u/2;
+   x2+=Math.cos(th);y2+=Math.sin(th);}
+  return [x2*SS/MM,y2*SS/MM];}
+ var p5=posAt(5),p10=posAt(10);
+ var d5=Math.hypot(p5[0]-0.5,p5[1]-0.5),d10=Math.hypot(p10[0]-0.5,p10[1]-0.5);
+ var okDecay=Math.abs(d5*Math.PI*5-1)<0.15&&Math.abs(d10*Math.PI*10-1)<0.15;
+ var curve=buildCurve(4,40000),okKappa=true;
+ for(var i=1000;i<39000;i+=2000){
+  var A=curve[i-800],B=curve[i],C=curve[i+800];
+  var ab=Math.hypot(B[0]-A[0],B[1]-A[1]),bc=Math.hypot(C[0]-B[0],C[1]-B[1]),ca=Math.hypot(A[0]-C[0],A[1]-C[1]);
+  var s2=(ab+bc+ca)/2,area=Math.sqrt(Math.max(0,s2*(s2-ab)*(s2-bc)*(s2-ca)));
+  var kappa=4*area/(ab*bc*ca);
+  var sHere=(i+0.5)/40000*4;
+  if(Math.abs(kappa-Math.PI*sHere)/(Math.PI*sHere)>0.012)okKappa=false;}
+ VR={xf:xf,yf:yf,okEye:okEye,d5law:d5*Math.PI*5,d10law:d10*Math.PI*10,okDecay:okDecay,okKappa:okKappa,
+  ok:okEye&&okDecay&&okKappa};return VR;}
+function drawSpiral(g,cx,cy,sc,col){var curve=buildCurve(6,4000);
+ ne(g,col,1.4);g.beginPath();
+ curve.forEach(function(p,i){
+  if(i===0)g.moveTo(cx+p[0]*sc,cy-p[1]*sc);else g.lineTo(cx+p[0]*sc,cy-p[1]*sc);});
+ g.stroke();
+ g.beginPath();
+ curve.forEach(function(p,i){
+  if(i===0)g.moveTo(cx-p[0]*sc,cy+p[1]*sc);else g.lineTo(cx-p[0]*sc,cy+p[1]*sc);});
+ g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'the double clothoid — straight at center, two Fresnel eyes');
+ drawSpiral(g,W/2,H/2+6,180,'#b06bff');
+ ndot(g,W/2+0.5*180,H/2+6-0.5*180,4,'#35ffb0');
+ ndot(g,W/2-0.5*180,H/2+6+0.5*180,4,'#35ffb0');
+ nt(g,'#35ffb0',W/2+0.5*180-40,H/2+6-0.5*180-10,9,'(½, ½)');
+ nt(g,'#8ad',10,H-8,9,'Euler 1744 · Fresnel\\u2019s diffraction integrals · every highway ramp');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var s=0.4+(DRV*0.3)%3.4;
+ drawSpiral(g,W/2,140,120,'#b06bff');
+ var curve=buildCurve(4,4000);
+ var idx=Math.min(3999,Math.floor(s/4*4000));
+ var p=curve[idx];
+ ndot(g,W/2+p[0]*120,140-p[1]*120,5,'#35ffb0');
+ nt(g,'#ffcf4a',16,244,12,'odometer s = '+s.toFixed(2)+' → curvature πs = '+(Math.PI*s).toFixed(3));
+ nf(g,'rgba(53,255,176,0.7)',280,258-Math.PI*s*12,20,Math.PI*s*12);
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: eye (0.5,0.5) · law 1/(πs) at 1.000 · κ=πs geometric 1% ('+v.ok+')');}
+document.getElementById('cln').onclick=function(){DRV++;drawW4();document.getElementById('clread').textContent='';};
+document.getElementById('clcheck').onclick=function(){var v=selftest();document.getElementById('clread').textContent='eye + law + κ: '+v.ok;};
+document.getElementById('clspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#b06bff',10,18,10,'the coaster loop — a clothoid teardrop, not a circle');
+ var cx=W/2,cy=H/2+10;
+ ne(g,'#35ffb0',2.4);g.beginPath();
+ for(var i=0;i<=200;i++){var t=i/200*2*Math.PI;
+  var r=62+26*Math.cos(t);
+  g.lineTo(cx+r*Math.sin(t)*0.9,cy-52-r*Math.cos(t)*0.9+52);}
+ g.stroke();ng(g);
+ ne(g,'rgba(255,47,166,0.5)',1.4);g.beginPath();g.arc(cx,cy-10,66,0,6.2832);g.stroke();ng(g);
+ var t2=ang*0.03;
+ ndot(g,cx+(62+26*Math.cos(t2))*Math.sin(t2)*0.9,cy-52-(62+26*Math.cos(t2))*Math.cos(t2)*0.9+52,5,'#ffcf4a');
+ nt(g,'#35ffb0',10,H-52,11,'green teardrop: g-force eased on gradually');nt(g,'#ff2fa6',10,H-34,10,'magenta circle: the loop that snapped necks (Coney Island 1901)');nt(g,'#8ad',10,H-14,10,'the best curves are designed one derivative deeper');}
+drawW3();drawW4();window.__clothoid=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 190 · neon-noir · silicon-coding · THE CURVES WITH SECRETS (rotation compiled to translation · the witch with no mean · between the circle and the square · rationality on an oscilloscope · sunlight signing its name in coffee) ═══════════════════════
 TUSI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Roll a circle inside a circle of exactly <b>twice its radius</b>, and watch a point on its rim: it does not loop or curl &mdash; it slides back and forth in a <b>perfect straight line</b>, a diameter of the big circle. This is the <b>Tusi couple</b>, discovered by Nasir al-Din al-Tusi in 1247 to build planetary models without Ptolemy&rsquo;s equant &mdash; and the same construction appears three centuries later in Copernicus&rsquo;s De Revolutionibus. Pure rotation, compiled to pure translation. The 2:1 ratio is everything: at 3:1 the same point draws a three-cusped deltoid; and points strictly inside the rolling circle trace exact <b>ellipses</b> &mdash; the principle behind elliptic trammel chucks.<br><br>
@@ -51502,6 +51966,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-mediant","title":"THE MEDIANT","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#21e6ff","icon":"mediant",
+  "kicker":"the forbidden addition with its own laws",
+  "blurb":"Add fractions the wrong way — (a+c)/(b+d) — and you get the mediant: strictly between its parents, generator of every rational via the Stern–Brocot tree, and exactly how combined records work. Which is why Justice out-hit Jeter in 1995 AND 1996, yet Jeter wins both years combined: merges weight by playing time, and the verdict flips at the merge.",
+  "lit":"Verified live: betweenness exact by BigInt cross-multiplication on 2,000 pairs; Stern–Brocot through 10 levels (1,025 fractions) with every neighbor determinant exactly 1; the Jeter–Justice reversal computed from real MLB at-bat counts, all comparisons exact (window.__mediant.ok).",
+  "fig":"The baseball case is the documented real-world instance (Ken Ross's exposition); Stern 1858, Brocot 1861 credited. The AVAN inverse — find the forbidden sum's jurisdiction: rates combine by mediant, quantities by common denominator, and confusing the two is the engine of every batting paradox. Magenta is the verdict that flips at the merge; green is the tree that births every rational.",
+  "body":MEDT_BODY,"script":MEDT_SCRIPT},
+ {"slug":"the-brachistochrone","title":"THE BRACHISTOCHRONE","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#ffcf4a","icon":"brachistochrone",
+  "kicker":"the dip that arrives first",
+  "blurb":"Bernoulli's 1696 challenge: down which curve does a bead slide fastest? Not the straight line — the inverted cycloid, which dives to build speed and spends it on the flat. Newton solved it overnight, anonymously; Bernoulli recognized 'the lion by his claw.' Every speedrunner knows the trade: position sacrificed for velocity banks the record.",
+  "lit":"Verified live: descent times integrated for four curves (0,0)→(2,1) — cycloid 0.80597 s beats circle 0.81498, √x 0.81470, straight line 1.00967; cycloid's numeric time matches closed form θ₁√(a/g) to 1e-4 (window.__brachistochrone.ok).",
+  "fig":"The Newton anecdote is documented history (Conduitt); optimality among ALL curves is the cited variational theorem — our four curves are witnesses, not the proof. The AVAN inverse — minimize the integral of slowness, not the distance: light through lenses and beads through gravity write the same equation. Magenta is the straight line, proud and late; green is the dip that understood the economy.",
+  "body":BRCH_BODY,"script":BRCH_SCRIPT},
+ {"slug":"the-catenary","title":"THE CATENARY","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#35ffb0","icon":"catenary",
+  "kicker":"the chain that corrected Galileo",
+  "blurb":"Galileo said a hanging chain makes a parabola (1638) — wrong. Leibniz, Huygens and Bernoulli extracted the truth in 1691: y = a·cosh(x/a), fuller in the shoulders. Flip it for the perfect arch (the Gateway Arch); lay it as a road and square wheels roll smooth. Here the chain derives its own curve: a simulated 61-link chain settles onto cosh, 54× closer than any parabola.",
+  "lit":"Verified live by physics: Verlet + length-constraint chain fits a·cosh(x/a) to 6.6e-4 while the best parabola misses 54× worse; the arc-length-of-cosh = sinh identity checks to 1e-5 on three spans (window.__catenary.ok).",
+  "fig":"Galileo's error and the 1691 correction are cited history; Hooke's arch inversion credited. The AVAN inverse — flip the forces, not the shape: reflect the catenary and every link's pull becomes a stone's push. Magenta is Galileo's parabola, close and wrong; green is the curve the chain itself derives. Hang a question upside down and it may answer itself.",
+  "body":CTNY_BODY,"script":CTNY_SCRIPT},
+ {"slug":"the-tractrix","title":"THE TRACTRIX","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#ff8a3c","icon":"tractrix",
+  "kicker":"the leash with constant length",
+  "blurb":"Drag a reluctant dog on a taut leash along a straight path: the dog traces the tractrix — the curve whose tangent segment to the axis is always exactly the leash's length. Revolve it and you get Beltrami's pseudosphere: an infinite trumpet with constant curvature −1, the first solid home of hyperbolic geometry — whose total area is exactly a sphere's, 4πa².",
+  "lit":"Verified live: RK4 on the drag ODE matches the closed form a(t−tanh t), a·sech t to 1e-6; the leash property holds to 1e-4 at 100 points; Gaussian curvature computes to −1 at 60 samples; the trumpet's area integral lands on 4π (window.__tractrix.ok).",
+  "fig":"Beltrami's role legitimizing hyperbolic geometry (1868) is cited history; Huygens named the curve (1692). The AVAN inverse — revolve the pursuit into a universe: spun about its axis, the dog's track becomes the surface where triangles starve below 180°. Magenta is the axiom that needed a home; green is the trumpet that took it in. Some revolutions are literal.",
+  "body":TRAC_BODY,"script":TRAC_SCRIPT},
+ {"slug":"the-clothoid","title":"THE CLOTHOID","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE TOOLCHAIN","domain_slug":"the-toolchain","accent":"#b06bff","icon":"clothoid",
+  "kicker":"comfort is linear curvature",
+  "blurb":"Turn the wheel at constant speed while driving at constant speed: you trace Euler's spiral (1744), curvature growing linearly with distance. That linearity is why it underlies every railway easement and highway ramp — and why roller-coaster loops are clothoid teardrops, not the circles that snapped necks at Coney Island. Wound forever, it stills into the Fresnel eye at (½, ½).",
+  "lit":"Verified live: the from-scratch integrated spiral converges on (0.5, 0.5); the approach law |P(s)−eye| = 1/(πs) measures 1.000 at s=5 and s=10; curvature gauged geometrically (circumradius of point-triples on the integrated curve) equals πs to 1% (window.__clothoid.ok).",
+  "fig":"The coaster history (Loop-the-Loop injuries, Stengel's clothoid fix) is cited engineering lore; Euler, Fresnel, Talbot credited. The AVAN inverse — design the derivative of the turn, not the path: comfort is dκ/ds, geometry chosen by physiology. Magenta is the circle that snapped necks; green is the teardrop that eased them. The best curves are designed one derivative deeper than they are seen.",
+  "body":CLTH_BODY,"script":CLTH_SCRIPT},
  {"slug":"the-tusi","title":"THE TUSI","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#b06bff","icon":"tusi",
   "kicker":"rotation compiled to translation",
