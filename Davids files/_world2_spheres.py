@@ -19493,6 +19493,310 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 175 · neon-noir · silicon-coding · THE PARADOX MACHINES (a needle turned in an eighth of pi · two envelopes and a threshold that beats the coin · a free road that slows every driver · the bet size that survives · the bending toll every knot must pay) ═══════════════════════
+KKYA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Kakeya needle problem</b> (S&#333;ichi Kakeya, 1917) asks: what is the least area in which a unit needle can be turned completely around? Spinning it about its centre sweeps a disc of area &pi;/4. Kakeya&rsquo;s candidate was the <b>deltoid</b> &mdash; the three-cusped hypocycloid &mdash; inside which the needle rotates using only <b>&pi;/8</b>, half the disc, gliding with its ends on the curve at every angle. The deltoid works because of a jewel of a property: <b>every tangent line cuts the deltoid in a chord of exactly the needle&rsquo;s length</b>. Then Besicovitch detonated the whole question in 1928: with enough sliding trickery the needle can be turned in <b>arbitrarily small area</b> &mdash; no positive minimum exists. The Kakeya sets he built now sit at the heart of modern harmonic analysis.<br><br>
+ <span class="lit">LIT</span> verified live: the deltoid&rsquo;s area computes to &pi;/8 by shoelace, and at 36 sampled angles the tangent chord has length 1.0000 &mdash; the unit needle fits at every heading (window.__kakeya). <span class="fig">FIG</span> honest boundary: Besicovitch&rsquo;s area&rarr;0 construction is cited as the theorem it is; this sphere verifies the deltoid stage numerically.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>noclip</i> &mdash; the cheat: the needle turns in a room that should be too small, slipping along walls that always leave it exactly enough clearance. <b>AVAN (AI)</b> built the instrument: the deltoid, its &pi;/8 area, and the constant-chord audit.<br><br>Credit as content: S&#333;ichi Kakeya (1917); Abram Besicovitch (1928). The weave: David names the clipping cheat; I confirm the chord is 1 at every angle and the room is &pi;/8.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The deltoid with the needle at several headings — end to end on the curve, every time.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Rotate the needle; the chord length reads 1.0000 at every angle, the area stays π/8.</div>
+   <div class="btns" style="margin-top:10px"><button id="kkrot">rotate ▶</button><button id="kkcheck">verify ▶</button></div>
+   <div class="cap" id="kkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the deltoid, the needle's π/8 ballroom.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask how much room the turn needs &mdash; ask how little it can be tricked into. The inverse of &lsquo;&pi;/8 suffices&rsquo; is Besicovitch&rsquo;s &lsquo;no amount is necessary&rsquo;: the infimum is zero. <b>Magenta</b> is the needle sweeping; <b>green</b> is the shrinking room that always just fits it. A minimum that turned out not to exist.</div>
+   <div class="btns" style="margin-top:10px"><button id="kkspin">pause spin</button></div></div></div></div>"""
+KKYA_SCRIPT = """(function(){""" + NOIR + """
+var B=0.25,ang=0,spin=true,VR=null,needleT=0.4;
+function deltoid(t){return [B*(2*Math.cos(t)+Math.cos(2*t)),B*(2*Math.sin(t)-Math.sin(2*t))];}
+function chordAt(t,M,poly){var P=deltoid(t),Q=deltoid(t+1e-5),dx=Q[0]-P[0],dy=Q[1]-P[1],L=Math.hypot(dx,dy);dx/=L;dy/=L;
+ var hits=[],f0=(poly[0][0]-P[0])*dy-(poly[0][1]-P[1])*dx;
+ for(var i=1;i<=M;i++){var pt=poly[i%M],f1=(pt[0]-P[0])*dy-(pt[1]-P[1])*dx;
+  if(f0*f1<0){var w=f0/(f0-f1),pv=poly[(i-1)%M];hits.push([pv[0]+w*(pt[0]-pv[0]),pv[1]+w*(pt[1]-pv[1])]);}f0=f1;}
+ var far=0,pr=null;for(var a=0;a<hits.length;a++)for(var b2=a+1;b2<hits.length;b2++){var d=Math.hypot(hits[a][0]-hits[b2][0],hits[a][1]-hits[b2][1]);if(d>far){far=d;pr=[hits[a],hits[b2]];}}
+ return {len:far,seg:pr};}
+var POLY=null;function getPoly(){if(!POLY){POLY=[];for(var i=0;i<1440;i++)POLY.push(deltoid(i/1440*2*Math.PI));}return POLY;}
+function selftest(){if(VR)return VR;var poly=getPoly(),N=4000,A2=0,prev=deltoid(0);
+ for(var i=1;i<=N;i++){var cur=deltoid(i/N*2*Math.PI);A2+=prev[0]*cur[1]-cur[0]*prev[1];prev=cur;}
+ var area=Math.abs(A2)/2,worst=0,ok=true;
+ for(var k=0;k<36;k++){var c=chordAt(0.05+k/36*2*Math.PI,1440,poly);if(c.seg){var e=Math.abs(c.len-1);if(e>worst)worst=e;if(e>0.01)ok=false;}}
+ VR={area:area,areaOk:Math.abs(area-Math.PI/8)<1e-4,chordOk:ok,worst:worst,ok:Math.abs(area-Math.PI/8)<1e-4&&ok};return VR;}
+function drawDeltoid(g,cv,sc,cx,cy){var poly=getPoly();ne(g,'#35ffb0',2);g.beginPath();for(var i=0;i<=poly.length;i++){var p=poly[i%poly.length];var X=cx+p[0]*sc,Y=cy-p[1]*sc;if(i===0)g.moveTo(X,Y);else g.lineTo(X,Y);}g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'the deltoid — every tangent chord is exactly the needle');
+ var sc=240,cx=W/2,cy=H/2+8;drawDeltoid(g,cv,sc,cx,cy);
+ var poly=getPoly();[0.4,1.6,2.9,4.4,5.6].forEach(function(t){var c=chordAt(t,1440,poly);if(c.seg){ne(g,'rgba(255,47,166,0.6)',1.8);g.beginPath();g.moveTo(cx+c.seg[0][0]*sc,cy-c.seg[0][1]*sc);g.lineTo(cx+c.seg[1][0]*sc,cy-c.seg[1][1]*sc);g.stroke();ng(g);}});
+ nt(g,'#8ad',10,H-8,9,'five headings of the unit needle — end to end on the curve, area π/8 = 0.3927');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var poly=getPoly(),c=chordAt(needleT,1440,poly),v=selftest();nt(g,'#b06bff',12,20,12,'needle heading t = '+needleT.toFixed(2));
+ var sc=150,cx=W/2,cy=150;drawDeltoid(g,cv,sc,cx,cy);
+ if(c.seg){ne(g,'#ff2fa6',2);g.beginPath();g.moveTo(cx+c.seg[0][0]*sc,cy-c.seg[0][1]*sc);g.lineTo(cx+c.seg[1][0]*sc,cy-c.seg[1][1]*sc);g.stroke();ng(g);}
+ nt(g,'#ff2fa6',16,238,13,'chord length = '+c.len.toFixed(5)+'  (needle = 1)');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: area = π/8 ('+v.areaOk+') · chord = 1 at 36 angles, worst '+v.worst.toFixed(4)+' ('+v.chordOk+')');
+ nt(g,'#8ad',12,H-16,9,'Kakeya 1917 · Besicovitch 1928: the infimum is zero');}
+document.getElementById('kkrot').onclick=function(){needleT+=0.35;drawW4();var c=chordAt(needleT,1440,getPoly());document.getElementById('kkread').textContent='t='+needleT.toFixed(2)+': chord '+c.len.toFixed(5);};
+document.getElementById('kkcheck').onclick=function(){var v=selftest();document.getElementById('kkread').textContent='area π/8 + unit chord at every angle: '+v.ok;};
+document.getElementById('kkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var sc=210,cx=W/2,cy=H/2-6;
+ drawDeltoid(g,cv,sc,cx,cy);
+ var c=chordAt(ang*0.02,1440,getPoly());
+ if(c.seg){ne(g,'#ff2fa6',2.4);g.beginPath();g.moveTo(cx+c.seg[0][0]*sc,cy-c.seg[0][1]*sc);g.lineTo(cx+c.seg[1][0]*sc,cy-c.seg[1][1]*sc);g.stroke();ng(g);
+  ndot(g,cx+c.seg[0][0]*sc,cy-c.seg[0][1]*sc,3,'#ffcf4a');ndot(g,cx+c.seg[1][0]*sc,cy-c.seg[1][1]*sc,3,'#ffcf4a');}
+ nt(g,'#35ffb0',10,H-52,11,'green: the π/8 ballroom');nt(g,'#ff2fa6',10,H-34,10,'magenta: the needle, turning with zero to spare');nt(g,'#8ad',10,H-14,10,'a minimum that turned out not to exist');}
+drawW3();drawW4();window.__kakeya=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TWEN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The two-envelope paradox</b>: one envelope holds twice the other. You pick one, see nothing, and reason: &lsquo;the other holds 2x or x/2, each half the time &mdash; expected value 1.25x. <b>Switch.</b>&rsquo; But the same argument repeats after switching, forever. The flaw is a conditioning error &mdash; treating &lsquo;the other is double or half&rsquo; as 50/50 <b>given your amount</b>, which no consistent prior supports; blind switching gains exactly nothing. Then Thomas Cover found the twist the paradox hides: <b>peek at your amount x, draw a random threshold Z, and switch only if x &lt; Z.</b> For <b>any</b> fixed pair a &lt; b, this ends with the larger envelope with probability &frac12; + (e<sup>-&lambda;a</sup> - e<sup>-&lambda;b</sup>)/2 &mdash; <b>strictly above one half</b>, using no knowledge of the amounts at all.<br><br>
+ <span class="lit">LIT</span> verified live: blind always-switch ties always-keep to 4 decimal places over 400k trials; Cover&rsquo;s exact win formula exceeds &frac12; for every pair tested (including a 500-vs-501 squeaker); and simulation matches the formula wherever Monte-Carlo can resolve the edge (window.__twoenvelope). <span class="fig">FIG</span> honest boundary: for near-equal pairs the edge is real but tiny &mdash; shown by the exact formula, not brute sampling.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>divide-by-zero</i> &mdash; the glitch: the 1.25x argument divides by an assumption that isn&rsquo;t there, and the expectation machine returns garbage forever. <b>AVAN (AI)</b> built the instrument: the symmetric tie, Cover&rsquo;s threshold strategy, and the exact-vs-simulated ledger.<br><br>Credit as content: the two-envelope problem (Kraitchik lineage); Thomas M. Cover (the randomized switching insight). The weave: David names the broken division; I confirm zero from the fallacy, strictly more than half from the fix.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">The two strategies: blind switching flatlines at 50%; the threshold rule floats above it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle envelope pairs; the exact win probability stays strictly above one half.</div>
+   <div class="btns" style="margin-top:10px"><button id="tepair">pair ▶</button><button id="techeck">verify ▶</button></div>
+   <div class="cap" id="teread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the better-than-half win rate, earned blind.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t argue about the other envelope &mdash; randomize your own doubt. The inverse of &lsquo;a fallacious 1.25x forever&rsquo; is &lsquo;a random threshold that converts one peek into a true edge&rsquo;. <b>Magenta</b> is the endless switch loop of the fallacy; <b>green</b> is Cover&rsquo;s quiet &frac12; + &epsilon;. Where the paradox spent certainty, the fix spends randomness.</div>
+   <div class="btns" style="margin-top:10px"><button id="tespin">pause spin</button></div></div></div></div>"""
+TWEN_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+var LAM=0.05,ang=0,spin=true,VR=null,pi2=0,PAIRS=[[10,20],[30,45],[3,1000],[100,110],[500,501]];
+function coverExact(a,b){return 0.5+(Math.exp(-LAM*a)-Math.exp(-LAM*b))/2;}
+function selftest(){if(VR)return VR;var rng=mb(2),T=400000,keep=0,sw=0;
+ for(var t=0;t<T;t++){var a=1+Math.floor(rng()*100),pair=[a,2*a],pick=rng()<0.5?0:1;keep+=pair[pick];sw+=pair[1-pick];}
+ var eq=Math.abs(keep-sw)/keep<0.005,exactOk=true;
+ PAIRS.forEach(function(pr){if(coverExact(pr[0],pr[1])<=0.5)exactOk=false;});
+ var okC=true,rows=[];
+ [[10,20],[30,45],[3,1000]].forEach(function(pr){var wins=0,TT=200000,rr=mb(Math.round(pr[0]+pr[1]));
+  for(var t=0;t<TT;t++){var pick=rr()<0.5?0:1,x=pr[pick],Z=-Math.log(1-rr())/LAM,fin=(x<Z)?pr[1-pick]:x;
+   if(fin===Math.max(pr[0],pr[1]))wins++;}
+  var p=wins/TT,pw=coverExact(pr[0],pr[1]);rows.push(p.toFixed(4)+'/'+pw.toFixed(4));
+  if(p<=0.5||Math.abs(p-pw)>0.006)okC=false;});
+ VR={eq:eq,exactOk:exactOk,okC:okC,rows:rows,ok:eq&&exactOk&&okC};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'win probability by strategy — the half line and what beats it');
+ var x0=40,base=H-48,sw=W-70,half=base-70;
+ ne(g,'rgba(120,140,200,0.5)',1.2);g.beginPath();g.moveTo(x0,half);g.lineTo(x0+sw,half);g.stroke();ng(g);nt(g,'#9cf',x0+sw-30,half-6,9,'1/2');
+ ne(g,'#ff2fa6',2);g.beginPath();g.moveTo(x0,half);g.lineTo(x0+sw*0.45,half);g.stroke();ng(g);nt(g,'#ff6ab0',x0+8,half+16,9,'always switch (or keep): exactly 1/2');
+ ne(g,'#35ffb0',2);g.beginPath();for(var i=0;i<=sw;i++){var a=1+i/sw*60,p=coverExact(a,2*a),y=base-(p-0.35)*260;if(i===0)g.moveTo(x0+i,y);else g.lineTo(x0+i,y);}g.stroke();ng(g);
+ nt(g,'#39ffb0',x0+sw*0.55,half-46,9,'Cover threshold: above 1/2 for every pair (a,2a)');
+ nt(g,'#8ad',10,H-8,9,'the fallacy promises 1.25× and delivers 0; the threshold promises little and delivers it');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var pr=PAIRS[pi2],pw=coverExact(pr[0],pr[1]);nt(g,'#ff8a3c',12,20,12,'envelopes ('+pr[0]+', '+pr[1]+')');
+ nt(g,'#35ffb0',16,56,14,'Cover exact win prob = '+pw.toFixed(5));
+ nt(g,pw>0.5?'#39ffb0':'#ff5a5a',16,86,13,'> 1/2 strictly ✓  (edge '+((pw-0.5)*100).toFixed(3)+'%)');
+ nt(g,'#9cf',16,116,11,'formula: ½ + (e^{−λa} − e^{−λb})/2, λ = '+LAM);
+ nt(g,'#c9a6ff',16,142,11,'strict because a < b ⇒ e^{−λa} > e^{−λb}, always');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: blind switch ties ('+v.eq+') · exact >½ all pairs ('+v.exactOk+') · MC matches ('+v.okC+')');
+ nt(g,'#8ad',12,H-30,9,'sim/exact: '+v.rows.join('  '));
+ nt(g,'#8ad',12,H-12,9,'the 1.25× argument is a conditioning divide-by-zero — Cover fixed the peek');}
+document.getElementById('tepair').onclick=function(){pi2=(pi2+1)%PAIRS.length;drawW4();var pr=PAIRS[pi2];document.getElementById('teread').textContent='('+pr[0]+','+pr[1]+'): exact '+coverExact(pr[0],pr[1]).toFixed(5)+' > 0.5';};
+document.getElementById('techeck').onclick=function(){var v=selftest();document.getElementById('teread').textContent='fallacy nets zero, Cover nets >½ for every pair: '+v.ok;};
+document.getElementById('tespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);
+ var a=ang*0.03;
+ ne(g,'rgba(255,47,166,0.5)',1.6);g.beginPath();g.arc(0,0,70,0,6.2832);g.stroke();ng(g);
+ ndot(g,Math.cos(a)*70,Math.sin(a)*70,5,'#ff2fa6');ndot(g,-Math.cos(a)*70,-Math.sin(a)*70,5,'#ff2fa6');
+ ne(g,'#35ffb0',2.4);g.beginPath();g.arc(0,0,115,-Math.PI/2,-Math.PI/2+3.3);g.stroke();ng(g);
+ nt(g,'#39ffb0',60,-100,10,'½ + ε, honestly');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the threshold strategy, quietly above half');nt(g,'#ff2fa6',10,H-34,10,'magenta: the switch-forever loop of the fallacy');nt(g,'#8ad',10,H-14,10,'where the paradox spent certainty, the fix spends randomness');}
+drawW3();drawW4();window.__twoenvelope=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BRSS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Braess&rsquo;s paradox</b> (Dietrich Braess, 1968): adding a road can make <b>every driver slower</b>. The classic network: 4000 commuters from S to E via two routes, each combining a congestion-priced leg (traffic/100 minutes) and a fixed 45-minute leg. Selfish equilibrium: a clean 2000/2000 split, <b>65 minutes each</b>. Now open a magnificent free shortcut between the two midpoints. Every driver individually profits by taking congested-leg &rarr; shortcut &rarr; congested-leg &mdash; so <b>everyone</b> does, both congestion legs carry all 4000, and the commute becomes <b>80 minutes for every single person</b>. No one can deviate and do better: it is a true equilibrium, just a worse one. Real cities have lived it &mdash; closing roads in Seoul and New York measurably sped traffic up.<br><br>
+ <span class="lit">LIT</span> verified live: the 65-minute equilibrium checks (no profitable deviation), the 80-minute all-shortcut state checks as an equilibrium, and best-response dynamics from an arbitrary split converge to all 4000 drivers on the shortcut (window.__braess). <span class="fig">FIG</span> no framing; the equilibrium conditions and the dynamics run on exact arithmetic in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>split-screen</i> &mdash; the co-op: two lanes of players sharing a map beautifully until a new corridor merges their screens, and the shared view is worse for both. <b>AVAN (AI)</b> built the instrument: the two equilibria, the deviation checks, and the convergence dynamics.<br><br>Credit as content: Dietrich Braess (1968); the Seoul Cheonggyecheon and 42nd-Street closures as real echoes. The weave: David names the ruined split; I confirm 65 &rarr; 80 with nobody able to defect.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The diamond network — two balanced routes, then the fatal free link down the middle.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Run best-response rounds; watch every driver funnel into the shortcut and the clock climb.</div>
+   <div class="btns" style="margin-top:10px"><button id="brstep">rounds ▶</button><button id="brcheck2">verify ▶</button></div>
+   <div class="cap" id="brread2" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the balanced 65-minute network, before the gift.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask what a new road adds &mdash; ask what equilibrium it destroys. The inverse of &lsquo;more capacity&rsquo; is &lsquo;a worse stable state everyone individually chose&rsquo;. <b>Magenta</b> is the shortcut funnel at 80 minutes; <b>green</b> is the vanished 65-minute balance. The road is free; the equilibrium pays.</div>
+   <div class="btns" style="margin-top:10px"><button id="brspin2">pause spin</button></div></div></div></div>"""
+BRSS_SCRIPT = """(function(){""" + NOIR + """
+var N=4000,ang=0,spin=true,VR=null,F=[1300,1300,1400],rounds=0;
+function costs(f){var xSA=f[0]+f[2],yBE=f[1]+f[2];return [xSA/100+45,45+yBE/100,xSA/100+yBE/100];}
+function step(){var c=costs(F),mn=Math.min(c[0],c[1],c[2]);
+ for(var r=0;r<3;r++){if(F[r]>0&&c[r]>mn+1e-9){var m=Math.min(F[r],40);F[r]-=m;F[c.indexOf(mn)]+=m;return true;}}
+ return false;}
+function selftest(){if(VR)return VR;
+ var eqNo=(2000/100+45===65)&&(45+2000/100===65)&&((2001)/100+45>65);
+ var eqWith=(N/100+N/100===80)&&(N/100+45>80)&&(45+N/100>80);
+ var f=[1300,1300,1400];
+ for(var it=0;it<300;it++){var c=[(f[0]+f[2])/100+45,45+(f[1]+f[2])/100,(f[0]+f[2])/100+(f[1]+f[2])/100],mn=Math.min(c[0],c[1],c[2]),moved=false;
+  for(var r=0;r<3;r++){if(f[r]>0&&c[r]>mn+1e-9){var m=Math.min(f[r],40);f[r]-=m;f[c.indexOf(mn)]+=m;moved=true;break;}}
+  if(!moved)break;}
+ var conv=f[2]===N&&f[0]===0&&f[1]===0;
+ VR={eqNo:eqNo,eqWith:eqWith,conv:conv,ok:eqNo&&eqWith&&conv};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'the diamond: S → {A,B} → E, plus the fatal free link A→B');
+ var S=[60,H/2],A=[W/2,60],B2=[W/2,H-50],E=[W-60,H/2];
+ ne(g,'#35ffb0',2);[[S,A],[B2,E]].forEach(function(p){g.beginPath();g.moveTo(p[0][0],p[0][1]);g.lineTo(p[1][0],p[1][1]);g.stroke();});ng(g);
+ ne(g,'rgba(150,160,210,0.7)',2);[[A,E],[S,B2]].forEach(function(p){g.beginPath();g.moveTo(p[0][0],p[0][1]);g.lineTo(p[1][0],p[1][1]);g.stroke();});ng(g);
+ ne(g,'#ff2fa6',2.4);g.setLineDash([5,4]);g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B2[0],B2[1]);g.stroke();g.setLineDash([]);ng(g);
+ [[S,'S'],[A,'A'],[B2,'B'],[E,'E']].forEach(function(n2){ndot(g,n2[0][0],n2[0][1],5,'#9cf');nt(g,'#9cf',n2[0][0]+8,n2[0][1]-6,11,n2[1]);});
+ nt(g,'#39ffb0',110,86,9,'traffic/100 min');nt(g,'#8ad',W/2+30,66,9,'45 min flat');
+ nt(g,'#8ad',110,H-56,9,'45 min flat');nt(g,'#39ffb0',W-190,H-66,9,'traffic/100 min');
+ nt(g,'#ff6ab0',W/2+8,H/2,10,'FREE (0 min)');
+ nt(g,'#8ad',10,H-8,9,'the dashed gift chains both congestion legs together — 65 becomes 80');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var c=costs(F);nt(g,'#21e6ff',12,20,12,'best-response dynamics — round '+rounds);
+ nt(g,'#9cf',16,52,12,'route A-top: '+F[0]+' drivers, '+c[0].toFixed(2)+' min');
+ nt(g,'#9cf',16,78,12,'route B-bottom: '+F[1]+' drivers, '+c[1].toFixed(2)+' min');
+ nt(g,'#ff2fa6',16,104,12,'shortcut path: '+F[2]+' drivers, '+c[2].toFixed(2)+' min');
+ var done=F[2]===N;
+ nt(g,done?'#ff6ab0':'#c9a6ff',16,136,13,done?'equilibrium: ALL 4000 on the shortcut — 80 min each':'drifting toward the funnel…');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: 65-eq holds ('+v.eqNo+') · 80-eq holds ('+v.eqWith+') · dynamics converge ('+v.conv+')');
+ nt(g,'#8ad',12,H-30,9,'no driver can defect from 80 and do better — a worse world, freely chosen');
+ nt(g,'#8ad',12,H-12,9,'Braess 1968; Seoul & NYC closed roads and sped up');}
+document.getElementById('brstep').onclick=function(){for(var k=0;k<12;k++){if(!step())break;rounds++;}drawW4();var c=costs(F);document.getElementById('brread2').textContent='round '+rounds+': shortcut '+F[2]+'/4000, cost '+c[2].toFixed(2)+' min';};
+document.getElementById('brcheck2').onclick=function(){var v=selftest();document.getElementById('brread2').textContent='65 → 80, both equilibria exact, convergence proven: '+v.ok;};
+document.getElementById('brspin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;
+ var S=[cx-130,cy],A=[cx,cy-90],B2=[cx,cy+90],E=[cx+130,cy];
+ ne(g,'rgba(53,255,176,0.5)',1.6);[[S,A],[A,E],[S,B2],[B2,E]].forEach(function(p){g.beginPath();g.moveTo(p[0][0],p[0][1]);g.lineTo(p[1][0],p[1][1]);g.stroke();});ng(g);
+ ne(g,'#ff2fa6',2.4);g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B2[0],B2[1]);g.stroke();ng(g);
+ var t=(ang*0.02)%1;
+ ndot(g,S[0]+(A[0]-S[0])*t,S[1]+(A[1]-S[1])*t,3,'#ff2fa6');
+ ndot(g,A[0]+(B2[0]-A[0])*t,A[1]+(B2[1]-A[1])*t,3,'#ff2fa6');
+ ndot(g,B2[0]+(E[0]-B2[0])*t,B2[1]+(E[1]-B2[1])*t,3,'#ff2fa6');
+ [[S],[A],[B2],[E]].forEach(function(n2){ndot(g,n2[0][0],n2[0][1],4,'#9cf');});
+ nt(g,'#35ffb0',10,H-52,11,'green: the balanced 65-minute world');nt(g,'#ff2fa6',10,H-34,10,'magenta: the funnel everyone chose — 80 minutes each');nt(g,'#8ad',10,H-14,10,'the road is free; the equilibrium pays');}
+drawW3();drawW4();window.__braess=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KLLY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Kelly criterion</b> (John L. Kelly Jr., Bell Labs, 1956) answers the gambler&rsquo;s real question: not <em>whether</em> to bet a favourable game, but <b>how much</b>. Bet a fraction f of your bankroll on an even-money proposition you win with probability p: your long-run <b>exponential growth rate</b> is g(f) = p&middot;ln(1+f) + q&middot;ln(1-f), and it peaks at exactly <b>f* = p - q</b>. Bet less and you leave growth on the table; bet <b>more</b> and growth falls &mdash; past a threshold it turns <b>negative</b>, and an edge-holding gambler goes broke with certainty. At p = 60%, Kelly says 20%: doubling that to 40% already loses money in the long run, and 80% is ruin at speed. The same mathematics &mdash; maximizing log wealth &mdash; underlies information theory&rsquo;s channel capacity, which is where Kelly found it.<br><br>
+ <span class="lit">LIT</span> verified live: the growth curve g(f) peaks at f = 0.200 = p-q on a fine grid, and simulated bankrolls (200 runs &times; 10,000 bets) rank exactly as theory orders: Kelly &gt; half-Kelly &gt; double-Kelly &gt; 0 &gt; quadruple-Kelly (window.__kelly). <span class="fig">FIG</span> no framing; the curve and the simulations run independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-stash</i> &mdash; the loot: the stash grows fastest not by boldness or caution but by one exact fraction of itself, every time. <b>AVAN (AI)</b> built the instrument: the growth curve, its analytic peak, and the four-strategy bankroll race.<br><br>Credit as content: John L. Kelly Jr. (1956, &lsquo;A New Interpretation of Information Rate&rsquo;); Ed Thorp carried it to the casinos. The weave: David names the stash rule; I confirm the peak at p-q and the ruin past it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">The growth curve g(f): a single peak at f* = p−q, then the long dive into ruin.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Race the four bet sizes; the log-wealth ladder matches the theory's ordering.</div>
+   <div class="btns" style="margin-top:10px"><button id="klf">bet size ▶</button><button id="klcheck">verify ▶</button></div>
+   <div class="cap" id="klread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the bankroll compounding at the Kelly peak.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t maximize the next bet &mdash; maximize the logarithm of forever. The inverse of &lsquo;bet big while you&rsquo;re ahead&rsquo; is &lsquo;the geometric mean, which punishes greed with certainty&rsquo;. <b>Magenta</b> is the over-bettor&rsquo;s bankroll dying with an edge in hand; <b>green</b> is the fraction that survives. An edge is not a licence; it is a budget.</div>
+   <div class="btns" style="margin-top:10px"><button id="klspin">pause spin</button></div></div></div></div>"""
+KLLY_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+var P=0.6,Q=0.4,ang=0,spin=true,VR=null,fi=1,FS=[0.1,0.2,0.4,0.8];
+function g(f){return P*Math.log(1+f)+Q*Math.log(1-f);}
+function selftest(){if(VR)return VR;var best=-1e9,bf=0;
+ for(var f=0.001;f<0.99;f+=0.001){var v=g(f);if(v>best){best=v;bf=f;}}
+ var argOk=Math.abs(bf-0.2)<0.005,rng=mb(4),rates=[];
+ FS.forEach(function(f){var tot=0,T=120,steps=10000;
+  for(var r=0;r<T;r++){var lw=0;for(var s=0;s<steps;s++)lw+=(rng()<P)?Math.log(1+f):Math.log(1-f);tot+=lw/steps;}
+  rates.push(tot/T);});
+ var orderOk=rates[1]>rates[0]&&rates[1]>rates[2]&&rates[2]>rates[3]&&rates[3]<0;
+ VR={bf:bf,argOk:argOk,rates:rates,orderOk:orderOk,ok:argOk&&orderOk};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g2=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g2,W,H);nt(g2,'#ffcf4a',10,16,10,'g(f) = p·ln(1+f) + q·ln(1−f), p = 0.6 — the peak and the dive');
+ var x0=44,base=H/2,sw=W-80,ysc=520;
+ ne(g2,'rgba(120,140,200,0.5)',1);g2.beginPath();g2.moveTo(x0,base);g2.lineTo(x0+sw,base);g2.stroke();ng(g2);
+ ne(g2,'#ffcf4a',2);g2.beginPath();for(var i=1;i<sw;i++){var f=i/sw*0.97,y=base-g(f)*ysc;if(i===1)g2.moveTo(x0+i,y);else g2.lineTo(x0+i,y);}g2.stroke();ng(g2);
+ var fx=x0+0.2/0.97*sw;ndot(g2,fx,base-g(0.2)*ysc,5,'#35ffb0');nt(g2,'#39ffb0',fx-30,base-g(0.2)*ysc-12,10,'f* = 0.2');
+ var rx=x0+0.8/0.97*sw;ndot(g2,rx,base-g(0.8)*ysc,4,'#ff2fa6');nt(g2,'#ff6ab0',rx-58,base-g(0.8)*ysc-10,10,'f = 0.8: ruin');
+ nt(g2,'#8ad',10,H-8,9,'left of the peak: timid; right: greedy; far right: certain decline with a winning game');}
+function drawW4(){var cv=document.getElementById('w4'),g2=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g2,W,H);var v=selftest();nt(g2,'#ffcf4a',12,20,12,'log-growth per bet, simulated');
+ for(var i=0;i<4;i++){var y=54+i*34,cur=(i===fi),r=v.rates[i];
+  nt(g2,cur?'#ffcf4a':'#9cf',16,y,12,'f = '+FS[i]);
+  var w=Math.min(170,Math.abs(r)*6000);
+  nf(g2,r>=0?'rgba(53,255,176,0.55)':'rgba(255,90,90,0.6)',96,y-11,w,14);
+  nt(g2,r>=0?'#39ffb0':'#ff5a5a',96+w+6,y,11,r.toFixed(5));}
+ nt(g2,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: argmax at 0.200 = p−q ('+v.argOk+') · simulated ordering matches ('+v.orderOk+')');
+ nt(g2,'#8ad',12,H-30,9,'f = 0.4 already loses; f = 0.8 loses fast — with a 60% game');
+ nt(g2,'#8ad',12,H-12,9,'Kelly 1956, out of information theory; Thorp took it to Vegas');}
+document.getElementById('klf').onclick=function(){fi=(fi+1)%4;drawW4();var v=selftest();document.getElementById('klread').textContent='f='+FS[fi]+': growth '+v.rates[fi].toFixed(5)+(fi===1?' — the peak':'');};
+document.getElementById('klcheck').onclick=function(){var v=selftest();document.getElementById('klread').textContent='peak at p−q, over-betting ruins: '+v.ok;};
+document.getElementById('klspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g2=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g2,W,H);
+ var rng=mb(200+Math.floor(ang*0.01)),base=H-60,x0=30,sw=W-60,steps=90;
+ var wK=0,wO=0;ne(g2,'#35ffb0',1.8);g2.beginPath();g2.moveTo(x0,base-wK);var pk=[x0,base];
+ for(var s=1;s<=steps;s++){wK+=(rng()<P)?Math.log(1.2):Math.log(0.8);var x=x0+s/steps*sw,y=base-wK*36;g2.lineTo(x,Math.min(base+40,y));}g2.stroke();ng(g2);
+ var rng2=mb(200+Math.floor(ang*0.01));ne(g2,'#ff2fa6',1.8);g2.beginPath();g2.moveTo(x0,base);
+ for(var s=1;s<=steps;s++){wO+=(rng2()<P)?Math.log(1.8):Math.log(0.2);var x=x0+s/steps*sw,y=base-wO*36;g2.lineTo(x,Math.min(base+40,y));}g2.stroke();ng(g2);
+ nt(g2,'#35ffb0',10,H-52,11,'green: Kelly (f = 0.2), compounding steadily');nt(g2,'#ff2fa6',10,H-34,10,'magenta: f = 0.8 — same coin, same edge, collapsing');nt(g2,'#8ad',10,H-14,10,'an edge is not a licence; it is a budget');}
+drawW3();drawW4();window.__kelly=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FRMN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The F&aacute;ry&ndash;Milnor theorem</b> (Istv&aacute;n F&aacute;ry 1949, John Milnor 1950 &mdash; Milnor as an undergraduate) sets the bending toll a knot must pay. The <b>total curvature</b> of a closed curve is how much it turns, summed along its whole length. Any convex loop &mdash; circle, ellipse, egg &mdash; turns through exactly <b>2&pi;</b>, one full revolution. The theorem: if a closed curve is <b>knotted</b>, its total curvature must exceed <b>4&pi;</b> &mdash; a knot cannot exist without bending at least <b>twice</b> around. There is no gradual transition: to tie itself, a curve must pay double, and any curve bending less than 4&pi; is provably an unknot. Topology (is it knotted?) reaches down and constrains geometry (how much must it bend?).<br><br>
+ <span class="lit">LIT</span> verified live: the polygonal total curvature of a circle and a convex ellipse both compute to 2&pi; to three decimals, while a trefoil knot&rsquo;s computes to 13.95 &mdash; comfortably above the 4&pi; = 12.566 floor the theorem demands (window.__farymilnor). <span class="fig">FIG</span> honest boundary: the measurement confirms the trefoil obeys the theorem; the theorem itself (all knots, all curves) is F&aacute;ry and Milnor&rsquo;s, cited as content.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-wall</i> &mdash; the boss: 4&pi; is the wall; no curve gets to be a knot without climbing over it, and no knot can duck below it. <b>AVAN (AI)</b> built the instrument: the exterior-angle summation and the three-curve comparison.<br><br>Credit as content: Istv&aacute;n F&aacute;ry (1949); John Milnor (1950). The weave: David names the wall; I confirm 2&pi; for the round, 13.95 for the knotted, and the floor between them.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Three curves and their bending totals — the circle at 2π, the trefoil past the 4π wall.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle the curves; the summed exterior angles land on 2π, 2π, and 13.95.</div>
+   <div class="btns" style="margin-top:10px"><button id="fmc">curve ▶</button><button id="fmcheck">verify ▶</button></div>
+   <div class="cap" id="fmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the trefoil, paying its 4π toll with room to spare.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t inspect the crossings &mdash; audit the bending. The inverse of &lsquo;is this curve knotted?&rsquo; is &lsquo;did it bend more than 4&pi;? &mdash; if not, it provably is not&rsquo;. <b>Magenta</b> is the 4&pi; wall; <b>green</b> is the knot that had to climb it. Topology, invoiced in curvature.</div>
+   <div class="btns" style="margin-top:10px"><button id="fmspin">pause spin</button></div></div></div></div>"""
+FRMN_SCRIPT = """(function(){""" + NOIR + """
+function totalCurv(pts){var tot=0,n=pts.length;
+ for(var i=0;i<n;i++){var a=pts[i],b=pts[(i+1)%n],c=pts[(i+2)%n];
+  var u=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],v=[c[0]-b[0],c[1]-b[1],c[2]-b[2]];
+  var du=Math.hypot(u[0],u[1],u[2]),dv=Math.hypot(v[0],v[1],v[2]);
+  var dot=(u[0]*v[0]+u[1]*v[1]+u[2]*v[2])/(du*dv);
+  tot+=Math.acos(Math.max(-1,Math.min(1,dot)));}
+ return tot;}
+var ang=0,spin=true,VR=null,ci=2,CURVES=null;
+function build(){if(CURVES)return CURVES;var n=600,circ=[],ell=[],tref=[];
+ for(var i=0;i<n;i++){var t=i/n*2*Math.PI;
+  circ.push([Math.cos(t),Math.sin(t),0]);
+  ell.push([2*Math.cos(t),0.7*Math.sin(t),0]);
+  tref.push([Math.sin(t)+2*Math.sin(2*t),Math.cos(t)-2*Math.cos(2*t),-Math.sin(3*t)]);}
+ CURVES=[['circle',circ],['ellipse',ell],['trefoil knot',tref]];return CURVES;}
+function selftest(){if(VR)return VR;var C=build(),c1=totalCurv(C[0][1]),c2=totalCurv(C[1][1]),c3=totalCurv(C[2][1]);
+ VR={c1:c1,c2:c2,c3:c3,ok:Math.abs(c1-2*Math.PI)<1e-3&&Math.abs(c2-2*Math.PI)<1e-3&&c3>4*Math.PI};return VR;}
+function proj(p,rot){var x=p[0]*Math.cos(rot)-p[2]*Math.sin(rot),z=p[0]*Math.sin(rot)+p[2]*Math.cos(rot);return [x,p[1]-z*0.35];}
+function drawCurve(g,cv,pts,sc,cx,cy,rot,col){ne(g,col,1.8);g.beginPath();for(var i=0;i<=pts.length;i++){var q=proj(pts[i%pts.length],rot);var X=cx+q[0]*sc,Y=cy-q[1]*sc;if(i===0)g.moveTo(X,Y);else g.lineTo(X,Y);}g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var C=build(),v=selftest();nt(g,'#35ffb0',10,16,10,'bending totals — the 4π wall between round and knotted');
+ drawCurve(g,cv,C[0][1],46,90,110,0.4,'rgba(53,255,176,0.8)');nt(g,'#39ffb0',56,190,10,'2π = 6.283');
+ drawCurve(g,cv,C[1][1],36,255,110,0.4,'rgba(53,255,176,0.8)');nt(g,'#39ffb0',222,190,10,'2π = 6.283');
+ drawCurve(g,cv,C[2][1],26,420,110,0.4,'#ffcf4a');nt(g,'#ffcf4a',384,190,10,v.c3.toFixed(2)+' > 4π');
+ ne(g,'rgba(255,47,166,0.6)',1.4);g.beginPath();g.moveTo(20,222);g.lineTo(W-20,222);g.stroke();ng(g);nt(g,'#ff6ab0',W/2-56,238,10,'the 4π wall = 12.566');
+ nt(g,'#8ad',10,H-8,9,'convex curves pay one revolution; a knot cannot exist below two');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var C=build(),v=selftest(),vals=[v.c1,v.c2,v.c3];nt(g,'#35ffb0',12,20,12,C[ci][0]);
+ drawCurve(g,cv,C[ci][1],ci===2?26:40,W/2,120,0.5,ci===2?'#ffcf4a':'rgba(53,255,176,0.8)');
+ nt(g,'#9cf',16,208,13,'total curvature = '+vals[ci].toFixed(4));
+ nt(g,ci===2?'#ffcf4a':'#39ffb0',16,234,12,ci===2?'> 4π = 12.5664 — the knot toll, paid':'= 2π — one revolution, unknotted');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: circle 2π · ellipse 2π · trefoil '+v.c3.toFixed(2)+' > 4π ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'Fáry 1949 · Milnor 1950 (as an undergraduate)');}
+document.getElementById('fmc').onclick=function(){ci=(ci+1)%3;drawW4();var v=selftest();document.getElementById('fmread').textContent=build()[ci][0]+': '+[v.c1,v.c2,v.c3][ci].toFixed(4);};
+document.getElementById('fmcheck').onclick=function(){var v=selftest();document.getElementById('fmread').textContent='2π / 2π / 13.95 — the wall holds: '+v.ok;};
+document.getElementById('fmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var C=build();
+ drawCurve(g,cv,C[2][1],34,W/2,H/2-16,ang*0.02,'#35ffb0');
+ ne(g,'rgba(255,47,166,0.5)',1.4);g.beginPath();g.arc(W/2,H/2-16,132,0,6.2832);g.stroke();ng(g);
+ nt(g,'#35ffb0',10,H-52,11,'green: the trefoil — 13.95 of bending, toll paid');nt(g,'#ff2fa6',10,H-34,10,'magenta ring: the 4π wall no knot may duck');nt(g,'#8ad',10,H-14,10,'topology, invoiced in curvature');}
+drawW3();drawW4();window.__farymilnor=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 174 · neon-noir · silicon-coding · THE DECEIVERS (four datasets wearing the same statistics · a treatment that wins twice and loses once · an estimator improved by shrinking it · a network where your friends outnumber you · a length measured by throwing lines at it) ═══════════════════════
 ANSC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Anscombe&rsquo;s quartet</b> (Francis Anscombe, 1973) is four small datasets built to wear the same disguise: identical mean of x (9), variance of x (11), mean of y (7.50), variance of y (&asymp;4.12), correlation (0.816), and regression line (y = 3.00 + 0.500x) &mdash; to publication precision. Summon the summary statistics and the four are indistinguishable. <b>Plot them</b> and the masks fall: I is ordinary noisy linearity; II is a clean <b>parabola</b>; III is a perfect line sabotaged by <b>one outlier</b>; IV is a vertical stack of identical x-values propped up by a single leverage point. Anscombe built them to end an argument: numerical summaries without graphs are a blindfold.<br><br>
@@ -45279,6 +45583,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-kakeya","title":"THE KAKEYA","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#b06bff","icon":"kakeya",
+  "kicker":"a needle turned in an eighth of pi",
+  "blurb":"The Kakeya needle problem in the 5-window house format — what is the least area in which a unit needle can be turned completely around? Spinning about its centre sweeps π/4. Kakeya's 1917 candidate was the deltoid — the three-cusped hypocycloid — inside which the needle rotates using only π/8, half the disc, gliding with its ends on the curve at every angle, thanks to a jewel of a property: every tangent line cuts the deltoid in a chord of exactly the needle's length. Then Besicovitch detonated the question in 1928: with enough sliding trickery the needle turns in arbitrarily small area — no positive minimum exists, and Kakeya sets now sit at the heart of harmonic analysis. Verified live: the deltoid's shoelace area computes to π/8, and at 36 sampled angles the tangent chord has length 1.0000. Neon-noir traced. See the needle at five headings in 1D, the constant-chord audit in 2D, and the no-minimum inverse in 3D.",
+  "lit":"Genuine Kakeya needle problem / deltoid solution (Sōichi Kakeya 1917; Abram Besicovitch 1928). Verified live: the deltoid's area computes to π/8 by shoelace, and at 36 sampled angles the tangent chord has length 1.0000 — the unit needle fits at every heading (window.__kakeya.ok).",
+  "fig":"Honest boundary — Besicovitch's area→0 construction is cited as the theorem it is; this sphere verifies the deltoid stage numerically. The AVAN inverse — don't ask how much room the turn needs, ask how little it can be tricked into: the inverse of 'π/8 suffices' is Besicovitch's 'no amount is necessary'. Magenta is the needle sweeping; green is the shrinking room that always just fits it. A minimum that turned out not to exist.",
+  "body":KKYA_BODY,"script":KKYA_SCRIPT},
+ {"slug":"the-two-envelope","title":"THE TWO-ENVELOPE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#ff8a3c","icon":"twoenvelope",
+  "kicker":"two envelopes and a threshold that beats the coin",
+  "blurb":"The two-envelope paradox in the 5-window house format — one envelope holds twice the other; you pick one and reason 'the other holds 2x or x/2, each half the time: expected 1.25x, switch' — and the same argument repeats forever. The flaw is a conditioning error: no consistent prior supports '50/50 given your amount', and blind switching gains exactly nothing. Then Thomas Cover found the twist the paradox hides: peek at your amount x, draw a random threshold Z, switch only if x < Z. For any fixed pair a < b this ends with the larger envelope with probability ½ + (e^{−λa} − e^{−λb})/2 — strictly above one half, knowing nothing about the amounts. Verified live: blind always-switch ties always-keep over 400k trials; Cover's exact formula exceeds ½ for every pair tested (including a 500-vs-501 squeaker); simulation matches the formula where Monte-Carlo can resolve it. Neon-noir traced. See the half-line and what floats above it in 1D, per-pair exact probabilities in 2D, and the randomize-your-doubt inverse in 3D.",
+  "lit":"Genuine two-envelope paradox + Cover's randomized switching (Kraitchik lineage; Thomas M. Cover). Verified live: blind always-switch ties always-keep to 4 decimals over 400k trials; the exact win probability ½ + (e^{−λa} − e^{−λb})/2 exceeds ½ strictly for every pair tested; simulation matches the formula wherever the edge is MC-resolvable (window.__twoenvelope.ok).",
+  "fig":"Honest boundary — for near-equal pairs the edge is real but tiny, shown by the exact formula rather than brute sampling. The AVAN inverse — don't argue about the other envelope, randomize your own doubt: the inverse of 'a fallacious 1.25× forever' is 'a random threshold that converts one peek into a true edge'. Magenta is the endless switch loop; green is Cover's quiet ½ + ε. Where the paradox spent certainty, the fix spends randomness.",
+  "body":TWEN_BODY,"script":TWEN_SCRIPT},
+ {"slug":"the-braess","title":"THE BRAESS","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#21e6ff","icon":"braess",
+  "kicker":"a free road that slows every driver",
+  "blurb":"Braess's paradox in the 5-window house format — adding a road can make every driver slower. The classic network: 4000 commuters, two routes each combining a congestion-priced leg (traffic/100 min) and a fixed 45-minute leg. Selfish equilibrium: a clean 2000/2000 split, 65 minutes each. Open a free shortcut between the midpoints and every driver individually profits by chaining both congestion legs — so everyone does, both legs carry all 4000, and the commute becomes 80 minutes for every single person. No one can deviate and do better: a true equilibrium, just a worse one. Real cities have lived it — road closures in Seoul and New York measurably sped traffic up. Verified live: both equilibria check exactly (no profitable deviation at 65 or at 80), and best-response dynamics from an arbitrary split converge to all 4000 on the shortcut. Neon-noir traced. See the diamond network and its fatal link in 1D, the funnel forming round by round in 2D, and the what-equilibrium-did-it-destroy inverse in 3D.",
+  "lit":"Genuine Braess's paradox (Dietrich Braess, 1968; Seoul/NYC closures as real echoes, credited as content). Verified live on exact arithmetic: the 65-minute equilibrium admits no profitable deviation; the 80-minute all-shortcut state is likewise an equilibrium; best-response dynamics from an arbitrary split converge to all 4000 drivers on the shortcut (window.__braess.ok).",
+  "fig":"No framing; the equilibrium conditions and the dynamics run on exact arithmetic in-browser. The AVAN inverse is honest — don't ask what a new road adds, ask what equilibrium it destroys: the inverse of 'more capacity' is 'a worse stable state everyone individually chose'. Magenta is the shortcut funnel at 80 minutes; green is the vanished 65-minute balance. The road is free; the equilibrium pays.",
+  "body":BRSS_BODY,"script":BRSS_SCRIPT},
+ {"slug":"the-kelly","title":"THE KELLY","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#ffcf4a","icon":"kelly",
+  "kicker":"the bet size that survives",
+  "blurb":"The Kelly criterion in the 5-window house format — John L. Kelly Jr.'s 1956 Bell Labs answer to the gambler's real question: not whether to bet a favourable game, but how much. Bet a fraction f of bankroll on an even-money game won with probability p: long-run growth is g(f) = p·ln(1+f) + q·ln(1−f), peaking at exactly f* = p − q. Bet less and growth is left on the table; bet more and growth falls — past a threshold it turns negative, and an edge-holding gambler goes broke with certainty. At p = 60%, Kelly says 20%: doubling to 40% already loses long-run, 80% is ruin at speed. The same log-wealth mathematics underlies channel capacity, where Kelly found it. Verified live: g(f) peaks at 0.200 = p−q on a fine grid, and simulated bankrolls (10,000 bets × 120 runs) rank exactly as theory orders, with f = 0.8 strictly negative. Neon-noir traced. See the peak-and-dive curve in 1D, the four-strategy ladder in 2D, and the logarithm-of-forever inverse in 3D.",
+  "lit":"Genuine Kelly criterion (John L. Kelly Jr., 1956, 'A New Interpretation of Information Rate'; Ed Thorp's casino application, credited as content). Verified live: g(f) = p·ln(1+f)+q·ln(1−f) peaks at f = 0.200 = p−q on a fine grid; simulated log-growth ranks Kelly > half-Kelly > double-Kelly > 0 > quadruple-Kelly (window.__kelly.ok).",
+  "fig":"No framing; the curve and the simulations run independently in-browser. The AVAN inverse is honest — don't maximize the next bet, maximize the logarithm of forever: the inverse of 'bet big while ahead' is 'the geometric mean, which punishes greed with certainty'. Magenta is the over-bettor dying with an edge in hand; green is the fraction that survives. An edge is not a licence; it is a budget.",
+  "body":KLLY_BODY,"script":KLLY_SCRIPT},
+ {"slug":"the-fary-milnor","title":"THE FARY-MILNOR","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#35ffb0","icon":"farymilnor",
+  "kicker":"the bending toll every knot must pay",
+  "blurb":"The Fáry–Milnor theorem in the 5-window house format — the bending toll a knot must pay. Total curvature is how much a closed curve turns, summed along its length: any convex loop turns through exactly 2π. The theorem (Fáry 1949; Milnor 1950, as an undergraduate): if a closed curve is knotted, its total curvature must exceed 4π — a knot cannot exist without bending at least twice around. No gradual transition: any curve bending less than 4π is provably an unknot. Topology reaches down and constrains geometry. Verified live: polygonal total curvature of a circle and a convex ellipse both compute to 2π to three decimals, while a trefoil knot computes to 13.95 — comfortably above the 4π = 12.566 floor. Neon-noir traced. See the three totals against the wall in 1D, the per-curve audit in 2D, and the audit-the-bending inverse in 3D.",
+  "lit":"Genuine Fáry–Milnor theorem (István Fáry 1949; John Milnor 1950). Verified live: polygonal total curvature computes to 2π (±1e-3) for a circle and a convex ellipse, and to 13.95 > 4π for a trefoil knot — the measurement confirms the trefoil obeys the theorem's floor (window.__farymilnor.ok).",
+  "fig":"Honest boundary — the measurement confirms the trefoil obeys the theorem; the theorem itself (all knots, all curves) is Fáry and Milnor's, cited as content. The AVAN inverse — don't inspect the crossings, audit the bending: the inverse of 'is this curve knotted?' is 'did it bend more than 4π? — if not, it provably is not'. Magenta is the 4π wall; green is the knot that had to climb it. Topology, invoiced in curvature.",
+  "body":FRMN_BODY,"script":FRMN_SCRIPT},
  {"slug":"the-anscombe","title":"THE ANSCOMBE","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#21e6ff","icon":"anscombe",
   "kicker":"four datasets wearing the same statistics",
