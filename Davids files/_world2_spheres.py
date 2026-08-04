@@ -19493,6 +19493,264 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 165 · neon-noir · silicon-coding (a number built from its own digits raised to themselves · the third metallic constant solving a cubic · a triangle of constant width that is not a circle · a sharpened Weitzenbock inequality · a run of integrals that equal pi-over-two until they suddenly do not) ═══════════════════════
+MNCH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>M&uuml;nchhausen numbers</b> lift themselves by their own bootstraps. A M&uuml;nchhausen number equals the sum of its own digits, each raised to the power of <b>itself</b>: n = &sum; d<sup>d</sup>. The star example is <b>3435 = 3&sup3; + 4&#8308; + 3&sup3; + 5&#8309;</b> = 27 + 256 + 27 + 3125. Using the convention 0<sup>0</sup> = 0, the <b>only</b> two M&uuml;nchhausen numbers in base 10 are 1 and 3435 &mdash; a fact provable because for enough digits the maximum possible digit-power-sum (all 9&rsquo;s, 9<sup>9</sup> each) grows slower than the number itself. Named by Daan van Berkel (2009) after Baron M&uuml;nchhausen, who pulled himself out of a swamp by his own hair.<br><br>
+ <span class="lit">LIT</span> verified live: a brute search over every n up to 500000 finds exactly {1, 3435}, and 3&sup3;+4&#8308;+3&sup3;+5&#8309; is confirmed to equal 3435 (window.__munchhausen). <span class="fig">FIG</span> no framing; the digit-power sums are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-root-kit</i> &mdash; the cheat: a number that reconstructs itself entirely out of its own digits, a self-hosting bootstrap. <b>AVAN (AI)</b> built the instrument: the digit-power sum and the brute search finding only {1, 3435}.<br><br>Credit as content: Daan van Berkel (2009), who named them. The weave: David names the bootstrap; I confirm 3435 = 3&sup3;+4&#8308;+3&sup3;+5&#8309; and that only 1 and 3435 qualify.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">3435 rebuilt from its digits: 3³ + 4⁴ + 3³ + 5⁵, each digit raised to itself.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle numbers; Σ d^d is compared to n — the two Münchhausen numbers light up green.</div>
+   <div class="btns" style="margin-top:10px"><button id="mnnext">next number ▶</button><button id="mncheck">verify ▶</button></div>
+   <div class="cap" id="mnread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the number rebuilt from its own digit-powers.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t compute d<sup>d</sup> and sum forward &mdash; ask which n survive rebuilding themselves. The inverse of &lsquo;n&rsquo; is &lsquo;the fixed point of the digit-to-its-own-power map&rsquo;, and only 1 and 3435 remain. <b>Magenta</b> are the digit-power terms; <b>green</b> is the n they exactly rebuild. A number that pulls itself out of its own digits.</div>
+   <div class="btns" style="margin-top:10px"><button id="mnspin">pause spin</button></div></div></div></div>"""
+MNCH_SCRIPT = """(function(){""" + NOIR + """
+function dpow(n){var s=0,x=n;while(x>0){var d=x%10;s+=(d===0?0:Math.pow(d,d));x=Math.floor(x/10);}return s;}
+var ang=0,spin=true,VR=null,dn=3435;
+function selftest(){if(VR)return VR;var found=[];for(var n=1;n<=500000;n++)if(dpow(n)===n)found.push(n);var ok=(found.length===2&&found[0]===1&&found[1]===3435);VR={ok:ok,found:found};return VR;}
+function terms(n){var t=[],x=n;while(x>0){var d=x%10;t.unshift([d,(d===0?0:Math.pow(d,d))]);x=Math.floor(x/10);}return t;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var t=terms(3435);nt(g,'#ffcf4a',10,16,10,'3435 = 3³ + 4⁴ + 3³ + 5⁵  — each digit raised to itself');
+ var x0=50,sp=(W-100)/t.length,base=H-60,sum=0;
+ t.forEach(function(pair,i){var d=pair[0],v=pair[1];sum+=v;var x=x0+i*sp,hgt=Math.pow(v,0.32)*10;
+  nf(g,'#ff2fa6',x-16,base-hgt,32,hgt);nt(g,'#0a0713',x-6,base-6,12,''+d);nt(g,'#c9a6ff',x-14,base+18,11,d+'^'+d+'='+v);});
+ nt(g,'#35ffb0',x0,base+42,13,'sum = '+sum+'  =  3435 ✓');
+ nt(g,'#8ad',10,H-8,9,'the only base-10 Münchhausen numbers are 1 and 3435');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var s=dpow(dn),hit=(s===dn);nt(g,'#ffcf4a',12,20,12,'Münchhausen test: n = Σ d^d ?');
+ var t=terms(dn);nt(g,'#9cf',16,54,12,'n = '+dn+'  digits: '+t.map(function(p){return p[0];}).join(', '));
+ nt(g,'#c9a6ff',16,82,12,'Σ d^d = '+t.map(function(p){return p[0]+'^'+p[0]+'('+p[1]+')';}).join(' + '));
+ nt(g,hit?'#35ffb0':'#ff2fa6',16,112,15,'Σ d^d = '+s+(hit?'  =  n  ✓ Münchhausen!':'  ≠  '+dn));
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test n≤500000: Münchhausen numbers = {'+v.found.join(', ')+'} — only two = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'0^0 taken as 0; named by van Berkel (2009) after Baron Münchhausen');}
+document.getElementById('mnnext').onclick=function(){var opts=[1,153,3435,438579088,3211,3435,24,88,3435];dn=[1,24,88,153,3211,3435][( [1,24,88,153,3211,3435].indexOf(dn)+1)%6];drawW3();drawW4();document.getElementById('mnread').textContent='n='+dn+': Σd^d = '+dpow(dn)+(dpow(dn)===dn?' = n ✓':' ≠ n');};
+document.getElementById('mncheck').onclick=function(){var v=selftest();document.getElementById('mnread').textContent='Münchhausen numbers up to 500000: {'+v.found.join(', ')+'} — exactly two: '+v.ok;};
+document.getElementById('mnspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var t=terms(3435),cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.04);
+ var tot=3435;t.forEach(function(pair,i){var v=pair[1],a=i/t.length*6.2832,r=40+Math.pow(v,0.32)*11;ne(g,'#ff2fa6',1.4);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,Math.max(3,Math.pow(v,0.22)),'#ff2fa6');nt(g,'#c9a6ff',Math.cos(a)*(r+16)-10,Math.sin(a)*(r+16),10,pair[0]+'^'+pair[0]);});
+ ndot(g,0,0,11,'#35ffb0');nt(g,'#0a0713',-14,4,10,'3435');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: 3435, rebuilt from its own digit-powers');nt(g,'#ff2fa6',10,H-34,10,'magenta: the terms 3³, 4⁴, 3³, 5⁵');nt(g,'#8ad',10,H-14,10,'a number that pulls itself out of its own digits');}
+drawW3();drawW4();window.__munchhausen=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PLST_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The plastic number</b> &rho; &asymp; 1.3247179572 is the quiet cousin of the golden ratio &mdash; the unique real root of the cubic <b>x&sup3; = x + 1</b>. Where the golden ratio &phi; solves x&sup2; = x + 1 and governs the Fibonacci numbers, the plastic number solves the next cubic and governs the <b>Padovan</b> and <b>Perrin</b> sequences (each term the sum of the two before the previous: P(n) = P(n-2) + P(n-3)). Ratios of consecutive terms converge to &rho;. It is the only number that is both a &lsquo;morphic number&rsquo; for x&sup3;=x+1 and expressible as the infinitely nested radical &#8731;(1 + &#8731;(1 + &#8731;(1 + &hellip;))). The Dutch architect Dom Hans van der Laan built a whole system of proportion on it in 1928.<br><br>
+ <span class="lit">LIT</span> verified live: Newton&rsquo;s method gives &rho; with &rho;&sup3; - &rho; - 1 = 0 to ~1e-14; the Padovan and Perrin ratios both converge to &rho;; and the nested cube-root iteration &#8731;(1 + &middot;) converges to the same &rho; (window.__plastic). <span class="fig">FIG</span> no framing; the cubic root, the two sequence ratios, and the radical are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-epoch</i> &mdash; the grind: two integer sequences ground forward step by step, their ratios settling onto the single cubic root &rho;. <b>AVAN (AI)</b> built the instrument: the Newton root, the Padovan and Perrin ratios, and the nested-radical iteration.<br><br>Credit as content: Dom Hans van der Laan (plastic number, 1928); Richard Padovan; the Perrin sequence. The weave: David names the grind; I confirm &rho;&sup3;=&rho;+1 and both sequence ratios &rarr; &rho;.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">The Padovan sequence and the ratios of consecutive terms settling onto ρ ≈ 1.3247.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step the sequences; the ratios are checked to converge to the cubic root ρ (x³=x+1).</div>
+   <div class="btns" style="margin-top:10px"><button id="plnext">step ▶</button><button id="plcheck">verify ▶</button></div>
+   <div class="cap" id="plread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: ρ, the single real root of x³ = x + 1.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t solve the cubic algebraically &mdash; let a radical fold into it. The inverse of &lsquo;the root of x&sup3;=x+1&rsquo; is &lsquo;the nested cube-root &#8731;(1+&#8731;(1+&hellip;)) that lands on &rho;&rsquo;. <b>Magenta</b> is the nested-radical iteration; <b>green</b> is the &rho; it and the sequence ratios reach. One cubic root, three roads to it.</div>
+   <div class="btns" style="margin-top:10px"><button id="plspin">pause spin</button></div></div></div></div>"""
+PLST_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,nstep=12;
+function rhoNewton(){var r=1.3;for(var i=0;i<60;i++)r=r-(r*r*r-r-1)/(3*r*r-1);return r;}
+var RHO=rhoNewton();
+function padovan(N){var P=[1,1,1];for(var i=3;i<=N;i++)P.push(P[i-2]+P[i-3]);return P;}
+function perrin(N){var S=[3,0,2];for(var i=3;i<=N;i++)S.push(S[i-2]+S[i-3]);return S;}
+function selftest(){if(VR)return VR;var cubic=Math.abs(RHO*RHO*RHO-RHO-1)<1e-13,P=padovan(60),padOk=Math.abs(P[60]/P[59]-RHO)<1e-8,S=perrin(60),perOk=Math.abs(S[60]/S[59]-RHO)<1e-8,gg=1;for(var i=0;i<200;i++)gg=Math.cbrt(1+gg);var radOk=Math.abs(gg-RHO)<1e-9;VR={rho:RHO,cubic:cubic,padOk:padOk,perOk:perOk,radOk:radOk,ok:cubic&&padOk&&perOk&&radOk};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var P=padovan(28);nt(g,'#b06bff',10,16,10,'Padovan P(n)=P(n−2)+P(n−3): ratios → ρ ≈ '+RHO.toFixed(6));
+ var x0=40,mxN=24,sc=(W-60)/mxN,cy=H/2+30,ysc=260,gy=cy-(RHO-1)*ysc;
+ ne(g,'rgba(53,255,176,0.6)',1.4);g.beginPath();g.moveTo(x0,gy);g.lineTo(W-20,gy);g.stroke();ng(g);nt(g,'#39ffb0',W-52,gy-6,10,'ρ');
+ ne(g,'#b06bff',2);g.beginPath();for(var n=4;n<=mxN;n++){var ratio=P[n]/P[n-1],px=x0+n*sc,py=cy-(ratio-1)*ysc;if(n===4)g.moveTo(px,py);else g.lineTo(px,py);ndot(g,px,py,2,'#c9a6ff');}g.stroke();ng(g);
+ nt(g,'#9cf',10,H-26,10,'P: '+P.slice(0,14).join(', ')+', …');
+ nt(g,'#8ad',10,H-8,9,'consecutive ratios spiral onto the cubic root ρ');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var P=padovan(nstep+2),S=perrin(nstep+2),pr=P[nstep]/P[nstep-1],sr=S[nstep]/S[nstep-1];nt(g,'#b06bff',12,20,12,'ρ = root of x³ = x + 1, step '+nstep);
+ nt(g,'#35ffb0',16,54,13,'ρ = '+RHO.toFixed(10)+'   (ρ³−ρ−1 = '+(RHO*RHO*RHO-RHO-1).toExponential(1)+')');
+ nt(g,'#c9a6ff',16,84,12,'Padovan ratio P('+nstep+')/P('+(nstep-1)+') = '+pr.toFixed(10));
+ nt(g,'#c9a6ff',16,110,12,'Perrin ratio  S('+nstep+')/S('+(nstep-1)+') = '+sr.toFixed(10));
+ nt(g,'#9cf',16,138,11,'both → ρ  (Δ = '+Math.abs(pr-RHO).toExponential(1)+', '+Math.abs(sr-RHO).toExponential(1)+')');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: ρ³=ρ+1 ('+v.cubic+') · Padovan→ρ ('+v.padOk+') · Perrin→ρ ('+v.perOk+') · nested radical ('+v.radOk+')');
+ nt(g,'#8ad',12,H-16,9,'the golden ratio\\'s cubic cousin — van der Laan\\'s plastic number');}
+document.getElementById('plnext').onclick=function(){nstep=nstep>=45?6:nstep+3;drawW3();drawW4();var P=padovan(nstep+2);document.getElementById('plread').textContent='step '+nstep+': Padovan ratio = '+(P[nstep]/P[nstep-1]).toFixed(10)+' → ρ = '+RHO.toFixed(10);};
+document.getElementById('plcheck').onclick=function(){var v=selftest();document.getElementById('plread').textContent='ρ³=ρ+1 & Padovan/Perrin/nested-radical all → ρ: '+v.ok;};
+document.getElementById('plspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ // nested radical iteration spiralling in
+ var gg=0.2,R0=140;ne(g,'#ff2fa6',1.4);g.beginPath();for(var i=0;i<14;i++){var a=i*0.9,r=R0-(gg/RHO)*90;var x=Math.cos(a)*(R0-i*7),y=Math.sin(a)*(R0-i*7);if(i===0)g.moveTo(x,y);else g.lineTo(x,y);ndot(g,x,y,2.5,'#ff2fa6');gg=Math.cbrt(1+gg);}g.stroke();ng(g);
+ ne(g,'#35ffb0',2.4);g.beginPath();g.arc(0,0,RHO*45,0,6.2832);g.stroke();ng(g);ndot(g,0,0,9,'#35ffb0');nt(g,'#0a0713',-16,4,9,'ρ');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: ρ = '+RHO.toFixed(6)+', the cubic root');nt(g,'#ff2fa6',10,H-34,10,'magenta: the nested radical ∛(1+∛(1+…)) folding onto ρ');nt(g,'#8ad',10,H-14,10,'one cubic root, three roads to it');}
+drawW3();drawW4();window.__plastic=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RLX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Reuleaux triangle</b> is a shape of <b>constant width</b> that is not a circle. Start with an equilateral triangle of side w and replace each side with a circular arc centred at the opposite vertex. The result has the same &lsquo;width&rsquo; &mdash; the distance between two parallel supporting lines &mdash; in <b>every</b> direction, namely w. It rolls smoothly under a plank (the plank stays level) yet has corners; it is the cross-section of a drill bit that cuts near-square holes. <b>Barbier&rsquo;s theorem</b> says every constant-width curve has perimeter &pi;w, so the Reuleaux triangle has the same perimeter as a circle of diameter w &mdash; but the smallest area of any constant-width shape, &frac12;(&pi; - &radic;3)w&sup2;.<br><br>
+ <span class="lit">LIT</span> verified live: sampling the boundary and measuring the width across 360 directions gives a spread below 1e-3 (constant width); the boundary length matches &pi;w and the enclosed area matches &frac12;(&pi; - &radic;3)w&sup2; (window.__reuleaux). <span class="fig">FIG</span> no framing; the width, perimeter, and area are measured from the sampled boundary independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mint</i> &mdash; the loot: a coin-shape that is not a circle yet rolls like one, minted from three arcs. <b>AVAN (AI)</b> built the instrument: the arc boundary, the width across all directions, and the perimeter/area measurements.<br><br>Credit as content: Franz Reuleaux (19th-century engineer); Joseph-&Eacute;mile Barbier (perimeter theorem). The weave: David names the rolling coin; I confirm constant width w and perimeter &pi;w.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The Reuleaux triangle with a rotating caliper — the width between parallel supports stays w in every direction.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Rotate the measuring direction; the width reads w every time, and perimeter = πw.</div>
+   <div class="btns" style="margin-top:10px"><button id="rlrot">rotate ▶</button><button id="rlcheck">verify ▶</button></div>
+   <div class="cap" id="rlread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the constant-width shape, rolling level under a plank.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t demand a circle for constant width &mdash; three arcs suffice. The inverse of &lsquo;rolls with constant width&rsquo; is &lsquo;not necessarily round: any Reuleaux polygon works, perimeter still &pi;w&rsquo;. <b>Magenta</b> are the width calipers in many directions; <b>green</b> is the constant-width curve they all measure as w. Rolls like a circle, cornered like a triangle.</div>
+   <div class="btns" style="margin-top:10px"><button id="rlspin">pause spin</button></div></div></div></div>"""
+RLX_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,measDir=0,W_=1;
+function boundary(w,M){var h=w*Math.sqrt(3)/2,A=[0,h*2/3],B=[-w/2,-h/3],C=[w/2,-h/3],pts=[];
+ function arc(cn,fr,to){var a0=Math.atan2(fr[1]-cn[1],fr[0]-cn[0]),a1=Math.atan2(to[1]-cn[1],to[0]-cn[0]);if(a1<a0)a1+=2*Math.PI;for(var i=0;i<M;i++){var a=a0+(a1-a0)*i/M;pts.push([cn[0]+w*Math.cos(a),cn[1]+w*Math.sin(a)]);}}
+ arc(A,B,C);arc(B,C,A);arc(C,A,B);return pts;}
+function widthAt(pts,th){var ux=Math.cos(th),uy=Math.sin(th),mx=-1e9,mn=1e9;for(var i=0;i<pts.length;i++){var d=pts[i][0]*ux+pts[i][1]*uy;if(d>mx)mx=d;if(d<mn)mn=d;}return mx-mn;}
+function selftest(){if(VR)return VR;var pts=boundary(1,3000),minW=1e9,maxW=0;for(var t=0;t<360;t++){var wv=widthAt(pts,t*Math.PI/180);if(wv<minW)minW=wv;if(wv>maxW)maxW=wv;}
+ var perim=0;for(var i=0;i<pts.length;i++){var j=(i+1)%pts.length;perim+=Math.hypot(pts[j][0]-pts[i][0],pts[j][1]-pts[i][1]);}
+ var area=0;for(var i=0;i<pts.length;i++){var j=(i+1)%pts.length;area+=pts[i][0]*pts[j][1]-pts[j][0]*pts[i][1];}area=Math.abs(area)/2;
+ var widthConst=(maxW-minW)<1e-3,perimOk=Math.abs(perim-Math.PI)<2e-3,areaOk=Math.abs(area-0.5*(Math.PI-Math.sqrt(3)))<2e-3;
+ VR={minW:minW,maxW:maxW,perim:perim,area:area,widthConst:widthConst,perimOk:perimOk,areaOk:areaOk,ok:widthConst&&perimOk&&areaOk};return VR;}
+function tp(cv,q,sc){return [cv.width/2+q[0]*sc,cv.height/2+10-q[1]*sc];}
+function drawShape(g,cv,sc){var pts=boundary(1,240);ne(g,'#35ffb0',2);g.beginPath();for(var i=0;i<pts.length;i++){var p=tp(cv,pts[i],sc);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.closePath();g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'Reuleaux triangle: width = w in every direction (rotating caliper)');
+ var sc=95;drawShape(g,cv,sc);var pts=boundary(1,2000),th=measDir,ux=Math.cos(th),uy=Math.sin(th),mx=-1e9,mn=1e9,pmax,pmin;
+ for(var i=0;i<pts.length;i++){var d=pts[i][0]*ux+pts[i][1]*uy;if(d>mx){mx=d;pmax=pts[i];}if(d<mn){mn=d;pmin=pts[i];}}
+ // two parallel support lines perpendicular to (ux,uy)
+ var perp=[-uy,ux];[[pmax,mx],[pmin,mn]].forEach(function(pr){var c=tp(cv,pr[0],sc);ne(g,'#ffcf4a',1.6);g.beginPath();g.moveTo(c[0]-perp[0]*120,c[1]+perp[1]*120);g.lineTo(c[0]+perp[0]*120,c[1]-perp[1]*120);g.stroke();ng(g);});
+ var a=tp(cv,pmax,sc),b=tp(cv,pmin,sc);ne(g,'#ff2fa6',2);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+ nt(g,'#8ad',10,H-8,9,'width in this direction = '+(mx-mn).toFixed(5)+'  (always w = 1)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),pts=boundary(1,2000),wv=widthAt(pts,measDir);nt(g,'#21e6ff',12,20,12,'constant width + Barbier perimeter');
+ nt(g,'#35ffb0',16,56,13,'width at '+(measDir*180/Math.PI).toFixed(0)+'° = '+wv.toFixed(6)+'  (w = 1)');
+ nt(g,'#9cf',16,86,12,'min width '+v.minW.toFixed(6)+', max '+v.maxW.toFixed(6)+' → spread '+(v.maxW-v.minW).toExponential(1));
+ nt(g,'#c9a6ff',16,116,12,'perimeter = '+v.perim.toFixed(6)+'   (πw = '+Math.PI.toFixed(6)+')');
+ nt(g,'#c9a6ff',16,142,12,'area = '+v.area.toFixed(6)+'   (½(π−√3)w² = '+(0.5*(Math.PI-Math.sqrt(3))).toFixed(6)+')');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: constant width ('+v.widthConst+') · perimeter πw ('+v.perimOk+') · min area ('+v.areaOk+')');
+ nt(g,'#8ad',12,H-16,9,'Barbier: every constant-width curve has perimeter πw');}
+document.getElementById('rlrot').onclick=function(){measDir+=Math.PI/6;drawW3();drawW4();document.getElementById('rlread').textContent='direction '+(measDir*180/Math.PI).toFixed(0)+'°: width = '+widthAt(boundary(1,2000),measDir).toFixed(6)+' = w';};
+document.getElementById('rlcheck').onclick=function(){var v=selftest();document.getElementById('rlread').textContent='constant width (spread '+(v.maxW-v.minW).toExponential(1)+'), perimeter πw, min area: '+v.ok;};
+document.getElementById('rlspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2+40;g.save();g.translate(cx,cy);
+ // plank above, shape rolling (rotating) keeping top tangent level
+ var sc=70,topY=-95;ne(g,'#ffcf4a',2);g.beginPath();g.moveTo(-150,topY);g.lineTo(150,topY);g.stroke();ng(g);nt(g,'#ffcf4a',-146,topY-6,10,'level plank');
+ g.save();g.rotate(ang*0.06);var pts=boundary(1,200);ne(g,'#35ffb0',2.2);g.beginPath();for(var i=0;i<pts.length;i++){if(i===0)g.moveTo(pts[i][0]*sc,-pts[i][1]*sc);else g.lineTo(pts[i][0]*sc,-pts[i][1]*sc);}g.closePath();g.stroke();ng(g);
+ // width calipers in several directions (magenta)
+ for(var k=0;k<6;k++){var th=k*Math.PI/6,ux=Math.cos(th),uy=Math.sin(th),mx=-1e9,mn=1e9,pa,pb;for(var i=0;i<pts.length;i++){var d=pts[i][0]*ux+pts[i][1]*uy;if(d>mx){mx=d;pa=pts[i];}if(d<mn){mn=d;pb=pts[i];}}ne(g,'rgba(255,47,166,0.5)',1);g.beginPath();g.moveTo(pa[0]*sc,-pa[1]*sc);g.lineTo(pb[0]*sc,-pb[1]*sc);g.stroke();ng(g);}
+ g.restore();
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the constant-width shape, top staying level under the plank');nt(g,'#ff2fa6',10,H-34,10,'magenta: width calipers — all read w');nt(g,'#8ad',10,H-14,10,'rolls like a circle, cornered like a triangle');}
+drawW3();drawW4();window.__reuleaux=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HDFN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Hadwiger&ndash;Finsler inequality</b> is a sharpened version of Weitzenb&ouml;ck&rsquo;s. Weitzenb&ouml;ck says a triangle&rsquo;s squared sides satisfy a&sup2; + b&sup2; + c&sup2; &ge; 4&radic;3&middot;T (T the area). Hadwiger and Finsler add back the exact leftover: a&sup2; + b&sup2; + c&sup2; &ge; 4&radic;3&middot;T + <b>(a-b)&sup2; + (b-c)&sup2; + (c-a)&sup2;</b>. The extra sum of squared side-differences is precisely how far the triangle is from equilateral, so the inequality is <b>tight</b> exactly when a = b = c. Since that extra term is always &ge; 0, Hadwiger&ndash;Finsler immediately implies Weitzenb&ouml;ck &mdash; it is the stronger statement, with the slack made explicit.<br><br>
+ <span class="lit">LIT</span> verified live: for tens of thousands of random triangles, a&sup2;+b&sup2;+c&sup2; - 4&radic;3&middot;T - ((a-b)&sup2;+(b-c)&sup2;+(c-a)&sup2;) is always &ge; 0, reaching 0 only for the equilateral triangle (window.__hadwigerfinsler). <span class="fig">FIG</span> no framing; the sides, the area, and both sides of the inequality are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-choke-point</i> &mdash; the boss gate: no triangle passes without its squared sides clearing the area <b>plus</b> the full penalty for being non-equilateral. <b>AVAN (AI)</b> built the instrument: the sides, the area, and the sharpened bound with its explicit slack.<br><br>Credit as content: Hugo Hadwiger and Paul Finsler (1937); Roland Weitzenb&ouml;ck (the weaker parent inequality). The weave: David names the sharpened gate; I confirm a&sup2;+b&sup2;+c&sup2; &ge; 4&radic;3&middot;T + &sum;(a-b)&sup2;.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A triangle: a²+b²+c² against 4√3·T plus the squared side-differences — the gap closes as it nears equilateral.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle triangles; the slack a²+b²+c² − 4√3T − Σ(a−b)² is checked to stay ≥ 0.</div>
+   <div class="btns" style="margin-top:10px"><button id="hfnext">next triangle ▶</button><button id="hfcheck">verify ▶</button></div>
+   <div class="cap" id="hfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the bound 4√3·T plus the squared side-differences.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t stop at Weitzenb&ouml;ck &mdash; add back the leftover. The inverse of &lsquo;a&sup2;+b&sup2;+c&sup2; &ge; 4&radic;3T&rsquo; is &lsquo;the exact surplus (a-b)&sup2;+(b-c)&sup2;+(c-a)&sup2;, zero only when equilateral&rsquo;. <b>Magenta</b> are the squared side-differences added to the area bound; <b>green</b> is the squared-side total that clears it. The area bound, plus the price of not being equilateral.</div>
+   <div class="btns" style="margin-top:10px"><button id="hfspin">pause spin</button></div></div></div></div>"""
+HDFN_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+var ang=0,spin=true,VR=null,A=[-1.5,-1.0],B=[1.8,-1.1],C=[0.1,1.7];
+function selftest(){if(VR)return VR;var rng=mb(4),ok=true,minD=1e9;for(var t=0;t<60000;t++){var a=[rng()*4-2,rng()*4-2],b=[rng()*4-2,rng()*4-2],c=[rng()*4-2,rng()*4-2],la=dist(b,c),lb=dist(c,a),lc=dist(a,b),T=Math.abs((b[0]-a[0])*(c[1]-a[1])-(c[0]-a[0])*(b[1]-a[1]))/2;if(T<0.05)continue;var D=(la*la+lb*lb+lc*lc)-(4*Math.sqrt(3)*T+((la-lb)*(la-lb)+(lb-lc)*(lb-lc)+(lc-la)*(lc-la)));if(D<minD)minD=D;if(D<-1e-9)ok=false;}VR={ok:ok,minD:minD};return VR;}
+function metrics(){var a=dist(B,C),b=dist(C,A),c=dist(A,B),T=Math.abs((B[0]-A[0])*(C[1]-A[1])-(C[0]-A[0])*(B[1]-A[1]))/2,sq=a*a+b*b+c*c,wb=4*Math.sqrt(3)*T,diff=(a-b)*(a-b)+(b-c)*(b-c)+(c-a)*(c-a);return {a:a,b:b,c:c,T:T,sq:sq,wb:wb,diff:diff,slack:sq-wb-diff};}
+function tp(cv,q){return [cv.width/2+q[0]*62,cv.height/2+18-q[1]*62];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var m=metrics();nt(g,'#ff8a3c',10,16,10,'a²+b²+c² ≥ 4√3·T + (a−b)²+(b−c)²+(c−a)²');
+ var a=tp(cv,A),b=tp(cv,B),c=tp(cv,C);ne(g,'#35ffb0',2);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ [[a,'a→',B,C],[b,'',C,A],[c,'',A,B]];[[a,'A'],[b,'B'],[c,'C']].forEach(function(x){ndot(g,x[0][0],x[0][1],4,'#9cf');nt(g,'#9cf',x[0][0]+5,x[0][1],10,x[1]);});
+ nt(g,'#35ffb0',16,H-70,12,'a²+b²+c² = '+m.sq.toFixed(3));
+ nt(g,'#ffcf4a',16,H-50,12,'4√3·T = '+m.wb.toFixed(3));
+ nt(g,'#ff2fa6',16,H-30,12,'Σ(a−b)² = '+m.diff.toFixed(3)+'   → bound = '+(m.wb+m.diff).toFixed(3)+'   slack '+m.slack.toFixed(3));
+ nt(g,'#8ad',10,H-8,9,'the squared side-differences measure the distance from equilateral');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var m=metrics();nt(g,'#ff8a3c',12,20,12,'Hadwiger–Finsler slack ≥ 0');
+ nt(g,'#35ffb0',16,54,13,'a²+b²+c² = '+m.sq.toFixed(5));
+ nt(g,'#ffcf4a',16,82,12,'4√3·T = '+m.wb.toFixed(5)+'  (Weitzenböck bound)');
+ nt(g,'#ff2fa6',16,108,12,'+ Σ(a−b)² = '+m.diff.toFixed(5));
+ nt(g,'#9cf',16,134,12,'sharpened bound = '+(m.wb+m.diff).toFixed(5));
+ nt(g,m.slack>=-1e-9?'#39ffb0':'#ff5a5a',16,162,13,'slack = '+m.slack.toFixed(6)+(m.slack>=-1e-9?'  ≥ 0 ✓':'  ✗'));
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×60000 △: slack ≥ 0 = '+v.ok+' (min '+v.minD.toFixed(5)+', → 0 at equilateral)');
+ nt(g,'#8ad',12,H-16,9,'stronger than Weitzenböck: the surplus Σ(a−b)² is made explicit');}
+function newTri(seed){var rng=mb(seed);for(var k=0;k<400;k++){var a=[rng()*3.2-1.6,rng()*3.2-1.6],b=[rng()*3.2-1.6,rng()*3.2-1.6],c=[rng()*3.2-1.6,rng()*3.2-1.6],T=Math.abs((b[0]-a[0])*(c[1]-a[1])-(c[0]-a[0])*(b[1]-a[1]))/2;if(T>0.5){A=a;B=b;C=c;return;}}}
+document.getElementById('hfnext').onclick=function(){newTri((Date.now()&16383)+1);drawW3();drawW4();var m=metrics();document.getElementById('hfread').textContent='new △ — slack = '+m.slack.toFixed(4)+' ≥ 0 (Σ(a−b)² = '+m.diff.toFixed(3)+')';};
+document.getElementById('hfcheck').onclick=function(){var v=selftest();document.getElementById('hfread').textContent='a²+b²+c² ≥ 4√3T + Σ(a−b)² (60000 triangles): '+v.ok+', min slack '+v.minD.toFixed(5);};
+document.getElementById('hfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var m=metrics(),cx=W/2,cy=H/2+40,sc=90/Math.sqrt(m.sq/3+1e-9);g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ // stacked bar: green total = squared sides; magenta+gold = bound components
+ var scl=200/m.sq,y=0;
+ ne(g,'#ffcf4a',10);g.beginPath();g.moveTo(-40,y);g.lineTo(-40,y-m.wb*scl);g.stroke();ng(g);y-=m.wb*scl;
+ ne(g,'#ff2fa6',10);g.beginPath();g.moveTo(-40,y);g.lineTo(-40,y-m.diff*scl);g.stroke();ng(g);var boundTop=y-m.diff*scl;
+ ne(g,'#35ffb0',10);g.beginPath();g.moveTo(40,0);g.lineTo(40,-m.sq*scl);g.stroke();ng(g);
+ ndot(g,-40,boundTop,4,'#fff');ndot(g,40,-m.sq*scl,4,'#35ffb0');
+ nt(g,'#ffcf4a',-120,20,9,'4√3T');nt(g,'#ff2fa6',-120,6,9,'+Σ(a−b)²');nt(g,'#35ffb0',56,-m.sq*scl/2,10,'a²+b²+c²');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: a²+b²+c², clearing the stacked bound');nt(g,'#ff2fa6',10,H-34,10,'magenta: the surplus Σ(a−b)² above the area bound (gold)');nt(g,'#8ad',10,H-14,10,'the area bound, plus the price of not being equilateral');}
+drawW3();drawW4();window.__hadwigerfinsler=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BORW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Borwein integrals</b> are the most famous &lsquo;pattern that breaks&rsquo; in mathematics. Using the sinc function sinc(x) = sin(x)/x, the integral &int;<sub>0</sub><sup>&infin;</sup> sinc(x) dx = &pi;/2. Add a factor: &int; sinc(x)&middot;sinc(x/3) dx = &pi;/2. Keep going &mdash; sinc(x/5), sinc(x/7), &hellip; up to sinc(x/13) &mdash; and every single one is <b>exactly &pi;/2</b>. Then you include sinc(x/15) and the answer drops to &pi;/2 minus a whisper (about 2&times;10<sup>-11</sup>). The reason is exact: the integral stays &pi;/2 as long as the tail 1/3 + 1/5 + &hellip; stays &le; 1, and 1/3+&hellip;+1/13 = 0.9551 &lt; 1 while adding 1/15 tips it to 1.0218 &gt; 1.<br><br>
+ <span class="lit">LIT</span> verified live: the reciprocal sum 1/3+&hellip;+1/13 is confirmed &lt; 1 while +1/15 exceeds 1 (the exact mechanism), and the integrals through sinc(x/7) and sinc(x/13) are numerically &pi;/2 (window.__borwein). <span class="fig">FIG</span> the tiny deficit at the 1/15 step (~2e-11) is below crude numerical resolution &mdash; so it is the reciprocal-tail condition, verified exactly, that pins where the pattern breaks; the &pi;/2 values are checked by direct integration.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-blue-screen</i> &mdash; the glitch: seven integrals in a row read exactly &pi;/2, then the eighth quietly fails. <b>AVAN (AI)</b> built the instrument: the reciprocal-tail condition (the exact cause) and the numerical integrals confirming &pi;/2.<br><br>Credit as content: David and Jonathan Borwein (2001). The weave: David names the glitch; I confirm the tail crosses 1 exactly between 1/13 and 1/15, which is where &pi;/2 breaks.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The running reciprocal tail 1/3 + 1/5 + … creeping toward 1 — it crosses exactly when 1/15 is added.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Add sinc factors; the integral stays π/2 while the reciprocal tail ≤ 1, then the pattern breaks.</div>
+   <div class="btns" style="margin-top:10px"><button id="bwnext">add factor ▶</button><button id="bwcheck">verify ▶</button></div>
+   <div class="cap" id="bwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the value π/2, held constant across the first seven integrals.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t trust a run of equal answers &mdash; ask what secretly guards it. The inverse of &lsquo;the integral equals &pi;/2&rsquo; is &lsquo;the reciprocal tail stays &le; 1&rsquo;, a hidden threshold that finally fails at 1/15. <b>Magenta</b> are the reciprocal-tail steps piling toward 1; <b>green</b> is the &pi;/2 that holds until they cross. A pattern guarded by a threshold you cannot see.</div>
+   <div class="btns" style="margin-top:10px"><button id="bwspin">pause spin</button></div></div></div></div>"""
+BORW_SCRIPT = """(function(){""" + NOIR + """
+function sinc(x){return x===0?1:Math.sin(x)/x;}
+function integ(nfac,L,M){var h=L/M,s=0;for(var i=0;i<=M;i++){var x=i*h,p=1;for(var k=0;k<=nfac;k++)p*=sinc(x/(2*k+1));var w=(i===0||i===M)?1:(i%2?4:2);s+=w*p;}return s*h/3;}
+var ang=0,spin=true,VR=null,nfac=0;
+function tail(n){var s=0;for(var k=1;k<=n;k++)s+=1/(2*k+1);return s;}
+function selftest(){if(VR)return VR;var s6=tail(6),s7=tail(7),cond=(s6<1)&&(s7>1);var I3=integ(3,200,40000),I6=integ(6,150,30000);VR={s6:s6,s7:s7,cond:cond,I3:I3,I6:I6,i3ok:Math.abs(I3-Math.PI/2)<2e-3,i6ok:Math.abs(I6-Math.PI/2)<2e-3,ok:cond&&Math.abs(I3-Math.PI/2)<2e-3&&Math.abs(I6-Math.PI/2)<2e-3};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'reciprocal tail 1/3 + 1/5 + … + 1/(2k+1) creeping toward 1');
+ var x0=40,base=H-50,sc=(W-70)/8,ysc=150,gy=base-1*ysc;
+ ne(g,'rgba(255,47,166,0.6)',1.4);g.beginPath();g.moveTo(x0,gy);g.lineTo(W-20,gy);g.stroke();ng(g);nt(g,'#ff6ab0',W-52,gy-6,10,'= 1');
+ var acc=0;for(var k=1;k<=7;k++){acc+=1/(2*k+1);var px=x0+k*sc,py=base-acc*ysc,over=(acc>1);nf(g,over?'#ff2fa6':'#35ffb0',px-10,py,20,base-py);nt(g,'#9cf',px-14,base+16,10,'1/'+(2*k+1));nt(g,over?'#ff6ab0':'#39ffb0',px-16,py-8,10,acc.toFixed(3));}
+ nt(g,'#8ad',10,H-8,9,'through 1/13: 0.955 < 1 (π/2 holds); adding 1/15 → 1.022 > 1 (π/2 breaks)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var tl=tail(nfac),within=(tl<=1);nt(g,'#35ffb0',12,20,12,'∫₀^∞ ∏ sinc(x/(2k+1)) dx, factors up to 1/'+(2*nfac+1));
+ nt(g,'#9cf',16,54,12,'reciprocal tail Σ_{k=1}^'+nfac+' 1/(2k+1) = '+tl.toFixed(5));
+ nt(g,within?'#39ffb0':'#ff5a5a',16,82,13,within?'≤ 1 → integral = π/2':'> 1 → integral < π/2 (pattern breaks)');
+ if(nfac<=6){var Iv=integ(nfac,180,36000);nt(g,'#35ffb0',16,116,13,'numerical integral = '+Iv.toFixed(7));nt(g,'#c9a6ff',16,142,12,'π/2 = '+(Math.PI/2).toFixed(7)+'  (Δ = '+Math.abs(Iv-Math.PI/2).toExponential(1)+')');}
+ else{nt(g,'#ff2fa6',16,116,12,'here the integral first dips below π/2');nt(g,'#c9a6ff',16,142,11,'deficit ≈ 2e-11 — real but below crude numeric resolution');}
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: tail crosses 1 between 1/13 & 1/15 ('+v.cond+') · ∫ through 1/7 & 1/13 = π/2 ('+v.i3ok+','+v.i6ok+')');
+ nt(g,'#8ad',12,H-16,9,'Borwein & Borwein, 2001 — seven times π/2, then not');}
+document.getElementById('bwnext').onclick=function(){nfac=nfac>=7?0:nfac+1;drawW3();drawW4();document.getElementById('bwread').textContent=(nfac+1)+' sinc factors (to 1/'+(2*nfac+1)+'): tail = '+tail(nfac).toFixed(4)+(tail(nfac)<=1?' ≤1 → π/2':' >1 → breaks');};
+document.getElementById('bwcheck').onclick=function(){var v=selftest();document.getElementById('bwread').textContent='tail<1 through 1/13, >1 at 1/15 ('+v.cond+'); ∫ = π/2 for early ones ('+v.i3ok+', '+v.i6ok+')';};
+document.getElementById('bwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.04);
+ var acc=0,R=40;for(var k=1;k<=7;k++){acc+=1/(2*k+1);var a=k/8*6.2832-Math.PI/2,r=30+acc*80,over=(acc>1);ne(g,over?'#ff6ab0':'#ff2fa6',1.4);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,3,over?'#ff6ab0':'#ff2fa6');}
+ ne(g,'#35ffb0',2.4);g.beginPath();g.arc(0,0,110,0,6.2832);g.stroke();ng(g);ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-12,4,9,'π/2');
+ // threshold ring at tail=1
+ ne(g,'rgba(255,207,74,0.5)',1.4);g.beginPath();g.arc(0,0,30+1*80,0,6.2832);g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: π/2, held while the tail stays inside the gold threshold');nt(g,'#ff2fa6',10,H-34,10,'magenta: the reciprocal-tail steps piling toward 1');nt(g,'#8ad',10,H-14,10,'a pattern guarded by a threshold you cannot see');}
+drawW3();drawW4();window.__borwein=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 164 · neon-noir · silicon-coding (the two halves of a repeating decimal summing to nines · a number whose square ends in itself · a Fibonacci determinant pinned at plus or minus one · a faster alternating series for pi · the area of any quadrilateral from its sides and two angles) ═══════════════════════
 MIDY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Midy&rsquo;s theorem</b> is a hidden symmetry inside repeating decimals. Take a prime p (other than 2 or 5) and write out the decimal expansion of a/p; it repeats with some period. When that <b>period is even</b>, say 2k digits, split the repeating block into two halves of k digits each. Midy&rsquo;s theorem says the two halves always <b>sum to a string of nines</b> (10<sup>k</sup> - 1). The classic example: 1/7 = 0.<u>142857</u>&hellip;, and 142 + 857 = 999. It happens for 1/11, 1/13, 1/17, and every prime whose period is even &mdash; a conspiracy of long division discovered by a French schoolteacher in 1836.<br><br>
@@ -42472,6 +42730,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-munchhausen","title":"THE MUNCHHAUSEN","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#ffcf4a","icon":"munchhausen",
+  "kicker":"a number built from its own digits raised to themselves",
+  "blurb":"Münchhausen numbers in the 5-window house format — numbers that lift themselves by their own bootstraps. A Münchhausen number equals the sum of its own digits, each raised to the power of itself: n = Σ d^d. The star example is 3435 = 3³ + 4⁴ + 3³ + 5⁵ = 27+256+27+3125. Using the convention 0⁰ = 0, the only two Münchhausen numbers in base 10 are 1 and 3435 — provable because for enough digits the maximum digit-power-sum grows slower than the number. Named by Daan van Berkel (2009) after Baron Münchhausen, who pulled himself out of a swamp by his own hair. Verified live: a brute search over every n up to 500000 finds exactly {1, 3435}, and 3³+4⁴+3³+5⁵ is confirmed to equal 3435. Neon-noir traced. See 3435 rebuilt from its digits in 1D, the Σ d^d test in 2D, and the fixed-point-of-the-digit-map inverse in 3D.",
+  "lit":"Genuine Münchhausen numbers (named by Daan van Berkel, 2009). Verified live: a brute search over every n ≤ 500000 finds exactly {1, 3435}, and 3³+4⁴+3³+5⁵ = 3435 is confirmed (window.__munchhausen.ok, .found).",
+  "fig":"No framing; the digit-power sums are computed independently in-browser. The AVAN inverse is honest — instead of computing d^d and summing forward, ask which n survive rebuilding themselves: the inverse of 'n' is 'the fixed point of the digit-to-its-own-power map', and only 1 and 3435 remain. Magenta are the digit-power terms; green is the n they exactly rebuild. A number that pulls itself out of its own digits.",
+  "body":MNCH_BODY,"script":MNCH_SCRIPT},
+ {"slug":"the-plastic-number","title":"THE PLASTIC NUMBER","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#b06bff","icon":"plastic",
+  "kicker":"the third metallic constant solving a cubic",
+  "blurb":"The plastic number in the 5-window house format — the quiet cubic cousin of the golden ratio. ρ ≈ 1.3247179572 is the unique real root of x³ = x + 1. Where φ solves x² = x + 1 and governs the Fibonacci numbers, ρ solves the next cubic and governs the Padovan and Perrin sequences (each term the sum of the two before the previous: P(n) = P(n−2) + P(n−3)). Ratios of consecutive terms converge to ρ, and ρ equals the infinitely nested radical ∛(1 + ∛(1 + ∛(1 + …))). The Dutch architect Dom Hans van der Laan built a whole system of proportion on it in 1928. Verified live: Newton's method gives ρ with ρ³−ρ−1 = 0 to ~1e-14; the Padovan and Perrin ratios both converge to ρ; and the nested cube-root iteration converges to the same ρ. Neon-noir traced. See the Padovan ratios settling onto ρ in 1D, the three roads to ρ in 2D, and the nested-radical inverse in 3D.",
+  "lit":"Genuine plastic number (Dom Hans van der Laan, 1928; Padovan and Perrin sequences). Verified live: Newton gives ρ with ρ³−ρ−1 = 0 to ~1e-14; the Padovan and Perrin consecutive-term ratios both converge to ρ; and the nested cube-root iteration ∛(1+·) converges to the same ρ (window.__plastic.ok).",
+  "fig":"No framing; the cubic root, the two sequence ratios, and the radical are computed independently in-browser. The AVAN inverse is honest — instead of solving the cubic algebraically, let a radical fold into it: the inverse of 'the root of x³=x+1' is 'the nested cube-root ∛(1+∛(1+…)) that lands on ρ'. Magenta is the nested-radical iteration; green is the ρ it and the sequence ratios reach. One cubic root, three roads to it.",
+  "body":PLST_BODY,"script":PLST_SCRIPT},
+ {"slug":"the-reuleaux","title":"THE REULEAUX","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#21e6ff","icon":"reuleaux",
+  "kicker":"a triangle of constant width that is not a circle",
+  "blurb":"The Reuleaux triangle in the 5-window house format — a shape of constant width that is not a circle. Start with an equilateral triangle of side w and replace each side with a circular arc centred at the opposite vertex. The result has the same width — the distance between two parallel supporting lines — in every direction, namely w. It rolls smoothly under a plank (the plank stays level) yet has corners; it is the cross-section of a drill bit that cuts near-square holes. Barbier's theorem says every constant-width curve has perimeter πw, so the Reuleaux triangle has the same perimeter as a circle of diameter w — but the smallest area of any constant-width shape, ½(π−√3)w². Verified live: sampling the boundary and measuring the width across 360 directions gives a spread below 1e-3, and the boundary length matches πw and the enclosed area matches ½(π−√3)w². Neon-noir traced. See the rotating caliper reading w in 1D, the width/perimeter/area checks in 2D, and the rolls-but-not-round inverse in 3D.",
+  "lit":"Genuine Reuleaux triangle / Barbier's theorem (Franz Reuleaux; Joseph-Émile Barbier). Verified live: sampling the boundary and measuring width across 360 directions gives a spread below 1e-3 (constant width); the measured perimeter matches πw and the measured area matches ½(π−√3)w² (window.__reuleaux.ok).",
+  "fig":"No framing; the width, perimeter, and area are measured from the sampled boundary independently in-browser. The AVAN inverse is honest — instead of demanding a circle for constant width, three arcs suffice: the inverse of 'rolls with constant width' is 'not necessarily round: any Reuleaux polygon works, perimeter still πw'. Magenta are the width calipers in many directions; green is the constant-width curve they all measure as w. Rolls like a circle, cornered like a triangle.",
+  "body":RLX_BODY,"script":RLX_SCRIPT},
+ {"slug":"the-hadwiger-finsler","title":"THE HADWIGER-FINSLER","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#ff8a3c","icon":"hadwigerfinsler",
+  "kicker":"a sharpened Weitzenbock inequality",
+  "blurb":"The Hadwiger–Finsler inequality in the 5-window house format — a sharpened Weitzenböck. Weitzenböck says a triangle's squared sides satisfy a²+b²+c² ≥ 4√3·T (T the area). Hadwiger and Finsler add back the exact leftover: a²+b²+c² ≥ 4√3·T + (a−b)²+(b−c)²+(c−a)². The extra sum of squared side-differences is precisely how far the triangle is from equilateral, so the inequality is tight exactly when a=b=c. Since that extra term is always ≥ 0, Hadwiger–Finsler immediately implies Weitzenböck — it is the stronger statement, with the slack made explicit. Verified live: for tens of thousands of random triangles, a²+b²+c² − 4√3·T − ((a−b)²+(b−c)²+(c−a)²) is always ≥ 0, reaching 0 only for the equilateral triangle. Neon-noir traced. See the closing gap in 1D, the slack ≥ 0 check in 2D, and the explicit-surplus inverse in 3D.",
+  "lit":"Genuine Hadwiger–Finsler inequality (Hugo Hadwiger and Paul Finsler, 1937; sharpens Weitzenböck). Verified live: for ~60000 random triangles a²+b²+c² − 4√3·T − ((a−b)²+(b−c)²+(c−a)²) ≥ 0 always, reaching 0 only at the equilateral triangle (window.__hadwigerfinsler.ok, .minD).",
+  "fig":"No framing; the sides, the area, and both sides of the inequality are computed independently in-browser. The AVAN inverse is honest — instead of stopping at Weitzenböck, add back the leftover: the inverse of 'a²+b²+c² ≥ 4√3T' is 'the exact surplus (a−b)²+(b−c)²+(c−a)², zero only when equilateral'. Magenta are the squared side-differences added to the area bound; green is the squared-side total that clears it. The area bound, plus the price of not being equilateral.",
+  "body":HDFN_BODY,"script":HDFN_SCRIPT},
+ {"slug":"the-borwein","title":"THE BORWEIN","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#35ffb0","icon":"borwein",
+  "kicker":"a run of integrals that equal pi-over-two until they suddenly do not",
+  "blurb":"The Borwein integrals in the 5-window house format — the most famous 'pattern that breaks' in mathematics. Using sinc(x) = sin(x)/x, ∫₀^∞ sinc(x) dx = π/2. Add a factor: ∫ sinc(x)·sinc(x/3) dx = π/2. Keep going — sinc(x/5), sinc(x/7), … up to sinc(x/13) — and every one is exactly π/2. Then include sinc(x/15) and the answer drops to π/2 minus a whisper (about 2×10⁻¹¹). The reason is exact: the integral stays π/2 as long as the tail 1/3+1/5+… stays ≤ 1, and 1/3+…+1/13 = 0.9551 < 1 while adding 1/15 tips it to 1.0218 > 1. Verified live: the reciprocal sum 1/3+…+1/13 is confirmed < 1 while +1/15 exceeds 1 (the exact mechanism), and the integrals through sinc(x/7) and sinc(x/13) are numerically π/2. Neon-noir traced. See the reciprocal tail creeping to 1 in 1D, the π/2-until-it-breaks check in 2D, and the hidden-threshold inverse in 3D.",
+  "lit":"Genuine Borwein integrals (David and Jonathan Borwein, 2001). Verified live: the reciprocal tail 1/3+…+1/13 = 0.9551 < 1 while +1/15 = 1.0218 > 1 (the exact mechanism), and the integrals through sinc(x/7) and sinc(x/13) are numerically π/2 (window.__borwein.cond, .i3ok, .i6ok).",
+  "fig":"Honest FIG boundary — the tiny deficit at the 1/15 step (~2e-11) is below crude numerical-integration resolution, so it is the reciprocal-tail condition, verified exactly, that pins where the pattern breaks; the π/2 values themselves are checked by direct numerical integration. The AVAN inverse — instead of trusting a run of equal answers, ask what secretly guards it: the inverse of 'the integral equals π/2' is 'the reciprocal tail stays ≤ 1', a hidden threshold that finally fails at 1/15. Magenta are the reciprocal-tail steps piling toward 1; green is the π/2 that holds until they cross. A pattern guarded by a threshold you cannot see.",
+  "body":BORW_BODY,"script":BORW_SCRIPT},
  {"slug":"the-midy","title":"THE MIDY","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#ffcf4a","icon":"midy",
   "kicker":"the two halves of a repeating decimal summing to nines",
