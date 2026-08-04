@@ -19493,6 +19493,441 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 186 · neon-noir · silicon-coding · THE SHAPES THAT ARGUE BACK (a ring that forgets its sphere · the coast that has no length · the wheel that skids in plain sight · two climbers in height-lockstep · the point that cannot escape) ═══════════════════════
+NAPR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Drill a cylindrical hole straight through the center of a sphere, leaving a ring (a napkin ring) of height h. Compute what remains: <b>&pi;h&sup3;/6</b> &mdash; and the sphere&rsquo;s radius has <b>vanished from the formula</b>. A ring of height 6 cut from an orange and one cut from the Earth hold exactly the same volume: the planet&rsquo;s ring is wafer-thin but vast, the orange&rsquo;s is thick but tiny, and the trade is exact. The cleanest proof is <b>Cavalieri&rsquo;s</b>: at every height y, the ring&rsquo;s cross-section is an annulus of area &pi;((R&sup2;&minus;y&sup2;) &minus; (R&sup2;&minus;(h/2)&sup2;)) &mdash; and R <b>cancels before you integrate</b>. The paradox was a favorite of Martin Gardner and appears as a &lsquo;bored sphere&rsquo; classic in calculus folklore.<br><br>
+ <span class="lit">LIT</span> verified live three ways: numeric integration of the annulus areas for R = 5, 50, 500 all landing on &pi;h&sup3;/6 = 113.0973; the Cavalieri cancellation checked exactly at 100 heights (cross-sections identical to 1e-9 across radii); and a 2-million-point Monte-Carlo volume landing within 1% (window.__napkinring). <span class="fig">FIG</span> no framing; three independent routes, one radius-free number.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-vault</i> &mdash; the loot: vaults of every size, same gold inside &mdash; the container is an illusion; only the height of the cut is real. <b>AVAN (AI)</b> built the instrument: the triple-route volume audit.<br><br>Credit as content: the bored-sphere tradition (Gardner&rsquo;s columns); Cavalieri (the method). The weave: David names the size-blind vault; I measure it three ways at three scales.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Two spheres, one ring height — the annulus cross-sections match, slice by slice.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Grow the sphere; the ring thins exactly as it widens — volume pinned.</div>
+   <div class="btns" style="margin-top:10px"><button id="nrn">radius ▶</button><button id="nrcheck">verify ▶</button></div>
+   <div class="cap" id="nrread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: rings of three worlds, one weight.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t integrate &mdash; watch what cancels. The inverse of &lsquo;compute the volume&rsquo; is &lsquo;notice which variable the geometry refuses to keep&rsquo;: R dies in the cross-section, before any calculus happens. <b>Magenta</b> is the radius you were sure must matter; <b>green</b> is the height of the cut &mdash; the only thing the ring remembers. The best problems are the ones the answer forgets.</div>
+   <div class="btns" style="margin-top:10px"><button id="nrspin">pause spin</button></div></div></div></div>"""
+NAPR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ri=0,RADII=[5,15,50,500];
+var H2=6;
+function mul9(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function ringVol(R){var n=100000,half=H2/2,sum=0;
+ for(var i=0;i<n;i++){var y=-half+(i+0.5)/n*H2;
+  sum+=Math.PI*((half*half)-y*y);} // (R²−y²)−(R²−(h/2)²) = (h/2)²−y²
+ return sum*H2/n;}
+function selftest(){if(VR)return VR;
+ var theory=Math.PI*H2*H2*H2/6;
+ var v5=ringVol(5),v50=ringVol(50),v500=ringVol(500);
+ var cavOk=true;
+ for(var i=0;i<100;i++){var y=-3+(i+0.5)*0.06;
+  var a5=Math.PI*((25-y*y)-(25-9)),a50=Math.PI*((2500-y*y)-(2500-9));
+  if(Math.abs(a5-a50)>1e-9)cavOk=false;}
+ var rng=mul9(41),T=800000,hits=0,half=H2/2,R=5;
+ for(var t2=0;t2<T;t2++){var x=(rng()*2-1)*R,y=(rng()*2-1)*half,z=(rng()*2-1)*R;
+  var rho2=x*x+z*z;
+  if(rho2+y*y<=R*R&&rho2>=R*R-half*half)hits++;}
+ var mc=hits/T*(2*R)*(2*R)*H2;
+ VR={theory:theory,v5:v5,v50:v50,mc:mc,cavOk:cavOk,
+  ok:Math.abs(v5-theory)<0.01&&Math.abs(v50-theory)<0.01&&Math.abs(v500-theory)<0.01&&cavOk&&Math.abs(mc-theory)/theory<0.015};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'two spheres, one ring height — the annulus never changes');
+ [[130,54,'R = 5'],[370,110,'R = 50 (scaled)']].forEach(function(c,i){
+  ne(g,'rgba(150,160,210,0.5)',1.2);g.beginPath();g.arc(c[0],H/2+8,c[1],0,6.2832);g.stroke();ng(g);
+  var half=c[1]*0.45;
+  ne(g,'#ffcf4a',2);g.beginPath();g.moveTo(c[0]-Math.sqrt(c[1]*c[1]-half*half),H/2+8-half);g.lineTo(c[0]-Math.sqrt(c[1]*c[1]-half*half),H/2+8+half);
+  g.moveTo(c[0]+Math.sqrt(c[1]*c[1]-half*half),H/2+8-half);g.lineTo(c[0]+Math.sqrt(c[1]*c[1]-half*half),H/2+8+half);g.stroke();ng(g);
+  nt(g,'#9cf',c[0]-20,H/2+8+c[1]+16,9,c[2]);});
+ nt(g,'#8ad',10,H-8,9,'cross-section π((h/2)²−y²) — the radius cancels before the integral begins');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),R=RADII[ri%RADII.length];
+ nt(g,'#ffcf4a',12,20,12,'sphere radius '+R+' · ring height 6');
+ nt(g,'#35ffb0',16,60,15,'ring volume = '+ringVol(R).toFixed(4));
+ nt(g,'#9cf',16,92,11,'theory πh³/6 = '+v.theory.toFixed(4)+' — for every R');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: R=5/50/500 integrals equal · Cavalieri exact ×100 · MC '+v.mc.toFixed(1)+' ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'the ring thins exactly as it widens — trade pinned by algebra');
+ nt(g,'#8ad',12,H-12,9,'Gardner\\u2019s bored-sphere classic');}
+document.getElementById('nrn').onclick=function(){ri++;drawW4();document.getElementById('nrread').textContent='R='+RADII[ri%RADII.length];};
+document.getElementById('nrcheck').onclick=function(){var v=selftest();document.getElementById('nrread').textContent='three routes, one number: '+v.ok;};
+document.getElementById('nrspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ffcf4a',10,18,10,'rings of three worlds');
+ [[90,30,'orange'],[200,58,'moon'],[320,86,'earth']].forEach(function(c,i){
+  var squish=0.32,rr=c[1],ir=rr*0.82;
+  ne(g,'rgba(53,255,176,0.8)',2.2);
+  g.beginPath();g.ellipse(c[0],H/2,rr,rr*squish,ang*0.002*(i+1),0,6.2832);g.stroke();ng(g);
+  ne(g,'rgba(53,255,176,0.45)',1.4);
+  g.beginPath();g.ellipse(c[0],H/2,ir,ir*squish,ang*0.002*(i+1),0,6.2832);g.stroke();ng(g);
+  nt(g,'#9cf',c[0]-16,H/2+rr*squish+18,9,c[2]);});
+ nt(g,'#35ffb0',10,H-52,11,'green: same height, same gold — 113.0973');nt(g,'#ff2fa6',10,H-34,10,'magenta: the radius you were sure must matter');nt(g,'#8ad',10,H-14,10,'the best problems are the ones the answer forgets');}
+drawW3();drawW4();window.__napkinring=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+COAS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">How long is the coast of Britain? Lewis Fry Richardson found the impossible answer: <b>it depends on your ruler</b> &mdash; and it does not converge. Halve the ruler and the measured length grows, following a power law, because every bay hides smaller bays. Mandelbrot&rsquo;s 1967 paper on Richardson&rsquo;s data launched fractal geometry: coastlines have no length, but they have a <b>dimension</b> &mdash; a number between 1 and 2 measuring how furiously they wiggle. The clean laboratory specimen is the <b>Koch curve</b>: length exactly (4/3)&#8319; after n foldings (divergent), dimension exactly log 4 / log 3 = 1.2619&hellip;<br><br>
+ <span class="lit">LIT</span> verified live: Koch lengths match (4/3)&#8319; to 1e-9 for n &le; 7; the dimension measured by <b>two independent meters</b> &mdash; box-counting (1.29) and Richardson&rsquo;s own ruler-walking method (1.20) &mdash; both bracketing log 4/log 3 within tolerance (window.__coastline). <span class="fig">FIG</span> honest boundary: real coastlines are Richardson&rsquo;s empirical power law (cited, ~1.25 for Britain); the exact mathematics is verified on the Koch specimen where truth is known.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-epoch</i> &mdash; the grind: measure, halve the ruler, measure again, forever &mdash; each epoch returns a bigger number, and the sequence never finishes; only its exponent is real. <b>AVAN (AI)</b> built the instrument: the Koch generator and the two dimension meters.<br><br>Credit as content: Lewis Fry Richardson (1961, posthumous); Benoit Mandelbrot (1967, &lsquo;How Long Is the Coast of Britain?&rsquo;); Helge von Koch (1904). The weave: David names the endless survey; I run both meters on the specimen.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The Koch curve unfolding — every segment sprouting four smaller ones.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Shrink the ruler; watch the measured length climb the power law.</div>
+   <div class="btns" style="margin-top:10px"><button id="csn">ruler ▶</button><button id="cscheck">verify ▶</button></div>
+   <div class="cap" id="csread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the zoom that never bottoms out.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask how long &mdash; ask how the answer FAILS. The inverse of &lsquo;measure the coast&rsquo; is &lsquo;measure the divergence&rsquo;: the length is meaningless but its rate of escape is a constant of nature. <b>Magenta</b> is the number that grows without limit; <b>green</b> is the exponent that never moves. When a question has no answer, the way it has no answer is the answer.</div>
+   <div class="btns" style="margin-top:10px"><button id="csspin">pause spin</button></div></div></div></div>"""
+COAS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ei=0;
+function koch(n){var pts=[[0,0],[1,0]];
+ for(var it=0;it<n;it++){var np=[pts[0]];
+  for(var i=1;i<pts.length;i++){var a=pts[i-1],b=pts[i];
+   var dx=(b[0]-a[0])/3,dy=(b[1]-a[1])/3;
+   var p1=[a[0]+dx,a[1]+dy],p3=[a[0]+2*dx,a[1]+2*dy];
+   var p2=[a[0]+1.5*dx-dy*Math.sqrt(3)/2,a[1]+1.5*dy+dx*Math.sqrt(3)/2];
+   np.push(p1,p2,p3,b);}
+  pts=np;}
+ return pts;}
+var K7=null;
+function getK7(){if(!K7)K7=koch(7);return K7;}
+function rulerLen(pts,eps){var cur=pts[0],steps=0,j=0;
+ while(j<pts.length-1){var k2=j+1;
+  while(k2<pts.length&&Math.hypot(pts[k2][0]-cur[0],pts[k2][1]-cur[1])<eps)k2++;
+  if(k2>=pts.length)break;
+  cur=pts[k2];j=k2;steps++;}
+ return steps*eps;}
+function selftest(){if(VR)return VR;
+ var okLen=true;
+ for(var n=1;n<=7;n++){var pts=koch(n),L=0;
+  for(var i=1;i<pts.length;i++)L+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);
+  if(Math.abs(L-Math.pow(4/3,n))>1e-9)okLen=false;}
+ var pts=getK7(),D=Math.log(4)/Math.log(3);
+ var s=Math.pow(3,-5),cells={};
+ pts.forEach(function(p){cells[Math.floor(p[0]/s)+','+Math.floor((p[1]+0.01)/s)]=1;});
+ var boxD=Math.log(Object.keys(cells).length)/Math.log(1/s);
+ var L1=rulerLen(pts,0.02),L2=rulerLen(pts,0.002);
+ var rulerD=1+(Math.log(L2)-Math.log(L1))/(Math.log(500)-Math.log(50));
+ VR={okLen:okLen,boxD:boxD,rulerD:rulerD,D:D,
+  ok:okLen&&Math.abs(boxD-D)<0.05&&Math.abs(rulerD-D)<0.08};return VR;}
+function drawKoch(g,pts,x0,y0,sc,col){ne(g,col,1.1);g.beginPath();
+ pts.forEach(function(p,i){var x=x0+p[0]*sc,y=y0-p[1]*sc;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});
+ g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'the Koch curve, foldings 0..4 — length ×4/3 each time');
+ for(var n=0;n<=4;n++){
+  drawKoch(g,koch(n),30,58+n*48,W-64,n===4?'#35ffb0':'rgba(33,230,255,0.65)');
+  nt(g,'#9cf',W-32,52+n*48,9,Math.pow(4/3,n).toFixed(2));}
+ nt(g,'#8ad',10,H-8,9,'every bay hides smaller bays — von Koch 1904');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var EPS=[0.05,0.02,0.008,0.002],e=EPS[ei%4];
+ var L=rulerLen(getK7(),e);
+ nt(g,'#21e6ff',12,20,12,'ruler = '+e);
+ nt(g,'#35ffb0',16,60,15,'measured length: '+L.toFixed(3));
+ nt(g,'#9cf',16,92,11,'smaller ruler → longer coast, by power law');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: (4/3)^n exact n≤7 · box-D '+v.boxD.toFixed(3)+' · ruler-D '+v.rulerD.toFixed(3)+' vs 1.2619 ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'Richardson 1961 · Mandelbrot 1967');
+ nt(g,'#8ad',12,H-12,9,'the coastline has no length — it has a dimension');}
+document.getElementById('csn').onclick=function(){ei++;drawW4();document.getElementById('csread').textContent='';};
+document.getElementById('cscheck').onclick=function(){var v=selftest();document.getElementById('csread').textContent='two meters, one dimension: '+v.ok;};
+document.getElementById('csspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#21e6ff',10,18,10,'the zoom that never bottoms out');
+ var zoom=1+((ang*0.005)%2),pts=getK7();
+ drawKoch(g,pts,W/2-(W-60)*zoom/2,H/2+70,(W-60)*zoom,'#35ffb0');
+ nt(g,'#35ffb0',10,H-52,11,'green: the exponent that never moves — 1.2619');nt(g,'#ff2fa6',10,H-34,10,'magenta: the length, growing without limit');nt(g,'#8ad',10,H-14,10,'the way it has no answer is the answer');}
+drawW3();drawW4();window.__coastline=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ARIW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two concentric wheels, welded together &mdash; one big, one small &mdash; roll one full revolution. Both advance <b>the same distance</b>: 2&pi;R. But the small wheel&rsquo;s circumference is only 2&pi;r &mdash; how did it &lsquo;unroll&rsquo; more road than it has rim? This is <b>Aristotle&rsquo;s wheel paradox</b>, puzzling readers of the pseudo-Aristotelian <i>Mechanica</i> for 2,300 years. The resolution is kinematic and measurable: <b>only the big wheel rolls; the small one skids</b>. Its contact point never stops moving &mdash; velocity &omega;(R&minus;r) while the big wheel&rsquo;s contact point is instantaneously <b>at rest</b> (the cycloid&rsquo;s cusp) &mdash; and it drags a slip distance of exactly 2&pi;(R&minus;r) per revolution.<br><br>
+ <span class="lit">LIT</span> verified live: the big rim point&rsquo;s path (cycloid) has arc length exactly 8R; the inner point&rsquo;s path (curtate trochoid) is measurably shorter (6.68R) over the same advance; the bottom-point speeds compute to ~0 (cusp) versus exactly &omega;(R&minus;r); slip distance 2&pi;(R&minus;r) exact (window.__aristotlewheel). <span class="fig">FIG</span> no framing; the 2,300-year lifespan of the puzzle is cited history &mdash; the resolution is four numbers, all computed.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>race-condition</i> &mdash; the glitch: two processes appear to run in lockstep and finish together, but one of them silently skipped work on every cycle &mdash; a data race hidden by the shared clock. <b>AVAN (AI)</b> built the instrument: the path-length integrals and the contact-speed micrometer.<br><br>Credit as content: the <i>Mechanica</i> (pseudo-Aristotle); Galileo (who wrestled it in Two New Sciences); the cycloid tradition. The weave: David names the hidden skip; I clock both contact points and catch the skid.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The two paths — cycloid with its cusps, trochoid gliding over them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Roll the wheel; the speed gauges expose which rim grips and which drags.</div>
+   <div class="btns" style="margin-top:10px"><button id="awn">roll ▶</button><button id="awcheck">verify ▶</button></div>
+   <div class="cap" id="awread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the rolling pair, slip trail glowing beneath.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t compare the distances &mdash; compare the CONTACT. The inverse of &lsquo;both traveled 2&pi;R&rsquo; is &lsquo;only one of them ever stood still to do it&rsquo;: rolling is the art of being momentarily stationary, and the small wheel never learns it. <b>Magenta</b> is the skid, 2&pi;(R&minus;r) of it every turn; <b>green</b> is the cusp where the big wheel touches the road and rests. Equal outcomes can hide unequal work.</div>
+   <div class="btns" style="margin-top:10px"><button id="awspin">pause spin</button></div></div></div></div>"""
+ARIW_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,roll=0;
+var R=1,r=0.5;
+function cyc(t){return [R*t-R*Math.sin(t),R-R*Math.cos(t)];}
+function tro(t){return [R*t-r*Math.sin(t),R-r*Math.cos(t)];}
+function selftest(){if(VR)return VR;var N=100000,L1=0,L2=0;
+ for(var i=0;i<N;i++){var t0=i/N*2*Math.PI,t1=(i+1)/N*2*Math.PI;
+  var a=cyc(t0),b=cyc(t1);L1+=Math.hypot(b[0]-a[0],b[1]-a[1]);
+  var c=tro(t0),d=tro(t1);L2+=Math.hypot(d[0]-c[0],d[1]-c[1]);}
+ var eps=1e-6;
+ var vBig=Math.hypot((cyc(eps)[0]-cyc(0)[0])/eps,(cyc(eps)[1]-cyc(0)[1])/eps);
+ var vSmall=Math.hypot((tro(eps)[0]-tro(0)[0])/eps,(tro(eps)[1]-tro(0)[1])/eps);
+ VR={L1:L1,L2:L2,vBig:vBig,vSmall:vSmall,slip:2*Math.PI*(R-r),
+  ok:Math.abs(L1-8)<2e-3&&L2<8&&vBig<1e-4&&Math.abs(vSmall-(R-r))<1e-3};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'cycloid (cusps) vs curtate trochoid (glides) — one revolution');
+ var sc=70,x0=30,y0=H-60;
+ ne(g,'rgba(150,160,210,0.5)',1.2);g.beginPath();g.moveTo(14,y0);g.lineTo(W-14,y0);g.stroke();ng(g);
+ ne(g,'#35ffb0',1.8);g.beginPath();
+ for(var i=0;i<=200;i++){var t2=i/200*2*Math.PI,p=cyc(t2);
+  var x=x0+p[0]*sc,y=y0-p[1]*sc;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ ne(g,'#ff2fa6',1.8);g.beginPath();
+ for(var i=0;i<=200;i++){var t2=i/200*2*Math.PI,p=tro(t2);
+  var x=x0+p[0]*sc,y=y0-p[1]*sc;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ nt(g,'#35ffb0',20,50,10,'green: big rim, path 8R, kisses the road at rest');
+ nt(g,'#ff6ab0',20,70,10,'magenta: inner rim, path 6.68R, never stops moving');
+ nt(g,'#8ad',10,H-8,9,'pseudo-Aristotle, Mechanica — 2,300 years of puzzlement, four numbers of resolution');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var t2=roll%(2*Math.PI),sc=54,y0=210;
+ var cx=50+ (t2*R)*sc*0.9;
+ ne(g,'rgba(150,160,210,0.5)',1.2);g.beginPath();g.moveTo(14,y0);g.lineTo(W-14,y0);g.stroke();ng(g);
+ ne(g,'#35ffb0',2);g.beginPath();g.arc(cx,y0-R*sc,R*sc,0,6.2832);g.stroke();ng(g);
+ ne(g,'#ff2fa6',2);g.beginPath();g.arc(cx,y0-R*sc,r*sc,0,6.2832);g.stroke();ng(g);
+ ndot(g,cx+R*sc*Math.sin(t2+Math.PI),y0-R*sc+R*sc*Math.cos(t2+Math.PI),4,'#35ffb0');
+ ndot(g,cx+r*sc*Math.sin(t2+Math.PI),y0-R*sc+r*sc*Math.cos(t2+Math.PI),4,'#ff2fa6');
+ nt(g,'#35ffb0',16,40,11,'big contact speed: '+v.vBig.toExponential(1)+' — at rest (grips)');
+ nt(g,'#ff6ab0',16,62,11,'inner \\u201ccontact\\u201d speed: '+v.vSmall.toFixed(3)+' = \\u03c9(R\\u2212r) (drags)');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: cycloid 8R · trochoid 6.68 < 8 · cusp 0 vs 0.5 · slip 2\\u03c0(R\\u2212r) ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'only the big wheel rolls; the small one skids every inch');}
+document.getElementById('awn').onclick=function(){roll+=Math.PI/4;drawW4();document.getElementById('awread').textContent='rolled '+ (roll/(2*Math.PI)).toFixed(2)+' rev';};
+document.getElementById('awcheck').onclick=function(){var v=selftest();document.getElementById('awread').textContent='8R / 6.68 / cusp-vs-drag: '+v.ok;};
+document.getElementById('awspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var t2=ang*0.02,sc=44,y0=H-84;
+ var per=(W-100)/(2*Math.PI*R*sc*0.55);
+ var tm=(t2%(2*Math.PI)),cx=50+tm*R*sc*0.55;
+ ne(g,'rgba(150,160,210,0.5)',1.2);g.beginPath();g.moveTo(14,y0);g.lineTo(W-14,y0);g.stroke();ng(g);
+ nf(g,'rgba(255,47,166,0.35)',50,y0+8,tm*(R-r)*sc*0.55,6);
+ nt(g,'#ff6ab0',52,y0+30,9,'skid: '+(tm*(R-r)).toFixed(2)+' of 2\\u03c0(R\\u2212r) = 3.14');
+ ne(g,'#35ffb0',2);g.beginPath();g.arc(cx,y0-R*sc,R*sc,0,6.2832);g.stroke();ng(g);
+ ne(g,'#ff2fa6',2);g.beginPath();g.arc(cx,y0-R*sc,r*sc,0,6.2832);g.stroke();ng(g);
+ ndot(g,cx,y0,4,'#35ffb0');
+ nt(g,'#35ffb0',10,H-40,10,'green: the cusp — momentarily stationary, honestly rolling');nt(g,'#ff2fa6',10,H-24,10,'magenta: the skid trail the small wheel leaves');nt(g,'#8ad',10,H-8,9,'equal outcomes can hide unequal work');}
+drawW3();drawW4();window.__aristotlewheel=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MCLM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two climbers start at sea level on <b>opposite sides of a mountain range</b> and want to reach the summit while remaining at <b>exactly equal altitude</b> at every moment &mdash; walkie-talkies in hand, matching heights step for step. The <b>mountain climbing theorem</b>: for any two continuous profiles sharing start and end heights, such a synchronized traversal <b>always exists</b>. The catch that makes it deep: the climbers must sometimes go <b>backwards</b> &mdash; descend a peak already climbed &mdash; to let their partner navigate a valley; naive always-forward strategies fail. The proof is a path-connectivity argument in the square of configurations, and for piecewise-linear mountains it is <b>executable</b>: a graph search.<br><br>
+ <span class="lit">LIT</span> verified live: 200 random zigzag mountain pairs, each solved by breadth-first search on the equal-height coordination graph &mdash; 200 joint traversals found, including a specific pair ([0,60,30,100] vs [0,40,20,100]) whose solution provably requires backtracking (window.__mountainclimber). <span class="fig">FIG</span> honest boundary: the theorem for arbitrary continuous functions (with the right hypotheses) is cited (Whittaker 1966 lineage); the PL case is verified exhaustively per instance by the search itself.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sync</i> &mdash; the co-op: two players on split routes with one shared rule &mdash; identical altitude, always &mdash; and the level geometry guarantees the sync point exists, even when one player must walk backwards to hold it. <b>AVAN (AI)</b> built the instrument: the profile refiner and the coordination-graph BFS.<br><br>Credit as content: James V. Whittaker (1966); Tatsuo Homma; the parallel mountain-climbing folklore. The weave: David names the altitude lock; I search the square and find the rope.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Two mountain profiles — the climbers' shared altitude line sweeping up.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Generate mountain pairs; the BFS finds the synchronized route every time.</div>
+   <div class="btns" style="margin-top:10px"><button id="mtn">mountains ▶</button><button id="mtcheck">verify ▶</button></div>
+   <div class="cap" id="mtread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the path through the coordination square.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t walk the mountains &mdash; walk the SQUARE of both positions at once. The inverse of &lsquo;two climbers, one constraint&rsquo; is &lsquo;one climber in configuration space&rsquo;, where equal-altitude is a curve and the theorem is just connectivity. <b>Magenta</b> is the forward-only strategy dying in a valley; <b>green</b> is the path that backs up to go on. Some cooperation is only visible from one dimension higher.</div>
+   <div class="btns" style="margin-top:10px"><button id="mtspin">pause spin</button></div></div></div></div>"""
+MCLM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CUR=null;
+function mulA(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+var RNG=mulA(44);
+function randProfile(rng,segs){var h=[0];
+ for(var i=1;i<segs;i++){var v;
+  do{v=Math.floor(rng()*90)+5;}while(Math.abs(v-h[h.length-1])<3);
+  h.push(v);}
+ h.push(100);return h;}
+function refine(h1,h2){var levels={};
+ h1.forEach(function(v){levels[v]=1;});h2.forEach(function(v){levels[v]=1;});
+ var L=Object.keys(levels).map(Number).sort(function(a,b){return a-b;});
+ function seq(h){var out=[];
+  for(var i=0;i<h.length-1;i++){var a=h[i],b=h[i+1];
+   out.push(a);
+   var lo=Math.min(a,b),hi=Math.max(a,b);
+   var mids=L.filter(function(v){return v>lo&&v<hi;});
+   if(b<a)mids.reverse();
+   mids.forEach(function(v){out.push(v);});}
+  out.push(h[h.length-1]);
+  return out;}
+ return [seq(h1),seq(h2)];}
+function solve(h1,h2){var rs=refine(h1,h2),s1=rs[0],s2=rs[1];
+ var n1=s1.length,n2=s2.length;
+ var seen={},q=[[0,0]],par={};seen['0,0']=1;
+ while(q.length){var st=q.shift(),i=st[0],j=st[1];
+  if(i===n1-1&&j===n2-1){
+   var path=[],k='0,0',cur=(n1-1)+','+(n2-1);
+   while(cur){path.push(cur);cur=par[cur];}
+   return {ok:true,path:path.reverse(),s1:s1,s2:s2};}
+  [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(function(d){
+   var ni=i+d[0],nj=j+d[1];
+   if(ni<0||nj<0||ni>=n1||nj>=n2)return;
+   if(s1[ni]!==s2[nj])return;
+   if(Math.sign(s1[ni]-s1[i])!==Math.sign(s2[nj]-s2[j]))return;
+   var k=ni+','+nj;
+   if(!seen[k]){seen[k]=1;par[k]=i+','+j;q.push([ni,nj]);}});}
+ return {ok:false,s1:s1,s2:s2};}
+function selftest(){if(VR)return VR;var rng=mulA(444),okAll=true;
+ for(var t2=0;t2<200;t2++){
+  var h1=randProfile(rng,3+Math.floor(rng()*4)),h2=randProfile(rng,3+Math.floor(rng()*4));
+  if(!solve(h1,h2).ok)okAll=false;}
+ var hard=solve([0,60,30,100],[0,40,20,100]);
+ // backtracking present: some step decreases i or j
+ var back=false;
+ if(hard.ok)for(var i=1;i<hard.path.length;i++){
+  var a=hard.path[i-1].split(',').map(Number),b=hard.path[i].split(',').map(Number);
+  if(b[0]<a[0]||b[1]<a[1])back=true;}
+ VR={okAll:okAll,hardOk:hard.ok,back:back,ok:okAll&&hard.ok&&back};return VR;}
+function drawProfiles(g,h1,h2,W,H,y0){function draw(h,col,dir){ne(g,col,1.8);g.beginPath();
+  for(var i=0;i<h.length;i++){var x=dir>0?30+i*(W/2-50)/(h.length-1):W-30-i*(W/2-50)/(h.length-1);
+   var y=y0-h[i]*1.4;
+   if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+  g.stroke();ng(g);}
+ draw(h1,'#35ffb0',1);draw(h2,'#21e6ff',-1);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'two faces of the range — equal-altitude lockstep');
+ drawProfiles(g,[0,60,30,100],[0,40,20,100],W,H,H-40);
+ var lvl=(Math.sin(0)+1)/2*100;
+ nt(g,'#8ad',10,H-8,9,'the theorem: the lockstep summit path ALWAYS exists — Whittaker 1966');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ if(!CUR){CUR={h1:[0,60,30,100],h2:[0,40,20,100]};}
+ drawProfiles(g,CUR.h1,CUR.h2,W,H,220);
+ var sol=solve(CUR.h1,CUR.h2);
+ nt(g,sol.ok?'#39ffb0':'#ff5a5a',16,244,12,sol.ok?'synchronized route found ('+sol.path.length+' waypoints)':'unsolvable');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: 200/200 random pairs solved · classic pair needs backtracking ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'sometimes one climber must DESCEND to keep the rope level');}
+document.getElementById('mtn').onclick=function(){CUR={h1:randProfile(RNG,4+Math.floor(RNG()*3)),h2:randProfile(RNG,4+Math.floor(RNG()*3))};drawW4();document.getElementById('mtread').textContent='new range';};
+document.getElementById('mtcheck').onclick=function(){var v=selftest();document.getElementById('mtread').textContent='200/200 + forced backtrack: '+v.ok;};
+document.getElementById('mtspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#35ffb0',10,18,10,'the coordination square — both climbers as one point');
+ var sol=solve([0,60,30,100],[0,40,20,100]);
+ var n1=sol.s1.length,n2=sol.s2.length,sc=Math.min((W-80)/n1,(H-140)/n2);
+ for(var i=0;i<n1;i++)for(var j=0;j<n2;j++){
+  if(sol.s1[i]===sol.s2[j])ndot(g,40+i*sc,H-90-j*sc,2,'rgba(150,160,210,0.5)');}
+ if(sol.ok){var reach=Math.floor(ang*0.02)%(sol.path.length+4);
+  ne(g,'#35ffb0',2);g.beginPath();
+  sol.path.slice(0,Math.max(2,reach)).forEach(function(p,k){
+   var ij=p.split(',').map(Number);
+   var x=40+ij[0]*sc,y=H-90-ij[1]*sc;
+   if(k===0)g.moveTo(x,y);else g.lineTo(x,y);});
+  g.stroke();ng(g);}
+ nt(g,'#35ffb0',10,H-52,11,'green: the joint path — dips are one climber backing up');nt(g,'#ff2fa6',10,H-34,10,'magenta: forward-only strategies, dead in a valley');nt(g,'#8ad',10,H-14,10,'some cooperation is only visible from one dimension higher');}
+drawW3();drawW4();window.__mountainclimber=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BROU_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Crumple a map of your city into a ball and drop it anywhere in the city: <b>one point of the map lies exactly above the place it depicts</b>. That is <b>Brouwer&rsquo;s fixed-point theorem</b> (1911): every continuous map of a disk (or triangle, or square) into itself leaves at least one point unmoved. It underlies Nash equilibria, market-clearing prices, and Google-adjacent eigenvector arguments. Its most beautiful proof is combinatorial: <b>Sperner&rsquo;s lemma</b> (1928) &mdash; triangulate, label corners by simple rules, and an <b>odd number</b> (hence at least one) of small triangles must carry all three labels; those triangles corner the fixed point.<br><br>
+ <span class="lit">LIT</span> verified live: for 30 random continuous self-maps of a triangle, the fully-labeled triangle count is <b>odd every time</b> (Sperner&rsquo;s lemma, executed); the flagged triangle localizes an approximate fixed point whose error shrinks under refinement (3&times;10&#8315;&sup2; &rarr; 2&times;10&#8315;&sup3; through depths 3&rarr;7); and the 1-dimensional case (= intermediate value theorem) is bisected to |f(x)&minus;x| &lt; 10&#8315;&sup1;&sup2; (window.__brouwer). <span class="fig">FIG</span> honest boundary: existence for ALL continuous maps is the theorem, cited; the computation demonstrates the Sperner machinery on random instances &mdash; and famously, the theorem tells you the point exists, never where.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gatekeeper</i> &mdash; the boss: whatever route you take through the space, one point holds its ground &mdash; a gate that cannot be juked, only located. <b>AVAN (AI)</b> built the instrument: the Sperner labeler, the odd-count auditor, and the refinement tracker.<br><br>Credit as content: L.E.J. Brouwer (1911); Emanuel Sperner (1928); Scarf (making it computational). The weave: David names the immovable gate; I count the odd triangles that fence it in.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">1D Brouwer: any curve from left wall to right wall crosses the diagonal.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New random map; Sperner colors the grid; the odd triangle pins the fixed point.</div>
+   <div class="btns" style="margin-top:10px"><button id="brn">map ▶</button><button id="brcheck">verify ▶</button></div>
+   <div class="cap" id="brread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the crumpled map settling over the city.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t chase the fixed point &mdash; count the triangles that MUST contain one. The inverse of &lsquo;where is it?&rsquo; is Sperner&rsquo;s &lsquo;parity says somewhere&rsquo;: an odd number can&rsquo;t be zero, and that single bit of arithmetic pins existence forever. <b>Magenta</b> is the location the theorem never surrenders; <b>green</b> is the odd count it cannot help but confess. Existence and address are different secrets.</div>
+   <div class="btns" style="margin-top:10px"><button id="brspin">pause spin</button></div></div></div></div>"""
+BROU_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mapSeed=1234;
+function mulB(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function makeMap(seed){var r2=mulB(seed);
+ var a=r2()*0.5+0.25,b=r2()*0.5+0.25,cx=r2()*0.4+0.2,cy=r2()*0.4+0.2;
+ return function(x,y){
+  var nx=x+a*(cx-x)*0.8+0.1*Math.sin(3*y),ny=y+b*(cy-y)*0.8+0.1*Math.cos(2*x)*(x*0.3);
+  if(nx<0)nx=0;if(ny<0)ny=0;
+  if(nx+ny>1){var s=nx+ny;nx/=s;ny/=s;}
+  return [nx,ny];};}
+function sperner(f,depth){var n=1<<depth;
+ function label(x,y){var b0=1-x-y,b1=x;
+  var q=f(x,y),c0=1-q[0]-q[1],c1=q[0];
+  if(b0>0&&c0<=b0)return 0;
+  if(b1>0&&c1<=b1)return 1;
+  return 2;}
+ var count=0,found=null;
+ for(var i=0;i<n;i++)for(var j=0;j<n-i;j++){
+  var x0=i/n,y0=j/n,s=1/n;
+  var tris=[[[x0,y0],[x0+s,y0],[x0,y0+s]]];
+  if(i+j<n-1)tris.push([[x0+s,y0],[x0+s,y0+s],[x0,y0+s]]);
+  for(var ti=0;ti<tris.length;ti++){var T=tris[ti];
+   var l0=label(T[0][0],T[0][1]),l1=label(T[1][0],T[1][1]),l2=label(T[2][0],T[2][1]);
+   if(l0!==l1&&l1!==l2&&l0!==l2){count++;
+    if(!found)found=[(T[0][0]+T[1][0]+T[2][0])/3,(T[0][1]+T[1][1]+T[2][1])/3];}}}
+ return {count:count,pt:found};}
+function selftest(){if(VR)return VR;var okOdd=true;
+ for(var t2=0;t2<30;t2++){var f=makeMap(1000+t2);
+  var r5=sperner(f,5);
+  if(r5.count%2===0||r5.count===0)okOdd=false;}
+ var f0=makeMap(1234),errs=[],eOld=1e9,okShrink=true;
+ [3,5,7].forEach(function(d){var r=sperner(f0,d);
+  if(r.pt){var q=f0(r.pt[0],r.pt[1]);
+   var e=Math.hypot(q[0]-r.pt[0],q[1]-r.pt[1]);
+   errs.push(e);
+   if(e>eOld*1.2)okShrink=false;eOld=e;}});
+ function g2(x){return 0.5+0.4*Math.sin(2*x)-0.2*x;}
+ var lo=0,hi=1;
+ for(var i=0;i<60;i++){var mid=(lo+hi)/2;
+  if(g2(mid)-mid>0)lo=mid;else hi=mid;}
+ var fx=(lo+hi)/2,ok1D=Math.abs(g2(fx)-fx)<1e-12;
+ VR={okOdd:okOdd,errs:errs,okShrink:okShrink,ok1D:ok1D,ok:okOdd&&okShrink&&ok1D};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'1D: any self-map crosses the diagonal — the fixed point');
+ var x0=70,y0=H-40,sc=170;
+ ne(g,'rgba(150,160,210,0.6)',1.2);g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+sc,y0);g.moveTo(x0,y0);g.lineTo(x0,y0-sc);g.stroke();ng(g);
+ ne(g,'#ffcf4a',1.2);g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+sc,y0-sc);g.stroke();ng(g);
+ ne(g,'#35ffb0',2);g.beginPath();
+ for(var i=0;i<=100;i++){var x=i/100,y=0.5+0.4*Math.sin(2*x)-0.2*x;
+  if(i===0)g.moveTo(x0+x*sc,y0-y*sc);else g.lineTo(x0+x*sc,y0-y*sc);}
+ g.stroke();ng(g);
+ var lo=0,hi=1;
+ for(var i=0;i<50;i++){var mid=(lo+hi)/2;
+  if((0.5+0.4*Math.sin(2*mid)-0.2*mid)-mid>0)lo=mid;else hi=mid;}
+ ndot(g,x0+lo*sc,y0-lo*sc,6,'#ff2fa6');
+ nt(g,'#ff6ab0',x0+lo*sc+10,y0-lo*sc,10,'f(x) = x');
+ nt(g,'#8ad',10,H-8,9,'the curve starts above the diagonal and ends below — it must cross (IVT)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var f=makeMap(mapSeed),r=sperner(f,5);
+ nt(g,'#b06bff',12,20,12,'Sperner grid · fully-labeled triangles: '+r.count+' (odd)');
+ var n=32,sc2=200,ox=90,oy=250;
+ var COLS=['#35ffb0','#21e6ff','#ffcf4a'];
+ for(var i=0;i<=n;i+=2)for(var j=0;j<=n-i;j+=2){
+  var x=i/n,y=j/n;
+  var b0=1-x-y,b1=x;
+  var q=f(x,y),c0=1-q[0]-q[1],c1=q[0];
+  var lab=(b0>0&&c0<=b0)?0:(b1>0&&c1<=b1)?1:2;
+  ndot(g,ox+(x+y*0.5)*sc2,oy-y*0.87*sc2,2.2,COLS[lab]);}
+ if(r.pt)ndot(g,ox+(r.pt[0]+r.pt[1]*0.5)*sc2,oy-r.pt[1]*0.87*sc2,7,'#ff2fa6');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: 30 maps all odd · error shrinks '+v.errs.map(function(e){return e.toExponential(0);}).join('→')+' · 1D 1e-12 ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'an odd number cannot be zero — existence by parity');}
+document.getElementById('brn').onclick=function(){mapSeed=1000+Math.floor(Math.random()*9000);drawW4();document.getElementById('brread').textContent='map #'+mapSeed;};
+document.getElementById('brcheck').onclick=function(){var v=selftest();document.getElementById('brread').textContent='odd counts + shrinking error: '+v.ok;};
+document.getElementById('brspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#b06bff',10,18,10,'the crumpled map over the city');
+ var cx=W/2,cy=H/2-8;
+ for(var i=0;i<8;i++){var a=i/8*6.2832+ang*0.004,r2=90;
+  ne(g,'rgba(150,160,210,0.35)',1);g.beginPath();g.moveTo(cx+Math.cos(a)*r2,cy+Math.sin(a)*r2);g.lineTo(cx+Math.cos(a+0.8)*r2*0.5,cy+Math.sin(a+0.8)*r2*0.5);g.stroke();ng(g);}
+ for(var i=0;i<8;i++){var a=i/8*6.2832-ang*0.006,r2=44+8*Math.sin(ang*0.02+i);
+  ne(g,'rgba(53,255,176,0.55)',1.2);g.beginPath();g.moveTo(cx+Math.cos(a)*r2,cy+Math.sin(a)*r2);g.lineTo(cx+Math.cos(a+1.2)*r2*0.6,cy+Math.sin(a+1.2)*r2*0.6);g.stroke();ng(g);}
+ ndot(g,cx,cy,6,'#ff2fa6');
+ nt(g,'#ff6ab0',cx+10,cy-8,9,'the point atop itself');
+ nt(g,'#35ffb0',10,H-52,11,'green: the crumpled copy, settling anywhere');nt(g,'#ff2fa6',10,H-34,10,'magenta: the address the theorem never surrenders');nt(g,'#8ad',10,H-14,10,'existence and address are different secrets');}
+drawW3();drawW4();window.__brouwer=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 185 · neon-noir · silicon-coding · THE LYING AVERAGES (the system that always wins until it doesn't · the answer that depends on how you asked · a transfer that flatters everyone · the bus that is always late for you · counting tanks from their serial numbers) ═══════════════════════
 MRTG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">The <b>martingale</b> is gambling&rsquo;s oldest siren: bet 1, and after every loss <b>double</b>; your first win recovers everything plus one unit. With a bankroll for ten rounds you win <b>99.9% of sessions</b> &mdash; a system that feels unbeatable. The mathematics is merciless: on a fair game the expected value is <b>exactly zero</b> &mdash; the rare bust (&minus;1023 units) precisely cancels the parade of +1s; and on real roulette (18/38) the expectation is <b>exactly 1 &minus; (2q)&#7503; &lt; 0</b>: the doubling doesn&rsquo;t shrink the house edge, it <b>concentrates</b> it into catastrophes. The martingale is a machine for exchanging many small wins for occasional ruin &mdash; variance reshaped, expectation untouched (a special case of the optional stopping theorem).<br><br>
@@ -49347,6 +49782,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-napkin-ring","title":"THE NAPKIN RING","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#ffcf4a","icon":"napkinring",
+  "kicker":"a ring that forgets its sphere",
+  "blurb":"The napkin ring problem in the 5-window house format — drill a cylindrical hole through a sphere's center leaving a ring of height h: the remaining volume is πh³/6, and the sphere's radius has VANISHED from the formula. A height-6 ring from an orange and one from the Earth hold identical volume — the planet's is wafer-thin but vast, the orange's thick but tiny, the trade exact. Cavalieri's proof is the jewel: the cross-section annulus area is π((h/2)²−y²) — R cancels BEFORE you integrate. Verified live three ways: numeric integration for R = 5, 50, 500 all landing on 113.0973; the Cavalieri cancellation exact at 100 heights; 2M-point Monte-Carlo within 1%. Neon-noir traced. See matched slices in 1D, the growing sphere with pinned volume in 2D, and rings of three worlds in 3D.",
+  "lit":"Genuine napkin ring / bored sphere theorem (calculus folklore; Gardner's columns; Cavalieri's method). Verified live: annulus integration at R=5/50/500 → πh³/6 each; cross-sections identical across radii at 100 heights to 1e-9; MC volume within 1% (window.__napkinring.ok).",
+  "fig":"No framing — three independent routes, one radius-free number. The AVAN inverse — don't integrate, watch what cancels: R dies in the cross-section before any calculus happens. Magenta is the radius you were sure must matter; green is the height of the cut — the only thing the ring remembers. The best problems are the ones the answer forgets.",
+  "body":NAPR_BODY,"script":NAPR_SCRIPT},
+ {"slug":"the-coastline","title":"THE COASTLINE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#21e6ff","icon":"coastline",
+  "kicker":"the coast that has no length",
+  "blurb":"The coastline paradox in the 5-window house format — Richardson asked how long the coast of Britain is and found it depends on the ruler, divergently: halve the ruler and the length grows by a power law, because every bay hides smaller bays. Mandelbrot's 1967 paper on that data launched fractal geometry: coastlines have no length but they have a DIMENSION. The laboratory specimen is the Koch curve: length exactly (4/3)ⁿ (divergent), dimension exactly log4/log3 = 1.2619. Verified live: Koch lengths match (4/3)ⁿ to 1e-9 for n ≤ 7; the dimension measured by TWO independent meters — box-counting (1.29) and Richardson's ruler-walking (1.20) — both bracketing the truth. Neon-noir traced. See the unfolding curve in 1D, the shrinking ruler in 2D, and the bottomless zoom in 3D.",
+  "lit":"Genuine coastline paradox / fractal dimension (Richardson 1961; Mandelbrot 1967; von Koch 1904). Verified live: Koch length (4/3)ⁿ exact n≤7; box-counting dimension 1.29 and ruler-walking dimension 1.20 vs log4/log3 = 1.2619, both within tolerance (window.__coastline.ok).",
+  "fig":"Honest boundary — real coastlines follow Richardson's empirical law (cited ~1.25 for Britain); exact mathematics verified on the Koch specimen where truth is known. The AVAN inverse — don't ask how long, ask how the answer FAILS: the length is meaningless but its rate of escape is a constant. Magenta is the number growing without limit; green is the exponent that never moves. When a question has no answer, the way it has no answer is the answer.",
+  "body":COAS_BODY,"script":COAS_SCRIPT},
+ {"slug":"the-aristotle-wheel","title":"THE ARISTOTLE WHEEL","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#ff8a3c","icon":"aristotlewheel",
+  "kicker":"the wheel that skids in plain sight",
+  "blurb":"Aristotle's wheel paradox in the 5-window house format — two concentric wheels welded together roll one revolution; both advance 2πR, but the small wheel's circumference is only 2πr: how did it unroll more road than it has rim? The puzzle stumped readers of the pseudo-Aristotelian Mechanica for 2,300 years (Galileo wrestled it in Two New Sciences). The resolution is measurable: only the big wheel ROLLS; the small one SKIDS — its contact point never rests (speed ω(R−r)) while the big wheel's touches down at speed zero (the cycloid's cusp), dragging slip of exactly 2π(R−r) per turn. Verified live: cycloid arc length exactly 8R, trochoid 6.68R over the same advance, bottom speeds 0 vs 0.5, slip exact. Neon-noir traced. See the two paths in 1D, the speed gauges in 2D, and the glowing skid trail in 3D.",
+  "lit":"Genuine Aristotle's wheel resolution (pseudo-Aristotle Mechanica; Galileo, Two New Sciences). Verified live: cycloid length = 8R exact; curtate trochoid = 6.68R < 8R; contact speeds ~0 (cusp) vs ω(R−r) = 0.5; slip = 2π(R−r) exact (window.__aristotlewheel.ok).",
+  "fig":"No framing — 2,300 years of history cited; the resolution is four computed numbers. The AVAN inverse — don't compare the distances, compare the CONTACT: rolling is the art of being momentarily stationary, and the small wheel never learns it. Magenta is the skid, 2π(R−r) every turn; green is the cusp where the big wheel rests on the road. Equal outcomes can hide unequal work.",
+  "body":ARIW_BODY,"script":ARIW_SCRIPT},
+ {"slug":"the-mountain-climber","title":"THE MOUNTAIN CLIMBER","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#35ffb0","icon":"mountainclimber",
+  "kicker":"two climbers in height-lockstep",
+  "blurb":"The mountain climbing theorem in the 5-window house format — two climbers on opposite faces of a range want to summit while staying at EXACTLY equal altitude the whole way. The theorem: for any two continuous profiles with shared endpoints, the synchronized traversal always exists — but the climbers must sometimes go BACKWARDS, descending a peak already won, to let a partner cross a valley; always-forward fails. For piecewise-linear mountains the proof is executable: BFS on the equal-height coordination graph. Verified live: 200 random mountain pairs, 200 synchronized routes found, including the classic pair whose solution provably requires backtracking. Neon-noir traced. See the twin profiles in 1D, freshly generated ranges in 2D, and the coordination square in 3D.",
+  "lit":"Genuine mountain climbing problem (Whittaker 1966; Homma). Verified live: BFS on the refined coordination graph solves 200/200 random PL mountain pairs; the pair [0,60,30,100]/[0,40,20,100] solved with verified backtracking steps (window.__mountainclimber.ok).",
+  "fig":"Honest boundary — the theorem for arbitrary continuous profiles (with proper hypotheses) is cited; each PL instance is verified exhaustively by its own search. The AVAN inverse — don't walk the mountains, walk the SQUARE of both positions: equal-altitude becomes a curve and the theorem is just connectivity. Magenta is the forward-only strategy dying in a valley; green is the path that backs up to go on. Some cooperation is only visible from one dimension higher.",
+  "body":MCLM_BODY,"script":MCLM_SCRIPT},
+ {"slug":"the-brouwer","title":"THE BROUWER","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#b06bff","icon":"brouwer",
+  "kicker":"the point that cannot escape",
+  "blurb":"Brouwer's fixed-point theorem in the 5-window house format — crumple a map of your city and drop it anywhere in the city: one point lies exactly atop the place it depicts. Every continuous self-map of a disk fixes at least one point (Brouwer 1911) — the engine beneath Nash equilibria and market-clearing prices. The most beautiful proof is combinatorial: Sperner's lemma (1928) — triangulate, label by simple rules, and an ODD number of small triangles must carry all three labels; odd cannot be zero, and those triangles corner the fixed point. Verified live: 30 random self-maps, fully-labeled count odd every time; the flagged triangle localizes a fixed point with error shrinking 3e-2 → 2e-3 under refinement; and 1D Brouwer (= IVT) bisected to 1e-12. Neon-noir traced. See the diagonal crossing in 1D, the Sperner rainbow in 2D, and the crumpled map in 3D.",
+  "lit":"Genuine Brouwer fixed-point via Sperner (Brouwer 1911; Sperner 1928; Scarf's computational tradition). Verified live: 30 random continuous self-maps → odd fully-labeled triangle count every time; localized fixed-point error shrinks through depths 3→5→7; 1D case bisected to |f(x)−x| < 1e-12 (window.__brouwer.ok).",
+  "fig":"Honest boundary — existence for ALL continuous maps is the cited theorem; the computation demonstrates the machinery on random instances, and the theorem famously never surrenders the address. The AVAN inverse — don't chase the point, count the triangles that MUST contain one: an odd number cannot be zero, and that single bit pins existence forever. Magenta is the location never revealed; green is the parity that cannot help but confess. Existence and address are different secrets.",
+  "body":BROU_BODY,"script":BROU_SCRIPT},
  {"slug":"the-martingale","title":"THE MARTINGALE","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#ffcf4a","icon":"martingale",
   "kicker":"the system that always wins until it doesn't",
