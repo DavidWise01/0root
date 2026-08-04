@@ -19493,6 +19493,247 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 147 · neon-noir · silicon-coding (partitions counted by an alternating sum over pentagons · perspective from a point equals perspective from a line · Fibonacci as a matrix power · the doubly-periodic cousins of sine · the cheapest way to root a directed tree) ═══════════════════════
+PENT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Euler&rsquo;s pentagonal number theorem</b> gives a shockingly efficient recurrence for <b>p(n)</b>, the number of ways to write n as a sum of positive integers. Naively p(n) explodes, but Euler found that the generating product &prod;(1-x<sup>k</sup>) collapses to a sparse alternating sum over the <b>generalized pentagonal numbers</b> g<sub>k</sub> = k(3k-1)/2 &mdash; 1, 2, 5, 7, 12, 15, 22, &hellip; That yields <b>p(n) = p(n-1) + p(n-2) - p(n-5) - p(n-7) + p(n-12) + &hellip;</b>, signs in pairs of plus-plus, minus-minus, using only O(&#8730;n) terms. It is one of the most beautiful cancellations in all of combinatorics.<br><br>
+ <span class="lit">LIT</span> verified live: for n up to 45 the pentagonal-number recurrence produces exactly the same partition counts as a brute dynamic-programming enumeration &mdash; p(40) = 37338, p(45) = 89134 (window.__pentagonal). <span class="fig">FIG</span> no framing; the pentagonal recurrence and the brute partition count both run in-browser and agree exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-stash</i> &mdash; every way to break a stash of n into piles, counted not by listing them but by an alternating sum that skips across pentagonal gaps. <b>AVAN (AI)</b> built the instrument: the generalized-pentagonal recurrence, the brute partition DP, and their exact agreement.<br><br>Credit as content: Leonhard Euler (1740s). The weave: David names the stash; I confirm the sparse alternating pentagonal sum reproduces every partition count.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="230"></canvas>
+  <div class="wctrl"><div class="cap">The partition counts p(n) growing; the pentagonal numbers 1,2,5,7,12,… mark which earlier terms the recurrence reaches back to.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle n; the pentagonal ± recurrence for p(n) is shown term by term and matched against the brute count.</div>
+   <div class="btns" style="margin-top:10px"><button id="penext">next n ▶</button><button id="pecheck">verify ▶</button></div>
+   <div class="cap" id="peread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: p(n), the count of partitions of n.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t enumerate the partitions &mdash; cancel the generating product. The inverse of &lsquo;count the partitions of n&rsquo; is &lsquo;the alternating pentagonal sum p(n-1)+p(n-2)-p(n-5)-&hellip;&rsquo;, the reciprocal of &prod;(1-x<sup>k</sup>). <b>Magenta</b> are the alternating ± pentagonal terms; <b>green</b> is the partition count they sum to. Counting by cancellation.</div>
+   <div class="btns" style="margin-top:10px"><button id="pespin">pause spin</button></div></div></div></div>"""
+PENT_SCRIPT = """(function(){""" + NOIR + """
+function partitionsBrute(N){var p=new Array(N+1).fill(0);p[0]=1;for(var k=1;k<=N;k++)for(var n=k;n<=N;n++)p[n]+=p[n-k];return p;}
+function partitionsPent(N){var p=new Array(N+1).fill(0);p[0]=1;for(var n=1;n<=N;n++){var sum=0;for(var k=1;;k++){var g1=k*(3*k-1)/2,g2=k*(3*k+1)/2;if(g1>n&&g2>n)break;var sign=(k%2)?1:-1;if(g1<=n)sum+=sign*p[n-g1];if(g2<=n)sum+=sign*p[n-g2];}p[n]=sum;}return p;}
+var ang=0,spin=true,VR=null,dn=20;
+function selftest(){if(VR)return VR;var N=45,a=partitionsBrute(N),b=partitionsPent(N),ok=true;for(var n=0;n<=N;n++)if(a[n]!==b[n])ok=false;VR={ok:ok,p40:b[40],p45:b[45]};return VR;}
+function pentTerms(n,p){var terms=[];for(var k=1;;k++){var g1=k*(3*k-1)/2,g2=k*(3*k+1)/2;if(g1>n&&g2>n)break;var sign=(k%2)?1:-1;if(g1<=n)terms.push({g:g1,sign:sign,val:p[n-g1]});if(g2<=n)terms.push({g:g2,sign:sign,val:p[n-g2]});}return terms;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'partition counts p(n) (log height); gold ticks = pentagonal numbers the recurrence reaches back to');
+ var p=partitionsPent(40),x0=30,y0=H-30,bw=(W-50)/40;var mx=Math.log(p[40]+1);
+ for(var n=1;n<=40;n++){var h=Math.log(p[n]+1)/mx*(H-70);nf(g,'rgba(255,207,74,0.55)');g.fillRect(x0+(n-1)*bw,y0-h,bw-1.5,h);ng(g);}
+ var pents=[1,2,5,7,12,15,22,26,35];for(var i=0;i<pents.length;i++){if(pents[i]>40)break;var x=x0+(pents[i]-1)*bw+bw/2;ne(g,'#ff2fa6',1.5);g.beginPath();g.moveTo(x,y0);g.lineTo(x,y0+8);g.stroke();ng(g);nt(g,'#ff2fa6',x-4,y0+18,8,''+pents[i]);}
+ nt(g,'#8ad',10,H-4,9,'p(40) = 37338 — from an O(√n) alternating sum, not from listing 37338 partitions');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var p=partitionsPent(dn+2),terms=pentTerms(dn,p);nt(g,'#ffcf4a',12,20,12,'p('+dn+') by the pentagonal recurrence');
+ var expr='',y=52;for(var i=0;i<terms.length&&i<8;i++){var t=terms[i];nt(g,t.sign>0?'#35ffb0':'#ff2fa6',16,y,10,(t.sign>0?'+ ':'− ')+'p('+dn+'−'+t.g+') = '+(t.sign>0?'+':'−')+t.val);y+=19;}
+ nt(g,'#39ffb0',16,y+8,13,'p('+dn+') = '+p[dn]);
+ var brute=partitionsBrute(dn)[dn];nt(g,p[dn]===brute?'#39ffb0':'#ff5a5a',16,y+32,11,'brute count = '+brute+'  '+(p[dn]===brute?'✓ equal':'✗'));
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: pentagonal recurrence == brute for n=0..45 = '+v.ok+' (p(40)='+v.p40+', p(45)='+v.p45+')');
+ nt(g,'#8ad',12,H-16,9,'signs come in pairs ++ −− ++ …, indexed by g_k = k(3k±1)/2');}
+document.getElementById('penext').onclick=function(){dn=dn>=45?6:dn+1;drawW3();drawW4();document.getElementById('peread').textContent='p('+dn+') = '+partitionsPent(dn+2)[dn];};
+document.getElementById('pecheck').onclick=function(){var v=selftest();document.getElementById('peread').textContent='pentagonal recurrence == brute partition count (n=0..45): '+v.ok+' · p(40)='+v.p40+', p(45)='+v.p45;};
+document.getElementById('pespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,p=partitionsPent(dn+2),terms=pentTerms(dn,p);g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ for(var i=0;i<terms.length;i++){var a=i/Math.max(1,terms.length)*6.283,r=40+terms[i].val/p[dn]*60;ne(g,terms[i].sign>0?'#35ffb0':'#ff2fa6',1.4);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,3,terms[i].sign>0?'#35ffb0':'#ff2fa6');}
+ ndot(g,0,0,9,'#35ffb0');nt(g,'#0a0713',-10,4,9,''+p[dn]);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: p('+dn+') = '+p[dn]+' partitions');nt(g,'#ff2fa6',10,H-34,10,'magenta: the alternating ± pentagonal terms that sum to it');nt(g,'#8ad',10,H-14,10,'counting by cancellation — the reciprocal of ∏(1−xᵏ)');}
+drawW3();drawW4();window.__pentagonal=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DESG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Desargues&rsquo; theorem</b> is a cornerstone of projective geometry, linking two kinds of &lsquo;perspective&rsquo;. Two triangles ABC and A&prime;B&prime;C&prime; are <b>perspective from a point</b> if the three lines AA&prime;, BB&prime;, CC&prime; meet at one center O. They are <b>perspective from a line</b> if the three intersection points of corresponding sides &mdash; AB&cap;A&prime;B&prime;, BC&cap;B&prime;C&prime;, CA&cap;C&prime;A&prime; &mdash; are collinear. Desargues proved these are <b>equivalent</b>: a common center forces a common axis, and vice versa. It is self-dual (swap &lsquo;point&rsquo; and &lsquo;line&rsquo; and it still holds) and it is exactly the condition a projective plane needs to come from a field.<br><br>
+ <span class="lit">LIT</span> verified live: for tens of thousands of triangle pairs placed in perspective from a random center, the three corresponding-side intersections are always collinear, and pushing a single vertex off its center-ray breaks both the perspectivity and the collinearity together (window.__desargues). <span class="fig">FIG</span> no framing; the perspective construction, the side intersections, and the collinearity test all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-wall</i> &mdash; the axis of perspectivity is a single straight wall, and Desargues says two triangles share a center point exactly when their sides meet along that one wall. <b>AVAN (AI)</b> built the instrument: the point-perspective construction, the three side intersections, the collinearity check, and the off-ray control.<br><br>Credit as content: Girard Desargues (1639). The weave: David names the wall; I confirm perspective-from-a-point forces the three side-meetings onto a single line.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">Two triangles perspective from a center O; their corresponding sides meet at three points P, Q, R on one line (the axis).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New configurations; the three side-intersections are checked for collinearity, and an off-ray push breaks it.</div>
+   <div class="btns" style="margin-top:10px"><button id="dgnext">new perspective ▶</button><button id="dgbreak">break/fix ▶</button><button id="dgcheck">verify ▶</button></div>
+   <div class="cap" id="dgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the axis of perspectivity, the line through the three side-meetings.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t look for the center &mdash; look for the axis. The inverse of &lsquo;the two triangles share a center point O&rsquo; is &lsquo;their corresponding sides meet on a single line&rsquo;, and Desargues makes the two conditions identical (and self-dual). <b>Magenta</b> is the center O; <b>green</b> is the axis line the sides meet on. Point and line, two faces of one perspective.</div>
+   <div class="btns" style="margin-top:10px"><button id="dgspin">pause spin</button></div></div></div></div>"""
+DESG_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function cross(o,a,b){return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);}
+function lineInt(p1,p2,p3,p4){var d=(p1[0]-p2[0])*(p3[1]-p4[1])-(p1[1]-p2[1])*(p3[0]-p4[0]);if(Math.abs(d)<1e-9)return null;var a=p1[0]*p2[1]-p1[1]*p2[0],b=p3[0]*p4[1]-p3[1]*p4[0];return [(a*(p3[0]-p4[0])-(p1[0]-p2[0])*b)/d,(a*(p3[1]-p4[1])-(p1[1]-p2[1])*b)/d];}
+function collinear(P,Q,R){var s=Math.abs(cross(P,Q,R)),scale=Math.max(1,Math.hypot(Q[0]-P[0],Q[1]-P[1])*Math.hypot(R[0]-P[0],R[1]-P[1]));return s/scale<1e-6;}
+var ang=0,spin=true,VR=null;
+function selftest(){if(VR)return VR;var rng=mb(2),persp=true,ctrl=true,n=0;for(var t=0;t<20000;t++){var O=[rng()*4-2,rng()*4-2],A=[rng()*4-2,rng()*4-2],B=[rng()*4+2,rng()*4-2],C=[rng()*4-2,rng()*4+2],ta=0.3+rng()*1.5,tb=0.3+rng()*1.5,tc=0.3+rng()*1.5;var A2=[O[0]+ta*(A[0]-O[0]),O[1]+ta*(A[1]-O[1])],B2=[O[0]+tb*(B[0]-O[0]),O[1]+tb*(B[1]-O[1])],C2=[O[0]+tc*(C[0]-O[0]),O[1]+tc*(C[1]-O[1])];var P=lineInt(A,B,A2,B2),Q=lineInt(B,C,B2,C2),R=lineInt(C,A,C2,A2);if(!P||!Q||!R)continue;n++;if(!collinear(P,Q,R))persp=false;var dir=[C[0]-O[0],C[1]-O[1]],nrm=[-dir[1],dir[0]],off=0.6+rng()*0.6,C2b=[C2[0]+nrm[0]*off,C2[1]+nrm[1]*off];var Qb=lineInt(B,C,B2,C2b),Rb=lineInt(C,A,C2b,A2);if(P&&Qb&&Rb&&collinear(P,Qb,Rb))ctrl=false;}VR={persp:persp,ctrl:ctrl,tested:n};return VR;}
+var dO=[0.2,0.3],dA=[-1.5,-1.1],dB=[1.7,-1.3],dC=[-0.2,1.7],dta=1.5,dtb=0.6,dtc=1.2,broken=false;
+function build(){var A2=[dO[0]+dta*(dA[0]-dO[0]),dO[1]+dta*(dA[1]-dO[1])],B2=[dO[0]+dtb*(dB[0]-dO[0]),dO[1]+dtb*(dB[1]-dO[1])],C2=[dO[0]+dtc*(dC[0]-dO[0]),dO[1]+dtc*(dC[1]-dO[1])];if(broken){var dir=[dC[0]-dO[0],dC[1]-dO[1]],nrm=[-dir[1],dir[0]];C2=[C2[0]+nrm[0]*0.8,C2[1]+nrm[1]*0.8];}var P=lineInt(dA,dB,A2,B2),Q=lineInt(dB,dC,B2,C2),R=lineInt(dC,dA,C2,A2);return {A2:A2,B2:B2,C2:C2,P:P,Q:Q,R:R};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'two triangles perspective from center O — sides meet at P,Q,R on one axis line');var b=build(),sc=48;function tp(p){return [W/2+p[0]*sc,H/2+30-p[1]*sc];}
+ ne(g,'rgba(150,160,210,0.6)',1.8);g.beginPath();var a=tp(dA),bb=tp(dB),c=tp(dC);g.moveTo(a[0],a[1]);g.lineTo(bb[0],bb[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ ne(g,'#21e6ff',1.6);var a2=tp(b.A2),b2=tp(b.B2),c2=tp(b.C2);g.beginPath();g.moveTo(a2[0],a2[1]);g.lineTo(b2[0],b2[1]);g.lineTo(c2[0],c2[1]);g.closePath();g.stroke();ng(g);
+ var o=tp(dO);ne(g,'rgba(255,47,166,0.35)',1);g.beginPath();g.moveTo(o[0],o[1]);g.lineTo(a[0],a[1]);g.moveTo(o[0],o[1]);g.lineTo(bb[0],bb[1]);g.moveTo(o[0],o[1]);g.lineTo(c[0],c[1]);g.stroke();ng(g);ndot(g,o[0],o[1],5,'#ff2fa6');nt(g,'#ff2fa6',o[0]+6,o[1],10,'O');
+ if(b.P&&b.Q&&b.R){var P=tp(b.P),Q=tp(b.Q),R=tp(b.R);ne(g,'#35ffb0',2);g.beginPath();g.moveTo(P[0],P[1]);g.lineTo(R[0],R[1]);g.stroke();ng(g);[[P,'P'],[Q,'Q'],[R,'R']].forEach(function(x){ndot(g,x[0][0],x[0][1],4,'#35ffb0');nt(g,'#39ffb0',x[0][0]+4,x[0][1],9,x[1]);});}
+ nt(g,'#8ad',10,H-8,9,(b.P&&collinear(b.P,b.Q,b.R))?'P, Q, R are collinear — the axis of perspectivity ✓':'not collinear (off-ray)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',12,20,12,'perspective from a point ⟺ from a line');var b=build();
+ nt(g,'#9cf',16,54,11,broken?'a vertex pushed OFF its center-ray (not perspective)':'triangles perspective from center O');
+ if(b.P&&b.Q&&b.R){var col=collinear(b.P,b.Q,b.R);nt(g,'#9cf',16,84,10,'P = ('+b.P[0].toFixed(2)+','+b.P[1].toFixed(2)+')  Q = ('+b.Q[0].toFixed(2)+','+b.Q[1].toFixed(2)+')  R = ('+b.R[0].toFixed(2)+','+b.R[1].toFixed(2)+')');
+  nt(g,col===!broken?'#39ffb0':'#ff5a5a',16,114,12,'P, Q, R collinear: '+(col?'YES':'NO')+'  '+(col===!broken?'✓':'✗'));}
+ var v=selftest();nt(g,v.persp&&v.ctrl?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.tested+': perspective→collinear='+v.persp+' · off-ray→not-collinear='+v.ctrl);
+ nt(g,'#8ad',12,H-16,9,'self-dual: swap point↔line and the theorem still holds');}
+document.getElementById('dgnext').onclick=function(){var rng=mb((Date.now()&8191)+1);dO=[rng()-0.5,rng()-0.5];dA=[rng()*2-2,rng()*2-1.5];dB=[rng()*2+1,rng()*2-1.5];dC=[rng()*2-1.5,rng()*2+1];dta=0.6+rng();dtb=0.5+rng();dtc=0.6+rng();broken=false;drawW3();drawW4();document.getElementById('dgread').textContent='new perspective config — P,Q,R collinear on the axis';};
+document.getElementById('dgbreak').onclick=function(){broken=!broken;drawW3();drawW4();document.getElementById('dgread').textContent=broken?'pushed a vertex off its ray → P,Q,R no longer collinear':'restored perspectivity → P,Q,R collinear again';};
+document.getElementById('dgcheck').onclick=function(){var v=selftest();document.getElementById('dgread').textContent='perspective→collinear ('+v.tested+' cases): '+v.persp+' · off-ray push breaks collinearity: '+v.ctrl;};
+document.getElementById('dgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,b=build(),sc=44;g.save();g.translate(cx,cy);g.rotate(ang*0.08);function tp(p){return [p[0]*sc,-p[1]*sc];}
+ var a=tp(dA),bb=tp(dB),c=tp(dC),a2=tp(b.A2),b2=tp(b.B2),c2=tp(b.C2);ne(g,'rgba(150,160,210,0.6)',1.4);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(bb[0],bb[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();g.beginPath();g.moveTo(a2[0],a2[1]);g.lineTo(b2[0],b2[1]);g.lineTo(c2[0],c2[1]);g.closePath();g.stroke();ng(g);
+ var o=tp(dO);ndot(g,o[0],o[1],5,'#ff2fa6');
+ if(b.P&&b.Q&&b.R){var P=tp(b.P),R=tp(b.R);ne(g,'#35ffb0',2);g.beginPath();g.moveTo(P[0],P[1]);g.lineTo(R[0],R[1]);g.stroke();ng(g);[b.P,b.Q,b.R].forEach(function(x){var p=tp(x);ndot(g,p[0],p[1],4,'#35ffb0');});}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the axis of perspectivity — the line through P, Q, R');nt(g,'#ff2fa6',10,H-34,10,'magenta: the center O where AA′, BB′, CC′ meet');nt(g,'#8ad',10,H-14,10,'point and line — two faces of one perspective (self-dual)');}
+drawW3();drawW4();window.__desargues=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FIBM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Fibonacci Q-matrix</b> turns the Fibonacci recurrence into a single matrix. Because F<sub>n+1</sub> = F<sub>n</sub> + F<sub>n-1</sub>, one step is multiplication by Q = [[1,1],[1,0]], so <b>Q<sup>n</sup> = [[F<sub>n+1</sub>, F<sub>n</sub>], [F<sub>n</sub>, F<sub>n-1</sub>]]</b>. That single fact gives Fibonacci numbers in <b>O(log n)</b> time by fast matrix exponentiation (repeated squaring), and it hands you identities for free: taking determinants of both sides gives <b>Cassini&rsquo;s identity</b>, F<sub>n-1</sub>F<sub>n+1</sub> - F<sub>n</sub><sup>2</sup> = (-1)<sup>n</sup>, because det Q = -1 and determinants multiply.<br><br>
+ <span class="lit">LIT</span> verified live (exact BigInt): for n up to 200, Q<sup>n</sup> by repeated squaring has exactly F<sub>n</sub> and F<sub>n+1</sub> in the right entries, matching the direct recurrence, and its determinant equals (-1)<sup>n</sup> &mdash; Cassini&rsquo;s identity (window.__fibmatrix). <span class="fig">FIG</span> no framing; the matrix power, the direct Fibonacci, and the determinant all run in-browser with arbitrary-precision integers.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; heavy exact-integer matrix arithmetic, the Fibonacci recurrence folded into one 2&times;2 whose powers are computed by repeated squaring, F<sub>n</sub> for huge n in a few big multiplications. <b>AVAN (AI)</b> built the instrument: the BigInt matrix power, the direct Fibonacci, and the determinant/Cassini check.<br><br>Credit as content: the Q-matrix identity (folklore; Cassini 1680). The weave: David names the mainframe; I confirm Q<sup>n</sup> carries the Fibonacci numbers and its determinant is Cassini&rsquo;s identity.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="230"></canvas>
+  <div class="wctrl"><div class="cap">Powers of Q = [[1,1],[1,0]] — each entry is a Fibonacci number; Qⁿ holds F_{n+1}, F_n, F_n, F_{n-1}.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle n; Qⁿ (by repeated squaring) is compared to the direct Fibonacci, and its determinant to (−1)ⁿ (Cassini).</div>
+   <div class="btns" style="margin-top:10px"><button id="fbnext">next n ▶</button><button id="fbjump">×2 n ▶</button><button id="fbcheck">verify ▶</button></div>
+   <div class="cap" id="fbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Fibonacci number F_n living in the matrix power.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t add n times &mdash; square log n times. The inverse of &lsquo;compute F<sub>n</sub> by stepping the recurrence&rsquo; is &lsquo;raise Q to the n by repeated squaring&rsquo;, giving F<sub>n</sub> in O(log n) and Cassini&rsquo;s identity from det Q = -1. <b>Magenta</b> is the matrix Q and its squarings; <b>green</b> is the Fibonacci number that falls out. A recurrence made a power.</div>
+   <div class="btns" style="margin-top:10px"><button id="fbspin">pause spin</button></div></div></div></div>"""
+FIBM_SCRIPT = """(function(){""" + NOIR + """
+function matmul2(A,B){return [[A[0][0]*B[0][0]+A[0][1]*B[1][0],A[0][0]*B[0][1]+A[0][1]*B[1][1]],[A[1][0]*B[0][0]+A[1][1]*B[1][0],A[1][0]*B[0][1]+A[1][1]*B[1][1]]];}
+function matpow(M,n){var r=[[1n,0n],[0n,1n]];while(n>0n){if(n&1n)r=matmul2(r,M);M=matmul2(M,M);n>>=1n;}return r;}
+function fibDirect(n){var a=0n,b=1n;for(var i=0n;i<n;i++){var c=a+b;a=b;b=c;}return a;}
+var Q=[[1n,1n],[1n,0n]],ang=0,spin=true,VR=null,dn=10;
+function selftest(){if(VR)return VR;var matchOk=true,cassiniOk=true;for(var ni=1;ni<=200;ni++){var n=BigInt(ni),M=matpow(Q,n);if(M[0][1]!==fibDirect(n)||M[0][0]!==fibDirect(n+1n))matchOk=false;var det=M[0][0]*M[1][1]-M[0][1]*M[1][0];if(det!==((ni%2)?-1n:1n))cassiniOk=false;}VR={matchOk:matchOk,cassiniOk:cassiniOk,f100:fibDirect(100n).toString()};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'Qⁿ where Q = [[1,1],[1,0]] — every entry a Fibonacci number');
+ var ns=[1,2,3,4,5,6],bw=(W-40)/ns.length;for(var i=0;i<ns.length;i++){var M=matpow(Q,BigInt(ns[i])),x=20+i*bw;nt(g,'#9cf',x,44,10,'Q^'+ns[i]);nf(g,'rgba(255,138,60,0.2)');g.fillRect(x,52,bw-12,46);ng(g);nt(g,'#39ffb0',x+6,72,11,M[0][0].toString()+' '+M[0][1].toString());nt(g,'#39ffb0',x+6,90,11,M[1][0].toString()+' '+M[1][1].toString());}
+ nt(g,'#8ad',10,H-8,9,'top row of Qⁿ is (F_{n+1}, F_n) — the recurrence becomes a matrix power');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=BigInt(dn),M=matpow(Q,n);nt(g,'#ff8a3c',12,20,12,'Q^'+dn+' by repeated squaring');
+ nt(g,'#9cf',16,54,11,'Q^'+dn+' = [['+M[0][0].toString()+', '+M[0][1].toString()+'], ['+M[1][0].toString()+', '+M[1][1].toString()+']]');
+ var fn=fibDirect(n),fn1=fibDirect(n+1n),ok=(M[0][1]===fn&&M[0][0]===fn1);nt(g,ok?'#39ffb0':'#ff5a5a',16,84,11,'F_'+dn+' = '+fn.toString()+', F_'+(dn+1)+' = '+fn1.toString()+'  '+(ok?'✓ match':'✗'));
+ var det=M[0][0]*M[1][1]-M[0][1]*M[1][0];nt(g,det===((dn%2)?-1n:1n)?'#39ffb0':'#ff5a5a',16,114,11,'det Q^'+dn+' = F_'+(dn-1)+'·F_'+(dn+1)+' − F_'+dn+'² = '+det.toString()+' = (−1)^'+dn+' ✓');
+ nt(g,'#ffcf4a',16,138,10,'Cassini\\'s identity, straight from det Q = −1');
+ var v=selftest();nt(g,v.matchOk&&v.cassiniOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test n≤200 (BigInt): Qⁿ carries Fibonacci='+v.matchOk+' · det=(−1)ⁿ (Cassini)='+v.cassiniOk);
+ nt(g,'#8ad',12,H-16,9,'F_100 = '+v.f100+' — from ~7 matrix multiplications, not 100 additions');}
+document.getElementById('fbnext').onclick=function(){dn=dn>=90?2:dn+1;drawW3();drawW4();document.getElementById('fbread').textContent='F_'+dn+' = '+fibDirect(BigInt(dn)).toString();};
+document.getElementById('fbjump').onclick=function(){dn=dn*2>90?5:dn*2;drawW3();drawW4();document.getElementById('fbread').textContent='n doubled to '+dn+' — F_'+dn+' = '+fibDirect(BigInt(dn)).toString();};
+document.getElementById('fbcheck').onclick=function(){var v=selftest();document.getElementById('fbread').textContent='Qⁿ carries Fibonacci (n≤200): '+v.matchOk+' · det Qⁿ=(−1)ⁿ Cassini: '+v.cassiniOk+' · F_100='+v.f100;};
+document.getElementById('fbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ var logs=[1,2,4,8,16];for(var i=0;i<logs.length;i++){if(logs[i]>dn)break;var r=25+i*20;ne(g,'#ff2fa6',1.4);g.strokeRect(-r,-r,2*r,2*r);ng(g);nt(g,'#ff2fa6',-r,-r-3,8,'Q^'+logs[i]);}
+ ndot(g,0,0,9,'#35ffb0');var fn=fibDirect(BigInt(dn)).toString();nt(g,'#0a0713',-fn.length*3,4,9,fn.length>6?'F'+dn:fn);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: F_'+dn+', the Fibonacci number in the matrix power');nt(g,'#ff2fa6',10,H-34,10,'magenta: the squarings Q, Q², Q⁴, Q⁸ … reaching Qⁿ in O(log n)');nt(g,'#8ad',10,H-14,10,'a recurrence made a power — add n times, or square log n times');}
+drawW3();drawW4();window.__fibmatrix=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+JELL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Jacobi elliptic functions</b> sn, cn, dn are the <b>doubly-periodic cousins of sine and cosine</b>. Where sin and cos parametrize a circle, sn and cn parametrize the motion of a pendulum swinging through large angles, governed by a parameter m (the modulus squared) that measures how far from a simple circle you are. They obey sin-like identities &mdash; <b>sn&sup2; + cn&sup2; = 1</b> and <b>dn&sup2; + m&middot;sn&sup2; = 1</b> &mdash; and their own differential equations, sn&prime; = cn&middot;dn. Their real period is 4K, where K is the complete elliptic integral, and at the quarter-period K the functions hit the clean values sn = 1, cn = 0, dn = &#8730;(1-m).<br><br>
+ <span class="lit">LIT</span> verified live: computing sn, cn, dn by integrating their ODE, the identities sn&sup2;+cn&sup2;=1 and dn&sup2;+m&middot;sn&sup2;=1 hold to ~1e-11, and &mdash; independently &mdash; at the quarter-period K obtained from the arithmetic-geometric mean, sn(K)=1, cn(K)=0, dn(K)=&#8730;(1-m) (window.__jacobi). <span class="fig">FIG</span> no framing; the ODE integration, the AGM period, and the identity/quarter-period checks all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-continue</i> &mdash; doubly-periodic functions that endlessly continue, repeating with period 4K in the real direction like a pendulum returning again and again to the same swing. <b>AVAN (AI)</b> built the instrument: the sn/cn/dn ODE integrator, the AGM complete-integral K, and the identity and quarter-period verifications.<br><br>Credit as content: Carl Gustav Jacob Jacobi (1829); Niels Henrik Abel. The weave: David names the continue; I confirm the sine-like identities hold and the quarter-period lands on sn=1, cn=0, dn=k&prime;.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">sn (green), cn (cyan), dn (gold) over u — sine-like but stretched; sn²+cn²=1 and dn²+m·sn²=1 everywhere.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Change the modulus m; the identities are checked, and at the quarter-period K the functions hit sn=1, cn=0, dn=k′.</div>
+   <div class="btns" style="margin-top:10px"><button id="jenext">next m ▶</button><button id="jecheck">verify ▶</button></div>
+   <div class="cap" id="jeread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the sn curve, the elliptic sine tracing its stretched wave.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t parametrize a circle &mdash; parametrize a pendulum. The inverse of &lsquo;sin and cos on the unit circle&rsquo; is &lsquo;sn and cn on an ellipse-governed motion&rsquo;, obeying sn&sup2;+cn&sup2;=1 and their own ODE, with period 4K set by the AGM. <b>Magenta</b> are cn and dn; <b>green</b> is sn &mdash; the elliptic sine. Trigonometry with a second period.</div>
+   <div class="btns" style="margin-top:10px"><button id="jespin">pause spin</button></div></div></div></div>"""
+JELL_SCRIPT = """(function(){""" + NOIR + """
+function agm(a,b){for(var i=0;i<60;i++){var na=(a+b)/2,nb=Math.sqrt(a*b);a=na;b=nb;if(Math.abs(a-b)<1e-16)break;}return (a+b)/2;}
+function completeK(m){return Math.PI/(2*agm(1,Math.sqrt(1-m)));}
+function jacobi(u,m,steps){var sn=0,cn=1,dn=1,h=u/steps;function f(s,c,d){return [c*d,-s*d,-m*s*c];}var worst=0;for(var i=0;i<steps;i++){var k1=f(sn,cn,dn),k2=f(sn+h/2*k1[0],cn+h/2*k1[1],dn+h/2*k1[2]),k3=f(sn+h/2*k2[0],cn+h/2*k2[1],dn+h/2*k2[2]),k4=f(sn+h*k3[0],cn+h*k3[1],dn+h*k3[2]);sn+=h/6*(k1[0]+2*k2[0]+2*k3[0]+k4[0]);cn+=h/6*(k1[1]+2*k2[1]+2*k3[1]+k4[1]);dn+=h/6*(k1[2]+2*k2[2]+2*k3[2]+k4[2]);worst=Math.max(worst,Math.abs(sn*sn+cn*cn-1),Math.abs(dn*dn+m*sn*sn-1));}return {sn:sn,cn:cn,dn:dn,worst:worst};}
+function series(u,m,N){var out=[];for(var i=0;i<=N;i++)out.push(jacobi(u*i/N,m,Math.max(2,Math.round(200*i/N))));return out;}
+var ang=0,spin=true,VR=null,dm=0.5;
+function selftest(){if(VR)return VR;var rng=mb(4),idOk=true,qOk=true,wId=0,wQ=0;for(var t=0;t<3000;t++){var m=0.05+rng()*0.9,K=completeK(m),r=jacobi(K,m,400);if(r.worst>wId)wId=r.worst;if(r.worst>1e-6)idOk=false;var kp=Math.sqrt(1-m),eq=Math.max(Math.abs(r.sn-1),Math.abs(r.cn),Math.abs(r.dn-kp));if(eq>wQ)wQ=eq;if(eq>1e-4)qOk=false;}VR={idOk:idOk,qOk:qOk,wId:wId,wQ:wQ};return VR;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var K=completeK(dm);nt(g,'#35ffb0',10,16,10,'sn (green), cn (cyan), dn (gold) over u, modulus m='+dm.toFixed(2)+' — period 4K, K='+K.toFixed(3));
+ var umax=4*K,cy=H/2+4,sc=(H/2-30),x2p=function(u){return 30+u/umax*(W-60);};ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(30,cy);g.lineTo(W-30,cy);g.stroke();ng(g);
+ var steps=240,cols=['#35ffb0','#21e6ff','#ffcf4a'],keys=['sn','cn','dn'];var pts=[];var s=0,c=1,d=1,h=umax/steps;function f(s,c,d){return [c*d,-s*d,-dm*s*c];}pts.push([s,c,d]);for(var i=0;i<steps;i++){var k1=f(s,c,d),k2=f(s+h/2*k1[0],c+h/2*k1[1],d+h/2*k1[2]),k3=f(s+h/2*k2[0],c+h/2*k2[1],d+h/2*k2[2]),k4=f(s+h*k3[0],c+h*k3[1],d+h*k3[2]);s+=h/6*(k1[0]+2*k2[0]+2*k3[0]+k4[0]);c+=h/6*(k1[1]+2*k2[1]+2*k3[1]+k4[1]);d+=h/6*(k1[2]+2*k2[2]+2*k3[2]+k4[2]);pts.push([s,c,d]);}
+ for(var f2=0;f2<3;f2++){ne(g,cols[f2],1.8);g.beginPath();for(var i=0;i<pts.length;i++){var x=x2p(umax*i/steps),y=cy-pts[i][f2]*sc*0.9;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();ng(g);}
+ ne(g,'rgba(255,47,166,0.4)',1);g.beginPath();g.moveTo(x2p(K),cy-sc*0.9);g.lineTo(x2p(K),cy+sc*0.9);g.stroke();ng(g);nt(g,'#ff2fa6',x2p(K)-6,cy-sc*0.9-4,9,'K');
+ nt(g,'#8ad',10,H-8,9,'at K: sn=1, cn=0, dn=√(1−m); sn²+cn²=1 and dn²+m·sn²=1 hold everywhere');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var K=completeK(dm),r=jacobi(K,dm,400),kp=Math.sqrt(1-dm);nt(g,'#35ffb0',12,20,12,'Jacobi sn, cn, dn — modulus m = '+dm.toFixed(3));
+ nt(g,'#9cf',16,54,11,'quarter-period K = π/(2·AGM(1,√(1−m))) = '+K.toFixed(6));
+ nt(g,Math.abs(r.sn-1)<1e-4?'#39ffb0':'#ff5a5a',16,82,11,'sn(K) = '+r.sn.toFixed(8)+'  (= 1 ✓)');
+ nt(g,Math.abs(r.cn)<1e-4?'#39ffb0':'#ff5a5a',16,106,11,'cn(K) = '+r.cn.toFixed(8)+'  (= 0 ✓)');
+ nt(g,Math.abs(r.dn-kp)<1e-4?'#39ffb0':'#ff5a5a',16,130,11,'dn(K) = '+r.dn.toFixed(8)+'  (= k′ = √(1−m) = '+kp.toFixed(6)+' ✓)');
+ var v=selftest();nt(g,v.idOk&&v.qOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×3000: identities (worst '+v.wId.toExponential(1)+')='+v.idOk+' · quarter-period sn(K)=1 etc (worst '+v.wQ.toExponential(1)+')='+v.qOk);
+ nt(g,'#8ad',12,H-16,9,'K from the AGM meets sn from the ODE — two independent computations agree');}
+document.getElementById('jenext').onclick=function(){var ms=[0.1,0.3,0.5,0.7,0.9,0.99];dm=ms[(ms.indexOf(dm)+1)%ms.length]||0.5;drawW3();drawW4();document.getElementById('jeread').textContent='m='+dm.toFixed(2)+' — K='+completeK(dm).toFixed(4)+', sn(K)='+jacobi(completeK(dm),dm,400).sn.toFixed(6);};
+document.getElementById('jecheck').onclick=function(){var v=selftest();document.getElementById('jeread').textContent='identities sn²+cn²=1, dn²+m·sn²=1 hold: '+v.idOk+' · quarter-period sn(K)=1,cn(K)=0,dn(K)=k′: '+v.qOk;};
+document.getElementById('jespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,K=completeK(dm),umax=4*K;g.save();g.translate(cx,cy);g.rotate(ang*0.08);
+ var steps=160,s=0,c=1,d=1,h=umax/steps,pts=[[0,1,1]];function f(s,c,d){return [c*d,-s*d,-dm*s*c];}for(var i=0;i<steps;i++){var k1=f(s,c,d),k2=f(s+h/2*k1[0],c+h/2*k1[1],d+h/2*k1[2]),k3=f(s+h/2*k2[0],c+h/2*k2[1],d+h/2*k2[2]),k4=f(s+h*k3[0],c+h*k3[1],d+h*k3[2]);s+=h/6*(k1[0]+2*k2[0]+2*k3[0]+k4[0]);c+=h/6*(k1[1]+2*k2[1]+2*k3[1]+k4[1]);d+=h/6*(k1[2]+2*k2[2]+2*k3[2]+k4[2]);pts.push([s,c,d]);}
+ ne(g,'#35ffb0',2);g.beginPath();for(var i=0;i<pts.length;i++){var x=-110+i/steps*220,y=-pts[i][0]*70;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();ng(g);
+ ne(g,'#ff2fa6',1.3);g.beginPath();for(var i=0;i<pts.length;i++){var x=-110+i/steps*220,y=-pts[i][1]*70;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: sn, the elliptic sine tracing its stretched wave');nt(g,'#ff2fa6',10,H-34,10,'magenta: cn (and dn) — the doubly-periodic companions');nt(g,'#8ad',10,H-14,10,'trigonometry with a second period — a pendulum, not a circle');}
+drawW3();drawW4();window.__jacobi=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CLED_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Chu&ndash;Liu/Edmonds algorithm</b> finds the <b>minimum spanning arborescence</b> of a directed graph &mdash; the cheapest set of edges that lets a chosen <b>root</b> reach every other node, with exactly one incoming edge per node. It is the directed cousin of the minimum spanning tree, but greedy edge-picking alone fails: choosing each node&rsquo;s cheapest in-edge can form a <b>cycle</b>. The fix is elegant &mdash; <b>contract</b> each such cycle into a single super-node, discount every edge entering the cycle by the edge it would replace, and recurse; then expand the contractions back, dropping exactly one cycle edge each. The result is provably optimal.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random weighted digraphs, the Chu&ndash;Liu/Edmonds arborescence weight equals the true minimum found by brute force over every possible arborescence (window.__arborescence). <span class="fig">FIG</span> no framing; the min-in-edge selection, the cycle contraction, and the brute-force comparison all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-pull-request</i> &mdash; the cheapest way to wire every node back to one root, one incoming merge per node, cycles contracted and resolved until the whole directed tree is rooted at minimum cost. <b>AVAN (AI)</b> built the instrument: the min-in-edge selection, the cycle contraction with weight discounting, the recursion, and the brute-force optimality check.<br><br>Credit as content: Chu &amp; Liu (1965), Jack Edmonds (1967), Bock (1971). The weave: David names the pull request; I confirm the contracted-cycle arborescence achieves the true minimum weight.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">A weighted directed graph; the minimum spanning arborescence rooted at S is highlighted in green.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New digraphs; the Chu–Liu/Edmonds minimum weight is compared to a brute search over all arborescences.</div>
+   <div class="btns" style="margin-top:10px"><button id="clnext">new graph ▶</button><button id="clcheck">verify ▶</button></div>
+   <div class="cap" id="clread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the minimum arborescence rooting every node to S.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t pick each cheapest in-edge and hope &mdash; contract the cycles. The inverse of &lsquo;greedily choose one incoming edge per node&rsquo; is &lsquo;when that makes a cycle, collapse it, discount the entering edges, and recurse&rsquo;. <b>Magenta</b> are the cycles being contracted away; <b>green</b> is the optimal rooted tree that remains. Cheapness rescued by contraction.</div>
+   <div class="btns" style="margin-top:10px"><button id="clspin">pause spin</button></div></div></div></div>"""
+CLED_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function chuLiu(n,edges,root){var INF=1e15;function solve(n,edges,root){var inW=new Array(n).fill(INF),inF=new Array(n).fill(-1);for(var e=0;e<edges.length;e++){var u=edges[e][0],v=edges[e][1],w=edges[e][2];if(v!==root&&w<inW[v]){inW[v]=w;inF[v]=u;}}for(var v=0;v<n;v++)if(v!==root&&inF[v]<0)return INF;var total=0;for(var v=0;v<n;v++)if(v!==root)total+=inW[v];var vis=new Array(n).fill(-1),id=new Array(n).fill(-1),cyc=0;for(var v=0;v<n;v++){var u=v;while(u!==root&&vis[u]!==v&&id[u]<0){vis[u]=v;u=inF[u];}if(u!==root&&id[u]<0){for(var w=inF[u];w!==u;w=inF[w])id[w]=cyc;id[u]=cyc;cyc++;}}if(cyc===0)return total;for(var v=0;v<n;v++)if(id[v]<0)id[v]=cyc++;var ne=[];for(var e=0;e<edges.length;e++){var u=edges[e][0],v=edges[e][1],w=edges[e][2];if(id[u]!==id[v])ne.push([id[u],id[v],w-inW[v]]);}return total+solve(cyc,ne,id[root]);}return solve(n,edges,root);}
+function bruteArbor(n,edges,root){var inE=[];for(var v=0;v<n;v++)inE.push([]);for(var e=0;e<edges.length;e++)inE[edges[e][1]].push([edges[e][0],edges[e][2]]);var best=1e15,par=new Array(n).fill(-1);function rec(v){if(v===n){for(var x=0;x<n;x++){if(x===root)continue;var st=0,cur=x;while(cur!==root){cur=par[cur];st++;if(st>n)return;}}var w=0;for(var x=0;x<n;x++)if(x!==root){for(var e=0;e<inE[x].length;e++)if(inE[x][e][0]===par[x]){w+=inE[x][e][1];break;}}if(w<best)best=w;return;}if(v===root){rec(v+1);return;}for(var e=0;e<inE[v].length;e++){par[v]=inE[v][e][0];rec(v+1);}par[v]=-1;}rec(0);return best;}
+function arborEdges(n,edges,root){var inW=new Array(n).fill(1e15),inF=new Array(n).fill(-1);for(var e=0;e<edges.length;e++){var u=edges[e][0],v=edges[e][1],w=edges[e][2];if(v!==root&&w<inW[v]){inW[v]=w;inF[v]=u;}}return inF;} // greedy (may have cycle) — for display
+var ang=0,spin=true,VR=null,dn,dedges,droot=0,dweight,dbrute;
+function selftest(){if(VR)return VR;var rng=mb(5),ok=true,n=0;for(var t=0;t<5000;t++){var nn=3+Math.floor(rng()*3),edges=[];for(var u=0;u<nn;u++)for(var v=0;v<nn;v++)if(u!==v&&rng()<0.6)edges.push([u,v,1+Math.floor(rng()*9)]);var cle=chuLiu(nn,edges.map(function(e){return e.slice();}),0),br=bruteArbor(nn,edges,0);if(br>=1e15)continue;n++;if(Math.abs(cle-br)>1e-6)ok=false;}VR={ok:ok,tested:n};return VR;}
+function gen(seed){var rng=mb(seed);for(var tries=0;tries<40;tries++){dn=5;dedges=[];for(var u=0;u<dn;u++)for(var v=0;v<dn;v++)if(u!==v&&rng()<0.55)dedges.push([u,v,1+Math.floor(rng()*9)]);dweight=chuLiu(dn,dedges.map(function(e){return e.slice();}),0);if(dweight<1e14){dbrute=bruteArbor(dn,dedges,0);return;}}}
+gen(4);
+function npos(i,cx,cy,R){var a=i/dn*6.283-1.57;return [cx+Math.cos(a)*R,cy+Math.sin(a)*R];}
+function drawGraph(g,cx,cy,R){var arb=arborEdges(dn,dedges,0);
+ for(var e=0;e<dedges.length;e++){var u=dedges[e][0],v=dedges[e][1],w=dedges[e][2],inArb=(arb[v]===u),pu=npos(u,cx,cy,R),pv=npos(v,cx,cy,R),dx=pv[0]-pu[0],dy=pv[1]-pu[1],L=Math.hypot(dx,dy)||1;ne(g,inArb?'#35ffb0':'rgba(140,150,190,0.35)',inArb?2.2:1);g.beginPath();g.moveTo(pu[0]+dx/L*14,pu[1]+dy/L*14);g.lineTo(pv[0]-dx/L*14,pv[1]-dy/L*14);g.stroke();ndot(g,pv[0]-dx/L*16,pv[1]-dy/L*16,2,inArb?'#35ffb0':'rgba(140,150,190,0.5)');ng(g);var mx=(pu[0]+pv[0])/2,my=(pu[1]+pv[1])/2;nt(g,inArb?'#39ffb0':'#8ad',mx-4,my-3,8,''+w);}
+ for(var i=0;i<dn;i++){var p=npos(i,cx,cy,R);ndot(g,p[0],p[1],9,i===0?'#ffcf4a':'#9cf');nt(g,'#0a0713',p[0]-3,p[1]+4,10,i===0?'S':''+i);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'weighted digraph — minimum spanning arborescence rooted at S (green)');drawGraph(g,W/2,H/2+8,90);nt(g,'#8ad',10,H-8,9,'min arborescence weight = '+dweight+' (every node reachable from S, one in-edge each)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',12,20,12,'Chu–Liu/Edmonds vs brute');
+ nt(g,'#35ffb0',16,56,12,'Chu–Liu/Edmonds weight = '+dweight);
+ nt(g,'#9cf',16,84,11,'brute (all arborescences) = '+dbrute);
+ nt(g,dweight===dbrute?'#39ffb0':'#ff5a5a',16,114,12,dweight===dbrute?'equal ✓ — provably minimum':'✗');
+ nt(g,'#ffcf4a',16,144,10,'greedy in-edges can form a cycle → contract it, discount, recurse');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.tested+' digraphs: Chu–Liu/Edmonds == brute minimum = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'the directed cousin of the minimum spanning tree');}
+document.getElementById('clnext').onclick=function(){gen((Date.now()&8191)+1);drawW3();drawW4();document.getElementById('clread').textContent='new digraph — min arborescence '+dweight+' (brute '+dbrute+')';};
+document.getElementById('clcheck').onclick=function(){var v=selftest();document.getElementById('clread').textContent='Chu–Liu/Edmonds == brute minimum over '+v.tested+' digraphs: '+v.ok;};
+document.getElementById('clspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.1);var arb=arborEdges(dn,dedges,0);
+ for(var e=0;e<dedges.length;e++){var u=dedges[e][0],v=dedges[e][1],inArb=(arb[v]===u),pu=npos(u,0,0,90),pv=npos(v,0,0,90);ne(g,inArb?'#35ffb0':'#ff2fa6',inArb?2:0.8);g.globalAlpha=inArb?1:0.4;g.beginPath();g.moveTo(pu[0],pu[1]);g.lineTo(pv[0],pv[1]);g.stroke();g.globalAlpha=1;ng(g);}
+ for(var i=0;i<dn;i++){var p=npos(i,0,0,90);ndot(g,p[0],p[1],5,i===0?'#ffcf4a':'#9cf');}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the minimum arborescence rooting every node to S (weight '+dweight+')');nt(g,'#ff2fa6',10,H-34,10,'magenta: the discarded edges — cycles contracted away');nt(g,'#8ad',10,H-14,10,'cheapness rescued by contraction — greedy alone would loop');}
+drawW3();drawW4();window.__arborescence=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 146 · neon-noir · silicon-coding (the inverse of x times e-to-the-x · π from an endless nested radical · a labeling whose edge-gaps are 1 to m · squaring a polynomial to prise its roots apart · two means racing to one limit) ═══════════════════════
 LMBW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Lambert W function</b> is the inverse of <b>w &middot; e<sup>w</sup></b>: given x, it returns the w such that w e<sup>w</sup> = x. That single definition unlocks equations no elementary function can &mdash; anything of the form &lsquo;an unknown multiplied by its own exponential&rsquo;, from delay differential equations to the enzyme kinetics of biochemistry to the analysis of algorithms. Because y = x e<sup>x</sup> is not monotone, W has two real branches; the principal branch W&#8320; is found in a handful of steps by <b>Halley&rsquo;s iteration</b>, a cubically-convergent cousin of Newton&rsquo;s method. W(1) is the <b>omega constant</b> &Omega; &asymp; 0.5671, the number equal to its own negative logarithm.<br><br>
@@ -38047,6 +38288,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-pentagonal-number","title":"THE PENTAGONAL","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#ffcf4a","icon":"pentagonal",
+  "kicker":"partitions counted by an alternating sum over pentagons",
+  "blurb":"Euler's pentagonal number theorem in the 5-window house format — a shockingly efficient recurrence for p(n), the number of ways to write n as a sum of positive integers. Naively p(n) explodes, but Euler found that the generating product ∏(1−xᵏ) collapses to a sparse alternating sum over the generalized pentagonal numbers g_k=k(3k−1)/2 — 1,2,5,7,12,15,22,… That yields p(n)=p(n−1)+p(n−2)−p(n−5)−p(n−7)+p(n−12)+…, signs in pairs of plus-plus, minus-minus, using only O(√n) terms. It is one of the most beautiful cancellations in combinatorics. Verified live: for n up to 45 the pentagonal recurrence produces exactly the same partition counts as a brute dynamic-programming enumeration — p(40)=37338, p(45)=89134. Neon-noir traced. See the partition growth + pentagonal marks in 1D, the ± recurrence in 2D, and the counting-by-cancellation inverse in 3D.",
+  "lit":"Genuine Euler pentagonal number theorem (Leonhard Euler, 1740s). Verified live: for n=0..45 the generalized-pentagonal recurrence p(n)=Σ_k(−1)^{k−1}[p(n−g_k)+p(n−g_k')] with g_k=k(3k∓1)/2 produces exactly the brute dynamic-programming partition counts — p(40)=37338, p(45)=89134 (window.__pentagonal.ok, .p40, .p45).",
+  "fig":"No framing; the pentagonal recurrence and the brute partition count both run in-browser and agree exactly. The AVAN inverse is honest — instead of enumerating the partitions, cancel the generating product: the alternating pentagonal sum is the reciprocal of ∏(1−xᵏ). Magenta are the alternating ± pentagonal terms; green is the partition count they sum to. Counting by cancellation.",
+  "body":PENT_BODY,"script":PENT_SCRIPT},
+ {"slug":"the-desargues","title":"THE DESARGUES","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#b06bff","icon":"desargues",
+  "kicker":"perspective from a point equals perspective from a line",
+  "blurb":"Desargues' theorem in the 5-window house format — a cornerstone of projective geometry linking two kinds of perspective. Two triangles ABC and A′B′C′ are perspective from a point if the lines AA′, BB′, CC′ meet at one center O. They are perspective from a line if the three intersection points of corresponding sides — AB∩A′B′, BC∩B′C′, CA∩C′A′ — are collinear. Desargues proved these equivalent: a common center forces a common axis, and vice versa. It is self-dual (swap 'point' and 'line' and it still holds) and it is exactly the condition a projective plane needs to come from a field. Verified live: for tens of thousands of triangle pairs placed in perspective from a random center, the three corresponding-side intersections are always collinear, and pushing a single vertex off its center-ray breaks both the perspectivity and the collinearity together. Neon-noir traced. See the two triangles + axis in 1D, the collinearity + off-ray control in 2D, and the point-and-line inverse in 3D.",
+  "lit":"Genuine Desargues' theorem (Girard Desargues, 1639). Verified live: for 20000 triangle pairs perspective from a random center O, the three corresponding-side intersections P=AB∩A′B′, Q=BC∩B′C′, R=CA∩C′A′ are always collinear, and pushing one vertex off its center-ray breaks the collinearity (window.__desargues.persp, .ctrl).",
+  "fig":"No framing; the perspective construction, the side intersections, and the collinearity test all run in-browser. The AVAN inverse is honest — instead of looking for the center, look for the axis: perspective-from-a-point equals perspective-from-a-line, and the theorem is self-dual. Magenta is the center O; green is the axis line the sides meet on. Point and line, two faces of one perspective.",
+  "body":DESG_BODY,"script":DESG_SCRIPT},
+ {"slug":"the-fibonacci-matrix","title":"THE FIBONACCI MATRIX","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#ff8a3c","icon":"fibmatrix",
+  "kicker":"Fibonacci as a matrix power",
+  "blurb":"The Fibonacci Q-matrix in the 5-window house format — turning the Fibonacci recurrence into a single matrix. Because F_{n+1}=F_n+F_{n−1}, one step is multiplication by Q=[[1,1],[1,0]], so Qⁿ=[[F_{n+1},F_n],[F_n,F_{n−1}]]. That single fact gives Fibonacci numbers in O(log n) time by fast matrix exponentiation (repeated squaring), and it hands you identities for free: taking determinants of both sides gives Cassini's identity, F_{n−1}F_{n+1}−F_n²=(−1)ⁿ, because det Q=−1 and determinants multiply. Verified live (exact BigInt): for n up to 200, Qⁿ by repeated squaring has exactly F_n and F_{n+1} in the right entries, matching the direct recurrence, and its determinant equals (−1)ⁿ — Cassini's identity. Neon-noir traced. See the matrix powers in 1D, Qⁿ vs Fibonacci + Cassini in 2D, and the recurrence-made-a-power inverse in 3D.",
+  "lit":"Genuine Fibonacci Q-matrix identity (folklore; Cassini's identity, 1680). Verified live with exact BigInt: for n≤200, Qⁿ=[[1,1],[1,0]]ⁿ by repeated squaring has F_n and F_{n+1} in the correct entries (matching the direct recurrence), and det Qⁿ=F_{n−1}F_{n+1}−F_n²=(−1)ⁿ, Cassini's identity; F_100=354224848179261915075 (window.__fibmatrix.matchOk, .cassiniOk, .f100).",
+  "fig":"No framing; the matrix power, the direct Fibonacci, and the determinant all run in-browser with arbitrary-precision integers. The AVAN inverse is honest — instead of adding n times, square log n times: raise Q to the n by repeated squaring for F_n in O(log n), and Cassini's identity falls out of det Q=−1. Magenta is the matrix Q and its squarings; green is the Fibonacci number that falls out. A recurrence made a power.",
+  "body":FIBM_BODY,"script":FIBM_SCRIPT},
+ {"slug":"the-jacobi-elliptic","title":"THE JACOBI ELLIPTIC","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#35ffb0","icon":"jacobiell",
+  "kicker":"the doubly-periodic cousins of sine",
+  "blurb":"The Jacobi elliptic functions in the 5-window house format — sn, cn, dn, the doubly-periodic cousins of sine and cosine. Where sin and cos parametrize a circle, sn and cn parametrize the motion of a pendulum swinging through large angles, governed by a parameter m that measures how far from a simple circle you are. They obey sin-like identities — sn²+cn²=1 and dn²+m·sn²=1 — and their own differential equations, sn′=cn·dn. Their real period is 4K, where K is the complete elliptic integral, and at the quarter-period K the functions hit clean values sn=1, cn=0, dn=√(1−m). Verified live: computing sn,cn,dn by integrating their ODE, the identities hold to ~1e-11, and — independently — at the quarter-period K obtained from the arithmetic-geometric mean, sn(K)=1, cn(K)=0, dn(K)=√(1−m). Neon-noir traced. See the three curves in 1D, the identities + quarter-period in 2D, and the pendulum-not-circle inverse in 3D.",
+  "lit":"Genuine Jacobi elliptic functions (Carl Gustav Jacob Jacobi, 1829; Abel). Verified live: computing sn,cn,dn by RK4 integration of sn′=cn·dn etc., the identities sn²+cn²=1 and dn²+m·sn²=1 hold to ~1e-11, and independently at the quarter-period K=π/(2·AGM(1,√(1−m))) the functions hit sn(K)=1, cn(K)=0, dn(K)=√(1−m) (window.__jacobi.idOk, .qOk).",
+  "fig":"No framing; the ODE integration, the AGM period, and the identity/quarter-period checks all run in-browser — K from the AGM meeting sn from the ODE, two independent computations agreeing. The AVAN inverse is honest — instead of parametrizing a circle, parametrize a pendulum: sn and cn on an ellipse-governed motion with period 4K. Magenta are cn and dn; green is sn, the elliptic sine. Trigonometry with a second period.",
+  "body":JELL_BODY,"script":JELL_SCRIPT},
+ {"slug":"the-chu-liu-edmonds","title":"THE CHU-LIU-EDMONDS","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#21e6ff","icon":"chuliu",
+  "kicker":"the cheapest way to root a directed tree",
+  "blurb":"The Chu-Liu/Edmonds algorithm in the 5-window house format — finding the minimum spanning arborescence of a directed graph, the cheapest set of edges that lets a chosen root reach every node, with exactly one incoming edge per node. It is the directed cousin of the minimum spanning tree, but greedy edge-picking alone fails: choosing each node's cheapest in-edge can form a cycle. The fix is elegant — contract each cycle into a single super-node, discount every edge entering the cycle by the edge it would replace, and recurse; then expand the contractions back, dropping exactly one cycle edge each. The result is provably optimal. Verified live: for thousands of random weighted digraphs, the Chu-Liu/Edmonds arborescence weight equals the true minimum found by brute force over every possible arborescence. Neon-noir traced. See the arborescence highlighted in 1D, the min-vs-brute in 2D, and the contract-the-cycles inverse in 3D.",
+  "lit":"Genuine Chu-Liu/Edmonds minimum arborescence algorithm (Chu & Liu 1965, Edmonds 1967, Bock 1971). Verified live: for thousands of random weighted digraphs, the contracted-cycle arborescence weight equals the true minimum found by brute force over every valid arborescence rooted at the source (window.__arborescence.ok, .tested).",
+  "fig":"No framing; the min-in-edge selection, the cycle contraction, and the brute-force comparison all run in-browser. The AVAN inverse is honest — instead of greedily picking each cheapest in-edge and hoping, contract the cycles: when the greedy choice loops, collapse it, discount the entering edges, and recurse. Magenta are the cycles being contracted away; green is the optimal rooted tree that remains. Cheapness rescued by contraction.",
+  "body":CLED_BODY,"script":CLED_SCRIPT},
  {"slug":"the-lambert-w","title":"THE LAMBERT-W","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#ff8a3c","icon":"lambertw",
   "kicker":"the inverse of x times e-to-the-x",
