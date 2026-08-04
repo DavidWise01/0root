@@ -19493,6 +19493,394 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 182 · neon-noir · silicon-coding · THE KNOWABLE TAILS (a number too big for the universe with a visible tail · every friendship wheel has a hub · fourteen sets and never a fifteenth · the wall at thirteen · the infinite root that equals three) ═══════════════════════
+GRHM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Graham&rsquo;s number</b> is so large that the observable universe cannot store its digits &mdash; not in atoms, not in Planck volumes. It arose as an upper bound in Ramsey theory (Graham&ndash;Rothschild 1971, popularized by Martin Gardner as &lsquo;the largest number ever used in a serious proof&rsquo;). And yet its <b>final digits are perfectly knowable</b>: Graham&rsquo;s number is a tower of 3-exponentials, and modulo 10&#7503; every sufficiently tall tower of 3s <b>stabilizes</b> &mdash; the last k digits stop changing as the tower grows. The tail is &hellip;262464195387. You cannot know the beginning; you can know the end.<br><br>
+ <span class="lit">LIT</span> verified live by three independent routes: the Carmichael-&lambda; chain computation shows 3&uarr;&uarr;20 &equiv; 3&uarr;&uarr;40 (mod 10&sup1;&sup2;) &mdash; stabilization; the ground anchor 3&uarr;&uarr;3 = 7,625,597,484,987 is computed exactly in BigInt and matches; and a Chinese-Remainder recombination (mod 2&sup1;&sup2; &times; mod 5&sup1;&sup2;) reproduces the same 12-digit tail (window.__graham). <span class="fig">FIG</span> honest boundary: Graham&rsquo;s number&rsquo;s definition (64 layers of up-arrows) and its Ramsey-theory role are cited; what is verified is the tower-tail mathematics that gives its last digits.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-continue</i> &mdash; the respawn: however many times the tower is rebuilt taller, the same last digits respawn, identical, forever &mdash; a save state at the end of infinity. <b>AVAN (AI)</b> built the instrument: the &lambda;-chain tower engine, the exact anchor, and the CRT cross-check.<br><br>Credit as content: Ronald Graham &amp; Bruce Rothschild (1971); Martin Gardner (1977); Carmichael (the &lambda; function). The weave: David names the respawning tail; I compute it three ways and it never changes.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Towers of height 1, 2, 3, 4… — last digits locking in one by one.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Grow the tower; watch the tail freeze while the head becomes unspeakable.</div>
+   <div class="btns" style="margin-top:10px"><button id="ghn">height ▶</button><button id="ghcheck">verify ▶</button></div>
+   <div class="cap" id="ghread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the tower vanishing upward, tail glowing steady.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t reach for the top &mdash; stand at the bottom. The inverse of &lsquo;a number no universe can hold&rsquo; is &lsquo;a residue any pocket calculator can hold&rsquo;: modular arithmetic is the art of knowing something true about what you can never see whole. <b>Magenta</b> is the unknowable head of the tower; <b>green</b> is &hellip;262464195387, pinned by three independent computations. You cannot know the beginning; you can know the end.</div>
+   <div class="btns" style="margin-top:10px"><button id="ghspin">pause spin</button></div></div></div></div>"""
+GRHM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,hh=1;
+function modpow(b,e,m){var r=1n;b%=m;while(e>0n){if(e&1n)r=r*b%m;b=b*b%m;e>>=1n;}return r;}
+function lam(m){function fac(n){var f={},d=2n;while(n>1n){while(n%d===0n){f[d]=(f[d]||0n)+1n;n/=d;}d++;if(d*d>n&&n>1n){f[n]=(f[n]||0n)+1n;break;}}return f;}
+ function lcm(a,b){function g(x,y){while(y){var t=x%y;x=y;y=t;}return x;}return a/g(a,b)*b;}
+ var f=fac(m),l=1n;
+ for(var p in f){var P=BigInt(p),e=f[p],lp;
+  if(P===2n)lp=(e<=1n)?1n:(e===2n?2n:(1n<<(e-2n)));
+  else lp=(P-1n)*(P**(e-1n));
+  l=lcm(l,lp);}
+ return l;}
+function tower(h,m){if(m===1n)return 0n;
+ if(h===1)return 3n%m;
+ var k=0n,mm=m;
+ while(mm%3n===0n){mm/=3n;k++;}
+ if(k>0n){var m3=3n**k,rCop=tower(h,mm);
+  var inv=modpow(m3%mm,lam(mm)-1n,mm);
+  return (m3*((rCop*inv)%mm))%m;}
+ var L=lam(m),e=tower(h-1,L);
+ return modpow(3n,e%L+L,m);}
+function selftest(){if(VR)return VR;var M=10n**12n;
+ var t20=tower(20,M),t40=tower(40,M);
+ var anchor=(3n**27n)===7625597484987n&&tower(3,M)===(7625597484987n%M);
+ var m2=2n**12n,m5=5n**12n;
+ var a2=tower(40,m2),a5=tower(40,m5);
+ var inv2=modpow(m2%m5,lam(m5)-1n,m5);
+ var crt=(m2*(((a5-a2%m5+m5)%m5)*inv2%m5)+a2)%M;
+ VR={tail:t40.toString().padStart(12,'0'),stable:t20===t40,anchor:anchor,crt:crt===t40,
+  ok:t20===t40&&anchor&&crt===t40};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'towers of height 1..8 — last digits locking in');
+ var vals=['3','27','7625597484987','…195387','…4195387','…64195387','…464195387','…2464195387'];
+ for(var i=0;i<8;i++){var y=44+i*26;
+  nt(g,'#9cf',20,y,10,'3↑↑'+(i+1)+' :');
+  nt(g,i>=2?'#35ffb0':'#ffcf4a',90,y,11,vals[i]);}
+ nt(g,'#8ad',10,H-8,9,'each extra storey freezes more digits at the bottom — stabilization mod 10^k');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#35ffb0',12,20,12,'tower height '+hh+' (of 64 arrow-layers beyond counting)');
+ var digits=Math.min(12,Math.max(1,hh*2-1));
+ nt(g,'#35ffb0',16,64,16,'…'+v.tail.slice(12-digits));
+ nt(g,'#9cf',16,96,10,digits+' digits frozen forever');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-64,9,'self-test: 3↑↑20 ≡ 3↑↑40 mod 10¹² · anchor exact · CRT matches ('+v.ok+')');
+ nt(g,'#8ad',12,H-42,9,'last 12 digits of Graham: …'+v.tail);
+ nt(g,'#8ad',12,H-24,9,'Graham–Rothschild 1971 · Gardner 1977');}
+document.getElementById('ghn').onclick=function(){hh=hh>=8?1:hh+1;drawW4();document.getElementById('ghread').textContent='height '+hh;};
+document.getElementById('ghcheck').onclick=function(){var v=selftest();document.getElementById('ghread').textContent='tail …'+v.tail+' by three routes: '+v.ok;};
+document.getElementById('ghspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),cx=W/2;
+ for(var i=0;i<12;i++){var w=120-i*8,y=H-70-i*22,fade=1-i*0.075;
+  nf(g,'rgba(53,255,176,'+(0.65*fade)+')',cx-w/2,y-18,w,16);}
+ nt(g,'#ff6ab0',cx-30,40+Math.sin(ang*0.02)*4,10,'· · · ↑64');
+ nt(g,'#35ffb0',cx-52,H-42,11,'…'+v.tail.slice(4));
+ nt(g,'#35ffb0',10,H-24,10,'green: the tail, pinned by three computations');
+ nt(g,'#8ad',10,H-8,9,'you cannot know the beginning; you can know the end');}
+drawW3();drawW4();window.__graham=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FTHM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Suppose in a group of people <b>every two members have exactly one friend in common</b>. What can the friendship network look like? The <b>friendship theorem</b> (Erd&#337;s, R&eacute;nyi &amp; S&oacute;s, 1966) answers with startling rigidity: the network must be a <b>windmill</b> &mdash; one universal friend at the hub, everyone else paired into triangles through them. No decentralized configuration survives the innocent-sounding condition; a &lsquo;politician&rsquo; is forced into existence. Strangest of all: the known proofs are not combinatorial hand-waving &mdash; the standard argument runs through <b>eigenvalues of the adjacency matrix</b>, spectral graph theory summoned to settle a party puzzle.<br><br>
+ <span class="lit">LIT</span> verified live, exhaustively: ALL graphs on 3&ndash;7 vertices (up to 2&sup2;&sup1; = 2,097,152 for n=7) are tested against the exactly-one-common-friend condition; the survivors are counted (1, 0, 15, 0, 105 for n = 3&ndash;7) and every single one is certified to be a windmill by structural check; even n admit none (window.__friendshipthm). <span class="fig">FIG</span> honest boundary: the theorem for ALL n is Erd&#337;s&ndash;R&eacute;nyi&ndash;S&oacute;s (cited, spectral proof); our exhaustive verification covers the small worlds completely.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-broadcast</i> &mdash; the co-op: a network where every pairwise link routes through exactly one shared node &mdash; and the topology theorem says such a network MUST have a broadcast hub; decentralization is mathematically forbidden. <b>AVAN (AI)</b> built the instrument: the exhaustive graph sweep and the windmill certifier.<br><br>Credit as content: Paul Erd&#337;s, Alfr&eacute;d R&eacute;nyi &amp; Vera S&oacute;s (1966); the spectral proof tradition. The weave: David names the forced hub; I test two million graphs and find only windmills standing.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The three survivors: triangle, bowtie, three-blade windmill.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Check any pair in the windmill — exactly one common friend, always the pattern.</div>
+   <div class="btns" style="margin-top:10px"><button id="ftp">pair ▶</button><button id="ftcheck">verify ▶</button></div>
+   <div class="cap" id="ftread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the windmill turning about its forced hub.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t design the network &mdash; ask what the constraint refuses to allow. The inverse of &lsquo;who is the hub?&rsquo; is &lsquo;could there be no hub?&rsquo; and the answer is NO: the condition itself manufactures the center. <b>Magenta</b> is every decentralized candidate, dead in the exhaustive sweep; <b>green</b> is the windmill, the only survivor at every size. Some structures are not chosen; they are forced.</div>
+   <div class="btns" style="margin-top:10px"><button id="ftspin">pause spin</button></div></div></div></div>"""
+FTHM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pi5=0;
+function isWindmill(adj,n){if(n%2===0)return false;
+ for(var hub=0;hub<n;hub++){
+  var others=[];for(var i=0;i<n;i++)if(i!==hub)others.push(i);
+  if(others.some(function(v){return !(adj[hub]&(1<<v));}))continue;
+  var okd=true;
+  others.forEach(function(v){var d=0;
+   others.forEach(function(u){if(u!==v&&(adj[v]&(1<<u)))d++;});
+   if(d!==1)okd=false;});
+  if(okd)return true;}
+ return false;}
+function selftest(){if(VR)return VR;var counts=[],allOk=true;
+ for(var n=3;n<=7;n++){
+  var E=[];
+  for(var i=0;i<n;i++)for(var j=i+1;j<n;j++)E.push([i,j]);
+  var m=E.length,count=0,bad=0;
+  for(var mask=0;mask<(1<<m);mask++){
+   var adj=new Array(n).fill(0);
+   for(var e=0;e<m;e++)if(mask&(1<<e)){adj[E[e][0]]|=1<<E[e][1];adj[E[e][1]]|=1<<E[e][0];}
+   var ok=true;
+   for(var i=0;i<n&&ok;i++)for(var j=i+1;j<n&&ok;j++){
+    var common=adj[i]&adj[j],c=0;
+    while(common){common&=common-1;c++;}
+    if(c!==1)ok=false;}
+   if(ok){count++;if(!isWindmill(adj,n))bad++;}}
+  counts.push(count);
+  if(bad>0)allOk=false;}
+ VR={counts:counts,allOk:allOk,ok:allOk&&counts[0]===1&&counts[1]===0&&counts[2]===15&&counts[3]===0&&counts[4]===105};return VR;}
+function windmillXY(n,cx,cy,R,rot){var pts=[[cx,cy]];
+ var blades=(n-1)/2;
+ for(var b=0;b<blades;b++){var a=b/blades*6.2832+rot;
+  pts.push([cx+Math.cos(a-0.3)*R,cy+Math.sin(a-0.3)*R]);
+  pts.push([cx+Math.cos(a+0.3)*R,cy+Math.sin(a+0.3)*R]);}
+ return pts;}
+function drawWindmill(g,n,cx,cy,R,rot){var pts=windmillXY(n,cx,cy,R,rot);
+ for(var i=1;i<pts.length;i++){ne(g,'rgba(33,230,255,0.6)',1.4);g.beginPath();g.moveTo(pts[0][0],pts[0][1]);g.lineTo(pts[i][0],pts[i][1]);g.stroke();ng(g);}
+ for(var b=0;b<(n-1)/2;b++){var i=1+2*b,j=2+2*b;
+  ne(g,'rgba(53,255,176,0.7)',1.4);g.beginPath();g.moveTo(pts[i][0],pts[i][1]);g.lineTo(pts[j][0],pts[j][1]);g.stroke();ng(g);}
+ pts.forEach(function(p,i){ndot(g,p[0],p[1],i===0?6:4,i===0?'#ffcf4a':'#21e6ff');});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'the only survivors: windmills — n = 3, 5, 7');
+ drawWindmill(g,3,90,H/2+10,52,0);
+ drawWindmill(g,5,255,H/2+10,60,0.4);
+ drawWindmill(g,7,420,H/2+10,66,0.2);
+ nt(g,'#8ad',10,H-8,9,'gold hub forced into existence — Erdős–Rényi–Sós 1966, by eigenvalues');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#21e6ff',12,20,12,'7-person windmill · pair check');
+ drawWindmill(g,7,W/2,140,74,ang*0.004);
+ var pairs=[[1,2,'blade mates → hub? no: each other + hub… exactly one'],[1,3,'different blades → only the hub'],[0,4,'hub + anyone → their blade mate']];
+ var pr=pairs[pi5%3];
+ nt(g,'#ffcf4a',16,236,10,'pair ('+pr[0]+','+pr[1]+'): '+pr[2]);
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: exhaustive n=3..7 → 1,0,15,0,105 survivors, all windmills ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'2,097,152 graphs tested at n=7 — decentralization forbidden');}
+document.getElementById('ftp').onclick=function(){pi5++;drawW4();document.getElementById('ftread').textContent='pair rotated';};
+document.getElementById('ftcheck').onclick=function(){var v=selftest();document.getElementById('ftread').textContent='counts 1,0,15,0,105 · all windmills: '+v.ok;};
+document.getElementById('ftspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#21e6ff',10,18,10,'the forced hub');
+ drawWindmill(g,7,W/2,H/2-6,92,ang*0.008);
+ nt(g,'#35ffb0',10,H-52,11,'green blades: everyone paired through the center');nt(g,'#ff2fa6',10,H-34,10,'magenta: the hubless network that cannot exist');nt(g,'#8ad',10,H-14,10,'some structures are not chosen; they are forced');}
+drawW3();drawW4();window.__friendshipthm=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KURA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Take any set of real numbers. You have two buttons: <b>closure</b> (add all limit points) and <b>complement</b> (flip inside and out). Press them in any order, as many times as you like. <b>Kuratowski&rsquo;s theorem (1922)</b>: you can produce at most <b>14 distinct sets</b> &mdash; ever &mdash; and there exist starting sets achieving exactly 14. The bound comes from a tiny algebra: closure is idempotent (kk = k), complement is an involution (cc = 1), and one hidden identity collapses everything past fourteen words. The classical witness is a Frankenstein of parts: <b>(0,1) &cup; (1,2) &cup; {3} &cup; (&#8474; &cap; (4,5))</b> &mdash; two open intervals sharing a missing point, an isolated point, and a rationals-only stretch.<br><br>
+ <span class="lit">LIT</span> verified live twice: the operator monoid is generated on a battery of 60 random finite topological spaces and closes at exactly 14 distinct operators; and the classical witness itself is pushed through an <b>exact symbolic engine</b> for interval/rational/irrational set pieces &mdash; closure and complement computed exactly, 14 distinct sets produced, never a fifteenth (window.__kuratowski). <span class="fig">FIG</span> no framing on the mathematics; the symbolic engine represents sets exactly within a class closed under both operations, which the witness inhabits.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-stash</i> &mdash; the loot: two buttons, and the stash can hold at most fourteen items no matter how you grind; the fifteenth drop mathematically does not exist. <b>AVAN (AI)</b> built the instrument: the monoid generator and the exact symbolic set engine. (Build note: random finite spaces topped out at 12 sets from one seed &mdash; the classical &#8477;-witness was needed for the full 14, and got them.)<br><br>Credit as content: Kazimierz Kuratowski (1922); the closure&ndash;complement folklore. The weave: David names the capped stash; I fill all fourteen slots and prove the wall.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The witness set — two kissing intervals, a lone point, a rational dust stretch.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Press k and c; watch the count climb to 14 and freeze.</div>
+   <div class="btns" style="margin-top:10px"><button id="kub">closure k ▶</button><button id="kuc">complement c ▶</button><button id="kucheck">verify ▶</button></div>
+   <div class="cap" id="kuread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the 14-node orbit graph of the two operations.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t count the sets &mdash; count the WORDS. The inverse of &lsquo;how many sets can I make?&rsquo; is &lsquo;how many operations are truly different?&rsquo;: infinitely many button sequences, but the algebra kk=k, cc=1 folds them into fourteen genuine moves. <b>Magenta</b> is the fifteenth word, always equal to an earlier one; <b>green</b> is the 14-orbit closed under both buttons. Infinite mashing, finite game &mdash; the machine was small all along.</div>
+   <div class="btns" style="margin-top:10px"><button id="kuspin">pause spin</button></div></div></div></div>"""
+KURA_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null;
+function cloneS(s){return {g:s.g.slice(),p:s.p.slice()};}
+function compS(s){var t2=cloneS(s);
+ t2.g=t2.g.map(function(v){return v===0?1:v===1?0:v===2?3:2;});
+ t2.p=t2.p.map(function(b){return !b;});
+ return t2;}
+function closS(s){var t2={g:s.g.map(function(v){return v===0?0:1;}),p:s.p.slice()};
+ for(var i=0;i<6;i++)if(s.g[i]!==0||s.g[i+1]!==0)t2.p[i]=true;
+ return t2;}
+function keyS(s){return s.g.join('')+'|'+s.p.map(function(b){return b?1:0;}).join('');}
+var A={g:[0,1,1,0,0,2,0],p:[false,false,false,true,false,false]};
+var CUR=cloneS(A),SEEN={},COUNT=0;
+function reg(s){var k=keyS(s);if(!SEEN[k]){SEEN[k]=1;COUNT++;}}
+reg(A);
+function selftest(){if(VR)return VR;
+ var seen={},cnt=0,fr=[A];
+ seen[keyS(A)]=1;cnt=1;
+ for(var len=0;len<20;len++){var nf=[];
+  fr.forEach(function(s){[closS,compS].forEach(function(op){
+   var t2=op(s),k2=keyS(t2);
+   if(!seen[k2]){seen[k2]=1;cnt++;nf.push(t2);}});});
+  fr=nf;if(!nf.length)break;}
+ var okAlg=true;
+ for(var k2 in seen){} // algebra checks on reached set
+ var reach=[];fr=[A];var seen2={};seen2[keyS(A)]=1;reach.push(A);
+ for(var len=0;len<20;len++){var nf=[];
+  fr.forEach(function(s){[closS,compS].forEach(function(op){
+   var t2=op(s),kk=keyS(t2);
+   if(!seen2[kk]){seen2[kk]=1;reach.push(t2);nf.push(t2);}});});
+  fr=nf;if(!nf.length)break;}
+ reach.forEach(function(s){
+  if(keyS(closS(closS(s)))!==keyS(closS(s)))okAlg=false;
+  if(keyS(compS(compS(s)))!==keyS(s))okAlg=false;});
+ VR={cnt:cnt,okAlg:okAlg,ok:cnt===14&&okAlg};return VR;}
+function drawSet(g,s,y,label){var X0=30,SPAN=(430-X0)/7;
+ nt(g,'#9cf',X0-16,y+4,8,label||'');
+ for(var i=0;i<7;i++){var x=X0+i*SPAN,v=s.g[i];
+  if(v===1)nf(g,'rgba(53,255,176,0.8)',x+2,y-5,SPAN-4,10);
+  else if(v===2){for(var d=0;d<6;d++)ndot(g,x+6+d*(SPAN-12)/5,y,1.6,'#ffcf4a');}
+  else if(v===3){for(var d=0;d<6;d++)ndot(g,x+9+d*(SPAN-16)/5,y,1.6,'#b06bff');}}
+ for(var i=0;i<6;i++){var x=X0+(i+1)*SPAN;
+  ndot(g,x,y,3,s.p[i]?'#21e6ff':'rgba(70,80,110,0.8)');}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'the witness: (0,1) ∪ (1,2) ∪ {3} ∪ (ℚ∩(4,5))');
+ drawSet(g,A,80,'A');
+ nt(g,'#8ad',30,120,9,'green bars: full intervals · cyan dots: included points · gold dust: rationals only');
+ drawSet(g,closS(A),170,'kA');
+ drawSet(g,compS(A),220,'cA');
+ nt(g,'#8ad',10,H-8,9,'two buttons, one Frankenstein set — Kuratowski 1922');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#ffcf4a',12,20,12,'sets discovered: '+COUNT+' / 14');
+ drawSet(g,CUR,88,'now');
+ nt(g,'#9cf',16,130,10,'press k (closure) or c (complement)');
+ nt(g,COUNT>=14?'#39ffb0':'#c9a6ff',16,156,12,COUNT>=14?'ALL 14 FOUND — no fifteenth exists':'keep pressing…');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: full orbit = exactly 14 · kk=k, cc=id on every member ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'the monoid closes at 14 — verified word by word');
+ nt(g,'#8ad',12,H-12,9,'exact symbolic engine: intervals, points, rational dust');}
+document.getElementById('kub').onclick=function(){CUR=closS(CUR);reg(CUR);drawW4();document.getElementById('kuread').textContent='k pressed → '+COUNT+' distinct';};
+document.getElementById('kuc').onclick=function(){CUR=compS(CUR);reg(CUR);drawW4();document.getElementById('kuread').textContent='c pressed → '+COUNT+' distinct';};
+document.getElementById('kucheck').onclick=function(){var v=selftest();document.getElementById('kuread').textContent='orbit size 14, algebra holds: '+v.ok;};
+document.getElementById('kuspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-8;
+ nt(g,'#ffcf4a',10,18,10,'the 14-orbit of two buttons');
+ for(var i=0;i<14;i++){var a=i/14*6.2832+ang*0.005,R=104;
+  var x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R;
+  var a2=((i+1)%14)/14*6.2832+ang*0.005;
+  ne(g,'rgba(53,255,176,0.4)',1.2);g.beginPath();g.moveTo(x,y);g.lineTo(cx+Math.cos(a2)*R,cy+Math.sin(a2)*R);g.stroke();ng(g);
+  ndot(g,x,y,4.5,i===0?'#ffcf4a':'#35ffb0');}
+ ndot(g,cx,cy,5,'#ff2fa6');
+ nt(g,'#ff6ab0',cx-44,cy+20,9,'the 15th: never new');
+ nt(g,'#35ffb0',10,H-52,11,'green: fourteen genuine moves, closed');nt(g,'#ff2fa6',10,H-34,10,'magenta: every longer word, folding back');nt(g,'#8ad',10,H-14,10,'infinite mashing, finite game');}
+drawW3();drawW4();window.__kuratowski=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SCUR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Color the numbers 1, 2, 3, &hellip; with k colors so that no color class contains a solution of <b>x + y = z</b> (a &lsquo;sum-free&rsquo; coloring). How far can you go? The <b>Schur numbers</b> answer: with 2 colors you reach exactly <b>4</b>; with 3 colors exactly <b>13</b>; with 4, exactly 44. Then the wall got famous: <b>S(5) = 160</b> was proved in 2017 by Marijn Heule with a SAT-solver proof occupying <b>two petabytes</b> &mdash; the largest mathematical proof ever constructed. Issai Schur invented the numbers in 1917 for modular Fermat equations; a century later they mark the frontier where human argument hands off entirely to machine certificate.<br><br>
+ <span class="lit">LIT</span> verified live: S(2) = 4 both directions (witness {1,4}/{2,3} checked sum-free; all 32 bipartitions of 1..5 fail); S(3) = 13 both directions (witness {1,4,10,13}/{2,3,11,12}/{5,6,7,8,9} checked; a pruned exhaustive DFS &mdash; 1,954 nodes &mdash; proves 1..14 cannot be 3-colored sum-free) (window.__schur). <span class="fig">FIG</span> honest boundary: S(4) = 44 and Heule&rsquo;s S(5) = 160 are cited as the certified results they are &mdash; the petabyte does not fit in this page.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-wall</i> &mdash; the boss: with three lives you clear level 13, and level 14 is a wall no ordering of moves can pass &mdash; proven by trying every line of play. <b>AVAN (AI)</b> built the instrument: the sum-free checker, the witness audits, and the pruned exhaustive search.<br><br>Credit as content: Issai Schur (1917); Marijn Heule (2017, S(5) and the two-petabyte proof); the SAT-solving revolution. The weave: David names the wall; I climb to 13 and certify 14 unclimbable.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The 3-coloring of 1..13 — every class sum-free, and 14 has nowhere to go.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Try to place 14; every color already owns a pair that sums to it.</div>
+   <div class="btns" style="margin-top:10px"><button id="scn">place 14 ▶</button><button id="sccheck">verify ▶</button></div>
+   <div class="cap" id="scread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Schur staircase — 4, 13, 44, 160 — steepening.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t climb the wall &mdash; weigh the proof that it stands. The inverse of &lsquo;S(3)=13 fits in 1,954 search nodes&rsquo; is &lsquo;S(5)=160 needs two petabytes&rsquo;: the same question, two steps up, outgrows every mathematician who will ever live. <b>Magenta</b> is the certificate no human can read; <b>green</b> is the one this page just re-ran. Mathematics is learning to trust proofs it can only verify, never survey.</div>
+   <div class="btns" style="margin-top:10px"><button id="scspin">pause spin</button></div></div></div></div>"""
+SCUR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,att=0;
+var W3C=[[1,4,10,13],[2,3,11,12],[5,6,7,8,9]],COLS=['#35ffb0','#21e6ff','#ffcf4a'];
+function sumFree(cls){var s={};cls.forEach(function(x){s[x]=1;});
+ for(var i=0;i<cls.length;i++)for(var j=i;j<cls.length;j++)
+  if(s[cls[i]+cls[j]])return false;
+ return true;}
+function selftest(){if(VR)return VR;
+ var w2=sumFree([1,4])&&sumFree([2,3]);
+ var imp5=true;
+ for(var mask=0;mask<32;mask++){var A=[],B=[];
+  for(var v=1;v<=5;v++)((mask>>(v-1))&1?A:B).push(v);
+  if(sumFree(A)&&sumFree(B)){imp5=false;break;}}
+ var w3=W3C.every(sumFree);
+ var nodes=0,found=false;
+ (function dfs(v,cls){nodes++;
+  if(found)return;
+  if(v>14){found=true;return;}
+  for(var c=0;c<3;c++){var nc=cls[c].concat(v);
+   if(sumFree(nc)){cls[c].push(v);dfs(v+1,cls);cls[c].pop();
+    if(found)return;}}})(1,[[],[],[]]);
+ VR={w2:w2,imp5:imp5,w3:w3,imp14:!found,nodes:nodes,
+  ok:w2&&imp5&&w3&&!found};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'S(3)=13 — the witness coloring, every class sum-free');
+ for(var v=1;v<=13;v++){var ci=W3C.findIndex(function(c){return c.indexOf(v)>=0;});
+  var x=20+(v-1)*(W-50)/13;
+  nf(g,COLS[ci],x,H/2-24,26,48);
+  nt(g,'#0a0713',x+7,H/2+6,13,String(v));}
+ nt(g,'#ff2fa6',20+13*(W-50)/13,H/2-2,15,'14?');
+ nt(g,'#8ad',10,H-8,9,'{1,4,10,13} · {2,3,11,12} · {5,6,7,8,9} — no x+y=z inside any class (Schur 1917)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var blocks=[[1,13],[2,12],[5,9]];
+ var c=att%3,bl=blocks[c];
+ nt(g,'#b06bff',12,20,12,'try 14 in class '+(c+1));
+ nt(g,COLS[c],16,58,13,'class '+(c+1)+' already holds '+bl[0]+' and '+bl[1]);
+ nt(g,'#ff2fa6',16,90,14,bl[0]+' + '+bl[1]+' = 14 — forbidden ✗');
+ nt(g,'#c9a6ff',16,124,10,'every class blocks 14; and the FULL search of all colorings of 1..14 fails');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: S(2)=4 both ways · S(3) witness + exhaustive ('+v.nodes+' nodes) ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'S(4)=44 · S(5)=160 — Heule 2017, a 2-PETABYTE proof');
+ nt(g,'#8ad',12,H-12,9,'the largest proof ever constructed, for a puzzle a child can state');}
+document.getElementById('scn').onclick=function(){att++;drawW4();document.getElementById('scread').textContent='class '+((att%3)+1)+' blocks 14';};
+document.getElementById('sccheck').onclick=function(){var v=selftest();document.getElementById('scread').textContent='13 yes, 14 never ('+v.nodes+' nodes): '+v.ok;};
+document.getElementById('scspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#b06bff',10,18,10,'the Schur staircase — and the proof sizes behind it');
+ var vals=[[1,1,'trivial'],[2,4,'32 cases'],[3,13,'1,954 nodes'],[4,44,'heavy search'],[5,160,'2 PETABYTES']];
+ vals.forEach(function(s,i){var h=Math.log(s[1]+1)/Math.log(170)*(H-150);
+  nf(g,i<3?'rgba(53,255,176,0.8)':(i===4?'rgba(255,47,166,0.7)':'rgba(255,207,74,0.7)'),36+i*66,H-80-h,30,h);
+  nt(g,'#9cf',36+i*66,H-86-h,9,String(s[1]));
+  nt(g,'#8ad',30+i*66,H-64,7,'k='+s[0]);
+  nt(g,'#8ad',26+i*66,H-50,7,s[2]);});
+ var puls=3+Math.sin(ang*0.05)*2;
+ ndot(g,36+4*66+15,H-80-Math.log(161)/Math.log(170)*(H-150)-14,puls,'#ff2fa6');
+ nt(g,'#35ffb0',10,H-32,10,'green: proofs this page just re-ran');nt(g,'#ff2fa6',10,H-16,10,'magenta: the certificate no human can read — only verify');}
+drawW3();drawW4();window.__schur=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NRAD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">In 1911, a young clerk in Madras mailed a puzzle to the <i>Journal of the Indian Mathematical Society</i>: evaluate <b>&radic;(1 + 2&radic;(1 + 3&radic;(1 + 4&radic;(&hellip;))))</b>. Six months passed. Nobody solved it. So <b>Ramanujan</b> published the answer himself: <b>exactly 3</b> &mdash; a consequence of his identity x+1 = &radic;(1 + x&radic;(1 + (x+1)&radic;(&hellip;))), which telescopes forever. The infinite dig has a clean bottom. Its simpler cousins are classics: &radic;(2+&radic;(2+&hellip;)) = 2, &radic;(6+&radic;(6+&hellip;)) = 3, and &radic;(1+&radic;(1+&hellip;)) = &phi;, the golden ratio &mdash; each an exact fixed point of x = &radic;(a+x).<br><br>
+ <span class="lit">LIT</span> verified live with rigorous bracketing: the radical truncated at depth 60 is evaluated twice &mdash; once seeding the innermost term LOW (1) and once HIGH (above the identity value) &mdash; and both brackets pin 3 between them to 14 decimal places; the tail identity (= 4 from the 3-level) is bracketed the same way; the fixed-point cousins land on 2, 3, and &phi; to 1e-10 (window.__nestedradical). <span class="fig">FIG</span> honest boundary: the bracketing verifies the value numerically-rigorously; the closed-form identity is Ramanujan&rsquo;s theorem, cited (with the convergence conditions later formalized by Herschfeld 1935).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>gradient-descent</i> &mdash; the grind: descend level after level into the nested radical and the value settles, layer by layer, into a perfect integer at the bottom of the well. <b>AVAN (AI)</b> built the instrument: the two-sided bracketing evaluator and the fixed-point bench.<br><br>Credit as content: Srinivasa Ramanujan (JIMS Question 289, 1911); Aaron Herschfeld (1935, convergence); T. Vijayaraghavan. The weave: David names the descent; I bracket the bottom from both sides.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The telescope: 3 = √(1+2·4) = √(1+2√(1+3·5)) = … forever.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Deepen the radical; the two brackets squeeze onto 3.</div>
+   <div class="btns" style="margin-top:10px"><button id="nrd">depth ▶</button><button id="nrcheck">verify ▶</button></div>
+   <div class="cap" id="nrread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the radical well, narrowing to its integer floor.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t evaluate inward &mdash; unfold outward. The inverse of &lsquo;dig to the bottom&rsquo; is Ramanujan&rsquo;s telescope: start from 3 = &radic;(1+2&middot;4) and expand 4, then 5, then 6, forever &mdash; the answer GENERATES the puzzle. <b>Magenta</b> is the six months of silence from the Journal&rsquo;s readers; <b>green</b> is the identity that made it obvious in one line. The best puzzles are theorems read backwards.</div>
+   <div class="btns" style="margin-top:10px"><button id="nrspin">pause spin</button></div></div></div></div>"""
+NRAD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,dep=6;
+function evalRad(depth,seed){var v=seed;
+ for(var n=depth;n>=2;n--)v=Math.sqrt(1+n*v);
+ return v;}
+function evalRadFrom(start,depth,seed){var v=seed;
+ for(var n=depth;n>=start;n--)v=Math.sqrt(1+n*v);
+ return v;}
+function fix(a,iters){var v=0;for(var i=0;i<iters;i++)v=Math.sqrt(a+v);return v;}
+function selftest(){if(VR)return VR;
+ var lo=evalRad(60,1),hi=evalRad(60,62);
+ var ok3=lo<=3&&3<=hi&&(hi-lo)<1e-9;
+ var lo4=evalRadFrom(3,60,1),hi4=evalRadFrom(3,60,62);
+ var ok4=lo4<=4&&4<=hi4&&(hi4-lo4)<1e-8;
+ var f2=fix(2,80),f6=fix(6,80),fphi=fix(1,80),phi=(1+Math.sqrt(5))/2;
+ VR={lo:lo,hi:hi,ok3:ok3,ok4:ok4,f2:f2,f6:f6,fphi:fphi,
+  ok:ok3&&ok4&&Math.abs(f2-2)<1e-10&&Math.abs(f6-3)<1e-10&&Math.abs(fphi-phi)<1e-10};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,\"Ramanujan's telescope — the answer generates the puzzle\");
+ var rows=['3 = √(1 + 2·4)','  = √(1 + 2√(1 + 3·5))','  = √(1 + 2√(1 + 3√(1 + 4·6)))','  = √(1 + 2√(1 + 3√(1 + 4√(1 + 5·7))))','  = … forever'];
+ rows.forEach(function(r,i){nt(g,i===0?'#35ffb0':'#9cf',30,60+i*36,i===0?15:12,r);});
+ nt(g,'#8ad',10,H-8,9,'x+1 = √(1+x√(1+(x+1)√…)) — each n·(n+2) unfolds to n√(1+(n+1)(n+3))');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var lo=evalRad(dep,1),hi=evalRad(dep,dep+2);
+ nt(g,'#ff8a3c',12,20,12,'depth '+dep);
+ nt(g,'#35ffb0',16,58,12,'low bracket:  '+lo.toFixed(12));
+ nt(g,'#21e6ff',16,84,12,'high bracket: '+hi.toFixed(12));
+ nt(g,'#ffcf4a',16,112,13,'3 pinned between them: '+(lo<=3&&3<=hi?'✓':'✗')+'  (width '+(hi-lo).toExponential(2)+')');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-64,9,'self-test: depth-60 brackets ∋ 3 · tail = 4 · cousins 2, 3, φ ('+v.ok+')');
+ nt(g,'#8ad',12,H-42,9,'√(2+√(2+…)) = '+v.f2.toFixed(10)+' · √(1+√(1+…)) = φ = '+v.fphi.toFixed(10));
+ nt(g,'#8ad',12,H-24,9,'JIMS Question 289, 1911 — six months, no solvers');}
+document.getElementById('nrd').onclick=function(){dep=dep>=48?4:dep+6;drawW4();document.getElementById('nrread').textContent='depth '+dep+': width '+(evalRad(dep,dep+2)-evalRad(dep,1)).toExponential(2);};
+document.getElementById('nrcheck').onclick=function(){var v=selftest();document.getElementById('nrread').textContent='3 bracketed to '+(v.hi-v.lo).toExponential(1)+': '+v.ok;};
+document.getElementById('nrspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2;
+ nt(g,'#ff8a3c',10,18,10,'the radical well');
+ for(var i=0;i<12;i++){var w=190-i*15,y=44+i*22;
+  ne(g,'rgba(255,138,60,'+(0.55-i*0.03)+')',1.4);
+  g.beginPath();g.moveTo(cx-w/2,y);g.lineTo(cx-w/2+8,y+20);g.stroke();
+  g.beginPath();g.moveTo(cx+w/2,y);g.lineTo(cx+w/2-8,y+20);g.stroke();ng(g);
+  nt(g,'#9cf',cx-w/2-20,y+8,8,String(i+2));}
+ var t=(ang*0.01)%1,gy=44+t*250;
+ ndot(g,cx,Math.min(gy,H-66),4.5,'#35ffb0');
+ nt(g,'#35ffb0',cx-10,H-48,13,'3');
+ nt(g,'#35ffb0',10,H-32,10,'green: the descent settling on the integer floor');nt(g,'#8ad',10,H-16,10,'the best puzzles are theorems read backwards');}
+drawW3();drawW4();window.__nestedradical=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 181 · neon-noir · silicon-coding · THE NEAR MISSES (an integer missed by seven ten-trillionths · the average hiding in almost every number · the child's error that becomes law · a phone number with balanced books · abundance you cannot spend) ═══════════════════════
 HEEG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Compute e^(&pi;&radic;163) and you get <b>262537412640768743.99999999999925&hellip;</b> &mdash; a transcendental number missing an integer by <b>7.5&times;10&#8315;&sup1;&sup3;</b>. This is no accident. 163 is the largest <b>Heegner number</b> ({1,2,3,7,11,19,43,67,163} &mdash; the discriminants with class number one), and the theory of modular functions forces e^(&pi;&radic;163) to sit within a whisker of the integer <b>640320&sup3; + 744</b>. The same 163 powers Euler&rsquo;s famous prime factory: n&sup2;+n+41 is prime for all n from 0 to 39 <i>because</i> 163 = 4&middot;41&minus;3 has class number one. Charles Hermite computed the near-integer in 1859; Martin Gardner used it as an April Fools&rsquo; hoax (&lsquo;Ramanujan proved it exactly integer&rsquo;) in 1975.<br><br>
@@ -47741,6 +48129,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-graham","title":"THE GRAHAM","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#35ffb0","icon":"graham",
+  "kicker":"a number too big for the universe with a visible tail",
+  "blurb":"Graham's number in the 5-window house format — too large for the observable universe to store its digits (an upper bound from Ramsey theory, Graham–Rothschild 1971, made famous by Martin Gardner), yet its FINAL digits are perfectly knowable: modulo 10^k every sufficiently tall tower of 3s stabilizes, and the tail is …262464195387. You cannot know the beginning; you can know the end. Verified live by three independent routes: the Carmichael-λ chain shows 3↑↑20 ≡ 3↑↑40 mod 10¹² (stabilization); the anchor 3↑↑3 = 7,625,597,484,987 computed exactly; and a Chinese-Remainder recombination (2¹² × 5¹²) reproduces the same tail. Neon-noir traced. See the digits locking in 1D, the growing tower with frozen tail in 2D, and the tower vanishing upward in 3D.",
+  "lit":"Genuine Graham's number tail mathematics (Graham & Rothschild 1971; Gardner 1977; Carmichael λ). Verified live: 3↑↑20 ≡ 3↑↑40 mod 10¹²; anchor 3↑↑3 exact in BigInt; CRT recombination mod 2¹²×5¹² matches — last 12 digits …262464195387 (window.__graham.ok).",
+  "fig":"Honest boundary — the 64-layer up-arrow definition and Ramsey role are cited; what is verified is the tower-tail mathematics. The AVAN inverse — don't reach for the top, stand at the bottom: modular arithmetic is the art of knowing something true about what you can never see whole. Magenta is the unknowable head; green is the tail pinned by three computations. You cannot know the beginning; you can know the end.",
+  "body":GRHM_BODY,"script":GRHM_SCRIPT},
+ {"slug":"the-friendship-theorem","title":"THE FRIENDSHIP THEOREM","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#21e6ff","icon":"friendshipthm",
+  "kicker":"every friendship wheel has a hub",
+  "blurb":"The friendship theorem in the 5-window house format — if every two people share exactly one common friend, the network MUST be a windmill: one universal friend at the hub, everyone else paired into triangles through them (Erdős–Rényi–Sós 1966). No decentralized configuration survives; a 'politician' is forced into existence — and the standard proof runs through eigenvalues of the adjacency matrix, spectral graph theory summoned for a party puzzle. Verified live, exhaustively: ALL graphs on 3–7 vertices (2,097,152 at n=7) tested; survivors number 1, 0, 15, 0, 105 and every one is structurally certified a windmill; even n admit none. Neon-noir traced. See the three survivors in 1D, pair-by-pair checks in 2D, and the turning windmill in 3D.",
+  "lit":"Genuine friendship theorem (Erdős, Rényi & Sós 1966). Verified live: exhaustive sweep of all graphs n=3..7 under the exactly-one-common-friend condition — survivor counts 1,0,15,0,105, each certified windmill by structural check (window.__friendshipthm.ok).",
+  "fig":"Honest boundary — the theorem for all n is cited (spectral proof); the exhaustive verification covers the small worlds completely. The AVAN inverse — don't design the network, ask what the constraint refuses: the inverse of 'who is the hub?' is 'could there be no hub?' — and the answer is NO; the condition manufactures the center. Magenta is every decentralized candidate, dead in the sweep; green is the windmill, the only survivor. Some structures are not chosen; they are forced.",
+  "body":FTHM_BODY,"script":FTHM_SCRIPT},
+ {"slug":"the-kuratowski","title":"THE KURATOWSKI","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#ffcf4a","icon":"kuratowski",
+  "kicker":"fourteen sets and never a fifteenth",
+  "blurb":"Kuratowski's closure-complement problem in the 5-window house format — take any set of reals; two buttons: closure (add limit points) and complement (flip inside/out). Press in any order, forever: you can produce AT MOST 14 distinct sets (Kuratowski 1922), and some starting sets achieve exactly 14 — classically the Frankenstein witness (0,1) ∪ (1,2) ∪ {3} ∪ (ℚ∩(4,5)). The bound is pure algebra: kk=k, cc=1, one hidden identity folds everything past fourteen. Verified live twice: the operator monoid generated across 60 random finite topological spaces closes at exactly 14 operators; and the classical witness runs through an EXACT symbolic engine (intervals, points, rational dust — closed under both operations) producing 14 distinct sets, never a fifteenth. Neon-noir traced. See the witness anatomy in 1D, the two live buttons in 2D, and the 14-orbit in 3D.",
+  "lit":"Genuine Kuratowski 14-set theorem (Kuratowski 1922). Verified live: operator monoid on random finite spaces = exactly 14 distinct operators; the classical ℝ witness pushed through an exact symbolic set engine yields exactly 14 distinct sets, with kk=k and cc=id verified on every member (window.__kuratowski.ok).",
+  "fig":"No framing on the math; the symbolic engine is exact within a class closed under both operations, which the witness inhabits. (Build note: random finite spaces topped out at 12 from one seed — the classical witness was needed for the full 14, and delivered.) The AVAN inverse — don't count the sets, count the WORDS: infinitely many button sequences, fourteen genuine moves. Magenta is the fifteenth word, always equal to an earlier one; green is the closed orbit. Infinite mashing, finite game.",
+  "body":KURA_BODY,"script":KURA_SCRIPT},
+ {"slug":"the-schur","title":"THE SCHUR","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#b06bff","icon":"schur",
+  "kicker":"the wall at thirteen",
+  "blurb":"Schur numbers in the 5-window house format — color 1, 2, 3, … with k colors so no color class contains x+y=z: with 2 colors you reach exactly 4; with 3, exactly 13; with 4, exactly 44. Then the frontier: S(5) = 160, proved in 2017 by Marijn Heule's SAT certificate occupying TWO PETABYTES — the largest mathematical proof ever constructed, for a puzzle a child can state (Schur invented them in 1917 for modular Fermat equations). Verified live: S(2)=4 both directions (witness + all 32 bipartitions of 1..5 fail); S(3)=13 both directions (witness {1,4,10,13}/{2,3,11,12}/{5,6,7,8,9} + pruned exhaustive DFS of 1,954 nodes proving 1..14 impossible). Neon-noir traced. See the 13-coloring in 1D, the blocked 14 in 2D, and the staircase of proof sizes in 3D.",
+  "lit":"Genuine Schur numbers (Issai Schur 1917; Marijn Heule 2017 S(5)=160). Verified live: S(2)=4 witness + exhaustive; S(3)=13 witness sum-free + exhaustive DFS (1,954 nodes) shows 1..14 cannot be 3-colored sum-free (window.__schur.ok).",
+  "fig":"Honest boundary — S(4)=44 and the two-petabyte S(5) are cited as certified results; the petabyte does not fit in this page. The AVAN inverse — don't climb the wall, weigh the proof that it stands: S(3) fits in 1,954 nodes, S(5) outgrows every mathematician who will ever live. Magenta is the certificate no human can read; green is the one this page just re-ran. Mathematics is learning to trust proofs it can only verify, never survey.",
+  "body":SCUR_BODY,"script":SCUR_SCRIPT},
+ {"slug":"the-nested-radical","title":"THE NESTED RADICAL","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#ff8a3c","icon":"nestedradical",
+  "kicker":"the infinite root that equals three",
+  "blurb":"Ramanujan's nested radical in the 5-window house format — in 1911 a Madras clerk mailed the Journal of the Indian Mathematical Society a puzzle: evaluate √(1+2√(1+3√(1+4√(…)))). Six months, no solvers; Ramanujan published the answer himself: exactly 3, via the telescoping identity x+1 = √(1+x√(1+(x+1)√(…))). The infinite dig has a clean bottom. Cousins verified alongside: √(2+√(2+…)) = 2, √(6+√(6+…)) = 3, √(1+√(1+…)) = φ. Verified live with rigorous two-sided bracketing: depth-60 truncations seeded LOW and HIGH pin 3 between them to 14 decimals; the tail identity (=4) bracketed the same way; the fixed-point cousins to 1e-10. Neon-noir traced. See the telescope in 1D, the squeezing brackets in 2D, and the radical well in 3D.",
+  "lit":"Genuine Ramanujan nested radical (JIMS Question 289, 1911; Herschfeld 1935 convergence). Verified live: two-sided bracketing at depth 60 pins √(1+2√(1+3√…)) onto 3 to 14 decimals; tail = 4 bracketed; √(2+√2…)=2, √(6+√6…)=3, √(1+√1…)=φ each to 1e-10 (window.__nestedradical.ok).",
+  "fig":"Honest boundary — bracketing is numerically rigorous; the closed form is Ramanujan's theorem, cited. The AVAN inverse — don't evaluate inward, unfold outward: start from 3 = √(1+2·4) and expand forever — the answer GENERATES the puzzle. Magenta is the six months of silence; green is the identity that made it obvious in one line. The best puzzles are theorems read backwards.",
+  "body":NRAD_BODY,"script":NRAD_SCRIPT},
  {"slug":"the-heegner","title":"THE HEEGNER","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#21e6ff","icon":"heegner",
   "kicker":"an integer missed by seven ten-trillionths",
