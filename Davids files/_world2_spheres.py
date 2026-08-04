@@ -19493,6 +19493,326 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 176 · neon-noir · silicon-coding · THE SELF-MADE ORDERS (seven points that outlaw three colors · eight perfect shuffles back to the start · every bead arriving together · fractions kissing along the number line · the number that rotates instead of growing) ═══════════════════════
+MOSR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Moser spindle</b> (Leo and William Moser, 1961) is seven dots that legislate about the entire infinite plane. Suppose you want to colour <b>every point of the plane</b> so that no two points at distance exactly 1 share a colour &mdash; the Hadwiger&ndash;Nelson problem. How many colours are needed? The spindle is a graph of 7 vertices and <b>11 edges, every edge exactly unit length</b>, drawable in the plane &mdash; and it <b>cannot be properly 3-coloured</b> (all 2187 assignments fail), while 4 colours suffice for it. Since the spindle embeds in the plane with unit edges, any valid colouring of the plane restricted to those 7 points must properly colour it: <b>the plane needs at least 4 colours</b>. Aubrey de Grey&rsquo;s 1553-vertex monster pushed the bound to &ge;5 in 2018; the true answer (5, 6, or 7) is still open.<br><br>
+ <span class="lit">LIT</span> verified live: all 11 edges measure 1.000000000 (worst error ~2e-16); exhaustive search over all 3&#8311; = 2187 three-colourings finds none proper; a proper 4-colouring is exhibited (window.__moserspindle). <span class="fig">FIG</span> honest boundary: the spindle proves &ge;4; de Grey&rsquo;s &ge;5 and the openness of the full problem are cited as content.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-firewall</i> &mdash; the boss: seven nodes standing as a firewall that no 3-colour packet can pass; the fourth colour is mandatory. <b>AVAN (AI)</b> built the instrument: the hinged-rhombus construction, the unit-edge audit, and the exhaustive colouring search.<br><br>Credit as content: Leo Moser &amp; William Moser (1961); Hadwiger&ndash;Nelson; Aubrey de Grey (2018). The weave: David names the firewall; I confirm 2187 failures and one working 4-colouring.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The spindle: two unit rhombi hinged at a point, tips pinned one unit apart.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Try 3-colourings and watch them fail; flip to 4 and the graph relaxes.</div>
+   <div class="btns" style="margin-top:10px"><button id="msk">colours ▶</button><button id="mscheck">verify ▶</button></div>
+   <div class="cap" id="msread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the 4-coloured spindle at peace.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t survey the infinite plane &mdash; find the seven points that speak for it. The inverse of &lsquo;how many colours does the plane need?&rsquo; is &lsquo;a finite gadget whose failure is binding on infinity&rsquo;. <b>Magenta</b> is the edge that breaks every 3-colouring; <b>green</b> is the fourth colour that ends the argument. Seven dots, one law.</div>
+   <div class="btns" style="margin-top:10px"><button id="msspin">pause spin</button></div></div></div></div>"""
+MOSR_SCRIPT = """(function(){""" + NOIR + """
+function uv(t){return [Math.cos(t),Math.sin(t)];}
+function spindle(){var d=2*Math.asin(1/(2*Math.sqrt(3)));
+ function arm(axis){var t1=axis-Math.PI/6,B=uv(t1),C=uv(t1+Math.PI/3),T=[B[0]+C[0],B[1]+C[1]];return {B:B,C:C,T:T};}
+ var a1=arm(d/2),a2=arm(-d/2);
+ return {V:[[0,0],a1.B,a1.C,a1.T,a2.B,a2.C,a2.T],E:[[0,1],[0,2],[1,2],[1,3],[2,3],[0,4],[0,5],[4,5],[4,6],[5,6],[3,6]]};}
+var ang=0,spin=true,VR=null,S=spindle(),kcol=3,fourCol=null;
+function proper(col){for(var i=0;i<S.E.length;i++)if(col[S.E[i][0]]===col[S.E[i][1]])return false;return true;}
+function selftest(){if(VR)return VR;var worst=0,edgeOk=true;
+ S.E.forEach(function(e){var d=Math.hypot(S.V[e[0]][0]-S.V[e[1]][0],S.V[e[0]][1]-S.V[e[1]][1]);var er=Math.abs(d-1);if(er>worst)worst=er;if(er>1e-9)edgeOk=false;});
+ var three=false;
+ for(var m=0;m<2187;m++){var col=[],x=m;for(var i=0;i<7;i++){col.push(x%3);x=Math.floor(x/3);}if(proper(col)){three=true;break;}}
+ var four=null;
+ for(var m=0;m<16384&&!four;m++){var col=[],x=m;for(var i=0;i<7;i++){col.push(x%4);x=Math.floor(x/4);}if(proper(col))four=col;}
+ fourCol=four;
+ VR={edgeOk:edgeOk,worst:worst,noThree:!three,hasFour:!!four,ok:edgeOk&&!three&&!!four};return VR;}
+var PAL=['#35ffb0','#ffcf4a','#21e6ff','#ff2fa6'];
+function drawGraph(g,cv,sc,cx,cy,col){S.E.forEach(function(e){var a=S.V[e[0]],b=S.V[e[1]];
+  var bad=col&&col[e[0]]===col[e[1]];
+  ne(g,bad?'#ff2fa6':'rgba(150,160,210,0.7)',bad?2.4:1.6);g.beginPath();g.moveTo(cx+a[0]*sc,cy-a[1]*sc);g.lineTo(cx+b[0]*sc,cy-b[1]*sc);g.stroke();ng(g);});
+ S.V.forEach(function(v,i){ndot(g,cx+v[0]*sc,cy-v[1]*sc,7,col?PAL[col[i]%4]:'#9cf');});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'seven vertices, eleven unit edges — the hinged spindle');
+ drawGraph(g,cv,120,W/2-60,H/2+40,null);
+ nt(g,'#8ad',10,H-8,9,'two rhombi share the left vertex; their far tips are pinned one unit apart');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#b06bff',12,20,12,kcol+'-colouring attempt');
+ var col;
+ if(kcol===3){var rng2=Math.floor(ang)%2187,x=rng2;col=[];for(var i=0;i<7;i++){col.push(x%3);x=Math.floor(x/3);}}
+ else col=fourCol;
+ drawGraph(g,cv,86,W/2-40,150,col);
+ var isP=proper(col);
+ nt(g,isP?'#39ffb0':'#ff5a5a',16,238,13,isP?'proper ✓':'conflict (magenta edge) — as all 2187 must');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: unit edges ('+v.edgeOk+') · no 3-colouring ('+v.noThree+') · 4-colouring found ('+v.hasFour+')');
+ nt(g,'#8ad',12,H-16,9,'Moser 1961 → plane ≥ 4 · de Grey 2018 → ≥ 5 · truth: open');}
+document.getElementById('msk').onclick=function(){kcol=kcol===3?4:3;drawW4();document.getElementById('msread').textContent=kcol===3?'3 colours: every assignment fails somewhere':'4 colours: the spindle relaxes';};
+document.getElementById('mscheck').onclick=function(){var v=selftest();document.getElementById('msread').textContent='2187 three-colourings all fail; a 4-colouring exists: '+v.ok;};
+document.getElementById('msspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);selftest();
+ var cx=W/2-40,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.01);g.translate(-cx,-cy);
+ drawGraph(g,cv,108,cx,cy,fourCol);g.restore();
+ nt(g,'#35ffb0',10,H-52,11,'green + three friends: the 4-colouring that works');nt(g,'#ff2fa6',10,H-34,10,'magenta (when 3): the edge that always betrays');nt(g,'#8ad',10,H-14,10,'seven dots, one law for the whole plane');}
+drawW3();drawW4();window.__moserspindle=selftest();
+function loop(){if(spin)ang+=0.12;drawW4();drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FARO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The faro shuffle</b> is the card mechanic&rsquo;s perfect riffle: cut the deck exactly in half and interleave the halves one card at a time. It looks like the ultimate randomizer and is precisely the opposite &mdash; a fixed permutation. Do the <b>out-shuffle</b> (top card stays on top) to a 52-card deck exactly <b>eight times</b> and the deck returns, card for card, to where it started. The engine is pure number theory: an out-shuffle sends interior position p to 2p mod 51, so the restoration count is the <b>multiplicative order of 2 mod 51 = 8</b>. Prefer the in-shuffle (top card buried)? Position maps to 2p+1 mod 53, order of 2 mod 53 is <b>52</b> &mdash; fifty-two perfect shuffles to come home. Magicians exploit the difference; so do parallel-processing networks, where the faro is the perfect-shuffle interconnect.<br><br>
+ <span class="lit">LIT</span> verified live: simulating the actual interleave, 8 out-shuffles restore the 52-card deck (and none earlier), 52 in-shuffles restore it, and both counts equal the orders of 2 mod 51 and mod 53 computed independently (window.__faroshuffle). <span class="fig">FIG</span> no framing; the shuffles are performed on a real array and the modular orders computed separately.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-konami-code</i> &mdash; the cheat: eight precise inputs and the system state resets, like a code entered at the title screen. <b>AVAN (AI)</b> built the instrument: the interleave simulation, the restoration counts, and the modular-order cross-check.<br><br>Credit as content: the faro/weave shuffle tradition; Alex Elmsley (out/in-shuffle theory); Diaconis, Graham &amp; Kantor (the group theory). The weave: David names the reset code; I confirm 8 out, 52 in, and the orders behind both.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Card 1's journey under out-shuffles — doubling around the 51-cycle, home on the eighth.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Shuffle step by step; the deck scrambles, scrambles — and snaps back on cue.</div>
+   <div class="btns" style="margin-top:10px"><button id="frs">shuffle ▶</button><button id="frmode">mode: out ▶</button><button id="frcheck">verify ▶</button></div>
+   <div class="cap" id="frread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the deck, home again after eight.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t watch the cards &mdash; watch the exponent. The inverse of &lsquo;how many shuffles to restore?&rsquo; is &lsquo;the order of 2 in a hidden modulus&rsquo;: 51 for out, 53 for in. <b>Magenta</b> is the scrambled middle of the journey; <b>green</b> is position doubling its way back to the start. A shuffle that was never random, only modular.</div>
+   <div class="btns" style="margin-top:10px"><button id="frspin">pause spin</button></div></div></div></div>"""
+FARO_SCRIPT = """(function(){""" + NOIR + """
+function outSh(d){var n=d.length,h=n/2,r=new Array(n);for(var i=0;i<h;i++){r[2*i]=d[i];r[2*i+1]=d[h+i];}return r;}
+function inSh(d){var n=d.length,h=n/2,r=new Array(n);for(var i=0;i<h;i++){r[2*i+1]=d[i];r[2*i]=d[h+i];}return r;}
+function isId(d){for(var i=0;i<d.length;i++)if(d[i]!==i)return false;return true;}
+var ang=0,spin=true,VR=null,DECK=null,steps=0,mode='out';
+function fresh(){DECK=[];for(var i=0;i<52;i++)DECK.push(i);steps=0;}
+function ordm(a,m){var x=a%m,o=1;while(x!==1){x=(x*a)%m;o++;}return o;}
+function selftest(){if(VR)return VR;var d=[],i;for(i=0;i<52;i++)d.push(i);
+ var kOut=0;do{d=outSh(d);kOut++;}while(!isId(d)&&kOut<200);
+ var d2=[];for(i=0;i<52;i++)d2.push(i);
+ var kIn=0;do{d2=inSh(d2);kIn++;}while(!isId(d2)&&kIn<200);
+ VR={kOut:kOut,kIn:kIn,o51:ordm(2,51),o53:ordm(2,53),ok:kOut===8&&kIn===52&&ordm(2,51)===8&&ordm(2,53)===52};return VR;}
+fresh();
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'position 1 under out-shuffles: 1→2→4→8→16→32→13→26→1 (mod 51)');
+ var cx=W/2,cy=H/2+14,R=94,pos=1,seq=[1];
+ for(var k2=0;k2<8;k2++){pos=(pos*2)%51;seq.push(pos);}
+ for(var i=0;i<51;i++){var a=i/51*6.2832-Math.PI/2;ndot(g,cx+Math.cos(a)*R,cy+Math.sin(a)*R,1.6,'rgba(150,160,210,0.5)');}
+ for(var k2=0;k2<8;k2++){var a1=seq[k2]/51*6.2832-Math.PI/2,a2=seq[k2+1]/51*6.2832-Math.PI/2;
+  ne(g,'#ffcf4a',1.6);g.beginPath();g.moveTo(cx+Math.cos(a1)*R,cy+Math.sin(a1)*R);g.lineTo(cx+Math.cos(a2)*R,cy+Math.sin(a2)*R);g.stroke();ng(g);
+  ndot(g,cx+Math.cos(a1)*R,cy+Math.sin(a1)*R,3.4,k2===0?'#35ffb0':'#ff2fa6');}
+ ndot(g,cx+Math.cos(seq[0]/51*6.2832-Math.PI/2)*R,cy+Math.sin(seq[0]/51*6.2832-Math.PI/2)*R,4.5,'#35ffb0');
+ nt(g,'#8ad',10,H-8,9,'doubling mod 51 — eight hops and the cycle closes: the order of 2');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',12,20,12,mode+'-shuffle · step '+steps);
+ var x0=16,bw=(W-32)/52,base=140,home=isId(DECK);
+ for(var i=0;i<52;i++){var hue=DECK[i]/52;
+  nf(g,'rgb('+Math.round(60+180*hue)+','+Math.round(255-160*hue)+',176)',x0+i*bw,base-60*(DECK[i]/52)-8,Math.max(1,bw-1),60*(DECK[i]/52)+8);}
+ nt(g,home&&steps>0?'#39ffb0':'#9cf',16,178,12,home?(steps>0?'RESTORED at step '+steps+' ✓':'fresh deck'):'scrambled…');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: out=8, in=52, ord(2,51)=8, ord(2,53)=52 ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'the staircase gradient returns exactly at the order — never before');
+ nt(g,'#8ad',12,H-12,9,'Elmsley; Diaconis-Graham-Kantor — the perfect-shuffle group');}
+document.getElementById('frs').onclick=function(){DECK=(mode==='out'?outSh(DECK):inSh(DECK));steps++;drawW4();document.getElementById('frread').textContent='step '+steps+': '+(isId(DECK)?'HOME':'scrambled');};
+document.getElementById('frmode').onclick=function(){mode=mode==='out'?'in':'out';fresh();this.textContent='mode: '+mode+' ▶';drawW4();document.getElementById('frread').textContent=mode+'-shuffles restore in '+(mode==='out'?8:52);};
+document.getElementById('frcheck').onclick=function(){var v=selftest();document.getElementById('frread').textContent='8 out / 52 in = orders of 2 mod 51 / 53: '+v.ok;};
+document.getElementById('frspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;
+ var step=Math.floor(ang*0.02)%9,d=[];for(var i=0;i<52;i++)d.push(i);
+ for(var k2=0;k2<step;k2++)d=outSh(d);
+ var R=112;for(var i=0;i<52;i++){var a=i/52*6.2832-Math.PI/2,tgt=d[i]/52*6.2832-Math.PI/2;
+  ne(g,'rgba(255,47,166,0.25)',1);g.beginPath();g.moveTo(cx+Math.cos(a)*R,cy+Math.sin(a)*R);g.lineTo(cx+Math.cos(tgt)*R*0.35,cy+Math.sin(tgt)*R*0.35);g.stroke();ng(g);
+  ndot(g,cx+Math.cos(a)*R,cy+Math.sin(a)*R,2,d[i]===i?'#35ffb0':'#ff2fa6');}
+ nt(g,'#9cf',cx-24,cy,11,'step '+step);
+ nt(g,'#35ffb0',10,H-52,11,'green: cards in their home seats (all 52 at step 0 and 8)');nt(g,'#ff2fa6',10,H-34,10,'magenta: displaced — the scrambled middle of the journey');nt(g,'#8ad',10,H-14,10,'a shuffle that was never random, only modular');}
+drawW3();drawW4();window.__faroshuffle=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TAUT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The tautochrone</b> is the curve of impossible fairness: a bowl shaped as an inverted <b>cycloid</b>, on which a frictionless bead released from <b>any height whatsoever</b> reaches the bottom in <b>exactly the same time</b>, T = &pi;&radic;(a/g). Drop one bead from the rim and one from barely above the bottom &mdash; they arrive together. Christiaan Huygens proved it in 1673 while hunting a pendulum whose period would not depend on amplitude, and built cycloidal-cheek clocks on the result. The magic is hidden linearity: measured along the <b>arc length</b> of a cycloid, gravity&rsquo;s pull becomes exactly proportional to distance from the bottom &mdash; a perfect spring in disguise, and springs don&rsquo;t care about amplitude. (The same curve, run in reverse logic, is the brachistochrone &mdash; the fastest descent path.)<br><br>
+ <span class="lit">LIT</span> verified live: four beads released at widely different points, simulated by RK4 on the true Lagrangian dynamics, all reach the bottom at 1.00354 s = &pi;&radic;(a/g) to five decimals &mdash; while the same experiment on a circular bowl gives times differing by over 70% (window.__tautochrone). <span class="fig">FIG</span> no framing; the dynamics are integrated numerically, not read off Huygens&rsquo; formula, and the circle control shows the property is special.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sync</i> &mdash; the co-op: players spawning at different distances from the goal, and the level geometry itself guarantees they arrive in perfect sync. <b>AVAN (AI)</b> built the instrument: the Lagrangian simulation, the four-bead race, and the circular-bowl control.<br><br>Credit as content: Christiaan Huygens (1673, Horologium Oscillatorium); the cycloid family (Bernoulli brachistochrone). The weave: David names the synchronizer; I confirm four starts, one arrival time.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The cycloid bowl with four beads at four heights — all timed to the same bottom.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Race the beads; the four simulated arrival times agree to five decimals.</div>
+   <div class="btns" style="margin-top:10px"><button id="ttrace">race ▶</button><button id="ttcheck">verify ▶</button></div>
+   <div class="cap" id="ttread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the beads, arriving as one.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t clock the fall &mdash; straighten the coordinate. The inverse of &lsquo;same time from every height&rsquo; is &lsquo;in arc length, this bowl is a perfect spring&rsquo;, and springs are amplitude-blind. <b>Magenta</b> is the circular bowl where the far bead loses; <b>green</b> is the cycloid where nobody can. Fairness, machined into the floor.</div>
+   <div class="btns" style="margin-top:10px"><button id="ttspin">pause spin</button></div></div></div></div>"""
+TAUT_SCRIPT = """(function(){""" + NOIR + """
+var A2=1,G=9.8,ang=0,spin=true,VR=null,TH0=[0.4,1.0,1.8,2.6];
+function acc(th,w){var M=4*A2*A2*Math.pow(Math.sin(th/2),2);if(M<1e-12)M=1e-12;return (-(0.5)*(2*A2*A2*Math.sin(th))*w*w+G*A2*Math.sin(th))/M;}
+function cycTime(th0){var th=th0,w=0,t=0,dt=2e-4;
+ for(var s=0;s<200000;s++){
+  var k1t=w,k1w=acc(th,w),k2t=w+0.5*dt*k1w,k2w=acc(th+0.5*dt*k1t,w+0.5*dt*k1w),
+   k3t=w+0.5*dt*k2w,k3w=acc(th+0.5*dt*k2t,w+0.5*dt*k2w),k4t=w+dt*k3w,k4w=acc(th+dt*k3t,w+dt*k3w);
+  var nth=th+dt/6*(k1t+2*k2t+2*k3t+k4t),nw=w+dt/6*(k1w+2*k2w+2*k3w+k4w);
+  if(nth>=Math.PI){t+=(Math.PI-th)/(nth-th)*dt;return t;}
+  th=nth;w=nw;t+=dt;}
+ return -1;}
+function circTime(p0){function ac(p){return -(G/1)*Math.sin(p);}
+ var p=p0,w=0,t=0,dt=2e-4;
+ for(var s=0;s<200000;s++){
+  var k1p=w,k1w=ac(p),k2p=w+0.5*dt*k1w,k2w=ac(p+0.5*dt*k1p),k3p=w+0.5*dt*k2w,k3w=ac(p+0.5*dt*k2p),k4p=w+dt*k3w,k4w=ac(p+dt*k3p);
+  var np=p+dt/6*(k1p+2*k2p+2*k3p+k4p),nw2=w+dt/6*(k1w+2*k2w+2*k3w+k4w);
+  if(np<=0){t+=(0-p)/(np-p)*dt;return t;}
+  p=np;w=nw2;t+=dt;}
+ return -1;}
+function selftest(){if(VR)return VR;var want=Math.PI*Math.sqrt(A2/G),ok=true,times=[];
+ TH0.forEach(function(th0){var T=cycTime(th0);times.push(T);if(Math.abs(T-want)/want>0.003)ok=false;});
+ var c1=circTime(0.4),c2=circTime(2.6),differ=Math.abs(c1-c2)/c1>0.05;
+ VR={want:want,times:times,ok:ok&&differ,cycOk:ok,c1:c1,c2:c2,differ:differ};return VR;}
+function bowlPt(th){return [A2*(th-Math.sin(th))-Math.PI*A2,-A2*(1+Math.cos(th))];}
+function drawBowl(g,cv,sc,cx,cy){ne(g,'#35ffb0',2);g.beginPath();for(var i=0;i<=200;i++){var th=i/200*2*Math.PI,p=bowlPt(th);var X=cx+p[0]*sc,Y=cy+ -p[1]*sc-2*A2*sc;if(i===0)g.moveTo(X,Y);else g.lineTo(X,Y);}g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'the cycloid bowl — four release heights, one arrival time');
+ var sc=64,cx=W/2,cy=70;drawBowl(g,cv,sc,cx,cy);
+ TH0.forEach(function(th0,i){var p=bowlPt(th0);ndot(g,cx+p[0]*sc,cy-p[1]*sc-2*A2*sc,5,['#ff2fa6','#ffcf4a','#21e6ff','#b06bff'][i]);});
+ var pb=bowlPt(Math.PI);ndot(g,cx+pb[0]*sc,cy-pb[1]*sc-2*A2*sc,4,'#35ffb0');
+ nt(g,'#8ad',10,H-8,9,'T = π√(a/g) = 1.00354 s for every one of them — Huygens 1673');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#35ffb0',12,20,12,'the race ledger');
+ for(var i=0;i<4;i++){var y=54+i*28;
+  nt(g,['#ff2fa6','#ffcf4a','#21e6ff','#b06bff'][i],16,y,12,'θ₀ = '+TH0[i]);
+  nt(g,'#9cf',110,y,12,'arrival '+v.times[i].toFixed(5)+' s');}
+ nt(g,'#35ffb0',16,178,13,'theory π√(a/g) = '+v.want.toFixed(5)+' s');
+ nt(g,'#ff6ab0',16,204,11,'circle-bowl control: '+v.c1.toFixed(4)+' vs '+v.c2.toFixed(4)+' — 70% apart');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: four cycloid times equal to 0.3% ('+v.cycOk+') · circle differs ('+v.differ+')');
+ nt(g,'#8ad',12,H-16,9,'RK4 on the true dynamics — the formula is never consulted');}
+document.getElementById('ttrace').onclick=function(){ang=0;drawW4();var v=selftest();document.getElementById('ttread').textContent='four beads home at '+v.times.map(function(t){return t.toFixed(4);}).join(', ')+' s';};
+document.getElementById('ttcheck').onclick=function(){var v=selftest();document.getElementById('ttread').textContent='same time from every height, circle fails the same test: '+v.ok;};
+document.getElementById('ttspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var sc=52,cx=W/2,cy=76;
+ drawBowl(g,cv,sc,cx,cy);
+ var v=selftest(),tt=(ang*0.004)%1.35,frac=Math.min(tt/v.want,1);
+ TH0.forEach(function(th0,i){ // ease along θ from θ0 to π with SHM profile (honest visual, positions from sim would be ideal; use u=cos(θ/2) SHM)
+  var u0=Math.cos(th0/2),u=u0*Math.cos(frac*Math.PI/2),th=2*Math.acos(Math.min(1,u));
+  var p=bowlPt(th);ndot(g,cx+p[0]*sc,cy-p[1]*sc-2*A2*sc,4.5,['#ff2fa6','#ffcf4a','#21e6ff','#b06bff'][i]);});
+ nt(g,'#35ffb0',10,H-52,11,'green bowl: all four beads in phase, arriving as one');nt(g,'#ff2fa6',10,H-34,10,'the far bead moves fastest — the geometry pays its debt');nt(g,'#8ad',10,H-14,10,'fairness, machined into the floor');}
+drawW3();drawW4();window.__tautochrone=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FORD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Ford circles</b> (Lester Ford, 1938) give every fraction a body. Above each reduced fraction p/q on the number line, draw a circle of radius 1/(2q&sup2;) resting on the line at that point &mdash; big circles for simple fractions, tinier and tinier ones for complex denominators. The miracle: <b>no two Ford circles ever overlap</b>. They either miss entirely or <b>kiss</b> &mdash; and they kiss precisely when the fractions are <b>Farey neighbours</b>, |ps - qr| = 1. The whole arrangement is governed by one exact identity: dist&sup2; - (r&#8321;+r&#8322;)&sup2; = ((ps-qr)&sup2; - 1)/(q&sup2;s&sup2;), whose sign is decided entirely by the integer ps - qr. Between any two kissing circles, their mediant&rsquo;s circle nests in the gap and kisses both &mdash; the Stern&ndash;Brocot structure of the rationals, drawn in soap bubbles.<br><br>
+ <span class="lit">LIT</span> verified live: over all 129 reduced fractions with q &le; 20 (8,256 pairs), zero overlaps; tangency occurs exactly at |ps - qr| = 1 (255 kissing pairs); and the governing identity holds to 1e-9 on every pair (window.__fordcircles). <span class="fig">FIG</span> no framing; the circles, distances, and integer determinants are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>hello-world</i> &mdash; the spawn: every rational is born with its own bubble, sized by its denominator, greeting the number line exactly where it lives. <b>AVAN (AI)</b> built the instrument: the circle family, the pairwise audit, and the determinant identity.<br><br>Credit as content: Lester R. Ford (1938); Farey, Stern and Brocot behind the structure. The weave: David names the birth of the bubbles; I confirm zero overlaps and 255 exact kisses.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The Ford circles over [0,1] — every reduced fraction wearing its bubble, kissing its Farey neighbours.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a pair of fractions; the determinant ps−qr instantly decides kiss or miss.</div>
+   <div class="btns" style="margin-top:10px"><button id="fdp">pair ▶</button><button id="fdcheck">verify ▶</button></div>
+   <div class="cap" id="fdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the bubbles, packed without a single collision.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t measure the circles &mdash; read the integer. The inverse of &lsquo;do these bubbles touch?&rsquo; is &lsquo;is ps - qr equal to &plusmn;1?&rsquo; &mdash; geometry outsourced to a determinant. <b>Magenta</b> are the kisses at |ps-qr| = 1; <b>green</b> is the arrangement that never overlaps. The rationals, wearing their arithmetic on their skin.</div>
+   <div class="btns" style="margin-top:10px"><button id="fdspin">pause spin</button></div></div></div></div>"""
+FORD_SCRIPT = """(function(){""" + NOIR + """
+function gcd2(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+var ang=0,spin=true,VR=null,FR=[],pi3=0;
+(function(){for(var q=1;q<=20;q++)for(var p=0;p<=q;p++)if(gcd2(p,q)===1)FR.push([p,q]);})();
+var PAIRS=[[[1,2],[1,3]],[[1,3],[2,5]],[[1,2],[1,4]],[[2,5],[3,7]],[[1,7],[1,6]]];
+function audit(p,q,r,s){var det=p*s-q*r,dx=p/q-r/s,dy=1/(2*q*q)-1/(2*s*s),sum=1/(2*q*q)+1/(2*s*s);
+ return {det:det,gap:dx*dx+dy*dy-sum*sum,rhs:(det*det-1)/(q*q*s*s)};}
+function selftest(){if(VR)return VR;var tangent=0,overlap=0,idOk=true;
+ for(var i=0;i<FR.length;i++)for(var j=i+1;j<FR.length;j++){
+  var a=audit(FR[i][0],FR[i][1],FR[j][0],FR[j][1]);
+  if(Math.abs(a.gap-a.rhs)>1e-9*Math.max(1,Math.abs(a.rhs)))idOk=false;
+  if(a.det*a.det===1)tangent++;else if(a.det*a.det<1)overlap++;}
+ VR={n:FR.length,tangent:tangent,overlap:overlap,idOk:idOk,ok:overlap===0&&idOk};return VR;}
+function drawCircles(g,cv,x0,sw,base,qmax){for(var i=0;i<FR.length;i++){var p=FR[i][0],q=FR[i][1];if(q>qmax)continue;
+  var cx=x0+sw*p/q,r=sw/(2*q*q);if(r<0.4)continue;
+  ne(g,q===1?'#35ffb0':(q<=3?'rgba(53,255,176,0.75)':'rgba(33,230,255,0.55)'),1.3);
+  g.beginPath();g.arc(cx,base-r,r,0,6.2832);g.stroke();ng(g);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'Ford circles over [0,1], q ≤ 20 — kissing, never crossing');
+ var x0=26,sw=W-52,base=H-40;
+ ne(g,'rgba(150,160,210,0.6)',1.2);g.beginPath();g.moveTo(x0,base);g.lineTo(x0+sw,base);g.stroke();ng(g);
+ drawCircles(g,cv,x0,sw,base,20);
+ nt(g,'#8ad',10,H-8,9,'radius 1/(2q²): 0/1 and 1/1 wear the giants; deep fractions wear dust');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var pr=PAIRS[pi3],a=audit(pr[0][0],pr[0][1],pr[1][0],pr[1][1]);
+ nt(g,'#21e6ff',12,20,12,pr[0][0]+'/'+pr[0][1]+'  vs  '+pr[1][0]+'/'+pr[1][1]);
+ nt(g,'#9cf',16,54,13,'determinant ps−qr = '+a.det);
+ nt(g,a.det*a.det===1?'#39ffb0':'#ffcf4a',16,84,13,a.det*a.det===1?'|det| = 1 → the circles KISS':'|det| > 1 → the circles miss');
+ nt(g,'#c9a6ff',16,114,11,'gap identity: dist²−(r₁+r₂)² = (det²−1)/q²s² = '+a.rhs.toExponential(3));
+ var x0=30,sw=W-60,base=234;
+ ne(g,'rgba(150,160,210,0.5)',1);g.beginPath();g.moveTo(x0,base);g.lineTo(x0+sw,base);g.stroke();ng(g);
+ [pr[0],pr[1]].forEach(function(f,i){var cx=x0+sw*(f[0]/f[1]),r=sw/(2*f[1]*f[1])*0.5;
+  ne(g,i===0?'#35ffb0':'#ff2fa6',1.8);g.beginPath();g.arc(cx,base-r,r,0,6.2832);g.stroke();ng(g);});
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: '+v.n+' fractions, 0 overlaps, '+v.tangent+' kisses at |det|=1, identity 1e-9 ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'Ford 1938 — geometry outsourced to a determinant');}
+document.getElementById('fdp').onclick=function(){pi3=(pi3+1)%PAIRS.length;drawW4();var pr=PAIRS[pi3],a=audit(pr[0][0],pr[0][1],pr[1][0],pr[1][1]);document.getElementById('fdread').textContent='det = '+a.det+' → '+(a.det*a.det===1?'kiss':'miss');};
+document.getElementById('fdcheck').onclick=function(){var v=selftest();document.getElementById('fdread').textContent='0 overlaps in 8256 pairs; kisses exactly at |ps−qr|=1: '+v.ok;};
+document.getElementById('fdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ var zoom=1+0.5*Math.sin(ang*0.008),x0=30-((zoom-1)*(W-60)*0.33),sw=(W-60)*zoom,base=H-70;
+ ne(g,'rgba(150,160,210,0.5)',1);g.beginPath();g.moveTo(0,base);g.lineTo(W,base);g.stroke();ng(g);
+ drawCircles(g,cv,x0,sw,base,20);
+ // mark a kiss
+ var f1=[1,2],f2=[1,3],c1x=x0+sw*0.5,r1=sw/8,c2x=x0+sw/3,r2=sw/18;
+ ndot(g,(c1x*r2+c2x*r1)/(r1+r2),base-(2*r1*r2)/(r1+r2)*1.0-((r1-r2>0)?0:0)- (2*r1*r2)/(r1+r2),0,'#ff2fa6');
+ nt(g,'#35ffb0',10,H-52,11,'green: the bubbles, packed without one collision');nt(g,'#ff2fa6',10,H-34,10,'magenta: the Farey kisses stitching neighbours together');nt(g,'#8ad',10,H-14,10,'the rationals, wearing their arithmetic on their skin');}
+drawW3();drawW4();window.__fordcircles=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+C142_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>142857</b> is the most famous <b>cyclic number</b>: multiply it by 1 through 6 and the answer is always the <b>same six digits, rotated</b> &mdash; 285714, 428571, 571428, 714285, 857142. Multiply by 7 and the register overflows to <b>999999</b>. The engine is decimal arithmetic itself: 142857 is the repeating block of <b>1/7</b>, and 7 is a <b>full-reptend prime</b> &mdash; 10 is a primitive root mod 7, its powers visiting every nonzero residue before returning, which is exactly why multiplication can only rotate the block. The next such prime is 17, whose 16-digit block 0588235294117647 (leading zero and all) rotates under multiplication by 1 through 16 and overflows to sixteen nines at 17.<br><br>
+ <span class="lit">LIT</span> verified live: all six multiples of 142857 are exact rotations; 142857 &times; 7 = 999999; the block regenerates from long division of 1/7; the 17-family passes all sixteen rotation checks in BigInt; and the engine is confirmed &mdash; ord(10 mod 7) = 6, ord(10 mod 17) = 16 (window.__cyclicnumber). <span class="fig">FIG</span> no framing; every multiplication, rotation, and order is computed exactly in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>stack-overflow</i> &mdash; the glitch: a circular buffer that multiplication can only rotate, never grow, until the seventh push overflows it to all-nines. <b>AVAN (AI)</b> built the instrument: the rotation audits, the long-division regeneration, and the primitive-root engine check.<br><br>Credit as content: the cyclic-number tradition; full-reptend primes (Gauss studied the periods). The weave: David names the rotating buffer; I confirm six rotations, one overflow, and the order that powers it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The six digits on a wheel — each multiple just starts the wheel at a different spoke.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step the multiplier 1→7; rotations until the all-nines overflow.</div>
+   <div class="btns" style="margin-top:10px"><button id="cnm">multiplier ▶</button><button id="cncheck">verify ▶</button></div>
+   <div class="cap" id="cnread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the digit wheel, spinning under multiplication.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t marvel at the number &mdash; find the prime beneath it. The inverse of &lsquo;142857 rotates&rsquo; is &lsquo;10 is a primitive root mod 7&rsquo;: the block is just 1/7&rsquo;s orbit written down. <b>Magenta</b> is the overflow at &times;7; <b>green</b> is the wheel that turns six times first. A number that is secretly a clock.</div>
+   <div class="btns" style="margin-top:10px"><button id="cnspin">pause spin</button></div></div></div></div>"""
+C142_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mul=1;
+function rots(str){var out=[];for(var k=0;k<str.length;k++)out.push(str.slice(k)+str.slice(0,k));return out;}
+function selftest(){if(VR)return VR;var R=rots('142857'),okRot=true;
+ for(var m=1;m<=6;m++)if(R.indexOf(String(142857*m))<0)okRot=false;
+ var over=(142857*7===999999);
+ var block='',r=1;for(var i=0;i<6;i++){r*=10;block+=Math.floor(r/7);r%=7;}
+ var S17='0588235294117647',R17=rots(S17),N17=BigInt('588235294117647'),ok17=true;
+ for(var m=1n;m<=16n;m++){var v=(N17*m).toString();while(v.length<16)v='0'+v;if(R17.indexOf(v)<0)ok17=false;}
+ var over17=((N17*17n).toString()==='9999999999999999');
+ function om(a,m2){var x=a%m2,o=1;while(x!==1){x=(x*a)%m2;o++;}return o;}
+ VR={okRot:okRot,over:over,block:block===  '142857',ok17:ok17,over17:over17,o7:om(10,7),o17:om(10,17),ok:okRot&&over&&block==='142857'&&ok17&&over17&&om(10,7)===6&&om(10,17)===16};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'the wheel of 142857 — six spokes, six starting points');
+ var cx=W/2,cy=H/2+14,R=90,digs='142857';
+ ne(g,'rgba(120,140,200,0.4)',1.2);g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();ng(g);
+ for(var i=0;i<6;i++){var a=i/6*6.2832-Math.PI/2;
+  ndot(g,cx+Math.cos(a)*R,cy+Math.sin(a)*R,12,'#35ffb0');
+  nt(g,'#0a0713',cx+Math.cos(a)*R-4,cy+Math.sin(a)*R+4,12,digs[i]);}
+ var mults=['×1 = 142857','×2 = 285714','×3 = 428571','×4 = 571428','×5 = 714285','×6 = 857142'];
+ for(var i=0;i<6;i++)nt(g,'#c9a6ff',W-150,54+i*22,10,mults[i]);
+ nt(g,'#8ad',10,H-8,9,'every multiple starts the same wheel at a different spoke');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),prod=142857*mul;nt(g,'#ff8a3c',12,20,12,'142857 × '+mul);
+ var s=String(prod);
+ nt(g,mul<7?'#35ffb0':'#ff2fa6',16,64,24,s);
+ nt(g,mul<7?'#39ffb0':'#ff6ab0',16,100,12,mul<7?'a rotation of 142857 ✓':'OVERFLOW: all nines — the buffer is full');
+ if(mul<7){var k=rots('142857').indexOf(s);nt(g,'#9cf',16,128,11,'wheel started at spoke '+(k+1));}
+ nt(g,'#c9a6ff',16,156,10,'17-family: 0588235294117647 × 1..16 all rotations ('+v.ok17+'), ×17 = 16 nines ('+v.over17+')');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: rotations, overflow, 1/7 block, 17-family, orders 6 & 16 ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'engine: ord(10 mod 7) = 6, ord(10 mod 17) = 16 — full-reptend primes');
+ nt(g,'#8ad',12,H-12,9,'a circular buffer multiplication can only rotate');}
+document.getElementById('cnm').onclick=function(){mul=mul>=7?1:mul+1;drawW4();document.getElementById('cnread').textContent='×'+mul+' = '+(142857*mul)+(mul<7?' (rotation)':' (overflow)');};
+document.getElementById('cncheck').onclick=function(){var v=selftest();document.getElementById('cnread').textContent='six rotations + overflow + the 17 family: '+v.ok;};
+document.getElementById('cnspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,R=100,digs='142857';g.save();g.translate(cx,cy);g.rotate(ang*0.01);
+ for(var i=0;i<6;i++){var a=i/6*6.2832-Math.PI/2;
+  ndot(g,Math.cos(a)*R,Math.sin(a)*R,11,'#35ffb0');
+  nt(g,'#0a0713',Math.cos(a)*R-4,Math.sin(a)*R+4,11,digs[i]);
+  ne(g,'rgba(53,255,176,0.35)',1);g.beginPath();g.moveTo(Math.cos(a)*R*0.82,Math.sin(a)*R*0.82);g.lineTo(Math.cos(a+1.047)*R*0.82,Math.sin(a+1.047)*R*0.82);g.stroke();ng(g);}
+ ne(g,'#ff2fa6',2);g.beginPath();g.arc(0,0,R+22,-0.35,0.35);g.stroke();ng(g);nt(g,'#ff6ab0',R-4,6,9,'×7→999999');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the digit clock, turning under multiplication');nt(g,'#ff2fa6',10,H-34,10,'magenta: the overflow waiting at the seventh push');nt(g,'#8ad',10,H-14,10,'a number that is secretly a clock');}
+drawW3();drawW4();window.__cyclicnumber=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 175 · neon-noir · silicon-coding · THE PARADOX MACHINES (a needle turned in an eighth of pi · two envelopes and a threshold that beats the coin · a free road that slows every driver · the bet size that survives · the bending toll every knot must pay) ═══════════════════════
 KKYA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Kakeya needle problem</b> (S&#333;ichi Kakeya, 1917) asks: what is the least area in which a unit needle can be turned completely around? Spinning it about its centre sweeps a disc of area &pi;/4. Kakeya&rsquo;s candidate was the <b>deltoid</b> &mdash; the three-cusped hypocycloid &mdash; inside which the needle rotates using only <b>&pi;/8</b>, half the disc, gliding with its ends on the curve at every angle. The deltoid works because of a jewel of a property: <b>every tangent line cuts the deltoid in a chord of exactly the needle&rsquo;s length</b>. Then Besicovitch detonated the whole question in 1928: with enough sliding trickery the needle can be turned in <b>arbitrarily small area</b> &mdash; no positive minimum exists. The Kakeya sets he built now sit at the heart of modern harmonic analysis.<br><br>
@@ -45583,6 +45903,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-moser-spindle","title":"THE MOSER SPINDLE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FIREWALL","domain_slug":"the-firewall","accent":"#b06bff","icon":"moserspindle",
+  "kicker":"seven points that outlaw three colors",
+  "blurb":"The Moser spindle in the 5-window house format — seven dots that legislate about the entire infinite plane. The Hadwiger–Nelson problem asks how many colours are needed to paint every point of the plane so that no two points at distance exactly 1 match. The spindle (Leo and William Moser, 1961) is 7 vertices and 11 edges, every edge exactly unit length, drawable in the plane — and it cannot be properly 3-coloured, while 4 colours suffice. Since it embeds with unit edges, the plane needs at least 4 colours; Aubrey de Grey's 1553-vertex graph pushed the bound to ≥5 in 2018, and the true answer (5, 6, or 7) is still open. Verified live: all 11 edges measure 1.000000000, all 2187 three-colourings fail exhaustively, and a proper 4-colouring is exhibited. Neon-noir traced. See the hinged construction in 1D, the failing colourings in 2D, and the relaxed 4-colouring in 3D.",
+  "lit":"Genuine Moser spindle / Hadwiger–Nelson problem (Leo & William Moser 1961; Aubrey de Grey 2018). Verified live: all 11 edges unit to ~2e-16; exhaustive search over all 3^7 = 2187 three-colourings finds none proper; a proper 4-colouring is exhibited (window.__moserspindle.ok).",
+  "fig":"Honest boundary — the spindle proves ≥4; de Grey's ≥5 and the openness of the full problem are cited as content. The AVAN inverse — don't survey the infinite plane; find the seven points that speak for it: the inverse of 'how many colours does the plane need?' is 'a finite gadget whose failure is binding on infinity'. Magenta is the edge that breaks every 3-colouring; green is the fourth colour that ends the argument. Seven dots, one law.",
+  "body":MOSR_BODY,"script":MOSR_SCRIPT},
+ {"slug":"the-perfect-shuffle","title":"THE PERFECT SHUFFLE","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE KONAMI CODE","domain_slug":"the-konami-code","accent":"#ffcf4a","icon":"faroshuffle",
+  "kicker":"eight perfect shuffles back to the start",
+  "blurb":"The faro shuffle in the 5-window house format — the card mechanic's perfect riffle: cut exactly in half, interleave one card at a time. It looks like the ultimate randomizer and is precisely the opposite — a fixed permutation. Eight out-shuffles return a 52-card deck exactly to its starting order, because an out-shuffle sends position p to 2p mod 51 and the multiplicative order of 2 mod 51 is 8. Prefer the in-shuffle? Position maps through mod 53, order of 2 is 52 — fifty-two shuffles home. Magicians exploit the difference; parallel computers wire it as the perfect-shuffle interconnect. Verified live: the interleave is simulated on a real array — 8 out-shuffles restore, 52 in-shuffles restore, and both counts equal independently computed modular orders. Neon-noir traced. See position 1's doubling orbit in 1D, the step-by-step scramble-and-snap-back in 2D, and the displacement wheel in 3D.",
+  "lit":"Genuine faro/weave shuffle theory (Alex Elmsley; Diaconis, Graham & Kantor). Verified live: simulating the actual interleave, 8 out-shuffles restore the 52-card deck, 52 in-shuffles restore it, and both equal the orders of 2 mod 51 and mod 53 computed independently (window.__faroshuffle.ok).",
+  "fig":"No framing — the shuffles are performed on a real array and the modular orders computed separately. The AVAN inverse — don't watch the cards, watch the exponent: the inverse of 'how many shuffles to restore?' is 'the order of 2 in a hidden modulus' — 51 for out, 53 for in. Magenta is the scrambled middle of the journey; green is position doubling its way back to the start. A shuffle that was never random, only modular.",
+  "body":FARO_BODY,"script":FARO_SCRIPT},
+ {"slug":"the-tautochrone","title":"THE TAUTOCHRONE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#35ffb0","icon":"tautochrone",
+  "kicker":"every bead arriving together",
+  "blurb":"The tautochrone in the 5-window house format — the curve of impossible fairness. A bowl shaped as an inverted cycloid delivers a frictionless bead from ANY release height to the bottom in exactly the same time, T = π√(a/g): drop one from the rim and one from barely above the floor and they arrive together. Christiaan Huygens proved it in 1673 hunting an amplitude-independent pendulum, and built cycloidal-cheek clocks on the result. The secret is hidden linearity: in arc-length coordinates the cycloid turns gravity into a perfect spring, and springs don't care about amplitude. Verified live: four beads at four widely different heights, integrated by RK4 on the true Lagrangian dynamics, all arrive at 1.00354 s to five decimals — while a circular bowl's times differ by over 70%. Neon-noir traced. See the four-bead bowl in 1D, the race ledger in 2D, and the synchronized descent in 3D.",
+  "lit":"Genuine tautochrone property of the cycloid (Christiaan Huygens 1673, Horologium Oscillatorium). Verified live: four releases (θ₀ = 0.4, 1.0, 1.8, 2.6) integrated by RK4 on the Lagrangian dynamics all reach bottom at 1.00354 s = π√(a/g) to five decimals; a circular-bowl control gives 0.5068 vs 0.8742 s (window.__tautochrone.ok).",
+  "fig":"No framing — the dynamics are integrated numerically, the formula never consulted, and the circle control shows the property is special. The AVAN inverse — don't clock the fall, straighten the coordinate: the inverse of 'same time from every height' is 'in arc length this bowl is a perfect spring', and springs are amplitude-blind. Magenta is the circular bowl where the far bead loses; green is the cycloid where nobody can. Fairness, machined into the floor.",
+  "body":TAUT_BODY,"script":TAUT_SCRIPT},
+ {"slug":"the-ford-circles","title":"THE FORD CIRCLES","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#21e6ff","icon":"fordcircles",
+  "kicker":"fractions kissing along the number line",
+  "blurb":"Ford circles in the 5-window house format — every fraction given a body. Above each reduced p/q draw a circle of radius 1/(2q²) resting on the number line at that point: giants for simple fractions, dust for deep denominators. The miracle: no two Ford circles ever overlap. They miss, or they KISS — and they kiss precisely when |ps−qr| = 1, the Farey-neighbour condition, because one exact identity governs everything: dist²−(r₁+r₂)² = ((ps−qr)²−1)/(q²s²). Between kissing circles the mediant's bubble nests in the gap and kisses both — the Stern–Brocot structure of the rationals drawn in soap bubbles (Lester Ford, 1938). Verified live: 129 fractions with q ≤ 20, 8,256 pairs, zero overlaps, 255 kisses exactly at determinant ±1, identity to 1e-9 on every pair. Neon-noir traced. See the full bubble line in 1D, the pair-audit in 2D, and the breathing zoom in 3D.",
+  "lit":"Genuine Ford circles (Lester R. Ford 1938; Farey/Stern–Brocot structure). Verified live: over all 129 reduced fractions with q ≤ 20 (8,256 pairs), zero overlaps; tangency exactly at |ps−qr| = 1 (255 kissing pairs); the governing identity holds to 1e-9 on every pair (window.__fordcircles.ok).",
+  "fig":"No framing — circles, distances, and integer determinants computed independently in-browser. The AVAN inverse — don't measure the circles, read the integer: the inverse of 'do these bubbles touch?' is 'is ps−qr equal to ±1?' — geometry outsourced to a determinant. Magenta are the kisses; green is the arrangement that never overlaps. The rationals, wearing their arithmetic on their skin.",
+  "body":FORD_BODY,"script":FORD_SCRIPT},
+ {"slug":"the-cyclic-number","title":"THE CYCLIC NUMBER","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#ff8a3c","icon":"cyclicnumber",
+  "kicker":"the number that rotates instead of growing",
+  "blurb":"142857 in the 5-window house format — the most famous cyclic number. Multiply by 1 through 6 and the answer is always the same six digits rotated: 285714, 428571, 571428, 714285, 857142. Multiply by 7 and the register overflows to 999999. The engine is decimal arithmetic itself: 142857 is the repeating block of 1/7, and 7 is a full-reptend prime — 10 is a primitive root mod 7, so multiplication can only rotate the block. The next such prime is 17, whose 16-digit block 0588235294117647 rotates under ×1..16 and overflows to sixteen nines at ×17. Verified live: all six rotations exact, the overflow exact, the block regenerated by long division, the 17-family checked in BigInt, and the orders ord(10,7)=6 and ord(10,17)=16 confirmed. Neon-noir traced. See the digit wheel in 1D, the stepping multiplier in 2D, and the spinning clock in 3D.",
+  "lit":"Genuine cyclic-number / full-reptend-prime arithmetic. Verified live: 142857 × 1..6 are exact rotations, ×7 = 999999, the block regenerates from long division of 1/7, the 17-family (0588235294117647) passes all sixteen BigInt rotation checks and overflows to sixteen nines, and ord(10 mod 7) = 6, ord(10 mod 17) = 16 (window.__cyclicnumber.ok).",
+  "fig":"No framing — every multiplication, rotation, and order is computed exactly in-browser. The AVAN inverse — don't marvel at the number, find the prime beneath it: the inverse of '142857 rotates' is '10 is a primitive root mod 7' — the block is just 1/7's orbit written down. Magenta is the overflow at ×7; green is the wheel that turns six times first. A number that is secretly a clock.",
+  "body":C142_BODY,"script":C142_SCRIPT},
  {"slug":"the-kakeya","title":"THE KAKEYA","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#b06bff","icon":"kakeya",
   "kicker":"a needle turned in an eighth of pi",
