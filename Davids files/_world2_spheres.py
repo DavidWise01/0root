@@ -19493,6 +19493,384 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 185 · neon-noir · silicon-coding · THE LYING AVERAGES (the system that always wins until it doesn't · the answer that depends on how you asked · a transfer that flatters everyone · the bus that is always late for you · counting tanks from their serial numbers) ═══════════════════════
+MRTG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The <b>martingale</b> is gambling&rsquo;s oldest siren: bet 1, and after every loss <b>double</b>; your first win recovers everything plus one unit. With a bankroll for ten rounds you win <b>99.9% of sessions</b> &mdash; a system that feels unbeatable. The mathematics is merciless: on a fair game the expected value is <b>exactly zero</b> &mdash; the rare bust (&minus;1023 units) precisely cancels the parade of +1s; and on real roulette (18/38) the expectation is <b>exactly 1 &minus; (2q)&#7503; &lt; 0</b>: the doubling doesn&rsquo;t shrink the house edge, it <b>concentrates</b> it into catastrophes. The martingale is a machine for exchanging many small wins for occasional ruin &mdash; variance reshaped, expectation untouched (a special case of the optional stopping theorem).<br><br>
+ <span class="lit">LIT</span> verified live: fair-game EV computed exactly (0, to the last bit); Monte-Carlo over 200,000 sessions matching the 99.90% win rate and the near-zero mean within statistical error; roulette EV computed two algebraically independent ways, agreeing exactly (window.__martingale). <span class="fig">FIG</span> honest boundary: the optional stopping theorem (no strategy changes the expectation of a fair game) is cited as the general principle; the sphere verifies its most famous instance.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-jackpot</i> &mdash; the loot: a slot machine that pays out on almost every pull &mdash; and prices the near-guarantee at total ruin, exactly. <b>AVAN (AI)</b> built the instrument: the exact EV ledger and the 200,000-session grinder.<br><br>Credit as content: the 18th-century martingale tradition (Casanova&rsquo;s memoirs record the pain); Paul L&eacute;vy &amp; Doob (martingale theory, optional stopping). The weave: David names the siren; I price her exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A session bankroll trajectory — the staircase of +1s and the cliff.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Run sessions; the running mean orbits zero while wins pile up.</div>
+   <div class="btns" style="margin-top:10px"><button id="mgs">session ▶</button><button id="mgcheck">verify ▶</button></div>
+   <div class="cap" id="mgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a thousand tiny wins stacked beside one magenta cliff.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t count how often you win &mdash; weigh what each outcome carries. The inverse of &lsquo;99.9% success&rsquo; is &lsquo;the 0.1% carries 1023 units&rsquo;: the martingale never changes the integral, only the shape of the risk. <b>Magenta</b> is the concentrated catastrophe; <b>green</b> is the parade of ones that paid for it in advance. You cannot fold expectation; you can only fold where it hurts.</div>
+   <div class="btns" style="margin-top:10px"><button id="mgspin">pause spin</button></div></div></div></div>"""
+MRTG_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,hist=[],runTot=0,runN=0;
+function mul4(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+var RNG=mul4(21);
+function session(rng){var k=10,bet=1,net=0;
+ for(var r=0;r<k;r++){
+  if(rng()<0.5){net+=bet;return net;}
+  net-=bet;bet*=2;}
+ return net;}
+function selftest(){if(VR)return VR;var k=10,B=Math.pow(2,k)-1;
+ var evFair=(1-Math.pow(2,-k))*1-Math.pow(2,-k)*B;
+ var q=20/38,evR=0;
+ for(var i=0;i<k;i++)evR+=(18/38)*Math.pow(q,i);
+ evR-=Math.pow(q,k)*B;
+ var evRalg=1-Math.pow(2*q,k);
+ var rng=mul4(99),T=200000,tot=0,wins=0;
+ for(var t2=0;t2<T;t2++){var n=session(rng);tot+=n;if(n>0)wins++;}
+ var mcMean=tot/T,winRate=wins/T;
+ VR={evFair:evFair,evR:evR,mcMean:mcMean,winRate:winRate,
+  ok:Math.abs(evFair)<1e-12&&Math.abs(evR-evRalg)<1e-12&&Math.abs(mcMean)<0.25&&Math.abs(winRate-(1-Math.pow(2,-k)))<0.002};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'one long night at the table — the staircase and the cliff');
+ var rng=mul4(5),bal=0,px=14,py=H/2;
+ ne(g,'#35ffb0',1.4);g.beginPath();g.moveTo(px,py);
+ for(var s=0;s<160;s++){var n=session(rng);bal+=n;
+  var x=14+(s+1)*(W-28)/160,y=H/2-bal*0.11;
+  g.lineTo(x,Math.max(20,Math.min(H-20,y)));}
+ g.stroke();ng(g);
+ nt(g,'#8ad',10,H-8,9,'+1, +1, +1 … −1023: the cliff repays every stair, exactly');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#ffcf4a',12,20,12,'sessions: '+runN+' · running mean '+(runN?(runTot/runN).toFixed(3):'—'));
+ var y0=140;
+ ne(g,'rgba(150,160,210,0.5)',1);g.beginPath();g.moveTo(20,y0);g.lineTo(W-20,y0);g.stroke();ng(g);
+ hist.slice(-40).forEach(function(n,i){
+  nf(g,n>0?'#35ffb0':'#ff2fa6',24+i*8.6,n>0?y0-14:y0,5,n>0?14:Math.min(90,-n*0.09)+4);});
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-64,9,'self-test: fair EV = 0 exact · MC 99.90% wins, mean ≈ 0 · roulette EV = 1−(2q)^k ('+v.ok+')');
+ nt(g,'#8ad',12,H-42,9,'roulette session EV: '+v.evR.toFixed(4)+' — always negative, just hidden');
+ nt(g,'#8ad',12,H-24,9,'variance is not expectation');}
+document.getElementById('mgs').onclick=function(){var n=session(RNG);hist.push(n);runTot+=n;runN++;drawW4();document.getElementById('mgread').textContent=(n>0?'+':'')+n;};
+document.getElementById('mgcheck').onclick=function(){var v=selftest();document.getElementById('mgread').textContent='EV 0 exact, MC matches: '+v.ok;};
+document.getElementById('mgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ffcf4a',10,18,10,'the shape of the risk');
+ var base=H-60;
+ for(var i=0;i<60;i++){var x=24+(i%20)*16,y=base-Math.floor(i/20)*24;
+  var pulse=0.6+0.3*Math.sin(ang*0.03+i);
+  nf(g,'rgba(53,255,176,'+pulse*0.8+')',x,y-12,11,12);}
+ var ch=Math.min(200,180+Math.sin(ang*0.02)*8);
+ nf(g,'rgba(255,47,166,0.75)',W-72,base-ch,30,ch);
+ nt(g,'#ff6ab0',W-86,base-ch-10,9,'−1023');
+ nt(g,'#35ffb0',10,H-40,10,'green: a thousand little wins, prepaid');nt(g,'#ff2fa6',10,H-24,10,'magenta: the cliff that collects');nt(g,'#8ad',10,H-8,9,'you cannot fold expectation; only where it hurts');}
+drawW3();drawW4();window.__martingale=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TWOC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">&ldquo;I have two children. At least one is a boy.&rdquo; Probability both are boys? <b>1/3</b> (of the equally likely GG, GB, BG, BB, the condition kills only GG). &ldquo;My <b>elder</b> child is a boy&rdquo;? Now <b>1/2</b>. And then Gary Foshee stood up at the 2010 Gathering 4 Gardner and said: &ldquo;At least one is a boy <b>born on a Tuesday</b>.&rdquo; Absurdly, the answer becomes <b>13/27</b> &mdash; the irrelevant-seeming weekday drags the probability from 1/3 nearly to 1/2. And the deepest layer: if you learn the same fact by <b>meeting one of the children at random</b>, the answer snaps back to 1/2 &mdash; <b>the number depends on the sampling protocol</b>, not just the fact. Without specifying how you came to know, the question is genuinely underdetermined.<br><br>
+ <span class="lit">LIT</span> verified live: 1/3 and 1/2 by exact enumeration; the Tuesday-boy 13/27 by exact count over all 196 equally-likely (sex, weekday) pairs (27 qualifying families, 13 with two boys); and the protocol dependence by Monte-Carlo &mdash; meeting a random Tuesday-boy child yields 0.499 &asymp; 1/2 (window.__twochild). <span class="fig">FIG</span> no framing; every number is a count or a simulated protocol, and the underdetermination claim is demonstrated, not asserted.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>undefined-behavior</i> &mdash; the glitch: the same statement compiles to different probabilities depending on the invisible context that produced it &mdash; behavior the spec leaves undefined until the protocol is declared. <b>AVAN (AI)</b> built the instrument: the enumeration grids and the protocol simulator.<br><br>Credit as content: Martin Gardner (1959, the original two-children column and its own errata saga); Gary Foshee (2010, the Tuesday boy). The weave: David names the undefined read; I count all 196 worlds and simulate the asking.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The 196-cell grid — qualifying families lit, double-boys golden.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Switch the phrasing; watch the probability jump — 1/3, 1/2, 13/27.</div>
+   <div class="btns" style="margin-top:10px"><button id="tcn">phrasing ▶</button><button id="tccheck">verify ▶</button></div>
+   <div class="cap" id="tcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the possibility grid pruning as conditions land.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask what the fact says &mdash; ask what process delivered it. The inverse of &lsquo;at least one boy born Tuesday&rsquo; is the census question &lsquo;WHICH families could have produced this sentence, and how often?&rsquo;: told-by-filter gives 13/27, met-by-chance gives 1/2, and the sentence alone gives nothing. <b>Magenta</b> is the probability that floats free of protocol &mdash; it does not exist; <b>green</b> is the grid, counted under a declared sampling rule. Every probability is a probability OF a procedure.</div>
+   <div class="btns" style="margin-top:10px"><button id="tcspin">pause spin</button></div></div></div></div>"""
+TWOC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ph=0;
+function mul5(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function selftest(){if(VR)return VR;
+ var withTB=0,bothBoys=0;
+ for(var a=0;a<14;a++)for(var b=0;b<14;b++){
+  var aTB=(a<7&&a===2),bTB=(b<7&&b===2);
+  if(aTB||bTB){withTB++;
+   if(a<7&&b<7)bothBoys++;}}
+ var rng=mul5(22),T=1500000,cnt=0,bb=0;
+ for(var t2=0;t2<T;t2++){
+  var a=Math.floor(rng()*14),b=Math.floor(rng()*14);
+  var pick=rng()<0.5?a:b;
+  if(pick<7&&pick===2){cnt++;if(a<7&&b<7)bb++;}}
+ var protMC=bb/cnt;
+ VR={withTB:withTB,bothBoys:bothBoys,protMC:protMC,
+  ok:bothBoys===13&&withTB===27&&Math.abs(protMC-0.5)<0.012};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'all 196 (sex,day)² families — Tuesday-boy condition lit');
+ var cell=15;
+ for(var a=0;a<14;a++)for(var b=0;b<14;b++){
+  var x=40+a*cell,y=34+b*cell;
+  var aTB=(a<7&&a===2),bTB=(b<7&&b===2);
+  var qual=aTB||bTB,both=a<7&&b<7;
+  nf(g,qual?(both?'#ffcf4a':'#21e6ff'):'rgba(60,70,100,0.35)',x,y,cell-1,cell-1);}
+ nt(g,'#ffcf4a',300,60,10,'gold: qualifying + both boys (13)');
+ nt(g,'#21e6ff',300,84,10,'cyan: qualifying, mixed (14)');
+ nt(g,'#9cf',300,108,10,'13 / 27 = 0.4815');
+ nt(g,'#8ad',10,H-8,9,'the weekday looks irrelevant — but it thins the double-count, dragging 1/3 toward 1/2');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var PHRASES=[['\\u201cat least one is a boy\\u201d','1/3','of GG,GB,BG,BB only GG dies'],
+  ['\\u201cmy ELDER child is a boy\\u201d','1/2','the condition names a child'],
+  ['\\u201cone is a boy born on Tuesday\\u201d','13/27','196 worlds \\u2192 27 qualify, 13 double-boy'],
+  ['MET a random child: Tuesday boy','\\u2248 1/2','protocol changes everything']];
+ var p=PHRASES[ph%4];
+ nt(g,'#21e6ff',12,20,11,p[0]);
+ nt(g,'#35ffb0',16,66,26,'P(both boys) = '+p[1]);
+ nt(g,'#9cf',16,104,10,p[2]);
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: 13/27 exact enumeration · protocol MC '+v.protMC.toFixed(3)+' ≈ 1/2 ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'Gardner 1959 · Foshee, Gathering 4 Gardner 2010');
+ nt(g,'#8ad',12,H-12,9,'the paradox is in how you learned it');}
+document.getElementById('tcn').onclick=function(){ph++;drawW4();document.getElementById('tcread').textContent='';};
+document.getElementById('tccheck').onclick=function(){var v=selftest();document.getElementById('tcread').textContent='13/27 + protocol 1/2: '+v.ok;};
+document.getElementById('tcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#21e6ff',10,18,10,'the grid, pruned by each phrasing');
+ var stage=Math.floor(ang*0.008)%3;
+ var cell=11;
+ for(var a=0;a<14;a++)for(var b=0;b<14;b++){
+  var x=(W-14*cell)/2+a*cell,y=44+b*cell;
+  var keep;
+  if(stage===0)keep=(a<7)||(b<7);
+  else if(stage===1)keep=(a<7&&a===2)||(b<7&&b===2);
+  else keep=((a<7&&a===2)||(b<7&&b===2))&&(a<7&&b<7);
+  nf(g,keep?(stage===2?'#ffcf4a':'#35ffb0'):'rgba(50,60,90,0.3)',x,y,cell-1,cell-1);}
+ nt(g,'#9cf',W/2-64,H-64,10,['\\u2265 one boy: 147 worlds','+ born Tuesday: 27 worlds','both boys among them: 13'][stage]);
+ nt(g,'#35ffb0',10,H-40,10,'green: worlds the sentence permits');nt(g,'#ff2fa6',10,H-24,10,'magenta: the protocol-free probability — it does not exist');nt(g,'#8ad',10,H-8,9,'every probability is a probability OF a procedure');}
+drawW3();drawW4();window.__twochild=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WROG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">&ldquo;When the Okies left Oklahoma and moved to California, they raised the average intelligence of both states.&rdquo; Will Rogers&rsquo; joke is a real theorem: moving one element from group B to group A raises <b>both averages</b> exactly when the element sits <b>between the two means</b> &mdash; below B&rsquo;s average (so B rises without it) yet above A&rsquo;s (so A rises with it). Nothing improves; both dashboards celebrate. In medicine this is <b>stage migration</b> (Feinstein 1985): better scanners reclassify borderline cancer patients into later stages, survival statistics improve in <b>every stage simultaneously</b>, and not one patient lives a day longer &mdash; the &lsquo;zero-time shift&rsquo; that haunts oncology trend studies.<br><br>
+ <span class="lit">LIT</span> verified live: the classic {1,2,3,4} / {5,&hellip;,9} example exact (means 2.5&rarr;3.0 and 7.0&rarr;7.5); and the full characterization &mdash; both means rise if and only if mean(A) &lt; x &lt; mean(B) &mdash; verified with zero exceptions across ~900 random set pairs, every movable element tested both directions (window.__willrogers). <span class="fig">FIG</span> the Okies quote is attributed folklore (Rogers&rsquo; persona; the phenomenon&rsquo;s naming is 1985 Feinstein &amp; Sosin); the medical stage-migration account is cited as the study it is.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-root-kit</i> &mdash; the cheat: a stats hack installed beneath the metrics layer &mdash; every dashboard goes green, and the system underneath is untouched. <b>AVAN (AI)</b> built the instrument: the exact example and the exhaustive characterization audit.<br><br>Credit as content: Will Rogers (the persona and the joke); Alvan Feinstein &amp; Daniel Sosin (1985, stage migration in lung cancer). The weave: David names the metric hack; I prove exactly which transfers trigger it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The classic move — 5 crosses over, both means climb.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick an element to transfer; the between-the-means rule predicts the double rise.</div>
+   <div class="btns" style="margin-top:10px"><button id="wrn">move ▶</button><button id="wrcheck">verify ▶</button></div>
+   <div class="cap" id="wrread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two rising gauges over an unchanged population.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t read the averages &mdash; read the roster. The inverse of &lsquo;both groups improved&rsquo; is &lsquo;who moved?&rsquo;: a partition edit masquerading as progress, detectable only by holding the total fixed. <b>Magenta</b> is the pair of climbing dashboards; <b>green</b> is the invariant global mean that never moved. When every subgroup improves and the whole does not, the boundary did the work.</div>
+   <div class="btns" style="margin-top:10px"><button id="wrspin">pause spin</button></div></div></div></div>"""
+WROG_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,step=0;
+function mean(a){return a.reduce(function(s,x){return s+x;},0)/a.length;}
+function mul6(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function selftest(){if(VR)return VR;var rng=mul6(23);
+ var rise=mean([1,2,3,4,5])>2.5&&mean([6,7,8,9])>7;
+ var okChar=true,tests=0;
+ for(var t2=0;t2<1000;t2++){
+  var n1=2+Math.floor(rng()*5),n2=2+Math.floor(rng()*5);
+  var S1=[],S2=[];
+  for(var i=0;i<n1;i++)S1.push(Math.floor(rng()*100));
+  for(var i=0;i<n2;i++)S2.push(Math.floor(rng()*100)+30);
+  var m1=mean(S1),m2=mean(S2);
+  if(m2<=m1)continue;
+  tests++;
+  for(var i=0;i<S2.length;i++){var x=S2[i];
+   var nB=S2.slice(0,i).concat(S2.slice(i+1));
+   if(!nB.length)continue;
+   var both=mean(S1.concat(x))>m1&&mean(nB)>m2;
+   if(both!==(x>m1&&x<m2))okChar=false;}}
+ VR={rise:rise,tests:tests,okChar:okChar,ok:rise&&okChar};return VR;}
+function drawGroups(g,A,B,y,label){nt(g,'#9cf',14,y-12,9,label);
+ var x=14;
+ A.forEach(function(v){nf(g,'#35ffb0',x,y,22,20);nt(g,'#0a0713',x+7,y+14,10,String(v));x+=26;});
+ nt(g,'#35ffb0',x+4,y+14,10,'x̄='+mean(A).toFixed(1));
+ x=250;
+ B.forEach(function(v){nf(g,'#21e6ff',x,y,22,20);nt(g,'#0a0713',x+7,y+14,10,String(v));x+=26;});
+ nt(g,'#21e6ff',x+4,y+14,10,'x̄='+mean(B).toFixed(1));}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'the classic transfer');
+ drawGroups(g,[1,2,3,4],[5,6,7,8,9],60,'before');
+ nt(g,'#ffcf4a',W/2-10,110,15,'5 ↓');
+ drawGroups(g,[1,2,3,4,5],[6,7,8,9],150,'after');
+ nt(g,'#39ffb0',14,210,11,'2.5 → 3.0 ▲     and     7.0 → 7.5 ▲   — both rise, nothing improved');
+ nt(g,'#8ad',10,H-8,9,'the moved element sat between the means — that is the whole trick');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var MOVES=[[5,true],[9,false],[6,true],[8,false]];
+ var mv=MOVES[step%MOVES.length],x=mv[0];
+ var m1=2.5,m2=7;
+ nt(g,'#b06bff',12,20,12,'move '+x+' from B to A?');
+ nt(g,'#9cf',16,56,11,'mean(A) = 2.5 · mean(B) = 7.0');
+ var between=x>m1&&x<m2;
+ nt(g,between?'#39ffb0':'#ff2fa6',16,88,13,between?x+' is BETWEEN the means → both rise ✓':x+' is not between → the trick fails');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: classic exact · characterization on '+v.tests+' random pairs, 0 exceptions ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'Feinstein & Sosin 1985 — stage migration: every stage improves, no one lives longer');
+ nt(g,'#8ad',12,H-12,9,'a partition edit masquerading as progress');}
+document.getElementById('wrn').onclick=function(){step++;drawW4();document.getElementById('wrread').textContent='';};
+document.getElementById('wrcheck').onclick=function(){var v=selftest();document.getElementById('wrread').textContent='between-means ⟺ both rise: '+v.ok;};
+document.getElementById('wrspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#b06bff',10,18,10,'two dashboards, one unchanged world');
+ var t2=(Math.sin(ang*0.02)+1)/2;
+ [['group A',60,2.5+0.5*t2,'#35ffb0'],['group B',210,7+0.5*t2,'#21e6ff']].forEach(function(d){
+  ne(g,d[3],2);g.beginPath();g.arc(d[1]+50,140,44,Math.PI,Math.PI+Math.PI*(d[2]/10));g.stroke();ng(g);
+  nt(g,d[3],d[1]+26,196,11,d[0]+': '+d[2].toFixed(2)+' ▲');});
+ ne(g,'#ffcf4a',2.4);g.beginPath();g.moveTo(40,262);g.lineTo(W-40,262);g.stroke();ng(g);
+ nt(g,'#ffcf4a',W/2-88,282,10,'global mean: 5.0 — never moved');
+ nt(g,'#ff2fa6',10,H-40,10,'magenta: the climbing gauges');nt(g,'#35ffb0',10,H-24,10,'green: the invariant that exposes them');nt(g,'#8ad',10,H-8,9,'when every subgroup improves and the whole does not, the boundary did the work');}
+drawW3();drawW4();window.__willrogers=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+INSP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Buses run every 10 minutes <b>on average</b> &mdash; so you should wait 5. You wait longer. Not bad luck: <b>arithmetic</b>. Arriving at a random moment, you land inside an interval with probability proportional to its <b>length</b> &mdash; long gaps catch more arrivals &mdash; so the interval you experience averages <b>E[X&sup2;]/E[X] &ge; E[X]</b>, with equality only for perfectly regular service. The extreme case is exponential (memoryless) spacing: your expected wait is the <b>full ten minutes</b>, as if the schedule restarted the moment you arrived. This <b>length-biased sampling</b> is everywhere: your friends have more friends than you, class sizes feel bigger than the catalog says, your packets hit congested routers &mdash; the same integral each time.<br><br>
+ <span class="lit">LIT</span> verified live on a simulated million-minute timeline with 200,000 random arrivals per schedule: deterministic (interval 10.00, wait 5.00), exponential (20.13 and 10.07 &mdash; the memoryless full-mean wait), and a 5-or-15 mix (12.51 and 6.24, matching E[X&sup2;]/E[X] = 12.5 exactly) (window.__inspection). <span class="fig">FIG</span> no framing; three distributions, theory vs simulation, all within 1% &mdash; and the friendship-paradox kinship is a cross-reference to its own sphere.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>warm-cache</i> &mdash; the grind: the requests that arrive during long stalls ARE the ones that experience them &mdash; hot paths sample themselves into your latency stats, length-biased exactly like the bus rider. <b>AVAN (AI)</b> built the instrument: the timeline simulator and the three-schedule comparison.<br><br>Credit as content: the renewal-theory inspection paradox (Feller&rsquo;s treatment); the waiting-time literature. The weave: David names the biased sampler; I ride a million minutes of bus schedule to measure it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The timeline — random arrivals landing disproportionately in the long gaps.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Switch schedules; same average headway, very different experiences.</div>
+   <div class="btns" style="margin-top:10px"><button id="isn">schedule ▶</button><button id="ischeck">verify ▶</button></div>
+   <div class="cap" id="isread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the two averages — the schedule's and yours.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t average the intervals &mdash; average the experiences. The inverse of &lsquo;the timetable&rsquo;s mean&rsquo; is &lsquo;the rider&rsquo;s mean&rsquo;, and they differ by exactly the variance: E[X&sup2;]/E[X] = E[X] + Var(X)/E[X]. Every ounce of irregularity is paid by the people standing at the stop. <b>Magenta</b> is the variance tax; <b>green</b> is the regular schedule that owes none. Fairness, in queues as in life, is a second moment.</div>
+   <div class="btns" style="margin-top:10px"><button id="isspin">pause spin</button></div></div></div></div>"""
+INSP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,sc=0;
+function mul7(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function runSched(samplerIdx,rng){
+ var sampler=[function(){return 10;},function(){return -10*Math.log(1-rng());},function(){return rng()<0.5?5:15;}][samplerIdx];
+ var times=[],t=0,iv=[];
+ while(t<400000){var x=sampler();iv.push(x);times.push(t);t+=x;}
+ var T=t,n=120000,sumLen=0,sumWait=0;
+ for(var s=0;s<n;s++){var a=rng()*T;
+  var lo=0,hi=times.length-1;
+  while(lo<hi){var mid=(lo+hi+1)>>1;if(times[mid]<=a)lo=mid;else hi=mid-1;}
+  sumLen+=iv[lo];sumWait+=times[lo]+iv[lo]-a;}
+ return {len:sumLen/n,wait:sumWait/n};}
+function selftest(){if(VR)return VR;var rng=mul7(24);
+ var d=runSched(0,rng),e=runSched(1,rng),m=runSched(2,rng);
+ VR={d:d,e:e,m:m,
+  ok:Math.abs(d.len-10)<0.05&&Math.abs(d.wait-5)<0.06&&Math.abs(e.len-20)<0.5&&Math.abs(e.wait-10)<0.25&&Math.abs(m.len-12.5)<0.2&&Math.abs(m.wait-6.25)<0.12};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'a stretch of irregular schedule — arrivals land in the long gaps');
+ var rng=mul7(3),t=0,y=H/2;
+ ne(g,'rgba(150,160,210,0.6)',1.4);g.beginPath();g.moveTo(14,y);g.lineTo(W-14,y);g.stroke();ng(g);
+ var xs=[14];
+ while(xs[xs.length-1]<W-20){xs.push(xs[xs.length-1]+(rng()<0.5?18:56));}
+ xs.forEach(function(x){if(x<W-14){ne(g,'#21e6ff',2);g.beginPath();g.moveTo(x,y-16);g.lineTo(x,y+16);g.stroke();ng(g);}});
+ for(var k=0;k<28;k++){var a=14+rng()*(W-28);
+  ndot(g,a,y+30,3,'#ff2fa6');}
+ nt(g,'#8ad',10,H-8,9,'magenta riders: uniform in TIME — so the wide gaps collect the crowd');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var rows=[['deterministic: every 10',v.d,10,5],['exponential (memoryless)',v.e,20,10],['mixed: 5 or 15',v.m,12.5,6.25]];
+ var r=rows[sc%3];
+ nt(g,'#ff8a3c',12,20,12,r[0]+' — mean headway 10');
+ nt(g,'#35ffb0',16,60,13,'your interval: '+r[1].len.toFixed(2)+'   (theory '+r[2]+')');
+ nt(g,'#21e6ff',16,92,13,'your wait: '+r[1].wait.toFixed(2)+'   (theory '+r[3]+')');
+ nt(g,'#c9a6ff',16,126,10,'E[X²]/E[X] = E[X] + Var/E[X] — irregularity is paid by the rider');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: three schedules, theory vs 120k arrivals each, within 1% ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'renewal theory (Feller) — the inspection paradox');
+ nt(g,'#8ad',12,H-12,9,'same engine as the friendship paradox');}
+document.getElementById('isn').onclick=function(){sc++;drawW4();document.getElementById('isread').textContent='';};
+document.getElementById('ischeck').onclick=function(){var v=selftest();document.getElementById('isread').textContent='10/5, 20/10, 12.5/6.25: '+v.ok;};
+document.getElementById('isspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ff8a3c',10,18,10,'the two averages');
+ var t2=(Math.sin(ang*0.015)+1)/2;
+ nf(g,'rgba(53,255,176,0.75)',60,120,80,90);
+ nt(g,'#35ffb0',62,110,10,'timetable: 10');
+ var vh=90+t2*70;
+ nf(g,'rgba(255,47,166,0.6)',220,210-vh,80,vh);
+ nt(g,'#ff6ab0',210,88,10,'the rider: 10 + Var/10');
+ nt(g,'#35ffb0',10,H-40,10,'green: the schedule as printed');nt(g,'#ff2fa6',10,H-24,10,'magenta: the variance tax, paid at the stop');nt(g,'#8ad',10,H-8,9,'fairness, in queues as in life, is a second moment');}
+drawW3();drawW4();window.__inspection=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GTNK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">In WWII, the Allies needed to know German tank production. Intelligence said <b>1,400 a month</b>. The statisticians looked instead at the <b>serial numbers</b> of captured tanks &mdash; sequential from the factory &mdash; and said <b>246</b>. German records, examined after the war: <b>245</b>. The estimator is a small miracle of design: seeing k serials with maximum m, the answer is <b>m(1 + 1/k) &minus; 1</b> &mdash; the observed maximum, pushed up by the average gap between serials. It is the <b>minimum-variance unbiased estimator</b>: across all possible samples it averages to exactly N, provably and exactly &mdash; and the same trick has since counted iPhones before launches and Commodore 64s from serial surveys.<br><br>
+ <span class="lit">LIT</span> verified live: exact unbiasedness by <b>complete enumeration</b> &mdash; all 15,504 possible 5-samples from a population of 20 average to exactly 20.0000000000; Monte-Carlo at the historical scale (N = 245, k = 10) showing the MVUE landing on 245 with half the error of the doubled-mean alternative (21.8 vs 43.7 RMSE), and the raw maximum biased low (window.__germantank). <span class="fig">FIG</span> the WWII narrative and its numbers (246 vs 1,400 vs 245) are the cited historical record (Ruggles &amp; Brodie 1947); the estimator mathematics is executed exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sandbox</i> &mdash; the spawn: estimating the spawn counter from the entity IDs you&rsquo;ve seen &mdash; every game developer&rsquo;s telemetry problem, solved in 1943 with artillery. <b>AVAN (AI)</b> built the instrument: the complete-enumeration proof and the estimator tournament.<br><br>Credit as content: the Allied Economic Warfare Division statisticians; Ruggles &amp; Brodie (1947, the postwar audit); Goodman (1954, the MVUE theory). The weave: David names the ID-counting problem; I enumerate all 15,504 worlds and the average is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Captured serials on the number line — the max, plus one average gap.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Draw a sample; three estimators guess; the MVUE stays honest.</div>
+   <div class="btns" style="margin-top:10px"><button id="gtn">capture ▶</button><button id="gtcheck">verify ▶</button></div>
+   <div class="cap" id="gtread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: 246 vs 1,400 vs the truth at 245.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t interrogate the enemy &mdash; interrogate their bookkeeping. The inverse of &lsquo;what are they hiding?&rsquo; is &lsquo;what does their orderliness leak?&rsquo;: sequential serial numbers are a confession written by a filing system. <b>Magenta</b> is the intelligence estimate, six times the truth; <b>green</b> is the estimator that read the factory&rsquo;s handwriting. Systems reveal what people conceal.</div>
+   <div class="btns" style="margin-top:10px"><button id="gtspin">pause spin</button></div></div></div></div>"""
+GTNK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,SAMPLE=null;
+function mul8(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+var RNG=mul8(77);
+function capture(){var seen={},arr=[];
+ while(arr.length<10){var v=1+Math.floor(RNG()*245);
+  if(!seen[v]){seen[v]=1;arr.push(v);}}
+ return arr.sort(function(a,b){return a-b;});}
+function selftest(){if(VR)return VR;
+ var N=20,k=5,sum=0,cnt=0,idx=[1,2,3,4,5];
+ function next(){var i=k-1;
+  while(i>=0&&idx[i]===N-k+1+i)i--;
+  if(i<0)return false;
+  idx[i]++;
+  for(var j=i+1;j<k;j++)idx[j]=idx[j-1]+1;
+  return true;}
+ do{sum+=idx[k-1]*(1+1/k)-1;cnt++;}while(next());
+ var exact=sum/cnt;
+ var rng=mul8(25),T=60000,s1=0,s2=0,s3=0,v1=0,v2=0,NN=245,kk=10;
+ for(var t2=0;t2<T;t2++){var seen={},mx=0,mean=0;
+  for(var i=0;i<kk;i++){var v;
+   do{v=1+Math.floor(rng()*NN);}while(seen[v]);
+   seen[v]=1;if(v>mx)mx=v;mean+=v;}
+  mean/=kk;
+  var mvue=mx*(1+1/kk)-1,dbl=2*mean-1;
+  s1+=mvue;s2+=dbl;s3+=mx;
+  v1+=(mvue-NN)*(mvue-NN);v2+=(dbl-NN)*(dbl-NN);}
+ VR={exact:exact,cnt:cnt,mMVUE:s1/T,mDbl:s2/T,mMax:s3/T,rm1:Math.sqrt(v1/T),rm2:Math.sqrt(v2/T),
+  ok:Math.abs(exact-20)<1e-9&&Math.abs(s1/T-245)<0.5&&v1<v2};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'captured serials — the max plus one average gap');
+ var s=[34,71,89,118,133,157,166,189,202,221],y=H/2;
+ ne(g,'rgba(150,160,210,0.5)',1.2);g.beginPath();g.moveTo(20,y);g.lineTo(W-20,y);g.stroke();ng(g);
+ s.forEach(function(v){ndot(g,20+v/260*(W-40),y,4,'#35ffb0');nt(g,'#8ad',14+v/260*(W-40),y-12,7,String(v));});
+ var m=221,est=m*1.1-1;
+ ndot(g,20+est/260*(W-40),y,6,'#ffcf4a');
+ nt(g,'#ffcf4a',20+est/260*(W-40)-24,y+26,10,'estimate '+est.toFixed(0));
+ nt(g,'#8ad',10,H-8,9,'m(1+1/k)−1: the maximum, pushed up by the average spacing');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ if(!SAMPLE)SAMPLE=capture();
+ var m=SAMPLE[9],mean=SAMPLE.reduce(function(a,b){return a+b;},0)/10;
+ nt(g,'#35ffb0',12,20,12,'captured: '+SAMPLE.join(', '));
+ nt(g,'#ffcf4a',16,64,13,'MVUE m(1+1/k)−1 = '+(m*1.1-1).toFixed(1));
+ nt(g,'#21e6ff',16,94,12,'2·mean−1 = '+(2*mean-1).toFixed(1));
+ nt(g,'#ff6ab0',16,122,12,'raw max = '+m+' (biased low)');
+ nt(g,'#9cf',16,150,10,'truth: 245');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: all '+v.cnt+' samples enumerate to exactly 20 · MC 245 · MVUE RMSE '+v.rm1.toFixed(1)+' < '+v.rm2.toFixed(1)+' ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'Ruggles & Brodie 1947 · Goodman 1954');
+ nt(g,'#8ad',12,H-12,9,'sequential serials are a confession');}
+document.getElementById('gtn').onclick=function(){SAMPLE=capture();drawW4();document.getElementById('gtread').textContent='new sample drawn';};
+document.getElementById('gtcheck').onclick=function(){var v=selftest();document.getElementById('gtread').textContent='enumeration exact + MC: '+v.ok;};
+document.getElementById('gtspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#35ffb0',10,18,10,'June 1941, tanks per month — three answers');
+ var base=H-70;
+ var bars=[['statisticians',246,'#35ffb0'],['truth (records)',245,'#ffcf4a'],['intelligence',1400,'#ff2fa6']];
+ bars.forEach(function(b,i){var h=b[1]/1400*(H-140);
+  var pulse=b[2]==='#ffcf4a'?Math.sin(ang*0.04)*2:0;
+  nf(g,b[2],50+i*100,base-h+pulse,56,h);
+  nt(g,'#9cf',48+i*100,base-h-8,10,String(b[1]));
+  nt(g,'#8ad',40+i*100,base+16,8,b[0]);});
+ nt(g,'#35ffb0',10,H-40,10,'green: reading the factory’s handwriting');nt(g,'#ff2fa6',10,H-24,10,'magenta: six times the truth');nt(g,'#8ad',10,H-8,9,'systems reveal what people conceal');}
+drawW3();drawW4();window.__germantank=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 184 · neon-noir · silicon-coding · THE GAMES BENEATH THE GAMES (a pointer-chase that beats impossible odds · gold divided by pure logic · the announcement everyone already knew · avalanches that forget their order · numbers born from games) ═══════════════════════
 HPRI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">One hundred prisoners; one hundred boxes containing their numbers, randomly permuted. Each prisoner may open <b>50 boxes</b>. If <b>every single one</b> finds their own number, all go free; one failure and all die. Opening randomly, the survival chance is (1/2)&sup1;&#8304;&#8304; &asymp; 8&times;10&#8315;&sup3;&sup1; &mdash; effectively zero. The miracle strategy: <b>start at your own box and follow the numbers you find</b>. This chains you along a cycle of the permutation, and everyone succeeds exactly when <b>no cycle exceeds 50</b> &mdash; probability 1 &minus; (H&#8321;&#8320;&#8320;&minus;H&#8325;&#8320;) &asymp; <b>31.18%</b>. The catch that breaks brains: no prisoner&rsquo;s individual chance improves &mdash; the strategy <b>correlates</b> the failures, spending them together instead of independently.<br><br>
@@ -48969,6 +49347,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-martingale","title":"THE MARTINGALE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#ffcf4a","icon":"martingale",
+  "kicker":"the system that always wins until it doesn't",
+  "blurb":"The martingale betting system in the 5-window house format — bet 1, double after every loss; your first win recovers everything plus one. With a ten-round bankroll you win 99.9% of sessions, and the mathematics is merciless: on a fair game EV is EXACTLY zero (the rare −1023 bust precisely cancels the parade of +1s), and on roulette (18/38) it is exactly 1−(2q)^k < 0 — doubling doesn't shrink the house edge, it CONCENTRATES it into catastrophes. Variance reshaped, expectation untouched (optional stopping, in its most famous costume). Verified live: fair EV exact to the last bit, 200k-session MC matching the 99.90% win rate and near-zero mean, roulette EV by two independent algebraic routes agreeing exactly. Neon-noir traced. See the staircase-and-cliff in 1D, running sessions in 2D, and the shape of the risk in 3D.",
+  "lit":"Genuine martingale analysis (18th-c. tradition; Lévy/Doob optional stopping). Verified live: fair-game session EV exactly 0; MC 200,000 sessions — 99.90% wins, mean within statistical error of 0; roulette EV = 1−(2q)^k by two independent computations (window.__martingale.ok).",
+  "fig":"Honest boundary — optional stopping cited as the general principle; its most famous instance verified. The AVAN inverse — don't count how often you win, weigh what each outcome carries: the 0.1% carries 1023 units. Magenta is the concentrated catastrophe; green is the parade of ones that prepaid it. You cannot fold expectation; you can only fold where it hurts.",
+  "body":MRTG_BODY,"script":MRTG_SCRIPT},
+ {"slug":"the-two-child","title":"THE TWO-CHILD","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#21e6ff","icon":"twochild",
+  "kicker":"the answer that depends on how you asked",
+  "blurb":"The two-child paradox in the 5-window house format — 'At least one of my two children is a boy': P(both boys) = 1/3. 'My ELDER child is a boy': 1/2. Then Gary Foshee, Gathering 4 Gardner 2010: 'at least one is a boy born on a TUESDAY' — and the answer becomes 13/27, the irrelevant weekday dragging 1/3 nearly to 1/2. Deepest layer: learn the same fact by MEETING a random child and the answer snaps back to 1/2 — the number depends on the sampling protocol, and without declaring it the question is genuinely underdetermined. Verified live: 1/3 and 1/2 by exact enumeration, 13/27 by exact count over all 196 (sex,weekday) pairs, and the protocol dependence by Monte-Carlo (0.499). Neon-noir traced. See the 196-cell grid in 1D, the phrasing switch in 2D, and the pruning worlds in 3D.",
+  "lit":"Genuine two-child / Tuesday-boy paradox (Gardner 1959; Foshee 2010). Verified live: exact enumeration — 1/3, 1/2, and 13/27 (27 qualifying families, 13 double-boy, counted); protocol MC: meeting a random Tuesday-boy child → 0.499 ≈ 1/2 (window.__twochild.ok).",
+  "fig":"No framing — every number is a count or a simulated protocol; the underdetermination is demonstrated, not asserted. The AVAN inverse — don't ask what the fact says, ask what process delivered it: told-by-filter gives 13/27, met-by-chance gives 1/2, the sentence alone gives nothing. Magenta is the protocol-free probability — it does not exist; green is the grid counted under a declared rule. Every probability is a probability OF a procedure.",
+  "body":TWOC_BODY,"script":TWOC_SCRIPT},
+ {"slug":"the-will-rogers","title":"THE WILL ROGERS","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#b06bff","icon":"willrogers",
+  "kicker":"a transfer that flatters everyone",
+  "blurb":"The Will Rogers phenomenon in the 5-window house format — 'When the Okies left Oklahoma and moved to California, they raised the average intelligence of both states.' The joke is a theorem: moving one element from B to A raises BOTH averages exactly when it sits between the two means. Nothing improves; both dashboards celebrate. In medicine this is stage migration (Feinstein & Sosin 1985): better scanners reclassify borderline patients, survival improves in EVERY cancer stage simultaneously, and no one lives a day longer. Verified live: the classic example exact (2.5→3.0 and 7.0→7.5), and the full characterization — both rise ⟺ mean(A) < x < mean(B) — verified with zero exceptions across ~900 random set pairs, every element tested. Neon-noir traced. See the crossing transfer in 1D, the between-means rule in 2D, and the twin gauges over an unchanged world in 3D.",
+  "lit":"Genuine Will Rogers phenomenon / stage migration (Feinstein & Sosin, NEJM 1985). Verified live: classic example exact; characterization both-rise ⟺ between-the-means verified on ~900 random set pairs with zero exceptions (window.__willrogers.ok).",
+  "fig":"The Okies quote is attributed folklore of the Rogers persona; the medical account is the cited study. The AVAN inverse — don't read the averages, read the roster: a partition edit masquerading as progress, detectable only by holding the total fixed. Magenta is the pair of climbing dashboards; green is the invariant global mean that never moved. When every subgroup improves and the whole does not, the boundary did the work.",
+  "body":WROG_BODY,"script":WROG_SCRIPT},
+ {"slug":"the-inspection-paradox","title":"THE INSPECTION PARADOX","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#ff8a3c","icon":"inspection",
+  "kicker":"the bus that is always late for you",
+  "blurb":"The inspection paradox in the 5-window house format — buses every 10 minutes on average should mean 5-minute waits; you wait longer, by arithmetic: arriving at random you land in an interval with probability proportional to its LENGTH, so your experienced interval averages E[X²]/E[X] ≥ E[X], equality only for clockwork service. The extreme: exponential (memoryless) spacing gives a full ten-minute expected wait, as if the schedule restarted on your arrival. Length-biased sampling runs everywhere — friends with more friends, class sizes, congested routers. Verified live on a simulated million-minute timeline, 120k random arrivals per schedule: deterministic 10.00/5.00, exponential 20.1/10.1, mixed-5-or-15 12.5/6.25 — all matching E[X²]/E[X] within 1%. Neon-noir traced. See the crowded long gaps in 1D, the schedule switch in 2D, and the variance tax in 3D.",
+  "lit":"Genuine inspection paradox / renewal theory (Feller's treatment). Verified live: three schedules with equal mean headway — experienced interval and wait match E[X²]/E[X] theory (10/5, 20/10, 12.5/6.25) within 1% over 120,000 simulated arrivals each (window.__inspection.ok).",
+  "fig":"No framing — theory vs simulation on three distributions; the friendship-paradox kinship is a cross-reference to its own sphere. The AVAN inverse — don't average the intervals, average the experiences: they differ by exactly Var(X)/E[X], and every ounce of irregularity is paid at the stop. Magenta is the variance tax; green is the regular schedule that owes none. Fairness, in queues as in life, is a second moment.",
+  "body":INSP_BODY,"script":INSP_SCRIPT},
+ {"slug":"the-german-tank","title":"THE GERMAN TANK","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#35ffb0","icon":"germantank",
+  "kicker":"counting tanks from their serial numbers",
+  "blurb":"The German tank problem in the 5-window house format — WWII intelligence said 1,400 tanks a month; the statisticians read the captured serial numbers and said 246; postwar German records showed 245. The estimator: seeing k serials with maximum m, answer m(1+1/k)−1 — the observed maximum pushed up by the average gap. It is minimum-variance unbiased: across ALL possible samples it averages to exactly N. The same trick has counted iPhones and Commodore 64s since. Verified live: exact unbiasedness by COMPLETE enumeration (all 15,504 five-samples from a population of twenty average to exactly 20.0000000000), plus Monte-Carlo at the historical scale (N=245, k=10) with the MVUE at half the error of doubled-mean (21.8 vs 43.7 RMSE) and the raw max biased low. Neon-noir traced. See the serial line in 1D, the estimator tournament in 2D, and 246-vs-1400-vs-245 in 3D.",
+  "lit":"Genuine German tank problem (Allied Economic Warfare Division; Ruggles & Brodie 1947; Goodman 1954 MVUE). Verified live: complete enumeration of all C(20,5)=15,504 samples — E[m(1+1/k)−1] = 20 exactly; MC at N=245,k=10: MVUE mean 245.1, RMSE 21.8 vs 43.7 for 2·mean−1 (window.__germantank.ok).",
+  "fig":"The WWII narrative and its numbers are the cited historical record; the estimator mathematics is executed exactly. The AVAN inverse — don't interrogate the enemy, interrogate their bookkeeping: sequential serials are a confession written by a filing system. Magenta is the intelligence estimate, six times truth; green is the estimator that read the factory's handwriting. Systems reveal what people conceal.",
+  "body":GTNK_BODY,"script":GTNK_SCRIPT},
  {"slug":"the-hundred-prisoners","title":"THE HUNDRED PRISONERS","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#35ffb0","icon":"hundredprisoners",
   "kicker":"a pointer-chase that beats impossible odds",
