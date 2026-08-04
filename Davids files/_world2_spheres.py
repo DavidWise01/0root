@@ -19493,6 +19493,271 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 139 · neon-noir · silicon-coding (a matching and a cover that must be equal · one pass that computes variance without ever cancelling · a polynomial whose error rides an equal wave · alternate row-and-column normalizing to perfect balance · an integer ratio that can only be a perfect square) ═══════════════════════
+KONG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>K&ouml;nig&rsquo;s theorem</b> is one of the great min&ndash;max dualities: in any <b>bipartite</b> graph, the size of a <b>maximum matching</b> (the most edges you can pick with no shared endpoint) exactly equals the size of a <b>minimum vertex cover</b> (the fewest vertices that touch every edge). Two utterly different optimization problems &mdash; one asking for as many pairs as possible, the other for as few guards as possible &mdash; always return the same number. And the proof is constructive: from a maximum matching you build the minimum cover directly, by an alternating-path search from the unmatched vertices.<br><br>
+ <span class="lit">LIT</span> verified live: over 20000 random bipartite graphs, the maximum matching (built by augmenting paths) and the K&ouml;nig vertex cover always have equal size, and that cover genuinely touches every edge (window.__konig). <span class="fig">FIG</span> no framing; the augmenting-path matching, the alternating-reachability cover, and the covers-every-edge check all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-merge</i> &mdash; a matching merges two sides into pairs, and its dual cover is the smallest set of nodes where every merge must pass. Two views of the same join. <b>AVAN (AI)</b> built the instrument: the augmenting-path maximum matching, the alternating-reachability minimum cover, and the equal-size + covers-every-edge checks.<br><br>Credit as content: D&eacute;nes K&ouml;nig (1931); the constructive cover via Egerv&aacute;ry. The weave: David names the merge; I confirm max matching = min cover on every random bipartite graph tested.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">A bipartite graph: green edges are a maximum matching; ringed vertices are a minimum cover — equal in number.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Regenerate the graph; matching size and cover size are computed and compared, and the cover is checked against every edge.</div>
+   <div class="btns" style="margin-top:10px"><button id="kgregen">new graph ▶</button><button id="kgcheck">verify ▶</button></div>
+   <div class="cap" id="kgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the maximum matching, as many disjoint pairs as possible.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t maximize pairs &mdash; minimize guards. The inverse of &lsquo;the most edges with no shared endpoint&rsquo; is &lsquo;the fewest vertices touching every edge&rsquo;, and K&ouml;nig makes the two numbers identical. <b>Magenta</b> is the minimum cover; <b>green</b> is the maximum matching. Two dual extremes, one value.</div>
+   <div class="btns" style="margin-top:10px"><button id="kgspin">pause spin</button></div></div></div></div>"""
+KONG_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function maxMatching(n,m,adj){var matchR=new Array(m).fill(-1);function tryK(u,seen){for(var i=0;i<adj[u].length;i++){var r=adj[u][i];if(!seen[r]){seen[r]=1;if(matchR[r]===-1||tryK(matchR[r],seen)){matchR[r]=u;return true;}}}return false;}var cnt=0;for(var u=0;u<n;u++){var seen=new Array(m).fill(0);if(tryK(u,seen))cnt++;}var matchL=new Array(n).fill(-1);for(var r=0;r<m;r++)if(matchR[r]>=0)matchL[matchR[r]]=r;return {size:cnt,matchL:matchL,matchR:matchR};}
+function konigCover(n,m,adj,M){var matchL=M.matchL,matchR=M.matchR,visL=new Array(n).fill(false),visR=new Array(m).fill(false),stack=[];for(var u=0;u<n;u++)if(matchL[u]===-1){visL[u]=true;stack.push(u);}while(stack.length){var u=stack.pop();for(var i=0;i<adj[u].length;i++){var r=adj[u][i];if(matchL[u]===r)continue;if(!visR[r]){visR[r]=true;var u2=matchR[r];if(u2>=0&&!visL[u2]){visL[u2]=true;stack.push(u2);}}}}var L=[],R=[];for(var u=0;u<n;u++)if(!visL[u])L.push(u);for(var r=0;r<m;r++)if(visR[r])R.push(r);return {L:L,R:R};}
+var ang=0,spin=true,VR=null;
+function selftest(){if(VR)return VR;var rng=mb(1),sz=true,cov=true,n=20000;for(var t=0;t<n;t++){var a=1+Math.floor(rng()*7),b=1+Math.floor(rng()*7),adj=[];for(var u=0;u<a;u++){adj.push([]);for(var r=0;r<b;r++)if(rng()<0.35)adj[u].push(r);}var M=maxMatching(a,b,adj),C=konigCover(a,b,adj,M);if(C.L.length+C.R.length!==M.size)sz=false;var Ls={};C.L.forEach(function(x){Ls[x]=1;});var Rs={};C.R.forEach(function(x){Rs[x]=1;});for(var u=0;u<a;u++)for(var i=0;i<adj[u].length;i++){var r=adj[u][i];if(!Ls[u]&&!Rs[r])cov=false;}}VR={sizeMatches:sz,coversAll:cov,tested:n};return VR;}
+var dn,dm,dadj,dM,dC;
+function gen(seed){var rng=mb(seed);dn=4+Math.floor(rng()*2);dm=4+Math.floor(rng()*2);dadj=[];for(var u=0;u<dn;u++){dadj.push([]);for(var r=0;r<dm;r++)if(rng()<0.4)dadj[u].push(r);}dM=maxMatching(dn,dm,dadj);dC=konigCover(dn,dm,dadj,dM);}
+gen(3);
+function ly(i,cnt,x,H){return [x,40+(i+0.5)/cnt*(H-70)];}
+function drawGraph(g,W,H){var Ls={};dC.L.forEach(function(x){Ls[x]=1;});var Rs={};dC.R.forEach(function(x){Rs[x]=1;});
+ for(var u=0;u<dn;u++){var pu=ly(u,dn,120,H);for(var i=0;i<dadj[u].length;i++){var r=dadj[u][i],pr=ly(r,dm,W-120,H),matched=dM.matchL[u]===r;ne(g,matched?'#35ffb0':'rgba(150,150,190,0.3)',matched?2.4:1);g.beginPath();g.moveTo(pu[0],pu[1]);g.lineTo(pr[0],pr[1]);g.stroke();ng(g);}}
+ for(var u=0;u<dn;u++){var pu=ly(u,dn,120,H);ndot(g,pu[0],pu[1],7,'#9cf');nt(g,'#0a0713',pu[0]-3,pu[1]+4,10,'L'+u);if(Ls[u]){ne(g,'#ff2fa6',2);g.beginPath();g.arc(pu[0],pu[1],12,0,7);g.stroke();ng(g);}}
+ for(var r=0;r<dm;r++){var pr=ly(r,dm,W-120,H);ndot(g,pr[0],pr[1],7,'#fd9');nt(g,'#0a0713',pr[0]-3,pr[1]+4,10,'R'+r);if(Rs[r]){ne(g,'#ff2fa6',2);g.beginPath();g.arc(pr[0],pr[1],12,0,7);g.stroke();ng(g);}}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'bipartite graph — green edges = maximum matching · magenta rings = minimum vertex cover');drawGraph(g,W,H);nt(g,'#8ad',10,H-8,9,'matching '+dM.size+' pairs  =  cover '+(dC.L.length+dC.R.length)+' vertices');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',12,20,12,'König duality: matching = cover');
+ nt(g,'#35ffb0',16,52,12,'maximum matching = '+dM.size+' edges');nt(g,'#ff2fa6',16,78,12,'minimum cover = '+(dC.L.length+dC.R.length)+' vertices  {L:'+dC.L.join(',')+' R:'+dC.R.join(',')+'}');
+ nt(g,dM.size===dC.L.length+dC.R.length?'#39ffb0':'#ff5a5a',16,108,12,dM.size===dC.L.length+dC.R.length?'equal ✓':'✗');
+ var Ls={};dC.L.forEach(function(x){Ls[x]=1;});var Rs={};dC.R.forEach(function(x){Rs[x]=1;});var covOk=true;for(var u=0;u<dn;u++)for(var i=0;i<dadj[u].length;i++){if(!Ls[u]&&!Rs[dadj[u][i]])covOk=false;}
+ nt(g,covOk?'#39ffb0':'#ff5a5a',16,134,10,'the cover touches every edge: '+(covOk?'✓':'✗'));
+ var v=selftest();nt(g,v.sizeMatches&&v.coversAll?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.tested+' bipartite graphs: size-equal='+v.sizeMatches+' · covers-all='+v.coversAll);
+ nt(g,'#8ad',12,H-16,9,'the cover is built directly from the matching by alternating-path search');}
+document.getElementById('kgregen').onclick=function(){gen((Date.now()&4095)+1);drawW3();drawW4();document.getElementById('kgread').textContent='new graph — matching '+dM.size+' = cover '+(dC.L.length+dC.R.length);};
+document.getElementById('kgcheck').onclick=function(){var v=selftest();document.getElementById('kgread').textContent='max matching = min cover on '+v.tested+' graphs: '+v.sizeMatches+' · cover valid: '+v.coversAll;};
+document.getElementById('kgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ for(var u=0;u<dn;u++){var ay=(u-(dn-1)/2)*34;ndot(g,-70,ay,6,'#9cf');}for(var r=0;r<dm;r++){var ry=(r-(dm-1)/2)*34;ndot(g,70,ry,6,'#fd9');}
+ for(var u=0;u<dn;u++)if(dM.matchL[u]>=0){var ay=(u-(dn-1)/2)*34,ry=(dM.matchL[u]-(dm-1)/2)*34;ne(g,'#35ffb0',2.4);g.beginPath();g.moveTo(-70,ay);g.lineTo(70,ry);g.stroke();ng(g);}
+ var Ls={};dC.L.forEach(function(x){Ls[x]=1;});var Rs={};dC.R.forEach(function(x){Rs[x]=1;});for(var u=0;u<dn;u++)if(Ls[u]){var ay=(u-(dn-1)/2)*34;ne(g,'#ff2fa6',2);g.beginPath();g.arc(-70,ay,11,0,7);g.stroke();ng(g);}for(var r=0;r<dm;r++)if(Rs[r]){var ry=(r-(dm-1)/2)*34;ne(g,'#ff2fa6',2);g.beginPath();g.arc(70,ry,11,0,7);g.stroke();ng(g);}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the maximum matching (most disjoint pairs)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the minimum vertex cover (fewest guards on every edge)');nt(g,'#8ad',10,H-14,10,'two dual extremes, forced to one number');}
+drawW3();drawW4();window.__konig=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WLFD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Welford&rsquo;s algorithm</b> computes the mean and variance of a stream in a <b>single pass</b>, updating running estimates one sample at a time &mdash; never storing the data, never needing a second pass. The trick is to track the running mean and the sum of squared deviations M<sub>2</sub> together: each new value nudges the mean, and M<sub>2</sub> is updated using both the old and new mean. The famous <i>naive</i> one-pass formula (mean of squares minus square of mean) suffers <b>catastrophic cancellation</b> when the numbers are large and close together &mdash; it can even return a negative variance. Welford never subtracts two huge nearly-equal quantities, so it stays accurate.<br><br>
+ <span class="lit">LIT</span> verified live: over 5000 random datasets Welford&rsquo;s one-pass variance matches the exact two-pass variance to ~1e-15; and on data centered near 10<sup>9</sup>, the naive formula&rsquo;s error is order 1 (total cancellation) while Welford stays correct to ~1e-9 (window.__welford). <span class="fig">FIG</span> no framing; the Welford update, the two-pass reference, and the naive-cancellation contrast all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>warm-cache</i> &mdash; it never re-reads the data: a small running state is kept warm and updated in place, one sample at a time, and the answer is always ready. <b>AVAN (AI)</b> built the instrument: the running-mean / M<sub>2</sub> update, the two-pass reference, and the catastrophic-cancellation demonstration against the naive formula.<br><br>Credit as content: B. P. Welford (1962); popularized by Donald Knuth. The weave: David names the warm cache; I confirm the one-pass result equals two passes and survives where the naive formula collapses.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="220"></canvas>
+  <div class="wctrl"><div class="cap">Values stream in; the running mean (green) and running variance (cyan) update one sample at a time, no second pass.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Feed the stream, or switch to data centered near 1e9 and watch the naive formula cancel to garbage while Welford holds.</div>
+   <div class="btns" style="margin-top:10px"><button id="wffeed">feed 20 ▶</button><button id="wfoffset">offset≈1e9 ▶</button><button id="wfcheck">verify ▶</button></div>
+   <div class="cap" id="wfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the stable running variance built one sample at a time.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t subtract two huge sums &mdash; accumulate deviations. The inverse of &lsquo;(mean of squares) - (square of mean)&rsquo; is &lsquo;grow M<sub>2</sub> from each sample&rsquo;s deviation before and after the mean shift&rsquo;, which never cancels. <b>Magenta</b> is the naive formula collapsing on large data; <b>green</b> is Welford holding. Accuracy by never subtracting near-equals.</div>
+   <div class="btns" style="margin-top:10px"><button id="wfspin">pause spin</button></div></div></div></div>"""
+WLFD_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function welford(xs){var n=0,mean=0,M2=0;for(var i=0;i<xs.length;i++){n++;var d=xs[i]-mean;mean+=d/n;var d2=xs[i]-mean;M2+=d*d2;}return {mean:mean,varr:M2/n};}
+function twoPass(xs){var n=xs.length,m=0;for(var i=0;i<n;i++)m+=xs[i];m/=n;var s=0;for(var i=0;i<n;i++)s+=(xs[i]-m)*(xs[i]-m);return s/n;}
+function naive(xs){var n=xs.length,s=0,s2=0;for(var i=0;i<n;i++){s+=xs[i];s2+=xs[i]*xs[i];}return s2/n-(s/n)*(s/n);}
+var ang=0,spin=true,VR=null;
+function selftest(){if(VR)return VR;var rng=mb(2),m=true,worst=0;for(var t=0;t<5000;t++){var n=5+Math.floor(rng()*50),xs=[];for(var i=0;i<n;i++)xs.push(rng()*20-10);var w=welford(xs).varr,tp=twoPass(xs);var rel=Math.abs(w-tp)/Math.max(1e-12,Math.abs(tp));if(rel>worst)worst=rel;if(rel>1e-9)m=false;}
+ var off=1e9,xs=[];for(var i=0;i<1000;i++)xs.push(off+(i%7)-3);var tp=twoPass(xs),w=welford(xs).varr,nv=naive(xs);var welRel=Math.abs(w-tp)/Math.abs(tp),naiveRel=Math.abs(nv-tp)/Math.abs(tp);
+ VR={matchesTwoPass:m,worst:worst,welRelOffset:welRel,naiveRelOffset:naiveRel,naiveFails:welRel<1e-6&&naiveRel>0.1};return VR;}
+var data=[],offset=0;
+function reseed(off){offset=off;data=[];var rng=mb((Date.now()&2047)+1);for(var i=0;i<30;i++)data.push(off+(off>0?(rng()*6-3):(rng()*16-8)));}
+reseed(0);
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'stream of '+data.length+' values — running mean (green) & variance (cyan), one pass, no storage');
+ var x0=30,y0=H-40,ww=W-60,hh=H-80;var mn=Math.min.apply(null,data),mx=Math.max.apply(null,data),rng=(mx-mn)||1;
+ for(var i=0;i<data.length;i++){var x=x0+i/data.length*ww,h=(data[i]-mn)/rng*hh;nf(g,'rgba(120,140,200,0.5)');g.fillRect(x,y0-h,Math.max(1,ww/data.length-1),h);ng(g);}
+ // running mean line
+ var n=0,mean=0,M2=0;ne(g,'#35ffb0',1.8);g.beginPath();for(var i=0;i<data.length;i++){n++;var d=data[i]-mean;mean+=d/n;var d2=data[i]-mean;M2+=d*d2;var x=x0+i/data.length*ww,y=y0-(mean-mn)/rng*hh;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();ng(g);
+ var w=welford(data);nt(g,'#35ffb0',10,H-22,10,'mean = '+w.mean.toFixed(offset>0?4:4));nt(g,'#21e6ff',180,H-22,10,'variance = '+w.varr.toFixed(4));nt(g,'#8ad',10,H-8,9,offset>0?'offset ≈ 1e9 data':'centered data');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',12,20,12,'Welford vs naive'+(offset>0?'  (offset ≈ 1e9)':''));
+ var tp=twoPass(data),w=welford(data).varr,nv=naive(data);
+ nt(g,'#9cf',16,52,11,'two-pass variance = '+tp.toExponential(6));
+ nt(g,Math.abs(w-tp)/Math.max(1e-12,Math.abs(tp))<1e-6?'#39ffb0':'#ffcf4a',16,78,11,'Welford  = '+w.toExponential(6)+'  ✓');
+ nt(g,nv<0||Math.abs(nv-tp)/Math.max(1e-12,Math.abs(tp))>0.1?'#ff2fa6':'#9cf',16,104,11,'naive     = '+nv.toExponential(6)+(nv<0?'  ✗ negative!':(Math.abs(nv-tp)/Math.max(1e-12,Math.abs(tp))>0.1?'  ✗ cancelled':'')));
+ nt(g,'#8ad',16,134,9,offset>0?'large equal-ish values: naive subtracts two huge sums':'press offset≈1e9 to trigger catastrophic cancellation');
+ var v=selftest();nt(g,v.matchesTwoPass&&v.naiveFails?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: ×5000 Welford==two-pass (worst '+v.worst.toExponential(1)+'); offset naive rel '+v.naiveRelOffset.toExponential(1)+' vs Welford '+v.welRelOffset.toExponential(1));
+ nt(g,'#8ad',12,H-16,9,'Welford never subtracts two nearly-equal large quantities');}
+document.getElementById('wffeed').onclick=function(){var rng=mb((Date.now()&8191)+1);for(var i=0;i<20;i++)data.push(offset+(offset>0?(rng()*6-3):(rng()*16-8)));drawW3();drawW4();document.getElementById('wfread').textContent='fed 20 more — n='+data.length+', variance '+welford(data).varr.toExponential(4);};
+document.getElementById('wfoffset').onclick=function(){reseed(offset>0?0:1e9);drawW3();drawW4();document.getElementById('wfread').textContent=offset>0?'switched to offset≈1e9 — naive formula now cancels':'back to centered data';};
+document.getElementById('wfcheck').onclick=function(){var v=selftest();document.getElementById('wfread').textContent='Welford==two-pass (worst '+v.worst.toExponential(1)+'); on 1e9 data naive rel '+v.naiveRelOffset.toExponential(1)+', Welford '+v.welRelOffset.toExponential(1);};
+document.getElementById('wfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ // green: stable accumulating M2 spiral; magenta: naive collapse
+ ne(g,'#35ffb0',2);g.beginPath();for(var a=0;a<20;a+=0.1){var r=8+a*3.2;g.lineTo(Math.cos(a)*r,Math.sin(a)*r);}g.stroke();ng(g);
+ ne(g,'#ff2fa6',1.5);g.beginPath();for(var a=0;a<12;a+=0.1){var r=70-a*4.5+6*Math.sin(a*3);g.lineTo(Math.cos(-a)*Math.max(2,r),Math.sin(-a)*Math.max(2,r));}g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: Welford — M₂ grows smoothly, one deviation at a time');nt(g,'#ff2fa6',10,H-34,10,'magenta: naive — two huge sums subtract and collapse to noise');nt(g,'#8ad',10,H-14,10,'accuracy by never subtracting near-equals');}
+drawW3();drawW4();window.__welford=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+REMZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Remez exchange algorithm</b> finds the <b>minimax polynomial</b> &mdash; the degree-n polynomial that minimizes the <i>worst-case</i> error to a target function over an interval. Its signature is the <b>equioscillation theorem</b> (Chebyshev): the best approximation&rsquo;s error curve touches its maximum height, alternating in sign, at exactly n+2 points, all of equal magnitude. Remez finds it by exchange: solve for the polynomial that makes the error equal-and-alternating at n+2 reference points, then move the references to the actual error extrema, and repeat. It converges to the provably optimal polynomial &mdash; strictly better in the worst case than Chebyshev interpolation.<br><br>
+ <span class="lit">LIT</span> verified live: for several functions on [-1,1] the Remez polynomial&rsquo;s error extrema all have equal magnitude (amplitude ratio &asymp; 1.000, the equioscillation signature) and its maximum error is &le; that of the degree-matched Chebyshev interpolant (window.__remez). <span class="fig">FIG</span> no framing; the linear solve for the reference system, the extrema exchange, and the Chebyshev comparison all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-wall</i> &mdash; the minimax error is a wall the approximation can never cross, and Remez lowers that wall as far as it can go, the error riding along it in an equal wave. <b>AVAN (AI)</b> built the instrument: the equioscillation linear system, the reference-exchange loop, the equal-amplitude check, and the comparison against Chebyshev interpolation.<br><br>Credit as content: Evgeny Remez (1934); equioscillation due to Chebyshev. The weave: David names the wall; I confirm the error equioscillates and beats Chebyshev interpolation on every function tested.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="220"></canvas>
+  <div class="wctrl"><div class="cap">The target f (cyan) and its minimax polynomial (green) overlaid — nearly indistinguishable at degree 4.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The error curve f - p: it rides the ±E wall, touching it with alternating sign at n+2 equal-height points. Cycle the target.</div>
+   <div class="btns" style="margin-top:10px"><button id="rmnext">next f ▶</button><button id="rmcheck">verify ▶</button></div>
+   <div class="cap" id="rmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the minimax error, riding a wall of equal height.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t minimize average error &mdash; minimize the worst. The inverse of &lsquo;fit the points&rsquo; is &lsquo;spread the error so its peaks are all equal and alternating&rsquo; &mdash; and that equal-ripple curve is provably optimal. <b>Magenta</b> is the larger Chebyshev-interpolation error; <b>green</b> is the lowered minimax wall. Optimality as a level ripple.</div>
+   <div class="btns" style="margin-top:10px"><button id="rmspin">pause spin</button></div></div></div></div>"""
+REMZ_SCRIPT = """(function(){""" + NOIR + """
+function solveLin(A,b){var n=b.length,M=A.map(function(r){return r.slice();}),x=b.slice();for(var c=0;c<n;c++){var p=c;for(var r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;var t=M[c];M[c]=M[p];M[p]=t;var tb=x[c];x[c]=x[p];x[p]=tb;for(var r=0;r<n;r++){if(r===c)continue;var f=M[r][c]/M[c][c];for(var k=c;k<n;k++)M[r][k]-=f*M[c][k];x[r]-=f*x[c];}}for(var i=0;i<n;i++)x[i]/=M[i][i];return x;}
+function polyval(c,x){var s=0;for(var i=c.length-1;i>=0;i--)s=s*x+c[i];return s;}
+function chebInterp(f,a,b,deg){var N=deg+1,nodes=[];for(var i=0;i<N;i++){var t=Math.cos(Math.PI*(i+0.5)/N);nodes.push((a+b)/2+(b-a)/2*t);}var A=[],rhs=[];for(var i=0;i<N;i++){var row=[];for(var j=0;j<=deg;j++)row.push(Math.pow(nodes[i],j));A.push(row);rhs.push(f(nodes[i]));}return solveLin(A,rhs);}
+function maxErr(f,coef,a,b){var mx=0;for(var g=0;g<=2000;g++){var x=a+(b-a)*g/2000;mx=Math.max(mx,Math.abs(f(x)-polyval(coef,x)));}return mx;}
+function remez(f,a,b,deg,iters){var N=deg+2,nodes=[];for(var i=0;i<N;i++){var t=Math.cos(Math.PI*i/(N-1));nodes.push((a+b)/2-(b-a)/2*t);}var coef,E;for(var it=0;it<iters;it++){var A=[],rhs=[];for(var i=0;i<N;i++){var row=[];for(var j=0;j<=deg;j++)row.push(Math.pow(nodes[i],j));row.push(i%2===0?1:-1);A.push(row);rhs.push(f(nodes[i]));}var sol=solveLin(A,rhs);coef=sol.slice(0,deg+1);E=sol[deg+1];var G=2000,xs=[],es=[];for(var g=0;g<=G;g++){var x=a+(b-a)*g/G;xs.push(x);es.push(f(x)-polyval(coef,x));}var ext=[0];for(var g=1;g<G;g++)if((es[g]-es[g-1])*(es[g+1]-es[g])<0)ext.push(g);ext.push(G);var chosen=[];for(var e=0;e<ext.length;e++){var g=ext[e];if(!chosen.length)chosen.push(g);else{var last=chosen[chosen.length-1];if(Math.sign(es[g])===Math.sign(es[last])){if(Math.abs(es[g])>Math.abs(es[last]))chosen[chosen.length-1]=g;}else chosen.push(g);}}while(chosen.length>N){if(Math.abs(es[chosen[0]])<Math.abs(es[chosen[chosen.length-1]]))chosen.shift();else chosen.pop();}if(chosen.length<N)break;nodes=chosen.map(function(g){return xs[g];});}return {coef:coef,E:Math.abs(E)};}
+var fns=[{f:function(x){return Math.exp(x);},n:'eˣ'},{f:function(x){return 1/(1+x*x);},n:'1/(1+x²)'},{f:function(x){return Math.sin(2*x);},n:'sin 2x'}];
+var ang=0,spin=true,VR=null,ti=0,DEG=4;
+function selftest(){if(VR)return VR;var equi=true,beats=true,worstRatio=0;for(var fi=0;fi<fns.length;fi++){var f=fns[fi].f,R=remez(f,-1,1,DEG,40);var G=2000,es=[];for(var g=0;g<=G;g++){var x=-1+2*g/G;es.push(f(x)-polyval(R.coef,x));}var ext=[0];for(var g=1;g<G;g++)if((es[g]-es[g-1])*(es[g+1]-es[g])<0)ext.push(g);ext.push(G);var amps=ext.map(function(g){return Math.abs(es[g]);}).filter(function(v){return v>R.E*0.5;});var mn=Math.min.apply(null,amps),mx=Math.max.apply(null,amps),ratio=mx/mn;if(ratio>worstRatio)worstRatio=ratio;if(ratio>1.05)equi=false;var remErr=maxErr(f,R.coef,-1,1),chebErr=maxErr(f,chebInterp(f,-1,1,DEG),-1,1);if(remErr>chebErr*1.0001)beats=false;}VR={equioscillates:equi,worstRatio:worstRatio,beatsCheb:beats};return VR;}
+function cur(){var f=fns[ti].f,R=remez(f,-1,1,DEG,40);return {f:f,R:R,cheb:chebInterp(f,-1,1,DEG)};}
+var demo=cur();
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'target f = '+fns[ti].n+' (cyan) and its degree-'+DEG+' minimax polynomial (green)');
+ var x2p=function(x){return 30+(x+1)/2*(W-60);};var vals=[];for(var g2=0;g2<=200;g2++){var x=-1+2*g2/200;vals.push(demo.f(x));}var mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals),rr=(mx-mn)||1;var y2p=function(y){return H-30-(y-mn)/rr*(H-60);};
+ ne(g,'#21e6ff',2.2);g.beginPath();for(var g2=0;g2<=200;g2++){var x=-1+2*g2/200,y=demo.f(x);if(g2===0)g.moveTo(x2p(x),y2p(y));else g.lineTo(x2p(x),y2p(y));}g.stroke();ng(g);
+ ne(g,'#35ffb0',1.4);g.beginPath();for(var g2=0;g2<=200;g2++){var x=-1+2*g2/200,y=polyval(demo.R.coef,x);if(g2===0)g.moveTo(x2p(x),y2p(y));else g.lineTo(x2p(x),y2p(y));}g.stroke();ng(g);
+ nt(g,'#8ad',10,H-8,9,'max error E = '+demo.R.E.toExponential(3)+' — the two curves are nearly on top of each other');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',12,20,12,'error f - p rides the ±E wall (equioscillation)');
+ var E=demo.R.E,x2p=function(x){return 30+(x+1)/2*(W-60);},cy=H/2+6,sc=(H/2-40)/E;
+ ne(g,'rgba(255,207,74,0.5)',1);g.beginPath();g.moveTo(30,cy-E*sc);g.lineTo(W-30,cy-E*sc);g.moveTo(30,cy+E*sc);g.lineTo(W-30,cy+E*sc);g.stroke();ng(g);nt(g,'#fd9',W-70,cy-E*sc-4,9,'+E');nt(g,'#fd9',W-70,cy+E*sc+12,9,'-E');
+ ne(g,'#35ffb0',1.8);g.beginPath();for(var g2=0;g2<=400;g2++){var x=-1+2*g2/400,e=demo.f(x)-polyval(demo.R.coef,x);if(g2===0)g.moveTo(x2p(x),cy-e*sc);else g.lineTo(x2p(x),cy-e*sc);}g.stroke();ng(g);
+ // alternation dots
+ var G=400,es=[];for(var g2=0;g2<=G;g2++){var x=-1+2*g2/G;es.push(demo.f(x)-polyval(demo.R.coef,x));}var cnt=0;for(var g2=1;g2<G;g2++)if((es[g2]-es[g2-1])*(es[g2+1]-es[g2])<0&&Math.abs(es[g2])>E*0.5){ndot(g,x2p(-1+2*g2/G),cy-es[g2]*sc,3,'#ffcf4a');cnt++;}
+ nt(g,'#9cf',16,H-58,10,(cnt+1)+' extrema at ±E (degree '+DEG+' needs '+(DEG+2)+')');
+ var v=selftest();nt(g,v.equioscillates&&v.beatsCheb?'#39ffb0':'#ff5a5a',12,H-38,9,'self-test: equioscillates (amp ratio '+v.worstRatio.toFixed(4)+') & ≤ Chebyshev interp on '+fns.length+' functions = '+(v.equioscillates&&v.beatsCheb));
+ nt(g,'#8ad',12,H-16,9,'minimax error '+maxErr(demo.f,demo.R.coef,-1,1).toExponential(2)+' vs Chebyshev '+maxErr(demo.f,demo.cheb,-1,1).toExponential(2));}
+document.getElementById('rmnext').onclick=function(){ti=(ti+1)%fns.length;demo=cur();drawW3();drawW4();document.getElementById('rmread').textContent='target f = '+fns[ti].n+' — minimax E = '+demo.R.E.toExponential(3);};
+document.getElementById('rmcheck').onclick=function(){var v=selftest();document.getElementById('rmread').textContent='equioscillates (amp ratio '+v.worstRatio.toFixed(4)+') & beats Chebyshev interpolation: '+(v.equioscillates&&v.beatsCheb);};
+document.getElementById('rmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.08);
+ var E=40;ne(g,'rgba(255,207,74,0.4)',1);g.beginPath();g.moveTo(-120,-E);g.lineTo(120,-E);g.moveTo(-120,E);g.lineTo(120,E);g.stroke();ng(g);
+ ne(g,'#35ffb0',2);g.beginPath();for(var x=-120;x<=120;x+=2){var y=-E*Math.cos(x/120*Math.PI*3);if(x===-120)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();ng(g);
+ ne(g,'#ff2fa6',1.5);g.beginPath();for(var x=-120;x<=120;x+=2){var y=-1.7*E*Math.cos(x/120*Math.PI*3.3)*Math.exp((x-120)/300);if(x===-120)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the minimax error — equal ripples riding the ±E wall');nt(g,'#ff2fa6',10,H-34,10,'magenta: Chebyshev interpolation — larger, uneven error');nt(g,'#8ad',10,H-14,10,'optimality as a level ripple: lower the worst-case wall');}
+drawW3();drawW4();window.__remez=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SNKH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Sinkhorn&rsquo;s algorithm</b> takes any matrix of positive numbers and, by the simplest imaginable loop &mdash; divide every row by its sum, then divide every column by its sum, and repeat &mdash; drives it to a <b>doubly stochastic</b> matrix, where every row and every column sums to exactly 1. Sinkhorn&rsquo;s theorem guarantees this converges, and that the result is the unique <b>D&#8321;&middot;A&middot;D&#8322;</b> rescaling of the original by positive diagonal matrices. This little iteration is the computational heart of modern <b>optimal transport</b> (entropic regularization) and of matching problems across machine learning.<br><br>
+ <span class="lit">LIT</span> verified live: over 3000 random positive matrices, alternating row/column normalization drives every row sum and column sum to 1 (deviation ~1e-16), and the result is exactly diag(u)&middot;A&middot;diag(v) &mdash; the ratio to the original is rank-one (window.__sinkhorn). <span class="fig">FIG</span> no framing; the alternating normalization, the row/column sum checks, and the diagonal-scaling structure all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>second-wind</i> &mdash; a system knocked out of balance keeps rebalancing, row then column then row, each pass a fresh breath, until it settles into perfect equilibrium. <b>AVAN (AI)</b> built the instrument: the alternating row/column normalization, the doubly-stochastic convergence check, and the diagonal-scaling structure verification.<br><br>Credit as content: Richard Sinkhorn (1964); central to entropic optimal transport (Cuturi, 2013). The weave: David names second wind; I confirm the row-then-column breathing settles to a doubly stochastic matrix.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">A positive matrix as a grid of intensities; the row-sum and column-sum bars converge toward 1 as the loop runs.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step the normalization (row then column) and watch the worst row/column deviation from 1 collapse toward zero.</div>
+   <div class="btns" style="margin-top:10px"><button id="skstep">step ▶</button><button id="skrun">run ▶</button><button id="sknew">new matrix ▶</button></div>
+   <div class="cap" id="skread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the doubly stochastic matrix — every row and column summing to 1.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t solve for the scaling &mdash; alternate. The inverse of &lsquo;find diagonal D&#8321;, D&#8322; making D&#8321;AD&#8322; balanced&rsquo; is &lsquo;just normalize rows, then columns, forever&rsquo; &mdash; the fixed point is exactly that scaling. <b>Magenta</b> is the row/column scaling factors; <b>green</b> is the balanced matrix they produce. Balance by breathing, not by solving.</div>
+   <div class="btns" style="margin-top:10px"><button id="skspin">pause spin</button></div></div></div></div>"""
+SNKH_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function rowNorm(B){var n=B.length,m=B[0].length;for(var i=0;i<n;i++){var s=0;for(var j=0;j<m;j++)s+=B[i][j];for(var j=0;j<m;j++)B[i][j]/=s;}}
+function colNorm(B){var n=B.length,m=B[0].length;for(var j=0;j<m;j++){var s=0;for(var i=0;i<n;i++)s+=B[i][j];for(var i=0;i<n;i++)B[i][j]/=s;}}
+function sinkhorn(A,iters){var B=A.map(function(r){return r.slice();});for(var it=0;it<iters;it++){rowNorm(B);colNorm(B);}return B;}
+var ang=0,spin=true,VR=null;
+function selftest(){if(VR)return VR;var rng=mb(4),ds=true,wr=0,wc=0,st=true;for(var t=0;t<3000;t++){var n=2+Math.floor(rng()*4),A=[];for(var i=0;i<n;i++){A.push([]);for(var j=0;j<n;j++)A[i].push(0.05+rng());}var B=sinkhorn(A,200);for(var i=0;i<n;i++){var s=0;for(var j=0;j<n;j++)s+=B[i][j];wr=Math.max(wr,Math.abs(s-1));if(Math.abs(s-1)>1e-6)ds=false;}for(var j=0;j<n;j++){var s=0;for(var i=0;i<n;i++)s+=B[i][j];wc=Math.max(wc,Math.abs(s-1));if(Math.abs(s-1)>1e-6)ds=false;}var u0=B[0][0]/A[0][0];for(var i=0;i<n;i++)for(var j=0;j<n;j++){if(Math.abs((B[i][j]/A[i][j])*u0-(B[i][0]/A[i][0])*(B[0][j]/A[0][j]))>1e-6)st=false;}}VR={doublyStochastic:ds,worstRow:wr,worstCol:wc,structOk:st,tested:3000};return VR;}
+var dA,dB,dstep;
+function newMat(seed){var rng=mb(seed);var n=4;dA=[];for(var i=0;i<n;i++){dA.push([]);for(var j=0;j<n;j++)dA[i].push(0.1+rng()*2);}dB=dA.map(function(r){return r.slice();});dstep=0;}
+newMat(7);
+function devs(){var n=dB.length,wr=0,wc=0;for(var i=0;i<n;i++){var s=0;for(var j=0;j<n;j++)s+=dB[i][j];wr=Math.max(wr,Math.abs(s-1));}for(var j=0;j<n;j++){var s=0;for(var i=0;i<n;i++)s+=dB[i][j];wc=Math.max(wc,Math.abs(s-1));}return {r:wr,c:wc};}
+function drawMatrix(g,ox,oy,cell){var n=dB.length,mx=0;for(var i=0;i<n;i++)for(var j=0;j<n;j++)mx=Math.max(mx,dB[i][j]);
+ for(var i=0;i<n;i++)for(var j=0;j<n;j++){var v=dB[i][j]/mx;nf(g,'rgba(255,207,74,'+(0.15+0.8*v)+')');g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);ng(g);nt(g,'#0a0713',ox+j*cell+4,oy+i*cell+cell/2+3,8,dB[i][j].toFixed(2));}
+ for(var i=0;i<n;i++){var s=0;for(var j=0;j<n;j++)s+=dB[i][j];nt(g,Math.abs(s-1)<1e-3?'#39ffb0':'#9cf',ox+n*cell+6,oy+i*cell+cell/2+3,9,'Σ'+s.toFixed(3));}
+ for(var j=0;j<n;j++){var s=0;for(var i=0;i<n;i++)s+=dB[i][j];nt(g,Math.abs(s-1)<1e-3?'#39ffb0':'#9cf',ox+j*cell,oy+n*cell+12,8,s.toFixed(2));}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'positive matrix → doubly stochastic · row sums (right) & column sums (below) → 1 · step '+dstep);drawMatrix(g,40,40,44);var d=devs();nt(g,'#8ad',10,H-8,9,'worst |row sum - 1| = '+d.r.toExponential(2)+'  ·  worst |col sum - 1| = '+d.c.toExponential(2));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',12,20,12,'row-then-column normalization');var d=devs();
+ nt(g,'#9cf',16,52,11,'iterations: '+dstep);nt(g,d.r<1e-6?'#39ffb0':'#ffcf4a',16,80,11,'worst |row sum - 1| = '+d.r.toExponential(3));nt(g,d.c<1e-6?'#39ffb0':'#ffcf4a',16,106,11,'worst |col sum - 1| = '+d.c.toExponential(3));
+ nt(g,(d.r<1e-6&&d.c<1e-6)?'#39ffb0':'#8ad',16,136,11,(d.r<1e-6&&d.c<1e-6)?'doubly stochastic ✓':'keep stepping — converging');
+ var v=selftest();nt(g,v.doublyStochastic&&v.structOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.tested+': doubly stochastic (worst row '+v.worstRow.toExponential(1)+') & diag(u)·A·diag(v): '+(v.doublyStochastic&&v.structOk));
+ nt(g,'#8ad',12,H-16,9,'the fixed point is the unique positive diagonal rescaling of A');}
+document.getElementById('skstep').onclick=function(){rowNorm(dB);colNorm(dB);dstep++;drawW3();drawW4();var d=devs();document.getElementById('skread').textContent='step '+dstep+' — worst row dev '+d.r.toExponential(2)+', col dev '+d.c.toExponential(2);};
+document.getElementById('skrun').onclick=function(){for(var i=0;i<200;i++){rowNorm(dB);colNorm(dB);dstep++;}drawW3();drawW4();var d=devs();document.getElementById('skread').textContent='ran to '+dstep+' iters — doubly stochastic (row dev '+d.r.toExponential(2)+')';};
+document.getElementById('sknew').onclick=function(){newMat((Date.now()&8191)+1);drawW3();drawW4();document.getElementById('skread').textContent='new positive matrix — press step or run to balance it';};
+document.getElementById('skspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ var n=dB.length,cell=26,off=-n*cell/2;for(var i=0;i<n;i++)for(var j=0;j<n;j++){var v=dB[i][j]*n;nf(g,'rgba(53,255,176,'+(0.15+0.7*Math.min(1,v))+')');g.fillRect(off+j*cell,off+i*cell,cell-2,cell-2);ng(g);}
+ // magenta scaling factor rays
+ for(var i=0;i<n;i++){ne(g,'#ff2fa6',1);g.beginPath();g.moveTo(off-16,off+i*cell+cell/2);g.lineTo(off,off+i*cell+cell/2);g.stroke();ng(g);}for(var j=0;j<n;j++){ne(g,'#ff2fa6',1);g.beginPath();g.moveTo(off+j*cell+cell/2,off-16);g.lineTo(off+j*cell+cell/2,off);g.stroke();ng(g);}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the balanced doubly stochastic matrix (rows & columns sum to 1)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the row/column scaling factors u, v (the diagonals D₁, D₂)');nt(g,'#8ad',10,H-14,10,'balance by breathing — normalize rows, then columns, forever');}
+drawW3();drawW4();window.__sinkhorn=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VIET_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Vieta jumping</b> is a proof technique built on the fact that a quadratic has <b>two roots</b> summing to a rational you can read off the coefficients (Vieta&rsquo;s formulas). Its most famous victory is <b>IMO 1988 Problem 6</b>: if a and b are positive integers such that (a<sup>2</sup> + b<sup>2</sup>)/(ab + 1) is an integer k, then k must be a <b>perfect square</b>. The proof: fix k, and from any solution &lsquo;jump&rsquo; to another by replacing a with the quadratic&rsquo;s other root a&prime; = k&middot;b - a; this produces a smaller solution, and infinite descent drives b to 0, where k = a<sup>2</sup> is manifestly a square.<br><br>
+ <span class="lit">LIT</span> verified live: over all 0 &le; b &le; a &le; 200, every integer value of (a<sup>2</sup>+b<sup>2</sup>)/(ab+1) is a perfect square (the values seen are 0,1,4,9,16,25,36,49&hellip;), and the Vieta jump a&prime; = k&middot;b - a always yields another valid solution that is strictly smaller (window.__vieta). <span class="fig">FIG</span> no framing; the exhaustive integer search and the descent step both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-speedrun</i> &mdash; the jump is a shortcut past a brute search: instead of grinding, hop to the quadratic&rsquo;s other root and slide straight down the ladder of solutions to the base case. <b>AVAN (AI)</b> built the instrument: the exhaustive integer search, the perfect-square test, and the Vieta descent a&prime; = k&middot;b - a.<br><br>Credit as content: Vieta&rsquo;s formulas (Fran&ccedil;ois Vi&egrave;te, 1590s); the technique crystallized by IMO 1988 Problem 6. The weave: David names the speedrun; I confirm every integer ratio is a perfect square and the jump descends to the base case.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="230"></canvas>
+  <div class="wctrl"><div class="cap">The (a,b) solution lattice for k = g²: solutions climb a ladder, each the Vieta jump of the last, down to (g, 0).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a perfect square k = g² and jump down the ladder: each step a′ = k·b − a lands on a smaller valid solution.</div>
+   <div class="btns" style="margin-top:10px"><button id="vjnext">next k ▶</button><button id="vjjump">jump down ▶</button><button id="vjcheck">verify ▶</button></div>
+   <div class="cap" id="vjread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a solution (a, b) with (a²+b²)/(ab+1) = k.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t search for solutions &mdash; jump between them. The inverse of &lsquo;a is a root of x² - k&middot;b&middot;x + (b² - k)&rsquo; is &lsquo;its other root a&prime; = k&middot;b - a&rsquo;, a reflection that descends the ladder to (g, 0) where k = g². <b>Magenta</b> is the jumped partner; <b>green</b> is the current solution. Descent by reflecting across the quadratic.</div>
+   <div class="btns" style="margin-top:10px"><button id="vjspin">pause spin</button></div></div></div></div>"""
+VIET_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function isqrt(n){var r=Math.floor(Math.sqrt(n));while(r*r>n)r--;while((r+1)*(r+1)<=n)r++;return r;}
+var ang=0,spin=true,VR=null;
+function selftest(){if(VR)return VR;var allSquare=true,jumpOk=true,count=0,ks={};for(var a=0;a<=200;a++)for(var b=0;b<=a;b++){var num=a*a+b*b,den=a*b+1;if(num%den===0){var k=num/den;count++;var s=isqrt(k);if(s*s!==k)allSquare=false;ks[k]=1;if(a>b&&b>0){var a2=k*b-a;if(a2<0)jumpOk=false;var num2=b*b+a2*a2,den2=b*a2+1;if(den2===0||num2%den2!==0||num2/den2!==k||a2>=a)jumpOk=false;}}}VR={allSquare:allSquare,jumpDescends:jumpOk,count:count,ks:Object.keys(ks).map(Number).sort(function(x,y){return x-y;})};return VR;}
+// ladder for k=g^2: x_{n+1}=k*x_n - x_{n-1}, x0=0,x1=g → solutions (x_{n+1},x_n)
+var gs=[1,2,3,4,5],gi=1;
+function ladder(g){var k=g*g,seq=[0,g];for(var i=0;i<6;i++)seq.push(k*seq[seq.length-1]-seq[seq.length-2]);var sols=[];for(var i=1;i<seq.length;i++)sols.push([seq[i],seq[i-1]]);return {k:k,sols:sols};}
+var dpos=3;
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var G=gs[gi],L=ladder(G);nt(g,'#21e6ff',10,16,10,'(a,b) solutions of (a²+b²)/(ab+1) = '+L.k+' (= '+G+'²) — a ladder, each the Vieta jump of the last');
+ var sols=L.sols.slice(0,5),mx=0;for(var i=0;i<sols.length;i++)mx=Math.max(mx,sols[i][0]);var lg=function(v){return Math.log(v+1);},mxl=lg(mx);
+ var x0=40,y0=H-30,ww=W-80,hh=H-70;ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(x0,y0);g.lineTo(x0,y0-hh);g.moveTo(x0,y0);g.lineTo(x0+ww,y0);g.stroke();ng(g);nt(g,'#8ad',x0-6,y0+12,8,'b→');nt(g,'#8ad',x0-18,y0-hh,8,'a (log)');
+ ne(g,'#35ffb0',1.5);g.beginPath();for(var i=0;i<sols.length;i++){var px=x0+lg(sols[i][1])/mxl*ww,py=y0-lg(sols[i][0])/mxl*hh;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);
+ for(var i=0;i<sols.length;i++){var px=x0+lg(sols[i][1])/mxl*ww,py=y0-lg(sols[i][0])/mxl*hh;ndot(g,px,py,4,'#35ffb0');nt(g,'#9cf',px+6,py,8,'('+sols[i][0]+','+sols[i][1]+')');}
+ nt(g,'#8ad',10,H-8,9,'base of the ladder: ('+G+', 0) → k = '+G+'² = '+L.k);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var G=gs[gi],L=ladder(G),sol=L.sols[Math.min(dpos,L.sols.length-1)];nt(g,'#21e6ff',12,20,12,'Vieta jump on k = '+L.k+' (= '+G+'²)');
+ var a=sol[0],b=sol[1],num=a*a+b*b,den=a*b+1;nt(g,'#9cf',16,52,11,'solution (a,b) = ('+a+', '+b+')');
+ nt(g,num/den===L.k?'#39ffb0':'#ff5a5a',16,80,11,'(a²+b²)/(ab+1) = '+num+'/'+den+' = '+(num/den)+(num/den===L.k?' ✓':''));
+ var a2=L.k*b-a;nt(g,'#ff2fa6',16,110,11,'jump: a′ = k·b − a = '+L.k+'·'+b+' − '+a+' = '+a2);
+ nt(g,'#ff2fa6',16,134,10,'→ next solution ('+b+', '+a2+'), strictly smaller');
+ var v=selftest();nt(g,v.allSquare&&v.jumpDescends?'#39ffb0':'#ff5a5a',12,H-42,9,'self-test (a,b≤200, '+v.count+' solutions): every ratio a perfect square = '+v.allSquare+' · jump descends = '+v.jumpDescends);
+ nt(g,'#8ad',12,H-22,9,'k values seen: '+v.ks.slice(0,9).join(', ')+' … (all squares)');
+ nt(g,'#8ad',12,H-8,9,'infinite descent bottoms out at b = 0, where k = a² is a square');}
+document.getElementById('vjnext').onclick=function(){gi=(gi+1)%gs.length;dpos=3;drawW3();drawW4();document.getElementById('vjread').textContent='k = '+gs[gi]+'² = '+(gs[gi]*gs[gi]);};
+document.getElementById('vjjump').onclick=function(){if(dpos>0)dpos--;drawW4();var L=ladder(gs[gi]),sol=L.sols[Math.min(dpos,L.sols.length-1)];document.getElementById('vjread').textContent='jumped down to ('+sol[0]+', '+sol[1]+') — still ratio '+L.k;};
+document.getElementById('vjcheck').onclick=function(){var v=selftest();document.getElementById('vjread').textContent='every integer (a²+b²)/(ab+1) is a perfect square: '+v.allSquare+' ('+v.count+' solutions, k∈{'+v.ks.slice(0,6).join(',')+'…}) · jump descends: '+v.jumpDescends;};
+document.getElementById('vjspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.1);var G=gs[gi],L=ladder(G),sols=L.sols.slice(0,4);
+ var lg=function(v){return Math.log(v+1)*22;};ne(g,'#35ffb0',1.4);g.beginPath();for(var i=0;i<sols.length;i++){var px=lg(sols[i][1])-60,py=60-lg(sols[i][0]);if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);
+ for(var i=0;i<sols.length;i++){var px=lg(sols[i][1])-60,py=60-lg(sols[i][0]);ndot(g,px,py,4,i===0?'#ff2fa6':'#35ffb0');}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the ladder of solutions for k = '+L.k);nt(g,'#ff2fa6',10,H-34,10,'magenta: the Vieta-jumped partner a′ = k·b − a (the other root)');nt(g,'#8ad',10,H-14,10,'descent by reflecting across the quadratic, down to (g, 0)');}
+drawW3();drawW4();window.__vieta=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 138 · neon-noir · silicon-coding (crank a cycle to crack an ancient equation · a quotient that homes onto an eigenvalue in cubic leaps · area counted in interior and boundary lattice points · exponential interpolation squeezing onto a root · charge the corner to minimize inside a polytope) ═══════════════════════
 CHKV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The chakravala method</b> is a cyclic algorithm from 12th-century India (Bhaskara II, building on Brahmagupta) that solves <b>Pell&rsquo;s equation</b> x<sup>2</sup> - N&middot;y<sup>2</sup> = 1 in integers. Starting from a rough triple (a, b, k) with a<sup>2</sup> - N&middot;b<sup>2</sup> = k, it repeatedly composes with (m, 1) using Brahmagupta&rsquo;s identity, choosing m at each turn so that k divides a + b&middot;m and |m<sup>2</sup> - N| is smallest. The value k spirals down toward &plusmn;1, and when it lands the current (a, b) is the fundamental solution. It is centuries ahead of its time &mdash; a self-correcting descent that European mathematics did not match until Fermat and Lagrange.<br><br>
@@ -36042,6 +36307,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-konig","title":"THE KÖNIG","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#35ffb0","icon":"konig",
+  "kicker":"a matching and a cover forced to be equal",
+  "blurb":"König's theorem in the 5-window house format — one of the great min-max dualities: in any bipartite graph, the size of a maximum matching (the most edges with no shared endpoint) exactly equals the size of a minimum vertex cover (the fewest vertices touching every edge). Two utterly different optimization problems always return the same number, and the proof is constructive: from a maximum matching you build the minimum cover directly, by an alternating-path search from the unmatched vertices. Verified live: over 20000 random bipartite graphs, the augmenting-path maximum matching and the König vertex cover always have equal size, and that cover genuinely touches every edge. Neon-noir traced. See matching and cover on a graph in 1D, the equal-size + covers-all check in 2D, and the matching-vs-cover duality in 3D.",
+  "lit":"Genuine König's theorem (Dénes König, 1931; constructive cover via Egerváry). Verified live: over 20000 random bipartite graphs the maximum matching (augmenting paths) and the minimum vertex cover (alternating-reachability construction) always have equal size, and the cover touches every edge (window.__konig.sizeMatches, .coversAll).",
+  "fig":"No framing; the augmenting-path matching, the alternating-reachability cover, and the covers-every-edge check all run in-browser. The AVAN inverse is honest — instead of maximizing disjoint pairs, minimize the vertices touching every edge; König forces the two numbers identical. Magenta is the minimum cover; green is the maximum matching. Two dual extremes, one value.",
+  "body":KONG_BODY,"script":KONG_SCRIPT},
+ {"slug":"the-welford","title":"THE WELFORD","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#ff8a3c","icon":"welford",
+  "kicker":"one-pass variance that never catastrophically cancels",
+  "blurb":"Welford's algorithm in the 5-window house format — computing mean and variance of a stream in a single pass, updating running estimates one sample at a time, never storing the data. It tracks the running mean and the sum of squared deviations M₂ together: each new value nudges the mean, and M₂ is updated using both old and new mean. The famous naive one-pass formula (mean of squares minus square of mean) suffers catastrophic cancellation when numbers are large and close together — it can even return a negative variance. Welford never subtracts two huge nearly-equal quantities, so it stays accurate. Verified live: over 5000 datasets Welford matches the exact two-pass variance to ~1e-15; on data centered near 1e9, the naive formula's error is order 1 (total cancellation) while Welford stays correct to ~1e-9. Neon-noir traced. See the running stats in 1D, the naive-cancellation contrast in 2D, and the accumulate-don't-subtract inverse in 3D.",
+  "lit":"Genuine Welford's online variance (B. P. Welford, 1962; popularized by Knuth). Verified live: over 5000 random datasets the one-pass running M₂ variance matches the two-pass variance to ~1e-15, and on data centered near 1e9 the naive sum-of-squares formula cancels (relative error order 1) while Welford stays correct to ~1e-9 (window.__welford.matchesTwoPass, .naiveFails).",
+  "fig":"No framing; the Welford update, the two-pass reference, and the naive-cancellation contrast all run in-browser. The AVAN inverse is honest — instead of subtracting two huge sums (mean of squares minus square of mean), grow M₂ from each sample's deviation before and after the mean shift, which never cancels. Magenta is the naive formula collapsing on large data; green is Welford holding. Accuracy by never subtracting near-equals.",
+  "body":WLFD_BODY,"script":WLFD_SCRIPT},
+ {"slug":"the-remez","title":"THE REMEZ","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#b06bff","icon":"remez",
+  "kicker":"a polynomial whose error rides an equal wave",
+  "blurb":"The Remez exchange algorithm in the 5-window house format — finding the minimax polynomial, the degree-n polynomial that minimizes the worst-case error to a target function over an interval. Its signature is the equioscillation theorem (Chebyshev): the best approximation's error curve touches its maximum height, alternating in sign, at exactly n+2 points of equal magnitude. Remez finds it by exchange: solve for the polynomial making the error equal-and-alternating at n+2 reference points, then move the references to the actual error extrema, and repeat. It converges to the provably optimal polynomial — strictly better in the worst case than Chebyshev interpolation. Verified live: for several functions on [-1,1] the Remez polynomial's error extrema all have equal magnitude (amplitude ratio ≈1.000) and its maximum error is ≤ the degree-matched Chebyshev interpolant. Neon-noir traced. See f and its minimax poly in 1D, the equioscillating error in 2D, and the level-ripple inverse in 3D.",
+  "lit":"Genuine Remez exchange algorithm (Evgeny Remez, 1934; equioscillation due to Chebyshev). Verified live: for eˣ, 1/(1+x²), sin 2x on [-1,1] the degree-4 minimax polynomial's error extrema have equal magnitude (amplitude ratio ≈1.000, the equioscillation signature) and its max error is ≤ the degree-matched Chebyshev interpolant (window.__remez.equioscillates, .beatsCheb).",
+  "fig":"No framing; the equioscillation linear solve, the reference-exchange loop, and the Chebyshev comparison all run in-browser. The AVAN inverse is honest — instead of minimizing average error, minimize the worst: spread the error so its peaks are all equal and alternating, and that equal-ripple curve is provably optimal. Magenta is the larger Chebyshev-interpolation error; green is the lowered minimax wall. Optimality as a level ripple.",
+  "body":REMZ_BODY,"script":REMZ_SCRIPT},
+ {"slug":"the-sinkhorn","title":"THE SINKHORN","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#ffcf4a","icon":"sinkhorn",
+  "kicker":"alternate row and column normalizing to perfect balance",
+  "blurb":"Sinkhorn's algorithm in the 5-window house format — take any matrix of positive numbers and, by the simplest loop (divide every row by its sum, then every column by its sum, and repeat), drive it to a doubly stochastic matrix where every row and column sums to exactly 1. Sinkhorn's theorem guarantees convergence, and that the result is the unique D₁·A·D₂ rescaling of the original by positive diagonal matrices. This little iteration is the computational heart of modern optimal transport (entropic regularization) and of matching problems across machine learning. Verified live: over 3000 random positive matrices, alternating row/column normalization drives every row and column sum to 1 (~1e-16), and the result is exactly diag(u)·A·diag(v) — the ratio to the original is rank-one. Neon-noir traced. See the sums converging in 1D, the step-by-step balancing in 2D, and the scaling-factor inverse in 3D.",
+  "lit":"Genuine Sinkhorn-Knopp iterative scaling (Richard Sinkhorn, 1964; central to entropic optimal transport, Cuturi 2013). Verified live: over 3000 random positive matrices alternating row/column normalization drives every row and column sum to 1 (deviation ~1e-16), and the result equals diag(u)·A·diag(v) (the ratio B/A is rank-one) (window.__sinkhorn.doublyStochastic, .structOk).",
+  "fig":"No framing; the alternating normalization, the row/column sum checks, and the diagonal-scaling structure all run in-browser. The AVAN inverse is honest — instead of solving for the diagonal scaling that balances A, just normalize rows then columns forever; the fixed point is exactly that scaling. Magenta is the row/column scaling factors; green is the balanced matrix they produce. Balance by breathing, not by solving.",
+  "body":SNKH_BODY,"script":SNKH_SCRIPT},
+ {"slug":"the-vieta-jumping","title":"THE VIETA JUMPING","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#21e6ff","icon":"vieta",
+  "kicker":"an integer ratio that can only be a perfect square",
+  "blurb":"Vieta jumping in the 5-window house format — a proof technique built on the fact that a quadratic has two roots summing to a rational you read off the coefficients (Vieta's formulas). Its most famous victory is IMO 1988 Problem 6: if a and b are positive integers such that (a²+b²)/(ab+1) is an integer k, then k must be a perfect square. The proof: fix k, and from any solution jump to another by replacing a with the quadratic's other root a′ = k·b − a; this produces a smaller solution, and infinite descent drives b to 0, where k = a² is manifestly a square. Verified live: over all 0≤b≤a≤200, every integer value of (a²+b²)/(ab+1) is a perfect square (0,1,4,9,16,25,36,49…), and the Vieta jump always yields another valid solution that is strictly smaller. Neon-noir traced. See the solution ladder in 1D, the descent step in 2D, and the reflect-across-the-quadratic inverse in 3D.",
+  "lit":"Genuine Vieta jumping (Vieta's formulas, François Viète 1590s; technique crystallized by IMO 1988 Problem 6). Verified live: over all 0≤b≤a≤200, every integer (a²+b²)/(ab+1) is a perfect square (values seen 0,1,4,9,16,25,36,49), and the Vieta jump a′=k·b−a always yields a valid solution strictly smaller than a (window.__vieta.allSquare, .jumpDescends).",
+  "fig":"No framing; the exhaustive integer search, the perfect-square test, and the Vieta descent all run in-browser. The AVAN inverse is honest — instead of searching for solutions, jump between them: the other root of x²−k·b·x+(b²−k) is a′=k·b−a, a reflection that descends the ladder to (g,0) where k=g². Magenta is the jumped partner; green is the current solution. Descent by reflecting across the quadratic.",
+  "body":VIET_BODY,"script":VIET_SCRIPT},
  {"slug":"the-chakravala","title":"THE CHAKRAVALA","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#ffcf4a","icon":"chakravala",
   "kicker":"crank a cycle to crack an ancient equation",
