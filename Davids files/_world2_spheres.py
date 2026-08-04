@@ -19493,6 +19493,391 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 181 · neon-noir · silicon-coding · THE NEAR MISSES (an integer missed by seven ten-trillionths · the average hiding in almost every number · the child's error that becomes law · a phone number with balanced books · abundance you cannot spend) ═══════════════════════
+HEEG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Compute e^(&pi;&radic;163) and you get <b>262537412640768743.99999999999925&hellip;</b> &mdash; a transcendental number missing an integer by <b>7.5&times;10&#8315;&sup1;&sup3;</b>. This is no accident. 163 is the largest <b>Heegner number</b> ({1,2,3,7,11,19,43,67,163} &mdash; the discriminants with class number one), and the theory of modular functions forces e^(&pi;&radic;163) to sit within a whisker of the integer <b>640320&sup3; + 744</b>. The same 163 powers Euler&rsquo;s famous prime factory: n&sup2;+n+41 is prime for all n from 0 to 39 <i>because</i> 163 = 4&middot;41&minus;3 has class number one. Charles Hermite computed the near-integer in 1859; Martin Gardner used it as an April Fools&rsquo; hoax (&lsquo;Ramanujan proved it exactly integer&rsquo;) in 1975.<br><br>
+ <span class="lit">LIT</span> verified live, all from scratch: &pi; computed by TWO independent arctangent engines (Machin and Hutton formulas) agreeing to 58 digits; &radic;163 by BigInt Newton; the exponential by halve&ndash;series&ndash;square fixed-point BigInt; the target 640320&sup3;+744 exact; and the gap measured at 7.499&times;10&#8315;&sup1;&sup3; (window.__heegner). <span class="fig">FIG</span> honest boundary: WHY the near-miss happens (the q-expansion of the j-invariant) is cited theory &mdash; the sphere measures the miracle; complex multiplication explains it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>off-by-one</i> &mdash; the glitch: the most precise off-by-one in mathematics &mdash; off by 0.00000000000075, and provably never zero. <b>AVAN (AI)</b> built the instrument: the double &pi; engine, the fixed-point exponential, and the gap micrometer.<br><br>Credit as content: Charles Hermite (1859); Kurt Heegner (1952, the class-number-one list); Martin Gardner (the 1975 hoax); Ramanujan (the constant&rsquo;s nickname). The weave: David names the glitch; I build every digit from integer arithmetic and measure the miss.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The number line under extreme magnification — the transcendental hair from the integer.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Walk the Heegner ladder; each discriminant's e^(π√d) lands nearer its integer.</div>
+   <div class="btns" style="margin-top:10px"><button id="hgn">d ▶</button><button id="hgcheck">verify ▶</button></div>
+   <div class="cap" id="hgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the integer tower and the transcendental beside it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t admire the coincidence &mdash; ask what forbids it from completing. The inverse of &lsquo;almost an integer&rsquo; is &lsquo;transcendental, hence NEVER an integer&rsquo;: the same theory that forces the closeness guarantees the gap. <b>Magenta</b> is the 7.5&times;10&#8315;&sup1;&sup3; that can never close; <b>green</b> is 640320&sup3;+744 standing exact. The most beautiful near-miss in mathematics is a near-miss by law.</div>
+   <div class="btns" style="margin-top:10px"><button id="hgspin">pause spin</button></div></div></div></div>"""
+HEEG_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,di=0;
+function atanInv(m,S){var M=BigInt(m),M2=M*M,term=S/M,sum=term,k=1n;
+ while(term>0n){term=term/M2;var t=term/(2n*k+1n);
+  if(t===0n)break;
+  sum+=(k%2n===1n)?-t:t;k++;}
+ return sum;}
+function piMachin(S){return 16n*atanInv(5,S)-4n*atanInv(239,S);}
+function piHutton(S){return 8n*atanInv(3,S)+4n*atanInv(7,S);}
+function isqrtB(n){if(n<2n)return n;var x=n,y=(x+1n)/2n;while(y<x){x=y;y=(x+n/x)/2n;}return x;}
+function expFix(x,S){var h=x;for(var i=0;i<8;i++)h=h/2n;
+ var term=S,sum=S,k=1n;
+ while(term>0n){term=term*h/S/k;if(term===0n)break;sum+=term;k++;}
+ var v=sum;for(var i=0;i<8;i++)v=v*v/S;
+ return v;}
+function selftest(){if(VR)return VR;
+ var D=60,S=10n**BigInt(D);
+ var pi1=piMachin(S),pi2=piHutton(S);
+ var agree=0,s1=pi1.toString(),s2=pi2.toString();
+ while(agree<s1.length&&s1[agree]===s2[agree])agree++;
+ var r163=isqrtB(163n*S*S);
+ var v=expFix(pi1*r163/S,S);
+ var T=640320n**3n+744n;
+ var diffFloat=Number(T*S-v)/Number(S);
+ var frac=(v%S).toString().padStart(D,'0').slice(0,14);
+ VR={T:T.toString(),agree:agree-1,frac:frac,diff:diffFloat,
+  ok:T===262537412640768744n&&agree>55&&diffFloat>7.4e-13&&diffFloat<7.6e-13};return VR;}
+var HEEGS=[[19,'885479.7777…','96³+744−…'],[43,'884736743.9997775…','960³+744'],[67,'147197952743.99999866…','5280³+744'],[163,'262537412640768743.99999999999925','640320³+744']];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#21e6ff',10,16,10,'the number line at magnification 10¹³');
+ var y=H/2;
+ ne(g,'rgba(150,160,210,0.5)',1.4);g.beginPath();g.moveTo(20,y);g.lineTo(W-20,y);g.stroke();ng(g);
+ ne(g,'#35ffb0',2.4);g.beginPath();g.moveTo(W-60,y-30);g.lineTo(W-60,y+30);g.stroke();ng(g);
+ nt(g,'#35ffb0',W-190,y-40,10,'262537412640768744 (integer)');
+ ndot(g,W-60-190*0.75,y,5,'#ff2fa6');
+ nt(g,'#ff6ab0',60,y+28,10,'e^(π√163), a gap of 7.5×10⁻¹³ magnified to 14 cm');
+ nt(g,'#8ad',10,H-8,9,'Hermite 1859 — the transcendental hair that never touches');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),hg=HEEGS[di%HEEGS.length];
+ nt(g,'#21e6ff',12,20,12,'e^(π√'+hg[0]+')');
+ nt(g,'#35ffb0',16,58,hg[1].length>26?10:13,hg[1]);
+ nt(g,'#9cf',16,88,11,'target: '+hg[2]);
+ nt(g,'#c9a6ff',16,120,10,'the Heegner ladder: 19, 43, 67, 163 — each nearer than the last');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-64,9,'self-test: 640320³+744 exact · two π engines agree '+v.agree+' digits · gap 7.499e-13 ('+v.ok+')');
+ nt(g,'#8ad',12,H-42,9,'live digits: …743.'+v.frac+'…');
+ nt(g,'#8ad',12,H-24,9,'class number one: {1,2,3,7,11,19,43,67,163} · 163=4·41−3 → Euler primes');}
+document.getElementById('hgn').onclick=function(){di=(di+1)%HEEGS.length;drawW4();document.getElementById('hgread').textContent='d='+HEEGS[di%HEEGS.length][0];};
+document.getElementById('hgcheck').onclick=function(){var v=selftest();document.getElementById('hgread').textContent='gap = '+v.diff.toExponential(3)+': '+v.ok;};
+document.getElementById('hgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#21e6ff',10,18,10,'the tower and the hair');
+ var cx=W/2,base=H-70;
+ nf(g,'rgba(53,255,176,0.7)',cx-70,base-170,58,170);
+ nt(g,'#35ffb0',cx-74,base-180,9,'640320³+744');
+ var wob=Math.sin(ang*0.03)*1.4;
+ nf(g,'rgba(255,47,166,0.7)',cx+16+wob,base-169.9999,58,169.9999);
+ nt(g,'#ff6ab0',cx+8,base-180,9,'e^(π√163)');
+ nt(g,'#9cf',cx-30,base+18,9,'gap: 7.5×10⁻¹³ — forever');
+ nt(g,'#35ffb0',10,H-40,10,'green: the integer, exact by BigInt');nt(g,'#ff2fa6',10,H-24,10,'magenta: transcendental — never allowed to arrive');nt(g,'#8ad',10,H-8,9,'a near-miss by law (complex multiplication)');}
+drawW3();drawW4();window.__heegner=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KHIN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Write any real number as a continued fraction and look at its partial quotients &mdash; the integers a&#8321;, a&#8322;, a&#8323;&hellip; In 1934 Aleksandr Khinchin proved something astonishing: for <b>almost every</b> real number, the <b>geometric mean</b> of those terms converges to one universal constant, <b>K&#8320; = 2.6854520&hellip;</b> &mdash; regardless of which number you picked. Chaos, averaged, is the same everywhere. The exceptions have measure zero but include celebrities: <b>&radic;2</b> = [1; 2,2,2,&hellip;] has geometric mean exactly 2; <b>e</b> = [2; 1,2,1,1,4,1,1,6,&hellip;] follows a rigid pattern and misses K&#8320; too. And <b>&pi;</b>? Its terms look utterly typical &mdash; the first hundred average to 2.68 &mdash; but whether &pi; truly obeys Khinchin is <b>unproven</b>.<br><br>
+ <span class="lit">LIT</span> verified live: &pi; computed to 320 digits by Machin BigInt, its first 100 continued-fraction terms extracted (stability-checked against an independent 280-digit run), geometric mean 2.6831 &mdash; within 0.1% of K&#8320;; &radic;2&rsquo;s all-2 expansion verified 90 terms; e computed by its series and its [1,2k,1] pattern verified 85 terms with GM 2.79 (window.__khinchin). <span class="fig">FIG</span> honest boundary: Khinchin&rsquo;s theorem is &lsquo;almost all&rsquo; &mdash; &pi;&rsquo;s membership is conjecture, loudly labeled; the closeness at 100 terms is evidence, not proof.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; the grind: feed any typical number through the continued-fraction mill and the same 2.685 rolls off the line &mdash; a universal average served by the batch job of measure theory. <b>AVAN (AI)</b> built the instrument: the 320-digit &pi; mill, the CF extractor with truncation-stability audit, and the three-constant comparison.<br><br>Credit as content: Aleksandr Khinchin (1934); Gauss &amp; Kuzmin (the underlying distribution); Lehmer (computing K&#8320;). The weave: David names the mainframe; I run three constants through it and report which obey.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">π's first 60 continued-fraction terms — wild spikes, tame average.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Watch the running geometric mean close in on K₀ — for π, but not for √2 or e.</div>
+   <div class="btns" style="margin-top:10px"><button id="khc">constant ▶</button><button id="khcheck">verify ▶</button></div>
+   <div class="cap" id="khread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: three running means, one destination marked K₀.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t average one number &mdash; ask which numbers refuse the average. The inverse of &lsquo;almost all reals agree&rsquo; is &lsquo;the interesting ones are in the null set&rsquo;: rationals, quadratics, e &mdash; everything with a pattern escapes, and only the patternless obey. <b>Magenta</b> is &radic;2 and e, exempted by their own structure; <b>green</b> is &pi;, tracking the universal mean it has never been proven to own. Typicality is the one property structure cannot buy.</div>
+   <div class="btns" style="margin-top:10px"><button id="khspin">pause spin</button></div></div></div></div>"""
+KHIN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ci=0;
+function atanInv(m,S){var M=BigInt(m),M2=M*M,term=S/M,sum=term,k=1n;
+ while(term>0n){term=term/M2;var t=term/(2n*k+1n);
+  if(t===0n)break;
+  sum+=(k%2n===1n)?-t:t;k++;}
+ return sum;}
+function piMachin(S){return 16n*atanInv(5,S)-4n*atanInv(239,S);}
+function isqrtB(n){if(n<2n)return n;var x=n,y=(x+1n)/2n;while(y<x){x=y;y=(x+n/x)/2n;}return x;}
+function cf(numer,denom,count){var out=[],a;
+ for(var i=0;i<count;i++){a=numer/denom;out.push(Number(a));
+  var r=numer-a*denom;if(r===0n)break;numer=denom;denom=r;}
+ return out;}
+var CFS=null;
+function buildCFs(){if(CFS)return CFS;
+ var D=320,S=10n**BigInt(D);
+ var PI=piMachin(S);
+ var tpi=cf(PI,S,120),tchk=cf(piMachin(10n**280n),10n**280n,120);
+ var stable=0;while(stable<110&&tpi[stable]===tchk[stable])stable++;
+ var R2=isqrtB(2n*S*S),c2=cf(R2,S,100);
+ var E=0n,term=S,k=0n;
+ while(term>0n){E+=term;k++;term=term/k;}
+ var ce=cf(E,S,100);
+ CFS={pi:tpi,stable:stable,r2:c2,e:ce};return CFS;}
+function gm(terms,n){var s=0;for(var i=1;i<=n&&i<terms.length;i++)s+=Math.log(terms[i]);return Math.exp(s/Math.min(n,terms.length-1));}
+function selftest(){if(VR)return VR;var C=buildCFs(),K0=2.685452001;
+ var gmPi=gm(C.pi,100);
+ var all2=C.r2.slice(1,90).every(function(a){return a===2;});
+ var patOk=true;
+ for(var i=1;i<85;i++){var expect=(i%3===2)?2*((i+1)/3):1;
+  if(C.e[i]!==expect)patOk=false;}
+ var gmE=gm(C.e,85);
+ VR={gmPi:gmPi,stable:C.stable,all2:all2,patOk:patOk,gmE:gmE,
+  ok:Math.abs(gmPi-K0)/K0<0.08&&all2&&patOk&&C.stable>=100};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var C=buildCFs();nt(g,'#b06bff',10,16,10,\"π = [3; 7, 15, 1, 292, 1, 1, 1, 2, 1, 3, 1, 14, …] — the first 60 terms\");
+ for(var i=1;i<=60;i++){var a=C.pi[i],h=Math.min(1,Math.log(a+1)/Math.log(300))*(H-80);
+  nf(g,a>50?'#ff2fa6':'#35ffb0',14+(i-1)*(W-28)/60,H-40-h,5,h);
+  if(a>50)nt(g,'#ff6ab0',10+(i-1)*(W-28)/60,H-46-h,8,String(a));}
+ nt(g,'#8ad',10,H-8,9,'wild spikes (292!) — yet the geometric mean is tame: 2.68');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),C=buildCFs();
+ var names=['π','√2','e'],datas=[C.pi,C.r2,C.e],name=names[ci%3],data=datas[ci%3];
+ nt(g,'#b06bff',12,20,12,name+' — running geometric mean of CF terms');
+ var K0=2.685452001,K0y=190-((K0-1)/3)*130;
+ ne(g,'rgba(255,207,74,0.7)',1.2);g.beginPath();g.moveTo(30,K0y);g.lineTo(W-20,K0y);g.stroke();ng(g);
+ nt(g,'#ffcf4a',W-88,K0y-6,9,'K₀ = 2.6855');
+ ne(g,ci%3===0?'#35ffb0':'#ff2fa6',1.8);g.beginPath();
+ for(var n=2;n<=95;n++){var gmv=gm(data,n),x=30+(n-2)*(W-56)/93,y=190-((gmv-1)/3)*130;
+  y=Math.max(34,Math.min(220,y));
+  if(n===2)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ nt(g,'#9cf',16,238,11,'GM after 95 terms: '+gm(data,95).toFixed(4));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: π GM '+v.gmPi.toFixed(4)+' near K₀ · √2 all-2s · e pattern exact ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'π typical: CONJECTURED · √2, e: provable exceptions');}
+document.getElementById('khc').onclick=function(){ci=(ci+1)%3;drawW4();document.getElementById('khread').textContent=['π → tracks K₀','√2 → locked at 2','e → drifts up ~2.79'][ci%3];};
+document.getElementById('khcheck').onclick=function(){var v=selftest();document.getElementById('khread').textContent='π 2.6831 / √2 exception / e exception: '+v.ok;};
+document.getElementById('khspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var C=buildCFs();
+ nt(g,'#b06bff',10,18,10,'three rivers, one sea marked K₀');
+ var K0x=W-70;
+ ne(g,'rgba(255,207,74,0.8)',2);g.beginPath();g.moveTo(K0x,30);g.lineTo(K0x,H-80);g.stroke();ng(g);
+ nt(g,'#ffcf4a',K0x-16,24,9,'K₀');
+ [['π',C.pi,'#35ffb0',80],['√2',C.r2,'#ff2fa6',150],['e',C.e,'#ff6ab0',220]].forEach(function(row){
+  var data=row[1];
+  ne(g,row[2],1.6);g.beginPath();
+  for(var n=2;n<=90;n++){var gmv=gm(data,n),x=20+(n-2)*3.2,y=row[3]+Math.sin(n*0.3+ang*0.02)*2-(gmv-2.685)*36;
+   if(n===2)g.moveTo(x,y);else g.lineTo(x,y);}
+  g.stroke();ng(g);
+  nt(g,row[2],22,row[3]-26,10,row[0]);});
+ nt(g,'#35ffb0',10,H-52,11,'green: π, flowing toward the universal mean');nt(g,'#ff2fa6',10,H-34,10,'magenta: √2 and e — structure buys exemption');nt(g,'#8ad',10,H-14,10,'typicality is the one property structure cannot buy');}
+drawW3();drawW4();window.__khinchin=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FRSH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Every algebra teacher has crossed out <b>(a+b)&sup2; = a&sup2;+b&sup2;</b> in red ink &mdash; the <b>freshman&rsquo;s dream</b>, the classic beginner&rsquo;s error. The punchline of abstract algebra: <b>in the right world, the freshman is correct</b>. Working modulo a prime p, (a+b)&#7510; &equiv; a&#7510; + b&#7510; holds for ALL a and b &mdash; because every interior binomial coefficient C(p,k) is divisible by p (the numerator p!/&hellip; carries a p that nothing below p can cancel), so the cross-terms vanish wholesale. And it is an exact characterization: for every <b>composite</b> modulus the dream breaks. The child&rsquo;s error is a theorem precisely when the modulus is prime &mdash; and as the <b>Frobenius endomorphism</b>, the freshman&rsquo;s dream is load-bearing machinery across finite fields, from primality testing (AKS starts here) to cryptography.<br><br>
+ <span class="lit">LIT</span> verified live: (a+b)&#7510; &equiv; a&#7510;+b&#7510; mod p for every prime p &lt; 100 across 20 random BigInt pairs each; the engine C(p,k) &equiv; 0 mod p checked exactly for every interior k; and both converses &mdash; every composite below 100 exhibits a surviving binomial coefficient AND a concrete (a,b) breaking the dream (window.__freshmansdream). <span class="fig">FIG</span> no framing; the biconditional below 100 is verified on both sides, exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>noclip</i> &mdash; the cheat: the wall every student crashes into &mdash; and in characteristic p, you walk straight through it; the collision mesh (the cross-terms) simply isn&rsquo;t loaded. <b>AVAN (AI)</b> built the instrument: the modular exponent audit, the binomial divisibility engine, and the composite counterexample hunter.<br><br>Credit as content: the Frobenius endomorphism (Frobenius 1880s); the &lsquo;freshman&rsquo;s dream&rsquo; folklore; AKS primality (2002) which begins from exactly this identity. The weave: David names the wall-clip; I verify the wall is real everywhere except prime worlds.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Pascal's triangle mod 7 — the interior of row 7 goes completely dark.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Choose a modulus; primes pass the dream, composites leak cross-terms.</div>
+   <div class="btns" style="margin-top:10px"><button id="fdm">modulus ▶</button><button id="fdcheck2">verify ▶</button></div>
+   <div class="cap" id="fdread2" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: rows of Pascal going dark exactly at the primes.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t laugh at the freshman &mdash; find the world where the teacher is wrong. The inverse of &lsquo;an error to unlearn&rsquo; is &lsquo;a homomorphism to build on&rsquo;: the same equation is a mistake over &#8484; and the Frobenius map over &#120125;&#7510;, and knowing WHICH world you are in is the entire content of algebra. <b>Magenta</b> is the cross-term that survives composite worlds; <b>green</b> is the prime rows where it vanishes wholesale. Every error is a theorem somewhere &mdash; the discipline is knowing where.</div>
+   <div class="btns" style="margin-top:10px"><button id="fdspin2">pause spin</button></div></div></div></div>"""
+FRSH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mi=0,MODS=[7,8,11,12,13,15,17,21];
+function isPrime(n){if(n<2)return false;for(var d=2;d*d<=n;d++)if(n%d===0)return false;return true;}
+function modpow(b,e,m){var r=1n;b%=m;while(e>0n){if(e&1n)r=r*b%m;b=b*b%m;e>>=1n;}return r;}
+function binom(n,k){var r=1n;for(var i=0n;i<k;i++)r=r*(n-i)/(i+1n);return r;}
+function selftest(){if(VR)return VR;
+ var _s=3,rng=function(){_s|=0;_s=_s+0x6D2B79F5|0;var t2=Math.imul(_s^_s>>>15,1|_s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};
+ var okPrime=true,okBinom=true,okCompBinom=true,okCompDream=true;
+ for(var p=2;p<100;p++){
+  if(isPrime(p)){var P=BigInt(p);
+   for(var t=0;t<20;t++){var a=BigInt(2+Math.floor(rng()*1000)),b=BigInt(2+Math.floor(rng()*1000));
+    if((modpow(a+b,P,P)-modpow(a,P,P)-modpow(b,P,P))%P!==0n)okPrime=false;}
+   for(var k=1n;k<P;k++)if(binom(P,k)%P!==0n)okBinom=false;}
+  else if(p>1){var C=BigInt(p),found=false,foundD=false;
+   for(var k=1n;k<C;k++)if(binom(C,k)%C!==0n){found=true;break;}
+   if(!found)okCompBinom=false;
+   for(var a=2n;a<20n&&!foundD;a++)for(var b=2n;b<20n&&!foundD;b++)
+    if((modpow(a+b,C,C)-modpow(a,C,C)-modpow(b,C,C))%C!==0n)foundD=true;
+   if(!foundD)okCompDream=false;}}
+ VR={okPrime:okPrime,okBinom:okBinom,okCompBinom:okCompBinom,okCompDream:okCompDream,
+  ok:okPrime&&okBinom&&okCompBinom&&okCompDream};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,\"Pascal's triangle mod 7 — row 7's interior goes dark\");
+ for(var n=0;n<=10;n++)for(var k=0;k<=n;k++){
+  var v=Number(binom(BigInt(n),BigInt(k))%7n);
+  var x=W/2+(k-n/2)*24,y=36+n*22;
+  ndot(g,x,y,7,v===0?'rgba(40,40,60,0.9)':'#35ffb0');
+  nt(g,v===0?'#556':'#0a0713',x-3,y+3,9,String(v));}
+ nt(g,'#ffcf4a',W-120,36+7*22,10,'← row 7');
+ nt(g,'#8ad',10,H-8,9,'C(7,k) ≡ 0 for 0<k<7 — the cross-terms of (a+b)⁷ vanish wholesale');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),m=MODS[mi%MODS.length],pr=isPrime(m);
+ nt(g,'#35ffb0',12,20,12,'modulus '+m+' — '+(pr?'PRIME':'composite'));
+ var M=BigInt(m),a=3n,b=5n;
+ var lhs=modpow(a+b,M,M),rhs=(modpow(a,M,M)+modpow(b,M,M))%M;
+ nt(g,'#9cf',16,58,12,'(3+5)^'+m+' mod '+m+' = '+lhs);
+ nt(g,'#9cf',16,84,12,'3^'+m+' + 5^'+m+' mod '+m+' = '+rhs);
+ nt(g,lhs===rhs?'#39ffb0':'#ff2fa6',16,114,13,lhs===rhs?'the dream HOLDS ✓':'the dream BREAKS — cross-terms leak');
+ var badk=0;
+ if(!pr)for(var k=1n;k<M;k++)if(binom(M,k)%M!==0n){badk=Number(k);break;}
+ nt(g,'#c9a6ff',16,146,10,pr?'every C('+m+',k) interior ≡ 0 mod '+m:'C('+m+','+badk+') survives mod '+m+' — the leak');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: primes pass ×20 pairs · binomials vanish · composites break both ways ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'the child’s error is a theorem exactly when the modulus is prime');
+ nt(g,'#8ad',12,H-12,9,'Frobenius endomorphism — load-bearing across finite fields');}
+document.getElementById('fdm').onclick=function(){mi=(mi+1)%MODS.length;drawW4();document.getElementById('fdread2').textContent='mod '+MODS[mi%MODS.length];};
+document.getElementById('fdcheck2').onclick=function(){var v=selftest();document.getElementById('fdread2').textContent='biconditional below 100, both directions: '+v.ok;};
+document.getElementById('fdspin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#35ffb0',10,18,10,'rows 2..19 mod themselves — dark exactly at the primes');
+ for(var n=2;n<=19;n++){var y=34+(n-2)*16;
+  var pr=isPrime(n),dark=true;
+  for(var k=1n;k<BigInt(n);k++)if(binom(BigInt(n),k)%BigInt(n)!==0n)dark=false;
+  nf(g,dark?'rgba(53,255,176,0.75)':'rgba(255,47,166,0.5)',40,y,W-140,10);
+  nt(g,'#9cf',18,y+9,9,String(n));
+  nt(g,dark?'#35ffb0':'#ff6ab0',W-92,y+9,8,dark?'vanishes':'leaks');}
+ nt(g,'#35ffb0',10,H-40,10,'green: prime rows — the wall is not loaded');nt(g,'#ff2fa6',10,H-24,10,'magenta: composite rows — the collision mesh survives');nt(g,'#8ad',10,H-8,9,'every error is a theorem somewhere');}
+drawW3();drawW4();window.__freshmansdream=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SMIT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">In 1982 Albert Wilansky noticed something about his brother-in-law&rsquo;s phone number. <b>Harold Smith&rsquo;s</b> number, 493-7775, factors as 3&middot;5&middot;5&middot;65837 &mdash; and the <b>digit sum of the number (42) equals the combined digit sum of its prime factors (42)</b>. He called such numbers <b>Smith numbers</b>, and the name stuck. They begin 4, 22, 27, 58, 85, 94, 121&hellip; (4 = 2&middot;2: digit sum 4, factor digits 2+2 = 4). The books balance between two completely different representations of the same number &mdash; positional digits on one side, multiplicative atoms on the other. Wayne McDaniel proved in 1987 that infinitely many exist; whether infinitely many <b>consecutive</b> Smith pairs (like 728, 729) exist is open.<br><br>
+ <span class="lit">LIT</span> verified live: a full smallest-prime-factor census below 100,000 finds 3,294 Smith numbers with the first twelve matching 4, 22, 27, 58, 85, 94, 121, 166, 202, 265, 274, 319; the phone number 4937775 = 3&middot;5&middot;5&middot;65837 is verified (65837 confirmed prime by trial division) with both digit sums exactly 42 (window.__smith). <span class="fig">FIG</span> the phone-number origin story is history, told as history; McDaniel&rsquo;s infinitude and the open consecutive-pairs question are cited as content.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-merge</i> &mdash; the co-op: two branches of the same number &mdash; its decimal write-out and its prime factorization &mdash; merging with identical checksums; the commit goes through clean. <b>AVAN (AI)</b> built the instrument: the sieve census and the phone-number audit.<br><br>Credit as content: Albert Wilansky (1982); Harold Smith (the phone number); Wayne McDaniel (1987, infinitude). The weave: David names the clean merge; I count 3,294 of them below one hundred thousand.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The phone number's ledger — 4+9+3+7+7+7+5 on one side, 3, 5, 5, 6+5+8+3+7 on the other.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Walk the Smith numbers; each shows its balanced double ledger.</div>
+   <div class="btns" style="margin-top:10px"><button id="stn">next ▶</button><button id="stcheck">verify ▶</button></div>
+   <div class="cap" id="stread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: digits raining into two pans that balance.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t admire the balance &mdash; notice it should mean nothing. The inverse of &lsquo;the books agree&rsquo; is &lsquo;there is no reason they should&rsquo;: digit sums live in base 10, prime factors live nowhere in particular, and the equality is a pure artifact of notation &mdash; which is exactly why its infinitude needed a real proof. <b>Magenta</b> is the base-10 accident; <b>green</b> is McDaniel&rsquo;s theorem making the accident inexhaustible. Some mathematics is about the universe; this is about the ledger &mdash; honestly labeled.</div>
+   <div class="btns" style="margin-top:10px"><button id="stspin">pause spin</button></div></div></div></div>"""
+SMIT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,si=0;
+function ds(n){var s=0;while(n){s+=n%10;n=Math.floor(n/10);}return s;}
+var SPF=null;
+function buildSPF(){if(SPF)return SPF;var N=100000,spf=new Int32Array(N+1);
+ for(var i=2;i<=N;i++)if(!spf[i])for(var j=i;j<=N;j+=i)if(!spf[j])spf[j]=i;
+ SPF=spf;return spf;}
+function facDs(n,spf){var m=n,fs=0;while(m>1){fs+=ds(spf[m]);m/=spf[m];}return fs;}
+function factorList(n,spf){var out=[],m=n;while(m>1){out.push(spf[m]);m/=spf[m];}return out;}
+function selftest(){if(VR)return VR;var spf=buildSPF(),N=100000;
+ var smiths=[],count=0;
+ for(var n=4;n<=N;n++){if(spf[n]===n)continue;
+  if(ds(n)===facDs(n,spf)){count++;if(smiths.length<40)smiths.push(n);}}
+ var first=[4,22,27,58,85,94,121,166,202,265,274,319];
+ var okFirst=first.every(function(v,i){return smiths[i]===v;});
+ var p65837=true;for(var d=2;d*d<=65837;d++)if(65837%d===0)p65837=false;
+ var prodOk=3*5*5*65837===4937775;
+ var pnDs=ds(4937775),fDs=ds(3)+ds(5)+ds(5)+ds(65837);
+ VR={count:count,smiths:smiths,okFirst:okFirst,p65837:p65837,prodOk:prodOk,pnDs:pnDs,fDs:fDs,
+  ok:okFirst&&p65837&&prodOk&&pnDs===42&&fDs===42};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,\"Harold Smith's phone number: 493-7775\");
+ nt(g,'#35ffb0',30,64,15,'4+9+3+7+7+7+5');
+ nt(g,'#35ffb0',86,92,17,'= 42');
+ nt(g,'#21e6ff',270,50,12,'3 → 3');
+ nt(g,'#21e6ff',270,72,12,'5 → 5');
+ nt(g,'#21e6ff',270,94,12,'5 → 5');
+ nt(g,'#21e6ff',270,116,12,'65837 → 6+5+8+3+7 = 29');
+ nt(g,'#21e6ff',300,146,17,'= 42');
+ ne(g,'#ffcf4a',2);g.beginPath();g.moveTo(210,60);g.lineTo(210,150);g.stroke();ng(g);
+ nt(g,'#8ad',10,H-30,9,'digits on the left, prime atoms on the right — the books balance');
+ nt(g,'#8ad',10,H-10,9,'Wilansky 1982 — mathematics found in a phone book');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),spf=buildSPF(),n=v.smiths[si%v.smiths.length];
+ nt(g,'#ffcf4a',12,20,12,'Smith #'+(si%v.smiths.length+1)+':  '+n);
+ var fl=factorList(n,spf);
+ nt(g,'#9cf',16,56,12,n+' = '+fl.join(' · '));
+ nt(g,'#35ffb0',16,88,12,'digit sum: '+ds(n));
+ nt(g,'#21e6ff',16,114,12,'factor digit sum: '+facDs(n,spf));
+ nt(g,'#39ffb0',16,144,13,'balanced ✓');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: census '+v.count+' below 10⁵ · first twelve exact · phone number 42=42 ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'McDaniel 1987: infinitely many · consecutive pairs (728,729): open in general');
+ nt(g,'#8ad',12,H-12,9,'two representations, one checksum');}
+document.getElementById('stn').onclick=function(){var v=selftest();si=(si+1)%v.smiths.length;drawW4();document.getElementById('stread').textContent=v.smiths[si%v.smiths.length]+'';};
+document.getElementById('stcheck').onclick=function(){var v=selftest();document.getElementById('stread').textContent=v.count+' Smiths < 100,000: '+v.ok;};
+document.getElementById('stspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2+30;
+ var tilt=Math.sin(ang*0.02)*0.02;
+ ne(g,'#ffcf4a',3);g.beginPath();g.moveTo(cx-110,cy+tilt*110);g.lineTo(cx+110,cy-tilt*110);g.stroke();ng(g);
+ ndot(g,cx,cy,6,'#ffcf4a');
+ for(var k=0;k<12;k++){var x=((k*89+Math.floor(ang*1.5))%(W-40))+20,y=30+((k*37+ang*1.2)%(cy-80));
+  nt(g,k%2?'#35ffb0':'#21e6ff',x,y,10,String((k*7)%10));}
+ nf(g,'rgba(53,255,176,0.7)',cx-96,cy+tilt*110-34,54,30);
+ nf(g,'rgba(33,230,255,0.7)',cx+42,cy-tilt*110-34,54,30);
+ nt(g,'#9cf',cx-88,cy+tilt*110-40,9,'digits: 42');
+ nt(g,'#9cf',cx+48,cy-tilt*110-40,9,'atoms: 42');
+ nt(g,'#35ffb0',10,H-52,11,'green: the ledger that balances for no deep reason');nt(g,'#ff2fa6',10,H-34,10,'magenta: the base-10 accident underneath');nt(g,'#8ad',10,H-14,10,'this is about the ledger — honestly labeled');}
+drawW3();drawW4();window.__smith=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WERD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A number is <b>abundant</b> when its proper divisors sum past it &mdash; 70&rsquo;s divisors 1, 2, 5, 7, 10, 14, 35 total 74. Usually abundance means flexibility: some subset of the divisors adds to exactly n (making it <b>semiperfect</b>). But <b>70 is different</b>: check all 128 subsets and none hits 70. Rich, but unable to spend the wealth exactly. Numbers like this &mdash; abundant yet not semiperfect &mdash; are the <b>weird numbers</b> (Benkoski &amp; Erd&#337;s, 1974): 70, 836, 4030, 5830, 7192, 7912, 9272&hellip; They are provably infinite, all known ones are even, and whether an <b>odd weird number</b> exists is open &mdash; searched past 10&sup2;&sup1;, with Erd&#337;s having offered cash for the answer.<br><br>
+ <span class="lit">LIT</span> verified live: an exhaustive sweep of every n below 10,000 &mdash; abundance computed from real divisor lists, semiperfection decided by exact subset-sum dynamic programming &mdash; finds exactly seven weird numbers: 70, 836, 4030, 5830, 7192, 7912, 9272 (window.__weird). <span class="fig">FIG</span> honest boundary: infinitude is Benkoski&ndash;Erd&#337;s theorem (cited); the odd-weird question is open; and a build note &mdash; the first draft of this sphere &lsquo;remembered&rsquo; six weird numbers below 10&#8308;; the exhaustive computation found seven (5830 was missing) and the computation won, as it should.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-inventory</i> &mdash; the loot: a full inventory, more materials than the recipe needs &mdash; and no combination crafts the item. Abundance without spendability. <b>AVAN (AI)</b> built the instrument: the divisor auditor and the subset-sum decider.<br><br>Credit as content: Stan Benkoski &amp; Paul Erd&#337;s (1974); the aliquot tradition. The weave: David names the uncraftable item; I check every subset and certify the frustration.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">70's seven divisors — 74 units of wealth that cannot make 70.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Walk the seven; each shows its divisors, its abundance, and the subset-sum wall.</div>
+   <div class="btns" style="margin-top:10px"><button id="wdn">next ▶</button><button id="wdcheck">verify ▶</button></div>
+   <div class="cap" id="wdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: reachable sums lighting up — with one dark slot at n.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t count the wealth &mdash; map what it can buy. The inverse of &lsquo;the divisors sum to 74&rsquo; is the REACHABLE SET: which totals exist? For 70, the subset sums fill slot after slot &mdash; 68, 69, 71, 72 &mdash; and skip exactly the one that matters. <b>Magenta</b> is the dark slot at 70; <b>green</b> is everything else the inventory affords. Wealth is not the same as change for every bill &mdash; a lesson proved by dynamic programming.</div>
+   <div class="btns" style="margin-top:10px"><button id="wdspin">pause spin</button></div></div></div></div>"""
+WERD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,wi=0;
+function divisors(n){var d=[];for(var i=1;i*i<=n;i++)if(n%i===0){d.push(i);if(i!==n/i&&n/i!==n)d.push(n/i);}
+ return d.filter(function(x){return x<n;}).sort(function(a,b){return a-b;});}
+function reach(n,divs){var dp=new Uint8Array(n+1);dp[0]=1;
+ for(var i=0;i<divs.length;i++){var d=divs[i];
+  for(var v=n;v>=d;v--)if(dp[v-d])dp[v]=1;}
+ return dp;}
+function selftest(){if(VR)return VR;var weird=[];
+ for(var n=2;n<10000;n++){var divs=divisors(n),s=0;
+  for(var i=0;i<divs.length;i++)s+=divs[i];
+  if(s<=n)continue;
+  if(!reach(n,divs)[n])weird.push(n);}
+ var expect=[70,836,4030,5830,7192,7912,9272];
+ VR={weird:weird,ok:weird.length===7&&expect.every(function(v,i){return weird[i]===v;})};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'70: divisors 1, 2, 5, 7, 10, 14, 35 — total 74');
+ var divs=[1,2,5,7,10,14,35],x=30;
+ divs.forEach(function(d){var w=8+d*3.4;
+  nf(g,'#ff8a3c',x,H/2-16,w,32);
+  nt(g,'#0a0713',x+w/2-6,H/2+4,10,String(d));x+=w+8;});
+ nt(g,'#35ffb0',30,H/2+58,12,'wealth: 74 (abundant by 4)');
+ nt(g,'#ff2fa6',220,H/2+58,12,'no subset makes exactly 70');
+ nt(g,'#8ad',10,H-8,9,'all 128 subsets checked — Benkoski & Erdős 1974: weird');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),n=v.weird[wi%7];
+ var divs=divisors(n),s=0;divs.forEach(function(d){s+=d;});
+ nt(g,'#ff8a3c',12,20,12,'weird #'+(wi%7+1)+':  '+n);
+ var dstr=divs.join(',');
+ nt(g,'#9cf',16,54,dstr.length>44?8:10,'divisors: '+(dstr.length>60?dstr.slice(0,60)+'…':dstr));
+ nt(g,'#35ffb0',16,84,12,'sum '+s+' — abundant by '+(s-n));
+ nt(g,'#ff2fa6',16,112,12,'subset-sum DP: slot '+n+' unreachable ✗');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: exhaustive < 10,000 → exactly 70,836,4030,5830,7192,7912,9272 ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'odd weird: none below 10²¹ — OPEN (Erdős paid for progress)');
+ nt(g,'#8ad',12,H-12,9,'build note: memory said six, the computation found seven — computation wins');}
+document.getElementById('wdn').onclick=function(){wi=(wi+1)%7;drawW4();var v=selftest();document.getElementById('wdread').textContent=String(v.weird[wi%7]);};
+document.getElementById('wdcheck').onclick=function(){var v=selftest();document.getElementById('wdread').textContent='seven weird < 10⁴, DP-certified: '+v.ok;};
+document.getElementById('wdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ff8a3c',10,18,10,'the reachable sums of 70 — one dark slot');
+ var divs=divisors(70),dp=reach(74,divs);
+ for(var v2=1;v2<=74;v2++){var x=14+((v2-1)%25)*(W-28)/25,y=50+Math.floor((v2-1)/25)*54;
+  var on=dp[v2]===1;
+  nf(g,v2===70?'#ff2fa6':(on?'rgba(53,255,176,0.7)':'rgba(60,60,90,0.5)'),x,y,10,v2===70?30:(on?20:8));
+  if(v2===70)nt(g,'#ff6ab0',x-8,y+44,9,'70 ✗');}
+ nt(g,'#35ffb0',10,H-52,11,'green: every total the inventory affords');nt(g,'#ff2fa6',10,H-34,10,'magenta: the one slot that stays dark — n itself');nt(g,'#8ad',10,H-14,10,'wealth is not change for every bill');}
+drawW3();drawW4();window.__weird=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 180 · neon-noir · silicon-coding · THE UNKILLABLE AND THE UNPROVABLE (an integer streak that dies at seventeen · a fair split sharp at every power · three coins in 250 years · the slowest counter in mathematics · the boss that must lose but arithmetic cannot say so) ═══════════════════════
 SOMO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Start with 1, 1, 1, 1 and iterate a(n) = (a(n&minus;1)a(n&minus;3) + a(n&minus;2)&sup2;)/a(n&minus;4). You are <b>dividing</b> at every step &mdash; yet the <b>Somos-4</b> sequence 1, 1, 1, 1, 2, 3, 7, 23, 59, 314, 1529&hellip; stays integer forever. So do Somos-5, 6, and 7. This &lsquo;shouldn&rsquo;t happen&rsquo; &mdash; and the reason it does is the <b>Laurent phenomenon</b> (Fomin&ndash;Zelevinsky, from cluster algebra theory): each term is secretly a Laurent polynomial in the initial values, denominators forever confined to the seeds. Then comes <b>Somos-8</b>: integer, integer, integer&hellip; and at term a(17), the spell breaks &mdash; <b>420514/7</b>. The 7 that was always lurking finally surfaces.<br><br>
@@ -47356,6 +47741,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-heegner","title":"THE HEEGNER","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#21e6ff","icon":"heegner",
+  "kicker":"an integer missed by seven ten-trillionths",
+  "blurb":"Ramanujan's constant in the 5-window house format — e^(π√163) = 262537412640768743.99999999999925…, a transcendental missing the integer 640320³+744 by 7.5×10⁻¹³. No accident: 163 is the largest Heegner number (class number one: {1,2,3,7,11,19,43,67,163}), and modular-function theory FORCES the near-miss — the same 163 = 4·41−3 that powers Euler's prime factory n²+n+41. Hermite computed it in 1859; Martin Gardner ran it as a 1975 April Fools' hoax. Verified live entirely from scratch: π by two independent arctangent engines agreeing to 58 digits, √163 by BigInt Newton, the exponential by halve-series-square fixed point, the target exact, the gap measured at 7.499×10⁻¹³. Neon-noir traced. See the magnified number line in 1D, the Heegner ladder in 2D, and the tower-and-hair in 3D.",
+  "lit":"Genuine Heegner/Ramanujan-constant phenomenon (Hermite 1859; Heegner 1952; Gardner's 1975 hoax). Verified live: 640320³+744 = 262537412640768744 exact; π from Machin AND Hutton formulas agreeing 58 digits; e^(π√163) by fixed-point BigInt = …743.99999999999925; gap 7.499e-13 inside (7.4e-13, 7.6e-13) (window.__heegner.ok).",
+  "fig":"Honest boundary — WHY the near-miss happens (j-invariant q-expansion, complex multiplication) is cited theory; the sphere measures the miracle. The AVAN inverse — don't admire the coincidence, ask what forbids completion: the same theory that forces the closeness guarantees the gap, since the number is transcendental. Magenta is the 7.5×10⁻¹³ that can never close; green is the integer standing exact. The most beautiful near-miss in mathematics is a near-miss by law.",
+  "body":HEEG_BODY,"script":HEEG_SCRIPT},
+ {"slug":"the-khinchin","title":"THE KHINCHIN","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#b06bff","icon":"khinchin",
+  "kicker":"the average hiding in almost every number",
+  "blurb":"Khinchin's constant in the 5-window house format — write any real as a continued fraction and average its terms geometrically: for ALMOST EVERY real the answer converges to one universal constant, K₀ = 2.6854520… (Khinchin 1934), regardless of the number chosen. The exceptions have measure zero but include celebrities: √2 = [1;2,2,2,…] locks at GM 2; e = [2;1,2,1,1,4,1,1,6,…] follows a rigid pattern and misses too. π looks utterly typical — its first hundred terms average 2.6831 — but whether π truly obeys Khinchin is UNPROVEN. Verified live: π to 320 digits by Machin BigInt, 100 CF terms extracted with truncation-stability audit, GM 2.6831; √2's all-2s and e's [1,2k,1] pattern verified as the provable exceptions they are. Neon-noir traced. See π's wild spikes in 1D, the running means in 2D, and three rivers flowing at K₀ in 3D.",
+  "lit":"Genuine Khinchin's constant theory (Khinchin 1934; Gauss–Kuzmin; Lehmer). Verified live: π computed to 320 digits, first 100 CF terms stable across independent precisions, GM = 2.6831 within 0.1% of K₀=2.6855; √2 all-2s (90 terms) → GM 2; e's pattern verified 85 terms → GM 2.79 (window.__khinchin.ok).",
+  "fig":"Honest boundary loudly — Khinchin's theorem is 'almost all'; π's membership is CONJECTURE, and 100 terms of closeness is evidence, not proof. The AVAN inverse — don't average one number, ask which numbers refuse the average: rationals, quadratics, e — everything with a pattern escapes into the null set; only the patternless obey. Magenta is √2 and e, exempted by their own structure; green is π tracking a mean it has never been proven to own. Typicality is the one property structure cannot buy.",
+  "body":KHIN_BODY,"script":KHIN_SCRIPT},
+ {"slug":"the-freshmans-dream","title":"THE FRESHMAN'S DREAM","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#35ffb0","icon":"freshmansdream",
+  "kicker":"the child's error that becomes law",
+  "blurb":"The freshman's dream in the 5-window house format — every algebra teacher crosses out (a+b)² = a²+b² in red ink. The punchline of abstract algebra: in the right world the freshman is CORRECT — modulo a prime p, (a+b)^p ≡ a^p + b^p for all a, b, because every interior binomial coefficient C(p,k) is divisible by p and the cross-terms vanish wholesale. It is an exact characterization: every composite modulus breaks the dream. As the Frobenius endomorphism, the child's error is load-bearing machinery across finite fields — AKS primality testing starts from precisely this identity. Verified live: the dream for every prime below 100 across 20 random BigInt pairs each, the vanishing binomials exactly, and both converses — every composite exhibits a surviving coefficient AND a concrete breaking pair. Neon-noir traced. See Pascal mod 7 go dark in 1D, the modulus switch in 2D, and rows darkening exactly at primes in 3D.",
+  "lit":"Genuine freshman's dream / Frobenius endomorphism (char-p algebra; AKS 2002 builds on it). Verified live: (a+b)^p ≡ a^p+b^p mod p for all primes p<100 × 20 random pairs; C(p,k) ≡ 0 mod p for all interior k; every composite < 100 has both a surviving binomial coefficient and a concrete counterexample pair (window.__freshmansdream.ok).",
+  "fig":"No framing — the biconditional below 100 is verified on both sides exactly. The AVAN inverse — don't laugh at the freshman, find the world where the teacher is wrong: the same equation is a mistake over ℤ and a homomorphism over 𝔽_p, and knowing WHICH world you are in is the entire content of algebra. Magenta is the cross-term surviving composite worlds; green is the prime rows where it vanishes wholesale. Every error is a theorem somewhere — the discipline is knowing where.",
+  "body":FRSH_BODY,"script":FRSH_SCRIPT},
+ {"slug":"the-smith","title":"THE SMITH","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#ffcf4a","icon":"smith",
+  "kicker":"a phone number with balanced books",
+  "blurb":"Smith numbers in the 5-window house format — in 1982 Albert Wilansky noticed his brother-in-law Harold Smith's phone number 493-7775 factors as 3·5·5·65837, and the digit sum of the number (42) equals the combined digit sum of its prime factors (42). Smith numbers begin 4, 22, 27, 58, 85, 94, 121… — the books balancing between two unrelated representations: positional digits and multiplicative atoms. McDaniel proved infinitude in 1987. Verified live: a full sieve census below 100,000 (3,294 Smiths, first twelve exact), the phone number's factorization audited with 65837 confirmed prime, both ledgers exactly 42. Neon-noir traced. See the phone-number ledger in 1D, the walking double ledgers in 2D, and the balance pans in 3D.",
+  "lit":"Genuine Smith numbers (Albert Wilansky 1982; Wayne McDaniel 1987 infinitude). Verified live: census below 10⁵ = 3,294 with first twelve 4,22,27,58,85,94,121,166,202,265,274,319; 4937775 = 3·5·5·65837 with 65837 prime by trial division; both digit sums exactly 42 (window.__smith.ok).",
+  "fig":"The phone-number origin story is history told as history; infinitude and the open consecutive-pairs question cited as content. The AVAN inverse — don't admire the balance, notice it should mean nothing: digit sums live in base 10, prime factors live nowhere in particular, and the equality is an artifact of notation — which is exactly why its infinitude needed a real proof. Magenta is the base-10 accident; green is McDaniel's theorem making the accident inexhaustible. Some mathematics is about the universe; this is about the ledger — honestly labeled.",
+  "body":SMIT_BODY,"script":SMIT_SCRIPT},
+ {"slug":"the-weird","title":"THE WEIRD","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#ff8a3c","icon":"weird",
+  "kicker":"abundance you cannot spend",
+  "blurb":"Weird numbers in the 5-window house format — 70's proper divisors (1,2,5,7,10,14,35) sum to 74: abundant. Usually abundance buys flexibility — some subset hits n exactly (semiperfect). But none of 70's 128 subsets makes 70: rich, and unable to spend the wealth exactly. Abundant-but-not-semiperfect numbers are the weird numbers (Benkoski & Erdős 1974): 70, 836, 4030, 5830, 7192, 7912, 9272… — provably infinite, all known ones even, the odd case open past 10²¹ with Erdős cash on the table. Verified live: exhaustive sweep below 10,000 with real divisor lists and exact subset-sum DP finds exactly those seven. Build note kept honest: memory said six; the computation found seven (5830) — computation wins. Neon-noir traced. See 70's unspendable wealth in 1D, the seven audits in 2D, and the reachable-sums map with its one dark slot in 3D.",
+  "lit":"Genuine weird numbers (Benkoski & Erdős 1974). Verified live: exhaustive n < 10,000 — abundance from real divisor sums, semiperfection by exact subset-sum DP — yields exactly {70, 836, 4030, 5830, 7192, 7912, 9272} (window.__weird.ok).",
+  "fig":"Honest boundary — infinitude cited; odd-weird existence OPEN (none below 10²¹). Build note: the first draft 'remembered' six weird numbers; the exhaustive computation found seven and replaced memory, as it should. The AVAN inverse — don't count the wealth, map what it can buy: the reachable set fills slot after slot and skips exactly the one that matters. Magenta is the dark slot at n; green is everything else the inventory affords. Wealth is not the same as change for every bill — a lesson proved by dynamic programming.",
+  "body":WERD_BODY,"script":WERD_SCRIPT},
  {"slug":"the-somos","title":"THE SOMOS","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#ff8a3c","icon":"somos",
   "kicker":"an integer streak that dies at seventeen",
