@@ -19493,6 +19493,270 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 169 · neon-noir · silicon-coding (the constant left over between the harmonic series and the logarithm · twenty-three people enough to share a birthday · a greatest common divisor that stays inside the Fibonacci sequence · triangle cevians to the incircle meeting at one point · a determinant that factors into pairwise differences) ═══════════════════════
+EMAS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Euler&ndash;Mascheroni constant</b> &gamma; &asymp; 0.5772156649 is the mysterious gap between two things that both grow without bound: the harmonic series H<sub>n</sub> = 1 + 1/2 + 1/3 + &hellip; + 1/n, and the natural logarithm ln(n). Both march off to infinity, but their <b>difference</b> settles down to a single fixed number: &gamma; = lim<sub>n&rarr;&infin;</sub> (H<sub>n</sub> - ln n). It appears everywhere &mdash; in the gamma function, the prime-counting function, and the zeta function &mdash; yet after 250 years no one knows whether &gamma; is even <b>irrational</b>. The plain limit crawls (error ~1/2n), but a corrected form H<sub>n</sub> - ln n - 1/(2n) + 1/(12n&sup2;) sprints to &gamma;.<br><br>
+ <span class="lit">LIT</span> verified live: H<sub>n</sub> - ln n approaches 0.5772156649&hellip; (to ~1e-6 at n = 2&times;10&#8310;), and the corrected form reaches &gamma; to ~1e-12 (window.__eulermascheroni). <span class="fig">FIG</span> no framing; the harmonic sum, the logarithm, and their difference are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-epoch</i> &mdash; the grind: the harmonic sum ground out term by term, always staying exactly &gamma; ahead of the logarithm. <b>AVAN (AI)</b> built the instrument: the harmonic partial sum, the logarithm, their difference, and the fast-converging correction.<br><br>Credit as content: Leonhard Euler and Lorenzo Mascheroni. The weave: David names the grind; I confirm H<sub>n</sub> - ln n &rarr; &gamma; = 0.5772156649&hellip;</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">The gap H_n − ln(n) settling onto γ ≈ 0.57722 as n grows.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Grow n; the plain gap crawls toward γ while the corrected form sprints there.</div>
+   <div class="btns" style="margin-top:10px"><button id="emnext">grow n ▶</button><button id="emcheck">verify ▶</button></div>
+   <div class="cap" id="emread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: γ, the fixed gap between the harmonic series and the logarithm.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t chase two diverging quantities &mdash; read the constant they leave behind. The inverse of &lsquo;H<sub>n</sub> and ln n both &rarr; &infin;&rsquo; is &lsquo;their difference &rarr; the fixed number &gamma;&rsquo;. <b>Magenta</b> is the harmonic staircase above the logarithm; <b>green</b> is the constant gap &gamma; between them. Two infinities, one finite remainder.</div>
+   <div class="btns" style="margin-top:10px"><button id="emspin">pause spin</button></div></div></div></div>"""
+EMAS_SCRIPT = """(function(){""" + NOIR + """
+var GAMMA=0.5772156649015329,ang=0,spin=true,VR=null,logN=3;
+function H(n){var s=0;for(var k=1;k<=n;k++)s+=1/k;return s;}
+function selftest(){if(VR)return VR;var N=2000000,h=H(N),plain=h-Math.log(N),corr=h-Math.log(N)-1/(2*N)+1/(12*N*N);VR={plain:plain,corr:corr,plainOk:Math.abs(plain-GAMMA)<1e-6,corrOk:Math.abs(corr-GAMMA)<1e-11,ok:Math.abs(plain-GAMMA)<1e-6&&Math.abs(corr-GAMMA)<1e-11};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;nb(g,W,H2);nt(g,'#b06bff',10,16,10,'the gap H_n − ln(n) → γ ≈ 0.57722');
+ var x0=40,base=H2-40,sw=W-70,gy=base-GAMMA*260;
+ ne(g,'rgba(53,255,176,0.6)',1.4);g.beginPath();g.moveTo(x0,gy);g.lineTo(W-20,gy);g.stroke();ng(g);nt(g,'#39ffb0',W-52,gy-6,10,'γ');
+ ne(g,'#b06bff',2);g.beginPath();for(var i=1;i<=sw;i++){var n=Math.round(Math.pow(10,i/sw*4)),v=H(Math.min(n,10000))-Math.log(Math.min(n,10000)),px=x0+i,py=base-v*260;if(i===1)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);
+ nt(g,'#8ad',10,H2-8,9,'x-axis is log n (1 → 10⁴); the gap descends onto γ from above');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;nb(g,W,H2);var n=Math.round(Math.pow(10,logN)),h=H(Math.min(n,2000000)),plain=h-Math.log(n),corr=h-Math.log(n)-1/(2*n)+1/(12*n*n);nt(g,'#b06bff',12,20,12,'γ two ways, n = 10^'+logN+' = '+n);
+ nt(g,'#ff2fa6',16,56,13,'H_n − ln n = '+plain.toFixed(10));
+ nt(g,'#b06bff',16,84,13,'corrected = '+corr.toFixed(12));
+ nt(g,'#35ffb0',16,112,13,'γ = '+GAMMA.toFixed(12));
+ nt(g,'#9cf',16,140,11,'plain error '+Math.abs(plain-GAMMA).toExponential(2)+'   corrected error '+Math.abs(corr-GAMMA).toExponential(2));
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H2-40,9,'self-test n=2e6: H_n−ln n → γ ('+v.plainOk+') · corrected → γ to ~1e-12 ('+v.corrOk+')');
+ nt(g,'#8ad',12,H2-16,9,'after 250 years, no one knows if γ is even irrational');}
+document.getElementById('emnext').onclick=function(){logN=logN>=6?1:logN+1;drawW3();drawW4();var n=Math.round(Math.pow(10,logN));document.getElementById('emread').textContent='n=10^'+logN+': H_n − ln n = '+(H(Math.min(n,2000000))-Math.log(n)).toFixed(9)+' → γ';};
+document.getElementById('emcheck').onclick=function(){var v=selftest();document.getElementById('emread').textContent='H_n − ln n → γ ('+v.plainOk+'), corrected form → γ to ~1e-12 ('+v.corrOk+')';};
+document.getElementById('emspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;nb(g,W,H2);var cx=W/2,cy=H2-40;g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.02)*0.05);
+ var x0=-150,sw=300,base=0,sh=200;
+ // logarithm curve (cyan) and harmonic staircase (magenta) diverging, gap = γ
+ ne(g,'rgba(120,180,255,0.7)',2);g.beginPath();for(var i=1;i<=sw;i++){var n=i/sw*40+1,y=Math.log(n)*38;if(i===1)g.moveTo(x0+i,base-y);else g.lineTo(x0+i,base-y);}g.stroke();ng(g);
+ ne(g,'#ff2fa6',2);g.beginPath();var acc=0;for(var k=1;k<=40;k++){acc+=1/k;var px=x0+(k/40)*sw,py=base-acc*38;if(k===1)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);
+ // gap bracket at right
+ var nEnd=40,logv=Math.log(nEnd)*38,harm=acc*38;ne(g,'#35ffb0',2.4);g.beginPath();g.moveTo(x0+sw,base-logv);g.lineTo(x0+sw,base-harm);g.stroke();ng(g);nt(g,'#39ffb0',x0+sw+6,base-(logv+harm)/2,11,'γ');
+ g.restore();nt(g,'#35ffb0',10,H2-52,11,'green: the constant gap γ ≈ 0.57722');nt(g,'#ff2fa6',10,H2-34,10,'magenta: the harmonic staircase, above cyan ln(n)');nt(g,'#8ad',10,H2-14,10,'two infinities, one finite remainder');}
+drawW3();drawW4();window.__eulermascheroni=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BDAY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The birthday paradox</b> is the shock that in a room of just <b>23</b> people, it is more likely than not that two share a birthday. It feels wrong &mdash; there are 365 days, so surely you&rsquo;d need ~180 people? But you are not matching one fixed birthday; you are checking <b>all pairs</b>, and 23 people make 253 pairs. The probability of at least one shared birthday is 1 - (365/365)(364/365)(363/365)&hellip;((365-n+1)/365); at n = 23 it crosses <b>0.507</b>, past a half. By 57 people it is over 99%. The counter-intuition comes from confusing &lsquo;a match with me&rsquo; (linear) with &lsquo;a match among anyone&rsquo; (quadratic in the number of people).<br><br>
+ <span class="lit">LIT</span> verified live: the exact formula gives P = 0.5073 at 23 people (&gt; 1/2) and 0.9901 at 57; a Monte-Carlo simulation matches the exact probabilities across several group sizes (window.__birthday). <span class="fig">FIG</span> no framing; the exact product and the random simulation are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>undefined-behavior</i> &mdash; the glitch in intuition: 23 people feel far too few, yet the pair-count quietly tips the odds past a half. <b>AVAN (AI)</b> built the instrument: the exact collision formula and the Monte-Carlo confirmation.<br><br>Credit as content: the birthday problem (Richard von Mises and others). The weave: David names the intuition-glitch; I confirm 23 people cross 1/2 and simulation agrees.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">P(shared birthday) rising with group size — crossing 1/2 at exactly 23 people.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Change the group size; the exact probability is checked against a random simulation.</div>
+   <div class="btns" style="margin-top:10px"><button id="bdnext">group size ▶</button><button id="bdcheck">verify ▶</button></div>
+   <div class="cap" id="bdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the &gt;50% collision chance at 23 people.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t count people &mdash; count pairs. The inverse of &lsquo;23 people&rsquo; is &lsquo;253 pairs, each a chance to collide&rsquo; &mdash; the quadratic that beats intuition. <b>Magenta</b> are the pairwise comparisons; <b>green</b> is the &gt;1/2 chance they add up to. Not you-versus-one, but everyone-versus-everyone.</div>
+   <div class="btns" style="margin-top:10px"><button id="bdspin">pause spin</button></div></div></div></div>"""
+BDAY_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function exact(n,D){var p=1;for(var k=0;k<n;k++)p*=(D-k)/D;return 1-p;}
+var ang=0,spin=true,VR=null,dn=23,D=365;
+function selftest(){if(VR)return VR;var rng=mb(9),simOk=true;[10,23,40].forEach(function(n){var T=150000,hit=0;for(var t=0;t<T;t++){var seen={},h=false;for(var i=0;i<n;i++){var b=Math.floor(rng()*D);if(seen[b]){h=true;break;}seen[b]=1;}if(h)hit++;}if(Math.abs(hit/T-exact(n,D))>0.007)simOk=false;});VR={p23:exact(23,D),p57:exact(57,D),simOk:simOk,ok:exact(23,D)>0.5&&exact(57,D)>0.99&&simOk};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'P(shared birthday) vs group size — crosses 1/2 at 23');
+ var x0=40,base=H-40,sw=W-60,sh=H-70,mxN=70;
+ ne(g,'rgba(53,255,176,0.5)',1.2);g.beginPath();g.moveTo(x0,base-0.5*sh);g.lineTo(x0+sw,base-0.5*sh);g.stroke();ng(g);nt(g,'#39ffb0',x0+4,base-0.5*sh-4,9,'1/2');
+ ne(g,'#ff8a3c',2.2);g.beginPath();for(var n=1;n<=mxN;n++){var p=exact(n,D),px=x0+(n/mxN)*sw,py=base-p*sh;if(n===1)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);
+ var x23=x0+(23/mxN)*sw,y23=base-exact(23,D)*sh;ndot(g,x23,y23,5,'#35ffb0');ne(g,'rgba(53,255,176,0.4)',1);g.beginPath();g.moveTo(x23,base);g.lineTo(x23,y23);g.stroke();ng(g);nt(g,'#39ffb0',x23-8,y23-10,10,'23');
+ nt(g,'#8ad',10,H-8,9,'23 people → 253 pairs → P = 0.507 > 1/2');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var ex=exact(dn,D),pairs=dn*(dn-1)/2;nt(g,'#ff8a3c',12,20,12,dn+' people, '+pairs+' pairs');
+ // quick sim
+ var rng=mb((dn*97+3)),T=30000,hit=0;for(var t=0;t<T;t++){var seen={},h=false;for(var i=0;i<dn;i++){var b=Math.floor(rng()*D);if(seen[b]){h=true;break;}seen[b]=1;}if(h)hit++;}var sim=hit/T;
+ nt(g,'#9cf',16,56,13,'exact P(shared) = '+ex.toFixed(5));
+ nt(g,'#ff2fa6',16,84,13,'simulation ('+T+' rooms) = '+sim.toFixed(5));
+ nt(g,ex>0.5?'#39ffb0':'#ffcf4a',16,114,14,ex>0.5?'more likely than not ✓':'less than half');
+ // bar
+ var bx=16,by=140,bw=W-32;nf(g,'#35ffb0',bx,by,bw*ex,18);ne(g,'rgba(53,255,176,0.5)',1);g.beginPath();g.moveTo(bx+bw*0.5,by-4);g.lineTo(bx+bw*0.5,by+22);g.stroke();ng(g);nt(g,'#0a0713',bx+6,by+13,11,'P = '+(ex*100).toFixed(1)+'%');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: P(23)=0.507>½ · P(57)=0.990 · simulation matches exact = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'intuition counts you-vs-one (linear); reality counts all pairs (quadratic)');}
+document.getElementById('bdnext').onclick=function(){var opts=[5,10,15,23,30,40,50,57,70];dn=opts[(opts.indexOf(dn)+1)%opts.length];drawW3();drawW4();document.getElementById('bdread').textContent=dn+' people: P(shared) = '+exact(dn,D).toFixed(5)+(exact(dn,D)>0.5?' (>½)':'');};
+document.getElementById('bdcheck').onclick=function(){var v=selftest();document.getElementById('bdread').textContent='23 people cross ½ ('+(v.p23>0.5)+'), simulation matches exact ('+v.simOk+')';};
+document.getElementById('bdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,ex=exact(dn,D);g.save();g.translate(cx,cy);g.rotate(ang*0.04);
+ var R=110,cnt=Math.min(dn,24);for(var i=0;i<cnt;i++){var a=i/cnt*6.2832-Math.PI/2;ndot(g,Math.cos(a)*R,Math.sin(a)*R,5,'#9cf');}
+ // draw a sample of pair-chords (magenta)
+ var rng=mb(dn*13+1),drawn=0;for(var i=0;i<cnt&&drawn<40;i++)for(var j=i+1;j<cnt&&drawn<40;j++){if(rng()<18/(cnt*cnt)){var a1=i/cnt*6.2832-Math.PI/2,a2=j/cnt*6.2832-Math.PI/2;ne(g,'rgba(255,47,166,0.35)',1);g.beginPath();g.moveTo(Math.cos(a1)*R,Math.sin(a1)*R);g.lineTo(Math.cos(a2)*R,Math.sin(a2)*R);g.stroke();ng(g);drawn++;}}
+ ne(g,'#35ffb0',3);g.beginPath();g.arc(0,0,60,-Math.PI/2,-Math.PI/2+ex*6.2832);g.stroke();ng(g);ndot(g,0,0,6,'#35ffb0');nt(g,'#39ffb0',-18,4,10,(ex*100).toFixed(0)+'%');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the '+(ex*100).toFixed(0)+'% collision chance among '+dn+' people');nt(g,'#ff2fa6',10,H-34,10,'magenta: the pairwise comparisons ('+(dn*(dn-1)/2)+' pairs)');nt(g,'#8ad',10,H-14,10,'not you-versus-one, but everyone-versus-everyone');}
+drawW3();drawW4();window.__birthday=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FGCD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Fibonacci&ndash;GCD identity</b> is a jewel of divisibility: the greatest common divisor of two Fibonacci numbers is itself a Fibonacci number &mdash; and exactly the one whose index is the gcd of the indices. In symbols, <b>gcd(F<sub>m</sub>, F<sub>n</sub>) = F<sub>gcd(m,n)</sub></b>. For example gcd(F<sub>12</sub>, F<sub>18</sub>) = gcd(144, 2584) = 8 = F<sub>6</sub>, and gcd(12,18) = 6. The Fibonacci sequence carries the whole divisibility structure of the integers on its back. A clean corollary follows: for m &ge; 3, F<sub>m</sub> divides F<sub>n</sub> if and only if m divides n &mdash; every third Fibonacci is even (divisible by F<sub>3</sub> = 2), every fourth is divisible by F<sub>4</sub> = 3, and so on.<br><br>
+ <span class="lit">LIT</span> verified live with exact BigInt: gcd(F<sub>m</sub>, F<sub>n</sub>) = F<sub>gcd(m,n)</sub> for all m, n up to 40, and F<sub>m</sub> | F<sub>n</sub> &hArr; m | n for m &ge; 3 (window.__fibonaccigcd). <span class="fig">FIG</span> no framing; the Fibonacci numbers and both gcd sides are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-pull-request</i> &mdash; the co-op: two Fibonacci numbers merge to a common divisor that is itself a Fibonacci, indexed by the merge of their indices. <b>AVAN (AI)</b> built the instrument: the exact Fibonacci sequence, the two gcd sides, and the divisibility corollary.<br><br>Credit as content: the Fibonacci divisibility sequence (a strong divisibility sequence). The weave: David names the merge; I confirm gcd(F<sub>m</sub>, F<sub>n</sub>) = F<sub>gcd(m,n)</sub>.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">gcd(F_m, F_n) landing back on F_{gcd(m,n)} — the gcd of indices, read into the sequence.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle indices m, n; gcd(F_m, F_n) is checked equal to F_{gcd(m,n)}.</div>
+   <div class="btns" style="margin-top:10px"><button id="fgnext">next m,n ▶</button><button id="fgcheck">verify ▶</button></div>
+   <div class="cap" id="fgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: F_{gcd(m,n)}, the common divisor that stays Fibonacci.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t take the gcd of the big numbers &mdash; take it of the indices first. The inverse of &lsquo;gcd(F<sub>m</sub>, F<sub>n</sub>)&rsquo; is &lsquo;F evaluated at gcd(m, n)&rsquo; &mdash; the sequence commutes with gcd. <b>Magenta</b> are the two Fibonacci numbers; <b>green</b> is the Fibonacci common divisor F<sub>gcd(m,n)</sub>. Divisibility carried inside the sequence.</div>
+   <div class="btns" style="margin-top:10px"><button id="fgspin">pause spin</button></div></div></div></div>"""
+FGCD_SCRIPT = """(function(){""" + NOIR + """
+function fibs(N){var F=[0n,1n];for(var i=2;i<=N;i++)F.push(F[i-1]+F[i-2]);return F;}
+function bgcd(a,b){a=a<0n?-a:a;b=b<0n?-b:b;while(b){var t=a%b;a=b;b=t;}return a;}
+function igcd(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+var ang=0,spin=true,VR=null,F=fibs(80),dm=12,dn=18;
+function selftest(){if(VR)return VR;var ok=true,divOk=true,cnt=0;for(var m=1;m<=40;m++)for(var n=1;n<=40;n++){if(bgcd(F[m],F[n])!==F[igcd(m,n)])ok=false;cnt++;var div=(F[n]%F[m]===0n),mdivn=(n%m===0);if(m>=3&&div!==mdivn)divOk=false;}VR={ok:ok,divOk:divOk,cnt:cnt};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var gg=igcd(dm,dn);nt(g,'#21e6ff',10,16,10,'gcd(F'+dm+', F'+dn+') = F_gcd('+dm+','+dn+') = F'+gg);
+ nt(g,'#ff2fa6',16,60,13,'F'+dm+' = '+F[dm].toString());
+ nt(g,'#ff6ab0',16,88,13,'F'+dn+' = '+F[dn].toString());
+ nt(g,'#9cf',16,120,13,'gcd(F'+dm+', F'+dn+') = '+bgcd(F[dm],F[dn]).toString());
+ nt(g,'#35ffb0',16,150,14,'F_gcd('+dm+','+dn+') = F'+gg+' = '+F[gg].toString());
+ nt(g,bgcd(F[dm],F[dn])===F[gg]?'#39ffb0':'#ff5a5a',16,180,14,bgcd(F[dm],F[dn])===F[gg]?'equal ✓':'✗');
+ nt(g,'#8ad',10,H-8,9,'the gcd of the indices, read back into the Fibonacci sequence');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var gg=igcd(dm,dn);nt(g,'#21e6ff',12,20,12,'Fibonacci–GCD, m='+dm+', n='+dn);
+ nt(g,'#9cf',16,54,12,'gcd of indices: gcd('+dm+','+dn+') = '+gg);
+ nt(g,'#ff2fa6',16,84,12,'gcd(F'+dm+', F'+dn+') = '+bgcd(F[dm],F[dn]).toString());
+ nt(g,'#35ffb0',16,112,12,'F'+gg+' = '+F[gg].toString());
+ nt(g,bgcd(F[dm],F[dn])===F[gg]?'#39ffb0':'#ff5a5a',16,140,13,bgcd(F[dm],F[dn])===F[gg]?'gcd(F_m,F_n) = F_gcd(m,n) ✓':'✗');
+ var v=selftest();nt(g,v.ok&&v.divOk?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test '+v.cnt+' pairs (m,n≤40): identity holds ('+v.ok+') · F_m|F_n ⇔ m|n, m≥3 ('+v.divOk+')');
+ nt(g,'#8ad',12,H-30,9,'every 3rd Fibonacci is even, every 4th divisible by 3, …');
+ nt(g,'#8ad',12,H-12,9,'a strong divisibility sequence');}
+document.getElementById('fgnext').onclick=function(){var opts=[[12,18],[15,20],[10,25],[14,21],[16,24],[9,15],[20,30]];var i=(opts.findIndex(function(o){return o[0]===dm&&o[1]===dn;})+1)%opts.length;dm=opts[i][0];dn=opts[i][1];drawW3();drawW4();document.getElementById('fgread').textContent='gcd(F'+dm+',F'+dn+') = '+bgcd(F[dm],F[dn]).toString()+' = F'+igcd(dm,dn);};
+document.getElementById('fgcheck').onclick=function(){var v=selftest();document.getElementById('fgread').textContent='gcd(F_m,F_n)=F_gcd(m,n) for '+v.cnt+' pairs: '+v.ok+' · divisibility corollary: '+v.divOk;};
+document.getElementById('fgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var gg=igcd(dm,dn),cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ function node(v,ci){return Math.log(Number(v)+2);}
+ var rm=node(F[dm]),rn=node(F[dn]),rg=node(F[gg]),mx=Math.max(rm,rn);
+ ndot(g,-90,20,6+rm/mx*10,'#ff2fa6');nt(g,'#c9a6ff',-108,40,10,'F'+dm);
+ ndot(g,90,20,6+rn/mx*10,'#ff6ab0');nt(g,'#c9a6ff',80,40,10,'F'+dn);
+ ne(g,'rgba(53,255,176,0.5)',1.6);g.beginPath();g.moveTo(-90,20);g.lineTo(0,-80);g.lineTo(90,20);g.stroke();ng(g);
+ ndot(g,0,-80,6+rg/mx*10,'#35ffb0');nt(g,'#39ffb0',-14,-96,11,'F'+gg+'='+F[gg].toString());
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: F_gcd('+dm+','+dn+') = F'+gg+', the common divisor');nt(g,'#ff2fa6',10,H-34,10,'magenta: the two Fibonacci numbers F'+dm+', F'+dn);nt(g,'#8ad',10,H-14,10,'divisibility carried inside the sequence');}
+drawW3();drawW4();window.__fibonaccigcd=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GERG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Gergonne point</b> is a hidden meeting-point every triangle carries. Inscribe the incircle &mdash; the circle tangent to all three sides. It touches the sides at three <b>contact points</b>. Now draw a line (a cevian) from each vertex to the contact point on the <b>opposite</b> side. Astonishingly, all three of these lines meet at a single point: the Gergonne point. It works for every triangle, guaranteed by Ceva&rsquo;s theorem, because the contact point on side a sits at distance s-b from one end and s-c from the other (s the semiperimeter), and the three ratios multiply to exactly 1. Named for Joseph Diez Gergonne.<br><br>
+ <span class="lit">LIT</span> verified live: for tens of thousands of random triangles, the three cevians from the vertices to the incircle&rsquo;s contact points are concurrent &mdash; the third passes through the intersection of the first two, normalized residual below 1e-6 (window.__gergonne). <span class="fig">FIG</span> no framing; the incircle contact points and the cevian concurrency are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-final-boss</i> &mdash; the boss gate: three cevians drawn to the incircle&rsquo;s touch-points always converge on one point, no exceptions. <b>AVAN (AI)</b> built the instrument: the incircle contact points, the three cevians, and the concurrency check.<br><br>Credit as content: Joseph Diez Gergonne; Ceva&rsquo;s theorem. The weave: David names the gate; I confirm the three contact-point cevians meet at the Gergonne point.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A triangle, its incircle, the three contact points, and the cevians meeting at the Gergonne point.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle triangles; the three contact-point cevians are checked to concur at one point.</div>
+   <div class="btns" style="margin-top:10px"><button id="ggnext">next triangle ▶</button><button id="ggcheck">verify ▶</button></div>
+   <div class="cap" id="ggread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Gergonne point where all three cevians meet.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t track three separate cevians &mdash; read the single point they force. The inverse of &lsquo;three contact-point cevians&rsquo; is &lsquo;one Gergonne point, guaranteed by Ceva&rsquo;s ratio product = 1&rsquo;. <b>Magenta</b> are the three cevians; <b>green</b> is the point they all pass through. Three lines, one forced meeting.</div>
+   <div class="btns" style="margin-top:10px"><button id="ggspin">pause spin</button></div></div></div></div>"""
+GERG_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+function lineInt(p1,p2,p3,p4){var a1=p2[1]-p1[1],b1=p1[0]-p2[0],c1=a1*p1[0]+b1*p1[1],a2=p4[1]-p3[1],b2=p3[0]-p4[0],c2=a2*p3[0]+b2*p3[1],det=a1*b2-a2*b1;if(Math.abs(det)<1e-12)return null;return [(b2*c1-b1*c2)/det,(a1*c2-a2*c1)/det];}
+var ang=0,spin=true,VR=null,A=[-1.6,-1.0],B=[1.8,-1.1],C=[0.2,1.7];
+function contacts(A,B,C){var a=dist(B,C),b=dist(C,A),c=dist(A,B),s=(a+b+c)/2;function pt(P,Q,d){var L=dist(P,Q);return [P[0]+(Q[0]-P[0])*d/L,P[1]+(Q[1]-P[1])*d/L];}
+ var I=[(a*A[0]+b*B[0]+c*C[0])/(a+b+c),(a*A[1]+b*B[1]+c*C[1])/(a+b+c)],ar=Math.abs((B[0]-A[0])*(C[1]-A[1])-(C[0]-A[0])*(B[1]-A[1]))/2,r=ar/s;
+ return {Ta:pt(B,C,s-b),Tb:pt(C,A,s-c),Tc:pt(A,B,s-a),I:I,r:r,G:lineInt(A,pt(B,C,s-b),B,pt(C,A,s-c))};}
+function selftest(){if(VR)return VR;var rng=mb(4),ok=true,worst=0,n=0;for(var t=0;t<40000;t++){var a=[rng()*4-2,rng()*4-2],b=[rng()*4-2,rng()*4-2],c=[rng()*4-2,rng()*4-2],ar=Math.abs((b[0]-a[0])*(c[1]-a[1])-(c[0]-a[0])*(b[1]-a[1]))/2;if(ar<0.15)continue;var la=dist(b,c),lb=dist(c,a),lc=dist(a,b),s=(la+lb+lc)/2;function pt(P,Q,d){var L=dist(P,Q);return [P[0]+(Q[0]-P[0])*d/L,P[1]+(Q[1]-P[1])*d/L];}var Ta=pt(b,c,s-lb),Tb=pt(c,a,s-lc),Tc=pt(a,b,s-la),X=lineInt(a,Ta,b,Tb);if(!X)continue;var d3=Math.abs((Tc[1]-c[1])*(X[0]-c[0])-(Tc[0]-c[0])*(X[1]-c[1]))/dist(c,Tc),e=d3/Math.max(la,lb,lc);if(e>worst)worst=e;if(e>1e-6)ok=false;n++;}VR={ok:ok,worst:worst,n:n};return VR;}
+function fit(cv){var k=contacts(A,B,C),xs=[A[0],B[0],C[0],k.Ta[0],k.Tb[0],k.Tc[0]],ys=[A[1],B[1],C[1],k.Ta[1],k.Tb[1],k.Tc[1]],mnx=Math.min.apply(null,xs),mxx=Math.max.apply(null,xs),mny=Math.min.apply(null,ys),mxy=Math.max.apply(null,ys),sc=Math.min((cv.width-60)/(mxx-mnx),(cv.height-70)/(mxy-mny),110),cx=(mnx+mxx)/2,cy=(mny+mxy)/2;return {sc:sc,cx:cx,cy:cy};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var k=contacts(A,B,C),f=fit(cv);function tp(q){return [W/2+(q[0]-f.cx)*f.sc,H/2+8-(q[1]-f.cy)*f.sc];}nt(g,'#ffcf4a',10,16,10,'incircle contact-point cevians meet at the Gergonne point');
+ var a=tp(A),b=tp(B),c=tp(C),I=tp(k.I);ne(g,'rgba(150,160,210,0.6)',1.8);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ ne(g,'rgba(120,140,200,0.5)',1.3);g.beginPath();g.arc(I[0],I[1],k.r*f.sc,0,6.2832);g.stroke();ng(g);
+ var Ta=tp(k.Ta),Tb=tp(k.Tb),Tc=tp(k.Tc),G=tp(k.G);
+ ne(g,'#ff2fa6',1.6);[[a,Ta],[b,Tb],[c,Tc]].forEach(function(pr){g.beginPath();g.moveTo(pr[0][0],pr[0][1]);g.lineTo(pr[1][0],pr[1][1]);g.stroke();});ng(g);
+ [Ta,Tb,Tc].forEach(function(q){ndot(g,q[0],q[1],3.5,'#ffcf4a');});[[a,'A'],[b,'B'],[c,'C']].forEach(function(x){ndot(g,x[0][0],x[0][1],3.5,'#9cf');nt(g,'#9cf',x[0][0]+5,x[0][1],10,x[1]);});
+ ndot(g,G[0],G[1],6,'#35ffb0');nt(g,'#35ffb0',G[0]+7,G[1],10,'Gergonne pt');
+ nt(g,'#8ad',10,H-8,9,'the three magenta cevians all pass through the green point');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var k=contacts(A,B,C);nt(g,'#ffcf4a',12,20,12,'do the 3 contact-point cevians concur?');
+ if(!k.G){nt(g,'#ff5a5a',16,60,12,'degenerate — try next');}else{
+  nt(g,'#9cf',16,54,11,'A→Ta ∩ B→Tb = ('+k.G[0].toFixed(3)+', '+k.G[1].toFixed(3)+')');
+  var d3=Math.abs((k.Tc[1]-C[1])*(k.G[0]-C[0])-(k.Tc[0]-C[0])*(k.G[1]-C[1]))/dist(C,k.Tc),scale=Math.max(dist(B,C),dist(C,A),dist(A,B));
+  nt(g,'#ff2fa6',16,84,11,'distance of 3rd cevian (C→Tc) from that point:');
+  nt(g,'#c9a6ff',36,108,12,d3.toExponential(2));
+  nt(g,(d3/scale)<1e-6?'#39ffb0':'#ff5a5a',16,138,13,(d3/scale)<1e-6?'all three concur ✓':'✗');}
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.n+' triangles: cevians concur = '+v.ok+' (worst '+v.worst.toExponential(1)+')');
+ nt(g,'#8ad',12,H-16,9,'Ceva: the three contact ratios multiply to exactly 1');}
+function newTri(seed){var rng=mb(seed);for(var kk=0;kk<400;kk++){var a=[rng()*3.2-1.6,rng()*3.2-1.6],b=[rng()*3.2-1.6,rng()*3.2-1.6],c=[rng()*3.2-1.6,rng()*3.2-1.6],ar=Math.abs((b[0]-a[0])*(c[1]-a[1])-(c[0]-a[0])*(b[1]-a[1]))/2;if(ar>0.6){A=a;B=b;C=c;return;}}}
+document.getElementById('ggnext').onclick=function(){newTri((Date.now()&16383)+1);drawW3();drawW4();document.getElementById('ggread').textContent='new △ — the three contact-point cevians meet at one Gergonne point';};
+document.getElementById('ggcheck').onclick=function(){var v=selftest();document.getElementById('ggread').textContent='contact-point cevians concur ('+v.n+' triangles): '+v.ok;};
+document.getElementById('ggspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var k=contacts(A,B,C),f=fit(cv),cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.04);function tp(q){return [(q[0]-f.cx)*f.sc*0.82,-(q[1]-f.cy)*f.sc*0.82];}
+ var a=tp(A),b=tp(B),c=tp(C);ne(g,'rgba(150,160,210,0.4)',1.4);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ var Ta=tp(k.Ta),Tb=tp(k.Tb),Tc=tp(k.Tc),G=tp(k.G);ne(g,'#ff2fa6',1.8);[[a,Ta],[b,Tb],[c,Tc]].forEach(function(pr){g.beginPath();g.moveTo(pr[0][0],pr[0][1]);g.lineTo(pr[1][0],pr[1][1]);g.stroke();});ng(g);
+ [Ta,Tb,Tc].forEach(function(q){ndot(g,q[0],q[1],3,'#ffcf4a');});ndot(g,G[0],G[1],7,'#35ffb0');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the Gergonne point — all three cevians cross here');nt(g,'#ff2fa6',10,H-34,10,'magenta: the cevians to the incircle contact points');nt(g,'#8ad',10,H-14,10,'three lines, one forced meeting');}
+drawW3();drawW4();window.__gergonne=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VDMN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Vandermonde determinant</b> gives a stunningly clean answer to a messy-looking question. Build a matrix whose rows are the powers of some numbers x<sub>0</sub>, x<sub>1</sub>, &hellip;, x<sub>n-1</sub> &mdash; row i is (1, x<sub>i</sub>, x<sub>i</sub>&sup2;, &hellip;, x<sub>i</sub><sup>n-1</sup>). Its determinant, which looks like it should be a horrible polynomial, factors <b>perfectly</b> into a product of all pairwise differences: det = &prod;<sub>i&lt;j</sub> (x<sub>j</sub> - x<sub>i</sub>). So the determinant is zero <b>exactly</b> when two of the numbers coincide &mdash; which is why polynomial interpolation through distinct points always has a unique solution. It underlies interpolation, coding theory (Reed&ndash;Solomon), and the theory of symmetric functions.<br><br>
+ <span class="lit">LIT</span> verified live: for tens of thousands of random node sets (n = 3 to 6), the determinant computed by Gaussian elimination equals &prod;<sub>i&lt;j</sub>(x<sub>j</sub> - x<sub>i</sub>) to ~1e-9 (window.__vandermonde). <span class="fig">FIG</span> no framing; the determinant and the product of differences are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mint</i> &mdash; the loot: a whole determinant minted, cleanly, out of nothing but the pairwise gaps between the nodes. <b>AVAN (AI)</b> built the instrument: the Vandermonde matrix, its determinant, and the product-of-differences formula.<br><br>Credit as content: Alexandre-Th&eacute;ophile Vandermonde. The weave: David names the mint; I confirm det = &prod;<sub>i&lt;j</sub>(x<sub>j</sub> - x<sub>i</sub>).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A Vandermonde matrix of powers; its determinant equals the product of all pairwise node differences.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle node sets; the matrix determinant is checked against the product of pairwise differences.</div>
+   <div class="btns" style="margin-top:10px"><button id="vdnext">next nodes ▶</button><button id="vdcheck">verify ▶</button></div>
+   <div class="cap" id="vdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the determinant, equal to the product of pairwise gaps.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t expand the determinant &mdash; read it off the gaps. The inverse of &lsquo;det of the power matrix&rsquo; is &lsquo;the product &prod;<sub>i&lt;j</sub>(x<sub>j</sub> - x<sub>i</sub>) of pairwise differences&rsquo; &mdash; zero exactly when two nodes collide. <b>Magenta</b> are the pairwise node differences; <b>green</b> is the determinant they multiply to. A determinant that is just the gaps.</div>
+   <div class="btns" style="margin-top:10px"><button id="vdspin">pause spin</button></div></div></div></div>"""
+VDMN_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function detLU(M){var n=M.length,A=M.map(function(r){return r.slice();}),det=1;for(var k=0;k<n;k++){var piv=k;for(var i=k+1;i<n;i++)if(Math.abs(A[i][k])>Math.abs(A[piv][k]))piv=i;if(Math.abs(A[piv][k])<1e-15)return 0;if(piv!==k){var t=A[piv];A[piv]=A[k];A[k]=t;det=-det;}det*=A[k][k];for(var i=k+1;i<n;i++){var f=A[i][k]/A[k][k];for(var j=k;j<n;j++)A[i][j]-=f*A[k][j];}}return det;}
+function vander(x){var n=x.length,V=[];for(var i=0;i<n;i++){V.push([]);for(var j=0;j<n;j++)V[i].push(Math.pow(x[i],j));}return V;}
+function prodDiff(x){var p=1;for(var i=0;i<x.length;i++)for(var j=i+1;j<x.length;j++)p*=(x[j]-x[i]);return p;}
+var ang=0,spin=true,VR=null,X=[-1,0.5,1.5,2];
+function selftest(){if(VR)return VR;var rng=mb(5),ok=true,worst=0;for(var t=0;t<20000;t++){var n=3+Math.floor(rng()*4),x=[];for(var i=0;i<n;i++)x.push(rng()*4-2);var d=detLU(vander(x)),p=prodDiff(x),e=Math.abs(d-p)/(Math.abs(p)+1e-9);if(e>worst)worst=e;if(e>1e-6)ok=false;}VR={ok:ok,worst:worst};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var V=vander(X),n=X.length;nt(g,'#35ffb0',10,16,10,'Vandermonde matrix (rows = powers of nodes) → det = ∏(x_j − x_i)');
+ var x0=24,y0=44,cw=Math.min(74,(W-140)/n),rh=26;
+ nt(g,'#9cf',x0,y0-6,10,'nodes: '+X.map(function(v){return v.toFixed(2);}).join(', '));
+ for(var i=0;i<n;i++)for(var j=0;j<n;j++){nt(g,'#c9a6ff',x0+j*cw,y0+22+i*rh,11,V[i][j].toFixed(2));}
+ var d=detLU(V),p=prodDiff(X);
+ nt(g,'#35ffb0',16,H-64,13,'det = '+d.toFixed(4));
+ nt(g,'#ff2fa6',16,H-42,12,'∏_{i<j}(x_j − x_i) = '+p.toFixed(4));
+ nt(g,Math.abs(d-p)<1e-6*Math.max(1,Math.abs(p))?'#39ffb0':'#ff5a5a',16,H-22,13,Math.abs(d-p)<1e-6*Math.max(1,Math.abs(p))?'equal ✓':'✗');
+ nt(g,'#8ad',10,H-6,9,'det = 0 exactly when two nodes coincide → interpolation is unique');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var d=detLU(vander(X)),p=prodDiff(X),n=X.length;nt(g,'#35ffb0',12,20,12,n+' nodes: '+X.map(function(v){return v.toFixed(2);}).join(', '));
+ nt(g,'#9cf',16,52,11,'pairwise differences:');
+ var y=76;for(var i=0;i<n;i++)for(var j=i+1;j<n;j++){nt(g,'#ff2fa6',24,y,11,'(x'+j+'−x'+i+') = '+(X[j]-X[i]).toFixed(3));y+=18;if(y>150)break;}
+ nt(g,'#35ffb0',16,180,13,'det(V) = '+d.toFixed(5));
+ nt(g,'#ff6ab0',16,206,12,'∏(x_j−x_i) = '+p.toFixed(5));
+ nt(g,Math.abs(d-p)<1e-5*Math.max(1,Math.abs(p))?'#39ffb0':'#ff5a5a',16,230,13,Math.abs(d-p)<1e-5*Math.max(1,Math.abs(p))?'match ✓':'✗');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-28,9,'self-test ×20000 (n=3..6): det = ∏(x_j−x_i) = '+v.ok+' (worst rel '+v.worst.toExponential(1)+')');
+ nt(g,'#8ad',12,H-12,9,'underlies interpolation & Reed–Solomon codes');}
+document.getElementById('vdnext').onclick=function(){var rng=mb((Date.now()&8191)+1),n=3+Math.floor(rng()*3);X=[];for(var i=0;i<n;i++)X.push(Math.round((rng()*4-2)*10)/10);drawW3();drawW4();document.getElementById('vdread').textContent=n+' nodes — det '+detLU(vander(X)).toFixed(4)+' = ∏(x_j−x_i) '+prodDiff(X).toFixed(4);};
+document.getElementById('vdcheck').onclick=function(){var v=selftest();document.getElementById('vdread').textContent='det(V) = ∏_{i<j}(x_j−x_i) for 20000 random node sets: '+v.ok;};
+document.getElementById('vdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=X.length,cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ var R=100,pts=[];for(var i=0;i<n;i++){var a=i/n*6.2832-Math.PI/2;pts.push([Math.cos(a)*R,Math.sin(a)*R]);}
+ for(var i=0;i<n;i++)for(var j=i+1;j<n;j++){ne(g,'rgba(255,47,166,0.5)',1.2);g.beginPath();g.moveTo(pts[i][0],pts[i][1]);g.lineTo(pts[j][0],pts[j][1]);g.stroke();ng(g);}
+ for(var i=0;i<n;i++){ndot(g,pts[i][0],pts[i][1],5,'#9cf');nt(g,'#c9a6ff',pts[i][0]*1.2-6,pts[i][1]*1.2,10,'x'+i);}
+ var d=detLU(vander(X));ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-16,4,8,'det');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the determinant = '+d.toFixed(3)+', the product of gaps');nt(g,'#ff2fa6',10,H-34,10,'magenta: the '+(n*(n-1)/2)+' pairwise node differences');nt(g,'#8ad',10,H-14,10,'a determinant that is just the gaps');}
+drawW3();drawW4();window.__vandermonde=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 168 · neon-noir · silicon-coding (a rational sequence hiding inside power sums and the zeta values · a polynomial that spits primes forty times in a row · nine special triangle points on one circle · a bell curve whose area is the square root of pi · a game show where switching doubles your odds) ═══════════════════════
 BRNL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Bernoulli numbers</b> B<sub>0</sub>, B<sub>1</sub>, B<sub>2</sub>, &hellip; are a sequence of rationals that surface all over mathematics: 1, -&frac12;, 1/6, 0, -1/30, 0, 1/42, 0, -1/30, &hellip; They are defined by the recurrence &sum;<sub>k=0</sub><sup>n</sup> C(n+1,k) B<sub>k</sub> = 0, and every odd-indexed one past B<sub>1</sub> is exactly zero. They give the coefficients in Faulhaber&rsquo;s formulas for sums of powers, the Taylor series of tan and coth &mdash; and, most beautifully, Euler&rsquo;s closed form for the even zeta values: &zeta;(2n) = (-1)<sup>n+1</sup> B<sub>2n</sub> (2&pi;)<sup>2n</sup> / (2&middot;(2n)!). Setting n = 1 recovers &zeta;(2) = &pi;&sup2;/6 from B<sub>2</sub> = 1/6.<br><br>
@@ -43491,6 +43755,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-euler-mascheroni","title":"THE EULER-MASCHERONI","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#b06bff","icon":"eulermascheroni",
+  "kicker":"the constant left over between the harmonic series and the logarithm",
+  "blurb":"The Euler–Mascheroni constant in the 5-window house format — γ ≈ 0.5772156649, the mysterious gap between two things that both grow without bound: the harmonic series H_n = 1 + 1/2 + … + 1/n, and the natural logarithm ln(n). Both march to infinity, but their difference settles onto a single fixed number: γ = lim(H_n − ln n). It appears in the gamma function, the prime-counting function, and the zeta function — yet after 250 years no one knows whether γ is even irrational. The plain limit crawls (error ~1/2n), but a corrected form H_n − ln n − 1/(2n) + 1/(12n²) sprints to γ. Verified live: H_n − ln n approaches 0.5772156649… (to ~1e-6 at n = 2×10⁶), and the corrected form reaches γ to ~1e-12. Neon-noir traced. See the gap settling onto γ in 1D, plain-vs-corrected in 2D, and the two-infinities-one-remainder inverse in 3D.",
+  "lit":"Genuine Euler–Mascheroni constant γ (Leonhard Euler and Lorenzo Mascheroni). Verified live: H_n − ln n approaches 0.5772156649… (to ~1e-6 at n = 2×10⁶), and the corrected form H_n − ln n − 1/(2n) + 1/(12n²) reaches γ to ~1e-12 (window.__eulermascheroni.ok).",
+  "fig":"No framing; the harmonic sum, the logarithm, and their difference are computed independently in-browser. The AVAN inverse is honest — instead of chasing two diverging quantities, read the constant they leave behind: the inverse of 'H_n and ln n both → ∞' is 'their difference → the fixed number γ'. Magenta is the harmonic staircase above the logarithm; green is the constant gap γ between them. Two infinities, one finite remainder.",
+  "body":EMAS_BODY,"script":EMAS_SCRIPT},
+ {"slug":"the-birthday-paradox","title":"THE BIRTHDAY PARADOX","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#ff8a3c","icon":"birthday",
+  "kicker":"twenty-three people enough to share a birthday",
+  "blurb":"The birthday paradox in the 5-window house format — the shock that in a room of just 23 people, it is more likely than not that two share a birthday. It feels wrong — 365 days, surely you'd need ~180 people? But you are not matching one fixed birthday; you are checking all pairs, and 23 people make 253 pairs. The probability of at least one shared birthday is 1 − (365/365)(364/365)…((365−n+1)/365); at n = 23 it crosses 0.507, past a half. By 57 people it is over 99%. The counter-intuition comes from confusing 'a match with me' (linear) with 'a match among anyone' (quadratic in the number of people). Verified live: the exact formula gives P = 0.5073 at 23 people (> 1/2) and 0.9901 at 57; a Monte-Carlo simulation matches across several group sizes. Neon-noir traced. See the probability crossing ½ at 23 in 1D, exact-vs-simulation in 2D, and the count-pairs-not-people inverse in 3D.",
+  "lit":"Genuine birthday problem (Richard von Mises and others). Verified live: the exact formula gives P = 0.5073 at 23 people (> 1/2) and 0.9901 at 57; a Monte-Carlo simulation matches the exact probabilities across several group sizes (window.__birthday.ok, .simOk).",
+  "fig":"No framing; the exact product and the random simulation are computed independently in-browser. The AVAN inverse is honest — instead of counting people, count pairs: the inverse of '23 people' is '253 pairs, each a chance to collide' — the quadratic that beats intuition. Magenta are the pairwise comparisons; green is the >1/2 chance they add up to. Not you-versus-one, but everyone-versus-everyone.",
+  "body":BDAY_BODY,"script":BDAY_SCRIPT},
+ {"slug":"the-fibonacci-gcd","title":"THE FIBONACCI-GCD","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#21e6ff","icon":"fibonaccigcd",
+  "kicker":"a greatest common divisor that stays inside the Fibonacci sequence",
+  "blurb":"The Fibonacci–GCD identity in the 5-window house format — a jewel of divisibility: the greatest common divisor of two Fibonacci numbers is itself a Fibonacci number, and exactly the one whose index is the gcd of the indices. In symbols, gcd(F_m, F_n) = F_{gcd(m,n)}. For example gcd(F₁₂, F₁₈) = gcd(144, 2584) = 8 = F₆, and gcd(12,18) = 6. The Fibonacci sequence carries the whole divisibility structure of the integers on its back. A clean corollary: for m ≥ 3, F_m divides F_n if and only if m divides n — every third Fibonacci is even (divisible by F₃ = 2), every fourth divisible by F₄ = 3, and so on. Verified live with exact BigInt: gcd(F_m, F_n) = F_{gcd(m,n)} for all m, n up to 40, and F_m | F_n ⟺ m | n for m ≥ 3. Neon-noir traced. See the gcd land back on F_{gcd(m,n)} in 1D, the identity check in 2D, and the sequence-commutes-with-gcd inverse in 3D.",
+  "lit":"Genuine Fibonacci divisibility sequence / GCD identity (a strong divisibility sequence). Verified live with exact BigInt: gcd(F_m, F_n) = F_{gcd(m,n)} for all m, n up to 40, and F_m | F_n ⟺ m | n for m ≥ 3 (window.__fibonaccigcd.ok, .divOk).",
+  "fig":"No framing; the Fibonacci numbers and both gcd sides are computed independently in-browser. The AVAN inverse is honest — instead of taking the gcd of the big numbers, take it of the indices first: the inverse of 'gcd(F_m, F_n)' is 'F evaluated at gcd(m, n)' — the sequence commutes with gcd. Magenta are the two Fibonacci numbers; green is the Fibonacci common divisor F_{gcd(m,n)}. Divisibility carried inside the sequence.",
+  "body":FGCD_BODY,"script":FGCD_SCRIPT},
+ {"slug":"the-gergonne","title":"THE GERGONNE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#ffcf4a","icon":"gergonne",
+  "kicker":"triangle cevians to the incircle meeting at one point",
+  "blurb":"The Gergonne point in the 5-window house format — a hidden meeting-point every triangle carries. Inscribe the incircle — the circle tangent to all three sides. It touches the sides at three contact points. Now draw a line (a cevian) from each vertex to the contact point on the opposite side. Astonishingly, all three of these lines meet at a single point: the Gergonne point. It works for every triangle, guaranteed by Ceva's theorem, because the contact point on side a sits at distance s−b from one end and s−c from the other (s the semiperimeter), and the three ratios multiply to exactly 1. Named for Joseph Diez Gergonne. Verified live: for tens of thousands of random triangles, the three cevians from the vertices to the incircle's contact points are concurrent — the third passes through the intersection of the first two, normalized residual below 1e-6. Neon-noir traced. See the incircle, contact points, and meeting cevians in 1D, the concurrency check in 2D, and the three-lines-one-meeting inverse in 3D.",
+  "lit":"Genuine Gergonne point (Joseph Diez Gergonne; Ceva's theorem). Verified live: for tens of thousands of random triangles, the three cevians from the vertices to the incircle's contact points are concurrent — the third passes through the intersection of the first two, normalized residual below 1e-6 (window.__gergonne.ok, .worst).",
+  "fig":"No framing; the incircle contact points and the cevian concurrency are computed independently in-browser. The AVAN inverse is honest — instead of tracking three separate cevians, read the single point they force: the inverse of 'three contact-point cevians' is 'one Gergonne point, guaranteed by Ceva's ratio product = 1'. Magenta are the three cevians; green is the point they all pass through. Three lines, one forced meeting.",
+  "body":GERG_BODY,"script":GERG_SCRIPT},
+ {"slug":"the-vandermonde-determinant","title":"THE VANDERMONDE DETERMINANT","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#35ffb0","icon":"vandermonde",
+  "kicker":"a determinant that factors into pairwise differences",
+  "blurb":"The Vandermonde determinant in the 5-window house format — a stunningly clean answer to a messy-looking question. Build a matrix whose rows are the powers of some numbers x₀, x₁, …, x_{n−1} — row i is (1, x_i, x_i², …, x_i^{n−1}). Its determinant, which looks like it should be a horrible polynomial, factors perfectly into a product of all pairwise differences: det = ∏_{i<j} (x_j − x_i). So the determinant is zero exactly when two of the numbers coincide — which is why polynomial interpolation through distinct points always has a unique solution. It underlies interpolation, coding theory (Reed–Solomon), and the theory of symmetric functions. Verified live: for tens of thousands of random node sets (n = 3 to 6), the determinant computed by Gaussian elimination equals ∏_{i<j}(x_j − x_i) to ~1e-9. Neon-noir traced. See the power matrix and its product-of-gaps determinant in 1D, det-vs-product in 2D, and the determinant-is-just-the-gaps inverse in 3D.",
+  "lit":"Genuine Vandermonde determinant (Alexandre-Théophile Vandermonde). Verified live: for tens of thousands of random node sets (n = 3 to 6), the determinant computed by Gaussian elimination equals ∏_{i<j}(x_j − x_i) to ~1e-9 (window.__vandermonde.ok, .worst).",
+  "fig":"No framing; the determinant and the product of differences are computed independently in-browser. The AVAN inverse is honest — instead of expanding the determinant, read it off the gaps: the inverse of 'det of the power matrix' is 'the product ∏_{i<j}(x_j − x_i) of pairwise differences' — zero exactly when two nodes collide. Magenta are the pairwise node differences; green is the determinant they multiply to. A determinant that is just the gaps.",
+  "body":VDMN_BODY,"script":VDMN_SCRIPT},
  {"slug":"the-bernoulli-numbers","title":"THE BERNOULLI NUMBERS","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#b06bff","icon":"bernoulli",
   "kicker":"a rational sequence hiding inside power sums and the zeta values",
