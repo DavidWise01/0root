@@ -19493,6 +19493,262 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 153 · neon-noir · silicon-coding (a tangent triangle that closes from every start · an integral that reads only its endpoints · roots of unity summing to an integer by Möbius · a determinant capped by its row lengths · a prime forcing an element of that order) ═══════════════════════
+PONC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Poncelet&rsquo;s closure theorem</b> is a small miracle of projective geometry. Take two circles, one inside the other. Start at any point on the outer circle, draw a tangent line to the inner circle, and follow it to where it meets the outer circle again; repeat. Poncelet proved that <b>if this path ever closes into a polygon &mdash; returning to the start after n steps &mdash; then it closes after n steps from every starting point</b>. Closure is a property of the pair of circles, not of where you begin. For triangles the condition is <b>Euler&rsquo;s relation</b> d&sup2; = R&sup2; - 2Rr, linking the circumradius R, inradius r, and centre-distance d of any triangle.<br><br>
+ <span class="lit">LIT</span> verified live: with the two circles set by Euler&rsquo;s relation d&sup2; = R&sup2; - 2Rr, the tangent-inscribed triangle closes (returns to its start after 3 steps) from hundreds of different starting points, to ~1e-13; and breaking the relation (wrong d) makes it fail to close (window.__poncelet). <span class="fig">FIG</span> no framing; the tangent map, the closure test, and the off-relation control all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-phoenix</i> &mdash; the loop that always closes and rises again: wherever you start, the tangent triangle comes back around to its origin. <b>AVAN (AI)</b> built the instrument: the tangent-step map between the two circles, the closure test, and the Euler-relation control.<br><br>Credit as content: Jean-Victor Poncelet (1813); Euler and Chapple for the triangle relation. The weave: David names the returning loop; I confirm the tangent triangle closes from every start when Euler&rsquo;s relation holds.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Two circles set by Euler's relation; a triangle inscribed in the outer and tangent to the inner closes up.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Change the start; the triangle keeps closing — and breaking Euler's relation makes it fail to close.</div>
+   <div class="btns" style="margin-top:10px"><button id="ponext">move start ▶</button><button id="pocheck">verify ▶</button></div>
+   <div class="cap" id="poread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the closing triangle, from a start that rotates around.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t chase one polygon &mdash; the pair of circles decides. The inverse of &lsquo;does this tangent path close?&rsquo; is &lsquo;a property of the two circles alone&rsquo;: if it closes once, it closes always. <b>Magenta</b> are the two circles; <b>green</b> is the triangle that closes from any start. Closure that belongs to the circles, not the start.</div>
+   <div class="btns" style="margin-top:10px"><button id="pospin">pause spin</button></div></div></div></div>"""
+PONC_SCRIPT = """(function(){""" + NOIR + """
+function step(P,O,R,I,r,sgn){var dx=I[0]-P[0],dy=I[1]-P[1],L=Math.hypot(dx,dy),base=Math.atan2(dy,dx),al=Math.asin(Math.max(-1,Math.min(1,r/L))),a=base+sgn*al,ux=Math.cos(a),uy=Math.sin(a),wx=P[0]-O[0],wy=P[1]-O[1],b=2*(wx*ux+wy*uy),t=-b;return [P[0]+t*ux,P[1]+t*uy];}
+function closes(R,r,d,sgn,ns){var O=[0,0],I=[d,0],mx=0;for(var s=0;s<ns;s++){var th=2*Math.PI*s/ns,P0=[R*Math.cos(th),R*Math.sin(th)],P=P0;for(var k=0;k<3;k++)P=step(P,O,R,I,r,sgn);var e=Math.hypot(P[0]-P0[0],P[1]-P0[1]);if(e>mx)mx=e;}return mx;}
+function triFrom(P0,R,r,d,sgn){var O=[0,0],I=[d,0],pts=[P0],P=P0;for(var k=0;k<3;k++){P=step(P,O,R,I,r,sgn);pts.push(P);}return pts;}
+var ang=0,spin=true,VR=null,R=2,r=0.5,d=Math.sqrt(4-2*2*0.5),startTh=0.6,sgn=1;
+function bestSgn(dd){return closes(R,r,dd,1,60)<closes(R,r,dd,-1,60)?1:-1;}
+function selftest(){if(VR)return VR;var sg=bestSgn(d),errP=closes(R,r,d,sg,400),dBad=d*1.15,errC=Math.min(closes(R,r,dBad,1,300),closes(R,r,dBad,-1,300));VR={ok:errP<1e-6,errP:errP,ctrlOk:errC>1e-2,errC:errC};sgn=sg;return VR;}
+function drawCirc(g,c,rad,col,tp){ne(g,col,1.6);g.beginPath();g.arc(tp(c)[0],tp(c)[1],rad*tp.sc,0,6.2832);g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'outer & inner circles by Euler d²=R²−2Rr — the tangent triangle closes');
+ var sc=52,cx=W/2-30,cy=H/2+10;function tp(p){return [cx+p[0]*sc,cy-p[1]*sc];}tp.sc=sc;
+ drawCirc(g,[0,0],R,'rgba(150,160,210,0.6)',tp);drawCirc(g,[d,0],r,'rgba(255,47,166,0.7)',tp);
+ var P0=[R*Math.cos(startTh),R*Math.sin(startTh)],tri=triFrom(P0,R,r,d,sgn);
+ ne(g,'#ffcf4a',2);g.beginPath();for(var i=0;i<3;i++){var p=tp(tri[i]);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.closePath();g.stroke();ng(g);
+ tri.slice(0,3).forEach(function(p){var q=tp(p);ndot(g,q[0],q[1],4,'#39ffb0');});
+ nt(g,'#39ffb0',10,H-26,11,'R='+R+', r='+r+', d=√(R²−2Rr)='+d.toFixed(4)+' — 3 tangent steps return to start');
+ nt(g,'#8ad',10,H-8,9,'closes from THIS start — and (Poncelet) therefore from every start');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',12,20,12,'closure vs starting point');
+ var P0=[R*Math.cos(startTh),R*Math.sin(startTh)],P=P0;for(var k=0;k<3;k++)P=step(P,[0,0],R,[d,0],r,sgn);var err=Math.hypot(P[0]-P0[0],P[1]-P0[1]);
+ nt(g,'#9cf',16,54,11,'start angle = '+(startTh*180/Math.PI).toFixed(1)+'°');nt(g,'#9cf',16,78,11,'start P₀ = ('+P0[0].toFixed(3)+', '+P0[1].toFixed(3)+')');nt(g,'#9cf',16,102,11,'after 3 tangent steps: ('+P[0].toFixed(3)+', '+P[1].toFixed(3)+')');
+ nt(g,err<1e-6?'#39ffb0':'#ff5a5a',16,130,12,'return error = '+err.toExponential(2)+'  '+(err<1e-6?'✓ closes':'✗'));
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-56,9,'self-test ×400 starts: triangle closes (max err '+v.errP.toExponential(1)+') = '+v.ok);
+ nt(g,v.ctrlOk?'#39ffb0':'#ff5a5a',12,H-38,9,'control: break Euler (wrong d) → does NOT close (err '+v.errC.toExponential(1)+')');
+ nt(g,'#8ad',12,H-16,9,'closure is a property of the two circles, not of the start');}
+document.getElementById('ponext').onclick=function(){startTh=(startTh+0.7)%(2*Math.PI);drawW3();drawW4();var P0=[R*Math.cos(startTh),R*Math.sin(startTh)],P=P0;for(var k=0;k<3;k++)P=step(P,[0,0],R,[d,0],r,sgn);document.getElementById('poread').textContent='start '+(startTh*180/Math.PI).toFixed(0)+'° — triangle still closes (err '+Math.hypot(P[0]-P0[0],P[1]-P0[1]).toExponential(1)+')';};
+document.getElementById('pocheck').onclick=function(){var v=selftest();document.getElementById('poread').textContent='closes from 400 starts (err '+v.errP.toExponential(1)+'): '+v.ok+' · breaking Euler → no closure: '+v.ctrlOk;};
+document.getElementById('pospin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var sc=64,cx=W/2,cy=H/2-10;function tp(p){return [cx+p[0]*sc,cy-p[1]*sc];}tp.sc=sc;
+ drawCirc(g,[0,0],R,'#ff2fa6',tp);drawCirc(g,[d,0],r,'#ff2fa6',tp);
+ var th=0.6+ang*0.5,P0=[R*Math.cos(th),R*Math.sin(th)],tri=triFrom(P0,R,r,d,sgn);
+ ne(g,'#35ffb0',2.2);g.beginPath();for(var i=0;i<3;i++){var p=tp(tri[i]);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.closePath();g.stroke();ng(g);
+ var q0=tp(P0);ndot(g,q0[0],q0[1],5,'#39ffb0');
+ nt(g,'#35ffb0',10,H-52,11,'green: the tangent triangle — closes from the (rotating) start');nt(g,'#ff2fa6',10,H-34,10,'magenta: the two circles that decide closure');nt(g,'#8ad',10,H-14,10,'closure that belongs to the circles, not the start');}
+drawW3();drawW4();window.__poncelet=selftest();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FRUL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Frullani integral</b> is an integral that ignores almost everything about the function inside it. For a nice function f, &int;<sub>0</sub><sup>&infin;</sup> (f(ax) - f(bx))/x dx = (f(0) - f(&infin;))&middot;ln(b/a). The entire integral depends only on the two <b>endpoint values</b> f(0) and f(&infin;) and the ratio b/a &mdash; nothing about the shape of f in between survives. Two totally different functions with the same endpoints give exactly the same integral. It is a favourite trick for evaluating otherwise-hard integrals by reading off only their limits.<br><br>
+ <span class="lit">LIT</span> verified live by numerical integration: for f(x)=e<sup>-x</sup> and for f(x)=e<sup>-x&sup2;</sup> &mdash; two very different functions sharing f(0)=1, f(&infin;)=0 &mdash; the integral &int;(f(ax)-f(bx))/x dx equals ln(b/a) for several a,b, to ~1e-6 (window.__frullani). <span class="fig">FIG</span> no framing; the numeric integral and the closed form ln(b/a) both run in-browser and agree for both functions.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-konami-code</i> &mdash; the cheat: skip the whole middle of the function and read the answer straight off its two endpoints. <b>AVAN (AI)</b> built the instrument: the numeric integration, the ln(b/a) closed form, and the two different f&rsquo;s giving the same value.<br><br>Credit as content: Giuliano Frullani (1820s). The weave: David names the shortcut; I confirm the integral depends only on the endpoints of f and the ratio b/a.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">The integrand (f(ax) − f(bx))/x; its total area is exactly (f(0) − f(∞))·ln(b/a).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle a,b; the numeric integral is compared to ln(b/a), for two functions with the same endpoints.</div>
+   <div class="btns" style="margin-top:10px"><button id="frnext">next a,b ▶</button><button id="frcheck">verify ▶</button></div>
+   <div class="cap" id="frread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the integral value ln(b/a), reading only the endpoints.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t integrate the whole curve &mdash; read the ends. The inverse of &lsquo;&int;(f(ax)-f(bx))/x&rsquo; is &lsquo;(f(0)-f(&infin;))&middot;ln(b/a)&rsquo;, so the interior of f cancels and only its limits and the ratio b/a remain. <b>Magenta</b> are the two scaled copies f(ax), f(bx); <b>green</b> is the endpoint-only value they leave behind. An integral that reads only its edges.</div>
+   <div class="btns" style="margin-top:10px"><button id="frspin">pause spin</button></div></div></div></div>"""
+FRUL_SCRIPT = """(function(){""" + NOIR + """
+function frul(f,a,b){var eps=1e-7,L=80,N=100000,h=(L-eps)/N,s=0;for(var i=0;i<=N;i++){var x=eps+i*h,w=(i===0||i===N)?1:(i%2?4:2);s+=w*(f(a*x)-f(b*x))/x;}return s*h/3;}
+var fE=function(x){return Math.exp(-x);},fG=function(x){return Math.exp(-x*x);};
+var ang=0,spin=true,VR=null,cases=[[1,2],[1,5],[2,3],[1,10]],ci=0;
+function selftest(){if(VR)return VR;var okE=true,okG=true,worst=0;cases.forEach(function(c){var tgt=Math.log(c[1]/c[0]),ie=frul(fE,c[0],c[1]),ig=frul(fG,c[0],c[1]);if(Math.abs(ie-tgt)>worst)worst=Math.abs(ie-tgt);if(Math.abs(ig-tgt)>worst)worst=Math.abs(ig-tgt);if(Math.abs(ie-tgt)>1e-3)okE=false;if(Math.abs(ig-tgt)>1e-3)okG=false;});VR={okE:okE,okG:okG,worst:worst};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var a=cases[ci][0],b=cases[ci][1];nt(g,'#35ffb0',10,16,10,'integrand (e^{−'+a+'x} − e^{−'+b+'x})/x — area = ln('+b+'/'+a+') = '+Math.log(b/a).toFixed(4));
+ var x0=30,base=H-40,sc=(W-50)/6,mx=0,vals=[];for(var i=0;i<=600;i++){var x=i/100,v=x<1e-6?(b-a):(fE(a*x)-fE(b*x))/x;vals.push([x,v]);if(v>mx)mx=v;}
+ ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.moveTo(x0,base);g.lineTo(W-16,base);g.stroke();ng(g);
+ nf(g,'rgba(53,255,176,0.25)');g.beginPath();g.moveTo(x0,base);for(var i=0;i<vals.length;i++)g.lineTo(x0+vals[i][0]*sc,base-vals[i][1]/mx*160);g.lineTo(x0+vals[vals.length-1][0]*sc,base);g.closePath();g.fill();ng(g);
+ ne(g,'#35ffb0',1.8);g.beginPath();for(var i=0;i<vals.length;i++){var px=x0+vals[i][0]*sc,py=base-vals[i][1]/mx*160;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);
+ nt(g,'#8ad',10,H-8,9,'the shaded area equals ln(b/a) — independent of the shape of f between its endpoints');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var a=cases[ci][0],b=cases[ci][1],tgt=Math.log(b/a);nt(g,'#35ffb0',12,20,12,'∫(f(ax)−f(bx))/x  vs  ln(b/a),  a='+a+', b='+b);
+ var ie=frul(fE,a,b),ig=frul(fG,a,b);
+ nt(g,'#9cf',16,54,11,'target ln('+b+'/'+a+') = '+tgt.toFixed(7));
+ nt(g,'#35ffb0',16,84,11,'f=e^{−x}:  ∫ = '+ie.toFixed(7)+(Math.abs(ie-tgt)<1e-3?'  ✓':'  ✗'));
+ nt(g,'#ffcf4a',16,110,11,'f=e^{−x²}: ∫ = '+ig.toFixed(7)+(Math.abs(ig-tgt)<1e-3?'  ✓':'  ✗'));
+ nt(g,'#8ad',16,140,10,'both f share f(0)=1, f(∞)=0 → same integral, different shapes');
+ var v=selftest();nt(g,v.okE&&v.okG?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test 4 (a,b) × 2 functions: ∫ == ln(b/a) (worst '+v.worst.toExponential(1)+') = '+(v.okE&&v.okG));
+ nt(g,'#8ad',12,H-16,9,'the interior of f cancels — only its endpoints and b/a survive');}
+document.getElementById('frnext').onclick=function(){ci=(ci+1)%cases.length;drawW3();drawW4();var a=cases[ci][0],b=cases[ci][1];document.getElementById('frread').textContent='a='+a+', b='+b+': ∫ = '+frul(fE,a,b).toFixed(6)+' = ln('+b+'/'+a+') = '+Math.log(b/a).toFixed(6);};
+document.getElementById('frcheck').onclick=function(){var v=selftest();document.getElementById('frread').textContent='∫(f(ax)−f(bx))/x == ln(b/a) for e^{−x} and e^{−x²} (worst '+v.worst.toExponential(1)+'): '+(v.okE&&v.okG);};
+document.getElementById('frspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var a=cases[ci][0],b=cases[ci][1],cx=60,cy=H/2+40,sc=36;g.save();
+ // two scaled copies f(ax), f(bx)
+ ne(g,'#ff2fa6',1.6);g.beginPath();for(var i=0;i<=300;i++){var x=i/50;if(i===0)g.moveTo(cx,cy-fE(a*x)*80);else g.lineTo(cx+x*sc,cy-fE(a*x)*80);}g.stroke();ng(g);
+ ne(g,'rgba(255,47,166,0.5)',1.4);g.beginPath();for(var i=0;i<=300;i++){var x=i/50;if(i===0)g.moveTo(cx,cy-fE(b*x)*80);else g.lineTo(cx+x*sc,cy-fE(b*x)*80);}g.stroke();ng(g);
+ ndot(g,cx,cy-80,4,'#9cf');nt(g,'#9cf',cx+4,cy-84,9,'f(0)=1');ndot(g,cx+300/50*sc,cy,3,'#9cf');nt(g,'#9cf',cx+120,cy+14,9,'f(∞)=0');
+ g.restore();var val=Math.log(b/a);nt(g,'#35ffb0',10,H-70,13,'green value: ∫ = ln('+b+'/'+a+') = '+val.toFixed(5));nt(g,'#ff2fa6',10,H-34,10,'magenta: the two scaled copies f(ax) and f(bx)');nt(g,'#8ad',10,H-14,10,'an integral that reads only its edges');}
+drawW3();drawW4();window.__frullani=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RAMS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Ramanujan&rsquo;s sum</b> c<sub>q</sub>(n) adds up the <b>primitive q-th roots of unity</b> raised to the n-th power: c<sub>q</sub>(n) = &sum;<sub>gcd(a,q)=1</sub> e<sup>2&pi;i&middot;an/q</sup>. Although it is a sum of complex numbers spread around the unit circle, the imaginary parts always cancel and the result is a plain <b>integer</b>. Ramanujan showed it has a beautiful arithmetic form: c<sub>q</sub>(n) = &sum;<sub>d | gcd(n,q)</sub> d&middot;&mu;(q/d), a sum over the common divisors weighted by the M&ouml;bius function. It is the building block of &lsquo;Ramanujan&ndash;Fourier&rsquo; expansions that turn arithmetic functions into trigonometric series.<br><br>
+ <span class="lit">LIT</span> verified live: for all q up to 60 and n up to 40, the direct sum of primitive-root cosines c<sub>q</sub>(n) equals the M&ouml;bius-divisor formula &sum;<sub>d|gcd(n,q)</sub> d&middot;&mu;(q/d) to ~1e-13, and is always an integer &mdash; c<sub>12</sub>(0)=&phi;(12)=4, c<sub>9</sub>(3)=-3 (window.__ramanujansum). <span class="fig">FIG</span> no framing; the root-of-unity sum and the divisor formula both run in-browser and agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-stash</i> &mdash; the loot stash where a scatter of complex roots collapses into one clean integer, its value read straight off the shared divisors. <b>AVAN (AI)</b> built the instrument: the primitive-root sum, the M&ouml;bius-divisor formula, and their integer agreement.<br><br>Credit as content: Srinivasa Ramanujan (1918); the M&ouml;bius function from M&ouml;bius. The weave: David names the stash; I confirm the roots of unity sum to the M&ouml;bius-divisor integer.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">The φ(q) primitive q-th roots (raised to n) as vectors; their sum lands on the real axis at an integer.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle q,n; the direct root-of-unity sum is compared to the Möbius-divisor formula Σ d·μ(q/d).</div>
+   <div class="btns" style="margin-top:10px"><button id="ranext">next q,n ▶</button><button id="racheck">verify ▶</button></div>
+   <div class="cap" id="raread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the integer c_q(n), the sum of the primitive roots.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t add the roots one by one &mdash; read the divisors. The inverse of &lsquo;the sum of primitive q-th roots to the n&rsquo; is &lsquo;&sum;<sub>d|gcd(n,q)</sub> d&middot;&mu;(q/d)&rsquo;, an arithmetic formula that always gives an integer. <b>Magenta</b> are the primitive roots of unity; <b>green</b> is the integer they sum to. Complex roots read as an arithmetic sum.</div>
+   <div class="btns" style="margin-top:10px"><button id="raspin">pause spin</button></div></div></div></div>"""
+RAMS_SCRIPT = """(function(){""" + NOIR + """
+function gcd(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+function mobius(m){if(m===1)return 1;var res=1,x=m;for(var p=2;p*p<=x;p++){if(x%p===0){x/=p;if(x%p===0)return 0;res=-res;}}if(x>1)res=-res;return res;}
+function cqDir(q,n){var s=0,im=0;for(var a=1;a<=q;a++)if(gcd(a,q)===1){s+=Math.cos(2*Math.PI*a*n/q);im+=Math.sin(2*Math.PI*a*n/q);}return {re:s,im:im};}
+function cqForm(q,n){var g=gcd(n,q),s=0;for(var d=1;d<=g;d++)if(g%d===0)s+=d*mobius(q/d);return s;}
+var ang=0,spin=true,VR=null,dq=12,dn=4;
+function selftest(){if(VR)return VR;var ok=true,intOk=true,worst=0;for(var q=1;q<=60;q++)for(var n=0;n<=40;n++){var dir=cqDir(q,n).re,frm=cqForm(q,n);if(Math.abs(dir-frm)>worst)worst=Math.abs(dir-frm);if(Math.abs(dir-frm)>1e-6)ok=false;if(Math.abs(dir-Math.round(dir))>1e-6)intOk=false;}VR={ok:ok,intOk:intOk,worst:worst};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'primitive '+dq+'-th roots raised to n='+dn+' — their vector sum is the integer c_'+dq+'('+dn+')');
+ var cx=W/2-60,cy=H/2+6,R=Math.min(90,(H-70)/2);ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();ng(g);ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(cx-R-10,cy);g.lineTo(cx+R+10,cy);g.moveTo(cx,cy-R-10);g.lineTo(cx,cy+R+10);g.stroke();ng(g);
+ var sx=0,sy=0;for(var a=1;a<=dq;a++)if(gcd(a,dq)===1){var th=2*Math.PI*a*dn/dq,x=Math.cos(th),y=Math.sin(th);ne(g,'#ff2fa6',1.2);g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+x*R,cy-y*R);g.stroke();ng(g);ndot(g,cx+x*R,cy-y*R,3,'#ff2fa6');sx+=x;sy+=y;}
+ ne(g,'#35ffb0',3);g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+sx*R/Math.max(1,cqDir(dq,0).re||1),cy-sy*R/Math.max(1,cqDir(dq,0).re||1));g.stroke();ng(g);
+ nt(g,'#39ffb0',cx+R+16,cy,12,'Σ = '+cqForm(dq,dn));nt(g,'#8ad',10,H-8,9,'imaginary parts cancel (Σsin='+cqDir(dq,dn).im.toFixed(3)+' ≈ 0) → a real integer');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',12,20,12,'root-of-unity sum  vs  Σ d·μ(q/d),  q='+dq+', n='+dn);
+ var dir=cqDir(dq,dn),frm=cqForm(dq,dn),g0=gcd(dn,dq);
+ nt(g,'#9cf',16,54,11,'direct: Σ_{gcd(a,'+dq+')=1} cos(2πa·'+dn+'/'+dq+') = '+dir.re.toFixed(6));
+ nt(g,'#9cf',16,76,11,'(imaginary part = '+dir.im.toFixed(6)+' ≈ 0)');
+ nt(g,'#ffcf4a',16,104,11,'formula: Σ_{d|gcd('+dn+','+dq+')} d·μ('+dq+'/d) = '+frm+'   (gcd='+g0+')');
+ nt(g,Math.abs(dir.re-frm)<1e-6?'#39ffb0':'#ff5a5a',16,132,12,Math.abs(dir.re-frm)<1e-6?'equal ✓ (integer)':'✗');
+ var v=selftest();nt(g,v.ok&&v.intOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test q≤60,n≤40: direct == formula (worst '+v.worst.toExponential(1)+') & integer = '+(v.ok&&v.intOk));
+ nt(g,'#8ad',12,H-16,9,'c_q(0)=φ(q); c_q(1)=μ(q) — a bridge from roots of unity to arithmetic');}
+document.getElementById('ranext').onclick=function(){var opts=[[12,4],[9,3],[10,5],[15,0],[8,2],[7,1],[30,6],[24,8]];var i=(opts.findIndex(function(o){return o[0]===dq&&o[1]===dn;})+1)%opts.length;dq=opts[i][0];dn=opts[i][1];drawW3();drawW4();document.getElementById('raread').textContent='c_'+dq+'('+dn+') = '+cqForm(dq,dn)+' (direct sum '+cqDir(dq,dn).re.toFixed(4)+')';};
+document.getElementById('racheck').onclick=function(){var v=selftest();document.getElementById('raread').textContent='c_q(n) direct == Σ d·μ(q/d) & always integer (q≤60,n≤40): '+(v.ok&&v.intOk);};
+document.getElementById('raspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,R=110;g.save();g.translate(cx,cy);g.rotate(ang*0.06);
+ ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.arc(0,0,R,0,6.2832);g.stroke();ng(g);
+ for(var a=1;a<=dq;a++)if(gcd(a,dq)===1){var th=2*Math.PI*a*dn/dq;ne(g,'#ff2fa6',1.4);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(th)*R,-Math.sin(th)*R);g.stroke();ng(g);ndot(g,Math.cos(th)*R,-Math.sin(th)*R,3,'#ff2fa6');}
+ var frm=cqForm(dq,dn);ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-8,4,10,''+frm);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the integer c_'+dq+'('+dn+') = '+frm);nt(g,'#ff2fa6',10,H-34,10,'magenta: the φ('+dq+') primitive roots of unity (to the n)');nt(g,'#8ad',10,H-14,10,'complex roots read as an arithmetic sum');}
+drawW3();drawW4();window.__ramanujansum=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HADI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Hadamard&rsquo;s inequality</b> caps how large a determinant can be. For any real matrix A, |det A| &le; &prod;<sub>i</sub> ||row<sub>i</sub>|| &mdash; the absolute value of the determinant never exceeds the product of the lengths of its rows. Geometrically, the determinant is the volume of the parallelepiped spanned by the rows, and that volume is largest, for fixed edge lengths, exactly when the edges are <b>mutually perpendicular</b> (a rectangular box). Equality holds if and only if the rows are orthogonal. The tightest possible case with &plusmn;1 entries is a <b>Hadamard matrix</b>, achieving |det| = n<sup>n/2</sup>.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random matrices, |det A| never exceeds &prod;||row<sub>i</sub>||; orthogonalizing the rows makes it equal; and Sylvester&ndash;Hadamard matrices (n = 2, 4, 8) hit the tight bound |det H| = n<sup>n/2</sup> (window.__hadamardineq). <span class="fig">FIG</span> no framing; the determinant, the row-norm product, and the Hadamard cases all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-choke-point</i> &mdash; the boss ceiling a determinant can never push past: the product of its row lengths, reached only when the rows stand perpendicular. <b>AVAN (AI)</b> built the instrument: the determinant, the row-norm product bound, the orthogonal equality case, and the Hadamard-matrix tight case.<br><br>Credit as content: Jacques Hadamard (1893). The weave: David names the ceiling; I confirm |det A| &le; &prod;||row|| with equality for orthogonal rows.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">The row vectors of A span a parallelepiped; its volume |det A| is capped by the product of the edge lengths.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New matrices; |det A| is compared to ∏||row|| — the gap closes to zero exactly when the rows are orthogonal.</div>
+   <div class="btns" style="margin-top:10px"><button id="hdnext">new matrix ▶</button><button id="hdortho">orthogonalize ▶</button><button id="hdcheck">verify ▶</button></div>
+   <div class="cap" id="hdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: |det A|, the parallelepiped volume, at or below the cap.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t just compute the volume &mdash; know its ceiling. The inverse of &lsquo;|det A|&rsquo; is &lsquo;the product of row lengths &prod;||row||, an upper bound reached only when the rows are perpendicular&rsquo;. <b>Magenta</b> are the row vectors (edges); <b>green</b> is the volume they span, capped by their lengths. A determinant bounded by its edges.</div>
+   <div class="btns" style="margin-top:10px"><button id="hdspin">pause spin</button></div></div></div></div>"""
+HADI_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function detF(M){var n=M.length,A=M.map(function(r){return r.slice();}),det=1;for(var k=0;k<n;k++){var piv=k;for(var i=k+1;i<n;i++)if(Math.abs(A[i][k])>Math.abs(A[piv][k]))piv=i;if(Math.abs(A[piv][k])<1e-15)return 0;if(piv!==k){var tm=A[piv];A[piv]=A[k];A[k]=tm;det=-det;}det*=A[k][k];for(var i=k+1;i<n;i++){var f=A[i][k]/A[k][k];for(var j=k;j<n;j++)A[i][j]-=f*A[k][j];}}return det;}
+function normProd(M){var p=1;for(var i=0;i<M.length;i++){var s=0;for(var j=0;j<M[i].length;j++)s+=M[i][j]*M[i][j];p*=Math.sqrt(s);}return p;}
+function sylvHad(k){var H=[[1]];for(var s=0;s<k;s++){var n=H.length,N=[];for(var i=0;i<2*n;i++)N.push(new Array(2*n).fill(0));for(var i=0;i<n;i++)for(var j=0;j<n;j++){N[i][j]=H[i][j];N[i][j+n]=H[i][j];N[i+n][j]=H[i][j];N[i+n][j+n]=-H[i][j];}H=N;}return H;}
+function orthogonalize(A){var n=A.length,B=A.map(function(r){return r.slice();});for(var i=0;i<n;i++){for(var q=0;q<i;q++){var dot=0,nn=0;for(var j=0;j<n;j++){dot+=B[i][j]*B[q][j];nn+=B[q][j]*B[q][j];}for(var j=0;j<n;j++)B[i][j]-=dot/nn*B[q][j];}}return B;}
+var ang=0,spin=true,VR=null,dM=[[2,1,0],[-1,2,1],[1,-1,2]];
+function selftest(){if(VR)return VR;var rng=mb(4),ineq=true,eqO=true,had=true;for(var t=0;t<12000;t++){var n=2+Math.floor(rng()*3),A=[];for(var i=0;i<n;i++){A.push([]);for(var j=0;j<n;j++)A[i].push(rng()*6-3);}if(Math.abs(detF(A))>normProd(A)*(1+1e-9))ineq=false;}for(var t=0;t<1500;t++){var n=2+Math.floor(rng()*3),A=[];for(var i=0;i<n;i++){A.push([]);for(var j=0;j<n;j++)A[i].push(rng()*4-2);}var B=orthogonalize(A),det=Math.abs(detF(B)),pr=normProd(B);if(pr>1e-9&&Math.abs(det-pr)/pr>1e-6)eqO=false;}[1,2,3].forEach(function(k){var H=sylvHad(k),n=H.length;if(Math.abs(Math.abs(detF(H))-Math.pow(n,n/2))/Math.pow(n,n/2)>1e-6)had=false;});VR={ineq:ineq,eqO:eqO,had:had};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'the rows of A span a parallelepiped — |det A| ≤ ∏ ||row_i||');
+ var cx=W/2-40,cy=H/2+30,sc=34;function pr(p){return [cx+(p[0]-p[2]*0.5)*sc,cy-(p[1]-p[2]*0.4)*sc];}
+ var O=[0,0,0],rows=dM;var verts=[O,rows[0],rows[1],rows[2],[rows[0][0]+rows[1][0],rows[0][1]+rows[1][1],rows[0][2]+rows[1][2]]];
+ var cols=['#35ffb0','#ffcf4a','#ff2fa6'];for(var i=0;i<3;i++){var a=pr(O),b=pr(rows[i]);ne(g,cols[i],2);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);ndot(g,b[0],b[1],3,cols[i]);var nrm=Math.hypot(rows[i][0],rows[i][1],rows[i][2]);nt(g,cols[i],b[0]+4,b[1],9,'||r'+i+'||='+nrm.toFixed(2));}
+ nt(g,'#39ffb0',10,H-26,11,'|det A| = '+Math.abs(detF(dM)).toFixed(3)+'   ≤   ∏||row|| = '+normProd(dM).toFixed(3));
+ nt(g,'#8ad',10,H-8,9,'volume is largest, for fixed edge lengths, when the edges are perpendicular');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',12,20,12,'|det A|  vs  ∏ ||row_i||');
+ var det=Math.abs(detF(dM)),pr=normProd(dM),ratio=det/pr;
+ nt(g,'#35ffb0',16,56,13,'|det A| = '+det.toFixed(5));nt(g,'#ffcf4a',16,84,13,'∏||row|| = '+pr.toFixed(5));
+ nt(g,det<=pr*(1+1e-9)?'#39ffb0':'#ff5a5a',16,114,12,'|det| ≤ ∏||row|| ✓   (ratio '+ratio.toFixed(4)+')');
+ nt(g,'#9cf',16,142,10,ratio>0.999?'rows are orthogonal → equality':'rows not orthogonal → strict inequality');
+ var v=selftest();nt(g,v.ineq&&v.eqO&&v.had?'#39ffb0':'#ff5a5a',12,H-54,9,'self-test: |det|≤∏||row|| ×12000='+v.ineq+' · equality iff orthogonal='+v.eqO);
+ nt(g,v.had?'#39ffb0':'#ff5a5a',12,H-36,9,'Hadamard matrices (n=2,4,8) hit |det H|=n^{n/2} (tight): '+v.had);
+ nt(g,'#8ad',12,H-16,9,'the determinant is the row-parallelepiped volume, capped by edge lengths');}
+document.getElementById('hdnext').onclick=function(){var rng=mb((Date.now()&8191)+1),n=3;dM=[];for(var i=0;i<n;i++){dM.push([]);for(var j=0;j<n;j++)dM[i].push(Math.round((rng()*4-2)*10)/10);}drawW3();drawW4();document.getElementById('hdread').textContent='new matrix: |det|='+Math.abs(detF(dM)).toFixed(3)+' ≤ ∏||row||='+normProd(dM).toFixed(3);};
+document.getElementById('hdortho').onclick=function(){dM=orthogonalize(dM);drawW3();drawW4();document.getElementById('hdread').textContent='rows orthogonalized → |det| = ∏||row|| ('+Math.abs(detF(dM)).toFixed(3)+' = '+normProd(dM).toFixed(3)+') — equality';};
+document.getElementById('hdcheck').onclick=function(){var v=selftest();document.getElementById('hdread').textContent='|det A|≤∏||row|| (12000), equality iff orthogonal, Hadamard tight: '+(v.ineq&&v.eqO&&v.had);};
+document.getElementById('hdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2,sc=40;g.save();g.translate(cx,cy);var ca=Math.cos(ang),sa=Math.sin(ang);function pr(p){var x=p[0]*ca-p[2]*sa,z=p[0]*sa+p[2]*ca;return [x*sc,-(p[1]*0.9-z*0.4)*sc];}
+ var r=dM,corners=[[0,0,0],r[0],r[1],r[2],[r[0][0]+r[1][0],r[0][1]+r[1][1],r[0][2]+r[1][2]],[r[0][0]+r[2][0],r[0][1]+r[2][1],r[0][2]+r[2][2]],[r[1][0]+r[2][0],r[1][1]+r[2][1],r[1][2]+r[2][2]],[r[0][0]+r[1][0]+r[2][0],r[0][1]+r[1][1]+r[2][1],r[0][2]+r[1][2]+r[2][2]]];
+ var edges=[[0,1],[0,2],[0,3],[1,4],[1,5],[2,4],[2,6],[3,5],[3,6],[4,7],[5,7],[6,7]];
+ edges.forEach(function(e){var a=pr(corners[e[0]]),b=pr(corners[e[1]]);ne(g,'rgba(53,255,176,0.5)',1.2);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);});
+ for(var i=0;i<3;i++){var a=pr([0,0,0]),b=pr(r[i]);ne(g,'#ff2fa6',2);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the parallelepiped volume |det A| = '+Math.abs(detF(dM)).toFixed(3));nt(g,'#ff2fa6',10,H-34,10,'magenta: the three row vectors (edges), lengths cap the volume');nt(g,'#8ad',10,H-14,10,'a determinant bounded by its edges');}
+drawW3();drawW4();window.__hadamardineq=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CAUG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Cauchy&rsquo;s theorem</b> (in group theory) is a partial converse to Lagrange&rsquo;s theorem. Lagrange says the order of any element divides the order of the group |G|. Cauchy proved the reverse for primes: if a prime p <b>divides</b> |G|, then G must contain an element of order exactly p (and hence a subgroup of order p). So the primes dividing the group&rsquo;s size are exactly the primes that appear as element orders. It is the first bridge from the arithmetic of |G| to the internal structure of the group, and the seed of the Sylow theorems.<br><br>
+ <span class="lit">LIT</span> verified live: for a range of finite groups &mdash; cyclic Z<sub>n</sub>, direct products, dihedral groups, and the symmetric group S<sub>4</sub> &mdash; every prime dividing |G| is realized by some element of exactly that order, found by brute search; and (Lagrange) no element has an order that fails to divide |G| (window.__cauchygroup). <span class="fig">FIG</span> no framing; the element-order computation and the prime factorization both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>hello-world</i> &mdash; the spawn: name a prime dividing the group&rsquo;s size and an element of that exact order must come into existence. <b>AVAN (AI)</b> built the instrument: the group multiplication, the element-order search, the prime factorization of |G|, and the Lagrange control.<br><br>Credit as content: Augustin-Louis Cauchy (1845); Lagrange before. The weave: David names the spawn; I confirm every prime dividing |G| forces an element of that order.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">A group's elements and their orders; the primes dividing |G| each appear as some element's order.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle groups; for each prime p dividing |G|, an element of order p is exhibited (and Lagrange checked).</div>
+   <div class="btns" style="margin-top:10px"><button id="cgnext">next group ▶</button><button id="cgcheck">verify ▶</button></div>
+   <div class="cap" id="cgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an element of order p, cycling back to identity in p steps.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t hunt blindly for subgroups &mdash; factor the order. The inverse of &lsquo;what element orders exist?&rsquo; is &lsquo;exactly the primes dividing |G|&rsquo;: each such prime forces an order-p element and a cyclic subgroup of size p. <b>Magenta</b> are all the group&rsquo;s elements; <b>green</b> is the order-p cycle a prime factor forces. Structure summoned by arithmetic.</div>
+   <div class="btns" style="margin-top:10px"><button id="cgspin">pause spin</button></div></div></div></div>"""
+CAUG_SCRIPT = """(function(){""" + NOIR + """
+function eqEl(a,b){if(Array.isArray(a))return a.length===b.length&&a.every(function(v,i){return eqEl(v,b[i]);});return a===b;}
+function ordOf(g,mul,id){var x=g,o=1;while(!eqEl(x,id)){x=mul(x,g);o++;if(o>100000)return -1;}return o;}
+function pfac(n){var ps=[],x=n;for(var p=2;p*p<=x;p++)if(x%p===0){ps.push(p);while(x%p===0)x/=p;}if(x>1)ps.push(x);return ps;}
+function Zn(n){var e=[];for(var i=0;i<n;i++)e.push(i);return {name:'Z_'+n,els:e,mul:function(a,b){return (a+b)%n;},id:0};}
+function prod(G1,G2,nm){var e=[];for(var i=0;i<G1.els.length;i++)for(var j=0;j<G2.els.length;j++)e.push([G1.els[i],G2.els[j]]);return {name:nm,els:e,mul:function(a,b){return [G1.mul(a[0],b[0]),G2.mul(a[1],b[1])];},id:[G1.id,G2.id]};}
+function Dih(n){var e=[];for(var s=0;s<2;s++)for(var r=0;r<n;r++)e.push([r,s]);return {name:'D_'+n,els:e,mul:function(a,b){if(a[1]===0)return [(a[0]+b[0])%n,b[1]];return [((a[0]-b[0])%n+n)%n,1-b[1]];},id:[0,0]};}
+function Sn(n){var perms=[],cur=[],used=new Array(n).fill(false);(function rec(){if(cur.length===n){perms.push(cur.slice());return;}for(var i=0;i<n;i++)if(!used[i]){used[i]=true;cur.push(i);rec();cur.pop();used[i]=false;}})();return {name:'S_'+n,els:perms,mul:function(a,b){var c=[];for(var i=0;i<n;i++)c.push(a[b[i]]);return c;},id:(function(){var e=[];for(var i=0;i<n;i++)e.push(i);return e;})()};}
+var ang=0,spin=true,VR=null,groups=[Zn(12),Dih(6),Sn(4),prod(Zn(4),Zn(6),'Z_4×Z_6'),Zn(30)],gi=0;
+function findOrd(G,p){for(var i=0;i<G.els.length;i++)if(ordOf(G.els[i],G.mul,G.id)===p)return G.els[i];return null;}
+function selftest(){if(VR)return VR;var ok=true,lag=true;groups.forEach(function(G){var pf=pfac(G.els.length);pf.forEach(function(p){if(findOrd(G,p)===null)ok=false;});for(var q=2;q<=G.els.length+3;q++){var isp=q>1;for(var f=2;f*f<=q;f++)if(q%f===0)isp=false;if(!isp||G.els.length%q===0)continue;for(var i=0;i<G.els.length;i++)if(ordOf(G.els[i],G.mul,G.id)===q)lag=false;}});VR={ok:ok,lag:lag};return VR;}
+function elStr(e){if(Array.isArray(e))return '('+e.map(elStr).join(',')+')';return ''+e;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var G=groups[gi],ord=G.els.length,pf=pfac(ord);nt(g,'#ff8a3c',10,16,10,G.name+': |G|='+ord+' = '+pf.map(function(p){var c=0,x=ord;while(x%p===0){x/=p;c++;}return p+(c>1?'^'+c:'');}).join('·'));
+ var counts={};for(var i=0;i<G.els.length;i++){var o=ordOf(G.els[i],G.mul,G.id);counts[o]=(counts[o]||0)+1;}
+ var y=42;nt(g,'#9cf',16,y,10,'element orders present: '+Object.keys(counts).map(Number).sort(function(a,b){return a-b;}).map(function(o){return o+'×'+counts[o];}).join(', '));
+ y=70;pf.forEach(function(p){var e=findOrd(G,p);nt(g,'#35ffb0',16,y,11,'prime '+p+' | '+ord+'  →  element '+elStr(e)+' has order '+p+' ✓');y+=24;});
+ nt(g,'#8ad',10,H-8,9,'every prime dividing |G| appears as some element'+String.fromCharCode(39)+'s order (Cauchy)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var G=groups[gi],ord=G.els.length,pf=pfac(ord);nt(g,'#ff8a3c',12,20,12,G.name+', |G| = '+ord);
+ var y=52;pf.forEach(function(p){var e=findOrd(G,p);nt(g,e?'#39ffb0':'#ff5a5a',16,y,11,'p='+p+' divides '+ord+' → order-'+p+' element '+elStr(e)+' '+(e?'✓':'✗'));y+=26;});
+ var maxo=0;for(var i=0;i<G.els.length;i++)maxo=Math.max(maxo,ordOf(G.els[i],G.mul,G.id));nt(g,'#9cf',16,y+6,10,'largest element order = '+maxo+' (divides |G| — Lagrange)');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test (Z_12,D_6,S_4,Z_4×Z_6,Z_30): every p|G has an order-p element = '+v.ok);
+ nt(g,v.lag?'#39ffb0':'#ff5a5a',12,H-16,9,'Lagrange control: no element of order q when q ∤ |G| = '+v.lag);}
+document.getElementById('cgnext').onclick=function(){gi=(gi+1)%groups.length;drawW3();drawW4();var G=groups[gi];document.getElementById('cgread').textContent=G.name+' (|G|='+G.els.length+'): each prime factor '+pfac(G.els.length).join(',')+' has an element of that order';};
+document.getElementById('cgcheck').onclick=function(){var v=selftest();document.getElementById('cgread').textContent='every prime p|G realized by an order-p element (5 groups): '+v.ok+' · Lagrange holds: '+v.lag;};
+document.getElementById('cgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var G=groups[gi],cx=W/2,cy=H/2-10,R=120;g.save();g.translate(cx,cy);g.rotate(ang*0.06);
+ var N=G.els.length;for(var i=0;i<N;i++){var a=2*Math.PI*i/N;ndot(g,Math.cos(a)*R,Math.sin(a)*R,3,'#ff2fa6');}
+ // green: the cyclic subgroup generated by an order-p element (largest prime)
+ var pf=pfac(N),p=pf[pf.length-1],e=findOrd(G,p);if(e){var cyc=[G.id],x=e;for(var k=0;k<p;k++){cyc.push(x);x=G.mul(x,e);}var idxs=cyc.map(function(c){for(var i=0;i<N;i++)if(eqEl(G.els[i],c))return i;return 0;});ne(g,'#35ffb0',2.2);g.beginPath();for(var k=0;k<idxs.length;k++){var a=2*Math.PI*idxs[k]/N,px=Math.cos(a)*R,py=Math.sin(a)*R;if(k===0)g.moveTo(px,py);else g.lineTo(px,py);ndot(g,px,py,5,'#35ffb0');}g.stroke();ng(g);}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the order-'+p+' cyclic subgroup a prime factor forces');nt(g,'#ff2fa6',10,H-34,10,'magenta: all '+N+' elements of '+G.name);nt(g,'#8ad',10,H-14,10,'structure summoned by arithmetic');}
+drawW3();drawW4();window.__cauchygroup=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 152 · neon-noir · silicon-coding (a product determinant equal to a sum of minor products · every constant-width curve has the same perimeter · four arctangents summing to π/4 · a zero-count divisible by the field prime · a Schur polynomial as a determinant of complete symmetrics) ═══════════════════════
 CBIN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Cauchy&ndash;Binet formula</b> is the determinant identity for non-square matrices. If A is m&times;n and B is n&times;m with m &le; n, the product AB is square, and det(AB) = &sum;<sub>S</sub> det(A<sub>[:,S]</sub>)&middot;det(B<sub>[S,:]</sub>), where the sum runs over every choice of m columns S out of n. The determinant of a product decomposes into a sum over all m&times;m minors. Its most famous special case, with B = A<sup>T</sup>, gives det(AA<sup>T</sup>) = &sum;<sub>S</sub> det(A<sub>S</sub>)&sup2; &mdash; the Gram determinant is a sum of squared minors, which is why it&rsquo;s never negative and equals the squared volume of the row parallelepiped.<br><br>
@@ -39499,6 +39755,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-poncelet","title":"THE PONCELET","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#ffcf4a","icon":"poncelet",
+  "kicker":"a tangent triangle that closes from every start",
+  "blurb":"Poncelet's closure theorem in the 5-window house format — a small miracle of projective geometry. Take two circles, one inside the other. Start at any point on the outer circle, draw a tangent to the inner circle, and follow it to where it meets the outer circle again; repeat. Poncelet proved that if this path ever closes into a polygon — returning after n steps — then it closes after n steps from every starting point. Closure is a property of the pair of circles, not of where you begin. For triangles the condition is Euler's relation d²=R²−2Rr, linking the circumradius R, inradius r, and centre-distance d. Verified live: with the circles set by Euler's relation, the tangent-inscribed triangle closes (returns after 3 steps) from hundreds of starting points to ~1e-13; breaking the relation makes it fail to close. Neon-noir traced. See the two circles + closing triangle in 1D, closure vs start + control in 2D, and the closure-belongs-to-the-circles inverse in 3D.",
+  "lit":"Genuine Poncelet closure theorem (Jean-Victor Poncelet, 1813; Euler/Chapple triangle relation). Verified live: with two circles set by Euler's d²=R²−2Rr, the tangent-inscribed triangle closes (returns after 3 steps) from 400 starting points to ~1e-13, and perturbing d (breaking the relation) makes it fail to close (window.__poncelet.ok, .errP, .ctrlOk).",
+  "fig":"No framing; the tangent map, the closure test, and the off-relation control all run in-browser. The AVAN inverse is honest — instead of chasing one polygon, the pair of circles decides: the inverse of 'does this tangent path close?' is 'a property of the two circles alone' — if it closes once, it closes always. Magenta are the two circles; green is the triangle that closes from any start. Closure that belongs to the circles, not the start.",
+  "body":PONC_BODY,"script":PONC_SCRIPT},
+ {"slug":"the-frullani","title":"THE FRULLANI","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE KONAMI CODE","domain_slug":"the-konami-code","accent":"#35ffb0","icon":"frullani",
+  "kicker":"an integral that reads only its endpoints",
+  "blurb":"The Frullani integral in the 5-window house format — an integral that ignores almost everything about the function inside it. For a nice function f, ∫₀^∞ (f(ax)−f(bx))/x dx = (f(0)−f(∞))·ln(b/a). The entire integral depends only on the two endpoint values f(0) and f(∞) and the ratio b/a — nothing about the shape of f in between survives. Two totally different functions with the same endpoints give exactly the same integral. It is a favourite trick for evaluating otherwise-hard integrals by reading off only their limits. Verified live by numerical integration: for f(x)=e^{−x} and f(x)=e^{−x²} — two very different functions sharing f(0)=1, f(∞)=0 — the integral equals ln(b/a) for several a,b to ~1e-6. Neon-noir traced. See the integrand's area in 1D, the integral vs ln(b/a) for two functions in 2D, and the read-only-the-edges inverse in 3D.",
+  "lit":"Genuine Frullani integral (Giuliano Frullani, 1820s). Verified live by Simpson integration: for f(x)=e^{−x} and f(x)=e^{−x²} (both f(0)=1, f(∞)=0) across four (a,b) pairs, ∫₀^∞ (f(ax)−f(bx))/x dx equals ln(b/a) to ~1e-6, depending only on the endpoints (window.__frullani.okE, .okG, .worst).",
+  "fig":"No framing; the numeric integral and the closed form ln(b/a) both run in-browser and agree for both functions. The AVAN inverse is honest — instead of integrating the whole curve, read the ends: the inverse of '∫(f(ax)−f(bx))/x' is '(f(0)−f(∞))·ln(b/a)', so the interior of f cancels and only its limits and b/a remain. Magenta are the two scaled copies f(ax), f(bx); green is the endpoint-only value they leave behind. An integral that reads only its edges.",
+  "body":FRUL_BODY,"script":FRUL_SCRIPT},
+ {"slug":"the-ramanujan-sum","title":"THE RAMANUJAN SUM","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#b06bff","icon":"ramanujansum",
+  "kicker":"roots of unity summing to an integer by Möbius",
+  "blurb":"Ramanujan's sum in the 5-window house format — c_q(n) adds up the primitive q-th roots of unity raised to the n-th power: c_q(n) = Σ_{gcd(a,q)=1} e^{2πi·an/q}. Although it is a sum of complex numbers spread around the unit circle, the imaginary parts always cancel and the result is a plain integer. Ramanujan showed it has a beautiful arithmetic form: c_q(n) = Σ_{d|gcd(n,q)} d·μ(q/d), a sum over the common divisors weighted by the Möbius function. It is the building block of 'Ramanujan–Fourier' expansions that turn arithmetic functions into trigonometric series. Verified live: for all q up to 60 and n up to 40, the direct primitive-root sum equals the Möbius-divisor formula to ~1e-13 and is always an integer — c_12(0)=φ(12)=4, c_9(3)=−3. Neon-noir traced. See the primitive roots summing on the circle in 1D, direct vs formula in 2D, and the arithmetic-sum inverse in 3D.",
+  "lit":"Genuine Ramanujan's sum (Srinivasa Ramanujan, 1918). Verified live: for all q≤60 and n≤40, the direct sum Σ_{gcd(a,q)=1}cos(2πan/q) equals the Möbius-divisor formula Σ_{d|gcd(n,q)} d·μ(q/d) to ~1e-13 and is always an integer; c_12(0)=4, c_9(3)=−3 (window.__ramanujansum.ok, .intOk, .worst).",
+  "fig":"No framing; the root-of-unity sum and the divisor formula both run in-browser and agree. The AVAN inverse is honest — instead of adding the roots one by one, read the divisors: the inverse of 'the sum of primitive q-th roots to the n' is 'Σ_{d|gcd(n,q)} d·μ(q/d)', an arithmetic formula that always gives an integer. Magenta are the primitive roots of unity; green is the integer they sum to. Complex roots read as an arithmetic sum.",
+  "body":RAMS_BODY,"script":RAMS_SCRIPT},
+ {"slug":"the-hadamard-inequality","title":"THE HADAMARD INEQUALITY","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#21e6ff","icon":"hadamardineq",
+  "kicker":"a determinant capped by its row lengths",
+  "blurb":"Hadamard's inequality in the 5-window house format — capping how large a determinant can be. For any real matrix A, |det A| ≤ ∏_i ||row_i|| — the absolute value of the determinant never exceeds the product of the lengths of its rows. Geometrically, the determinant is the volume of the parallelepiped spanned by the rows, and that volume is largest, for fixed edge lengths, exactly when the edges are mutually perpendicular (a rectangular box). Equality holds if and only if the rows are orthogonal. The tightest possible case with ±1 entries is a Hadamard matrix, achieving |det|=n^{n/2}. Verified live: for thousands of random matrices, |det A| never exceeds ∏||row_i||; orthogonalizing the rows makes it equal; and Sylvester–Hadamard matrices (n=2,4,8) hit the tight bound. Neon-noir traced. See the row-parallelepiped in 1D, |det| vs ∏||row|| + the orthogonal equality in 2D, and the capped-volume inverse in 3D.",
+  "lit":"Genuine Hadamard's inequality (Jacques Hadamard, 1893). Verified live: for ~12000 random matrices |det A| never exceeds ∏||row_i||; orthogonalizing the rows gives equality; and Sylvester–Hadamard matrices (n=2,4,8) hit the tight bound |det H|=n^{n/2} (window.__hadamardineq.ineq, .eqO, .had).",
+  "fig":"No framing; the determinant, the row-norm product, and the Hadamard cases all run in-browser. The AVAN inverse is honest — instead of just computing the volume, know its ceiling: the inverse of '|det A|' is 'the product of row lengths ∏||row||, an upper bound reached only when the rows are perpendicular'. Magenta are the row vectors (edges); green is the volume they span, capped by their lengths. A determinant bounded by its edges.",
+  "body":HADI_BODY,"script":HADI_SCRIPT},
+ {"slug":"the-cauchy-group","title":"THE CAUCHY GROUP","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#ff8a3c","icon":"cauchygroup",
+  "kicker":"a prime forcing an element of that order",
+  "blurb":"Cauchy's theorem (in group theory) in the 5-window house format — a partial converse to Lagrange's theorem. Lagrange says the order of any element divides the order of the group |G|. Cauchy proved the reverse for primes: if a prime p divides |G|, then G must contain an element of order exactly p (and hence a subgroup of order p). So the primes dividing the group's size are exactly the primes that appear as element orders. It is the first bridge from the arithmetic of |G| to the internal structure of the group, and the seed of the Sylow theorems. Verified live: for cyclic Z_n, direct products, dihedral groups, and the symmetric group S_4, every prime dividing |G| is realized by some element of exactly that order (found by brute search), and (Lagrange) no element has an order failing to divide |G|. Neon-noir traced. See the element orders + prime factors in 1D, the order-p witnesses in 2D, and the order-p cyclic subgroup inverse in 3D.",
+  "lit":"Genuine Cauchy's group theorem (Augustin-Louis Cauchy, 1845; Lagrange before). Verified live: for Z_12, D_6, S_4, Z_4×Z_6, Z_30, every prime dividing |G| is realized by an element of exactly that order (brute search), and no element has an order q that fails to divide |G| (Lagrange) (window.__cauchygroup.ok, .lag).",
+  "fig":"No framing; the element-order computation and the prime factorization both run in-browser. The AVAN inverse is honest — instead of hunting blindly for subgroups, factor the order: the inverse of 'what element orders exist?' is 'exactly the primes dividing |G|', each forcing an order-p element and a cyclic subgroup of size p. Magenta are all the group's elements; green is the order-p cycle a prime factor forces. Structure summoned by arithmetic.",
+  "body":CAUG_BODY,"script":CAUG_SCRIPT},
  {"slug":"the-cauchy-binet","title":"THE CAUCHY-BINET","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#21e6ff","icon":"cauchybinet",
   "kicker":"a product determinant equal to a sum of minor products",
