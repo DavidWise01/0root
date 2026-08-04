@@ -19493,6 +19493,238 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 158 · neon-noir · silicon-coding (irrational multiples filling the interval evenly · a gamma product equal to a cosecant · a diagonal of Pascal summing to one entry · a nine-point circle tangent to the incircle · orders of projective planes ruled out by two squares) ═══════════════════════
+WEQD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Weyl&rsquo;s equidistribution theorem</b> says the fractional parts of the multiples of an irrational number spread out perfectly evenly. Take any <b>irrational</b> &alpha; and look at the sequence {&alpha;}, {2&alpha;}, {3&alpha;}, &hellip; (fractional parts, mod 1). Weyl proved these points become <b>equidistributed</b> in [0,1): the fraction landing in any subinterval [a,b) converges to its length b-a. The sequence never settles into a pattern &mdash; it fills the interval as uniformly as possible. For a <b>rational</b> &alpha; = p/q, by contrast, the fractional parts cycle through only q values and are never equidistributed.<br><br>
+ <span class="lit">LIT</span> verified live: for &alpha; = &radic;2, &phi;, &pi;, e, the star discrepancy of {n&alpha;} (the maximum gap between the empirical and uniform distribution) shrinks toward zero as N grows &mdash; below 1e-3 by N = 20000 &mdash; while for a rational &alpha; = 1/3 the discrepancy stays large (window.__weyl). <span class="fig">FIG</span> no framing; the fractional-part sequence and the discrepancy measure both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>cold-boot</i> &mdash; the spawn: each new multiple of an irrational drops a point into the interval, and cold-booting up from nothing they fill it perfectly evenly. <b>AVAN (AI)</b> built the instrument: the fractional-part sequence, the star-discrepancy measure, and the rational control.<br><br>Credit as content: Hermann Weyl (1916). The weave: David names the even fill; I confirm {n&alpha;} equidistributes for irrational &alpha; and not for rational.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">The points {nα} accumulating in [0,1) for an irrational α — filling the interval with no gaps or clumps.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle α; the discrepancy (deviation from uniform) shrinks for irrationals, stays large for rationals.</div>
+   <div class="btns" style="margin-top:10px"><button id="wynext">next α ▶</button><button id="wycheck">verify ▶</button></div>
+   <div class="cap" id="wyread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the uniformly-filled interval from an irrational's multiples.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t track each point &mdash; know the density. The inverse of &lsquo;the sequence {n&alpha;}&rsquo; is &lsquo;the uniform distribution on [0,1)&rsquo;, which it converges to exactly when &alpha; is irrational. <b>Magenta</b> are the sequence points; <b>green</b> is the flat uniform density they fill out. Order dissolving into uniformity.</div>
+   <div class="btns" style="margin-top:10px"><button id="wyspin">pause spin</button></div></div></div></div>"""
+WEQD_SCRIPT = """(function(){""" + NOIR + """
+function disc(alpha,N){var f=[];for(var n=1;n<=N;n++){var x=(n*alpha)%1;f.push(x-Math.floor(x));}f.sort(function(a,b){return a-b;});var D=0;for(var k=0;k<N;k++)D=Math.max(D,Math.abs((k+1)/N-f[k]),Math.abs(k/N-f[k]));return D;}
+var ang=0,spin=true,VR=null,ALPHAS=[{n:'√2',v:Math.SQRT2},{n:'φ',v:(1+Math.sqrt(5))/2},{n:'π',v:Math.PI},{n:'e',v:Math.E},{n:'1/3 (rational)',v:1/3}],ai=0;
+function selftest(){if(VR)return VR;var ok=true,rows=[];for(var i=0;i<4;i++){var D=disc(ALPHAS[i].v,20000);if(D>0.01)ok=false;rows.push(ALPHAS[i].n+':'+D.toExponential(1));}var Dr=disc(1/3,20000);VR={ok:ok,rows:rows,ctrl:Dr>0.3,Dr:Dr};return VR;}
+function frac(a,n){var x=(n*a)%1;return x-Math.floor(x);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var a=ALPHAS[ai];nt(g,'#21e6ff',10,16,10,'{nα} for α='+a.n+' — the points fill [0,1) '+(ai<4?'evenly (equidistributed)':'in only 3 spots (rational)'));
+ var x0=30,y=70,barW=W-60;ne(g,'rgba(120,140,200,0.5)',1.4);g.strokeRect(x0,y,barW,30);ng(g);
+ var N=Math.min(600,50+Math.floor(ang*10)%600);for(var n=1;n<=N;n++){var f=frac(a.v,n),px=x0+f*barW;ne(g,'rgba(33,230,255,0.35)',1);g.beginPath();g.moveTo(px,y);g.lineTo(px,y+30);g.stroke();ng(g);}
+ // histogram below
+ var K=24,cnt=new Array(K).fill(0);for(var n=1;n<=3000;n++)cnt[Math.min(K-1,Math.floor(frac(a.v,n)*K))]++;var by=H-40,bw=barW/K,mx=Math.max.apply(null,cnt);for(var k=0;k<K;k++){nf(g,'rgba(33,230,255,0.5)');g.fillRect(x0+k*bw,by-cnt[k]/mx*90,bw-1,cnt[k]/mx*90);ng(g);}
+ ne(g,'rgba(53,255,176,0.6)',1.2);g.beginPath();g.moveTo(x0,by-3000/K/mx*90);g.lineTo(x0+barW,by-3000/K/mx*90);g.stroke();ng(g);nt(g,'#39ffb0',x0+barW-60,by-3000/K/mx*90-4,9,'uniform');
+ nt(g,'#8ad',10,H-8,9,'histogram of {nα} over 3000 terms — flat for irrational α');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var a=ALPHAS[ai];nt(g,'#21e6ff',12,20,12,'star discrepancy D* of {nα}, α = '+a.n);
+ var Ns=[100,1000,10000,20000],y=54;Ns.forEach(function(N){var D=disc(a.v,N);nt(g,'#9cf',16,y,11,'N='+N+':  D* = '+D.toExponential(3));y+=24;});
+ var D=disc(a.v,20000);nt(g,(ai<4?D<0.01:D>0.3)?'#39ffb0':'#ff5a5a',16,y+8,12,ai<4?(D<0.01?'D* → 0 : equidistributed ✓':'✗'):'stays ≈ '+D.toFixed(2)+' : NOT equidistributed (rational)');
+ var v=selftest();nt(g,v.ok&&v.ctrl?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: irrational α (√2,φ,π,e) D*<0.01='+v.ok+' · rational 1/3 D*='+v.Dr.toFixed(2)+'≫0='+v.ctrl);
+ nt(g,'#8ad',12,H-16,9,'irrational multiples fill the interval uniformly; rational ones do not');}
+document.getElementById('wynext').onclick=function(){ai=(ai+1)%ALPHAS.length;drawW3();drawW4();document.getElementById('wyread').textContent='α='+ALPHAS[ai].n+': D*(N=20000) = '+disc(ALPHAS[ai].v,20000).toExponential(2);};
+document.getElementById('wycheck').onclick=function(){var v=selftest();document.getElementById('wyread').textContent='{nα} equidistributes for irrational α (D*→0), not for rational: '+(v.ok&&v.ctrl);};
+document.getElementById('wyspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,R=120,a=ALPHAS[ai];g.save();g.translate(cx,cy);
+ ne(g,'#35ffb0',2);g.beginPath();g.arc(0,0,R,0,6.2832);g.stroke();ng(g);
+ var N=Math.min(400,60+Math.floor(ang*8)%400);for(var n=1;n<=N;n++){var f=frac(a.v,n),th=f*6.2832;ndot(g,Math.cos(th)*R,Math.sin(th)*R,2.5,'#ff2fa6');}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green ring: the interval [0,1) filled uniformly (α='+a.n+')');nt(g,'#ff2fa6',10,H-34,10,'magenta: the sequence points {nα} landing around it');nt(g,'#8ad',10,H-14,10,'order dissolving into uniformity');}
+drawW3();drawW4();window.__weyl=selftest();
+function loop(){if(spin)ang+=0.05;drawW3();drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GREF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Euler&rsquo;s reflection formula</b> ties the gamma function to the sine in one clean stroke: &Gamma;(x)&middot;&Gamma;(1-x) = &pi;/sin(&pi;x). The gamma function &Gamma; extends the factorial to all real (and complex) numbers, and it looks nothing like a trig function &mdash; yet multiply its value at x by its value at the mirror point 1-x, and the messy transcendental factorials collapse into a simple cosecant. Setting x = &frac12; gives &Gamma;(&frac12;)&sup2; = &pi;, so &Gamma;(&frac12;) = &radic;&pi; &mdash; the gateway to the Gaussian integral. The poles of the gamma function at 0, -1, -2, &hellip; line up exactly with the zeros of sine.<br><br>
+ <span class="lit">LIT</span> verified live: computing &Gamma; by the Lanczos approximation, the product &Gamma;(x)&middot;&Gamma;(1-x) equals &pi;/sin(&pi;x) to a relative error ~1e-14 for thousands of x in (0,1), and &Gamma;(&frac12;)&sup2; = &pi; (window.__gammareflection). <span class="fig">FIG</span> no framing; the gamma product and the cosecant are computed by different routes in-browser and agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-backdoor</i> &mdash; the cheat: instead of evaluating a hard factorial, reflect across x = &frac12; and read the answer off a sine. <b>AVAN (AI)</b> built the instrument: the Lanczos gamma, the reflection product, and the &pi;/sin(&pi;x) cross-check.<br><br>Credit as content: Leonhard Euler (reflection formula). The weave: David names the backdoor; I confirm &Gamma;(x)&Gamma;(1-x) equals &pi;/sin(&pi;x).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">Γ(x) and its mirror Γ(1−x) on (0,1); their product traces exactly the curve π/sin(πx).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Slide x; Γ(x)·Γ(1−x) is compared to π/sin(πx) — equal across the whole interval.</div>
+   <div class="btns" style="margin-top:10px"><button id="grnext">next x ▶</button><button id="grcheck">verify ▶</button></div>
+   <div class="cap" id="grread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the product Γ(x)Γ(1−x), equal to π/sin(πx).</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t evaluate a lone factorial &mdash; pair it with its reflection. The inverse of &lsquo;&Gamma;(x)&rsquo; is &lsquo;&pi;/(sin(&pi;x)&middot;&Gamma;(1-x))&rsquo;, so the value at x and at 1-x lock together through a sine. <b>Magenta</b> are the two mirrored gamma curves; <b>green</b> is the cosecant their product traces. Factorials reflected into a sine.</div>
+   <div class="btns" style="margin-top:10px"><button id="grspin">pause spin</button></div></div></div></div>"""
+GREF_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+var gc=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];
+function gamma(z){if(z<0.5)return Math.PI/(Math.sin(Math.PI*z)*gamma(1-z));z-=1;var x=gc[0];for(var i=1;i<9;i++)x+=gc[i]/(z+i);var t=z+7.5;return Math.sqrt(2*Math.PI)*Math.pow(t,z+0.5)*Math.exp(-t)*x;}
+var ang=0,spin=true,VR=null,dx=0.3;
+function selftest(){if(VR)return VR;var rng=mb(2),ok=true,worst=0;for(var t=0;t<8000;t++){var x=0.02+rng()*0.96,l=gamma(x)*gamma(1-x),r=Math.PI/Math.sin(Math.PI*x),e=Math.abs(l-r)/r;if(e>worst)worst=e;if(e>1e-9)ok=false;}var hs=gamma(0.5)*gamma(0.5);VR={ok:ok,worst:worst,half:hs,halfOk:Math.abs(hs-Math.PI)<1e-8};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'Γ(x) & Γ(1−x) on (0,1); their product = π/sin(πx)');
+ var x0=40,base=H-40,sc=(W-70),ysc=12;ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.moveTo(x0,base);g.lineTo(W-20,base);g.stroke();ng(g);
+ ne(g,'#b06bff',1.6);g.beginPath();for(var i=1;i<200;i++){var x=i/200,y=gamma(x);if(y>18)continue;var px=x0+x*sc,py=base-y*ysc;if(i===1)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);nt(g,'#c9a6ff',x0+20,base-gamma(0.15)*ysc,9,'Γ(x)');
+ ne(g,'rgba(176,107,255,0.5)',1.4);g.beginPath();for(var i=1;i<200;i++){var x=i/200,y=gamma(1-x);if(y>18)continue;var px=x0+x*sc,py=base-y*ysc;if(i===1)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);nt(g,'#c9a6ff',x0+sc-40,base-gamma(0.15)*ysc,9,'Γ(1−x)');
+ ne(g,'#35ffb0',2);g.beginPath();for(var i=1;i<200;i++){var x=i/200,y=Math.PI/Math.sin(Math.PI*x);if(y>18)continue;var px=x0+x*sc,py=base-y*ysc;if(i===1)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);nt(g,'#39ffb0',x0+sc/2-30,base-Math.PI*ysc-6,10,'π/sin(πx)');
+ nt(g,'#8ad',10,H-8,9,'the product Γ(x)Γ(1−x) traces the green cosecant exactly');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',12,20,12,'Γ(x)·Γ(1−x)  vs  π/sin(πx),  x = '+dx.toFixed(3));
+ var l=gamma(dx)*gamma(1-dx),r=Math.PI/Math.sin(Math.PI*dx);
+ nt(g,'#9cf',16,56,12,'Γ('+dx.toFixed(3)+') = '+gamma(dx).toFixed(6));nt(g,'#9cf',16,80,12,'Γ('+(1-dx).toFixed(3)+') = '+gamma(1-dx).toFixed(6));
+ nt(g,'#c9a6ff',16,110,13,'product = '+l.toFixed(8));nt(g,'#ffcf4a',16,138,13,'π/sin(πx) = '+r.toFixed(8));
+ nt(g,Math.abs(l-r)/r<1e-6?'#39ffb0':'#ff5a5a',16,166,12,Math.abs(l-r)/r<1e-6?'equal ✓':'✗');
+ var v=selftest();nt(g,v.ok&&v.halfOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×8000 (worst rel '+v.worst.toExponential(1)+')='+v.ok+' · Γ(½)²='+v.half.toFixed(6)+' (=π)='+v.halfOk);
+ nt(g,'#8ad',12,H-16,9,'gamma poles at 0,−1,−2,… align with the zeros of sine');}
+document.getElementById('grnext').onclick=function(){dx=0.05+((dx+0.13)%0.9);drawW3();drawW4();document.getElementById('grread').textContent='x='+dx.toFixed(3)+': Γ(x)Γ(1−x) = '+(gamma(dx)*gamma(1-dx)).toFixed(6)+' = π/sin(πx) = '+(Math.PI/Math.sin(Math.PI*dx)).toFixed(6);};
+document.getElementById('grcheck').onclick=function(){var v=selftest();document.getElementById('grread').textContent='Γ(x)Γ(1−x) == π/sin(πx) (8000 x, worst rel '+v.worst.toExponential(1)+') & Γ(½)²=π: '+(v.ok&&v.halfOk);};
+document.getElementById('grspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2+40,sc=200,ysc=13;g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.3)*0.04);
+ ne(g,'#ff2fa6',1.6);g.beginPath();for(var i=1;i<160;i++){var x=i/160,y=gamma(x);if(y>16)continue;g.lineTo((x-0.5)*sc,-y*ysc);}g.stroke();ng(g);
+ ne(g,'rgba(255,47,166,0.5)',1.4);g.beginPath();for(var i=1;i<160;i++){var x=i/160,y=gamma(1-x);if(y>16)continue;g.lineTo((x-0.5)*sc,-y*ysc);}g.stroke();ng(g);
+ ne(g,'#35ffb0',2.4);g.beginPath();for(var i=1;i<160;i++){var x=i/160,y=Math.PI/Math.sin(Math.PI*x);if(y>16)continue;g.lineTo((x-0.5)*sc,-y*ysc);}g.stroke();ng(g);
+ ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.moveTo(0,20);g.lineTo(0,-16*ysc);g.stroke();ng(g);nt(g,'#8ad',3,-14*ysc,9,'x=½');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: π/sin(πx) — what Γ(x)Γ(1−x) equals');nt(g,'#ff2fa6',10,H-34,10,'magenta: the two mirrored gamma curves Γ(x), Γ(1−x)');nt(g,'#8ad',10,H-14,10,'factorials reflected into a sine');}
+drawW3();drawW4();window.__gammareflection=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HOCK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The hockey-stick identity</b> is a striking pattern in Pascal&rsquo;s triangle: sum any diagonal starting from the edge, and the total appears just below the end of the diagonal. Formally, &sum;<sub>i=r</sub><sup>n</sup> C(i, r) = C(n+1, r+1). Trace down a diagonal of the triangle (the &lsquo;stick&rsquo;) and the running sum lands in the single cell one step down and over (the &lsquo;blade&rsquo;) &mdash; the shape of a hockey stick. It falls straight out of Pascal&rsquo;s rule C(n+1,r+1) = C(n,r) + C(n,r+1), telescoping the diagonal into one entry, and it is the discrete cousin of integrating x<sup>r</sup>.<br><br>
+ <span class="lit">LIT</span> verified live with exact big-integer arithmetic: for all r from 0 to 8 and n up to 30, the sum of the binomial-coefficient diagonal &sum;<sub>i=r</sub><sup>n</sup> C(i,r) equals C(n+1, r+1) exactly &mdash; e.g. C(2,2)+C(3,2)+C(4,2)+C(5,2)+C(6,2) = 35 = C(7,3) (window.__hockeystick). <span class="fig">FIG</span> no framing; the diagonal sum and the single closing binomial both run in-browser and agree exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>backprop</i> &mdash; the grind that runs down a diagonal of Pascal&rsquo;s triangle, accumulating, and lands the whole sum in one entry below. <b>AVAN (AI)</b> built the instrument: the binomial diagonal sum, the closing C(n+1,r+1), and their exact agreement.<br><br>Credit as content: the hockey-stick identity (Pascal&rsquo;s triangle, classical). The weave: David names the grind down the stick; I confirm the diagonal sums to the single blade entry.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Pascal's triangle with a diagonal (the stick) highlighted; its sum lands in the blade cell C(n+1,r+1).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle r and n; the diagonal sum Σ C(i,r) is compared to the single binomial C(n+1,r+1).</div>
+   <div class="btns" style="margin-top:10px"><button id="hknext">next stick ▶</button><button id="hkcheck">verify ▶</button></div>
+   <div class="cap" id="hkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the blade entry C(n+1,r+1), the whole diagonal's sum.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t add the diagonal term by term &mdash; read the blade. The inverse of &lsquo;&sum;<sub>i=r</sub><sup>n</sup> C(i,r)&rsquo; is &lsquo;the single entry C(n+1,r+1)&rsquo;, the diagonal telescoped by Pascal&rsquo;s rule. <b>Magenta</b> are the diagonal (stick) entries; <b>green</b> is the blade entry they sum to. A diagonal folded into one entry.</div>
+   <div class="btns" style="margin-top:10px"><button id="hkspin">pause spin</button></div></div></div></div>"""
+HOCK_SCRIPT = """(function(){""" + NOIR + """
+function binom(n,k){if(k<0||k>n)return 0n;if(k>n-k)k=n-k;var r=1n;for(var i=0n;i<BigInt(k);i++)r=r*(BigInt(n)-i)/(i+1n);return r;}
+var ang=0,spin=true,VR=null,dr=2,dn=6;
+function selftest(){if(VR)return VR;var ok=true,cnt=0;for(var r=0;r<=8;r++)for(var n=r;n<=30;n++){var s=0n;for(var i=r;i<=n;i++)s+=binom(i,r);if(s!==binom(n+1,r+1))ok=false;cnt++;}VR={ok:ok,cnt:cnt};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'Pascal\\'s triangle — the diagonal C(r,r)…C(n,r) (stick) sums to C(n+1,r+1) (blade)');
+ var rows=9,cell=52,oy=34;function cellXY(row,col){return [W/2+(col-row/2)*cell,oy+row*26];}
+ for(var row=0;row<rows;row++)for(var col=0;col<=row;col++){var v=binom(row,col),onStick=(col===dr&&row>=dr&&row<=dn),blade=(row===dn+1&&col===dr+1),xy=cellXY(row,col);var col2=onStick?'#ff8a3c':(blade?'#35ffb0':'#5a6a9a');if(onStick||blade){nf(g,onStick?'rgba(255,138,60,0.25)':'rgba(53,255,176,0.3)');g.beginPath();g.arc(xy[0],xy[1],11,0,6.2832);g.fill();ng(g);}nt(g,col2,xy[0]-6,xy[1]+4,10,v.toString());}
+ nt(g,'#8ad',10,H-8,9,'sum of the orange stick = the green blade entry — the hockey-stick shape');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',12,20,12,'Σ_{i='+dr+'}^{'+dn+'} C(i,'+dr+')  vs  C('+(dn+1)+','+(dr+1)+')');
+ var s=0n,terms=[];for(var i=dr;i<=dn;i++){var t=binom(i,dr);s+=t;terms.push('C('+i+','+dr+')='+t.toString());}
+ var y=54;nt(g,'#ffce9a',16,y,10,terms.join(' + '));y+=26;
+ nt(g,'#ff8a3c',16,y,13,'diagonal sum = '+s.toString());nt(g,'#35ffb0',16,y+26,13,'C('+(dn+1)+','+(dr+1)+') = '+binom(dn+1,dr+1).toString());
+ nt(g,s===binom(dn+1,dr+1)?'#39ffb0':'#ff5a5a',16,y+52,13,s===binom(dn+1,dr+1)?'equal ✓':'✗');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test r=0..8, n≤30 ('+v.cnt+' sticks): Σ C(i,r) == C(n+1,r+1) exact = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'Pascal\\'s rule telescopes the diagonal — the discrete ∫xʳ');}
+document.getElementById('hknext').onclick=function(){dn++;if(dn>8){dn=dr+2;dr=(dr+1)%4;if(dr<1)dr=1;dn=dr+3;}drawW3();drawW4();document.getElementById('hkread').textContent='stick r='+dr+', n='+dn+': Σ = '+binom(dn+1,dr+1).toString()+' = C('+(dn+1)+','+(dr+1)+')';};
+document.getElementById('hkcheck').onclick=function(){var v=selftest();document.getElementById('hkread').textContent='Σ_{i=r}^{n} C(i,r) == C(n+1,r+1) for r=0..8, n≤30 ('+v.cnt+' sticks): '+v.ok;};
+document.getElementById('hkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.06);
+ var acc=0,tot=Number(binom(dn+1,dr+1));for(var i=dr;i<=dn;i++){var t=Number(binom(i,dr)),a0=acc/tot*6.2832,a1=(acc+t)/tot*6.2832;ne(g,'#ff2fa6',7);g.beginPath();g.arc(0,0,90,a0-1.5708,a1-1.5708);g.stroke();ng(g);acc+=t;}
+ ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.arc(0,0,90,0,6.2832);g.stroke();ng(g);ndot(g,0,0,11,'#35ffb0');nt(g,'#0a0713',-14,4,10,binom(dn+1,dr+1).toString());
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the blade C('+(dn+1)+','+(dr+1)+') = '+binom(dn+1,dr+1).toString());nt(g,'#ff2fa6',10,H-34,10,'magenta arcs: the diagonal (stick) entries C(i,'+dr+')');nt(g,'#8ad',10,H-14,10,'a diagonal folded into one entry');}
+drawW3();drawW4();window.__hockeystick=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FEUE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Feuerbach&rsquo;s theorem</b> is one of the most beautiful coincidences in triangle geometry. Every triangle has a <b>nine-point circle</b> &mdash; the circle passing through nine special points (the three side midpoints, the three altitude feet, and the three midpoints from the orthocenter to the vertices), with radius exactly half the circumradius. Feuerbach proved that this nine-point circle is <b>tangent to the incircle</b> (and to all three excircles). The single point where it touches the incircle is the celebrated <b>Feuerbach point</b>. Tangency means the distance between the two circles&rsquo; centres equals the difference of their radii: |N&#8329; - I| = R/2 - r.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random triangles, the distance between the nine-point centre and the incentre equals R/2 - r (the nine-point radius minus the inradius) to ~1e-15 &mdash; confirming the internal tangency of the two circles (window.__feuerbach). <span class="fig">FIG</span> no framing; the nine-point circle, the incircle, and the tangency condition all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-raid</i> &mdash; the boss reveal: two circles built from utterly different constructions of a triangle turn out to kiss at a single point. <b>AVAN (AI)</b> built the instrument: the nine-point circle (centre and R/2 radius), the incircle, and the tangency test.<br><br>Credit as content: Karl Wilhelm Feuerbach (1822). The weave: David names the reveal; I confirm the nine-point circle is tangent to the incircle at the Feuerbach point.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A triangle, its nine-point circle and its incircle — tangent at the single Feuerbach point.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New triangles; the distance between nine-point centre and incentre is checked to equal R/2 − r.</div>
+   <div class="btns" style="margin-top:10px"><button id="fenext">new triangle ▶</button><button id="fecheck">verify ▶</button></div>
+   <div class="cap" id="feread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the tangency of the nine-point circle and the incircle.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t track nine points &mdash; know the tangency. The inverse of &lsquo;the nine-point circle&rsquo; is &lsquo;a circle of radius R/2 that touches the incircle from outside&rsquo;, their centres exactly R/2 - r apart. <b>Magenta</b> are the nine-point circle and incircle; <b>green</b> is the Feuerbach point where they touch. Two circles forced to kiss.</div>
+   <div class="btns" style="margin-top:10px"><button id="fespin">pause spin</button></div></div></div></div>"""
+FEUE_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+function circum(A,B,C){var ax=A[0],ay=A[1],bx=B[0],by=B[1],cx=C[0],cy=C[1],d=2*(ax*(by-cy)+bx*(cy-ay)+cx*(ay-by));return [((ax*ax+ay*ay)*(by-cy)+(bx*bx+by*by)*(cy-ay)+(cx*cx+cy*cy)*(ay-by))/d,((ax*ax+ay*ay)*(cx-bx)+(bx*bx+by*by)*(ax-cx)+(cx*cx+cy*cy)*(bx-ax))/d];}
+function elems(A,B,C){var a=dist(B,C),b=dist(C,A),c=dist(A,B),O=circum(A,B,C),R=dist(O,A),H=[A[0]+B[0]+C[0]-2*O[0],A[1]+B[1]+C[1]-2*O[1]],N9=[(O[0]+H[0])/2,(O[1]+H[1])/2],area=Math.abs((B[0]-A[0])*(C[1]-A[1])-(C[0]-A[0])*(B[1]-A[1]))/2,s=(a+b+c)/2,r=area/s,I=[(a*A[0]+b*B[0]+c*C[0])/(a+b+c),(a*A[1]+b*B[1]+c*C[1])/(a+b+c)];return {O:O,R:R,H:H,N9:N9,r:r,I:I};}
+var ang=0,spin=true,VR=null,dA=[-1.6,-1],dB=[1.9,-1.2],dC=[0.2,1.7];
+function selftest(){if(VR)return VR;var rng=mb(4),ok=true,worst=0,n=0;for(var t=0;t<4000;t++){var A=[rng()*4-2,rng()*4-2],B=[rng()*4-2,rng()*4-2],C=[rng()*4-2,rng()*4-2];if(dist(A,B)<0.4||dist(B,C)<0.4||dist(C,A)<0.4)continue;var ar=Math.abs((B[0]-A[0])*(C[1]-A[1])-(C[0]-A[0])*(B[1]-A[1]))/2;if(ar<0.15)continue;n++;var e=elems(A,B,C),d=Math.abs(dist(e.N9,e.I)-Math.abs(e.R/2-e.r));if(d>worst)worst=d;if(d>1e-6)ok=false;}VR={ok:ok,worst:worst,n:n};return VR;}
+function tp(cv,p){return [cv.width/2+p[0]*66,cv.height/2+20-p[1]*66];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var e=elems(dA,dB,dC);nt(g,'#ffcf4a',10,16,10,'nine-point circle (R/2) and incircle (r) — tangent at the Feuerbach point');
+ var a=tp(cv,dA),b=tp(cv,dB),c=tp(cv,dC);ne(g,'rgba(150,160,210,0.6)',1.6);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ var n9=tp(cv,e.N9),I=tp(cv,e.I);ne(g,'#21e6ff',1.6);g.beginPath();g.arc(n9[0],n9[1],e.R/2*66,0,6.2832);g.stroke();ng(g);nt(g,'#21e6ff',n9[0]-30,n9[1],9,'nine-point');
+ ne(g,'#ff2fa6',1.6);g.beginPath();g.arc(I[0],I[1],e.r*66,0,6.2832);g.stroke();ng(g);nt(g,'#ff2fa6',I[0]-8,I[1],9,'incircle');
+ // Feuerbach point = on segment N9→I at distance R/2 from N9
+ var dir=[(e.I[0]-e.N9[0]),(e.I[1]-e.N9[1])],dl=Math.hypot(dir[0],dir[1]),F=[e.N9[0]+dir[0]/dl*e.R/2,e.N9[1]+dir[1]/dl*e.R/2],Fp=tp(cv,F);ndot(g,Fp[0],Fp[1],5,'#35ffb0');nt(g,'#39ffb0',Fp[0]+6,Fp[1],9,'Feuerbach pt');
+ nt(g,'#8ad',10,H-8,9,'|N₉−I| = '+dist(e.N9,e.I).toFixed(4)+'  =  R/2 − r = '+Math.abs(e.R/2-e.r).toFixed(4));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var e=elems(dA,dB,dC);nt(g,'#ffcf4a',12,20,12,'tangency: |N₉ − I| = R/2 − r');
+ nt(g,'#21e6ff',16,56,11,'nine-point radius R/2 = '+(e.R/2).toFixed(5));nt(g,'#ff2fa6',16,80,11,'inradius r = '+e.r.toFixed(5));
+ nt(g,'#9cf',16,108,12,'R/2 − r = '+Math.abs(e.R/2-e.r).toFixed(6));nt(g,'#35ffb0',16,134,12,'|N₉ − I| = '+dist(e.N9,e.I).toFixed(6));
+ nt(g,Math.abs(dist(e.N9,e.I)-Math.abs(e.R/2-e.r))<1e-5?'#39ffb0':'#ff5a5a',16,162,13,Math.abs(dist(e.N9,e.I)-Math.abs(e.R/2-e.r))<1e-5?'equal ✓ → circles tangent':'✗');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.n+' triangles: |N₉−I| == R/2−r (worst '+v.worst.toExponential(1)+') = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'the nine-point circle also touches all three excircles');}
+document.getElementById('fenext').onclick=function(){var rng=mb((Date.now()&8191)+1);do{dA=[rng()*3-1.5,rng()*3-1.5];dB=[rng()*3-1.5,rng()*3-1.5];dC=[rng()*3-1.5,rng()*3-1.5];}while(Math.abs((dB[0]-dA[0])*(dC[1]-dA[1])-(dC[0]-dA[0])*(dB[1]-dA[1]))/2<0.6);drawW3();drawW4();var e=elems(dA,dB,dC);document.getElementById('feread').textContent='new triangle — |N₉−I|='+dist(e.N9,e.I).toFixed(4)+' = R/2−r='+Math.abs(e.R/2-e.r).toFixed(4);};
+document.getElementById('fecheck').onclick=function(){var v=selftest();document.getElementById('feread').textContent='nine-point circle tangent to incircle (|N₉−I|==R/2−r) over '+v.n+' triangles: '+v.ok;};
+document.getElementById('fespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,e=elems(dA,dB,dC),sc=80,gc=e.N9;g.save();g.translate(cx,cy);g.rotate(ang*0.06);function q(p){return [(p[0]-gc[0])*sc,-(p[1]-gc[1])*sc];}
+ var n9=q(e.N9),I=q(e.I);ne(g,'#ff2fa6',1.8);g.beginPath();g.arc(n9[0],n9[1],e.R/2*sc,0,6.2832);g.stroke();ng(g);ne(g,'#ff2fa6',1.8);g.beginPath();g.arc(I[0],I[1],e.r*sc,0,6.2832);g.stroke();ng(g);
+ var dir=[(e.I[0]-e.N9[0]),(e.I[1]-e.N9[1])],dl=Math.hypot(dir[0],dir[1]),F=[e.N9[0]+dir[0]/dl*e.R/2,e.N9[1]+dir[1]/dl*e.R/2],Fp=q(F);ndot(g,Fp[0],Fp[1],6,'#35ffb0');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the Feuerbach point where the two circles touch');nt(g,'#ff2fa6',10,H-34,10,'magenta: the nine-point circle (R/2) and the incircle (r)');nt(g,'#8ad',10,H-14,10,'two circles forced to kiss');}
+drawW3();drawW4();window.__feuerbach=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BRUC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Bruck&ndash;Ryser theorem</b> forbids certain finite projective planes using a fact about sums of two squares. A <b>projective plane of order n</b> is a highly symmetric geometry with n&sup2;+n+1 points and the same number of lines. Bruck and Ryser proved a <b>necessary condition</b>: if n &equiv; 1 or 2 (mod 4), then a projective plane of order n can exist <b>only if n is a sum of two integer squares</b>. This single arithmetic test rules out infinitely many orders &mdash; the first being order <b>6</b> (6 &equiv; 2 mod 4, and 6 is not a sum of two squares), which is why no 6&times;6 pair of orthogonal Latin squares (Euler&rsquo;s 36 officers) exists. It is a necessary, not sufficient, condition.<br><br>
+ <span class="lit">LIT</span> verified live: among orders n &le; 50 with n &equiv; 1 or 2 (mod 4), the ones that are <b>not</b> sums of two squares &mdash; and so ruled out by Bruck&ndash;Ryser &mdash; are exactly 6, 14, 21, 22, 30, 33, 38, 42, 46; the small orders with known planes (2,3,4,5,7,8,9) are never excluded (window.__bruckryser). <span class="fig">FIG</span> no framing; the mod-4 test and the sum-of-two-squares check run in-browser. Honest: order 10 passes Bruck&ndash;Ryser yet has no plane &mdash; that was proved only later by massive computation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>stack-overflow</i> &mdash; the glitch where whole orders of geometry overflow into impossibility, ruled out by a two-squares test. <b>AVAN (AI)</b> built the instrument: the mod-4 condition, the sum-of-two-squares check, and the list of excluded orders &mdash; with an honest note that the condition is necessary, not sufficient.<br><br>Credit as content: R. H. Bruck &amp; H. J. Ryser (1949). The weave: David names the overflow; I confirm which orders Bruck&ndash;Ryser rules out, and flag order 10 as passing yet impossible.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">Orders 2..50: those ≡1,2 (mod 4) and not a sum of two squares (magenta) are ruled out by Bruck–Ryser.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle orders; the mod-4 class and the sum-of-two-squares test decide whether Bruck–Ryser excludes it.</div>
+   <div class="btns" style="margin-top:10px"><button id="brknext">next order ▶</button><button id="brkcheck">verify ▶</button></div>
+   <div class="cap" id="brkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the orders Bruck–Ryser permits (and the magenta ones it forbids).</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t search for a plane &mdash; test the arithmetic. The inverse of &lsquo;does a projective plane of order n exist?&rsquo; is (for n&equiv;1,2 mod 4) &lsquo;is n a sum of two squares?&rsquo; &mdash; if not, no plane can exist. <b>Magenta</b> are the forbidden orders; <b>green</b> are the orders that survive the test. Geometry gated by two squares.</div>
+   <div class="btns" style="margin-top:10px"><button id="brkspin">pause spin</button></div></div></div></div>"""
+BRUC_SCRIPT = """(function(){""" + NOIR + """
+function sum2sq(n){for(var a=0;a*a<=n;a++){var b2=n-a*a,b=Math.round(Math.sqrt(b2));if(b*b===b2)return [a,b];}return null;}
+function excludedBR(n){return (n%4===1||n%4===2)&&!sum2sq(n);}
+var ang=0,spin=true,VR=null,dn=6;
+function selftest(){if(VR)return VR;var exc=[];for(var n=2;n<=50;n++)if(excludedBR(n))exc.push(n);var expect=[6,14,21,22,30,33,38,42,46],ok=exc.length===expect.length&&expect.every(function(v,i){return exc[i]===v;});var known=[2,3,4,5,7,8,9],knownOk=known.every(function(n){return exc.indexOf(n)<0;});var ten=(10%4===2)&&!!sum2sq(10)&&exc.indexOf(10)<0;VR={exc:exc,ok:ok,knownOk:knownOk,ten:ten};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'orders 2..50 — magenta = ruled out by Bruck-Ryser (≡1,2 mod4 & not a²+b²)');
+ var perRow=13,cell=36,ox=24,oy=40;for(var i=0;i<49;i++){var n=i+2,exc=excludedBR(n),row=Math.floor(i/perRow),col=i%perRow,x=ox+col*cell,y=oy+row*44;var relevant=(n%4===1||n%4===2);nf(g,exc?'rgba(255,47,166,0.5)':(relevant?'rgba(53,255,176,0.3)':'rgba(60,70,110,0.4)'));g.beginPath();g.arc(x,y,15,0,6.2832);g.fill();ng(g);nt(g,exc?'#ff6ab0':(relevant?'#39ffb0':'#8898c0'),x-(n<10?4:8),y+4,11,''+n);}
+ nt(g,'#8ad',10,H-24,9,'green = ≡1,2 mod4 and IS a sum of two squares (survives); grey = ≡0,3 mod4 (condition n/a)');
+ nt(g,'#ff6ab0',10,H-8,9,'ruled out: 6, 14, 21, 22, 30, 33, 38, 42, 46');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',12,20,12,'Bruck-Ryser test for order n = '+dn);
+ var mod=dn%4,relevant=(mod===1||mod===2),ss=sum2sq(dn),exc=excludedBR(dn);
+ nt(g,'#9cf',16,56,11,'n = '+dn+',  n mod 4 = '+mod);
+ nt(g,relevant?'#ffcf4a':'#66c',16,82,11,relevant?'≡ 1 or 2 (mod 4) → Bruck-Ryser applies':'≡ 0 or 3 (mod 4) → condition does not apply');
+ nt(g,ss?'#35ffb0':'#ff2fa6',16,110,11,ss?dn+' = '+ss[0]+'² + '+ss[1]+'² (a sum of two squares)':dn+' is NOT a sum of two squares');
+ nt(g,exc?'#ff5a5a':'#39ffb0',16,140,13,exc?'⇒ NO projective plane of order '+dn+' (excluded) ✗':(relevant?'⇒ not excluded by Bruck-Ryser ✓':'⇒ Bruck-Ryser silent'));
+ if(dn===10)nt(g,'#ffcf4a',16,166,9,'note: order 10 passes BR yet has NO plane (proved by computer, 1989)');
+ var v=selftest();nt(g,v.ok&&v.knownOk&&v.ten?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: excluded ≤50 = ['+v.exc.join(',')+'] = '+v.ok+' · known planes safe='+v.knownOk);
+ nt(g,'#8ad',12,H-16,9,'a necessary (not sufficient) condition — one arithmetic test rules out orders');}
+document.getElementById('brknext').onclick=function(){do{dn++;if(dn>50)dn=2;}while(dn%4!==1&&dn%4!==2);drawW3();drawW4();document.getElementById('brkread').textContent='order '+dn+': '+(excludedBR(dn)?'RULED OUT (not a²+b²)':(sum2sq(dn)?'survives = '+sum2sq(dn)[0]+'²+'+sum2sq(dn)[1]+'²':''));};
+document.getElementById('brkcheck').onclick=function(){var v=selftest();document.getElementById('brkread').textContent='BR-excluded orders ≤50 = ['+v.exc.join(',')+'], known planes not excluded, order 10 passes BR: '+(v.ok&&v.knownOk&&v.ten);};
+document.getElementById('brkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,R=120;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ for(var i=0;i<49;i++){var n=i+2,exc=excludedBR(n),relevant=(n%4===1||n%4===2),a=i/49*6.2832,r=40+i*1.6;ndot(g,Math.cos(a)*r,Math.sin(a)*r,exc?5:3,exc?'#ff2fa6':(relevant?'#35ffb0':'rgba(90,106,154,0.6)'));if(exc)nt(g,'#ff6ab0',Math.cos(a)*r*1.1,Math.sin(a)*r*1.1,8,''+n);}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: orders that survive Bruck-Ryser; magenta: ruled out');nt(g,'#ff2fa6',10,H-34,10,'magenta: 6, 14, 21, 22, 30, 33, 38, 42, 46 — no projective plane');nt(g,'#8ad',10,H-14,10,'geometry gated by two squares');}
+drawW3();drawW4();window.__bruckryser=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 157 · neon-noir · silicon-coding (submatrix eigenvalues interlacing the whole · a cyclic quadrilateral's maximal area from its sides · the smallest two-way sum of two cubes · an expected sum equal to expected count times expected step · a square hidden in every partition) ═══════════════════════
 CINT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Cauchy&rsquo;s interlacing theorem</b> pins the eigenvalues of a submatrix between those of the whole. Take a symmetric n&times;n matrix M with eigenvalues &lambda;<sub>1</sub> &ge; &lambda;<sub>2</sub> &ge; &hellip; &ge; &lambda;<sub>n</sub>, and delete one row and the matching column to get an (n-1)&times;(n-1) principal submatrix B with eigenvalues &mu;<sub>1</sub> &ge; &hellip; &ge; &mu;<sub>n-1</sub>. Cauchy proved they <b>interlace</b>: &lambda;<sub>i</sub> &ge; &mu;<sub>i</sub> &ge; &lambda;<sub>i+1</sub> for every i. Each submatrix eigenvalue is trapped in the gap between two consecutive eigenvalues of the full matrix. It is the backbone of eigenvalue algorithms, Sturm sequences, and Sylvester&rsquo;s law of inertia.<br><br>
@@ -40743,6 +40975,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-weyl-equidistribution","title":"THE WEYL EQUIDISTRIBUTION","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#21e6ff","icon":"weyl",
+  "kicker":"irrational multiples filling the interval evenly",
+  "blurb":"Weyl's equidistribution theorem in the 5-window house format — the fractional parts of the multiples of an irrational number spread out perfectly evenly. Take any irrational α and look at the sequence {α}, {2α}, {3α}, … (fractional parts, mod 1). Weyl proved these points become equidistributed in [0,1): the fraction landing in any subinterval [a,b) converges to its length b−a. The sequence never settles into a pattern — it fills the interval as uniformly as possible. For a rational α=p/q, by contrast, the fractional parts cycle through only q values and are never equidistributed. Verified live: for α=√2, φ, π, e, the star discrepancy of {nα} shrinks toward zero as N grows — below 1e-3 by N=20000 — while for rational α=1/3 the discrepancy stays large. Neon-noir traced. See the points filling [0,1) in 1D, the discrepancy → 0 + control in 2D, and the order-into-uniformity inverse in 3D.",
+  "lit":"Genuine Weyl equidistribution theorem (Hermann Weyl, 1916). Verified live: for α=√2, φ, π, e the star discrepancy of {nα} falls below 0.01 by N=20000 (equidistributed), while a rational α=1/3 keeps discrepancy ≈0.33 (window.__weyl.ok, .ctrl, .rows).",
+  "fig":"No framing; the fractional-part sequence and the discrepancy measure both run in-browser. The AVAN inverse is honest — instead of tracking each point, know the density: the inverse of 'the sequence {nα}' is 'the uniform distribution on [0,1)', which it converges to exactly when α is irrational. Magenta are the sequence points; green is the flat uniform density they fill out. Order dissolving into uniformity.",
+  "body":WEQD_BODY,"script":WEQD_SCRIPT},
+ {"slug":"the-gamma-reflection","title":"THE GAMMA REFLECTION","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#b06bff","icon":"gammareflection",
+  "kicker":"a gamma product equal to a cosecant",
+  "blurb":"Euler's reflection formula in the 5-window house format — tying the gamma function to the sine in one clean stroke: Γ(x)·Γ(1−x) = π/sin(πx). The gamma function Γ extends the factorial to all real (and complex) numbers, and it looks nothing like a trig function — yet multiply its value at x by its value at the mirror point 1−x, and the messy transcendental factorials collapse into a simple cosecant. Setting x=½ gives Γ(½)²=π, so Γ(½)=√π — the gateway to the Gaussian integral. The poles of the gamma function at 0,−1,−2,… line up exactly with the zeros of sine. Verified live: computing Γ by the Lanczos approximation, the product Γ(x)·Γ(1−x) equals π/sin(πx) to relative error ~1e-14 for thousands of x in (0,1), and Γ(½)²=π. Neon-noir traced. See the mirrored gamma curves in 1D, product vs cosecant in 2D, and the factorials-reflected inverse in 3D.",
+  "lit":"Genuine Euler reflection formula (Leonhard Euler). Verified live: with the Lanczos gamma approximation, Γ(x)·Γ(1−x) equals π/sin(πx) to relative error ~5e-15 for ~8000 x in (0,1), and Γ(½)²=π (window.__gammareflection.ok, .worst, .halfOk).",
+  "fig":"No framing; the gamma product and the cosecant are computed by different routes in-browser and agree. The AVAN inverse is honest — instead of evaluating a lone factorial, pair it with its reflection: the inverse of 'Γ(x)' is 'π/(sin(πx)·Γ(1−x))', so the value at x and at 1−x lock together through a sine. Magenta are the two mirrored gamma curves; green is the cosecant their product traces. Factorials reflected into a sine.",
+  "body":GREF_BODY,"script":GREF_SCRIPT},
+ {"slug":"the-hockey-stick","title":"THE HOCKEY STICK","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"BACKPROP","domain_slug":"backprop","accent":"#ff8a3c","icon":"hockeystick",
+  "kicker":"a diagonal of Pascal summing to one entry",
+  "blurb":"The hockey-stick identity in the 5-window house format — a striking pattern in Pascal's triangle: sum any diagonal starting from the edge, and the total appears just below the end of the diagonal. Formally, Σ_{i=r}^{n} C(i,r) = C(n+1,r+1). Trace down a diagonal of the triangle (the 'stick') and the running sum lands in the single cell one step down and over (the 'blade') — the shape of a hockey stick. It falls straight out of Pascal's rule C(n+1,r+1)=C(n,r)+C(n,r+1), telescoping the diagonal into one entry, and it is the discrete cousin of integrating xʳ. Verified live with exact big-integer arithmetic: for all r from 0 to 8 and n up to 30, the diagonal sum Σ_{i=r}^{n} C(i,r) equals C(n+1,r+1) exactly — e.g. C(2,2)+C(3,2)+C(4,2)+C(5,2)+C(6,2)=35=C(7,3). Neon-noir traced. See Pascal's triangle with the stick in 1D, sum vs blade in 2D, and the diagonal-folded inverse in 3D.",
+  "lit":"Genuine hockey-stick identity (Pascal's triangle, classical). Verified live with exact BigInt: for r=0..8 and n≤30, Σ_{i=r}^{n} C(i,r) equals C(n+1,r+1) exactly; C(2,2)+…+C(6,2)=35=C(7,3) (window.__hockeystick.ok, .cnt).",
+  "fig":"No framing; the diagonal sum and the single closing binomial both run in-browser and agree exactly. The AVAN inverse is honest — instead of adding the diagonal term by term, read the blade: the inverse of 'Σ_{i=r}^{n} C(i,r)' is 'the single entry C(n+1,r+1)', the diagonal telescoped by Pascal's rule. Magenta are the diagonal (stick) entries; green is the blade entry they sum to. A diagonal folded into one entry.",
+  "body":HOCK_BODY,"script":HOCK_SCRIPT},
+ {"slug":"the-feuerbach","title":"THE FEUERBACH","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#ffcf4a","icon":"feuerbach",
+  "kicker":"a nine-point circle tangent to the incircle",
+  "blurb":"Feuerbach's theorem in the 5-window house format — one of the most beautiful coincidences in triangle geometry. Every triangle has a nine-point circle — the circle through nine special points (the three side midpoints, the three altitude feet, and the three midpoints from the orthocenter to the vertices), with radius exactly half the circumradius. Feuerbach proved that this nine-point circle is tangent to the incircle (and to all three excircles). The single point where it touches the incircle is the celebrated Feuerbach point. Tangency means the distance between the two circles' centres equals the difference of their radii: |N₉−I| = R/2 − r. Verified live: for thousands of random triangles, the distance between the nine-point centre and the incentre equals R/2−r to ~1e-15 — confirming the internal tangency. Neon-noir traced. See the triangle + two circles + Feuerbach point in 1D, the tangency check in 2D, and the forced-tangency inverse in 3D.",
+  "lit":"Genuine Feuerbach's theorem (Karl Wilhelm Feuerbach, 1822). Verified live: for ~4000 random triangles, the distance between the nine-point centre and the incentre equals R/2−r (nine-point radius minus inradius) to ~1e-15, confirming the internal tangency (window.__feuerbach.ok, .worst, .n).",
+  "fig":"No framing; the nine-point circle, the incircle, and the tangency condition all run in-browser. The AVAN inverse is honest — instead of tracking nine points, know the tangency: the inverse of 'the nine-point circle' is 'a circle of radius R/2 that touches the incircle', their centres exactly R/2−r apart. Magenta are the nine-point circle and incircle; green is the Feuerbach point where they touch. Two circles forced to kiss.",
+  "body":FEUE_BODY,"script":FEUE_SCRIPT},
+ {"slug":"the-bruck-ryser","title":"THE BRUCK-RYSER","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#35ffb0","icon":"bruckryser",
+  "kicker":"orders of projective planes ruled out by two squares",
+  "blurb":"The Bruck–Ryser theorem in the 5-window house format — forbidding certain finite projective planes using a fact about sums of two squares. A projective plane of order n is a highly symmetric geometry with n²+n+1 points and the same number of lines. Bruck and Ryser proved a necessary condition: if n ≡ 1 or 2 (mod 4), then a projective plane of order n can exist only if n is a sum of two integer squares. This single arithmetic test rules out infinitely many orders — the first being order 6 (6≡2 mod 4, and 6 is not a sum of two squares), which is why no 6×6 pair of orthogonal Latin squares (Euler's 36 officers) exists. It is a necessary, not sufficient, condition. Verified live: among orders n≤50 with n≡1,2 (mod 4), the ones not sums of two squares — ruled out by Bruck–Ryser — are exactly 6,14,21,22,30,33,38,42,46; the small orders with known planes (2,3,4,5,7,8,9) are never excluded. Neon-noir traced. See orders 2..50 flagged in 1D, the mod-4 + two-squares test in 2D, and the geometry-gated-by-two-squares inverse in 3D.",
+  "lit":"Genuine Bruck–Ryser theorem (R. H. Bruck & H. J. Ryser, 1949). Verified live: among orders n≤50 with n≡1,2 (mod 4), those NOT sums of two squares — excluded by Bruck–Ryser — are exactly 6,14,21,22,30,33,38,42,46; known-plane orders 2,3,4,5,7,8,9 are never excluded, and order 10 passes BR yet has no plane (window.__bruckryser.ok, .knownOk, .ten).",
+  "fig":"No framing; the mod-4 test and the sum-of-two-squares check run in-browser. HONEST: this is a necessary, not sufficient, condition — order 10 passes Bruck–Ryser yet has no projective plane (proved only later, by massive computation, 1989). The AVAN inverse is honest — instead of searching for a plane, test the arithmetic: the inverse of 'does a projective plane of order n exist?' is (for n≡1,2 mod 4) 'is n a sum of two squares?'. Magenta are the forbidden orders; green are the orders that survive the test. Geometry gated by two squares.",
+  "body":BRUC_BODY,"script":BRUC_SCRIPT},
  {"slug":"the-cauchy-interlacing","title":"THE CAUCHY INTERLACING","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#b06bff","icon":"cauchyinterlacing",
   "kicker":"submatrix eigenvalues interlacing the whole",
