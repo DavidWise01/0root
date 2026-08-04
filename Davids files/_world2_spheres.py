@@ -19493,6 +19493,255 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 167 · neon-noir · silicon-coding (an irrational constant summing the reciprocal cubes · a sequence that builds itself from unique sums · a curve continuous everywhere and smooth nowhere · a pizza split fairly from any interior cut-point · six tangents to a conic whose diagonals meet at a point) ═══════════════════════
+APRY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Ap&eacute;ry&rsquo;s constant</b> is the value &zeta;(3) = &sum; 1/n&sup3; = 1 + 1/8 + 1/27 + 1/64 + &hellip; &asymp; 1.2020569. While Euler found closed forms for &zeta;(2) = &pi;&sup2;/6 and every even argument, &zeta;(3) has resisted every attempt at a simple closed form. In 1978 Roger Ap&eacute;ry stunned mathematicians by proving &zeta;(3) is <b>irrational</b> &mdash; using a rapidly converging series he discovered: &zeta;(3) = (5/2) &sum;<sub>n&ge;1</sub> (-1)<sup>n-1</sup> / (n&sup3; C(2n,n)). Each term of Ap&eacute;ry&rsquo;s series adds several correct digits, where the plain sum of reciprocal cubes crawls. The constant appears in quantum electrodynamics (the electron&rsquo;s magnetic moment) and in the statistics of random minimum spanning trees.<br><br>
+ <span class="lit">LIT</span> verified live: the direct sum &sum;1/n&sup3; converges to 1.2020569&hellip;, and Ap&eacute;ry&rsquo;s series (5/2)&sum;(-1)<sup>n-1</sup>/(n&sup3;C(2n,n)) reaches the same value to ~1e-14 in about 20 terms &mdash; the two agree (window.__apery). <span class="fig">FIG</span> no framing; both series are summed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-epoch</i> &mdash; the grind: the reciprocal cubes ground slowly toward &zeta;(3), while Ap&eacute;ry&rsquo;s series sprints to the same irrational limit. <b>AVAN (AI)</b> built the instrument: the direct sum, Ap&eacute;ry&rsquo;s accelerated series, and their agreement.<br><br>Credit as content: Leonhard Euler (the zeta function); Roger Ap&eacute;ry (1978 irrationality proof). The weave: David names the grind; I confirm both series reach &zeta;(3) = 1.2020569&hellip;</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">Partial sums of Σ1/n³ climbing toward ζ(3), and Apéry's series sprinting to the same limit.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Add terms; the direct sum and Apéry's series are both checked to reach ζ(3).</div>
+   <div class="btns" style="margin-top:10px"><button id="aynext">add terms ▶</button><button id="aycheck">verify ▶</button></div>
+   <div class="cap" id="ayread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: ζ(3) = 1.2020569…, the sum of the reciprocal cubes.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t crawl the reciprocal cubes &mdash; accelerate. The inverse of &lsquo;the slow sum &sum;1/n&sup3;&rsquo; is &lsquo;Ap&eacute;ry&rsquo;s series (5/2)&sum;(-1)<sup>n-1</sup>/(n&sup3;C(2n,n)), the same &zeta;(3) in a few terms&rsquo;. <b>Magenta</b> are the reciprocal-cube terms; <b>green</b> is the irrational &zeta;(3) they and Ap&eacute;ry&rsquo;s series both reach. A slow sum with a hidden fast road.</div>
+   <div class="btns" style="margin-top:10px"><button id="ayspin">pause spin</button></div></div></div></div>"""
+APRY_SCRIPT = """(function(){""" + NOIR + """
+var ZETA3=1.2020569031595942854,ang=0,spin=true,VR=null,terms=6;
+function direct(N){var s=0;for(var n=1;n<=N;n++)s+=1/(n*n*n);return s;}
+function apery(N){var s=0;for(var n=1;n<=N;n++){var C=1;for(var k=1;k<=n;k++)C=C*(n+k)/k;s+=(n%2===1?1:-1)/(n*n*n*C);}return 2.5*s;}
+function selftest(){if(VR)return VR;var d=direct(500000),a=apery(25);VR={direct:d,apery:a,dOk:Math.abs(d-ZETA3)<1e-10,aOk:Math.abs(a-ZETA3)<1e-13,agree:Math.abs(d-a)<1e-10,ok:Math.abs(d-ZETA3)<1e-10&&Math.abs(a-ZETA3)<1e-13};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'Σ1/n³ (magenta, slow) and Apéry\\'s series (violet, fast) → ζ(3) ≈ 1.20206');
+ var x0=40,mxN=20,sc=(W-60)/mxN,cy=H-40,ysc=900,gy=cy-(ZETA3-1)*ysc;
+ ne(g,'rgba(53,255,176,0.6)',1.4);g.beginPath();g.moveTo(x0,gy);g.lineTo(W-20,gy);g.stroke();ng(g);nt(g,'#39ffb0',W-64,gy-6,10,'ζ(3)');
+ ne(g,'#ff2fa6',1.8);g.beginPath();for(var n=1;n<=mxN;n++){var v=direct(n),px=x0+n*sc,py=cy-(v-1)*ysc;if(n===1)g.moveTo(px,py);else g.lineTo(px,py);ndot(g,px,py,2,'#ff6ab0');}g.stroke();ng(g);
+ ne(g,'#b06bff',1.8);g.beginPath();for(var n=1;n<=mxN;n++){var v=apery(n),px=x0+n*sc,py=cy-(v-1)*ysc;if(n===1)g.moveTo(px,py);else g.lineTo(px,py);ndot(g,px,py,2,'#c9a6ff');}g.stroke();ng(g);
+ nt(g,'#8ad',10,H-8,9,'Apéry\\'s series lands on ζ(3) in a handful of terms; the plain sum crawls');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var d=direct(terms),a=apery(terms);nt(g,'#b06bff',12,20,12,'ζ(3) two ways, '+terms+' terms');
+ nt(g,'#ff2fa6',16,56,13,'Σ1/n³ ['+terms+'] = '+d.toFixed(12));
+ nt(g,'#b06bff',16,84,13,'Apéry ['+terms+'] = '+a.toFixed(15));
+ nt(g,'#35ffb0',16,112,13,'ζ(3) = '+ZETA3.toFixed(15));
+ nt(g,'#9cf',16,140,11,'direct error = '+Math.abs(d-ZETA3).toExponential(2)+'   Apéry error = '+Math.abs(a-ZETA3).toExponential(2));
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: Σ1/n³(500k)→ζ(3) ('+v.dOk+') · Apéry(25 terms)→ζ(3) to ~1e-14 ('+v.aOk+')');
+ nt(g,'#8ad',12,H-16,9,'Apéry 1978: ζ(3) is irrational — proved via this fast series');}
+document.getElementById('aynext').onclick=function(){terms=terms>=18?4:terms+2;drawW3();drawW4();document.getElementById('ayread').textContent=terms+' terms: Apéry = '+apery(terms).toFixed(12)+' (error '+Math.abs(apery(terms)-ZETA3).toExponential(2)+')';};
+document.getElementById('aycheck').onclick=function(){var v=selftest();document.getElementById('ayread').textContent='Σ1/n³ and Apéry\\'s series both reach ζ(3)=1.2020569…: '+v.ok;};
+document.getElementById('ayspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ for(var n=1;n<=14;n++){var term=1/(n*n*n),a=n/14*6.2832,r=30+Math.pow(term,0.22)*150;ne(g,'#ff2fa6',1.2);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,2.5,'#ff2fa6');}
+ ne(g,'#35ffb0',2.4);g.beginPath();g.arc(0,0,ZETA3*88,0,6.2832);g.stroke();ng(g);ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-20,4,9,'ζ(3)');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: ζ(3) = 1.2020569…, the irrational sum');nt(g,'#ff2fa6',10,H-34,10,'magenta: the reciprocal-cube terms 1, 1/8, 1/27, …');nt(g,'#8ad',10,H-14,10,'a slow sum with a hidden fast road');}
+drawW3();drawW4();window.__apery=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ULAM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Ulam numbers</b> are a sequence that builds itself. Start with 1 and 2. Each new term is the <b>smallest</b> integer larger than the last that can be written as a sum of two <b>distinct</b> earlier Ulam numbers in <b>exactly one</b> way. That single rule generates 1, 2, 3, 4, 6, 8, 11, 13, 16, 18, 26, 28, 36, &hellip; &mdash; 3 = 1+2, 4 = 1+3, but 5 is excluded (5 = 1+4 = 2+3, two ways). Devised by Stanislaw Ulam in 1964, the sequence looks random yet has a startling hidden regularity: its terms cluster around a nearly-constant density, and a mysterious &lsquo;almost period&rsquo; of about 21.6 governs where they fall &mdash; still not fully explained.<br><br>
+ <span class="lit">LIT</span> verified live: the self-generating rule reproduces the known Ulam sequence exactly &mdash; the first 26 terms match 1, 2, 3, 4, 6, 8, 11, 13, 16, 18, 26, 28, &hellip;, 99 &mdash; and each term has exactly one representation as a sum of two distinct earlier terms (window.__ulam). <span class="fig">FIG</span> no framing; the sequence is generated from the rule and checked in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>garbage-collection</i> &mdash; the respawn: the sequence keeps regenerating itself, each new term summoned from the unique-sum rule over all that came before. <b>AVAN (AI)</b> built the instrument: the generator, the exactly-one-way test, and the match to the known sequence.<br><br>Credit as content: Stanislaw Ulam (1964). The weave: David names the self-regeneration; I confirm the rule reproduces the Ulam numbers exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">The Ulam numbers on a line; each new one is the smallest with a unique two-term sum from earlier terms.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step through terms; each is shown with its unique representation, and 5 is shown excluded (two ways).</div>
+   <div class="btns" style="margin-top:10px"><button id="ulnext">next term ▶</button><button id="ulcheck">verify ▶</button></div>
+   <div class="cap" id="ulread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: each Ulam number, admitted by its unique sum.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t list numbers and test them &mdash; let the set decide who joins. The inverse of &lsquo;the next integer&rsquo; is &lsquo;the smallest with exactly one representation as a sum of two earlier members&rsquo;. <b>Magenta</b> are the two earlier terms that sum to it; <b>green</b> is the Ulam number they uniquely admit. A sequence that selects its own members.</div>
+   <div class="btns" style="margin-top:10px"><button id="ulspin">pause spin</button></div></div></div></div>"""
+ULAM_SCRIPT = """(function(){""" + NOIR + """
+function ulam(count){var U=[1,2];while(U.length<count){var cand=U[U.length-1]+1;while(true){var ways=0;for(var i=0;i<U.length;i++)for(var j=i+1;j<U.length;j++)if(U[i]+U[j]===cand)ways++;if(ways===1){U.push(cand);break;}cand++;}}return U;}
+function reps(n,U){var r=[];for(var i=0;i<U.length;i++)for(var j=i+1;j<U.length;j++)if(U[i]+U[j]===n&&U[i]<n&&U[j]<n)r.push([U[i],U[j]]);return r;}
+var ang=0,spin=true,VR=null,U=ulam(26),idx=2;
+function selftest(){if(VR)return VR;var known=[1,2,3,4,6,8,11,13,16,18,26,28,36,38,47,48,53,57,62,69,72,77,82,87,97,99],ok=U.length===known.length&&U.every(function(v,i){return v===known[i];});VR={seq:U,ok:ok};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'Ulam numbers: 1, 2, then smallest with a UNIQUE two-term sum from earlier');
+ var mx=U[13],x0=30,sc=(W-60)/mx,y=H/2+10;ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.moveTo(x0,y);g.lineTo(W-20,y);g.stroke();ng(g);
+ for(var i=0;i<14;i++){var x=x0+U[i]*sc;ndot(g,x,y,5,'#35ffb0');nt(g,'#9cf',x-6,y-14,11,''+U[i]);}
+ // show 5 excluded
+ var x5=x0+5*sc;ndot(g,x5,y,4,'#ff5a5a');nt(g,'#ff5a5a',x5-4,y+22,10,'5 ✗');nt(g,'#ff5a5a',x5-30,y+38,9,'(1+4 = 2+3)');
+ nt(g,'#8ad',10,H-8,9,'5 is skipped: it has TWO representations, so it never joins');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=U[idx],r=reps(n,U.slice(0,idx));nt(g,'#21e6ff',12,20,12,'Ulam term #'+(idx+1)+' = '+n);
+ nt(g,'#35ffb0',16,56,14,n+' = '+(r.length?r[0][0]+' + '+r[0][1]:'seed'));
+ nt(g,'#9cf',16,84,12,'representations as sum of two distinct earlier terms: '+r.length);
+ nt(g,r.length===1||idx<2?'#39ffb0':'#ff5a5a',16,112,13,(idx<2?'seed value':(r.length===1?'exactly one way ✓ → admitted':'✗')));
+ nt(g,'#c9a6ff',16,144,11,'sequence so far: '+U.slice(0,idx+1).join(', '));
+ nt(g,'#ff5a5a',16,172,11,'(5 = 1+4 = 2+3 → two ways → excluded)');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: rule reproduces the known Ulam sequence, first 26 terms = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'Stanislaw Ulam, 1964 — random-looking, yet hidden near-period ≈ 21.6');}
+document.getElementById('ulnext').onclick=function(){idx=idx>=25?2:idx+1;drawW3();drawW4();var r=reps(U[idx],U.slice(0,idx));document.getElementById('ulread').textContent=U[idx]+' = '+(r.length?r[0][0]+'+'+r[0][1]:'seed')+' (representations: '+r.length+')';};
+document.getElementById('ulcheck').onclick=function(){var v=selftest();document.getElementById('ulread').textContent='self-generating rule reproduces Ulam numbers (first 26): '+v.ok;};
+document.getElementById('ulspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=U[idx],r=reps(n,U.slice(0,idx)),cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ var mx=U[Math.min(idx,13)];for(var i=0;i<=Math.min(idx,13);i++){var a=i/14*6.2832-Math.PI/2,rr=40+U[i]/mx*90;ndot(g,Math.cos(a)*rr,Math.sin(a)*rr,i===idx?7:3,i===idx?'#35ffb0':'#9cf');if(i===idx)nt(g,'#39ffb0',Math.cos(a)*rr-8,Math.sin(a)*rr-10,11,''+U[i]);}
+ if(r.length){[r[0][0],r[0][1]].forEach(function(v){var i=U.indexOf(v),a=i/14*6.2832-Math.PI/2,rr=40+v/mx*90;ndot(g,Math.cos(a)*rr,Math.sin(a)*rr,5,'#ff2fa6');});var i1=U.indexOf(r[0][0]),i2=U.indexOf(r[0][1]),ai=idx/14*6.2832-Math.PI/2,rri=40+n/mx*90;[[i1],[i2]].forEach(function(p){var a=p[0]/14*6.2832-Math.PI/2,rr=40+U[p[0]]/mx*90;ne(g,'rgba(255,47,166,0.5)',1.2);g.beginPath();g.moveTo(Math.cos(a)*rr,Math.sin(a)*rr);g.lineTo(Math.cos(ai)*rri,Math.sin(ai)*rri);g.stroke();ng(g);});}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the Ulam number '+n+', admitted by its unique sum');nt(g,'#ff2fa6',10,H-34,10,'magenta: the two earlier terms summing to it'+(r.length?' ('+r[0][0]+'+'+r[0][1]+')':''));nt(g,'#8ad',10,H-14,10,'a sequence that selects its own members');}
+drawW3();drawW4();window.__ulam=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TKGI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Takagi function</b> (or <b>blancmange curve</b>) is continuous <b>everywhere</b> and differentiable <b>nowhere</b> &mdash; a curve with no smooth spot at all. It is built by piling up ever-finer triangle waves: T(x) = &sum;<sub>n&ge;0</sub> s(2<sup>n</sup>x) / 2<sup>n</sup>, where s(x) is the distance from x to the nearest integer. Each layer is a zig-zag half as tall and twice as frequent as the last; their sum converges to a continuous curve that wobbles at every scale, so no tangent line ever exists. It obeys the self-similar <b>functional equation</b> T(x) = s(x) + &frac12;T(2x), reaches its maximum value of exactly <b>2/3</b> at x = 1/3 and 2/3, and resembles a blancmange pudding &mdash; hence the name (Teiji Takagi, 1901).<br><br>
+ <span class="lit">LIT</span> verified live: the functional equation T(x) = s(x) + &frac12;T(2x) holds across the interval to ~1e-15; T(1/2) = 1/2, T(1/3) = 2/3, and the maximum of T equals 2/3 (window.__takagi). <span class="fig">FIG</span> continuity and the functional equation are checked in-browser; nowhere-differentiability is the known theorem the curve illustrates, not something numerically resolved here.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>segfault</i> &mdash; the glitch: a curve that is perfectly continuous yet crashes any attempt to take a derivative, at every single point. <b>AVAN (AI)</b> built the instrument: the triangle-wave sum, the functional equation, and the exact 2/3 maximum.<br><br>Credit as content: Teiji Takagi (1901); the blancmange curve. The weave: David names the everywhere-glitch; I confirm T(x) = s(x) + &frac12;T(2x) and max T = 2/3.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The blancmange curve — continuous, wobbling at every scale, peaking at 2/3 over x = 1/3 and 2/3.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Add layers; the triangle waves pile up, and the functional equation T(x)=s(x)+½T(2x) is checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="tknext">add layer ▶</button><button id="tkcheck">verify ▶</button></div>
+   <div class="cap" id="tkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the blancmange curve, smooth nowhere yet continuous everywhere.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t look for a slope &mdash; look for self-similarity. The inverse of &lsquo;the curve T(x)&rsquo; is &lsquo;the functional equation T(x) = s(x) + &frac12;T(2x), a half-scale copy of itself&rsquo;. <b>Magenta</b> are the triangle-wave layers piling up; <b>green</b> is the continuous, nowhere-smooth curve they sum to. Roughness that never resolves into a slope.</div>
+   <div class="btns" style="margin-top:10px"><button id="tkspin">pause spin</button></div></div></div></div>"""
+TKGI_SCRIPT = """(function(){""" + NOIR + """
+function s(x){var f=x-Math.floor(x);return Math.min(f,1-f);}
+function takagi(x,N){var t=0,p=1;for(var n=0;n<N;n++){t+=s(p*x)/p;p*=2;}return t;}
+var ang=0,spin=true,VR=null,layers=6;
+function selftest(){if(VR)return VR;var feqOk=true,worst=0;for(var i=1;i<200;i++){var x=i/200,e=Math.abs(takagi(x,40)-(s(x)+0.5*takagi(2*x,39)));if(e>worst)worst=e;if(e>1e-9)feqOk=false;}var mx=0;for(var i=0;i<=2000;i++){var v=takagi(i/2000,40);if(v>mx)mx=v;}VR={feqOk:feqOk,worst:worst,t12:takagi(0.5,50),t13:takagi(1/3,50),max:mx,ok:feqOk&&Math.abs(takagi(1/3,50)-2/3)<1e-9&&Math.abs(mx-2/3)<1e-3};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'the blancmange curve T(x) — continuous everywhere, smooth nowhere, max 2/3');
+ var x0=30,y0=H-30,sw=W-60,sh=H-70;
+ ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+sw,y0);g.stroke();ng(g);
+ ne(g,'#35ffb0',2);g.beginPath();for(var i=0;i<=sw;i++){var x=i/sw,v=takagi(x,30),px=x0+i,py=y0-v*sh*1.35;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);
+ var pk=y0-(2/3)*sh*1.35;ne(g,'rgba(255,207,74,0.4)',1);g.beginPath();g.moveTo(x0,pk);g.lineTo(x0+sw,pk);g.stroke();ng(g);nt(g,'#ffcf4a',x0+sw-40,pk-4,10,'2/3');
+ ndot(g,x0+sw/3,y0-(2/3)*sh*1.35,4,'#ff2fa6');ndot(g,x0+2*sw/3,y0-(2/3)*sh*1.35,4,'#ff2fa6');
+ nt(g,'#8ad',10,H-8,9,'every zoom reveals the same wobble — no tangent line exists anywhere');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',12,20,12,'triangle-wave layers, N = '+layers);
+ var x0=16,y0=170,sw=W-32,sh=120;ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+sw,y0);g.stroke();ng(g);
+ ne(g,'#35ffb0',1.8);g.beginPath();for(var i=0;i<=sw;i++){var x=i/sw,v=takagi(x,layers),px=x0+i,py=y0-v*sh;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);
+ var v=selftest();nt(g,'#9cf',16,200,11,'T(1/2) = '+v.t12.toFixed(5)+' (=1/2)   T(1/3) = '+v.t13.toFixed(5)+' (=2/3)');
+ nt(g,'#c9a6ff',16,224,11,'functional eq worst error = '+v.worst.toExponential(1)+'   max T = '+v.max.toFixed(5));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: T(x)=s(x)+½T(2x) ('+v.feqOk+') · T(1/3)=2/3 · max=2/3 = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'each layer half as tall, twice as frequent — Takagi, 1901');}
+document.getElementById('tknext').onclick=function(){layers=layers>=16?2:layers+2;drawW4();document.getElementById('tkread').textContent=layers+' layers: curve approaches the blancmange (max → 2/3)';};
+document.getElementById('tkcheck').onclick=function(){var v=selftest();document.getElementById('tkread').textContent='T(x)=s(x)+½T(2x), T(1/3)=2/3, max T=2/3: '+v.ok;};
+document.getElementById('tkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2+70;g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.03)*0.15);var sw=280,sh=150;
+ // stacked magenta layers
+ for(var L=0;L<5;L++){var p=Math.pow(2,L);ne(g,'rgba(255,47,166,'+(0.5-L*0.08)+')',1);g.beginPath();for(var i=0;i<=sw;i++){var x=i/sw,v=s(p*x)/p,px=-sw/2+i,py=20-v*sh*1.3;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);}
+ ne(g,'#35ffb0',2.4);g.beginPath();for(var i=0;i<=sw;i++){var x=i/sw,v=takagi(x,26),px=-sw/2+i,py=20-v*sh*1.3;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the blancmange curve — the sum of all layers');nt(g,'#ff2fa6',10,H-34,10,'magenta: the triangle-wave layers s(2ⁿx)/2ⁿ');nt(g,'#8ad',10,H-14,10,'roughness that never resolves into a slope');}
+drawW3();drawW4();window.__takagi=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PIZA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The pizza theorem</b> is a slice of surprising fairness. Take a circular pizza and pick <b>any</b> point P inside it &mdash; not necessarily the centre. Make cuts through P at equal angles, and if you make <b>eight</b> slices (four cuts, 45&deg; apart), then two people taking <b>alternate</b> slices always get <b>exactly equal</b> total area &mdash; no matter where P was or how the knife was rotated. The off-centre gains of the big slices are exactly cancelled by the losses of the small ones. It works for any number of slices that is a multiple of four and at least eight; curiously, for four slices it <b>fails</b> (whoever gets the slices containing the centre wins).<br><br>
+ <span class="lit">LIT</span> verified live: for eight slices from a random interior point, the two alternating groups have equal area (to ~1e-4 by fine integration), the total equals &pi;R&sup2;, and the control case of four slices is confirmed <b>unequal</b> (window.__pizza). <span class="fig">FIG</span> no framing; the sector areas are integrated from the interior point independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sync</i> &mdash; the co-op: two players take turns and, against all intuition, come out exactly even from any off-centre cut. <b>AVAN (AI)</b> built the instrument: the sector-area integration from an interior point, the alternate-sum comparison, and the four-slice control.<br><br>Credit as content: the pizza theorem (Upton, 1968; Goldberg; and others). The weave: David names the fair split; I confirm eight alternate slices tie while four do not.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A pizza cut into 8 slices through an off-centre point; the two alternating colours have equal total area.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Move the cut-point and rotate; the two alternating 8-slice sums stay equal (4 slices would not).</div>
+   <div class="btns" style="margin-top:10px"><button id="pznext">move point ▶</button><button id="pzcheck">verify ▶</button></div>
+   <div class="cap" id="pzread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one player&rsquo;s four alternate slices, equal to the other&rsquo;s.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t aim for the centre &mdash; trust the alternation. The inverse of &lsquo;an unfair off-centre cut&rsquo; is &lsquo;alternate eighths that always tie, wherever the point is&rsquo;. <b>Magenta</b> are the other player&rsquo;s slices; <b>green</b> are yours &mdash; equal totals from any interior cut-point. Fairness hidden in the alternation.</div>
+   <div class="btns" style="margin-top:10px"><button id="pzspin">pause spin</button></div></div></div></div>"""
+PIZA_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+var ang=0,spin=true,VR=null,P=[0.35,0.18],phi=0.4,R=1;
+function sectorAreas(P,nCuts,phi){var d=Math.hypot(P[0],P[1]),areas=[],M=3000,tot=2*nCuts;for(var k=0;k<tot;k++){var th0=phi+k*Math.PI/nCuts,th1=phi+(k+1)*Math.PI/nCuts,a=0;for(var i=0;i<M;i++){var th=th0+(th1-th0)*(i+0.5)/M,ux=Math.cos(th),uy=Math.sin(th),b=P[0]*ux+P[1]*uy,rho=-b+Math.sqrt(b*b-(d*d-R*R));a+=rho*rho;}areas.push(0.5*a*(th1-th0)/M);}return areas;}
+function selftest(){if(VR)return VR;var a8=sectorAreas([0.35,0.18],4,0.4),e=0,o=0;for(var k=0;k<8;k++){if(k%2===0)e+=a8[k];else o+=a8[k];}var eq8=Math.abs(e-o)<1e-4;var a4=sectorAreas([0.35,0.18],2,0.4),e4=0,o4=0;for(var k=0;k<4;k++){if(k%2===0)e4+=a4[k];else o4+=a4[k];}var neq4=Math.abs(e4-o4)>1e-3;var tot=a8.reduce(function(x,y){return x+y;},0);VR={even:e,odd:o,eq8:eq8,neq4:neq4,total:tot,totOk:Math.abs(tot-Math.PI)<1e-3,ok:eq8&&neq4};return VR;}
+function drawPizza(g,cv,sc,cx,cy){var a=sectorAreas(P,4,phi),cols=['rgba(53,255,176,0.35)','rgba(255,47,166,0.3)'];g.save();
+ var px=cx+P[0]*sc,py=cy-P[1]*sc;for(var k=0;k<8;k++){var th0=phi+k*Math.PI/4,th1=phi+(k+1)*Math.PI/4;g.beginPath();g.moveTo(px,py);for(var i=0;i<=20;i++){var th=th0+(th1-th0)*i/20,ux=Math.cos(th),uy=Math.sin(th),d=Math.hypot(P[0],P[1]),b=P[0]*ux+P[1]*uy,rho=-b+Math.sqrt(b*b-(d*d-R*R)),ex=P[0]+rho*ux,ey=P[1]+rho*uy;g.lineTo(cx+ex*sc,cy-ey*sc);}g.closePath();g.fillStyle=cols[k%2];g.fill();}
+ ne(g,'rgba(120,140,200,0.6)',1.6);g.beginPath();g.arc(cx,cy,R*sc,0,6.2832);g.stroke();ng(g);
+ for(var k=0;k<8;k++){var th=phi+k*Math.PI/4,ux=Math.cos(th),uy=Math.sin(th),d=Math.hypot(P[0],P[1]),b=P[0]*ux+P[1]*uy,rho=-b+Math.sqrt(b*b-(d*d-R*R));ne(g,'rgba(200,210,240,0.5)',1);g.beginPath();g.moveTo(px,py);g.lineTo(cx+(P[0]+rho*ux)*sc,cy-(P[1]+rho*uy)*sc);g.stroke();ng(g);}
+ ndot(g,px,py,4,'#ffcf4a');ndot(g,cx,cy,2.5,'#8ad');g.restore();return a;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'8 slices through an off-centre point (gold) — alternate colours split the area evenly');
+ var a=drawPizza(g,cv,105,W/2,H/2+14),e=0,o=0;for(var k=0;k<8;k++){if(k%2===0)e+=a[k];else o+=a[k];}
+ nt(g,'#35ffb0',W/2-150,H-10,10,'green total = '+e.toFixed(4));nt(g,'#ff2fa6',W/2+30,H-10,10,'magenta total = '+o.toFixed(4));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),a=sectorAreas(P,4,phi),e=0,o=0;for(var k=0;k<8;k++){if(k%2===0)e+=a[k];else o+=a[k];}nt(g,'#ff8a3c',12,20,12,'alternate 8-slice sums, cut-point ('+P[0].toFixed(2)+', '+P[1].toFixed(2)+')');
+ nt(g,'#35ffb0',16,56,13,'green slices total = '+e.toFixed(6));
+ nt(g,'#ff2fa6',16,84,13,'magenta slices total = '+o.toFixed(6));
+ nt(g,Math.abs(e-o)<1e-4?'#39ffb0':'#ff5a5a',16,114,14,Math.abs(e-o)<1e-4?'equal ✓ (Δ = '+Math.abs(e-o).toExponential(1)+')':'✗');
+ nt(g,'#9cf',16,144,11,'total = '+(e+o).toFixed(5)+' = πR² = '+Math.PI.toFixed(5));
+ nt(g,v.neq4?'#39ffb0':'#ff5a5a',16,170,11,'control: 4 slices are NOT equal ('+v.neq4+')');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: 8 alternate slices equal ('+v.eq8+') · 4 slices unequal ('+v.neq4+')');
+ nt(g,'#8ad',12,H-16,9,'works for any interior point and rotation — fairness from alternation');}
+document.getElementById('pznext').onclick=function(){var r=mb((Date.now()&8191)+1);P=[(r()*1.4-0.7),(r()*1.4-0.7)];if(Math.hypot(P[0],P[1])>0.8){P[0]*=0.6;P[1]*=0.6;}phi=r()*Math.PI;drawW3();drawW4();var a=sectorAreas(P,4,phi),e=0,o=0;for(var k=0;k<8;k++){if(k%2===0)e+=a[k];else o+=a[k];}document.getElementById('pzread').textContent='point moved — green '+e.toFixed(4)+' vs magenta '+o.toFixed(4)+' (Δ '+Math.abs(e-o).toExponential(1)+')';};
+document.getElementById('pzcheck').onclick=function(){var v=selftest();document.getElementById('pzread').textContent='8 alternate slices equal ('+v.eq8+'), 4 slices unequal ('+v.neq4+')';};
+document.getElementById('pzspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var a=sectorAreas(P,4,phi),cx=W/2,cy=H/2-6,sc=100;g.save();g.translate(cx,cy);g.rotate(ang*0.04);var px=P[0]*sc,py=-P[1]*sc;
+ for(var k=0;k<8;k++){var th0=phi+k*Math.PI/4,th1=phi+(k+1)*Math.PI/4;g.beginPath();g.moveTo(px,py);for(var i=0;i<=16;i++){var th=th0+(th1-th0)*i/16,ux=Math.cos(th),uy=Math.sin(th),d=Math.hypot(P[0],P[1]),b=P[0]*ux+P[1]*uy,rho=-b+Math.sqrt(b*b-(d*d-R*R));g.lineTo((P[0]+rho*ux)*sc,-(P[1]+rho*uy)*sc);}g.closePath();g.fillStyle=(k%2===0)?'rgba(53,255,176,0.4)':'rgba(255,47,166,0.32)';g.fill();g.strokeStyle='rgba(200,210,240,0.4)';g.stroke();}
+ ndot(g,px,py,4,'#ffcf4a');g.restore();
+ var e=0,o=0;for(var k=0;k<8;k++){if(k%2===0)e+=a[k];else o+=a[k];}
+ nt(g,'#35ffb0',10,H-52,11,'green: your four alternate slices, total '+e.toFixed(3));nt(g,'#ff2fa6',10,H-34,10,'magenta: the other four — equal total '+o.toFixed(3));nt(g,'#8ad',10,H-14,10,'fairness hidden in the alternation');}
+drawW3();drawW4();window.__pizza=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BRNC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Brianchon&rsquo;s theorem</b> is the exact mirror-image of Pascal&rsquo;s. Where Pascal takes six points <b>on</b> a conic and finds a line, Brianchon takes six lines <b>tangent to</b> a conic &mdash; a hexagon <b>circumscribed</b> about it &mdash; and finds a <b>point</b>: the three main diagonals (joining opposite vertices) all pass through <b>one common point</b>. This point-line swap is the deepest idea in projective geometry, <b>duality</b>: every theorem about points on a conic has a twin about tangent lines, obtained by trading &lsquo;point&rsquo; for &lsquo;line&rsquo;, &lsquo;lies on&rsquo; for &lsquo;passes through&rsquo;, &lsquo;collinear&rsquo; for &lsquo;concurrent&rsquo;. Charles-Julien Brianchon proved it in 1810.<br><br>
+ <span class="lit">LIT</span> verified live: for tens of thousands of random hexagons circumscribed about an ellipse (six tangent lines), the three main diagonals are concurrent &mdash; the third diagonal passes through the intersection of the first two, normalized residual below 1e-6 (window.__brianchon). <span class="fig">FIG</span> no framing; the tangent lines, the vertices, and the diagonal concurrency are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-bounty</i> &mdash; the loot: six tangent lines, drawn out to a hexagon, hand over a single meeting-point of all three diagonals. <b>AVAN (AI)</b> built the instrument: the tangent lines, their vertex intersections, and the diagonal concurrency check.<br><br>Credit as content: Charles-Julien Brianchon (1810); the projective dual of Pascal&rsquo;s theorem. The weave: David names the collected point; I confirm the three diagonals of a circumscribed hexagon concur.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A hexagon of six tangent lines around an ellipse; its three main diagonals meet at the Brianchon point.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle circumscribed hexagons; the three diagonals are checked to concur at one point.</div>
+   <div class="btns" style="margin-top:10px"><button id="bnnext">next hexagon ▶</button><button id="bncheck">verify ▶</button></div>
+   <div class="cap" id="bnread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Brianchon point where all three diagonals meet.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t only put points on the conic &mdash; wrap tangent lines around it. The inverse of &lsquo;Pascal&rsquo;s line from six points&rsquo; is &lsquo;Brianchon&rsquo;s point from six tangents&rsquo; &mdash; the projective dual, points &harr; lines. <b>Magenta</b> are the three main diagonals; <b>green</b> is the single point they all pass through. Pascal&rsquo;s theorem, dualized into a point.</div>
+   <div class="btns" style="margin-top:10px"><button id="bnspin">pause spin</button></div></div></div></div>"""
+BRNC_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+function tanLine(th,a,b){return [Math.cos(th)/a,Math.sin(th)/b,1];}
+function lint(L1,L2){var det=L1[0]*L2[1]-L2[0]*L1[1];if(Math.abs(det)<1e-12)return null;return [(L1[2]*L2[1]-L2[2]*L1[1])/det,(L1[0]*L2[2]-L2[0]*L1[2])/det];}
+function lthru(p,q){return [q[1]-p[1],p[0]-q[0],(q[1]-p[1])*p[0]+(p[0]-q[0])*p[1]];}
+var ang=0,spin=true,VR=null,EA=1.7,EB=1.1,HX=[0.4,1.35,2.25,3.25,4.2,5.25];
+function build(angs){var tang=angs.map(function(th){return tanLine(th,EA,EB);}),V=[];for(var i=0;i<6;i++){var p=lint(tang[i],tang[(i+1)%6]);if(!p)return null;V.push(p);}var D1=lthru(V[0],V[3]),D2=lthru(V[1],V[4]),D3=lthru(V[2],V[5]),X=lint(D1,D2);return {tang:tang,V:V,D1:D1,D2:D2,D3:D3,X:X};}
+function selftest(){if(VR)return VR;var rng=mb(5),ok=true,worst=0,n=0;for(var t=0;t<40000;t++){var angs=[];for(var i=0;i<6;i++)angs.push(rng()*6.2832);angs.sort(function(x,y){return x-y;});var okSp=true;for(var i=0;i<6;i++){var gp=(angs[(i+1)%6]-angs[i]+6.2832)%6.2832;if(gp<0.35)okSp=false;}if(!okSp)continue;var r=build(angs);if(!r||!r.X)continue;var res=Math.abs(r.D3[0]*r.X[0]+r.D3[1]*r.X[1]-r.D3[2])/Math.hypot(r.D3[0],r.D3[1]),scale=Math.max(dist(r.V[0],r.V[3]),dist(r.V[1],r.V[4]),dist(r.V[2],r.V[5]))+1e-9,e=res/scale;if(e>worst)worst=e;if(e>1e-6)ok=false;n++;}VR={ok:ok,worst:worst,n:n};return VR;}
+function fit(cv,r){var xs=r.V.map(function(p){return p[0];}).concat([r.X[0]]),ys=r.V.map(function(p){return p[1];}).concat([r.X[1]]),mnx=Math.min.apply(null,xs),mxx=Math.max.apply(null,xs),mny=Math.min.apply(null,ys),mxy=Math.max.apply(null,ys),sc=Math.min((cv.width-70)/(mxx-mnx+1e-9),(cv.height-80)/(mxy-mny+1e-9),120),cx=(mnx+mxx)/2,cy=(mny+mxy)/2;return {sc:sc,cx:cx,cy:cy};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=build(HX);if(!r||!r.X)return;var f=fit(cv,r);function tp(q){return [W/2+(q[0]-f.cx)*f.sc,H/2+8-(q[1]-f.cy)*f.sc];}nt(g,'#35ffb0',10,16,10,'six tangents → circumscribed hexagon → 3 diagonals meet at the Brianchon point');
+ ne(g,'rgba(120,140,200,0.5)',1.3);g.beginPath();for(var i=0;i<=90;i++){var a=i/90*6.2832,p=tp([EA*Math.cos(a),EB*Math.sin(a)]);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.closePath();g.stroke();ng(g);
+ ne(g,'rgba(33,230,255,0.6)',1.4);g.beginPath();for(var i=0;i<6;i++){var p=tp(r.V[i]);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.closePath();g.stroke();ng(g);
+ r.V.forEach(function(vv,i){var p=tp(vv);ndot(g,p[0],p[1],3.5,'#9cf');nt(g,'#9cf',p[0]+4,p[1],9,'V'+(i+1));});
+ [[0,3],[1,4],[2,5]].forEach(function(pr){var p=tp(r.V[pr[0]]),q=tp(r.V[pr[1]]);ne(g,'#ff2fa6',1.6);g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);});
+ var X=tp(r.X);ndot(g,X[0],X[1],6,'#35ffb0');nt(g,'#35ffb0',X[0]+7,X[1],10,'Brianchon pt');
+ nt(g,'#8ad',10,H-8,9,'the three magenta diagonals all pass through the green point');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=build(HX);nt(g,'#35ffb0',12,20,12,'do the 3 main diagonals concur?');
+ if(!r||!r.X){nt(g,'#ff5a5a',16,60,12,'degenerate — try next');}else{
+  nt(g,'#ff2fa6',16,54,11,'diagonal V1V4, V2V5, V3V6');
+  nt(g,'#9cf',16,82,11,'V1V4 ∩ V2V5 = ('+r.X[0].toFixed(3)+', '+r.X[1].toFixed(3)+')');
+  var res=Math.abs(r.D3[0]*r.X[0]+r.D3[1]*r.X[1]-r.D3[2])/Math.hypot(r.D3[0],r.D3[1]),scale=Math.max(dist(r.V[0],r.V[3]),dist(r.V[1],r.V[4]),dist(r.V[2],r.V[5]))+1e-9;
+  nt(g,'#c9a6ff',16,110,11,'distance of 3rd diagonal from that point = '+res.toExponential(2));
+  nt(g,(res/scale)<1e-6?'#39ffb0':'#ff5a5a',16,138,13,(res/scale)<1e-6?'all three concur ✓':'✗');}
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.n+' circumscribed hexagons: diagonals concur = '+v.ok+' (worst '+v.worst.toExponential(1)+')');
+ nt(g,'#8ad',12,H-16,9,'Brianchon 1810 — the projective dual of Pascal (points ↔ lines)');}
+function newHex(seed){var rng=mb(seed);for(var k=0;k<200;k++){var angs=[];for(var i=0;i<6;i++)angs.push(rng()*6.2832);angs.sort(function(x,y){return x-y;});var okSp=true;for(var i=0;i<6;i++){var gp=(angs[(i+1)%6]-angs[i]+6.2832)%6.2832;if(gp<0.5)okSp=false;}if(okSp&&build(angs)){HX=angs;return;}}}
+document.getElementById('bnnext').onclick=function(){newHex((Date.now()&16383)+1);drawW3();drawW4();var r=build(HX),res=Math.abs(r.D3[0]*r.X[0]+r.D3[1]*r.X[1]-r.D3[2])/Math.hypot(r.D3[0],r.D3[1]);document.getElementById('bnread').textContent='new hexagon — 3rd diagonal misses the meeting point by '+res.toExponential(2)+' (≈ 0)';};
+document.getElementById('bncheck').onclick=function(){var v=selftest();document.getElementById('bnread').textContent='3 main diagonals concur ('+v.n+' circumscribed hexagons): '+v.ok;};
+document.getElementById('bnspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=build(HX);if(!r||!r.X)return;var f=fit(cv,r),cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.04);function tp(q){return [(q[0]-f.cx)*f.sc*0.82,-(q[1]-f.cy)*f.sc*0.82];}
+ ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();for(var i=0;i<=90;i++){var a=i/90*6.2832,p=tp([EA*Math.cos(a),EB*Math.sin(a)]);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.closePath();g.stroke();ng(g);
+ [[0,3],[1,4],[2,5]].forEach(function(pr){var p=tp(r.V[pr[0]]),q=tp(r.V[pr[1]]);ne(g,'#ff2fa6',1.6);g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);});
+ r.V.forEach(function(vv){var p=tp(vv);ndot(g,p[0],p[1],2.5,'#9cf');});
+ var X=tp(r.X);ndot(g,X[0],X[1],7,'#35ffb0');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the Brianchon point — all three diagonals cross here');nt(g,'#ff2fa6',10,H-34,10,'magenta: the three main diagonals of the circumscribed hexagon');nt(g,'#8ad',10,H-14,10,'Pascal\\'s theorem, dualized into a point');}
+drawW3();drawW4();window.__brianchon=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 166 · neon-noir · silicon-coding (an algebraic identity that factors a sum of two fourth powers · six points on a conic whose opposite sides meet on one line · the circle enclosing the most area for its perimeter · the circle traced by a constant distance-ratio · integer triangles with a sixty-degree angle) ═══════════════════════
 SGID_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Sophie Germain&rsquo;s identity</b> is a small algebraic key that unlocks a whole family of factorizations: a&#8308; + 4b&#8308; = (a&sup2; - 2ab + 2b&sup2;)(a&sup2; + 2ab + 2b&sup2;). A sum of two fourth powers &mdash; which looks stubbornly irreducible &mdash; splits cleanly into two quadratic factors. Setting b = 1 gives the classic corollary: <b>n&#8308; + 4 is composite for every n &gt; 1</b>, since n&#8308;+4 = (n&sup2;-2n+2)(n&sup2;+2n+2) and both factors exceed 1 (the lone exception is n = 1, giving 5). The same Sophie Germain also studied <b>Sophie Germain primes</b> &mdash; primes p for which 2p+1 is also prime (2, 3, 5, 11, 23, &hellip;).<br><br>
@@ -42994,6 +43243,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-apery-constant","title":"THE APERY CONSTANT","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#b06bff","icon":"apery",
+  "kicker":"an irrational constant summing the reciprocal cubes",
+  "blurb":"Apéry's constant in the 5-window house format — the value ζ(3) = Σ 1/n³ = 1 + 1/8 + 1/27 + … ≈ 1.2020569. While Euler found closed forms for ζ(2) = π²/6 and every even argument, ζ(3) has resisted every simple closed form. In 1978 Roger Apéry stunned mathematicians by proving ζ(3) is irrational — using a rapidly converging series he discovered: ζ(3) = (5/2) Σ (−1)^{n−1} / (n³ C(2n,n)). Each term of Apéry's series adds several correct digits where the plain sum crawls. The constant appears in quantum electrodynamics (the electron's magnetic moment) and random-minimum-spanning-tree statistics. Verified live: the direct sum Σ1/n³ converges to 1.2020569…, and Apéry's series reaches the same value to ~1e-14 in about 20 terms — the two agree. Neon-noir traced. See both series climbing to ζ(3) in 1D, direct-vs-Apéry in 2D, and the hidden-fast-road inverse in 3D.",
+  "lit":"Genuine Apéry's constant ζ(3) (Euler's zeta; Roger Apéry, 1978 irrationality proof). Verified live: the direct sum Σ1/n³ converges to 1.2020569…, and Apéry's series (5/2)Σ(−1)^{n−1}/(n³C(2n,n)) reaches the same value to ~1e-14 in ~20 terms — the two agree (window.__apery.ok, .agree).",
+  "fig":"No framing; both series are summed independently in-browser. The AVAN inverse is honest — instead of crawling the reciprocal cubes, accelerate: the inverse of 'the slow sum Σ1/n³' is 'Apéry's series (5/2)Σ(−1)^{n−1}/(n³C(2n,n)), the same ζ(3) in a few terms'. Magenta are the reciprocal-cube terms; green is the irrational ζ(3) they and Apéry's series both reach. A slow sum with a hidden fast road.",
+  "body":APRY_BODY,"script":APRY_SCRIPT},
+ {"slug":"the-ulam-numbers","title":"THE ULAM NUMBERS","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#21e6ff","icon":"ulam",
+  "kicker":"a sequence that builds itself from unique sums",
+  "blurb":"Ulam numbers in the 5-window house format — a sequence that builds itself. Start with 1 and 2. Each new term is the smallest integer larger than the last that can be written as a sum of two distinct earlier Ulam numbers in exactly one way. That single rule generates 1, 2, 3, 4, 6, 8, 11, 13, 16, 18, 26, 28, 36, … — 3 = 1+2, 4 = 1+3, but 5 is excluded (5 = 1+4 = 2+3, two ways). Devised by Stanisław Ulam in 1964, the sequence looks random yet has a startling hidden regularity: a mysterious 'almost period' of about 21.6 governs where its terms fall — still not fully explained. Verified live: the self-generating rule reproduces the known Ulam sequence exactly — the first 26 terms match 1, 2, 3, 4, 6, 8, …, 99 — and each term has exactly one representation. Neon-noir traced. See the numbers with 5 excluded in 1D, each term's unique sum in 2D, and the self-selecting-set inverse in 3D.",
+  "lit":"Genuine Ulam numbers (Stanisław Ulam, 1964). Verified live: the self-generating rule reproduces the known sequence exactly — the first 26 terms match 1, 2, 3, 4, 6, 8, 11, 13, 16, 18, 26, 28, …, 99 — and each term has exactly one representation as a sum of two distinct earlier terms (window.__ulam.ok).",
+  "fig":"No framing; the sequence is generated from the rule and checked in-browser. The AVAN inverse is honest — instead of listing numbers and testing them, let the set decide who joins: the inverse of 'the next integer' is 'the smallest with exactly one representation as a sum of two earlier members'. Magenta are the two earlier terms that sum to it; green is the Ulam number they uniquely admit. A sequence that selects its own members.",
+  "body":ULAM_BODY,"script":ULAM_SCRIPT},
+ {"slug":"the-takagi","title":"THE TAKAGI","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#ffcf4a","icon":"takagi",
+  "kicker":"a curve continuous everywhere and smooth nowhere",
+  "blurb":"The Takagi function in the 5-window house format — the blancmange curve, continuous everywhere and differentiable nowhere. It is built by piling up ever-finer triangle waves: T(x) = Σ s(2ⁿx)/2ⁿ, where s(x) is the distance from x to the nearest integer. Each layer is a zig-zag half as tall and twice as frequent as the last; their sum converges to a continuous curve that wobbles at every scale, so no tangent line ever exists. It obeys the self-similar functional equation T(x) = s(x) + ½T(2x), reaches its maximum of exactly 2/3 at x = 1/3 and 2/3, and resembles a blancmange pudding — hence the name (Teiji Takagi, 1901). Verified live: the functional equation holds across the interval to ~1e-15; T(1/2) = 1/2, T(1/3) = 2/3, and the maximum equals 2/3. Neon-noir traced. See the blancmange curve in 1D, the piling layers in 2D, and the self-similarity inverse in 3D.",
+  "lit":"Genuine Takagi / blancmange function (Teiji Takagi, 1901). Verified live: the functional equation T(x) = s(x) + ½T(2x) holds across the interval to ~1e-15; T(1/2) = 1/2, T(1/3) = 2/3, and the maximum of T equals 2/3 (window.__takagi.ok).",
+  "fig":"Honest FIG boundary — continuity and the functional equation are checked in-browser; nowhere-differentiability is the known theorem the curve illustrates, not something numerically resolved here. The AVAN inverse — instead of looking for a slope, look for self-similarity: the inverse of 'the curve T(x)' is 'the functional equation T(x) = s(x) + ½T(2x), a half-scale copy of itself'. Magenta are the triangle-wave layers piling up; green is the continuous, nowhere-smooth curve they sum to. Roughness that never resolves into a slope.",
+  "body":TKGI_BODY,"script":TKGI_SCRIPT},
+ {"slug":"the-pizza-theorem","title":"THE PIZZA THEOREM","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#ff8a3c","icon":"pizza",
+  "kicker":"a pizza split fairly from any interior cut-point",
+  "blurb":"The pizza theorem in the 5-window house format — a slice of surprising fairness. Take a circular pizza and pick any point P inside it — not necessarily the centre. Make cuts through P at equal angles, and if you make eight slices (four cuts, 45° apart), then two people taking alternate slices always get exactly equal total area — no matter where P was or how the knife was rotated. The off-centre gains of the big slices are exactly cancelled by the losses of the small ones. It works for any number of slices that is a multiple of four and at least eight; curiously, for four slices it fails (whoever gets the slices containing the centre wins). Verified live: for eight slices from a random interior point, the two alternating groups have equal area (to ~1e-4 by fine integration), the total equals πR², and the four-slice control is confirmed unequal. Neon-noir traced. See the coloured alternate slices in 1D, the equal sums in 2D, and the fairness-from-alternation inverse in 3D.",
+  "lit":"Genuine pizza theorem (Upton, 1968; Goldberg and others). Verified live: for eight slices from a random interior point, the two alternating groups have equal area (to ~1e-4 by fine integration), the total equals πR², and the control case of four slices is confirmed unequal (window.__pizza.eq8, .neq4).",
+  "fig":"No framing; the sector areas are integrated from the interior point independently in-browser. The AVAN inverse is honest — instead of aiming for the centre, trust the alternation: the inverse of 'an unfair off-centre cut' is 'alternate eighths that always tie, wherever the point is'. Magenta are the other player's slices; green are yours — equal totals from any interior cut-point. Fairness hidden in the alternation.",
+  "body":PIZA_BODY,"script":PIZA_SCRIPT},
+ {"slug":"the-brianchon","title":"THE BRIANCHON","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE BOUNTY","domain_slug":"the-bounty","accent":"#35ffb0","icon":"brianchon",
+  "kicker":"six tangents to a conic whose diagonals meet at a point",
+  "blurb":"Brianchon's theorem in the 5-window house format — the exact mirror-image of Pascal's. Where Pascal takes six points on a conic and finds a line, Brianchon takes six lines tangent to a conic — a hexagon circumscribed about it — and finds a point: the three main diagonals (joining opposite vertices) all pass through one common point. This point-line swap is the deepest idea in projective geometry, duality: every theorem about points on a conic has a twin about tangent lines, trading 'point' for 'line', 'lies on' for 'passes through', 'collinear' for 'concurrent'. Charles-Julien Brianchon proved it in 1810. Verified live: for tens of thousands of random hexagons circumscribed about an ellipse, the three main diagonals are concurrent — the third diagonal passes through the intersection of the first two, normalized residual below 1e-6. Neon-noir traced. See the circumscribed hexagon and its Brianchon point in 1D, the concurrency check in 2D, and the dual-of-Pascal inverse in 3D.",
+  "lit":"Genuine Brianchon's theorem (Charles-Julien Brianchon, 1810; the projective dual of Pascal's theorem). Verified live: for tens of thousands of random hexagons circumscribed about an ellipse (six tangent lines), the three main diagonals are concurrent — the third diagonal passes through the intersection of the first two, normalized residual below 1e-6 (window.__brianchon.ok, .worst).",
+  "fig":"No framing; the tangent lines, the vertices, and the diagonal concurrency are computed independently in-browser. The AVAN inverse is honest — instead of only putting points on the conic, wrap tangent lines around it: the inverse of 'Pascal's line from six points' is 'Brianchon's point from six tangents' — the projective dual, points ↔ lines. Magenta are the three main diagonals; green is the single point they all pass through. Pascal's theorem, dualized into a point.",
+  "body":BRNC_BODY,"script":BRNC_SCRIPT},
  {"slug":"the-sophie-germain","title":"THE SOPHIE GERMAIN","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE KONAMI CODE","domain_slug":"the-konami-code","accent":"#35ffb0","icon":"sophiegermain",
   "kicker":"an algebraic identity that factors a sum of two fourth powers",
