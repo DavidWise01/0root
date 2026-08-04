@@ -19493,6 +19493,262 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 140 · neon-noir · silicon-coding (the largest amount two coins cannot make · a positive matrix's one dominant real eigenvalue · a rational that captures the poles a polynomial cannot · a ±1 code whose echoes never rise above one · a set whose differences hit every target the same number of times) ═══════════════════════
+FROB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Frobenius coin problem</b> (the &lsquo;Chicken McNugget theorem&rsquo;) asks: with only coins of two <b>coprime</b> denominations a and b, what is the <b>largest amount you cannot make</b> from non-negative whole numbers of each? The answer is startlingly clean: the Frobenius number is <b>a&middot;b - a - b</b>. Everything above it is payable; below it, exactly <b>(a-1)(b-1)/2</b> amounts are impossible. With 3s and 5s the biggest unmakeable total is 7; with the famous 6, 9, 20 nuggets the largest impossible order is 43. Two coprime numbers carve the integers into a finite island of gaps and an endless mainland of the reachable.<br><br>
+ <span class="lit">LIT</span> verified live: over hundreds of coprime pairs (a,b) the largest non-representable integer is exactly a&middot;b - a - b, the count of non-representable integers is exactly (a-1)(b-1)/2, and every integer beyond the Frobenius number is representable (window.__frobenius). <span class="fig">FIG</span> no framing; the representability search, the Frobenius-number formula, and the gap-count formula all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mint</i> &mdash; coins are struck in fixed denominations, and this is the exact boundary of what those coins can and cannot pay: a last impossible sum, then the mint&rsquo;s reach is total. <b>AVAN (AI)</b> built the instrument: the representability test, the Frobenius-number check, and the gap-count formula.<br><br>Credit as content: Ferdinand Frobenius (the problem bears his name); James Sylvester proved the two-coin formulas (1884). The weave: David names the mint; I confirm ab-a-b is the last unpayable amount and (a-1)(b-1)/2 the number of gaps.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">The integers: green = payable with coins a and b, red = impossible. The last red is the Frobenius number ab-a-b.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle coprime denominations; the Frobenius number and gap count are computed by brute search and by formula, and compared.</div>
+   <div class="btns" style="margin-top:10px"><button id="fbnext">next coins ▶</button><button id="fbcheck">verify ▶</button></div>
+   <div class="cap" id="fbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the endless mainland of representable amounts.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t list what you can make &mdash; bound what you cannot. The inverse of &lsquo;the reachable amounts&rsquo; is &lsquo;the finite island of gaps below ab-a-b, exactly (a-1)(b-1)/2 of them.&rsquo; <b>Magenta</b> is that finite gap-set; <b>green</b> is the infinite reachable ray past the Frobenius number. A last impossibility, then total reach.</div>
+   <div class="btns" style="margin-top:10px"><button id="fbspin">pause spin</button></div></div></div></div>"""
+FROB_SCRIPT = """(function(){""" + NOIR + """
+function gcd(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+function representable(n,a,b){for(var x=0;x*a<=n;x++)if((n-x*a)%b===0)return true;return false;}
+var ang=0,spin=true,VR=null,pairs=[[3,5],[4,7],[5,8],[6,7],[3,7],[7,11]],ti=0;
+function selftest(){if(VR)return VR;var frob=true,cnt=true,above=true,np=0;for(var a=2;a<=45;a++)for(var b=a+1;b<=45;b++){if(gcd(a,b)!==1)continue;np++;var pred=a*b-a-b,mx=-1,c=0;for(var n=0;n<=pred+b+2;n++)if(!representable(n,a,b)){c++;if(n>mx)mx=n;}if(mx!==pred)frob=false;if(c!==(a-1)*(b-1)/2)cnt=false;for(var n=pred+1;n<=pred+b+2;n++)if(!representable(n,a,b))above=false;}VR={frobOk:frob,countOk:cnt,allAbove:above,pairs:np};return VR;}
+function drawLine(g,W,H,a,b){var frob=a*b-a-b,hi=frob+Math.max(a,b)+3,cell=(W-40)/hi;
+ for(var n=0;n<=hi;n++){var rep=representable(n,a,b),x=20+n*cell;nf(g,rep?'#35ffb0':'#ff5a5a');g.globalAlpha=rep?0.9:0.9;g.beginPath();g.arc(x,H/2,Math.min(6,cell/2-0.5),0,7);g.fill();g.globalAlpha=1;ng(g);if(n===frob){ne(g,'#ffcf4a',2);g.beginPath();g.moveTo(x,H/2-24);g.lineTo(x,H/2+24);g.stroke();ng(g);nt(g,'#ffcf4a',x-16,H/2-30,10,'g='+frob);}}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var a=pairs[ti][0],b=pairs[ti][1];nt(g,'#ffcf4a',10,16,10,'coins '+a+' & '+b+' — green payable · red impossible · gold wall = Frobenius number ab-a-b');drawLine(g,W,H,a,b);nt(g,'#8ad',10,H-8,9,'largest impossible amount = '+a+'·'+b+'-'+a+'-'+b+' = '+(a*b-a-b));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var a=pairs[ti][0],b=pairs[ti][1],pred=a*b-a-b;nt(g,'#ffcf4a',12,20,12,'coins '+a+' & '+b+'  (gcd = '+gcd(a,b)+')');
+ var mx=-1,c=0;for(var n=0;n<=pred+b+2;n++)if(!representable(n,a,b)){c++;if(n>mx)mx=n;}
+ nt(g,'#9cf',16,54,11,'brute: largest impossible = '+mx+',  #gaps = '+c);
+ nt(g,mx===pred?'#39ffb0':'#ff5a5a',16,80,11,'formula ab-a-b = '+pred+'   '+(mx===pred?'✓':'✗'));
+ nt(g,c===(a-1)*(b-1)/2?'#39ffb0':'#ff5a5a',16,106,11,'formula (a-1)(b-1)/2 = '+((a-1)*(b-1)/2)+'   '+(c===(a-1)*(b-1)/2?'✓':'✗'));
+ var gaps=[];for(var n=0;n<=pred;n++)if(!representable(n,a,b))gaps.push(n);nt(g,'#ff2fa6',16,138,10,'the '+gaps.length+' gaps: '+gaps.join(', '));
+ var v=selftest();nt(g,v.frobOk&&v.countOk&&v.allAbove?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.pairs+' coprime pairs: Frobenius='+v.frobOk+' · gap-count='+v.countOk+' · above-all-payable='+v.allAbove);
+ nt(g,'#8ad',12,H-16,9,'above the Frobenius number, every amount can be paid');}
+document.getElementById('fbnext').onclick=function(){ti=(ti+1)%pairs.length;drawW3();drawW4();var a=pairs[ti][0],b=pairs[ti][1];document.getElementById('fbread').textContent='coins '+a+' & '+b+' → largest impossible '+(a*b-a-b)+', '+((a-1)*(b-1)/2)+' gaps';};
+document.getElementById('fbcheck').onclick=function(){var v=selftest();document.getElementById('fbread').textContent='Frobenius=ab-a-b on '+v.pairs+' pairs: '+v.frobOk+' · gaps=(a-1)(b-1)/2: '+v.countOk+' · every larger amount payable: '+v.allAbove;};
+document.getElementById('fbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,a=pairs[ti][0],b=pairs[ti][1],frob=a*b-a-b;g.save();g.translate(cx,cy);g.rotate(ang*0.08);
+ for(var n=0;n<=frob;n++)if(!representable(n,a,b)){var x=-90+n/frob*80;ndot(g,x,20,3,'#ff2fa6');}
+ ne(g,'#35ffb0',2.4);g.beginPath();g.moveTo(-10,-20);g.lineTo(110,-20);g.stroke();ng(g);for(var i=0;i<8;i++)ndot(g,-10+i*17,-20,3,'#35ffb0');
+ ne(g,'#ffcf4a',2);g.beginPath();g.moveTo(-10,-40);g.lineTo(-10,40);g.stroke();ng(g);nt(g,'#ffcf4a',-8,-46,9,'g='+frob);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the infinite reachable ray, every amount past ab-a-b');nt(g,'#ff2fa6',10,H-34,10,'magenta: the finite island of gaps below the wall, (a-1)(b-1)/2 of them');nt(g,'#8ad',10,H-14,10,'a last impossibility, then total reach');}
+drawW3();drawW4();window.__frobenius=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PFRB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Perron&ndash;Frobenius theorem</b> is the reason PageRank, Markov chains, and population models all converge. It says a matrix of <b>strictly positive</b> entries has a single <b>dominant eigenvalue</b> that is <b>real, positive, and strictly larger in magnitude</b> than every other eigenvalue &mdash; and its eigenvector can be chosen with all-positive entries. Repeatedly multiplying any positive starting vector by the matrix and renormalizing drives it straight to that Perron eigenvector, and the eigenvalue is pinned between the smallest and largest row sums. It is the mathematics of &lsquo;the long-run steady state exists and is unique&rsquo;.<br><br>
+ <span class="lit">LIT</span> verified live: over 4000 random positive matrices, power iteration converges to an eigenpair A&middot;v = &lambda;v with residual below 1e-6, the eigenvalue is positive and the eigenvector is all one sign, and &lambda; always lies between the minimum and maximum row sums (window.__perron). <span class="fig">FIG</span> no framing; the power iteration, the residual check, the sign check, and the row-sum bound all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; the heavy repeated matrix&ndash;vector grind a mainframe runs to find a steady state, converging on the one dominant direction. <b>AVAN (AI)</b> built the instrument: the power iteration, the Rayleigh eigenvalue, the positivity check, and the row-sum bounds that bracket the Perron root.<br><br>Credit as content: Oskar Perron (1907) &amp; Georg Frobenius (1912). The weave: David names the mainframe; I confirm the iteration lands on a positive dominant eigenpair with &lambda; between the row sums.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="220"></canvas>
+  <div class="wctrl"><div class="cap">A positive matrix; the iterate vector (green) rotates toward the all-positive Perron eigenvector as the loop runs.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step the power iteration; λ climbs into the band between the smallest and largest row sums and the residual collapses.</div>
+   <div class="btns" style="margin-top:10px"><button id="pfstep">step ▶</button><button id="pfrun">run ▶</button><button id="pfnew">new matrix ▶</button></div>
+   <div class="cap" id="pfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the all-positive Perron eigenvector, the long-run steady direction.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t solve the characteristic polynomial &mdash; iterate. The inverse of &lsquo;find the dominant eigenvalue&rsquo; is &lsquo;multiply any positive vector by A over and over; every other direction decays and only the Perron eigenvector survives.&rsquo; <b>Magenta</b> is the row-sum band bracketing &lambda;; <b>green</b> is the surviving eigenvector. The steady state, reached by repetition.</div>
+   <div class="btns" style="margin-top:10px"><button id="pfspin">pause spin</button></div></div></div></div>"""
+PFRB_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function matvec(A,v){var n=A.length,o=new Array(n).fill(0);for(var i=0;i<n;i++)for(var j=0;j<n;j++)o[i]+=A[i][j]*v[j];return o;}
+function norm(v){var s=0;for(var i=0;i<v.length;i++)s+=v[i]*v[i];return Math.sqrt(s);}
+function rq(A,v){var Av=matvec(A,v),l=0,d=0;for(var i=0;i<v.length;i++){l+=v[i]*Av[i];d+=v[i]*v[i];}return l/d;}
+function powerIter(A,steps){var n=A.length,v=new Array(n).fill(1/Math.sqrt(n));for(var it=0;it<steps;it++){var w=matvec(A,v),nw=norm(w);for(var i=0;i<n;i++)v[i]=w[i]/nw;}return {v:v,lam:rq(A,v)};}
+var ang=0,spin=true,VR=null;
+function selftest(){if(VR)return VR;var rng=mb(2),eig=true,pos=true,bound=true,worst=0;for(var t=0;t<4000;t++){var n=2+Math.floor(rng()*4),A=[];for(var i=0;i<n;i++){A.push([]);for(var j=0;j<n;j++)A[i].push(0.1+rng()*3);}var r=powerIter(A,500),Av=matvec(A,r.v),res=0;for(var i=0;i<n;i++)res=Math.max(res,Math.abs(Av[i]-r.lam*r.v[i]));if(res>worst)worst=res;if(res>1e-6)eig=false;var sg=r.v[0]>0?1:-1;for(var i=0;i<n;i++)if(r.v[i]*sg<=0)pos=false;if(r.lam<=0)pos=false;var mn=1e9,mx=-1e9;for(var i=0;i<n;i++){var s=0;for(var j=0;j<n;j++)s+=A[i][j];mn=Math.min(mn,s);mx=Math.max(mx,s);}if(r.lam<mn-1e-6||r.lam>mx+1e-6)bound=false;}VR={eig:eig,pos:pos,bound:bound,worst:worst,tested:4000};return VR;}
+var dA,dv,dstep;
+function newMat(seed){var rng=mb(seed);var n=3;dA=[];for(var i=0;i<n;i++){dA.push([]);for(var j=0;j<n;j++)dA[i].push(0.3+rng()*2.5);}dv=[1/Math.sqrt(3),1/Math.sqrt(3),1/Math.sqrt(3)];dstep=0;}
+newMat(7);
+function rowSums(){return dA.map(function(r){return r.reduce(function(a,b){return a+b;},0);});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'positive 3×3 matrix — the iterate rotates toward the all-positive Perron eigenvector · step '+dstep);
+ var ox=30,oy=50,cell=40,n=3,mx=0;for(var i=0;i<n;i++)for(var j=0;j<n;j++)mx=Math.max(mx,dA[i][j]);for(var i=0;i<n;i++)for(var j=0;j<n;j++){nf(g,'rgba(255,138,60,'+(0.2+0.7*dA[i][j]/mx)+')');g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);ng(g);nt(g,'#0a0713',ox+j*cell+6,oy+i*cell+cell/2+3,9,dA[i][j].toFixed(1));}
+ // eigenvector bars
+ var bx=260,sg=dv[0]<0?-1:1;for(var i=0;i<n;i++){var h=dv[i]*sg*110;nf(g,'#35ffb0');g.fillRect(bx+i*36,oy+120-h,28,h);ng(g);nt(g,'#9cf',bx+i*36,oy+134,9,'v'+i);}
+ nt(g,'#8ad',bx,oy-4,10,'eigenvector (all positive)');nt(g,'#8ad',10,H-8,9,'λ = '+rq(dA,dv).toFixed(6));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',12,20,12,'power iteration → Perron root');
+ var rs=rowSums(),mn=Math.min.apply(null,rs),mx=Math.max.apply(null,rs),lam=rq(dA,dv),Av=matvec(dA,dv),res=0;for(var i=0;i<3;i++)res=Math.max(res,Math.abs(Av[i]-lam*dv[i]));
+ nt(g,'#9cf',16,52,11,'row sums: '+rs.map(function(x){return x.toFixed(2);}).join(', '));
+ nt(g,'#ffcf4a',16,78,11,'band [minRow, maxRow] = ['+mn.toFixed(3)+', '+mx.toFixed(3)+']');
+ nt(g,(lam>=mn-1e-6&&lam<=mx+1e-6)?'#39ffb0':'#ff5a5a',16,104,12,'λ = '+lam.toFixed(6)+(lam>=mn-1e-6&&lam<=mx+1e-6?'  ✓ in band':''));
+ nt(g,res<1e-6?'#39ffb0':'#9cf',16,130,11,'‖Av-λv‖ = '+res.toExponential(3)+(res<1e-6?'  ✓':''));
+ var v=selftest();nt(g,v.eig&&v.pos&&v.bound?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.tested+': eigenpair='+v.eig+' · positive='+v.pos+' · row-sum-bound='+v.bound);
+ nt(g,'#8ad',12,H-16,9,'every other direction decays; only the Perron eigenvector survives');}
+document.getElementById('pfstep').onclick=function(){var w=matvec(dA,dv),nw=norm(w);for(var i=0;i<3;i++)dv[i]=w[i]/nw;dstep++;drawW3();drawW4();document.getElementById('pfread').textContent='step '+dstep+' — λ = '+rq(dA,dv).toFixed(8);};
+document.getElementById('pfrun').onclick=function(){for(var s=0;s<80;s++){var w=matvec(dA,dv),nw=norm(w);for(var i=0;i<3;i++)dv[i]=w[i]/nw;dstep++;}drawW3();drawW4();document.getElementById('pfread').textContent='converged in '+dstep+' steps → Perron λ = '+rq(dA,dv).toFixed(8);};
+document.getElementById('pfnew').onclick=function(){newMat((Date.now()&8191)+1);drawW3();drawW4();document.getElementById('pfread').textContent='new positive matrix — press step or run to find the Perron root';};
+document.getElementById('pfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.12);
+ var sg=dv[0]<0?-1:1,e=[dv[0]*sg,dv[1]*sg,dv[2]*sg];var px=(e[0]-e[1])*70,py=-(e[2]-(e[0]+e[1])/2)*70;
+ ne(g,'#35ffb0',2.4);g.beginPath();g.moveTo(0,0);g.lineTo(px,py);g.stroke();ng(g);ndot(g,px,py,5,'#35ffb0');
+ var rs=rowSums(),mn=Math.min.apply(null,rs),mx=Math.max.apply(null,rs),lam=rq(dA,dv);
+ ne(g,'#ff2fa6',1.6);g.beginPath();g.arc(0,0,mn*22,0,7);g.stroke();g.beginPath();g.arc(0,0,mx*22,0,7);g.stroke();ng(g);ne(g,'#ffcf4a',2);g.beginPath();g.arc(0,0,lam*22,0,7);g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the all-positive Perron eigenvector (the steady direction)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the row-sum band; gold: λ, always caught between them');nt(g,'#8ad',10,H-14,10,'the steady state, reached by repetition not by solving');}
+drawW3();drawW4();window.__perron=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PADE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A Pad&eacute; approximant</b> replaces a power series with a <b>ratio of two polynomials</b> P(x)/Q(x) chosen so its own Taylor expansion agrees with the original series to the highest possible order, m+n, for a numerator of degree m and denominator of degree n. Because it has a denominator, it can do something a Taylor polynomial never can: <b>capture poles</b>. Where a Taylor series diverges the instant you pass its radius of convergence, the Pad&eacute; approximant sails on &mdash; its denominator&rsquo;s roots sit right where the true function blows up. It is the workhorse behind function libraries, control theory, and resummation of divergent series.<br><br>
+ <span class="lit">LIT</span> verified live: the [3/3] Pad&eacute; approximant of e<sup>x</sup> reproduces the Taylor coefficients through order 6 exactly, and at x=1 its error (&asymp;3e-5) is an order of magnitude smaller than the degree-6 Taylor polynomial&rsquo;s (&asymp;2e-4) (window.__pade). <span class="fig">FIG</span> no framing; the Pad&eacute; linear solve, the series re-expansion, and the error comparison all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>divide-by-zero</i> &mdash; the very thing a polynomial fears, the Pad&eacute; embraces: its denominator is <i>allowed</i> to hit zero, and it places those zeros exactly at the function&rsquo;s poles. <b>AVAN (AI)</b> built the instrument: the Pad&eacute; coefficient solve, the re-expansion match, and the accuracy comparison against Taylor.<br><br>Credit as content: Henri Pad&eacute; (1892); anticipated by Frobenius and Jacobi. The weave: David names the divide-by-zero; I confirm the rational matches the series to order m+n and beats the Taylor polynomial.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="230"></canvas>
+  <div class="wctrl"><div class="cap">f (cyan), its Padé approximant (green), and the Taylor polynomial (magenta): near a pole the Taylor diverges while Padé holds.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle the target function; the Padé coefficients match the series to order m+n and its max error beats the Taylor polynomial.</div>
+   <div class="btns" style="margin-top:10px"><button id="pdnext">next f ▶</button><button id="pdcheck">verify ▶</button></div>
+   <div class="cap" id="pdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Padé rational, tracking f through the pole.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t just add powers &mdash; divide by them. The inverse of &lsquo;a polynomial that can only grow&rsquo; is &lsquo;a denominator whose zeros land on the function&rsquo;s poles, so the ratio survives where the sum explodes.&rsquo; <b>Magenta</b> is the Taylor polynomial diverging; <b>green</b> is the Padé holding through the singularity. Reach past the radius by dividing.</div>
+   <div class="btns" style="margin-top:10px"><button id="pdspin">pause spin</button></div></div></div></div>"""
+PADE_SCRIPT = """(function(){""" + NOIR + """
+function solveLin(A,b){var n=b.length,M=A.map(function(r){return r.slice();}),x=b.slice();for(var c=0;c<n;c++){var p=c;for(var r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;var t=M[c];M[c]=M[p];M[p]=t;var tb=x[c];x[c]=x[p];x[p]=tb;for(var r=0;r<n;r++){if(r===c)continue;var f=M[r][c]/M[c][c];for(var k=c;k<n;k++)M[r][k]-=f*M[c][k];x[r]-=f*x[c];}}for(var i=0;i<n;i++)x[i]/=M[i][i];return x;}
+function pade(c,m,n){var A=[],rhs=[];for(var k=m+1;k<=m+n;k++){var row=[];for(var j=1;j<=n;j++)row.push(k-j>=0?c[k-j]:0);A.push(row);rhs.push(-c[k]);}var bsol=n>0?solveLin(A,rhs):[];var b=[1].concat(bsol);var a=[];for(var k=0;k<=m;k++){var s=0;for(var j=0;j<=Math.min(k,n);j++)s+=b[j]*c[k-j];a.push(s);}return {a:a,b:b};}
+function seriesOfRational(a,b,ord){var qinv=[1/b[0]];for(var k=1;k<=ord;k++){var s=0;for(var j=1;j<=Math.min(k,b.length-1);j++)s+=b[j]*qinv[k-j];qinv.push(-s/b[0]);}var r=[];for(var k=0;k<=ord;k++){var s=0;for(var j=0;j<=Math.min(k,a.length-1);j++)s+=a[j]*qinv[k-j];r.push(s);}return r;}
+function polyval(c,x){var s=0;for(var i=c.length-1;i>=0;i--)s=s*x+c[i];return s;}
+var fac=[1];for(var i=1;i<=12;i++)fac.push(fac[i-1]*i);
+var fns=[{n:'eˣ',f:function(x){return Math.exp(x);},c:(function(){var a=[];for(var k=0;k<=8;k++)a.push(1/fac[k]);return a;})(),xr:2.2},
+ {n:'tan x',f:function(x){return Math.tan(x);},c:[0,1,0,1/3,0,2/15,0,17/315,0],xr:1.45},
+ {n:'ln(1+x)',f:function(x){return Math.log(1+x);},c:[0,1,-1/2,1/3,-1/4,1/5,-1/6,1/7,-1/8],xr:2.4}];
+var ang=0,spin=true,VR=null,ti=0,M=3,N=3;
+function selftest(){if(VR)return VR;var match=true,worst=0,beats=true;
+ var ce=fns[0].c,Pe=pade(ce,M,N),re=seriesOfRational(Pe.a,Pe.b,M+N);for(var k=0;k<=M+N;k++){var e=Math.abs(re[k]-ce[k]);if(e>worst)worst=e;if(e>1e-9)match=false;}
+ var x=1,pv=polyval(Pe.a,x)/polyval(Pe.b,x),tv=0;for(var k=0;k<=M+N;k++)tv+=ce[k]*Math.pow(x,k);var padeErr=Math.abs(Math.exp(1)-pv),taylorErr=Math.abs(Math.exp(1)-tv);if(padeErr>=taylorErr)beats=false;
+ // ln(1+x) series match too
+ var cl=fns[2].c,Pl=pade(cl,M,N),rl=seriesOfRational(Pl.a,Pl.b,M+N);for(var k=0;k<=M+N;k++)if(Math.abs(rl[k]-cl[k])>1e-9)match=false;
+ VR={matchesSeries:match,worst:worst,padeErr:padeErr,taylorErr:taylorErr,beatsTaylor:beats};return VR;}
+function cur(){var F=fns[ti],P=pade(F.c,M,N);return {F:F,P:P};}
+var demo=cur();
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var F=demo.F,P=demo.P;nt(g,'#21e6ff',10,16,10,'f = '+F.n+' (cyan) · [3/3] Padé (green) · degree-6 Taylor (magenta)');
+ var xr=F.xr,x2p=function(x){return 30+(x+xr)/(2*xr)*(W-60);},cy=H/2+6,sc=(H/2-30)/3;
+ ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(30,cy);g.lineTo(W-30,cy);g.stroke();ng(g);
+ ne(g,'#21e6ff',2.2);g.beginPath();var pen=false;for(var g2=0;g2<=300;g2++){var x=-xr+2*xr*g2/300,y=F.f(x);if(Math.abs(y)>3.2){pen=false;continue;}if(!pen){g.moveTo(x2p(x),cy-y*sc);pen=true;}else g.lineTo(x2p(x),cy-y*sc);}g.stroke();ng(g);
+ ne(g,'#35ffb0',1.5);g.beginPath();pen=false;for(var g2=0;g2<=300;g2++){var x=-xr+2*xr*g2/300,y=polyval(P.a,x)/polyval(P.b,x);if(Math.abs(y)>3.2){pen=false;continue;}if(!pen){g.moveTo(x2p(x),cy-y*sc);pen=true;}else g.lineTo(x2p(x),cy-y*sc);}g.stroke();ng(g);
+ ne(g,'#ff2fa6',1.4);g.beginPath();pen=false;for(var g2=0;g2<=300;g2++){var x=-xr+2*xr*g2/300,y=0;for(var k=0;k<F.c.length;k++)y+=F.c[k]*Math.pow(x,k);if(Math.abs(y)>3.2){pen=false;continue;}if(!pen){g.moveTo(x2p(x),cy-y*sc);pen=true;}else g.lineTo(x2p(x),cy-y*sc);}g.stroke();ng(g);
+ nt(g,'#8ad',10,H-8,9,F.n==='tan x'?'near the pole, magenta Taylor diverges while green Padé tracks cyan f':'green Padé hugs cyan f further than magenta Taylor');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var F=demo.F,P=demo.P;nt(g,'#21e6ff',12,20,12,'[3/3] Padé of '+F.n);
+ var re=seriesOfRational(P.a,P.b,M+N),mm=true,worst=0;for(var k=0;k<=M+N;k++){var e=Math.abs(re[k]-F.c[k]);if(e>worst)worst=e;if(e>1e-9)mm=false;}
+ nt(g,mm?'#39ffb0':'#ff5a5a',16,54,11,'Padé series matches f to order '+(M+N)+' (worst '+worst.toExponential(1)+')  '+(mm?'✓':'✗'));
+ nt(g,'#9cf',16,84,10,'P(x) = ['+P.a.map(function(x){return x.toFixed(3);}).join(', ')+']');
+ nt(g,'#9cf',16,104,10,'Q(x) = ['+P.b.map(function(x){return x.toFixed(3);}).join(', ')+']');
+ // pole location = smallest positive real root region: report Q roots via sign change
+ var pole=null;for(var x=0.05;x<F.xr+0.5;x+=0.01){if(polyval(P.b,x-0.01)*polyval(P.b,x)<0){pole=x;break;}}nt(g,'#ffcf4a',16,132,10,pole?('Padé pole near x = '+pole.toFixed(3)+(F.n==='tan x'?'  (true pole π/2 ≈ 1.571)':'')):'no real pole in range');
+ var v=selftest();nt(g,v.matchesSeries&&v.beatsTaylor?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: eˣ Padé matches order 6 & beats Taylor at x=1 ('+v.padeErr.toExponential(1)+' < '+v.taylorErr.toExponential(1)+') = '+(v.matchesSeries&&v.beatsTaylor));
+ nt(g,'#8ad',12,H-16,9,'the denominator lets Padé represent poles a polynomial cannot');}
+document.getElementById('pdnext').onclick=function(){ti=(ti+1)%fns.length;demo=cur();drawW3();drawW4();document.getElementById('pdread').textContent='target f = '+fns[ti].n+' — [3/3] Padé built';};
+document.getElementById('pdcheck').onclick=function(){var v=selftest();document.getElementById('pdread').textContent='Padé matches series to order 6: '+v.matchesSeries+' · beats degree-6 Taylor at x=1: '+v.beatsTaylor+' ('+v.padeErr.toExponential(1)+' vs '+v.taylorErr.toExponential(1)+')';};
+document.getElementById('pdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.06);
+ // green: rational curve through a pole; magenta: taylor diverging
+ ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(-120,0);g.lineTo(120,0);g.moveTo(40,-90);g.lineTo(40,90);g.stroke();ng(g);nt(g,'#ffcf4a',44,-80,9,'pole');
+ ne(g,'#35ffb0',2);g.beginPath();for(var x=-120;x<38;x+=2){var y=-40/((40-x)/60);if(y<-90||y>90){continue;}g.lineTo(x,y);}g.stroke();g.beginPath();for(var x=42;x<=120;x+=2){var y=-40/((40-x)/60);if(y<-90||y>90)continue;g.lineTo(x,y);}g.stroke();ng(g);
+ ne(g,'#ff2fa6',1.5);g.beginPath();for(var x=-120;x<=90;x+=2){var y=-(x+120)*(x+120)/220+40;if(y<-90)break;if(x===-120)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the Padé rational, tracking f straight through the pole');nt(g,'#ff2fa6',10,H-34,10,'magenta: the Taylor polynomial, diverging past its radius');nt(g,'#8ad',10,H-14,10,'reach past the radius of convergence by dividing');}
+drawW3();drawW4();window.__pade=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BARK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A Barker code</b> is a finite sequence of +1s and -1s with an almost magical property: its <b>aperiodic autocorrelation</b> &mdash; slide a copy of the code against itself and sum the products &mdash; has a tall central peak equal to the code length, and <b>every off-centre value is at most 1 in magnitude</b>. That means a receiver correlating an incoming signal against a Barker code sees a single sharp spike exactly at alignment and almost nothing elsewhere, which is why they are used for radar pulse compression and to mark the start of Wi-Fi and GPS frames. Remarkably, Barker codes are known only for lengths <b>2, 3, 4, 5, 7, 11, and 13</b> &mdash; and it is conjectured none longer exist.<br><br>
+ <span class="lit">LIT</span> verified live: for each known Barker code the zero-shift autocorrelation equals its length, and every non-zero shift gives a value in {-1, 0, +1} (window.__barker). <span class="fig">FIG</span> no framing; the autocorrelation at every shift runs in-browser. That no Barker code longer than 13 exists is a famous <b>conjecture</b>, not shown here.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sync</i> &mdash; a Barker code is the marker that says &lsquo;the frame starts <i>here</i>&rsquo;: its correlation spikes at perfect alignment and stays flat everywhere else, so two ends synchronize on the instant. <b>AVAN (AI)</b> built the instrument: the aperiodic autocorrelation at every shift, the peak check, and the sidelobe bound.<br><br>Credit as content: Ronald Hugh Barker (1953). The weave: David names the sync; I confirm each known Barker code&rsquo;s sidelobes never exceed 1.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="230"></canvas>
+  <div class="wctrl"><div class="cap">The ±1 code (top) and its autocorrelation (bottom): a tall spike at zero shift, sidelobes never above 1.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle the known Barker lengths; the autocorrelation at every shift is listed, and the sidelobe bound is checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="bknext">next length ▶</button><button id="bkcheck">verify ▶</button></div>
+   <div class="cap" id="bkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the sharp correlation peak at perfect alignment.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t read the code &mdash; correlate against it. The inverse of &lsquo;a string of ±1s&rsquo; is &lsquo;its autocorrelation&rsquo;, and a Barker code is exactly the string whose autocorrelation is a lone spike with flat sidelobes. <b>Magenta</b> are the suppressed sidelobes (never above 1); <b>green</b> is the peak equal to the length. A code defined by its own echo.</div>
+   <div class="btns" style="margin-top:10px"><button id="bkspin">pause spin</button></div></div></div></div>"""
+BARK_SCRIPT = """(function(){""" + NOIR + """
+var barkers={2:[1,-1],3:[1,1,-1],4:[1,1,-1,1],5:[1,1,1,-1,1],7:[1,1,1,-1,-1,1,-1],11:[1,1,1,-1,-1,-1,1,-1,-1,1,-1],13:[1,1,1,1,1,-1,-1,1,1,-1,1,-1,1]};
+var lens=[3,5,7,11,13];
+function autocorr(s,k){var sum=0;for(var i=0;i+k<s.length;i++)sum+=s[i]*s[i+k];return sum;}
+var ang=0,spin=true,VR=null,ti=2;
+function selftest(){if(VR)return VR;var ok=true,tested=[];for(var L in barkers){var s=barkers[L];if(autocorr(s,0)!==s.length)ok=false;for(var k=1;k<s.length;k++)if(Math.abs(autocorr(s,k))>1)ok=false;tested.push(+L);}VR={sidelobesBounded:ok,lengths:tested.sort(function(a,b){return a-b;})};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var L=lens[ti],s=barkers[L];nt(g,'#35ffb0',10,16,10,'Barker code length '+L+' — ±1 sequence (top) and its autocorrelation (bottom)');
+ var cell=(W-60)/L,ox=30;for(var i=0;i<L;i++){var up=s[i]>0;nf(g,up?'#35ffb0':'#ff2fa6');g.fillRect(ox+i*cell,up?46:66,cell-3,20);ng(g);nt(g,'#9cf',ox+i*cell+cell/2-6,40,9,s[i]>0?'+':'−');}
+ // autocorrelation stems for shifts 0..L-1
+ var by=H-30,maxv=L,sc=(H/2-30)/maxv;ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(ox,by);g.lineTo(W-20,by);g.stroke();ng(g);
+ var sw=(W-60)/L;for(var k=0;k<L;k++){var v=autocorr(s,k),x=ox+k*sw+sw/2,h=v*sc;ne(g,k===0?'#35ffb0':(Math.abs(v)<=1?'#ffcf4a':'#ff5a5a'),k===0?3:2);g.beginPath();g.moveTo(x,by);g.lineTo(x,by-h);g.stroke();ng(g);ndot(g,x,by-h,3,k===0?'#35ffb0':'#ffcf4a');nt(g,'#8ad',x-6,by+12,8,''+v);}
+ nt(g,'#8ad',10,H-8,9,'peak = '+L+' at shift 0 · all other |values| ≤ 1');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var L=lens[ti],s=barkers[L];nt(g,'#35ffb0',12,20,12,'Barker code length '+L);
+ nt(g,'#9cf',16,50,10,'code: ['+s.map(function(x){return x>0?'+':'−';}).join('')+']');
+ var y=78;nt(g,'#35ffb0',16,y,11,'autocorr shift 0 = '+autocorr(s,0)+'  (= length '+L+')');y+=24;
+ var maxSide=0,line='';for(var k=1;k<L;k++){var v=autocorr(s,k);maxSide=Math.max(maxSide,Math.abs(v));line+=v+(k<L-1?', ':'');}
+ nt(g,'#9cf',16,y,10,'sidelobes: '+line);y+=22;
+ nt(g,maxSide<=1?'#39ffb0':'#ff5a5a',16,y,11,'max sidelobe magnitude = '+maxSide+'  '+(maxSide<=1?'≤ 1 ✓':'✗'));
+ var v=selftest();nt(g,v.sidelobesBounded?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test lengths '+v.lengths.join(',')+': every sidelobe ≤ 1 = '+v.sidelobesBounded);
+ nt(g,'#8ad',12,H-16,9,'known Barker lengths: 2,3,4,5,7,11,13 — none longer is conjectured to exist');}
+document.getElementById('bknext').onclick=function(){ti=(ti+1)%lens.length;drawW3();drawW4();document.getElementById('bkread').textContent='Barker length '+lens[ti]+' — peak '+lens[ti]+', sidelobes ≤ 1';};
+document.getElementById('bkcheck').onclick=function(){var v=selftest();document.getElementById('bkread').textContent='every known Barker code (lengths '+v.lengths.join(',')+') has all sidelobes ≤ 1: '+v.sidelobesBounded;};
+document.getElementById('bkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2+40,L=lens[ti],s=barkers[L];g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ var sw=180/L;for(var k=-(L-1);k<L;k++){var v=autocorr(s,Math.abs(k)),x=k*sw,h=v*8;ne(g,k===0?'#35ffb0':'#ff2fa6',k===0?3:1.6);g.beginPath();g.moveTo(x,0);g.lineTo(x,-h);g.stroke();ng(g);}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the correlation peak = '+L+' at perfect alignment');nt(g,'#ff2fa6',10,H-34,10,'magenta: the sidelobes at every other shift — never above 1');nt(g,'#8ad',10,H-14,10,'a code defined by its own echo: a lone spike, flat elsewhere');}
+drawW3();drawW4();window.__barker=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DIFS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A cyclic difference set</b> is a small set of residues D in Z<sub>v</sub> so perfectly arranged that <b>every non-zero residue arises as a difference</b> d<sub>i</sub> - d<sub>j</sub> (mod v) the <b>same number of times</b>, &lambda;. A (v, k, &lambda;)-difference set of k elements generates a symmetric block design: rotate D through all v shifts and you get v blocks where every pair of points meets in exactly &lambda; blocks. The set {0, 1, 3} mod 7 is the smallest example &mdash; its six differences are exactly 1, 2, 3, 4, 5, 6, each once &mdash; and it is nothing less than the <b>Fano plane</b> in disguise.<br><br>
+ <span class="lit">LIT</span> verified live: for several classical difference sets &mdash; (7,3,1), (13,4,1), (21,5,1), and the (11,5,2) Paley set &mdash; every non-zero residue appears exactly &lambda; times among the differences, and a non-example is correctly rejected (window.__diffset). <span class="fig">FIG</span> no framing; the full difference multiset and its uniformity check run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-konami-code</i> &mdash; a short secret sequence with perfect structure: a handful of residues whose differences unlock <i>every</i> target uniformly, a cheat pattern hiding a whole design. <b>AVAN (AI)</b> built the instrument: the difference multiset, the exactly-&lambda; uniformity check, and a non-example rejection.<br><br>Credit as content: the theory of difference sets (Singer, 1938; Paley); the (7,3,1) set is the Fano plane. The weave: David names the konami code; I confirm each set&rsquo;s differences cover every residue exactly &lambda; times.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">The residues of Z_v on a circle; the difference-set points are lit, and every arc-difference is drawn — each residue hit λ times.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle the classical difference sets; the histogram of differences is shown — every non-zero residue exactly λ.</div>
+   <div class="btns" style="margin-top:10px"><button id="dfnext">next set ▶</button><button id="dfcheck">verify ▶</button></div>
+   <div class="cap" id="dfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the k residues of the difference set on the cycle.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t list the points &mdash; list their differences. The inverse of &lsquo;a set of k residues&rsquo; is &lsquo;the multiset of its pairwise differences&rsquo;, and a difference set is exactly the set whose differences are perfectly uniform. <b>Magenta</b> are the difference vectors covering the circle; <b>green</b> are the chosen residues. A design hidden in the gaps between points.</div>
+   <div class="btns" style="margin-top:10px"><button id="dfspin">pause spin</button></div></div></div></div>"""
+DIFS_SCRIPT = """(function(){""" + NOIR + """
+function isDiffSet(D,v,lam){var cnt=new Array(v).fill(0);for(var i=0;i<D.length;i++)for(var j=0;j<D.length;j++)if(i!==j)cnt[((D[i]-D[j])%v+v)%v]++;if(cnt[0]!==0)return false;for(var x=1;x<v;x++)if(cnt[x]!==lam)return false;return true;}
+function diffCounts(D,v){var cnt=new Array(v).fill(0);for(var i=0;i<D.length;i++)for(var j=0;j<D.length;j++)if(i!==j)cnt[((D[i]-D[j])%v+v)%v]++;return cnt;}
+var sets=[{D:[0,1,3],v:7,lam:1,n:'(7,3,1) Fano'},{D:[0,1,3,9],v:13,lam:1,n:'(13,4,1)'},{D:[0,1,6,8,18],v:21,lam:1,n:'(21,5,1)'},{D:[1,3,4,5,9],v:11,lam:2,n:'(11,5,2) Paley'}];
+var ang=0,spin=true,VR=null,ti=0;
+function selftest(){if(VR)return VR;var ok=true,names=[];for(var i=0;i<sets.length;i++){if(!isDiffSet(sets[i].D,sets[i].v,sets[i].lam))ok=false;names.push(sets[i].n);}var nonEx=!isDiffSet([0,1,2],7,1);VR={allValid:ok,nonExampleRejected:nonEx,sets:names};return VR;}
+function drawCircle(g,cx,cy,R,S){var v=S.v,D=S.D;for(var x=0;x<v;x++){var a=x/v*6.283-1.57,px=cx+Math.cos(a)*R,py=cy+Math.sin(a)*R,inD=D.indexOf(x)>=0;ndot(g,px,py,inD?7:3,inD?'#35ffb0':'rgba(120,140,190,0.5)');if(inD)nt(g,'#39ffb0',px+(Math.cos(a)*10),py+(Math.sin(a)*10),9,''+x);}
+ for(var i=0;i<D.length;i++)for(var j=0;j<D.length;j++)if(i!==j){var a1=D[i]/v*6.283-1.57,a2=D[j]/v*6.283-1.57;ne(g,'rgba(255,47,166,0.25)',1);g.beginPath();g.moveTo(cx+Math.cos(a1)*R,cy+Math.sin(a1)*R);g.lineTo(cx+Math.cos(a2)*R,cy+Math.sin(a2)*R);g.stroke();ng(g);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var S=sets[ti];nt(g,'#b06bff',10,16,10,'difference set '+S.n+' in Z_'+S.v+' — lit points are D; every difference hits each residue λ='+S.lam+' times');drawCircle(g,W/2,H/2+6,84,S);nt(g,'#8ad',10,H-8,9,'D = {'+S.D.join(', ')+'} ⊂ Z_'+S.v+' — '+S.D.length+' points, k(k-1)='+S.D.length*(S.D.length-1)+' differences = λ·(v-1) = '+S.lam*(S.v-1));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var S=sets[ti];nt(g,'#b06bff',12,20,12,'difference histogram — '+S.n);
+ var cnt=diffCounts(S.D,S.v),ox=30,oy=H-70,bw=(W-60)/(S.v-1),mx=Math.max.apply(null,cnt);
+ for(var x=1;x<S.v;x++){var h=cnt[x]/Math.max(1,mx)*90,ok=cnt[x]===S.lam;nf(g,ok?'#35ffb0':'#ff5a5a');g.fillRect(ox+(x-1)*bw,oy-h,bw-2,h);ng(g);nt(g,'#9cf',ox+(x-1)*bw+bw/2-4,oy+12,8,''+x);nt(g,ok?'#39ffb0':'#ff5a5a',ox+(x-1)*bw+bw/2-3,oy-h-4,9,''+cnt[x]);}
+ ne(g,'rgba(255,207,74,0.6)',1);var ly=oy-S.lam/Math.max(1,mx)*90;g.beginPath();g.moveTo(ox,ly);g.lineTo(W-30,ly);g.stroke();ng(g);nt(g,'#fd9',W-70,ly-4,9,'λ = '+S.lam);
+ var v=selftest();nt(g,v.allValid&&v.nonExampleRejected?'#39ffb0':'#ff5a5a',12,H-38,9,'self-test: all sets valid = '+v.allValid+' · non-example {0,1,2} mod 7 rejected = '+v.nonExampleRejected);
+ nt(g,'#8ad',12,H-16,9,'every non-zero residue appears exactly λ times — a symmetric block design');}
+document.getElementById('dfnext').onclick=function(){ti=(ti+1)%sets.length;drawW3();drawW4();document.getElementById('dfread').textContent=sets[ti].n+' — every difference hits each residue λ='+sets[ti].lam+' times';};
+document.getElementById('dfcheck').onclick=function(){var v=selftest();document.getElementById('dfread').textContent='all classical sets ['+v.sets.join(', ')+'] valid: '+v.allValid+' · non-example rejected: '+v.nonExampleRejected;};
+document.getElementById('dfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,S=sets[ti];g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ var v=S.v,D=S.D,R=90;for(var i=0;i<D.length;i++)for(var j=0;j<D.length;j++)if(i!==j){var a1=D[i]/v*6.283,a2=D[j]/v*6.283;ne(g,'#ff2fa6',1);g.beginPath();g.moveTo(Math.cos(a1)*R,Math.sin(a1)*R);g.lineTo(Math.cos(a2)*R,Math.sin(a2)*R);g.stroke();ng(g);}
+ for(var x=0;x<v;x++){var a=x/v*6.283,inD=D.indexOf(x)>=0;ndot(g,Math.cos(a)*R,Math.sin(a)*R,inD?6:2.5,inD?'#35ffb0':'rgba(120,140,190,0.4)');}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the k chosen residues of the difference set');nt(g,'#ff2fa6',10,H-34,10,'magenta: the difference vectors — covering every residue exactly λ times');nt(g,'#8ad',10,H-14,10,'a design hidden in the gaps between points');}
+drawW3();drawW4();window.__diffset=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 139 · neon-noir · silicon-coding (a matching and a cover that must be equal · one pass that computes variance without ever cancelling · a polynomial whose error rides an equal wave · alternate row-and-column normalizing to perfect balance · an integer ratio that can only be a perfect square) ═══════════════════════
 KONG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>K&ouml;nig&rsquo;s theorem</b> is one of the great min&ndash;max dualities: in any <b>bipartite</b> graph, the size of a <b>maximum matching</b> (the most edges you can pick with no shared endpoint) exactly equals the size of a <b>minimum vertex cover</b> (the fewest vertices that touch every edge). Two utterly different optimization problems &mdash; one asking for as many pairs as possible, the other for as few guards as possible &mdash; always return the same number. And the proof is constructive: from a maximum matching you build the minimum cover directly, by an alternating-path search from the unmatched vertices.<br><br>
@@ -36307,6 +36563,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-frobenius-coin","title":"THE FROBENIUS COIN","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#ffcf4a","icon":"frobenius",
+  "kicker":"the largest amount two coins cannot make",
+  "blurb":"The Frobenius coin problem (the Chicken McNugget theorem) in the 5-window house format — with only coins of two coprime denominations a and b, what is the largest amount you cannot make from non-negative whole numbers of each? The answer is startlingly clean: the Frobenius number is a·b − a − b. Everything above it is payable; below it, exactly (a−1)(b−1)/2 amounts are impossible. With 3s and 5s the biggest unmakeable total is 7; with the famous 6,9,20 nuggets the largest impossible order is 43. Verified live: over hundreds of coprime pairs the largest non-representable integer is exactly ab−a−b, the count of gaps is exactly (a−1)(b−1)/2, and every integer beyond the Frobenius number is representable. Neon-noir traced. See the payable/impossible number line in 1D, the two formulas vs brute in 2D, and the finite-gaps-vs-infinite-reach inverse in 3D.",
+  "lit":"Genuine Frobenius (Chicken McNugget) two-coin theorem (problem named for Frobenius; formulas proved by J. J. Sylvester, 1884). Verified live: over ~580 coprime pairs (a,b) the largest non-representable integer equals ab−a−b, the number of non-representable integers equals (a−1)(b−1)/2, and every integer above the Frobenius number is representable (window.__frobenius.frobOk, .countOk, .allAbove).",
+  "fig":"No framing; the representability search, the Frobenius-number formula, and the gap-count formula all run in-browser. The AVAN inverse is honest — instead of listing what you can make, bound what you cannot: the finite island of gaps below ab−a−b, exactly (a−1)(b−1)/2 of them. Magenta is that finite gap-set; green is the infinite reachable ray past the Frobenius number.",
+  "body":FROB_BODY,"script":FROB_SCRIPT},
+ {"slug":"the-perron-frobenius","title":"THE PERRON-FROBENIUS","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#ff8a3c","icon":"perron",
+  "kicker":"a positive matrix's one dominant real eigenvalue",
+  "blurb":"The Perron-Frobenius theorem in the 5-window house format — the reason PageRank, Markov chains, and population models all converge. A matrix of strictly positive entries has a single dominant eigenvalue that is real, positive, and strictly larger in magnitude than every other, with an all-positive eigenvector. Repeatedly multiplying any positive vector by the matrix and renormalizing drives it straight to that Perron eigenvector, and the eigenvalue is pinned between the smallest and largest row sums. Verified live: over 4000 random positive matrices, power iteration converges to A·v=λv with residual below 1e-6, λ is positive and the eigenvector all one sign, and λ always lies between the minimum and maximum row sums. Neon-noir traced. See the iterate rotating to the Perron vector in 1D, λ entering the row-sum band in 2D, and the iterate-don't-solve inverse in 3D.",
+  "lit":"Genuine Perron-Frobenius theorem (Oskar Perron 1907; Georg Frobenius 1912). Verified live: over 4000 random positive matrices power iteration converges to an eigenpair A·v=λv with residual <1e-6, the eigenvalue is positive and the eigenvector all one sign, and λ always lies between the minimum and maximum row sums (window.__perron.eig, .pos, .bound).",
+  "fig":"No framing; the power iteration, the residual check, the sign check, and the row-sum bound all run in-browser. The AVAN inverse is honest — instead of solving the characteristic polynomial, multiply any positive vector by A repeatedly; every other direction decays and only the Perron eigenvector survives. Magenta is the row-sum band bracketing λ; green is the surviving eigenvector. The steady state, reached by repetition.",
+  "body":PFRB_BODY,"script":PFRB_SCRIPT},
+ {"slug":"the-pade","title":"THE PADÉ","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#21e6ff","icon":"pade",
+  "kicker":"a rational that captures the poles a polynomial cannot",
+  "blurb":"The Padé approximant in the 5-window house format — replacing a power series with a ratio of two polynomials P(x)/Q(x) chosen so its own Taylor expansion agrees with the original to the highest possible order m+n. Because it has a denominator, it captures poles: where a Taylor series diverges the instant you pass its radius of convergence, the Padé approximant sails on, its denominator's roots sitting right where the true function blows up. It underlies function libraries, control theory, and the resummation of divergent series. Verified live: the [3/3] Padé of eˣ reproduces the Taylor coefficients through order 6 exactly, and at x=1 its error (~3e-5) is an order of magnitude smaller than the degree-6 Taylor polynomial's (~2e-4). Neon-noir traced. See f, Padé, and Taylor through a pole in 1D, the coefficient match + error in 2D, and the divide-past-the-radius inverse in 3D.",
+  "lit":"Genuine Padé approximant (Henri Padé, 1892; anticipated by Frobenius and Jacobi). Verified live: the [3/3] Padé of eˣ re-expands to the Taylor coefficients through order 6 (worst ~1e-17) and at x=1 has error ~3e-5, smaller than the degree-6 Taylor polynomial's ~2e-4; the ln(1+x) match is also exact (window.__pade.matchesSeries, .beatsTaylor).",
+  "fig":"No framing; the Padé linear solve, the series re-expansion, and the error comparison all run in-browser. The AVAN inverse is honest — instead of only adding powers, divide by them: a denominator whose zeros land on the function's poles, so the ratio survives where the sum explodes. Magenta is the Taylor polynomial diverging; green is the Padé holding through the singularity. Reach past the radius by dividing.",
+  "body":PADE_BODY,"script":PADE_SCRIPT},
+ {"slug":"the-barker","title":"THE BARKER CODE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#35ffb0","icon":"barker",
+  "kicker":"a ±1 code whose echoes never rise above one",
+  "blurb":"The Barker code in the 5-window house format — a finite sequence of +1s and −1s with an almost magical property: its aperiodic autocorrelation (slide a copy against itself and sum the products) has a tall central peak equal to the code length, and every off-centre value is at most 1 in magnitude. A receiver correlating an incoming signal against a Barker code sees a single sharp spike at alignment and almost nothing elsewhere — which is why they mark the start of radar pulses and Wi-Fi and GPS frames. Barker codes are known only for lengths 2,3,4,5,7,11,13, and it is conjectured none longer exist. Verified live: for each known Barker code the zero-shift autocorrelation equals its length, and every non-zero shift gives a value in {−1,0,+1}. Neon-noir traced. See the code and its autocorrelation in 1D, every shift listed in 2D, and the correlation-peak inverse in 3D.",
+  "lit":"Genuine Barker codes (Ronald Hugh Barker, 1953). Verified live: for every known Barker code (lengths 2,3,4,5,7,11,13) the zero-shift aperiodic autocorrelation equals the code length and every non-zero shift gives a value in {−1,0,+1} (window.__barker.sidelobesBounded, .lengths).",
+  "fig":"No framing; the autocorrelation at every shift runs in-browser. Honest scope: that no Barker code longer than 13 exists is a famous conjecture, not shown here. The AVAN inverse is honest — instead of reading the code, correlate against it: a Barker code is exactly the ±1 string whose autocorrelation is a lone spike with flat sidelobes. Magenta are the suppressed sidelobes; green is the peak equal to the length.",
+  "body":BARK_BODY,"script":BARK_SCRIPT},
+ {"slug":"the-difference-set","title":"THE DIFFERENCE SET","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE KONAMI CODE","domain_slug":"the-konami-code","accent":"#b06bff","icon":"diffset",
+  "kicker":"a set whose differences hit every target the same number of times",
+  "blurb":"The cyclic difference set in the 5-window house format — a small set of residues D in Z_v so perfectly arranged that every non-zero residue arises as a difference dᵢ−dⱼ (mod v) the same number of times, λ. A (v,k,λ)-difference set generates a symmetric block design: rotate D through all v shifts and you get v blocks where every pair of points meets in exactly λ blocks. The set {0,1,3} mod 7 is the smallest example — its six differences are exactly 1,2,3,4,5,6 each once — and it is nothing less than the Fano plane in disguise. Verified live: for several classical difference sets — (7,3,1), (13,4,1), (21,5,1), and the (11,5,2) Paley set — every non-zero residue appears exactly λ times among the differences, and a non-example is correctly rejected. Neon-noir traced. See the residue circle and its differences in 1D, the uniform histogram in 2D, and the differences-not-points inverse in 3D.",
+  "lit":"Genuine cyclic (v,k,λ)-difference sets (Singer, 1938; Paley construction; the (7,3,1) set is the Fano plane). Verified live: for (7,3,1), (13,4,1), (21,5,1) and the (11,5,2) Paley set every non-zero residue appears exactly λ times among the pairwise differences, and the non-example {0,1,2} mod 7 is correctly rejected (window.__diffset.allValid, .nonExampleRejected).",
+  "fig":"No framing; the full difference multiset and its uniformity check run in-browser. The AVAN inverse is honest — instead of listing the k residues, list the multiset of their pairwise differences: a difference set is exactly the set whose differences are perfectly uniform. Magenta are the difference vectors covering the circle; green are the chosen residues. A design hidden in the gaps between points.",
+  "body":DIFS_BODY,"script":DIFS_SCRIPT},
  {"slug":"the-konig","title":"THE KÖNIG","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#35ffb0","icon":"konig",
   "kicker":"a matching and a cover forced to be equal",
