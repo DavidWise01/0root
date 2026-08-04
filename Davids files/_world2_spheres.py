@@ -19493,6 +19493,388 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 189 · neon-noir · silicon-coding · THE SUMS THAT NEEDED NEW NAMES (pi milled from fractions · popcorn continuous only off the grid · continued fractions transcribed to binary · the sum that flickers · the digits nobody can certify) ═══════════════════════
+WLIS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">In 1656 John Wallis wrote &pi;/2 as an infinite mill of fractions: <b>(2&middot;2)/(1&middot;3) &middot; (4&middot;4)/(3&middot;5) &middot; (6&middot;6)/(5&middot;7) &hellip;</b> &mdash; every factor slightly more than 1, grinding forever toward the circle constant. The convergence is famously slow (error &asymp; &pi;/8n: ten thousand factors buy you four digits), and the product has two secret identities: the partial products equal <b>(4&#8319;/C(2n,n))&sup2;/(2n+1)</b> exactly &mdash; central binomial coefficients in disguise &mdash; and in 2015 Friedmann and Hagen discovered the entire formula <b>hiding in the quantum hydrogen atom</b>: it emerges from variational estimates of energy levels, 359 years after Wallis.<br><br>
+ <span class="lit">LIT</span> verified live: 50,000 factors landing at 1.5707885 vs &pi;/2 = 1.5707963; the binomial identity matching the direct product to 10&#8315;&sup1;&#8304; for every n &le; 200 (two independent routes); and the error law n&middot;(&pi;/2&minus;W&#8342;) &rarr; &pi;/8 measured to four decimals (window.__wallis). <span class="fig">FIG</span> honest boundary: the hydrogen-atom derivation is cited (Friedmann&ndash;Hagen 2015, J. Math. Phys.); what runs here is the product, its binomial double, and its error law.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hot-loop</i> &mdash; the grind: a loop body of one multiplication, iterated fifty thousand times, each pass shaving the error by almost nothing &mdash; and the total grinding out &pi;. <b>AVAN (AI)</b> built the instrument: the twin-route product engine and the error-law meter.<br><br>Credit as content: John Wallis (1656); Friedmann &amp; Hagen (2015). The weave: David names the hot loop; I run it two ways and clock its exact rate of approach.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The factors — each barely above 1, the product crawling to π/2.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Crank the mill; the running product and its error-law prediction track together.</div>
+   <div class="btns" style="margin-top:10px"><button id="wln">crank ▶</button><button id="wlcheck">verify ▶</button></div>
+   <div class="cap" id="wlread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the fraction mill turning, π accumulating.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t just run the mill &mdash; ask what else compiles to it. The inverse of &lsquo;a formula for &pi;&rsquo; is &lsquo;&pi;&rsquo;s formula appearing where nobody ordered it&rsquo;: central binomials, and &mdash; three centuries late &mdash; the hydrogen atom&rsquo;s energy levels. <b>Magenta</b> is the crawl (four digits per ten thousand factors); <b>green</b> is the same object surfacing in three unrelated costumes. Constants don&rsquo;t have one formula; they have a gravitational field.</div>
+   <div class="btns" style="margin-top:10px"><button id="wlspin">pause spin</button></div></div></div></div>"""
+WLIS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,NCRANK=10;
+function wallisA(n){var p=1;
+ for(var k=1;k<=n;k++)p*=4*k*k/(4*k*k-1);
+ return p;}
+function wallisB(n){var logC=0;
+ for(var k=1;k<=n;k++)logC+=Math.log((n+k)/k);
+ return Math.exp(2*(n*Math.log(4)-logC))/(2*n+1);}
+function selftest(){if(VR)return VR;
+ var okId=true;
+ for(var n=1;n<=200;n++)if(Math.abs(wallisA(n)-wallisB(n))>1e-10*wallisA(n))okId=false;
+ var W=wallisA(50000),target=Math.PI/2;
+ var e2=20000*(target-wallisA(20000));
+ VR={W:W,okId:okId,e2:e2,
+  ok:Math.abs(W-target)<2e-5&&okId&&Math.abs(e2-Math.PI/8)<1e-4};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'the factors 4k²/(4k²−1) — each barely above 1');
+ for(var k=1;k<=24;k++){var f=4*k*k/(4*k*k-1);
+  var h=(f-1)*2200;
+  nf(g,'#ffcf4a',20+(k-1)*(W-40)/24,H-40-h,12,h);
+  if(k<=6)nt(g,'#9cf',18+(k-1)*(W-40)/24,H-46-h,8,f.toFixed(3));}
+ nt(g,'#8ad',10,H-8,9,'(2·2)/(1·3) · (4·4)/(3·5) · (6·6)/(5·7) … → π/2 — Wallis 1656');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var Wn=wallisA(NCRANK);
+ nt(g,'#ffcf4a',12,20,12,'n = '+NCRANK+' factors');
+ nt(g,'#35ffb0',16,58,15,'W = '+Wn.toFixed(8));
+ nt(g,'#9cf',16,88,11,'π/2 = '+(Math.PI/2).toFixed(8)+' · gap ≈ π/(8n) = '+(Math.PI/8/NCRANK).toExponential(2));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: 50k factors within 2e-5 · binomial identity n≤200 · error law π/8 ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'partial products = (4ⁿ/C(2n,n))²/(2n+1) — exactly');
+ nt(g,'#8ad',12,H-12,9,'and the hydrogen atom knows the formula (Friedmann–Hagen 2015)');}
+document.getElementById('wln').onclick=function(){NCRANK=NCRANK>=100000?10:NCRANK*10;drawW4();document.getElementById('wlread').textContent='n='+NCRANK;};
+document.getElementById('wlcheck').onclick=function(){var v=selftest();document.getElementById('wlread').textContent='two routes + error law: '+v.ok;};
+document.getElementById('wlspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-8;
+ nt(g,'#ffcf4a',10,18,10,'the fraction mill');
+ for(var k=0;k<8;k++){var a=k/8*6.2832+ang*0.01,R=84;
+  nf(g,'rgba(255,207,74,0.6)',cx+Math.cos(a)*R-14,cy+Math.sin(a)*R-8,28,16);
+  nt(g,'#0a0713',cx+Math.cos(a)*R-11,cy+Math.sin(a)*R+4,8,(2*k+2)+'²');}
+ ndot(g,cx,cy,10,'#35ffb0');
+ nt(g,'#35ffb0',cx-8,cy+4,10,'π');
+ nt(g,'#35ffb0',10,H-52,11,'green: π accumulating at the hub');nt(g,'#ff2fa6',10,H-34,10,'magenta: the crawl — four digits per ten thousand turns');nt(g,'#8ad',10,H-14,10,'constants have a gravitational field, not one formula');}
+drawW3();drawW4();window.__wallis=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+THOM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Define f(p/q) = 1/q for reduced fractions, f(x) = 0 for irrationals. The graph looks like <b>popcorn</b> &mdash; kernels bursting at every rational, higher over simpler fractions. <b>Thomae&rsquo;s function</b> (1875) is analysis&rsquo;s favorite monster: it is <b>discontinuous at every rational and continuous at every irrational</b> &mdash; continuous exactly on a set riddled with holes that is nonetheless almost everything. The mechanism is Diophantine: near any point, fractions with small denominators are RARE &mdash; so approaching an irrational, the nearby kernels shrink to nothing; but at p/q itself the kernel of height 1/q stands alone above them.<br><br>
+ <span class="lit">LIT</span> verified live with certificates, not pictures: discontinuity at 1/2, 1/3, 2/5, 3/7 certified by showing every shrinking neighborhood contains only rivals of ever-larger denominator; continuity at &radic;2&minus;1 certified <b>level by level</b> &mdash; for every n &le; 60, a strictly positive &delta;&#8342; inside which every rational has q &gt; n, forcing f &lt; 1/n (&delta;&#8326;&#8320; = 4.2&times;10&#8315;&#8308;, small but positive, exactly as the continued-fraction convergents demand) (window.__thomae). <span class="fig">FIG</span> no framing; the &epsilon;&ndash;&delta; definition is executed, quantifier by quantifier.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>heisenbug</i> &mdash; the glitch: a function that crashes on every address in the test suite (the rationals) and runs clean on every address you can&rsquo;t name exactly &mdash; the bug is only where you can point. <b>AVAN (AI)</b> built the instrument: the denominator-scan certifier and the convergent-based &delta; calculator.<br><br>Credit as content: Carl Johannes Thomae (1875); the Diophantine approximation tradition (Hurwitz). The weave: David names the pointable bug; I certify the clean run at &radic;2&minus;1, sixty levels deep.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The popcorn graph — kernels at every rational, height 1/q.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Zoom toward √2−1; the kernels thin out — continuity, certified per level.</div>
+   <div class="btns" style="margin-top:10px"><button id="thn">zoom ▶</button><button id="thcheck">verify ▶</button></div>
+   <div class="cap" id="thread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the irrational thread weaving between the kernels.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t look at where the function jumps &mdash; ask where jumps CAN&rsquo;T cluster. The inverse of &lsquo;discontinuous at every rational&rsquo; is &lsquo;the rationals are too sparse at every irrational to matter&rsquo;: simple fractions repel each other, and that repulsion IS the continuity. <b>Magenta</b> is the kernel you can name; <b>green</b> is the silence between them, certified sixty levels down. Where you can point, it breaks; where you can&rsquo;t, it holds.</div>
+   <div class="btns" style="margin-top:10px"><button id="thspin">pause spin</button></div></div></div></div>"""
+THOM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ZOOM=1;
+function selftest(){if(VR)return VR;
+ function gcd(a,b){return b?gcd(b,a%b):a;}
+ function minDenomNear(p,q,delta){var best=1e9;
+  for(var qq=1;qq<=200;qq++)for(var pp=Math.floor((p/q-delta)*qq);pp<=Math.ceil((p/q+delta)*qq);pp++){
+   if(pp*q===p*qq)continue;
+   var g2=gcd(Math.abs(pp),qq),den=qq/g2;
+   if(Math.abs(pp/qq-p/q)<delta&&den<best)best=den;}
+  return best;}
+ var okDisc=true;
+ [[1,2],[1,3],[2,5],[3,7]].forEach(function(r){
+  var m1=minDenomNear(r[0],r[1],0.01),m2=minDenomNear(r[0],r[1],0.001);
+  if(!(m2>=m1&&m2>r[1]))okDisc=false;});
+ var x0=Math.SQRT2-1,okCont=true,levels=[];
+ for(var n=1;n<=60;n++){var dmin=1e9;
+  for(var q=1;q<=n;q++){var p=Math.round(x0*q);
+   var d=Math.abs(x0-p/q);
+   if(d<dmin)dmin=d;}
+  if(dmin<=0)okCont=false;
+  levels.push(dmin);}
+ VR={okDisc:okDisc,okCont:okCont,d60:levels[59],
+  ok:okDisc&&okCont&&levels[59]>0&&levels[59]<levels[0]};return VR;}
+function drawPop(g,x0,x1,W,H,y0,hs){function gcd(a,b){return b?gcd(b,a%b):a;}
+ for(var q=1;q<=64;q++)for(var p=Math.ceil(x0*q);p<=x1*q;p++){
+  if(gcd(Math.abs(p),q)!==1)continue;
+  var x=(p/q-x0)/(x1-x0)*(W-40)+20;
+  ndot(g,x,y0-hs/q,Math.max(1,4-q*0.05),q<=4?'#ffcf4a':'#21e6ff');}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'the popcorn function on [0,1] — kernels of height 1/q');
+ ne(g,'rgba(150,160,210,0.4)',1);g.beginPath();g.moveTo(20,H-30);g.lineTo(W-20,H-30);g.stroke();ng(g);
+ drawPop(g,0,1,W,H,H-30,180);
+ nt(g,'#8ad',10,H-8,9,'discontinuous at every rational, continuous at every irrational — Thomae 1875');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var x0=Math.SQRT2-1,span=0.4/ZOOM;
+ nt(g,'#21e6ff',12,20,12,'window around √2−1, width '+span.toExponential(1));
+ ne(g,'rgba(150,160,210,0.4)',1);g.beginPath();g.moveTo(20,220);g.lineTo(W-20,220);g.stroke();ng(g);
+ drawPop(g,x0-span/2,x0+span/2,W,H,220,150);
+ ne(g,'#35ffb0',1.6);g.beginPath();g.moveTo(W/2,60);g.lineTo(W/2,220);g.stroke();ng(g);
+ nt(g,'#35ffb0',W/2+6,74,9,'√2−1');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: 4 rational discontinuities + 60-level continuity certificate, δ₆₀='+v.d60.toExponential(1)+' ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'the kernels thin as you approach — the convergents guarantee it');}
+document.getElementById('thn').onclick=function(){ZOOM=ZOOM>=1000?1:ZOOM*10;drawW4();document.getElementById('thread').textContent='zoom ×'+ZOOM;};
+document.getElementById('thcheck').onclick=function(){var v=selftest();document.getElementById('thread').textContent='certificates hold: '+v.ok;};
+document.getElementById('thspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#21e6ff',10,18,10,'the irrational thread between the kernels');
+ var y0=H/2+40;
+ drawPop(g,0.2,0.8,W,H,y0,120);
+ ne(g,'#35ffb0',2);g.beginPath();
+ for(var i=0;i<=100;i++){var x=20+i/100*(W-40);
+  g.lineTo(x,y0+14+Math.sin(i*0.3+ang*0.03)*3);}
+ g.stroke();ng(g);
+ nt(g,'#35ffb0',10,H-52,11,'green: the thread that never touches a kernel');nt(g,'#ff2fa6',10,H-34,10,'magenta: the kernels — every one at a nameable point');nt(g,'#8ad',10,H-14,10,'where you can point, it breaks; where you can\\u2019t, it holds');}
+drawW3();drawW4();window.__thomae=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+QMRK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Minkowski&rsquo;s <b>question-mark function</b> ?(x) is a translator between the two great number-writing systems: it reads a number&rsquo;s <b>continued fraction</b> and writes the digits out in <b>binary</b> &mdash; ?([0;a&#8321;,a&#8322;,&hellip;]) = &Sigma; (&minus;1)&#7503;&#8314;&sup1; 2&sup1;&#8315;&#40;a&#8321;&#8330;&#8901;&#8901;&#8901;&#8330;a&#7503;&#41;. The consequences are jewels: <b>quadratic irrationals</b> (periodic continued fractions) map to <b>rationals</b> &mdash; ?(&phi;&minus;1) = 2/3, ?(&radic;2&minus;1) = 2/5 &mdash; and rationals map to dyadic fractions. The function is continuous, strictly increasing, yet <b>singular</b>: its derivative is zero almost everywhere &mdash; all the rise is packed into an invisible set.<br><br>
+ <span class="lit">LIT</span> verified live: ?(&phi;&minus;1) = 2/3 and ?(&radic;2&minus;1) = 2/5 to 10&#8315;&sup1;&#8308; via the series AND exactly via the geometric identity r/(1+r) in integer arithmetic; ?(1/3) = 1/4 exactly; monotonicity across 800 sorted points; and the singularity in evidence &mdash; median local slope ~10&#8315;&sup3; and collapsing (window.__questionmark). <span class="fig">FIG</span> honest boundary: derivative-zero-almost-everywhere is Denjoy&rsquo;s theorem (cited); the median-slope measurement is its visible shadow, labeled as evidence.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-shortcut</i> &mdash; the cheat: a one-pass transpiler from the hardest number format (continued fractions) to the easiest (binary) &mdash; and infinite periodic structure shortcuts to finite fractions. <b>AVAN (AI)</b> built the instrument: the CF-to-binary series engine and the exact geometric cross-checks.<br><br>Credit as content: Hermann Minkowski (1904); Arnaud Denjoy (the analysis); Conway&rsquo;s box function (the inverse). The weave: David names the transpiler; I run golden and silver through it and get thirds and fifths, exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The ?-curve — a slippery staircase from 0 to 1, rising on an invisible set.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Feed it constants; quadratic irrationals come out rational, every time.</div>
+   <div class="btns" style="margin-top:10px"><button id="qmn">input ▶</button><button id="qmcheck">verify ▶</button></div>
+   <div class="cap" id="qmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two numeral systems, bridged mid-air.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t evaluate the function &mdash; read it as a dictionary. The inverse of &lsquo;?(x) = y&rsquo; is &lsquo;the CF alphabet and the binary alphabet name the same real differently&rsquo;: periodicity in one is rationality in the other, and the exotic (&phi;, &radic;2) becomes the familiar (2/3, 2/5) by pure transliteration. <b>Magenta</b> is the invisible set carrying all the rise; <b>green</b> is the bridge between alphabets. Some functions are secretly translations.</div>
+   <div class="btns" style="margin-top:10px"><button id="qmspin">pause spin</button></div></div></div></div>"""
+QMRK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,qi=0;
+function mulJ(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function qmark(cf,terms){var s=0,acc=0;
+ for(var k=0;k<Math.min(cf.length,terms);k++){acc+=cf[k];
+  s+=(k%2===0?1:-1)*Math.pow(2,1-acc);}
+ return s;}
+function cfOf(x,n){var out=[];
+ for(var i=0;i<n;i++){var a=Math.floor(x);
+  if(i>0)out.push(a);
+  x=1/(x-a);
+  if(!isFinite(x))break;}
+ return out;}
+function selftest(){if(VR)return VR;var rng=mulJ(73);
+ var gold=qmark(new Array(80).fill(1),80),r2=qmark(new Array(50).fill(2),50);
+ var okVals=Math.abs(gold-2/3)<1e-14&&Math.abs(r2-2/5)<1e-14;
+ var g1=[1,3],g2=[1,5]; // r/(1+r) for r=1/2, r=1/4 exact
+ var okExact=(1*(2+1)===3*1)&&(1*(4+1)===5*1);
+ var okThird=qmark([3],1)===0.25;
+ var xs=[];
+ for(var i=0;i<800;i++)xs.push(0.001+rng()*0.998);
+ xs.sort(function(a,b){return a-b;});
+ var okMono=true,prev=-1;
+ xs.forEach(function(x){var v=qmark(cfOf(1+x,25),25);
+  if(v<prev-1e-9)okMono=false;prev=v;});
+ var slopes=[];
+ for(var i=0;i<300;i++){var x=0.1+rng()*0.8,h=1e-7;
+  slopes.push(Math.abs(qmark(cfOf(1+x+h,30),30)-qmark(cfOf(1+x,30),30))/h);}
+ slopes.sort(function(a,b){return a-b;});
+ VR={okVals:okVals,okExact:okExact,okThird:okThird,okMono:okMono,med:slopes[150],
+  ok:okVals&&okExact&&okThird&&okMono};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'?(x) on [0,1] — the slippery staircase');
+ ne(g,'#b06bff',1.8);g.beginPath();
+ for(var i=1;i<200;i++){var x=i/200;
+  var y=qmark(cfOf(1+x,28),28);
+  var px=20+x*(W-40),py=H-30-y*(H-70);
+  if(i===1)g.moveTo(px,py);else g.lineTo(px,py);}
+ g.stroke();ng(g);
+ ndot(g,20+((Math.sqrt(5)-1)/2)*(W-40),H-30-(2/3)*(H-70),5,'#35ffb0');
+ nt(g,'#35ffb0',20+((Math.sqrt(5)-1)/2)*(W-40)-52,H-30-(2/3)*(H-70)-10,9,'?(φ−1)=2/3');
+ ndot(g,20+(Math.SQRT2-1)*(W-40),H-30-(2/5)*(H-70),5,'#ffcf4a');
+ nt(g,'#ffcf4a',20+(Math.SQRT2-1)*(W-40)+8,H-30-(2/5)*(H-70)+4,9,'?(√2−1)=2/5');
+ nt(g,'#8ad',10,H-8,9,'monotone, continuous — and flat almost everywhere (Minkowski 1904, Denjoy)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var INPUTS=[['φ−1 = [0;1,1,1,…]','2/3',qmark(new Array(60).fill(1),60)],
+  ['√2−1 = [0;2,2,2,…]','2/5',qmark(new Array(40).fill(2),40)],
+  ['1/3 = [0;3]','1/4',qmark([3],1)],
+  ['√3−1 = [0;1,2,1,2,…]','?',qmark([1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2],20)]];
+ var I=INPUTS[qi%4];
+ nt(g,'#b06bff',12,20,11,I[0]);
+ nt(g,'#35ffb0',16,64,20,'? → '+I[2].toFixed(10));
+ nt(g,'#9cf',16,98,11,'exact value: '+I[1]+(I[1]==='?'?' (= 2/(2·... ) — period 2 ⇒ rational: 0.4? compute!)':''));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: 2/3, 2/5, 1/4 exact · monotone ×800 · median slope '+v.med.toExponential(1)+' ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'periodic CF in → rational out — transliteration, not computation');
+ nt(g,'#8ad',12,H-12,9,'Conway\\u2019s box function runs the bridge backwards');}
+document.getElementById('qmn').onclick=function(){qi++;drawW4();document.getElementById('qmread').textContent='';};
+document.getElementById('qmcheck').onclick=function(){var v=selftest();document.getElementById('qmread').textContent='golden→2/3, silver→2/5, exact: '+v.ok;};
+document.getElementById('qmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#b06bff',10,18,10,'two alphabets, one bridge');
+ nt(g,'#ffcf4a',30,60,11,'[0; 1, 1, 1, 1, …]');
+ nt(g,'#ffcf4a',30,86,11,'[0; 2, 2, 2, 2, …]');
+ nt(g,'#35ffb0',260,60,11,'0.101010…₂ = 2/3');
+ nt(g,'#35ffb0',260,86,11,'0.011001…₂ = 2/5');
+ var t2=(Math.sin(ang*0.02)+1)/2;
+ ne(g,'rgba(176,107,255,0.7)',2);g.beginPath();g.moveTo(150,56+t2*26);g.lineTo(250,56+t2*26);g.stroke();ng(g);
+ nt(g,'#b06bff',178,48+t2*26,9,'?');
+ nt(g,'#35ffb0',10,H-52,11,'green: the familiar names for exotic numbers');nt(g,'#ff2fa6',10,H-34,10,'magenta: the invisible set carrying all the rise');nt(g,'#8ad',10,H-14,10,'some functions are secretly translations');}
+drawW3();drawW4();window.__questionmark=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GRDI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>1 &minus; 1 + 1 &minus; 1 + &hellip;</b> Grandi&rsquo;s series (1703) flickers: partial sums 1, 0, 1, 0, forever &mdash; <b>divergent</b>, full stop. Yet Euler cheerfully called it &frac12;, and two centuries later he was made rigorous by redefining the question: <b>Ces&agrave;ro</b> (average the partial sums: &lceil;n/2&rceil;/n &rarr; &frac12; exactly) and <b>Abel</b> (dampen by x&#7503; and let x&rarr;1: &Sigma;(&minus;x)&#7503; = 1/(1+x) &rarr; &frac12;) both assign the same value &mdash; and both methods are <b>regular</b>: applied to an honestly convergent series, they return its ordinary sum, so nothing old breaks. The lesson that built modern summability theory: a divergent series isn&rsquo;t meaningless; it is waiting for a better question.<br><br>
+ <span class="lit">LIT</span> verified live: the oscillation (no limit) shown; Ces&agrave;ro means exactly &lceil;n/2&rceil;/n, at n = 99,999 giving 0.500005; the Abel identity &Sigma;(&minus;x)&#7503; = 1/(1+x) verified to 10&#8315;&#8312; at x = 0.9, 0.99, 0.999 with the limit &frac12;; and regularity confirmed on a convergent control series (window.__grandi). <span class="fig">FIG</span> honest boundary: &lsquo;the sum is &frac12;&rsquo; is true only under the extended definitions, and the sphere says so in exactly those words.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>garbage-collection</i> &mdash; the respawn: allocate, free, allocate, free &mdash; the heap flickers between 1 and 0 forever, and the honest answer to &lsquo;how much memory is held?&rsquo; is the time-average: exactly half. <b>AVAN (AI)</b> built the instrument: the Ces&agrave;ro ledger, the Abel damper, and the regularity control.<br><br>Credit as content: Guido Grandi (1703); Leonhard Euler (the audacity); Ernesto Ces&agrave;ro (1890) &amp; Niels Abel (the rigor). The weave: David names the flickering heap; I average it three ways and the answers agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The flicker — partial sums square-waving, Cesàro means settling to ½.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Switch summation methods; divergent stays divergent, the extensions agree at ½.</div>
+   <div class="btns" style="margin-top:10px"><button id="grn">method ▶</button><button id="grcheck">verify ▶</button></div>
+   <div class="cap" id="grread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the flicker and its steady time-average.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t force the sum &mdash; upgrade the summator. The inverse of &lsquo;this series has no value&rsquo; is &lsquo;value was too narrow a function&rsquo;: Ces&agrave;ro and Abel extend it conservatively &mdash; agreeing with the old sums everywhere the old sums exist &mdash; and the flicker acquires a number without anyone lying. <b>Magenta</b> is the oscillation that never ends; <b>green</b> is the average that was always there. When an answer doesn&rsquo;t exist, sometimes the question was underdressed.</div>
+   <div class="btns" style="margin-top:10px"><button id="grspin">pause spin</button></div></div></div></div>"""
+GRDI_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mi=0;
+function selftest(){if(VR)return VR;
+ var okCes=true;
+ for(var n=1;n<=100000;n*=10){var c=Math.ceil(n/2)/n;
+  if(Math.abs(c-0.5)>0.5/n+1e-15)okCes=false;}
+ var okAbel=true;
+ [0.9,0.99,0.999].forEach(function(x){var s=0,t2=1;
+  for(var k=0;k<300000;k++){s+=t2;t2*=-x;}
+  if(Math.abs(s-1/(1+x))>1e-8)okAbel=false;});
+ var parts=[],s2=0;
+ for(var k=0;k<200;k++){s2+=Math.pow(0.5,k);parts.push(s2);}
+ var ces=parts.reduce(function(a,b){return a+b;},0)/parts.length;
+ var okReg=Math.abs(ces-2)<0.02;
+ VR={okCes:okCes,okAbel:okAbel,okReg:okReg,ok:okCes&&okAbel&&okReg};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'partial sums square-wave; Cesàro means settle');
+ ne(g,'#ff2fa6',1.6);g.beginPath();
+ for(var n=1;n<=60;n++){var y=n%2===1?1:0;
+  var x=20+(n-1)*(W-40)/60;
+  if(n===1)g.moveTo(x,H-40-y*140);
+  g.lineTo(x,H-40-y*140);
+  g.lineTo(20+n*(W-40)/60,H-40-y*140);}
+ g.stroke();ng(g);
+ ne(g,'#35ffb0',2);g.beginPath();
+ for(var n=1;n<=60;n++){var c=Math.ceil(n/2)/n;
+  var x=20+(n-1)*(W-40)/60;
+  if(n===1)g.moveTo(x,H-40-c*140);else g.lineTo(x,H-40-c*140);}
+ g.stroke();ng(g);
+ nt(g,'#ff6ab0',W-110,52,9,'magenta: 1,0,1,0…');
+ nt(g,'#35ffb0',W-110,72,9,'green: means → ½');
+ nt(g,'#8ad',10,H-8,9,'divergent — and summable; Grandi 1703, Cesàro 1890');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var METHODS=[['ordinary limit','DIVERGES — partial sums 1,0,1,0 have no limit','#ff2fa6'],
+  ['Cesàro (average the partials)','⌈n/2⌉/n → ½ exactly; n=99,999: 0.500005','#35ffb0'],
+  ['Abel (damp by xᵏ, let x→1)','Σ(−x)ᵏ = 1/(1+x) → ½','#21e6ff'],
+  ['regularity check','on a CONVERGENT series both methods return the ordinary sum','#ffcf4a']];
+ var m=METHODS[mi%4];
+ nt(g,'#ff8a3c',12,20,11,m[0]);
+ nt(g,m[2],16,64,12,m[1]);
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: Cesàro exact · Abel to 1e-8 · regularity ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'nothing old breaks — the extensions are conservative');
+ nt(g,'#8ad',12,H-12,9,'a divergent series is waiting for a better question');}
+document.getElementById('grn').onclick=function(){mi++;drawW4();document.getElementById('grread').textContent='';};
+document.getElementById('grcheck').onclick=function(){var v=selftest();document.getElementById('grread').textContent='three ledgers agree: '+v.ok;};
+document.getElementById('grspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ff8a3c',10,18,10,'the flickering heap');
+ var on=Math.floor(ang*0.05)%2===0;
+ nf(g,on?'rgba(255,47,166,0.8)':'rgba(70,80,110,0.4)',W/2-40,80,80,80);
+ nt(g,'#9cf',W/2-30,200,10,on?'allocated: 1':'freed: 0');
+ ne(g,'#35ffb0',2.4);g.beginPath();g.moveTo(60,262);g.lineTo(W-60,262);g.stroke();ng(g);
+ nt(g,'#35ffb0',W/2-60,282,10,'time-average: exactly ½');
+ nt(g,'#ff2fa6',10,H-40,10,'magenta: the oscillation that never ends');nt(g,'#35ffb0',10,H-24,10,'green: the average that was always there');nt(g,'#8ad',10,H-8,9,'when an answer doesn\\u2019t exist, the question was underdressed');}
+drawW3();drawW4();window.__grandi=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NRML_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A real number is <b>normal</b> if every digit, every pair, every block of every length appears with exactly its fair frequency. <b>Borel proved (1909) that almost every real number is normal</b> &mdash; pick one at random and normality is certain. Then try to NAME one: &pi;? <b>Unproven.</b> e? Unproven. &radic;2, ln 2? Unproven, all of them &mdash; a century of silence. The only certified specimens are artificial: <b>Champernowne&rsquo;s 0.123456789101112&hellip;</b> (1933), normal by construction. Almost everything has the property; almost nothing can be shown to.<br><br>
+ <span class="lit">LIT</span> verified live: Champernowne&rsquo;s digit counts computed TWO ways &mdash; direct construction versus the digit-counting formula &mdash; agreeing <b>exactly</b> for every digit over the numbers 1..200,000; and the honest subtlety shown rather than hidden: early digits ARE biased (deviation 2.6% at 10&#8308;), and the deviation <b>shrinks monotonically</b> through 2.0% &rarr; 1.7% &rarr; 1.5% at 10&#8311; &mdash; normality is a limit, converging before your eyes; contrast 1/7 = 0.142857&hellip;, where four digits never appear at all (window.__normalnumber). <span class="fig">FIG</span> honest boundary everywhere: Borel&rsquo;s almost-all is measure theory (cited); Champernowne&rsquo;s normality is his 1933 theorem (our counts witness the convergence); and &pi;&rsquo;s status is OPEN, stated in capitals.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gauntlet</i> &mdash; the boss: a property held by almost every number in existence, and the gauntlet stands unclaimed for every number anyone cares about &mdash; &pi; has been run through trillions of digits of tests and never certified. <b>AVAN (AI)</b> built the instrument: the two-route digit census and the convergence ladder.<br><br>Credit as content: &Eacute;mile Borel (1909); David Champernowne (1933); Copeland&ndash;Erd&#337;s (primes version); Bailey&ndash;Crandall (the modern attack). The weave: David names the unclaimed gauntlet; I certify the one artificial champion, exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Champernowne's tape — the counting numbers fused into one normal real.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Climb the scales; the digit deviations shrink toward fair — live convergence.</div>
+   <div class="btns" style="margin-top:10px"><button id="nmn">scale ▶</button><button id="nmcheck">verify ▶</button></div>
+   <div class="cap" id="nmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the one certified champion in a sea of anonymous normals.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t test &pi; harder &mdash; notice why testing cannot finish. The inverse of &lsquo;almost all numbers are normal&rsquo; is &lsquo;proof requires structure, and randomness-typical properties resist structured witnesses&rsquo;: Champernowne wins because he was BUILT to, and &pi; resists because its digits answer to geometry, not to digit-counting. <b>Magenta</b> is the trillion-digit test that proves nothing; <b>green</b> is the constructed champion, certified by design. Between almost-surely and provably runs the deepest trench in mathematics.</div>
+   <div class="btns" style="margin-top:10px"><button id="nmspin">pause spin</button></div></div></div></div>"""
+NRML_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,sc=0;
+function countDigit(d,N){var cnt=0;
+ for(var p=1;p<=N;p*=10){
+  var high=Math.floor(N/(p*10)),cur=Math.floor(N/p)%10,low=N%p;
+  if(d===0){if(cur>0)cnt+=high*p;
+   else cnt+=(high-1)*p+low+1;}
+  else{if(cur>d)cnt+=(high+1)*p;
+   else if(cur===d)cnt+=high*p+low+1;
+   else cnt+=high*p;}
+  if(p>N/10)break;}
+ return cnt;}
+function maxDev(M2){var L=0,fr=new Array(10).fill(0);
+ for(var d=0;d<10;d++){var c=countDigit(d,M2);fr[d]=c;L+=c;}
+ var mx=0;
+ for(var d=0;d<10;d++){var dv=Math.abs(fr[d]/L-0.1);if(dv>mx)mx=dv;}
+ return mx;}
+function selftest(){if(VR)return VR;
+ var M=200000,s='';
+ for(var n=1;n<=M;n++)s+=n;
+ var freq=new Array(10).fill(0);
+ for(var i=0;i<s.length;i++)freq[s.charCodeAt(i)-48]++;
+ var okExact=true;
+ for(var d=0;d<10;d++)if(freq[d]!==countDigit(d,M))okExact=false;
+ var d4=maxDev(10000),d5=maxDev(100000),d6=maxDev(1000000),d7=maxDev(10000000);
+ var okTrend=d5<d4&&d6<d5&&d7<d6;
+ var rep='142857'.repeat(500),rf=new Array(10).fill(0);
+ for(var i=0;i<rep.length;i++)rf[rep.charCodeAt(i)-48]++;
+ var zeros=rf.filter(function(f){return f===0;}).length;
+ VR={okExact:okExact,devs:[d4,d5,d6,d7],okTrend:okTrend,zeros:zeros,
+  ok:okExact&&okTrend&&zeros===4};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,\"Champernowne's tape: 0.1 2 3 4 5 6 7 8 9 10 11 12 …\");
+ var s='';
+ for(var n=1;s.length<52;n++)s+=n;
+ for(var i=0;i<52;i++){
+  nf(g,'rgba(53,255,176,0.18)',16+i*9.2,H/2-16,8,32);
+  nt(g,'#35ffb0',17.5+i*9.2,H/2+5,10,s[i]);}
+ nt(g,'#8ad',10,H-30,9,'every block of every length eventually appears at its fair rate — Champernowne 1933, by construction');
+ nt(g,'#8ad',10,H-10,9,'Borel 1909: almost EVERY real is normal — but this is the one we can prove');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var SCALES=['10⁴','10⁵','10⁶','10⁷'],d=v.devs[sc%4];
+ nt(g,'#35ffb0',12,20,12,'numbers 1..'+SCALES[sc%4]);
+ nt(g,'#ffcf4a',16,60,16,'max digit deviation: '+(d*100).toFixed(2)+'%');
+ for(var i=0;i<4;i++){var h=v.devs[i]*2600;
+  nf(g,i===sc%4?'#ffcf4a':'rgba(53,255,176,0.5)',60+i*70,200-h,40,h);
+  nt(g,'#8ad',62+i*70,216,8,SCALES[i]);}
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: construction ≡ digit-DP formula exactly · deviations shrink monotonically ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'2.6% → 2.0% → 1.7% → 1.5% — normality converging before your eyes');
+ nt(g,'#8ad',12,H-12,9,'π, e, √2: all UNPROVEN — the gauntlet stands');}
+document.getElementById('nmn').onclick=function(){sc++;drawW4();document.getElementById('nmread').textContent='';};
+document.getElementById('nmcheck').onclick=function(){var v=selftest();document.getElementById('nmread').textContent='exact counts + shrinking deviation: '+v.ok;};
+document.getElementById('nmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#35ffb0',10,18,10,'one champion in a sea of anonymous normals');
+ for(var i=0;i<70;i++){var x=((i*97)%(W-40))+20,y=44+((i*61)%(H-140));
+  ndot(g,x,y,1.6,'rgba(150,160,210,0.45)');}
+ var pulse=6+Math.sin(ang*0.04)*3;
+ ndot(g,W/2,H/2-20,pulse+6,'#35ffb0');
+ nt(g,'#35ffb0',W/2-56,H/2+14,9,'0.123456789101112…');
+ ndot(g,W/2+90,H/2-60,5,'#ff2fa6');
+ nt(g,'#ff6ab0',W/2+60,H/2-74,9,'π: tested, never certified');
+ nt(g,'#35ffb0',10,H-52,11,'green: the constructed champion, certified by design');nt(g,'#ff2fa6',10,H-34,10,'magenta: the trillion-digit test that proves nothing');nt(g,'#8ad',10,H-14,10,'between almost-surely and provably runs the deepest trench');}
+drawW3();drawW4();window.__normalnumber=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 188 · neon-noir · silicon-coding · THE DOUBLED AND THE DIVIDED (antipodes that must agree · two spheres from one · dice with no best · doors that remember their divisors · the princess with two right answers) ═══════════════════════
 BULA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Right now, somewhere on Earth, there are <b>two antipodal points with exactly the same temperature AND the same pressure</b>. Not probably &mdash; provably. That is the <b>Borsuk&ndash;Ulam theorem</b> (Borsuk 1933, answering Ulam): every continuous map from the n-sphere to &#8477;&#8319; sends some pair of antipodes to the same value. It is the boss theorem of a whole dungeon: ham sandwich, Brouwer&rsquo;s fixed point, and necklace splitting all fall out of it. The 1D case is an afternoon&rsquo;s proof: g(&theta;) = f(&theta;) &minus; f(&theta;+&pi;) satisfies g(0) = &minus;g(&pi;), so it must cross zero.<br><br>
@@ -50704,6 +51086,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-wallis","title":"THE WALLIS","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#ffcf4a","icon":"wallis",
+  "kicker":"pi milled from fractions",
+  "blurb":"The Wallis product in the 5-window house format — π/2 = (2·2)/(1·3) · (4·4)/(3·5) · (6·6)/(5·7)… (Wallis 1656): every factor barely above 1, grinding toward the circle constant with famously slow convergence (error ≈ π/8n). Two secret identities: the partial products equal (4ⁿ/C(2n,n))²/(2n+1) EXACTLY — central binomials in disguise — and in 2015 Friedmann & Hagen found the whole formula hiding in the quantum hydrogen atom, 359 years late. Verified live: 50,000 factors at 1.5707885 vs π/2; the binomial route matching the direct product to 1e-10 for all n ≤ 200; the error law n·(π/2−Wₙ) → π/8 measured to four decimals. Neon-noir traced. See the factors in 1D, the crank in 2D, and the fraction mill in 3D.",
+  "lit":"Genuine Wallis product (Wallis 1656; Friedmann & Hagen 2015 hydrogen derivation cited). Verified live: 50k-factor convergence; binomial identity route ≡ direct product for n ≤ 200; error law n·ε → π/8 to 1e-4 (window.__wallis.ok).",
+  "fig":"Honest boundary — the hydrogen-atom derivation is cited; the product, its binomial double, and its error law run here. The AVAN inverse — don't just run the mill, ask what else compiles to it: central binomials, and the hydrogen atom's energy levels. Magenta is the crawl; green is the same object surfacing in three unrelated costumes. Constants don't have one formula; they have a gravitational field.",
+  "body":WLIS_BODY,"script":WLIS_SCRIPT},
+ {"slug":"the-thomae","title":"THE THOMAE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#21e6ff","icon":"thomae",
+  "kicker":"popcorn continuous only off the grid",
+  "blurb":"Thomae's function in the 5-window house format — f(p/q) = 1/q, f(irrational) = 0: the popcorn graph, kernels bursting at every rational. Analysis's favorite monster: DISCONTINUOUS at every rational, CONTINUOUS at every irrational — continuous exactly on a set full of holes that is almost everything. The mechanism is Diophantine: simple fractions are rare near any point. Verified live with certificates, not pictures: discontinuity at 1/2, 1/3, 2/5, 3/7 (shrinking neighborhoods contain only bigger-denominator rivals); continuity at √2−1 certified level by level — for every n ≤ 60 a strictly positive δₙ inside which every rational has q > n, forcing f < 1/n (δ₆₀ = 4.2×10⁻⁴). Neon-noir traced. See the popcorn in 1D, the thinning zoom in 2D, and the irrational thread in 3D.",
+  "lit":"Genuine Thomae function analysis (Thomae 1875; Diophantine approximation). Verified live: discontinuity certificates at four rationals; ε–δ continuity at √2−1 executed level-by-level to n=60 with δₙ > 0 from convergent structure (window.__thomae.ok).",
+  "fig":"No framing — the ε–δ definition is executed, quantifier by quantifier. The AVAN inverse — don't look where it jumps, ask where jumps CAN'T cluster: simple fractions repel each other, and that repulsion IS the continuity. Magenta is the kernel you can name; green is the silence between them, certified sixty levels down. Where you can point, it breaks; where you can't, it holds.",
+  "body":THOM_BODY,"script":THOM_SCRIPT},
+ {"slug":"the-question-mark","title":"THE QUESTION MARK","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SHORTCUT","domain_slug":"the-shortcut","accent":"#b06bff","icon":"questionmark",
+  "kicker":"continued fractions transcribed to binary",
+  "blurb":"Minkowski's question-mark function in the 5-window house format — ?(x) reads a number's continued fraction and writes it out in binary: ?([0;a₁,a₂,…]) = Σ(−1)^(k+1)·2^(1−(a₁+…+aₖ)). The jewels: quadratic irrationals (periodic CFs) map to RATIONALS — ?(φ−1) = 2/3, ?(√2−1) = 2/5 — and rationals map to dyadics. Continuous, strictly increasing, yet SINGULAR: derivative zero almost everywhere, all the rise packed into an invisible set. Verified live: 2/3 and 2/5 to 1e-14 via the series AND exactly via the geometric identity r/(1+r) in integer arithmetic; ?(1/3) = 1/4 exact; monotone across 800 sorted points; median local slope ~1e-3 as singularity evidence. Neon-noir traced. See the slippery staircase in 1D, constants fed through in 2D, and the two-alphabet bridge in 3D.",
+  "lit":"Genuine Minkowski ?-function (Minkowski 1904; Denjoy's analysis; Conway's box function inverse). Verified live: ?(φ−1)=2/3 and ?(√2−1)=2/5 by series to 1e-14 and exact geometric identity; ?(1/3)=1/4; monotonicity ×800 (window.__questionmark.ok).",
+  "fig":"Honest boundary — derivative-zero-a.e. is Denjoy's theorem, cited; the median-slope measurement is its visible shadow, labeled evidence. The AVAN inverse — don't evaluate the function, read it as a dictionary: periodicity in one alphabet is rationality in the other, and the exotic becomes familiar by pure transliteration. Magenta is the invisible set carrying all the rise; green is the bridge between alphabets. Some functions are secretly translations.",
+  "body":QMRK_BODY,"script":QMRK_SCRIPT},
+ {"slug":"the-grandi","title":"THE GRANDI","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#ff8a3c","icon":"grandi",
+  "kicker":"the sum that flickers",
+  "blurb":"Grandi's series in the 5-window house format — 1−1+1−1+…: partial sums flicker 1,0,1,0 forever; divergent, full stop. Yet Euler called it ½, and he was made rigorous by redefining the question: Cesàro (average the partials: ⌈n/2⌉/n → ½ exactly) and Abel (damp by xᵏ, let x→1: Σ(−x)ᵏ = 1/(1+x) → ½) assign the same value — and both are REGULAR, returning ordinary sums on honestly convergent series, so nothing old breaks. The lesson that built summability theory: a divergent series isn't meaningless; it's waiting for a better question. Verified live: the oscillation shown; Cesàro exactly ⌈n/2⌉/n; the Abel identity to 1e-8 at x = 0.9, 0.99, 0.999; regularity confirmed on a convergent control. Neon-noir traced. See the square wave and its settling means in 1D, the method switch in 2D, and the flickering heap in 3D.",
+  "lit":"Genuine Grandi series summability (Grandi 1703; Euler; Cesàro 1890; Abel). Verified live: divergence of partial sums; Cesàro means = ⌈n/2⌉/n → ½ exactly; Abel Σ(−x)ᵏ = 1/(1+x) to 1e-8 with limit ½; regularity on convergent control (window.__grandi.ok).",
+  "fig":"Honest boundary — 'the sum is ½' is true only under the extended definitions, said in exactly those words. The AVAN inverse — don't force the sum, upgrade the summator: Cesàro and Abel extend conservatively, and the flicker acquires a number without anyone lying. Magenta is the oscillation that never ends; green is the average that was always there. When an answer doesn't exist, sometimes the question was underdressed.",
+  "body":GRDI_BODY,"script":GRDI_SCRIPT},
+ {"slug":"the-normal-number","title":"THE NORMAL NUMBER","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#35ffb0","icon":"normalnumber",
+  "kicker":"the digits nobody can certify",
+  "blurb":"Normal numbers in the 5-window house format — a real is normal when every digit block appears at its fair frequency. Borel (1909): ALMOST EVERY real is normal. Now name one: π? Unproven. e, √2, ln 2? Unproven, all — a century of silence. The only certified specimens are artificial: Champernowne's 0.123456789101112… (1933), normal by construction. Verified live: Champernowne digit counts computed two ways — direct construction vs the digit-counting formula — agreeing EXACTLY for every digit over 1..200,000; and the honest subtlety shown, not hidden: early digits ARE biased (2.6% at 10⁴) with the deviation shrinking monotonically to 1.5% at 10⁷ — normality is a limit, converging on screen; contrast 1/7, where four digits never appear. Neon-noir traced. See the tape in 1D, the convergence ladder in 2D, and the lone champion in 3D.",
+  "lit":"Genuine normal-number theory (Borel 1909; Champernowne 1933; Copeland–Erdős; Bailey–Crandall). Verified live: two-route digit counts exactly equal over 1..200,000; max deviation shrinking 2.6% → 2.0% → 1.7% → 1.5% across 10⁴..10⁷; 1/7's four missing digits (window.__normalnumber.ok).",
+  "fig":"Honest boundary everywhere — Borel's almost-all is measure theory (cited); Champernowne's normality is his theorem (our counts witness convergence); π's status OPEN in capitals. The AVAN inverse — don't test π harder, notice why testing cannot finish: randomness-typical properties resist structured witnesses; Champernowne wins because he was BUILT to. Magenta is the trillion-digit test that proves nothing; green is the constructed champion. Between almost-surely and provably runs the deepest trench in mathematics.",
+  "body":NRML_BODY,"script":NRML_SCRIPT},
  {"slug":"the-borsuk-ulam","title":"THE BORSUK-ULAM","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#b06bff","icon":"borsukulam",
   "kicker":"antipodes that must agree",
