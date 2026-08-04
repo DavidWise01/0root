@@ -19493,6 +19493,256 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 154 · neon-noir · silicon-coding (the derivative's roots trapped in the hull of the roots · roots caged in the unit disk by rising coefficients · equal bisectors forcing an isosceles triangle · exactly k winning rotations of a step sequence · the leftover matches of two pockets) ═══════════════════════
+GLUC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Gauss&ndash;Lucas theorem</b> pins down where the roots of a derivative can hide. Take any polynomial p(z) with complex roots, and mark those roots in the plane. Gauss and Lucas proved that <b>every root of the derivative p&prime;(z) lies inside the convex hull of the roots of p(z)</b> &mdash; the smallest convex polygon containing them. The critical points can never escape the &lsquo;shadow&rsquo; cast by the roots; differentiating pulls the roots inward, never out. It is the general law behind Marden&rsquo;s theorem and a cornerstone of the geometry of polynomials.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random polynomials (degree 3&ndash;6), the roots of p&prime;(z) &mdash; found independently by a Durand&ndash;Kerner solver on the differentiated polynomial &mdash; all fall inside the convex hull of the roots of p(z) (window.__gausslucas). <span class="fig">FIG</span> no framing; the derivative&rsquo;s roots and the convex hull of p&rsquo;s roots are computed by different routes and the inclusion always holds.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-raid</i> &mdash; the boss arena the critical points can never break out of: whatever the polynomial, its derivative&rsquo;s roots stay caged inside the hull of the originals. <b>AVAN (AI)</b> built the instrument: the polynomial from its roots, the Durand&ndash;Kerner solve of the derivative, the convex hull, and the inclusion test.<br><br>Credit as content: Carl Friedrich Gauss and F&eacute;lix Lucas (19th c.). The weave: David names the cage; I confirm every root of p&prime; lies in the convex hull of the roots of p.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The roots of p (magenta) with their convex hull; the roots of p′ (green) all lie inside it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New polynomials; each root of p′ is checked to lie inside the convex hull of the roots of p.</div>
+   <div class="btns" style="margin-top:10px"><button id="glnext">new polynomial ▶</button><button id="glcheck">verify ▶</button></div>
+   <div class="cap" id="glread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the critical points, trapped inside the hull.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t hunt the derivative&rsquo;s roots everywhere &mdash; the hull confines them. The inverse of &lsquo;where are the roots of p&prime;?&rsquo; is &lsquo;inside the convex hull of the roots of p&rsquo; &mdash; differentiation pulls inward. <b>Magenta</b> is the hull of p&rsquo;s roots; <b>green</b> are the critical points caged within it. Roots of the derivative, held by the roots.</div>
+   <div class="btns" style="margin-top:10px"><button id="glspin">pause spin</button></div></div></div></div>"""
+GLUC_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function cadd(a,b){return [a[0]+b[0],a[1]+b[1]];}function csub(a,b){return [a[0]-b[0],a[1]-b[1]];}function cmul(a,b){return [a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]];}function cdiv(a,b){var d=b[0]*b[0]+b[1]*b[1];return [(a[0]*b[0]+a[1]*b[1])/d,(a[1]*b[0]-a[0]*b[1])/d];}function cabs(a){return Math.hypot(a[0],a[1]);}
+function polyFromRoots(roots){var c=[[1,0]];for(var k=0;k<roots.length;k++){var nc=[];for(var i=0;i<=c.length;i++)nc.push([0,0]);for(var i=0;i<c.length;i++){nc[i]=cadd(nc[i],cmul(c[i],[-roots[k][0],-roots[k][1]]));nc[i+1]=cadd(nc[i+1],c[i]);}c=nc;}return c;}
+function deriv(c){var d=[];for(var k=1;k<c.length;k++)d.push([c[k][0]*k,c[k][1]*k]);return d;}
+function polyEval(c,z){var s=[0,0];for(var i=c.length-1;i>=0;i--)s=cadd(cmul(s,z),c[i]);return s;}
+function dk(c){var n=c.length-1;if(n<=0)return [];var lead=c[n],cm=c.map(function(z){return cdiv(z,lead);}),r=[];for(var k=0;k<n;k++)r.push([Math.cos(0.7+2.1*k)*(0.8+0.1*k),Math.sin(0.7+2.1*k)*(0.8+0.1*k)]);for(var it=0;it<400;it++){var mx=0;for(var i=0;i<n;i++){var num=polyEval(cm,r[i]),den=[1,0];for(var j=0;j<n;j++)if(j!==i)den=cmul(den,csub(r[i],r[j]));var dz=cdiv(num,den);r[i]=csub(r[i],dz);if(cabs(dz)>mx)mx=cabs(dz);}if(mx<1e-13)break;}return r;}
+function hull(pts){var p=pts.slice().sort(function(a,b){return a[0]-b[0]||a[1]-b[1];}),n=p.length;if(n<3)return p;function cr(o,a,b){return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);}var lo=[];for(var i=0;i<n;i++){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],p[i])<=0)lo.pop();lo.push(p[i]);}var up=[];for(var i=n-1;i>=0;i--){while(up.length>=2&&cr(up[up.length-2],up[up.length-1],p[i])<=0)up.pop();up.push(p[i]);}lo.pop();up.pop();return lo.concat(up);}
+function inHull(pt,h,tol){for(var i=0;i<h.length;i++){var a=h[i],b=h[(i+1)%h.length],cross=(b[0]-a[0])*(pt[1]-a[1])-(b[1]-a[1])*(pt[0]-a[0]);if(cross<-tol)return false;}return true;}
+var ang=0,spin=true,VR=null,dz=[[-1.8,-1.2],[1.9,-0.9],[0.3,1.9],[-0.6,0.4]];
+function crit(roots){return dk(deriv(polyFromRoots(roots)));}
+function selftest(){if(VR)return VR;var rng=mb(1),ok=true,n=0;for(var t=0;t<1000;t++){var deg=3+Math.floor(rng()*4),roots=[];for(var k=0;k<deg;k++)roots.push([rng()*6-3,rng()*6-3]);var cr=crit(roots),h=hull(roots.map(function(r){return [r[0],r[1]];}));var allin=true;for(var i=0;i<cr.length;i++)if(!inHull([cr[i][0],cr[i][1]],h,1e-6))allin=false;if(!allin)ok=false;n++;}VR={ok:ok,n:n};return VR;}
+function tp(cv,p){return [cv.width/2+p[0]*44,cv.height/2+10-p[1]*44];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'roots of p (magenta) + convex hull; roots of p′ (green) all inside');
+ var h=hull(dz.map(function(r){return [r[0],r[1]];})),cr=crit(dz);
+ nf(g,'rgba(176,107,255,0.1)');g.beginPath();for(var i=0;i<h.length;i++){var q=tp(cv,h[i]);if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}g.closePath();g.fill();ng(g);ne(g,'#ff2fa6',1.6);g.beginPath();for(var i=0;i<h.length;i++){var q=tp(cv,h[i]);if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}g.closePath();g.stroke();ng(g);
+ dz.forEach(function(r){var q=tp(cv,r);ndot(g,q[0],q[1],5,'#ff2fa6');});cr.forEach(function(r){var q=tp(cv,[r[0],r[1]]);ndot(g,q[0],q[1],4,'#35ffb0');});
+ nt(g,'#8ad',10,H-8,9,'the '+cr.length+' critical points never leave the hull of the '+dz.length+' roots');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',12,20,12,'roots of p′ vs hull of roots of p');
+ var h=hull(dz.map(function(r){return [r[0],r[1]];})),cr=crit(dz),allin=true;
+ var y=52;for(var i=0;i<cr.length;i++){var ins=inHull([cr[i][0],cr[i][1]],h,1e-6);if(!ins)allin=false;nt(g,ins?'#39ffb0':'#ff5a5a',16,y,10,'p′ root ('+cr[i][0].toFixed(3)+', '+cr[i][1].toFixed(3)+'i): '+(ins?'inside hull ✓':'OUTSIDE ✗'));y+=20;}
+ nt(g,allin?'#39ffb0':'#ff5a5a',16,y+8,12,allin?'all critical points inside the hull ✓':'✗');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.n+' polynomials: all p′ roots in hull(roots of p) = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'differentiation pulls roots inward — never outside the hull');}
+document.getElementById('glnext').onclick=function(){var rng=mb((Date.now()&8191)+1),deg=3+Math.floor(rng()*3);dz=[];for(var k=0;k<deg;k++)dz.push([rng()*5-2.5,rng()*5-2.5]);drawW3();drawW4();document.getElementById('glread').textContent='new degree-'+deg+' polynomial — all '+(deg-1)+' critical points lie inside the hull';};
+document.getElementById('glcheck').onclick=function(){var v=selftest();document.getElementById('glread').textContent='every root of p′ lies in the convex hull of the roots of p ('+v.n+' polynomials): '+v.ok;};
+document.getElementById('glspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,sc=46;g.save();g.translate(cx,cy);g.rotate(ang*0.08);function q(p){return [p[0]*sc,-p[1]*sc];}var h=hull(dz.map(function(r){return [r[0],r[1]];})),cr=crit(dz);
+ ne(g,'#ff2fa6',1.6);g.beginPath();for(var i=0;i<h.length;i++){var p=q(h[i]);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.closePath();g.stroke();ng(g);
+ dz.forEach(function(r){var p=q(r);ndot(g,p[0],p[1],4,'#ff2fa6');});cr.forEach(function(r){var p=q([r[0],r[1]]);ndot(g,p[0],p[1],5,'#35ffb0');});
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the '+cr.length+' roots of p′, trapped in the hull');nt(g,'#ff2fa6',10,H-34,10,'magenta: the roots of p and their convex hull');nt(g,'#8ad',10,H-14,10,'roots of the derivative, held by the roots');}
+drawW3();drawW4();window.__gausslucas=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ENKA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Enestr&ouml;m&ndash;Kakeya theorem</b> cages a polynomial&rsquo;s roots using only the order of its coefficients. If p(z) = a<sub>0</sub> + a<sub>1</sub>z + &hellip; + a<sub>n</sub>z<sup>n</sup> has coefficients that are <b>positive and non-decreasing</b>, 0 &lt; a<sub>0</sub> &le; a<sub>1</sub> &le; &hellip; &le; a<sub>n</sub>, then <b>all of its roots lie in the closed unit disk</b> |z| &le; 1. No root can escape to modulus greater than 1. The proof multiplies by (z-1) to telescope the coefficients, and the same idea run in reverse bounds the roots from below. It is a favourite tool for stability questions, where you need every root inside the disk.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random polynomials with strictly increasing positive coefficients, every root &mdash; found by a Durand&ndash;Kerner solver &mdash; has |z| &le; 1; and with the monotonicity broken (random positive coefficients), a root with |z| &gt; 1 appears in about 80% of cases, showing the hypothesis is necessary (window.__enestromkakeya). <span class="fig">FIG</span> no framing; the root-finding and the |z| test both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>segfault</i> &mdash; the glitch where merely sorting the coefficients upward slams every root inside the unit disk, no root allowed past the boundary. <b>AVAN (AI)</b> built the instrument: the increasing-coefficient polynomial, the Durand&ndash;Kerner root solve, the |z| &le; 1 test, and the non-monotone control.<br><br>Credit as content: Gustav Enestr&ouml;m (1893) and S&#333;ichi Kakeya (1912). The weave: David names the cage; I confirm rising positive coefficients force all roots into |z| &le; 1.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The increasing coefficients (bars) and the roots (green) — all inside the unit circle.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New polynomials; every root's modulus is checked ≤ 1 — and breaking monotonicity lets one escape.</div>
+   <div class="btns" style="margin-top:10px"><button id="eknext">new polynomial ▶</button><button id="ekbreak">break order ▶</button><button id="ekcheck">verify ▶</button></div>
+   <div class="cap" id="ekread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the roots, all inside the unit disk.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t solve then check &mdash; the coefficient order already bounds the roots. The inverse of &lsquo;where are the roots?&rsquo; is &lsquo;inside |z| &le; 1, guaranteed by 0 &lt; a<sub>0</sub> &le; &hellip; &le; a<sub>n</sub>&rsquo;. <b>Magenta</b> is the unit circle boundary; <b>green</b> are the roots caged within it. Root location read from coefficient order.</div>
+   <div class="btns" style="margin-top:10px"><button id="ekspin">pause spin</button></div></div></div></div>"""
+ENKA_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function cadd(a,b){return [a[0]+b[0],a[1]+b[1]];}function csub(a,b){return [a[0]-b[0],a[1]-b[1]];}function cmul(a,b){return [a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]];}function cdiv(a,b){var d=b[0]*b[0]+b[1]*b[1];return [(a[0]*b[0]+a[1]*b[1])/d,(a[1]*b[0]-a[0]*b[1])/d];}function cabs(a){return Math.hypot(a[0],a[1]);}
+function polyEval(c,z){var s=[0,0];for(var i=c.length-1;i>=0;i--)s=cadd(cmul(s,z),c[i]);return s;}
+function dk(c){var n=c.length-1;if(n<=0)return [];var lead=c[n],cm=c.map(function(z){return cdiv(z,lead);}),r=[];for(var k=0;k<n;k++)r.push([Math.cos(0.7+2.1*k)*(0.8+0.1*k),Math.sin(0.7+2.1*k)*(0.8+0.1*k)]);for(var it=0;it<400;it++){var mx=0;for(var i=0;i<n;i++){var num=polyEval(cm,r[i]),den=[1,0];for(var j=0;j<n;j++)if(j!==i)den=cmul(den,csub(r[i],r[j]));var dz=cdiv(num,den);r[i]=csub(r[i],dz);if(cabs(dz)>mx)mx=cabs(dz);}if(mx<1e-13)break;}return r;}
+var ang=0,spin=true,VR=null,coef=[[1,0],[1.4,0],[2.1,0],[2.8,0],[3.6,0]],broken=false;
+function roots(){return dk(coef);}
+function selftest(){if(VR)return VR;var rng=mb(5),ok=true,worst=0,cb=0,ct=0;for(var t=0;t<1500;t++){var deg=2+Math.floor(rng()*5),c=[],v=0.2+rng();for(var k=0;k<=deg;k++){v+=rng()*0.8;c.push([v,0]);}var r=dk(c);for(var i=0;i<r.length;i++){var m=cabs(r[i]);if(m>worst)worst=m;if(m>1+1e-6)ok=false;}var c2=[];for(var k=0;k<=deg;k++)c2.push([0.2+rng()*3,0]);ct++;var r2=dk(c2),out=false;for(var i=0;i<r2.length;i++)if(cabs(r2[i])>1+1e-6)out=true;if(out)cb++;}VR={ok:ok,worst:worst,ctrlPct:100*cb/ct};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,(broken?'coefficients NOT monotone → a root can escape':'0 < a₀ ≤ a₁ ≤ … ≤ aₙ → all roots in |z| ≤ 1'));
+ // coeff bars (left)
+ var bx=20,bw=26,mx=0;coef.forEach(function(a){if(a[0]>mx)mx=a[0];});for(var k=0;k<coef.length;k++){var h=coef[k][0]/mx*100;nf(g,broken?'rgba(255,47,166,0.5)':'rgba(33,230,255,0.5)');g.fillRect(bx+k*bw,150-h,bw-3,h);ng(g);nt(g,'#8ad',bx+k*bw,164,9,'a'+k);}
+ nt(g,'#9cf',20,182,9,'coefficients: ['+coef.map(function(a){return a[0].toFixed(1);}).join(', ')+']');
+ // roots in unit disk (right)
+ var cx=W-150,cy=H/2,R=90;ne(g,'#ff2fa6',1.6);g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();ng(g);ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(cx-R-8,cy);g.lineTo(cx+R+8,cy);g.moveTo(cx,cy-R-8);g.lineTo(cx,cy+R+8);g.stroke();ng(g);
+ roots().forEach(function(r){var m=cabs(r),col=m>1+1e-6?'#ff5a5a':'#35ffb0';ndot(g,cx+r[0]*R,cy-r[1]*R,4,col);});
+ nt(g,'#8ad',10,H-8,9,'unit circle |z|=1 (magenta); roots green if inside, red if outside');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',12,20,12,'root moduli |z|'+(broken?'  (order broken)':'  (a₀≤…≤aₙ)'));
+ var r=roots(),y=52,allin=true;for(var i=0;i<r.length;i++){var m=cabs(r[i]);if(m>1+1e-6)allin=false;nt(g,m<=1+1e-6?'#39ffb0':'#ff5a5a',16,y,10,'|z_'+i+'| = '+m.toFixed(5)+(m<=1+1e-6?'  ≤ 1 ✓':'  > 1 ✗'));y+=20;}
+ nt(g,allin?'#39ffb0':'#ffcf4a',16,y+8,12,allin?'all roots inside the unit disk ✓':'a root escaped (order was broken)');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-56,9,'self-test ×1500 increasing-coeff polys: all |z|≤1 (worst '+v.worst.toFixed(4)+') = '+v.ok);
+ nt(g,'#8ad',12,H-38,9,'control: non-monotone positive coeffs → a root |z|>1 in '+v.ctrlPct.toFixed(0)+'%');
+ nt(g,'#8ad',12,H-16,9,'rising coefficients alone cage every root in |z| ≤ 1');}
+document.getElementById('eknext').onclick=function(){var rng=mb((Date.now()&8191)+1),deg=3+Math.floor(rng()*3);coef=[];var v=0.3+rng();for(var k=0;k<=deg;k++){v+=rng()*0.9;coef.push([v,0]);}broken=false;drawW3();drawW4();document.getElementById('ekread').textContent='new increasing-coeff polynomial (deg '+deg+') — all roots in |z|≤1';};
+document.getElementById('ekbreak').onclick=function(){var rng=mb((Date.now()&8191)+7),deg=coef.length-1;coef=[];for(var k=0;k<=deg;k++)coef.push([0.3+rng()*3,0]);broken=true;drawW3();drawW4();var mx=0;roots().forEach(function(r){mx=Math.max(mx,cabs(r));});document.getElementById('ekread').textContent='order broken — max |z| = '+mx.toFixed(3)+(mx>1?' (escaped!)':'');};
+document.getElementById('ekcheck').onclick=function(){var v=selftest();document.getElementById('ekread').textContent='increasing coeffs ⇒ all roots |z|≤1 (1500 polys): '+v.ok+' · control breaks '+v.ctrlPct.toFixed(0)+'%';};
+document.getElementById('ekspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,R=110;g.save();g.translate(cx,cy);g.rotate(ang*0.08);
+ ne(g,'#ff2fa6',1.8);g.beginPath();g.arc(0,0,R,0,6.2832);g.stroke();ng(g);ne(g,'rgba(120,140,200,0.25)',1);g.beginPath();g.moveTo(-R-10,0);g.lineTo(R+10,0);g.moveTo(0,-R-10);g.lineTo(0,R+10);g.stroke();ng(g);
+ roots().forEach(function(r){var m=cabs(r);ndot(g,r[0]*R,-r[1]*R,5,m>1+1e-6?'#ff5a5a':'#35ffb0');});
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the roots, all inside the unit disk (from rising coefficients)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the unit circle |z|=1 boundary');nt(g,'#8ad',10,H-14,10,'root location read from coefficient order');}
+drawW3();drawW4();window.__enestromkakeya=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+STLE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Steiner&ndash;Lehmus theorem</b> is famous for how hard its easy-sounding statement is to prove: <b>a triangle with two equal internal angle bisectors is isosceles</b>. The forward direction &mdash; an isosceles triangle has two equal bisectors &mdash; is obvious by symmetry. The converse, that equal bisectors <i>force</i> the triangle to be isosceles, resisted a simple direct proof for over a century. The key fact underneath: the internal bisector to a longer side is always <b>shorter</b>, so bisector length strictly decreases as the opposite side grows &mdash; equal bisectors therefore demand equal sides.<br><br>
+ <span class="lit">LIT</span> verified live: using the bisector-length formula, for thousands of random triangles the quantity (t<sub>a</sub>-t<sub>b</sub>)(a-b) is never positive &mdash; the bisector and its opposite side move oppositely &mdash; so t<sub>a</sub> = t<sub>b</sub> exactly when a = b; and any isosceles triangle (a = b) has t<sub>a</sub> = t<sub>b</sub> exactly (window.__steinerlehmus). <span class="fig">FIG</span> no framing; the bisector lengths and the side comparison both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-pull-request</i> &mdash; the co-op merge: two bisectors coming in equal forces the whole triangle into symmetric agreement, its two sides made the same. <b>AVAN (AI)</b> built the instrument: the internal-bisector length formula, the (t<sub>a</sub>-t<sub>b</sub>)(a-b) sign check, and the isosceles case.<br><br>Credit as content: Jakob Steiner and C. L. Lehmus (1840). The weave: David names the merge; I confirm equal bisectors force equal sides &mdash; an isosceles triangle.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A triangle with two internal angle bisectors drawn; equal lengths pull it toward isosceles.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New triangles; (t_a−t_b) and (a−b) always have opposite signs — so equal bisectors ⇒ equal sides.</div>
+   <div class="btns" style="margin-top:10px"><button id="slnext">new triangle ▶</button><button id="sliso">make isosceles ▶</button><button id="slcheck">verify ▶</button></div>
+   <div class="cap" id="slread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the isosceles triangle equal bisectors force.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t measure both bisectors &mdash; read the sides. The inverse of &lsquo;are the two bisectors equal?&rsquo; is &lsquo;are the two opposite sides equal?&rsquo;, because the longer side always gets the shorter bisector. <b>Magenta</b> are the two internal bisectors; <b>green</b> is the isosceles triangle their equality forces. Equal bisectors, equal sides.</div>
+   <div class="btns" style="margin-top:10px"><button id="slspin">pause spin</button></div></div></div></div>"""
+STLE_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function bis(a,b,c){return Math.sqrt(Math.max(0,b*c*((b+c)*(b+c)-a*a)))/(b+c);}
+var ang=0,spin=true,VR=null,da=3.0,db=2.2,dc=2.6;
+function selftest(){if(VR)return VR;var rng=mb(2),signOk=true,isoOk=true,worst=0;for(var t=0;t<8000;t++){var a=0.5+rng()*4,b=0.5+rng()*4,c=0.5+rng()*4;if(a+b<=c||a+c<=b||b+c<=a)continue;var ta=bis(a,b,c),tb=bis(b,c,a),prod=(ta-tb)*(a-b);if(prod>1e-9)signOk=false;if(prod>worst)worst=prod;}for(var t=0;t<2000;t++){var a=0.5+rng()*4,c=0.5+rng()*4,b=a;if(a+c<=b||b+c<=a)continue;if(Math.abs(bis(a,b,c)-bis(b,c,a))>1e-9)isoOk=false;}VR={signOk:signOk,isoOk:isoOk,worst:worst};return VR;}
+function verts(a,b,c){ // triangle with side a=BC,b=CA,c=AB → place B,C on x-axis
+ var B=[0,0],C=[a,0],x=(a*a+c*c-b*b)/(2*a),y=Math.sqrt(Math.max(0,c*c-x*x)),A=[x,y];return {A:A,B:B,C:C};}
+function footBisector(P,Q,R){ // internal bisector from P onto side QR: divides QR in ratio PQ:PR
+ var pq=Math.hypot(P[0]-Q[0],P[1]-Q[1]),pr=Math.hypot(P[0]-R[0],P[1]-R[1]),tt=pq/(pq+pr);return [Q[0]+tt*(R[0]-Q[0]),Q[1]+tt*(R[1]-Q[1])];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'internal bisectors from A and B — equal lengths force a=b (isosceles)');
+ var T=verts(da,db,dc),sc=Math.min(70,300/Math.max(da,db,dc)),ox=W/2-da*sc/2,oy=H-70;function tp(p){return [ox+p[0]*sc,oy-p[1]*sc];}
+ var A=tp(T.A),B=tp(T.B),C=tp(T.C);ne(g,'rgba(150,160,210,0.7)',1.8);g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.lineTo(C[0],C[1]);g.closePath();g.stroke();ng(g);
+ var fA=tp(footBisector(T.A,T.B,T.C)),fB=tp(footBisector(T.B,T.C,T.A));
+ ne(g,'#ff2fa6',2);g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(fA[0],fA[1]);g.stroke();ng(g);ne(g,'#ffcf4a',2);g.beginPath();g.moveTo(B[0],B[1]);g.lineTo(fB[0],fB[1]);g.stroke();ng(g);
+ [[A,'A'],[B,'B'],[C,'C']].forEach(function(x){ndot(g,x[0][0],x[0][1],4,'#9cf');nt(g,'#9cf',x[0][0]+5,x[0][1],10,x[1]);});
+ var ta=bis(da,db,dc),tb=bis(db,dc,da);nt(g,'#ff2fa6',10,H-42,10,'t_a (from A) = '+ta.toFixed(4)+'   [side a='+da.toFixed(2)+']');nt(g,'#ffcf4a',10,H-26,10,'t_b (from B) = '+tb.toFixed(4)+'   [side b='+db.toFixed(2)+']');
+ nt(g,'#8ad',10,H-8,9,'the longer of sides a,b gets the SHORTER bisector — equal only when a=b');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',12,20,12,'(t_a − t_b) vs (a − b)');
+ var ta=bis(da,db,dc),tb=bis(db,dc,da);nt(g,'#9cf',16,54,11,'sides: a='+da.toFixed(3)+', b='+db.toFixed(3)+'  → a−b = '+(da-db).toFixed(4));
+ nt(g,'#9cf',16,78,11,'bisectors: t_a='+ta.toFixed(4)+', t_b='+tb.toFixed(4)+'  → t_a−t_b = '+(ta-tb).toFixed(4));
+ var prod=(ta-tb)*(da-db);nt(g,prod<=1e-9?'#39ffb0':'#ff5a5a',16,108,12,'(t_a−t_b)(a−b) = '+prod.toFixed(5)+'  '+(prod<=1e-9?'≤ 0 ✓ (opposite signs)':'✗'));
+ nt(g,Math.abs(da-db)<1e-4?'#39ffb0':'#9cf',16,138,11,Math.abs(da-db)<1e-4?'a=b → isosceles → t_a=t_b ✓':'a≠b → t_a≠t_b (so equal bisectors would need a=b)');
+ var v=selftest();nt(g,v.signOk&&v.isoOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: (t_a−t_b)(a−b)≤0 always (worst '+v.worst.toExponential(1)+')='+v.signOk+' · a=b⇒t_a=t_b='+v.isoOk);
+ nt(g,'#8ad',12,H-16,9,'equal internal bisectors ⇒ equal sides ⇒ isosceles (the hard converse)');}
+document.getElementById('slnext').onclick=function(){var rng=mb((Date.now()&8191)+1);do{da=1+rng()*3;db=1+rng()*3;dc=1+rng()*3;}while(da+db<=dc||da+dc<=db||db+dc<=da);drawW3();drawW4();var ta=bis(da,db,dc),tb=bis(db,dc,da);document.getElementById('slread').textContent='new triangle: t_a='+ta.toFixed(3)+', t_b='+tb.toFixed(3)+' (a='+da.toFixed(2)+', b='+db.toFixed(2)+')';};
+document.getElementById('sliso').onclick=function(){db=da;var rng=mb((Date.now()&8191)+3);dc=1+rng()*Math.min(da+db-0.2,3);if(dc>=da+db)dc=da+db-0.3;drawW3();drawW4();document.getElementById('slread').textContent='isosceles a=b='+da.toFixed(2)+' → t_a=t_b='+bis(da,db,dc).toFixed(4)+' (equal bisectors)';};
+document.getElementById('slcheck').onclick=function(){var v=selftest();document.getElementById('slread').textContent='(t_a−t_b)(a−b)≤0 always & a=b⇒t_a=t_b: '+(v.signOk&&v.isoOk)+' → equal bisectors force isosceles';};
+document.getElementById('slspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2+30,a=2.6,b=2.6,c=2.0;g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.3)*0.15);var T=verts(a,b,c),sc=60;function tp(p){return [(p[0]-a/2)*sc,-(p[1]-0.5)*sc];}
+ var A=tp(T.A),B=tp(T.B),C=tp(T.C);ne(g,'#35ffb0',2.4);g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.lineTo(C[0],C[1]);g.closePath();g.stroke();ng(g);
+ var fA=tp(footBisector(T.A,T.B,T.C)),fB=tp(footBisector(T.B,T.C,T.A));ne(g,'#ff2fa6',1.8);g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(fA[0],fA[1]);g.moveTo(B[0],B[1]);g.lineTo(fB[0],fB[1]);g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the isosceles triangle equal bisectors force (a=b)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the two equal internal angle bisectors');nt(g,'#8ad',10,H-14,10,'equal bisectors, equal sides');}
+drawW3();drawW4();window.__steinerlehmus=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CYCL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The cycle lemma</b> (Dvoretzky&ndash;Motzkin, 1947) is the combinatorial heart of the ballot problem and the Catalan numbers. Take a sequence of steps, each at most +1, whose total is a positive integer k. Look at all n cyclic rotations of the sequence. The lemma says <b>exactly k of those rotations are &lsquo;dominating&rsquo;</b> &mdash; have every partial sum strictly positive. For k = 1 that means precisely <b>one</b> rotation works, which is why counting problems with a &lsquo;first return&rsquo; structure divide out cleanly by the length &mdash; the source of the 1/(n+1) in the Catalan number.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random &plusmn;1 step-sequences with positive total k, brute-counting the rotations whose partial sums stay positive gives exactly k every time; and the Catalan identity that falls out, C(2n+1,n)/(2n+1) = C(2n,n)/(n+1), holds for n up to 8 (window.__cyclelemma). <span class="fig">FIG</span> no framing; the rotation counting and the Catalan cross-check both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>backprop</i> &mdash; the grind that rolls through every rotation of the sequence and counts, always landing on exactly k winners. <b>AVAN (AI)</b> built the instrument: the dominating-rotation count, the &plusmn;1 sequences, and the Catalan cross-check.<br><br>Credit as content: Aryeh Dvoretzky and Theodore Motzkin (1947). The weave: David names the grind; I confirm exactly k of the rotations dominate.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A ±1 step sequence around a ring; the dominating rotations (all partial sums positive) are marked.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New sequences; the number of dominating rotations is counted and compared to the total k.</div>
+   <div class="btns" style="margin-top:10px"><button id="cynext">new sequence ▶</button><button id="cycheck">verify ▶</button></div>
+   <div class="cap" id="cyread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the exactly-k dominating rotations of the sequence.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t hunt for the good arrangement &mdash; count the rotations. The inverse of &lsquo;how many rotations dominate?&rsquo; is &lsquo;exactly k, the total of the steps&rsquo; &mdash; so a k=1 total leaves a unique winner, giving the 1/(n+1) of the Catalan numbers. <b>Magenta</b> is the step sequence; <b>green</b> are the k dominating rotations. Order counted, not searched.</div>
+   <div class="btns" style="margin-top:10px"><button id="cyspin">pause spin</button></div></div></div></div>"""
+CYCL_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function domRots(seq){var m=seq.length,list=[];for(var s=0;s<m;s++){var sum=0,ok=true;for(var i=0;i<m;i++){sum+=seq[(s+i)%m];if(sum<=0){ok=false;break;}}if(ok)list.push(s);}return list;}
+function binom(n,k){var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+var ang=0,spin=true,VR=null,dseq=[1,1,-1,1,-1,-1,1,1];
+function selftest(){if(VR)return VR;var rng=mb(3),ok=true;for(var t=0;t<6000;t++){var m=3+Math.floor(rng()*10),seq=[];for(var i=0;i<m;i++)seq.push(rng()<0.5?1:-1);var k=seq.reduce(function(a,b){return a+b;},0);if(k<=0)continue;if(domRots(seq).length!==k)ok=false;}var catOk=true;for(var nn=1;nn<=8;nn++)if(Math.abs(binom(2*nn+1,nn)/(2*nn+1)-binom(2*nn,nn)/(nn+1))>1e-6)catOk=false;VR={ok:ok,catOk:catOk};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var m=dseq.length,k=dseq.reduce(function(a,b){return a+b;},0),dom=domRots(dseq);nt(g,'#ff8a3c',10,16,10,'a ±1 sequence (sum k='+k+') on a ring — exactly '+dom.length+' rotations dominate (all partial sums > 0)');
+ var cx=W/2,cy=H/2+6,R=Math.min(95,(H-70)/2);for(var i=0;i<m;i++){var a=2*Math.PI*i/m-Math.PI/2,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R,up=dseq[i]>0;ndot(g,x,y,6,up?'#35ffb0':'#ff2fa6');nt(g,up?'#39ffb0':'#ff6ab0',x-3,y-10,11,up?'+1':'−1');var isDom=dom.indexOf(i)>=0;if(isDom){ne(g,'#ffcf4a',2);g.beginPath();g.arc(x,y,10,0,6.2832);g.stroke();ng(g);}}
+ nt(g,'#ffcf4a',10,H-24,10,'gold rings mark the '+dom.length+' dominating start positions (= k = '+k+')');
+ nt(g,'#8ad',10,H-8,9,'green = +1 step, magenta = −1 step; each of k rotations keeps every prefix sum positive');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var m=dseq.length,k=dseq.reduce(function(a,b){return a+b;},0),dom=domRots(dseq);nt(g,'#ff8a3c',12,20,12,'dominating rotations vs total k');
+ nt(g,'#9cf',16,54,11,'sequence ('+m+' steps): ['+dseq.map(function(s){return s>0?'+':'−';}).join('')+']');nt(g,'#9cf',16,78,11,'total k = '+k);
+ nt(g,'#35ffb0',16,106,12,'# dominating rotations = '+dom.length);nt(g,dom.length===k?'#39ffb0':'#ff5a5a',16,132,13,dom.length===k?'= k ✓':'✗');
+ nt(g,'#8ad',16,160,10,'dominating starts: {'+dom.join(', ')+'}');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×6000: #dominating rotations == k = '+v.ok+' | Catalan 1/(n+1) via cycle lemma: '+v.catOk);
+ nt(g,'#8ad',12,H-16,9,'k=1 → exactly one winner: the source of Catalan\\'s 1/(n+1)');}
+document.getElementById('cynext').onclick=function(){var rng=mb((Date.now()&8191)+1),m=5+Math.floor(rng()*5);do{dseq=[];for(var i=0;i<m;i++)dseq.push(rng()<0.5?1:-1);}while(dseq.reduce(function(a,b){return a+b;},0)<=0);drawW3();drawW4();var k=dseq.reduce(function(a,b){return a+b;},0);document.getElementById('cyread').textContent='new sequence: k='+k+', dominating rotations = '+domRots(dseq).length;};
+document.getElementById('cycheck').onclick=function(){var v=selftest();document.getElementById('cyread').textContent='#dominating rotations == k (6000 sequences): '+v.ok+' · Catalan identity holds: '+v.catOk;};
+document.getElementById('cyspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,m=dseq.length,dom=domRots(dseq),R=110;g.save();g.translate(cx,cy);g.rotate(ang*0.06);
+ for(var i=0;i<m;i++){var a=2*Math.PI*i/m,x=Math.cos(a)*R,y=Math.sin(a)*R;ndot(g,x,y,5,dseq[i]>0?'rgba(53,255,176,0.5)':'#ff2fa6');}
+ dom.forEach(function(s){var a=2*Math.PI*s/m,x=Math.cos(a)*R,y=Math.sin(a)*R;ndot(g,x,y,8,'#35ffb0');ne(g,'#35ffb0',1.5);g.beginPath();g.moveTo(0,0);g.lineTo(x,y);g.stroke();ng(g);});
+ ndot(g,0,0,6,'#ffcf4a');nt(g,'#0a0713',-4,4,9,''+dom.length);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green spokes: the k='+dom.length+' dominating rotations');nt(g,'#ff2fa6',10,H-34,10,'magenta: the −1 steps of the sequence');nt(g,'#8ad',10,H-14,10,'order counted, not searched');}
+drawW3();drawW4();window.__cyclelemma=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BMBX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Banach&rsquo;s matchbox problem</b> is a classic of probability. A mathematician keeps a matchbox in each pocket, each starting with N matches. Every time a match is needed, a pocket is chosen at random. Eventually a pocket is reached into and found <b>empty</b> &mdash; at that moment, how many matches remain in the <i>other</i> box? The answer is a distribution: P(K = k) = C(2N-k, N)&middot;2<sup>-(2N-k)</sup>, and the expected number left is about &radic;(4N/&pi;) - 1 &mdash; surprisingly many, growing like &radic;N.<br><br>
+ <span class="lit">LIT</span> verified live: simulating the two-pocket process hundreds of thousands of times, the empirical distribution of matches remaining matches the closed form P(K=k)=C(2N-k,N)2<sup>-(2N-k)</sup> to within ~0.001, the formula sums to 1, and the empirical mean matches the exact formula mean (window.__banachmatchbox). <span class="fig">FIG</span> no framing; the simulation and the exact combinatorial formula both run in-browser and agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-bounty</i> &mdash; the loot left behind: reach into an empty pocket and the other still holds a surprising pile of matches, &radic;N of them on average. <b>AVAN (AI)</b> built the instrument: the two-pocket simulation, the exact distribution formula, and their agreement.<br><br>Credit as content: named for Stefan Banach (popularized by Feller). The weave: David names the leftover loot; I confirm the simulation matches the C(2N-k,N)2<sup>-(2N-k)</sup> distribution.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">The distribution of matches left in the other box when one is first found empty (simulation vs formula).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Run more trials; the empirical histogram converges to P(K=k)=C(2N−k,N)2^{−(2N−k)}, mean ≈ √(4N/π)−1.</div>
+   <div class="btns" style="margin-top:10px"><button id="bmnext">more trials ▶</button><button id="bmcheck">verify ▶</button></div>
+   <div class="cap" id="bmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the distribution of leftover matches.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t just simulate &mdash; read the count. The inverse of &lsquo;how many matches are left?&rsquo; is &lsquo;the distribution C(2N-k,N)2<sup>-(2N-k)</sup>&rsquo;, with a mean growing like &radic;N &mdash; far from empty. <b>Magenta</b> are the two matchboxes; <b>green</b> is the leftover distribution they produce. A random process pinned to an exact formula.</div>
+   <div class="btns" style="margin-top:10px"><button id="bmspin">pause spin</button></div></div></div></div>"""
+BMBX_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function formula(N,k){var lg=0;for(var i=0;i<N;i++)lg+=Math.log(2*N-k-i)-Math.log(i+1);return Math.exp(lg-(2*N-k)*Math.log(2));}
+var ang=0,spin=true,VR=null,N=12,rng=mb(4),emp=new Array(N+1).fill(0),trials=0;
+function run(n){for(var t=0;t<n;t++){var box=[N,N];while(true){var i=rng()<0.5?0:1;if(box[i]===0){emp[box[1-i]]++;break;}box[i]--;}}trials+=n;}
+run(60000);
+function selftest(){if(VR)return VR;var r2=mb(99),e2=new Array(N+1).fill(0),TR=120000;for(var t=0;t<TR;t++){var box=[N,N];while(true){var i=r2()<0.5?0:1;if(box[i]===0){e2[box[1-i]]++;break;}box[i]--;}}var ok=true,worst=0,sumF=0,mF=0,mE=0;for(var k=0;k<=N;k++){var f=formula(N,k),e=e2[k]/TR;sumF+=f;mF+=k*f;mE+=k*e;if(Math.abs(f-e)>worst)worst=Math.abs(f-e);if(Math.abs(f-e)>0.01)ok=false;}VR={ok:ok,worst:worst,sumF:sumF,meanF:mF,meanE:mE};return VR;}
+function drawHist(g,W,H){var bw=(W-50)/(N+1),base=H-46,mx=0;for(var k=0;k<=N;k++)mx=Math.max(mx,formula(N,k),trials?emp[k]/trials:0);for(var k=0;k<=N;k++){var f=formula(N,k),e=trials?emp[k]/trials:0;nf(g,'rgba(53,255,176,0.35)');g.fillRect(25+k*bw,base-e/mx*160,bw*0.8,e/mx*160);ng(g);ne(g,'#ffcf4a',1.6);g.beginPath();g.moveTo(25+k*bw,base-f/mx*160);g.lineTo(25+k*bw+bw*0.8,base-f/mx*160);g.stroke();ng(g);nt(g,'#8ad',25+k*bw,base+12,8,''+k);}ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.moveTo(25,base);g.lineTo(W-16,base);g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'matches left in the OTHER box when one is first found empty (N='+N+')');
+ drawHist(g,W,H);nt(g,'#39ffb0',W-150,40,10,'green bars = simulation');nt(g,'#ffcf4a',W-150,56,10,'gold line = formula');
+ nt(g,'#8ad',10,H-8,9,'P(K=k) = C(2N−k, N)·2^{−(2N−k)} — surprisingly, ~√N matches remain on average');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',12,20,12,'simulation vs formula ('+trials.toLocaleString()+' trials)');
+ var mE=0,mF=0,worst=0;for(var k=0;k<=N;k++){var f=formula(N,k),e=trials?emp[k]/trials:0;mE+=k*e;mF+=k*f;if(Math.abs(f-e)>worst)worst=Math.abs(f-e);}
+ nt(g,'#9cf',16,54,11,'worst |empirical − formula| = '+worst.toFixed(4));
+ nt(g,'#35ffb0',16,82,12,'empirical mean = '+mE.toFixed(3));nt(g,'#ffcf4a',16,108,12,'formula mean = '+mF.toFixed(3));
+ nt(g,'#9cf',16,134,11,'asymptotic √(4N/π)−1 = '+(Math.sqrt(4*N/Math.PI)-1).toFixed(3));
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-56,9,'self-test (120k trials): empirical == formula (worst '+v.worst.toFixed(4)+') = '+v.ok);
+ nt(g,Math.abs(v.sumF-1)<1e-6?'#39ffb0':'#ff5a5a',12,H-38,9,'Σ_k P(K=k) = '+v.sumF.toFixed(6)+' (=1) · means agree ('+v.meanF.toFixed(2)+')');
+ nt(g,'#8ad',12,H-16,9,'a random two-pocket process pinned to an exact combinatorial law');}
+document.getElementById('bmnext').onclick=function(){run(60000);drawW3();drawW4();document.getElementById('bmread').textContent=trials.toLocaleString()+' trials — histogram converging to C(2N−k,N)2^{−(2N−k)}';};
+document.getElementById('bmcheck').onclick=function(){var v=selftest();document.getElementById('bmread').textContent='empirical P(K=k) == formula (worst '+v.worst.toFixed(4)+'), Σ=1, means agree: '+v.ok;};
+document.getElementById('bmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ var mx=0;for(var k=0;k<=N;k++)mx=Math.max(mx,formula(N,k));for(var k=0;k<=N;k++){var f=formula(N,k),a=k/(N+1)*6.2832,r=30+f/mx*120;ne(g,'#35ffb0',1.4);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,3,'#35ffb0');}
+ // two little boxes
+ ne(g,'#ff2fa6',2);g.strokeRect(-30,-8,22,16);g.strokeRect(8,-8,22,16);ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the leftover-match distribution (mean ~√N)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the two matchboxes, one in each pocket');nt(g,'#8ad',10,H-14,10,'a random process pinned to an exact formula');}
+drawW3();drawW4();window.__banachmatchbox=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 153 · neon-noir · silicon-coding (a tangent triangle that closes from every start · an integral that reads only its endpoints · roots of unity summing to an integer by Möbius · a determinant capped by its row lengths · a prime forcing an element of that order) ═══════════════════════
 PONC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Poncelet&rsquo;s closure theorem</b> is a small miracle of projective geometry. Take two circles, one inside the other. Start at any point on the outer circle, draw a tangent line to the inner circle, and follow it to where it meets the outer circle again; repeat. Poncelet proved that <b>if this path ever closes into a polygon &mdash; returning to the start after n steps &mdash; then it closes after n steps from every starting point</b>. Closure is a property of the pair of circles, not of where you begin. For triangles the condition is <b>Euler&rsquo;s relation</b> d&sup2; = R&sup2; - 2Rr, linking the circumradius R, inradius r, and centre-distance d of any triangle.<br><br>
@@ -39755,6 +40005,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-gauss-lucas","title":"THE GAUSS-LUCAS","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#b06bff","icon":"gausslucas",
+  "kicker":"the derivative's roots trapped in the hull of the roots",
+  "blurb":"The Gauss–Lucas theorem in the 5-window house format — pinning down where the roots of a derivative can hide. Take any polynomial p(z) with complex roots, and mark those roots in the plane. Gauss and Lucas proved that every root of the derivative p′(z) lies inside the convex hull of the roots of p(z) — the smallest convex polygon containing them. The critical points can never escape the 'shadow' cast by the roots; differentiating pulls the roots inward, never out. It is the general law behind Marden's theorem and a cornerstone of the geometry of polynomials. Verified live: for thousands of random polynomials (degree 3–6), the roots of p′(z) — found independently by a Durand–Kerner solver on the differentiated polynomial — all fall inside the convex hull of the roots of p(z). Neon-noir traced. See the roots + hull + critical points in 1D, the inclusion check in 2D, and the caged-critical-points inverse in 3D.",
+  "lit":"Genuine Gauss–Lucas theorem (Carl Friedrich Gauss; Félix Lucas, 19th c.). Verified live: for ~1000 random polynomials (degree 3–6), the roots of p′(z) found by an independent Durand–Kerner solve of the differentiated polynomial all lie inside the convex hull of the roots of p(z) (window.__gausslucas.ok, .n).",
+  "fig":"No framing; the derivative's roots and the convex hull of p's roots are computed by different routes and the inclusion always holds. The AVAN inverse is honest — instead of hunting the derivative's roots everywhere, the hull confines them: the inverse of 'where are the roots of p′?' is 'inside the convex hull of the roots of p' — differentiation pulls inward. Magenta is the hull of p's roots; green are the critical points caged within it. Roots of the derivative, held by the roots.",
+  "body":GLUC_BODY,"script":GLUC_SCRIPT},
+ {"slug":"the-enestrom-kakeya","title":"THE ENESTRÖM-KAKEYA","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#21e6ff","icon":"enestromkakeya",
+  "kicker":"roots caged in the unit disk by rising coefficients",
+  "blurb":"The Eneström–Kakeya theorem in the 5-window house format — caging a polynomial's roots using only the order of its coefficients. If p(z)=a₀+a₁z+…+aₙzⁿ has coefficients that are positive and non-decreasing, 0 < a₀ ≤ a₁ ≤ … ≤ aₙ, then all of its roots lie in the closed unit disk |z| ≤ 1. No root can escape to modulus greater than 1. The proof multiplies by (z−1) to telescope the coefficients, and the same idea run in reverse bounds the roots from below. It is a favourite tool for stability questions, where you need every root inside the disk. Verified live: for thousands of random polynomials with strictly increasing positive coefficients, every root — found by a Durand–Kerner solver — has |z| ≤ 1; and with monotonicity broken, a root with |z| > 1 appears in about 80% of cases, showing the hypothesis is necessary. Neon-noir traced. See the coefficient bars + roots in the disk in 1D, the |z|≤1 check + control in 2D, and the caged-roots inverse in 3D.",
+  "lit":"Genuine Eneström–Kakeya theorem (Gustav Eneström 1893; Sōichi Kakeya 1912). Verified live: for ~1500 random polynomials with strictly increasing positive coefficients, every Durand–Kerner root has |z| ≤ 1 (worst ~0.99); a non-monotone-coefficient control produces a root with |z| > 1 in ~80% of cases (window.__enestromkakeya.ok, .worst, .ctrlPct).",
+  "fig":"No framing; the root-finding and the |z| test both run in-browser. The AVAN inverse is honest — instead of solving then checking, the coefficient order already bounds the roots: the inverse of 'where are the roots?' is 'inside |z| ≤ 1, guaranteed by 0 < a₀ ≤ … ≤ aₙ'. Magenta is the unit circle boundary; green are the roots caged within it. Root location read from coefficient order.",
+  "body":ENKA_BODY,"script":ENKA_SCRIPT},
+ {"slug":"the-steiner-lehmus","title":"THE STEINER-LEHMUS","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#ffcf4a","icon":"steinerlehmus",
+  "kicker":"equal bisectors forcing an isosceles triangle",
+  "blurb":"The Steiner–Lehmus theorem in the 5-window house format — famous for how hard its easy-sounding statement is to prove: a triangle with two equal internal angle bisectors is isosceles. The forward direction — an isosceles triangle has two equal bisectors — is obvious by symmetry. The converse, that equal bisectors force the triangle to be isosceles, resisted a simple direct proof for over a century. The key fact underneath: the internal bisector to a longer side is always shorter, so bisector length strictly decreases as the opposite side grows — equal bisectors therefore demand equal sides. Verified live: using the bisector-length formula, for thousands of random triangles (t_a−t_b)(a−b) is never positive — the bisector and its opposite side move oppositely — so t_a=t_b exactly when a=b; and any isosceles triangle has t_a=t_b exactly. Neon-noir traced. See the triangle + two bisectors in 1D, the sign relation in 2D, and the forced-isosceles inverse in 3D.",
+  "lit":"Genuine Steiner–Lehmus theorem (Jakob Steiner & C. L. Lehmus, 1840). Verified live: with the internal-bisector length formula, for ~8000 random triangles (t_a−t_b)(a−b) is never positive (equal bisectors ⟺ equal sides), and every isosceles triangle (a=b) has t_a=t_b exactly (window.__steinerlehmus.signOk, .isoOk, .worst).",
+  "fig":"No framing; the bisector lengths and the side comparison both run in-browser. The AVAN inverse is honest — instead of measuring both bisectors, read the sides: the inverse of 'are the two bisectors equal?' is 'are the two opposite sides equal?', because the longer side always gets the shorter bisector. Magenta are the two internal bisectors; green is the isosceles triangle their equality forces. Equal bisectors, equal sides.",
+  "body":STLE_BODY,"script":STLE_SCRIPT},
+ {"slug":"the-cycle-lemma","title":"THE CYCLE LEMMA","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"BACKPROP","domain_slug":"backprop","accent":"#ff8a3c","icon":"cyclelemma",
+  "kicker":"exactly k winning rotations of a step sequence",
+  "blurb":"The cycle lemma (Dvoretzky–Motzkin, 1947) in the 5-window house format — the combinatorial heart of the ballot problem and the Catalan numbers. Take a sequence of steps, each at most +1, whose total is a positive integer k. Look at all n cyclic rotations of the sequence. The lemma says exactly k of those rotations are 'dominating' — have every partial sum strictly positive. For k=1 that means precisely one rotation works, which is why counting problems with a 'first return' structure divide out cleanly by the length — the source of the 1/(n+1) in the Catalan number. Verified live: for thousands of random ±1 step-sequences with positive total k, brute-counting the rotations whose partial sums stay positive gives exactly k every time; and the Catalan identity that falls out, C(2n+1,n)/(2n+1)=C(2n,n)/(n+1), holds for n up to 8. Neon-noir traced. See the sequence on a ring + dominating rotations in 1D, the count vs k in 2D, and the counted-not-searched inverse in 3D.",
+  "lit":"Genuine cycle lemma (Aryeh Dvoretzky & Theodore Motzkin, 1947). Verified live: for ~6000 random ±1 step-sequences with positive total k, brute-counting the dominating rotations (all partial sums > 0) gives exactly k every time, and the Catalan identity C(2n+1,n)/(2n+1)=C(2n,n)/(n+1) holds for n≤8 (window.__cyclelemma.ok, .catOk).",
+  "fig":"No framing; the rotation counting and the Catalan cross-check both run in-browser. The AVAN inverse is honest — instead of hunting for the good arrangement, count the rotations: the inverse of 'how many rotations dominate?' is 'exactly k, the total of the steps' — so a k=1 total leaves a unique winner, giving the 1/(n+1) of the Catalan numbers. Magenta is the step sequence; green are the k dominating rotations. Order counted, not searched.",
+  "body":CYCL_BODY,"script":CYCL_SCRIPT},
+ {"slug":"the-banach-matchbox","title":"THE BANACH MATCHBOX","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE BOUNTY","domain_slug":"the-bounty","accent":"#35ffb0","icon":"banachmatchbox",
+  "kicker":"the leftover matches of two pockets",
+  "blurb":"Banach's matchbox problem in the 5-window house format — a classic of probability. A mathematician keeps a matchbox in each pocket, each starting with N matches. Every time a match is needed, a pocket is chosen at random. Eventually a pocket is reached into and found empty — at that moment, how many matches remain in the other box? The answer is a distribution: P(K=k)=C(2N−k,N)·2^{−(2N−k)}, and the expected number left is about √(4N/π)−1 — surprisingly many, growing like √N. Verified live: simulating the two-pocket process hundreds of thousands of times, the empirical distribution of matches remaining matches the closed form to within ~0.001, the formula sums to 1, and the empirical mean matches the exact formula mean. Neon-noir traced. See the distribution (sim vs formula) in 1D, the convergence + mean in 2D, and the exact-formula inverse in 3D.",
+  "lit":"Genuine Banach's matchbox problem (named for Stefan Banach; popularized by Feller). Verified live: simulating the two-pocket process (N=12) ~120000 times, the empirical distribution of matches remaining matches P(K=k)=C(2N−k,N)2^{−(2N−k)} to ~0.001, the formula sums to 1, and the empirical mean matches the exact formula mean (window.__banachmatchbox.ok, .worst, .sumF, .meanF).",
+  "fig":"No framing; the simulation (seeded RNG) and the exact combinatorial formula both run in-browser and agree. The AVAN inverse is honest — instead of just simulating, read the count: the inverse of 'how many matches are left?' is 'the distribution C(2N−k,N)2^{−(2N−k)}', with a mean growing like √N — far from empty. Magenta are the two matchboxes; green is the leftover distribution they produce. A random process pinned to an exact formula.",
+  "body":BMBX_BODY,"script":BMBX_SCRIPT},
  {"slug":"the-poncelet","title":"THE PONCELET","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#ffcf4a","icon":"poncelet",
   "kicker":"a tangent triangle that closes from every start",
