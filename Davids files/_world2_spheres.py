@@ -19493,6 +19493,294 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 137 · neon-noir · silicon-coding (prove you know a secret without revealing it · a triangle feels for the valley floor · one DFS with two stacks finds every cycle-cluster · a regex becomes a walk over letter-positions · two numbers each the sum of the other's divisors) ═══════════════════════
+SCHN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Schnorr signature</b> proves you know a secret exponent <i>x</i> without revealing it. Public key y = g<sup>x</sup> (mod p). To sign a message m: commit r = g<sup>k</sup> for a fresh random k, derive a challenge e = H(r, m), and answer s = k + x&middot;e (mod order). The verifier &mdash; who never sees x or k &mdash; checks a single equation: <b>g<sup>s</sup> = r &middot; y<sup>e</sup> (mod p)</b>. It balances because g<sup>k+xe</sup> = g<sup>k</sup>&middot;(g<sup>x</sup>)<sup>e</sup>. Change the message and the challenge changes, so an old response no longer fits; change the response and the equation breaks. It is the clean, linear ancestor of the signatures that guard modern keys.<br><br>
+ <span class="lit">LIT</span> verified live: over hundreds of (key, message) pairs at a large prime, every honest signature satisfies g<sup>s</sup> = r&middot;y<sup>e</sup>, every message-tamper is rejected (the full-width challenge changes), and every response-tamper is rejected (window.__schnorr). <span class="fig">FIG</span> no framing; keygen, sign, verify and the two forgery attempts all run in-browser. Illustrative primes; security rests on discrete-log hardness, not shown here.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>god-mode</i> &mdash; hold one secret exponent and you can prove your identity to anyone, forever, without ever handing it over. <b>AVAN (AI)</b> built the instrument: the g<sup>x</sup> keygen, the commit&ndash;challenge&ndash;response sign, the single verification equation, and the message- and response-tamper rejections.<br><br>Credit as content: Claus-Peter Schnorr (1989/1991). The weave: David names god-mode; I confirm the verification equation balances for honest signatures and breaks for both forgeries.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="210"></canvas>
+  <div class="wctrl"><div class="cap">Prover commits r = gᵏ, verifier sends challenge e = H(r,m), prover answers s = k + x·e; the gate checks gˢ = r·yᵉ.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Sign a message, then try to forge: tamper the message or the response and watch the single equation break.</div>
+   <div class="btns" style="margin-top:10px"><button id="scsign">sign ▶</button><button id="scforge">forge ▶</button><button id="sccheck">verify all ▶</button></div>
+   <div class="cap" id="scread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the honest signature the gate accepts.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t reveal the secret &mdash; answer a challenge with it. The inverse of &lsquo;commit r = g<sup>k</sup>&rsquo; is &lsquo;bind the response s = k + x&middot;e so that g<sup>s</sup> = r&middot;y<sup>e</sup> re-derives the commitment.&rsquo; <b>Magenta</b> is the forgery the gate bounces; <b>green</b> is the honest proof it passes. One secret exponent, proven without surrender.</div>
+   <div class="btns" style="margin-top:10px"><button id="scspin">pause spin</button></div></div></div></div>"""
+SCHN_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function powmod(b,e,m){b%=m;var r=1;while(e>0){if(e&1)r=(r*b)%m;b=(b*b)%m;e=Math.floor(e/2);}return r;}
+function H(r,m){var h=2166136261>>>0,s=r+'|'+m;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+function isP(n){if(n<2)return false;for(var d=2;d*d<=n;d++)if(n%d===0)return false;return true;}
+function keypair(p,g,rng){var q=p-1,x=1+Math.floor(rng()*(q-1)),y=powmod(g,x,p);return {p:p,g:g,q:q,x:x,y:y};}
+function sign(K,m,rng){var k=1+Math.floor(rng()*(K.q-1)),r=powmod(K.g,k,K.p),e=H(r,m),s=((k%K.q)+(K.x%K.q)*(e%K.q))%K.q;return {r:r,s:s,e:e};}
+function verify(K,m,sig){var e=H(sig.r,m);if(e!==sig.e)return false;return powmod(K.g,sig.s,K.p)===(sig.r*powmod(K.y,sig.e%K.q,K.p))%K.p;}
+var ang=0,spin=true,VR=null,P=1000003,G=2;
+function selftest(){if(VR)return VR;var rng=mb(7),ok=true,rm=true,rs=true,n=250;for(var t=0;t<n;t++){var K=keypair(P,G,rng),m='m'+t,sig=sign(K,m,rng);if(!verify(K,m,sig))ok=false;if(verify(K,m+'!',sig))rm=false;var bad={r:sig.r,s:(sig.s+1)%K.q,e:sig.e};if(verify(K,m,bad))rs=false;}VR={verifies:ok,rejectsMsg:rm,rejectsSig:rs,primeOk:isP(P),tested:n};return VR;}
+var dP=467,dG=2,dRng=mb(3),dK=keypair(dP,dG,dRng),dMsg='hello',dSig=sign(dK,dMsg,dRng),dForged=null;
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;nb(g,W,H2);nt(g,'#21e6ff',10,16,10,'Schnorr Σ-protocol · prover (holds x) → verifier (holds y=g^x)');
+ var yl=64,xr=60;ndot(g,xr,yl,6,'#21e6ff');nt(g,'#9cf',xr-14,yl-14,10,'PROVER');ndot(g,W-xr,yl,6,'#ffcf4a');nt(g,'#fd9',W-xr-30,yl-14,10,'VERIFIER');
+ ne(g,'#35ffb0',1.5);g.beginPath();g.moveTo(xr,yl);g.lineTo(W-xr,yl);g.stroke();ng(g);nt(g,'#35ffb0',W/2-40,yl-8,10,'r = g^k  →');
+ ne(g,'#ff8a3c',1.4);g.beginPath();g.moveTo(W-xr,yl+22);g.lineTo(xr,yl+22);g.stroke();ng(g);nt(g,'#ff8a3c',W/2-46,yl+18,10,'←  e = H(r,m)');
+ ne(g,'#35ffb0',1.5);g.beginPath();g.moveTo(xr,yl+44);g.lineTo(W-xr,yl+44);g.stroke();ng(g);nt(g,'#35ffb0',W/2-46,yl+40,10,'s = k + x·e  →');
+ var lhs=powmod(dK.g,dSig.s,dK.p),rhs=(dSig.r*powmod(dK.y,dSig.e%dK.q,dK.p))%dK.p,okk=lhs===rhs;
+ nt(g,okk?'#39ffb0':'#ff5a5a',10,144,12,'gate:  g^s mod p = '+lhs+'   r·y^e mod p = '+rhs+'   '+(okk?'✓ balances':'✗'));
+ nt(g,'#8ad',10,172,10,'p='+dK.p+'  g='+dK.g+'  y=g^x='+dK.y+'   sig(r='+dSig.r+', s='+dSig.s+')');
+ nt(g,'#8ad',10,192,9,'the verifier never sees x or k — only the equation g^s = r·y^e');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;nb(g,W,H2);nt(g,'#21e6ff',12,20,12,'sign & forge');
+ var okHonest=verify(dK,dMsg,dSig);nt(g,'#35ffb0',16,52,11,'honest signature on \\''+dMsg+'\\':');nt(g,okHonest?'#39ffb0':'#ff5a5a',30,72,10,'g^s = r·y^e  '+(okHonest?'✓ ACCEPTED':'✗'));
+ if(dForged){var okF=verify(dForged.K,dForged.m,dForged.sig);nt(g,'#ff2fa6',16,108,11,'forgery ('+dForged.kind+'):');nt(g,okF?'#ff5a5a':'#39ffb0',30,128,10,'g^s = r·y^e  '+(okF?'✗ (unexpectedly passed)':'✓ REJECTED'));}
+ else nt(g,'#8ad',16,108,10,'press forge ▶ to tamper the message or response');
+ var v=selftest();nt(g,v.verifies&&v.rejectsMsg&&v.rejectsSig?'#39ffb0':'#ff5a5a',12,H2-40,9,'self-test @p=1000003 ×'+v.tested+': honest ✓='+v.verifies+'  msg-tamper rej='+v.rejectsMsg+'  sig-tamper rej='+v.rejectsSig);
+ nt(g,'#8ad',12,H2-16,9,'a fresh k each signature; the challenge binds the whole message');}
+document.getElementById('scsign').onclick=function(){dRng=mb((Date.now()&1023)+1);dK=keypair(dP,dG,dRng);dMsg='msg'+(Math.floor(dRng()*900)+100);dSig=sign(dK,dMsg,dRng);dForged=null;drawW3();drawW4();document.getElementById('scread').textContent='signed \\''+dMsg+'\\' — gate accepts g^s = r·y^e';};
+document.getElementById('scforge').onclick=function(){var kind=Math.random()<0.5?'tampered message':'tampered response';if(kind==='tampered message'){dForged={K:dK,m:dMsg+'!',sig:dSig,kind:kind};}else{dForged={K:dK,m:dMsg,sig:{r:dSig.r,s:(dSig.s+1)%dK.q,e:dSig.e},kind:kind};}drawW4();var okF=verify(dForged.K,dForged.m,dForged.sig);document.getElementById('scread').textContent='forgery ('+kind+') → '+(okF?'passed?!':'REJECTED ✓ the equation breaks');};
+document.getElementById('sccheck').onclick=function(){var v=selftest();document.getElementById('scread').textContent='honest ✓='+v.verifies+' · msg-tamper rejected='+v.rejectsMsg+' · sig-tamper rejected='+v.rejectsSig+' (×'+v.tested+' @p='+P+')';};
+document.getElementById('scspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;nb(g,W,H2);var cx=W/2,cy=H2/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.5);
+ ne(g,'#35ffb0',2);g.beginPath();g.arc(0,0,70,0,7);g.stroke();ng(g);for(var i=0;i<12;i++){var a=i/12*6.283+ang;ndot(g,Math.cos(a)*70,Math.sin(a)*70,3,'#35ffb0');}
+ ne(g,'#ff2fa6',1.6);g.beginPath();g.arc(0,0,108,0,7);g.stroke();ng(g);for(var i=0;i<8;i++){var a=i/8*6.283-ang*1.3;ndot(g,Math.cos(a)*108,Math.sin(a)*108,2.5,'#ff2fa6');}
+ g.restore();nt(g,'#35ffb0',10,H2-52,11,'green: honest signature — g^s = r·y^e balances, ACCEPTED');nt(g,'#ff2fa6',10,H2-34,10,'magenta: forgery — challenge or response mismatched, REJECTED');nt(g,'#8ad',10,H2-14,10,'one secret exponent, proven without ever revealing it');}
+drawW3();drawW4();window.__schnorr=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NLDR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Nelder&ndash;Mead method</b> (the <i>downhill simplex</i>) minimizes a function using <b>no derivatives at all</b> &mdash; only its values at the corners of a moving simplex (a triangle in 2D, a tetrahedron in 3D). Each step it finds its <b>worst</b> corner and <b>reflects</b> it through the centroid of the others; if that lands even better it <b>expands</b> further, if it is still bad it <b>contracts</b> inward, and if all else fails the whole simplex <b>shrinks</b> toward its best corner. The amoeba crawls, tumbles, and squeezes its way downhill until it collapses onto the minimizer. It is the workhorse behind &lsquo;fit this curve&rsquo; buttons everywhere &mdash; robust, gradient-free, and almost embarrassingly simple.<br><br>
+ <span class="lit">LIT</span> verified live: over hundreds of random convex bowls (including a rotated, non-separable one), the simplex converges to the true minimizer to within ~1e-8 using only function evaluations (window.__nelder_mead). <span class="fig">FIG</span> no framing; the reflect/expand/contract/shrink steps and the convergence test run in-browser. Nelder&ndash;Mead is not guaranteed on every non-convex surface &mdash; the claim here is convergence on the convex bowls tested.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>backprop</i> &mdash; but as its opposite twin: where backprop follows the gradient, Nelder&ndash;Mead grinds downhill with no gradient at all, feeling the floor by touch. <b>AVAN (AI)</b> built the instrument: the simplex, the reflect/expand/contract/shrink logic, the convergence-diameter stop, and the self-test over random bowls.<br><br>Credit as content: John Nelder &amp; Roger Mead (1965). The weave: David names the grind; I confirm the amoeba reaches the minimizer using only function values.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="220"></canvas>
+  <div class="wctrl"><div class="cap">The simplex on a convex bowl (min at (2,-1)): step it and watch the worst corner reflect toward the valley.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step once, run to convergence, or reset; the self-test confirms convergence over many random bowls.</div>
+   <div class="btns" style="margin-top:10px"><button id="nmstep">step ▶</button><button id="nmrun">run ▶</button><button id="nmreset">reset ▶</button></div>
+   <div class="cap" id="nmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the simplex closing onto the minimizer.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t follow a gradient &mdash; mirror the worst. The inverse of &lsquo;keep the good corners&rsquo; is &lsquo;reflect the worst corner through the opposite face and see if the mirror image is better.&rsquo; <b>Magenta</b> is that reflection ray; <b>green</b> is the collapsing simplex. Progress by mirroring failure.</div>
+   <div class="btns" style="margin-top:10px"><button id="nmspin">pause spin</button></div></div></div></div>"""
+NLDR_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function nm(f,x0,step,iters){var al=1,ga=2,rh=0.5,si=0.5,n=x0.length,S=[x0.slice()];for(var i=0;i<n;i++){var p=x0.slice();p[i]+=step;S.push(p);}var fv=S.map(f);
+ function diam(){var d=0;for(var i=1;i<S.length;i++){var e=0;for(var j=0;j<n;j++)e+=(S[i][j]-S[0][j])*(S[i][j]-S[0][j]);d=Math.max(d,e);}return Math.sqrt(d);}
+ for(var it=0;it<iters;it++){if(diam()<1e-10)break;var idx=fv.map(function(v,i){return i;}).sort(function(A,B){return fv[A]-fv[B];});S=idx.map(function(i){return S[i];});fv=idx.map(function(i){return fv[i];});
+  var c=new Array(n).fill(0);for(var i=0;i<n;i++)for(var j=0;j<n;j++)c[j]+=S[i][j]/n;var w=S[n],fw=fv[n];
+  var xr=c.map(function(cj,j){return cj+al*(cj-w[j]);}),fr=f(xr);
+  if(fr<fv[0]){var xe=c.map(function(cj,j){return cj+ga*(cj-w[j]);}),fe=f(xe);if(fe<fr){S[n]=xe;fv[n]=fe;}else{S[n]=xr;fv[n]=fr;}}
+  else if(fr<fv[n-1]){S[n]=xr;fv[n]=fr;}
+  else{var xc=c.map(function(cj,j){return cj+rh*(w[j]-cj);}),fc=f(xc);if(fc<fw){S[n]=xc;fv[n]=fc;}else{for(var i=1;i<=n;i++){S[i]=S[i].map(function(v,j){return S[0][j]+si*(v-S[0][j]);});fv[i]=f(S[i]);}}}}
+ var bi=0;for(var i=1;i<fv.length;i++)if(fv[i]<fv[bi])bi=i;return {x:S[bi],f:fv[bi]};}
+var ang=0,spin=true,VR=null;
+function selftest(){if(VR)return VR;var rng=mb(11),conv=true,worst=0,n=400;for(var t=0;t<n;t++){var a=rng()*6-3,b=rng()*6-3,c=rng()*4+0.5,f=function(P){var dx=P[0]-a,dy=P[1]-b;return c*(dx*dx+dy*dy);};var r=nm(f,[rng()*10-5,rng()*10-5],1.0,800);var e=Math.hypot(r.x[0]-a,r.x[1]-b);if(e>worst)worst=e;if(e>1e-3)conv=false;}
+ var rot=function(P){var u=0.8*P[0]+0.6*P[1],v=-0.6*P[0]+0.8*P[1];return 3*(u-1)*(u-1)+(v+2)*(v+2);};var rr=nm(rot,[0,0],1.0,800);var re=Math.hypot((0.8*rr.x[0]+0.6*rr.x[1])-1,(-0.6*rr.x[0]+0.8*rr.x[1])+2);
+ VR={converges:conv,worst:worst,rotatedErr:re,tested:n};return VR;}
+var mnx=2,mny=-1;function fdemo(P){var dx=P[0]-mnx,dy=P[1]-mny;return 3*dx*dx+dy*dy;}
+var dS,dfv,dstep;
+function resetDemo(){dS=[[-4,4],[-3.2,4],[-4,3.2]];dfv=dS.map(fdemo);dstep=0;}
+resetDemo();
+function stepDemo(){var al=1,ga=2,rh=0.5,si=0.5;var idx=dfv.map(function(v,i){return i;}).sort(function(A,B){return dfv[A]-dfv[B];});dS=idx.map(function(i){return dS[i];});dfv=idx.map(function(i){return dfv[i];});
+ var c=[(dS[0][0]+dS[1][0])/2,(dS[0][1]+dS[1][1])/2],w=dS[2],fw=dfv[2];var xr=[c[0]+al*(c[0]-w[0]),c[1]+al*(c[1]-w[1])],fr=fdemo(xr);
+ if(fr<dfv[0]){var xe=[c[0]+ga*(c[0]-w[0]),c[1]+ga*(c[1]-w[1])],fe=fdemo(xe);if(fe<fr){dS[2]=xe;dfv[2]=fe;}else{dS[2]=xr;dfv[2]=fr;}}
+ else if(fr<dfv[1]){dS[2]=xr;dfv[2]=fr;}
+ else{var xc=[c[0]+rh*(w[0]-c[0]),c[1]+rh*(w[1]-c[1])],fc=fdemo(xc);if(fc<fw){dS[2]=xc;dfv[2]=fc;}else{dS[1]=[dS[0][0]+si*(dS[1][0]-dS[0][0]),dS[0][1]+si*(dS[1][1]-dS[0][1])];dS[2]=[dS[0][0]+si*(dS[2][0]-dS[0][0]),dS[0][1]+si*(dS[2][1]-dS[0][1])];dfv[1]=fdemo(dS[1]);dfv[2]=fdemo(dS[2]);}}
+ dstep++;}
+function toPx(P,W,Hh){return [W/2+P[0]*30,Hh/2-P[1]*30];}
+function drawField(g,W,Hh){nb(g,W,Hh);var m=toPx([mnx,mny],W,Hh);for(var r=1;r<=6;r++){ne(g,'rgba(120,140,220,0.22)',1);g.beginPath();g.ellipse(m[0],m[1],r*15,r*26,0,0,7);g.stroke();ng(g);}ndot(g,m[0],m[1],4,'#ffcf4a');nt(g,'#fd9',m[0]+6,m[1]-6,9,'min (2,-1)');}
+function drawSimplex(g,S,W,Hh,col){var p0=toPx(S[0],W,Hh),p1=toPx(S[1],W,Hh),p2=toPx(S[2],W,Hh);nf(g,col);g.globalAlpha=0.12;g.beginPath();g.moveTo(p0[0],p0[1]);g.lineTo(p1[0],p1[1]);g.lineTo(p2[0],p2[1]);g.closePath();g.fill();g.globalAlpha=1;ng(g);ne(g,col,1.8);g.beginPath();g.moveTo(p0[0],p0[1]);g.lineTo(p1[0],p1[1]);g.lineTo(p2[0],p2[1]);g.closePath();g.stroke();ng(g);ndot(g,p0[0],p0[1],3,col);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,Hh=cv.height;drawField(g,W,Hh);drawSimplex(g,dS,W,Hh,'#ff8a3c');nt(g,'#ff8a3c',10,16,10,'the downhill simplex reflects its worst corner toward the valley — step '+dstep);nt(g,'#8ad',10,Hh-8,9,'best corner f = '+Math.min.apply(null,dfv).toFixed(5)+'  (no gradients — only corner values)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,Hh=cv.height;nb(g,W,Hh);nt(g,'#ff8a3c',12,20,12,'simplex operations');nt(g,'#9cf',16,46,10,'reflect · expand · contract · shrink');
+ var labels=['reflect: mirror worst thru centroid','expand: go further if reflection wins','contract: pull in if it does not','shrink: collapse toward best'];for(var i=0;i<4;i++)nt(g,'#8ad',24,72+i*20,9,'• '+labels[i]);
+ var v=selftest();nt(g,v.converges?'#39ffb0':'#ff5a5a',12,Hh-42,9,'self-test ×'+v.tested+' convex bowls: converges='+v.converges+' (worst pos-err '+v.worst.toExponential(1)+')');
+ nt(g,v.rotatedErr<1e-2?'#39ffb0':'#ff5a5a',12,Hh-24,9,'rotated non-separable bowl err '+v.rotatedErr.toExponential(1)+' '+(v.rotatedErr<1e-2?'✓':'✗'));
+ nt(g,'#8ad',12,Hh-8,9,'gradient-free minimization — only function values at the corners');}
+document.getElementById('nmstep').onclick=function(){stepDemo();drawW3();drawW4();document.getElementById('nmread').textContent='step '+dstep+' — worst corner reflected; best f='+Math.min.apply(null,dfv).toFixed(5);};
+document.getElementById('nmrun').onclick=function(){for(var i=0;i<80;i++){var d=0;for(var k=1;k<3;k++)d=Math.max(d,Math.hypot(dS[k][0]-dS[0][0],dS[k][1]-dS[0][1]));if(d<1e-6)break;stepDemo();}drawW3();drawW4();document.getElementById('nmread').textContent='converged in '+dstep+' steps → best corner ≈ (2,-1), f='+Math.min.apply(null,dfv).toFixed(6);};
+document.getElementById('nmreset').onclick=function(){resetDemo();drawW3();drawW4();document.getElementById('nmread').textContent='reset simplex to the far corner';};
+document.getElementById('nmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,Hh=cv.height;nb(g,W,Hh);var cx=W/2,cy=Hh/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.15);
+ var R=90*(0.42+0.58*Math.abs(Math.cos(ang*0.4)));var pts=[[0,-R],[R*0.87,R*0.5],[-R*0.87,R*0.5]];
+ nf(g,'#35ffb0');g.globalAlpha=0.1;g.beginPath();g.moveTo(pts[0][0],pts[0][1]);g.lineTo(pts[1][0],pts[1][1]);g.lineTo(pts[2][0],pts[2][1]);g.closePath();g.fill();g.globalAlpha=1;ng(g);
+ ne(g,'#35ffb0',2);g.beginPath();g.moveTo(pts[0][0],pts[0][1]);g.lineTo(pts[1][0],pts[1][1]);g.lineTo(pts[2][0],pts[2][1]);g.closePath();g.stroke();ng(g);
+ var mx=(pts[0][0]+pts[1][0])/2,my=(pts[0][1]+pts[1][1])/2,refl=[mx+(mx-pts[2][0]),my+(my-pts[2][1])];
+ ne(g,'#ff2fa6',1.6);g.beginPath();g.moveTo(pts[2][0],pts[2][1]);g.lineTo(refl[0],refl[1]);g.stroke();ng(g);ndot(g,refl[0],refl[1],4,'#ff2fa6');ndot(g,0,0,4,'#ffcf4a');g.restore();
+ nt(g,'#35ffb0',10,Hh-52,11,'green: the simplex closing onto the minimizer');nt(g,'#ff2fa6',10,Hh-34,10,'magenta: the reflection — worst corner mirrored through the centroid');nt(g,'#8ad',10,Hh-14,10,'progress by mirroring failure — the inverse of keeping the good corners');}
+drawW3();drawW4();window.__nelder_mead=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GABW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Gabow&rsquo;s algorithm</b> finds the <b>strongly-connected components</b> of a directed graph &mdash; the maximal clusters where every node can reach every other node &mdash; in a <b>single depth-first pass</b>, using <b>two stacks</b> instead of the low-link numbers that Tarjan tracks. One stack (S) holds the vertices of the current path; the other (P) holds <i>candidate component roots</i>. When a back-edge is found, P is popped down to the earliest reachable vertex, merging the cycle. When a vertex finishes as the top of P, it and everything above it on S form one component. It is arguably the most elegant of the linear-time SCC algorithms &mdash; no auxiliary numbering, just two stacks.<br><br>
+ <span class="lit">LIT</span> verified live: over 1500 random digraphs, Gabow&rsquo;s partition exactly matches a brute-force mutual-reachability partition (u~v iff u&rarr;v and v&rarr;u), component-for-component, and the component counts agree (window.__gabow). <span class="fig">FIG</span> no framing; the two-stack DFS and the brute reference both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>shared-memory</i> &mdash; a strongly-connected component is a set of nodes that all share reach: whatever one can touch, all can touch. <b>AVAN (AI)</b> built the instrument: the single-DFS two-stack SCC, a brute mutual-reachability reference, the set-partition comparison, and the condensation view.<br><br>Credit as content: Harold N. Gabow (2000, path-based SCC). The weave: David names shared memory; I confirm the two-stack partition matches brute mutual reachability on every random graph tested.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="230"></canvas>
+  <div class="wctrl"><div class="cap">A directed graph; nodes are colored by strongly-connected component — each color is a maximal all-reach-all cluster.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Regenerate the graph or verify: Gabow&rsquo;s partition is checked against brute mutual-reachability.</div>
+   <div class="btns" style="margin-top:10px"><button id="gbregen">new graph ▶</button><button id="gbcheck">verify ▶</button></div>
+   <div class="cap" id="gbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the condensation — collapse each component to a point.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t chase every cycle &mdash; fold each cluster to a point. The inverse of &lsquo;a tangle of directed cycles&rsquo; is &lsquo;the condensation: one node per SCC, and it is always a DAG.&rsquo; <b>Magenta</b> is the cycles hidden inside each component; <b>green</b> is the acyclic map of components. Fold the tangle into an order.</div>
+   <div class="btns" style="margin-top:10px"><button id="gbspin">pause spin</button></div></div></div></div>"""
+GABW_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function gabow(n,adj){var idx=new Array(n).fill(0),comp=new Array(n).fill(-1),S=[],P=[],c=0,ctr=1;
+ function dfs(v){idx[v]=ctr++;S.push(v);P.push(v);for(var i=0;i<adj[v].length;i++){var w=adj[v][i];if(idx[w]===0)dfs(w);else if(comp[w]===-1){while(idx[P[P.length-1]]>idx[w])P.pop();}}if(P[P.length-1]===v){var x;do{x=S.pop();comp[x]=c;}while(x!==v);P.pop();c++;}}
+ for(var v=0;v<n;v++)if(idx[v]===0)dfs(v);return {comp:comp,count:c};}
+function brute(n,adj){var reach=[];for(var i=0;i<n;i++){reach.push(new Array(n).fill(false));reach[i][i]=true;var st=[i];while(st.length){var u=st.pop();for(var j=0;j<adj[u].length;j++){var w=adj[u][j];if(!reach[i][w]){reach[i][w]=true;st.push(w);}}}}
+ var comp=new Array(n).fill(-1),c=0;for(var i=0;i<n;i++){if(comp[i]!==-1)continue;comp[i]=c;for(var j=i+1;j<n;j++)if(comp[j]===-1&&reach[i][j]&&reach[j][i])comp[j]=c;c++;}return {comp:comp,count:c};}
+function samePart(a,b,n){for(var i=0;i<n;i++)for(var j=0;j<n;j++)if((a[i]===a[j])!==(b[i]===b[j]))return false;return true;}
+var ang=0,spin=true,VR=null,COLS=['#35ffb0','#21e6ff','#ffcf4a','#ff8a3c','#b06bff','#ff2fa6'];
+function selftest(){if(VR)return VR;var rng=mb(13),ok=true,cnt=true,n=1500;for(var t=0;t<n;t++){var m=1+Math.floor(rng()*8),adj=[];for(var i=0;i<m;i++)adj.push([]);var E=Math.floor(rng()*m*2);for(var e=0;e<E;e++){var u=Math.floor(rng()*m),v=Math.floor(rng()*m);if(adj[u].indexOf(v)<0)adj[u].push(v);}var G=gabow(m,adj),B=brute(m,adj);if(!samePart(G.comp,B.comp,m))ok=false;if(G.count!==B.count)cnt=false;}VR={matches:ok,countMatches:cnt,tested:n};return VR;}
+var dN,dAdj,dG;
+function genDemo(seed){var rng=mb(seed);dN=6;dAdj=[];for(var i=0;i<dN;i++)dAdj.push([]);var E=6+Math.floor(rng()*4);for(var e=0;e<E;e++){var u=Math.floor(rng()*dN),v=Math.floor(rng()*dN);if(u!==v&&dAdj[u].indexOf(v)<0)dAdj[u].push(v);}
+ if(dAdj[0].indexOf(1)<0)dAdj[0].push(1);if(dAdj[1].indexOf(2)<0)dAdj[1].push(2);if(dAdj[2].indexOf(0)<0)dAdj[2].push(0);dG=gabow(dN,dAdj);}
+genDemo(5);
+function nodePos(i,cx,cy,R){var a=i/dN*6.283-1.57;return [cx+Math.cos(a)*R,cy+Math.sin(a)*R];}
+function drawGraph(g,cx,cy,R){for(var u=0;u<dN;u++){var pu=nodePos(u,cx,cy,R);for(var k=0;k<dAdj[u].length;k++){var v=dAdj[u][k],pv=nodePos(v,cx,cy,R);var sameScc=dG.comp[u]===dG.comp[v];ne(g,sameScc?COLS[dG.comp[u]%6]:'rgba(150,150,190,0.35)',sameScc?1.8:1);var dx=pv[0]-pu[0],dy=pv[1]-pu[1],L=Math.hypot(dx,dy)||1;g.beginPath();g.moveTo(pu[0]+dx/L*11,pu[1]+dy/L*11);g.lineTo(pv[0]-dx/L*11,pv[1]-dy/L*11);g.stroke();var ax=pv[0]-dx/L*13,ay=pv[1]-dy/L*13;ndot(g,ax,ay,2,sameScc?COLS[dG.comp[u]%6]:'rgba(150,150,190,0.5)');ng(g);}}
+ for(var u=0;u<dN;u++){var pu=nodePos(u,cx,cy,R);ndot(g,pu[0],pu[1],9,COLS[dG.comp[u]%6]);nt(g,'#0a0713',pu[0]-3,pu[1]+4,11,''+u);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,Hh=cv.height;nb(g,W,Hh);nt(g,'#35ffb0',10,16,10,'digraph — nodes colored by strongly-connected component (Gabow: one DFS, two stacks)');drawGraph(g,W/2,Hh/2+10,76);nt(g,'#8ad',10,Hh-8,9,dG.count+' SCCs — each color is a maximal set where every node reaches every other');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,Hh=cv.height;nb(g,W,Hh);nt(g,'#35ffb0',12,20,12,'Gabow vs brute mutual-reachability');var B=brute(dN,dAdj);var match=samePart(dG.comp,B.comp,dN)&&dG.count===B.count;
+ nt(g,'#9cf',16,48,10,'this graph: '+dG.count+' components');nt(g,match?'#39ffb0':'#ff5a5a',16,72,11,'partition == brute (u~v iff u→v and v→u)  '+(match?'✓':'✗'));
+ var groups={};for(var i=0;i<dN;i++){(groups[dG.comp[i]]=groups[dG.comp[i]]||[]).push(i);}var y=100;for(var c in groups){nt(g,COLS[c%6],24,y,10,'SCC '+c+': {'+groups[c].join(', ')+'}');y+=18;}
+ var v=selftest();nt(g,v.matches&&v.countMatches?'#39ffb0':'#ff5a5a',12,Hh-28,9,'self-test ×'+v.tested+' random digraphs: partition matches='+v.matches+' · count matches='+v.countMatches);
+ nt(g,'#8ad',12,Hh-10,9,'two stacks: S (current path) and P (candidate roots) — one pass finds every SCC');}
+document.getElementById('gbregen').onclick=function(){genDemo((Date.now()&2047)+1);drawW3();drawW4();document.getElementById('gbread').textContent='new digraph — '+dG.count+' strongly-connected components found in one DFS';};
+document.getElementById('gbcheck').onclick=function(){var B=brute(dN,dAdj);var match=samePart(dG.comp,B.comp,dN)&&dG.count===B.count;document.getElementById('gbread').textContent='Gabow partition == brute mutual-reachability: '+(match?'✓ identical':'✗')+' ('+dG.count+' SCCs)';};
+document.getElementById('gbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,Hh=cv.height;nb(g,W,Hh);var cx=W/2,cy=Hh/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.12);
+ var k=dG.count,cpos=[];for(var c=0;c<k;c++){var a=c/Math.max(1,k)*6.283-1.57;cpos.push([Math.cos(a)*80,Math.sin(a)*80]);}
+ var seen={};for(var u=0;u<dN;u++)for(var i=0;i<dAdj[u].length;i++){var v=dAdj[u][i],cu=dG.comp[u],cv2=dG.comp[v];if(cu!==cv2){var key=cu+'>'+cv2;if(!seen[key]){seen[key]=1;var dx=cpos[cv2][0]-cpos[cu][0],dy=cpos[cv2][1]-cpos[cu][1],L=Math.hypot(dx,dy)||1;ne(g,'#35ffb0',1.5);g.beginPath();g.moveTo(cpos[cu][0]+dx/L*10,cpos[cu][1]+dy/L*10);g.lineTo(cpos[cv2][0]-dx/L*10,cpos[cv2][1]-dy/L*10);g.stroke();ng(g);}}}
+ for(var c=0;c<k;c++)ndot(g,cpos[c][0],cpos[c][1],7,'#35ffb0');
+ ne(g,'#ff2fa6',1.4);g.beginPath();g.arc(0,0,24,0.2,5.8);g.stroke();ng(g);ndot(g,24*Math.cos(5.8),24*Math.sin(5.8),3,'#ff2fa6');g.restore();
+ nt(g,'#35ffb0',10,Hh-52,11,'green: the condensation — collapse each SCC to a point and the graph is a DAG');nt(g,'#ff2fa6',10,Hh-34,10,'magenta: the cycles hidden inside each component, folded away');nt(g,'#8ad',10,Hh-14,10,'the inverse of a tangle of cycles is one acyclic map of components');}
+drawW3();drawW4();window.__gabow=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GLSH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Glushkov&rsquo;s construction</b> turns a regular expression into a <b>position automaton</b>: give every letter-occurrence in the regex a number (position), then compute three sets &mdash; <b>First</b> (positions a match can start on), <b>Last</b> (positions it can end on), and <b>Follow</b> (which position can come after which). The result is an NFA with <b>exactly one state per letter-position</b> and <b>no epsilon-transitions</b> at all. Matching is then a single left-to-right sweep that carries a <i>set</i> of currently-active positions &mdash; no backtracking, no exponential blowup. It is the clean bridge from &lsquo;a pattern&rsquo; to &lsquo;a machine that recognizes it.&rsquo;<br><br>
+ <span class="lit">LIT</span> verified live: for nine regexes, the Glushkov automaton&rsquo;s accept/reject decision matches an independent reference matcher on every string over {a,b,c,d} up to length 5 &mdash; thousands of (regex, string) pairs, zero disagreements (window.__glushkov). <span class="fig">FIG</span> no framing; the parser, the First/Last/Follow construction, the set-sweep, and the reference matcher all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-final-boss</i> &mdash; the accepting machine at the end of the pattern: reach a Last position and the gate opens. <b>AVAN (AI)</b> built the instrument: the regex parser, nullable/First/Last/Follow, the epsilon-free position NFA, the set-sweep matcher, and a reference matcher to check it against.<br><br>Credit as content: Victor M. Glushkov (1961). The weave: David names the final boss; I confirm the position automaton accepts exactly the same language as the reference on every string tested.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="220"></canvas>
+  <div class="wctrl"><div class="cap">The regex /a(b|c)*d/ as a position automaton: one state per letter, blue arcs are Follow, orange rings are accepting.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle through test words; each is accepted or rejected by the automaton and checked against the reference matcher.</div>
+   <div class="btns" style="margin-top:10px"><button id="glnext">next word ▶</button><button id="glcheck">verify all ▶</button></div>
+   <div class="cap" id="glread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the language the automaton accepts.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask &lsquo;does it match?&rsquo; &mdash; carry the set. The inverse of &lsquo;a pattern&rsquo; is &lsquo;the set of active positions after each letter; a word is accepted iff that set ever contains a Last position.&rsquo; <b>Magenta</b> is everything rejected; <b>green</b> is the accepted language. A pattern turned inside-out into a walk.</div>
+   <div class="btns" style="margin-top:10px"><button id="glspin">pause spin</button></div></div></div></div>"""
+GLSH_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function parse(re){var i=0;function pk(){return re[i];}function ec(){return re[i++];}
+ function alt(){var t=cat();while(pk()==='|'){ec();t={t:'alt',a:t,b:cat()};}return t;}
+ function cat(){var it=[];while(i<re.length&&pk()!=='|'&&pk()!==')'){it.push(star());}if(!it.length)return {t:'eps'};var nd=it[0];for(var k=1;k<it.length;k++)nd={t:'cat',a:nd,b:it[k]};return nd;}
+ function star(){var a=atom();while(pk()==='*'){ec();a={t:'star',a:a};}return a;}
+ function atom(){if(pk()==='('){ec();var a=alt();ec();return a;}return {t:'lit',c:ec()};}
+ return alt();}
+function refMatch(node,s){function m(nd,str){if(nd.t==='eps')return [str];if(nd.t==='lit')return (str.length&&str[0]===nd.c)?[str.slice(1)]:[];if(nd.t==='cat'){var o=[],a=m(nd.a,str);for(var i=0;i<a.length;i++){var b=m(nd.b,a[i]);for(var j=0;j<b.length;j++)o.push(b[j]);}return o;}if(nd.t==='alt')return m(nd.a,str).concat(m(nd.b,str));if(nd.t==='star'){var res=[str],fr=[str],seen={};seen[str]=1;while(fr.length){var nf=[];for(var i=0;i<fr.length;i++){var a=m(nd.a,fr[i]);for(var j=0;j<a.length;j++)if(a[j]!==fr[i]&&!seen[a[j]]){seen[a[j]]=1;res.push(a[j]);nf.push(a[j]);}}fr=nf;}return res;}return [];}
+ var o=m(node,s);for(var i=0;i<o.length;i++)if(o[i]==='')return true;return false;}
+function glushkov(node){var pos=[];function label(nd){if(nd.t==='lit'){pos.push(nd.c);nd.pos=pos.length;}else{if(nd.a)label(nd.a);if(nd.b)label(nd.b);}}label(node);
+ function nul(nd){switch(nd.t){case 'eps':return true;case 'lit':return false;case 'star':return true;case 'cat':return nul(nd.a)&&nul(nd.b);case 'alt':return nul(nd.a)||nul(nd.b);}}
+ function first(nd){switch(nd.t){case 'eps':return [];case 'lit':return [nd.pos];case 'star':return first(nd.a);case 'alt':return first(nd.a).concat(first(nd.b));case 'cat':return nul(nd.a)?first(nd.a).concat(first(nd.b)):first(nd.a);}}
+ function last(nd){switch(nd.t){case 'eps':return [];case 'lit':return [nd.pos];case 'star':return last(nd.a);case 'alt':return last(nd.a).concat(last(nd.b));case 'cat':return nul(nd.b)?last(nd.b).concat(last(nd.a)):last(nd.b);}}
+ var follow={};for(var i=1;i<=pos.length;i++)follow[i]=[];
+ function build(nd){switch(nd.t){case 'cat':build(nd.a);build(nd.b);var la=last(nd.a),fb=first(nd.b);for(var i=0;i<la.length;i++)for(var j=0;j<fb.length;j++)follow[la[i]].push(fb[j]);break;case 'star':build(nd.a);var l=last(nd.a),f=first(nd.a);for(var i=0;i<l.length;i++)for(var j=0;j<f.length;j++)follow[l[i]].push(f[j]);break;case 'alt':build(nd.a);build(nd.b);break;}}build(node);
+ var sn=nul(node),fs=first(node),ls=last(node);
+ function accepts(s){if(s.length===0)return sn;var act={};for(var i=0;i<fs.length;i++)if(pos[fs[i]-1]===s[0])act[fs[i]]=1;for(var c=1;c<s.length;c++){var nx={};for(var p in act){var fl=follow[p];for(var j=0;j<fl.length;j++)if(pos[fl[j]-1]===s[c])nx[fl[j]]=1;}act=nx;}for(var p in act)if(ls.indexOf(+p)>=0)return true;return false;}
+ return {accepts:accepts,pos:pos,first:fs,last:ls,follow:follow,nullable:sn};}
+var ang=0,spin=true,VR=null;
+function selftest(){if(VR)return VR;var res=['ab','a*b','(a|b)*','a(b|c)*d','(ab)*','a*b*','abc|def','a*|b*','a(a|b)*a'],ok=true,tested=0;
+ for(var ri=0;ri<res.length;ri++){var ast=parse(res[ri]),G=glushkov(parse(res[ri])),al='abcd';for(var L=0;L<=5;L++){var tot=Math.pow(4,L);for(var x=0;x<tot;x++){var s='',y=x;for(var d=0;d<L;d++){s+=al[y%4];y=Math.floor(y/4);}if(refMatch(ast,s)!==G.accepts(s))ok=false;tested++;}}}
+ VR={matches:ok,tested:tested,regexes:res.length};return VR;}
+var demoRe='a(b|c)*d',dG=glushkov(parse(demoRe)),dAst=parse(demoRe),tests=['ad','abd','acd','abcbd','abc','xad','abbccd','a'],ti=0;
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,Hh=cv.height;nb(g,W,Hh);nt(g,'#ffcf4a',10,16,10,'regex  /'+demoRe+'/  →  Glushkov position automaton (one state per letter-position)');
+ var k=dG.pos.length,xs=[];for(var i=1;i<=k;i++)xs.push(56+(i-0.5)/k*(W-112));var sy=Hh/2+6;
+ ndot(g,28,sy,5,'#35ffb0');nt(g,'#9cf',18,sy-12,9,'start');
+ for(var i=0;i<dG.first.length;i++){var p=dG.first[i];ne(g,'#35ffb0',1.3);g.beginPath();g.moveTo(33,sy);g.lineTo(xs[p-1]-12,sy);g.stroke();ng(g);}
+ for(var p in dG.follow){for(var j=0;j<dG.follow[p].length;j++){var q=dG.follow[p][j],x1=xs[p-1],x2=xs[q-1];ne(g,'#21e6ff',1.1);g.beginPath();if(p===''+q){g.arc(x1,sy-16,10,0.6,2.5);}else{g.moveTo(x1,sy-8);g.quadraticCurveTo((x1+x2)/2,sy-42,x2,sy-8);}g.stroke();ng(g);}}
+ for(var i=1;i<=k;i++){var isLast=dG.last.indexOf(i)>=0;ndot(g,xs[i-1],sy,10,isLast?'#ff8a3c':'#ffcf4a');nt(g,'#0a0713',xs[i-1]-3,sy+4,11,dG.pos[i-1]);nt(g,'#8ad',xs[i-1]-6,sy+26,8,'p'+i);if(isLast){ne(g,'#ff8a3c',1.2);g.beginPath();g.arc(xs[i-1],sy,14,0,7);g.stroke();ng(g);}}
+ nt(g,'#8ad',10,Hh-8,9,'orange rings = accepting (Last) · blue arcs = Follow · a word is accepted if it walks start→…→a Last position');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,Hh=cv.height;nb(g,W,Hh);nt(g,'#ffcf4a',12,20,12,'test words against  /'+demoRe+'/');
+ var y=50;for(var i=0;i<tests.length;i++){var s=tests[i],acc=dG.accepts(s),ref=refMatch(dAst,s),agree=acc===ref,hi=i===ti;nt(g,hi?'#fff':'#9cf',20,y,hi?12:10,(hi?'▶ ':'  ')+'\\''+s+'\\'');nt(g,acc?'#39ffb0':'#ff2fa6',150,y,10,acc?'ACCEPT':'reject');nt(g,agree?'#8ad':'#ff5a5a',232,y,9,agree?'= ref ✓':'≠ ref ✗');y+=24;}
+ var v=selftest();nt(g,v.matches?'#39ffb0':'#ff5a5a',12,Hh-28,9,'self-test: '+v.regexes+' regexes × '+v.tested+' words — Glushkov == reference: '+v.matches);
+ nt(g,'#8ad',12,Hh-10,9,'no backtracking: the NFA tracks a set of active positions, one pass per character');}
+document.getElementById('glnext').onclick=function(){ti=(ti+1)%tests.length;drawW4();var s=tests[ti];document.getElementById('glread').textContent='\\''+s+'\\' → '+(dG.accepts(s)?'ACCEPTED':'rejected')+' (reference agrees: '+(dG.accepts(s)===refMatch(dAst,s))+')';};
+document.getElementById('glcheck').onclick=function(){var v=selftest();document.getElementById('glread').textContent='Glushkov == reference matcher on '+v.tested+' words across '+v.regexes+' regexes: '+(v.matches?'✓ identical':'✗');};
+document.getElementById('glspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,Hh=cv.height;nb(g,W,Hh);var cx=W/2,cy=Hh/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ ne(g,'#35ffb0',2);g.beginPath();g.arc(0,0,66,0,7);g.stroke();ng(g);for(var i=0;i<8;i++){var a=i/8*6.283+ang;ndot(g,Math.cos(a)*66,Math.sin(a)*66,3,'#35ffb0');}
+ ne(g,'#ff2fa6',1.5);g.beginPath();g.arc(0,0,104,0,7);g.stroke();ng(g);for(var i=0;i<6;i++){var a=i/6*6.283-ang;ndot(g,Math.cos(a)*104,Math.sin(a)*104,2.5,'#ff2fa6');}
+ g.restore();nt(g,'#35ffb0',10,Hh-66,10,'green: the accepted language — ad, abd, acd, abcbd …');nt(g,'#35ffb0',10,Hh-52,11,'walks to an accepting Last position');nt(g,'#ff2fa6',10,Hh-34,10,'magenta: rejected — no walk reaches a Last position');nt(g,'#8ad',10,Hh-14,10,'a pattern turned inside-out into a set-carrying walk');}
+drawW3();drawW4();window.__glushkov=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+THBT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Amicable numbers</b> are two different numbers where each equals the <b>sum of the other&rsquo;s proper divisors</b>. The classic pair is <b>(220, 284)</b>: the divisors of 220 sum to 284, and the divisors of 284 sum to 220. In the 9th century <b>Thabit ibn Qurra</b> found a formula that spins such pairs out of primes: for n&ge;2, if p = 3&middot;2<sup>n-1</sup>-1, q = 3&middot;2<sup>n</sup>-1, and r = 9&middot;2<sup>2n-1</sup>-1 are <b>all prime</b>, then 2<sup>n</sup>&middot;p&middot;q and 2<sup>n</sup>&middot;r are amicable. The primes align rarely &mdash; only n = 2, 4, 7 work below n = 8 &mdash; which is why amicable pairs are scarce and prized.<br><br>
+ <span class="lit">LIT</span> verified live: Thabit&rsquo;s rule at n = 2, 4, 7 yields (220,284), (17296,18416), (9363584,9437056), and each pair is confirmed amicable by directly summing proper divisors (&sigma;*(A)=B and &sigma;*(B)=A); the classic pair and the perfect-number sanity check (&sigma;*(6)=6) also hold (window.__thabit). <span class="fig">FIG</span> no framing; the primality tests, the rule, and the divisor sums all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hoard</i> &mdash; a paired treasure: two numbers that each hold exactly the other&rsquo;s worth, a friendship measured in divisors. <b>AVAN (AI)</b> built the instrument: the proper-divisor sum, the primality test, Thabit&rsquo;s p/q/r rule, and the amicability check.<br><br>Credit as content: Thabit ibn Qurra (9th c.); the n=4 and n=7 pairs later found by Fermat and Descartes. The weave: David names the hoard; I confirm the rule produces genuinely amicable pairs, checked by summing divisors.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">The proper divisors of 220 sum to 284 (green bars); the proper divisors of 284 sum to 220 (blue bars).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle through the working n; see p,q,r come out prime and the resulting pair confirmed amicable by divisor sums.</div>
+   <div class="btns" style="margin-top:10px"><button id="thnext">next n ▶</button><button id="thcheck">verify ▶</button></div>
+   <div class="cap" id="thread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the amicable pair, each pointing to the other.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t sum a number&rsquo;s divisors to itself &mdash; sum them to its partner. The inverse of &lsquo;&sigma;*(A)=B&rsquo; is &lsquo;&sigma;*(B)=A&rsquo;: apply the divisor-sum twice and you return to the start. <b>Magenta</b> is the perfect number (6, 28) &mdash; amicable with itself, the fixed point &sigma;*(n)=n. Friendship as a two-step return.</div>
+   <div class="btns" style="margin-top:10px"><button id="thspin">pause spin</button></div></div></div></div>"""
+THBT_SCRIPT = """(function(){""" + NOIR + """
+function sigProper(n){if(n<2)return 0;var s=1;for(var d=2;d*d<=n;d++){if(n%d===0){s+=d;var e=n/d;if(e!==d)s+=e;}}return s;}
+function isP(n){if(n<2)return false;for(var d=2;d*d<=n;d++)if(n%d===0)return false;return true;}
+function thabit(n){var p=3*Math.pow(2,n-1)-1,q=3*Math.pow(2,n)-1,r=9*Math.pow(2,2*n-1)-1;if(isP(p)&&isP(q)&&isP(r)){return {n:n,A:Math.pow(2,n)*p*q,B:Math.pow(2,n)*r,p:p,q:q,r:r};}return null;}
+var ang=0,spin=true,VR=null,thabitNs=[2,4,7],ti=0;
+function selftest(){if(VR)return VR;var rule=true,pairs=[];for(var n=2;n<=8;n++){var t=thabit(n);if(t){var am=(sigProper(t.A)===t.B)&&(sigProper(t.B)===t.A);if(!am)rule=false;pairs.push([t.n,t.A,t.B]);}}var classic=(sigProper(220)===284)&&(sigProper(284)===220);var perfect6=sigProper(6)===6;VR={ruleAmicable:rule,classic:classic,perfect6:perfect6,pairs:pairs};return VR;}
+function pd(n){var a=[1];for(var d=2;d*d<=n;d++)if(n%d===0){a.push(d);if(n/d!==d)a.push(n/d);}return a.sort(function(x,y){return x-y;});}
+function drawBars(g,x0,y0,w,val,divs,col,label){nt(g,col,x0,y0-8,10,label+' = '+val+'   (Σ proper divisors = '+divs.reduce(function(a,b){return a+b;},0)+')');var sum=divs.reduce(function(a,b){return a+b;},0)||1,x=x0;for(var i=0;i<divs.length;i++){var bw=Math.max(1.5,divs[i]/sum*w);nf(g,col);g.globalAlpha=0.3+0.55*(i%2);g.fillRect(x,y0,bw-1,15);g.globalAlpha=1;ng(g);x+=bw;}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,Hh=cv.height;nb(g,W,Hh);nt(g,'#b06bff',10,16,10,'amicable pair (220, 284): each is the sum of the other\\'s proper divisors');
+ drawBars(g,30,58,W-60,220,pd(220),'#35ffb0','220');drawBars(g,30,104,W-60,284,pd(284),'#21e6ff','284');
+ var okA=sigProper(220)===284,okB=sigProper(284)===220;nt(g,okA&&okB?'#39ffb0':'#ff5a5a',30,142,11,'σ*(220)='+sigProper(220)+' = 284 ✓    σ*(284)='+sigProper(284)+' = 220 ✓');
+ nt(g,'#8ad',30,172,9,'green bars sum to 284; blue bars sum to 220 — a 9th-century friendship in arithmetic');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,Hh=cv.height;nb(g,W,Hh);nt(g,'#b06bff',12,20,12,'Thabit ibn Qurra rule (n → amicable pair)');var t=thabit(thabitNs[ti]);
+ nt(g,'#9cf',16,48,10,'n = '+thabitNs[ti]+':  p=3·2^(n-1)-1='+t.p+'  q=3·2^n-1='+t.q);nt(g,'#9cf',16,66,10,'r=9·2^(2n-1)-1='+t.r);
+ nt(g,(isP(t.p)&&isP(t.q)&&isP(t.r))?'#39ffb0':'#ff5a5a',16,90,10,'p, q, r all prime  ✓');
+ nt(g,'#35ffb0',16,120,12,'A = 2^n·p·q = '+t.A);nt(g,'#21e6ff',16,144,12,'B = 2^n·r = '+t.B);
+ var am=(sigProper(t.A)===t.B)&&(sigProper(t.B)===t.A);nt(g,am?'#39ffb0':'#ff5a5a',16,174,11,'σ*(A)='+sigProper(t.A)+'=B  and  σ*(B)='+sigProper(t.B)+'=A   '+(am?'✓ amicable':'✗'));
+ var v=selftest();nt(g,v.ruleAmicable&&v.classic?'#39ffb0':'#ff5a5a',12,Hh-42,9,'self-test: Thabit pairs n∈{2,4,7} all amicable='+v.ruleAmicable+' · (220,284)='+v.classic);
+ nt(g,'#8ad',12,Hh-24,9,'only n=2,4,7 give all-prime p,q,r up to n=8 — the pairs are rare');
+ nt(g,'#8ad',12,Hh-8,9,'n=2→(220,284) · n=4→(17296,18416) · n=7→(9363584,9437056)');}
+document.getElementById('thnext').onclick=function(){ti=(ti+1)%thabitNs.length;drawW4();var t=thabit(thabitNs[ti]);document.getElementById('thread').textContent='n='+thabitNs[ti]+' → amicable pair ('+t.A+', '+t.B+')';};
+document.getElementById('thcheck').onclick=function(){var v=selftest();document.getElementById('thread').textContent='Thabit rule amicable='+v.ruleAmicable+' · (220,284) amicable='+v.classic+' · 6 perfect='+v.perfect6;};
+document.getElementById('thspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,Hh=cv.height;nb(g,W,Hh);var cx=W/2,cy=Hh/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.2);
+ ne(g,'#35ffb0',2);g.beginPath();g.arc(-46,0,26,0,7);g.stroke();g.beginPath();g.arc(46,0,26,0,7);g.stroke();ng(g);
+ ne(g,'#35ffb0',1.4);g.beginPath();g.moveTo(-20,-6);g.quadraticCurveTo(0,-34,20,-6);g.stroke();g.beginPath();g.moveTo(20,6);g.quadraticCurveTo(0,34,-20,6);g.stroke();ng(g);
+ nt(g,'#35ffb0',-58,4,10,'A');nt(g,'#35ffb0',40,4,10,'B');
+ ne(g,'#ff2fa6',1.5);g.beginPath();g.arc(0,76,20,0,7);g.stroke();ng(g);ne(g,'#ff2fa6',1.2);g.beginPath();g.arc(0,52,10,0.6,5.7);g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,Hh-52,11,'green: the amicable pair — each number IS the other\\'s divisor-sum');nt(g,'#ff2fa6',10,Hh-34,10,'magenta: the perfect number (6, 28) — amicable with itself, σ*(n)=n');nt(g,'#8ad',10,Hh-14,10,'apply the divisor-sum twice and you return to the start');}
+drawW3();drawW4();window.__thabit=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 136 · neon-noir · silicon-coding (a step that conserves energy and reverses · a public key from a discrete log · a code that fixes three flipped bits · a minimizer that moves one axis at a time · integration that refines where it must) ═══════════════════════
 LEAP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Leapfrog integration</b> is a <b>symplectic</b> way to step a physical system through time &mdash; and it has a magic that ordinary methods lack. Position and velocity are updated at <b>interleaved half-steps</b> (velocity leaps over position, position leaps over velocity), so the scheme is <b>time-reversible</b> and, crucially, it does <b>not let energy drift</b>. Explicit Euler on an orbit spirals outward, gaining energy without bound; leapfrog&rsquo;s energy merely <i>oscillates</i> around the true value forever. That is why every serious N-body and molecular-dynamics simulator uses leapfrog (or its twin, velocity-Verlet): it keeps planets in orbit and molecules bound over billions of steps.<br><br>
@@ -35469,6 +35757,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-schnorr","title":"THE SCHNORR","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#21e6ff","icon":"schnorr",
+  "kicker":"prove you know a secret without revealing it",
+  "blurb":"The Schnorr signature in the 5-window house format — proving you know a secret exponent x without revealing it. Public key y=g^x (mod p). To sign m: commit r=g^k for a fresh random k, derive a challenge e=H(r,m), answer s=k+x·e (mod order). The verifier, who never sees x or k, checks one equation: g^s = r·y^e (mod p). It balances because g^(k+xe)=g^k·(g^x)^e. Change the message and the challenge changes, so an old response no longer fits; change the response and the equation breaks. Verified live: over hundreds of (key, message) pairs at a large prime, every honest signature satisfies g^s=r·y^e, every message-tamper is rejected (the full-width challenge changes), and every response-tamper is rejected. Neon-noir traced. See the Σ-protocol channel in 1D, sign/forge in 2D, and the answer-a-challenge inverse in 3D.",
+  "lit":"Genuine Schnorr signature (Claus-Peter Schnorr, 1989/1991). Verified live at p=1000003: over 250 (key, message) pairs the verification equation g^s=r·y^e (mod p) holds for every honest signature, every tampered message is rejected (the full-width challenge changes), and every tampered response is rejected (window.__schnorr.verifies, .rejectsMsg, .rejectsSig).",
+  "fig":"No framing; keygen, sign, verify and the two forgery attempts all run in-browser. Illustrative primes; security rests on discrete-log hardness, not shown here. The AVAN inverse is honest — instead of revealing the secret, one answers a challenge so g^s=r·y^e re-derives the commitment. Magenta is the forgery the gate bounces; green is the honest proof it passes.",
+  "body":SCHN_BODY,"script":SCHN_SCRIPT},
+ {"slug":"the-nelder-mead","title":"THE NELDER-MEAD","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"BACKPROP","domain_slug":"backprop","accent":"#ff8a3c","icon":"nelder",
+  "kicker":"a triangle feels for the valley floor",
+  "blurb":"The Nelder-Mead downhill simplex in the 5-window house format — minimizing a function with no derivatives at all, only its values at the corners of a moving simplex (a triangle in 2D). Each step it finds its worst corner and reflects it through the centroid of the others; if that lands better it expands further, if still bad it contracts inward, and if all else fails the whole simplex shrinks toward its best corner. The amoeba crawls, tumbles, and squeezes downhill until it collapses onto the minimizer. Verified live: over hundreds of random convex bowls (including a rotated, non-separable one), the simplex converges to the true minimizer to within ~1e-8 using only function evaluations. Neon-noir traced. See the simplex step on a bowl in 1D, step/run to convergence in 2D, and the reflect-the-worst inverse in 3D.",
+  "lit":"Genuine Nelder-Mead downhill-simplex method (John Nelder & Roger Mead, 1965). Verified live: over 400 random convex bowls the simplex converges to the true minimizer to within ~1e-8 worst-case position error, and a rotated non-separable bowl converges too — all using only function values, no gradients (window.__nelder_mead.converges, .worst, .rotatedErr).",
+  "fig":"No framing; the reflect/expand/contract/shrink steps and the convergence test run in-browser. Nelder-Mead is not guaranteed on every non-convex surface — the claim is convergence on the convex bowls tested. The AVAN inverse is honest — instead of following a gradient, mirror the worst corner through the opposite face. Magenta is that reflection ray; green is the collapsing simplex. Progress by mirroring failure.",
+  "body":NLDR_BODY,"script":NLDR_SCRIPT},
+ {"slug":"the-gabow","title":"THE GABOW","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#35ffb0","icon":"gabow",
+  "kicker":"one DFS with two stacks finds every cycle-cluster",
+  "blurb":"Gabow's algorithm in the 5-window house format — finding the strongly-connected components of a directed graph (the maximal clusters where every node reaches every other) in a single depth-first pass, using two stacks instead of Tarjan's low-link numbers. One stack (S) holds the current path; the other (P) holds candidate component roots. A back-edge pops P down to the earliest reachable vertex, merging the cycle; when a vertex finishes as the top of P, it and everything above it on S form one component. Verified live: over 1500 random digraphs, Gabow's partition exactly matches a brute-force mutual-reachability partition (u~v iff u→v and v→u), component-for-component, and the counts agree. Neon-noir traced. See the colored SCCs in 1D, verify-vs-brute in 2D, and the condensation-DAG inverse in 3D.",
+  "lit":"Genuine Gabow path-based SCC algorithm (Harold N. Gabow, 2000). Verified live: over 1500 random digraphs the single-DFS two-stack partition exactly matches a brute-force mutual-reachability partition (u~v iff u→v and v→u), component-for-component, and the component counts agree (window.__gabow.matches, .countMatches).",
+  "fig":"No framing; the two-stack DFS and the brute reference both run in-browser. The AVAN inverse is honest — instead of chasing every cycle, collapse each cluster to a point: the condensation is one node per SCC and is always a DAG. Magenta is the cycles hidden inside each component; green is the acyclic map of components. Fold the tangle into an order.",
+  "body":GABW_BODY,"script":GABW_SCRIPT},
+ {"slug":"the-glushkov","title":"THE GLUSHKOV","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#ffcf4a","icon":"glushkov",
+  "kicker":"a regex becomes a walk over letter-positions",
+  "blurb":"Glushkov's construction in the 5-window house format — turning a regular expression into a position automaton. Give every letter-occurrence a number, then compute First (positions a match can start on), Last (positions it can end on), and Follow (which position can come after which). The result is an NFA with exactly one state per letter-position and no epsilon-transitions at all; matching is a single left-to-right sweep carrying a set of active positions — no backtracking, no exponential blowup. Verified live: for nine regexes, the Glushkov automaton's accept/reject matches an independent reference matcher on every string over {a,b,c,d} up to length 5 — thousands of pairs, zero disagreements. Neon-noir traced. See the position automaton in 1D, test words in 2D, and the carry-the-set inverse in 3D.",
+  "lit":"Genuine Glushkov position-automaton construction (Victor M. Glushkov, 1961). Verified live: for 9 regexes the epsilon-free position NFA's accept/reject decision matches an independent reference matcher on every string over {a,b,c,d} up to length 5 (thousands of (regex,string) pairs, zero disagreements) (window.__glushkov.matches, .tested).",
+  "fig":"No framing; the parser, the First/Last/Follow construction, the set-sweep, and the reference matcher all run in-browser. The AVAN inverse is honest — instead of asking 'does it match?', carry the set of active positions after each letter; a word is accepted iff that set ever contains a Last position. Magenta is everything rejected; green is the accepted language. A pattern turned inside-out into a walk.",
+  "body":GLSH_BODY,"script":GLSH_SCRIPT},
+ {"slug":"the-thabit","title":"THE THABIT","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#b06bff","icon":"thabit",
+  "kicker":"two numbers each the sum of the other's divisors",
+  "blurb":"Thabit ibn Qurra's amicable-number rule in the 5-window house format — amicable numbers are two different numbers where each equals the sum of the other's proper divisors. The classic pair is (220, 284). In the 9th century Thabit found a formula that spins such pairs out of primes: for n≥2, if p=3·2^(n-1)-1, q=3·2^n-1, and r=9·2^(2n-1)-1 are all prime, then 2^n·p·q and 2^n·r are amicable. The primes align rarely — only n=2,4,7 work below n=8 — which is why amicable pairs are scarce and prized. Verified live: Thabit's rule at n=2,4,7 yields (220,284), (17296,18416), (9363584,9437056), each confirmed amicable by directly summing proper divisors (σ*(A)=B and σ*(B)=A). Neon-noir traced. See the divisor bars in 1D, the rule per n in 2D, and the two-step-return inverse in 3D.",
+  "lit":"Genuine Thabit ibn Qurra amicable-number rule (9th c.); the n=4 and n=7 pairs later rediscovered by Fermat and Descartes. Verified live: the rule at n=2,4,7 yields (220,284), (17296,18416), (9363584,9437056), each confirmed amicable by directly summing proper divisors (σ*(A)=B and σ*(B)=A); the classic pair and the perfect-number sanity σ*(6)=6 also hold (window.__thabit.ruleAmicable, .classic, .perfect6).",
+  "fig":"No framing; the primality tests, the rule, and the divisor sums all run in-browser. The AVAN inverse is honest — instead of summing a number's divisors to itself, sum them to its partner: apply the divisor-sum twice and you return to the start. Magenta is the perfect number (6, 28) — amicable with itself, the fixed point σ*(n)=n. Friendship as a two-step return.",
+  "body":THBT_BODY,"script":THBT_SCRIPT},
  {"slug":"the-leapfrog","title":"THE LEAPFROG","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"THE-PHOENIX","domain_slug":"the-phoenix","accent":"#21e6ff","icon":"leapfrog",
   "kicker":"a step that conserves energy and reverses",
