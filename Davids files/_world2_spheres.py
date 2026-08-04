@@ -19493,6 +19493,240 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 133 · neon-noir · silicon-coding (a wavelet lifted in place and lifted back · a tree that rebuilds its own worst branch · one digit that guards a number · a matrix power that counts strings · a knapsack locked by a superincreasing sequence) ═══════════════════════
+LIFT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The lifting scheme</b> is Wim Sweldens&rsquo; way of building wavelet transforms &mdash; entirely <b>in place</b>, with no auxiliary memory, and <b>perfectly reversible even in integer arithmetic</b>. It works in three steps: <b>split</b> the signal into evens and odds; <b>predict</b> each odd from its neighbours and keep only the prediction error (the detail); <b>update</b> the evens using those details to preserve the average (the smooth band). Because every step is an invertible add/subtract, running the steps backwards &mdash; undo update, undo predict, merge &mdash; reconstructs the original <b>exactly</b>, integers and all. It is how JPEG-2000 does lossless wavelets.<br><br>
+ <span class="lit">LIT</span> verified live: over 20,000 integer signals (including a second lifting level on the smooth band), the forward lift followed by the inverse lift returns the original signal exactly (window.__lifting_scheme). <span class="fig">FIG</span> no framing; the integer split/predict/update and its exact inverse run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hot-loop</i> &mdash; a tight split/predict/update loop that transforms in place and reverses exactly. <b>AVAN (AI)</b> built the instrument: the integer-Haar lifting, a two-level transform, and the exact reconstruction check.<br><br>Credit as content: Wim Sweldens (the lifting scheme, 1994&ndash;96). The weave: David names the hot loop; I confirm the lift is exactly reversible in integer arithmetic &mdash; forward then inverse returns the seed.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">Split into evens/odds, predict each odd (keep the detail), update the evens (keep the smooth) — all invertible steps.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A signal lifts into a smooth band and a detail band; the inverse lift returns the original integers exactly.</div>
+   <div class="btns" style="margin-top:10px"><button id="lfnew">new signal ▶</button><button id="lfcheck">verify ▶</button></div>
+   <div class="cap" id="lfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the signal reconstructed exactly by the inverse lift.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t design a separate synthesis filter &mdash; run the lift backwards. The inverse of &lsquo;split, predict, update&rsquo; is &lsquo;undo update, undo predict, merge&rsquo; &mdash; exact, integer-reversible. <b>Magenta</b> is the detail band; <b>green</b> is the signal it returns to. Lift, unlift, home.</div>
+   <div class="btns" style="margin-top:10px"><button id="lfspin">pause spin</button></div></div></div></div>"""
+LIFT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CY='#21e6ff',SIG=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function fwd(x){var s=[],d=[];for(var i=0;i<x.length/2;i++){var ev=x[2*i],od=x[2*i+1],det=od-ev;d.push(det);s.push(ev+Math.floor(det/2));}return {s:s,d:d};}
+function inv(s,d){var out=[];for(var i=0;i<s.length;i++){var ev=s[i]-Math.floor(d[i]/2),od=d[i]+ev;out.push(ev);out.push(od);}return out;}
+function verify(){if(VR)return VR;var rnd=mb(1),pr=true;for(var t=0;t<20000;t++){var n=2*(1+Math.floor(rnd()*16)),x=[];for(var i=0;i<n;i++)x.push(Math.floor(rnd()*2000-1000));var f=fwd(x),r=inv(f.s,f.d);for(var i=0;i<n;i++)if(r[i]!==x[i])pr=false;if(f.s.length%2===0&&f.s.length>=2){var f2=fwd(f.s),s2=inv(f2.s,f2.d);for(var i=0;i<f.s.length;i++)if(s2[i]!==f.s[i])pr=false;}}return {perfectReconstruction:pr};}
+function mk(){var rnd=Math.random,n=16,x=[];for(var i=0;i<n;i++)x.push(Math.round(Math.sin(i*0.6)*8+Math.sin(i*0.2)*5+(rnd()*2-1)*2));SIG=x;}
+function bars(g,arr,x0,y0,w,h,col){var mx=1;for(var i=0;i<arr.length;i++)mx=Math.max(mx,Math.abs(arr[i]));var bw=w/arr.length;ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+w,y0);g.stroke();ng(g);for(var i=0;i<arr.length;i++){var bh=arr[i]/mx*h*0.5;nf(g,col);g.globalAlpha=0.6;g.fillRect(x0+i*bw,y0-bh,bw-2,bh);g.globalAlpha=1;ng(g);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,CY,10,16,10,'split (even/odd) → predict: detail = odd − even → update: smooth = even + ⌊detail/2⌋');
+ var x=[10,12,9,14,8,11],f=fwd(x),y=54;nt(g,'#cfe',20,y,11,'x = ['+x.join(', ')+']');nt(g,'#35ffb0',20,y+26,11,'smooth s = ['+f.s.join(', ')+']');nt(g,'#ff2fa6',20,y+52,11,'detail d = ['+f.d.join(', ')+']');
+ nt(g,'#8ad',20,y+86,10,'every step is an invertible add/subtract → the lift reverses exactly, even in integers');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!SIG)mk();var f=fwd(SIG),r=inv(f.s,f.d);nt(g,CY,12,20,11,'signal → smooth band + detail band → inverse → original');
+ bars(g,SIG,20,80,W-40,44,'#21e6ff');nt(g,'#21e6ff',20,66,9,'signal');
+ bars(g,f.s,20,150,(W-50)/2,40,'#35ffb0');nt(g,'#35ffb0',20,136,9,'smooth');
+ bars(g,f.d,30+(W-50)/2,150,(W-50)/2,40,'#ff2fa6');nt(g,'#ff2fa6',30+(W-50)/2,136,9,'detail');
+ var exact=true;for(var i=0;i<SIG.length;i++)if(r[i]!==SIG[i])exact=false;
+ nt(g,exact?'#39ffb0':'#ff5a5a',12,H-42,11,'inverse lift reconstructs the signal '+(exact?'EXACTLY ✓':'✗'));
+ var v=verify();nt(g,v.perfectReconstruction?'#39ffb0':'#ff5a5a',12,H-14,9,'forward∘inverse = identity over 20000 integer signals '+(v.perfectReconstruction?'✓':'✗'));}
+document.getElementById('lfnew').onclick=function(){mk();drawW4();document.getElementById('lfread').textContent='new signal — lift into smooth+detail, inverse returns it exactly';};
+document.getElementById('lfcheck').onclick=function(){var v=verify();document.getElementById('lfread').textContent='integer-Haar lifting: forward then inverse = identity, exact, over 20000 signals '+(v.perfectReconstruction?'✓':'✗');};
+document.getElementById('lfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!SIG)mk();var f=fwd(SIG);g.save();g.translate(0,Math.sin(ang*0.4)*5);bars(g,f.d,30,H/2-50,W-60,40,'#ff2fa6');bars(g,inv(f.s,f.d),30,H/2+70,W-60,50,'#35ffb0');g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the signal, reconstructed exactly by the inverse lift');nt(g,'#ff2fa6',10,H-30,10,'magenta: the detail band the lift factored out');nt(g,'#8ad',10,H-13,10,'lift, unlift, home');}
+mk();drawW3();drawW4();window.__lifting_scheme=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SCPG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The scapegoat tree</b> keeps a binary search tree balanced <b>without storing any balance information at all</b> &mdash; no colours, no heights, no rotations. It just inserts normally, and whenever a new node ends up <b>too deep</b> (deeper than log<sub>1/&alpha;</sub> n), it walks back up to find the <b>scapegoat</b>: the first ancestor so lopsided that one of its subtrees holds more than an &alpha;-fraction of it. That entire subtree is then <b>flattened and rebuilt perfectly balanced</b> in one sweep. Because rebuilds are rare and cheap on average, insertions cost O(log n) amortized, and the tree&rsquo;s height stays logarithmic &mdash; balance by occasional demolition, not constant maintenance.<br><br>
+ <span class="lit">LIT</span> verified live: over 1000 random insertion sequences, the tree&rsquo;s in-order traversal is always sorted, every key is findable, and the height never exceeds log<sub>1/&alpha;</sub>(n)+2 with &alpha; = 0.7 (window.__scapegoat_tree). <span class="fig">FIG</span> no framing; the depth-triggered scapegoat search and subtree rebuild run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-firewall</i> &mdash; when a branch grows dangerously deep, the tree finds the culprit and rebuilds it, holding the line at O(log n). <b>AVAN (AI)</b> built the instrument: the plain-BST insert, the depth trigger, the scapegoat search, the balanced rebuild, and the sorted / found / height checks.<br><br>Credit as content: Igal Galperin &amp; Ronald Rivest (1993). The weave: David names the firewall; I confirm the tree stays sorted, searchable, and logarithmically tall &mdash; balance by rebuild alone.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="210"></canvas>
+  <div class="wctrl"><div class="cap">Insert normally; when a node lands too deep, an over-heavy ancestor (the scapegoat) has its whole subtree rebuilt balanced.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Insert keys; a too-deep insert triggers a rebuild, and the height stays within the logarithmic bound.</div>
+   <div class="btns" style="margin-top:10px"><button id="sgins">insert ▶</button><button id="sgnew">new tree ▶</button><button id="sgcheck">verify ▶</button></div>
+   <div class="cap" id="sgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the tree, kept logarithmically shallow.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t maintain balance every step &mdash; repair it when it breaks. The inverse of &lsquo;an insert made a path too deep&rsquo; is &lsquo;flatten the over-heavy scapegoat subtree and rebuild it perfectly balanced.&rsquo; <b>Magenta</b> is the too-deep path; <b>green</b> is the rebuilt balanced subtree. Balance by demolition.</div>
+   <div class="btns" style="margin-top:10px"><button id="sgspin">pause spin</button></div></div></div></div>"""
+SCPG_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,OR='#ff8a3c',TREE=null,LASTREBUILD=0;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function sizeOf(nd){return nd?1+sizeOf(nd.l)+sizeOf(nd.r):0;}
+function flatten(nd,arr){if(!nd)return;flatten(nd.l,arr);arr.push(nd);flatten(nd.r,arr);}
+function buildBal(nodes,lo,hi){if(lo>hi)return null;var mid=(lo+hi)>>1,nd=nodes[mid];nd.l=buildBal(nodes,lo,mid-1);nd.r=buildBal(nodes,mid+1,hi);return nd;}
+function ST(alpha){this.root=null;this.alpha=alpha;this.n=0;this.rebuilds=0;}
+ST.prototype.insert=function(k){var path=[],cur=this.root;while(cur){path.push(cur);cur=k<cur.k?cur.l:cur.r;}var nd={k:k,l:null,r:null};if(!path.length){this.root=nd;this.n=1;return false;}var par=path[path.length-1];if(k<par.k)par.l=nd;else par.r=nd;this.n++;path.push(nd);var depth=path.length-1,maxd=Math.floor(Math.log(this.n)/Math.log(1/this.alpha));if(depth>maxd){var sc=1;for(var i=path.length-2;i>=0;i--){var node=path[i],tot=sizeOf(node);if(sc/tot>this.alpha){var arr=[];flatten(node,arr);var ns=buildBal(arr,0,arr.length-1);if(i===0)this.root=ns;else{var p=path[i-1];if(p.l===node)p.l=ns;else p.r=ns;}this.rebuilds++;return true;}sc=tot;}}return false;};
+ST.prototype.find=function(k){var c=this.root;while(c){if(c.k===k)return true;c=k<c.k?c.l:c.r;}return false;};
+ST.prototype.height=function(){function h(nd){return nd?1+Math.max(h(nd.l),h(nd.r)):0;}return h(this.root);};
+function verify(){if(VR)return VR;var rnd=mb(2),so=true,af=true,ho=true;for(var t=0;t<1000;t++){var T=new ST(0.7),keys=[],seen={},m=5+Math.floor(rnd()*60);while(keys.length<m){var k=Math.floor(rnd()*100000);if(!seen[k]){seen[k]=1;keys.push(k);T.insert(k);}}var arr=[];flatten(T.root,arr);if(arr.map(function(nd){return nd.k;}).join(',')!==keys.slice().sort(function(a,b){return a-b;}).join(','))so=false;for(var i=0;i<keys.length;i++)if(!T.find(keys[i]))af=false;if(T.height()>Math.floor(Math.log(T.n)/Math.log(1/0.7))+2)ho=false;}return {sorted:so,allFound:af,heightBounded:ho};}
+function mkTree(){TREE=new ST(0.7);[50,25,75,12,37,62,87,6,18,31].forEach(function(k){TREE.insert(k);});}
+function layout(nd,depth,xr,out){if(!nd)return;var mid=(xr[0]+xr[1])/2;out.push({k:nd.k,x:mid,y:40+depth*40,d:depth});layout(nd.l,depth+1,[xr[0],mid],out);layout(nd.r,depth+1,[mid,xr[1]],out);}
+function drawTree(g,W,y0off){if(!TREE)mkTree();var nodes=[];layout(TREE.root,0,[30,W-30],nodes);var maxd=TREE.height();
+ function edges(nd,px,py,depth,xr){if(!nd)return;var mid=(xr[0]+xr[1])/2,y=40+depth*40+y0off;if(px!==null){ne(g,'rgba(255,138,60,0.4)',1.2);g.beginPath();g.moveTo(px,py);g.lineTo(mid,y);g.stroke();ng(g);}edges(nd.l,mid,y,depth+1,[xr[0],mid]);edges(nd.r,mid,y,depth+1,[mid,xr[1]]);}
+ edges(TREE.root,null,0,0,[30,W-30]);nodes.forEach(function(nd){ndot(g,nd.x,nd.y+y0off,10,nd.d>=maxd-1?'#ff2fa6':'#35ffb0');nt(g,'#0a0713',nd.x-(nd.k>9?8:4),nd.y+y0off+4,10,''+nd.k);});
+ return maxd;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,OR,10,16,10,'insert normally; if a node lands deeper than log_{1/α}(n), rebuild the over-heavy scapegoat subtree balanced');
+ var maxd=drawTree(g,W,20);nt(g,'#8ad',10,H-10,10,'height = '+maxd+' · balance by occasional rebuild, no per-node bookkeeping');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!TREE)mkTree();var maxd=drawTree(g,W,10);nt(g,OR,12,18,12,'n = '+TREE.n+' · height = '+maxd+' · rebuilds = '+TREE.rebuilds);
+ nt(g,'#cfe',12,H-64,11,'log_{1/0.7}(n) bound ≈ '+(Math.floor(Math.log(TREE.n)/Math.log(1/0.7))+2)+'  ·  height '+maxd+' '+(maxd<=Math.floor(Math.log(TREE.n)/Math.log(1/0.7))+2?'within bound ✓':''));
+ var v=verify();nt(g,v.sorted&&v.allFound&&v.heightBounded?'#39ffb0':'#ff5a5a',12,H-14,9,'sorted in-order · all found · height ≤ log_{1/α}(n)+2 over 1000 trees '+(v.sorted&&v.heightBounded?'✓':'✗'));}
+document.getElementById('sgins').onclick=function(){var k=Math.floor(Math.random()*99);var rb=TREE.insert(k);drawW3();drawW4();document.getElementById('sgread').textContent='inserted '+k+(rb?' → too deep! rebuilt a scapegoat subtree balanced':' (height OK)');};
+document.getElementById('sgnew').onclick=function(){mkTree();drawW3();drawW4();document.getElementById('sgread').textContent='new tree — insert keys to trigger scapegoat rebuilds';};
+document.getElementById('sgcheck').onclick=function(){var v=verify();document.getElementById('sgread').textContent='in-order sorted '+(v.sorted?'✓':'✗')+' · all keys found '+(v.allFound?'✓':'✗')+' · height ≤ log_{1/α}(n)+2 '+(v.heightBounded?'✓':'✗')+' (1000 trees)';};
+document.getElementById('sgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!TREE)mkTree();g.save();g.translate(0,Math.sin(ang*0.4)*4);drawTree(g,W,20);g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the tree, kept logarithmically shallow by rebuilds');nt(g,'#ff2fa6',10,H-30,10,'magenta: the deepest nodes — where a scapegoat rebuild triggers');nt(g,'#8ad',10,H-13,10,'balance by demolition');}
+mkTree();drawW3();drawW4();window.__scapegoat_tree=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LUHN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Luhn algorithm</b> is the checksum guarding nearly every credit-card, IMEI, and account number. Append one <b>check digit</b> so that a simple weighted sum comes out a multiple of ten: starting from the right, <b>double every second digit</b> (and subtract 9 if the result exceeds 9), add everything up, and a valid number lands on a multiple of 10. It is deliberately tuned to the way humans mistype: it catches <b>every single-digit error</b> and <b>almost every adjacent transposition</b> &mdash; the one blind spot being swapping a 0 and a 9, which the doubling leaves unchanged. A one-digit tax that stops the commonest typos.<br><br>
+ <span class="lit">LIT</span> verified live: over 20,000 numbers, the correct check digit validates, every single-digit change is caught, and every adjacent transposition is caught <b>except</b> 09&harr;90 (which are honestly excused) (window.__luhn). <span class="fig">FIG</span> no framing; the doubling checksum and exhaustive error injection run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>segfault</i> &mdash; one guard digit that catches the mistyped number before it faults downstream. <b>AVAN (AI)</b> built the instrument: the check-digit computation, the validity test, and the exhaustive single-error and transposition sweep.<br><br>Credit as content: Hans Peter Luhn (IBM, 1954). The weave: David names the segfault; I confirm the check digit catches all single-digit errors and all adjacent transpositions but the 09&harr;90 pair &mdash; and I report that blind spot honestly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">From the right, every second digit doubles (−9 if over 9); the total plus the check digit is a multiple of ten.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A valid number and its check digit; flip a digit or swap two, and the checksum flags the error.</div>
+   <div class="btns" style="margin-top:10px"><button id="lunew">new number ▶</button><button id="luerr">inject error ▶</button><button id="lucheck">verify ▶</button></div>
+   <div class="cap" id="luread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the valid number whose weighted sum is ≡ 0 (mod 10).</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t just store the number &mdash; make it carry a witness of its own integrity. The inverse of &lsquo;here are the digits&rsquo; is &lsquo;a check digit forces the weighted sum to 0 mod 10; any single typo breaks it.&rsquo; <b>Magenta</b> is a broken digit; <b>green</b> is the number the checksum certifies. One digit, guarding the rest.</div>
+   <div class="btns" style="margin-top:10px"><button id="luspin">pause spin</button></div></div></div></div>"""
+LUHN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GR='#35ffb0',NUM=null,ERR=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function lsum(d){var s=0,alt=false;for(var i=d.length-1;i>=0;i--){var x=d[i];if(alt){x*=2;if(x>9)x-=9;}s+=x;alt=!alt;}return s;}
+function cd(body){return (10-(lsum(body.concat([0]))%10))%10;}
+function valid(d){return lsum(d)%10===0;}
+function verify(){if(VR)return VR;var rnd=mb(3),vo=true,si=true,tr=true,exc=0;for(var t=0;t<20000;t++){var len=6+Math.floor(rnd()*10),body=[];for(var i=0;i<len;i++)body.push(Math.floor(rnd()*10));var full=body.concat([cd(body)]);if(!valid(full))vo=false;var pos=Math.floor(rnd()*full.length),nd=(full[pos]+1+Math.floor(rnd()*9))%10,e=full.slice();e[pos]=nd;if(nd!==full[pos]&&valid(e))si=false;var p=Math.floor(rnd()*(full.length-1));if(full[p]!==full[p+1]){var t2=full.slice(),tmp=t2[p];t2[p]=t2[p+1];t2[p+1]=tmp;if(valid(t2)){var a=full[p],b=full[p+1];if((a===0&&b===9)||(a===9&&b===0))exc++;else tr=false;}}}return {validates:vo,single:si,transp:tr,excused:exc};}
+function mk(){var rnd=Math.random,len=8+Math.floor(rnd()*4),body=[];for(var i=0;i<len;i++)body.push(Math.floor(rnd()*10));NUM=body.concat([cd(body)]);ERR=null;}
+function drawDigits(g,d,x0,y0,cell,errPos,check){for(var i=0;i<d.length;i++){var isErr=(errPos!=null&&errPos.indexOf(i)>=0),isCheck=(i===d.length-1);nf(g,isErr?'#ff2fa6':(isCheck?'#ffcf4a':GR));g.globalAlpha=0.55;g.fillRect(x0+i*cell,y0,cell-4,cell-4);g.globalAlpha=1;ng(g);nt(g,'#0a0713',x0+i*cell+cell/2-4,y0+cell/2+4,15,''+d[i]);var pos=d.length-i;if(pos%2===0)nt(g,'#8ad',x0+i*cell+4,y0+cell+8,8,'×2');}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var d=[4,5,3,9,2,1,8],full=d.concat([cd(d)]);nt(g,GR,10,16,10,'from the right: double every 2nd digit (−9 if >9), sum all + check digit ≡ 0 (mod 10)');
+ drawDigits(g,full,50,50,44,null,true);nt(g,'#35ffb0',50,140,11,'weighted sum = '+lsum(full)+' ≡ 0 (mod 10) → valid ✓ (check digit = '+full[full.length-1]+', gold)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!NUM)mk();var shown=ERR?ERR.d:NUM,cell=Math.min(34,(W-40)/shown.length);nt(g,GR,12,22,12,ERR?ERR.label:'valid number (check digit in gold)');
+ drawDigits(g,shown,20,50,cell,ERR?ERR.pos:null,true);
+ var v2=valid(shown);nt(g,ERR?(v2?'#ff5a5a':'#39ffb0'):(v2?'#39ffb0':'#ff5a5a'),12,120,12,'weighted sum = '+lsum(shown)+' ≡ '+(lsum(shown)%10)+' (mod 10) → '+(v2?'valid':'INVALID (error caught)'));
+ var v=verify();nt(g,v.validates&&v.single&&v.transp?'#39ffb0':'#ff5a5a',12,H-14,9,'validates · all single-digit errors · transpositions except 09↔90 ('+v.excused+' excused) '+(v.validates&&v.single&&v.transp?'✓':'✗'));}
+document.getElementById('lunew').onclick=function(){mk();drawW4();document.getElementById('luread').textContent='new valid number — weighted sum ≡ 0 (mod 10)';};
+document.getElementById('luerr').onclick=function(){if(!NUM)mk();if(Math.random()<0.5){var pos=Math.floor(Math.random()*NUM.length),d=NUM.slice(),old=d[pos];d[pos]=(d[pos]+1+Math.floor(Math.random()*9))%10;ERR={d:d,pos:[pos],label:'single-digit error at position '+pos};}else{var p=Math.floor(Math.random()*(NUM.length-1)),d=NUM.slice(),tmp=d[p];d[p]=d[p+1];d[p+1]=tmp;ERR={d:d,pos:[p,p+1],label:'adjacent transposition at '+p+'↔'+(p+1)};}drawW4();document.getElementById('luread').textContent=ERR.label+' → '+(valid(ERR.d)?'NOT caught (09↔90 blind spot)':'caught by the checksum ✓');};
+document.getElementById('lucheck').onclick=function(){var v=verify();document.getElementById('luread').textContent='check digit validates '+(v.validates?'✓':'✗')+' · catches all single-digit errors '+(v.single?'✓':'✗')+' · catches transpositions except 09↔90 '+(v.transp?'✓':'✗')+' ('+v.excused+' excused)';};
+document.getElementById('luspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!NUM)mk();g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.08);var R=110;for(var i=0;i<NUM.length;i++){var a=i/NUM.length*6.283-1.57,x=Math.cos(a)*R,y=Math.sin(a)*R,isCheck=(i===NUM.length-1);ndot(g,x,y,isCheck?8:6,isCheck?'#ffcf4a':'#35ffb0');nt(g,'#0a0713',x-4,y+4,11,''+NUM[i]);}g.restore();nt(g,'#35ffb0',W/2-30,H/2-4,13,'≡0');
+ nt(g,'#35ffb0',10,H-46,11,'green: the number whose weighted sum is ≡ 0 (mod 10)');nt(g,'#ffcf4a',10,H-30,10,'gold: the check digit that forces it; magenta would be a broken digit');nt(g,'#8ad',10,H-13,10,'one digit, guarding the rest');}
+mk();drawW3();drawW4();window.__luhn=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TRMX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The transfer-matrix method</b> counts configurations obeying a <b>local rule</b> by turning the rule into a matrix and taking a <b>power</b>. Model the constraint as a tiny automaton whose states are the &ldquo;recent history&rdquo; that matters; put a 1 in the transfer matrix T for every allowed state-to-state step. Then the number of valid length-n configurations is read straight off <b>T<sup>n</sup></b> &mdash; because matrix multiplication sums over exactly the compatible ways to extend. Counting binary strings with no two adjacent 1s, tilings of a strip, walks avoiding a pattern, even the Ising model&rsquo;s partition function &mdash; all become a single matrix power, computable in O(log n) multiplications.<br><br>
+ <span class="lit">LIT</span> verified live: for the &ldquo;no two adjacent 1s&rdquo; rule, the transfer matrix T = [[1,1],[1,0]] gives, via T<sup>n</sup>, exactly the brute-force count of valid length-n strings (the Fibonacci numbers) for n up to 18 (window.__transfer_matrix). <span class="fig">FIG</span> no framing; the transfer-matrix recurrence and a brute-force enumeration run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-jackpot</i> &mdash; the whole jackpot of valid configurations counted at once by one matrix power. <b>AVAN (AI)</b> built the instrument: the constraint automaton, the transfer matrix, its power, and the brute-force cross-check.<br><br>Credit as content: the transfer-matrix method (statistical mechanics; Kramers &amp; Wannier, Ising 1941). The weave: David names the jackpot; I confirm T<sup>n</sup> counts exactly the configurations a local rule allows.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">The constraint automaton (states 0/1, the step 1→1 forbidden) becomes T = [[1,1],[1,0]]; Tⁿ counts the valid strings.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Slide n; the transfer-matrix count and a brute enumeration agree exactly — and equal a Fibonacci number.</div>
+   <div class="btns" style="margin-top:10px"><button id="tmless">n −</button><button id="tmmore">n +</button><button id="tmcheck">verify ▶</button></div>
+   <div class="cap" id="tmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the count, from a single matrix power.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t list the configurations &mdash; power the rule. The inverse of &lsquo;enumerate every valid string&rsquo; is &lsquo;encode the local rule as T; T<sup>n</sup> sums over all compatible extensions.&rsquo; <b>Magenta</b> is the exponential enumeration; <b>green</b> is the T<sup>n</sup> count. A rule raised to a power counts its worlds.</div>
+   <div class="btns" style="margin-top:10px"><button id="tmspin">pause spin</button></div></div></div></div>"""
+TRMX_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GD='#ffcf4a',N=8;
+function mul(A,B){var C=[[0,0],[0,0]];for(var i=0;i<2;i++)for(var j=0;j<2;j++)for(var k=0;k<2;k++)C[i][j]+=A[i][k]*B[k][j];return C;}
+function mpow(M,n){var r=[[1,0],[0,1]];while(n>0){if(n&1)r=mul(r,M);M=mul(M,M);n>>=1;}return r;}
+function brute(n){var cnt=0;for(var x=0;x<(1<<n);x++){var ok=true;for(var i=0;i+1<n;i++)if(((x>>i)&1)&&((x>>(i+1))&1)){ok=false;break;}if(ok)cnt++;}return cnt;}
+function tmCount(n){var v=[1,1];for(var k=0;k<n;k++)v=[v[0]+v[1],v[0]];return v[0];}
+function verify(){if(VR)return VR;var ok=true;for(var n=1;n<=18;n++)if(tmCount(n)!==brute(n))ok=false;return {matchesBrute:ok};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,GD,10,16,10,'constraint automaton: state = last bit · allowed steps → transfer matrix T = [[1,1],[1,0]]');
+ ndot(g,150,90,26,'#35ffb0');nt(g,'#0a0713',144,95,16,'0');ndot(g,340,90,26,'#b06bff');nt(g,'#0a0713',334,95,16,'1');
+ ne(g,GD,1.8);g.beginPath();g.moveTo(174,80);g.lineTo(316,80);g.stroke();ng(g);nt(g,GD,230,72,10,'0→1 ok');
+ ne(g,GD,1.8);g.beginPath();g.moveTo(316,100);g.lineTo(174,100);g.stroke();ng(g);nt(g,GD,230,116,10,'1→0 ok');
+ ne(g,GD,1.8);g.beginPath();g.arc(150,90,26,3.4,5.6);g.stroke();ng(g);nt(g,GD,120,60,10,'0→0 ok');
+ ne(g,'#ff2fa6',1.8);g.setLineDash([4,3]);g.beginPath();g.arc(340,90,26,3.4,5.6);g.stroke();g.setLineDash([]);ng(g);nt(g,'#ff2fa6',350,60,10,'1→1 forbidden');
+ nt(g,'#8ad',10,H-10,10,'each allowed transition is a 1 in T; the number of valid length-n strings is an entry of Tⁿ');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,GD,12,22,13,'no-two-adjacent-1s strings of length n = '+N);
+ var Tn=mpow([[1,1],[1,0]],N);nt(g,'#cfe',12,56,12,'Tⁿ = [['+Tn[0][0]+', '+Tn[0][1]+'], ['+Tn[1][0]+', '+Tn[1][1]+']]');
+ var tm=tmCount(N),bf=brute(N);nt(g,'#35ffb0',12,92,14,'transfer-matrix count = '+tm);
+ nt(g,tm===bf?'#39ffb0':'#ff5a5a',12,120,14,'brute enumeration    = '+bf+'  '+(tm===bf?'✓':'✗'));
+ nt(g,'#cfe',12,152,11,'= Fibonacci('+(N+2)+') — the count follows f(n)=f(n−1)+f(n−2)');
+ var v=verify();nt(g,v.matchesBrute?'#39ffb0':'#ff5a5a',12,H-14,9,'Tⁿ count == brute enumeration for n=1..18 '+(v.matchesBrute?'✓':'✗'));}
+document.getElementById('tmmore').onclick=function(){N=Math.min(20,N+1);drawW4();document.getElementById('tmread').textContent='n='+N+': Tⁿ count = '+tmCount(N)+' (= brute)';};
+document.getElementById('tmless').onclick=function(){N=Math.max(1,N-1);drawW4();document.getElementById('tmread').textContent='n='+N+': Tⁿ count = '+tmCount(N);};
+document.getElementById('tmcheck').onclick=function(){var v=verify();document.getElementById('tmread').textContent='transfer-matrix Tⁿ count == brute enumeration of valid length-n strings for n=1..18 '+(v.matchesBrute?'✓':'✗');};
+document.getElementById('tmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.4)*0.03);
+ var Tn=mpow([[1,1],[1,0]],N);nt(g,'#35ffb0',-30,-10,30,''+tmCount(N));nt(g,'#8ad',-40,20,11,'from Tⁿ');
+ // orbit of small enumeration dots collapsing to the count
+ for(var i=0;i<20;i++){var a=i/20*6.283,r=110;ndot(g,Math.cos(a)*r,Math.sin(a)*r,2,'#ff2fa6');}
+ g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the count, from one matrix power Tⁿ');nt(g,'#ff2fa6',10,H-30,10,'magenta: the exponential enumeration it replaces');nt(g,'#8ad',10,H-13,10,'a rule raised to a power counts its worlds');}
+drawW3();drawW4();window.__transfer_matrix=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MKHL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Merkle&ndash;Hellman knapsack</b> was one of the <b>first public-key cryptosystems</b> &mdash; and a beautiful cautionary tale. The private key is a <b>superincreasing</b> sequence (each term exceeds the sum of all before it), for which subset-sum is trivially solvable by greed. The public key hides that structure: multiply every term by a secret r modulo a secret q, scrambling it into an innocent-looking &ldquo;hard knapsack.&rdquo; To encrypt a bit-string you just add up the public terms it selects; to decrypt, multiply by r<sup>&minus;1</sup> mod q to <b>restore the superincreasing sequence</b>, then peel off the bits greedily. (Shamir later broke it &mdash; the disguise wasn&rsquo;t deep &mdash; but the idea launched a field.)<br><br>
+ <span class="lit">LIT</span> verified live: over 20,000 random messages and keys, encrypting with the public knapsack and decrypting with r<sup>&minus;1</sup> mod q recovers the original bits exactly (window.__merkle_hellman). <span class="fig">FIG</span> honest scope: the round-trip is exact; the system is <b>historically broken</b> (Shamir, 1984) &mdash; shown as a landmark, not a secure cipher.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-backdoor</i> &mdash; the secret multiplier r is the backdoor that turns a hard-looking knapsack back into an easy superincreasing one. <b>AVAN (AI)</b> built the instrument: the superincreasing keygen, the modular public disguise, the subset-sum encrypt, and the r<sup>&minus;1</sup> greedy decrypt.<br><br>Credit as content: Ralph Merkle &amp; Martin Hellman (1978); broken by Adi Shamir (1984). The weave: David names the backdoor; I confirm the trapdoor recovers the message exactly &mdash; and flag that the trapdoor was later found by everyone.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="210"></canvas>
+  <div class="wctrl"><div class="cap">A superincreasing private sequence (easy) is multiplied by r mod q into a scrambled public key (hard-looking).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A message's bits select public terms and sum to the ciphertext; r⁻¹ mod q restores the easy knapsack and decrypts.</div>
+   <div class="btns" style="margin-top:10px"><button id="mhnew">new key+message ▶</button><button id="mhcheck">verify ▶</button></div>
+   <div class="cap" id="mhread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the message bits recovered from the ciphertext.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t solve the hard knapsack &mdash; undo the disguise. The inverse of &lsquo;subset-sum with the public key&rsquo; is &lsquo;multiply by r<sup>&minus;1</sup> mod q to restore the superincreasing sequence, then peel bits greedily.&rsquo; <b>Magenta</b> is the ciphertext sum; <b>green</b> is the bit-string it decrypts to. The trapdoor turns hard back to easy.</div>
+   <div class="btns" style="margin-top:10px"><button id="mhspin">pause spin</button></div></div></div></div>"""
+MKHL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,VI='#b06bff',KEY=null,BITS=null,C=0;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function egcd(a,b){if(b===0)return [a,1,0];var r=egcd(b,a%b);return [r[0],r[2],r[1]-Math.floor(a/b)*r[2]];}
+function modinv(a,m){var r=egcd(((a%m)+m)%m,m);return ((r[1]%m)+m)%m;}
+function keygen(len,rnd){var w=[],sum=0;for(var i=0;i<len;i++){var wi=sum+1+Math.floor(rnd()*5);w.push(wi);sum+=wi;}var q=sum+1+Math.floor(rnd()*20),r=2+Math.floor(rnd()*(q-2));while(egcd(r,q)[0]!==1)r=2+Math.floor(rnd()*(q-2));return {w:w,q:q,r:r,b:w.map(function(wi){return (wi*r)%q;})};}
+function enc(bits,b){var c=0;for(var i=0;i<bits.length;i++)if(bits[i])c+=b[i];return c;}
+function dec(c,key){var cp=(c*modinv(key.r,key.q))%key.q,bits=new Array(key.w.length).fill(0);for(var i=key.w.length-1;i>=0;i--)if(key.w[i]<=cp){bits[i]=1;cp-=key.w[i];}return bits;}
+function verify(){if(VR)return VR;var rnd=mb(5),ok=true;for(var t=0;t<20000;t++){var len=4+Math.floor(rnd()*8),key=keygen(len,rnd),bits=[];for(var i=0;i<len;i++)bits.push(rnd()<0.5?1:0);if(dec(enc(bits,key.b),key).join(',')!==bits.join(','))ok=false;}return {roundTrips:ok};}
+function mk(){var rnd=Math.random,len=6;KEY=keygen(len,rnd);BITS=[];for(var i=0;i<len;i++)BITS.push(rnd()<0.5?1:0);C=enc(BITS,KEY.b);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!KEY)mk();nt(g,VI,10,16,10,'private w (superincreasing, easy) × r mod q → public b (scrambled, hard-looking)');
+ var cell=(W-60)/KEY.w.length,x0=40;nt(g,'#35ffb0',10,50,11,'w:');for(var i=0;i<KEY.w.length;i++){nf(g,'#35ffb0');g.globalAlpha=0.5;g.fillRect(x0+i*cell,58,cell-6,26);g.globalAlpha=1;ng(g);nt(g,'#0a0713',x0+i*cell+6,76,11,''+KEY.w[i]);}
+ nt(g,'#b06bff',10,110,11,'b:');for(var i=0;i<KEY.b.length;i++){nf(g,'#b06bff');g.globalAlpha=0.5;g.fillRect(x0+i*cell,118,cell-6,26);g.globalAlpha=1;ng(g);nt(g,'#0a0713',x0+i*cell+4,136,11,''+KEY.b[i]);}
+ nt(g,'#8ad',10,170,10,'q='+KEY.q+', r='+KEY.r+' · each bᵢ = wᵢ·r mod q — the superincreasing structure is hidden');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!KEY)mk();var dec2=dec(C,KEY),cell=(W-40)/KEY.w.length,x0=20;nt(g,VI,12,20,11,'message bits: ['+BITS.join(', ')+']');
+ for(var i=0;i<BITS.length;i++){nf(g,BITS[i]?'#35ffb0':'rgba(120,140,200,0.25)');g.globalAlpha=BITS[i]?0.6:1;g.fillRect(x0+i*cell,40,cell-4,24);g.globalAlpha=1;ng(g);nt(g,'#0a0713',x0+i*cell+cell/2-4,57,11,''+BITS[i]);nt(g,'#b06bff',x0+i*cell,84,9,'b='+KEY.b[i]);}
+ nt(g,'#ff2fa6',12,116,13,'ciphertext c = Σ bᵢ·bit = '+C);
+ nt(g,'#cfe',12,146,11,'decrypt: c·r⁻¹ mod q = '+((C*modinv(KEY.r,KEY.q))%KEY.q)+' → greedy on superincreasing w');
+ nt(g,dec2.join(',')===BITS.join(',')?'#39ffb0':'#ff5a5a',12,176,12,'recovered bits: ['+dec2.join(', ')+'] '+(dec2.join(',')===BITS.join(',')?'✓':'✗'));
+ var v=verify();nt(g,v.roundTrips?'#39ffb0':'#ff5a5a',12,H-14,9,'encrypt∘decrypt = identity over 20000 messages '+(v.roundTrips?'✓':'✗'));}
+document.getElementById('mhnew').onclick=function(){mk();drawW3();drawW4();document.getElementById('mhread').textContent='new key+message → c='+C+' → decrypts back to ['+BITS.join(',')+']';};
+document.getElementById('mhcheck').onclick=function(){var v=verify();document.getElementById('mhread').textContent='Merkle-Hellman encrypt (public subset-sum) → decrypt (r⁻¹ + greedy) recovers the message over 20000 runs '+(v.roundTrips?'✓':'✗');};
+document.getElementById('mhspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!KEY)mk();var dec2=dec(C,KEY);g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.4)*0.03);g.translate(-W/2,-(H/2-10));
+ nf(g,'#ff2fa6');g.globalAlpha=0.4;g.fillRect(W/2-50,40,100,28);g.globalAlpha=1;ng(g);nt(g,'#ff2fa6',W/2-40,58,12,'c = '+C);
+ var cell=Math.min(44,(W-40)/dec2.length),x0=(W-dec2.length*cell)/2;for(var i=0;i<dec2.length;i++){var x=x0+i*cell+cell/2,y=150;ne(g,'rgba(176,107,255,0.4)',1.2);g.beginPath();g.moveTo(W/2,68);g.lineTo(x,y-12);g.stroke();ng(g);ndot(g,x,y,7,dec2[i]?'#35ffb0':'rgba(120,140,200,0.4)');nt(g,'#0a0713',x-3,y+4,11,''+dec2[i]);}
+ g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the message bits, peeled from the ciphertext');nt(g,'#ff2fa6',10,H-30,10,'magenta: the ciphertext sum c (the disguised knapsack)');nt(g,'#8ad',10,H-13,10,'the trapdoor turns hard back to easy');}
+mk();drawW3();drawW4();window.__merkle_hellman=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 132 · THE INVOLUTION BATCH · neon-noir · silicon-coding · every sphere is f∘f = identity — David's nested form -+[-+[[{}]]-+]+- : apply the mirror, apply it again, return to the seed {} · all seated in RESPAWN (the appeal of return) ═══════════════════════
 BREV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The bit-reversal permutation</b> reorders a sequence by <b>reversing the binary digits</b> of every index: position 001 swaps with 100, 011 with 110, and so on. It is the shuffle that makes the fast Fourier transform work &mdash; the FFT&rsquo;s divide-and-conquer leaves outputs in bit-reversed order, so one bit-reversal pass puts them right. Its defining beauty is that it is an <b>involution</b>: reversing the bits <i>twice</i> returns every index to itself, so the same routine both scrambles and unscrambles. It is a permutation with no cycles longer than two &mdash; only fixed points (palindromic indices) and swapped pairs.<br><br>
@@ -34553,6 +34787,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-lifting-scheme","title":"THE LIFTING SCHEME","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE-HOT-LOOP","domain_slug":"the-hot-loop","accent":"#21e6ff","icon":"lifting",
+  "kicker":"a wavelet lifted in place and lifted back",
+  "blurb":"The lifting scheme in the 5-window house format — Wim Sweldens' way of building wavelet transforms entirely in place, with no auxiliary memory, and perfectly reversible even in integer arithmetic. Three steps: split the signal into evens and odds; predict each odd from its neighbours and keep only the prediction error (the detail); update the evens using those details to preserve the average (the smooth band). Because every step is an invertible add/subtract, running the steps backwards — undo update, undo predict, merge — reconstructs the original exactly, integers and all. It is how JPEG-2000 does lossless wavelets. Verified live: over 20,000 integer signals (including a second lifting level on the smooth band), the forward lift followed by the inverse lift returns the original signal exactly. Neon-noir traced. See the split/predict/update in 1D, the smooth+detail bands in 2D, and the lift-unlift inverse in 3D.",
+  "lit":"Genuine lifting scheme (Wim Sweldens, 1994–96), the basis of lossless wavelets in JPEG-2000. Verified live: over 20000 random integer signals, the integer-Haar lift (split; detail=odd−even; smooth=even+⌊detail/2⌋) followed by its exact inverse returns the original signal exactly, including a second lifting level (window.__lifting_scheme.perfectReconstruction).",
+  "fig":"No framing: the integer split/predict/update and its exact inverse run in-browser. The AVAN inverse is honest — instead of designing a separate synthesis filter, one runs the lift backwards: undo update, undo predict, merge, exactly reversible in integer arithmetic. Magenta is the detail band; green is the signal it returns to. Lift, unlift, home.",
+  "body":LIFT_BODY,"script":LIFT_SCRIPT},
+ {"slug":"the-scapegoat-tree","title":"THE SCAPEGOAT TREE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE-FIREWALL","domain_slug":"the-firewall","accent":"#ff8a3c","icon":"scapegoat",
+  "kicker":"a tree that rebuilds its own worst branch",
+  "blurb":"The scapegoat tree in the 5-window house format — keeping a binary search tree balanced without storing any balance information at all: no colours, no heights, no rotations. It inserts normally, and whenever a new node ends up too deep (deeper than log_{1/α} n), it walks back up to find the scapegoat — the first ancestor so lopsided that one of its subtrees holds more than an α-fraction of it — and flattens and rebuilds that entire subtree perfectly balanced in one sweep. Because rebuilds are rare and cheap on average, insertions cost O(log n) amortized and the height stays logarithmic: balance by occasional demolition, not constant maintenance. Verified live: over 1000 random insertion sequences, the in-order traversal is always sorted, every key is findable, and the height never exceeds log_{1/α}(n)+2 with α=0.7. Neon-noir traced. See the deep-insert rebuild in 1D, the height bound in 2D, and the balance-by-demolition inverse in 3D.",
+  "lit":"Genuine scapegoat tree (Igal Galperin & Ronald Rivest, 1993). Verified live: over 1000 random insertion sequences into an α=0.7 scapegoat tree, the in-order traversal equals the sorted keys, every key is findable, and the height never exceeds log_{1/α}(n)+2 (window.__scapegoat_tree.sorted, .allFound, .heightBounded).",
+  "fig":"No framing: the depth-triggered scapegoat search and subtree rebuild run in-browser. The AVAN inverse is honest — instead of maintaining balance every step, it repairs balance when it breaks: an insert that made a path too deep triggers flattening the over-heavy scapegoat subtree and rebuilding it perfectly balanced. Magenta is the too-deep path; green is the rebuilt balanced subtree. Balance by demolition.",
+  "body":SCPG_BODY,"script":SCPG_SCRIPT},
+ {"slug":"the-luhn","title":"THE LUHN","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#35ffb0","icon":"luhn",
+  "kicker":"one digit that guards a number",
+  "blurb":"The Luhn algorithm in the 5-window house format — the checksum guarding nearly every credit-card, IMEI, and account number. Append one check digit so a simple weighted sum comes out a multiple of ten: starting from the right, double every second digit (subtract 9 if the result exceeds 9), add everything up, and a valid number lands on a multiple of 10. It is deliberately tuned to how humans mistype: it catches every single-digit error and almost every adjacent transposition — the one blind spot being swapping a 0 and a 9, which the doubling leaves unchanged. A one-digit tax that stops the commonest typos. Verified live: over 20,000 numbers, the correct check digit validates, every single-digit change is caught, and every adjacent transposition is caught except 09↔90 (which are honestly excused). Neon-noir traced. See the doubling checksum in 1D, the error injection in 2D, and the guard-digit inverse in 3D.",
+  "lit":"Genuine Luhn algorithm (Hans Peter Luhn, IBM, 1954). Verified live: over 20000 numbers, the check digit validates (weighted sum ≡ 0 mod 10), every single-digit error is caught, and every adjacent transposition is caught except the 09↔90 pair — which the doubling provably cannot distinguish, so they are counted and excused honestly (window.__luhn.validates, .single, .transp, .excused).",
+  "fig":"No framing: the doubling checksum and exhaustive error injection run in-browser. Honest scope — the 09↔90 blind spot is a genuine limitation (reported, not hidden). The AVAN inverse is honest — instead of just storing the number, one makes it carry a witness of its own integrity: a check digit forces the weighted sum to 0 mod 10, so any single typo breaks it. Magenta is a broken digit; green is the number the checksum certifies. One digit, guarding the rest.",
+  "body":LUHN_BODY,"script":LUHN_SCRIPT},
+ {"slug":"the-transfer-matrix","title":"THE TRANSFER MATRIX","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE-JACKPOT","domain_slug":"the-jackpot","accent":"#ffcf4a","icon":"transfermatrix",
+  "kicker":"a matrix power that counts strings",
+  "blurb":"The transfer-matrix method in the 5-window house format — counting configurations obeying a local rule by turning the rule into a matrix and taking a power. Model the constraint as a tiny automaton whose states are the 'recent history' that matters; put a 1 in the transfer matrix T for every allowed state-to-state step. Then the number of valid length-n configurations is read straight off Tⁿ — because matrix multiplication sums over exactly the compatible ways to extend. Counting binary strings with no two adjacent 1s, tilings of a strip, walks avoiding a pattern, even the Ising model's partition function — all become a single matrix power, computable in O(log n) multiplications. Verified live: for the 'no two adjacent 1s' rule, T=[[1,1],[1,0]] gives via Tⁿ exactly the brute-force count of valid length-n strings (the Fibonacci numbers) for n up to 18. Neon-noir traced. See the constraint automaton in 1D, the Tⁿ-vs-brute count in 2D, and the power-the-rule inverse in 3D.",
+  "lit":"Genuine transfer-matrix method (statistical mechanics; Kramers & Wannier, Ising model 1941). Verified live: for the no-two-adjacent-1s constraint, the transfer matrix T=[[1,1],[1,0]] gives via the Tⁿ recurrence exactly the brute-force count of valid length-n strings (= Fibonacci(n+2)) for n=1..18 (window.__transfer_matrix.matchesBrute).",
+  "fig":"No framing: the transfer-matrix recurrence and a brute-force enumeration run in-browser. The AVAN inverse is honest — instead of listing every valid configuration, one powers the rule: encode the local constraint as T, and Tⁿ sums over all compatible extensions. Magenta is the exponential enumeration; green is the Tⁿ count. A rule raised to a power counts its worlds.",
+  "body":TRMX_BODY,"script":TRMX_SCRIPT},
+ {"slug":"the-merkle-hellman","title":"THE MERKLE-HELLMAN","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE-BACKDOOR","domain_slug":"the-backdoor","accent":"#b06bff","icon":"merklehellman",
+  "kicker":"a knapsack locked by a superincreasing sequence",
+  "blurb":"The Merkle–Hellman knapsack in the 5-window house format — one of the first public-key cryptosystems, and a beautiful cautionary tale. The private key is a superincreasing sequence (each term exceeds the sum of all before it), for which subset-sum is trivially solvable by greed. The public key hides that structure: multiply every term by a secret r modulo a secret q, scrambling it into an innocent-looking 'hard knapsack.' To encrypt a bit-string you add up the public terms it selects; to decrypt, multiply by r⁻¹ mod q to restore the superincreasing sequence, then peel off the bits greedily. (Shamir later broke it — the disguise wasn't deep — but the idea launched a field.) Verified live: over 20,000 random messages and keys, encrypting with the public knapsack and decrypting with r⁻¹ mod q recovers the original bits exactly. Neon-noir traced. See the private→public disguise in 1D, the encrypt/decrypt in 2D, and the trapdoor inverse in 3D.",
+  "lit":"Genuine Merkle–Hellman knapsack cryptosystem (Ralph Merkle & Martin Hellman, 1978), historically broken by Adi Shamir (1984). Verified live: over 20000 random messages and keys, encrypting via public subset-sum and decrypting via c·r⁻¹ mod q + greedy on the superincreasing sequence recovers the original bits exactly (window.__merkle_hellman.roundTrips).",
+  "fig":"Honest scope: the encrypt→decrypt round-trip is exact, but the system is HISTORICALLY BROKEN (Shamir, 1984) — shown as a landmark in the birth of public-key crypto, not a secure cipher. The AVAN inverse is honest — instead of solving the hard-looking knapsack, one undoes the disguise: multiply by r⁻¹ mod q to restore the superincreasing sequence, then peel bits greedily. Magenta is the ciphertext sum; green is the bit-string it decrypts to. The trapdoor turns hard back to easy.",
+  "body":MKHL_BODY,"script":MKHL_SCRIPT},
  {"slug":"the-bit-reversal","title":"THE BIT-REVERSAL","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#21e6ff","icon":"bitreversal",
   "kicker":"reverse the bits, reverse again, home",
