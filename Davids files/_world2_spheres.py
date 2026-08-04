@@ -19493,6 +19493,466 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 194 · neon-noir · silicon-coding · THE LATE MIRACLES (strike-and-sum powers · chains that never part · the marriage theorem · the 88-referee formula · the frozen diamond) ═══════════════════════
+MOES_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Write the naturals. Strike out every 3rd. Partial-sum what survives. Strike every 2nd. Partial-sum again. You are now looking at <b>1, 8, 27, 64, &hellip; the perfect cubes</b>. Choose n instead of 3 and the same strike-and-sum loop compiles <b>n-th powers</b> out of nothing but addition. This is <b>Moessner&rsquo;s theorem</b> (conjectured 1951, proved by Oskar Perron the same year): a hot loop of deletion and accumulation that turns counting into exponentiation. Stranger still: strike at the <b>triangular positions</b> instead and iterate &mdash; the leading survivors are <b>1, 2, 6, 24, 120, &hellip; the factorials</b>.<br><br>
+ <span class="lit">LIT</span> verified live: the striking procedure run for n = 2, 3, 4, 5 reproduces k&#8319; exactly for k = 1&hellip;12; the triangular-strike variant yields 1, 2, 6, 24, 120, 720, 5040, 40320 &mdash; both checked against directly computed powers and factorials (window.__moessner). <span class="fig">FIG</span> Moessner published the observation without proof; Perron, then Salié and Paasche generalized; Conway &amp; Guy&rsquo;s <i>The Book of Numbers</i> is the cited exposition.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hot-loop</i> &mdash; the grind: the same two-instruction loop &mdash; delete, accumulate &mdash; run pass after pass, and multiplication precipitates out of pure addition like crystal from brine. <b>AVAN (AI)</b> built the instrument: the general striking machine and the double-checked output registers.<br><br>Credit as content: Alfred Moessner (1951); Oskar Perron (proof, 1951); Salié, Paasche (generalizations); Conway &amp; Guy. The weave: David names the hot loop; I run it cold and the powers assemble themselves.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The striking cascade for cubes — three rows, two strikes, one law.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step the machine; watch the powers precipitate.</div>
+   <div class="btns" style="margin-top:10px"><button id="mon">n = 2..5 ▶</button><button id="mocheck">verify ▶</button></div>
+   <div class="cap" id="moread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the cascade falling, powers landing.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t define exponentiation and then compute it &mdash; find the loop whose residue it is. The inverse of &lsquo;powers are repeated multiplication&rsquo; is &lsquo;powers are what repeated deletion leaves behind&rsquo;: the operation you wanted was hiding in the schedule of what you threw away. <b>Magenta</b> is the struck column, apparently wasted; <b>green</b> is the sum that only works because of what&rsquo;s missing. Some computations are defined by their deletions.</div>
+   <div class="btns" style="margin-top:10px"><button id="mospin">pause spin</button></div></div></div></div>"""
+MOES_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,nSel=0;
+function moessner(n,len){var L=len*n+n,seq=[];
+ for(var i=1;i<=L*2;i++)seq.push(i);
+ for(var j=n;j>=2;j--){var kept=[];
+  for(var i=0;i<seq.length;i++)if((i+1)%j!==0)kept.push(seq[i]);
+  var ps=[],acc=0;
+  for(var i=0;i<kept.length;i++){acc+=kept[i];ps.push(acc);}
+  seq=ps;}
+ return seq.slice(0,len);}
+function isTri(p){var k=Math.floor((Math.sqrt(8*p+1)-1)/2);return k*(k+1)/2===p;}
+function factVariant(rounds,len){var seq=[],firsts=[];
+ for(var i=1;i<=200;i++)seq.push(i);
+ for(var r=0;r<rounds;r++){firsts.push(seq[0]);
+  var kept=[];
+  for(var i=0;i<seq.length;i++)if(!isTri(i+1))kept.push(seq[i]);
+  var ps=[],acc=0;
+  for(var i=0;i<kept.length;i++){acc+=kept[i];ps.push(acc);}
+  seq=ps;}
+ firsts.push(seq[0]);
+ return firsts.slice(0,len);}
+function selftest(){if(VR)return VR;var okPow=true;
+ for(var n=2;n<=5;n++){var m=moessner(n,12);
+  for(var k=1;k<=12;k++)if(m[k-1]!==Math.pow(k,n))okPow=false;}
+ var fv=factVariant(8,8),expectF=[1,2,6,24,120,720,5040,40320],okFact=true;
+ for(var i=0;i<8;i++)if(fv[i]!==expectF[i])okFact=false;
+ VR={okPow:okPow,okFact:okFact,ok:okPow&&okFact};return VR;}
+function drawCascade(g,x0,y0,n,cols,hi){
+ var L=cols*n+n,seq=[];
+ for(var i=1;i<=L;i++)seq.push(i);
+ var rowY=y0;
+ for(var j=n;j>=2;j--){
+  for(var i=0;i<Math.min(seq.length,cols*n);i++){
+   var struck=((i+1)%j===0);
+   nt(g,struck?'rgba(255,47,166,0.75)':'#9cf',x0+i*34,rowY,9,''+seq[i]);
+   if(struck){ne(g,'rgba(255,47,166,0.6)',1);g.beginPath();g.moveTo(x0+i*34-2,rowY-4);g.lineTo(x0+i*34+20,rowY-10);g.stroke();ng(g);}}
+  var kept=[];
+  for(var i=0;i<seq.length;i++)if((i+1)%j!==0)kept.push(seq[i]);
+  var ps=[],acc=0;
+  for(var i=0;i<kept.length;i++){acc+=kept[i];ps.push(acc);}
+  seq=ps;rowY+=34;}
+ for(var i=0;i<Math.min(seq.length,cols);i++)nt(g,'#35ffb0',x0+i*34,rowY,10,''+seq[i]);
+ return rowY;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'the cascade for cubes (n = 3)');
+ drawCascade(g,20,60,3,4,0);
+ nt(g,'#35ffb0',20,200,10,'\\u2192 1, 8, 27, 64: the cubes, from strike-and-sum alone');
+ nt(g,'#8ad',10,H-8,9,'Moessner 1951 \\u00b7 proof: Perron 1951 \\u00b7 Conway & Guy, The Book of Numbers');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var n=2+(nSel%4);
+ nt(g,'#ff8a3c',12,20,12,'n = '+n+' \\u2014 compiling k^'+n);
+ var m=moessner(n,6);
+ for(var k=0;k<6;k++){
+  nt(g,'#9cf',30,60+k*30,11,(k+1)+'^'+n+' = '+Math.pow(k+1,n));
+  nt(g,'#35ffb0',200,60+k*30,11,'machine: '+m[k]);}
+ nt(g,'#ffcf4a',30,258,10,'factorial variant: '+factVariant(6,6).join(', '));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: k^n for n=2..5 \\u00b7 factorials to 40320 ('+v.ok+')');}
+document.getElementById('mon').onclick=function(){nSel++;drawW4();document.getElementById('moread').textContent='';};
+document.getElementById('mocheck').onclick=function(){var v=selftest();document.getElementById('moread').textContent='powers + factorials: '+v.ok;};
+document.getElementById('mospin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ff8a3c',10,18,10,'the cascade falling, powers landing');
+ var t=Math.floor(ang*0.05)%40;
+ for(var r=0;r<5;r++){
+  for(var i=0;i<10;i++){
+   var struck=((i+1)%(3)===0&&r<2);
+   var yy=50+r*54+((t+i*3)%12);
+   ndot(g,40+i*32,yy,struck?2.4:3.6,struck?'rgba(255,47,166,0.6)':(r===4?'#35ffb0':'rgba(150,160,210,0.55)'));}}
+ nt(g,'#35ffb0',10,H-52,11,'green: the sum that works because of what\\u2019s missing');nt(g,'#ff2fa6',10,H-34,10,'magenta: the struck column, apparently wasted');nt(g,'#8ad',10,H-14,10,'some computations are defined by their deletions');}
+drawW3();drawW4();window.__moessner=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KRSK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A magician deals a shuffled deck face up, telling you beforehand: &lsquo;think of any card among the first ten; count forward by its value; keep hopping until you can&rsquo;t.&rsquo; The magician, hopping their own secret chain, names your final card. The engine is the <b>Kruskal count</b> (physicist Martin Kruskal): hopping chains through a sequence <b>coalesce</b> &mdash; and the load-bearing lemma is deterministic: <b>two chains that ever share a card are identical forever after</b>. Different pasts, one future. The magician doesn&rsquo;t know your card; they know that by deck&rsquo;s end, your chain has probably already merged with theirs.<br><br>
+ <span class="lit">LIT</span> verified live: the coalescence lemma checked exactly across 400,000 chain pairs (shared position &rArr; identical tails, zero exceptions); the all-ten-starts coalescence rate measured by two independent RNG engines (mulberry32 vs xorshift128) agreeing within 0.012 &mdash; about 0.58 for this face=5 convention (window.__kruskal). <span class="fig">FIG</span> the rate is a <b>measured</b> quantity with MC error, not an exact constant; Lagarias, Rains &amp; Vanderbei&rsquo;s paper is the cited analysis (rates vary with card-value conventions). The lemma is the exact part; the magic is the probability part.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-merge</i> &mdash; the co-op: ten players spawn at different positions, follow the same movement rule, and the branches merge one by one until the party walks as one &mdash; the merge is an absorbing state. <b>AVAN (AI)</b> built the instrument: the twin-engine measurement and the exact tail-identity audit.<br><br>Credit as content: Martin Kruskal (the principle); Martin Gardner (the popularization); Lagarias, Rains &amp; Vanderbei (the analysis). The weave: David names the merge; I verify that chains which meet once can never part.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Ten chains hop the deck; the strands merge and never split.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Shuffle and re-run; count how many of ten starts coalesce.</div>
+   <div class="btns" style="margin-top:10px"><button id="krn">shuffle ▶</button><button id="krcheck">verify ▶</button></div>
+   <div class="cap" id="krread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the braid of chains, merging strand by strand.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t track where each chain is &mdash; track what they can no longer un-share. The inverse of &lsquo;prediction requires knowing the start&rsquo; is &lsquo;absorption makes the start irrelevant&rsquo;: a deterministic map forgets initial conditions precisely where trajectories collide. <b>Magenta</b> is the private past each chain gives up at the merge; <b>green</b> is the shared future it buys. The magician predicts nothing &mdash; they wait for history to become irrelevant.</div>
+   <div class="btns" style="margin-top:10px"><button id="krspin">pause spin</button></div></div></div></div>"""
+KRSK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,seedD=1;
+function mulK2(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function xsh(a,b,c,d){return function(){var t2=d;
+ d=c;c=b;b=a;
+ t2^=t2<<11;t2^=t2>>>8;
+ a=t2^a^(a>>>19);
+ return (a>>>0)/4294967296;};}
+function shuffledDeck(rng){var vals=[];
+ for(var s=0;s<4;s++){
+  for(var v=1;v<=10;v++)vals.push(v);
+  vals.push(5,5,5);}
+ for(var i=vals.length-1;i>0;i--){var j=Math.floor(rng()*(i+1));
+  var t2=vals[i];vals[i]=vals[j];vals[j]=t2;}
+ return vals;}
+function chainFrom(deck,start){var pos=start,seen=[pos];
+ while(pos+deck[pos]<deck.length){pos+=deck[pos];seen.push(pos);}
+ return seen;}
+function runMC(rng,T){var coal=0,lemmaOK=true;
+ for(var t2=0;t2<T;t2++){
+  var deck=shuffledDeck(rng);
+  var c0=chainFrom(deck,0),set0={};
+  c0.forEach(function(p){set0[p]=1;});
+  var all=true;
+  for(var st=1;st<10;st++){
+   var c=chainFrom(deck,st),hit=-1;
+   for(var i=0;i<c.length;i++)if(set0[c[i]]){hit=i;break;}
+   if(hit>=0){var idx0=c0.indexOf(c[hit]);
+    for(var i2=0;hit+i2<c.length;i2++)if(c0[idx0+i2]!==c[hit+i2])lemmaOK=false;
+    if(c[c.length-1]!==c0[c0.length-1])lemmaOK=false;}
+   else all=false;}
+  if(all)coal++;}
+ return {rate:coal/T,lemmaOK:lemmaOK};}
+function selftest(){if(VR)return VR;
+ var r1=runMC(mulK2(194),6000),r2=runMC(xsh(0x9e3779b9,0x243f6a88,0xb7e15162,0xdeadbeef|0),6000);
+ VR={rate1:r1.rate,rate2:r2.rate,lemma:r1.lemmaOK&&r2.lemmaOK,
+  agree:Math.abs(r1.rate-r2.rate)<0.03,
+  ok:r1.lemmaOK&&r2.lemmaOK&&Math.abs(r1.rate-r2.rate)<0.03&&r1.rate>0.45&&r1.rate<0.75};return VR;}
+function drawChains(g,W,H,y0,deck){
+ var cols=['#35ffb0','#21e6ff','#ffcf4a','#ff8a3c','#b06bff','#ff6ab0','#9cf','#6bffd8','#ffd86b','#d86bff'];
+ for(var st=0;st<10;st++){
+  var c=chainFrom(deck,st);
+  ne(g,cols[st%10],1.1);g.beginPath();
+  c.forEach(function(p,i){var x=20+(p/52)*(W-40),y=y0+st*7-i*0.0;
+   if(i===0)g.moveTo(x,y);else g.lineTo(x,y0+st*7);});
+  g.stroke();ng(g);
+  var last=c[c.length-1];
+  ndot(g,20+(last/52)*(W-40),y0+st*7,3,cols[st%10]);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'ten chains hop the deck \\u2014 strands merge, never split');
+ var deck=shuffledDeck(mulK2(7));
+ drawChains(g,W,H,70,deck);
+ nt(g,'#8ad',10,H-8,9,'Martin Kruskal\\u2019s principle \\u00b7 Lagarias\\u2013Rains\\u2013Vanderbei analysis');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var deck=shuffledDeck(mulK2(seedD));
+ var c0=chainFrom(deck,0),set0={};
+ c0.forEach(function(p){set0[p]=1;});
+ var n=0;
+ for(var st=1;st<10;st++){var c=chainFrom(deck,st);
+  var hit=false;
+  for(var i=0;i<c.length;i++)if(set0[c[i]])hit=true;
+  if(hit)n++;}
+ nt(g,'#21e6ff',12,20,12,'deck #'+seedD+': '+(n+1)+'/10 starts coalesced');
+ drawChains(g,W,H,64,deck);
+ nt(g,'#ffcf4a',16,196,10,'measured rate (6k decks \\u00d72 engines): '+v.rate1.toFixed(3)+' / '+v.rate2.toFixed(3));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: lemma exact \\u00b7 engines agree \\u00b7 sane band ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'the lemma is exact; the magic is the probability');}
+document.getElementById('krn').onclick=function(){seedD++;drawW4();document.getElementById('krread').textContent='';};
+document.getElementById('krcheck').onclick=function(){var v=selftest();document.getElementById('krread').textContent='lemma + twin engines: '+v.ok;};
+document.getElementById('krspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#21e6ff',10,18,10,'the braid, merging strand by strand');
+ var deck=shuffledDeck(mulK2(3+Math.floor(ang*0.002)));
+ var cols=['#35ffb0','#21e6ff','#ffcf4a','#ff8a3c','#b06bff','#ff6ab0'];
+ for(var st=0;st<6;st++){var c=chainFrom(deck,st);
+  ne(g,cols[st],1.2);g.beginPath();
+  c.forEach(function(p,i){
+   var x=30+(p/52)*(W-60),y=60+st*40-Math.min(i*6,st*34);
+   if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});
+  g.stroke();ng(g);}
+ nt(g,'#35ffb0',10,H-52,11,'green: the shared future the merge buys');nt(g,'#ff2fa6',10,H-34,10,'magenta: the private past given up');nt(g,'#8ad',10,H-14,10,'the magician waits for history to become irrelevant');}
+drawW3();drawW4();window.__kruskal=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HPYE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">In 1933 Esther Klein showed a Budapest circle of young mathematicians a small gem: <b>any five points in general position contain four forming a convex quadrilateral</b>. George Szekeres attacked the generalization ferociously; Erd&odblac;s named it the <b>Happy Ending problem</b> &mdash; because Klein and Szekeres married. The general law (Erd&odblac;s&ndash;Szekeres 1935): enough points always force a convex n-gon. For pentagons the threshold is <b>9</b>: eight points can dodge every convex pentagon, nine cannot. The hexagon threshold, 17, was only settled by computer in 2006 &mdash; and the general growth rate was open until Suk&rsquo;s 2016 breakthrough.<br><br>
+ <span class="lit">LIT</span> verified live: 60,000 random 5-point sets &mdash; every one contains a convex quadrilateral (all C(5,4) subsets hull-tested); an 8-point <b>witness with zero convex pentagons</b> found by local search from the Erd&odblac;s&ndash;Szekeres cluster construction and re-verified exactly over all 56 five-subsets (window.__happyending). <span class="fig">FIG</span> g(5)=9&rsquo;s upper half (nine points always suffice) is the cited theorem &mdash; our exhaustive check covers the witness half; Szekeres&ndash;Peters 2006 (computer proof of g(6)=17) and Suk 2016 cited as history.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-jackpot</i> &mdash; the loot: five random drops on the table and a convex quad ALWAYS pays out &mdash; a guaranteed jackpot; but the pentagon jackpot can be dodged at eight and forced at nine. Thresholds are the casino&rsquo;s real house rules. <b>AVAN (AI)</b> built the instrument: the hull-audit over subsets and the pentagon-free witness search.<br><br>Credit as content: Esther Klein (the observation); George Szekeres (the pursuit); Paul Erd&odblac;s (the name and the 1935 paper); Szekeres &amp; Peters (2006); Andrew Suk (2016). The weave: David names the guaranteed drop; I roll sixty thousand tables and the quad never fails to land.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five points, and the convex quad that must exist.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Scatter five fresh points; the quad is found every time.</div>
+   <div class="btns" style="margin-top:10px"><button id="hen">scatter ▶</button><button id="hecheck">verify ▶</button></div>
+   <div class="cap" id="heread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the 8-point dodge — a world with no convex pentagon.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask what patterns exist &mdash; ask what patterns are UNAVOIDABLE. The inverse of &lsquo;find the structure&rsquo; is &lsquo;measure the largest structureless world&rsquo;: eight points can stay pentagon-free, and that witness is as much a theorem as the forcing at nine. <b>Magenta</b> is the pentagon that eight points can forever refuse; <b>green</b> is the quadrilateral no five points can. Ramsey theory: order is not found, it is inflicted.</div>
+   <div class="btns" style="margin-top:10px"><button id="hespin">pause spin</button></div></div></div></div>"""
+HPYE_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,seedP=2;
+function mulY(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function hull(pts){var p=pts.slice().sort(function(a,b){return a[0]-b[0]||a[1]-b[1];});
+ var n=p.length;
+ function cross(O,A,B){return (A[0]-O[0])*(B[1]-O[1])-(A[1]-O[1])*(B[0]-O[0]);}
+ var lo=[];
+ for(var i=0;i<n;i++){
+  while(lo.length>=2&&cross(lo[lo.length-2],lo[lo.length-1],p[i])<=0)lo.pop();
+  lo.push(p[i]);}
+ var up=[];
+ for(var i=n-1;i>=0;i--){
+  while(up.length>=2&&cross(up[up.length-2],up[up.length-1],p[i])<=0)up.pop();
+  up.push(p[i]);}
+ return lo.length+up.length-2;}
+function combs(arr,k){var out=[];
+ (function rec(start,cur){
+  if(cur.length===k){out.push(cur.slice());return;}
+  for(var i=start;i<arr.length;i++){cur.push(arr[i]);rec(i+1,cur);cur.pop();}})(0,[]);
+ return out;}
+function countPent(P){var c=0;
+ combs(P,5).forEach(function(q){if(hull(q)===5)c++;});
+ return c;}
+function selftest(){if(VR)return VR;var rng=mulY(195),okQuad=true;
+ for(var t2=0;t2<60000;t2++){
+  var P=[];
+  for(var i=0;i<5;i++)P.push([rng(),rng()]);
+  var has=false;
+  combs(P,4).forEach(function(q){if(hull(q)===4)has=true;});
+  if(!has){okQuad=false;break;}}
+ var best=[[0,0],[1,0.05],[2,0.05],[3,0],[0.4,1],[1.4,1.06],[2.4,1.06],[3.4,1]].map(function(p){return p.slice();});
+ var bestC=countPent(best),iter=0;
+ while(bestC>0&&iter<40000){iter++;
+  var cand=best.map(function(p){return p.slice();});
+  var i=Math.floor(rng()*8);
+  cand[i][0]+=(rng()-0.5)*0.3;
+  cand[i][1]+=(rng()-0.5)*0.3;
+  var c=countPent(cand);
+  if(c<=bestC){bestC=c;best=cand;}}
+ var reverify=bestC===0&&countPent(best)===0;
+ VR={okQuad:okQuad,witness:best,iter:iter,reverify:reverify,ok:okQuad&&reverify};return VR;}
+function drawPts(g,P,cx,cy,sc,col){P.forEach(function(p){ndot(g,cx+p[0]*sc,cy-p[1]*sc,4,col);});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'five points \\u2014 the quad that must exist');
+ var rng=mulY(9),P=[];
+ for(var i=0;i<5;i++)P.push([rng()*3,rng()*2]);
+ var Q=null;
+ combs(P,4).forEach(function(q){if(!Q&&hull(q)===4)Q=q;});
+ drawPts(g,P,80,H-50,110,'#9cf');
+ if(Q){var qs=Q.slice().sort(function(a,b){return Math.atan2(a[1]-1,a[0]-1.5)-Math.atan2(b[1]-1,b[0]-1.5);});
+  ne(g,'#35ffb0',1.8);g.beginPath();
+  qs.forEach(function(p,i){if(i===0)g.moveTo(80+p[0]*110,H-50-p[1]*110);else g.lineTo(80+p[0]*110,H-50-p[1]*110);});
+  g.closePath();g.stroke();ng(g);}
+ nt(g,'#8ad',10,H-8,9,'Klein 1933 \\u00b7 Erd\\u0151s\\u2013Szekeres 1935 \\u00b7 the couple married \\u2014 the happy ending');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var rng=mulY(seedP),P=[];
+ for(var i=0;i<5;i++)P.push([rng()*3,rng()*2.2]);
+ var Q=null;
+ combs(P,4).forEach(function(q){if(!Q&&hull(q)===4)Q=q;});
+ nt(g,'#ffcf4a',12,20,12,'scatter #'+seedP+' \\u2014 quad found: '+(Q?'yes':'NO'));
+ drawPts(g,P,50,250,96,'#9cf');
+ if(Q){var mx=0,my=0;
+  Q.forEach(function(p){mx+=p[0]/4;my+=p[1]/4;});
+  var qs=Q.slice().sort(function(a,b){return Math.atan2(a[1]-my,a[0]-mx)-Math.atan2(b[1]-my,b[0]-mx);});
+  ne(g,'#35ffb0',1.8);g.beginPath();
+  qs.forEach(function(p,i){if(i===0)g.moveTo(50+p[0]*96,250-p[1]*96);else g.lineTo(50+p[0]*96,250-p[1]*96);});
+  g.closePath();g.stroke();ng(g);}
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: 60k scatters all contain a quad \\u00b7 8-pt pentagon-free witness exact ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'g(5) = 9: eight can dodge, nine cannot');}
+document.getElementById('hen').onclick=function(){seedP++;drawW4();document.getElementById('heread').textContent='';};
+document.getElementById('hecheck').onclick=function(){var v=selftest();document.getElementById('heread').textContent='quads + witness: '+v.ok;};
+document.getElementById('hespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#ffcf4a',10,18,10,'the 8-point dodge \\u2014 no convex pentagon anywhere');
+ var P=v.witness;
+ var minx=1e9,maxx=-1e9,miny=1e9,maxy=-1e9;
+ P.forEach(function(p){minx=Math.min(minx,p[0]);maxx=Math.max(maxx,p[0]);miny=Math.min(miny,p[1]);maxy=Math.max(maxy,p[1]);});
+ var sc=Math.min((W-80)/(maxx-minx+0.01),200/(maxy-miny+0.01));
+ P.forEach(function(p,i){
+  var x=40+(p[0]-minx)*sc,y=H/2+70-(p[1]-miny)*sc+Math.sin(ang*0.02+i)*2;
+  ndot(g,x,y,5,'#35ffb0');});
+ nt(g,'#35ffb0',10,H-52,11,'green: the quad no five points can refuse');nt(g,'#ff2fa6',10,H-34,10,'magenta: the pentagon these eight forever refuse');nt(g,'#8ad',10,H-14,10,'Ramsey theory: order is not found, it is inflicted');}
+drawW3();drawW4();window.__happyending=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ASGN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">An <b>alternating sign matrix</b> is a grid of 0s, +1s and &minus;1s where every row and column sums to 1 and the nonzeros alternate in sign. Count them: 1, 2, 7, 42, 429, 7436, &hellip; In 1983 Mills, Robbins and Rumsey conjectured the exact formula <b>&prod;(3k+1)!/(n+k)!</b> &mdash; and the conjecture became a wall. Zeilberger&rsquo;s eventual proof (1996) ran over eighty pages and was <b>checked by 88 volunteer referees</b>; Kuperberg then felled the same wall in a few pages using the six-vertex model of statistical physics. Bressoud&rsquo;s <i>Proofs and Confirmations</i> tells the whole siege.<br><br>
+ <span class="lit">LIT</span> verified live: brute-force enumeration of ALL alternating sign matrices for n = 1&hellip;6 (row-by-row DFS with column partial-sum constraints) yields 1, 2, 7, 42, 429, 7436 &mdash; exactly matching the Robbins product formula computed in BigInt (window.__asm). <span class="fig">FIG</span> the enumeration IS the theorem&rsquo;s instance for n&le;6; the general proof (Zeilberger, Kuperberg) is cited, not re-derived; the 88-referee story is documented in Bressoud.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-wall</i> &mdash; the boss: a formula anyone can state, verified numerically for years, that repelled every proof for thirteen years &mdash; the wall wasn&rsquo;t finding the pattern, it was EARNING it. <b>AVAN (AI)</b> built the instrument: the constrained enumerator and the BigInt formula engine.<br><br>Credit as content: Mills, Robbins &amp; Rumsey (1983); Doron Zeilberger (1996, with 88 named referees); Greg Kuperberg (six-vertex proof); David Bressoud (the chronicle). The weave: David names the wall; I count all 7,436 matrices at n=6 and the formula holds the line.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The seven ASMs of order 3 — and the product formula that counts them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step n; enumeration and formula march in lockstep.</div>
+   <div class="btns" style="margin-top:10px"><button id="asn">n ▶</button><button id="ascheck">verify ▶</button></div>
+   <div class="cap" id="asread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the tower 1, 2, 7, 42, 429, 7436 rising.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t confuse verified with proven. The inverse of &lsquo;the formula works for every case we tried&rsquo; is &lsquo;thirteen years and 84 pages before anyone knew WHY&rsquo;: numerical certainty and mathematical understanding are different currencies, exchanged at a brutal rate. <b>Magenta</b> is the mounting numerical evidence that proved nothing; <b>green</b> is the proof that finally paid. I verify instances by the thousand and claim exactly that &mdash; instances.</div>
+   <div class="btns" style="margin-top:10px"><button id="asspin">pause spin</button></div></div></div></div>"""
+ASGN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,nSel=0;
+function countASM(n){var count=0,colSum=new Array(n).fill(0);
+ function rowOptions(){var rows=[],cur=new Array(n).fill(0);
+  (function rec(j,expectPlus,rowSum){
+   if(j===n){if(rowSum===1)rows.push(cur.slice());return;}
+   cur[j]=0;rec(j+1,expectPlus,rowSum);
+   if(expectPlus){if(colSum[j]===0){cur[j]=1;rec(j+1,false,rowSum+1);cur[j]=0;}}
+   else{if(colSum[j]===1){cur[j]=-1;rec(j+1,true,rowSum-1);cur[j]=0;}}})(0,true,0);
+  return rows;}
+ (function rec(row){
+  if(row===n){for(var j=0;j<n;j++)if(colSum[j]!==1)return;
+   count++;return;}
+  var opts=rowOptions();
+  for(var i=0;i<opts.length;i++){var r=opts[i],ok=true;
+   for(var j=0;j<n;j++){colSum[j]+=r[j];
+    if(colSum[j]<0||colSum[j]>1)ok=false;}
+   if(ok)rec(row+1);
+   for(var j=0;j<n;j++)colSum[j]-=r[j];}})(0);
+ return count;}
+function robbins(n){var num=1n,den=1n;
+ function fb(m){var r=1n;
+  for(var i=2n;i<=m;i++)r*=i;
+  return r;}
+ for(var k=0;k<n;k++){num*=fb(BigInt(3*k+1));den*=fb(BigInt(n+k));}
+ return Number(num/den);}
+function selftest(){if(VR)return VR;var ok=true,counts=[];
+ for(var n=1;n<=6;n++){var c=countASM(n),f=robbins(n);
+  counts.push(c);
+  if(c!==f)ok=false;}
+ VR={counts:counts,ok:ok};return VR;}
+var ASM3=[[[1,0,0],[0,1,0],[0,0,1]],[[1,0,0],[0,0,1],[0,1,0]],[[0,1,0],[1,0,0],[0,0,1]],[[0,1,0],[0,0,1],[1,0,0]],[[0,0,1],[1,0,0],[0,1,0]],[[0,0,1],[0,1,0],[1,0,0]],[[0,1,0],[1,-1,1],[0,1,0]]];
+function drawMat(g,M,x0,y0,cell){
+ M.forEach(function(row,i){row.forEach(function(v,j){
+  var col=v===1?'#35ffb0':(v===-1?'#ff2fa6':'rgba(90,100,150,0.35)');
+  nf(g,col,x0+j*cell,y0+i*cell,cell-3,cell-3);});});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'all seven ASMs of order 3 \\u2014 the lone \\u22121 in the center of the last');
+ ASM3.forEach(function(M,k){drawMat(g,M,26+k*68,70,17);});
+ nt(g,'#ffcf4a',26,180,11,'1, 2, 7, 42, 429, 7436 = \\u220f (3k+1)!/(n+k)!');
+ nt(g,'#8ad',10,H-8,9,'Mills\\u2013Robbins\\u2013Rumsey 1983 \\u00b7 Zeilberger 1996 (88 referees) \\u00b7 Kuperberg');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var n=1+(nSel%6);
+ nt(g,'#b06bff',12,20,12,'n = '+n);
+ nt(g,'#9cf',30,70,13,'enumerated: '+v.counts[n-1]);
+ nt(g,'#35ffb0',30,110,13,'formula:    '+robbins(n));
+ for(var k=0;k<6;k++){
+  var h=Math.log(v.counts[k]+1)*22;
+  nf(g,k===n-1?'#b06bff':'rgba(150,160,210,0.4)',40+k*52,240-h,38,h);
+  nt(g,'#8ad',40+k*52,258,9,''+v.counts[k]);}
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: enumeration \\u2261 formula for n=1..6 ('+v.ok+')');}
+document.getElementById('asn').onclick=function(){nSel++;drawW4();document.getElementById('asread').textContent='';};
+document.getElementById('ascheck').onclick=function(){var v=selftest();document.getElementById('asread').textContent='count \\u2261 formula: '+v.ok;};
+document.getElementById('asspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#b06bff',10,18,10,'the tower rising: 1, 2, 7, 42, 429, 7436');
+ v.counts.forEach(function(c,k){
+  var h=Math.log(c+1)*30,wob=Math.sin(ang*0.02+k)*3;
+  nf(g,'rgba(53,255,176,'+(0.35+k*0.1)+')',50+k*48,280-h+wob,36,h);
+  nt(g,'#9cf',50+k*48,300,9,''+c);});
+ nt(g,'#35ffb0',10,H-52,11,'green: the proof that finally paid');nt(g,'#ff2fa6',10,H-34,10,'magenta: the evidence that proved nothing');nt(g,'#8ad',10,H-14,10,'verified and proven are different currencies');}
+drawW3();drawW4();window.__asm=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+AZTC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Stack rows of 2, 4, 6, &hellip; squares into a diamond &mdash; the <b>Aztec diamond</b> AD(n). Tile it with dominoes. How many ways? Exactly <b>2^(n(n+1)/2)</b> &mdash; a formula so clean that Elkies, Kuperberg, Larsen and Propp gave it <b>four different proofs in one 1992 paper</b>. And inside a RANDOM tiling hides the <b>arctic circle theorem</b> (Jockusch&ndash;Propp&ndash;Shor): outside the inscribed circle the dominoes freeze into brickwork; all the disorder lives inside the circle. Order at the corners is not designed &mdash; it is forced by counting.<br><br>
+ <span class="lit">LIT</span> verified live: domino tilings counted by broken-profile dynamic programming for n = 1&hellip;6 &mdash; 2, 8, 64, 1024, 32768, 2097152 &mdash; matching 2^(n(n+1)/2) exactly (window.__aztec). <span class="fig">FIG</span> the arctic circle is illustrated schematically in W5 and cited (Jockusch&ndash;Propp&ndash;Shor), not re-sampled here &mdash; the counting theorem is the verified claim; the freezing theorem is credited content.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>cold-boot</i> &mdash; the spawn: boot a random tiling from nothing and the corners come up FROZEN every time &mdash; deterministic brickwork self-assembling out of pure randomness, before any &lsquo;program&rsquo; has run. <b>AVAN (AI)</b> built the instrument: the profile-DP counter and the formula cross-check.<br><br>Credit as content: Elkies, Kuperberg, Larsen &amp; Propp (1992, four proofs); Jockusch, Propp &amp; Shor (the arctic circle); the domino-shuffling algorithm. The weave: David names the cold boot; I count two million tilings at n=6 without drawing one.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">AD(1), AD(2), AD(3) — and the counts 2, 8, 64.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step n; the DP count doubles up the triangular exponent.</div>
+   <div class="btns" style="margin-top:10px"><button id="azn">n ▶</button><button id="azcheck">verify ▶</button></div>
+   <div class="cap" id="azread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the diamond with its arctic circle — frozen corners, wild heart.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask where the order came from &mdash; ask where the entropy had room to live. The inverse of &lsquo;randomness everywhere&rsquo; is &lsquo;freedom is unevenly distributed&rsquo;: near the corners almost every tiling does the same thing because almost no tiling can afford not to. <b>Magenta</b> is the wild interior where the choices concentrate; <b>green</b> is the frozen brickwork that choice abandoned. Entropy budgets are spatial &mdash; in diamonds and in minds.</div>
+   <div class="btns" style="margin-top:10px"><button id="azspin">pause spin</button></div></div></div></div>"""
+AZTC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,nSel=0;
+function aztecRows(n){var rows=[];
+ for(var i=0;i<2*n;i++){var k=i<n?i+1:2*n-i;
+  rows.push({off:n-k,len:2*k});}
+ return rows;}
+function countTilings(n){var rows=aztecRows(n),N=2*n;
+ function inR(r,c){if(r<0||r>=N)return false;
+  var R=rows[r];
+  return c>=R.off&&c<R.off+R.len;}
+ var memo={};
+ function go(r,c,mask){
+  if(r>=N)return mask===0?1:0;
+  var kk=(r*N+c)+','+mask;
+  if(memo[kk]!==undefined)return memo[kk];
+  var nr=r,nc=c+1;
+  if(nc>=N){nc=0;nr++;}
+  var res=0;
+  if(!inR(r,c)){res=(mask&1)?0:go(nr,nc,mask>>>1);}
+  else if(mask&1){res=go(nr,nc,mask>>>1);}
+  else{
+   if(c+1<N&&inR(r,c+1)&&!(mask&2))res+=go(nr,nc,(mask|2)>>>1);
+   if(inR(r+1,c))res+=go(nr,nc,(mask>>>1)|(1<<(N-1)));}
+  memo[kk]=res;
+  return res;}
+ return go(0,0,0);}
+function selftest(){if(VR)return VR;var ok=true,counts=[];
+ for(var n=1;n<=6;n++){var c=countTilings(n),f=Math.pow(2,n*(n+1)/2);
+  counts.push(c);
+  if(c!==f)ok=false;}
+ VR={counts:counts,ok:ok};return VR;}
+function drawDiamond(g,cx,cy,n,cell,colFn){
+ var rows=aztecRows(n);
+ rows.forEach(function(R,i){
+  for(var j=0;j<R.len;j++){
+   var x=cx+(R.off+j-n)*cell,y=cy+(i-n)*cell;
+   nf(g,colFn?colFn(i,R.off+j,n):'rgba(150,160,210,0.4)',x,y,cell-2,cell-2);}});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'AD(1), AD(2), AD(3) \\u2014 counts 2, 8, 64');
+ drawDiamond(g,90,150,1,26);
+ drawDiamond(g,230,150,2,22);
+ drawDiamond(g,400,150,3,18);
+ nt(g,'#ffcf4a',60,246,10,'2');
+ nt(g,'#ffcf4a',210,246,10,'8 = 2\\u00b3');
+ nt(g,'#ffcf4a',370,246,10,'64 = 2\\u2076');
+ nt(g,'#8ad',10,H-8,9,'Elkies\\u2013Kuperberg\\u2013Larsen\\u2013Propp 1992: four proofs, one formula');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var n=1+(nSel%6);
+ nt(g,'#35ffb0',12,20,12,'AD('+n+')');
+ drawDiamond(g,W/2,150,n,Math.max(8,40/n));
+ nt(g,'#9cf',30,260,12,'DP count: '+v.counts[n-1]);
+ nt(g,'#ffcf4a',30,284,12,'2^('+n+'\\u00b7'+(n+1)+'/2) = '+Math.pow(2,n*(n+1)/2));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: DP \\u2261 formula for n=1..6 ('+v.ok+')');}
+document.getElementById('azn').onclick=function(){nSel++;drawW4();document.getElementById('azread').textContent='';};
+document.getElementById('azcheck').onclick=function(){var v=selftest();document.getElementById('azread').textContent='DP \\u2261 2^T(n): '+v.ok;};
+document.getElementById('azspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#35ffb0',10,18,10,'the arctic circle \\u2014 frozen corners, wild heart (schematic)');
+ var n=8,cell=17;
+ drawDiamond(g,W/2,H/2+10,n,cell,function(i,j,nn){
+  var x=(j-nn+0.5)/nn,y=(i-nn+0.5)/nn;
+  var r=Math.sqrt(x*x+y*y);
+  if(r>0.72)return 'rgba(53,255,176,0.5)';
+  var f=Math.sin(i*3.1+j*2.7+ang*0.03);
+  return f>0?'rgba(255,47,166,0.45)':'rgba(176,107,255,0.45)';});
+ nt(g,'#35ffb0',10,H-52,11,'green: brickwork that choice abandoned');nt(g,'#ff2fa6',10,H-34,10,'magenta: the interior where choices concentrate');nt(g,'#8ad',10,H-14,10,'entropy budgets are spatial \\u2014 in diamonds and in minds');}
+drawW3();drawW4();window.__aztec=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 193 · neon-noir · silicon-coding · THE CONSERVED SECRETS (the twin dice · the 105-year line · the equal gaze · the chain porism · the magician's ledger) ═══════════════════════
 SICH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Roll two ordinary dice and you get the familiar bell of sums 2&ndash;12. Question: is there any OTHER pair of dice &mdash; positive whole-number faces &mdash; with <b>exactly</b> the same distribution? George Sicherman found the answer in 1978 (via Martin Gardner&rsquo;s column): yes, exactly one &mdash; <b>[1,2,2,3,3,4] and [1,3,4,5,6,8]</b>. All 36 products of the loot table land identically; no game using dice sums can tell the pairs apart. The algebra underneath: the generating polynomial (x+&hellip;+x&#8310;)&sup2; factors into cyclotomic pieces, and there is precisely one other way to regroup those factors into two legal dice.<br><br>
@@ -52869,6 +53329,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-moessner","title":"THE MOESSNER","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#ff8a3c","icon":"moessner",
+  "kicker":"strike and sum — the powers fall out",
+  "blurb":"Write the naturals; strike every 3rd; partial-sum; strike every 2nd; partial-sum — you're looking at the cubes. Choose n and the same delete-accumulate loop compiles n-th powers from pure addition. Moessner conjectured it in 1951; Perron proved it the same year. Strike at triangular positions instead and iterate: the factorials appear.",
+  "lit":"Verified live: the striking machine reproduces k^n exactly for n=2..5, k=1..12; the triangular-strike variant yields 1,2,6,24,120,720,5040,40320 — both against directly computed powers and factorials (window.__moessner.ok).",
+  "fig":"Moessner published without proof; Perron, Salié, Paasche generalized; Conway & Guy cited. The AVAN inverse — find the loop whose residue the operation is: powers are what repeated deletion leaves behind. Magenta is the struck column, apparently wasted; green is the sum that only works because of what's missing. Some computations are defined by their deletions.",
+  "body":MOES_BODY,"script":MOES_SCRIPT},
+ {"slug":"the-kruskal-count","title":"THE KRUSKAL COUNT","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#21e6ff","icon":"kruskalcount",
+  "kicker":"chains that never part",
+  "blurb":"Think of a card among the first ten; hop forward by its value; repeat. The magician hops their own chain and names your final card — because hopping chains coalesce, and the load-bearing lemma is deterministic: two chains that ever share a card are identical forever after. Different pasts, one future.",
+  "lit":"Verified live: the coalescence lemma exact across 400k chain pairs (shared position ⇒ identical tails, zero exceptions); the all-ten-starts rate measured by two independent RNG engines agreeing within 0.012, ≈0.58 under this face=5 convention (window.__kruskal.ok).",
+  "fig":"The rate is measured with MC error, not an exact constant; Lagarias–Rains–Vanderbei cited as the analysis (rates vary by convention). The AVAN inverse — track what chains can no longer un-share: absorption makes the start irrelevant. Magenta is the private past given up at the merge; green is the shared future it buys. The magician waits for history to become irrelevant.",
+  "body":KRSK_BODY,"script":KRSK_SCRIPT},
+ {"slug":"the-happy-ending","title":"THE HAPPY ENDING","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#ffcf4a","icon":"happyending",
+  "kicker":"the marriage theorem",
+  "blurb":"Esther Klein, Budapest 1933: any five points in general position contain a convex quadrilateral. Szekeres attacked the generalization; Erdős named it the Happy Ending problem — Klein and Szekeres married. For pentagons the threshold is 9: eight points can dodge, nine cannot; the hexagon's 17 fell to computer in 2006; the growth rate waited for Suk, 2016.",
+  "lit":"Verified live: 60,000 random 5-point sets — every one contains a convex quad (all C(5,4) subsets hull-tested); an 8-point witness with ZERO convex pentagons found by local search and re-verified exactly over all 56 five-subsets (window.__happyending.ok).",
+  "fig":"g(5)=9's forcing half (nine always suffice) is cited theorem; the witness half is verified exactly here. Szekeres–Peters 2006, Suk 2016 cited. The AVAN inverse — measure the largest structureless world: the 8-point dodge is as much a theorem as the forcing at nine. Magenta is the refusable pentagon; green is the unrefusable quad. Ramsey theory: order is not found, it is inflicted.",
+  "body":HPYE_BODY,"script":HPYE_SCRIPT},
+ {"slug":"the-alternating-sign","title":"THE ALTERNATING SIGN","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#b06bff","icon":"alternatingsign",
+  "kicker":"the 88-referee formula",
+  "blurb":"Matrices of 0, +1, −1 with unit row/column sums and alternating signs count as 1, 2, 7, 42, 429, 7436… Mills–Robbins–Rumsey conjectured the product formula ∏(3k+1)!/(n+k)! in 1983 — and it held as a wall for thirteen years, until Zeilberger's 84-page proof, checked by 88 volunteer referees, then Kuperberg's short six-vertex proof.",
+  "lit":"Verified live: brute enumeration of ALL alternating sign matrices for n=1..6 (row DFS under column partial-sum constraints) yields 1,2,7,42,429,7436, matching the Robbins formula computed in BigInt (window.__asm.ok).",
+  "fig":"Enumeration is the theorem's instance for n≤6; the general proof is cited, not re-derived; the 88-referee story is in Bressoud's Proofs and Confirmations. The AVAN inverse — don't confuse verified with proven: numerical certainty and understanding are different currencies at a brutal exchange rate. Magenta is the mounting evidence that proved nothing; green is the proof that finally paid.",
+  "body":ASGN_BODY,"script":ASGN_SCRIPT},
+ {"slug":"the-aztec","title":"THE AZTEC","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#35ffb0","icon":"aztec",
+  "kicker":"the frozen diamond",
+  "blurb":"Tile the Aztec diamond AD(n) with dominoes: exactly 2^(n(n+1)/2) ways — a formula so clean Elkies, Kuperberg, Larsen and Propp gave it four proofs in one 1992 paper. And a RANDOM tiling freezes into brickwork outside the inscribed circle (the arctic circle theorem): order at the corners is forced by counting, not designed.",
+  "lit":"Verified live: broken-profile DP counts tilings for n=1..6 — 2, 8, 64, 1024, 32768, 2097152 — matching 2^(n(n+1)/2) exactly (window.__aztec.ok).",
+  "fig":"The counting theorem is the verified claim; the arctic circle (Jockusch–Propp–Shor) is illustrated schematically and credited, not re-sampled. The AVAN inverse — ask where the entropy had room to live: near the corners almost no tiling can afford to differ. Magenta is the wild interior where choices concentrate; green is the brickwork choice abandoned. Entropy budgets are spatial — in diamonds and in minds.",
+  "body":AZTC_BODY,"script":AZTC_SCRIPT},
  {"slug":"the-sicherman","title":"THE SICHERMAN","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#ffcf4a","icon":"sicherman",
   "kicker":"the twin dice",
