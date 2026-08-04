@@ -19493,6 +19493,251 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 150 · neon-noir · silicon-coding (domino tilings counted by a determinant · an infinite product equal to a sparse theta sum · powers rebuilt from Eulerian numbers · sums of two squares counted by divisors mod 4 · a rectangle's hidden distance invariant) ═══════════════════════
+KAST_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Kasteleyn&rsquo;s theorem</b> counts something explosive with a single determinant. How many ways can you tile an m&times;n board with dominoes? The number grows enormously, yet Pieter Kasteleyn (1961) showed it equals the absolute value of a determinant. Orient the grid&rsquo;s edges cleverly &mdash; give horizontal edges weight 1 and vertical edges weight i (imaginary) &mdash; and build the bipartite adjacency matrix K between the black and white cells. Then the <b>number of domino tilings is exactly |det K|</b>. A counting problem that looks hopeless becomes one linear-algebra computation; it launched the exact solution of the dimer model in statistical mechanics.<br><br>
+ <span class="lit">LIT</span> verified live: for a range of grids the complex Kasteleyn determinant |det K| equals the domino-tiling count found independently by a brute broken-profile dynamic program &mdash; 2&times;n reproduces the Fibonacci numbers (2, 3, 5, 8, 13), 3&times;4 gives 11, 4&times;4 gives 36 (window.__kasteleyn). <span class="fig">FIG</span> no framing; the complex determinant and the brute tiling enumeration both run in-browser and agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>cold-boot</i> &mdash; the empty board booting up, filling with dominoes: every legal fill is one tiling, and a single determinant counts them all. <b>AVAN (AI)</b> built the instrument: the Kasteleyn complex adjacency matrix, its determinant, and the independent profile-DP tiling count.<br><br>Credit as content: Pieter Kasteleyn (1961); Temperley &amp; Fisher (1961). The weave: David names the cold boot; I confirm |det K| equals the number of domino tilings.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">One domino tiling of the grid; the Kasteleyn determinant counts every possible tiling at once.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle grids; the complex determinant |det K| is compared to the brute tiling count.</div>
+   <div class="btns" style="margin-top:10px"><button id="kanext">next grid ▶</button><button id="kacheck">verify ▶</button></div>
+   <div class="cap" id="karead" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the number of domino tilings.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t enumerate the tilings &mdash; take a determinant. The inverse of &lsquo;count the domino tilings&rsquo; is &lsquo;the signed permutation sum of one matrix&rsquo;: Kasteleyn&rsquo;s orientation makes every tiling contribute the same sign, so |det K| counts them. <b>Magenta</b> is the weighted adjacency; <b>green</b> is the tiling count it computes. Exponential counting folded into one determinant.</div>
+   <div class="btns" style="margin-top:10px"><button id="kaspin">pause spin</button></div></div></div></div>"""
+KAST_SCRIPT = """(function(){""" + NOIR + """
+function cmul(a,b){return [a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]];}
+function cdiv(a,b){var d=b[0]*b[0]+b[1]*b[1];return [(a[0]*b[0]+a[1]*b[1])/d,(a[1]*b[0]-a[0]*b[1])/d];}
+function cabs(a){return Math.hypot(a[0],a[1]);}
+function detC(M){var n=M.length,A=M.map(function(r){return r.map(function(c){return c.slice();});}),det=[1,0];for(var k=0;k<n;k++){var piv=k;for(var i=k+1;i<n;i++)if(cabs(A[i][k])>cabs(A[piv][k]))piv=i;if(cabs(A[piv][k])<1e-12)return [0,0];if(piv!==k){var tm=A[piv];A[piv]=A[k];A[k]=tm;det=[-det[0],-det[1]];}det=cmul(det,A[k][k]);for(var i=k+1;i<n;i++){var f=cdiv(A[i][k],A[k][k]);for(var j=k;j<n;j++){var p=cmul(f,A[k][j]);A[i][j]=[A[i][j][0]-p[0],A[i][j][1]-p[1]];}}}return det;}
+function kast(m,n){var black=[],white=[],idx={};for(var r=0;r<m;r++)for(var c=0;c<n;c++){if((r+c)%2===0){idx[r+','+c]=['b',black.length];black.push([r,c]);}else{idx[r+','+c]=['w',white.length];white.push([r,c]);}}if(black.length!==white.length)return null;var K=[];for(var bi=0;bi<black.length;bi++){K.push([]);for(var wi=0;wi<white.length;wi++)K[bi].push([0,0]);}var dr=[[0,1,[1,0]],[0,-1,[1,0]],[1,0,[0,1]],[-1,0,[0,1]]];for(var bi=0;bi<black.length;bi++){var r=black[bi][0],c=black[bi][1];for(var d=0;d<4;d++){var nr=r+dr[d][0],nc=c+dr[d][1];if(nr<0||nr>=m||nc<0||nc>=n)continue;var w=idx[nr+','+nc];if(w&&w[0]==='w')K[bi][w[1]]=dr[d][2];}}return Math.round(cabs(detC(K)));}
+function brute(m,n){var N=m*n,memo=new Map();function rec(mask){if(mask===(1<<N)-1)return 1;if(memo.has(mask))return memo.get(mask);var idx=-1;for(var i=0;i<N;i++)if(!((mask>>i)&1)){idx=i;break;}var r=(idx/n)|0,c=idx%n,tot=0;if(c+1<n&&!((mask>>(idx+1))&1))tot+=rec(mask|(1<<idx)|(1<<(idx+1)));if(r+1<m&&!((mask>>(idx+n))&1))tot+=rec(mask|(1<<idx)|(1<<(idx+n)));memo.set(mask,tot);return tot;}return rec(0);}
+function oneTiling(m,n){var N=m*n,used=0,doms=[];function rec(){var idx=-1;for(var i=0;i<N;i++)if(!((used>>i)&1)){idx=i;break;}if(idx<0)return true;var r=(idx/n)|0,c=idx%n;if(c+1<n&&!((used>>(idx+1))&1)){used|=(1<<idx)|(1<<(idx+1));doms.push([[r,c],[r,c+1]]);if(rec())return true;doms.pop();used&=~((1<<idx)|(1<<(idx+1)));}if(r+1<m&&!((used>>(idx+n))&1)){used|=(1<<idx)|(1<<(idx+n));doms.push([[r,c],[r+1,c]]);if(rec())return true;doms.pop();used&=~((1<<idx)|(1<<(idx+n)));}return false;}rec();return doms;}
+var ang=0,spin=true,VR=null,grids=[[2,3],[2,4],[3,4],[4,4],[2,6],[4,3],[2,5]],gi=0;
+function selftest(){if(VR)return VR;var ok=true,rows=[];for(var g=0;g<grids.length;g++){var m=grids[g][0],n=grids[g][1];if((m*n)%2)continue;var k=kast(m,n),b=brute(m,n);if(k!==b)ok=false;}VR={ok:ok,g44:kast(4,4),g26:kast(2,6)};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var m=grids[gi][0],n=grids[gi][1];nt(g,'#21e6ff',10,16,10,'one domino tiling of the '+m+'×'+n+' grid — Kasteleyn counts all '+kast(m,n)+' at once');
+ var cell=Math.min(46,(H-70)/m,(W-40)/n),ox=(W-n*cell)/2,oy=40,doms=oneTiling(m,n);
+ for(var r=0;r<m;r++)for(var c=0;c<n;c++){ne(g,'rgba(120,140,200,0.25)',1);g.strokeRect(ox+c*cell,oy+r*cell,cell,cell);ng(g);}
+ doms.forEach(function(d){var r1=d[0][0],c1=d[0][1],r2=d[1][0],c2=d[1][1],x=ox+Math.min(c1,c2)*cell+3,y=oy+Math.min(r1,r2)*cell+3,w=(c1===c2?1:2)*cell-6,h=(r1===r2?1:2)*cell-6;nf(g,'rgba(53,255,176,0.25)');g.fillRect(x,y,w,h);ng(g);ne(g,'#35ffb0',1.6);g.strokeRect(x,y,w,h);ng(g);});
+ nt(g,'#8ad',10,H-8,9,'#tilings = |det K|, K the Kasteleyn matrix (horizontal edge=1, vertical edge=i)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var m=grids[gi][0],n=grids[gi][1];nt(g,'#21e6ff',12,20,12,'|det K|  vs  brute tiling count');
+ var k=kast(m,n),b=brute(m,n);nt(g,'#9cf',16,56,12,'grid '+m+' × '+n+' ('+(m*n)+' cells, '+(m*n/2)+' dominoes)');
+ nt(g,'#35ffb0',16,88,13,'|det K| = '+k);nt(g,'#9cf',16,116,12,'brute profile-DP count = '+b);
+ nt(g,k===b?'#39ffb0':'#ff5a5a',16,146,13,k===b?'equal ✓':'✗');
+ if(m===2)nt(g,'#ffcf4a',16,174,10,'2×'+n+' tilings = Fibonacci F('+(n+1)+')');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test 7 grids: |det K| == brute tilings = '+v.ok+' (4×4='+v.g44+', 2×6='+v.g26+')');
+ nt(g,'#8ad',12,H-16,9,'exponential counting done by one determinant — the dimer model');}
+document.getElementById('kanext').onclick=function(){gi=(gi+1)%grids.length;drawW3();drawW4();document.getElementById('karead').textContent=grids[gi][0]+'×'+grids[gi][1]+': |det K| = '+kast(grids[gi][0],grids[gi][1])+' domino tilings';};
+document.getElementById('kacheck').onclick=function(){var v=selftest();document.getElementById('karead').textContent='|det K| == brute domino-tiling count across 7 grids: '+v.ok+' (4×4=36, 2×6=13)';};
+document.getElementById('kaspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,m=grids[gi][0],n=grids[gi][1],cell=26;g.save();g.translate(cx,cy);g.rotate(ang*0.06);var doms=oneTiling(m,n),ox=-n*cell/2,oy=-m*cell/2;
+ for(var r=0;r<m;r++)for(var c=0;c<n;c++){ne(g,'rgba(255,47,166,0.35)',1);g.strokeRect(ox+c*cell,oy+r*cell,cell,cell);ng(g);}
+ doms.forEach(function(d){var r1=d[0][0],c1=d[0][1],r2=d[1][0],c2=d[1][1],x=ox+Math.min(c1,c2)*cell+2,y=oy+Math.min(r1,r2)*cell+2,w=(c1===c2?1:2)*cell-4,h=(r1===r2?1:2)*cell-4;ne(g,'#35ffb0',1.6);g.strokeRect(x,y,w,h);ng(g);});
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the domino tilings counted = '+kast(m,n));nt(g,'#ff2fa6',10,H-34,10,'magenta: the grid whose Kasteleyn matrix computes the count');nt(g,'#8ad',10,H-14,10,'exponential counting folded into one determinant');}
+drawW3();drawW4();window.__kasteleyn=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+JTRP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Jacobi triple product</b> is one of the jewels of q-series: an infinite product that equals a strikingly sparse infinite sum. It states &prod;<sub>n&ge;1</sub>(1-x<sup>2n</sup>)(1+x<sup>2n-1</sup>z)(1+x<sup>2n-1</sup>z<sup>-1</sup>) = &sum;<sub>k=-&infin;</sub><sup>&infin;</sup> x<sup>k&sup2;</sup>z<sup>k</sup>. On the left, a dense infinite product of three families of factors; on the right, a sum with terms only at the <b>perfect squares</b> k&sup2; &mdash; almost everything cancels. Specializing z recovers the Jacobi theta functions, Euler&rsquo;s pentagonal theorem, and countless partition identities. It is the master identity behind much of the theory of modular forms.<br><br>
+ <span class="lit">LIT</span> verified live: expanding the left product and the right sum as formal power series (bivariate, in x and z), every coefficient agrees up to x-degree 14 &mdash; the dense product really does collapse to the sparse square-supported sum (window.__jacobitriple). <span class="fig">FIG</span> no framing; both the product expansion and the theta sum are computed in-browser and their coefficients match exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>divide-by-zero</i> &mdash; the glitch that should be impossible: an infinite dense product has almost all its terms cancel, leaving a sum only at the perfect squares. <b>AVAN (AI)</b> built the instrument: the bivariate product expansion, the theta sum, and their coefficient-by-coefficient agreement.<br><br>Credit as content: Carl Gustav Jacob Jacobi (1829). The weave: David names the impossible collapse; I confirm the triple product equals the sparse square-supported sum.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">The right side is supported only at the perfect squares k² — a sparse comb; the dense product collapses to it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The product's coefficients are compared, term by term, to the sparse theta sum Σ x^{k²} z^k.</div>
+   <div class="btns" style="margin-top:10px"><button id="jtnext">next coeff ▶</button><button id="jtcheck">verify ▶</button></div>
+   <div class="cap" id="jtread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the sparse theta sum, supported only at squares.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t multiply out the product &mdash; read the survivors. The inverse of &lsquo;the infinite triple product&rsquo; is &lsquo;the sum &sum;x<sup>k&sup2;</sup>z<sup>k</sup> of the terms that survive the cancellation&rsquo;. <b>Magenta</b> are the product&rsquo;s three factor families; <b>green</b> is the sparse square-supported sum they collapse to. Density folded into the perfect squares.</div>
+   <div class="btns" style="margin-top:10px"><button id="jtspin">pause spin</button></div></div></div></div>"""
+JTRP_SCRIPT = """(function(){""" + NOIR + """
+function jtp(N){var P=new Map();P.set('0,0',1);function mulF(terms){var R=new Map();P.forEach(function(cv,key){var kp=key.split(','),xd=+kp[0],zd=+kp[1];for(var t=0;t<terms.length;t++){var nxd=xd+terms[t][0];if(nxd>N)continue;var nzd=zd+terms[t][1],nk=nxd+','+nzd;R.set(nk,(R.get(nk)||0)+cv*terms[t][2]);}});P=R;}for(var n=1;2*n-1<=N;n++){if(2*n<=N)mulF([[0,0,1],[2*n,0,-1]]);mulF([[0,0,1],[2*n-1,1,1]]);mulF([[0,0,1],[2*n-1,-1,1]]);}return P;}
+var ang=0,spin=true,VR=null,N=28,SAFE=14,P=jtp(N),RHS=new Map(),ci=0,coeffList=[];
+for(var k=-8;k<=8;k++)if(k*k<=N)RHS.set(k*k+','+k,1);
+(function(){var keys=new Set();P.forEach(function(v,k){keys.add(k);});RHS.forEach(function(v,k){keys.add(k);});keys.forEach(function(k){if(+k.split(',')[0]<=SAFE)coeffList.push(k);});coeffList.sort(function(a,b){var pa=a.split(',').map(Number),pb=b.split(',').map(Number);return pa[0]-pb[0]||pa[1]-pb[1];});})();
+function selftest(){if(VR)return VR;var ok=true,checked=0,bad=0;for(var i=0;i<coeffList.length;i++){var k=coeffList[i],a=P.get(k)||0,b=RHS.get(k)||0;checked++;if(a!==b){ok=false;bad++;}}VR={ok:ok,checked:checked,bad:bad};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'Σ_k x^{k²} z^k — nonzero only at the perfect squares k² (a sparse comb)');
+ var x0=30,base=H-50,sc=(W-60)/N;ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.moveTo(x0,base);g.lineTo(W-20,base);g.stroke();ng(g);
+ for(var d=0;d<=N;d++){var isSq=Math.abs(Math.sqrt(d)-Math.round(Math.sqrt(d)))<1e-9;var px=x0+d*sc;if(isSq){ne(g,'#35ffb0',2);g.beginPath();g.moveTo(px,base);g.lineTo(px,base-120);g.stroke();ng(g);ndot(g,px,base-120,3,'#35ffb0');nt(g,'#39ffb0',px-4,base-126,9,'x'+d);}else{ne(g,'rgba(176,107,255,0.25)',1);g.beginPath();g.moveTo(px,base);g.lineTo(px,base-6);g.stroke();ng(g);}}
+ nt(g,'#8ad',10,H-8,9,'the dense triple product ∏(1−x^{2n})(1+x^{2n−1}z)(1+x^{2n−1}/z) collapses to this comb');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',12,20,12,'product coeff  vs  theta-sum coeff');
+ var k=coeffList[ci],kp=k.split(','),a=P.get(k)||0,b=RHS.get(k)||0;
+ nt(g,'#9cf',16,58,12,'coefficient of  x^'+kp[0]+' z^'+kp[1]);
+ nt(g,'#c9a6ff',16,90,12,'from the triple product = '+a);nt(g,'#35ffb0',16,118,12,'from Σ x^{k²} z^k = '+b);
+ nt(g,a===b?'#39ffb0':'#ff5a5a',16,148,13,a===b?'equal ✓':'✗');
+ nt(g,'#8ad',16,176,10,(+kp[1])*(+kp[1])===(+kp[0])?'x^'+kp[0]+' z^'+kp[1]+' is a square term (k='+kp[1]+')':'not a k² term → coeff 0');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: all '+v.checked+' coeffs (xdeg≤'+SAFE+') agree = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'a dense infinite product equal to a sum supported only on squares');}
+document.getElementById('jtnext').onclick=function(){ci=(ci+1)%coeffList.length;drawW4();var k=coeffList[ci];document.getElementById('jtread').textContent='coeff x^'+k.split(',')[0]+' z^'+k.split(',')[1]+': product='+(P.get(k)||0)+', theta='+(RHS.get(k)||0);};
+document.getElementById('jtcheck').onclick=function(){var v=selftest();document.getElementById('jtread').textContent='every coefficient of the product == the theta sum Σx^{k²}z^k ('+v.checked+' coeffs, xdeg≤'+SAFE+'): '+v.ok;};
+document.getElementById('jtspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.08);
+ for(var k=-6;k<=6;k++){if(k*k>N)continue;var a=k/7*3.14159,r=30+k*k*4;ndot(g,Math.cos(a)*r,Math.sin(a)*r,4,'#35ffb0');nt(g,'#39ffb0',Math.cos(a)*r+5,Math.sin(a)*r,8,'x'+(k*k));}
+ for(var f=1;f<=6;f++){ne(g,'rgba(255,47,166,0.3)',1);g.beginPath();g.arc(0,0,20+f*16,0,6.2832);g.stroke();ng(g);}
+ ndot(g,0,0,6,'#35ffb0');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the sparse theta sum Σ x^{k²} z^k (dots at squares)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the three infinite factor families of the product');nt(g,'#8ad',10,H-14,10,'density folded into the perfect squares');}
+drawW3();drawW4();window.__jacobitriple=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WORP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Worpitzky&rsquo;s identity</b> rebuilds any power from binomial coefficients, weighted by the <b>Eulerian numbers</b>. The Eulerian number A(n,k) counts the permutations of n elements with exactly k ascents. Worpitzky proved that x<sup>n</sup> = &sum;<sub>k</sub> A(n,k)&middot;C(x+k, n) &mdash; the monomial x<sup>n</sup> is a fixed integer combination of the &lsquo;binomial staircase&rsquo; C(x+k, n), with the Eulerian numbers as the exact coefficients. It is the bridge between powers, binomial coefficients, and the ascent statistic on permutations, and it is what makes Eulerian numbers appear whenever you sum k<sup>n</sup>.<br><br>
+ <span class="lit">LIT</span> verified live with exact integer arithmetic: for n = 1..12 and x = 0..20, the sum &sum;<sub>k</sub> A(n,k)&middot;C(x+k, n) equals x<sup>n</sup> exactly, with the Eulerian numbers generated independently by their own recurrence &mdash; A(3,&middot;)=[1,4,1] (window.__worpitzky). <span class="fig">FIG</span> no framing; the Eulerian recurrence, the binomial staircase, and the power x<sup>n</sup> all run in-browser and agree exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-cron-job</i> &mdash; the grind that reruns every tick: for each x, rebuild x<sup>n</sup> mechanically from the same Eulerian coefficients and the binomial staircase. <b>AVAN (AI)</b> built the instrument: the Eulerian-number recurrence, the binomial coefficients, and their exact reconstruction of x<sup>n</sup>.<br><br>Credit as content: Julius Worpitzky (1883); Eulerian numbers from Leonhard Euler. The weave: David names the recurring job; I confirm x<sup>n</sup> equals the Eulerian-weighted binomial sum, exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">The Eulerian triangle A(n,k) — permutations of n with k ascents — the coefficients in Worpitzky's identity.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle n and x; the Eulerian-weighted binomial sum is compared, term by term, to x^n.</div>
+   <div class="btns" style="margin-top:10px"><button id="wonext">next n,x ▶</button><button id="wocheck">verify ▶</button></div>
+   <div class="cap" id="woread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the power x^n, rebuilt exactly.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t exponentiate &mdash; sum a staircase. The inverse of &lsquo;the power x<sup>n</sup>&rsquo; is &lsquo;the Eulerian-weighted sum &sum;A(n,k)C(x+k,n) of binomial coefficients&rsquo;, tying powers to the ascent statistic on permutations. <b>Magenta</b> are the Eulerian-weighted binomial pieces; <b>green</b> is the power x<sup>n</sup> they rebuild. A monomial as a staircase sum.</div>
+   <div class="btns" style="margin-top:10px"><button id="wospin">pause spin</button></div></div></div></div>"""
+WORP_SCRIPT = """(function(){""" + NOIR + """
+function eulerian(N){var A=[[1n]];for(var n=1;n<=N;n++){var row=[];for(var k=0;k<=n;k++){var a=(k<A[n-1].length)?A[n-1][k]:0n,b=(k-1>=0&&k-1<A[n-1].length)?A[n-1][k-1]:0n;row.push(BigInt(k+1)*a+BigInt(n-k)*b);}A.push(row);}return A;}
+function binomB(n,k){if(k<0||n<0||k>n)return 0n;var r=1n;for(var i=0n;i<BigInt(k);i++)r=r*(BigInt(n)-i)/(i+1n);return r;}
+var ang=0,spin=true,VR=null,NMAX=12,A=eulerian(NMAX),dn=3,dx=5;
+function selftest(){if(VR)return VR;var ok=true;for(var n=1;n<=NMAX;n++)for(var x=0;x<=20;x++){var s=0n;for(var k=0;k<=n-1;k++)s+=A[n][k]*binomB(x+k,n);if(s!==BigInt(x)**BigInt(n))ok=false;}VR={ok:ok};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'the Eulerian triangle A(n,k) — permutations of n with k ascents');
+ for(var n=1;n<=8;n++){var y=32+n*24,row=A[n].slice(0,n),ox=W/2-row.length*30/2;for(var k=0;k<n;k++){var hl=(n===dn);nt(g,hl?'#ffcf4a':'#ffb079',ox+k*30,y,hl?12:10,row[k].toString());}nt(g,'#8ad',10,y,9,'n='+n);}
+ nt(g,'#8ad',10,H-8,9,'these Eulerian numbers are the exact coefficients in x^n = Σ_k A(n,k)·C(x+k,n)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',12,20,12,'x^n  vs  Σ_k A(n,k)·C(x+k,n),  n='+dn+', x='+dx);
+ var s=0n,parts=[];for(var k=0;k<=dn-1;k++){var term=A[dn][k]*binomB(dx+k,dn);s+=term;parts.push(A[dn][k].toString()+'·C('+(dx+k)+','+dn+')='+term.toString());}
+ var y=52;for(var i=0;i<parts.length&&y<170;i++){nt(g,'#ffce9a',16,y,10,parts[i]);y+=18;}
+ nt(g,'#35ffb0',16,y+6,12,'sum = '+s.toString());nt(g,'#9cf',16,y+30,12,x_pow_str());
+ var xn=BigInt(dx)**BigInt(dn);nt(g,s===xn?'#39ffb0':'#ff5a5a',16,y+54,13,s===xn?'= '+dx+'^'+dn+' = '+xn.toString()+' ✓':'✗');
+ function x_pow_str(){return dx+'^'+dn+' = '+(BigInt(dx)**BigInt(dn)).toString();}
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test n=1..12, x=0..20: Σ A(n,k)C(x+k,n) == x^n (exact) = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'powers, binomials, and the permutation ascent statistic, tied together');}
+document.getElementById('wonext').onclick=function(){dn=dn>=8?1:dn+1;dx=2+((dx+3)%18);drawW3();drawW4();var s=0n;for(var k=0;k<=dn-1;k++)s+=A[dn][k]*binomB(dx+k,dn);document.getElementById('woread').textContent='n='+dn+', x='+dx+': Σ A('+dn+',k)C(x+k,'+dn+') = '+s.toString()+' = '+dx+'^'+dn;};
+document.getElementById('wocheck').onclick=function(){var v=selftest();document.getElementById('woread').textContent='Σ_k A(n,k)·C(x+k,n) == x^n for n=1..12, x=0..20 (exact BigInt): '+v.ok;};
+document.getElementById('wospin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2+40;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ var parts=[];for(var k=0;k<=dn-1;k++)parts.push(Number(A[dn][k]*binomB(dx+k,dn)));var tot=parts.reduce(function(a,b){return a+b;},0),acc=0,bw=44;
+ for(var k=0;k<parts.length;k++){var h=tot>0?parts[k]/tot*180:0;nf(g,'rgba(255,47,166,0.5)');g.fillRect(-parts.length*bw/2+k*bw,-acc-h,bw-4,h);ng(g);ne(g,'#ff2fa6',1);g.strokeRect(-parts.length*bw/2+k*bw,-acc-h,bw-4,h);ng(g);acc+=h;}
+ ne(g,'#35ffb0',2.4);g.strokeRect(-parts.length*bw/2,-acc,parts.length*bw-4,acc);ng(g);nt(g,'#39ffb0',-20,-acc-8,11,dx+'^'+dn);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the power x^n = '+(BigInt(dx)**BigInt(dn)).toString());nt(g,'#ff2fa6',10,H-34,10,'magenta: the Eulerian-weighted binomial staircase pieces');nt(g,'#8ad',10,H-14,10,'a monomial rebuilt as a staircase sum');}
+drawW3();drawW4();window.__worpitzky=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TWSQ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Jacobi&rsquo;s two-square theorem</b> counts, exactly, how many ways a number is a sum of two squares &mdash; using only its <b>divisors</b>. Let r&#8322;(n) be the number of integer pairs (a,b) with a&sup2;+b&sup2;=n (signs and order counted). Jacobi proved r&#8322;(n) = 4&middot;(d&#8321;(n) - d&#8323;(n)), where d&#8321;(n) counts the divisors of n congruent to 1 (mod 4) and d&#8323;(n) counts those congruent to 3 (mod 4). A geometric question &mdash; how many lattice points lie on the circle of radius &radic;n &mdash; is answered purely by counting divisors and sorting them by their remainder mod 4.<br><br>
+ <span class="lit">LIT</span> verified live: for every n from 1 to 2000, a brute count of lattice points (a,b) on the circle a&sup2;+b&sup2;=n equals 4&middot;(d&#8321;(n)-d&#8323;(n)) computed from the divisors &mdash; e.g. r&#8322;(25)=12 (window.__twosquare). <span class="fig">FIG</span> no framing; the lattice-point count and the divisor formula both run in-browser and agree for all n up to 2000.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hoard</i> &mdash; the count of ways to hoard n as a&sup2;+b&sup2;, tallied not by searching the plane but by sorting n&rsquo;s divisors by their remainder mod 4. <b>AVAN (AI)</b> built the instrument: the brute lattice count on the circle, the divisor tally, and their agreement.<br><br>Credit as content: Carl Gustav Jacob Jacobi (1834); Fermat and Gauss before. The weave: David names the hoard; I confirm the lattice-point count equals 4(d&#8321;-d&#8323;).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">The circle a²+b²=n and the integer lattice points on it — r₂(n) of them, counted by divisors mod 4.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle n; the lattice-point count r₂(n) is compared to 4·(d₁(n) − d₃(n)) from the divisors.</div>
+   <div class="btns" style="margin-top:10px"><button id="tsnext">next n ▶</button><button id="tscheck">verify ▶</button></div>
+   <div class="cap" id="tsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: r₂(n), the number of lattice points on the circle.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t scan the plane &mdash; sort the divisors. The inverse of &lsquo;count lattice points on the circle of radius &radic;n&rsquo; is &lsquo;4 times (divisors &equiv;1 minus divisors &equiv;3, mod 4)&rsquo;. <b>Magenta</b> are the divisors sorted by remainder mod 4; <b>green</b> is the lattice-point count they determine. Geometry answered by arithmetic.</div>
+   <div class="btns" style="margin-top:10px"><button id="tsspin">pause spin</button></div></div></div></div>"""
+TWSQ_SCRIPT = """(function(){""" + NOIR + """
+function r2brute(n){var c=0,s=Math.floor(Math.sqrt(n));for(var a=-s;a<=s;a++){var b2=n-a*a;if(b2<0)continue;var b=Math.round(Math.sqrt(b2));if(b*b===b2)c+=(b===0?1:2);}return c;}
+function r2form(n){var d1=0,d3=0;for(var d=1;d<=n;d++)if(n%d===0){if(d%4===1)d1++;else if(d%4===3)d3++;}return 4*(d1-d3);}
+function divs(n){var o=[];for(var d=1;d<=n;d++)if(n%d===0)o.push(d);return o;}
+var ang=0,spin=true,VR=null,dn=25;
+function selftest(){if(VR)return VR;var ok=true,bad=0;for(var n=1;n<=2000;n++)if(r2brute(n)!==r2form(n)){ok=false;bad++;}VR={ok:ok,bad:bad,r25:r2brute(25)};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'lattice points (a,b) on the circle a²+b² = '+dn+' — r₂('+dn+') = '+r2brute(dn));
+ var cx=W/2,cy=H/2+10,R=Math.sqrt(dn),sc=Math.min(90,(H-70)/2)/Math.max(1,R);
+ ne(g,'rgba(120,140,200,0.2)',1);for(var a=-Math.ceil(R);a<=Math.ceil(R);a++){g.beginPath();g.moveTo(cx+a*sc,20);g.lineTo(cx+a*sc,H-30);g.stroke();g.beginPath();g.moveTo(cx-120,cy-a*sc);g.lineTo(cx+120,cy-a*sc);g.stroke();}ng(g);
+ ne(g,'#ffcf4a',1.6);g.beginPath();g.arc(cx,cy,R*sc,0,6.2832);g.stroke();ng(g);
+ var s=Math.floor(R);for(var a=-s;a<=s;a++){var b2=dn-a*a;if(b2<0)continue;var b=Math.round(Math.sqrt(b2));if(b*b===b2){ndot(g,cx+a*sc,cy-b*sc,4,'#35ffb0');if(b!==0)ndot(g,cx+a*sc,cy+b*sc,4,'#35ffb0');}}
+ nt(g,'#8ad',10,H-8,9,'r₂(n) = 4·(#divisors≡1 − #divisors≡3, mod 4) — a geometric count from arithmetic');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',12,20,12,'r₂(n)  vs  4·(d₁ − d₃),  n = '+dn);
+ var dv=divs(dn),d1=dv.filter(function(d){return d%4===1;}),d3=dv.filter(function(d){return d%4===3;});
+ nt(g,'#9cf',16,54,10,'divisors of '+dn+': '+dv.join(', '));
+ nt(g,'#35ffb0',16,80,10,'≡1 (mod4): ['+d1.join(',')+'] → d₁='+d1.length);nt(g,'#ff2fa6',16,104,10,'≡3 (mod4): ['+d3.join(',')+'] → d₃='+d3.length);
+ nt(g,'#ffcf4a',16,132,12,'4·(d₁ − d₃) = 4·('+d1.length+'−'+d3.length+') = '+r2form(dn));
+ nt(g,'#9cf',16,158,12,'lattice-point count r₂('+dn+') = '+r2brute(dn));
+ nt(g,r2brute(dn)===r2form(dn)?'#39ffb0':'#ff5a5a',16,184,12,r2brute(dn)===r2form(dn)?'equal ✓':'✗');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test n=1..2000: r₂(n) == 4·(d₁−d₃) = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'how many lattice points on a circle — answered by divisors mod 4');}
+document.getElementById('tsnext').onclick=function(){var opts=[1,2,5,10,25,50,65,325,50,72,45,100,13,169];dn=opts[(opts.indexOf(dn)+1)%opts.length]||25;drawW3();drawW4();document.getElementById('tsread').textContent='n='+dn+': r₂='+r2brute(dn)+' = 4(d₁−d₃) = '+r2form(dn);};
+document.getElementById('tscheck').onclick=function(){var v=selftest();document.getElementById('tsread').textContent='r₂(n) == 4·(d₁(n)−d₃(n)) for n=1..2000: '+v.ok+' (r₂(25)='+v.r25+')';};
+document.getElementById('tsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,R=Math.sqrt(dn),sc=Math.min(70,120/Math.max(1,R));g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ ne(g,'#ff2fa6',1.4);g.beginPath();g.arc(0,0,R*sc,0,6.2832);g.stroke();ng(g);
+ var s=Math.floor(R);for(var a=-s;a<=s;a++){var b2=dn-a*a;if(b2<0)continue;var b=Math.round(Math.sqrt(b2));if(b*b===b2){ndot(g,a*sc,-b*sc,5,'#35ffb0');if(b!==0)ndot(g,a*sc,b*sc,5,'#35ffb0');}}
+ ndot(g,0,0,4,'#8ad');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: r₂('+dn+') = '+r2brute(dn)+' lattice points on the circle');nt(g,'#ff2fa6',10,H-34,10,'magenta: the circle a²+b²='+dn+' of radius √'+dn);nt(g,'#8ad',10,H-14,10,'geometry answered by arithmetic — divisors mod 4');}
+drawW3();drawW4();window.__twosquare=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BFLG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The British flag theorem</b> is a small, sturdy invariant. Take any rectangle with corners A, B, C, D (A and C opposite, B and D opposite) and <b>any</b> point P &mdash; inside, outside, even off the plane in 3D. Then the sum of squared distances to one pair of opposite corners equals the sum to the other pair: <b>PA&sup2; + PC&sup2; = PB&sup2; + PD&sup2;</b>. The name comes from the Union-Jack-like pattern of the four segments drawn from P. It holds for rectangles precisely because their sides are perpendicular; for a general parallelogram the two sums differ by a clean amount.<br><br>
+ <span class="lit">LIT</span> verified live two ways: across thousands of random rectangles and points (in 2D and 3D) PA&sup2;+PC&sup2; equals PB&sup2;+PD&sup2; to ~1e-13, and for a general parallelogram built from edge vectors u, v the discrepancy is exactly 8(u&middot;v) &mdash; zero precisely when u&perp;v, i.e. when it is a rectangle (window.__britishflag). <span class="fig">FIG</span> no framing; the distances and the invariant both run in-browser and agree, with the parallelogram gap matching 8(u&middot;v) exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-root-kit</i> &mdash; the hidden invariant you exploit: whatever the point P, one diagonal pair&rsquo;s squared distances secretly equals the other&rsquo;s. <b>AVAN (AI)</b> built the instrument: the four squared distances, the rectangle invariant, and the exact 8(u&middot;v) gap for a general parallelogram.<br><br>Credit as content: classical (the &lsquo;British flag theorem&rsquo;). The weave: David names the hidden invariant; I confirm PA&sup2;+PC&sup2;=PB&sup2;+PD&sup2; for any rectangle and any P, with the parallelogram gap exactly 8(u&middot;v).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A rectangle, a free point P, and the four segments; PA²+PC² (green diagonal pair) equals PB²+PD² (magenta pair).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Drag-free demo: move P; for a rectangle the two sums stay equal — and a sheared parallelogram's gap = 8(u·v).</div>
+   <div class="btns" style="margin-top:10px"><button id="bfnext">move P ▶</button><button id="bfshear">shear ▶</button><button id="bfcheck">verify ▶</button></div>
+   <div class="cap" id="bfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the invariant PA²+PC² = PB²+PD², holding in 3D too.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t measure all four &mdash; know that two determine the other two. The inverse of &lsquo;the four corner distances&rsquo; is &lsquo;the single invariant PA&sup2;+PC&sup2;=PB&sup2;+PD&sup2;&rsquo;, which fails by exactly 8(u&middot;v) once the corner is not square. <b>Magenta</b> is the B,D diagonal pair; <b>green</b> is the A,C pair equal to it. A hidden conservation law of a rectangle.</div>
+   <div class="btns" style="margin-top:10px"><button id="bfspin">pause spin</button></div></div></div></div>"""
+BFLG_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function d2(p,q){var s=0;for(var i=0;i<p.length;i++)s+=(p[i]-q[i])*(p[i]-q[i]);return s;}
+var ang=0,spin=true,VR=null,c=[0,0],u=[2.2,0],v=[0,1.5],P=[1.4,2.6],shear=0;
+function corners(){var vv=[v[0]+shear*u[0],v[1]+shear*u[1]];return {A:[c[0]+u[0]+vv[0],c[1]+u[1]+vv[1]],B:[c[0]-u[0]+vv[0],c[1]-u[1]+vv[1]],C:[c[0]-u[0]-vv[0],c[1]-u[1]-vv[1]],D:[c[0]+u[0]-vv[0],c[1]+u[1]-vv[1]],uv:u[0]*vv[0]+u[1]*vv[1]};}
+function selftest(){if(VR)return VR;var rng=mb(5),rectOk=true,gapOk=true,wR=0,wG=0;for(var t=0;t<8000;t++){var dim=(rng()<0.5)?2:3,cc=[],uu=[],vv=[],pp=[];for(var i=0;i<dim;i++){cc.push(rng()*6-3);uu.push(rng()*4-2);vv.push(rng()*4-2);pp.push(rng()*10-5);}var A=[],B=[],C=[],D=[];for(var i=0;i<dim;i++){A.push(cc[i]+uu[i]+vv[i]);B.push(cc[i]-uu[i]+vv[i]);C.push(cc[i]-uu[i]-vv[i]);D.push(cc[i]+uu[i]-vv[i]);}var gap=(d2(pp,A)+d2(pp,C))-(d2(pp,B)+d2(pp,D)),uv=0;for(var i=0;i<dim;i++)uv+=uu[i]*vv[i];if(Math.abs(gap-8*uv)>wG)wG=Math.abs(gap-8*uv);if(Math.abs(gap-8*uv)>1e-9)gapOk=false;var uu2=0;for(var i=0;i<dim;i++)uu2+=uu[i]*uu[i];var pr=uv/(uu2||1),vp=[];for(var i=0;i<dim;i++)vp.push(vv[i]-pr*uu[i]);var A2=[],B2=[],C2=[],D2=[];for(var i=0;i<dim;i++){A2.push(cc[i]+uu[i]+vp[i]);B2.push(cc[i]-uu[i]+vp[i]);C2.push(cc[i]-uu[i]-vp[i]);D2.push(cc[i]+uu[i]-vp[i]);}var rg=(d2(pp,A2)+d2(pp,C2))-(d2(pp,B2)+d2(pp,D2));if(Math.abs(rg)>wR)wR=Math.abs(rg);if(Math.abs(rg)>1e-9)rectOk=false;}VR={rectOk:rectOk,gapOk:gapOk,wR:wR,wG:wG};return VR;}
+function tp(cv,p){return [cv.width/2+p[0]*52,cv.height/2+10-p[1]*52];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'rectangle ABCD + point P: PA²+PC² (green) = PB²+PD² (magenta)');
+ var K=corners(),A=tp(cv,K.A),B=tp(cv,K.B),C=tp(cv,K.C),D=tp(cv,K.D),Pp=tp(cv,P);
+ ne(g,'rgba(150,160,210,0.6)',1.6);g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.lineTo(C[0],C[1]);g.lineTo(D[0],D[1]);g.closePath();g.stroke();ng(g);
+ ne(g,'#35ffb0',1.6);g.beginPath();g.moveTo(Pp[0],Pp[1]);g.lineTo(A[0],A[1]);g.moveTo(Pp[0],Pp[1]);g.lineTo(C[0],C[1]);g.stroke();ng(g);
+ ne(g,'#ff2fa6',1.6);g.beginPath();g.moveTo(Pp[0],Pp[1]);g.lineTo(B[0],B[1]);g.moveTo(Pp[0],Pp[1]);g.lineTo(D[0],D[1]);g.stroke();ng(g);
+ [[A,'A'],[B,'B'],[C,'C'],[D,'D']].forEach(function(x){ndot(g,x[0][0],x[0][1],4,'#9cf');nt(g,'#9cf',x[0][0]+5,x[0][1],10,x[1]);});ndot(g,Pp[0],Pp[1],5,'#fff');nt(g,'#fff',Pp[0]+6,Pp[1],10,'P');
+ var pa=d2(P,K.A),pc=d2(P,K.C),pb=d2(P,K.B),pd=d2(P,K.D);nt(g,'#8ad',10,H-8,9,'PA²+PC² = '+(pa+pc).toFixed(3)+'   PB²+PD² = '+(pb+pd).toFixed(3));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',12,20,12,'the invariant, and the sheared gap');
+ var K=corners(),pa=d2(P,K.A),pc=d2(P,K.C),pb=d2(P,K.B),pd=d2(P,K.D),lhs=pa+pc,rhs=pb+pd;
+ nt(g,'#35ffb0',16,56,12,'PA²+PC² = '+lhs.toFixed(5));nt(g,'#ff2fa6',16,84,12,'PB²+PD² = '+rhs.toFixed(5));
+ nt(g,Math.abs(lhs-rhs)<1e-6?'#39ffb0':'#ffcf4a',16,114,12,'difference = '+(lhs-rhs).toFixed(6)+(Math.abs(lhs-rhs)<1e-6?'  ✓ (rectangle)':''));
+ nt(g,'#ffcf4a',16,142,11,'shear s = '+shear.toFixed(2)+' → u·v = '+K.uv.toFixed(4));nt(g,'#9cf',16,166,11,'predicted gap 8(u·v) = '+(8*K.uv).toFixed(5)+(Math.abs((lhs-rhs)-8*K.uv)<1e-6?'  matches ✓':''));
+ var v=selftest();nt(g,v.rectOk&&v.gapOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×8000 (2D&3D): rectangle inv (worst '+v.wR.toExponential(1)+')='+v.rectOk+' · gap==8(u·v)='+v.gapOk);
+ nt(g,'#8ad',12,H-16,9,'holds for any point, any dimension — fails by exactly 8(u·v) off-square');}
+document.getElementById('bfnext').onclick=function(){var rng=mb((Date.now()&8191)+1);P=[rng()*6-3,rng()*6-3];drawW3();drawW4();var K=corners();document.getElementById('bfread').textContent='P moved — PA²+PC²='+(d2(P,K.A)+d2(P,K.C)).toFixed(3)+', PB²+PD²='+(d2(P,K.B)+d2(P,K.D)).toFixed(3);};
+document.getElementById('bfshear').onclick=function(){shear=shear>0.01?0:0.5;drawW3();drawW4();var K=corners();document.getElementById('bfread').textContent=(shear?'sheared → gap should be 8(u·v)='+(8*K.uv).toFixed(4):'un-sheared → rectangle, gap 0');};
+document.getElementById('bfcheck').onclick=function(){var v=selftest();document.getElementById('bfread').textContent='rectangle: PA²+PC²=PB²+PD² (2D&3D); parallelogram gap == 8(u·v) exactly: '+(v.rectOk&&v.gapOk);};
+document.getElementById('bfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,sc=46;g.save();g.translate(cx,cy);g.rotate(ang*0.09);var K=corners();function q(p){return [(p[0]-c[0])*sc,-(p[1]-c[1])*sc];}var A=q(K.A),B=q(K.B),C=q(K.C),D=q(K.D),Pp=q(P);
+ ne(g,'rgba(150,160,210,0.4)',1.2);g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.lineTo(C[0],C[1]);g.lineTo(D[0],D[1]);g.closePath();g.stroke();ng(g);
+ ne(g,'#35ffb0',2);g.beginPath();g.moveTo(Pp[0],Pp[1]);g.lineTo(A[0],A[1]);g.moveTo(Pp[0],Pp[1]);g.lineTo(C[0],C[1]);g.stroke();ng(g);
+ ne(g,'#ff2fa6',2);g.beginPath();g.moveTo(Pp[0],Pp[1]);g.lineTo(B[0],B[1]);g.moveTo(Pp[0],Pp[1]);g.lineTo(D[0],D[1]);g.stroke();ng(g);
+ ndot(g,Pp[0],Pp[1],5,'#fff');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the A,C pair — PA²+PC²');nt(g,'#ff2fa6',10,H-34,10,'magenta: the B,D pair — PB²+PD², equal to it');nt(g,'#8ad',10,H-14,10,'a hidden conservation law of a rectangle');}
+drawW3();drawW4();window.__britishflag=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 149 · neon-noir · silicon-coding (the derivative's roots are the inellipse foci · a determinant that factors into differences · the min-perimeter inscribed triangle is the orthic · an infinite series that lands on an integer · two ways of counting a partition agree) ═══════════════════════
 MARD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Marden&rsquo;s theorem</b> is one of the most beautiful facts linking algebra and geometry. Take a cubic polynomial p(z) with three roots in the complex plane, not all on a line &mdash; they form a triangle. Its derivative p&prime;(z) is a quadratic, so it has <b>two</b> roots. Marden proved those two roots are exactly the <b>foci of the Steiner inellipse</b> &mdash; the unique ellipse inscribed in the triangle that touches each side at its <b>midpoint</b>. The critical points of the cubic, purely algebraic objects, turn out to be the focal points of a specific ellipse hiding inside the triangle of its roots.<br><br>
@@ -38769,6 +39014,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-kasteleyn","title":"THE KASTELEYN","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#21e6ff","icon":"kasteleyn",
+  "kicker":"domino tilings counted by a determinant",
+  "blurb":"Kasteleyn's theorem in the 5-window house format — counting something explosive with a single determinant. How many ways can you tile an m×n board with dominoes? The number grows enormously, yet Pieter Kasteleyn (1961) showed it equals the absolute value of a determinant. Orient the grid's edges cleverly — horizontal edges weight 1, vertical edges weight i (imaginary) — and build the bipartite adjacency matrix K between black and white cells; then the number of domino tilings is exactly |det K|. A hopeless-looking counting problem becomes one linear-algebra computation, and it launched the exact solution of the dimer model in statistical mechanics. Verified live: for a range of grids the complex Kasteleyn determinant |det K| equals the tiling count found independently by a brute broken-profile DP — 2×n reproduces the Fibonacci numbers (2,3,5,8,13), 3×4 gives 11, 4×4 gives 36. Neon-noir traced. See one tiling in 1D, |det K| vs brute in 2D, and the counting-by-determinant inverse in 3D.",
+  "lit":"Genuine Kasteleyn / Temperley–Fisher dimer theorem (1961). Verified live: for 7 grids the complex Kasteleyn determinant |det K| (horizontal edges weight 1, vertical edges weight i) equals the domino-tiling count from an independent broken-profile DP — 2×n gives Fibonacci, 3×4=11, 4×4=36 (window.__kasteleyn.ok, .g44, .g26).",
+  "fig":"No framing; the complex determinant and the brute tiling enumeration both run in-browser and agree. The AVAN inverse is honest — instead of enumerating tilings, take a determinant: Kasteleyn's orientation makes every tiling contribute the same sign, so |det K| counts them all. Magenta is the weighted adjacency grid; green is the tiling count it computes. Exponential counting folded into one determinant.",
+  "body":KAST_BODY,"script":KAST_SCRIPT},
+ {"slug":"the-jacobi-triple-product","title":"THE JACOBI TRIPLE PRODUCT","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#b06bff","icon":"jacobitriple",
+  "kicker":"an infinite product equal to a sparse theta sum",
+  "blurb":"The Jacobi triple product in the 5-window house format — one of the jewels of q-series: an infinite product that equals a strikingly sparse infinite sum. It states ∏_{n≥1}(1−x^{2n})(1+x^{2n−1}z)(1+x^{2n−1}z^{−1}) = Σ_{k=−∞}^{∞} x^{k²}z^{k}. On the left, a dense infinite product of three families of factors; on the right, a sum with terms only at the perfect squares k² — almost everything cancels. Specializing z recovers the Jacobi theta functions, Euler's pentagonal theorem, and countless partition identities; it is the master identity behind much of the theory of modular forms. Verified live: expanding both sides as formal power series (bivariate, in x and z), every coefficient agrees up to x-degree 14 — the dense product really does collapse to the sparse square-supported sum. Neon-noir traced. See the sparse comb in 1D, the coefficient comparison in 2D, and the collapse-to-squares inverse in 3D.",
+  "lit":"Genuine Jacobi triple product identity (Carl Gustav Jacob Jacobi, 1829). Verified live: expanding the left product and the right sum as bivariate formal power series, every coefficient agrees up to x-degree 14 — the dense product collapses to Σ_k x^{k²}z^k, supported only at the perfect squares (window.__jacobitriple.ok, .checked).",
+  "fig":"No framing; both the product expansion and the theta sum are computed in-browser and their coefficients match exactly. The AVAN inverse is honest — instead of multiplying out the product, read the survivors: the inverse of 'the infinite triple product' is 'the sum Σx^{k²}z^k of the terms that survive the cancellation'. Magenta are the product's three factor families; green is the sparse square-supported sum they collapse to. Density folded into the perfect squares.",
+  "body":JTRP_BODY,"script":JTRP_SCRIPT},
+ {"slug":"the-worpitzky","title":"THE WORPITZKY","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#ff8a3c","icon":"worpitzky",
+  "kicker":"powers rebuilt from Eulerian numbers",
+  "blurb":"Worpitzky's identity in the 5-window house format — rebuilding any power from binomial coefficients weighted by the Eulerian numbers. The Eulerian number A(n,k) counts the permutations of n elements with exactly k ascents. Worpitzky proved x^n = Σ_k A(n,k)·C(x+k, n) — the monomial x^n is a fixed integer combination of the 'binomial staircase' C(x+k, n), with the Eulerian numbers as the exact coefficients. It is the bridge between powers, binomial coefficients, and the ascent statistic on permutations, and it is what makes Eulerian numbers appear whenever you sum k^n. Verified live with exact integer arithmetic: for n=1..12 and x=0..20, the sum Σ_k A(n,k)·C(x+k,n) equals x^n exactly, with the Eulerian numbers generated independently by their own recurrence — A(3,·)=[1,4,1]. Neon-noir traced. See the Eulerian triangle in 1D, x^n vs the staircase sum in 2D, and the monomial-as-staircase inverse in 3D.",
+  "lit":"Genuine Worpitzky's identity (Julius Worpitzky, 1883; Eulerian numbers from Euler). Verified live with exact BigInt: for n=1..12 and x=0..20, Σ_k A(n,k)·C(x+k,n) equals x^n exactly, where A(n,k) are the Eulerian numbers from their recurrence A(n,k)=(k+1)A(n−1,k)+(n−k)A(n−1,k−1); A(3,·)=[1,4,1] (window.__worpitzky.ok).",
+  "fig":"No framing; the Eulerian recurrence, the binomial staircase, and the power x^n all run in-browser and agree exactly. The AVAN inverse is honest — instead of exponentiating, sum a staircase: the inverse of 'the power x^n' is 'the Eulerian-weighted sum ΣA(n,k)C(x+k,n)', tying powers to the ascent statistic on permutations. Magenta are the Eulerian-weighted binomial pieces; green is the power x^n they rebuild. A monomial as a staircase sum.",
+  "body":WORP_BODY,"script":WORP_SCRIPT},
+ {"slug":"the-jacobi-two-square","title":"THE JACOBI TWO-SQUARE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#ffcf4a","icon":"twosquare",
+  "kicker":"sums of two squares counted by divisors mod 4",
+  "blurb":"Jacobi's two-square theorem in the 5-window house format — counting, exactly, how many ways a number is a sum of two squares, using only its divisors. Let r₂(n) be the number of integer pairs (a,b) with a²+b²=n (signs and order counted). Jacobi proved r₂(n) = 4·(d₁(n) − d₃(n)), where d₁(n) counts the divisors of n congruent to 1 (mod 4) and d₃(n) those congruent to 3 (mod 4). A geometric question — how many lattice points lie on the circle of radius √n — is answered purely by counting divisors and sorting them by remainder mod 4. Verified live: for every n from 1 to 2000, a brute count of lattice points (a,b) on the circle a²+b²=n equals 4·(d₁(n)−d₃(n)) from the divisors — e.g. r₂(25)=12. Neon-noir traced. See the circle + lattice points in 1D, r₂ vs 4(d₁−d₃) in 2D, and the geometry-from-arithmetic inverse in 3D.",
+  "lit":"Genuine Jacobi two-square theorem (Carl Gustav Jacob Jacobi, 1834; Fermat, Gauss before). Verified live: for every n=1..2000, the brute count of integer lattice points on the circle a²+b²=n equals 4·(d₁(n)−d₃(n)), where d₁,d₃ count divisors ≡1,≡3 (mod 4); r₂(25)=12 (window.__twosquare.ok, .r25).",
+  "fig":"No framing; the lattice-point count and the divisor formula both run in-browser and agree for all n up to 2000. The AVAN inverse is honest — instead of scanning the plane, sort the divisors: the inverse of 'count lattice points on the circle of radius √n' is '4 times (divisors ≡1 minus divisors ≡3, mod 4)'. Magenta are the divisors sorted by remainder mod 4; green is the lattice-point count they determine. Geometry answered by arithmetic.",
+  "body":TWSQ_BODY,"script":TWSQ_SCRIPT},
+ {"slug":"the-british-flag","title":"THE BRITISH FLAG","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#35ffb0","icon":"britishflag",
+  "kicker":"a rectangle's hidden distance invariant",
+  "blurb":"The British flag theorem in the 5-window house format — a small, sturdy invariant. Take any rectangle with corners A,B,C,D (A,C opposite, B,D opposite) and any point P — inside, outside, even off the plane in 3D. Then the sum of squared distances to one pair of opposite corners equals the sum to the other pair: PA²+PC² = PB²+PD². The name comes from the Union-Jack-like pattern of the four segments drawn from P. It holds for rectangles precisely because their sides are perpendicular; for a general parallelogram the two sums differ by a clean amount. Verified live two ways: across thousands of random rectangles and points (in 2D and 3D) PA²+PC² equals PB²+PD² to ~1e-13, and for a general parallelogram built from edge vectors u,v the discrepancy is exactly 8(u·v) — zero precisely when u⊥v. Neon-noir traced. See the rectangle + four segments in 1D, the invariant + sheared gap in 2D, and the hidden-conservation-law inverse in 3D.",
+  "lit":"Genuine British flag theorem (classical). Verified live two ways: across ~8000 random rectangles and points in 2D and 3D, PA²+PC² equals PB²+PD² to ~1e-13, and for a general parallelogram from edge vectors u,v the gap (PA²+PC²)−(PB²+PD²) is exactly 8(u·v), zero iff u⊥v (window.__britishflag.rectOk, .gapOk, .wR, .wG).",
+  "fig":"No framing; the distances and the invariant both run in-browser and agree, with the parallelogram gap matching 8(u·v) exactly. The AVAN inverse is honest — instead of measuring all four, know that two determine the other two: the inverse of 'the four corner distances' is 'the single invariant PA²+PC²=PB²+PD²', which fails by exactly 8(u·v) once the corner is not square. Magenta is the B,D diagonal pair; green is the A,C pair equal to it. A hidden conservation law of a rectangle.",
+  "body":BFLG_BODY,"script":BFLG_SCRIPT},
  {"slug":"the-marden","title":"THE MARDEN","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#b06bff","icon":"marden",
   "kicker":"the derivative's roots are the inellipse foci",
