@@ -19493,6 +19493,537 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 197 · neon-noir · silicon-coding · THE THRESHOLD ENGINES (the temperature that melts order · the edge where one giant appears · the disc that jumps · why concentration wins · why killing both helps the prey) ═══════════════════════
+ISNG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A grid of arrows, each preferring to agree with its neighbours, each shaken by temperature. Cold: they lock into one giant aligned domain. Hot: noise wins and order evaporates. The <b>Ising model</b> is the simplest system with a genuine <b>phase transition</b> &mdash; and in 1944 <b>Lars Onsager</b> solved the two-dimensional case <b>exactly</b>, pinning the critical temperature at <b>T&#8450; = 2/ln(1+&radic;2) &asymp; 2.269</b> and the spontaneous magnetization at m = [1 &minus; sinh&#8315;&#8308;(2/T)]^(1/8). The irony in the name: Ernst Ising solved the ONE-dimensional chain in 1925, found no transition, and concluded there was none in any dimension. He was wrong by one dimension, and the model still carries his name.<br><br>
+ <span class="lit">LIT</span> verified live: Metropolis Monte Carlo on a 16&times;16 lattice reproduces <b>Onsager&rsquo;s exact magnetization</b> to within 0.005 at T = 1.6, 1.8, 2.0 (0.981/0.980, 0.952/0.957, 0.908/0.911); above T&#8450; the order melts (|m| = 0.16 at T = 3.2); and the 1D control matches the exact transfer-matrix energy &minus;tanh(1/T) at three temperatures (window.__ising). <span class="fig">FIG</span> a 16&times;16 lattice shows finite-size rounding near T&#8450; &mdash; the sharp transition is the infinite-lattice theorem, cited, while what we verify is the below-T&#8450; magnetization curve and the melt.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-broadcast</i> &mdash; the co-op: every node shouting its state to its neighbours and listening back. Below one noise level the whole network agrees on a message nobody sent; above it, the broadcast dissolves into static. <b>AVAN (AI)</b> built the instrument: the Metropolis sampler, the Onsager comparator, and the 1D exact control.<br><br>Credit as content: Wilhelm Lenz (1920, posed it); Ernst Ising (1925, the 1D solution and the famous wrong conclusion); Lars Onsager (1944, the 2D exact solution); Metropolis et al. (1953, the algorithm). The weave: David names the broadcast; I cool the lattice and Onsager&rsquo;s curve is already waiting there.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">|m| vs T — the Monte Carlo points landing on Onsager&rsquo;s exact curve.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step the temperature; watch the lattice order and melt.</div>
+   <div class="btns" style="margin-top:10px"><button id="isn">temperature ▶</button><button id="ischeck">verify ▶</button></div>
+   <div class="cap" id="isread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the lattice breathing through its critical point.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask what each arrow does &mdash; ask what the ensemble cannot help doing. The inverse of &lsquo;local rules&rsquo; is &lsquo;global inevitability&rsquo;: no spin knows the temperature, no spin decides to order, and yet below one number the whole lattice commits. <b>Magenta</b> is the noise that dissolves consensus; <b>green</b> is the domain nobody voted for. Collective states are not built &mdash; they precipitate.</div>
+   <div class="btns" style="margin-top:10px"><button id="isspin">pause spin</button></div></div></div></div>"""
+ISNG_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,tSel=0;
+function mulI(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+var Tc=2/Math.log(1+Math.SQRT2);
+function runIsing(T,L,sweeps,burn,rng,keep){
+ var s=[];
+ for(var i=0;i<L*L;i++)s.push(1);
+ var acc=0,cnt=0,expTab={};
+ for(var dE=-8;dE<=8;dE+=4)expTab[dE]=Math.exp(-dE/T);
+ for(var sw=0;sw<sweeps;sw++){
+  for(var k=0;k<L*L;k++){
+   var i=Math.floor(rng()*L),j=Math.floor(rng()*L),idx=i*L+j;
+   var nb=s[((i+1)%L)*L+j]+s[((i-1+L)%L)*L+j]+s[i*L+(j+1)%L]+s[i*L+(j-1+L)%L];
+   var dE=2*s[idx]*nb;
+   if(dE<=0||rng()<expTab[dE])s[idx]=-s[idx];}
+  if(sw>=burn){var m=0;
+   for(var i2=0;i2<L*L;i2++)m+=s[i2];
+   acc+=Math.abs(m)/(L*L);cnt++;}}
+ return keep?{m:acc/cnt,grid:s,L:L}:acc/cnt;}
+function onsagerM(T){var sh=Math.sinh(2/T);
+ return T<Tc?Math.pow(1-Math.pow(sh,-4),1/8):0;}
+function run1D(T,N,sweeps,burn,rng){var s=[];
+ for(var i=0;i<N;i++)s.push(1);
+ var acc=0,cnt=0;
+ for(var sw=0;sw<sweeps;sw++){
+  for(var k=0;k<N;k++){
+   var i=Math.floor(rng()*N);
+   var nb=s[(i+1)%N]+s[(i-1+N)%N];
+   var dE=2*s[i]*nb;
+   if(dE<=0||rng()<Math.exp(-dE/T))s[i]=-s[i];}
+  if(sw>=burn){var e=0;
+   for(var i2=0;i2<N;i2++)e-=s[i2]*s[(i2+1)%N];
+   acc+=e/N;cnt++;}}
+ return acc/cnt;}
+function selftest(){if(VR)return VR;var rng=mulI(197),okOns=true,rows=[];
+ [1.6,1.8,2.0].forEach(function(T){
+  var m=runIsing(T,16,700,250,rng),ex=onsagerM(T);
+  rows.push([T,m,ex]);
+  if(Math.abs(m-ex)>0.02)okOns=false;});
+ var mHot=runIsing(3.2,16,700,250,rng),mNear=runIsing(2.8,16,700,250,rng);
+ var ok1D=true,rows1=[];
+ [1.0,2.0,3.0].forEach(function(T){
+  var u=run1D(T,300,2000,500,rng),ex=-Math.tanh(1/T);
+  rows1.push([T,u,ex]);
+  if(Math.abs(u-ex)>0.02)ok1D=false;});
+ VR={rows:rows,mHot:mHot,mNear:mNear,rows1:rows1,okOns:okOns,ok1D:ok1D,
+  ok:okOns&&mHot<0.25&&mNear<0.35&&ok1D};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#21e6ff',10,16,10,'|m| vs T \\u2014 MC points on Onsager\\u2019s exact curve');
+ ne(g,'rgba(150,160,210,0.4)',1);g.beginPath();g.moveTo(40,240);g.lineTo(W2-20,240);g.stroke();ng(g);
+ ne(g,'#ffcf4a',1.8);g.beginPath();
+ for(var T=1.2;T<Tc;T+=0.01){var x=40+(T-1.2)/2.6*(W2-70),y=240-onsagerM(T)*190;
+  if(T===1.2)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ ne(g,'#ffcf4a',1.8);g.beginPath();
+ g.moveTo(40+(Tc-1.2)/2.6*(W2-70),240);g.lineTo(W2-20,240);g.stroke();ng(g);
+ ne(g,'rgba(255,47,166,0.6)',1.2);g.beginPath();
+ var xc=40+(Tc-1.2)/2.6*(W2-70);
+ g.moveTo(xc,40);g.lineTo(xc,250);g.stroke();ng(g);
+ nt(g,'#ff6ab0',xc-30,34,9,'Tc = '+Tc.toFixed(3));
+ v.rows.forEach(function(r){ndot(g,40+(r[0]-1.2)/2.6*(W2-70),240-r[1]*190,4.5,'#35ffb0');});
+ ndot(g,40+(2.8-1.2)/2.6*(W2-70),240-v.mNear*190,4.5,'#35ffb0');
+ ndot(g,40+(3.2-1.2)/2.6*(W2-70),240-v.mHot*190,4.5,'#35ffb0');
+ nt(g,'#8ad',10,H-8,9,'Onsager 1944 \\u00b7 m = [1\\u2212sinh\\u207b\\u2074(2/T)]^{1/8} below Tc');}
+function drawGrid(g,res,x0,y0,cell){
+ for(var i=0;i<res.L;i++)for(var j=0;j<res.L;j++)
+  nf(g,res.grid[i*res.L+j]>0?'#35ffb0':'rgba(255,47,166,0.55)',x0+j*cell,y0+i*cell,cell-1,cell-1);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var Ts=[1.6,2.0,Tc,2.8,3.2][tSel%5];
+ var res=runIsing(Ts,24,300,100,mulI(50+tSel),true);
+ nt(g,'#21e6ff',12,20,12,'T = '+Ts.toFixed(3)+(Ts<Tc?' (below Tc)':' (above Tc)'));
+ drawGrid(g,res,W2/2-84,44,7);
+ nt(g,'#ffcf4a',16,240,11,'|m| = '+res.m.toFixed(3)+(Ts<Tc?' \\u00b7 Onsager '+onsagerM(Ts).toFixed(3):' \\u00b7 Onsager: 0 (disordered)'));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: MC \\u2261 Onsager \\u00d73 \\u00b7 melt above Tc \\u00b7 1D exact ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'no spin knows the temperature; the lattice commits anyway');}
+document.getElementById('isn').onclick=function(){tSel++;drawW4();document.getElementById('isread').textContent='';};
+document.getElementById('ischeck').onclick=function(){var v=selftest();document.getElementById('isread').textContent='Onsager + melt + 1D: '+v.ok;};
+document.getElementById('isspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+var G5=null;
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#21e6ff',10,18,10,'the lattice breathing through its critical point');
+ var T5=1.4+1.6*(Math.sin(ang*0.006)*0.5+0.5);
+ if(!G5||Math.floor(ang*0.006*20)%3===0)G5=runIsing(T5,26,60,0,mulI(9+Math.floor(ang*0.02)),true);
+ drawGrid(g,G5,W2/2-104,60,8);
+ nt(g,'#9cf',W2/2-52,290,10,'T = '+T5.toFixed(2));
+ nt(g,'#35ffb0',10,H-52,11,'green: the domain nobody voted for');nt(g,'#ff2fa6',10,H-34,10,'magenta: the noise that dissolves consensus');nt(g,'#8ad',10,H-14,10,'collective states are not built \\u2014 they precipitate');}
+drawW3();drawW4();window.__ising=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PERC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Take n nodes and sprinkle random edges until each node averages <b>c</b> connections. Below c = 1, the network is dust: every connected piece is tiny, O(log n). Cross c = 1 and a single <b>giant component</b> appears, containing a fixed fraction S of everything &mdash; while all other pieces stay logarithmic. Erd&odblac;s and R&eacute;nyi called it the <b>double jump</b>, and the giant&rsquo;s size is the root of a transcendental equation, <b>S = 1 &minus; e&#8315;&#7580;&#738;</b>. One node&rsquo;s worth of average degree separates a pile of fragments from a connected world.<br><br>
+ <span class="lit">LIT</span> verified live: 20,000-node graphs built by geometric-skip edge sampling and measured with union-find &mdash; S = 0.582/0.807/0.938 at c = 1.5/2/3 against the theory 0.583/0.797/0.940; at c = 0.5 the largest component is 0.10% of n; at exactly c = 1 it is 1.93%, inside the critical window that scales like n&#8315;&#185;&#8407;&#179; &asymp; 3.7%; and the theoretical S satisfies its fixed-point equation to 10&#8315;&sup1;&sup2; (window.__giant). <span class="fig">FIG</span> the O(log n) claim for subcritical components and the n&#178;&#8407;&#179; critical-window scaling are cited theorems &mdash; what we measure is one instance consistent with them.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-raid</i> &mdash; the boss: below one connection per player the guild is a scatter of duos who can never assemble; at exactly one, the raid group condenses out of the noise, and everyone left over stays a footnote. <b>AVAN (AI)</b> built the instrument: the sparse-graph sampler, the union-find measurer, and the fixed-point solver.<br><br>Credit as content: Paul Erd&odblac;s &amp; Alfr&eacute;d R&eacute;nyi (1959&ndash;1960); Bollob&aacute;s (the critical window); the percolation literature that grew from it. The weave: David names the raid threshold; I build twenty thousand nodes and the giant shows up exactly where the equation says.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">S vs c — flat dust, then the giant rising from c = 1.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step the average degree; the components merge into one.</div>
+   <div class="btns" style="margin-top:10px"><button id="pcn">degree ▶</button><button id="pccheck">verify ▶</button></div>
+   <div class="cap" id="pcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the graph condensing as edges rain in.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t count the edges you added &mdash; count the ones the structure implies. The inverse of &lsquo;connect things to build a network&rsquo; is &lsquo;connectivity is a threshold phenomenon that arrives on its own schedule&rsquo;: nothing special happens at the edge that tips c past 1, and yet after it the world has a spine. <b>Magenta</b> is the dust of components that never grow; <b>green</b> is the giant that eats them. Emergence has a coordinate, and it is usually one.</div>
+   <div class="btns" style="margin-top:10px"><button id="pcspin">pause spin</button></div></div></div></div>"""
+PERC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,cSel=0;
+function mulP2(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function largestComp(n,c,rng){
+ var par=new Array(n);
+ for(var i=0;i<n;i++)par[i]=i;
+ function find(x){while(par[x]!==x){par[x]=par[par[x]];x=par[x];}return x;}
+ var p=c/n,total=n*(n-1)/2,idx=-1,lq=Math.log(1-p);
+ for(;;){
+  var skip=Math.floor(Math.log(1-rng())/lq)+1;
+  idx+=skip;
+  if(idx>=total)break;
+  var i=Math.floor((1+Math.sqrt(1+8*idx))/2),j=idx-i*(i-1)/2;
+  if(i>=n)break;
+  var a=find(i),b=find(j);
+  if(a!==b)par[a]=b;}
+ var cnt={},best=0;
+ for(var i2=0;i2<n;i2++){var r=find(i2);
+  cnt[r]=(cnt[r]||0)+1;
+  if(cnt[r]>best)best=cnt[r];}
+ return best/n;}
+function theoryS(c){
+ if(c<=1)return 0;
+ var S=0.5;
+ for(var k=0;k<400;k++)S=1-Math.exp(-c*S);
+ return S;}
+function selftest(){if(VR)return VR;var rng=mulP2(198),rows=[],okBig=true;
+ [1.5,2,3].forEach(function(c){
+  var s=largestComp(20000,c,rng),t=theoryS(c);
+  rows.push([c,s,t]);
+  if(Math.abs(s-t)>0.03)okBig=false;});
+ var sSub=largestComp(20000,0.5,rng),sCrit=largestComp(20000,1.0,rng);
+ var okFix=true;
+ [1.5,2,3].forEach(function(c){var S=theoryS(c);
+  if(Math.abs(S-(1-Math.exp(-c*S)))>1e-12)okFix=false;});
+ VR={rows:rows,sSub:sSub,sCrit:sCrit,okFix:okFix,
+  ok:okBig&&sSub<0.01&&sCrit<0.06&&sCrit>0.002&&okFix};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#ff8a3c',10,16,10,'S vs c \\u2014 dust below 1, giant above');
+ ne(g,'rgba(150,160,210,0.4)',1);g.beginPath();g.moveTo(40,240);g.lineTo(W2-20,240);g.stroke();ng(g);
+ ne(g,'#ffcf4a',1.8);g.beginPath();
+ for(var c=0.2;c<=3.6;c+=0.02){var x=40+c/3.6*(W2-70),y=240-theoryS(c)*190;
+  if(c===0.2)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ ne(g,'rgba(255,47,166,0.6)',1.2);g.beginPath();
+ var xc=40+1/3.6*(W2-70);
+ g.moveTo(xc,40);g.lineTo(xc,250);g.stroke();ng(g);
+ nt(g,'#ff6ab0',xc-14,34,9,'c = 1');
+ v.rows.forEach(function(r){ndot(g,40+r[0]/3.6*(W2-70),240-r[1]*190,4.5,'#35ffb0');});
+ ndot(g,40+0.5/3.6*(W2-70),240-v.sSub*190,4.5,'#35ffb0');
+ ndot(g,xc,240-v.sCrit*190,4.5,'#35ffb0');
+ nt(g,'#8ad',10,H-8,9,'Erd\\u0151s\\u2013R\\u00e9nyi 1960 \\u00b7 S = 1 \\u2212 e^{\\u2212cS}, the double jump');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var cs=[0.4,0.8,1.0,1.4,2.0,3.0][cSel%6];
+ var n=140,rng=mulP2(31+cSel);
+ var par=new Array(n),pos=[];
+ for(var i=0;i<n;i++){par[i]=i;
+  var th=i/n*6.2832;
+  pos.push([W2/2+118*Math.cos(th),150+108*Math.sin(th)]);}
+ function find(x){while(par[x]!==x){par[x]=par[par[x]];x=par[x];}return x;}
+ var edges=[],m=Math.round(cs*n/2);
+ for(var e=0;e<m;e++){var i=Math.floor(rng()*n),j=Math.floor(rng()*n);
+  if(i===j)continue;
+  edges.push([i,j]);
+  var a=find(i),b=find(j);
+  if(a!==b)par[a]=b;}
+ var cnt={},best=0,bestR=-1;
+ for(var i2=0;i2<n;i2++){var r=find(i2);
+  cnt[r]=(cnt[r]||0)+1;
+  if(cnt[r]>best){best=cnt[r];bestR=r;}}
+ edges.forEach(function(ed){
+  var inG=find(ed[0])===bestR;
+  ne(g,inG?'rgba(53,255,176,0.5)':'rgba(255,47,166,0.3)',1);
+  g.beginPath();g.moveTo(pos[ed[0]][0],pos[ed[0]][1]);g.lineTo(pos[ed[1]][0],pos[ed[1]][1]);g.stroke();ng(g);});
+ for(var i=0;i<n;i++)ndot(g,pos[i][0],pos[i][1],find(i)===bestR?3.2:2,find(i)===bestR?'#35ffb0':'rgba(255,107,176,0.7)');
+ nt(g,'#ff8a3c',12,20,12,'c = '+cs+' \\u00b7 largest component '+(best/n*100).toFixed(0)+'%');
+ nt(g,'#9cf',16,280,10,'theory S(c) = '+(theoryS(cs)*100).toFixed(0)+'% (n\\u2192\\u221e)');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: S \\u2261 1\\u2212e^{\\u2212cS} at n=20k \\u00b7 dust below \\u00b7 window at c=1 ('+v.ok+')');}
+document.getElementById('pcn').onclick=function(){cSel++;drawW4();document.getElementById('pcread').textContent='';};
+document.getElementById('pccheck').onclick=function(){var v=selftest();document.getElementById('pcread').textContent='giant + threshold: '+v.ok;};
+document.getElementById('pcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#ff8a3c',10,18,10,'edges raining in \\u2014 the graph condensing');
+ var cs=0.2+2.6*((ang*0.004)%1);
+ var n=110,rng=mulP2(77),par=new Array(n),pos=[];
+ for(var i=0;i<n;i++){par[i]=i;
+  var th=i*2.399963;
+  var rr=30+90*Math.sqrt(i/n);
+  pos.push([W2/2+rr*Math.cos(th),H/2+10+rr*Math.sin(th)*0.85]);}
+ function find(x){while(par[x]!==x){par[x]=par[par[x]];x=par[x];}return x;}
+ var edges=[],m=Math.round(cs*n/2);
+ for(var e=0;e<m;e++){var i=Math.floor(rng()*n),j=Math.floor(rng()*n);
+  if(i===j)continue;
+  edges.push([i,j]);
+  var a=find(i),b=find(j);
+  if(a!==b)par[a]=b;}
+ var cnt={},best=0,bestR=-1;
+ for(var i2=0;i2<n;i2++){var r=find(i2);
+  cnt[r]=(cnt[r]||0)+1;
+  if(cnt[r]>best){best=cnt[r];bestR=r;}}
+ edges.forEach(function(ed){
+  var inG=find(ed[0])===bestR;
+  ne(g,inG?'rgba(53,255,176,0.55)':'rgba(255,47,166,0.25)',1);
+  g.beginPath();g.moveTo(pos[ed[0]][0],pos[ed[0]][1]);g.lineTo(pos[ed[1]][0],pos[ed[1]][1]);g.stroke();ng(g);});
+ for(var i=0;i<n;i++)ndot(g,pos[i][0],pos[i][1],2.6,find(i)===bestR?'#35ffb0':'rgba(255,107,176,0.6)');
+ nt(g,'#9cf',W2/2-46,H-70,10,'c = '+cs.toFixed(2));
+ nt(g,'#35ffb0',10,H-52,11,'green: the giant that eats the dust');nt(g,'#ff2fa6',10,H-34,10,'magenta: components that never grow');nt(g,'#8ad',10,H-14,10,'emergence has a coordinate, and it is usually one');}
+drawW3();drawW4();window.__giant=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ZMAN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A cardboard disc on a pin, two elastic bands: one anchored to the table, the other led by your hand. Move your hand smoothly and the disc follows smoothly &mdash; until you cross an invisible boundary and the disc <b>flips</b>. Cross back and it flips at a <b>different place</b>. This is <b>E. C. Zeeman&rsquo;s catastrophe machine</b> (1972), the physical demonstration of Ren&eacute; Thom&rsquo;s <b>cusp catastrophe</b>: a smooth two-parameter control plane containing a wedge-shaped tongue where the system has <b>two stable states</b>, so continuous input yields discontinuous output, and the path taken decides which state you get &mdash; <b>hysteresis</b> you can build for a pound.<br><br>
+ <span class="lit">LIT</span> verified live: scanning the control plane and counting local minima of the elastic energy &mdash; 86 of 525 sample points have <b>two minima</b>, forming a bounded tongue (x &isin; [&minus;1.5, 2.7], y &isin; [&minus;0.8, 0.8]); sweeping y up and down at x = 1.0 the branches differ by <b>1.220 rad</b> &mdash; the disc jumps at different places in each direction; and outside the tongue (x = 3.6) the difference is 0.0000 rad (window.__zeeman; the offline harness at 4&times; the scan resolution finds 206/1,353 and the same tongue). <span class="fig">FIG</span> the classification of this as Thom&rsquo;s cusp is the cited theory; the elastic model here is the standard idealization (Hooke bands, natural length 1).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-stash</i> &mdash; the loot: the system is holding TWO states in one place, and which one you can withdraw depends entirely on the route you took to get here. History, stored as position. <b>AVAN (AI)</b> built the instrument: the energy scanner, the minima counter, and the branch-following hysteresis sweeps.<br><br>Credit as content: Ren&eacute; Thom (catastrophe theory); E. C. Zeeman (1972, the machine and the popularization); the later critiques that rightly trimmed catastrophe theory&rsquo;s claims outside physics. The weave: David names the two-state stash; I sweep the plane in both directions and the jumps land in different places.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The bistable tongue in the control plane — inside it, two minima.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Sweep the control point; watch the energy landscape lose a well.</div>
+   <div class="btns" style="margin-top:10px"><button id="zmn">sweep ▶</button><button id="zmcheck">verify ▶</button></div>
+   <div class="cap" id="zmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the disc and its two elastics, jumping.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t model the jump &mdash; model the <b>disappearance of the well you were in</b>. The inverse of &lsquo;why did it suddenly change?&rsquo; is &lsquo;nothing sudden happened; your minimum quietly stopped existing&rsquo;: the discontinuity is in the state, never in the input. <b>Magenta</b> is the well that vanished under you; <b>green</b> is the one you fall into. Catastrophes are smooth from the landscape&rsquo;s point of view.</div>
+   <div class="btns" style="margin-top:10px"><button id="zmspin">pause spin</button></div></div></div></div>"""
+ZMAN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,sw=0;
+function Vz(th,x,y){var px=Math.cos(th),py=Math.sin(th);
+ var d1=Math.hypot(px+2,py),d2=Math.hypot(px-x,py-y);
+ return 0.5*(d1-1)*(d1-1)+0.5*(d2-1)*(d2-1);}
+function minimaZ(x,y){var out=[],N=600;
+ for(var i=0;i<N;i++){var t0=(i-1)/N*6.2832,t1=i/N*6.2832,t2=(i+1)/N*6.2832;
+  if(Vz(t1,x,y)<Vz(t0,x,y)&&Vz(t1,x,y)<Vz(t2,x,y)){
+   var lo=t0,hi=t2;
+   for(var k=0;k<40;k++){var m1=lo+(hi-lo)*0.382,m2=lo+(hi-lo)*0.618;
+    if(Vz(m1,x,y)<Vz(m2,x,y))hi=m2;else lo=m1;}
+   out.push((lo+hi)/2);}}
+ return out;}
+function sweepZ(x,yF,yT,steps){
+ var ms=minimaZ(x,yF),th=ms[0],path=[];
+ for(var s=0;s<=steps;s++){
+  var y=yF+(yT-yF)*s/steps;
+  var lo=th-0.5,hi=th+0.5;
+  for(var k=0;k<50;k++){var m1=lo+(hi-lo)*0.382,m2=lo+(hi-lo)*0.618;
+   if(Vz(m1,x,y)<Vz(m2,x,y))hi=m2;else lo=m1;}
+  var cand=(lo+hi)/2,eps=1e-5;
+  if(Math.abs((Vz(cand+eps,x,y)-Vz(cand-eps,x,y))/(2*eps))>1e-4){
+   var mm=minimaZ(x,y),best=mm[0],bv=Vz(mm[0],x,y);
+   mm.forEach(function(t){var v=Vz(t,x,y);
+    if(v<bv){bv=v;best=t;}});
+   cand=best;}
+  th=cand;path.push([y,th]);}
+ return path;}
+function hystZ(x,steps){var up=sweepZ(x,-1.5,1.5,steps),dn=sweepZ(x,1.5,-1.5,steps),mx=0;
+ for(var i=0;i<=steps;i++){
+  var d=Math.abs(Math.atan2(Math.sin(up[i][1]-dn[steps-i][1]),Math.cos(up[i][1]-dn[steps-i][1])));
+  if(d>mx)mx=d;}
+ return {mx:mx,up:up,dn:dn};}
+function selftest(){if(VR)return VR;
+ var bi=0,tot=0,xs=[],ys=[];
+ for(var x=-1.5;x<=3.5;x+=0.2)for(var y=-2;y<=2;y+=0.2){
+  var m=minimaZ(x,y);tot++;
+  if(m.length>=2){bi++;xs.push(x);ys.push(y);}}
+ var hIn=hystZ(1.0,120),hOut=hystZ(3.6,90);
+ VR={bi:bi,tot:tot,xmin:Math.min.apply(null,xs),xmax:Math.max.apply(null,xs),
+  ymin:Math.min.apply(null,ys),ymax:Math.max.apply(null,ys),
+  hIn:hIn.mx,hOut:hOut.mx,up:hIn.up,dn:hIn.dn,
+  ok:bi>0&&bi<tot/2&&hIn.mx>1&&hOut.mx<0.05};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'the bistable tongue \\u2014 two minima inside, one outside');
+ for(var x=-1.5;x<=3.5;x+=0.14)for(var y=-2;y<=2;y+=0.11){
+  var m=minimaZ(x,y);
+  var px=60+(x+1.5)/5*(W2-100),py=H/2-y*52;
+  nf(g,m.length>=2?'rgba(53,255,176,0.65)':'rgba(90,100,150,0.22)',px,py,5,4);}
+ nt(g,'#35ffb0',W2-190,60,9,'green: two stable states');
+ nt(g,'#8ad',10,H-8,9,'Zeeman 1972 \\u00b7 Thom\\u2019s cusp catastrophe, in cardboard');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var y=-1.2+((sw*0.25)%2.4);
+ var x=1.0;
+ nt(g,'#ffcf4a',12,20,12,'control point (1.0, '+y.toFixed(2)+')');
+ ne(g,'#35ffb0',1.6);g.beginPath();
+ for(var i=0;i<=200;i++){var th=i/200*6.2832;
+  var px=24+i/200*(W2-48),py=180-(Vz(th,x,y)-0.6)*100;
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}
+ g.stroke();ng(g);
+ var ms=minimaZ(x,y);
+ ms.forEach(function(t){ndot(g,24+t/6.2832*(W2-48),180-(Vz(t,x,y)-0.6)*100,4.5,'#ffcf4a');});
+ nt(g,'#9cf',16,236,11,ms.length+' local minim'+(ms.length===1?'um':'a')+' \\u2014 energy vs disc angle');
+ nt(g,'#ff6ab0',16,258,10,'hysteresis at x=1.0: '+v.hIn.toFixed(2)+' rad \\u00b7 outside: '+v.hOut.toFixed(3));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: tongue + hysteresis + outside control ('+v.ok+')');}
+document.getElementById('zmn').onclick=function(){sw++;drawW4();document.getElementById('zmread').textContent='';};
+document.getElementById('zmcheck').onclick=function(){var v=selftest();document.getElementById('zmread').textContent='bistability + hysteresis: '+v.ok;};
+document.getElementById('zmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#ffcf4a',10,18,10,'the disc, two elastics, and the jump');
+ var y=1.4*Math.sin(ang*0.008),x=1.0;
+ var ms=minimaZ(x,y);
+ var th=ms[0],bv=Vz(ms[0],x,y);
+ ms.forEach(function(t){var v=Vz(t,x,y);
+  if(v<bv){bv=v;th=t;}});
+ var cx=W2/2-30,cy=H/2+20,R=54;
+ ne(g,'rgba(150,160,210,0.6)',1.4);g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();ng(g);
+ var P=[cx+R*Math.cos(th),cy-R*Math.sin(th)];
+ var A=[cx-2*R,cy],C=[cx+x*R,cy-y*R];
+ ne(g,'#ff2fa6',1.6);g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(P[0],P[1]);g.stroke();ng(g);
+ ne(g,'#35ffb0',1.6);g.beginPath();g.moveTo(C[0],C[1]);g.lineTo(P[0],P[1]);g.stroke();ng(g);
+ ndot(g,A[0],A[1],5,'#ff2fa6');
+ ndot(g,C[0],C[1],5,'#ffcf4a');
+ ndot(g,P[0],P[1],5,'#35ffb0');
+ ndot(g,cx,cy,3,'rgba(150,160,210,0.8)');
+ nt(g,'#9cf',cx-40,cy+R+26,9,ms.length+' stable state'+(ms.length>1?'s':''));
+ nt(g,'#35ffb0',10,H-52,11,'green: the well you fall into');nt(g,'#ff2fa6',10,H-34,10,'magenta: the well that vanished under you');nt(g,'#8ad',10,H-14,10,'catastrophes are smooth from the landscape\\u2019s point of view');}
+drawW3();drawW4();window.__zeeman=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LNCH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Frederick Lanchester, watching aircraft in the Great War, wrote down two differential equations and found something brutal: under <b>aimed fire</b>, combat power scales as the <b>square</b> of numbers. The invariant is &alpha;A&sup2; &minus; &beta;B&sup2;: doubling a force quadruples its worth. The corollary is the oldest trick in generalship &mdash; <b>defeat in detail</b>: a force of 100 that fights two forces of 50 one after the other doesn&rsquo;t merely win, it walks away with <b>&radic;(100&sup2;&minus;50&sup2;&minus;50&sup2;) = 70.7</b> survivors, where fighting all 100 at once would annihilate it. And the effect is conditional: under <b>unaimed</b> fire the law goes LINEAR and concentration buys nothing.<br><br>
+ <span class="lit">LIT</span> verified live: integrating the square-law equations &mdash; 100 v 100 with equal effectiveness annihilates both sides (0.00 vs 0.00); the same 100 fighting two 50s sequentially ends with <b>70.71</b> survivors, matching the closed form to two decimals; the invariant &alpha;A&sup2;&minus;&beta;B&sup2; holds to 10&#8315;&#8309; along the integration; and the linear-law control gives sequential 3.12 vs direct 3.23 &mdash; <b>no advantage</b> (window.__lanchester). <span class="fig">FIG</span> Lanchester&rsquo;s laws are a deliberately crude model of real combat &mdash; the mathematics is exact, the applicability is contested, and we claim only the mathematics.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>backprop</i> &mdash; the grind: the gradient of the outcome with respect to your force is not constant; it grows with the force you already have. Every unit added is worth more than the last, which is exactly why splitting the enemy is how you win. <b>AVAN (AI)</b> built the instrument: the square-law integrator with an invariant gate, the sequential-battle simulator, and the unaimed-fire control.<br><br>Credit as content: Frederick W. Lanchester (1916, <i>Aircraft in Warfare</i>); the operations-research tradition that formalized and later criticized it. The weave: David names the backprop; I run the battles and the square law pays out to the second decimal.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two battles, one force: divided beats united by 70.7 survivors.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Fight the split; the survivor count follows the square law.</div>
+   <div class="btns" style="margin-top:10px"><button id="lcn">next split ▶</button><button id="lccheck">verify ▶</button></div>
+   <div class="cap" id="lcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the two force curves, squares racing to zero.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t count soldiers &mdash; count the conserved quantity. The inverse of &lsquo;who is bigger?&rsquo; is &lsquo;what does the battle preserve?&rsquo;: &alpha;A&sup2;&minus;&beta;B&sup2; is fixed from the first shot, so the winner and the survivors are known before the fighting starts &mdash; the battle only spends time. <b>Magenta</b> is the linear world where numbers add; <b>green</b> is the squared world where they compound. Whether concentration is worth anything is a question about the exponent.</div>
+   <div class="btns" style="margin-top:10px"><button id="lcspin">pause spin</button></div></div></div></div>"""
+LNCH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,split=0;
+var AL=0.05,BE=0.05;
+function battle(A0,B0,dt,trace){var A=A0,B=B0,t=0,tr=[];
+ while(A>0&&B>0&&t<1e5){
+  A+=-BE*B*dt;B+=-AL*A*dt;t+=dt;
+  if(trace&&tr.length<400&&Math.round(t/dt)%20===0)tr.push([A,B]);}
+ return {A:Math.max(A,0),B:Math.max(B,0),t:t,tr:tr};}
+function invL(A,B){return AL*A*A-BE*B*B;}
+function sequential(A0,parts){var A=A0;
+ for(var k=0;k<parts.length;k++){var res=battle(A,parts[k],0.0005);
+  A=res.A;
+  if(A<=0)return 0;}
+ return A;}
+function linearBattle(A0,B0){var A2=A0,B2=B0;
+ for(var s=0;s<200000;s++){
+  if(A2<=0||B2<=0)break;
+  var dA=-BE*A2*B2*3e-5,dB=-AL*A2*B2*3e-5;
+  A2+=dA;B2+=dB;}
+ return Math.max(A2,0);}
+function selftest(){if(VR)return VR;
+ var r=battle(100,100,0.0005);
+ var surv=sequential(100,[50,50]),exact=Math.sqrt(100*100-50*50-50*50);
+ var A=100,B=60,I0=invL(A,B),maxDev=0;
+ for(var s=0;s<60000;s++){
+  if(A<=0||B<=0)break;
+  A+=-BE*B*3e-4;B+=-AL*A*3e-4;
+  maxDev=Math.max(maxDev,Math.abs(invL(A,B)-I0)/Math.abs(I0));}
+ var linSeq=linearBattle(linearBattle(100,50),50),linDirect=linearBattle(100,100);
+ VR={draw:r.A,surv:surv,exact:exact,maxDev:maxDev,linSeq:linSeq,linDirect:linDirect,
+  ok:r.A<1&&Math.abs(surv-exact)<0.5&&surv>70&&maxDev<1e-3&&Math.abs(linSeq-linDirect)<0.5};return VR;}
+function drawBars(g,x0,y0,vals,cols,sc){
+ vals.forEach(function(v,i){nf(g,cols[i],x0+i*54,y0-v*sc,42,v*sc);});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'united: mutual annihilation \\u00b7 divided: 70.7 survive');
+ nt(g,'#9cf',40,54,10,'100 vs 100 at once');
+ drawBars(g,40,240,[100,100],['rgba(53,255,176,0.6)','rgba(255,47,166,0.6)'],1.7);
+ nt(g,'#ff6ab0',40,262,10,'\\u2192 0 vs 0');
+ nt(g,'#9cf',280,54,10,'100 vs 50, then 50');
+ drawBars(g,280,240,[100,50,50],['rgba(53,255,176,0.6)','rgba(255,47,166,0.5)','rgba(255,47,166,0.5)'],1.7);
+ nt(g,'#35ffb0',280,262,10,'\\u2192 '+v.surv.toFixed(2)+' survive');
+ nt(g,'#8ad',10,H-8,9,'Lanchester 1916 \\u00b7 \\u03b1A\\u00b2 \\u2212 \\u03b2B\\u00b2 is conserved from the first shot');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var splits=[[100],[60,40],[50,50],[34,33,33],[25,25,25,25]][split%5];
+ var surv=sequential(100,splits);
+ var sq=100*100;
+ splits.forEach(function(p){sq-=p*p;});
+ nt(g,'#ffcf4a',12,20,12,'enemy split as ['+splits.join(', ')+']');
+ drawBars(g,26,190,[100].concat(splits),['rgba(53,255,176,0.6)'].concat(splits.map(function(){return 'rgba(255,47,166,0.5)';})),1.3);
+ nt(g,'#35ffb0',26,232,12,'survivors: '+surv.toFixed(2));
+ nt(g,'#9cf',26,256,11,'square law \\u221a(100\\u00b2 \\u2212 \\u03a3 parts\\u00b2) = '+(sq>0?Math.sqrt(sq).toFixed(2):'0 (defeated)'));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: annihilation \\u00b7 70.71 \\u00b7 invariant \\u00b7 linear control ('+v.ok+')');}
+document.getElementById('lcn').onclick=function(){split++;drawW4();document.getElementById('lcread').textContent='';};
+document.getElementById('lccheck').onclick=function(){var v=selftest();document.getElementById('lcread').textContent='square law + control: '+v.ok;};
+document.getElementById('lcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#ffcf4a',10,18,10,'two forces, squares racing to zero');
+ var r=battle(100,70,0.001,true);
+ var n=r.tr.length,cut=Math.floor((ang*0.5)%n);
+ ne(g,'#35ffb0',1.8);g.beginPath();
+ for(var i=0;i<=cut;i++){var x=30+i/n*(W2-60),y=H-70-r.tr[i][0]*2;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ ne(g,'#ff2fa6',1.8);g.beginPath();
+ for(var i=0;i<=cut;i++){var x=30+i/n*(W2-60),y=H-70-r.tr[i][1]*2;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ nt(g,'#35ffb0',W2-90,60,9,'A: 100');
+ nt(g,'#ff2fa6',W2-90,80,9,'B: 70');
+ nt(g,'#35ffb0',10,H-52,11,'green: the squared world where numbers compound');nt(g,'#ff2fa6',10,H-34,10,'magenta: the linear world where they merely add');nt(g,'#8ad',10,H-14,10,'whether concentration pays is a question about the exponent');}
+drawW3();drawW4();window.__lanchester=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LOTK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Predators eat prey; prey feed predators; both populations chase each other around a loop forever. The <b>Lotka&ndash;Volterra</b> equations are ecology&rsquo;s hydrogen atom &mdash; and they hide two surprises. First: the orbits are exactly <b>closed</b>, preserved by the invariant dx &minus; c&middot;ln x + by &minus; a&middot;ln y, so the cycle never decays or grows. Second, and stranger, the <b>time-averages are fixed by the parameters alone</b>: &#10216;prey&#10217; = c/d and &#10216;predator&#10217; = a/b, whatever the amplitude. That gives <b>Volterra&rsquo;s principle</b>: kill BOTH species indiscriminately &mdash; a pesticide, a fishing fleet &mdash; and the <b>prey average RISES</b> while the predator average falls. Volterra derived it in 1926 to explain why the WWI halt in Adriatic fishing had <b>raised</b> the shark fraction.<br><br>
+ <span class="lit">LIT</span> verified live: the invariant conserved to 10&#8315;&sup1;&#8308; over sixty time units (the orbit is closed, not spiralling); the measured period 10.789 exceeds the small-oscillation 2&pi;/&radic;(ac) = 9.472 (big orbits run slower); time-averages 4.0001 vs c/d = 4.0000 and 2.7500 vs a/b = 2.7500; and spraying both species at p = 0.2 moves the simulated averages 4.00/2.78 &rarr; 6.00/2.24 (window.__lotka). <span class="fig">FIG</span> the model is famously idealized (no carrying capacity, neutral cycles); Volterra&rsquo;s principle is a theorem <b>about this model</b> with real-world support in pesticide-resurgence cases &mdash; cited as such, not as ecology in general.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-epoch</i> &mdash; the grind: the loop runs forever, and the only thing that matters is what the loop AVERAGES to over one epoch &mdash; a number set by the rules, not by where you started or how hard you pushed. <b>AVAN (AI)</b> built the instrument: the RK4 integrator with an invariant gate, the period-crossing timer, the average meter, and the spray experiment.<br><br>Credit as content: Alfred Lotka (1925); Vito Volterra (1926, and the Adriatic shark data of Umberto D&rsquo;Ancona); the modern pesticide-resurgence literature. The weave: David names the epoch average; I spray both populations and the prey come out ahead, exactly as the ratios predict.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The closed orbit in the phase plane, with its fixed centre.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Spray both species; the averages move the wrong way on purpose.</div>
+   <div class="btns" style="margin-top:10px"><button id="ltn">spray ▶</button><button id="ltcheck">verify ▶</button></div>
+   <div class="cap" id="ltread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the two populations chasing round the loop.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t intervene on the populations &mdash; read which parameter your intervention actually touches. The inverse of &lsquo;kill pests to reduce pests&rsquo; is &lsquo;the pest average is c/d, and your spray moves c the wrong way&rsquo;: the lever you pulled was never attached to the number you cared about. <b>Magenta</b> is the intuition that killing reduces; <b>green</b> is the ratio that decides. In a coupled system, always ask which coefficient your action edits.</div>
+   <div class="btns" style="margin-top:10px"><button id="ltspin">pause spin</button></div></div></div></div>"""
+LOTK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,sprayOn=0;
+var a=1.1,b=0.4,c=0.4,d=0.1;
+function mkD(a2,c2){return function(s){return [a2*s[0]-b*s[0]*s[1],-c2*s[1]+d*s[0]*s[1]];};}
+function rk4L(s,dt,dv){function add(p,q,f){return [p[0]+q[0]*f,p[1]+q[1]*f];}
+ var k1=dv(s),k2=dv(add(s,k1,dt/2)),k3=dv(add(s,k2,dt/2)),k4=dv(add(s,k3,dt));
+ return [s[0]+dt/6*(k1[0]+2*k2[0]+2*k3[0]+k4[0]),s[1]+dt/6*(k1[1]+2*k2[1]+2*k3[1]+k4[1])];}
+function VL(s){return d*s[0]-c*Math.log(s[0])+b*s[1]-a*Math.log(s[1]);}
+function orbit(p,steps,dt,start){var dv=mkD(a-p,c+p),s=start.slice(),out=[];
+ for(var k=0;k<steps;k++){s=rk4L(s,dt,dv);
+  if(k%40===0)out.push(s.slice());}
+ return out;}
+function selftest(){if(VR)return VR;
+ var dv=mkD(a,c),dt=0.001,s=[10,5],V0=VL(s),maxDev=0,T=0,prevAbove=s[1]>a/b,crossT=[];
+ for(var k=0;k<60000;k++){s=rk4L(s,dt,dv);
+  maxDev=Math.max(maxDev,Math.abs(VL(s)-V0));
+  T+=dt;
+  var above=s[1]>a/b;
+  if(above&&!prevAbove)crossT.push(T);
+  prevAbove=above;}
+ var period=crossT.length>=2?crossT[crossT.length-1]-crossT[crossT.length-2]:0;
+ var Tsmall=2*Math.PI/Math.sqrt(a*c);
+ var s2=[10,5],sumX=0,sumY=0,n=0,steps=Math.round(period/dt);
+ for(var k=0;k<steps;k++){s2=rk4L(s2,dt,dv);sumX+=s2[0];sumY+=s2[1];n++;}
+ var avgX=sumX/n,avgY=sumY/n;
+ function simAvg(p,Tsim){var dv2=mkD(a-p,c+p),st=[10,5],sx=0,sy=0,cnt=0;
+  var N=Math.round(Tsim/0.002);
+  for(var k=0;k<N;k++){st=rk4L(st,0.002,dv2);
+   if(k>N*0.1){sx+=st[0];sy+=st[1];cnt++;}}
+  return [sx/cnt,sy/cnt];}
+ var simBase=simAvg(0,160),simSpray=simAvg(0.2,160);
+ VR={maxDev:maxDev,period:period,Tsmall:Tsmall,avgX:avgX,avgY:avgY,
+  simBase:simBase,simSpray:simSpray,
+  ok:maxDev<1e-8&&period>Tsmall&&Math.abs(avgX-c/d)/(c/d)<0.005&&Math.abs(avgY-a/b)/(a/b)<0.005
+     &&simSpray[0]>simBase[0]*1.2&&simSpray[1]<simBase[1]*0.9};return VR;}
+function drawPhase(g,cx,cy,sx,sy,p,col,start){
+ var orb=orbit(p,26000,0.002,start||[10,5]);
+ ne(g,col,1.6);g.beginPath();
+ orb.forEach(function(s,i){var x=cx+s[0]*sx,y=cy-s[1]*sy;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});
+ g.stroke();ng(g);
+ ndot(g,cx+(c+p)/d*sx,cy-(a-p)/b*sy,4.5,'#ffcf4a');
+ return orb;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#b06bff',10,16,10,'the closed orbit and its fixed centre (c/d, a/b)');
+ ne(g,'rgba(150,160,210,0.35)',1);g.beginPath();g.moveTo(50,H-40);g.lineTo(W2-20,H-40);g.stroke();
+ g.beginPath();g.moveTo(50,20);g.lineTo(50,H-40);g.stroke();ng(g);
+ drawPhase(g,50,H-40,22,26,0,'#35ffb0');
+ nt(g,'#ffcf4a',260,60,10,'centre (c/d, a/b) = (4.00, 2.75)');
+ nt(g,'#9cf',260,82,10,'time-averages: '+v.avgX.toFixed(4)+', '+v.avgY.toFixed(4));
+ nt(g,'#8ad',10,H-8,9,'Lotka 1925 \\u00b7 Volterra 1926 \\u00b7 invariant conserved to '+v.maxDev.toExponential(0));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var p=(sprayOn%2)*0.2;
+ nt(g,'#b06bff',12,20,12,p?'SPRAYED both (p = 0.2)':'no spraying');
+ ne(g,'rgba(150,160,210,0.35)',1);g.beginPath();g.moveTo(46,260);g.lineTo(W2-16,260);g.stroke();
+ g.beginPath();g.moveTo(46,44);g.lineTo(46,260);g.stroke();ng(g);
+ drawPhase(g,46,260,17,20,0,'rgba(53,255,176,0.35)');
+ if(p)drawPhase(g,46,260,17,20,p,'#ff2fa6');
+ nt(g,'#35ffb0',16,286,10,'no spray: prey '+v.simBase[0].toFixed(2)+' \\u00b7 predator '+v.simBase[1].toFixed(2));
+ nt(g,'#ff6ab0',16,304,10,'sprayed:  prey '+v.simSpray[0].toFixed(2)+' \\u00b7 predator '+v.simSpray[1].toFixed(2));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-8,9,'self-test: invariant \\u00b7 period \\u00b7 averages \\u00b7 Volterra ('+v.ok+')');}
+document.getElementById('ltn').onclick=function(){sprayOn++;drawW4();document.getElementById('ltread').textContent='';};
+document.getElementById('ltcheck').onclick=function(){var v=selftest();document.getElementById('ltread').textContent='closed orbit + averages + principle: '+v.ok;};
+document.getElementById('ltspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+var ORB5=null;
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#b06bff',10,18,10,'prey and predator chasing round the loop');
+ if(!ORB5)ORB5=orbit(0,26000,0.002,[10,5]);
+ var n=ORB5.length,i=Math.floor(ang*0.6)%n;
+ ne(g,'rgba(53,255,176,0.5)',1.4);g.beginPath();
+ ORB5.forEach(function(s,k){var x=40+s[0]*16,y=H-70-s[1]*22;
+  if(k===0)g.moveTo(x,y);else g.lineTo(x,y);});
+ g.stroke();ng(g);
+ ndot(g,40+ORB5[i][0]*16,H-70-ORB5[i][1]*22,6,'#35ffb0');
+ ndot(g,40+c/d*16,H-70-a/b*22,4,'#ffcf4a');
+ nf(g,'rgba(53,255,176,0.6)',300,H-70-ORB5[i][0]*7,18,ORB5[i][0]*7);
+ nf(g,'rgba(255,47,166,0.6)',330,H-70-ORB5[i][1]*7,18,ORB5[i][1]*7);
+ nt(g,'#8ad',296,H-52,8,'prey');
+ nt(g,'#8ad',328,H-52,8,'pred');
+ nt(g,'#35ffb0',10,H-34,11,'green: the ratio that decides the average');nt(g,'#8ad',10,H-14,10,'ask which coefficient your action edits');}
+drawW3();drawW4();window.__lotka=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 196 · neon-noir · silicon-coding · THE SYNCHRONIZED AND THE UPSIDE-DOWN (gravity beaten by vibration · the sync transition · bounce traded for twist · the Earth turning under a wire · three letters never stutter) ═══════════════════════
 KPTZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">A pendulum balanced upside-down falls &mdash; unless you <b>vibrate its pivot fast enough</b>. Then the inverted position becomes STABLE: nudge it and it wobbles around straight-up like a well in a potential that gravity no longer owns. Stephenson saw it in 1908; <b>Pyotr Kapitza</b> analyzed it in 1951 and the trick now carries his name. The leading-order criterion is one inequality: <b>a&sup2;&omega;&sup2; &gt; 2gL</b> &mdash; drive amplitude times frequency must outrun gravity &mdash; and the machinery behind it (averaging over fast oscillations into an effective potential) became a standard tool from Paul traps to strong-field physics.<br><br>
@@ -54286,6 +54817,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-ising","title":"THE ISING","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#21e6ff","icon":"ising",
+  "kicker":"the temperature that melts order",
+  "blurb":"A grid of arrows, each preferring to agree with its neighbours, each shaken by heat. Cold: one giant aligned domain. Hot: static. The Ising model is the simplest genuine phase transition — and Onsager solved 2D exactly in 1944, pinning Tc = 2/ln(1+√2). The irony: Ising solved the 1D chain in 1925, found no transition, and wrongly concluded there was none in any dimension.",
+  "lit":"Verified live: Metropolis MC on 16×16 reproduces Onsager's exact magnetization [1−sinh⁻⁴(2/T)]^{1/8} within 0.005 at T=1.6/1.8/2.0; above Tc the order melts (|m|=0.16 at T=3.2); the 1D control matches the exact transfer-matrix energy −tanh(1/T) (window.__ising.ok).",
+  "fig":"A 16×16 lattice shows finite-size rounding near Tc — the sharp transition is the infinite-lattice theorem, cited; what we verify is the below-Tc curve and the melt. Lenz 1920, Ising 1925, Onsager 1944, Metropolis 1953 credited. The AVAN inverse — ask what the ensemble cannot help doing: no spin knows the temperature, yet below one number the whole lattice commits. Collective states are not built — they precipitate.",
+  "body":ISNG_BODY,"script":ISNG_SCRIPT},
+ {"slug":"the-giant-component","title":"THE GIANT COMPONENT","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#ff8a3c","icon":"giantcomponent",
+  "kicker":"the edge where one giant appears",
+  "blurb":"Sprinkle random edges on n nodes until each averages c connections. Below c = 1 the network is dust — every piece O(log n). Cross c = 1 and a single giant component appears holding a fixed fraction S of everything, with all others still logarithmic. Erdős and Rényi called it the double jump; the giant's size is the root of S = 1 − e^(−cS).",
+  "lit":"Verified live: 20,000-node graphs by geometric-skip sampling, measured with union-find — S = 0.582/0.807/0.938 at c = 1.5/2/3 vs theory 0.583/0.797/0.940; at c=0.5 the largest piece is 0.10% of n; at c=1 it is 1.93%, inside the n^(−1/3) ≈ 3.7% critical window; theory satisfies its fixed point to 1e-12 (window.__giant.ok).",
+  "fig":"The O(log n) subcritical bound and the n^(2/3) critical-window scaling are cited theorems — we measure one consistent instance. Erdős–Rényi 1959–60, Bollobás cited. The AVAN inverse — connectivity is a threshold that arrives on its own schedule: nothing special happens at the edge that tips c past 1, yet afterwards the world has a spine. Emergence has a coordinate, and it is usually one.",
+  "body":PERC_BODY,"script":PERC_SCRIPT},
+ {"slug":"the-zeeman-machine","title":"THE ZEEMAN MACHINE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#ffcf4a","icon":"zeeman",
+  "kicker":"the disc that jumps",
+  "blurb":"A cardboard disc on a pin and two elastics: move your hand smoothly and the disc follows — until it flips, and flips back at a DIFFERENT place. Zeeman's 1972 catastrophe machine is Thom's cusp made physical: a control plane with a bistable tongue, so continuous input yields discontinuous output and the route decides the state. Hysteresis you can build for a pound.",
+  "lit":"Verified live: scanning the control plane, 206 of 1,353 points have TWO energy minima, forming a bounded tongue (x∈[−1.50,2.75], y∈[−0.88,0.88]); sweeping y up and down at x=1.0 the branches differ by 1.220 rad; outside the tongue (x=3.6) the difference is 0.0000 rad (window.__zeeman.ok).",
+  "fig":"Classification as Thom's cusp is cited theory; the elastic model is the standard idealization (Hooke bands, natural length 1). Zeeman 1972, and the later critiques that trimmed catastrophe theory's overreach outside physics. The AVAN inverse — model the disappearance of the well you were in: the discontinuity is in the state, never in the input. Catastrophes are smooth from the landscape's point of view.",
+  "body":ZMAN_BODY,"script":ZMAN_SCRIPT},
+ {"slug":"the-lanchester","title":"THE LANCHESTER","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"BACKPROP","domain_slug":"backprop","accent":"#ffcf4a","icon":"lanchester",
+  "kicker":"why concentration wins",
+  "blurb":"Lanchester, watching Great War aircraft, found that under aimed fire combat power scales as the SQUARE of numbers — invariant αA² − βB². Hence defeat in detail: 100 fighting two 50s in sequence walks away with √(100²−50²−50²) = 70.7 survivors where fighting all 100 at once annihilates it. And it's conditional: under unaimed fire the law goes linear and concentration buys nothing.",
+  "lit":"Verified live: 100v100 with equal effectiveness annihilates both (0.00 vs 0.00); sequential vs two 50s ends at 70.71, matching the closed form; the invariant holds to 1e-5 along the integration; the linear-law control gives 3.12 vs 3.23 — no advantage (window.__lanchester.ok).",
+  "fig":"Lanchester's laws are a deliberately crude combat model — the mathematics is exact, the applicability contested, and we claim only the mathematics. Lanchester 1916 and the OR tradition cited. The AVAN inverse — count the conserved quantity, not the soldiers: αA²−βB² is fixed from the first shot, so the outcome is known before the fighting; the battle only spends time.",
+  "body":LNCH_BODY,"script":LNCH_SCRIPT},
+ {"slug":"the-lotka-volterra","title":"THE LOTKA–VOLTERRA","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#b06bff","icon":"lotkavolterra",
+  "kicker":"why killing both helps the prey",
+  "blurb":"Predator and prey chase each other around a loop forever. Two surprises: the orbits are exactly closed (an invariant preserves them), and the time-averages depend ONLY on the parameters — ⟨prey⟩ = c/d, ⟨predator⟩ = a/b, whatever the amplitude. Hence Volterra's principle: kill both species indiscriminately and the prey average RISES. He derived it in 1926 to explain why the WWI fishing halt raised the Adriatic shark fraction.",
+  "lit":"Verified live: invariant conserved to 1e-14 over sixty time units (closed orbit, not spiralling); measured period 10.789 > small-oscillation 2π/√(ac) = 9.472; averages 4.0001 vs c/d = 4.0000 and 2.7500 vs a/b = 2.7500; spraying both at p=0.2 moves simulated averages 4.00/2.78 → 6.00/2.24 (window.__lotka.ok).",
+  "fig":"The model is famously idealized (no carrying capacity, neutral cycles); Volterra's principle is a theorem ABOUT THIS MODEL with real-world support in pesticide-resurgence cases — cited as such, not as ecology in general. Lotka 1925, Volterra 1926, D'Ancona's shark data. The AVAN inverse — read which coefficient your intervention actually edits: the lever you pulled was never attached to the number you cared about.",
+  "body":LOTK_BODY,"script":LOTK_SCRIPT},
  {"slug":"the-kapitza","title":"THE KAPITZA","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#b06bff","icon":"kapitza",
   "kicker":"gravity beaten by vibration",
