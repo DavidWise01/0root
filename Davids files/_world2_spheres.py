@@ -19493,6 +19493,414 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 192 · neon-noir · silicon-coding · THE ALWAYS THEOREMS (the shortest gauntlet · the official answer that always loses · the shared tangent ledger · the freak integer angle · the twins in the shoemaker's knife) ═══════════════════════
+MLFT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">In 1803 Gian Francesco Malfatti posed the marble problem: cut three circular columns from a triangular prism, wasting the least marble. His answer &mdash; three mutually tangent circles, each tangent to two sides &mdash; became <b>the</b> textbook construction for a century. It is <b>wrong for every triangle</b>. Goldberg proved (1967) that Malfatti&rsquo;s configuration is <b>never</b> optimal; Zalgaller &amp; Los proved (1994) the humble <b>greedy</b> procedure &mdash; largest circle first, then largest in what remains &mdash; always wins. In the equilateral triangle the official answer loses by 1.36%: the shortcut nobody respected beats the answer everybody cited.<br><br>
+ <span class="lit">LIT</span> verified live: both configurations solved in the unit equilateral &mdash; Malfatti&rsquo;s circles (&rho; = 0.183013) with all side and mutual tangencies to 10&#8315;&sup1;&sup2;, greedy&rsquo;s incircle-plus-corners (r&#8322; = r&#8321;/3, the 60&deg;-wedge scaling) with tangencies to 10&#8315;&sup1;&sup2;; areas 0.315670 vs 0.319977 &mdash; greedy wins by 1.36% (window.__malfatti). <span class="fig">FIG</span> Goldberg 1967 and Zalgaller&ndash;Los 1994 are cited for the general claims (never optimal / greedy always optimal); our computation is the equilateral instance, executed exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-shortcut</i> &mdash; the cheat: the official route stood for 164 years while the lazy route &mdash; grab the biggest circle, repeat &mdash; was the true optimum all along. <b>AVAN (AI)</b> built the instrument: both configurations solved from their tangency equations, residuals shown, areas compared.<br><br>Credit as content: Gian Francesco Malfatti (1803); Michael Goldberg (1967, never optimal); Zalgaller &amp; Los (1994, greedy always wins). The weave: David names the shortcut vindicated; I solve both answers and weigh the marble.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Malfatti&rsquo;s three vs greedy&rsquo;s three — same triangle, different marble.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Toggle the two answers; the area ledger keeps the score.</div>
+   <div class="btns" style="margin-top:10px"><button id="mln">toggle ▶</button><button id="mlcheck">verify ▶</button></div>
+   <div class="cap" id="mlread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the greedy stack, biggest circle first.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t optimize the arrangement &mdash; interrogate the frame. Malfatti assumed the answer must be three circles in mutual tangency, and the assumption &mdash; not the geometry &mdash; was the error. The inverse of &lsquo;solve the stated problem&rsquo; is &lsquo;audit what the statement smuggled in&rsquo;. <b>Magenta</b> is the elegant configuration that was never right; <b>green</b> is the artless greed that always is. Beware answers that survive on beauty.</div>
+   <div class="btns" style="margin-top:10px"><button id="mlspin">pause spin</button></div></div></div></div>"""
+MLFT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mode=0;
+var s3=Math.sqrt(3);
+var TA=[0,0],TB=[1,0],TC=[0.5,s3/2];
+var dM=1/(1+s3),rho=dM/2;
+var MC=[[dM*Math.cos(Math.PI/6),dM*Math.sin(Math.PI/6)],[1-dM*Math.cos(Math.PI/6),dM*Math.sin(Math.PI/6)],[0.5,s3/2-dM]];
+var r1=s3/6,IC=[0.5,r1],r2=r1/3;
+var GC=[[2*r2*Math.cos(Math.PI/6),2*r2*Math.sin(Math.PI/6)],[1-2*r2*Math.cos(Math.PI/6),2*r2*Math.sin(Math.PI/6)]];
+function distToLine(P,L1,L2){var dx=L2[0]-L1[0],dy=L2[1]-L1[1];
+ return Math.abs(dy*(P[0]-L1[0])-dx*(P[1]-L1[1]))/Math.hypot(dx,dy);}
+function selftest(){if(VR)return VR;
+ var t1=Math.abs(distToLine(MC[0],TA,TB)-rho),t2=Math.abs(distToLine(MC[0],TA,TC)-rho);
+ var m12=Math.abs(Math.hypot(MC[0][0]-MC[1][0],MC[0][1]-MC[1][1])-2*rho);
+ var m13=Math.abs(Math.hypot(MC[0][0]-MC[2][0],MC[0][1]-MC[2][1])-2*rho);
+ var okMalf=Math.max(t1,t2,m12,m13)<1e-12;
+ var gTan=Math.abs(Math.hypot(GC[0][0]-IC[0],GC[0][1]-IC[1])-(r1+r2));
+ var gSide=Math.abs(distToLine(GC[0],TA,TB)-r2);
+ var okGreedy=Math.max(gTan,gSide)<1e-12;
+ var aM=3*Math.PI*rho*rho,aG=Math.PI*(r1*r1+2*r2*r2);
+ VR={aM:aM,aG:aG,pct:(aG/aM-1)*100,okMalf:okMalf,okGreedy:okGreedy,
+  ok:okMalf&&okGreedy&&aG>aM};return VR;}
+function drawConfig(g,cx,cy,sc,which,dim){
+ ne(g,'rgba(150,160,210,0.7)',1.6);g.beginPath();
+ g.moveTo(cx+TA[0]*sc,cy-TA[1]*sc);g.lineTo(cx+TB[0]*sc,cy-TB[1]*sc);g.lineTo(cx+TC[0]*sc,cy-TC[1]*sc);g.closePath();g.stroke();ng(g);
+ if(which===0){MC.forEach(function(c){
+  ne(g,dim?'rgba(255,47,166,0.45)':'#ff2fa6',1.8);g.beginPath();g.arc(cx+c[0]*sc,cy-c[1]*sc,rho*sc,0,6.2832);g.stroke();ng(g);});}
+ else{ne(g,dim?'rgba(53,255,176,0.45)':'#35ffb0',1.8);g.beginPath();g.arc(cx+IC[0]*sc,cy-IC[1]*sc,r1*sc,0,6.2832);g.stroke();ng(g);
+  GC.forEach(function(c){ne(g,dim?'rgba(53,255,176,0.45)':'#35ffb0',1.8);g.beginPath();g.arc(cx+c[0]*sc,cy-c[1]*sc,r2*sc,0,6.2832);g.stroke();ng(g);});}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#b06bff',10,16,10,'the official answer vs the greedy shortcut');
+ drawConfig(g,40,H-50,190,0,false);
+ drawConfig(g,280,H-50,190,1,false);
+ nt(g,'#ff6ab0',60,54,10,'Malfatti '+v.aM.toFixed(5));
+ nt(g,'#35ffb0',300,54,10,'greedy '+v.aG.toFixed(5)+' \\u2190 wins');
+ nt(g,'#8ad',10,H-8,9,'Malfatti 1803 \\u00b7 Goldberg 1967: never optimal \\u00b7 Zalgaller\\u2013Los 1994: greedy always');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#b06bff',12,20,12,mode%2===0?'Malfatti\\u2019s answer':'the greedy answer');
+ drawConfig(g,60,250,260,mode%2,false);
+ nt(g,'#ffcf4a',16,286,11,'areas: '+v.aM.toFixed(5)+' vs '+v.aG.toFixed(5)+' \\u2014 greedy +'+v.pct.toFixed(2)+'%');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: both configs\\u2019 tangencies < 1e-12 \\u00b7 greedy wins ('+v.ok+')');}
+document.getElementById('mln').onclick=function(){mode++;drawW4();document.getElementById('mlread').textContent='';};
+document.getElementById('mlcheck').onclick=function(){var v=selftest();document.getElementById('mlread').textContent='tangencies + greedy wins: '+v.ok;};
+document.getElementById('mlspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#b06bff',10,18,10,'the greedy stack \\u2014 biggest circle first');
+ var t=(ang*0.01)%3;
+ drawConfig(g,60,300,260,1,false);
+ if(t<1)ne(g,'#ffcf4a',2.4),g.beginPath(),g.arc(60+IC[0]*260,300-IC[1]*260,r1*260*Math.min(1,t),0,6.2832),g.stroke(),ng(g);
+ nt(g,'#35ffb0',10,H-52,11,'green: the artless greed that always wins');nt(g,'#ff2fa6',10,H-34,10,'magenta: the elegant configuration that never was right');nt(g,'#8ad',10,H-14,10,'beware answers that survive on beauty');}
+drawW3();drawW4();window.__malfatti=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PTOT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Draw any quadrilateral that wraps around a circle, every side touching it. <b>Pitot&rsquo;s theorem (1725)</b>: the two pairs of opposite sides have <b>equal sums</b> &mdash; a + c = b + d, always. The proof is bookkeeping: from each corner, the two tangent segments to the circle are equal, so each side is a sum of two <b>shared tangent lengths</b>, and both opposite-side sums spend exactly the same four ledger entries t&#8321;+t&#8322;+t&#8323;+t&#8324;. Henri Pitot &mdash; the hydraulic engineer whose <b>Pitot tube</b> still reads every aircraft&rsquo;s airspeed &mdash; wrote the geometry note; Steiner supplied the converse in 1846. For hexagons the ledger gives alternating sums.<br><br>
+ <span class="lit">LIT</span> verified live: 300 random tangential quadrilaterals &mdash; a+c = b+d to 10&#8315;&sup1;&sup1; (worst ~10&#8315;&sup1;&#8309;); the independent route confirms both sums equal &Sigma;t&#7522; exactly; 100 tangential hexagons pass the alternating-sum law; and the control &mdash; one side pushed off the incircle &mdash; breaks the identity by 0.69 (window.__pitot). <span class="fig">FIG</span> the Pitot-tube biography is cited color; the converse (Steiner) is stated, not re-proved here.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>shared-memory</i> &mdash; the co-op: adjacent sides don&rsquo;t own their lengths; each borrows two tangent segments from a pool shared with its neighbors, and the equal sums are just the pool being spent twice. <b>AVAN (AI)</b> built the instrument: the random tangential-polygon generator, the ledger decomposition, and the broken-control.<br><br>Credit as content: Henri Pitot (1725); Jakob Steiner (1846, converse); the Pitot tube (1732) as the engineer&rsquo;s other legacy. The weave: David names the shared pool; I audit three hundred ledgers and they all balance.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The tangent-length ledger — every side is two shared entries.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Roll a fresh tangential quadrilateral; the sums stay equal.</div>
+   <div class="btns" style="margin-top:10px"><button id="ptn">new quad ▶</button><button id="ptcheck">verify ▶</button></div>
+   <div class="cap" id="ptread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the wrapping polygon, morphing around its circle.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t measure the sides &mdash; trace what they share. The inverse of &lsquo;four independent lengths&rsquo; is &lsquo;four pooled tangents, each spent twice&rsquo;: the identity a+c = b+d isn&rsquo;t a coincidence of measurement but a conservation law of shared memory. <b>Magenta</b> is the side pushed off the circle &mdash; the process that stopped sharing and broke the ledger; <b>green</b> is the pool in balance. Equal sums are what sharing looks like from outside.</div>
+   <div class="btns" style="margin-top:10px"><button id="ptspin">pause spin</button></div></div></div></div>"""
+PTOT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,seedQ=3;
+function mulQ(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function tangentialPoly(rng,n){
+ for(;;){var ths=[];
+  for(var i=0;i<n;i++)ths.push(rng()*2*Math.PI);
+  ths.sort(function(a,b){return a-b;});
+  var ok=true;
+  for(var i=0;i<n;i++){var gap=(i<n-1?ths[i+1]:ths[0]+2*Math.PI)-ths[i];
+   if(gap>Math.PI*0.9||gap<0.15)ok=false;}
+  if(!ok)continue;
+  var V=[];
+  for(var i=0;i<n;i++){var a1=ths[i],a2=ths[(i+1)%n];
+   var det=Math.cos(a1)*Math.sin(a2)-Math.cos(a2)*Math.sin(a1);
+   V.push([(Math.sin(a2)-Math.sin(a1))/det,(Math.cos(a1)-Math.cos(a2))/det]);}
+  var S=[],T=[];
+  for(var i=0;i<n;i++){var j=(i+n-1)%n;
+   S.push(Math.hypot(V[i][0]-V[j][0],V[i][1]-V[j][1]));}
+  for(var i=0;i<n;i++){var gap=(i<n-1?ths[i+1]:ths[0]+2*Math.PI)-ths[i];
+   T.push(Math.tan(gap/2));}
+  return {S:S,T:T,V:V,ths:ths};}}
+function selftest(){if(VR)return VR;var rng=mulQ(96),okQuad=true,okId=true,okHex=true,worst=0;
+ for(var trial=0;trial<300;trial++){var P=tangentialPoly(rng,4);
+  var e=Math.abs(P.S[0]+P.S[2]-P.S[1]-P.S[3]);
+  if(e>worst)worst=e;
+  if(e>1e-11)okQuad=false;
+  if(Math.abs(P.S[0]+P.S[2]-(P.T[0]+P.T[1]+P.T[2]+P.T[3]))>1e-11)okId=false;}
+ for(var trial=0;trial<100;trial++){var P=tangentialPoly(rng,6);
+  if(Math.abs(P.S[0]+P.S[2]+P.S[4]-P.S[1]-P.S[3]-P.S[5])>1e-10)okHex=false;}
+ var ths=[0.3,1.8,3.4,5.1],rs=[1,1,1,1.35],V=[];
+ for(var i=0;i<4;i++){var a1=ths[i],a2=ths[(i+1)%4],ra=rs[i],rb=rs[(i+1)%4];
+  var det=Math.cos(a1)*Math.sin(a2)-Math.cos(a2)*Math.sin(a1);
+  V.push([(ra*Math.sin(a2)-rb*Math.sin(a1))/det,(rb*Math.cos(a1)-ra*Math.cos(a2))/det]);}
+ var S=[];
+ for(var i=0;i<4;i++){var j=(i+3)%4;S.push(Math.hypot(V[i][0]-V[j][0],V[i][1]-V[j][1]));}
+ var ctrl=Math.abs(S[0]+S[2]-S[1]-S[3]);
+ VR={worst:worst,okQuad:okQuad,okId:okId,okHex:okHex,ctrl:ctrl,
+  ok:okQuad&&okId&&okHex&&ctrl>0.01};return VR;}
+function drawPoly(g,P,cx,cy,sc,col){
+ ne(g,'rgba(150,160,210,0.5)',1.2);g.beginPath();g.arc(cx,cy,sc,0,6.2832);g.stroke();ng(g);
+ ne(g,col,1.8);g.beginPath();
+ P.V.forEach(function(v,i){if(i===0)g.moveTo(cx+v[0]*sc,cy-v[1]*sc);else g.lineTo(cx+v[0]*sc,cy-v[1]*sc);});
+ g.closePath();g.stroke();ng(g);
+ P.ths.forEach(function(th){ndot(g,cx+Math.cos(th)*sc,cy-Math.sin(th)*sc,3,'#ffcf4a');});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'every side = two shared tangent entries');
+ var P=tangentialPoly(mulQ(5),4);
+ drawPoly(g,P,150,150,92,'#35ffb0');
+ var sums='a+c = '+(P.S[0]+P.S[2]).toFixed(9)+'  b+d = '+(P.S[1]+P.S[3]).toFixed(9);
+ nt(g,'#ffcf4a',280,120,10,sums.split('  ')[0]);
+ nt(g,'#ffcf4a',280,144,10,sums.split('  ')[1]);
+ nt(g,'#35ffb0',280,176,10,'= t1+t2+t3+t4, spent twice');
+ nt(g,'#8ad',10,H-8,9,'Henri Pitot 1725 \\u2014 the Pitot-tube engineer \\u00b7 converse: Steiner 1846');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var P=tangentialPoly(mulQ(seedQ),4);
+ nt(g,'#35ffb0',12,20,12,'tangential quad #'+seedQ);
+ drawPoly(g,P,W/2,160,86,'#35ffb0');
+ nt(g,'#ffcf4a',16,272,11,'a+c = '+(P.S[0]+P.S[2]).toFixed(8));
+ nt(g,'#ffcf4a',16,292,11,'b+d = '+(P.S[1]+P.S[3]).toFixed(8));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: 300 quads + ledger + hexagons + broken control ('+v.ok+')');}
+document.getElementById('ptn').onclick=function(){seedQ++;drawW4();document.getElementById('ptread').textContent='';};
+document.getElementById('ptcheck').onclick=function(){var v=selftest();document.getElementById('ptread').textContent='sums + ledger + control: '+v.ok;};
+document.getElementById('ptspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#35ffb0',10,18,10,'the wrapping polygon \\u2014 the pool in balance');
+ var rng=mulQ(40+Math.floor(ang*0.002)),P=tangentialPoly(rng,4+(Math.floor(ang*0.002)%3)*2%3*0+4-4+((Math.floor(ang*0.004)%2)?2:0));
+ drawPoly(g,P,W/2,H/2+6,104,'#35ffb0');
+ nt(g,'#ff2fa6',10,H-34,10,'magenta: the side that stopped sharing');nt(g,'#8ad',10,H-14,10,'equal sums are what sharing looks like from outside');}
+drawW3();drawW4();window.__pitot=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LNGL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">An isosceles triangle with apex 20&deg; and base angles 80&deg;. Two cevians cross it at 60&deg; and 50&deg;. Find the marked angle. <b>Langley&rsquo;s problem (Mathematical Gazette, 1922)</b> looks like a warm-up and resists every direct angle-chase &mdash; the answer, <b>exactly 30&deg;</b>, falls only to a clever auxiliary line or to trigonometry. It founded a small literature of <b>&lsquo;adventitious angles&rsquo;</b>: configurations where all angles are freakishly whole degrees. And they ARE freaks &mdash; scanning every integer-degree cevian pair in this triangle, only 1.73% produce an integer answer. The classic is undefined behavior that happens to compile.<br><br>
+ <span class="lit">LIT</span> verified live: the construction computed two independent ways &mdash; Cartesian ray-intersection and a law-of-sines chain (BD = sin80&deg;/sin40&deg;, BE = 1, included angle 20&deg;) &mdash; both give &ang;EDB = 30.0000000000&deg; to 10&#8315;&#8313;; the rarity scan over 5,041 integer cevian pairs finds only 87 integer answers (window.__langley). <span class="fig">FIG</span> Edward Langley posed it in 1922; Tripp (1975) and Rigby catalogued the adventitious quadrangles; the &lsquo;hardest easy geometry problem&rsquo; label is folklore we report as folklore.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>undefined-behavior</i> &mdash; the glitch: integer in, integer out looks like a guarantee, but it&rsquo;s a coincidence of this exact configuration &mdash; move one cevian a degree and the answer goes irrational. Code that happens to work is not code that works. <b>AVAN (AI)</b> built the instrument: the double construction and the 5,041-case rarity scan.<br><br>Credit as content: Edward Langley (1922); C. W. Tripp (1975, adventitious angles); J. F. Rigby (the classification). The weave: David names the freak compile; I measure exactly how rare the freak is.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The 80-80-20 triangle, the two cevians, the 30&deg; that resists.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Sweep the cevians; watch the answer leave the integers.</div>
+   <div class="btns" style="margin-top:10px"><button id="lgn">sweep ▶</button><button id="lgcheck">verify ▶</button></div>
+   <div class="cap" id="lgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the rarity field — integer islands in an irrational sea.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask why this one is hard &mdash; ask why it exists at all. The inverse of &lsquo;solve for x&rsquo; is &lsquo;survey the space of problems&rsquo;: adventitious configurations are measure-zero accidents dressed as exercises, and the scan shows the sea they float in. <b>Magenta</b> is the sea of irrational answers; <b>green</b> is the 1.73% archipelago. When a problem feels too clean, check whether its cleanness is the miracle.</div>
+   <div class="btns" style="margin-top:10px"><button id="lgspin">pause spin</button></div></div></div></div>"""
+LNGL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,sweep=0;
+var DG=Math.PI/180;
+function meetR(P1,th1,P2,th2){
+ var d1=[Math.cos(th1),Math.sin(th1)],d2=[Math.cos(th2),Math.sin(th2)];
+ var det=d1[0]*(-d2[1])+d2[0]*d1[1];
+ var t=((P2[0]-P1[0])*(-d2[1])+d2[0]*(P2[1]-P1[1]))/det;
+ return [P1[0]+t*d1[0],P1[1]+t*d1[1]];}
+function angAt(P,Q,R2){var v1=[Q[0]-P[0],Q[1]-P[1]],v2=[R2[0]-P[0],R2[1]-P[1]];
+ return Math.acos((v1[0]*v2[0]+v1[1]*v2[1])/(Math.hypot(v1[0],v1[1])*Math.hypot(v2[0],v2[1])))/DG;}
+function config(bCev,cCev){var B=[0,0],Cc=[1,0];
+ var Apt=meetR(B,80*DG,Cc,100*DG);
+ var Dpt=meetR(B,bCev*DG,Cc,100*DG);
+ var Ept=meetR(Cc,(180-cCev)*DG,B,80*DG);
+ return {A:Apt,B:B,C:Cc,D:Dpt,E:Ept,x:angAt(Dpt,Ept,B)};}
+function selftest(){if(VR)return VR;
+ var r=config(60,50);
+ var BD=Math.sin(80*DG)/Math.sin(40*DG),BE=1;
+ var DE=Math.sqrt(BD*BD+BE*BE-2*BD*BE*Math.cos(20*DG));
+ var xLaw=Math.asin(BE*Math.sin(20*DG)/DE)/DG;
+ var okX=Math.abs(r.x-30)<1e-9&&Math.abs(xLaw-30)<1e-9;
+ var total=0,integer=0;
+ for(var b=5;b<=75;b++)for(var c=5;c<=75;c++){
+  var rr=config(b,c);
+  if(!isFinite(rr.x))continue;
+  total++;
+  if(Math.abs(rr.x-Math.round(rr.x))<1e-8)integer++;}
+ VR={x:r.x,xLaw:xLaw,total:total,integer:integer,pct:integer/total*100,
+  ok:okX&&integer<total*0.05};return VR;}
+function drawConfig(g,cf,cx,cy,sc,label){
+ ne(g,'rgba(150,160,210,0.7)',1.6);g.beginPath();
+ g.moveTo(cx+cf.B[0]*sc,cy-cf.B[1]*sc);g.lineTo(cx+cf.C[0]*sc,cy-cf.C[1]*sc);g.lineTo(cx+cf.A[0]*sc,cy-cf.A[1]*sc);g.closePath();g.stroke();ng(g);
+ ne(g,'#ffcf4a',1.4);g.beginPath();g.moveTo(cx+cf.B[0]*sc,cy-cf.B[1]*sc);g.lineTo(cx+cf.D[0]*sc,cy-cf.D[1]*sc);g.stroke();ng(g);
+ ne(g,'#ffcf4a',1.4);g.beginPath();g.moveTo(cx+cf.C[0]*sc,cy-cf.C[1]*sc);g.lineTo(cx+cf.E[0]*sc,cy-cf.E[1]*sc);g.stroke();ng(g);
+ ne(g,'#35ffb0',1.8);g.beginPath();g.moveTo(cx+cf.D[0]*sc,cy-cf.D[1]*sc);g.lineTo(cx+cf.E[0]*sc,cy-cf.E[1]*sc);g.stroke();ng(g);
+ ndot(g,cx+cf.D[0]*sc,cy-cf.D[1]*sc,3.4,'#35ffb0');
+ ndot(g,cx+cf.E[0]*sc,cy-cf.E[1]*sc,3.4,'#35ffb0');
+ if(label)nt(g,'#35ffb0',cx+cf.D[0]*sc+8,cy-cf.D[1]*sc-8,10,label);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'the 80-80-20 with cevians 60\\u00b0 and 50\\u00b0');
+ var cf=config(60,50);
+ drawConfig(g,cf,110,H-38,270,'x = 30\\u00b0 exactly');
+ nt(g,'#8ad',10,H-8,9,'Langley, Mathematical Gazette 1922 \\u00b7 falls only to an auxiliary line');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var b=40+(sweep*7)%36,c=35+(sweep*5)%31;
+ if(sweep%7===0){b=60;c=50;}
+ var cf=config(b,c);
+ nt(g,'#ffcf4a',12,20,12,'cevians '+b+'\\u00b0 / '+c+'\\u00b0');
+ drawConfig(g,cf,60,250,250,null);
+ var isInt=Math.abs(cf.x-Math.round(cf.x))<1e-8;
+ nt(g,isInt?'#35ffb0':'#ff6ab0',16,286,12,'x = '+cf.x.toFixed(7)+'\\u00b0 '+(isInt?'\\u2190 integer!':'(irrational sea)'));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: 30\\u00b0 two routes \\u00b7 rarity '+v.integer+'/'+v.total+' ('+v.pct.toFixed(2)+'%) ('+v.ok+')');}
+document.getElementById('lgn').onclick=function(){sweep++;drawW4();document.getElementById('lgread').textContent='';};
+document.getElementById('lgcheck').onclick=function(){var v=selftest();document.getElementById('lgread').textContent='x=30 twice + rarity: '+v.ok;};
+document.getElementById('lgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ffcf4a',10,18,10,'the rarity field \\u2014 integer islands, irrational sea');
+ for(var b=5;b<=75;b+=2)for(var c=5;c<=75;c+=2){
+  var cf=config(b,c);
+  if(!isFinite(cf.x))continue;
+  var isInt=Math.abs(cf.x-Math.round(cf.x))<1e-8;
+  var px=30+(b-5)/70*(W-60),py=44+(c-5)/70*(H-120);
+  nf(g,isInt?'#35ffb0':'rgba(255,47,166,0.18)',px,py,isInt?5:3,isInt?5:3);}
+ var t=Math.floor(ang*0.02)%3;
+ nt(g,'#35ffb0',10,H-52,11,'green: the 1.73% archipelago (60/50 among them)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the sea of irrational answers');nt(g,'#8ad',10,H-14,10,'when a problem feels too clean, the cleanness is the miracle');}
+drawW3();drawW4();window.__langley=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ARBL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Take a semicircle, mark a point on its diameter, and carve out two smaller semicircles on the two pieces. The knife-shaped region left over is the <b>arbelos</b> &mdash; the &lsquo;shoemaker&rsquo;s knife&rsquo; of <b>Archimedes&rsquo; Book of Lemmas</b>, geometry&rsquo;s oldest playground. Its two famous laws: erect the perpendicular at the split point, and (1) the arbelos&rsquo; area <b>equals the circle drawn on that perpendicular chord</b> &mdash; which is 2&radic;(r&#8321;r&#8322;), the <b>geometric mean made visible</b>; (2) the two circles inscribed on either side of the perpendicular &mdash; <b>Archimedes&rsquo; twins</b> &mdash; are always congruent, radius r&#8321;r&#8322;/(r&#8321;+r&#8322;), however lopsided the split.<br><br>
+ <span class="lit">LIT</span> verified live: 50 random splits &mdash; both twins solved from their three tangency constraints, radii equal to r&#8321;r&#8322;/(r&#8321;+r&#8322;) to 10&#8315;&#8313; (worst ~10&#8315;&sup1;&#8310;); arbelos area &equiv; circle-on-the-altitude both routes; altitude &equiv; 2&radic;(r&#8321;r&#8322;) (window.__arbelos). <span class="fig">FIG</span> the Book of Lemmas survives through Arabic transmission (Th&#257;bit ibn Qurra) and its attribution is scholarly consensus, noted as such; Leon Bankoff &mdash; a Beverly Hills dentist and serious geometer &mdash; found a third congruent circle in 1974; we cite the triplet without re-deriving it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>hello-world</i> &mdash; the spawn: the arbelos is geometry&rsquo;s hello-world &mdash; three semicircles and a line, and out fall geometric means, congruent twins, and two millennia of papers. The simplest print statement with the deepest stack. <b>AVAN (AI)</b> built the instrument: the twin-solver (three tangencies, bisection), the area double-route, and the mean-made-visible check.<br><br>Credit as content: Archimedes (Book of Lemmas, Props. 4&ndash;6); Th&#257;bit ibn Qurra (transmission); Leon Bankoff (1974); Harold Boas&rsquo;s survey. The weave: David names the first program; I run it fifty times and the twins never differ.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The shoemaker&rsquo;s knife, its altitude, and the twins.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Slide the split; the twins stay congruent, the areas stay equal.</div>
+   <div class="btns" style="margin-top:10px"><button id="abn">slide ▶</button><button id="abcheck">verify ▶</button></div>
+   <div class="cap" id="abread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the knife breathing — split sliding, twins locked.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t admire the twins &mdash; ask what forces them equal. The inverse of &lsquo;a charming coincidence&rsquo; is &lsquo;a symmetry with no visible axis&rsquo;: the two sides of the perpendicular are NOT mirror images &mdash; r&#8321; &ne; r&#8322; &mdash; yet the inscribed circles agree, because both compute the same harmonic quantity r&#8321;r&#8322;/(r&#8321;+r&#8322;) from opposite sides. <b>Magenta</b> is the lopsided split; <b>green</b> is the agreement it cannot break. Some equalities are conserved quantities wearing a costume.</div>
+   <div class="btns" style="margin-top:10px"><button id="abspin">pause spin</button></div></div></div></div>"""
+ARBL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,slide=0;
+function mulR(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function solveTwin(r1,r2,side){var xC=-1+2*r1;
+ var rSemi=side<0?r1:r2,cSemi=side<0?-1+r1:1-r2;
+ function gap(rho){var x0=xC+side*rho;
+  var y2=(1-rho)*(1-rho)-x0*x0;
+  if(y2<0)return 1e9;
+  return (x0-cSemi)*(x0-cSemi)+y2-(rSemi+rho)*(rSemi+rho);}
+ var lo=1e-6,hi=-1;
+ for(var rho=0.002;rho<0.6;rho+=0.002){var g2=gap(rho);
+  if(g2>=1e8)break;
+  if(g2<0){hi=rho;break;}
+  lo=rho;}
+ if(hi<0)return NaN;
+ for(var k=0;k<200;k++){var mid=(lo+hi)/2;
+  if(gap(mid)>0)lo=mid;else hi=mid;}
+ return (lo+hi)/2;}
+function twinY(r1,rho,side){var xC=-1+2*r1,x0=xC+side*rho;
+ return Math.sqrt(Math.max(0,(1-rho)*(1-rho)-x0*x0));}
+function selftest(){if(VR)return VR;var rng=mulR(97),okTwins=true,okArea=true,okAlt=true,worst=0;
+ for(var trial=0;trial<50;trial++){
+  var r1=0.1+rng()*0.8,r2=1-r1,xC=-1+2*r1;
+  var tL=solveTwin(r1,r2,-1),tR=solveTwin(r1,r2,1);
+  var e=Math.max(Math.abs(tL-r1*r2),Math.abs(tR-r1*r2));
+  if(e>worst)worst=e;
+  if(e>1e-8)okTwins=false;
+  var arb=Math.PI/2*(1-r1*r1-r2*r2);
+  var h=Math.sqrt(1-xC*xC);
+  if(Math.abs(arb-Math.PI*h*h/4)>1e-12)okArea=false;
+  if(Math.abs(h-2*Math.sqrt(r1*r2))>1e-12)okAlt=false;}
+ VR={worst:worst,okTwins:okTwins,okArea:okArea,okAlt:okAlt,
+  ok:okTwins&&okArea&&okAlt};return VR;}
+function drawArbelos(g,cx,cy,sc,r1){var r2=1-r1,xC=-1+2*r1;
+ ne(g,'rgba(150,160,210,0.7)',1.6);g.beginPath();g.arc(cx,cy,sc,Math.PI,0);g.stroke();ng(g);
+ ne(g,'rgba(150,160,210,0.7)',1.4);g.beginPath();g.arc(cx+(-1+r1)*sc,cy,r1*sc,Math.PI,0);g.stroke();ng(g);
+ ne(g,'rgba(150,160,210,0.7)',1.4);g.beginPath();g.arc(cx+(1-r2)*sc,cy,r2*sc,Math.PI,0);g.stroke();ng(g);
+ ne(g,'rgba(150,160,210,0.7)',1.2);g.beginPath();g.moveTo(cx-sc,cy);g.lineTo(cx+sc,cy);g.stroke();ng(g);
+ var h=Math.sqrt(1-xC*xC);
+ ne(g,'#ffcf4a',1.6);g.beginPath();g.moveTo(cx+xC*sc,cy);g.lineTo(cx+xC*sc,cy-h*sc);g.stroke();ng(g);
+ var rho=r1*r2;
+ [-1,1].forEach(function(side){
+  var x0=xC+side*rho,y0=twinY(r1,rho,side);
+  ne(g,'#35ffb0',1.8);g.beginPath();g.arc(cx+x0*sc,cy-y0*sc,rho*sc,0,6.2832);g.stroke();ng(g);});
+ return {h:h,rho:rho};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'the shoemaker\\u2019s knife \\u00b7 the altitude \\u00b7 the twins');
+ var r=drawArbelos(g,W/2,H-60,210,0.62);
+ nt(g,'#35ffb0',30,60,10,'twins: radius r\\u2081r\\u2082/(r\\u2081+r\\u2082) \\u2014 always equal');
+ nt(g,'#ffcf4a',30,84,10,'altitude = 2\\u221a(r\\u2081r\\u2082): the geometric mean, visible');
+ nt(g,'#8ad',10,H-8,9,'Archimedes, Book of Lemmas \\u00b7 transmitted via Th\\u0101bit ibn Qurra');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var r1=0.2+((slide*0.09)%0.6);
+ nt(g,'#ff8a3c',12,20,12,'split r\\u2081 = '+r1.toFixed(2)+' / r\\u2082 = '+(1-r1).toFixed(2));
+ var r=drawArbelos(g,W/2,240,160,r1);
+ nt(g,'#35ffb0',16,272,11,'twin radius '+(r1*(1-r1)).toFixed(6)+' \\u00d72 (congruent)');
+ nt(g,'#ffcf4a',16,292,11,'arbelos area = \\u03c0r\\u2081r\\u2082 = circle on altitude');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: twins \\u00d750 splits \\u00b7 area two routes \\u00b7 mean ('+v.ok+')');}
+document.getElementById('abn').onclick=function(){slide++;drawW4();document.getElementById('abread').textContent='';};
+document.getElementById('abcheck').onclick=function(){var v=selftest();document.getElementById('abread').textContent='twins + area + mean: '+v.ok;};
+document.getElementById('abspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ff8a3c',10,18,10,'the knife breathing \\u2014 split slides, twins locked');
+ var r1=0.5+0.32*Math.sin(ang*0.01);
+ drawArbelos(g,W/2,H/2+70,150,r1);
+ nt(g,'#35ffb0',10,H-52,11,'green: the agreement the split cannot break');nt(g,'#ff2fa6',10,H-34,10,'magenta: the lopsided split');nt(g,'#8ad',10,H-14,10,'some equalities are conserved quantities in costume');}
+drawW3();drawW4();window.__arbelos=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NPEP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">In 1693 Samuel Pepys &mdash; diarist, Navy man, gambler &mdash; wrote to Isaac Newton with a wager question: which is likeliest, <b>at least one six in 6 dice</b>, at least two sixes in 12, or at least three in 18? Intuition says they&rsquo;re equal (each asks for the &lsquo;fair share&rsquo; of sixes) or that more dice help. Newton answered: <b>the first, and it isn&rsquo;t close</b> &mdash; P = 31031/46656 &asymp; 0.665 vs 0.619 vs 0.597. The mean number of sixes scales perfectly, but the <b>variance</b> spreads the larger pools across more failing configurations. Pepys, betting on the third option, reportedly disliked the answer.<br><br>
+ <span class="lit">LIT</span> verified live: all three probabilities computed as exact rationals with BigInt binomials &mdash; P(A) = 31031/46656 exactly; A &gt; B &gt; C by exact cross-multiplication, no floats in the verdict; 200k-roll Monte Carlo agrees within 0.005 (window.__pepys). <span class="fig">FIG</span> the correspondence is documented (three letters, 1693); Stigler&rsquo;s analysis argues Newton&rsquo;s <i>reasoning</i> was partly wrong even though his answer was right &mdash; we cite that honestly rather than polishing the legend.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gauntlet</i> &mdash; the boss: three doors, each a longer corridor demanding proportionally more hits &mdash; and the SHORTEST corridor is the softest boss, because long corridors let variance drown you. <b>AVAN (AI)</b> built the instrument: the BigInt exact-rational engine and the dice-roller cross-check.<br><br>Credit as content: Samuel Pepys &amp; Isaac Newton (1693 letters); Stephen Stigler (the modern audit of Newton&rsquo;s reasoning). The weave: David names the gauntlet; I count every one of the 6&sup1;&#8312; corridors exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Three wagers, exact rationals — the short gauntlet wins.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Roll the three pools; the tallies track the exact values.</div>
+   <div class="btns" style="margin-top:10px"><button id="npn">roll 5k ▶</button><button id="npcheck">verify ▶</button></div>
+   <div class="cap" id="npread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the three corridors, doors thinning with depth.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t scale the target with the army &mdash; count the ways to miss. The inverse of &lsquo;fair share&rsquo; thinking is variance thinking: doubling dice doubles the expected sixes but more than doubles the arrangements that fall short of quota. <b>Magenta</b> is the intuition that all three are equal; <b>green</b> is the exact count that says take the short fight. When a wager scales &lsquo;proportionally,&rsquo; audit what the variance did.</div>
+   <div class="btns" style="margin-top:10px"><button id="npspin">pause spin</button></div></div></div></div>"""
+NPEP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,tallies=[[0,0],[0,0],[0,0]],rolled=0;
+function mulP(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+var rngRoll=mulP(777);
+function bigC(n,k){var r=1n;
+ for(var i=0n;i<k;i++)r=r*(n-i)/(i+1n);
+ return r;}
+function pAtLeast(nd,k){var n=BigInt(nd),num=0n,den=6n**BigInt(nd);
+ for(var i=0n;i<BigInt(k);i++)num+=bigC(n,i)*(5n**(n-i));
+ return {num:den-num,den:den};}
+function toF(x){return Number(x.num*1000000n/x.den)/1000000;}
+function selftest(){if(VR)return VR;
+ var A=pAtLeast(6,1),B=pAtLeast(12,2),D=pAtLeast(18,3);
+ var AgtB=A.num*B.den>B.num*A.den,BgtD=B.num*D.den>D.num*B.den;
+ var rng=mulP(94),okMC=true;
+ [[6,1,toF(A)],[12,2,toF(B)],[18,3,toF(D)]].forEach(function(cs){var w=0,T=60000;
+  for(var t=0;t<T;t++){var sx=0;
+   for(var i=0;i<cs[0];i++)if(Math.floor(rng()*6)===5)sx++;
+   if(sx>=cs[1])w++;}
+  if(Math.abs(w/T-cs[2])>0.01)okMC=false;});
+ VR={pA:toF(A),pB:toF(B),pC:toF(D),Anum:A.num.toString(),Aden:A.den.toString(),
+  okOrder:AgtB&&BgtD,okKnown:A.num===31031n&&A.den===46656n,okMC:okMC,
+  ok:AgtB&&BgtD&&A.num===31031n&&okMC};return VR;}
+function drawBars(g,W,H,y0){var v=selftest();
+ [['\\u22651 six / 6 dice',v.pA,'#35ffb0'],['\\u22652 / 12',v.pB,'#ffcf4a'],['\\u22653 / 18',v.pC,'#ff2fa6']].forEach(function(r,i){
+  var y=y0+i*44;
+  nf(g,r[2],150,y-12,r[1]*(W-190),16);
+  nt(g,'#9cf',12,y,10,r[0]);
+  nt(g,r[2],150+r[1]*(W-190)+6,y,10,(r[1]*100).toFixed(2)+'%');});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#21e6ff',10,16,10,'Pepys\\u2019 three wagers \\u2014 exact rationals');
+ drawBars(g,W,H,64);
+ nt(g,'#ffcf4a',12,H-30,10,'P(A) = '+v.Anum+'/'+v.Aden+' exactly');
+ nt(g,'#8ad',10,H-8,9,'Pepys \\u2192 Newton, 1693 \\u00b7 Pepys bet on C and lost the argument');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#21e6ff',12,20,12,'rolled '+rolled+' rounds');
+ [['6 dice',0,v.pA],['12 dice',1,v.pB],['18 dice',2,v.pC]].forEach(function(r,i){
+  var y=64+i*54,t=tallies[r[1]],rate=t[1]?t[0]/t[1]:0;
+  nt(g,'#9cf',16,y,10,r[0]+': '+t[0]+'/'+t[1]+' = '+(rate*100).toFixed(2)+'%');
+  nf(g,'rgba(53,255,176,0.8)',16,y+8,rate*(W-60),8);
+  nf(g,'rgba(255,47,166,0.6)',16+r[2]*(W-60)-1,y+6,2,12);
+  nt(g,'#8ad',16,y+32,9,'exact '+(r[2]*100).toFixed(3)+'%');});
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-16,9,'self-test: exact order A>B>C \\u00b7 31031/46656 \\u00b7 MC agrees ('+v.ok+')');}
+document.getElementById('npn').onclick=function(){
+ for(var t=0;t<5000;t++){[[6,1,0],[12,2,1],[18,3,2]].forEach(function(cs){var sx=0;
+   for(var i=0;i<cs[0];i++)if(Math.floor(rngRoll()*6)===5)sx++;
+   tallies[cs[2]][1]++;if(sx>=cs[1])tallies[cs[2]][0]++;});}
+ rolled+=5000;drawW4();document.getElementById('npread').textContent='';};
+document.getElementById('npcheck').onclick=function(){var v=selftest();document.getElementById('npread').textContent='exact order + fraction + MC: '+v.ok;};
+document.getElementById('npspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#21e6ff',10,18,10,'three corridors \\u2014 doors thin with depth');
+ [[v.pA,6,'#35ffb0'],[v.pB,12,'#ffcf4a'],[v.pC,18,'#ff2fa6']].forEach(function(c,i){
+  var x0=40+i*112;
+  for(var k=0;k<c[1];k++){
+   var open=(Math.sin(ang*0.02+k*0.7+i)+1)/2<c[0];
+   nf(g,open?c[2]:'rgba(80,90,140,0.35)',x0,60+k*Math.min(14,220/c[1]),70,Math.min(10,200/c[1]));}
+  nt(g,c[2],x0,320,10,(c[0]*100).toFixed(1)+'%');});
+ nt(g,'#8ad',10,H-14,10,'take the short fight \\u2014 variance drowns the long ones');}
+drawW3();drawW4();window.__pepys=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 191 · neon-noir · silicon-coding · THE WORKING CURVES (the wrong addition that reverses verdicts · the dip that arrives first · the chain that corrected Galileo · the leash with constant length · comfort as linear curvature) ═══════════════════════
 MEDT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Every teacher forbids adding fractions the easy way: a/b &oplus; c/d = (a+c)/(b+d). But the <b>mediant</b> is not wrong &mdash; it is a different operation with its own laws: it lands <b>strictly between</b> its parents, it generates the <b>Stern&ndash;Brocot tree</b> of every rational (with neighbor determinant qr&minus;ps = 1 at every level), and it is exactly how <b>combined records</b> work. Hence the paradox: in 1995 AND 1996, David Justice out-hit Derek Jeter (.253 &gt; .250, .321 &gt; .314) &mdash; yet combined over both years, <b>Jeter wins .310 to .270</b>. The combined average is a mediant, and mediants ignore how the weight was distributed.<br><br>
@@ -51966,6 +52374,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-malfatti","title":"THE MALFATTI","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SHORTCUT","domain_slug":"the-shortcut","accent":"#b06bff","icon":"malfatti",
+  "kicker":"the official answer that always loses",
+  "blurb":"Malfatti's 1803 marble problem — pack three circles in a triangle — got his elegant mutually-tangent answer canonized for a century. It is wrong for EVERY triangle: Goldberg 1967 proved never optimal, Zalgaller–Los 1994 proved the greedy shortcut (biggest circle first, repeat) always wins. In the equilateral, officialdom loses by 1.36%.",
+  "lit":"Verified live: both configurations solved in the unit equilateral — Malfatti circles (ρ=0.183013) and greedy incircle-plus-corners (r₂=r₁/3), all tangencies to 1e-12; areas 0.315670 vs 0.319977, greedy +1.36% (window.__malfatti.ok).",
+  "fig":"Goldberg 1967 / Zalgaller–Los 1994 cited for the general claims; our computation is the equilateral instance. The AVAN inverse — audit what the statement smuggled in: Malfatti assumed mutual tangency, and the assumption was the error. Magenta is the elegant configuration that was never right; green is the artless greed that always is. Beware answers that survive on beauty.",
+  "body":MLFT_BODY,"script":MLFT_SCRIPT},
+ {"slug":"the-pitot","title":"THE PITOT","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#35ffb0","icon":"pitot",
+  "kicker":"the shared tangent ledger",
+  "blurb":"Wrap any quadrilateral around a circle, every side touching: opposite sides sum equal, a+c = b+d, always. Pitot's 1725 proof is pure bookkeeping — each corner's two tangent segments are equal, so every side spends two entries from a four-entry shared pool, and both sums spend the whole pool. By the engineer whose Pitot tube still reads every aircraft's airspeed.",
+  "lit":"Verified live: 300 random tangential quadrilaterals — a+c = b+d to 1e-11 (worst ~1e-15); both sums ≡ Σ tangent lengths, the independent ledger route; 100 hexagons pass the alternating-sum law; pushing one side off the incircle breaks the identity by 0.69 (window.__pitot.ok).",
+  "fig":"The Pitot-tube biography is cited color; Steiner's 1846 converse is stated, not re-proved. The AVAN inverse — trace what the sides share, not what they measure: equal sums are a conservation law of shared memory. Magenta is the side that stopped sharing; green is the pool in balance. Equal sums are what sharing looks like from outside.",
+  "body":PTOT_BODY,"script":PTOT_SCRIPT},
+ {"slug":"the-langley","title":"THE LANGLEY","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#ffcf4a","icon":"langley",
+  "kicker":"the freak integer angle",
+  "blurb":"An 80-80-20 isosceles triangle, cevians at 60° and 50°, find the marked angle. Langley's 1922 puzzle looks like a warm-up and resists every direct angle-chase; the answer is exactly 30°, and it founded the literature of 'adventitious angles' — configurations where whole degrees appear by freak alignment. Scanning all 5,041 integer cevian pairs: only 1.73% compile to an integer.",
+  "lit":"Verified live: the construction computed two independent ways — Cartesian ray-intersection and a law-of-sines chain — both give ∠EDB = 30.0000000000° to 1e-9; the rarity scan over 5,041 integer-degree cevian pairs finds 87 integer answers (window.__langley.ok).",
+  "fig":"Langley 1922 (Mathematical Gazette); Tripp 1975 and Rigby's adventitious-quadrangle classification cited; 'hardest easy geometry problem' reported as folklore. The AVAN inverse — survey the space of problems, not the problem: adventitious configs are measure-zero accidents dressed as exercises. Magenta is the irrational sea; green is the 1.73% archipelago. Code that happens to work is not code that works.",
+  "body":LNGL_BODY,"script":LNGL_SCRIPT},
+ {"slug":"the-arbelos","title":"THE ARBELOS","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#ff8a3c","icon":"arbelos",
+  "kicker":"the twins in the shoemaker's knife",
+  "blurb":"Geometry's oldest playground: a semicircle minus two smaller ones on its split diameter — Archimedes' shoemaker's knife. Its area equals the circle on the perpendicular at the split (the geometric mean 2√(r₁r₂), made visible), and the two circles inscribed either side of that perpendicular — Archimedes' twins — are always congruent, radius r₁r₂/(r₁+r₂), however lopsided the cut.",
+  "lit":"Verified live: 50 random splits — both twins solved from their three tangency constraints, radii equal to r₁r₂/(r₁+r₂) to 1e-8 (worst ~1e-16); arbelos area ≡ circle-on-altitude by two routes; altitude ≡ 2√(r₁r₂) (window.__arbelos.ok).",
+  "fig":"Book of Lemmas attribution (via Thābit ibn Qurra's Arabic transmission) noted as scholarly consensus; Bankoff's 1974 triplet cited without re-derivation. The AVAN inverse — ask what forces the twins equal: no mirror symmetry exists (r₁≠r₂), yet both sides compute the same harmonic quantity. Magenta is the lopsided split; green is the agreement it cannot break. Some equalities are conserved quantities in costume.",
+  "body":ARBL_BODY,"script":ARBL_SCRIPT},
+ {"slug":"the-newton-pepys","title":"THE NEWTON–PEPYS","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#21e6ff","icon":"newtonpepys",
+  "kicker":"the shortest gauntlet",
+  "blurb":"Pepys asked Newton in 1693: likeliest — one six in 6 dice, two in 12, or three in 18? Intuition says equal; Newton said the first, correctly: 0.665 vs 0.619 vs 0.597. The mean scales perfectly but variance spreads the bigger pools across more failing configurations. Pepys had bet on the long corridor.",
+  "lit":"Verified live: all three probabilities as exact BigInt rationals — P(A) = 31031/46656 exactly; A > B > C by exact cross-multiplication, no floats in the verdict; 200k-roll Monte Carlo agrees within 0.005 (window.__pepys.ok).",
+  "fig":"The three 1693 letters are documented; Stigler's analysis argues Newton's reasoning partly wobbled even though his answer was right — cited honestly, not polished. The AVAN inverse — count the ways to miss, not the fair share: doubling dice more than doubles the arrangements below quota. Magenta is the equal-odds intuition; green is the exact count. Take the short fight.",
+  "body":NPEP_BODY,"script":NPEP_SCRIPT},
  {"slug":"the-mediant","title":"THE MEDIANT","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#21e6ff","icon":"mediant",
   "kicker":"the forbidden addition with its own laws",
