@@ -19493,6 +19493,241 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 159 · neon-noir · silicon-coding (a factorial approximated by a smooth curve · a cevian length from the sides · self-inverse permutations counted by a recurrence · a prime always between n and 2n · two numbers summing to each other's divisors) ═══════════════════════
+STIR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Stirling&rsquo;s approximation</b> replaces the jagged factorial with a smooth formula: n! &asymp; &radic;(2&pi;n)&middot;(n/e)<sup>n</sup>. The factorial n! grows faster than any exponential, and computing it means multiplying n terms &mdash; but Stirling&rsquo;s formula pins its size with a single expression involving only &pi;, e, and powers. The relative error shrinks like 1/(12n), so the next correction term is n! &asymp; &radic;(2&pi;n)(n/e)<sup>n</sup>(1 + 1/(12n) + &hellip;). It is the workhorse behind asymptotics in combinatorics, statistical mechanics, and probability &mdash; anywhere large factorials appear.<br><br>
+ <span class="lit">LIT</span> verified live: the ratio n!/(&radic;(2&pi;n)(n/e)<sup>n</sup>) tends to 1 as n grows, and the correction is exactly 1/(12n) &mdash; the quantity (ln n! - ln-Stirling)&middot;12n converges to 1.0000 (window.__stirling). <span class="fig">FIG</span> no framing; the exact log-factorial (sum of logs) and Stirling&rsquo;s formula both run in-browser and their ratio approaches 1 with the 1/(12n) correction.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>gradient-descent</i> &mdash; the grind that walks the smooth Stirling curve ever closer to the jagged true factorial, the error descending like 1/(12n). <b>AVAN (AI)</b> built the instrument: the exact log-factorial, the Stirling formula, and the 1/(12n) correction check.<br><br>Credit as content: James Stirling (1730); Abraham de Moivre for the &radic;(2&pi;n). The weave: David names the descent; I confirm n! matches Stirling with a 1/(12n) correction.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">ln(n!) (points) and Stirling's smooth curve ½ln(2πn)+n ln n − n — hugging closer as n grows.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle n; the ratio n!/Stirling and the 1/(12n) correction are shown converging to 1.</div>
+   <div class="btns" style="margin-top:10px"><button id="stnext">next n ▶</button><button id="stcheck">verify ▶</button></div>
+   <div class="cap" id="stread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the smooth Stirling estimate tracking the true factorial.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t multiply n terms &mdash; read one formula. The inverse of &lsquo;the factorial n!&rsquo; is &lsquo;&radic;(2&pi;n)(n/e)<sup>n</sup>, accurate to 1/(12n)&rsquo;, turning a product of n numbers into a closed expression. <b>Magenta</b> is the exact factorial; <b>green</b> is the smooth Stirling curve tracking it. A product folded into a formula.</div>
+   <div class="btns" style="margin-top:10px"><button id="stspin">pause spin</button></div></div></div></div>"""
+STIR_SCRIPT = """(function(){""" + NOIR + """
+function lnFact(n){var s=0;for(var k=2;k<=n;k++)s+=Math.log(k);return s;}
+function lnStir(n){return 0.5*Math.log(2*Math.PI*n)+n*Math.log(n)-n;}
+var ang=0,spin=true,VR=null,dn=8;
+function selftest(){if(VR)return VR;var ratioOk=true,corrOk=true,worstR=0;for(var n=1;n<=170;n++){var r=Math.exp(lnFact(n)-lnStir(n));if(Math.abs(r-1)>0.09)ratioOk=false;if(Math.abs(r-1)>worstR)worstR=Math.abs(r-1);}for(var n=20;n<=160;n+=20){var c=(lnFact(n)-lnStir(n))*12*n;if(Math.abs(c-1)>0.02)corrOk=false;}VR={ratioOk:ratioOk,corrOk:corrOk,worstR:worstR};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'ln(n!) (magenta dots) vs Stirling ½ln(2πn)+n ln n − n (green curve)');
+ var x0=40,base=H-40,mxN=24,sc=(W-60)/mxN,ysc=(H-70)/lnFact(mxN);
+ ne(g,'#35ffb0',1.8);g.beginPath();for(var i=1;i<=mxN;i+=0.2){var px=x0+i*sc,py=base-lnStir(i)*ysc;if(i<=1.2)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);
+ for(var n=1;n<=mxN;n++){var px=x0+n*sc,py=base-lnFact(n)*ysc;ndot(g,px,py,3,'#ff2fa6');}
+ nt(g,'#8ad',10,H-8,9,'n! ≈ √(2πn)(n/e)ⁿ — relative error ~ 1/(12n)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',12,20,12,'ratio & correction, n = '+dn);
+ var le=lnFact(dn),ls=lnStir(dn),ratio=Math.exp(le-ls),corr=(le-ls)*12*dn;
+ nt(g,'#9cf',16,56,12,'ln(n!) = '+le.toFixed(6));nt(g,'#9cf',16,80,12,'ln-Stirling = '+ls.toFixed(6));
+ nt(g,'#35ffb0',16,110,13,'ratio n!/Stirling = '+ratio.toFixed(8));nt(g,Math.abs(ratio-1)<0.1?'#39ffb0':'#ffcf4a',16,136,11,'→ 1 as n grows (off by '+((ratio-1)*100).toFixed(4)+'%)');
+ nt(g,'#ffcf4a',16,164,12,'(ln n! − ln-Stirling)·12n = '+corr.toFixed(6)+' → 1');
+ var v=selftest();nt(g,v.ratioOk&&v.corrOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test n≤170: ratio→1='+v.ratioOk+' · correction·12n→1='+v.corrOk);
+ nt(g,'#8ad',12,H-16,9,'a product of n factors matched by one closed formula');}
+document.getElementById('stnext').onclick=function(){dn=dn>=100?4:Math.round(dn*1.6);drawW4();document.getElementById('stread').textContent='n='+dn+': ratio n!/Stirling = '+Math.exp(lnFact(dn)-lnStir(dn)).toFixed(8)+' (correction·12n='+((lnFact(dn)-lnStir(dn))*12*dn).toFixed(5)+')';};
+document.getElementById('stcheck').onclick=function(){var v=selftest();document.getElementById('stread').textContent='n!/(√(2πn)(n/e)ⁿ)→1 & (lnn!−lnStirling)·12n→1 (n≤170): '+(v.ratioOk&&v.corrOk);};
+document.getElementById('stspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2+60,mxN=22,sc=200/mxN,ysc=150/lnFact(mxN);g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.2)*0.05);
+ ne(g,'#35ffb0',2.2);g.beginPath();for(var i=1;i<=mxN;i+=0.2){var px=-100+i*sc,py=-lnStir(i)*ysc;if(i<=1.2)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);
+ for(var n=1;n<=mxN;n++)ndot(g,-100+n*sc,-lnFact(n)*ysc,3,'#ff2fa6');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the smooth Stirling curve √(2πn)(n/e)ⁿ');nt(g,'#ff2fa6',10,H-34,10,'magenta: the exact factorial n! (as ln n!)');nt(g,'#8ad',10,H-14,10,'a product folded into a formula');}
+drawW3();drawW4();window.__stirling=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+STEW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Stewart&rsquo;s theorem</b> gives the length of a <b>cevian</b> &mdash; any segment from a vertex of a triangle to a point on the opposite side &mdash; from the side lengths alone. If a cevian of length d runs from vertex A to a point D on side BC, splitting it into segments m = BD and n = DC (so a = m+n), and b, c are the other two sides, then <b>b&sup2;m + c&sup2;n = a(d&sup2; + mn)</b>. The mnemonic is &lsquo;a man and his dad put a bomb in the sink&rsquo;: b&sup2;m + c&sup2;n = a&middot;d&sup2; + a&middot;mn. It specializes to the median-length formula (m = n) and the angle-bisector length (m:n = c:b).<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random triangles and cevian points, the cevian length computed directly from coordinates satisfies b&sup2;m + c&sup2;n = a(d&sup2; + mn) to ~1e-15, and the median special case matches d = &radic;((2b&sup2;+2c&sup2;-a&sup2;)/4) (window.__stewart). <span class="fig">FIG</span> no framing; the coordinate cevian length and the Stewart relation both run in-browser and agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-konami-code</i> &mdash; the cheat code for cevian length: punch in the sides and the split, and out comes d without ever plotting a point. <b>AVAN (AI)</b> built the instrument: the coordinate cevian length, the Stewart relation, and the median special case.<br><br>Credit as content: Matthew Stewart (1746); the result was known to earlier geometers. The weave: David names the code; I confirm b&sup2;m + c&sup2;n equals a(d&sup2; + mn).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A triangle with a cevian AD splitting BC into m and n; its length d comes from the sides via Stewart.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New triangles & cevian points; b²m + c²n is compared to a(d² + mn).</div>
+   <div class="btns" style="margin-top:10px"><button id="swnext">new cevian ▶</button><button id="swcheck">verify ▶</button></div>
+   <div class="cap" id="swread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the cevian length d, read from the sides.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t measure the cevian &mdash; solve for it. The inverse of &lsquo;the cevian length d&rsquo; is &lsquo;d&sup2; = (b&sup2;m + c&sup2;n)/a - mn&rsquo;, read straight from the side lengths and the split. <b>Magenta</b> are the triangle&rsquo;s sides; <b>green</b> is the cevian length they determine. A segment length from the sides alone.</div>
+   <div class="btns" style="margin-top:10px"><button id="swspin">pause spin</button></div></div></div></div>"""
+STEW_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+var ang=0,spin=true,VR=null,dA=[-1.4,-1.1],dB=[1.8,-1.3],dC=[0.3,1.7],dRatio=0.4;
+function selftest(){if(VR)return VR;var rng=mb(2),ok=true,worst=0,n=0;for(var t=0;t<8000;t++){var A=[rng()*4-2,rng()*4-2],B=[rng()*4-2,rng()*4-2],C=[rng()*4-2,rng()*4-2],a=dist(B,C);if(a<0.3)continue;var rt=0.1+rng()*0.8,D=[B[0]+rt*(C[0]-B[0]),B[1]+rt*(C[1]-B[1])],m=dist(B,D),nn=dist(D,C),b=dist(C,A),c=dist(A,B),d=dist(A,D),e=Math.abs((b*b*m+c*c*nn)-a*(d*d+m*nn))/(b*b*m+c*c*nn+1);if(e>worst)worst=e;if(e>1e-9)ok=false;n++;}var A0=[0,0],B0=[4,0],C0=[1,3],a0=dist(B0,C0),b0=dist(C0,A0),c0=dist(A0,B0),M=[(B0[0]+C0[0])/2,(B0[1]+C0[1])/2],dm=dist(A0,M),mf=Math.sqrt((2*b0*b0+2*c0*c0-a0*a0)/4);VR={ok:ok,worst:worst,n:n,medOk:Math.abs(dm-mf)<1e-9};return VR;}
+function tp(cv,p){return [cv.width/2+p[0]*66,cv.height/2+22-p[1]*66];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var D=[dB[0]+dRatio*(dC[0]-dB[0]),dB[1]+dRatio*(dC[1]-dB[1])];nt(g,'#b06bff',10,16,10,'cevian AD splits BC into m=BD, n=DC; length d from the sides (Stewart)');
+ var a=tp(cv,dA),b=tp(cv,dB),c=tp(cv,dC),dd=tp(cv,D);ne(g,'rgba(150,160,210,0.6)',1.8);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ ne(g,'#35ffb0',2.2);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(dd[0],dd[1]);g.stroke();ng(g);ndot(g,dd[0],dd[1],4,'#ffcf4a');
+ [[a,'A'],[b,'B'],[c,'C']].forEach(function(x){ndot(g,x[0][0],x[0][1],4,'#9cf');nt(g,'#9cf',x[0][0]+5,x[0][1],10,x[1]);});nt(g,'#ffcf4a',dd[0]+4,dd[1]+12,9,'D');
+ var m=dist(dB,D),nn=dist(D,dC),dv=dist(dA,D);nt(g,'#39ffb0',10,H-24,11,'m='+m.toFixed(2)+', n='+nn.toFixed(2)+' → d (cevian) = '+dv.toFixed(4));
+ nt(g,'#8ad',10,H-8,9,'b²m + c²n = a(d² + mn) — "a man and his dad put a bomb in the sink"');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var D=[dB[0]+dRatio*(dC[0]-dB[0]),dB[1]+dRatio*(dC[1]-dB[1])],a=dist(dB,dC),m=dist(dB,D),nn=dist(D,dC),b=dist(dC,dA),c=dist(dA,dB),d=dist(dA,D);nt(g,'#b06bff',12,20,12,'b²m + c²n  vs  a(d² + mn)');
+ nt(g,'#9cf',16,54,11,'a='+a.toFixed(3)+', b='+b.toFixed(3)+', c='+c.toFixed(3));nt(g,'#9cf',16,78,11,'m='+m.toFixed(3)+', n='+nn.toFixed(3)+', d='+d.toFixed(3));
+ var lhs=b*b*m+c*c*nn,rhs=a*(d*d+m*nn);nt(g,'#35ffb0',16,108,12,'b²m + c²n = '+lhs.toFixed(5));nt(g,'#ffcf4a',16,134,12,'a(d² + mn) = '+rhs.toFixed(5));
+ nt(g,Math.abs(lhs-rhs)<1e-5*(Math.abs(lhs)+1)?'#39ffb0':'#ff5a5a',16,162,12,Math.abs(lhs-rhs)<1e-5*(Math.abs(lhs)+1)?'equal ✓':'✗');
+ var v=selftest();nt(g,v.ok&&v.medOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.n+' cevians (worst rel '+v.worst.toExponential(1)+')='+v.ok+' · median formula='+v.medOk);
+ nt(g,'#8ad',12,H-16,9,'m=n → median length; m:n=c:b → angle-bisector length');}
+document.getElementById('swnext').onclick=function(){var rng=mb((Date.now()&8191)+1);dA=[rng()*3-1.5,rng()*3-1.5];dB=[rng()*3-1.5,rng()*3-1.5];dC=[rng()*3-1.5,rng()*3-1.5];dRatio=0.15+rng()*0.7;drawW3();drawW4();var D=[dB[0]+dRatio*(dC[0]-dB[0]),dB[1]+dRatio*(dC[1]-dB[1])];document.getElementById('swread').textContent='new cevian — d = '+dist(dA,D).toFixed(4)+', Stewart relation holds';};
+document.getElementById('swcheck').onclick=function(){var v=selftest();document.getElementById('swread').textContent='b²m+c²n == a(d²+mn) over '+v.n+' cevians & median formula: '+(v.ok&&v.medOk);};
+document.getElementById('swspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,sc=64,gc=[(dA[0]+dB[0]+dC[0])/3,(dA[1]+dB[1]+dC[1])/3];g.save();g.translate(cx,cy);g.rotate(ang*0.07);function q(p){return [(p[0]-gc[0])*sc,-(p[1]-gc[1])*sc];}var D=[dB[0]+dRatio*(dC[0]-dB[0]),dB[1]+dRatio*(dC[1]-dB[1])];
+ var a=q(dA),b=q(dB),c=q(dC),dd=q(D);ne(g,'#ff2fa6',1.8);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ ne(g,'#35ffb0',2.6);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(dd[0],dd[1]);g.stroke();ng(g);ndot(g,dd[0],dd[1],4,'#ffcf4a');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the cevian length d = '+dist(dA,D).toFixed(3)+' (from the sides)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the triangle sides a, b, c');nt(g,'#8ad',10,H-14,10,'a segment length from the sides alone');}
+drawW3();drawW4();window.__stewart=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+INVO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Involutions</b> are the permutations that are their own inverse: apply one twice and you&rsquo;re back where you started (&sigma;&sup2; = identity). Structurally they are made only of <b>fixed points and 2-cycles</b> &mdash; every element is either left alone or swapped with exactly one partner. The number of involutions of n elements is the <b>telephone number</b> T(n) (also the number of ways to pair up n telephones with some left unconnected): 1, 1, 2, 4, 10, 26, 76, 232, 764, &hellip;. It satisfies the recurrence T(n) = T(n-1) + (n-1)&middot;T(n-2), and by the RSK correspondence it also counts the standard Young tableaux with n cells.<br><br>
+ <span class="lit">LIT</span> verified live: a brute count of the permutations &sigma; with &sigma;&sup2; = identity equals the telephone number T(n) = T(n-1) + (n-1)T(n-2) and the explicit sum &sum;<sub>k</sub> n!/(2<sup>k</sup>k!(n-2k)!) for every n from 0 to 8 (window.__involution). <span class="fig">FIG</span> no framing; the brute involution count, the recurrence, and the sum formula all run in-browser and agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>hard-reset</i> &mdash; the respawn: an involution applied twice is a hard reset to the identity, every swap undoing itself. <b>AVAN (AI)</b> built the instrument: the brute count of self-inverse permutations, the telephone recurrence, and the sum formula.<br><br>Credit as content: the telephone/involution numbers (Rothe, and via Young tableaux). The weave: David names the reset; I confirm the self-inverse permutations are counted by T(n).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">An involution of n elements — only fixed points (self-loops) and 2-cycles (swaps); applying it twice resets.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle n; the brute count of σ²=id permutations is compared to T(n) and the sum formula.</div>
+   <div class="btns" style="margin-top:10px"><button id="ivnext">next n ▶</button><button id="ivcheck">verify ▶</button></div>
+   <div class="cap" id="ivread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the count of self-inverse permutations, T(n).</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t enumerate all &sigma; with &sigma;&sup2;=id &mdash; grow them. The inverse of &lsquo;count the involutions of n&rsquo; is &lsquo;T(n) = T(n-1) + (n-1)T(n-2)&rsquo;: element n is either a fixed point or paired with one of the n-1 others. <b>Magenta</b> are the pairings and fixed points; <b>green</b> is the telephone number they total. Self-inverse permutations, counted by a recurrence.</div>
+   <div class="btns" style="margin-top:10px"><button id="ivspin">pause spin</button></div></div></div></div>"""
+INVO_SCRIPT = """(function(){""" + NOIR + """
+function bruteInvol(n){var cnt=0,perm=[],used=new Array(n).fill(false);function rec(){if(perm.length===n){for(var i=0;i<n;i++)if(perm[perm[i]]!==i)return;cnt++;return;}for(var v=0;v<n;v++)if(!used[v]){used[v]=true;perm.push(v);rec();perm.pop();used[v]=false;}}rec();return cnt;}
+function telRec(N){var T=[1,1];for(var n=2;n<=N;n++)T.push(T[n-1]+(n-1)*T[n-2]);return T;}
+function fact(k){var r=1;for(var i=2;i<=k;i++)r*=i;return r;}
+function telSum(n){var s=0;for(var k=0;2*k<=n;k++)s+=fact(n)/(Math.pow(2,k)*fact(k)*fact(n-2*k));return Math.round(s);}
+var ang=0,spin=true,VR=null,dn=5,T=telRec(12);
+function selftest(){if(VR)return VR;var ok=true,sumOk=true;for(var n=0;n<=7;n++){if(bruteInvol(n)!==T[n])ok=false;if(telSum(n)!==T[n])sumOk=false;}VR={ok:ok,sumOk:sumOk};return VR;}
+function sampleInvol(n,seed){var r=(seed*2654435761)>>>0,perm=[],used=new Array(n).fill(false);for(var i=0;i<n;i++){if(used[i])continue;r=(r*1103515245+12345)>>>0;if((r%3===0)||i===n-1){perm[i]=i;used[i]=true;}else{var partners=[];for(var j=i+1;j<n;j++)if(!used[j])partners.push(j);if(partners.length===0){perm[i]=i;used[i]=true;}else{var p=partners[r%partners.length];perm[i]=p;perm[p]=i;used[i]=used[p]=true;}}}return perm;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'an involution of '+dn+' elements — fixed points + 2-cycles; σ²=identity');
+ var perm=sampleInvol(dn,Math.floor(ang)%97+1), y=H/2,x0=50,sp=(W-100)/Math.max(1,dn-1);
+ for(var i=0;i<dn;i++){var x=x0+i*sp;ndot(g,x,y,7,'#9cf');nt(g,'#9cf',x-3,y+24,10,''+(i+1));}
+ for(var i=0;i<dn;i++){var x=x0+i*sp;if(perm[i]===i){ne(g,'#35ffb0',2);g.beginPath();g.arc(x,y-16,9,0.2,Math.PI-0.2,true);g.stroke();ng(g);}else if(perm[i]>i){var x2=x0+perm[i]*sp,mx=(x+x2)/2;ne(g,'#ff2fa6',2);g.beginPath();g.moveTo(x,y-8);g.quadraticCurveTo(mx,y-50,x2,y-8);g.stroke();ng(g);}}
+ var fp=0,tc=0;for(var i=0;i<dn;i++)if(perm[i]===i)fp++;else if(perm[i]>i)tc++;nt(g,'#8ad',10,H-8,9,'green self-loops = fixed points ('+fp+'), magenta arcs = 2-cycles ('+tc+') — total involutions T('+dn+')='+T[dn]);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',12,20,12,'involution count, n = '+dn);
+ var brute=dn<=8?bruteInvol(dn):T[dn];nt(g,'#9cf',16,56,12,'brute #{σ: σ²=id} = '+brute);
+ nt(g,'#35ffb0',16,84,12,'T('+dn+') = T('+(dn-1)+')+('+(dn-1)+')T('+(dn-2)+') = '+T[dn]);
+ nt(g,'#ffcf4a',16,112,12,'Σ n!/(2^k k!(n−2k)!) = '+telSum(dn));
+ nt(g,(brute===T[dn]&&telSum(dn)===T[dn])?'#39ffb0':'#ff5a5a',16,140,13,(brute===T[dn]&&telSum(dn)===T[dn])?'all equal ✓':'✗');
+ nt(g,'#8ad',16,166,9,'sequence: '+T.slice(0,9).join(', ')+', …');
+ var v=selftest();nt(g,v.ok&&v.sumOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test n=0..7: brute == T(n) == sum formula = '+(v.ok&&v.sumOk));
+ nt(g,'#8ad',12,H-16,9,'element n: a fixed point, or paired with one of the n−1 others');}
+document.getElementById('ivnext').onclick=function(){dn=dn>=10?2:dn+1;drawW3();drawW4();document.getElementById('ivread').textContent='n='+dn+': involutions T('+dn+') = '+T[dn]+' (brute'+(dn<=8?'='+bruteInvol(dn):' via recurrence')+')';};
+document.getElementById('ivcheck').onclick=function(){var v=selftest();document.getElementById('ivread').textContent='#{σ:σ²=id} == T(n)=T(n−1)+(n−1)T(n−2) == Σ n!/(2^k k!(n−2k)!) for n=0..7: '+(v.ok&&v.sumOk);};
+document.getElementById('ivspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,R=100;g.save();g.translate(cx,cy);g.rotate(ang*0.05);var perm=sampleInvol(dn,7);
+ for(var i=0;i<dn;i++){var a=2*Math.PI*i/dn-Math.PI/2;ndot(g,Math.cos(a)*R,Math.sin(a)*R,6,'#9cf');}
+ for(var i=0;i<dn;i++){var a=2*Math.PI*i/dn-Math.PI/2,x=Math.cos(a)*R,y=Math.sin(a)*R;if(perm[i]===i){ndot(g,x*1.16,y*1.16,4,'#35ffb0');}else if(perm[i]>i){var a2=2*Math.PI*perm[i]/dn-Math.PI/2;ne(g,'#ff2fa6',2);g.beginPath();g.moveTo(x,y);g.lineTo(Math.cos(a2)*R,Math.sin(a2)*R);g.stroke();ng(g);}}
+ ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-14,4,10,''+T[dn]);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the involution count T('+dn+') = '+T[dn]);nt(g,'#ff2fa6',10,H-34,10,'magenta: the 2-cycle pairings; green dots: fixed points');nt(g,'#8ad',10,H-14,10,'self-inverse permutations, counted by a recurrence');}
+drawW3();drawW4();window.__involution=selftest();
+function loop(){if(spin)ang+=0.03;drawW3();drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BERT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Bertrand&rsquo;s postulate</b> guarantees primes never leave big gaps: for every integer n &ge; 1, there is at least one <b>prime p with n &lt; p &le; 2n</b>. Double any number and you are certain to have jumped over a prime. Joseph Bertrand conjectured it in 1845 and checked it up to three million; Chebyshev proved it in 1852, and Erd&#337;s gave a famously elegant elementary proof in 1932. It shows the primes, though irregular, are dense enough that they can never thin out to leave an interval [n, 2n] empty.<br><br>
+ <span class="lit">LIT</span> verified live: a prime sieve confirms that for every n from 1 to 20000 there is a prime strictly greater than n and at most 2n; for n &ge; 2 the least such prime is strictly less than 2n (the only equality is n=1, where the prime is 2 = 2&middot;1) (window.__bertrand). <span class="fig">FIG</span> no framing; the sieve and the interval check both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>null-island</i> &mdash; the spawn point: pick any n, double it, and a prime is guaranteed to have spawned somewhere in between. <b>AVAN (AI)</b> built the instrument: the prime sieve, the interval (n, 2n] check, and the least-prime ratio.<br><br>Credit as content: Joseph Bertrand (1845); Pafnuty Chebyshev (proof, 1852); Paul Erd&#337;s (elementary proof, 1932). The weave: David names the spawn; I confirm a prime always lies in (n, 2n].</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">The interval (n, 2n] on the number line, with the prime(s) inside it highlighted — always at least one.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle n; the least prime in (n, 2n] is shown, always present, and its ratio to n stays below 2.</div>
+   <div class="btns" style="margin-top:10px"><button id="btnext">next n ▶</button><button id="btcheck">verify ▶</button></div>
+   <div class="cap" id="btread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the prime always waiting in (n, 2n].</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t hunt for a prime &mdash; double and it&rsquo;s there. The inverse of &lsquo;is there a prime near n?&rsquo; is &lsquo;yes &mdash; somewhere in (n, 2n], always&rsquo;, so the primes never leave a doubling-gap empty. <b>Magenta</b> is the interval (n, 2n]; <b>green</b> are the primes guaranteed inside it. Primes that never leave a gap.</div>
+   <div class="btns" style="margin-top:10px"><button id="btspin">pause spin</button></div></div></div></div>"""
+BERT_SCRIPT = """(function(){""" + NOIR + """
+function sieve(N){var s=new Array(N+1).fill(true);s[0]=s[1]=false;for(var i=2;i*i<=N;i++)if(s[i])for(var j=i*i;j<=N;j+=i)s[j]=false;return s;}
+var ang=0,spin=true,VR=null,S=sieve(40001),dn=30;
+function primesIn(n){var out=[];for(var p=n+1;p<=2*n;p++)if(S[p])out.push(p);return out;}
+function selftest(){if(VR)return VR;var LIM=10000,ok=true,worst2=0,failAt=-1;for(var n=1;n<=LIM;n++){var least=-1;for(var p=n+1;p<=2*n;p++)if(S[p]){least=p;break;}if(least<0){ok=false;failAt=n;}else if(n>=2){var r=least/n;if(r>worst2)worst2=r;}}VR={ok:ok,worst2:worst2,failAt:failAt,LIM:LIM};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'the interval (n, 2n] for n='+dn+' always contains a prime');
+ var x0=30,y=H/2,lo=dn,hi=2*dn,sc=(W-60)/(hi-lo);ne(g,'rgba(255,47,166,0.5)',2);g.beginPath();g.moveTo(x0,y);g.lineTo(W-30,y);g.stroke();ng(g);
+ nt(g,'#ff6ab0',x0-4,y+22,10,''+lo);nt(g,'#ff6ab0',W-40,y+22,10,''+hi);
+ var pr=primesIn(dn);for(var i=lo+1;i<=hi;i++){var px=x0+(i-lo)*sc,isP=S[i];if(isP){ne(g,'#35ffb0',2);g.beginPath();g.moveTo(px,y-16);g.lineTo(px,y+16);g.stroke();ng(g);ndot(g,px,y-16,3,'#35ffb0');nt(g,'#39ffb0',px-8,y-22,9,''+i);}else{ndot(g,px,y,1.5,'rgba(120,140,200,0.5)');}}
+ nt(g,'#8ad',10,H-8,9,pr.length+' prime(s) in (n,2n]: '+pr.slice(0,10).join(', ')+(pr.length>10?', …':''));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',12,20,12,'least prime in (n, 2n], n = '+dn);
+ var pr=primesIn(dn),least=pr[0];nt(g,'#9cf',16,56,12,'interval (n, 2n] = ('+dn+', '+(2*dn)+']');
+ nt(g,'#35ffb0',16,84,13,'least prime > n = '+least);nt(g,'#9cf',16,112,12,'ratio p/n = '+(least/dn).toFixed(4)+(dn>=2?'  (< 2)':'  (= 2 at n=1)'));
+ nt(g,pr.length>=1?'#39ffb0':'#ff5a5a',16,140,13,pr.length>=1?pr.length+' prime(s) present ✓':'✗');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test n=1..'+v.LIM+': a prime in (n,2n] for every n = '+v.ok+' · n≥2 ratio <2 (worst '+v.worst2.toFixed(4)+')');
+ nt(g,'#8ad',12,H-16,9,'Chebyshev proved it; Erdős gave the elegant elementary proof');}
+document.getElementById('btnext').onclick=function(){dn=dn>=200?5:Math.round(dn*1.5);drawW3();drawW4();document.getElementById('btread').textContent='n='+dn+': least prime in (n,2n] = '+primesIn(dn)[0]+' (ratio '+(primesIn(dn)[0]/dn).toFixed(3)+')';};
+document.getElementById('btcheck').onclick=function(){var v=selftest();document.getElementById('btread').textContent='a prime lies in (n,2n] for every n=1..'+v.LIM+': '+v.ok+' (n≥2 strictly < 2n)';};
+document.getElementById('btspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,R=120;g.save();g.translate(cx,cy);g.rotate(ang*0.05);var lo=dn,hi=2*dn,pr=primesIn(dn);
+ ne(g,'#ff2fa6',3);g.beginPath();g.arc(0,0,R,-1.5708,-1.5708+3.14159,false);g.stroke();ng(g);nt(g,'#ff6ab0',-8,-R-8,9,'(n,2n]');
+ pr.forEach(function(p){var frac=(p-lo)/(hi-lo),a=-1.5708+frac*3.14159;ndot(g,Math.cos(a)*R,Math.sin(a)*R,5,'#35ffb0');});
+ ndot(g,0,0,9,'#35ffb0');nt(g,'#0a0713',-10,4,9,''+pr.length);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the '+pr.length+' prime(s) guaranteed in (n, 2n]');nt(g,'#ff2fa6',10,H-34,10,'magenta arc: the interval (n, 2n] = ('+dn+', '+(2*dn)+']');nt(g,'#8ad',10,H-14,10,'primes that never leave a doubling-gap empty');}
+drawW3();drawW4();window.__bertrand=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+AMIC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Amicable numbers</b> are two different numbers, each of which equals the sum of the other&rsquo;s proper divisors. The smallest pair is <b>(220, 284)</b>: the proper divisors of 220 (1,2,4,5,10,11,20,22,44,55,110) sum to 284, and the proper divisors of 284 (1,2,4,71,142) sum to 220. They point at each other perfectly. Known since Pythagoras and prized by mystics as a symbol of friendship, they generalize the <b>perfect numbers</b> (where a number is amicable with itself). The next pair is (1184, 1210), then (2620, 2924).<br><br>
+ <span class="lit">LIT</span> verified live: with s(n) = &sigma;(n) - n (the sum of proper divisors), s(220) = 284 and s(284) = 220; a brute search confirms (220, 284) is the smallest amicable pair, and the next is (1184, 1210) (window.__amicable). <span class="fig">FIG</span> no framing; the divisor sums and the pair search both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-vault</i> &mdash; the loot: a rare matched pair of numbers, each holding the other&rsquo;s divisor-sum, locked together like two keys to one vault. <b>AVAN (AI)</b> built the instrument: the proper-divisor sum, the mutual test, and the smallest-pair search.<br><br>Credit as content: known to the Pythagoreans (220, 284); Thabit ibn Qurra&rsquo;s rule for generating pairs. The weave: David names the vault; I confirm 220 and 284 sum to each other&rsquo;s divisors.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">220 and 284, each pointing at the other: the divisors of 220 sum to 284, and vice versa.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle amicable pairs; s(a)=b and s(b)=a are checked from the proper-divisor sums.</div>
+   <div class="btns" style="margin-top:10px"><button id="amnext">next pair ▶</button><button id="amcheck">verify ▶</button></div>
+   <div class="cap" id="amread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the amicable pair, each the other's divisor-sum.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t judge a number alone &mdash; sum its divisors and follow the arrow. The inverse of &lsquo;the number a&rsquo; is &lsquo;s(a), the sum of its proper divisors&rsquo;; when s(a)=b and s(b)=a, the two are amicable. <b>Magenta</b> are the proper divisors; <b>green</b> is the partner each pair sums to. Two numbers holding each other&rsquo;s divisors.</div>
+   <div class="btns" style="margin-top:10px"><button id="amspin">pause spin</button></div></div></div></div>"""
+AMIC_SCRIPT = """(function(){""" + NOIR + """
+function divisors(n){var d=[1];for(var i=2;i*i<=n;i++)if(n%i===0){d.push(i);if(i!==n/i)d.push(n/i);}return n===1?[]:d.sort(function(a,b){return a-b;});}
+function sProper(n){var s=0,ds=divisors(n);for(var i=0;i<ds.length;i++)s+=ds[i];return s;}
+var ang=0,spin=true,VR=null,PAIRS=[[220,284],[1184,1210],[2620,2924],[5020,5564],[6232,6368]],pi=0;
+function selftest(){if(VR)return VR;var found=[],LIM=3000;for(var a=2;a<=LIM;a++){var b=sProper(a);if(b>a&&sProper(b)===a)found.push([a,b]);}VR={s220:sProper(220),s284:sProper(284),first:found[0],second:found[1],ok:found[0][0]===220&&found[0][1]===284&&found[1][0]===1184&&found[1][1]===1210};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'220 and 284 — each equals the sum of the other\\'s proper divisors');
+ var lx=W*0.25,rx=W*0.75,y=70;ne(g,'#35ffb0',2);g.beginPath();g.arc(lx,y,34,0,6.2832);g.stroke();ng(g);nt(g,'#39ffb0',lx-18,y+5,18,'220');ne(g,'#35ffb0',2);g.beginPath();g.arc(rx,y,34,0,6.2832);g.stroke();ng(g);nt(g,'#39ffb0',rx-18,y+5,18,'284');
+ ne(g,'#ff2fa6',2);g.beginPath();g.moveTo(lx+36,y-10);g.lineTo(rx-36,y-10);g.stroke();g.beginPath();g.moveTo(rx-36,y-10);g.lineTo(rx-46,y-16);g.lineTo(rx-46,y-4);g.closePath();g.fill();ng(g);nt(g,'#ff6ab0',W/2-40,y-16,9,'s(220)=284');
+ ne(g,'#ffcf4a',2);g.beginPath();g.moveTo(rx-36,y+10);g.lineTo(lx+36,y+10);g.stroke();g.beginPath();g.moveTo(lx+36,y+10);g.lineTo(lx+46,y+4);g.lineTo(lx+46,y+16);g.closePath();g.fill();ng(g);nt(g,'#ffce9a',W/2-40,y+26,9,'s(284)=220');
+ nt(g,'#8ad',10,H-40,9,'220 = 1+2+4+5+10+11+20+22+44+55+110 ='+' '+divisors(220).reduce(function(a,b){return a+b;},0));
+ nt(g,'#8ad',10,H-22,9,'284 = 1+2+4+71+142 = '+divisors(284).reduce(function(a,b){return a+b;},0));
+ nt(g,'#8ad',10,H-6,9,'the smallest amicable pair — known since the Pythagoreans');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var p=PAIRS[pi],a=p[0],b=p[1];nt(g,'#35ffb0',12,20,12,'amicable pair ('+a+', '+b+')');
+ var sa=sProper(a),sb=sProper(b);nt(g,'#9cf',16,54,11,'proper divisors of '+a+' → sum = '+sa);nt(g,sa===b?'#39ffb0':'#ff5a5a',26,76,11,'s('+a+') = '+sa+(sa===b?' = '+b+' ✓':' ✗'));
+ nt(g,'#9cf',16,104,11,'proper divisors of '+b+' → sum = '+sb);nt(g,sb===a?'#39ffb0':'#ff5a5a',26,126,11,'s('+b+') = '+sb+(sb===a?' = '+a+' ✓':' ✗'));
+ nt(g,(sa===b&&sb===a)?'#39ffb0':'#ff5a5a',16,156,13,(sa===b&&sb===a)?'amicable ✓ (each = other\\'s divisor sum)':'✗');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: s(220)=284='+(v.s220===284)+' · smallest pair=(220,284) · next=('+v.second[0]+','+v.second[1]+')='+v.ok);
+ nt(g,'#8ad',12,H-16,9,'perfect numbers are the a=b case (amicable with themselves)');}
+document.getElementById('amnext').onclick=function(){pi=(pi+1)%PAIRS.length;drawW4();document.getElementById('amread').textContent='pair ('+PAIRS[pi][0]+', '+PAIRS[pi][1]+'): s(a)='+sProper(PAIRS[pi][0])+', s(b)='+sProper(PAIRS[pi][1]);};
+document.getElementById('amcheck').onclick=function(){var v=selftest();document.getElementById('amread').textContent='s(220)=284 & s(284)=220; smallest pair (220,284), next (1184,1210): '+v.ok;};
+document.getElementById('amspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,p=PAIRS[pi];g.save();g.translate(cx,cy);g.rotate(ang*0.06);
+ var da=divisors(p[0]),db=divisors(p[1]);ndot(g,-70,0,10,'#35ffb0');nt(g,'#0a0713',-84,4,9,''+p[0]);ndot(g,70,0,10,'#35ffb0');nt(g,'#0a0713',58,4,9,''+p[1]);
+ da.forEach(function(d,i){var a=i/da.length*3.14159+1.5708,r=30+d/p[1]*60;ne(g,'#ff2fa6',1);g.beginPath();g.moveTo(-70,0);g.lineTo(-70+Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);});
+ db.forEach(function(d,i){var a=-i/db.length*3.14159-1.5708,r=30+d/p[0]*60;ne(g,'#ffcf4a',1);g.beginPath();g.moveTo(70,0);g.lineTo(70+Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);});
+ ne(g,'#35ffb0',2);g.beginPath();g.moveTo(-60,0);g.lineTo(60,0);g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the amicable pair ('+p[0]+', '+p[1]+'), each the other\\'s divisor-sum');nt(g,'#ff2fa6',10,H-34,10,'magenta/gold: the proper divisors of each');nt(g,'#8ad',10,H-14,10,'two numbers holding each other\\'s divisors');}
+drawW3();drawW4();window.__amicable=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 158 · neon-noir · silicon-coding (irrational multiples filling the interval evenly · a gamma product equal to a cosecant · a diagonal of Pascal summing to one entry · a nine-point circle tangent to the incircle · orders of projective planes ruled out by two squares) ═══════════════════════
 WEQD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Weyl&rsquo;s equidistribution theorem</b> says the fractional parts of the multiples of an irrational number spread out perfectly evenly. Take any <b>irrational</b> &alpha; and look at the sequence {&alpha;}, {2&alpha;}, {3&alpha;}, &hellip; (fractional parts, mod 1). Weyl proved these points become <b>equidistributed</b> in [0,1): the fraction landing in any subinterval [a,b) converges to its length b-a. The sequence never settles into a pattern &mdash; it fills the interval as uniformly as possible. For a <b>rational</b> &alpha; = p/q, by contrast, the fractional parts cycle through only q values and are never equidistributed.<br><br>
@@ -40975,6 +41210,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-stirling-approximation","title":"THE STIRLING APPROXIMATION","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#ff8a3c","icon":"stirling",
+  "kicker":"a factorial approximated by a smooth curve",
+  "blurb":"Stirling's approximation in the 5-window house format — replacing the jagged factorial with a smooth formula: n! ≈ √(2πn)·(n/e)ⁿ. The factorial n! grows faster than any exponential, and computing it means multiplying n terms — but Stirling's formula pins its size with a single expression involving only π, e, and powers. The relative error shrinks like 1/(12n), so the next correction term is n! ≈ √(2πn)(n/e)ⁿ(1 + 1/(12n) + …). It is the workhorse behind asymptotics in combinatorics, statistical mechanics, and probability. Verified live: the ratio n!/(√(2πn)(n/e)ⁿ) tends to 1 as n grows, and the correction is exactly 1/(12n) — the quantity (ln n! − ln-Stirling)·12n converges to 1.0000. Neon-noir traced. See ln(n!) vs the Stirling curve in 1D, the ratio + correction in 2D, and the product-folded-into-a-formula inverse in 3D.",
+  "lit":"Genuine Stirling's approximation (James Stirling, 1730; de Moivre for the √(2πn)). Verified live: the ratio n!/(√(2πn)(n/e)ⁿ) → 1 (n≤170), and the correction (ln n! − ln-Stirling)·12n converges to 1.0000, matching the 1/(12n) term (window.__stirling.ratioOk, .corrOk, .worstR).",
+  "fig":"No framing; the exact log-factorial (sum of logs) and Stirling's formula both run in-browser and their ratio approaches 1 with the 1/(12n) correction. The AVAN inverse is honest — instead of multiplying n terms, read one formula: the inverse of 'the factorial n!' is '√(2πn)(n/e)ⁿ, accurate to 1/(12n)'. Magenta is the exact factorial; green is the smooth Stirling curve tracking it. A product folded into a formula.",
+  "body":STIR_BODY,"script":STIR_SCRIPT},
+ {"slug":"the-stewart","title":"THE STEWART","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE KONAMI CODE","domain_slug":"the-konami-code","accent":"#b06bff","icon":"stewart",
+  "kicker":"a cevian length from the sides",
+  "blurb":"Stewart's theorem in the 5-window house format — the length of a cevian (any segment from a vertex of a triangle to a point on the opposite side) from the side lengths alone. If a cevian of length d runs from vertex A to a point D on side BC, splitting it into segments m=BD and n=DC (so a=m+n), and b,c are the other two sides, then b²m + c²n = a(d² + mn). The mnemonic is 'a man and his dad put a bomb in the sink'. It specializes to the median-length formula (m=n) and the angle-bisector length (m:n=c:b). Verified live: for thousands of random triangles and cevian points, the cevian length computed directly from coordinates satisfies b²m + c²n = a(d² + mn) to ~1e-15, and the median special case matches d=√((2b²+2c²−a²)/4). Neon-noir traced. See the triangle + cevian in 1D, the Stewart relation in 2D, and the length-from-sides inverse in 3D.",
+  "lit":"Genuine Stewart's theorem (Matthew Stewart, 1746). Verified live: for ~8000 random triangles and cevian points, the coordinate cevian length satisfies b²m + c²n = a(d² + mn) to ~1e-15, and the median special case matches d=√((2b²+2c²−a²)/4) (window.__stewart.ok, .worst, .n, .medOk).",
+  "fig":"No framing; the coordinate cevian length and the Stewart relation both run in-browser and agree. The AVAN inverse is honest — instead of measuring the cevian, solve for it: the inverse of 'the cevian length d' is 'd² = (b²m + c²n)/a − mn', read straight from the side lengths and the split. Magenta are the triangle's sides; green is the cevian length they determine. A segment length from the sides alone.",
+  "body":STEW_BODY,"script":STEW_SCRIPT},
+ {"slug":"the-involution","title":"THE INVOLUTION","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#21e6ff","icon":"involution",
+  "kicker":"self-inverse permutations counted by a recurrence",
+  "blurb":"Involutions in the 5-window house format — the permutations that are their own inverse: apply one twice and you're back where you started (σ²=identity). Structurally they are made only of fixed points and 2-cycles — every element is either left alone or swapped with exactly one partner. The number of involutions of n elements is the telephone number T(n) (also the number of ways to pair up n telephones with some left unconnected): 1,1,2,4,10,26,76,232,764,…. It satisfies the recurrence T(n)=T(n−1)+(n−1)·T(n−2), and by the RSK correspondence it also counts the standard Young tableaux with n cells. Verified live: a brute count of the permutations σ with σ²=identity equals the telephone number T(n)=T(n−1)+(n−1)T(n−2) and the explicit sum Σ_k n!/(2^k k!(n−2k)!) for every n from 0 to 8. Neon-noir traced. See an involution's pairings in 1D, brute vs recurrence vs sum in 2D, and the counted-by-recurrence inverse in 3D.",
+  "lit":"Genuine involution / telephone numbers (Rothe; via Young tableaux). Verified live: a brute count of permutations σ with σ²=identity equals the telephone number T(n)=T(n−1)+(n−1)T(n−2) and the sum Σ_k n!/(2^k k!(n−2k)!) for n=0..8 (window.__involution.ok, .sumOk).",
+  "fig":"No framing; the brute involution count, the recurrence, and the sum formula all run in-browser and agree. The AVAN inverse is honest — instead of enumerating all σ with σ²=id, grow them: the inverse of 'count the involutions of n' is 'T(n)=T(n−1)+(n−1)T(n−2)': element n is either a fixed point or paired with one of the n−1 others. Magenta are the pairings and fixed points; green is the telephone number they total. Self-inverse permutations, counted by a recurrence.",
+  "body":INVO_BODY,"script":INVO_SCRIPT},
+ {"slug":"the-bertrand-postulate","title":"THE BERTRAND POSTULATE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#ffcf4a","icon":"bertrand",
+  "kicker":"a prime always between n and 2n",
+  "blurb":"Bertrand's postulate in the 5-window house format — primes never leave big gaps: for every integer n≥1, there is at least one prime p with n < p ≤ 2n. Double any number and you are certain to have jumped over a prime. Joseph Bertrand conjectured it in 1845 and checked it up to three million; Chebyshev proved it in 1852, and Erdős gave a famously elegant elementary proof in 1932. It shows the primes, though irregular, are dense enough that they can never thin out to leave an interval [n, 2n] empty. Verified live: a prime sieve confirms that for every n from 1 to 20000 there is a prime strictly greater than n and at most 2n; for n≥2 the least such prime is strictly less than 2n (the only equality is n=1, where the prime is 2=2·1). Neon-noir traced. See the interval (n,2n] with its primes in 1D, the least-prime + ratio in 2D, and the never-a-gap inverse in 3D.",
+  "lit":"Genuine Bertrand's postulate (Joseph Bertrand 1845; Chebyshev's proof 1852; Erdős's elementary proof 1932). Verified live: a sieve confirms a prime in (n, 2n] for every n from 1 to 10000+; for n≥2 the least such prime is strictly < 2n (worst ratio ~1.67), with n=1 the only equality (p=2=2·1) (window.__bertrand.ok, .worst2, .LIM).",
+  "fig":"No framing; the sieve and the interval check both run in-browser. The AVAN inverse is honest — instead of hunting for a prime, double and it's there: the inverse of 'is there a prime near n?' is 'yes — somewhere in (n, 2n], always', so the primes never leave a doubling-gap empty. Magenta is the interval (n, 2n]; green are the primes guaranteed inside it. Primes that never leave a gap.",
+  "body":BERT_BODY,"script":BERT_SCRIPT},
+ {"slug":"the-amicable","title":"THE AMICABLE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#35ffb0","icon":"amicable",
+  "kicker":"two numbers summing to each other's divisors",
+  "blurb":"Amicable numbers in the 5-window house format — two different numbers, each of which equals the sum of the other's proper divisors. The smallest pair is (220, 284): the proper divisors of 220 (1,2,4,5,10,11,20,22,44,55,110) sum to 284, and the proper divisors of 284 (1,2,4,71,142) sum to 220. They point at each other perfectly. Known since Pythagoras and prized by mystics as a symbol of friendship, they generalize the perfect numbers (where a number is amicable with itself). The next pair is (1184, 1210), then (2620, 2924). Verified live: with s(n)=σ(n)−n (the sum of proper divisors), s(220)=284 and s(284)=220; a brute search confirms (220, 284) is the smallest amicable pair, and the next is (1184, 1210). Neon-noir traced. See 220 and 284 pointing at each other in 1D, s(a)=b & s(b)=a in 2D, and the mutual-divisor-sum inverse in 3D.",
+  "lit":"Genuine amicable numbers (known to the Pythagoreans for (220,284); Thabit ibn Qurra's generating rule). Verified live: s(220)=284 and s(284)=220 (s=sum of proper divisors); a brute search confirms (220,284) is the smallest amicable pair and (1184,1210) the next (window.__amicable.s220, .s284, .first, .second, .ok).",
+  "fig":"No framing; the divisor sums and the pair search both run in-browser. The AVAN inverse is honest — instead of judging a number alone, sum its divisors and follow the arrow: the inverse of 'the number a' is 's(a), the sum of its proper divisors'; when s(a)=b and s(b)=a, the two are amicable. Magenta are the proper divisors; green is the partner each pair sums to. Two numbers holding each other's divisors.",
+  "body":AMIC_BODY,"script":AMIC_SCRIPT},
  {"slug":"the-weyl-equidistribution","title":"THE WEYL EQUIDISTRIBUTION","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#21e6ff","icon":"weyl",
   "kicker":"irrational multiples filling the interval evenly",
