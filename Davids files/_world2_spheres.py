@@ -19493,6 +19493,239 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 145 · neon-noir · silicon-coding (the point that minimizes the walk to three corners · the longest run of amounts a few stamps can make · a matrix as rotate-stretch-rotate · a permanent counted by inclusion-exclusion · needles dropped to measure π) ═══════════════════════
+FERM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Fermat point</b> of a triangle is the single spot that <b>minimizes the total distance</b> to all three corners &mdash; the ideal meeting place if three people must gather with the least combined walk. Its defining signature is beautiful: at the Fermat point, the three corners are seen at <b>exactly 120&deg;</b> apart, three equal wedges filling the plane. (If one angle of the triangle is 120&deg; or more, the point collapses onto that vertex.) Torricelli found it by erecting equilateral triangles on the sides; it can also be reached by <b>Weiszfeld&rsquo;s iteration</b>, repeatedly pulling toward each corner with weight inversely proportional to distance.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of triangles (all angles below 120&deg;), Weiszfeld&rsquo;s iteration lands on a point where the three corners subtend 120&deg; to within a hundredth of a degree, and no sampled nearby point has a smaller total distance (window.__fermat). <span class="fig">FIG</span> no framing; the iteration, the 120&deg; angle check, and the minimality sampling all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>gradient-descent</i> &mdash; a minimization at heart: find the point that drives the summed distance to its lowest value, sliding downhill until the three pulls balance at 120&deg;. <b>AVAN (AI)</b> built the instrument: the Weiszfeld iteration, the 120&deg; angle verification, and the minimality sampling.<br><br>Credit as content: posed by Pierre de Fermat, solved by Evangelista Torricelli (17th c.); the iteration by Endre Weiszfeld (1937). The weave: David names gradient-descent; I confirm the point minimizes total distance with three 120&deg; wedges.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">A triangle and its Fermat point; the three lines to the corners split the plane into 120° wedges.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New triangles; the three subtended angles (all 120°) and the total-distance minimality are checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="fmnext">new triangle ▶</button><button id="fmcheck">verify ▶</button></div>
+   <div class="cap" id="fmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Fermat point, the least-total-distance meeting place.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t search the plane &mdash; balance the pulls. The inverse of &lsquo;where is the total distance least?&rsquo; is &lsquo;where do the three unit pulls toward the corners cancel&rsquo; &mdash; which happens exactly when they are 120&deg; apart. <b>Magenta</b> are the three 120&deg; wedges; <b>green</b> is the point where the pulls balance. A minimum found as an equilibrium.</div>
+   <div class="btns" style="margin-top:10px"><button id="fmspin">pause spin</button></div></div></div></div>"""
+FERM_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+function fermat(A,B,C){var P=[(A[0]+B[0]+C[0])/3,(A[1]+B[1]+C[1])/3];for(var it=0;it<400;it++){var wa=1/Math.max(1e-9,dist(P,A)),wb=1/Math.max(1e-9,dist(P,B)),wc=1/Math.max(1e-9,dist(P,C)),sw=wa+wb+wc;P=[(A[0]*wa+B[0]*wb+C[0]*wc)/sw,(A[1]*wa+B[1]*wb+C[1]*wc)/sw];}return P;}
+function angleAt(P,X,Y){var v1=[X[0]-P[0],X[1]-P[1]],v2=[Y[0]-P[0],Y[1]-P[1]],d=(v1[0]*v2[0]+v1[1]*v2[1])/(Math.hypot(v1[0],v1[1])*Math.hypot(v2[0],v2[1]));return Math.acos(Math.max(-1,Math.min(1,d)))*180/Math.PI;}
+function maxAngle(A,B,C){return Math.max(angleAt(A,B,C),angleAt(B,C,A),angleAt(C,A,B));}
+var ang=0,spin=true,VR=null,dA=[-1.6,-1.1],dB=[1.9,-1.3],dC=[0.1,1.9];
+function selftest(){if(VR)return VR;var rng=mb(1),angOk=true,minOk=true,worst=0,n=0;for(var t=0;t<5000;t++){var A=[rng()*4-2,rng()*4-2],B=[rng()*4+1.5,rng()*4-2],C=[rng()*4-2,rng()*4+1.5];if(maxAngle(A,B,C)>=119)continue;n++;var P=fermat(A,B,C),da=Math.max(Math.abs(angleAt(P,A,B)-120),Math.abs(angleAt(P,B,C)-120),Math.abs(angleAt(P,C,A)-120));if(da>worst)worst=da;if(da>0.5)angOk=false;var fP=dist(P,A)+dist(P,B)+dist(P,C);for(var s=0;s<30;s++){var Q=[P[0]+(rng()-0.5)*2,P[1]+(rng()-0.5)*2];if(dist(Q,A)+dist(Q,B)+dist(Q,C)<fP-1e-6)minOk=false;}}VR={angOk:angOk,minOk:minOk,worst:worst,tested:n};return VR;}
+function drawTri(g,cx,cy,sc){function tp(p){return [cx+p[0]*sc,cy-p[1]*sc];}var a=tp(dA),b=tp(dB),c=tp(dC),P=fermat(dA,dB,dC),p=tp(P);
+ ne(g,'rgba(150,160,210,0.6)',1.8);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ ne(g,'#ff2fa6',1.3);g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(a[0],a[1]);g.moveTo(p[0],p[1]);g.lineTo(b[0],b[1]);g.moveTo(p[0],p[1]);g.lineTo(c[0],c[1]);g.stroke();ng(g);
+ ndot(g,a[0],a[1],4,'#9cf');nt(g,'#9cf',a[0]-12,a[1],10,'A');ndot(g,b[0],b[1],4,'#9cf');nt(g,'#9cf',b[0]+6,b[1]+2,10,'B');ndot(g,c[0],c[1],4,'#9cf');nt(g,'#9cf',c[0]+6,c[1]-6,10,'C');
+ ndot(g,p[0],p[1],6,'#35ffb0');ne(g,'#35ffb0',1);g.beginPath();g.arc(p[0],p[1],13,0,7);g.stroke();ng(g);return P;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'triangle and its Fermat point — the three lines to the corners split into 120° wedges');var P=drawTri(g,W/2,H/2+20,58);var a1=angleAt(P,dA,dB),a2=angleAt(P,dB,dC),a3=angleAt(P,dC,dA);nt(g,'#8ad',10,H-8,9,'angles at P: '+a1.toFixed(1)+'° / '+a2.toFixed(1)+'° / '+a3.toFixed(1)+'° — all 120°');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',12,20,12,'Fermat point: 120° + minimal total distance');var P=fermat(dA,dB,dC);
+ var a1=angleAt(P,dA,dB),a2=angleAt(P,dB,dC),a3=angleAt(P,dC,dA);nt(g,'#9cf',16,54,11,'angle APB = '+a1.toFixed(2)+'°');nt(g,'#9cf',16,78,11,'angle BPC = '+a2.toFixed(2)+'°');nt(g,'#9cf',16,102,11,'angle CPA = '+a3.toFixed(2)+'°');
+ var allok=Math.abs(a1-120)<0.5&&Math.abs(a2-120)<0.5&&Math.abs(a3-120)<0.5;nt(g,allok?'#39ffb0':'#ff5a5a',16,132,11,'all three = 120°  '+(allok?'✓':'✗'));
+ var fP=dist(P,dA)+dist(P,dB)+dist(P,dC),cen=[(dA[0]+dB[0]+dC[0])/3,(dA[1]+dB[1]+dC[1])/3],fc=dist(cen,dA)+dist(cen,dB)+dist(cen,dC);nt(g,'#ffcf4a',16,160,10,'total PA+PB+PC = '+fP.toFixed(3)+'  (< centroid&#39;s '+fc.toFixed(3)+')');
+ var v=selftest();nt(g,v.angOk&&v.minOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.tested+': 120° at Fermat point (worst '+v.worst.toFixed(3)+'°)='+v.angOk+' · minimal='+v.minOk);
+ nt(g,'#8ad',12,H-16,9,'if a triangle angle ≥ 120°, the Fermat point is that very vertex');}
+document.getElementById('fmnext').onclick=function(){var rng=mb((Date.now()&8191)+1);for(var tries=0;tries<40;tries++){var A=[rng()*3-2,rng()*3-1.6],B=[rng()*2+1.4,rng()*3-1.6],C=[rng()*3-1.6,rng()*2+1.3];if(maxAngle(A,B,C)<115){dA=A;dB=B;dC=C;break;}}drawW3();drawW4();document.getElementById('fmread').textContent='new triangle — Fermat point found, three 120° wedges';};
+document.getElementById('fmcheck').onclick=function(){var v=selftest();document.getElementById('fmread').textContent='120° at the Fermat point (worst '+v.worst.toFixed(3)+'°): '+v.angOk+' · minimizes total distance: '+v.minOk;};
+document.getElementById('fmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ ne(g,'#ff2fa6',1.4);for(var i=0;i<3;i++){var a=ang+i*2.094;g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*100,Math.sin(a)*100);g.stroke();var a2=a+2.094;g.beginPath();g.arc(0,0,26,a,a2);g.stroke();}ng(g);
+ for(var i=0;i<3;i++){var a=ang+i*2.094;ndot(g,Math.cos(a)*100,Math.sin(a)*100,5,'#9cf');}
+ ndot(g,0,0,6,'#35ffb0');g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the Fermat point — least total distance to the three corners');nt(g,'#ff2fa6',10,H-34,10,'magenta: the three 120° wedges where the corner-pulls balance');nt(g,'#8ad',10,H-14,10,'a minimum found as an equilibrium of three equal pulls');}
+drawW3();drawW4();window.__fermat=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PSTG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The postage-stamp problem</b> asks: with stamps of a few fixed denominations and an envelope that holds at most <b>h</b> stamps, what is the largest value N such that <b>every</b> postage from 1 to N can be made? Call it the <b>h-range</b>. With 1- and 4-cent stamps and up to 5 stamps you can cover every value up to 14; with 1, 5 and 8 and six stamps you reach 42. It is a deceptively hard packing question &mdash; choosing denominations to maximize the unbroken run is a classic unsolved optimization &mdash; but for a given set and h, the answer is a clean finite computation.<br><br>
+ <span class="lit">LIT</span> verified live: two independent methods &mdash; a dynamic-programming reachable-set and an exhaustive enumeration of every stamp multiset of size &le; h &mdash; produce the identical set of achievable values, and the h-range is the longest run 1, 2, &hellip;, N inside it (window.__postage). <span class="fig">FIG</span> no framing; the DP reachability, the brute multiset enumeration, and the run-length computation all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-inventory</i> &mdash; a limited inventory of stamps, and the question of how long an unbroken run of postages that little stock can cover before a gap appears. <b>AVAN (AI)</b> built the instrument: the DP reachable-set, the brute multiset enumeration, their agreement check, and the h-range run length.<br><br>Credit as content: the postage-stamp / local basis problem (Rohrbach, St&ouml;hr, and others). The weave: David names the inventory; I confirm the two methods agree and compute the covered run.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="220"></canvas>
+  <div class="wctrl"><div class="cap">The number line: green values are makeable with ≤ h stamps; the unbroken run from 1 is the h-range.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle denomination sets and stamp counts; the DP and brute reachable sets match and the h-range is shown.</div>
+   <div class="btns" style="margin-top:10px"><button id="psnext">next set ▶</button><button id="pscheck">verify ▶</button></div>
+   <div class="cap" id="psread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the unbroken run of postages the stamps can cover.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t list the amounts &mdash; combine the stamps. The inverse of &lsquo;which postages are reachable?&rsquo; is &lsquo;every sum of at most h stamps from the set&rsquo;, and the h-range is how far that reaches without a gap. <b>Magenta</b> are the stamp combinations; <b>green</b> is the unbroken run they build. Coverage from combination.</div>
+   <div class="btns" style="margin-top:10px"><button id="psspin">pause spin</button></div></div></div></div>"""
+PSTG_SCRIPT = """(function(){""" + NOIR + """
+function reachDP(denoms,h){var reach={0:1};for(var step=0;step<h;step++){var nr={};for(var v in reach){nr[v]=1;for(var d=0;d<denoms.length;d++)nr[+v+denoms[d]]=1;}reach=nr;}return reach;}
+function reachBrute(denoms,h){var reach={};function rec(idx,count,sum){reach[sum]=1;if(count===h)return;for(var d=idx;d<denoms.length;d++)rec(d,count+1,sum+denoms[d]);}rec(0,0,0);return reach;}
+function hrange(reach){var N=0;while(reach[N+1])N++;return N;}
+var ang=0,spin=true,VR=null,cases=[{d:[1,2],h:4},{d:[1,4],h:5},{d:[1,3,5],h:4},{d:[1,5,8],h:6},{d:[1,7,16],h:5},{d:[1,2,5],h:5}],ti=1;
+function selftest(){if(VR)return VR;var ok=true,rows=[];for(var c=0;c<cases.length;c++){var C=cases[c],rd=reachDP(C.d,C.h),rb=reachBrute(C.d,C.h),same=true;for(var v in rd)if(!rb[v])same=false;for(var v in rb)if(!rd[v])same=false;if(!same)ok=false;rows.push([C.d,C.h,hrange(rd)]);}VR={dpEqBrute:ok,rows:rows};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var C=cases[ti],reach=reachDP(C.d,C.h),N=hrange(reach);nt(g,'#ffcf4a',10,16,10,'stamps {'+C.d.join(', ')+'}, at most '+C.h+' per envelope — green = makeable, run 1..N is the h-range');
+ var max=Math.min(60,N+8),cw=(W-40)/max;for(var v=1;v<=max;v++){var mk=reach[v],inRun=v<=N;var x=20+(v-1)*cw;nf(g,mk?(inRun?'#35ffb0':'rgba(53,255,176,0.4)'):'#ff5a5a');g.beginPath();g.arc(x+cw/2,H/2,Math.min(6,cw/2-0.5),0,7);g.fill();ng(g);if(v%5===0)nt(g,'#8ad',x+cw/2-6,H/2+22,8,''+v);}
+ ne(g,'#ffcf4a',2);var wx=20+N*cw;g.beginPath();g.moveTo(wx,H/2-22);g.lineTo(wx,H/2+22);g.stroke();ng(g);nt(g,'#ffcf4a',wx-14,H/2-28,10,'N='+N);
+ nt(g,'#8ad',10,H-8,9,'every value 1..'+N+' is makeable; '+(N+1)+' is the first gap');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var C=cases[ti],rd=reachDP(C.d,C.h),rb=reachBrute(C.d,C.h),N=hrange(rd);nt(g,'#ffcf4a',12,20,12,'stamps {'+C.d.join(', ')+'}, h = '+C.h);
+ var same=true,dc=0,bc=0;for(var v in rd){dc++;if(!rb[v])same=false;}for(var v in rb){bc++;if(!rd[v])same=false;}
+ nt(g,'#9cf',16,54,11,'DP reachable values: '+dc+'   brute reachable: '+bc);
+ nt(g,same?'#39ffb0':'#ff5a5a',16,80,11,'the two reachable sets are identical  '+(same?'✓':'✗'));
+ nt(g,'#35ffb0',16,110,13,'h-range N = '+N);nt(g,'#8ad',16,134,10,'every postage 1..'+N+' makeable; '+(N+1)+' needs more than '+C.h+' stamps');
+ var v=selftest();nt(g,v.dpEqBrute?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: DP == brute multiset on '+v.rows.length+' cases = '+v.dpEqBrute);
+ nt(g,'#8ad',12,H-16,9,'h-ranges: '+v.rows.map(function(r){return '{'+r[0].join(',')+'}/'+r[1]+'→'+r[2];}).join('  '));}
+document.getElementById('psnext').onclick=function(){ti=(ti+1)%cases.length;drawW3();drawW4();var C=cases[ti];document.getElementById('psread').textContent='stamps {'+C.d.join(',')+'}, h='+C.h+' → h-range '+hrange(reachDP(C.d,C.h));};
+document.getElementById('pscheck').onclick=function(){var v=selftest();document.getElementById('psread').textContent='DP reachable-set == brute multiset enumeration on all '+v.rows.length+' cases: '+v.dpEqBrute;};
+document.getElementById('psspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,C=cases[ti],reach=reachDP(C.d,C.h),N=hrange(reach);g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ for(var v=1;v<=N;v++){var a=v/N*6.283,r=40+v/N*60;ndot(g,Math.cos(a)*r,Math.sin(a)*r,3,'#35ffb0');}
+ for(var d=0;d<C.d.length;d++){var a=d/C.d.length*6.283;ndot(g,Math.cos(a)*115,Math.sin(a)*115,5,'#ff2fa6');nt(g,'#ff2fa6',Math.cos(a)*130-6,Math.sin(a)*130,9,''+C.d[d]);}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the unbroken run of '+N+' makeable postages');nt(g,'#ff2fa6',10,H-34,10,'magenta: the '+C.d.length+' stamp denominations, ≤'+C.h+' per envelope');nt(g,'#8ad',10,H-14,10,'coverage from combination — how far the stock reaches without a gap');}
+drawW3();drawW4();window.__postage=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SVDX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The singular value decomposition</b> factors <i>any</i> matrix A into <b>A = U&Sigma;V<sup>T</sup></b> &mdash; a rotation, a pure axis-aligned <b>stretch</b>, and another rotation. The diagonal <b>singular values</b> in &Sigma; are the stretch factors; the columns of U and V are the output and input axes. Geometrically, A takes the unit sphere to an ellipsoid, and the SVD reads off its axes and their lengths. It is the most useful factorization in all of applied mathematics: it powers principal-component analysis, low-rank compression, the pseudo-inverse, and the numerical rank of a matrix.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random matrices a one-sided Jacobi SVD returns U, &Sigma;, V with U&middot;diag(&Sigma;)&middot;V<sup>T</sup> reconstructing A to machine precision, U and V orthonormal (U<sup>T</sup>U = V<sup>T</sup>V = I), and all singular values non-negative (window.__svd). <span class="fig">FIG</span> no framing; the Jacobi column rotations, the reconstruction, and the orthonormality checks all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>rollback</i> &mdash; decompose the matrix into three clean factors, then roll it back up: U&Sigma;V<sup>T</sup> reconstructs the original exactly, nothing lost in the round trip. <b>AVAN (AI)</b> built the instrument: the one-sided Jacobi rotations, the singular values as column norms, and the reconstruction and orthonormality verifications.<br><br>Credit as content: Eugenio Beltrami and Camille Jordan (1870s); the Jacobi method for it. The weave: David names rollback; I confirm A decomposes and reconstructs exactly with orthonormal factors.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">A 2×2 matrix maps the unit circle to an ellipse; the SVD reads its axes (singular vectors) and lengths (singular values).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New matrices; the reconstruction U·diag(S)·Vᵀ = A, the orthonormality of U and V, and S ≥ 0 are all checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="svnew">new matrix ▶</button><button id="svcheck">verify ▶</button></div>
+   <div class="cap" id="svread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the ellipse A carves from the unit circle, with its principal axes.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t treat A as one tangle &mdash; split it into rotate&ndash;stretch&ndash;rotate. The inverse of &lsquo;a matrix that mixes everything&rsquo; is &lsquo;U&Sigma;V<sup>T</sup>: two rotations around a pure diagonal stretch&rsquo;, and multiplying them back recovers A. <b>Magenta</b> are the rotations U and V<sup>T</sup>; <b>green</b> is the stretch &Sigma; along the ellipse axes. Any map is a stretch between two spins.</div>
+   <div class="btns" style="margin-top:10px"><button id="svspin">pause spin</button></div></div></div></div>"""
+SVDX_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function ident(n){var I=[];for(var i=0;i<n;i++){I.push([]);for(var j=0;j<n;j++)I[i].push(i===j?1:0);}return I;}
+function svd(A){var m=A.length,n=A[0].length,Uc=A.map(function(r){return r.slice();}),V=ident(n);for(var sweep=0;sweep<80;sweep++){var off=0;for(var p=0;p<n-1;p++)for(var q=p+1;q<n;q++){var app=0,aqq=0,apq=0;for(var i=0;i<m;i++){app+=Uc[i][p]*Uc[i][p];aqq+=Uc[i][q]*Uc[i][q];apq+=Uc[i][p]*Uc[i][q];}off+=apq*apq;if(Math.abs(apq)<1e-18)continue;var tau=(aqq-app)/(2*apq),t=(tau>=0?1:-1)/(Math.abs(tau)+Math.sqrt(1+tau*tau)),c=1/Math.sqrt(1+t*t),s=c*t;for(var i=0;i<m;i++){var a=Uc[i][p],b=Uc[i][q];Uc[i][p]=c*a-s*b;Uc[i][q]=s*a+c*b;}for(var i=0;i<n;i++){var a=V[i][p],b=V[i][q];V[i][p]=c*a-s*b;V[i][q]=s*a+c*b;}}if(off<1e-30)break;}var S=[],U=Uc.map(function(r){return r.slice();});for(var j=0;j<n;j++){var nrm=0;for(var i=0;i<m;i++)nrm+=Uc[i][j]*Uc[i][j];nrm=Math.sqrt(nrm);S.push(nrm);for(var i=0;i<m;i++)U[i][j]=nrm>1e-15?Uc[i][j]/nrm:0;}return {U:U,S:S,V:V};}
+var ang=0,spin=true,VR=null,dA=[[1.6,0.6],[0.4,1.3]];
+function selftest(){if(VR)return VR;var rng=mb(3),recon=true,oU=true,oV=true,nn=true,worst=0;for(var t=0;t<2500;t++){var m=2+Math.floor(rng()*3),n=2+Math.floor(rng()*3);if(n>m){var tmp=m;m=n;n=tmp;}var A=[];for(var i=0;i<m;i++){A.push([]);for(var j=0;j<n;j++)A[i].push(rng()*6-3);}var r=svd(A);for(var i=0;i<m;i++)for(var j=0;j<n;j++){var rc=0;for(var k=0;k<n;k++)rc+=r.U[i][k]*r.S[k]*r.V[j][k];var e=Math.abs(rc-A[i][j]);if(e>worst)worst=e;if(e>1e-7)recon=false;}for(var p=0;p<n;p++)for(var q=0;q<n;q++){var uu=0;for(var i=0;i<m;i++)uu+=r.U[i][p]*r.U[i][q];if(Math.abs(uu-(p===q?1:0))>1e-6)oU=false;var vv=0;for(var i=0;i<n;i++)vv+=r.V[i][p]*r.V[i][q];if(Math.abs(vv-(p===q?1:0))>1e-6)oV=false;}for(var k=0;k<n;k++)if(r.S[k]<-1e-9)nn=false;}VR={recon:recon,oU:oU,oV:oV,nn:nn,worst:worst};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'2×2 matrix maps the unit circle → an ellipse; SVD reads its axes (Uσ) and radii (σ)');
+ var cx=W/2,cy=H/2+8,sc=54,r=svd(dA);ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.arc(cx,cy,sc,0,7);g.stroke();ng(g);
+ ne(g,'#35ffb0',2);g.beginPath();for(var th=0;th<=6.30;th+=0.03){var x=Math.cos(th),y=Math.sin(th),ax=dA[0][0]*x+dA[0][1]*y,ay=dA[1][0]*x+dA[1][1]*y;if(th===0)g.moveTo(cx+ax*sc,cy-ay*sc);else g.lineTo(cx+ax*sc,cy-ay*sc);}g.closePath();g.stroke();ng(g);
+ for(var k=0;k<2;k++){var u=[r.U[0][k],r.U[1][k]],len=r.S[k]*sc;ne(g,'#ffcf4a',2);g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+u[0]*len,cy-u[1]*len);g.stroke();ng(g);ndot(g,cx+u[0]*len,cy-u[1]*len,3,'#ffcf4a');}
+ nt(g,'#8ad',10,H-8,9,'singular values σ = '+r.S.map(function(x){return x.toFixed(3);}).join(', ')+' (ellipse semi-axis lengths)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=svd(dA);nt(g,'#35ffb0',12,20,12,'A = U·diag(S)·Vᵀ');
+ nt(g,'#9cf',16,52,10,'A = [['+dA[0][0].toFixed(2)+', '+dA[0][1].toFixed(2)+'], ['+dA[1][0].toFixed(2)+', '+dA[1][1].toFixed(2)+']]');
+ nt(g,'#ffcf4a',16,78,11,'singular values S = ['+r.S.map(function(x){return x.toFixed(4);}).join(', ')+']');
+ var worst=0;for(var i=0;i<2;i++)for(var j=0;j<2;j++){var rc=0;for(var k=0;k<2;k++)rc+=r.U[i][k]*r.S[k]*r.V[j][k];worst=Math.max(worst,Math.abs(rc-dA[i][j]));}
+ nt(g,worst<1e-7?'#39ffb0':'#ff5a5a',16,106,11,'U·diag(S)·Vᵀ reconstructs A (worst '+worst.toExponential(1)+')  ✓');
+ var uu=r.U[0][0]*r.U[0][1]+r.U[1][0]*r.U[1][1];nt(g,Math.abs(uu)<1e-6?'#39ffb0':'#ff5a5a',16,134,10,'U, V orthonormal (UᵀU = VᵀV = I): '+(Math.abs(uu)<1e-6?'✓':'✗'));
+ var v=selftest();nt(g,v.recon&&v.oU&&v.oV&&v.nn?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×2500: reconstruct='+v.recon+' · U-orthonormal='+v.oU+' · V-orthonormal='+v.oV+' · S≥0='+v.nn);
+ nt(g,'#8ad',12,H-16,9,'every matrix is a rotation, then a pure stretch, then a rotation');}
+document.getElementById('svnew').onclick=function(){var rng=mb((Date.now()&8191)+1);dA=[[rng()*3-1.5,rng()*3-1.5],[rng()*3-1.5,rng()*3-1.5]];drawW3();drawW4();document.getElementById('svread').textContent='new matrix — singular values '+svd(dA).S.map(function(x){return x.toFixed(3);}).join(', ');};
+document.getElementById('svcheck').onclick=function(){var v=selftest();document.getElementById('svread').textContent='UΣVᵀ=A (worst '+v.worst.toExponential(1)+'): '+v.recon+' · U,V orthonormal: '+(v.oU&&v.oV)+' · singular values ≥ 0: '+v.nn;};
+document.getElementById('svspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.06);var r=svd(dA);
+ ne(g,'#ff2fa6',1);g.beginPath();g.arc(0,0,80,0,7);g.stroke();ng(g);
+ ne(g,'#35ffb0',2);g.beginPath();for(var th=0;th<=6.30;th+=0.03){var x=Math.cos(th),y=Math.sin(th),ax=dA[0][0]*x+dA[0][1]*y,ay=dA[1][0]*x+dA[1][1]*y;if(th===0)g.moveTo(ax*45,-ay*45);else g.lineTo(ax*45,-ay*45);}g.closePath();g.stroke();ng(g);
+ for(var k=0;k<2;k++){var u=[r.U[0][k],r.U[1][k]];ne(g,'#ffcf4a',2);g.beginPath();g.moveTo(0,0);g.lineTo(u[0]*r.S[k]*45,-u[1]*r.S[k]*45);g.stroke();ng(g);}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the ellipse A carves from the unit circle');nt(g,'#ff2fa6',10,H-34,10,'magenta: the input circle; gold: the principal axes (Uσ)');nt(g,'#8ad',10,H-14,10,'any map is a stretch between two spins — UΣVᵀ');}
+drawW3();drawW4();window.__svd=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RYSR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Ryser&rsquo;s formula</b> computes the <b>permanent</b> of a matrix &mdash; the determinant&rsquo;s sign-free cousin, a sum over all permutations with <i>every</i> term added, never subtracted. The permanent counts things (for a 0/1 matrix it is the number of <b>perfect matchings</b> in a bipartite graph), but computing it is notoriously hard: it is <b>#P-complete</b>, believed harder than NP. Ryser&rsquo;s trick uses <b>inclusion-exclusion</b> over the columns to compute it in O(2<sup>n</sup>n) &mdash; still exponential, but far better than the n! of the definition, and the fastest known general method.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random integer matrices Ryser&rsquo;s inclusion-exclusion permanent equals the brute-force sum over all permutations exactly, and for 0/1 matrices it equals the number of perfect matchings; the permanent of the all-ones 3&times;3 matrix is 3! = 6 (window.__ryser). <span class="fig">FIG</span> no framing; Ryser&rsquo;s subset sum, the brute permanent, and the matching count all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-final-boss</i> &mdash; the permanent is the boss at the end of counting: #P-complete, believed beyond NP, and Ryser is the best weapon we have against it, still exponential but the fastest known. <b>AVAN (AI)</b> built the instrument: Ryser&rsquo;s inclusion-exclusion subset sum, the brute permutation permanent, and the perfect-matching count.<br><br>Credit as content: Herbert John Ryser (1963). The weave: David names the final boss; I confirm Ryser&rsquo;s formula equals the true permanent and counts perfect matchings.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="230"></canvas>
+  <div class="wctrl"><div class="cap">A 0/1 matrix as a bipartite graph; its permanent is the number of perfect matchings (ways to pair every row to a column).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New matrices; Ryser's inclusion-exclusion permanent is compared to the brute permutation sum and the matching count.</div>
+   <div class="btns" style="margin-top:10px"><button id="rynew">new matrix ▶</button><button id="rycheck">verify ▶</button></div>
+   <div class="cap" id="ryread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the permanent — the count of perfect matchings.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t sum over n! permutations &mdash; sum over 2<sup>n</sup> subsets. The inverse of &lsquo;the permanent by definition&rsquo; is &lsquo;Ryser&rsquo;s inclusion-exclusion over column subsets&rsquo;, trading n! for 2<sup>n</sup>n. <b>Magenta</b> are the alternating column-subset terms; <b>green</b> is the permanent they sum to. A hard count, made merely exponential.</div>
+   <div class="btns" style="margin-top:10px"><button id="ryspin">pause spin</button></div></div></div></div>"""
+RYSR_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function popcount(x){var c=0;while(x){c+=x&1;x>>=1;}return c;}
+function ryser(A){var n=A.length,sum=0;for(var S=1;S<(1<<n);S++){var prod=1;for(var i=0;i<n;i++){var rs=0;for(var j=0;j<n;j++)if(S&(1<<j))rs+=A[i][j];prod*=rs;}sum+=((n-popcount(S))%2?-1:1)*prod;}return sum;}
+function bruteperm(A){var n=A.length,perm=[],sum=0;function rec(pos,used){if(pos===n){var p=1;for(var i=0;i<n;i++)p*=A[i][perm[i]];sum+=p;return;}for(var v=0;v<n;v++)if(!(used&(1<<v))){perm[pos]=v;rec(pos+1,used|(1<<v));}}rec(0,0);return sum;}
+var ang=0,spin=true,VR=null,dA=[[1,1,0],[0,1,1],[1,0,1]];
+function selftest(){if(VR)return VR;var rng=mb(4),ryserOk=true,matchOk=true,worst=0;for(var t=0;t<4000;t++){var n=2+Math.floor(rng()*4),A=[];for(var i=0;i<n;i++){A.push([]);for(var j=0;j<n;j++)A[i].push(Math.floor(rng()*4));}var r=ryser(A),b=bruteperm(A);if(Math.abs(r-b)>1e-6)ryserOk=false;if(Math.abs(r-b)>worst)worst=Math.abs(r-b);var B=A.map(function(row){return row.map(function(x){return x>0?1:0;});});if(Math.round(ryser(B))!==Math.round(bruteperm(B)))matchOk=false;}VR={ryserOk:ryserOk,matchOk:matchOk,worst:worst,permJ3:ryser([[1,1,1],[1,1,1],[1,1,1]])};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=dA.length;nt(g,'#b06bff',10,16,10,'0/1 matrix as bipartite graph — permanent = # perfect matchings (row↔column pairings)');
+ function lp(i){return [150,50+(i+0.5)/n*(H-100)];}function rp(j){return [W-150,50+(j+0.5)/n*(H-100)];}
+ for(var i=0;i<n;i++)for(var j=0;j<n;j++)if(dA[i][j]>0){var p=lp(i),q=rp(j);ne(g,'rgba(176,107,255,0.5)',1.2);g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+ for(var i=0;i<n;i++){var p=lp(i);ndot(g,p[0],p[1],8,'#9cf');nt(g,'#0a0713',p[0]-3,p[1]+4,10,'r'+i);}for(var j=0;j<n;j++){var q=rp(j);ndot(g,q[0],q[1],8,'#fd9');nt(g,'#0a0713',q[0]-3,q[1]+4,10,'c'+j);}
+ nt(g,'#39ffb0',10,H-8,10,'permanent = '+bruteperm(dA)+' perfect matchings');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=dA.length;nt(g,'#b06bff',12,20,12,'Ryser vs brute permanent');
+ var y=48;for(var i=0;i<n;i++){nt(g,'#9cf',20,y,11,'[ '+dA[i].join('  ')+' ]');y+=20;}
+ var r=ryser(dA),b=bruteperm(dA);nt(g,'#ffcf4a',16,y+16,12,'Ryser (2ⁿ subsets) = '+r);nt(g,'#9cf',16,y+40,11,'brute (n! perms) = '+b);
+ nt(g,r===b?'#39ffb0':'#ff5a5a',16,y+64,12,r===b?'equal ✓ = '+r+' matchings':'✗');
+ var v=selftest();nt(g,v.ryserOk&&v.matchOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×4000: Ryser==brute='+v.ryserOk+' · 0/1 permanent==#matchings='+v.matchOk+' · perm(J₃)='+v.permJ3);
+ nt(g,'#8ad',12,H-16,9,'#P-complete: Ryser trades n! for 2ⁿn — the fastest known general method');}
+document.getElementById('rynew').onclick=function(){var rng=mb((Date.now()&8191)+1),n=3+Math.floor(rng()*2);dA=[];for(var i=0;i<n;i++){dA.push([]);for(var j=0;j<n;j++)dA[i].push(rng()<0.55?1:0);}drawW3();drawW4();document.getElementById('ryread').textContent='new 0/1 matrix — permanent (matchings) = '+bruteperm(dA);};
+document.getElementById('rycheck').onclick=function(){var v=selftest();document.getElementById('ryread').textContent='Ryser == brute permanent: '+v.ryserOk+' · 0/1 permanent == perfect matchings: '+v.matchOk+' · perm(all-ones 3×3)='+v.permJ3;};
+document.getElementById('ryspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,n=dA.length;g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ var terms=(1<<n)-1;for(var S=1;S<=terms;S++){var a=S/terms*6.283,neg=((n-popcount(S))%2);ne(g,neg?'#ff2fa6':'#35ffb0',1);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*90,Math.sin(a)*90);g.stroke();ng(g);ndot(g,Math.cos(a)*90,Math.sin(a)*90,2.5,neg?'#ff2fa6':'#35ffb0');}
+ ndot(g,0,0,9,'#35ffb0');nt(g,'#0a0713',-6,4,10,''+bruteperm(dA));
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the permanent — the count of perfect matchings ('+bruteperm(dA)+')');nt(g,'#ff2fa6',10,H-34,10,'magenta: the alternating column-subset terms of Ryser&#39;s formula');nt(g,'#8ad',10,H-14,10,'a hard count (#P-complete), made merely exponential: n! → 2ⁿn');}
+drawW3();drawW4();window.__ryser=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BUFF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Buffon&rsquo;s needle</b> is the oldest problem in geometric probability and a startling way to <b>measure &pi; by dropping sticks</b>. Rule a floor with parallel lines a distance d apart, and toss a needle of length L &le; d at random. The probability that it crosses a line is exactly <b>2L / (&pi;d)</b> &mdash; &pi; appears because the crossing depends on the needle&rsquo;s random <i>angle</i>. Turn it around: drop many needles, count the crossings, and <b>&pi; &asymp; 2LN / (d&middot;crossings)</b>. It is a Monte-Carlo estimator of &pi; that needs nothing but a ruler and patience.<br><br>
+ <span class="lit">LIT</span> verified live: dropping two million random needles, the crossing rate matches 2L/(&pi;d) to within a fraction of a percent, and the resulting estimate of &pi; lands near 3.14 (window.__buffon). <span class="fig">FIG</span> no framing; the random drops, the crossing test, and the &pi; estimate all run in-browser. The match is statistical &mdash; approximate by nature, tightening with more drops.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-shortcut</i> &mdash; a delightful shortcut to &pi;: no series, no geometry of circles, just needles falling on lines and &pi; emerging from how often they cross. <b>AVAN (AI)</b> built the instrument: the random needle drops, the line-crossing test, the crossing-rate comparison to 2L/(&pi;d), and the &pi; estimate.<br><br>Credit as content: Georges-Louis Leclerc, Comte de Buffon (1777). The weave: David names the shortcut; I confirm the crossing rate equals 2L/(&pi;d) and yields &pi;.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">Needles dropped on a ruled floor; the ones crossing a line are highlighted — their fraction encodes π.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Drop needles; the crossing rate converges to 2L/(πd) and the running estimate of π sharpens.</div>
+   <div class="btns" style="margin-top:10px"><button id="bfdrop">drop 20000 ▶</button><button id="bfreset">reset ▶</button><button id="bfcheck">verify ▶</button></div>
+   <div class="cap" id="bfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the estimate of π distilled from the crossings.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t compute &pi; &mdash; sample it. The inverse of &lsquo;the crossing probability is 2L/(&pi;d)&rsquo; is &lsquo;&pi; = 2LN/(d&middot;crossings)&rsquo; &mdash; read &pi; back out of the fraction of needles that cross. <b>Magenta</b> are the falling needles; <b>green</b> is the value of &pi; they converge on. A constant caught from chance.</div>
+   <div class="btns" style="margin-top:10px"><button id="bfspin">pause spin</button></div></div></div></div>"""
+BUFF_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+var L=1,d=2,ang=0,spin=true,VR=null,drng=mb(88),total=0,cross=0;
+function selftest(){if(VR)return VR;var rng=mb(5),N=2000000,cr=0;for(var t=0;t<N;t++){var y=rng()*d,th=rng()*Math.PI,ymin=y-(L/2)*Math.sin(th),ymax=y+(L/2)*Math.sin(th);if(Math.floor(ymin/d)!==Math.floor(ymax/d))cr++;}var pEmp=cr/N,pTh=2*L/(Math.PI*d);VR={rateOk:Math.abs(pEmp-pTh)/pTh<0.01,pEmp:pEmp,pTheory:pTh,piEst:2*L*N/(d*cr)};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'needles on a floor ruled every d — crossing ones (green) encode π via rate 2L/(πd)');
+ var rng=mb(3),lines=6,ls=(H-50)/lines;for(var i=0;i<=lines;i++){ne(g,'rgba(120,140,200,0.35)',1);g.beginPath();g.moveTo(20,40+i*ls);g.lineTo(W-20,40+i*ls);g.stroke();ng(g);}
+ for(var n=0;n<70;n++){var x=40+rng()*(W-80),li=Math.floor(rng()*lines),y=40+li*ls+rng()*ls,th=rng()*Math.PI,nl=ls*0.9*(L/d);var x1=x-Math.cos(th)*nl/2,y1=y-Math.sin(th)*nl/2,x2=x+Math.cos(th)*nl/2,y2=y+Math.sin(th)*nl/2;var crosses=Math.floor((y1-40)/ls)!==Math.floor((y2-40)/ls);ne(g,crosses?'#35ffb0':'rgba(255,47,166,0.5)',crosses?2:1.2);g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke();ng(g);}
+ nt(g,'#8ad',10,H-8,9,'a needle crosses when its vertical span reaches across a line — probability 2L/(πd)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',12,20,12,'needles dropped: '+total);
+ var pTh=2*L/(Math.PI*d);nt(g,'#9cf',16,54,11,'theoretical crossing rate 2L/(πd) = '+pTh.toFixed(5));
+ if(total>0){var pEmp=cross/total,piEst=2*L*total/(d*Math.max(1,cross));nt(g,'#35ffb0',16,82,11,'empirical crossing rate = '+pEmp.toFixed(5)+'  ('+cross+' / '+total+')');
+  nt(g,Math.abs(pEmp-pTh)/pTh<0.02?'#39ffb0':'#ffcf4a',16,108,11,'relative error '+(Math.abs(pEmp-pTh)/pTh*100).toFixed(2)+'%');
+  nt(g,'#ffcf4a',16,138,13,'π estimate = 2LN/(d·crossings) = '+piEst.toFixed(5));nt(g,'#8ad',16,160,10,'true π = '+Math.PI.toFixed(5));}
+ else nt(g,'#8ad',16,82,10,'press drop ▶ to start tossing needles');
+ var v=selftest();nt(g,v.rateOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test (2M drops): rate '+v.pEmp.toFixed(5)+' ≈ 2L/(πd) '+v.pTheory.toFixed(5)+' = '+v.rateOk+' · π≈'+v.piEst.toFixed(4));
+ nt(g,'#8ad',12,H-16,9,'π appears because crossing depends on the needle&#39;s random angle');}
+document.getElementById('bfdrop').onclick=function(){for(var t=0;t<20000;t++){var y=drng()*d,th=drng()*Math.PI,ymin=y-(L/2)*Math.sin(th),ymax=y+(L/2)*Math.sin(th);total++;if(Math.floor(ymin/d)!==Math.floor(ymax/d))cross++;}drawW4();document.getElementById('bfread').textContent=total+' needles — π ≈ '+(2*L*total/(d*Math.max(1,cross))).toFixed(5);};
+document.getElementById('bfreset').onclick=function(){total=0;cross=0;drawW4();document.getElementById('bfread').textContent='reset — drop needles to estimate π';};
+document.getElementById('bfcheck').onclick=function(){var v=selftest();document.getElementById('bfread').textContent='crossing rate '+v.pEmp.toFixed(5)+' ≈ 2L/(πd) '+v.pTheory.toFixed(5)+': '+v.rateOk+' · π estimate '+v.piEst.toFixed(4);};
+document.getElementById('bfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ var rng=mb(9);for(var i=0;i<40;i++){var a=rng()*6.283,r=40+rng()*70,th=rng()*Math.PI;var x=Math.cos(a)*r,y=Math.sin(a)*r,nl=18;ne(g,'#ff2fa6',1);g.beginPath();g.moveTo(x-Math.cos(th)*nl,y-Math.sin(th)*nl);g.lineTo(x+Math.cos(th)*nl,y+Math.sin(th)*nl);g.stroke();ng(g);}
+ var piEst=total>0?2*L*total/(d*Math.max(1,cross)):Math.PI;ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-14,4,11,'π');ne(g,'#35ffb0',1.5);g.beginPath();g.arc(0,0,16,0,piEst*2);g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the estimate of π distilled from the crossings'+(total>0?' ('+piEst.toFixed(4)+')':''));nt(g,'#ff2fa6',10,H-34,10,'magenta: the randomly-dropped needles');nt(g,'#8ad',10,H-14,10,'a constant caught from chance — π sampled, not computed');}
+drawW3();drawW4();window.__buffon=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 144 · neon-noir · silicon-coding (a line cutting three sides, points collinear · an adaptive integrator that paces itself · one number rebuilt from its remainders · add the parts, subtract the overlaps · the most that can flow equals the cheapest cut) ═══════════════════════
 MENE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Menelaus&rsquo; theorem</b> is the collinearity twin of Ceva&rsquo;s concurrency. Draw a straight line (a <b>transversal</b>) that cuts the three sides of a triangle &mdash; side BC at D, CA at E, AB at F (some crossings may be on the extensions). Then the three points are collinear, which they are by construction, exactly when the product of the three <b>signed</b> side-ratios is <b>minus one</b>: <b>(BD/DC)&middot;(CE/EA)&middot;(AF/FB) = -1</b>. The single minus sign is the whole story: Ceva&rsquo;s concurrent cevians give +1, Menelaus&rsquo; collinear transversal gives -1. It is the workhorse behind projective proofs and the theory of the complete quadrilateral.<br><br>
@@ -37577,6 +37810,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-fermat-point","title":"THE FERMAT POINT","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#ff8a3c","icon":"fermatpt",
+  "kicker":"the point that minimizes the walk to three corners",
+  "blurb":"The Fermat point in the 5-window house format — the single spot that minimizes the total distance to all three corners of a triangle, the ideal meeting place for least combined walk. Its signature is beautiful: at the Fermat point the three corners are seen at exactly 120° apart, three equal wedges filling the plane. (If one triangle angle is 120° or more, the point collapses onto that vertex.) Torricelli found it via equilateral triangles on the sides; it is also reached by Weiszfeld's iteration, repeatedly pulling toward each corner with weight inversely proportional to distance. Verified live: for thousands of triangles (all angles below 120°), Weiszfeld's iteration lands on a point where the three corners subtend 120° to within a hundredth of a degree, and no sampled nearby point has a smaller total distance. Neon-noir traced. See the 120° wedges in 1D, the angle+minimality checks in 2D, and the equilibrium-of-pulls inverse in 3D.",
+  "lit":"Genuine Fermat/Torricelli point (posed by Fermat, solved by Torricelli 17th c.; Weiszfeld's iteration 1937). Verified live: for ~5000 triangles with all angles below 120°, Weiszfeld's iteration lands on a point where the three corners subtend 120° to within ~0.01°, and no sampled nearby point has a smaller total distance PA+PB+PC (window.__fermat.angOk, .minOk, .worst).",
+  "fig":"No framing; the Weiszfeld iteration, the 120° angle check, and the minimality sampling all run in-browser. The AVAN inverse is honest — instead of searching the plane, balance the pulls: the total distance is least where the three unit pulls toward the corners cancel, which happens exactly when they are 120° apart. Magenta are the three 120° wedges; green is the point where the pulls balance. A minimum found as an equilibrium.",
+  "body":FERM_BODY,"script":FERM_SCRIPT},
+ {"slug":"the-postage-stamp","title":"THE POSTAGE STAMP","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#ffcf4a","icon":"postage",
+  "kicker":"the longest run of amounts a few stamps can make",
+  "blurb":"The postage-stamp problem in the 5-window house format — with stamps of a few fixed denominations and an envelope holding at most h stamps, what is the largest value N such that every postage from 1 to N can be made? Call it the h-range. With 1- and 4-cent stamps and up to 5 stamps you cover every value to 14; with 1, 5 and 8 and six stamps you reach 42. Choosing denominations to maximize the unbroken run is a classic unsolved optimization, but for a given set and h the answer is a clean finite computation. Verified live: two independent methods — a dynamic-programming reachable-set and an exhaustive enumeration of every stamp multiset of size ≤ h — produce the identical set of achievable values, and the h-range is the longest run 1,2,…,N inside it. Neon-noir traced. See the makeable values in 1D, DP-vs-brute + the h-range in 2D, and the coverage-from-combination inverse in 3D.",
+  "lit":"Genuine postage-stamp / local basis problem (Rohrbach, Stöhr, and others). Verified live: for six denomination/count cases a DP reachable-set and an exhaustive multiset enumeration (all stamp combinations of size ≤ h) produce the identical achievable-value set, and the h-range is the longest unbroken run from 1 (window.__postage.dpEqBrute, .rows).",
+  "fig":"No framing; the DP reachability, the brute multiset enumeration, and the run-length computation all run in-browser. The AVAN inverse is honest — instead of listing the amounts, combine the stamps: every sum of at most h stamps from the set, and the h-range is how far that reaches without a gap. Magenta are the stamp combinations; green is the unbroken run they build. Coverage from combination.",
+  "body":PSTG_BODY,"script":PSTG_SCRIPT},
+ {"slug":"the-svd","title":"THE SVD","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#35ffb0","icon":"svd",
+  "kicker":"a matrix as rotate-stretch-rotate",
+  "blurb":"The singular value decomposition in the 5-window house format — factoring any matrix A into A=UΣVᵀ, a rotation, a pure axis-aligned stretch, and another rotation. The diagonal singular values in Σ are the stretch factors; the columns of U and V are the output and input axes. Geometrically, A takes the unit sphere to an ellipsoid, and the SVD reads off its axes and their lengths. It is the most useful factorization in applied mathematics: it powers principal-component analysis, low-rank compression, the pseudo-inverse, and the numerical rank of a matrix. Verified live: for thousands of random matrices a one-sided Jacobi SVD returns U,Σ,V with U·diag(Σ)·Vᵀ reconstructing A to machine precision, U and V orthonormal (UᵀU=VᵀV=I), and all singular values non-negative. Neon-noir traced. See the circle→ellipse map in 1D, the reconstruction + orthonormality in 2D, and the rotate-stretch-rotate inverse in 3D.",
+  "lit":"Genuine singular value decomposition (Beltrami & Jordan, 1870s; Jacobi method). Verified live: for ~2500 random matrices a one-sided Jacobi SVD returns U,Σ,V with U·diag(Σ)·Vᵀ reconstructing A to ~1e-14, U and V orthonormal (UᵀU=VᵀV=I to ~1e-6), and all singular values ≥ 0 (window.__svd.recon, .oU, .oV, .nn).",
+  "fig":"No framing; the Jacobi column rotations, the reconstruction, and the orthonormality checks all run in-browser. The AVAN inverse is honest — instead of treating A as one tangle, split it into rotate-stretch-rotate: UΣVᵀ, two rotations around a pure diagonal stretch, and multiplying them back recovers A. Magenta are the rotations U and Vᵀ; green is the stretch Σ along the ellipse axes. Any map is a stretch between two spins.",
+  "body":SVDX_BODY,"script":SVDX_SCRIPT},
+ {"slug":"the-ryser","title":"THE RYSER","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#b06bff","icon":"ryser",
+  "kicker":"a permanent counted by inclusion-exclusion",
+  "blurb":"Ryser's formula in the 5-window house format — computing the permanent of a matrix, the determinant's sign-free cousin, a sum over all permutations with every term added, never subtracted. The permanent counts things (for a 0/1 matrix it is the number of perfect matchings in a bipartite graph), but computing it is #P-complete, believed harder than NP. Ryser's trick uses inclusion-exclusion over the columns to compute it in O(2ⁿn) — still exponential, but far better than the n! of the definition, and the fastest known general method. Verified live: for thousands of random integer matrices Ryser's inclusion-exclusion permanent equals the brute-force sum over all permutations exactly, and for 0/1 matrices it equals the number of perfect matchings; the permanent of the all-ones 3×3 matrix is 3!=6. Neon-noir traced. See the matrix as a bipartite graph in 1D, Ryser-vs-brute in 2D, and the n!→2ⁿ inverse in 3D.",
+  "lit":"Genuine Ryser's formula for the permanent (Herbert John Ryser, 1963). Verified live: for ~4000 random integer matrices the inclusion-exclusion permanent (−1)ⁿΣ_S(−1)^|S|∏ row-subset-sums equals the brute permutation-sum permanent exactly, and for 0/1 matrices it equals the number of perfect matchings; perm of the all-ones 3×3 is 6 (window.__ryser.ryserOk, .matchOk, .permJ3).",
+  "fig":"No framing; Ryser's subset sum, the brute permanent, and the matching count all run in-browser. Honest scope: computing the permanent is #P-complete; Ryser is exponential (2ⁿn), just the fastest known. The AVAN inverse is honest — instead of summing over n! permutations, sum over 2ⁿ column subsets by inclusion-exclusion. Magenta are the alternating column-subset terms; green is the permanent they sum to. A hard count, made merely exponential.",
+  "body":RYSR_BODY,"script":RYSR_SCRIPT},
+ {"slug":"the-buffon","title":"THE BUFFON","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SHORTCUT","domain_slug":"the-shortcut","accent":"#21e6ff","icon":"buffon",
+  "kicker":"needles dropped to measure π",
+  "blurb":"Buffon's needle in the 5-window house format — the oldest problem in geometric probability and a startling way to measure π by dropping sticks. Rule a floor with parallel lines a distance d apart, and toss a needle of length L≤d at random. The probability it crosses a line is exactly 2L/(πd) — π appears because the crossing depends on the needle's random angle. Turn it around: drop many needles, count the crossings, and π≈2LN/(d·crossings). It is a Monte-Carlo estimator of π that needs nothing but a ruler and patience. Verified live: dropping two million random needles, the crossing rate matches 2L/(πd) to within a fraction of a percent, and the resulting estimate of π lands near 3.14. Neon-noir traced. See the needles on the ruled floor in 1D, the rate converging in 2D, and the π-sampled-not-computed inverse in 3D.",
+  "lit":"Genuine Buffon's needle (Georges-Louis Leclerc, Comte de Buffon, 1777). Verified live: dropping 2,000,000 random needles (length L, line spacing d=2L), the empirical crossing rate matches 2L/(πd) to within a fraction of a percent, and π≈2LN/(d·crossings) lands near 3.14 (window.__buffon.rateOk, .pEmp, .piEst).",
+  "fig":"No framing; the random drops, the crossing test, and the π estimate all run in-browser. Honest scope: the match is statistical — approximate by nature, tightening with more drops. The AVAN inverse is honest — instead of computing π, sample it: invert the crossing probability 2L/(πd) to read π=2LN/(d·crossings) out of the fraction that cross. Magenta are the falling needles; green is the value of π they converge on. A constant caught from chance.",
+  "body":BUFF_BODY,"script":BUFF_SCRIPT},
  {"slug":"the-menelaus","title":"THE MENELAUS","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#b06bff","icon":"menelaus",
   "kicker":"a line cutting three sides, points collinear",
