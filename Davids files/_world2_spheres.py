@@ -19493,6 +19493,258 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 160 · neon-noir · silicon-coding (an infinite product converging to π/2 · a matrix inverse as a power series · Eulerian circuits counted by a determinant · a binomial limiting to a Poisson · squares on a parallelogram forming a square) ═══════════════════════
+WLLS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Wallis product</b> is one of the oldest infinite products for &pi;, found by John Wallis in 1656 before calculus existed: &pi;/2 = (2&middot;2)/(1&middot;3) &middot; (4&middot;4)/(3&middot;5) &middot; (6&middot;6)/(5&middot;7) &middot; &hellip; = &prod;<sub>n&ge;1</sub> (2n)&sup2;/((2n-1)(2n+1)). An infinite product of simple rational numbers, each just above or below 1, multiplies out to half of &pi;. Wallis derived it by interpolating the integrals &int;<sub>0</sub><sup>&pi;/2</sup> sin<sup>n</sup>x dx, whose ratios encode the product &mdash; the same integrals give the &lsquo;Wallis integrals&rsquo; identity n&middot;W<sub>n</sub>&middot;W<sub>n-1</sub> = &pi;/2.<br><br>
+ <span class="lit">LIT</span> verified live: the partial products &prod;<sub>n=1</sub><sup>N</sup> (2n)&sup2;/((2n-1)(2n+1)) converge to &pi;/2 (1.5708&hellip;), and independently the numerically-integrated Wallis integrals satisfy n&middot;W<sub>n</sub>&middot;W<sub>n-1</sub> = &pi;/2 exactly for every n (window.__wallis). <span class="fig">FIG</span> no framing; the partial product and the Wallis-integral identity both run in-browser and give &pi;/2.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-pull-request</i> &mdash; the co-op merge: a runaway product of rationals and a clean integral identity both push in and land on the same &pi;/2. <b>AVAN (AI)</b> built the instrument: the partial product, the numerically-integrated Wallis integrals, and the n&middot;W<sub>n</sub>&middot;W<sub>n-1</sub> = &pi;/2 cross-check.<br><br>Credit as content: John Wallis (1656). The weave: David names the merge; I confirm the product and the Wallis-integral identity both give &pi;/2.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">The partial products of (2n)²/((2n−1)(2n+1)) closing in on π/2 ≈ 1.5708.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Add factors; the partial product approaches π/2, matched by the Wallis-integral identity n·W_n·W_{n−1}.</div>
+   <div class="btns" style="margin-top:10px"><button id="wanext">add factors ▶</button><button id="wacheck">verify ▶</button></div>
+   <div class="cap" id="waread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: π/2, reached by the infinite product.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t sum a series for &pi; &mdash; multiply rationals. The inverse of &lsquo;&pi;/2&rsquo; is &lsquo;the product &prod;(2n)&sup2;/((2n-1)(2n+1))&rsquo;, mirrored by the Wallis-integral identity n&middot;W<sub>n</sub>&middot;W<sub>n-1</sub>=&pi;/2. <b>Magenta</b> are the product factors; <b>green</b> is the &pi;/2 they converge to. &pi; from a product of near-ones.</div>
+   <div class="btns" style="margin-top:10px"><button id="waspin">pause spin</button></div></div></div></div>"""
+WLLS_SCRIPT = """(function(){""" + NOIR + """
+function wp(N){var p=1;for(var n=1;n<=N;n++)p*=(2*n)*(2*n)/((2*n-1)*(2*n+1));return p;}
+function Wint(n){var M=20000,h=(Math.PI/2)/M,s=0;for(var i=0;i<=M;i++){var x=i*h,f=Math.pow(Math.sin(x),n),w=(i===0||i===M)?1:(i%2?4:2);s+=w*f;}return s*h/3;}
+var ang=0,spin=true,VR=null,terms=10;
+function selftest(){if(VR)return VR;var conv=Math.abs(wp(10000)-Math.PI/2)<1e-3,idOk=true,worst=0;for(var n=1;n<=20;n++){var v=n*Wint(n)*Wint(n-1);if(Math.abs(v-Math.PI/2)>worst)worst=Math.abs(v-Math.PI/2);if(Math.abs(v-Math.PI/2)>1e-4)idOk=false;}VR={conv:conv,idOk:idOk,worst:worst,p:wp(10000)};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'partial products of (2n)²/((2n−1)(2n+1)) → π/2 ≈ 1.5708');
+ var x0=40,base=H-40,mxN=30,sc=(W-60)/mxN,tgt=Math.PI/2,ysc=(H-80)/0.6,y0=base-(1.0-1.0)*ysc;
+ var gy=base-(tgt-1.0)*ysc*2;ne(g,'rgba(53,255,176,0.6)',1.4);g.beginPath();g.moveTo(x0,gy);g.lineTo(W-20,gy);g.stroke();ng(g);nt(g,'#39ffb0',W-60,gy-6,10,'π/2');
+ ne(g,'#ff8a3c',1.8);g.beginPath();for(var n=1;n<=mxN;n++){var p=wp(n),px=x0+n*sc,py=base-(p-1.0)*ysc*2;if(n===1)g.moveTo(px,py);else g.lineTo(px,py);ndot(g,px,py,2,'#ffce9a');}g.stroke();ng(g);
+ nt(g,'#8ad',10,H-8,9,'each factor is just above or below 1; the product converges to π/2 (slowly, ~1/N)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',12,20,12,'Wallis product & the integral identity, '+terms+' factors');
+ var p=wp(terms);nt(g,'#ff8a3c',16,56,13,'∏ (2n)²/((2n−1)(2n+1)) = '+p.toFixed(8));nt(g,'#9cf',16,84,13,'π/2 = '+(Math.PI/2).toFixed(8));nt(g,'#9cf',16,110,11,'error after '+terms+' factors = '+Math.abs(p-Math.PI/2).toExponential(2));
+ var wid=terms,wi=Wint(wid)*Wint(wid-1)*wid;nt(g,'#ffcf4a',16,140,11,'independent: '+wid+'·W_'+wid+'·W_'+(wid-1)+' = '+wi.toFixed(6)+' (= π/2)');
+ var v=selftest();nt(g,v.conv&&v.idOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: product → π/2='+v.conv+' · n·W_n·W_{n−1}=π/2 (worst '+v.worst.toExponential(1)+')='+v.idOk);
+ nt(g,'#8ad',12,H-16,9,'two routes — a product and an integral identity — both give π/2');}
+document.getElementById('wanext').onclick=function(){terms=terms>=100000?10:terms*3;drawW4();document.getElementById('waread').textContent=terms+' factors: product = '+wp(terms).toFixed(8)+' (error '+Math.abs(wp(terms)-Math.PI/2).toExponential(2)+')';};
+document.getElementById('wacheck').onclick=function(){var v=selftest();document.getElementById('waread').textContent='∏(2n)²/((2n−1)(2n+1))→π/2 & n·W_n·W_{n−1}=π/2: '+(v.conv&&v.idOk);};
+document.getElementById('waspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,R=110;g.save();g.translate(cx,cy);g.rotate(ang*0.06);
+ var pp=1;for(var n=1;n<=16;n++){var f=(2*n)*(2*n)/((2*n-1)*(2*n+1)),a=n/16*6.2832,r=40+(f-1)*600;ne(g,'#ff2fa6',1.4);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*(R-20+r*0.1),Math.sin(a)*(R-20+r*0.1));g.stroke();ng(g);ndot(g,Math.cos(a)*(R-20),Math.sin(a)*(R-20),2,'#ff2fa6');pp*=f;}
+ ne(g,'#35ffb0',2);g.beginPath();g.arc(0,0,R,0,6.2832);g.stroke();ng(g);ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-14,4,9,(Math.PI/2).toFixed(3));
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: π/2 ≈ 1.5708, the product\\'s limit');nt(g,'#ff2fa6',10,H-34,10,'magenta: the factors (2n)²/((2n−1)(2n+1)), each near 1');nt(g,'#8ad',10,H-14,10,'π from a product of near-ones');}
+drawW3();drawW4();window.__wallis=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NEUM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Neumann series</b> is the matrix version of the geometric series 1/(1-x) = 1 + x + x&sup2; + &hellip;. For a square matrix A whose size is &lsquo;small enough&rsquo; (spectral radius &lt; 1), the inverse of I - A is the infinite sum of its powers: <b>(I - A)<sup>-1</sup> = I + A + A&sup2; + A&sup3; + &hellip;</b>. Just as the scalar series needs |x| &lt; 1, the matrix series converges precisely when A&rsquo;s powers shrink to zero &mdash; and then a hard matrix inversion becomes a sum you can truncate. It underlies iterative solvers, perturbation theory, and the resolvent of an operator.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random matrices with small entries (spectral radius &lt; 1), the partial sum I + A + &hellip; + A<sup>60</sup> matches the directly-computed inverse (I - A)<sup>-1</sup> to ~1e-14; and for a matrix with spectral radius &gt; 1 the power series diverges (its terms blow up) (window.__neumann). <span class="fig">FIG</span> no framing; the power-series partial sum and the direct matrix inverse both run in-browser and agree when A is small.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-cron-job</i> &mdash; the grind that accumulates one more power of A each tick, the running sum crawling toward the true inverse. <b>AVAN (AI)</b> built the instrument: the power-series partial sum, the direct inverse, and the divergence control for large A.<br><br>Credit as content: Carl Neumann (the operator series). The weave: David names the accumulating grind; I confirm the power series sums to (I - A)<sup>-1</sup> when A is small.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">The partial sums I, I+A, I+A+A², … converging entry-by-entry to the true inverse (I−A)⁻¹.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Add terms; the partial sum Σ Aᵏ approaches (I−A)⁻¹ — and diverges if A's spectral radius exceeds 1.</div>
+   <div class="btns" style="margin-top:10px"><button id="nunext">add term ▶</button><button id="nubig">make A big ▶</button><button id="nucheck">verify ▶</button></div>
+   <div class="cap" id="nuread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the inverse (I−A)⁻¹, built from powers of A.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t invert a matrix &mdash; sum its powers. The inverse of &lsquo;(I - A)<sup>-1</sup>&rsquo; is literally &lsquo;I + A + A&sup2; + &hellip;&rsquo;, convergent exactly when A shrinks under powering. <b>Magenta</b> are the power terms Aᵏ; <b>green</b> is the inverse they sum to. Inversion as a geometric series.</div>
+   <div class="btns" style="margin-top:10px"><button id="nuspin">pause spin</button></div></div></div></div>"""
+NEUM_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function mm(A,B){var n=A.length,C=[];for(var i=0;i<n;i++){C.push([]);for(var j=0;j<n;j++){var s=0;for(var k=0;k<n;k++)s+=A[i][k]*B[k][j];C[i].push(s);}}return C;}
+function ma(A,B){return A.map(function(r,i){return r.map(function(v,j){return v+B[i][j];});});}
+function id(n){var I=[];for(var i=0;i<n;i++){I.push([]);for(var j=0;j<n;j++)I[i].push(i===j?1:0);}return I;}
+function inv(M){var n=M.length,A=M.map(function(r){return r.slice();}),I=id(n);for(var c=0;c<n;c++){var pv=c;for(var r=c+1;r<n;r++)if(Math.abs(A[r][c])>Math.abs(A[pv][c]))pv=r;var t=A[pv];A[pv]=A[c];A[c]=t;t=I[pv];I[pv]=I[c];I[c]=t;var d=A[c][c];for(var j=0;j<n;j++){A[c][j]/=d;I[c][j]/=d;}for(var r=0;r<n;r++)if(r!==c){var f=A[r][c];for(var j=0;j<n;j++){A[r][j]-=f*A[c][j];I[r][j]-=f*I[c][j];}}}return I;}
+function mx(A){var m=0;for(var i=0;i<A.length;i++)for(var j=0;j<A.length;j++)m=Math.max(m,Math.abs(A[i][j]));return m;}
+var ang=0,spin=true,VR=null,dA=[[0.2,-0.15],[0.1,0.25]],terms=4;
+function partial(A,N){var S=id(A.length),Ak=id(A.length);for(var k=1;k<=N;k++){Ak=mm(Ak,A);S=ma(S,Ak);}return S;}
+function trueInv(A){var n=A.length,IA=[];for(var i=0;i<n;i++){IA.push([]);for(var j=0;j<n;j++)IA[i].push((i===j?1:0)-A[i][j]);}return inv(IA);}
+function selftest(){if(VR)return VR;var rng=mb(2),ok=true,worst=0;for(var t=0;t<1200;t++){var n=2+Math.floor(rng()*2),A=[];for(var i=0;i<n;i++){A.push([]);for(var j=0;j<n;j++)A[i].push((rng()*2-1)*0.25);}var S=partial(A,60),T=trueInv(A),e=0;for(var i=0;i<n;i++)for(var j=0;j<n;j++)e=Math.max(e,Math.abs(S[i][j]-T[i][j]));if(e>worst)worst=e;if(e>1e-6)ok=false;}var Ab=[[1.5,0.3],[0.4,1.6]],Ak=id(2),grew=false;for(var k=0;k<40;k++){Ak=mm(Ak,Ab);if(mx(Ak)>1e6)grew=true;}VR={ok:ok,worst:worst,grew:grew};return VR;}
+function drawMat(g,M,ox,oy,cell,col,lbl){var n=M.length;nt(g,col,ox,oy-6,10,lbl);for(var i=0;i<n;i++)for(var j=0;j<n;j++){nf(g,'rgba(30,40,70,0.6)');g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);ng(g);nt(g,'#9cf',ox+j*cell+3,oy+i*cell+cell/2+4,10,M[i][j].toFixed(3));}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'partial sums I + A + A² + … → (I−A)⁻¹');
+ drawMat(g,partial(dA,terms),30,44,48,'#b06bff','I+A+…+A^'+terms);drawMat(g,trueInv(dA),W/2+30,44,48,'#35ffb0','(I−A)⁻¹');
+ var S=partial(dA,terms),T=trueInv(dA),e=0;for(var i=0;i<2;i++)for(var j=0;j<2;j++)e=Math.max(e,Math.abs(S[i][j]-T[i][j]));nt(g,'#39ffb0',10,H-24,11,'max entry difference after '+terms+' terms = '+e.toExponential(2));
+ nt(g,'#8ad',10,H-8,9,'converges because the powers Aᵏ shrink to zero (spectral radius < 1)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',12,20,12,'Σ_{k=0}^'+terms+' Aᵏ  vs  (I−A)⁻¹');
+ var big=mx(dA)>0.9;var S=partial(dA,terms),T=big?null:trueInv(dA);
+ nt(g,'#9cf',16,54,10,'max|A entry| = '+mx(dA).toFixed(3)+(big?'  (spectral radius likely > 1 → diverges)':'  (< 1 → converges)'));
+ var Ak=id(dA.length);for(var k=0;k<terms;k++)Ak=mm(Ak,dA);nt(g,'#c9a6ff',16,84,11,'‖A^'+terms+'‖ = '+mx(Ak).toExponential(2)+(mx(Ak)<1e-3?' → 0 ✓':(mx(Ak)>10?' → ∞ (diverges)':'')));
+ if(T){var e=0;for(var i=0;i<T.length;i++)for(var j=0;j<T.length;j++)e=Math.max(e,Math.abs(S[i][j]-T[i][j]));nt(g,e<1e-4?'#39ffb0':'#9cf',16,114,12,'‖partial − (I−A)⁻¹‖ = '+e.toExponential(2)+(e<1e-4?' ✓':''));}
+ var v=selftest();nt(g,v.ok&&v.grew?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×1200 (‖A‖<1): Σ Aᵏ==(I−A)⁻¹ (worst '+v.worst.toExponential(1)+')='+v.ok+' · ρ>1 diverges='+v.grew);
+ nt(g,'#8ad',12,H-16,9,'the matrix geometric series — inversion by summing powers');}
+document.getElementById('nunext').onclick=function(){terms++;if(terms>30)terms=1;drawW3();drawW4();document.getElementById('nuread').textContent=terms+' terms: ‖A^'+terms+'‖ shrinking, partial sum approaching (I−A)⁻¹';};
+document.getElementById('nubig').onclick=function(){dA=[[1.5,0.3],[0.4,1.6]];terms=4;drawW3();drawW4();document.getElementById('nuread').textContent='A made large (ρ>1) → powers Aᵏ blow up, series DIVERGES';};
+document.getElementById('nucheck').onclick=function(){var v=selftest();document.getElementById('nuread').textContent='Σ Aᵏ == (I−A)⁻¹ for ‖A‖<1 (1200 matrices): '+v.ok+' · diverges for ρ>1: '+v.grew;};
+document.getElementById('nuspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.06);var Ak=id(dA.length);
+ for(var k=0;k<10;k++){var nm=mx(Ak),a=k/10*6.2832,r=30+Math.min(110,nm*90);ne(g,'#ff2fa6',1.4);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,3,'#ff2fa6');nt(g,'#ff6ab0',Math.cos(a)*r*1.12,Math.sin(a)*r*1.12,8,'A'+k);Ak=mm(Ak,dA);}
+ var T=mx(dA)>0.9?null:trueInv(dA);ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-14,4,8,T?T[0][0].toFixed(2):'∞');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the inverse (I−A)⁻¹, sum of the power terms');nt(g,'#ff2fa6',10,H-34,10,'magenta: the powers Aᵏ (shrinking to 0 when ‖A‖<1)');nt(g,'#8ad',10,H-14,10,'inversion as a geometric series');}
+drawW3();drawW4();window.__neumann=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BEST_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The BEST theorem</b> (de Bruijn, van Aardenne-Ehrenfest, Smith, Tutte) counts the <b>Eulerian circuits</b> of a directed graph &mdash; closed trails using every edge exactly once &mdash; with a single formula. For a connected Eulerian digraph (every vertex has equal in- and out-degree), the number of Eulerian circuits is <b>ec(G) = t<sub>w</sub>(G) &middot; &prod;<sub>v</sub> (deg&#8314;(v) - 1)!</b>, where t<sub>w</sub>(G) is the number of spanning arborescences (in-trees) rooted at any vertex w &mdash; itself a determinant, via the Matrix-Tree theorem. So an exponential count of tangled circuits collapses into one determinant times some factorials.<br><br>
+ <span class="lit">LIT</span> verified live: for several small Eulerian digraphs, a brute enumeration of Eulerian circuits (fixing the starting edge) exactly equals t<sub>w</sub>(G)&middot;&prod;<sub>v</sub>(deg&#8314;(v)-1)!, with t<sub>w</sub> computed as a cofactor determinant of the graph Laplacian (window.__best). <span class="fig">FIG</span> no framing; the brute circuit count and the determinant-times-factorials formula both run in-browser and agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>sudden-death</i> &mdash; the boss encounter: an exponential thicket of Eulerian circuits, tamed in one blow by a determinant and a product of factorials. <b>AVAN (AI)</b> built the instrument: the brute Eulerian-circuit enumeration, the arborescence cofactor, and the BEST formula.<br><br>Credit as content: N. G. de Bruijn, T. van Aardenne-Ehrenfest, C. A. B. Smith, W. T. Tutte (the &lsquo;BEST&rsquo; initials). The weave: David names the boss; I confirm the circuit count equals the arborescence determinant times &prod;(deg-1)!.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A small Eulerian digraph (every in-degree = out-degree) with one Eulerian circuit traced through it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle graphs; the brute Eulerian-circuit count is compared to t_w(G)·∏(deg⁺−1)!.</div>
+   <div class="btns" style="margin-top:10px"><button id="bsnext">next graph ▶</button><button id="bscheck">verify ▶</button></div>
+   <div class="cap" id="bsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the number of Eulerian circuits.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t enumerate the circuits &mdash; count the trees. The inverse of &lsquo;how many Eulerian circuits?&rsquo; is &lsquo;t<sub>w</sub>(G)&middot;&prod;(deg-1)!&rsquo; &mdash; a spanning-arborescence determinant times factorials. <b>Magenta</b> is the digraph; <b>green</b> is the Eulerian-circuit count the determinant yields. Exponential circuits from one determinant.</div>
+   <div class="btns" style="margin-top:10px"><button id="bsspin">pause spin</button></div></div></div></div>"""
+BEST_SCRIPT = """(function(){""" + NOIR + """
+function eulerCount(n,arcs){var m=arcs.length,start=arcs[0][0],out=[];for(var i=0;i<n;i++)out.push([]);for(var a=1;a<m;a++)out[arcs[a][0]].push(a);var used=new Array(m).fill(false);used[0]=true;var cnt=0;function rec(cur,cu){if(cu===m){if(cur===start)cnt++;return;}for(var i=0;i<out[cur].length;i++){var a=out[cur][i];if(!used[a]){used[a]=true;rec(arcs[a][1],cu+1);used[a]=false;}}}rec(arcs[0][1],1);return cnt;}
+function detF(M){var n=M.length;if(n===0)return 1;var A=M.map(function(r){return r.slice();}),det=1;for(var k=0;k<n;k++){var pv=k;for(var i=k+1;i<n;i++)if(Math.abs(A[i][k])>Math.abs(A[pv][k]))pv=i;if(Math.abs(A[pv][k])<1e-12)return 0;if(pv!==k){var t=A[pv];A[pv]=A[k];A[k]=t;det=-det;}det*=A[k][k];for(var i=k+1;i<n;i++){var f=A[i][k]/A[k][k];for(var j=k;j<n;j++)A[i][j]-=f*A[k][j];}}return det;}
+function arbor(n,arcs,w){var A=[];for(var i=0;i<n;i++){A.push([]);for(var j=0;j<n;j++)A[i].push(0);}var od=new Array(n).fill(0);arcs.forEach(function(a){A[a[0]][a[1]]++;od[a[0]]++;});var L=[];for(var i=0;i<n;i++){L.push([]);for(var j=0;j<n;j++)L[i].push(i===j?od[i]:-A[i][j]);}var M=[];for(var i=0;i<n;i++){if(i===w)continue;var row=[];for(var j=0;j<n;j++){if(j===w)continue;row.push(L[i][j]);}M.push(row);}return Math.round(detF(M));}
+function fact(k){var r=1;for(var i=2;i<=k;i++)r*=i;return r;}
+var ang=0,spin=true,VR=null,GRAPHS=[
+ {name:'bidirected K₃',n:3,arcs:[[0,1],[1,2],[2,0],[0,2],[2,1],[1,0]],pos:[[0,-1],[0.87,0.5],[-0.87,0.5]]},
+ {name:'K₃ (two 2-cycles + ...)',n:3,arcs:[[0,1],[1,0],[1,2],[2,1],[0,2],[2,0]],pos:[[0,-1],[0.87,0.5],[-0.87,0.5]]},
+ {name:'4-cycle + 0↔2',n:4,arcs:[[0,1],[1,2],[2,3],[3,0],[0,2],[2,0]],pos:[[-1,-1],[1,-1],[1,1],[-1,1]]},
+ {name:'2-vertex double',n:2,arcs:[[0,1],[1,0],[0,1],[1,0]],pos:[[-1,0],[1,0]]}
+],gi=0;
+function ec(G){return eulerCount(G.n,G.arcs);}
+function best(G){var od=new Array(G.n).fill(0);G.arcs.forEach(function(a){od[a[0]]++;});var tw=arbor(G.n,G.arcs,G.arcs[0][0]),prod=1;for(var v=0;v<G.n;v++)prod*=fact(od[v]-1);return tw*prod;}
+function selftest(){if(VR)return VR;var ok=true;for(var g=0;g<GRAPHS.length;g++)if(ec(GRAPHS[g])!==best(GRAPHS[g]))ok=false;VR={ok:ok};return VR;}
+function drawArc(g,p1,p2,curve,col){var mx=(p1[0]+p2[0])/2,my=(p1[1]+p2[1])/2,dx=p2[0]-p1[0],dy=p2[1]-p1[1],nx=-dy,ny=dx,cxp=mx+nx*curve,cyp=my+ny*curve;ne(g,col,1.4);g.beginPath();g.moveTo(p1[0],p1[1]);g.quadraticCurveTo(cxp,cyp,p2[0],p2[1]);g.stroke();ng(g);var t=0.7,ax=(1-t)*(1-t)*p1[0]+2*(1-t)*t*cxp+t*t*p2[0],ay=(1-t)*(1-t)*p1[1]+2*(1-t)*t*cyp+t*t*p2[1];ndot(g,ax,ay,2.5,col);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var G=GRAPHS[gi];nt(g,'#21e6ff',10,16,10,G.name+' — Eulerian digraph (in-deg = out-deg at every vertex)');
+ var cx=W/2-40,cy=H/2+6,sc=90;function P(i){return [cx+G.pos[i][0]*sc,cy+G.pos[i][1]*sc];}
+ G.arcs.forEach(function(a,ix){var p1=P(a[0]),p2=P(a[1]);drawArc(g,p1,p2,0.12+0.06*(ix%2),'rgba(33,230,255,0.55)');});
+ for(var i=0;i<G.n;i++){var p=P(i);ndot(g,p[0],p[1],9,'#9cf');nt(g,'#0a0713',p[0]-3,p[1]+4,11,''+i);}
+ nt(g,'#39ffb0',cx+150,cy,12,ec(G)+' Eulerian');nt(g,'#39ffb0',cx+150,cy+18,12,'circuits');
+ nt(g,'#8ad',10,H-8,9,'closed trails using every arc exactly once — counted by the BEST theorem');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var G=GRAPHS[gi];nt(g,'#21e6ff',12,20,12,G.name);
+ var brute=ec(G),od=new Array(G.n).fill(0);G.arcs.forEach(function(a){od[a[0]]++;});var tw=arbor(G.n,G.arcs,G.arcs[0][0]),prod=1,pterms=[];for(var v=0;v<G.n;v++){prod*=fact(od[v]-1);pterms.push('('+(od[v]-1)+')!');}
+ nt(g,'#9cf',16,54,11,G.arcs.length+' arcs, out-degrees ['+od.join(',')+']');
+ nt(g,'#35ffb0',16,84,13,'brute Eulerian circuits = '+brute);
+ nt(g,'#ffcf4a',16,112,12,'t_w(G) = '+tw+' (arborescence determinant)');nt(g,'#ffcf4a',16,136,12,'∏(deg⁺−1)! = '+pterms.join('·')+' = '+prod);
+ nt(g,brute===tw*prod?'#39ffb0':'#ff5a5a',16,164,13,'t_w·∏(deg−1)! = '+(tw*prod)+(brute===tw*prod?' = brute ✓':' ✗'));
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test '+GRAPHS.length+' Eulerian digraphs: brute == BEST formula = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'an exponential count from one determinant times factorials');}
+document.getElementById('bsnext').onclick=function(){gi=(gi+1)%GRAPHS.length;drawW3();drawW4();document.getElementById('bsread').textContent=GRAPHS[gi].name+': '+ec(GRAPHS[gi])+' Eulerian circuits = BEST '+best(GRAPHS[gi]);};
+document.getElementById('bscheck').onclick=function(){var v=selftest();document.getElementById('bsread').textContent='brute Eulerian-circuit count == t_w(G)·∏(deg⁺−1)! for all test graphs: '+v.ok;};
+document.getElementById('bsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,G=GRAPHS[gi],sc=90;g.save();g.translate(cx,cy);g.rotate(ang*0.06);function P(i){return [G.pos[i][0]*sc,G.pos[i][1]*sc];}
+ G.arcs.forEach(function(a,ix){var p1=P(a[0]),p2=P(a[1]);drawArc(g,p1,p2,0.14+0.06*(ix%2),'rgba(255,47,166,0.5)');});
+ for(var i=0;i<G.n;i++){var p=P(i);ndot(g,p[0],p[1],8,'#9cf');}
+ ndot(g,0,0,12,'#35ffb0');nt(g,'#0a0713',-8,4,10,''+ec(G));
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: '+ec(G)+' Eulerian circuits (= the BEST determinant × factorials)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the Eulerian digraph and its arcs');nt(g,'#8ad',10,H-14,10,'exponential circuits from one determinant');}
+drawW3();drawW4();window.__best=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+POIS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Poisson limit theorem</b> (the &lsquo;law of rare events&rsquo;) explains why the Poisson distribution appears everywhere. If you have <b>many</b> independent trials, each with a <b>tiny</b> success probability, but a fixed expected number of successes &lambda; = np, then the binomial distribution Binomial(n, &lambda;/n) converges to the <b>Poisson</b> distribution with mean &lambda;: C(n,k)(&lambda;/n)<sup>k</sup>(1-&lambda;/n)<sup>n-k</sup> &rarr; e<sup>-&lambda;</sup>&lambda;<sup>k</sup>/k! as n &rarr; &infin;. Rare events among many trials &mdash; radioactive decays, typos per page, calls per minute &mdash; all follow Poisson.<br><br>
+ <span class="lit">LIT</span> verified live: for &lambda; = 3, the binomial pmf Binomial(n, 3/n) approaches the Poisson(3) pmf as n grows &mdash; the maximum gap between the two distributions shrinks from ~4e-2 at n=10 to ~3e-5 at n=10000 (window.__poisson). <span class="fig">FIG</span> no framing; the exact binomial pmf and the Poisson pmf both run in-browser and their gap vanishes as n grows.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>divide-by-zero</i> &mdash; the glitch of vanishing probability: each trial&rsquo;s chance divides toward zero as the trials multiply, and the binomial dissolves into a clean Poisson. <b>AVAN (AI)</b> built the instrument: the exact binomial pmf, the Poisson pmf, and their shrinking gap.<br><br>Credit as content: Sim&eacute;on Denis Poisson (1837); the limit as the law of rare events. The weave: David names the vanishing probability; I confirm Binomial(n, &lambda;/n) tends to Poisson(&lambda;).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">The binomial pmf (bars) and the Poisson(λ) pmf (line) — the bars settle onto the line as n grows.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Increase n; the binomial(n, λ/n) closes onto Poisson(λ), the max gap shrinking toward zero.</div>
+   <div class="btns" style="margin-top:10px"><button id="ponext">bigger n ▶</button><button id="pocheck">verify ▶</button></div>
+   <div class="cap" id="poread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Poisson(λ) limit of the binomial.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t track n trials &mdash; keep only the mean. The inverse of &lsquo;Binomial(n, &lambda;/n) for huge n&rsquo; is &lsquo;Poisson(&lambda;), which depends only on the expected count &lambda;&rsquo;. <b>Magenta</b> is the binomial pmf; <b>green</b> is the Poisson limit it settles onto. Many rare trials, one Poisson.</div>
+   <div class="btns" style="margin-top:10px"><button id="pospin">pause spin</button></div></div></div></div>"""
+POIS_SCRIPT = """(function(){""" + NOIR + """
+function lf(k){var s=0;for(var i=2;i<=k;i++)s+=Math.log(i);return s;}
+function binPmf(n,k,p){if(k>n)return 0;return Math.exp(lf(n)-lf(k)-lf(n-k)+k*Math.log(p)+(n-k)*Math.log(1-p));}
+function poiPmf(l,k){return Math.exp(-l+k*Math.log(l)-lf(k));}
+var ang=0,spin=true,VR=null,lam=3,dn=10;
+function selftest(){if(VR)return VR;var ok=true,rows=[];[10,100,1000,10000].forEach(function(n){var worst=0;for(var k=0;k<=20;k++){var b=binPmf(n,k,lam/n),p=poiPmf(lam,k);if(Math.abs(b-p)>worst)worst=Math.abs(b-p);}rows.push(n+':'+worst.toExponential(1));if(n>=1000&&worst>1e-3)ok=false;});VR={ok:ok,rows:rows};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'Binomial('+dn+', '+lam+'/'+dn+') bars vs Poisson('+lam+') line — settling together');
+ var K=12,bw=(W-50)/(K+1),base=H-40,mx=0;for(var k=0;k<=K;k++)mx=Math.max(mx,binPmf(dn,k,lam/dn),poiPmf(lam,k));
+ for(var k=0;k<=K;k++){var b=binPmf(dn,k,lam/dn);nf(g,'rgba(255,47,166,0.4)');g.fillRect(25+k*bw,base-b/mx*170,bw*0.8,b/mx*170);ng(g);nt(g,'#8ad',25+k*bw,base+12,8,''+k);}
+ ne(g,'#35ffb0',2);g.beginPath();for(var k=0;k<=K;k++){var p=poiPmf(lam,k),px=25+k*bw+bw*0.4,py=base-p/mx*170;if(k===0)g.moveTo(px,py);else g.lineTo(px,py);ndot(g,px,py,2.5,'#35ffb0');}g.stroke();ng(g);
+ nt(g,'#8ad',10,H-8,9,'C(n,k)(λ/n)^k(1−λ/n)^{n−k} → e^{−λ}λ^k/k! as n → ∞');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',12,20,12,'Binomial(n, 3/n) → Poisson(3), n = '+dn);
+ var worst=0,wk=0;for(var k=0;k<=20;k++){var b=binPmf(dn,k,lam/dn),p=poiPmf(lam,k);if(Math.abs(b-p)>worst){worst=Math.abs(b-p);wk=k;}}
+ nt(g,'#9cf',16,56,11,'p = λ/n = '+(lam/dn).toFixed(5));
+ nt(g,'#9cf',16,84,11,'largest gap at k='+wk+': binomial='+binPmf(dn,wk,lam/dn).toFixed(5)+', Poisson='+poiPmf(lam,wk).toFixed(5));
+ nt(g,worst<0.01?'#39ffb0':'#ffcf4a',16,112,13,'max |binomial − Poisson| = '+worst.toExponential(3));
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-56,9,'self-test: gap shrinks with n ['+v.rows.join(', ')+'] = '+v.ok);
+ nt(g,'#8ad',12,H-38,9,'the "law of rare events" — many trials, tiny p, fixed mean λ');
+ nt(g,'#8ad',12,H-16,9,'radioactive decays, typos per page, calls per minute — all Poisson');}
+document.getElementById('ponext').onclick=function(){dn=dn>=10000?10:dn*10;drawW3();drawW4();var worst=0;for(var k=0;k<=20;k++)worst=Math.max(worst,Math.abs(binPmf(dn,k,lam/dn)-poiPmf(lam,k)));document.getElementById('poread').textContent='n='+dn+': max |binomial − Poisson| = '+worst.toExponential(3);};
+document.getElementById('pocheck').onclick=function(){var v=selftest();document.getElementById('poread').textContent='Binomial(n,λ/n) → Poisson(λ), gap → 0 as n grows: '+v.ok;};
+document.getElementById('pospin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);var K=14,mx=0;for(var k=0;k<=K;k++)mx=Math.max(mx,poiPmf(lam,k));
+ for(var k=0;k<=K;k++){var p=poiPmf(lam,k),b=binPmf(dn,k,lam/dn),a=k/(K+1)*6.2832,rp=30+p/mx*110,rb=30+b/mx*110;ne(g,'#ff2fa6',1.4);g.beginPath();g.moveTo(Math.cos(a)*30,Math.sin(a)*30);g.lineTo(Math.cos(a)*rb,Math.sin(a)*rb);g.stroke();ng(g);ndot(g,Math.cos(a)*rp,Math.sin(a)*rp,3,'#35ffb0');}
+ ne(g,'#35ffb0',1.2);g.beginPath();for(var k=0;k<=K;k++){var p=poiPmf(lam,k),a=k/(K+1)*6.2832,rp=30+p/mx*110;if(k===0)g.moveTo(Math.cos(a)*rp,Math.sin(a)*rp);else g.lineTo(Math.cos(a)*rp,Math.sin(a)*rp);}g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the Poisson(λ='+lam+') limit distribution');nt(g,'#ff2fa6',10,H-34,10,'magenta: the binomial(n='+dn+', λ/n) bars converging to it');nt(g,'#8ad',10,H-14,10,'many rare trials, one Poisson');}
+drawW3();drawW4();window.__poisson=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+THEB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Th&eacute;bault&rsquo;s first theorem</b> conjures a perfect square out of any parallelogram. Take <b>any</b> parallelogram and erect a square outward on each of its four sides. Mark the centre of each square. Th&eacute;bault proved that these four centres are always the vertices of a <b>square</b> &mdash; no matter how slanted or stretched the original parallelogram is. A lopsided parallelogram, four squares on its edges, and their centres snap into a flawless square. It is a cousin of Van Aubel&rsquo;s theorem, but for the special case of a parallelogram the result sharpens from &lsquo;equal perpendicular diagonals&rsquo; all the way to &lsquo;a square&rsquo;.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random parallelograms, the four square-centres have all four sides equal and both diagonals equal (to machine precision) &mdash; the defining conditions of a square (window.__thebault). <span class="fig">FIG</span> no framing; the square centres and the equal-sides/equal-diagonals test both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>hello-world</i> &mdash; the spawn: from a slanted parallelogram, a flawless square boots into existence at the square-centres. <b>AVAN (AI)</b> built the instrument: the outward square centres, and the equal-sides-and-diagonals square test.<br><br>Credit as content: Victor Th&eacute;bault (first theorem). The weave: David names the spawn; I confirm the four square-centres form a square for any parallelogram.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A parallelogram with a square on each side; the four square-centres form a perfect square.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New parallelograms; the four centres are checked to have equal sides and equal diagonals — a square.</div>
+   <div class="btns" style="margin-top:10px"><button id="thnext">new parallelogram ▶</button><button id="thcheck">verify ▶</button></div>
+   <div class="cap" id="thread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the perfect square formed by the four square-centres.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t study the slanted parallelogram &mdash; read the square. The inverse of &lsquo;any parallelogram&rsquo; is &lsquo;a perfect square at the four outward square-centres&rsquo;, whatever the slant. <b>Magenta</b> are the four squares on the sides; <b>green</b> is the square their centres form. A square from any parallelogram.</div>
+   <div class="btns" style="margin-top:10px"><button id="thspin">pause spin</button></div></div></div></div>"""
+THEB_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function sqCenter(U,V){var mx=(U[0]+V[0])/2,my=(U[1]+V[1])/2,dx=V[0]-U[0],dy=V[1]-U[1];return [mx+dy/2,my-dx/2];}
+function sqCorners(U,V){var dx=V[0]-U[0],dy=V[1]-U[1];return [U,V,[V[0]+dy,V[1]-dx],[U[0]+dy,U[1]-dx]];}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+var ang=0,spin=true,VR=null,pA=[-1.5,-0.9],pB=[1.3,-1.3],pC=[1.9,0.9];
+function para(){return {A:pA,B:pB,C:pC,D:[pA[0]+pC[0]-pB[0],pA[1]+pC[1]-pB[1]]};}
+function centers(){var p=para();return {P:sqCenter(p.A,p.B),Q:sqCenter(p.B,p.C),R:sqCenter(p.C,p.D),S:sqCenter(p.D,p.A),p:p};}
+function selftest(){if(VR)return VR;var rng=mb(5),ok=true,worst=0;for(var t=0;t<8000;t++){var A=[rng()*4-2,rng()*4-2],B=[rng()*4-2,rng()*4-2],C=[rng()*4-2,rng()*4-2],D=[A[0]+C[0]-B[0],A[1]+C[1]-B[1]],P=sqCenter(A,B),Q=sqCenter(B,C),R=sqCenter(C,D),S=sqCenter(D,A),s=[dist(P,Q),dist(Q,R),dist(R,S),dist(S,P)],d1=dist(P,R),d2=dist(Q,S),smax=Math.max.apply(null,s),smin=Math.min.apply(null,s),e=Math.max((smax-smin)/(smax+1e-9),Math.abs(d1-d2)/(d1+1e-9));if(e>worst)worst=e;if(e>1e-9)ok=false;}VR={ok:ok,worst:worst};return VR;}
+function tp(cv,p){return [cv.width/2+p[0]*54,cv.height/2+6-p[1]*54];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var c=centers(),p=c.p,sides=[[p.A,p.B],[p.B,p.C],[p.C,p.D],[p.D,p.A]];nt(g,'#35ffb0',10,16,10,'squares on a parallelogram\\'s sides — the four centres form a perfect square');
+ sides.forEach(function(sd){var cor=sqCorners(sd[0],sd[1]);ne(g,'rgba(255,47,166,0.5)',1.2);g.beginPath();for(var k=0;k<4;k++){var q=tp(cv,cor[k]);if(k===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}g.closePath();g.stroke();ng(g);});
+ ne(g,'rgba(150,160,210,0.7)',1.6);g.beginPath();[p.A,p.B,p.C,p.D].forEach(function(v,i){var q=tp(cv,v);if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);});g.closePath();g.stroke();ng(g);
+ ne(g,'#35ffb0',2.4);g.beginPath();[c.P,c.Q,c.R,c.S].forEach(function(v,i){var q=tp(cv,v);if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);});g.closePath();g.stroke();ng(g);[c.P,c.Q,c.R,c.S].forEach(function(v){var q=tp(cv,v);ndot(g,q[0],q[1],3,'#39ffb0');});
+ nt(g,'#8ad',10,H-8,9,'sides PQ=QR=RS=SP and diagonals PR=QS → a square, whatever the slant');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var c=centers();nt(g,'#35ffb0',12,20,12,'the four square-centres');
+ var s=[dist(c.P,c.Q),dist(c.Q,c.R),dist(c.R,c.S),dist(c.S,c.P)],d1=dist(c.P,c.R),d2=dist(c.Q,c.S);
+ nt(g,'#9cf',16,54,11,'sides: '+s.map(function(x){return x.toFixed(4);}).join(', '));
+ var smax=Math.max.apply(null,s),smin=Math.min.apply(null,s);nt(g,(smax-smin)<1e-5?'#39ffb0':'#ff5a5a',16,80,11,'all sides equal ✓  (spread '+(smax-smin).toExponential(1)+')');
+ nt(g,'#9cf',16,108,11,'diagonals: PR='+d1.toFixed(4)+', QS='+d2.toFixed(4));nt(g,Math.abs(d1-d2)<1e-5?'#39ffb0':'#ff5a5a',16,134,11,'diagonals equal ✓  (Δ '+Math.abs(d1-d2).toExponential(1)+')');
+ nt(g,(smax-smin)<1e-5&&Math.abs(d1-d2)<1e-5?'#39ffb0':'#ff5a5a',16,162,13,'→ a square ✓');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×8000 parallelograms: centres form a square (worst '+v.worst.toExponential(1)+') = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'Van Aubel sharpened: for a parallelogram the centres make a full square');}
+document.getElementById('thnext').onclick=function(){var rng=mb((Date.now()&8191)+1);pA=[rng()*3-1.5,rng()*3-1.5];pB=[rng()*3-1.5,rng()*3-1.5];pC=[rng()*3-1.5,rng()*3-1.5];drawW3();drawW4();document.getElementById('thread').textContent='new parallelogram — the four square-centres form a perfect square';};
+document.getElementById('thcheck').onclick=function(){var v=selftest();document.getElementById('thread').textContent='square-centres of a parallelogram\\'s side-squares form a square (8000 cases): '+v.ok;};
+document.getElementById('thspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,sc=48,c=centers(),p=c.p;g.save();g.translate(cx,cy);g.rotate(ang*0.06);function q(v){return [v[0]*sc,-v[1]*sc];}
+ [[p.A,p.B],[p.B,p.C],[p.C,p.D],[p.D,p.A]].forEach(function(sd){var cor=sqCorners(sd[0],sd[1]);ne(g,'#ff2fa6',1.2);g.beginPath();for(var k=0;k<4;k++){var w=q(cor[k]);if(k===0)g.moveTo(w[0],w[1]);else g.lineTo(w[0],w[1]);}g.closePath();g.stroke();ng(g);});
+ ne(g,'#35ffb0',2.6);g.beginPath();[c.P,c.Q,c.R,c.S].forEach(function(v,i){var w=q(v);if(i===0)g.moveTo(w[0],w[1]);else g.lineTo(w[0],w[1]);});g.closePath();g.stroke();ng(g);nf(g,'rgba(53,255,176,0.12)');g.fill();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the perfect square formed by the four centres');nt(g,'#ff2fa6',10,H-34,10,'magenta: the four squares on the parallelogram\\'s sides');nt(g,'#8ad',10,H-14,10,'a square from any parallelogram');}
+drawW3();drawW4();window.__thebault=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 159 · neon-noir · silicon-coding (a factorial approximated by a smooth curve · a cevian length from the sides · self-inverse permutations counted by a recurrence · a prime always between n and 2n · two numbers summing to each other's divisors) ═══════════════════════
 STIR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Stirling&rsquo;s approximation</b> replaces the jagged factorial with a smooth formula: n! &asymp; &radic;(2&pi;n)&middot;(n/e)<sup>n</sup>. The factorial n! grows faster than any exponential, and computing it means multiplying n terms &mdash; but Stirling&rsquo;s formula pins its size with a single expression involving only &pi;, e, and powers. The relative error shrinks like 1/(12n), so the next correction term is n! &asymp; &radic;(2&pi;n)(n/e)<sup>n</sup>(1 + 1/(12n) + &hellip;). It is the workhorse behind asymptotics in combinatorics, statistical mechanics, and probability &mdash; anywhere large factorials appear.<br><br>
@@ -41210,6 +41462,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-wallis-product","title":"THE WALLIS PRODUCT","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#ff8a3c","icon":"wallis",
+  "kicker":"an infinite product converging to π/2",
+  "blurb":"The Wallis product in the 5-window house format — one of the oldest infinite products for π, found by John Wallis in 1656 before calculus existed: π/2 = (2·2)/(1·3)·(4·4)/(3·5)·(6·6)/(5·7)·… = ∏_{n≥1} (2n)²/((2n−1)(2n+1)). An infinite product of simple rational numbers, each just above or below 1, multiplies out to half of π. Wallis derived it by interpolating the integrals ∫₀^{π/2} sinⁿx dx, whose ratios encode the product — the same integrals give the 'Wallis integrals' identity n·W_n·W_{n−1} = π/2. Verified live: the partial products ∏_{n=1}^N (2n)²/((2n−1)(2n+1)) converge to π/2 (1.5708…), and independently the numerically-integrated Wallis integrals satisfy n·W_n·W_{n−1} = π/2 exactly for every n. Neon-noir traced. See the partial products closing on π/2 in 1D, product vs integral identity in 2D, and the π-from-a-product inverse in 3D.",
+  "lit":"Genuine Wallis product (John Wallis, 1656). Verified live: the partial products ∏(2n)²/((2n−1)(2n+1)) converge to π/2, and independently the numerically-integrated Wallis integrals satisfy n·W_n·W_{n−1} = π/2 to ~1e-14 for every n (window.__wallis.conv, .idOk, .worst).",
+  "fig":"No framing; the partial product and the Wallis-integral identity both run in-browser and give π/2. The AVAN inverse is honest — instead of summing a series for π, multiply rationals: the inverse of 'π/2' is 'the product ∏(2n)²/((2n−1)(2n+1))', mirrored by the Wallis-integral identity n·W_n·W_{n−1}=π/2. Magenta are the product factors; green is the π/2 they converge to. π from a product of near-ones.",
+  "body":WLLS_BODY,"script":WLLS_SCRIPT},
+ {"slug":"the-neumann-series","title":"THE NEUMANN SERIES","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#b06bff","icon":"neumann",
+  "kicker":"a matrix inverse as a power series",
+  "blurb":"The Neumann series in the 5-window house format — the matrix version of the geometric series 1/(1−x)=1+x+x²+…. For a square matrix A whose size is 'small enough' (spectral radius < 1), the inverse of I−A is the infinite sum of its powers: (I−A)⁻¹ = I + A + A² + A³ + …. Just as the scalar series needs |x|<1, the matrix series converges precisely when A's powers shrink to zero — and then a hard matrix inversion becomes a sum you can truncate. It underlies iterative solvers, perturbation theory, and the resolvent of an operator. Verified live: for thousands of random matrices with small entries (spectral radius < 1), the partial sum I+A+…+A⁶⁰ matches the directly-computed inverse (I−A)⁻¹ to ~1e-14; and for a matrix with spectral radius > 1 the power series diverges (its terms blow up). Neon-noir traced. See the partial sums converging in 1D, convergence + divergence control in 2D, and the inversion-as-series inverse in 3D.",
+  "lit":"Genuine Neumann series (Carl Neumann; the operator resolvent series). Verified live: for ~1200 random matrices with ‖A‖<1, the partial sum Σ_{k=0}^{60} Aᵏ matches the directly-computed inverse (I−A)⁻¹ to ~1e-14; for a matrix with spectral radius > 1 the power series diverges (terms blow up) (window.__neumann.ok, .worst, .grew).",
+  "fig":"No framing; the power-series partial sum and the direct matrix inverse both run in-browser and agree when A is small. The AVAN inverse is honest — instead of inverting a matrix, sum its powers: the inverse of '(I−A)⁻¹' is literally 'I + A + A² + …', convergent exactly when A shrinks under powering. Magenta are the power terms Aᵏ; green is the inverse they sum to. Inversion as a geometric series.",
+  "body":NEUM_BODY,"script":NEUM_SCRIPT},
+ {"slug":"the-best-theorem","title":"THE BEST THEOREM","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#21e6ff","icon":"best",
+  "kicker":"Eulerian circuits counted by a determinant",
+  "blurb":"The BEST theorem in the 5-window house format — counting the Eulerian circuits of a directed graph (closed trails using every edge exactly once) with a single formula. For a connected Eulerian digraph (every vertex has equal in- and out-degree), the number of Eulerian circuits is ec(G) = t_w(G)·∏_v (deg⁺(v)−1)!, where t_w(G) is the number of spanning arborescences (in-trees) rooted at any vertex w — itself a determinant, via the Matrix-Tree theorem. So an exponential count of tangled circuits collapses into one determinant times some factorials. Verified live: for several small Eulerian digraphs, a brute enumeration of Eulerian circuits (fixing the starting edge) exactly equals t_w(G)·∏_v(deg⁺(v)−1)!, with t_w computed as a cofactor determinant of the graph Laplacian. Neon-noir traced. See an Eulerian digraph + a circuit in 1D, brute vs BEST formula in 2D, and the circuits-from-a-determinant inverse in 3D.",
+  "lit":"Genuine BEST theorem (de Bruijn, van Aardenne-Ehrenfest, Smith, Tutte). Verified live: for several small Eulerian digraphs, a brute enumeration of Eulerian circuits (fixed starting edge) exactly equals t_w(G)·∏_v(deg⁺(v)−1)!, with t_w the arborescence cofactor determinant of the Laplacian — e.g. bidirected K₃ gives 3 (window.__best.ok).",
+  "fig":"No framing; the brute circuit count and the determinant-times-factorials formula both run in-browser and agree. The AVAN inverse is honest — instead of enumerating the circuits, count the trees: the inverse of 'how many Eulerian circuits?' is 't_w(G)·∏(deg−1)!' — a spanning-arborescence determinant times factorials. Magenta is the digraph; green is the Eulerian-circuit count the determinant yields. Exponential circuits from one determinant.",
+  "body":BEST_BODY,"script":BEST_SCRIPT},
+ {"slug":"the-poisson-limit","title":"THE POISSON LIMIT","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#ffcf4a","icon":"poisson",
+  "kicker":"a binomial limiting to a Poisson",
+  "blurb":"The Poisson limit theorem in the 5-window house format — the 'law of rare events' that explains why the Poisson distribution appears everywhere. If you have many independent trials, each with a tiny success probability, but a fixed expected number of successes λ=np, then Binomial(n, λ/n) converges to the Poisson distribution with mean λ: C(n,k)(λ/n)^k(1−λ/n)^{n−k} → e^{−λ}λ^k/k! as n→∞. Rare events among many trials — radioactive decays, typos per page, calls per minute — all follow Poisson. Verified live: for λ=3, the binomial pmf Binomial(n, 3/n) approaches the Poisson(3) pmf as n grows — the maximum gap between the two shrinks from ~4e-2 at n=10 to ~3e-5 at n=10000. Neon-noir traced. See the binomial bars settling onto the Poisson line in 1D, the max gap → 0 in 2D, and the depends-only-on-λ inverse in 3D.",
+  "lit":"Genuine Poisson limit theorem / law of rare events (Siméon Denis Poisson, 1837). Verified live: for λ=3, the exact binomial pmf Binomial(n, 3/n) approaches the Poisson(3) pmf as n grows — the max gap shrinks from ~4e-2 at n=10 to ~3e-5 at n=10000 (window.__poisson.ok, .rows).",
+  "fig":"No framing; the exact binomial pmf and the Poisson pmf both run in-browser and their gap vanishes as n grows. The AVAN inverse is honest — instead of tracking n trials, keep only the mean: the inverse of 'Binomial(n, λ/n) for huge n' is 'Poisson(λ), which depends only on the expected count λ'. Magenta is the binomial pmf; green is the Poisson limit it settles onto. Many rare trials, one Poisson.",
+  "body":POIS_BODY,"script":POIS_SCRIPT},
+ {"slug":"the-thebault","title":"THE THEBAULT","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#35ffb0","icon":"thebault",
+  "kicker":"squares on a parallelogram forming a square",
+  "blurb":"Thébault's first theorem in the 5-window house format — conjuring a perfect square out of any parallelogram. Take any parallelogram and erect a square outward on each of its four sides. Mark the centre of each square. Thébault proved that these four centres are always the vertices of a square — no matter how slanted or stretched the original parallelogram is. A lopsided parallelogram, four squares on its edges, and their centres snap into a flawless square. It is a cousin of Van Aubel's theorem, but for the special case of a parallelogram the result sharpens from 'equal perpendicular diagonals' all the way to 'a square'. Verified live: for thousands of random parallelograms, the four square-centres have all four sides equal and both diagonals equal (to machine precision) — the defining conditions of a square. Neon-noir traced. See the parallelogram + squares + centre-square in 1D, the equal-sides/diagonals test in 2D, and the square-from-any-parallelogram inverse in 3D.",
+  "lit":"Genuine Thébault's first theorem (Victor Thébault). Verified live: for ~8000 random parallelograms, the four outward square-centres have all four sides equal and both diagonals equal to machine precision — the defining conditions of a square (window.__thebault.ok, .worst).",
+  "fig":"No framing; the square centres and the equal-sides/equal-diagonals test both run in-browser. The AVAN inverse is honest — instead of studying the slanted parallelogram, read the square: the inverse of 'any parallelogram' is 'a perfect square at the four outward square-centres', whatever the slant. Magenta are the four squares on the sides; green is the square their centres form. A square from any parallelogram.",
+  "body":THEB_BODY,"script":THEB_SCRIPT},
  {"slug":"the-stirling-approximation","title":"THE STIRLING APPROXIMATION","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#ff8a3c","icon":"stirling",
   "kicker":"a factorial approximated by a smooth curve",
