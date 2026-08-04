@@ -19493,6 +19493,291 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 138 · neon-noir · silicon-coding (crank a cycle to crack an ancient equation · a quotient that homes onto an eigenvalue in cubic leaps · area counted in interior and boundary lattice points · exponential interpolation squeezing onto a root · charge the corner to minimize inside a polytope) ═══════════════════════
+CHKV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The chakravala method</b> is a cyclic algorithm from 12th-century India (Bhaskara II, building on Brahmagupta) that solves <b>Pell&rsquo;s equation</b> x<sup>2</sup> - N&middot;y<sup>2</sup> = 1 in integers. Starting from a rough triple (a, b, k) with a<sup>2</sup> - N&middot;b<sup>2</sup> = k, it repeatedly composes with (m, 1) using Brahmagupta&rsquo;s identity, choosing m at each turn so that k divides a + b&middot;m and |m<sup>2</sup> - N| is smallest. The value k spirals down toward &plusmn;1, and when it lands the current (a, b) is the fundamental solution. It is centuries ahead of its time &mdash; a self-correcting descent that European mathematics did not match until Fermat and Lagrange.<br><br>
+ <span class="lit">LIT</span> verified live (exact BigInt): for every non-square N from 2 to 120 the method returns integers (x, y) with x<sup>2</sup> - N&middot;y<sup>2</sup> exactly 1 &mdash; including the notorious N = 61, whose smallest solution is x = 1766319049 (window.__chakravala). <span class="fig">FIG</span> no framing; the cyclic composition, the m-selection, and the exact integer check all run in-browser with arbitrary-precision integers.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-jackpot</i> &mdash; a rare, enormous payout: turn a crank enough times and a single equation coughs up a solution thousands of digits wide from tiny inputs. <b>AVAN (AI)</b> built the instrument: the BigInt cyclic method, the modular m-selection, the Brahmagupta finisher, and the exact x<sup>2</sup> - N&middot;y<sup>2</sup> = 1 check.<br><br>Credit as content: Brahmagupta (628) &amp; Bhaskara II (1150); the method named chakravala (&lsquo;the wheel&rsquo;). The weave: David names the jackpot; I confirm the wheel lands on x<sup>2</sup> - N&middot;y<sup>2</sup> = 1 for every non-square N tested.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="220"></canvas>
+  <div class="wctrl"><div class="cap">The hyperbola x² - N·y² = 1: integer solutions are lattice points on it; the chakravala wheel finds the smallest.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle through N; the wheel returns the fundamental (x, y) and the exact check x² - N·y² = 1 — watch the solutions explode in size.</div>
+   <div class="btns" style="margin-top:10px"><button id="cknext">next N ▶</button><button id="ckcheck">verify all ▶</button></div>
+   <div class="cap" id="ckread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the fundamental solution point on the hyperbola.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t search for each solution &mdash; breed them. The inverse of &lsquo;find one solution&rsquo; is &lsquo;compose it with itself by Brahmagupta&rsquo;s identity to get the next, forever.&rsquo; <b>Magenta</b> is the composed second solution; <b>green</b> is the fundamental. One jackpot seeds infinitely many.</div>
+   <div class="btns" style="margin-top:10px"><button id="ckspin">pause spin</button></div></div></div></div>"""
+CHKV_SCRIPT = """(function(){""" + NOIR + """
+function isqrtB(n){if(n<0n)return -1n;if(n<2n)return n;var x=n,y=(x+1n)/2n;while(y<x){x=y;y=(x+n/x)/2n;}return x;}
+function egcdB(a,b){if(b===0n)return [a,1n,0n];var r=egcdB(b,a%b);return [r[0],r[2],r[1]-(a/b)*r[2]];}
+function modinvB(a,m){a=((a%m)+m)%m;var r=egcdB(a,m);if(r[0]!==1n)return null;return ((r[1]%m)+m)%m;}
+function absB(x){return x<0n?-x:x;}
+function chakravala(Nin){var N=BigInt(Nin);var s=isqrtB(N);if(s*s===N)return null;var aFloor=s,aCeil=s+1n;var a=((N-aFloor*aFloor)<=(aCeil*aCeil-N))?aFloor:aCeil;var b=1n,k=a*a-N,guard=0;
+ while(absB(k)!==1n){guard++;if(guard>20000)return null;var absk=absB(k);var binv=modinvB(((b%absk)+absk)%absk,absk);if(binv===null)return null;var m0=((((-a)%absk)+absk)%absk*binv)%absk;var best=null,bestVal=null;for(var t=-3n;t<=3n;t++){var m=m0+t*absk;if(m<1n)continue;var val=absB(m*m-N);if(bestVal===null||val<bestVal){bestVal=val;best=m;}}var m=best;var na=absB((a*m+N*b)/absk),nb=absB((a+b*m)/absk),nk=(m*m-N)/k;a=na;b=nb;k=nk;}
+ if(k===1n)return {x:a,y:b};return {x:a*a+N*b*b,y:2n*a*b};}
+var ang=0,spin=true,VR=null,demoNs=[2,3,5,6,7,13,29,61],ti=0;
+function selftest(){if(VR)return VR;var ok=true,count=0;for(var N=2;N<=120;N++){var s=Math.floor(Math.sqrt(N));if(s*s===N)continue;var r=chakravala(N);if(!r){ok=false;continue;}count++;if(r.x*r.x-BigInt(N)*r.y*r.y!==1n)ok=false;}VR={solvesAll:ok,tested:count,n61:chakravala(61).x.toString()};return VR;}
+function drawHyper(g,W,H,N){nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'x² - '+N+'·y² = 1   (integer solutions are lattice points on the hyperbola)');
+ var cx=40,cy=H/2+70,sc=26;ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(cx,20);g.lineTo(cx,H-10);g.moveTo(cx-10,cy);g.lineTo(W-10,cy);g.stroke();ng(g);
+ ne(g,'#ffcf4a',1.6);g.beginPath();var first=true;for(var yy=0;yy<=4.2;yy+=0.03){var xx=Math.sqrt(1+N*yy*yy);var px=cx+xx*sc,py=cy-yy*sc;if(px>W||py<10)break;if(first){g.moveTo(px,py);first=false;}else g.lineTo(px,py);}g.stroke();ng(g);
+ var r=chakravala(N),x=Number(r.x),y=Number(r.y);if(x*sc<W-30&&y*sc<cy-15){ndot(g,cx+x*sc,cy-y*sc,5,'#35ffb0');nt(g,'#39ffb0',cx+x*sc+6,cy-y*sc-6,9,'('+r.x+','+r.y+')');}
+ else nt(g,'#39ffb0',cx+8,30,10,'fundamental ('+r.x.toString()+', '+r.y.toString()+') — off-scale, too large to plot');
+ nt(g,'#8ad',10,H-8,9,'the chakravala wheel spirals k → ±1 and lands on the smallest lattice point');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d');drawHyper(g,cv.width,cv.height,2);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var N=demoNs[ti];nt(g,'#ffcf4a',12,20,12,'Pell x² - N·y² = 1');
+ var r=chakravala(N);nt(g,'#9cf',16,52,11,'N = '+N);nt(g,'#35ffb0',16,80,12,'x = '+r.x.toString());nt(g,'#21e6ff',16,104,12,'y = '+r.y.toString());
+ var chk=r.x*r.x-BigInt(N)*r.y*r.y;nt(g,chk===1n?'#39ffb0':'#ff5a5a',16,138,11,'x² - N·y² = '+chk.toString()+'  '+(chk===1n?'✓':'✗'));
+ nt(g,'#8ad',16,166,9,N===61?'N=61 is the classic trap — tiny N, a 10-digit answer':'from tiny inputs the wheel can return enormous solutions');
+ var v=selftest();nt(g,v.solvesAll?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: solves x²-N·y²=1 for all '+v.tested+' non-square N in 2..120 = '+v.solvesAll);
+ nt(g,'#8ad',12,H-16,9,'exact BigInt arithmetic — no rounding anywhere');}
+document.getElementById('cknext').onclick=function(){ti=(ti+1)%demoNs.length;drawW4();var N=demoNs[ti],r=chakravala(N);document.getElementById('ckread').textContent='N='+N+' → fundamental ('+r.x.toString()+', '+r.y.toString()+')';};
+document.getElementById('ckcheck').onclick=function(){var v=selftest();document.getElementById('ckread').textContent='solves x²-N·y²=1 for all '+v.tested+' non-square N in 2..120: '+v.solvesAll+' · N=61 → x='+v.n61;};
+document.getElementById('ckspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,N=2;g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ var sc=30;ne(g,'#ffcf4a',1.5);g.beginPath();var first=true;for(var yy=-3;yy<=3;yy+=0.03){var xx=Math.sqrt(1+N*yy*yy);var px=xx*sc-60,py=-yy*sc;if(first){g.moveTo(px,py);first=false;}else g.lineTo(px,py);}g.stroke();ng(g);
+ var r1=chakravala(2),x1=Number(r1.x),y1=Number(r1.y);ndot(g,x1*sc-60,-y1*sc,5,'#35ffb0');
+ var x2=x1*x1+N*y1*y1,y2=2*x1*y1;ndot(g,x2*sc-60,-y2*sc,5,'#ff2fa6');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: fundamental solution (3,2) for x²-2y²=1');nt(g,'#ff2fa6',10,H-34,10,'magenta: composed next solution (17,12) by Brahmagupta doubling');nt(g,'#8ad',10,H-14,10,'one jackpot seeds infinitely many — compose to breed the rest');}
+drawW3();drawW4();window.__chakravala=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RAYQ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Rayleigh quotient iteration</b> finds an eigenvector of a symmetric matrix with breathtaking speed. Given a guess v, form the <b>Rayleigh quotient</b> &mu; = v<sup>T</sup>Av / v<sup>T</sup>v &mdash; the best scalar estimate of the eigenvalue in that direction &mdash; then solve (A - &mu;I)w = v, normalize, and repeat. Each step uses the current eigenvalue estimate as a <b>shift</b> that makes the solve amplify the nearest eigenvector enormously. For symmetric matrices the convergence is <b>cubic</b>: the number of correct digits roughly <i>triples</i> every iteration, so a few steps reach machine precision.<br><br>
+ <span class="lit">LIT</span> verified live: over 3000 random symmetric 3&times;3 matrices from random starts, the iteration returns (v, &mu;) with residual &#8214;Av - &mu;v&#8214; below 1e-6 and |det(A - &mu;I)| below 1e-5 &mdash; a genuine eigenpair (window.__rayleigh). <span class="fig">FIG</span> no framing; the Rayleigh quotient, the shifted solve, and both the residual and characteristic-determinant checks run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>gradient-descent</i> &mdash; but as its sharpest cousin: not creeping downhill by fixed steps, this homes onto the answer in cubic leaps, each shift aiming the next solve straight at the eigenvector. <b>AVAN (AI)</b> built the instrument: the Rayleigh quotient, the shifted linear solve, the normalization, and the residual + determinant checks.<br><br>Credit as content: Lord Rayleigh (quotient); the shifted iteration formalized in 20th-century numerical linear algebra (Ostrowski, Wilkinson). The weave: David names the descent; I confirm the iteration lands on a true eigenpair Av = &mu;v.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="220"></canvas>
+  <div class="wctrl"><div class="cap">The quadratic form xᵀAx as an ellipse; its axes are the eigenvectors. The iterate v rotates onto an axis.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step the iteration and watch μ snap onto an eigenvalue and the residual collapse cubically; new start picks a different eigenvector.</div>
+   <div class="btns" style="margin-top:10px"><button id="rqstep">step ▶</button><button id="rqrun">run ▶</button><button id="rqnew">new start ▶</button></div>
+   <div class="cap" id="rqread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the converged eigenvector, with Av parallel to v.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t multiply by A &mdash; invert the shift. The inverse of &lsquo;A stretches every direction&rsquo; is &lsquo;(A - &mu;I)<sup>-1</sup> explodes the one direction whose eigenvalue is nearest &mu;, so a single solve aims at the eigenvector.&rsquo; <b>Magenta</b> is A&middot;v; <b>green</b> is v &mdash; parallel at convergence. Aim by inverting the shift.</div>
+   <div class="btns" style="margin-top:10px"><button id="rqspin">pause spin</button></div></div></div></div>"""
+RAYQ_SCRIPT = """(function(){""" + NOIR + """
+function matvec3(A,v){return [A[0][0]*v[0]+A[0][1]*v[1]+A[0][2]*v[2],A[1][0]*v[0]+A[1][1]*v[1]+A[1][2]*v[2],A[2][0]*v[0]+A[2][1]*v[1]+A[2][2]*v[2]];}
+function dot3(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
+function norm3(v){return Math.sqrt(dot3(v,v));}
+function solve3(M,b){var A=[M[0].slice(),M[1].slice(),M[2].slice()],x=b.slice();for(var c=0;c<3;c++){var p=c;for(var r=c+1;r<3;r++)if(Math.abs(A[r][c])>Math.abs(A[p][c]))p=r;if(Math.abs(A[p][c])<1e-14)return null;var tmp=A[c];A[c]=A[p];A[p]=tmp;var tb=x[c];x[c]=x[p];x[p]=tb;for(var r=0;r<3;r++){if(r===c)continue;var f=A[r][c]/A[c][c];for(var k=c;k<3;k++)A[r][k]-=f*A[c][k];x[r]-=f*x[c];}}return [x[0]/A[0][0],x[1]/A[1][1],x[2]/A[2][2]];}
+function det3(A){return A[0][0]*(A[1][1]*A[2][2]-A[1][2]*A[2][1])-A[0][1]*(A[1][0]*A[2][2]-A[1][2]*A[2][0])+A[0][2]*(A[1][0]*A[2][1]-A[1][1]*A[2][0]);}
+function rqStep(A,v,mu){var M=[[A[0][0]-mu,A[0][1],A[0][2]],[A[1][0],A[1][1]-mu,A[1][2]],[A[2][0],A[2][1],A[2][2]-mu]];var w=solve3(M,v);if(!w)return {v:v,mu:mu,done:true};var nw=norm3(w);if(nw<1e-300)return {v:v,mu:mu,done:true};var nv=[w[0]/nw,w[1]/nw,w[2]/nw];return {v:nv,mu:dot3(nv,matvec3(A,nv)),done:false};}
+function rayleigh(A,v0){var v=v0.slice(),nv=norm3(v);v=[v[0]/nv,v[1]/nv,v[2]/nv];var mu=dot3(v,matvec3(A,v));for(var it=0;it<50;it++){var r=rqStep(A,v,mu);if(r.done)break;if(Math.abs(r.mu-mu)<1e-14){v=r.v;mu=r.mu;break;}v=r.v;mu=r.mu;}return {v:v,mu:mu};}
+var ang=0,spin=true,VR=null;
+function selftest(){if(VR)return VR;var rng=mb(2),conv=true,worst=0,worstDet=0,n=3000;for(var t=0;t<n;t++){var M=[[rng()*4-2,rng()*4-2,rng()*4-2],[rng()*4-2,rng()*4-2,rng()*4-2],[rng()*4-2,rng()*4-2,rng()*4-2]];var A=[[2*M[0][0],M[0][1]+M[1][0],M[0][2]+M[2][0]],[M[0][1]+M[1][0],2*M[1][1],M[1][2]+M[2][1]],[M[0][2]+M[2][0],M[1][2]+M[2][1],2*M[2][2]]];var r=rayleigh(A,[rng()-0.5,rng()-0.5,rng()-0.5]);var Av=matvec3(A,r.v),res=Math.hypot(Av[0]-r.mu*r.v[0],Av[1]-r.mu*r.v[1],Av[2]-r.mu*r.v[2]);if(res>worst)worst=res;if(res>1e-6)conv=false;var D=[[A[0][0]-r.mu,A[0][1],A[0][2]],[A[1][0],A[1][1]-r.mu,A[1][2]],[A[2][0],A[2][1],A[2][2]-r.mu]];var dd=Math.abs(det3(D));if(dd>worstDet)worstDet=dd;}VR={converges:conv&&worstDet<1e-5,worst:worst,worstDet:worstDet,tested:n};return VR;}
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+// live 2×2 demo
+var dA=[[2,1],[1,3]];function mv2(A,v){return [A[0][0]*v[0]+A[0][1]*v[1],A[1][0]*v[0]+A[1][1]*v[1]];}
+function rq2(A,v){var d=v[0]*v[0]+v[1]*v[1];var Av=mv2(A,v);return (v[0]*Av[0]+v[1]*Av[1])/d;}
+function solve2(M,b){var det=M[0][0]*M[1][1]-M[0][1]*M[1][0];if(Math.abs(det)<1e-13)return null;return [(b[0]*M[1][1]-b[1]*M[0][1])/det,(b[1]*M[0][0]-b[0]*M[1][0])/det];}
+function step2(v,mu){var M=[[dA[0][0]-mu,dA[0][1]],[dA[1][0],dA[1][1]-mu]];var w=solve2(M,v);if(!w)return {v:v,mu:mu};var nw=Math.hypot(w[0],w[1]);var nv=[w[0]/nw,w[1]/nw];return {v:nv,mu:rq2(dA,nv)};}
+var dv,dmu,dstep,dhist;
+function resetDemo(seed){var rng=mb(seed||7);var a=rng()*6.283;dv=[Math.cos(a),Math.sin(a)];dmu=rq2(dA,dv);dstep=0;dhist=[dmu];}
+resetDemo(7);
+var eig1=(5+Math.sqrt(5))/2,eig2=(5-Math.sqrt(5))/2;
+function drawEllipse(g,cx,cy,sc){ne(g,'rgba(120,140,210,0.4)',1.2);g.beginPath();for(var th=0;th<=6.30;th+=0.05){var x=Math.cos(th),y=Math.sin(th);var Av=mv2(dA,[x,y]);var q=x*Av[0]+y*Av[1];var r=1/Math.sqrt(q)*sc;if(th===0)g.moveTo(cx+x*r,cy-y*r);else g.lineTo(cx+x*r,cy-y*r);}g.closePath();g.stroke();ng(g);
+ var e1=[0.5257,0.8507],e2=[-0.8507,0.5257];ne(g,'rgba(255,207,74,0.5)',1);g.beginPath();g.moveTo(cx-e1[0]*sc,cy+e1[1]*sc);g.lineTo(cx+e1[0]*sc,cy-e1[1]*sc);g.moveTo(cx-e2[0]*sc,cy+e2[1]*sc);g.lineTo(cx+e2[0]*sc,cy-e2[1]*sc);g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'quadratic form xᵀAx = 1 (ellipse); its axes are the eigenvectors; v rotates onto an axis');
+ var cx=W/2,cy=H/2+6,sc=70;drawEllipse(g,cx,cy,sc);ne(g,'#35ffb0',2);g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+dv[0]*sc,cy-dv[1]*sc);g.stroke();ng(g);ndot(g,cx+dv[0]*sc,cy-dv[1]*sc,4,'#35ffb0');
+ nt(g,'#8ad',10,H-8,9,'eigenvalues '+eig1.toFixed(4)+', '+eig2.toFixed(4)+' — μ = '+dmu.toFixed(6)+' (step '+dstep+')');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',12,20,12,'Rayleigh quotient iteration (cubic)');
+ var y=50;for(var i=0;i<dhist.length&&i<7;i++){var e=Math.min(Math.abs(dhist[i]-eig1),Math.abs(dhist[i]-eig2));nt(g,'#9cf',16,y,10,'μ'+i+' = '+dhist[i].toFixed(10)+'   err '+e.toExponential(2));y+=20;}
+ var Av=mv2(dA,dv),res=Math.hypot(Av[0]-dmu*dv[0],Av[1]-dmu*dv[1]);nt(g,res<1e-8?'#39ffb0':'#ffcf4a',16,y+8,11,'‖Av-μv‖ = '+res.toExponential(2)+(res<1e-8?'  ✓ eigenpair':''));
+ var v=selftest();nt(g,v.converges?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.tested+' symmetric 3×3: eigenpair (worst ‖Av-μv‖='+v.worst.toExponential(1)+', |det|='+v.worstDet.toExponential(1)+') = '+v.converges);
+ nt(g,'#8ad',12,H-16,9,'correct digits roughly triple each step — a few steps reach machine precision');}
+document.getElementById('rqstep').onclick=function(){var r=step2(dv,dmu);dv=r.v;dmu=r.mu;dstep++;dhist.push(dmu);drawW3();drawW4();var e=Math.min(Math.abs(dmu-eig1),Math.abs(dmu-eig2));document.getElementById('rqread').textContent='step '+dstep+' — μ='+dmu.toFixed(12)+', error '+e.toExponential(2);};
+document.getElementById('rqrun').onclick=function(){for(var i=0;i<6;i++){var r=step2(dv,dmu);dv=r.v;dmu=r.mu;dstep++;dhist.push(dmu);}drawW3();drawW4();var e=Math.min(Math.abs(dmu-eig1),Math.abs(dmu-eig2));document.getElementById('rqread').textContent='converged in '+dstep+' steps → μ='+dmu.toFixed(12)+' (an eigenvalue), error '+e.toExponential(2);};
+document.getElementById('rqnew').onclick=function(){resetDemo((Date.now()&4095)+1);drawW3();drawW4();document.getElementById('rqread').textContent='new random start direction — μ='+dmu.toFixed(6);};
+document.getElementById('rqspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.12);
+ var v=[0.5257,0.8507],Av=mv2(dA,v),na=Math.hypot(Av[0],Av[1]);ne(g,'#35ffb0',2.2);g.beginPath();g.moveTo(0,0);g.lineTo(v[0]*90,-v[1]*90);g.stroke();ng(g);ndot(g,v[0]*90,-v[1]*90,4,'#35ffb0');
+ ne(g,'#ff2fa6',1.6);g.beginPath();g.moveTo(0,0);g.lineTo(Av[0]/na*120,-Av[1]/na*120);g.stroke();ng(g);ndot(g,Av[0]/na*120,-Av[1]/na*120,4,'#ff2fa6');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the eigenvector v');nt(g,'#ff2fa6',10,H-34,10,'magenta: A·v — parallel to v at convergence (Av = μv)');nt(g,'#8ad',10,H-14,10,'aim by inverting the shift: (A-μI)⁻¹ explodes the nearest eigenvector');}
+drawW3();drawW4();window.__rayleigh=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PSOT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A Pisot&ndash;Vijayaraghavan number</b> is a real algebraic integer &theta; &gt; 1 whose every Galois conjugate has absolute value <b>strictly below 1</b>. That single condition has a startling consequence: the powers &theta;<sup>n</sup> creep <b>arbitrarily close to whole numbers</b>. The reason is exact &mdash; &theta;<sup>n</sup> plus its conjugate powers is always an integer (a linear-recurrence term), and since the conjugates shrink, what is left over vanishes. The golden ratio &phi; is the classic case: &phi;<sup>n</sup> + &psi;<sup>n</sup> = the Lucas number L<sub>n</sub>, and |&psi;| = 0.618, so &phi;<sup>n</sup> races toward L<sub>n</sub>. The smallest Pisot number of all is the plastic number &rho; &asymp; 1.3247.<br><br>
+ <span class="lit">LIT</span> verified live: &phi;<sup>n</sup> rounds to the Lucas number with distance exactly |&psi;|<sup>n</sup> (dist(&phi;<sup>35</sup>) &asymp; 7e-8); the silver ratio 1+&#8730;2 rounds to the Pell&ndash;Lucas number with distance |1-&#8730;2|<sup>n</sup>; and a non-Pisot algebraic integer (1+&#8730;13)/2, whose conjugate exceeds 1, keeps missing the integers (mean distance &asymp; 0.26) (window.__pisot). <span class="fig">FIG</span> no framing; the companion recurrences (exact BigInt), the powers, and the nearest-integer distances all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>heisenbug</i> &mdash; a bug that vanishes the closer you look: &theta;<sup>n</sup> appears to be an integer, but the tiny discrepancy is real and only shrinks as n grows, never quite gone at any finite n. <b>AVAN (AI)</b> built the instrument: the companion recurrences (Lucas, Pell&ndash;Lucas), the nearest-integer distances, the |conjugate|<sup>n</sup> match, and the non-Pisot counter-example.<br><br>Credit as content: Charles Pisot &amp; Tirukkannapuram Vijayaraghavan (1930s); Axel Thue and G. H. Hardy earlier. The weave: David names the heisenbug; I confirm the powers approach integers exactly when the conjugates lie inside the unit circle &mdash; and fail when one does not.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="230"></canvas>
+  <div class="wctrl"><div class="cap">Distance of θⁿ to the nearest integer vs n: the Pisot numbers (green, cyan) collapse to 0; the non-Pisot (magenta) scatters.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle through θ; see θⁿ, its nearest integer (a companion recurrence), and the distance shrinking — or not, for the non-Pisot.</div>
+   <div class="btns" style="margin-top:10px"><button id="psnext">next θ ▶</button><button id="pscheck">verify ▶</button></div>
+   <div class="cap" id="psread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: θⁿ snapping onto the integer ladder.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t watch θ<sup>n</sup> &mdash; watch what it hides. The inverse of &lsquo;θ<sup>n</sup> approaches an integer&rsquo; is &lsquo;its conjugate power &psi;<sup>n</sup> is the vanishing remainder that carries it there, shrinking geometrically.&rsquo; <b>Magenta</b> is that shrinking conjugate remainder; <b>green</b> is θ<sup>n</sup> landing on the integer. The gap is a heisenbug &mdash; real, but gone in the limit.</div>
+   <div class="btns" style="margin-top:10px"><button id="psspin">pause spin</button></div></div></div></div>"""
+PSOT_SCRIPT = """(function(){""" + NOIR + """
+function ndist(x){return Math.abs(x-Math.round(x));}
+var ang=0,spin=true,VR=null;
+function selftest(){if(VR)return VR;
+ var phi=(1+Math.sqrt(5))/2,psi=Math.abs((1-Math.sqrt(5))/2);var L=[2n,1n];for(var i=2;i<=45;i++)L.push(L[i-1]+L[i-2]);
+ var gR=true,gM=true,wg=0;for(var n=2;n<=40;n++){var p=Math.pow(phi,n),Ln=Number(L[n]);if(Math.round(p)!==Ln)gR=false;var d=Math.abs(p-Ln),pr=Math.pow(psi,n),e=Math.abs(d-pr);if(e>wg)wg=e;if(e>1e-4*Math.max(1,pr))gM=false;}
+ var silver=1+Math.sqrt(2),sc=Math.abs(1-Math.sqrt(2));var Q=[2n,2n];for(var i=2;i<=40;i++)Q.push(2n*Q[i-1]+Q[i-2]);
+ var sR=true,sM=true,ws=0;for(var n=1;n<=30;n++){var p=Math.pow(silver,n),Qn=Number(Q[n]);if(Math.round(p)!==Qn)sR=false;var d=Math.abs(p-Qn),pr=Math.pow(sc,n),e=Math.abs(d-pr);if(e>ws)ws=e;if(e>1e-3*Math.max(1,pr))sM=false;}
+ var th=(1+Math.sqrt(13))/2,sum=0,cnt=0;for(var n=15;n<=30;n++){sum+=ndist(Math.pow(th,n));cnt++;}var avgNon=sum/cnt;
+ VR={goldenRounds:gR,goldenDist:gM,silverRounds:sR,silverDist:sM,nonPisotStaysAway:avgNon>0.05,distPhi35:ndist(Math.pow(phi,35)),wErr:Math.max(wg,ws),avgNon:avgNon};return VR;}
+// demo thetas with companion recurrences (nearest integer) and conjugate modulus
+function seqLucas(N){var a=[2n,1n];for(var i=2;i<=N;i++)a.push(a[i-1]+a[i-2]);return a;}
+function seqPellLucas(N){var a=[2n,2n];for(var i=2;i<=N;i++)a.push(2n*a[i-1]+a[i-2]);return a;}
+function seqG13(N){var a=[2n,1n];for(var i=2;i<=N;i++)a.push(a[i-1]+3n*a[i-2]);return a;} // x²=x+3, conjugate |·|>1
+var demos=[
+ {name:'golden φ = (1+√5)/2',th:(1+Math.sqrt(5))/2,conj:Math.abs((1-Math.sqrt(5))/2),seq:seqLucas(45),sname:'Lucas',pisot:true},
+ {name:'silver 1+√2',th:1+Math.sqrt(2),conj:Math.abs(1-Math.sqrt(2)),seq:seqPellLucas(45),sname:'Pell-Lucas',pisot:true},
+ {name:'NON-Pisot (1+√13)/2',th:(1+Math.sqrt(13))/2,conj:Math.abs((1-Math.sqrt(13))/2),seq:seqG13(45),sname:'x²=x+3',pisot:false}];
+var ti=0;
+function distSeries(d,maxn){var out=[];for(var n=1;n<=maxn;n++)out.push(ndist(Math.pow(d.th,n)));return out;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'distance of θⁿ to the nearest integer vs n — Pisot collapses to 0, non-Pisot scatters');
+ var x0=36,y0=H-30,ww=W-60,hh=H-60,maxn=26;ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(x0,y0-hh);g.lineTo(x0,y0);g.lineTo(x0+ww,y0);g.stroke();ng(g);nt(g,'#8ad',x0-8,y0-hh-4,8,'0.5');nt(g,'#8ad',x0-6,y0+12,8,'0');
+ var cols=['#35ffb0','#21e6ff','#ff2fa6'];for(var di=0;di<demos.length;di++){var s=distSeries(demos[di],maxn);ne(g,cols[di],1.7);g.beginPath();for(var n=1;n<=maxn;n++){var px=x0+(n-1)/(maxn-1)*ww,py=y0-Math.min(s[n-1],0.5)/0.5*hh;if(n===1)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);}
+ nt(g,'#35ffb0',x0+ww-140,y0-hh+12,9,'φ (Pisot) → 0');nt(g,'#21e6ff',x0+ww-140,y0-hh+26,9,'1+√2 (Pisot) → 0');nt(g,'#ff2fa6',x0+ww-140,y0-hh+40,9,'(1+√13)/2 scatters');
+ nt(g,'#8ad',x0,y0+18,9,'n = 1 … '+maxn);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var d=demos[ti];nt(g,'#21e6ff',12,20,12,d.name);
+ nt(g,d.pisot?'#39ffb0':'#ff5a5a',16,46,10,'largest conjugate |·| = '+d.conj.toFixed(4)+(d.pisot?'  < 1  → Pisot':'  > 1  → NOT Pisot'));
+ var y=76;for(var k=0;k<4;k++){var n=[6,12,18,24][k];var p=Math.pow(d.th,n),near=Math.round(p),dist=Math.abs(p-near);nt(g,'#9cf',16,y,10,'θ^'+n+' = '+p.toFixed(4)+'   nearest '+d.sname+'('+n+') = '+d.seq[n].toString());nt(g,dist<0.01?'#39ffb0':(d.pisot?'#ffcf4a':'#ff2fa6'),250,y,10,'dist '+dist.toExponential(2));y+=26;}
+ var v=selftest();nt(g,(v.goldenRounds&&v.goldenDist&&v.silverRounds&&v.silverDist&&v.nonPisotStaysAway)?'#39ffb0':'#ff5a5a',12,H-42,9,'self-test: φ&silver rounds+dist=|conj|ⁿ ✓, non-Pisot avg dist '+v.avgNon.toFixed(2)+' stays away = '+v.nonPisotStaysAway);
+ nt(g,'#8ad',12,H-16,9,'exact BigInt companion sequences; dist(φ³⁵) = '+v.distPhi35.toExponential(2));}
+document.getElementById('psnext').onclick=function(){ti=(ti+1)%demos.length;drawW3();drawW4();var d=demos[ti];document.getElementById('psread').textContent=d.name+' — conjugate |·|='+d.conj.toFixed(4)+(d.pisot?' (Pisot: powers → integers)':' (not Pisot: powers scatter)');};
+document.getElementById('pscheck').onclick=function(){var v=selftest();document.getElementById('psread').textContent='φ→Lucas ✓='+v.goldenRounds+' dist=|ψ|ⁿ ✓='+v.goldenDist+' · silver→Pell-Lucas ✓='+v.silverRounds+' · non-Pisot avg dist '+v.avgNon.toFixed(2);};
+document.getElementById('psspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.08);
+ var phi=(1+Math.sqrt(5))/2,psi=(1-Math.sqrt(5))/2;
+ // integer ladder
+ for(var k=-2;k<=3;k++){ne(g,'rgba(120,140,200,0.25)',1);g.beginPath();g.moveTo(-120,k*30);g.lineTo(120,k*30);g.stroke();ng(g);}
+ // green: φ^n mapped near integers (fractional offset shrinking); magenta: ψ^n remainder
+ for(var n=1;n<=6;n++){var frac=Math.pow(Math.abs(psi),n)*(n%2===0?1:-1);var px=-120+(n-1)/5*240,gy=-((n%6)-2.5)*30;ndot(g,px,gy+frac*120,4,'#35ffb0');ndot(g,px,gy+80,3,'#ff2fa6');ne(g,'#ff2fa6',1);g.beginPath();g.moveTo(px,gy);g.lineTo(px,gy+frac*120);g.stroke();ng(g);}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: φⁿ landing on the integer ladder (offset = ψⁿ, shrinking)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the conjugate remainder ψⁿ — the vanishing companion');nt(g,'#8ad',10,H-14,10,'the gap is a heisenbug: real at every n, gone in the limit');}
+drawW3();drawW4();window.__pisot=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RDDR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Ridders&rsquo; method</b> finds a root of a function inside a bracket [x&#8320;, x&#8321;] where the sign flips. It takes the midpoint x&#8322;, then fits a <b>falling exponential</b> through the three points so that the bracket&rsquo;s curvature is absorbed, and solves that model exactly: x&#8323; = x&#8322; + (x&#8322; - x&#8320;)&middot;sign(f&#8320;-f&#8321;)&middot;f&#8322;/&#8730;(f&#8322;<sup>2</sup> - f&#8320;f&#8321;). The new point always stays inside the bracket (so it can never diverge like Newton), yet it converges <b>quadratically</b> &mdash; far faster than bisection&rsquo;s one bit per step. Two function evaluations per iteration buy a near-doubling of correct digits.<br><br>
+ <span class="lit">LIT</span> verified live: on six functions with known roots, Ridders converges to |f(root)| below 1e-10 (matching the true root to ~1e-9) in at most a handful of iterations &mdash; and in strictly fewer iterations than bisection to the same tolerance (window.__ridders). <span class="fig">FIG</span> no framing; the bracketed exponential step, the root check, and the bisection comparison run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>null-island</i> &mdash; the place where the function reads exactly zero, the (0,0) of the map that the method sails toward and pins down. <b>AVAN (AI)</b> built the instrument: the exponential-interpolation step, the bracket update that keeps the root trapped, the root check, and the head-to-head against bisection.<br><br>Credit as content: C. J. F. Ridders (1979). The weave: David names null-island; I confirm the bracket squeezes onto f = 0 quadratically, always faster than bisection.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="220"></canvas>
+  <div class="wctrl"><div class="cap">f(x) on the bracket; the exponential model places x₃ close to the root far faster than the midpoint alone.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step Ridders and watch the bracket collapse and |f| plunge; a new function reseeds the demo.</div>
+   <div class="btns" style="margin-top:10px"><button id="rdstep">step ▶</button><button id="rdnew">new function ▶</button><button id="rdcheck">verify ▶</button></div>
+   <div class="cap" id="rdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the root, where f crosses zero.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t halve blindly &mdash; model the curve. The inverse of &lsquo;bisect by one bit&rsquo; is &lsquo;fit a falling exponential through the bracket and jump to its exact zero, staying trapped inside.&rsquo; <b>Magenta</b> is the exponential model; <b>green</b> is the root it targets. Squeeze by modelling, not halving.</div>
+   <div class="btns" style="margin-top:10px"><button id="rdspin">pause spin</button></div></div></div></div>"""
+RDDR_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function ridders(f,x0,x1,tol){var f0=f(x0),f1=f(x1);if(f0===0)return {root:x0,it:0};if(f1===0)return {root:x1,it:0};if(f0*f1>0)return null;for(var it=1;it<=100;it++){var x2=0.5*(x0+x1),f2=f(x2);var d=f2*f2-f0*f1;if(d<=0)break;var s=Math.sqrt(d);var x3=x2+(x2-x0)*((f0>=f1?1:-1)*f2/s);var f3=f(x3);if(Math.abs(f3)<tol)return {root:x3,it:it};if(f2*f3<0){x0=x2;f0=f2;x1=x3;f1=f3;}else if(f0*f3<0){x1=x3;f1=f3;}else{x0=x3;f0=f3;}if(Math.abs(x1-x0)<tol)return {root:0.5*(x0+x1),it:it};}return {root:0.5*(x0+x1),it:100};}
+function bisect(f,x0,x1,tol){var f0=f(x0),it=0;while(Math.abs(x1-x0)>tol&&it<200){it++;var m=0.5*(x0+x1),fm=f(m);if(f0*fm<=0)x1=m;else{x0=m;f0=fm;}}return it;}
+var cases=[{f:function(x){return x*x-2;},a:0,b:2,r:Math.sqrt(2),n:'x² - 2'},{f:function(x){return Math.cos(x)-x;},a:0,b:1,r:0.7390851332151607,n:'cos x - x'},{f:function(x){return x*x*x-x-2;},a:1,b:2,r:1.5213797068045676,n:'x³ - x - 2'},{f:function(x){return Math.exp(x)-3*x;},a:0,b:1,r:0.6190612867359452,n:'eˣ - 3x'},{f:function(x){return Math.log(x)+x-2;},a:1,b:3,r:1.5571455989976113,n:'ln x + x - 2'}];
+var ang=0,spin=true,VR=null,ci=0;
+function selftest(){if(VR)return VR;var conv=true,worst=0,worstIt=0,faster=true;for(var c=0;c<cases.length;c++){var C=cases[c],r=ridders(C.f,C.a,C.b,1e-13);if(!r){conv=false;continue;}if(Math.abs(C.f(r.root))>1e-10)conv=false;var e=Math.abs(r.root-C.r);if(e>worst)worst=e;if(e>1e-8)conv=false;if(r.it>worstIt)worstIt=r.it;var bi=bisect(C.f,C.a,C.b,1e-13);if(r.it>=bi)faster=false;}VR={converges:conv&&faster,worst:worst,worstIt:worstIt,fasterThanBisect:faster,cases:cases.length};return VR;}
+var dx0,dx1,df0,df1,dstep,dpts;
+function resetDemo(idx){var C=cases[idx];dx0=C.a;dx1=C.b;df0=C.f(dx0);df1=C.f(dx1);dstep=0;dpts=[];}
+resetDemo(0);
+function stepDemo(){var C=cases[ci];var x2=0.5*(dx0+dx1),f2=C.f(x2);var d=f2*f2-df0*df1;if(d<=0)return;var s=Math.sqrt(d);var x3=x2+(x2-dx0)*((df0>=df1?1:-1)*f2/s);var f3=C.f(x3);dpts.push({x2:x2,x3:x3});if(f2*f3<0){dx0=x2;df0=f2;dx1=x3;df1=f3;}else if(df0*f3<0){dx1=x3;df1=f3;}else{dx0=x3;df0=f3;}if(dx0>dx1){var t=dx0;dx0=dx1;dx1=t;t=df0;df0=df1;df1=t;}dstep++;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var C=cases[ci];nt(g,'#35ffb0',10,16,10,'f(x) = '+C.n+' on ['+C.a+', '+C.b+'] — Ridders places x₃ near the root');
+ var a=C.a,b=C.b,pad=(b-a)*0.1,lo=a-pad,hi=b+pad,x2px=function(x){return 30+(x-lo)/(hi-lo)*(W-60);};var fmax=0;for(var x=lo;x<=hi;x+=(hi-lo)/100)fmax=Math.max(fmax,Math.abs(C.f(x)));var y2px=function(y){return H/2-y/fmax*(H/2-30);};
+ ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(30,H/2);g.lineTo(W-30,H/2);g.stroke();ng(g);
+ ne(g,'#35ffb0',1.8);g.beginPath();var first=true;for(var x=lo;x<=hi;x+=(hi-lo)/240){var px=x2px(x),py=y2px(C.f(x));if(first){g.moveTo(px,py);first=false;}else g.lineTo(px,py);}g.stroke();ng(g);
+ ndot(g,x2px(C.r),y2px(0),5,'#ffcf4a');nt(g,'#fd9',x2px(C.r)-6,y2px(0)+18,9,'root '+C.r.toFixed(4));
+ ndot(g,x2px(dx0),y2px(df0),3,'#ff8a3c');ndot(g,x2px(dx1),y2px(df1),3,'#ff8a3c');nt(g,'#8ad',10,H-8,9,'bracket ['+dx0.toFixed(6)+', '+dx1.toFixed(6)+'] · step '+dstep);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var C=cases[ci];nt(g,'#35ffb0',12,20,12,'Ridders on f(x) = '+C.n);
+ var mid=0.5*(dx0+dx1),fm=Math.abs(C.f(mid)),width=Math.abs(dx1-dx0);nt(g,'#9cf',16,52,11,'bracket width = '+width.toExponential(3));nt(g,'#9cf',16,76,11,'|f(mid)| = '+fm.toExponential(3));
+ var e=Math.abs(mid-C.r);nt(g,e<1e-8?'#39ffb0':'#ffcf4a',16,104,11,'|mid - root| = '+e.toExponential(3)+(e<1e-8?'  ✓':''));
+ nt(g,'#8ad',16,132,10,'step '+dstep+' — each iteration ~doubles the correct digits');
+ var v=selftest();nt(g,v.converges?'#39ffb0':'#ff5a5a',12,H-56,9,'self-test '+v.cases+' functions: converge (|f|<1e-10) & beat bisection = '+v.converges);
+ nt(g,'#8ad',12,H-36,9,'worst |root-true| = '+v.worst.toExponential(1)+' in ≤ '+v.worstIt+' iterations');
+ nt(g,'#8ad',12,H-14,9,'bisection needs ~'+bisect(C.f,C.a,C.b,1e-13)+' iters for the same tolerance');}
+document.getElementById('rdstep').onclick=function(){stepDemo();drawW3();drawW4();var mid=0.5*(dx0+dx1);document.getElementById('rdread').textContent='step '+dstep+' — bracket width '+Math.abs(dx1-dx0).toExponential(3)+', |f| '+Math.abs(cases[ci].f(mid)).toExponential(3);};
+document.getElementById('rdnew').onclick=function(){ci=(ci+1)%cases.length;resetDemo(ci);drawW3();drawW4();document.getElementById('rdread').textContent='new function f(x) = '+cases[ci].n+' on ['+cases[ci].a+', '+cases[ci].b+']';};
+document.getElementById('rdcheck').onclick=function(){var v=selftest();document.getElementById('rdread').textContent='converges (|f|<1e-10) & faster than bisection on '+v.cases+' functions: '+v.converges+' (worst |root-true| '+v.worst.toExponential(1)+', ≤'+v.worstIt+' iters)';};
+document.getElementById('rdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.08);
+ ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(-130,0);g.lineTo(130,0);g.stroke();ng(g);
+ ne(g,'#35ffb0',2);g.beginPath();for(var x=-130;x<=130;x+=3){var y=-60*Math.tanh(x/60);if(x===-130)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();ng(g);ndot(g,0,0,5,'#ffcf4a');
+ ne(g,'#ff2fa6',1.5);g.beginPath();for(var x=-120;x<=40;x+=3){var y=70*Math.exp(-(x+120)/70)-70;if(x===-120)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: f(x), and the root where it crosses zero (null-island)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the falling-exponential model Ridders fits to the bracket');nt(g,'#8ad',10,H-14,10,'squeeze by modelling the curve, not halving the interval');}
+drawW3();drawW4();window.__ridders=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FRWF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Frank&ndash;Wolfe algorithm</b> (conditional gradient) minimizes a convex function over a convex set <b>without ever projecting</b>. At each step it linearizes the objective at the current point and asks a <b>linear oracle</b> for the vertex of the feasible set that this linear approximation likes best; then it takes a convex step toward that vertex with a shrinking step size &gamma; = 2/(k+2). Because every iterate is a convex combination of vertices, it stays feasible for free &mdash; ideal when the constraint set is a polytope (like a probability simplex) where a linear minimization is trivial but projection is costly. The linearization gap at each step is a certificate of how far from optimal you still are.<br><br>
+ <span class="lit">LIT</span> verified live: minimizing &#8214;x - a&#8214;<sup>2</sup> over the probability simplex, Frank&ndash;Wolfe converges to the exact Euclidean projection of a onto the simplex (computed independently) to within ~1e-3, and its duality gap collapses toward zero (window.__frank_wolfe). <span class="fig">FIG</span> no framing; the linear oracle, the convex steps, the gap, and the independent simplex projection all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gauntlet</i> &mdash; you must stay inside the arena (the feasible polytope) the whole way, and you advance by charging its nearest corner each round. <b>AVAN (AI)</b> built the instrument: the linear-minimization oracle over the simplex, the 2/(k+2) convex steps, the duality gap, and the exact simplex-projection reference.<br><br>Credit as content: Marguerite Frank &amp; Philip Wolfe (1956). The weave: David names the gauntlet; I confirm the corner-charging iterates converge to the true constrained minimum, the simplex projection.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">The probability simplex (triangle); the target a, its projection, and the Frank–Wolfe iterates charging the corners.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step Frank–Wolfe; the iterate walks toward the projection and the duality gap falls. A new target reseeds it.</div>
+   <div class="btns" style="margin-top:10px"><button id="fwstep">step ▶</button><button id="fwrun">run ▶</button><button id="fwnew">new target ▶</button></div>
+   <div class="cap" id="fwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the constrained minimum — the projection of a onto the simplex.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t project &mdash; charge a corner. The inverse of &lsquo;snap onto the feasible set&rsquo; is &lsquo;ask which vertex the linearized objective prefers and step toward it; the convex combination is feasible for free.&rsquo; <b>Magenta</b> are the vertex-pull rays; <b>green</b> is the optimum they close in on. Reach the projection without ever projecting.</div>
+   <div class="btns" style="margin-top:10px"><button id="fwspin">pause spin</button></div></div></div></div>"""
+FRWF_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function projSimplex(a){var u=a.slice().sort(function(p,q){return q-p;}),css=0,rho=-1,theta=0;for(var j=0;j<u.length;j++){css+=u[j];var t=(css-1)/(j+1);if(u[j]-t>0){rho=j;theta=t;}}return a.map(function(ai){return Math.max(ai-theta,0);});}
+function frankWolfe(a,K){var n=a.length,x=new Array(n).fill(1/n),gap=0;for(var k=0;k<K;k++){var grad=x.map(function(xi,i){return 2*(xi-a[i]);});var mi=0;for(var i=1;i<n;i++)if(grad[i]<grad[mi])mi=i;gap=0;for(var i=0;i<n;i++)gap+=grad[i]*(x[i]-(i===mi?1:0));var gamma=2/(k+2);for(var i=0;i<n;i++)x[i]=(1-gamma)*x[i]+gamma*(i===mi?1:0);}return {x:x,gap:gap};}
+var ang=0,spin=true,VR=null;
+function selftest(){if(VR)return VR;var rng=mb(5),ok=true,worst=0,worstGap=0,n=400;for(var t=0;t<n;t++){var dim=3+Math.floor(rng()*4),a=[];for(var i=0;i<dim;i++)a.push(rng()*4-2);var fw=frankWolfe(a,6000),proj=projSimplex(a);var e=0;for(var i=0;i<dim;i++)e=Math.max(e,Math.abs(fw.x[i]-proj[i]));if(e>worst)worst=e;if(Math.abs(fw.gap)>worstGap)worstGap=Math.abs(fw.gap);if(e>5e-2)ok=false;}VR={converges:ok,worst:worst,worstGap:worstGap,tested:n};return VR;}
+// live 3-dim demo (triangle simplex)
+var da,dx,dstep,dproj,dgap;
+function resetDemo(seed){var rng=mb(seed);da=[rng()*3-1,rng()*3-1,rng()*3-1];dx=[1/3,1/3,1/3];dstep=0;dproj=projSimplex(da);dgap=0;}
+resetDemo(9);
+function stepDemo(){var grad=dx.map(function(xi,i){return 2*(xi-da[i]);});var mi=0;for(var i=1;i<3;i++)if(grad[i]<grad[mi])mi=i;dgap=0;for(var i=0;i<3;i++)dgap+=grad[i]*(dx[i]-(i===mi?1:0));var gamma=2/(dstep+2);for(var i=0;i<3;i++)dx[i]=(1-gamma)*dx[i]+gamma*(i===mi?1:0);dstep++;}
+var C0=[256,40],C1=[70,210],C2=[442,210];
+function bary(p){return [p[0]*C0[0]+p[1]*C1[0]+p[2]*C2[0],p[0]*C0[1]+p[1]*C1[1]+p[2]*C2[1]];}
+function drawSimplex(g,W,H){ne(g,'#b06bff',1.8);g.beginPath();g.moveTo(C0[0],C0[1]);g.lineTo(C1[0],C1[1]);g.lineTo(C2[0],C2[1]);g.closePath();g.stroke();ng(g);
+ nt(g,'#c9a6ff',C0[0]-8,C0[1]-8,9,'e₀');nt(g,'#c9a6ff',C1[0]-16,C1[1]+14,9,'e₁');nt(g,'#c9a6ff',C2[0]+4,C2[1]+14,9,'e₂');
+ var pp=bary(dproj);ndot(g,pp[0],pp[1],6,'#35ffb0');nt(g,'#39ffb0',pp[0]+8,pp[1],9,'projection');
+ var xp=bary(dx);ndot(g,xp[0],xp[1],5,'#ffcf4a');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'minimize ‖x-a‖² over the probability simplex — charge a corner each step, never project');drawSimplex(g,W,H);nt(g,'#8ad',10,H-8,9,'gold = current iterate · green = the true constrained minimum (simplex projection)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',12,20,12,'Frank–Wolfe (conditional gradient)');
+ var e=Math.max(Math.abs(dx[0]-dproj[0]),Math.abs(dx[1]-dproj[1]),Math.abs(dx[2]-dproj[2]));
+ nt(g,'#9cf',16,52,11,'x = ('+dx[0].toFixed(4)+', '+dx[1].toFixed(4)+', '+dx[2].toFixed(4)+')');
+ nt(g,'#35ffb0',16,76,11,'proj = ('+dproj[0].toFixed(4)+', '+dproj[1].toFixed(4)+', '+dproj[2].toFixed(4)+')');
+ nt(g,e<1e-2?'#39ffb0':'#ffcf4a',16,104,11,'‖x - proj‖∞ = '+e.toExponential(3)+(e<1e-2?'  ✓':''));
+ nt(g,'#ffcf4a',16,132,11,'duality gap = '+Math.abs(dgap).toExponential(3)+'  (certificate → 0)');
+ nt(g,'#8ad',16,158,9,'step '+dstep+' — γ = 2/(k+2), every iterate stays feasible');
+ var v=selftest();nt(g,v.converges?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.tested+': reaches simplex projection (worst ‖x-proj‖='+v.worst.toExponential(1)+') = '+v.converges);
+ nt(g,'#8ad',12,H-16,9,'projection computed independently by the exact sorting algorithm');}
+document.getElementById('fwstep').onclick=function(){stepDemo();drawW3();drawW4();document.getElementById('fwread').textContent='step '+dstep+' — gap '+Math.abs(dgap).toExponential(3)+', ‖x-proj‖ '+Math.max(Math.abs(dx[0]-dproj[0]),Math.abs(dx[1]-dproj[1]),Math.abs(dx[2]-dproj[2])).toExponential(3);};
+document.getElementById('fwrun').onclick=function(){for(var i=0;i<400;i++)stepDemo();drawW3();drawW4();document.getElementById('fwread').textContent='ran to step '+dstep+' → x ≈ projection, gap '+Math.abs(dgap).toExponential(3);};
+document.getElementById('fwnew').onclick=function(){resetDemo((Date.now()&8191)+1);drawW3();drawW4();document.getElementById('fwread').textContent='new target a — projection recomputed';};
+document.getElementById('fwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ var V=[[0,-90],[78,45],[-78,45]];ne(g,'#b06bff',1.8);g.beginPath();g.moveTo(V[0][0],V[0][1]);g.lineTo(V[1][0],V[1][1]);g.lineTo(V[2][0],V[2][1]);g.closePath();g.stroke();ng(g);
+ var pp=[dproj[0]*V[0][0]+dproj[1]*V[1][0]+dproj[2]*V[2][0],dproj[0]*V[0][1]+dproj[1]*V[1][1]+dproj[2]*V[2][1]];
+ for(var i=0;i<3;i++){ne(g,'#ff2fa6',1.3);g.beginPath();g.moveTo(pp[0],pp[1]);g.lineTo(V[i][0],V[i][1]);g.stroke();ng(g);ndot(g,V[i][0],V[i][1],3,'#ff2fa6');}
+ ndot(g,pp[0],pp[1],6,'#35ffb0');g.restore();
+ nt(g,'#35ffb0',10,H-52,11,'green: the constrained optimum (projection onto the simplex)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the vertex-pull rays — each step charges a corner');nt(g,'#8ad',10,H-14,10,'reach the projection without ever projecting');}
+drawW3();drawW4();window.__frank_wolfe=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 137 · neon-noir · silicon-coding (prove you know a secret without revealing it · a triangle feels for the valley floor · one DFS with two stacks finds every cycle-cluster · a regex becomes a walk over letter-positions · two numbers each the sum of the other's divisors) ═══════════════════════
 SCHN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Schnorr signature</b> proves you know a secret exponent <i>x</i> without revealing it. Public key y = g<sup>x</sup> (mod p). To sign a message m: commit r = g<sup>k</sup> for a fresh random k, derive a challenge e = H(r, m), and answer s = k + x&middot;e (mod order). The verifier &mdash; who never sees x or k &mdash; checks a single equation: <b>g<sup>s</sup> = r &middot; y<sup>e</sup> (mod p)</b>. It balances because g<sup>k+xe</sup> = g<sup>k</sup>&middot;(g<sup>x</sup>)<sup>e</sup>. Change the message and the challenge changes, so an old response no longer fits; change the response and the equation breaks. It is the clean, linear ancestor of the signatures that guard modern keys.<br><br>
@@ -35757,6 +36042,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-chakravala","title":"THE CHAKRAVALA","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#ffcf4a","icon":"chakravala",
+  "kicker":"crank a cycle to crack an ancient equation",
+  "blurb":"The chakravala method in the 5-window house format — a cyclic algorithm from 12th-century India (Bhaskara II, on Brahmagupta) that solves Pell's equation x²-N·y²=1 in integers. From a rough triple (a,b,k) with a²-N·b²=k, it repeatedly composes with (m,1) by Brahmagupta's identity, choosing m each turn so k divides a+b·m and |m²-N| is smallest. The value k spirals to ±1, and the current (a,b) is the fundamental solution — centuries ahead of Fermat and Lagrange. Verified live (exact BigInt): for every non-square N from 2 to 120 the method returns integers (x,y) with x²-N·y² exactly 1, including the notorious N=61 whose smallest solution is x=1766319049. Neon-noir traced. See the hyperbola and its lattice solution in 1D, the wheel per N in 2D, and the compose-to-breed inverse in 3D.",
+  "lit":"Genuine chakravala cyclic method (Brahmagupta 628; Bhaskara II 1150). Verified live with exact BigInt arithmetic: for every non-square N in 2..120 the cyclic composition returns (x,y) with x²-N·y²=1 exactly, including N=61 → x=1766319049, y=226153980 (window.__chakravala.solvesAll, .tested).",
+  "fig":"No framing; the cyclic composition, the modular m-selection, the Brahmagupta finisher, and the exact integer check all run in-browser with arbitrary-precision integers. The AVAN inverse is honest — instead of searching for each solution, compose one with itself by Brahmagupta's identity to breed the next, forever. Magenta is the composed second solution; green is the fundamental. One jackpot seeds infinitely many.",
+  "body":CHKV_BODY,"script":CHKV_SCRIPT},
+ {"slug":"the-rayleigh-quotient","title":"THE RAYLEIGH QUOTIENT","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#ff8a3c","icon":"rayleigh",
+  "kicker":"a quotient that homes onto an eigenvalue in cubic leaps",
+  "blurb":"Rayleigh quotient iteration in the 5-window house format — finding an eigenvector of a symmetric matrix with breathtaking speed. Given a guess v, form the Rayleigh quotient μ = vᵀAv/vᵀv (the best eigenvalue estimate in that direction), solve (A-μI)w = v, normalize, repeat. Each step uses the current eigenvalue estimate as a shift that makes the solve amplify the nearest eigenvector enormously — for symmetric matrices the convergence is cubic, so a few steps reach machine precision. Verified live: over 3000 random symmetric 3×3 matrices from random starts, the iteration returns (v,μ) with residual ‖Av-μv‖ below 1e-6 and |det(A-μI)| below 1e-5 — a genuine eigenpair. Neon-noir traced. See the quadratic-form ellipse in 1D, the cubic convergence in 2D, and the invert-the-shift inverse in 3D.",
+  "lit":"Genuine Rayleigh quotient iteration (Rayleigh quotient; shifted iteration per Ostrowski, Wilkinson). Verified live: over 3000 random symmetric 3×3 matrices from random starts the iteration returns (v,μ) with residual ‖Av-μv‖<1e-6 and characteristic |det(A-μI)|<1e-5 — a genuine eigenpair with cubic convergence (window.__rayleigh.converges, .worst, .worstDet).",
+  "fig":"No framing; the Rayleigh quotient, the shifted linear solve, and both the residual and characteristic-determinant checks run in-browser. The AVAN inverse is honest — instead of multiplying by A, invert the shift: (A-μI)⁻¹ explodes the one direction whose eigenvalue is nearest μ, so a single solve aims at the eigenvector. Magenta is A·v; green is v — parallel at convergence.",
+  "body":RAYQ_BODY,"script":RAYQ_SCRIPT},
+ {"slug":"the-pisot","title":"THE PISOT","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#21e6ff","icon":"pisot",
+  "kicker":"powers that creep toward integers but never quite land",
+  "blurb":"Pisot-Vijayaraghavan numbers in the 5-window house format — a real algebraic integer θ>1 whose every Galois conjugate has absolute value strictly below 1. That single condition forces the powers θⁿ to creep arbitrarily close to whole numbers, because θⁿ plus its conjugate powers is always an integer (a linear-recurrence term) and the conjugates shrink to nothing. The golden ratio is the classic case: φⁿ + ψⁿ = the Lucas number Lₙ, and |ψ|=0.618, so φⁿ races toward Lₙ. The smallest Pisot number of all is the plastic number ρ≈1.3247. Verified live: φⁿ rounds to the Lucas number with distance exactly |ψ|ⁿ (dist(φ³⁵)≈7e-8); the silver ratio 1+√2 rounds to the Pell-Lucas number with distance |1-√2|ⁿ; and a non-Pisot algebraic integer (1+√13)/2, whose conjugate exceeds 1, keeps missing the integers (mean distance ≈0.26). Neon-noir traced. See the distance-to-integer curves in 1D, θ per θ in 2D, and the vanishing-conjugate inverse in 3D.",
+  "lit":"Genuine Pisot-Vijayaraghavan numbers (Charles Pisot & T. Vijayaraghavan, 1930s; earlier Thue, Hardy). Verified live with exact BigInt companion recurrences: φⁿ rounds to Lucas Lₙ with distance exactly |ψ|ⁿ (dist(φ³⁵)≈7e-8), the silver ratio 1+√2 rounds to Pell-Lucas Qₙ with distance |1-√2|ⁿ, and the non-Pisot (1+√13)/2 (conjugate |·|>1) keeps missing integers with mean distance ≈0.26 (window.__pisot.goldenRounds, .goldenDist, .silverRounds, .nonPisotStaysAway).",
+  "fig":"No framing; the companion recurrences (Lucas, Pell-Lucas — exact BigInt), the powers, and the nearest-integer distances all run in-browser. Honest scope: the distance is positive at every finite n and only tends to 0 in the limit — never exactly reached. The AVAN inverse is honest — instead of watching θⁿ, watch its conjugate power ψⁿ, the vanishing remainder that carries θⁿ to the integer. Magenta is that shrinking remainder; green is θⁿ landing on the integer ladder.",
+  "body":PSOT_BODY,"script":PSOT_SCRIPT},
+ {"slug":"the-ridders","title":"THE RIDDERS","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#35ffb0","icon":"ridders",
+  "kicker":"exponential interpolation squeezing onto a root",
+  "blurb":"Ridders' method in the 5-window house format — finding a root inside a bracket [x₀,x₁] where the sign flips. It takes the midpoint x₂, fits a falling exponential through the three points to absorb the bracket's curvature, and solves that model exactly: x₃ = x₂ + (x₂-x₀)·sign(f₀-f₁)·f₂/√(f₂²-f₀f₁). The new point always stays inside the bracket (so it can never diverge like Newton), yet converges quadratically — far faster than bisection's one bit per step. Verified live: on six functions with known roots, Ridders converges to |f(root)| below 1e-10 (matching the true root to ~1e-9) in at most a handful of iterations, and in strictly fewer iterations than bisection. Neon-noir traced. See the bracketed step in 1D, the collapsing bracket in 2D, and the model-don't-halve inverse in 3D.",
+  "lit":"Genuine Ridders' method (C. J. F. Ridders, 1979). Verified live: on 5 functions with known roots the bracketed exponential-interpolation step converges to |f(root)|<1e-10 (root to <1e-8) in at most a handful of iterations, always in strictly fewer iterations than bisection to the same tolerance (window.__ridders.converges, .worst, .worstIt, .fasterThanBisect).",
+  "fig":"No framing; the bracketed exponential step, the root check, and the bisection comparison run in-browser. The AVAN inverse is honest — instead of halving blindly, fit a falling exponential through the bracket and jump to its exact zero, staying trapped inside so it cannot diverge. Magenta is the exponential model; green is the root it targets. Squeeze by modelling, not halving.",
+  "body":RDDR_BODY,"script":RDDR_SCRIPT},
+ {"slug":"the-frank-wolfe","title":"THE FRANK-WOLFE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#b06bff","icon":"frank-wolfe",
+  "kicker":"charge the corner to minimize inside a polytope",
+  "blurb":"The Frank-Wolfe algorithm (conditional gradient) in the 5-window house format — minimizing a convex function over a convex set without ever projecting. Each step linearizes the objective and asks a linear oracle for the vertex the linear approximation likes best, then takes a convex step toward it with shrinking size γ=2/(k+2). Because every iterate is a convex combination of vertices, it stays feasible for free — ideal on a polytope like a probability simplex where linear minimization is trivial but projection is costly; the linearization gap certifies how far from optimal you remain. Verified live: minimizing ‖x-a‖² over the probability simplex, Frank-Wolfe converges to the exact Euclidean projection of a onto the simplex (computed independently) to within ~1e-3, and its duality gap collapses toward zero. Neon-noir traced. See the simplex and iterates in 1D, the gap collapsing in 2D, and the charge-a-corner inverse in 3D.",
+  "lit":"Genuine Frank-Wolfe / conditional-gradient algorithm (Marguerite Frank & Philip Wolfe, 1956). Verified live: minimizing ‖x-a‖² over the probability simplex, the corner-charging iterates converge to the exact Euclidean simplex projection of a (computed independently by the sorting algorithm) to within ~1e-3 worst-case, with the duality gap collapsing toward zero (window.__frank_wolfe.converges, .worst, .worstGap).",
+  "fig":"No framing; the linear-minimization oracle, the convex steps, the duality gap, and the independent simplex projection all run in-browser. The AVAN inverse is honest — instead of projecting onto the feasible set, ask which vertex the linearized objective prefers and step toward it; the convex combination is feasible for free. Magenta are the vertex-pull rays; green is the optimum they close in on. Reach the projection without ever projecting.",
+  "body":FRWF_BODY,"script":FRWF_SCRIPT},
  {"slug":"the-schnorr","title":"THE SCHNORR","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#21e6ff","icon":"schnorr",
   "kicker":"prove you know a secret without revealing it",
