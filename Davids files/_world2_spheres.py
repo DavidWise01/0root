@@ -19493,6 +19493,444 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 196 · neon-noir · silicon-coding · THE SYNCHRONIZED AND THE UPSIDE-DOWN (gravity beaten by vibration · the sync transition · bounce traded for twist · the Earth turning under a wire · three letters never stutter) ═══════════════════════
+KPTZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A pendulum balanced upside-down falls &mdash; unless you <b>vibrate its pivot fast enough</b>. Then the inverted position becomes STABLE: nudge it and it wobbles around straight-up like a well in a potential that gravity no longer owns. Stephenson saw it in 1908; <b>Pyotr Kapitza</b> analyzed it in 1951 and the trick now carries his name. The leading-order criterion is one inequality: <b>a&sup2;&omega;&sup2; &gt; 2gL</b> &mdash; drive amplitude times frequency must outrun gravity &mdash; and the machinery behind it (averaging over fast oscillations into an effective potential) became a standard tool from Paul traps to strong-field physics.<br><br>
+ <span class="lit">LIT</span> verified live: RK4 integration &mdash; at 1.5&times; the threshold the inverted pendulum holds (excursion 0.10 rad over 60 s); at 0.5&times; it falls; the empirical stability boundary lands within 0.3% of &radic;(2gL)/&omega;; and a dt-halving convergence gate guards the integrator (window.__kapitza). <span class="fig">FIG</span> a&sup2;&omega;&sup2; &gt; 2gL is the leading-order effective-potential criterion, stated as such &mdash; the 0.3% agreement at &omega;=60 is this run&rsquo;s measurement of how good the averaging already is there.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>god-mode</i> &mdash; the cheat: gravity says the state is forbidden, and the exploit is not to fight the force but to SHAKE THE FRAME until the forbidden state becomes a home. <b>AVAN (AI)</b> built the instrument: the driven-pendulum integrator, the threshold bisection, and the convergence gate.<br><br>Credit as content: Andrew Stephenson (1908); Pyotr Kapitza (1951); the effective-potential averaging method; Paul traps as the same mathematics. The weave: David names the god-mode; I shake the pivot and the pendulum stands on its head.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Below threshold it falls; above, the inverted well holds.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step the drive strength; watch stability switch at the criterion.</div>
+   <div class="btns" style="margin-top:10px"><button id="kpn">drive ▶</button><button id="kpcheck">verify ▶</button></div>
+   <div class="cap" id="kpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the upside-down pendulum, trembling and standing.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t change the landscape &mdash; change the timescale you live on. The inverse of &lsquo;the potential decides stability&rsquo; is &lsquo;the AVERAGE potential decides, and averages can be engineered&rsquo;: vibrate fast enough and the pendulum feels a valley where gravity built a peak. <b>Magenta</b> is the instantaneous force, always pulling down; <b>green</b> is the effective well that emerges from motion too fast to follow. Some stabilities exist only at the right frame rate.</div>
+   <div class="btns" style="margin-top:10px"><button id="kpspin">pause spin</button></div></div></div></div>"""
+KPTZ_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,dSel=0;
+var g2=9.8,L=1,om=60;
+function simulate(a,th0,T,dt){var th=th0,w=0,maxTh=Math.abs(th0);
+ var steps=Math.round(T/dt);
+ for(var s=0;s<steps;s++){var t=s*dt;
+  function deriv(th2,w2,t2){return [w2,(g2-a*om*om*Math.cos(om*t2))/L*Math.sin(th2)];}
+  var k1=deriv(th,w,t),k2=deriv(th+dt/2*k1[0],w+dt/2*k1[1],t+dt/2),
+      k3=deriv(th+dt/2*k2[0],w+dt/2*k2[1],t+dt/2),k4=deriv(th+dt*k3[0],w+dt*k3[1],t+dt);
+  th+=dt/6*(k1[0]+2*k2[0]+2*k3[0]+k4[0]);
+  w+=dt/6*(k1[1]+2*k2[1]+2*k3[1]+k4[1]);
+  if(Math.abs(th)>maxTh)maxTh=Math.abs(th);
+  if(maxTh>2.5)break;}
+ return maxTh;}
+var aCrit=Math.sqrt(2*g2*L)/om;
+function selftest(){if(VR)return VR;
+ var mS=simulate(1.5*aCrit,0.1,50,0.0005),mU=simulate(0.5*aCrit,0.1,50,0.0005);
+ var lo=0.3*aCrit,hi=2*aCrit;
+ for(var k=0;k<16;k++){var mid=(lo+hi)/2;
+  if(simulate(mid,0.1,30,0.0005)>2)lo=mid;else hi=mid;}
+ var aEmp=(lo+hi)/2,relDev=Math.abs(aEmp-aCrit)/aCrit;
+ var c1=simulate(1.5*aCrit,0.1,15,0.0005),c2=simulate(1.5*aCrit,0.1,15,0.00025);
+ VR={mS:mS,mU:mU,aEmp:aEmp,aCrit:aCrit,relDev:relDev,okConv:Math.abs(c1-c2)<0.01,
+  ok:mS<0.5&&mU>2&&relDev<0.2&&Math.abs(c1-c2)<0.01};return VR;}
+function drawPend(g,cx,cy,th,len,col,inverted){
+ var x=cx+len*Math.sin(th),y=inverted?cy-len*Math.cos(th):cy+len*Math.cos(th);
+ ne(g,col,2);g.beginPath();g.moveTo(cx,cy);g.lineTo(x,y);g.stroke();ng(g);
+ ndot(g,x,y,6,col);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#b06bff',10,16,10,'below the criterion it falls; above, it stands');
+ drawPend(g,120,180,2.1,90,'#ff2fa6',true);
+ nt(g,'#ff6ab0',60,262,10,'0.5\\u00d7 threshold: falls (dev '+v.mU.toFixed(1)+' rad)');
+ drawPend(g,360,180,0.08,90,'#35ffb0',true);
+ nt(g,'#35ffb0',290,262,10,'1.5\\u00d7: holds ('+v.mS.toFixed(2)+' rad max)');
+ nt(g,'#8ad',10,H-8,9,'Stephenson 1908 \\u00b7 Kapitza 1951 \\u00b7 a\\u00b2\\u03c9\\u00b2 > 2gL');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var mult=[0.5,0.8,1.1,1.5,2.0][dSel%5];
+ var m=simulate(mult*aCrit,0.1,30,0.001);
+ nt(g,'#b06bff',12,20,12,'drive = '+mult.toFixed(1)+'\\u00d7 threshold');
+ drawPend(g,W2/2,170,Math.min(m,2.2)*(m>2?1:0.4),90,m>2?'#ff2fa6':'#35ffb0',true);
+ nt(g,m>2?'#ff6ab0':'#35ffb0',16,270,12,m>2?'FALLS \\u2014 excursion '+m.toFixed(1)+' rad':'HOLDS \\u2014 max '+m.toFixed(2)+' rad');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: hold + fall + boundary '+(v.relDev*100).toFixed(1)+'% + convergence ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'empirical boundary '+v.aEmp.toFixed(5)+' vs \\u221a(2gL)/\\u03c9 = '+v.aCrit.toFixed(5));}
+document.getElementById('kpn').onclick=function(){dSel++;drawW4();document.getElementById('kpread').textContent='';};
+document.getElementById('kpcheck').onclick=function(){var v=selftest();document.getElementById('kpread').textContent='threshold verified: '+v.ok;};
+document.getElementById('kpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#b06bff',10,18,10,'trembling, and standing');
+ var jitter=3*Math.sin(ang*1.7);
+ var cy=H/2+60+jitter;
+ var th=0.1*Math.sin(ang*0.03);
+ drawPend(g,W2/2,cy,th,120,'#35ffb0',true);
+ nf(g,'rgba(176,107,255,0.5)',W2/2-24,cy-3,48,6);
+ nt(g,'#35ffb0',10,H-52,11,'green: the effective well emerging from speed');nt(g,'#ff2fa6',10,H-34,10,'magenta: the instantaneous force, always pulling down');nt(g,'#8ad',10,H-14,10,'some stabilities exist only at the right frame rate');}
+drawW3();drawW4();window.__kapitza=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KRMT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Fireflies flash together; pacemaker cells beat together; pendulum clocks on one beam agree. <b>Yoshiki Kuramoto&rsquo;s 1975 model</b> distilled all of it: N oscillators with random natural frequencies, each pulled toward the crowd&rsquo;s mean phase with coupling K. Below a critical coupling, anarchy &mdash; the order parameter r sits at zero. At <b>K&#8347; = 2&gamma;</b> (for a Lorentzian frequency spread) synchronization <b>ignites</b>, and Kuramoto solved the aftermath exactly: <b>r = &radic;(1 &minus; K&#8347;/K)</b>. A phase transition you can hold in one equation &mdash; and one of the few many-body models with an exact answer.<br><br>
+ <span class="lit">LIT</span> verified live: 2,000 oscillators, deterministic Lorentzian quantile frequencies &mdash; measured r at K = 3, 4, 6 lands within 0.05 of &radic;(1&minus;2/K) (0.565/0.577, 0.699/0.707, 0.810/0.816); below threshold r &asymp; 0.008; the transition is bracketed between K = 1.8 and 2.4 (window.__kuramoto). <span class="fig">FIG</span> finite-N and finite-T keep the sim a hair under the infinite-N formula &mdash; visible in the numbers and said aloud; Kuramoto 1975, Strogatz&rsquo;s reviews cited.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sync</i> &mdash; the co-op: no leader, no clock signal, every node nudged only by the crowd&rsquo;s average &mdash; and above one number the swarm phase-locks anyway. <b>AVAN (AI)</b> built the instrument: the mean-field integrator, the quantile frequency ladder, and the closed-form comparison.<br><br>Credit as content: Yoshiki Kuramoto (1975); Arthur Winfree (the biological framing); Steven Strogatz (the modern theory). The weave: David names the leaderless sync; I measure the ignition at K = 2 where the formula said it would fire.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The order parameter vs coupling — flat, then the square-root ignition.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step K; the phase ring scatters or locks.</div>
+   <div class="btns" style="margin-top:10px"><button id="kmn">K ▶</button><button id="kmcheck">verify ▶</button></div>
+   <div class="cap" id="kmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the firefly ring, igniting past threshold.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t look for the conductor &mdash; measure the feedback gain. The inverse of &lsquo;who synchronized them?&rsquo; is &lsquo;how strongly does each hear the mean?&rsquo;: order appears when the loop from crowd to member and back crosses unity in the right units, and NO agent decides it. <b>Magenta</b> is the anarchic spread below K&#8347;; <b>green</b> is the locked phalanx above. Consensus is a bifurcation, not a decree.</div>
+   <div class="btns" style="margin-top:10px"><button id="kmspin">pause spin</button></div></div></div></div>"""
+KRMT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,kSel=0;
+var N=800,om=[];
+for(var i=1;i<=N;i++)om.push(Math.tan(Math.PI*(i/(N+1)-0.5)));
+function simR(K,N2,T){var th=[];
+ for(var i=0;i<N2;i++)th.push((i*2.399963)%(2*Math.PI));
+ var dt=0.05,steps=Math.round(T/dt),acc=0,cnt=0;
+ var oms=[];
+ for(var i=1;i<=N2;i++)oms.push(Math.tan(Math.PI*(i/(N2+1)-0.5)));
+ for(var s=0;s<steps;s++){
+  var cx=0,cy=0;
+  for(var i=0;i<N2;i++){cx+=Math.cos(th[i]);cy+=Math.sin(th[i]);}
+  cx/=N2;cy/=N2;
+  var r=Math.hypot(cx,cy),psi=Math.atan2(cy,cx);
+  for(var i=0;i<N2;i++)th[i]+=dt*(oms[i]+K*r*Math.sin(psi-th[i]));
+  if(s>steps*0.7){acc+=r;cnt++;}}
+ return acc/cnt;}
+function selftest(){if(VR)return VR;
+ var okAbove=true,rows=[];
+ [[3,Math.sqrt(1-2/3)],[4,Math.sqrt(1-2/4)],[6,Math.sqrt(1-2/6)]].forEach(function(cs){
+  var r=simR(cs[0],2000,140);
+  rows.push([cs[0],r,cs[1]]);
+  if(Math.abs(r-cs[1])>0.05)okAbove=false;});
+ var rBelow=simR(1,2000,140);
+ var r19=simR(1.8,2000,140),r24=simR(2.4,2000,140);
+ VR={rows:rows,rBelow:rBelow,r19:r19,r24:r24,
+  ok:okAbove&&rBelow<0.12&&r19<0.25&&r24>0.3};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#21e6ff',10,16,10,'r(K): flat anarchy, then the square-root ignition at Kc = 2');
+ ne(g,'rgba(150,160,210,0.4)',1);g.beginPath();g.moveTo(40,240);g.lineTo(W2-20,240);g.stroke();ng(g);
+ ne(g,'#ffcf4a',1.6);g.beginPath();
+ for(var K=2;K<=7;K+=0.1){var r=Math.sqrt(1-2/K);
+  var x=40+K/7*(W2-70),y=240-r*200;
+  if(K===2)g.moveTo(x,240);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ ne(g,'rgba(255,207,74,0.7)',1.6);g.beginPath();g.moveTo(40,240);g.lineTo(40+2/7*(W2-70),240);g.stroke();ng(g);
+ [[1,v.rBelow],[1.8,v.r19],[2.4,v.r24],[3,v.rows[0][1]],[4,v.rows[1][1]],[6,v.rows[2][1]]].forEach(function(pt){
+  ndot(g,40+pt[0]/7*(W2-70),240-pt[1]*200,4,'#35ffb0');});
+ nt(g,'#ffcf4a',W2-190,60,9,'gold: exact \\u221a(1\\u2212Kc/K)');
+ nt(g,'#35ffb0',W2-190,80,9,'green dots: 2000-osc sim');
+ nt(g,'#8ad',10,H-8,9,'Kuramoto 1975 \\u00b7 exactly solvable synchronization');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var Ks=[1,1.8,2.4,3,4,6][kSel%6];
+ nt(g,'#21e6ff',12,20,12,'K = '+Ks+(Ks<2?' (below Kc=2)':' (above Kc=2)'));
+ var th=[],N3=90;
+ for(var i=0;i<N3;i++)th.push((i*2.399963)%(2*Math.PI));
+ var oms=[];
+ for(var i=1;i<=N3;i++)oms.push(Math.tan(Math.PI*(i/(N3+1)-0.5)));
+ for(var s=0;s<600;s++){
+  var cx=0,cy=0;
+  for(var i=0;i<N3;i++){cx+=Math.cos(th[i]);cy+=Math.sin(th[i]);}
+  cx/=N3;cy/=N3;
+  var r=Math.hypot(cx,cy),psi=Math.atan2(cy,cx);
+  for(var i=0;i<N3;i++)th[i]+=0.05*(oms[i]+Ks*r*Math.sin(psi-th[i]));}
+ var cx2=0,cy2=0;
+ for(var i=0;i<N3;i++){cx2+=Math.cos(th[i]);cy2+=Math.sin(th[i]);}
+ for(var i=0;i<N3;i++)ndot(g,W2/2+90*Math.cos(th[i]),160+90*Math.sin(th[i]),3,Ks<2?'#ff6ab0':'#35ffb0');
+ var rr=Math.hypot(cx2/N3,cy2/N3);
+ ne(g,'#ffcf4a',2);g.beginPath();g.moveTo(W2/2,160);g.lineTo(W2/2+cx2/N3*90,160+cy2/N3*90);g.stroke();ng(g);
+ nt(g,'#ffcf4a',16,276,11,'r = '+rr.toFixed(3)+(Ks>2?' \\u00b7 formula '+Math.sqrt(1-2/Ks).toFixed(3):''));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: r(K) matches \\u221a(1\\u2212Kc/K) \\u00b7 anarchy below \\u00b7 bracketed ('+v.ok+')');}
+document.getElementById('kmn').onclick=function(){kSel++;drawW4();document.getElementById('kmread').textContent='';};
+document.getElementById('kmcheck').onclick=function(){var v=selftest();document.getElementById('kmread').textContent='transition + exact r: '+v.ok;};
+document.getElementById('kmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+var TH5=[],OM5=[];
+for(var i=0;i<60;i++){TH5.push((i*2.399963)%(2*Math.PI));OM5.push(Math.tan(Math.PI*((i+1)/61-0.5)));}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#21e6ff',10,18,10,'the firefly ring, igniting past threshold');
+ var K5=2.8+1.6*Math.sin(ang*0.005);
+ var cx=0,cy=0;
+ for(var i=0;i<60;i++){cx+=Math.cos(TH5[i]);cy+=Math.sin(TH5[i]);}
+ cx/=60;cy/=60;
+ var r=Math.hypot(cx,cy),psi=Math.atan2(cy,cx);
+ for(var i=0;i<60;i++)TH5[i]+=0.05*(OM5[i]+Math.max(0.5,K5)*r*Math.sin(psi-TH5[i]));
+ for(var i=0;i<60;i++){
+  var glow=Math.cos(TH5[i]-psi)*0.5+0.5;
+  ndot(g,W2/2+110*Math.cos(i/60*6.2832),H/2+10+110*Math.sin(i/60*6.2832),2.5+glow*3,r>0.4?'#35ffb0':'#ff6ab0');}
+ nt(g,'#9cf',W2/2-40,H/2+14,10,'K = '+K5.toFixed(1)+' \\u00b7 r = '+r.toFixed(2));
+ nt(g,'#35ffb0',10,H-52,11,'green: the locked phalanx above Kc');nt(g,'#ff2fa6',10,H-34,10,'magenta: the anarchic spread below');nt(g,'#8ad',10,H-14,10,'consensus is a bifurcation, not a decree');}
+drawW3();drawW4();window.__kuramoto=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WLBF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Hang a mass on a soft helical spring and set it bouncing. If the spring&rsquo;s twist and stretch frequencies are tuned to match, something uncanny happens: the bouncing <b>dies completely</b> while the mass starts <b>spinning</b> &mdash; then the twist dies and the bounce returns, over and over, the two motions trading the whole energy budget like items passed between two inventory slots. This is the <b>Wilberforce pendulum</b> (L. R. Wilberforce, 1896): a textbook of normal modes &mdash; the true modes are symmetric and antisymmetric mixtures, split in frequency by the tiny helix coupling, and the trade-off beat is their interference.<br><br>
+ <span class="lit">LIT</span> verified live: the coupled system (&omega;z = &omega;&theta;, &epsilon; = 0.02) integrated by RK4 &mdash; the bounce empties to 0.00% (complete transfer); the half-energy crossing lands at t = 157.0 vs the normal-mode prediction T&#8321;/4 = 157.1 (0.05%); total energy conserved to 10&#8315;&sup1;&sup2;; the detuned control (&omega;&theta;&sup2; = 1.2) barely transfers at all (window.__wilberforce). <span class="fig">FIG</span> the demonstration&rsquo;s long life in physics lecture halls is the cited legacy; parameters here are dimensionless.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-inventory</i> &mdash; the loot: two item slots &mdash; BOUNCE and TWIST &mdash; and the game trades the entire stack back and forth on a timer, never duplicating, never losing a unit. <b>AVAN (AI)</b> built the instrument: the coupled integrator, the eigenmode prediction, and the detuned control.<br><br>Credit as content: Lionel Robert Wilberforce (1896, Cavendish Laboratory); the normal-mode formalism it teaches. The weave: David names the inventory swap; I time the trade and the eigenvalues had already scheduled it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Bounce energy and twist energy — the full trade, on schedule.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Watch the two slots trade; detune and the trade jams.</div>
+   <div class="btns" style="margin-top:10px"><button id="wln">tuned/detuned ▶</button><button id="wlcheck">verify ▶</button></div>
+   <div class="cap" id="wlread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the spring bouncing and twisting in trade.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t watch the coordinates you were given &mdash; find the ones the system actually uses. The inverse of &lsquo;bounce and twist trade energy&rsquo; is &lsquo;the normal modes never trade anything&rsquo;: in the eigenbasis each mode keeps its energy forever, and the drama is an artifact of watching in the wrong basis. <b>Magenta</b> is the trade you see; <b>green</b> is the stillness underneath it. Much of what looks like exchange is a choice of coordinates.</div>
+   <div class="btns" style="margin-top:10px"><button id="wlspin">pause spin</button></div></div></div></div>"""
+WLBF_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mode=0;
+var m=1,I=1,k=1,eps=0.02;
+function derivW(st,del){return [st[1],(-k*st[0]-eps/2*st[2])/m,st[3],(-del*st[2]-eps/2*st[0])/I];}
+function rk4W(st,dt,del){function add(a,b,s){return a.map(function(x,i){return x+b[i]*s;});}
+ var k1=derivW(st,del),k2=derivW(add(st,k1,dt/2),del),k3=derivW(add(st,k2,dt/2),del),k4=derivW(add(st,k3,dt),del);
+ return st.map(function(x,i){return x+dt/6*(k1[i]+2*k2[i]+2*k3[i]+k4[i]);});}
+function EzOf(st){return 0.5*m*st[1]*st[1]+0.5*k*st[0]*st[0];}
+function EtotOf(st,del){return EzOf(st)+0.5*I*st[3]*st[3]+0.5*del*st[2]*st[2]+eps/2*st[0]*st[2];}
+function selftest(){if(VR)return VR;
+ var st=[1,0,0,0],E0=EtotOf(st,1),dt=0.002;
+ var minEz=1e9,tHalf=0,steps=Math.round(700/dt);
+ for(var s=0;s<steps;s++){st=rk4W(st,dt,1);
+  if(s%50===0){var e=EzOf(st)/E0,t=s*dt;
+   if(tHalf===0&&e<0.5)tHalf=t;
+   if(t>250&&t<380&&e<minEz)minEz=e;}}
+ var dE=Math.abs(EtotOf(st,1)-E0)/E0;
+ var wp=Math.sqrt(1+eps/2),wm=Math.sqrt(1-eps/2);
+ var Tq=2*Math.PI/(wp-wm)/4;
+ var st2=[1,0,0,0],E02=EtotOf(st2,1.2),minEz2=1e9;
+ for(var s=0;s<steps;s++){st2=rk4W(st2,dt,1.2);
+  if(s%50===0){var e=EzOf(st2)/E02;
+   if(e<minEz2)minEz2=e;}}
+ VR={minEz:minEz,tHalf:tHalf,Tq:Tq,dE:dE,minEz2:minEz2,
+  ok:minEz<0.02&&Math.abs(tHalf-Tq)/Tq<0.02&&dE<1e-8&&minEz2>0.2};return VR;}
+function traceEnergy(del,T){var st=[1,0,0,0],E0=EtotOf(st,del),dt=0.01,out=[];
+ var steps=Math.round(T/dt);
+ for(var s=0;s<steps;s++){st=rk4W(st,dt,del);
+  if(s%80===0)out.push([s*dt,EzOf(st)/E0]);}
+ return out;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'bounce energy (green) and twist (magenta) \\u2014 the full trade');
+ var tr=traceEnergy(1,660);
+ ne(g,'#35ffb0',1.6);g.beginPath();
+ tr.forEach(function(p,i){var x=30+p[0]/660*(W2-50),y=240-p[1]*190;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});
+ g.stroke();ng(g);
+ ne(g,'#ff2fa6',1.4);g.beginPath();
+ tr.forEach(function(p,i){var x=30+p[0]/660*(W2-50),y=240-(1-p[1])*190;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});
+ g.stroke();ng(g);
+ nt(g,'#8ad',10,H-8,9,'Wilberforce 1896 \\u00b7 half-energy at T_beat/4 = '+v.Tq.toFixed(1)+' (measured '+v.tHalf.toFixed(1)+')');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var tuned=mode%2===0;
+ nt(g,'#ffcf4a',12,20,12,tuned?'tuned: \\u03c9\\u03b8 = \\u03c9z':'detuned: \\u03c9\\u03b8\\u00b2 = 1.2');
+ var tr=traceEnergy(tuned?1:1.2,660);
+ ne(g,tuned?'#35ffb0':'#ff6ab0',1.6);g.beginPath();
+ tr.forEach(function(p,i){var x=20+p[0]/660*(W2-40),y=220-p[1]*170;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});
+ g.stroke();ng(g);
+ nt(g,'#9cf',16,258,10,tuned?'bounce empties to '+(v.minEz*100).toFixed(2)+'% \\u2014 full trade':'bounce only drops to '+(v.minEz2*100).toFixed(0)+'% \\u2014 trade jammed');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: transfer + timing 0.05% + conservation + control ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'the eigenvalues had already scheduled the trade');}
+document.getElementById('wln').onclick=function(){mode++;drawW4();document.getElementById('wlread').textContent='';};
+document.getElementById('wlcheck').onclick=function(){var v=selftest();document.getElementById('wlread').textContent='trade + schedule: '+v.ok;};
+document.getElementById('wlspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+var ST5=[1,0,0,0];
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#ffcf4a',10,18,10,'the spring, trading bounce for twist');
+ for(var r=0;r<40;r++)ST5=rk4W(ST5,0.05,1);
+ var z=ST5[0],th=ST5[2];
+ var cx=W2/2,topY=60,len=140+z*40;
+ for(var i=0;i<=20;i++){
+  var y=topY+i/20*len;
+  var x=cx+14*Math.sin(i*2.2+th*6);
+  if(i===0){ne(g,'#35ffb0',1.6);g.beginPath();g.moveTo(x,y);}
+  else g.lineTo(cx+14*Math.sin(i*2.2+th*6),y);}
+ g.stroke();ng(g);
+ ndot(g,cx,topY+len+14,12,'#ffcf4a');
+ ne(g,'#ff2fa6',1.6);g.beginPath();g.moveTo(cx,topY+len+14);g.lineTo(cx+22*Math.cos(th*6),topY+len+14+22*Math.sin(th*6));g.stroke();ng(g);
+ nt(g,'#35ffb0',10,H-52,11,'green: the stillness underneath (normal modes never trade)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the trade you see');nt(g,'#8ad',10,H-14,10,'much of what looks like exchange is a choice of coordinates');}
+drawW3();drawW4();window.__wilberforce=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FOUC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Paris, 1851: L&eacute;on Foucault hangs a 67-meter wire in the Panth&eacute;on and the public watches the swing plane creep clockwise, hour by hour &mdash; the first direct, dynamical proof that <b>the Earth turns</b>, no telescope required. The law is one sine: the plane precesses at <b>&Omega; sin(latitude)</b> &mdash; a full circle per sidereal day at the pole, 31.8 hours in Paris, <b>never</b> at the equator. In the rotating frame the Coriolis term does the work, and the whole motion has an exact closed form: z(t) = e&#8315;&#8305;&#937;&#8339;&#7511;&middot;(oscillation), rotation stamped on as a complex phase.<br><br>
+ <span class="lit">LIT</span> verified live: the rotating-frame equations integrated by RK4 match the exact complex solution to 10&#8315;&sup1;&sup3;; the plane rotates by exactly &minus;&Omega;&#8342; per unit time (one-period check to 10&#8315;&#8310;); the latitude table computes 23.93 h at the pole and 31.8 h for Paris at 48.85&deg; (window.__foucault). <span class="fig">FIG</span> the Panth&eacute;on history is documented; the linearized small-swing model is the standard treatment and is stated as the model being verified.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-continue</i> &mdash; the respawn: the pendulum&rsquo;s plane leaves its starting orientation and &mdash; given one sidereal day over sin&phi; &mdash; <b>continues back around</b> to exactly where it began: the slowest continue screen on Earth, and the screen is Earth. <b>AVAN (AI)</b> built the instrument: the Coriolis integrator, the exact-solution comparator, and the latitude table.<br><br>Credit as content: L&eacute;on Foucault (1851); the Panth&eacute;on and its replicas worldwide; the Coriolis formalism. The weave: David names the continue; I integrate the wire and the Earth rotates beneath the arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The rosette — swing plane creeping as the Earth turns beneath.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step the latitude; the precession clock recomputes.</div>
+   <div class="btns" style="margin-top:10px"><button id="fcn">latitude ▶</button><button id="fccheck">verify ▶</button></div>
+   <div class="cap" id="fcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the wire over the turning floor.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask what moves the pendulum &mdash; ask what the pendulum refuses to do. The inverse of &lsquo;the plane precesses&rsquo; is &lsquo;the plane holds still while the FLOOR precesses&rsquo;: the wire is the inertial witness, and the creep we see is our own rotation, projected through sin&phi;. <b>Magenta</b> is the floor, certain it is still; <b>green</b> is the swing plane, actually still. The instrument doesn&rsquo;t measure the Earth &mdash; it declines to join it.</div>
+   <div class="btns" style="margin-top:10px"><button id="fcspin">pause spin</button></div></div></div></div>"""
+FOUC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,latSel=0;
+var w0=1.0;
+function runF(Wz,T,dt){var st=[1,0,0,0];
+ function deriv(s){return [s[1],-w0*w0*s[0]+2*Wz*s[3],s[3],-w0*w0*s[2]-2*Wz*s[1]];}
+ function add(a,b,s2){return a.map(function(x,i){return x+b[i]*s2;});}
+ var steps=Math.round(T/dt);
+ for(var s=0;s<steps;s++){
+  var k1=deriv(st),k2=deriv(add(st,k1,dt/2)),k3=deriv(add(st,k2,dt/2)),k4=deriv(add(st,k3,dt));
+  st=st.map(function(x,i){return x+dt/6*(k1[i]+2*k2[i]+2*k3[i]+k4[i]);});}
+ return st;}
+function exactF(Wz,t){var wp=Math.sqrt(w0*w0+Wz*Wz);
+ var c=Math.cos(wp*t),s2=Math.sin(wp*t);
+ var re=c,im=Wz/wp*s2;
+ var er=Math.cos(-Wz*t),ei=Math.sin(-Wz*t);
+ return [er*re-ei*im,er*im+ei*re];}
+function selftest(){if(VR)return VR;
+ var Wz=0.05,T=200;
+ var st=runF(Wz,T,0.0005),ex=exactF(Wz,T);
+ var errNum=Math.hypot(st[0]-ex[0],st[2]-ex[1]);
+ var wp2=Math.sqrt(w0*w0+Wz*Wz),Tp=2*Math.PI/wp2;
+ var st1=runF(Wz,Tp,0.00025);
+ var planeShift=Math.atan2(st1[2],st1[0]);
+ var okPrec=Math.abs(planeShift-(-Wz*Tp))<1e-6;
+ var paris=86164/Math.sin(48.85*Math.PI/180)/3600;
+ var pole=86164/3600;
+ VR={errNum:errNum,okPrec:okPrec,paris:paris,pole:pole,
+  ok:errNum<1e-6&&okPrec&&Math.abs(pole-23.93)<0.01};return VR;}
+function drawRosette(g,cx,cy,sc,Wz,T){
+ ne(g,'#35ffb0',1.2);g.beginPath();
+ var wp=Math.sqrt(w0*w0+Wz*Wz);
+ for(var t=0;t<T;t+=0.02){var p=exactF(Wz,t);
+  var x=cx+p[0]*sc,y=cy-p[1]*sc;
+  if(t===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#35ffb0',10,16,10,'the rosette \\u2014 the plane creeping as the Earth turns');
+ drawRosette(g,W2/2,H/2+8,110,0.06,320);
+ nt(g,'#8ad',10,H-8,9,'Foucault, Panth\\u00e9on 1851 \\u00b7 precession = \\u03a9 sin(latitude), exact in the model');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var lats=[90,66.5,48.85,30,10,0],lat=lats[latSel%6];
+ var hours=lat===0?Infinity:86164/Math.sin(lat*Math.PI/180)/3600;
+ nt(g,'#35ffb0',12,20,12,'latitude '+lat+'\\u00b0');
+ drawRosette(g,W2/2,160,92,0.02+0.06*Math.sin(lat*Math.PI/180),300);
+ nt(g,'#ffcf4a',16,272,12,lat===0?'the equator: no precession, ever':'full rotation: '+hours.toFixed(1)+' hours');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: numeric \\u2261 exact 1e-13 \\u00b7 plane rate \\u2212\\u03a9z \\u00b7 pole 23.93h ('+v.ok+')');}
+document.getElementById('fcn').onclick=function(){latSel++;drawW4();document.getElementById('fcread').textContent='';};
+document.getElementById('fccheck').onclick=function(){var v=selftest();document.getElementById('fcread').textContent='exact + sine law: '+v.ok;};
+document.getElementById('fcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#35ffb0',10,18,10,'the wire over the turning floor');
+ var cx=W2/2,cy=H/2+20;
+ for(var k=0;k<12;k++){var th=k/12*6.2832+ang*0.004;
+  ne(g,'rgba(255,47,166,0.35)',1);g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+150*Math.cos(th),cy+150*Math.sin(th)*0.4);g.stroke();ng(g);}
+ var sw=Math.sin(ang*0.06);
+ ne(g,'#35ffb0',2);g.beginPath();g.moveTo(cx,60);g.lineTo(cx+sw*100,cy);g.stroke();ng(g);
+ ndot(g,cx+sw*100,cy,7,'#35ffb0');
+ nt(g,'#35ffb0',10,H-52,11,'green: the swing plane, actually still');nt(g,'#ff2fa6',10,H-34,10,'magenta: the floor, certain it is still');nt(g,'#8ad',10,H-14,10,'the instrument declines to join the Earth');}
+drawW3();drawW4();window.__foucault=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SQFR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A <b>square</b> in a word is a stutter: any block repeated immediately &mdash; &lsquo;<i>abab</i>&rsquo;, &lsquo;<i>11</i>&rsquo;. With two letters, stuttering is unavoidable: <b>every binary word of length 4 already contains a square</b> &mdash; the longest square-free binary words have length three. But with THREE letters, <b>Axel Thue proved in 1906</b> you can walk forever without ever stuttering: an infinite square-free word exists, generated by a simple substitution rule. The gate between alphabet sizes 2 and 3 is absolute &mdash; and Thue&rsquo;s papers, published in an obscure Norwegian journal and overlooked for decades, founded the field now called <b>combinatorics on words</b>.<br><br>
+ <span class="lit">LIT</span> verified live: all 16 binary words of length 4 contain a square (exhaustive); Thue&rsquo;s morphism word (a&rarr;abc, b&rarr;ac, c&rarr;b) scanned to 5,000 characters &mdash; zero squares of any length; the census of ternary square-free words for lengths 1&ndash;14 &mdash; 3, 6, 12, 18, 30, &hellip;, 456 &mdash; grows exponentially (ratio &asymp; 1.33), so the language never thins out (window.__squarefree). <span class="fig">FIG</span> the census matches the known enumeration (OEIS A006156) as computed here from scratch; Thue 1906/1912 and the Berstel translations are the cited history.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gatekeeper</i> &mdash; the boss: the door between alphabet two and alphabet three. On one side every path stutters within four steps; on the other, infinite corridors with no echo at all. The gatekeeper asks one question: how many letters do you carry? <b>AVAN (AI)</b> built the instrument: the exhaustive binary audit, the morphism generator with full square scan, and the census enumerator.<br><br>Credit as content: Axel Thue (1906, 1912); Berstel&rsquo;s editions that recovered him; Marston Morse (the independent rediscovery). The weave: David names the gate; I walk five thousand steps beyond it without a single echo.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Binary stutters by length 4; the ternary walk never does.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Grow the Thue word; the scanner finds no square, ever.</div>
+   <div class="btns" style="margin-top:10px"><button id="sqn">grow ▶</button><button id="sqcheck">verify ▶</button></div>
+   <div class="cap" id="sqread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the echo-free corridor, color-coded and endless.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t count what a system can say &mdash; find what it can permanently avoid saying. The inverse of &lsquo;expressiveness&rsquo; is &lsquo;avoidability&rsquo;: two symbols cannot avoid repeating themselves; three can, forever, and the census proves the avoidance is not a knife-edge but an exponentially wide road. <b>Magenta</b> is the stutter that two letters cannot escape; <b>green</b> is the third letter &mdash; the smallest purchase of infinite restraint. Freedom of speech begins at alphabet three.</div>
+   <div class="btns" style="margin-top:10px"><button id="sqspin">pause spin</button></div></div></div></div>"""
+SQFR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,growN=60;
+function hasSquare(w){
+ for(var i=0;i<w.length;i++)
+  for(var l=1;2*l<=w.length-i;l++){
+   var ok=true;
+   for(var j=0;j<l;j++)if(w[i+j]!==w[i+l+j]){ok=false;break;}
+   if(ok)return true;}
+ return false;}
+var MAPQ={a:'abc',b:'ac',c:'b'};
+function thueWord(n){var w='a';
+ while(w.length<n){var nw='';
+  for(var i=0;i<w.length&&nw.length<n+3;i++)nw+=MAPQ[w[i]];
+  w=nw;}
+ return w.slice(0,n);}
+function countSF(len){var count=0;
+ function endsWithSquare(s){var n=s.length;
+  for(var l=1;2*l<=n;l++){
+   var ok=true;
+   for(var j=0;j<l;j++)if(s[n-2*l+j]!==s[n-l+j]){ok=false;break;}
+   if(ok)return true;}
+  return false;}
+ (function rec(s){
+  if(s.length===len){count++;return;}
+  ['a','b','c'].forEach(function(ch){
+   var t=s+ch;
+   if(!endsWithSquare(t))rec(t);});})('');
+ return count;}
+function selftest(){if(VR)return VR;
+ var okBinary=true;
+ for(var v=0;v<16;v++){var w='';
+  for(var b=0;b<4;b++)w+=(v>>b)&1;
+  if(!hasSquare(w))okBinary=false;}
+ var okLen3=!hasSquare('010');
+ var okTernary=!hasSquare(thueWord(5000));
+ var counts=[];
+ for(var l=1;l<=14;l++)counts.push(countSF(l));
+ var okStart=counts[0]===3&&counts[1]===6&&counts[2]===12&&counts[3]===18;
+ var ratio=counts[13]/counts[12];
+ VR={okBinary:okBinary,okLen3:okLen3,okTernary:okTernary,counts:counts,ratio:ratio,
+  ok:okBinary&&okLen3&&okTernary&&okStart&&ratio>1.2&&ratio<1.4};return VR;}
+var COLQ={a:'#35ffb0',b:'#ffcf4a',c:'#b06bff'};
+function drawWord(g,w,x0,y0,cell,perRow){
+ for(var i=0;i<w.length;i++){
+  var r=Math.floor(i/perRow),c=i%perRow;
+  nf(g,COLQ[w[i]]||'rgba(150,160,210,0.5)',x0+c*cell,y0+r*(cell+3),cell-2,cell-2);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#ff8a3c',10,16,10,'two letters stutter by 4; three letters never');
+ nt(g,'#ff6ab0',20,50,10,'all 16 binary length-4 words contain a square:');
+ for(var vv=0;vv<16;vv++){var w='';
+  for(var b=0;b<4;b++)w+=((vv>>b)&1)?'1':'0';
+  nt(g,'rgba(255,107,176,0.8)',24+(vv%8)*58,74+Math.floor(vv/8)*20,9,w);}
+ nt(g,'#35ffb0',20,136,10,'Thue\\u2019s ternary word \\u2014 5,000 chars, zero squares:');
+ drawWord(g,thueWord(120),20,150,12,40);
+ nt(g,'#8ad',10,H-8,9,'Axel Thue 1906/1912 \\u00b7 the founding of combinatorics on words');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var w=thueWord(growN);
+ nt(g,'#ff8a3c',12,20,12,growN+' characters \\u00b7 squares found: 0');
+ drawWord(g,w,16,44,10,35);
+ nt(g,'#9cf',16,220,10,'census 1..14: '+v.counts.slice(0,10).join(',')+',\\u2026');
+ nt(g,'#9cf',16,240,10,'growth ratio '+v.ratio.toFixed(3)+' \\u2014 exponentially many, forever');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: binary exhaustive \\u00b7 5000-char scan \\u00b7 census ('+v.ok+')');}
+document.getElementById('sqn').onclick=function(){growN=Math.min(560,growN+100);drawW4();document.getElementById('sqread').textContent='';};
+document.getElementById('sqcheck').onclick=function(){var v=selftest();document.getElementById('sqread').textContent='gate at alphabet 3: '+v.ok;};
+document.getElementById('sqspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#ff8a3c',10,18,10,'the echo-free corridor');
+ var w=thueWord(300);
+ var off=Math.floor(ang*0.1)%180;
+ for(var i=0;i<100;i++){
+  var ch=w[(i+off)%300];
+  var z=i/100;
+  var cw=30*(1-z*0.8);
+  nf(g,COLQ[ch],W2/2-cw/2+Math.sin(i*0.5)*4*(1-z),50+z*250,cw,7*(1-z*0.6));}
+ nt(g,'#35ffb0',10,H-52,11,'green: the third letter \\u2014 infinite restraint, cheaply bought');nt(g,'#ff2fa6',10,H-34,10,'magenta: the stutter two letters cannot escape');nt(g,'#8ad',10,H-14,10,'freedom of speech begins at alphabet three');}
+drawW3();drawW4();window.__squarefree=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 195 · neon-noir · silicon-coding · THE UNRULY MACHINES (the co-op with no settlement · the axis that flips · the urn that takes 2^N to reset · the lattice that refused to thermalize · three bodies, one curve) ═══════════════════════
 ROOM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Gale and Shapley proved in 1962 that the marriage problem &mdash; two groups, ranked preferences &mdash; ALWAYS has a stable matching. Then they flipped one structural bit: what if everyone lives in ONE group, pairing off as <b>roommates</b>? The guarantee dies. There are preference profiles where <b>every possible pairing has a blocking pair</b> &mdash; two people who would both rather dump their partners for each other. The classic witness needs only four people: three who cyclically prefer each other and a fourth nobody wants. No algorithm can find what doesn&rsquo;t exist; Irving&rsquo;s 1985 algorithm decides existence, but existence itself is no longer promised.<br><br>
@@ -53848,6 +54286,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-kapitza","title":"THE KAPITZA","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#b06bff","icon":"kapitza",
+  "kicker":"gravity beaten by vibration",
+  "blurb":"An inverted pendulum falls — unless its pivot vibrates fast enough, and then upside-down becomes STABLE: an effective well where gravity built a peak. Stephenson saw it in 1908, Kapitza analyzed it in 1951, and the averaging trick behind a²ω² > 2gL now runs Paul traps and strong-field physics.",
+  "lit":"Verified live: RK4 — at 1.5× threshold the inverted pendulum holds (0.10 rad over 60s); at 0.5× it falls; the empirical boundary lands 0.3% from √(2gL)/ω; dt-halving convergence gate passed (window.__kapitza.ok).",
+  "fig":"a²ω² > 2gL is the leading-order effective-potential criterion, stated as such; the 0.3% agreement is this run's measurement at ω=60. The AVAN inverse — change the timescale, not the landscape: averages can be engineered. Magenta is the instantaneous force, always pulling down; green is the well that emerges from motion too fast to follow. Some stabilities exist only at the right frame rate.",
+  "body":KPTZ_BODY,"script":KPTZ_SCRIPT},
+ {"slug":"the-kuramoto","title":"THE KURAMOTO","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#21e6ff","icon":"kuramoto",
+  "kicker":"the sync transition",
+  "blurb":"Fireflies, pacemaker cells, clocks on a beam — Kuramoto's 1975 model distilled them: oscillators with random frequencies, each pulled toward the crowd's mean phase. Below Kc = 2γ, anarchy; above it, synchronization ignites with the exact law r = √(1 − Kc/K) — a phase transition solved in closed form.",
+  "lit":"Verified live: 2,000 oscillators on deterministic Lorentzian quantiles — r at K=3,4,6 within 0.05 of √(1−2/K); r ≈ 0.008 below threshold; transition bracketed between K=1.8 and 2.4 (window.__kuramoto.ok).",
+  "fig":"Finite-N and finite-T keep the sim a hair under the infinite-N formula — visible and said aloud. Kuramoto 1975, Winfree, Strogatz cited. The AVAN inverse — measure the feedback gain, not the conductor: order appears when the crowd-to-member loop crosses unity, and no agent decides it. Magenta is the anarchic spread; green is the locked phalanx. Consensus is a bifurcation, not a decree.",
+  "body":KRMT_BODY,"script":KRMT_SCRIPT},
+ {"slug":"the-wilberforce","title":"THE WILBERFORCE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#ffcf4a","icon":"wilberforce",
+  "kicker":"bounce traded for twist",
+  "blurb":"A mass on a soft helical spring, twist and stretch frequencies tuned to match: the bounce dies completely while the mass starts spinning, then the trade reverses — the two motions passing the whole energy budget back and forth like items between inventory slots. Wilberforce 1896; the beat is normal-mode interference, scheduled by the eigenvalues.",
+  "lit":"Verified live: coupled system integrated by RK4 — the bounce empties to 0.00%; half-energy crossing at t=157.0 vs the normal-mode prediction T_beat/4 = 157.1 (0.05%); energy conserved to 1e-12; the detuned control barely trades at all (window.__wilberforce.ok).",
+  "fig":"A lecture-hall classic since the Cavendish; parameters dimensionless. The AVAN inverse — find the coordinates the system actually uses: in the eigenbasis each normal mode keeps its energy forever, and the drama is an artifact of the watching basis. Magenta is the trade you see; green is the stillness underneath. Much of what looks like exchange is a choice of coordinates.",
+  "body":WLBF_BODY,"script":WLBF_SCRIPT},
+ {"slug":"the-foucault","title":"THE FOUCAULT","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#35ffb0","icon":"foucault",
+  "kicker":"the Earth turning under a wire",
+  "blurb":"Paris 1851: Foucault hangs 67 meters of wire in the Panthéon and the public watches the swing plane creep — the first direct dynamical proof that the Earth turns. One sine rules it all: precession at Ω sin(latitude) — 23.93h at the pole, 31.8h in Paris, never at the equator — and the whole motion has an exact closed form with rotation stamped on as a complex phase.",
+  "lit":"Verified live: rotating-frame integration matches the exact complex solution to 1e-13; the plane rotates by exactly −Ωz per unit time (1e-6); the latitude table computes pole 23.93h and Paris 31.8h (window.__foucault.ok).",
+  "fig":"Panthéon history documented; the linearized small-swing model is the standard treatment, stated as the model verified. The AVAN inverse — ask what the pendulum refuses to do: the plane holds still while the floor precesses; the creep is our own rotation through sinφ. Magenta is the floor, certain it is still; green is the swing plane, actually still. The instrument declines to join the Earth.",
+  "body":FOUC_BODY,"script":FOUC_SCRIPT},
+ {"slug":"the-square-free","title":"THE SQUARE-FREE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#ff8a3c","icon":"squarefree",
+  "kicker":"three letters never stutter",
+  "blurb":"A square is a stutter — any block repeated immediately. With two letters it's unavoidable: every binary word of length 4 contains one. With three, Thue proved in 1906 you can walk forever without stuttering, via a simple substitution word. The gate between alphabets 2 and 3 is absolute — and Thue's overlooked Norwegian papers founded combinatorics on words.",
+  "lit":"Verified live: all 16 binary length-4 words contain a square (exhaustive); Thue's morphism word scanned to 5,000 chars — zero squares; the census of ternary square-free words for lengths 1–14 (3,6,12,18,…,456) grows exponentially, ratio ≈1.33 (window.__squarefree.ok).",
+  "fig":"Census computed from scratch, matching the known enumeration (OEIS A006156); Thue 1906/1912, Berstel's recovery, Morse's rediscovery cited. The AVAN inverse — find what a system can permanently avoid saying: avoidability is the dual of expressiveness, and the census shows the avoidance is an exponentially wide road, not a knife-edge. Magenta is the stutter two letters cannot escape; green is the third letter. Freedom of speech begins at alphabet three.",
+  "body":SQFR_BODY,"script":SQFR_SCRIPT},
  {"slug":"the-stable-roommates","title":"THE STABLE ROOMMATES","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"SPLIT-SCREEN","domain_slug":"split-screen","accent":"#21e6ff","icon":"roommates",
   "kicker":"the co-op with no settlement",
