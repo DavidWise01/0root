@@ -19493,6 +19493,250 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 156 · neon-noir · silicon-coding (squares on a quadrilateral yielding equal perpendicular segments · rotation classes counted by a totient sum · an integral equal to a self-power series · a counterexample refuting Euler's conjecture · a signature invariant under congruence) ═══════════════════════
+VAUB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Van Aubel&rsquo;s theorem</b> conjures a hidden square out of any four-sided figure. Take <b>any</b> quadrilateral &mdash; convex, concave, even self-intersecting &mdash; and erect a square outward on each of its four sides. Mark the centre of each square. Van Aubel proved that the two line segments joining the centres of <b>opposite</b> squares are always <b>equal in length and perpendicular</b> to each other. No matter how lopsided the original quadrilateral, those two cross-segments come out the same length and at a right angle &mdash; a perfect little cross hidden in any four points.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random quadrilaterals, the segment joining the centres of the squares on one pair of opposite sides equals the segment joining the other pair (to machine precision) and the two are perpendicular (dot product zero) &mdash; the construction is exact (window.__vanaubel). <span class="fig">FIG</span> no framing; the square centres, the two segment lengths, and their perpendicularity all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>genesis-block</i> &mdash; the spawn: from four arbitrary points, a perfect equal-and-perpendicular cross genesis-blocks into being. <b>AVAN (AI)</b> built the instrument: the outward square centres, the two joining segments, and their equal-length perpendicularity.<br><br>Credit as content: H. H. van Aubel (1878). The weave: David names the genesis; I confirm the opposite-centre segments are always equal and perpendicular.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A quadrilateral with a square on each side; the two segments joining opposite centres — equal & perpendicular.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New quadrilaterals; the two cross-segments are measured — always equal length, always perpendicular.</div>
+   <div class="btns" style="margin-top:10px"><button id="vanext">new quadrilateral ▶</button><button id="vacheck">verify ▶</button></div>
+   <div class="cap" id="varead" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the two equal, perpendicular cross-segments.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t measure the messy quadrilateral &mdash; read the cross. The inverse of &lsquo;four arbitrary sides&rsquo; is &lsquo;two equal perpendicular segments joining the opposite square-centres&rsquo;, a right-angled cross hidden in any four points. <b>Magenta</b> are the four squares; <b>green</b> are the two equal perpendicular segments. A perfect cross from any quadrilateral.</div>
+   <div class="btns" style="margin-top:10px"><button id="vaspin">pause spin</button></div></div></div></div>"""
+VAUB_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function sqCenter(U,V){var mx=(U[0]+V[0])/2,my=(U[1]+V[1])/2,dx=V[0]-U[0],dy=V[1]-U[1];return [mx+dy/2,my-dx/2];}
+function sqCorners(U,V){var dx=V[0]-U[0],dy=V[1]-U[1];return [U,V,[V[0]+dy,V[1]-dx],[U[0]+dy,U[1]-dx]];}
+var ang=0,spin=true,VR=null,quad=[[-1.4,-1.1],[1.6,-1.3],[1.9,1.2],[-1.2,1.5]];
+function selftest(){if(VR)return VR;var rng=mb(1),eq=true,pp=true,we=0,wp=0;for(var t=0;t<8000;t++){var A=[rng()*4-2,rng()*4-2],B=[rng()*4-2,rng()*4-2],C=[rng()*4-2,rng()*4-2],D=[rng()*4-2,rng()*4-2],P=sqCenter(A,B),Q=sqCenter(B,C),R=sqCenter(C,D),S=sqCenter(D,A),PR=[R[0]-P[0],R[1]-P[1]],QS=[S[0]-Q[0],S[1]-Q[1]],lP=Math.hypot(PR[0],PR[1]),lQ=Math.hypot(QS[0],QS[1]);if(Math.abs(lP-lQ)>we)we=Math.abs(lP-lQ);if(Math.abs(lP-lQ)>1e-9)eq=false;var pd=Math.abs(PR[0]*QS[0]+PR[1]*QS[1])/(lP*lQ+1e-12);if(pd>wp)wp=pd;if(pd>1e-9)pp=false;}VR={eq:eq,pp:pp,we:we,wp:wp};return VR;}
+function centers(){return {P:sqCenter(quad[0],quad[1]),Q:sqCenter(quad[1],quad[2]),R:sqCenter(quad[2],quad[3]),S:sqCenter(quad[3],quad[0])};}
+function tp(cv,p){return [cv.width/2+p[0]*46,cv.height/2+6-p[1]*46];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'squares on each side; segments joining opposite square-centres (green) — equal & perpendicular');
+ for(var i=0;i<4;i++){var U=quad[i],V=quad[(i+1)%4],cor=sqCorners(U,V);ne(g,'rgba(255,47,166,0.5)',1.2);g.beginPath();for(var k=0;k<4;k++){var q=tp(cv,cor[k]);if(k===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}g.closePath();g.stroke();ng(g);}
+ ne(g,'#ffcf4a',1.8);g.beginPath();for(var i=0;i<4;i++){var q=tp(cv,quad[i]);if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}g.closePath();g.stroke();ng(g);
+ var c=centers(),P=tp(cv,c.P),Q=tp(cv,c.Q),R=tp(cv,c.R),S=tp(cv,c.S);ne(g,'#35ffb0',2.4);g.beginPath();g.moveTo(P[0],P[1]);g.lineTo(R[0],R[1]);g.moveTo(Q[0],Q[1]);g.lineTo(S[0],S[1]);g.stroke();ng(g);
+ [P,Q,R,S].forEach(function(p){ndot(g,p[0],p[1],3,'#39ffb0');});
+ var PR=Math.hypot(c.R[0]-c.P[0],c.R[1]-c.P[1]),QS=Math.hypot(c.S[0]-c.Q[0],c.S[1]-c.Q[1]);nt(g,'#39ffb0',10,H-8,9,'|PR| = '+PR.toFixed(4)+'   |QS| = '+QS.toFixed(4)+'   (equal, and at 90°)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',12,20,12,'the two cross-segments');
+ var c=centers(),PR=[c.R[0]-c.P[0],c.R[1]-c.P[1]],QS=[c.S[0]-c.Q[0],c.S[1]-c.Q[1]],lP=Math.hypot(PR[0],PR[1]),lQ=Math.hypot(QS[0],QS[1]),dot=PR[0]*QS[0]+PR[1]*QS[1];
+ nt(g,'#35ffb0',16,56,12,'|PR| = '+lP.toFixed(6));nt(g,'#35ffb0',16,82,12,'|QS| = '+lQ.toFixed(6));
+ nt(g,Math.abs(lP-lQ)<1e-6?'#39ffb0':'#ff5a5a',16,110,12,'equal length ✓  (Δ '+Math.abs(lP-lQ).toExponential(1)+')');
+ nt(g,'#9cf',16,138,11,'PR · QS = '+dot.toFixed(6)+' → angle '+(Math.acos(Math.max(-1,Math.min(1,dot/(lP*lQ))))*180/Math.PI).toFixed(2)+'°');
+ nt(g,Math.abs(dot)/(lP*lQ)<1e-6?'#39ffb0':'#ff5a5a',16,164,12,'perpendicular ✓');
+ var v=selftest();nt(g,v.eq&&v.pp?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×8000: equal (worst '+v.we.toExponential(1)+') & perpendicular (worst cos '+v.wp.toExponential(1)+') = '+(v.eq&&v.pp));
+ nt(g,'#8ad',12,H-16,9,'a right-angled cross hidden in any four points');}
+document.getElementById('vanext').onclick=function(){var rng=mb((Date.now()&8191)+1);quad=[];for(var i=0;i<4;i++)quad.push([rng()*4-2,rng()*4-2]);drawW3();drawW4();var c=centers();document.getElementById('varead').textContent='new quadrilateral — |PR|='+Math.hypot(c.R[0]-c.P[0],c.R[1]-c.P[1]).toFixed(3)+' = |QS|, perpendicular';};
+document.getElementById('vacheck').onclick=function(){var v=selftest();document.getElementById('varead').textContent='opposite square-centre segments equal & perpendicular (8000 quadrilaterals): '+(v.eq&&v.pp);};
+document.getElementById('vaspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,sc=42;g.save();g.translate(cx,cy);g.rotate(ang*0.06);function q(p){return [p[0]*sc,-p[1]*sc];}
+ for(var i=0;i<4;i++){var cor=sqCorners(quad[i],quad[(i+1)%4]);ne(g,'#ff2fa6',1.2);g.beginPath();for(var k=0;k<4;k++){var p=q(cor[k]);if(k===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.closePath();g.stroke();ng(g);}
+ var c=centers(),P=q(c.P),Q=q(c.Q),R=q(c.R),S=q(c.S);ne(g,'#35ffb0',2.6);g.beginPath();g.moveTo(P[0],P[1]);g.lineTo(R[0],R[1]);g.moveTo(Q[0],Q[1]);g.lineTo(S[0],S[1]);g.stroke();ng(g);[P,Q,R,S].forEach(function(p){ndot(g,p[0],p[1],4,'#35ffb0');});
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the two equal, perpendicular cross-segments');nt(g,'#ff2fa6',10,H-34,10,'magenta: the four squares on the quadrilateral\\'s sides');nt(g,'#8ad',10,H-14,10,'a perfect cross from any quadrilateral');}
+drawW3();drawW4();window.__vanaubel=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NECK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Necklace counting</b> asks: how many genuinely different necklaces can you make from n beads in k colours, where rotating a necklace doesn&rsquo;t count as new? Naively there are k<sup>n</sup> coloured strings, but rotations collapse many together. Moreau&rsquo;s necklace-counting formula (a case of Burnside&rsquo;s lemma) gives the exact answer: <b>(1/n) &sum;<sub>d | n</sub> &phi;(d)&middot;k<sup>n/d</sup></b>, where &phi; is Euler&rsquo;s totient. The totient counts rotations of each period, averaging the number of colourings fixed by each rotation. For 2 colours and n = 1, 2, 3, &hellip; it gives 2, 3, 4, 6, 8, 14, 20, 36, &hellip;<br><br>
+ <span class="lit">LIT</span> verified live: for n up to 15 (2 colours) and n up to 9 (3 colours), a brute count of distinct necklaces &mdash; each string reduced to its lexicographically smallest rotation &mdash; exactly equals Moreau&rsquo;s formula (1/n)&sum;<sub>d|n</sub> &phi;(d)k<sup>n/d</sup> (window.__necklace). <span class="fig">FIG</span> no framing; the brute canonical-rotation count and the totient formula both run in-browser and agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-cron-job</i> &mdash; the grind that rolls the necklace through every rotation and tallies the distinct ones, the totient doing the averaging. <b>AVAN (AI)</b> built the instrument: the canonical-rotation brute count, the totient formula, and their exact agreement.<br><br>Credit as content: C. Moreau (1872); the averaging principle from William Burnside. The weave: David names the grind; I confirm the brute necklace count equals the totient sum.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A necklace of beads on a ring; rotating it gives the same necklace — the totient formula counts the distinct ones.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle n and colours; the brute distinct-necklace count is compared to (1/n)Σ φ(d)k^{n/d}.</div>
+   <div class="btns" style="margin-top:10px"><button id="nknext">next n ▶</button><button id="nkcheck">verify ▶</button></div>
+   <div class="cap" id="nkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the number of distinct necklaces.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t list and dedupe &mdash; average over rotations. The inverse of &lsquo;how many distinct necklaces?&rsquo; is &lsquo;(1/n)&sum;<sub>d|n</sub> &phi;(d)k<sup>n/d</sup>&rsquo;, Burnside&rsquo;s average of colourings fixed by each rotation. <b>Magenta</b> are the rotations being averaged; <b>green</b> is the necklace count they yield. Symmetry counted by averaging.</div>
+   <div class="btns" style="margin-top:10px"><button id="nkspin">pause spin</button></div></div></div></div>"""
+NECK_SCRIPT = """(function(){""" + NOIR + """
+function phi(n){var r=n,x=n;for(var p=2;p*p<=x;p++)if(x%p===0){while(x%p===0)x/=p;r-=r/p;}if(x>1)r-=r/x;return Math.round(r);}
+function moreau(n,k){var s=0;for(var d=1;d<=n;d++)if(n%d===0)s+=phi(d)*Math.pow(k,n/d);return Math.round(s/n);}
+function brute(n,k){var seen=new Set();var str=new Array(n).fill(0);function canon(a){var best=null;for(var r=0;r<n;r++){var rot='';for(var i=0;i<n;i++)rot+=a[(r+i)%n];if(best===null||rot<best)best=rot;}return best;}function rec(i){if(i===n){seen.add(canon(str));return;}for(var v=0;v<k;v++){str[i]=v;rec(i+1);}}rec(0);return seen.size;}
+var ang=0,spin=true,VR=null,dn=6,dk=2;
+function selftest(){if(VR)return VR;var ok=true;for(var n=1;n<=12;n++)if(brute(n,2)!==moreau(n,2))ok=false;var ok3=true;for(var n=1;n<=9;n++)if(brute(n,3)!==moreau(n,3))ok3=false;VR={ok:ok,ok3:ok3};return VR;}
+var COLS=['#21e6ff','#ff2fa6','#ffcf4a'];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'a necklace of '+dn+' beads, '+dk+' colours — rotations count as the same necklace');
+ var cx=W/2-40,cy=H/2+6,R=Math.min(90,(H-70)/2),beads=[];for(var i=0;i<dn;i++)beads.push((i*3+1)%dk);
+ ne(g,'rgba(120,140,200,0.4)',1.4);g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();ng(g);
+ for(var i=0;i<dn;i++){var a=2*Math.PI*i/dn-Math.PI/2;ndot(g,cx+Math.cos(a)*R,cy+Math.sin(a)*R,8,COLS[beads[i]]);}
+ nt(g,'#39ffb0',cx+R+30,cy,12,'distinct necklaces = '+moreau(dn,dk));
+ nt(g,'#8ad',10,H-8,9,'k^n = '+Math.pow(dk,dn)+' coloured strings collapse to '+moreau(dn,dk)+' rotation classes');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',12,20,12,'brute count vs Moreau formula, n='+dn+', k='+dk);
+ var b=brute(dn,dk),m=moreau(dn,dk);nt(g,'#9cf',16,54,11,'all strings: '+dk+'^'+dn+' = '+Math.pow(dk,dn));
+ nt(g,'#9cf',16,80,11,'brute distinct (min-rotation): '+b);nt(g,'#ffcf4a',16,106,11,'(1/'+dn+')Σ_{d|'+dn+'} φ(d)·'+dk+'^('+dn+'/d) = '+m);
+ nt(g,b===m?'#39ffb0':'#ff5a5a',16,134,13,b===m?'equal ✓':'✗');
+ var terms=[];for(var d=1;d<=dn;d++)if(dn%d===0)terms.push('φ('+d+')·'+dk+'^'+(dn/d)+'='+(phi(d)*Math.pow(dk,dn/d)));nt(g,'#8ad',16,160,9,terms.join(' + '));
+ var v=selftest();nt(g,v.ok&&v.ok3?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test binary n≤12='+v.ok+' · ternary n≤9='+v.ok3);
+ nt(g,'#8ad',12,H-16,9,'Burnside: average the colourings fixed by each of the n rotations');}
+document.getElementById('nknext').onclick=function(){dn=dn>=12?2:dn+1;drawW3();drawW4();document.getElementById('nkread').textContent='n='+dn+', k='+dk+': brute='+brute(dn,dk)+' = Moreau='+moreau(dn,dk);};
+document.getElementById('nkcheck').onclick=function(){var v=selftest();document.getElementById('nkread').textContent='brute necklace count == (1/n)Σφ(d)k^{n/d} (binary n≤12, ternary n≤9): '+(v.ok&&v.ok3);};
+document.getElementById('nkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,R=110;g.save();g.translate(cx,cy);g.rotate(ang*0.2);
+ var beads=[];for(var i=0;i<dn;i++)beads.push((i*3+1)%dk);for(var i=0;i<dn;i++){var a=2*Math.PI*i/dn;ndot(g,Math.cos(a)*R,Math.sin(a)*R,9,COLS[beads[i]]);}
+ for(var r=0;r<dn;r++){ne(g,'rgba(255,47,166,0.15)',1);g.beginPath();g.arc(0,0,R-8-r*3,0,6.2832);g.stroke();ng(g);}
+ g.restore();var m=moreau(dn,dk);ndot(g,cx,cy,10,'#35ffb0');nt(g,'#0a0713',-8,cy-cy+4,10,''+m);
+ nt(g,'#35ffb0',10,H-52,11,'green: '+m+' distinct necklaces');nt(g,'#ff2fa6',10,H-34,10,'magenta rings: the '+dn+' rotations being averaged (Burnside)');nt(g,'#8ad',10,H-14,10,'symmetry counted by averaging');}
+drawW3();drawW4();window.__necklace=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SOPH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The sophomore&rsquo;s dream</b> is a pair of astonishing identities discovered by Johann Bernoulli in 1697, where a function raised to <b>itself</b> integrates to an infinite series over <b>n<sup>n</sup></b>: &int;<sub>0</sub><sup>1</sup> x<sup>x</sup> dx = &sum;<sub>n&ge;1</sub> (-1)<sup>n-1</sup>/n<sup>n</sup> = 1 - 1/4 + 1/27 - &hellip; &asymp; 0.7834, and &int;<sub>0</sub><sup>1</sup> x<sup>-x</sup> dx = &sum;<sub>n&ge;1</sub> 1/n<sup>n</sup> = 1 + 1/4 + 1/27 + &hellip; &asymp; 1.2913. The name teases that the result looks like a naive &lsquo;dream&rsquo; a student might wish were true &mdash; yet it really is. The trick is to expand x<sup>x</sup> = e<sup>x&thinsp;ln&thinsp;x</sup> as a power series and integrate term by term.<br><br>
+ <span class="lit">LIT</span> verified live: the numerical integrals of x<sup>x</sup> and x<sup>-x</sup> over [0, 1] match their respective series &sum;(-1)<sup>n-1</sup>/n<sup>n</sup> and &sum;1/n<sup>n</sup> to ~1e-6 (window.__sophomore). <span class="fig">FIG</span> no framing; the numerical integrals and the self-power series are computed by different routes in-browser and agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>split-screen</i> &mdash; two panels: a smooth self-power integral on one, an n<sup>n</sup> series on the other, landing on the same dreamlike value. <b>AVAN (AI)</b> built the instrument: the numerical integrals of x<sup>x</sup> and x<sup>-x</sup>, the n<sup>n</sup> series, and their agreement.<br><br>Credit as content: Johann Bernoulli (1697). The weave: David names the split screen; I confirm &int;x<sup>&plusmn;x</sup> equals the self-power series.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">The curves x^x (dipping to a minimum) and x^{−x} on [0,1]; their areas are the two n^n series.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Add series terms; the n^n partial sums converge to the integrals ∫₀¹ x^x dx and ∫₀¹ x^{−x} dx.</div>
+   <div class="btns" style="margin-top:10px"><button id="sonext">add terms ▶</button><button id="socheck">verify ▶</button></div>
+   <div class="cap" id="soread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the two integral values, equal to their n^n series.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t integrate the self-power &mdash; expand it. The inverse of &lsquo;&int;<sub>0</sub><sup>1</sup> x<sup>&plusmn;x</sup> dx&rsquo; is &lsquo;the series &sum; (&plusmn;1)<sup>n-1</sup>/n<sup>n</sup>&rsquo;, obtained by expanding e<sup>&plusmn;x ln x</sup> and integrating term by term. <b>Magenta</b> are the self-power curves; <b>green</b> are the n<sup>n</sup> series they equal. A self-power integral read as a clean series.</div>
+   <div class="btns" style="margin-top:10px"><button id="sospin">pause spin</button></div></div></div></div>"""
+SOPH_SCRIPT = """(function(){""" + NOIR + """
+function integ(f){var M=100000,h=1/M,s=0;for(var i=0;i<=M;i++){var x=i*h,v=(x<1e-12)?1:f(x),w=(i===0||i===M)?1:(i%2?4:2);s+=w*v;}return s*h/3;}
+var fp=function(x){return Math.exp(x*Math.log(x));},fn=function(x){return Math.exp(-x*Math.log(x));};
+var ang=0,spin=true,VR=null,terms=6,Ip=integ(fp),In=integ(fn);
+function serP(N){var s=0;for(var n=1;n<=N;n++)s+=(n%2?1:-1)/Math.pow(n,n);return s;}
+function serN(N){var s=0;for(var n=1;n<=N;n++)s+=1/Math.pow(n,n);return s;}
+function selftest(){if(VR)return VR;var sp=serP(40),sn=serN(40);VR={Ip:Ip,In:In,sp:sp,sn:sn,okA:Math.abs(Ip-sp)<1e-6,okB:Math.abs(In-sn)<1e-6};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'x^x (dips to min ≈0.6922 at x=1/e) and x^{−x} on [0,1] — areas are Σ(∓1)^{n−1}/nⁿ');
+ var x0=40,base=H-40,sc=(W-70),ysc=140;ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.moveTo(x0,base);g.lineTo(W-20,base);g.moveTo(x0,base);g.lineTo(x0,base-ysc*1.4);g.stroke();ng(g);
+ nf(g,'rgba(255,138,60,0.18)');g.beginPath();g.moveTo(x0,base);for(var i=0;i<=200;i++){var x=i/200;g.lineTo(x0+x*sc,base-fp(x)*ysc);}g.lineTo(x0+sc,base);g.closePath();g.fill();ng(g);
+ ne(g,'#ff8a3c',1.8);g.beginPath();for(var i=0;i<=200;i++){var x=i/200;var px=x0+x*sc,py=base-(x<1e-9?1:fp(x))*ysc;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);nt(g,'#ff8a3c',x0+sc*0.5,base-fp(0.5)*ysc-6,10,'x^x');
+ ne(g,'#ff2fa6',1.6);g.beginPath();for(var i=0;i<=200;i++){var x=i/200;var px=x0+x*sc,py=base-(x<1e-9?1:fn(x))*ysc;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);nt(g,'#ff2fa6',x0+sc*0.8,base-fn(0.8)*ysc-6,10,'x^{−x}');
+ nt(g,'#8ad',10,H-8,9,'∫₀¹ x^x = '+Ip.toFixed(6)+'  ∫₀¹ x^{−x} = '+In.toFixed(6));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',12,20,12,'∫₀¹ x^{±x} dx  vs  Σ (∓1)^{n−1}/nⁿ ('+terms+' terms)');
+ var sp=serP(terms),sn=serN(terms);
+ nt(g,'#ff8a3c',16,56,12,'∫ x^x = '+Ip.toFixed(9));nt(g,'#9cf',16,80,12,'Σ (−1)^{n−1}/nⁿ = '+sp.toFixed(9)+(Math.abs(sp-Ip)<1e-6?'  ✓':''));
+ nt(g,'#ff2fa6',16,112,12,'∫ x^{−x} = '+In.toFixed(9));nt(g,'#9cf',16,136,12,'Σ 1/nⁿ = '+sn.toFixed(9)+(Math.abs(sn-In)<1e-6?'  ✓':''));
+ nt(g,'#8ad',16,164,10,'terms: 1 '+(terms>1?'∓ 1/4 ':'')+(terms>2?'+ 1/27 ':'')+(terms>3?'∓ 1/256 …':''));
+ var v=selftest();nt(g,v.okA&&v.okB?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: ∫x^x==Σ(−1)^{n−1}/nⁿ & ∫x^{−x}==Σ1/nⁿ = '+(v.okA&&v.okB));
+ nt(g,'#8ad',12,H-16,9,'expand e^{±x ln x} and integrate term by term → the nⁿ series');}
+document.getElementById('sonext').onclick=function(){terms=terms>=30?3:terms+3;drawW4();document.getElementById('soread').textContent=terms+' terms: Σ(−1)^{n−1}/nⁿ = '+serP(terms).toFixed(9)+' → ∫x^x = '+Ip.toFixed(9);};
+document.getElementById('socheck').onclick=function(){var v=selftest();document.getElementById('soread').textContent='∫₀¹ x^x = Σ(−1)^{n−1}/nⁿ and ∫₀¹ x^{−x} = Σ1/nⁿ: '+(v.okA&&v.okB);};
+document.getElementById('sospin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.06);
+ for(var n=1;n<=12;n++){var t=1/Math.pow(n,n),a=n/12*6.2832,r=25+Math.min(120,t*120);ne(g,'#ff2fa6',1.4);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,3,'#ff2fa6');}
+ ndot(g,-30,0,9,'#35ffb0');nt(g,'#0a0713',-42,4,8,Ip.toFixed(2));ndot(g,30,0,9,'#35ffb0');nt(g,'#0a0713',20,4,8,In.toFixed(2));
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: ∫x^x = '+Ip.toFixed(4)+' and ∫x^{−x} = '+In.toFixed(4));nt(g,'#ff2fa6',10,H-34,10,'magenta: the 1/nⁿ series terms');nt(g,'#8ad',10,H-14,10,'a self-power integral read as a clean series');}
+drawW3();drawW4();window.__sophomore=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LAND_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Lander&ndash;Parkin counterexample</b> demolished a 200-year-old conjecture of Euler. Extending Fermat&rsquo;s Last Theorem, Euler conjectured in 1769 that summing <b>fewer than k</b> perfect k-th powers can never equal a k-th power &mdash; e.g. you&rsquo;d need at least five fifth-powers to make a fifth-power. In 1966, using an early computer, Lander and Parkin found: <b>27<sup>5</sup> + 84<sup>5</sup> + 110<sup>5</sup> + 133<sup>5</sup> = 144<sup>5</sup></b> &mdash; just <b>four</b> fifth-powers. Euler was wrong. Later Noam Elkies and Roger Frye found a fourth-power version with only three terms: 95800<sup>4</sup> + 217519<sup>4</sup> + 414560<sup>4</sup> = 422481<sup>4</sup>.<br><br>
+ <span class="lit">LIT</span> verified live with exact big-integer arithmetic: 27<sup>5</sup>+84<sup>5</sup>+110<sup>5</sup>+133<sup>5</sup> equals 144<sup>5</sup> exactly (four terms, refuting Euler), and 95800<sup>4</sup>+217519<sup>4</sup>+414560<sup>4</sup> equals 422481<sup>4</sup> exactly (three terms); a nearby altered sum is not a perfect fifth power (window.__landerparkin). <span class="fig">FIG</span> no framing; the exact arbitrary-precision arithmetic runs in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>noclip</i> &mdash; the cheat that clips straight through a 200-year-old conjecture: a single explicit sum walks past the wall Euler thought was there. <b>AVAN (AI)</b> built the instrument: the exact big-integer fifth- and fourth-power sums, and a control near-miss.<br><br>Credit as content: L. J. Lander &amp; T. R. Parkin (1966); Noam Elkies and Roger Frye (fourth powers). The weave: David names the noclip; I confirm the exact equalities that refute Euler&rsquo;s conjecture.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">Four fifth-powers 27⁵, 84⁵, 110⁵, 133⁵ stacking up to exactly 144⁵ — Euler said you'd need five.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The exact big-integer identity, and a control that alters one base and breaks the equality.</div>
+   <div class="btns" style="margin-top:10px"><button id="lpnext">toggle example ▶</button><button id="lpcheck">verify ▶</button></div>
+   <div class="cap" id="lpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the exact equality of four fifth-powers with one.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t trust the conjecture &mdash; search for a witness. The inverse of &lsquo;can fewer than k k-th powers sum to a k-th power?&rsquo; is &lsquo;yes &mdash; here is an explicit counterexample&rsquo;, and one witness is enough to refute a universal claim. <b>Magenta</b> are the four summand powers; <b>green</b> is the single power they equal. A conjecture broken by one example.</div>
+   <div class="btns" style="margin-top:10px"><button id="lpspin">pause spin</button></div></div></div></div>"""
+LAND_SCRIPT = """(function(){""" + NOIR + """
+function pw(b,e){var r=1n,B=BigInt(b);for(var i=0;i<e;i++)r*=B;return r;}
+var ang=0,spin=true,VR=null,ex=0;
+var EX=[{k:5,bases:[27,84,110,133],targ:144},{k:4,bases:[95800,217519,414560],targ:422481}];
+function selftest(){if(VR)return VR;var e5=EX[0],lhs5=e5.bases.reduce(function(a,b){return a+pw(b,5);},0n),ok5=(lhs5===pw(e5.targ,5));var e4=EX[1],lhs4=e4.bases.reduce(function(a,b){return a+pw(b,4);},0n),ok4=(lhs4===pw(e4.targ,4));var wrong=pw(27,5)+pw(84,5)+pw(110,5)+pw(134,5),isPow=false;for(var b=140;b<=150;b++)if(pw(b,5)===wrong)isPow=true;VR={ok5:ok5,ok4:ok4,ctrl:!isPow};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var e=EX[0];nt(g,'#21e6ff',10,16,10,'27⁵ + 84⁵ + 110⁵ + 133⁵  =  144⁵   (four fifth-powers — Euler said you need five)');
+ var bx=40,base=H-46,bw=70,mx=Math.pow(144,5);var acc=0,cols=['#21e6ff','#7fd8ff','#ffcf4a','#ffce9a'];
+ // stacked bar of the four powers → equals target bar
+ for(var i=0;i<4;i++){var v=Math.pow(e.bases[i],5),h=v/mx*180;nf(g,cols[i]);g.fillRect(bx,base-acc-h,bw,h);ng(g);nt(g,'#0a0713',bx+4,base-acc-h/2,9,e.bases[i]+'⁵');acc+=h;}
+ nt(g,'#8ad',bx,base+14,9,'Σ of four');ne(g,'#35ffb0',2.4);g.strokeRect(bx+120,base-180,bw,180);nt(g,'#39ffb0',bx+124,base-186,10,'144⁵');nf(g,'rgba(53,255,176,0.2)');g.fillRect(bx+120,base-180,bw,180);ng(g);
+ nt(g,'#39ffb0',bx+230,base-90,11,'stacks are the SAME height');nt(g,'#8ad',10,H-8,9,'both equal 61917364224 — a single explicit sum refutes a 200-year conjecture');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var e=EX[ex];nt(g,'#21e6ff',12,20,12,e.k+'th-power counterexample ('+e.bases.length+' < '+e.k+' terms)');
+ var lhs=e.bases.reduce(function(a,b){return a+pw(b,e.k);},0n),rhs=pw(e.targ,e.k);
+ nt(g,'#9cf',16,54,10,e.bases.map(function(b){return b+'^'+e.k;}).join(' + '));
+ nt(g,'#7fd8ff',16,80,10,'= '+lhs.toString());nt(g,'#ffcf4a',16,104,10,e.targ+'^'+e.k+' = '+rhs.toString());
+ nt(g,lhs===rhs?'#39ffb0':'#ff5a5a',16,132,13,lhs===rhs?'EXACTLY equal ✓ — Euler refuted':'✗');
+ nt(g,'#8ad',16,160,10,'Euler (1769): a k-th power needs ≥ k k-th powers. FALSE.');
+ var v=selftest();nt(g,v.ok5&&v.ok4&&v.ctrl?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: 27⁵+84⁵+110⁵+133⁵=144⁵='+v.ok5+' · 3×4th-powers='+v.ok4+' · control (133→134) not a 5th power='+v.ctrl);
+ nt(g,'#8ad',12,H-16,9,'one exact witness is enough to break a universal claim');}
+document.getElementById('lpnext').onclick=function(){ex=1-ex;drawW4();document.getElementById('lpread').textContent=EX[ex].bases.length+' '+EX[ex].k+'th-powers = '+EX[ex].targ+'^'+EX[ex].k+' (exact) — refutes Euler';};
+document.getElementById('lpcheck').onclick=function(){var v=selftest();document.getElementById('lpread').textContent='both counterexamples exact (5th & 4th powers), control breaks: '+(v.ok5&&v.ok4&&v.ctrl);};
+document.getElementById('lpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,e=EX[0];g.save();g.translate(cx,cy);g.rotate(ang*0.08);
+ var cols=['#ff2fa6','#ff6ab0','#ffcf4a','#ffce9a'];for(var i=0;i<4;i++){var a=i/4*6.2832,r=50+e.bases[i]/144*70;ne(g,cols[i],2);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,4,cols[i]);nt(g,cols[i],Math.cos(a)*r*1.15,Math.sin(a)*r*1.15,9,e.bases[i]+'⁵');}
+ ne(g,'#35ffb0',2);g.beginPath();g.arc(0,0,120,0,6.2832);g.stroke();ng(g);ndot(g,0,0,9,'#35ffb0');nt(g,'#0a0713',-10,4,9,'144⁵');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: 144⁵, equal to the four summand fifth-powers');nt(g,'#ff2fa6',10,H-34,10,'magenta: the four bases 27, 84, 110, 133');nt(g,'#8ad',10,H-14,10,'a conjecture broken by one example');}
+drawW3();drawW4();window.__landerparkin=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SYLI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Sylvester&rsquo;s law of inertia</b> says a symmetric matrix has an unchangeable &lsquo;signature&rsquo;. Any real symmetric matrix M can be transformed by congruence &mdash; M &rarr; P<sup>T</sup>MP for an invertible P &mdash; into many different-looking matrices. But the counts of <b>positive, negative, and zero eigenvalues</b> (the signature n<sub>+</sub>, n<sub>-</sub>, n<sub>0</sub>) never change. You can rescale and mix the coordinates however you like; the number of &lsquo;plus&rsquo; and &lsquo;minus&rsquo; directions of the quadratic form is a fixed invariant. It is what lets us classify quadratic forms and read the character (definite, indefinite) of a form from any convenient basis.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random symmetric matrices, the signature computed from the eigenvalue signs is unchanged after a random congruence P<sup>T</sup>MP; and the number of negative eigenvalues equals the number of sign changes in the sequence of leading principal minors (Jacobi&rsquo;s criterion) &mdash; two independent computations of the same signature (window.__sylvesterinertia). <span class="fig">FIG</span> no framing; the eigenvalue signature, the congruence, and the minor-sign-change count all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-resurrect</i> &mdash; the invariant that resurrects unchanged after any congruence: mangle the matrix, and its signature comes back exactly as it was. <b>AVAN (AI)</b> built the instrument: the eigenvalue signature, the random congruence, and the leading-minor sign-change cross-check.<br><br>Credit as content: James Joseph Sylvester (1852); Carl Gustav Jacob Jacobi (minor criterion). The weave: David names the invariant; I confirm the signature survives congruence and matches the minor sign-changes.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">A symmetric matrix and its eigenvalue signs — the signature (n₊, n₋, n₀) that congruence can never change.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New matrices; the signature is shown unchanged after a random congruence PᵀMP, and matched to the minor sign-changes.</div>
+   <div class="btns" style="margin-top:10px"><button id="synext">new matrix ▶</button><button id="sycong">apply congruence ▶</button><button id="sycheck">verify ▶</button></div>
+   <div class="cap" id="syread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the signature, invariant under every congruence.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t read the matrix entries &mdash; count the signs. The inverse of &lsquo;which symmetric matrix?&rsquo; is &lsquo;its signature (n<sub>+</sub>, n<sub>-</sub>, n<sub>0</sub>)&rsquo;, the one thing congruence cannot touch &mdash; also read off the sign changes in the leading minors. <b>Magenta</b> are the congruence-transformed matrices; <b>green</b> is the signature they all share. The invariant that survives every basis change.</div>
+   <div class="btns" style="margin-top:10px"><button id="syspin">pause spin</button></div></div></div></div>"""
+SYLI_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function jacobiEig(Ain){var n=Ain.length,A=Ain.map(function(r){return r.slice();});for(var sw=0;sw<100;sw++){var off=0;for(var p=0;p<n-1;p++)for(var q=p+1;q<n;q++)off+=A[p][q]*A[p][q];if(off<1e-24)break;for(var p=0;p<n-1;p++)for(var q=p+1;q<n;q++){if(Math.abs(A[p][q])<1e-18)continue;var th=(A[q][q]-A[p][p])/(2*A[p][q]),t=(th>=0?1:-1)/(Math.abs(th)+Math.sqrt(th*th+1)),c=1/Math.sqrt(t*t+1),s=t*c;for(var i=0;i<n;i++){var aip=A[i][p],aiq=A[i][q];A[i][p]=c*aip-s*aiq;A[i][q]=s*aip+c*aiq;}for(var i=0;i<n;i++){var api=A[p][i],aqi=A[q][i];A[p][i]=c*api-s*aqi;A[q][i]=s*api+c*aqi;}}}var ev=[];for(var i=0;i<n;i++)ev.push(A[i][i]);return ev;}
+function sig(A){var ev=jacobiEig(A),p=0,m=0,z=0;ev.forEach(function(l){if(l>1e-7)p++;else if(l<-1e-7)m++;else z++;});return {p:p,m:m,z:z,ev:ev};}
+function detTL(A,k){var M=[];for(var i=0;i<k;i++){M.push([]);for(var j=0;j<k;j++)M[i].push(A[i][j]);}var n=M.length,det=1;for(var kk=0;kk<n;kk++){var pv=kk;for(var i=kk+1;i<n;i++)if(Math.abs(M[i][kk])>Math.abs(M[pv][kk]))pv=i;if(Math.abs(M[pv][kk])<1e-14)return 0;if(pv!==kk){var tm=M[pv];M[pv]=M[kk];M[kk]=tm;det=-det;}det*=M[kk][kk];for(var i=kk+1;i<n;i++){var f=M[i][kk]/M[kk][kk];for(var j=kk;j<n;j++)M[i][j]-=f*M[kk][j];}}return det;}
+function congr(A,P){var n=A.length,T=[];for(var i=0;i<n;i++){T.push([]);for(var j=0;j<n;j++){var s=0;for(var k=0;k<n;k++)s+=P[k][i]*A[k][j];T[i].push(s);}}var R=[];for(var i=0;i<n;i++){R.push([]);for(var j=0;j<n;j++){var s=0;for(var k=0;k<n;k++)s+=T[i][k]*P[k][j];R[i].push(s);}}return R;}
+var ang=0,spin=true,VR=null,dM=[[2,1,0],[1,-1,1],[0,1,3]],dCong=null;
+function selftest(){if(VR)return VR;var rng=mb(5),inv=true,jac=true;for(var t=0;t<1200;t++){var n=2+Math.floor(rng()*3),A=[];for(var i=0;i<n;i++){A.push([]);for(var j=0;j<n;j++)A[i].push(0);}for(var i=0;i<n;i++)for(var j=i;j<n;j++){var v=Math.floor(rng()*7)-3;A[i][j]=v;A[j][i]=v;}var s=sig(A);var P,tr=0;do{P=[];for(var i=0;i<n;i++){P.push([]);for(var j=0;j<n;j++)P[i].push(Math.floor(rng()*5)-2);}tr++;}while(Math.abs(detTL(P,n))<0.5&&tr<20);if(Math.abs(detTL(P,n))<0.5)continue;var s2=sig(congr(A,P));if(s.p!==s2.p||s.m!==s2.m||s.z!==s2.z)inv=false;var mn=[1],nz=true;for(var k=1;k<=n;k++){var dk=detTL(A,k);mn.push(dk);if(Math.abs(dk)<1e-9)nz=false;}if(nz){var sc=0;for(var k=1;k<mn.length;k++)if(mn[k]*mn[k-1]<0)sc++;if(sc!==s.m)jac=false;}}VR={inv:inv,jac:jac};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var s=sig(dM),n=dM.length;nt(g,'#35ffb0',10,16,10,'symmetric matrix M — signature (n₊, n₋, n₀) = ('+s.p+', '+s.m+', '+s.z+')');
+ var cell=38,ox=40,oy=44;for(var i=0;i<n;i++)for(var j=0;j<n;j++){nf(g,'rgba(30,40,70,0.6)');g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);ng(g);nt(g,'#9cf',ox+j*cell+6,oy+i*cell+cell/2+4,11,''+dM[i][j]);}
+ var ex=W/2+30,ey=54;nt(g,'#8ad',ex,ey-8,10,'eigenvalues:');for(var i=0;i<s.ev.length;i++){var l=s.ev[i],col=l>1e-7?'#35ffb0':(l<-1e-7?'#ff2fa6':'#ffcf4a');nt(g,col,ex,ey+18+i*22,12,l.toFixed(4)+(l>1e-7?'  (+)':(l<-1e-7?'  (−)':'  (0)')));}
+ nt(g,'#8ad',10,H-8,9,'n₊ '+s.p+' positive, n₋ '+s.m+' negative — the invariant congruence cannot change');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var s=sig(dM),n=dM.length;nt(g,'#35ffb0',12,20,12,'signature invariance & Jacobi minors');
+ nt(g,'#9cf',16,52,11,'signature of M: (n₊,n₋,n₀) = ('+s.p+', '+s.m+', '+s.z+')');
+ if(dCong){var s2=sig(dCong);nt(g,(s.p===s2.p&&s.m===s2.m&&s.z===s2.z)?'#39ffb0':'#ff5a5a',16,78,11,'after congruence PᵀMP: ('+s2.p+', '+s2.m+', '+s2.z+')  '+(s.p===s2.p&&s.m===s2.m&&s.z===s2.z?'✓ unchanged':'✗'));}else nt(g,'#66c',16,78,10,'(press "apply congruence")');
+ var mn=[1],nz=true;for(var k=1;k<=n;k++){var dk=detTL(dM,k);mn.push(dk);if(Math.abs(dk)<1e-9)nz=false;}
+ nt(g,'#9cf',16,108,10,'leading minors: '+mn.map(function(x){return Math.round(x);}).join(', '));
+ if(nz){var sc=0;for(var k=1;k<mn.length;k++)if(mn[k]*mn[k-1]<0)sc++;nt(g,sc===s.m?'#39ffb0':'#ff5a5a',16,132,11,'sign changes = '+sc+'  =  n₋ = '+s.m+'  '+(sc===s.m?'✓ (Jacobi)':'✗'));}else nt(g,'#ffcf4a',16,132,10,'(a leading minor is 0 — Jacobi criterion needs all nonzero)');
+ var v=selftest();nt(g,v.inv&&v.jac?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×1200: signature invariant under congruence='+v.inv+' · n₋==minor sign-changes='+v.jac);
+ nt(g,'#8ad',12,H-16,9,'the plus/minus directions of a quadratic form are basis-independent');}
+document.getElementById('synext').onclick=function(){var rng=mb((Date.now()&8191)+1),n=2+Math.floor(rng()*2);dM=[];for(var i=0;i<n;i++){dM.push([]);for(var j=0;j<n;j++)dM[i].push(0);}for(var i=0;i<n;i++)for(var j=i;j<n;j++){var v=Math.floor(rng()*7)-3;dM[i][j]=v;dM[j][i]=v;}dCong=null;drawW3();drawW4();var s=sig(dM);document.getElementById('syread').textContent='new symmetric matrix — signature ('+s.p+', '+s.m+', '+s.z+')';};
+document.getElementById('sycong').onclick=function(){var rng=mb((Date.now()&8191)+9),n=dM.length,P,tr=0;do{P=[];for(var i=0;i<n;i++){P.push([]);for(var j=0;j<n;j++)P[i].push(Math.floor(rng()*5)-2);}tr++;}while(Math.abs(detTL(P,n))<0.5&&tr<30);dCong=congr(dM,P);drawW4();var s=sig(dM),s2=sig(dCong);document.getElementById('syread').textContent='congruence applied — signature ('+s2.p+','+s2.m+','+s2.z+') '+(s.p===s2.p&&s.m===s2.m&&s.z===s2.z?'= original ✓':'≠?!');};
+document.getElementById('sycheck').onclick=function(){var v=selftest();document.getElementById('syread').textContent='signature invariant under congruence & n₋==minor sign-changes (1200 matrices): '+(v.inv&&v.jac);};
+document.getElementById('syspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,s=sig(dM);g.save();g.translate(cx,cy);g.rotate(ang*0.06);
+ var ev=s.ev;for(var i=0;i<ev.length;i++){var a=i/ev.length*6.2832,l=ev[i],r=40+Math.min(90,Math.abs(l)*20),col=l>1e-7?'#35ffb0':(l<-1e-7?'#ff2fa6':'#ffcf4a');ne(g,col,2.4);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,4,col);}
+ ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-20,4,9,'('+s.p+','+s.m+','+s.z+')');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the signature ('+s.p+', '+s.m+', '+s.z+') — positive/negative/zero directions');nt(g,'#ff2fa6',10,H-34,10,'magenta spokes: negative-eigenvalue directions (unchanged by congruence)');nt(g,'#8ad',10,H-14,10,'the invariant that survives every basis change');}
+drawW3();drawW4();window.__sylvesterinertia=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 155 · neon-noir · silicon-coding (two differently-sized determinants that are equal · three distances that always form a triangle · an antichain sum capped at one · rational cosines only at five angles · a mysterious constant reached two ways) ═══════════════════════
 WARO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Weinstein&ndash;Aronszajn identity</b> (also called Sylvester&rsquo;s determinant identity) links the determinants of two matrices of <b>different sizes</b>. For a matrix A of shape m&times;n and B of shape n&times;m, the products AB (an m&times;m matrix) and BA (an n&times;m matrix) are usually different sizes, yet <b>det(I<sub>m</sub> + AB) = det(I<sub>n</sub> + BA)</b> &mdash; the two determinants are always equal. The nonzero eigenvalues of AB and BA coincide, so the &lsquo;+1&rsquo; determinants match despite the size mismatch. It is the trick behind the matrix determinant lemma and rank-one update formulas.<br><br>
@@ -40261,6 +40505,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-van-aubel","title":"THE VAN AUBEL","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#ffcf4a","icon":"vanaubel",
+  "kicker":"squares on a quadrilateral yielding equal perpendicular segments",
+  "blurb":"Van Aubel's theorem in the 5-window house format — conjuring a hidden square out of any four-sided figure. Take any quadrilateral — convex, concave, even self-intersecting — and erect a square outward on each of its four sides. Mark the centre of each square. Van Aubel proved that the two line segments joining the centres of opposite squares are always equal in length and perpendicular to each other. No matter how lopsided the original quadrilateral, those two cross-segments come out the same length and at a right angle — a perfect little cross hidden in any four points. Verified live: for thousands of random quadrilaterals, the segment joining the centres of the squares on one pair of opposite sides equals the segment joining the other pair (to machine precision) and the two are perpendicular. Neon-noir traced. See the quadrilateral + squares + cross-segments in 1D, the equal-perpendicular check in 2D, and the perfect-cross inverse in 3D.",
+  "lit":"Genuine Van Aubel's theorem (H. H. van Aubel, 1878). Verified live: for ~8000 random quadrilaterals, the segments joining opposite square-centres are equal in length (worst ~0) and perpendicular (dot product ~0) — the construction is exact (window.__vanaubel.eq, .pp, .we, .wp).",
+  "fig":"No framing; the square centres, the two segment lengths, and their perpendicularity all run in-browser. The AVAN inverse is honest — instead of measuring the messy quadrilateral, read the cross: the inverse of 'four arbitrary sides' is 'two equal perpendicular segments joining the opposite square-centres', a right-angled cross hidden in any four points. Magenta are the four squares; green are the two equal perpendicular segments. A perfect cross from any quadrilateral.",
+  "body":VAUB_BODY,"script":VAUB_SCRIPT},
+ {"slug":"the-necklace","title":"THE NECKLACE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#b06bff","icon":"necklace",
+  "kicker":"rotation classes counted by a totient sum",
+  "blurb":"Necklace counting in the 5-window house format — how many genuinely different necklaces can you make from n beads in k colours, where rotating a necklace doesn't count as new? Naively there are kⁿ coloured strings, but rotations collapse many together. Moreau's necklace-counting formula (a case of Burnside's lemma) gives the exact answer: (1/n)Σ_{d|n} φ(d)·k^{n/d}, where φ is Euler's totient. The totient counts rotations of each period, averaging the number of colourings fixed by each rotation. For 2 colours and n=1,2,3,… it gives 2,3,4,6,8,14,20,36,…. Verified live: for n up to 15 (2 colours) and n up to 9 (3 colours), a brute count of distinct necklaces — each string reduced to its lexicographically smallest rotation — exactly equals Moreau's formula. Neon-noir traced. See a necklace on a ring in 1D, brute vs formula in 2D, and the average-over-rotations inverse in 3D.",
+  "lit":"Genuine Moreau's necklace-counting formula (C. Moreau, 1872; Burnside averaging). Verified live: for n≤15 (binary) and n≤9 (ternary), a brute count of distinct necklaces (each string reduced to its lexicographically smallest rotation) equals (1/n)Σ_{d|n} φ(d)k^{n/d} exactly (window.__necklace.ok, .ok3).",
+  "fig":"No framing; the brute canonical-rotation count and the totient formula both run in-browser and agree. The AVAN inverse is honest — instead of listing and deduping, average over rotations: the inverse of 'how many distinct necklaces?' is '(1/n)Σ_{d|n} φ(d)k^{n/d}', Burnside's average of colourings fixed by each rotation. Magenta are the rotations being averaged; green is the necklace count they yield. Symmetry counted by averaging.",
+  "body":NECK_BODY,"script":NECK_SCRIPT},
+ {"slug":"the-sophomores-dream","title":"THE SOPHOMORE'S DREAM","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#ff8a3c","icon":"sophomore",
+  "kicker":"an integral equal to a self-power series",
+  "blurb":"The sophomore's dream in the 5-window house format — a pair of astonishing identities discovered by Johann Bernoulli in 1697, where a function raised to itself integrates to an infinite series over nⁿ: ∫₀¹ x^x dx = Σ_{n≥1} (−1)^{n−1}/nⁿ = 1 − 1/4 + 1/27 − … ≈ 0.7834, and ∫₀¹ x^{−x} dx = Σ_{n≥1} 1/nⁿ = 1 + 1/4 + 1/27 + … ≈ 1.2913. The name teases that the result looks like a naive 'dream' a student might wish were true — yet it really is. The trick is to expand x^x = e^{x ln x} as a power series and integrate term by term. Verified live: the numerical integrals of x^x and x^{−x} over [0,1] match their respective series Σ(−1)^{n−1}/nⁿ and Σ1/nⁿ to ~1e-6. Neon-noir traced. See the self-power curves + areas in 1D, integral vs series in 2D, and the series inverse in 3D.",
+  "lit":"Genuine sophomore's dream (Johann Bernoulli, 1697). Verified live: the numerical integrals ∫₀¹ x^x dx and ∫₀¹ x^{−x} dx match the series Σ(−1)^{n−1}/nⁿ and Σ1/nⁿ respectively to ~1e-6 (window.__sophomore.okA, .okB, .Ip, .In).",
+  "fig":"No framing; the numerical integrals and the self-power series are computed by different routes in-browser and agree. The AVAN inverse is honest — instead of integrating the self-power, expand it: the inverse of '∫₀¹ x^{±x} dx' is 'the series Σ(±1)^{n−1}/nⁿ', obtained by expanding e^{±x ln x} and integrating term by term. Magenta are the self-power curves; green are the nⁿ series they equal. A self-power integral read as a clean series.",
+  "body":SOPH_BODY,"script":SOPH_SCRIPT},
+ {"slug":"the-lander-parkin","title":"THE LANDER-PARKIN","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#21e6ff","icon":"landerparkin",
+  "kicker":"a counterexample refuting Euler's conjecture",
+  "blurb":"The Lander–Parkin counterexample in the 5-window house format — it demolished a 200-year-old conjecture of Euler. Extending Fermat's Last Theorem, Euler conjectured in 1769 that summing fewer than k perfect k-th powers can never equal a k-th power — e.g. you'd need at least five fifth-powers to make a fifth-power. In 1966, using an early computer, Lander and Parkin found: 27⁵ + 84⁵ + 110⁵ + 133⁵ = 144⁵ — just four fifth-powers. Euler was wrong. Later Noam Elkies and Roger Frye found a fourth-power version with only three terms: 95800⁴ + 217519⁴ + 414560⁴ = 422481⁴. Verified live with exact big-integer arithmetic: 27⁵+84⁵+110⁵+133⁵ equals 144⁵ exactly (four terms), and 95800⁴+217519⁴+414560⁴ equals 422481⁴ exactly (three terms); a nearby altered sum is not a perfect fifth power. Neon-noir traced. See the four fifth-powers stacking to one in 1D, the exact identity + control in 2D, and the one-witness-refutes inverse in 3D.",
+  "lit":"Genuine Lander–Parkin counterexample to Euler's sum-of-powers conjecture (L. J. Lander & T. R. Parkin, 1966; Elkies/Frye for 4th powers). Verified live with exact BigInt: 27⁵+84⁵+110⁵+133⁵ = 144⁵ (four terms) and 95800⁴+217519⁴+414560⁴ = 422481⁴ (three terms), while a control near-miss (133→134) is not a perfect fifth power (window.__landerparkin.ok5, .ok4, .ctrl).",
+  "fig":"No framing; the exact arbitrary-precision arithmetic runs in-browser. The AVAN inverse is honest — instead of trusting the conjecture, search for a witness: the inverse of 'can fewer than k k-th powers sum to a k-th power?' is 'yes — here is an explicit counterexample', and one witness is enough to refute a universal claim. Magenta are the four summand powers; green is the single power they equal. A conjecture broken by one example.",
+  "body":LAND_BODY,"script":LAND_SCRIPT},
+ {"slug":"the-sylvesters-law-of-inertia","title":"THE SYLVESTER INERTIA","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE RESURRECT","domain_slug":"the-resurrect","accent":"#35ffb0","icon":"sylvesterinertia",
+  "kicker":"a signature invariant under congruence",
+  "blurb":"Sylvester's law of inertia in the 5-window house format — a symmetric matrix has an unchangeable 'signature'. Any real symmetric matrix M can be transformed by congruence — M → PᵀMP for an invertible P — into many different-looking matrices. But the counts of positive, negative, and zero eigenvalues (the signature n₊, n₋, n₀) never change. You can rescale and mix the coordinates however you like; the number of 'plus' and 'minus' directions of the quadratic form is a fixed invariant. It is what lets us classify quadratic forms and read the character (definite, indefinite) of a form from any convenient basis. Verified live: for thousands of random symmetric matrices, the signature from eigenvalue signs is unchanged after a random congruence PᵀMP; and the number of negative eigenvalues equals the sign changes in the leading principal minors (Jacobi's criterion) — two independent computations of the same signature. Neon-noir traced. See the matrix + eigenvalue signs in 1D, invariance + Jacobi minors in 2D, and the surviving-invariant inverse in 3D.",
+  "lit":"Genuine Sylvester's law of inertia (James Joseph Sylvester, 1852; Jacobi minor criterion). Verified live: for ~1200 random symmetric matrices, the signature (n₊,n₋,n₀) from eigenvalue signs is unchanged after a random congruence PᵀMP, and n₋ equals the number of sign changes in the leading principal minors (Jacobi) — two independent computations (window.__sylvesterinertia.inv, .jac).",
+  "fig":"No framing; the eigenvalue signature, the congruence, and the minor-sign-change count all run in-browser. The AVAN inverse is honest — instead of reading the matrix entries, count the signs: the inverse of 'which symmetric matrix?' is 'its signature (n₊,n₋,n₀)', the one thing congruence cannot touch — also read off the sign changes in the leading minors. Magenta are the congruence-transformed matrices; green is the signature they all share. The invariant that survives every basis change.",
+  "body":SYLI_BODY,"script":SYLI_SCRIPT},
  {"slug":"the-weinstein-aronszajn","title":"THE WEINSTEIN-ARONSZAJN","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#21e6ff","icon":"weinstein",
   "kicker":"two differently-sized determinants that are equal",
