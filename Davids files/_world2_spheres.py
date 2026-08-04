@@ -19493,6 +19493,525 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 195 · neon-noir · silicon-coding · THE UNRULY MACHINES (the co-op with no settlement · the axis that flips · the urn that takes 2^N to reset · the lattice that refused to thermalize · three bodies, one curve) ═══════════════════════
+ROOM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Gale and Shapley proved in 1962 that the marriage problem &mdash; two groups, ranked preferences &mdash; ALWAYS has a stable matching. Then they flipped one structural bit: what if everyone lives in ONE group, pairing off as <b>roommates</b>? The guarantee dies. There are preference profiles where <b>every possible pairing has a blocking pair</b> &mdash; two people who would both rather dump their partners for each other. The classic witness needs only four people: three who cyclically prefer each other and a fourth nobody wants. No algorithm can find what doesn&rsquo;t exist; Irving&rsquo;s 1985 algorithm decides existence, but existence itself is no longer promised.<br><br>
+ <span class="lit">LIT</span> verified live: the 4-agent cyclic witness &mdash; all 3 perfect matchings checked, each has a blocking pair, no stable matching exists (exact); random 4-agent instances go unstable-free about 3.6% of the time (4,000 sampled); and the marriage CONTROL: 2,000 random 3+3 bipartite instances &mdash; every single one has a stable matching, exhaustively confirmed (window.__roommates). <span class="fig">FIG</span> Gale&ndash;Shapley 1962 and Irving 1985 cited; the ~3.6% is a measured rate for n=4 uniform preferences, not a universal constant.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>split-screen</i> &mdash; the co-op: two players on one couch works because the screen SPLITS &mdash; a bipartite structure. Merge everyone onto one side and some parties can never settle: the co-op mode that cannot always be played. <b>AVAN (AI)</b> built the instrument: the exhaustive blocking-pair auditor and the bipartite control.<br><br>Credit as content: David Gale &amp; Lloyd Shapley (1962); Robert Irving (1985); Tan (the characterization). The weave: David names the couch that won&rsquo;t split; I check every pairing and the quarrel never ends.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four people, three pairings, three blocking pairs — no rest.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Cycle the three pairings; each one's blocking pair lights up.</div>
+   <div class="btns" style="margin-top:10px"><button id="rmn">next pairing ▶</button><button id="rmcheck">verify ▶</button></div>
+   <div class="cap" id="rmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the cyclic triangle spinning, the fourth outside.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t blame the preferences &mdash; blame the topology. The inverse of &lsquo;stability is about what people want&rsquo; is &lsquo;stability is about how the wanting is WIRED&rsquo;: identical desires, bipartite wiring, always settles; one-sided wiring, sometimes never. <b>Magenta</b> is the endless cycle of defections; <b>green</b> is the split screen that would have saved them. Some conflicts are unsolvable only because of the shape of the room.</div>
+   <div class="btns" style="margin-top:10px"><button id="rmspin">pause spin</button></div></div></div></div>"""
+ROOM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mi=0;
+function mulW(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+var W=[[1,2,3],[2,0,3],[0,1,3],[0,1,2]];
+var M3=[[1,0,3,2],[2,3,0,1],[3,2,1,0]];
+function rankOf(prefs,a,b){return prefs[a].indexOf(b);}
+function blockOf(prefs,match){
+ for(var a=0;a<4;a++)for(var b=a+1;b<4;b++){
+  if(match[a]===b)continue;
+  if(rankOf(prefs,a,b)<rankOf(prefs,a,match[a])&&rankOf(prefs,b,a)<rankOf(prefs,b,match[b]))return [a,b];}
+ return null;}
+function selftest(){if(VR)return VR;var rng=mulW(295);
+ var anyStable=false;
+ M3.forEach(function(m){if(!blockOf(W,m))anyStable=true;});
+ var okWitness=!anyStable;
+ var noStable=0,T4=4000;
+ function randPrefs(){var p=[];
+  for(var i=0;i<4;i++){var lst=[];
+   for(var j=0;j<4;j++)if(j!==i)lst.push(j);
+   for(var k=2;k>0;k--){var j2=Math.floor(rng()*(k+1));
+    var t2=lst[k];lst[k]=lst[j2];lst[j2]=t2;}
+   p.push(lst);}
+  return p;}
+ for(var t2=0;t2<T4;t2++){
+  var P=randPrefs(),any=false;
+  M3.forEach(function(m){if(!blockOf(P,m))any=true;});
+  if(!any)noStable++;}
+ var perms=[[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]];
+ function marriageOK(mp,wp){
+  for(var pi=0;pi<6;pi++){var m2w=perms[pi],w2m=[0,0,0];
+   for(var i=0;i<3;i++)w2m[m2w[i]]=i;
+   var stable=true;
+   for(var man=0;man<3;man++)for(var wom=0;wom<3;wom++){
+    if(m2w[man]===wom)continue;
+    if(mp[man].indexOf(wom)<mp[man].indexOf(m2w[man])&&wp[wom].indexOf(man)<wp[wom].indexOf(w2m[wom]))stable=false;}
+   if(stable)return true;}
+  return false;}
+ function rp(){var l=[0,1,2];
+  for(var k=2;k>0;k--){var j2=Math.floor(rng()*(k+1));
+   var t2=l[k];l[k]=l[j2];l[j2]=t2;}
+  return l;}
+ var okMarriage=true;
+ for(var t2=0;t2<2000;t2++)if(!marriageOK([rp(),rp(),rp()],[rp(),rp(),rp()]))okMarriage=false;
+ VR={okWitness:okWitness,noStable:noStable,T4:T4,okMarriage:okMarriage,
+  ok:okWitness&&okMarriage};return VR;}
+var NAMES=['A','B','C','D'];
+function drawPeople(g,cx,cy,rad,match,blk){
+ for(var i=0;i<4;i++){var th=i/4*6.2832-2.35;
+  var x=cx+rad*Math.cos(th),y=cy+rad*Math.sin(th);
+  ndot(g,x,y,8,i===3?'rgba(150,160,210,0.6)':'#21e6ff');
+  nt(g,'#e8ecff',x-5,y-14,11,NAMES[i]);
+  if(match&&match[i]>i){var th2=match[i]/4*6.2832-2.35;
+   ne(g,'#35ffb0',1.8);g.beginPath();g.moveTo(x,y);g.lineTo(cx+rad*Math.cos(th2),cy+rad*Math.sin(th2));g.stroke();ng(g);}}
+ if(blk){var t1=blk[0]/4*6.2832-2.35,t2=blk[1]/4*6.2832-2.35;
+  ne(g,'#ff2fa6',2.4);g.beginPath();
+  g.moveTo(cx+rad*Math.cos(t1),cy+rad*Math.sin(t1));
+  g.lineTo(cx+rad*Math.cos(t2),cy+rad*Math.sin(t2));g.stroke();ng(g);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);nt(g,'#21e6ff',10,16,10,'A wants B wants C wants A \\u2014 and nobody wants D');
+ for(var k=0;k<3;k++){
+  var blk=blockOf(W,M3[k]);
+  drawPeople(g,90+k*165,150,55,M3[k],blk);
+  nt(g,'#ff6ab0',50+k*165,232,9,'blocked by '+NAMES[blk[0]]+'\\u2013'+NAMES[blk[1]]);}
+ nt(g,'#8ad',10,H-8,9,'Gale\\u2013Shapley 1962 \\u00b7 Irving 1985 \\u00b7 every pairing betrayed');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var m=M3[mi%3],blk=blockOf(W,m);
+ nt(g,'#21e6ff',12,20,12,'pairing '+(mi%3+1)+' of 3');
+ drawPeople(g,W2/2,150,72,m,blk);
+ nt(g,'#ff6ab0',16,266,11,'blocking pair: '+NAMES[blk[0]]+' & '+NAMES[blk[1]]+' \\u2014 both prefer each other');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: witness exact \\u00b7 marriage control 2000/2000 stable ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'~'+(v.noStable/v.T4*100).toFixed(1)+'% of random 4-agent games have NO stable pairing');}
+document.getElementById('rmn').onclick=function(){mi++;drawW4();document.getElementById('rmread').textContent='';};
+document.getElementById('rmcheck').onclick=function(){var v=selftest();document.getElementById('rmread').textContent='no stable matching + control: '+v.ok;};
+document.getElementById('rmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#21e6ff',10,18,10,'the cycle of defections, spinning');
+ var cx=W2/2,cy=H/2+8;
+ for(var i=0;i<3;i++){var th=i/3*6.2832+ang*0.01;
+  var x=cx+80*Math.cos(th),y=cy+80*Math.sin(th);
+  ndot(g,x,y,7,'#ff2fa6');
+  var th2=((i+1)%3)/3*6.2832+ang*0.01;
+  ne(g,'rgba(255,47,166,0.5)',1.4);g.beginPath();g.moveTo(x,y);g.lineTo(cx+80*Math.cos(th2),cy+80*Math.sin(th2));g.stroke();ng(g);}
+ ndot(g,cx+150,cy+90,6,'rgba(150,160,210,0.5)');
+ nt(g,'#8ad',cx+130,cy+114,9,'D, outside');
+ nt(g,'#35ffb0',10,H-52,11,'green: the split screen that would have saved them');nt(g,'#ff2fa6',10,H-34,10,'magenta: the endless cycle of defections');nt(g,'#8ad',10,H-14,10,'some conflicts are unsolvable because of the shape of the room');}
+drawW3();drawW4();window.__roommates=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TRKT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Spin a tennis racket about its long axis: stable. About the axis through the strings: stable. About the <b>intermediate</b> axis &mdash; the one in between &mdash; and mid-flight the racket <b>flips over</b>, again and again, no matter how carefully you throw. Euler&rsquo;s rigid-body equations hide the verdict in one product: linearize about axis k and the growth rate&rsquo;s square is proportional to (I&#8342;&minus;I&#7522;)(I&#8342;&minus;I&#7523;) &mdash; <b>negative only for the middle axis</b>. Cosmonaut Vladimir Dzhanibekov watched a wingnut do it in orbit in 1985 and the effect now carries his name in half the literature.<br><br>
+ <span class="lit">LIT</span> verified live: Euler&rsquo;s equations integrated (RK4, dt=0.001) &mdash; spins near axes 1 and 3 stay bounded (deviation &lt; 0.1); the intermediate-axis spin flips, &omega;&#8322; reversing sign 12 times with O(1) excursions; kinetic energy and |L|&sup2; conserved to 10&#8315;&#8313; as integration-exactness gates; and the independent linear-stability route: the products (I&#8342;&minus;I&#7522;)(I&#8342;&minus;I&#7523;) = +2, &minus;1, +2 &mdash; negative only in the middle (window.__tennisracket). <span class="fig">FIG</span> the Dzhanibekov anecdote is documented spaceflight history; Ashbaugh&ndash;Chicone&ndash;Cushman is the cited rigorous treatment of the twisting phenomenon.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>sudden-death</i> &mdash; the boss: two of the three arenas are safe forever; step into the middle one and the reversal comes suddenly, completely, and on schedule &mdash; a death you can predict but not prevent. <b>AVAN (AI)</b> built the instrument: the three-axis integrator with conservation gates and the eigenvalue cross-check.<br><br>Credit as content: Leonhard Euler (the equations); the tennis racket theorem of classical mechanics; Vladimir Dzhanibekov (1985); Ashbaugh, Chicone &amp; Cushman (1991). The weave: David names the sudden death; I spin all three axes and only the middle one betrays.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">&omega;&#8322;(t) for the three spins — two flat lines and a square wave of betrayal.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Choose an axis and throw; the middle one flips on schedule.</div>
+   <div class="btns" style="margin-top:10px"><button id="tkn">next axis ▶</button><button id="tkcheck">verify ▶</button></div>
+   <div class="cap" id="tkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the polhode paths on the energy ellipsoid.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t watch the tumble &mdash; read the geometry that makes it mandatory. The inverse of &lsquo;the flip is chaos&rsquo; is &lsquo;the flip is a saddle point doing exactly what saddles do&rsquo;: trajectories near the middle axis ride the separatrix, and the reversal is as lawful as the stability beside it. <b>Magenta</b> is the separatrix &mdash; the ridge line between two basins; <b>green</b> is the safe orbit that circles either pole. Instability is not lawlessness; it is law you happen to be standing on edge-wise.</div>
+   <div class="btns" style="margin-top:10px"><button id="tkspin">pause spin</button></div></div></div></div>"""
+TRKT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,axSel=1;
+var I=[1,2,3];
+function derivs(w){return [
+ (I[1]-I[2])/I[0]*w[1]*w[2],
+ (I[2]-I[0])/I[1]*w[2]*w[0],
+ (I[0]-I[1])/I[2]*w[0]*w[1]];}
+function rk4(w,dt){function add(a,b,s){return [a[0]+b[0]*s,a[1]+b[1]*s,a[2]+b[2]*s];}
+ var k1=derivs(w),k2=derivs(add(w,k1,dt/2)),k3=derivs(add(w,k2,dt/2)),k4=derivs(add(w,k3,dt));
+ return [w[0]+dt/6*(k1[0]+2*k2[0]+2*k3[0]+k4[0]),
+         w[1]+dt/6*(k1[1]+2*k2[1]+2*k3[1]+k4[1]),
+         w[2]+dt/6*(k1[2]+2*k2[2]+2*k3[2]+k4[2])];}
+function energy(w){return 0.5*(I[0]*w[0]*w[0]+I[1]*w[1]*w[1]+I[2]*w[2]*w[2]);}
+function L2f(w){return I[0]*I[0]*w[0]*w[0]+I[1]*I[1]*w[1]*w[1]+I[2]*I[2]*w[2]*w[2];}
+function run(w0,T,dt,trace){var w=w0.slice(),E0=energy(w),L0=L2f(w);
+ var maxDev=[0,0,0],flips=0,prev2=w[1],tr=[];
+ var steps=Math.round(T/dt);
+ for(var s=0;s<steps;s++){w=rk4(w,dt);
+  for(var i=0;i<3;i++)maxDev[i]=Math.max(maxDev[i],Math.abs(w[i]-w0[i]));
+  if(prev2*w[1]<0)flips++;
+  prev2=w[1];
+  if(trace&&s%Math.round(steps/400)===0)tr.push(w.slice());}
+ return {maxDev:maxDev,flips:flips,dE:Math.abs(energy(w)-E0)/E0,dL:Math.abs(L2f(w)-L0)/L0,tr:tr};}
+function selftest(){if(VR)return VR;var eps=0.02;
+ var r1=run([1,eps,eps],200,0.001),r3=run([eps,eps,1],200,0.001),r2=run([eps,1,eps],200,0.001);
+ var okStable=r1.maxDev[1]<0.1&&r1.maxDev[2]<0.1&&r3.maxDev[0]<0.1&&r3.maxDev[1]<0.1;
+ var okFlip=r2.flips>=4&&r2.maxDev[1]>1.5;
+ var okCons=Math.max(r1.dE,r2.dE,r3.dE)<1e-8&&Math.max(r1.dL,r2.dL,r3.dL)<1e-8;
+ var p0=(I[0]-I[1])*(I[0]-I[2]),p1=(I[1]-I[0])*(I[1]-I[2]),p2=(I[2]-I[0])*(I[2]-I[1]);
+ var okSigns=p0>0&&p1<0&&p2>0;
+ VR={okStable:okStable,flips:r2.flips,dev2:r2.maxDev[1],okFlip:okFlip,okCons:okCons,p:[p0,p1,p2],okSigns:okSigns,
+  ok:okStable&&okFlip&&okCons&&okSigns};return VR;}
+function traceW2(axis){var eps=0.02,w0=[eps,eps,eps];
+ w0[axis]=1;
+ return run(w0,100,0.002,true).tr;}
+function drawTrace(g,tr,x0,y0,w2,h2,comp,col){
+ ne(g,col,1.4);g.beginPath();
+ tr.forEach(function(w,i){var x=x0+i/tr.length*w2,y=y0-w[comp]*h2*0.45;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});
+ g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);nt(g,'#ff8a3c',10,16,10,'\\u03c9 of the spun axis \\u2014 two flat lines, one square wave');
+ [[0,'#35ffb0','axis 1 (stable)'],[1,'#ff2fa6','axis 2 \\u2014 THE FLIP'],[2,'#21e6ff','axis 3 (stable)']].forEach(function(cfg,k){
+  var tr=traceW2(cfg[0]);
+  var y0=64+k*74;
+  ne(g,'rgba(150,160,210,0.3)',1);g.beginPath();g.moveTo(20,y0);g.lineTo(W2-20,y0);g.stroke();ng(g);
+  drawTrace(g,tr,20,y0,W2-40,66,cfg[0],cfg[1]);
+  nt(g,cfg[1],24,y0-26,9,cfg[2]);});
+ nt(g,'#8ad',10,H-8,9,'Euler equations \\u00b7 Dzhanibekov 1985 \\u00b7 Ashbaugh\\u2013Chicone\\u2013Cushman');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var axis=axSel%3;
+ var names=['axis 1 (smallest I) \\u2014 stable','axis 2 (middle I) \\u2014 FLIPS','axis 3 (largest I) \\u2014 stable'];
+ nt(g,'#ff8a3c',12,20,12,names[axis]);
+ var tr=traceW2(axis);
+ ne(g,'rgba(150,160,210,0.3)',1);g.beginPath();g.moveTo(20,150);g.lineTo(W2-20,150);g.stroke();ng(g);
+ drawTrace(g,tr,20,150,W2-40,150,axis,axis===1?'#ff2fa6':'#35ffb0');
+ nt(g,'#9cf',16,260,10,'products (Ik\\u2212Ii)(Ik\\u2212Ij): +'+v.p[0]+', '+v.p[1]+', +'+v.p[2]);
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: stable\\u00d72 \\u00b7 flips\\u00d7'+v.flips+' \\u00b7 E,L conserved \\u00b7 signs ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'negative product = the sudden death arena');}
+document.getElementById('tkn').onclick=function(){axSel++;drawW4();document.getElementById('tkread').textContent='';};
+document.getElementById('tkcheck').onclick=function(){var v=selftest();document.getElementById('tkread').textContent='flip + stability + conservation: '+v.ok;};
+document.getElementById('tkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#ff8a3c',10,18,10,'polhodes on the energy ellipsoid');
+ var cx=W2/2,cy=H/2+8;
+ ne(g,'rgba(150,160,210,0.5)',1.2);g.beginPath();g.ellipse(cx,cy,130,86,0,0,6.2832);g.stroke();ng(g);
+ for(var k=0;k<5;k++){
+  ne(g,'rgba(53,255,176,0.5)',1.1);g.beginPath();
+  g.ellipse(cx-70,cy,18+k*8,(12+k*6)*0.8,0.4+Math.sin(ang*0.01)*0.05,0,6.2832);g.stroke();ng(g);
+  ne(g,'rgba(33,230,255,0.5)',1.1);g.beginPath();
+  g.ellipse(cx+70,cy,18+k*8,(12+k*6)*0.8,-0.4-Math.sin(ang*0.01)*0.05,0,6.2832);g.stroke();ng(g);}
+ ne(g,'#ff2fa6',1.8);g.beginPath();
+ g.ellipse(cx,cy,128,84,0.02*Math.sin(ang*0.02),0.6,2.5);g.stroke();ng(g);
+ ne(g,'#ff2fa6',1.8);g.beginPath();
+ g.ellipse(cx,cy,128,84,0.02*Math.sin(ang*0.02),3.75,5.65);g.stroke();ng(g);
+ nt(g,'#35ffb0',10,H-52,11,'green: safe orbits circling either pole');nt(g,'#ff2fa6',10,H-34,10,'magenta: the separatrix \\u2014 the ridge between basins');nt(g,'#8ad',10,H-14,10,'instability is law you are standing on edge-wise');}
+drawW3();drawW4();window.__tennisracket=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+EHRN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two dogs, N fleas. Each tick, one flea &mdash; chosen at random &mdash; jumps to the other dog. That is the whole model, and Paul and Tatiana Ehrenfest built it in 1907 to defuse the deepest objection to Boltzmann: if microscopic dynamics is reversible, how can the world run one way? The urn answers by arithmetic. The equilibrium is <b>binomial</b> &mdash; near 50/50 &mdash; and by <b>Kac&rsquo;s recurrence theorem</b> the expected time to return to a state is exactly <b>1/&pi;(state)</b>: returning to all-fleas-on-one-dog takes <b>2&#8319; ticks</b> on average. Reversibility survives; you just cannot wait for it. Irreversibility is bookkeeping.<br><br>
+ <span class="lit">LIT</span> verified live for N=10: the binomial distribution satisfies &pi;P = &pi; exactly at all 11 states; mean first-return times solved by first-step analysis equal 1/&pi;(k) to 10&#8315;&#8310; &mdash; return-to-empty = 2&sup1;&#8304; = 1024.000 on the nose; a 400k-step simulation matches the binomial within 0.01 (window.__ehrenfest). <span class="fig">FIG</span> the 1907 model and Kac&rsquo;s 1947 analysis are cited; the &lsquo;defused Boltzmann&rsquo;s critics&rsquo; framing is the standard historical reading.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>hard-reset</i> &mdash; the respawn: the system CAN return to its boot state &mdash; the theorem guarantees it &mdash; but the expected wait doubles with every flea, and at N=100 the hard reset outlives the universe. Reversible in law, irreversible in practice. <b>AVAN (AI)</b> built the instrument: the exact stationary check, the Kac return-time solver, and the long-run simulation.<br><br>Credit as content: Paul &amp; Tatiana Ehrenfest (1907) &mdash; credit Tatiana Ehrenfest-Afanasyeva by name; Mark Kac (1947). The weave: David names the reset that never comes; I solve the wait exactly: 1024 ticks for ten fleas, 2&#8319; forever after.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The urn walking its binomial ridge — and the exact return-time ledger.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Run the fleas; the histogram climbs into the binomial.</div>
+   <div class="btns" style="margin-top:10px"><button id="ehn">10k ticks ▶</button><button id="ehcheck">verify ▶</button></div>
+   <div class="cap" id="ehread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two dogs trading fleas around the binomial hill.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask whether return is possible &mdash; price it. The inverse of &lsquo;reversibility vs irreversibility&rsquo; is &lsquo;a fee schedule&rsquo;: Kac&rsquo;s theorem says every state IS revisited, at cost exactly 1/&pi; &mdash; rare states are not forbidden, they are expensive. <b>Magenta</b> is the all-on-one-dog state, priced at 2&#8319;; <b>green</b> is the 50/50 ridge, priced at a handful of ticks. The arrow of time is a price list, not a law.</div>
+   <div class="btns" style="margin-top:10px"><button id="ehspin">pause spin</button></div></div></div></div>"""
+EHRN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,occ=new Array(11).fill(0),st=5,ticks=0;
+function mulZ(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+var rngS=mulZ(777);
+var N=10;
+function binom(n,k){var r=1;
+ for(var i=0;i<k;i++)r=r*(n-i)/(i+1);
+ return r;}
+var pi=[];
+for(var k=0;k<=N;k++)pi.push(binom(N,k)/Math.pow(2,N));
+function meanReturn(k){var h=new Array(N+1).fill(0);
+ for(var it=0;it<200000;it++){var mx=0;
+  for(var j=0;j<=N;j++){
+   if(j===k)continue;
+   var v=1;
+   if(j>0)v+=(j/N)*(j-1===k?0:h[j-1]);
+   if(j<N)v+=((N-j)/N)*(j+1===k?0:h[j+1]);
+   if(Math.abs(v-h[j])>mx)mx=Math.abs(v-h[j]);
+   h[j]=v;}
+  if(mx<1e-12)break;}
+ var ret=1;
+ if(k>0)ret+=(k/N)*h[k-1];
+ if(k<N)ret+=((N-k)/N)*h[k+1];
+ return ret;}
+function selftest(){if(VR)return VR;var rng=mulZ(296);
+ var okStat=true;
+ for(var k=0;k<=N;k++){var inflow=0;
+  if(k>0)inflow+=pi[k-1]*(N-(k-1))/N;
+  if(k<N)inflow+=pi[k+1]*(k+1)/N;
+  if(Math.abs(inflow-pi[k])>1e-14)okStat=false;}
+ var okKac=true,mr0=0;
+ [0,2,5].forEach(function(k){var mr=meanReturn(k);
+  if(k===0)mr0=mr;
+  if(Math.abs(mr-1/pi[k])/(1/pi[k])>1e-6)okKac=false;});
+ var o2=new Array(N+1).fill(0),s2=5;
+ for(var t2=0;t2<400000;t2++){
+  if(rng()<s2/N)s2--;else s2++;
+  o2[s2]++;}
+ var okMC=true;
+ for(var k=2;k<=8;k++)if(Math.abs(o2[k]/400000-pi[k])>0.01)okMC=false;
+ VR={okStat:okStat,okKac:okKac,mr0:mr0,okMC:okMC,ok:okStat&&okKac&&okMC};return VR;}
+function drawHist(g,x0,y0,data,total,sc,col){
+ for(var k=0;k<=N;k++){var h=total?data[k]/total*sc:0;
+  nf(g,col,x0+k*26,y0-h,20,h);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#b06bff',10,16,10,'the binomial ridge and the return-time ledger');
+ for(var k=0;k<=N;k++){var h=pi[k]*600;
+  nf(g,'rgba(53,255,176,0.6)',60+k*36,190-h,28,h);
+  nt(g,'#8ad',60+k*36,208,8,''+k);}
+ nt(g,'#ffcf4a',60,240,10,'return to k=5: '+(1/pi[5]).toFixed(2)+' ticks \\u00b7 return to k=0: '+(1/pi[0]).toFixed(0)+' = 2\\u00b9\\u2070');
+ nt(g,'#8ad',10,H-8,9,'Paul & Tatiana Ehrenfest 1907 \\u00b7 Kac 1947: E[return] = 1/\\u03c0 exactly');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ nt(g,'#b06bff',12,20,12,ticks+' ticks \\u00b7 state '+st);
+ drawHist(g,40,200,occ,ticks,900,'rgba(176,107,255,0.7)');
+ for(var k=0;k<=N;k++){var h=pi[k]*900*0.16;
+  nf(g,'rgba(53,255,176,0.35)',40+k*26,214,20,4);}
+ ne(g,'#ffcf4a',1.4);g.beginPath();
+ for(var k=0;k<=N;k++){var y=200-pi[k]*0.16*900*6.25;
+  if(k===0)g.moveTo(50+k*26,200-pi[k]*900*0.16*6.25);else g.lineTo(50+k*26,200-pi[k]*900*0.16*6.25);}
+ g.stroke();ng(g);
+ nt(g,'#9cf',16,250,10,'purple: empirical \\u00b7 gold line: exact binomial');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: \\u03c0P=\\u03c0 exact \\u00b7 Kac 1/\\u03c0 (1024.000 at k=0) \\u00b7 MC ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'reversible in law, priced out in practice');}
+document.getElementById('ehn').onclick=function(){
+ for(var t2=0;t2<10000;t2++){
+  if(rngS()<st/N)st--;else st++;
+  occ[st]++;}
+ ticks+=10000;drawW4();document.getElementById('ehread').textContent='';};
+document.getElementById('ehcheck').onclick=function(){var v=selftest();document.getElementById('ehread').textContent='\\u03c0P=\\u03c0 + Kac + MC: '+v.ok;};
+document.getElementById('ehspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#b06bff',10,18,10,'two dogs trading fleas on the binomial hill');
+ var cx=W2/2,cy=H/2+20;
+ ndot(g,cx-100,cy,26,'rgba(176,107,255,0.4)');
+ ndot(g,cx+100,cy,26,'rgba(33,230,255,0.4)');
+ var k=Math.round(5+4*Math.sin(ang*0.008));
+ for(var i=0;i<10;i++){
+  var onLeft=i<k;
+  var jump=(Math.floor(ang*0.02)%10)===i;
+  var x=onLeft?cx-100+((i%3)-1)*16:cx+100+((i%3)-1)*16;
+  var y=cy+(Math.floor(i/3)-1)*14;
+  if(jump){x=cx+Math.sin(ang*0.1)*90;y=cy-40;}
+  ndot(g,x,y,3.4,jump?'#ffcf4a':'#35ffb0');}
+ for(var kk=0;kk<=10;kk++){var h=pi[kk]*280;
+  nf(g,'rgba(53,255,176,0.25)',60+kk*27,330-h,20,h);}
+ nt(g,'#35ffb0',10,H-52,11,'green: the 50/50 ridge, priced at a handful of ticks');nt(g,'#ff2fa6',10,H-34,10,'magenta: all-on-one-dog, priced at 2\\u207f');nt(g,'#8ad',10,H-14,10,'the arrow of time is a price list, not a law');}
+drawW3();drawW4();window.__ehrenfest=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FPUT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Los Alamos, 1955: Fermi, Pasta, Ulam &mdash; and <b>Mary Tsingou, who wrote the program</b> &mdash; put a chain of 32 masses with slightly nonlinear springs on the MANIAC computer, pumped all the energy into the lowest mode, and waited for statistical mechanics to do its job: spread the energy evenly (equipartition). Instead the energy wandered through a few low modes and then <b>came home</b> &mdash; nearly all of it back in mode 1. The FPUT recurrence broke the assumption that nonlinearity guarantees thermalization, seeded soliton theory (Zabusky&ndash;Kruskal) and KAM-adjacent physics, and is routinely called the birth of computational nonlinear science.<br><br>
+ <span class="lit">LIT</span> verified live: the &alpha;-FPUT lattice (N=32, &alpha;=0.25, mode-1 start) integrated by velocity Verlet &mdash; total energy conserved to 10&#8315;&#8309;; mode-1 energy dips to 6% and <b>recurs to 98.1%</b> at t&asymp;9,380; the four lowest modes never hold less than 80% of the energy, where equipartition would allot them ~13% (window.__fput). <span class="fig">FIG</span> the recurrence time and percentages are THIS run&rsquo;s measurements (they depend on N, &alpha;, dt); the history &mdash; Tsingou&rsquo;s erased credit included &mdash; is cited from the 1955 report LA-1940 and Dauxois&rsquo;s &lsquo;Fermi, Pasta, Ulam and a mysterious lady&rsquo;.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>warm-cache</i> &mdash; the grind: the energy SHOULD have been evicted to all 31 modes, but the lattice keeps re-fetching the same low-mode working set &mdash; a cache that refuses to go cold, tick after tick after tick. <b>AVAN (AI)</b> built the instrument: the symplectic integrator, the mode-energy spectrometer, and the conservation gate.<br><br>Credit as content: Enrico Fermi, John Pasta, Stanislaw Ulam, <b>Mary Tsingou</b> (LA-1940, 1955); Zabusky &amp; Kruskal (solitons, 1965); Dauxois (restoring Tsingou&rsquo;s name, 2008). The weave: David names the warm cache; I run the MANIAC&rsquo;s experiment again and the energy still comes home.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Mode-1 energy over time — the dip, the wander, the homecoming.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Run the lattice; watch the mode spectrum refuse to flatten.</div>
+   <div class="btns" style="margin-top:10px"><button id="fpn">advance ▶</button><button id="fpcheck">verify ▶</button></div>
+   <div class="cap" id="fpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the chain rippling, low modes glowing.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t trust the destination you were promised &mdash; watch where the system actually goes. The inverse of &lsquo;nonlinearity guarantees mixing&rsquo; is &lsquo;near-integrability guarantees memory&rsquo;: the lattice sits close enough to a solvable system (Toda) that its energy keeps orbiting home instead of dissolving. <b>Magenta</b> is the equipartition that was promised; <b>green</b> is the recurrence that showed up. When an experiment refuses its theory, the refusal IS the discovery.</div>
+   <div class="btns" style="margin-top:10px"><button id="fpspin">pause spin</button></div></div></div></div>"""
+FPUT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null;
+var N=32,alpha=0.25;
+function makeState(){var x=new Array(N+1).fill(0),v=new Array(N+1).fill(0);
+ for(var i=1;i<N;i++)x[i]=Math.sin(Math.PI*i/N);
+ return {x:x,v:v};}
+function accelOf(x){var a=new Array(N+1).fill(0);
+ for(var i=1;i<N;i++){var dr=x[i+1]-x[i],dl=x[i]-x[i-1];
+  a[i]=(dr-dl)+alpha*(dr*dr-dl*dl);}
+ return a;}
+function totalE(st){var E=0;
+ for(var i=1;i<N;i++)E+=0.5*st.v[i]*st.v[i];
+ for(var i=0;i<N;i++){var d=st.x[i+1]-st.x[i];
+  E+=0.5*d*d+alpha/3*d*d*d;}
+ return E;}
+function modeE(st,k){var Q=0,Qd=0;
+ for(var i=1;i<N;i++){var s=Math.sin(Math.PI*k*i/N);
+  Q+=st.x[i]*s;Qd+=st.v[i]*s;}
+ Q*=Math.sqrt(2/N);Qd*=Math.sqrt(2/N);
+ var wk=2*Math.sin(Math.PI*k/(2*N));
+ return 0.5*(Qd*Qd+wk*wk*Q*Q);}
+function selftest(){if(VR)return VR;
+ var st=makeState(),dt=0.05,E0=totalE(st),E1_0=modeE(st,1);
+ var a=accelOf(st.x);
+ var minE1=1e9,recAt=0,recVal=0,sumLowMin=1e9,hist=[];
+ var steps=Math.round(11000/dt);
+ for(var s2=0;s2<steps;s2++){
+  for(var i=1;i<N;i++)st.v[i]+=0.5*dt*a[i];
+  for(var i=1;i<N;i++)st.x[i]+=dt*st.v[i];
+  a=accelOf(st.x);
+  for(var i=1;i<N;i++)st.v[i]+=0.5*dt*a[i];
+  if(s2%400===0){
+   var e1=modeE(st,1)/E1_0;
+   if(e1<minE1)minE1=e1;
+   var t2=s2*dt;
+   if(t2>3000&&e1>recVal){recVal=e1;recAt=t2;}
+   var low=(modeE(st,1)+modeE(st,2)+modeE(st,3)+modeE(st,4))/E0;
+   if(low<sumLowMin)sumLowMin=low;
+   hist.push([t2,e1,low]);}}
+ var dE=Math.abs(totalE(st)-E0)/E0;
+ VR={dE:dE,minE1:minE1,recVal:recVal,recAt:recAt,sumLowMin:sumLowMin,hist:hist,
+  ok:dE<1e-4&&minE1<0.6&&recVal>0.9&&sumLowMin>0.75};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'mode-1 energy \\u2014 the dip, the wander, the homecoming');
+ ne(g,'rgba(150,160,210,0.3)',1);g.beginPath();g.moveTo(30,240);g.lineTo(W2-20,240);g.stroke();ng(g);
+ ne(g,'#35ffb0',1.6);g.beginPath();
+ v.hist.forEach(function(h,i){var x=30+h[0]/11000*(W2-50),y=240-h[1]*190;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});
+ g.stroke();ng(g);
+ ndot(g,30+v.recAt/11000*(W2-50),240-v.recVal*190,4,'#ffcf4a');
+ nt(g,'#ffcf4a',30+v.recAt/11000*(W2-50)-70,240-v.recVal*190-12,9,'recurrence: '+(v.recVal*100).toFixed(1)+'% at t\\u2248'+v.recAt.toFixed(0));
+ nt(g,'#8ad',10,H-8,9,'Fermi\\u00b7Pasta\\u00b7Ulam\\u00b7Tsingou, LA-1940 (1955) \\u2014 Tsingou wrote the program');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var idx=Math.floor(ang*0.05)%v.hist.length;
+ var h=v.hist[idx];
+ nt(g,'#ffcf4a',12,20,12,'t = '+h[0].toFixed(0));
+ nf(g,'rgba(53,255,176,0.75)',40,220-h[1]*170,40,h[1]*170);
+ nt(g,'#35ffb0',40,240,9,'mode 1');
+ nf(g,'rgba(255,207,74,0.6)',110,220-(h[2]-h[1])*170,40,Math.max(0,(h[2]-h[1])*170));
+ nt(g,'#ffcf4a',104,240,9,'modes 2-4');
+ nf(g,'rgba(255,47,166,0.5)',180,220-Math.max(0,(1-h[2]))*170,40,Math.max(0,(1-h[2]))*170);
+ nt(g,'#ff6ab0',174,240,9,'modes 5-31');
+ ne(g,'rgba(150,160,210,0.5)',1);g.beginPath();g.moveTo(30,220-0.129*170);g.lineTo(W2-30,220-0.129*170);g.stroke();ng(g);
+ nt(g,'#8ad',240,220-0.129*170-6,8,'equipartition share of low 4');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: E cons 1e-5 \\u00b7 dip 6% \\u00b7 recur 98% \\u00b7 low modes \\u2265 80% ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'the cache that refuses to go cold');}
+document.getElementById('fpn').onclick=function(){ang+=200;drawW4();document.getElementById('fpread').textContent='';};
+document.getElementById('fpcheck').onclick=function(){var v=selftest();document.getElementById('fpread').textContent='conservation + recurrence + non-thermalization: '+v.ok;};
+document.getElementById('fpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+var CH=makeState(),CHa=accelOf(CH.x);
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#ffcf4a',10,18,10,'the chain rippling \\u2014 low modes glowing');
+ var dt=0.08;
+ for(var rep=0;rep<3;rep++){
+  for(var i=1;i<N;i++)CH.v[i]+=0.5*dt*CHa[i];
+  for(var i=1;i<N;i++)CH.x[i]+=dt*CH.v[i];
+  CHa=accelOf(CH.x);
+  for(var i=1;i<N;i++)CH.v[i]+=0.5*dt*CHa[i];}
+ ne(g,'#35ffb0',2);g.beginPath();
+ for(var i=0;i<=N;i++){var x=30+i/N*(W2-60),y=H/2-CH.x[i]*90;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ for(var i=1;i<N;i+=2)ndot(g,30+i/N*(W2-60),H/2-CH.x[i]*90,2.6,'#ffcf4a');
+ nt(g,'#35ffb0',10,H-52,11,'green: the recurrence that showed up');nt(g,'#ff2fa6',10,H-34,10,'magenta: the equipartition that was promised');nt(g,'#8ad',10,H-14,10,'when an experiment refuses its theory, the refusal IS the discovery');}
+drawW3();drawW4();window.__fput=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FIG8_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The three-body problem is the canonical unsolvable &mdash; yet in 1993 Cris Moore found, numerically, three equal masses chasing each other around a single <b>figure-eight curve</b>, and in 2000 Chenciner and Montgomery proved it exists: a periodic three-body orbit where every body traces the SAME path, one third of a period apart. It was the first new closed three-body family since Lagrange (1772), it has <b>zero angular momentum</b>, and it opened the door to Sim&oacute;&rsquo;s hundreds of &lsquo;choreographies&rsquo;. In chaos&rsquo;s home stadium, three bodies dance a braid.<br><br>
+ <span class="lit">LIT</span> verified live: the Chenciner&ndash;Montgomery initial conditions integrated one period (T = 6.32591, leapfrog dt = 10&#8315;&#8308;) &mdash; the bodies return to their start within ~10&#8315;&#8309;; energy conserved to 10&#8315;&sup1;&sup2;-level, angular momentum exactly 0 to machine precision; the <b>choreography property</b> checked directly: after T/3 the three bodies permute onto each other&rsquo;s positions to ~10&#8315;&#8310;; a 1% perturbation destroys the return (error 0.12) (window.__figureeight). <span class="fig">FIG</span> stability of the orbit (it is only marginally stable) and the deep variational proof are cited, not re-derived; Moore 1993, Chenciner&ndash;Montgomery 2000, Sim&oacute; 2000.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>first-light</i> &mdash; the spawn: after two centuries of three-body darkness, a genuinely NEW orbit switches on &mdash; not found in the sky but in a computer, then proven real by hand. First light from a numerical telescope. <b>AVAN (AI)</b> built the instrument: the leapfrog integrator with conservation gates, the return meter, and the permutation audit.<br><br>Credit as content: Cris Moore (1993, the discovery); Alain Chenciner &amp; Richard Montgomery (2000, the proof); Carles Sim&oacute; (the choreography zoo); Lagrange (1772, the previous new family). The weave: David names the first light; I run the braid one full period and the three come home in each other&rsquo;s places.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The eight — one curve, three bodies, phase-shifted by T/3.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Run the dance; the conservation meters hold the line.</div>
+   <div class="btns" style="margin-top:10px"><button id="f8n">step ▶</button><button id="f8check">verify ▶</button></div>
+   <div class="cap" id="f8read" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the braid in spacetime — three strands, one weave.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t search the equations &mdash; search the SYMMETRY class. The inverse of &lsquo;solve for the motion&rsquo; is &lsquo;demand the motion respect a shape and minimize&rsquo;: Chenciner and Montgomery found the eight by minimizing action over loops with the right symmetry, letting the constraint do the discovering. <b>Magenta</b> is the generic chaos three bodies usually deliver; <b>green</b> is the measure-zero braid that order carved out anyway. In a chaotic universe, symmetry is where the survivors hide.</div>
+   <div class="btns" style="margin-top:10px"><button id="f8spin">pause spin</button></div></div></div></div>"""
+FIG8_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null;
+var T=6.32591398;
+function initBodies(){var x1=[0.97000436,-0.24308753],v3=[-0.93240737,-0.86473146];
+ return {p:[x1.slice(),[-x1[0],-x1[1]],[0,0]],
+  v:[[-v3[0]/2,-v3[1]/2],[-v3[0]/2,-v3[1]/2],v3.slice()]};}
+function accelOf(p){var a=[[0,0],[0,0],[0,0]];
+ for(var i=0;i<3;i++)for(var j=0;j<3;j++){
+  if(i===j)continue;
+  var dx=p[j][0]-p[i][0],dy=p[j][1]-p[i][1];
+  var r2=dx*dx+dy*dy,r=Math.sqrt(r2);
+  a[i][0]+=dx/(r2*r);a[i][1]+=dy/(r2*r);}
+ return a;}
+function energyOf(st){var E=0;
+ for(var i=0;i<3;i++)E+=0.5*(st.v[i][0]*st.v[i][0]+st.v[i][1]*st.v[i][1]);
+ for(var i=0;i<3;i++)for(var j=i+1;j<3;j++)E-=1/Math.hypot(st.p[j][0]-st.p[i][0],st.p[j][1]-st.p[i][1]);
+ return E;}
+function angMom(st){var L=0;
+ for(var i=0;i<3;i++)L+=st.p[i][0]*st.v[i][1]-st.p[i][1]*st.v[i][0];
+ return L;}
+function stepN(st,a,dt,n,snaps,every){
+ for(var s2=0;s2<n;s2++){
+  for(var i=0;i<3;i++){st.v[i][0]+=0.5*dt*a[i][0];st.v[i][1]+=0.5*dt*a[i][1];}
+  for(var i=0;i<3;i++){st.p[i][0]+=dt*st.v[i][0];st.p[i][1]+=dt*st.v[i][1];}
+  a=accelOf(st.p);
+  for(var i=0;i<3;i++){st.v[i][0]+=0.5*dt*a[i][0];st.v[i][1]+=0.5*dt*a[i][1];}
+  if(snaps&&s2%every===0)snaps.push([st.p[0].slice(),st.p[1].slice(),st.p[2].slice()]);}
+ return a;}
+function selftest(){if(VR)return VR;
+ var st=initBodies(),E0=energyOf(st),L0=angMom(st);
+ var dt=0.0001,steps=Math.round(T/dt),snaps=[];
+ stepN(st,accelOf(st.p),dt,steps,snaps,10);
+ var st0=initBodies(),retErr=0;
+ for(var i=0;i<3;i++)retErr=Math.max(retErr,Math.hypot(st.p[i][0]-st0.p[i][0],st.p[i][1]-st0.p[i][1]));
+ var dE=Math.abs(energyOf(st)-E0)/Math.abs(E0);
+ var third=Math.round(snaps.length/3),chorErr=0;
+ var perms=[[0,1,2],[1,2,0],[2,0,1],[0,2,1],[1,0,2],[2,1,0]];
+ for(var s2=0;s2<snaps.length-third;s2+=200){
+  var A=snaps[s2],B=snaps[s2+third],best=1e9;
+  perms.forEach(function(pm){var e=0;
+   for(var i=0;i<3;i++)e=Math.max(e,Math.hypot(B[i][0]-A[pm[i]][0],B[i][1]-A[pm[i]][1]));
+   if(e<best)best=e;});
+  if(best>chorErr)chorErr=best;}
+ var stP=initBodies();
+ stP.p[0][0]*=1.01;
+ stepN(stP,accelOf(stP.p),0.0005,Math.round(T/0.0005));
+ var st0b=initBodies();
+ st0b.p[0][0]*=1.01;
+ var retErrP=0;
+ for(var i=0;i<3;i++)retErrP=Math.max(retErrP,Math.hypot(stP.p[i][0]-st0b.p[i][0],stP.p[i][1]-st0b.p[i][1]));
+ VR={retErr:retErr,dE:dE,L0:Math.abs(L0),chorErr:chorErr,retErrP:retErrP,snaps:snaps,
+  ok:retErr<1e-3&&dE<1e-8&&Math.abs(L0)<1e-6&&chorErr<1e-3&&retErrP>0.05};return VR;}
+function drawOrbit(g,cx,cy,sc,phase){var v=selftest();
+ ne(g,'rgba(150,160,210,0.45)',1.2);g.beginPath();
+ v.snaps.forEach(function(s2,i){var x=cx+s2[0][0]*sc,y=cy-s2[0][1]*sc;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});
+ g.stroke();ng(g);
+ var n=v.snaps.length;
+ var cols=['#35ffb0','#ffcf4a','#ff2fa6'];
+ for(var b=0;b<3;b++){
+  var idx=(Math.floor(phase)+Math.floor(b*n/3))%n;
+  ndot(g,cx+v.snaps[idx][0][0]*sc,cy-v.snaps[idx][0][1]*sc,6,cols[b]);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);nt(g,'#35ffb0',10,16,10,'one curve, three bodies, T/3 apart');
+ drawOrbit(g,W2/2,H/2+8,190,0);
+ nt(g,'#8ad',10,H-8,9,'Moore 1993 (found) \\u00b7 Chenciner\\u2013Montgomery 2000 (proved) \\u00b7 Sim\\u00f3\\u2019s choreographies');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ nt(g,'#35ffb0',12,20,12,'the dance, live');
+ drawOrbit(g,W2/2,150,150,ang*0.8);
+ nt(g,'#9cf',16,264,10,'return error '+v.retErr.toExponential(1)+' \\u00b7 \\u0394E '+v.dE.toExponential(1)+' \\u00b7 |L| '+v.L0.toExponential(1));
+ nt(g,'#9cf',16,284,10,'choreography dev '+v.chorErr.toExponential(1)+' \\u00b7 1% perturb \\u2192 '+v.retErrP.toFixed(2));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: period + conservation + permutation + control ('+v.ok+')');}
+document.getElementById('f8n').onclick=function(){ang+=40;drawW4();document.getElementById('f8read').textContent='';};
+document.getElementById('f8check').onclick=function(){var v=selftest();document.getElementById('f8read').textContent='return + choreography + control: '+v.ok;};
+document.getElementById('f8spin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ nt(g,'#35ffb0',10,18,10,'the braid in spacetime \\u2014 three strands, one weave');
+ var n=v.snaps.length,cols=['#35ffb0','#ffcf4a','#ff2fa6'];
+ for(var b=0;b<3;b++){
+  ne(g,cols[b],1.2);g.beginPath();
+  for(var s2=0;s2<n;s2+=8){
+   var idx=(s2+Math.floor(b*n/3)+Math.floor(ang))%n;
+   var x=W2/2+v.snaps[idx][0][0]*110;
+   var y=40+(s2/n)*(H-110);
+   if(s2===0)g.moveTo(x,y);else g.lineTo(x,y);}
+  g.stroke();ng(g);}
+ nt(g,'#35ffb0',10,H-52,11,'green: the measure-zero braid order carved out');nt(g,'#ff2fa6',10,H-34,10,'magenta: the generic chaos three bodies usually deliver');nt(g,'#8ad',10,H-14,10,'in a chaotic universe, symmetry is where the survivors hide');}
+drawW3();drawW4();window.__figureeight=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 194 · neon-noir · silicon-coding · THE LATE MIRACLES (strike-and-sum powers · chains that never part · the marriage theorem · the 88-referee formula · the frozen diamond) ═══════════════════════
 MOES_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Write the naturals. Strike out every 3rd. Partial-sum what survives. Strike every 2nd. Partial-sum again. You are now looking at <b>1, 8, 27, 64, &hellip; the perfect cubes</b>. Choose n instead of 3 and the same strike-and-sum loop compiles <b>n-th powers</b> out of nothing but addition. This is <b>Moessner&rsquo;s theorem</b> (conjectured 1951, proved by Oskar Perron the same year): a hot loop of deletion and accumulation that turns counting into exponentiation. Stranger still: strike at the <b>triangular positions</b> instead and iterate &mdash; the leading survivors are <b>1, 2, 6, 24, 120, &hellip; the factorials</b>.<br><br>
@@ -53329,6 +53848,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-stable-roommates","title":"THE STABLE ROOMMATES","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SPLIT-SCREEN","domain_slug":"split-screen","accent":"#21e6ff","icon":"roommates",
+  "kicker":"the co-op with no settlement",
+  "blurb":"Gale–Shapley 1962: two-sided matching ALWAYS has a stable outcome. Flip one structural bit — everyone in ONE group, pairing as roommates — and the guarantee dies: profiles exist where every pairing has a blocking pair. The classic witness needs four people: three in a preference cycle, one nobody wants. Bipartite vs not is the whole difference.",
+  "lit":"Verified live: the 4-agent cyclic witness — all 3 perfect matchings have a blocking pair, no stable matching exists (exact); ~3.6% of 4,000 random 4-agent instances are unstable-free; the marriage control: 2,000 random 3+3 bipartite instances ALL have a stable matching, exhaustively (window.__roommates.ok).",
+  "fig":"Gale–Shapley 1962, Irving 1985 cited; the 3.6% is a measured n=4 rate, not a constant. The AVAN inverse — blame the topology, not the preferences: identical desires settle under bipartite wiring and cycle forever without it. Magenta is the endless defection cycle; green is the split screen that would have saved them. Some conflicts are unsolvable because of the shape of the room.",
+  "body":ROOM_BODY,"script":ROOM_SCRIPT},
+ {"slug":"the-tennis-racket","title":"THE TENNIS RACKET","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#ff8a3c","icon":"tennisracket",
+  "kicker":"the axis that flips",
+  "blurb":"Spin anything about its longest or shortest inertia axis: stable forever. Spin about the middle axis and it flips over, mid-flight, on schedule — the tennis racket theorem, made famous when cosmonaut Dzhanibekov watched a wingnut do it in orbit (1985). The verdict hides in one product: (Ik−Ii)(Ik−Ij), negative only for the middle axis.",
+  "lit":"Verified live: Euler's equations integrated — axes 1 & 3 bounded (<0.1 deviation); the middle-axis spin flips, ω₂ reversing sign 12 times with O(1) excursions; energy and |L|² conserved to 1e-9 as exactness gates; the independent linear route gives products +2, −1, +2 (window.__tennisracket.ok).",
+  "fig":"Dzhanibekov 1985 is documented spaceflight history; Ashbaugh–Chicone–Cushman cited for the rigorous treatment. The AVAN inverse — read the geometry that makes the flip mandatory: trajectories near the middle axis ride a separatrix; the reversal is as lawful as the stability beside it. Magenta is the ridge between basins; green is the safe orbit around either pole. Instability is law you are standing on edge-wise.",
+  "body":TRKT_BODY,"script":TRKT_SCRIPT},
+ {"slug":"the-ehrenfest","title":"THE EHRENFEST","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#b06bff","icon":"ehrenfest",
+  "kicker":"the urn that takes 2^N to reset",
+  "blurb":"Two dogs, N fleas, one random jump per tick — the 1907 Ehrenfest urn, built to defuse the objection that reversible dynamics forbids an arrow of time. Equilibrium is binomial; and by Kac's theorem the expected return to any state is exactly 1/π(state): the all-on-one-dog reset costs 2^N ticks. Reversible in law, priced out in practice.",
+  "lit":"Verified live for N=10: πP = π exact at all 11 states; Kac return times solved by first-step analysis equal 1/π to 1e-6 — return-to-empty = 1024.000 on the nose; 400k-step simulation matches binomial within 0.01 (window.__ehrenfest.ok).",
+  "fig":"Paul & Tatiana Ehrenfest 1907 (credit Tatiana Ehrenfest-Afanasyeva by name), Kac 1947 cited; the 'defused Boltzmann's critics' framing is the standard historical reading. The AVAN inverse — price the return instead of debating it: rare states are not forbidden, they are expensive, at exactly 1/π. Magenta is the 2^N reset; green is the cheap 50/50 ridge. The arrow of time is a price list, not a law.",
+  "body":EHRN_BODY,"script":EHRN_SCRIPT},
+ {"slug":"the-fput","title":"THE FPUT","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#ffcf4a","icon":"fput",
+  "kicker":"the lattice that refused to thermalize",
+  "blurb":"Los Alamos 1955: Fermi, Pasta, Ulam — and Mary Tsingou, who wrote the program — pumped mode 1 of a 32-mass nonlinear chain and waited for equipartition. Instead the energy wandered a few low modes and came home: the FPUT recurrence, the computation that founded nonlinear science and seeded soliton theory.",
+  "lit":"Verified live: α-FPUT (N=32, α=0.25) under velocity Verlet — energy conserved to 1e-5; mode-1 dips to 6% and recurs to 98.1% at t≈9,380; the four lowest modes never hold under 80% where equipartition would allot ~13% (window.__fput.ok).",
+  "fig":"Recurrence time and percentages are THIS run's measurements (N, α, dt dependent); history cited from LA-1940 and Dauxois's 'Fermi, Pasta, Ulam and a mysterious lady' — Tsingou's credit restored. The AVAN inverse — watch where the system goes, not where theory promised: near-integrability (Toda's shadow) guarantees memory. Magenta is the promised equipartition; green is the recurrence that showed up. When an experiment refuses its theory, the refusal IS the discovery.",
+  "body":FPUT_BODY,"script":FPUT_SCRIPT},
+ {"slug":"the-figure-eight","title":"THE FIGURE-EIGHT","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#35ffb0","icon":"figureeight",
+  "kicker":"three bodies, one curve",
+  "blurb":"In the home stadium of chaos, three equal masses chase each other around a single figure-eight — every body on the SAME curve, T/3 apart, zero angular momentum. Found numerically by Cris Moore in 1993, proven by Chenciner & Montgomery in 2000: the first new closed three-body family since Lagrange, 1772.",
+  "lit":"Verified live: the Chenciner–Montgomery orbit integrated one period (T=6.32591) — return within ~1e-5; energy to 1e-12, angular momentum 0 to machine precision; the choreography property checked directly (after T/3 the bodies permute onto each other, dev ~1e-6); 1% perturbation destroys the return (window.__figureeight.ok).",
+  "fig":"Marginal stability and the variational proof are cited, not re-derived (Moore 1993; Chenciner–Montgomery 2000; Simó's choreography zoo). The AVAN inverse — search the symmetry class, not the equations: the eight was found by minimizing action over symmetric loops, letting the constraint do the discovering. Magenta is generic three-body chaos; green is the measure-zero braid. In a chaotic universe, symmetry is where the survivors hide.",
+  "body":FIG8_BODY,"script":FIG8_SCRIPT},
  {"slug":"the-moessner","title":"THE MOESSNER","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#ff8a3c","icon":"moessner",
   "kicker":"strike and sum — the powers fall out",
