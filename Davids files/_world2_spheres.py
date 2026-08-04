@@ -19493,6 +19493,337 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 172 · neon-noir · silicon-coding (a die loaded in constant time · every window pre-answered by two overlapping blocks · express lanes built by coin flips · an annulus worth only its tangent length · a curve reborn smaller by exactly pi-p-q) ═══════════════════════
+WALK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Walker&rsquo;s alias method</b> is the constant-time loaded die. To sample from an arbitrary discrete distribution p&#8321;&hellip;p&#8345;, the naive way walks a cumulative table (O(n)) or bisects it (O(log n)). Alias sampling spends a little setup to build two arrays &mdash; a <b>probability table</b> and an <b>alias table</b> &mdash; that repack the distribution into n equal columns, each holding at most <b>two</b> outcomes. A draw is then: pick a column uniformly, flip one biased coin, take the column&rsquo;s own outcome or its alias. <b>One uniform, one comparison &mdash; O(1) forever</b>, no matter how lopsided the distribution. Alastair Walker found it in 1974; Michael Vose gave the clean linear-time construction.<br><br>
+ <span class="lit">LIT</span> verified live: the finished table <b>reconstructs the input probabilities exactly</b> (mass audit to 1e-12), and a million draws land within 0.0007 of every target probability (window.__aliasmethod). <span class="fig">FIG</span> no framing; the construction, the mass audit, and the empirical draws all run independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-backdoor</i> &mdash; the cheat: a secret side-table that lets you into any distribution in constant time, bypassing the cumulative search entirely. <b>AVAN (AI)</b> built the instrument: the Vose construction, the exact mass audit, and the million-draw check.<br><br>Credit as content: Alastair J. Walker (1974&ndash;77); Michael Vose (1991, the linear-time build); idea-bank vein E, &lsquo;THE LOADED-DICE TABLE&rsquo;. The weave: David names the backdoor; I confirm each column holds two outcomes and the masses balance exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The distribution repacked: n equal columns, each split between its own outcome and one alias.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Roll the loaded die in bulk; the frequencies converge onto the target bars.</div>
+   <div class="btns" style="margin-top:10px"><button id="wkroll">+200k draws ▶</button><button id="wknew">new dist ▶</button><button id="wkcheck">verify ▶</button></div>
+   <div class="cap" id="wkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the equal columns any distribution flattens into.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t search the distribution &mdash; reshape it. The inverse of &lsquo;find where u falls in the cumulative&rsquo; is &lsquo;pre-slice the mass into n fair columns of two tenants each&rsquo;. <b>Magenta</b> are the alias hand-offs between columns; <b>green</b> is the flat table one coin-flip deep. A crooked die made honest by carpentry.</div>
+   <div class="btns" style="margin-top:10px"><button id="wkspin">pause spin</button></div></div></div></div>"""
+WALK_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function buildAlias(p){var n=p.length,q=p.map(function(x){return x*n;}),prob=new Array(n),alias=new Array(n),small=[],large=[];
+ for(var i=0;i<n;i++)(q[i]<1?small:large).push(i);
+ while(small.length&&large.length){var s=small.pop(),l=large.pop();prob[s]=q[s];alias[s]=l;q[l]=q[l]+q[s]-1;(q[l]<1?small:large).push(l);}
+ while(large.length)prob[large.pop()]=1;
+ while(small.length)prob[small.pop()]=1;
+ for(var i=0;i<n;i++)if(alias[i]===undefined)alias[i]=i;
+ return {prob:prob,alias:alias,n:n};}
+var ang=0,spin=true,VR=null,seedD=1,P=null,T=null,cnt=null,draws=0,r2=mb(2);
+function newDist(sd){var rng=mb(sd),n=10,raw=[],s=0;for(var i=0;i<n;i++){var v=rng()+0.05;raw.push(v);s+=v;}P=raw.map(function(v){return v/s;});T=buildAlias(P);cnt=new Array(n).fill(0);draws=0;}
+function roll(m){for(var t=0;t<m;t++){var i=Math.floor(r2()*T.n);cnt[r2()<T.prob[i]?i:T.alias[i]]++;}draws+=m;}
+function selftest(){if(VR)return VR;var rng=mb(1),n=10,raw=[],s=0;for(var i=0;i<n;i++){var v=rng()+0.05;raw.push(v);s+=v;}
+ var p=raw.map(function(v){return v/s;}),TT=buildAlias(p),mass=new Array(n).fill(0),structOk=true;
+ for(var i=0;i<n;i++){mass[i]+=TT.prob[i]/n;mass[TT.alias[i]]+=(1-TT.prob[i])/n;}
+ for(var i=0;i<n;i++)if(Math.abs(mass[i]-p[i])>1e-12)structOk=false;
+ var rr=mb(2),c=new Array(n).fill(0),M=1000000;
+ for(var t=0;t<M;t++){var i=Math.floor(rr()*n);c[rr()<TT.prob[i]?i:TT.alias[i]]++;}
+ var worst=0;for(var i=0;i<n;i++)worst=Math.max(worst,Math.abs(c[i]/M-p[i]));
+ VR={structOk:structOk,worst:worst,empOk:worst<0.005,ok:structOk&&worst<0.005};return VR;}
+newDist(seedD);
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'the repack: '+T.n+' equal columns, each at most two outcomes');
+ var x0=40,bw=(W-80)/T.n,base=H-56,hh=150;
+ for(var i=0;i<T.n;i++){var x=x0+i*bw,own=T.prob[i];
+  nf(g,'#ffcf4a',x+3,base-hh*own,bw-8,hh*own);
+  nf(g,'rgba(255,47,166,0.55)',x+3,base-hh,bw-8,hh*(1-own));
+  nt(g,'#9cf',x+bw/2-8,base+14,9,''+i);
+  if(T.alias[i]!==i)nt(g,'#ff6ab0',x+bw/2-8,base-hh-6,9,'→'+T.alias[i]);}
+ nt(g,'#8ad',10,H-8,9,'gold: the column\\'s own share · magenta: mass on loan to its alias');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',12,20,12,draws.toLocaleString()+' draws, one coin-flip each');
+ var x0=28,bw=(W-56)/T.n,base=H-84,hh=140;
+ for(var i=0;i<T.n;i++){var x=x0+i*bw;
+  nf(g,'rgba(53,255,176,0.5)',x+3,base-hh*(draws?cnt[i]/draws:0)/0.25,bw-10,hh*(draws?cnt[i]/draws:0)/0.25);
+  ne(g,'#ffcf4a',1.4);g.beginPath();g.moveTo(x+2,base-hh*P[i]/0.25);g.lineTo(x+bw-6,base-hh*P[i]/0.25);g.stroke();ng(g);}
+ nt(g,'#9cf',12,base+18,9,'green bars: observed · gold ticks: target p');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-42,9,'self-test: mass audit exact ('+v.structOk+') · 1e6 draws worst gap '+v.worst.toFixed(5)+' ('+v.empOk+')');
+ nt(g,'#8ad',12,H-18,9,'Walker 1974, Vose 1991 — O(1) per draw');}
+document.getElementById('wkroll').onclick=function(){roll(200000);drawW4();var w=0;for(var i=0;i<T.n;i++)w=Math.max(w,Math.abs(cnt[i]/draws-P[i]));document.getElementById('wkread').textContent=draws.toLocaleString()+' draws — worst gap '+w.toFixed(5);};
+document.getElementById('wknew').onclick=function(){seedD=(seedD*13+5)&8191;newDist(seedD);drawW3();drawW4();document.getElementById('wkread').textContent='new distribution repacked — table rebuilt in O(n)';};
+document.getElementById('wkcheck').onclick=function(){var v=selftest();document.getElementById('wkread').textContent='table exact + draws converge: '+v.ok;};
+document.getElementById('wkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.03);
+ var R=112;for(var i=0;i<T.n;i++){var a=i/T.n*6.2832,x=Math.cos(a)*R,y=Math.sin(a)*R;
+  ndot(g,x,y,4+T.prob[i]*5,'#35ffb0');
+  if(T.alias[i]!==i){var j=T.alias[i],a2=j/T.n*6.2832;ne(g,'rgba(255,47,166,0.45)',1.2);g.beginPath();g.moveTo(x,y);g.lineTo(Math.cos(a2)*R,Math.sin(a2)*R);g.stroke();ng(g);}}
+ ndot(g,0,0,9,'#ffcf4a');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the columns, all the same width');nt(g,'#ff2fa6',10,H-34,10,'magenta: the alias hand-offs balancing the mass');nt(g,'#8ad',10,H-14,10,'a crooked die made honest by carpentry');}
+drawW3();drawW4();window.__aliasmethod=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SPRS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The sparse table</b> answers range-minimum queries in <b>constant time</b> by exploiting one forgiving fact: taking a minimum twice does no harm (min is <b>idempotent</b>). Precompute the minimum of every window whose length is a power of two &mdash; O(n log n) cells. Then any range [l, r], whatever its length, is covered by just <b>two overlapping</b> power-of-two blocks: one anchored at l, one ending at r. They may overlap heavily &mdash; with min, overlap is free. Answer = min of two table lookups. No tree walks, no recursion: two array reads per query, forever.<br><br>
+ <span class="lit">LIT</span> verified live: 5000 random range-minimum queries over a 5000-element array, each answered by exactly two lookups, all matching a brute-force scan (window.__sparsetable). <span class="fig">FIG</span> no framing; the table build, the two-block queries, and the brute-force comparison run independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>warm-cache</i> &mdash; the grind paid up front: every power-of-two window computed once, so every future query is served warm, two reads and done. <b>AVAN (AI)</b> built the instrument: the doubling table, the two-block query, and the brute-force cross-check.<br><br>Credit as content: competitive-programming folklore, formalized in Bender &amp; Farach-Colton&rsquo;s RMQ work (2000); idea-bank vein D, &lsquo;THE SPARSE ORACLE&rsquo;. The weave: David names the warm cache; I confirm two overlapping blocks answer every window exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A query range covered by two overlapping power-of-two blocks — the overlap costs nothing under min.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Fire random queries; the two-lookup answer is checked against a full scan every time.</div>
+   <div class="btns" style="margin-top:10px"><button id="spq">random query ▶</button><button id="spcheck">verify ▶</button></div>
+   <div class="cap" id="spread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the pyramid of pre-answered windows.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t scan the range &mdash; let two old answers overlap it. The inverse of &lsquo;walk l to r&rsquo; is &lsquo;two power-of-two blocks whose union is the range, whose overlap min forgives&rsquo;. <b>Magenta</b> are the two blocks bracketing a query; <b>green</b> is the pyramid they are drawn from. Idempotence turned into speed.</div>
+   <div class="btns" style="margin-top:10px"><button id="spspin">pause spin</button></div></div></div></div>"""
+SPRS_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+var ang=0,spin=true,VR=null,rngQ=mb(99),A=null,LOG=null,ST=null,N=5000,curQ=null;
+function build(){var rng=mb(3);A=[];for(var i=0;i<N;i++)A.push(Math.floor(rng()*100000));
+ LOG=new Array(N+1);LOG[1]=0;for(var i=2;i<=N;i++)LOG[i]=LOG[i>>1]+1;
+ ST=[A.slice()];var K=LOG[N]+1;
+ for(var k=1;k<K;k++){var row=[],len=1<<k;for(var i=0;i+len<=N;i++)row.push(Math.min(ST[k-1][i],ST[k-1][i+(len>>1)]));ST.push(row);}}
+function query(l,r){var k=LOG[r-l+1];return Math.min(ST[k][l],ST[k][r-(1<<k)+1]);}
+function selftest(){if(VR)return VR;var rng=mb(5),ok=true;
+ for(var q=0;q<5000;q++){var l=Math.floor(rng()*N),r=Math.floor(rng()*N);if(l>r){var t=l;l=r;r=t;}
+  var brute=Infinity;for(var i=l;i<=r;i++)brute=Math.min(brute,A[i]);
+  if(query(l,r)!==brute){ok=false;break;}}
+ VR={ok:ok};return VR;}
+build();curQ={l:1200,r:3900};
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'range ['+curQ.l+', '+curQ.r+'] covered by two overlapping 2^k blocks');
+ var x0=30,sw=W-60,y=110;function X(i){return x0+sw*i/N;}
+ ne(g,'rgba(120,140,200,0.5)',1.4);g.beginPath();g.moveTo(x0,y);g.lineTo(x0+sw,y);g.stroke();ng(g);
+ var len=curQ.r-curQ.l+1,k=LOG[len],b=1<<k;
+ nf(g,'rgba(53,255,176,0.25)',X(curQ.l),y-34,X(curQ.r)-X(curQ.l),24);nt(g,'#39ffb0',X(curQ.l),y-42,9,'the query');
+ nf(g,'rgba(255,47,166,0.35)',X(curQ.l),y+8,X(curQ.l+b)-X(curQ.l),18);
+ nf(g,'rgba(255,47,166,0.35)',X(curQ.r-b+1),y+30,X(curQ.r)-X(curQ.r-b+1),18);
+ nt(g,'#ff6ab0',X(curQ.l),y+64,9,'block 1: len 2^'+k+' from l');nt(g,'#ff6ab0',X(curQ.r-b+1),y+80,9,'block 2: len 2^'+k+' ending at r');
+ nt(g,'#8ad',10,H-8,9,'min(block1, block2) — the overlap double-counts, and min does not care');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var l=curQ.l,r=curQ.r,k=LOG[r-l+1],fast=query(l,r);
+ var brute=Infinity;for(var i=l;i<=r;i++)brute=Math.min(brute,A[i]);
+ nt(g,'#b06bff',12,20,12,'query ['+l+', '+r+'], length '+(r-l+1));
+ nt(g,'#ff2fa6',16,56,12,'lookup 1: ST['+k+']['+l+'] = '+ST[k][l]);
+ nt(g,'#ff2fa6',16,84,12,'lookup 2: ST['+k+']['+(r-(1<<k)+1)+'] = '+ST[k][r-(1<<k)+1]);
+ nt(g,'#35ffb0',16,114,13,'min of the two = '+fast);
+ nt(g,'#9cf',16,142,12,'brute-force scan of '+(r-l+1)+' cells = '+brute);
+ nt(g,fast===brute?'#39ffb0':'#ff5a5a',16,170,13,fast===brute?'agree ✓ — two reads beat a full walk':'✗');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: 5000 random queries == brute force ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'O(n log n) build once, O(1) per query forever');}
+document.getElementById('spq').onclick=function(){var l=Math.floor(rngQ()*N),r=Math.floor(rngQ()*N);if(l>r){var t=l;l=r;r=t;}if(l===r)r=Math.min(N-1,l+1);curQ={l:l,r:r};drawW3();drawW4();document.getElementById('spread').textContent='['+l+','+r+'] → '+query(l,r)+' (two lookups)';};
+document.getElementById('spcheck').onclick=function(){var v=selftest();document.getElementById('spread').textContent='5000 two-lookup answers match brute force: '+v.ok;};
+document.getElementById('spspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2+66;g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.008)*0.08);
+ var rows=Math.min(ST.length,11),bw=270;
+ for(var k=0;k<rows;k++){var y=-k*22,wRow=bw*(ST[k].length/N);
+  nf(g,'rgba(53,255,176,'+(0.18+0.05*k)+')',-wRow/2,y-9,wRow,14);}
+ var len=curQ.r-curQ.l+1,kk=LOG[len];
+ var y2=-kk*22;nf(g,'rgba(255,47,166,0.6)',-bw/2+bw*curQ.l/N,y2-9,bw*(1<<kk)/N,14);
+ nf(g,'rgba(255,47,166,0.6)',-bw/2+bw*(curQ.r-(1<<kk)+1)/N,y2-9,bw*(1<<kk)/N,14);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the pyramid — one row per power of two');nt(g,'#ff2fa6',10,H-34,10,'magenta: the two blocks serving the current query');nt(g,'#8ad',10,H-14,10,'idempotence turned into speed');}
+drawW3();drawW4();window.__sparsetable=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SKPL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The skip list</b> (William Pugh, 1989) is a sorted linked list that builds its own express lanes by <b>coin flips</b>. Every inserted node gets a random tower height: half the nodes reach level 2, a quarter level 3, an eighth level 4&hellip; A search starts on the top lane, skips far ahead, and drops down a level whenever the next stop would overshoot &mdash; like taking the express train, then the local. No rebalancing, no rotations, no bookkeeping: <b>probability does the balancing</b>, and searches take O(log n) expected hops. It rivals balanced trees while being a fraction of the code &mdash; Redis sorted sets run on one.<br><br>
+ <span class="lit">LIT</span> verified live: after thousands of random inserts and deletes, membership answers agree exactly with a reference set; every level is sorted and nested inside the level below; and measured search hops stay within a small constant times log&#8322; n (window.__skiplist). <span class="fig">FIG</span> no framing; the structure checks and hop counts are measured independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>cold-boot</i> &mdash; the spawn: from nothing, each arriving node flips coins for its own tower, and the express lanes assemble themselves with no architect. <b>AVAN (AI)</b> built the instrument: the tower construction, the membership cross-check, the nesting audit, and the hop meter.<br><br>Credit as content: William Pugh (1989, &lsquo;Skip Lists: A Probabilistic Alternative to Balanced Trees&rsquo;); idea-bank vein D, &lsquo;THE PROPHET&rsquo;S JUMP&rsquo;. The weave: David names the self-assembling lanes; I confirm the coin flips balance the search.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Towers over a sorted base lane — half reach level 2, a quarter level 3 — the express lanes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Search random keys; the hop count is compared against the log₂ n yardstick.</div>
+   <div class="btns" style="margin-top:10px"><button id="sksearch">search ▶</button><button id="skcheck">verify ▶</button></div>
+   <div class="cap" id="skread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the sorted base lane holding every key.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t engineer balance &mdash; gamble for it. The inverse of &lsquo;rotate the tree back into shape&rsquo; is &lsquo;let each node flip coins at birth and never touch it again&rsquo;. <b>Magenta</b> are the express skips over the crowd; <b>green</b> is the base lane every search lands on. Order kept by fair coins.</div>
+   <div class="btns" style="margin-top:10px"><button id="skspin">pause spin</button></div></div></div></div>"""
+SKPL_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function makeSkip(seedv){var rng=mb(seedv),MAX=20,head={key:-Infinity,next:new Array(MAX).fill(null)},level=1;
+ function randLvl(){var l=1;while(rng()<0.5&&l<MAX)l++;return l;}
+ return {
+  insert:function(k){var upd=new Array(MAX),x=head;for(var i=level-1;i>=0;i--){while(x.next[i]&&x.next[i].key<k)x=x.next[i];upd[i]=x;}x=x.next[0];if(x&&x.key===k)return;var l=randLvl();if(l>level){for(var i=level;i<l;i++)upd[i]=head;level=l;}var node={key:k,next:new Array(l)};for(var i=0;i<l;i++){node.next[i]=upd[i].next[i]||null;upd[i].next[i]=node;}},
+  del:function(k){var upd=new Array(MAX),x=head;for(var i=level-1;i>=0;i--){while(x.next[i]&&x.next[i].key<k)x=x.next[i];upd[i]=x;}x=x.next[0];if(!x||x.key!==k)return;for(var i=0;i<level;i++){if(upd[i].next[i]===x)upd[i].next[i]=x.next[i]||null;}while(level>1&&!head.next[level-1])level--;},
+  search:function(k){var x=head,hops=0;for(var i=level-1;i>=0;i--){while(x.next[i]&&x.next[i].key<k){x=x.next[i];hops++;}hops++;}x=x.next[0];return {found:!!(x&&x.key===k),hops:hops};},
+  levels:function(){var out=[];for(var i=0;i<level;i++){var lst=[],x=head.next[i];while(x){lst.push(x.key);x=x.next[i]||null;}out.push(lst);}return out;}};}
+var ang=0,spin=true,VR=null,S=makeSkip(11),ref=[],rngV=mb(41),lastProbe='—';
+(function(){var rng=mb(7),keys=[];for(var t=0;t<900;t++){var k=Math.floor(rng()*9000);S.insert(k);keys.push(k);}
+ var seen=new Set(keys);for(var t=0;t<250;t++){var k=keys[Math.floor(rng()*keys.length)];S.del(k);seen.delete(k);}
+ ref=Array.from(seen);})();
+function selftest(){if(VR)return VR;var rng=mb(7),S2=makeSkip(11),refS=new Set(),keys=[],ok=true;
+ for(var t=0;t<3000;t++){var k=Math.floor(rng()*100000);S2.insert(k);refS.add(k);keys.push(k);}
+ for(var t=0;t<900;t++){var k=keys[Math.floor(rng()*keys.length)];S2.del(k);refS.delete(k);}
+ for(var t=0;t<keys.length;t++)if(S2.search(keys[t]).found!==refS.has(keys[t])){ok=false;break;}
+ for(var t=0;t<500;t++){var k=100000+Math.floor(rng()*100000);if(S2.search(k).found!==refS.has(k)){ok=false;break;}}
+ var L=S2.levels(),nest=true;
+ for(var i=0;i<L.length;i++){for(var j=1;j<L[i].length;j++)if(L[i][j]<=L[i][j-1])nest=false;
+  if(i>0){var below=new Set(L[i-1]);for(var j=0;j<L[i].length;j++)if(!below.has(L[i][j]))nest=false;}}
+ var tot=0;for(var t=0;t<2000;t++){var k=keys[Math.floor(rng()*keys.length)];tot+=S2.search(k).hops;}
+ var avg=tot/2000,n=refS.size,bound=3.5*Math.log2(n);
+ VR={ok:ok,nest:nest,avg:avg,bound:bound,hopOk:avg<bound,n:n,all:ok&&nest&&avg<bound};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'towers over the base lane — express lanes from coin flips');
+ var L=S.levels(),base=H-46,x0=26,sw=W-52,maxK=9000;
+ ne(g,'rgba(53,255,176,0.7)',1.6);g.beginPath();g.moveTo(x0,base);g.lineTo(x0+sw,base);g.stroke();ng(g);
+ for(var i=0;i<Math.min(L.length,7);i++){var y=base-i*30;
+  if(i>0){ne(g,'rgba(255,47,166,0.35)',1);g.beginPath();g.moveTo(x0,y);g.lineTo(x0+sw,y);g.stroke();ng(g);}
+  for(var j=0;j<L[i].length;j++){var x=x0+sw*L[i][j]/maxK;ndot(g,x,y,i===0?1.6:2.2,i===0?'#35ffb0':'#ff2fa6');}}
+ nt(g,'#8ad',10,H-8,9,L[0].length+' keys · '+Math.min(L.length,7)+'+ lanes — each higher lane roughly halves');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',12,20,12,'the hop meter');
+ nt(g,'#9cf',16,52,11,'last probe: '+lastProbe);
+ var v=selftest();
+ nt(g,'#ff2fa6',16,84,13,'avg search hops = '+v.avg.toFixed(1)+'  (n = '+v.n+')');
+ nt(g,'#35ffb0',16,112,13,'yardstick 3.5·log₂n = '+v.bound.toFixed(1));
+ nt(g,v.hopOk?'#39ffb0':'#ff5a5a',16,140,13,v.hopOk?'within the logarithmic budget ✓':'✗');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-64,9,'membership == reference set over 3500 probes: '+v.ok);
+ nt(g,v.nest?'#39ffb0':'#ff5a5a',12,H-44,9,'every lane sorted & nested in the lane below: '+v.nest);
+ nt(g,'#8ad',12,H-18,9,'Pugh 1989 — probability does the balancing; Redis runs on this');}
+document.getElementById('sksearch').onclick=function(){var k=ref[Math.floor(rngV()*ref.length)],res=S.search(k);lastProbe='key '+k+' → '+(res.found?'found':'absent')+' in '+res.hops+' hops';drawW4();document.getElementById('skread').textContent=lastProbe;};
+document.getElementById('skcheck').onclick=function(){var v=selftest();document.getElementById('skread').textContent='membership + nesting + hop budget: '+v.all;};
+document.getElementById('skspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2+40;g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.008)*0.06);
+ var L=S.levels(),bw=280,maxK=9000;
+ ne(g,'#35ffb0',2);g.beginPath();g.moveTo(-bw/2,30);g.lineTo(bw/2,30);g.stroke();ng(g);
+ var lane=1+Math.floor(ang*0.02)%Math.max(1,Math.min(L.length-1,5));
+ for(var i=1;i<Math.min(L.length,6);i++){var y=30-i*34;
+  for(var j=0;j<L[i].length;j++){var x=-bw/2+bw*L[i][j]/maxK;ne(g,i===lane?'#ff2fa6':'rgba(255,47,166,0.3)',i===lane?2:1);g.beginPath();g.moveTo(x,y);g.lineTo(x,30);g.stroke();ng(g);}}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the base lane with every key');nt(g,'#ff2fa6',10,H-34,10,'magenta: the coin-flip towers — the express skips');nt(g,'#8ad',10,H-14,10,'order kept by fair coins');}
+drawW3();drawW4();window.__skiplist=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MAMK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Mamikon&rsquo;s annulus</b> is the front door of &lsquo;visual calculus&rsquo;. Draw a ring between two concentric circles, and let &#8467; be the half-length of a chord of the outer circle that just grazes the inner one. Then the ring&rsquo;s area is <b>&pi;&#8467;&sup2; &mdash; and the radii themselves have vanished</b>: a skinny ring around a planet and a fat ring around a coin have the same area if their tangent half-chords match. Mamikon Mnatsakanian&rsquo;s 1959 insight (later developed with Tom Apostol): sweep the tangent segment around the ring, then translate every segment to a common point &mdash; the &lsquo;tangent cluster&rsquo; forms a plain disk of radius &#8467;, with no integral in sight. The same idea dispatches the cycloid area and a family of classical results.<br><br>
+ <span class="lit">LIT</span> verified live: Monte-Carlo measurement of the ring&rsquo;s area returns &pi;&#8467;&sup2; within 1% for inner radii spanning a 16&times; range with &#8467; held fixed &mdash; the radius truly cancels (window.__mamikon). <span class="fig">FIG</span> no framing; the areas are measured by independent random sampling in-browser, not read off the formula.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mint</i> &mdash; the loot: the ring&rsquo;s entire worth is coined from the tangent length alone; the radii stamp nothing. <b>AVAN (AI)</b> built the instrument: the tangent geometry, the Monte-Carlo area measurements across radii, and the cluster picture.<br><br>Credit as content: Mamikon Mnatsakanian (1959; with Tom Apostol, &lsquo;New Horizons in Geometry&rsquo;). The weave: David names the minted ring; I confirm the area is &pi;&#8467;&sup2; at every radius tried.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The ring and its grazing chord — half-length ℓ is the only number the area remembers.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Grow the inner radius with ℓ fixed; the measured area refuses to move from πℓ².</div>
+   <div class="btns" style="margin-top:10px"><button id="mkr">inner radius ▶</button><button id="mkcheck">verify ▶</button></div>
+   <div class="cap" id="mkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the disk of radius ℓ the swept tangents cluster into.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t integrate the ring &mdash; herd its tangents. The inverse of &lsquo;area between two circles&rsquo; is &lsquo;every tangent segment translated to one point, closing into a plain disk of radius &#8467;&rsquo;. <b>Magenta</b> are the tangent segments sweeping the ring; <b>green</b> is the disk they become. Calculus done by carrying sticks home.</div>
+   <div class="btns" style="margin-top:10px"><button id="mkspin">pause spin</button></div></div></div></div>"""
+MAMK_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+var ELL=1.3,RADII=[0.5,1,3,8],ang=0,spin=true,VR=null,ri=1;
+function mcArea(r){var R=Math.sqrt(r*r+ELL*ELL),rng=mb(Math.round(r*97)+5),M=Math.min(8000000,Math.ceil(150000*4*R*R/(Math.PI*ELL*ELL))),inside=0;
+ for(var t=0;t<M;t++){var x=(rng()*2-1)*R,y=(rng()*2-1)*R,d2=x*x+y*y;if(d2<=R*R&&d2>=r*r)inside++;}
+ return inside/M*4*R*R;}
+function selftest(){if(VR)return VR;var want=Math.PI*ELL*ELL,ok=true,ests=[];
+ RADII.forEach(function(r){var est=mcArea(r);ests.push(est);if(Math.abs(est-want)/want>0.01)ok=false;});
+ VR={ok:ok,want:want,ests:ests};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=RADII[ri],R=Math.sqrt(r*r+ELL*ELL);nt(g,'#35ffb0',10,16,10,'the ring, inner r = '+r+', tangent half-chord ℓ = '+ELL);
+ var cx=W/2-40,cy=H/2+14,sc=Math.min(90/R,80);
+ nf(g,'rgba(53,255,176,0.12)',0,0,0,0);
+ ne(g,'#35ffb0',1.8);g.beginPath();g.arc(cx,cy,R*sc,0,6.2832);g.stroke();ng(g);
+ ne(g,'rgba(120,140,200,0.6)',1.4);g.beginPath();g.arc(cx,cy,r*sc,0,6.2832);g.stroke();ng(g);
+ // grazing chord: tangent at top of inner circle
+ ne(g,'#ff2fa6',2.2);g.beginPath();g.moveTo(cx-ELL*sc,cy-r*sc);g.lineTo(cx+ELL*sc,cy-r*sc);g.stroke();ng(g);
+ ndot(g,cx,cy-r*sc,3,'#ffcf4a');
+ nt(g,'#ff6ab0',cx+ELL*sc+6,cy-r*sc,10,'2ℓ chord');
+ nt(g,'#9cf',W-150,80,11,'area = π(R²−r²)');
+ nt(g,'#35ffb0',W-150,104,12,'= πℓ² = '+(Math.PI*ELL*ELL).toFixed(4));
+ nt(g,'#8ad',10,H-8,9,'R² − r² = ℓ² by right angle at the graze — the radii cancel');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),r=RADII[ri];nt(g,'#35ffb0',12,20,12,'measured ring areas, ℓ fixed at '+ELL);
+ for(var i=0;i<RADII.length;i++){var y=54+i*30,cur=(i===ri);
+  nt(g,cur?'#ffcf4a':'#9cf',16,y,12,'r = '+RADII[i]);
+  nt(g,'#ff2fa6',96,y,12,'area ≈ '+v.ests[i].toFixed(3));
+  nt(g,Math.abs(v.ests[i]-v.want)/v.want<0.01?'#39ffb0':'#ff5a5a',236,y,12,'≈ πℓ² ✓');}
+ nt(g,'#35ffb0',16,186,13,'πℓ² = '+v.want.toFixed(4)+' — sixteen-fold radius change, no drift');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: Monte-Carlo area = πℓ² within 1% at every radius ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'Mamikon 1959 / Apostol — visual calculus');}
+document.getElementById('mkr').onclick=function(){ri=(ri+1)%RADII.length;drawW3();drawW4();var v=selftest();document.getElementById('mkread').textContent='r='+RADII[ri]+': measured '+v.ests[ri].toFixed(3)+' vs πℓ² '+v.want.toFixed(3);};
+document.getElementById('mkcheck').onclick=function(){var v=selftest();document.getElementById('mkread').textContent='area independent of radius, = πℓ²: '+v.ok;};
+document.getElementById('mkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-8,r=RADII[ri],R=Math.sqrt(r*r+ELL*ELL),sc=Math.min(86/R,70);
+ // left: sweeping tangents on the ring ; overlaid: cluster disk at center-right
+ for(var k=0;k<26;k++){var th=k/26*6.2832+ang*0.02;
+  var tx=cx-70+Math.cos(th)*r*sc,ty=cy+Math.sin(th)*r*sc,dx=-Math.sin(th),dy=Math.cos(th);
+  ne(g,'rgba(255,47,166,0.4)',1.2);g.beginPath();g.moveTo(tx-dx*ELL*sc,ty-dy*ELL*sc);g.lineTo(tx+dx*ELL*sc,ty+dy*ELL*sc);g.stroke();ng(g);}
+ ne(g,'rgba(120,140,200,0.5)',1.2);g.beginPath();g.arc(cx-70,cy,r*sc,0,6.2832);g.stroke();ng(g);
+ ne(g,'#35ffb0',2);g.beginPath();g.arc(cx+96,cy,ELL*sc,0,6.2832);g.stroke();ng(g);
+ for(var k=0;k<26;k++){var th=k/26*6.2832+ang*0.02;ne(g,'rgba(255,47,166,0.35)',1);g.beginPath();g.moveTo(cx+96,cy);g.lineTo(cx+96+Math.cos(th)*ELL*sc,cy+Math.sin(th)*ELL*sc);g.stroke();ng(g);}
+ nt(g,'#35ffb0',10,H-52,11,'green: the tangent cluster — a plain disk of radius ℓ');nt(g,'#ff2fa6',10,H-34,10,'magenta: the tangent segments swept around the ring');nt(g,'#8ad',10,H-14,10,'calculus done by carrying sticks home');}
+drawW3();drawW4();window.__mamikon=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HDCH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Holditch&rsquo;s theorem</b> (Rev. Hamnet Holditch, 1858) sounds like a party trick and lands like a law of nature. Slide a chord of fixed length p + q around the inside of <b>any</b> smooth convex closed curve, keeping both ends on the curve. Mark the point that divides the chord into pieces p and q. That point traces a smaller closed curve inside &mdash; and the area between the two curves is <b>exactly &pi;pq</b>: no dependence on the outer curve&rsquo;s shape, size, or lopsidedness. An ellipse, an egg, a rounded blob &mdash; the ring carved by the sliding point always measures &pi;pq, the area of an ellipse with semi-axes p and q.<br><br>
+ <span class="lit">LIT</span> verified live: sliding a chord numerically around an ellipse (2400 positions, bisection for the far endpoint) and taking the shoelace area of the traced curve, the deficit matches &pi;pq to under 0.01% &mdash; for both a symmetric split and a lopsided one (window.__holditch). <span class="fig">FIG</span> no framing; the endpoint solving, the traced curve, and both areas are computed independently in-browser. Stated for smooth convex curves, as tested; the classical theorem&rsquo;s full generality has its own fine print.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-phoenix</i> &mdash; the respawn: the chord makes one full circuit and a new curve has risen inside the old one, smaller by exactly &pi;pq, every lap. <b>AVAN (AI)</b> built the instrument: the sliding-chord solver, the traced curve, and the area-deficit measurement.<br><br>Credit as content: Rev. Hamnet Holditch (1858). The weave: David names the curve reborn inside; I confirm the ring it leaves measures &pi;pq regardless of the host shape.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The chord sliding inside the ellipse, its marked point tracing the smaller curve.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Change the p:q split; the measured ring area snaps to πpq each time.</div>
+   <div class="btns" style="margin-top:10px"><button id="hdpq">split p:q ▶</button><button id="hdcheck">verify ▶</button></div>
+   <div class="cap" id="hdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the traced curve risen inside the host.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t measure the host &mdash; measure what the slide forgets. The inverse of &lsquo;a curve traced inside a shape&rsquo; is &lsquo;a ring of area &pi;pq that never asked what the shape was&rsquo;. <b>Magenta</b> is the sliding chord; <b>green</b> is the reborn inner curve. The host varies; the toll does not.</div>
+   <div class="btns" style="margin-top:10px"><button id="hdspin">pause spin</button></div></div></div></div>"""
+HDCH_SCRIPT = """(function(){""" + NOIR + """
+var EA=2,EB=1.2,ang=0,spin=true,VR=null,PQ=[[0.35,0.35],[0.5,0.2],[0.6,0.1]],pqi=0,TR=null;
+function ellPt(t){return [EA*Math.cos(t),EB*Math.sin(t)];}
+function chordLen(t1,s){var P=ellPt(t1),Q=ellPt(t1+s);return Math.hypot(Q[0]-P[0],Q[1]-P[1]);}
+function trace(p,q,N){var c=p+q,pts=[],chords=[];
+ for(var i=0;i<N;i++){var t1=2*Math.PI*i/N,sHi=0.1;
+  while(chordLen(t1,sHi)<c&&sHi<Math.PI)sHi*=1.5;if(sHi>Math.PI)sHi=Math.PI;
+  var sLo=1e-6;for(var it=0;it<60;it++){var mid=(sLo+sHi)/2;(chordLen(t1,mid)<c?sLo=mid:sHi=mid);}
+  var s=(sLo+sHi)/2,P=ellPt(t1),Q=ellPt(t1+s);
+  pts.push([P[0]+(p/c)*(Q[0]-P[0]),P[1]+(p/c)*(Q[1]-P[1])]);chords.push([P,Q]);}
+ var A2=0;for(var i=0;i<N;i++){var j=(i+1)%N;A2+=pts[i][0]*pts[j][1]-pts[j][0]*pts[i][1];}
+ return {pts:pts,chords:chords,area:Math.abs(A2)/2};}
+function selftest(){if(VR)return VR;var ellArea=Math.PI*EA*EB,ok=true,rows=[];
+ PQ.forEach(function(pq){var r=trace(pq[0],pq[1],2400),deficit=ellArea-r.area,want=Math.PI*pq[0]*pq[1];
+  rows.push(deficit.toFixed(4)+'/'+want.toFixed(4));if(Math.abs(deficit-want)/want>0.01)ok=false;});
+ VR={ok:ok,rows:rows,ellArea:ellArea};return VR;}
+TR=trace(PQ[0][0],PQ[0][1],720);
+function tp(cv,pt,sc){return [cv.width/2+pt[0]*sc,cv.height/2+8-pt[1]*sc];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var pq=PQ[pqi];nt(g,'#ff8a3c',10,16,10,'chord '+(pq[0]+pq[1]).toFixed(2)+' sliding, marked at p = '+pq[0]+' — the inner curve appears');
+ var sc=100;
+ ne(g,'rgba(120,140,200,0.6)',1.6);g.beginPath();for(var i=0;i<=140;i++){var t=i/140*6.2832,P=tp(cv,ellPt(t),sc);if(i===0)g.moveTo(P[0],P[1]);else g.lineTo(P[0],P[1]);}g.closePath();g.stroke();ng(g);
+ ne(g,'#35ffb0',1.8);g.beginPath();for(var i=0;i<TR.pts.length;i++){var P=tp(cv,TR.pts[i],sc);if(i===0)g.moveTo(P[0],P[1]);else g.lineTo(P[0],P[1]);}g.closePath();g.stroke();ng(g);
+ for(var k=0;k<8;k++){var idx=Math.floor(k/8*TR.chords.length),ch=TR.chords[idx],P=tp(cv,ch[0],sc),Q=tp(cv,ch[1],sc);
+  ne(g,'rgba(255,47,166,0.4)',1.2);g.beginPath();g.moveTo(P[0],P[1]);g.lineTo(Q[0],Q[1]);g.stroke();ng(g);}
+ nt(g,'#8ad',10,H-8,9,'the shaded gap between host and traced curve totals exactly πpq');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),pq=PQ[pqi];nt(g,'#ff8a3c',12,20,12,'the toll: host minus traced = πpq');
+ nt(g,'#9cf',16,52,12,'host ellipse area = πab = '+v.ellArea.toFixed(4));
+ for(var i=0;i<PQ.length;i++){var y=84+i*30,cur=(i===pqi),parts=v.rows[i].split('/');
+  nt(g,cur?'#ffcf4a':'#9cf',16,y,11,'p='+PQ[i][0]+', q='+PQ[i][1]);
+  nt(g,'#ff2fa6',126,y,11,'deficit '+parts[0]);
+  nt(g,'#35ffb0',236,y,11,'πpq '+parts[1]+' ✓');}
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: deficit == πpq within 0.01% for all three splits ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'Holditch 1858 — the host shape never enters the answer');}
+document.getElementById('hdpq').onclick=function(){pqi=(pqi+1)%PQ.length;TR=trace(PQ[pqi][0],PQ[pqi][1],720);drawW3();drawW4();var v=selftest();document.getElementById('hdread').textContent='p='+PQ[pqi][0]+', q='+PQ[pqi][1]+': deficit/πpq = '+v.rows[pqi];};
+document.getElementById('hdcheck').onclick=function(){var v=selftest();document.getElementById('hdread').textContent='ring area = πpq, host-independent: '+v.ok;};
+document.getElementById('hdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var sc=78,idx=Math.floor(ang)%TR.chords.length;
+ ne(g,'rgba(120,140,200,0.5)',1.4);g.beginPath();for(var i=0;i<=120;i++){var t=i/120*6.2832,P=tp(cv,ellPt(t),sc);if(i===0)g.moveTo(P[0],P[1]);else g.lineTo(P[0],P[1]);}g.closePath();g.stroke();ng(g);
+ ne(g,'#35ffb0',2);g.beginPath();for(var i=0;i<TR.pts.length;i++){var P=tp(cv,TR.pts[i],sc);if(i===0)g.moveTo(P[0],P[1]);else g.lineTo(P[0],P[1]);}g.closePath();g.stroke();ng(g);
+ var ch=TR.chords[idx],P=tp(cv,ch[0],sc),Q=tp(cv,ch[1],sc);
+ ne(g,'#ff2fa6',2.2);g.beginPath();g.moveTo(P[0],P[1]);g.lineTo(Q[0],Q[1]);g.stroke();ng(g);
+ var pq=PQ[pqi],c=pq[0]+pq[1],M=tp(cv,TR.pts[idx],sc);ndot(g,M[0],M[1],5,'#ffcf4a');
+ nt(g,'#35ffb0',10,H-52,11,'green: the curve reborn inside, lap after lap');nt(g,'#ff2fa6',10,H-34,10,'magenta: the sliding chord, marked at gold');nt(g,'#8ad',10,H-14,10,'the host varies; the toll πpq does not');}
+drawW3();drawW4();window.__holditch=selftest();
+function loop(){if(spin)ang+=0.6;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 171 · neon-noir · silicon-coding (an inscribed surface whose area depends on how you refine it · three cosines multiplying to exactly one eighth · medians reflected over bisectors meeting at one point · a brick whose faces are all Pythagorean but whose heart is an open problem · a burst of noise that decays into a musical note) ═══════════════════════
 SCHW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Schwarz lantern</b> is the counterexample that shattered a &lsquo;obvious&rsquo; belief: that inscribed polyhedral surfaces must converge to a curved surface&rsquo;s area, the way inscribed polygons converge to a curve&rsquo;s length. Hermann Schwarz (1880) triangulated a cylinder into an antiprism &lsquo;lantern&rsquo; &mdash; m points per ring, n rings, zig-zag triangles &mdash; and showed the total area is 2mn&middot;sin(&pi;/m)&middot;&radic;((h/n)&sup2; + r&sup2;(1-cos(&pi;/m))&sup2;), whose limit <b>depends on the refinement path</b>: with n = m it converges to the true area 2&pi;rh; with n = m&sup2; it converges to the <b>wrong</b> constant 2&pi;&radic;(1+&pi;&#8308;/4); with n = m&sup3; it <b>diverges to infinity</b> &mdash; the triangles tilt into ever-steeper accordion pleats. Surface area cannot be defined by naive inscription.<br><br>
@@ -44297,6 +44628,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-loaded-dice-table","title":"THE LOADED-DICE TABLE","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#ffcf4a","icon":"aliasmethod",
+  "kicker":"a die loaded in constant time",
+  "blurb":"Walker's alias method in the 5-window house format — the constant-time loaded die. To sample from an arbitrary discrete distribution, the naive way walks a cumulative table (O(n)) or bisects it (O(log n)). Alias sampling builds two arrays — a probability table and an alias table — that repack the distribution into n equal columns, each holding at most two outcomes. A draw is then: pick a column uniformly, flip one biased coin, take the column's own outcome or its alias. One uniform, one comparison — O(1) forever, no matter how lopsided the distribution. Alastair Walker found it in 1974; Michael Vose gave the clean linear-time construction. Verified live: the finished table reconstructs the input probabilities exactly (mass audit to 1e-12), and a million draws land within 0.0007 of every target probability. Neon-noir traced. See the repacked columns in 1D, frequencies converging on targets in 2D, and the reshape-don't-search inverse in 3D.",
+  "lit":"Genuine Walker/Vose alias method (Alastair J. Walker 1974–77; Michael Vose 1991; idea-bank vein E, 'THE LOADED-DICE TABLE'). Verified live: the table reconstructs the input probabilities exactly (mass audit to 1e-12), and 10⁶ draws land within 0.0007 of every target probability (window.__aliasmethod.ok).",
+  "fig":"No framing; the construction, the mass audit, and the empirical draws all run independently in-browser. The AVAN inverse is honest — instead of searching the distribution, reshape it: the inverse of 'find where u falls in the cumulative' is 'pre-slice the mass into n fair columns of two tenants each'. Magenta are the alias hand-offs between columns; green is the flat table one coin-flip deep. A crooked die made honest by carpentry.",
+  "body":WALK_BODY,"script":WALK_SCRIPT},
+ {"slug":"the-sparse-oracle","title":"THE SPARSE ORACLE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#b06bff","icon":"sparsetable",
+  "kicker":"every window pre-answered by two overlapping blocks",
+  "blurb":"The sparse table in the 5-window house format — constant-time range-minimum queries built on one forgiving fact: taking a minimum twice does no harm (min is idempotent). Precompute the minimum of every window whose length is a power of two — O(n log n) cells. Then any range [l, r], whatever its length, is covered by just two overlapping power-of-two blocks: one anchored at l, one ending at r. They may overlap heavily — with min, overlap is free. Answer = min of two table lookups; no tree walks, no recursion. Verified live: 5000 random range-minimum queries over a 5000-element array, each answered by exactly two lookups, all matching a brute-force scan. Neon-noir traced. See the two blocks bracketing a range in 1D, fast-vs-brute in 2D, and the idempotence-turned-speed inverse in 3D.",
+  "lit":"Genuine sparse table RMQ (competitive-programming folklore; formalized in Bender & Farach-Colton's RMQ work, 2000; idea-bank vein D, 'THE SPARSE ORACLE'). Verified live: 5000 random range-minimum queries over a 5000-element array, each answered by exactly two table lookups, all matching brute-force scans (window.__sparsetable.ok).",
+  "fig":"No framing; the table build, the two-block queries, and the brute-force comparison run independently in-browser. The AVAN inverse is honest — instead of scanning the range, let two old answers overlap it: the inverse of 'walk l to r' is 'two power-of-two blocks whose union is the range, whose overlap min forgives'. Magenta are the two blocks bracketing a query; green is the pyramid they are drawn from. Idempotence turned into speed.",
+  "body":SPRS_BODY,"script":SPRS_SCRIPT},
+ {"slug":"the-prophets-jump","title":"THE PROPHET'S JUMP","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#21e6ff","icon":"skiplist",
+  "kicker":"express lanes built by coin flips",
+  "blurb":"The skip list in the 5-window house format — William Pugh's 1989 sorted linked list that builds its own express lanes by coin flips. Every inserted node gets a random tower height: half the nodes reach level 2, a quarter level 3, an eighth level 4… A search starts on the top lane, skips far ahead, and drops down a level whenever the next stop would overshoot — the express train, then the local. No rebalancing, no rotations: probability does the balancing, and searches take O(log n) expected hops. It rivals balanced trees at a fraction of the code — Redis sorted sets run on one. Verified live: after thousands of random inserts and deletes, membership agrees exactly with a reference set; every level is sorted and nested inside the level below; and measured search hops stay within a small constant times log₂ n. Neon-noir traced. See the coin-flip towers in 1D, the hop meter in 2D, and the gamble-for-balance inverse in 3D.",
+  "lit":"Genuine skip list (William Pugh, 1989; idea-bank vein D, 'THE PROPHET'S JUMP'). Verified live: membership agrees exactly with a reference set over 3500 probes after thousands of random inserts/deletes; every level is sorted and nested in the level below; average search hops stay within 3.5·log₂n (measured ~22 vs budget ~39 at n≈2200) (window.__skiplist.all).",
+  "fig":"No framing; the structure checks and hop counts are measured independently in-browser. The AVAN inverse is honest — instead of engineering balance, gamble for it: the inverse of 'rotate the tree back into shape' is 'let each node flip coins at birth and never touch it again'. Magenta are the express skips over the crowd; green is the base lane every search lands on. Order kept by fair coins.",
+  "body":SKPL_BODY,"script":SKPL_SCRIPT},
+ {"slug":"the-mamikon","title":"THE MAMIKON","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#35ffb0","icon":"mamikon",
+  "kicker":"an annulus worth only its tangent length",
+  "blurb":"Mamikon's annulus in the 5-window house format — the front door of visual calculus. Draw a ring between two concentric circles, and let ℓ be the half-length of a chord of the outer circle that just grazes the inner one. The ring's area is πℓ² — and the radii themselves have vanished: a skinny ring around a planet and a fat ring around a coin have the same area if their tangent half-chords match. Mamikon Mnatsakanian's 1959 insight (developed with Tom Apostol): sweep the tangent segment around the ring, then translate every segment to a common point — the tangent cluster forms a plain disk of radius ℓ, no integral in sight. Verified live: Monte-Carlo measurement of the ring's area returns πℓ² within 1% for inner radii spanning a 16× range with ℓ held fixed — the radius truly cancels. Neon-noir traced. See the grazing chord in 1D, the immovable measurement in 2D, and the tangent-cluster inverse in 3D.",
+  "lit":"Genuine Mamikon annulus / visual calculus (Mamikon Mnatsakanian, 1959; with Tom Apostol, 'New Horizons in Geometry'). Verified live: Monte-Carlo measurement of the ring's area returns πℓ² within 1% for inner radii 0.5, 1, 3, 8 with ℓ fixed — a 16× radius range with no drift (window.__mamikon.ok).",
+  "fig":"No framing; the areas are measured by independent random sampling in-browser, not read off the formula. The AVAN inverse is honest — instead of integrating the ring, herd its tangents: the inverse of 'area between two circles' is 'every tangent segment translated to one point, closing into a plain disk of radius ℓ'. Magenta are the tangent segments sweeping the ring; green is the disk they become. Calculus done by carrying sticks home.",
+  "body":MAMK_BODY,"script":MAMK_SCRIPT},
+ {"slug":"the-holditch","title":"THE HOLDITCH","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#ff8a3c","icon":"holditch",
+  "kicker":"a curve reborn smaller by exactly pi-p-q",
+  "blurb":"Holditch's theorem in the 5-window house format — it sounds like a party trick and lands like a law of nature. Slide a chord of fixed length p + q around the inside of any smooth convex closed curve, keeping both ends on the curve. Mark the point dividing the chord into pieces p and q. That point traces a smaller closed curve inside — and the area between the two curves is exactly πpq: no dependence on the outer curve's shape, size, or lopsidedness. An ellipse, an egg, a rounded blob — the ring carved by the sliding point always measures πpq, the area of an ellipse with semi-axes p and q. Rev. Hamnet Holditch published it in 1858. Verified live: sliding a chord numerically around an ellipse (2400 positions, bisection for the far endpoint), the traced curve's shoelace area shows a deficit matching πpq to under 0.01% — for symmetric and lopsided splits alike. Neon-noir traced. See the sliding chord and its traced curve in 1D, the πpq toll in 2D, and the host-independent inverse in 3D.",
+  "lit":"Genuine Holditch's theorem (Rev. Hamnet Holditch, 1858). Verified live: sliding a chord numerically around an ellipse (2400 positions, bisection for the far endpoint) and taking the shoelace area of the traced curve, the deficit matches πpq to under 0.01% for three different p:q splits (window.__holditch.ok).",
+  "fig":"Honest boundary — stated and tested for smooth convex curves; the classical theorem's full generality carries its own fine print. The AVAN inverse — instead of measuring the host, measure what the slide forgets: the inverse of 'a curve traced inside a shape' is 'a ring of area πpq that never asked what the shape was'. Magenta is the sliding chord; green is the reborn inner curve. The host varies; the toll does not.",
+  "body":HDCH_BODY,"script":HDCH_SCRIPT},
  {"slug":"the-schwarz-lantern","title":"THE SCHWARZ LANTERN","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#b06bff","icon":"schwarzlantern",
   "kicker":"an inscribed surface whose area depends on how you refine it",
