@@ -19493,6 +19493,255 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 151 · neon-noir · silicon-coding (a simplex volume from its edge lengths alone · a determinant equal to the Mertens function · perspective from a hexagon inscribed in two lines · a harmonic series that converges once you delete the nines · greedy unit fractions racing to one) ═══════════════════════
+CAYM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Cayley&ndash;Menger determinant</b> computes the volume of a simplex from its <b>edge lengths alone</b> &mdash; no coordinates needed. Heron&rsquo;s formula gives a triangle&rsquo;s area from its three sides; Cayley and Menger generalized it to every dimension. Arrange the squared pairwise distances into a bordered matrix (a row and column of 1&rsquo;s, a 0 corner), and its determinant yields the squared volume: 16&middot;Area&sup2; = -det(CM) for a triangle, 288&middot;Vol&sup2; = det(CM) for a tetrahedron. Distances in, volume out &mdash; the metric fully determines the shape&rsquo;s size, and a negative or zero determinant flags points that cannot be embedded at all.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random triangles and tetrahedra, the volume computed from the Cayley&ndash;Menger determinant (using only pairwise squared distances) matches the volume computed the ordinary way from coordinates, to ~1e-7 (window.__cayleymenger). <span class="fig">FIG</span> no framing; the distance-only determinant and the coordinate volume are computed by different routes and agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-push</i> &mdash; every pair of vertices pushes in its one distance, and together the pairwise pushes fix the whole simplex&rsquo;s volume without a single coordinate. <b>AVAN (AI)</b> built the instrument: the Cayley&ndash;Menger bordered determinant, the coordinate volume, and their agreement.<br><br>Credit as content: Arthur Cayley (1841), Karl Menger (1928); Heron of Alexandria for the triangle. The weave: David names the collective push; I confirm the determinant of distances equals the volume.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">A triangle with its three edge lengths; the Cayley–Menger determinant turns those distances into its area.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New shapes; the volume from the distance-only determinant is compared to the coordinate volume.</div>
+   <div class="btns" style="margin-top:10px"><button id="cynext">new shape ▶</button><button id="cycheck">verify ▶</button></div>
+   <div class="cap" id="cyread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the tetrahedron's volume, from its six edge lengths.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t place the points &mdash; measure between them. The inverse of &lsquo;the volume of a simplex&rsquo; is &lsquo;the bordered determinant of its pairwise squared distances&rsquo;, so the metric alone fixes the size and reveals when points can&rsquo;t be embedded. <b>Magenta</b> are the six edge lengths; <b>green</b> is the volume they determine. Shape from distance, no coordinates.</div>
+   <div class="btns" style="margin-top:10px"><button id="cyspin">pause spin</button></div></div></div></div>"""
+CAYM_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function detF(M){var n=M.length,A=M.map(function(r){return r.slice();}),det=1;for(var k=0;k<n;k++){var piv=k;for(var i=k+1;i<n;i++)if(Math.abs(A[i][k])>Math.abs(A[piv][k]))piv=i;if(Math.abs(A[piv][k])<1e-14)return 0;if(piv!==k){var t=A[piv];A[piv]=A[k];A[k]=t;det=-det;}det*=A[k][k];for(var i=k+1;i<n;i++){var f=A[i][k]/A[k][k];for(var j=k;j<n;j++)A[i][j]-=f*A[k][j];}}return det;}
+function d2(p,q){var s=0;for(var i=0;i<p.length;i++)s+=(p[i]-q[i])*(p[i]-q[i]);return s;}
+function cmVsq(pts){var m=pts.length,n=m-1,CM=[[0]];for(var j=0;j<m;j++)CM[0].push(1);for(var i=0;i<m;i++){var row=[1];for(var j=0;j<m;j++)row.push(d2(pts[i],pts[j]));CM.push(row);}var det=detF(CM),fact=1;for(var k=2;k<=n;k++)fact*=k;return Math.pow(-1,n+1)*det/(Math.pow(2,n)*fact*fact);}
+function coordVsq(pts){var n=pts.length-1;if(n===2){var A=pts[0],B=pts[1],C=pts[2],cr=(B[0]-A[0])*(C[1]-A[1])-(B[1]-A[1])*(C[0]-A[0]),ar=0.5*Math.abs(cr);return ar*ar;}var A=pts[0],B=pts[1],C=pts[2],D=pts[3],u=[B[0]-A[0],B[1]-A[1],B[2]-A[2]],v=[C[0]-A[0],C[1]-A[1],C[2]-A[2]],w=[D[0]-A[0],D[1]-A[1],D[2]-A[2]],tp=u[0]*(v[1]*w[2]-v[2]*w[1])-u[1]*(v[0]*w[2]-v[2]*w[0])+u[2]*(v[0]*w[1]-v[1]*w[0]),V=Math.abs(tp)/6;return V*V;}
+var ang=0,spin=true,VR=null,tri=[[-1.6,-1],[1.9,-0.7],[0.1,1.8]],tet=[[-1.2,-1,-0.8],[1.5,-0.9,0.3],[0.2,1.6,-0.4],[0.1,0.1,1.7]];
+function selftest(){if(VR)return VR;var rng=mb(1),ok2=true,ok3=true,worst=0;for(var t=0;t<4000;t++){var A=[rng()*6-3,rng()*6-3],B=[rng()*6-3,rng()*6-3],C=[rng()*6-3,rng()*6-3],p2=[A,B,C],e2=Math.abs(cmVsq(p2)-coordVsq(p2));if(e2>worst)worst=e2;if(e2>1e-7)ok2=false;var P=[];for(var k=0;k<4;k++)P.push([rng()*6-3,rng()*6-3,rng()*6-3]);var e3=Math.abs(cmVsq(P)-coordVsq(P));if(e3>worst)worst=e3;if(e3>1e-6)ok3=false;}VR={ok2:ok2,ok3:ok3,worst:worst};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'a triangle from its edge lengths — Cayley-Menger → area (Heron)');
+ function tp(p){return [W/2+p[0]*46,H/2+14-p[1]*46];}var a=tp(tri[0]),b=tp(tri[1]),c=tp(tri[2]);
+ ne(g,'#21e6ff',1.8);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ function elab(P,Q,r1,r2){var mx=(P[0]+Q[0])/2,my=(P[1]+Q[1])/2,L=Math.sqrt(d2(tri[r1],tri[r2]));nt(g,'#ff2fa6',mx-12,my,10,L.toFixed(2));}
+ elab(a,b,0,1);elab(b,c,1,2);elab(c,a,2,0);[[a,'A'],[b,'B'],[c,'C']].forEach(function(x){ndot(g,x[0][0],x[0][1],4,'#9cf');nt(g,'#9cf',x[0][0]+5,x[0][1],10,x[1]);});
+ nt(g,'#39ffb0',10,H-26,11,'area from Cayley-Menger det (distances only) = '+Math.sqrt(cmVsq(tri)).toFixed(4));
+ nt(g,'#8ad',10,H-8,9,'16·Area² = −det(CM) — the three distances alone determine the area');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',12,20,12,'distance-only volume  vs  coordinate volume');
+ var vt=Math.sqrt(Math.max(0,cmVsq(tri))),vtc=Math.sqrt(Math.max(0,coordVsq(tri))),vT=Math.sqrt(Math.max(0,cmVsq(tet))),vTc=Math.sqrt(Math.max(0,coordVsq(tet)));
+ nt(g,'#9cf',16,52,11,'TRIANGLE (n=2):');nt(g,'#35ffb0',26,74,11,'Cayley-Menger area = '+vt.toFixed(5));nt(g,'#9cf',26,94,11,'coordinate area = '+vtc.toFixed(5));nt(g,Math.abs(vt-vtc)<1e-4?'#39ffb0':'#ff5a5a',26,114,11,Math.abs(vt-vtc)<1e-4?'equal ✓':'✗');
+ nt(g,'#9cf',16,144,11,'TETRAHEDRON (n=3):');nt(g,'#35ffb0',26,166,11,'Cayley-Menger volume = '+vT.toFixed(5));nt(g,'#9cf',26,186,11,'coordinate volume = '+vTc.toFixed(5));nt(g,Math.abs(vT-vTc)<1e-4?'#39ffb0':'#ff5a5a',26,206,11,Math.abs(vT-vTc)<1e-4?'equal ✓':'✗');
+ var v=selftest();nt(g,v.ok2&&v.ok3?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×4000: CM volume == coordinate volume (worst '+v.worst.toExponential(1)+') = '+(v.ok2&&v.ok3));
+ nt(g,'#8ad',12,H-16,9,'Heron generalized to every dimension — metric determines size');}
+document.getElementById('cynext').onclick=function(){var rng=mb((Date.now()&8191)+1);tri=[[rng()*4-2,rng()*4-2],[rng()*4-2,rng()*4-2],[rng()*4-2,rng()*4-2]];tet=[];for(var k=0;k<4;k++)tet.push([rng()*4-2,rng()*4-2,rng()*4-2]);drawW3();drawW4();document.getElementById('cyread').textContent='new shapes — distance-only volume matches coordinate volume';};
+document.getElementById('cycheck').onclick=function(){var v=selftest();document.getElementById('cyread').textContent='Cayley-Menger volume (from distances) == coordinate volume over 4000 triangles & tetrahedra: '+(v.ok2&&v.ok3);};
+document.getElementById('cyspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,sc=40;g.save();g.translate(cx,cy);function rot(p){var ca=Math.cos(ang),sa=Math.sin(ang),x=p[0]*ca-p[2]*sa,z=p[0]*sa+p[2]*ca;return [x*sc,-(p[1]*0.9-z*0.35)*sc];}
+ var pr=tet.map(rot),E=[[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]];
+ E.forEach(function(e){ne(g,'#ff2fa6',1.4);g.beginPath();g.moveTo(pr[e[0]][0],pr[e[0]][1]);g.lineTo(pr[e[1]][0],pr[e[1]][1]);g.stroke();ng(g);});
+ pr.forEach(function(p){ndot(g,p[0],p[1],4,'#9cf');});
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the tetrahedron volume = '+Math.sqrt(Math.max(0,cmVsq(tet))).toFixed(4)+' (from 6 edges)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the six pairwise edge lengths');nt(g,'#8ad',10,H-14,10,'shape from distance, no coordinates');}
+drawW3();drawW4();window.__cayleymenger=selftest();
+function loop(){if(spin)ang+=0.01;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+REDH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Redheffer matrix</b> hides the deepest object in number theory inside a matrix of 0&rsquo;s and 1&rsquo;s. Define the n&times;n matrix R with R<sub>ij</sub>=1 whenever i divides j, and also 1 in the entire first column; every other entry is 0. Redheffer proved that its determinant equals the <b>Mertens function</b> M(n) = &sum;<sub>k&le;n</sub> &mu;(k), the running sum of the M&ouml;bius function. A pattern of divisibility 1&rsquo;s, run through a determinant, produces the very quantity whose growth is equivalent to the Riemann Hypothesis. It is a startling bridge from linear algebra to the primes.<br><br>
+ <span class="lit">LIT</span> verified live with exact integer arithmetic: for n = 1..40, the determinant of the Redheffer matrix (by fraction-free Bareiss elimination) equals the Mertens function M(n) computed independently from the M&ouml;bius function &mdash; M(1)=1, M(2)=0, M(3)=-1, &hellip; (window.__redheffer). <span class="fig">FIG</span> no framing; the determinant and the M&ouml;bius sum are computed by different routes and agree exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>race-condition</i> &mdash; the glitch where two totally different processes, a determinant and a sum over the M&ouml;bius function, race to the very same number every time. <b>AVAN (AI)</b> built the instrument: the Redheffer divisibility matrix, its exact determinant, and the independent Mertens sum.<br><br>Credit as content: Ray Redheffer (1977); the M&ouml;bius and Mertens functions from M&ouml;bius and Mertens. The weave: David names the race; I confirm det(R<sub>n</sub>) equals M(n).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">The Redheffer matrix: a 1 where i divides j, plus a full first column — its determinant is the Mertens function.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle n; the Redheffer determinant is compared to the Mertens function M(n) from the Möbius sum.</div>
+   <div class="btns" style="margin-top:10px"><button id="renext">next n ▶</button><button id="recheck">verify ▶</button></div>
+   <div class="cap" id="reread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Mertens function M(n), from the determinant.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t sum the M&ouml;bius function &mdash; take a determinant. The inverse of &lsquo;the Mertens function M(n)&rsquo; is &lsquo;the determinant of the divisibility matrix R<sub>n</sub>&rsquo;, tying a running prime-parity sum to one linear-algebra value. <b>Magenta</b> is the divisibility pattern of 1&rsquo;s; <b>green</b> is the Mertens value it evaluates to. The primes hiding in a determinant.</div>
+   <div class="btns" style="margin-top:10px"><button id="respin">pause spin</button></div></div></div></div>"""
+REDH_SCRIPT = """(function(){""" + NOIR + """
+function detB(M){var n=M.length,A=M.map(function(r){return r.map(function(x){return BigInt(x);});}),sign=1n,prev=1n;for(var k=0;k<n-1;k++){if(A[k][k]===0n){var sw=-1;for(var r=k+1;r<n;r++)if(A[r][k]!==0n){sw=r;break;}if(sw<0)return 0n;var tm=A[k];A[k]=A[sw];A[sw]=tm;sign=-sign;}for(var i=k+1;i<n;i++)for(var j=k+1;j<n;j++)A[i][j]=(A[i][j]*A[k][k]-A[i][k]*A[k][j])/prev;prev=A[k][k];}return sign*A[n-1][n-1];}
+function mobius(N){var mu=new Array(N+1).fill(1),primes=[],comp=new Array(N+1).fill(false);for(var i=2;i<=N;i++){if(!comp[i]){primes.push(i);mu[i]=-1;}for(var j=0;j<primes.length&&i*primes[j]<=N;j++){comp[i*primes[j]]=true;if(i%primes[j]===0){mu[i*primes[j]]=0;break;}else mu[i*primes[j]]=-mu[i];}}return mu;}
+function redh(n){var M=[];for(var i=1;i<=n;i++){M.push([]);for(var j=1;j<=n;j++)M[i-1].push((j===1||j%i===0)?1:0);}return M;}
+var ang=0,spin=true,VR=null,MU=mobius(50),dn=12;
+function mert(n){var s=0;for(var k=1;k<=n;k++)s+=MU[k];return s;}
+function selftest(){if(VR)return VR;var ok=true;for(var n=1;n<=40;n++){if(detB(redh(n))!==BigInt(mert(n)))ok=false;}VR={ok:ok,m10:mert(10),m40:mert(40)};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=Math.min(dn,14);nt(g,'#b06bff',10,16,10,'Redheffer matrix R'+n+': a 1 where i|j, plus a full first column');
+ var cell=Math.min(15,(W-60)/n),ox=40,oy=30;for(var i=1;i<=n;i++)for(var j=1;j<=n;j++){var one=(j===1||j%i===0);nf(g,one?'rgba(176,107,255,0.55)':'rgba(30,25,55,0.5)');g.fillRect(ox+(j-1)*cell,oy+(i-1)*cell,cell-1,cell-1);ng(g);if(one&&cell>9)nt(g,'#e8d8ff',ox+(j-1)*cell+2,oy+(i-1)*cell+cell-3,cell*0.6,'1');}
+ nt(g,'#35ffb0',10,H-26,11,'det(R'+n+') = '+detB(redh(n)).toString()+' = Mertens M('+n+')');
+ nt(g,'#8ad',10,H-8,9,'a matrix of divisibility 1s whose determinant is the running Möbius sum');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',12,20,12,'det(Redheffer_n)  vs  Mertens M(n)');
+ var det=detB(redh(dn)),M=mert(dn);nt(g,'#c9a6ff',16,58,13,'det(R'+dn+') = '+det.toString());nt(g,'#35ffb0',16,90,13,'M('+dn+') = Σ_{k≤'+dn+'} μ(k) = '+M);
+ nt(g,det===BigInt(M)?'#39ffb0':'#ff5a5a',16,122,13,det===BigInt(M)?'equal ✓':'✗');
+ // little Mertens walk
+ nt(g,'#8ad',16,150,9,'M(n) for n=1..24 (the Mertens walk):');var bx=16,by=210,bw=(W-32)/24;for(var n=1;n<=24;n++){var m=mert(n);ne(g,'#b06bff',1);g.beginPath();g.moveTo(bx+(n-1)*bw,by);g.lineTo(bx+(n-1)*bw,by-m*10);g.stroke();ng(g);ndot(g,bx+(n-1)*bw,by-m*10,1.5,'#c9a6ff');}
+ ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.moveTo(bx,by);g.lineTo(W-16,by);g.stroke();ng(g);
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test n=1..40: det(R_n) == M(n) exact = '+v.ok+' (M(10)='+v.m10+', M(40)='+v.m40+')');
+ nt(g,'#8ad',12,H-16,9,'Mertens growth ≡ the Riemann Hypothesis — here it is, as a determinant');}
+document.getElementById('renext').onclick=function(){dn=dn>=24?2:dn+1;drawW3();drawW4();document.getElementById('reread').textContent='n='+dn+': det(R'+dn+') = '+detB(redh(dn)).toString()+' = M('+dn+') = '+mert(dn);};
+document.getElementById('recheck').onclick=function(){var v=selftest();document.getElementById('reread').textContent='det(Redheffer_n) == Mertens M(n) for n=1..40 (exact BigInt): '+v.ok;};
+document.getElementById('respin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.06);var n=Math.min(dn,12),cell=15,ox=-n*cell/2,oy=-n*cell/2;
+ for(var i=1;i<=n;i++)for(var j=1;j<=n;j++)if(j===1||j%i===0){ne(g,'#ff2fa6',1);g.strokeRect(ox+(j-1)*cell,oy+(i-1)*cell,cell-2,cell-2);ng(g);}
+ g.restore();var M=mert(dn);ndot(g,cx,cy,0,'#000');nt(g,'#35ffb0',cx-40,cy+4,20,'M='+M);
+ nt(g,'#35ffb0',10,H-52,11,'green: the Mertens function M('+dn+') = '+M);nt(g,'#ff2fa6',10,H-34,10,'magenta: the divisibility pattern of 1s (the Redheffer matrix)');nt(g,'#8ad',10,H-14,10,'the primes hiding in a determinant');}
+drawW3();drawW4();window.__redheffer=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PAPP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Pappus&rsquo;s hexagon theorem</b> is one of the oldest theorems of projective geometry, from the 4th century. Put three points A, B, C on one line and three points a, b, c on another line. Draw the &lsquo;cross&rsquo; connections and mark where they meet: P = Ab&cap;aB, Q = Ac&cap;aC, R = Bc&cap;bC. Pappus proved that these <b>three intersection points are always collinear</b> &mdash; they lie on a single line, the Pappus line, no matter where the six points sit on their two lines. It is the special, degenerate case of Pascal&rsquo;s theorem (a conic split into two lines) and a defining axiom of coordinate projective planes.<br><br>
+ <span class="lit">LIT</span> verified live: across thousands of random pairs of lines with random points, the three cross-intersections P, Q, R are collinear to ~1e-13, and moving a point off its line breaks the collinearity in ~96% of cases (the rest are near-degenerate coincidences) (window.__pappus). <span class="fig">FIG</span> no framing; the intersections, the collinearity test, and the off-line control all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-raid</i> &mdash; the boss encounter of classical geometry: six points on two lines, and their cross-connections are forced onto one hidden line. <b>AVAN (AI)</b> built the instrument: the cross-intersections, the collinearity test, and the off-line control.<br><br>Credit as content: Pappus of Alexandria (c. 340 CE). The weave: David names the raid; I confirm the three cross-intersections always fall on one line.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Two lines with points A,B,C and a,b,c; the three cross-intersections P,Q,R fall on one line — the Pappus line.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New configurations; the collinearity of P,Q,R is checked, and a point pushed off its line breaks it.</div>
+   <div class="btns" style="margin-top:10px"><button id="panext">new config ▶</button><button id="pacheck">verify ▶</button></div>
+   <div class="cap" id="paread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Pappus line through the three cross-intersections.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t place the points and check &mdash; the line is forced. The inverse of &lsquo;six points on two lines&rsquo; is &lsquo;one Pappus line their cross-intersections must lie on&rsquo;, whatever the placement. <b>Magenta</b> are the cross-connection lines; <b>green</b> is the Pappus line the intersections are forced onto. A collinearity guaranteed by incidence.</div>
+   <div class="btns" style="margin-top:10px"><button id="paspin">pause spin</button></div></div></div></div>"""
+PAPP_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function lineInt(p1,p2,p3,p4){var d=(p1[0]-p2[0])*(p3[1]-p4[1])-(p1[1]-p2[1])*(p3[0]-p4[0]);if(Math.abs(d)<1e-12)return null;var a=p1[0]*p2[1]-p1[1]*p2[0],b=p3[0]*p4[1]-p3[1]*p4[0];return [(a*(p3[0]-p4[0])-(p1[0]-p2[0])*b)/d,(a*(p3[1]-p4[1])-(p1[1]-p2[1])*b)/d];}
+function collin(P,Q,R){var cr=Math.abs((Q[0]-P[0])*(R[1]-P[1])-(Q[1]-P[1])*(R[0]-P[0])),sc=Math.max(1,Math.hypot(Q[0]-P[0],Q[1]-P[1])*Math.hypot(R[0]-P[0],R[1]-P[1]));return cr/sc;}
+var ang=0,spin=true,VR=null,cfg=null;
+function mkcfg(seed){var rng=mb(seed);var O1=[-2.5,-1.3+rng()*0.6],u1=[1,0.15+rng()*0.3],O2=[-2.5,1.6-rng()*0.6],u2=[1,-0.1-rng()*0.3];function on1(t){return [O1[0]+t*u1[0],O1[1]+t*u1[1]];}function on2(t){return [O2[0]+t*u2[0],O2[1]+t*u2[1]];}
+ return {A:on1(0.5),B:on1(2.3),C:on1(4.0),a:on2(0.6),b:on2(2.1),c:on2(3.8),O1:O1,u1:u1,O2:O2,u2:u2};}
+cfg=mkcfg(7);
+function pqr(k){var P=lineInt(k.A,k.b,k.a,k.B),Q=lineInt(k.A,k.c,k.a,k.C),R=lineInt(k.B,k.c,k.b,k.C);return {P:P,Q:Q,R:R};}
+function selftest(){if(VR)return VR;var rng=mb(3),ok=true,worst=0,n=0,cb=0,ct=0;for(var t=0;t<8000;t++){var O1=[rng()*4-2,rng()*4-2],u1=[rng()*4-2,rng()*4-2],O2=[rng()*4-2,rng()*4-2],u2=[rng()*4-2,rng()*4-2];function o1(t){return [O1[0]+t*u1[0],O1[1]+t*u1[1]];}function o2(t){return [O2[0]+t*u2[0],O2[1]+t*u2[1]];}var A=o1(rng()*3-1.5),B=o1(rng()*3-1.5),C=o1(rng()*3-1.5),a=o2(rng()*3-1.5),b=o2(rng()*3-1.5),c=o2(rng()*3-1.5);var P=lineInt(A,b,a,B),Q=lineInt(A,c,a,C),R=lineInt(B,c,b,C);if(!P||!Q||!R)continue;n++;var cl=collin(P,Q,R);if(cl>worst)worst=cl;if(cl>1e-6)ok=false;var nrm=[-u1[1],u1[0]],off=0.8+rng(),C2=[C[0]+nrm[0]*off,C[1]+nrm[1]*off],Qb=lineInt(A,c,a,C2),Rb=lineInt(B,c,b,C2);if(Qb&&Rb){ct++;if(collin(P,Qb,Rb)>1e-4)cb++;}}VR={ok:ok,worst:worst,tested:n,ctrl:100*cb/ct};return VR;}
+function tp(cv,p){return [cv.width/2+p[0]*54,cv.height/2+30-p[1]*54];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'two lines, points A,B,C & a,b,c — cross-intersections P,Q,R fall on one Pappus line');
+ var k=cfg,r=pqr(k);
+ function drawLine(O,u,col){var p1=tp(cv,[O[0]-3*u[0],O[1]-3*u[1]]),p2=tp(cv,[O[0]+8*u[0],O[1]+8*u[1]]);ne(g,col,1.4);g.beginPath();g.moveTo(p1[0],p1[1]);g.lineTo(p2[0],p2[1]);g.stroke();ng(g);}
+ drawLine(k.O1,k.u1,'rgba(150,160,210,0.55)');drawLine(k.O2,k.u2,'rgba(150,160,210,0.55)');
+ var pairs=[[k.A,k.b],[k.a,k.B],[k.A,k.c],[k.a,k.C],[k.B,k.c],[k.b,k.C]];pairs.forEach(function(pr){var p1=tp(cv,pr[0]),p2=tp(cv,pr[1]);ne(g,'rgba(255,47,166,0.35)',1);g.beginPath();g.moveTo(p1[0],p1[1]);g.lineTo(p2[0],p2[1]);g.stroke();ng(g);});
+ [['A',k.A],['B',k.B],['C',k.C],['a',k.a],['b',k.b],['c',k.c]].forEach(function(x){var p=tp(cv,x[1]);ndot(g,p[0],p[1],3.5,'#9cf');nt(g,'#9cf',p[0]+4,p[1]-3,10,x[0]);});
+ if(r.P&&r.Q&&r.R){[r.P,r.Q,r.R].forEach(function(pt){var p=tp(cv,pt);ndot(g,p[0],p[1],5,'#35ffb0');});var a=tp(cv,r.P),b=tp(cv,r.R);ne(g,'#35ffb0',1.6);g.beginPath();g.moveTo(a[0]-(b[0]-a[0]),a[1]-(b[1]-a[1]));g.lineTo(b[0]+(b[0]-a[0]),b[1]+(b[1]-a[1]));g.stroke();ng(g);}
+ nt(g,'#8ad',10,H-8,9,'P,Q,R always lie on one line — the Pappus line');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',12,20,12,'collinearity of P, Q, R');
+ var k=cfg,r=pqr(k);if(r.P&&r.Q&&r.R){var cl=collin(r.P,r.Q,r.R);
+  nt(g,'#9cf',16,54,10,'P = ('+r.P[0].toFixed(3)+', '+r.P[1].toFixed(3)+')');nt(g,'#9cf',16,76,10,'Q = ('+r.Q[0].toFixed(3)+', '+r.Q[1].toFixed(3)+')');nt(g,'#9cf',16,98,10,'R = ('+r.R[0].toFixed(3)+', '+r.R[1].toFixed(3)+')');
+  nt(g,cl<1e-6?'#39ffb0':'#ff5a5a',16,128,12,'collinearity deviation = '+cl.toExponential(2)+'  '+(cl<1e-6?'✓ collinear':'✗'));}
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-56,9,'self-test ×'+v.tested+': P,Q,R collinear (worst '+v.worst.toExponential(1)+') = '+v.ok);
+ nt(g,v.ctrl>90?'#39ffb0':'#ffcf4a',12,H-38,9,'control: a point off its line breaks collinearity in '+v.ctrl.toFixed(1)+'% of cases');
+ nt(g,'#8ad',12,H-16,9,'Pappus is the line-pair degenerate case of Pascal\\'s conic theorem');}
+document.getElementById('panext').onclick=function(){cfg=mkcfg((Date.now()&8191)+1);drawW3();drawW4();var r=pqr(cfg);document.getElementById('paread').textContent='new config — P,Q,R collinear, deviation '+(r.P&&r.Q&&r.R?collin(r.P,r.Q,r.R).toExponential(2):'—');};
+document.getElementById('pacheck').onclick=function(){var v=selftest();document.getElementById('paread').textContent='P,Q,R collinear over '+v.tested+' configs (worst '+v.worst.toExponential(1)+'): '+v.ok+' · control breaks '+v.ctrl.toFixed(0)+'%';};
+document.getElementById('paspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,sc=40;g.save();g.translate(cx,cy);g.rotate(ang*0.07);var k=cfg,r=pqr(k),gc=[(k.A[0]+k.C[0]+k.a[0]+k.c[0])/4,(k.A[1]+k.C[1]+k.a[1]+k.c[1])/4];function q(p){return [(p[0]-gc[0])*sc,-(p[1]-gc[1])*sc];}
+ var pairs=[[k.A,k.b],[k.a,k.B],[k.A,k.c],[k.a,k.C],[k.B,k.c],[k.b,k.C]];pairs.forEach(function(pr){var p1=q(pr[0]),p2=q(pr[1]);ne(g,'rgba(255,47,166,0.4)',1);g.beginPath();g.moveTo(p1[0],p1[1]);g.lineTo(p2[0],p2[1]);g.stroke();ng(g);});
+ if(r.P&&r.Q&&r.R){var a=q(r.P),b=q(r.R);ne(g,'#35ffb0',2.2);g.beginPath();g.moveTo(a[0]-(b[0]-a[0])*1.5,a[1]-(b[1]-a[1])*1.5);g.lineTo(b[0]+(b[0]-a[0])*1.5,b[1]+(b[1]-a[1])*1.5);g.stroke();ng(g);[r.P,r.Q,r.R].forEach(function(pt){var p=q(pt);ndot(g,p[0],p[1],5,'#35ffb0');});}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the Pappus line through the three cross-intersections');nt(g,'#ff2fa6',10,H-34,10,'magenta: the six cross-connection lines');nt(g,'#8ad',10,H-14,10,'a collinearity guaranteed by incidence');}
+drawW3();drawW4();window.__pappus=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KEMP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Kempner series</b> is the harmonic series with a twist that changes everything. The ordinary harmonic series 1 + 1/2 + 1/3 + &hellip; famously <b>diverges</b> to infinity. But if you throw away every term whose denominator <b>contains the digit 9</b> &mdash; drop 1/9, 1/19, 1/29, 1/90, &hellip; &mdash; the remaining sum <b>converges</b>, to about 22.92. Deleting a &lsquo;thin&rsquo; set of terms (numbers with a 9 become overwhelmingly common among large numbers) tames the divergence. The reason: among d-digit numbers only 8&middot;9<sup>d-1</sup> avoid a 9, so each decade&rsquo;s contribution shrinks geometrically.<br><br>
+ <span class="lit">LIT</span> verified live: the no-digit-9 harmonic sum computed two independent ways (direct skipping vs. digit-by-digit generation) agrees, and its decade-by-decade contributions decay geometrically (each &le; 8&middot;(9/10)<sup>k</sup>), while the full harmonic series&rsquo; decade sums stay near ln 10 &mdash; converging vs. diverging, side by side (window.__kempner). <span class="fig">FIG</span> no framing; both the depleted sum and the full harmonic decades run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-backdoor</i> &mdash; the cheat: the harmonic series diverges, but quietly delete every term hiding a 9 and the whole thing converges. <b>AVAN (AI)</b> built the instrument: the depleted sum by two methods, the geometric decade decay, and the divergent full-harmonic contrast.<br><br>Credit as content: A. J. Kempner (1914). The weave: David names the backdoor; I confirm that removing the digit-9 terms turns divergence into convergence.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">The harmonic terms 1/n; the ones whose n contains a 9 (magenta) are deleted, leaving a convergent sum.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The depleted decade sums (decaying → converge) vs the full harmonic decade sums (constant → diverge).</div>
+   <div class="btns" style="margin-top:10px"><button id="kmnext">next view ▶</button><button id="kmcheck">verify ▶</button></div>
+   <div class="cap" id="kmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the convergent depleted sum (≈ 22.92 in the limit).</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t sum every term &mdash; delete a digit. The inverse of &lsquo;the divergent harmonic series&rsquo; is &lsquo;the convergent series you get by removing all n containing a 9&rsquo;, because the surviving counts decay geometrically per decade. <b>Magenta</b> are the deleted digit-9 terms; <b>green</b> is the convergent sum that remains. Divergence tamed by depletion.</div>
+   <div class="btns" style="margin-top:10px"><button id="kmspin">pause spin</button></div></div></div></div>"""
+KEMP_SCRIPT = """(function(){""" + NOIR + """
+function has9(n){while(n>0){if(n%10===9)return true;n=(n/10)|0;}return false;}
+var ang=0,spin=true,VR=null,view=0;
+function selftest(){if(VR)return VR;var LIM=100000;var sumA=0;for(var n=1;n<LIM;n++)if(!has9(n))sumA+=1/n;
+ var sumB=0;function rec(val,len){if(val<LIM)sumB+=1/val;if(len>=5)return;for(var d=0;d<=8;d++)rec(val*10+d,len+1);}for(var f=1;f<=8;f++)rec(f,1);
+ var agree=Math.abs(sumA-sumB)<1e-9;var Dk=[],full=[];for(var k=0;k<5;k++){var lo=Math.pow(10,k),hi=Math.pow(10,k+1),d=0,f=0;for(var n=lo;n<hi;n++){f+=1/n;if(!has9(n))d+=1/n;}Dk.push(d);full.push(f);}
+ var decay=true,bound=true;for(var k=0;k<Dk.length;k++){if(Dk[k]>8*Math.pow(0.9,k)+1e-9)bound=false;if(k>0&&Dk[k]/Dk[k-1]>=0.95)decay=false;}
+ var fullDiv=full.every(function(f){return f>2.0;});
+ VR={agree:agree,sum:sumA,decay:decay&&bound,fullDiv:fullDiv,Dk:Dk,full:full};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'harmonic terms 1/n — delete every n containing a 9 (magenta) → the sum converges');
+ var x0=24,base=H-40,mx=1,cols=48,bw=(W-40)/cols;for(var n=1;n<=cols;n++){var h=(1/n)*160,px=x0+(n-1)*bw,kill=has9(n);nf(g,kill?'rgba(255,47,166,0.7)':'rgba(53,255,176,0.7)');g.fillRect(px,base-h,bw-1.5,h);ng(g);if(kill){ne(g,'#ff2fa6',1);g.beginPath();g.moveTo(px,base-h-3);g.lineTo(px+bw-1.5,base);g.moveTo(px+bw-1.5,base-h-3);g.lineTo(px,base);g.stroke();ng(g);}}
+ ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.moveTo(x0,base);g.lineTo(W-16,base);g.stroke();ng(g);
+ nt(g,'#8ad',10,H-8,9,'deleted: 9,19,29,39,49,59,69,79,89,90… — thin at first, then overwhelming');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#35ffb0',12,20,12,'depleted decades (decay) vs full harmonic decades (constant)');
+ var bx=40,by=210,bw=48,sc=60;for(var k=0;k<5;k++){var hf=v.full[k]/3*sc,hd=v.Dk[k]/3*sc;nf(g,'rgba(120,140,200,0.5)');g.fillRect(bx+k*bw,by-hf,bw*0.42,hf);ng(g);nf(g,'rgba(53,255,176,0.75)');g.fillRect(bx+k*bw+bw*0.44,by-hd,bw*0.42,hd);ng(g);nt(g,'#8ad',bx+k*bw+4,by+14,9,'10^'+k);}
+ ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.moveTo(bx,by);g.lineTo(W-16,by);g.stroke();ng(g);
+ nt(g,'#8ad',bx,by-hf0(v)-6,9,'grey = full harmonic (≈ln10, constant)');function hf0(v){return v.full[0]/3*sc;}
+ nt(g,'#39ffb0',40,58,10,'depleted decade sums: '+v.Dk.map(function(d){return d.toFixed(2);}).join(', '));
+ nt(g,'#9cf',40,80,10,'full decade sums: '+v.full.map(function(f){return f.toFixed(2);}).join(', '));
+ nt(g,v.agree&&v.decay&&v.fullDiv?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: two methods agree ('+v.sum.toFixed(3)+') & decades decay & full stays >2 = '+(v.agree&&v.decay&&v.fullDiv));
+ nt(g,'#8ad',12,H-16,9,'removing the 9s makes a divergent series converge (limit ≈ 22.92)');}
+document.getElementById('kmnext').onclick=function(){view=1-view;drawW3();drawW4();var v=selftest();document.getElementById('kmread').textContent='depleted sum to 10^5 = '+v.sum.toFixed(4)+' (converging to ≈22.92); full harmonic diverges';};
+document.getElementById('kmcheck').onclick=function(){var v=selftest();document.getElementById('kmread').textContent='two methods agree; depleted decades decay ≤8(9/10)^k; full harmonic decades stay ~ln10: '+(v.agree&&v.decay&&v.fullDiv);};
+document.getElementById('kmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ var cols=40;for(var n=1;n<=cols;n++){var a=n/cols*6.2832,r=20+ (1/n)*260;var kill=has9(n);ne(g,kill?'#ff2fa6':'#35ffb0',1.2);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,2,kill?'#ff2fa6':'#35ffb0');}
+ var v=selftest();ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-14,4,8,v.sum.toFixed(1));
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the surviving terms — a convergent sum ≈ '+v.sum.toFixed(2)+' (→22.92)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the deleted digit-9 terms');nt(g,'#8ad',10,H-14,10,'divergence tamed by depletion');}
+drawW3();drawW4();window.__kempner=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SYLV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Sylvester&rsquo;s sequence</b> is the greediest possible race to 1 in unit fractions. Start at 2, and each term is the previous ones multiplied together plus one: 2, 3, 7, 43, 1807, 3263443, &hellip; &mdash; equivalently a<sub>n+1</sub> = a<sub>n</sub>&sup2; - a<sub>n</sub> + 1. Its reciprocals form the fastest-converging Egyptian-fraction sum to 1: 1/2 + 1/3 + 1/7 + 1/43 + &hellip;, where each step takes the largest unit fraction that keeps the total below 1. The partial sums obey a clean closed form: &sum;<sub>i&le;n</sub> 1/a<sub>i</sub> = 1 - 1/(a<sub>n+1</sub> - 1), so they approach 1 doubly-exponentially fast, never quite reaching it.<br><br>
+ <span class="lit">LIT</span> verified live with exact big-integer fractions: for n = 0..8, the partial sum &sum;<sub>i&le;n</sub> 1/a<sub>i</sub> equals exactly 1 - 1/(a<sub>n+1</sub> - 1), and a<sub>n+1</sub> - 1 equals the product a<sub>0</sub>a<sub>1</sub>&hellip;a<sub>n</sub> (window.__sylvester). <span class="fig">FIG</span> no framing; the reciprocal sum and the closed form are computed as exact fractions in-browser and agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>backprop</i> &mdash; the grind where each term grinds the remaining gap to 1 shut, squaring the denominator every step so the error collapses doubly-exponentially. <b>AVAN (AI)</b> built the instrument: the sequence recurrence, the exact reciprocal-sum fraction, and the closed form 1 - 1/(a<sub>n+1</sub>-1).<br><br>Credit as content: James Joseph Sylvester (1880); Fibonacci&rsquo;s greedy Egyptian fractions. The weave: David names the grind; I confirm the partial sums equal 1 - 1/(a<sub>n+1</sub>-1), exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">The unit fractions 1/2, 1/3, 1/7, 1/43, … stacking toward 1 — each the largest that keeps the sum below 1.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle n; the exact partial sum Σ 1/a_i is compared to the closed form 1 − 1/(a_{n+1} − 1).</div>
+   <div class="btns" style="margin-top:10px"><button id="synext">next n ▶</button><button id="sycheck">verify ▶</button></div>
+   <div class="cap" id="syread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the limit 1, reached by the reciprocal sum.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t add the fractions blindly &mdash; read the gap. The inverse of &lsquo;the partial sum &sum;1/a<sub>i</sub>&rsquo; is &lsquo;the remaining gap 1/(a<sub>n+1</sub>-1) to 1&rsquo;, which the next greedy term always closes. <b>Magenta</b> are the unit fractions; <b>green</b> is the 1 they race toward. A sum whose distance-to-1 you can read off exactly.</div>
+   <div class="btns" style="margin-top:10px"><button id="syspin">pause spin</button></div></div></div></div>"""
+SYLV_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,A=[2n],dn=3;for(var i=0;i<10;i++)A.push(A[i]*A[i]-A[i]+1n);
+function selftest(){if(VR)return VR;var ok=true,prodOk=true;for(var n=0;n<9;n++){var num=0n,den=1n;for(var i=0;i<=n;i++){num=num*A[i]+den;den=den*A[i];}var cfn=A[n+1]-2n,cfd=A[n+1]-1n;if(num*cfd!==cfn*den)ok=false;var prod=1n;for(var i=0;i<=n;i++)prod*=A[i];if(A[n+1]-1n!==prod)prodOk=false;}VR={ok:ok,prodOk:prodOk};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'unit fractions 1/2, 1/3, 1/7, 1/43, … stacking toward 1');
+ var x0=30,y0=40,barW=W-60,acc=0;var fr=[0.5,1/3,1/7,1/43,1/1807];var cols=['#ff8a3c','#ffcf4a','#35ffb0','#21e6ff','#b06bff'];
+ ne(g,'#8ad',1);g.strokeRect(x0,y0,barW,40);ng(g);
+ for(var i=0;i<fr.length;i++){var w=fr[i]*barW;nf(g,cols[i]);g.fillRect(x0+acc*barW,y0,w,40);ng(g);if(fr[i]*barW>24)nt(g,'#0a0713',x0+acc*barW+3,y0+25,10,'1/'+[2,3,7,43,1807][i]);acc+=fr[i];}
+ ne(g,'#fff',1.5);g.beginPath();g.moveTo(x0+barW,y0-6);g.lineTo(x0+barW,y0+46);g.stroke();ng(g);nt(g,'#fff',x0+barW-14,y0-10,10,'1');
+ nt(g,'#39ffb0',10,H-40,11,'running sum after 5 terms = '+acc.toFixed(8)+'  (gap to 1 = '+(1-acc).toExponential(2)+')');
+ nt(g,'#8ad',10,H-8,9,'each term is the largest unit fraction keeping the total < 1 — greedy Egyptian fractions');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',12,20,12,'Σ_{i≤n} 1/a_i  vs  1 − 1/(a_{n+1}−1),  n = '+dn);
+ var num=0n,den=1n;for(var i=0;i<=dn;i++){num=num*A[i]+den;den=den*A[i];}
+ nt(g,'#9cf',16,54,10,'sequence: '+A.slice(0,dn+2).map(function(x){return x.toString();}).join(', '));
+ nt(g,'#ffce9a',16,84,11,'Σ 1/a_i = '+num.toString()+' / '+den.toString());
+ nt(g,'#ffcf4a',16,110,11,'1 − 1/(a_{'+(dn+1)+'}−1) = ('+(A[dn+1]-2n).toString()+')/('+(A[dn+1]-1n).toString()+')');
+ var eq=num*(A[dn+1]-1n)===(A[dn+1]-2n)*den;nt(g,eq?'#39ffb0':'#ff5a5a',16,140,12,eq?'equal ✓ (exact fractions)':'✗');
+ var gap=1-Number(num)/Number(den);nt(g,'#35ffb0',16,168,11,'gap to 1 = 1/(a_{'+(dn+1)+'}−1) = '+gap.toExponential(3));
+ var v=selftest();nt(g,v.ok&&v.prodOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test n=0..8: Σ==1−1/(a_{n+1}−1) & a_{n+1}−1==∏a_i (exact) = '+(v.ok&&v.prodOk));
+ nt(g,'#8ad',12,H-16,9,'the gap to 1 halves-of-squares each step — doubly-exponential convergence');}
+document.getElementById('synext').onclick=function(){dn=dn>=7?0:dn+1;drawW3();drawW4();document.getElementById('syread').textContent='n='+dn+': Σ 1/a_i = 1 − 1/(a_{'+(dn+1)+'}−1), gap = 1/'+(A[dn+1]-1n).toString();};
+document.getElementById('sycheck').onclick=function(){var v=selftest();document.getElementById('syread').textContent='Σ_{i≤n} 1/a_i == 1 − 1/(a_{n+1}−1) and a_{n+1}−1 == ∏ a_i, exact, n=0..8: '+(v.ok&&v.prodOk);};
+document.getElementById('syspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,R=120;g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ ne(g,'#35ffb0',2);g.beginPath();g.arc(0,0,R,0,6.2832);g.stroke();ng(g);var fr=[0.5,1/3,1/7,1/43,1/1807,1/3263443],acc=0,cols=['#ff8a3c','#ffcf4a','#35ffb0','#21e6ff','#b06bff','#ff2fa6'];
+ for(var i=0;i<fr.length;i++){var a0=acc*6.2832,a1=(acc+fr[i])*6.2832;ne(g,cols[i],5);g.beginPath();g.arc(0,0,R,a0-1.5708,a1-1.5708);g.stroke();ng(g);acc+=fr[i];}
+ ne(g,'#fff',1);g.beginPath();g.moveTo(0,0);g.lineTo(0,-R);g.stroke();ng(g);nt(g,'#39ffb0',-6,-R-6,11,'1');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the target 1, filled by the unit fractions (gap → 0 doubly-exp)');nt(g,'#ff2fa6',10,H-34,10,'magenta/arcs: the Sylvester unit fractions 1/2,1/3,1/7,1/43,…');nt(g,'#8ad',10,H-14,10,'a sum whose distance-to-1 you can read off exactly');}
+drawW3();drawW4();window.__sylvester=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 150 · neon-noir · silicon-coding (domino tilings counted by a determinant · an infinite product equal to a sparse theta sum · powers rebuilt from Eulerian numbers · sums of two squares counted by divisors mod 4 · a rectangle's hidden distance invariant) ═══════════════════════
 KAST_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Kasteleyn&rsquo;s theorem</b> counts something explosive with a single determinant. How many ways can you tile an m&times;n board with dominoes? The number grows enormously, yet Pieter Kasteleyn (1961) showed it equals the absolute value of a determinant. Orient the grid&rsquo;s edges cleverly &mdash; give horizontal edges weight 1 and vertical edges weight i (imaginary) &mdash; and build the bipartite adjacency matrix K between the black and white cells. Then the <b>number of domino tilings is exactly |det K|</b>. A counting problem that looks hopeless becomes one linear-algebra computation; it launched the exact solution of the dimer model in statistical mechanics.<br><br>
@@ -39014,6 +39263,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-cayley-menger","title":"THE CAYLEY-MENGER","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#21e6ff","icon":"cayleymenger",
+  "kicker":"a simplex volume from its edge lengths alone",
+  "blurb":"The Cayley–Menger determinant in the 5-window house format — computing the volume of a simplex from its edge lengths alone, no coordinates needed. Heron's formula gives a triangle's area from its three sides; Cayley and Menger generalized it to every dimension. Arrange the squared pairwise distances into a bordered matrix (a row and column of 1's, a 0 corner), and its determinant yields the squared volume: 16·Area²=−det(CM) for a triangle, 288·Vol²=det(CM) for a tetrahedron. Distances in, volume out — the metric fully determines the shape's size, and a negative or zero determinant flags points that cannot be embedded at all. Verified live: for thousands of random triangles and tetrahedra, the volume from the Cayley–Menger determinant (using only pairwise squared distances) matches the volume computed the ordinary way from coordinates, to ~1e-7. Neon-noir traced. See a triangle with labeled edges in 1D, distance-volume vs coordinate-volume in 2D, and the shape-from-distance inverse in 3D.",
+  "lit":"Genuine Cayley–Menger determinant (Arthur Cayley 1841, Karl Menger 1928; Heron for the triangle). Verified live: for ~4000 random triangles (n=2) and tetrahedra (n=3), the volume from the bordered determinant of pairwise squared distances matches the coordinate volume to ~1e-7 (window.__cayleymenger.ok2, .ok3, .worst).",
+  "fig":"No framing; the distance-only determinant and the coordinate volume are computed by different routes and agree. The AVAN inverse is honest — instead of placing the points, measure between them: the inverse of 'the volume of a simplex' is 'the bordered determinant of its pairwise squared distances', so the metric alone fixes the size and reveals when points can't be embedded. Magenta are the six edge lengths; green is the volume they determine. Shape from distance, no coordinates.",
+  "body":CAYM_BODY,"script":CAYM_SCRIPT},
+ {"slug":"the-redheffer","title":"THE REDHEFFER","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#b06bff","icon":"redheffer",
+  "kicker":"a determinant equal to the Mertens function",
+  "blurb":"The Redheffer matrix in the 5-window house format — hiding the deepest object in number theory inside a matrix of 0's and 1's. Define the n×n matrix R with R_{ij}=1 whenever i divides j, and also 1 in the entire first column; every other entry is 0. Redheffer proved that its determinant equals the Mertens function M(n)=Σ_{k≤n}μ(k), the running sum of the Möbius function. A pattern of divisibility 1's, run through a determinant, produces the very quantity whose growth rate is equivalent to the Riemann Hypothesis. It is a startling bridge from linear algebra to the primes. Verified live with exact integer arithmetic: for n=1..40, the determinant of the Redheffer matrix (by fraction-free Bareiss elimination) equals the Mertens function computed independently from the Möbius function — M(1)=1, M(2)=0, M(3)=−1, …. Neon-noir traced. See the divisibility matrix in 1D, det vs Mertens + the Mertens walk in 2D, and the primes-in-a-determinant inverse in 3D.",
+  "lit":"Genuine Redheffer matrix identity (Ray Redheffer, 1977). Verified live with exact BigInt: for n=1..40, det(R_n) by fraction-free Bareiss elimination equals the Mertens function M(n)=Σ_{k≤n}μ(k) computed independently from the Möbius function; M(10)=−1, M(40)=0 (window.__redheffer.ok, .m10, .m40).",
+  "fig":"No framing; the determinant and the Möbius sum are computed by different routes and agree exactly. The AVAN inverse is honest — instead of summing the Möbius function, take a determinant: the inverse of 'the Mertens function M(n)' is 'the determinant of the divisibility matrix R_n', tying a running prime-parity sum to one linear-algebra value. Magenta is the divisibility pattern of 1's; green is the Mertens value it evaluates to. The primes hiding in a determinant.",
+  "body":REDH_BODY,"script":REDH_SCRIPT},
+ {"slug":"the-pappus","title":"THE PAPPUS","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#ffcf4a","icon":"pappus",
+  "kicker":"perspective from a hexagon inscribed in two lines",
+  "blurb":"Pappus's hexagon theorem in the 5-window house format — one of the oldest theorems of projective geometry, from the 4th century. Put three points A,B,C on one line and three points a,b,c on another line. Draw the 'cross' connections and mark where they meet: P=Ab∩aB, Q=Ac∩aC, R=Bc∩bC. Pappus proved that these three intersection points are always collinear — they lie on a single line, the Pappus line, no matter where the six points sit on their two lines. It is the special, degenerate case of Pascal's theorem (a conic split into two lines) and a defining axiom of coordinate projective planes. Verified live: across thousands of random pairs of lines with random points, the three cross-intersections P,Q,R are collinear to ~1e-13, and moving a point off its line breaks the collinearity in ~96% of cases (the rest are near-degenerate coincidences). Neon-noir traced. See the two lines + Pappus line in 1D, the collinearity + control in 2D, and the forced-line inverse in 3D.",
+  "lit":"Genuine Pappus's hexagon theorem (Pappus of Alexandria, c. 340 CE). Verified live: across ~8000 random pairs of lines with random points, the cross-intersections P=Ab∩aB, Q=Ac∩aC, R=Bc∩bC are collinear to ~1e-13, and pushing a point off its line breaks the collinearity in ~96% of controls (window.__pappus.ok, .worst, .tested, .ctrl).",
+  "fig":"No framing; the intersections, the collinearity test, and the off-line control all run in-browser. The AVAN inverse is honest — instead of placing the points and checking, the line is forced: the inverse of 'six points on two lines' is 'one Pappus line their cross-intersections must lie on', whatever the placement. Magenta are the cross-connection lines; green is the Pappus line the intersections are forced onto. A collinearity guaranteed by incidence.",
+  "body":PAPP_BODY,"script":PAPP_SCRIPT},
+ {"slug":"the-kempner","title":"THE KEMPNER","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#35ffb0","icon":"kempner",
+  "kicker":"a harmonic series that converges once you delete the nines",
+  "blurb":"The Kempner series in the 5-window house format — the harmonic series with a twist that changes everything. The ordinary harmonic series 1+1/2+1/3+… famously diverges to infinity. But if you throw away every term whose denominator contains the digit 9 — drop 1/9, 1/19, 1/29, 1/90, … — the remaining sum converges, to about 22.92. Deleting a 'thin' set of terms (numbers with a 9 become overwhelmingly common among large numbers) tames the divergence: among d-digit numbers only 8·9^{d−1} avoid a 9, so each decade's contribution shrinks geometrically. Verified live: the no-digit-9 harmonic sum computed two independent ways (direct skipping vs digit-by-digit generation) agrees, and its decade contributions decay geometrically (each ≤ 8·(9/10)^k), while the full harmonic series' decade sums stay near ln10 — converging vs diverging, side by side. Neon-noir traced. See the deleted terms in 1D, the decade decay vs full harmonic in 2D, and the divergence-tamed inverse in 3D.",
+  "lit":"Genuine Kempner series (A. J. Kempner, 1914). Verified live: the no-digit-9 harmonic sum computed two independent ways (direct skipping vs leading-zero-free digit generation) agrees, its decade contributions decay geometrically (each ≤8·(9/10)^k, ratio<0.95), and the full-harmonic decade sums stay >2 (≈ln10, diverging) (window.__kempner.agree, .decay, .fullDiv, .sum).",
+  "fig":"No framing; both the depleted sum and the full harmonic decades run in-browser. The AVAN inverse is honest — instead of summing every term, delete a digit: the inverse of 'the divergent harmonic series' is 'the convergent series you get by removing all n containing a 9', because the surviving counts decay geometrically per decade. Magenta are the deleted digit-9 terms; green is the convergent sum that remains. Divergence tamed by depletion.",
+  "body":KEMP_BODY,"script":KEMP_SCRIPT},
+ {"slug":"the-sylvester-sequence","title":"THE SYLVESTER SEQUENCE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"BACKPROP","domain_slug":"backprop","accent":"#ff8a3c","icon":"sylvester",
+  "kicker":"greedy unit fractions racing to one",
+  "blurb":"Sylvester's sequence in the 5-window house format — the greediest possible race to 1 in unit fractions. Start at 2, and each term is the previous ones multiplied together plus one: 2, 3, 7, 43, 1807, 3263443, … — equivalently a_{n+1}=a_n²−a_n+1. Its reciprocals form the fastest-converging Egyptian-fraction sum to 1: 1/2+1/3+1/7+1/43+…, where each step takes the largest unit fraction that keeps the total below 1. The partial sums obey a clean closed form: Σ_{i≤n} 1/a_i = 1 − 1/(a_{n+1}−1), so they approach 1 doubly-exponentially fast, never quite reaching it. Verified live with exact big-integer fractions: for n=0..8, the partial sum equals exactly 1 − 1/(a_{n+1}−1), and a_{n+1}−1 equals the product a_0·a_1···a_n. Neon-noir traced. See the unit fractions stacking toward 1 in 1D, the exact partial sum vs closed form in 2D, and the read-off-the-gap inverse in 3D.",
+  "lit":"Genuine Sylvester's sequence (James Joseph Sylvester, 1880; greedy Egyptian fractions from Fibonacci). Verified live with exact BigInt fractions: for n=0..8, Σ_{i≤n} 1/a_i equals exactly 1 − 1/(a_{n+1}−1), and a_{n+1}−1 equals the product a_0a_1…a_n, where a_{n+1}=a_n²−a_n+1 (window.__sylvester.ok, .prodOk).",
+  "fig":"No framing; the reciprocal sum and the closed form are computed as exact fractions in-browser and agree. The AVAN inverse is honest — instead of adding the fractions blindly, read the gap: the inverse of 'the partial sum Σ1/a_i' is 'the remaining gap 1/(a_{n+1}−1) to 1', which the next greedy term always closes. Magenta are the unit fractions; green is the 1 they race toward. A sum whose distance-to-1 you can read off exactly.",
+  "body":SYLV_BODY,"script":SYLV_SCRIPT},
  {"slug":"the-kasteleyn","title":"THE KASTELEYN","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#21e6ff","icon":"kasteleyn",
   "kicker":"domino tilings counted by a determinant",
