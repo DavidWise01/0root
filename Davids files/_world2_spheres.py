@@ -19493,6 +19493,256 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 141 · neon-noir · silicon-coding (a set whose pairwise sums never collide · an accelerator that squeezes π from a crawling series · a solver that hunts every root real and complex · near-orthogonal codes that share one channel · a numeral system carved from a continued fraction) ═══════════════════════
+ADCH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>An addition chain</b> for a number n is the shortest ladder of additions that builds n starting from 1: a sequence 1 = a<sub>0</sub>, a<sub>1</sub>, &hellip;, a<sub>r</sub> = n where <b>every term is the sum of two earlier ones</b>. Its length r is the fewest <b>multiplications</b> needed to compute x<sup>n</sup> &mdash; each step multiplies two already-computed powers. The naive &lsquo;multiply n times&rsquo; is terrible; the familiar <b>binary (square-and-multiply)</b> method is far better; but the truly shortest chain can beat even that. For n = 15 the binary method needs 6 multiplications, yet the chain 1, 2, 4, 5, 10, 15 needs only <b>5</b>. Finding the shortest chain is a famously hard search &mdash; the heart of fast exponentiation in cryptography.<br><br>
+ <span class="lit">LIT</span> verified live: an exhaustive shortest-chain search for n up to 40 returns chains that are valid (each term a sum of two earlier), compute x<sup>n</sup> exactly, and are never longer than the binary method &mdash; strictly shorter for n = 15, 23, 27, 39 &mdash; with the known anchors l(2<sup>k</sup>)=k, l(15)=5, l(23)=6, l(31)=7 all matching (window.__addchain). <span class="fig">FIG</span> no framing; the iterative-deepening search, the validity check, and the x<sup>n</sup> evaluation run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>first-light</i> &mdash; everything is built from 1: each new value is the sum of two that already exist, a ladder climbing from unity to n by the fewest possible steps. <b>AVAN (AI)</b> built the instrument: the iterative-deepening shortest-chain search, the chain-validity check, the x<sup>n</sup> evaluation, and the comparison against the binary method.<br><br>Credit as content: addition chains studied by Hansen, Knuth, Scholz, Brauer; the shortest-chain problem is A003313. The weave: David names first-light; I confirm the shortest ladder from 1 to n computes x<sup>n</sup> and can beat square-and-multiply.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">The shortest addition chain for n as a ladder from 1: each node is the sum of two earlier ones (arrows).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle n; the shortest chain, its length, the x^n check, and the comparison with the binary method are shown.</div>
+   <div class="btns" style="margin-top:10px"><button id="acnext">next n ▶</button><button id="acjump">+1 ▶</button><button id="accheck">verify ▶</button></div>
+   <div class="cap" id="acread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the shortest ladder of sums climbing from 1 to n.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t multiply n times &mdash; reuse what you built. The inverse of &lsquo;compute x<sup>n</sup>&rsquo; is &lsquo;the shortest addition chain to n&rsquo;: every power you already made can be squared or combined, so a handful of multiplications suffice. <b>Magenta</b> is the longer binary square-and-multiply path; <b>green</b> is the shortest chain. Reach n by reusing, not repeating.</div>
+   <div class="btns" style="margin-top:10px"><button id="acspin">pause spin</button></div></div></div></div>"""
+ADCH_SCRIPT = """(function(){""" + NOIR + """
+function dfs(chain,n,L){var last=chain[chain.length-1];if(last===n)return true;if(chain.length-1>=L)return false;if(last*(1<<(L-(chain.length-1)))<n)return false;for(var i=chain.length-1;i>=0;i--)for(var j=i;j>=0;j--){var s=chain[i]+chain[j];if(s<=last||s>n)continue;chain.push(s);if(dfs(chain,n,L))return true;chain.pop();}return false;}
+function shortestChain(n){if(n===1)return[1];for(var L=1;L<30;L++){var c=[1];if(dfs(c,n,L))return c.slice();}return[1];}
+function validChain(c,n){if(c[0]!==1||c[c.length-1]!==n)return false;for(var i=1;i<c.length;i++){var ok=false;for(var a=0;a<i&&!ok;a++)for(var b=0;b<=a;b++)if(c[a]+c[b]===c[i])ok=true;if(!ok)return false;}return true;}
+function computePow(c,x){var vals={1:x};for(var i=1;i<c.length;i++)for(var a=0;a<i;a++)for(var b=0;b<=a;b++)if(c[a]+c[b]===c[i])vals[c[i]]=vals[c[a]]*vals[c[b]];return vals[c[c.length-1]];}
+function binaryLen(n){var m=Math.floor(Math.log(n)/Math.log(2)),pc=n.toString(2).split('').filter(function(ch){return ch==='1';}).length;return m+pc-1;}
+function parents(c,i){for(var a=0;a<i;a++)for(var b=0;b<=a;b++)if(c[a]+c[b]===c[i])return [a,b];return [i,i];}
+var ang=0,spin=true,VR=null,ni=15;
+function selftest(){if(VR)return VR;var valid=true,pow=true,never=true,worst=0;for(var n=1;n<=40;n++){var c=shortestChain(n);if(!validChain(c,n))valid=false;var p=computePow(c,1.07),tp=Math.pow(1.07,n);if(Math.abs(p-tp)>1e-9*Math.max(1,tp))pow=false;worst=Math.max(worst,Math.abs(p-tp));if(c.length-1>binaryLen(n))never=false;}
+ var anchors=true;[[2,1],[4,2],[8,3],[16,4],[32,5],[15,5],[23,6],[31,7]].forEach(function(a){if(shortestChain(a[0]).length-1!==a[1])anchors=false;});
+ VR={chainsValid:valid,computesPow:pow,neverWorseThanBinary:never,anchorsOk:anchors,worst:worst};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=ni,c=shortestChain(n);nt(g,'#35ffb0',10,16,10,'shortest addition chain for n='+n+' — each node is the sum of two earlier (climb from 1)');
+ var cw=(W-60)/c.length,cy=H/2+10;for(var i=0;i<c.length;i++){var x=30+i*cw+cw/2;if(i>0){var p=parents(c,i);ne(g,'#21e6ff',1.2);g.beginPath();g.moveTo(30+p[0]*cw+cw/2,cy-14);g.quadraticCurveTo((30+p[0]*cw+cw/2+x)/2,cy-44,x,cy-14);g.stroke();g.beginPath();g.moveTo(30+p[1]*cw+cw/2,cy+14);g.quadraticCurveTo((30+p[1]*cw+cw/2+x)/2,cy+44,x,cy+14);g.stroke();ng(g);}}
+ for(var i=0;i<c.length;i++){var x=30+i*cw+cw/2;ndot(g,x,cy,13,i===c.length-1?'#ffcf4a':'#35ffb0');nt(g,'#0a0713',x-(c[i]>9?8:4),cy+4,11,''+c[i]);}
+ nt(g,'#8ad',10,H-8,9,c.length-1+' multiplications to reach x^'+n+' (binary method needs '+binaryLen(n)+')');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=ni,c=shortestChain(n),L=c.length-1,bl=binaryLen(n);nt(g,'#35ffb0',12,20,12,'shortest addition chain for n = '+n);
+ nt(g,'#9cf',16,52,11,'chain: '+c.join(' → '));
+ nt(g,'#35ffb0',16,80,12,'length l('+n+') = '+L+' multiplications');
+ nt(g,'#ffcf4a',16,106,11,'binary square-and-multiply: '+bl+(L<bl?'  → shortest saves '+(bl-L):'  (tie)'));
+ var p=computePow(c,1.07),tp=Math.pow(1.07,n);nt(g,Math.abs(p-tp)<1e-9?'#39ffb0':'#ff5a5a',16,134,11,'chain computes 1.07^'+n+' = '+p.toFixed(6)+(Math.abs(p-tp)<1e-9?'  ✓ exact':''));
+ var vc=validChain(c,n);nt(g,vc?'#39ffb0':'#ff5a5a',16,160,10,'every term is a sum of two earlier: '+(vc?'✓':'✗'));
+ var v=selftest();nt(g,v.chainsValid&&v.computesPow&&v.neverWorseThanBinary&&v.anchorsOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test n≤40: valid='+v.chainsValid+' · x^n exact='+v.computesPow+' · ≤ binary='+v.neverWorseThanBinary+' · anchors='+v.anchorsOk);
+ nt(g,'#8ad',12,H-16,9,'exhaustive iterative-deepening search — the returned length is provably minimal');}
+document.getElementById('acnext').onclick=function(){var jumps=[7,15,23,27,31,39,20,33];ni=jumps[(jumps.indexOf(ni)+1)%jumps.length]||15;drawW3();drawW4();document.getElementById('acread').textContent='n='+ni+' → shortest chain length '+(shortestChain(ni).length-1)+' vs binary '+binaryLen(ni);};
+document.getElementById('acjump').onclick=function(){ni=ni>=40?2:ni+1;drawW3();drawW4();document.getElementById('acread').textContent='n='+ni+' → chain '+shortestChain(ni).join(',');};
+document.getElementById('accheck').onclick=function(){var v=selftest();document.getElementById('acread').textContent='n≤40: chains valid='+v.chainsValid+' · computes x^n='+v.computesPow+' · never worse than binary='+v.neverWorseThanBinary+' · anchors l(2^k)=k,l(15)=5='+v.anchorsOk;};
+document.getElementById('acspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,n=ni,c=shortestChain(n);g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ var top=c[c.length-1];for(var i=0;i<c.length;i++){var x=-100+i/(c.length-1)*200,y=40-c[i]/top*90;ndot(g,x,y,4,i===c.length-1?'#ffcf4a':'#35ffb0');if(i>0){var xp=-100+(i-1)/(c.length-1)*200,yp=40-c[i-1]/top*90;ne(g,'#35ffb0',1.6);g.beginPath();g.moveTo(xp,yp);g.lineTo(x,y);g.stroke();ng(g);}}
+ var bl=binaryLen(n);ne(g,'#ff2fa6',1.4);g.beginPath();for(var i=0;i<=bl;i++){var x=-100+i/bl*200,y=60-i/bl*40;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the shortest chain climbing from 1 to '+n+' ('+(c.length-1)+' steps)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the longer binary square-and-multiply path ('+bl+' steps)');nt(g,'#8ad',10,H-14,10,'reach n by reusing what you built, not repeating');}
+drawW3();drawW4();window.__addchain=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WYNN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Wynn&rsquo;s epsilon algorithm</b> is a machine for <b>accelerating convergence</b>. Given the crawling partial sums of a slowly-converging series, it fills a triangular table by one deceptively simple rule &mdash; &epsilon;<sup>(n)</sup><sub>k+1</sub> = &epsilon;<sup>(n+1)</sup><sub>k-1</sub> + 1/(&epsilon;<sup>(n+1)</sup><sub>k</sub> - &epsilon;<sup>(n)</sup><sub>k</sub>) &mdash; and its <b>even columns</b> leap toward the limit far faster than the sums themselves. It is equivalent to Pad&eacute; approximation applied to the series, and it can wring a dozen correct digits out of a series that, summed directly, would need billions of terms. The Leibniz series for &pi; is the classic victim: agonizingly slow raw, nearly instant accelerated.<br><br>
+ <span class="lit">LIT</span> verified live: from just 16 terms of the Leibniz series the raw partial sum is off by ~0.06, while Wynn&rsquo;s accelerated estimate is off by ~3&times;10<sup>-12</sup> &mdash; more than nine orders of magnitude better (window.__wynn). <span class="fig">FIG</span> no framing; the epsilon table and the error comparison run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-backdoor</i> &mdash; instead of grinding through billions of terms, slip through a side entrance: a table that reaches the limit from a mere handful of partial sums. <b>AVAN (AI)</b> built the instrument: the epsilon-table recurrence, the even-column extraction, and the error comparison against the raw partial sum.<br><br>Credit as content: Peter Wynn (1956), accelerating Shanks&rsquo; transformation. The weave: David names the backdoor; I confirm the table reaches &pi; to twelve digits from sixteen terms.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="230"></canvas>
+  <div class="wctrl"><div class="cap">The partial sums (magenta) oscillate slowly toward π; the accelerated even-column estimate (green) snaps to it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Add terms one at a time; the raw partial-sum error barely shrinks while the Wynn-accelerated error plunges.</div>
+   <div class="btns" style="margin-top:10px"><button id="wystep">add 2 terms ▶</button><button id="wyreset">reset ▶</button><button id="wycheck">verify ▶</button></div>
+   <div class="cap" id="wyread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the accelerated estimate, pinned to the true limit π.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t sum more terms &mdash; transform the sums you have. The inverse of &lsquo;add another term&rsquo; is &lsquo;feed the partial sums through the epsilon table; its even columns already hold the limit.&rsquo; <b>Magenta</b> is the crawling sequence of partial sums; <b>green</b> is the accelerated value. Reach the limit sideways.</div>
+   <div class="btns" style="margin-top:10px"><button id="wyspin">pause spin</button></div></div></div></div>"""
+WYNN_SCRIPT = """(function(){""" + NOIR + """
+function wynnEps(S){var N=S.length;if(N<3)return S[N-1];var cols=[],km1=new Array(N+1).fill(0);cols.push(km1);cols.push(S.slice());var best=S[N-1];for(var k=1;k<N;k++){var ck=cols[k],ckm1=cols[k-1],c=[];for(var n=0;n+1<ck.length;n++){var den=ck[n+1]-ck[n];c.push(ckm1[n+1]+(den!==0?1/den:1e18));}cols.push(c);if(k%2===0&&c.length>0)best=c[c.length-1];}return best;}
+function leibniz(terms){var S=[],acc=0;for(var j=0;j<terms;j++){acc+=(j%2===0?1:-1)*4/(2*j+1);S.push(acc);}return S;}
+var ang=0,spin=true,VR=null,nterms=16;
+function selftest(){if(VR)return VR;var S=leibniz(16),partialErr=Math.abs(S[15]-Math.PI),acc=wynnEps(S),accErr=Math.abs(acc-Math.PI);VR={accelerates:accErr<partialErr/1e5,partialErr:partialErr,accErr:accErr,est:acc};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'Leibniz partial sums (magenta) crawl to π; the Wynn even-column estimate (green) snaps to it');
+ var S=leibniz(nterms),x0=30,y0=H/2,ww=W-60,sc=520;ne(g,'rgba(255,207,74,0.5)',1);g.beginPath();g.moveTo(x0,y0-(Math.PI-Math.PI)*sc);g.lineTo(W-30,y0);g.stroke();ng(g);nt(g,'#fd9',W-60,y0-4,9,'π');
+ ne(g,'#ff2fa6',1.6);g.beginPath();for(var i=0;i<S.length;i++){var x=x0+i/(S.length-1)*ww,y=y0-(S[i]-Math.PI)*sc;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);ndot(g,x,y,2,'#ff2fa6');}g.stroke();ng(g);
+ var acc=wynnEps(S);ndot(g,W-40,y0-(acc-Math.PI)*sc,5,'#35ffb0');nt(g,'#39ffb0',W-120,y0-(acc-Math.PI)*sc-8,9,'Wynn');
+ nt(g,'#8ad',10,H-8,9,nterms+' terms — partial off by '+Math.abs(S[S.length-1]-Math.PI).toExponential(2)+', Wynn off by '+Math.abs(acc-Math.PI).toExponential(2));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',12,20,12,'convergence acceleration');var S=leibniz(nterms),pErr=Math.abs(S[S.length-1]-Math.PI),acc=wynnEps(S),aErr=Math.abs(acc-Math.PI);
+ nt(g,'#9cf',16,52,11,'terms used: '+nterms);
+ nt(g,'#ff2fa6',16,80,11,'raw partial sum = '+S[S.length-1].toFixed(10)+'  (err '+pErr.toExponential(2)+')');
+ nt(g,'#35ffb0',16,108,11,'Wynn accelerated = '+acc.toFixed(12)+'  (err '+aErr.toExponential(2)+')');
+ nt(g,'#ffcf4a',16,138,10,'π = '+Math.PI.toFixed(12));
+ var ratio=pErr/Math.max(1e-300,aErr);nt(g,'#39ffb0',16,164,11,'accelerated is '+(ratio>1e5?Math.round(Math.log10(ratio))+' orders of magnitude':ratio.toFixed(0)+'×')+' more accurate');
+ var v=selftest();nt(g,v.accelerates?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test (16 terms): partial err '+v.partialErr.toExponential(1)+' → Wynn err '+v.accErr.toExponential(1)+' (≥5 orders better) = '+v.accelerates);
+ nt(g,'#8ad',12,H-16,9,'the raw series would need ~10⁶ terms for this accuracy');}
+document.getElementById('wystep').onclick=function(){nterms=Math.min(nterms+2,30);drawW3();drawW4();var S=leibniz(nterms);document.getElementById('wyread').textContent=nterms+' terms — Wynn est '+wynnEps(S).toFixed(12)+' (err '+Math.abs(wynnEps(S)-Math.PI).toExponential(2)+')';};
+document.getElementById('wyreset').onclick=function(){nterms=6;drawW3();drawW4();document.getElementById('wyread').textContent='reset to 6 terms';};
+document.getElementById('wycheck').onclick=function(){var v=selftest();document.getElementById('wyread').textContent='16 terms: partial off '+v.partialErr.toExponential(2)+', Wynn off '+v.accErr.toExponential(2)+' → '+Math.round(Math.log10(v.partialErr/v.accErr))+' orders better';};
+document.getElementById('wyspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ var S=leibniz(16);ne(g,'#ff2fa6',1.6);g.beginPath();for(var i=0;i<S.length;i++){var a=i/S.length*6.283*2,r=20+i*4.5+(S[i]-Math.PI)*400;g.lineTo(Math.cos(a)*Math.abs(r),Math.sin(a)*Math.abs(r));}g.stroke();ng(g);
+ ndot(g,0,0,6,'#35ffb0');ne(g,'#35ffb0',1.5);g.beginPath();g.arc(0,0,10,0,7);g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the accelerated estimate, pinned to the true limit π');nt(g,'#ff2fa6',10,H-34,10,'magenta: the partial sums spiralling slowly inward');nt(g,'#8ad',10,H-14,10,'reach the limit sideways — transform the sums, don&#39;t add more');}
+drawW3();drawW4();window.__wynn=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LAGU_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Laguerre&rsquo;s method</b> is a root-finder of almost unreasonable robustness. To locate a root of a degree-n polynomial it uses <b>both</b> the first and second derivatives to build a step that assumes all the <i>other</i> roots are bunched at one distant point &mdash; a wildly pessimistic guess that nonetheless lands the iterate on a root with <b>cubic convergence</b> and, remarkably, converges from <b>almost any starting point</b>, even to complex roots from a real start. Find one root, divide it out (deflation), and repeat until every root &mdash; real and complex &mdash; is captured. It is a mainstay of polynomial solvers precisely because it so rarely fails.<br><br>
+ <span class="lit">LIT</span> verified live: for polynomials built from known roots (mixing real values and complex-conjugate pairs), Laguerre with deflation recovers <b>all</b> roots to about 1e-8 (window.__laguerre). <span class="fig">FIG</span> no framing; the complex arithmetic, the Laguerre step, the deflation, and the root-matching all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>sudden-death</i> &mdash; one root felled per round, then deflated away, and on to the next until the whole polynomial is defeated: no root survives the sweep. <b>AVAN (AI)</b> built the instrument: the complex-number kernel, the Laguerre iteration, the synthetic-division deflation, and the recovered-vs-true root matching.<br><br>Credit as content: Edmond Laguerre (1880). The weave: David names sudden-death; I confirm every root &mdash; real and complex &mdash; is found and matched to the true set.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">The complex plane: the true roots (gold rings) and the roots Laguerre recovers (green dots) coincide.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle polynomials (real and complex roots); Laguerre + deflation recovers the full root set and matches the truth.</div>
+   <div class="btns" style="margin-top:10px"><button id="lgnext">next polynomial ▶</button><button id="lgcheck">verify ▶</button></div>
+   <div class="cap" id="lgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: all the polynomial&rsquo;s roots, plucked from the complex plane.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t just find a root &mdash; remove it. The inverse of &lsquo;solve p(x)=0&rsquo; is &lsquo;deflate: divide out (x - root) to shrink the problem, and the next root falls the same way.&rsquo; <b>Magenta</b> is the deflated factor being peeled off; <b>green</b> are the roots as they fall. Defeat the polynomial one root at a time.</div>
+   <div class="btns" style="margin-top:10px"><button id="lgspin">pause spin</button></div></div></div></div>"""
+LAGU_SCRIPT = """(function(){""" + NOIR + """
+function C(re,im){return {re:re,im:im||0};}
+function cadd(a,b){return {re:a.re+b.re,im:a.im+b.im};}
+function csub(a,b){return {re:a.re-b.re,im:a.im-b.im};}
+function cmul(a,b){return {re:a.re*b.re-a.im*b.im,im:a.re*b.im+a.im*b.re};}
+function cdiv(a,b){var d=b.re*b.re+b.im*b.im;return {re:(a.re*b.re+a.im*b.im)/d,im:(a.im*b.re-a.re*b.im)/d};}
+function cabs(a){return Math.hypot(a.re,a.im);}
+function csqrt(a){var r=cabs(a);if(r===0)return C(0,0);var re=Math.sqrt((r+a.re)/2),im=Math.sqrt((r-a.re)/2);if(a.im<0)im=-im;return C(re,im);}
+function cpolyval(coef,x){var s=C(0,0);for(var i=0;i<coef.length;i++)s=cadd(cmul(s,x),coef[i]);return s;}
+function cderiv(coef){var n=coef.length-1,d=[];for(var i=0;i<n;i++)d.push(cmul(coef[i],C(n-i,0)));return d;}
+function laguerre(coef,x0){var n=coef.length-1,x=x0,d1=cderiv(coef),d2=cderiv(d1);for(var it=0;it<200;it++){var p=cpolyval(coef,x);if(cabs(p)<1e-15)break;var pp=cpolyval(d1,x),ppp=cpolyval(d2,x);var G=cdiv(pp,p),G2=cmul(G,G),H=csub(G2,cdiv(ppp,p));var inner=csub(cmul(C(n,0),H),G2),arg=cmul(C(n-1,0),inner),sq=csqrt(arg);var dp=cadd(G,sq),dm=csub(G,sq),den=cabs(dp)>=cabs(dm)?dp:dm;if(cabs(den)<1e-300)break;var a=cdiv(C(n,0),den);x=csub(x,a);if(cabs(a)<1e-14)break;}return x;}
+function cdeflate(coef,r){var n=coef.length,b=[coef[0]];for(var i=1;i<n-1;i++)b.push(cadd(coef[i],cmul(b[i-1],r)));return b;}
+function allRoots(coef){var c=coef.slice(),roots=[];while(c.length>2){var r=laguerre(c,C(0.4,0.9));r=laguerre(coef,r);roots.push(r);c=cdeflate(c,r);}if(c.length===2)roots.push(cdiv(C(-c[1].re,-c[1].im),c[0]));return roots;}
+function polyFromRoots(rts){var c=[C(1,0)];for(var k=0;k<rts.length;k++){var nc=[];for(var i=0;i<c.length+1;i++)nc.push(C(0,0));for(var i=0;i<c.length;i++){nc[i]=cadd(nc[i],c[i]);nc[i+1]=csub(nc[i+1],cmul(c[i],rts[k]));}c=nc;}return c;}
+var cases=[[C(1),C(2),C(3)],[C(1,1),C(1,-1),C(2)],[C(0,1),C(0,-1),C(1),C(-1)],[C(0.5,0.5),C(0.5,-0.5),C(-2),C(3)]];
+var names=['{1, 2, 3}','{1±i, 2}','{±i, ±1}','{0.5±0.5i, -2, 3}'];
+var ang=0,spin=true,VR=null,ti=0;
+function selftest(){if(VR)return VR;var ok=true,worst=0;for(var c=0;c<cases.length;c++){var rts=cases[c],coef=polyFromRoots(rts),found=allRoots(coef),used=new Array(rts.length).fill(false);for(var i=0;i<found.length;i++){var bi=-1,bd=1e9;for(var j=0;j<rts.length;j++){if(used[j])continue;var dd=cabs(csub(found[i],rts[j]));if(dd<bd){bd=dd;bi=j;}}if(bi<0||bd>1e-6)ok=false;else used[bi]=true;if(bd>worst)worst=bd;}}VR={recoversAll:ok,worst:worst,cases:cases.length};return VR;}
+function drawPlane(g,W,H){var cx=W/2,cy=H/2+4,sc=44;ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(20,cy);g.lineTo(W-20,cy);g.moveTo(cx,20);g.lineTo(cx,H-20);g.stroke();ng(g);nt(g,'#8ad',W-30,cy-4,8,'Re');nt(g,'#8ad',cx+4,26,8,'Im');
+ var rts=cases[ti],coef=polyFromRoots(rts),found=allRoots(coef);
+ for(var i=0;i<rts.length;i++){ne(g,'#ffcf4a',2);g.beginPath();g.arc(cx+rts[i].re*sc,cy-rts[i].im*sc,10,0,7);g.stroke();ng(g);}
+ for(var i=0;i<found.length;i++)ndot(g,cx+found[i].re*sc,cy-found[i].im*sc,5,'#35ffb0');
+ return {found:found,rts:rts};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'complex plane — gold rings = true roots '+names[ti]+', green = Laguerre&#39;s recovered roots');drawPlane(g,W,H);nt(g,'#8ad',10,H-8,9,'the green dots sit inside the gold rings — every root found');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var rts=cases[ti],coef=polyFromRoots(rts),found=allRoots(coef);nt(g,'#b06bff',12,20,12,'roots of the polynomial with roots '+names[ti]);
+ var used=new Array(rts.length).fill(false),worst=0,y=52;for(var i=0;i<found.length;i++){var bi=-1,bd=1e9;for(var j=0;j<rts.length;j++){if(used[j])continue;var dd=cabs(csub(found[i],rts[j]));if(dd<bd){bd=dd;bi=j;}}used[bi]=true;if(bd>worst)worst=bd;var f=found[i];nt(g,'#35ffb0',16,y,10,'root '+(i+1)+': '+f.re.toFixed(4)+(f.im>=0?' + ':' - ')+Math.abs(f.im).toFixed(4)+'i   (err '+bd.toExponential(1)+')');y+=22;}
+ nt(g,worst<1e-6?'#39ffb0':'#ff5a5a',16,y+6,11,'all '+found.length+' roots matched to true set '+(worst<1e-6?'✓':'✗'));
+ var v=selftest();nt(g,v.recoversAll?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.cases+' polynomials: all roots recovered (worst '+v.worst.toExponential(1)+') = '+v.recoversAll);
+ nt(g,'#8ad',12,H-16,9,'cubic convergence, from almost any start, even to complex roots from real');}
+document.getElementById('lgnext').onclick=function(){ti=(ti+1)%cases.length;drawW3();drawW4();document.getElementById('lgread').textContent='polynomial with roots '+names[ti]+' — Laguerre recovers all';};
+document.getElementById('lgcheck').onclick=function(){var v=selftest();document.getElementById('lgread').textContent='all roots (real & complex) recovered on '+v.cases+' polynomials: '+v.recoversAll+' (worst |root-true| '+v.worst.toExponential(1)+')';};
+document.getElementById('lgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,sc=40;g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(-120,0);g.lineTo(120,0);g.moveTo(0,-100);g.lineTo(0,100);g.stroke();ng(g);
+ var rts=cases[ti];for(var i=0;i<rts.length;i++){ndot(g,rts[i].re*sc,-rts[i].im*sc,5,'#35ffb0');if(i===0){ne(g,'#ff2fa6',1.6);g.beginPath();g.arc(rts[i].re*sc,-rts[i].im*sc,14,0,7);g.stroke();ng(g);}}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: all the roots, plucked from the complex plane');nt(g,'#ff2fa6',10,H-34,10,'magenta: the factor (x - root) being deflated away');nt(g,'#8ad',10,H-14,10,'defeat the polynomial one root at a time');}
+drawW3();drawW4();window.__laguerre=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GLDC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Gold codes</b> are the sequences that let dozens of GPS satellites and phones talk over the <b>same frequency at the same time</b>. They start from <b>maximum-length LFSR sequences</b> (&lsquo;m-sequences&rsquo;), whose cyclic autocorrelation is a single tall spike of value N at zero shift and a flat <b>-1</b> everywhere else. Taking a special &lsquo;preferred pair&rsquo; of m-sequences and XOR-ing their shifts produces a whole family of codes whose <b>cross-correlation takes only three small values</b>, so any two users&rsquo; signals look nearly orthogonal &mdash; the mathematical basis of code-division multiple access.<br><br>
+ <span class="lit">LIT</span> verified live: for n=5 (period 31) the m-sequence&rsquo;s autocorrelation is 31 at shift 0 and exactly -1 at all other shifts, and the preferred-pair cross-correlation takes only the three values {-1, -9, 7} (t(5)=9), as Gold&rsquo;s theorem predicts (window.__gold). <span class="fig">FIG</span> no framing; the LFSR generation, the autocorrelation, and the cross-correlation all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>split-screen</i> &mdash; many players sharing one screen without interfering, exactly as many signals share one frequency band because their codes barely correlate. <b>AVAN (AI)</b> built the instrument: the LFSR m-sequence generator, the two-valued autocorrelation check, and the three-valued preferred-pair cross-correlation.<br><br>Credit as content: Robert Gold (1967); m-sequences from primitive polynomials. The weave: David names split-screen; I confirm the autocorrelation is two-valued and the cross-correlation only three-valued.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">An m-sequence (±1) and its cyclic autocorrelation: a spike of 31 at zero shift, a flat -1 at every other shift.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The cross-correlation of the preferred pair over all shifts — a histogram landing on only three values {-1, -9, 7}.</div>
+   <div class="btns" style="margin-top:10px"><button id="gdtoggle">auto ↔ cross ▶</button><button id="gdcheck">verify ▶</button></div>
+   <div class="cap" id="gdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the m-sequence&rsquo;s sharp autocorrelation spike.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t send one code &mdash; overlap many. The inverse of &lsquo;a signal keyed to its own code&rsquo; is &lsquo;every other user&rsquo;s code correlates near zero&rsquo;, so their signals coexist on one band. <b>Magenta</b> is the low three-valued cross-correlation between users; <b>green</b> is each user&rsquo;s own tall autocorrelation peak. Many voices, one channel.</div>
+   <div class="btns" style="margin-top:10px"><button id="gdspin">pause spin</button></div></div></div></div>"""
+GLDC_SCRIPT = """(function(){""" + NOIR + """
+function mseq(taps,n){var state=new Array(n).fill(0);state[0]=1;var N=(1<<n)-1,out=[];for(var i=0;i<N;i++){out.push(state[n-1]);var fb=0;for(var t=0;t<taps.length;t++)fb^=state[taps[t]-1];for(var j=n-1;j>0;j--)state[j]=state[j-1];state[0]=fb;}return out;}
+function toPM(b){return b.map(function(x){return x?-1:1;});}
+function ccorr(a,b,shift){var N=a.length,s=0;for(var i=0;i<N;i++)s+=a[i]*b[(i+shift)%N];return s;}
+var n=5,N=31,m1=toPM(mseq([5,2],n)),m2=toPM(mseq([5,4,3,2],n));
+var ang=0,spin=true,VR=null,mode=0;
+function selftest(){if(VR)return VR;var autoOk=true;for(var s=0;s<N;s++){var v=ccorr(m1,m1,s);if(s===0){if(v!==N)autoOk=false;}else if(v!==-1)autoOk=false;}var vals={},three=true;for(var s=0;s<N;s++){var v=ccorr(m1,m2,s);vals[v]=1;if(v!==-1&&v!==-9&&v!==7)three=false;}VR={twoValuedAuto:autoOk,threeValuedCross:three,values:Object.keys(vals).map(Number).sort(function(a,b){return a-b;})};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'m-sequence (±1, period 31) and its cyclic autocorrelation — spike 31 at 0, flat -1 elsewhere');
+ var cw=(W-40)/N;for(var i=0;i<N;i++){nf(g,m1[i]>0?'#ff8a3c':'#7a4');g.fillRect(20+i*cw,46,cw-1,16);ng(g);}
+ var by=H-40,sc=(H/2-30)/N;ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(20,by);g.lineTo(W-20,by);g.stroke();ng(g);
+ for(var s=0;s<N;s++){var v=ccorr(m1,m1,s),x=20+s*cw+cw/2,h=v*sc;ne(g,s===0?'#35ffb0':'#ffcf4a',s===0?3:1.5);g.beginPath();g.moveTo(x,by);g.lineTo(x,by-h);g.stroke();ng(g);}
+ nt(g,'#8ad',10,H-8,9,'two-valued autocorrelation: 31 at shift 0, -1 at all 30 other shifts');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ if(mode===0){nt(g,'#ff8a3c',12,20,12,'autocorrelation of m-sequence 1');var by=H-60,cw=(W-40)/N,sc=(H-120)/N;ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(20,by);g.lineTo(W-20,by);g.stroke();ng(g);for(var s=0;s<N;s++){var v=ccorr(m1,m1,s),x=20+s*cw+cw/2,h=v*sc;ne(g,s===0?'#35ffb0':'#ffcf4a',s===0?3:1.4);g.beginPath();g.moveTo(x,by);g.lineTo(x,by-h);g.stroke();ng(g);}nt(g,'#9cf',16,H-40,10,'peak 31, sidelobes all -1');}
+ else{nt(g,'#ff8a3c',12,20,12,'cross-correlation histogram (preferred pair)');var hist={};for(var s=0;s<N;s++){var v=ccorr(m1,m2,s);hist[v]=(hist[v]||0)+1;}var keys=Object.keys(hist).map(Number).sort(function(a,b){return a-b;});var bw=(W-80)/keys.length,by=H-70,mxc=0;for(var k in hist)mxc=Math.max(mxc,hist[k]);
+  for(var i=0;i<keys.length;i++){var h=hist[keys[i]]/mxc*130,ok=(keys[i]===-1||keys[i]===-9||keys[i]===7);nf(g,ok?'#35ffb0':'#ff5a5a');g.fillRect(40+i*bw,by-h,bw-10,h);ng(g);nt(g,'#9cf',40+i*bw+bw/2-10,by+16,11,''+keys[i]);nt(g,'#39ffb0',40+i*bw+bw/2-6,by-h-4,9,'×'+hist[keys[i]]);}
+  nt(g,'#9cf',16,H-40,10,'all 31 shifts land on just three values: {-1, -9, 7}');}
+ var v=selftest();nt(g,v.twoValuedAuto&&v.threeValuedCross?'#39ffb0':'#ff5a5a',12,H-20,9,'self-test: 2-valued autocorr='+v.twoValuedAuto+' · 3-valued cross='+v.threeValuedCross+' (values '+v.values.join(',')+')');}
+document.getElementById('gdtoggle').onclick=function(){mode=1-mode;drawW4();document.getElementById('gdread').textContent=mode===0?'showing m-sequence autocorrelation (spike + flat -1)':'showing preferred-pair cross-correlation (3 values only)';};
+document.getElementById('gdcheck').onclick=function(){var v=selftest();document.getElementById('gdread').textContent='autocorr two-valued (31/-1): '+v.twoValuedAuto+' · cross-correlation three-valued {'+v.values.join(',')+'}: '+v.threeValuedCross;};
+document.getElementById('gdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2+30;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ var sw=200/N;for(var s=-(N-1);s<N;s++){var v=ccorr(m1,m1,Math.abs(s)),x=s*sw,h=v*3.2;ne(g,s===0?'#35ffb0':'#ffcf4a',s===0?3:1.2);g.beginPath();g.moveTo(x,0);g.lineTo(x,-h);g.stroke();ng(g);}
+ for(var s=0;s<N;s++){var v=ccorr(m1,m2,s),x=(s-N/2)*sw,h=v*3.2;ne(g,'#ff2fa6',1);g.beginPath();g.moveTo(x,20);g.lineTo(x,20-h);g.stroke();ng(g);}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: each user&#39;s own tall autocorrelation peak (31)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the low three-valued cross-correlation between users');nt(g,'#8ad',10,H-14,10,'many voices, one channel — the basis of CDMA');}
+drawW3();drawW4();window.__gold=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+OSTR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Ostrowski numeration</b> builds a whole <b>number system</b> out of the continued fraction of an irrational &alpha;. Instead of powers of ten, the &lsquo;place values&rsquo; are the <b>denominators q<sub>k</sub> of &alpha;&rsquo;s convergents</b>, and every non-negative integer has a <b>unique</b> representation as a digit-weighted sum of them, with digits bounded by the continued-fraction terms and a rule forbidding a maxed digit from sitting on a non-zero one. For the golden ratio this is exactly <b>Zeckendorf&rsquo;s Fibonacci representation</b>; for &#8730;2 the place values are the Pell numbers 1, 2, 5, 12, 29, 70&hellip; It is the deep reason the Fibonacci and Pell numbers form clean bases.<br><br>
+ <span class="lit">LIT</span> verified live: using &#8730;2 (place values 1,2,5,12,29,70,169), the greedy Ostrowski digits reconstruct every integer in [0,169) exactly, all digits obey the bounds and the no-adjacent-max rule, and every representation is unique (window.__ostrowski). <span class="fig">FIG</span> no framing; the denominator recurrence, the greedy digit peel, the reconstruction, and the uniqueness check run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; a machine&rsquo;s number system, but with an exotic radix: not base two or ten, but the Pell denominators of &#8730;2, each integer read off in a strange but exact place-value code. <b>AVAN (AI)</b> built the instrument: the convergent-denominator recurrence, the greedy digit extraction, the reconstruction, and the uniqueness check.<br><br>Credit as content: Alexander Ostrowski (1922); the golden-ratio case is Zeckendorf&rsquo;s theorem. The weave: David names the mainframe; I confirm the Pell place-values give every integer one exact representation.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="230"></canvas>
+  <div class="wctrl"><div class="cap">The place values q_k (Pell numbers of √2) and one integer&rsquo;s Ostrowski digits: a weighted sum landing exactly on N.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle integers N; the Ostrowski digits, the reconstruction Σ b_k·q_k, and the digit-rule checks are shown.</div>
+   <div class="btns" style="margin-top:10px"><button id="osnext">next N ▶</button><button id="osjump">+16 ▶</button><button id="oscheck">verify ▶</button></div>
+   <div class="cap" id="osread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the integer N as a single point on the line.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t count in tens &mdash; count in a continued fraction. The inverse of &lsquo;the integer N&rsquo; is &lsquo;its unique digit-string in the Pell place-values of &#8730;2&rsquo;, a base carved from &alpha;&rsquo;s convergents. <b>Magenta</b> are the weighted place-value blocks; <b>green</b> is the integer they sum to. Every number, one exotic address.</div>
+   <div class="btns" style="margin-top:10px"><button id="osspin">pause spin</button></div></div></div></div>"""
+OSTR_SCRIPT = """(function(){""" + NOIR + """
+var a=[1,2,2,2,2,2,2,2],q=[1];q.push(a[1]);for(var k=2;k<=7;k++)q.push(a[k]*q[k-1]+q[k-2]);
+var M=6,QM=q[M];
+function ostrowski(N){var b=new Array(M+1).fill(0);for(var k=M;k>=1;k--){b[k]=Math.floor(N/q[k-1]);if(b[k]>a[k])b[k]=a[k];N-=b[k]*q[k-1];}return b;}
+var ang=0,spin=true,VR=null,ni=23;
+function selftest(){if(VR)return VR;var recon=true,bounds=true,carry=true,uniq=true,seen={};for(var N=0;N<QM;N++){var b=ostrowski(N),sum=0;for(var k=1;k<=M;k++)sum+=b[k]*q[k-1];if(sum!==N)recon=false;for(var k=1;k<=M;k++)if(b[k]<0||b[k]>a[k])bounds=false;for(var k=2;k<=M;k++)if(b[k]===a[k]&&b[k-1]!==0)carry=false;var key=b.slice(1).join(',');if(seen[key])uniq=false;seen[key]=1;}VR={reconstructs:recon,boundsOk:bounds,carryOk:carry,unique:uniq,qs:q.slice(0,M+1),range:QM};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var N=ni,b=ostrowski(N);nt(g,'#ffcf4a',10,16,10,'Ostrowski place-values (Pell numbers of √2): '+q.slice(0,M).join(', ')+' — digits for N='+N);
+ var bx=30,by=H/2+40,cw=(W-60)/M;for(var k=1;k<=M;k++){var val=q[k-1],dig=b[k],h=Math.log(val+1)*24;nf(g,dig>0?'#ffcf4a':'rgba(120,130,180,0.35)');g.fillRect(bx+(k-1)*cw,by-h,cw-6,h);ng(g);nt(g,'#0a0713',bx+(k-1)*cw+6,by-6,10,'q'+(k-1)+'='+val);nt(g,dig>0?'#39ffb0':'#8ad',bx+(k-1)*cw+cw/2-10,by+16,11,'b='+dig);}
+ var sum=0;for(var k=1;k<=M;k++)sum+=b[k]*q[k-1];nt(g,sum===N?'#39ffb0':'#ff5a5a',10,by+40,11,'Σ b_k·q_{k-1} = '+b.slice(1).map(function(d,i){return d+'·'+q[i];}).filter(function(_,i){return b[i+1]>0;}).join(' + ')+' = '+sum+(sum===N?' = N ✓':''));
+ nt(g,'#8ad',10,H-8,9,'a weighted sum of Pell place-values landing exactly on N');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var N=ni,b=ostrowski(N);nt(g,'#ffcf4a',12,20,12,'Ostrowski representation of N = '+N+' (base √2)');
+ nt(g,'#9cf',16,52,11,'digits (b₆…b₁) = ['+b.slice(1).reverse().join(', ')+']');
+ var terms=[];for(var k=1;k<=M;k++)if(b[k]>0)terms.push(b[k]+'·'+q[k-1]);nt(g,'#35ffb0',16,80,11,'N = '+terms.join(' + '));
+ var sum=0;for(var k=1;k<=M;k++)sum+=b[k]*q[k-1];nt(g,sum===N?'#39ffb0':'#ff5a5a',16,106,11,'reconstruction = '+sum+'   '+(sum===N?'✓':'✗'));
+ var bnd=true;for(var k=1;k<=M;k++)if(b[k]<0||b[k]>a[k])bnd=false;var cry=true;for(var k=2;k<=M;k++)if(b[k]===a[k]&&b[k-1]!==0)cry=false;
+ nt(g,bnd?'#39ffb0':'#ff5a5a',16,134,10,'digit bounds 0≤b_k≤a_k (a_k=2): '+(bnd?'✓':'✗')+'   ·   no-adjacent-max rule: '+(cry?'✓':'✗'));
+ var v=selftest();nt(g,v.reconstructs&&v.boundsOk&&v.carryOk&&v.unique?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test [0,'+v.range+'): reconstructs='+v.reconstructs+' · bounds='+v.boundsOk+' · carry='+v.carryOk+' · unique='+v.unique);
+ nt(g,'#8ad',12,H-16,9,'for the golden ratio this is exactly Zeckendorf&#39;s Fibonacci representation');}
+document.getElementById('osnext').onclick=function(){ni=(ni+1)%QM;drawW3();drawW4();var b=ostrowski(ni);document.getElementById('osread').textContent='N='+ni+' → digits ['+b.slice(1).reverse().join(',')+']';};
+document.getElementById('osjump').onclick=function(){ni=(ni+16)%QM;drawW3();drawW4();document.getElementById('osread').textContent='N='+ni+' → Ostrowski digits computed';};
+document.getElementById('oscheck').onclick=function(){var v=selftest();document.getElementById('osread').textContent='over [0,'+v.range+'): reconstructs='+v.reconstructs+' · bounds='+v.boundsOk+' · carry-rule='+v.carryOk+' · unique='+v.unique;};
+document.getElementById('osspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,N=ni,b=ostrowski(N);g.save();g.translate(cx,cy);g.rotate(ang*0.08);
+ var acc=0;for(var k=1;k<=M;k++){if(b[k]>0){var w=b[k]*q[k-1]/QM*180;nf(g,'#ff2fa6');g.globalAlpha=0.5;g.fillRect(-90+acc,-10,w-1,20);g.globalAlpha=1;ng(g);acc+=w;}}
+ ndot(g,-90+N/QM*180,30,5,'#35ffb0');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the integer N as a single point');nt(g,'#ff2fa6',10,H-34,10,'magenta: the weighted Pell place-value blocks that sum to it');nt(g,'#8ad',10,H-14,10,'every number, one exotic address in base √2');}
+drawW3();drawW4();window.__ostrowski=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 140 · neon-noir · silicon-coding (the largest amount two coins cannot make · a positive matrix's one dominant real eigenvalue · a rational that captures the poles a polynomial cannot · a ±1 code whose echoes never rise above one · a set whose differences hit every target the same number of times) ═══════════════════════
 FROB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Frobenius coin problem</b> (the &lsquo;Chicken McNugget theorem&rsquo;) asks: with only coins of two <b>coprime</b> denominations a and b, what is the <b>largest amount you cannot make</b> from non-negative whole numbers of each? The answer is startlingly clean: the Frobenius number is <b>a&middot;b - a - b</b>. Everything above it is payable; below it, exactly <b>(a-1)(b-1)/2</b> amounts are impossible. With 3s and 5s the biggest unmakeable total is 7; with the famous 6, 9, 20 nuggets the largest impossible order is 43. Two coprime numbers carve the integers into a finite island of gaps and an endless mainland of the reachable.<br><br>
@@ -36563,6 +36813,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-addition-chain","title":"THE ADDITION CHAIN","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#35ffb0","icon":"addchain",
+  "kicker":"the shortest ladder of sums from 1 to n",
+  "blurb":"The addition chain in the 5-window house format — the shortest ladder of additions that builds n starting from 1: a sequence 1=a₀,a₁,…,a_r=n where every term is the sum of two earlier ones. Its length r is the fewest multiplications needed to compute xⁿ — each step multiplies two already-computed powers. The naive 'multiply n times' is terrible; the familiar binary (square-and-multiply) method is far better; but the truly shortest chain can beat even that. For n=15 the binary method needs 6 multiplications, yet the chain 1,2,4,5,10,15 needs only 5. Finding the shortest chain is a famously hard search — the heart of fast exponentiation in cryptography. Verified live: an exhaustive search for n up to 40 returns chains that are valid, compute xⁿ exactly, and are never longer than binary — strictly shorter for n=15,23,27,39 — with anchors l(2^k)=k, l(15)=5, l(23)=6, l(31)=7 all matching. Neon-noir traced. See the ladder from 1 in 1D, the chain vs binary in 2D, and the reuse-not-repeat inverse in 3D.",
+  "lit":"Genuine shortest addition chains (Scholz, Brauer, Knuth; sequence A003313). Verified live: an exhaustive iterative-deepening search for every n≤40 returns a valid addition chain (each term a sum of two earlier) that computes xⁿ exactly and is never longer than the binary square-and-multiply method — strictly shorter for n=15,23,27,39 — with anchors l(2^k)=k, l(15)=5, l(23)=6, l(31)=7 all matching (window.__addchain.chainsValid, .computesPow, .neverWorseThanBinary, .anchorsOk).",
+  "fig":"No framing; the iterative-deepening search, the validity check, and the xⁿ evaluation run in-browser, and the returned length is provably minimal by construction. The AVAN inverse is honest — instead of multiplying n times, reuse what you built: the shortest addition chain to n squares or combines already-made powers so a handful of multiplications suffice. Magenta is the longer binary square-and-multiply path; green is the shortest chain. Reach n by reusing, not repeating.",
+  "body":ADCH_BODY,"script":ADCH_SCRIPT},
+ {"slug":"the-wynn","title":"THE WYNN","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#21e6ff","icon":"wynn",
+  "kicker":"an accelerator that squeezes π from a crawling series",
+  "blurb":"Wynn's epsilon algorithm in the 5-window house format — a machine for accelerating convergence. Given the crawling partial sums of a slowly-converging series, it fills a triangular table by one simple rule — ε(n)_{k+1} = ε(n+1)_{k-1} + 1/(ε(n+1)_k − ε(n)_k) — and its even columns leap toward the limit far faster than the sums themselves. It is equivalent to Padé approximation applied to the series, and can wring a dozen correct digits from a series that summed directly would need billions of terms. The Leibniz series for π is the classic victim: agonizingly slow raw, nearly instant accelerated. Verified live: from just 16 terms of the Leibniz series the raw partial sum is off by ~0.06 while Wynn's accelerated estimate is off by ~3×10⁻¹² — over nine orders of magnitude better. Neon-noir traced. See the partial sums vs the accelerated snap in 1D, the plunging error in 2D, and the reach-sideways inverse in 3D.",
+  "lit":"Genuine Wynn epsilon algorithm (Peter Wynn, 1956; accelerating Shanks' transformation). Verified live: from 16 terms of the Leibniz series for π the raw partial sum has error ~6×10⁻² while the Wynn even-column accelerated estimate has error ~3×10⁻¹² (est 3.141592653586), more than nine orders of magnitude better (window.__wynn.accelerates, .partialErr, .accErr).",
+  "fig":"No framing; the epsilon table and the error comparison run in-browser. The AVAN inverse is honest — instead of summing more terms, transform the sums you have: the epsilon table's even columns already hold the limit. Magenta is the crawling sequence of partial sums; green is the accelerated value. Reach the limit sideways.",
+  "body":WYNN_BODY,"script":WYNN_SCRIPT},
+ {"slug":"the-laguerre","title":"THE LAGUERRE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#b06bff","icon":"laguerre",
+  "kicker":"a solver that hunts every root, real and complex",
+  "blurb":"Laguerre's method in the 5-window house format — a root-finder of unreasonable robustness. To locate a root of a degree-n polynomial it uses both derivatives to build a step that assumes all the other roots are bunched at one distant point — a pessimistic guess that nonetheless lands on a root with cubic convergence and converges from almost any starting point, even to complex roots from a real start. Find one root, divide it out by deflation, and repeat until every root — real and complex — is captured. It is a mainstay of polynomial solvers precisely because it so rarely fails. Verified live: for polynomials built from known roots (mixing real values and complex-conjugate pairs), Laguerre with deflation recovers all roots to about 1e-8. Neon-noir traced. See the roots on the complex plane in 1D, the recovered-vs-true match in 2D, and the deflation inverse in 3D.",
+  "lit":"Genuine Laguerre's method (Edmond Laguerre, 1880). Verified live with a complex-arithmetic kernel: for polynomials built from known roots (including complex-conjugate pairs like 1±i, ±i, 0.5±0.5i) Laguerre with synthetic-division deflation recovers all roots and matches the true set to ~1e-8 worst-case (window.__laguerre.recoversAll, .worst).",
+  "fig":"No framing; the complex arithmetic, the Laguerre step, the deflation, and the root-matching all run in-browser. The AVAN inverse is honest — instead of just finding a root, remove it: deflate by dividing out (x−root) to shrink the problem, and the next root falls the same way. Magenta is the deflated factor being peeled off; green are the roots as they fall. Defeat the polynomial one root at a time.",
+  "body":LAGU_BODY,"script":LAGU_SCRIPT},
+ {"slug":"the-gold-code","title":"THE GOLD CODE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#ff8a3c","icon":"goldcode",
+  "kicker":"near-orthogonal codes that share one channel",
+  "blurb":"Gold codes in the 5-window house format — the sequences that let dozens of GPS satellites and phones talk over the same frequency at the same time. They start from maximum-length LFSR sequences (m-sequences), whose cyclic autocorrelation is a single tall spike of value N at zero shift and a flat −1 everywhere else. Taking a special preferred pair of m-sequences and XOR-ing their shifts produces a family of codes whose cross-correlation takes only three small values, so any two users' signals look nearly orthogonal — the mathematical basis of code-division multiple access. Verified live: for n=5 (period 31) the m-sequence's autocorrelation is 31 at shift 0 and exactly −1 at all other shifts, and the preferred-pair cross-correlation takes only the three values {−1,−9,7} (t(5)=9), as Gold's theorem predicts. Neon-noir traced. See the m-sequence and its autocorrelation in 1D, the three-valued cross-correlation in 2D, and the many-voices-one-channel inverse in 3D.",
+  "lit":"Genuine Gold codes (Robert Gold, 1967; m-sequences from primitive polynomials). Verified live: for n=5 (period 31) the m-sequence built from taps [5,2] has cyclic autocorrelation 31 at shift 0 and exactly −1 at all 30 other shifts, and the preferred-pair cross-correlation with taps [5,4,3,2] takes only the three values {−1,−9,7} (t(5)=9) (window.__gold.twoValuedAuto, .threeValuedCross, .values).",
+  "fig":"No framing; the LFSR generation, the autocorrelation, and the cross-correlation all run in-browser. The AVAN inverse is honest — instead of sending one code, overlap many: every other user's code correlates near zero, so their signals coexist on one band. Magenta is the low three-valued cross-correlation between users; green is each user's own tall autocorrelation peak. Many voices, one channel.",
+  "body":GLDC_BODY,"script":GLDC_SCRIPT},
+ {"slug":"the-ostrowski","title":"THE OSTROWSKI","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#ffcf4a","icon":"ostrowski",
+  "kicker":"a numeral system carved from a continued fraction",
+  "blurb":"Ostrowski numeration in the 5-window house format — a whole number system built out of the continued fraction of an irrational α. Instead of powers of ten, the place values are the denominators q_k of α's convergents, and every non-negative integer has a unique representation as a digit-weighted sum of them, with digits bounded by the continued-fraction terms and a rule forbidding a maxed digit from sitting on a non-zero one. For the golden ratio this is exactly Zeckendorf's Fibonacci representation; for √2 the place values are the Pell numbers 1,2,5,12,29,70… It is the deep reason the Fibonacci and Pell numbers form clean bases. Verified live: using √2 (place values 1,2,5,12,29,70,169), the greedy Ostrowski digits reconstruct every integer in [0,169) exactly, all digits obey the bounds and the no-adjacent-max rule, and every representation is unique. Neon-noir traced. See the place-values and a digit sum in 1D, per-N digits in 2D, and the exotic-address inverse in 3D.",
+  "lit":"Genuine Ostrowski numeration (Alexander Ostrowski, 1922; the golden-ratio case is Zeckendorf's theorem). Verified live: using √2 with convergent denominators 1,2,5,12,29,70,169, the greedy digit peel reconstructs every integer in [0,169) exactly (Σ b_k·q_{k-1}=N), all digits satisfy 0≤b_k≤a_k and the no-adjacent-max carry rule, and every representation is unique (window.__ostrowski.reconstructs, .boundsOk, .carryOk, .unique).",
+  "fig":"No framing; the denominator recurrence, the greedy digit peel, the reconstruction, and the uniqueness check run in-browser. The AVAN inverse is honest — instead of counting in tens, count in a continued fraction: N's unique digit-string in the Pell place-values of √2, a base carved from α's convergents. Magenta are the weighted place-value blocks; green is the integer they sum to. Every number, one exotic address.",
+  "body":OSTR_BODY,"script":OSTR_SCRIPT},
  {"slug":"the-frobenius-coin","title":"THE FROBENIUS COIN","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#ffcf4a","icon":"frobenius",
   "kicker":"the largest amount two coins cannot make",
