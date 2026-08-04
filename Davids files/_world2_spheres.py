@@ -19493,6 +19493,257 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 164 · neon-noir · silicon-coding (the two halves of a repeating decimal summing to nines · a number whose square ends in itself · a Fibonacci determinant pinned at plus or minus one · a faster alternating series for pi · the area of any quadrilateral from its sides and two angles) ═══════════════════════
+MIDY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Midy&rsquo;s theorem</b> is a hidden symmetry inside repeating decimals. Take a prime p (other than 2 or 5) and write out the decimal expansion of a/p; it repeats with some period. When that <b>period is even</b>, say 2k digits, split the repeating block into two halves of k digits each. Midy&rsquo;s theorem says the two halves always <b>sum to a string of nines</b> (10<sup>k</sup> - 1). The classic example: 1/7 = 0.<u>142857</u>&hellip;, and 142 + 857 = 999. It happens for 1/11, 1/13, 1/17, and every prime whose period is even &mdash; a conspiracy of long division discovered by a French schoolteacher in 1836.<br><br>
+ <span class="lit">LIT</span> verified live: for every prime p &le; 200 (excluding 2 and 5) and every numerator a whose repeating block has even period 2k, the two k-digit halves sum to exactly 10<sup>k</sup> - 1 (window.__midy). <span class="fig">FIG</span> no framing; the long division, the period, and the halves&rsquo; sum are all computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>stack-overflow</i> &mdash; the glitch: two halves of an endless repeating string, added, overflow neatly into all nines. <b>AVAN (AI)</b> built the instrument: the long-division block, its period, and the halves-sum-to-nines check.<br><br>Credit as content: E. Midy (French mathematician, 1836). The weave: David names the glitch; I confirm the two halves of an even-period block of a/p sum to 10<sup>k</sup> - 1.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">The repeating block of a/p split into two halves — they line up digit by digit and add to nines.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle primes p; the even-period block halves are checked to sum to 10^k − 1.</div>
+   <div class="btns" style="margin-top:10px"><button id="mdnext">next p ▶</button><button id="mdcheck">verify ▶</button></div>
+   <div class="cap" id="mdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the all-nines sum of the two halves.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t read the repeating block left to right &mdash; fold it in half. The inverse of &lsquo;the period-2k block&rsquo; is &lsquo;two k-digit halves that complete each other to nines&rsquo;. <b>Magenta</b> are the two halves of the block; <b>green</b> is the 10<sup>k</sup>-1 they sum to. A repeating decimal folded onto its own nines-complement.</div>
+   <div class="btns" style="margin-top:10px"><button id="mdspin">pause spin</button></div></div></div></div>"""
+MIDY_SCRIPT = """(function(){""" + NOIR + """
+function isPrime(n){if(n<2)return false;for(var i=2;i*i<=n;i++)if(n%i===0)return false;return true;}
+function repblock(a,p){var digs=[],r=a%p,seen={},i=0;while(seen[r]===undefined&&r!==0){seen[r]=i;r=r*10;digs.push(Math.floor(r/p));r=r%p;i++;}var s=seen[r];return digs.slice(s);}
+var ang=0,spin=true,VR=null,dp=7,da=1;
+function selftest(){if(VR)return VR;var ok=true,tested=0;for(var p=3;p<=200;p++){if(!isPrime(p)||p===5)continue;for(var a=1;a<p;a++){var blk=repblock(a,p),L=blk.length;if(L===0||L%2!==0)continue;var k=L/2,first=BigInt(blk.slice(0,k).join('')),second=BigInt(blk.slice(k).join('')),nines=(10n**BigInt(k))-1n;if(first+second!==nines)ok=false;tested++;}}VR={ok:ok,tested:tested};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var blk=repblock(da,dp),L=blk.length,even=(L%2===0);nt(g,'#ffcf4a',10,16,10,da+'/'+dp+' = 0.'+blk.join('')+'…  (period '+L+(even?', even':', ODD — theorem n/a')+')');
+ if(!even){nt(g,'#ff5a5a',10,60,12,'period is odd — Midy needs an even period');return;}
+ var k=L/2,x0=40,sp=Math.min(46,(W-80)/k),y1=90,y2=140;
+ for(var i=0;i<k;i++){var x=x0+i*sp;nt(g,'#ff2fa6',x,y1,20,''+blk[i]);nt(g,'#ff6ab0',x,y2,20,''+blk[k+i]);nt(g,'#35ffb0',x,y2+40,20,'9');}
+ ne(g,'rgba(53,255,176,0.5)',1.5);g.beginPath();g.moveTo(x0-6,y2+10);g.lineTo(x0+k*sp-6,y2+10);g.stroke();ng(g);
+ nt(g,'#8ad',10,y1-24,11,'first half');nt(g,'#8ad',10,y2-14,11,'+ second half');nt(g,'#8ad',10,y2+30,11,'= '+((10n**BigInt(k))-1n).toString());
+ nt(g,'#8ad',10,H-8,9,'the two halves are nines-complements of each other');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var blk=repblock(da,dp),L=blk.length;nt(g,'#ffcf4a',12,20,12,'Midy: '+da+'/'+dp+', period '+L);
+ if(L%2!==0){nt(g,'#ff5a5a',16,56,12,'period '+L+' is odd — theorem does not apply');nt(g,'#8ad',16,84,11,'try another p (e.g. 7, 11, 13, 17, 19)');}
+ else{var k=L/2,first=BigInt(blk.slice(0,k).join('')),second=BigInt(blk.slice(k).join('')),nines=(10n**BigInt(k))-1n;
+  nt(g,'#ff2fa6',16,56,13,'first half  = '+first.toString());
+  nt(g,'#ff6ab0',16,84,13,'second half = '+second.toString());
+  nt(g,'#35ffb0',16,114,13,'sum = '+(first+second).toString());
+  nt(g,first+second===nines?'#39ffb0':'#ff5a5a',16,142,13,first+second===nines?'= 10^'+k+' − 1 (all nines) ✓':'✗');}
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test '+v.tested+' cases (p≤200, even period): halves sum to nines = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'discovered by E. Midy, 1836 — a long-division conspiracy');}
+document.getElementById('mdnext').onclick=function(){var ps=[7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,73,101];dp=ps[(ps.indexOf(dp)+1)%ps.length];da=1;drawW3();drawW4();var blk=repblock(da,dp);document.getElementById('mdread').textContent=da+'/'+dp+' = 0.'+blk.join('')+'…, period '+blk.length;};
+document.getElementById('mdcheck').onclick=function(){var v=selftest();document.getElementById('mdread').textContent='halves of even-period blocks sum to nines ('+v.tested+' cases, p≤200): '+v.ok;};
+document.getElementById('mdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var blk=repblock(da,dp),L=blk.length,cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.04);
+ if(L%2===0){var k=L/2,R=110;for(var i=0;i<k;i++){var a1=2*Math.PI*i/k-Math.PI/2,a2=2*Math.PI*(i)/k-Math.PI/2;var x1=Math.cos(a1)*R,y1=Math.sin(a1)*R,x2=Math.cos(a2)*(R*0.6),y2=Math.sin(a2)*(R*0.6);
+  ndot(g,x1,y1,6,'#ff2fa6');nt(g,'#0a0713',x1-4,y1+4,10,''+blk[i]);ndot(g,x2,y2,6,'#ff6ab0');nt(g,'#0a0713',x2-4,y2+4,9,''+blk[k+i]);
+  ne(g,'rgba(53,255,176,0.4)',1);g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke();ng(g);nt(g,'#35ffb0',(x1+x2)/2-4,(y1+y2)/2,10,'9');}}
+ ndot(g,0,0,9,'#35ffb0');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: each opposing pair of digits sums to 9');nt(g,'#ff2fa6',10,H-34,10,'magenta: the two halves of the repeating block');nt(g,'#8ad',10,H-14,10,'a repeating decimal folded onto its own nines-complement');}
+drawW3();drawW4();window.__midy=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ATMO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Automorphic numbers</b> are numbers whose square <b>ends in the number itself</b>. 5&sup2; = 2<u>5</u>, 6&sup2; = 3<u>6</u>, 25&sup2; = 6<u>25</u>, 76&sup2; = 57<u>76</u>, 376&sup2; = 141<u>376</u>, 625&sup2; = 390<u>625</u>, 9376&sup2; = 8790<u>9376</u>. For each number of digits d there are exactly two nontrivial ones &mdash; one ending in 5, one ending in 6 &mdash; and they always <b>add up to 10<sup>d</sup> + 1</b> (25 + 76 = 101; 625 + 376 = 1001). They are the nontrivial <b>idempotents</b> of arithmetic mod 10<sup>d</sup> (solutions of x&sup2; &equiv; x), built by the Chinese Remainder Theorem from the split 10<sup>d</sup> = 2<sup>d</sup>&middot;5<sup>d</sup>. Extended leftward forever they become the two nonzero <b>10-adic idempotents</b>.<br><br>
+ <span class="lit">LIT</span> verified live: the two nontrivial idempotents mod 10<sup>d</sup> (for d = 1 to 12) each satisfy x&sup2; &equiv; x, end in 5 and 6, and sum to 10<sup>d</sup> + 1; the known 5, 6, 25, 76, 376, 625, 9376, 90625 are all confirmed automorphic (window.__automorphic). <span class="fig">FIG</span> no framing; the idempotents are constructed by CRT and squared, all in-browser with exact BigInt.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-root-kit</i> &mdash; the cheat: a number that reproduces itself in the tail of its own square, a self-installing fixed point. <b>AVAN (AI)</b> built the instrument: the CRT idempotents, the square-ends-in-itself check, and the 10<sup>d</sup>+1 pairing.<br><br>Credit as content: the classical theory of idempotents in Z/10<sup>d</sup> and the 10-adic integers. The weave: David names the self-reproducing cheat; I confirm x&sup2; &equiv; x mod 10<sup>d</sup> for the two nontrivial idempotents.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">A number and its square, with the shared trailing digits highlighted — the square ends in the number.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Grow the digit-length d; the two automorphic numbers are shown, each x²≡x, summing to 10^d+1.</div>
+   <div class="btns" style="margin-top:10px"><button id="aunext">more digits ▶</button><button id="aucheck">verify ▶</button></div>
+   <div class="cap" id="auread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the number reappearing in the tail of its own square.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t square and read forward &mdash; look for the fixed point of squaring. The inverse of &lsquo;x&rsquo; is &lsquo;the idempotent x&sup2; &equiv; x that grows one digit at a time&rsquo;, and its partner completing it to 10<sup>d</sup>+1. <b>Magenta</b> are the two idempotents; <b>green</b> is the tail where the square reproduces the number. A number that is its own square&rsquo;s ending.</div>
+   <div class="btns" style="margin-top:10px"><button id="auspin">pause spin</button></div></div></div></div>"""
+ATMO_SCRIPT = """(function(){""" + NOIR + """
+function egcd(a,b){if(b===0n)return [a,1n,0n];var r=egcd(b,a%b);return [r[0],r[2],r[1]-(a/b)*r[2]];}
+function modinv(a,m){var r=egcd((a%m+m)%m,m);return (r[1]%m+m)%m;}
+function crt(r1,m1,r2,m2){var M=m1*m2,inv=modinv(m1%m2,m2),x=(r1+m1*(((r2-r1)%m2+m2)%m2)%M*inv)%M;return ((x%M)+M)%M;}
+function idems(d){var m1=2n**BigInt(d),m2=5n**BigInt(d);return [crt(1n,m1,0n,m2),crt(0n,m1,1n,m2)];} // [ends in 5, ends in 6]
+var ang=0,spin=true,VR=null,dd=3;
+function selftest(){if(VR)return VR;var ok=true;for(var d=1;d<=12;d++){var M=10n**BigInt(d),I=idems(d),B=I[0],A=I[1];if((A*A)%M!==A)ok=false;if((B*B)%M!==B)ok=false;if(A+B!==M+1n)ok=false;}var known=[5n,6n,25n,76n,376n,625n,9376n,90625n],kok=known.every(function(n){var L=n.toString().length,M=10n**BigInt(L);return (n*n)%M===n;});VR={ok:ok,kok:kok};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var I=idems(dd),n=I[0],sq=n*n,ns=n.toString(),ss=sq.toString();nt(g,'#35ffb0',10,16,10,'automorphic: '+ns+'² = '+ss+' — ends in '+ns);
+ var sp=30,x0=W-40-ss.length*sp;nt(g,'#9cf',10,70,14,ns+'² =');
+ for(var i=0;i<ss.length;i++){var tail=(i>=ss.length-ns.length);nt(g,tail?'#35ffb0':'#c9a6ff',x0+i*sp,70,24,ss[i]);}
+ nt(g,'#ff2fa6',x0+(ss.length-ns.length)*sp,110,14,'└ '+ns+' (the number itself)');
+ var I2=idems(dd),other=I2[1];nt(g,'#8ad',10,170,12,'partner ending in 6: '+other.toString()+'   ('+n.toString()+' + '+other.toString()+' = '+(n+other).toString()+' = 10^'+dd+'+1)');
+ nt(g,'#8ad',10,H-8,9,'x² ≡ x (mod 10^'+dd+'): an idempotent — a fixed point of squaring');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var I=idems(dd),B=I[0],A=I[1],M=10n**BigInt(dd);nt(g,'#35ffb0',12,20,12,'automorphic numbers with '+dd+' digit(s)');
+ nt(g,'#ff2fa6',16,54,13,'x = '+B.toString()+'  (ends in 5)');
+ nt(g,'#9cf',30,80,11,'x² = '+(B*B).toString()+' → ends in '+((B*B)%M).toString());
+ nt(g,'#ff6ab0',16,110,13,'x = '+A.toString()+'  (ends in 6)');
+ nt(g,'#9cf',30,136,11,'x² = '+(A*A).toString()+' → ends in '+((A*A)%M).toString());
+ nt(g,A+B===M+1n?'#39ffb0':'#ff5a5a',16,166,12,B.toString()+' + '+A.toString()+' = '+(A+B).toString()+' = 10^'+dd+'+1 ✓');
+ var v=selftest();nt(g,v.ok&&v.kok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test d=1..12: both idempotents x²≡x & sum 10^d+1 = '+v.ok+' · known list = '+v.kok);
+ nt(g,'#8ad',12,H-16,9,'grown leftward forever → the two 10-adic idempotents');}
+document.getElementById('aunext').onclick=function(){dd=dd>=10?1:dd+1;drawW3();drawW4();var I=idems(dd);document.getElementById('auread').textContent='d='+dd+': '+I[0].toString()+' and '+I[1].toString()+' (both x²≡x mod 10^'+dd+')';};
+document.getElementById('aucheck').onclick=function(){var v=selftest();document.getElementById('auread').textContent='idempotents x²≡x mod 10^d, sum 10^d+1 (d=1..12): '+v.ok+' · known automorphics: '+v.kok;};
+document.getElementById('auspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var I=idems(dd),n=I[0],sq=n*n,ns=n.toString(),ss=sq.toString(),cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.04);
+ var R=120,digs=ss.length;for(var i=0;i<digs;i++){var a=2*Math.PI*i/digs-Math.PI/2,x=Math.cos(a)*R,y=Math.sin(a)*R,tail=(i>=digs-ns.length);ndot(g,x,y,tail?7:4,tail?'#35ffb0':'#ff2fa6');nt(g,tail?'#39ffb0':'#c9a6ff',x-4,y-10,tail?12:10,ss[i]);}
+ for(var i=0;i<ns.length;i++){var a=2*Math.PI*(digs-ns.length+i)/digs-Math.PI/2,x=Math.cos(a)*(R*0.6),y=Math.sin(a)*(R*0.6);ndot(g,x,y,4,'#ff6ab0');nt(g,'#ff9ad0',x-4,y+4,10,ns[i]);}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the tail of '+ns+'² that reproduces '+ns);nt(g,'#ff2fa6',10,H-34,10,'magenta: the digits of the number and its square');nt(g,'#8ad',10,H-14,10,'a number that is its own square\\'s ending');}
+drawW3();drawW4();window.__automorphic=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CSNI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Cassini&rsquo;s identity</b> pins the Fibonacci numbers to a razor&rsquo;s edge. For every n, F(n-1)&middot;F(n+1) - F(n)&sup2; = (-1)<sup>n</sup>. The product of the neighbours of F(n) misses F(n)&sup2; by exactly <b>one</b>, alternating sign forever. It is the determinant of the Fibonacci matrix: [[1,1],[1,0]]<sup>n</sup> = [[F(n+1), F(n)],[F(n), F(n-1)]], whose determinant is (-1)<sup>n</sup> because det[[1,1],[1,0]] = -1. The generalization, <b>Catalan&rsquo;s identity</b>, reads F(n)&sup2; - F(n-r)F(n+r) = (-1)<sup>n-r</sup>F(r)&sup2;. This near-miss is the secret behind the &lsquo;missing square&rsquo; dissection puzzle, where an 8&times;8 square seems to rearrange into a 5&times;13 rectangle &mdash; off by one unit of area.<br><br>
+ <span class="lit">LIT</span> verified live with exact BigInt: F(n-1)F(n+1) - F(n)&sup2; = (-1)<sup>n</sup> for n = 1 to 100, and Catalan&rsquo;s F(n)&sup2; - F(n-r)F(n+r) = (-1)<sup>n-r</sup>F(r)&sup2; for a range of n, r (window.__cassini). <span class="fig">FIG</span> no framing; the Fibonacci numbers and both identities are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>event-horizon</i> &mdash; the respawn: however far the Fibonacci numbers run out, the determinant is pulled back to +1 or -1, never anything else. <b>AVAN (AI)</b> built the instrument: the exact Fibonacci sequence, Cassini&rsquo;s identity, the matrix-determinant view, and Catalan&rsquo;s generalization.<br><br>Credit as content: Jean-Dominique Cassini (1680); Eugène Catalan (generalization). The weave: David names the pinned determinant; I confirm F(n-1)F(n+1) - F(n)&sup2; = (-1)<sup>n</sup>.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Three consecutive Fibonacci numbers: the product of the outer two vs the square of the middle — off by ±1.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle n; F(n−1)F(n+1) − F(n)² is checked to equal (−1)^n, and the matrix determinant confirms it.</div>
+   <div class="btns" style="margin-top:10px"><button id="canext">next n ▶</button><button id="cacheck">verify ▶</button></div>
+   <div class="cap" id="caread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the determinant, forever pinned at +1 or −1.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t compute the Fibonacci product directly &mdash; read it as a determinant. The inverse of &lsquo;F(n-1)F(n+1) - F(n)&sup2;&rsquo; is &lsquo;det of the n-th power of [[1,1],[1,0]], which is (-1)<sup>n</sup>&rsquo;. <b>Magenta</b> are the three consecutive Fibonacci numbers; <b>green</b> is the &plusmn;1 they are pinned to. A runaway sequence held to a unit determinant.</div>
+   <div class="btns" style="margin-top:10px"><button id="caspin">pause spin</button></div></div></div></div>"""
+CSNI_SCRIPT = """(function(){""" + NOIR + """
+function fibs(N){var F=[0n,1n];for(var i=2;i<=N;i++)F.push(F[i-1]+F[i-2]);return F;}
+var ang=0,spin=true,VR=null,F=fibs(160),dn=8;
+function matpow(n){var m=[[1n,1n],[1n,0n]],r=[[1n,0n],[0n,1n]];while(n>0){if(n&1)r=[[r[0][0]*m[0][0]+r[0][1]*m[1][0],r[0][0]*m[0][1]+r[0][1]*m[1][1]],[r[1][0]*m[0][0]+r[1][1]*m[1][0],r[1][0]*m[0][1]+r[1][1]*m[1][1]]];m=[[m[0][0]*m[0][0]+m[0][1]*m[1][0],m[0][0]*m[0][1]+m[0][1]*m[1][1]],[m[1][0]*m[0][0]+m[1][1]*m[1][0],m[1][0]*m[0][1]+m[1][1]*m[1][1]]];n=Math.floor(n/2);}return r;}
+function selftest(){if(VR)return VR;var ok=true,catOk=true;for(var n=1;n<=100;n++){var lhs=F[n-1]*F[n+1]-F[n]*F[n],rhs=(n%2===0?1n:-1n);if(lhs!==rhs)ok=false;}for(var n=5;n<=40;n++)for(var r=1;r<=4;r++){var lhs=F[n]*F[n]-F[n-r]*F[n+r],rhs=((n-r)%2===0?1n:-1n)*F[r]*F[r];if(lhs!==rhs)catOk=false;}VR={ok:ok,catOk:catOk};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var sign=(dn%2===0?1n:-1n);nt(g,'#b06bff',10,16,10,'Cassini: F('+(dn-1)+')·F('+(dn+1)+') − F('+dn+')² = (−1)^'+dn+' = '+sign.toString());
+ nt(g,'#ff2fa6',16,64,14,'F('+(dn-1)+') = '+F[dn-1].toString()+'   F('+dn+') = '+F[dn].toString()+'   F('+(dn+1)+') = '+F[dn+1].toString());
+ nt(g,'#9cf',16,110,13,F[dn-1].toString()+' × '+F[dn+1].toString()+' = '+(F[dn-1]*F[dn+1]).toString());
+ nt(g,'#9cf',16,138,13,F[dn].toString()+'² = '+(F[dn]*F[dn]).toString());
+ nt(g,'#35ffb0',16,168,14,'difference = '+(F[dn-1]*F[dn+1]-F[dn]*F[dn]).toString()+'  (exactly '+sign.toString()+')');
+ nt(g,'#8ad',10,H-8,9,'the neighbours\\' product misses the square by exactly ±1');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var lhs=F[dn-1]*F[dn+1]-F[dn]*F[dn],sign=(dn%2===0?1n:-1n),Mn=matpow(dn),det=Mn[0][0]*Mn[1][1]-Mn[0][1]*Mn[1][0];nt(g,'#b06bff',12,20,12,'Cassini + matrix determinant, n = '+dn);
+ nt(g,'#9cf',16,54,12,'F(n−1)F(n+1) − F(n)² = '+lhs.toString());
+ nt(g,lhs===sign?'#39ffb0':'#ff5a5a',16,82,13,'(−1)^'+dn+' = '+sign.toString()+(lhs===sign?'  ✓':'  ✗'));
+ nt(g,'#c9a6ff',16,120,11,'[[1,1],[1,0]]^'+dn+' = [['+Mn[0][0]+','+Mn[0][1]+'],['+Mn[1][0]+','+Mn[1][1]+']]');
+ nt(g,'#9cf',16,146,11,'= [[F('+(dn+1)+'),F('+dn+')],[F('+dn+'),F('+(dn-1)+')]]');
+ nt(g,det===sign?'#39ffb0':'#ff5a5a',16,174,13,'det = '+det.toString()+' = (−1)^'+dn+' ✓');
+ var v=selftest();nt(g,v.ok&&v.catOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test n=1..100: Cassini = '+v.ok+' · Catalan generalization = '+v.catOk);
+ nt(g,'#8ad',12,H-16,9,'the ±1 behind the 8×8 → 5×13 “missing square” puzzle');}
+document.getElementById('canext').onclick=function(){dn=dn>=40?2:dn+1;drawW3();drawW4();var lhs=F[dn-1]*F[dn+1]-F[dn]*F[dn];document.getElementById('caread').textContent='n='+dn+': F(n−1)F(n+1)−F(n)² = '+lhs.toString()+' = (−1)^'+dn;};
+document.getElementById('cacheck').onclick=function(){var v=selftest();document.getElementById('caread').textContent='Cassini F(n−1)F(n+1)−F(n)²=(−1)^n (n=1..100): '+v.ok+' · Catalan gen: '+v.catOk;};
+document.getElementById('caspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var sign=(dn%2===0?1:-1),cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ var vals=[F[dn-1],F[dn],F[dn+1]],logs=vals.map(function(v){return Math.log(Number(v)+1);}),mx=Math.max.apply(null,logs);
+ for(var i=0;i<3;i++){var a=i*2.094-1.5708,r=40+logs[i]/mx*80;ne(g,'#ff2fa6',1.6);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,5,'#ff2fa6');nt(g,'#c9a6ff',Math.cos(a)*(r+16)-10,Math.sin(a)*(r+16),10,'F'+(dn-1+i));}
+ ne(g,sign>0?'#35ffb0':'#ffcf4a',3);g.beginPath();g.arc(0,0,105,0,sign>0?6.2832:3.14159);g.stroke();ng(g);ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-8,4,11,sign>0?'+1':'−1');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the determinant, pinned at '+(sign>0?'+1':'−1'));nt(g,'#ff2fa6',10,H-34,10,'magenta: F('+(dn-1)+'), F('+dn+'), F('+(dn+1)+') (log-scaled)');nt(g,'#8ad',10,H-14,10,'a runaway sequence held to a unit determinant');}
+drawW3();drawW4();window.__cassini=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NILA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Nilakantha series</b> is a fast, elegant series for &pi;, found by the Kerala-school astronomer Nilakantha Somayaji around 1500 &mdash; three centuries before Europe. It reads &pi; = 3 + 4/(2&middot;3&middot;4) - 4/(4&middot;5&middot;6) + 4/(6&middot;7&middot;8) - &hellip;, each term straddling three consecutive integers, alternating in sign. Unlike the Gregory&ndash;Leibniz series (which needs hundreds of terms for two decimals), Nilakantha&rsquo;s terms shrink like 1/k&sup3;, so a handful of terms already gives several correct digits. It is a jewel of the Kerala school, which anticipated key ideas of calculus.<br><br>
+ <span class="lit">LIT</span> verified live: 3 + &sum;<sub>k&ge;1</sub> (-1)<sup>k+1</sup> 4/((2k)(2k+1)(2k+2)) converges to &pi; (to ~1e-9), and with 100 terms its error (~2e-7) is more than a hundred times smaller than the Gregory&ndash;Leibniz error at the same term count (window.__nilakantha). <span class="fig">FIG</span> no framing; the Nilakantha and Leibniz partial sums are both computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sync</i> &mdash; the co-op: two series for &pi; running side by side, Nilakantha racing ahead of Leibniz to the same limit. <b>AVAN (AI)</b> built the instrument: the Nilakantha partial sums, the Leibniz partial sums, and their error comparison.<br><br>Credit as content: Nilakantha Somayaji (Kerala school, c.1500). The weave: David names the race; I confirm Nilakantha &rarr; &pi; and outruns Leibniz term for term.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">Nilakantha partial sums closing on π far faster than Gregory–Leibniz, term for term.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Add terms; watch Nilakantha's error shrink like 1/k³ while Leibniz crawls like 1/k.</div>
+   <div class="btns" style="margin-top:10px"><button id="nlnext">add terms ▶</button><button id="nlcheck">verify ▶</button></div>
+   <div class="cap" id="nlread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: π, reached quickly by the three-integer-straddling terms.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t sum single odd reciprocals &mdash; straddle three integers at a time. The inverse of &lsquo;the slow Leibniz term 1/(2k+1)&rsquo; is &lsquo;the Nilakantha term 4/((2k)(2k+1)(2k+2)), shrinking like 1/k&sup3;&rsquo;. <b>Magenta</b> are the Nilakantha correction terms; <b>green</b> is the &pi; they reach in a few steps. A faster road to the same &pi;.</div>
+   <div class="btns" style="margin-top:10px"><button id="nlspin">pause spin</button></div></div></div></div>"""
+NILA_SCRIPT = """(function(){""" + NOIR + """
+function nila(N){var s=3;for(var k=1;k<=N;k++){var t=4/((2*k)*(2*k+1)*(2*k+2));s+=(k%2===1?t:-t);}return s;}
+function leib(N){var s=0;for(var k=0;k<N;k++)s+=(k%2?-1:1)/(2*k+1);return 4*s;}
+var ang=0,spin=true,VR=null,terms=5;
+function selftest(){if(VR)return VR;var big=nila(100000),conv=Math.abs(big-Math.PI)<1e-9,nErr=Math.abs(nila(100)-Math.PI),lErr=Math.abs(leib(100)-Math.PI);VR={val:big,conv:conv,faster:nErr<lErr/100,nErr:nErr,lErr:lErr};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'Nilakantha (orange) vs Gregory–Leibniz (magenta) closing on π');
+ var x0=40,mxN=30,sc=(W-60)/mxN,cy=H/2+10,ysc=380;
+ ne(g,'rgba(53,255,176,0.6)',1.4);g.beginPath();g.moveTo(x0,cy);g.lineTo(W-20,cy);g.stroke();ng(g);nt(g,'#39ffb0',W-46,cy-6,10,'π');
+ ne(g,'#ff8a3c',2);g.beginPath();for(var n=1;n<=mxN;n++){var v=nila(n),px=x0+n*sc,py=cy-(v-Math.PI)*ysc;if(n===1)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);
+ ne(g,'rgba(255,47,166,0.7)',1.4);g.beginPath();for(var n=1;n<=mxN;n++){var v=leib(n),px=x0+n*sc,py=cy-(v-Math.PI)*ysc;if(n===1)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);
+ nt(g,'#8ad',10,H-8,9,'Nilakantha hugs π within a few terms; Leibniz still swings wide');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var nv=nila(terms),lv=leib(terms);nt(g,'#ff8a3c',12,20,12,'π by two series, '+terms+' terms');
+ nt(g,'#ff8a3c',16,54,13,'Nilakantha = '+nv.toFixed(9));
+ nt(g,'#ff2fa6',16,82,13,'Leibniz    = '+lv.toFixed(9));
+ nt(g,'#35ffb0',16,110,13,'true π     = '+Math.PI.toFixed(9));
+ nt(g,'#9cf',16,140,11,'Nilakantha error = '+Math.abs(nv-Math.PI).toExponential(2));
+ nt(g,'#9cf',16,162,11,'Leibniz error    = '+Math.abs(lv-Math.PI).toExponential(2));
+ var v=selftest();nt(g,v.conv&&v.faster?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: Nilakantha → π ('+v.conv+') & 100-term error '+v.nErr.toExponential(1)+' ≪ Leibniz '+v.lErr.toExponential(1));
+ nt(g,'#8ad',12,H-16,9,'terms shrink like 1/k³ (Nilakantha) vs 1/k (Leibniz)');}
+document.getElementById('nlnext').onclick=function(){terms=terms>=5000?5:terms*3;drawW3();drawW4();document.getElementById('nlread').textContent=terms+' terms: Nilakantha = '+nila(terms).toFixed(9)+' (error '+Math.abs(nila(terms)-Math.PI).toExponential(2)+')';};
+document.getElementById('nlcheck').onclick=function(){var v=selftest();document.getElementById('nlread').textContent='Nilakantha → π: '+v.conv+' · outruns Leibniz 100:1 at 100 terms: '+v.faster;};
+document.getElementById('nlspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ for(var k=1;k<=12;k++){var term=4/((2*k)*(2*k+1)*(2*k+2)),a=k/12*6.2832,r=30+Math.pow(term,0.33)*260;ne(g,'#ff2fa6',1.3);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,3,k%2?'#ff8a3c':'#ff2fa6');}
+ ne(g,'#35ffb0',2);g.beginPath();g.arc(0,0,110,0,6.2832);g.stroke();ng(g);ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-8,4,9,'π');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: π, reached in a few straddling terms');nt(g,'#ff2fa6',10,H-34,10,'magenta: the Nilakantha terms 4/((2k)(2k+1)(2k+2))');nt(g,'#8ad',10,H-14,10,'a faster road to the same π');}
+drawW3();drawW4();window.__nilakantha=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BRET_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Bretschneider&rsquo;s formula</b> gives the area of <b>any</b> quadrilateral from its four sides and two opposite angles. If a quad has sides a, b, c, d, semiperimeter s = (a+b+c+d)/2, and two opposite interior angles A and C, then Area = &radic;[(s-a)(s-b)(s-c)(s-d) - abcd&middot;cos&sup2;((A+C)/2)]. It is the grand generalization of Heron&rsquo;s formula (triangles) and Brahmagupta&rsquo;s formula (cyclic quadrilaterals): when the quad is cyclic, A + C = 180&deg;, the cosine term vanishes, and it collapses to Brahmagupta&rsquo;s &radic;[(s-a)(s-b)(s-c)(s-d)]. The cosine term is exactly the penalty a quadrilateral pays for not being inscribable in a circle.<br><br>
+ <span class="lit">LIT</span> verified live: for tens of thousands of random convex quadrilaterals, Bretschneider&rsquo;s formula matches the shoelace (surveyor&rsquo;s) area to ~1e-13, and for cyclic quadrilaterals the cosine term is zero so it reduces exactly to Brahmagupta&rsquo;s formula (window.__bretschneider). <span class="fig">FIG</span> no framing; the sides, the two opposite angles, the formula, and the shoelace area are all computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-firewall</i> &mdash; the boss: no quadrilateral gets past without paying the cos&sup2;((A+C)/2) penalty for not being cyclic. <b>AVAN (AI)</b> built the instrument: the side lengths, the two opposite angles, Bretschneider&rsquo;s area, and the shoelace cross-check.<br><br>Credit as content: Carl Anton Bretschneider (1842); Heron and Brahmagupta for the special cases. The weave: David names the penalty; I confirm Area = &radic;[(s-a)(s-b)(s-c)(s-d) - abcd cos&sup2;((A+C)/2)].</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A quadrilateral with its four sides and two opposite angles marked — its area from Bretschneider vs shoelace.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle quadrilaterals; Bretschneider's area is checked against the shoelace area.</div>
+   <div class="btns" style="margin-top:10px"><button id="brnext">next quad ▶</button><button id="brcheck">verify ▶</button></div>
+   <div class="cap" id="brread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the quadrilateral&rsquo;s area, sides plus the cyclic-penalty term.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t need the corners &mdash; sides and two opposite angles suffice. The inverse of &lsquo;the quad&rsquo;s area&rsquo; is &lsquo;Brahmagupta&rsquo;s cyclic area minus the penalty abcd cos&sup2;((A+C)/2)&rsquo;. <b>Magenta</b> is the cyclic-penalty term subtracted; <b>green</b> is the resulting area. Any quadrilateral&rsquo;s area, docked for not being cyclic.</div>
+   <div class="btns" style="margin-top:10px"><button id="brspin">pause spin</button></div></div></div></div>"""
+BRET_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+function iang(p,c,n){var v1=[p[0]-c[0],p[1]-c[1]],v2=[n[0]-c[0],n[1]-c[1]],d=(v1[0]*v2[0]+v1[1]*v2[1])/(Math.hypot(v1[0],v1[1])*Math.hypot(v2[0],v2[1]));return Math.acos(Math.max(-1,Math.min(1,d)));}
+function shoelace(P){var s=0;for(var i=0;i<P.length;i++){var j=(i+1)%P.length;s+=P[i][0]*P[j][1]-P[j][0]*P[i][1];}return Math.abs(s)/2;}
+function convexQuad(seed){var rng=mb(seed);for(var t=0;t<600;t++){var angs=[rng()*6.2832,rng()*6.2832,rng()*6.2832,rng()*6.2832].sort(function(x,y){return x-y;}),okS=true;for(var i=0;i<4;i++){var gp=(angs[(i+1)%4]-angs[i]+6.2832)%6.2832;if(gp<0.4)okS=false;}if(!okS)continue;var rad=angs.map(function(){return 0.7+rng()*1.3;}),P=angs.map(function(a,i){return [Math.cos(a)*rad[i],Math.sin(a)*rad[i]];}),conv=true,sgn=0;for(var i=0;i<4;i++){var u=[P[(i+1)%4][0]-P[i][0],P[(i+1)%4][1]-P[i][1]],v=[P[(i+2)%4][0]-P[(i+1)%4][0],P[(i+2)%4][1]-P[(i+1)%4][1]],cr=u[0]*v[1]-u[1]*v[0];if(i===0)sgn=cr>0?1:-1;else if((cr>0?1:-1)!==sgn)conv=false;}if(conv)return P;}return [[1,0.4],[-0.3,1.2],[-1.1,-0.2],[0.4,-1.1]];}
+var ang=0,spin=true,VR=null,Q=convexQuad(9);
+function bret(P){var a=dist(P[0],P[1]),b=dist(P[1],P[2]),c=dist(P[2],P[3]),d=dist(P[3],P[0]),s=(a+b+c+d)/2,A=iang(P[3],P[0],P[1]),C=iang(P[1],P[2],P[3]),val=(s-a)*(s-b)*(s-c)*(s-d)-a*b*c*d*Math.cos((A+C)/2)*Math.cos((A+C)/2);return {a:a,b:b,c:c,d:d,s:s,A:A,C:C,area:Math.sqrt(Math.max(0,val)),brahm:Math.sqrt(Math.max(0,(s-a)*(s-b)*(s-c)*(s-d))),pen:a*b*c*d*Math.cos((A+C)/2)*Math.cos((A+C)/2)};}
+function selftest(){if(VR)return VR;var rng=mb(5),ok=true,worst=0,n=0;for(var t=0;t<40000;t++){var angs=[rng()*6.2832,rng()*6.2832,rng()*6.2832,rng()*6.2832].sort(function(x,y){return x-y;}),okS=true;for(var i=0;i<4;i++){var gp=(angs[(i+1)%4]-angs[i]+6.2832)%6.2832;if(gp<0.3)okS=false;}if(!okS)continue;var rad=angs.map(function(){return 0.6+rng()*1.4;}),P=angs.map(function(a,i){return [Math.cos(a)*rad[i],Math.sin(a)*rad[i]];}),conv=true,sgn=0;for(var i=0;i<4;i++){var u=[P[(i+1)%4][0]-P[i][0],P[(i+1)%4][1]-P[i][1]],v=[P[(i+2)%4][0]-P[(i+1)%4][0],P[(i+2)%4][1]-P[(i+1)%4][1]],cr=u[0]*v[1]-u[1]*v[0];if(i===0)sgn=cr>0?1:-1;else if((cr>0?1:-1)!==sgn)conv=false;}if(!conv)continue;var e=Math.abs(bret(P).area-shoelace(P));if(e>worst)worst=e;if(e>1e-7)ok=false;n++;}var ca=[0.4,1.6,3.1,4.9],Pc=ca.map(function(a){return [Math.cos(a),Math.sin(a)];}),b=bret(Pc),cyc=Math.abs(b.brahm-shoelace(Pc))<1e-9;VR={ok:ok,worst:worst,n:n,cyc:cyc};return VR;}
+function tp(cv,q){return [cv.width/2+q[0]*90,cv.height/2+8-q[1]*90];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var b=bret(Q);nt(g,'#21e6ff',10,16,10,'quadrilateral area from 4 sides + 2 opposite angles (Bretschneider)');
+ var P=Q.map(function(q){return tp(cv,q);});ne(g,'#35ffb0',2);g.beginPath();for(var i=0;i<4;i++){if(i===0)g.moveTo(P[i][0],P[i][1]);else g.lineTo(P[i][0],P[i][1]);}g.closePath();g.stroke();ng(g);
+ var nm=['A','B','C','D'];P.forEach(function(p,i){ndot(g,p[0],p[1],4,i===0||i===2?'#ff2fa6':'#9cf');nt(g,i===0||i===2?'#ff6ab0':'#9cf',p[0]+5,p[1],10,nm[i]);});
+ var mids=[[0,1],[1,2],[2,3],[3,0]],lens=[b.a,b.b,b.c,b.d];mids.forEach(function(m,i){var mx=(P[m[0]][0]+P[m[1]][0])/2,my=(P[m[0]][1]+P[m[1]][1])/2;nt(g,'#8ad',mx-8,my,9,lens[i].toFixed(2));});
+ nt(g,'#ff2fa6',10,H-42,10,'opposite angles A = '+(b.A*180/Math.PI).toFixed(1)+'°, C = '+(b.C*180/Math.PI).toFixed(1)+'°  (A+C = '+((b.A+b.C)*180/Math.PI).toFixed(1)+'°)');
+ nt(g,'#8ad',10,H-8,9,'Bretschneider area = '+b.area.toFixed(4)+'   shoelace = '+shoelace(Q).toFixed(4));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var b=bret(Q),shoe=shoelace(Q);nt(g,'#21e6ff',12,20,12,'Bretschneider vs shoelace area');
+ nt(g,'#9cf',16,52,11,'sides: '+b.a.toFixed(3)+', '+b.b.toFixed(3)+', '+b.c.toFixed(3)+', '+b.d.toFixed(3));
+ nt(g,'#ff2fa6',16,80,11,'A+C = '+((b.A+b.C)*180/Math.PI).toFixed(2)+'°  →  penalty abcd·cos²((A+C)/2) = '+b.pen.toFixed(4));
+ nt(g,'#9cf',16,106,11,'Brahmagupta term √[(s−a)(s−b)(s−c)(s−d)] = '+b.brahm.toFixed(5));
+ nt(g,'#35ffb0',16,134,13,'Bretschneider area = '+b.area.toFixed(6));
+ nt(g,'#9cf',16,160,12,'shoelace area = '+shoe.toFixed(6));
+ nt(g,Math.abs(b.area-shoe)<1e-6?'#39ffb0':'#ff5a5a',16,186,13,Math.abs(b.area-shoe)<1e-6?'match ✓':'✗ '+Math.abs(b.area-shoe).toExponential(1));
+ var v=selftest();nt(g,v.ok&&v.cyc?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.n+' convex quads: Bretschneider = shoelace ('+v.ok+', worst '+v.worst.toExponential(1)+') · cyclic→Brahmagupta '+v.cyc);
+ nt(g,'#8ad',12,H-16,9,'cyclic quad → A+C=180° → penalty 0 → Brahmagupta');}
+document.getElementById('brnext').onclick=function(){Q=convexQuad((Date.now()&16383)+1);drawW3();drawW4();var b=bret(Q);document.getElementById('brread').textContent='new quad — Bretschneider '+b.area.toFixed(4)+' = shoelace '+shoelace(Q).toFixed(4);};
+document.getElementById('brcheck').onclick=function(){var v=selftest();document.getElementById('brread').textContent='Bretschneider area == shoelace area ('+v.n+' convex quads): '+v.ok+' · cyclic reduces to Brahmagupta: '+v.cyc;};
+document.getElementById('brspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var b=bret(Q),cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);var sc=95,gx=(Q[0][0]+Q[1][0]+Q[2][0]+Q[3][0])/4,gy=(Q[0][1]+Q[1][1]+Q[2][1]+Q[3][1])/4;
+ ne(g,'#35ffb0',2.4);g.beginPath();for(var i=0;i<4;i++){var q=[(Q[i][0]-gx)*sc,-(Q[i][1]-gy)*sc];if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}g.closePath();g.stroke();ng(g);
+ // penalty bar
+ var barH=Math.min(120,b.pen/(b.brahm*b.brahm+1e-9)*120);ne(g,'#ff2fa6',7);g.beginPath();g.moveTo(-140,120);g.lineTo(-140,120-barH-2);g.stroke();ng(g);nt(g,'#ff2fa6',-160,130,9,'penalty');
+ for(var i=0;i<4;i++){var q=[(Q[i][0]-gx)*sc,-(Q[i][1]-gy)*sc];ndot(g,q[0],q[1],4,i%2===0?'#ff2fa6':'#9cf');}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the quad, area = '+b.area.toFixed(3));nt(g,'#ff2fa6',10,H-34,10,'magenta: the cyclic-penalty term abcd·cos²((A+C)/2) subtracted');nt(g,'#8ad',10,H-14,10,'any quadrilateral\\'s area, docked for not being cyclic');}
+drawW3();drawW4();window.__bretschneider=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 163 · neon-noir · silicon-coding (signed distances from the circumcenter summing to R+r · four incenters of a cyclic quad forming a rectangle · six side-extension points on one circle · a generalized Ptolemy for tangent circles · every integer a sum of few polygonal numbers) ═══════════════════════
 CARN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Carnot&rsquo;s theorem</b> is a hidden conservation law of the triangle. Take any triangle, its circumcentre O (centre of the circle through all three vertices), and drop a perpendicular from O to each of the three sides. The three <b>signed</b> distances &mdash; positive when O lies on the same side of a line as the opposite vertex, negative otherwise &mdash; always sum to exactly <b>R + r</b>, the circumradius plus the inradius: d<sub>a</sub> + d<sub>b</sub> + d<sub>c</sub> = R + r. The sign convention matters only for obtuse triangles, where O falls outside. Equivalently, cos A + cos B + cos C = 1 + r/R &mdash; the same identity in angle form.<br><br>
@@ -42221,6 +42472,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-midy","title":"THE MIDY","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#ffcf4a","icon":"midy",
+  "kicker":"the two halves of a repeating decimal summing to nines",
+  "blurb":"Midy's theorem in the 5-window house format — a hidden symmetry inside repeating decimals. For a prime p (other than 2 or 5), write out the decimal of a/p; it repeats with some period. When that period is even, say 2k digits, split the repeating block into two halves of k digits each — the two halves always sum to a string of nines (10^k − 1). The classic case: 1/7 = 0.142857…, and 142 + 857 = 999. It holds for every prime whose period is even, discovered by the French schoolteacher E. Midy in 1836. Verified live: for every prime p ≤ 200 (excluding 2 and 5) and every numerator a whose repeating block has even period 2k, the two k-digit halves sum to exactly 10^k − 1. Neon-noir traced. See the block split into halves in 1D, the nines-sum check in 2D, and the folded-onto-its-complement inverse in 3D.",
+  "lit":"Genuine Midy's theorem (E. Midy, 1836). Verified live with exact BigInt: for every prime p≤200 (excluding 2,5) and every numerator a whose repeating block of a/p has even period 2k, the two k-digit halves sum to exactly 10^k−1 (window.__midy.ok, .tested).",
+  "fig":"No framing; the long division, the period, and the halves' sum run independently in-browser. The AVAN inverse is honest — instead of reading the block left to right, fold it in half: the inverse of 'the period-2k block' is 'two k-digit halves that complete each other to nines'. Magenta are the two halves of the block; green is the 10^k−1 they sum to. A repeating decimal folded onto its own nines-complement.",
+  "body":MIDY_BODY,"script":MIDY_SCRIPT},
+ {"slug":"the-automorphic","title":"THE AUTOMORPHIC","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#35ffb0","icon":"automorphic",
+  "kicker":"a number whose square ends in itself",
+  "blurb":"Automorphic numbers in the 5-window house format — numbers whose square ends in the number itself. 5²=25, 6²=36, 25²=625, 76²=5776, 376²=141376, 625²=390625, 9376²=87909376. For each digit-length d there are exactly two nontrivial ones — one ending in 5, one in 6 — and they always add to 10^d + 1 (25+76=101, 625+376=1001). They are the nontrivial idempotents of arithmetic mod 10^d (solutions of x²≡x), built by the Chinese Remainder Theorem from 10^d = 2^d·5^d, and extended leftward forever they become the two nonzero 10-adic idempotents. Verified live: the two nontrivial idempotents mod 10^d (d=1..12) each satisfy x²≡x, end in 5 and 6, and sum to 10^d+1; the known 5,6,25,76,376,625,9376,90625 are all confirmed automorphic. Neon-noir traced. See a number reappearing in its square's tail in 1D, the paired idempotents in 2D, and the fixed-point-of-squaring inverse in 3D.",
+  "lit":"Genuine automorphic-number / idempotent theory in Z/10^d and the 10-adic integers. Verified live with exact BigInt: the two nontrivial idempotents mod 10^d (d=1..12) satisfy x²≡x, end in 5 and 6, and sum to 10^d+1; known automorphics 5,6,25,76,376,625,9376,90625 all confirmed (window.__automorphic.ok, .kok).",
+  "fig":"No framing; the idempotents are constructed by CRT and squared, all in-browser with exact BigInt. The AVAN inverse is honest — instead of squaring and reading forward, look for the fixed point of squaring: the inverse of 'x' is 'the idempotent x²≡x that grows one digit at a time', and its partner completing it to 10^d+1. Magenta are the two idempotents; green is the tail where the square reproduces the number. A number that is its own square's ending.",
+  "body":ATMO_BODY,"script":ATMO_SCRIPT},
+ {"slug":"the-cassini","title":"THE CASSINI","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"EVENT HORIZON","domain_slug":"event-horizon","accent":"#b06bff","icon":"cassini",
+  "kicker":"a Fibonacci determinant pinned at plus or minus one",
+  "blurb":"Cassini's identity in the 5-window house format — the Fibonacci numbers pinned to a razor's edge. For every n, F(n−1)·F(n+1) − F(n)² = (−1)^n: the product of F(n)'s neighbours misses F(n)² by exactly one, alternating sign forever. It is the determinant of the Fibonacci matrix [[1,1],[1,0]]^n = [[F(n+1),F(n)],[F(n),F(n−1)]], whose determinant is (−1)^n since det[[1,1],[1,0]] = −1. The generalization, Catalan's identity, reads F(n)² − F(n−r)F(n+r) = (−1)^{n−r}F(r)². This near-miss is the secret behind the 'missing square' puzzle where an 8×8 square seems to rearrange into a 5×13 rectangle — off by one unit of area. Verified live with exact BigInt: Cassini for n=1..100 and Catalan for a range of n,r. Neon-noir traced. See the neighbour-product vs square in 1D, the matrix determinant in 2D, and the pinned-determinant inverse in 3D.",
+  "lit":"Genuine Cassini's identity (Jean-Dominique Cassini, 1680; Catalan generalization). Verified live with exact BigInt: F(n−1)F(n+1) − F(n)² = (−1)^n for n=1..100, and Catalan's F(n)² − F(n−r)F(n+r) = (−1)^{n−r}F(r)² for a range of n,r (window.__cassini.ok, .catOk).",
+  "fig":"No framing; the Fibonacci numbers and both identities run independently in-browser. The AVAN inverse is honest — instead of computing the Fibonacci product directly, read it as a determinant: the inverse of 'F(n−1)F(n+1) − F(n)²' is 'det of the n-th power of [[1,1],[1,0]], which is (−1)^n'. Magenta are the three consecutive Fibonacci numbers; green is the ±1 they are pinned to. A runaway sequence held to a unit determinant.",
+  "body":CSNI_BODY,"script":CSNI_SCRIPT},
+ {"slug":"the-nilakantha","title":"THE NILAKANTHA","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#ff8a3c","icon":"nilakantha",
+  "kicker":"a faster alternating series for pi",
+  "blurb":"The Nilakantha series in the 5-window house format — a fast, elegant series for π found by the Kerala-school astronomer Nilakantha Somayaji around 1500, three centuries before Europe. It reads π = 3 + 4/(2·3·4) − 4/(4·5·6) + 4/(6·7·8) − …, each term straddling three consecutive integers, alternating in sign. Unlike the Gregory–Leibniz series (hundreds of terms for two decimals), Nilakantha's terms shrink like 1/k³, so a handful of terms already gives several correct digits. Verified live: 3 + Σ(−1)^{k+1} 4/((2k)(2k+1)(2k+2)) converges to π (~1e-9), and with 100 terms its error (~2e-7) is more than a hundred times smaller than the Gregory–Leibniz error at the same term count. Neon-noir traced. See both series racing to π in 1D, the shrinking-error comparison in 2D, and the straddle-three-integers inverse in 3D.",
+  "lit":"Genuine Nilakantha series (Nilakantha Somayaji, Kerala school, c.1500). Verified live: 3 + Σ(−1)^{k+1}4/((2k)(2k+1)(2k+2)) converges to π (~1e-9), and its 100-term error (~2e-7) is more than 100× smaller than the Gregory–Leibniz error at 100 terms (window.__nilakantha.conv, .faster).",
+  "fig":"No framing; the Nilakantha and Leibniz partial sums both run independently in-browser. The AVAN inverse is honest — instead of summing single odd reciprocals, straddle three integers at a time: the inverse of 'the slow Leibniz term 1/(2k+1)' is 'the Nilakantha term 4/((2k)(2k+1)(2k+2)), shrinking like 1/k³'. Magenta are the Nilakantha correction terms; green is the π they reach in a few steps. A faster road to the same π.",
+  "body":NILA_BODY,"script":NILA_SCRIPT},
+ {"slug":"the-bretschneider","title":"THE BRETSCHNEIDER","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FIREWALL","domain_slug":"the-firewall","accent":"#21e6ff","icon":"bretschneider",
+  "kicker":"the area of any quadrilateral from its sides and two angles",
+  "blurb":"Bretschneider's formula in the 5-window house format — the area of any quadrilateral from its four sides and two opposite angles. With sides a,b,c,d, semiperimeter s = (a+b+c+d)/2, and opposite interior angles A and C: Area = √[(s−a)(s−b)(s−c)(s−d) − abcd·cos²((A+C)/2)]. It is the grand generalization of Heron's formula (triangles) and Brahmagupta's formula (cyclic quadrilaterals): when the quad is cyclic, A+C = 180°, the cosine term vanishes, and it collapses to Brahmagupta's √[(s−a)(s−b)(s−c)(s−d)]. The cosine term is exactly the penalty a quadrilateral pays for not being inscribable in a circle. Verified live: for tens of thousands of random convex quadrilaterals, Bretschneider matches the shoelace (surveyor's) area to ~1e-13, and for cyclic quads it reduces exactly to Brahmagupta. Neon-noir traced. See a quad with its sides and two angles in 1D, Bretschneider vs shoelace in 2D, and the cyclic-penalty inverse in 3D.",
+  "lit":"Genuine Bretschneider's formula (Carl Anton Bretschneider, 1842; Heron and Brahmagupta for the special cases). Verified live: for ~17000 random convex quadrilaterals Bretschneider's area matches the shoelace area to ~1e-13, and for cyclic quads the cosine term is zero so it reduces exactly to Brahmagupta (window.__bretschneider.ok, .cyc).",
+  "fig":"No framing; the sides, the two opposite angles, the formula, and the shoelace area all run independently in-browser. The AVAN inverse is honest — instead of needing the corners, sides and two opposite angles suffice: the inverse of 'the quad's area' is 'Brahmagupta's cyclic area minus the penalty abcd·cos²((A+C)/2)'. Magenta is the cyclic-penalty term subtracted; green is the resulting area. Any quadrilateral's area, docked for not being cyclic.",
+  "body":BRET_BODY,"script":BRET_SCRIPT},
  {"slug":"the-carnot","title":"THE CARNOT","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#ffcf4a","icon":"carnot",
   "kicker":"circumcentre-to-side distances summing to R plus r",
