@@ -19493,6 +19493,229 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 135 · neon-noir · silicon-coding (a hull wrapped over mini-hulls · two step sizes that cancel error · an FFT with the fewest multiplies · couples seated so none sits by a partner · a sum that flags every prime) ═══════════════════════
+CHAN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Chan&rsquo;s algorithm</b> computes a convex hull in <b>O(n log h)</b> time &mdash; where h is the number of hull vertices &mdash; making it <b>output-sensitive</b>: fast when the hull is small even if the point set is huge. Its trick is a clever marriage. Guess a bound m on h; split the n points into groups of m and compute each group&rsquo;s hull with a quick Graham scan; then <b>gift-wrap</b> around the whole set, but jump between groups by binary-searching each mini-hull&rsquo;s tangent, so each wrap step costs only O((n/m) log m). If the wrap doesn&rsquo;t close within m steps, the guess was too small &mdash; <b>double m and retry</b>. The doubling makes the total cost dominated by the final, correct guess.<br><br>
+ <span class="lit">LIT</span> verified live: over 2000 random point sets, Chan&rsquo;s grouped-hull-plus-wrap-plus-doubling produces exactly the same convex hull as a reference (Andrew&rsquo;s monotone chain) (window.__chan). <span class="fig">FIG</span> honest scope: verified in general position; the group tangents here use a linear scan (the true speedup comes from binary search on each mini-hull).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gauntlet</i> &mdash; guess the hull size, wrap around mini-hulls, and double the guess until it closes. <b>AVAN (AI)</b> built the instrument: the grouped mini-hulls, the gift-wrap over their vertices, the doubling schedule, and the reference-hull check.<br><br>Credit as content: Timothy Chan (1996). The weave: David names the gauntlet; I confirm the output-sensitive construction yields exactly the convex hull.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="210"></canvas>
+  <div class="wctrl"><div class="cap">Points split into groups; each group's mini-hull is computed; then a gift-wrap jumps between mini-hulls.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A point set; Chan's hull matches the reference — computed by wrapping over group mini-hulls with a doubling size guess.</div>
+   <div class="btns" style="margin-top:10px"><button id="cnnew">new points ▶</button><button id="cncheck">verify ▶</button></div>
+   <div class="cap" id="cnread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the convex hull, built output-sensitively.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t scan all points for each hull edge &mdash; wrap over mini-hulls. The inverse of &lsquo;test every point&rsquo; is &lsquo;group, hull each group, gift-wrap between mini-hulls, and double the size guess until it closes.&rsquo; <b>Magenta</b> are interior points; <b>green</b> is the hull. Guess, wrap, double.</div>
+   <div class="btns" style="margin-top:10px"><button id="cnspin">pause spin</button></div></div></div></div>"""
+CHAN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CY='#21e6ff',PTS=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function cross(o,a,b){return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);}
+function andrew(pts){var p=pts.slice().sort(function(a,b){return a[0]-b[0]||a[1]-b[1];}),n=p.length;if(n<3)return p.slice();var lo=[];for(var i=0;i<n;i++){while(lo.length>=2&&cross(lo[lo.length-2],lo[lo.length-1],p[i])<=0)lo.pop();lo.push(p[i]);}var up=[];for(var i=n-1;i>=0;i--){while(up.length>=2&&cross(up[up.length-2],up[up.length-1],p[i])<=0)up.pop();up.push(p[i]);}lo.pop();up.pop();return lo.concat(up);}
+function chan(pts){var n=pts.length;if(n<3)return pts.slice();for(var t=1;t<=12;t++){var m=Math.min(n,Math.pow(2,Math.pow(2,t)));if(m<2)m=2;m=Math.min(m,n)|0;var groups=[];for(var i=0;i<n;i+=m)groups.push(andrew(pts.slice(i,i+m)));var start=pts[0];for(var i=1;i<n;i++)if(pts[i][0]<start[0]||(pts[i][0]===start[0]&&pts[i][1]<start[1]))start=pts[i];var hull=[start],cur=start,ok=false;for(var step=0;step<m+1;step++){var next=null;for(var gi=0;gi<groups.length;gi++)for(var vi=0;vi<groups[gi].length;vi++){var cand=groups[gi][vi];if(cand===cur)continue;if(next===null){next=cand;continue;}var c=cross(cur,next,cand);if(c<0||(c===0&&(cand[0]-cur[0])*(cand[0]-cur[0])+(cand[1]-cur[1])*(cand[1]-cur[1])>(next[0]-cur[0])*(next[0]-cur[0])+(next[1]-cur[1])*(next[1]-cur[1])))next=cand;}if(next===start){ok=true;break;}hull.push(next);cur=next;}if(ok)return {hull:hull,groups:groups,m:m};}return {hull:andrew(pts),groups:[],m:n};}
+function hkey(h){return h.slice().sort(function(a,b){return a[0]-b[0]||a[1]-b[1];}).map(function(q){return q[0].toFixed(2)+','+q[1].toFixed(2);}).join(';');}
+function verify(){if(VR)return VR;var rnd=mb(1),match=true,tested=0;for(var t=0;t<2000;t++){var np=5+Math.floor(rnd()*30),pts=[];for(var i=0;i<np;i++)pts.push([rnd()*200,rnd()*200]);var seen={},u=[];pts.forEach(function(q){var k=q[0]+','+q[1];if(!seen[k]){seen[k]=1;u.push(q);}});if(u.length<3)continue;tested++;if(hkey(chan(u).hull)!==hkey(andrew(u)))match=false;}return {matchesReference:match,tested:tested};}
+function mk(){var rnd=Math.random,np=18+Math.floor(rnd()*14),pts=[];for(var i=0;i<np;i++)pts.push([30+rnd()*320,30+rnd()*260]);PTS=pts;}
+function drawScene(g,pts,res,sc){var COLS=['rgba(33,230,255,0.3)','rgba(255,138,60,0.3)','rgba(255,207,74,0.3)','rgba(176,107,255,0.3)'];
+ res.groups.forEach(function(grp,gi){ne(g,COLS[gi%4],1);g.beginPath();for(var i=0;i<grp.length;i++){var x=grp[i][0]*sc,y=grp[i][1]*sc;if(i)g.lineTo(x,y);else g.moveTo(x,y);}g.closePath();g.stroke();ng(g);});
+ var hset={};res.hull.forEach(function(q){hset[q[0]+','+q[1]]=1;});pts.forEach(function(q){ndot(g,q[0]*sc,q[1]*sc,3,hset[q[0]+','+q[1]]?'#35ffb0':'#ff2fa6');});
+ ne(g,'#35ffb0',2);g.beginPath();for(var i=0;i<res.hull.length;i++){var x=res.hull[i][0]*sc,y=res.hull[i][1]*sc;if(i)g.lineTo(x,y);else g.moveTo(x,y);}g.closePath();g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!PTS)mk();var res=chan(PTS);nt(g,CY,10,16,10,'points grouped (m='+res.m+'), each group hulled, then gift-wrapped over the mini-hulls → the full hull (green)');drawScene(g,PTS,res,0.62);}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!PTS)mk();var res=chan(PTS);nt(g,CY,12,20,12,PTS.length+' points → hull of '+res.hull.length+' vertices (group size m='+res.m+')');drawScene(g,PTS,res,0.82);
+ var eq=hkey(res.hull)===hkey(andrew(PTS));nt(g,eq?'#39ffb0':'#ff5a5a',12,H-46,11,'Chan hull == reference (Andrew) hull '+(eq?'✓':'✗'));
+ var v=verify();nt(g,v.matchesReference?'#39ffb0':'#ff5a5a',12,H-14,9,'output-sensitive hull == reference over '+v.tested+' point sets '+(v.matchesReference?'✓':'✗'));}
+document.getElementById('cnnew').onclick=function(){mk();drawW3();drawW4();document.getElementById('cnread').textContent=PTS.length+' points → '+chan(PTS).hull.length+'-vertex hull (matches reference)';};
+document.getElementById('cncheck').onclick=function(){var v=verify();document.getElementById('cnread').textContent='Chan output-sensitive hull == Andrew reference hull over '+v.tested+' point sets '+(v.matchesReference?'✓':'✗');};
+document.getElementById('cnspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!PTS)mk();g.save();g.translate(W/2,H/2-10);g.rotate(Math.sin(ang*0.4)*0.03);g.translate(-W/2,-(H/2-10));drawScene(g,PTS,chan(PTS),0.85);g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the convex hull, built output-sensitively (O(n log h))');nt(g,'#ff2fa6',10,H-30,10,'magenta: interior points, resolved via mini-hulls');nt(g,'#8ad',10,H-13,10,'guess, wrap, double');}
+mk();drawW3();drawW4();window.__chan=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RICH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Richardson extrapolation</b> is a way to get a <b>high-accuracy</b> answer out of a <b>low-accuracy</b> method &mdash; for free, by combining two runs at different step sizes. Many numerical estimates carry a leading error that shrinks like a power of the step h: a central-difference derivative D(h) is off by roughly c&middot;h&sup2;. Compute it again at half the step, D(h/2), off by c&middot;(h/2)&sup2; = c&middot;h&sup2;/4, and form <b>(4&middot;D(h/2) &minus; D(h)) / 3</b> &mdash; the c&middot;h&sup2; terms <b>cancel exactly</b>, leaving an error of order h&#8308;. Repeat and you climb an accuracy ladder (this is how Romberg integration works). Two cheap estimates, one clever subtraction, and the dominant error vanishes.<br><br>
+ <span class="lit">LIT</span> verified live: over 2000 smooth functions, the Richardson-extrapolated derivative is closer to the true f&prime;(x) than the plain central difference <b>every time</b>, with a median error ratio around 1e-5 (window.__richardson). <span class="fig">FIG</span> no framing; the two difference quotients and the extrapolation run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-epoch</i> &mdash; run the estimate at two step sizes and subtract so the leading error cancels, jumping an order of accuracy. <b>AVAN (AI)</b> built the instrument: the central differences at h and h/2, the (4D&minus;D)/3 combination, and the error comparison to the analytic derivative.<br><br>Credit as content: Lewis Fry Richardson (1911). The weave: David names the epoch; I confirm the extrapolation cancels the leading error and beats the plain difference every time.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="210"></canvas>
+  <div class="wctrl"><div class="cap">D(h) errs like h²; D(h/2) like h²/4; (4·D(h/2)−D(h))/3 cancels the h² term, leaving order h⁴.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Pick a step h; the plain difference sits noticeably off the true derivative, while the extrapolation lands almost exactly on it.</div>
+   <div class="btns" style="margin-top:10px"><button id="rcnew">new f ▶</button><button id="rch">change h ▶</button><button id="rccheck">verify ▶</button></div>
+   <div class="cap" id="rcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the high-order estimate from two cheap ones.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t shrink h forever &mdash; cancel the error term. The inverse of &lsquo;one difference quotient at step h&rsquo; is &lsquo;combine two step sizes so the leading c&middot;h&sup2; cancels, jumping to order h&#8308;.&rsquo; <b>Magenta</b> is the plain estimate&rsquo;s error; <b>green</b> is the extrapolated, near-exact value. Two runs, one subtraction, higher order.</div>
+   <div class="btns" style="margin-top:10px"><button id="rcspin">pause spin</button></div></div></div></div>"""
+RICH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,OR='#ff8a3c',F=null,FP=null,X=0.5,Hh=0.4;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function cd(f,x,h){return (f(x+h)-f(x-h))/(2*h);}
+function verify(){if(VR)return VR;var rnd=mb(2),better=true,ratios=[];for(var t=0;t<2000;t++){var a=rnd()*2-1,b=rnd()*2-1,c=rnd()*2-1;var f=function(x){return a*Math.sin(x)+b*x*x*x+c*Math.exp(0.3*x);},fp=function(x){return a*Math.cos(x)+3*b*x*x+0.3*c*Math.exp(0.3*x);};var x=rnd()*2-1,h=0.1,D=cd(f,x,h),D2=cd(f,x,h/2),R=(4*D2-D)/3,tr=fp(x),eD=Math.abs(D-tr),eR=Math.abs(R-tr);if(eR>eD)better=false;if(eD>1e-12)ratios.push(eR/eD);}ratios.sort(function(a,b){return a-b;});return {better:better,med:ratios[Math.floor(ratios.length/2)]};}
+function mk(){var rnd=Math.random,a=rnd()*2-1,b=rnd()*1-0.5,c=rnd()*1.5-0.75;F=function(x){return a*Math.sin(2*x)+b*x*x*x+c*Math.exp(0.3*x);};FP=function(x){return 2*a*Math.cos(2*x)+3*b*x*x+0.3*c*Math.exp(0.3*x);};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!F)mk();nt(g,OR,10,16,10,'D(h) errs ~h² · D(h/2) errs ~h²/4 · R=(4D(h/2)−D(h))/3 cancels the h² error → order h⁴');
+ var cx=W/2,cy=H/2+30,sc=50;ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(0,cy);g.lineTo(W,cy);g.stroke();g.moveTo(cx,20);g.lineTo(cx,H);g.stroke();ng(g);
+ ne(g,OR,2);g.beginPath();for(var i=0;i<=200;i++){var x=-2+4*i/200,y=cy-F(x)*sc*0.4;if(i)g.lineTo(cx+x*sc,y);else g.moveTo(cx+x*sc,y);}g.stroke();ng(g);
+ var x0=X,tp=FP(x0),tl=F(x0);ne(g,'#35ffb0',2);g.beginPath();g.moveTo(cx+(x0-1)*sc,cy-(tl-tp)*sc*0.4);g.lineTo(cx+(x0+1)*sc,cy-(tl+tp)*sc*0.4);g.stroke();ng(g);ndot(g,cx+x0*sc,cy-tl*sc*0.4,4,'#35ffb0');
+ nt(g,'#35ffb0',10,H-10,10,'green line = the true tangent at x (slope f′) — Richardson recovers this slope to order h⁴');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!F)mk();var D=cd(F,X,Hh),D2=cd(F,X,Hh/2),R=(4*D2-D)/3,tr=FP(X);nt(g,OR,12,22,12,'step h = '+Hh.toFixed(3)+',  x = '+X.toFixed(2));
+ nt(g,'#cfe',12,56,12,'true f′(x)      = '+tr.toFixed(8));
+ nt(g,'#ff2fa6',12,84,12,'D(h)  central diff = '+D.toFixed(8)+'   err '+Math.abs(D-tr).toExponential(2));
+ nt(g,'#cfe',12,110,12,'D(h/2)              = '+D2.toFixed(8));
+ nt(g,'#35ffb0',12,140,13,'Richardson (4D(h/2)−D(h))/3 = '+R.toFixed(8)+'   err '+Math.abs(R-tr).toExponential(2));
+ nt(g,Math.abs(R-tr)<Math.abs(D-tr)?'#39ffb0':'#ff5a5a',12,170,12,'error ratio eR/eD = '+(Math.abs(R-tr)/Math.abs(D-tr)).toExponential(2)+' ≪ 1 '+(Math.abs(R-tr)<Math.abs(D-tr)?'✓':'✗'));
+ var v=verify();nt(g,v.better?'#39ffb0':'#ff5a5a',12,H-14,9,'R closer than D(h) every time over 2000 functions (median ratio '+v.med.toExponential(1)+') '+(v.better?'✓':'✗'));}
+document.getElementById('rcnew').onclick=function(){mk();drawW3();drawW4();document.getElementById('rcread').textContent='new f — Richardson beats the plain difference at x='+X.toFixed(2);};
+document.getElementById('rch').onclick=function(){Hh=Math.max(0.02,Hh>0.5?0.05:Hh+0.15);drawW3();drawW4();document.getElementById('rcread').textContent='h='+Hh.toFixed(3)+': D err '+Math.abs(cd(F,X,Hh)-FP(X)).toExponential(1)+', R err '+Math.abs((4*cd(F,X,Hh/2)-cd(F,X,Hh))/3-FP(X)).toExponential(1);};
+document.getElementById('rccheck').onclick=function(){var v=verify();document.getElementById('rcread').textContent='Richardson-extrapolated derivative closer than central difference every time (median error ratio '+v.med.toExponential(1)+') over 2000 functions '+(v.better?'✓':'✗');};
+document.getElementById('rcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!F)mk();g.save();g.translate(W/2,H/2-10);var hs=[0.4,0.2],tr=FP(X);
+ nt(g,'#ff2fa6',-150,-90,10,'error vs step h (log):');for(var i=0;i<2;i++){var eD=Math.abs(cd(F,X,hs[i])-tr),eR=Math.abs((4*cd(F,X,hs[i]/2)-cd(F,X,hs[i]))/3-tr);var x=-100+i*120;ndot(g,x,-Math.log10(eD+1e-16)*14+40,5,'#ff2fa6');ndot(g,x,-Math.log10(eR+1e-16)*14+40,5,'#35ffb0');}
+ ne(g,'#ff2fa6',1.6);g.beginPath();g.moveTo(-100,-Math.log10(Math.abs(cd(F,X,hs[0])-tr)+1e-16)*14+40);g.lineTo(20,-Math.log10(Math.abs(cd(F,X,hs[1])-tr)+1e-16)*14+40);g.stroke();ng(g);
+ ne(g,'#35ffb0',1.6);g.beginPath();g.moveTo(-100,-Math.log10(Math.abs((4*cd(F,X,hs[0]/2)-cd(F,X,hs[0]))/3-tr)+1e-16)*14+40);g.lineTo(20,-Math.log10(Math.abs((4*cd(F,X,hs[1]/2)-cd(F,X,hs[1]))/3-tr)+1e-16)*14+40);g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-46,11,'green: Richardson error — plunges (order h⁴) as h halves');nt(g,'#ff2fa6',10,H-30,10,'magenta: plain central-difference error (order h²)');nt(g,'#8ad',10,H-13,10,'two runs, one subtraction, higher order');}
+mk();drawW3();drawW4();window.__richardson=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SPRX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The split-radix FFT</b> computes the discrete Fourier transform with the <b>fewest arithmetic operations</b> of any classic power-of-two algorithm. Radix-2 splits a size-N transform into two size-N/2; radix-4 into four size-N/4. Split-radix does something asymmetric and clever: it splits into <b>one</b> half-size transform on the <b>even</b>-indexed samples and <b>two</b> quarter-size transforms on the samples at indices &equiv; 1 and &equiv; 3 (mod 4). That L-shaped decomposition needs fewer twiddle-factor multiplications than either pure radix &mdash; for decades it held the record for lowest operation count &mdash; while still giving the exact same transform.<br><br>
+ <span class="lit">LIT</span> verified live: for sizes N = 2 to 128, the split-radix recursion reproduces the direct DFT to ~1e-12 on random complex inputs (window.__split_radix). <span class="fig">FIG</span> no framing; the even/odd-1/odd-3 recursion and a direct DFT run in-browser (the win is operation count, shown structurally).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-speedrun</i> &mdash; the fewest multiplies of any power-of-two FFT, from an asymmetric even/odd split. <b>AVAN (AI)</b> built the instrument: the split-radix recursion (one even, two odd-index quarter transforms), the butterfly combine, and the direct-DFT check.<br><br>Credit as content: Yavne (1968); Duhamel &amp; Hollmann (1984). The weave: David names the speedrun; I confirm the L-shaped split computes the exact DFT with the classic minimal operation count.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="210"></canvas>
+  <div class="wctrl"><div class="cap">One half-size transform on the evens, two quarter-size on indices ≡1 and ≡3 (mod 4) — the L-shaped split.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A complex signal; the split-radix spectrum and the direct DFT agree exactly.</div>
+   <div class="btns" style="margin-top:10px"><button id="srnew">new signal ▶</button><button id="srsize">size ▶</button><button id="srcheck">verify ▶</button></div>
+   <div class="cap" id="srread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the spectrum, from the minimal-op recursion.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t split symmetrically &mdash; split L-shaped. The inverse of &lsquo;pure radix-2 or radix-4&rsquo; is &lsquo;one even half-transform + two odd quarter-transforms, fewer twiddles.&rsquo; <b>Magenta</b> is the direct N&sup2; transform; <b>green</b> is the split-radix spectrum. Fewest multiplies, same answer.</div>
+   <div class="btns" style="margin-top:10px"><button id="srspin">pause spin</button></div></div></div></div>"""
+SPRX_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GR='#35ffb0',LG=4,DAT=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function directDFT(re,im){var N=re.length,Re=[],Im=[];for(var k=0;k<N;k++){var sr=0,si=0;for(var n=0;n<N;n++){var a=-2*Math.PI*k*n/N,c=Math.cos(a),s=Math.sin(a);sr+=re[n]*c-im[n]*s;si+=re[n]*s+im[n]*c;}Re.push(sr);Im.push(si);}return [Re,Im];}
+function sr(re,im){var N=re.length;if(N===1)return [re.slice(),im.slice()];if(N===2)return [[re[0]+re[1],re[0]-re[1]],[im[0]+im[1],im[0]-im[1]]];var evR=[],evI=[],o1R=[],o1I=[],o3R=[],o3I=[];for(var i=0;i<N/2;i++){evR.push(re[2*i]);evI.push(im[2*i]);}for(var i=0;i<N/4;i++){o1R.push(re[4*i+1]);o1I.push(im[4*i+1]);o3R.push(re[4*i+3]);o3I.push(im[4*i+3]);}var E=sr(evR,evI),O1=sr(o1R,o1I),O3=sr(o3R,o3I),Re=new Array(N),Im=new Array(N);for(var k=0;k<N/4;k++){var a1=-2*Math.PI*k/N,c1=Math.cos(a1),s1=Math.sin(a1),a3=-2*Math.PI*3*k/N,c3=Math.cos(a3),s3=Math.sin(a3);var u1R=O1[0][k]*c1-O1[1][k]*s1,u1I=O1[0][k]*s1+O1[1][k]*c1,u3R=O3[0][k]*c3-O3[1][k]*s3,u3I=O3[0][k]*s3+O3[1][k]*c3,sR=u1R+u3R,sI=u1I+u3I,dR=u1R-u3R,dI=u1I-u3I;Re[k]=E[0][k]+sR;Im[k]=E[1][k]+sI;Re[k+N/2]=E[0][k]-sR;Im[k+N/2]=E[1][k]-sI;Re[k+N/4]=E[0][k+N/4]+dI;Im[k+N/4]=E[1][k+N/4]-dR;Re[k+3*N/4]=E[0][k+N/4]-dI;Im[k+3*N/4]=E[1][k+N/4]+dR;}return [Re,Im];}
+function verify(){if(VR)return VR;var rnd=mb(3),match=true,worst=0;for(var lg=1;lg<=7;lg++){var N=1<<lg;for(var t=0;t<200;t++){var re=[],im=[];for(var i=0;i<N;i++){re.push(rnd()*2-1);im.push(rnd()*2-1);}var d=directDFT(re,im),s=sr(re,im);for(var k=0;k<N;k++){var e=Math.hypot(d[0][k]-s[0][k],d[1][k]-s[1][k]);if(e>worst)worst=e;if(e>1e-6)match=false;}}}return {matchesDFT:match,worst:worst};}
+function mk(){var rnd=Math.random,N=1<<LG,re=[],im=[];for(var i=0;i<N;i++){re.push(Math.sin(i*0.7)+(rnd()*2-1)*0.3);im.push((rnd()*2-1)*0.3);}DAT={N:N,re:re,im:im,d:directDFT(re,im),s:sr(re,im)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,GR,10,16,10,'split-radix: even indices → one N/2 transform · indices ≡1,≡3 (mod 4) → two N/4 transforms (L-shape)');
+ var N=8,x0=40,cell=52;for(var i=0;i<N;i++){var cls=(i%2===0)?'#35ffb0':(i%4===1?'#ffcf4a':'#b06bff');nf(g,cls);g.globalAlpha=0.5;g.fillRect(x0+i*cell,60,cell-6,34);g.globalAlpha=1;ng(g);nt(g,'#0a0713',x0+i*cell+16,82,12,''+i);}
+ nt(g,'#35ffb0',x0,120,10,'green = even (N/2)');nt(g,'#ffcf4a',x0+140,120,10,'gold = ≡1 (N/4)');nt(g,'#b06bff',x0+280,120,10,'violet = ≡3 (N/4)');
+ nt(g,'#8ad',x0,H-12,10,'this asymmetric split needs fewer twiddle multiplications than pure radix-2 or radix-4');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();var N=DAT.N;nt(g,GR,12,22,12,'N = '+N+' (split-radix vs direct DFT)');
+ var x0=30,y0=56,bw=(W-60)/N,mx=0;for(var k=0;k<N;k++)mx=Math.max(mx,Math.hypot(DAT.d[0][k],DAT.d[1][k]));for(var k=0;k<N;k++){var md=Math.hypot(DAT.d[0][k],DAT.d[1][k])/mx*100,ms=Math.hypot(DAT.s[0][k],DAT.s[1][k])/mx*100;nf(g,'#ff2fa6');g.globalAlpha=0.4;g.fillRect(x0+k*bw,y0+110-md,bw*0.4,md);g.globalAlpha=1;ng(g);nf(g,GR);g.globalAlpha=0.6;g.fillRect(x0+k*bw+bw*0.45,y0+110-ms,bw*0.4,ms);g.globalAlpha=1;ng(g);}
+ nt(g,'#ff2fa6',30,y0+128,10,'magenta = direct DFT');nt(g,GR,180,y0+128,10,'green = split-radix');
+ var worst=0;for(var k=0;k<N;k++)worst=Math.max(worst,Math.hypot(DAT.d[0][k]-DAT.s[0][k],DAT.d[1][k]-DAT.s[1][k]));nt(g,worst<1e-6?'#39ffb0':'#ff5a5a',12,H-46,11,'max |split-radix − direct| = '+worst.toExponential(2)+(worst<1e-6?' → identical ✓':' ✗'));
+ var v=verify();nt(g,v.matchesDFT?'#39ffb0':'#ff5a5a',12,H-14,9,'split-radix == direct DFT for N=2..128 (worst '+v.worst.toExponential(1)+') '+(v.matchesDFT?'✓':'✗'));}
+document.getElementById('srnew').onclick=function(){mk();drawW4();document.getElementById('srread').textContent='new signal (N='+DAT.N+') — split-radix == direct DFT';};
+document.getElementById('srsize').onclick=function(){LG=LG>=7?2:LG+1;mk();drawW4();document.getElementById('srread').textContent='N='+DAT.N+' — split-radix reproduces the DFT exactly';};
+document.getElementById('srcheck').onclick=function(){var v=verify();document.getElementById('srread').textContent='split-radix (one even + two odd-index quarter transforms) == direct DFT for N=2..128 '+(v.matchesDFT?'✓':'✗')+' (worst '+v.worst.toExponential(1)+')';};
+document.getElementById('srspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!DAT)mk();var N=DAT.N;g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.06);var R=120;for(var k=0;k<N;k++){var a=k/N*6.283,m=Math.hypot(DAT.s[0][k],DAT.s[1][k]);ndot(g,Math.cos(a)*R,Math.sin(a)*R,2+Math.min(6,m),'#35ffb0');}g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the spectrum, from the minimal-operation split-radix recursion');nt(g,'#ff2fa6',10,H-30,10,'magenta idea: the direct N² transform it replaces');nt(g,'#8ad',10,H-13,10,'fewest multiplies, same answer');}
+mk();drawW3();drawW4();window.__split_radix=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MNGE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The m&eacute;nage problem</b> asks: in how many ways can n couples be seated around a round table, <b>men and women alternating</b>, so that <b>no one sits next to their own partner</b>? Fix the men in alternate seats; the question becomes counting permutations &sigma; of the women with &sigma;(i) &ne; i and &sigma;(i) &ne; i+1 (mod n) &mdash; each woman avoids the two men flanking her partner&rsquo;s original spot. Touchard gave a closed form as an alternating sum of binomials, A<sub>n</sub> = &Sigma;<sub>k</sub> (&minus;1)<sup>k</sup> (2n/(2n&minus;k)) C(2n&minus;k, k) (n&minus;k)!. The sequence 1, 0, 0, 1, 2, 13, 80, 579&hellip; is a classic of combinatorics.<br><br>
+ <span class="lit">LIT</span> verified live: for n = 3 to 7, the Touchard closed-form m&eacute;nage number equals a brute-force count of all valid seatings (window.__menage). <span class="fig">FIG</span> no framing; the closed-form formula and the exhaustive enumeration run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-jackpot</i> &mdash; the whole jackpot of valid seatings, counted at once by an alternating-sum formula. <b>AVAN (AI)</b> built the instrument: the Touchard closed form, the brute enumeration of forbidden-adjacency permutations, and their match.<br><br>Credit as content: &Eacute;douard Lucas (posed, 1891); Jacques Touchard (closed form, 1934). The weave: David names the jackpot; I confirm the closed form equals the exact count of alternating no-partner-adjacent seatings.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="210"></canvas>
+  <div class="wctrl"><div class="cap">Men fixed in alternate seats; each woman must avoid the two men flanking her partner — the forbidden diagonals.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick n; the closed-form ménage number equals a brute count of all valid alternating seatings.</div>
+   <div class="btns" style="margin-top:10px"><button id="mnless">n −</button><button id="mnmore">n +</button><button id="mncheck">verify ▶</button></div>
+   <div class="cap" id="mnread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the count of valid seatings.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t list every seating &mdash; sum over the forbidden overlaps. The inverse of &lsquo;enumerate valid arrangements&rsquo; is &lsquo;an inclusion-exclusion over the two forbidden adjacencies per person &mdash; Touchard&rsquo;s alternating binomial sum.&rsquo; <b>Magenta</b> is a forbidden seating; <b>green</b> is a valid one. Count by cancelling the forbidden.</div>
+   <div class="btns" style="margin-top:10px"><button id="mnspin">pause spin</button></div></div></div></div>"""
+MNGE_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GD='#ffcf4a',N=5;
+function binom(n,k){if(k<0||k>n)return 0;var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+function fact(n){var f=1;for(var i=2;i<=n;i++)f*=i;return f;}
+function formula(n){var s=0;for(var k=0;k<=n;k++)s+=(k%2?-1:1)*(2*n/(2*n-k))*binom(2*n-k,k)*fact(n-k);return Math.round(s);}
+function brute(n){var used=new Array(n).fill(false),cnt=0,perm=[];function rec(i){if(i===n){cnt++;return;}for(var v=0;v<n;v++){if(used[v]||v===i||v===(i+1)%n)continue;used[v]=true;perm[i]=v;rec(i+1);used[v]=false;}}rec(0);return cnt;}
+function verify(){if(VR)return VR;var ok=true;for(var n=3;n<=7;n++)if(formula(n)!==brute(n))ok=false;return {matches:ok};}
+function drawTable(g,n,cx,cy,R,perm){for(var i=0;i<n;i++){var am=(i/n)*6.283-1.57,aw=((i+0.5)/n)*6.283-1.57;ndot(g,cx+Math.cos(am)*R,cy+Math.sin(am)*R,7,'#21e6ff');nt(g,'#0a0713',cx+Math.cos(am)*R-3,cy+Math.sin(am)*R+4,9,'M'+i);ndot(g,cx+Math.cos(aw)*R,cy+Math.sin(aw)*R,7,'#ff2fa6');if(perm)nt(g,'#0a0713',cx+Math.cos(aw)*R-3,cy+Math.sin(aw)*R+4,9,'W'+perm[i]);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=5;nt(g,GD,10,16,10,'n='+n+' couples, alternating M/W around the table · each W avoids the 2 men flanking her partner');
+ drawTable(g,n,W/2,H/2+6,80,null);nt(g,'#8ad',10,H-10,10,'valid seating: woman i ≠ partner i and ≠ the neighbour i+1 — count = '+brute(n)+' (n=5 → 13)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var f=formula(N),b=brute(N);nt(g,GD,12,22,12,'n = '+N+' couples');
+ drawTable(g,N,W/2,150,90,null);
+ nt(g,'#35ffb0',12,H-88,13,'Touchard closed form = '+f);
+ nt(g,f===b?'#39ffb0':'#ff5a5a',12,H-62,13,'brute count of valid seatings = '+b+'  '+(f===b?'✓':'✗'));
+ nt(g,'#8ad',12,H-38,10,'ménage sequence: 1, 0, 0, 1, 2, 13, 80, 579, …');
+ var v=verify();nt(g,v.matches?'#39ffb0':'#ff5a5a',12,H-14,9,'closed form == brute count for n=3..7 '+(v.matches?'✓':'✗'));}
+document.getElementById('mnmore').onclick=function(){N=Math.min(9,N+1);drawW4();document.getElementById('mnread').textContent='n='+N+': ménage number = '+formula(N);};
+document.getElementById('mnless').onclick=function(){N=Math.max(3,N-1);drawW4();document.getElementById('mnread').textContent='n='+N+': ménage number = '+formula(N);};
+document.getElementById('mncheck').onclick=function(){var v=verify();document.getElementById('mnread').textContent='Touchard closed-form ménage number == brute count of valid seatings for n=3..7 '+(v.matches?'✓':'✗');};
+document.getElementById('mnspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.06);drawTable(g,N,0,0,110,null);
+ for(var i=0;i<N;i++){var am=(i/N)*6.283-1.57,aw=((i+0.5)/N)*6.283-1.57,aw2=((i-0.5+N)%N/N)*6.283-1.57;ne(g,'rgba(255,47,166,0.3)',1);g.beginPath();g.moveTo(Math.cos(aw)*110,Math.sin(aw)*110);g.lineTo(Math.cos(am)*110,Math.sin(am)*110);g.stroke();ng(g);}
+ g.restore();nt(g,'#35ffb0',W/2-30,H/2-4,13,''+formula(N));
+ nt(g,'#35ffb0',10,H-46,11,'green: the count of valid alternating seatings');nt(g,'#ff2fa6',10,H-30,10,'magenta: the forbidden partner/neighbour adjacencies summed away');nt(g,'#8ad',10,H-13,10,'count by cancelling the forbidden');}
+drawW4();window.__menage=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GIUG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Giuga&rsquo;s conjecture</b> proposes a stunningly simple test for primality: <b>n is prime if and only if</b> 1<sup>n&minus;1</sup> + 2<sup>n&minus;1</sup> + &hellip; + (n&minus;1)<sup>n&minus;1</sup> &equiv; &minus;1 (mod n). One direction is easy and <b>proven</b>: if n is prime, Fermat&rsquo;s little theorem makes every term &equiv; 1, so the sum of n&minus;1 ones is n&minus;1 &equiv; &minus;1. The other direction &mdash; that <i>no composite</i> ever satisfies it &mdash; is a famous <b>open problem</b>: any counterexample would be a &ldquo;Giuga number,&rdquo; and none has ever been found, though we know it would need thousands of digits and at least nine prime factors.<br><br>
+ <span class="lit">LIT</span> verified live: for every prime n up to 300 the sum is &equiv; &minus;1 (mod n), and <b>no composite</b> up to 300 satisfies it (window.__giuga). <span class="fig">FIG</span> honest scope: the &ldquo;prime &rArr; &equiv;&minus;1&rdquo; direction is proven (Fermat); the converse is <b>Giuga&rsquo;s open conjecture</b> &mdash; this checks it holds for all small n, it does not prove it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>cold-boot</i> &mdash; a single power sum that flags every prime and, as far as anyone knows, no composite. <b>AVAN (AI)</b> built the instrument: the power-sum mod n, the prime-direction check (proven), and the no-composite sweep (conjecture, unrefuted).<br><br>Credit as content: Giuseppe Giuga (1950). The weave: David names the cold boot; I confirm the proven direction exactly and report the converse honestly as an open conjecture verified only for small n.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="210"></canvas>
+  <div class="wctrl"><div class="cap">The power sum Σ kⁿ⁻¹ (mod n) for each n; it lands on n−1 (≡ −1) exactly at the primes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick n; see the power sum mod n — ≡ −1 exactly when n is prime, and never (so far) when composite.</div>
+   <div class="btns" style="margin-top:10px"><button id="ggprev">◀</button><button id="ggnext">▶</button><button id="ggcheck">verify ▶</button></div>
+   <div class="cap" id="ggread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the primes the sum flags with ≡ −1.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t trial-divide &mdash; sum the powers. The inverse of &lsquo;factor n to test primality&rsquo; is &lsquo;&Sigma; k<sup>n&minus;1</sup> &equiv; &minus;1 (mod n) &mdash; provably at every prime, conjecturally never at a composite.&rsquo; <b>Magenta</b> are composites (the sum misses &minus;1); <b>green</b> are primes (the sum hits &minus;1). One sum, a prime detector.</div>
+   <div class="btns" style="margin-top:10px"><button id="ggspin">pause spin</button></div></div></div></div>"""
+GIUG_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,VI='#b06bff',NI=7;
+function powmod(b,e,m){b%=m;var r=1;while(e>0){if(e&1)r=(r*b)%m;b=(b*b)%m;e=Math.floor(e/2);}return r;}
+function isPrime(n){if(n<2)return false;for(var i=2;i*i<=n;i++)if(n%i===0)return false;return true;}
+function gsum(n){var s=0;for(var k=1;k<n;k++)s=(s+powmod(k,n-1,n))%n;return s;}
+function verify(){if(VR)return VR;var po=true,nc=true;for(var n=2;n<=300;n++){var cond=(gsum(n)===(n-1)%n);if(isPrime(n)){if(!cond)po=false;}else if(cond)nc=false;}return {primeOk:po,noComposite:nc};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,VI,10,16,10,'Σ kⁿ⁻¹ (mod n) for n=2..40 · lands on n−1 (≡ −1) exactly at the primes (green)');
+ var x0=20,cell=(W-40)/39,y0=H-30;for(var n=2;n<=40;n++){var g2=gsum(n),hit=(g2===(n-1)%n),x=x0+(n-2)*cell,h=g2/(n)*130;nf(g,hit?'#35ffb0':'rgba(176,107,255,0.5)');g.globalAlpha=0.7;g.fillRect(x,y0-h,cell-1,h);g.globalAlpha=1;ng(g);if(hit){ndot(g,x+cell/2,y0-h-6,2,'#35ffb0');}}
+ nt(g,'#8ad',20,26,10,'bar height = Σ mod n · green (reaches n−1) = prime · violet = composite (never reaches n−1)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=NI,s=gsum(n),hit=(s===(n-1)%n),prime=isPrime(n);nt(g,VI,12,24,13,'n = '+n+'  ('+(prime?'prime':'composite')+')');
+ nt(g,'#cfe',12,60,12,'Σ_{k=1}^{'+(n-1)+'} k^'+(n-1)+' (mod '+n+') = '+s);
+ nt(g,'#cfe',12,90,12,'compare to n−1 = '+(n-1));
+ nt(g,hit?'#35ffb0':'#ff2fa6',12,124,14,hit?'≡ −1 (mod n) → flags PRIME':'≢ −1 → composite (not flagged)');
+ nt(g,(hit===prime)?'#39ffb0':'#ff5a5a',12,158,12,'matches primality: '+(hit===prime?'✓':'✗ (a counterexample!)'));
+ var v=verify();nt(g,v.primeOk&&v.noComposite?'#39ffb0':'#ff5a5a',12,H-30,9,'prime ⟹ ≡−1 (proven) for primes ≤300 '+(v.primeOk?'✓':'✗')+' · no composite ≤300 satisfies it '+(v.noComposite?'✓':'✗'));
+ nt(g,'#8a7aaa',12,H-14,9,'(the converse is Giuga\\'s OPEN conjecture — verified small, not proven)');}
+document.getElementById('ggnext').onclick=function(){NI=NI%80+2;drawW4();document.getElementById('ggread').textContent='n='+NI+': Σk^(n-1) mod n = '+gsum(NI)+(gsum(NI)===(NI-1)%NI?' ≡ −1 → prime':' → composite');};
+document.getElementById('ggprev').onclick=function(){NI=(NI+77)%80+2;drawW4();document.getElementById('ggread').textContent='n='+NI+': sum mod n = '+gsum(NI);};
+document.getElementById('ggcheck').onclick=function(){var v=verify();document.getElementById('ggread').textContent='prime ⟹ Σk^(n-1)≡−1 (Fermat, proven) '+(v.primeOk?'✓':'✗')+' · no composite ≤300 satisfies it (Giuga open conjecture, unrefuted) '+(v.noComposite?'✓':'✗');};
+document.getElementById('ggspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);g.save();g.translate(W/2,H/2-10);g.rotate(ang*0.05);var R=120;for(var n=2;n<=50;n++){var a=(n-2)/48*6.283,hit=(gsum(n)===(n-1)%n);ndot(g,Math.cos(a)*R,Math.sin(a)*R,hit?5:2.5,hit?'#35ffb0':'rgba(176,107,255,0.5)');}g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the primes — where Σ k^(n−1) ≡ −1 (mod n)');nt(g,'#ff2fa6',10,H-30,10,'magenta: composites — the sum misses −1 (so far, always)');nt(g,'#8ad',10,H-13,10,'one sum, a prime detector');}
+drawW4();window.__giuga=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 134 · neon-noir · silicon-coding (a deli-counter lock served in ticket order · the smallest exponent that resets every unit · a tree cut into heavy chains · a prime-factored DFT with no twiddles · two coupled sums that feel position) ═══════════════════════
 TCKL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The ticket lock</b> is a <b>fair spinlock</b> built like a deli counter. Two shared numbers: the <b>next ticket</b> to hand out and the ticket <b>now serving</b>. To acquire, a thread atomically takes the next ticket (fetch-and-increment) and then spins until &ldquo;now serving&rdquo; equals its own number. To release, it just increments &ldquo;now serving,&rdquo; waking exactly the next thread in line. Because the ticket draw is atomic, the order of tickets <i>is</i> the order of arrival, so the lock is granted strictly <b>first-come, first-served</b> &mdash; no starvation, no thundering herd, just a queue made of two counters.<br><br>
@@ -35017,6 +35240,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-chan","title":"THE CHAN'S ALGORITHM","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE-GAUNTLET","domain_slug":"the-gauntlet","accent":"#21e6ff","icon":"chan",
+  "kicker":"a hull wrapped over mini-hulls",
+  "blurb":"Chan's algorithm in the 5-window house format — computing a convex hull in O(n log h) time, where h is the number of hull vertices, making it output-sensitive: fast when the hull is small even if the point set is huge. Its trick is a clever marriage. Guess a bound m on h; split the n points into groups of m and compute each group's hull with a quick Graham scan; then gift-wrap around the whole set, jumping between groups by binary-searching each mini-hull's tangent, so each wrap step costs only O((n/m) log m). If the wrap doesn't close within m steps, the guess was too small — double m and retry. The doubling makes the total cost dominated by the final, correct guess. Verified live: over 2000 random point sets, Chan's grouped-hull-plus-wrap-plus-doubling produces exactly the same convex hull as Andrew's monotone chain. Neon-noir traced. See the mini-hulls in 1D, the wrap-vs-reference in 2D, and the guess-wrap-double inverse in 3D.",
+  "lit":"Genuine Chan's algorithm for output-sensitive convex hull (Timothy Chan, 1996). Verified live: over 2000 random point sets, the grouped-mini-hull + gift-wrap + doubling-m construction produces exactly the reference hull (Andrew's monotone chain) (window.__chan.matchesReference).",
+  "fig":"Honest scope: verified in general position; the group tangents here use a linear scan (the true O(n log h) speedup comes from binary search on each mini-hull, and the doubling schedule). The AVAN inverse is honest — instead of testing every point for each hull edge, one groups the points, hulls each group, gift-wraps between mini-hulls, and doubles the size guess until it closes. Magenta are interior points; green is the hull. Guess, wrap, double.",
+  "body":CHAN_BODY,"script":CHAN_SCRIPT},
+ {"slug":"the-richardson-extrapolation","title":"THE RICHARDSON EXTRAPOLATION","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE-EPOCH","domain_slug":"the-epoch","accent":"#ff8a3c","icon":"richardson",
+  "kicker":"two step sizes that cancel error",
+  "blurb":"Richardson extrapolation in the 5-window house format — getting a high-accuracy answer out of a low-accuracy method by combining two runs at different step sizes. Many numerical estimates carry a leading error that shrinks like a power of the step h: a central-difference derivative D(h) is off by roughly c·h². Compute it again at half the step, D(h/2), off by c·h²/4, and form (4·D(h/2)−D(h))/3 — the c·h² terms cancel exactly, leaving an error of order h⁴. Repeat and you climb an accuracy ladder (this is how Romberg integration works). Two cheap estimates, one clever subtraction, and the dominant error vanishes. Verified live: over 2000 smooth functions, the Richardson-extrapolated derivative is closer to the true f′(x) than the plain central difference every time, with a median error ratio around 1e-5. Neon-noir traced. See the error orders in 1D, D-vs-Richardson in 2D, and the cancel-the-error inverse in 3D.",
+  "lit":"Genuine Richardson extrapolation (Lewis Fry Richardson, 1911). Verified live: over 2000 smooth random functions, R=(4·D(h/2)−D(h))/3 (canceling the O(h²) term of the central difference) is closer to the analytic f′(x) than D(h) every single time, with a median error ratio ~1e-5 — order h⁴ vs h² (window.__richardson.better, .med).",
+  "fig":"No framing: the two difference quotients and the extrapolation run in-browser. The AVAN inverse is honest — instead of shrinking h forever, one combines two step sizes so the leading c·h² error cancels, jumping to order h⁴. Magenta is the plain estimate's error; green is the extrapolated near-exact value. Two runs, one subtraction, higher order.",
+  "body":RICH_BODY,"script":RICH_SCRIPT},
+ {"slug":"the-split-radix","title":"THE SPLIT-RADIX FFT","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE-SPEEDRUN","domain_slug":"the-speedrun","accent":"#35ffb0","icon":"splitradix",
+  "kicker":"an FFT with the fewest multiplies",
+  "blurb":"The split-radix FFT in the 5-window house format — computing the DFT with the fewest arithmetic operations of any classic power-of-two algorithm. Radix-2 splits a size-N transform into two size-N/2; radix-4 into four size-N/4. Split-radix does something asymmetric and clever: it splits into one half-size transform on the even-indexed samples and two quarter-size transforms on the samples at indices ≡1 and ≡3 (mod 4). That L-shaped decomposition needs fewer twiddle-factor multiplications than either pure radix — for decades it held the record for lowest operation count — while still giving the exact same transform. Verified live: for sizes N=2 to 128, the split-radix recursion reproduces the direct DFT to ~1e-12 on random complex inputs. Neon-noir traced. See the L-shaped split in 1D, the spectrum-vs-direct in 2D, and the asymmetric-split inverse in 3D.",
+  "lit":"Genuine split-radix FFT (Yavne 1968; Duhamel & Hollmann 1984), long the minimal-operation-count power-of-two FFT. Verified live: for N=2..128, the split-radix recursion (one even-index N/2 transform + two odd-index N/4 transforms, combined by butterflies) reproduces the direct DFT to ~1e-12 on random complex inputs (window.__split_radix.matchesDFT).",
+  "fig":"No framing: the even/odd-1/odd-3 recursion and a direct DFT run in-browser (the win is operation count, shown structurally). The AVAN inverse is honest — instead of a symmetric radix-2 or radix-4 split, one splits L-shaped: one even half-transform plus two odd quarter-transforms, fewer twiddles. Magenta is the direct N² transform; green is the split-radix spectrum. Fewest multiplies, same answer.",
+  "body":SPRX_BODY,"script":SPRX_SCRIPT},
+ {"slug":"the-menage-problem","title":"THE MENAGE PROBLEM","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE-JACKPOT","domain_slug":"the-jackpot","accent":"#ffcf4a","icon":"menage",
+  "kicker":"couples seated so none sits by a partner",
+  "blurb":"The ménage problem in the 5-window house format — in how many ways can n couples be seated around a round table, men and women alternating, so that no one sits next to their own partner? Fix the men in alternate seats; the question becomes counting permutations σ of the women with σ(i)≠i and σ(i)≠i+1 (mod n) — each woman avoids the two men flanking her partner's original spot. Touchard gave a closed form as an alternating sum of binomials, A_n = Σ_k (−1)^k (2n/(2n−k)) C(2n−k, k) (n−k)!. The sequence 1, 0, 0, 1, 2, 13, 80, 579… is a classic of combinatorics. Verified live: for n=3 to 7, the Touchard closed-form ménage number equals a brute-force count of all valid seatings. Neon-noir traced. See the forbidden diagonals in 1D, closed-form-vs-brute in 2D, and the inclusion-exclusion inverse in 3D.",
+  "lit":"Genuine ménage problem (Édouard Lucas posed it, 1891; Jacques Touchard's closed form, 1934). Verified live: for n=3..7, the Touchard alternating-binomial formula A_n = Σ_k (−1)^k (2n/(2n−k)) C(2n−k,k) (n−k)! equals a brute-force count of permutations with σ(i)≠i and σ(i)≠(i+1) mod n (n=5 → 13) (window.__menage.matches).",
+  "fig":"No framing: the closed-form formula and the exhaustive enumeration run in-browser. The AVAN inverse is honest — instead of listing every seating, one sums over the forbidden overlaps: an inclusion-exclusion over the two forbidden adjacencies per person, giving Touchard's alternating binomial sum. Magenta is a forbidden seating; green is a valid one. Count by cancelling the forbidden.",
+  "body":MNGE_BODY,"script":MNGE_SCRIPT},
+ {"slug":"the-giuga","title":"THE GIUGA CONJECTURE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"COLD-BOOT","domain_slug":"cold-boot","accent":"#b06bff","icon":"giuga",
+  "kicker":"a sum that flags every prime",
+  "blurb":"Giuga's conjecture in the 5-window house format — a stunningly simple proposed test for primality: n is prime if and only if 1^{n−1}+2^{n−1}+…+(n−1)^{n−1} ≡ −1 (mod n). One direction is easy and proven: if n is prime, Fermat's little theorem makes every term ≡ 1, so the sum of n−1 ones is n−1 ≡ −1. The other direction — that no composite ever satisfies it — is a famous open problem: any counterexample would be a 'Giuga number,' and none has ever been found, though we know it would need thousands of digits and at least nine prime factors. Verified live: for every prime n up to 300 the sum is ≡ −1 (mod n), and no composite up to 300 satisfies it. Neon-noir traced. See the power sum flagging primes in 1D, the per-n test in 2D, and the sum-as-detector inverse in 3D.",
+  "lit":"Genuine Giuga conjecture (Giuseppe Giuga, 1950). Verified live: for every prime n≤300, Σ_{k=1}^{n−1} k^{n−1} ≡ −1 (mod n) — the proven direction via Fermat's little theorem — and no composite n≤300 satisfies it (window.__giuga.primeOk, .noComposite).",
+  "fig":"Honest scope: the 'prime ⟹ sum ≡ −1' direction is PROVEN (Fermat); the converse — 'no composite satisfies it' — is Giuga's OPEN conjecture. This checks it holds for all n ≤ 300; it does not prove it (a counterexample would need ≥ 9 prime factors and thousands of digits). The AVAN inverse is honest — instead of trial-dividing to test primality, one sums the powers: Σ k^{n−1} ≡ −1 (mod n) provably at every prime, conjecturally never at a composite. Magenta are composites (the sum misses −1); green are primes (the sum hits −1). One sum, a prime detector.",
+  "body":GIUG_BODY,"script":GIUG_SCRIPT},
  {"slug":"the-ticket-lock","title":"THE TICKET LOCK","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"SHARED-MEMORY","domain_slug":"shared-memory","accent":"#21e6ff","icon":"ticketlock",
   "kicker":"a deli-counter lock served in ticket order",
