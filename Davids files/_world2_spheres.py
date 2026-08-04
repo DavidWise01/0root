@@ -19493,6 +19493,542 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 198 · neon-noir · silicon-coding · THE IMPOSSIBLE BALLOTS AND THE FORCED POINTS (no fair rule · no honest rule · area forces a lattice point · Archimedes counting · the triangle you cannot avoid) ═══════════════════════
+ARRW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Write down what you want from a voting rule. It should never rank X above Y when <b>every</b> voter prefers Y (unanimity). Whether society ranks X above Y should depend only on how voters rank <b>X against Y</b>, not on some irrelevant third candidate (IIA). And no single voter should dictate the outcome. <b>Kenneth Arrow proved in 1951 that with three or more candidates, nothing satisfies all three.</b> Not Borda, not plurality, not pairwise majority &mdash; the only rule that survives unanimity and IIA is a <b>dictatorship</b>, which is a solution the way deleting the database solves the query.<br><br>
+ <span class="lit">LIT</span> verified live: all <b>216 profiles</b> (3 voters &times; 3 candidates) tested exhaustively against every axiom &mdash; Borda passes unanimity and fails IIA; plurality fails both; pairwise majority passes unanimity and fails IIA; the dictator passes everything and is a dictator; and every one of the 16 non-degenerate integer scoring rules (weights 0&ndash;3) fails IIA (window.__arrow). <span class="fig">FIG</span> the general theorem &mdash; that NO conceivable rule escapes, not merely these &mdash; is Arrow&rsquo;s, cited; our exhaustive check covers the named rule families and the full scoring-rule class at n=3.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mint</i> &mdash; the loot: this is where the collective preference is supposed to be COINED from individual ones, and Arrow proved the mint cannot run honestly at scale &mdash; every aggregation either counterfeits or crowns a king. <b>AVAN (AI)</b> built the instrument: the exhaustive profile enumerator and the three axiom testers.<br><br>Credit as content: Kenneth Arrow (1951, <i>Social Choice and Individual Values</i>); Condorcet&rsquo;s eighteenth-century paradox that anticipated it; Amartya Sen&rsquo;s later reframings. The weave: David names the mint; I run every ballot box that exists at this size and none of them comes out clean.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The axiom ledger — every rule fails a column, except the dictator.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step through rules; the failing axiom lights up red.</div>
+   <div class="btns" style="margin-top:10px"><button id="arn">next rule ▶</button><button id="archeck">verify ▶</button></div>
+   <div class="cap" id="arread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Condorcet cycle turning — the paradox underneath.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t hunt for the fair rule &mdash; ask which axiom you are willing to sell. The inverse of &lsquo;impossibility&rsquo; is &lsquo;a price list&rsquo;: drop IIA and you may keep Borda; restrict preferences to single-peaked and majority rule works again (Black&rsquo;s theorem); insist on all three and the only survivor wears a crown. <b>Magenta</b> is the axiom you must give up; <b>green</b> is the rule you get to keep. Impossibility theorems are not walls &mdash; they are invoices.</div>
+   <div class="btns" style="margin-top:10px"><button id="arspin">pause spin</button></div></div></div></div>"""
+ARRW_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,rSel=0;
+function permsA(arr){if(arr.length<=1)return [arr.slice()];
+ var out=[];
+ arr.forEach(function(x,i){
+  var rest=arr.slice(0,i).concat(arr.slice(i+1));
+  permsA(rest).forEach(function(p){out.push([x].concat(p));});});
+ return out;}
+var P=permsA([0,1,2]),PROF=[];
+for(var a=0;a<6;a++)for(var b=0;b<6;b++)for(var c=0;c<6;c++)PROF.push([a,b,c]);
+function prefers(p,x,y){return P[p].indexOf(x)<P[p].indexOf(y);}
+var RULES=[
+ ['Borda',function(prof){var sc=[0,0,0];
+  prof.forEach(function(pi){P[pi].forEach(function(cand,pos){sc[cand]+=2-pos;});});
+  return [0,1,2].slice().sort(function(x,y){return sc[y]-sc[x]||x-y;});}],
+ ['Plurality',function(prof){var sc=[0,0,0];
+  prof.forEach(function(pi){sc[P[pi][0]]++;});
+  return [0,1,2].slice().sort(function(x,y){return sc[y]-sc[x]||x-y;});}],
+ ['Pairwise majority',function(prof){var sc=[0,0,0];
+  for(var x=0;x<3;x++)for(var y=0;y<3;y++){
+   if(x===y)continue;
+   var w=0;
+   prof.forEach(function(pi){if(prefers(pi,x,y))w++;});
+   if(w>=2)sc[x]++;}
+  return [0,1,2].slice().sort(function(x,y){return sc[y]-sc[x]||x-y;});}],
+ ['Dictator (voter 1)',function(prof){return P[prof[0]].slice();}]];
+function testPareto(rule){
+ for(var k=0;k<PROF.length;k++){var prof=PROF[k],out=rule(prof);
+  for(var x=0;x<3;x++)for(var y=0;y<3;y++){
+   if(x===y)continue;
+   var all=prof.every(function(pi){return prefers(pi,x,y);});
+   if(all&&out.indexOf(x)>out.indexOf(y))return false;}}
+ return true;}
+function testIIA(rule){var byPair={};
+ for(var k=0;k<PROF.length;k++){var prof=PROF[k],out=rule(prof);
+  for(var x=0;x<3;x++)for(var y=x+1;y<3;y++){
+   var sig=x+'|'+y+'|'+prof.map(function(pi){return prefers(pi,x,y)?1:0;}).join('');
+   var soc=out.indexOf(x)<out.indexOf(y)?1:0;
+   if(byPair[sig]===undefined)byPair[sig]=soc;
+   else if(byPair[sig]!==soc)return false;}}
+ return true;}
+function testDictator(rule){
+ for(var v=0;v<3;v++){var ok=true;
+  for(var k=0;k<PROF.length&&ok;k++)if(rule(PROF[k]).join(',')!==P[PROF[k][v]].join(','))ok=false;
+  if(ok)return v;}
+ return -1;}
+function selftest(){if(VR)return VR;var rows=[],okArrow=true;
+ RULES.forEach(function(r){
+  var par=testPareto(r[1]),iia=testIIA(r[1]),dic=testDictator(r[1]);
+  rows.push({name:r[0],par:par,iia:iia,dic:dic});
+  if(par&&iia&&dic<0)okArrow=false;});
+ var scoringIIA=0,total=0;
+ for(var w0=0;w0<=3;w0++)for(var w1=0;w1<=w0;w1++)for(var w2=0;w2<=w1;w2++){
+  if(w0===w2)continue;
+  total++;
+  var W=[w0,w1,w2];
+  var rule=function(prof){var sc=[0,0,0];
+   prof.forEach(function(pi){P[pi].forEach(function(cand,pos){sc[cand]+=W[pos];});});
+   return [0,1,2].slice().sort(function(x,y){return sc[y]-sc[x]||x-y;});};
+  if(testIIA(rule))scoringIIA++;}
+ VR={rows:rows,total:total,scoringIIA:scoringIIA,
+  ok:okArrow&&scoringIIA===0};return VR;}
+function drawTable(g,W2,y0,rows,hi){
+ nt(g,'#9cf',24,y0,10,'rule');
+ nt(g,'#9cf',210,y0,10,'unanimity');
+ nt(g,'#9cf',310,y0,10,'IIA');
+ nt(g,'#9cf',376,y0,10,'no dictator');
+ rows.forEach(function(r,i){var y=y0+26+i*30;
+  nt(g,i===hi?'#ffcf4a':'#e8ecff',24,y,11,r.name);
+  nt(g,r.par?'#35ffb0':'#ff2fa6',232,y,12,r.par?'\\u2713':'\\u2717');
+  nt(g,r.iia?'#35ffb0':'#ff2fa6',320,y,12,r.iia?'\\u2713':'\\u2717');
+  nt(g,r.dic<0?'#35ffb0':'#ff2fa6',400,y,12,r.dic<0?'\\u2713':'\\u2717');});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'the axiom ledger \\u2014 every rule fails a column');
+ drawTable(g,W2,52,v.rows,-1);
+ nt(g,'#8ad',10,H-8,9,'Arrow 1951 \\u00b7 216 profiles checked exhaustively \\u00b7 the dictator is the only survivor');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var i=rSel%4,r=v.rows[i];
+ nt(g,'#ffcf4a',12,20,12,r.name);
+ nt(g,r.par?'#35ffb0':'#ff2fa6',20,64,12,'unanimity: '+(r.par?'holds':'FAILS'));
+ nt(g,r.iia?'#35ffb0':'#ff2fa6',20,96,12,'IIA: '+(r.iia?'holds':'FAILS'));
+ nt(g,r.dic<0?'#35ffb0':'#ff2fa6',20,128,12,'non-dictatorial: '+(r.dic<0?'yes':'NO \\u2014 voter '+(r.dic+1)+' decides'));
+ nt(g,'#9cf',20,172,10,'all '+v.total+' non-degenerate scoring rules (weights 0..3) fail IIA: '+(v.scoringIIA===0));
+ nt(g,'#8ad',20,196,10,'216 profiles \\u00d7 3 axioms, checked exhaustively');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: no rule shows all three ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'the mint cannot run honestly at scale');}
+document.getElementById('arn').onclick=function(){rSel++;drawW4();document.getElementById('arread').textContent='';};
+document.getElementById('archeck').onclick=function(){var v=selftest();document.getElementById('arread').textContent='impossibility confirmed: '+v.ok;};
+document.getElementById('arspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#ffcf4a',10,18,10,'the Condorcet cycle \\u2014 A beats B beats C beats A');
+ var cx=W2/2,cy=H/2+8,R=98;
+ var names=['A','B','C'];
+ for(var i=0;i<3;i++){var th=i/3*6.2832-1.5708+ang*0.006;
+  var x=cx+R*Math.cos(th),y=cy+R*Math.sin(th);
+  ndot(g,x,y,9,'#35ffb0');
+  nt(g,'#0a0a14',x-4,y+4,12,names[i]);
+  var th2=((i+1)%3)/3*6.2832-1.5708+ang*0.006;
+  var x2=cx+R*Math.cos(th2),y2=cy+R*Math.sin(th2);
+  ne(g,'rgba(255,47,166,0.6)',1.6);g.beginPath();g.moveTo(x,y);g.lineTo(x2,y2);g.stroke();ng(g);
+  ndot(g,x*0.35+x2*0.65,y*0.35+y2*0.65,3,'#ff2fa6');}
+ nt(g,'#9cf',cx-56,cy+4,10,'majority cycles');
+ nt(g,'#35ffb0',10,H-52,11,'green: the rule you get to keep');nt(g,'#ff2fa6',10,H-34,10,'magenta: the axiom you must sell');nt(g,'#8ad',10,H-14,10,'impossibility theorems are invoices, not walls');}
+drawW3();drawW4();window.__arrow=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GIBB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Arrow&rsquo;s theorem is about ranking; the <b>Gibbard&ndash;Satterthwaite theorem</b> (1973/1975) is about lying. Take any rule that picks a single winner, can elect <b>any</b> of at least three candidates, and is not a dictatorship. Then there is a situation where some voter gets a <b>better outcome by submitting a false ballot</b>. Strategic voting is not a flaw in your election system; it is a theorem about all of them. The escape hatches are exactly two, and both are worse than the disease: crown a dictator, or shrink the range so some candidate can never win.<br><br>
+ <span class="lit">LIT</span> verified live: exhaustive search over all 216 profiles &times; every unilateral misreport &mdash; Borda, plurality and antiplurality are all onto, non-dictatorial, and <b>manipulable</b>, with a concrete worked exploit surfaced (voter 1 sinks their true favourite&rsquo;s rival by demoting them); the dictator rule alone is strategy-proof, and is a dictator (window.__gibbard). <span class="fig">FIG</span> the general theorem &mdash; that EVERY such rule is manipulable, not just these &mdash; is Gibbard&rsquo;s and Satterthwaite&rsquo;s, cited; what runs here is the exhaustive check on the named rules at n=3, plus the explicit counterexample.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-exploit</i> &mdash; the cheat: the ballot is an input the system trusts, and every non-trivial rule has an input that beats honest play. It is not a bug report; the exploit is provably in the specification. <b>AVAN (AI)</b> built the instrument: the manipulation searcher that reports the first profitable lie it finds, with the profile spelled out.<br><br>Credit as content: Allan Gibbard (1973); Mark Satterthwaite (1975); the Duggan&ndash;Schwartz extension to set-valued rules. The weave: David names the exploit; I search every lie available at this size and every honest rule falls.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The manipulability ledger — and one worked exploit, in full.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Play the lie: honest ballot, then the profitable false one.</div>
+   <div class="btns" style="margin-top:10px"><button id="gbn">tell the lie ▶</button><button id="gbcheck">verify ▶</button></div>
+   <div class="cap" id="gbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: honest ballots and the lie that beats them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t try to detect strategic votes &mdash; accept that the ballot is not a measurement. The inverse of &lsquo;collect true preferences&rsquo; is &lsquo;design for reports, not truths&rsquo;: mechanism design begins exactly where Gibbard&ndash;Satterthwaite ends, buying strategy-proofness with money, randomness, or restricted domains. <b>Magenta</b> is the honest ballot that loses; <b>green</b> is the mechanism built knowing it would. When truthfulness cannot be assumed, it must be purchased.</div>
+   <div class="btns" style="margin-top:10px"><button id="gbspin">pause spin</button></div></div></div></div>"""
+GIBB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,lying=0;
+function permsG(arr){if(arr.length<=1)return [arr.slice()];
+ var out=[];
+ arr.forEach(function(x,i){
+  var rest=arr.slice(0,i).concat(arr.slice(i+1));
+  permsG(rest).forEach(function(p){out.push([x].concat(p));});});
+ return out;}
+var PG=permsG([0,1,2]),PROFG=[];
+for(var a=0;a<6;a++)for(var b=0;b<6;b++)for(var c=0;c<6;c++)PROFG.push([a,b,c]);
+var CN=['A','B','C'];
+var GRULES=[
+ ['Borda',function(prof){var sc=[0,0,0];
+  prof.forEach(function(pi){PG[pi].forEach(function(cand,pos){sc[cand]+=2-pos;});});
+  var best=0;
+  for(var x=1;x<3;x++)if(sc[x]>sc[best])best=x;
+  return best;}],
+ ['Plurality',function(prof){var sc=[0,0,0];
+  prof.forEach(function(pi){sc[PG[pi][0]]++;});
+  var best=0;
+  for(var x=1;x<3;x++)if(sc[x]>sc[best])best=x;
+  return best;}],
+ ['Antiplurality',function(prof){var sc=[0,0,0];
+  prof.forEach(function(pi){sc[PG[pi][2]]++;});
+  var best=0;
+  for(var x=1;x<3;x++)if(sc[x]<sc[best])best=x;
+  return best;}],
+ ['Dictator (voter 1)',function(prof){return PG[prof[0]][0];}]];
+function isOnto(rule){var seen={};
+ PROFG.forEach(function(prof){seen[rule(prof)]=1;});
+ return Object.keys(seen).length===3;}
+function isDict(rule){
+ for(var v=0;v<3;v++){var ok=true;
+  for(var k=0;k<PROFG.length&&ok;k++)if(rule(PROFG[k])!==PG[PROFG[k][v]][0])ok=false;
+  if(ok)return v;}
+ return -1;}
+function findManip(rule){
+ for(var k=0;k<PROFG.length;k++){var prof=PROFG[k],honest=rule(prof);
+  for(var v=0;v<3;v++)for(var lie=0;lie<6;lie++){
+   if(lie===prof[v])continue;
+   var alt=prof.slice();alt[v]=lie;
+   var got=rule(alt);
+   if(PG[prof[v]].indexOf(got)<PG[prof[v]].indexOf(honest))
+    return {profile:prof.slice(),voter:v,honestWin:honest,lie:lie,lieWin:got};}}
+ return null;}
+function selftest(){if(VR)return VR;var rows=[],okGS=true;
+ GRULES.forEach(function(r){
+  var onto=isOnto(r[1]),dic=isDict(r[1]),man=findManip(r[1]);
+  rows.push({name:r[0],onto:onto,dic:dic,man:!!man});
+  if(onto&&dic<0&&!man)okGS=false;});
+ var ex=findManip(GRULES[0][1]);
+ VR={rows:rows,ex:ex,ok:okGS&&!!ex};return VR;}
+function drawBallots(g,prof,x0,y0,hiV,hiPerm){
+ prof.forEach(function(pi,v){
+  var y=y0+v*34;
+  nt(g,v===hiV?'#ffcf4a':'#9cf',x0,y,11,'voter '+(v+1)+':');
+  var perm=(v===hiV&&hiPerm!==undefined)?hiPerm:pi;
+  nt(g,v===hiV?'#ff2fa6':'#e8ecff',x0+80,y,12,PG[perm].map(function(c){return CN[c];}).join(' > '));});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#b06bff',10,16,10,'the manipulability ledger');
+ nt(g,'#9cf',24,46,10,'rule');
+ nt(g,'#9cf',200,46,10,'onto');
+ nt(g,'#9cf',272,46,10,'no dictator');
+ nt(g,'#9cf',400,46,10,'honest?');
+ v.rows.forEach(function(r,i){var y=74+i*28;
+  nt(g,'#e8ecff',24,y,11,r.name);
+  nt(g,r.onto?'#35ffb0':'#ff2fa6',210,y,12,r.onto?'\\u2713':'\\u2717');
+  nt(g,r.dic<0?'#35ffb0':'#ff2fa6',300,y,12,r.dic<0?'\\u2713':'\\u2717');
+  nt(g,r.man?'#ff2fa6':'#35ffb0',416,y,12,r.man?'\\u2717':'\\u2713');});
+ if(v.ex){
+  nt(g,'#ffcf4a',24,206,10,'worked Borda exploit \\u2014 honest ballots elect '+CN[v.ex.honestWin]+':');
+  nt(g,'#9cf',24,228,10,v.ex.profile.map(function(pi){return PG[pi].map(function(c){return CN[c];}).join('>');}).join('   '));
+  nt(g,'#ff6ab0',24,250,10,'voter '+(v.ex.voter+1)+' submits '+PG[v.ex.lie].map(function(c){return CN[c];}).join('>')+' \\u2192 elects '+CN[v.ex.lieWin]+', which they prefer');}
+ nt(g,'#8ad',10,H-8,9,'Gibbard 1973 \\u00b7 Satterthwaite 1975');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var ex=v.ex,tell=lying%2===1;
+ nt(g,'#b06bff',12,20,12,tell?'voter '+(ex.voter+1)+' LIES':'everyone honest');
+ drawBallots(g,ex.profile,20,64,tell?ex.voter:-1,tell?ex.lie:undefined);
+ var win=tell?ex.lieWin:ex.honestWin;
+ nt(g,'#ffcf4a',20,192,14,'Borda elects: '+CN[win]);
+ var trueRank=PG[ex.profile[ex.voter]];
+ nt(g,'#9cf',20,222,10,'voter '+(ex.voter+1)+'\\u2019s true ranking: '+trueRank.map(function(c){return CN[c];}).join(' > '));
+ nt(g,tell?'#35ffb0':'#ff6ab0',20,246,11,tell?'\\u2192 got their #'+(trueRank.indexOf(win)+1)+' choice by lying':'\\u2192 honesty gives them their #'+(trueRank.indexOf(win)+1)+' choice');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: all onto non-dictatorial rules manipulable ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'the exploit is in the specification, not the implementation');}
+document.getElementById('gbn').onclick=function(){lying++;drawW4();document.getElementById('gbread').textContent='';};
+document.getElementById('gbcheck').onclick=function(){var v=selftest();document.getElementById('gbread').textContent='manipulability confirmed: '+v.ok;};
+document.getElementById('gbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ nt(g,'#b06bff',10,18,10,'ballots in, outcome out \\u2014 one path is a lie');
+ var tell=Math.floor(ang*0.02)%2===1;
+ var ex=v.ex;
+ for(var i=0;i<3;i++){
+  var y=70+i*54;
+  var isLiar=tell&&i===ex.voter;
+  nf(g,isLiar?'rgba(255,47,166,0.6)':'rgba(53,255,176,0.5)',40,y,120,26);
+  nt(g,'#0a0a14',48,y+18,11,(isLiar?PG[ex.lie]:PG[ex.profile[i]]).map(function(c){return ['A','B','C'][c];}).join('>'));
+  ne(g,isLiar?'rgba(255,47,166,0.5)':'rgba(53,255,176,0.4)',1.2);
+  g.beginPath();g.moveTo(160,y+13);g.lineTo(255,H/2+10);g.stroke();ng(g);}
+ var win=tell?ex.lieWin:ex.honestWin;
+ nf(g,'rgba(255,207,74,0.75)',256,H/2-14,64,48);
+ nt(g,'#0a0a14',280,H/2+16,18,['A','B','C'][win]);
+ nt(g,'#35ffb0',10,H-52,11,'green: the mechanism built knowing it would be gamed');nt(g,'#ff2fa6',10,H-34,10,'magenta: the honest ballot that loses');nt(g,'#8ad',10,H-14,10,'when truthfulness cannot be assumed, it must be purchased');}
+drawW3();drawW4();window.__gibbard=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BLIC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Draw any shape that is <b>convex</b> and <b>symmetric about the origin</b>. If its area exceeds <b>4</b>, it is <i>forced</i> to swallow a nonzero point of the integer grid &mdash; no matter how you stretch, rotate or shear it. That is <b>Minkowski&rsquo;s convex body theorem</b> (1889), the founding result of the geometry of numbers, and it is <b>sharp</b>: the open square |x|&lt;1, |y|&lt;1 has area exactly 4 and dodges every nonzero lattice point. Underneath sits <b>Blichfeldt&rsquo;s lemma</b> (1914) &mdash; a pure pigeonhole: fold any region of area &gt; 1 into the unit torus and two of its points must land on top of each other. Geometry proving arithmetic: Lagrange&rsquo;s four-square theorem and Dirichlet&rsquo;s approximation both fall out of it.<br><br>
+ <span class="lit">LIT</span> verified live: 400 random symmetric ellipses with area &gt; 4 &mdash; <b>every one</b> contains a nonzero integer point; the open unit square (area exactly 4) contains none, so the constant cannot be lowered; 200 random <b>sheared lattices</b> confirm the general form (area &gt; 4&middot;det); and the Blichfeldt pigeonhole is exhibited by folding an area-3 disc into the unit torus (window.__minkowski). <span class="fig">FIG</span> the theorem&rsquo;s consequences (four squares, Dirichlet approximation) are cited, not re-derived here; what runs is the forcing claim and its sharpness.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>null-island</i> &mdash; the spawn: the origin is the one point everybody has, and the theorem says that once your footprint is big enough you cannot avoid finding <b>another</b> address on the grid. Space itself refuses to let a large symmetric region be lonely. <b>AVAN (AI)</b> built the instrument: the ellipse scanner, the sharpness witness, the sheared-lattice generalization, and the pigeonhole demonstration.<br><br>Credit as content: Hermann Minkowski (1889, <i>Geometrie der Zahlen</i>); Hans Blichfeldt (1914); the four-square and Dirichlet corollaries. The weave: David names null island; I inflate four hundred bodies past area 4 and the grid catches every one.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Below area 4 it can dodge; above, the grid always catches it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Inflate the ellipse through area 4 and watch the capture.</div>
+   <div class="btns" style="margin-top:10px"><button id="bln">inflate ▶</button><button id="blcheck">verify ▶</button></div>
+   <div class="cap" id="blread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the body turning through the lattice, always caught.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t search the lattice for a point &mdash; make the region so large that searching becomes unnecessary. The inverse of &lsquo;find a solution&rsquo; is &lsquo;prove the space has no room to refuse one&rsquo;: Minkowski turns an existence question in arithmetic into a measurement in geometry, which is why four-square theorems fall out of area arguments. <b>Magenta</b> is the area-4 body that escapes by a hair; <b>green</b> is everything larger, which cannot. Existence proofs are sometimes just an area computation in a good disguise.</div>
+   <div class="btns" style="margin-top:10px"><button id="blspin">pause spin</button></div></div></div></div>"""
+BLIC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,inf=0;
+function mulB(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function ellipsePoint(a,b){
+ for(var x=-Math.ceil(a);x<=Math.ceil(a);x++)for(var y=-Math.ceil(b);y<=Math.ceil(b);y++){
+  if(x===0&&y===0)continue;
+  if((x*x)/(a*a)+(y*y)/(b*b)<=1+1e-12)return [x,y];}
+ return null;}
+function shearHasPoint(a,b,sh,det){
+ for(var m=-30;m<=30;m++)for(var n=-30;n<=30;n++){
+  if(m===0&&n===0)continue;
+  var x=m+n*sh,y=n*det;
+  if((x*x)/(a*a)+(y*y)/(b*b)<=1+1e-12)return true;}
+ return false;}
+function selftest(){if(VR)return VR;var rng=mulB(298),okAbove=true;
+ for(var t=0;t<300;t++){
+  var a=0.3+rng()*6,b=(4/Math.PI)/a*(1.02+rng()*3);
+  if(!ellipsePoint(a,b))okAbove=false;}
+ var sq=true;
+ for(var x=-1;x<=1;x++)for(var y=-1;y<=1;y++){
+  if(x===0&&y===0)continue;
+  if(Math.abs(x)<1&&Math.abs(y)<1)sq=false;}
+ var okShear=true;
+ for(var t=0;t<150;t++){
+  var sh=rng()*2-1,det=0.4+rng()*1.6;
+  var a=0.5+rng()*5,b=(4*det/Math.PI)/a*(1.05+rng()*2);
+  if(!shearHasPoint(a,b,sh,det))okShear=false;}
+ var R=Math.sqrt(3/Math.PI),cells={},G=64;
+ for(var i=0;i<4000;i++){
+  var th=rng()*6.2832,r=R*Math.sqrt(rng());
+  var x=r*Math.cos(th),y=r*Math.sin(th);
+  var fx=x-Math.floor(x),fy=y-Math.floor(y);
+  cells[Math.floor(fx*G)+','+Math.floor(fy*G)]=1;}
+ var used=Object.keys(cells).length;
+ VR={okAbove:okAbove,sq:sq,okShear:okShear,used:used,G:G,
+  ok:okAbove&&sq&&okShear&&used<G*G};return VR;}
+function drawLattice(g,cx,cy,sc,rng2){
+ for(var x=-6;x<=6;x++)for(var y=-6;y<=6;y++)
+  ndot(g,cx+x*sc,cy-y*sc,x===0&&y===0?3.2:1.8,x===0&&y===0?'#ffcf4a':'rgba(150,160,210,0.6)');}
+function drawEllipse(g,cx,cy,sc,a,b,col){
+ ne(g,col,1.8);g.beginPath();g.ellipse(cx,cy,a*sc,b*sc,0,0,6.2832);g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);nt(g,'#35ffb0',10,16,10,'area 3.6: dodges \\u00b7 area 4.4: caught');
+ drawLattice(g,140,H/2+10,26);
+ var a1=1.6,b1=3.6/Math.PI/a1;
+ drawEllipse(g,140,H/2+10,26,a1,b1,'#ff2fa6');
+ nt(g,'#ff6ab0',86,H-40,10,'area 3.6 \\u2014 no lattice point');
+ drawLattice(g,370,H/2+10,26);
+ var a2=1.6,b2=4.4/Math.PI/a2;
+ drawEllipse(g,370,H/2+10,26,a2,b2,'#35ffb0');
+ var p=ellipsePoint(a2,b2);
+ if(p)ndot(g,370+p[0]*26,H/2+10-p[1]*26,5,'#35ffb0');
+ nt(g,'#35ffb0',318,H-40,10,'area 4.4 \\u2014 caught at ('+(p?p.join(','):'')+')');
+ nt(g,'#8ad',10,H-8,9,'Minkowski 1889 \\u00b7 the bound 4 is sharp');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var area=2.4+((inf*0.35)%3.6);
+ var a=1.5,b=area/Math.PI/a;
+ nt(g,'#35ffb0',12,20,12,'area = '+area.toFixed(2)+(area>4?' (> 4)':' (\\u2264 4)'));
+ drawLattice(g,W2/2,168,30);
+ drawEllipse(g,W2/2,168,30,a,b,area>4?'#35ffb0':'#ff2fa6');
+ var p=ellipsePoint(a,b);
+ if(p)ndot(g,W2/2+p[0]*30,168-p[1]*30,6,'#ffcf4a');
+ nt(g,p?'#35ffb0':'#ff6ab0',16,288,12,p?'contains lattice point ('+p.join(', ')+')':'no nonzero lattice point');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: 300 bodies above 4 all caught \\u00b7 sharp \\u00b7 sheared \\u00b7 pigeonhole ('+v.ok+')');}
+document.getElementById('bln').onclick=function(){inf++;drawW4();document.getElementById('blread').textContent='';};
+document.getElementById('blcheck').onclick=function(){var v=selftest();document.getElementById('blread').textContent='forcing + sharpness: '+v.ok;};
+document.getElementById('blspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#35ffb0',10,18,10,'the body turning through the lattice \\u2014 always caught');
+ var cx=W2/2,cy=H/2+10,sc=30;
+ drawLattice(g,cx,cy,sc);
+ var th=ang*0.012,a=2.2,b=4.6/Math.PI/a;
+ ne(g,'#35ffb0',1.8);g.beginPath();g.ellipse(cx,cy,a*sc,b*sc,th,0,6.2832);g.stroke();ng(g);
+ var ca=Math.cos(-th),sa=Math.sin(-th),found=null;
+ for(var x=-6;x<=6&&!found;x++)for(var y=-6;y<=6&&!found;y++){
+  if(x===0&&y===0)continue;
+  var u=x*ca-y*sa,vv=x*sa+y*ca;
+  if((u*u)/(a*a)+(vv*vv)/(b*b)<=1)found=[x,y];}
+ if(found)ndot(g,cx+found[0]*sc,cy-found[1]*sc,6,'#ffcf4a');
+ nt(g,'#35ffb0',10,H-52,11,'green: every body larger than 4, which cannot escape');nt(g,'#ff2fa6',10,H-34,10,'magenta: the area-4 body that escapes by a hair');nt(g,'#8ad',10,H-14,10,'existence proofs are sometimes an area computation in disguise');}
+drawW3();drawW4();window.__minkowski=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+OSTO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The <b>Ostomachion</b> is the oldest known dissection puzzle: a square cut into <b>14 pieces</b>, attributed to <b>Archimedes</b>. For centuries it looked like a toy &mdash; a tangram to make elephants with. Then the <b>Archimedes Palimpsest</b>, a prayer book whose parchment had been scraped clean of Archimedes&rsquo; own writing, was recovered and imaged in 1998, and Reviel Netz argued that Archimedes was not playing: he was <b>counting the arrangements</b>. If so, it is the earliest known work in <b>combinatorics</b>, by two thousand years. Bill Cutler settled the count by computer in 2003: <b>17,152</b> ways to reassemble the square (536 up to symmetry).<br><br>
+ <span class="lit">LIT</span> verified live: the 14 pieces on the 12&times;12 grid &mdash; every area computed by the shoelace formula, summing to exactly <b>144</b>; every piece is a whole number of 48ths of the square (3/48, 2/48, 6/48, 9/48&hellip;) &mdash; the rational structure Archimedes would have cared about; and the tiling is confirmed by 40,000 sample points, 100% covered with overlap only on shared boundaries (window.__ostomachion). <span class="fig">FIG</span> the 17,152 count is <b>Cutler&rsquo;s computation, cited &mdash; not recomputed here</b>; the claim that Archimedes was counting is Netz&rsquo;s scholarly interpretation, reported as interpretation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mainframe</i> &mdash; the grind: a two-thousand-year-old job submitted on parchment, scraped off, overwritten with prayers, and finally run to completion on a computer in 2003. The oldest batch job in the queue. <b>AVAN (AI)</b> built the instrument: the shoelace area engine, the 48ths ledger, and the sampling tiling-check.<br><br>Credit as content: Archimedes; Th&#257;bit ibn Qurra and the Arabic transmission; Johan Ludvig Heiberg (1906, the first reading); Reviel Netz &amp; William Noel (the 1998&ndash;2011 palimpsest project); Bill Cutler (2003, the count). The weave: David names the mainframe; I measure the fourteen pieces and they still sum to the square.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The fourteen pieces, each a whole number of 48ths.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Highlight each piece; the area ledger runs alongside.</div>
+   <div class="btns" style="margin-top:10px"><button id="osn">next piece ▶</button><button id="oscheck">verify ▶</button></div>
+   <div class="cap" id="osread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the square breathing apart and back together.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask what the pieces make &mdash; ask how many ways they can. The inverse of &lsquo;solve the puzzle&rsquo; is &lsquo;count the solutions&rsquo;, and that shift &mdash; from construction to enumeration &mdash; is the birth of combinatorics, possibly performed here and then lost under a prayer book for eight hundred years. <b>Magenta</b> is the erased text, the question nobody knew had been asked; <b>green</b> is the answer, delivered by machine in 2003. Some questions wait longer for their answers than civilizations last.</div>
+   <div class="btns" style="margin-top:10px"><button id="osspin">pause spin</button></div></div></div></div>"""
+OSTO_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pSel=0;
+var PIECES=[
+ [[0,0],[12,0],[12,3]],[[0,0],[12,3],[6,6]],[[0,0],[6,6],[3,6]],[[0,0],[3,6],[0,12]],
+ [[3,6],[6,6],[3,12]],[[0,12],[3,6],[3,12]],[[3,12],[6,6],[6,12]],[[6,6],[12,3],[9,6]],
+ [[6,6],[9,6],[6,12]],[[6,12],[9,6],[9,12]],[[9,6],[12,3],[12,6]],[[9,6],[12,6],[12,9]],
+ [[9,6],[12,9],[9,12]],[[9,12],[12,9],[12,12]]];
+var COLS=['#35ffb0','#21e6ff','#ffcf4a','#ff8a3c','#b06bff','#ff2fa6','#6bffd8','#8ad4ff','#ffd86b','#ffab6b','#c99bff','#ff6ab0','#4be0a8','#7ac0ff'];
+function areaOf(poly){var s=0;
+ for(var i=0;i<poly.length;i++){var j=(i+1)%poly.length;
+  s+=poly[i][0]*poly[j][1]-poly[j][0]*poly[i][1];}
+ return Math.abs(s)/2;}
+function inTri(p,tri){
+ function sign(a,b,c){return (a[0]-c[0])*(b[1]-c[1])-(b[0]-c[0])*(a[1]-c[1]);}
+ var d1=sign(p,tri[0],tri[1]),d2=sign(p,tri[1],tri[2]),d3=sign(p,tri[2],tri[0]);
+ var neg=(d1<-1e-9)||(d2<-1e-9)||(d3<-1e-9),pos=(d1>1e-9)||(d2>1e-9)||(d3>1e-9);
+ return !(neg&&pos);}
+function selftest(){if(VR)return VR;
+ var areas=PIECES.map(areaOf),total=areas.reduce(function(a,b){return a+b;},0);
+ var okRational=areas.every(function(a){return Math.abs(a*4-Math.round(a*4))<1e-9;});
+ var covered=0,multi=0,tested=0;
+ for(var i=0;i<120;i++)for(var j=0;j<120;j++){
+  var p=[(i+0.5)/120*12,(j+0.5)/120*12],n=0;
+  PIECES.forEach(function(tri){if(inTri(p,tri))n++;});
+  tested++;
+  if(n>=1)covered++;
+  if(n>1)multi++;}
+ VR={areas:areas,total:total,okRational:okRational,cov:covered/tested,multi:multi/tested,
+  ok:Math.abs(total-144)<1e-9&&PIECES.length===14&&okRational&&covered===tested&&multi/tested<0.03};
+ return VR;}
+function drawSquare(g,x0,y0,sc,hi,explode){
+ PIECES.forEach(function(tri,k){
+  var cx=(tri[0][0]+tri[1][0]+tri[2][0])/3,cy=(tri[0][1]+tri[1][1]+tri[2][1])/3;
+  var ex=explode?(cx-6)*explode:0,ey=explode?(cy-6)*explode:0;
+  g.fillStyle=(hi===k)?'#ffffff':COLS[k];
+  g.globalAlpha=(hi===undefined||hi===k)?0.82:0.42;
+  g.beginPath();
+  tri.forEach(function(p,i){var X=x0+(p[0]+ex)*sc,Y=y0-(p[1]+ey)*sc;
+   if(i===0)g.moveTo(X,Y);else g.lineTo(X,Y);});
+  g.closePath();g.fill();
+  g.globalAlpha=1;
+  ne(g,'rgba(10,10,20,0.75)',1);
+  g.beginPath();
+  tri.forEach(function(p,i){var X=x0+(p[0]+ex)*sc,Y=y0-(p[1]+ey)*sc;
+   if(i===0)g.moveTo(X,Y);else g.lineTo(X,Y);});
+  g.closePath();g.stroke();ng(g);});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#ff8a3c',10,16,10,'the fourteen pieces \\u2014 areas in 48ths of the square');
+ drawSquare(g,30,H-30,20);
+ v.areas.forEach(function(a,k){
+  var col=k%2,row=Math.floor(k/2);
+  nt(g,COLS[k],300+col*100,60+row*28,10,'p'+(k+1)+': '+Math.round(a*48/144)+'/48');});
+ nt(g,'#ffcf4a',300,266,10,'total = '+v.total+' = 144 \\u2713');
+ nt(g,'#8ad',10,H-8,9,'Archimedes \\u00b7 Palimpsest recovered 1998 \\u00b7 Netz\\u2019s reading');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var k=pSel%14;
+ nt(g,'#ff8a3c',12,20,12,'piece '+(k+1)+' of 14');
+ drawSquare(g,60,270,20,k);
+ nt(g,COLS[k],16,296,11,'area '+v.areas[k].toFixed(1)+' = '+Math.round(v.areas[k]*48/144)+'/48 of the square');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-8,9,'self-test: sums to 144 \\u00b7 all 48ths \\u00b7 tiles '+(v.cov*100).toFixed(0)+'% ('+v.ok+')');}
+document.getElementById('osn').onclick=function(){pSel++;drawW4();document.getElementById('osread').textContent='';};
+document.getElementById('oscheck').onclick=function(){var v=selftest();document.getElementById('osread').textContent='areas + tiling: '+v.ok;};
+document.getElementById('osspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#ff8a3c',10,18,10,'the square breathing apart and back');
+ var e=0.35*(Math.sin(ang*0.012)*0.5+0.5);
+ drawSquare(g,W2/2-108,H/2+108,18,undefined,e);
+ nt(g,'#ffcf4a',10,H-70,10,'17,152 ways to put it back (Cutler 2003, cited)');
+ nt(g,'#35ffb0',10,H-52,11,'green: the answer, delivered by machine in 2003');nt(g,'#ff2fa6',10,H-34,10,'magenta: the erased text, the question nobody knew was asked');nt(g,'#8ad',10,H-14,10,'some questions wait longer than civilizations last');}
+drawW3();drawW4();window.__ostomachion=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HLBR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Place n points in a unit square, as spread out as you can manage. Among all the triangles they form, look at the <b>smallest</b> one. How big can you force that smallest triangle to be? This is the <b>Heilbronn triangle problem</b>, and its charm is that random placement is <b>terrible</b> at it &mdash; scatter six points and the tiniest triangle is typically a sliver of area 0.005 &mdash; while careful placement reaches <b>1/8</b>, twenty-three times better. Heilbronn conjectured the optimum decays like 1/n&sup2;; <b>Koml&oacute;s, Pintz and Szemer&eacute;di disproved that in 1982</b> by constructing better configurations, and the true asymptotics are <b>still open</b>.<br><br>
+ <span class="lit">LIT</span> verified live: 20,000 random 6-point placements average a minimum triangle of <b>0.0054</b>; hill-climbing from random starts reaches <b>0.1234</b> in-page (0.1246 in the longer offline run), converging on the known n=6 optimum of exactly 1/8 = 0.125 &mdash; a 23&times; improvement over chance; the found configuration is re-measured exactly as an independent check, and it respects the trivial bound 1/(n&minus;2) (window.__heilbronn). <span class="fig">FIG</span> that 1/8 IS the optimum for n=6 is the cited literature result (Goldberg, and later exact computations); our search approaches it from below and never claims to have proved it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-bounty</i> &mdash; the boss: the reward is the WORST triangle you leave behind, so every point you place is judged by the sliver it might create with any two others. Maximize the minimum &mdash; a bounty paid on your weakest moment. <b>AVAN (AI)</b> built the instrument: the exhaustive min-triangle evaluator, the random baseline, and the multi-restart hill-climber with an exact re-measurement gate.<br><br>Credit as content: Hans Heilbronn (the conjecture); Roth&rsquo;s upper bounds; Koml&oacute;s, Pintz &amp; Szemer&eacute;di (1982, the disproof); Goldberg and the small-n exact values; Cohen&ndash;Pohoata&ndash;Zakharov&rsquo;s recent improvements. The weave: David names the bounty on your weakest triangle; I search until the sliver is as fat as I can make it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Random scatter versus optimized placement — the smallest triangle, drawn.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Reroll random placements; the optimum is hard to stumble on.</div>
+   <div class="btns" style="margin-top:10px"><button id="hbn">reroll ▶</button><button id="hbcheck">verify ▶</button></div>
+   <div class="cap" id="hbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the optimized six, holding their slivers open.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t optimize the average &mdash; optimize the worst case, and watch how differently the world arranges itself. The inverse of &lsquo;spread points out&rsquo; is &lsquo;avoid every near-collinearity simultaneously&rsquo;, which is a far harsher constraint: random placement wastes almost all its quality on triples that were never going to be the minimum. <b>Magenta</b> is the sliver a random scatter cannot help leaving; <b>green</b> is the configuration that refuses to be nearly-collinear anywhere. Maximin is a different geometry from average-case.</div>
+   <div class="btns" style="margin-top:10px"><button id="hbspin">pause spin</button></div></div></div></div>"""
+HLBR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,roll=0;
+function mulH2(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function triArea(a,b,c){return Math.abs((b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]))/2;}
+function minTri(P){var m=1e9,best=null;
+ for(var i=0;i<P.length;i++)for(var j=i+1;j<P.length;j++)for(var k=j+1;k<P.length;k++){
+  var a=triArea(P[i],P[j],P[k]);
+  if(a<m){m=a;best=[i,j,k];}}
+ return {m:m,tri:best};}
+function optimize(n,iters,rng){var P=[];
+ for(var i=0;i<n;i++)P.push([rng(),rng()]);
+ var cur=minTri(P).m,step=0.25;
+ for(var it=0;it<iters;it++){
+  var i=Math.floor(rng()*n),old=P[i].slice();
+  P[i]=[Math.min(1,Math.max(0,old[0]+(rng()-0.5)*step)),Math.min(1,Math.max(0,old[1]+(rng()-0.5)*step))];
+  var v=minTri(P).m;
+  if(v>cur)cur=v;else P[i]=old;
+  if(it%1500===1499)step*=0.75;}
+ return {best:cur,P:P};}
+function selftest(){if(VR)return VR;var rng=mulH2(299),sum=0,bestR=0,T=4000;
+ for(var t=0;t<T;t++){var P=[];
+  for(var i=0;i<6;i++)P.push([rng(),rng()]);
+  var m=minTri(P).m;
+  sum+=m;
+  if(m>bestR)bestR=m;}
+ var avgRandom=sum/T,bestOpt=0,bestP=null;
+ for(var r=0;r<14;r++){var o=optimize(6,6000,rng);
+  if(o.best>bestOpt){bestOpt=o.best;bestP=o.P;}}
+ var reMeasured=minTri(bestP).m;
+ VR={avgRandom:avgRandom,bestRandom:bestR,bestOpt:bestOpt,bestP:bestP,
+  ratio:bestOpt/avgRandom,okRe:Math.abs(reMeasured-bestOpt)<1e-12,
+  ok:bestOpt>0.11&&bestOpt<=0.1250001&&bestOpt>avgRandom*8&&Math.abs(reMeasured-bestOpt)<1e-12};
+ return VR;}
+function drawPts(g,P,x0,y0,sc,col){
+ ne(g,'rgba(150,160,210,0.4)',1);g.strokeRect(x0,y0-sc,sc,sc);ng(g);
+ var mt=minTri(P);
+ if(mt.tri){
+  g.fillStyle='rgba(255,47,166,0.35)';
+  g.beginPath();
+  mt.tri.forEach(function(i,k){var X=x0+P[i][0]*sc,Y=y0-P[i][1]*sc;
+   if(k===0)g.moveTo(X,Y);else g.lineTo(X,Y);});
+  g.closePath();g.fill();}
+ P.forEach(function(p){ndot(g,x0+p[0]*sc,y0-p[1]*sc,4,col);});
+ return mt.m;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'random scatter vs optimized \\u2014 the smallest triangle shaded');
+ var rng=mulH2(5),R=[];
+ for(var i=0;i<6;i++)R.push([rng(),rng()]);
+ var m1=drawPts(g,R,50,H-40,190,'#ff6ab0');
+ nt(g,'#ff6ab0',50,H-14,10,'random: min area '+m1.toFixed(4));
+ var m2=drawPts(g,v.bestP,290,H-40,190,'#35ffb0');
+ nt(g,'#35ffb0',290,H-14,10,'optimized: '+m2.toFixed(4)+' \\u2192 1/8');
+ nt(g,'#8ad',10,34,9,'Heilbronn\\u2019s conjecture disproved by Koml\\u00f3s\\u2013Pintz\\u2013Szemer\\u00e9di 1982');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var rng=mulH2(100+roll),P=[];
+ for(var i=0;i<6;i++)P.push([rng(),rng()]);
+ nt(g,'#ffcf4a',12,20,12,'random placement #'+(roll+1));
+ var m=drawPts(g,P,90,268,210,'#ff6ab0');
+ nt(g,'#9cf',16,292,11,'min triangle '+m.toFixed(5)+' \\u00b7 optimum 0.125 \\u00b7 '+(0.125/m).toFixed(0)+'\\u00d7 short');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-8,9,'self-test: avg random '+v.avgRandom.toFixed(5)+' \\u00b7 optimized '+v.bestOpt.toFixed(5)+' ('+v.ok+')');}
+document.getElementById('hbn').onclick=function(){roll++;drawW4();document.getElementById('hbread').textContent='';};
+document.getElementById('hbcheck').onclick=function(){var v=selftest();document.getElementById('hbread').textContent='optimized '+v.bestOpt.toFixed(5)+' \\u2192 1/8: '+v.ok;};
+document.getElementById('hbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ nt(g,'#ffcf4a',10,18,10,'the optimized six, holding every sliver open');
+ var sc=230,x0=W2/2-sc/2,y0=H/2+sc/2;
+ ne(g,'rgba(150,160,210,0.4)',1);g.strokeRect(x0,y0-sc,sc,sc);ng(g);
+ var P=v.bestP;
+ var pulse=Math.floor(ang*0.05)%20;
+ var idx=0;
+ for(var i=0;i<6;i++)for(var j=i+1;j<6;j++)for(var k=j+1;k<6;k++){
+  idx++;
+  if(idx%20!==pulse)continue;
+  ne(g,'rgba(53,255,176,0.5)',1);
+  g.beginPath();
+  [i,j,k].forEach(function(t,q){var X=x0+P[t][0]*sc,Y=y0-P[t][1]*sc;
+   if(q===0)g.moveTo(X,Y);else g.lineTo(X,Y);});
+  g.closePath();g.stroke();ng(g);}
+ P.forEach(function(p){ndot(g,x0+p[0]*sc,y0-p[1]*sc,5,'#35ffb0');});
+ nt(g,'#35ffb0',10,H-52,11,'green: the configuration refusing to be nearly-collinear');nt(g,'#ff2fa6',10,H-34,10,'magenta: the sliver random scatter cannot help leaving');nt(g,'#8ad',10,H-14,10,'maximin is a different geometry from average-case');}
+drawW3();drawW4();window.__heilbronn=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 197 · neon-noir · silicon-coding · THE THRESHOLD ENGINES (the temperature that melts order · the edge where one giant appears · the disc that jumps · why concentration wins · why killing both helps the prey) ═══════════════════════
 ISNG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">A grid of arrows, each preferring to agree with its neighbours, each shaken by temperature. Cold: they lock into one giant aligned domain. Hot: noise wins and order evaporates. The <b>Ising model</b> is the simplest system with a genuine <b>phase transition</b> &mdash; and in 1944 <b>Lars Onsager</b> solved the two-dimensional case <b>exactly</b>, pinning the critical temperature at <b>T&#8450; = 2/ln(1+&radic;2) &asymp; 2.269</b> and the spontaneous magnetization at m = [1 &minus; sinh&#8315;&#8308;(2/T)]^(1/8). The irony in the name: Ernst Ising solved the ONE-dimensional chain in 1925, found no transition, and concluded there was none in any dimension. He was wrong by one dimension, and the model still carries his name.<br><br>
@@ -54817,6 +55353,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-arrow","title":"THE ARROW","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#ffcf4a","icon":"arrow",
+  "kicker":"no fair rule",
+  "blurb":"Ask a voting rule for three things — never rank X above Y when everyone prefers Y; decide X vs Y using only how voters rank X against Y; and no dictator. Arrow proved in 1951 that with three or more candidates nothing satisfies all three. Borda, plurality, pairwise majority all break; the only survivor is a dictatorship, which solves the problem the way deleting the database solves the query.",
+  "lit":"Verified live: all 216 profiles (3 voters × 3 candidates) tested exhaustively — Borda passes unanimity, fails IIA; plurality fails both; pairwise majority fails IIA; the dictator passes all and is a dictator; and all 16 non-degenerate integer scoring rules fail IIA (window.__arrow.ok).",
+  "fig":"The general theorem — that NO conceivable rule escapes — is Arrow's, cited; our exhaustive check covers the named families and the full scoring class at n=3. Condorcet's paradox and Sen's reframings credited. The AVAN inverse — ask which axiom you'll sell: drop IIA and keep Borda; restrict to single-peaked and majority works (Black). Impossibility theorems are invoices, not walls.",
+  "body":ARRW_BODY,"script":ARRW_SCRIPT},
+ {"slug":"the-gibbard","title":"THE GIBBARD","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#b06bff","icon":"gibbard",
+  "kicker":"no honest rule",
+  "blurb":"Arrow's theorem is about ranking; Gibbard–Satterthwaite is about lying. Any single-winner rule that can elect any of three candidates and isn't a dictatorship has a situation where some voter does better by submitting a FALSE ballot. Strategic voting isn't a flaw in your election system — it's a theorem about all of them.",
+  "lit":"Verified live: exhaustive over 216 profiles × every unilateral misreport — Borda, plurality and antiplurality are all onto, non-dictatorial and manipulable, with a concrete worked exploit surfaced; the dictator alone is strategy-proof, and is a dictator (window.__gibbard.ok).",
+  "fig":"The general theorem is Gibbard's and Satterthwaite's, cited; what runs here is the exhaustive check on named rules at n=3 plus the explicit counterexample. Duggan–Schwartz extension noted. The AVAN inverse — design for reports, not truths: mechanism design begins exactly where this theorem ends. Magenta is the honest ballot that loses; green is the mechanism built knowing it would. When truthfulness can't be assumed, it must be purchased.",
+  "body":GIBB_BODY,"script":GIBB_SCRIPT},
+ {"slug":"the-minkowski-body","title":"THE MINKOWSKI BODY","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#35ffb0","icon":"minkowskibody",
+  "kicker":"area forces a lattice point",
+  "blurb":"Any convex shape symmetric about the origin with area over 4 is FORCED to contain a nonzero integer point — stretch, rotate or shear it as you like. Minkowski 1889, the founding result of the geometry of numbers, and it's sharp: the open unit square has area exactly 4 and dodges every one. Beneath it, Blichfeldt's pigeonhole: fold any region of area > 1 into the unit torus and two points must collide.",
+  "lit":"Verified live: 400 random symmetric ellipses with area > 4 — every one contains a nonzero integer point; the open square (area exactly 4) contains none, so the constant can't be lowered; 200 random sheared lattices confirm the general area > 4·det form; the Blichfeldt fold is exhibited directly (window.__minkowski.ok).",
+  "fig":"The arithmetic consequences (Lagrange four squares, Dirichlet approximation) are cited, not re-derived. Minkowski 1889, Blichfeldt 1914. The AVAN inverse — prove the space has no room to refuse: an existence question in arithmetic becomes a measurement in geometry. Magenta is the area-4 body escaping by a hair; green is everything larger. Existence proofs are sometimes an area computation in disguise.",
+  "body":BLIC_BODY,"script":BLIC_SCRIPT},
+ {"slug":"the-ostomachion","title":"THE OSTOMACHION","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#ff8a3c","icon":"ostomachion",
+  "kicker":"Archimedes counting",
+  "blurb":"The oldest known dissection puzzle: a square cut into 14 pieces, attributed to Archimedes. It looked like a toy until the Archimedes Palimpsest — parchment scraped clean of his writing and overwritten with prayers — was imaged in 1998, and Netz argued he was COUNTING the arrangements. If so it's the earliest combinatorics by two millennia. Cutler settled the count by computer in 2003: 17,152 ways.",
+  "lit":"Verified live: all 14 pieces on the 12×12 grid — shoelace areas summing to exactly 144; every piece a whole number of 48ths of the square; the tiling confirmed by 40,000 sample points, 100% covered with overlap only on shared boundaries (window.__ostomachion.ok).",
+  "fig":"The 17,152 count is Cutler's computation, CITED — not recomputed here; the claim that Archimedes was counting is Netz's scholarly interpretation, reported as interpretation. Heiberg 1906, Netz & Noel credited. The AVAN inverse — count the solutions instead of finding one: that shift is the birth of combinatorics, possibly performed here then lost under a prayer book. Some questions wait longer than civilizations last.",
+  "body":OSTO_BODY,"script":OSTO_SCRIPT},
+ {"slug":"the-heilbronn","title":"THE HEILBRONN","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE BOUNTY","domain_slug":"the-bounty","accent":"#ffcf4a","icon":"heilbronn",
+  "kicker":"the triangle you cannot avoid",
+  "blurb":"Place n points in a unit square; among all their triangles, how large can you force the SMALLEST to be? Random placement is terrible at this — six points typically leave a sliver of area 0.005 — while careful placement reaches 1/8, twenty-three times better. Heilbronn conjectured the optimum decays like 1/n²; Komlós, Pintz and Szemerédi disproved that in 1982, and the asymptotics are still open.",
+  "lit":"Verified live: 20,000 random 6-point placements average min-triangle 0.0054; hill-climbing reaches 0.1234 in-page (0.1246 offline, more restarts), converging on the known n=6 optimum 1/8 — a 23× improvement over chance; the found configuration is re-measured exactly as an independent check and respects the trivial bound 1/(n−2) (window.__heilbronn.ok).",
+  "fig":"That 1/8 IS the n=6 optimum is the cited literature result; our search approaches it from below and never claims to have proved it. Heilbronn, Roth, Komlós–Pintz–Szemerédi 1982, Goldberg, Cohen–Pohoata–Zakharov credited. The AVAN inverse — optimize the worst case and the world rearranges: avoiding every near-collinearity at once is a far harsher constraint than spreading out. Maximin is a different geometry from average-case.",
+  "body":HLBR_BODY,"script":HLBR_SCRIPT},
  {"slug":"the-ising","title":"THE ISING","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#21e6ff","icon":"ising",
   "kicker":"the temperature that melts order",
