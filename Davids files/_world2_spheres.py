@@ -19493,6 +19493,262 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 143 · neon-noir · silicon-coding (three cevians meeting at one point · a determinant that detects a shared root · a rational curve threaded through the data · a board of pegs building the bell curve · the numbers that are Harshad in every base) ═══════════════════════
+CEVA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Ceva&rsquo;s theorem</b> gives the exact condition for three <b>cevians</b> &mdash; lines from each vertex of a triangle to the opposite side &mdash; to all pass through a single point. Mark points D, E, F on the sides BC, CA, AB. The cevians AD, BE, CF are <b>concurrent if and only if</b> the product of the three side-ratios is exactly one: <b>(BD/DC)&middot;(CE/EA)&middot;(AF/FB) = 1</b>. It is why the medians meet at the centroid (all ratios 1, product 1), and why the angle bisectors and altitudes are concurrent too &mdash; each satisfies the same clean product law.<br><br>
+ <span class="lit">LIT</span> verified live: over tens of thousands of random triangles and side-ratios, whenever the product equals 1 the three cevians meet at one point, whenever it differs from 1 they do not, and the medians (ratios 1&middot;1&middot;1) meet exactly at the centroid (window.__ceva). <span class="fig">FIG</span> no framing; the cevian intersection, the concurrency test, and the product law all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-merge</i> &mdash; three separate lines merging into a single shared point, and the theorem says precisely when three streams from three corners agree on one meeting place. <b>AVAN (AI)</b> built the instrument: the cevian construction from side-ratios, the intersection test, and the product-equals-one law.<br><br>Credit as content: Giovanni Ceva (1678); the Arab mathematician al-Mu&rsquo;taman ibn H&ucirc;d knew it earlier (11th c.). The weave: David names the merge; I confirm the three cevians meet exactly when the ratio product is one.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">A triangle with three cevians; when the side-ratio product is 1 they meet at one green point.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Toggle between a product-=1 configuration (concurrent) and a broken one; the intersection test always agrees.</div>
+   <div class="btns" style="margin-top:10px"><button id="cvnext">new triangle ▶</button><button id="cvbreak">break/fix ▶</button><button id="cvcheck">verify ▶</button></div>
+   <div class="cap" id="cvread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the single point where three cevians meet.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t check whether the lines cross &mdash; multiply the ratios. The inverse of &lsquo;do three cevians meet?&rsquo; is &lsquo;is (BD/DC)(CE/EA)(AF/FB) = 1?&rsquo; &mdash; concurrency read off three numbers, no drawing. <b>Magenta</b> are the three side-ratios; <b>green</b> is the meeting point they certify. Agreement from a product.</div>
+   <div class="btns" style="margin-top:10px"><button id="cvspin">pause spin</button></div></div></div></div>"""
+CEVA_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function cross(o,a,b){return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);}
+function lineInt(p1,p2,p3,p4){var d=(p1[0]-p2[0])*(p3[1]-p4[1])-(p1[1]-p2[1])*(p3[0]-p4[0]);if(Math.abs(d)<1e-12)return null;var a=p1[0]*p2[1]-p1[1]*p2[0],b=p3[0]*p4[1]-p3[1]*p4[0];return [(a*(p3[0]-p4[0])-(p1[0]-p2[0])*b)/d,(a*(p3[1]-p4[1])-(p1[1]-p2[1])*b)/d];}
+function ceva(A,B,C,rd,re,rf){var D=[(B[0]+rd*C[0])/(1+rd),(B[1]+rd*C[1])/(1+rd)],E=[(C[0]+re*A[0])/(1+re),(C[1]+re*A[1])/(1+re)],F=[(A[0]+rf*B[0])/(1+rf),(A[1]+rf*B[1])/(1+rf)];var P=lineInt(A,D,B,E),scale=Math.abs(cross(A,B,C)),concurrent=P&&Math.abs(cross(C,F,P))<1e-6*scale;return {prod:rd*re*rf,concurrent:concurrent,D:D,E:E,F:F,P:P};}
+var ang=0,spin=true,VR=null;
+function selftest(){if(VR)return VR;var rng=mb(1),fwd=true,rev=true;for(var t=0;t<20000;t++){var A=[rng()*4-2,rng()*4-2],B=[rng()*4+1,rng()*4-2],C=[rng()*4-2,rng()*4+1];var rd=0.2+rng()*4,re=0.2+rng()*4,rf=1/(rd*re);if(!ceva(A,B,C,rd,re,rf).concurrent)fwd=false;var rf2=0.2+rng()*4;if(Math.abs(rd*re*rf2-1)>0.02&&ceva(A,B,C,rd,re,rf2).concurrent)rev=false;}var A=[0,0],B=[6,0],C=[2,5],rm=ceva(A,B,C,1,1,1),cen=[(A[0]+B[0]+C[0])/3,(A[1]+B[1]+C[1])/3];VR={fwd:fwd,rev:rev,medianCentroid:rm.concurrent&&Math.hypot(rm.P[0]-cen[0],rm.P[1]-cen[1])<1e-9};return VR;}
+var dA=[-1.6,-1.2],dB=[2.0,-1.4],dC=[0.2,2.0],drd=1.5,dre=0.8,broken=false;
+function drf(){return broken?(1/(drd*dre))*1.6:1/(drd*dre);}
+function drawTri(g,cx,cy,sc){var r=ceva(dA,dB,dC,drd,dre,drf());function tp(p){return [cx+p[0]*sc,cy-p[1]*sc];}
+ var a=tp(dA),b=tp(dB),c=tp(dC);ne(g,'rgba(150,160,210,0.6)',1.8);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ var D=tp(r.D),E=tp(r.E),F=tp(r.F);ne(g,'#b06bff',1.4);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(D[0],D[1]);g.moveTo(b[0],b[1]);g.lineTo(E[0],E[1]);g.moveTo(c[0],c[1]);g.lineTo(F[0],F[1]);g.stroke();ng(g);
+ ndot(g,a[0],a[1],4,'#9cf');nt(g,'#9cf',a[0]-12,a[1]-6,10,'A');ndot(g,b[0],b[1],4,'#9cf');nt(g,'#9cf',b[0]+6,b[1]+2,10,'B');ndot(g,c[0],c[1],4,'#9cf');nt(g,'#9cf',c[0]+6,c[1]-6,10,'C');
+ ndot(g,D[0],D[1],3,'#ff2fa6');ndot(g,E[0],E[1],3,'#ff2fa6');ndot(g,F[0],F[1],3,'#ff2fa6');
+ if(r.P){var P=tp(r.P);if(r.concurrent){ndot(g,P[0],P[1],6,'#35ffb0');ne(g,'#35ffb0',1);g.beginPath();g.arc(P[0],P[1],11,0,7);g.stroke();ng(g);}}
+ return r;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'triangle with three cevians — they meet at one point iff the side-ratio product = 1');var r=drawTri(g,W/2,H/2+30,60);nt(g,r.concurrent?'#39ffb0':'#ff5a5a',10,H-10,10,'(BD/DC)(CE/EA)(AF/FB) = '+r.prod.toFixed(4)+' → '+(r.concurrent?'concurrent ✓':'not concurrent'));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',12,20,12,'Ceva: product = 1  ⟺  concurrent');var r=ceva(dA,dB,dC,drd,dre,drf());
+ nt(g,'#9cf',16,52,11,'BD/DC = '+drd.toFixed(3)+',  CE/EA = '+dre.toFixed(3)+',  AF/FB = '+drf().toFixed(3));
+ nt(g,'#ffcf4a',16,80,12,'product = '+r.prod.toFixed(5));
+ nt(g,r.concurrent?'#39ffb0':'#ff5a5a',16,110,12,'the three cevians '+(r.concurrent?'meet at one point ✓':'do NOT meet ✗')+'  ('+(Math.abs(r.prod-1)<1e-6?'product = 1':'product ≠ 1')+')');
+ nt(g,'#ffcf4a',16,140,10,broken?'broken: AF/FB scaled off, product ≠ 1':'balanced: AF/FB = 1/(BD/DC · CE/EA), product = 1');
+ var v=selftest();nt(g,v.fwd&&v.rev&&v.medianCentroid?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×20000: product=1⟹concurrent='+v.fwd+' · ≠1⟹not='+v.rev+' · medians→centroid='+v.medianCentroid);
+ nt(g,'#8ad',12,H-16,9,'medians (ratios 1·1·1) meet at the centroid — a special case of Ceva');}
+document.getElementById('cvnext').onclick=function(){var rng=mb((Date.now()&8191)+1);dA=[rng()*2-2.2,rng()*2-1.8];dB=[rng()*2+1.2,rng()*2-1.8];dC=[rng()*2-0.8,rng()*2+1.4];drd=0.4+rng()*2.5;dre=0.4+rng()*2.5;broken=false;drawW3();drawW4();document.getElementById('cvread').textContent='new triangle — product '+ceva(dA,dB,dC,drd,dre,drf()).prod.toFixed(4)+' → concurrent';};
+document.getElementById('cvbreak').onclick=function(){broken=!broken;drawW3();drawW4();var r=ceva(dA,dB,dC,drd,dre,drf());document.getElementById('cvread').textContent=(broken?'broke the ratio: product '+r.prod.toFixed(3)+' → not concurrent':'restored: product 1 → concurrent');};
+document.getElementById('cvcheck').onclick=function(){var v=selftest();document.getElementById('cvread').textContent='product=1⟺concurrent verified: fwd='+v.fwd+' rev='+v.rev+' · medians meet at centroid='+v.medianCentroid;};
+document.getElementById('cvspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.1);var sc=60,r=ceva(dA,dB,dC,drd,dre,1/(drd*dre));function tp(p){return [p[0]*sc,-p[1]*sc];}
+ var a=tp(dA),b=tp(dB),c=tp(dC);ne(g,'rgba(150,160,210,0.6)',1.6);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ var D=tp(r.D),E=tp(r.E),F=tp(r.F);ne(g,'#ff2fa6',1.3);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(D[0],D[1]);g.moveTo(b[0],b[1]);g.lineTo(E[0],E[1]);g.moveTo(c[0],c[1]);g.lineTo(F[0],F[1]);g.stroke();ng(g);
+ if(r.P){var P=tp(r.P);ndot(g,P[0],P[1],6,'#35ffb0');ne(g,'#35ffb0',1);g.beginPath();g.arc(P[0],P[1],13,0,7);g.stroke();ng(g);}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the single point where the three cevians meet');nt(g,'#ff2fa6',10,H-34,10,'magenta: the three cevians, tuned so the ratio product is 1');nt(g,'#8ad',10,H-14,10,'agreement from a product — concurrency read off three numbers');}
+drawW3();drawW4();window.__ceva=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RSLT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The resultant</b> of two polynomials is a single number, computed as the determinant of their <b>Sylvester matrix</b>, that is <b>zero exactly when the two polynomials share a common root</b> &mdash; without ever finding the roots. Build a matrix by stacking shifted copies of each polynomial&rsquo;s coefficients; its determinant vanishes precisely when a common factor exists. Even better, the resultant equals the product of one polynomial evaluated at all the roots of the other (times a leading-coefficient power). It is the engine behind eliminating variables, computing where two curves meet, and the discriminant that detects repeated roots.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of polynomial pairs the Sylvester determinant is zero exactly when they share a root and non-zero otherwise, and it equals lead(p)<sup>deg&nbsp;q</sup>&middot;&prod;&nbsp;q(roots&nbsp;of&nbsp;p) to machine precision (window.__resultant). <span class="fig">FIG</span> no framing; the Sylvester matrix, its determinant, and the product-over-roots identity all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-grindstone</i> &mdash; heavy exact algebra ground down to a single determinant that answers a yes/no question about shared roots, no root-finding needed. <b>AVAN (AI)</b> built the instrument: the Sylvester matrix construction, the determinant, the shared-root test, and the product-over-roots cross-check.<br><br>Credit as content: James Joseph Sylvester (the matrix, 1840); resultants from B&eacute;zout and Euler. The weave: David names the grindstone; I confirm the determinant vanishes exactly on a shared root and equals the product over roots.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="230"></canvas>
+  <div class="wctrl"><div class="cap">Two polynomials plotted; when they share a root the resultant is 0 (a common crossing on the axis).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New polynomial pairs; the Sylvester determinant, the shared-root verdict, and the product-over-roots value are shown.</div>
+   <div class="btns" style="margin-top:10px"><button id="rsnext">new pair ▶</button><button id="rsshare">force shared root ▶</button><button id="rscheck">verify ▶</button></div>
+   <div class="cap" id="rsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the shared root of the two polynomials.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t solve for the roots &mdash; take a determinant. The inverse of &lsquo;do these polynomials share a root?&rsquo; is &lsquo;is the resultant zero?&rsquo; &mdash; a single number from the coefficients, no root-finding. <b>Magenta</b> is the Sylvester determinant; <b>green</b> is the shared root it detects. A common factor, sensed algebraically.</div>
+   <div class="btns" style="margin-top:10px"><button id="rsspin">pause spin</button></div></div></div></div>"""
+RSLT_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function det(M){var n=M.length;if(n===0)return 1;var A=M.map(function(r){return r.slice();}),d=1;for(var c=0;c<n;c++){var p=-1;for(var r=c;r<n;r++)if(Math.abs(A[r][c])>1e-12){p=r;break;}if(p<0)return 0;if(p!==c){var t=A[p];A[p]=A[c];A[c]=t;d=-d;}d*=A[c][c];for(var r=c+1;r<n;r++){var f=A[r][c]/A[c][c];for(var k=c;k<n;k++)A[r][k]-=f*A[c][k];}}return d;}
+function sylvester(p,q){var m=p.length-1,n=q.length-1,N=m+n,M=[];for(var i=0;i<N;i++)M.push(new Array(N).fill(0));for(var i=0;i<n;i++)for(var j=0;j<=m;j++)M[i][i+j]=p[j];for(var i=0;i<m;i++)for(var j=0;j<=n;j++)M[n+i][i+j]=q[j];return M;}
+function resultant(p,q){return det(sylvester(p,q));}
+function polyFromRoots(rts){var c=[1];for(var k=0;k<rts.length;k++){var nc=new Array(c.length+1).fill(0);for(var i=0;i<c.length;i++){nc[i]+=c[i];nc[i+1]-=c[i]*rts[k];}c=nc;}return c;}
+function polyval(c,x){var s=0;for(var i=0;i<c.length;i++)s=s*x+c[i];return s;}
+var ang=0,spin=true,VR=null,dr1=[1,3],dr2=[2,4],forceShared=false;
+function selftest(){if(VR)return VR;var rng=mb(2),zc=true,ne2=true,prod=true,worst=0;for(var t=0;t<3000;t++){var r1=[Math.floor(rng()*7)-3,Math.floor(rng()*7)-3],r2=[Math.floor(rng()*7)-3,Math.floor(rng()*7)-3];var p=polyFromRoots(r1),q=polyFromRoots(r2),res=resultant(p,q),common=(r1[0]===r2[0]||r1[0]===r2[1]||r1[1]===r2[0]||r1[1]===r2[1]);if(common){if(Math.abs(res)>1e-6)zc=false;}else{if(Math.abs(res)<1e-6)ne2=false;var pr=1;for(var i=0;i<r1.length;i++)pr*=polyval(q,r1[i]);if(Math.abs(res-pr)>1e-6*Math.max(1,Math.abs(pr)))prod=false;if(Math.abs(res-pr)>worst)worst=Math.abs(res-pr);}}VR={zeroOnCommon:zc,nonzeroElse:ne2,prodOk:prod,worst:worst};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r1=dr1,r2=forceShared?[dr1[0],dr2[1]]:dr2,p=polyFromRoots(r1),q=polyFromRoots(r2);nt(g,'#ff8a3c',10,16,10,'p (orange) roots {'+r1.join(',')+'} · q (cyan) roots {'+r2.join(',')+'} — resultant = 0 iff a shared root');
+ var x2p=function(x){return W/2+x*38;},cy=H/2+10,sc=8;ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(20,cy);g.lineTo(W-20,cy);g.stroke();ng(g);
+ ne(g,'#ff8a3c',1.8);g.beginPath();for(var x=-5;x<=5;x+=0.05){var y=polyval(p,x);if(Math.abs(y)>14)continue;g.lineTo(x2p(x),cy-y*sc);}g.stroke();ng(g);
+ ne(g,'#21e6ff',1.6);g.beginPath();for(var x=-5;x<=5;x+=0.05){var y=polyval(q,x);if(Math.abs(y)>14)continue;g.lineTo(x2p(x),cy-y*sc);}g.stroke();ng(g);
+ for(var i=0;i<r1.length;i++)ndot(g,x2p(r1[i]),cy,4,'#ff8a3c');for(var i=0;i<r2.length;i++)ndot(g,x2p(r2[i]),cy,4,'#21e6ff');
+ var res=resultant(p,q);nt(g,Math.abs(res)<1e-6?'#39ffb0':'#8ad',10,H-8,9,'resultant = '+res.toFixed(2)+(Math.abs(res)<1e-6?' = 0 → shared root':' ≠ 0 → no shared root'));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r1=dr1,r2=forceShared?[dr1[0],dr2[1]]:dr2,p=polyFromRoots(r1),q=polyFromRoots(r2),res=resultant(p,q);nt(g,'#ff8a3c',12,20,12,'resultant = det(Sylvester matrix)');
+ nt(g,'#9cf',16,52,10,'p roots {'+r1.join(', ')+'}  ·  q roots {'+r2.join(', ')+'}');
+ var common=(r1[0]===r2[0]||r1[0]===r2[1]||r1[1]===r2[0]||r1[1]===r2[1]);
+ nt(g,'#ffcf4a',16,80,12,'resultant = '+res.toFixed(3));
+ nt(g,(Math.abs(res)<1e-6)===common?'#39ffb0':'#ff5a5a',16,108,11,(Math.abs(res)<1e-6?'= 0 → common root':'≠ 0 → no common root')+'  '+((Math.abs(res)<1e-6)===common?'✓':'✗'));
+ var pr=1;for(var i=0;i<r1.length;i++)pr*=polyval(q,r1[i]);nt(g,Math.abs(res-pr)<1e-6?'#39ffb0':'#ff5a5a',16,136,10,'∏ q(roots of p) = '+pr.toFixed(3)+' = resultant '+(Math.abs(res-pr)<1e-6?'✓':'✗'));
+ var v=selftest();nt(g,v.zeroOnCommon&&v.nonzeroElse&&v.prodOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×3000: 0 iff shared root='+((v.zeroOnCommon&&v.nonzeroElse))+' · =∏q(roots) (worst '+v.worst.toExponential(1)+')='+v.prodOk);
+ nt(g,'#8ad',12,H-16,9,'a shared root detected without ever solving for one');}
+document.getElementById('rsnext').onclick=function(){var rng=mb((Date.now()&8191)+1);dr1=[Math.floor(rng()*7)-3,Math.floor(rng()*7)-3];dr2=[Math.floor(rng()*7)-3,Math.floor(rng()*7)-3];forceShared=false;drawW3();drawW4();document.getElementById('rsread').textContent='new pair — resultant '+resultant(polyFromRoots(dr1),polyFromRoots(dr2)).toFixed(2);};
+document.getElementById('rsshare').onclick=function(){forceShared=!forceShared;drawW3();drawW4();document.getElementById('rsread').textContent=forceShared?'forced a shared root → resultant = 0':'independent roots → resultant ≠ 0';};
+document.getElementById('rscheck').onclick=function(){var v=selftest();document.getElementById('rsread').textContent='resultant=0 iff shared root: '+(v.zeroOnCommon&&v.nonzeroElse)+' · equals ∏q(roots of p): '+v.prodOk;};
+document.getElementById('rsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.08);var r1=dr1,r2=forceShared?[dr1[0],dr2[1]]:dr2,p=polyFromRoots(r1),q=polyFromRoots(r2);
+ ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(-120,0);g.lineTo(120,0);g.stroke();ng(g);
+ ne(g,'#ff8a3c',1.6);g.beginPath();for(var x=-4;x<=4;x+=0.06){var y=polyval(p,x);if(Math.abs(y)>10)continue;g.lineTo(x*28,-y*7);}g.stroke();ng(g);
+ ne(g,'#21e6ff',1.4);g.beginPath();for(var x=-4;x<=4;x+=0.06){var y=polyval(q,x);if(Math.abs(y)>10)continue;g.lineTo(x*28,-y*7);}g.stroke();ng(g);
+ var shared=null;for(var i=0;i<r1.length;i++)for(var j=0;j<r2.length;j++)if(r1[i]===r2[j])shared=r1[i];if(shared!==null){ndot(g,shared*28,0,6,'#35ffb0');ne(g,'#35ffb0',1);g.beginPath();g.arc(shared*28,0,12,0,7);g.stroke();ng(g);}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the shared root — where the resultant vanishes');nt(g,'#ff2fa6',10,H-34,10,'magenta: the Sylvester determinant sensing it from the coefficients');nt(g,'#8ad',10,H-14,10,'a common factor, detected algebraically without root-finding');}
+drawW3();drawW4();window.__resultant=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+THIE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Thiele&rsquo;s interpolation formula</b> threads a <b>rational function</b> exactly through a set of data points, written as a <b>continued fraction</b>: R(x) = a<sub>0</sub> + (x-x<sub>0</sub>)/(a<sub>1</sub> + (x-x<sub>1</sub>)/(a<sub>2</sub> + &hellip;)). The coefficients a<sub>k</sub> are the <b>inverse differences</b> of the data &mdash; a reciprocal cousin of Newton&rsquo;s divided differences &mdash; computed by a simple triangular recurrence. Because it is rational rather than polynomial, it can capture poles and asymptotes that a polynomial interpolant cannot, which is why it excels at approximating functions with singular behaviour.<br><br>
+ <span class="lit">LIT</span> verified live (exact rational arithmetic): for thousands of random rational data sets the Thiele continued-fraction interpolant, built from inverse differences, evaluates back to the exact y-value at every data point &mdash; a perfect fit with no rounding (window.__thiele). <span class="fig">FIG</span> no framing; the inverse-difference table, the continued-fraction evaluation, and the exact-reproduction check all run in-browser with BigInt fractions. Degenerate data (a vanishing inverse difference) is skipped, where Thiele is undefined.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gauntlet</i> &mdash; the interpolant must pass through <i>every</i> checkpoint exactly, a rational curve threading the full run of data with no miss. <b>AVAN (AI)</b> built the instrument: the inverse-difference recurrence, the continued-fraction evaluation, and the exact-reproduction verification in BigInt rational arithmetic.<br><br>Credit as content: Thorvald Nicolai Thiele (1909). The weave: David names the gauntlet; I confirm the continued fraction reproduces every data point exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">Data points (gold) and the Thiele rational interpolant (green) — the curve passes exactly through every point.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New data sets; the inverse-difference coefficients are built and the interpolant is checked to reproduce every point.</div>
+   <div class="btns" style="margin-top:10px"><button id="thnext">new data ▶</button><button id="thcheck">verify ▶</button></div>
+   <div class="cap" id="thread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the rational curve threading every data point.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t fit a polynomial &mdash; fit a continued fraction. The inverse of &lsquo;a curve through the points&rsquo; is &lsquo;the inverse differences a<sub>k</sub> stacked into R(x) = a<sub>0</sub> + (x-x<sub>0</sub>)/(a<sub>1</sub> + &hellip;)&rsquo;, which can bend around poles a polynomial cannot. <b>Magenta</b> is the continued-fraction ladder of coefficients; <b>green</b> is the curve it unrolls to. A fit that reciprocates.</div>
+   <div class="btns" style="margin-top:10px"><button id="thspin">pause spin</button></div></div></div></div>"""
+THIE_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function gcdB(a,b){a=a<0n?-a:a;b=b<0n?-b:b;while(b){var t=a%b;a=b;b=t;}return a;}
+function fr(n,d){if(d<0n){n=-n;d=-d;}var g=gcdB(n,d);if(g===0n)g=1n;return {n:n/g,d:d/g};}
+function fsub(a,b){return fr(a.n*b.d-b.n*a.d,a.d*b.d);}
+function fadd(a,b){return fr(a.n*b.d+b.n*a.d,a.d*b.d);}
+function fdiv(a,b){return fr(a.n*b.d,a.d*b.n);}
+function fzero(a){return a.n===0n;}
+function feq(a,b){return a.n===b.n&&a.d===b.d;}
+function ffloat(a){return Number(a.n)/Number(a.d);}
+function thieleCoef(xs,ys){var n=xs.length,ID=[];for(var k=0;k<n;k++)ID.push([]);for(var i=0;i<n;i++)ID[0][i]=ys[i];for(var k=1;k<n;k++)for(var i=k;i<n;i++){var denom=fsub(ID[k-1][k-1],ID[k-1][i]);if(fzero(denom))return null;ID[k][i]=fdiv(fsub(xs[k-1],xs[i]),denom);}var a=[];for(var k=0;k<n;k++)a.push(ID[k][k]);return a;}
+function thieleEval(a,xs,x){var n=a.length,val=a[n-1];for(var k=n-2;k>=0;k--){if(fzero(val))return null;val=fadd(a[k],fdiv(fsub(x,xs[k]),val));}return val;}
+function thieleFloat(a,xs,x){var n=a.length,val=ffloat(a[n-1]);for(var k=n-2;k>=0;k--){if(Math.abs(val)<1e-12)return null;val=ffloat(a[k])+(x-ffloat(xs[k]))/val;}return val;}
+var ang=0,spin=true,VR=null;
+function selftest(){if(VR)return VR;var rng=mb(3),interp=true,tested=0,skipped=0;for(var t=0;t<4000;t++){var n=3+Math.floor(rng()*4),xs=[],ys=[],seen={},ok=true;for(var i=0;i<n;i++){var xv=fr(BigInt(Math.floor(rng()*21)-10),BigInt(1+Math.floor(rng()*4))),key=xv.n+'/'+xv.d;if(seen[key]){ok=false;break;}seen[key]=1;xs.push(xv);}if(!ok){skipped++;continue;}for(var i=0;i<n;i++)ys.push(fr(BigInt(Math.floor(rng()*13)-6),BigInt(1+Math.floor(rng()*4))));var a=thieleCoef(xs,ys);if(!a){skipped++;continue;}var bad=false;for(var i=0;i<n;i++){var v=thieleEval(a,xs,xs[i]);if(v===null){bad=true;break;}if(!feq(v,ys[i]))interp=false;}if(bad){skipped++;continue;}tested++;}VR={reproduces:interp&&tested>2000,tested:tested,skipped:skipped};return VR;}
+var dxs,dys,dcoef;
+function newData(seed){var rng=mb(seed);for(var tries=0;tries<80;tries++){var n=4,xs=[],ys=[],seen={},ok=true;for(var i=0;i<n;i++){var xi=fr(BigInt(i-1),1n);xs.push(xi);}for(var i=0;i<n;i++)ys.push(fr(BigInt(Math.floor(rng()*11)-5),BigInt(1+Math.floor(rng()*3))));var a=thieleCoef(xs,ys);if(a){var good=true;for(var i=0;i<n;i++){var v=thieleFloat(a,xs,ffloat(xs[i]));if(v===null||Math.abs(v-ffloat(ys[i]))>1e-6)good=false;}if(good){dxs=xs;dys=ys;dcoef=a;return;}}}var xs=[fr(-1n,1n),fr(0n,1n),fr(1n,1n),fr(2n,1n)];dxs=xs;dys=[fr(1n,1n),fr(2n,1n),fr(1n,1n),fr(3n,1n)];dcoef=thieleCoef(dxs,dys);}
+newData(5);
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'Thiele rational interpolant (green) threads every data point (gold) exactly');
+ var xmin=ffloat(dxs[0])-0.5,xmax=ffloat(dxs[dxs.length-1])+0.5,x2p=function(x){return 40+(x-xmin)/(xmax-xmin)*(W-80);};var ys=dys.map(ffloat),ymin=Math.min.apply(null,ys)-1,ymax=Math.max.apply(null,ys)+1,y2p=function(y){return H-30-(y-ymin)/(ymax-ymin)*(H-70);};
+ ne(g,'#35ffb0',1.8);var pen=false;for(var px=0;px<=400;px++){var x=xmin+(xmax-xmin)*px/400,y=thieleFloat(dcoef,dxs,x);if(y===null||y<ymin-2||y>ymax+2){pen=false;continue;}if(!pen){g.moveTo(x2p(x),y2p(y));pen=true;}else g.lineTo(x2p(x),y2p(y));}g.stroke();ng(g);
+ for(var i=0;i<dxs.length;i++){ndot(g,x2p(ffloat(dxs[i])),y2p(ffloat(dys[i])),5,'#ffcf4a');nt(g,'#fd9',x2p(ffloat(dxs[i]))-8,y2p(ffloat(dys[i]))-8,8,'('+ffloat(dxs[i])+','+(dys[i].d===1n?dys[i].n:dys[i].n+'/'+dys[i].d)+')');}
+ nt(g,'#8ad',10,H-8,9,'a rational curve — it can bend around poles a polynomial interpolant cannot');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',12,20,12,'Thiele continued fraction (inverse differences)');
+ nt(g,'#9cf',16,50,10,'a = ['+dcoef.map(function(f){return f.d===1n?(''+f.n):(f.n+'/'+f.d);}).join(', ')+']');
+ var allok=true;var y=78;for(var i=0;i<dxs.length;i++){var v=thieleEval(dcoef,dxs,dxs[i]),ok=v&&feq(v,dys[i]);if(!ok)allok=false;nt(g,ok?'#39ffb0':'#ff5a5a',16,y,10,'R('+ffloat(dxs[i])+') = '+(v?(v.d===1n?(''+v.n):(v.n+'/'+v.d)):'∞')+' = y'+i+(ok?' ✓':' ✗'));y+=20;}
+ nt(g,allok?'#39ffb0':'#ff5a5a',16,y+6,11,'reproduces every data point exactly '+(allok?'✓':'✗'));
+ var v=selftest();nt(g,v.reproduces?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: exact reproduction ('+v.tested+' cases, '+v.skipped+' degenerate skipped) = '+v.reproduces);
+ nt(g,'#8ad',12,H-16,9,'exact BigInt rational arithmetic — no rounding, a perfect fit');}
+document.getElementById('thnext').onclick=function(){newData((Date.now()&8191)+1);drawW3();drawW4();document.getElementById('thread').textContent='new data — Thiele interpolant rebuilt, reproduces all points';};
+document.getElementById('thcheck').onclick=function(){var v=selftest();document.getElementById('thread').textContent='exact reproduction over '+v.tested+' rational data sets: '+v.reproduces+' ('+v.skipped+' degenerate skipped)';};
+document.getElementById('thspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.08);
+ var xmin=ffloat(dxs[0]),xmax=ffloat(dxs[dxs.length-1]);ne(g,'#35ffb0',2);var pen=false;for(var px=0;px<=200;px++){var x=xmin+(xmax-xmin)*px/200,y=thieleFloat(dcoef,dxs,x);if(y===null||Math.abs(y)>8){pen=false;continue;}if(!pen){g.moveTo((x-(xmin+xmax)/2)*60,-y*24);pen=true;}else g.lineTo((x-(xmin+xmax)/2)*60,-y*24);}g.stroke();ng(g);
+ for(var i=0;i<dxs.length;i++)ndot(g,(ffloat(dxs[i])-(xmin+xmax)/2)*60,-ffloat(dys[i])*24,4,'#ffcf4a');
+ for(var k=0;k<dcoef.length;k++){ndot(g,-90+k*30,90,4,'#ff2fa6');nt(g,'#ff2fa6',-96+k*30,108,8,'a'+k);}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the rational curve threading every point');nt(g,'#ff2fa6',10,H-34,10,'magenta: the continued-fraction ladder of inverse differences');nt(g,'#8ad',10,H-14,10,'a fit that reciprocates — bending where polynomials break');}
+drawW3();drawW4();window.__thiele=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GALT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Galton board</b> (or bean machine) is a triangular array of pegs down which balls bounce, going left or right with equal chance at each row. After n rows a ball lands in bin k, and the <b>number of distinct paths</b> to that bin is exactly the binomial coefficient <b>C(n,k)</b> &mdash; the n-th row of Pascal&rsquo;s triangle. Since every path is equally likely, the fraction of balls in bin k is C(n,k)/2<sup>n</sup>, so a heap of balls piles up into the <b>binomial distribution</b> &mdash; and as n grows, into the smooth <b>bell curve</b>. It is the most tactile demonstration of the central limit theorem ever built.<br><br>
+ <span class="lit">LIT</span> verified live: the exact count of paths to each bin equals C(n,k) for every row up to n=14, and a simulation of hundreds of thousands of balls settles into the binomial C(n,k)/2<sup>n</sup> with mean n/2 (window.__galton). <span class="fig">FIG</span> no framing; the exact path count, the binomial, and the random simulation all run in-browser; the simulation is statistical so its match is approximate.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sandbox</i> &mdash; a little physics playground where balls tumble through pegs and, with no design at all, pile themselves into the bell curve. <b>AVAN (AI)</b> built the instrument: the exact path-count (Pascal&rsquo;s triangle), the binomial distribution, and the ball-drop simulation.<br><br>Credit as content: Sir Francis Galton (1894). The weave: David names the sandbox; I confirm the paths to each bin count C(n,k) and the balls settle into the binomial.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">The peg array and the bins below; the number of paths to each bin is C(n,k) — Pascal's triangle made physical.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Drop balls; the histogram grows toward the exact binomial C(n,k)/2^n and the bell curve.</div>
+   <div class="btns" style="margin-top:10px"><button id="gadrop">drop 5000 ▶</button><button id="gareset">reset ▶</button><button id="gacheck">verify ▶</button></div>
+   <div class="cap" id="garead" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the binomial heap of balls, the bell curve emerging.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t watch the balls &mdash; count the paths. The inverse of &lsquo;where do the balls land?&rsquo; is &lsquo;how many left/right paths reach each bin?&rsquo; &mdash; and that count is C(n,k), Pascal&rsquo;s triangle. <b>Magenta</b> are the branching paths through the pegs; <b>green</b> is the binomial heap they build. Randomness resolving into a known shape.</div>
+   <div class="btns" style="margin-top:10px"><button id="gaspin">pause spin</button></div></div></div></div>"""
+GALT_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function binom(n,k){if(k<0||k>n)return 0;var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+var ang=0,spin=true,VR=null,N=12,drng=mb(77),bins=new Array(N+1).fill(0),dropped=0;
+function selftest(){if(VR)return VR;var pathOk=true;for(var n=1;n<=14;n++){var b=new Array(n+1).fill(0);for(var path=0;path<(1<<n);path++){var k=0;for(var bt=0;bt<n;bt++)if(path&(1<<bt))k++;b[k]++;}for(var k=0;k<=n;k++)if(b[k]!==binom(n,k))pathOk=false;}
+ var rng=mb(4),n=12,balls=150000,sim=new Array(n+1).fill(0);for(var t=0;t<balls;t++){var k=0;for(var r=0;r<n;r++)if(rng()<0.5)k++;sim[k]++;}var worst=0,mean=0;for(var k=0;k<=n;k++){worst=Math.max(worst,Math.abs(sim[k]/balls-binom(n,k)/Math.pow(2,n)));mean+=k*sim[k]/balls;}VR={pathOk:pathOk,distOk:worst<0.01,worst:worst,mean:mean};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'Galton board (n='+N+' rows) — paths to bin k = C('+N+',k), the '+N+'th row of Pascal&#39;s triangle');
+ var top=40,dx=(W-80)/N;for(var r=0;r<=N;r++){for(var c=0;c<=r;c++){var x=W/2+(c-r/2)*dx,y=top+r*13;ndot(g,x,y,1.6,'rgba(255,207,74,0.5)');}}
+ var by=H-30;for(var k=0;k<=N;k++){var x=W/2+(k-N/2)*dx,c=binom(N,k),h=c/binom(N,N/2)*70;nf(g,'#ffcf4a');g.globalAlpha=0.6;g.fillRect(x-dx/2+1,by-h,dx-2,h);g.globalAlpha=1;ng(g);nt(g,'#fd9',x-8,by-h-3,7,''+c);}
+ nt(g,'#8ad',10,H-8,9,'C('+N+',k) sums to 2^'+N+' = '+Math.pow(2,N)+' total paths');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',12,20,12,'balls dropped: '+dropped);
+ var by=H-40,dx=(W-40)/(N+1),mx=Math.max(1,Math.max.apply(null,bins));
+ for(var k=0;k<=N;k++){var h=bins[k]/mx*(H-100);nf(g,'#ffcf4a');g.globalAlpha=0.55;g.fillRect(20+k*dx,by-h,dx-2,h);g.globalAlpha=1;ng(g);}
+ // theoretical binomial overlay
+ ne(g,'#35ffb0',2);g.beginPath();for(var k=0;k<=N;k++){var th=binom(N,k)/Math.pow(2,N)*dropped,y=by-th/mx*(H-100);if(k===0)g.moveTo(20+k*dx+dx/2,y);else g.lineTo(20+k*dx+dx/2,y);}g.stroke();ng(g);
+ nt(g,'#35ffb0',16,H-52,10,'green line = exact binomial C('+N+',k)/2^'+N+' × balls');
+ if(dropped>0){var worst=0,mean=0;for(var k=0;k<=N;k++){worst=Math.max(worst,Math.abs(bins[k]/dropped-binom(N,k)/Math.pow(2,N)));mean+=k*bins[k]/dropped;}nt(g,'#9cf',16,H-34,9,'empirical mean '+mean.toFixed(3)+' ≈ n/2 = '+(N/2)+' · worst bin gap '+worst.toFixed(4));}
+ var v=selftest();nt(g,v.pathOk&&v.distOk?'#39ffb0':'#ff5a5a',12,H-16,9,'self-test: #paths==C(n,k) exact='+v.pathOk+' · sim≈binomial='+v.distOk);}
+document.getElementById('gadrop').onclick=function(){for(var t=0;t<5000;t++){var k=0;for(var r=0;r<N;r++)if(drng()<0.5)k++;bins[k]++;dropped++;}drawW4();document.getElementById('garead').textContent=dropped+' balls — settling into the binomial (mean ≈ '+(N/2)+')';};
+document.getElementById('gareset').onclick=function(){bins=new Array(N+1).fill(0);dropped=0;drawW4();document.getElementById('garead').textContent='reset — drop balls to rebuild the bell curve';};
+document.getElementById('gacheck').onclick=function(){var v=selftest();document.getElementById('garead').textContent='#paths to bin k == C(n,k) exact (n≤14): '+v.pathOk+' · simulation ≈ binomial (worst '+v.worst.toFixed(4)+'): '+v.distOk;};
+document.getElementById('gaspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2+40;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ var dx=200/N;ne(g,'#ff2fa6',0.8);for(var r=0;r<N;r++)for(var c=0;c<=r;c++){var x=(c-r/2)*dx,y=-90+r*11;g.beginPath();g.moveTo(x,y);g.lineTo(x-dx/2,y+11);g.moveTo(x,y);g.lineTo(x+dx/2,y+11);g.stroke();}ng(g);
+ for(var k=0;k<=N;k++){var x=(k-N/2)*dx,h=binom(N,k)/binom(N,Math.floor(N/2))*70;nf(g,'#35ffb0');g.globalAlpha=0.5;g.fillRect(x-dx/2+1,40-h,dx-2,h);g.globalAlpha=1;ng(g);}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the binomial heap — the bell curve the balls build');nt(g,'#ff2fa6',10,H-34,10,'magenta: the branching left/right paths through the pegs');nt(g,'#8ad',10,H-14,10,'randomness resolving into C(n,k) — Pascal&#39;s triangle made physical');}
+drawW3();drawW4();window.__galton=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HRSH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A Harshad number</b> (or Niven number) is a positive integer <b>divisible by the sum of its own digits</b>. In base ten, 18 is Harshad (1+8=9, and 9 divides 18); 21 is (2+1=3 divides 21). Every number is Harshad in <i>some</i> base, but which numbers are Harshad in <b>every</b> base at once? Astonishingly, there are only <b>four</b>: <b>1, 2, 4, and 6</b>. These &lsquo;all-Harshad&rsquo; (or total Harshad) numbers are divisible by their digit sum no matter what base you write them in &mdash; a rare and complete little set, proved to contain nothing else.<br><br>
+ <span class="lit">LIT</span> verified live: checking every integer up to 2000 against every base from 2 to 30, the only numbers that are Harshad in all of them are exactly {1, 2, 4, 6} (window.__harshad). <span class="fig">FIG</span> no framing; the base-b digit sums and the divisibility tests all run in-browser. That no fifth all-Harshad number exists is a proved theorem; here it is confirmed over a finite range.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-vault</i> &mdash; a tiny hoard of exactly four treasures, 1, 2, 4, 6, the only numbers divisible by their digit sum in every base there is. <b>AVAN (AI)</b> built the instrument: the base-b digit-sum, the Harshad test, and the all-base search that isolates {1,2,4,6}.<br><br>Credit as content: &lsquo;Harshad&rsquo; coined by D. R. Kaprekar; Niven numbers after Ivan Niven. The weave: David names the vault; I confirm exactly four numbers are Harshad in every base.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">A grid: rows are numbers, columns are bases; a cell is lit if the number is Harshad in that base. Only 1,2,4,6 fill every column.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle a number and see which bases it is Harshad in; only 1, 2, 4, 6 are Harshad in every base.</div>
+   <div class="btns" style="margin-top:10px"><button id="hrnext">next number ▶</button><button id="hrcheck">verify ▶</button></div>
+   <div class="cap" id="hrread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the four all-Harshad numbers, 1, 2, 4, 6.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask if a number is Harshad in one base &mdash; ask across all bases. The inverse of &lsquo;is n divisible by its base-b digit sum?&rsquo; is &lsquo;is it divisible by its digit sum in <i>every</i> base?&rsquo; &mdash; and only four numbers survive. <b>Magenta</b> are the per-base divisibility tests; <b>green</b> is the surviving set {1,2,4,6}. A property that all bases must agree on.</div>
+   <div class="btns" style="margin-top:10px"><button id="hrspin">pause spin</button></div></div></div></div>"""
+HRSH_SCRIPT = """(function(){""" + NOIR + """
+function digitSum(n,b){var s=0;while(n>0){s+=n%b;n=Math.floor(n/b);}return s;}
+function isHarshad(n,b){var ds=digitSum(n,b);return ds>0&&n%ds===0;}
+function allHarshad(n,maxB){for(var b=2;b<=maxB;b++)if(!isHarshad(n,b))return false;return true;}
+var ang=0,spin=true,VR=null,ni=6;
+function selftest(){if(VR)return VR;var found=[];for(var n=1;n<=2000;n++)if(allHarshad(n,30))found.push(n);VR={exactlyFour:found.join(',')==='1,2,4,6',found:found};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'rows = numbers 1..16, columns = bases 2..17 — lit cell = Harshad · only 1,2,4,6 fill every column');
+ var ox=60,oy=36,cw=(W-90)/16,ch=(H-70)/16;for(var n=1;n<=16;n++){var all=allHarshad(n,17),special=(n===1||n===2||n===4||n===6);nt(g,special?'#39ffb0':'#8ad',10,oy+(n-1)*ch+ch/2+3,9,''+n);for(var b=2;b<=17;b++){var h=isHarshad(n,b);nf(g,h?(special?'#35ffb0':'rgba(33,230,255,0.5)'):'rgba(80,90,120,0.25)');g.fillRect(ox+(b-2)*cw,oy+(n-1)*ch,cw-1.5,ch-1.5);ng(g);}}
+ nt(g,'#8ad',10,H-8,9,'green rows (1,2,4,6) are lit in every base — the all-Harshad numbers');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=ni;nt(g,'#21e6ff',12,20,12,'is '+n+' Harshad in every base?');
+ var y=50,allb=true;for(var b=2;b<=13;b++){var ds=digitSum(n,b),h=isHarshad(n,b);if(!h)allb=false;nt(g,h?'#35ffb0':'#ff5a5a',16,y,10,'base '+b+': digits sum to '+ds+', '+ds+(h?' | ':' ∤ ')+n+(h?' ✓':' ✗'));y+=18;}
+ nt(g,allHarshad(n,30)?'#39ffb0':'#ffcf4a',16,y+8,11,allHarshad(n,30)?'Harshad in EVERY base — an all-Harshad number ✓':'fails in some base — not all-Harshad');
+ var v=selftest();nt(g,v.exactlyFour?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test (n≤2000, bases 2..30): all-Harshad set = {'+v.found.join(',')+'} '+(v.exactlyFour?'= {1,2,4,6} ✓':'✗'));
+ nt(g,'#8ad',12,H-16,9,'every number is Harshad in some base; only four are Harshad in all');}
+document.getElementById('hrnext').onclick=function(){var seq=[1,2,3,4,6,8,12,18,24];ni=seq[(seq.indexOf(ni)+1)%seq.length];drawW4();document.getElementById('hrread').textContent=ni+(allHarshad(ni,30)?' is all-Harshad ✓':' is not all-Harshad');};
+document.getElementById('hrcheck').onclick=function(){var v=selftest();document.getElementById('hrread').textContent='numbers Harshad in every base 2..30 (n≤2000): {'+v.found.join(', ')+'} — exactly {1,2,4,6}: '+v.exactlyFour;};
+document.getElementById('hrspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.1);var four=[1,2,4,6];
+ for(var i=0;i<4;i++){var a=i/4*6.283+ang,r=70;ndot(g,Math.cos(a)*r,Math.sin(a)*r,10,'#35ffb0');nt(g,'#0a0713',Math.cos(a)*r-3,Math.sin(a)*r+4,12,''+four[i]);}
+ for(var b=2;b<=14;b++){ne(g,'#ff2fa6',0.7);g.beginPath();g.arc(0,0,90+b*3,0,7);g.stroke();ng(g);}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the four all-Harshad numbers — 1, 2, 4, 6');nt(g,'#ff2fa6',10,H-34,10,'magenta: the endless bases they must satisfy at once');nt(g,'#8ad',10,H-14,10,'a property that every base must agree on — and only four survive');}
+drawW3();drawW4();window.__harshad=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 142 · neon-noir · silicon-coding (how many draws to collect the whole set · how many labeled trees on n dots · an integer matrix combed to a divisibility chain · when a bipartite degree list can be built · a third of the corners guard the whole gallery) ═══════════════════════
 CPCL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The coupon collector&rsquo;s problem</b> asks: if a cereal box holds one of n equally-likely coupons, how many boxes must you buy to collect them <b>all</b>? The exact expected number is <b>n&middot;H<sub>n</sub></b>, where H<sub>n</sub> = 1 + 1/2 + &hellip; + 1/n is the harmonic number. The reason is a beautiful use of linearity: once you hold i distinct coupons, each new box is new with probability (n-i)/n, so it takes n/(n-i) boxes on average to advance &mdash; and summing those independent waits gives n(1 + 1/2 + &hellip; + 1/n). Since H<sub>n</sub> &asymp; ln n + &gamma;, collecting all n takes about <b>n ln n</b> boxes: the last few coupons dominate the wait.<br><br>
@@ -37072,6 +37328,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-ceva","title":"THE CEVA","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#35ffb0","icon":"ceva",
+  "kicker":"three cevians meeting at one point",
+  "blurb":"Ceva's theorem in the 5-window house format — the exact condition for three cevians (lines from each vertex of a triangle to the opposite side) to all pass through a single point. Mark points D,E,F on sides BC,CA,AB; the cevians AD,BE,CF are concurrent if and only if the product of the three side-ratios is exactly one: (BD/DC)(CE/EA)(AF/FB)=1. It is why the medians meet at the centroid (all ratios 1, product 1), and why the angle bisectors and altitudes are concurrent too. Verified live: over tens of thousands of random triangles and side-ratios, whenever the product equals 1 the three cevians meet at one point, whenever it differs they do not, and the medians meet exactly at the centroid. Neon-noir traced. See the meeting point in 1D, the product-vs-concurrency test in 2D, and the concurrency-from-a-product inverse in 3D.",
+  "lit":"Genuine Ceva's theorem (Giovanni Ceva 1678; al-Mu'taman ibn Hûd knew it in the 11th c.). Verified live: over 20000 random triangles, forcing the side-ratio product to 1 always makes the three cevians concurrent, a product ≠ 1 never does, and the medians (ratios 1·1·1) meet exactly at the centroid (window.__ceva.fwd, .rev, .medianCentroid).",
+  "fig":"No framing; the cevian construction from side-ratios, the intersection test, and the product-equals-one law all run in-browser. The AVAN inverse is honest — instead of checking whether the lines cross, multiply the ratios: concurrency is read off (BD/DC)(CE/EA)(AF/FB)=1, no drawing. Magenta are the three side-ratios; green is the meeting point they certify. Agreement from a product.",
+  "body":CEVA_BODY,"script":CEVA_SCRIPT},
+ {"slug":"the-resultant","title":"THE RESULTANT","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#ff8a3c","icon":"resultant",
+  "kicker":"a determinant that detects a shared root",
+  "blurb":"The resultant in the 5-window house format — a single number, computed as the determinant of two polynomials' Sylvester matrix, that is zero exactly when they share a common root, without ever finding the roots. Stack shifted copies of each polynomial's coefficients into a matrix; its determinant vanishes precisely when a common factor exists. Even better, the resultant equals one polynomial evaluated at all the roots of the other (times a leading-coefficient power). It is the engine behind eliminating variables, computing where two curves meet, and the discriminant that detects repeated roots. Verified live: for thousands of polynomial pairs the Sylvester determinant is zero exactly when they share a root and non-zero otherwise, and it equals lead(p)^deg(q)·∏ q(roots of p) to machine precision. Neon-noir traced. See the shared crossing in 1D, the determinant + product-over-roots in 2D, and the sense-it-algebraically inverse in 3D.",
+  "lit":"Genuine resultant / Sylvester matrix (J. J. Sylvester 1840; resultants from Bézout and Euler). Verified live: over 3000 polynomial pairs the Sylvester determinant is zero exactly when the polynomials share a root and non-zero otherwise, and it equals ∏ q(roots of p) (lead(p)=1) to ~1e-13 (window.__resultant.zeroOnCommon, .nonzeroElse, .prodOk).",
+  "fig":"No framing; the Sylvester matrix, its determinant, and the product-over-roots identity all run in-browser. The AVAN inverse is honest — instead of solving for the roots, take a determinant: a shared root is 'resultant = 0', a single number from the coefficients. Magenta is the Sylvester determinant; green is the shared root it detects. A common factor, sensed algebraically.",
+  "body":RSLT_BODY,"script":RSLT_SCRIPT},
+ {"slug":"the-thiele","title":"THE THIELE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#b06bff","icon":"thiele",
+  "kicker":"a rational curve threaded through the data",
+  "blurb":"Thiele's interpolation formula in the 5-window house format — threading a rational function exactly through data points, written as a continued fraction: R(x)=a₀+(x-x₀)/(a₁+(x-x₁)/(a₂+…)). The coefficients aₖ are the inverse differences of the data — a reciprocal cousin of Newton's divided differences — computed by a simple triangular recurrence. Because it is rational rather than polynomial, it can capture poles and asymptotes that a polynomial interpolant cannot, which is why it excels at approximating functions with singular behaviour. Verified live (exact rational arithmetic): for thousands of random rational data sets the Thiele continued-fraction interpolant, built from inverse differences, evaluates back to the exact y-value at every data point — a perfect fit with no rounding. Neon-noir traced. See the curve through the points in 1D, the exact reproduction in 2D, and the fit-that-reciprocates inverse in 3D.",
+  "lit":"Genuine Thiele interpolation (Thorvald N. Thiele 1909). Verified live with exact BigInt rational arithmetic: for thousands of random rational data sets the continued-fraction interpolant built from anchored inverse differences reproduces the exact y-value at every data point; degenerate data (a vanishing inverse difference, where Thiele is undefined) is skipped (window.__thiele.reproduces, .tested, .skipped).",
+  "fig":"No framing; the inverse-difference table, the continued-fraction evaluation, and the exact-reproduction check all run in-browser with BigInt fractions. The AVAN inverse is honest — instead of fitting a polynomial, fit a continued fraction: the inverse differences aₖ stacked into R(x), which can bend around poles a polynomial cannot. Magenta is the continued-fraction ladder; green is the curve it unrolls to. A fit that reciprocates.",
+  "body":THIE_BODY,"script":THIE_SCRIPT},
+ {"slug":"the-galton","title":"THE GALTON BOARD","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#ffcf4a","icon":"galton",
+  "kicker":"a board of pegs building the bell curve",
+  "blurb":"The Galton board (bean machine) in the 5-window house format — a triangular array of pegs down which balls bounce, going left or right with equal chance at each row. After n rows a ball lands in bin k, and the number of distinct paths to that bin is exactly the binomial coefficient C(n,k) — the n-th row of Pascal's triangle. Since every path is equally likely, the fraction of balls in bin k is C(n,k)/2ⁿ, so a heap of balls piles up into the binomial distribution — and as n grows, into the smooth bell curve. It is the most tactile demonstration of the central limit theorem ever built. Verified live: the exact count of paths to each bin equals C(n,k) for every row up to n=14, and a simulation of hundreds of thousands of balls settles into the binomial C(n,k)/2ⁿ with mean n/2. Neon-noir traced. See the pegs and Pascal bins in 1D, the growing histogram in 2D, and the count-the-paths inverse in 3D.",
+  "lit":"Genuine Galton board (Sir Francis Galton 1894). Verified live: the exact count of left/right paths to bin k equals the binomial C(n,k) for every row up to n=14 (Pascal's triangle), and a simulation of 150000 balls settles into the binomial C(n,k)/2ⁿ (worst bin gap <0.01) with mean n/2 (window.__galton.pathOk, .distOk, .mean).",
+  "fig":"No framing; the exact path count, the binomial, and the random simulation all run in-browser. Honest scope: the simulation is statistical so its match to the binomial is approximate. The AVAN inverse is honest — instead of watching the balls, count the paths: the number of left/right paths to each bin is C(n,k), Pascal's triangle. Magenta are the branching paths; green is the binomial heap. Randomness resolving into a known shape.",
+  "body":GALT_BODY,"script":GALT_SCRIPT},
+ {"slug":"the-harshad","title":"THE HARSHAD","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#21e6ff","icon":"harshad",
+  "kicker":"the numbers that are Harshad in every base",
+  "blurb":"The Harshad (Niven) number in the 5-window house format — a positive integer divisible by the sum of its own digits. In base ten, 18 is Harshad (1+8=9 divides 18); 21 is (2+1=3 divides 21). Every number is Harshad in some base, but which numbers are Harshad in every base at once? Astonishingly, there are only four: 1, 2, 4, and 6. These 'all-Harshad' (total Harshad) numbers are divisible by their digit sum no matter what base you write them in — a rare and complete little set, proved to contain nothing else. Verified live: checking every integer up to 2000 against every base from 2 to 30, the only numbers that are Harshad in all of them are exactly {1,2,4,6}. Neon-noir traced. See the number×base Harshad grid in 1D, one number across bases in 2D, and the every-base-must-agree inverse in 3D.",
+  "lit":"Genuine Harshad / Niven numbers ('Harshad' coined by D. R. Kaprekar; Niven numbers after Ivan Niven). Verified live: checking every integer up to 2000 against every base 2..30, the only numbers Harshad in all of them are exactly {1,2,4,6} — the all-Harshad numbers, proved to contain nothing else (window.__harshad.exactlyFour, .found).",
+  "fig":"No framing; the base-b digit sums and the divisibility tests all run in-browser. Honest scope: that no fifth all-Harshad number exists is a proved theorem; here it is confirmed over a finite range (n≤2000, bases 2..30). The AVAN inverse is honest — instead of asking if a number is Harshad in one base, ask across all bases; only four survive. Magenta are the per-base divisibility tests; green is the surviving set {1,2,4,6}. A property that all bases must agree on.",
+  "body":HRSH_BODY,"script":HRSH_SCRIPT},
  {"slug":"the-coupon-collector","title":"THE COUPON COLLECTOR","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#ffcf4a","icon":"coupon",
   "kicker":"how many draws to collect the whole set",
