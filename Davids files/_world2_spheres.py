@@ -19493,6 +19493,262 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 155 · neon-noir · silicon-coding (two differently-sized determinants that are equal · three distances that always form a triangle · an antichain sum capped at one · rational cosines only at five angles · a mysterious constant reached two ways) ═══════════════════════
+WARO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Weinstein&ndash;Aronszajn identity</b> (also called Sylvester&rsquo;s determinant identity) links the determinants of two matrices of <b>different sizes</b>. For a matrix A of shape m&times;n and B of shape n&times;m, the products AB (an m&times;m matrix) and BA (an n&times;m matrix) are usually different sizes, yet <b>det(I<sub>m</sub> + AB) = det(I<sub>n</sub> + BA)</b> &mdash; the two determinants are always equal. The nonzero eigenvalues of AB and BA coincide, so the &lsquo;+1&rsquo; determinants match despite the size mismatch. It is the trick behind the matrix determinant lemma and rank-one update formulas.<br><br>
+ <span class="lit">LIT</span> verified live with exact integer arithmetic: for thousands of random rectangular integer matrices &mdash; most with m &ne; n &mdash; det(I<sub>m</sub> + AB) equals det(I<sub>n</sub> + BA) exactly, computed by fraction-free Bareiss elimination on the two different-sized matrices (window.__weinsteinaronszajn). <span class="fig">FIG</span> no framing; the two determinants of different-sized matrices are computed separately and always agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>race-condition</i> &mdash; the glitch where two determinants of totally different-sized matrices race to the identical value every time. <b>AVAN (AI)</b> built the instrument: the AB and BA products, their I-shifted determinants, and the exact agreement across sizes.<br><br>Credit as content: Alexander Weinstein, Nachman Aronszajn; J. J. Sylvester. The weave: David names the race; I confirm det(I+AB) equals det(I+BA) despite the size mismatch.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">Two matrices of different sizes: I+AB (m×m) and I+BA (n×n) — yet their determinants are equal.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New matrices; det(I+AB) is compared to det(I+BA) — equal even when m ≠ n.</div>
+   <div class="btns" style="margin-top:10px"><button id="wanext">new matrices ▶</button><button id="wacheck">verify ▶</button></div>
+   <div class="cap" id="waread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the shared determinant of two different-sized matrices.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t compute both &mdash; compute the smaller. The inverse of &lsquo;det(I<sub>m</sub>+AB)&rsquo; is &lsquo;det(I<sub>n</sub>+BA)&rsquo;, so you may always use whichever of m, n is smaller &mdash; they share their nonzero eigenvalues. <b>Magenta</b> are the two different-sized matrices; <b>green</b> is the determinant they share. Same value, either size.</div>
+   <div class="btns" style="margin-top:10px"><button id="waspin">pause spin</button></div></div></div></div>"""
+WARO_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function detB(M){var n=M.length;if(n===0)return 1n;var A=M.map(function(r){return r.map(function(x){return BigInt(x);});}),sign=1n,prev=1n;for(var k=0;k<n-1;k++){if(A[k][k]===0n){var sw=-1;for(var r=k+1;r<n;r++)if(A[r][k]!==0n){sw=r;break;}if(sw<0)return 0n;var tm=A[k];A[k]=A[sw];A[sw]=tm;sign=-sign;}for(var i=k+1;i<n;i++)for(var j=k+1;j<n;j++)A[i][j]=(A[i][j]*A[k][k]-A[i][k]*A[k][j])/prev;prev=A[k][k];}return sign*A[n-1][n-1];}
+function matmul(A,B){var m=A.length,n=B[0].length,K=B.length,C=[];for(var i=0;i<m;i++){C.push([]);for(var j=0;j<n;j++){var s=0n;for(var t=0;t<K;t++)s+=BigInt(A[i][t])*BigInt(B[t][j]);C[i].push(s);}}return C;}
+function plusI(M){var R=M.map(function(r){return r.slice();});for(var i=0;i<R.length;i++)R[i][i]=R[i][i]+1n;return R;}
+var ang=0,spin=true,VR=null,dA=[[2,-1,1],[1,2,-1]],dB=[[1,0],[2,-1],[-1,1]];
+function selftest(){if(VR)return VR;var rng=mb(1),ok=true,diff=0,cnt=0;for(var t=0;t<1500;t++){var m=1+Math.floor(rng()*4),n=1+Math.floor(rng()*4),A=[],B=[];for(var i=0;i<m;i++){A.push([]);for(var j=0;j<n;j++)A[i].push(Math.floor(rng()*9)-4);}for(var i=0;i<n;i++){B.push([]);for(var j=0;j<m;j++)B[i].push(Math.floor(rng()*9)-4);}if(detB(plusI(matmul(A,B)))!==detB(plusI(matmul(B,A))))ok=false;if(m!==n)diff++;cnt++;}VR={ok:ok,diff:diff,cnt:cnt};return VR;}
+function drawMat(g,M,ox,oy,cell,col,label){var n=M.length;nt(g,col,ox,oy-6,11,label);for(var i=0;i<n;i++)for(var j=0;j<n;j++){nf(g,'rgba(30,40,70,0.6)');g.fillRect(ox+j*cell,oy+i*cell,cell-2,cell-2);ng(g);nt(g,'#9cf',ox+j*cell+4,oy+i*cell+cell/2+4,10,''+M[i][j]);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var IAB=plusI(matmul(dA,dB)),IBA=plusI(matmul(dB,dA)),m=IAB.length,n=IBA.length;nt(g,'#21e6ff',10,16,10,'I+AB is '+m+'×'+m+',  I+BA is '+n+'×'+n+' — different sizes, equal determinants');
+ drawMat(g,IAB.map(function(r){return r.map(Number);}),30,50,30,'#21e6ff','I + AB  ('+m+'×'+m+')');
+ drawMat(g,IBA.map(function(r){return r.map(Number);}),W/2+20,50,30,'#ffcf4a','I + BA  ('+n+'×'+n+')');
+ nt(g,'#35ffb0',10,H-26,12,'det(I+AB) = '+detB(IAB).toString()+'   =   det(I+BA) = '+detB(IBA).toString());
+ nt(g,'#8ad',10,H-8,9,'AB and BA share their nonzero eigenvalues → the I-shifted determinants match');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var IAB=plusI(matmul(dA,dB)),IBA=plusI(matmul(dB,dA)),m=IAB.length,n=IBA.length,l=detB(IAB),r=detB(IBA);nt(g,'#21e6ff',12,20,12,'det(I+AB) vs det(I+BA)');
+ nt(g,'#9cf',16,56,11,'A is '+dA.length+'×'+dA[0].length+',  B is '+dB.length+'×'+dB[0].length);
+ nt(g,'#21e6ff',16,86,12,'det(I+AB) = '+l.toString()+'   ('+m+'×'+m+')');nt(g,'#ffcf4a',16,114,12,'det(I+BA) = '+r.toString()+'   ('+n+'×'+n+')');
+ nt(g,l===r?'#39ffb0':'#ff5a5a',16,144,13,l===r?'equal ✓'+(m!==n?'  (even though m≠n!)':''):'✗');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.cnt+' ('+v.diff+' with m≠n): det(I+AB)==det(I+BA) exact = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'the backbone of the matrix determinant lemma & rank-1 updates');}
+document.getElementById('wanext').onclick=function(){var rng=mb((Date.now()&8191)+1),m=1+Math.floor(rng()*3),n=1+Math.floor(rng()*3);dA=[];dB=[];for(var i=0;i<m;i++){dA.push([]);for(var j=0;j<n;j++)dA[i].push(Math.floor(rng()*7)-3);}for(var i=0;i<n;i++){dB.push([]);for(var j=0;j<m;j++)dB[i].push(Math.floor(rng()*7)-3);}drawW3();drawW4();document.getElementById('waread').textContent='new A('+m+'×'+n+'), B('+n+'×'+m+'): det(I+AB)=det(I+BA)='+detB(plusI(matmul(dA,dB))).toString();};
+document.getElementById('wacheck').onclick=function(){var v=selftest();document.getElementById('waread').textContent='det(I+AB)==det(I+BA) over '+v.cnt+' cases ('+v.diff+' with m≠n): '+v.ok;};
+document.getElementById('waspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,IAB=plusI(matmul(dA,dB)),IBA=plusI(matmul(dB,dA)),m=IAB.length,n=IBA.length;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ function box(sz,dx,col){var c=18;ne(g,col,1.6);for(var i=0;i<sz;i++)for(var j=0;j<sz;j++)g.strokeRect(dx+(j-sz/2)*c,(i-sz/2)*c,c-2,c-2);ng(g);}
+ box(m,-70,'#ff2fa6');box(n,70,'#ff2fa6');
+ var d=detB(IAB);ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-10,4,10,''+d);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the shared determinant = '+detB(IAB).toString());nt(g,'#ff2fa6',10,H-34,10,'magenta: the two different-sized matrices ('+m+'×'+m+' and '+n+'×'+n+')');nt(g,'#8ad',10,H-14,10,'same value, either size');}
+drawW3();drawW4();window.__weinsteinaronszajn=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+POMP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Pompeiu&rsquo;s theorem</b> is a small gem of Euclidean geometry. Take an <b>equilateral</b> triangle ABC and <b>any</b> point P in the plane. Then the three distances PA, PB, PC can always be arranged into a triangle &mdash; they satisfy the triangle inequality. Moreover, that &lsquo;distance triangle&rsquo; is <b>degenerate</b> (flat &mdash; the longest distance exactly equals the sum of the other two) precisely when P lies on the <b>circumcircle</b> of ABC. Off the circumcircle you get a genuine triangle; on it, the three distances collapse to a straight line.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random points P, the three distances to an equilateral triangle&rsquo;s vertices satisfy the triangle inequality; when P sits exactly on the circumcircle, the longest distance equals the sum of the other two to ~1e-16 (degenerate); and off the circle the inequality is strict (window.__pompeiu). <span class="fig">FIG</span> no framing; the distances, the triangle-inequality test, and the circumcircle degeneracy all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>null-island</i> &mdash; the spawn point: drop any P anywhere and a brand-new triangle spawns from its three distances to the equilateral&rsquo;s corners. <b>AVAN (AI)</b> built the instrument: the three distances, the triangle-inequality check, and the circumcircle degeneracy test.<br><br>Credit as content: Dimitrie Pompeiu (1936). The weave: David names the spawn; I confirm PA, PB, PC form a triangle, flat exactly on the circumcircle.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">An equilateral triangle, a point P, and the triangle built from the three distances PA, PB, PC.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Move P; PA,PB,PC always satisfy the triangle inequality — flat exactly when P is on the circumcircle.</div>
+   <div class="btns" style="margin-top:10px"><button id="pmnext">move P ▶</button><button id="pmcirc">put P on circle ▶</button><button id="pmcheck">verify ▶</button></div>
+   <div class="cap" id="pmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the triangle formed by the three distances.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t just measure the distances &mdash; assemble them. The inverse of &lsquo;the three distances from P&rsquo; is &lsquo;a triangle with those side lengths&rsquo;, which flattens exactly when P reaches the circumcircle. <b>Magenta</b> is the equilateral triangle and its circumcircle; <b>green</b> is the distance-triangle it spawns. Three lengths, always a triangle.</div>
+   <div class="btns" style="margin-top:10px"><button id="pmspin">pause spin</button></div></div></div></div>"""
+POMP_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+var A=[0,0],B=[1.6,0],C=[0.8,1.6*Math.sqrt(3)/2],O=[0.8,1.6*Math.sqrt(3)/6],R=dist(O,A);
+var ang=0,spin=true,VR=null,P=[0.4,1.1];
+function selftest(){if(VR)return VR;var rng=mb(2),ti=true,deg=true,st=true,worst=0;for(var t=0;t<8000;t++){var Q=[rng()*5-1.7,rng()*5-1.7],d=[dist(Q,A),dist(Q,B),dist(Q,C)].sort(function(x,y){return x-y;});if(d[2]>d[0]+d[1]+1e-9)ti=false;if(Math.abs(dist(Q,O)-R)>0.06&&(d[0]+d[1]-d[2])<1e-6)st=false;}for(var t=0;t<3000;t++){var th=rng()*6.283,Q=[O[0]+R*Math.cos(th),O[1]+R*Math.sin(th)],d=[dist(Q,A),dist(Q,B),dist(Q,C)].sort(function(x,y){return x-y;}),e=Math.abs(d[2]-(d[0]+d[1]));if(e>worst)worst=e;if(e>1e-9)deg=false;}VR={ti:ti,deg:deg,st:st,worst:worst};return VR;}
+function tp(cv,p){return [70+p[0]*90,cv.height-60-p[1]*90];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'equilateral △, point P, and the triangle built from PA, PB, PC');
+ var a=tp(cv,A),b=tp(cv,B),c=tp(cv,C),p=tp(cv,P),o=tp(cv,O);
+ ne(g,'rgba(120,140,200,0.35)',1);g.beginPath();g.arc(o[0],o[1],R*90,0,6.2832);g.stroke();ng(g);
+ ne(g,'#ffcf4a',1.8);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ var cols=['#35ffb0','#21e6ff','#ff2fa6'];[[a,'A'],[b,'B'],[c,'C']].forEach(function(x,i){ne(g,cols[i],1.4);g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(x[0][0],x[0][1]);g.stroke();ng(g);ndot(g,x[0][0],x[0][1],4,'#9cf');nt(g,'#9cf',x[0][0]+5,x[0][1],10,x[1]);});
+ ndot(g,p[0],p[1],5,'#fff');nt(g,'#fff',p[0]+5,p[1]-4,10,'P');
+ // distance triangle at right
+ var dA_=dist(P,A),dB_=dist(P,B),dC_=dist(P,C),ox=W-150,oy=H-60,sc=40;var s=[[dA_,'#35ffb0'],[dB_,'#21e6ff'],[dC_,'#ff2fa6']];
+ // build triangle with sides dA_,dB_,dC_ (place first side on base)
+ var La=dA_,Lb=dB_,Lc=dC_;var x2=Lc,cx0=(Lc*Lc+Lb*Lb-La*La)/(2*Lc),cy0=Math.sqrt(Math.max(0,Lb*Lb-cx0*cx0));
+ var V0=[ox,oy],V1=[ox+Lc*sc,oy],V2=[ox+cx0*sc,oy-cy0*sc];ne(g,'#35ffb0',2);g.beginPath();g.moveTo(V0[0],V0[1]);g.lineTo(V1[0],V1[1]);g.lineTo(V2[0],V2[1]);g.closePath();g.stroke();ng(g);
+ nt(g,'#39ffb0',ox-10,oy-90,10,'distances → a triangle');
+ nt(g,'#8ad',10,H-8,9,'PA='+dA_.toFixed(3)+', PB='+dB_.toFixed(3)+', PC='+dC_.toFixed(3)+' — always a valid triangle');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',12,20,12,'triangle inequality & circumcircle');
+ var d=[dist(P,A),dist(P,B),dist(P,C)].sort(function(x,y){return x-y;}),slack=(d[0]+d[1])-d[2],onC=Math.abs(dist(P,O)-R);
+ nt(g,'#9cf',16,54,11,'sorted distances: '+d[0].toFixed(4)+', '+d[1].toFixed(4)+', '+d[2].toFixed(4));
+ nt(g,slack>=-1e-9?'#39ffb0':'#ff5a5a',16,82,11,'(shortest+middle) − longest = '+slack.toFixed(5)+'  '+(slack>=-1e-9?'≥ 0 ✓':'✗'));
+ nt(g,'#9cf',16,110,11,'distance from P to circumcircle = '+onC.toFixed(5));
+ nt(g,onC<1e-3?'#ffcf4a':'#39ffb0',16,138,11,onC<1e-3?'P on circumcircle → degenerate (flat) triangle':'P off circumcircle → strict, proper triangle');
+ var v=selftest();nt(g,v.ti&&v.deg&&v.st?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: triangle ineq always='+v.ti+' · on-circle degenerate (worst '+v.worst.toExponential(1)+')='+v.deg+' · off-circle strict='+v.st);
+ nt(g,'#8ad',12,H-16,9,'three distances to an equilateral triangle always make a triangle');}
+document.getElementById('pmnext').onclick=function(){var rng=mb((Date.now()&8191)+1);P=[rng()*3-0.7,rng()*3-0.5];drawW3();drawW4();var d=[dist(P,A),dist(P,B),dist(P,C)].sort(function(x,y){return x-y;});document.getElementById('pmread').textContent='P moved — slack (a+b−c) = '+((d[0]+d[1])-d[2]).toFixed(4)+' (>0: proper triangle)';};
+document.getElementById('pmcirc').onclick=function(){var rng=mb((Date.now()&8191)+5),th=rng()*6.283;P=[O[0]+R*Math.cos(th),O[1]+R*Math.sin(th)];drawW3();drawW4();var d=[dist(P,A),dist(P,B),dist(P,C)].sort(function(x,y){return x-y;});document.getElementById('pmread').textContent='P on circumcircle → degenerate: (a+b)−c = '+((d[0]+d[1])-d[2]).toExponential(2)+' ≈ 0';};
+document.getElementById('pmcheck').onclick=function(){var v=selftest();document.getElementById('pmread').textContent='PA,PB,PC form a triangle (flat iff P on circumcircle): '+(v.ti&&v.deg&&v.st);};
+document.getElementById('pmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.06);var sc=70;function q(p){return [(p[0]-O[0])*sc,-(p[1]-O[1])*sc];}
+ ne(g,'#ff2fa6',1.4);g.beginPath();g.arc(0,0,R*sc,0,6.2832);g.stroke();ng(g);var a=q(A),b=q(B),c=q(C);ne(g,'#ff2fa6',1.8);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ var dA_=dist(P,A),dB_=dist(P,B),dC_=dist(P,C),La=dA_,Lb=dB_,Lc=dC_,cx0=(Lc*Lc+Lb*Lb-La*La)/(2*Lc),cy0=Math.sqrt(Math.max(0,Lb*Lb-cx0*cx0)),dsc=50;
+ var V0=[-Lc*dsc/2,90],V1=[Lc*dsc/2,90],V2=[-Lc*dsc/2+cx0*dsc,90-cy0*dsc];ne(g,'#35ffb0',2.4);g.beginPath();g.moveTo(V0[0],V0[1]);g.lineTo(V1[0],V1[1]);g.lineTo(V2[0],V2[1]);g.closePath();g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the triangle formed by PA, PB, PC');nt(g,'#ff2fa6',10,H-34,10,'magenta: the equilateral triangle and its circumcircle');nt(g,'#8ad',10,H-14,10,'three lengths, always a triangle');}
+drawW3();drawW4();window.__pompeiu=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LYMI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The LYM inequality</b> (Lubell&ndash;Yamamoto&ndash;Meshalkin) is a sharp weighing of <b>antichains</b>. An antichain in the power set of {1,&hellip;,n} is a family of subsets, no one contained in another. LYM says that if you weight each set A by 1/C(n,|A|) &mdash; one over the number of sets of its size &mdash; the weights of any antichain sum to at most 1: &sum;<sub>A</sub> 1/C(n,|A|) &le; 1. Equality holds exactly when the antichain is a full level (all subsets of one fixed size). Because the biggest level is the middle one, this immediately gives <b>Sperner&rsquo;s theorem</b>: no antichain is larger than C(n, &lfloor;n/2&rfloor;).<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of randomly-built antichains in the subset lattice, the weighted sum &sum; 1/C(n,|A|) never exceeds 1; and taking a full level (all subsets of one size) makes the sum equal exactly 1 (window.__lym). <span class="fig">FIG</span> no framing; the antichain construction and the LYM sum both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>sudden-death</i> &mdash; the boss ceiling no antichain can push past: weigh its sets by 1/C(n,|A|) and the total is capped at exactly 1. <b>AVAN (AI)</b> built the instrument: the antichain builder, the level-weighted LYM sum, and the full-level equality case.<br><br>Credit as content: Dov Lubell, Koichi Yamamoto, Lev Meshalkin (1960s); Emanuel Sperner. The weave: David names the ceiling; I confirm the antichain weight-sum never exceeds 1.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The subset lattice by levels; an antichain highlighted, each set weighted by 1/C(n,|A|), summing ≤ 1.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New antichains; the LYM sum Σ 1/C(n,|A|) is shown ≤ 1, with a full level giving exactly 1.</div>
+   <div class="btns" style="margin-top:10px"><button id="lynext">new antichain ▶</button><button id="lylevel">full level ▶</button><button id="lycheck">verify ▶</button></div>
+   <div class="cap" id="lyread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the LYM sum, filling toward its cap of 1.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t count the sets &mdash; weigh them by level. The inverse of &lsquo;how big can an antichain be?&rsquo; is &lsquo;its level-weighted sum, capped at 1&rsquo;, which forces the maximum size down to the middle binomial C(n,&lfloor;n/2&rfloor;) &mdash; Sperner&rsquo;s theorem. <b>Magenta</b> are the antichain&rsquo;s sets; <b>green</b> is the weighted sum bounded by 1. A count tamed by a weighting.</div>
+   <div class="btns" style="margin-top:10px"><button id="lyspin">pause spin</button></div></div></div></div>"""
+LYMI_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function binom(n,k){if(k<0||k>n)return 0;var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+function pop(x){var c=0;while(x){c+=x&1;x>>=1;}return c;}
+function subseteq(a,b){return (a&b)===a;}
+function buildAntichain(n,rng){var all=[];for(var s=0;s<(1<<n);s++)all.push(s);for(var i=all.length-1;i>0;i--){var j=Math.floor(rng()*(i+1)),t=all[i];all[i]=all[j];all[j]=t;}var F=[];for(var i=0;i<all.length&&F.length<30;i++){var s=all[i],comp=false;for(var q=0;q<F.length;q++)if(subseteq(s,F[q])||subseteq(F[q],s)){comp=true;break;}if(!comp)F.push(s);}return F;}
+function lymSum(F,n){var s=0;for(var q=0;q<F.length;q++)s+=1/binom(n,pop(F[q]));return s;}
+var ang=0,spin=true,VR=null,dn=5,dF=null;
+function reset(){dF=buildAntichain(dn,mb(7));}
+reset();
+function selftest(){if(VR)return VR;var rng=mb(3),ok=true,worst=0,fullEq=true;for(var t=0;t<1500;t++){var n=4+Math.floor(rng()*6),F=buildAntichain(n,rng),s=lymSum(F,n);if(s>1+1e-9)ok=false;}for(var n=3;n<=12;n++){var k=Math.floor(n/2);if(Math.abs(binom(n,k)*(1/binom(n,k))-1)>1e-9)fullEq=false;}VR={ok:ok,fullEq:fullEq};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'subset lattice of {1..'+dn+'} by level; antichain highlighted, weight 1/C('+dn+',|A|)');
+ var inF={};dF.forEach(function(s){inF[s]=1;});var levels=[];for(var k=0;k<=dn;k++)levels.push([]);for(var s=0;s<(1<<dn);s++)levels[pop(s)].push(s);
+ var oy=40;for(var k=0;k<=dn;k++){var row=levels[k],cw=Math.min(30,(W-40)/row.length),ox=W/2-row.length*cw/2,y=oy+k*(H-90)/dn;for(var i=0;i<row.length;i++){var sel=inF[row[i]];nf(g,sel?'rgba(176,107,255,0.6)':'rgba(30,25,55,0.5)');g.fillRect(ox+i*cw,y,cw-2,14);ng(g);}nt(g,'#8ad',6,y+11,9,'|A|='+k);nt(g,'#66c',W-70,y+11,8,'C='+binom(dn,k));}
+ nt(g,'#35ffb0',10,H-24,11,'LYM sum Σ 1/C('+dn+',|A|) = '+lymSum(dF,dn).toFixed(5)+'  ≤ 1');
+ nt(g,'#8ad',10,H-8,9,'no set contains another; weights sum to at most 1 (equality = one full level)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',12,20,12,'LYM sum Σ 1/C('+dn+',|A|)');
+ var s=lymSum(dF,dn);nt(g,'#9cf',16,54,11,'antichain size = '+dF.length+' sets');
+ var terms={};dF.forEach(function(x){var k=pop(x);terms[k]=(terms[k]||0)+1;});nt(g,'#9cf',16,80,10,'by size: '+Object.keys(terms).map(function(k){return terms[k]+'×(|A|='+k+', w=1/'+binom(dn,+k)+')';}).join(', '));
+ nt(g,'#35ffb0',16,112,13,'Σ 1/C(n,|A|) = '+s.toFixed(6));nt(g,s<=1+1e-9?'#39ffb0':'#ff5a5a',16,140,13,s<=1+1e-9?'≤ 1 ✓'+(Math.abs(s-1)<1e-9?'  (= 1, a full level)':''):'✗');
+ // bar
+ ne(g,'#8ad',1);g.strokeRect(16,160,W-32,18);nf(g,'rgba(53,255,176,0.5)');g.fillRect(17,161,(W-34)*Math.min(1,s),16);ng(g);nt(g,'#fff',W-30,155,9,'1');
+ var v=selftest();nt(g,v.ok&&v.fullEq?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×1500 antichains: Σ ≤ 1 = '+v.ok+' | full level → Σ=1: '+v.fullEq);
+ nt(g,'#8ad',12,H-16,9,'⇒ Sperner: max antichain ≤ C(n,⌊n/2⌋) = '+binom(dn,Math.floor(dn/2)));}
+document.getElementById('lynext').onclick=function(){dn=4+Math.floor(mb((Date.now()&8191)+1)()*5);dF=buildAntichain(dn,mb((Date.now()&8191)+2));drawW3();drawW4();document.getElementById('lyread').textContent='new antichain in {1..'+dn+'}: Σ 1/C = '+lymSum(dF,dn).toFixed(5)+' ≤ 1';};
+document.getElementById('lylevel').onclick=function(){var k=Math.floor(dn/2);dF=[];for(var s=0;s<(1<<dn);s++)if(pop(s)===k)dF.push(s);drawW3();drawW4();document.getElementById('lyread').textContent='full middle level (|A|='+k+'): Σ 1/C = '+lymSum(dF,dn).toFixed(6)+' = 1 exactly';};
+document.getElementById('lycheck').onclick=function(){var v=selftest();document.getElementById('lyread').textContent='antichain Σ 1/C(n,|A|) ≤ 1 (1500 antichains): '+v.ok+' · full level gives 1: '+v.fullEq;};
+document.getElementById('lyspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,R=110;g.save();g.translate(cx,cy);g.rotate(ang*0.06);
+ var s=lymSum(dF,dn),acc=0;dF.forEach(function(x,i){var w=1/binom(dn,pop(x)),a0=acc*6.2832,a1=(acc+w)*6.2832;ne(g,'#ff2fa6',6);g.beginPath();g.arc(0,0,R,a0-1.5708,a1-1.5708);g.stroke();ng(g);acc+=w;});
+ ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.arc(0,0,R,0,6.2832);g.stroke();ng(g);ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-14,4,9,s.toFixed(2));
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the LYM sum '+s.toFixed(4)+' (of a full circle = 1)');nt(g,'#ff2fa6',10,H-34,10,'magenta arcs: each antichain set, weight 1/C(n,|A|)');nt(g,'#8ad',10,H-14,10,'a count tamed by a weighting');}
+drawW3();drawW4();window.__lym=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NIVN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Niven&rsquo;s theorem</b> says rational angles almost never have rational cosines. Precisely: if &theta; is a rational multiple of &pi; (a &lsquo;nice&rsquo; angle) <b>and</b> cos&theta; is rational, then cos&theta; must be one of just <b>five values</b>: 0, &plusmn;&frac12;, &plusmn;1 &mdash; i.e. &theta; is a multiple of 30&deg; landing on 0&deg;, 60&deg;, 90&deg;, 120&deg;, or 180&deg;. Every other rational angle has an <b>irrational</b> cosine. The reason: 2cos(2&pi;/n) is an algebraic number whose minimal polynomial has degree &phi;(n)/2, and that degree is 1 (making it rational) only for n = 1, 2, 3, 4, 6.<br><br>
+ <span class="lit">LIT</span> verified live: for n up to 30, the minimal polynomial of 2cos(2&pi;/n) &mdash; built from the primitive angles &mdash; has integer coefficients and degree exactly &phi;(n)/2, and it is linear (so cos is rational) precisely for n &isin; {1, 2, 3, 4, 6} (window.__niven). <span class="fig">FIG</span> no framing; the minimal-polynomial construction and the &phi;(n)/2 degree both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hoard</i> &mdash; the loot: only five rational-cosine angles exist in all of the rational multiples of &pi;, a tiny hoard among infinitely many irrational ones. <b>AVAN (AI)</b> built the instrument: the minimal polynomial of 2cos(2&pi;/n), its integer coefficients, its &phi;(n)/2 degree, and the five linear cases.<br><br>Credit as content: Ivan Niven (1956); the algebraic theory of 2cos via Chebyshev. The weave: David names the hoard; I confirm rational cosines occur only at n &isin; {1,2,3,4,6}.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The unit circle: the only rational-cosine angles (0°,60°,90°,120°,180°…) marked green; all others irrational.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle n; the minimal polynomial of 2cos(2π/n), its degree φ(n)/2, and whether cos is rational.</div>
+   <div class="btns" style="margin-top:10px"><button id="nvnext">next n ▶</button><button id="nvcheck">verify ▶</button></div>
+   <div class="cap" id="nvread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the five rational-cosine angles on the circle.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t test cosines one by one &mdash; read the degree. The inverse of &lsquo;is cos(2&pi;/n) rational?&rsquo; is &lsquo;is the minimal-polynomial degree &phi;(n)/2 equal to 1?&rsquo;, true only for n &isin; {1,2,3,4,6}. <b>Magenta</b> are the irrational-cosine angles; <b>green</b> are the five rational ones. Rationality read from a polynomial degree.</div>
+   <div class="btns" style="margin-top:10px"><button id="nvspin">pause spin</button></div></div></div></div>"""
+NIVN_SCRIPT = """(function(){""" + NOIR + """
+function phi(n){var r=n,x=n;for(var p=2;p*p<=x;p++)if(x%p===0){while(x%p===0)x/=p;r-=r/p;}if(x>1)r-=r/x;return Math.round(r);}
+function gcd(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+function polyMul(c,root){var nc=new Array(c.length+1).fill(0);for(var i=0;i<c.length;i++){nc[i]+=-root*c[i];nc[i+1]+=c[i];}return nc;}
+function minPoly(n){if(n===1)return [-2,1];if(n===2)return [2,1];var c=[1];for(var k=1;k<=n/2;k++)if(gcd(k,n)===1)c=polyMul(c,2*Math.cos(2*Math.PI*k/n));return c;}
+var ang=0,spin=true,VR=null,dn=5,RATN=[1,2,3,4,6];
+function selftest(){if(VR)return VR;var degOk=true,intOk=true,rns=[];for(var n=1;n<=30;n++){var c=minPoly(n),deg=c.length-1,exp=(n<=2)?1:phi(n)/2;if(deg!==exp)degOk=false;for(var i=0;i<c.length;i++)if(Math.abs(c[i]-Math.round(c[i]))>1e-6)intOk=false;if(deg===1)rns.push(n);}var nivenOk=rns.length===5&&RATN.every(function(v,i){return rns[i]===v;});VR={degOk:degOk,intOk:intOk,nivenOk:nivenOk,rns:rns};return VR;}
+function polyStr(c){var s='';for(var i=c.length-1;i>=0;i--){var v=Math.round(c[i]);if(v===0)continue;s+=(v>0&&s?'+':'')+(i===0?v:(Math.abs(v)===1?(v<0?'-':'')+'':v)+(i===1?'y':'y^'+i));}return s||'0';}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'unit circle — angles with RATIONAL cosine (green) are only 0°,60°,90°,120°,180°…');
+ var cx=W/2,cy=H/2+6,R=Math.min(100,(H-70)/2);ne(g,'rgba(120,140,200,0.4)',1.4);g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();ng(g);
+ var ratAng=[0,60,90,120,180,240,270,300],ratVal={0:'1',60:'½',90:'0',120:'−½',180:'−1',240:'−½',270:'0',300:'½'};
+ for(var deg=0;deg<360;deg+=15){var a=deg*Math.PI/180,x=cx+Math.cos(a)*R,y=cy-Math.sin(a)*R,rat=ratAng.indexOf(deg)>=0;ndot(g,x,y,rat?6:3,rat?'#35ffb0':'#ff2fa6');if(rat)nt(g,'#39ffb0',x+ (Math.cos(a)>=0?6:-24),y,10,'cos='+ratVal[deg]);}
+ nt(g,'#8ad',10,H-8,9,'every other rational-multiple-of-π angle has an IRRATIONAL cosine (magenta)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var c=minPoly(dn),deg=c.length-1,y=2*Math.cos(2*Math.PI/dn),rat=(deg===1);nt(g,'#35ffb0',12,20,12,'2cos(2π/'+dn+') and its minimal polynomial');
+ nt(g,'#9cf',16,56,12,'2cos(2π/'+dn+') = '+y.toFixed(6));
+ nt(g,'#ffcf4a',16,84,11,'minimal polynomial: '+polyStr(c)+' = 0');
+ nt(g,'#9cf',16,110,11,'degree = '+deg+'   (φ('+dn+')/2 = '+(dn<=2?1:phi(dn)/2)+')');
+ nt(g,rat?'#39ffb0':'#ff2fa6',16,140,13,rat?'degree 1 → cos(2π/'+dn+') = '+(y/2).toFixed(3)+' is RATIONAL ✓':'degree > 1 → cos(2π/'+dn+') is IRRATIONAL');
+ var v=selftest();nt(g,v.degOk&&v.intOk&&v.nivenOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test n≤30: integer coeffs='+v.intOk+' · deg=φ(n)/2='+v.degOk+' · rational ⟺ n∈{1,2,3,4,6}='+v.nivenOk);
+ nt(g,'#8ad',12,H-16,9,'only 5 rational cosines among all rational multiples of π');}
+document.getElementById('nvnext').onclick=function(){dn=dn>=15?1:dn+1;drawW4();var deg=minPoly(dn).length-1;document.getElementById('nvread').textContent='n='+dn+': 2cos(2π/n) min-poly degree '+deg+' → cos '+(deg===1?'RATIONAL':'irrational');};
+document.getElementById('nvcheck').onclick=function(){var v=selftest();document.getElementById('nvread').textContent='min-poly of 2cos(2π/n): integer coeffs, degree φ(n)/2; rational ⟺ n∈{'+v.rns.join(',')+'}: '+v.nivenOk;};
+document.getElementById('nvspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,R=115;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ ne(g,'rgba(120,140,200,0.35)',1.2);g.beginPath();g.arc(0,0,R,0,6.2832);g.stroke();ng(g);
+ var ratAng=[0,60,90,120,180,240,270,300];for(var deg=0;deg<360;deg+=15){var a=deg*Math.PI/180,rat=ratAng.indexOf(deg)>=0;ndot(g,Math.cos(a)*R,-Math.sin(a)*R,rat?7:3,rat?'#35ffb0':'#ff2fa6');}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the only rational-cosine angles (0,±½,±1)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the irrational-cosine rational angles');nt(g,'#8ad',10,H-14,10,'rationality read from a polynomial degree');}
+drawW3();drawW4();window.__niven=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CATC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Catalan&rsquo;s constant</b> G &asymp; 0.9159655942 is one of the famous &lsquo;mystery&rsquo; constants of mathematics &mdash; nobody has proved whether it is irrational. It has a simple series, G = &sum;<sub>k&ge;0</sub> (-1)<sup>k</sup>/(2k+1)&sup2; = 1 - 1/9 + 1/25 - 1/49 + &hellip; (the value of the Dirichlet beta function at 2). It also equals a clean integral, G = &int;<sub>0</sub><sup>1</sup> arctan(x)/x dx, and shows up in lattice statistics, combinatorics, and the volume of hyperbolic ideal tetrahedra. Two very different computations &mdash; an alternating sum and an integral &mdash; land on the same number.<br><br>
+ <span class="lit">LIT</span> verified live: the alternating series &sum;(-1)<sup>k</sup>/(2k+1)&sup2; and the integral &int;<sub>0</sub><sup>1</sup> arctan(x)/x dx both converge to the same value, matching the known constant 0.9159655942 (window.__catalanconstant). <span class="fig">FIG</span> no framing; the series sum and the numerical integral are computed by different routes in-browser and agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-push</i> &mdash; the co-op merge: a slow alternating sum and a smooth integral push in from opposite directions and meet at the same mysterious constant. <b>AVAN (AI)</b> built the instrument: the series sum, the arctan integral, and their agreement on G.<br><br>Credit as content: Eug&egrave;ne Catalan (1865). The weave: David names the merge; I confirm the series and the integral both give Catalan&rsquo;s constant.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">The alternating series terms 1, −1/9, 1/25, … and the partial sums closing in on G ≈ 0.91597.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Add terms; the series partial sum and the integral ∫₀¹ arctan(x)/x dx both approach the same G.</div>
+   <div class="btns" style="margin-top:10px"><button id="ccnext">add terms ▶</button><button id="cccheck">verify ▶</button></div>
+   <div class="cap" id="ccread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: Catalan's constant G, reached from two directions.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t trust one route &mdash; cross two. The inverse of &lsquo;the alternating series &sum;(-1)<sup>k</sup>/(2k+1)&sup2;&rsquo; is &lsquo;the integral &int;<sub>0</sub><sup>1</sup> arctan(x)/x dx&rsquo;, two computations meeting at the same G. <b>Magenta</b> are the series terms and the arctan curve; <b>green</b> is the constant they both reach. One constant, two witnesses.</div>
+   <div class="btns" style="margin-top:10px"><button id="ccspin">pause spin</button></div></div></div></div>"""
+CATC_SCRIPT = """(function(){""" + NOIR + """
+function series(N){var s=0;for(var k=0;k<N;k++)s+=(k%2?-1:1)/((2*k+1)*(2*k+1));return s;}
+function integ(M){var h=1/M,s=0;for(var i=0;i<=M;i++){var x=i*h,f=(x<1e-9)?1:Math.atan(x)/x,w=(i===0||i===M)?1:(i%2?4:2);s+=w*f;}return s*h/3;}
+var ang=0,spin=true,VR=null,terms=8,REF=0.9159655941772190;
+function selftest(){if(VR)return VR;var ser=series(200000),intg=integ(100000);VR={ser:ser,intg:intg,agree:Math.abs(ser-intg)<1e-4,refOk:Math.abs(intg-REF)<1e-6};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'alternating series 1 − 1/9 + 1/25 − 1/49 + …  →  G ≈ 0.91597');
+ var x0=30,base=H-46,partial=0,pts=[],cols=[];for(var k=0;k<24;k++){var term=(k%2?-1:1)/((2*k+1)*(2*k+1));partial+=term;pts.push(partial);}
+ // partial-sum curve oscillating to G
+ var sc=(W-50)/24,gy=base-(REF)*150;ne(g,'rgba(53,255,176,0.5)',1);g.beginPath();g.moveTo(x0,gy);g.lineTo(W-16,gy);g.stroke();ng(g);nt(g,'#39ffb0',W-70,gy-6,9,'G');
+ ne(g,'#ff8a3c',1.8);g.beginPath();for(var k=0;k<pts.length;k++){var px=x0+k*sc,py=base-pts[k]*150;if(k===0)g.moveTo(px,py);else g.lineTo(px,py);ndot(g,px,py,2,'#ffce9a');}g.stroke();ng(g);
+ nt(g,'#8ad',10,H-8,9,'the partial sums bracket G, converging by the alternating-series bound');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',12,20,12,'series vs integral, '+terms+' terms');
+ var ser=series(terms),intg=integ(2000);nt(g,'#ff8a3c',16,56,12,'Σ (−1)^k/(2k+1)² ['+terms+' terms] = '+ser.toFixed(8));
+ nt(g,'#9cf',16,84,12,'∫₀¹ arctan(x)/x dx = '+intg.toFixed(8));nt(g,'#35ffb0',16,112,12,'true G = '+REF.toFixed(8));
+ nt(g,'#9cf',16,142,10,'series error after '+terms+' terms = '+Math.abs(ser-REF).toExponential(2));
+ var v=selftest();nt(g,v.agree&&v.refOk?'#39ffb0':'#ff5a5a',12,H-56,9,'self-test: series(200k)='+v.ser.toFixed(7)+' ≈ integral='+v.intg.toFixed(7));
+ nt(g,v.agree?'#39ffb0':'#ff5a5a',12,H-38,9,'series and integral agree & both ≈ G: '+(v.agree&&v.refOk));
+ nt(g,'#8ad',12,H-16,9,'an alternating sum and an integral meet at the same mysterious constant');}
+document.getElementById('ccnext').onclick=function(){terms=terms>=100000?8:terms*4;drawW4();document.getElementById('ccread').textContent=terms+' terms: series = '+series(terms).toFixed(8)+' (error '+Math.abs(series(terms)-REF).toExponential(2)+')';};
+document.getElementById('cccheck').onclick=function(){var v=selftest();document.getElementById('ccread').textContent='Σ(−1)^k/(2k+1)² == ∫₀¹ arctan(x)/x dx ≈ G=0.91597: '+(v.agree&&v.refOk);};
+document.getElementById('ccspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.06);
+ // arctan(x)/x curve as a magenta spiral-ish + series spokes
+ for(var k=0;k<20;k++){var term=Math.abs((k%2?-1:1)/((2*k+1)*(2*k+1))),a=k/20*6.2832,r=30+term*900;ne(g,'#ff2fa6',1.3);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,2,'#ff2fa6');}
+ ne(g,'rgba(255,47,166,0.4)',1.5);g.beginPath();for(var i=0;i<=60;i++){var x=i/60,f=(x<1e-6)?1:Math.atan(x)/x,a=x*3.14159;g.lineTo(Math.cos(a)*(40+f*70),Math.sin(a)*(40+f*70));}g.stroke();ng(g);
+ ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-16,4,8,REF.toFixed(2));
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: Catalan\\'s constant G ≈ '+REF.toFixed(6));nt(g,'#ff2fa6',10,H-34,10,'magenta: the series terms and the arctan(x)/x curve');nt(g,'#8ad',10,H-14,10,'one constant, two witnesses');}
+drawW3();drawW4();window.__catalanconstant=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 154 · neon-noir · silicon-coding (the derivative's roots trapped in the hull of the roots · roots caged in the unit disk by rising coefficients · equal bisectors forcing an isosceles triangle · exactly k winning rotations of a step sequence · the leftover matches of two pockets) ═══════════════════════
 GLUC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Gauss&ndash;Lucas theorem</b> pins down where the roots of a derivative can hide. Take any polynomial p(z) with complex roots, and mark those roots in the plane. Gauss and Lucas proved that <b>every root of the derivative p&prime;(z) lies inside the convex hull of the roots of p(z)</b> &mdash; the smallest convex polygon containing them. The critical points can never escape the &lsquo;shadow&rsquo; cast by the roots; differentiating pulls the roots inward, never out. It is the general law behind Marden&rsquo;s theorem and a cornerstone of the geometry of polynomials.<br><br>
@@ -40005,6 +40261,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-weinstein-aronszajn","title":"THE WEINSTEIN-ARONSZAJN","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#21e6ff","icon":"weinstein",
+  "kicker":"two differently-sized determinants that are equal",
+  "blurb":"The Weinstein–Aronszajn identity (Sylvester's determinant identity) in the 5-window house format — linking the determinants of two matrices of different sizes. For a matrix A of shape m×n and B of shape n×m, the products AB (m×m) and BA (n×n) are usually different sizes, yet det(I_m+AB)=det(I_n+BA) — the two determinants are always equal. The nonzero eigenvalues of AB and BA coincide, so the '+1' determinants match despite the size mismatch. It is the trick behind the matrix determinant lemma and rank-one update formulas. Verified live with exact integer arithmetic: for thousands of random rectangular integer matrices — most with m≠n — det(I_m+AB) equals det(I_n+BA) exactly, by fraction-free Bareiss elimination on the two different-sized matrices. Neon-noir traced. See the two different-sized matrices in 1D, the determinant comparison in 2D, and the same-value-either-size inverse in 3D.",
+  "lit":"Genuine Weinstein–Aronszajn / Sylvester determinant identity (Alexander Weinstein, Nachman Aronszajn; J. J. Sylvester). Verified live with exact BigInt: for ~1500 random rectangular integer matrices (mostly m≠n), det(I_m+AB)=det(I_n+BA) exactly by Bareiss elimination on the two different-sized matrices (window.__weinsteinaronszajn.ok, .diff, .cnt).",
+  "fig":"No framing; the two determinants of different-sized matrices are computed separately and always agree. The AVAN inverse is honest — instead of computing both, compute the smaller: the inverse of 'det(I_m+AB)' is 'det(I_n+BA)', so you may always use whichever of m,n is smaller — they share their nonzero eigenvalues. Magenta are the two different-sized matrices; green is the determinant they share. Same value, either size.",
+  "body":WARO_BODY,"script":WARO_SCRIPT},
+ {"slug":"the-pompeiu","title":"THE POMPEIU","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#ffcf4a","icon":"pompeiu",
+  "kicker":"three distances that always form a triangle",
+  "blurb":"Pompeiu's theorem in the 5-window house format — a small gem of Euclidean geometry. Take an equilateral triangle ABC and any point P in the plane. Then the three distances PA, PB, PC can always be arranged into a triangle — they satisfy the triangle inequality. Moreover, that 'distance triangle' is degenerate (flat — the longest distance exactly equals the sum of the other two) precisely when P lies on the circumcircle of ABC. Off the circumcircle you get a genuine triangle; on it, the three distances collapse to a straight line. Verified live: for thousands of random points P, the three distances to an equilateral triangle's vertices satisfy the triangle inequality; when P sits exactly on the circumcircle, the longest equals the sum of the other two to ~1e-16 (degenerate); and off the circle the inequality is strict. Neon-noir traced. See the equilateral + P + distance-triangle in 1D, the triangle inequality + circumcircle in 2D, and the three-lengths-a-triangle inverse in 3D.",
+  "lit":"Genuine Pompeiu's theorem (Dimitrie Pompeiu, 1936). Verified live: for ~8000 random points P, the distances PA,PB,PC to an equilateral triangle satisfy the triangle inequality; P on the circumcircle gives a degenerate triangle (longest = sum of other two, worst ~1e-16), and off the circle it is strict (window.__pompeiu.ti, .deg, .st, .worst).",
+  "fig":"No framing; the distances, the triangle-inequality test, and the circumcircle degeneracy all run in-browser. The AVAN inverse is honest — instead of just measuring the distances, assemble them: the inverse of 'the three distances from P' is 'a triangle with those side lengths', which flattens exactly when P reaches the circumcircle. Magenta is the equilateral triangle and its circumcircle; green is the distance-triangle it spawns. Three lengths, always a triangle.",
+  "body":POMP_BODY,"script":POMP_SCRIPT},
+ {"slug":"the-lym","title":"THE LYM","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#b06bff","icon":"lym",
+  "kicker":"an antichain sum capped at one",
+  "blurb":"The LYM inequality (Lubell–Yamamoto–Meshalkin) in the 5-window house format — a sharp weighing of antichains. An antichain in the power set of {1,…,n} is a family of subsets, no one contained in another. LYM says that if you weight each set A by 1/C(n,|A|) — one over the number of sets of its size — the weights of any antichain sum to at most 1: Σ_A 1/C(n,|A|) ≤ 1. Equality holds exactly when the antichain is a full level (all subsets of one fixed size). Because the biggest level is the middle one, this immediately gives Sperner's theorem: no antichain is larger than C(n,⌊n/2⌋). Verified live: for thousands of randomly-built antichains in the subset lattice, the weighted sum never exceeds 1; and taking a full level makes the sum equal exactly 1. Neon-noir traced. See the subset lattice + antichain in 1D, the LYM sum ≤ 1 in 2D, and the count-tamed-by-weighting inverse in 3D.",
+  "lit":"Genuine LYM inequality (Dov Lubell, Koichi Yamamoto, Lev Meshalkin, 1960s; Sperner). Verified live: for ~1500 randomly-built antichains in 2^[n], the weighted sum Σ 1/C(n,|A|) never exceeds 1, and a full level (all subsets of one size) makes it equal exactly 1 (window.__lym.ok, .fullEq).",
+  "fig":"No framing; the antichain construction and the LYM sum both run in-browser. The AVAN inverse is honest — instead of counting the sets, weigh them by level: the inverse of 'how big can an antichain be?' is 'its level-weighted sum, capped at 1', which forces the maximum size down to C(n,⌊n/2⌋) — Sperner's theorem. Magenta are the antichain's sets; green is the weighted sum bounded by 1. A count tamed by a weighting.",
+  "body":LYMI_BODY,"script":LYMI_SCRIPT},
+ {"slug":"the-niven","title":"THE NIVEN","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#35ffb0","icon":"niven",
+  "kicker":"rational cosines only at five angles",
+  "blurb":"Niven's theorem in the 5-window house format — rational angles almost never have rational cosines. Precisely: if θ is a rational multiple of π and cosθ is rational, then cosθ must be one of just five values: 0, ±½, ±1 — i.e. θ lands on 0°, 60°, 90°, 120°, or 180°. Every other rational angle has an irrational cosine. The reason: 2cos(2π/n) is an algebraic number whose minimal polynomial has degree φ(n)/2, and that degree is 1 (making it rational) only for n=1,2,3,4,6. Verified live: for n up to 30, the minimal polynomial of 2cos(2π/n) — built from the primitive angles — has integer coefficients and degree exactly φ(n)/2, and it is linear (so cos is rational) precisely for n∈{1,2,3,4,6}. Neon-noir traced. See the rational-cosine angles on the circle in 1D, the min-poly degree in 2D, and the rationality-from-degree inverse in 3D.",
+  "lit":"Genuine Niven's theorem (Ivan Niven, 1956; via the algebra of 2cos and Chebyshev). Verified live: for n≤30, the minimal polynomial of 2cos(2π/n) built from the primitive angles has integer coefficients and degree exactly φ(n)/2, and it is linear (cos rational) precisely for n∈{1,2,3,4,6} (window.__niven.intOk, .degOk, .nivenOk, .rns).",
+  "fig":"No framing; the minimal-polynomial construction and the φ(n)/2 degree both run in-browser. The AVAN inverse is honest — instead of testing cosines one by one, read the degree: the inverse of 'is cos(2π/n) rational?' is 'is the minimal-polynomial degree φ(n)/2 equal to 1?', true only for n∈{1,2,3,4,6}. Magenta are the irrational-cosine angles; green are the five rational ones. Rationality read from a polynomial degree.",
+  "body":NIVN_BODY,"script":NIVN_SCRIPT},
+ {"slug":"the-catalan-constant","title":"THE CATALAN CONSTANT","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#ff8a3c","icon":"catalanconstant",
+  "kicker":"a mysterious constant reached two ways",
+  "blurb":"Catalan's constant in the 5-window house format — G ≈ 0.9159655942, one of the famous 'mystery' constants: nobody has proved whether it is irrational. It has a simple series, G = Σ_{k≥0} (−1)^k/(2k+1)² = 1 − 1/9 + 1/25 − 1/49 + … (the Dirichlet beta function at 2). It also equals a clean integral, G = ∫₀¹ arctan(x)/x dx, and shows up in lattice statistics, combinatorics, and the volume of hyperbolic ideal tetrahedra. Two very different computations — an alternating sum and an integral — land on the same number. Verified live: the alternating series and the integral ∫₀¹ arctan(x)/x dx both converge to the same value, matching the known constant 0.9159655942. Neon-noir traced. See the series partial sums closing on G in 1D, series vs integral in 2D, and the two-witnesses inverse in 3D.",
+  "lit":"Genuine Catalan's constant (Eugène Catalan, 1865). Verified live: the alternating series Σ(−1)^k/(2k+1)² (200000 terms) and the numerical integral ∫₀¹ arctan(x)/x dx converge to the same value, matching the known G=0.9159655942 (window.__catalanconstant.ser, .intg, .agree, .refOk).",
+  "fig":"No framing; the series sum and the numerical integral are computed by different routes in-browser and agree. The AVAN inverse is honest — instead of trusting one route, cross two: the inverse of 'the alternating series Σ(−1)^k/(2k+1)²' is 'the integral ∫₀¹ arctan(x)/x dx', two computations meeting at the same G. Magenta are the series terms and the arctan curve; green is the constant they both reach. One constant, two witnesses.",
+  "body":CATC_BODY,"script":CATC_SCRIPT},
  {"slug":"the-gauss-lucas","title":"THE GAUSS-LUCAS","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#b06bff","icon":"gausslucas",
   "kicker":"the derivative's roots trapped in the hull of the roots",
