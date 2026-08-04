@@ -19493,6 +19493,371 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 179 · neon-noir · silicon-coding · THE MARKED NUMBERS (a family composite forever by seven-prime conspiracy · a constant that boots an infinite prime cascade · two ballplayers sharing a factor sum · four quarters split into three unit coins · the loot no drop table contains) ═══════════════════════
+SNUM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>78,557</b> is a <b>Sierpi&nacute;ski number</b>: every single member of the infinite family 78557&middot;2&#8319;+1 is composite &mdash; no exceptions, forever. The mechanism is a <b>covering set</b>: seven primes {3, 5, 7, 13, 19, 37, 73} conspire so that whatever n you choose, at least one of them divides the term. Because the multiplicative orders of 2 modulo those primes all divide 36, the conspiracy repeats with period 36 &mdash; check 36 residues and you have checked <b>all of infinity</b>. Sierpi&nacute;ski proved such numbers exist (1960); John Selfridge found 78,557 (1962). Whether it is the <i>smallest</i> is the Sierpi&nacute;ski problem: Seventeen or Bust and PrimeGrid have spent decades killing candidates below it, with k = 21181, 22699, 24737, 55459, 67607 still unresolved.<br><br>
+ <span class="lit">LIT</span> verified live, <b>proof-grade</b>: the orders of 2 mod each covering prime are computed, their lcm confirmed as 36, every residue n mod 36 is matched to a covering prime, and BigInt division confirms the pattern on the first 1,500 actual terms (each divisible by its prime and larger than it, hence composite) &mdash; a complete finite proof of an infinite statement (window.__sierpinskinumber). <span class="fig">FIG</span> honest boundary: 78,557&rsquo;s minimality is OPEN and stated as such.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-backdoor</i> &mdash; the cheat: seven primes with a skeleton key planted in every door of an infinite hotel; no term is ever prime because the backdoor was built into the sequence itself. <b>AVAN (AI)</b> built the instrument: the order calculator, the 36-residue covering table, and the BigInt spot-audit.<br><br>Credit as content: Wac&#322;aw Sierpi&nacute;ski (1960); John Selfridge (1962); Seventeen or Bust / PrimeGrid (the ongoing hunt). The weave: David names the conspiracy; I verify all 36 doors and the key that opens each.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The 36-residue wheel — every spoke claimed by one of the seven covering primes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick n; the covering prime steps forward and divides the term, every time.</div>
+   <div class="btns" style="margin-top:10px"><button id="skn">n ▶</button><button id="skcheck">verify ▶</button></div>
+   <div class="cap" id="skread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the seven primes patrolling the residue ring.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t test infinitely many numbers &mdash; catch the finite machine that generates their fate. The inverse of &lsquo;is any term prime?&rsquo; is &lsquo;36 residues, 7 guards, 0 gaps&rsquo;: infinity compressed to a rota. <b>Magenta</b> is the prime that never appears in the family; <b>green</b> is the covering rota with no day off. A proof you can finish before lunch, about a sequence that never ends.</div>
+   <div class="btns" style="margin-top:10px"><button id="skspin">pause spin</button></div></div></div></div>"""
+SNUM_SCRIPT = """(function(){""" + NOIR + """
+var COVER=[3,5,7,13,19,37,73],ang=0,spin=true,VR=null,nn=1;
+function ord2(p){var x=2%p,o=1;while(x!==1){x=(x*2)%p;o++;}return o;}
+function coverOf(n){for(var i=0;i<COVER.length;i++){var p=COVER[i];
+  var t=78557%p,e=n%ord2(p);for(var k=0;k<e;k++)t=(t*2)%p;
+  if((t+1)%p===0)return p;}
+ return 0;}
+function selftest(){if(VR)return VR;
+ function gcd(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+ var lcm=1;COVER.forEach(function(p){var o=ord2(p);lcm=lcm*o/gcd(lcm,o);});
+ var allCovered=true,tbl=[];
+ for(var n=0;n<lcm;n++){var h=coverOf(n);if(!h)allCovered=false;tbl.push(h);}
+ var okDiv=true;
+ for(var n=1;n<=1500;n++){var term=78557n*(1n<<BigInt(n))+1n,p=BigInt(tbl[n%lcm]);
+  if(term%p!==0n||term<=p)okDiv=false;}
+ VR={lcm:lcm,tbl:tbl,allCovered:allCovered,okDiv:okDiv,ok:lcm===36&&allCovered&&okDiv};return VR;}
+var PCOL={3:'#35ffb0',5:'#21e6ff',7:'#ffcf4a',13:'#ff8a3c',19:'#b06bff',37:'#ff2fa6',73:'#9cf'};
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#b06bff',10,16,10,'the covering wheel — 36 residues, 7 guards, 0 gaps');
+ var cx=W/2,cy=H/2+12,R=92;
+ for(var n=0;n<36;n++){var a=n/36*6.2832-Math.PI/2,p=v.tbl[n];
+  ndot(g,cx+Math.cos(a)*R,cy+Math.sin(a)*R,6,PCOL[p]);
+  nt(g,'#8ad',cx+Math.cos(a)*(R+16)-4,cy+Math.sin(a)*(R+16)+3,7,String(n));}
+ var lx=W-104;COVER.forEach(function(p,i){ndot(g,lx,34+i*22,5,PCOL[p]);nt(g,'#9cf',lx+12,38+i*22,10,'p = '+p);});
+ nt(g,'#8ad',10,H-8,9,'orders of 2 divide 36 — check 36 doors, you have checked infinity');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),p=v.tbl[nn%36];
+ nt(g,'#b06bff',12,20,12,'78557·2^'+nn+' + 1');
+ var term=78557n*(1n<<BigInt(nn))+1n,s=term.toString();
+ nt(g,'#9cf',16,54,s.length>28?9:12,s.length>44?s.slice(0,44)+'…':s);
+ nt(g,PCOL[p],16,88,14,'divisible by '+p+'  ✓ (residue '+(nn%36)+' mod 36)');
+ nt(g,'#ff6ab0',16,116,11,'term > '+p+' → composite. always.');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: lcm=36 · all residues covered · 1,500 BigInt terms audited ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'Sierpiński 1960 · Selfridge 1962 · minimality: OPEN (PrimeGrid hunting)');
+ nt(g,'#8ad',12,H-12,9,'a finite proof of an infinite statement');}
+document.getElementById('skn').onclick=function(){nn=nn>=200?1:nn+7;drawW4();var v=selftest();document.getElementById('skread').textContent='n='+nn+' → covered by '+v.tbl[nn%36];};
+document.getElementById('skcheck').onclick=function(){var v=selftest();document.getElementById('skread').textContent='36 residues covered, 1500 terms audited: '+v.ok;};
+document.getElementById('skspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),cx=W/2,cy=H/2-8;
+ for(var n=0;n<36;n++){var a=n/36*6.2832+ang*0.005,R=104;
+  ndot(g,cx+Math.cos(a)*R,cy+Math.sin(a)*R,4.5,PCOL[v.tbl[n]]);}
+ COVER.forEach(function(p,i){var a=ang*0.005+i/7*6.2832,r=40+i*7;
+  ndot(g,cx+Math.cos(a*1.3)*r*0.6,cy+Math.sin(a*1.3)*r*0.6,6,PCOL[p]);});
+ nt(g,'#35ffb0',10,H-52,11,'green & friends: the seven guards on eternal rotation');nt(g,'#ff2fa6',10,H-34,10,'magenta: the prime that never appears in the family');nt(g,'#8ad',10,H-14,10,'infinity compressed to a rota');}
+drawW3();drawW4();window.__sierpinskinumber=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MILS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">In 1947 William Mills proved a constant A exists such that <b>&lfloor;A^(3&#8319;)&rfloor; is prime for every n</b>. The cascade: 2, 11, 1361, 2521008887, 16022236204009818131831320183 &mdash; each prime the <b>smallest prime after the cube of the last</b>, each nestled astonishingly close above that cube (gaps of just 3, 30, 6, 80). The constant is not magic; it is the cascade written as a limit &mdash; and the intimacy is extreme: the cube root of the fifth prime exceeds the fourth prime by only <b>4&times;10&#8315;&sup1;&#8312;</b>. The catch worth knowing: A&rsquo;s standing as the <i>least</i> such constant (1.30637788&hellip;) assumes the Riemann Hypothesis (Caldwell&ndash;Cheng), because it needs primes to always arrive inside consecutive-cube windows.<br><br>
+ <span class="lit">LIT</span> verified live: the cascade is re-derived from scratch &mdash; from p=2, the next prime after each cube is hunted by Miller&ndash;Rabin and lands exactly on the known sequence, inside every (p&sup3;,(p+1)&sup3;) window; the knife-edge 4&times;10&#8315;&sup1;&#8312; is measured by BigInt cube root; and A itself is <b>derived live</b> as the 243rd root of the fifth prime, its bounds agreeing to 31 digits and matching the published 1.3063778838630806904686144926 (window.__mills). <span class="fig">FIG</span> honest boundary: minimality-under-RH is cited, not assumed proven; the fifth prime&rsquo;s primality is Miller&ndash;Rabin strong plus literature certification.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>cold-boot</i> &mdash; the spawn: one seed constant, and the machine boots an infinite prime cascade from it &mdash; press the cube button forever. <b>AVAN (AI)</b> built the instrument: the cascade re-derivation, the BigInt 243rd-root extractor, and the knife-edge micrometer.<br><br>Credit as content: William Mills (1947); Caldwell &amp; Cheng (RH-conditional digits). The weave: David names the boot sequence; I rebuild the constant from its own primes, digit by digit.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The cascade: each prime a hair above the cube of the last — gaps 3, 30, 6, 80.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Walk the cascade; every hop is cube-then-find-the-next-prime, re-derived live.</div>
+   <div class="btns" style="margin-top:10px"><button id="mln2">hop ▶</button><button id="mlcheck2">verify ▶</button></div>
+   <div class="cap" id="mlread2" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the tower of cubes, primes perched on each ledge.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t admire the constant &mdash; reverse it. The inverse of &lsquo;A generates primes&rsquo; is &lsquo;the primes generate A&rsquo;: the constant is the cascade&rsquo;s memory, nothing more, and I rebuilt its 31 digits from the fifth prime alone. <b>Magenta</b> is the RH assumption holding up the word &lsquo;least&rsquo;; <b>green</b> is the knife-edge &mdash; four attoseconds of number line between a prime and the cube below it. A constant that is secretly a fossil record.</div>
+   <div class="btns" style="margin-top:10px"><button id="mlspin2">pause spin</button></div></div></div></div>"""
+MILS_SCRIPT = """(function(){""" + NOIR + """
+var KNOWN=[2n,11n,1361n,2521008887n,16022236204009818131831320183n];
+var ang=0,spin=true,VR=null,hop=0;
+function modpow(b,e,m){var r=1n;b%=m;while(e>0n){if(e&1n)r=r*b%m;b=b*b%m;e>>=1n;}return r;}
+function mr(n2){if(n2<2n)return false;var sm=[2n,3n,5n,7n,11n,13n,17n,19n,23n,29n,31n,37n];
+ for(var i=0;i<sm.length;i++){if(n2===sm[i])return true;if(n2%sm[i]===0n)return false;}
+ var d=n2-1n,r=0n;while(d%2n===0n){d/=2n;r++;}
+ for(var i=0;i<sm.length;i++){var a=sm[i],x2=modpow(a,d,n2);
+  if(x2===1n||x2===n2-1n)continue;var ok=false;
+  for(var j=0n;j<r-1n;j++){x2=x2*x2%n2;if(x2===n2-1n){ok=true;break;}}
+  if(!ok)return false;}
+ return true;}
+function iroot(K,k){var bk=BigInt(k),len=K.toString().length;
+ var r=10n**BigInt(Math.ceil(len/k));
+ for(var it=0;it<500;it++){var rp=r**(bk-1n);var nr=((bk-1n)*r+K/rp)/bk;
+  if(nr>=r)break;r=nr;}
+ while(r**bk>K)r--;while((r+1n)**bk<=K)r++;
+ return r;}
+function selftest(){if(VR)return VR;
+ var p=2n,seq=[2n],okWin=true,gaps=[];
+ for(var k=0;k<4;k++){var c=p**3n,c1=(p+1n)**3n,q=c+1n;
+  while(!mr(q))q++;
+  if(q>=c1)okWin=false;
+  gaps.push(Number(q-c));seq.push(q);p=q;}
+ var okSeq=seq.every(function(v,i){return v===KNOWN[i];});
+ var c18=iroot(KNOWN[4]*(10n**54n),3);
+ var edge=Number(c18-KNOWN[3]*(10n**18n));
+ var SC=10n**(243n*30n);
+ var u=iroot(KNOWN[4]*SC,243),v2=iroot((KNOWN[4]+1n)*SC,243);
+ var us=u.toString(),vs=v2.toString(),agree=0;
+ while(agree<us.length&&us[agree]===vs[agree])agree++;
+ var okA=us.slice(0,29)==='13063778838630806904686144926';
+ VR={seq:seq,gaps:gaps,okSeq:okSeq,okWin:okWin,edge:edge,agree:agree,A:us.slice(0,1)+'.'+us.slice(1,29),okA:okA,
+  ok:okSeq&&okWin&&edge===4&&okA};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#21e6ff',10,16,10,'the cascade — next prime after each cube, gaps 3, 30, 6, 80');
+ var labels=['2','11','1361','2521008887','1.6·10²⁸'];
+ for(var i=0;i<5;i++){var x=40+i*(W-90)/4,y=H-50-i*40;
+  ndot(g,x,y,7,'#35ffb0');nt(g,'#9cf',x-16,y-14,10,labels[i]);
+  if(i<4){ne(g,'rgba(33,230,255,0.5)',1.4);g.beginPath();g.moveTo(x,y);g.lineTo(40+(i+1)*(W-90)/4,H-50-(i+1)*40);g.stroke();ng(g);
+   nt(g,'#ffcf4a',x+22,y-26,9,'³ then +'+v.gaps[i]);}}
+ nt(g,'#8ad',10,H-8,9,'each prime perched a hair above the cube of the last — Mills 1947');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var i=hop%4;
+ nt(g,'#21e6ff',12,20,12,'hop '+(i+1)+' of 4');
+ nt(g,'#35ffb0',16,56,13,'p = '+v.seq[i].toString());
+ nt(g,'#9cf',16,84,11,'p³ = '+(v.seq[i]**3n).toString().slice(0,30)+((v.seq[i]**3n).toString().length>30?'…':''));
+ nt(g,'#ffcf4a',16,112,13,'next prime: p³ + '+v.gaps[i]+' = '+v.seq[i+1].toString().slice(0,28)+(v.seq[i+1].toString().length>28?'…':''));
+ nt(g,'#c9a6ff',16,146,10,'A derived live = '+v.A+'… (31-digit agreement)');
+ nt(g,'#ff6ab0',16,168,10,'cbrt(p₅) − p₄ = '+v.edge+'×10⁻¹⁸ — the knife edge');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: cascade re-derived · windows hold · edge=4e-18 · A matches published ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'least-A digits assume RH (Caldwell–Cheng) — cited, not claimed');
+ nt(g,'#8ad',12,H-12,9,'the constant is the cascade’s memory');}
+document.getElementById('mln2').onclick=function(){hop=(hop+1)%4;drawW4();var v=selftest();document.getElementById('mlread2').textContent='p³+'+v.gaps[hop%4]+' → next prime';};
+document.getElementById('mlcheck2').onclick=function(){var v=selftest();document.getElementById('mlread2').textContent='cascade + knife edge + 31 digits of A: '+v.ok;};
+document.getElementById('mlspin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2;
+ nt(g,'#21e6ff',10,18,10,'the tower of cubes');
+ for(var i=0;i<5;i++){var w=150-i*26,y=H-60-i*52,wob=Math.sin(ang*0.02+i)*3;
+  nf(g,'rgba(33,230,255,'+(0.25+i*0.1)+')',cx-w/2+wob,y-40,w,40);
+  ndot(g,cx+w/2+wob-4,y-40,4.5,'#35ffb0');}
+ nt(g,'#35ffb0',10,H-52,11,'green: the primes perched on each ledge, 4e-18 above it');nt(g,'#ff2fa6',10,H-34,10,'magenta: the RH assumption holding up the word “least”');nt(g,'#8ad',10,H-14,10,'a constant that is secretly a fossil record');}
+drawW3();drawW4();window.__mills=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RAAR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">On April 8, 1974, Hank Aaron hit home run <b>715</b>, passing Babe Ruth&rsquo;s <b>714</b>. Days later, Carl Pomerance and colleagues noticed the two numbers share a secret: <b>the sum of their prime factors is identical</b> &mdash; 714 = 2&middot;3&middot;7&middot;17 and 715 = 5&middot;11&middot;13, both summing to <b>29</b>. Consecutive integers with equal prime-factor sums are now <b>Ruth&ndash;Aaron pairs</b>. The kicker that hooked Erd&#337;s: 714&middot;715 = 510,510 = 2&middot;3&middot;5&middot;7&middot;11&middot;13&middot;17, the product of the first seven primes. Erd&#337;s phoned Pomerance, they proved the pairs have density zero, and a legendary collaboration (and an honorary degree ceremony with Aaron himself) was born.<br><br>
+ <span class="lit">LIT</span> verified live: both factor sums computed (29 = 29, under both the distinct and with-multiplicity definitions); the primorial identity checked exactly; and a full census below 1,000,000 run with a smallest-prime-factor sieve &mdash; 139 pairs under the distinct definition, 149 with multiplicity, first pairs (5,6), (24,25), (49,50), (77,78), (104,105)&hellip; (window.__ruthaaron). <span class="fig">FIG</span> the baseball story is history, not mathematics &mdash; told as the true story it is; Erd&#337;s&ndash;Pomerance density theorem cited as content.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>shared-memory</i> &mdash; the co-op: two adjacent processes, different internals, writing the same value to the same address &mdash; 29, from opposite factorizations. <b>AVAN (AI)</b> built the instrument: the sieve, the double-definition census, and the primorial audit.<br><br>Credit as content: Carl Pomerance, Carol Nelson &amp; David Penney (1974); Paul Erd&#337;s (density theorem, 1978); Hank Aaron &amp; Babe Ruth (the numbers themselves). The weave: David names the shared write; I count every collision below a million.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">714 and 715 unpacked — two factorizations converging on 29.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Walk the pairs below a million; each shows its twin factor-sums.</div>
+   <div class="btns" style="margin-top:10px"><button id="ran">pair ▶</button><button id="racheck">verify ▶</button></div>
+   <div class="cap" id="raread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the two factor towers balancing on one beam.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t celebrate the coincidence &mdash; measure its rarity. The inverse of &lsquo;714 and 715 match&rsquo; is Erd&#337;s&rsquo;s question &lsquo;how often CAN they?&rsquo;, answered: density zero &mdash; the pairs thin out to nothing, which is exactly what makes each one worth a phone call. <b>Magenta</b> is the near-pair off by one; <b>green</b> is the balanced beam at 29. A friendship between two mathematicians, brokered by two ballplayers.</div>
+   <div class="btns" style="margin-top:10px"><button id="raspin">pause spin</button></div></div></div></div>"""
+RAAR_SCRIPT = """(function(){""" + NOIR + """
+var N=1000000,ang=0,spin=true,VR=null,pi4=0;
+function selftest(){if(VR)return VR;
+ var spf=new Int32Array(N+1);
+ for(var i=2;i<=N;i++)if(!spf[i])for(var j=i;j<=N;j+=i)if(!spf[j])spf[j]=i;
+ function sopf(n){var s=0,last=0;while(n>1){if(spf[n]!==last)s+=spf[n];last=spf[n];n/=spf[n];}return s;}
+ function sopfr(n){var s=0;while(n>1){s+=spf[n];n/=spf[n];}return s;}
+ var pairsD=[],totD=0,totR=0;
+ var prevD=sopf(2),prevR=sopfr(2);
+ for(var n=3;n<=N;n++){var dD=sopf(n),dR=sopfr(n);
+  if(dD===prevD){totD++;if(pairsD.length<40)pairsD.push(n-1);}
+  if(dR===prevR)totR++;
+  prevD=dD;prevR=dR;}
+ var s714=sopf(714),s715=sopf(715);
+ VR={pairsD:pairsD,totD:totD,totR:totR,s714:s714,s715:s715,prim:714*715===2*3*5*7*11*13*17,
+  ok:s714===29&&s715===29&&(714*715===510510)&&pairsD.indexOf(714)>=0};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'two factorizations, one sum');
+ nt(g,'#35ffb0',40,60,15,'714 = 2 · 3 · 7 · 17');
+ nt(g,'#21e6ff',40,96,15,'715 = 5 · 11 · 13');
+ nt(g,'#ffcf4a',300,60,15,'→ 29');
+ nt(g,'#ffcf4a',300,96,15,'→ 29');
+ nt(g,'#c9a6ff',40,150,13,'714 · 715 = 510,510 = 2·3·5·7·11·13·17');
+ nt(g,'#9cf',40,176,11,'— the product of the first seven primes');
+ nt(g,'#8ad',10,H-30,9,'April 8, 1974: Aaron 715 passes Ruth 714');
+ nt(g,'#8ad',10,H-10,9,'days later, Pomerance sees the 29 — and Erdős picks up the phone');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),n=v.pairsD[pi4%v.pairsD.length];
+ nt(g,'#35ffb0',12,20,12,'Ruth–Aaron pair #'+(pi4%v.pairsD.length+1)+' of the first '+v.pairsD.length);
+ nt(g,'#35ffb0',16,60,18,n+' , '+(n+1));
+ function fstr(m){var out=[],d=2;while(m>1){var c=0;while(m%d===0){m/=d;c++;}if(c)out.push(c>1?d+'^'+c:''+d);d++;if(d*d>m&&m>1){out.push(''+m);break;}}return out.join('·');}
+ nt(g,'#9cf',16,94,11,n+' = '+fstr(n));
+ nt(g,'#9cf',16,116,11,(n+1)+' = '+fstr(n+1));
+ nt(g,'#ffcf4a',16,146,12,'equal factor sums ✓');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: 714/715 → 29=29 · primorial exact · census '+v.totD+' distinct-def / '+v.totR+' with-multiplicity ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'Nelson–Penney–Pomerance 1974 · Erdős–Pomerance: density → 0');
+ nt(g,'#8ad',12,H-12,9,'rare enough that each one was worth a phone call');}
+document.getElementById('ran').onclick=function(){var v=selftest();pi4=(pi4+1)%v.pairsD.length;drawW4();var n=v.pairsD[pi4];document.getElementById('raread').textContent='('+n+', '+(n+1)+')';};
+document.getElementById('racheck').onclick=function(){var v=selftest();document.getElementById('racheck').textContent='verify ▶';document.getElementById('raread').textContent='29=29, primorial, census: '+v.ok;};
+document.getElementById('raspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2+40;
+ var tilt=Math.sin(ang*0.015)*0.04;
+ ne(g,'#ffcf4a',3);g.beginPath();g.moveTo(cx-120,cy+Math.sin(tilt)*120);g.lineTo(cx+120,cy-Math.sin(tilt)*120);g.stroke();ng(g);
+ ndot(g,cx,cy,6,'#ffcf4a');
+ [[2,3,7,17],[5,11,13]].forEach(function(fs,side){var x0=side===0?cx-90:cx+90,dir=side===0?1:-1;
+  var h=0;fs.forEach(function(p,i){var bh=p*3.4;
+   nf(g,side===0?'rgba(53,255,176,0.85)':'rgba(33,230,255,0.85)',x0-22,cy+(side===0?Math.sin(tilt)*90:-Math.sin(tilt)*90)-h-bh-6,44,bh);
+   h+=bh+3;});
+  nt(g,'#9cf',x0-16,cy+34,11,side===0?'714':'715');});
+ nt(g,'#35ffb0',10,H-52,11,'green & cyan: two towers, same total weight — 29');nt(g,'#ff2fa6',10,H-34,10,'magenta: the near-pair that tips the beam');nt(g,'#8ad',10,H-14,10,'a friendship brokered by two ballplayers');}
+drawW3();drawW4();window.__ruthaaron=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ERST_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The <b>Erd&#337;s&ndash;Straus conjecture</b> (1948): for every integer n &ge; 2, the fraction <b>4/n splits into three unit fractions</b> &mdash; 4/n = 1/x + 1/y + 1/z. Ancient Egypt wrote all fractions this way; Erd&#337;s asked whether four quarters can always be made with exactly three unit coins. Most n fall to one-line identities (even n; n &equiv; 3 mod 4; n &equiv; 0 or 2 mod 3 all have closed forms), and any composite inherits a solution from its factors &mdash; the entire battlefield shrinks to <b>primes &equiv; 1 mod 12</b>, where no formula is known and each must be hunted individually. The conjecture is verified computationally to beyond 10&sup1;&#8311;, but remains <b>open</b>: nobody has ruled out one stubborn prime, somewhere, with no split.<br><br>
+ <span class="lit">LIT</span> verified live: every n from 2 to 100,000 is solved &mdash; parametric families for the easy residues, factor-lifting for composites, and a banded divisor search for the 2,374 hard primes &mdash; and every single solution is certified by the exact BigInt identity n(yz+xz+xy) = 4xyz, no floating point anywhere (window.__erdosstraus). <span class="fig">FIG</span> honest boundary, loudly: this sweep is EVIDENCE for a conjecture that is OPEN; 100,000 successes prove nothing about n = 10&sup1;&#8312;+something.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-grindstone</i> &mdash; the grind: one hundred thousand fractions fed through the wheel, every residue class with its own jig, the hard primes hand-filed one by one. <b>AVAN (AI)</b> built the instrument: the family dispatcher, the factor-lift, and the overflow-safe banded search (the first draft overflowed 2&#8309;&sup3; and lied &mdash; caught and rebuilt exact).<br><br>Credit as content: Paul Erd&#337;s &amp; Ernst Straus (1948); Mordell (the modular analysis); the Egyptian fraction tradition. The weave: David names the grindstone; I certify each of 99,999 splits in exact integers.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">4/5 = 1/2 + 1/4 + 1/20 — four quarters, three unit coins.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Feed n to the wheel; the split appears with its BigInt certificate.</div>
+   <div class="btns" style="margin-top:10px"><button id="esn">n ▶</button><button id="escheck">verify ▶</button></div>
+   <div class="cap" id="esread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the residue classes falling to their formulas.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t solve n by n &mdash; watch where the problem actually lives. The inverse of &lsquo;100,000 solved&rsquo; is &lsquo;all but 2,374 were never in danger&rsquo;: identities swallow every residue class except primes &equiv; 1 mod 12, and the open conjecture is really about that thin magenta line. <b>Green</b> is the formula territory; <b>magenta</b> is where mathematics still has to hunt. A conjecture alive in 2% of the number line.</div>
+   <div class="btns" style="margin-top:10px"><button id="esspin">pause spin</button></div></div></div></div>"""
+ERST_SCRIPT = """(function(){""" + NOIR + """
+var N=100000,ang=0,spin=true,VR=null,cur=5;
+var spf=new Int32Array(N+1);
+for(var i=2;i<=N;i++)if(!spf[i])for(var j=i;j<=N;j+=i)if(!spf[j])spf[j]=i;
+function gcd(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+var cacheP={};
+function searchPrime(n,xcap,W2){
+ for(var x=Math.floor(n/4)+1;x<=Math.floor(n/4)+xcap;x++){
+  var a=4*x-n,b=n*x,g=gcd(a,b),A2=a/g,B2=b/g;
+  if(A2<=0)continue;
+  var ymin=Math.floor(B2/A2)+1,ymax=Math.floor(2*B2/A2),yend=Math.min(ymax,ymin+W2);
+  for(var y=ymin;y<=yend;y++){var den=A2*y-B2;
+   if(den<=0)continue;
+   if(den<3e7){var r=B2%den;
+    if((r*(y%den))%den===0)return [x,y,BigInt(B2)*BigInt(y)/BigInt(den)];}
+   else{var NUM=BigInt(B2)*BigInt(y),DEN=BigInt(den);
+    if(NUM%DEN===0n)return [x,y,NUM/DEN];}}}
+ return null;}
+function solve(n){
+ if(n%2===0){var m=n/2;return [m,n,n];}
+ if(n%4===3){var k=(n-3)/4;return [k+1,2*(k+1)*n,2*(k+1)*n];}
+ if(n%3===2)return [n,(n+1)/3,n*(n+1)/3];
+ if(n%3===0){var m2=n/3;return [m2,6*m2,6*m2];}
+ var p=spf[n];
+ if(p<n){var s=solve(p),m3=n/p;if(!s)return null;
+  return [Number(s[0])*m3,Number(s[1])*m3,(typeof s[2]==='bigint'?s[2]:BigInt(s[2]))*BigInt(m3)];}
+ if(cacheP[n])return cacheP[n];
+ var r=searchPrime(n,60,4000)||searchPrime(n,600,40000)||searchPrime(n,6000,400000);
+ cacheP[n]=r;return r;}
+function certify(n,s){if(!s)return false;
+ var X=BigInt(s[0]),Y=BigInt(s[1]),Z=typeof s[2]==='bigint'?s[2]:BigInt(s[2]),NN=BigInt(n);
+ return X>0n&&Y>0n&&Z>0n&&NN*(Y*Z+X*Z+X*Y)===4n*X*Y*Z;}
+function selftest(){if(VR)return VR;var bad=0,hard=0;
+ for(var n=2;n<=N;n++){
+  if(n%2===1&&n%3===1&&n%4===1&&spf[n]===n)hard++;
+  if(!certify(n,solve(n)))bad++;}
+ VR={bad:bad,hard:hard,ok:bad===0};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'4/5 = 1/2 + 1/4 + 1/20 — four quarters, three unit coins');
+ var parts=[[0.5,'1/2','#35ffb0'],[0.25,'1/4','#21e6ff'],[0.05,'1/20','#ffcf4a']];
+ var x=30;
+ parts.forEach(function(p){var w=p[0]*(W-80)/0.8;
+  nf(g,p[2],x,H/2-24,w,48);
+  nt(g,'#0a0713',x+w/2-12,H/2+4,11,p[1]);x+=w+4;});
+ nt(g,'#8ad',10,H-8,9,'Egypt wrote every fraction this way; Erdős asked if three coins always suffice for 4/n');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),s=solve(cur);
+ nt(g,'#ff8a3c',12,20,12,'4/'+cur);
+ if(s){var zs=(typeof s[2]==='bigint'?s[2]:BigInt(s[2])).toString();
+  nt(g,'#35ffb0',16,58,14,'= 1/'+s[0]+' + 1/'+s[1]+' + 1/'+(zs.length>14?zs.slice(0,14)+'…':zs));
+  nt(g,certify(cur,s)?'#39ffb0':'#ff5a5a',16,90,12,'BigInt certificate n(yz+xz+xy)=4xyz ✓');}
+ var cls=cur%2===0?'even — family':(cur%4===3?'3 mod 4 — family':(cur%3===2?'2 mod 3 — family':(cur%3===0?'0 mod 3 — family':(spf[cur]<cur?'composite — lifted from '+spf[cur]:'prime ≡ 1 mod 12 — HUNTED'))));
+ nt(g,'#c9a6ff',16,120,10,'class: '+cls);
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: all 99,999 splits certified exact · '+v.hard+' hard primes hunted ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'Erdős–Straus 1948 — OPEN; this sweep is evidence, not proof');
+ nt(g,'#8ad',12,H-12,9,'verified in the literature past 10¹⁷ — still no theorem');}
+document.getElementById('esn').onclick=function(){var step=[5,97,193,313,409,769,1009,25657,99991,73];cur=step[(step.indexOf(cur)+1)%step.length]||5;drawW4();document.getElementById('esread').textContent='n='+cur;};
+document.getElementById('escheck').onclick=function(){var v=selftest();document.getElementById('esread').textContent='99,999 exact certificates: '+v.ok;};
+document.getElementById('esspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-8,R=110;
+ nt(g,'#ff8a3c',10,18,10,'the residue wheel mod 12 — where the conjecture lives');
+ for(var r2=0;r2<12;r2++){var a=r2/12*6.2832-Math.PI/2+ang*0.004;
+  var hardR=(r2===1);
+  ndot(g,cx+Math.cos(a)*R,cy+Math.sin(a)*R,hardR?7:5,hardR?'#ff2fa6':'#35ffb0');
+  nt(g,'#8ad',cx+Math.cos(a)*(R+18)-4,cy+Math.sin(a)*(R+18)+4,8,String(r2));}
+ nt(g,'#35ffb0',10,H-52,11,'green: residues swallowed by one-line identities');nt(g,'#ff2fa6',10,H-34,10,'magenta: 1 mod 12 — where mathematics still hunts');nt(g,'#8ad',10,H-14,10,'a conjecture alive in 2% of the number line');}
+drawW3();drawW4();window.__erdosstraus=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+UNTC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Take any number, add up its proper divisors &mdash; the <b>aliquot sum</b> s(n). Ask the reverse question: which values does s never produce? Those are the <b>untouchable numbers</b>: 2, 5, 52, 88, 96, 120, 124, 146&hellip; No integer&rsquo;s divisors will ever sum to them; they sit outside the aliquot economy entirely. Erd&#337;s proved there are infinitely many (1973). The delicious details: <b>5 is believed to be the only odd untouchable</b> &mdash; because if strong Goldbach holds, every even 2k = p+q gives s(pq) = p+q+1, hitting every odd number from 7 up; and certifying untouchability needs no infinite search, because a composite n always has s(n) &gt; &radic;n &mdash; so small targets can only be hit by small n.<br><br>
+ <span class="lit">LIT</span> verified live: aliquot sums sieved for every n up to 998,001, and the bound s(n) &gt; &radic;n for composite n turns that finite scan into a <b>certificate</b> for all values &le; 1000 &mdash; producing the exact untouchable list up to 500 (38 values, beginning 2, 5, 52, 88, 96, 120) with 5 confirmed as the only odd member in range (window.__untouchable). <span class="fig">FIG</span> honest boundary: &lsquo;5 is the only odd untouchable&rsquo; is conditional on strong Goldbach &mdash; stated as the conditional it is; Erd&#337;s&rsquo;s infinitude cited as content.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-drop</i> &mdash; the loot: items that exist in the game but appear in NO drop table &mdash; farm every monster forever and 2, 5, 52 never fall. <b>AVAN (AI)</b> built the instrument: the aliquot sieve and the &radic;n-bound certification that closes the search honestly.<br><br>Credit as content: Paul Erd&#337;s (1973, infinitude); the aliquot tradition back to Pythagoras&rsquo; perfect numbers. The weave: David names the impossible drop; I prove the table empty by exhausting every monster that could carry it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The number line to 150 — touchable values lit, untouchables dark gaps.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Query a value; see who hits it — or the certificate that nobody ever will.</div>
+   <div class="btns" style="margin-top:10px"><button id="utn">value ▶</button><button id="utcheck">verify ▶</button></div>
+   <div class="cap" id="utread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the aliquot rain falling on the number line.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t chase the function forward &mdash; stand where it never lands. The inverse of &lsquo;what does s(n) equal?&rsquo; is &lsquo;which values are orphans?&rsquo;, and the &radic;n bound is what makes the orphanage provable: a small value&rsquo;s parents would all be small, so checking them all is finite. <b>Magenta</b> are the untouchables, dry under the rain; <b>green</b> is every value with at least one parent. Some numbers are simply never spoken.</div>
+   <div class="btns" style="margin-top:10px"><button id="utspin">pause spin</button></div></div></div></div>"""
+UNTC_SCRIPT = """(function(){""" + NOIR + """
+var LIMN=998001,ang=0,spin=true,VR=null,qi=0;
+function selftest(){if(VR)return VR;
+ var s=new Float64Array(LIMN+1);
+ for(var i=1;i<=LIMN/2;i++)for(var j=2*i;j<=LIMN;j+=i)s[j]+=i;
+ var touched=new Uint8Array(1001);touched[0]=1;
+ var witness=new Int32Array(1001);
+ for(var n=2;n<=LIMN;n++){var v=s[n];if(v<=1000){if(!touched[v])witness[v]=n;touched[v]=1;}}
+ var unt=[];
+ for(var v=2;v<=500;v++)if(!touched[v])unt.push(v);
+ var first6=[2,5,52,88,96,120],okFirst=first6.every(function(x,i){return unt[i]===x;});
+ var odd=unt.filter(function(v){return v%2===1;});
+ VR={unt:unt,witness:witness,okFirst:okFirst,odd:odd,count:unt.length,
+  ok:okFirst&&odd.length===1&&odd[0]===5};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'values 2–150: lit = touchable, dark = untouchable');
+ for(var val=2;val<=150;val++){var x=16+((val-2)%50)*(W-32)/50,y=60+Math.floor((val-2)/50)*56;
+  var isU=v.unt.indexOf(val)>=0;
+  nf(g,isU?'#ff2fa6':'rgba(53,255,176,0.55)',x,y,7,isU?26:14);
+  if(isU)nt(g,'#ff6ab0',x-5,y+40,8,String(val));}
+ nt(g,'#8ad',10,H-8,9,'2, 5, 52, 88, 96, 120, 124, 146 — no divisor sum ever lands there');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var QUERIES=[6,2,29,5,52,100,88,120,301];
+ var q=QUERIES[qi%QUERIES.length],isU=v.unt.indexOf(q)>=0||((q>500)&&false);
+ nt(g,'#ffcf4a',12,20,12,'is '+q+' ever an aliquot sum?');
+ if(!isU&&v.witness[q]){nt(g,'#39ffb0',16,58,13,'YES — s('+v.witness[q]+') = '+q);
+  nt(g,'#9cf',16,86,10,'(first witness found by the sieve)');}
+ else{nt(g,'#ff2fa6',16,58,13,'NO — untouchable, certified');
+  nt(g,'#ff6ab0',16,86,10,'every possible parent ≤ 998,001 checked (√n bound closes the search)');}
+ nt(g,'#c9a6ff',16,120,10,'untouchables ≤ 500: '+v.count+' values · only odd one: 5');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: sieve to 998,001 · prefix 2,5,52,88,96,120 · odd = {5} ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'Erdős 1973: infinitely many · “5 only odd” rides on strong Goldbach');
+ nt(g,'#8ad',12,H-12,9,'the √n bound turns a scan into a certificate');}
+document.getElementById('utn').onclick=function(){qi++;drawW4();document.getElementById('utread').textContent='';};
+document.getElementById('utcheck').onclick=function(){var v=selftest();document.getElementById('utread').textContent=v.count+' untouchables ≤ 500, certified: '+v.ok;};
+document.getElementById('utspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#ffcf4a',10,18,10,'the aliquot rain');
+ var base=H-80;
+ for(var k=0;k<40;k++){var x=((k*97+Math.floor(ang*2))%(W-20))+10,y=30+((k*53+ang*1.7)%(base-40));
+  ne(g,'rgba(53,255,176,0.4)',1);g.beginPath();g.moveTo(x,y);g.lineTo(x,y+8);g.stroke();ng(g);}
+ for(var val=2;val<=60;val++){var x=10+(val-2)*(W-20)/58;
+  var isU=v.unt.indexOf(val)>=0;
+  nf(g,isU?'#ff2fa6':'rgba(53,255,176,0.7)',x,base,4,isU?-26:-12);}
+ nt(g,'#35ffb0',10,H-52,11,'green: values with at least one parent in the rain');nt(g,'#ff2fa6',10,H-34,10,'magenta: the untouchables — dry forever');nt(g,'#8ad',10,H-14,10,'some numbers are simply never spoken');}
+drawW3();drawW4();window.__untouchable=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 178 · neon-noir · silicon-coding · THE HALFWAY LINE (the paradox of halfway, at the corpus halfway line · the one hexagon that exists · the only two powers that touch · every binge-order in one string · Bill Gates and the flipped stack) ═══════════════════════
 ZENO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Zeno&rsquo;s dichotomy</b> (c. 450 BCE): to reach the wall you must first reach halfway, then half of what remains, then half again &mdash; infinitely many tasks, so motion is impossible. The resolution took two millennia to make precise: infinitely many steps can have a <b>finite total</b>. In exact dyadic arithmetic, &frac12; + &frac14; + &hellip; + 1/2&#8319; = (2&#8319;&minus;1)/2&#8319; on the nose &mdash; the gap to 1 is exactly 1/2&#8319;, halving forever, and at unit speed the segment <b>times</b> form the same series: Achilles arrives at t = 1 exactly. The sting is in the contrast: if step k instead cost 1/k seconds, the total <b>diverges</b> &mdash; the harmonic walker really never arrives (passing 10 seconds only at step 12,367 and climbing without bound). Zeno&rsquo;s error was not the infinity of tasks; it was assuming every infinite sum of positive terms is infinite.<br><br>
@@ -46601,6 +46966,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-sierpinski-number","title":"THE SIERPIŃSKI NUMBER","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#b06bff","icon":"sierpinskinum",
+  "kicker":"a family composite forever by seven-prime conspiracy",
+  "blurb":"78,557 in the 5-window house format — a Sierpiński number: every member of 78557·2ⁿ+1 is composite, forever, by covering set. Seven primes {3,5,7,13,19,37,73} conspire — their orders of 2 all divide 36, so the conspiracy repeats with period 36: check 36 residues and you have checked all of infinity. Sierpiński proved such numbers exist (1960); Selfridge found 78,557 (1962); whether it is the SMALLEST is the Sierpiński problem, with PrimeGrid still hunting five candidates below it. Verified live, proof-grade: orders computed, lcm confirmed 36, all 36 residues matched to covering primes, and 1,500 actual BigInt terms audited (each divisible by its prime, each larger than it — composite). A complete finite proof of an infinite statement. Neon-noir traced. See the 36-spoke covering wheel in 1D, the per-n divisibility in 2D, and the patrol rota in 3D.",
+  "lit":"Genuine Sierpiński number theory (Wacław Sierpiński 1960; John Selfridge 1962; Seventeen or Bust / PrimeGrid). Verified live: orders of 2 mod {3,5,7,13,19,37,73} have lcm 36; every residue n mod 36 is covered; BigInt confirms divisibility on terms n=1..1500 — hence every term composite, proof-grade (window.__sierpinskinumber.ok).",
+  "fig":"Honest boundary — 78,557's minimality is OPEN (k=21181 etc unresolved) and stated as such. The AVAN inverse — don't test infinitely many numbers, catch the finite machine that generates their fate: the inverse of 'is any term prime?' is '36 residues, 7 guards, 0 gaps'. Magenta is the prime that never appears; green is the rota with no day off. A proof you can finish before lunch, about a sequence that never ends.",
+  "body":SNUM_BODY,"script":SNUM_SCRIPT},
+ {"slug":"the-mills","title":"THE MILLS","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#21e6ff","icon":"mills",
+  "kicker":"a constant that boots an infinite prime cascade",
+  "blurb":"Mills' constant in the 5-window house format — William Mills proved (1947) a constant A exists with floor(A^(3ⁿ)) prime for every n: 2, 11, 1361, 2521008887, 16022236204009818131831320183 — each the smallest prime after the cube of the last, perched astonishingly close above it (gaps 3, 30, 6, 80; the cube root of the fifth prime exceeds the fourth by just 4×10⁻¹⁸). The honest secret: the constant is the cascade written as a limit — the primes generate A, not the other way round — and its published digits as the LEAST such constant assume the Riemann Hypothesis. Verified live: the cascade re-derived from p=2 by Miller–Rabin next-prime hunts, every window (p³,(p+1)³) confirmed, the 4×10⁻¹⁸ knife-edge measured by BigInt cube root, and A itself extracted live as the 243rd root of the fifth prime — 31 digits of agreement, matching the published 1.3063778838630806904686144926. Neon-noir traced. See the cascade in 1D, the hop-by-hop rebuild in 2D, and the tower of cubes in 3D.",
+  "lit":"Genuine Mills' theorem and cascade (William Mills 1947; Caldwell & Cheng digits). Verified live: cascade re-derived from scratch (next prime after each cube = known sequence, inside every consecutive-cube window); cbrt(p₅)−p₄ = 4×10⁻¹⁸ by BigInt; A derived as p₅^(1/243) with bounds agreeing to 31 digits, matching published (window.__mills.ok).",
+  "fig":"Honest boundary — least-A digits are RH-conditional (cited, not claimed); p₅ primality is strong Miller-Rabin plus literature certification. The AVAN inverse — don't admire the constant, reverse it: the inverse of 'A generates primes' is 'the primes generate A' — the constant is the cascade's memory, rebuilt here from the fifth prime alone. Magenta is the RH assumption under the word 'least'; green is the knife-edge. A constant that is secretly a fossil record.",
+  "body":MILS_BODY,"script":MILS_SCRIPT},
+ {"slug":"the-ruth-aaron","title":"THE RUTH-AARON","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#35ffb0","icon":"ruthaaron",
+  "kicker":"two ballplayers sharing a factor sum",
+  "blurb":"Ruth–Aaron pairs in the 5-window house format — on April 8, 1974, Hank Aaron's 715th home run passed Babe Ruth's 714, and days later Carl Pomerance noticed the numbers share a secret: 714 = 2·3·7·17 and 715 = 5·11·13 both have prime-factor sum 29. Bonus: 714·715 = 510,510 = 2·3·5·7·11·13·17, the product of the first seven primes. Erdős phoned Pomerance, they proved such pairs have density zero, and a legendary collaboration was born (Aaron and Erdős later received honorary degrees together — Aaron signed a baseball for Erdős, giving him an Erdős number of 1, as the joke goes). Verified live: both factor sums under both definitions, the primorial identity exact, and a full sieve census below 1,000,000 — 139 distinct-definition pairs, 149 with multiplicity, first pairs (5,6),(24,25),(49,50),(77,78)… Neon-noir traced. See the converging factorizations in 1D, the pair walk in 2D, and the balanced beam in 3D.",
+  "lit":"Genuine Ruth–Aaron pairs (Nelson, Penney & Pomerance 1974; Erdős–Pomerance 1978 density zero). Verified live: sopf(714)=sopf(715)=29 (and with multiplicity); 714·715=510,510=primorial(17) exact; sieve census <10⁶ = 139 distinct-def / 149 multiplicity-def pairs, first (5,6),(24,25),(49,50) (window.__ruthaaron.ok).",
+  "fig":"The baseball story is history told as history, not mathematics; the density theorem is cited as content. The AVAN inverse — don't celebrate the coincidence, measure its rarity: the inverse of '714 and 715 match' is Erdős's 'how often CAN they?' — density zero, which is exactly what makes each pair worth a phone call. Magenta is the near-pair off by one; green is the beam balanced at 29. A friendship between two mathematicians, brokered by two ballplayers.",
+  "body":RAAR_BODY,"script":RAAR_SCRIPT},
+ {"slug":"the-erdos-straus","title":"THE ERDŐS-STRAUS","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#ff8a3c","icon":"erdosstraus",
+  "kicker":"four quarters split into three unit coins",
+  "blurb":"The Erdős–Straus conjecture in the 5-window house format — for every n ≥ 2, does 4/n split into three unit fractions 1/x+1/y+1/z? Ancient Egypt wrote all fractions as unit sums; Erdős asked (1948) whether three coins always suffice for 4/n. One-line identities swallow even n, n≡3 mod 4, and n≡0,2 mod 3; composites inherit from their factors; the entire battlefield shrinks to primes ≡ 1 mod 12, hunted one by one with no formula known. Verified computationally past 10¹⁷ in the literature — but OPEN. Verified live here: every n from 2 to 100,000 solved (families + factor-lifting + banded divisor search for the 2,374 hard primes), every solution certified by the exact BigInt identity n(yz+xz+xy)=4xyz — no floating point anywhere. Neon-noir traced. See the three coins in 1D, the wheel with certificates in 2D, and the mod-12 battlefield in 3D.",
+  "lit":"Genuine Erdős–Straus conjecture (Erdős & Straus 1948; Mordell's modular analysis). Verified live: all n=2..100,000 solved and certified exact via BigInt n(yz+xz+xy)=4xyz; parametric families for easy residues, factor-lift for composites, banded search for 2,374 primes ≡ 1 mod 12 (window.__erdosstraus.ok).",
+  "fig":"Honest boundary, loudly — this sweep is EVIDENCE for an OPEN conjecture; 100,000 successes prove nothing at 10¹⁸. (Build note kept honest: the first search draft overflowed 2⁵³ and silently lied; caught and rebuilt exact.) The AVAN inverse — don't solve n by n, watch where the problem lives: all but the primes ≡ 1 mod 12 were never in danger. Green is formula territory; magenta is the thin line where mathematics still hunts. A conjecture alive in 2% of the number line.",
+  "body":ERST_BODY,"script":ERST_SCRIPT},
+ {"slug":"the-untouchable","title":"THE UNTOUCHABLE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#ffcf4a","icon":"untouchable",
+  "kicker":"the loot no drop table contains",
+  "blurb":"Untouchable numbers in the 5-window house format — values the aliquot sum s(n) (sum of proper divisors) never produces: 2, 5, 52, 88, 96, 120, 124, 146… No integer's divisors will ever sum to them. Erdős proved infinitude (1973). Two gems: 5 is believed the only odd untouchable — because strong Goldbach gives every even 2k = p+q, hence s(pq) = p+q+1 hits every odd ≥ 7; and untouchability is CERTIFIABLE without infinite search, because composite n has s(n) > √n, so small targets can only be hit by small n. Verified live: aliquot sums sieved to 998,001, the √n bound turning the finite scan into a certificate for all values ≤ 1000 — the exact untouchable list to 500 (38 values), with 5 the only odd member. Neon-noir traced. See the lit-and-dark number line in 1D, the witness queries in 2D, and the aliquot rain in 3D.",
+  "lit":"Genuine untouchable numbers (Erdős 1973 infinitude; aliquot tradition). Verified live: full aliquot sieve to 998,001; the composite bound s(n) > √n certifies completeness for targets ≤ 1000; list ≤ 500 = 38 values beginning 2,5,52,88,96,120; only odd member is 5 (window.__untouchable.ok).",
+  "fig":"Honest boundary — '5 is the only odd untouchable' is conditional on strong Goldbach, stated as the conditional it is. The AVAN inverse — don't chase the function forward, stand where it never lands: the inverse of 'what does s(n) equal?' is 'which values are orphans?', and the √n bound is what makes the orphanage provable. Magenta are the untouchables, dry under the aliquot rain; green is every value with at least one parent. Some numbers are simply never spoken.",
+  "body":UNTC_BODY,"script":UNTC_SCRIPT},
  {"slug":"the-zeno","title":"THE ZENO","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#35ffb0","icon":"zeno",
   "kicker":"the paradox of halfway, at the halfway line",
