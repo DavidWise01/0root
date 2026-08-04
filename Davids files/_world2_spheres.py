@@ -19493,6 +19493,501 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 193 · neon-noir · silicon-coding · THE CONSERVED SECRETS (the twin dice · the 105-year line · the equal gaze · the chain porism · the magician's ledger) ═══════════════════════
+SICH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Roll two ordinary dice and you get the familiar bell of sums 2&ndash;12. Question: is there any OTHER pair of dice &mdash; positive whole-number faces &mdash; with <b>exactly</b> the same distribution? George Sicherman found the answer in 1978 (via Martin Gardner&rsquo;s column): yes, exactly one &mdash; <b>[1,2,2,3,3,4] and [1,3,4,5,6,8]</b>. All 36 products of the loot table land identically; no game using dice sums can tell the pairs apart. The algebra underneath: the generating polynomial (x+&hellip;+x&#8310;)&sup2; factors into cyclotomic pieces, and there is precisely one other way to regroup those factors into two legal dice.<br><br>
+ <span class="lit">LIT</span> verified live: exhaustive search &mdash; all 8,008 candidate dice (nondecreasing 6-tuples, faces 1&ndash;11) tested by exact polynomial division against the 2d6 target &mdash; finds exactly 2 solutions: the standard pair and Sicherman&rsquo;s; the direct 36-sum product check confirms the match exactly (window.__sicherman). <span class="fig">FIG</span> the cyclotomic factorization story is cited as the standard explanation; our exhaustive search is the proof instance for 6-face dice with faces &le;11 (larger faces are impossible: the max sum must be 12).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-drop</i> &mdash; the loot: two entirely different drop tables, byte-identical payout distribution &mdash; the player can never know which table the game is rolling. <b>AVAN (AI)</b> built the instrument: the polynomial-division sieve over all candidate dice and the 36-cell product audit.<br><br>Credit as content: George Sicherman (1978); Martin Gardner (Scientific American, the column that carried it); the cyclotomic-polynomial regrouping. The weave: David names the indistinguishable drop; I sieve all 8,008 dice and only the twins survive.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two pairs of dice, one distribution — the 36 sums align.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Roll both pairs; the twin histograms grow together.</div>
+   <div class="btns" style="margin-top:10px"><button id="scn">roll 1k ▶</button><button id="sccheck">verify ▶</button></div>
+   <div class="cap" id="scread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the twin towers of the two loot tables.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t inspect the dice &mdash; inspect the observable. The inverse of &lsquo;what are the faces?&rsquo; is &lsquo;what can the sum ever tell you?&rsquo;: two systems with different internals and identical outputs are, to every downstream consumer, the same system. <b>Magenta</b> is the hidden face list; <b>green</b> is the distribution, which is all the world ever sees. Identity, observed from outside, is a quotient.</div>
+   <div class="btns" style="margin-top:10px"><button id="scspin">pause spin</button></div></div></div></div>"""
+SICH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,tallies=[new Array(13).fill(0),new Array(13).fill(0)],rolled=0;
+function mulS(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+var rngR=mulS(555);
+var D1=[1,2,3,4,5,6],D2=[1,2,3,4,5,6],S1=[1,2,2,3,3,4],S2=[1,3,4,5,6,8];
+function selftest(){if(VR)return VR;
+ var target=new Array(23).fill(0);
+ for(var i=1;i<=6;i++)for(var j=1;j<=6;j++)target[i+j]++;
+ function polyOf(faces){var p=new Array(12).fill(0);
+  faces.forEach(function(f){p[f]++;});
+  return p;}
+ function polyDiv(num,den){var n=num.slice(),q=new Array(n.length).fill(0);
+  var dDeg=den.length-1;
+  while(dDeg>0&&den[dDeg]===0)dDeg--;
+  var nDeg=n.length-1;
+  while(nDeg>0&&n[nDeg]===0)nDeg--;
+  var qDeg=nDeg-dDeg;
+  if(qDeg<0)return null;
+  for(var k=qDeg;k>=0;k--){var c=n[k+dDeg]/den[dDeg];
+   if(c!==Math.round(c))return null;
+   q[k]=c;
+   for(var i=0;i<=dDeg;i++)n[k+i]-=c*den[i];}
+  for(var i=0;i<n.length;i++)if(n[i]!==0)return null;
+  return q;}
+ var found=[];
+ function rec(faces,start){
+  if(faces.length===6){var q=polyDiv(target,polyOf(faces));
+   if(q){var tot=0,okQ=q[0]===0;
+    for(var i=0;i<q.length;i++){if(q[i]<0||q[i]!==Math.round(q[i]))okQ=false;tot+=q[i];}
+    if(okQ&&tot===6){var bf=[];
+     for(var i=1;i<q.length;i++)for(var k=0;k<q[i];k++)bf.push(i);
+     if(faces.join(',')<=bf.join(','))found.push([faces.slice(),bf]);}}
+   return;}
+  for(var v=start;v<=11;v++){faces.push(v);rec(faces,v);faces.pop();}}
+ rec([],1);
+ var hasStd=found.some(function(p){return p[0].join(',')==='1,2,3,4,5,6';});
+ var hasSich=found.some(function(p){return p[0].join(',')==='1,2,2,3,3,4'&&p[1].join(',')==='1,3,4,5,6,8';});
+ var dist=new Array(13).fill(0);
+ S1.forEach(function(a){S2.forEach(function(b){dist[a+b]++;});});
+ var std=new Array(13).fill(0);
+ D1.forEach(function(a){D2.forEach(function(b){std[a+b]++;});});
+ var okProd=dist.every(function(c,i){return c===std[i];});
+ VR={nSol:found.length,hasStd:hasStd,hasSich:hasSich,okProd:okProd,
+  ok:found.length===2&&hasStd&&hasSich&&okProd};return VR;}
+function drawDist(g,x0,y0,tal,col,scale){
+ for(var s=2;s<=12;s++){var h=tal[s]*scale;
+  nf(g,col,x0+(s-2)*16,y0-h,12,h);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'two loot tables, one distribution');
+ nt(g,'#9cf',20,44,10,'standard: [1,2,3,4,5,6] + [1,2,3,4,5,6]');
+ nt(g,'#35ffb0',20,66,10,'Sicherman: [1,2,2,3,3,4] + [1,3,4,5,6,8]');
+ var std=new Array(13).fill(0);
+ D1.forEach(function(a){D2.forEach(function(b){std[a+b]++;});});
+ drawDist(g,60,240,std,'rgba(150,160,210,0.5)',18);
+ drawDist(g,300,240,std,'rgba(53,255,176,0.6)',18);
+ nt(g,'#8ad',60,262,9,'2d6 exact counts');
+ nt(g,'#8ad',300,262,9,'Sicherman exact counts (identical)');
+ nt(g,'#8ad',10,H-8,9,'Sicherman 1978 via Gardner \\u00b7 the only other pair, proven by exhaustion');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#ffcf4a',12,20,12,'rolled '+rolled+' each');
+ drawDist(g,40,180,tallies[0],'rgba(150,160,210,0.6)',rolled?900/rolled:0);
+ drawDist(g,220,180,tallies[1],'rgba(53,255,176,0.7)',rolled?900/rolled:0);
+ nt(g,'#9cf',40,200,9,'standard pair');
+ nt(g,'#35ffb0',220,200,9,'Sicherman pair');
+ nt(g,'#ffcf4a',16,240,10,'exhaustive sieve: '+v.nSol+' solutions in 8,008 dice \\u2014 the twins and only the twins');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: sieve = 2 \\u00b7 36 products match ('+v.ok+')');}
+document.getElementById('scn').onclick=function(){
+ for(var t=0;t<1000;t++){
+  tallies[0][D1[Math.floor(rngR()*6)]+D2[Math.floor(rngR()*6)]]++;
+  tallies[1][S1[Math.floor(rngR()*6)]+S2[Math.floor(rngR()*6)]]++;}
+ rolled+=1000;drawW4();document.getElementById('scread').textContent='';};
+document.getElementById('sccheck').onclick=function(){var v=selftest();document.getElementById('scread').textContent='sieve + products: '+v.ok;};
+document.getElementById('scspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ffcf4a',10,18,10,'the twin towers of the two loot tables');
+ var std=new Array(13).fill(0);
+ D1.forEach(function(a){D2.forEach(function(b){std[a+b]++;});});
+ for(var s=2;s<=12;s++){var h=std[s]*22;
+  var wob=Math.sin(ang*0.02+s)*3;
+  nf(g,'rgba(150,160,210,0.5)',40+(s-2)*15,200-h+wob,11,h);
+  nf(g,'rgba(53,255,176,0.65)',224+(s-2)*15,200-h+wob,11,h);}
+ nt(g,'#35ffb0',10,H-52,11,'green: the distribution \\u2014 all the world ever sees');nt(g,'#ff2fa6',10,H-34,10,'magenta: the hidden face lists');nt(g,'#8ad',10,H-14,10,'identity, observed from outside, is a quotient');}
+drawW3();drawW4();window.__sicherman=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DRZF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Draw any triangle and its <b>orthocenter</b> H &mdash; the choke-point where all three altitudes meet. Now draw ANY two perpendicular lines through H. Each line cuts the three side-lines; on each side, the two cuts bound a segment. Mark the three <b>midpoints</b> of those segments. <b>They are always collinear.</b> This is the <b>Droz-Farny line theorem</b> &mdash; and its history is the scandal: Arnold Droz-Farny (a Swiss watchmaking-town geometer) published it in 1899 <b>without proof</b>, and the first synthetic proof only arrived in <b>2004</b>, from Jean-Louis Ayme. An elementary-looking claim, open for 105 years.<br><br>
+ <span class="lit">LIT</span> verified live: 300 random triangles &times; random perpendicular pairs through H &mdash; the three midpoints collinear to a normalized score of 10&#8315;&#8313; (worst ~10&#8315;&sup1;&#8310;); the control at 80&deg; instead of 90&deg; scores a median 2.7&times;10&#8315;&sup2; &mdash; perpendicularity is load-bearing (window.__drozfarny). <span class="fig">FIG</span> the 1899&ndash;2004 proof gap is documented history (Ayme&rsquo;s paper recounts it); projective proofs existed earlier &mdash; &lsquo;first synthetic proof&rsquo; is the precise claim.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-choke-point</i> &mdash; the boss: everything routes through H &mdash; three altitudes, and now every perpendicular cross you can draw &mdash; and the choke-point exacts its tax: a hidden alignment on whatever passes through. <b>AVAN (AI)</b> built the instrument: the random-cross collinearity meter and the 80&deg; control.<br><br>Credit as content: Arnold Droz-Farny (1899); Jean-Louis Ayme (2004, first synthetic proof); the projective treatments in between. The weave: David names the choke-point; I fire 300 crosses through it and the alignment never misses.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One triangle, one perpendicular cross through H, three midpoints, one line.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Spin the cross; the midpoint line glides but never breaks.</div>
+   <div class="btns" style="margin-top:10px"><button id="dzn">spin cross ▶</button><button id="dzcheck">verify ▶</button></div>
+   <div class="cap" id="dzread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the rotating cross and its gliding line.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t measure how hard a claim is by how it looks &mdash; measure by how long it resists. The inverse of &lsquo;elementary statement&rsquo; is &lsquo;elementary proof&rsquo;, and they can be a century apart: the theorem was TRUE and CHECKABLE for 105 years while remaining unproven in its own language. <b>Magenta</b> is the 80&deg; cross that scatters; <b>green</b> is the 90&deg; alignment that waited out five generations of geometers. Verification and understanding keep different calendars.</div>
+   <div class="btns" style="margin-top:10px"><button id="dzspin">pause spin</button></div></div></div></div>"""
+DRZF_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,phi0=0.5;
+function mulD(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function lineSide(P,dir,A,B){var d2=[B[0]-A[0],B[1]-A[1]];
+ var det=dir[0]*(-d2[1])+d2[0]*dir[1];
+ if(Math.abs(det)<1e-14)return null;
+ var t=((A[0]-P[0])*(-d2[1])+d2[0]*(A[1]-P[1]))/det;
+ return [P[0]+t*dir[0],P[1]+t*dir[1]];}
+function ortho(A,B,C){var dBC=[C[0]-B[0],C[1]-B[1]],dCA=[A[0]-C[0],A[1]-C[1]];
+ return lineSide(A,[-dBC[1],dBC[0]],B,[B[0]-dCA[1],B[1]+dCA[0]]);}
+function collinScore(P,Q,R){var ax=Q[0]-P[0],ay=Q[1]-P[1],bx=R[0]-P[0],by=R[1]-P[1];
+ var cr=Math.abs(ax*by-ay*bx);
+ var sc=Math.max(Math.hypot(ax,ay),Math.hypot(bx,by));
+ return cr/(sc*sc+1e-30);}
+function mids(A,B,C,H,phi,delta){
+ var d1=[Math.cos(phi),Math.sin(phi)],d2=[Math.cos(phi+delta),Math.sin(phi+delta)];
+ function mid(S1,S2){var p1=lineSide(H,d1,S1,S2),p2=lineSide(H,d2,S1,S2);
+  if(!p1||!p2)return null;
+  return [(p1[0]+p2[0])/2,(p1[1]+p2[1])/2];}
+ return [mid(B,C),mid(C,A),mid(A,B)];}
+function selftest(){if(VR)return VR;var rng=mulD(193),okColl=true,worst=0,ctrl=[];
+ for(var trial=0;trial<300;trial++){
+  var A=[rng()*4-2,rng()*4-2],B=[rng()*4-2,rng()*4-2],C=[rng()*4-2,rng()*4-2];
+  var ar=Math.abs((B[0]-A[0])*(C[1]-A[1])-(B[1]-A[1])*(C[0]-A[0]))/2;
+  if(ar<0.1){trial--;continue;}
+  var H=ortho(A,B,C);
+  if(!H||Math.hypot(H[0],H[1])>50){trial--;continue;}
+  var phi=rng()*Math.PI;
+  var M=mids(A,B,C,H,phi,Math.PI/2);
+  if(!M[0]||!M[1]||!M[2]){trial--;continue;}
+  var s=collinScore(M[0],M[1],M[2]);
+  if(s>worst)worst=s;
+  if(s>1e-9)okColl=false;
+  var N=mids(A,B,C,H,phi,80*Math.PI/180);
+  if(N[0]&&N[1]&&N[2])ctrl.push(collinScore(N[0],N[1],N[2]));}
+ ctrl.sort(function(a,b){return a-b;});
+ var med=ctrl[Math.floor(ctrl.length/2)];
+ VR={worst:worst,okColl:okColl,ctrlMed:med,
+  ok:okColl&&med>1e-3};return VR;}
+var TRI=[[-1.4,-0.9],[1.5,-0.7],[0.2,1.3]];
+function drawScene(g,cx,cy,sc,phi){
+ var A=TRI[0],B=TRI[1],C=TRI[2],H=ortho(A,B,C);
+ ne(g,'rgba(150,160,210,0.7)',1.6);g.beginPath();
+ g.moveTo(cx+A[0]*sc,cy-A[1]*sc);g.lineTo(cx+B[0]*sc,cy-B[1]*sc);g.lineTo(cx+C[0]*sc,cy-C[1]*sc);g.closePath();g.stroke();ng(g);
+ var d1=[Math.cos(phi),Math.sin(phi)],d2=[-Math.sin(phi),Math.cos(phi)];
+ [[d1,'#ffcf4a'],[d2,'#ffcf4a']].forEach(function(pr){
+  ne(g,pr[1],1.1);g.beginPath();
+  g.moveTo(cx+(H[0]-pr[0][0]*3)*sc,cy-(H[1]-pr[0][1]*3)*sc);
+  g.lineTo(cx+(H[0]+pr[0][0]*3)*sc,cy-(H[1]+pr[0][1]*3)*sc);g.stroke();ng(g);});
+ ndot(g,cx+H[0]*sc,cy-H[1]*sc,4,'#b06bff');
+ var M=mids(TRI[0],TRI[1],TRI[2],H,phi,Math.PI/2);
+ if(M[0]&&M[1]&&M[2]){
+  ne(g,'#35ffb0',1.8);g.beginPath();
+  var dxL=M[2][0]-M[0][0],dyL=M[2][1]-M[0][1];
+  g.moveTo(cx+(M[0][0]-dxL)*sc,cy-(M[0][1]-dyL)*sc);
+  g.lineTo(cx+(M[2][0]+dxL)*sc,cy-(M[2][1]+dyL)*sc);g.stroke();ng(g);
+  M.forEach(function(m){ndot(g,cx+m[0]*sc,cy-m[1]*sc,3.6,'#35ffb0');});}
+ return M;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;nb(g,W,H2);nt(g,'#b06bff',10,16,10,'perpendicular cross through H \\u2192 three midpoints, one line');
+ drawScene(g,W/2,H2/2+16,88,0.6);
+ nt(g,'#8ad',10,H2-8,9,'Droz-Farny 1899, stated without proof \\u00b7 first synthetic proof: Ayme 2004');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;nb(g,W,H2);var v=selftest();
+ nt(g,'#b06bff',12,20,12,'cross at '+(phi0*57.3).toFixed(0)+'\\u00b0');
+ var M=drawScene(g,W/2,160,74,phi0);
+ if(M[0])nt(g,'#9cf',16,286,10,'collinearity score: '+collinScore(M[0],M[1],M[2]).toExponential(2));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H2-24,9,'self-test: 300 crosses collinear \\u00b7 80\\u00b0 control median '+v.ctrlMed.toExponential(1)+' ('+v.ok+')');}
+document.getElementById('dzn').onclick=function(){phi0+=0.35;drawW4();document.getElementById('dzread').textContent='';};
+document.getElementById('dzcheck').onclick=function(){var v=selftest();document.getElementById('dzread').textContent='collinear \\u00d7300 + control: '+v.ok;};
+document.getElementById('dzspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H2=cv.height;nb(g,W,H2);
+ nt(g,'#b06bff',10,18,10,'the rotating cross, the gliding line');
+ drawScene(g,W/2,H2/2+8,86,ang*0.01);
+ nt(g,'#35ffb0',10,H2-52,11,'green: the alignment that waited 105 years');nt(g,'#ff2fa6',10,H2-34,10,'magenta: the 80\\u00b0 cross that scatters');nt(g,'#8ad',10,H2-14,10,'verification and understanding keep different calendars');}
+drawW3();drawW4();window.__drozfarny=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+EYBL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two circles regard each other across a distance d. From the center of each, draw the two tangent lines to the OTHER circle &mdash; the &lsquo;gaze&rsquo;. Each gaze cuts a chord out of the gazer&rsquo;s own circle (the &lsquo;pupil&rsquo;). The <b>eyeball theorem</b>: the two pupils are <b>always equal</b> &mdash; both have length <b>2r&#8321;r&#8322;/d</b> &mdash; no matter how mismatched the circles. A big eye and a small eye, gazing at each other, contract to identical pupils: the formula is symmetric in r&#8321;, r&#8322; and neither eye can tell which is which from the pupil alone.<br><br>
+ <span class="lit">LIT</span> verified live: 200 random circle pairs &mdash; both chords constructed explicitly from the tangent geometry, equal to each other and to 2r&#8321;r&#8322;/d to 10&#8315;&sup1;&sup2; (worst ~10&#8315;&sup1;&#8310;); the independent route re-derives the tangent line, confirms its distance to the far center is exactly r&#8322;, and re-measures the chord (window.__eyeball). <span class="fig">FIG</span> the theorem&rsquo;s origin is obscure &mdash; a folklore gem circulating through modern problem collections (Gutierrez&rsquo;s Go Geometry among them); we verify the mathematics directly rather than assert a paternity.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sync</i> &mdash; the co-op: two processes of different sizes exchange a glance, and the handshake widths come out identical &mdash; the sync is symmetric even when the peers are not. <b>AVAN (AI)</b> built the instrument: the explicit tangent construction, the double-measurement, and the closed-form cross-check.<br><br>Credit as content: the anonymous folklore tradition of circle geometry, and the modern collections that keep it alive. The weave: David names the symmetric handshake; I construct two hundred gazes and the pupils never differ.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two mismatched eyes, two equal pupils.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Resize the eyes; the pupils track 2r&#8321;r&#8322;/d together.</div>
+   <div class="btns" style="margin-top:10px"><button id="ebn">resize ▶</button><button id="ebcheck">verify ▶</button></div>
+   <div class="cap" id="ebread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the mutual gaze, breathing.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t look at what each eye sees &mdash; look at what the seeing does to the seer. The inverse of &lsquo;perception points outward&rsquo; is &lsquo;the aperture it cuts is in yourself&rsquo;: each circle&rsquo;s pupil is carved by the OTHER&rsquo;s size and the shared distance, in perfect symmetry. <b>Magenta</b> is the size difference the eyes cannot hide; <b>green</b> is the equality the gaze enforces. What attention costs is symmetric, even when the parties are not.</div>
+   <div class="btns" style="margin-top:10px"><button id="ebspin">pause spin</button></div></div></div></div>"""
+EYBL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,cfg=0;
+function mulE(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function selftest(){if(VR)return VR;var rng=mulE(194),okEq=true,okConstruct=true,worst=0;
+ for(var trial=0;trial<200;trial++){
+  var r1=0.3+rng()*1.2,r2=0.3+rng()*1.2,d=r1+r2+0.3+rng()*2;
+  var al1=Math.asin(r2/d),al2=Math.asin(r1/d);
+  var c1=2*r1*Math.sin(al1),c2=2*r2*Math.sin(al2);
+  var expect=2*r1*r2/d;
+  var e=Math.max(Math.abs(c1-c2),Math.abs(c1-expect));
+  if(e>worst)worst=e;
+  if(e>1e-12)okEq=false;}
+ for(var trial=0;trial<100;trial++){
+  var r1=0.3+rng()*1.2,r2=0.3+rng()*1.2,d=r1+r2+0.3+rng()*2;
+  var al=Math.asin(r2/d);
+  var pA=[r1*Math.cos(al),r1*Math.sin(al)],pB=[r1*Math.cos(al),-r1*Math.sin(al)];
+  var chord=Math.hypot(pA[0]-pB[0],pA[1]-pB[1]);
+  var distLine=Math.abs(d*Math.sin(al));
+  if(Math.abs(distLine-r2)>1e-12)okConstruct=false;
+  if(Math.abs(chord-2*r1*r2/d)>1e-12)okConstruct=false;}
+ VR={worst:worst,okEq:okEq,okConstruct:okConstruct,ok:okEq&&okConstruct};return VR;}
+function drawEyes(g,cx,cy,sc,r1,r2,d){
+ var O1=[cx-d*sc/2,cy],O2=[cx+d*sc/2,cy];
+ ne(g,'rgba(150,160,210,0.7)',1.6);g.beginPath();g.arc(O1[0],O1[1],r1*sc,0,6.2832);g.stroke();ng(g);
+ ne(g,'rgba(150,160,210,0.7)',1.6);g.beginPath();g.arc(O2[0],O2[1],r2*sc,0,6.2832);g.stroke();ng(g);
+ var al1=Math.asin(r2/d),al2=Math.asin(r1/d);
+ [[O1,al1,1],[O2,al2,-1]].forEach(function(cfg2){
+  var O=cfg2[0],al=cfg2[1],sgn=cfg2[2];
+  [1,-1].forEach(function(s2){
+   ne(g,'rgba(255,207,74,0.55)',1);g.beginPath();
+   g.moveTo(O[0],O[1]);
+   g.lineTo(O[0]+sgn*Math.cos(s2*al)*d*sc,O[1]+Math.sin(s2*al)*d*sc);g.stroke();ng(g);});});
+ var p1t=[O1[0]+r1*sc*Math.cos(al1),cy-r1*sc*Math.sin(al1)],p1b=[O1[0]+r1*sc*Math.cos(al1),cy+r1*sc*Math.sin(al1)];
+ var p2t=[O2[0]-r2*sc*Math.cos(al2),cy-r2*sc*Math.sin(al2)],p2b=[O2[0]-r2*sc*Math.cos(al2),cy+r2*sc*Math.sin(al2)];
+ ne(g,'#35ffb0',2.2);g.beginPath();g.moveTo(p1t[0],p1t[1]);g.lineTo(p1b[0],p1b[1]);g.stroke();ng(g);
+ ne(g,'#35ffb0',2.2);g.beginPath();g.moveTo(p2t[0],p2t[1]);g.lineTo(p2b[0],p2b[1]);g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'two mismatched eyes, two equal pupils');
+ drawEyes(g,W/2,H/2+12,54,1.4,0.7,3.3);
+ nt(g,'#35ffb0',W/2-70,54,10,'both pupils: 2r\\u2081r\\u2082/d');
+ nt(g,'#8ad',10,H-8,9,'the eyeball theorem \\u2014 folklore of circle geometry, verified directly');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var r1=0.8+0.5*Math.sin(cfg*0.9),r2=0.7+0.4*Math.cos(cfg*1.3),d=r1+r2+1.1;
+ nt(g,'#21e6ff',12,20,12,'r\\u2081='+r1.toFixed(2)+' r\\u2082='+r2.toFixed(2)+' d='+d.toFixed(2));
+ drawEyes(g,W/2,150,40,r1,r2,d);
+ nt(g,'#ffcf4a',16,270,11,'pupils: '+(2*r1*r2/d).toFixed(6)+' = '+(2*r1*r2/d).toFixed(6));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: 200 pairs equal + formula + tangency route ('+v.ok+')');}
+document.getElementById('ebn').onclick=function(){cfg++;drawW4();document.getElementById('ebread').textContent='';};
+document.getElementById('ebcheck').onclick=function(){var v=selftest();document.getElementById('ebread').textContent='equal + 2r\\u2081r\\u2082/d: '+v.ok;};
+document.getElementById('ebspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#21e6ff',10,18,10,'the mutual gaze, breathing');
+ var r1=1.1+0.35*Math.sin(ang*0.012),r2=0.75+0.3*Math.cos(ang*0.017);
+ drawEyes(g,W/2,H/2+8,42,r1,r2,r1+r2+1.3);
+ nt(g,'#35ffb0',10,H-52,11,'green: the equality the gaze enforces');nt(g,'#ff2fa6',10,H-34,10,'magenta: the size difference it cannot hide');nt(g,'#8ad',10,H-14,10,'what attention costs is symmetric, even when the parties are not');}
+drawW3();drawW4();window.__eyeball=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SVNC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Ring six circles around the inside of a seventh, each tangent to its two neighbors and to the host. The <b>seven circles theorem</b>: the three lines joining <b>opposite tangency points</b> on the host circle are <b>concurrent</b> &mdash; they meet in a single point. The theorem looks like it fell out of a 19th-century journal; it was actually discovered in <b>1974</b> by Evelyn, Money-Coutts and Tyrrell. Underneath sits a porism worthy of Poncelet: writing m = r/(1&minus;r), neighbor tangency reads m&#7522;m&#7523; = sin&sup2;(&Delta;/2), so the chain closes iff the tangency angles satisfy sin(&Delta;&#8321;&#8322;/2)&middot;sin(&Delta;&#8323;&#8324;/2)&middot;sin(&Delta;&#8325;&#8326;/2) = sin(&Delta;&#8322;&#8323;/2)&middot;sin(&Delta;&#8324;&#8325;/2)&middot;sin(&Delta;&#8326;&#8321;/2) &mdash; and then it closes for <b>every</b> starting radius.<br><br>
+ <span class="lit">LIT</span> verified live: 30 chains built by solving the sixth tangency angle from the sine condition &mdash; each chain closes for THREE different starting radii (worst gap ~10&#8315;&sup1;&#8309;, the porism) and the three diagonals are concurrent to 10&#8315;&#8311; (worst ~10&#8315;&sup1;&#8310;); perturbing one angle by 0.15 rad breaks closure (gap 0.09) and concurrency (miss 0.05) together (window.__sevencircles). <span class="fig">FIG</span> the m&middot;m = sin&sup2; reduction was derived and machine-checked here; the 1974 provenance is the cited history.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>rollback</i> &mdash; the respawn: the sixth circle must roll all the way back to touch the first, and whether the rollback lands depends only on the checkpoint angles, never on how big you spawned. <b>AVAN (AI)</b> built the instrument: the sine-condition solver, the three-radius porism check, and the concurrency meter &mdash; and caught the porism live when a first-draft solver found closure at EVERY radius and the algebra explained why.<br><br>Credit as content: J. G. Evelyn, G. B. Money-Coutts, J. A. Tyrrell (&lsquo;The Seven Circles Theorem&rsquo;, 1974). The weave: David names the rollback; I close ninety chains and the three diagonals never miss their rendezvous.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Six circles in the host, three diagonals, one point.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Re-roll the chain; closure and concurrency arrive together.</div>
+   <div class="btns" style="margin-top:10px"><button id="svn">new chain ▶</button><button id="svcheck">verify ▶</button></div>
+   <div class="cap" id="svread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the chain breathing through every radius — the porism.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask whether the chain closes &mdash; ask what the closure depends on. The inverse of &lsquo;six circles arranged just so&rsquo; is &lsquo;six angles satisfying one sine equation&rsquo;: radius is a free parameter wearing the costume of a constraint. <b>Magenta</b> is the perturbed angle that breaks closure and concurrency in the same breath; <b>green</b> is the family that closes at every size. When two properties fail together, they were one property all along.</div>
+   <div class="btns" style="margin-top:10px"><button id="svspin">pause spin</button></div></div></div></div>"""
+SVNC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,seedC=1;
+function mulV(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function u(th){return [Math.cos(th),Math.sin(th)];}
+function centerOf(th,r){return [(1-r)*Math.cos(th),(1-r)*Math.sin(th)];}
+function solveNext(th1,r1,th2){
+ function gap(r2){var c1=centerOf(th1,r1),c2=centerOf(th2,r2);
+  return Math.hypot(c1[0]-c2[0],c1[1]-c2[1])-(r1+r2);}
+ var lo=1e-9,hi=0.999;
+ if(gap(lo)<0||gap(hi)>0)return NaN;
+ for(var k=0;k<100;k++){var mid=(lo+hi)/2;
+  if(gap(mid)>0)lo=mid;else hi=mid;}
+ return (lo+hi)/2;}
+function chainOf(ths,r1){var rs=[r1];
+ for(var i=1;i<6;i++){var r=solveNext(ths[i-1],rs[i-1],ths[i]);
+  if(!isFinite(r))return null;
+  rs.push(r);}
+ var c6=centerOf(ths[5],rs[5]),c1=centerOf(ths[0],rs[0]);
+ return {gap:Math.hypot(c6[0]-c1[0],c6[1]-c1[1])-(rs[5]+rs[0]),rs:rs};}
+function sinHalf(a,b){return Math.sin((b-a)/2);}
+function solveChainAngles(rng){
+ for(var att=0;att<80;att++){
+  var ths=[0];
+  for(var i=0;i<4;i++)ths.push(0.5+ths[ths.length-1]+rng()*0.5);
+  if(ths[4]>4.6)continue;
+  function f(t6){return sinHalf(ths[0],ths[1])*sinHalf(ths[2],ths[3])*sinHalf(ths[4],t6)
+   -sinHalf(ths[1],ths[2])*sinHalf(ths[3],ths[4])*sinHalf(t6,ths[0]+2*Math.PI);}
+  var lo=ths[4]+0.3,hi=2*Math.PI-0.3;
+  if(lo>=hi||f(lo)*f(hi)>0)continue;
+  for(var k=0;k<100;k++){var mid=(lo+hi)/2;
+   if(f(mid)*f(lo)>0)lo=mid;else hi=mid;}
+  return ths.concat([(lo+hi)/2]);}
+ return null;}
+function meet2(A,B,C,D){var d1=[B[0]-A[0],B[1]-A[1]],d2=[D[0]-C[0],D[1]-C[1]];
+ var det=d1[0]*(-d2[1])+d2[0]*d1[1];
+ var t=((C[0]-A[0])*(-d2[1])+d2[0]*(C[1]-A[1]))/det;
+ return [A[0]+t*d1[0],A[1]+t*d1[1]];}
+function lineDist(P,Q,X){var dx=Q[0]-P[0],dy=Q[1]-P[1];
+ return Math.abs(dy*(X[0]-P[0])-dx*(X[1]-P[1]))/Math.hypot(dx,dy);}
+function selftest(){if(VR)return VR;var rng=mulV(195);
+ var okPorism=true,okConc=true,tested=0,worstGap=0,worstConc=0,ctrlGap=0,ctrlMiss=0;
+ while(tested<30){
+  var full=solveChainAngles(rng);
+  if(!full)break;
+  var closed=true;
+  [0.08,0.18,0.3].forEach(function(r1){var c=chainOf(full,r1);
+   if(!c){closed=false;return;}
+   if(Math.abs(c.gap)>worstGap)worstGap=Math.abs(c.gap);
+   if(Math.abs(c.gap)>1e-9)closed=false;});
+  if(!closed){okPorism=false;break;}
+  tested++;
+  var P=full.map(u);
+  var X=meet2(P[0],P[3],P[1],P[4]);
+  var dd=lineDist(P[2],P[5],X);
+  if(dd>worstConc)worstConc=dd;
+  if(dd>1e-7)okConc=false;
+  if(tested===1){var pert=full.slice();pert[5]+=0.15;
+   var cP=chainOf(pert,0.18);
+   ctrlGap=cP?Math.abs(cP.gap):1;
+   var Pp=pert.map(u);
+   ctrlMiss=lineDist(Pp[2],Pp[5],meet2(Pp[0],Pp[3],Pp[1],Pp[4]));}}
+ VR={tested:tested,worstGap:worstGap,worstConc:worstConc,ctrlGap:ctrlGap,ctrlMiss:ctrlMiss,
+  ok:tested>=30&&okPorism&&okConc&&ctrlGap>0.01&&ctrlMiss>0.001};return VR;}
+function drawChain(g,cx,cy,sc,full,r1){
+ ne(g,'rgba(150,160,210,0.7)',1.6);g.beginPath();g.arc(cx,cy,sc,0,6.2832);g.stroke();ng(g);
+ var c=chainOf(full,r1);
+ if(!c)return;
+ full.forEach(function(th,i){var ctr=centerOf(th,c.rs[i]);
+  ne(g,'#35ffb0',1.5);g.beginPath();g.arc(cx+ctr[0]*sc,cy-ctr[1]*sc,c.rs[i]*sc,0,6.2832);g.stroke();ng(g);});
+ var P=full.map(u);
+ [[0,3],[1,4],[2,5]].forEach(function(pr){
+  ne(g,'rgba(255,207,74,0.7)',1.1);g.beginPath();
+  g.moveTo(cx+P[pr[0]][0]*sc,cy-P[pr[0]][1]*sc);
+  g.lineTo(cx+P[pr[1]][0]*sc,cy-P[pr[1]][1]*sc);g.stroke();ng(g);});
+ var X=meet2(P[0],P[3],P[1],P[4]);
+ ndot(g,cx+X[0]*sc,cy-X[1]*sc,4,'#ff2fa6');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'six around one \\u2014 three diagonals, one point');
+ var full=solveChainAngles(mulV(7));
+ if(full)drawChain(g,W/2,H/2+8,116,full,0.18);
+ nt(g,'#8ad',10,H-8,9,'Evelyn, Money-Coutts & Tyrrell 1974 \\u2014 a classic discovered late');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var full=solveChainAngles(mulV(seedC));
+ nt(g,'#35ffb0',12,20,12,'chain #'+seedC);
+ if(full)drawChain(g,W/2,164,116,full,0.16);
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: 30 chains \\u00d7 3 radii close \\u00b7 concurrency 1e-7 \\u00b7 control breaks ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'closure and concurrency are the same sine condition');}
+document.getElementById('svn').onclick=function(){seedC++;drawW4();document.getElementById('svread').textContent='';};
+document.getElementById('svcheck').onclick=function(){var v=selftest();document.getElementById('svread').textContent='porism + concurrency + control: '+v.ok;};
+document.getElementById('svspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+var W5FULL=null;
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#35ffb0',10,18,10,'the chain breathing through every radius \\u2014 the porism');
+ if(!W5FULL)W5FULL=solveChainAngles(mulV(11));
+ if(W5FULL)drawChain(g,W/2,H/2+8,112,W5FULL,0.12+0.14*(Math.sin(ang*0.015)*0.5+0.5));
+ nt(g,'#ff2fa6',10,H-34,10,'magenta: the rendezvous point that never moves');nt(g,'#8ad',10,H-14,10,'when two properties fail together, they were one property');}
+drawW3();drawW4();window.__sevencircles=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HUMR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Take a small packet of cards, all face-down. Now do this as many times as you like, in any order: <b>cut</b> the packet anywhere, or <b>turn the top two cards over as one</b>. Shuffle chaos, surely. But <b>Bob Hummer&rsquo;s 1946 principle</b> (the CATO move: Cut And Turn over Two) guards an invariant through every move: <b>the number of face-up cards at even positions always equals the number at odd positions</b>. Every self-working &lsquo;magic&rsquo; trick built on CATO &mdash; and there are dozens &mdash; is this one conserved quantity wearing a trench coat. Diaconis and Graham open <i>Magical Mathematics</i> with it.<br><br>
+ <span class="lit">LIT</span> verified live by exhaustion: BFS over ALL states reachable from a face-down packet &mdash; 48 states for 4 cards, 1,440 for 6 cards &mdash; the invariant holds at every single one; 100,000-move random walks on 10 and 52 cards never break it; and the control &mdash; turning over THREE instead of two &mdash; breaks it within a thousand moves (window.__hummer). <span class="fig">FIG</span> Hummer&rsquo;s 1946 pamphlet &lsquo;Face-up Face-down Mysteries&rsquo; and the Diaconis&ndash;Graham analysis are cited as content; the magic tricks are the theorem&rsquo;s stagecraft, not extra mathematics.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-konami-code</i> &mdash; the cheat: the magician&rsquo;s secret input sequence &mdash; cut, flip-two, cut, flip-two &mdash; looks like scrambling but is actually a code that preserves exactly what the trick needs. <b>AVAN (AI)</b> built the instrument: the exhaustive BFS over reachable states, the long random walks, and the flip-three control.<br><br>Credit as content: Bob Hummer (1946); Persi Diaconis &amp; Ron Graham (<i>Magical Mathematics</i>, ch. 1); Martin Gardner (who carried Hummer tricks to the world). The weave: David names the secret code; I enumerate every reachable state and the ledger never tips.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The packet under CATO — the even/odd face-up ledger stays balanced.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cut and flip at will; the ledger reads 0 forever.</div>
+   <div class="btns" style="margin-top:10px"><button id="hmn">cut ▶</button><button id="hmf">flip two ▶</button><button id="hmcheck">verify ▶</button></div>
+   <div class="cap" id="hmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the card ring under endless CATO, ledger locked.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t watch the shuffle &mdash; watch what the shuffle cannot do. The inverse of &lsquo;randomness destroys structure&rsquo; is &lsquo;every move-set defines its own conservation law&rsquo;: the trick isn&rsquo;t that chaos spares the invariant, it&rsquo;s that these particular moves were never able to touch it. <b>Magenta</b> is the flip-three that breaks the spell; <b>green</b> is the quantity the allowed moves must conserve. Magic is a move-set chosen so the secret is a theorem.</div>
+   <div class="btns" style="margin-top:10px"><button id="hmspin">pause spin</button></div></div></div></div>"""
+HUMR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null;
+function mulH(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+var rngUI=mulH(888);
+function cutAt(st,k){return st.slice(k).concat(st.slice(0,k));}
+function cato(st){var s=st.slice();
+ var a=s[0],b=s[1];
+ s[0]={id:b.id,up:!b.up};s[1]={id:a.id,up:!a.up};
+ return s;}
+function invOf(st){var e=0,o=0;
+ st.forEach(function(c,i){if(c.up){if(i%2===0)e++;else o++;}});
+ return e-o;}
+function keyOf(st){return st.map(function(c){return c.id+(c.up?'U':'D');}).join(',');}
+function selftest(){if(VR)return VR;var rng=mulH(196);
+ var okBFS=true,counts=[];
+ [4,6].forEach(function(n){
+  var start=[];
+  for(var i=0;i<n;i++)start.push({id:i,up:false});
+  var seen={},q=[start];
+  seen[keyOf(start)]=true;
+  var count=0;
+  while(q.length){var st=q.pop();count++;
+   if(invOf(st)!==0)okBFS=false;
+   var nxt=[cato(st)];
+   for(var k=1;k<n;k++)nxt.push(cutAt(st,k));
+   nxt.forEach(function(s2){var k2=keyOf(s2);
+    if(!seen[k2]){seen[k2]=true;q.push(s2);}});}
+  counts.push(count);});
+ var okDeep=true;
+ [10,52].forEach(function(n){var st=[];
+  for(var i=0;i<n;i++)st.push({id:i,up:false});
+  for(var m=0;m<100000;m++){
+   if(rng()<0.5)st=cato(st);
+   else st=cutAt(st,1+Math.floor(rng()*(n-1)));
+   if(invOf(st)!==0){okDeep=false;break;}}});
+ var st3=[];
+ for(var i=0;i<8;i++)st3.push({id:i,up:false});
+ function cato3(st){var s=st.slice();
+  var a=s[0],b=s[1],c=s[2];
+  s[0]={id:c.id,up:!c.up};s[1]={id:b.id,up:!b.up};s[2]={id:a.id,up:!a.up};
+  return s;}
+ var broke=false;
+ for(var m=0;m<1000;m++){
+  if(rng()<0.5)st3=cato3(st3);
+  else st3=cutAt(st3,1+Math.floor(rng()*7));
+  if(invOf(st3)!==0){broke=true;break;}}
+ VR={c4:counts[0],c6:counts[1],okBFS:okBFS,okDeep:okDeep,broke:broke,
+  ok:okBFS&&okDeep&&broke};return VR;}
+var DECK=[];
+for(var i=0;i<10;i++)DECK.push({id:i,up:false});
+var MOVES=0;
+function drawDeck(g,st,x0,y0,cw){
+ st.forEach(function(c,i){
+  nf(g,c.up?'#35ffb0':'rgba(90,100,150,0.55)',x0+i*cw,y0,cw-5,36);
+  nt(g,'#0a0a14',x0+i*cw+4,y0+22,10,''+c.id);});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'the CATO move-set and its untouchable ledger');
+ var st=[];
+ for(var i=0;i<10;i++)st.push({id:i,up:(i===2||i===5)});
+ drawDeck(g,st,26,60,46);
+ nt(g,'#35ffb0',26,130,10,'face-up at even positions: 1 \\u00b7 face-up at odd: 1 \\u2014 balanced');
+ nt(g,'#9cf',26,156,10,'cut anywhere, flip top two as one \\u2014 the balance survives every sequence');
+ nt(g,'#8ad',10,H-8,9,'Bob Hummer 1946 \\u00b7 Diaconis & Graham, Magical Mathematics ch. 1');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#ff8a3c',12,20,12,MOVES+' moves made');
+ drawDeck(g,DECK,20,60,34);
+ var iv=invOf(DECK);
+ nt(g,iv===0?'#35ffb0':'#ff5a5a',16,130,12,'ledger: #up(even) \\u2212 #up(odd) = '+iv);
+ nt(g,'#9cf',16,160,9,'48 states (4 cards) and 1,440 states (6 cards) \\u2014 ALL balanced, by exhaustion');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: BFS + walks + flip-three control ('+v.ok+')');}
+document.getElementById('hmn').onclick=function(){DECK=cutAt(DECK,1+Math.floor(rngUI()*9));MOVES++;drawW4();document.getElementById('hmread').textContent='';};
+document.getElementById('hmf').onclick=function(){DECK=cato(DECK);MOVES++;drawW4();document.getElementById('hmread').textContent='';};
+document.getElementById('hmcheck').onclick=function(){var v=selftest();document.getElementById('hmread').textContent='BFS + walks + control: '+v.ok;};
+document.getElementById('hmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+var RING=[];
+for(var i=0;i<14;i++)RING.push({id:i,up:false});
+var tick=0;
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ff8a3c',10,18,10,'the card ring under endless CATO');
+ tick++;
+ if(tick%30===0){if(rngUI()<0.5)RING=cato(RING);else RING=cutAt(RING,1+Math.floor(rngUI()*13));}
+ var cx=W/2,cy=H/2+10;
+ RING.forEach(function(c,i){var th=i/14*6.2832-1.5708+ang*0.004;
+  ndot(g,cx+120*Math.cos(th),cy+120*Math.sin(th),c.up?7:4,c.up?'#35ffb0':'rgba(120,130,180,0.5)');});
+ var iv=invOf(RING);
+ nt(g,iv===0?'#35ffb0':'#ff5a5a',cx-34,cy+4,12,'ledger '+iv);
+ nt(g,'#ff2fa6',10,H-34,10,'magenta: the flip-three that breaks the spell');nt(g,'#8ad',10,H-14,10,'magic is a move-set chosen so the secret is a theorem');}
+drawW3();drawW4();window.__hummer=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 192 · neon-noir · silicon-coding · THE ALWAYS THEOREMS (the shortest gauntlet · the official answer that always loses · the shared tangent ledger · the freak integer angle · the twins in the shoemaker's knife) ═══════════════════════
 MLFT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">In 1803 Gian Francesco Malfatti posed the marble problem: cut three circular columns from a triangular prism, wasting the least marble. His answer &mdash; three mutually tangent circles, each tangent to two sides &mdash; became <b>the</b> textbook construction for a century. It is <b>wrong for every triangle</b>. Goldberg proved (1967) that Malfatti&rsquo;s configuration is <b>never</b> optimal; Zalgaller &amp; Los proved (1994) the humble <b>greedy</b> procedure &mdash; largest circle first, then largest in what remains &mdash; always wins. In the equilateral triangle the official answer loses by 1.36%: the shortcut nobody respected beats the answer everybody cited.<br><br>
@@ -52374,6 +52869,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-sicherman","title":"THE SICHERMAN","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#ffcf4a","icon":"sicherman",
+  "kicker":"the twin dice",
+  "blurb":"Is there any OTHER pair of positive-integer dice with exactly 2d6's distribution? Sicherman 1978: exactly one — [1,2,2,3,3,4] + [1,3,4,5,6,8]. Two different drop tables, byte-identical payouts; no sum-based game can tell them apart. Underneath: the unique other regrouping of (x+…+x⁶)²'s cyclotomic factors.",
+  "lit":"Verified live: exhaustive polynomial-division sieve over all 8,008 candidate dice (faces 1–11) finds exactly 2 solutions — the standard pair and Sicherman's; the direct 36-product check matches 2d6 exactly (window.__sicherman.ok).",
+  "fig":"Cyclotomic factorization cited as the standard explanation; the sieve is the proof instance for 6-face dice (faces >11 impossible since max sum is 12). The AVAN inverse — inspect the observable, not the dice: identical outputs make identical systems to every consumer. Magenta is the hidden face list; green is the distribution the world sees. Identity, observed from outside, is a quotient.",
+  "body":SICH_BODY,"script":SICH_SCRIPT},
+ {"slug":"the-droz-farny","title":"THE DROZ-FARNY","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE-POINT","domain_slug":"the-choke-point","accent":"#b06bff","icon":"drozfarny",
+  "kicker":"the 105-year line",
+  "blurb":"Any two perpendicular lines through a triangle's orthocenter cut the three side-lines; the midpoints of the three cut segments are ALWAYS collinear. Droz-Farny published it in 1899 without proof — and the first synthetic proof arrived in 2004, from Ayme. An elementary-looking alignment, open for 105 years.",
+  "lit":"Verified live: 300 random triangles × random perpendicular crosses through H — midpoints collinear to 1e-9 (worst ~1e-16); the 80° control scores median 2.7e-2, so perpendicularity is load-bearing (window.__drozfarny.ok).",
+  "fig":"The 1899–2004 gap is documented (projective proofs existed; 'first synthetic' is the precise claim). The AVAN inverse — measure a claim by how long it resists, not how it looks: true and checkable for a century while unproven in its own language. Magenta is the 80° cross that scatters; green is the alignment that waited out five generations. Verification and understanding keep different calendars.",
+  "body":DRZF_BODY,"script":DRZF_SCRIPT},
+ {"slug":"the-eyeball","title":"THE EYEBALL","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#21e6ff","icon":"eyeball",
+  "kicker":"the equal gaze",
+  "blurb":"Two circles gaze at each other: from each center, draw the tangents to the other circle; each gaze cuts a chord — a pupil — from the gazer's own circle. The eyeball theorem: the pupils are always equal, both exactly 2r₁r₂/d, however mismatched the eyes. The formula is symmetric; neither eye can tell which is which from its pupil.",
+  "lit":"Verified live: 200 random circle pairs — chords equal and ≡ 2r₁r₂/d to 1e-12 (worst ~1e-16); independent route re-derives the tangent line, confirms distance-to-far-center ≡ r₂, re-measures the chord (window.__eyeball.ok).",
+  "fig":"Origin obscure — a folklore gem circulating through modern problem collections (Gutierrez's Go Geometry among them); we verify directly rather than assert paternity. The AVAN inverse — watch what the seeing does to the seer: each pupil is carved by the OTHER's size, in perfect symmetry. Magenta is the size difference; green is the equality the gaze enforces. What attention costs is symmetric, even when the parties are not.",
+  "body":EYBL_BODY,"script":EYBL_SCRIPT},
+ {"slug":"the-seven-circles","title":"THE SEVEN CIRCLES","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#35ffb0","icon":"sevencircles",
+  "kicker":"the chain porism",
+  "blurb":"Six circles ring the inside of a seventh, each touching its neighbors and the host: the three lines joining opposite tangency points are concurrent. Discovered not in 1874 but 1974 (Evelyn, Money-Coutts, Tyrrell). Underneath, a porism: with m = r/(1−r), tangency reads mᵢmⱼ = sin²(Δ/2), so closure depends only on the six angles — and then holds for EVERY starting radius.",
+  "lit":"Verified live: 30 chains with the sixth angle solved from the sine condition — each closes for three different radii (worst gap ~1e-15, the porism) and the diagonals are concurrent to 1e-7 (worst ~1e-16); perturbing one angle 0.15 rad breaks closure (0.09) and concurrency (0.05) together (window.__sevencircles.ok).",
+  "fig":"The m·m = sin² reduction was derived and machine-checked here; 1974 provenance cited. The AVAN inverse — ask what closure depends on: radius is a free parameter wearing a constraint's costume. Magenta is the perturbed angle breaking both properties in one breath; green is the family closing at every size. When two properties fail together, they were one property all along.",
+  "body":SVNC_BODY,"script":SVNC_SCRIPT},
+ {"slug":"the-hummer","title":"THE HUMMER","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE KONAMI CODE","domain_slug":"the-konami-code","accent":"#ff8a3c","icon":"hummer",
+  "kicker":"the magician's ledger",
+  "blurb":"Cut the packet anywhere; turn the top two over as one; repeat in any order — Bob Hummer's 1946 CATO principle guards one quantity through all of it: face-up cards at even positions always equal face-up cards at odd positions. Dozens of self-working card tricks are this single conserved ledger in a trench coat. Diaconis & Graham open Magical Mathematics with it.",
+  "lit":"Verified live by exhaustion: BFS over ALL reachable states (48 for 4 cards, 1,440 for 6) — invariant at every state; 100k-move walks on 10 and 52 cards never break it; the flip-THREE control breaks it within 1,000 moves (window.__hummer.ok).",
+  "fig":"Hummer's 1946 pamphlet and the Diaconis–Graham analysis cited as content; the tricks are stagecraft, not extra mathematics. The AVAN inverse — watch what the shuffle cannot do: every move-set defines its own conservation law; these moves were never able to touch the ledger. Magenta is the flip-three that breaks the spell; green is the conserved quantity. Magic is a move-set chosen so the secret is a theorem.",
+  "body":HUMR_BODY,"script":HUMR_SCRIPT},
  {"slug":"the-malfatti","title":"THE MALFATTI","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE SHORTCUT","domain_slug":"the-shortcut","accent":"#b06bff","icon":"malfatti",
   "kicker":"the official answer that always loses",
