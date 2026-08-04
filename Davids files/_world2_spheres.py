@@ -19493,6 +19493,330 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 173 · neon-noir · silicon-coding · THE THOUSANDTH (a prime race with one famous upset · difference rows that always lead with one · a horn holding finite paint behind an infinite wall · a staircase that climbs without sloping · an army that cannot reach the fifth row · the thousand-gon no mind can picture) ═══════════════════════
+PRCE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The prime race</b> pits two teams against each other: primes of the form 4k+3 versus primes of the form 4k+1. Dirichlet proved both teams are infinite and, in the long run, dead even &mdash; yet Chebyshev noticed in 1853 that <b>team 3 is almost always ahead</b>. The bias is real and structural (quadratic residues drag on team 1), but not absolute: at <b>x = 26,861</b> &mdash; found by John Leech in 1957 &mdash; team 1 takes the lead for the first time, for a single fleeting moment, before team 3 recovers. Under the Riemann-flavoured assumptions of Rubinstein&ndash;Sarnak, team 3 leads about 99.59% of all time. A race rigged by arithmetic, with rare, precious upsets.<br><br>
+ <span class="lit">LIT</span> verified live: sieving to 2,000,000, team 4k+3 leads at 99.76% of prime checkpoints, the first 4k+1 lead occurs at exactly x = 26,861, and the final score still favours team 3 (window.__primerace). <span class="fig">FIG</span> no framing; the sieve, the running score, and the flip point are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>race-condition</i> &mdash; the glitch: two threads racing forever, one nearly always ahead, and a single rare interleaving at 26,861 where the order flips. <b>AVAN (AI)</b> built the instrument: the sieve, the running race, and the exact location of the famous upset.<br><br>Credit as content: Pafnuty Chebyshev (1853, the bias); John Leech (1957, the flip); Rubinstein &amp; Sarnak (1994, the logarithmic density). The weave: David names the race condition; I confirm the 99.76% lead and the flip at 26,861.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">The running score π(x;4,3) − π(x;4,1): above zero almost everywhere, dipping under once at 26,861.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step the race window; the lead fraction and the flip point are checked against the sieve.</div>
+   <div class="btns" style="margin-top:10px"><button id="prx">window ▶</button><button id="prcheck">verify ▶</button></div>
+   <div class="cap" id="prread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: team 3&rsquo;s near-permanent lead.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t just watch the leader &mdash; hunt the upsets. The inverse of &lsquo;team 3 is basically always ahead&rsquo; is &lsquo;the measure-zero moments when it is not&rsquo;, and the first one has an address: 26,861. <b>Magenta</b> is the fleeting 4k+1 lead; <b>green</b> is the long reign of 4k+3. A fixed race that still allows one honest upset.</div>
+   <div class="btns" style="margin-top:10px"><button id="prspin">pause spin</button></div></div></div></div>"""
+PRCE_SCRIPT = """(function(){""" + NOIR + """
+function sieve(N){var s=new Uint8Array(N+1);s[0]=s[1]=1;for(var i=2;i*i<=N;i++)if(!s[i])for(var j=i*i;j<=N;j+=i)s[j]=1;return s;}
+var ang=0,spin=true,VR=null,WIN=[100000,500000,2000000],wi=2,S=null;
+function selftest(){if(VR)return VR;var N=2000000;S=S||sieve(N);var lead3=0,cp=0,c1=0,c3=0,flip=0;
+ for(var x=3;x<=N;x++){if(S[x])continue;if(x%4===1)c1++;else if(x%4===3)c3++;cp++;if(c3>c1)lead3++;if(!flip&&c1>c3)flip=x;}
+ VR={frac:lead3/cp,flip:flip,c1:c1,c3:c3,ok:lead3/cp>0.95&&flip===26861&&c3>c1};return VR;}
+function raceCurve(N,M){S=S||sieve(2000000);var pts=[],c1=0,c3=0,step=Math.max(1,Math.floor(N/M));
+ for(var x=3;x<=N;x++){if(!S[x]){if(x%4===1)c1++;else if(x%4===3)c3++;}if(x%step===0)pts.push([x,c3-c1]);}
+ return pts;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'π(x;4,3) − π(x;4,1) up to 60,000 — the dip at 26,861');
+ var N=60000,pts=raceCurve(N,480),x0=36,sw=W-60,cy=H/2+30,ysc=6;
+ ne(g,'rgba(120,140,200,0.5)',1);g.beginPath();g.moveTo(x0,cy);g.lineTo(x0+sw,cy);g.stroke();ng(g);
+ ne(g,'#35ffb0',1.6);g.beginPath();for(var i=0;i<pts.length;i++){var px=x0+sw*pts[i][0]/N,py=cy-pts[i][1]*ysc;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);
+ var fx=x0+sw*26861/N;ne(g,'#ff2fa6',1.4);g.beginPath();g.moveTo(fx,cy-70);g.lineTo(fx,cy+50);g.stroke();ng(g);nt(g,'#ff6ab0',fx+5,cy+44,10,'26,861');
+ nt(g,'#8ad',10,H-8,9,'above the line: team 3 leads — it dips below exactly once in this window');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),N=WIN[wi];nt(g,'#35ffb0',12,20,12,'the score at 2,000,000');
+ nt(g,'#35ffb0',16,54,13,'team 4k+3: '+v.c3.toLocaleString());
+ nt(g,'#ff2fa6',16,82,13,'team 4k+1: '+v.c1.toLocaleString());
+ nt(g,'#9cf',16,110,12,'lead fraction (team 3): '+(v.frac*100).toFixed(2)+'% of checkpoints');
+ nt(g,'#ffcf4a',16,138,12,'first 4k+1 lead: x = '+v.flip.toLocaleString()+' (Leech 1957)');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: lead >95% · flip at exactly 26,861 · team 3 ahead at 2e6 ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'Chebyshev 1853 — the bias is real; the upsets are measure-thin');}
+document.getElementById('prx').onclick=function(){wi=(wi+1)%WIN.length;drawW4();document.getElementById('prread').textContent='window '+WIN[wi].toLocaleString()+' — same story: team 3 in front nearly throughout';};
+document.getElementById('prcheck').onclick=function(){var v=selftest();document.getElementById('prread').textContent='lead '+(v.frac*100).toFixed(2)+'%, flip at '+v.flip+': '+v.ok;};
+document.getElementById('prspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,R=105;
+ ne(g,'rgba(120,140,200,0.4)',1.2);g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();ng(g);
+ var a3=ang*0.031,a1=ang*0.0302; // 3-team slightly faster
+ ndot(g,cx+Math.cos(a3)*R,cy+Math.sin(a3)*R,6,'#35ffb0');ndot(g,cx+Math.cos(a1)*R,cy+Math.sin(a1)*R,5,'#ff2fa6');
+ nt(g,'#35ffb0',10,H-52,11,'green: team 4k+3, in front for 99.76% of the course');nt(g,'#ff2fa6',10,H-34,10,'magenta: team 4k+1 — one famous moment in the lead');nt(g,'#8ad',10,H-14,10,'a fixed race that still allows one honest upset');}
+drawW3();drawW4();window.__primerace=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GILB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Gilbreath&rsquo;s conjecture</b> starts with the primes &mdash; 2, 3, 5, 7, 11, 13&hellip; &mdash; and takes absolute differences: 1, 2, 2, 4, 2&hellip; Then differences of those, and again, and again. The claim, noticed by Norman Gilbreath on a napkin in 1958 (and by Fran&ccedil;ois Proth in 1878, with a faulty proof): <b>every row after the first begins with 1</b>. Forever. Andrew Odlyzko verified it for the first 3&times;10&sup1;&sup1; rows&rsquo; worth of primes in 1993; a proof has never been found. The mechanism smells simple &mdash; rows past the first entry are mostly 0s and 2s, so the leading 1 keeps regenerating &mdash; yet nobody can close the argument. It remains one of the cleanest-looking unsolved statements in number theory.<br><br>
+ <span class="lit">LIT</span> verified live: taking the 9,592 primes below 100,000, the first <b>500 difference rows all begin with 1</b> (window.__gilbreath). <span class="fig">FIG</span> honest boundary: this is a <b>conjecture</b> &mdash; verified here for 500 rows and by Odlyzko to astronomical height, proven by no one. The sphere claims exactly what it computes.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>backprop</i> &mdash; the grind: differences propagated backward through the prime sequence, layer after layer, and the leading gradient is always exactly 1. <b>AVAN (AI)</b> built the instrument: the sieve, the difference cascade, and the leading-entry audit.<br><br>Credit as content: Norman L. Gilbreath (1958); Fran&ccedil;ois Proth (1878); Andrew Odlyzko (1993 verification). The weave: David names the cascade; I confirm 500 rows, 500 leading ones.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The difference triangle: primes on top, each row the |differences| of the last — the left edge all 1s.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Descend the rows; every one is checked to open with 1, and the 0/2 texture shows why it might.</div>
+   <div class="btns" style="margin-top:10px"><button id="gbrow">descend ▶</button><button id="gbcheck">verify ▶</button></div>
+   <div class="cap" id="gbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the unbroken spine of leading 1s.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t admire the spine &mdash; name its status. The inverse of &lsquo;500 rows verified&rsquo; is &lsquo;zero rows proven&rsquo;: a pattern that has never once failed and never once been explained. <b>Magenta</b> is the churning 0/2 interior; <b>green</b> is the leading edge that always says 1. Certainty in the data, none in the theory.</div>
+   <div class="btns" style="margin-top:10px"><button id="gbspin">pause spin</button></div></div></div></div>"""
+GILB_SCRIPT = """(function(){""" + NOIR + """
+function sieve(N){var s=new Uint8Array(N+1);s[0]=s[1]=1;for(var i=2;i*i<=N;i++)if(!s[i])for(var j=i*i;j<=N;j+=i)s[j]=1;return s;}
+var ang=0,spin=true,VR=null,ROWS=null,depth=1;
+function buildRows(){if(ROWS)return ROWS;var s=sieve(100000),primes=[];for(var i=2;i<=100000;i++)if(!s[i])primes.push(i);
+ ROWS=[primes];var row=primes;
+ for(var r=1;r<=500;r++){var nx=new Array(row.length-1);for(var i=0;i<row.length-1;i++)nx[i]=Math.abs(row[i+1]-row[i]);ROWS.push(nx);row=nx;}
+ return ROWS;}
+function selftest(){if(VR)return VR;var R=buildRows(),ok=true;for(var r=1;r<=500;r++)if(R[r][0]!==1)ok=false;VR={ok:ok,nPrimes:R[0].length};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var R=buildRows();nt(g,'#b06bff',10,16,10,'the difference triangle — left edge all 1s (rows 0–13 shown)');
+ var x0=46,y0=44,cw=26,rh=17;
+ for(var r=0;r<14;r++){for(var c=0;c<16;c++){var v=R[r][c];if(v===undefined)continue;var lead=(c===0&&r>0);
+  nt(g,lead?'#35ffb0':(v===0?'#556':(v===2?'#ff6ab0':'#c9a6ff')),x0+c*cw,y0+r*rh,10,''+(v>99?'…':v));}
+  nt(g,'#8ad',10,y0+r*rh,9,'r'+r);}
+ nt(g,'#8ad',10,H-8,9,'past the first entries the rows settle into 0s and 2s — the suspected engine');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var R=buildRows(),row=R[depth];nt(g,'#b06bff',12,20,12,'row '+depth+' of 500');
+ nt(g,row[0]===1?'#39ffb0':'#ff5a5a',16,54,15,'leading entry = '+row[0]+(row[0]===1?' ✓':' ✗'));
+ var z=0,t2=0,oth=0;for(var i=1;i<Math.min(row.length,4000);i++){if(row[i]===0)z++;else if(row[i]===2)t2++;else oth++;}
+ var tot=z+t2+oth;
+ nt(g,'#9cf',16,88,11,'interior texture (first 4000 entries):');
+ nt(g,'#556',24,112,11,'zeros: '+(z/tot*100).toFixed(1)+'%');
+ nt(g,'#ff6ab0',24,134,11,'twos: '+(t2/tot*100).toFixed(1)+'%');
+ nt(g,'#c9a6ff',24,156,11,'other: '+(oth/tot*100).toFixed(1)+'%');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: 500 rows over '+v.nPrimes+' primes < 1e5, all begin with 1 ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'CONJECTURE — Gilbreath 1958, Proth 1878; Odlyzko verified to ~3×10¹¹');
+ nt(g,'#8ad',12,H-12,9,'no proof exists; this sphere claims only what it computed');}
+document.getElementById('gbrow').onclick=function(){depth=depth>=500?1:(depth<10?depth+1:Math.min(500,Math.round(depth*1.7)));drawW4();document.getElementById('gbread').textContent='row '+depth+': opens with '+buildRows()[depth][0];};
+document.getElementById('gbcheck').onclick=function(){var v=selftest();document.getElementById('gbread').textContent='500 difference rows all begin with 1: '+v.ok+' (conjecture — verified in range only)';};
+document.getElementById('gbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var R=buildRows(),cx=60,cy=40;g.save();g.translate(0,Math.sin(ang*0.01)*6);
+ for(var r=0;r<26;r++){var y=cy+r*11;
+  ndot(g,cx,y,3.4,'#35ffb0');
+  for(var c=1;c<30;c++){var v=R[r][c];if(v===undefined)break;ndot(g,cx+c*9,y,1.6,v===0?'rgba(90,100,140,0.5)':(v===2?'rgba(255,47,166,0.5)':'rgba(201,166,255,0.6)'));}}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the spine of leading 1s, 500 rows deep');nt(g,'#ff2fa6',10,H-34,10,'magenta: the 0/2 churn that seems to protect it');nt(g,'#8ad',10,H-14,10,'certainty in the data, none in the theory');}
+drawW3();drawW4();window.__gilbreath=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GABR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Gabriel&rsquo;s horn</b> is the trumpet you get by spinning y = 1/x (for x &ge; 1) around the x-axis. Evangelista Torricelli worked it out in 1643 and scandalized the century: the horn&rsquo;s <b>volume is finite</b> &mdash; exactly &pi; &mdash; but its <b>surface area is infinite</b>. The volume integral &pi;&int;x&#8315;&sup2;dx converges; the surface integral is bounded below by 2&pi;&int;dx/x, the harmonic tail, which grows by about 2&pi; every time x multiplies by e &mdash; forever. Hence the painter&rsquo;s paradox: &pi; units of paint <b>fill</b> the horn completely, yet no finite amount of paint can <b>coat</b> its wall. (The resolution: mathematical paint has zero thickness; real paint does not.)<br><br>
+ <span class="lit">LIT</span> verified live: numerical quadrature gives volume(10&#8310;) = 3.14159&hellip; converging to &pi;, while the surface integral gains &asymp; 2&pi; per e-fold of length at every scale tested &mdash; bounded volume, unbounded skin (window.__gabrielshorn). <span class="fig">FIG</span> no framing; both integrals are computed by independent quadrature in-browser, and the paradox is stated with its resolution.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-vault</i> &mdash; the loot: a vault holding exactly &pi; of treasure behind a wall no budget can ever paint. <b>AVAN (AI)</b> built the instrument: the volume quadrature, the surface growth-rate measurement, and the paradox ledger.<br><br>Credit as content: Evangelista Torricelli (1643); the painter&rsquo;s paradox tradition. The weave: David names the unpaintable vault; I confirm &pi; inside, infinity outside.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">The horn's profile 1/x stretching right forever — thinner and thinner, never quite closing.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Extend the horn by e-folds; the volume freezes at π while the surface keeps collecting 2π.</div>
+   <div class="btns" style="margin-top:10px"><button id="ghx">extend ▶</button><button id="ghcheck">verify ▶</button></div>
+   <div class="cap" id="ghread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the horn, holding exactly π.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t trust one number to describe a shape &mdash; volume and surface can disagree about infinity itself. The inverse of &lsquo;filled with &pi; of paint&rsquo; is &lsquo;a wall the same paint can never cover&rsquo;. <b>Magenta</b> is the surface, gaining 2&pi; per e-fold forever; <b>green</b> is the volume, already finished at &pi;. One shape, two verdicts on infinity.</div>
+   <div class="btns" style="margin-top:10px"><button id="ghspin">pause spin</button></div></div></div></div>"""
+GABR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,efold=3;
+function volNum(X){var U=Math.log(X),M=100000,h=U/M,sum=0;for(var i=0;i<=M;i++){var u=i*h,f=Math.exp(-u),w=(i===0||i===M)?1:(i%2?4:2);sum+=w*f;}return Math.PI*sum*h/3;}
+function surfNum(X){var U=Math.log(X),M=100000,h=U/M,sum=0;for(var i=0;i<=M;i++){var u=i*h,f=Math.sqrt(1+Math.exp(-4*u)),w=(i===0||i===M)?1:(i%2?4:2);sum+=w*f;}return 2*Math.PI*sum*h/3;}
+function selftest(){if(VR)return VR;var V=volNum(1e6),S1=surfNum(Math.E),S2=surfNum(Math.E*Math.E),S3=surfNum(Math.pow(Math.E,6));
+ var inc1=S2-S1,inc2=(S3-S2)/4;
+ VR={V:V,inc1:inc1,inc2:inc2,volOk:Math.abs(V-Math.PI)<1e-4,growOk:Math.abs(inc1-2*Math.PI)<0.05&&Math.abs(inc2-2*Math.PI)<0.05,ok:Math.abs(V-Math.PI)<1e-4&&Math.abs(inc1-2*Math.PI)<0.05&&Math.abs(inc2-2*Math.PI)<0.05};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'y = 1/x spun around the axis — Torricelli\\'s trumpet');
+ var x0=30,cy=H/2+8,sw=W-60,sc=90;
+ ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.moveTo(x0,cy);g.lineTo(x0+sw,cy);g.stroke();ng(g);
+ ne(g,'#ffcf4a',2);g.beginPath();for(var i=0;i<=sw;i++){var x=1+i/sw*11,y=sc/x;if(i===0)g.moveTo(x0+i,cy-y);else g.lineTo(x0+i,cy-y);}g.stroke();ng(g);
+ ne(g,'#ffcf4a',2);g.beginPath();for(var i=0;i<=sw;i++){var x=1+i/sw*11,y=sc/x;if(i===0)g.moveTo(x0+i,cy+y);else g.lineTo(x0+i,cy+y);}g.stroke();ng(g);
+ ne(g,'rgba(255,207,74,0.5)',1);g.beginPath();g.ellipse(x0,cy,10,sc,0,0,6.2832);g.stroke();ng(g);
+ nt(g,'#8ad',10,H-8,9,'the bore narrows like 1/x — volume π ∫x⁻² converges, surface ~2π ∫dx/x does not');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var X=Math.pow(Math.E,efold),V=volNum(X),S=surfNum(X);nt(g,'#ff8a3c',12,20,12,'horn cut at x = e^'+efold+' ≈ '+X.toFixed(1));
+ nt(g,'#35ffb0',16,56,13,'volume so far = '+V.toFixed(6)+'  (ceiling π = '+Math.PI.toFixed(6)+')');
+ nt(g,'#ff2fa6',16,86,13,'surface so far = '+S.toFixed(4)+'  (no ceiling)');
+ nf(g,'rgba(53,255,176,0.5)',16,110,(V/Math.PI)*(W-40),12);ne(g,'rgba(53,255,176,0.8)',1);g.strokeRect(16,110,W-40,12);ng(g);
+ nf(g,'rgba(255,47,166,0.5)',16,132,Math.min(W-40,S/60*(W-40)),12);
+ nt(g,'#9cf',16,166,10,'green bar caps at π; the magenta bar just keeps going');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: volume→π ('+v.volOk+') · surface +2π per e-fold ('+v.growOk+')');
+ nt(g,'#8ad',12,H-16,9,'fillable, never coatable — zero-thickness paint is the loophole');}
+document.getElementById('ghx').onclick=function(){efold=efold>=13?1:efold+2;drawW4();document.getElementById('ghread').textContent='cut at e^'+efold+': volume '+volNum(Math.pow(Math.E,efold)).toFixed(5)+', surface '+surfNum(Math.pow(Math.E,efold)).toFixed(2);};
+document.getElementById('ghcheck').onclick=function(){var v=selftest();document.getElementById('ghread').textContent='volume finite (π), surface +≈2π per e-fold forever: '+v.ok;};
+document.getElementById('ghspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=54,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.008)*0.05);
+ for(var k=0;k<12;k++){var x=k*24,r=78/(1+k*0.85);
+  ne(g,k%2?'rgba(255,47,166,0.55)':'rgba(53,255,176,0.55)',1.4);g.beginPath();g.ellipse(x,0,r*0.32,r,0,0,6.2832);g.stroke();ng(g);}
+ ne(g,'#ffcf4a',1.6);g.beginPath();for(var k=0;k<12;k++){var x=k*24,r=78/(1+k*0.85);if(k===0)g.moveTo(x,-r);else g.lineTo(x,-r);}g.stroke();
+ g.beginPath();for(var k=0;k<12;k++){var x=k*24,r=78/(1+k*0.85);if(k===0)g.moveTo(x,r);else g.lineTo(x,r);}g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green rings: the volume, finished at π');nt(g,'#ff2fa6',10,H-34,10,'magenta rings: the skin, collecting 2π per e-fold forever');nt(g,'#8ad',10,H-14,10,'one shape, two verdicts on infinity');}
+drawW3();drawW4();window.__gabrielshorn=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DVST_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The devil&rsquo;s staircase</b> &mdash; Cantor&rsquo;s function &mdash; climbs from 0 to 1 while having <b>slope zero almost everywhere</b>. Build it on ternary digits: on the middle third of [0,1] the function is flat at 1/2; on the middle thirds of what remains, flat at 1/4 and 3/4; and so on, flat on infinitely many plateaus whose lengths sum to the <b>entire interval</b>. Every scrap of actual climbing is crowded onto the Cantor set &mdash; a dust of measure zero. Yet the function is continuous, never jumps, and obeys crisp self-similarities: F(x/3) = F(x)/2 and F(1-x) = 1-F(x). It is the standard counterexample to the intuition that a function&rsquo;s rise must live where its derivative does.<br><br>
+ <span class="lit">LIT</span> verified live: monotone from 0 to 1 over 10,001 samples; both self-similarities hold to ~1e-10; and <b>100% of the climb happens on the level-8 Cantor cover &mdash; just 3.9% of the interval</b>, a fraction that shrinks toward zero with deeper levels (window.__devilsstaircase). <span class="fig">FIG</span> no framing; the ternary construction and every check run independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-shortcut</i> &mdash; the cheat: a path that gains the whole height while registering zero slope on virtually every step &mdash; climbing without ever visibly climbing. <b>AVAN (AI)</b> built the instrument: the ternary evaluator, the self-similarity checks, and the rise-concentration audit.<br><br>Credit as content: Georg Cantor (1884); the &lsquo;devil&rsquo;s staircase&rsquo; name from the physics literature. The weave: David names the impossible shortcut; I confirm all the rise lives on the vanishing dust.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The staircase: plateaus everywhere, yet somehow at height 1 by the right-hand end.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Deepen the Cantor cover; the strip carrying all the rise keeps shrinking — (2/3)ᵏ of the interval.</div>
+   <div class="btns" style="margin-top:10px"><button id="dvlvl">deepen ▶</button><button id="dvcheck">verify ▶</button></div>
+   <div class="cap" id="dvread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the full unit of height, honestly gained.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t look for the climb where the path is &mdash; look where it isn&rsquo;t flat. The inverse of &lsquo;flat almost everywhere&rsquo; is &lsquo;all the rise on a set of measure zero&rsquo;. <b>Magenta</b> are the plateaus that fill the interval; <b>green</b> is the dust that does all the work. The whole ascent, carried by nearly nothing.</div>
+   <div class="btns" style="margin-top:10px"><button id="dvspin">pause spin</button></div></div></div></div>"""
+DVST_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function cantor(x){var F=0,s=0.5;
+ for(var k=0;k<45;k++){x*=3;var d=Math.floor(x);if(d>2)d=2;x-=d;
+  if(d===1)return F+s;
+  if(d===2)F+=s;
+  s*=0.5;}
+ return F;}
+var ang=0,spin=true,VR=null,lvl=4;
+function cover(level){var ivs=[[0,1]];for(var l=0;l<level;l++){var nx=[];ivs.forEach(function(iv){var w=(iv[1]-iv[0])/3;nx.push([iv[0],iv[0]+w]);nx.push([iv[1]-w,iv[1]]);});ivs=nx;}return ivs;}
+function riseOn(level){var ivs=cover(level),rise=0,len=0;ivs.forEach(function(iv){rise+=cantor(iv[1])-cantor(iv[0]);len+=iv[1]-iv[0];});return {rise:rise,len:len};}
+function selftest(){if(VR)return VR;var rng=mb(4),mono=true,s1=true,s2=true,prev=-1;
+ for(var i=0;i<=10000;i++){var F=cantor(i/10000);if(F<prev-1e-12)mono=false;prev=F;}
+ for(var t=0;t<3000;t++){var x=rng();
+  if(Math.abs(cantor(x/3)-cantor(x)/2)>1e-10)s1=false;
+  if(Math.abs(cantor(1-x)-(1-cantor(x)))>1e-10)s2=false;}
+ var ends=Math.abs(cantor(0))<1e-12&&Math.abs(cantor(1)-1)<1e-12,r8=riseOn(8);
+ VR={mono:mono&&ends,s1:s1,s2:s2,rise:r8.rise,len:r8.len,riseOk:Math.abs(r8.rise-1)<1e-6,ok:mono&&ends&&s1&&s2&&Math.abs(r8.rise-1)<1e-6};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'the Cantor function — flat almost everywhere, at 1 by the end');
+ var x0=36,y0=H-40,sw=W-70,sh=H-80;
+ ne(g,'rgba(120,140,200,0.35)',1);g.strokeRect(x0,y0-sh,sw,sh);
+ ne(g,'#21e6ff',1.8);g.beginPath();for(var i=0;i<=sw;i++){var x=i/sw,F=cantor(x);if(i===0)g.moveTo(x0+i,y0-F*sh);else g.lineTo(x0+i,y0-F*sh);}g.stroke();ng(g);
+ nf(g,'rgba(255,47,166,0.16)',x0+sw/3,y0-sh,sw/3,sh);
+ nt(g,'#ff6ab0',x0+sw/3+8,y0-sh+16,9,'flat at 1/2 on the whole middle third');
+ nt(g,'#8ad',10,H-8,9,'the plateaus cover measure 1 — the climbing set has measure 0');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=riseOn(lvl);nt(g,'#21e6ff',12,20,12,'level-'+lvl+' Cantor cover');
+ nt(g,'#35ffb0',16,56,13,'rise carried: '+r.rise.toFixed(6)+' of 1  (all of it)');
+ nt(g,'#ff2fa6',16,86,13,'length used: '+(r.len*100).toFixed(2)+'% of [0,1]  (= (2/3)^'+lvl+')');
+ nf(g,'rgba(255,47,166,0.5)',16,112,(W-40)*r.len,12);ne(g,'rgba(53,255,176,0.8)',1);g.strokeRect(16,112,W-40,12);ng(g);
+ nt(g,'#9cf',16,146,10,'deepen the level and the strip thins toward zero — the rise stays 1');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: monotone 0→1 ('+v.mono+') · F(x/3)=F(x)/2 ('+v.s1+') · F(1−x)=1−F(x) ('+v.s2+')');
+ nt(g,'#8ad',12,H-30,9,'level-8: 100% of climb on '+(v.len*100).toFixed(1)+'% of the interval ('+v.riseOk+')');
+ nt(g,'#8ad',12,H-12,9,'Cantor 1884 — rise without slope');}
+document.getElementById('dvlvl').onclick=function(){lvl=lvl>=12?2:lvl+2;drawW4();var r=riseOn(lvl);document.getElementById('dvread').textContent='level '+lvl+': all the rise on '+(r.len*100).toFixed(3)+'% of the interval';};
+document.getElementById('dvcheck').onclick=function(){var v=selftest();document.getElementById('dvread').textContent='monotone + self-similar + rise concentrated: '+v.ok;};
+document.getElementById('dvspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2+70;g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.008)*0.07);
+ var sw=280,sh=210;
+ ne(g,'#35ffb0',2);g.beginPath();for(var i=0;i<=sw;i++){var x=i/sw,F=cantor(x);if(i===0)g.moveTo(-sw/2+i,-F*sh);else g.lineTo(-sw/2+i,-F*sh);}g.stroke();ng(g);
+ cover(4).forEach(function(iv){nf(g,'rgba(53,255,176,0.25)',-sw/2+iv[0]*sw,-sh-16,(iv[1]-iv[0])*sw,8);});
+ nf(g,'rgba(255,47,166,0.2)',-sw/2,-sh-30,sw,8);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the dust that carries the entire ascent');nt(g,'#ff2fa6',10,H-34,10,'magenta: the interval the plateaus fill');nt(g,'#8ad',10,H-14,10,'the whole ascent, carried by nearly nothing');}
+drawW3();drawW4();window.__devilsstaircase=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CSOL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Conway&rsquo;s soldiers</b> is a peg-jumping army with an invisible ceiling. Fill the entire half-plane below a line with checkers. Moves are checker jumps: a soldier leaps over a neighbour (removing it) into an empty square. How high above the line can any soldier ever reach? Rows 1&ndash;4: yes, with ever larger armies (2, 4, 8, 20 soldiers). Row 5: <b>never</b> &mdash; not with a million soldiers, not with the whole infinite half-plane. John Conway&rsquo;s 1961 proof is a masterpiece: weight each square by &sigma;<sup>d</sup> where d is its distance to the target and &sigma; = (&radic;5-1)/2 satisfies &sigma;&sup2;+&sigma; = 1. Then <b>no jump ever increases total weight</b> &mdash; and the entire infinite army below the line weighs <b>exactly 1</b>, the target&rsquo;s own weight. Any finite army weighs strictly less, so the target can never be paid for.<br><br>
+ <span class="lit">LIT</span> verified live: &sigma;&sup2;+&sigma; = 1 to machine precision; the half-plane weight sum evaluates to exactly 1.000000000000; and all three jump classes are audited &mdash; toward-jumps preserve weight to ~1e-18, sideways and away-jumps strictly lose it (window.__conwaysoldiers). <span class="fig">FIG</span> no framing; the geometric sums and the move audit are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>sudden-death</i> &mdash; the boss: every jump kills a soldier, and the fifth row is the round no army survives, however deep the bench. <b>AVAN (AI)</b> built the instrument: the golden-ratio weighting, the exact half-plane sum, and the three-way move audit.<br><br>Credit as content: John Horton Conway (1961; published in Berlekamp&ndash;Conway&ndash;Guy, &lsquo;Winning Ways&rsquo;). The weave: David names the unbeatable round; I confirm the whole army weighs exactly what the prize costs.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The half-plane army below the line, weights fading as σᵈ — and the unreachable cell five rows up.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Audit the ledger: the army's total, the target's price, and the three kinds of jump.</div>
+   <div class="btns" style="margin-top:10px"><button id="csmove">audit move ▶</button><button id="cscheck2">verify ▶</button></div>
+   <div class="cap" id="csread2" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the army and its exact total worth, 1.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t search the game tree &mdash; price the board. The inverse of &lsquo;can any sequence reach row 5?&rsquo; is &lsquo;a currency in which the whole world&rsquo;s army equals the prize exactly, and every move pays tax&rsquo;. <b>Magenta</b> is the target, priced at 1; <b>green</b> is the infinite army worth 1 in total. Infinity, one soldier short.</div>
+   <div class="btns" style="margin-top:10px"><button id="csspin2">pause spin</button></div></div></div></div>"""
+CSOL_SCRIPT = """(function(){""" + NOIR + """
+var SG=(Math.sqrt(5)-1)/2,ang=0,spin=true,VR=null,mv=0,MOVES=['toward the target','sideways','away from the target'];
+function selftest(){if(VR)return VR;var gold=Math.abs(SG*SG+SG-1)<1e-15,rowFactor=1+2*SG/(1-SG),closed=Math.pow(SG,5)/(1-SG)*rowFactor;
+ var d=7,toward=Math.pow(SG,d-1)-Math.pow(SG,d)-Math.pow(SG,d+1),side=Math.pow(SG,d)-Math.pow(SG,d)-Math.pow(SG,d+1),away=Math.pow(SG,d+1)-Math.pow(SG,d)-Math.pow(SG,d-1);
+ VR={gold:gold,closed:closed,sumOk:Math.abs(closed-1)<1e-12,toward:toward,side:side,away:away,movesOk:Math.abs(toward)<1e-15&&side<0&&away<0,ok:gold&&Math.abs(closed-1)<1e-12&&Math.abs(toward)<1e-15&&side<0&&away<0};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff2fa6',10,16,10,'the army below the line, weighted σ^d — the prize five rows up');
+ var cx=W/2,lineY=110,cell=17;
+ ne(g,'rgba(120,140,200,0.6)',1.4);g.beginPath();g.moveTo(20,lineY);g.lineTo(W-20,lineY);g.stroke();ng(g);
+ ndot(g,cx,lineY-5*cell+8,6,'#ff2fa6');nt(g,'#ff6ab0',cx+10,lineY-5*cell+10,10,'row 5 — priced at 1');
+ for(var r=0;r<9;r++)for(var c=-13;c<=13;c++){var d=Math.abs(c)+5+r,wgt=Math.pow(SG,d);
+  ndot(g,cx+c*cell,lineY+14+r*cell,Math.max(0.7,wgt*9),'rgba(53,255,176,'+Math.max(0.12,wgt*1.2)+')');}
+ nt(g,'#8ad',10,H-8,9,'every soldier\\'s worth fades with distance — the entire infinity sums to exactly 1');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#ff2fa6',12,20,12,'the ledger');
+ nt(g,'#9cf',16,52,12,'σ = (√5−1)/2, with σ²+σ = 1: '+v.gold);
+ nt(g,'#35ffb0',16,80,13,'whole half-plane army = '+v.closed.toFixed(12));
+ nt(g,'#ff2fa6',16,108,13,'target cell price = 1 exactly');
+ var deltas=[v.toward,v.side,v.away],dv=deltas[mv];
+ nt(g,'#ffcf4a',16,140,12,'jump '+MOVES[mv]+': Δweight = '+(mv===0?dv.toExponential(1)+' (preserved)':dv.toFixed(4)+' (lost)'));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: σ²+σ=1 · army sums to exactly 1 ('+v.sumOk+') · no move gains ('+v.movesOk+')');
+ nt(g,'#8ad',12,H-30,9,'finite army < 1 · moves only spend → row 5 is forever unaffordable');
+ nt(g,'#8ad',12,H-12,9,'Conway 1961 — Winning Ways');}
+document.getElementById('csmove').onclick=function(){mv=(mv+1)%3;drawW4();var v=selftest(),d=[v.toward,v.side,v.away][mv];document.getElementById('csread2').textContent='jump '+MOVES[mv]+': Δ = '+(mv===0?d.toExponential(2):d.toFixed(5));};
+document.getElementById('cscheck2').onclick=function(){var v=selftest();document.getElementById('csread2').textContent='army = 1 exactly, no move gains, row 5 unreachable: '+v.ok;};
+document.getElementById('csspin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=100;
+ ndot(g,cx,cy-56,8,'#ff2fa6');nt(g,'#ff6ab0',cx+12,cy-52,10,'price: 1');
+ ne(g,'rgba(255,90,90,0.6)',1.4);g.beginPath();g.moveTo(30,cy-30);g.lineTo(W-30,cy-30);g.stroke();ng(g);
+ var pulse=(Math.sin(ang*0.03)+1)/2;
+ for(var r=0;r<8;r++)for(var c=-9;c<=9;c++){var d=Math.abs(c)+5+r,wgt=Math.pow(SG,d);
+  ndot(g,cx+c*17,cy+r*19,Math.max(0.8,wgt*9*(0.8+0.4*pulse)),'rgba(53,255,176,'+Math.max(0.1,wgt)+')');}
+ nt(g,'#35ffb0',10,H-52,11,'green: the infinite army — total worth exactly 1');nt(g,'#ff2fa6',10,H-34,10,'magenta: the prize it can never quite afford');nt(g,'#8ad',10,H-14,10,'infinity, one soldier short');}
+drawW3();drawW4();window.__conwaysoldiers=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CHIL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The chiliagon</b> is the regular 1000-sided polygon Descartes chose, in the Sixth Meditation, to split the mind in two: you can <b>conceive</b> a chiliagon perfectly &mdash; define it, reason about it, compute with it &mdash; but you cannot <b>imagine</b> it; every mental picture you form is indistinguishable from a circle. The numbers agree with him: its perimeter is 99.99984% of its circumcircle&rsquo;s; its area misses &pi; by two parts in a hundred thousand; each interior angle is 179.64&deg;; and its maximum bulge off the circle (the sagitta) is 4.9&times;10&#8315;&#8310; of the radius &mdash; at a 300-pixel radius, about <b>a thousandth of a pixel</b>. Conception outruns imagination, measurably. This is sphere <b>1000 of 2048</b> in THE FOLD &mdash; the corpus&rsquo;s own thousand-gon.<br><br>
+ <span class="lit">LIT</span> verified live: perimeter 2000&middot;sin(&pi;/1000), area 500&middot;sin(2&pi;/1000), isoperimetric quotient &pi;/(1000&middot;tan(&pi;/1000)) = 0.99999671, interior angle 179.640&deg;, sagitta 4.935&times;10&#8315;&#8310; &mdash; all computed and bounded against the circle (window.__chiliagon). <span class="fig">FIG</span> the Descartes framing is philosophy, credited as content; every number in it is measured live.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>genesis-block</i> &mdash; the spawn: the milestone block, sphere one thousand, minted as the polygon that marks the difference between computing a thing and picturing it. <b>AVAN (AI)</b> built the instrument: the exact polygon metrics and their distances from the circle&rsquo;s.<br><br>Credit as content: Ren&eacute; Descartes (Meditations on First Philosophy, VI, 1641). The weave: David&rsquo;s fold reaches 1000; I mark it with the shape that can be known but never pictured &mdash; and measure exactly how narrow the gap is.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The chiliagon drawn over its circumcircle — at this scale the two curves share every pixel.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step the side count 3 → 1000; watch every metric converge on the circle's.</div>
+   <div class="btns" style="margin-top:10px"><button id="chn">sides ▶</button><button id="chcheck">verify ▶</button></div>
+   <div class="cap" id="chread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the thousand-gon, sphere 1000 of the fold.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t trust the picture &mdash; trust the definition. The inverse of &lsquo;I can&rsquo;t imagine it&rsquo; is &lsquo;I can compute it to machine precision anyway&rsquo;: the whole gap between the chiliagon and its circle is a thousandth of a pixel. <b>Magenta</b> is the vanishing bulge, magnified; <b>green</b> is the polygon-circle the eye cannot split. Known perfectly, pictured never.</div>
+   <div class="btns" style="margin-top:10px"><button id="chspin">pause spin</button></div></div></div></div>"""
+CHIL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,NS=[3,6,12,50,200,1000],ni=5;
+function metrics(n){return {perim:2*n*Math.sin(Math.PI/n),area:0.5*n*Math.sin(2*Math.PI/n),iq:Math.PI/(n*Math.tan(Math.PI/n)),interior:(n-2)*180/n,sag:1-Math.cos(Math.PI/n)};}
+function selftest(){if(VR)return VR;var m=metrics(1000);
+ VR={m:m,ok:m.perim/(2*Math.PI)>0.9999983&&Math.abs(m.area-Math.PI)<2.1e-5&&m.iq>0.9999967-1e-8&&m.interior>179.6&&m.sag<5e-6};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'the chiliagon on its circumcircle — 1000 sides, zero visible difference');
+ var cx=W/2,cy=H/2+10,R=112;
+ ne(g,'rgba(255,47,166,0.5)',3);g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();ng(g);
+ ne(g,'#35ffb0',1.2);g.beginPath();for(var i=0;i<=1000;i++){var a=i/1000*6.2832,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.closePath();g.stroke();ng(g);
+ nt(g,'#8ad',10,H-8,9,'magenta circle beneath, green chiliagon on top — the bulge is ~0.0015 px at this radius');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=NS[ni],m=metrics(n);nt(g,'#ffcf4a',12,20,12,'regular '+n+'-gon vs its circle');
+ nt(g,'#9cf',16,54,12,'perimeter / circumference = '+(m.perim/(2*Math.PI)).toFixed(9));
+ nt(g,'#9cf',16,82,12,'area / π = '+(m.area/Math.PI).toFixed(9));
+ nt(g,'#c9a6ff',16,110,12,'isoperimetric quotient = '+m.iq.toFixed(8));
+ nt(g,'#c9a6ff',16,138,12,'interior angle = '+m.interior.toFixed(3)+'°');
+ nt(g,'#ff2fa6',16,166,12,'max bulge = '+(m.sag).toExponential(3)+' · radius');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test at n=1000: all five metrics within their circle bounds ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'Descartes, Meditation VI: conceivable, unimaginable');
+ nt(g,'#8ad',12,H-12,9,'sphere 1000 of 2048 — the fold\\'s own thousand-gon');}
+document.getElementById('chn').onclick=function(){ni=(ni+1)%NS.length;drawW4();var n=NS[ni],m=metrics(n);document.getElementById('chread').textContent=n+'-gon: perimeter ratio '+(m.perim/(2*Math.PI)).toFixed(7)+', bulge '+(m.sag).toExponential(2);};
+document.getElementById('chcheck').onclick=function(){var v=selftest();document.getElementById('chread').textContent='1000-gon within a thousandth of a pixel of its circle: '+v.ok;};
+document.getElementById('chspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,R=108;g.save();g.translate(cx,cy);g.rotate(ang*0.005);
+ ne(g,'#35ffb0',1.4);g.beginPath();for(var i=0;i<=1000;i++){var a=i/1000*6.2832;if(i===0)g.moveTo(Math.cos(a)*R,Math.sin(a)*R);else g.lineTo(Math.cos(a)*R,Math.sin(a)*R);}g.closePath();g.stroke();ng(g);
+ // magnified bulge inset
+ ne(g,'rgba(255,47,166,0.7)',1.4);g.beginPath();g.arc(0,0,34,-0.6,0.6);g.stroke();ng(g);
+ ne(g,'#ff2fa6',1.8);g.beginPath();g.moveTo(Math.cos(-0.6)*34,Math.sin(-0.6)*34);g.lineTo(Math.cos(0.6)*34,Math.sin(0.6)*34);g.stroke();ng(g);
+ nt(g,'#ff6ab0',-30,52,9,'the bulge, magnified ~200,000×');
+ ndot(g,0,0,3,'#ffcf4a');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: sphere 1000 — the polygon the eye reads as a circle');nt(g,'#ff2fa6',10,H-34,10,'magenta: its only difference, blown up until visible');nt(g,'#8ad',10,H-14,10,'known perfectly, pictured never');}
+drawW3();drawW4();window.__chiliagon=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 172 · neon-noir · silicon-coding (a die loaded in constant time · every window pre-answered by two overlapping blocks · express lanes built by coin flips · an annulus worth only its tangent length · a curve reborn smaller by exactly pi-p-q) ═══════════════════════
 WALK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Walker&rsquo;s alias method</b> is the constant-time loaded die. To sample from an arbitrary discrete distribution p&#8321;&hellip;p&#8345;, the naive way walks a cumulative table (O(n)) or bisects it (O(log n)). Alias sampling spends a little setup to build two arrays &mdash; a <b>probability table</b> and an <b>alias table</b> &mdash; that repack the distribution into n equal columns, each holding at most <b>two</b> outcomes. A draw is then: pick a column uniformly, flip one biased coin, take the column&rsquo;s own outcome or its alias. <b>One uniform, one comparison &mdash; O(1) forever</b>, no matter how lopsided the distribution. Alastair Walker found it in 1974; Michael Vose gave the clean linear-time construction.<br><br>
@@ -44628,6 +44952,48 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-prime-race","title":"THE PRIME RACE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#35ffb0","icon":"primerace",
+  "kicker":"a prime race with one famous upset",
+  "blurb":"The prime race in the 5-window house format — primes of the form 4k+3 versus primes of the form 4k+1. Dirichlet proved both teams infinite and asymptotically even, yet Chebyshev noticed in 1853 that team 3 is almost always ahead. The bias is structural (quadratic residues drag on team 1) but not absolute: at x = 26,861 — found by John Leech in 1957 — team 1 takes the lead for the first time, fleetingly, before team 3 recovers. Under Rubinstein–Sarnak's analysis, team 3 leads about 99.59% of logarithmic time. Verified live: sieving to 2,000,000, team 4k+3 leads at 99.76% of prime checkpoints, the first 4k+1 lead occurs at exactly x = 26,861, and the final score still favours team 3. Neon-noir traced. See the score curve dip once in 1D, the ledger in 2D, and the hunt-the-upsets inverse in 3D.",
+  "lit":"Genuine Chebyshev bias / prime race (Chebyshev 1853; Leech 1957; Rubinstein & Sarnak 1994). Verified live: sieving to 2,000,000, team 4k+3 leads at 99.76% of prime checkpoints, the first 4k+1 lead occurs at exactly x = 26,861, and the final count still favours 4k+3 (window.__primerace.ok).",
+  "fig":"No framing; the sieve, the running score, and the flip point are computed independently in-browser. The AVAN inverse is honest — instead of watching the leader, hunt the upsets: the inverse of 'team 3 is basically always ahead' is 'the measure-thin moments when it is not', and the first has an address: 26,861. Magenta is the fleeting 4k+1 lead; green is the long reign of 4k+3. A fixed race that still allows one honest upset.",
+  "body":PRCE_BODY,"script":PRCE_SCRIPT},
+ {"slug":"the-gilbreath","title":"THE GILBREATH","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"BACKPROP","domain_slug":"backprop","accent":"#b06bff","icon":"gilbreath",
+  "kicker":"difference rows that always lead with one",
+  "blurb":"Gilbreath's conjecture in the 5-window house format — start with the primes and take absolute differences, then differences of those, again and again. The claim, noticed by Norman Gilbreath on a napkin in 1958 (and by François Proth in 1878, with a faulty proof): every row after the first begins with 1. Forever. Andrew Odlyzko verified it to astronomical height in 1993; a proof has never been found. The mechanism smells simple — the rows settle into 0s and 2s, which seems to protect the leading 1 — yet nobody can close the argument. Verified live: taking the 9,592 primes below 100,000, the first 500 difference rows all begin with 1. Neon-noir traced. See the difference triangle in 1D, the row-by-row audit with its 0/2 texture in 2D, and the verified-never-proven inverse in 3D.",
+  "lit":"Genuine Gilbreath's conjecture (Norman L. Gilbreath 1958; François Proth 1878; Odlyzko 1993 verification to ~3×10¹¹). Verified live: the first 500 difference rows of the 9,592 primes below 100,000 all begin with 1 (window.__gilbreath.ok).",
+  "fig":"Honest boundary — this is a CONJECTURE: verified here for 500 rows and by Odlyzko to astronomical height, proven by no one; the sphere claims exactly what it computes. The AVAN inverse — don't admire the spine, name its status: the inverse of '500 rows verified' is 'zero rows proven', a pattern that has never failed and never been explained. Magenta is the churning 0/2 interior; green is the leading edge that always says 1. Certainty in the data, none in the theory.",
+  "body":GILB_BODY,"script":GILB_SCRIPT},
+ {"slug":"the-gabriels-horn","title":"THE GABRIELS HORN","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#ff8a3c","icon":"gabrielshorn",
+  "kicker":"a horn holding finite paint behind an infinite wall",
+  "blurb":"Gabriel's horn in the 5-window house format — the trumpet made by spinning y = 1/x (x ≥ 1) around the axis. Torricelli worked it out in 1643 and scandalized the century: the volume is finite — exactly π — but the surface area is infinite. The volume integral π∫x⁻²dx converges; the surface is bounded below by the harmonic tail 2π∫dx/x, gaining about 2π every time the length multiplies by e, forever. Hence the painter's paradox: π units of paint fill the horn completely, yet no finite amount can coat its wall (resolution: mathematical paint has zero thickness). Verified live: quadrature gives volume(10⁶) converging to π while the surface gains ≈2π per e-fold at every scale tested. Neon-noir traced. See the narrowing profile in 1D, the frozen-volume/running-surface ledger in 2D, and the two-verdicts inverse in 3D.",
+  "lit":"Genuine Gabriel's horn / painter's paradox (Evangelista Torricelli, 1643). Verified live: numerical quadrature gives volume(10⁶) = 3.14159… converging to π, while the surface integral gains ≈2π per e-fold of length at every scale tested (window.__gabrielshorn.ok).",
+  "fig":"No framing; both integrals are computed by independent quadrature in-browser, and the paradox is stated with its resolution (zero-thickness paint). The AVAN inverse is honest — one number cannot describe a shape: the inverse of 'filled with π of paint' is 'a wall the same paint can never cover'. Magenta is the surface gaining 2π per e-fold forever; green is the volume already finished at π. One shape, two verdicts on infinity.",
+  "body":GABR_BODY,"script":GABR_SCRIPT},
+ {"slug":"the-devils-staircase","title":"THE DEVILS STAIRCASE","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SHORTCUT","domain_slug":"the-shortcut","accent":"#21e6ff","icon":"devilsstaircase",
+  "kicker":"a staircase that climbs without sloping",
+  "blurb":"The devil's staircase in the 5-window house format — Cantor's function, climbing from 0 to 1 with slope zero almost everywhere. On the middle third of [0,1] it is flat at 1/2; on the middle thirds of what remains, flat at 1/4 and 3/4; and so on, flat on plateaus whose lengths sum to the entire interval. Every scrap of climbing is crowded onto the Cantor set — a dust of measure zero — yet the function is continuous and obeys crisp self-similarities: F(x/3) = F(x)/2 and F(1−x) = 1−F(x). The standard counterexample to the intuition that a function's rise must live where its derivative does. Verified live: monotone 0→1 over 10,001 samples; both self-similarities to ~1e-10; and 100% of the climb happens on the level-8 Cantor cover — just 3.9% of the interval, shrinking toward zero with depth. Neon-noir traced. See the staircase in 1D, the thinning strip that carries all the rise in 2D, and the dust-does-the-work inverse in 3D.",
+  "lit":"Genuine Cantor function / devil's staircase (Georg Cantor, 1884). Verified live: monotone from 0 to 1 over 10,001 samples; F(x/3) = F(x)/2 and F(1−x) = 1−F(x) to ~1e-10; and 100% of the climb (to 1e-6) occurs on the level-8 Cantor cover, just 3.9% of the interval (window.__devilsstaircase.ok).",
+  "fig":"No framing; the ternary construction and every check run independently in-browser. The AVAN inverse is honest — look where the path isn't flat: the inverse of 'flat almost everywhere' is 'all the rise on a set of measure zero'. Magenta are the plateaus that fill the interval; green is the dust that does all the work. The whole ascent, carried by nearly nothing.",
+  "body":DVST_BODY,"script":DVST_SCRIPT},
+ {"slug":"the-conway-soldiers","title":"THE CONWAY SOLDIERS","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#ff2fa6","icon":"conwaysoldiers",
+  "kicker":"an army that cannot reach the fifth row",
+  "blurb":"Conway's soldiers in the 5-window house format — a peg-jumping army with an invisible ceiling. Fill the entire half-plane below a line with checkers; moves are jumps that remove the jumped soldier. Rows 1–4 above the line are reachable with armies of 2, 4, 8, 20. Row 5: never — not with a million soldiers, not with the whole infinite half-plane. Conway's 1961 proof weights each square by σ^d (d = distance to target) with σ = (√5−1)/2 satisfying σ²+σ = 1: no jump ever increases total weight, and the entire infinite army weighs exactly 1 — the target's own price. Any finite army weighs strictly less, so the target can never be paid for. Verified live: σ²+σ = 1 to machine precision; the half-plane sum evaluates to exactly 1.000000000000; and all three jump classes audited — toward-jumps preserve weight (~1e-18), sideways and away strictly lose. Neon-noir traced. See the fading army and the prize in 1D, the ledger in 2D, and the price-the-board inverse in 3D.",
+  "lit":"Genuine Conway's soldiers / row-5 impossibility (John Horton Conway, 1961; Winning Ways). Verified live: σ²+σ = 1 to machine precision; the half-plane weight sum evaluates to exactly 1.000000000000; toward-jumps preserve weight to ~1e-18 while sideways and away-jumps strictly lose it (window.__conwaysoldiers.ok).",
+  "fig":"No framing; the geometric sums and the move audit are computed independently in-browser. The AVAN inverse is honest — don't search the game tree, price the board: the inverse of 'can any sequence reach row 5?' is 'a currency in which the whole world's army equals the prize exactly, and every move pays tax'. Magenta is the target priced at 1; green is the infinite army worth 1 in total. Infinity, one soldier short.",
+  "body":CSOL_BODY,"script":CSOL_SCRIPT},
+ {"slug":"the-chiliagon","title":"THE CHILIAGON","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#ffcf4a","icon":"chiliagon",
+  "kicker":"the thousand-gon no mind can picture",
+  "blurb":"The chiliagon in the 5-window house format — the regular 1000-sided polygon Descartes chose in the Sixth Meditation to split the mind in two: you can conceive a chiliagon perfectly — define it, reason about it, compute with it — but you cannot imagine it; every mental picture is indistinguishable from a circle. The numbers agree: perimeter 99.99984% of its circumcircle's; area within two parts in a hundred thousand of π; interior angle 179.64°; maximum bulge off the circle 4.9×10⁻⁶ of the radius — about a thousandth of a pixel at a 300-pixel radius. Conception outruns imagination, measurably. This is sphere 1000 of 2048 in THE FOLD — the corpus's own thousand-gon, seated in the genesis block. Verified live: perimeter, area, isoperimetric quotient 0.99999671, interior angle, and sagitta all computed and bounded against the circle. Neon-noir traced. See the polygon share every pixel with its circle in 1D, the metrics converging in 2D, and the known-never-pictured inverse in 3D.",
+  "lit":"Genuine chiliagon metrics (René Descartes, Meditations VI, 1641, for the framing — credited as content). Verified live: perimeter 2000·sin(π/1000), area 500·sin(2π/1000), isoperimetric quotient π/(1000·tan(π/1000)) = 0.99999671, interior angle 179.640°, sagitta 4.935×10⁻⁶ — all computed and bounded against the circle (window.__chiliagon.ok).",
+  "fig":"The Descartes framing is philosophy, credited as content; every number in it is measured live. The AVAN inverse is honest — don't trust the picture, trust the definition: the inverse of 'I can't imagine it' is 'I can compute it to machine precision anyway'; the whole gap is a thousandth of a pixel. Magenta is the vanishing bulge, magnified until visible; green is the polygon-circle the eye cannot split. Known perfectly, pictured never.",
+  "body":CHIL_BODY,"script":CHIL_SCRIPT},
  {"slug":"the-loaded-dice-table","title":"THE LOADED-DICE TABLE","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#ffcf4a","icon":"aliasmethod",
   "kicker":"a die loaded in constant time",
