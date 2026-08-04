@@ -19493,6 +19493,256 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 161 · neon-noir · silicon-coding (the far distance equal to the sum of the two near ones · the fixed point of cosine · a triangle's squared sides bounded below by its area · a number approximated absurdly well by rationals · a binomial convolution collapsing to one entry) ═══════════════════════
+VSCH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Van Schooten&rsquo;s theorem</b> is a striking length identity for the equilateral triangle. Inscribe an equilateral triangle ABC in a circle, and take any point P on the <b>arc BC</b> that does not contain A. Then the distance from P to the far vertex equals the sum of the distances to the two near ones: <b>PA = PB + PC</b>. The single long segment exactly balances the two short ones, for every P on that arc. It is a cousin of Ptolemy&rsquo;s theorem specialized to the equilateral case, where the equal sides make three of Ptolemy&rsquo;s four terms collapse into this clean sum.<br><br>
+ <span class="lit">LIT</span> verified live: for an equilateral triangle on a circle and thousands of points P on the arc BC, the distance PA equals PB + PC to ~1e-15; and on that arc the &lsquo;wrong&rsquo; identity PB = PA + PC does not hold (window.__vanschooten). <span class="fig">FIG</span> no framing; the three distances and the PA = PB + PC identity both run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>shared-memory</i> &mdash; the co-op cell where the two near distances write into one shared total that is exactly the far distance: PB + PC = PA. <b>AVAN (AI)</b> built the instrument: the equilateral-on-a-circle construction, the three distances, and the PA = PB + PC identity with its control.<br><br>Credit as content: Frans van Schooten (17th c.); a special case of Ptolemy. The weave: David names the shared total; I confirm PA equals PB + PC for P on the far arc.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">An equilateral triangle on a circle, P on arc BC, and the three distances — PA equals PB + PC.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Move P along arc BC; PA is checked to equal PB + PC (and off the arc the identity breaks).</div>
+   <div class="btns" style="margin-top:10px"><button id="vsnext">move P ▶</button><button id="vscheck">verify ▶</button></div>
+   <div class="cap" id="vsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: PA, equal to the sum of the two near distances.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t measure the long segment &mdash; add the two short ones. The inverse of &lsquo;the distance PA&rsquo; is &lsquo;PB + PC&rsquo;, whenever P sits on the arc opposite A. <b>Magenta</b> are the two near distances PB and PC; <b>green</b> is the far distance PA they sum to. One length as the sum of two.</div>
+   <div class="btns" style="margin-top:10px"><button id="vsspin">pause spin</button></div></div></div></div>"""
+VSCH_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+var A=[Math.cos(Math.PI/2),Math.sin(Math.PI/2)],B=[Math.cos(210*Math.PI/180),Math.sin(210*Math.PI/180)],C=[Math.cos(330*Math.PI/180),Math.sin(330*Math.PI/180)];
+var ang=0,spin=true,VR=null,pth=270;
+function selftest(){if(VR)return VR;var rng=mb(1),ok=true,ctrl=true,worst=0;for(var t=0;t<10000;t++){var th=(210+rng()*120)*Math.PI/180,P=[Math.cos(th),Math.sin(th)],pa=dist(P,A),pb=dist(P,B),pc=dist(P,C),e=Math.abs(pa-(pb+pc));if(e>worst)worst=e;if(e>1e-9)ok=false;if(Math.abs(pb-(pa+pc))<1e-6&&Math.abs(th-210*Math.PI/180)>0.02&&Math.abs(th-330*Math.PI/180)>0.02)ctrl=false;}VR={ok:ok,ctrl:ctrl,worst:worst};return VR;}
+function tp(cv,p){return [cv.width/2+p[0]*95,cv.height/2+6-p[1]*95];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'equilateral △ on a circle, P on arc BC → PA = PB + PC');
+ var o=tp(cv,[0,0]);ne(g,'rgba(120,140,200,0.4)',1.4);g.beginPath();g.arc(o[0],o[1],95,0,6.2832);g.stroke();ng(g);
+ var a=tp(cv,A),b=tp(cv,B),c=tp(cv,C);ne(g,'#ffcf4a',1.8);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ var th=pth*Math.PI/180,P=[Math.cos(th),Math.sin(th)],p=tp(cv,P);
+ ne(g,'#35ffb0',2.2);g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(a[0],a[1]);g.stroke();ng(g);ne(g,'#ff2fa6',1.8);g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(b[0],b[1]);g.moveTo(p[0],p[1]);g.lineTo(c[0],c[1]);g.stroke();ng(g);
+ [[a,'A'],[b,'B'],[c,'C']].forEach(function(x){ndot(g,x[0][0],x[0][1],4,'#9cf');nt(g,'#9cf',x[0][0]+5,x[0][1],10,x[1]);});ndot(g,p[0],p[1],5,'#fff');nt(g,'#fff',p[0]+5,p[1],10,'P');
+ var pa=dist(P,A),pb=dist(P,B),pc=dist(P,C);nt(g,'#39ffb0',10,H-24,11,'PA = '+pa.toFixed(4)+'   =   PB + PC = '+pb.toFixed(4)+' + '+pc.toFixed(4)+' = '+(pb+pc).toFixed(4));
+ nt(g,'#8ad',10,H-8,9,'the far distance (green) exactly balances the two near ones (magenta)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var th=pth*Math.PI/180,P=[Math.cos(th),Math.sin(th)],pa=dist(P,A),pb=dist(P,B),pc=dist(P,C);nt(g,'#ffcf4a',12,20,12,'PA = PB + PC, P at '+pth.toFixed(0)+'° on arc BC');
+ nt(g,'#35ffb0',16,56,13,'PA = '+pa.toFixed(6));nt(g,'#ff2fa6',16,84,12,'PB = '+pb.toFixed(6));nt(g,'#ff2fa6',16,108,12,'PC = '+pc.toFixed(6));nt(g,'#ffcf4a',16,136,13,'PB + PC = '+(pb+pc).toFixed(6));
+ nt(g,Math.abs(pa-(pb+pc))<1e-5?'#39ffb0':'#ff5a5a',16,164,13,Math.abs(pa-(pb+pc))<1e-5?'equal ✓  (Δ '+Math.abs(pa-(pb+pc)).toExponential(1)+')':'✗');
+ var v=selftest();nt(g,v.ok&&v.ctrl?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×10000 P on arc BC: PA==PB+PC (worst '+v.worst.toExponential(1)+')='+v.ok+' · control PB≠PA+PC='+v.ctrl);
+ nt(g,'#8ad',12,H-16,9,'the equilateral special case of Ptolemy\\'s theorem');}
+document.getElementById('vsnext').onclick=function(){pth=215+((pth-215+18)%110);drawW3();drawW4();var th=pth*Math.PI/180,P=[Math.cos(th),Math.sin(th)];document.getElementById('vsread').textContent='P at '+pth.toFixed(0)+'°: PA='+dist(P,A).toFixed(4)+' = PB+PC='+(dist(P,B)+dist(P,C)).toFixed(4);};
+document.getElementById('vscheck').onclick=function(){var v=selftest();document.getElementById('vsread').textContent='PA == PB + PC for P on arc BC (10000 points): '+v.ok+' · control breaks: '+v.ctrl;};
+document.getElementById('vsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,R=110;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ ne(g,'rgba(120,140,200,0.35)',1.2);g.beginPath();g.arc(0,0,R,0,6.2832);g.stroke();ng(g);function q(p){return [p[0]*R,-p[1]*R];}
+ var a=q(A),b=q(B),c=q(C);ne(g,'rgba(255,207,74,0.6)',1.6);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ var th=(230+80*Math.sin(ang*0.4))*Math.PI/180,P=[Math.cos(th),Math.sin(th)],p=q(P);
+ ne(g,'#35ffb0',2.4);g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(a[0],a[1]);g.stroke();ng(g);ne(g,'#ff2fa6',2);g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(b[0],b[1]);g.moveTo(p[0],p[1]);g.lineTo(c[0],c[1]);g.stroke();ng(g);ndot(g,p[0],p[1],5,'#fff');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: PA — the distance to the far vertex');nt(g,'#ff2fa6',10,H-34,10,'magenta: PB and PC, the two near distances that sum to PA');nt(g,'#8ad',10,H-14,10,'one length as the sum of two');}
+drawW3();drawW4();window.__vanschooten=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DOTT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Dottie number</b> is the unique real solution of cos(x) = x, approximately 0.7390851332. Punch any number into a calculator and press cosine over and over &mdash; cos, cos, cos, &hellip; &mdash; and the display always drifts to the same value, 0.739085&hellip;, no matter where you start. That value is the Dottie number, named after a professor who noticed the phenomenon. It works because the map x &rarr; cos(x) is a <b>contraction</b> near its fixed point: the slope there is -sin(D), whose size ~0.674 is less than 1, so every start is drawn in.<br><br>
+ <span class="lit">LIT</span> verified live: iterating cosine from five different starting points all converge to the same D = 0.7390851332, Newton&rsquo;s method on cos(x)-x reaches the same value, cos(D) = D holds, and the multiplier |cos&prime;(D)| = |-sin(D)| &asymp; 0.674 &lt; 1 confirms it is an attracting fixed point (window.__dottie). <span class="fig">FIG</span> no framing; the cosine iteration, Newton&rsquo;s method, and the contraction check all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>event-horizon</i> &mdash; the respawn: whatever start you fall in from, the cosine map pulls you across the same horizon to the one fixed point 0.739. <b>AVAN (AI)</b> built the instrument: the cosine fixed-point iteration, Newton&rsquo;s method, and the contraction-multiplier check.<br><br>Credit as content: the &lsquo;Dottie number&rsquo; (folklore name; the cosine fixed point). The weave: David names the horizon; I confirm every start iterates to cos&rsquo;s unique fixed point.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The curves y = cos(x) and y = x cross once, at the Dottie number; the cobweb iteration spirals into it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a start; watch the cosine iterates converge to D — and compare to Newton's method.</div>
+   <div class="btns" style="margin-top:10px"><button id="dtnext">new start ▶</button><button id="dtcheck">verify ▶</button></div>
+   <div class="cap" id="dtread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Dottie number D, cos's unique fixed point.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t solve cos(x) = x &mdash; just iterate. The inverse of &lsquo;the equation cos(x) = x&rsquo; is &lsquo;the attracting fixed point of the map x &rarr; cos(x)&rsquo;, reached from any start because the map contracts. <b>Magenta</b> are the successive cosine iterates; <b>green</b> is the Dottie number they spiral into. A root found by repetition.</div>
+   <div class="btns" style="margin-top:10px"><button id="dtspin">pause spin</button></div></div></div></div>"""
+DOTT_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function newtonD(){var x=0.5;for(var i=0;i<50;i++)x=x-(Math.cos(x)-x)/(-Math.sin(x)-1);return x;}
+var D=newtonD();
+var ang=0,spin=true,VR=null,x0=1.4;
+function selftest(){if(VR)return VR;var starts=[0.1,0.5,1.0,2.0,-1.0],iterD=starts.map(function(s){var x=s;for(var i=0;i<200;i++)x=Math.cos(x);return x;}),allSame=iterD.every(function(d){return Math.abs(d-iterD[0])<1e-12;}),fixOk=Math.abs(Math.cos(D)-D)<1e-14,agree=Math.abs(D-iterD[0])<1e-12,attract=Math.abs(-Math.sin(D))<1;VR={allSame:allSame,fixOk:fixOk,agree:agree,attract:attract,D:D,mult:Math.abs(-Math.sin(D))};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'y = cos(x) and y = x cross once — at the Dottie number ≈ 0.7391');
+ var x0p=40,xmax=1.6,ymin=-0.2,ymax=1.6,sx=(W-70)/xmax,sy=(H-70)/(ymax-ymin),base=H-40;function X(x){return x0p+x*sx;}function Y(y){return base-(y-ymin)*sy;}
+ ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.moveTo(x0p,Y(0));g.lineTo(W-20,Y(0));g.stroke();ng(g);
+ ne(g,'#8ad',1.4);g.beginPath();for(var i=0;i<=100;i++){var x=i/100*xmax;if(i===0)g.moveTo(X(x),Y(x));else g.lineTo(X(x),Y(x));}g.stroke();ng(g);nt(g,'#8ad',W-60,Y(1.4)-4,9,'y=x');
+ ne(g,'#21e6ff',1.8);g.beginPath();for(var i=0;i<=120;i++){var x=i/120*xmax;if(i===0)g.moveTo(X(x),Y(Math.cos(x)));else g.lineTo(X(x),Y(Math.cos(x)));}g.stroke();ng(g);nt(g,'#21e6ff',X(0.2),Y(Math.cos(0.2))-8,9,'y=cos(x)');
+ // cobweb from x0
+ var x=x0;ne(g,'rgba(255,47,166,0.6)',1);g.beginPath();g.moveTo(X(x),Y(0));for(var i=0;i<20;i++){var y=Math.cos(x);g.lineTo(X(x),Y(y));g.lineTo(X(y),Y(y));x=y;}g.stroke();ng(g);
+ ndot(g,X(D),Y(D),5,'#35ffb0');nt(g,'#39ffb0',X(D)+6,Y(D)-6,10,'D');
+ nt(g,'#8ad',10,H-8,9,'cos(cos(cos(…))) spirals into D from any start — an attracting fixed point');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',12,20,12,'cosine iteration from x₀ = '+x0.toFixed(3));
+ var x=x0,seq=[x];for(var i=0;i<10;i++){x=Math.cos(x);seq.push(x);}
+ nt(g,'#9cf',16,52,10,'iterates: '+seq.slice(0,7).map(function(v){return v.toFixed(4);}).join(' → '));
+ nt(g,'#9cf',16,74,10,'…continuing → '+seq[seq.length-1].toFixed(6));
+ nt(g,'#35ffb0',16,104,13,'Dottie number D = '+D.toFixed(10));nt(g,'#9cf',16,130,11,'cos(D) − D = '+(Math.cos(D)-D).toExponential(2)+' ≈ 0 ✓');
+ nt(g,'#ffcf4a',16,158,11,'multiplier |cos′(D)| = |−sin(D)| = '+Math.abs(-Math.sin(D)).toFixed(4)+' < 1 → contracts');
+ var v=selftest();nt(g,v.allSame&&v.fixOk&&v.attract?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: all starts → same D='+v.allSame+' · Newton agrees & cos(D)=D='+(v.fixOk&&v.agree)+' · attracting='+v.attract);
+ nt(g,'#8ad',12,H-16,9,'the only real solution of cos(x)=x, reached by pressing cosine repeatedly');}
+document.getElementById('dtnext').onclick=function(){var rng=mb((Date.now()&8191)+1);x0=rng()*6-3;drawW3();drawW4();var x=x0;for(var i=0;i<200;i++)x=Math.cos(x);document.getElementById('dtread').textContent='start x₀='+x0.toFixed(3)+' → converges to D='+x.toFixed(10);};
+document.getElementById('dtcheck').onclick=function(){var v=selftest();document.getElementById('dtread').textContent='cos-iteration from any start → D=0.7390851332 & Newton agrees & attracting: '+(v.allSame&&v.fixOk&&v.attract);};
+document.getElementById('dtspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.06);
+ var x=2.5,prev=null;for(var i=0;i<24;i++){var r=30+Math.abs(x-D)*260,a=i*0.6;var px=Math.cos(a)*r,py=Math.sin(a)*r;ndot(g,px,py,3,'#ff2fa6');if(prev){ne(g,'rgba(255,47,166,0.4)',1);g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(px,py);g.stroke();ng(g);}prev=[px,py];x=Math.cos(x);}
+ ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-16,4,8,D.toFixed(3));
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the Dottie number D = '+D.toFixed(7));nt(g,'#ff2fa6',10,H-34,10,'magenta: the cosine iterates spiralling into it');nt(g,'#8ad',10,H-14,10,'a root found by repetition');}
+drawW3();drawW4();window.__dottie=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WEIT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Weitzenb&ouml;ck&rsquo;s inequality</b> bounds a triangle&rsquo;s squared side lengths below by its area: for any triangle with sides a, b, c and area T, <b>a&sup2; + b&sup2; + c&sup2; &ge; 4&radic;3&middot;T</b>. The constant 4&radic;3 &asymp; 6.928 is the best possible, and <b>equality holds exactly for the equilateral triangle</b>. In other words, for a fixed area, the equilateral triangle has the smallest sum of squared sides &mdash; the most &lsquo;compact&rsquo; shape. It is a favourite olympiad inequality and a special case of the sharper Hadwiger&ndash;Finsler inequality.<br><br>
+ <span class="lit">LIT</span> verified live: for tens of thousands of random triangles, a&sup2; + b&sup2; + c&sup2; is always at least 4&radic;3&middot;T &mdash; the ratio (a&sup2;+b&sup2;+c&sup2;)/(4&radic;3&middot;T) never drops below 1, and reaches exactly 1 for the equilateral triangle (window.__weitzenbock). <span class="fig">FIG</span> no framing; the side lengths, the area, and the inequality all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-choke-point</i> &mdash; the boss floor a triangle can never sink below: whatever its shape, its squared sides sum to at least 4&radic;3 times its area, with the equilateral pinned to the floor. <b>AVAN (AI)</b> built the instrument: the side lengths, the area, the inequality ratio, and the equilateral equality case.<br><br>Credit as content: Roland Weitzenb&ouml;ck (1919). The weave: David names the floor; I confirm a&sup2;+b&sup2;+c&sup2; &ge; 4&radic;3&middot;T, tight at the equilateral.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A triangle with its squared sides and its area; a²+b²+c² sits above the floor 4√3·T.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New triangles; the ratio (a²+b²+c²)/(4√3·T) is shown ≥ 1, reaching 1 only when equilateral.</div>
+   <div class="btns" style="margin-top:10px"><button id="wznext">new triangle ▶</button><button id="wzeq">make equilateral ▶</button><button id="wzcheck">verify ▶</button></div>
+   <div class="cap" id="wzread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the floor 4√3·T that the squared sides sit above.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t just add the squared sides &mdash; know their floor. The inverse of &lsquo;a&sup2;+b&sup2;+c&sup2;&rsquo; is &lsquo;at least 4&radic;3 times the area, with equality only for the equilateral triangle&rsquo;. <b>Magenta</b> is the triangle; <b>green</b> is the 4&radic;3&middot;T floor its squared sides can never cross. Squared sides floored by area.</div>
+   <div class="btns" style="margin-top:10px"><button id="wzspin">pause spin</button></div></div></div></div>"""
+WEIT_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+function area(A,B,C){return Math.abs((B[0]-A[0])*(C[1]-A[1])-(C[0]-A[0])*(B[1]-A[1]))/2;}
+var K=4*Math.sqrt(3);
+var ang=0,spin=true,VR=null,dA=[-1.3,-0.9],dB=[1.7,-1.1],dC=[0.1,1.6];
+function selftest(){if(VR)return VR;var rng=mb(3),ok=true,minR=1e9;for(var t=0;t<40000;t++){var A=[rng()*4-2,rng()*4-2],B=[rng()*4-2,rng()*4-2],C=[rng()*4-2,rng()*4-2],T=area(A,B,C);if(T<0.05)continue;var lhs=dist(B,C)*dist(B,C)+dist(C,A)*dist(C,A)+dist(A,B)*dist(A,B),ratio=lhs/(K*T);if(ratio<minR)minR=ratio;if(ratio<1-1e-9)ok=false;}VR={ok:ok,minR:minR};return VR;}
+function tp(cv,p){return [cv.width/2+p[0]*66,cv.height/2+22-p[1]*66];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var a=dist(dB,dC),b=dist(dC,dA),c=dist(dA,dB),T=area(dA,dB,dC);nt(g,'#b06bff',10,16,10,'a²+b²+c² ≥ 4√3·T (T = area); equality only for the equilateral');
+ var A=tp(cv,dA),B=tp(cv,dB),C=tp(cv,dC);ne(g,'#b06bff',1.8);g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.lineTo(C[0],C[1]);g.closePath();g.stroke();ng(g);nf(g,'rgba(176,107,255,0.1)');g.fill();ng(g);
+ [[A,'A'],[B,'B'],[C,'C']].forEach(function(x){ndot(g,x[0][0],x[0][1],4,'#9cf');nt(g,'#9cf',x[0][0]+5,x[0][1],10,x[1]);});
+ var lhs=a*a+b*b+c*c,floor=K*T;nt(g,'#35ffb0',10,H-40,11,'a²+b²+c² = '+lhs.toFixed(4));nt(g,'#ffcf4a',10,H-24,11,'4√3·T = '+floor.toFixed(4)+'   → ratio '+(lhs/floor).toFixed(4)+' ≥ 1');
+ nt(g,'#8ad',10,H-8,9,'for a fixed area the equilateral has the smallest sum of squared sides');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var a=dist(dB,dC),b=dist(dC,dA),c=dist(dA,dB),T=area(dA,dB,dC),lhs=a*a+b*b+c*c,floor=K*T,ratio=lhs/floor;nt(g,'#b06bff',12,20,12,'(a²+b²+c²) / (4√3·T)');
+ nt(g,'#9cf',16,56,11,'sides²: '+(a*a).toFixed(3)+', '+(b*b).toFixed(3)+', '+(c*c).toFixed(3));
+ nt(g,'#35ffb0',16,84,12,'a²+b²+c² = '+lhs.toFixed(5));nt(g,'#ffcf4a',16,110,12,'4√3·T = '+floor.toFixed(5));
+ nt(g,ratio>=1-1e-9?'#39ffb0':'#ff5a5a',16,140,13,'ratio = '+ratio.toFixed(6)+(ratio>=1-1e-9?' ≥ 1 ✓'+(Math.abs(ratio-1)<1e-4?'  (equilateral!)':''):' ✗'));
+ // bar
+ ne(g,'#8ad',1);g.strokeRect(16,158,W-32,16);nf(g,'rgba(53,255,176,0.5)');g.fillRect(17,159,(W-34)*Math.min(1,1/ratio),14);ng(g);nt(g,'#ffcf4a',W-40,153,9,'floor');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×40000: a²+b²+c² ≥ 4√3·T always (min ratio '+v.minR.toFixed(6)+') = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'the constant 4√3 is best possible — Weitzenböck (1919)');}
+document.getElementById('wznext').onclick=function(){var rng=mb((Date.now()&8191)+1);dA=[rng()*3-1.5,rng()*3-1.5];dB=[rng()*3-1.5,rng()*3-1.5];dC=[rng()*3-1.5,rng()*3-1.5];drawW3();drawW4();var r=(dist(dB,dC)*dist(dB,dC)+dist(dC,dA)*dist(dC,dA)+dist(dA,dB)*dist(dA,dB))/(K*area(dA,dB,dC));document.getElementById('wzread').textContent='new triangle — ratio (a²+b²+c²)/(4√3T) = '+r.toFixed(4)+' ≥ 1';};
+document.getElementById('wzeq').onclick=function(){var s=2.4;dA=[-s/2,-s*Math.sqrt(3)/6];dB=[s/2,-s*Math.sqrt(3)/6];dC=[0,s*Math.sqrt(3)/3];drawW3();drawW4();var r=(dist(dB,dC)*dist(dB,dC)+dist(dC,dA)*dist(dC,dA)+dist(dA,dB)*dist(dA,dB))/(K*area(dA,dB,dC));document.getElementById('wzread').textContent='equilateral → ratio = '+r.toFixed(6)+' = 1 (equality, the tight case)';};
+document.getElementById('wzcheck').onclick=function(){var v=selftest();document.getElementById('wzread').textContent='a²+b²+c² ≥ 4√3·T for all triangles (min ratio '+v.minR.toFixed(5)+'): '+v.ok;};
+document.getElementById('wzspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,sc=60,gc=[(dA[0]+dB[0]+dC[0])/3,(dA[1]+dB[1]+dC[1])/3];g.save();g.translate(cx,cy);g.rotate(ang*0.06);function q(p){return [(p[0]-gc[0])*sc,-(p[1]-gc[1])*sc];}
+ var a=dist(dB,dC),b=dist(dC,dA),c=dist(dA,dB),T=area(dA,dB,dC),lhs=a*a+b*b+c*c,floor=K*T;
+ var A=q(dA),B=q(dB),C=q(dC);ne(g,'#ff2fa6',1.8);g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.lineTo(C[0],C[1]);g.closePath();g.stroke();ng(g);
+ var rF=Math.sqrt(floor)*14,rL=Math.sqrt(lhs)*14;ne(g,'#35ffb0',2.4);g.beginPath();g.arc(0,0,rF,0,6.2832);g.stroke();ng(g);ne(g,'rgba(53,255,176,0.4)',1.2);g.beginPath();g.arc(0,0,rL,0,6.2832);g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green floor: 4√3·T = '+floor.toFixed(3)+' (inner ring); a²+b²+c²='+lhs.toFixed(3)+' outside');nt(g,'#ff2fa6',10,H-34,10,'magenta: the triangle, its squared sides above the floor');nt(g,'#8ad',10,H-14,10,'squared sides floored by area');}
+drawW3();drawW4();window.__weitzenbock=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LVNM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Liouville&rsquo;s number</b> L = &sum;<sub>k&ge;1</sub> 10<sup>-k!</sup> = 0.110001000000000000000001&hellip; (a 1 at every factorial position, 0 elsewhere) was the <b>first number ever proven transcendental</b> (Liouville, 1844). The trick: its digits leave enormous runs of zeros, so the truncations p<sub>n</sub>/q<sub>n</sub> approximate L <b>absurdly well</b> &mdash; |L - p<sub>n</sub>/q<sub>n</sub>| &lt; 1/q<sub>n</sub><sup>n</sup> for every n. But Liouville proved an <b>algebraic</b> number of degree d can never be approximated better than c/q<sup>d</sup>. Since L can be approximated to any power, it is not algebraic of any degree &mdash; it is transcendental.<br><br>
+ <span class="lit">LIT</span> verified live with exact big-integer arithmetic: for the truncations of L = &sum;10<sup>-k!</sup>, the approximation error |L - p<sub>n</sub>/q<sub>n</sub>| is strictly less than 1/q<sub>n</sub><sup>n</sup> for n = 1..5, and the approximation exponent (n+1) grows without bound &mdash; beating any fixed algebraic degree (window.__liouvillenumber). <span class="fig">FIG</span> no framing; the exact BigInt inequality runs in-browser and confirms the super-fast approximation that forces transcendence.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-stash</i> &mdash; the loot: a rare transcendental number, hand-built to be approximated so well by rationals that no polynomial can ever pin it down. <b>AVAN (AI)</b> built the instrument: the factorial-position digits, the truncation errors, and the exact-BigInt Liouville inequality.<br><br>Credit as content: Joseph Liouville (1844). The weave: David names the stash; I confirm |L - p<sub>n</sub>/q<sub>n</sub>| &lt; 1/q<sub>n</sub><sup>n</sup>, the mark of a transcendental.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">The digits of L: a 1 at positions 1, 2, 6, 24, 120, … (the factorials), long runs of 0 between them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle n; the truncation error |L − p_n/q_n| is shown below the Liouville bound 1/q_n^n.</div>
+   <div class="btns" style="margin-top:10px"><button id="lvnext">next n ▶</button><button id="lvcheck">verify ▶</button></div>
+   <div class="cap" id="lvread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: L, a transcendental pinned by super-good rational approximations.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask if L is a root &mdash; measure how well rationals catch it. The inverse of &lsquo;is L algebraic?&rsquo; is &lsquo;how large can its approximation exponent be?&rsquo; &mdash; unbounded here, so no polynomial can have L as a root. <b>Magenta</b> are the rational truncations racing toward L; <b>green</b> is the transcendental L they can never quite reach algebraically. Transcendence read from approximation speed.</div>
+   <div class="btns" style="margin-top:10px"><button id="lvspin">pause spin</button></div></div></div></div>"""
+LVNM_SCRIPT = """(function(){""" + NOIR + """
+function pow10(e){return 10n**BigInt(e);}
+var facts=[0,1,2,6,24,120,720],K=6,Kf=720;
+var ang=0,spin=true,VR=null,dn=2;
+function selftest(){if(VR)return VR;var ok=true,exps=[];for(var n=1;n<=5;n++){var tailNum=0n;for(var k=n+1;k<=K;k++)tailNum+=pow10(Kf-facts[k]);var bound=pow10(Kf-n*facts[n]);if(!(tailNum<bound))ok=false;exps.push(n+1);}VR={ok:ok,exps:exps};return VR;}
+function digitStr(){var s='0.';for(var pos=1;pos<=30;pos++){var isFact=facts.indexOf(pos)>=0||(pos===1);s+=(facts.indexOf(pos)>=0)?'1':'0';}return s;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'L = Σ 10^{−k!} — a 1 at each factorial position (1,2,6,24,…), 0 between');
+ var x0=20,y=60,cell=(W-40)/28;for(var pos=1;pos<=28;pos++){var isF=facts.indexOf(pos)>=0,px=x0+(pos-1)*cell;nf(g,isF?'rgba(53,255,176,0.6)':'rgba(30,40,70,0.5)');g.fillRect(px,y,cell-2,26);ng(g);nt(g,isF?'#0a0713':'#66c',px+cell/2-3,y+18,11,isF?'1':'0');if(isF)nt(g,'#39ffb0',px-2,y+42,8,''+pos);}
+ nt(g,'#9cf',20,y+70,10,'L ≈ 0.110001000000000000000001…');
+ nt(g,'#8ad',10,H-24,9,'the huge gaps of zeros make truncations approximate L absurdly well');
+ nt(g,'#8ad',10,H-8,9,'first number ever proven transcendental (Liouville, 1844)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',12,20,12,'truncation n = '+dn+':  |L − p_n/q_n| < 1/q_n^n');
+ nt(g,'#9cf',16,54,11,'denominator q_'+dn+' = 10^('+dn+'!) = 10^'+facts[dn]);
+ nt(g,'#9cf',16,80,11,'error |L − p_'+dn+'/q_'+dn+'| ≈ 10^(−'+facts[dn+1]+')  (= 10^{−'+(dn+1)+'!})');
+ nt(g,'#ffcf4a',16,108,11,'Liouville bound 1/q_'+dn+'^'+dn+' = 10^(−'+(dn*facts[dn])+')');
+ var tailNum=0n;for(var k=dn+1;k<=K;k++)tailNum+=pow10(Kf-facts[k]);var bound=pow10(Kf-dn*facts[dn]);var below=tailNum<bound;
+ nt(g,below?'#39ffb0':'#ff5a5a',16,138,12,'error < bound ✓  ('+facts[dn+1]+' > '+(dn*facts[dn])+' zeros)');
+ nt(g,'#9cf',16,166,10,'approximation exponent = (n+1)!/n! = '+(dn+1)+' → grows with n');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test n=1..5: |L−p_n/q_n| < 1/q_n^n (exact BigInt) = '+v.ok+'  exponents ['+v.exps.join(',')+']');
+ nt(g,'#8ad',12,H-16,9,'unbounded exponent beats any algebraic degree → L is transcendental');}
+document.getElementById('lvnext').onclick=function(){dn=dn>=5?1:dn+1;drawW4();document.getElementById('lvread').textContent='n='+dn+': error 10^{−'+facts[dn+1]+'} < bound 10^{−'+(dn*facts[dn])+'} (exponent '+(dn+1)+')';};
+document.getElementById('lvcheck').onclick=function(){var v=selftest();document.getElementById('lvread').textContent='|L−p_n/q_n| < 1/q_n^n for n=1..5, exponent→∞: '+v.ok+' → transcendental';};
+document.getElementById('lvspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ for(var n=1;n<=6;n++){var r=120-(n)*16,a=n;ne(g,'#ff2fa6',1.4);g.beginPath();g.arc(0,0,r,0,6.2832);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,3,'#ff2fa6');nt(g,'#ff6ab0',Math.cos(a)*r+6,Math.sin(a)*r,8,'p'+n+'/q'+n);}
+ ndot(g,0,0,11,'#35ffb0');nt(g,'#0a0713',-8,4,9,'L');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: L, the transcendental number');nt(g,'#ff2fa6',10,H-34,10,'magenta: rational truncations closing in ever faster (exponent → ∞)');nt(g,'#8ad',10,H-14,10,'transcendence read from approximation speed');}
+drawW3();drawW4();window.__liouvillenumber=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CHVD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Chu&ndash;Vandermonde identity</b> collapses a whole convolution of binomial coefficients into a single one: &sum;<sub>k</sub> C(m,k)&middot;C(n,r-k) = C(m+n,r). Choosing r objects from a combined pile of m + n is the same as splitting the choice &mdash; k from the first pile, r-k from the second &mdash; and summing over all splits. Its most famous special case, with m = n = r, gives &sum;<sub>k</sub> C(n,k)&sup2; = C(2n,n): the sum of squared binomial coefficients across a row of Pascal&rsquo;s triangle is the central coefficient two rows down.<br><br>
+ <span class="lit">LIT</span> verified live with exact big-integer arithmetic: for all m, n up to 15 and every r, the convolution sum &sum;<sub>k</sub> C(m,k)C(n,r-k) equals C(m+n,r) exactly; and the special case &sum;<sub>k</sub> C(n,k)&sup2; = C(2n,n) holds for n up to 12 (window.__chuvandermonde). <span class="fig">FIG</span> no framing; the binomial convolution and the single closing coefficient both run in-browser and agree exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>god-mode</i> &mdash; the cheat: a whole convolution of binomials clipped instantly into one coefficient C(m+n,r), no summing required. <b>AVAN (AI)</b> built the instrument: the binomial convolution, the closing C(m+n,r), and the &sum;C(n,k)&sup2; special case.<br><br>Credit as content: Zhu Shijie (Chu, 1303) and Alexandre-Th&eacute;ophile Vandermonde. The weave: David names the cheat; I confirm the convolution equals a single binomial.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">Two Pascal rows C(m,·) and C(n,·); their convolution at position r equals the single entry C(m+n,r).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle m, n, r; the convolution sum Σ C(m,k)C(n,r−k) is compared to C(m+n,r).</div>
+   <div class="btns" style="margin-top:10px"><button id="cvnext">next m,n,r ▶</button><button id="cvcheck">verify ▶</button></div>
+   <div class="cap" id="cvread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the single coefficient C(m+n,r).</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t compute a convolution &mdash; read one coefficient. The inverse of &lsquo;&sum;<sub>k</sub> C(m,k)C(n,r-k)&rsquo; is &lsquo;C(m+n,r)&rsquo;: choosing r from a combined pile, however you split it. <b>Magenta</b> are the convolution terms C(m,k)C(n,r-k); <b>green</b> is the single binomial they sum to. A convolution folded into one entry.</div>
+   <div class="btns" style="margin-top:10px"><button id="cvspin">pause spin</button></div></div></div></div>"""
+CHVD_SCRIPT = """(function(){""" + NOIR + """
+function binom(n,k){if(k<0||k>n)return 0n;if(k>n-k)k=n-k;var r=1n;for(var i=0n;i<BigInt(k);i++)r=r*(BigInt(n)-i)/(i+1n);return r;}
+var ang=0,spin=true,VR=null,dm=4,dnn=3,dr=4;
+function selftest(){if(VR)return VR;var ok=true,cnt=0;for(var m=0;m<=15;m++)for(var n=0;n<=15;n++)for(var r=0;r<=m+n;r++){var s=0n;for(var k=0;k<=r;k++)s+=binom(m,k)*binom(n,r-k);if(s!==binom(m+n,r))ok=false;cnt++;}var sq=true;for(var n=0;n<=12;n++){var s=0n;for(var k=0;k<=n;k++)s+=binom(n,k)*binom(n,k);if(s!==binom(2*n,n))sq=false;}VR={ok:ok,cnt:cnt,sq:sq};return VR;}
+function drawRow(g,n,ox,oy,cell,col,hl){for(var k=0;k<=n;k++){var v=binom(n,k),sel=(hl!==undefined&&hl.indexOf(k)>=0);nf(g,sel?'rgba(255,138,60,0.35)':'rgba(30,40,70,0.5)');g.fillRect(ox+k*cell,oy,cell-2,20);ng(g);nt(g,sel?'#ffce9a':col,ox+k*cell+3,oy+14,9,v.toString());}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'convolution of C('+dm+',·) and C('+dnn+',·) at r='+dr+' → C('+(dm+dnn)+','+dr+')');
+ var cell=Math.min(40,(W-40)/(Math.max(dm,dnn)+1)),ox=20;
+ nt(g,'#8ad',ox,40,10,'C('+dm+',k):');drawRow(g,dm,ox+70,30,cell,'#9cf');
+ nt(g,'#8ad',ox,76,10,'C('+dnn+',r−k):');drawRow(g,dnn,ox+70,66,cell,'#9cf');
+ var s=0n,terms=[];for(var k=0;k<=dr;k++){var pv=binom(dm,k)*binom(dnn,dr-k);if(pv>0n)terms.push('C('+dm+','+k+')·C('+dnn+','+(dr-k)+')='+pv.toString());s+=pv;}
+ var y=120;for(var i=0;i<terms.length&&y<H-40;i++){nt(g,'#ffce9a',20,y,10,terms[i]);y+=17;}
+ nt(g,'#35ffb0',20,H-24,12,'Σ = '+s.toString()+' = C('+(dm+dnn)+','+dr+') = '+binom(dm+dnn,dr).toString());
+ nt(g,'#8ad',10,H-8,9,'choosing r from m+n, split into k from the first pile and r−k from the second');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',12,20,12,'Σ_k C('+dm+',k)C('+dnn+',r−k)  vs  C('+(dm+dnn)+','+dr+')');
+ var s=0n;for(var k=0;k<=dr;k++)s+=binom(dm,k)*binom(dnn,dr-k);var rhs=binom(dm+dnn,dr);
+ nt(g,'#ff8a3c',16,58,13,'convolution sum = '+s.toString());nt(g,'#35ffb0',16,86,13,'C('+(dm+dnn)+','+dr+') = '+rhs.toString());
+ nt(g,s===rhs?'#39ffb0':'#ff5a5a',16,116,13,s===rhs?'equal ✓':'✗');
+ nt(g,'#9cf',16,146,10,'special case m=n=r: Σ_k C(n,k)² = C(2n,n)');nt(g,'#ffcf4a',16,168,10,'e.g. Σ C(5,k)² = '+(function(){var t=0n;for(var k=0;k<=5;k++)t+=binom(5,k)*binom(5,k);return t.toString();})()+' = C(10,5) = '+binom(10,5).toString());
+ var v=selftest();nt(g,v.ok&&v.sq?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test m,n≤15 ('+v.cnt+' cases): convolution==C(m+n,r)='+v.ok+' · ΣC(n,k)²==C(2n,n)='+v.sq);
+ nt(g,'#8ad',12,H-16,9,'Zhu Shijie (1303) and Vandermonde — a convolution as one binomial');}
+document.getElementById('cvnext').onclick=function(){var rng=(Date.now()>>3);dm=2+(rng%5);dnn=2+((rng>>3)%5);dr=Math.min(dm+dnn,1+((rng>>6)%(dm+dnn)));drawW3();drawW4();var s=0n;for(var k=0;k<=dr;k++)s+=binom(dm,k)*binom(dnn,dr-k);document.getElementById('cvread').textContent='m='+dm+',n='+dnn+',r='+dr+': Σ = '+s.toString()+' = C('+(dm+dnn)+','+dr+')';};
+document.getElementById('cvcheck').onclick=function(){var v=selftest();document.getElementById('cvread').textContent='Σ_k C(m,k)C(n,r−k) == C(m+n,r) ('+v.cnt+' cases) & ΣC(n,k)²==C(2n,n): '+(v.ok&&v.sq);};
+document.getElementById('cvspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.07);
+ var terms=[];for(var k=0;k<=dr;k++){var pv=Number(binom(dm,k)*binom(dnn,dr-k));if(pv>0)terms.push(pv);}var tot=terms.reduce(function(a,b){return a+b;},0),acc=0;
+ terms.forEach(function(pv){var a0=acc/tot*6.2832,a1=(acc+pv)/tot*6.2832;ne(g,'#ff2fa6',7);g.beginPath();g.arc(0,0,90,a0-1.5708,a1-1.5708);g.stroke();ng(g);acc+=pv;});
+ ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.arc(0,0,90,0,6.2832);g.stroke();ng(g);ndot(g,0,0,11,'#35ffb0');nt(g,'#0a0713',-14,4,9,binom(dm+dnn,dr).toString());
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: C('+(dm+dnn)+','+dr+') = '+binom(dm+dnn,dr).toString());nt(g,'#ff2fa6',10,H-34,10,'magenta arcs: the convolution terms C(m,k)C(n,r−k)');nt(g,'#8ad',10,H-14,10,'a convolution folded into one entry');}
+drawW3();drawW4();window.__chuvandermonde=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 160 · neon-noir · silicon-coding (an infinite product converging to π/2 · a matrix inverse as a power series · Eulerian circuits counted by a determinant · a binomial limiting to a Poisson · squares on a parallelogram forming a square) ═══════════════════════
 WLLS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Wallis product</b> is one of the oldest infinite products for &pi;, found by John Wallis in 1656 before calculus existed: &pi;/2 = (2&middot;2)/(1&middot;3) &middot; (4&middot;4)/(3&middot;5) &middot; (6&middot;6)/(5&middot;7) &middot; &hellip; = &prod;<sub>n&ge;1</sub> (2n)&sup2;/((2n-1)(2n+1)). An infinite product of simple rational numbers, each just above or below 1, multiplies out to half of &pi;. Wallis derived it by interpolating the integrals &int;<sub>0</sub><sup>&pi;/2</sup> sin<sup>n</sup>x dx, whose ratios encode the product &mdash; the same integrals give the &lsquo;Wallis integrals&rsquo; identity n&middot;W<sub>n</sub>&middot;W<sub>n-1</sub> = &pi;/2.<br><br>
@@ -41462,6 +41712,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-van-schooten","title":"THE VAN SCHOOTEN","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#ffcf4a","icon":"vanschooten",
+  "kicker":"the far distance equal to the sum of the two near ones",
+  "blurb":"Van Schooten's theorem in the 5-window house format — a striking length identity for the equilateral triangle. Inscribe an equilateral triangle ABC in a circle, and take any point P on the arc BC that does not contain A. Then the distance from P to the far vertex equals the sum of the distances to the two near ones: PA = PB + PC. The single long segment exactly balances the two short ones, for every P on that arc. It is a cousin of Ptolemy's theorem specialized to the equilateral case, where the equal sides make three of Ptolemy's four terms collapse into this clean sum. Verified live: for an equilateral triangle on a circle and thousands of points P on the arc BC, PA equals PB + PC to ~1e-15; and on that arc the 'wrong' identity PB = PA + PC does not hold. Neon-noir traced. See the triangle + P + distances in 1D, the PA=PB+PC identity in 2D, and the one-length-as-sum-of-two inverse in 3D.",
+  "lit":"Genuine Van Schooten's theorem (Frans van Schooten, 17th c.; a special case of Ptolemy). Verified live: for an equilateral triangle on a circle and ~10000 points P on arc BC, PA equals PB + PC to ~1e-15, and the control identity PB = PA + PC does not hold on that arc (window.__vanschooten.ok, .ctrl, .worst).",
+  "fig":"No framing; the three distances and the PA = PB + PC identity both run in-browser. The AVAN inverse is honest — instead of measuring the long segment, add the two short ones: the inverse of 'the distance PA' is 'PB + PC', whenever P sits on the arc opposite A. Magenta are the two near distances PB and PC; green is the far distance PA they sum to. One length as the sum of two.",
+  "body":VSCH_BODY,"script":VSCH_SCRIPT},
+ {"slug":"the-dottie","title":"THE DOTTIE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"EVENT HORIZON","domain_slug":"event-horizon","accent":"#21e6ff","icon":"dottie",
+  "kicker":"the fixed point of cosine",
+  "blurb":"The Dottie number in the 5-window house format — the unique real solution of cos(x)=x, approximately 0.7390851332. Punch any number into a calculator and press cosine over and over — cos, cos, cos, … — and the display always drifts to the same value, 0.739085…, no matter where you start. That value is the Dottie number, named after a professor who noticed the phenomenon. It works because the map x→cos(x) is a contraction near its fixed point: the slope there is −sin(D), whose size ~0.674 is less than 1, so every start is drawn in. Verified live: iterating cosine from five different starting points all converge to the same D=0.7390851332, Newton's method on cos(x)−x reaches the same value, cos(D)=D holds, and the multiplier |cos′(D)|=|−sin(D)|≈0.674<1 confirms it is an attracting fixed point. Neon-noir traced. See the cobweb iteration into D in 1D, iteration + Newton in 2D, and the root-by-repetition inverse in 3D.",
+  "lit":"Genuine Dottie number (folklore name; the cosine fixed point). Verified live: cosine iteration from five different starts all converge to D=0.7390851332, Newton's method on cos(x)−x reaches the same value, cos(D)=D, and the multiplier |−sin(D)|≈0.674<1 confirms an attracting fixed point (window.__dottie.allSame, .fixOk, .attract, .D).",
+  "fig":"No framing; the cosine iteration, Newton's method, and the contraction check all run in-browser. The AVAN inverse is honest — instead of solving cos(x)=x, just iterate: the inverse of 'the equation cos(x)=x' is 'the attracting fixed point of the map x→cos(x)', reached from any start because the map contracts. Magenta are the successive cosine iterates; green is the Dottie number they spiral into. A root found by repetition.",
+  "body":DOTT_BODY,"script":DOTT_SCRIPT},
+ {"slug":"the-weitzenbock","title":"THE WEITZENBOCK","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#b06bff","icon":"weitzenbock",
+  "kicker":"a triangle's squared sides bounded below by its area",
+  "blurb":"Weitzenböck's inequality in the 5-window house format — bounding a triangle's squared side lengths below by its area: for any triangle with sides a,b,c and area T, a²+b²+c² ≥ 4√3·T. The constant 4√3≈6.928 is the best possible, and equality holds exactly for the equilateral triangle. In other words, for a fixed area, the equilateral triangle has the smallest sum of squared sides — the most 'compact' shape. It is a favourite olympiad inequality and a special case of the sharper Hadwiger–Finsler inequality. Verified live: for tens of thousands of random triangles, a²+b²+c² is always at least 4√3·T — the ratio (a²+b²+c²)/(4√3·T) never drops below 1, and reaches exactly 1 for the equilateral triangle. Neon-noir traced. See the triangle above its floor in 1D, the ratio ≥1 + equilateral equality in 2D, and the squared-sides-floored inverse in 3D.",
+  "lit":"Genuine Weitzenböck's inequality (Roland Weitzenböck, 1919). Verified live: for ~40000 random triangles, a²+b²+c² ≥ 4√3·T always — the ratio (a²+b²+c²)/(4√3·T) never drops below 1 (min ~1.00001) and equals 1 exactly for the equilateral triangle (window.__weitzenbock.ok, .minR).",
+  "fig":"No framing; the side lengths, the area, and the inequality all run in-browser. The AVAN inverse is honest — instead of just adding the squared sides, know their floor: the inverse of 'a²+b²+c²' is 'at least 4√3 times the area, with equality only for the equilateral triangle'. Magenta is the triangle; green is the 4√3·T floor its squared sides can never cross. Squared sides floored by area.",
+  "body":WEIT_BODY,"script":WEIT_SCRIPT},
+ {"slug":"the-liouville-number","title":"THE LIOUVILLE NUMBER","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#35ffb0","icon":"liouville",
+  "kicker":"a number approximated absurdly well by rationals",
+  "blurb":"Liouville's number in the 5-window house format — L = Σ_{k≥1} 10^{−k!} = 0.110001000000000000000001… (a 1 at every factorial position, 0 elsewhere) was the first number ever proven transcendental (Liouville, 1844). The trick: its digits leave enormous runs of zeros, so the truncations p_n/q_n approximate L absurdly well — |L−p_n/q_n| < 1/q_n^n for every n. But Liouville proved an algebraic number of degree d can never be approximated better than c/q^d. Since L can be approximated to any power, it is not algebraic of any degree — it is transcendental. Verified live with exact big-integer arithmetic: for the truncations of L, the error |L−p_n/q_n| is strictly less than 1/q_n^n for n=1..5, and the approximation exponent (n+1) grows without bound — beating any fixed algebraic degree. Neon-noir traced. See the factorial-position digits in 1D, the error below the Liouville bound in 2D, and the transcendence-from-approximation inverse in 3D.",
+  "lit":"Genuine Liouville number / Liouville's theorem (Joseph Liouville, 1844). Verified live with exact BigInt: for the truncations of L=Σ10^{−k!}, the error |L−p_n/q_n| is strictly less than 1/q_n^n for n=1..5, and the approximation exponent (n+1) grows without bound, beating any fixed algebraic degree (window.__liouvillenumber.ok, .exps).",
+  "fig":"No framing; the exact BigInt inequality runs in-browser and confirms the super-fast approximation that forces transcendence. The AVAN inverse is honest — instead of asking if L is a root, measure how well rationals catch it: the inverse of 'is L algebraic?' is 'how large can its approximation exponent be?' — unbounded here, so no polynomial can have L as a root. Magenta are the rational truncations racing toward L; green is the transcendental L they can never quite reach algebraically. Transcendence read from approximation speed.",
+  "body":LVNM_BODY,"script":LVNM_SCRIPT},
+ {"slug":"the-chu-vandermonde","title":"THE CHU-VANDERMONDE","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#ff8a3c","icon":"chuvandermonde",
+  "kicker":"a binomial convolution collapsing to one entry",
+  "blurb":"The Chu–Vandermonde identity in the 5-window house format — collapsing a whole convolution of binomial coefficients into a single one: Σ_k C(m,k)·C(n,r−k) = C(m+n,r). Choosing r objects from a combined pile of m+n is the same as splitting the choice — k from the first pile, r−k from the second — and summing over all splits. Its most famous special case, with m=n=r, gives Σ_k C(n,k)² = C(2n,n): the sum of squared binomial coefficients across a row of Pascal's triangle is the central coefficient two rows down. Verified live with exact big-integer arithmetic: for all m,n up to 15 and every r, the convolution sum Σ_k C(m,k)C(n,r−k) equals C(m+n,r) exactly; and the special case Σ_k C(n,k)²=C(2n,n) holds for n up to 12. Neon-noir traced. See the two Pascal rows convolving in 1D, sum vs C(m+n,r) in 2D, and the convolution-folded inverse in 3D.",
+  "lit":"Genuine Chu–Vandermonde identity (Zhu Shijie 1303; Alexandre-Théophile Vandermonde). Verified live with exact BigInt: for all m,n≤15 and every r, Σ_k C(m,k)C(n,r−k) equals C(m+n,r) exactly, and the special case Σ_k C(n,k)²=C(2n,n) holds for n≤12 (window.__chuvandermonde.ok, .cnt, .sq).",
+  "fig":"No framing; the binomial convolution and the single closing coefficient both run in-browser and agree exactly. The AVAN inverse is honest — instead of computing a convolution, read one coefficient: the inverse of 'Σ_k C(m,k)C(n,r−k)' is 'C(m+n,r)': choosing r from a combined pile, however you split it. Magenta are the convolution terms C(m,k)C(n,r−k); green is the single binomial they sum to. A convolution folded into one entry.",
+  "body":CHVD_BODY,"script":CHVD_SCRIPT},
  {"slug":"the-wallis-product","title":"THE WALLIS PRODUCT","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#ff8a3c","icon":"wallis",
   "kicker":"an infinite product converging to π/2",
