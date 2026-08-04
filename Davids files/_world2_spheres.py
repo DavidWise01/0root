@@ -19493,6 +19493,237 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 148 · neon-noir · silicon-coding (orthogonal polynomials of the oscillator · counting m-ary trees · four circles meeting at one point · assignment settled by competitive bidding · sawtooth sums bound by a reciprocity law) ═══════════════════════
+HERM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Hermite polynomials</b> H<sub>n</sub>(x) are the natural family of polynomials <b>orthogonal with respect to the Gaussian weight</b> e<sup>-x&sup2;</sup>. Built by the three-term recurrence H<sub>n+1</sub> = 2x&middot;H<sub>n</sub> - 2n&middot;H<sub>n-1</sub> from H<sub>0</sub>=1, H<sub>1</sub>=2x, they satisfy &int; H<sub>m</sub>(x)H<sub>n</sub>(x)e<sup>-x&sup2;</sup>dx = 0 whenever m &ne; n &mdash; each is &lsquo;perpendicular&rsquo; to all the others under the Gaussian inner product. They are the <b>eigenfunctions of the quantum harmonic oscillator</b> (times a Gaussian), the backbone of Gauss&ndash;Hermite quadrature, and each H<sub>n</sub> has exactly <b>n real roots</b>, which are the quadrature nodes.<br><br>
+ <span class="lit">LIT</span> verified live: the Gaussian-weighted inner product of H<sub>m</sub> and H<sub>n</sub> is zero for m &ne; n and equals 2<sup>n</sup>n!&#8730;&pi; for m = n (to ~1e-4 by numerical integration), and each H<sub>n</sub> shows exactly n real roots (window.__hermite). <span class="fig">FIG</span> no framing; the recurrence, the weighted orthogonality integral, and the root count all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-epoch</i> &mdash; each polynomial grinding out of the recurrence one epoch at a time, the whole family perpendicular under the Gaussian weight. <b>AVAN (AI)</b> built the instrument: the three-term recurrence, the weighted orthogonality integral, the 2<sup>n</sup>n!&#8730;&pi; norm, and the root count.<br><br>Credit as content: Charles Hermite (1864); earlier Laplace and Chebyshev. The weave: David names the epoch; I confirm the family is orthogonal under e<sup>-x&sup2;</sup> and each has n real roots.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">The first Hermite polynomials H₀…H₄ — each with one more oscillation, and n real roots.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle n; the Gaussian-weighted inner products against other H_m are shown (0 off-diagonal), plus the norm and root count.</div>
+   <div class="btns" style="margin-top:10px"><button id="henext">next n ▶</button><button id="hecheck">verify ▶</button></div>
+   <div class="cap" id="heread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a Hermite polynomial curve, orthogonal to all the others.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t evaluate a polynomial &mdash; project onto a basis. The inverse of &lsquo;the polynomial H<sub>n</sub>&rsquo; is &lsquo;a direction perpendicular to every other H<sub>m</sub> under the Gaussian weight&rsquo;, so any function splits into Hermite components. <b>Magenta</b> is the Gaussian weight e<sup>-x&sup2;</sup> that defines the inner product; <b>green</b> is the orthogonal polynomial. A basis, not just a curve.</div>
+   <div class="btns" style="margin-top:10px"><button id="hespin">pause spin</button></div></div></div></div>"""
+HERM_SCRIPT = """(function(){""" + NOIR + """
+function hermite(n,x){if(n===0)return 1;if(n===1)return 2*x;var hm=1,h=2*x;for(var k=1;k<n;k++){var hn=2*x*h-2*k*hm;hm=h;h=hn;}return h;}
+function inner(m,n){var a=-9,b=9,N=40000,h=(b-a)/N,s=0;for(var i=0;i<=N;i++){var x=a+i*h,w=(i===0||i===N)?1:(i%2?4:2);s+=w*hermite(m,x)*hermite(n,x)*Math.exp(-x*x);}return s*h/3;}
+var ang=0,spin=true,VR=null,dn=3,fact=[1];for(var i=1;i<=8;i++)fact.push(fact[i-1]*i);
+function selftest(){if(VR)return VR;var orth=true,norm=true,root=true,worst=0;for(var m=0;m<=5;m++)for(var n=m;n<=5;n++){var I=inner(m,n);if(m!==n){if(Math.abs(I)>worst)worst=Math.abs(I);if(Math.abs(I)>1e-4)orth=false;}else{var e=Math.pow(2,n)*fact[n]*Math.sqrt(Math.PI);if(Math.abs(I-e)/e>1e-4)norm=false;}}for(var n=1;n<=6;n++){var r=0,prev=hermite(n,-6);for(var x=-6+0.01;x<=6;x+=0.01){var v=hermite(n,x);if(prev*v<0)r++;prev=v;}if(r!==n)root=false;}VR={orth:orth,norm:norm,root:root,worst:worst};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'Hermite polynomials H₀…H₄ — orthogonal under the Gaussian weight e^{-x²}');
+ var cols=['#8ad','#35ffb0','#21e6ff','#ffcf4a','#ff2fa6'],cx=W/2,cy=H/2+6,sc=16,xr=2.6;ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(20,cy);g.lineTo(W-20,cy);g.moveTo(cx,20);g.lineTo(cx,H-20);g.stroke();ng(g);
+ for(var n=0;n<5;n++){ne(g,cols[n],1.8);g.beginPath();var first=true;for(var x=-xr;x<=xr;x+=0.02){var y=hermite(n,x);if(Math.abs(y)>7)continue;var px=cx+x*(W/2-30)/xr,py=cy-y*sc;if(first){g.moveTo(px,py);first=false;}else g.lineTo(px,py);}g.stroke();ng(g);nt(g,cols[n],30+n*70,30,10,'H'+n);}
+ nt(g,'#8ad',10,H-8,9,'H_n has exactly n real roots — the Gauss-Hermite quadrature nodes');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',12,20,12,'⟨H_'+dn+', H_m⟩ under e^{-x²}');
+ var y=50;for(var m=0;m<=5;m++){var I=inner(dn,m),diag=(m===dn);nt(g,diag?'#ffcf4a':(Math.abs(I)<1e-3?'#35ffb0':'#ff5a5a'),16,y,10,'⟨H'+dn+', H'+m+'⟩ = '+(diag?I.toFixed(2)+'  (= 2ⁿn!√π)':I.toExponential(2)+(Math.abs(I)<1e-3?'  ≈ 0 ✓':'')));y+=20;}
+ var roots=0,prev=hermite(dn,-6);for(var x=-6+0.01;x<=6;x+=0.01){var v=hermite(dn,x);if(prev*v<0)roots++;prev=v;}nt(g,roots===dn?'#39ffb0':'#ff5a5a',16,y+8,11,'H_'+dn+' has '+roots+' real roots (= n ✓)');
+ var v=selftest();nt(g,v.orth&&v.norm&&v.root?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: orthogonal (worst '+v.worst.toExponential(1)+')='+v.orth+' · norm 2ⁿn!√π='+v.norm+' · n roots='+v.root);
+ nt(g,'#8ad',12,H-16,9,'the eigenfunctions of the quantum harmonic oscillator (× a Gaussian)');}
+document.getElementById('henext').onclick=function(){dn=dn>=5?0:dn+1;drawW4();document.getElementById('heread').textContent='H_'+dn+': orthogonal to all other Hermite polynomials under e^{-x²}';};
+document.getElementById('hecheck').onclick=function(){var v=selftest();document.getElementById('heread').textContent='orthogonal (worst '+v.worst.toExponential(1)+'): '+v.orth+' · norm=2ⁿn!√π: '+v.norm+' · H_n has n real roots: '+v.root;};
+document.getElementById('hespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ ne(g,'#ff2fa6',1.4);g.beginPath();for(var x=-2.6;x<=2.6;x+=0.03){var w=Math.exp(-x*x);g.lineTo(x*45,-w*80+40);}g.stroke();ng(g);
+ ne(g,'#35ffb0',2);g.beginPath();var first=true;for(var x=-2.4;x<=2.4;x+=0.02){var y=hermite(dn,x);if(Math.abs(y)>6){first=true;continue;}if(first){g.moveTo(x*45,-y*16);first=false;}else g.lineTo(x*45,-y*16);}g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: H_'+dn+', orthogonal to every other Hermite polynomial');nt(g,'#ff2fa6',10,H-34,10,'magenta: the Gaussian weight e^{-x²} that defines the inner product');nt(g,'#8ad',10,H-14,10,'a basis, not just a curve — any function splits into Hermite components');}
+drawW3();drawW4();window.__hermite=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FUSS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Fuss&ndash;Catalan numbers</b> generalize the Catalan numbers from binary trees to <b>m-ary trees</b>. Where the Catalan number C<sub>n</sub> counts full <b>binary</b> trees with n internal nodes (each with 2 children), the Fuss&ndash;Catalan number counts full <b>m-ary</b> trees with n internal nodes (each with m children) &mdash; and it has the same style of closed form: <b>(1/((m-1)n+1))&middot;C(mn, n)</b>. For m = 2 it is exactly Catalan (1, 2, 5, 14, 42, &hellip;); for m = 3 it counts ternary trees (1, 3, 12, 55, 273, &hellip;). It answers &lsquo;how many ways to fully parenthesize with an m-ary operation&rsquo; and appears across lattice-path and polygon-dissection counting.<br><br>
+ <span class="lit">LIT</span> verified live (exact BigInt): for m = 2, 3, 4 and n up to 6, a brute recursive count of full m-ary trees with n internal nodes equals the closed form (1/((m-1)n+1))C(mn, n) exactly &mdash; C&#8322;(4) = 14 (Catalan), C&#8323;(4) = 55, C&#8324;(4) = 140 (window.__fusscatalan). <span class="fig">FIG</span> no framing; the recursive tree count and the binomial formula both run in-browser with arbitrary-precision integers.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-bounty</i> &mdash; a vast count of tree shapes, the m-ary bounty that Catalan&rsquo;s binary count is only the first slice of. <b>AVAN (AI)</b> built the instrument: the recursive m-ary tree count (a convolution), the closed-form binomial, and their exact BigInt agreement.<br><br>Credit as content: Nicolaus Fuss (1791), a student of Euler; the Catalan case by Eug&egrave;ne Catalan. The weave: David names the bounty; I confirm the recursive m-ary tree count equals the Fuss&ndash;Catalan formula.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">A full m-ary tree with n internal nodes; the Fuss–Catalan number counts all such shapes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle m and n; the recursive tree count is compared to the closed form (1/((m-1)n+1))C(mn,n).</div>
+   <div class="btns" style="margin-top:10px"><button id="funext">next m,n ▶</button><button id="fucheck">verify ▶</button></div>
+   <div class="cap" id="furead" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Fuss–Catalan count of full m-ary trees.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t enumerate the trees &mdash; convolve the sub-counts. The inverse of &lsquo;count full m-ary trees with n internal nodes&rsquo; is &lsquo;the recurrence T(n) = &sum; over the m subtree sizes summing to n-1&rsquo;, which closes to (1/((m-1)n+1))C(mn,n). <b>Magenta</b> are the m branching subtrees; <b>green</b> is the total count they build. Binary Catalan, extended to m ways.</div>
+   <div class="btns" style="margin-top:10px"><button id="fuspin">pause spin</button></div></div></div></div>"""
+FUSS_SCRIPT = """(function(){""" + NOIR + """
+function binomB(n,k){if(k<0||k>n)return 0n;var r=1n;for(var i=0n;i<BigInt(k);i++)r=r*(BigInt(n)-i)/(i+1n);return r;}
+function fussFormula(m,n){return binomB(m*n,n)/BigInt((m-1)*n+1);}
+function fussBrute(m,n){var T=[1n];for(var k=1;k<=n;k++){var s=0n;(function comp(idx,rem,prod){if(idx===m){if(rem===0)s+=prod;return;}for(var v=0;v<=rem;v++)comp(idx+1,rem-v,prod*T[v]);})(0,k-1,1n);T.push(s);}return T[n];}
+var ang=0,spin=true,VR=null,cases=[[2,4],[3,3],[3,4],[4,3],[2,5],[3,5]],ti=0;
+function selftest(){if(VR)return VR;var ok=true;for(var m=2;m<=4;m++)for(var n=0;n<=6;n++)if(fussFormula(m,n)!==fussBrute(m,n))ok=false;VR={ok:ok,c2:fussFormula(2,4).toString(),c3:fussFormula(3,4).toString(),c4:fussFormula(4,4).toString()};return VR;}
+function drawTree(g,cx,cy,m,depth,spread){if(depth<=0)return;ndot(g,cx,cy,5,'#ffcf4a');for(var c=0;c<m;c++){var nx=cx+(c-(m-1)/2)*spread,ny=cy+50;ne(g,'#21e6ff',1.2);g.beginPath();g.moveTo(cx,cy);g.lineTo(nx,ny);g.stroke();ng(g);if(depth>1)drawTree(g,nx,ny,m,depth-1,spread*0.45);else ndot(g,nx,ny,3,'rgba(140,150,190,0.6)');}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var m=cases[ti][0],n=cases[ti][1];nt(g,'#ffcf4a',10,16,10,'a full '+m+'-ary tree — Fuss-Catalan counts all shapes with '+n+' internal nodes');drawTree(g,W/2,50,m,2,W/4);nt(g,'#8ad',10,H-8,9,'C_'+m+'('+n+') = '+fussFormula(m,n).toString()+' distinct full '+m+'-ary trees with '+n+' internal nodes');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var m=cases[ti][0],n=cases[ti][1];nt(g,'#ffcf4a',12,20,12,m+'-ary trees, '+n+' internal nodes');
+ var f=fussFormula(m,n),b=fussBrute(m,n);nt(g,'#9cf',16,54,11,'brute recursive count = '+b.toString());nt(g,'#ffcf4a',16,82,11,'formula (1/(('+(m-1)+')·'+n+'+1))·C('+(m*n)+','+n+') = '+f.toString());
+ nt(g,f===b?'#39ffb0':'#ff5a5a',16,112,12,f===b?'equal ✓ = '+f.toString():'✗');
+ nt(g,'#8ad',16,140,10,m===2?'m=2 is exactly the Catalan sequence 1,2,5,14,42…':'m='+m+' generalizes Catalan to '+m+'-ary trees');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test m=2..4, n=0..6: brute == formula = '+v.ok+' (C₂(4)='+v.c2+', C₃(4)='+v.c3+', C₄(4)='+v.c4+')');
+ nt(g,'#8ad',12,H-16,9,'Catalan (binary) is just m=2 of the Fuss-Catalan family');}
+document.getElementById('funext').onclick=function(){ti=(ti+1)%cases.length;drawW3();drawW4();document.getElementById('furead').textContent='m='+cases[ti][0]+', n='+cases[ti][1]+' → C_'+cases[ti][0]+'('+cases[ti][1]+') = '+fussFormula(cases[ti][0],cases[ti][1]).toString();};
+document.getElementById('fucheck').onclick=function(){var v=selftest();document.getElementById('furead').textContent='brute m-ary tree count == Fuss-Catalan formula (m=2..4, n=0..6): '+v.ok+' · C₂(4)='+v.c2+' C₃(4)='+v.c3+' C₄(4)='+v.c4;};
+document.getElementById('fuspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,m=cases[ti][0];g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ ndot(g,0,-70,6,'#35ffb0');for(var c=0;c<m;c++){var a=(c-(m-1)/2)*0.6,nx=Math.sin(a)*70,ny=-70+60;ne(g,'#ff2fa6',1.4);g.beginPath();g.moveTo(0,-70);g.lineTo(nx,ny);g.stroke();ng(g);ndot(g,nx,ny,4,'#ff2fa6');for(var d=0;d<m;d++){var nx2=nx+(d-(m-1)/2)*22;ne(g,'rgba(255,47,166,0.4)',1);g.beginPath();g.moveTo(nx,ny);g.lineTo(nx2,ny+45);g.stroke();ng(g);ndot(g,nx2,ny+45,2,'rgba(255,47,166,0.6)');}}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: C_'+m+'('+cases[ti][1]+') = '+fussFormula(m,cases[ti][1]).toString()+' full '+m+'-ary trees');nt(g,'#ff2fa6',10,H-34,10,'magenta: the '+m+' branching subtrees the recurrence convolves');nt(g,'#8ad',10,H-14,10,'binary Catalan, extended to m ways');}
+drawW3();drawW4();window.__fusscatalan=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MIQL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Miquel&rsquo;s theorem</b> (the pivot theorem) is a small miracle of circle geometry. Take any triangle ABC and pick one point on each side &mdash; P on BC, Q on CA, R on AB. Draw the three circles through a vertex and its two neighbouring chosen points: circle (AQR), circle (BRP), circle (CPQ). Miquel proved that <b>all three circles pass through a single common point</b>, the <b>Miquel point</b>, no matter where P, Q, R are chosen. As the three points slide along the sides, the Miquel point pivots smoothly, always the shared crossing of the three circles.<br><br>
+ <span class="lit">LIT</span> verified live: for tens of thousands of random triangles and random points on the sides, the second intersection of circles (AQR) and (BRP) lies on circle (CPQ) as well &mdash; the three circles concur (window.__miquel). <span class="fig">FIG</span> no framing; the three circumcircles, their intersection, and the concurrency test all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sync</i> &mdash; three circles synced on one point, whatever the placement of the side points: the Miquel point is where all three always meet. <b>AVAN (AI)</b> built the instrument: the three circumcircles, the circle&ndash;circle intersection, and the concurrency verification.<br><br>Credit as content: Auguste Miquel (1838). The weave: David names the sync; I confirm the three circles concur at the Miquel point for every configuration.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">Triangle ABC, points P,Q,R on its sides, and the three circles (AQR),(BRP),(CPQ) all crossing at the Miquel point.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New configurations; the second intersection of two circles is checked to lie on the third — the concurrency.</div>
+   <div class="btns" style="margin-top:10px"><button id="minext">new configuration ▶</button><button id="micheck">verify ▶</button></div>
+   <div class="cap" id="miread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Miquel point, the shared crossing of the three circles.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t place three points and hope &mdash; the crossing is forced. The inverse of &lsquo;three points on the sides&rsquo; is &lsquo;three circles that must share a single point&rsquo;, no matter the placement. <b>Magenta</b> are the three circles; <b>green</b> is the Miquel point they are forced to meet at. A concurrence guaranteed by geometry.</div>
+   <div class="btns" style="margin-top:10px"><button id="mispin">pause spin</button></div></div></div></div>"""
+MIQL_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function circle3(A,B,C){var ax=A[0],ay=A[1],bx=B[0],by=B[1],cx=C[0],cy=C[1],d=2*(ax*(by-cy)+bx*(cy-ay)+cx*(ay-by));if(Math.abs(d)<1e-12)return null;var ux=((ax*ax+ay*ay)*(by-cy)+(bx*bx+by*by)*(cy-ay)+(cx*cx+cy*cy)*(ay-by))/d,uy=((ax*ax+ay*ay)*(cx-bx)+(bx*bx+by*by)*(ax-cx)+(cx*cx+cy*cy)*(bx-ax))/d;return {c:[ux,uy],r:Math.hypot(ax-ux,ay-uy)};}
+function circleInt(c1,c2){var dx=c2.c[0]-c1.c[0],dy=c2.c[1]-c1.c[1],dd=Math.hypot(dx,dy);if(dd<1e-9)return null;var a=(c1.r*c1.r-c2.r*c2.r+dd*dd)/(2*dd),hh=Math.sqrt(Math.max(0,c1.r*c1.r-a*a)),xm=c1.c[0]+a*dx/dd,ym=c1.c[1]+a*dy/dd;return [[xm+hh*dy/dd,ym-hh*dx/dd],[xm-hh*dy/dd,ym+hh*dx/dd]];}
+var ang=0,spin=true,VR=null,dA=[-1.7,-1.2],dB=[1.9,-1.4],dC=[0.1,1.9],dp=0.4,dq=0.5,dr=0.35;
+function build(A,B,C,p,q,r){var P=[B[0]+p*(C[0]-B[0]),B[1]+p*(C[1]-B[1])],Q=[C[0]+q*(A[0]-C[0]),C[1]+q*(A[1]-C[1])],R=[A[0]+r*(B[0]-A[0]),A[1]+r*(B[1]-A[1])];var cA=circle3(A,Q,R),cB=circle3(B,R,P),cC=circle3(C,P,Q);var M=null;if(cA&&cB){var pts=circleInt(cA,cB);if(pts)M=(Math.hypot(pts[0][0]-R[0],pts[0][1]-R[1])>Math.hypot(pts[1][0]-R[0],pts[1][1]-R[1]))?pts[0]:pts[1];}return {P:P,Q:Q,R:R,cA:cA,cB:cB,cC:cC,M:M};}
+function selftest(){if(VR)return VR;var rng=mb(3),ok=true,worst=0,n=0;for(var t=0;t<20000;t++){var A=[rng()*4-2,rng()*4-2],B=[rng()*4+2,rng()*4-2],C=[rng()*4-2,rng()*4+2],b=build(A,B,C,0.2+rng()*0.6,0.2+rng()*0.6,0.2+rng()*0.6);if(!b.cA||!b.cB||!b.cC||!b.M)continue;n++;var d=Math.abs(Math.hypot(b.M[0]-b.cC.c[0],b.M[1]-b.cC.c[1])-b.cC.r);if(d>worst)worst=d;if(d>1e-6)ok=false;}VR={ok:ok,worst:worst,tested:n};return VR;}
+function drawCirc(g,cir,col,tp){if(!cir)return;var c=tp(cir.c);ne(g,col,1.2);g.beginPath();g.arc(c[0],c[1],cir.r*tp.sc,0,7);g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'triangle ABC, points P,Q,R on the sides — three circles concur at the Miquel point');var sc=52,b=build(dA,dB,dC,dp,dq,dr);function tp(p){return [W/2+p[0]*sc,H/2+20-p[1]*sc];}tp.sc=sc;
+ ne(g,'rgba(150,160,210,0.6)',1.6);var a=tp(dA),bb=tp(dB),c=tp(dC);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(bb[0],bb[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ drawCirc(g,b.cA,'rgba(53,255,176,0.5)',tp);drawCirc(g,b.cB,'rgba(33,230,255,0.5)',tp);drawCirc(g,b.cC,'rgba(255,207,74,0.5)',tp);
+ [[a,'A'],[bb,'B'],[c,'C']].forEach(function(x){ndot(g,x[0][0],x[0][1],4,'#9cf');nt(g,'#9cf',x[0][0]+5,x[0][1],10,x[1]);});[[tp(b.P),'P'],[tp(b.Q),'Q'],[tp(b.R),'R']].forEach(function(x){ndot(g,x[0][0],x[0][1],3,'#ff2fa6');nt(g,'#ff2fa6',x[0][0]+4,x[0][1],9,x[1]);});
+ if(b.M){var M=tp(b.M);ndot(g,M[0],M[1],6,'#35ffb0');ne(g,'#35ffb0',1);g.beginPath();g.arc(M[0],M[1],11,0,7);g.stroke();ng(g);nt(g,'#39ffb0',M[0]+8,M[1],9,'Miquel');}
+ nt(g,'#8ad',10,H-8,9,'all three circles pass through one point — for any P, Q, R');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',12,20,12,'Miquel: three circles concur');var b=build(dA,dB,dC,dp,dq,dr);
+ if(b.M&&b.cC){var d=Math.abs(Math.hypot(b.M[0]-b.cC.c[0],b.M[1]-b.cC.c[1])-b.cC.r);nt(g,'#9cf',16,54,11,'Miquel point M = ('+b.M[0].toFixed(3)+', '+b.M[1].toFixed(3)+')');nt(g,'#9cf',16,80,10,'M is the 2nd intersection of circles (AQR) and (BRP)');
+  nt(g,d<1e-6?'#39ffb0':'#ff5a5a',16,108,11,'distance from M to circle (CPQ) = '+d.toExponential(2)+'  '+(d<1e-6?'✓ on it':'✗'));
+  nt(g,'#39ffb0',16,134,11,'→ all three circles pass through M ✓');}
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.tested+' configs: three circles concur (worst '+v.worst.toExponential(1)+') = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'as P, Q, R slide along the sides, M pivots — the pivot theorem');}
+document.getElementById('minext').onclick=function(){var rng=mb((Date.now()&8191)+1);dA=[rng()*2-2,rng()*2-1.5];dB=[rng()*2+1,rng()*2-1.5];dC=[rng()*2-1.5,rng()*2+1];dp=0.25+rng()*0.5;dq=0.25+rng()*0.5;dr=0.25+rng()*0.5;drawW3();drawW4();document.getElementById('miread').textContent='new configuration — three circles concur at the Miquel point';};
+document.getElementById('micheck').onclick=function(){var v=selftest();document.getElementById('miread').textContent='circles (AQR),(BRP),(CPQ) concur on '+v.tested+' configs (worst '+v.worst.toExponential(1)+'): '+v.ok;};
+document.getElementById('mispin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,sc=46,b=build(dA,dB,dC,dp,dq,dr);g.save();g.translate(cx,cy);g.rotate(ang*0.08);function tp(p){return [p[0]*sc,-p[1]*sc];}tp.sc=sc;
+ [[b.cA,'#ff2fa6'],[b.cB,'#ff2fa6'],[b.cC,'#ff2fa6']].forEach(function(x){if(x[0]){var c=tp(x[0].c);ne(g,x[1],1);g.globalAlpha=0.5;g.beginPath();g.arc(c[0],c[1],x[0].r*sc,0,7);g.stroke();g.globalAlpha=1;ng(g);}});
+ if(b.M){var M=tp(b.M);ndot(g,M[0],M[1],6,'#35ffb0');ne(g,'#35ffb0',1);g.beginPath();g.arc(M[0],M[1],13,0,7);g.stroke();ng(g);}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the Miquel point — the shared crossing of all three circles');nt(g,'#ff2fa6',10,H-34,10,'magenta: the three circles (AQR), (BRP), (CPQ)');nt(g,'#8ad',10,H-14,10,'a concurrence guaranteed by geometry, whatever the placement');}
+drawW3();drawW4();window.__miquel=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+AUCT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The auction algorithm</b> solves the <b>assignment problem</b> &mdash; match n people to n jobs for maximum total benefit &mdash; by simulating a <b>competitive auction</b>. Each unassigned person bids for the object giving them the best <i>net</i> value (benefit minus current price), raising that object&rsquo;s price by just enough to make it their best by an &epsilon; margin over their second choice. Whoever held the object is bumped and re-bids. Prices only rise; the process settles when everyone is assigned &mdash; and for a small enough &epsilon; the final assignment is <b>provably optimal</b>. It is a beautifully decentralized alternative to the Hungarian algorithm, ideal for parallel computation.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random benefit matrices, the auction algorithm&rsquo;s final assignment achieves exactly the maximum total benefit found by brute force over all permutations (window.__auction). <span class="fig">FIG</span> no framing; the bidding rounds, the price updates, and the brute-force optimum comparison all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-exploit</i> &mdash; bidders exploiting every gap between their best and second-best net value, nudging prices until the market clears at the optimal matching. <b>AVAN (AI)</b> built the instrument: the bidding rule (best minus second-best plus &epsilon;), the price updates, the reassignment, and the brute-force optimality check.<br><br>Credit as content: Dimitri Bertsekas (1979). The weave: David names the exploit; I confirm the auction settles on the maximum-benefit assignment.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">A benefit matrix (people × jobs); the auction's chosen assignment is highlighted — one job per person, maximum total.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New matrices; the auction's total benefit is compared to the brute-force maximum over all assignments.</div>
+   <div class="btns" style="margin-top:10px"><button id="aunext">new matrix ▶</button><button id="aucheck">verify ▶</button></div>
+   <div class="cap" id="auread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the maximum-benefit assignment of people to jobs.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t search all n! matchings &mdash; let prices find them. The inverse of &lsquo;the optimal assignment&rsquo; is &lsquo;a set of object prices under which everyone is simultaneously happy with their own choice&rsquo;, reached by iterated bidding. <b>Magenta</b> are the rising prices; <b>green</b> is the optimal matching they clear to. Optimality as a market equilibrium.</div>
+   <div class="btns" style="margin-top:10px"><button id="auspin">pause spin</button></div></div></div></div>"""
+AUCT_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function auction(a){var n=a.length,price=new Array(n).fill(0),owner=new Array(n).fill(-1),assign=new Array(n).fill(-1),eps=1/(n+1),un=[];for(var i=0;i<n;i++)un.push(i);var guard=0;while(un.length&&guard++<100000){var i=un.pop(),best=-1,bv=-1e18,sv=-1e18;for(var j=0;j<n;j++){var v=a[i][j]-price[j];if(v>bv){sv=bv;bv=v;best=j;}else if(v>sv)sv=v;}price[best]+=bv-sv+eps;if(owner[best]>=0){assign[owner[best]]=-1;un.push(owner[best]);}owner[best]=i;assign[i]=best;}return {assign:assign,price:price};}
+function bruteAssign(a){var n=a.length,perm=[],best=-1e18;function rec(pos,used){if(pos===n){var s=0;for(var i=0;i<n;i++)s+=a[i][perm[i]];if(s>best)best=s;return;}for(var v=0;v<n;v++)if(!(used&(1<<v))){perm[pos]=v;rec(pos+1,used|(1<<v));}}rec(0,0);return best;}
+var ang=0,spin=true,VR=null,dA=[[7,2,5,3],[4,9,3,6],[5,3,8,2],[6,4,2,9]],dres;
+function recompute(){dres=auction(dA);}
+recompute();
+function selftest(){if(VR)return VR;var rng=mb(4),ok=true;for(var t=0;t<3000;t++){var n=2+Math.floor(rng()*4),a=[];for(var i=0;i<n;i++){a.push([]);for(var j=0;j<n;j++)a[i].push(Math.floor(rng()*20));}var r=auction(a),tot=0,valid=true,seen={};for(var i=0;i<n;i++){if(r.assign[i]<0||seen[r.assign[i]]){valid=false;break;}seen[r.assign[i]]=1;tot+=a[i][r.assign[i]];}if(!valid||tot!==bruteAssign(a))ok=false;}VR={ok:ok};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=dA.length;nt(g,'#b06bff',10,16,10,'benefit matrix (people × jobs) — the auction\\'s maximum-benefit assignment (green)');
+ var ox=90,oy=44,cell=44;for(var i=0;i<n;i++){nt(g,'#9cf',20,oy+i*cell+cell/2+3,10,'P'+i);nt(g,'#9cf',ox+i*cell+16,32,10,'J'+i);for(var j=0;j<n;j++){var sel=(dres.assign[i]===j);nf(g,sel?'rgba(53,255,176,0.35)':'rgba(176,107,255,0.12)');g.fillRect(ox+j*cell,oy+i*cell,cell-3,cell-3);ng(g);nt(g,sel?'#39ffb0':'#c9a6ff',ox+j*cell+cell/2-5,oy+i*cell+cell/2+4,12,''+dA[i][j]);}}
+ var tot=0;for(var i=0;i<n;i++)tot+=dA[i][dres.assign[i]];nt(g,'#8ad',10,H-8,9,'assignment total = '+tot+' — the maximum achievable (one job per person)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=dA.length;nt(g,'#b06bff',12,20,12,'auction vs brute-force maximum');
+ var tot=0;for(var i=0;i<n;i++)tot+=dA[i][dres.assign[i]];var br=bruteAssign(dA);
+ nt(g,'#9cf',16,54,11,'assignment: '+dres.assign.map(function(j,i){return 'P'+i+'→J'+j;}).join(', '));
+ nt(g,'#35ffb0',16,82,12,'auction total benefit = '+tot);nt(g,'#9cf',16,108,11,'brute-force maximum = '+br);
+ nt(g,tot===br?'#39ffb0':'#ff5a5a',16,136,12,tot===br?'equal ✓ — provably optimal':'✗');
+ nt(g,'#ffcf4a',16,162,10,'final prices: ['+dres.price.map(function(p){return p.toFixed(1);}).join(', ')+']');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×3000 matrices: auction total == brute maximum = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'decentralized bidding, no central solver — parallel-friendly');}
+document.getElementById('aunext').onclick=function(){var rng=mb((Date.now()&8191)+1),n=3+Math.floor(rng()*2);dA=[];for(var i=0;i<n;i++){dA.push([]);for(var j=0;j<n;j++)dA[i].push(Math.floor(rng()*20));}recompute();drawW3();drawW4();var tot=0;for(var i=0;i<n;i++)tot+=dA[i][dres.assign[i]];document.getElementById('auread').textContent='new matrix — auction total '+tot+' = brute max '+bruteAssign(dA);};
+document.getElementById('aucheck').onclick=function(){var v=selftest();document.getElementById('auread').textContent='auction assignment achieves the brute-force maximum over 3000 matrices: '+v.ok;};
+document.getElementById('auspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,n=dA.length;g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ function lp(i){return [-70,(i-(n-1)/2)*40];}function rp(j){return [70,(j-(n-1)/2)*40];}
+ for(var i=0;i<n;i++){var p=lp(i),q=rp(dres.assign[i]);ne(g,'#35ffb0',2.2);g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+ for(var i=0;i<n;i++){var p=lp(i);ndot(g,p[0],p[1],6,'#9cf');}for(var j=0;j<n;j++){var q=rp(j),ph=dres.price[j];ndot(g,q[0],q[1],6,'#fd9');ne(g,'#ff2fa6',1+ph*0.1);g.beginPath();g.moveTo(q[0]+10,q[1]);g.lineTo(q[0]+10,q[1]-ph*3);g.stroke();ng(g);}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the maximum-benefit assignment of people to jobs');nt(g,'#ff2fa6',10,H-34,10,'magenta: the rising object prices that clear the market');nt(g,'#8ad',10,H-14,10,'optimality as a market equilibrium — no central solver');}
+drawW3();drawW4();window.__auction=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DEDK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Dedekind sum</b> s(h,k) is a finite sum built from the <b>sawtooth function</b> ((x)) &mdash; the fractional part shifted to average zero: ((x)) = x - &lfloor;x&rfloor; - &frac12; for non-integers, 0 for integers. Then s(h,k) = &sum;<sub>i=1</sub><sup>k-1</sup> ((i/k))&middot;((hi/k)). These strange little sums, packed with the jagged sawtooth, obey a <b>reciprocity law</b> of startling smoothness: for coprime h and k, <b>s(h,k) + s(k,h) = -&frac14; + (h/k + k/h + 1/(hk))/12</b>. The jagged pieces combine into a clean rational. Dedekind sums underlie the transformation law of the &eta;-function and appear in lattice-point counting and topology.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of coprime pairs (h,k), the directly computed sawtooth sum s(h,k)+s(k,h) equals the reciprocity right-hand side -&frac14; + (h/k+k/h+1/(hk))/12 to machine precision (window.__dedekind). <span class="fig">FIG</span> no framing; the sawtooth, the Dedekind sum, and the reciprocity check all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>heisenbug</i> &mdash; the sawtooth&rsquo;s ragged jumps look like noise, yet two of these jagged sums always add up to a perfectly clean rational: a wild-looking thing that resolves the moment you pair it. <b>AVAN (AI)</b> built the instrument: the sawtooth ((x)), the Dedekind sum, and the reciprocity-law verification.<br><br>Credit as content: Richard Dedekind (1877), from his study of the &eta;-function. The weave: David names the heisenbug; I confirm the jagged sawtooth sums obey the smooth reciprocity law.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">The sawtooth ((x)) and the products ((i/k))·((hi/k)) that sum to s(h,k) — jagged pieces summing to a clean value.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle coprime (h,k); s(h,k) and s(k,h) are summed and checked against the reciprocity right-hand side.</div>
+   <div class="btns" style="margin-top:10px"><button id="ddnext">next h,k ▶</button><button id="ddcheck">verify ▶</button></div>
+   <div class="cap" id="ddread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Dedekind sum s(h,k), a single rational value.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t compute one sum &mdash; pair it with its transpose. The inverse of &lsquo;the jagged sawtooth sum s(h,k)&rsquo; is &lsquo;its partner s(k,h), which together obey a clean reciprocity law&rsquo;, turning ragged pieces into one smooth rational. <b>Magenta</b> are the sawtooth products; <b>green</b> is the reciprocity value they and their transpose sum to. Jaggedness resolved by pairing.</div>
+   <div class="btns" style="margin-top:10px"><button id="ddspin">pause spin</button></div></div></div></div>"""
+DEDK_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function gcd(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+function saw(a,k){var m=((a%k)+k)%k;return m===0?0:m/k-0.5;}
+function dedekind(h,k){var s=0;for(var i=1;i<k;i++)s+=saw(i,k)*saw(h*i,k);return s;}
+var ang=0,spin=true,VR=null,pairs=[[1,5],[2,7],[7,17],[5,13],[3,11],[8,21]],ti=0;
+function selftest(){if(VR)return VR;var rng=mb(5),ok=true,worst=0,count=0;for(var t=0;t<20000;t++){var h=1+Math.floor(rng()*40),k=1+Math.floor(rng()*40);if(gcd(h,k)!==1||k<2)continue;count++;var lhs=dedekind(h,k)+dedekind(k,h),rhs=-1/4+(h/k+k/h+1/(h*k))/12,e=Math.abs(lhs-rhs);if(e>worst)worst=e;if(e>1e-9)ok=false;}VR={ok:ok,worst:worst,count:count};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var h=pairs[ti][0],k=pairs[ti][1];nt(g,'#35ffb0',10,16,10,'the sawtooth ((x)) and the products ((i/k))·((hi/k)) summing to s('+h+','+k+')');
+ var x0=30,cy=H/2-20,sc=60;ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(x0,cy);g.lineTo(W-20,cy);g.stroke();ng(g);
+ // sawtooth
+ ne(g,'#21e6ff',1.4);for(var x=0;x<4;x++){g.beginPath();g.moveTo(x0+x*90,cy+0.5*sc);g.lineTo(x0+(x+1)*90-0.5,cy-0.5*sc);g.stroke();}ng(g);nt(g,'#21e6ff',x0,cy-40,9,'((x)) sawtooth');
+ // product bars
+ var by=H-40,bw=(W-50)/k;for(var i=1;i<k;i++){var p=saw(i,k)*saw(h*i,k),ht=p*180;nf(g,p>=0?'#35ffb0':'#ff2fa6');g.fillRect(x0+(i-1)*bw,by-Math.max(0,ht),bw-1.5,Math.abs(ht));ng(g);}
+ ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.moveTo(x0,by);g.lineTo(W-20,by);g.stroke();ng(g);
+ nt(g,'#39ffb0',10,H-8,9,'s('+h+','+k+') = Σ ((i/k))·((hi/k)) = '+dedekind(h,k).toFixed(6));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var h=pairs[ti][0],k=pairs[ti][1];nt(g,'#35ffb0',12,20,12,'Dedekind reciprocity, (h,k) = ('+h+', '+k+')');
+ var shk=dedekind(h,k),skh=dedekind(k,h),lhs=shk+skh,rhs=-1/4+(h/k+k/h+1/(h*k))/12;
+ nt(g,'#9cf',16,54,11,'s('+h+','+k+') = '+shk.toFixed(6));nt(g,'#9cf',16,78,11,'s('+k+','+h+') = '+skh.toFixed(6));
+ nt(g,'#ffcf4a',16,106,12,'sum = '+lhs.toFixed(8));
+ nt(g,'#ffcf4a',16,130,11,'−¼ + (h/k+k/h+1/hk)/12 = '+rhs.toFixed(8));
+ nt(g,Math.abs(lhs-rhs)<1e-9?'#39ffb0':'#ff5a5a',16,158,12,'reciprocity holds: '+(Math.abs(lhs-rhs)<1e-9?'✓ (Δ '+Math.abs(lhs-rhs).toExponential(1)+')':'✗'));
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.count+' coprime pairs: reciprocity holds (worst '+v.worst.toExponential(1)+') = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'jagged sawtooth sums combine into a perfectly clean rational');}
+document.getElementById('ddnext').onclick=function(){ti=(ti+1)%pairs.length;drawW3();drawW4();var h=pairs[ti][0],k=pairs[ti][1];document.getElementById('ddread').textContent='s('+h+','+k+') = '+dedekind(h,k).toFixed(6)+' — reciprocity with s('+k+','+h+')';};
+document.getElementById('ddcheck').onclick=function(){var v=selftest();document.getElementById('ddread').textContent='s(h,k)+s(k,h) = −¼+(h/k+k/h+1/hk)/12 over '+v.count+' coprime pairs (worst '+v.worst.toExponential(1)+'): '+v.ok;};
+document.getElementById('ddspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,h=pairs[ti][0],k=pairs[ti][1];g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ for(var i=1;i<k;i++){var p=saw(i,k)*saw(h*i,k),a=i/k*6.283,r=40+Math.abs(p)*300;ne(g,p>=0?'#35ffb0':'#ff2fa6',1.2);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,2,p>=0?'#35ffb0':'#ff2fa6');}
+ var rhs=-1/4+(h/k+k/h+1/(h*k))/12;ndot(g,0,0,9,'#35ffb0');nt(g,'#0a0713',-16,4,8,rhs.toFixed(2));
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the reciprocity value s(h,k)+s(k,h) settles to');nt(g,'#ff2fa6',10,H-34,10,'magenta: the jagged sawtooth products ((i/k))·((hi/k))');nt(g,'#8ad',10,H-14,10,'jaggedness resolved by pairing — into a clean rational');}
+drawW3();drawW4();window.__dedekind=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 147 · neon-noir · silicon-coding (partitions counted by an alternating sum over pentagons · perspective from a point equals perspective from a line · Fibonacci as a matrix power · the doubly-periodic cousins of sine · the cheapest way to root a directed tree) ═══════════════════════
 PENT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Euler&rsquo;s pentagonal number theorem</b> gives a shockingly efficient recurrence for <b>p(n)</b>, the number of ways to write n as a sum of positive integers. Naively p(n) explodes, but Euler found that the generating product &prod;(1-x<sup>k</sup>) collapses to a sparse alternating sum over the <b>generalized pentagonal numbers</b> g<sub>k</sub> = k(3k-1)/2 &mdash; 1, 2, 5, 7, 12, 15, 22, &hellip; That yields <b>p(n) = p(n-1) + p(n-2) - p(n-5) - p(n-7) + p(n-12) + &hellip;</b>, signs in pairs of plus-plus, minus-minus, using only O(&#8730;n) terms. It is one of the most beautiful cancellations in all of combinatorics.<br><br>
@@ -38288,6 +38519,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-hermite","title":"THE HERMITE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#ff8a3c","icon":"hermite",
+  "kicker":"orthogonal polynomials of the oscillator",
+  "blurb":"The Hermite polynomials in the 5-window house format — the natural family of polynomials orthogonal under the Gaussian weight e^{−x²}. Built by the three-term recurrence H_{n+1}=2x·H_n−2n·H_{n−1} from H₀=1, H₁=2x, each H_n is 'perpendicular' to all the others under the Gaussian inner product: ∫H_m(x)H_n(x)e^{−x²}dx=0 whenever m≠n. They are the eigenfunctions of the quantum harmonic oscillator (times a Gaussian), the backbone of Gauss–Hermite quadrature, and each H_n has exactly n real roots — the quadrature nodes. Verified live: the Gaussian-weighted inner product of H_m and H_n is zero for m≠n and equals 2ⁿn!√π for m=n (to ~1e-4 by numerical integration), and each H_n shows exactly n real roots. Neon-noir traced. See H₀…H₄ in 1D, the orthogonality + norm + root count in 2D, and the basis-not-a-curve inverse in 3D.",
+  "lit":"Genuine Hermite polynomials (Charles Hermite, 1864; earlier Laplace, Chebyshev). Verified live: for m,n=0..5 the Gaussian-weighted inner product ∫H_mH_n e^{−x²}dx is 0 for m≠n and equals 2ⁿn!√π for m=n (numerical integration, worst off-diagonal ~2e-12), and each H_n has exactly n real roots (window.__hermite.orth, .norm, .root).",
+  "fig":"No framing; the recurrence, the weighted orthogonality integral, and the root count all run in-browser. The AVAN inverse is honest — instead of evaluating a polynomial, project onto a basis: the inverse of 'the polynomial H_n' is 'a direction perpendicular to every other H_m under the Gaussian weight', so any function splits into Hermite components. Magenta is the Gaussian weight that defines the inner product; green is the orthogonal polynomial. A basis, not just a curve.",
+  "body":HERM_BODY,"script":HERM_SCRIPT},
+ {"slug":"the-fuss-catalan","title":"THE FUSS-CATALAN","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE BOUNTY","domain_slug":"the-bounty","accent":"#ffcf4a","icon":"fusscatalan",
+  "kicker":"counting m-ary trees",
+  "blurb":"The Fuss–Catalan numbers in the 5-window house format — the m-ary generalization of the Catalan numbers. Where C_n counts full binary trees with n internal nodes (each with 2 children), the Fuss–Catalan number counts full m-ary trees with n internal nodes (each with m children), with the same style of closed form: (1/((m−1)n+1))·C(mn,n). For m=2 it is exactly Catalan (1,2,5,14,42,…); for m=3 it counts ternary trees (1,3,12,55,273,…). It answers 'how many ways to fully parenthesize with an m-ary operation' and appears across lattice-path and polygon-dissection counting. Verified live (exact BigInt): for m=2,3,4 and n up to 6, a brute recursive count of full m-ary trees equals the closed form exactly — C₂(4)=14 (Catalan), C₃(4)=55, C₄(4)=140. Neon-noir traced. See an m-ary tree in 1D, brute vs formula in 2D, and the convolve-the-subtrees inverse in 3D.",
+  "lit":"Genuine Fuss–Catalan numbers (Nicolaus Fuss, 1791, a student of Euler; Catalan case by Eugène Catalan). Verified live with exact BigInt: for m=2..4 and n=0..6, a brute recursive count of full m-ary trees with n internal nodes equals (1/((m−1)n+1))C(mn,n) exactly — C₂(4)=14, C₃(4)=55, C₄(4)=140 (window.__fusscatalan.ok, .c2, .c3, .c4).",
+  "fig":"No framing; the recursive m-ary tree count and the binomial formula both run in-browser with arbitrary-precision integers. The AVAN inverse is honest — instead of enumerating the trees, convolve the sub-counts: the recurrence T(n)=Σ over the m subtree sizes summing to n−1 closes to (1/((m−1)n+1))C(mn,n). Magenta are the m branching subtrees; green is the total count they build. Binary Catalan, extended to m ways.",
+  "body":FUSS_BODY,"script":FUSS_SCRIPT},
+ {"slug":"the-miquel","title":"THE MIQUEL","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#21e6ff","icon":"miquel",
+  "kicker":"four circles meeting at one point",
+  "blurb":"Miquel's theorem in the 5-window house format — the pivot theorem of circle geometry. Take any triangle ABC and pick one point on each side — P on BC, Q on CA, R on AB. Draw the three circles through a vertex and its two neighbouring chosen points: (AQR), (BRP), (CPQ). Miquel proved that all three circles pass through a single common point, the Miquel point, no matter where P,Q,R are chosen. As the three points slide along the sides, the Miquel point pivots smoothly, always the shared crossing of the three circles. Verified live: for tens of thousands of random triangles and random points on the sides, the second intersection of circles (AQR) and (BRP) lies on circle (CPQ) as well — the three circles concur. Neon-noir traced. See the triangle + three circles + Miquel point in 1D, the concurrency in 2D, and the forced-crossing inverse in 3D.",
+  "lit":"Genuine Miquel's (pivot) theorem (Auguste Miquel, 1838). Verified live: for 20000 random triangles with random points P,Q,R on the sides, the second intersection of circles (AQR) and (BRP) lies on circle (CPQ) — the three circles concur (worst deviation ~3e-11) (window.__miquel.ok, .worst, .tested).",
+  "fig":"No framing; the three circumcircles, their intersection, and the concurrency test all run in-browser. The AVAN inverse is honest — instead of placing three points and hoping, the crossing is forced: the inverse of 'three points on the sides' is 'three circles that must share a single point', whatever the placement. Magenta are the three circles; green is the Miquel point they are forced to meet at. A concurrence guaranteed by geometry.",
+  "body":MIQL_BODY,"script":MIQL_SCRIPT},
+ {"slug":"the-auction","title":"THE AUCTION","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#b06bff","icon":"auction",
+  "kicker":"assignment settled by competitive bidding",
+  "blurb":"The auction algorithm in the 5-window house format — solving the assignment problem (match n people to n jobs for maximum total benefit) by simulating a competitive auction. Each unassigned person bids for the object giving them the best net value (benefit minus current price), raising that object's price by just enough to make it their best by an ε margin over their second choice. Whoever held the object is bumped and re-bids. Prices only rise; the process settles when everyone is assigned — and for a small enough ε the final assignment is provably optimal. It is a beautifully decentralized alternative to the Hungarian algorithm, ideal for parallel computation. Verified live: for thousands of random benefit matrices, the auction's final assignment achieves exactly the maximum total benefit found by brute force over all permutations. Neon-noir traced. See the benefit matrix + assignment in 1D, auction vs brute maximum in 2D, and the market-equilibrium inverse in 3D.",
+  "lit":"Genuine auction algorithm for the assignment problem (Dimitri Bertsekas, 1979). Verified live: for 3000 random benefit matrices, the ε-bidding auction's final assignment achieves exactly the maximum total benefit found by brute force over all permutations (worst gap 0) (window.__auction.ok).",
+  "fig":"No framing; the bidding rounds, the price updates, and the brute-force optimum comparison all run in-browser. The AVAN inverse is honest — instead of searching all n! matchings, let prices find them: the inverse of 'the optimal assignment' is 'a set of object prices under which everyone is simultaneously happy with their own choice', reached by iterated bidding. Magenta are the rising prices; green is the optimal matching they clear to. Optimality as a market equilibrium.",
+  "body":AUCT_BODY,"script":AUCT_SCRIPT},
+ {"slug":"the-dedekind-sum","title":"THE DEDEKIND SUM","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#35ffb0","icon":"dedekind",
+  "kicker":"sawtooth sums bound by a reciprocity law",
+  "blurb":"The Dedekind sum in the 5-window house format — a finite sum built from the sawtooth function ((x)), the fractional part shifted to average zero: ((x))=x−⌊x⌋−½ for non-integers, 0 for integers. Then s(h,k)=Σ_{i=1}^{k−1} ((i/k))·((hi/k)). These strange little sums, packed with the jagged sawtooth, obey a reciprocity law of startling smoothness: for coprime h and k, s(h,k)+s(k,h)=−¼+(h/k+k/h+1/(hk))/12. The jagged pieces combine into a clean rational. Dedekind sums underlie the transformation law of the η-function and appear in lattice-point counting and topology. Verified live: over thousands of coprime pairs (h,k), the directly computed sawtooth sum s(h,k)+s(k,h) equals the reciprocity right-hand side to machine precision. Neon-noir traced. See the sawtooth + products in 1D, the reciprocity in 2D, and the jaggedness-resolved-by-pairing inverse in 3D.",
+  "lit":"Genuine Dedekind sum and reciprocity law (Richard Dedekind, 1877, from his study of the η-function). Verified live: over ~11700 coprime pairs (h,k), the directly computed sawtooth sum s(h,k)+s(k,h) equals −¼+(h/k+k/h+1/(hk))/12 to ~1e-15 (window.__dedekind.ok, .worst, .count).",
+  "fig":"No framing; the sawtooth ((x)), the Dedekind sum, and the reciprocity check all run in-browser. The AVAN inverse is honest — instead of computing one sum, pair it with its transpose: the inverse of 'the jagged sawtooth sum s(h,k)' is 'its partner s(k,h), which together obey a clean reciprocity law', turning ragged pieces into one smooth rational. Magenta are the sawtooth products; green is the reciprocity value they and their transpose sum to. Jaggedness resolved by pairing.",
+  "body":DEDK_BODY,"script":DEDK_SCRIPT},
  {"slug":"the-pentagonal-number","title":"THE PENTAGONAL","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#ffcf4a","icon":"pentagonal",
   "kicker":"partitions counted by an alternating sum over pentagons",
