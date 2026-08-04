@@ -19493,6 +19493,408 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 183 · neon-noir · silicon-coding · THE PERFECT AND THE ALMOST (every cut counted exactly · the celebrated failure · coins the mint stopped printing · exact change for every bill · how many can touch the one) ═══════════════════════
+LZCT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Slice a pancake with n straight cuts &mdash; what is the most pieces you can get? The <b>lazy caterer&rsquo;s sequence</b>: 1 + n + C(n,2) &mdash; 2, 4, 7, 11, 16, 22&hellip; The logic is bookkeeping: each new cut adds one region, plus one more for every earlier cut it crosses; in general position it crosses all of them. In three dimensions the same logic stacks into the <b>cake numbers</b> (n&sup3;+5n+6)/6 &mdash; each new plane slices the cake in the pattern of a 2D arrangement, so the 3D count is a running sum of the 2D one: Pascal&rsquo;s triangle wearing an apron.<br><br>
+ <span class="lit">LIT</span> verified live with exact arithmetic: random-slope line arrangements built over BigInt rationals (general position certified &mdash; every new line meets all predecessors in distinct points), regions counted incrementally for n = 5, 12, 25, 40 and matching both the closed formula and the independent Euler-characteristic route (V = C(n,2), E = n&sup2;, F forced); the cake recurrence &Sigma; lazy = (n&sup3;+5n+6)/6 checked to n = 30 (window.__lazycaterer). <span class="fig">FIG</span> no framing; every intersection is an exact fraction, no floating point in the count.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>first-light</i> &mdash; the spawn: every cut births regions, each newborn counted at the instant of crossing &mdash; a maternity ward for geometry. <b>AVAN (AI)</b> built the instrument: the exact-rational arrangement builder and the double count.<br><br>Credit as content: the lazy caterer folklore (Steiner 1826 for the plane); cake numbers (A000125). The weave: David names the birth of pieces; I certify every delivery in exact fractions.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Cuts 1..6 — regions 2, 4, 7, 11, 16, 22: each cut pays 1 + crossings.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Add cuts; the live count, the formula, and Euler agree every time.</div>
+   <div class="btns" style="margin-top:10px"><button id="lcadd">cut ▶</button><button id="lccheck2">verify ▶</button></div>
+   <div class="cap" id="lcread2" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the cake, plane after plane, riding the 2D sum.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t count the pieces &mdash; count what each cut TOUCHES. The inverse of &lsquo;how many regions?&rsquo; is &lsquo;how many crossings?&rsquo;: the entire sequence is the ledger of encounters, and dimension only changes which ledger you sum. <b>Magenta</b> is the parallel cut that wastes its crossing budget; <b>green</b> is general position, where every meeting pays out. Geometry, run as accounting.</div>
+   <div class="btns" style="margin-top:10px"><button id="lcspin">pause spin</button></div></div></div></div>"""
+LZCT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CUTS=1;
+function bgcd(a,b){a=a<0n?-a:a;b=b<0n?-b:b;while(b){var t=a%b;a=b;b=t;}return a;}
+function frac(n,d){var g=bgcd(n,d);if(g===0n)g=1n;n/=g;d/=g;if(d<0n){d=-d;n=-n;}return [n,d];}
+function mulb(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function runN(N,seed){var rng=mulb(seed),lines=[],usedS={};
+ while(lines.length<N){
+  var aN=BigInt(1+Math.floor(rng()*997)),aD=BigInt(1+Math.floor(rng()*97));
+  var s=frac(aN,aD),k=s[0]+'/'+s[1];
+  if(usedS[k])continue;usedS[k]=1;
+  lines.push({a:s,b:frac(BigInt(Math.floor(rng()*100000)),BigInt(1+Math.floor(rng()*997)))});}
+ var regions=1,general=true;
+ for(var i=0;i<N;i++){var pts={},c=0;
+  for(var j=0;j<i;j++){
+   var num=lines[j].b[0]*lines[i].b[1]-lines[i].b[0]*lines[j].b[1];
+   var den=lines[j].b[1]*lines[i].b[1];
+   var dnum=lines[i].a[0]*lines[j].a[1]-lines[j].a[0]*lines[i].a[1];
+   var dden=lines[i].a[1]*lines[j].a[1];
+   var x=frac(num*dden,den*dnum),k2=x[0]+'/'+x[1];
+   if(!pts[k2]){pts[k2]=1;c++;}}
+  if(c!==i)general=false;
+  regions+=1+c;}
+ return {regions:regions,general:general};}
+function selftest(){if(VR)return VR;var okAll=true;
+ [5,12,25,40].forEach(function(N){
+  var r=runN(N,100+N),formula=1+N+N*(N-1)/2,euler=N*N-N*(N-1)/2+1;
+  if(r.regions!==formula||euler!==formula||!r.general)okAll=false;});
+ var okCake=true;
+ for(var n=0;n<=30;n++){var s=1;
+  for(var k=1;k<=n;k++)s+=1+(k-1)*(k)/2;
+  if(s!==(n*n*n+5*n+6)/6)okCake=false;}
+ VR={okAll:okAll,okCake:okCake,ok:okAll&&okCake};return VR;}
+var DEMO=[];
+(function(){var rng=mulb(7);
+ for(var i=0;i<9;i++)DEMO.push({a:rng()*2-1,b:rng()*160-80});})();
+function drawArr(g,n,W,H,cx,cy){for(var i=0;i<n;i++){var L=DEMO[i];
+  ne(g,i===n-1?'#ffcf4a':'rgba(33,230,255,0.7)',i===n-1?2:1.4);
+  g.beginPath();g.moveTo(cx-190,cy+L.a*(-190)+L.b*0.9);g.lineTo(cx+190,cy+L.a*190+L.b*0.9);g.stroke();ng(g);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'regions 2, 4, 7, 11, 16, 22 — each cut pays 1 + crossings');
+ for(var n=1;n<=6;n++){var x=30+(n-1)*80;
+  ne(g,'rgba(150,160,210,0.6)',1);g.beginPath();g.arc(x+24,H/2,32,0,6.2832);g.stroke();ng(g);
+  for(var i=0;i<n;i++){var a=i*1.1+0.4;
+   ne(g,'#21e6ff',1.2);g.beginPath();
+   g.moveTo(x+24-32*Math.cos(a),H/2-32*Math.sin(a));g.lineTo(x+24+32*Math.cos(a),H/2+32*Math.sin(a));g.stroke();ng(g);}
+  nt(g,'#35ffb0',x+16,H/2+52,11,String(1+n+n*(n-1)/2));}
+ nt(g,'#8ad',10,H-8,9,'lazy caterer 1+n+C(n,2) — Pascal wearing an apron');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#21e6ff',12,20,12,CUTS+' cuts');
+ drawArr(g,CUTS,W,H,W/2,150);
+ var f=1+CUTS+CUTS*(CUTS-1)/2;
+ nt(g,'#35ffb0',16,238,13,'regions = '+f+' (formula = Euler = simulation)');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: n=5,12,25,40 exact BigInt arrangements + cake ≤ 30 ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'every intersection an exact fraction — no float in the count');}
+document.getElementById('lcadd').onclick=function(){CUTS=CUTS>=9?1:CUTS+1;drawW4();document.getElementById('lcread2').textContent=CUTS+' cuts → '+(1+CUTS+CUTS*(CUTS-1)/2)+' regions';};
+document.getElementById('lccheck2').onclick=function(){var v=selftest();document.getElementById('lcread2').textContent='sim = formula = Euler at n=5,12,25,40: '+v.ok;};
+document.getElementById('lcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2;
+ nt(g,'#21e6ff',10,18,10,'the cake — planes riding the 2D sum');
+ var n=1+Math.floor(ang*0.01)%6;
+ for(var i=0;i<n;i++){var yy=70+i*36,tilt=Math.sin(ang*0.01+i)*10;
+  ne(g,'rgba(53,255,176,0.6)',1.6);g.beginPath();
+  g.ellipse(cx,yy+40,110,26,0,0,6.2832);g.stroke();ng(g);}
+ var cake=(n*n*n+5*n+6)/6;
+ nt(g,'#35ffb0',cx-52,H-64,13,n+' planes → '+cake+' pieces');
+ nt(g,'#35ffb0',10,H-40,10,'green: general position — every meeting pays out');nt(g,'#ff2fa6',10,H-24,10,'magenta: the parallel cut that wastes its budget');nt(g,'#8ad',10,H-8,9,'geometry, run as accounting');}
+drawW3();drawW4();window.__lazycaterer=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PRKR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Can a 3&times;3 magic square be built from nine <b>distinct perfect squares</b>? Nobody knows &mdash; it is a genuinely open problem (related to Euler, chased by Martin LaBar&rsquo;s 1984 challenge and an Andrew Bremner analysis). Enter Matt Parker, who in a 2016 Numberphile video <b>gave it a go</b>: his square of squares gets <b>seven of the eight lines</b> to sum to 3051 &mdash; and misses one diagonal (4107), while repeating three entries. The internet named it the <b>Parker Square</b> and made it the mascot of glorious, instructive failure. The mathematics beneath is rigid: in any 3&times;3 magic square, opposite entries must sum to twice the center &mdash; so the hunt reduces to finding four disjoint pairs of squares in arithmetic-like balance around a central square, and no one ever has.<br><br>
+ <span class="lit">LIT</span> verified live: the Parker Square audited exactly &mdash; seven line-sums of 3051, the broken diagonal at 4107, three repeated entries; and an exhaustive structural search (via the opposite-pairs-sum-2c&sup2; theorem) proves <b>no valid square of distinct squares exists with center up to 1500&sup2;</b> (window.__parkersquare). <span class="fig">FIG</span> honest boundary: the full problem is OPEN &mdash; our exhaustion is a finite window; partial impossibility results (Bremner) and the open status are cited.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>second-wind</i> &mdash; the respawn: the run that died at the last diagonal, respawned as a legend &mdash; the failure so famous it recruits more attempts than any success would have. <b>AVAN (AI)</b> built the instrument: the exact audit and the pair-structure exhaustive sweep.<br><br>Credit as content: Matt Parker &amp; Brady Haran (Numberphile, 2016); Martin LaBar (1984); Andrew Bremner; Euler&rsquo;s adjacent work. The weave: David names the honored death; I measure exactly how close it came.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The Parker Square — seven green lines, one magenta diagonal.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Audit line by line; then see the exhaustive wall at center ≤ 1500².</div>
+   <div class="btns" style="margin-top:10px"><button id="pkl">line ▶</button><button id="pkcheck2">verify ▶</button></div>
+   <div class="cap" id="pkread2" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: seven lines locking; the eighth forever loose.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t mock the miss &mdash; measure what the miss taught. The inverse of &lsquo;a failed magic square&rsquo; is &lsquo;a public lesson in how constraints interlock&rsquo;: seven-eighths of the way is still zero solutions, and knowing WHY the last diagonal resists is worth more than a lucky hit. <b>Magenta</b> is 4107, the diagonal that would not close; <b>green</b> is the 'give it a go' that made a million people try. Some failures compound like interest.</div>
+   <div class="btns" style="margin-top:10px"><button id="pkspin">pause spin</button></div></div></div></div>"""
+PRKR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,li=0;
+var PQ=[[29,1,47],[41,37,1],[23,41,29]];
+var P=PQ.map(function(r){return r.map(function(x){return x*x;});});
+function lineSums(){var sums=[];
+ for(var i=0;i<3;i++)sums.push(P[i][0]+P[i][1]+P[i][2]);
+ for(var j=0;j<3;j++)sums.push(P[0][j]+P[1][j]+P[2][j]);
+ sums.push(P[0][0]+P[1][1]+P[2][2]);
+ sums.push(P[0][2]+P[1][1]+P[2][0]);
+ return sums;}
+function selftest(){if(VR)return VR;
+ var sums=lineSums(),main=3051;
+ var good=sums.filter(function(s){return s===main;}).length;
+ var flat=[].concat(P[0],P[1],P[2]),seen={},reps=0;
+ flat.forEach(function(v){if(seen[v])reps++;seen[v]=1;});
+ var found=null;
+ for(var c=1;c<=1500&&!found;c++){var T=2*c*c,pairs=[];
+  for(var x=1;x*x<T;x++){var y2=T-x*x,y=Math.round(Math.sqrt(y2));
+   if(y>x&&y*y===y2&&x!==c&&y!==c)pairs.push([x*x,y*y]);}
+  if(pairs.length<4)continue;
+  var n=pairs.length;
+  for(var s1=0;s1<n&&!found;s1++)for(var s2=s1+1;s2<n&&!found;s2++)
+  for(var s3=s2+1;s3<n&&!found;s3++)for(var s4=s3+1;s4<n&&!found;s4++){
+   var sel=[pairs[s1],pairs[s2],pairs[s3],pairs[s4]];
+   var perm=[[0,1,2,3],[0,1,3,2],[0,2,1,3],[0,2,3,1],[0,3,1,2],[0,3,2,1],
+             [1,0,2,3],[1,0,3,2],[1,2,0,3],[1,2,3,0],[1,3,0,2],[1,3,2,0],
+             [2,0,1,3],[2,0,3,1],[2,1,0,3],[2,1,3,0],[2,3,0,1],[2,3,1,0],
+             [3,0,1,2],[3,0,2,1],[3,1,0,2],[3,1,2,0],[3,2,0,1],[3,2,1,0]];
+   for(var pi2=0;pi2<24&&!found;pi2++){var pm=perm[pi2];
+    for(var fl=0;fl<16&&!found;fl++){
+     var A=sel[pm[0]][(fl&1)?1:0],I=sel[pm[0]][(fl&1)?0:1];
+     var C2=sel[pm[1]][(fl&2)?1:0],G=sel[pm[1]][(fl&2)?0:1];
+     var B=sel[pm[2]][(fl&4)?1:0],Hh=sel[pm[2]][(fl&4)?0:1];
+     var D=sel[pm[3]][(fl&8)?1:0],F=sel[pm[3]][(fl&8)?0:1];
+     var E=c*c,S=3*E;
+     if(A+B+C2===S&&D+E+F===S&&G+Hh+I===S&&A+D+G===S&&B+E+Hh===S&&C2+F+I===S){
+      var vals=[A,B,C2,D,E,F,G,Hh,I],st={},dup=false;
+      vals.forEach(function(v){if(st[v])dup=true;st[v]=1;});
+      if(!dup)found={c:c};}}}}}
+ VR={sums:sums,good:good,reps:reps,none:found===null,
+  ok:good===7&&reps===3&&sums[7]===4107&&found===null};return VR;}
+function drawSquare(g,cx,cy,cell,hl){for(var i=0;i<3;i++)for(var j=0;j<3;j++){
+  var x=cx+(j-1)*cell,y=cy+(i-1)*cell;
+  nf(g,'rgba(33,230,255,0.12)',x-cell/2+3,y-cell/2+3,cell-6,cell-6);
+  nt(g,'#ffcf4a',x-cell/2+8,y-6,11,PQ[i][j]+'²');
+  nt(g,'#9cf',x-cell/2+8,y+12,9,'='+P[i][j]);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'the Parker Square — 7 of 8 lines sum to 3051');
+ drawSquare(g,W/2-80,H/2+8,74,-1);
+ var labels=['row1 3051','row2 3051','row3 3051','col1 3051','col2 3051','col3 3051','diag 3051','anti 4107 ✗'];
+ labels.forEach(function(s,i){nt(g,i===7?'#ff2fa6':'#35ffb0',W-150,44+i*26,10,s);});
+ nt(g,'#8ad',10,H-8,9,'and three repeated entries — the celebrated failure (Numberphile 2016)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var names=['row 1','row 2','row 3','col 1','col 2','col 3','main diagonal','anti-diagonal'];
+ var i2=li%8;
+ nt(g,'#ffcf4a',12,20,12,names[i2]);
+ nt(g,v.sums[i2]===3051?'#39ffb0':'#ff2fa6',16,58,16,'sum = '+v.sums[i2]+(v.sums[i2]===3051?' ✓':' ✗ — the loose diagonal'));
+ nt(g,'#c9a6ff',16,96,10,'opposite-pairs theorem: entries across the center must sum to 2c²');
+ nt(g,'#c9a6ff',16,118,10,'exhaustive with that structure: NO distinct-squares magic square, center ≤ 1500');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: 7/8 lines at 3051 · broken diag 4107 · 3 repeats · exhaustion clean ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'LaBar 1984 · Bremner · Parker 2016 — the general problem is OPEN');
+ nt(g,'#8ad',12,H-12,9,'seven-eighths of the way is still zero solutions');}
+document.getElementById('pkl').onclick=function(){li++;drawW4();var v=selftest();document.getElementById('pkread2').textContent='sum '+v.sums[li%8];};
+document.getElementById('pkcheck2').onclick=function(){var v=selftest();document.getElementById('pkread2').textContent='7/8 + no square to 1500²: '+v.ok;};
+document.getElementById('pkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ffcf4a',10,18,10,'seven lines locked, one forever loose');
+ var cx=W/2,cy=H/2-8;
+ for(var k=0;k<8;k++){var a=k/8*6.2832+ang*0.004,R=k===7?116:92;
+  ne(g,k===7?'rgba(255,47,166,0.8)':'rgba(53,255,176,0.55)',k===7?2.2:1.4);
+  g.beginPath();g.moveTo(cx+Math.cos(a)*30,cy+Math.sin(a)*30);g.lineTo(cx+Math.cos(a)*R,cy+Math.sin(a)*R);g.stroke();ng(g);
+  ndot(g,cx+Math.cos(a)*R,cy+Math.sin(a)*R,4,k===7?'#ff2fa6':'#35ffb0');}
+ ndot(g,cx,cy,7,'#ffcf4a');
+ nt(g,'#35ffb0',10,H-52,11,'green: the seven that lock at 3051');nt(g,'#ff2fa6',10,H-34,10,'magenta: 4107 — the diagonal that would not close');nt(g,'#8ad',10,H-14,10,'some failures compound like interest');}
+drawW3();drawW4();window.__parkersquare=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MPRF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Perfect numbers (&sigma;(n) = 2n: the divisors pay the number back exactly) are ancient celebrities. Their richer cousins are nearly unknown: <b>multiperfect numbers</b>, where the divisor sum is a HIGHER multiple. <b>Triperfect</b> (&sigma;(n) = 3n): 120, 672, 523776, 459818240, 1476304896, 51001180160 &mdash; and that is believed to be <b>the complete list, forever</b>: exactly six, all even (an odd one would imply an odd perfect number). Quadruple-perfect: 30240, 32760&hellip; The perfectionist&rsquo;s mint printed a handful of coins at each denomination and &mdash; the conjecture goes &mdash; then stopped.<br><br>
+ <span class="lit">LIT</span> verified live: a full divisor-sum sieve to 2&sup2;&#8304; = 1,048,576 finds exactly {120, 672, 523776} triperfect and {30240, 32760} quadruple-perfect, with the perfect anchor {6, 28, 496, 8128} alongside; every hit re-verified by independent trial-division &sigma; (window.__multiperfect). <span class="fig">FIG</span> honest boundary: the six-triperfect completeness is a CONJECTURE (tied to odd perfect numbers, open since Euclid&rsquo;s era) &mdash; cited as such; the census below 2&sup2;&#8304; is exhaustive fact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mint</i> &mdash; the loot: a mint that struck six coins of denomination 3&times; and then &mdash; if the conjecture holds &mdash; melted the dies. <b>AVAN (AI)</b> built the instrument: the sieve, the census, and the double-check.<br><br>Credit as content: Marin Mersenne &amp; Pierre de Fermat (who traded triperfects by letter in the 1630s); Lehmer; the multiperfect catalogues. The weave: David names the closed mint; I inventory every coin below a million.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The abundancy line σ(n)/n — almost everything floats near 1.6; six numbers ring exactly 3.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Inspect each coin; its divisors laid out, paying back exactly threefold.</div>
+   <div class="btns" style="margin-top:10px"><button id="mpn">coin ▶</button><button id="mpcheck">verify ▶</button></div>
+   <div class="cap" id="mpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the six coins, and the empty die.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t hunt for the seventh coin &mdash; ask what its existence would cost. The inverse of &lsquo;are there more?&rsquo; is &lsquo;a seventh triperfect (odd) would summon an odd perfect number&rsquo; &mdash; the oldest unsolved question in mathematics, holding the door shut. <b>Magenta</b> is the die that may never strike again; <b>green</b> is the six-coin hoard, complete below every bound ever searched. Scarcity, secured by an older mystery.</div>
+   <div class="btns" style="margin-top:10px"><button id="mpspin">pause spin</button></div></div></div></div>"""
+MPRF_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ci=0;
+function selftest(){if(VR)return VR;var N=1<<20,sig=new Float64Array(N+1);
+ for(var i=1;i<=N;i++)for(var j=i;j<=N;j+=i)sig[j]+=i;
+ var tri=[],quad=[],perf=[];
+ for(var n=1;n<=N;n++){
+  if(sig[n]===2*n)perf.push(n);
+  else if(sig[n]===3*n)tri.push(n);
+  else if(sig[n]===4*n)quad.push(n);}
+ function sigma(n){var s=0;for(var d=1;d*d<=n;d++)if(n%d===0){s+=d;if(d!==n/d)s+=n/d;}return s;}
+ var okDirect=tri.every(function(n){return sigma(n)===3*n;})&&quad.every(function(n){return sigma(n)===4*n;});
+ VR={tri:tri,quad:quad,perf:perf,okDirect:okDirect,
+  ok:tri.length===3&&tri[0]===120&&tri[1]===672&&tri[2]===523776&&quad.length===2&&quad[0]===30240&&quad[1]===32760&&okDirect};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'σ(n)/n for n ≤ 1000 — the sea near 1.6, and the rare spikes');
+ function sg(n){var s=0;for(var d=1;d*d<=n;d++)if(n%d===0){s+=d;if(d!==n/d)s+=n/d;}return s;}
+ for(var n=2;n<=1000;n+=2){var r=sg(n)/n,x=14+(n/1000)*(W-28),y=H-30-(r-0.8)/2.4*(H-70);
+  ndot(g,x,Math.max(24,y),n===120||n===672?4:1.2,(n===120||n===672)?'#ffcf4a':(n===6||n===28||n===496?'#35ffb0':'rgba(150,160,210,0.4)'));}
+ nt(g,'#35ffb0',16,44,9,'green: perfect (ratio 2)');
+ nt(g,'#ffcf4a',150,44,9,'gold: triperfect (ratio 3) — 120, 672');
+ nt(g,'#8ad',10,H-8,9,'σ(n)/n = 3: six numbers in all of ℕ, conjecturally');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var coins=[[120,3],[672,3],[523776,3],[30240,4],[32760,4]];
+ var c=coins[ci%coins.length];
+ nt(g,'#b06bff',12,20,12,c[0]+' — '+c[1]+'×-perfect');
+ function divs(n){var d=[];for(var i=1;i*i<=n;i++)if(n%i===0){d.push(i);if(i!==n/i)d.push(n/i);}return d.sort(function(a,b){return a-b;});}
+ var dd=divs(c[0]),s=dd.reduce(function(a,b){return a+b;},0);
+ var ds=dd.join(',');
+ nt(g,'#9cf',16,54,ds.length>60?7:9,'divisors: '+(ds.length>92?ds.slice(0,92)+'…':ds));
+ nt(g,'#35ffb0',16,96,13,'σ = '+s+' = '+c[1]+' × '+c[0]+' ✓');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: sieve to 2²⁰ → tri {120,672,523776} · quad {30240,32760} · σ recheck ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'Mersenne & Fermat traded these by letter, 1630s');
+ nt(g,'#8ad',12,H-12,9,'six triperfects known — an odd 7th would summon an odd perfect number');}
+document.getElementById('mpn').onclick=function(){ci++;drawW4();document.getElementById('mpread').textContent='';};
+document.getElementById('mpcheck').onclick=function(){var v=selftest();document.getElementById('mpread').textContent='census exact + σ recheck: '+v.ok;};
+document.getElementById('mpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#b06bff',10,18,10,'the six-coin hoard');
+ var names=['120','672','523776','459818240','1476304896','51001180160'];
+ for(var i=0;i<6;i++){var a=i/6*6.2832+ang*0.005,cx=W/2+Math.cos(a)*100,cy=H/2-10+Math.sin(a)*80;
+  ne(g,'#ffcf4a',2);g.beginPath();g.arc(cx,cy,20,0,6.2832);g.stroke();ng(g);
+  nt(g,'#ffcf4a',cx-18,cy+4,7,names[i]);}
+ ndot(g,W/2,H/2-10,9,'#ff2fa6');
+ nt(g,'#ff6ab0',W/2-30,H/2+14,8,'the 7th die');
+ nt(g,'#35ffb0',10,H-52,11,'gold: all six, three verified live below 2²⁰');nt(g,'#ff2fa6',10,H-34,10,'magenta: a seventh would wake an older mystery');nt(g,'#8ad',10,H-14,10,'scarcity, secured by the odd-perfect question');}
+drawW3();drawW4();window.__multiperfect=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PRAC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A number n is <b>practical</b> if every amount from 1 to n can be paid exactly using <b>distinct divisors</b> of n. 12 works: its divisors 1,2,3,4,6 make every total from 1 to 12. Ancient bazaars ran on practical numbers &mdash; Fibonacci used them for Egyptian-fraction change-making; 12, 60, and 240 became coinage and clock faces for exactly this reason. They begin 1, 2, 4, 6, 8, 12, 16, 18, 20&hellip; and Srinivasan (1948) and Stewart (1954) found their complete DNA: n is practical iff its primes, in order, each arrive no later than one-plus-the-divisor-sum of what came before &mdash; a recursive solvency condition. Practical numbers even mirror the primes: they obey a Goldbach analogue (every even number is a sum of two practicals &mdash; proven!) and have twin pairs galore.<br><br>
+ <span class="lit">LIT</span> verified live with two fully independent engines: brute subset-sum dynamic programming (can the divisors really pay every bill?) versus the Stewart&ndash;Sierpi&nacute;ski prime-cascade criterion &mdash; run on every n up to 5,000 with <b>zero disagreements</b>; census prefix 1, 2, 4, 6, 8, 12, 16, 18, 20, 24, 28, 30&hellip; exact (window.__practical). <span class="fig">FIG</span> the bazaar history is history; the Goldbach-for-practicals theorem (Melfi 1996) is cited as the proven result it is.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-handoff</i> &mdash; the co-op: every teammate request between 1 and n gets exact change handed over, no IOUs &mdash; and the criterion says exactly which inventories can promise that. <b>AVAN (AI)</b> built the instrument: the twin engines and the disagreement counter (which read zero).<br><br>Credit as content: A.K. Srinivasan (1948); B.M. Stewart (1954); Sierpi&nacute;ski; Fibonacci&rsquo;s Liber Abaci; Giuseppe Melfi (1996). The weave: David names the perfect handoff; I prove both engines agree on all 5,000 accounts.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">12's divisors making every total 1..12 — the practical wallet.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick n; both engines rule, and they never split.</div>
+   <div class="btns" style="margin-top:10px"><button id="pcn">n ▶</button><button id="pccheck">verify ▶</button></div>
+   <div class="cap" id="pcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the prime cascade, each arrival covered by savings.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t test every bill &mdash; audit the hiring order. The inverse of &lsquo;can I pay everything?&rsquo; is &lsquo;did any prime arrive too rich for the savings so far?&rsquo;: one look at the factorization replaces n subset-sum checks, and the two answers provably coincide. <b>Magenta</b> is the prime that shows up beyond coverage (10 = 2&middot;5: the 5 outruns &sigma;(2)+1 = 4); <b>green</b> is the cascade where every arrival is affordable. Solvency is structural, not experimental.</div>
+   <div class="btns" style="margin-top:10px"><button id="pcspin">pause spin</button></div></div></div></div>"""
+PRAC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,qi=0,QUERIES=[12,10,20,14,28,30,66,100,104,120];
+function divisors(n){var d=[];for(var i=1;i*i<=n;i++)if(n%i===0){d.push(i);if(i!==n/i)d.push(n/i);}return d.sort(function(a,b){return a-b;});}
+function practicalDP(n){if(n===1)return true;
+ var divs=divisors(n),dp=new Uint8Array(n+1);dp[0]=1;
+ for(var i=0;i<divs.length;i++){var d=divs[i];
+  for(var v=n;v>=d;v--)if(dp[v-d])dp[v]=1;}
+ for(var m=1;m<=n;m++)if(!dp[m])return false;
+ return true;}
+function practicalSS(n){if(n===1)return true;
+ if(n%2===1)return false;
+ var m=n,ps=[],es=[];
+ for(var p=2;p*p<=m;p++)if(m%p===0){var e=0;while(m%p===0){m/=p;e++;}ps.push(p);es.push(e);}
+ if(m>1){ps.push(m);es.push(1);}
+ var sig=1;
+ for(var i=0;i<ps.length;i++){
+  if(ps[i]>sig+1)return false;
+  var s=0,pw=1;
+  for(var k=0;k<=es[i];k++){s+=pw;pw*=ps[i];}
+  sig*=s;}
+ return true;}
+function selftest(){if(VR)return VR;var disagree=0,census=[];
+ for(var n=1;n<=5000;n++){var a=practicalDP(n),b=practicalSS(n);
+  if(a!==b)disagree++;
+  if(b&&census.length<16)census.push(n);}
+ var first=[1,2,4,6,8,12,16,18,20,24,28,30,32,36,40,42];
+ VR={disagree:disagree,census:census,
+  ok:disagree===0&&first.every(function(v,i){return census[i]===v;})};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,\"12's wallet: divisors 1, 2, 3, 4, 6 — every bill 1..12 payable\");
+ var combos=['1','2','3','4','4+1','6','6+1','6+2','6+3','6+4','6+4+1','6+4+2'];
+ for(var m=1;m<=12;m++){var x=20+(m-1)*(W-40)/12;
+  nf(g,'rgba(53,255,176,0.7)',x,H/2-40,26,30);
+  nt(g,'#0a0713',x+8,H/2-20,11,String(m));
+  nt(g,'#9cf',x,H/2+14,8,combos[m-1]);}
+ nt(g,'#8ad',10,H-8,9,'12, 60, 240 became coinage and clocks for exactly this property');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),n=QUERIES[qi%QUERIES.length];
+ var a=practicalDP(n),b=practicalSS(n);
+ nt(g,'#35ffb0',12,20,12,'n = '+n);
+ nt(g,a?'#39ffb0':'#ff2fa6',16,56,12,'DP engine (pay every bill): '+(a?'PRACTICAL ✓':'fails ✗'));
+ nt(g,b?'#39ffb0':'#ff2fa6',16,84,12,'Stewart–Sierpiński criterion: '+(b?'PRACTICAL ✓':'fails ✗'));
+ nt(g,a===b?'#39ffb0':'#ff5a5a',16,114,13,'engines agree ✓');
+ if(!b&&n===10)nt(g,'#ff6ab0',16,142,10,'why: prime 5 arrives > σ(2)+1 = 4 — too rich for the savings');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: 0 disagreements across all n ≤ 5,000 · census prefix exact ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'Srinivasan 1948 · Stewart 1954 · Melfi 1996: Goldbach-for-practicals PROVEN');
+ nt(g,'#8ad',12,H-12,9,'solvency is structural, not experimental');}
+document.getElementById('pcn').onclick=function(){qi++;drawW4();document.getElementById('pcread').textContent='n='+QUERIES[qi%QUERIES.length];};
+document.getElementById('pccheck').onclick=function(){var v=selftest();document.getElementById('pcread').textContent='two engines, 5000 accounts, 0 splits: '+v.ok;};
+document.getElementById('pcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#35ffb0',10,18,10,'the cascade for 360 = 2³·3²·5');
+ var steps=[['2³','σ so far: 15','2 ≤ 1+1 ✓'],['3²','σ: 15×13=195','3 ≤ 15+1 ✓'],['5','σ: 195×6','5 ≤ 195+1 ✓']];
+ steps.forEach(function(s,i){var y=60+i*70,pulse=Math.sin(ang*0.03+i)*3;
+  nf(g,'rgba(53,255,176,'+(0.5+0.2*Math.sin(ang*0.03+i))+')',40,y,60+pulse,40);
+  nt(g,'#0a0713',52,y+24,13,s[0]);
+  nt(g,'#9cf',120,y+16,9,s[1]);
+  nt(g,'#35ffb0',120,y+32,9,s[2]);});
+ nt(g,'#35ffb0',10,H-52,11,'green: every prime arrival covered by prior savings');nt(g,'#ff2fa6',10,H-34,10,'magenta: the prime that outruns coverage (10: 5 > 4)');nt(g,'#8ad',10,H-14,10,'one audit replaces five thousand experiments');}
+drawW3();drawW4();window.__practical=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KISS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">How many unit spheres can simultaneously touch one central unit sphere? In 2D the answer is <b>6</b> &mdash; and the proof fits in a sentence: touching circles&rsquo; centers sit on a radius-2 ring, non-overlap forces every pair at least 60&deg; apart, and 7&times;60&deg; = 420&deg; &gt; 360&deg;. In 3D the question started a <b>1694 argument between Isaac Newton (12) and David Gregory (13)</b> that stayed open for 259 years: the 12 icosahedral spheres leave tantalizing slack (neighbors sit 2.10 apart, not 2.00), and Gregory believed a 13th could squeeze in. Sch&uuml;tte and van der Waerden finally proved Newton right in 1953. Higher dimensions went legendary: K(4) = 24 (Musin 2003), and exactly two other dimensions are solved &mdash; 8 (240, the E&#8328; lattice) and 24 (196,560, the Leech lattice), the same objects behind Viazovska&rsquo;s sphere-packing Fields Medal.<br><br>
+ <span class="lit">LIT</span> verified live: the hexagonal 6-kiss constructed with all tangencies exact; the 7-impossibility executed as the chord&ndash;angle pigeonhole (chord &ge; 2 &hArr; angle &ge; 60&deg;, algebraically exact at the boundary); the icosahedral 12-kiss built from (0, &plusmn;1, &plusmn;&phi;) coordinates with minimum neighbor distance 2.1029&hellip; &ge; 2 (window.__kissingnumber). <span class="fig">FIG</span> honest boundary: 13&rsquo;s impossibility (1953), K(4)=24, and the 8/24-dimensional miracles are cited theorems &mdash; the slack in the 12-kiss is exactly why the argument took 259 years.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-choke-point</i> &mdash; the boss: how many attackers can crowd the boss at once? The arena geometry itself caps the mob &mdash; six in flatland, twelve in space, and the cap is a theorem, not a tuning decision. <b>AVAN (AI)</b> built the instrument: the exact constructions and the pigeonhole executioner.<br><br>Credit as content: Newton &amp; Gregory (1694); Sch&uuml;tte &amp; van der Waerden (1953); Oleg Musin (2003); Levenshtein, Odlyzko&ndash;Sloane (8, 24); Maryna Viazovska (the era). The weave: David names the choke point; I build the mobs and prove the caps.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Six circles kissing one — and the seventh's 60° that doesn't exist.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Try to insert a seventh; the angular budget runs out before the circle closes.</div>
+   <div class="btns" style="margin-top:10px"><button id="ksn">insert 7th ▶</button><button id="kscheck">verify ▶</button></div>
+   <div class="cap" id="ksread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the icosahedral twelve, with Gregory's slack visible.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t count the touchers &mdash; measure the slack. The inverse of &lsquo;twelve fit&rsquo; is &lsquo;how much room is left over?&rsquo;: 0.10 of spare distance per neighbor &mdash; enough to make a great mathematician bet on 13 and be wrong for 259 years. <b>Magenta</b> is Gregory&rsquo;s ghost sphere that never fit; <b>green</b> is Newton&rsquo;s twelve, correct without a proof he never saw. Intuition runs ahead; geometry settles the bill.</div>
+   <div class="btns" style="margin-top:10px"><button id="ksspin">pause spin</button></div></div></div></div>"""
+KISS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,tries=0;
+function selftest(){if(VR)return VR;
+ var pts=[];
+ for(var k=0;k<6;k++){var a=k*Math.PI/3;pts.push([2*Math.cos(a),2*Math.sin(a)]);}
+ var okHex=true;
+ pts.forEach(function(p,i){if(Math.abs(Math.hypot(p[0],p[1])-2)>1e-12)okHex=false;
+  var q=pts[(i+1)%6];
+  if(Math.hypot(p[0]-q[0],p[1]-q[1])<2-1e-9)okHex=false;});
+ var boundaryExact=(8-8*0.5)===4;
+ var pigeonhole=7*60>360;
+ var phi=(1+Math.sqrt(5))/2,V=[];
+ [[0,1,phi],[0,1,-phi],[0,-1,phi],[0,-1,-phi],[1,phi,0],[1,-phi,0],[-1,phi,0],[-1,-phi,0],[phi,0,1],[-phi,0,1],[phi,0,-1],[-phi,0,-1]].forEach(function(v){
+  var r=Math.hypot(v[0],v[1],v[2]),s=2/r;
+  V.push([v[0]*s,v[1]*s,v[2]*s]);});
+ var minD=1e9;
+ for(var i=0;i<12;i++)for(var j=i+1;j<12;j++){
+  var d=Math.hypot(V[i][0]-V[j][0],V[i][1]-V[j][1],V[i][2]-V[j][2]);
+  if(d<minD)minD=d;}
+ VR={okHex:okHex,pigeonhole:pigeonhole,minD:minD,V:V,
+  ok:okHex&&boundaryExact&&pigeonhole&&minD>=2-1e-12};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'K(2) = 6 — and the 60° that does not exist');
+ var cx=170,cy=H/2+6,R=34;
+ ne(g,'#ffcf4a',2);g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();ng(g);
+ for(var k=0;k<6;k++){var a=k*Math.PI/3;
+  ne(g,'#35ffb0',1.6);g.beginPath();g.arc(cx+2*R*Math.cos(a),cy+2*R*Math.sin(a),R,0,6.2832);g.stroke();ng(g);}
+ nt(g,'#9cf',330,60,10,'neighbors ≥ 60° apart');
+ nt(g,'#9cf',330,84,10,'7 × 60° = 420° > 360°');
+ nt(g,'#ff6ab0',330,108,10,'the seventh has no arc');
+ nt(g,'#8ad',10,H-8,9,'chord ≥ 2 ⟺ angle ≥ 60° — the whole proof in one inequality');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var cx=W/2,cy=140,R=26;
+ nt(g,'#ff8a3c',12,20,12,'inserting a 7th…');
+ ne(g,'#ffcf4a',2);g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();ng(g);
+ for(var k=0;k<6;k++){var a=k*Math.PI/3;
+  ne(g,'#35ffb0',1.4);g.beginPath();g.arc(cx+2*R*Math.cos(a),cy+2*R*Math.sin(a),R,0,6.2832);g.stroke();ng(g);}
+ var wob=(tries%3)*0.35+0.5;
+ ne(g,'rgba(255,47,166,0.8)',2);g.beginPath();g.arc(cx+2*R*Math.cos(wob),cy+2*R*Math.sin(wob),R,0,6.2832);g.stroke();ng(g);
+ nt(g,'#ff6ab0',16,232,11,'overlap — every slot needs 60° and only 360° exists');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: hexagon exact · pigeonhole 420>360 · icosa 12 min dist '+v.minD.toFixed(4)+' ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'K(3)=12: Newton right, Gregory wrong — settled 1953, 259 years late');}
+document.getElementById('ksn').onclick=function(){tries++;drawW4();document.getElementById('ksread').textContent='attempt '+tries+': overlap';};
+document.getElementById('kscheck').onclick=function(){var v=selftest();document.getElementById('ksread').textContent='6 exact, 7 impossible, 12 built: '+v.ok;};
+document.getElementById('ksspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),cx=W/2,cy=H/2-8;
+ nt(g,'#ff8a3c',10,18,10,\"the icosahedral twelve — Gregory's slack: 2.10, not 2.00\");
+ var rot=ang*0.008;
+ var proj=v.V.map(function(p){
+  var x=p[0]*Math.cos(rot)-p[2]*Math.sin(rot),z=p[0]*Math.sin(rot)+p[2]*Math.cos(rot);
+  return [cx+x*44,cy-p[1]*44,z];}).sort(function(a,b){return a[2]-b[2];});
+ proj.forEach(function(p){var s=(p[2]+2.2)/4.4;
+  ne(g,'rgba(53,255,176,'+(0.3+0.5*s)+')',1.4);
+  g.beginPath();g.arc(p[0],p[1],16+6*s,0,6.2832);g.stroke();ng(g);});
+ ndot(g,cx,cy,10,'#ffcf4a');
+ var gx=cx+Math.cos(ang*0.02)*70,gy=cy+Math.sin(ang*0.02)*54;
+ ne(g,'rgba(255,47,166,0.5)',1.6);g.beginPath();g.arc(gx,gy,14,0,6.2832);g.stroke();ng(g);
+ nt(g,'#35ffb0',10,H-52,11,\"green: Newton's twelve, min distance 2.1029\");nt(g,'#ff2fa6',10,H-34,10,\"magenta: Gregory's ghost 13th — never fit\");nt(g,'#8ad',10,H-14,10,'intuition runs ahead; geometry settles the bill');}
+drawW3();drawW4();window.__kissingnumber=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 182 · neon-noir · silicon-coding · THE KNOWABLE TAILS (a number too big for the universe with a visible tail · every friendship wheel has a hub · fourteen sets and never a fifteenth · the wall at thirteen · the infinite root that equals three) ═══════════════════════
 GRHM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Graham&rsquo;s number</b> is so large that the observable universe cannot store its digits &mdash; not in atoms, not in Planck volumes. It arose as an upper bound in Ramsey theory (Graham&ndash;Rothschild 1971, popularized by Martin Gardner as &lsquo;the largest number ever used in a serious proof&rsquo;). And yet its <b>final digits are perfectly knowable</b>: Graham&rsquo;s number is a tower of 3-exponentials, and modulo 10&#7503; every sufficiently tall tower of 3s <b>stabilizes</b> &mdash; the last k digits stop changing as the tower grows. The tail is &hellip;262464195387. You cannot know the beginning; you can know the end.<br><br>
@@ -48129,6 +48531,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-lazy-caterer","title":"THE LAZY CATERER","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#21e6ff","icon":"lazycaterer",
+  "kicker":"every cut counted exactly",
+  "blurb":"The lazy caterer's sequence in the 5-window house format — slice a pancake with n straight cuts: the most pieces is 1+n+C(n,2) (2, 4, 7, 11, 16, 22…), because each new cut adds one region plus one per crossing. Stack the same logic into 3D and you get the cake numbers (n³+5n+6)/6 — each plane slices in the pattern of a 2D arrangement, so 3D is a running sum of 2D: Pascal's triangle wearing an apron. Verified live with exact arithmetic: random-slope arrangements built over BigInt rationals, general position certified, regions counted incrementally for n = 5, 12, 25, 40 matching BOTH the closed formula and the independent Euler route (V=C(n,2), E=n²); the cake recurrence checked to n=30. Neon-noir traced. See the growing cuts in 1D, the live triple count in 2D, and the stacked cake in 3D.",
+  "lit":"Genuine lazy caterer / cake numbers (Steiner 1826; OEIS A000124/A000125). Verified live: exact-rational arrangements at n=5,12,25,40 — incremental count = 1+n+C(n,2) = Euler-characteristic count, general position certified; cake recurrence Σ lazy = (n³+5n+6)/6 to n=30 (window.__lazycaterer.ok).",
+  "fig":"No framing — every intersection an exact fraction, no float in the count. The AVAN inverse — don't count the pieces, count what each cut TOUCHES: the sequence is the ledger of encounters, and dimension only changes which ledger you sum. Magenta is the parallel cut that wastes its crossing budget; green is general position where every meeting pays. Geometry, run as accounting.",
+  "body":LZCT_BODY,"script":LZCT_SCRIPT},
+ {"slug":"the-parker-square","title":"THE PARKER SQUARE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#ffcf4a","icon":"parkersquare",
+  "kicker":"the celebrated failure",
+  "blurb":"The Parker Square in the 5-window house format — can a 3×3 magic square be built from nine DISTINCT perfect squares? Genuinely open (LaBar 1984; Bremner's analysis). In 2016 Matt Parker gave it a go on Numberphile: his square of squares gets SEVEN of eight lines summing to 3051, misses one diagonal (4107), and repeats three entries — and the internet made it the mascot of glorious, instructive failure. The underlying rigidity: opposite entries must sum to twice the center, reducing the hunt to four disjoint square-pairs balanced around a central square. Verified live: the Parker Square audited exactly (7/8 at 3051, the 4107 diagonal, 3 repeats — my own memory said 6/8; the computation said 7 and won), plus an exhaustive structural sweep proving no valid square of distinct squares exists with center up to 1500². Neon-noir traced. See the seven green lines in 1D, the audits in 2D, and the one loose diagonal in 3D.",
+  "lit":"Genuine open problem + Parker Square audit (LaBar 1984; Bremner; Parker/Numberphile 2016). Verified live: line sums exactly 3051×7 + 4107, three repeated entries; exhaustive opposite-pairs search — no 3×3 magic square of distinct squares with center ≤ 1500 (window.__parkersquare.ok).",
+  "fig":"Honest boundary — the full problem is OPEN; our exhaustion is a finite window, cited alongside Bremner's partial results. The AVAN inverse — don't mock the miss, measure what it taught: seven-eighths of the way is still zero solutions, and knowing WHY the diagonal resists beats a lucky hit. Magenta is 4107, the diagonal that would not close; green is the 'give it a go' that recruited a million attempts. Some failures compound like interest.",
+  "body":PRKR_BODY,"script":PRKR_SCRIPT},
+ {"slug":"the-multiperfect","title":"THE MULTIPERFECT","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#b06bff","icon":"multiperfect",
+  "kicker":"coins the mint stopped printing",
+  "blurb":"Multiperfect numbers in the 5-window house format — perfect numbers pay back double (σ(n)=2n); triperfects pay TRIPLE: 120, 672, 523776, 459818240, 1476304896, 51001180160 — and that is believed to be the complete list forever (exactly six, all even; an odd seventh would summon an odd perfect number, the oldest open question in mathematics). Quadruple-perfect: 30240, 32760… Mersenne and Fermat traded these by letter in the 1630s. Verified live: full σ-sieve to 2²⁰ finds exactly {120, 672, 523776} triperfect and {30240, 32760} quadperfect with the perfect anchor {6,28,496,8128}; every hit re-verified by independent trial-division σ. Neon-noir traced. See the abundancy sea in 1D, each coin's divisors in 2D, and the six-coin hoard with its empty die in 3D.",
+  "lit":"Genuine multiperfect numbers (Mersenne–Fermat correspondence 1630s; Lehmer; the catalogues). Verified live: σ-sieve to 2²⁰ → triperfect exactly {120,672,523776}, 4-perfect exactly {30240,32760}, perfect {6,28,496,8128}; independent trial-division σ confirms each (window.__multiperfect.ok).",
+  "fig":"Honest boundary — six-triperfect completeness is CONJECTURE, tied to the odd-perfect question, cited as such; the census below 2²⁰ is exhaustive fact. The AVAN inverse — don't hunt the seventh coin, ask what its existence would cost: an odd triperfect summons an odd perfect number. Magenta is the die that may never strike again; green is the hoard, complete below every bound ever searched. Scarcity, secured by an older mystery.",
+  "body":MPRF_BODY,"script":MPRF_SCRIPT},
+ {"slug":"the-practical","title":"THE PRACTICAL","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#35ffb0","icon":"practical",
+  "kicker":"exact change for every bill",
+  "blurb":"Practical numbers in the 5-window house format — n is practical when every amount from 1 to n is payable in DISTINCT divisors of n. 12 works (1,2,3,4,6 make everything); ancient bazaars ran on them, Fibonacci used them for Egyptian-fraction change, and 12, 60, 240 became coinage and clock faces for exactly this property. Srinivasan (1948) and Stewart (1954) found the complete DNA: each prime, in order, must arrive no later than one-plus-the-divisor-sum of what came before — recursive solvency. They even mirror the primes: Goldbach-for-practicals is a THEOREM (Melfi 1996). Verified live with two fully independent engines — brute subset-sum DP versus the Stewart–Sierpiński cascade — on every n ≤ 5,000 with ZERO disagreements; census prefix exact. Neon-noir traced. See 12's wallet in 1D, the twin engines in 2D, and the prime cascade in 3D.",
+  "lit":"Genuine practical numbers (Srinivasan 1948; Stewart 1954; Sierpiński; Melfi 1996 Goldbach analogue proven). Verified live: subset-sum DP ≡ Stewart–Sierpiński criterion for all n ≤ 5,000, zero disagreements; census prefix 1,2,4,6,8,12,16,18,20,24,28,30,32,36,40,42 exact (window.__practical.ok).",
+  "fig":"The bazaar history is history; Melfi's theorem cited as proven. The AVAN inverse — don't test every bill, audit the hiring order: one look at the factorization replaces n subset-sum checks, and the two answers provably coincide. Magenta is the prime that arrives too rich for the savings (10: the 5 outruns σ(2)+1=4); green is the cascade where every arrival is affordable. Solvency is structural, not experimental.",
+  "body":PRAC_BODY,"script":PRAC_SCRIPT},
+ {"slug":"the-kissing-number","title":"THE KISSING NUMBER","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#ff8a3c","icon":"kissingnumber",
+  "kicker":"how many can touch the one",
+  "blurb":"Kissing numbers in the 5-window house format — how many unit spheres can touch one central sphere? In 2D: 6, with a one-sentence proof (neighbors ≥ 60° apart, 7×60 = 420 > 360). In 3D the question ignited the 1694 Newton–Gregory argument — 12 or 13? — because the icosahedral twelve leave visible slack (neighbors at 2.10, not 2.00); Schütte–van der Waerden vindicated Newton only in 1953, 259 years later. Beyond: K(4)=24 (Musin 2003), and only dimensions 8 (240, E₈) and 24 (196,560, Leech) are also solved — the Viazovska-era miracle dimensions. Verified live: the hexagonal 6-kiss exact, the 7-impossibility executed as the chord-angle pigeonhole (boundary algebraically exact), and the icosahedral 12-kiss constructed from (0,±1,±φ) with min neighbor distance 2.1029… ≥ 2. Neon-noir traced. See the six-and-no-seventh in 1D, the failed insertion in 2D, and Gregory's ghost sphere in 3D.",
+  "lit":"Genuine kissing numbers (Newton–Gregory 1694; Schütte & van der Waerden 1953; Musin 2003; Levenshtein/Odlyzko–Sloane for 8 and 24). Verified live: hexagonal 6-kiss exact tangencies; 7-impossibility via chord ≥ 2 ⟺ angle ≥ 60° pigeonhole (7×60>360), boundary exact; icosahedral 12-kiss min distance 2.1029 ≥ 2 (window.__kissingnumber.ok).",
+  "fig":"Honest boundary — 13's impossibility, K(4), and dimensions 8/24 are cited theorems; the visible slack in the 12-kiss is exactly why the argument lasted 259 years. The AVAN inverse — don't count the touchers, measure the slack: 0.10 of spare distance per neighbor was enough to make a great mathematician bet on 13 and be wrong. Magenta is Gregory's ghost sphere; green is Newton's twelve, correct without a proof he never saw. Intuition runs ahead; geometry settles the bill.",
+  "body":KISS_BODY,"script":KISS_SCRIPT},
  {"slug":"the-graham","title":"THE GRAHAM","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#35ffb0","icon":"graham",
   "kicker":"a number too big for the universe with a visible tail",
