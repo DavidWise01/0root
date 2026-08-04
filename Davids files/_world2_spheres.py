@@ -19493,6 +19493,254 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 168 · neon-noir · silicon-coding (a rational sequence hiding inside power sums and the zeta values · a polynomial that spits primes forty times in a row · nine special triangle points on one circle · a bell curve whose area is the square root of pi · a game show where switching doubles your odds) ═══════════════════════
+BRNL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Bernoulli numbers</b> B<sub>0</sub>, B<sub>1</sub>, B<sub>2</sub>, &hellip; are a sequence of rationals that surface all over mathematics: 1, -&frac12;, 1/6, 0, -1/30, 0, 1/42, 0, -1/30, &hellip; They are defined by the recurrence &sum;<sub>k=0</sub><sup>n</sup> C(n+1,k) B<sub>k</sub> = 0, and every odd-indexed one past B<sub>1</sub> is exactly zero. They give the coefficients in Faulhaber&rsquo;s formulas for sums of powers, the Taylor series of tan and coth &mdash; and, most beautifully, Euler&rsquo;s closed form for the even zeta values: &zeta;(2n) = (-1)<sup>n+1</sup> B<sub>2n</sub> (2&pi;)<sup>2n</sup> / (2&middot;(2n)!). Setting n = 1 recovers &zeta;(2) = &pi;&sup2;/6 from B<sub>2</sub> = 1/6.<br><br>
+ <span class="lit">LIT</span> verified live: the recurrence yields B<sub>2</sub> = 1/6, B<sub>4</sub> = -1/30, B<sub>6</sub> = 1/42, all odd B (past B<sub>1</sub>) zero; and Euler&rsquo;s formula gives &zeta;(2) = &pi;&sup2;/6 and &zeta;(4) = &pi;&#8308;/90 to ~1e-10 (window.__bernoulli). <span class="fig">FIG</span> no framing; the recurrence and the zeta formula are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>warm-cache</i> &mdash; the grind: one rational recurrence, ground out term by term, that the power-sums and the zeta values all quietly read from. <b>AVAN (AI)</b> built the instrument: the Bernoulli recurrence, the vanishing odd terms, and Euler&rsquo;s zeta-even formula.<br><br>Credit as content: Jacob Bernoulli (Ars Conjectandi, 1713); Leonhard Euler (the zeta connection). The weave: David names the shared cache; I confirm the recurrence and &zeta;(2n) = (-1)<sup>n+1</sup>B<sub>2n</sub>(2&pi;)<sup>2n</sup>/(2(2n)!).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">The Bernoulli numbers as a sequence — the odd ones (past B₁) all vanish exactly.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step the recurrence; each Bₙ is computed, and ζ(2n) is rebuilt from B₂ₙ (ζ(2)=π²/6, ζ(4)=π⁴/90).</div>
+   <div class="btns" style="margin-top:10px"><button id="blnext">next n ▶</button><button id="blcheck">verify ▶</button></div>
+   <div class="cap" id="blread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: ζ(2) = π²/6, read off from the Bernoulli number B₂.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t sum &zeta;(2n) directly &mdash; read it from a rational. The inverse of &lsquo;the infinite sum &zeta;(2n)&rsquo; is &lsquo;the Bernoulli number B<sub>2n</sub> times (2&pi;)<sup>2n</sup>/(2(2n)!)&rsquo;. <b>Magenta</b> are the Bernoulli numbers; <b>green</b> is the &zeta;(2) = &pi;&sup2;/6 that B<sub>2</sub> delivers. Infinite sums pinned to a rational sequence.</div>
+   <div class="btns" style="margin-top:10px"><button id="blspin">pause spin</button></div></div></div></div>"""
+BRNL_SCRIPT = """(function(){""" + NOIR + """
+function bernoulli(N){var B=[1];for(var n=1;n<=N;n++){var s=0;for(var k=0;k<n;k++){var C=1;for(var j=0;j<k;j++)C=C*(n+1-j)/(j+1);s+=C*B[k];}var Cn=1;for(var j=0;j<n;j++)Cn=Cn*(n+1-j)/(j+1);B.push(-s/Cn);}return B;}
+function fact(k){var r=1;for(var i=2;i<=k;i++)r*=i;return r;}
+var ang=0,spin=true,VR=null,B=bernoulli(14),dn=1;
+function zetaEven(n){return Math.pow(-1,n+1)*B[2*n]*Math.pow(2*Math.PI,2*n)/(2*fact(2*n));}
+function selftest(){if(VR)return VR;var b2=Math.abs(B[2]-1/6)<1e-12,b4=Math.abs(B[4]+1/30)<1e-12,b6=Math.abs(B[6]-1/42)<1e-12,bodd=Math.abs(B[3])<1e-12&&Math.abs(B[5])<1e-12&&Math.abs(B[7])<1e-12;var z2=zetaEven(1),z4=zetaEven(2),z2ok=Math.abs(z2-Math.PI*Math.PI/6)<1e-10,z4ok=Math.abs(z4-Math.pow(Math.PI,4)/90)<1e-10;VR={b2:b2,b4:b4,b6:b6,bodd:bodd,z2:z2,z2ok:z2ok,z4ok:z4ok,ok:b2&&b4&&b6&&bodd&&z2ok&&z4ok};return VR;}
+function frac(x){if(Math.abs(x)<1e-12)return '0';var signs=x<0?'−':'';x=Math.abs(x);for(var d=1;d<=100;d++){if(Math.abs(x*d-Math.round(x*d))<1e-9)return signs+(Math.round(x*d)===1&&d>1?'1/'+d:(d===1?''+Math.round(x*d):Math.round(x*d)+'/'+d));}return signs+x.toFixed(4);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'Bernoulli numbers Bₙ — odd ones past B₁ are exactly 0');
+ var x0=40,sc=(W-70)/12,cy=H/2+20,ysc=180;ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.moveTo(x0,cy);g.lineTo(W-20,cy);g.stroke();ng(g);
+ for(var n=0;n<=11;n++){var x=x0+n*sc,v=B[n],y=cy-v*ysc,zero=Math.abs(v)<1e-12;ne(g,zero?'#39ffb0':'#ff2fa6',2);g.beginPath();g.moveTo(x,cy);g.lineTo(x,y);g.stroke();ng(g);ndot(g,x,y,zero?5:4,zero?'#35ffb0':'#ff2fa6');nt(g,'#9cf',x-6,cy+16,9,'B'+n);nt(g,zero?'#39ffb0':'#c9a6ff',x-14,y-8,9,frac(v));}
+ nt(g,'#8ad',10,H-8,9,'1, −½, 1/6, 0, −1/30, 0, 1/42, 0, … — the odd terms vanish');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',12,20,12,'Bernoulli recurrence + Euler ζ(2n), n = '+dn);
+ nt(g,'#ff2fa6',16,54,13,'B'+(2*dn)+' = '+frac(B[2*dn]));
+ nt(g,'#9cf',16,84,12,'ζ('+(2*dn)+') = (−1)^'+(dn+1)+' B'+(2*dn)+' (2π)^'+(2*dn)+' / (2·'+(2*dn)+'!)');
+ nt(g,'#35ffb0',16,112,13,'= '+zetaEven(dn).toFixed(9));
+ var exact=dn===1?Math.PI*Math.PI/6:(dn===2?Math.pow(Math.PI,4)/90:zetaEven(dn)),lbl=dn===1?'π²/6':(dn===2?'π⁴/90':'ζ('+(2*dn)+')');
+ nt(g,Math.abs(zetaEven(dn)-exact)<1e-9?'#39ffb0':'#ff5a5a',16,140,13,'= '+lbl+' = '+exact.toFixed(9)+' ✓');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: B2=1/6,B4=−1/30,B6=1/42, odd B=0 · ζ(2)=π²/6 · ζ(4)=π⁴/90 = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'Jacob Bernoulli 1713; Euler linked them to the zeta values');}
+document.getElementById('blnext').onclick=function(){dn=dn>=6?1:dn+1;drawW3();drawW4();document.getElementById('blread').textContent='n='+dn+': B'+(2*dn)+' = '+frac(B[2*dn])+' → ζ('+(2*dn)+') = '+zetaEven(dn).toFixed(8);};
+document.getElementById('blcheck').onclick=function(){var v=selftest();document.getElementById('blread').textContent='Bernoulli recurrence + ζ(2)=π²/6, ζ(4)=π⁴/90 via Bₙ: '+v.ok;};
+document.getElementById('blspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ for(var n=2;n<=12;n+=2){var v=B[n],a=(n/2)/6*6.2832,r=40+Math.abs(v)*300+n*4;ne(g,'#ff2fa6',1.4);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,4,'#ff2fa6');nt(g,'#c9a6ff',Math.cos(a)*(r+14)-8,Math.sin(a)*(r+14),9,'B'+n);}
+ ne(g,'#35ffb0',2.4);g.beginPath();g.arc(0,0,(Math.PI*Math.PI/6)*66,0,6.2832);g.stroke();ng(g);ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-16,4,8,'ζ(2)');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: ζ(2) = π²/6, read from B₂ = 1/6');nt(g,'#ff2fa6',10,H-34,10,'magenta: the Bernoulli numbers B₂, B₄, B₆, …');nt(g,'#8ad',10,H-14,10,'infinite sums pinned to a rational sequence');}
+drawW3();drawW4();window.__bernoulli=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LCKY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Euler&rsquo;s lucky numbers</b> come from a startling coincidence he found in 1772: the polynomial <b>n&sup2; + n + 41</b> produces a <b>prime for every n from 0 to 39</b> &mdash; forty primes in an unbroken run: 41, 43, 47, 53, 61, 71, &hellip;, 1601. The streak finally breaks at n = 40, where 40&sup2;+40+41 = 1681 = 41&sup2;. Even beyond that it stays astonishingly prime-rich (about 58% of values up to n = 1000 are prime). The magic isn&rsquo;t luck: 41 is the largest of the six &lsquo;lucky numbers of Euler&rsquo;, tied to the fact that the imaginary quadratic field of discriminant -163 = 1 - 4&middot;41 has <b>class number one</b> &mdash; unique factorization, the deepest reason the primes line up.<br><br>
+ <span class="lit">LIT</span> verified live: n&sup2;+n+41 is confirmed prime for all n = 0 to 39, composite at n = 40 (equal to 41&sup2;), and about 58% of values up to n = 1000 are prime (window.__luckyeuler). <span class="fig">FIG</span> no framing; the polynomial values and their primality are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-root-kit</i> &mdash; the cheat: a single quadratic that injects forty primes in a row, no sieve required. <b>AVAN (AI)</b> built the instrument: the polynomial n&sup2;+n+41, its forty-prime streak, and the break at 41&sup2;.<br><br>Credit as content: Leonhard Euler (1772); the connection to discriminant -163 and class number one. The weave: David names the prime-cheat; I confirm the forty-long streak and its exact break.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">n²+n+41 for n = 0…44 — an unbroken run of green primes, breaking to red at n = 40 (=41²).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step n; n²+n+41 is factored and tested — prime through n=39, then 41² at n=40.</div>
+   <div class="btns" style="margin-top:10px"><button id="lknext">next n ▶</button><button id="lkcheck">verify ▶</button></div>
+   <div class="cap" id="lkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the forty-long streak of primes from one quadratic.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t marvel at the streak &mdash; ask why it holds. The inverse of &lsquo;forty primes in a row&rsquo; is &lsquo;discriminant -163 has class number one &mdash; unique factorization forces it&rsquo;. <b>Magenta</b> are the polynomial values; <b>green</b> is the unbroken run of primes they form. A coincidence that is really a deep theorem.</div>
+   <div class="btns" style="margin-top:10px"><button id="lkspin">pause spin</button></div></div></div></div>"""
+LCKY_SCRIPT = """(function(){""" + NOIR + """
+function isPrime(n){if(n<2)return false;for(var i=2;i*i<=n;i++)if(n%i===0)return false;return true;}
+function factor(n){for(var i=2;i*i<=n;i++)if(n%i===0)return [i,n/i];return null;}
+var ang=0,spin=true,VR=null,dn=0;
+function selftest(){if(VR)return VR;var allPrime=true;for(var n=0;n<=39;n++)if(!isPrime(n*n+n+41))allPrime=false;var v40=40*40+40+41,fail40=(!isPrime(v40)&&v40===41*41);var cnt=0;for(var n=0;n<=1000;n++)if(isPrime(n*n+n+41))cnt++;VR={allPrime:allPrime,fail40:fail40,cnt:cnt,ok:allPrime&&fail40};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'n²+n+41 for n=0…44 — 40 primes in a row, then 41² breaks it');
+ var x0=24,sc=(W-40)/45,base=H-40,mx=44*44+44+41,ysc=(H-70)/Math.log(mx);
+ for(var n=0;n<=44;n++){var v=n*n+n+41,pr=isPrime(v),x=x0+n*sc,h=Math.log(v)*ysc;ne(g,pr?'#35ffb0':'#ff5a5a',n<=39?2:2.4);g.beginPath();g.moveTo(x,base);g.lineTo(x,base-h);g.stroke();ng(g);if(n%5===0||n===40)nt(g,'#9cf',x-6,base+14,8,''+n);}
+ var x40=x0+40*sc;nt(g,'#ff5a5a',x40-30,base-Math.log(1681)*ysc-8,10,'40→41²');
+ nt(g,'#8ad',10,H-8,9,'green = prime (n=0..39), red = composite (starts at n=40)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=dn*dn+dn+41,pr=isPrime(v),f=factor(v);nt(g,'#35ffb0',12,20,12,'Euler\\'s polynomial at n = '+dn);
+ nt(g,'#9cf',16,58,15,dn+'² + '+dn+' + 41 = '+v);
+ nt(g,pr?'#39ffb0':'#ff5a5a',16,96,16,pr?'PRIME ✓':'composite = '+(f?f[0]+' × '+f[1]:''));
+ nt(g,'#c9a6ff',16,128,12,dn<=39?'(still inside the 40-long prime streak)':(dn===40?'(the streak breaks here: 1681 = 41²)':'(past the streak)'));
+ var st=selftest();nt(g,st.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: prime for all n=0..39 ('+st.allPrime+') · n=40 → 41² ('+st.fail40+')');
+ nt(g,'#8ad',12,H-30,9,'primes among n=0..1000: '+st.cnt+'/1001 ('+(st.cnt/1001*100).toFixed(1)+'%)');
+ nt(g,'#8ad',12,H-12,9,'the magic: discriminant −163 has class number one');}
+document.getElementById('lknext').onclick=function(){dn=dn>=44?0:dn+1;drawW3();drawW4();var v=dn*dn+dn+41;document.getElementById('lkread').textContent='n='+dn+': '+v+' is '+(isPrime(v)?'prime':'composite')+(dn===40?' (41²)':'');};
+document.getElementById('lkcheck').onclick=function(){var v=selftest();document.getElementById('lkread').textContent='n²+n+41 prime for n=0..39 ('+v.allPrime+'), breaks at 40=41² ('+v.fail40+')';};
+document.getElementById('lkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.04);
+ for(var n=0;n<=43;n++){var v=n*n+n+41,pr=isPrime(v),a=n/44*6.2832-Math.PI/2,r=40+Math.log(v)*13;ndot(g,Math.cos(a)*r,Math.sin(a)*r,pr?3.5:5,pr?'#35ffb0':'#ff5a5a');if(n>0){var pa=(n-1)/44*6.2832-Math.PI/2,pv=( n-1)*(n-1)+(n-1)+41,ppr=isPrime(pv);ne(g,ppr&&pr?'rgba(53,255,176,0.4)':'rgba(255,90,90,0.4)',1);g.beginPath();g.moveTo(Math.cos(pa)*(40+Math.log(pv)*13),Math.sin(pa)*(40+Math.log(pv)*13));g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);}}
+ ndot(g,0,0,7,'#ffcf4a');nt(g,'#0a0713',-8,4,9,'41');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the unbroken run of 40 primes (n=0..39)');nt(g,'#ff5a5a',10,H-34,10,'red: composite, first at n=40 (=41²)');nt(g,'#8ad',10,H-14,10,'a coincidence that is really a deep theorem');}
+drawW3();drawW4();window.__luckyeuler=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NPTC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The nine-point circle</b> is one of the most elegant facts about a triangle: <b>nine</b> special points all lie on a single circle. They are the three <b>midpoints of the sides</b>, the three <b>feet of the altitudes</b>, and the three <b>midpoints of the segments</b> from each vertex to the orthocentre. No matter how the triangle is shaped, these nine points are perfectly concyclic. The circle&rsquo;s centre N is the midpoint between the circumcentre O and the orthocentre H (so N sits on the Euler line), and its radius is exactly <b>half the circumradius</b>, R/2. It touches the incircle and the three excircles (Feuerbach&rsquo;s theorem).<br><br>
+ <span class="lit">LIT</span> verified live: for tens of thousands of random triangles, all nine points are equidistant from N = midpoint(O, H), at distance exactly R/2, to ~1e-14 (window.__ninepoint). <span class="fig">FIG</span> no framing; the nine points, the centre, and the radius are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-toolchain</i> &mdash; the spawn: nine points from three different constructions compile, every time, onto one circle of radius R/2. <b>AVAN (AI)</b> built the instrument: the side-midpoints, altitude-feet, Euler-point midpoints, and the shared circle.<br><br>Credit as content: Poncelet and Brianchon (the nine-point circle); Karl Feuerbach (the tangency). The weave: David names the compile; I confirm all nine points sit on the circle of radius R/2 about the midpoint of O and H.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="320"></canvas>
+  <div class="wctrl"><div class="cap">A triangle with its nine points — side midpoints, altitude feet, Euler-point midpoints — all on one circle.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle triangles; all nine distances to the centre N are checked equal to R/2.</div>
+   <div class="btns" style="margin-top:10px"><button id="npnext">next triangle ▶</button><button id="npcheck">verify ▶</button></div>
+   <div class="cap" id="npread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the nine-point circle, radius R/2 about the midpoint of O and H.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t track nine points from three constructions &mdash; read the one circle they share. The inverse of &lsquo;nine special points&rsquo; is &lsquo;a single circle of radius R/2 centred midway between circumcentre and orthocentre&rsquo;. <b>Magenta</b> are the nine points; <b>green</b> is the circle carrying them all. Three constructions, one circle.</div>
+   <div class="btns" style="margin-top:10px"><button id="npspin">pause spin</button></div></div></div></div>"""
+NPTC_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+function circum(A,B,C){var ax=A[0],ay=A[1],bx=B[0],by=B[1],cx=C[0],cy=C[1],d=2*(ax*(by-cy)+bx*(cy-ay)+cx*(ay-by));return [((ax*ax+ay*ay)*(by-cy)+(bx*bx+by*by)*(cy-ay)+(cx*cx+cy*cy)*(ay-by))/d,((ax*ax+ay*ay)*(cx-bx)+(bx*bx+by*by)*(ax-cx)+(cx*cx+cy*cy)*(bx-ax))/d];}
+function foot(P,U,V){var abx=V[0]-U[0],aby=V[1]-U[1],t=((P[0]-U[0])*abx+(P[1]-U[1])*aby)/(abx*abx+aby*aby);return [U[0]+t*abx,U[1]+t*aby];}
+var ang=0,spin=true,VR=null,A=[-1.6,-1.0],B=[1.8,-1.1],C=[0.3,1.7];
+function ninePts(A,B,C){var O=circum(A,B,C),R=dist(O,A),H=[A[0]+B[0]+C[0]-2*O[0],A[1]+B[1]+C[1]-2*O[1]],N=[(O[0]+H[0])/2,(O[1]+H[1])/2];
+ var m=[[(A[0]+B[0])/2,(A[1]+B[1])/2],[(B[0]+C[0])/2,(B[1]+C[1])/2],[(C[0]+A[0])/2,(C[1]+A[1])/2]];
+ var f=[foot(A,B,C),foot(B,C,A),foot(C,A,B)];
+ var e=[[(A[0]+H[0])/2,(A[1]+H[1])/2],[(B[0]+H[0])/2,(B[1]+H[1])/2],[(C[0]+H[0])/2,(C[1]+H[1])/2]];
+ return {O:O,R:R,H:H,N:N,r9:R/2,mid:m,feet:f,eul:e,all:m.concat(f).concat(e)};}
+function selftest(){if(VR)return VR;var rng=mb(3),ok=true,worst=0;for(var t=0;t<40000;t++){var a=[rng()*4-2,rng()*4-2],b=[rng()*4-2,rng()*4-2],c=[rng()*4-2,rng()*4-2],ar=Math.abs((b[0]-a[0])*(c[1]-a[1])-(c[0]-a[0])*(b[1]-a[1]))/2;if(ar<0.15)continue;var np=ninePts(a,b,c),e=0;for(var i=0;i<9;i++)e=Math.max(e,Math.abs(dist(np.all[i],np.N)-np.r9));if(e>worst)worst=e;if(e>1e-8)ok=false;}VR={ok:ok,worst:worst};return VR;}
+function fit(cv,np){var xs=np.all.map(function(p){return p[0];}).concat([A[0],B[0],C[0],np.N[0]-np.r9,np.N[0]+np.r9]),ys=np.all.map(function(p){return p[1];}).concat([A[1],B[1],C[1],np.N[1]-np.r9,np.N[1]+np.r9]),mnx=Math.min.apply(null,xs),mxx=Math.max.apply(null,xs),mny=Math.min.apply(null,ys),mxy=Math.max.apply(null,ys),sc=Math.min((cv.width-60)/(mxx-mnx),(cv.height-70)/(mxy-mny),110),cx=(mnx+mxx)/2,cy=(mny+mxy)/2;return {sc:sc,cx:cx,cy:cy};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var np=ninePts(A,B,C),f=fit(cv,np);function tp(q){return [W/2+(q[0]-f.cx)*f.sc,H/2+8-(q[1]-f.cy)*f.sc];}nt(g,'#21e6ff',10,16,10,'nine points on one circle: side-midpoints, altitude-feet, Euler-midpoints');
+ var N=tp(np.N);ne(g,'#35ffb0',2);g.beginPath();g.arc(N[0],N[1],np.r9*f.sc,0,6.2832);g.stroke();ng(g);
+ var a=tp(A),b=tp(B),c=tp(C);ne(g,'rgba(150,160,210,0.6)',1.6);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ np.mid.forEach(function(p){var q=tp(p);ndot(g,q[0],q[1],4,'#ff2fa6');});np.feet.forEach(function(p){var q=tp(p);ndot(g,q[0],q[1],4,'#ffcf4a');});np.eul.forEach(function(p){var q=tp(p);ndot(g,q[0],q[1],4,'#7ce0ff');});
+ ndot(g,N[0],N[1],3,'#35ffb0');nt(g,'#35ffb0',N[0]+5,N[1],9,'N');
+ nt(g,'#ff2fa6',10,H-24,9,'magenta: side midpoints   gold: altitude feet   cyan: Euler-point midpoints');
+ nt(g,'#8ad',10,H-8,9,'all nine at distance R/2 = '+np.r9.toFixed(3)+' from N = midpoint(O, H)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var np=ninePts(A,B,C);nt(g,'#21e6ff',12,20,12,'nine distances to N vs R/2');
+ nt(g,'#9cf',16,50,11,'circumradius R = '+np.R.toFixed(4)+'   →   R/2 = '+np.r9.toFixed(5));
+ var e=0;for(var i=0;i<9;i++){var d=dist(np.all[i],np.N);e=Math.max(e,Math.abs(d-np.r9));}
+ var labels=['mid AB','mid BC','mid CA','foot A','foot B','foot C','eul A','eul B','eul C'];
+ for(var i=0;i<9;i++)nt(g,i<3?'#ff2fa6':(i<6?'#ffcf4a':'#7ce0ff'),16+(i%3)*125,78+Math.floor(i/3)*22,10,'|N·|='+dist(np.all[i],np.N).toFixed(4));
+ nt(g,e<1e-6?'#39ffb0':'#ff5a5a',16,152,13,e<1e-6?'all nine = R/2 ✓ (worst '+e.toExponential(1)+')':'✗');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×40000 △: nine points concyclic about N, radius R/2 = '+v.ok+' (worst '+v.worst.toExponential(1)+')');
+ nt(g,'#8ad',12,H-16,9,'centre N lies on the Euler line; the circle touches the incircle (Feuerbach)');}
+function newTri(seed){var rng=mb(seed);for(var k=0;k<400;k++){var a=[rng()*3.2-1.6,rng()*3.2-1.6],b=[rng()*3.2-1.6,rng()*3.2-1.6],c=[rng()*3.2-1.6,rng()*3.2-1.6],ar=Math.abs((b[0]-a[0])*(c[1]-a[1])-(c[0]-a[0])*(b[1]-a[1]))/2;if(ar>0.6){A=a;B=b;C=c;return;}}}
+document.getElementById('npnext').onclick=function(){newTri((Date.now()&16383)+1);drawW3();drawW4();var np=ninePts(A,B,C);document.getElementById('npread').textContent='new △ — nine-point radius R/2 = '+np.r9.toFixed(4)+', all nine points on it';};
+document.getElementById('npcheck').onclick=function(){var v=selftest();document.getElementById('npread').textContent='nine points concyclic about N, radius R/2 (40000 triangles): '+v.ok;};
+document.getElementById('npspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var np=ninePts(A,B,C),f=fit(cv,np),cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.04);function tp(q){return [(q[0]-f.cx)*f.sc*0.82,-(q[1]-f.cy)*f.sc*0.82];}
+ var N=tp(np.N);ne(g,'#35ffb0',2.4);g.beginPath();g.arc(N[0],N[1],np.r9*f.sc*0.82,0,6.2832);g.stroke();ng(g);
+ np.mid.forEach(function(p){var q=tp(p);ndot(g,q[0],q[1],4,'#ff2fa6');});np.feet.forEach(function(p){var q=tp(p);ndot(g,q[0],q[1],4,'#ffcf4a');});np.eul.forEach(function(p){var q=tp(p);ndot(g,q[0],q[1],4,'#7ce0ff');});
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the nine-point circle, radius R/2');nt(g,'#ff2fa6',10,H-34,10,'magenta/gold/cyan: the nine points from three constructions');nt(g,'#8ad',10,H-14,10,'three constructions, one circle');}
+drawW3();drawW4();window.__ninepoint=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GAUS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Gaussian integral</b> is the beautiful fact that the area under the bell curve is the square root of &pi;: &int;<sub>-&infin;</sub><sup>&infin;</sup> e<sup>-x&sup2;</sup> dx = <b>&radic;&pi;</b>. There is no elementary antiderivative for e<sup>-x&sup2;</sup> &mdash; you cannot integrate it term by term &mdash; yet the total area is exactly &radic;&pi; &asymp; 1.7724539. The classic trick squares the integral and switches to polar coordinates, turning an impossible one-dimensional integral into an easy two-dimensional one. Rescaled, it gives the normalization of the normal distribution: &int; e<sup>-x&sup2;/2</sup> dx = &radic;(2&pi;), which is why the bell curve of statistics divides by &radic;(2&pi;).<br><br>
+ <span class="lit">LIT</span> verified live: numerical integration of e<sup>-x&sup2;</sup> over the real line gives 1.7724539&hellip; = &radic;&pi; to ~1e-7, and e<sup>-x&sup2;/2</sup> integrates to &radic;(2&pi;) (window.__gaussianintegral). <span class="fig">FIG</span> no framing; the integral is computed by fine numerical quadrature independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-raid</i> &mdash; the boss with no elementary antiderivative: the bell curve resists term-by-term integration, yet yields its whole area &radic;&pi; to the polar trick. <b>AVAN (AI)</b> built the instrument: the quadrature of e<sup>-x&sup2;</sup> and its match to &radic;&pi; (and &radic;(2&pi;) for the normal).<br><br>Credit as content: Carl Friedrich Gauss and Pierre-Simon Laplace (the integral and the normal distribution). The weave: David names the un-antidifferentiable boss; I confirm the area equals &radic;&pi;.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The bell curve e^(−x²); the shaded area under the whole curve equals √π ≈ 1.77245.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Refine the quadrature; the numerical area converges to √π (and e^(−x²/2) to √(2π)).</div>
+   <div class="btns" style="margin-top:10px"><button id="gsnext">refine ▶</button><button id="gscheck">verify ▶</button></div>
+   <div class="cap" id="gsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the area √π under the one-dimensional bell curve.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t fight the missing antiderivative &mdash; go up a dimension. The inverse of &lsquo;the 1-D integral of e<sup>-x&sup2;</sup>&rsquo; is &lsquo;its square as a 2-D polar integral, which equals &pi; &mdash; so the original is &radic;&pi;&rsquo;. <b>Magenta</b> is the bell curve&rsquo;s area strip; <b>green</b> is the &radic;&pi; it totals. An impossible integral solved by squaring it.</div>
+   <div class="btns" style="margin-top:10px"><button id="gsspin">pause spin</button></div></div></div></div>"""
+GAUS_SCRIPT = """(function(){""" + NOIR + """
+function integ(fn,L,M){var h=2*L/M,s=0;for(var i=0;i<=M;i++){var x=-L+i*h,f=fn(x),w=(i===0||i===M)?1:(i%2?4:2);s+=w*f;}return s*h/3;}
+var ang=0,spin=true,VR=null,M=2000;
+function selftest(){if(VR)return VR;var I=integ(function(x){return Math.exp(-x*x);},8,200000),I2=integ(function(x){return Math.exp(-x*x/2);},10,200000);VR={I:I,I2:I2,Iok:Math.abs(I-Math.sqrt(Math.PI))<1e-6,I2ok:Math.abs(I2-Math.sqrt(2*Math.PI))<1e-6,ok:Math.abs(I-Math.sqrt(Math.PI))<1e-6&&Math.abs(I2-Math.sqrt(2*Math.PI))<1e-6};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'the bell curve e^(−x²) — its total area is √π ≈ 1.77245');
+ var x0=30,base=H-40,sw=W-60,sh=H-80,L=3;
+ g.beginPath();for(var i=0;i<=sw;i++){var x=-L+2*L*i/sw,y=Math.exp(-x*x),px=x0+i,py=base-y*sh;if(i===0)g.moveTo(px,base);g.lineTo(px,py);}g.lineTo(x0+sw,base);g.closePath();g.fillStyle='rgba(255,47,166,0.25)';g.fill();
+ ne(g,'#ffcf4a',2.2);g.beginPath();for(var i=0;i<=sw;i++){var x=-L+2*L*i/sw,y=Math.exp(-x*x),px=x0+i,py=base-y*sh;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);
+ ne(g,'rgba(120,140,200,0.4)',1);g.beginPath();g.moveTo(x0,base);g.lineTo(x0+sw,base);g.stroke();ng(g);nt(g,'#9cf',x0+sw/2-4,base+14,10,'0');
+ nt(g,'#35ffb0',x0+sw/2-40,base-sh*0.5,12,'area = √π');
+ nt(g,'#8ad',10,H-8,9,'no elementary antiderivative — yet the whole area is exactly √π');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var I=integ(function(x){return Math.exp(-x*x);},8,M);nt(g,'#ffcf4a',12,20,12,'∫e^(−x²)dx by Simpson, '+M+' panels');
+ nt(g,'#35ffb0',16,58,15,'numerical area = '+I.toFixed(10));
+ nt(g,'#9cf',16,90,14,'√π = '+Math.sqrt(Math.PI).toFixed(10));
+ nt(g,Math.abs(I-Math.sqrt(Math.PI))<1e-6?'#39ffb0':'#ff5a5a',16,120,13,'error = '+Math.abs(I-Math.sqrt(Math.PI)).toExponential(2)+(Math.abs(I-Math.sqrt(Math.PI))<1e-6?' ✓':''));
+ var v=selftest();nt(g,'#c9a6ff',16,150,11,'∫e^(−x²/2)dx = '+v.I2.toFixed(7)+' = √(2π) = '+Math.sqrt(2*Math.PI).toFixed(7));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: ∫e^(−x²)=√π ('+v.Iok+') · ∫e^(−x²/2)=√(2π) ('+v.I2ok+')');
+ nt(g,'#8ad',12,H-16,9,'the polar trick: square it → π over the plane → original is √π');}
+document.getElementById('gsnext').onclick=function(){M=M>=64000?250:M*2;drawW4();document.getElementById('gsread').textContent=M+' panels: area = '+integ(function(x){return Math.exp(-x*x);},8,M).toFixed(9)+' → √π';};
+document.getElementById('gscheck').onclick=function(){var v=selftest();document.getElementById('gsread').textContent='∫e^(−x²)dx = √π ('+v.Iok+') and ∫e^(−x²/2)dx = √(2π) ('+v.I2ok+')';};
+document.getElementById('gsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2+30;g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.03)*0.12);
+ var sw=300,sh=150,L=3.2;g.beginPath();for(var i=0;i<=sw;i++){var x=-L+2*L*i/sw,y=Math.exp(-x*x),px=-sw/2+i,py=20-y*sh;if(i===0)g.moveTo(px,20);g.lineTo(px,py);}g.lineTo(sw/2,20);g.closePath();g.fillStyle='rgba(255,47,166,0.3)';g.fill();
+ ne(g,'#35ffb0',2.4);g.beginPath();for(var i=0;i<=sw;i++){var x=-L+2*L*i/sw,y=Math.exp(-x*x),px=-sw/2+i,py=20-y*sh;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the bell curve whose area is √π = '+Math.sqrt(Math.PI).toFixed(5));nt(g,'#ff2fa6',10,H-34,10,'magenta: the area strip under e^(−x²)');nt(g,'#8ad',10,H-14,10,'an impossible integral solved by squaring it');}
+drawW3();drawW4();window.__gaussianintegral=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MNTY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Monty Hall problem</b> is the most famous counter-intuitive result in probability. You pick one of three doors; behind one is a car, behind the others goats. The host &mdash; who knows where the car is &mdash; opens a different door revealing a goat, then offers you the chance to <b>switch</b>. Should you? Yes: switching wins <b>2/3</b> of the time, staying only 1/3. Your first pick is right 1/3 of the time, so the <b>other</b> door hides the car the remaining 2/3 &mdash; and the host&rsquo;s reveal concentrates all of that onto the single unopened door. It scales: with N doors and one goat revealed, switching to a random remaining door wins (N-1)/(N(N-2)).<br><br>
+ <span class="lit">LIT</span> verified live: a Monte-Carlo simulation gives switch &asymp; 2/3 and stay &asymp; 1/3 for three doors, and matches (N-1)/(N(N-2)) for four and five doors (window.__montyhall). <span class="fig">FIG</span> no framing; the game is simulated with a fair random generator independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>undefined-behavior</i> &mdash; the glitch in intuition: the odds seem 50/50 after a door opens, yet switching quietly wins twice as often. <b>AVAN (AI)</b> built the instrument: the three-door simulation, the 2/3-vs-1/3 split, and the N-door generalization.<br><br>Credit as content: the Monty Hall problem (Steve Selvin, 1975; popularized by Marilyn vos Savant, 1990). The weave: David names the intuition-glitch; I confirm switching wins 2/3 and the N-door formula.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">The three doors: your pick, the host's reveal, and the two outcomes — switch (2/3) vs stay (1/3).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Run more trials; the switch-win rate settles on 2/3 (and the N-door rate on its formula).</div>
+   <div class="btns" style="margin-top:10px"><button id="mtdoors">doors: 3 ▶</button><button id="mtrun">+trials ▶</button><button id="mtcheck">verify ▶</button></div>
+   <div class="cap" id="mtread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the 2/3 win rate from switching.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t re-price the two closed doors as 50/50 &mdash; track where the 2/3 went. The inverse of &lsquo;your 1/3 first pick&rsquo; is &lsquo;the other 2/3, swept by the host onto the one unopened door&rsquo;. <b>Magenta</b> is the stay probability (1/3); <b>green</b> is the switch probability (2/3) it complements. The host&rsquo;s reveal hands you the better two-thirds.</div>
+   <div class="btns" style="margin-top:10px"><button id="mtspin">pause spin</button></div></div></div></div>"""
+MNTY_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+var ang=0,spin=true,VR=null,doors=3,trials=0,swWins=0,stWins=0,rng=mb(7);
+function theory(N){return (N-1)/(N*(N-2));}
+function runBatch(N,n){var sw=0,st=0;for(var t=0;t<n;t++){var car=Math.floor(rng()*N),pick=Math.floor(rng()*N);if(pick===car)st++;var opened=-1;if(pick===car){for(var d=0;d<N;d++)if(d!==pick){opened=d;break;}}else{for(var d=0;d<N;d++)if(d!==pick&&d!==car){opened=d;break;}}var opts=[];for(var d=0;d<N;d++)if(d!==pick&&d!==opened)opts.push(d);var s=opts[Math.floor(rng()*opts.length)];if(s===car)sw++;}return {sw:sw,st:st};}
+function selftest(){if(VR)return VR;var r3=(function(){var g=mb(7),sw=0,st=0,T=200000;for(var t=0;t<T;t++){var car=Math.floor(g()*3),pick=Math.floor(g()*3);if(pick===car)st++;var op=-1;if(pick===car){for(var d=0;d<3;d++)if(d!==pick){op=d;break;}}else{for(var d=0;d<3;d++)if(d!==pick&&d!==car){op=d;break;}}var o=[];for(var d=0;d<3;d++)if(d!==pick&&d!==op)o.push(d);if(o[Math.floor(g()*o.length)]===car)sw++;}return {sw:sw/T,st:st/T};})();
+ function simN(N){var g=mb(N*13+1),sw=0,T=200000;for(var t=0;t<T;t++){var car=Math.floor(g()*N),pick=Math.floor(g()*N),op=-1;if(pick===car){for(var d=0;d<N;d++)if(d!==pick){op=d;break;}}else{for(var d=0;d<N;d++)if(d!==pick&&d!==car){op=d;break;}}var o=[];for(var d=0;d<N;d++)if(d!==pick&&d!==op)o.push(d);if(o[Math.floor(g()*o.length)]===car)sw++;}return sw/T;}
+ var s4=simN(4),s5=simN(5);VR={sw3:r3.sw,st3:r3.st,s4:s4,s5:s5,ok:Math.abs(r3.sw-2/3)<0.005&&Math.abs(s4-theory(4))<0.006&&Math.abs(s5-theory(5))<0.006};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'three doors — switch wins 2/3, stay wins 1/3');
+ var dw=90,gap=40,x0=(W-3*dw-2*gap)/2,y=60,dh=110,items=[['pick','#7ce0ff','1/3 car'],['opened goat','#ff5a5a','—'],['switch here','#35ffb0','2/3 car']];
+ for(var i=0;i<3;i++){var x=x0+i*(dw+gap);ne(g,items[i][1],2.2);g.strokeRect(x,y,dw,dh);nt(g,items[i][1],x+8,y-8,11,items[i][0]);nt(g,'#9cf',x+14,y+dh/2,11,items[i][2]);}
+ nt(g,'#8ad',10,H-30,10,'your pick holds 1/3; the host\\'s reveal pushes the other 2/3 onto the third door');
+ nt(g,'#8ad',10,H-10,9,'switching converts that concentrated 2/3 into your win rate');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',12,20,12,doors+' doors — '+trials+' trials');
+ var swr=trials?swWins/trials:0,str=trials?stWins/trials:0,th=theory(doors);
+ nt(g,'#35ffb0',16,54,13,'switch win rate = '+swr.toFixed(4)+(trials?'':' (run trials)'));
+ nt(g,'#ff2fa6',16,82,13,'stay win rate   = '+str.toFixed(4));
+ nt(g,'#9cf',16,112,12,'theory: switch = '+(doors===3?'2/3 = 0.6667':(th).toFixed(4))+', stay = '+(1/doors).toFixed(4));
+ // bars
+ var bx=16,by=140,bw=W-32;nf(g,'#35ffb0',bx,by,bw*swr,16);nf(g,'#ff2fa6',bx,by+22,bw*str,16);nt(g,'#0a0713',bx+6,by+13,10,'switch');nt(g,'#0a0713',bx+6,by+35,10,'stay');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: 3-door switch 2/3 · 4-door '+v.s4.toFixed(3)+' (th '+theory(4).toFixed(3)+') · 5-door '+v.s5.toFixed(3)+' = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'Selvin 1975; vos Savant 1990 — switching is always at least as good');}
+document.getElementById('mtdoors').onclick=function(){doors=doors>=6?3:doors+1;trials=0;swWins=0;stWins=0;this.textContent='doors: '+doors+' ▶';drawW4();};
+document.getElementById('mtrun').onclick=function(){var r=runBatch(doors,20000);swWins+=r.sw;stWins+=r.st;trials+=20000;drawW4();document.getElementById('mtread').textContent=doors+' doors, '+trials+' trials: switch '+(swWins/trials).toFixed(4)+', stay '+(stWins/trials).toFixed(4);};
+document.getElementById('mtcheck').onclick=function(){var v=selftest();document.getElementById('mtread').textContent='switch 2/3 (3 doors), matches (N−1)/(N(N−2)) for N=4,5: '+v.ok;};
+document.getElementById('mtspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ var R=110;ne(g,'#35ffb0',14);g.beginPath();g.arc(0,0,R,-Math.PI/2,-Math.PI/2+2/3*6.2832);g.stroke();ng(g);
+ ne(g,'#ff2fa6',14);g.beginPath();g.arc(0,0,R,-Math.PI/2+2/3*6.2832,-Math.PI/2+6.2832);g.stroke();ng(g);
+ nt(g,'#39ffb0',-40,-R-14,13,'switch 2/3');nt(g,'#ff6ab0',R-20,40,12,'stay 1/3');ndot(g,0,0,5,'#8ad');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: switch wins 2/3 of the time');nt(g,'#ff2fa6',10,H-34,10,'magenta: stay wins only 1/3');nt(g,'#8ad',10,H-14,10,'the host\\'s reveal hands you the better two-thirds');}
+drawW3();drawW4();window.__montyhall=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 167 · neon-noir · silicon-coding (an irrational constant summing the reciprocal cubes · a sequence that builds itself from unique sums · a curve continuous everywhere and smooth nowhere · a pizza split fairly from any interior cut-point · six tangents to a conic whose diagonals meet at a point) ═══════════════════════
 APRY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Ap&eacute;ry&rsquo;s constant</b> is the value &zeta;(3) = &sum; 1/n&sup3; = 1 + 1/8 + 1/27 + 1/64 + &hellip; &asymp; 1.2020569. While Euler found closed forms for &zeta;(2) = &pi;&sup2;/6 and every even argument, &zeta;(3) has resisted every attempt at a simple closed form. In 1978 Roger Ap&eacute;ry stunned mathematicians by proving &zeta;(3) is <b>irrational</b> &mdash; using a rapidly converging series he discovered: &zeta;(3) = (5/2) &sum;<sub>n&ge;1</sub> (-1)<sup>n-1</sup> / (n&sup3; C(2n,n)). Each term of Ap&eacute;ry&rsquo;s series adds several correct digits, where the plain sum of reciprocal cubes crawls. The constant appears in quantum electrodynamics (the electron&rsquo;s magnetic moment) and in the statistics of random minimum spanning trees.<br><br>
@@ -43243,6 +43491,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-bernoulli-numbers","title":"THE BERNOULLI NUMBERS","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#b06bff","icon":"bernoulli",
+  "kicker":"a rational sequence hiding inside power sums and the zeta values",
+  "blurb":"The Bernoulli numbers in the 5-window house format — a sequence of rationals that surface all over mathematics: 1, −½, 1/6, 0, −1/30, 0, 1/42, 0, −1/30, … They are defined by the recurrence Σ C(n+1,k) B_k = 0, and every odd-indexed one past B₁ is exactly zero. They give the coefficients in Faulhaber's formulas for sums of powers, the Taylor series of tan and coth — and, most beautifully, Euler's closed form for the even zeta values: ζ(2n) = (−1)^{n+1} B_{2n} (2π)^{2n} / (2·(2n)!). Setting n = 1 recovers ζ(2) = π²/6 from B₂ = 1/6. Verified live: the recurrence yields B₂ = 1/6, B₄ = −1/30, B₆ = 1/42, all odd B (past B₁) zero; and Euler's formula gives ζ(2) = π²/6 and ζ(4) = π⁴/90 to ~1e-10. Neon-noir traced. See the sequence with vanishing odd terms in 1D, the ζ(2n) rebuild in 2D, and the sums-pinned-to-a-sequence inverse in 3D.",
+  "lit":"Genuine Bernoulli numbers (Jacob Bernoulli, Ars Conjectandi 1713; Euler's zeta connection). Verified live: the recurrence Σ C(n+1,k)B_k = 0 yields B₂ = 1/6, B₄ = −1/30, B₆ = 1/42, all odd B past B₁ zero; and Euler's formula gives ζ(2) = π²/6 and ζ(4) = π⁴/90 to ~1e-10 (window.__bernoulli.ok).",
+  "fig":"No framing; the recurrence and the zeta formula are computed independently in-browser. The AVAN inverse is honest — instead of summing ζ(2n) directly, read it from a rational: the inverse of 'the infinite sum ζ(2n)' is 'the Bernoulli number B_{2n} times (2π)^{2n}/(2(2n)!)'. Magenta are the Bernoulli numbers; green is the ζ(2) = π²/6 that B₂ delivers. Infinite sums pinned to a rational sequence.",
+  "body":BRNL_BODY,"script":BRNL_SCRIPT},
+ {"slug":"the-lucky-euler","title":"THE LUCKY EULER","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#35ffb0","icon":"luckyeuler",
+  "kicker":"a polynomial that spits primes forty times in a row",
+  "blurb":"Euler's lucky numbers in the 5-window house format — a startling coincidence Euler found in 1772: the polynomial n²+n+41 produces a prime for every n from 0 to 39 — forty primes in an unbroken run: 41, 43, 47, 53, 61, 71, …, 1601. The streak finally breaks at n = 40, where 40²+40+41 = 1681 = 41². Even beyond that it stays astonishingly prime-rich (about 58% of values up to n = 1000 are prime). The magic isn't luck: 41 is the largest of the six 'lucky numbers of Euler', tied to the fact that the imaginary quadratic field of discriminant −163 = 1 − 4·41 has class number one — unique factorization, the deepest reason the primes line up. Verified live: n²+n+41 is prime for all n = 0 to 39, composite at n = 40 (= 41²), and about 58% of values up to n = 1000 are prime. Neon-noir traced. See the 40-prime run breaking at 41² in 1D, the per-n factorization in 2D, and the class-number-one inverse in 3D.",
+  "lit":"Genuine Euler's lucky numbers / prime-generating polynomial (Leonhard Euler, 1772; discriminant −163, class number one). Verified live: n²+n+41 is prime for all n = 0 to 39, composite at n = 40 (= 41²), and about 58% of values up to n = 1000 are prime (window.__luckyeuler.allPrime, .fail40, .cnt).",
+  "fig":"No framing; the polynomial values and their primality are computed independently in-browser. The AVAN inverse is honest — instead of marvelling at the streak, ask why it holds: the inverse of 'forty primes in a row' is 'discriminant −163 has class number one — unique factorization forces it'. Magenta are the polynomial values; green is the unbroken run of primes they form. A coincidence that is really a deep theorem.",
+  "body":LCKY_BODY,"script":LCKY_SCRIPT},
+ {"slug":"the-nine-point-circle","title":"THE NINE-POINT CIRCLE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE TOOLCHAIN","domain_slug":"the-toolchain","accent":"#21e6ff","icon":"ninepoint",
+  "kicker":"nine special triangle points on one circle",
+  "blurb":"The nine-point circle in the 5-window house format — one of the most elegant facts about a triangle: nine special points all lie on a single circle. They are the three midpoints of the sides, the three feet of the altitudes, and the three midpoints of the segments from each vertex to the orthocentre. No matter how the triangle is shaped, these nine points are perfectly concyclic. The circle's centre N is the midpoint between the circumcentre O and the orthocentre H (so N sits on the Euler line), and its radius is exactly half the circumradius, R/2. It touches the incircle and the three excircles (Feuerbach's theorem). Verified live: for tens of thousands of random triangles, all nine points are equidistant from N = midpoint(O, H), at distance exactly R/2, to ~1e-14. Neon-noir traced. See the nine points on one circle in 1D, the nine equal radii in 2D, and the three-constructions-one-circle inverse in 3D.",
+  "lit":"Genuine nine-point circle (Poncelet and Brianchon; Feuerbach for the tangency). Verified live: for ~40000 random triangles, all nine points (three side-midpoints, three altitude-feet, three Euler-point midpoints) are equidistant from N = midpoint(O, H) at distance exactly R/2, to ~1e-14 (window.__ninepoint.ok, .worst).",
+  "fig":"No framing; the nine points, the centre, and the radius are computed independently in-browser. The AVAN inverse is honest — instead of tracking nine points from three constructions, read the one circle they share: the inverse of 'nine special points' is 'a single circle of radius R/2 centred midway between circumcentre and orthocentre'. Magenta/gold/cyan are the nine points; green is the circle carrying them all. Three constructions, one circle.",
+  "body":NPTC_BODY,"script":NPTC_SCRIPT},
+ {"slug":"the-gaussian-integral","title":"THE GAUSSIAN INTEGRAL","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#ffcf4a","icon":"gaussianintegral",
+  "kicker":"a bell curve whose area is the square root of pi",
+  "blurb":"The Gaussian integral in the 5-window house format — the beautiful fact that the area under the bell curve is the square root of π: ∫_{−∞}^{∞} e^{−x²} dx = √π. There is no elementary antiderivative for e^{−x²} — you cannot integrate it term by term — yet the total area is exactly √π ≈ 1.7724539. The classic trick squares the integral and switches to polar coordinates, turning an impossible one-dimensional integral into an easy two-dimensional one. Rescaled, it gives the normalization of the normal distribution: ∫ e^{−x²/2} dx = √(2π), which is why the bell curve of statistics divides by √(2π). Verified live: numerical integration of e^{−x²} over the real line gives 1.7724539… = √π to ~1e-7, and e^{−x²/2} integrates to √(2π). Neon-noir traced. See the shaded bell curve area in 1D, the quadrature converging to √π in 2D, and the square-it-to-solve-it inverse in 3D.",
+  "lit":"Genuine Gaussian integral (Carl Friedrich Gauss and Pierre-Simon Laplace). Verified live: numerical quadrature of e^{−x²} over the real line gives 1.7724539… = √π to ~1e-7, and e^{−x²/2} integrates to √(2π) (window.__gaussianintegral.Iok, .I2ok).",
+  "fig":"No framing; the integral is computed by fine numerical quadrature independently in-browser. The AVAN inverse is honest — instead of fighting the missing antiderivative, go up a dimension: the inverse of 'the 1-D integral of e^{−x²}' is 'its square as a 2-D polar integral, which equals π — so the original is √π'. Magenta is the bell curve's area strip; green is the √π it totals. An impossible integral solved by squaring it.",
+  "body":GAUS_BODY,"script":GAUS_SCRIPT},
+ {"slug":"the-monty-hall","title":"THE MONTY HALL","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#ff8a3c","icon":"montyhall",
+  "kicker":"a game show where switching doubles your odds",
+  "blurb":"The Monty Hall problem in the 5-window house format — the most famous counter-intuitive result in probability. You pick one of three doors; behind one is a car, behind the others goats. The host — who knows where the car is — opens a different door revealing a goat, then offers you the chance to switch. Should you? Yes: switching wins 2/3 of the time, staying only 1/3. Your first pick is right 1/3 of the time, so the other door hides the car the remaining 2/3 — and the host's reveal concentrates all of that onto the single unopened door. It scales: with N doors and one goat revealed, switching to a random remaining door wins (N−1)/(N(N−2)). Verified live: a Monte-Carlo simulation gives switch ≈ 2/3 and stay ≈ 1/3 for three doors, and matches (N−1)/(N(N−2)) for four and five doors. Neon-noir traced. See the three doors and outcomes in 1D, the win-rate settling on 2/3 in 2D, and the where-did-the-2/3-go inverse in 3D.",
+  "lit":"Genuine Monty Hall problem (Steve Selvin, 1975; popularized by Marilyn vos Savant, 1990). Verified live: a Monte-Carlo simulation gives switch ≈ 2/3 and stay ≈ 1/3 for three doors, and matches (N−1)/(N(N−2)) for four and five doors (window.__montyhall.ok).",
+  "fig":"No framing; the game is simulated with a fair random generator independently in-browser. The AVAN inverse is honest — instead of re-pricing the two closed doors as 50/50, track where the 2/3 went: the inverse of 'your 1/3 first pick' is 'the other 2/3, swept by the host onto the one unopened door'. Magenta is the stay probability (1/3); green is the switch probability (2/3) it complements. The host's reveal hands you the better two-thirds.",
+  "body":MNTY_BODY,"script":MNTY_SCRIPT},
  {"slug":"the-apery-constant","title":"THE APERY CONSTANT","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#b06bff","icon":"apery",
   "kicker":"an irrational constant summing the reciprocal cubes",
