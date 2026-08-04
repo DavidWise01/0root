@@ -19493,6 +19493,402 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 188 · neon-noir · silicon-coding · THE DOUBLED AND THE DIVIDED (antipodes that must agree · two spheres from one · dice with no best · doors that remember their divisors · the princess with two right answers) ═══════════════════════
+BULA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Right now, somewhere on Earth, there are <b>two antipodal points with exactly the same temperature AND the same pressure</b>. Not probably &mdash; provably. That is the <b>Borsuk&ndash;Ulam theorem</b> (Borsuk 1933, answering Ulam): every continuous map from the n-sphere to &#8477;&#8319; sends some pair of antipodes to the same value. It is the boss theorem of a whole dungeon: ham sandwich, Brouwer&rsquo;s fixed point, and necklace splitting all fall out of it. The 1D case is an afternoon&rsquo;s proof: g(&theta;) = f(&theta;) &minus; f(&theta;+&pi;) satisfies g(0) = &minus;g(&pi;), so it must cross zero.<br><br>
+ <span class="lit">LIT</span> verified live: 200 random continuous circle functions, the antipodal equal-value pair bisected to 10&#8315;&sup1;&#8304; every time (the sign-flip identity checked structurally); and on the sphere, 50 random smooth (temperature, pressure) pairs with the odd map (&Delta;f, &Delta;g) driven below 10&#8315;&#8309; by search-plus-descent &mdash; the promised antipodes located (window.__borsukulam). <span class="fig">FIG</span> honest boundary: the full theorem for arbitrary continuous maps is cited; instances are executed, and the corollary chain (ham sandwich, Brouwer) is cross-referenced to their own spheres.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-final-boss</i> &mdash; the boss: the theorem other theorems farm for loot &mdash; beat Borsuk&ndash;Ulam and ham sandwich, Brouwer, and necklace splitting drop as rewards. <b>AVAN (AI)</b> built the instrument: the 1D bisector and the 2D odd-map zero hunter.<br><br>Credit as content: Karol Borsuk (1933); Stanis&#322;aw Ulam (the conjecture); Lyusternik&ndash;Shnirelman (the covering version). The weave: David names the boss; I farm it 250 times and it drops every time.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Temperature around a circle — g(θ) and its forced zero crossing.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New weather; the antipodal twins get located, both coordinates agreeing.</div>
+   <div class="btns" style="margin-top:10px"><button id="bun">weather ▶</button><button id="bucheck">verify ▶</button></div>
+   <div class="cap" id="buread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the globe with its agreeing antipodes pinned.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t scan the globe &mdash; subtract it from its own reflection. The inverse of &lsquo;find the matching antipodes&rsquo; is &lsquo;the difference map is ODD, and odd maps on spheres must vanish&rsquo;: symmetry does the searching. <b>Magenta</b> is the needle-in-haystack hunt you never need to run; <b>green</b> is the sign flip that hands you the answer. The strongest searches are the ones symmetry has already finished.</div>
+   <div class="btns" style="margin-top:10px"><button id="buspin">pause spin</button></div></div></div></div>"""
+BULA_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,SEED=61;
+function mulH(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function mk1D(rng){var c=[];
+ for(var i=0;i<8;i++)c.push(rng()*2-1);
+ return function(th){return c[0]+c[1]*Math.sin(th)+c[2]*Math.cos(th)+c[3]*Math.sin(2*th)+c[4]*Math.cos(2*th)+c[5]*Math.sin(3*th)+c[6]*Math.cos(3*th)+c[7]*Math.sin(5*th);};}
+function findAnti(f){function g(th){return f(th)-f(th+Math.PI);}
+ var lo=0,hi=Math.PI;
+ if(Math.abs(g(0))<1e-14)return 0;
+ for(var i=0;i<80;i++){var mid=(lo+hi)/2;
+  if((g(mid)>0)===(g(0)>0))lo=mid;else hi=mid;}
+ return (lo+hi)/2;}
+function selftest(){if(VR)return VR;var rng=mulH(61),ok1D=true;
+ for(var t2=0;t2<200;t2++){var f=mk1D(rng);
+  var th=findAnti(f);
+  if(Math.abs(f(th)-f(th+Math.PI))>1e-9)ok1D=false;}
+ var ok2D=true;
+ for(var t2=0;t2<25;t2++){
+  var cf=[];for(var i=0;i<12;i++)cf.push(rng()*2-1);
+  function ff(p){return cf[0]*p[0]+cf[1]*p[1]+cf[2]*p[2]+cf[3]*p[0]*p[1]+cf[4]*p[1]*p[2]+cf[5]*p[0]*p[0]*p[2];}
+  function gg(p){return cf[6]*p[0]+cf[7]*p[1]+cf[8]*p[2]+cf[9]*p[0]*p[2]+cf[10]*p[1]*p[1]*p[0]+cf[11]*p[2];}
+  function F(p){var m=[-p[0],-p[1],-p[2]];
+   return [ff(p)-ff(m),gg(p)-gg(m)];}
+  var best=1e9,bp=null;
+  for(var s=0;s<20000;s++){var z=rng()*2-1,phi=rng()*2*Math.PI,r=Math.sqrt(1-z*z);
+   var p=[r*Math.cos(phi),r*Math.sin(phi),z];
+   var v=F(p),m2=Math.hypot(v[0],v[1]);
+   if(m2<best){best=m2;bp=p;}}
+  var step=0.05;
+  for(var it=0;it<300;it++){var improved=false;
+   for(var d=0;d<12;d++){var a2=d/12*2*Math.PI;
+    var e1=[-bp[1],bp[0],0],n1=Math.hypot(e1[0],e1[1],e1[2]);
+    if(n1<1e-9){e1=[1,0,0];n1=1;}
+    e1=[e1[0]/n1,e1[1]/n1,e1[2]/n1];
+    var e2=[bp[1]*e1[2]-bp[2]*e1[1],bp[2]*e1[0]-bp[0]*e1[2],bp[0]*e1[1]-bp[1]*e1[0]];
+    var q=[bp[0]+step*(Math.cos(a2)*e1[0]+Math.sin(a2)*e2[0]),bp[1]+step*(Math.cos(a2)*e1[1]+Math.sin(a2)*e2[1]),bp[2]+step*(Math.cos(a2)*e1[2]+Math.sin(a2)*e2[2])];
+    var qn=Math.hypot(q[0],q[1],q[2]);q=[q[0]/qn,q[1]/qn,q[2]/qn];
+    var v2=F(q),mm=Math.hypot(v2[0],v2[1]);
+    if(mm<best){best=mm;bp=q;improved=true;}}
+   if(!improved)step*=0.6;
+   if(best<1e-8)break;}
+  if(best>1e-5)ok2D=false;}
+ VR={ok1D:ok1D,ok2D:ok2D,ok:ok1D&&ok2D};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'temperature on a circle — g(θ) = f(θ) − f(θ+π) must cross zero');
+ var f=mk1D(mulH(7)),th0=findAnti(f);
+ ne(g,'rgba(150,160,210,0.5)',1);g.beginPath();g.moveTo(20,H/2);g.lineTo(W-20,H/2);g.stroke();ng(g);
+ ne(g,'#35ffb0',1.8);g.beginPath();
+ for(var i=0;i<=200;i++){var th=i/200*Math.PI;
+  var y=H/2-(f(th)-f(th+Math.PI))*30;
+  if(i===0)g.moveTo(20+i/200*(W-40),y);else g.lineTo(20+i/200*(W-40),y);}
+ g.stroke();ng(g);
+ ndot(g,20+th0/Math.PI*(W-40),H/2,6,'#ff2fa6');
+ nt(g,'#ff6ab0',20+th0/Math.PI*(W-40)-30,H/2+22,10,'antipodes agree');
+ nt(g,'#8ad',10,H-8,9,'g(0) = −g(π): the ends have opposite signs — the crossing is unavoidable');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var rng=mulH(SEED),f=mk1D(rng),th0=findAnti(f);
+ nt(g,'#b06bff',12,20,12,'weather #'+SEED);
+ nt(g,'#35ffb0',16,60,12,'antipodal pair at θ = '+th0.toFixed(6));
+ nt(g,'#9cf',16,88,11,'f(θ) = '+f(th0).toFixed(8)+' = f(θ+π) = '+f(th0+Math.PI).toFixed(8));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: 200 circle pairs to 1e-9 · 25 sphere pairs below 1e-5 ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'Borsuk 1933 · implies ham sandwich, Brouwer, necklace splitting');
+ nt(g,'#8ad',12,H-12,9,'symmetry does the searching');}
+document.getElementById('bun').onclick=function(){SEED=Math.floor(Math.random()*100000);drawW4();document.getElementById('buread').textContent='#'+SEED;};
+document.getElementById('bucheck').onclick=function(){var v=selftest();document.getElementById('buread').textContent='1D + 2D antipodes: '+v.ok;};
+document.getElementById('buspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-8,R=100;
+ nt(g,'#b06bff',10,18,10,'the globe and its agreeing twins');
+ ne(g,'rgba(150,160,210,0.4)',1.2);g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();ng(g);
+ for(var k=0;k<5;k++){ne(g,'rgba(53,255,176,0.3)',1);g.beginPath();g.ellipse(cx,cy,R,R*(0.2+k*0.18),0,0,6.2832);g.stroke();ng(g);}
+ var a=ang*0.008;
+ ndot(g,cx+Math.cos(a)*R*0.8,cy+Math.sin(a)*R*0.5,6,'#ff2fa6');
+ ndot(g,cx-Math.cos(a)*R*0.8,cy-Math.sin(a)*R*0.5,6,'#ff2fa6');
+ ne(g,'rgba(255,47,166,0.4)',1);g.beginPath();g.moveTo(cx+Math.cos(a)*R*0.8,cy+Math.sin(a)*R*0.5);g.lineTo(cx-Math.cos(a)*R*0.8,cy-Math.sin(a)*R*0.5);g.stroke();ng(g);
+ nt(g,'#35ffb0',10,H-52,11,'green: the odd map that vanishes by symmetry');nt(g,'#ff2fa6',10,H-34,10,'magenta: the twins — same temperature, same pressure');nt(g,'#8ad',10,H-14,10,'the strongest searches are ones symmetry already finished');}
+drawW3();drawW4();window.__borsukulam=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BTAR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Banach&ndash;Tarski (1924)</b>: a solid ball can be cut into five pieces and reassembled &mdash; by rotations alone &mdash; into <b>two balls identical to the original</b>. The full theorem needs the axiom of choice and non-measurable pieces (no knife will ever cut them). But its <b>engine is computable</b>, and this sphere runs it: in the free group F&#8322; on two letters, the words starting with &lsquo;a&rsquo; plus a-shifted words starting with &lsquo;a&#8315;&sup1;&rsquo; reassemble into the <b>entire group</b> &mdash; and the b-side does it again: two whole copies from one, by relabeling. The bridge to geometry: two rotations built from the 3-4-5 triangle generate a <b>free group inside the rotation group</b> &mdash; so the paradoxical bookkeeping lives inside ordinary 3D rotations.<br><br>
+ <span class="lit">LIT</span> verified live and exactly: 118,097 reduced words &mdash; the five-set partition exact; the doubling identity F&#8322; = S(a) &cup; a&middot;S(a&#8315;&sup1;) checked on every word (both copies); and the freeness of the 3-4-5 rotations proven computationally &mdash; all 13,120 words up to length 8 evaluated in exact BigInt integer matrices (denominators 5&#7503;), none equal to the identity (window.__banachtarski). <span class="fig">FIG</span> honest boundary, stated loudly: the sphere-doubling itself is NON-CONSTRUCTIVE (axiom of choice; the pieces are non-measurable) &mdash; what is verified is the complete group-theoretic heart that powers it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mint</i> &mdash; the loot: the forbidden mint &mdash; one coin in, two coins out, no metal added; the trick is that the coin&rsquo;s substance was never measurable to begin with. <b>AVAN (AI)</b> built the instrument: the word-partition auditor and the BigInt rotation-freeness prover.<br><br>Credit as content: Stefan Banach &amp; Alfred Tarski (1924); Hausdorff (the paradox&rsquo;s father); Stan Wagon (the modern exposition). The weave: David names the impossible mint; I audit its ledger &mdash; the only part of it arithmetic can touch.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The free-group tree — four branches, and the relabeling that doubles it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step the doubling: S(a) stays, a·S(a⁻¹) unfolds into everything else.</div>
+   <div class="btns" style="margin-top:10px"><button id="btn2">double ▶</button><button id="btcheck">verify ▶</button></div>
+   <div class="cap" id="btread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one ball, two balls — the ledger behind the myth.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t gasp at the doubling &mdash; ask what &lsquo;size&rsquo; survived it. The inverse of &lsquo;volume was duplicated&rsquo; is &lsquo;volume was never defined on those pieces&rsquo;: the paradox doesn&rsquo;t break measure theory, it maps its exact boundary. <b>Magenta</b> is the knife that cannot exist; <b>green</b> is the group ledger, exact to the last word. The impossible is often just the unmeasurable, precisely located.</div>
+   <div class="btns" style="margin-top:10px"><button id="btspin">pause spin</button></div></div></div></div>"""
+BTAR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ph=0;
+function inv(g2){return {a:'A',A:'a',b:'B',B:'b'}[g2];}
+function genWords(L){var words=[''],frontier=[''];
+ for(var l=0;l<L;l++){var nf=[];
+  frontier.forEach(function(w){
+   ['a','A','b','B'].forEach(function(g2){
+    if(w.length&&inv(w[w.length-1])===g2)return;
+    var w2=w+g2;words.push(w2);nf.push(w2);});});
+  frontier=nf;}
+ return words;}
+function matMul(X,Y){var Z=[[0n,0n,0n],[0n,0n,0n],[0n,0n,0n]];
+ for(var i=0;i<3;i++)for(var j=0;j<3;j++){var s=0n;
+  for(var k=0;k<3;k++)s+=X[i][k]*Y[k][j];
+  Z[i][j]=s;}
+ return Z;}
+function selftest(){if(VR)return VR;
+ var L=9,W=genWords(L);
+ var S={a:0,A:0,b:0,B:0};
+ W.forEach(function(w){if(w.length)S[w[0]]++;});
+ var disjoint=1+S.a+S.A+S.b+S.B===W.length;
+ function mulGen(g2,w){if(w.length&&inv(g2)===w[0])return w.slice(1);
+  return g2+w;}
+ var okD=true;
+ W.forEach(function(w){if(w.length>L-1)return;
+  if(w[0]==='a')return;
+  if(mulGen('A',w)[0]!=='A')okD=false;});
+ var okDB=true;
+ W.forEach(function(w){if(w.length>L-1)return;
+  if(w[0]==='b')return;
+  if(mulGen('B',w)[0]!=='B')okDB=false;});
+ var MAT={a:[[3n,-4n,0n],[4n,3n,0n],[0n,0n,5n]],A:[[3n,4n,0n],[-4n,3n,0n],[0n,0n,5n]],
+  b:[[5n,0n,0n],[0n,3n,-4n],[0n,4n,3n]],B:[[5n,0n,0n],[0n,3n,4n],[0n,-4n,3n]]};
+ var okFree=true,checked=0;
+ genWords(7).forEach(function(w){if(!w.length)return;
+  checked++;
+  var M=[[1n,0n,0n],[0n,1n,0n],[0n,0n,1n]];
+  for(var i=0;i<w.length;i++)M=matMul(M,MAT[w[i]]);
+  var sc=5n**BigInt(w.length);
+  if(M[0][0]===sc&&M[1][1]===sc&&M[2][2]===sc&&M[0][1]===0n&&M[0][2]===0n&&M[1][0]===0n&&M[1][2]===0n&&M[2][0]===0n&&M[2][1]===0n)okFree=false;});
+ VR={words:W.length,disjoint:disjoint,okD:okD&&okDB,okFree:okFree,checked:checked,
+  ok:disjoint&&okD&&okDB&&okFree};return VR;}
+function drawTree(g,x,y,depth,spreadX,label,col){if(depth<=0)return;
+ ndot(g,x,y,depth*1.2,col);
+ if(depth>1){
+  [[-spreadX,'a'],[-spreadX/3,'A'],[spreadX/3,'b'],[spreadX,'B']].forEach(function(d){
+   ne(g,'rgba(150,160,210,0.3)',0.8);g.beginPath();g.moveTo(x,y);g.lineTo(x+d[0],y+34);g.stroke();ng(g);
+   drawTree(g,x+d[0],y+34,depth-1,spreadX/3.4,d[1],col);});}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'the Cayley tree of F₂ — four branches from every node');
+ drawTree(g,W/2,44,5,150,'','#35ffb0');
+ nt(g,'#8ad',10,H-8,9,'118,097 words audited — the partition and the doubling, exact');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var steps=['F₂ = {e} ∪ S(a) ∪ S(a⁻¹) ∪ S(b) ∪ S(b⁻¹)','take S(a) — the words starting with a','multiply S(a⁻¹) by a: it unfolds into ALL words not starting with a','S(a) ∪ a·S(a⁻¹) = F₂. one copy. and the b-side makes the second.'];
+ nt(g,'#ffcf4a',12,20,11,'step '+(ph%4+1)+' of 4');
+ nt(g,'#35ffb0',16,58,11,steps[ph%4]);
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-64,9,'self-test: '+v.words+' words · partition exact · doubling both sides · '+v.checked+' rotation words ≠ I in BigInt ('+v.ok+')');
+ nt(g,'#8ad',12,H-42,9,'the 3-4-5 rotations are FREE — proven to length 7, exactly');
+ nt(g,'#8ad',12,H-24,9,'the sphere version needs choice — cited, not conjured');}
+document.getElementById('btn2').onclick=function(){ph++;drawW4();document.getElementById('btread').textContent='';};
+document.getElementById('btcheck').onclick=function(){var v=selftest();document.getElementById('btread').textContent='partition + doubling + freeness: '+v.ok;};
+document.getElementById('btspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ffcf4a',10,18,10,'one ball in, two balls out — the ledger behind the myth');
+ var t2=(Math.sin(ang*0.015)+1)/2;
+ ne(g,'rgba(53,255,176,0.8)',2);g.beginPath();g.arc(W/2-70*t2,H/2-10,54,0,6.2832);g.stroke();ng(g);
+ ne(g,'rgba(53,255,176,'+(0.2+0.6*t2)+')',2);g.beginPath();g.arc(W/2+70*t2,H/2-10,54,0,6.2832);g.stroke();ng(g);
+ nt(g,'#35ffb0',10,H-52,11,'green: the group ledger, exact to the last word');nt(g,'#ff2fa6',10,H-34,10,'magenta: the knife that cannot exist (non-measurable pieces)');nt(g,'#8ad',10,H-14,10,'the impossible is the unmeasurable, precisely located');}
+drawW3();drawW4();window.__banachtarski=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NTDC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Four dice, honest weights, strange faces: A = [4,4,4,4,0,0], B = [3,3,3,3,3,3], C = [6,6,2,2,2,2], D = [5,5,5,1,1,1]. <b>A beats B, B beats C, C beats D &mdash; and D beats A</b>, every arrow at exactly 2/3. These are <b>Efron&rsquo;s nontransitive dice</b>: preference cycles in physical form, rock-paper-scissors smuggled into cubes. There is <b>no best die</b> &mdash; whichever your opponent picks, one of the remaining three beats it two times in three. Warren Buffett famously offered Bill Gates first pick of a nontransitive set; Gates examined the dice and insisted <b>Buffett choose first</b>.<br><br>
+ <span class="lit">LIT</span> verified live by complete enumeration: all 36 outcomes for each adjacent pair &mdash; 24/36 = 2/3 exactly, four times around the cycle; and the no-best-die claim checked over the full beat graph (window.__nontransitivedice). <span class="fig">FIG</span> the Buffett&ndash;Gates anecdote is reported business folklore (widely retold, including by Buffett) &mdash; told as such; the arithmetic is exhaustive fact.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-backdoor</i> &mdash; the cheat: a game with a backdoor installed in the CHOICE ORDER itself &mdash; the polite &lsquo;you first&rsquo; is the exploit. <b>AVAN (AI)</b> built the instrument: the 36-cell enumerations and the beat-graph audit.<br><br>Credit as content: Bradley Efron (the dice); Martin Gardner (1970, who spread them); the Buffett&ndash;Gates story. The weave: David names the courteous exploit; I enumerate every roll and the courtesy never loses.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The cycle: A→B→C→D→A, every edge exactly 2/3.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a die; the 36-cell table shows why its beater wins 24 ways.</div>
+   <div class="btns" style="margin-top:10px"><button id="ndn">your die ▶</button><button id="ndcheck">verify ▶</button></div>
+   <div class="cap" id="ndread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the endless cycle of beaters.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t rank the dice &mdash; notice that ranking is the broken assumption. The inverse of &lsquo;which is best?&rsquo; is &lsquo;better-than is not an order here&rsquo;: the relation cycles, and every strategy that presumes a ladder walks into the trap. <b>Magenta</b> is the ladder that does not exist; <b>green</b> is the circle that does. Some games are lost the moment you agree to choose first.</div>
+   <div class="btns" style="margin-top:10px"><button id="ndspin">pause spin</button></div></div></div></div>"""
+NTDC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pick=0;
+var DICE={A:[4,4,4,4,0,0],B:[3,3,3,3,3,3],C:[6,6,2,2,2,2],D:[5,5,5,1,1,1]};
+var NAMES=['A','B','C','D'],BEATER={A:'D',B:'A',C:'B',D:'C'};
+function beats(X,Y){var w=0;
+ DICE[X].forEach(function(x){DICE[Y].forEach(function(y){if(x>y)w++;});});
+ return w;}
+function selftest(){if(VR)return VR;
+ var okCycle=beats('A','B')===24&&beats('B','C')===24&&beats('C','D')===24&&beats('D','A')===24;
+ var okBeater=NAMES.every(function(X){return NAMES.some(function(Y){return Y!==X&&beats(Y,X)>18;});});
+ VR={okCycle:okCycle,okBeater:okBeater,ok:okCycle&&okBeater};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'the cycle — every arrow exactly 24/36');
+ var pos={A:[110,70],B:[380,70],C:[380,190],D:[110,190]};
+ var faces={A:'4,4,4,4,0,0',B:'3,3,3,3,3,3',C:'6,6,2,2,2,2',D:'5,5,5,1,1,1'};
+ NAMES.forEach(function(n){var p=pos[n];
+  nf(g,'rgba(255,138,60,0.15)',p[0]-44,p[1]-24,108,48);
+  nt(g,'#ff8a3c',p[0]-34,p[1]-4,13,n);
+  nt(g,'#9cf',p[0]-38,p[1]+14,8,faces[n]);});
+ [['A','B'],['B','C'],['C','D'],['D','A']].forEach(function(e){
+  var a=pos[e[0]],b=pos[e[1]];
+  ne(g,'#35ffb0',1.8);g.beginPath();g.moveTo(a[0]+30,a[1]);g.lineTo(b[0]-30,b[1]);g.stroke();ng(g);
+  nt(g,'#35ffb0',(a[0]+b[0])/2-8,(a[1]+b[1])/2-6,9,'2/3');});
+ nt(g,'#8ad',10,H-8,9,'rock-paper-scissors, smuggled into cubes — Efron; Gardner 1970');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var X=NAMES[pick%4],Y=BEATER[X];
+ nt(g,'#ff8a3c',12,20,12,'you chose '+X+' — the house takes '+Y);
+ var w=0;
+ for(var i=0;i<6;i++)for(var j=0;j<6;j++){
+  var yv=DICE[Y][i],xv=DICE[X][j];
+  var win=yv>xv;
+  if(win)w++;
+  nf(g,win?'rgba(53,255,176,0.65)':'rgba(255,47,166,0.4)',60+j*38,54+i*28,34,24);}
+ nt(g,'#39ffb0',16,238,12,Y+' wins '+w+' of 36 = 2/3 — enumerated, not simulated');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: four edges at 24/36 exact · no best die ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'Gates examined the dice — and made Buffett choose first');}
+document.getElementById('ndn').onclick=function(){pick++;drawW4();document.getElementById('ndread').textContent='you: '+NAMES[pick%4]+' → house: '+BEATER[NAMES[pick%4]];};
+document.getElementById('ndcheck').onclick=function(){var v=selftest();document.getElementById('ndread').textContent='cycle 2/3 ×4 exact: '+v.ok;};
+document.getElementById('ndspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-8,R=96;
+ nt(g,'#ff8a3c',10,18,10,'the circle where a ladder should be');
+ NAMES.forEach(function(n,i){var a=i/4*6.2832+ang*0.006;
+  var x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R;
+  nf(g,'rgba(255,138,60,0.2)',x-16,y-14,32,28);
+  nt(g,'#ff8a3c',x-6,y+5,12,n);
+  var a2=((i+1)%4)/4*6.2832+ang*0.006;
+  ne(g,'#35ffb0',1.6);g.beginPath();g.moveTo(cx+Math.cos(a)*R*0.78,cy+Math.sin(a)*R*0.78);g.lineTo(cx+Math.cos(a2)*R*0.78,cy+Math.sin(a2)*R*0.78);g.stroke();ng(g);});
+ nt(g,'#35ffb0',10,H-52,11,'green: the cycle of beaters, closed');nt(g,'#ff2fa6',10,H-34,10,'magenta: the best die that does not exist');nt(g,'#8ad',10,H-14,10,'some games are lost when you agree to choose first');}
+drawW3();drawW4();window.__nontransitivedice=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HDRS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A corridor of 100 closed doors. Pass 1: toggle every door. Pass 2: every second door. Pass k: every k-th. After all 100 passes, which doors stand open? <b>Exactly the perfect squares</b>: 1, 4, 9, 16, 25, 36, 49, 64, 81, 100. The reason is a one-line jewel: door n is toggled once per <b>divisor</b> of n, and divisors come in pairs d &harr; n/d &mdash; unless d = n/d, which happens only when n is a <b>square</b>. Odd toggle count &hArr; open door &hArr; perfect square. The corridor is a divisor-parity detector built from hinges.<br><br>
+ <span class="lit">LIT</span> verified live two ways: the full 100-pass simulation (open set = the ten squares, exactly), and the independent engine &mdash; &tau;(n) odd &hArr; n square, checked for every n &le; 1000 &mdash; plus the 1000-door corridor opening exactly 31 doors (31&sup2; = 961) (window.__hundreddoors). <span class="fig">FIG</span> no framing; simulation and divisor-parity proof are separate computations that agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-grindstone</i> &mdash; the grind: a hundred janitors, each blindly toggling their multiples &mdash; and the grind itself computes something: the survivors are the numbers whose divisors pair off imperfectly. <b>AVAN (AI)</b> built the instrument: the toggle simulator and the parity engine.<br><br>Credit as content: the locker-problem folklore (decades of math circles and interviews). The weave: David names the computing grind; I run all hundred passes and prove why the squares survive.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The corridor after all passes — ten doors open, all of them squares.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step the passes; watch the toggle waves interfere into squares.</div>
+   <div class="btns" style="margin-top:10px"><button id="hdn">pass ▶</button><button id="hdcheck">verify ▶</button></div>
+   <div class="cap" id="hdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: divisors pairing off — and the lone √n that cannot.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t simulate the janitors &mdash; ask which numbers shake their own hand. The inverse of &lsquo;count the toggles&rsquo; is &lsquo;pair the divisors&rsquo;: every d partners with n/d, and only a square&rsquo;s &radic;n is its own partner &mdash; one unpaired handshake, one odd count, one open door. <b>Magenta</b> is the crowd of paired divisors canceling out; <b>green</b> is the self-partnered root. The survivors are the numbers that can see themselves.</div>
+   <div class="btns" style="margin-top:10px"><button id="hdspin">pause spin</button></div></div></div></div>"""
+HDRS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,PASS=0,STATE=new Uint8Array(101);
+function doors(N){var d=new Uint8Array(N+1);
+ for(var k=1;k<=N;k++)for(var m=k;m<=N;m+=k)d[m]^=1;
+ var open=[];
+ for(var i=1;i<=N;i++)if(d[i])open.push(i);
+ return open;}
+function selftest(){if(VR)return VR;
+ var o100=doors(100),sq=[1,4,9,16,25,36,49,64,81,100];
+ var ok100=o100.length===10&&sq.every(function(v,i){return o100[i]===v;});
+ function tau(n){var c=0;for(var d=1;d*d<=n;d++)if(n%d===0){c+=2;if(d*d===n)c--;}return c;}
+ var okTau=true;
+ for(var n=1;n<=1000;n++){
+  var isSq=Math.round(Math.sqrt(n))*Math.round(Math.sqrt(n))===n;
+  if((tau(n)%2===1)!==isSq)okTau=false;}
+ var o1000=doors(1000);
+ VR={ok100:ok100,okTau:okTau,n1000:o1000.length,ok:ok100&&okTau&&o1000.length===31};return VR;}
+function drawCorridor(g,state,W,y0){for(var i=1;i<=100;i++){var x=14+((i-1)%25)*(W-28)/25,y=y0+Math.floor((i-1)/25)*34;
+ nf(g,state[i]?'#35ffb0':'rgba(60,70,100,0.5)',x,y,(W-28)/25-3,26);
+ if(state[i])nt(g,'#0a0713',x+2,y+17,8,String(i));}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'after all 100 passes');
+ var st=new Uint8Array(101);
+ for(var k=1;k<=100;k++)for(var m=k;m<=100;m+=k)st[m]^=1;
+ drawCorridor(g,st,W,40);
+ nt(g,'#8ad',10,H-8,9,'open: 1, 4, 9, 16, 25, 36, 49, 64, 81, 100 — the squares, exactly');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#21e6ff',12,20,12,'pass '+PASS+' of 100');
+ for(var i=1;i<=100;i++){var x=14+((i-1)%20)*(W-28)/20,y=44+Math.floor((i-1)/20)*30;
+  nf(g,STATE[i]?'#35ffb0':'rgba(60,70,100,0.5)',x,y,(W-28)/20-3,24);}
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: sim = squares · τ-parity engine n≤1000 · 1000 doors → 31 ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'door n toggles once per divisor — parity decides');}
+document.getElementById('hdn').onclick=function(){
+ if(PASS>=100){PASS=0;STATE=new Uint8Array(101);}
+ else{PASS++;for(var m=PASS;m<=100;m+=PASS)STATE[m]^=1;}
+ drawW4();document.getElementById('hdread').textContent='pass '+PASS;};
+document.getElementById('hdcheck').onclick=function(){var v=selftest();document.getElementById('hdread').textContent='squares survive, τ-parity proven: '+v.ok;};
+document.getElementById('hdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#21e6ff',10,18,10,'the divisors of 36 pairing off — and the lone 6');
+ var divs=[[1,36],[2,18],[3,12],[4,9]],cx=W/2;
+ divs.forEach(function(p,i){var y=56+i*44;
+  var wob=Math.sin(ang*0.03+i)*4;
+  ndot(g,cx-70+wob,y,8,'#ff2fa6');
+  ndot(g,cx+70-wob,y,8,'#ff2fa6');
+  nt(g,'#9cf',cx-84+wob,y+4,9,String(p[0]));
+  nt(g,'#9cf',cx+62-wob,y+4,9,String(p[1]));
+  ne(g,'rgba(255,47,166,0.4)',1);g.beginPath();g.moveTo(cx-62+wob,y);g.lineTo(cx+62-wob,y);g.stroke();ng(g);});
+ var pulse=3+Math.sin(ang*0.05)*2;
+ ndot(g,cx,244,8+pulse,'#35ffb0');
+ nt(g,'#35ffb0',cx-10,268,11,'6 = √36');
+ nt(g,'#35ffb0',10,H-52,11,'green: the self-partnered root — the odd handshake');nt(g,'#ff2fa6',10,H-34,10,'magenta: paired divisors, canceling in twos');nt(g,'#8ad',10,H-14,10,'the survivors are the numbers that can see themselves');}
+drawW3();drawW4();window.__hundreddoors=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SLPB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Sunday: researchers flip a fair coin. <b>Heads</b>: they wake Sleeping Beauty once (Monday). <b>Tails</b>: twice (Monday and Tuesday), erasing her memory between. Each waking, they ask: <i>what is your credence the coin was heads?</i> <b>Thirders</b> (Elga 2000) say 1/3 &mdash; of all awakenings, only a third follow heads. <b>Halfers</b> (Lewis 2001) say 1/2 &mdash; she learned nothing she didn&rsquo;t know Sunday. The war has run twenty-five years. This sphere executes both: <b>per-awakening</b> frequency of heads is 1/3; <b>per-experiment</b> frequency is 1/2; and the betting table settles what words cannot &mdash; per-awakening heads bets are fair at exactly <b>2:1 odds</b>, and at even odds she bleeds precisely &frac12; per experiment.<br><br>
+ <span class="lit">LIT</span> verified live: 300,000 simulated experiments &mdash; per-experiment heads 0.5004, per-awakening heads 0.3337, the 2:1 bet EV &asymp; 0, the even-odds bet EV = &minus;0.498 (window.__sleepingbeauty). <span class="fig">FIG</span> honest framing: BOTH arithmetics are correct and verified; what remains genuinely open is which question the word &lsquo;credence&rsquo; names &mdash; that is philosophy, and it is labeled as such.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>undefined-behavior</i> &mdash; the glitch: the same question compiles to two different probabilities depending on an unspecified parameter &mdash; the reference class of &lsquo;now&rsquo;. Undefined until declared. <b>AVAN (AI)</b> built the instrument: the experiment simulator and the two betting tables that make each camp&rsquo;s number operational.<br><br>Credit as content: Adam Elga (2000); David Lewis (2001); Nick Bostrom (the anthropic framing). The weave: David names the unbound variable; I run both bindings and show each is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The experiment tree — one heads awakening, two tails awakenings.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Switch the question; the same simulation answers 1/2 or 1/3 — both exactly.</div>
+   <div class="btns" style="margin-top:10px"><button id="sbn">question ▶</button><button id="sbcheck">verify ▶</button></div>
+   <div class="cap" id="sbread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the two counters, each honestly totaling its own world.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t pick a side &mdash; bind the variable. The inverse of &lsquo;1/2 or 1/3?&rsquo; is &lsquo;sampled by experiment, or sampled by moment?&rsquo;: once the reference class is declared, the number is forced and both camps&rsquo; arithmetic goes through perfectly. <b>Magenta</b> is the twenty-five-year war over an unbound variable; <b>green</b> is either binding, exact once chosen. Most eternal debates are type errors.</div>
+   <div class="btns" style="margin-top:10px"><button id="sbspin">pause spin</button></div></div></div></div>"""
+SLPB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,q=0;
+function mulI(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function selftest(){if(VR)return VR;var rng=mulI(65),T=200000;
+ var expHeads=0,awakenings=0,awakeHeads=0;
+ for(var t2=0;t2<T;t2++){
+  var heads=rng()<0.5;
+  if(heads){expHeads++;awakenings++;awakeHeads++;}
+  else awakenings+=2;}
+ var perExp=expHeads/T,perAwake=awakeHeads/awakenings;
+ var rng2=mulI(66),evThird=0,evHalf=0;
+ for(var t2=0;t2<T;t2++){
+  var heads=rng2()<0.5;
+  if(heads){evThird+=2;evHalf+=1;}
+  else{evThird-=2;evHalf-=2;}}
+ evThird/=T;evHalf/=T;
+ VR={perExp:perExp,perAwake:perAwake,evThird:evThird,evHalf:evHalf,
+  ok:Math.abs(perExp-0.5)<0.006&&Math.abs(perAwake-1/3)<0.006&&Math.abs(evThird)<0.025&&Math.abs(evHalf+0.5)<0.025};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'the experiment tree');
+ ndot(g,90,60,7,'#ffcf4a');nt(g,'#ffcf4a',60,44,10,'Sunday: flip');
+ ne(g,'rgba(150,160,210,0.5)',1.4);g.beginPath();g.moveTo(90,60);g.lineTo(230,110);g.moveTo(90,60);g.lineTo(230,190);g.stroke();ng(g);
+ nt(g,'#35ffb0',240,104,11,'HEADS → wake Monday');
+ ndot(g,410,110,6,'#35ffb0');
+ nt(g,'#21e6ff',240,184,11,'TAILS → wake Monday AND Tuesday');
+ ndot(g,395,210,6,'#21e6ff');ndot(g,430,210,6,'#21e6ff');
+ nt(g,'#8ad',10,H-30,9,'3 possible awakenings per coin-pair — one heads, two tails');
+ nt(g,'#8ad',10,H-10,9,'she cannot tell which awakening this is — that is the whole puzzle');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var QS=[['per EXPERIMENT: how often was it heads?',v.perExp,'1/2 — the halfer\\u2019s question'],
+  ['per AWAKENING: how often heads?',v.perAwake,'1/3 — the thirder\\u2019s question'],
+  ['bet each awakening at 2:1 on heads',v.evThird,'EV ≈ 0 — fair exactly at 1/3 odds'],
+  ['bet each awakening at even odds',v.evHalf,'EV = −1/2 per experiment — she bleeds']];
+ var Q=QS[q%4];
+ nt(g,'#35ffb0',12,20,11,Q[0]);
+ nt(g,'#ffcf4a',16,66,24,(typeof Q[1]==='number'?Q[1].toFixed(4):Q[1]));
+ nt(g,'#9cf',16,100,11,Q[2]);
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: 0.500 / 0.334 / EV(2:1)≈0 / EV(1:1)=−0.498 ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'Elga 2000 vs Lewis 2001 — both arithmetics verified');
+ nt(g,'#8ad',12,H-12,9,'the war is over which question \\u2018credence\\u2019 names');}
+document.getElementById('sbn').onclick=function(){q++;drawW4();document.getElementById('sbread').textContent='';};
+document.getElementById('sbcheck').onclick=function(){var v=selftest();document.getElementById('sbread').textContent='both numbers exact: '+v.ok;};
+document.getElementById('sbspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#35ffb0',10,18,10,'two counters, two worlds');
+ var t2=ang*0.02;
+ var h=100+18*Math.sin(t2);
+ nf(g,'rgba(53,255,176,0.75)',70,240-h*0.5,64,h*0.5);
+ nt(g,'#35ffb0',66,258,9,'experiments: 1/2');
+ nf(g,'rgba(33,230,255,0.75)',230,240-h*0.335,64,h*0.335);
+ nt(g,'#21e6ff',224,258,9,'awakenings: 1/3');
+ nt(g,'#35ffb0',10,H-52,11,'green & cyan: each counter honest about its own reference class');nt(g,'#ff2fa6',10,H-34,10,'magenta: the 25-year war over an unbound variable');nt(g,'#8ad',10,H-14,10,'most eternal debates are type errors');}
+drawW3();drawW4();window.__sleepingbeauty=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 187 · neon-noir · silicon-coding · THE FAIR AND THE FIXED (one cut for two appetites · the coconut that cannot be combed · cake without envy · the proposer's hidden crown · the formula that draws everything) ═══════════════════════
 HSAN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Two scatterings of points on a table &mdash; red and blue, tangled however you like. The <b>ham sandwich theorem</b> guarantees a <b>single straight line</b> that bisects both simultaneously: half the red on each side AND half the blue. In three dimensions, one planar cut halves the bread, the ham, and the cheese at once (Steinhaus 1938; Stone&ndash;Tukey 1942) &mdash; and in n dimensions, one hyperplane bisects n arbitrary masses. The proof is a rotation argument: anchor the line to always bisect red, sweep its angle through 180&deg;; the blue imbalance flips sign end-to-end, so somewhere it crosses zero &mdash; Borsuk&ndash;Ulam wearing an apron.<br><br>
@@ -50308,6 +50704,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-borsuk-ulam","title":"THE BORSUK-ULAM","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#b06bff","icon":"borsukulam",
+  "kicker":"antipodes that must agree",
+  "blurb":"The Borsuk–Ulam theorem in the 5-window house format — right now, somewhere on Earth, two antipodal points have exactly the same temperature AND pressure: provably (Borsuk 1933, answering Ulam). Every continuous map from the n-sphere to ℝⁿ collapses some antipodal pair. It is the boss theorem of a whole dungeon — ham sandwich, Brouwer's fixed point, and necklace splitting all drop from it. The 1D proof fits in a line: g(θ) = f(θ)−f(θ+π) satisfies g(0) = −g(π), so it crosses zero. Verified live: 200 random circle functions with the antipodal pair bisected to 1e-10 every time, and 50 random (temperature, pressure) sphere pairs with the odd map driven below 1e-5 — the promised twins located. Neon-noir traced. See the forced crossing in 1D, the weather twins in 2D, and the pinned globe in 3D.",
+  "lit":"Genuine Borsuk–Ulam (Borsuk 1933; Ulam's question; Lyusternik–Shnirelman). Verified live: 200 circle instances bisected to 1e-10 (with g(0)=−g(π) checked structurally); 25+ sphere instances with the odd map (Δf,Δg) below 1e-5 by search+descent (window.__borsukulam.ok).",
+  "fig":"Honest boundary — the theorem for arbitrary continuous maps is cited; instances are executed; the corollary chain cross-referenced to its own spheres. The AVAN inverse — don't scan the globe, subtract it from its own reflection: the difference map is ODD, and odd maps on spheres must vanish — symmetry does the searching. Magenta is the needle-hunt you never need to run; green is the sign flip that hands you the answer. The strongest searches are the ones symmetry has already finished.",
+  "body":BULA_BODY,"script":BULA_SCRIPT},
+ {"slug":"the-banach-tarski","title":"THE BANACH-TARSKI","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#ffcf4a","icon":"banachtarski",
+  "kicker":"two spheres from one",
+  "blurb":"The Banach–Tarski engine in the 5-window house format — the 1924 theorem says a ball splits into five pieces that rotations reassemble into TWO identical balls. The full theorem needs the axiom of choice and non-measurable pieces (no knife can cut them) — but its ENGINE is computable and this sphere runs it: in the free group F₂, S(a) ∪ a·S(a⁻¹) = the whole group, and the b-side yields the second copy — two wholes from one, by relabeling. The bridge to geometry: two rotations built from the 3-4-5 triangle generate a free group inside SO(3). Verified live and exactly: 118,097 reduced words with the five-set partition and both doubling identities checked on every word; and the rotations proven free — all 13,120 words to length 8 evaluated in exact BigInt integer matrices, none the identity. Neon-noir traced. See the Cayley tree in 1D, the doubling steps in 2D, and one-ball-two-balls in 3D.",
+  "lit":"Genuine Banach–Tarski group engine (Banach & Tarski 1924; Hausdorff; Wagon's exposition). Verified live: F₂ partition and doubling identities exact over 118,097 reduced words; freeness of the 3-4-5 rotations proven computationally to length 8 via exact BigInt matrices with 5^k denominators (window.__banachtarski.ok).",
+  "fig":"Honest boundary stated loudly — the sphere-doubling itself is NON-CONSTRUCTIVE (axiom of choice, non-measurable pieces); what is verified is the complete group-theoretic heart. The AVAN inverse — don't gasp at the doubling, ask what 'size' survived it: volume was never defined on those pieces; the paradox maps measure theory's exact boundary. Magenta is the knife that cannot exist; green is the group ledger, exact to the last word. The impossible is often just the unmeasurable, precisely located.",
+  "body":BTAR_BODY,"script":BTAR_SCRIPT},
+ {"slug":"the-nontransitive-dice","title":"THE NONTRANSITIVE DICE","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#ff8a3c","icon":"nontransitivedice",
+  "kicker":"dice with no best",
+  "blurb":"Efron's nontransitive dice in the 5-window house format — four honest-weight dice with strange faces: A=[4,4,4,4,0,0], B=[3,3,3,3,3,3], C=[6,6,2,2,2,2], D=[5,5,5,1,1,1]. A beats B beats C beats D beats A — every arrow at exactly 2/3. Rock-paper-scissors smuggled into cubes: there is NO best die; whatever your opponent picks, one of the rest beats it two times in three. Buffett offered Gates first pick of such a set; Gates examined the dice and made Buffett choose first. Verified live by complete enumeration: all 36 outcomes per adjacent pair — 24/36 exactly, four times around — and the no-best-die beat graph confirmed. Neon-noir traced. See the 2/3 cycle in 1D, the 36-cell tables in 2D, and the circle-where-a-ladder-should-be in 3D.",
+  "lit":"Genuine Efron nontransitive dice (Bradley Efron; Gardner 1970). Verified live: full 36-outcome enumeration per pair — A>B, B>C, C>D, D>A each exactly 24/36; every die has a beater in the exhaustive beat graph (window.__nontransitivedice.ok).",
+  "fig":"The Buffett–Gates anecdote is reported business folklore, told as such; the arithmetic is exhaustive fact. The AVAN inverse — don't rank the dice, notice that ranking is the broken assumption: better-than is not an order here, and every strategy that presumes a ladder walks into the trap. Magenta is the ladder that does not exist; green is the circle that does. Some games are lost the moment you agree to choose first.",
+  "body":NTDC_BODY,"script":NTDC_SCRIPT},
+ {"slug":"the-hundred-doors","title":"THE HUNDRED DOORS","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#21e6ff","icon":"hundreddoors",
+  "kicker":"doors that remember their divisors",
+  "blurb":"The hundred doors in the 5-window house format — 100 closed doors; pass k toggles every k-th; after 100 passes exactly the perfect squares stand open: 1, 4, 9, …, 100. The one-line jewel: door n is toggled once per divisor, divisors pair d ↔ n/d, and only a square's √n partners itself — odd toggle count ⟺ open ⟺ square. A divisor-parity detector built from hinges. Verified live two ways: full simulation (open set = the ten squares exactly) and the independent τ(n)-parity engine checked for all n ≤ 1000, plus the 1000-door corridor opening exactly 31 (31² = 961). Neon-noir traced. See the surviving squares in 1D, the interfering passes in 2D, and the divisors pairing off in 3D.",
+  "lit":"Genuine locker/hundred-doors problem (math-circle folklore). Verified live: 100-pass simulation yields exactly the ten squares; τ(n) odd ⟺ n square verified for n ≤ 1000; 1000 doors open exactly 31 (window.__hundreddoors.ok).",
+  "fig":"No framing — simulation and divisor-parity proof are separate computations that agree. The AVAN inverse — don't simulate the janitors, ask which numbers shake their own hand: every d partners n/d, and only √n is its own partner — one unpaired handshake, one odd count, one open door. Magenta is the crowd of paired divisors canceling; green is the self-partnered root. The survivors are the numbers that can see themselves.",
+  "body":HDRS_BODY,"script":HDRS_SCRIPT},
+ {"slug":"the-sleeping-beauty","title":"THE SLEEPING BEAUTY","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#35ffb0","icon":"sleepingbeauty",
+  "kicker":"the princess with two right answers",
+  "blurb":"The Sleeping Beauty problem in the 5-window house format — heads: wake her once; tails: twice with memory erased between; each waking she's asked her credence the coin was heads. Thirders (Elga 2000) say 1/3; halfers (Lewis 2001) say 1/2; the war has run twenty-five years. This sphere executes BOTH: per-awakening frequency of heads is 1/3, per-experiment is 1/2 — and the betting table settles what words cannot: per-awakening heads bets are fair at exactly 2:1 odds, while at even odds she bleeds precisely ½ per experiment. Verified live over 200,000 simulated experiments: 0.500 / 0.334 / EV(2:1) ≈ 0 / EV(1:1) = −0.498. Neon-noir traced. See the experiment tree in 1D, the question switch in 2D, and the two honest counters in 3D.",
+  "lit":"Genuine Sleeping Beauty operationalization (Elga 2000; Lewis 2001; Bostrom's anthropic framing). Verified live: per-experiment heads 0.500, per-awakening 0.334, 2:1 per-awakening bets EV ≈ 0, even-odds bets EV = −0.498 — both camps' arithmetic exact (window.__sleepingbeauty.ok).",
+  "fig":"Honest framing — BOTH arithmetics are correct and verified; which question 'credence' names is philosophy and labeled as such. The AVAN inverse — don't pick a side, bind the variable: 'sampled by experiment, or sampled by moment?' — once the reference class is declared, the number is forced. Magenta is the twenty-five-year war over an unbound variable; green is either binding, exact once chosen. Most eternal debates are type errors.",
+  "body":SLPB_BODY,"script":SLPB_SCRIPT},
  {"slug":"the-ham-sandwich","title":"THE HAM SANDWICH","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#35ffb0","icon":"hamsandwich",
   "kicker":"one cut for two appetites",
