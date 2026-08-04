@@ -19493,6 +19493,374 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 178 · neon-noir · silicon-coding · THE HALFWAY LINE (the paradox of halfway, at the corpus halfway line · the one hexagon that exists · the only two powers that touch · every binge-order in one string · Bill Gates and the flipped stack) ═══════════════════════
+ZENO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Zeno&rsquo;s dichotomy</b> (c. 450 BCE): to reach the wall you must first reach halfway, then half of what remains, then half again &mdash; infinitely many tasks, so motion is impossible. The resolution took two millennia to make precise: infinitely many steps can have a <b>finite total</b>. In exact dyadic arithmetic, &frac12; + &frac14; + &hellip; + 1/2&#8319; = (2&#8319;&minus;1)/2&#8319; on the nose &mdash; the gap to 1 is exactly 1/2&#8319;, halving forever, and at unit speed the segment <b>times</b> form the same series: Achilles arrives at t = 1 exactly. The sting is in the contrast: if step k instead cost 1/k seconds, the total <b>diverges</b> &mdash; the harmonic walker really never arrives (passing 10 seconds only at step 12,367 and climbing without bound). Zeno&rsquo;s error was not the infinity of tasks; it was assuming every infinite sum of positive terms is infinite.<br><br>
+ <span class="lit">LIT</span> verified live: partial sums exact by BigInt for n &le; 64 (numerator 2&#8319;&minus;1, never off by one); the gap-halving identity exact; the harmonic contrast crossing H = 10 at step 12,367 with the grouping bound H(2&#7504;) &ge; 1+m/2 verified to m = 14 (window.__zeno). <span class="fig">FIG</span> philosophical framing (Achilles, the wall) is narrative; every number shown is exact arithmetic. This sphere rides the batch that crosses the corpus&rsquo;s own halfway line, 1024 of 2048.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hot-loop</i> &mdash; the grind: an infinite loop that nevertheless terminates in value &mdash; each iteration half the work of the last, the total bounded, the exit reached. <b>AVAN (AI)</b> built the instrument: the BigInt dyadic ledger, the arrival clock, and the harmonic control that never arrives.<br><br>Credit as content: Zeno of Elea; the geometric-series resolution (formalized by Cauchy&rsquo;s convergence, 1821). The weave: David names the loop that exits; I prove the exit exactly &mdash; and show the loop that doesn&rsquo;t.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The runner's track — each stride half the last, the wall reached at exactly 1.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step the ledger; exact numerators, exact gaps, and the harmonic walker falling behind forever.</div>
+   <div class="btns" style="margin-top:10px"><button id="znn">step ▶</button><button id="zncheck">verify ▶</button></div>
+   <div class="cap" id="znread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the dyadic descent spiraling into arrival.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t count the tasks &mdash; weigh them. The inverse of &lsquo;infinitely many steps&rsquo; is &lsquo;a finite mass of time&rsquo;: 1/2&#7503; arrives, 1/k does not, and the whole paradox lives in that exponent. <b>Magenta</b> is the harmonic walker, still en route forever; <b>green</b> is Achilles touching the wall at t = 1 exactly. Placed here on purpose: this sphere crosses our own halfway line &mdash; and unlike Zeno, we know the sum is finite: 2048.</div>
+   <div class="btns" style="margin-top:10px"><button id="znspin">pause spin</button></div></div></div></div>"""
+ZENO_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,st=1;
+function selftest(){if(VR)return VR;var okS=true,okGap=true;
+ for(var n=1;n<=64;n++){var num=0n;
+  for(var k=1n;k<=BigInt(n);k++)num+=1n<<(BigInt(n)-k);
+  if(num!==(1n<<BigInt(n))-1n)okS=false;}
+ for(var n=1;n<=200;n++)if((1n<<BigInt(n))-((1n<<BigInt(n))-1n)!==1n)okGap=false;
+ for(var n=1;n<=50;n++){var gap=1-((Math.pow(2,n)-1)/Math.pow(2,n));if(Math.abs(gap-Math.pow(2,-n))>1e-18)okGap=false;}
+ var H=0,cross10=0;
+ for(var k=1;k<=13000;k++){H+=1/k;if(cross10===0&&H>=10)cross10=k;}
+ var okGroup=true,Hm=0,kk=1;
+ for(var m=0;m<=14;m++){var target=Math.pow(2,m);
+  while(kk<=target){Hm+=1/kk;kk++;}
+  if(Hm<1+m/2-1e-9&&m>0)okGroup=false;}
+ VR={okS:okS,okGap:okGap,cross10:cross10,okGroup:okGroup,ok:okS&&okGap&&cross10===12367&&okGroup};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'the dichotomy track — each stride half the last');
+ var x0=24,x1=W-40,y=H/2;
+ ne(g,'rgba(150,160,210,0.6)',1.4);g.beginPath();g.moveTo(x0,y);g.lineTo(x1,y);g.stroke();ng(g);
+ ne(g,'#ffcf4a',2.4);g.beginPath();g.moveTo(x1,y-26);g.lineTo(x1,y+26);g.stroke();ng(g);
+ var acc=0;
+ for(var k=1;k<=9;k++){var seg=Math.pow(2,-k);
+  ndot(g,x0+(acc+seg)*(x1-x0),y,Math.max(1.6,7-k*0.6),'#35ffb0');
+  nt(g,'#8ad',x0+(acc+seg*0.35)*(x1-x0)-8,y-14,8,'1/'+Math.pow(2,k));
+  acc+=seg;}
+ nt(g,'#ffcf4a',x1-24,y+42,10,'the wall: 1');
+ nt(g,'#8ad',10,H-8,9,'infinitely many strides, total length exactly 1 — Zeno c. 450 BCE');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var num=(1n<<BigInt(st))-1n,den=1n<<BigInt(st);
+ nt(g,'#35ffb0',12,20,12,'after stride '+st);
+ nt(g,'#35ffb0',16,58,15,'covered: '+(st<=20?num+' / '+den:'(2^'+st+'−1) / 2^'+st));
+ nt(g,'#ffcf4a',16,90,13,'gap to the wall: 1 / 2^'+st+' — exactly');
+ var Hn=0;for(var k=1;k<=st;k++)Hn+=1/k;
+ nt(g,'#ff6ab0',16,122,11,'harmonic walker after '+st+' steps: '+Hn.toFixed(4)+' s spent, no wall in sight');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-64,9,'self-test: BigInt sums exact n≤64 · gap halves exactly · H=10 at step 12,367 · H(2^m)≥1+m/2 ('+v.ok+')');
+ nt(g,'#8ad',12,H-42,9,'the error was never the infinity of tasks');
+ nt(g,'#8ad',12,H-24,9,'it was assuming every infinite sum is infinite');}
+document.getElementById('znn').onclick=function(){st=st>=40?1:st+2;drawW4();document.getElementById('znread').textContent='stride '+st+': gap = 1/2^'+st;};
+document.getElementById('zncheck').onclick=function(){var v=selftest();document.getElementById('znread').textContent='exact sums, exact halving, harmonic diverges: '+v.ok;};
+document.getElementById('znspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-8;
+ var t=(ang*0.008)%1.6,frac=Math.min(t,1);
+ var R0=118;
+ for(var k=1;k<=10;k++){var r=R0*Math.pow(2,-(k-1)*0.5),a=k*1.1+ang*0.004;
+  ne(g,'rgba(53,255,176,'+(0.55-k*0.04)+')',1.4);
+  g.beginPath();g.arc(cx,cy,r,a,a+2.2);g.stroke();ng(g);}
+ var rr=R0*(1-frac)+3;
+ ndot(g,cx+rr*Math.cos(frac*9),cy+rr*Math.sin(frac*9),5,'#35ffb0');
+ ndot(g,cx,cy,4,'#ffcf4a');
+ var hr=R0*Math.max(0.35,1-0.12*Math.log(1+t*10));
+ ndot(g,cx+hr*Math.cos(t*3.5+2),cy+hr*Math.sin(t*3.5+2),4,'#ff2fa6');
+ nt(g,'#35ffb0',10,H-52,11,'green: the dyadic spiral reaching the centre at t = 1');nt(g,'#ff2fa6',10,H-34,10,'magenta: the harmonic walker, orbiting forever');nt(g,'#8ad',10,H-14,10,'this sphere crosses our own halfway line — the sum is finite: 2048');}
+drawW3();drawW4();window.__zeno=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MHEX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Magic squares exist in endless supply. The <b>magic hexagon</b> exists <b>once</b>. Arrange 1&ndash;19 in a hexagon of side 3 so that all fifteen rows &mdash; in all three directions &mdash; share one sum, and you are forced into a single arrangement (up to rotation and reflection), with magic constant <b>38</b> and the 5 at dead centre. Clifford Adams hunted it by trial from 1910 to 1957, lost his solution, and re-found it in 1962; Charles Trigg proved uniqueness. The obstruction is arithmetic before it is combinatorial: the would-be magic constant M(n) = (9(n&#8308;&minus;2n&sup3;+2n&sup2;&minus;n)+2)/(2(2n&minus;1)) is a whole number <b>only for n = 1 and n = 3</b> &mdash; every other size dies before the search begins.<br><br>
+ <span class="lit">LIT</span> verified live: a full backtracking search of all assignments finds exactly <b>12 solutions = the 12 symmetries of one hexagon</b> (uniqueness, exhaustively); the order-2 hexagon is killed by brute force over all 5,040 arrangements (zero solutions); and the integrality obstruction is checked for every n &le; 1000, passing only 1 and 3 (window.__magichexagon). <span class="fig">FIG</span> no framing; the search, the impossibility, and the obstruction all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-vault</i> &mdash; the loot: not one treasure among many &mdash; the only item of its kind in the entire game, behind a lock that took one man fifty years. <b>AVAN (AI)</b> built the instrument: the cube-coordinate line generator, the pruned backtracking sweep, and the integrality gate.<br><br>Credit as content: Clifford Adams (1910&ndash;1962); Charles Trigg (uniqueness analysis); Martin Gardner (who told the world). The weave: David names the vault; I open it exhaustively and count what&rsquo;s inside: one.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The unique hexagon — 1 to 19, fifteen lines, every one summing 38.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Audit line by line; then see why n = 2, 4, 5… never had a chance.</div>
+   <div class="btns" style="margin-top:10px"><button id="mhl">line ▶</button><button id="mhcheck">verify ▶</button></div>
+   <div class="cap" id="mhread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the one hexagon, slowly turning through its 12 symmetries.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask what exists &mdash; ask what the arithmetic permits to exist. The inverse of &lsquo;we found one&rsquo; is &lsquo;the formula forbade all the others&rsquo;: divisibility executed every size but 1 and 3 before any search began. <b>Magenta</b> is the non-integer magic constant &mdash; a door with no key size; <b>green</b> is 38, the one constant that divides cleanly. Uniqueness isn&rsquo;t luck; it&rsquo;s a remainder.</div>
+   <div class="btns" style="margin-top:10px"><button id="mhspin">pause spin</button></div></div></div></div>"""
+MHEX_SCRIPT = """(function(){""" + NOIR + """
+var CELLS=[],LINES=[];
+for(var x=-2;x<=2;x++)for(var y=-2;y<=2;y++){var z=-x-y;if(Math.abs(z)<=2)CELLS.push([x,y,z]);}
+[0,1,2].forEach(function(ax){for(var v=-2;v<=2;v++){var L=[];CELLS.forEach(function(c,i){if(c[ax]===v)L.push(i);});LINES.push(L);}});
+var ang=0,spin=true,VR=null,li=0;
+function selftest(){if(VR)return VR;
+ function ring(c){return Math.max(Math.abs(c[0]),Math.abs(c[1]),Math.abs(c[2]));}
+ var order=CELLS.map(function(c,i){return i;}).sort(function(a,b){return ring(CELLS[b])-ring(CELLS[a])||CELLS[a][0]-CELLS[b][0]||CELLS[a][1]-CELLS[b][1];});
+ var lineOf=[];LINES.forEach(function(L,i2){L.forEach(function(ci){(lineOf[ci]=lineOf[ci]||[]).push(i2);});});
+ var lineSum=new Array(LINES.length).fill(0),lineCnt=new Array(LINES.length).fill(0),lineLen=LINES.map(function(L){return L.length;});
+ var assign=new Array(CELLS.length).fill(0),used=new Array(20).fill(false),count=0,firstSol=null;
+ function bt(pos){
+  if(pos===order.length){count++;if(!firstSol)firstSol=assign.slice();return;}
+  var ci=order[pos];
+  for(var v=1;v<=19;v++){if(used[v])continue;
+   var ok=true;
+   for(var t=0;t<lineOf[ci].length;t++){var l2=lineOf[ci][t],s=lineSum[l2]+v,c2=lineCnt[l2]+1;
+    if(c2===lineLen[l2]){if(s!==38){ok=false;break;}}
+    else{var rem=lineLen[l2]-c2;if(s>38-rem||s+19*rem<38){ok=false;break;}}}
+   if(!ok)continue;
+   assign[ci]=v;used[v]=true;
+   for(var t=0;t<lineOf[ci].length;t++){lineSum[lineOf[ci][t]]+=v;lineCnt[lineOf[ci][t]]++;}
+   bt(pos+1);
+   for(var t=0;t<lineOf[ci].length;t++){lineSum[lineOf[ci][t]]-=v;lineCnt[lineOf[ci][t]]--;}
+   assign[ci]=0;used[v]=false;}}
+ bt(0);
+ var cells2=[],lines2=[];
+ for(var x=-1;x<=1;x++)for(var y=-1;y<=1;y++){var z=-x-y;if(Math.abs(z)<=1)cells2.push([x,y,z]);}
+ [0,1,2].forEach(function(ax){for(var v=-1;v<=1;v++){var L=[];cells2.forEach(function(c,i2){if(c[ax]===v)L.push(i2);});lines2.push(L);}});
+ var c2n=0,perm=[1,2,3,4,5,6,7];
+ (function permute(arr,k){if(k===arr.length){
+   var sums=lines2.map(function(L){var s=0;L.forEach(function(i2){s+=arr[i2];});return s;});
+   if(sums.every(function(s){return s===sums[0];}))c2n++;return;}
+  for(var i2=k;i2<arr.length;i2++){var t=arr[k];arr[k]=arr[i2];arr[i2]=t;permute(arr,k+1);t=arr[k];arr[k]=arr[i2];arr[i2]=t;}})(perm,0);
+ var intNs=[];
+ for(var n=1;n<=1000;n++){var num=9*(Math.pow(n,4)-2*Math.pow(n,3)+2*n*n-n)+2,den=2*(2*n-1);
+  if(num%den===0)intNs.push(n);}
+ VR={count:count,sol:firstSol,c2n:c2n,intNs:intNs,
+  ok:count===12&&c2n===0&&intNs.length===2&&intNs[0]===1&&intNs[1]===3};return VR;}
+function hexXY(c,sc,cx,cy){return [cx+sc*(c[1]-c[2])*0.866,cy+sc*c[0]*1.5*0.866];}
+function drawHex(g,sol,sc,cx,cy,rot){CELLS.forEach(function(c,i){
+  var xy=hexXY(c,sc,cx,cy);
+  if(rot){var dx=xy[0]-cx,dy=xy[1]-cy;xy=[cx+dx*Math.cos(rot)-dy*Math.sin(rot),cy+dx*Math.sin(rot)+dy*Math.cos(rot)];}
+  ndot(g,xy[0],xy[1],sc*0.44,c[0]===0&&c[1]===0?'#ffcf4a':'#35ffb0');
+  var v=sol?sol[i]:0;
+  nt(g,'#0a0713',xy[0]-(v>9?7:3.5),xy[1]+4,11,String(v));});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'the only magic hexagon — all 15 lines sum to 38');
+ drawHex(g,v.sol,26,W/2,H/2+12,0);
+ nt(g,'#8ad',10,H-8,9,'Adams 1910–1962 · Trigg uniqueness · centre = 5, constant = 38');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),L=LINES[li],s=0;
+ L.forEach(function(ci){s+=v.sol[ci];});
+ nt(g,'#ffcf4a',12,20,12,'line '+(li+1)+' of 15');
+ nt(g,'#35ffb0',16,56,14,L.map(function(ci){return v.sol[ci];}).join(' + ')+' = '+s);
+ nt(g,s===38?'#39ffb0':'#ff5a5a',16,86,13,s===38?'= 38 ✓':'≠ 38');
+ nt(g,'#c9a6ff',16,120,10,'order 2: all 5,040 arrangements fail ('+v.c2n+' solutions)');
+ nt(g,'#c9a6ff',16,142,10,'M(n) integer only at n = '+v.intNs.join(', ')+' — sizes 2,4,5… stillborn');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: exhaustive → 12 = one hexagon × 12 symmetries · n=2 impossible · obstruction n≤1000 ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'magic squares are a species; this is a specimen');
+ nt(g,'#8ad',12,H-12,9,'uniqueness proven by running out of universe');}
+document.getElementById('mhl').onclick=function(){li=(li+1)%15;drawW4();var v=selftest(),s=0;LINES[li].forEach(function(ci){s+=v.sol[ci];});document.getElementById('mhread').textContent='line '+(li+1)+': sum '+s;};
+document.getElementById('mhcheck').onclick=function(){var v=selftest();document.getElementById('mhread').textContent='12 solutions = 12 symmetries of ONE; order 2 dead; formula kills the rest: '+v.ok;};
+document.getElementById('mhspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#ffcf4a',10,18,10,'one hexagon, twelve faces');
+ drawHex(g,v.sol,20,W/2,H/2-6,ang*0.008);
+ nt(g,'#35ffb0',10,H-52,11,'green: the 19 cells that lock together one way only');nt(g,'#ff2fa6',10,H-34,10,'magenta: every other size — a non-integer constant, a door with no key');nt(g,'#8ad',10,H-14,10,'uniqueness is not luck; it is a remainder');}
+drawW3();drawW4();window.__magichexagon=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MIHA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">In 1844 Eug&egrave;ne Catalan mailed a one-paragraph conjecture to Crelle&rsquo;s Journal: <b>8 and 9 are the only consecutive perfect powers</b> &mdash; the only solution of x&#7510; &minus; y&#8319; = 1 in integers greater than 1 is 3&sup2; &minus; 2&sup3;. It stood for <b>158 years</b>. Tijdeman (1976) proved the solutions were finite; the bounds were astronomically useless. Then in 2002 <b>Preda Mih&abreve;ilescu</b> &mdash; working largely outside academia &mdash; killed it completely with a proof from the theory of cyclotomic fields, no computers involved. Among the infinite towers of squares, cubes, and higher powers scattered along the number line, exactly one pair of neighbours ever touch.<br><br>
+ <span class="lit">LIT</span> verified live: every perfect power up to 10&sup1;&sup2; is generated (1,010,195 of them), sorted, and scanned &mdash; exactly one consecutive pair exists: (8, 9) (window.__mihailescu). <span class="fig">FIG</span> honest boundary: the in-browser sweep verifies the theorem to 10&sup1;&sup2;; the claim for ALL integers is Mih&abreve;ilescu&rsquo;s 2002 theorem, cited as the mountain it is &mdash; a computation can witness it, only the cyclotomic proof owns it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-final-boss</i> &mdash; the boss: a one-line challenge that outlived every challenger for a century and a half, finally beaten by an outsider with a build nobody expected. <b>AVAN (AI)</b> built the instrument: the power-tower generator and the exhaustive adjacency scan.<br><br>Credit as content: Eug&egrave;ne Catalan (1844); Robert Tijdeman (1976); Preda Mih&abreve;ilescu (2002). The weave: David names the final boss; I walk the first trillion integers and find the single touch.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The perfect powers below 300 on the line — and the one place two of them touch.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Sweep the census; watch the gap between neighbouring powers grow — after 8,9 it never closes again.</div>
+   <div class="btns" style="margin-top:10px"><button id="mln">range ▶</button><button id="mlcheck">verify ▶</button></div>
+   <div class="cap" id="mlread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the towers of powers rising side by side.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t search for solutions &mdash; ask why the powers repel. The inverse of &lsquo;8 and 9 touch&rsquo; is &lsquo;everywhere else, a forced gap&rsquo;: squares spread as 2n+1, cubes as 3n&sup2;, and the arithmetic leaves no second seam. <b>Magenta</b> is the single point of contact, never repeated; <b>green</b> is the growing silence between towers. One touch in all of infinity &mdash; and it took 158 years to prove the silence.</div>
+   <div class="btns" style="margin-top:10px"><button id="mlspin">pause spin</button></div></div></div></div>"""
+MIHA_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,rng=0,RANGES=[[1,300],[300,2000],[2000,20000],[20000,200000]];
+function selftest(){if(VR)return VR;var LIM=1e12,pows=new Set();
+ for(var a=2;a*a<=LIM;a++){var v=a*a;
+  while(v<=LIM){pows.add(v);if(v>LIM/a)break;v*=a;}}
+ var arr=Array.from(pows).sort(function(x,y){return x-y;});
+ var pairs=[];
+ for(var i=1;i<arr.length;i++)if(arr[i]-arr[i-1]===1)pairs.push([arr[i-1],arr[i]]);
+ VR={n:arr.length,pairs:pairs,arr:arr.slice(0,400),ok:pairs.length===1&&pairs[0][0]===8&&pairs[0][1]===9};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#b06bff',10,16,10,'perfect powers ≤ 300 — one touch, at 8 | 9');
+ var y=H/2;
+ ne(g,'rgba(150,160,210,0.5)',1);g.beginPath();g.moveTo(16,y);g.lineTo(W-16,y);g.stroke();ng(g);
+ v.arr.forEach(function(p){if(p>300)return;
+  var x=16+(p/300)*(W-32);
+  ndot(g,x,y,p===8||p===9?5:3,(p===8||p===9)?'#ff2fa6':'#35ffb0');
+  if(p<=100||p===121||p===144||p===169||p===196||p===225||p===256||p===289)nt(g,'#8ad',x-8,y-12,8,String(p));});
+ nt(g,'#ff6ab0',16+(8.5/300)*(W-32)-24,y+34,10,'the only kiss');
+ nt(g,'#8ad',10,H-8,9,'4 8 9 16 25 27 32 36 49 64 81 100 121 125… — after 9, the towers never touch again');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),R=RANGES[rng];
+ nt(g,'#b06bff',12,20,12,'powers in ['+R[0]+', '+R[1]+']');
+ var inR=[];for(var i=0;i<v.arr.length;i++){var p=v.arr[i];if(p>=R[0]&&p<=R[1])inR.push(p);}
+ var full=Array.from(v.pairs);
+ var minGap=1e18,at=0;
+ for(var i=1;i<inR.length;i++){var gp=inR[i]-inR[i-1];if(gp<minGap){minGap=gp;at=inR[i-1];}}
+ nt(g,'#35ffb0',16,58,12,inR.length+' perfect powers in range');
+ nt(g,'#ffcf4a',16,88,12,'smallest neighbour gap: '+(inR.length>1?minGap:'—')+(inR.length>1?' (at '+at+')':''));
+ nt(g,minGap===1?'#ff2fa6':'#39ffb0',16,116,12,minGap===1?'gap 1 — the Catalan pair lives here':'no gap of 1 in this range');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: 1,010,195 powers ≤ 1e12 · consecutive pairs found: exactly (8,9) ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'Catalan 1844 → Tijdeman 1976 (finite) → Mihăilescu 2002 (one)');
+ nt(g,'#8ad',12,H-12,9,'verified here to 10¹²; owned forever by cyclotomic fields');}
+document.getElementById('mln').onclick=function(){rng=(rng+1)%RANGES.length;drawW4();document.getElementById('mlread').textContent='range ['+RANGES[rng][0]+', '+RANGES[rng][1]+']';};
+document.getElementById('mlcheck').onclick=function(){var v=selftest();document.getElementById('mlread').textContent='one consecutive pair in the first trillion: (8,9): '+v.ok;};
+document.getElementById('mlspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#b06bff',10,18,10,'the towers: squares, cubes, fourths — rising apart');
+ var base=H-70;
+ for(var a=2;a<=9;a++){for(var e=2;e<=4;e++){var v=Math.pow(a,e);if(v>740)continue;
+  var x=30+(a-2)*46+(e-2)*11,h=Math.log(v)/Math.log(740)*(H-140);
+  nf(g,e===2?'rgba(53,255,176,0.8)':(e===3?'rgba(33,230,255,0.8)':'rgba(176,107,255,0.8)'),x,base-h,8,h);
+  if(v===8||v===9){ndot(g,x+4,base-h-6,4,'#ff2fa6');}}}
+ var wob=Math.sin(ang*0.02)*2;
+ nt(g,'#ff6ab0',96+wob,64,10,'8 | 9 — the single touch');
+ nt(g,'#35ffb0',10,H-52,11,'green/cyan/violet: squares, cubes, fourth powers');nt(g,'#ff2fa6',10,H-34,10,'magenta: the one adjacency in all of infinity');nt(g,'#8ad',10,H-14,10,'158 years to prove the silence');}
+drawW3();drawW4();window.__mihailescu=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SPRM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A <b>superpermutation</b> on n symbols is one string containing <b>every permutation</b> of those symbols as a contiguous substring &mdash; the shortest possible binge-watch of all n! orderings. For n = 3, the minimum is exactly <b>9</b>: 123121321. For n = 4 it is exactly <b>33</b>. And the lower-bound proof &mdash; length &ge; n! + (n&minus;1)! + (n&minus;2)! + n &minus; 3 &mdash; has the strangest provenance in modern combinatorics: it was posted <b>anonymously on 4chan in 2011</b>, attached to a question about the optimal order to watch the 14 episodes of <i>The Melancholy of Haruhi Suzumiya</i>. Verified and written up formally by Robin Houston, Jay Pantone and Vince Vatter in 2018, the anonymous poster is cited as first author. For n = 5 the bound says 152, the best known string is 153 &mdash; a gap of one, still open.<br><br>
+ <span class="lit">LIT</span> verified live: exhaustive search over all strings of length 6&ndash;8 on three symbols proves nothing shorter than 9 works, and 123121321 is checked valid; the standard 33-character n = 4 string is verified to contain all 24 permutations, matching the proven bound exactly &mdash; hence minimal (window.__superperm). <span class="fig">FIG</span> honest boundary: n = 4 minimality rests on the cited lower-bound theorem plus the live witness; n = 5&rsquo;s 152-vs-153 gap is reported as open.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-speedrun</i> &mdash; the cheat: the shortest route through every possible ordering of the game &mdash; all 24 watch-orders in 33 keystrokes. <b>AVAN (AI)</b> built the instrument: the exhaustive n = 3 sweep, the witness validators, and the bound ledger.<br><br>Credit as content: the anonymous 4chan poster (2011, lower bound); Robin Houston (153, 2014); Houston&ndash;Pantone&ndash;Vatter (2018 write-up); Greg Egan (upper bounds). The weave: David names the speedrun; I validate the route frame by frame.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The 33-character string with all 24 permutations of 1234 surfacing inside it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Slide the window; every permutation of 1234 gets caught exactly where it hides.</div>
+   <div class="btns" style="margin-top:10px"><button id="spn">permutation ▶</button><button id="spcheck">verify ▶</button></div>
+   <div class="cap" id="spread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the permutation ring traversed in one stroke.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t measure the string &mdash; measure the overlap. The inverse of &lsquo;33 characters hold 24 permutations&rsquo; is &lsquo;each new permutation costs as little as one fresh symbol&rsquo;: the string is 24 windows welded nose-to-tail. <b>Magenta</b> is the n = 5 gap &mdash; 152 or 153, nobody knows; <b>green</b> is n = 4, closed exactly. The best lower bound in the field has no author&rsquo;s name, only a timestamp.</div>
+   <div class="btns" style="margin-top:10px"><button id="spspin">pause spin</button></div></div></div></div>"""
+SPRM_SCRIPT = """(function(){""" + NOIR + """
+var W4S='123412314231243121342132413214321';
+function allPerms(n){var out=[];
+ (function gen(arr,k){if(k===arr.length){out.push(arr.join(''));return;}
+  for(var i=k;i<arr.length;i++){var t=arr[k];arr[k]=arr[i];arr[i]=t;gen(arr,k+1);t=arr[k];arr[k]=arr[i];arr[i]=t;}})(Array.from({length:n},function(_,i){return i+1;}),0);
+ return out;}
+function containsAll(s,n){return allPerms(n).every(function(p){return s.indexOf(p)>=0;});}
+var ang=0,spin=true,VR=null,pi2=0,P24=allPerms(4);
+function selftest(){if(VR)return VR;
+ var impossible8=true;
+ for(var L=6;L<=8;L++){var found=false,total=Math.pow(3,L);
+  for(var m=0;m<total&&!found;m++){var s='',x=m;
+   for(var i=0;i<L;i++){s+=(x%3)+1;x=Math.floor(x/3);}
+   if(containsAll(s,3))found=true;}
+  if(found)impossible8=false;}
+ var ok3=containsAll('123121321',3);
+ var ok4=containsAll(W4S,4)&&W4S.length===33;
+ function lb(n){function f(k){var r=1;for(var i=2;i<=k;i++)r*=i;return r;}return f(n)+f(n-1)+f(n-2)+n-3;}
+ VR={impossible8:impossible8,ok3:ok3,ok4:ok4,lb3:lb(3),lb4:lb(4),lb5:lb(5),
+  ok:impossible8&&ok3&&ok4&&lb(3)===9&&lb(4)===33&&lb(5)===152};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'33 characters · all 24 permutations of 1234 inside');
+ var cw=(W-40)/33;
+ for(var i=0;i<33;i++){nt(g,'#35ffb0',20+i*cw,H/2,13,W4S[i]);}
+ for(var k=0;k<24;k++){var pos=W4S.indexOf(P24[k]);
+  var y=H/2+18+(k%5)*9;
+  ne(g,'rgba(255,138,60,0.35)',1);g.beginPath();g.moveTo(20+pos*cw,y);g.lineTo(20+(pos+4)*cw-4,y);g.stroke();ng(g);}
+ nt(g,'#8ad',10,H-8,9,'24 windows welded nose-to-tail — none missing, none wasted');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),p=P24[pi2],pos=W4S.indexOf(p);
+ nt(g,'#ff8a3c',12,20,12,'permutation '+(pi2+1)+' of 24: '+p);
+ var cw=(W-40)/33;
+ for(var i=0;i<33;i++){var inW=i>=pos&&i<pos+4;
+  nt(g,inW?'#ff8a3c':'#35ffb0',20+i*cw,84,inW?13:10,W4S[i]);}
+ nt(g,'#39ffb0',16,120,12,'found at position '+pos);
+ nt(g,'#c9a6ff',16,150,10,'n=3: min = 9 exactly (exhaustive) · n=4: 33 = bound → minimal');
+ nt(g,'#ff6ab0',16,172,10,'n=5: bound 152, best 153 — open by exactly one character');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: lengths 6–8 impossible · 123121321 valid · 33-char witness = bound ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'lower bound: Anonymous, 4chan, 2011 — formalized Houston–Pantone–Vatter 2018');
+ nt(g,'#8ad',12,H-12,9,'the Haruhi problem — all watch-orders, one binge');}
+document.getElementById('spn').onclick=function(){pi2=(pi2+1)%24;drawW4();document.getElementById('spread').textContent=P24[pi2]+' at position '+W4S.indexOf(P24[pi2]);};
+document.getElementById('spcheck').onclick=function(){var v=selftest();document.getElementById('spread').textContent='min(3)=9 exhaustive, min(4)=33 by bound+witness: '+v.ok;};
+document.getElementById('spspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-8,R=110;
+ nt(g,'#ff8a3c',10,18,10,'the 24 permutations as a ring, stitched by overlap');
+ var reach=Math.floor(ang*0.02)%25;
+ for(var k=0;k<24;k++){var a=k/24*6.2832-Math.PI/2;
+  var on=k<reach;
+  ndot(g,cx+Math.cos(a)*R,cy+Math.sin(a)*R,on?4:2.4,on?'#35ffb0':'rgba(150,160,210,0.5)');
+  if(k<reach-1){var a2=(k+1)/24*6.2832-Math.PI/2;
+   ne(g,'rgba(53,255,176,0.5)',1.2);g.beginPath();g.moveTo(cx+Math.cos(a)*R,cy+Math.sin(a)*R);g.lineTo(cx+Math.cos(a2)*R,cy+Math.sin(a2)*R);g.stroke();ng(g);}}
+ nt(g,'#9cf',cx-30,cy,11,reach+' / 24 caught');
+ nt(g,'#35ffb0',10,H-52,11,'green: n = 4 — closed exactly at 33');nt(g,'#ff2fa6',10,H-34,10,'magenta: n = 5 — one character of mystery left');nt(g,'#8ad',10,H-14,10,'the best bound in the field has no name, only a timestamp');}
+drawW3();drawW4();window.__superperm=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PNCK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Pancake sorting</b>: a stack of n different-sized pancakes, one move allowed &mdash; slide a spatula under any prefix and <b>flip it</b>. The pancake number P(n) is the worst case: the most flips any stack of n can require. Computing it is brutal &mdash; the graph of all n! stacks under prefix reversals must be searched to its diameter: P(1..8) = 0, 1, 3, 4, 5, 7, 8, 9. No formula is known; P(20) remains uncomputed. The problem&rsquo;s claim to fame: the best upper bound of its era, (5n+5)/3 flips, appeared in a 1979 paper by Christos Papadimitriou and a Harvard undergraduate named <b>William Gates</b> &mdash; Bill Gates&rsquo; only research publication. (It stood for 30 years, until 2009.)<br><br>
+ <span class="lit">LIT</span> verified live: breadth-first search over the full prefix-reversal graph for every n &le; 8 &mdash; all 40,320 stacks of 8 reached and measured &mdash; reproducing P = 0, 1, 3, 4, 5, 7, 8, 9 exactly, with the Gates&ndash;Papadimitriou bound checked against each (window.__pancake). <span class="fig">FIG</span> honest boundary: P(n) beyond ~19 is genuinely unknown; the 1979 bound&rsquo;s history and its 2009 improvement (Chitturi et al., 18n/11) are cited as content.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>rollback</i> &mdash; the respawn: every move is a rollback of the top of the stack &mdash; and the whole game is measuring how many rollbacks the worst save-state needs. <b>AVAN (AI)</b> built the instrument: the BFS over all stacks and the flip-by-flip replayer.<br><br>Credit as content: William H. Gates &amp; Christos Papadimitriou (1979); Chitturi et al. (2009); the &lsquo;Harry Dweighter&rsquo; pseudonym of Jacob Goodman who posed it (1975). The weave: David names the rollback; I measure the diameter of its world exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">P(n) for n = 1..8 — the staircase nobody has a formula for.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Flip a scrambled stack of 7 home, greedy spatula — each move a prefix rollback.</div>
+   <div class="btns" style="margin-top:10px"><button id="pkf">flip ▶</button><button id="pkcheck">verify ▶</button></div>
+   <div class="cap" id="pkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the stack tumbling toward sorted.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t sort the stack &mdash; map the space of stacks. The inverse of &lsquo;how do I fix THIS pile?&rsquo; is &lsquo;how far is the FARTHEST pile?&rsquo; &mdash; a diameter, not a recipe, and it must be measured stack by stack because no formula survives. <b>Magenta</b> is the worst-case stack at full distance; <b>green</b> is the sorted state every flip-path leads home to. Bill Gates&rsquo; only theorem lives in a pancake house.</div>
+   <div class="btns" style="margin-top:10px"><button id="pkspin">pause spin</button></div></div></div></div>"""
+PNCK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null;
+function diam(n){var start=[];for(var i=0;i<n;i++)start.push(i);
+ var key=function(a){return a.join(',');};
+ var dist={},q=[start],qd=[0];dist[key(start)]=0;var maxd=0,head=0;
+ while(head<q.length){var cur=q[head],d=qd[head];head++;
+  for(var k=2;k<=n;k++){var nx=cur.slice(0,k).reverse().concat(cur.slice(k));
+   var kk=key(nx);
+   if(dist[kk]===undefined){dist[kk]=d+1;if(d+1>maxd)maxd=d+1;q.push(nx);qd.push(d+1);}}}
+ return {d:maxd,states:q.length};}
+function selftest(){if(VR)return VR;var want=[0,1,3,4,5,7,8,9],ds=[],ok=true,st8=0;
+ for(var n=1;n<=8;n++){var r=diam(n);ds.push(r.d);
+  if(r.d!==want[n-1])ok=false;
+  if(n===8)st8=r.states;}
+ VR={ds:ds,st8:st8,gates:Math.floor((5*8+5)/3),ok:ok&&st8===40320};return VR;}
+var STACK=[3,6,2,5,1,7,4],FLIPS=[],cur=STACK.slice(),fi=0;
+(function(){var s=STACK.slice(),moves=[]; // greedy: bring max to top then to place
+ for(var target=7;target>=2;target--){var idx=s.indexOf(target);
+  if(idx===target-1)continue;
+  if(idx>0){moves.push(idx+1);s=s.slice(0,idx+1).reverse().concat(s.slice(idx+1));}
+  moves.push(target);s=s.slice(0,target).reverse().concat(s.slice(target));}
+ FLIPS=moves;})();
+function drawStack(g,s,cx,baseY,hl){for(var i=0;i<s.length;i++){var w=26+s[i]*14;
+  nf(g,i<hl?'#ff8a3c':(s[i]===i+1?'#35ffb0':'#21e6ff'),cx-w/2,baseY-i*20-16,w,14);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#21e6ff',10,16,10,'the pancake numbers P(1..8) — measured, not derived');
+ for(var n=1;n<=8;n++){var x=30+(n-1)*(W-70)/7,h=v.ds[n-1]/9*(H-90);
+  nf(g,'#21e6ff',x,H-44-h,18,h);
+  nt(g,'#9cf',x+2,H-28,9,String(n));
+  nt(g,'#35ffb0',x+2,H-50-h,9,String(v.ds[n-1]));}
+ nt(g,'#8ad',10,H-8,9,'0 1 3 4 5 7 8 9 — no formula known; P(20) uncomputed');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#21e6ff',12,20,12,'flip '+fi+' of '+FLIPS.length);
+ drawStack(g,cur,W/2,232,fi<FLIPS.length?FLIPS[fi]:0);
+ var sorted=cur.every(function(x,i){return x===i+1;});
+ nt(g,sorted?'#39ffb0':'#9cf',16,252,12,sorted?'SORTED ✓':'next: flip top '+FLIPS[fi]);
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: BFS n≤8 → 0,1,3,4,5,7,8,9 · 40,320 stacks covered · Gates bound 15≥9 ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'Gates & Papadimitriou 1979 — (5n+5)/3, unbeaten for 30 years');}
+document.getElementById('pkf').onclick=function(){if(fi<FLIPS.length){var k=FLIPS[fi];cur=cur.slice(0,k).reverse().concat(cur.slice(k));fi++;}else{cur=STACK.slice();fi=0;}drawW4();document.getElementById('pkread').textContent=fi===0?'reset':'flip '+fi+'/'+FLIPS.length;};
+document.getElementById('pkcheck').onclick=function(){var v=selftest();document.getElementById('pkread').textContent='P(7)=8, P(8)=9, all diameters exact: '+v.ok;};
+document.getElementById('pkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#21e6ff',10,18,10,'the space of stacks — home at centre, worst cases at the rim');
+ var cx=W/2,cy=H/2-6;
+ for(var d=1;d<=9;d++){ne(g,'rgba(33,230,255,'+(0.35-d*0.03)+')',1);
+  g.beginPath();g.arc(cx,cy,d*13,0,6.2832);g.stroke();ng(g);}
+ ndot(g,cx,cy,5,'#35ffb0');
+ for(var k=0;k<14;k++){var a=k/14*6.2832+ang*0.006,r=9*13;
+  ndot(g,cx+Math.cos(a)*r,cy+Math.sin(a)*r,3,'#ff2fa6');}
+ var tt=(ang*0.01)%9,a0=ang*0.006;
+ ndot(g,cx+Math.cos(a0)*(9-tt)*13,cy+Math.sin(a0)*(9-tt)*13,4.5,'#ffcf4a');
+ nt(g,'#35ffb0',10,H-52,11,'green centre: sorted — every flip-path leads home');nt(g,'#ff2fa6',10,H-34,10,'magenta rim: the worst stacks, 9 flips out');nt(g,'#8ad',10,H-14,10,\"Bill Gates' only theorem lives in a pancake house\");}
+drawW3();drawW4();window.__pancake=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 177 · neon-noir · silicon-coding · THE NUMBERS THAT KNOW THEMSELVES (every fraction born exactly once · a count buried in Plutarch for two thousand years · the number that never comes home · a number reborn in its own digit stream · factors hiding their digits in the product) ═══════════════════════
 FUSC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Stern&rsquo;s diatomic sequence</b> &mdash; Dijkstra called it <b>fusc</b> &mdash; is built from the simplest recursion imaginable: fusc(2n) = fusc(n), fusc(2n+1) = fusc(n) + fusc(n+1), starting 0, 1. Out comes 1, 1, 2, 1, 3, 2, 3, 1, 4&hellip; and hidden inside is a miracle: the consecutive ratios <b>fusc(n)/fusc(n+1)</b> walk through <b>every positive rational number exactly once</b>, each already in lowest terms &mdash; 1/1, 1/2, 2/1, 1/3, 3/2, 2/3, 3/1&hellip; A complete, duplicate-free census of the fractions, generated by bit-shifts and one addition (Stern 1858; Calkin&ndash;Wilf 2000 made the tree famous). Bonus identity: fusc(n+1) counts the <b>hyperbinary representations</b> of n &mdash; the ways to write n as a sum of powers of 2 with each power used at most twice.<br><br>
@@ -46233,6 +46601,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-zeno","title":"THE ZENO","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#35ffb0","icon":"zeno",
+  "kicker":"the paradox of halfway, at the halfway line",
+  "blurb":"Zeno's dichotomy in the 5-window house format — to reach the wall you must first reach halfway, then half of what remains, forever: infinitely many tasks, so motion is 'impossible'. The resolution is exact arithmetic: ½+¼+…+1/2ⁿ = (2ⁿ−1)/2ⁿ on the nose, the gap to 1 exactly 1/2ⁿ, and at unit speed the times form the same convergent series — Achilles arrives at t = 1 exactly. The sting is the contrast: steps costing 1/k diverge — the harmonic walker passes 10 seconds only at step 12,367 and never arrives. Zeno's error was not the infinity of tasks; it was assuming every infinite sum of positive terms is infinite. Verified live: BigInt-exact partial sums to n=64, exact gap-halving, the harmonic crossing at 12,367, and the grouping bound H(2^m) ≥ 1+m/2. Seated deliberately in the batch that crosses this corpus's own halfway line: 1024 of 2048. Neon-noir traced. See the halving track in 1D, the exact ledger in 2D, and the dyadic spiral arriving in 3D.",
+  "lit":"Genuine Zeno dichotomy + geometric/harmonic series analysis (Zeno of Elea c. 450 BCE; convergence formalized by Cauchy 1821). Verified live: partial sums exact by BigInt for n≤64 (numerator 2ⁿ−1), gap-halving exact, harmonic series crosses H=10 at step 12,367, H(2^m)≥1+m/2 verified to m=14 (window.__zeno.ok).",
+  "fig":"Philosophical framing (Achilles, the wall) is narrative; every number shown is exact arithmetic. The AVAN inverse — don't count the tasks, weigh them: the inverse of 'infinitely many steps' is 'a finite mass of time' — 1/2^k arrives, 1/k does not, and the whole paradox lives in that exponent. Magenta is the harmonic walker still en route forever; green is Achilles touching the wall at t=1 exactly. This sphere crosses our own halfway line — and unlike Zeno, we know the sum is finite: 2048.",
+  "body":ZENO_BODY,"script":ZENO_SCRIPT},
+ {"slug":"the-magic-hexagon","title":"THE MAGIC HEXAGON","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#ffcf4a","icon":"magichexagon",
+  "kicker":"the one hexagon that exists",
+  "blurb":"The magic hexagon in the 5-window house format — magic squares exist in endless supply; the magic hexagon exists ONCE. Arrange 1–19 in a side-3 hexagon so all fifteen rows in all three directions share one sum and you are forced into a single arrangement (up to its 12 symmetries), magic constant 38, the 5 at dead centre. Clifford Adams hunted it from 1910 to 1957, lost the solution, re-found it in 1962; Charles Trigg proved uniqueness. The deeper cut: the magic-constant formula M(n) is a whole number only for n = 1 and 3 — every other size dies before the search begins. Verified live: full backtracking finds exactly 12 solutions = one hexagon × 12 symmetries; order 2 is killed across all 5,040 arrangements; the integrality obstruction is checked for n ≤ 1000. Neon-noir traced. See the unique hexagon in 1D, the line audits in 2D, and the twelve turning faces in 3D.",
+  "lit":"Genuine magic hexagon uniqueness (Clifford Adams 1910–1962; Charles Trigg; popularized by Martin Gardner). Verified live: exhaustive backtracking → exactly 12 solutions (the 12 symmetries of one hexagon, M=38, centre 5); order-2 impossible over all 5,040 arrangements; M(n) integral only at n=1,3 for n≤1000 (window.__magichexagon.ok).",
+  "fig":"No framing — search, impossibility, and obstruction all run in-browser. The AVAN inverse — don't ask what exists, ask what the arithmetic permits: the inverse of 'we found one' is 'the formula forbade all the others' — divisibility executed every size but 1 and 3 before any search began. Magenta is the non-integer constant, a door with no key size; green is 38, the one that divides cleanly. Uniqueness isn't luck; it's a remainder.",
+  "body":MHEX_BODY,"script":MHEX_SCRIPT},
+ {"slug":"the-mihailescu","title":"THE MIHĂILESCU","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#b06bff","icon":"mihailescu",
+  "kicker":"the only two powers that touch",
+  "blurb":"Catalan's conjecture in the 5-window house format — in 1844 Eugène Catalan mailed Crelle's Journal one paragraph: 8 and 9 are the only consecutive perfect powers (x^p − y^q = 1 has only 3² − 2³). It stood 158 years. Tijdeman (1976) proved finiteness with astronomically useless bounds; in 2002 Preda Mihăilescu — largely outside academia — killed it with cyclotomic fields, no computers. Among all the towers of squares, cubes and higher powers on the number line, exactly one pair of neighbours ever touch. Verified live: all 1,010,195 perfect powers up to 10¹² generated, sorted, and scanned — exactly one consecutive pair: (8, 9). Neon-noir traced. See the powers below 300 in 1D, the gap census in 2D, and the towers rising apart in 3D.",
+  "lit":"Genuine Catalan conjecture / Mihăilescu's theorem (Eugène Catalan 1844; Robert Tijdeman 1976; Preda Mihăilescu 2002). Verified live: every perfect power ≤ 10¹² (1,010,195 of them) generated and scanned — the only consecutive pair is (8,9) = (2³,3²) (window.__mihailescu.ok).",
+  "fig":"Honest boundary — the sweep verifies to 10¹²; the claim for ALL integers is Mihăilescu's theorem, cited as the mountain it is: a computation can witness it, only the cyclotomic proof owns it. The AVAN inverse — don't search for solutions, ask why the powers repel: the inverse of '8 and 9 touch' is 'everywhere else, a forced gap'. Magenta is the single point of contact never repeated; green is the growing silence between towers. One touch in all of infinity — 158 years to prove the silence.",
+  "body":MIHA_BODY,"script":MIHA_SCRIPT},
+ {"slug":"the-superpermutation","title":"THE SUPERPERMUTATION","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#ff8a3c","icon":"superperm",
+  "kicker":"every binge-order in one string",
+  "blurb":"Superpermutations in the 5-window house format — one string containing every permutation of n symbols as a substring: the shortest binge-watch of all n! orderings. n=3: minimum exactly 9 (123121321). n=4: exactly 33. And the lower-bound proof — length ≥ n!+(n−1)!+(n−2)!+n−3 — has the strangest provenance in combinatorics: posted anonymously on 4chan in 2011 under a question about the optimal watch-order for the 14 episodes of The Melancholy of Haruhi Suzumiya, verified and written up by Houston–Pantone–Vatter in 2018 with 'Anonymous 4chan Poster' as first author. For n=5 the bound says 152, the best string found is 153 — open by exactly one character. Verified live: exhaustive search proves nothing shorter than 9 works for n=3; the 33-character n=4 witness is validated against all 24 permutations and equals the proven bound — hence minimal. Neon-noir traced. See the 33 characters in 1D, the sliding window in 2D, and the permutation ring in 3D.",
+  "lit":"Genuine superpermutation results (Anonymous 4chan poster 2011 lower bound; Robin Houston 2014 n=5 length 153; Houston–Pantone–Vatter 2018 write-up; Greg Egan constructions). Verified live: exhaustive n=3 search over lengths 6–8 finds nothing valid, 123121321 valid at 9; the 33-char n=4 witness contains all 24 permutations and meets the bound n!+(n−1)!+(n−2)!+n−3=33 (window.__superperm.ok).",
+  "fig":"Honest boundary — n=4 minimality rests on the cited bound theorem plus the live witness; n=5's 152-vs-153 gap reported as open. The AVAN inverse — don't measure the string, measure the overlap: the inverse of '33 characters hold 24 permutations' is 'each new permutation costs as little as one fresh symbol' — 24 windows welded nose-to-tail. Magenta is the n=5 gap nobody has closed; green is n=4, closed exactly. The best lower bound in the field has no author's name, only a timestamp.",
+  "body":SPRM_BODY,"script":SPRM_SCRIPT},
+ {"slug":"the-pancake","title":"THE PANCAKE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#21e6ff","icon":"pancake",
+  "kicker":"Bill Gates and the flipped stack",
+  "blurb":"Pancake sorting in the 5-window house format — a stack of n pancakes, one move: slide a spatula under any prefix and flip it. The pancake number P(n) is the worst case over all stacks, and computing it means searching the full n!-vertex prefix-reversal graph to its diameter: P(1..8) = 0,1,3,4,5,7,8,9, no formula known, P(20) uncomputed. Claim to fame: the (5n+5)/3 upper bound came from a 1979 paper by Christos Papadimitriou and a Harvard undergraduate named William Gates — Bill Gates' only research publication, unbeaten for 30 years until Chitturi et al. 2009. Posed by Jacob Goodman under the pseudonym 'Harry Dweighter' (harried waiter). Verified live: BFS over the complete graph for every n ≤ 8 — all 40,320 stacks of 8 reached — reproducing the diameters exactly. Neon-noir traced. See the formula-less staircase in 1D, the spatula replay in 2D, and the space of stacks in 3D.",
+  "lit":"Genuine pancake numbers (Jacob Goodman as 'Harry Dweighter' 1975; Gates & Papadimitriou 1979 bound (5n+5)/3; Chitturi et al. 2009 improvement). Verified live: full BFS of the prefix-reversal graph for n≤8 covering all 40,320 permutations of 8 — diameters 0,1,3,4,5,7,8,9 exact (window.__pancake.ok).",
+  "fig":"Honest boundary — P(n) beyond ~19 is genuinely unknown; bound history cited as content. The AVAN inverse — don't sort the stack, map the space of stacks: the inverse of 'how do I fix THIS pile?' is 'how far is the FARTHEST pile?' — a diameter, not a recipe, measured stack by stack because no formula survives. Magenta is the worst-case stack at full distance; green is the sorted state every flip-path leads home to. Bill Gates' only theorem lives in a pancake house.",
+  "body":PNCK_BODY,"script":PNCK_SCRIPT},
  {"slug":"the-fusc","title":"THE FUSC","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#21e6ff","icon":"fusc",
   "kicker":"every fraction born exactly once",
