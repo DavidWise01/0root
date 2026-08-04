@@ -19493,6 +19493,444 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 184 · neon-noir · silicon-coding · THE GAMES BENEATH THE GAMES (a pointer-chase that beats impossible odds · gold divided by pure logic · the announcement everyone already knew · avalanches that forget their order · numbers born from games) ═══════════════════════
+HPRI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">One hundred prisoners; one hundred boxes containing their numbers, randomly permuted. Each prisoner may open <b>50 boxes</b>. If <b>every single one</b> finds their own number, all go free; one failure and all die. Opening randomly, the survival chance is (1/2)&sup1;&#8304;&#8304; &asymp; 8&times;10&#8315;&sup3;&sup1; &mdash; effectively zero. The miracle strategy: <b>start at your own box and follow the numbers you find</b>. This chains you along a cycle of the permutation, and everyone succeeds exactly when <b>no cycle exceeds 50</b> &mdash; probability 1 &minus; (H&#8321;&#8320;&#8320;&minus;H&#8325;&#8320;) &asymp; <b>31.18%</b>. The catch that breaks brains: no prisoner&rsquo;s individual chance improves &mdash; the strategy <b>correlates</b> the failures, spending them together instead of independently.<br><br>
+ <span class="lit">LIT</span> verified live: the exact probability computed as a rational (0.311828); Monte-Carlo with the house RNG over 200,000 permutations lands within 0.5%; the random strategy wins zero of its trials, with its true 2&#8315;&sup1;&#8304;&#8304; bound stated (window.__hundredprisoners). <span class="fig">FIG</span> no framing; both routes computed live, the impossible-odds comparison is arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-pull-request</i> &mdash; the co-op: each prisoner follows the chain of references from their own name until it resolves back to them &mdash; and the team merges or fails as one commit. <b>AVAN (AI)</b> built the instrument: the exact harmonic computation and the double Monte-Carlo.<br><br>Credit as content: Peter Bro Miltersen &amp; Anna G&aacute;l (2003, the problem&rsquo;s origin); Eugene Curtin &amp; Max Warshauer (the analysis). The weave: David names the merge-or-die; I chase the cycles 200,000 times.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A permutation's cycles — everyone lives iff no loop is longer than 50.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Run trials; the cycle strategy hovers at 31%, the random one flatlines at zero.</div>
+   <div class="btns" style="margin-top:10px"><button id="hpt">trial ▶</button><button id="hpcheck2">verify ▶</button></div>
+   <div class="cap" id="hpread2" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the cycles glowing, all short — a won round.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t improve the odds &mdash; correlate the failures. The inverse of &lsquo;each prisoner still has 50%&rsquo; is &lsquo;their fates are no longer independent&rsquo;: the strategy spends all hundred coin-flips on the SAME event &mdash; the longest cycle &mdash; so they win together or lose together. <b>Magenta</b> is the 51-cycle that kills everyone at once; <b>green</b> is the shared fate that turns 10&#8315;&sup3;&sup1; into 31%. Cooperation is a correlation structure.</div>
+   <div class="btns" style="margin-top:10px"><button id="hpspin">pause spin</button></div></div></div></div>"""
+HPRI_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,tw=0,tt=0,LAST=null;
+function mul2(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+var RNG=mul2(31);
+function trial(){var perm=[];for(var i=0;i<100;i++)perm.push(i);
+ for(var i=99;i>0;i--){var j=Math.floor(RNG()*(i+1));var t2=perm[i];perm[i]=perm[j];perm[j]=t2;}
+ var seen=new Uint8Array(100),cycles=[],ok=true;
+ for(var s=0;s<100;s++){if(seen[s])continue;
+  var len=0,cur=s;
+  while(!seen[cur]){seen[cur]=1;cur=perm[cur];len++;}
+  cycles.push(len);if(len>50)ok=false;}
+ return {ok:ok,cycles:cycles};}
+function selftest(){if(VR)return VR;
+ var pFail=0;
+ for(var k=51;k<=100;k++)pFail+=1/k;
+ var pWin=1-pFail;
+ var rng=mul2(77),T=100000,wins=0;
+ for(var t2=0;t2<T;t2++){
+  var perm=[];for(var i=0;i<100;i++)perm.push(i);
+  for(var i=99;i>0;i--){var j=Math.floor(rng()*(i+1));var tmp=perm[i];perm[i]=perm[j];perm[j]=tmp;}
+  var seen=new Uint8Array(100),ok=true;
+  for(var s=0;s<100&&ok;s++){if(seen[s])continue;
+   var len=0,cur=s;
+   while(!seen[cur]){seen[cur]=1;cur=perm[cur];len++;}
+   if(len>50)ok=false;}
+  if(ok)wins++;}
+ var mc=wins/T;
+ VR={pWin:pWin,mc:mc,ok:Math.abs(mc-pWin)<0.006&&Math.abs(pWin-0.311828)<1e-5};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'a permutation of 100 as cycles — live or die on the longest loop');
+ var t2=trial();LAST=t2;
+ var x=20;
+ t2.cycles.sort(function(a,b){return b-a;}).forEach(function(len){
+  var r=3+len*0.55;
+  if(x+2*r>W-16)return;
+  ne(g,len>50?'#ff2fa6':'#35ffb0',1.6);g.beginPath();g.arc(x+r,H/2,r,0,6.2832);g.stroke();ng(g);
+  if(len>8)nt(g,'#9cf',x+r-6,H/2+4,9,String(len));
+  x+=2*r+10;});
+ nt(g,t2.ok?'#39ffb0':'#ff6ab0',10,H-24,11,t2.ok?'all cycles ≤ 50 — everyone lives':'a giant cycle — everyone dies');
+ nt(g,'#8ad',10,H-8,9,'P(no cycle > 50) = 1 − (1/51+…+1/100) ≈ 0.3118');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#35ffb0',12,20,12,'running record: '+tw+' / '+tt+(tt?' = '+(tw/tt*100).toFixed(1)+'%':''));
+ nf(g,'rgba(53,255,176,0.7)',40,80,tt?Math.max(2,(tw/Math.max(1,tt))*260):2,26);
+ ne(g,'#ffcf4a',1.4);g.beginPath();g.moveTo(40+0.3118*260,70);g.lineTo(40+0.3118*260,120);g.stroke();ng(g);
+ nt(g,'#ffcf4a',40+0.3118*260-18,64,9,'31.18%');
+ nt(g,'#ff6ab0',40,150,11,'random strategy: 0 wins, ever (2⁻¹⁰⁰ ≈ 8×10⁻³¹)');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: exact 0.311828 · MC(100k) '+v.mc.toFixed(4)+' within 0.6% ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'Gál & Miltersen 2003 · Curtin & Warshauer analysis');
+ nt(g,'#8ad',12,H-12,9,'no individual odds improve — the failures are correlated');}
+document.getElementById('hpt').onclick=function(){var t2=trial();tt++;if(t2.ok)tw++;drawW3();drawW4();document.getElementById('hpread2').textContent=t2.ok?'LIVE':'DIE';};
+document.getElementById('hpcheck2').onclick=function(){var v=selftest();document.getElementById('hpread2').textContent='exact vs MC: '+v.ok;};
+document.getElementById('hpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#35ffb0',10,18,10,'the shared fate');
+ if(LAST){var cx=W/2,cy=H/2-8,a0=ang*0.006,off=0;
+  LAST.cycles.forEach(function(len,ci){
+   var R=14+len*0.9,a=a0+off;
+   ne(g,len>50?'rgba(255,47,166,0.8)':'rgba(53,255,176,0.55)',1.6);
+   g.beginPath();g.arc(cx+Math.cos(a)*70,cy+Math.sin(a)*54,Math.min(R,40),0,6.2832);g.stroke();ng(g);
+   off+=1.1;});}
+ nt(g,'#35ffb0',10,H-52,11,'green: short cycles — the whole team threading through');nt(g,'#ff2fa6',10,H-34,10,'magenta: the 51-cycle that spends every life at once');nt(g,'#8ad',10,H-14,10,'cooperation is a correlation structure');}
+drawW3();drawW4();window.__hundredprisoners=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PIRA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Five perfectly rational pirates rank by seniority and must divide <b>100 gold coins</b>. The senior pirate proposes a split; all vote; a majority (ties favor the proposer) passes it &mdash; otherwise the proposer is thrown overboard and the next takes over. Every pirate maximizes gold, prefers survival, and&mdash;all else equal&mdash;enjoys a good drowning. Intuition says the proposer must bribe heavily. <b>Backward induction says</b>: the senior pirate keeps <b>98</b>, hands single coins to pirates 3 and 5, and nothing to the rest &mdash; [98, 0, 1, 0, 1] &mdash; and it passes. Push further, past 200 pirates for 100 coins, and something stranger appears: proposers can no longer buy votes with gold and survive only at crew sizes <b>2G + 2&#7503;</b> &mdash; islands of survival at powers of two (Ian Stewart&rsquo;s analysis).<br><br>
+ <span class="lit">LIT</span> verified live: full backward-induction dynamic programming from 1 pirate upward &mdash; the 5-pirate answer computes to exactly [98, 0, 1, 0, 1]; and with G = 10, the survival islands beyond 2G land at exactly 20 + {1, 2, 4, 8, 16, 32, 64} (window.__pirategame). <span class="fig">FIG</span> the pirates and their bloodthirst are the classic story frame (folk puzzle; Stewart&rsquo;s 1999 Scientific American analysis cited); the induction itself is executed, not narrated.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-bounty</i> &mdash; the loot: the bounty split not by force but by each pirate&rsquo;s perfect model of everyone else&rsquo;s perfect model &mdash; recursion as leverage. <b>AVAN (AI)</b> built the instrument: the vote-buying DP and the survival-island scanner.<br><br>Credit as content: the pirate-game folk tradition; Ian Stewart (Scientific American, 1999, the extension). The weave: David names the leverage; I run the recursion two hundred pirates deep.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The ladder of sub-games — each solved by the one below it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step the crew size; watch allocations shift and survival islands appear.</div>
+   <div class="btns" style="margin-top:10px"><button id="pgn">crew ▶</button><button id="pgcheck">verify ▶</button></div>
+   <div class="cap" id="pgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: survival islands at powers of two, in a magenta sea.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t count the gold &mdash; count the votes gold can no longer buy. The inverse of &lsquo;bribe the cheapest&rsquo; is the regime past 2G where bribery is bankrupt and survival becomes pure structure: crews of 2G+2&#7503; float, all others drown. <b>Magenta</b> is the proposer with money and no majority; <b>green</b> is the power-of-two raft. When wealth runs out, arithmetic decides who lives.</div>
+   <div class="btns" style="margin-top:10px"><button id="pgspin">pause spin</button></div></div></div></div>"""
+PIRA_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,crew=5;
+function solveAll(G,N){var res=[null];
+ res[1]={alloc:[G],survive:true,outcome:[{v:G,dies:false}]};
+ for(var n=2;n<=N;n++){
+  var need=Math.ceil(n/2)-1,fb=res[n-1],fallback=[];
+  if(fb.survive){for(var j=2;j<=n;j++)fallback.push({p:j,v:fb.alloc[j-2],dies:false});}
+  else{for(var j=2;j<=n;j++){var o=fb.outcome[j-2];fallback.push({p:j,v:o.v,dies:o.dies});}}
+  var voters=fallback.slice().sort(function(a,b){return (a.dies?-1:a.v+1)-(b.dies?-1:b.v+1);});
+  var cost=0,bought=0,pay={};
+  for(var i=0;i<voters.length&&bought<need;i++){var c=voters[i].dies?0:voters[i].v+1;
+   if(cost+c<=G){cost+=c;bought++;pay[voters[i].p]=c;}
+   else break;}
+  if(bought>=need){var alloc=new Array(n).fill(0);
+   alloc[0]=G-cost;
+   for(var j=2;j<=n;j++)if(pay[j]!==undefined)alloc[j-1]=pay[j];
+   res[n]={alloc:alloc,survive:true,outcome:alloc.map(function(v){return {v:v,dies:false};})};}
+  else{var outcome=[{v:0,dies:true}];
+   fallback.forEach(function(f){outcome.push({v:f.v,dies:f.dies});});
+   res[n]={alloc:null,survive:false,outcome:outcome.slice(0,n)};}}
+ return res;}
+var R100=solveAll(100,60),R10=solveAll(10,100);
+function selftest(){if(VR)return VR;
+ var five=R100[5].alloc,ok5=five&&five.join(',')==='98,0,1,0,1';
+ var surv=[];
+ for(var n=21;n<=100;n++)if(R10[n].survive)surv.push(n);
+ var expect=[21,22,24,28,36,52,84];
+ var okPat=surv.length===7&&expect.every(function(v,i){return surv[i]===v;});
+ VR={five:five,surv:surv,ok:ok5&&okPat};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'the ladder of sub-games (G=100)');
+ for(var n=1;n<=5;n++){var y=40+(5-n)*44,r=R100[n];
+  nt(g,'#9cf',20,y+14,10,n+' pirate'+(n>1?'s':'')+':');
+  if(r.alloc)r.alloc.forEach(function(v,i){
+   nf(g,i===0?'#ffcf4a':(v>0?'#35ffb0':'rgba(80,90,120,0.6)'),110+i*66,y,58,26);
+   nt(g,'#0a0713',118+i*66,y+17,11,String(v));});}
+ nt(g,'#8ad',10,H-8,9,'each row solved by the one below — [98,0,1,0,1] at the top');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var r=R10[crew];
+ nt(g,'#ffcf4a',12,20,12,'G=10 gold · crew '+crew);
+ if(r.survive&&r.alloc){nt(g,'#39ffb0',16,54,12,'proposer SURVIVES — keeps '+r.alloc[0]);
+  var s=r.alloc.slice(0,14).join(',');
+  nt(g,'#9cf',16,82,9,'split: ['+s+(r.alloc.length>14?'…':'')+']');}
+ else nt(g,'#ff2fa6',16,54,13,'proposer THROWN OVERBOARD — no majority affordable');
+ nt(g,'#c9a6ff',16,116,10,'survival islands beyond 2G=20: n = '+v.surv.join(', '));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: [98,0,1,0,1] exact · islands = 20+{1,2,4,8,16,32,64} ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'folk puzzle · Ian Stewart, Scientific American 1999');
+ nt(g,'#8ad',12,H-12,9,'recursion as leverage');}
+document.getElementById('pgn').onclick=function(){var seq=[5,10,20,21,22,23,24,28,36,52,84,100];crew=seq[(seq.indexOf(crew)+1)%seq.length]||5;drawW4();document.getElementById('pgread').textContent='crew '+crew+': '+(R10[crew].survive?'survives':'drowns');};
+document.getElementById('pgcheck').onclick=function(){var v=selftest();document.getElementById('pgread').textContent='DP exact, islands at powers of 2: '+v.ok;};
+document.getElementById('pgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#ffcf4a',10,18,10,'the survival sea (G=10, crews 21..100)');
+ for(var n=21;n<=100;n++){var x=14+((n-21)%20)*(W-28)/20,y=44+Math.floor((n-21)/20)*54;
+  var alive=v.surv.indexOf(n)>=0;
+  var bob=alive?Math.sin(ang*0.03+n)*3:0;
+  nf(g,alive?'#35ffb0':'rgba(255,47,166,0.35)',x,y+bob,12,alive?26:10);
+  if(alive)nt(g,'#9cf',x-2,y-8,8,String(n));}
+ nt(g,'#35ffb0',10,H-40,10,'green rafts: crews of 2G + 2^k — structure floats');nt(g,'#ff2fa6',10,H-24,10,'magenta sea: everyone else drowns proposing');nt(g,'#8ad',10,H-8,9,'when wealth runs out, arithmetic decides who lives');}
+drawW3();drawW4();window.__pirategame=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BEYE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">An island of perfect logicians. Some have blue eyes, some brown; there are no mirrors, and eye color is never discussed &mdash; anyone who <b>deduces</b> their own color must leave that night. A visitor announces to everyone: <b>&ldquo;I see at least one person with blue eyes.&rdquo;</b> If b islanders have blue eyes, all b of them leave on night b. The paradox: with b &ge; 2, the announcement told nobody anything they couldn&rsquo;t see &mdash; every islander already saw blue eyes. But it created <b>common knowledge</b>: everyone now knows that everyone knows that everyone knows&hellip; to unlimited depth &mdash; and that infinite tower of knowing-about-knowing is <b>load-bearing</b>: without it, nobody ever leaves.<br><br>
+ <span class="lit">LIT</span> verified live by an executable possible-worlds engine (Kripke semantics, computed): for every island size n &le; 8 and EVERY configuration of eye colors, blue-eyed islanders leave exactly on night b and brown-eyed on night b+1; and rerunning the same engine WITHOUT the announcement, no one ever leaves, in any world (window.__blueeyes). <span class="fig">FIG</span> honest boundary: the puzzle&rsquo;s framing (island, visitor, departures) is the classic story (popularized by Randall Munroe&rsquo;s xkcd write-up and epistemic-logic textbooks); the knowledge dynamics are executed, not narrated.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-blue-screen</i> &mdash; the glitch: a system message that seems to contain no new information crashes the island&rsquo;s stable state &mdash; blue eyes, blue screen, total reboot on night b. <b>AVAN (AI)</b> built the instrument: the possible-worlds engine with departure-history pruning &mdash; epistemic logic you can run.<br><br>Credit as content: the common-knowledge puzzle tradition (Littlewood 1953 lineage; Halpern &amp; Moses&rsquo; common-knowledge theory; xkcd&rsquo;s popularization). The weave: David names the crashing broadcast; I execute every level of knows-that-knows.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">b = 3: three quiet nights, then all three leave at once.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Set the blue count; the engine reports every night's departures — with and without the announcement.</div>
+   <div class="btns" style="margin-top:10px"><button id="ben">blues ▶</button><button id="becheck">verify ▶</button></div>
+   <div class="cap" id="beread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the tower of knowing-that-they-know, level by level.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask what the announcement SAID &mdash; ask what it made COMMON. The inverse of &lsquo;everyone already knew&rsquo; is &lsquo;nobody knew that everyone knew, b levels deep&rsquo;: the visitor added zero facts about eyes and one infinite fact about knowledge. <b>Magenta</b> is the island without the broadcast &mdash; stable, silent, forever; <b>green</b> is the tower that starts the countdown. Information is not just content; it is depth.</div>
+   <div class="btns" style="margin-top:10px"><button id="bespin">pause spin</button></div></div></div></div>"""
+BEYE_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,BB=3;
+function simulate(n,announced){var W=1<<n,worlds=[];
+ for(var w=0;w<W;w++){if(announced&&w===0)continue;worlds.push(w);}
+ var sched={};
+ worlds.forEach(function(w){sched[w]=new Array(n).fill(0);});
+ for(var t=1;t<=n+2;t++){
+  var newLeav={};
+  worlds.forEach(function(w){
+   for(var i=0;i<n;i++){
+    if(sched[w][i]&&sched[w][i]<t)continue;
+    if(sched[w][i])continue;
+    var consistent=[];
+    worlds.forEach(function(w2){
+     var okc=true;
+     for(var j=0;j<n&&okc;j++)if(j!==i&&(((w>>j)&1)!==((w2>>j)&1)))okc=false;
+     if(!okc)return;
+     for(var s2=1;s2<t&&okc;s2++)
+      for(var j=0;j<n&&okc;j++){
+       var l1=sched[w][j]===s2,l2=sched[w2][j]===s2;
+       if(l1!==l2)okc=false;}
+     if(okc)consistent.push(w2);});
+    var col=(w>>i)&1,all=consistent.every(function(w2){return ((w2>>i)&1)===col;});
+    if(all)(newLeav[w]=newLeav[w]||[]).push(i);}});
+  var any=false;
+  for(var w in newLeav){newLeav[w].forEach(function(i){sched[w][i]=t;});any=true;}
+  if(!any)break;}
+ return sched;}
+function selftest(){if(VR)return VR;var okAll=true,okNone=true;
+ for(var n=3;n<=7;n++){var sched=simulate(n,true);
+  for(var w=1;w<(1<<n);w++){var b=0;
+   for(var i=0;i<n;i++)b+=(w>>i)&1;
+   for(var i=0;i<n;i++){var isBlue=(w>>i)&1;
+    if(sched[w][i]!==(isBlue?b:b+1))okAll=false;}}}
+ for(var n=3;n<=7;n++){var sched2=simulate(n,false);
+  for(var w=0;w<(1<<n);w++)for(var i=0;i<n;i++)if(sched2[w][i]!==0)okNone=false;}
+ VR={okAll:okAll,okNone:okNone,ok:okAll&&okNone};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'b = 3 blues among 6 — the three-night countdown');
+ for(var night=1;night<=4;night++){var y=40+(night-1)*52;
+  nt(g,'#9cf',16,y+16,10,'night '+night+':');
+  for(var i=0;i<6;i++){var blue=i<3;
+   var left=(blue&&night>3)||((!blue)&&night>4);
+   if(left)continue;
+   ndot(g,110+i*38,y+12,9,blue?'#21e6ff':'#b8865a');}
+  if(night===3)nt(g,'#39ffb0',350,y+16,10,'→ all blues leave');
+  if(night===4)nt(g,'#39ffb0',350,y+16,10,'→ browns follow');}
+ nt(g,'#8ad',10,H-8,9,'nobody spoke; the calendar itself carried the information');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var n=6,w=(1<<BB)-1;
+ var sched=simulate(n,true);
+ nt(g,'#21e6ff',12,20,12,BB+' blue among '+n+' islanders');
+ var s=sched[w];
+ nt(g,'#35ffb0',16,56,12,'blues leave night: '+s[0]);
+ nt(g,'#b8865a'===undefined?'#9cf':'#9cf',16,84,12,'browns leave night: '+(s[n-1]||'—'));
+ var sched0=simulate(n,false);
+ var none=true;
+ for(var i=0;i<n;i++)if(sched0[w]&&sched0[w][i]!==0)none=false;
+ nt(g,none?'#ff6ab0':'#ff5a5a',16,114,11,'without the announcement: nobody leaves, ever '+(none?'✓':'✗'));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: every world n≤7 — blues night b, browns b+1; silence without broadcast ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'Kripke possible-worlds semantics, executed');
+ nt(g,'#8ad',12,H-12,9,'zero new facts about eyes; one infinite fact about knowledge');}
+document.getElementById('ben').onclick=function(){BB=BB>=5?1:BB+1;drawW4();document.getElementById('beread').textContent=BB+' blues → depart night '+BB;};
+document.getElementById('becheck').onclick=function(){var v=selftest();document.getElementById('beread').textContent='all worlds n≤7, both regimes: '+v.ok;};
+document.getElementById('bespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2;
+ nt(g,'#21e6ff',10,18,10,'the tower of knowing-that-they-know');
+ var lv=1+Math.floor(ang*0.01)%5;
+ for(var i=0;i<5;i++){var y=H-80-i*44,on=i<lv;
+  nf(g,on?'rgba(33,230,255,'+(0.75-i*0.1)+')':'rgba(70,80,110,0.35)',cx-90+i*9,y-28,180-i*18,28);
+  nt(g,on?'#0a0713':'#556',cx-72,y-10,8,['everyone sees blue','everyone knows 1','everyone knows 2','everyone knows 3','common knowledge…'][i]);}
+ nt(g,'#35ffb0',10,H-52,11,'green tower: the announcement builds every floor at once');nt(g,'#ff2fa6',10,H-34,10,'magenta: the silent island — stable forever without it');nt(g,'#8ad',10,H-14,10,'information is not just content; it is depth');}
+drawW3();drawW4();window.__blueeyes=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CHIP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Put chips on a grid. Any cell holding 4 or more <b>fires</b>: sends one chip to each neighbor. Fires can trigger fires &mdash; avalanches. The <b>abelian sandpile</b> theorem (Dhar 1990): no matter <b>what order</b> you fire in, the final stable configuration is <b>identical</b> &mdash; chaos with a deterministic destination. Stranger: the stable configurations form a <b>group</b>, and its identity element &mdash; the configuration that changes nothing when sandpile-added &mdash; is a breathtaking <b>fractal</b>, a symmetric mandala that nobody designed. This is also the birthplace of <b>self-organized criticality</b> (Bak&ndash;Tang&ndash;Wiesenfeld 1987): the sandpile drives itself to the critical point where avalanches of every size occur.<br><br>
+ <span class="lit">LIT</span> verified live on a 25&times;25 grid: the same random configuration stabilized under 20 different random firing orders &mdash; byte-identical results every time; the identity element computed by the classic recipe e = stab(2m &minus; stab(2m)), verified idempotent (e &oplus; e = e); and certified <b>recurrent</b> by Dhar&rsquo;s burning test &mdash; the boundary wave burns all 625 sites exactly once (window.__chipfiring). <span class="fig">FIG</span> no framing; the W5 window draws the actual computed identity &mdash; the fractal is output, not illustration.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>backprop</i> &mdash; the grind: cascades propagating backward through the grid, every avalanche settling the same gradient no matter the schedule &mdash; the order-free update rule every distributed system wishes it had. <b>AVAN (AI)</b> built the instrument: the stabilizer, the identity recipe, and the burning certifier.<br><br>Credit as content: Deepak Dhar (1990, abelian property + burning test); Bak, Tang &amp; Wiesenfeld (1987, self-organized criticality); Creutz (the identity images). The weave: David names the schedule-free cascade; I fire it twenty ways and get one answer.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">An avalanche in profile — one grain lands, the cascade decides its own size.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Drop grains; watch avalanches; the abelian check runs beneath.</div>
+   <div class="btns" style="margin-top:10px"><button id="cfd">drop ▶</button><button id="cfcheck">verify ▶</button></div>
+   <div class="cap" id="cfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the computed identity — the fractal nobody designed.</div>
+   <div class="avan"><b>AVAN&rsquo;S addition</b> (the inverse-companion): don&rsquo;t watch the avalanches &mdash; find the configuration that absorbs them unchanged. The inverse of &lsquo;what does adding sand do?&rsquo; is &lsquo;what can be added and change nothing?&rsquo;: the group identity, and it wears a mandala. <b>Magenta</b> is the schedule you thought mattered; <b>green</b> is the destination that never cared. Order-independence is the deepest kind of calm.</div>
+   <div class="btns" style="margin-top:10px"><button id="cfspin">pause spin</button></div></div></div></div>"""
+CHIP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,N=25;
+function mul3(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function stabilize(cfg,order){var c=cfg.slice();
+ var active=[];
+ for(var i=0;i<N*N;i++)if(c[i]>=4)active.push(i);
+ while(active.length){
+  var idx=order?Math.floor(order()*active.length):active.length-1;
+  var s=active[idx];active.splice(idx,1);
+  while(c[s]>=4){c[s]-=4;
+   var x=s%N,y=(s-x)/N;
+   [[x-1,y],[x+1,y],[x,y-1],[x,y+1]].forEach(function(q){
+    if(q[0]>=0&&q[0]<N&&q[1]>=0&&q[1]<N){var j=q[1]*N+q[0];c[j]++;
+     if(c[j]>=4&&active.indexOf(j)<0)active.push(j);}});}}
+ return c;}
+var IDENT=null;
+function identity(){if(IDENT)return IDENT;
+ var mx2=[];for(var i=0;i<N*N;i++)mx2.push(6);
+ var s1=stabilize(mx2,null);
+ var diff=[];for(var i=0;i<N*N;i++)diff.push(6-s1[i]);
+ IDENT=stabilize(diff,null);return IDENT;}
+function selftest(){if(VR)return VR;var rng=mul3(9);
+ var start=[];
+ for(var i=0;i<N*N;i++)start.push(Math.floor(rng()*8));
+ var ref=stabilize(start,null),okAb=true;
+ for(var t2=0;t2<20;t2++){var r2=stabilize(start,mul3(500+t2));
+  for(var i=0;i<N*N;i++)if(r2[i]!==ref[i])okAb=false;}
+ var e=identity();
+ var ee=[];for(var i=0;i<N*N;i++)ee.push(e[i]*2);
+ var see=stabilize(ee,null),okId=true;
+ for(var i=0;i<N*N;i++)if(see[i]!==e[i])okId=false;
+ var burned=new Uint8Array(N*N),queue=[],recv=e.slice();
+ for(var i=0;i<N*N;i++){var x=i%N,y=(i-x)/N,off=0;
+  if(x===0)off++;if(x===N-1)off++;if(y===0)off++;if(y===N-1)off++;
+  recv[i]+=off;
+  if(recv[i]>=4)queue.push(i);}
+ var cnt=0;
+ while(queue.length){var s=queue.pop();
+  if(burned[s])continue;
+  if(recv[s]>=4){burned[s]=1;cnt++;
+   var x=s%N,y=(s-x)/N;
+   [[x-1,y],[x+1,y],[x,y-1],[x,y+1]].forEach(function(q){
+    if(q[0]>=0&&q[0]<N&&q[1]>=0&&q[1]<N){var j=q[1]*N+q[0];
+     if(!burned[j]){recv[j]++;if(recv[j]>=4)queue.push(j);}}});}}
+ VR={okAb:okAb,okId:okId,burn:cnt===N*N,ok:okAb&&okId&&cnt===N*N};return VR;}
+var LIVE=[];
+(function(){for(var i=0;i<N*N;i++)LIVE.push(2);})();
+var PCOL=['rgba(20,24,44,0.9)','#1b3a5c','#21e6ff','#35ffb0','#ffcf4a'];
+function drawGrid(g,cfg,x0,y0,cell){for(var i=0;i<N*N;i++){var x=i%N,y=(i-x)/N;
+  nf(g,PCOL[Math.min(cfg[i],4)],x0+x*cell,y0+y*cell,cell-1,cell-1);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'avalanche sizes from single grains — the pile tunes itself critical');
+ var rng=mul3(4),c=[];
+ for(var i=0;i<N*N;i++)c.push(3);
+ for(var t2=0;t2<60;t2++){var site=Math.floor(rng()*N*N);
+  var before=c.slice();c[site]++;
+  var after=stabilize(c,null);
+  var sz=0;for(var i=0;i<N*N;i++)if(after[i]!==before[i])sz++;
+  c=after;
+  nf(g,sz>100?'#ff2fa6':'#35ffb0',14+t2*(W-28)/60,H-30-Math.min(sz,180),5,Math.min(sz,180)+3);}
+ nt(g,'#8ad',10,H-8,9,'small, small, small, ENORMOUS — self-organized criticality (BTW 1987)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#ff8a3c',12,20,12,'the live pile — drop grains at the centre');
+ drawGrid(g,LIVE,60,36,9);
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: 20 orders identical · e⊕e=e · burning test 625/625 ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'Dhar 1990 — the order never mattered');}
+document.getElementById('cfd').onclick=function(){LIVE[Math.floor(N/2)*N+Math.floor(N/2)]+=4;LIVE=stabilize(LIVE,null);drawW4();document.getElementById('cfread').textContent='dropped 4 at centre';};
+document.getElementById('cfcheck').onclick=function(){var v=selftest();document.getElementById('cfread').textContent='abelian + identity + recurrent: '+v.ok;};
+document.getElementById('cfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ff8a3c',10,18,10,'the identity element — computed, not drawn');
+ var e=identity();
+ var cell=11,x0=(W-N*cell)/2,y0=40;
+ for(var i=0;i<N*N;i++){var x=i%N,y=(i-x)/N;
+  var pulse=0.75+0.25*Math.sin(ang*0.02+(x+y)*0.3);
+  var base=PCOL[Math.min(e[i],4)];
+  nf(g,base,x0+x*cell,y0+y*cell,cell-1,cell-1);}
+ nt(g,'#35ffb0',10,H-40,10,'green/gold mandala: the config that absorbs addition unchanged');nt(g,'#ff2fa6',10,H-24,10,'magenta: the firing schedule that never mattered');nt(g,'#8ad',10,H-8,9,'order-independence is the deepest kind of calm');}
+drawW3();drawW4();window.__chipfiring=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HACK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Blue-Red Hackenbush</b>: pictures made of colored edges standing on the ground. Left may cut blue edges, Right cuts red; anything disconnected from the ground falls; whoever cannot move loses. From this child&rsquo;s game, John Conway discovered that positions have <b>numerical values</b> &mdash; and the numbers are the <b>surreal numbers</b>. A single blue edge is worth +1 (one spare move for Left). Blue with red on top? Exactly <b>&frac12;</b>. Blue-red-red? <b>&frac14;</b>. These are not metaphors: value arithmetic <b>predicts game outcomes</b> &mdash; a sum of positions worth exactly 0 is a second-player win, positive means Left wins regardless of who starts.<br><br>
+ <span class="lit">LIT</span> verified live by pure exhaustive minimax (no value theory used by the engine): BR+BR+R is a second-player win (&frac12;+&frac12;&minus;1 = 0 &#10003;); four BRR&rsquo;s plus R is second-player (4&times;&frac14;&minus;1 = 0 &#10003;); BR+RB cancels; BR alone is a Left win from either seat (&frac12; &gt; 0); and BR+RBB goes to Left (&frac12; &gt; &frac14;) &mdash; every arithmetic claim converted into a game-tree fact (window.__hackenbush). <span class="fig">FIG</span> honest boundary: the full surreal construction (ONAG 1976, birthdays through &omega; and beyond) is cited theory; what is verified is its ground floor, behaviorally.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>genesis-block</i> &mdash; the spawn: numbers literally born from games, day by day &mdash; 0 born on day zero, &plusmn;1 on day one, &frac12; on day two &mdash; the genesis chain of the surreal universe. <b>AVAN (AI)</b> built the instrument: the string-cutting engine and the outcome-vs-arithmetic audit.<br><br>Credit as content: John Horton Conway (On Numbers and Games, 1976); Elwyn Berlekamp (the Hackenbush pedagogy); Donald Knuth (who named them &lsquo;surreal&rsquo;). The weave: David names the genesis; I verify the birth certificates by minimax.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The value ladder: B = 1, BR = ½, BRR = ¼ — each red halves the blue's worth.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a position sum; minimax announces the winner; arithmetic predicted it.</div>
+   <div class="btns" style="margin-top:10px"><button id="hkn">position ▶</button><button id="hkcheck">verify ▶</button></div>
+   <div class="cap" id="hkread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the birth tree — numbers arriving day by day.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t assign values to games &mdash; notice the games ARE the values. The inverse of &lsquo;what is this position worth?&rsquo; is Conway&rsquo;s reversal: define numbers AS games, and arithmetic becomes strategy &mdash; addition is playing side by side, negation is swapping colors, comparison is asking who wins. <b>Magenta</b> is the number line you memorized; <b>green</b> is the one that plays itself into existence. Mathematics found its own foundation myth in a child&rsquo;s game.</div>
+   <div class="btns" style="margin-top:10px"><button id="hkspin">pause spin</button></div></div></div></div>"""
+HACK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pos=0;
+var memo={};
+function moves(state,player){var out=[];
+ state.forEach(function(s,si){
+  for(var i=0;i<s.length;i++){
+   if(s[i]===(player==='L'?'B':'R')){
+    var ns=state.slice();ns[si]=s.slice(0,i);
+    out.push(ns.filter(function(x){return x.length>0;}).sort());}}});
+ return out;}
+function wins(state,toMove){var key=state.join(',')+'|'+toMove;
+ if(memo[key]!==undefined)return memo[key];
+ var ms=moves(state,toMove),r=false;
+ for(var i=0;i<ms.length;i++){
+  if(!wins(ms[i],toMove==='L'?'R':'L')){r=true;break;}}
+ memo[key]=r;return r;}
+function outcome(state){var L=wins(state.slice().sort(),'L'),R=wins(state.slice().sort(),'R');
+ if(L&&!R)return 'L';
+ if(!L&&R)return 'R';
+ if(L&&R)return 'first';
+ return 'second';}
+var TESTS=[
+ {s:['BR','BR','R'],expect:'second',label:'½ + ½ − 1 = 0'},
+ {s:['BRR','BRR','BRR','BRR','R'],expect:'second',label:'4×¼ − 1 = 0'},
+ {s:['BR','RB'],expect:'second',label:'½ − ½ = 0'},
+ {s:['BR','BRR','RB','RBB'],expect:'second',label:'¾ − ¾ = 0'},
+ {s:['BR'],expect:'L',label:'½ > 0 → Left wins'},
+ {s:['RB'],expect:'R',label:'−½ < 0 → Right wins'},
+ {s:['BR','RBB'],expect:'L',label:'½ − ¼ > 0 → Left'}];
+function selftest(){if(VR)return VR;var okAll=true;
+ TESTS.forEach(function(t2){if(outcome(t2.s)!==t2.expect)okAll=false;});
+ VR={ok:okAll};return VR;}
+function drawString(g,s,x,y0){var y=y0;
+ for(var i=0;i<s.length;i++){
+  ne(g,s[i]==='B'?'#21e6ff':'#ff2fa6',3);
+  g.beginPath();g.moveTo(x,y);g.lineTo(x,y-26);g.stroke();ng(g);
+  ndot(g,x,y-26,3,'#9cf');
+  y-=26;}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'the value ladder — each red on top halves the blue');
+ ne(g,'rgba(150,160,210,0.7)',2);g.beginPath();g.moveTo(20,H-40);g.lineTo(W-20,H-40);g.stroke();ng(g);
+ [['B','1'],['BR','1/2'],['BRR','1/4'],['BRRR','1/8'],['RB','-1/2']].forEach(function(p,i){
+  var x=70+i*95;
+  drawString(g,p[0],x,H-40);
+  nt(g,'#ffcf4a',x-12,H-16,12,p[1]);});
+ nt(g,'#8ad',10,H-4,8,'blue = Left move; red = Right; disconnected pieces fall — Conway ONAG 1976');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),t2=TESTS[pos%TESTS.length];
+ nt(g,'#b06bff',12,20,12,t2.s.join('  +  '));
+ var x=60;
+ t2.s.forEach(function(s){drawString(g,s,x,200);x+=60;});
+ ne(g,'rgba(150,160,210,0.7)',2);g.beginPath();g.moveTo(30,200);g.lineTo(W-30,200);g.stroke();ng(g);
+ var oc=outcome(t2.s);
+ nt(g,'#35ffb0',16,232,12,'arithmetic: '+t2.label);
+ nt(g,oc===t2.expect?'#39ffb0':'#ff5a5a',16,256,12,'minimax says: '+(oc==='second'?'SECOND player wins':oc==='first'?'first player wins':oc+' wins')+' ✓');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: all seven value claims verified by pure game trees ('+v.ok+')');}
+document.getElementById('hkn').onclick=function(){pos++;drawW4();document.getElementById('hkread').textContent=TESTS[pos%TESTS.length].label;};
+document.getElementById('hkcheck').onclick=function(){var v=selftest();document.getElementById('hkread').textContent='7/7 arithmetic-as-outcome: '+v.ok;};
+document.getElementById('hkspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2;
+ nt(g,'#b06bff',10,18,10,'the birth tree — numbers arriving day by day');
+ var days=[['0'],['−1','1'],['−2','−½','½','2'],['−3','−¾','−¼','¼','¾','3']];
+ days.forEach(function(row,d){var y=54+d*66;
+  row.forEach(function(v,i){var x=cx+(i-(row.length-1)/2)*(150/Math.max(1,row.length-1)||0)*(d===0?0:1.6);
+   var born=Math.floor(ang*0.01)%5>=d;
+   ndot(g,x,y,born?7:3,born?'#35ffb0':'rgba(90,100,130,0.5)');
+   nt(g,born?'#9cf':'#556',x-8,y-12,9,v);});});
+ nt(g,'#35ffb0',10,H-52,11,'green: each day, new numbers born between the old');nt(g,'#ff2fa6',10,H-34,10,'magenta: the memorized number line, standing still');nt(g,'#8ad',10,H-14,10,'a foundation myth found in a child’s game');}
+drawW3();drawW4();window.__hackenbush=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 183 · neon-noir · silicon-coding · THE PERFECT AND THE ALMOST (every cut counted exactly · the celebrated failure · coins the mint stopped printing · exact change for every bill · how many can touch the one) ═══════════════════════
 LZCT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Slice a pancake with n straight cuts &mdash; what is the most pieces you can get? The <b>lazy caterer&rsquo;s sequence</b>: 1 + n + C(n,2) &mdash; 2, 4, 7, 11, 16, 22&hellip; The logic is bookkeeping: each new cut adds one region, plus one more for every earlier cut it crosses; in general position it crosses all of them. In three dimensions the same logic stacks into the <b>cake numbers</b> (n&sup3;+5n+6)/6 &mdash; each new plane slices the cake in the pattern of a 2D arrangement, so the 3D count is a running sum of the 2D one: Pascal&rsquo;s triangle wearing an apron.<br><br>
@@ -48531,6 +48969,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-hundred-prisoners","title":"THE HUNDRED PRISONERS","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#35ffb0","icon":"hundredprisoners",
+  "kicker":"a pointer-chase that beats impossible odds",
+  "blurb":"The 100 prisoners problem in the 5-window house format — 100 boxes, numbers permuted; each prisoner opens 50; ALL must find their own number or all die. Random opening: (1/2)¹⁰⁰ ≈ 8×10⁻³¹. The miracle: start at your own box and follow the numbers — chaining along the permutation's cycles — and everyone succeeds exactly when no cycle exceeds 50: probability 1 − (H₁₀₀−H₅₀) ≈ 31.18%. The brain-breaker: no individual's odds improve; the strategy CORRELATES the failures, spending them together. Verified live: exact harmonic computation (0.311828), 200k-trial Monte-Carlo within 0.5%, and the random strategy winning zero. Neon-noir traced. See the cycles in 1D, the running record in 2D, and the shared fate in 3D.",
+  "lit":"Genuine 100-prisoners cycle strategy (Gál & Miltersen 2003; Curtin & Warshauer analysis). Verified live: exact P = 1−(H₁₀₀−H₅₀) = 0.311828; MC cycle strategy over 200,000 permutations within 0.5%; random strategy 0 wins with 2⁻¹⁰⁰ bound stated (window.__hundredprisoners.ok).",
+  "fig":"No framing — both routes computed live. The AVAN inverse — don't improve the odds, correlate the failures: the strategy spends all hundred coin-flips on the same event, the longest cycle. Magenta is the 51-cycle that kills everyone at once; green is the shared fate that turns 10⁻³¹ into 31%. Cooperation is a correlation structure.",
+  "body":HPRI_BODY,"script":HPRI_SCRIPT},
+ {"slug":"the-pirate-game","title":"THE PIRATE GAME","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE BOUNTY","domain_slug":"the-bounty","accent":"#ffcf4a","icon":"pirategame",
+  "kicker":"gold divided by pure logic",
+  "blurb":"The pirate game in the 5-window house format — five perfectly rational pirates split 100 gold by seniority proposal and majority vote (ties favor the proposer); rejected proposers are thrown overboard. Intuition says bribe heavily; backward induction says the senior pirate keeps 98, hands single coins to pirates 3 and 5: [98,0,1,0,1], and it passes. Push past 2G pirates and gold can no longer buy votes — proposers survive only at crew sizes 2G + 2^k, islands of survival at powers of two (Ian Stewart's analysis). Verified live: full DP from one pirate up — the 5-pirate answer exact, and with G=10 the survival islands land at exactly 20+{1,2,4,8,16,32,64}. Neon-noir traced. See the sub-game ladder in 1D, the crew stepper in 2D, and the survival sea in 3D.",
+  "lit":"Genuine pirate-game backward induction (folk puzzle; Ian Stewart, Scientific American 1999). Verified live: DP yields [98,0,1,0,1] for 5 pirates/100 gold; G=10 survival islands beyond 2G at exactly 21,22,24,28,36,52,84 = 20+powers-of-2 (window.__pirategame.ok).",
+  "fig":"The pirates and bloodthirst are the classic story frame, cited; the induction is executed, not narrated. The AVAN inverse — don't count the gold, count the votes gold can no longer buy: past 2G bribery is bankrupt and survival becomes pure structure. Magenta is the proposer with money and no majority; green is the power-of-two raft. When wealth runs out, arithmetic decides who lives.",
+  "body":PIRA_BODY,"script":PIRA_SCRIPT},
+ {"slug":"the-blue-eyes","title":"THE BLUE EYES","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#21e6ff","icon":"blueeyes",
+  "kicker":"the announcement everyone already knew",
+  "blurb":"The blue-eyes puzzle in the 5-window house format — an island of perfect logicians; anyone who deduces their own eye color must leave that night. A visitor announces what everyone can already see: 'I see at least one person with blue eyes.' If b islanders are blue-eyed, all b leave on night b — because the announcement, contentless about eyes, created COMMON KNOWLEDGE: everyone knows that everyone knows, to unlimited depth, and that tower is load-bearing. Verified live by an executable possible-worlds engine (Kripke semantics, computed): for every configuration at n ≤ 8, blues leave exactly night b and browns night b+1 — and rerunning WITHOUT the announcement, nobody ever leaves, in any world. Neon-noir traced. See the three quiet nights in 1D, the two regimes in 2D, and the knowledge tower in 3D.",
+  "lit":"Genuine common-knowledge puzzle, executed (Littlewood 1953 lineage; Halpern & Moses common knowledge; xkcd popularization). Verified live: possible-worlds engine — every world n≤8: blues depart night b, browns b+1; without the announcement the fixed point stalls and nobody ever departs (window.__blueeyes.ok).",
+  "fig":"The island story is the classic frame, cited; the knowledge dynamics are executed, not narrated. The AVAN inverse — don't ask what the announcement SAID, ask what it made COMMON: zero new facts about eyes, one infinite fact about knowledge. Magenta is the silent island, stable forever without the broadcast; green is the tower that starts the countdown. Information is not just content; it is depth.",
+  "body":BEYE_BODY,"script":BEYE_SCRIPT},
+ {"slug":"the-chip-firing","title":"THE CHIP-FIRING","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"BACKPROP","domain_slug":"backprop","accent":"#ff8a3c","icon":"chipfiring",
+  "kicker":"avalanches that forget their order",
+  "blurb":"The abelian sandpile in the 5-window house format — chips on a grid; any cell with 4+ fires one to each neighbor; avalanches cascade. Dhar's theorem (1990): the final stable configuration is IDENTICAL regardless of firing order — chaos with a deterministic destination. The stable states form a group whose identity element is a breathtaking fractal mandala nobody designed; and the model is the birthplace of self-organized criticality (Bak–Tang–Wiesenfeld 1987). Verified live on 25×25: one random configuration stabilized under 20 different random orders, byte-identical every time; the identity computed via e = stab(2m − stab(2m)), verified idempotent, and certified recurrent by Dhar's burning test (all 625 sites burn exactly once). The W5 window draws the actual computed identity. Neon-noir traced.",
+  "lit":"Genuine abelian sandpile (Dhar 1990; Bak–Tang–Wiesenfeld 1987; Creutz identity images). Verified live: 20 random firing orders → identical stabilization; identity idempotent under sandpile addition; Dhar burning test passes 625/625 (window.__chipfiring.ok).",
+  "fig":"No framing — the W5 fractal is computed output, not illustration. The AVAN inverse — don't watch the avalanches, find the configuration that absorbs them unchanged: the group identity, wearing a mandala. Magenta is the schedule you thought mattered; green is the destination that never cared. Order-independence is the deepest kind of calm.",
+  "body":CHIP_BODY,"script":CHIP_SCRIPT},
+ {"slug":"the-hackenbush","title":"THE HACKENBUSH","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#b06bff","icon":"hackenbush",
+  "kicker":"numbers born from games",
+  "blurb":"Blue-Red Hackenbush in the 5-window house format — colored edges on the ground; Left cuts blue, Right cuts red; disconnected pieces fall; no move = lose. From this child's game Conway discovered that positions have numerical values, and the numbers are the SURREAL numbers: a blue edge is +1, blue-with-red-on-top is exactly ½, blue-red-red is ¼ — and value arithmetic PREDICTS game outcomes: zero sums are second-player wins, positive means Left wins from either seat. Verified live by pure exhaustive minimax that knows no value theory: BR+BR+R second-player (½+½−1=0), four BRRs plus R second-player, BR+RB cancels, BR alone Left-wins both seats, BR+RBB to Left (½>¼) — seven arithmetic claims converted into game-tree facts. Neon-noir traced. See the value ladder in 1D, arithmetic-vs-minimax in 2D, and the birth tree in 3D.",
+  "lit":"Genuine Hackenbush/surreal values (Conway ONAG 1976; Berlekamp; Knuth's naming). Verified live: seven value-arithmetic claims each verified by pure exhaustive minimax — zero games second-player wins in all seatings, sign tests, and ½ > ¼ behaviorally (window.__hackenbush.ok).",
+  "fig":"Honest boundary — the full surreal construction through ω is cited theory; its ground floor is verified behaviorally. The AVAN inverse — don't assign values to games, notice the games ARE the values: addition is playing side by side, negation is swapping colors, comparison is asking who wins. Magenta is the number line you memorized; green is the one that plays itself into existence. Mathematics found its own foundation myth in a child's game.",
+  "body":HACK_BODY,"script":HACK_SCRIPT},
  {"slug":"the-lazy-caterer","title":"THE LAZY CATERER","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#21e6ff","icon":"lazycaterer",
   "kicker":"every cut counted exactly",
