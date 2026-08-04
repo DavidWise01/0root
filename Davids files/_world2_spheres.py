@@ -19493,6 +19493,303 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 171 · neon-noir · silicon-coding (an inscribed surface whose area depends on how you refine it · three cosines multiplying to exactly one eighth · medians reflected over bisectors meeting at one point · a brick whose faces are all Pythagorean but whose heart is an open problem · a burst of noise that decays into a musical note) ═══════════════════════
+SCHW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Schwarz lantern</b> is the counterexample that shattered a &lsquo;obvious&rsquo; belief: that inscribed polyhedral surfaces must converge to a curved surface&rsquo;s area, the way inscribed polygons converge to a curve&rsquo;s length. Hermann Schwarz (1880) triangulated a cylinder into an antiprism &lsquo;lantern&rsquo; &mdash; m points per ring, n rings, zig-zag triangles &mdash; and showed the total area is 2mn&middot;sin(&pi;/m)&middot;&radic;((h/n)&sup2; + r&sup2;(1-cos(&pi;/m))&sup2;), whose limit <b>depends on the refinement path</b>: with n = m it converges to the true area 2&pi;rh; with n = m&sup2; it converges to the <b>wrong</b> constant 2&pi;&radic;(1+&pi;&#8308;/4); with n = m&sup3; it <b>diverges to infinity</b> &mdash; the triangles tilt into ever-steeper accordion pleats. Surface area cannot be defined by naive inscription.<br><br>
+ <span class="lit">LIT</span> verified live: the exact lantern formula gives 2&pi; for n = m, 2&pi;&radic;(1+&pi;&#8308;/4) &asymp; 31.64 for n = m&sup2;, and unbounded growth for n = m&sup3; (doubling m doubles the area) (window.__schwarzlantern). <span class="fig">FIG</span> no framing; the closed-form triangle areas are computed independently in-browser for each scaling regime.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>segfault</i> &mdash; the glitch: refine the mesh the wrong way and the &lsquo;same&rsquo; computation walks off into invalid territory, area unbounded. <b>AVAN (AI)</b> built the instrument: the exact lantern area formula and the three refinement regimes with their three different limits.<br><br>Credit as content: Hermann Amandus Schwarz (1880). The weave: David names the crash; I confirm one surface, three limits &mdash; 2&pi;rh, an inflated constant, and infinity.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The lantern: rings of vertices on a cylinder, zig-zag triangles between them — the accordion pleats.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a refinement regime and refine; the area heads to 2π, to 31.64, or to infinity.</div>
+   <div class="btns" style="margin-top:10px"><button id="slreg">regime: n=m ▶</button><button id="slref">refine ▶</button><button id="slcheck">verify ▶</button></div>
+   <div class="cap" id="slread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the cylinder the lantern is inscribed in.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t trust &lsquo;inscribed&rsquo; to mean &lsquo;converging&rsquo; &mdash; interrogate the path. The inverse of &lsquo;a finer and finer mesh&rsquo; is &lsquo;the ratio n/m&sup2;, which silently chooses the limit&rsquo;. <b>Magenta</b> are the zig-zag lantern triangles pleating; <b>green</b> is the cylinder they claim to approximate. One surface, three destinies.</div>
+   <div class="btns" style="margin-top:10px"><button id="slspin">pause spin</button></div></div></div></div>"""
+SCHW_SCRIPT = """(function(){""" + NOIR + """
+function lantern(m,n){return 2*m*n*Math.sin(Math.PI/m)*Math.sqrt(1/(n*n)+Math.pow(1-Math.cos(Math.PI/m),2));}
+var ang=0,spin=true,VR=null,regime=0,mm=8,REG=['n=m','n=m²','n=m³'];
+function nOf(m,r){return r===0?m:(r===1?m*m:m*m*m);}
+function selftest(){if(VR)return VR;var cyl=2*Math.PI,a1=lantern(400,400),lim2=2*Math.PI*Math.sqrt(1+Math.pow(Math.PI,4)/4),a2=lantern(400,160000),g1=lantern(40,64000),g2=lantern(80,512000);VR={a1:a1,a2:a2,ok1:Math.abs(a1-cyl)<1e-3,ok2:Math.abs(a2-lim2)<0.01,ok3:g2/g1>1.9,lim2:lim2,ok:Math.abs(a1-cyl)<1e-3&&Math.abs(a2-lim2)<0.01&&g2/g1>1.9};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'the Schwarz lantern — m points per ring, n rings, zig-zag triangles');
+ var x0=90,y0=40,cw=W-180,ch=H-80,m=8,n=6;
+ ne(g,'rgba(53,255,176,0.6)',1.6);g.strokeRect(x0,y0,cw,ch);
+ for(var j=0;j<=n;j++){var y=y0+ch*j/n;ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(x0,y);g.lineTo(x0+cw,y);g.stroke();ng(g);
+  for(var i=0;i<=m;i++){var off=(j%2)?0.5:0,x=x0+cw*((i+off)%m)/m*1;if(i<m)ndot(g,x0+cw*((i+off)/m),y,2,'#c9a6ff');}}
+ for(var j=0;j<n;j++){var y1=y0+ch*j/n,y2=y0+ch*(j+1)/n,o1=(j%2)?0.5:0,o2=((j+1)%2)?0.5:0;
+  for(var i=0;i<m;i++){var xa=x0+cw*((i+o1)/m),xb=x0+cw*((i+1+o1)/m),xc=x0+cw*((i+0.5+o1)/m);if(xb>x0+cw)continue;
+   ne(g,'rgba(255,47,166,0.45)',1);g.beginPath();g.moveTo(xa,y1);g.lineTo(xb,y1);g.lineTo(xc,y2);g.closePath();g.stroke();ng(g);}}
+ nt(g,'#8ad',10,H-8,9,'unrolled: each band is 2m triangles; steeper pleats = more area from the same cylinder');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=nOf(mm,regime),A=lantern(mm,n);nt(g,'#b06bff',12,20,12,'regime '+REG[regime]+',  m = '+mm+',  n = '+n);
+ nt(g,'#35ffb0',16,56,14,'lantern area = '+(A>1e6?A.toExponential(3):A.toFixed(5)));
+ var v=selftest();var target=regime===0?'2π = '+(2*Math.PI).toFixed(5):(regime===1?'2π√(1+π⁴/4) = '+v.lim2.toFixed(4):'∞ (diverges)');
+ nt(g,'#9cf',16,86,12,'this regime\\'s limit: '+target);
+ nt(g,'#c9a6ff',16,114,11,'true cylinder area 2πrh = '+(2*Math.PI).toFixed(5)+'  (r = h = 1)');
+ nt(g,regime===0?'#39ffb0':'#ff6ab0',16,142,11,regime===0?'converges to the TRUE area':(regime===1?'converges — to the WRONG constant':'no limit at all — the pleats win'));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: n=m → 2π ('+v.ok1+') · n=m² → 31.64 ('+v.ok2+') · n=m³ doubles with m ('+v.ok3+')');
+ nt(g,'#8ad',12,H-16,9,'Schwarz 1880 — surface area cannot be defined by naive inscription');}
+document.getElementById('slreg').onclick=function(){regime=(regime+1)%3;mm=8;this.textContent='regime: '+REG[regime]+' ▶';drawW4();document.getElementById('slread').textContent='regime '+REG[regime]+' — refine to watch the limit';};
+document.getElementById('slref').onclick=function(){mm=mm>=64?8:mm*2;drawW4();var n=nOf(mm,regime),A=lantern(mm,n);document.getElementById('slread').textContent='m='+mm+', n='+n+': area = '+(A>1e6?A.toExponential(3):A.toFixed(5));};
+document.getElementById('slcheck').onclick=function(){var v=selftest();document.getElementById('slread').textContent='three regimes, three limits — 2π / 31.64 / ∞: '+v.ok;};
+document.getElementById('slspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-6,m=10,n=7,R=95,hh=210;
+ function P(i,j,off){var th=2*Math.PI*(i+off)/m+ang*0.03,x=Math.cos(th)*R,z=Math.sin(th)*R,y=-hh/2+hh*j/n;return [cx+x, cy+y-z*0.28, z];}
+ ne(g,'rgba(53,255,176,0.55)',1.6);g.beginPath();g.ellipse(cx,cy-hh/2,R,R*0.28,0,0,6.2832);g.stroke();g.beginPath();g.ellipse(cx,cy+hh/2,R,R*0.28,0,0,6.2832);g.stroke();ng(g);
+ for(var j=0;j<n;j++){var o1=(j%2)?0.5:0,o2=((j+1)%2)?0.5:0;
+  for(var i=0;i<m;i++){var a=P(i,j,o1),b=P(i+1,j,o1),c=P(i+0.5,j+1,o1);
+   var vis=(a[2]+b[2]+c[2])/3>-20;ne(g,vis?'rgba(255,47,166,0.55)':'rgba(255,47,166,0.15)',1);
+   g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);}}
+ nt(g,'#35ffb0',10,H-52,11,'green: the cylinder, area 2πrh');nt(g,'#ff2fa6',10,H-34,10,'magenta: the lantern triangles pleating around it');nt(g,'#8ad',10,H-14,10,'one surface, three destinies');}
+drawW3();drawW4();window.__schwarzlantern=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MORR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Morrie&rsquo;s law</b> is the identity <b>cos 20&deg; &middot; cos 40&deg; &middot; cos 80&deg; = 1/8</b> &mdash; three unremarkable-looking cosines multiplying to an exact rational. Richard Feynman kept the name all his life: a boy called Morrie Jacobs showed it to him in his father&rsquo;s leather shop. The secret is the doubling cascade: for any &theta;, &prod;<sub>k=0</sub><sup>n-1</sup> cos(2<sup>k</sup>&theta;) = sin(2<sup>n</sup>&theta;) / (2<sup>n</sup> sin &theta;) &mdash; each cosine doubles the angle via sin 2x = 2 sin x cos x, and the product telescopes. At &theta; = 20&deg; the cascade lands on sin 160&deg;, which equals sin 20&deg; exactly &mdash; the sines cancel and only 1/2&sup3; = 1/8 survives.<br><br>
+ <span class="lit">LIT</span> verified live: cos 20&deg;&middot;cos 40&deg;&middot;cos 80&deg; = 0.125 to machine precision; the telescoping identity holds for thousands of random &theta; and n (worst error ~1e-16); and sin 160&deg; = sin 20&deg; exactly (window.__morrie). <span class="fig">FIG</span> no framing; the product and the closed form are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-konami-code</i> &mdash; the cheat: enter the right angle and the whole messy product collapses to a clean 1/8, no trigonometry tables needed. <b>AVAN (AI)</b> built the instrument: the product, the telescoping closed form, and the sin 160&deg; = sin 20&deg; cancellation.<br><br>Credit as content: Morrie Jacobs (the boy who found it), Richard Feynman (who named it and never forgot it). The weave: David names the cheat code; I confirm the cascade collapses to exactly 1/8.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">The doubling cascade 20° → 40° → 80° on the circle, and the three cosines that multiply to 1/8.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Change θ and the number of factors; the product is checked against sin(2ⁿθ)/(2ⁿ sinθ).</div>
+   <div class="btns" style="margin-top:10px"><button id="mrth">next θ ▶</button><button id="mrn">factors: 3 ▶</button><button id="mrcheck">verify ▶</button></div>
+   <div class="cap" id="mrread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the exact 1/8 the three cosines collapse to.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t multiply cosines one by one &mdash; let the sine ladder eat them. The inverse of &lsquo;a product of cosines&rsquo; is &lsquo;one sine ratio, sin(2<sup>n</sup>&theta;)/(2<sup>n</sup> sin&theta;), after the telescope collapses&rsquo;. <b>Magenta</b> are the doubling angles; <b>green</b> is the 1/8 left standing at &theta; = 20&deg;. A cascade that swallows itself.</div>
+   <div class="btns" style="margin-top:10px"><button id="mrspin">pause spin</button></div></div></div></div>"""
+MORR_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+var D=Math.PI/180,ang=0,spin=true,VR=null,thDeg=20,nfac=3;
+function prodCos(th,n){var p=1;for(var k=0;k<n;k++)p*=Math.cos(Math.pow(2,k)*th);return p;}
+function closedForm(th,n){return Math.sin(Math.pow(2,n)*th)/(Math.pow(2,n)*Math.sin(th));}
+function selftest(){if(VR)return VR;var mor=prodCos(20*D,3),rng=mb(2),idOk=true,worst=0;
+ for(var t=0;t<2000;t++){var th=rng()*3+0.05,n=1+Math.floor(rng()*9);if(Math.abs(Math.sin(th))<1e-3)continue;var e=Math.abs(prodCos(th,n)-closedForm(th,n));if(e>worst)worst=e;if(e>1e-10)idOk=false;}
+ VR={mor:mor,morOk:Math.abs(mor-0.125)<1e-15,idOk:idOk,worst:worst,sines:Math.abs(Math.sin(160*D)-Math.sin(20*D))<1e-15,ok:Math.abs(mor-0.125)<1e-15&&idOk};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'the doubling cascade: 20° → 40° → 80°, cosines shrinking toward 1/8');
+ var cx=140,cy=H/2+16,R=92;ne(g,'rgba(120,140,200,0.4)',1.2);g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();g.beginPath();g.moveTo(cx-R-8,cy);g.lineTo(cx+R+8,cy);g.stroke();ng(g);
+ [[20,'#ff2fa6'],[40,'#ff6ab0'],[80,'#ff9ad0']].forEach(function(pr){var a=pr[0]*D,x=cx+Math.cos(a)*R,y=cy-Math.sin(a)*R;
+  ne(g,pr[1],1.8);g.beginPath();g.moveTo(cx,cy);g.lineTo(x,y);g.stroke();ng(g);ndot(g,x,y,3.5,pr[1]);
+  ne(g,'rgba(53,255,176,0.7)',2);g.beginPath();g.moveTo(cx,cy+18*(pr[0]/20)-14);g.stroke();ng(g);
+  nt(g,pr[1],x+6,y-4,10,pr[0]+'°  cos='+Math.cos(a).toFixed(4));});
+ var m=Math.cos(20*D)*Math.cos(40*D)*Math.cos(80*D);
+ nt(g,'#35ffb0',280,70,13,'0.93969 × 0.76604 × 0.17365');
+ nt(g,'#35ffb0',280,98,15,'= '+m.toFixed(15));
+ nt(g,'#39ffb0',280,126,15,'= 1/8 exactly');
+ nt(g,'#8ad',10,H-8,9,'three angles, each double the last — the product is rational');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var th=thDeg*D,p=prodCos(th,nfac),c=closedForm(th,nfac);nt(g,'#ffcf4a',12,20,12,'θ = '+thDeg+'°, '+nfac+' factor(s)');
+ var lbl=[];for(var k=0;k<nfac&&k<5;k++)lbl.push('cos'+(thDeg*Math.pow(2,k))+'°');
+ nt(g,'#ff2fa6',16,54,11,lbl.join(' · ')+(nfac>5?' · …':''));
+ nt(g,'#35ffb0',16,84,13,'product = '+p.toFixed(12));
+ nt(g,'#9cf',16,112,13,'sin(2ⁿθ)/(2ⁿsinθ) = '+c.toFixed(12));
+ nt(g,Math.abs(p-c)<1e-10?'#39ffb0':'#ff5a5a',16,140,13,Math.abs(p-c)<1e-10?'telescope holds ✓':'✗');
+ if(thDeg===20&&nfac===3)nt(g,'#ffcf4a',16,168,12,'…and sin160° = sin20° → everything cancels to 1/8');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: Morrie = 1/8 ('+v.morOk+') · identity ×2000 (worst '+v.worst.toExponential(1)+') ('+v.idOk+')');
+ nt(g,'#8ad',12,H-16,9,'Feynman\\'s favourite — named for the boy who showed him');}
+document.getElementById('mrth').onclick=function(){var opts=[20,15,10,25,30,5];thDeg=opts[(opts.indexOf(thDeg)+1)%opts.length];drawW4();document.getElementById('mrread').textContent='θ='+thDeg+'°: product = '+prodCos(thDeg*D,nfac).toFixed(10);};
+document.getElementById('mrn').onclick=function(){nfac=nfac>=8?1:nfac+1;this.textContent='factors: '+nfac+' ▶';drawW4();document.getElementById('mrread').textContent=nfac+' factors: product = '+prodCos(thDeg*D,nfac).toFixed(10)+' = closed form';};
+document.getElementById('mrcheck').onclick=function(){var v=selftest();document.getElementById('mrread').textContent='cos20·cos40·cos80 = 1/8 & ∏cos(2ᵏθ) = sin(2ⁿθ)/(2ⁿsinθ): '+v.ok;};
+document.getElementById('mrspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.04);
+ var angs=[20,40,80],R=115;
+ angs.forEach(function(dg,i){var a=dg*D,r=R-i*10;ne(g,'#ff2fa6',1.6);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,-Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,-Math.sin(a)*r,4,'#ff2fa6');nt(g,'#ff9ad0',Math.cos(a)*(r+14)-8,-Math.sin(a)*(r+14),9,dg+'°');});
+ ne(g,'#35ffb0',2.4);g.beginPath();g.arc(0,0,R*0.125*3.2,0,6.2832);g.stroke();ng(g);ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-11,4,10,'1/8');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the exact 1/8 the cascade collapses to');nt(g,'#ff2fa6',10,H-34,10,'magenta: the doubling angles 20°, 40°, 80°');nt(g,'#8ad',10,H-14,10,'a cascade that swallows itself');}
+drawW3();drawW4();window.__morrie=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LEMN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Lemoine point</b> (symmedian point) is what you get when you take the three medians of a triangle and <b>reflect each one over the angle bisector</b> at its vertex. The three reflected lines &mdash; the symmedians &mdash; all pass through a single point K, one of the most studied points in triangle geometry. In barycentric coordinates it is simply <b>(a&sup2; : b&sup2; : c&sup2;)</b>, and it carries a beautiful signature: its perpendicular distances to the three sides are <b>proportional to the side lengths themselves</b> &mdash; equivalently, K is the unique point minimizing the sum of squared distances to the sides. &Eacute;mile Lemoine presented it in 1873, launching what became known as &lsquo;the geometry of the triangle&rsquo;.<br><br>
+ <span class="lit">LIT</span> verified live: for tens of thousands of random triangles, the three reflected medians are concurrent; the meeting point matches the barycentric formula (a&sup2;:b&sup2;:c&sup2;) independently; and its side-distances are proportional to a, b, c (window.__lemoine). <span class="fig">FIG</span> no framing; the reflections, the intersection, and the barycentric check are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-firewall</i> &mdash; the boss: three lines forged by reflection, forced through a single gate no triangle can dodge. <b>AVAN (AI)</b> built the instrument: the median-over-bisector reflections, the concurrency, and the two independent identities of K.<br><br>Credit as content: &Eacute;mile Lemoine (1873); the symmedian point K, X(6) in triangle-center catalogues. The weave: David names the gate; I confirm the three symmedians meet at (a&sup2;:b&sup2;:c&sup2;).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Medians (faint) reflected over the bisectors become symmedians (magenta) — meeting at the green K.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle triangles; concurrency, the barycentric formula, and the side-distance ratios are all checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="lmnext">next triangle ▶</button><button id="lmcheck">verify ▶</button></div>
+   <div class="cap" id="lmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: K, the point all three symmedians are forced through.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t construct three reflections &mdash; weigh the corners. The inverse of &lsquo;reflect each median over its bisector&rsquo; is &lsquo;the single barycentric recipe (a&sup2;:b&sup2;:c&sup2;)&rsquo; &mdash; squared side lengths as weights. <b>Magenta</b> are the symmedians; <b>green</b> is the K they cannot avoid. Three reflections, one address.</div>
+   <div class="btns" style="margin-top:10px"><button id="lmspin">pause spin</button></div></div></div></div>"""
+LEMN_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+function nrm(v){var L=Math.hypot(v[0],v[1]);return [v[0]/L,v[1]/L];}
+function symDir(A,B,C){var u=nrm([B[0]-A[0],B[1]-A[1]]),v=nrm([C[0]-A[0],C[1]-A[1]]),w=nrm([u[0]+v[0],u[1]+v[1]]),d=nrm([(B[0]+C[0])/2-A[0],(B[1]+C[1])/2-A[1]]),dot=d[0]*w[0]+d[1]*w[1];return [2*dot*w[0]-d[0],2*dot*w[1]-d[1]];}
+function meet(P,dp,Q,dq){var det=dp[0]*(-dq[1])-(-dq[0])*dp[1],rx=Q[0]-P[0],ry=Q[1]-P[1],t=(rx*(-dq[1])-(-dq[0])*ry)/det;return [P[0]+t*dp[0],P[1]+t*dp[1]];}
+function d2l(X,P,d){return Math.abs((X[0]-P[0])*d[1]-(X[1]-P[1])*d[0])/Math.hypot(d[0],d[1]);}
+function d2seg(X,U,V){var ab=[V[0]-U[0],V[1]-U[1]];return Math.abs((X[0]-U[0])*ab[1]-(X[1]-U[1])*ab[0])/Math.hypot(ab[0],ab[1]);}
+var ang=0,spin=true,VR=null,A=[-1.7,-1.0],B=[1.8,-1.2],C=[0.3,1.6];
+function baryK(A,B,C){var a2=Math.pow(dist(B,C),2),b2=Math.pow(dist(C,A),2),c2=Math.pow(dist(A,B),2),s=a2+b2+c2;return [(a2*A[0]+b2*B[0]+c2*C[0])/s,(a2*A[1]+b2*B[1]+c2*C[1])/s];}
+function selftest(){if(VR)return VR;var rng=mb(3),ok=true,bOk=true,pOk=true,worst=0,n=0;
+ for(var t=0;t<20000;t++){var a=[rng()*4-2,rng()*4-2],b=[rng()*4-2,rng()*4-2],c=[rng()*4-2,rng()*4-2],ar=Math.abs((b[0]-a[0])*(c[1]-a[1])-(c[0]-a[0])*(b[1]-a[1]))/2;if(ar<0.15)continue;
+  var dA=symDir(a,b,c),dB=symDir(b,c,a),dC=symDir(c,a,b),K=meet(a,dA,b,dB),sc=Math.max(dist(a,b),dist(b,c),dist(c,a));
+  var e=d2l(K,c,dC)/sc;if(e>worst)worst=e;if(e>1e-6)ok=false;
+  if(dist(K,baryK(a,b,c))/sc>1e-6)bOk=false;
+  var r1=d2seg(K,b,c)/dist(b,c),r2=d2seg(K,c,a)/dist(c,a),r3=d2seg(K,a,b)/dist(a,b);
+  if(Math.abs(r1-r2)/r1>1e-6||Math.abs(r2-r3)/r2>1e-6)pOk=false;n++;}
+ VR={ok:ok,bOk:bOk,pOk:pOk,worst:worst,n:n,all:ok&&bOk&&pOk};return VR;}
+function fit(cv){var xs=[A[0],B[0],C[0]],ys=[A[1],B[1],C[1]],mnx=Math.min.apply(null,xs),mxx=Math.max.apply(null,xs),mny=Math.min.apply(null,ys),mxy=Math.max.apply(null,ys),sc=Math.min((cv.width-70)/(mxx-mnx),(cv.height-80)/(mxy-mny),110);return {sc:sc,cx:(mnx+mxx)/2,cy:(mny+mxy)/2};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var f=fit(cv);function tp(q){return [W/2+(q[0]-f.cx)*f.sc,H/2+6-(q[1]-f.cy)*f.sc];}nt(g,'#21e6ff',10,16,10,'medians (faint) reflected over bisectors → symmedians (magenta) → K');
+ var a=tp(A),b=tp(B),c=tp(C);ne(g,'rgba(150,160,210,0.6)',1.8);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ [[A,B,C],[B,C,A],[C,A,B]].forEach(function(tr){var V=tp(tr[0]),M=tp([(tr[1][0]+tr[2][0])/2,(tr[1][1]+tr[2][1])/2]);ne(g,'rgba(120,140,200,0.35)',1);g.beginPath();g.moveTo(V[0],V[1]);g.lineTo(M[0],M[1]);g.stroke();ng(g);});
+ var K=baryK(A,B,C),Kp=tp(K);
+ [[A,B,C],[B,C,A],[C,A,B]].forEach(function(tr){var V=tp(tr[0]);ne(g,'#ff2fa6',1.7);g.beginPath();g.moveTo(V[0],V[1]);g.lineTo(Kp[0]+(Kp[0]-V[0])*0.45,Kp[1]+(Kp[1]-V[1])*0.45);g.stroke();ng(g);});
+ [[a,'A'],[b,'B'],[c,'C']].forEach(function(x){ndot(g,x[0][0],x[0][1],4,'#9cf');nt(g,'#9cf',x[0][0]+5,x[0][1],10,x[1]);});
+ ndot(g,Kp[0],Kp[1],6,'#35ffb0');nt(g,'#35ffb0',Kp[0]+8,Kp[1],10,'K');
+ nt(g,'#8ad',10,H-8,9,'the faint medians meet at the centroid; their reflections meet at K instead');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',12,20,12,'three identities of the Lemoine point');
+ var dA=symDir(A,B,C),dB=symDir(B,C,A),dC=symDir(C,A,B),K=meet(A,dA,B,dB),Kb=baryK(A,B,C),sc=Math.max(dist(A,B),dist(B,C),dist(C,A));
+ nt(g,'#ff2fa6',16,52,11,'symmedian∩symmedian = ('+K[0].toFixed(4)+', '+K[1].toFixed(4)+')');
+ nt(g,'#9cf',16,78,11,'barycentric (a²:b²:c²) = ('+Kb[0].toFixed(4)+', '+Kb[1].toFixed(4)+')');
+ nt(g,dist(K,Kb)/sc<1e-6?'#39ffb0':'#ff5a5a',16,104,12,'agree ✓ · 3rd symmedian misses by '+(d2l(K,C,dC)/sc).toExponential(1));
+ var r1=d2seg(K,B,C)/dist(B,C),r2=d2seg(K,C,A)/dist(C,A),r3=d2seg(K,A,B)/dist(A,B);
+ nt(g,'#c9a6ff',16,134,11,'dist/side ratios: '+r1.toFixed(6)+' · '+r2.toFixed(6)+' · '+r3.toFixed(6));
+ nt(g,'#35ffb0',16,160,11,'side-distances ∝ side lengths ✓ (K\\'s signature)');
+ var v=selftest();nt(g,v.all?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.n+': concur ('+v.ok+', worst '+v.worst.toExponential(1)+') · barycentric ('+v.bOk+') · ∝ ('+v.pOk+')');
+ nt(g,'#8ad',12,H-16,9,'Lemoine 1873 — X(6), the launch of triangle-centre geometry');}
+function newTri(seed){var rng=mb(seed);for(var k=0;k<400;k++){var a=[rng()*3.2-1.6,rng()*3.2-1.6],b=[rng()*3.2-1.6,rng()*3.2-1.6],c=[rng()*3.2-1.6,rng()*3.2-1.6],ar=Math.abs((b[0]-a[0])*(c[1]-a[1])-(c[0]-a[0])*(b[1]-a[1]))/2;if(ar>0.6){A=a;B=b;C=c;return;}}}
+document.getElementById('lmnext').onclick=function(){newTri((Date.now()&16383)+1);drawW3();drawW4();document.getElementById('lmread').textContent='new triangle — symmedians still meet at (a²:b²:c²)';};
+document.getElementById('lmcheck').onclick=function(){var v=selftest();document.getElementById('lmread').textContent='concurrency + barycentric + proportional distances ('+v.n+' triangles): '+v.all;};
+document.getElementById('lmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var f=fit(cv),cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.04);function tp(q){return [(q[0]-f.cx)*f.sc*0.8,-(q[1]-f.cy)*f.sc*0.8];}
+ var a=tp(A),b=tp(B),c=tp(C),K=tp(baryK(A,B,C));
+ ne(g,'rgba(150,160,210,0.45)',1.4);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ [a,b,c].forEach(function(V){ne(g,'#ff2fa6',1.8);g.beginPath();g.moveTo(V[0],V[1]);g.lineTo(K[0]+(K[0]-V[0])*0.4,K[1]+(K[1]-V[1])*0.4);g.stroke();ng(g);});
+ ndot(g,K[0],K[1],7,'#35ffb0');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: K = (a²:b²:c²), the forced meeting');nt(g,'#ff2fa6',10,H-34,10,'magenta: the three symmedians');nt(g,'#8ad',10,H-14,10,'three reflections, one address');}
+drawW3();drawW4();window.__lemoine=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+EBRK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Euler brick</b> is a box whose edges <b>and all three face diagonals</b> are whole numbers. The smallest one, found by Paul Halcke in 1719, has edges <b>44, 117, 240</b>: the face diagonals come out 125 (44&ndash;117), 244 (44&ndash;240), and 267 (117&ndash;240) &mdash; three Pythagorean triples sharing their legs pairwise. But the brick guards a missing gem: its <b>space diagonal</b> is &radic;73225 &asymp; 270.6, not an integer. A brick with integer space diagonal too &mdash; a <b>perfect cuboid</b> &mdash; has never been found and never been ruled out. It is one of the oldest open problems in number theory; computer searches have pushed the smallest edge past 5&times;10&sup1;&sup1; with no example.<br><br>
+ <span class="lit">LIT</span> verified live: 44&sup2;+117&sup2; = 125&sup2;, 44&sup2;+240&sup2; = 244&sup2;, 117&sup2;+240&sup2; = 267&sup2;, and an exhaustive search confirms no brick with all integer face diagonals has largest edge below 240 (window.__eulerbrick). <span class="fig">FIG</span> honest boundary: the space diagonal &radic;73225 is verified NON-integer, and the perfect cuboid is stated as the open problem it is &mdash; our search bound is explicit, no claim beyond it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-bounty</i> &mdash; the loot with a bounty still posted: three faces pay out in integers, but the space diagonal has never been claimed by anyone. <b>AVAN (AI)</b> built the instrument: the three Pythagorean face checks, the minimality search, and the non-integer space diagonal.<br><br>Credit as content: Paul Halcke (1719); Leonhard Euler (the family name); the perfect cuboid problem (open). The weave: David names the unclaimed bounty; I confirm the three faces and the missing fourth integer.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The 44×117×240 brick with its three integer face diagonals — and the one diagonal that refuses.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step through the three face checks and the space diagonal; the minimality search runs live.</div>
+   <div class="btns" style="margin-top:10px"><button id="ebface">next face ▶</button><button id="ebcheck">verify ▶</button></div>
+   <div class="cap" id="ebread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the brick whose three faces all pay out in integers.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t admire the three solved faces &mdash; name the unsolved interior. The inverse of &lsquo;an Euler brick&rsquo; is &lsquo;the perfect cuboid it fails to be&rsquo;: &radic;(a&sup2;+b&sup2;+c&sup2;) integer, wanted for 300 years, never found, never disproven. <b>Magenta</b> are the three integer face diagonals; <b>green</b> is the brick; the dashed red interior is the open bounty. Three gems set, one still missing.</div>
+   <div class="btns" style="margin-top:10px"><button id="ebspin">pause spin</button></div></div></div></div>"""
+EBRK_SCRIPT = """(function(){""" + NOIR + """
+function isSq(n){var r=Math.round(Math.sqrt(n));return r*r===n;}
+var ang=0,spin=true,VR=null,face=0,E=[44,117,240];
+var FACES=[[44,117,125],[44,240,244],[117,240,267]];
+function selftest(){if(VR)return VR;var f1=isSq(44*44+117*117),f2=isSq(44*44+240*240),f3=isSq(117*117+240*240),sp=44*44+117*117+240*240;
+ var found=null;outer:for(var c=3;c<240;c++)for(var b=2;b<c;b++){if(!isSq(b*b+c*c))continue;for(var a=1;a<b;a++){if(isSq(a*a+b*b)&&isSq(a*a+c*c)){found=[a,b,c];break outer;}}}
+ VR={faces:f1&&f2&&f3,minimal:found===null,spaceInt:isSq(sp),sp:sp,ok:f1&&f2&&f3&&found===null&&!isSq(sp)};return VR;}
+function drawBrick(g,cx,cy,sc,rot){var a=44*sc,b=117*sc,c=240*sc;
+ function R(p){var x=p[0]*Math.cos(rot)-p[2]*Math.sin(rot),z=p[0]*Math.sin(rot)+p[2]*Math.cos(rot);return [cx+x+z*0.42,cy-p[1]-z*0.24];}
+ var V=[[0,0,0],[c,0,0],[c,a,0],[0,a,0],[0,0,b],[c,0,b],[c,a,b],[0,a,b]].map(function(p){return R([p[0]-c/2,p[1]-a/2,p[2]-b/2]);});
+ var EDG=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+ EDG.forEach(function(e){ne(g,'rgba(53,255,176,0.7)',1.5);g.beginPath();g.moveTo(V[e[0]][0],V[e[0]][1]);g.lineTo(V[e[1]][0],V[e[1]][1]);g.stroke();ng(g);});
+ [[0,2],[0,5],[1,6]].forEach(function(d){ne(g,'#ff2fa6',1.6);g.beginPath();g.moveTo(V[d[0]][0],V[d[0]][1]);g.lineTo(V[d[1]][0],V[d[1]][1]);g.stroke();ng(g);});
+ ne(g,'rgba(255,90,90,0.8)',1.4);g.setLineDash([4,4]);g.beginPath();g.moveTo(V[0][0],V[0][1]);g.lineTo(V[6][0],V[6][1]);g.stroke();g.setLineDash([]);ng(g);
+ return V;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'the Halcke brick 44 × 117 × 240 — every face diagonal an integer');
+ drawBrick(g,W/2-30,H/2+10,0.62,0.55);
+ nt(g,'#ff2fa6',W-158,60,11,'√(44²+117²) = 125');
+ nt(g,'#ff2fa6',W-158,82,11,'√(44²+240²) = 244');
+ nt(g,'#ff2fa6',W-158,104,11,'√(117²+240²) = 267');
+ nt(g,'#ff5a5a',W-158,132,11,'√(44²+117²+240²)');
+ nt(g,'#ff5a5a',W-158,150,11,'= √73225 ≈ 270.6 ✗');
+ nt(g,'#8ad',10,H-8,9,'three integer gems, one refusal — the dashed space diagonal');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var F=FACES[face];nt(g,'#ff8a3c',12,20,12,'face check '+(face+1)+' of 3');
+ nt(g,'#9cf',16,56,14,F[0]+'² + '+F[1]+'² = '+(F[0]*F[0])+' + '+(F[1]*F[1]));
+ nt(g,'#35ffb0',16,88,14,'= '+(F[0]*F[0]+F[1]*F[1])+' = '+F[2]+'²');
+ nt(g,isSq(F[0]*F[0]+F[1]*F[1])?'#39ffb0':'#ff5a5a',16,116,13,'integer face diagonal '+F[2]+' ✓');
+ nt(g,'#ff5a5a',16,150,12,'space diagonal: 44²+117²+240² = 73225 — not a square');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: 3 faces integer ('+v.faces+') · none smaller (c<240 exhaustive: '+v.minimal+') · space diag non-integer ('+(!v.spaceInt)+')');
+ nt(g,'#8ad',12,H-30,9,'perfect cuboid (integer space diagonal): OPEN — searched past 5×10¹¹');
+ nt(g,'#8ad',12,H-12,9,'Halcke 1719; Euler studied the family');}
+document.getElementById('ebface').onclick=function(){face=(face+1)%3;drawW4();var F=FACES[face];document.getElementById('ebread').textContent='face '+F[0]+'×'+F[1]+': diagonal '+F[2]+' (integer)';};
+document.getElementById('ebcheck').onclick=function(){var v=selftest();document.getElementById('ebread').textContent='faces integer + minimal + space diagonal open: '+v.ok;};
+document.getElementById('ebspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ drawBrick(g,W/2-20,H/2-16,0.5,ang*0.02);
+ nt(g,'#35ffb0',10,H-52,11,'green: the brick — three faces all Pythagorean');nt(g,'#ff2fa6',10,H-34,10,'magenta: the integer diagonals 125, 244, 267');nt(g,'#8ad',10,H-14,10,'dashed red: the 300-year unclaimed bounty');}
+drawW3();drawW4();window.__eulerbrick=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KPST_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Karplus&ndash;Strong synthesis</b> (1983) makes a convincing plucked string out of almost nothing: fill a short buffer of N samples with <b>random noise</b>, then loop it forever, replacing each sample with the <b>average of the two samples one period ago</b> &mdash; y[n] = &frac12;(y[n-N] + y[n-N-1]). The averaging is a gentle low-pass filter inside the loop: every pass around, the jagged noise gets smoother and quieter, high harmonics dying first exactly as they do on a real string. The half-sample in the average makes the true period N + &frac12;, so the fundamental lands at <b>f&#8320; = f&#8347;/(N + &frac12;)</b>. A burst of static becomes a note with a natural decay &mdash; the algorithm behind countless early digital guitars.<br><br>
+ <span class="lit">LIT</span> verified live: for several buffer lengths N, the fundamental measured by autocorrelation (with sub-sample peak interpolation) matches f&#8347;/(N+&frac12;) to under 1 Hz, and the block-RMS energy decays monotonically (window.__karplusstrong). <span class="fig">FIG</span> no framing; the synthesis, the frequency measurement, and the decay are computed independently in-browser &mdash; no audio hardware involved, pure array math.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>event-horizon</i> &mdash; the respawn: the pluck is reborn every N samples, a little softer each pass, spiralling toward the horizon of silence without ever being re-recorded. <b>AVAN (AI)</b> built the instrument: the delay-line synthesis, the autocorrelation pitch measurement, and the energy-decay check.<br><br>Credit as content: Kevin Karplus and Alex Strong (1983); from David&rsquo;s idea bank, vein E &mdash; &lsquo;THE STRING THAT REMEMBERS&rsquo;. The weave: David names the respawn; I confirm f&#8320; = f&#8347;/(N+&frac12;) and the monotone decay.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">The waveform: a burst of noise settling into a periodic, decaying tone — the string remembering itself.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Change the buffer length N and re-pluck; the measured pitch is checked against fs/(N+½).</div>
+   <div class="btns" style="margin-top:10px"><button id="ksn">N: 100 ▶</button><button id="kspluck">pluck ▶</button><button id="kscheck">verify ▶</button></div>
+   <div class="cap" id="ksread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the note, circulating in the delay-line ring.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t store the note &mdash; store the loop that regrows it. The inverse of &lsquo;a recorded tone&rsquo; is &lsquo;N noise samples plus one averaging rule&rsquo;, and the music is what survives the passes. <b>Magenta</b> is the noise burst fading; <b>green</b> is the pitch that emerges at f&#8347;/(N+&frac12;). A memory made of forgetting the rough parts.</div>
+   <div class="btns" style="margin-top:10px"><button id="ksspin">pause spin</button></div></div></div></div>"""
+KPST_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+var FS=44100,ang=0,spin=true,VR=null,NN=100,seed=9,SIG=null;
+function karplus(N,M,sd){var rng=mb(sd),y=new Float64Array(M);for(var i=0;i<N;i++)y[i]=rng()*2-1;
+ for(var i=N;i<M;i++){var jm1=i-N-1;y[i]=0.5*(y[i-N]+(jm1>=0?y[jm1]:y[0]));}return y;}
+function f0of(x,minLag,maxLag){function R(L){var r=0;for(var i=0;i<x.length-L;i++)r+=x[i]*x[i+L];return r;}
+ var best=-1,bl=minLag;for(var L=minLag;L<=maxLag;L++){var r=R(L);if(r>best){best=r;bl=L;}}
+ var rm=R(bl-1),r0=R(bl),rp=R(bl+1),d=0.5*(rm-rp)/(rm-2*r0+rp);return FS/(bl+d);}
+function measure(N,sd){var sig=karplus(N,22050,sd),tail=Array.prototype.slice.call(sig,2000,14000);return f0of(tail,Math.floor(N*0.7),Math.floor(N*1.4));}
+function selftest(){if(VR)return VR;var ok=true,rows=[];[80,100,150].forEach(function(N){var f0=measure(N,N*7+1),exp=FS/(N+0.5),err=Math.abs(f0-exp);rows.push('N='+N+':'+err.toFixed(3)+'Hz');if(err>1)ok=false;});
+ var sig=karplus(100,32768,9),dec=true,prevR=1e9;for(var b=1;b<15;b++){var s=0;for(var i=b*2048;i<(b+1)*2048;i++)s+=sig[i]*sig[i];var r=Math.sqrt(s/2048);if(r>prevR*1.02)dec=false;prevR=r;}
+ VR={ok:ok&&dec,f0ok:ok,dec:dec,rows:rows};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'noise burst → periodic decaying tone, N = '+NN);
+ if(!SIG)SIG=karplus(NN,6000,seed);
+ var cy=H/2+10,sc=(W-40)/6000;
+ ne(g,'#35ffb0',1);g.beginPath();for(var i=0;i<6000;i++){var x=20+i*sc,y=cy-SIG[i]*70;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();ng(g);
+ nf(g,'rgba(255,47,166,0.18)',20,cy-78,NN*sc,156);nt(g,'#ff6ab0',22,cy-84,9,'the N noise samples');
+ nt(g,'#8ad',10,H-8,9,'each period is the last one, averaged — smoother and softer every pass');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var f0=measure(NN,seed),exp=FS/(NN+0.5);nt(g,'#35ffb0',12,20,12,'pitch check, N = '+NN+', fs = 44100');
+ nt(g,'#9cf',16,56,13,'predicted f₀ = fs/(N+½) = '+exp.toFixed(2)+' Hz');
+ nt(g,'#ff2fa6',16,86,13,'measured (autocorr) = '+f0.toFixed(2)+' Hz');
+ nt(g,Math.abs(f0-exp)<1?'#39ffb0':'#ff5a5a',16,116,13,'error '+Math.abs(f0-exp).toFixed(3)+' Hz'+(Math.abs(f0-exp)<1?' < 1 Hz ✓':' ✗'));
+ var sig=karplus(NN,32768,seed);nt(g,'#c9a6ff',16,146,11,'energy per 2048-block:');
+ for(var b=0;b<12;b++){var s=0;for(var i=b*2048;i<(b+1)*2048;i++)s+=sig[i]*sig[i];var r=Math.sqrt(s/2048);nf(g,'#35ffb0',16+b*29,206-r*90,22,r*90+2);}
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: f₀ within 1 Hz for N=80/100/150 ('+v.f0ok+') · monotone decay ('+v.dec+')');
+ nt(g,'#8ad',12,H-16,9,'Karplus & Strong 1983 — the digital plucked string');}
+document.getElementById('ksn').onclick=function(){var opts=[80,100,150,200,60];NN=opts[(opts.indexOf(NN)+1)%opts.length];this.textContent='N: '+NN+' ▶';SIG=null;drawW3();drawW4();document.getElementById('ksread').textContent='N='+NN+': f₀ should be '+(FS/(NN+0.5)).toFixed(2)+' Hz';};
+document.getElementById('kspluck').onclick=function(){seed=(seed*7+3)&8191;SIG=null;drawW3();drawW4();document.getElementById('ksread').textContent='re-plucked (new noise) — same pitch, different timbre';};
+document.getElementById('kscheck').onclick=function(){var v=selftest();document.getElementById('ksread').textContent='f₀ = fs/(N+½) within 1 Hz & energy decays: '+v.ok;};
+document.getElementById('ksspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,R=110,cells=48;
+ for(var i=0;i<cells;i++){var a=i/cells*6.2832+ang*0.03,fade=(i/cells+ang*0.005)%1,col=fade<0.3?'#ff2fa6':'#35ffb0',sz=2+3*(1-fade);
+  ndot(g,cx+Math.cos(a)*R,cy+Math.sin(a)*R,sz,col);}
+ ne(g,'rgba(53,255,176,0.4)',1);g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();ng(g);
+ ndot(g,cx,cy,8,'#35ffb0');
+ nt(g,'#35ffb0',10,H-52,11,'green: the tone circulating the N-cell delay ring');nt(g,'#ff2fa6',10,H-34,10,'magenta: the noise, smoothed away pass by pass');nt(g,'#8ad',10,H-14,10,'a memory made of forgetting the rough parts');}
+drawW3();drawW4();window.__karplusstrong=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 170 · neon-noir · silicon-coding (a series adding eight digits of pi per term · beads falling into a bell curve · a ring of circles that always closes · a single power that tells a square from a non-square · numbers linking the rising and falling factorials) ═══════════════════════
 RMNJ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Ramanujan&rsquo;s series for 1/&pi;</b> is one of the fastest-converging formulas ever written, produced by Srinivasa Ramanujan in 1914 seemingly out of nowhere: <b>1/&pi; = (2&radic;2 / 9801) &sum;<sub>k&ge;0</sub> (4k)! (1103 + 26390k) / ((k!)&#8308; 396<sup>4k</sup>)</b>. The very first term (k = 0) already gives &pi; correct to <b>seven digits</b>, and <b>each further term adds about eight more</b>. Ramanujan gave no proof; it was only rigorously established decades later. The same family of series &mdash; refined by the Chudnovsky brothers &mdash; is what modern record computations of &pi; to trillions of digits actually use.<br><br>
@@ -44000,6 +44297,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-schwarz-lantern","title":"THE SCHWARZ LANTERN","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#b06bff","icon":"schwarzlantern",
+  "kicker":"an inscribed surface whose area depends on how you refine it",
+  "blurb":"The Schwarz lantern in the 5-window house format — the counterexample that shattered an 'obvious' belief: that inscribed polyhedral surfaces must converge to a curved surface's area, the way inscribed polygons converge to a curve's length. Hermann Schwarz (1880) triangulated a cylinder into an antiprism 'lantern' — m points per ring, n rings, zig-zag triangles — with exact area 2mn·sin(π/m)·√((h/n)² + r²(1−cos(π/m))²), whose limit depends on the refinement path: n = m converges to the true area 2πrh; n = m² converges to the wrong constant 2π√(1+π⁴/4) ≈ 31.64; n = m³ diverges to infinity as the triangles tilt into accordion pleats. Surface area cannot be defined by naive inscription. Verified live: the closed form yields all three limits, with n = m³ doubling in area as m doubles. Neon-noir traced. See the pleated bands in 1D, the three regimes refined live in 2D, and the path-chooses-the-limit inverse in 3D.",
+  "lit":"Genuine Schwarz lantern (Hermann Amandus Schwarz, 1880). Verified live: the exact lantern formula gives 2π for n=m, 2π√(1+π⁴/4) ≈ 31.64 for n=m², and unbounded growth for n=m³ — doubling m doubles the area (window.__schwarzlantern.ok).",
+  "fig":"No framing; the closed-form triangle areas are computed independently in-browser for each scaling regime. The AVAN inverse is honest — instead of trusting 'inscribed' to mean 'converging', interrogate the path: the inverse of 'a finer and finer mesh' is 'the ratio n/m², which silently chooses the limit'. Magenta are the zig-zag lantern triangles pleating; green is the cylinder they claim to approximate. One surface, three destinies.",
+  "body":SCHW_BODY,"script":SCHW_SCRIPT},
+ {"slug":"the-morrie","title":"THE MORRIE LAW","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE KONAMI CODE","domain_slug":"the-konami-code","accent":"#ffcf4a","icon":"morrie",
+  "kicker":"three cosines multiplying to exactly one eighth",
+  "blurb":"Morrie's law in the 5-window house format — the identity cos20°·cos40°·cos80° = 1/8, three unremarkable-looking cosines multiplying to an exact rational. Richard Feynman kept the name all his life: a boy called Morrie Jacobs showed it to him in his father's leather shop. The secret is the doubling cascade: for any θ, ∏cos(2^k θ) = sin(2ⁿθ)/(2ⁿ sinθ) — each cosine doubles the angle via sin2x = 2sinx·cosx and the product telescopes. At θ = 20° the cascade lands on sin160°, which equals sin20° exactly — the sines cancel and only 1/2³ = 1/8 survives. Verified live: the product is 0.125 to machine precision, the telescoping identity holds for thousands of random θ and n (worst ~1e-16), and sin160° = sin20° exactly. Neon-noir traced. See the doubling cascade on the circle in 1D, product-vs-closed-form in 2D, and the telescope inverse in 3D.",
+  "lit":"Genuine Morrie's law (Morrie Jacobs; named and cherished by Richard Feynman). Verified live: cos20°·cos40°·cos80° = 0.125 to machine precision; ∏cos(2^k θ) = sin(2ⁿθ)/(2ⁿ sinθ) for 2000 random θ,n with worst error ~1e-16; sin160° = sin20° exactly (window.__morrie.ok).",
+  "fig":"No framing; the product and the closed form are computed independently in-browser. The AVAN inverse is honest — instead of multiplying cosines one by one, let the sine ladder eat them: the inverse of 'a product of cosines' is 'one sine ratio, sin(2ⁿθ)/(2ⁿ sinθ), after the telescope collapses'. Magenta are the doubling angles; green is the 1/8 left standing at θ = 20°. A cascade that swallows itself.",
+  "body":MORR_BODY,"script":MORR_SCRIPT},
+ {"slug":"the-lemoine-point","title":"THE LEMOINE POINT","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FIREWALL","domain_slug":"the-firewall","accent":"#21e6ff","icon":"lemoine",
+  "kicker":"medians reflected over bisectors meeting at one point",
+  "blurb":"The Lemoine point in the 5-window house format — take the three medians of a triangle and reflect each one over the angle bisector at its vertex. The three reflected lines — the symmedians — all pass through a single point K, one of the most studied points in triangle geometry. In barycentric coordinates it is simply (a²:b²:c²), and it carries a beautiful signature: its perpendicular distances to the three sides are proportional to the side lengths themselves — equivalently, K uniquely minimizes the sum of squared distances to the sides. Émile Lemoine presented it in 1873, launching 'the geometry of the triangle'. Verified live: for tens of thousands of random triangles the three reflected medians are concurrent, the meeting point matches (a²:b²:c²) independently, and its side-distances are proportional to a, b, c. Neon-noir traced. See medians become symmedians in 1D, the three identities checked in 2D, and the weigh-the-corners inverse in 3D.",
+  "lit":"Genuine Lemoine / symmedian point (Émile Lemoine, 1873; X(6)). Verified live: for ~20000 random triangles the three median-reflections are concurrent (worst ~1e-15), the meeting point independently matches the barycentric (a²:b²:c²), and its side-distances are proportional to the side lengths (window.__lemoine.all).",
+  "fig":"No framing; the reflections, the intersection, and the barycentric check run independently in-browser. The AVAN inverse is honest — instead of constructing three reflections, weigh the corners: the inverse of 'reflect each median over its bisector' is 'the single barycentric recipe (a²:b²:c²)' — squared side lengths as weights. Magenta are the symmedians; green is the K they cannot avoid. Three reflections, one address.",
+  "body":LEMN_BODY,"script":LEMN_SCRIPT},
+ {"slug":"the-euler-brick","title":"THE EULER BRICK","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE BOUNTY","domain_slug":"the-bounty","accent":"#ff8a3c","icon":"eulerbrick",
+  "kicker":"a brick whose faces are all Pythagorean but whose heart is an open problem",
+  "blurb":"The Euler brick in the 5-window house format — a box whose edges and all three face diagonals are whole numbers. The smallest, found by Paul Halcke in 1719, has edges 44, 117, 240: face diagonals 125, 244, 267 — three Pythagorean triples sharing legs pairwise. But the brick guards a missing gem: its space diagonal is √73225 ≈ 270.6, not an integer. A brick with integer space diagonal too — a perfect cuboid — has never been found and never been ruled out: one of the oldest open problems in number theory, searched past 5×10¹¹ with no example. Verified live: 44²+117² = 125², 44²+240² = 244², 117²+240² = 267², an exhaustive search confirms no Euler brick has largest edge below 240, and √73225 is verified non-integer. Neon-noir traced. See the brick with its three integer diagonals in 1D, the face checks in 2D, and the unclaimed-bounty inverse in 3D.",
+  "lit":"Genuine Euler brick (Paul Halcke, 1719; Euler's family of solutions). Verified live: 44²+117²=125², 44²+240²=244², 117²+240²=267²; an exhaustive search confirms no brick with all integer face diagonals has largest edge below 240; and 44²+117²+240² = 73225 is verified non-square (window.__eulerbrick.ok).",
+  "fig":"Honest boundary — the space diagonal √73225 is verified NON-integer, and the perfect cuboid is stated as the open problem it is; our search bound (largest edge < 240) is explicit, no claim beyond it. The AVAN inverse — instead of admiring the three solved faces, name the unsolved interior: the inverse of 'an Euler brick' is 'the perfect cuboid it fails to be', wanted for 300 years. Magenta are the three integer face diagonals; green is the brick; the dashed red interior is the open bounty. Three gems set, one still missing.",
+  "body":EBRK_BODY,"script":EBRK_SCRIPT},
+ {"slug":"the-string-that-remembers","title":"THE STRING THAT REMEMBERS","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"EVENT HORIZON","domain_slug":"event-horizon","accent":"#35ffb0","icon":"karplusstrong",
+  "kicker":"a burst of noise that decays into a musical note",
+  "blurb":"Karplus–Strong synthesis in the 5-window house format — a convincing plucked string out of almost nothing. Fill a short buffer of N samples with random noise, then loop it forever, replacing each sample with the average of the two samples one period ago: y[n] = ½(y[n−N] + y[n−N−1]). The averaging is a gentle low-pass filter inside the loop: every pass, the jagged noise gets smoother and quieter, high harmonics dying first exactly as on a real string. The half-sample in the average makes the true period N+½, so the fundamental lands at f₀ = fs/(N+½). A burst of static becomes a note with a natural decay — the algorithm behind countless early digital guitars. Verified live: for several N, the fundamental measured by autocorrelation (with sub-sample peak interpolation) matches fs/(N+½) to under 1 Hz, and block-RMS energy decays monotonically. Neon-noir traced. See noise settle into a tone in 1D, the pitch check + decay bars in 2D, and the store-the-loop inverse in 3D.",
+  "lit":"Genuine Karplus–Strong synthesis (Kevin Karplus and Alex Strong, 1983; idea-bank vein E, 'THE STRING THAT REMEMBERS'). Verified live: for N = 80/100/150 the autocorrelation-measured fundamental matches fs/(N+½) to under 1 Hz (errors ~0.006–0.09 Hz), and block-RMS energy decays monotonically (window.__karplusstrong.ok).",
+  "fig":"No framing; the synthesis, the frequency measurement, and the decay are computed independently in-browser — no audio hardware, pure array math. The AVAN inverse is honest — instead of storing the note, store the loop that regrows it: the inverse of 'a recorded tone' is 'N noise samples plus one averaging rule', and the music is what survives the passes. Magenta is the noise burst fading; green is the pitch that emerges at fs/(N+½). A memory made of forgetting the rough parts.",
+  "body":KPST_BODY,"script":KPST_SCRIPT},
  {"slug":"the-ramanujan-pi","title":"THE RAMANUJAN PI","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#b06bff","icon":"ramanujan",
   "kicker":"a series adding eight digits of pi per term",
