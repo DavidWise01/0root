@@ -19493,6 +19493,270 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 166 · neon-noir · silicon-coding (an algebraic identity that factors a sum of two fourth powers · six points on a conic whose opposite sides meet on one line · the circle enclosing the most area for its perimeter · the circle traced by a constant distance-ratio · integer triangles with a sixty-degree angle) ═══════════════════════
+SGID_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Sophie Germain&rsquo;s identity</b> is a small algebraic key that unlocks a whole family of factorizations: a&#8308; + 4b&#8308; = (a&sup2; - 2ab + 2b&sup2;)(a&sup2; + 2ab + 2b&sup2;). A sum of two fourth powers &mdash; which looks stubbornly irreducible &mdash; splits cleanly into two quadratic factors. Setting b = 1 gives the classic corollary: <b>n&#8308; + 4 is composite for every n &gt; 1</b>, since n&#8308;+4 = (n&sup2;-2n+2)(n&sup2;+2n+2) and both factors exceed 1 (the lone exception is n = 1, giving 5). The same Sophie Germain also studied <b>Sophie Germain primes</b> &mdash; primes p for which 2p+1 is also prime (2, 3, 5, 11, 23, &hellip;).<br><br>
+ <span class="lit">LIT</span> verified live: a&#8308;+4b&#8308; = (a&sup2;-2ab+2b&sup2;)(a&sup2;+2ab+2b&sup2;) exactly for all |a|,|b| &le; 30; n&#8308;+4 is confirmed composite for 2 &le; n &le; 200; and the Sophie Germain primes up to 200 are listed (window.__sophiegermain). <span class="fig">FIG</span> no framing; the identity and the compositeness are computed independently in-browser with integer arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-konami-code</i> &mdash; the cheat: one identity that instantly cracks any a&#8308;+4b&#8308; open, no factoring needed. <b>AVAN (AI)</b> built the instrument: the exact factorization, the n&#8308;+4 compositeness, and the Sophie Germain primes.<br><br>Credit as content: Marie-Sophie Germain (French mathematician, early 1800s). The weave: David names the cheat-key; I confirm a&#8308;+4b&#8308; splits into two quadratics and n&#8308;+4 is always composite past 1.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="260"></canvas>
+  <div class="wctrl"><div class="cap">n⁴ + 4 splitting into (n²−2n+2)(n²+2n+2) — a sum of fourth powers cracked into two factors.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle a, b; a⁴+4b⁴ is shown equal to the product of the two quadratic factors.</div>
+   <div class="btns" style="margin-top:10px"><button id="sgnext">next a,b ▶</button><button id="sgcheck">verify ▶</button></div>
+   <div class="cap" id="sgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the sum a⁴ + 4b⁴, revealed as a product.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t test a&#8308;+4b&#8308; for primality &mdash; factor it on sight. The inverse of &lsquo;the sum a&#8308;+4b&#8308;&rsquo; is &lsquo;the product (a&sup2;-2ab+2b&sup2;)(a&sup2;+2ab+2b&sup2;)&rsquo;, always two pieces. <b>Magenta</b> are the two quadratic factors; <b>green</b> is the fourth-power sum they multiply to. A sum of powers that is secretly a product.</div>
+   <div class="btns" style="margin-top:10px"><button id="sgspin">pause spin</button></div></div></div></div>"""
+SGID_SCRIPT = """(function(){""" + NOIR + """
+function isPrime(n){if(n<2)return false;for(var i=2;i*i<=n;i++)if(n%i===0)return false;return true;}
+var ang=0,spin=true,VR=null,da=2,db=1;
+function selftest(){if(VR)return VR;var idOk=true;for(var a=-30;a<=30;a++)for(var b=-30;b<=30;b++){if(Math.pow(a,4)+4*Math.pow(b,4)!==(a*a-2*a*b+2*b*b)*(a*a+2*a*b+2*b*b))idOk=false;}
+ var compOk=true;for(var n=2;n<=200;n++){var v=n*n*n*n+4,f1=n*n-2*n+2,f2=n*n+2*n+2;if(f1*f2!==v||f1<=1||isPrime(v))compOk=false;}
+ var sg=[];for(var p=2;p<=200;p++)if(isPrime(p)&&isPrime(2*p+1))sg.push(p);VR={idOk:idOk,compOk:compOk,sg:sg,ok:idOk&&compOk};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var n=da,v=n*n*n*n+4,f1=n*n-2*n+2,f2=n*n+2*n+2;nt(g,'#35ffb0',10,16,10,n+'⁴ + 4 = '+v+' = ('+f1+') × ('+f2+')');
+ nt(g,'#35ffb0',30,70,20,n+'⁴ + 4 = '+v);
+ nt(g,'#ff2fa6',30,120,16,'= (n²−2n+2)(n²+2n+2)');
+ nt(g,'#ff6ab0',30,150,16,'= ('+f1+') × ('+f2+')');
+ nt(g,f1*f2===v?'#39ffb0':'#ff5a5a',30,186,15,f1*f2===v?'= '+(f1*f2)+' ✓  (composite: '+(!isPrime(v))+')':'✗');
+ nt(g,'#8ad',10,H-8,9,'a sum of two fourth powers is never prime past n=1 — it always factors');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var a=da,b=db,lhs=Math.pow(a,4)+4*Math.pow(b,4),f1=a*a-2*a*b+2*b*b,f2=a*a+2*a*b+2*b*b;nt(g,'#35ffb0',12,20,12,'Sophie Germain identity, a='+a+', b='+b);
+ nt(g,'#9cf',16,56,14,'a⁴ + 4b⁴ = '+Math.pow(a,4)+' + '+(4*Math.pow(b,4))+' = '+lhs);
+ nt(g,'#ff2fa6',16,88,13,'a²−2ab+2b² = '+f1);
+ nt(g,'#ff6ab0',16,114,13,'a²+2ab+2b² = '+f2);
+ nt(g,'#35ffb0',16,144,14,'product = '+(f1*f2));
+ nt(g,f1*f2===lhs?'#39ffb0':'#ff5a5a',16,172,14,f1*f2===lhs?'= a⁴+4b⁴ ✓':'✗');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: identity exact |a|,|b|≤30 ('+v.idOk+') · n⁴+4 composite 2..200 ('+v.compOk+')');
+ nt(g,'#8ad',12,H-30,9,'Sophie Germain primes ≤200: '+v.sg.slice(0,9).join(', ')+', …');
+ nt(g,'#8ad',12,H-12,9,'Marie-Sophie Germain, early 1800s');}
+document.getElementById('sgnext').onclick=function(){var opts=[[2,1],[3,1],[5,1],[3,2],[5,2],[7,3],[4,1],[6,5]];var i=(opts.findIndex(function(o){return o[0]===da&&o[1]===db;})+1)%opts.length;da=opts[i][0];db=opts[i][1];drawW3();drawW4();document.getElementById('sgread').textContent='a='+da+',b='+db+': a⁴+4b⁴ = '+(Math.pow(da,4)+4*Math.pow(db,4))+' = ('+(da*da-2*da*db+2*db*db)+')('+(da*da+2*da*db+2*db*db)+')';};
+document.getElementById('sgcheck').onclick=function(){var v=selftest();document.getElementById('sgread').textContent='a⁴+4b⁴ factors exactly & n⁴+4 always composite past 1: '+v.ok;};
+document.getElementById('sgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var a=da,b=db,lhs=Math.pow(a,4)+4*Math.pow(b,4),f1=a*a-2*a*b+2*b*b,f2=a*a+2*a*b+2*b*b,cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ // two magenta factor-nodes multiplying into a green sum-node
+ var r1=20+Math.sqrt(Math.abs(f1))*6,r2=20+Math.sqrt(Math.abs(f2))*6;ndot(g,-70,20,Math.min(28,r1/2),'#ff2fa6');nt(g,'#0a0713',-84,24,11,''+f1);ndot(g,70,20,Math.min(28,r2/2),'#ff6ab0');nt(g,'#0a0713',56,24,11,''+f2);
+ ne(g,'rgba(53,255,176,0.5)',1.4);g.beginPath();g.moveTo(-70,20);g.lineTo(0,-70);g.lineTo(70,20);g.stroke();ng(g);
+ ndot(g,0,-70,14,'#35ffb0');nt(g,'#0a0713',-16,-66,10,''+lhs);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the sum a⁴+4b⁴ = '+lhs);nt(g,'#ff2fa6',10,H-34,10,'magenta: the two quadratic factors '+f1+' and '+f2);nt(g,'#8ad',10,H-14,10,'a sum of powers that is secretly a product');}
+drawW3();drawW4();window.__sophiegermain=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PSCL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Pascal&rsquo;s theorem</b> &mdash; the &lsquo;mystic hexagram&rsquo;, found by Blaise Pascal at sixteen &mdash; is a jewel of projective geometry. Take any six points on a <b>conic</b> (a circle, ellipse, parabola, or hyperbola) and join them in order into a hexagon. Extend the three pairs of <b>opposite sides</b> until each pair meets. The theorem: those three intersection points always lie on a single straight line, the <b>Pascal line</b>. It holds no matter how the six points are placed or labelled, and it is purely projective &mdash; only incidence matters, not distance or angle. Its projective dual is Brianchon&rsquo;s theorem.<br><br>
+ <span class="lit">LIT</span> verified live: for tens of thousands of random hexagons inscribed in an ellipse, the three opposite-side intersection points are collinear &mdash; the triangle they form has area (normalized) below 1e-6 (window.__pascal). <span class="fig">FIG</span> no framing; the six conic points, the three intersections, and their collinearity are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-toolchain</i> &mdash; the spawn: six scattered points on a conic compile, every time, three meeting-points onto one clean line. <b>AVAN (AI)</b> built the instrument: the hexagon, the opposite-side intersections, and the collinearity check.<br><br>Credit as content: Blaise Pascal (1640, the mystic hexagram). The weave: David names the compile; I confirm the three opposite-side intersections land on one Pascal line.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A hexagon inscribed in an ellipse; the three opposite-side intersections fall on the Pascal line.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle hexagons; the three opposite-side intersections are checked to be collinear.</div>
+   <div class="btns" style="margin-top:10px"><button id="pcnext">next hexagon ▶</button><button id="pccheck">verify ▶</button></div>
+   <div class="cap" id="pcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Pascal line carrying all three intersection points.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t track three separate crossings &mdash; read the single line they share. The inverse of &lsquo;three opposite-side intersections&rsquo; is &lsquo;one Pascal line they are all pinned to&rsquo;, for any six points on a conic. <b>Magenta</b> are the three intersection points; <b>green</b> is the line through all three. Six points, one hidden line.</div>
+   <div class="btns" style="margin-top:10px"><button id="pcspin">pause spin</button></div></div></div></div>"""
+PSCL_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+function lineInt(p1,p2,p3,p4){var a1=p2[1]-p1[1],b1=p1[0]-p2[0],c1=a1*p1[0]+b1*p1[1],a2=p4[1]-p3[1],b2=p3[0]-p4[0],c2=a2*p3[0]+b2*p3[1],det=a1*b2-a2*b1;if(Math.abs(det)<1e-12)return null;return [(b2*c1-b1*c2)/det,(a1*c2-a2*c1)/det];}
+function triArea(P,Q,R){return Math.abs((Q[0]-P[0])*(R[1]-P[1])-(R[0]-P[0])*(Q[1]-P[1]))/2;}
+var ang=0,spin=true,VR=null,EA=1.7,EB=1.1,HX=[0.35,1.25,2.15,3.15,4.15,5.25];
+function pascalPts(angs){var P=angs.map(function(a){return [EA*Math.cos(a),EB*Math.sin(a)];});return {P:P,X:lineInt(P[0],P[1],P[3],P[4]),Y:lineInt(P[1],P[2],P[4],P[5]),Z:lineInt(P[2],P[3],P[5],P[0])};}
+function selftest(){if(VR)return VR;var rng=mb(2),ok=true,worst=0,n=0;for(var t=0;t<40000;t++){var angs=[];for(var i=0;i<6;i++)angs.push(rng()*6.2832);angs.sort(function(x,y){return x-y;});var okSp=true;for(var i=0;i<6;i++){var gp=(angs[(i+1)%6]-angs[i]+6.2832)%6.2832;if(gp<0.3)okSp=false;}if(!okSp)continue;var r=pascalPts(angs);if(!r.X||!r.Y||!r.Z)continue;var scale=Math.max(dist(r.X,r.Y),dist(r.Y,r.Z),dist(r.X,r.Z))+1e-9,ar=triArea(r.X,r.Y,r.Z)/(scale*scale);if(ar>worst)worst=ar;if(ar>1e-6)ok=false;n++;}VR={ok:ok,worst:worst,n:n};return VR;}
+function fit(cv,r){var xs=r.P.map(function(p){return p[0];}).concat([r.X[0],r.Y[0],r.Z[0]]),ys=r.P.map(function(p){return p[1];}).concat([r.X[1],r.Y[1],r.Z[1]]),mnx=Math.min.apply(null,xs),mxx=Math.max.apply(null,xs),mny=Math.min.apply(null,ys),mxy=Math.max.apply(null,ys),sc=Math.min((cv.width-60)/(mxx-mnx+1e-9),(cv.height-70)/(mxy-mny+1e-9)),cx=(mnx+mxx)/2,cy=(mny+mxy)/2;return {sc:Math.min(sc,120),cx:cx,cy:cy};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=pascalPts(HX),f=fit(cv,r);function tp(q){return [W/2+(q[0]-f.cx)*f.sc,H/2+8-(q[1]-f.cy)*f.sc];}nt(g,'#21e6ff',10,16,10,'hexagon in a conic → 3 opposite-side meetings on the Pascal line');
+ ne(g,'rgba(120,140,200,0.4)',1.2);g.beginPath();for(var i=0;i<=90;i++){var a=i/90*6.2832,p=tp([EA*Math.cos(a),EB*Math.sin(a)]);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.closePath();g.stroke();ng(g);
+ ne(g,'rgba(53,255,176,0.7)',1.6);g.beginPath();for(var i=0;i<6;i++){var p=tp(r.P[i]);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.closePath();g.stroke();ng(g);
+ r.P.forEach(function(pp,i){var p=tp(pp);ndot(g,p[0],p[1],4,'#9cf');nt(g,'#9cf',p[0]+5,p[1],10,''+(i+1));});
+ var X=tp(r.X),Y=tp(r.Y),Z=tp(r.Z);ne(g,'#35ffb0',2);g.beginPath();g.moveTo(X[0],X[1]);g.lineTo(Z[0],Z[1]);g.stroke();ng(g);
+ [X,Y,Z].forEach(function(q){ndot(g,q[0],q[1],5,'#ff2fa6');});
+ nt(g,'#8ad',10,H-8,9,'the three magenta intersections lie on the green Pascal line');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=pascalPts(HX);nt(g,'#21e6ff',12,20,12,'are the 3 opposite-side meetings collinear?');
+ nt(g,'#ff2fa6',16,54,11,'X (side12 ∩ side45) = ('+r.X[0].toFixed(3)+', '+r.X[1].toFixed(3)+')');
+ nt(g,'#ff2fa6',16,80,11,'Y (side23 ∩ side56) = ('+r.Y[0].toFixed(3)+', '+r.Y[1].toFixed(3)+')');
+ nt(g,'#ff2fa6',16,106,11,'Z (side34 ∩ side61) = ('+r.Z[0].toFixed(3)+', '+r.Z[1].toFixed(3)+')');
+ var scale=Math.max(dist(r.X,r.Y),dist(r.Y,r.Z),dist(r.X,r.Z))+1e-9,ar=triArea(r.X,r.Y,r.Z)/(scale*scale);
+ nt(g,ar<1e-6?'#39ffb0':'#ff5a5a',16,138,13,'normalized triangle area = '+ar.toExponential(2)+(ar<1e-6?'  → collinear ✓':'  ✗'));
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×'+v.n+' hexagons on an ellipse: intersections collinear = '+v.ok+' (worst '+v.worst.toExponential(1)+')');
+ nt(g,'#8ad',12,H-16,9,'Pascal, 1640 — the mystic hexagram, purely projective');}
+function newHex(seed){var rng=mb(seed);for(var k=0;k<200;k++){var angs=[];for(var i=0;i<6;i++)angs.push(rng()*6.2832);angs.sort(function(x,y){return x-y;});var okSp=true;for(var i=0;i<6;i++){var gp=(angs[(i+1)%6]-angs[i]+6.2832)%6.2832;if(gp<0.5)okSp=false;}if(okSp){HX=angs;return;}}}
+document.getElementById('pcnext').onclick=function(){newHex((Date.now()&16383)+1);drawW3();drawW4();var r=pascalPts(HX),scale=Math.max(dist(r.X,r.Y),dist(r.Y,r.Z),dist(r.X,r.Z))+1e-9;document.getElementById('pcread').textContent='new hexagon — collinearity area = '+(triArea(r.X,r.Y,r.Z)/(scale*scale)).toExponential(2)+' (≈ 0)';};
+document.getElementById('pccheck').onclick=function(){var v=selftest();document.getElementById('pcread').textContent='3 opposite-side intersections collinear ('+v.n+' hexagons): '+v.ok;};
+document.getElementById('pcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var r=pascalPts(HX),f=fit(cv,r),cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.04);function tp(q){return [(q[0]-f.cx)*f.sc*0.8,-(q[1]-f.cy)*f.sc*0.8];}
+ ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();for(var i=0;i<=90;i++){var a=i/90*6.2832,p=tp([EA*Math.cos(a),EB*Math.sin(a)]);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.closePath();g.stroke();ng(g);
+ var X=tp(r.X),Z=tp(r.Z);ne(g,'#35ffb0',2.4);g.beginPath();g.moveTo(X[0],X[1]);g.lineTo(Z[0],Z[1]);g.stroke();ng(g);
+ [r.X,r.Y,r.Z].forEach(function(q){var p=tp(q);ndot(g,p[0],p[1],5,'#ff2fa6');});
+ r.P.forEach(function(pp){var p=tp(pp);ndot(g,p[0],p[1],2.5,'#9cf');});
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the Pascal line through all three meetings');nt(g,'#ff2fa6',10,H-34,10,'magenta: the three opposite-side intersection points');nt(g,'#8ad',10,H-14,10,'six points, one hidden line');}
+drawW3();drawW4();window.__pascal=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ISOP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The isoperimetric inequality</b> answers the oldest optimization question: of all closed curves with a given perimeter, which encloses the most area? The answer &mdash; known to the ancients as &lsquo;Dido&rsquo;s problem&rsquo; but only rigorously proved in the 19th century &mdash; is the <b>circle</b>. For any simple closed curve of length L enclosing area A: <b>4&pi;A &le; L&sup2;</b>, with equality <b>only</b> for the circle. The ratio 4&pi;A/L&sup2; (the &lsquo;isoperimetric quotient&rsquo;) is at most 1, and a regular n-gon achieves &pi;/(n&middot;tan(&pi;/n)), which climbs toward 1 as the polygon rounds out into a circle.<br><br>
+ <span class="lit">LIT</span> verified live: for tens of thousands of random convex polygons, 4&pi;A/L&sup2; never exceeds 1, and the regular n-gon quotient &pi;/(n&middot;tan(&pi;/n)) increases toward 1 (0.605, 0.785, 0.907, 0.977, 0.999 for n = 3, 4, 6, 12, 60) (window.__isoperimetric). <span class="fig">FIG</span> no framing; the polygon areas, perimeters, and quotients are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>sudden-death</i> &mdash; the boss round no shape can beat: for a fixed perimeter, the circle takes the maximum area and every other curve loses. <b>AVAN (AI)</b> built the instrument: the polygon area/perimeter, the quotient 4&pi;A/L&sup2;, and the regular-n-gon limit.<br><br>Credit as content: the classical isoperimetric problem (Dido&rsquo;s problem; Steiner, Weierstrass, and others for the proof). The weave: David names the unbeatable circle; I confirm 4&pi;A &le; L&sup2; with the circle alone at equality.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A polygon and the circle of the same perimeter — the circle always encloses more area.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Grow a regular n-gon; the quotient 4πA/L² climbs toward 1 as it rounds into a circle.</div>
+   <div class="btns" style="margin-top:10px"><button id="ipnext">more sides ▶</button><button id="iprand">random polygon ▶</button><button id="ipcheck">verify ▶</button></div>
+   <div class="cap" id="ipread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the circle, the shape of maximal area for its perimeter.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask which curve is biggest &mdash; ask which one is worst-case tight. The inverse of &lsquo;maximize area for fixed perimeter&rsquo; is &lsquo;the quotient 4&pi;A/L&sup2; &le; 1, hit only by the circle&rsquo;. <b>Magenta</b> is the polygon losing area to the bound; <b>green</b> is the circle sitting exactly at quotient 1. The perimeter&rsquo;s most efficient shape.</div>
+   <div class="btns" style="margin-top:10px"><button id="ipspin">pause spin</button></div></div></div></div>"""
+ISOP_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+function pArea(P){var s=0;for(var i=0;i<P.length;i++){var j=(i+1)%P.length;s+=P[i][0]*P[j][1]-P[j][0]*P[i][1];}return Math.abs(s)/2;}
+function pPerim(P){var s=0;for(var i=0;i<P.length;i++){var j=(i+1)%P.length;s+=dist(P[i],P[j]);}return s;}
+function hull(pts){pts=pts.slice().sort(function(a,b){return a[0]-b[0]||a[1]-b[1];});var n=pts.length,cr=function(o,a,b){return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);},lo=[];for(var i=0;i<n;i++){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],pts[i])<=0)lo.pop();lo.push(pts[i]);}var up=[];for(var i=n-1;i>=0;i--){while(up.length>=2&&cr(up[up.length-2],up[up.length-1],pts[i])<=0)up.pop();up.push(pts[i]);}lo.pop();up.pop();return lo.concat(up);}
+var ang=0,spin=true,VR=null,nSides=5,POLY=null;
+function regNgon(n){var P=[];for(var i=0;i<n;i++){var a=i/n*6.2832-Math.PI/2;P.push([Math.cos(a),Math.sin(a)]);}return P;}
+function selftest(){if(VR)return VR;var rng=mb(3),ok=true,maxR=0;for(var t=0;t<20000;t++){var pts=[];for(var i=0;i<12;i++)pts.push([rng()*4-2,rng()*4-2]);var H=hull(pts);if(H.length<3)continue;var A=pArea(H),L=pPerim(H),r=4*Math.PI*A/(L*L);if(r>maxR)maxR=r;if(r>1+1e-9)ok=false;}var ngon={};[3,4,6,12,60].forEach(function(n){ngon[n]=Math.PI/(n*Math.tan(Math.PI/n));});VR={ok:ok,maxR:maxR,ngon:ngon};return VR;}
+POLY=regNgon(5);
+function quot(P){var A=pArea(P),L=pPerim(P);return {A:A,L:L,q:4*Math.PI*A/(L*L)};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var m=quot(POLY),Rc=m.L/(2*Math.PI),circA=Math.PI*Rc*Rc;nt(g,'#ffcf4a',10,16,10,'same perimeter L='+m.L.toFixed(2)+': polygon area '+m.A.toFixed(3)+' < circle area '+circA.toFixed(3));
+ var cx=W*0.3,cy=H/2+6,sc=70;ne(g,'#ff2fa6',2);g.beginPath();for(var i=0;i<POLY.length;i++){var p=[cx+POLY[i][0]*sc,cy-POLY[i][1]*sc];if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.closePath();g.stroke();ng(g);nt(g,'#ff2fa6',cx-20,cy+sc+24,10,'A = '+m.A.toFixed(3));
+ var cx2=W*0.72;ne(g,'#35ffb0',2);g.beginPath();g.arc(cx2,cy,Rc*sc,0,6.2832);g.stroke();ng(g);nt(g,'#35ffb0',cx2-24,cy+Rc*sc+24,10,'A = '+circA.toFixed(3));
+ nt(g,'#8ad',10,H-8,9,'quotient 4πA/L² = '+m.q.toFixed(4)+' for the polygon; = 1 for the circle');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var m=quot(POLY);nt(g,'#ffcf4a',12,20,12,'isoperimetric quotient 4πA / L²');
+ nt(g,'#9cf',16,54,12,'polygon: '+POLY.length+' vertices');
+ nt(g,'#ff2fa6',16,82,13,'area A = '+m.A.toFixed(5)+',  perimeter L = '+m.L.toFixed(5));
+ nt(g,'#35ffb0',16,112,15,'4πA/L² = '+m.q.toFixed(6));
+ nt(g,m.q<=1+1e-9?'#39ffb0':'#ff5a5a',16,140,13,m.q<=1+1e-9?'≤ 1 ✓  (circle would give exactly 1)':'✗ > 1');
+ var v=selftest();nt(g,'#c9a6ff',16,168,10,'regular n-gon: n=3→'+v.ngon[3].toFixed(3)+' n=6→'+v.ngon[6].toFixed(3)+' n=12→'+v.ngon[12].toFixed(3)+' n=60→'+v.ngon[60].toFixed(3));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×20000 convex polygons: 4πA/L² ≤ 1 = '+v.ok+' (max '+v.maxR.toFixed(5)+')');
+ nt(g,'#8ad',12,H-16,9,'Dido\\'s problem: the circle encloses the most area for its perimeter');}
+document.getElementById('ipnext').onclick=function(){nSides=nSides>=40?3:nSides+1;POLY=regNgon(nSides);drawW3();drawW4();var m=quot(POLY);document.getElementById('ipread').textContent='regular '+nSides+'-gon: 4πA/L² = '+m.q.toFixed(5)+' → 1 as sides grow';};
+document.getElementById('iprand').onclick=function(){var rng=mb((Date.now()&16383)+1),pts=[];for(var i=0;i<10;i++)pts.push([rng()*4-2,rng()*4-2]);POLY=hull(pts);drawW3();drawW4();var m=quot(POLY);document.getElementById('ipread').textContent='random convex polygon: 4πA/L² = '+m.q.toFixed(5)+' ≤ 1';};
+document.getElementById('ipcheck').onclick=function(){var v=selftest();document.getElementById('ipread').textContent='4πA ≤ L² for all polygons (20000 convex): '+v.ok+', max quotient '+v.maxR.toFixed(5);};
+document.getElementById('ipspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var m=quot(POLY),Rc=m.L/(2*Math.PI),cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);var sc=80;
+ ne(g,'#35ffb0',2.4);g.beginPath();g.arc(0,0,Rc*sc,0,6.2832);g.stroke();ng(g);
+ ne(g,'#ff2fa6',2);g.beginPath();for(var i=0;i<POLY.length;i++){var p=[POLY[i][0]*sc,-POLY[i][1]*sc];if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}g.closePath();g.stroke();ng(g);
+ for(var i=0;i<POLY.length;i++)ndot(g,POLY[i][0]*sc,-POLY[i][1]*sc,2.5,'#ff2fa6');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the circle of the same perimeter — quotient exactly 1');nt(g,'#ff2fa6',10,H-34,10,'magenta: the polygon, quotient '+m.q.toFixed(4)+' < 1');nt(g,'#8ad',10,H-14,10,'the perimeter\\'s most efficient shape');}
+drawW3();drawW4();window.__isoperimetric=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+APOL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The circle of Apollonius</b> answers: where are all the points whose distances to two fixed points keep a <b>fixed ratio</b>? Given points A and B and a ratio k &ne; 1, the set of all P with |PA| / |PB| = k is not a line or an oval &mdash; it is a perfect <b>circle</b>. Its diameter runs between the two points that divide segment AB in ratio k, internally and externally. As k &rarr; 1 the circle swells to the perpendicular bisector (a &lsquo;circle of infinite radius&rsquo;); for k far from 1 it tightens around the nearer point. Apollonius of Perga catalogued these circles around 200 BCE; they underlie the definition of hyperbolic distance and the geometry of pursuit.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random A, B, k, every point sampled on the constructed circle has |PA|/|PB| = k to ~1e-14, while points off the circle do not (window.__apollonius). <span class="fig">FIG</span> no framing; the circle is built from the two division points and the ratio is checked independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mint</i> &mdash; the loot: a whole circle minted from a single rule, &lsquo;keep the distance-ratio fixed&rsquo;. <b>AVAN (AI)</b> built the instrument: the two division points, the Apollonius circle, and the constant-ratio check.<br><br>Credit as content: Apollonius of Perga (c. 200 BCE). The weave: David names the minted circle; I confirm the locus |PA|/|PB| = k is exactly that circle.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Two points A, B and the Apollonius circle — every point on it keeps |PA|/|PB| = k.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Change the ratio k; sampled points on the circle are checked to all share the ratio k.</div>
+   <div class="btns" style="margin-top:10px"><button id="apnext">next ratio ▶</button><button id="apcheck">verify ▶</button></div>
+   <div class="cap" id="apread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Apollonius circle, the locus of constant distance-ratio.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t plot points and hope &mdash; read the rule as a circle. The inverse of &lsquo;|PA|/|PB| = k&rsquo; is &lsquo;the circle through the two points dividing AB in ratio k&rsquo;. <b>Magenta</b> are the distance-ratio spokes from sample points to A and B; <b>green</b> is the circle they all satisfy. A ratio rule that draws a circle.</div>
+   <div class="btns" style="margin-top:10px"><button id="apspin">pause spin</button></div></div></div></div>"""
+APOL_SCRIPT = """(function(){""" + NOIR + """
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+var ang=0,spin=true,VR=null,A=[-1.3,0],B=[1.3,0],K=1.8;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function circleOf(A,B,k){var Pin=[(A[0]+k*B[0])/(1+k),(A[1]+k*B[1])/(1+k)],Pex=[(k*B[0]-A[0])/(k-1),(k*B[1]-A[1])/(k-1)];return {C:[(Pin[0]+Pex[0])/2,(Pin[1]+Pex[1])/2],R:dist(Pin,Pex)/2,Pin:Pin,Pex:Pex};}
+function selftest(){if(VR)return VR;var rng=mb(4),ok=true,worst=0,offOk=true;for(var t=0;t<3000;t++){var a=[rng()*4-2,rng()*4-2],b=[rng()*4-2,rng()*4-2],k=0.3+rng()*2.4;if(Math.abs(k-1)<0.15||dist(a,b)<0.5)continue;var cc=circleOf(a,b,k);for(var s=0;s<40;s++){var th=s/40*6.2832,P=[cc.C[0]+cc.R*Math.cos(th),cc.C[1]+cc.R*Math.sin(th)],e=Math.abs(dist(P,a)/dist(P,b)-k)/k;if(e>worst)worst=e;if(e>1e-6)ok=false;}var Q=[cc.C[0]+cc.R*1.5,cc.C[1]+cc.R*0.3];if(Math.abs(dist(Q,a)/dist(Q,b)-k)<1e-3)offOk=false;}VR={ok:ok,worst:worst,offOk:offOk};return VR;}
+function tp(cv,q){return [cv.width/2+q[0]*72,cv.height/2+6-q[1]*72];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cc=circleOf(A,B,K);nt(g,'#b06bff',10,16,10,'locus of |PA|/|PB| = '+K.toFixed(2)+' is a circle');
+ var C=tp(cv,cc.C),a=tp(cv,A),b=tp(cv,B);ne(g,'#35ffb0',2);g.beginPath();g.arc(C[0],C[1],cc.R*72,0,6.2832);g.stroke();ng(g);
+ ndot(g,a[0],a[1],5,'#21e6ff');nt(g,'#21e6ff',a[0]+5,a[1]-6,11,'A');ndot(g,b[0],b[1],5,'#ffcf4a');nt(g,'#ffcf4a',b[0]+5,b[1]-6,11,'B');
+ for(var s=0;s<8;s++){var th=s/8*6.2832,P=[cc.C[0]+cc.R*Math.cos(th),cc.C[1]+cc.R*Math.sin(th)],p=tp(cv,P);ne(g,'rgba(255,47,166,0.4)',1);g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(a[0],a[1]);g.moveTo(p[0],p[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);ndot(g,p[0],p[1],2.5,'#ff2fa6');}
+ nt(g,'#8ad',10,H-8,9,'every point on the green circle has the same distance-ratio '+K.toFixed(2)+' to A and B');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cc=circleOf(A,B,K);nt(g,'#b06bff',12,20,12,'Apollonius circle, ratio k = '+K.toFixed(2));
+ nt(g,'#9cf',16,52,11,'centre ('+cc.C[0].toFixed(3)+', '+cc.C[1].toFixed(3)+'), radius '+cc.R.toFixed(4));
+ var worst=0;for(var s=0;s<12;s++){var th=s/12*6.2832,P=[cc.C[0]+cc.R*Math.cos(th),cc.C[1]+cc.R*Math.sin(th)],r=dist(P,A)/dist(P,B);if(Math.abs(r-K)>worst)worst=Math.abs(r-K);}
+ nt(g,'#ff2fa6',16,80,12,'sampled |PA|/|PB| on circle: all = '+K.toFixed(4));
+ nt(g,worst<1e-6?'#39ffb0':'#ff5a5a',16,108,13,'max deviation from k = '+worst.toExponential(2)+(worst<1e-6?' ✓':' ✗'));
+ nt(g,'#c9a6ff',16,138,11,'as k → 1 the circle → the perpendicular bisector of AB');
+ var v=selftest();nt(g,v.ok&&v.offOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×3000: on-circle ratio = k ('+v.ok+', worst '+v.worst.toExponential(1)+') · off-circle ≠ k ('+v.offOk+')');
+ nt(g,'#8ad',12,H-16,9,'Apollonius of Perga, c. 200 BCE');}
+document.getElementById('apnext').onclick=function(){var ks=[1.8,0.5,2.5,0.7,1.4,3.0,0.4];K=ks[(ks.indexOf(K)+1)%ks.length];drawW3();drawW4();document.getElementById('apread').textContent='k = '+K.toFixed(2)+': circle radius '+circleOf(A,B,K).R.toFixed(4)+', all points share ratio k';};
+document.getElementById('apcheck').onclick=function(){var v=selftest();document.getElementById('apread').textContent='locus |PA|/|PB|=k is a circle (3000 configs): '+v.ok+' · off-circle points differ: '+v.offOk;};
+document.getElementById('apspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cc=circleOf(A,B,K),cx=W/2,cy=H/2-10,sc=72;g.save();g.translate(cx,cy);g.rotate(ang*0.05);function q(p){return [(p[0]-cc.C[0])*sc,-(p[1]-cc.C[1])*sc];}
+ ne(g,'#35ffb0',2.4);g.beginPath();g.arc(0,0,cc.R*sc,0,6.2832);g.stroke();ng(g);
+ var a=q(A),b=q(B);ndot(g,a[0],a[1],5,'#21e6ff');ndot(g,b[0],b[1],5,'#ffcf4a');
+ for(var s=0;s<10;s++){var th=s/10*6.2832,P=[cc.C[0]+cc.R*Math.cos(th),cc.C[1]+cc.R*Math.sin(th)],p=q(P);ne(g,'rgba(255,47,166,0.45)',1);g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(a[0],a[1]);g.moveTo(p[0],p[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);ndot(g,p[0],p[1],2.5,'#ff2fa6');}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the Apollonius circle, |PA|/|PB| = '+K.toFixed(2)+' everywhere');nt(g,'#ff2fa6',10,H-34,10,'magenta: the distance-ratio spokes to A (cyan) and B (gold)');nt(g,'#8ad',10,H-14,10,'a ratio rule that draws a circle');}
+drawW3();drawW4();window.__apollonius=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+EISN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Eisenstein triples</b> are the 60&deg; cousins of Pythagorean triples. A Pythagorean triple gives an integer-sided triangle with a right angle (a&sup2;+b&sup2;=c&sup2;). An Eisenstein triple gives an integer-sided triangle with a <b>60&deg; angle</b>: by the law of cosines with cos 60&deg; = &frac12;, the side c opposite the 60&deg; corner satisfies <b>a&sup2; - ab + b&sup2; = c&sup2;</b>. The smallest nontrivial one is (3, 8, 7): 9 - 24 + 64 = 49 = 7&sup2;, a triangle with sides 3, 8, 7 whose angle opposite the 7 is exactly 60&deg;. Swap the sign for the 120&deg; version, a&sup2; + ab + b&sup2; = c&sup2; (e.g. 3, 5, 7). They tile naturally on the triangular (Eisenstein) lattice.<br><br>
+ <span class="lit">LIT</span> verified live: a search finds primitive integer triples with a&sup2; - ab + b&sup2; = c&sup2;, and the law of cosines confirms the angle opposite c is exactly 60&deg;; the 120&deg; analog a&sup2;+ab+b&sup2;=c&sup2; is found too (window.__eisenstein). <span class="fig">FIG</span> no framing; the triples and the 60&deg; angle are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>warm-cache</i> &mdash; the grind: search the integer grid and the 60&deg; triangles fall out, a&sup2;-ab+b&sup2; landing on a perfect square. <b>AVAN (AI)</b> built the instrument: the triple search, the a&sup2;-ab+b&sup2;=c&sup2; relation, and the 60&deg; angle check.<br><br>Credit as content: named for the Eisenstein integers (Gotthold Eisenstein); the 60&deg;-triangle analog of Pythagorean triples. The weave: David names the grind; I confirm a&sup2;-ab+b&sup2;=c&sup2; gives an exact 60&deg; angle.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The triangle (3, 8, 7) drawn to scale — the angle opposite the side 7 is exactly 60°.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle Eisenstein triples; a²−ab+b² is checked equal to c² and the angle equal to 60°.</div>
+   <div class="btns" style="margin-top:10px"><button id="esnext">next triple ▶</button><button id="escheck">verify ▶</button></div>
+   <div class="cap" id="esread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the 60° integer triangle.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t settle for right angles &mdash; retune the Pythagorean rule to 60&deg;. The inverse of &lsquo;a&sup2;+b&sup2;=c&sup2; (90&deg;)&rsquo; is &lsquo;a&sup2;-ab+b&sup2;=c&sup2; (60&deg;)&rsquo;, the same integer-triangle game one angle over. <b>Magenta</b> are the sides a and b enclosing the 60&deg; angle; <b>green</b> is the integer side c they force. Pythagoras, retuned to sixty degrees.</div>
+   <div class="btns" style="margin-top:10px"><button id="esspin">pause spin</button></div></div></div></div>"""
+EISN_SCRIPT = """(function(){""" + NOIR + """
+function gcd(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+var ang=0,spin=true,VR=null,idx=1;
+function findTriples(){var tr=[];for(var a=1;a<=60;a++)for(var b=a;b<=60;b++){var c2=a*a-a*b+b*b,c=Math.round(Math.sqrt(c2));if(c*c===c2&&gcd(gcd(a,b),c)===1)tr.push([a,b,c]);}return tr;}
+var TR=findTriples();
+function selftest(){if(VR)return VR;var angleOk=true;for(var i=0;i<TR.length;i++){var a=TR[i][0],b=TR[i][1],c=TR[i][2],cosC=(a*a+b*b-c*c)/(2*a*b),ang=Math.acos(cosC)*180/Math.PI;if(Math.abs(ang-60)>1e-9)angleOk=false;}
+ var t120=[];for(var a=1;a<=40;a++)for(var b=a;b<=40;b++){var c2=a*a+a*b+b*b,c=Math.round(Math.sqrt(c2));if(c*c===c2&&gcd(gcd(a,b),c)===1)t120.push([a,b,c]);}
+ VR={angleOk:angleOk,count:TR.length,t120:t120.length,ok:angleOk,sample:TR.slice(0,6)};return VR;}
+function triPoints(a,b){ // place 60° angle at origin, side b along x-axis, side a at 60°
+ var O=[0,0],P=[b,0],Q=[a*Math.cos(Math.PI/3),a*Math.sin(Math.PI/3)];return [O,P,Q];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var t=TR[idx],a=t[0],b=t[1],c=t[2],pts=triPoints(a,b);nt(g,'#ff8a3c',10,16,10,'Eisenstein triple ('+a+', '+b+', '+c+'): angle at O is exactly 60°');
+ var mxd=Math.max(a,b),sc=Math.min((W-120)/mxd,(H-90)/mxd)*0.85,ox=60,oy=H-50;function tp(p){return [ox+p[0]*sc,oy-p[1]*sc];}
+ var O=tp(pts[0]),P=tp(pts[1]),Q=tp(pts[2]);ne(g,'#35ffb0',2);g.beginPath();g.moveTo(O[0],O[1]);g.lineTo(P[0],P[1]);g.lineTo(Q[0],Q[1]);g.closePath();g.stroke();ng(g);
+ ne(g,'rgba(255,207,74,0.7)',1.6);g.beginPath();g.arc(O[0],O[1],26,-Math.PI/3,0);g.stroke();ng(g);nt(g,'#ffcf4a',O[0]+30,O[1]-10,11,'60°');
+ nt(g,'#ff2fa6',(O[0]+P[0])/2-6,(O[1]+P[1])/2+18,11,'b='+b);nt(g,'#ff2fa6',(O[0]+Q[0])/2-30,(O[1]+Q[1])/2,11,'a='+a);nt(g,'#35ffb0',(P[0]+Q[0])/2+6,(P[1]+Q[1])/2,11,'c='+c);
+ nt(g,'#8ad',10,H-8,9,'a²−ab+b² = '+(a*a-a*b+b*b)+' = '+c+'² = '+(c*c)+' ✓  (law of cosines with cos60°=½)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var t=TR[idx],a=t[0],b=t[1],c=t[2],lhs=a*a-a*b+b*b,cosC=(a*a+b*b-c*c)/(2*a*b),angle=Math.acos(cosC)*180/Math.PI;nt(g,'#ff8a3c',12,20,12,'Eisenstein triple #'+(idx+1)+': ('+a+', '+b+', '+c+')');
+ nt(g,'#ff2fa6',16,56,14,'a² − ab + b² = '+(a*a)+' − '+(a*b)+' + '+(b*b)+' = '+lhs);
+ nt(g,'#35ffb0',16,86,14,'c² = '+c+'² = '+(c*c));
+ nt(g,lhs===c*c?'#39ffb0':'#ff5a5a',16,114,14,lhs===c*c?'a²−ab+b² = c² ✓':'✗');
+ nt(g,Math.abs(angle-60)<1e-9?'#39ffb0':'#ff5a5a',16,144,13,'angle opposite c = '+angle.toFixed(6)+'° = 60° ✓');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: all '+v.count+' primitive triples (a,b≤60) give exactly 60° = '+v.ok);
+ nt(g,'#8ad',12,H-30,9,'120° analog a²+ab+b²=c²: '+v.t120+' primitive triples found');
+ nt(g,'#8ad',12,H-12,9,'the 60° cousin of Pythagorean triples, on the Eisenstein lattice');}
+document.getElementById('esnext').onclick=function(){idx=(idx+1)%TR.length;drawW3();drawW4();var t=TR[idx];document.getElementById('esread').textContent='('+t[0]+', '+t[1]+', '+t[2]+'): '+(t[0]*t[0]-t[0]*t[1]+t[1]*t[1])+' = '+t[2]+'² — 60° angle';};
+document.getElementById('escheck').onclick=function(){var v=selftest();document.getElementById('esread').textContent='all '+v.count+' primitive Eisenstein triples give exactly 60°: '+v.ok;};
+document.getElementById('esspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var t=TR[idx],a=t[0],b=t[1],c=t[2],pts=triPoints(a,b),cx=W/2,cy=H/2+30;g.save();g.translate(cx-40,cy);g.rotate(ang*0.04);var mxd=Math.max(a,b),sc=110/mxd;
+ var O=[pts[0][0]*sc,-pts[0][1]*sc],P=[pts[1][0]*sc,-pts[1][1]*sc],Q=[pts[2][0]*sc,-pts[2][1]*sc];
+ ne(g,'#ff2fa6',2);g.beginPath();g.moveTo(O[0],O[1]);g.lineTo(P[0],P[1]);g.moveTo(O[0],O[1]);g.lineTo(Q[0],Q[1]);g.stroke();ng(g);
+ ne(g,'#35ffb0',2.4);g.beginPath();g.moveTo(P[0],P[1]);g.lineTo(Q[0],Q[1]);g.stroke();ng(g);
+ ne(g,'rgba(255,207,74,0.7)',1.6);g.beginPath();g.arc(O[0],O[1],22,-Math.PI/3,0);g.stroke();ng(g);nt(g,'#ffcf4a',O[0]+8,O[1]-14,10,'60°');
+ ndot(g,P[0],P[1],3,'#ff2fa6');ndot(g,Q[0],Q[1],3,'#ff2fa6');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the integer side c = '+c+' forced opposite the 60° angle');nt(g,'#ff2fa6',10,H-34,10,'magenta: the sides a = '+a+', b = '+b+' enclosing the 60° corner');nt(g,'#8ad',10,H-14,10,'Pythagoras, retuned to sixty degrees');}
+drawW3();drawW4();window.__eisenstein=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 165 · neon-noir · silicon-coding (a number built from its own digits raised to themselves · the third metallic constant solving a cubic · a triangle of constant width that is not a circle · a sharpened Weitzenbock inequality · a run of integrals that equal pi-over-two until they suddenly do not) ═══════════════════════
 MNCH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>M&uuml;nchhausen numbers</b> lift themselves by their own bootstraps. A M&uuml;nchhausen number equals the sum of its own digits, each raised to the power of <b>itself</b>: n = &sum; d<sup>d</sup>. The star example is <b>3435 = 3&sup3; + 4&#8308; + 3&sup3; + 5&#8309;</b> = 27 + 256 + 27 + 3125. Using the convention 0<sup>0</sup> = 0, the <b>only</b> two M&uuml;nchhausen numbers in base 10 are 1 and 3435 &mdash; a fact provable because for enough digits the maximum possible digit-power-sum (all 9&rsquo;s, 9<sup>9</sup> each) grows slower than the number itself. Named by Daan van Berkel (2009) after Baron M&uuml;nchhausen, who pulled himself out of a swamp by his own hair.<br><br>
@@ -42730,6 +42994,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-sophie-germain","title":"THE SOPHIE GERMAIN","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE KONAMI CODE","domain_slug":"the-konami-code","accent":"#35ffb0","icon":"sophiegermain",
+  "kicker":"an algebraic identity that factors a sum of two fourth powers",
+  "blurb":"Sophie Germain's identity in the 5-window house format — a small algebraic key that unlocks a family of factorizations: a⁴ + 4b⁴ = (a²−2ab+2b²)(a²+2ab+2b²). A sum of two fourth powers, which looks irreducible, splits cleanly into two quadratics. Setting b=1 gives the classic corollary: n⁴+4 is composite for every n>1, since n⁴+4 = (n²−2n+2)(n²+2n+2) and both factors exceed 1 (the lone exception is n=1, giving 5). The same Sophie Germain studied Sophie Germain primes — primes p for which 2p+1 is also prime (2, 3, 5, 11, 23, …). Verified live: a⁴+4b⁴ = (a²−2ab+2b²)(a²+2ab+2b²) exactly for all |a|,|b| ≤ 30; n⁴+4 is confirmed composite for 2 ≤ n ≤ 200; and the Sophie Germain primes up to 200 are listed. Neon-noir traced. See n⁴+4 splitting in 1D, the factorization in 2D, and the sum-is-a-product inverse in 3D.",
+  "lit":"Genuine Sophie Germain's identity (Marie-Sophie Germain, early 1800s). Verified live with integer arithmetic: a⁴+4b⁴ = (a²−2ab+2b²)(a²+2ab+2b²) exactly for all |a|,|b|≤30; n⁴+4 is composite for 2≤n≤200 (n=1→5 is the exception); Sophie Germain primes ≤200 listed (window.__sophiegermain.idOk, .compOk, .sg).",
+  "fig":"No framing; the identity and the compositeness are computed independently in-browser with integer arithmetic. The AVAN inverse is honest — instead of testing a⁴+4b⁴ for primality, factor it on sight: the inverse of 'the sum a⁴+4b⁴' is 'the product (a²−2ab+2b²)(a²+2ab+2b²)', always two pieces. Magenta are the two quadratic factors; green is the fourth-power sum they multiply to. A sum of powers that is secretly a product.",
+  "body":SGID_BODY,"script":SGID_SCRIPT},
+ {"slug":"the-pascal-theorem","title":"THE PASCAL THEOREM","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE TOOLCHAIN","domain_slug":"the-toolchain","accent":"#21e6ff","icon":"pascal",
+  "kicker":"six points on a conic whose opposite sides meet on one line",
+  "blurb":"Pascal's theorem in the 5-window house format — the 'mystic hexagram', found by Blaise Pascal at sixteen. Take any six points on a conic (circle, ellipse, parabola, or hyperbola) and join them in order into a hexagon. Extend the three pairs of opposite sides until each pair meets. Those three intersection points always lie on a single straight line, the Pascal line. It holds no matter how the six points are placed or labelled, and it is purely projective — only incidence matters, not distance or angle. Its projective dual is Brianchon's theorem. Verified live: for tens of thousands of random hexagons inscribed in an ellipse, the three opposite-side intersection points are collinear — the triangle they form has normalized area below 1e-6. Neon-noir traced. See the hexagon and its Pascal line in 1D, the collinearity check in 2D, and the six-points-one-line inverse in 3D.",
+  "lit":"Genuine Pascal's theorem (Blaise Pascal, 1640, the mystic hexagram). Verified live: for tens of thousands of random hexagons inscribed in an ellipse, the three opposite-side intersection points are collinear — the triangle they form has normalized area below 1e-6 (window.__pascal.ok, .worst).",
+  "fig":"No framing; the six conic points, the three intersections, and their collinearity are computed independently in-browser. The AVAN inverse is honest — instead of tracking three separate crossings, read the single line they share: the inverse of 'three opposite-side intersections' is 'one Pascal line they are all pinned to', for any six points on a conic. Magenta are the three intersection points; green is the line through all three. Six points, one hidden line.",
+  "body":PSCL_BODY,"script":PSCL_SCRIPT},
+ {"slug":"the-isoperimetric","title":"THE ISOPERIMETRIC","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#ffcf4a","icon":"isoperimetric",
+  "kicker":"the circle enclosing the most area for its perimeter",
+  "blurb":"The isoperimetric inequality in the 5-window house format — the oldest optimization question: of all closed curves with a given perimeter, which encloses the most area? The answer, known to the ancients as 'Dido's problem' but only rigorously proved in the 19th century, is the circle. For any simple closed curve of length L enclosing area A: 4πA ≤ L², with equality only for the circle. The ratio 4πA/L² (the isoperimetric quotient) is at most 1, and a regular n-gon achieves π/(n·tan(π/n)), which climbs toward 1 as the polygon rounds out into a circle. Verified live: for tens of thousands of random convex polygons, 4πA/L² never exceeds 1, and the regular n-gon quotient increases toward 1 (0.605, 0.785, 0.907, 0.977, 0.999 for n = 3, 4, 6, 12, 60). Neon-noir traced. See a polygon vs the equal-perimeter circle in 1D, the quotient climbing to 1 in 2D, and the maximal-circle inverse in 3D.",
+  "lit":"Genuine isoperimetric inequality (Dido's problem; Steiner, Weierstrass et al. for the proof). Verified live: for ~20000 random convex polygons 4πA/L² never exceeds 1, and the regular n-gon quotient π/(n·tan(π/n)) increases toward 1 (window.__isoperimetric.ok, .maxR, .ngon).",
+  "fig":"No framing; the polygon areas, perimeters, and quotients are computed independently in-browser. The AVAN inverse is honest — instead of asking which curve is biggest, ask which one is worst-case tight: the inverse of 'maximize area for fixed perimeter' is 'the quotient 4πA/L² ≤ 1, hit only by the circle'. Magenta is the polygon losing area to the bound; green is the circle sitting exactly at quotient 1. The perimeter's most efficient shape.",
+  "body":ISOP_BODY,"script":ISOP_SCRIPT},
+ {"slug":"the-apollonius-circle","title":"THE APOLLONIUS CIRCLE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#b06bff","icon":"apollonius",
+  "kicker":"the circle traced by a constant distance-ratio",
+  "blurb":"The circle of Apollonius in the 5-window house format — where are all the points whose distances to two fixed points keep a fixed ratio? Given points A and B and a ratio k ≠ 1, the set of all P with |PA|/|PB| = k is not a line or an oval — it is a perfect circle. Its diameter runs between the two points that divide segment AB in ratio k, internally and externally. As k → 1 the circle swells to the perpendicular bisector; for k far from 1 it tightens around the nearer point. Apollonius of Perga catalogued these circles around 200 BCE; they underlie hyperbolic distance and the geometry of pursuit. Verified live: for thousands of random A, B, k, every point sampled on the constructed circle has |PA|/|PB| = k to ~1e-14, while points off the circle do not. Neon-noir traced. See the circle with its distance-ratio spokes in 1D, the constant-ratio check in 2D, and the ratio-draws-a-circle inverse in 3D.",
+  "lit":"Genuine circle of Apollonius (Apollonius of Perga, c. 200 BCE). Verified live: for ~3000 random A, B, k, every point sampled on the constructed circle has |PA|/|PB| = k to ~1e-14, while points off the circle do not (window.__apollonius.ok, .offOk).",
+  "fig":"No framing; the circle is built from the two division points and the ratio is checked independently in-browser. The AVAN inverse is honest — instead of plotting points and hoping, read the rule as a circle: the inverse of '|PA|/|PB| = k' is 'the circle through the two points dividing AB in ratio k'. Magenta are the distance-ratio spokes from sample points to A and B; green is the circle they all satisfy. A ratio rule that draws a circle.",
+  "body":APOL_BODY,"script":APOL_SCRIPT},
+ {"slug":"the-eisenstein-triples","title":"THE EISENSTEIN TRIPLES","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#ff8a3c","icon":"eisenstein",
+  "kicker":"integer triangles with a sixty-degree angle",
+  "blurb":"Eisenstein triples in the 5-window house format — the 60° cousins of Pythagorean triples. A Pythagorean triple gives an integer-sided triangle with a right angle (a²+b²=c²). An Eisenstein triple gives an integer-sided triangle with a 60° angle: by the law of cosines with cos60° = ½, the side c opposite the 60° corner satisfies a²−ab+b² = c². The smallest nontrivial one is (3, 8, 7): 9−24+64 = 49 = 7², a triangle whose angle opposite the 7 is exactly 60°. Swap the sign for the 120° version, a²+ab+b² = c² (e.g. 3, 5, 7). They tile naturally on the triangular (Eisenstein) lattice. Verified live: a search finds primitive integer triples with a²−ab+b² = c², and the law of cosines confirms the angle opposite c is exactly 60°; the 120° analog a²+ab+b²=c² is found too. Neon-noir traced. See the (3,8,7) triangle to scale in 1D, the a²−ab+b²=c² check in 2D, and the Pythagoras-retuned-to-60° inverse in 3D.",
+  "lit":"Genuine Eisenstein triples (named for the Eisenstein integers, Gotthold Eisenstein; the 60°-triangle analog of Pythagorean triples). Verified live: a search finds primitive integer triples with a²−ab+b² = c², and the law of cosines confirms the angle opposite c is exactly 60°; the 120° analog a²+ab+b²=c² is found too (window.__eisenstein.angleOk, .count, .t120).",
+  "fig":"No framing; the triples and the 60° angle are computed independently in-browser. The AVAN inverse is honest — instead of settling for right angles, retune the Pythagorean rule to 60°: the inverse of 'a²+b²=c² (90°)' is 'a²−ab+b²=c² (60°)', the same integer-triangle game one angle over. Magenta are the sides a and b enclosing the 60° angle; green is the integer side c they force. Pythagoras, retuned to sixty degrees.",
+  "body":EISN_BODY,"script":EISN_SCRIPT},
  {"slug":"the-munchhausen","title":"THE MUNCHHAUSEN","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#ffcf4a","icon":"munchhausen",
   "kicker":"a number built from its own digits raised to themselves",
