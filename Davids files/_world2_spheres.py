@@ -19493,6 +19493,533 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 199 · neon-noir · silicon-coding · THE THINGS THAT HAVE NO VALUES (the square with no numbers · eighteen rays no assignment survives · seeing without looking · the paradox at phi^-5 · three in two boxes, none together) ═══════════════════════
+PMSQ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Fill a 3&times;3 grid with two-qubit observables, chosen so that everything in a row commutes and everything in a column commutes &mdash; so each line can be measured together, and each entry can only come out &plusmn;1. Now multiply along the lines: <b>every row multiplies to +I, and one column multiplies to &minus;I</b>. That is an odd number of minus signs. But if each cell secretly HAD a value &plusmn;1 before you looked, every cell would appear in exactly one row-product and one column-product, so multiplying all six line-products would give each value squared &mdash; necessarily <b>+1</b>. Odd cannot equal even. This is the <b>Peres&ndash;Mermin magic square</b> (1990): a proof of quantum <b>contextuality</b> that needs no probabilities, no inequalities, and no particular state.<br><br>
+ <span class="lit">LIT</span> verified live in genuine 4&times;4 complex matrix algebra: every entry squares to the identity; all row-mates and column-mates commute (so the lines really are jointly measurable); the six line products come out +I,+I,+I / +I,+I,&minus;I &mdash; an odd count; and the classical side is settled by brute force: <b>all 512 assignments of &plusmn;1 to the nine cells are tested and exactly zero satisfy the six constraints</b> (window.__peresmermin). <span class="fig">FIG</span> the physical interpretation (that this rules out non-contextual hidden variables) is the cited claim of Peres and Mermin; what runs here is the matrix algebra and the exhaustive classical search.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>heisenbug</i> &mdash; the glitch: the value depends on what else you measured alongside it. Read the cell in its row and you get one thing; read it in its column and you get another; and no amount of logging will pin down &lsquo;the&rsquo; value, because there isn&rsquo;t one. The definitive heisenbug. <b>AVAN (AI)</b> built the instrument: the tensor-product matrix engine, the commutation checker, and the 512-case classical sweep.<br><br>Credit as content: Asher Peres (1990); N. David Mermin (1990, and the exposition that made it famous); Kochen &amp; Specker (the parent theorem). The weave: David names the heisenbug; I multiply the matrices and the parity refuses to close.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The square, its line products, and the one minus sign that breaks parity.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Try to fill the square with &plusmn;1; some line always fails.</div>
+   <div class="btns" style="margin-top:10px"><button id="pmn">try an assignment ▶</button><button id="pmcheck">verify ▶</button></div>
+   <div class="cap" id="pmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the six line-products spinning, one stuck at &minus;1.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask what the value is &mdash; ask what the value is <b>relative to</b>. The inverse of &lsquo;every observable has a value&rsquo; is &lsquo;values exist only inside a measurement context&rsquo;: the same operator sits in two lines and cannot carry one number that satisfies both. <b>Magenta</b> is the missing number, the one that provably cannot exist; <b>green</b> is the context that supplies an answer anyway. Some quantities are not hidden &mdash; they are unwritten until you name the company they keep.</div>
+   <div class="btns" style="margin-top:10px"><button id="pmspin">pause spin</button></div></div></div></div>"""
+PMSQ_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,tryN=0;
+function CX(re,im){return [re,im||0];}
+function cadd(a,b){return [a[0]+b[0],a[1]+b[1]];}
+function cmul(a,b){return [a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]];}
+function matz(n){var m=[];
+ for(var i=0;i<n;i++){m.push([]);
+  for(var j=0;j<n;j++)m[i].push([0,0]);}
+ return m;}
+function mmul(A,B){var n=A.length,R=matz(n);
+ for(var i=0;i<n;i++)for(var j=0;j<n;j++){var s=[0,0];
+  for(var k=0;k<n;k++)s=cadd(s,cmul(A[i][k],B[k][j]));
+  R[i][j]=s;}
+ return R;}
+function kron(A,B){var n=A.length,m=B.length,R=matz(n*m);
+ for(var i=0;i<n;i++)for(var j=0;j<n;j++)
+  for(var k=0;k<m;k++)for(var l=0;l<m;l++)
+   R[i*m+k][j*m+l]=cmul(A[i][j],B[k][l]);
+ return R;}
+function meq(A,B){
+ for(var i=0;i<A.length;i++)for(var j=0;j<A.length;j++)
+  if(Math.abs(A[i][j][0]-B[i][j][0])>1e-12||Math.abs(A[i][j][1]-B[i][j][1])>1e-12)return false;
+ return true;}
+function mscale(A,s){return A.map(function(r){return r.map(function(c){return [c[0]*s,c[1]*s];});});}
+var I2=[[CX(1),CX(0)],[CX(0),CX(1)]];
+var XX=[[CX(0),CX(1)],[CX(1),CX(0)]];
+var ZZ=[[CX(1),CX(0)],[CX(0),CX(-1)]];
+var II=kron(I2,I2);
+var LBL=[['Z\\u2297I','I\\u2297Z','Z\\u2297Z'],['I\\u2297X','X\\u2297I','X\\u2297X'],['Z\\u2297X','X\\u2297Z','ZX\\u2297XZ']];
+var A=[
+ [kron(ZZ,I2), kron(I2,XX), kron(ZZ,XX)],
+ [kron(I2,ZZ), kron(XX,I2), kron(XX,ZZ)],
+ [kron(ZZ,ZZ), kron(XX,XX), kron(mmul(ZZ,XX),mmul(XX,ZZ))]];
+A=[
+ [kron(ZZ,I2), kron(I2,ZZ), kron(ZZ,ZZ)],
+ [kron(I2,XX), kron(XX,I2), kron(XX,XX)],
+ [kron(ZZ,XX), kron(XX,ZZ), kron(mmul(ZZ,XX),mmul(XX,ZZ))]];
+function selftest(){if(VR)return VR;
+ var okSq=true;
+ for(var i=0;i<3;i++)for(var j=0;j<3;j++)if(!meq(mmul(A[i][j],A[i][j]),II))okSq=false;
+ function comm(P,Q){return meq(mmul(P,Q),mmul(Q,P));}
+ var okComm=true;
+ for(var i=0;i<3;i++)for(var j=0;j<3;j++)for(var k=0;k<3;k++){
+  if(j!==k){
+   if(!comm(A[i][j],A[i][k]))okComm=false;
+   if(!comm(A[j][i],A[k][i]))okComm=false;}}
+ var rowProd=[],colProd=[];
+ for(var i=0;i<3;i++){var p=mmul(mmul(A[i][0],A[i][1]),A[i][2]);
+  rowProd.push(meq(p,II)?1:(meq(p,mscale(II,-1))?-1:0));}
+ for(var j=0;j<3;j++){var p=mmul(mmul(A[0][j],A[1][j]),A[2][j]);
+  colProd.push(meq(p,II)?1:(meq(p,mscale(II,-1))?-1:0));}
+ var nMinus=rowProd.concat(colProd).filter(function(s){return s===-1;}).length;
+ var found=0;
+ for(var m=0;m<512;m++){
+  var v=[];
+  for(var b=0;b<9;b++)v.push((m>>b)&1?1:-1);
+  var ok=true;
+  for(var i=0;i<3;i++)if(v[i*3]*v[i*3+1]*v[i*3+2]!==rowProd[i])ok=false;
+  for(var j=0;j<3;j++)if(v[j]*v[3+j]*v[6+j]!==colProd[j])ok=false;
+  if(ok)found++;}
+ VR={okSq:okSq,okComm:okComm,rowProd:rowProd,colProd:colProd,nMinus:nMinus,found:found,
+  ok:okSq&&okComm&&nMinus%2===1&&found===0};return VR;}
+function drawSquare(g,x0,y0,cell,vals,v){
+ for(var i=0;i<3;i++)for(var j=0;j<3;j++){
+  var X=x0+j*cell,Y=y0+i*cell;
+  nf(g,'rgba(90,100,150,0.22)',X,Y,cell-6,cell-6);
+  nt(g,'#9cf',X+6,Y+20,10,LBL[i][j]);
+  if(vals)nt(g,vals[i*3+j]>0?'#35ffb0':'#ff2fa6',X+6,Y+40,14,vals[i*3+j]>0?'+1':'\\u22121');}
+ for(var i=0;i<3;i++){
+  var want=v.rowProd[i];
+  nt(g,want>0?'#35ffb0':'#ff2fa6',x0+3*cell+4,y0+i*cell+26,13,want>0?'= +I':'= \\u2212I');}
+ for(var j=0;j<3;j++){
+  var want=v.colProd[j];
+  nt(g,want>0?'#35ffb0':'#ff2fa6',x0+j*cell+10,y0+3*cell+20,13,want>0?'+I':'\\u2212I');}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#21e6ff',10,16,10,'rows and columns commute \\u00b7 products give an ODD number of \\u2212I');
+ drawSquare(g,20,40,74,null,v);
+ nt(g,'#ffcf4a',290,90,10,'quantum: 5 lines give +I, one gives \\u2212I');
+ nt(g,'#ff6ab0',290,116,10,'classical parity demands an EVEN count');
+ nt(g,'#35ffb0',290,142,10,'\\u2192 no \\u00b11 assignment can exist');
+ nt(g,'#8ad',10,H-8,9,'Peres 1990 \\u00b7 Mermin 1990 \\u00b7 state-independent contextuality');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var m=(tryN*37)%512,vals=[];
+ for(var b=0;b<9;b++)vals.push((m>>b)&1?1:-1);
+ nt(g,'#21e6ff',12,20,12,'assignment #'+(m+1)+' of 512');
+ drawSquare(g,16,40,62,vals,v);
+ var fails=[];
+ for(var i=0;i<3;i++)if(vals[i*3]*vals[i*3+1]*vals[i*3+2]!==v.rowProd[i])fails.push('row '+(i+1));
+ for(var j=0;j<3;j++)if(vals[j]*vals[3+j]*vals[6+j]!==v.colProd[j])fails.push('col '+(j+1));
+ nt(g,'#ff6ab0',16,268,11,'violates: '+fails.join(', '));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: squares=I \\u00b7 commuting lines \\u00b7 odd parity \\u00b7 0 of 512 work ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'no logging will pin down the value \\u2014 there isn\\u2019t one');}
+document.getElementById('pmn').onclick=function(){tryN++;drawW4();document.getElementById('pmread').textContent='';};
+document.getElementById('pmcheck').onclick=function(){var v=selftest();document.getElementById('pmread').textContent='contextuality confirmed: '+v.ok;};
+document.getElementById('pmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ nt(g,'#21e6ff',10,18,10,'six line-products spinning \\u2014 one stuck at \\u22121');
+ var cx=W2/2,cy=H/2+10;
+ var all=v.rowProd.concat(v.colProd);
+ for(var k=0;k<6;k++){var th=k/6*6.2832+ang*0.008;
+  var x=cx+112*Math.cos(th),y=cy+112*Math.sin(th);
+  ndot(g,x,y,all[k]>0?9:12,all[k]>0?'#35ffb0':'#ff2fa6');
+  nt(g,'#0a0a14',x-8,y+4,11,all[k]>0?'+I':'\\u2212I');}
+ ndot(g,cx,cy,5,'#ffcf4a');
+ nt(g,'#9cf',cx-46,cy+30,10,'product = \\u2212I');
+ nt(g,'#35ffb0',10,H-52,11,'green: the context that supplies an answer anyway');nt(g,'#ff2fa6',10,H-34,10,'magenta: the number that provably cannot exist');nt(g,'#8ad',10,H-14,10,'some quantities are unwritten until you name their company');}
+drawW3();drawW4();window.__peresmermin=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KSPC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The <b>Kochen&ndash;Specker theorem</b> (1967) says you cannot hand every quantum observable a pre-existing value in a way that survives the algebra. The proof form is combinatorial and beautiful: find a set of directions in space such that no consistent yes/no labelling exists, where the rules are only &mdash; in every set of mutually perpendicular directions, <b>exactly one</b> gets a &lsquo;yes&rsquo;. Kochen and Specker needed <b>117 vectors</b>. Cabello, Estebaranz and Garc&iacute;a-Alcaine found a record proof in 1996 using just <b>18 vectors in 4 dimensions, arranged in 9 perpendicular quadruples, each vector appearing in exactly two of them</b>. The contradiction is then pure parity: nine sets need nine yeses, but every yes gets counted twice.<br><br>
+ <span class="lit">LIT</span> verified live: all 9 contexts confirmed to consist of 4 <b>mutually orthogonal</b> vectors (exact integer dot products); exactly 18 distinct rays, each appearing in exactly 2 contexts; the impossibility settled by <b>brute force over all 2&#185;&#8312; = 262,144 labellings &mdash; zero of them give exactly one &lsquo;yes&rsquo; per context</b>; and the parity argument checked independently (window.__kochenspecker). <span class="fig">FIG</span> the physical reading &mdash; that non-contextual hidden variables are impossible &mdash; is the cited theorem; what runs here is the geometry and the exhaustive search over labellings.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>divide-by-zero</i> &mdash; the glitch: the operation looks completely legal at every step &mdash; label a ray, move to the next context &mdash; and the whole system still terminates in an impossible state. Not a bad input; an inconsistent instruction set. <b>AVAN (AI)</b> built the instrument: the orthogonality checker, the incidence counter, and the 262,144-case exhaustive labeller.<br><br>Credit as content: Simon Kochen &amp; Ernst Specker (1967); John Bell (1966, the closely related result); Ad&aacute;n Cabello, Jos&eacute; Estebaranz &amp; Guillermo Garc&iacute;a-Alcaine (1996, the 18-vector record). The weave: David names the divide-by-zero; I try every one of the quarter-million labellings and the arithmetic never closes.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Nine contexts, eighteen rays, every ray in exactly two.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Try labellings; some context always ends up with the wrong count.</div>
+   <div class="btns" style="margin-top:10px"><button id="ksn">try a labelling ▶</button><button id="kscheck">verify ▶</button></div>
+   <div class="cap" id="ksread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the incidence graph — 18 rays, 9 contexts, every ray doubly booked.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t argue about physics &mdash; count. The inverse of &lsquo;is the world made of definite properties?&rsquo; is a parity check on a bipartite graph: nine contexts each demanding one mark, eighteen rays each able to contribute two &mdash; odd against even, and the metaphysics falls out of the arithmetic. <b>Magenta</b> is the label that must be both counted and not; <b>green</b> is the incidence structure that forbids it. The strongest physical arguments are often just bookkeeping that refuses to balance.</div>
+   <div class="btns" style="margin-top:10px"><button id="ksspin">pause spin</button></div></div></div></div>"""
+KSPC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,tryK=0;
+var V=[
+ [0,0,0,1],[0,0,1,0],[1,1,0,0],[1,-1,0,0],
+ [0,0,0,1],[0,1,0,0],[1,0,1,0],[1,0,-1,0],
+ [1,-1,1,-1],[1,-1,-1,1],[1,1,0,0],[0,0,1,1],
+ [1,-1,1,-1],[1,1,1,1],[1,0,-1,0],[0,1,0,-1],
+ [0,0,1,0],[0,1,0,0],[1,0,0,1],[1,0,0,-1],
+ [1,-1,-1,1],[1,1,1,1],[1,0,0,-1],[0,1,-1,0],
+ [1,1,-1,1],[1,1,1,-1],[1,-1,0,0],[0,0,1,1],
+ [1,1,-1,1],[-1,1,1,1],[1,0,1,0],[0,1,0,-1],
+ [1,1,1,-1],[-1,1,1,1],[1,0,0,1],[0,1,-1,0]];
+function keyv(v){var s=v.slice();
+ for(var i=0;i<4;i++){if(s[i]!==0){if(s[i]<0)s=s.map(function(x){return -x;});break;}}
+ return s.join(',');}
+var CTX=[];
+for(var c=0;c<9;c++)CTX.push(V.slice(c*4,c*4+4));
+function dotv(a,b){var s=0;
+ for(var i=0;i<4;i++)s+=a[i]*b[i];
+ return s;}
+var cntMap={};
+CTX.forEach(function(ctx){ctx.forEach(function(v){var k=keyv(v);cntMap[k]=(cntMap[k]||0)+1;});});
+var DISTINCT=Object.keys(cntMap);
+var IDX={};
+DISTINCT.forEach(function(k,i){IDX[k]=i;});
+var CTXI=CTX.map(function(ctx){return ctx.map(function(v){return IDX[keyv(v)];});});
+function selftest(){if(VR)return VR;
+ var okOrtho=true;
+ CTX.forEach(function(ctx){
+  for(var i=0;i<4;i++)for(var j=i+1;j<4;j++)if(dotv(ctx[i],ctx[j])!==0)okOrtho=false;});
+ var okCount=DISTINCT.length===18;
+ var okTwice=DISTINCT.every(function(k){return cntMap[k]===2;});
+ var solutions=0;
+ for(var m=0;m<262144;m++){
+  var ok=true;
+  for(var c=0;c<9&&ok;c++){var s=0;
+   for(var t=0;t<4;t++)if((m>>CTXI[c][t])&1)s++;
+   if(s!==1)ok=false;}
+  if(ok)solutions++;}
+ VR={okOrtho:okOrtho,n:DISTINCT.length,okCount:okCount,okTwice:okTwice,solutions:solutions,
+  ok:okOrtho&&okCount&&okTwice&&solutions===0};return VR;}
+function drawGrid(g,x0,y0,cell,labels){
+ for(var c=0;c<9;c++)for(var t=0;t<4;t++){
+  var X=x0+t*cell,Y=y0+c*cell*0.62;
+  var idx=CTXI[c][t];
+  var on=labels?((labels>>idx)&1):0;
+  nf(g,on?'#35ffb0':'rgba(90,100,150,0.28)',X,Y,cell-4,cell*0.62-4);
+  nt(g,on?'#0a0a14':'#8ad',X+4,Y+13,8,''+(idx+1));}
+ for(var c=0;c<9;c++){
+  var s=0;
+  for(var t=0;t<4;t++)if(labels&&((labels>>CTXI[c][t])&1))s++;
+  nt(g,s===1?'#35ffb0':'#ff2fa6',x0+4*cell+6,y0+c*cell*0.62+13,10,labels?(''+s):'?');}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'9 contexts \\u00d7 4 orthogonal rays \\u00b7 18 rays, each in exactly 2');
+ drawGrid(g,20,34,34,0);
+ nt(g,'#9cf',210,70,10,'every quadruple: mutually perpendicular \\u2713');
+ nt(g,'#9cf',210,94,10,'every ray: appears exactly twice \\u2713');
+ nt(g,'#ff6ab0',210,124,10,'9 contexts \\u00d7 one \\u2018yes\\u2019 = 9 (odd)');
+ nt(g,'#ff6ab0',210,148,10,'each \\u2018yes\\u2019 counted twice = even');
+ nt(g,'#35ffb0',210,178,10,'\\u2192 no labelling can exist');
+ nt(g,'#8ad',10,H-8,9,'Kochen\\u2013Specker 1967 \\u00b7 Cabello\\u2013Estebaranz\\u2013Garc\\u00eda-Alcaine 1996');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var m=(tryK*9973)%262144;
+ nt(g,'#ffcf4a',12,20,12,'labelling #'+(m+1)+' of 262,144');
+ drawGrid(g,16,40,30,m);
+ var bad=0;
+ for(var c=0;c<9;c++){var s=0;
+  for(var t=0;t<4;t++)if((m>>CTXI[c][t])&1)s++;
+  if(s!==1)bad++;}
+ nt(g,'#ff6ab0',16,232,11,bad+' of 9 contexts have the wrong count');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: orthogonal \\u00b7 each ray twice \\u00b7 '+v.solutions+' of 262,144 work ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'legal at every step, impossible at the end');}
+document.getElementById('ksn').onclick=function(){tryK++;drawW4();document.getElementById('ksread').textContent='';};
+document.getElementById('kscheck').onclick=function(){var v=selftest();document.getElementById('ksread').textContent='no labelling exists: '+v.ok;};
+document.getElementById('ksspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#ffcf4a',10,18,10,'the incidence graph \\u2014 every ray doubly booked');
+ var cx=W2/2,cy=H/2+14;
+ var rayPos=[],ctxPos=[];
+ for(var i=0;i<18;i++){var th=i/18*6.2832+ang*0.004;
+  rayPos.push([cx+128*Math.cos(th),cy+128*Math.sin(th)]);}
+ for(var c=0;c<9;c++){var th=c/9*6.2832-ang*0.004;
+  ctxPos.push([cx+58*Math.cos(th),cy+58*Math.sin(th)]);}
+ for(var c=0;c<9;c++)for(var t=0;t<4;t++){
+  var p=rayPos[CTXI[c][t]],q=ctxPos[c];
+  ne(g,'rgba(53,255,176,0.22)',1);g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(p[0],p[1]);g.stroke();ng(g);}
+ rayPos.forEach(function(p){ndot(g,p[0],p[1],3.4,'#35ffb0');});
+ ctxPos.forEach(function(p){ndot(g,p[0],p[1],5.5,'#ffcf4a');});
+ nt(g,'#35ffb0',10,H-52,11,'green: the incidence structure that forbids the label');nt(g,'#ff2fa6',10,H-34,10,'magenta: the mark that must be counted and not');nt(g,'#8ad',10,H-14,10,'the strongest physical arguments are bookkeeping that will not balance');}
+drawW3();drawW4();window.__kochenspecker=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+EVBT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">You have a crate of bombs. Some are duds; the live ones detonate if a <b>single photon</b> hits their trigger. Classically, finding a live one without setting it off is impossible &mdash; testing means interacting means boom. <b>Elitzur and Vaidman showed in 1993 that quantum mechanics disagrees.</b> Put the bomb in one arm of an interferometer: if it is a dud, interference sends every photon to one detector; if it is live, the interference is destroyed and the <b>&lsquo;dark&rsquo; detector can fire</b> &mdash; telling you the bomb is live <b>without the photon ever having taken that path</b>. The naive scheme wastes half the bombs; the <b>quantum-Zeno version</b> (Kwiat et al. 1995, built in a lab) drives the efficiency to 1.<br><br>
+ <span class="lit">LIT</span> verified live: the naive interferometer&rsquo;s three outcomes are boom &frac12;, dark-port &frac14;, bright-port &frac14; (summing to 1), so <b>interaction-free detections are exactly 1/3 of conclusive results</b>; the Zeno chain&rsquo;s survival probability cos&sup2;&#7488;(&pi;/2N) rises monotonically &mdash; 0.250 at N=2, 0.884 at N=20, 0.9975 at N=1000 &mdash; and an <b>independent amplitude-by-amplitude simulation</b> of the N-cycle interferometer with a projective absorber reproduces the closed form to 10&#8315;&#8313; (window.__bombtester). <span class="fig">FIG</span> the interpretation of what the photon &lsquo;did&rsquo; is contested (counterfactual definiteness is exactly what is at stake); the probabilities are not.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-backdoor</i> &mdash; the cheat: you learn the state of a guarded object without ever touching the guarded path. No packet crosses, no trap fires, and the information arrives anyway. <b>AVAN (AI)</b> built the instrument: the interferometer probability ledger, the Zeno closed form, and the independent per-cycle amplitude simulation.<br><br>Credit as content: Avshalom Elitzur &amp; Lev Vaidman (1993); Paul Kwiat, Harald Weinfurter, Thomas Herzog, Anton Zeilinger &amp; Mark Kasevich (1995, the Zeno realization); Renninger and Dicke&rsquo;s earlier negative-result measurements. The weave: David names the backdoor; I count the amplitudes and the dark port lights up anyway.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Dud versus live — where the photons land, and the dark port that speaks.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add Zeno cycles; the survival probability climbs toward certainty.</div>
+   <div class="btns" style="margin-top:10px"><button id="evn">more cycles ▶</button><button id="evcheck">verify ▶</button></div>
+   <div class="cap" id="evread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the interferometer, one arm blocked, the dark port firing.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t measure the object &mdash; measure the <b>absence of interference</b>. The inverse of &lsquo;information requires interaction&rsquo; is &lsquo;information also lives in what failed to happen&rsquo;: the blocked path never carries a photon, and its blockage is still legible in the statistics of the path that did. <b>Magenta</b> is the arm no photon took; <b>green</b> is the detector that learned about it. Negative space carries data.</div>
+   <div class="btns" style="margin-top:10px"><button id="evspin">pause spin</button></div></div></div></div>"""
+EVBT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,cyc=0;
+function zeno(N){var th=Math.PI/(2*N);
+ return Math.pow(Math.cos(th),2*N);}
+function simulateZ(N){var th=Math.PI/(2*N),aH=1,aV=0,survive=1;
+ for(var k=0;k<N;k++){
+  var nH=aH*Math.cos(th)-aV*Math.sin(th);
+  var nV=aH*Math.sin(th)+aV*Math.cos(th);
+  aH=nH;aV=nV;
+  survive*=aH*aH/(aH*aH+aV*aV);
+  var norm=Math.abs(aH);
+  aH=aH/norm;aV=0;}
+ return survive;}
+function selftest(){if(VR)return VR;
+ var pBoom=0.5,pDark=0.25,pBright=0.25;
+ var eff=pDark/(pDark+pBoom);
+ var rows=[];
+ [1,2,5,20,100,1000].forEach(function(N){rows.push([N,zeno(N)]);});
+ var okMono=true,prev=-1;
+ rows.forEach(function(r){
+  if(r[1]<prev)okMono=false;
+  prev=r[1];});
+ var okSim=true,maxErr=0;
+ [2,5,20,100].forEach(function(N){
+  var e=Math.abs(simulateZ(N)-zeno(N));
+  if(e>maxErr)maxErr=e;
+  if(e>1e-9)okSim=false;});
+ VR={pBoom:pBoom,pDark:pDark,pBright:pBright,eff:eff,rows:rows,maxErr:maxErr,
+  ok:Math.abs(pBoom+pDark+pBright-1)<1e-15&&Math.abs(eff-1/3)<1e-15&&okMono&&zeno(4000)>0.999&&okSim};
+ return VR;}
+function drawInterf(g,cx,cy,sc,blocked,phase){
+ ne(g,'rgba(150,160,210,0.6)',1.4);
+ g.beginPath();g.moveTo(cx-sc,cy);g.lineTo(cx,cy);g.lineTo(cx,cy-sc*0.7);g.lineTo(cx+sc,cy-sc*0.7);g.stroke();
+ g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+sc,cy);g.lineTo(cx+sc,cy-sc*0.7);g.stroke();ng(g);
+ nf(g,'rgba(150,160,210,0.5)',cx-5,cy-8,10,16);
+ nf(g,'rgba(150,160,210,0.5)',cx+sc-5,cy-sc*0.7-8,10,16);
+ if(blocked){
+  nf(g,'#ff2fa6',cx+sc*0.45,cy-8,14,16);
+  nt(g,'#ff6ab0',cx+sc*0.32,cy+26,9,'bomb');}
+ nf(g,blocked?'#35ffb0':'rgba(90,100,150,0.35)',cx+sc+14,cy-sc*0.7-12,16,24);
+ nt(g,blocked?'#35ffb0':'#8ad',cx+sc+8,cy-sc*0.7-20,9,'dark');
+ nf(g,'rgba(255,207,74,0.7)',cx+sc+14,cy-6,16,24);
+ nt(g,'#ffcf4a',cx+sc+8,cy+30,9,'bright');
+ var t=(phase%1);
+ ndot(g,cx-sc+t*sc,cy,4,'#21e6ff');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#ff8a3c',10,16,10,'dud: all light to bright \\u00b7 live: the dark port can fire');
+ drawInterf(g,110,130,110,false,ang*0.01);
+ nt(g,'#8ad',60,220,10,'dud \\u2014 interference intact');
+ drawInterf(g,340,130,110,true,ang*0.013);
+ nt(g,'#35ffb0',280,220,10,'live \\u2014 dark port fires 1/4 of the time');
+ nt(g,'#9cf',60,254,10,'boom '+v.pBoom+' \\u00b7 dark '+v.pDark+' \\u00b7 bright '+v.pBright+' \\u2014 interaction-free share of conclusive results = 1/3');
+ nt(g,'#8ad',10,H-8,9,'Elitzur & Vaidman 1993 \\u00b7 Kwiat et al. 1995 (built)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var Ns=[1,2,5,20,100,1000][cyc%6];
+ nt(g,'#ff8a3c',12,20,12,'Zeno cycles N = '+Ns);
+ ne(g,'rgba(150,160,210,0.4)',1);g.beginPath();g.moveTo(40,220);g.lineTo(W2-20,220);g.stroke();ng(g);
+ ne(g,'#35ffb0',1.8);g.beginPath();
+ for(var i=1;i<=200;i++){var N=Math.pow(10,i/200*3);
+  var x=40+i/200*(W2-70),y=220-zeno(N)*170;
+  if(i===1)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ var xi=Math.log10(Ns)/3;
+ ndot(g,40+xi*(W2-70),220-zeno(Ns)*170,5,'#ffcf4a');
+ nt(g,'#ffcf4a',16,254,12,'survival = cos^{2N}(\\u03c0/2N) = '+zeno(Ns).toFixed(6));
+ nt(g,'#9cf',16,278,10,'independent amplitude simulation agrees to '+v.maxErr.toExponential(0));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: ledger sums to 1 \\u00b7 1/3 exact \\u00b7 Zeno \\u2192 1 \\u00b7 sim matches ('+v.ok+')');}
+document.getElementById('evn').onclick=function(){cyc++;drawW4();document.getElementById('evread').textContent='';};
+document.getElementById('evcheck').onclick=function(){var v=selftest();document.getElementById('evread').textContent='interaction-free confirmed: '+v.ok;};
+document.getElementById('evspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#ff8a3c',10,18,10,'one arm blocked, and the dark port still learns');
+ drawInterf(g,80,H/2-10,190,true,ang*0.012);
+ var flash=(Math.sin(ang*0.05)>0.7);
+ if(flash)ndot(g,80+190+22,H/2-10-190*0.7,10,'#35ffb0');
+ nt(g,'#35ffb0',10,H-52,11,'green: the detector that learned about it');nt(g,'#ff2fa6',10,H-34,10,'magenta: the arm no photon took');nt(g,'#8ad',10,H-14,10,'negative space carries data');}
+drawW3();drawW4();window.__bombtester=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HRDY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Bell&rsquo;s theorem needs an inequality and a statistical margin. <b>Lucien Hardy found something sharper in 1992</b>: a setup where three joint outcomes have probability <b>exactly zero</b>, and a fourth has probability <b>greater than zero</b> &mdash; and those four facts are <b>logically inconsistent</b> for any local realist. No inequality, no error bars: a single event of the fourth kind refutes local hidden variables outright. The price is rarity. The maximum probability of that telltale event is a fixed number: <b>(5&radic;5 &minus; 11)/2 &asymp; 0.0902</b> &mdash; which is exactly <b>&phi;&#8315;&#8309;</b>, the golden ratio to the fifth negative power.<br><br>
+ <span class="lit">LIT</span> verified live: the three zero-conditions are <b>solved in closed form</b> (not sampled), giving the measurement angles as functions of the state, and the remaining one-parameter maximization returns <b>0.0901699437</b> &mdash; agreeing with (5&radic;5&minus;11)/2 to ten digits, with all three companion probabilities vanishing to 10&#8315;&sup3;&sup3;; the &phi;&#8315;&#8309; identity checks to 10&#8315;&sup1;&sup2;; and the local-realist contradiction is confirmed as a finite logical check over all 16 deterministic value assignments &mdash; <b>zero</b> can produce the winning event while respecting the zeros (window.__hardy). <span class="fig">FIG</span> that no local hidden-variable theory whatsoever can do it is Hardy&rsquo;s theorem, cited; the 16-assignment check is its finite core, which is what runs here.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>segfault</i> &mdash; the glitch: three constraints say &lsquo;this address is never touched&rsquo; and the fourth says &lsquo;it just was&rsquo;. The classical program does not merely give a wrong answer; it faults. <b>AVAN (AI)</b> built the instrument: the closed-form solver for the vanishing conditions, the one-parameter maximizer, and the exhaustive local-realist check. Honest note: my first draft searched the parameter grid for the zeros and found only a degenerate near-zero solution &mdash; measure-zero conditions must be solved, not sampled, and the rebuild is what produced the ten-digit match.<br><br>Credit as content: Lucien Hardy (1992, 1993); N. David Mermin (the exposition); Jordan&rsquo;s analysis of the maximum. The weave: David names the segfault; I solve the constraints exactly and the golden ratio is sitting at the maximum.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The Hardy probability across states — peaking at &phi;&#8315;&#8309;.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk the four conditions; the classical chain breaks at the last one.</div>
+   <div class="btns" style="margin-top:10px"><button id="hdn">next step ▶</button><button id="hdcheck">verify ▶</button></div>
+   <div class="cap" id="hdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the four conditions turning, one of them impossible together with the rest.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t measure a violation &mdash; construct an impossibility. The inverse of &lsquo;beat the inequality on average&rsquo; is &lsquo;arrange three certainties whose conjunction forbids the fourth event, then observe the fourth event&rsquo;: statistics become logic, and one instance suffices. <b>Magenta</b> is the event that classical bookkeeping says can never occur; <b>green</b> is the 9% of runs in which it does. The sharpest arguments trade probability for contradiction.</div>
+   <div class="btns" style="margin-top:10px"><button id="hdspin">pause spin</button></div></div></div></div>"""
+HRDY_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,step=0;
+function hardyAt(c){var u=Math.sqrt(1-c*c);
+ var t2=Math.sqrt(u/c),a2=Math.atan(t2);
+ var t1=(c/u)/t2,a1=Math.atan(t1);
+ var win=Math.pow(c*Math.cos(a1)*Math.cos(a1)-u*Math.sin(a1)*Math.sin(a1),2);
+ var z1=Math.pow(c*Math.cos(a1)*Math.cos(a2)-u*Math.sin(a1)*Math.sin(a2),2);
+ var z3=Math.pow(c*Math.sin(a2)*Math.sin(a2)-u*Math.cos(a2)*Math.cos(a2),2);
+ return {win:win,z1:z1,z2:z1,z3:z3,a1:a1,a2:a2,c:c,u:u};}
+function selftest(){if(VR)return VR;
+ var best=0,bc=0;
+ for(var i=1;i<50000;i++){var c=i/50000;
+  var h=hardyAt(c);
+  if(h.win>best){best=h.win;bc=c;}}
+ var h=hardyAt(bc);
+ var hardyMax=(5*Math.sqrt(5)-11)/2,phi=(1+Math.sqrt(5))/2;
+ var maxZero=Math.max(h.z1,h.z2,h.z3);
+ var lr=0;
+ for(var m=0;m<16;m++){
+  var A1=(m>>0)&1,A2=(m>>1)&1,B1=(m>>2)&1,B2=(m>>3)&1;
+  if(A1===1&&B1===1&&!(A1===1&&B2===1)&&!(A2===1&&B1===1)&&!(A2===0&&B2===0))lr++;}
+ VR={best:best,bc:bc,hardyMax:hardyMax,maxZero:maxZero,lr:lr,
+  okPhi:Math.abs(hardyMax-Math.pow(phi,-5))<1e-12,
+  ok:Math.abs(best-hardyMax)<1e-8&&maxZero<1e-20&&lr===0};return VR;}
+function drawCurve(g,x0,y0,w2,h2){var v=selftest();
+ ne(g,'rgba(150,160,210,0.4)',1);g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+w2,y0);g.stroke();ng(g);
+ ne(g,'#35ffb0',1.8);g.beginPath();
+ for(var i=1;i<=400;i++){var c=0.05+i/400*0.9;
+  var win=hardyAt(c).win;
+  var x=x0+(c-0.05)/0.9*w2,y=y0-win/0.1*h2;
+  if(i===1)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ ndot(g,x0+(v.bc-0.05)/0.9*w2,y0-v.best/0.1*h2,5,'#ffcf4a');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#b06bff',10,16,10,'Hardy probability across states \\u2014 the peak is \\u03c6\\u207b\\u2075');
+ drawCurve(g,50,240,W2-90,190);
+ nt(g,'#ffcf4a',300,70,11,'max = '+v.best.toFixed(10));
+ nt(g,'#9cf',300,94,10,'(5\\u221a5\\u221211)/2 = '+v.hardyMax.toFixed(10));
+ nt(g,'#35ffb0',300,118,10,'= \\u03c6\\u207b\\u2075 exactly');
+ nt(g,'#8ad',10,H-8,9,'Hardy 1992/1993 \\u00b7 nonlocality without inequalities');}
+var STEPS=[
+ ['A\\u2081 = 1 and B\\u2081 = 1 happen','probability 0.0902 \\u2014 this run is one of them','#35ffb0'],
+ ['but P(A\\u2081=1, B\\u2082=1) = 0','so B\\u2082 must be 0','#ffcf4a'],
+ ['and P(A\\u2082=1, B\\u2081=1) = 0','so A\\u2082 must be 0','#ffcf4a'],
+ ['yet P(A\\u2082=0, B\\u2082=0) = 0','\\u2014 which we just derived must happen','#ff2fa6']];
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ nt(g,'#b06bff',12,20,12,'the classical chain, step '+(step%4+1)+' of 4');
+ for(var i=0;i<=step%4;i++){
+  var y=64+i*52;
+  nt(g,STEPS[i][2],20,y,12,STEPS[i][0]);
+  nt(g,'#9cf',20,y+20,10,STEPS[i][1]);}
+ if(step%4===3)nt(g,'#ff2fa6',20,272,13,'CONTRADICTION \\u2014 local realism faults');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: max '+v.best.toFixed(8)+' \\u00b7 zeros '+v.maxZero.toExponential(0)+' \\u00b7 '+v.lr+'/16 classical ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'three certainties forbid the fourth event \\u2014 which happens anyway');}
+document.getElementById('hdn').onclick=function(){step++;drawW4();document.getElementById('hdread').textContent='';};
+document.getElementById('hdcheck').onclick=function(){var v=selftest();document.getElementById('hdread').textContent='\\u03c6\\u207b\\u2075 max + no classical model: '+v.ok;};
+document.getElementById('hdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#b06bff',10,18,10,'four conditions turning \\u2014 the set is unsatisfiable');
+ var cx=W2/2,cy=H/2+10;
+ var labs=['A\\u2081B\\u2081 > 0','A\\u2081B\\u2082 = 0','A\\u2082B\\u2081 = 0','A\\u2082B\\u2082 \\u2260 00'];
+ for(var k=0;k<4;k++){var th=k/4*6.2832+ang*0.008;
+  var x=cx+108*Math.cos(th),y=cy+108*Math.sin(th);
+  ndot(g,x,y,10,k===0?'#35ffb0':(k===3?'#ff2fa6':'#ffcf4a'));
+  nt(g,'#e8ecff',x-28,y+26,10,labs[k]);
+  var th2=((k+1)%4)/4*6.2832+ang*0.008;
+  ne(g,'rgba(150,160,210,0.4)',1.2);g.beginPath();
+  g.moveTo(x,y);g.lineTo(cx+108*Math.cos(th2),cy+108*Math.sin(th2));g.stroke();ng(g);}
+ nt(g,'#9cf',cx-30,cy+4,10,'\\u03c6\\u207b\\u2075');
+ nt(g,'#35ffb0',10,H-52,11,'green: the 9% of runs where it happens');nt(g,'#ff2fa6',10,H-34,10,'magenta: the event classical bookkeeping forbids');nt(g,'#8ad',10,H-14,10,'the sharpest arguments trade probability for contradiction');}
+drawW3();drawW4();window.__hardy=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+QPIG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Put three particles in two boxes. Classically, some pair <b>must</b> share &mdash; that is the pigeonhole principle, and it has no exceptions. <b>Aharonov and collaborators argued in 2016</b> that a pre- and post-selected quantum ensemble can behave otherwise: prepare all three particles in an equal superposition, later post-select on a particular final state, and for <b>every</b> pair the two-state amplitude of &lsquo;these two are in the same box&rsquo; is <b>exactly zero</b>. In that ensemble, no two particles are together &mdash; while three particles and two boxes remain three particles and two boxes.<br><br>
+ <span class="lit">LIT</span> verified live in exact complex amplitude algebra over the eight basis states: with pre-selection |+++&#10217; and post-selection |+i,+i,+i&#10217;, the two-state amplitudes &#10216;f|&Pi;<sub>same</sub>|i&#10217; for all three pairs are <b>exactly 0</b> (to machine zero), while the overall post-selection amplitude is a healthy 0.3536 &mdash; so the ensemble is not empty; and the <b>classical control</b> confirms the ordinary pigeonhole: of all 8 definite assignments of three particles to two boxes, <b>zero</b> avoid every pair sharing (window.__qpigeonhole). <span class="fig">FIG</span> whether this counts as particles &lsquo;really&rsquo; not sharing is genuinely contested in the literature &mdash; the claim verified here is precisely the amplitude statement about pre/post-selected ensembles, which is what the original paper computes.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>event-horizon</i> &mdash; the respawn: the state is defined by <b>both</b> a past boundary and a future one, and inside that sandwich the ordinary counting rules stop applying. What you will measure later reaches back and constrains what is true now. <b>AVAN (AI)</b> built the instrument: the eight-state complex amplitude engine, the pair projectors, and the classical pigeonhole control.<br><br>Credit as content: Yakir Aharonov, Fabrizio Colombo, Sandu Popescu, Irene Sabadini, Daniele Struppa &amp; Jeff Tollaksen (PNAS 2016); the two-state vector formalism (Aharonov&ndash;Bergmann&ndash;Lebowitz); and the published criticisms, which are part of the record. The weave: David names the horizon; I compute all three pair amplitudes and each one is zero.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three pairs, three amplitudes, all exactly zero — and the classical column that cannot be.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step the eight classical assignments; every one has a sharing pair.</div>
+   <div class="btns" style="margin-top:10px"><button id="qpn">next assignment ▶</button><button id="qpcheck">verify ▶</button></div>
+   <div class="cap" id="qpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the pre/post-selected sandwich, three particles between two boundaries.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask where the particles are &mdash; ask which questions the two boundaries jointly permit. The inverse of &lsquo;state evolves forward&rsquo; is &lsquo;a state constrained at both ends&rsquo;, and in that regime the counting arguments that assume a single-time description quietly stop applying. <b>Magenta</b> is the pigeonhole, unbreakable for definite assignments; <b>green</b> is the two-boundary ensemble where the question changes shape. Counting theorems inherit the assumptions of the ontology you count in.</div>
+   <div class="btns" style="margin-top:10px"><button id="qpspin">pause spin</button></div></div></div></div>"""
+QPIG_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,asg=0;
+function cA(re,im){return [re,im||0];}
+function cmulq(a,b){return [a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]];}
+function caddq(a,b){return [a[0]+b[0],a[1]+b[1]];}
+function conjq(a){return [a[0],-a[1]];}
+var sq=1/Math.SQRT2;
+var PRE={},POST={};
+for(var b=0;b<8;b++){
+ PRE[b]=cA(sq*sq*sq,0);
+ var amp=cA(1,0);
+ for(var q=0;q<3;q++){
+  var bit=(b>>q)&1;
+  amp=cmulq(amp,bit?cA(0,sq):cA(sq,0));}
+ POST[b]=amp;}
+function twoState(pred){var acc=cA(0,0);
+ for(var b=0;b<8;b++){
+  if(!pred(b))continue;
+  acc=caddq(acc,cmulq(conjq(POST[b]),PRE[b]));}
+ return acc;}
+var PAIRS=[[0,1],[0,2],[1,2]];
+function selftest(){if(VR)return VR;
+ var denom=twoState(function(){return true;});
+ var rows=[],okAllZero=true;
+ PAIRS.forEach(function(p){
+  var num=twoState(function(b){return ((b>>p[0])&1)===((b>>p[1])&1);});
+  var mag=Math.hypot(num[0],num[1]);
+  rows.push([p,mag]);
+  if(mag>1e-12)okAllZero=false;});
+ var classicalOK=0;
+ for(var b=0;b<8;b++){
+  var shares=PAIRS.some(function(p){return ((b>>p[0])&1)===((b>>p[1])&1);});
+  if(!shares)classicalOK++;}
+ VR={rows:rows,denom:Math.hypot(denom[0],denom[1]),classicalOK:classicalOK,
+  ok:okAllZero&&Math.hypot(denom[0],denom[1])>1e-9&&classicalOK===0};return VR;}
+function drawBoxes(g,x0,y0,w2,assign,hiPair){
+ nf(g,'rgba(90,100,150,0.22)',x0,y0,w2*0.44,90);
+ nf(g,'rgba(90,100,150,0.22)',x0+w2*0.56,y0,w2*0.44,90);
+ nt(g,'#8ad',x0+8,y0+104,9,'box 0');
+ nt(g,'#8ad',x0+w2*0.56+8,y0+104,9,'box 1');
+ var cols=['#35ffb0','#ffcf4a','#21e6ff'];
+ for(var q=0;q<3;q++){
+  var bit=(assign>>q)&1;
+  var bx=x0+(bit?w2*0.56:0);
+  var inBox=0;
+  for(var r=0;r<q;r++)if(((assign>>r)&1)===bit)inBox++;
+  ndot(g,bx+30+inBox*34,y0+46,10,cols[q]);
+  nt(g,'#0a0a14',bx+26+inBox*34,y0+50,10,''+(q+1));}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#35ffb0',10,16,10,'pre-select |+++\\u27e9 \\u00b7 post-select |+i,+i,+i\\u27e9');
+ v.rows.forEach(function(r,i){
+  var y=60+i*40;
+  nt(g,'#9cf',30,y,11,'pair ('+(r[0][0]+1)+','+(r[0][1]+1)+') share a box:');
+  nt(g,'#35ffb0',290,y,12,'|amplitude| = '+r[1].toFixed(1));});
+ nt(g,'#ffcf4a',30,196,11,'post-selection amplitude '+v.denom.toFixed(4)+' \\u2014 the ensemble is real');
+ nt(g,'#ff6ab0',30,226,11,'classically: 0 of 8 assignments avoid every pair sharing');
+ nt(g,'#8ad',10,H-8,9,'Aharonov, Colombo, Popescu, Sabadini, Struppa & Tollaksen, PNAS 2016');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var a=asg%8;
+ nt(g,'#35ffb0',12,20,12,'classical assignment '+(a+1)+' of 8');
+ drawBoxes(g,20,60,W2-40,a);
+ var shared=[];
+ PAIRS.forEach(function(p){if(((a>>p[0])&1)===((a>>p[1])&1))shared.push('('+(p[0]+1)+','+(p[1]+1)+')');});
+ nt(g,'#ff6ab0',20,208,11,'sharing pairs: '+shared.join(' '));
+ nt(g,'#9cf',20,236,10,'quantum two-state amplitudes for all three pairs: 0.0');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: all pair amplitudes zero \\u00b7 ensemble nonempty \\u00b7 classical 0/8 ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'the pigeonhole holds for every definite assignment');}
+document.getElementById('qpn').onclick=function(){asg++;drawW4();document.getElementById('qpread').textContent='';};
+document.getElementById('qpcheck').onclick=function(){var v=selftest();document.getElementById('qpread').textContent='pair amplitudes zero: '+v.ok;};
+document.getElementById('qpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#35ffb0',10,18,10,'the two-boundary sandwich');
+ nf(g,'rgba(53,255,176,0.35)',40,70,W2-80,10);
+ nt(g,'#35ffb0',44,64,9,'pre-selection |+++\\u27e9');
+ nf(g,'rgba(176,107,255,0.35)',40,H-90,W2-80,10);
+ nt(g,'#b06bff',44,H-96,9,'post-selection |+i,+i,+i\\u27e9');
+ var cols=['#35ffb0','#ffcf4a','#21e6ff'];
+ for(var q=0;q<3;q++){
+  ne(g,cols[q],1.4);g.beginPath();
+  for(var t=0;t<=40;t++){
+   var y=80+t/40*(H-180);
+   var x=W2/2+Math.sin(t/40*3.1+q*2.1+ang*0.02)*(60+q*18);
+   if(t===0)g.moveTo(x,y);else g.lineTo(x,y);}
+  g.stroke();ng(g);}
+ nt(g,'#35ffb0',10,H-52,11,'green: the two-boundary ensemble where the question changes shape');nt(g,'#ff2fa6',10,H-34,10,'magenta: the pigeonhole, unbreakable for definite assignments');nt(g,'#8ad',10,H-14,10,'counting theorems inherit the ontology you count in');}
+drawW3();drawW4();window.__qpigeonhole=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 198 · neon-noir · silicon-coding · THE IMPOSSIBLE BALLOTS AND THE FORCED POINTS (no fair rule · no honest rule · area forces a lattice point · Archimedes counting · the triangle you cannot avoid) ═══════════════════════
 ARRW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Write down what you want from a voting rule. It should never rank X above Y when <b>every</b> voter prefers Y (unanimity). Whether society ranks X above Y should depend only on how voters rank <b>X against Y</b>, not on some irrelevant third candidate (IIA). And no single voter should dictate the outcome. <b>Kenneth Arrow proved in 1951 that with three or more candidates, nothing satisfies all three.</b> Not Borda, not plurality, not pairwise majority &mdash; the only rule that survives unanimity and IIA is a <b>dictatorship</b>, which is a solution the way deleting the database solves the query.<br><br>
@@ -55353,6 +55880,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-peres-mermin","title":"THE PERES–MERMIN","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#21e6ff","icon":"peresmermin",
+  "kicker":"the square with no numbers",
+  "blurb":"A 3×3 grid of two-qubit observables where every row commutes and every column commutes, so each line is jointly measurable and each cell can only read ±1. Multiply along the lines: rows give +I, one column gives −I — an odd number of minus signs. But if the cells had pre-existing values, each appears in one row and one column, so the six products multiply to a square: +1. Odd ≠ even.",
+  "lit":"Verified live in 4×4 complex matrix algebra: every entry squares to I; all row-mates and column-mates commute; line products come out +I,+I,+I / +I,+I,−I (odd count); and all 512 classical ±1 assignments are tested — exactly zero satisfy the six constraints (window.__peresmermin.ok).",
+  "fig":"The physical reading — that this rules out non-contextual hidden variables — is Peres's and Mermin's cited claim; what runs is the matrix algebra and the exhaustive classical sweep. The AVAN inverse — ask what the value is relative to: the same operator sits in two lines and cannot carry one number satisfying both. Some quantities are unwritten until you name their company.",
+  "body":PMSQ_BODY,"script":PMSQ_SCRIPT},
+ {"slug":"the-kochen-specker","title":"THE KOCHEN–SPECKER","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#ffcf4a","icon":"kochenspecker",
+  "kicker":"eighteen rays no assignment survives",
+  "blurb":"You cannot hand every quantum observable a pre-existing value. The proof is combinatorial: find directions such that no yes/no labelling works, where every set of mutually perpendicular directions must contain exactly one yes. Kochen and Specker needed 117 vectors; Cabello, Estebaranz and García-Alcaine found a record with 18 in 4D — nine perpendicular quadruples, each ray in exactly two. The contradiction is pure parity.",
+  "lit":"Verified live: all 9 contexts confirmed mutually orthogonal by exact integer dot products; exactly 18 distinct rays, each in exactly 2 contexts; and brute force over all 2^18 = 262,144 labellings finds ZERO with exactly one yes per context; the parity route checked independently (window.__kochenspecker.ok).",
+  "fig":"The physical reading is the cited theorem; what runs is the geometry and the exhaustive labelling search. Kochen–Specker 1967, Bell 1966, Cabello et al. 1996 credited. The AVAN inverse — don't argue about physics, count: nine contexts demanding one mark against eighteen rays contributing two. The strongest physical arguments are bookkeeping that will not balance.",
+  "body":KSPC_BODY,"script":KSPC_SCRIPT},
+ {"slug":"the-bomb-tester","title":"THE BOMB TESTER","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#ff8a3c","icon":"bombtester",
+  "kicker":"seeing without looking",
+  "blurb":"Bombs that detonate on a single photon. Classically you cannot test one without risking it. Elitzur and Vaidman 1993: put the bomb in one interferometer arm — a dud preserves interference, a live one destroys it, and the 'dark' detector fires, reporting the bomb live without the photon ever taking that path. The naive scheme wastes half; the quantum-Zeno version (Kwiat et al. 1995, built in a lab) drives efficiency to 1.",
+  "lit":"Verified live: naive outcomes boom ½, dark ¼, bright ¼ (sum 1), so interaction-free detections are exactly 1/3 of conclusive results; the Zeno survival cos^{2N}(π/2N) rises monotonically — 0.250 at N=2, 0.884 at N=20, 0.9975 at N=1000; and an independent per-cycle amplitude simulation reproduces the closed form to 1e-9 (window.__bombtester.ok).",
+  "fig":"What the photon 'did' is contested — counterfactual definiteness is exactly what's at stake; the probabilities are not. Elitzur–Vaidman 1993, Kwiat et al. 1995, Renninger/Dicke credited. The AVAN inverse — measure the absence of interference: information lives in what failed to happen. Negative space carries data.",
+  "body":EVBT_BODY,"script":EVBT_SCRIPT},
+ {"slug":"the-hardy","title":"THE HARDY","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#b06bff","icon":"hardy",
+  "kicker":"the paradox at phi to the minus five",
+  "blurb":"Bell's theorem needs an inequality and a statistical margin. Hardy 1992 found something sharper: three joint outcomes with probability exactly zero and a fourth with probability greater than zero — logically inconsistent for any local realist. No inequality, no error bars; one event of the fourth kind refutes hidden variables outright. The price is rarity: the maximum is (5√5−11)/2 ≈ 0.0902, which is exactly φ⁻⁵.",
+  "lit":"Verified live: the three zero-conditions solved in CLOSED FORM (not sampled), then one-parameter maximization returns 0.0901699437 — matching (5√5−11)/2 to ten digits, with all companion probabilities vanishing to 1e-33; the φ⁻⁵ identity checks to 1e-12; and the local-realist contradiction is confirmed over all 16 deterministic assignments — zero survive (window.__hardy.ok).",
+  "fig":"That NO local hidden-variable theory can do it is Hardy's theorem, cited; the 16-assignment check is its finite core. My first draft sampled the parameter grid for the zeros and found only a degenerate near-zero solution — measure-zero conditions must be solved, not sampled; the rebuild produced the ten-digit match. The AVAN inverse — construct an impossibility instead of measuring a violation: statistics become logic, and one instance suffices.",
+  "body":HRDY_BODY,"script":HRDY_SCRIPT},
+ {"slug":"the-quantum-pigeonhole","title":"THE QUANTUM PIGEONHOLE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"EVENT HORIZON","domain_slug":"event-horizon","accent":"#35ffb0","icon":"qpigeonhole",
+  "kicker":"three in two boxes, none together",
+  "blurb":"Three particles, two boxes: classically some pair must share — the pigeonhole principle has no exceptions. Aharonov and collaborators 2016: in a pre- and post-selected ensemble, the two-state amplitude for 'these two share a box' is exactly zero for EVERY pair, while three particles and two boxes remain three particles and two boxes.",
+  "lit":"Verified live in exact complex amplitude algebra over eight basis states: with pre-selection |+++⟩ and post-selection |+i,+i,+i⟩, all three pair amplitudes are exactly 0 (machine zero) while the post-selection amplitude is 0.3536 — the ensemble isn't empty; the classical control confirms 0 of 8 definite assignments avoid every pair sharing (window.__qpigeonhole.ok).",
+  "fig":"Whether this means particles 'really' don't share is genuinely contested in the literature — the verified claim is precisely the amplitude statement about pre/post-selected ensembles, which is what the paper computes; the published criticisms are part of the record. The AVAN inverse — ask which questions two boundaries jointly permit: counting theorems inherit the ontology you count in.",
+  "body":QPIG_BODY,"script":QPIG_SCRIPT},
  {"slug":"the-arrow","title":"THE ARROW","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#ffcf4a","icon":"arrow",
   "kicker":"no fair rule",
