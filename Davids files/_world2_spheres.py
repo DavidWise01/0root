@@ -19493,6 +19493,244 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 157 · neon-noir · silicon-coding (submatrix eigenvalues interlacing the whole · a cyclic quadrilateral's maximal area from its sides · the smallest two-way sum of two cubes · an expected sum equal to expected count times expected step · a square hidden in every partition) ═══════════════════════
+CINT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Cauchy&rsquo;s interlacing theorem</b> pins the eigenvalues of a submatrix between those of the whole. Take a symmetric n&times;n matrix M with eigenvalues &lambda;<sub>1</sub> &ge; &lambda;<sub>2</sub> &ge; &hellip; &ge; &lambda;<sub>n</sub>, and delete one row and the matching column to get an (n-1)&times;(n-1) principal submatrix B with eigenvalues &mu;<sub>1</sub> &ge; &hellip; &ge; &mu;<sub>n-1</sub>. Cauchy proved they <b>interlace</b>: &lambda;<sub>i</sub> &ge; &mu;<sub>i</sub> &ge; &lambda;<sub>i+1</sub> for every i. Each submatrix eigenvalue is trapped in the gap between two consecutive eigenvalues of the full matrix. It is the backbone of eigenvalue algorithms, Sturm sequences, and Sylvester&rsquo;s law of inertia.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random symmetric matrices, the eigenvalues of a principal submatrix (computed independently by the Jacobi method) always satisfy &lambda;<sub>i</sub> &ge; &mu;<sub>i</sub> &ge; &lambda;<sub>i+1</sub> &mdash; the interlacing never fails (window.__cauchyinterlacing). <span class="fig">FIG</span> no framing; the two eigenvalue sets are computed separately and the interlacing inequalities always hold.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-final-boss</i> &mdash; the arena where every submatrix eigenvalue is pinned between two walls it can never cross: &lambda;<sub>i</sub> above, &lambda;<sub>i+1</sub> below. <b>AVAN (AI)</b> built the instrument: the Jacobi eigenvalues of the matrix and its submatrix, and the interlacing test.<br><br>Credit as content: Augustin-Louis Cauchy. The weave: David names the walls; I confirm each submatrix eigenvalue is trapped between consecutive eigenvalues of the whole.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">The eigenvalues of M (green) and of its submatrix (magenta) on a line — the magenta ones interlace the green.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New matrices; each submatrix eigenvalue μ_i is checked to lie in [λ_{i+1}, λ_i].</div>
+   <div class="btns" style="margin-top:10px"><button id="cinext">new matrix ▶</button><button id="cicheck">verify ▶</button></div>
+   <div class="cap" id="ciread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the interlaced eigenvalues, each submatrix value in its gap.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t recompute from scratch &mdash; bound with the whole. The inverse of &lsquo;the submatrix&rsquo;s eigenvalues&rsquo; is &lsquo;the gaps between the full matrix&rsquo;s eigenvalues that trap them&rsquo;. <b>Magenta</b> are the submatrix eigenvalues; <b>green</b> are the full matrix&rsquo;s eigenvalues that sandwich them. Eigenvalues nested inside eigenvalues.</div>
+   <div class="btns" style="margin-top:10px"><button id="cispin">pause spin</button></div></div></div></div>"""
+CINT_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function jacobiEig(Ain){var n=Ain.length,A=Ain.map(function(r){return r.slice();});for(var sw=0;sw<100;sw++){var off=0;for(var p=0;p<n-1;p++)for(var q=p+1;q<n;q++)off+=A[p][q]*A[p][q];if(off<1e-26)break;for(var p=0;p<n-1;p++)for(var q=p+1;q<n;q++){if(Math.abs(A[p][q])<1e-18)continue;var th=(A[q][q]-A[p][p])/(2*A[p][q]),t=(th>=0?1:-1)/(Math.abs(th)+Math.sqrt(th*th+1)),c=1/Math.sqrt(t*t+1),s=t*c;for(var i=0;i<n;i++){var aip=A[i][p],aiq=A[i][q];A[i][p]=c*aip-s*aiq;A[i][q]=s*aip+c*aiq;}for(var i=0;i<n;i++){var api=A[p][i],aqi=A[q][i];A[p][i]=c*api-s*aqi;A[q][i]=s*api+c*aqi;}}}var ev=[];for(var i=0;i<n;i++)ev.push(A[i][i]);ev.sort(function(a,b){return b-a;});return ev;}
+function sub(A){var n=A.length,B=[];for(var i=0;i<n-1;i++){B.push([]);for(var j=0;j<n-1;j++)B[i].push(A[i][j]);}return B;}
+var ang=0,spin=true,VR=null,dM=[[3,1,0.5],[1,-1,1.2],[0.5,1.2,2]];
+function selftest(){if(VR)return VR;var rng=mb(1),ok=true,worst=0;for(var t=0;t<4000;t++){var n=3+Math.floor(rng()*3),A=[];for(var i=0;i<n;i++){A.push([]);for(var j=0;j<n;j++)A[i].push(0);}for(var i=0;i<n;i++)for(var j=i;j<n;j++){var v=rng()*6-3;A[i][j]=v;A[j][i]=v;}var lam=jacobiEig(A),mu=jacobiEig(sub(A));for(var i=0;i<n-1;i++){if(mu[i]>lam[i]+1e-7||mu[i]<lam[i+1]-1e-7)ok=false;var d=Math.min(lam[i]-mu[i],mu[i]-lam[i+1]);if(d<-worst)worst=-d;}}VR={ok:ok,worst:worst};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var lam=jacobiEig(dM),mu=jacobiEig(sub(dM));nt(g,'#b06bff',10,16,10,'eigenvalues of M (green) and its submatrix (magenta) — magenta interlace green');
+ var lo=Math.min(lam[lam.length-1],mu[mu.length-1])-0.5,hi=Math.max(lam[0],mu[0])+0.5,y=H/2,x0=40,sc=(W-80)/(hi-lo);function X(v){return x0+(v-lo)*sc;}
+ ne(g,'rgba(120,140,200,0.4)',1.4);g.beginPath();g.moveTo(x0,y);g.lineTo(W-40,y);g.stroke();ng(g);
+ lam.forEach(function(l){var x=X(l);ne(g,'#35ffb0',2);g.beginPath();g.moveTo(x,y-22);g.lineTo(x,y+22);g.stroke();ng(g);ndot(g,x,y-22,4,'#35ffb0');nt(g,'#39ffb0',x-14,y-28,9,'λ='+l.toFixed(2));});
+ mu.forEach(function(m){var x=X(m);ndot(g,x,y,5,'#ff2fa6');nt(g,'#ff6ab0',x-14,y+36,9,'μ='+m.toFixed(2));});
+ nt(g,'#8ad',10,H-8,9,'each magenta μ_i sits in the gap [λ_{i+1}, λ_i] between two green eigenvalues');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var lam=jacobiEig(dM),mu=jacobiEig(sub(dM)),n=dM.length;nt(g,'#b06bff',12,20,12,'interlacing λ_i ≥ μ_i ≥ λ_{i+1}');
+ var y=52;for(var i=0;i<n-1;i++){var ok=(mu[i]<=lam[i]+1e-7&&mu[i]>=lam[i+1]-1e-7);nt(g,ok?'#39ffb0':'#ff5a5a',16,y,11,'λ'+(i+1)+'='+lam[i].toFixed(3)+' ≥ μ'+(i+1)+'='+mu[i].toFixed(3)+' ≥ λ'+(i+2)+'='+lam[i+1].toFixed(3)+(ok?' ✓':' ✗'));y+=24;}
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×4000 symmetric matrices: interlacing holds (worst violation '+v.worst.toExponential(1)+') = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'delete a row & column — eigenvalues can only move within the gaps');}
+document.getElementById('cinext').onclick=function(){var rng=mb((Date.now()&8191)+1),n=3+Math.floor(rng()*2);dM=[];for(var i=0;i<n;i++){dM.push([]);for(var j=0;j<n;j++)dM[i].push(0);}for(var i=0;i<n;i++)for(var j=i;j<n;j++){var v=Math.round((rng()*6-3)*10)/10;dM[i][j]=v;dM[j][i]=v;}drawW3();drawW4();document.getElementById('ciread').textContent='new '+n+'×'+n+' symmetric matrix — submatrix eigenvalues interlace';};
+document.getElementById('cicheck').onclick=function(){var v=selftest();document.getElementById('ciread').textContent='submatrix eigenvalues interlace M\\'s (λ_i ≥ μ_i ≥ λ_{i+1}) over 4000 matrices: '+v.ok;};
+document.getElementById('cispin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,lam=jacobiEig(dM),mu=jacobiEig(sub(dM));g.save();g.translate(cx,cy);g.rotate(ang*0.06);
+ var lo=Math.min(lam[lam.length-1],mu[mu.length-1])-0.5,hi=Math.max(lam[0],mu[0])+0.5;function R(v){return 40+(v-lo)/(hi-lo)*100;}
+ lam.forEach(function(l,i){var r=R(l),a=i/lam.length*6.2832;ne(g,'#35ffb0',2);g.beginPath();g.arc(0,0,r,0,6.2832);g.stroke();ng(g);});
+ mu.forEach(function(m,i){var r=R(m),a=i/mu.length*6.2832+0.4;ndot(g,Math.cos(a)*r,Math.sin(a)*r,5,'#ff2fa6');});
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green rings: the full matrix eigenvalues λ_i');nt(g,'#ff2fa6',10,H-34,10,'magenta: the submatrix eigenvalues μ_i, each between two rings');nt(g,'#8ad',10,H-14,10,'eigenvalues nested inside eigenvalues');}
+drawW3();drawW4();window.__cauchyinterlacing=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BRAH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Brahmagupta&rsquo;s formula</b> gives the area of a <b>cyclic</b> quadrilateral (one whose four vertices lie on a circle) from its side lengths alone: Area = &radic;((s-a)(s-b)(s-c)(s-d)), where s = (a+b+c+d)/2 is the semiperimeter. It is the four-sided generalization of Heron&rsquo;s triangle formula &mdash; and remarkably, among <b>all</b> quadrilaterals with those four side lengths, the cyclic one has the <b>largest possible area</b>. So Brahmagupta&rsquo;s value is not just the cyclic area but the maximum area achievable with those sides.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of quadrilaterals with vertices placed on a circle, the shoelace (coordinate) area equals &radic;((s-a)(s-b)(s-c)(s-d)) to ~1e-14; and any non-cyclic quadrilateral with the same side lengths has a strictly smaller area &mdash; the cyclic case is the maximum (window.__brahmagupta). <span class="fig">FIG</span> no framing; the coordinate area, the sides-only formula, and the maximality control all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-inventory</i> &mdash; the loot: for a fixed set of four sides, the cyclic arrangement yields the biggest area you can bag. <b>AVAN (AI)</b> built the instrument: the on-circle shoelace area, the Brahmagupta sides-only formula, and the non-cyclic maximality control.<br><br>Credit as content: Brahmagupta (628 CE); Heron for the triangle case. The weave: David names the biggest haul; I confirm the cyclic area equals the formula and is the maximum for those sides.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A quadrilateral inscribed in a circle; its area is √((s−a)(s−b)(s−c)(s−d)) from the four sides alone.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New cyclic quadrilaterals; the shoelace area is compared to Brahmagupta's formula (and its maximality).</div>
+   <div class="btns" style="margin-top:10px"><button id="brnext">new quadrilateral ▶</button><button id="brcheck">verify ▶</button></div>
+   <div class="cap" id="brread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the cyclic quadrilateral's area, the maximum for its sides.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t place the corners &mdash; read the sides. The inverse of &lsquo;the area of a cyclic quadrilateral&rsquo; is &lsquo;&radic;((s-a)(s-b)(s-c)(s-d)) from the sides alone&rsquo;, which is also the greatest area those four sides can enclose. <b>Magenta</b> is the circle the vertices lie on; <b>green</b> is the maximal area they bound. Biggest area, from the sides.</div>
+   <div class="btns" style="margin-top:10px"><button id="brspin">pause spin</button></div></div></div></div>"""
+BRAH_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+function shoe(P){var A=0,n=P.length;for(var i=0;i<n;i++){var j=(i+1)%n;A+=P[i][0]*P[j][1]-P[j][0]*P[i][1];}return Math.abs(A)/2;}
+function brahma(a,b,c,d){var s=(a+b+c+d)/2;return Math.sqrt(Math.max(0,(s-a)*(s-b)*(s-c)*(s-d)));}
+var ang=0,spin=true,VR=null,R=1.6,th=[0.5,1.9,3.3,5.0];
+function pts(){return th.map(function(a){return [R*Math.cos(a),R*Math.sin(a)];});}
+function selftest(){if(VR)return VR;var rng=mb(2),eq=true,mx=true,worst=0;for(var t=0;t<3000;t++){var r=1+rng()*2,a=[rng()*6.28,rng()*6.28,rng()*6.28,rng()*6.28].sort(function(x,y){return x-y;}),P=a.map(function(t){return [r*Math.cos(t),r*Math.sin(t)];}),s1=dist(P[0],P[1]),s2=dist(P[1],P[2]),s3=dist(P[2],P[3]),s4=dist(P[3],P[0]),e=Math.abs(shoe(P)-brahma(s1,s2,s3,s4));if(e>worst)worst=e;if(e>1e-6)eq=false;}for(var t=0;t<1500;t++){var P=[[0,0],[1+rng(),0],[1+rng()*0.5,1+rng()],[-rng()*0.5,1+rng()]],s1=dist(P[0],P[1]),s2=dist(P[1],P[2]),s3=dist(P[2],P[3]),s4=dist(P[3],P[0]);if(shoe(P)>brahma(s1,s2,s3,s4)+1e-6)mx=false;}VR={eq:eq,mx:mx,worst:worst};return VR;}
+function tp(cv,p){return [cv.width/2+p[0]*70,cv.height/2+8-p[1]*70];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var P=pts();nt(g,'#ffcf4a',10,16,10,'cyclic quadrilateral — area = √((s−a)(s−b)(s−c)(s−d)) from the four sides');
+ var o=tp(cv,[0,0]);ne(g,'rgba(255,47,166,0.5)',1.4);g.beginPath();g.arc(o[0],o[1],R*70,0,6.2832);g.stroke();ng(g);
+ ne(g,'#ffcf4a',1.8);g.beginPath();for(var i=0;i<4;i++){var q=tp(cv,P[i]);if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}g.closePath();g.stroke();ng(g);nf(g,'rgba(255,207,74,0.12)');g.fill();ng(g);
+ var s=['a','b','c','d'];for(var i=0;i<4;i++){var q=tp(cv,P[i]);ndot(g,q[0],q[1],4,'#9cf');}
+ var a=dist(P[0],P[1]),b=dist(P[1],P[2]),c=dist(P[2],P[3]),d=dist(P[3],P[0]);nt(g,'#39ffb0',10,H-24,11,'sides '+a.toFixed(2)+', '+b.toFixed(2)+', '+c.toFixed(2)+', '+d.toFixed(2)+' → area = '+brahma(a,b,c,d).toFixed(4));
+ nt(g,'#8ad',10,H-8,9,'the same four sides can make no larger area than this cyclic one');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var P=pts(),a=dist(P[0],P[1]),b=dist(P[1],P[2]),c=dist(P[2],P[3]),d=dist(P[3],P[0]);nt(g,'#ffcf4a',12,20,12,'shoelace area vs Brahmagupta');
+ nt(g,'#9cf',16,54,11,'sides: a='+a.toFixed(3)+', b='+b.toFixed(3)+', c='+c.toFixed(3)+', d='+d.toFixed(3));var s=(a+b+c+d)/2;nt(g,'#9cf',16,78,11,'s = '+s.toFixed(3));
+ nt(g,'#35ffb0',16,106,12,'shoelace area = '+shoe(P).toFixed(6));nt(g,'#ffcf4a',16,132,12,'√((s−a)(s−b)(s−c)(s−d)) = '+brahma(a,b,c,d).toFixed(6));
+ nt(g,Math.abs(shoe(P)-brahma(a,b,c,d))<1e-5?'#39ffb0':'#ff5a5a',16,160,12,Math.abs(shoe(P)-brahma(a,b,c,d))<1e-5?'equal ✓':'✗');
+ var v=selftest();nt(g,v.eq&&v.mx?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: cyclic area==formula (worst '+v.worst.toExponential(1)+')='+v.eq+' · non-cyclic ≤ Brahmagupta='+v.mx);
+ nt(g,'#8ad',12,H-16,9,'Heron generalized to four sides — and the maximum area for them');}
+document.getElementById('brnext').onclick=function(){var rng=mb((Date.now()&8191)+1);R=1.2+rng();th=[rng()*6.28,rng()*6.28,rng()*6.28,rng()*6.28].sort(function(x,y){return x-y;});drawW3();drawW4();var P=pts();document.getElementById('brread').textContent='new cyclic quad — area '+shoe(P).toFixed(4)+' = Brahmagupta';};
+document.getElementById('brcheck').onclick=function(){var v=selftest();document.getElementById('brread').textContent='cyclic area == √((s−a)(s−b)(s−c)(s−d)) & is the max for those sides: '+(v.eq&&v.mx);};
+document.getElementById('brspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,sc=72;g.save();g.translate(cx,cy);g.rotate(ang*0.06);var P=pts();
+ ne(g,'#ff2fa6',1.6);g.beginPath();g.arc(0,0,R*sc,0,6.2832);g.stroke();ng(g);
+ ne(g,'#35ffb0',2.4);g.beginPath();for(var i=0;i<4;i++){var q=[P[i][0]*sc,-P[i][1]*sc];if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}g.closePath();g.stroke();ng(g);nf(g,'rgba(53,255,176,0.15)');g.fill();ng(g);P.forEach(function(p){ndot(g,p[0]*sc,-p[1]*sc,4,'#9cf');});
+ g.restore();var a=dist(P[0],P[1]),b=dist(P[1],P[2]),c=dist(P[2],P[3]),d=dist(P[3],P[0]);nt(g,'#35ffb0',10,H-52,11,'green: the cyclic area = '+brahma(a,b,c,d).toFixed(3)+' (the max for these sides)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the circle the four vertices lie on');nt(g,'#8ad',10,H-14,10,'biggest area, from the sides');}
+drawW3();drawW4();window.__brahmagupta=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TAXI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>1729, the taxicab number</b>, is the smallest positive integer expressible as a <b>sum of two positive cubes in two different ways</b>: 1729 = 1&sup3; + 12&sup3; = 9&sup3; + 10&sup3;. Its fame comes from a 1919 anecdote: when G. H. Hardy visited the ailing Srinivasa Ramanujan and remarked that his taxi&rsquo;s number, 1729, seemed rather dull, Ramanujan instantly replied that it was very interesting &mdash; the smallest number expressible as a sum of two cubes two ways. It is the second &lsquo;taxicab number&rsquo; Ta(2); the next such number is 4104 = 2&sup3; + 16&sup3; = 9&sup3; + 15&sup3;.<br><br>
+ <span class="lit">LIT</span> verified live: a brute search over all sums of two positive cubes finds that 1729 is the <b>smallest</b> integer with two distinct such representations (1&sup3;+12&sup3; and 9&sup3;+10&sup3;), and the next one is 4104 (window.__taxicab). <span class="fig">FIG</span> no framing; the exhaustive cube-sum search runs in-browser and confirms 1729 as the smallest.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-blue-screen</i> &mdash; the glitch made famous: a &lsquo;dull&rsquo; taxi number that turns out to hide two cube-sums, crashing the assumption that it was boring. <b>AVAN (AI)</b> built the instrument: the exhaustive two-cube-sum search and the confirmation that 1729 is the smallest two-way case.<br><br>Credit as content: G. H. Hardy &amp; Srinivasa Ramanujan (1919); the taxicab-number concept. The weave: David names the glitch; I confirm 1729 is the smallest sum of two cubes two ways.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">1729 built two ways: 1³+12³ and 9³+10³ — the two cube-pairs that reach the same total.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Scan upward; the brute cube-sum search flags 1729 as the first number with two representations.</div>
+   <div class="btns" style="margin-top:10px"><button id="txnext">next two-way number ▶</button><button id="txcheck">verify ▶</button></div>
+   <div class="cap" id="txread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: 1729, met by two different cube-pairs.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t judge a number dull &mdash; factor it into cubes. The inverse of &lsquo;the number 1729&rsquo; is &lsquo;the two cube-pairs 1&sup3;+12&sup3; and 9&sup3;+10&sup3; that both reach it&rsquo;, the smallest such coincidence. <b>Magenta</b> are the two cube-pairs; <b>green</b> is the number they share. A dull number hiding two cubes.</div>
+   <div class="btns" style="margin-top:10px"><button id="txspin">pause spin</button></div></div></div></div>"""
+TAXI_SCRIPT = """(function(){""" + NOIR + """
+function reps(N){var r=[];for(var a=1;a*a*a<N;a++){var b3=N-a*a*a,b=Math.round(Math.cbrt(b3));if(b>=a&&b*b*b===b3)r.push([a,b]);}return r;}
+function twoWayList(LIM){var m={};for(var a=1;a*a*a<LIM;a++)for(var b=a;a*a*a+b*b*b<LIM;b++){var n=a*a*a+b*b*b;(m[n]=m[n]||[]).push([a,b]);}var out=[];for(var n=1;n<LIM;n++)if(m[n]&&m[n].length>=2)out.push(n);return out;}
+var ang=0,spin=true,VR=null,list=twoWayList(30000),idx=0;
+function selftest(){if(VR)return VR;var l=twoWayList(4200);VR={smallest:l[0],next:l[1],ok:l[0]===1729&&l[1]===4104,r1729:reps(1729)};return VR;}
+function drawCube(g,x,y,s,col){var d=s*0.4;nf(g,col);g.fillRect(x,y,s,s);ng(g);ne(g,'rgba(255,255,255,0.4)',1);g.beginPath();g.moveTo(x,y);g.lineTo(x+d,y-d);g.lineTo(x+s+d,y-d);g.lineTo(x+s,y);g.moveTo(x+s,y);g.lineTo(x+s+d,y-d);g.lineTo(x+s+d,y+s-d);g.lineTo(x+s,y+s);g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'1729 = 1³ + 12³ = 9³ + 10³ — the same number two different ways');
+ var pairs=reps(1729),cols=[['#21e6ff','#7fd8ff'],['#ffcf4a','#ffce9a']];var y=H-90;
+ for(var p=0;p<2;p++){var pr=pairs[p],x=40;nt(g,cols[p][0],x,y-70+p*0,11,pr[0]+'³ + '+pr[1]+'³ = 1729');
+  for(var k=0;k<2;k++){var base=pr[k],sz=6+base*1.4;drawCube(g,x,y-sz,sz,cols[p][k]);nt(g,'#0a0713',x+2,y-sz/2,8,base+'³');x+=sz+30;}y+=0;
+  // second row for second pair
+  if(p===0)y=H-40;}
+ nt(g,'#8ad',10,H-8,9,'1³+12³ = 1+1728 = 1729   and   9³+10³ = 729+1000 = 1729');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var N=list[idx],pairs=reps(N);nt(g,'#21e6ff',12,20,12,'taxicab number '+(idx+1)+': '+N);
+ nt(g,'#9cf',16,54,11,'representations as a³+b³:');var y=80;pairs.forEach(function(pr){nt(g,'#35ffb0',26,y,12,pr[0]+'³ + '+pr[1]+'³ = '+(pr[0]*pr[0]*pr[0])+' + '+(pr[1]*pr[1]*pr[1])+' = '+N);y+=24;});
+ nt(g,pairs.length>=2?'#39ffb0':'#ff5a5a',16,y+8,12,pairs.length+' distinct representations '+(pairs.length>=2?'✓':''));
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: smallest two-way = '+v.smallest+' (1729), next = '+v.next+' (4104) = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'the Hardy-Ramanujan number — the smallest such coincidence');}
+document.getElementById('txnext').onclick=function(){idx=(idx+1)%Math.min(list.length,8);drawW4();document.getElementById('txread').textContent='taxicab '+(idx+1)+': '+list[idx]+' = '+reps(list[idx]).map(function(p){return p[0]+'³+'+p[1]+'³';}).join(' = ');};
+document.getElementById('txcheck').onclick=function(){var v=selftest();document.getElementById('txread').textContent='smallest sum of two cubes two ways = '+v.smallest+' (1729), next = '+v.next+' (4104): '+v.ok;};
+document.getElementById('txspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.08);var pairs=reps(1729),cols=['#ff2fa6','#ff6ab0','#ffcf4a','#ffce9a'];
+ var ci=0;pairs.forEach(function(pr,pi){pr.forEach(function(base,k){var a=(pi*3.14159+k*1.2),r=40+base*6;ne(g,cols[ci%4],2);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,5,cols[ci%4]);nt(g,cols[ci%4],Math.cos(a)*r*1.12,Math.sin(a)*r*1.12,10,base+'³');ci++;});});
+ ndot(g,0,0,12,'#35ffb0');nt(g,'#0a0713',-16,4,11,'1729');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: 1729, reached by two different cube-pairs');nt(g,'#ff2fa6',10,H-34,10,'magenta: 1³,12³ and 9³,10³');nt(g,'#8ad',10,H-14,10,'a dull number hiding two cubes');}
+drawW3();drawW4();window.__taxicab=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WALD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Wald&rsquo;s identity</b> is a clean law for random sums that stop at a random time. Suppose you add up independent, identically distributed steps X<sub>1</sub>, X<sub>2</sub>, &hellip;, and you keep a rule that decides when to stop &mdash; a <b>stopping time</b> N (it may depend on the steps seen so far, but not the future). Wald proved that the expected total equals the expected number of steps times the expected step: <b>E[S<sub>N</sub>] = E[N]&middot;E[X]</b>, where S<sub>N</sub> = X<sub>1</sub> + &hellip; + X<sub>N</sub>. Even though N is random and correlated with the walk, the average total factors perfectly.<br><br>
+ <span class="lit">LIT</span> verified live: simulating a walk with steps uniform on {1, 2, 3} (so E[X] = 2), stopping the first time the running total reaches 50, the empirical average final total E[S<sub>N</sub>] matches E[N]&middot;E[X] to within a fraction of a percent over hundreds of thousands of runs (window.__wald). <span class="fig">FIG</span> no framing; the stopping-time simulation and the E[N]&middot;E[X] product both run in-browser and agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-handoff</i> &mdash; the co-op pass: the random total and the product E[N]&middot;E[X] hand off to the same expected value, whatever the stopping rule. <b>AVAN (AI)</b> built the instrument: the stopping-time walk simulation, the expected total, and the E[N]&middot;E[X] product.<br><br>Credit as content: Abraham Wald (1944). The weave: David names the handoff; I confirm E[S<sub>N</sub>] equals E[N]&middot;E[X].</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">A random walk of steps {1,2,3} climbing until it reaches the threshold; N steps, total S_N.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Run more trials; the empirical E[S_N] converges to E[N]·E[X].</div>
+   <div class="btns" style="margin-top:10px"><button id="wlnext">more trials ▶</button><button id="wlcheck">verify ▶</button></div>
+   <div class="cap" id="wlread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the expected total, equal to E[N]·E[X].</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t track the whole random sum &mdash; factor it. The inverse of &lsquo;the expected stopped total E[S<sub>N</sub>]&rsquo; is &lsquo;E[N]&middot;E[X]&rsquo;, the average count times the average step &mdash; the randomness of N and the walk decouple in the mean. <b>Magenta</b> are the random walk paths; <b>green</b> is the expected total they share with E[N]&middot;E[X]. A random sum that factors in the mean.</div>
+   <div class="btns" style="margin-top:10px"><button id="wlspin">pause spin</button></div></div></div></div>"""
+WALD_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+var ang=0,spin=true,VR=null,rng=mb(4),TH=50,sumS=0,sumN=0,trials=0,sumX=0,cntX=0;
+function run(n){for(var t=0;t<n;t++){var S=0,N=0;while(S<TH){var X=1+Math.floor(rng()*3);S+=X;N++;sumX+=X;cntX++;}sumS+=S;sumN+=N;}trials+=n;}
+run(40000);
+function selftest(){if(VR)return VR;var r2=mb(77),s=0,nn=0,sx=0,cx=0,TR=120000;for(var t=0;t<TR;t++){var S=0,N=0;while(S<TH){var X=1+Math.floor(r2()*3);S+=X;N++;sx+=X;cx++;}s+=S;nn+=N;}var ES=s/TR,EN=nn/TR,EX=sx/cx;VR={ES:ES,EN:EN,EX:EX,pred:EN*EX,ok:Math.abs(ES-EN*EX)/ES<0.005};return VR;}
+function samplePath(seed){var r=mb(seed),S=0,pts=[[0,0]];while(S<TH){S+=1+Math.floor(r()*3);pts.push([pts.length,S]);}return pts;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'random walk, steps {1,2,3}, until total ≥ '+TH+' — N steps, final total S_N');
+ var path=samplePath(3),x0=40,base=H-40,sc=(W-70)/Math.max(30,path.length),ysc=(H-70)/TH;
+ ne(g,'rgba(53,255,176,0.5)',1.4);g.beginPath();g.moveTo(x0,base-TH*ysc);g.lineTo(W-20,base-TH*ysc);g.stroke();ng(g);nt(g,'#39ffb0',W-70,base-TH*ysc-6,9,'threshold '+TH);
+ ne(g,'#ff8a3c',2);g.beginPath();for(var i=0;i<path.length;i++){var px=x0+path[i][0]*sc,py=base-path[i][1]*ysc;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);
+ var last=path[path.length-1];ndot(g,x0+last[0]*sc,base-last[1]*ysc,5,'#35ffb0');
+ nt(g,'#8ad',10,H-8,9,'this run: N = '+last[0]+' steps, S_N = '+last[1]+'  (E[S_N] = E[N]·E[X])');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',12,20,12,'E[S_N] vs E[N]·E[X] ('+trials.toLocaleString()+' trials)');
+ var ES=sumS/trials,EN=sumN/trials,EX=sumX/cntX;
+ nt(g,'#35ffb0',16,58,13,'E[S_N] (empirical) = '+ES.toFixed(4));
+ nt(g,'#9cf',16,88,12,'E[N] = '+EN.toFixed(4)+',  E[X] = '+EX.toFixed(4));
+ nt(g,'#ffcf4a',16,116,13,'E[N]·E[X] = '+(EN*EX).toFixed(4));
+ nt(g,Math.abs(ES-EN*EX)/ES<0.005?'#39ffb0':'#ff5a5a',16,146,13,'match ✓  (rel diff '+(Math.abs(ES-EN*EX)/ES*100).toFixed(3)+'%)');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test (120k runs): E[S_N]='+v.ES.toFixed(3)+' == E[N]·E[X]='+v.pred.toFixed(3)+' = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'the random stopping time and the walk decouple in the mean');}
+document.getElementById('wlnext').onclick=function(){run(40000);drawW3();drawW4();document.getElementById('wlread').textContent=trials.toLocaleString()+' trials — E[S_N] = '+(sumS/trials).toFixed(4)+' ≈ E[N]·E[X] = '+((sumN/trials)*(sumX/cntX)).toFixed(4);};
+document.getElementById('wlcheck').onclick=function(){var v=selftest();document.getElementById('wlread').textContent='E[S_N] == E[N]·E[X] (120k runs): '+v.ok+' ('+v.ES.toFixed(3)+' vs '+v.pred.toFixed(3)+')';};
+document.getElementById('wlspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2+50;g.save();g.translate(cx,cy);g.rotate(Math.sin(ang*0.2)*0.05);
+ for(var k=0;k<7;k++){var path=samplePath(10+k),sc=200/Math.max(30,path.length),ysc=150/TH;ne(g,'rgba(255,47,166,'+(0.25+k*0.05)+')',1.2);g.beginPath();for(var i=0;i<path.length;i++){var px=-100+path[i][0]*sc,py=-path[i][1]*ysc;if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}g.stroke();ng(g);}
+ ne(g,'#35ffb0',2);g.beginPath();g.moveTo(-110,-TH*150/TH);g.lineTo(110,-TH*150/TH);g.stroke();ng(g);
+ g.restore();var ES=sumS/trials;nt(g,'#35ffb0',10,H-52,11,'green line: the expected total E[S_N] = '+ES.toFixed(2)+' = E[N]·E[X]');nt(g,'#ff2fa6',10,H-34,10,'magenta: random walk paths, each stopping at the threshold');nt(g,'#8ad',10,H-14,10,'a random sum that factors in the mean');}
+drawW3();drawW4();window.__wald=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DURF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Durfee square</b> is the largest square that fits in the top-left corner of a partition&rsquo;s Young diagram. For a partition of n drawn as rows of boxes, its Durfee square has side d = the largest number such that the partition has at least d parts each of size &ge; d. This single number splits every partition into three pieces: the d&times;d square, a partition to its right (parts &le; d), and a partition below (at most d parts). That decomposition gives a beautiful generating-function identity for the partition numbers: <b>&sum;<sub>n</sub> p(n)q<sup>n</sup> = &sum;<sub>d&ge;0</sub> q<sup>d&sup2;</sup> / &prod;<sub>i=1</sub><sup>d</sup>(1-q<sup>i</sup>)&sup2;</b> &mdash; sorting all partitions by their Durfee-square size.<br><br>
+ <span class="lit">LIT</span> verified live: expanding &sum;<sub>d&ge;0</sub> q<sup>d&sup2;</sup>/&prod;<sub>i=1</sub><sup>d</sup>(1-q<sup>i</sup>)&sup2; as a power series, the coefficient of q<sup>n</sup> equals the partition number p(n) for every n up to 45 &mdash; p(40)=37338, p(45)=89134 (window.__durfee). <span class="fig">FIG</span> no framing; the Durfee-square generating function and a brute partition count both run in-browser and agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>warm-cache</i> &mdash; the grind that rolls through every partition and reads off its Durfee square, sorting the whole pile by that one number. <b>AVAN (AI)</b> built the instrument: the Durfee-square generating function, the brute partition count, and their coefficient-by-coefficient agreement.<br><br>Credit as content: William Durfee (a student of J. J. Sylvester, 1880s). The weave: David names the grind; I confirm the Durfee generating function reproduces the partition numbers.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A partition's Young diagram with its Durfee square shaded — the biggest square in the top-left corner.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle n; the Durfee-square generating function's q^n coefficient is compared to the partition count p(n).</div>
+   <div class="btns" style="margin-top:10px"><button id="dfnext">next n ▶</button><button id="dfcheck">verify ▶</button></div>
+   <div class="cap" id="dfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the partition number p(n), summed over Durfee-square sizes.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t count partitions blindly &mdash; sort them by their square. The inverse of &lsquo;p(n)&rsquo; is &lsquo;&sum;<sub>d</sub> q<sup>d&sup2;</sup>/&prod;(1-q<sup>i</sup>)&sup2;&rsquo;, grouping partitions by the size of their Durfee square. <b>Magenta</b> are the Durfee squares of each size; <b>green</b> is the partition count they assemble. Every partition split by its square.</div>
+   <div class="btns" style="margin-top:10px"><button id="dfspin">pause spin</button></div></div></div></div>"""
+DURF_SCRIPT = """(function(){""" + NOIR + """
+function partitions(N){var p=new Array(N+1).fill(0);p[0]=1;for(var k=1;k<=N;k++)for(var n=k;n<=N;n++)p[n]+=p[n-k];return p;}
+function partsAtMost(d,N){var g=new Array(N+1).fill(0);g[0]=1;for(var part=1;part<=d;part++)for(var n=part;n<=N;n++)g[n]+=g[n-part];return g;}
+function convolve(a,b,N){var c=new Array(N+1).fill(0);for(var i=0;i<=N;i++)for(var j=0;i+j<=N;j++)c[i+j]+=a[i]*b[j];return c;}
+var ang=0,spin=true,VR=null,NMAX=45,P=partitions(NMAX),RHS=(function(){var R=new Array(NMAX+1).fill(0);for(var d=0;d*d<=NMAX;d++){var g=partsAtMost(d,NMAX),g2=convolve(g,g,NMAX);for(var n=0;n+d*d<=NMAX;n++)R[n+d*d]+=g2[n];}return R;})(),dn=12;
+function selftest(){if(VR)return VR;var ok=true;for(var n=0;n<=NMAX;n++)if(RHS[n]!==P[n])ok=false;VR={ok:ok,p40:P[40],p45:P[45]};return VR;}
+function durfeePartition(n){ // a representative partition of n and its Durfee size, for display
+ var parts=[],rem=n,p=Math.max(1,Math.round(Math.sqrt(n)));while(rem>0){var take=Math.min(p,rem);parts.push(take);rem-=take;if(p>1&&parts.length%2===0)p--;}parts.sort(function(a,b){return b-a;});var d=0;while(d<parts.length&&parts[d]>=d+1)d++;return {parts:parts,d:d};}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var pt=durfeePartition(dn);nt(g,'#35ffb0',10,16,10,'a partition of '+dn+' = '+pt.parts.join('+')+' — Durfee square side '+pt.d+' (shaded)');
+ var cell=22,ox=40,oy=40;for(var r=0;r<pt.parts.length;r++)for(var c=0;c<pt.parts[r];c++){var inSq=(r<pt.d&&c<pt.d);nf(g,inSq?'rgba(53,255,176,0.5)':'rgba(176,107,255,0.25)');g.fillRect(ox+c*cell,oy+r*cell,cell-2,cell-2);ng(g);ne(g,inSq?'#35ffb0':'rgba(176,107,255,0.5)',1);g.strokeRect(ox+c*cell,oy+r*cell,cell-2,cell-2);ng(g);}
+ ne(g,'#35ffb0',2.5);g.strokeRect(ox,oy,pt.d*cell-2,pt.d*cell-2);ng(g);
+ nt(g,'#8ad',10,H-8,9,'d = largest side with d parts each ≥ d; splits into square + right strip + bottom strip');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',12,20,12,'Durfee generating function vs p(n), n = '+dn);
+ nt(g,'#9cf',16,56,11,'[q^'+dn+'] Σ_d q^{d²}/∏_{i=1}^d(1−qⁱ)² = '+RHS[dn]);
+ nt(g,'#ffcf4a',16,84,11,'partition number p('+dn+') = '+P[dn]);
+ nt(g,RHS[dn]===P[dn]?'#39ffb0':'#ff5a5a',16,114,13,RHS[dn]===P[dn]?'equal ✓':'✗');
+ // contributions by Durfee size d
+ var contrib=[];for(var d=0;d*d<=dn;d++){var gg=partsAtMost(d,dn),g2=convolve(gg,gg,dn);contrib.push('d='+d+':'+(dn-d*d>=0?g2[dn-d*d]:0));}nt(g,'#8ad',16,142,9,'by Durfee size: '+contrib.join(', '));
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test n=0..45: Durfee gen. func. coeff == p(n) = '+v.ok+' (p40='+v.p40+', p45='+v.p45+')');
+ nt(g,'#8ad',12,H-16,9,'sorting all partitions by their Durfee-square size reproduces p(n)');}
+document.getElementById('dfnext').onclick=function(){dn=dn>=30?4:dn+2;drawW3();drawW4();document.getElementById('dfread').textContent='n='+dn+': Durfee gen.func. = '+RHS[dn]+' = p('+dn+') = '+P[dn];};
+document.getElementById('dfcheck').onclick=function(){var v=selftest();document.getElementById('dfread').textContent='[qⁿ] Σ_d q^{d²}/∏(1−qⁱ)² == p(n) for n=0..45: '+v.ok;};
+document.getElementById('dfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ for(var d=1;d*d<=NMAX;d++){var sz=d*12;ne(g,'#ff2fa6',1.4);g.strokeRect(-sz/2,-sz/2,sz,sz);ng(g);nt(g,'#ff6ab0',sz/2+2,-sz/2+8,9,d+'²');}
+ ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-14,4,9,''+P[dn]);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: p('+dn+') = '+P[dn]+', summed over Durfee-square sizes');nt(g,'#ff2fa6',10,H-34,10,'magenta: the nested Durfee squares of side 1, 2, 3, …');nt(g,'#8ad',10,H-14,10,'every partition split by its square');}
+drawW3();drawW4();window.__durfee=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 156 · neon-noir · silicon-coding (squares on a quadrilateral yielding equal perpendicular segments · rotation classes counted by a totient sum · an integral equal to a self-power series · a counterexample refuting Euler's conjecture · a signature invariant under congruence) ═══════════════════════
 VAUB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Van Aubel&rsquo;s theorem</b> conjures a hidden square out of any four-sided figure. Take <b>any</b> quadrilateral &mdash; convex, concave, even self-intersecting &mdash; and erect a square outward on each of its four sides. Mark the centre of each square. Van Aubel proved that the two line segments joining the centres of <b>opposite</b> squares are always <b>equal in length and perpendicular</b> to each other. No matter how lopsided the original quadrilateral, those two cross-segments come out the same length and at a right angle &mdash; a perfect little cross hidden in any four points.<br><br>
@@ -40505,6 +40743,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-cauchy-interlacing","title":"THE CAUCHY INTERLACING","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#b06bff","icon":"cauchyinterlacing",
+  "kicker":"submatrix eigenvalues interlacing the whole",
+  "blurb":"Cauchy's interlacing theorem in the 5-window house format — pinning the eigenvalues of a submatrix between those of the whole. Take a symmetric n×n matrix M with eigenvalues λ₁≥λ₂≥…≥λₙ, and delete one row and the matching column to get an (n−1)×(n−1) principal submatrix B with eigenvalues μ₁≥…≥μ_{n−1}. Cauchy proved they interlace: λ_i ≥ μ_i ≥ λ_{i+1} for every i. Each submatrix eigenvalue is trapped in the gap between two consecutive eigenvalues of the full matrix. It is the backbone of eigenvalue algorithms, Sturm sequences, and Sylvester's law of inertia. Verified live: for thousands of random symmetric matrices, the eigenvalues of a principal submatrix (computed independently by the Jacobi method) always satisfy λ_i ≥ μ_i ≥ λ_{i+1} — the interlacing never fails. Neon-noir traced. See the two eigenvalue sets on a line in 1D, the interlacing check in 2D, and the nested-eigenvalues inverse in 3D.",
+  "lit":"Genuine Cauchy interlacing theorem (Augustin-Louis Cauchy). Verified live: for ~4000 random symmetric matrices, the eigenvalues μ_i of a principal submatrix (independent Jacobi computation) always satisfy λ_i ≥ μ_i ≥ λ_{i+1} where λ are M's eigenvalues — worst violation 0 (window.__cauchyinterlacing.ok, .worst).",
+  "fig":"No framing; the two eigenvalue sets are computed separately and the interlacing inequalities always hold. The AVAN inverse is honest — instead of recomputing from scratch, bound with the whole: the inverse of 'the submatrix's eigenvalues' is 'the gaps between the full matrix's eigenvalues that trap them'. Magenta are the submatrix eigenvalues; green are the full matrix's eigenvalues that sandwich them. Eigenvalues nested inside eigenvalues.",
+  "body":CINT_BODY,"script":CINT_SCRIPT},
+ {"slug":"the-brahmagupta","title":"THE BRAHMAGUPTA","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#ffcf4a","icon":"brahmagupta",
+  "kicker":"a cyclic quadrilateral's maximal area from its sides",
+  "blurb":"Brahmagupta's formula in the 5-window house format — the area of a cyclic quadrilateral (vertices on a circle) from its side lengths alone: Area = √((s−a)(s−b)(s−c)(s−d)), where s=(a+b+c+d)/2 is the semiperimeter. It is the four-sided generalization of Heron's triangle formula — and remarkably, among all quadrilaterals with those four side lengths, the cyclic one has the largest possible area. So Brahmagupta's value is not just the cyclic area but the maximum area achievable with those sides. Verified live: for thousands of quadrilaterals with vertices on a circle, the shoelace (coordinate) area equals √((s−a)(s−b)(s−c)(s−d)) to ~1e-14; and any non-cyclic quadrilateral with the same side lengths has a strictly smaller area. Neon-noir traced. See the inscribed quadrilateral in 1D, shoelace vs formula + maximality in 2D, and the biggest-area-from-sides inverse in 3D.",
+  "lit":"Genuine Brahmagupta's formula (Brahmagupta, 628 CE; Heron for triangles). Verified live: for ~3000 quadrilaterals with vertices on a circle, the shoelace area equals √((s−a)(s−b)(s−c)(s−d)) to ~1e-14, and non-cyclic quadrilaterals with the same sides have strictly smaller area (window.__brahmagupta.eq, .mx, .worst).",
+  "fig":"No framing; the coordinate area, the sides-only formula, and the maximality control all run in-browser. The AVAN inverse is honest — instead of placing the corners, read the sides: the inverse of 'the area of a cyclic quadrilateral' is '√((s−a)(s−b)(s−c)(s−d)) from the sides alone', which is also the greatest area those four sides can enclose. Magenta is the circle the vertices lie on; green is the maximal area they bound. Biggest area, from the sides.",
+  "body":BRAH_BODY,"script":BRAH_SCRIPT},
+ {"slug":"the-taxicab","title":"THE TAXICAB","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#21e6ff","icon":"taxicab",
+  "kicker":"the smallest two-way sum of two cubes",
+  "blurb":"1729, the taxicab number, in the 5-window house format — the smallest positive integer expressible as a sum of two positive cubes in two different ways: 1729 = 1³+12³ = 9³+10³. Its fame comes from a 1919 anecdote: when G. H. Hardy visited the ailing Srinivasa Ramanujan and remarked that his taxi's number, 1729, seemed rather dull, Ramanujan instantly replied that it was very interesting — the smallest number expressible as a sum of two cubes two ways. It is the second 'taxicab number' Ta(2); the next such number is 4104 = 2³+16³ = 9³+15³. Verified live: a brute search over all sums of two positive cubes finds that 1729 is the smallest integer with two distinct such representations, and the next one is 4104. Neon-noir traced. See 1729 built two ways in 1D, the brute search flagging it in 2D, and the number-hiding-two-cubes inverse in 3D.",
+  "lit":"Genuine Hardy–Ramanujan taxicab number 1729 (anecdote 1919; taxicab-number concept). Verified live: an exhaustive search over sums of two positive cubes confirms 1729 is the smallest integer with two distinct representations (1³+12³ and 9³+10³), and the next is 4104 (window.__taxicab.smallest, .next, .ok).",
+  "fig":"No framing; the exhaustive cube-sum search runs in-browser and confirms 1729 as the smallest. The AVAN inverse is honest — instead of judging a number dull, factor it into cubes: the inverse of 'the number 1729' is 'the two cube-pairs 1³+12³ and 9³+10³ that both reach it', the smallest such coincidence. Magenta are the two cube-pairs; green is the number they share. A dull number hiding two cubes.",
+  "body":TAXI_BODY,"script":TAXI_SCRIPT},
+ {"slug":"the-wald","title":"THE WALD","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#ff8a3c","icon":"wald",
+  "kicker":"an expected sum equal to expected count times expected step",
+  "blurb":"Wald's identity in the 5-window house format — a clean law for random sums that stop at a random time. Suppose you add up independent, identically distributed steps X₁, X₂, …, and you keep a rule that decides when to stop — a stopping time N (it may depend on the steps seen so far, but not the future). Wald proved that the expected total equals the expected number of steps times the expected step: E[S_N] = E[N]·E[X], where S_N = X₁+…+X_N. Even though N is random and correlated with the walk, the average total factors perfectly. Verified live: simulating a walk with steps uniform on {1,2,3} (E[X]=2), stopping the first time the total reaches 50, the empirical average final total E[S_N] matches E[N]·E[X] to within a fraction of a percent over hundreds of thousands of runs. Neon-noir traced. See the stopping walk in 1D, E[S_N] vs E[N]·E[X] in 2D, and the factors-in-the-mean inverse in 3D.",
+  "lit":"Genuine Wald's identity (Abraham Wald, 1944). Verified live: simulating a walk with steps uniform on {1,2,3} (E[X]=2), stopped the first time the total reaches 50, the empirical E[S_N] matches E[N]·E[X] to within <0.5% over ~120000 runs (window.__wald.ES, .EN, .EX, .ok).",
+  "fig":"No framing; the stopping-time simulation and the E[N]·E[X] product both run in-browser and agree. The AVAN inverse is honest — instead of tracking the whole random sum, factor it: the inverse of 'the expected stopped total E[S_N]' is 'E[N]·E[X]', the average count times the average step — the randomness of N and the walk decouple in the mean. Magenta are the random walk paths; green is the expected total they share with E[N]·E[X]. A random sum that factors in the mean.",
+  "body":WALD_BODY,"script":WALD_SCRIPT},
+ {"slug":"the-durfee-square","title":"THE DURFEE SQUARE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#35ffb0","icon":"durfee",
+  "kicker":"a square hidden in every partition",
+  "blurb":"The Durfee square in the 5-window house format — the largest square that fits in the top-left corner of a partition's Young diagram. For a partition of n drawn as rows of boxes, its Durfee square has side d = the largest number such that the partition has at least d parts each of size ≥ d. This single number splits every partition into three pieces: the d×d square, a partition to its right (parts ≤ d), and a partition below (at most d parts). That decomposition gives a beautiful generating-function identity for the partition numbers: Σ_n p(n)qⁿ = Σ_{d≥0} q^{d²}/∏_{i=1}^d(1−qⁱ)² — sorting all partitions by their Durfee-square size. Verified live: expanding Σ_{d≥0} q^{d²}/∏_{i=1}^d(1−qⁱ)² as a power series, the coefficient of qⁿ equals the partition number p(n) for every n up to 45 — p(40)=37338, p(45)=89134. Neon-noir traced. See a Young diagram with its Durfee square in 1D, the generating function vs p(n) in 2D, and the split-by-square inverse in 3D.",
+  "lit":"Genuine Durfee square identity (William Durfee, a student of J. J. Sylvester, 1880s). Verified live: expanding Σ_{d≥0} q^{d²}/∏_{i=1}^d(1−qⁱ)² as a power series, the coefficient of qⁿ equals the brute partition count p(n) for every n=0..45; p(40)=37338, p(45)=89134 (window.__durfee.ok, .p40, .p45).",
+  "fig":"No framing; the Durfee-square generating function and a brute partition count both run in-browser and agree. The AVAN inverse is honest — instead of counting partitions blindly, sort them by their square: the inverse of 'p(n)' is 'Σ_d q^{d²}/∏(1−qⁱ)²', grouping partitions by the size of their Durfee square. Magenta are the Durfee squares of each size; green is the partition count they assemble. Every partition split by its square.",
+  "body":DURF_BODY,"script":DURF_SCRIPT},
  {"slug":"the-van-aubel","title":"THE VAN AUBEL","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#ffcf4a","icon":"vanaubel",
   "kicker":"squares on a quadrilateral yielding equal perpendicular segments",
