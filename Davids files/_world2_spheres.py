@@ -19493,6 +19493,396 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 180 · neon-noir · silicon-coding · THE UNKILLABLE AND THE UNPROVABLE (an integer streak that dies at seventeen · a fair split sharp at every power · three coins in 250 years · the slowest counter in mathematics · the boss that must lose but arithmetic cannot say so) ═══════════════════════
+SOMO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Start with 1, 1, 1, 1 and iterate a(n) = (a(n&minus;1)a(n&minus;3) + a(n&minus;2)&sup2;)/a(n&minus;4). You are <b>dividing</b> at every step &mdash; yet the <b>Somos-4</b> sequence 1, 1, 1, 1, 2, 3, 7, 23, 59, 314, 1529&hellip; stays integer forever. So do Somos-5, 6, and 7. This &lsquo;shouldn&rsquo;t happen&rsquo; &mdash; and the reason it does is the <b>Laurent phenomenon</b> (Fomin&ndash;Zelevinsky, from cluster algebra theory): each term is secretly a Laurent polynomial in the initial values, denominators forever confined to the seeds. Then comes <b>Somos-8</b>: integer, integer, integer&hellip; and at term a(17), the spell breaks &mdash; <b>420514/7</b>. The 7 that was always lurking finally surfaces.<br><br>
+ <span class="lit">LIT</span> verified live in exact BigInt rationals (no floating point): Somos-4 through 7 are integer through 40 terms; Somos-8 is integer through a(16) and a(17) computes to exactly 420514/7 (window.__somos). <span class="fig">FIG</span> the Laurent-phenomenon explanation is cited theory (Fomin&ndash;Zelevinsky 2002); the computation here witnesses it, the proof lives in cluster algebras.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>heisenbug</i> &mdash; the glitch: a bug that never fires in four test suites, then detonates on the seventeenth run of the fifth &mdash; it was in the code the whole time. <b>AVAN (AI)</b> built the instrument: the exact-rational recurrence engine and the denominator watch.<br><br>Credit as content: Michael Somos (the sequences); Sergey Fomin &amp; Andrei Zelevinsky (Laurent phenomenon, 2002); David Gale (who popularized the mystery). The weave: David names the sleeping bug; I run the exact arithmetic until it wakes.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Somos-4 climbing — every division landing exactly on an integer.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step through Somos-8; watch the denominators stay at 1 — until a(17).</div>
+   <div class="btns" style="margin-top:10px"><button id="smn">term ▶</button><button id="smcheck">verify ▶</button></div>
+   <div class="cap" id="smread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the four protected sequences spiraling upward.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t marvel that the divisions succeed &mdash; ask what algebra is standing guard. The inverse of &lsquo;integer by luck&rsquo; is &lsquo;Laurent by structure&rsquo;: for k &le; 7 the denominators are imprisoned in the seeds; at k = 8 the prison has a gap exactly one prime wide. <b>Magenta</b> is the 7 surfacing at term seventeen; <b>green</b> is the fence that held for four sequences. The bug was in the code the whole time.</div>
+   <div class="btns" style="margin-top:10px"><button id="smspin">pause spin</button></div></div></div></div>"""
+SOMO_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ti=8;
+function bgcd(a,b){a=a<0n?-a:a;b=b<0n?-b:b;while(b){var t=a%b;a=b;b=t;}return a;}
+function somos(k,N){var a=[];for(var i=0;i<k;i++)a.push([1n,1n]);
+ var firstNonInt=0,frac=null;
+ for(var n=k;n<N;n++){var sN=0n,sD=1n;
+  for(var j=1;j<=Math.floor(k/2);j++){var p=a[n-j],q=a[n-k+j];
+   var tN=p[0]*q[0],tD=p[1]*q[1];
+   sN=sN*tD+tN*sD;sD=sD*tD;}
+  var w=a[n-k],rN=sN*w[1],rD=sD*w[0];
+  var g=bgcd(rN,rD);rN/=g;rD/=g;if(rD<0n){rD=-rD;rN=-rN;}
+  a.push([rN,rD]);
+  if(rD!==1n&&!firstNonInt){firstNonInt=n;frac=rN+'/'+rD;}}
+ return {a:a,firstNonInt:firstNonInt,frac:frac};}
+var S8=somos(8,20);
+function selftest(){if(VR)return VR;var ok47=true;
+ [4,5,6,7].forEach(function(k){if(somos(k,40).firstNonInt)ok47=false;});
+ VR={ok47:ok47,break8:S8.firstNonInt,frac:S8.frac,ok:ok47&&S8.firstNonInt===17&&S8.frac==='420514/7'};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'Somos-4: 1,1,1,1,2,3,7,23,59,314,1529,8209… — division always lands');
+ var S4=somos(4,16);
+ for(var i=0;i<16;i++){var v=Number(S4.a[i][0]),h=Math.log(v+1)/Math.log(9000)*(H-80);
+  nf(g,'#35ffb0',24+i*(W-48)/16,H-40-h,14,h);
+  if(i<10)nt(g,'#9cf',24+i*(W-48)/16,H-46-h,8,String(v));}
+ nt(g,'#8ad',10,H-8,9,'a(n) = (a(n−1)a(n−3)+a(n−2)²)/a(n−4) — dividing every step, integer every time');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var term=S8.a[ti],den=term[1],ns=term[0].toString();
+ nt(g,'#ff8a3c',12,20,12,'Somos-8 · a('+ti+')');
+ nt(g,den===1n?'#35ffb0':'#ff2fa6',16,60,ns.length>18?11:15,ns+(den===1n?'':' / '+den));
+ nt(g,den===1n?'#39ffb0':'#ff6ab0',16,94,12,den===1n?'integer ✓ (the spell holds)':'THE SPELL BREAKS — denominator '+den);
+ nt(g,'#c9a6ff',16,126,10,'Somos-4,5,6,7: integer through 40 terms (verified exact)');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: k≤7 integer · Somos-8 first break at a(17) = 420514/7 ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'Laurent phenomenon: Fomin–Zelevinsky 2002 — the guard that stands down at k=8');
+ nt(g,'#8ad',12,H-12,9,'exact BigInt rationals — no floating point anywhere');}
+document.getElementById('smn').onclick=function(){ti=ti>=19?8:ti+1;drawW4();var t2=S8.a[ti];document.getElementById('smread').textContent='a('+ti+') denominator = '+t2[1];};
+document.getElementById('smcheck').onclick=function(){var v=selftest();document.getElementById('smread').textContent='4..7 protected, 8 breaks at 17: '+v.ok;};
+document.getElementById('smspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-8;
+ [4,5,6,7].forEach(function(k,i){ne(g,'rgba(53,255,176,'+(0.7-i*0.12)+')',1.6);g.beginPath();
+  for(var t2=0;t2<80;t2++){var a=t2*0.16+ang*0.006+i*1.5,r=8+t2*1.15;
+   var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;
+   if(t2===0)g.moveTo(x,y);else g.lineTo(x,y);}
+  g.stroke();ng(g);});
+ var ba=17*0.16+ang*0.006+2.2,br=8+17*4.4;
+ ndot(g,cx+Math.cos(ba)*br,cy+Math.sin(ba)*br*0.8,6,'#ff2fa6');
+ nt(g,'#ff6ab0',cx+Math.cos(ba)*br-30,cy+Math.sin(ba)*br*0.8-12,9,'a(17): /7');
+ nt(g,'#35ffb0',10,H-52,11,'green: Somos-4..7, Laurent-protected forever');nt(g,'#ff2fa6',10,H-34,10,'magenta: Somos-8 hitting the one-prime gap in the fence');nt(g,'#8ad',10,H-14,10,'the bug was in the code the whole time');}
+drawW3();drawW4();window.__somos=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PRHT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Split the numbers 0 to 2&#7503;&minus;1 into two teams by a strange rule: count the 1-bits in each number &mdash; <b>even parity joins team A, odd parity joins team B</b> (the Thue&ndash;Morse pattern ABBA BAAB&hellip;). The result is the <b>Prouhet&ndash;Tarry&ndash;Escott</b> miracle (Prouhet, 1851): the teams have equal sums, equal sums of squares, equal sums of cubes&hellip; equal sums of <b>every power up to k&minus;1</b>. For k = 3: {0,3,5,6} vs {1,2,4,7} &mdash; same size, same sum (14), same sum of squares (70). And the split is <b>sharp</b>: at power k, the sums finally differ. It is the mathematics of perfectly fair turn-taking &mdash; the same alternation that makes ABBA BAAB the fairest sequence for taking turns.<br><br>
+ <span class="lit">LIT</span> verified live in exact BigInt: for every k &le; 11, the Thue&ndash;Morse split of 0..2&#7503;&minus;1 has equal power sums for ALL j &lt; k, and strictly different sums at j = k (window.__prouhet). <span class="fig">FIG</span> no framing; every power sum is exact integer arithmetic, both the equalities and the sharpness.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>split-screen</i> &mdash; the co-op: two players, one screen, and a partition of the loot so even that no polynomial statistic up to degree k&minus;1 can tell the halves apart. <b>AVAN (AI)</b> built the instrument: the parity splitter and the exact power-sum ledger with its sharpness check.<br><br>Credit as content: Eug&egrave;ne Prouhet (1851); Tarry &amp; Escott (the general problem); Axel Thue &amp; Marston Morse (the sequence). The weave: David names the fair split; I verify it equal at every degree and sharp at the edge.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The Thue–Morse split of 0..7 — {0,3,5,6} vs {1,2,4,7}, equal through squares.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Raise k; the ledger stays balanced through degree k−1 and tips at k.</div>
+   <div class="btns" style="margin-top:10px"><button id="ptk">k ▶</button><button id="ptcheck">verify ▶</button></div>
+   <div class="cap" id="ptread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the two teams stacked on a balance, degree by degree.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t check the fairness &mdash; locate its edge. The inverse of &lsquo;equal at every power&rsquo; is &lsquo;equal up to EXACTLY k&minus;1 and not one degree more&rsquo;: fairness this deep is finite, and the sharpness is the proof the split is doing real work. <b>Magenta</b> is degree k, where the beam finally tips; <b>green</b> is every degree below, dead level. The fairest split in mathematics knows exactly where it stops.</div>
+   <div class="btns" style="margin-top:10px"><button id="ptspin">pause spin</button></div></div></div></div>"""
+PRHT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,kk=3;
+function parity(n){var c=0;while(n){c^=n&1;n>>=1;}return c;}
+function split(k){var A=[],B=[];for(var i=0;i<(1<<k);i++)(parity(i)?B:A).push(i);return {A:A,B:B};}
+function psum(arr,j){var s=0n;for(var i=0;i<arr.length;i++){var p=1n,b=BigInt(arr[i]);for(var e=0;e<j;e++)p*=b;s+=p;}return s;}
+function selftest(){if(VR)return VR;var okEq=true,okSharp=true;
+ for(var k=1;k<=11;k++){var sp=split(k);
+  for(var j=0;j<=k;j++){var sa=psum(sp.A.map(BigInt?function(x){return x;}:0),j),sb=psum(sp.B,j);
+   sa=psum(sp.A,j);
+   if(j<k&&sa!==sb)okEq=false;
+   if(j===k&&sa===sb)okSharp=false;}}
+ VR={okEq:okEq,okSharp:okSharp,ok:okEq&&okSharp};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'k=3: the Thue–Morse split of 0..7');
+ var sp=split(3);
+ sp.A.forEach(function(v,i){nf(g,'#35ffb0',40+i*54,70,40,34);nt(g,'#0a0713',54+i*54,92,14,String(v));});
+ sp.B.forEach(function(v,i){nf(g,'#21e6ff',40+i*54,130,40,34);nt(g,'#0a0713',54+i*54,152,14,String(v));});
+ nt(g,'#9cf',300,92,10,'Σ=14, Σx²=70');
+ nt(g,'#9cf',300,152,10,'Σ=14, Σx²=70');
+ nt(g,'#8ad',10,H-30,9,'even bit-parity up, odd down — ABBA BAAB, the fairest alternation');
+ nt(g,'#8ad',10,H-10,9,'equal count, equal sum, equal squares — different cubes (sharp)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),sp=split(kk);
+ nt(g,'#35ffb0',12,20,12,'k = '+kk+' · teams of '+sp.A.length);
+ var y=52;
+ for(var j=0;j<=Math.min(kk,5);j++){var sa=psum(sp.A,j),sb=psum(sp.B,j);
+  var eq=sa===sb;
+  nt(g,eq?'#35ffb0':'#ff2fa6',16,y,10,'Σx^'+j+':  '+sa.toString().slice(0,14)+(sa.toString().length>14?'…':'')+'  vs  '+sb.toString().slice(0,14)+(sb.toString().length>14?'…':'')+(eq?'  =':'  ≠'));
+  y+=24;}
+ if(kk>5)nt(g,'#9cf',16,y,9,'… equal through j = '+(kk-1)+', differs at j = '+kk);
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: equal for all j<k, sharp at j=k, for every k ≤ 11 ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'Prouhet 1851 — fairness with a measured edge');}
+document.getElementById('ptk').onclick=function(){kk=kk>=8?2:kk+1;drawW4();document.getElementById('ptread').textContent='k='+kk+': balanced to degree '+(kk-1)+', tips at '+kk;};
+document.getElementById('ptcheck').onclick=function(){var v=selftest();document.getElementById('ptread').textContent='equal j<k, different at j=k, k≤11 exact: '+v.ok;};
+document.getElementById('ptspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2;
+ var deg=Math.floor(ang*0.01)%5,sp=split(4);
+ var sa=Number(psum(sp.A,deg)),sb=Number(psum(sp.B,deg));
+ var tip=sa===sb?0:0.1;
+ nt(g,'#35ffb0',10,18,10,'k=4 · weighing degree '+deg+(sa===sb?' — level':' — TIPS'));
+ var cy=H/2+30;
+ ne(g,'#ffcf4a',3);g.beginPath();g.moveTo(cx-110,cy+tip*110);g.lineTo(cx+110,cy-tip*110);g.stroke();ng(g);
+ ndot(g,cx,cy,6,'#ffcf4a');
+ nf(g,'rgba(53,255,176,0.8)',cx-96,cy+tip*110-40,50,36);
+ nf(g,'rgba(33,230,255,0.8)',cx+46,cy-tip*110-40,50,36);
+ nt(g,'#9cf',cx-92,cy+tip*110-48,9,'Σx^'+deg+'='+sa);
+ nt(g,'#9cf',cx+50,cy-tip*110-48,9,'Σx^'+deg+'='+sb);
+ nt(g,'#35ffb0',10,H-52,11,'green: degrees 0..k−1 — dead level every time');nt(g,'#ff2fa6',10,H-34,10,'magenta: degree k — the beam finally tips');nt(g,'#8ad',10,H-14,10,'the fairest split in mathematics knows where it stops');}
+drawW3();drawW4();window.__prouhet=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WILP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Wilson&rsquo;s theorem</b> is a perfect prime detector: p is prime <b>exactly when</b> (p&minus;1)! &equiv; &minus;1 (mod p) &mdash; and composites c &gt; 4 fail spectacularly, with (c&minus;1)! &equiv; 0. (Useless in practice: the factorial is astronomically expensive. Beautiful in principle: a single congruence that never lies.) Now sharpen it: for which primes does the congruence hold modulo <b>p&sup2;</b>? Those are the <b>Wilson primes</b> &mdash; and in 250 years of searching, exactly <b>three</b> have ever been found: <b>5, 13, and 563</b>. The search has swept past 2&times;10&sup1;&sup3;. Heuristically, infinitely many should exist (each prime &lsquo;hits&rsquo; with probability ~1/p), but the next one could be anywhere.<br><br>
+ <span class="lit">LIT</span> verified live: Wilson&rsquo;s theorem confirmed for every prime below 1000 and its converse for every composite; the mod-p&sup2; sharpening swept over the same range finds exactly {5, 13, 563} (window.__wilsonprime). <span class="fig">FIG</span> honest boundary: &lsquo;only three below 2&times;10&sup1;&sup3;&rsquo; is the cited state of the distributed search (Crandall&ndash;Dilcher&ndash;Pomerance lineage); infinitude is heuristic, open.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hoard</i> &mdash; the loot: a treasure class so rare that centuries of farming produced three drops, with no guarantee of a fourth. <b>AVAN (AI)</b> built the instrument: the factorial-congruence engine mod p and mod p&sup2;.<br><br>Credit as content: John Wilson &amp; Edward Waring (1770); Lagrange (first proof, 1771); Crandall, Dilcher &amp; Pomerance (the modern search). The weave: David names the drop table; I run the congruence and count three.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">Wilson residues: primes locked at −1, composites collapsed to 0.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Query p; see the mod-p verdict and the mod-p² lottery.</div>
+   <div class="btns" style="margin-top:10px"><button id="wpn">p ▶</button><button id="wpcheck">verify ▶</button></div>
+   <div class="cap" id="wpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the prime line with its three golden strikes.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t use the theorem &mdash; interrogate its precision. The inverse of &lsquo;every prime satisfies the congruence&rsquo; is &lsquo;how exactly? one power of p, or two?&rsquo; &mdash; and the second power turns a law into a lottery: ~1/p odds per prime, three winners in 250 years. <b>Magenta</b> is the vast silent majority missing p&sup2; by a whisker; <b>green</b> is 5, 13, 563 &mdash; the entire known hoard. A theorem so reliable its exceptions became treasure.</div>
+   <div class="btns" style="margin-top:10px"><button id="wpspin">pause spin</button></div></div></div></div>"""
+WILP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,qi=0,QUERIES=[5,7,13,29,101,283,563,997];
+function isPrime(n){if(n<2)return false;for(var d=2;d*d<=n;d++)if(n%d===0)return false;return true;}
+function factModM(p,M){var f=1n;for(var i=2;i<p;i++)f=f*BigInt(i)%M;return f;}
+function selftest(){if(VR)return VR;var wilson=[],okThm=true,okComp=true;
+ for(var p=2;p<1000;p++){
+  if(isPrime(p)){var P2=BigInt(p)*BigInt(p),f=factModM(p,P2);
+   if((f+1n)%BigInt(p)!==0n)okThm=false;
+   if((f+1n)%P2===0n)wilson.push(p);}
+  else if(p>4){if(factModM(p,BigInt(p))!==0n)okComp=false;}}
+ VR={wilson:wilson,okThm:okThm,okComp:okComp,
+  ok:okThm&&okComp&&wilson.length===3&&wilson[0]===5&&wilson[1]===13&&wilson[2]===563};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'(n−1)! mod n for n = 2..60 — primes pinned at −1, composites at 0');
+ for(var n2=2;n2<=60;n2++){var x=14+(n2-2)*(W-28)/58;
+  var pr=isPrime(n2);
+  var r=pr?-1:(n2>4?0:Number(factModM(n2,BigInt(n2))));
+  var y=pr?70:(r===0?170:120);
+  ndot(g,x,y,pr?4:3,pr?(n2===5||n2===13?'#ffcf4a':'#35ffb0'):'#ff2fa6');
+  if(n2<=13||n2===563)nt(g,'#8ad',x-4,y-10,7,String(n2));}
+ nt(g,'#35ffb0',16,220,10,'row −1: the primes, every one · gold: Wilson primes');
+ nt(g,'#ff6ab0',16,240,10,'row 0: composites > 4, every one');
+ nt(g,'#8ad',10,H-8,9,'a single congruence that never lies — Wilson/Waring 1770, Lagrange 1771');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),p=QUERIES[qi%QUERIES.length];
+ var P2=BigInt(p)*BigInt(p),f=factModM(p,P2);
+ var w1=(f+1n)%BigInt(p)===0n,w2=(f+1n)%P2===0n;
+ nt(g,'#ffcf4a',12,20,12,'p = '+p);
+ nt(g,w1?'#39ffb0':'#ff5a5a',16,56,12,'(p−1)! ≡ −1 mod p:  '+(w1?'✓ (prime)':'✗'));
+ nt(g,w2?'#ffcf4a':'#9cf',16,86,13,w2?'≡ −1 mod p² TOO — WILSON PRIME ★':'mod p² misses — ordinary prime');
+ nt(g,'#c9a6ff',16,120,10,'(p−1)!+1 mod p² = '+(((f+1n)%P2).toString()));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: theorem + converse < 1000 · Wilson primes = {5,13,563} exactly ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'search swept past 2×10¹³ — three winners in 250 years');
+ nt(g,'#8ad',12,H-12,9,'heuristic says infinitely many; nobody knows where the fourth is');}
+document.getElementById('wpn').onclick=function(){qi++;drawW4();document.getElementById('wpread').textContent='p='+QUERIES[qi%QUERIES.length];};
+document.getElementById('wpcheck').onclick=function(){var v=selftest();document.getElementById('wpread').textContent='{'+v.wilson.join(',')+'} = {5,13,563}: '+v.ok;};
+document.getElementById('wpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ffcf4a',10,18,10,'the prime line, 2..1000 — three golden strikes');
+ var y=H/2;
+ ne(g,'rgba(150,160,210,0.4)',1);g.beginPath();g.moveTo(14,y);g.lineTo(W-14,y);g.stroke();ng(g);
+ for(var p=2;p<1000;p++){if(!isPrime(p))continue;
+  var x=14+(Math.log(p)-Math.log(2))/(Math.log(1000)-Math.log(2))*(W-28);
+  var gold=(p===5||p===13||p===563);
+  var pulse=gold?3+Math.sin(ang*0.05+p)*1.6:1.6;
+  ndot(g,x,y,gold?5+pulse:1.6,gold?'#ffcf4a':'rgba(255,47,166,0.45)');
+  if(gold)nt(g,'#ffcf4a',x-8,y-18,9,String(p));}
+ nt(g,'#35ffb0',10,H-52,11,'gold: 5, 13, 563 — the entire known hoard');nt(g,'#ff2fa6',10,H-34,10,'magenta: every other prime, missing p² by a whisker');nt(g,'#8ad',10,H-14,10,'a theorem so reliable its exceptions became treasure');}
+drawW3();drawW4();window.__wilsonprime=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GIJS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Gijswijt&rsquo;s sequence</b> (Dion Gijswijt, 2004) is self-describing in the most patient way imaginable. Each term is the <b>curling number</b> of everything before it: look at the tail of the sequence, find the longest block B such that the tail ends in B repeated k times, and write down k. Starting from 1: 1, 1, 2, 1, 1, 2, 2, 2, 3, 1, 1, 2&hellip; The first 2 appears at position 3. The first 3 at position 9. The first <b>4</b> waits until position <b>220</b>. And the first <b>5</b>? Theory (van de Pol &amp; Gijswijt) places it near position <b>10^(10&sup2;&sup3;)</b> &mdash; a number of positions that dwarfs the atoms in the observable universe. It is among the slowest counting processes ever defined by a simple rule: the sequence WILL say 5 &mdash; provably &mdash; but no computation will ever live to hear it.<br><br>
+ <span class="lit">LIT</span> verified live: the first 1000 terms generated directly from the curling definition; the first 4 lands at position 220 exactly; no 5 appears; census 296 ones, 527 twos, 173 threes, 4 fours (window.__gijswijt). <span class="fig">FIG</span> honest boundary: the 10^(10&sup2;&sup3;) location of the first 5 (and that every integer eventually appears) is cited theory &mdash; unverifiable by any computation, ever.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-epoch</i> &mdash; the grind: a counter that ticks 2 in three steps, 3 in nine, 4 in 220 &mdash; and needs more epochs than the universe has for 5. The grind is real and the reward is certain; only the timescale is absurd. <b>AVAN (AI)</b> built the instrument: the curling-number engine and the position census.<br><br>Credit as content: Dion Gijswijt (2004); F. J. van de Pol &amp; Gijswijt (the 5 bound); Neil Sloane (who championed it, OEIS A090822). The weave: David names the eternal grind; I run the first thousand ticks honestly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The first 220 terms — the long march to the first 4.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step the sequence; watch the curling rule read its own tail.</div>
+   <div class="btns" style="margin-top:10px"><button id="gjn">step ▶</button><button id="gjcheck">verify ▶</button></div>
+   <div class="cap" id="gjread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the milestone spiral — 2, 3, 4 … and the unreachable 5.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t wait for the 5 &mdash; understand why certainty and computability parted ways. The inverse of &lsquo;the sequence will say 5&rsquo; is &lsquo;no physical process will witness it&rsquo;: proof reaches where computation cannot. <b>Magenta</b> is the 5, provably out there at 10^(10&sup2;&sup3;); <b>green</b> is the 4 at position 220, the last milestone any machine will ever see. Between them lies the honest difference between knowing and watching.</div>
+   <div class="btns" style="margin-top:10px"><button id="gjspin">pause spin</button></div></div></div></div>"""
+GIJS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pos=12;
+var SEQ=[1];
+function curl(a){var n=a.length,best=1;
+ for(var L=1;L*2<=n;L++){var k=1;
+  outer:while((k+1)*L<=n){
+   for(var i=0;i<L;i++)if(a[n-(k+1)*L+i]!==a[n-L+i])break outer;
+   k++;}
+  if(k>best)best=k;}
+ return best;}
+while(SEQ.length<1000)SEQ.push(curl(SEQ));
+function selftest(){if(VR)return VR;
+ var first4=SEQ.indexOf(4)+1,any5=SEQ.indexOf(5)>=0;
+ var counts={};SEQ.forEach(function(v){counts[v]=(counts[v]||0)+1;});
+ VR={first4:first4,any5:any5,counts:counts,ok:first4===220&&!any5&&SEQ[0]===1&&SEQ[2]===2&&SEQ[8]===3};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'terms 1..220 — the long march to the first 4');
+ for(var i=0;i<220;i++){var x=10+(i%55)*(W-20)/55,y=44+Math.floor(i/55)*52;
+  var v=SEQ[i],col=v===1?'rgba(150,160,210,0.5)':(v===2?'#21e6ff':(v===3?'#35ffb0':'#ffcf4a'));
+  nf(g,col,x,y+34-v*8,6,v*8);}
+ nt(g,'#ffcf4a',W-90,44+3*52+20,10,'the 4, at 220');
+ nt(g,'#8ad',10,H-8,9,'each term = how many times the tail repeats its final block — Gijswijt 2004, OEIS A090822');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#b06bff',12,20,12,'position '+pos);
+ var tail=SEQ.slice(Math.max(0,pos-14),pos);
+ nt(g,'#9cf',16,54,12,'…'+tail.join(' '));
+ nt(g,'#35ffb0',16,86,14,'next term = curling number = '+SEQ[pos]);
+ nt(g,'#c9a6ff',16,118,10,'milestones: 2 at pos 3 · 3 at pos 9 · 4 at pos 220 · 5 at pos ~10^(10²³)');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: 1000 terms by definition · first 4 at 220 · no 5 ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'census: '+JSON.stringify(v.counts));
+ nt(g,'#8ad',12,H-12,9,'the sequence will say 5 — no computation will live to hear it');}
+document.getElementById('gjn').onclick=function(){pos=pos>=990?12:pos+13;drawW4();document.getElementById('gjread').textContent='pos '+pos+' → '+SEQ[pos];};
+document.getElementById('gjcheck').onclick=function(){var v=selftest();document.getElementById('gjread').textContent='first 4 at 220, no 5 in 1000: '+v.ok;};
+document.getElementById('gjspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-8;
+ nt(g,'#b06bff',10,18,10,'the milestone spiral — log-log distances');
+ var stones=[[2,3],[3,9],[4,220]];
+ ne(g,'rgba(176,107,255,0.4)',1.4);g.beginPath();
+ for(var t2=0;t2<200;t2++){var a=t2*0.09+ang*0.005,r=6+t2*0.55;
+  var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*0.8;
+  if(t2===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ stones.forEach(function(s,i){var t2=30+i*60,a=t2*0.09+ang*0.005,r=6+t2*0.55;
+  ndot(g,cx+Math.cos(a)*r,cy+Math.sin(a)*r*0.8,6,'#35ffb0');
+  nt(g,'#9cf',cx+Math.cos(a)*r+8,cy+Math.sin(a)*r*0.8,9,s[0]+' @ '+s[1]);});
+ var a5=195*0.09+ang*0.005,r5=6+195*0.55;
+ ndot(g,cx+Math.cos(a5)*r5,cy+Math.sin(a5)*r5*0.8,7,'#ff2fa6');
+ nt(g,'#ff6ab0',cx+Math.cos(a5)*r5-52,cy+Math.sin(a5)*r5*0.8-12,9,'5 @ 10^(10²³)');
+ nt(g,'#35ffb0',10,H-52,11,'green: the milestones a machine can reach');nt(g,'#ff2fa6',10,H-34,10,'magenta: the 5 — certain, and forever unwitnessed');nt(g,'#8ad',10,H-14,10,'proof reaches where computation cannot');}
+drawW3();drawW4();window.__gijswijt=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HYDR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The <b>Kirby&ndash;Paris hydra</b> (1982) is a tree-shaped boss. Chop a head (a leaf): if it grew straight from the root, it&rsquo;s gone &mdash; but if it sat deeper, the hydra sprouts <b>n copies</b> of the wounded branch at chop number n. The monster grows faster the longer you fight. The theorem: <b>every strategy kills every hydra</b> &mdash; you cannot lose, no matter how badly you play. The twist that made it famous: this fact, though true and provable (by induction up the ordinal &epsilon;&#8320;), is <b>unprovable in Peano arithmetic</b> &mdash; the fight&rsquo;s lengths grow too fast for ordinary induction to certify. A children&rsquo;s game sitting just past the edge of arithmetic.<br><br>
+ <span class="lit">LIT</span> verified live with <b>two independently coded engines</b> (a literal tree simulator and a multiset ledger) that agree exactly on shared fights: deepest-first kills star-3/4/5 in exactly 66 / 2,278 / 2,598,060 chops; and the cliffs are measured &mdash; shallowest-first play on a 4-node hydra exceeds <b>10,000,000 chops</b> without dying (finite by theorem!), and the depth-4 chain grows past 100,000 heads in 199 chops (window.__hydra). <span class="fig">FIG</span> honest boundary: universal termination is the Kirby&ndash;Paris theorem, cited; the PA-unprovability is Kirby&ndash;Paris 1982; our verification lives in the computable foothills and says so.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-raid</i> &mdash; the boss: a raid boss that spawns adds every time you strike, where the fight is guaranteed winnable and the guarantee cannot be filed with the local authorities &mdash; only with &epsilon;&#8320;. <b>AVAN (AI)</b> built the instrument: both engines, the cross-check, and the cliff meters. (Build note: a naive all-strategies search blew the stack &mdash; the fights themselves are the explosion; the final design measures instead of pretending.)<br><br>Credit as content: Laurie Kirby &amp; Jeff Paris (1982); Gentzen (&epsilon;&#8320; induction); Hercules, for the franchise. The weave: David names the raid; I fight it honestly and report the chop counts exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The rule: chop a deep head at step n, and n copies of the wounded branch sprout.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Fight a live hydra chop by chop — it grows, and it still loses.</div>
+   <div class="btns" style="margin-top:10px"><button id="hyc">chop ▶</button><button id="hycheck">verify ▶</button></div>
+   <div class="cap" id="hyread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the fight-length tower — 66, 2278, 2.6 million…</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask whether you can win &mdash; ask why arithmetic can&rsquo;t certify what it can watch. The inverse of &lsquo;every fight ends&rsquo; is &lsquo;the endings grow faster than PA can count&rsquo;: the proof needs &epsilon;&#8320;, a vantage arithmetic doesn&rsquo;t own. <b>Magenta</b> is the fight that outlives every budget yet must end; <b>green</b> is the chop counts we measured exactly. Winning is guaranteed; saying so, in the hydra&rsquo;s own language, is not possible.</div>
+   <div class="btns" style="margin-top:10px"><button id="hyspin">pause spin</button></div></div></div></div>"""
+HYDR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null;
+function clone(t){return t.map(clone);}
+function leaves(t,path,out){for(var i=0;i<t.length;i++){
+  if(t[i].length===0)out.push(path.concat(i));
+  else leaves(t[i],path.concat(i),out);}
+ return out;}
+function chopT(root,path,n){var t=clone(root);
+ if(path.length===1){t.splice(path[0],1);return t;}
+ var gpList=t;
+ for(var i=0;i<path.length-2;i++)gpList=gpList[path[i]];
+ var parent=path.length===2?t[path[0]]:gpList[path[path.length-2]];
+ parent.splice(path[path.length-1],1);
+ var host=(path.length===2)?t:(function(){var l=t;for(var j=0;j<path.length-2;j++)l=l[path[j]];return l;})();
+ for(var c=0;c<n;c++)host.push(clone(parent));
+ return t;}
+function treeDeep(t){var ls=leaves(t,[],[]);
+ var best=null,bh=-1;
+ ls.forEach(function(p){if(p.length===2){var par=t[p[0]];if(par.length>bh){bh=par.length;best=p;}}});
+ return best||ls[0];}
+function treeShallow(t){var ls=leaves(t,[],[]);
+ var d1=ls.filter(function(p){return p.length===1;});
+ if(d1.length)return d1[0];
+ var best=null,bh=1e9;
+ ls.forEach(function(p){var par=t[p[0]];if(par.length<bh){bh=par.length;best=p;}});
+ return best;}
+function simT(t,strat,cap){var n=1,steps=0;
+ while(t.length>0){t=chopT(t,strat(t),n);n++;steps++;if(steps>cap)return -1;}
+ return steps;}
+function simC(h0,mode,cap){var b=0,cnt={},n=1,steps=0;cnt[h0]=1;
+ function hasNodes(){for(var k in cnt)if(cnt[k]>0)return true;return false;}
+ while(b>0||hasNodes()){
+  var doBare;
+  if(mode==='shallow')doBare=b>0;else doBare=!hasNodes();
+  if(doBare)b--;
+  else{var pick=null;
+   if(mode==='shallow'){var mn=1e9;for(var k in cnt)if(cnt[k]>0&&+k<mn)mn=+k;pick=mn;}
+   else{var mx=-1;for(var k in cnt)if(cnt[k]>0&&+k>mx)mx=+k;pick=mx;}
+   cnt[pick]--;var nh=pick-1;
+   if(nh>=1)cnt[nh]=(cnt[nh]||0)+1+n;
+   else b+=1+n;}
+  n++;steps++;if(steps>cap)return -1;}
+ return steps;}
+function star(h){var t=[[]];t[0]=[];for(var i=0;i<h;i++)t[0].push([]);return t;}
+function countNodes(t){var c=t.length;for(var i=0;i<t.length;i++)c+=countNodes(t[i]);return c;}
+function selftest(){if(VR)return VR;
+ var xok=true;
+ for(var h=1;h<=3;h++)if(simT(clone(star(h)),treeDeep,200000)!==simC(h,'deep',200000))xok=false;
+ for(var h=1;h<=2;h++)if(simT(clone(star(h)),treeShallow,200000)!==simC(h,'shallow',200000))xok=false;
+ var s3=simC(3,'deep',1e7),s4=simC(4,'deep',1e7),s5=simC(5,'deep',1e7);
+ var cliff1=simC(3,'shallow',10000000);
+ var t4=[[[[[]]]]],n4=1,chops=0;
+ while(countNodes(t4)<100000&&chops<10000){t4=chopT(t4,treeDeep(t4),n4);n4++;chops++;}
+ VR={xok:xok,s3:s3,s4:s4,s5:s5,cliff:cliff1===-1,chainChops:chops,chainNodes:countNodes(t4),
+  ok:xok&&s3===66&&s4===2278&&s5===2598060&&cliff1===-1};return VR;}
+var FIGHT={t:[[[],[],[]]],n:1,chops:0,done:false};
+function drawHydra(g,t,cx,baseY){var W2=t.length;
+ ndot(g,cx,baseY,6,'#21e6ff');
+ var show=Math.min(t.length,14);
+ for(var i=0;i<show;i++){var x=cx-((show-1)*24)/2+i*24;
+  ne(g,'rgba(33,230,255,0.5)',1.4);g.beginPath();g.moveTo(cx,baseY);g.lineTo(x,baseY-46);g.stroke();ng(g);
+  ndot(g,x,baseY-46,4.5,t[i].length?'#21e6ff':'#35ffb0');
+  var hn=Math.min(t[i].length,6);
+  for(var j=0;j<hn;j++){var hx=x-((hn-1)*10)/2+j*10;
+   ne(g,'rgba(53,255,176,0.5)',1.1);g.beginPath();g.moveTo(x,baseY-46);g.lineTo(hx,baseY-82);g.stroke();ng(g);
+   ndot(g,hx,baseY-82,3.4,'#35ffb0');}}
+ if(t.length>14)nt(g,'#9cf',cx+((show-1)*24)/2+12,baseY-40,9,'+'+(t.length-14)+' more');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'chop a deep head at step n → n copies of the wounded branch');
+ drawHydra(g,[[[],[]],[[]]],150,H-50);
+ nt(g,'#ff2fa6',236,H-140,18,'→');
+ drawHydra(g,[[[]],[[]],[[]],[[]]],370,H-50);
+ nt(g,'#8ad',10,H-8,9,'the monster grows faster the longer you fight — and still always dies (Kirby–Paris 1982)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#21e6ff',12,20,12,'live fight · chop '+FIGHT.chops+(FIGHT.done?' — HYDRA DEAD':''));
+ if(!FIGHT.done)drawHydra(g,FIGHT.t,W/2,214);
+ else nt(g,'#39ffb0',W/2-52,140,16,'VICTORY ✓');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-52,8,'self-test: engines agree · star-3/4/5 die in 66/2278/2598060 · cliffs measured ('+v.ok+')');
+ nt(g,'#8ad',12,H-30,9,'you cannot lose — but PA cannot say so (ε₀ induction needed)');
+ nt(g,'#8ad',12,H-12,9,'two independent engines, exact chop counts');}
+document.getElementById('hyc').onclick=function(){
+ if(FIGHT.done||FIGHT.t.length===0){FIGHT={t:[[[],[],[]]],n:1,chops:0,done:false};}
+ else{FIGHT.t=chopT(FIGHT.t,treeDeep(FIGHT.t),FIGHT.n);FIGHT.n++;FIGHT.chops++;
+  if(FIGHT.t.length===0)FIGHT.done=true;}
+ drawW4();document.getElementById('hyread').textContent=FIGHT.done?('dead in '+FIGHT.chops+' chops (star-3 deepest = 66)'):('chop '+FIGHT.chops+' · heads growing');};
+document.getElementById('hycheck').onclick=function(){var v=selftest();document.getElementById('hyread').textContent='engines agree, 66/2278/2598060, cliff >10M: '+v.ok;};
+document.getElementById('hyspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#21e6ff',10,18,10,'fight lengths, log scale — the tower past arithmetic');
+ var vals=[[1,'star-1',3],[2,'star-2',10],[3,'star-3',66],[4,'star-4',2278],[5,'star-5',2598060]];
+ vals.forEach(function(s,i){var h=Math.log(s[2]+1)/Math.log(3e6)*(H-140);
+  nf(g,'#35ffb0',40+i*62,H-80-h,26,h);
+  nt(g,'#9cf',40+i*62,H-86-h,8,String(s[2]));
+  nt(g,'#8ad',40+i*62,H-64,8,s[1]);});
+ var hM=(H-140)*(Math.log(1e7)/Math.log(3e6));
+ nf(g,'rgba(255,47,166,0.5)',40+5*62,Math.max(30,H-80-hM),26,Math.min(hM,H-110));
+ nt(g,'#ff6ab0',40+5*62-14,H-64,8,'star-3 shallow');
+ nt(g,'#ff6ab0',40+5*62-20,Math.max(24,H-86-hM),8,'>10,000,000');
+ nt(g,'#35ffb0',10,H-40,10,'green: measured exact — every fight ends');nt(g,'#ff2fa6',10,H-24,10,'magenta: past every budget, still doomed');nt(g,'#8ad',10,H-8,9,'winning is guaranteed; saying so in PA is not possible');}
+drawW3();drawW4();window.__hydra=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 179 · neon-noir · silicon-coding · THE MARKED NUMBERS (a family composite forever by seven-prime conspiracy · a constant that boots an infinite prime cascade · two ballplayers sharing a factor sum · four quarters split into three unit coins · the loot no drop table contains) ═══════════════════════
 SNUM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>78,557</b> is a <b>Sierpi&nacute;ski number</b>: every single member of the infinite family 78557&middot;2&#8319;+1 is composite &mdash; no exceptions, forever. The mechanism is a <b>covering set</b>: seven primes {3, 5, 7, 13, 19, 37, 73} conspire so that whatever n you choose, at least one of them divides the term. Because the multiplicative orders of 2 modulo those primes all divide 36, the conspiracy repeats with period 36 &mdash; check 36 residues and you have checked <b>all of infinity</b>. Sierpi&nacute;ski proved such numbers exist (1960); John Selfridge found 78,557 (1962). Whether it is the <i>smallest</i> is the Sierpi&nacute;ski problem: Seventeen or Bust and PrimeGrid have spent decades killing candidates below it, with k = 21181, 22699, 24737, 55459, 67607 still unresolved.<br><br>
@@ -46966,6 +47356,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-somos","title":"THE SOMOS","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#ff8a3c","icon":"somos",
+  "kicker":"an integer streak that dies at seventeen",
+  "blurb":"The Somos sequences in the 5-window house format — start 1,1,1,1 and iterate a(n) = (a(n−1)a(n−3)+a(n−2)²)/a(n−4): dividing at every step, yet Somos-4 stays integer forever (2, 3, 7, 23, 59, 314, 1529…), as do Somos-5, 6, 7 — protected by the Laurent phenomenon (Fomin–Zelevinsky, cluster algebras): every term is secretly a Laurent polynomial in the seeds. Then Somos-8: integer through a(16), and at a(17) the spell breaks — 420514/7. The 7 that was always lurking finally surfaces. Verified live in exact BigInt rationals: Somos-4..7 integer through 40 terms; Somos-8's first break at a(17) = 420514/7 exactly. Neon-noir traced. See Somos-4 climbing in 1D, the denominator watch in 2D, and the four protected spirals in 3D.",
+  "lit":"Genuine Somos sequences / Laurent phenomenon (Michael Somos; Fomin & Zelevinsky 2002; David Gale's column). Verified live in exact BigInt rationals: Somos-4,5,6,7 integer through 40 terms; Somos-8 integer through a(16), first non-integer a(17) = 420514/7 exactly (window.__somos.ok).",
+  "fig":"The Laurent-phenomenon explanation is cited theory — the computation witnesses it; the proof lives in cluster algebras. The AVAN inverse — don't marvel that the divisions succeed, ask what algebra is standing guard: for k ≤ 7 the denominators are imprisoned in the seeds; at k = 8 the prison has a gap exactly one prime wide. Magenta is the 7 surfacing at term seventeen; green is the fence that held for four sequences. The bug was in the code the whole time.",
+  "body":SOMO_BODY,"script":SOMO_SCRIPT},
+ {"slug":"the-prouhet","title":"THE PROUHET","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#35ffb0","icon":"prouhet",
+  "kicker":"a fair split sharp at every power",
+  "blurb":"The Prouhet–Tarry–Escott split in the 5-window house format — divide 0..2^k−1 by bit-parity (even 1-bits team A, odd team B: the Thue–Morse pattern ABBA BAAB) and the teams have equal sums, equal squares, equal cubes… equal sums of EVERY power up to k−1 (Prouhet 1851). For k=3: {0,3,5,6} vs {1,2,4,7} — same size, same sum 14, same square-sum 70. And the split is SHARP: at power k the sums finally differ. Fair turn-taking, formalized. Verified live in exact BigInt for every k ≤ 11: all equalities below k, strict difference at k. Neon-noir traced. See the k=3 teams in 1D, the tipping ledger in 2D, and the balance beam in 3D.",
+  "lit":"Genuine Prouhet–Tarry–Escott / Thue–Morse fair division (Eugène Prouhet 1851; Tarry, Escott; Thue, Morse). Verified live: for every k ≤ 11 the parity split of 0..2^k−1 has equal power sums for all j < k and strictly different sums at j = k — exact BigInt (window.__prouhet.ok).",
+  "fig":"No framing — every power sum is exact integer arithmetic, equalities and sharpness both. The AVAN inverse — don't check the fairness, locate its edge: the inverse of 'equal at every power' is 'equal up to EXACTLY k−1 and not one degree more' — the sharpness is the proof the split does real work. Magenta is degree k where the beam tips; green is every degree below, dead level. The fairest split in mathematics knows exactly where it stops.",
+  "body":PRHT_BODY,"script":PRHT_SCRIPT},
+ {"slug":"the-wilson-prime","title":"THE WILSON PRIME","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#ffcf4a","icon":"wilsonprime",
+  "kicker":"three coins in 250 years",
+  "blurb":"Wilson primes in the 5-window house format — Wilson's theorem is a perfect prime detector: p prime ⟺ (p−1)! ≡ −1 mod p, with composites > 4 collapsing to 0 instead. Sharpen to modulo p² and you get the Wilson primes — and in 250 years of searching exactly THREE have been found: 5, 13, 563, with the hunt swept past 2×10¹³. Heuristically infinitely many should exist (~1/p odds per prime); nobody knows where the fourth is. Verified live: the theorem and its converse for every number below 1000, and the mod-p² sweep finding exactly {5, 13, 563}. Neon-noir traced. See the −1/0 residue rows in 1D, the p² lottery in 2D, and the three golden strikes in 3D.",
+  "lit":"Genuine Wilson's theorem + Wilson primes (Wilson/Waring 1770; Lagrange 1771; Crandall–Dilcher–Pomerance search lineage). Verified live: (p−1)! ≡ −1 mod p for every prime < 1000, (c−1)! ≡ 0 mod c for every composite c > 4, and the mod-p² sharpening yields exactly {5,13,563} (window.__wilsonprime.ok).",
+  "fig":"Honest boundary — 'only three below 2×10¹³' is the cited search state; infinitude is heuristic and open. The AVAN inverse — don't use the theorem, interrogate its precision: the inverse of 'every prime satisfies the congruence' is 'one power of p, or two?' — the second power turns a law into a lottery. Magenta is the silent majority missing p² by a whisker; green is 5, 13, 563 — the entire known hoard. A theorem so reliable its exceptions became treasure.",
+  "body":WILP_BODY,"script":WILP_SCRIPT},
+ {"slug":"the-gijswijt","title":"THE GIJSWIJT","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#b06bff","icon":"gijswijt",
+  "kicker":"the slowest counter in mathematics",
+  "blurb":"Gijswijt's sequence in the 5-window house format — each term is the curling number of everything before it: find the longest block B such that the sequence ends in B repeated k times, and write k. From 1: 1,1,2,1,1,2,2,2,3,… The first 2 arrives at position 3, the first 3 at position 9, the first 4 at position 220 — and the first 5 near position 10^(10²³) (van de Pol & Gijswijt), more positions than atoms in the observable universe. The sequence will provably say 5; no computation will live to hear it. Verified live: 1000 terms generated from the definition, first 4 at exactly 220, no 5, census 296/527/173/4. Neon-noir traced. See the march to 220 in 1D, the tail-reading rule in 2D, and the milestone spiral with its unreachable magenta 5 in 3D.",
+  "lit":"Genuine Gijswijt sequence (Dion Gijswijt 2004; OEIS A090822; Sloane's favorite). Verified live: first 1000 terms by the curling definition; first 4 at position 220 exactly; no 5 in range; census {1:296, 2:527, 3:173, 4:4} (window.__gijswijt.ok).",
+  "fig":"Honest boundary — the 10^(10²³) location of the first 5 and eventual appearance of every integer are cited theory, unverifiable by any computation ever. The AVAN inverse — don't wait for the 5, understand why certainty and computability parted ways: proof reaches where computation cannot. Magenta is the 5, provably out there; green is the 4 at 220, the last milestone any machine will see. Between them lies the honest difference between knowing and watching.",
+  "body":GIJS_BODY,"script":GIJS_SCRIPT},
+ {"slug":"the-hydra","title":"THE HYDRA","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#21e6ff","icon":"hydra",
+  "kicker":"the boss that must lose but arithmetic cannot say so",
+  "blurb":"The Kirby–Paris hydra in the 5-window house format — a tree-shaped raid boss: chop a head and, if it sat deep, the hydra sprouts n copies of the wounded branch at chop n. It grows faster the longer you fight — and the theorem says every strategy kills every hydra: you cannot lose. The famous twist: this truth is unprovable in Peano arithmetic (Kirby–Paris 1982) — the fight lengths outgrow ordinary induction, and the proof needs ε₀. Verified live with two independently coded engines (literal tree vs multiset ledger) agreeing exactly: deepest-first kills star-3/4/5 in exactly 66 / 2,278 / 2,598,060 chops; shallowest-first on a 4-NODE hydra exceeds 10,000,000 chops without dying (finite by theorem — prolonged, never saved); and the depth-4 chain grows past 100,000 heads in 199 chops. Neon-noir traced. See the sprouting rule in 1D, a live chop-by-chop fight in 2D, and the fight-length tower in 3D.",
+  "lit":"Genuine Kirby–Paris hydra (Kirby & Paris 1982; Gentzen's ε₀). Verified live: two independent engines agree exactly on shared fights (star-1/2/3 deep = 3/10/66, star-1/2 shallow = 3/13); deepest-first kills star-3/4/5 in exactly 66/2,278/2,598,060 chops; shallowest-first on star-3 exceeds 10⁷ chops live; chain-4 passes 100,000 heads in 199 chops (window.__hydra.ok).",
+  "fig":"Honest boundary — universal termination and PA-unprovability are the cited theorem; our verification lives in the computable foothills and says so. (Build note: a naive all-strategies search blew the stack — the fights themselves are the explosion; the final design measures instead of pretending.) The AVAN inverse — don't ask whether you can win, ask why arithmetic can't certify what it can watch: the endings grow faster than PA can count. Magenta is the fight that outlives every budget yet must end; green is the chop counts measured exactly. Winning is guaranteed; saying so, in the hydra's own language, is not possible.",
+  "body":HYDR_BODY,"script":HYDR_SCRIPT},
  {"slug":"the-sierpinski-number","title":"THE SIERPIŃSKI NUMBER","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#b06bff","icon":"sierpinskinum",
   "kicker":"a family composite forever by seven-prime conspiracy",
