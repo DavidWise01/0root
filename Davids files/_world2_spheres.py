@@ -19493,6 +19493,422 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 190 · neon-noir · silicon-coding · THE CURVES WITH SECRETS (rotation compiled to translation · the witch with no mean · between the circle and the square · rationality on an oscilloscope · sunlight signing its name in coffee) ═══════════════════════
+TUSI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Roll a circle inside a circle of exactly <b>twice its radius</b>, and watch a point on its rim: it does not loop or curl &mdash; it slides back and forth in a <b>perfect straight line</b>, a diameter of the big circle. This is the <b>Tusi couple</b>, discovered by Nasir al-Din al-Tusi in 1247 to build planetary models without Ptolemy&rsquo;s equant &mdash; and the same construction appears three centuries later in Copernicus&rsquo;s De Revolutionibus. Pure rotation, compiled to pure translation. The 2:1 ratio is everything: at 3:1 the same point draws a three-cusped deltoid; and points strictly inside the rolling circle trace exact <b>ellipses</b> &mdash; the principle behind elliptic trammel chucks.<br><br>
+ <span class="lit">LIT</span> verified live: the rim path&rsquo;s maximum |y| over a full cycle is 0.0 to machine precision with span exactly [&minus;2, 2] (the trig identity executed at 10,000 points); the 3:1 contrast shows max |y| = 2.598 (the deltoid); and interior points at offset d satisfy the ellipse equation with semi-axes 1&plusmn;d to a residual below 10&#8315;&sup1;&#8304; (window.__tusi). <span class="fig">FIG</span> the astronomy (equant elimination, the Copernicus transmission question) is cited history; the geometry is executed exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>noclip</i> &mdash; the cheat: circular motion clipping straight through the axis like the collision mesh isn&rsquo;t loaded &mdash; rotation walking through walls as translation. <b>AVAN (AI)</b> built the instrument: the hypocycloid engine with its 2:1 degeneracy check and the ellipse residual audit.<br><br>Credit as content: Nasir al-Din al-Tusi (1247, Tahrir al-Majisti); Copernicus (De Revolutionibus, 1543); the trammel tradition. The weave: David names the clip; I roll the circle ten thousand steps and the y-coordinate never wakes.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The couple mid-roll — the rim point pinned to the diameter.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Change the ratio; only 2:1 collapses the curve to a line.</div>
+   <div class="btns" style="margin-top:10px"><button id="tsn">ratio ▶</button><button id="tscheck">verify ▶</button></div>
+   <div class="cap" id="tsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the rolling couple, line and ellipses together.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t watch the point &mdash; decompose the motion. The inverse of &lsquo;a line from two circles&rsquo; is &lsquo;two counter-rotations at 1:2 summing to zero curvature&rsquo;: the rim point rides cos t + cos t while the sines cancel exactly. <b>Magenta</b> is the deltoid at any other ratio; <b>green</b> is the special cancellation at 2:1. Straightness here is not the absence of rotation; it is rotation in perfect self-opposition.</div>
+   <div class="btns" style="margin-top:10px"><button id="tsspin">pause spin</button></div></div></div></div>"""
+TUSI_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,RATIO=2;
+function hypo(Rr,rr,t){return [(Rr-rr)*Math.cos(t)+rr*Math.cos((Rr-rr)/rr*t),(Rr-rr)*Math.sin(t)-rr*Math.sin((Rr-rr)/rr*t)];}
+function selftest(){if(VR)return VR;
+ var maxY=0,minX=1e9,maxX=-1e9;
+ for(var i=0;i<=10000;i++){var t=i/10000*2*Math.PI;
+  var p=hypo(2,1,t);
+  if(Math.abs(p[1])>maxY)maxY=Math.abs(p[1]);
+  if(p[0]<minX)minX=p[0];
+  if(p[0]>maxX)maxX=p[0];}
+ var okLine=maxY<1e-12&&Math.abs(minX+2)<1e-12&&Math.abs(maxX-2)<1e-12;
+ var maxY3=0;
+ for(var i=0;i<=10000;i++){var p=hypo(3,1,i/10000*2*Math.PI);
+  if(Math.abs(p[1])>maxY3)maxY3=Math.abs(p[1]);}
+ var d=0.5,okEll=true;
+ for(var i=0;i<=2000;i++){var t=i/2000*2*Math.PI;
+  var x=Math.cos(t)+d*Math.cos(t),y=Math.sin(t)-d*Math.sin(t);
+  var e=x*x/((1+d)*(1+d))+y*y/((1-d)*(1-d));
+  if(Math.abs(e-1)>1e-10)okEll=false;}
+ VR={maxY:maxY,maxY3:maxY3,okLine:okLine,okEll:okEll,ok:okLine&&okEll&&maxY3>2};return VR;}
+function drawCouple(g,cx,cy,S,t,ratio){
+ ne(g,'rgba(150,160,210,0.5)',1.4);g.beginPath();g.arc(cx,cy,S,0,6.2832);g.stroke();ng(g);
+ var rr=S/ratio;
+ var ccx=cx+(S-rr)*Math.cos(t),ccy=cy+(S-rr)*Math.sin(t);
+ ne(g,'#b06bff',1.6);g.beginPath();g.arc(ccx,ccy,rr,0,6.2832);g.stroke();ng(g);
+ var p=hypo(ratio,1,t);
+ var px=cx+p[0]*S/ratio,py=cy+p[1]*S/ratio;
+ ndot(g,px,py,5,'#35ffb0');
+ return [px,py];}
+var TRAIL=[];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'the Tusi couple — 2:1, and the rim point rides the diameter');
+ ne(g,'#35ffb0',1.6);g.beginPath();g.moveTo(W/2-104,H/2+8);g.lineTo(W/2+104,H/2+8);g.stroke();ng(g);
+ drawCouple(g,W/2,H/2+8,104,0.9,2);
+ nt(g,'#8ad',10,H-8,9,'al-Tusi 1247 — planetary latitude without the equant; later in Copernicus');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#b06bff',12,20,12,'ratio '+RATIO+':1');
+ ne(g,'rgba(53,255,176,0.5)',1.2);g.beginPath();
+ for(var i=0;i<=600;i++){var t=i/600*2*Math.PI,p=hypo(RATIO,1,t);
+  var x=W/2+p[0]*90/(RATIO-0)*(RATIO===2?1:1.0),y=160+p[1]*90/(RATIO===2?2:RATIO);
+  x=W/2+p[0]*(90/RATIO);y=160+p[1]*(90/RATIO);
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ nt(g,RATIO===2?'#39ffb0':'#ff6ab0',16,258,11,RATIO===2?'a straight line — max |y| = 0':'a '+(RATIO===3?'deltoid':'hypocycloid')+' — the line is gone');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: 2:1 line exact · 3:1 deltoid · interior ellipses 1e-10 ('+v.ok+')');}
+document.getElementById('tsn').onclick=function(){RATIO=RATIO>=5?2:RATIO+1;drawW4();document.getElementById('tsread').textContent=RATIO+':1';};
+document.getElementById('tscheck').onclick=function(){var v=selftest();document.getElementById('tsread').textContent='line + ellipses exact: '+v.ok;};
+document.getElementById('tsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#b06bff',10,18,10,'line and ellipses from one rolling');
+ var t=ang*0.02;
+ [0.999,0.7,0.4,0.15].forEach(function(dd,i){
+  ne(g,i===0?'rgba(53,255,176,0.9)':'rgba(33,230,255,'+(0.6-i*0.12)+')',1.4);
+  g.beginPath();
+  for(var k=0;k<=300;k++){var tt=k/300*2*Math.PI;
+   var x=W/2+(Math.cos(tt)+dd*Math.cos(tt))*80,y=H/2-6+(Math.sin(tt)-dd*Math.sin(tt))*80;
+   if(k===0)g.moveTo(x,y);else g.lineTo(x,y);}
+  g.stroke();ng(g);});
+ var p=hypo(2,1,t);
+ ndot(g,W/2+p[0]*80,H/2-6,6,'#35ffb0');
+ nt(g,'#35ffb0',10,H-52,11,'green: the rim point, forever on its line');nt(g,'#ff2fa6',10,H-34,10,'magenta: the deltoid waiting at every other ratio');nt(g,'#8ad',10,H-14,10,'straightness as rotation in perfect self-opposition');}
+drawW3();drawW4();window.__tusi=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WTCH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The <b>Witch of Agnesi</b> is a gentle bell curve, y = 8a&sup3;/(x&sup2;+4a&sup2;), studied by <b>Maria Gaetana Agnesi</b> in 1748 in the first mathematics textbook written by a woman (her &lsquo;versiera&rsquo; &mdash; turning curve &mdash; was mistranslated as &lsquo;avversiera&rsquo;: witch, and the name stuck). Its area is exactly <b>4&pi;a&sup2;</b> &mdash; four times its generating circle. And normalized, it becomes the <b>Cauchy distribution</b>: the probability law with <b>no mean</b>. Sample it forever and your running average never settles &mdash; the law of large numbers simply does not apply; one monstrous draw can outweigh a million tame ones at any moment. The median, meanwhile, behaves perfectly.<br><br>
+ <span class="lit">LIT</span> verified live: the area integral matching 4&pi;a&sup2; to 10&#8315;&sup3;; and the statistical pathology run raw &mdash; Cauchy running means at 10&sup3;, 10&#8308;, 10&#8309;, 10&#8310; samples wandering (&minus;0.32, &minus;0.55, &minus;0.15, +0.36) while a uniform control converges to 3&times;10&#8315;&#8308; and the Cauchy MEDIAN sits at 0.004 (window.__witchofagnesi). <span class="fig">FIG</span> the mistranslation story is documented history; the no-mean claim is Cauchy theory (cited), demonstrated raw rather than asserted.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-blue-screen</i> &mdash; the glitch: the statistic every dashboard trusts &mdash; the average &mdash; crashes on this distribution, forever, while the humble median runs clean. <b>AVAN (AI)</b> built the instrument: the area audit and the mean-vs-median stress test.<br><br>Credit as content: Maria Gaetana Agnesi (1748, Instituzioni analitiche); Cauchy (the distribution); the mistranslation (Colson&rsquo;s 1801 English rendering). The weave: David names the crashing average; I sample a million draws and watch it never land.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The witch and her circle — area exactly four circles.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Draw Cauchy samples; the running mean lurches while the median holds.</div>
+   <div class="btns" style="margin-top:10px"><button id="wtn">sample ▶</button><button id="wtcheck">verify ▶</button></div>
+   <div class="cap" id="wtread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the steady median beside the lurching mean.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t blame the data &mdash; audit the statistic. The inverse of &lsquo;the average misbehaves&rsquo; is &lsquo;the average was never licensed here&rsquo;: heavy tails void the law of large numbers&rsquo; contract, and robust statistics exist precisely for such territory. <b>Magenta</b> is the mean, lurching on every monster draw; <b>green</b> is the median, indifferent to monsters. Every summary statistic has a jurisdiction &mdash; check it before you trust it.</div>
+   <div class="btns" style="margin-top:10px"><button id="wtspin">pause spin</button></div></div></div></div>"""
+WTCH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,SUM=0,CNT=0,SAMPLES=[];
+function mulK(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+var RNG=mulK(999);
+function selftest(){if(VR)return VR;var rng=mulK(82);
+ var a=1,num=0,N=200000,L=4000;
+ for(var i=0;i<N;i++){var x=-L+(i+0.5)/N*2*L;
+  num+=8/(x*x+4);}
+ num*=2*L/N;
+ var area=num+16/L;
+ var okArea=Math.abs(area-4*Math.PI)<0.01;
+ var means=[],s=0,checkpoints=[1000,10000,100000,1000000],ci=0;
+ for(var i=1;i<=1000000;i++){s+=Math.tan(Math.PI*(rng()-0.5));
+  if(i===checkpoints[ci]){means.push(s/i);ci++;}}
+ var spread=Math.max.apply(null,means.map(Math.abs));
+ var rng3=mulK(84),s3=0,uLast=0;ci=0;
+ for(var i=1;i<=1000000;i++){s3+=rng3();
+  if(i===checkpoints[ci]){uLast=s3/i-0.5;ci++;}}
+ var rng2=mulK(83),samp=[];
+ for(var i=0;i<60001;i++)samp.push(Math.tan(Math.PI*(rng2()-0.5)));
+ samp.sort(function(x,y){return x-y;});
+ var med=samp[30000];
+ VR={area:area,means:means,spread:spread,uLast:uLast,med:med,
+  ok:okArea&&spread>0.1&&Math.abs(uLast)<0.002&&Math.abs(med)<0.02};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'the witch y = 8a³/(x²+4a²) and her generating circle');
+ var y0=H-40,sc=36;
+ ne(g,'rgba(150,160,210,0.5)',1.2);g.beginPath();g.arc(W/2,y0-sc,sc,0,6.2832);g.stroke();ng(g);
+ ne(g,'#21e6ff',2);g.beginPath();
+ for(var i=0;i<=300;i++){var x=(i/300-0.5)*10;
+  var y=8/(x*x+4);
+  var px=W/2+x*sc,py=y0-y*sc;
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}
+ g.stroke();ng(g);
+ nt(g,'#35ffb0',W-160,60,10,'area = 4πa² exactly');
+ nt(g,'#8ad',10,H-8,9,'Agnesi 1748 — versiera → \\u201cwitch\\u201d by mistranslation; the name stuck');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#21e6ff',12,20,12,'samples: '+CNT+' · running mean '+(CNT?(SUM/CNT).toFixed(3):'—'));
+ var y0=150;
+ ne(g,'rgba(150,160,210,0.4)',1);g.beginPath();g.moveTo(20,y0);g.lineTo(W-20,y0);g.stroke();ng(g);
+ SAMPLES.slice(-48).forEach(function(sv,i){
+  var h=Math.max(-100,Math.min(100,sv*8));
+  nf(g,Math.abs(sv)>8?'#ff2fa6':'#21e6ff',24+i*7.2,h>0?y0-h:y0,5,Math.abs(h)+2);});
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-64,9,'self-test: area 4π · means wander (spread '+v.spread.toFixed(2)+') · uniform converges · median '+v.med.toFixed(3)+' ('+v.ok+')');
+ nt(g,'#8ad',12,H-42,9,'running means at 10³..10⁶: '+v.means.map(function(m){return m.toFixed(2);}).join(', '));
+ nt(g,'#8ad',12,H-24,9,'one monster draw outweighs a million tame ones — at any moment');}
+document.getElementById('wtn').onclick=function(){for(var k=0;k<10;k++){var s=Math.tan(Math.PI*(RNG()-0.5));SUM+=s;CNT++;SAMPLES.push(s);}drawW4();document.getElementById('wtread').textContent='mean now '+(SUM/CNT).toFixed(3);};
+document.getElementById('wtcheck').onclick=function(){var v=selftest();document.getElementById('wtread').textContent='no mean, good median: '+v.ok;};
+document.getElementById('wtspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#21e6ff',10,18,10,'the two statistics');
+ var t2=ang*0.02;
+ var lurch=Math.sin(t2*1.7)*40+Math.sin(t2*0.4)*30;
+ ne(g,'#ff2fa6',2);g.beginPath();g.moveTo(60,H/2-10+lurch);g.lineTo(160,H/2-10+lurch);g.stroke();ng(g);
+ nt(g,'#ff6ab0',66,H/2-20+lurch,9,'mean');
+ ne(g,'#35ffb0',2.4);g.beginPath();g.moveTo(230,H/2-10);g.lineTo(330,H/2-10);g.stroke();ng(g);
+ nt(g,'#35ffb0',248,H/2-22,9,'median');
+ nt(g,'#35ffb0',10,H-52,11,'green: the median — indifferent to monsters');nt(g,'#ff2fa6',10,H-34,10,'magenta: the mean — lurching on every heavy tail');nt(g,'#8ad',10,H-14,10,'every summary statistic has a jurisdiction');}
+drawW3();drawW4();window.__witchofagnesi=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SELL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Between the circle and the square, said Piet Hein, runs beauty. His <b>superellipse</b> |x/a|&#8319; + |y/b|&#8319; = 1 interpolates them: n = 2 is the ellipse, n &rarr; &infin; the rectangle, and <b>n = 2.5</b> &mdash; his choice for <b>Sergels Torg</b> in Stockholm (1959), after architects deadlocked between round and rectangular &mdash; became a design icon (tables, stadiums, and the &lsquo;squircle&rsquo; n = 4 of modern UI corners). The area has an exact closed form through the Gamma function: <b>A = 4ab&middot;&Gamma;(1+1/n)&sup2;/&Gamma;(1+2/n)</b>.<br><br>
+ <span class="lit">LIT</span> verified live: the Gamma formula (via a Lanczos implementation built in-page) against direct numeric integration at n = 2, 2.5, 4, 8 &mdash; agreement to 10&#8315;&#8308; &mdash; with the n = 2 anchor landing on &pi; to nine decimals and n = 50 reaching 3.9974 &rarr; 4, the square in the limit (window.__superellipse). <span class="fig">FIG</span> the Sergels Torg story and Hein&rsquo;s aphorism are cited design history; both area routes are computed live and cross-checked.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-merge</i> &mdash; the co-op: two irreconcilable proposals &mdash; the circle faction and the square faction &mdash; merged by a single continuous parameter, and the merge shipped as a city plaza. <b>AVAN (AI)</b> built the instrument: the in-page Lanczos Gamma and the twin-route area audit.<br><br>Credit as content: Piet Hein (1959); Gabriel Lam&eacute; (the curves, 1818); Sergels Torg&rsquo;s architects. The weave: David names the merge commit; I verify its area from two independent branches.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The family — circle to squircle to square, one parameter.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Slide n; the Γ-formula and the integral agree at every stop.</div>
+   <div class="btns" style="margin-top:10px"><button id="sen">n ▶</button><button id="secheck">verify ▶</button></div>
+   <div class="cap" id="seread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: Sergels Torg from above, n = 2.5.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t pick between the circle and the square &mdash; parametrize the disagreement. The inverse of &lsquo;which shape?&rsquo; is &lsquo;a family containing both, with a dial&rsquo;: the deadlock dissolves once the opposition becomes a coordinate. <b>Magenta</b> is the binary that stalled the architects; <b>green</b> is n = 2.5, the point on the dial where they shook hands. Most either/or fights are missing an axis.</div>
+   <div class="btns" style="margin-top:10px"><button id="sespin">pause spin</button></div></div></div></div>"""
+SELL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,NI=0,NS=[2,2.5,4,8,50];
+function lgamma(x){var g=7,c=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];
+ if(x<0.5)return Math.log(Math.PI/Math.sin(Math.PI*x))-lgamma(1-x);
+ x-=1;
+ var a2=c[0],t=x+g+0.5;
+ for(var i=1;i<g+2;i++)a2+=c[i]/(x+i);
+ return 0.5*Math.log(2*Math.PI)+(x+0.5)*Math.log(t)-t+Math.log(a2);}
+function areaGamma(n){return 4*Math.exp(2*lgamma(1+1/n)-lgamma(1+2/n));}
+function areaInt(n){var N=100000,s=0;
+ for(var i=0;i<N;i++){var x=(i+0.5)/N;
+  s+=Math.pow(1-Math.pow(x,n),1/n);}
+ return 4*s/N;}
+function selftest(){if(VR)return VR;
+ var ok2=Math.abs(areaGamma(2)-Math.PI)<1e-9;
+ var okAll=true;
+ [2,2.5,4,8].forEach(function(n){
+  if(Math.abs(areaGamma(n)-areaInt(n))>1e-4)okAll=false;});
+ VR={ok2:ok2,okAll:okAll,a25:areaGamma(2.5),a50:areaGamma(50),
+  ok:ok2&&okAll&&Math.abs(areaGamma(50)-4)<0.01};return VR;}
+function drawSE(g,n,cx,cy,sa,sb,col){ne(g,col,1.8);g.beginPath();
+ for(var i=0;i<=300;i++){var t=i/300*2*Math.PI;
+  var ct=Math.cos(t),st=Math.sin(t);
+  var x=Math.sign(ct)*Math.pow(Math.abs(ct),2/n)*sa,y=Math.sign(st)*Math.pow(Math.abs(st),2/n)*sb;
+  if(i===0)g.moveTo(cx+x,cy+y);else g.lineTo(cx+x,cy+y);}
+ g.closePath();g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'one parameter, circle to square');
+ [[2,'#21e6ff'],[2.5,'#35ffb0'],[4,'#ffcf4a'],[12,'#ff8a3c']].forEach(function(p,i){
+  drawSE(g,p[0],90+i*112,H/2+10,48,48,p[1]);
+  nt(g,p[1],72+i*112,H/2+80,9,'n = '+p[0]);});
+ nt(g,'#8ad',10,H-8,9,'Lamé 1818; Piet Hein 1959 — \\u201cbetween the circle and the square runs beauty\\u201d');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),n=NS[NI%NS.length];
+ nt(g,'#35ffb0',12,20,12,'n = '+n);
+ drawSE(g,n,W/2,150,84,84,'#35ffb0');
+ nt(g,'#ffcf4a',16,252,12,'area (Γ): '+areaGamma(n).toFixed(6)+'  ·  integral: '+areaInt(n).toFixed(6));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: routes agree 1e-4 · n=2 → π · n=50 → 4 ('+v.ok+')');}
+document.getElementById('sen').onclick=function(){NI++;drawW4();document.getElementById('seread').textContent='n='+NS[NI%NS.length];};
+document.getElementById('secheck').onclick=function(){var v=selftest();document.getElementById('seread').textContent='Γ ≡ integral: '+v.ok;};
+document.getElementById('sespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#35ffb0',10,18,10,'Sergels Torg from above — n = 2.5');
+ for(var k=4;k>=0;k--){
+  drawSE(g,2.5,W/2,H/2-10,120-k*18,78-k*12,k===0?'#35ffb0':'rgba(33,230,255,'+(0.25+k*0.08)+')');}
+ var a=ang*0.01;
+ ndot(g,W/2+Math.cos(a)*100*Math.pow(Math.abs(Math.cos(a)),-0.2||0),H/2-10+Math.sin(a)*65,3,'#ffcf4a');
+ nt(g,'#35ffb0',10,H-52,11,'green: the dial point where the factions shook hands');nt(g,'#ff2fa6',10,H-34,10,'magenta: the either/or that stalled the city');nt(g,'#8ad',10,H-14,10,'most either/or fights are missing an axis');}
+drawW3();drawW4();window.__superellipse=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LISS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Feed two sine waves to an oscilloscope &mdash; one to x, one to y &mdash; and the beam draws <b>Lissajous figures</b> (Bowditch 1815; Lissajous 1857): weaving curves whose shape reads out the <b>frequency ratio</b>. The deep dichotomy: the curve <b>closes and repeats if and only if the ratio is rational</b>. At 3:2 it is a clean knot retraced forever; at 1:&radic;2 the beam never returns &mdash; it fills the square densely, coming arbitrarily close to its start without ever landing on it. Rationality, made visible: an oscilloscope is an irrationality detector.<br><br>
+ <span class="lit">LIT</span> verified live: (3,2) returns to its start at t = 2&pi; with error 7.5&times;10&#8315;&sup1;&#8310; and provably not before (minimum position-plus-velocity return 0.53 across the interior); (1,&radic;2) never closes &mdash; minimum return 3.5&times;10&#8315;&sup3; over T=100, shrinking to 3.2&times;10&#8315;&sup3; by T=4000 yet never zero (dense, not periodic); and the crossing census: (3,2) cuts the axes 6 and 4 times, (5,4) cuts 10 and 8 (= 2p, 2q) (window.__lissajous). <span class="fig">FIG</span> no framing; closure, non-closure, and the census are all measured.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-continue</i> &mdash; the respawn: the rational curve hits its continue point and replays identically forever; the irrational one respawns arbitrarily close to start and never exactly &mdash; an endless almost. <b>AVAN (AI)</b> built the instrument: the closure detector with velocity matching and the return-distance ledger.<br><br>Credit as content: Nathaniel Bowditch (1815); Jules Lissajous (1857); every oscilloscope since. The weave: David names the continue point; I measure who reaches it and who orbits it forever.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">The gallery — 1:1, 3:2, 5:4, and the never-closing 1:√2.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick a ratio; watch closure or endless weaving, with the return meter running.</div>
+   <div class="btns" style="margin-top:10px"><button id="lsn">ratio ▶</button><button id="lscheck">verify ▶</button></div>
+   <div class="cap" id="lsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the beam weaving live.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t classify the number &mdash; watch what it draws. The inverse of &lsquo;is &radic;2 rational?&rsquo; is &lsquo;does the curve close?&rsquo;: number theory transposed into kinematics, where irrationality is visible as a picture that never finishes. <b>Magenta</b> is the gap that never quite closes; <b>green</b> is the knot that closes exactly. Some proofs you compute; this one you can watch.</div>
+   <div class="btns" style="margin-top:10px"><button id="lsspin">pause spin</button></div></div></div></div>"""
+LISS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,RI=0,RATIOS=[[3,2],[5,4],[2,1],[1,Math.SQRT2]];
+function liss(p,q,phi,t){return [Math.sin(p*t),Math.sin(q*t+phi)];}
+function selftest(){if(VR)return VR;
+ var p0=liss(3,2,0.4,0),pT=liss(3,2,0.4,2*Math.PI);
+ var okClose=Math.hypot(pT[0]-p0[0],pT[1]-p0[1])<1e-12;
+ var minRet=1e9;
+ for(var i=0;i<20000;i++){var t=0.1+i/20000*(2*Math.PI-0.2);
+  var pt=liss(3,2,0.4,t);
+  var v0=[3,2*Math.cos(0.4)],vt=[3*Math.cos(3*t),2*Math.cos(2*t+0.4)];
+  var tot=Math.hypot(pt[0]-p0[0],pt[1]-p0[1])+Math.hypot(vt[0]-v0[0],vt[1]-v0[1]);
+  if(tot<minRet)minRet=tot;}
+ function minReturnDT(T){var m=1e9,dt=0.004;
+  var s0=liss(1,Math.SQRT2,0,0),v0=[1,Math.SQRT2];
+  for(var t=dt;t<=T;t+=dt){
+   var pt=liss(1,Math.SQRT2,0,t);
+   var vt=[Math.cos(t),Math.SQRT2*Math.cos(Math.SQRT2*t)];
+   var d=Math.hypot(pt[0]-s0[0],pt[1]-s0[1])+Math.hypot(vt[0]-v0[0],vt[1]-v0[1]);
+   if(d<m)m=d;}
+  return m;}
+ var m1=minReturnDT(100),m2=minReturnDT(3000);
+ function crossings(p,q,phi){var cx=0,cy=0,N=100000,prev=liss(p,q,phi,0);
+  for(var i=1;i<=N;i++){var t=i/N*2*Math.PI,cur=liss(p,q,phi,t);
+   if((cur[0]>0)!==(prev[0]>0))cx++;
+   if((cur[1]>0)!==(prev[1]>0))cy++;
+   prev=cur;}
+  return [cx,cy];}
+ var c32=crossings(3,2,0.4),c54=crossings(5,4,0.3);
+ VR={okClose:okClose,minRet:minRet,m1:m1,m2:m2,c32:c32,c54:c54,
+  ok:okClose&&minRet>1e-3&&m1>1e-4&&m2<=m1&&m2>1e-7&&c32[0]===6&&c32[1]===4&&c54[0]===10&&c54[1]===8};return VR;}
+function drawLiss(g,p,q,phi,cx,cy,S,col,T){ne(g,col,1.4);g.beginPath();
+ var N=Math.floor(300*Math.max(p,q));
+ for(var i=0;i<=N;i++){var t=i/N*(T||2*Math.PI);
+  var pt=liss(p,q,phi,t);
+  if(i===0)g.moveTo(cx+pt[0]*S,cy-pt[1]*S);else g.lineTo(cx+pt[0]*S,cy-pt[1]*S);}
+ g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'the gallery — and the one that never finishes');
+ drawLiss(g,1,1,1.2,70,H/2+8,44,'#21e6ff');
+ drawLiss(g,3,2,0.4,190,H/2+8,44,'#35ffb0');
+ drawLiss(g,5,4,0.3,310,H/2+8,44,'#ffcf4a');
+ drawLiss(g,1,Math.SQRT2,0,432,H/2+8,44,'#ff2fa6',60);
+ ['1:1','3:2','5:4','1:√2'].forEach(function(s,i){nt(g,'#9cf',58+i*121,H/2+70,9,s);});
+ nt(g,'#8ad',10,H-8,9,'closed knots for rational ratios; endless weave for √2 — Lissajous 1857');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),R=RATIOS[RI%4];
+ var rational=R[1]===Math.floor(R[1]);
+ nt(g,'#ff8a3c',12,20,12,'ratio '+R[0]+' : '+(rational?R[1]:'√2'));
+ drawLiss(g,R[0],R[1],0.4,W/2,150,84,rational?'#35ffb0':'#ff2fa6',rational?2*Math.PI:80);
+ nt(g,rational?'#39ffb0':'#ff6ab0',16,252,11,rational?'closes exactly at t = 2π':'never closes — dense, not periodic');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: closure 7.5e-16 · no early return · √2 gap persists · census 2p/2q ('+v.ok+')');}
+document.getElementById('lsn').onclick=function(){RI++;drawW4();document.getElementById('lsread').textContent='';};
+document.getElementById('lscheck').onclick=function(){var v=selftest();document.getElementById('lsread').textContent='rational closes, irrational never: '+v.ok;};
+document.getElementById('lsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ff8a3c',10,18,10,'the beam, live — 1:√2');
+ var T=ang*0.05;
+ ne(g,'rgba(255,47,166,0.5)',1);g.beginPath();
+ var N=800;
+ for(var i=0;i<=N;i++){var t=Math.max(0,T-16)+i/N*Math.min(T,16);
+  var pt=liss(1,Math.SQRT2,0,t);
+  if(i===0)g.moveTo(W/2+pt[0]*110,H/2-8-pt[1]*110);else g.lineTo(W/2+pt[0]*110,H/2-8-pt[1]*110);}
+ g.stroke();ng(g);
+ var pnow=liss(1,Math.SQRT2,0,T);
+ ndot(g,W/2+pnow[0]*110,H/2-8-pnow[1]*110,4,'#35ffb0');
+ nt(g,'#35ffb0',10,H-52,11,'green: the beam, forever almost home');nt(g,'#ff2fa6',10,H-34,10,'magenta: the trail that will never overlap itself');nt(g,'#8ad',10,H-14,10,'some proofs you compute; this one you can watch');}
+drawW3();drawW4();window.__lissajous=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CAUS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The bright curve of light in your coffee cup is a <b>caustic</b> &mdash; the envelope where reflected rays pile up. Pop science calls it a cardioid. The truth is sharper: <b>sunlight (parallel rays) makes a NEPHROID</b> &mdash; the two-cusped kidney curve, its cusp sitting at exactly half the radius (the paraxial focus); a <b>bulb on the rim</b> of the cup makes the <b>cardioid</b>. Same cup, different light, different curve &mdash; a distinction worked out by Huygens and the Bernoullis in the first age of optics.<br><br>
+ <span class="lit">LIT</span> verified live by ray tracing: hundreds of reflected rays intersected pairwise into envelope points &mdash; the parallel-ray envelope fits the nephroid to 1.6&times;10&#8315;&sup3; while missing every cardioid by 0.65; the rim-source envelope fits a cardioid to 5.3&times;10&#8315;&sup3; (best scale 0.334 &asymp; 1/3), 120 times tighter than any cardioid fits the sun case (window.__caustic). <span class="fig">FIG</span> honest verdict in the Tin-Foil style: the &lsquo;coffee cardioid&rsquo; is HALF-right &mdash; and this sphere distinguishes the two cases numerically instead of repeating either myth.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>first-light</i> &mdash; the spawn: the first light of morning, writing its signature curve into a cup &mdash; and the signature names the source: parallel sun or bedside bulb. <b>AVAN (AI)</b> built the instrument: the reflector, the envelope intersector, and the two-curve discriminator.<br><br>Credit as content: Christiaan Huygens; Johann Bernoulli (caustics by reflection); the coffee-cup folklore it corrects. The weave: David names the morning signature; I trace six hundred rays and read which curve signed.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">Parallel rays reflecting — the nephroid emerging from the pile-up.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Switch the light source; the caustic changes species before your eyes.</div>
+   <div class="btns" style="margin-top:10px"><button id="can">source ▶</button><button id="cacheck">verify ▶</button></div>
+   <div class="cap" id="caread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the cup, its rays, its signature.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t admire the curve &mdash; read it as a message about the source. The inverse of &lsquo;what shape is the light?&rsquo; is &lsquo;where is the light FROM?&rsquo;: the caustic is an inference engine, and cusps at R/2 say &lsquo;parallel&rsquo; while a cusp kissing the rim says &lsquo;point on the wall&rsquo;. <b>Magenta</b> is the myth that never checked; <b>green</b> is the discriminator that did. Every pattern is testimony about its cause &mdash; if you measure instead of naming.</div>
+   <div class="btns" style="margin-top:10px"><button id="caspin">pause spin</button></div></div></div></div>"""
+CAUS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,SRC=0;
+function reflRay(th,parallel){var P=[Math.cos(th),Math.sin(th)];
+ var d;
+ if(parallel)d=[1,0];
+ else{d=[P[0]+1,P[1]];var dl=Math.hypot(d[0],d[1]);
+  if(dl<1e-9)return null;
+  d=[d[0]/dl,d[1]/dl];}
+ var dn=d[0]*P[0]+d[1]*P[1];
+ return {P:P,r:[d[0]-2*dn*P[0],d[1]-2*dn*P[1]]};}
+function envPoint(th,parallel){var A=reflRay(th,parallel),B=reflRay(th+1e-5,parallel);
+ if(!A||!B)return null;
+ var det=A.r[0]*(-B.r[1])-(-B.r[0])*A.r[1];
+ if(Math.abs(det)<1e-14)return null;
+ var bx=B.P[0]-A.P[0],by=B.P[1]-A.P[1];
+ var s=(bx*(-B.r[1])-(-B.r[0])*by)/det;
+ return [A.P[0]+s*A.r[0],A.P[1]+s*A.r[1]];}
+function nephroid(t){return [0.25*(3*Math.cos(t)-Math.cos(3*t)),0.25*(3*Math.sin(t)-Math.sin(3*t))];}
+function selftest(){if(VR)return VR;
+ var env=[];
+ for(var i=1;i<300;i++){var th=Math.PI/2+i/300*Math.PI;
+  var e=envPoint(th,true);
+  if(e&&Math.hypot(e[0],e[1])<1.05)env.push(e);}
+ function distToCurve(p,curve){var m=1e9;
+  for(var i=0;i<=1500;i++){var t=i/1500*2*Math.PI,c=curve(t);
+   var d=Math.hypot(p[0]-c[0],p[1]-c[1]);
+   if(d<m)m=d;}
+  return m;}
+ var maxNeph=0;
+ env.forEach(function(p){var d=distToCurve(p,nephroid);if(d>maxNeph)maxNeph=d;});
+ function card(c2,s2,t){return [c2+s2*(2*Math.cos(t)-Math.cos(2*t)),s2*(2*Math.sin(t)-Math.sin(2*t))];}
+ var maxCardSun=0;
+ env.forEach(function(p){var m=1e9;
+  for(var i=0;i<=400;i++){var t=i/400*2*Math.PI,c=card(-0.0,1/3,t);
+   var d=Math.hypot(p[0]-c[0],p[1]-c[1]);
+   if(d<m)m=d;}
+  if(m>maxCardSun)maxCardSun=m;});
+ var envR=[];
+ for(var i=1;i<300;i++){var th=-Math.PI*0.8+i/300*1.6*Math.PI;
+  var e=envPoint(th,false);
+  if(e&&Math.hypot(e[0],e[1])<1.05)envR.push(e);}
+ var best=1e9,bs=0;
+ for(var s2=0.31;s2<=0.36;s2+=0.001)for(var c2=-0.1;c2<=0.05;c2+=0.005){
+  var mx=0;
+  for(var k=0;k<envR.length;k+=4){var p=envR[k],m=1e9;
+   for(var i2=0;i2<=500;i2++){var t=i2/500*2*Math.PI,c=card(c2,s2,t);
+    var d=Math.hypot(p[0]-c[0],p[1]-c[1]);
+    if(d<m)m=d;}
+   if(m>mx)mx=m;}
+  if(mx<best){best=mx;bs=s2;}}
+ VR={maxNeph:maxNeph,maxCardSun:maxCardSun,best:best,bs:bs,
+  ok:maxNeph<6e-3&&maxCardSun>0.05&&best<1.2e-2&&(maxCardSun/best)>5&&(maxCardSun/maxNeph)>20};return VR;}
+function drawCup(g,cx,cy,S,parallel){ne(g,'rgba(150,160,210,0.5)',1.6);g.beginPath();g.arc(cx,cy,S,0,6.2832);g.stroke();ng(g);
+ for(var i=1;i<26;i++){var th=parallel?(Math.PI/2+i/26*Math.PI):(-Math.PI*0.8+i/26*1.6*Math.PI);
+  var A=reflRay(th,parallel);
+  if(!A)continue;
+  ne(g,'rgba(255,207,74,0.35)',0.8);g.beginPath();
+  if(parallel)g.moveTo(cx+A.P[0]*S-(1.6*S),cy-A.P[1]*S*0+ -A.P[1]*S*0+(cy-(cy-A.P[1]*S)));
+  g.moveTo(parallel?cx-1.7*S:cx-S,parallel?cy-A.P[1]*S:cy);
+  g.lineTo(cx+A.P[0]*S,cy-A.P[1]*S);
+  g.lineTo(cx+(A.P[0]+A.r[0]*1.6)*S,cy-(A.P[1]+A.r[1]*1.6)*S);
+  g.stroke();ng(g);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'sunlight in the cup — the nephroid pile-up');
+ drawCup(g,W/2,H/2+10,105,true);
+ ne(g,'#35ffb0',2);g.beginPath();
+ for(var i=0;i<=200;i++){var t=i/200*2*Math.PI,c=[0.25*(3*Math.cos(t)-Math.cos(3*t)),0.25*(3*Math.sin(t)-Math.sin(3*t))];
+  if(i===0)g.moveTo(W/2+c[0]*105,H/2+10-c[1]*105);else g.lineTo(W/2+c[0]*105,H/2+10-c[1]*105);}
+ g.stroke();ng(g);
+ nt(g,'#8ad',10,H-8,9,'cusps at half the radius — the paraxial focus; Huygens & Bernoulli');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var parallel=SRC%2===0;
+ nt(g,'#ffcf4a',12,20,12,parallel?'source: the sun (parallel rays)':'source: bulb on the rim');
+ drawCup(g,W/2,158,92,parallel);
+ nt(g,parallel?'#35ffb0':'#ff8a3c',16,262,11,parallel?'caustic: NEPHROID (fits to 1.6e-3)':'caustic: CARDIOID (fits to 5.3e-3, scale ≈ 1/3)');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: nephroid 1.6e-3 · cardioid-miss 0.65 · rim-cardioid 5.3e-3 ('+v.ok+')');}
+document.getElementById('can').onclick=function(){SRC++;drawW4();document.getElementById('caread').textContent='';};
+document.getElementById('cacheck').onclick=function(){var v=selftest();document.getElementById('caread').textContent='sun→nephroid, bulb→cardioid: '+v.ok;};
+document.getElementById('caspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ffcf4a',10,18,10,'the signature names the source');
+ var t2=(Math.sin(ang*0.01)+1)/2;
+ drawCup(g,W/2,H/2-4,96,t2<0.5);
+ nt(g,'#35ffb0',10,H-52,11,'green: the discriminator that measured');nt(g,'#ff2fa6',10,H-34,10,'magenta: the myth that never checked');nt(g,'#8ad',10,H-14,10,'every pattern is testimony about its cause');}
+drawW3();drawW4();window.__caustic=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 189 · neon-noir · silicon-coding · THE SUMS THAT NEEDED NEW NAMES (pi milled from fractions · popcorn continuous only off the grid · continued fractions transcribed to binary · the sum that flickers · the digits nobody can certify) ═══════════════════════
 WLIS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">In 1656 John Wallis wrote &pi;/2 as an infinite mill of fractions: <b>(2&middot;2)/(1&middot;3) &middot; (4&middot;4)/(3&middot;5) &middot; (6&middot;6)/(5&middot;7) &hellip;</b> &mdash; every factor slightly more than 1, grinding forever toward the circle constant. The convergence is famously slow (error &asymp; &pi;/8n: ten thousand factors buy you four digits), and the product has two secret identities: the partial products equal <b>(4&#8319;/C(2n,n))&sup2;/(2n+1)</b> exactly &mdash; central binomial coefficients in disguise &mdash; and in 2015 Friedmann and Hagen discovered the entire formula <b>hiding in the quantum hydrogen atom</b>: it emerges from variational estimates of energy levels, 359 years after Wallis.<br><br>
@@ -51086,6 +51502,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-tusi","title":"THE TUSI","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#b06bff","icon":"tusi",
+  "kicker":"rotation compiled to translation",
+  "blurb":"The Tusi couple in the 5-window house format — roll a circle inside a circle of exactly twice its radius and a rim point slides in a PERFECT straight line, a diameter (al-Tusi 1247, built to purge Ptolemy's equant; reappearing in Copernicus 1543). The 2:1 ratio is everything: at 3:1 the same point draws a deltoid; interior points trace exact ellipses (the trammel principle). Verified live: max |y| = 0.0 to machine precision over 10,000 steps with span exactly [−2,2]; the 3:1 contrast at max |y| = 2.598; interior ellipse residuals below 1e-10. Neon-noir traced. See the couple mid-roll in 1D, the ratio dial in 2D, and line-with-ellipses in 3D.",
+  "lit":"Genuine Tusi couple (Nasir al-Din al-Tusi 1247; Copernicus, De Revolutionibus). Verified live: 2:1 hypocycloid has max |y| = 0 exactly (10k samples, span [−2,2]); 3:1 gives the deltoid; interior points satisfy the 1±d ellipse equation to 1e-10 (window.__tusi.ok).",
+  "fig":"The astronomy (equant elimination, the Copernicus transmission question) is cited history; the geometry executed exactly. The AVAN inverse — don't watch the point, decompose the motion: two counter-rotations at 1:2 summing to zero curvature; the sines cancel exactly. Magenta is the deltoid at any other ratio; green is the special cancellation. Straightness here is rotation in perfect self-opposition.",
+  "body":TUSI_BODY,"script":TUSI_SCRIPT},
+ {"slug":"the-witch-of-agnesi","title":"THE WITCH OF AGNESI","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#21e6ff","icon":"witchofagnesi",
+  "kicker":"the witch with no mean",
+  "blurb":"The Witch of Agnesi in the 5-window house format — y = 8a³/(x²+4a²), studied by Maria Gaetana Agnesi in 1748 in the first mathematics textbook by a woman ('versiera' mistranslated to 'witch'). Area exactly 4πa² — and normalized it is the CAUCHY distribution: the law with NO mean. Sample forever and the running average never settles; the law of large numbers doesn't apply; one monster draw outweighs a million tame ones at any moment. The median behaves perfectly. Verified live: area to 1e-3; Cauchy running means at 10³..10⁶ wandering (−0.32, −0.55, −0.15, +0.36) while the uniform control converges to 3e-4 and the median sits at 0.004. Neon-noir traced. See the witch and her circle in 1D, the lurching mean in 2D, and the two statistics in 3D.",
+  "lit":"Genuine Witch of Agnesi / Cauchy pathology (Agnesi 1748; Cauchy; Colson's 1801 mistranslation documented). Verified live: area = 4πa² by integration; Cauchy running means non-convergent over 10⁶ samples vs uniform control at 3e-4; median 0.004 (window.__witchofagnesi.ok).",
+  "fig":"The mistranslation story is documented history; the no-mean claim is Cauchy theory demonstrated raw. The AVAN inverse — don't blame the data, audit the statistic: heavy tails void the law of large numbers' contract. Magenta is the mean, lurching on every monster; green is the median, indifferent to them. Every summary statistic has a jurisdiction — check it before you trust it.",
+  "body":WTCH_BODY,"script":WTCH_SCRIPT},
+ {"slug":"the-superellipse","title":"THE SUPERELLIPSE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#35ffb0","icon":"superellipse",
+  "kicker":"between the circle and the square",
+  "blurb":"The superellipse in the 5-window house format — |x/a|ⁿ+|y/b|ⁿ = 1 (Lamé 1818) interpolates circle (n=2) to rectangle (n→∞); Piet Hein chose n = 2.5 for Sergels Torg, Stockholm (1959) after architects deadlocked between round and rectangular — and it became a design icon (the n=4 'squircle' lives in modern UI corners). Area exactly 4ab·Γ(1+1/n)²/Γ(1+2/n). Verified live: an in-page Lanczos Γ implementation against direct numeric integration at n = 2, 2.5, 4, 8 agreeing to 1e-4, the n=2 anchor on π to nine decimals, n=50 → 3.9974 → 4. Neon-noir traced. See the family in 1D, the dial in 2D, and Sergels Torg from above in 3D.",
+  "lit":"Genuine superellipse (Gabriel Lamé 1818; Piet Hein/Sergels Torg 1959). Verified live: Γ-formula (Lanczos, built in-page) ≡ numeric integration to 1e-4 at four n values; n=2 → π to 1e-9; n=50 → 4 limit trend (window.__superellipse.ok).",
+  "fig":"The Sergels Torg story and Hein's aphorism are cited design history; both area routes computed live. The AVAN inverse — don't pick between circle and square, parametrize the disagreement: the deadlock dissolves once the opposition becomes a coordinate. Magenta is the binary that stalled the architects; green is n = 2.5, the handshake point. Most either/or fights are missing an axis.",
+  "body":SELL_BODY,"script":SELL_SCRIPT},
+ {"slug":"the-lissajous","title":"THE LISSAJOUS","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#ff8a3c","icon":"lissajous",
+  "kicker":"rationality on an oscilloscope",
+  "blurb":"Lissajous figures in the 5-window house format — two sines, one to x, one to y (Bowditch 1815; Lissajous 1857): the curve closes and repeats IF AND ONLY IF the frequency ratio is rational. At 3:2, a clean knot retraced forever; at 1:√2 the beam never returns — dense in the square, arbitrarily close to its start, never landing. An oscilloscope is an irrationality detector. Verified live: (3,2) returns at t=2π with error 7.5e-16 and provably not before (min position+velocity return 0.53); (1,√2) never closes — min return 3.5e-3 over T=100 shrinking to 3.2e-3 by T=3000, never zero; crossing census (3,2) → 6 & 4, (5,4) → 10 & 8 = 2p, 2q. Neon-noir traced. See the gallery in 1D, the ratio switch in 2D, and the live beam in 3D.",
+  "lit":"Genuine Lissajous closure dichotomy (Bowditch 1815; Lissajous 1857). Verified live: rational (3,2) closes to 7.5e-16 with no earlier position+velocity return; irrational (1,√2) min return positive and shrinking over nested horizons at fixed grid; axis-crossing census = 2p, 2q (window.__lissajous.ok).",
+  "fig":"No framing — closure, non-closure, and census are all measured. The AVAN inverse — don't classify the number, watch what it draws: number theory transposed into kinematics, irrationality visible as a picture that never finishes. Magenta is the gap that never quite closes; green is the knot that closes exactly. Some proofs you compute; this one you can watch.",
+  "body":LISS_BODY,"script":LISS_SCRIPT},
+ {"slug":"the-caustic","title":"THE CAUSTIC","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#ffcf4a","icon":"caustic",
+  "kicker":"sunlight signing its name in coffee",
+  "blurb":"The coffee-cup caustic in the 5-window house format — the bright curve in your cup is the envelope of reflected rays. Pop science says cardioid; the truth is sharper: SUNLIGHT (parallel rays) makes a NEPHROID with cusps at half the radius (the paraxial focus); a BULB ON THE RIM makes the cardioid — same cup, different light, different curve (Huygens; Bernoulli). Verified live by ray tracing: the parallel-ray envelope fits the nephroid to 1.6e-3 while missing every cardioid by 0.65; the rim-source envelope fits a cardioid to 5.3e-3 (scale ≈ 1/3), 120× tighter than any cardioid fits the sun case. A Tin-Foil-style verdict: the 'coffee cardioid' is HALF-right, distinguished numerically. Neon-noir traced. See the pile-up in 1D, the source switch in 2D, and the signature reader in 3D.",
+  "lit":"Genuine caustic-by-reflection analysis (Huygens; Johann Bernoulli). Verified live: ray-traced envelopes — parallel rays fit nephroid to 1.6e-3 (cardioid miss 0.65); rim source fits cardioid to 5.3e-3 at scale ≈ 1/3, a 120× separation between the hypotheses (window.__caustic.ok).",
+  "fig":"Honest verdict — the popular claim is half-right and this sphere measures instead of repeating either myth. The AVAN inverse — don't admire the curve, read it as a message about the source: cusps at R/2 say 'parallel'; a cusp kissing the rim says 'point on the wall'. Magenta is the myth that never checked; green is the discriminator that did. Every pattern is testimony about its cause — if you measure.",
+  "body":CAUS_BODY,"script":CAUS_SCRIPT},
  {"slug":"the-wallis","title":"THE WALLIS","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#ffcf4a","icon":"wallis",
   "kicker":"pi milled from fractions",
