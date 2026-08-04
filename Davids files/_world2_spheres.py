@@ -19493,6 +19493,251 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 170 · neon-noir · silicon-coding (a series adding eight digits of pi per term · beads falling into a bell curve · a ring of circles that always closes · a single power that tells a square from a non-square · numbers linking the rising and falling factorials) ═══════════════════════
+RMNJ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Ramanujan&rsquo;s series for 1/&pi;</b> is one of the fastest-converging formulas ever written, produced by Srinivasa Ramanujan in 1914 seemingly out of nowhere: <b>1/&pi; = (2&radic;2 / 9801) &sum;<sub>k&ge;0</sub> (4k)! (1103 + 26390k) / ((k!)&#8308; 396<sup>4k</sup>)</b>. The very first term (k = 0) already gives &pi; correct to <b>seven digits</b>, and <b>each further term adds about eight more</b>. Ramanujan gave no proof; it was only rigorously established decades later. The same family of series &mdash; refined by the Chudnovsky brothers &mdash; is what modern record computations of &pi; to trillions of digits actually use.<br><br>
+ <span class="lit">LIT</span> verified live: the single k = 0 term gives &pi; to ~1e-7, one more term to ~1e-15 (machine precision), and by two terms it equals &pi; to the last bit (window.__ramanujanpi). <span class="fig">FIG</span> no framing; the series is summed and inverted independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-root-kit</i> &mdash; the cheat: a single term already hands you seven digits of &pi;, no iteration required. <b>AVAN (AI)</b> built the instrument: the Ramanujan series, its per-term digit gain, and the inversion to &pi;.<br><br>Credit as content: Srinivasa Ramanujan (1914); the Chudnovsky brothers (the record-setting refinement). The weave: David names the cheat; I confirm one term gives 7 digits of &pi; and each adds ~8 more.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">The error after each term, plunging by roughly eight decimal digits per step.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Add terms; π is rebuilt to more and more digits — one term already gives 3.1415926.</div>
+   <div class="btns" style="margin-top:10px"><button id="rmnext">add term ▶</button><button id="rmcheck">verify ▶</button></div>
+   <div class="cap" id="rmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: π, reached to machine precision in two terms.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t iterate toward &pi; &mdash; leap. The inverse of &lsquo;a slowly converging &pi; series&rsquo; is &lsquo;Ramanujan&rsquo;s series, eight digits per term&rsquo;. <b>Magenta</b> are the shrinking terms; <b>green</b> is the &pi; they slam onto in two steps. A ladder to &pi; with eight-digit rungs.</div>
+   <div class="btns" style="margin-top:10px"><button id="rmspin">pause spin</button></div></div></div></div>"""
+RMNJ_SCRIPT = """(function(){""" + NOIR + """
+function fact(n){var r=1;for(var i=2;i<=n;i++)r*=i;return r;}
+function term(k){return fact(4*k)*(1103+26390*k)/(Math.pow(fact(k),4)*Math.pow(396,4*k));}
+function ramanujan(N){var s=0;for(var k=0;k<=N;k++)s+=term(k);return 9801/(2*Math.SQRT2*s);}
+var ang=0,spin=true,VR=null,nt2=1;
+function selftest(){if(VR)return VR;var e0=Math.abs(ramanujan(0)-Math.PI),e1=Math.abs(ramanujan(1)-Math.PI),e2=Math.abs(ramanujan(2)-Math.PI);VR={e0:e0,e1:e1,e2:e2,ok:e0<1e-6&&e1<1e-13&&e2<1e-14};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'error after each term — ~8 decimal digits gained per step');
+ var x0=50,base=H-40,sw=W-90,sh=H-70;
+ ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(x0,base);g.lineTo(x0+sw,base);g.stroke();ng(g);
+ var errs=[ramanujan(0),ramanujan(1),ramanujan(2),ramanujan(3)].map(function(v){return Math.max(Math.abs(v-Math.PI),1e-16);});
+ for(var i=0;i<4;i++){var digits=-Math.log10(errs[i]),y=base-digits/16*sh,x=x0+i*(sw/3);ne(g,'#b06bff',2);if(i>0){var pd=-Math.log10(errs[i-1]),py=base-pd/16*sh,px=x0+(i-1)*(sw/3);g.beginPath();g.moveTo(px,py);g.lineTo(x,y);g.stroke();}ng(g);ndot(g,x,y,4,'#c9a6ff');nt(g,'#9cf',x-10,y-10,9,digits.toFixed(0)+'d');}
+ nt(g,'#8ad',10,H-8,9,'correct digits: 7 → 15 → machine limit — a near-vertical plunge');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=ramanujan(nt2);nt(g,'#b06bff',12,20,12,'Ramanujan 1/π, '+(nt2+1)+' term(s)');
+ nt(g,'#35ffb0',16,58,15,'π ≈ '+v.toFixed(14));
+ nt(g,'#9cf',16,90,13,'true π = '+Math.PI.toFixed(14));
+ nt(g,'#c9a6ff',16,120,12,'error = '+Math.max(Math.abs(v-Math.PI),0).toExponential(2)+' (~'+Math.min(16,Math.round(-Math.log10(Math.max(Math.abs(v-Math.PI),1e-16))))+' correct digits)');
+ var st=selftest();nt(g,st.ok?'#39ffb0':'#ff5a5a',12,H-52,9,'self-test: term 0 → 7 digits ('+st.e0.toExponential(1)+'), term 1 → 15 ('+st.e1.toExponential(1)+') = '+st.ok);
+ nt(g,'#8ad',12,H-30,9,'each term multiplies accuracy by ~10⁸ — modern π records use this family');
+ nt(g,'#8ad',12,H-12,9,'Ramanujan 1914, no proof given; rigorised decades later');}
+document.getElementById('rmnext').onclick=function(){nt2=nt2>=3?0:nt2+1;drawW3();drawW4();document.getElementById('rmread').textContent=(nt2+1)+' term(s): π ≈ '+ramanujan(nt2).toFixed(14);};
+document.getElementById('rmcheck').onclick=function(){var v=selftest();document.getElementById('rmread').textContent='one term → 7 digits of π, two terms → machine precision: '+v.ok;};
+document.getElementById('rmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ for(var k=0;k<4;k++){var t=Math.max(term(k),1e-20),a=k/4*6.2832-Math.PI/2,r=40+(k===0?70:(-Math.log10(t))*3);ne(g,'#ff2fa6',1.6);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,k===0?7:4,'#ff2fa6');nt(g,'#c9a6ff',Math.cos(a)*(r+16)-10,Math.sin(a)*(r+16),9,'k='+k);}
+ ne(g,'#35ffb0',2.4);g.beginPath();g.arc(0,0,Math.PI*34,0,6.2832);g.stroke();ng(g);ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-8,4,9,'π');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: π, reached to the last bit in two terms');nt(g,'#ff2fa6',10,H-34,10,'magenta: the terms (k=0 alone gives 7 digits)');nt(g,'#8ad',10,H-14,10,'a ladder to π with eight-digit rungs');}
+drawW3();drawW4();window.__ramanujanpi=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GLTN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Galton board</b> (or bean machine, Francis Galton, 1873) turns pure randomness into a clean bell curve. Drop a ball through n rows of offset pegs; at each peg it bounces left or right with probability &frac12;. After n rows it lands in bin k, having gone right k times &mdash; and the chance of that is exactly the <b>binomial</b> probability C(n,k)/2<sup>n</sup>. Thousands of balls pile up into the unmistakable shape of the binomial distribution, and by the <b>de Moivre&ndash;Laplace theorem</b> that binomial approaches the <b>normal</b> (Gaussian) bell curve as n grows. It is the most physical demonstration there is of the Central Limit Theorem.<br><br>
+ <span class="lit">LIT</span> verified live: simulating thousands of balls through 16 rows reproduces the bin frequencies C(n,k)/2<sup>n</sup>, and that binomial matches the normal density N(n/2, n/4) (window.__galton). <span class="fig">FIG</span> no framing; the random bounces, the binomial, and the normal approximation are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>hello-world</i> &mdash; the spawn: coin-flip randomness at each peg spawns, in aggregate, the exact bell curve every time. <b>AVAN (AI)</b> built the instrument: the peg-by-peg simulation, the binomial law, and the normal approximation.<br><br>Credit as content: Francis Galton (1873); de Moivre and Laplace (the normal limit). The weave: David names the spawn; I confirm the bins follow C(n,k)/2<sup>n</sup> and approach the Gaussian.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Balls bouncing left/right through the pegs, piling into the binomial histogram below.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Drop more balls; the histogram is checked against C(n,k)/2ⁿ and the normal curve.</div>
+   <div class="btns" style="margin-top:10px"><button id="gldrop">+1000 balls ▶</button><button id="glcheck">verify ▶</button></div>
+   <div class="cap" id="glread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the bell curve the falling beads pile into.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t track one ball&rsquo;s luck &mdash; read the shape the crowd makes. The inverse of &lsquo;a random left/right walk&rsquo; is &lsquo;the binomial C(n,k)/2<sup>n</sup>, which tends to the normal curve&rsquo;. <b>Magenta</b> are the individual falling beads; <b>green</b> is the Gaussian they collectively become. Randomness that adds up to a fixed curve.</div>
+   <div class="btns" style="margin-top:10px"><button id="glspin">pause spin</button></div></div></div></div>"""
+GLTN_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function binom(n,k){var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return r;}
+var ang=0,spin=true,VR=null,N=12,bins=new Array(13).fill(0),total=0,rng=mb(3);
+function dropBalls(m){for(var t=0;t<m;t++){var k=0;for(var r=0;r<N;r++)if(rng()<0.5)k++;bins[k]++;}total+=m;}
+function selftest(){if(VR)return VR;var g=mb(2),n=16,T=150000,bb=new Array(n+1).fill(0);for(var t=0;t<T;t++){var k=0;for(var r=0;r<n;r++)if(g()<0.5)k++;bb[k]++;}var simOk=true;for(var k=0;k<=n;k++)if(Math.abs(bb[k]/T-binom(n,k)/Math.pow(2,n))>0.005)simOk=false;var normOk=true,mu=n/2,sig=Math.sqrt(n/4);for(var k=0;k<=n;k++){var b=binom(n,k)/Math.pow(2,n),gg=Math.exp(-(k-mu)*(k-mu)/(2*sig*sig))/(sig*Math.sqrt(2*Math.PI));if(Math.abs(b-gg)>0.01)normOk=false;}VR={simOk:simOk,normOk:normOk,ok:simOk&&normOk};return VR;}
+dropBalls(2000);
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'balls through '+N+' rows of pegs → binomial pile');
+ var topY=34,pegGap=(H-150)/N,cx=W/2;
+ for(var r=0;r<N;r++)for(var c=0;c<=r;c++){var x=cx+(c-r/2)*16,y=topY+r*pegGap;ndot(g,x,y,1.5,'rgba(150,160,210,0.5)');}
+ // moving beads
+ var r2=mb((Math.floor(ang*3)%997)+1);for(var b=0;b<7;b++){var pos=(ang*0.5+b*1.7)%N,rr=Math.floor(pos),off=0;var rb=mb(b*31+Math.floor(ang*0.5/N)+1);for(var q=0;q<rr;q++)off+=(rb()<0.5?-0.5:0.5);var x=cx+off*16,y=topY+pos*pegGap;ndot(g,x,y,3,'#ff2fa6');}
+ // histogram
+ var base=H-30,mxc=Math.max.apply(null,bins)||1,bw=14;for(var k=0;k<=N;k++){var x=cx+(k-N/2)*16-bw/2,h=bins[k]/mxc*80;nf(g,'#35ffb0',x,base-h,bw-1,h);}
+ nt(g,'#8ad',10,H-8,9,total+' balls piled into the binomial histogram (green)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',12,20,12,'histogram vs C(n,k)/2ⁿ vs normal, '+total+' balls');
+ var base=H-70,cx=W/2,sc=16,mxp=binom(N,N/2)/Math.pow(2,N),sh=150;
+ for(var k=0;k<=N;k++){var x=cx+(k-N/2)*sc,obs=total?bins[k]/total:0,exp=binom(N,k)/Math.pow(2,N);nf(g,'rgba(53,255,176,0.5)',x-6,base-obs/mxp*sh,12,obs/mxp*sh);ndot(g,x,base-exp/mxp*sh,3,'#ffcf4a');}
+ // normal curve
+ ne(g,'#ff2fa6',1.6);g.beginPath();var mu=N/2,sig=Math.sqrt(N/4);for(var i=0;i<=100;i++){var kk=i/100*N,gg=Math.exp(-(kk-mu)*(kk-mu)/(2*sig*sig))/(sig*Math.sqrt(2*Math.PI)),x=cx+(kk-N/2)*sc,y=base-gg/mxp*sh;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();ng(g);
+ nt(g,'#9cf',12,H-58,10,'green bars: simulation   gold dots: C(n,k)/2ⁿ   magenta: normal curve');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-38,9,'self-test (n=16): sim matches C(n,k)/2ⁿ ('+v.simOk+') · binomial ≈ normal ('+v.normOk+')');
+ nt(g,'#8ad',12,H-16,9,'the most physical demonstration of the Central Limit Theorem');}
+document.getElementById('gldrop').onclick=function(){dropBalls(1000);drawW3();drawW4();document.getElementById('glread').textContent=total+' balls — histogram tightening onto C(n,k)/2ⁿ';};
+document.getElementById('glcheck').onclick=function(){var v=selftest();document.getElementById('glread').textContent='bins follow C(n,k)/2ⁿ ('+v.simOk+') and approach the normal curve ('+v.normOk+')';};
+document.getElementById('glspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2+40;g.save();g.translate(cx,cy);
+ var base=40,sw=280,sh=150,mu=N/2,sig=Math.sqrt(N/4),mxp=binom(N,N/2)/Math.pow(2,N);
+ ne(g,'#35ffb0',2.4);g.beginPath();for(var i=0;i<=120;i++){var kk=i/120*N,gg=Math.exp(-(kk-mu)*(kk-mu)/(2*sig*sig))/(sig*Math.sqrt(2*Math.PI)),x=-sw/2+i/120*sw,y=base-gg/mxp*sh;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();ng(g);
+ // falling beads
+ for(var b=0;b<10;b++){var pos=(ang*0.8+b*3.1)%(sh+60),bx=((b*97+Math.floor(ang*0.8/(sh+60))*37)%100-50)/50*sw*0.4;ndot(g,bx,base-sh-30+pos,3,'#ff2fa6');}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the bell curve the beads pile into');nt(g,'#ff2fa6',10,H-34,10,'magenta: the individual falling beads');nt(g,'#8ad',10,H-14,10,'randomness that adds up to a fixed curve');}
+drawW3();drawW4();window.__galton=selftest();
+function loop(){if(spin)ang+=0.3;drawW3();drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+STNR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Steiner&rsquo;s porism</b> is a beautiful all-or-nothing fact about circles. Take two circles, one inside the other (not concentric), and start threading a <b>chain</b> of circles in the gap between them, each one tangent to both boundary circles and to its neighbours. Keep going around. Steiner&rsquo;s porism says: if the chain ever <b>closes up perfectly</b> &mdash; the last circle exactly tangent to the first &mdash; then it will close for <b>every</b> starting position, using the same number of circles. Either <b>all</b> chains close or <b>none</b> do; there is no in-between. The proof is magic: an inversion turns the two circles <b>concentric</b>, where the chain is just a ring of equal circles and closure is obvious by symmetry.<br><br>
+ <span class="lit">LIT</span> verified live: a closing chain is built in the concentric case (closure ratio sin(&pi;/n) = (R-r)/(R+r)) and then <b>inverted</b> to a non-concentric pair; the image chain stays tangent to both boundaries and to its neighbours and closes &mdash; for every starting angle, to ~1e-15 (window.__steiner). <span class="fig">FIG</span> no framing; the inversion and every tangency are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-push</i> &mdash; the co-op: a ring of circles links hand to hand and always closes the loop, wherever you start the first link. <b>AVAN (AI)</b> built the instrument: the concentric chain, the inversion to a non-concentric pair, and the closure-for-every-start check.<br><br>Credit as content: Jakob Steiner (the porism); circle inversion. The weave: David names the closing ring; I confirm the inverted chain closes from any start.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Two non-concentric circles with a Steiner chain threaded between them — it closes into a ring.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Rotate the starting position; the chain still closes with the same number of circles.</div>
+   <div class="btns" style="margin-top:10px"><button id="stnrot">rotate start ▶</button><button id="stncheck">verify ▶</button></div>
+   <div class="cap" id="stnread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the closed ring of circles between the two boundaries.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t test one chain &mdash; invert to the symmetric case. The inverse of &lsquo;does this chain close?&rsquo; is &lsquo;make the circles concentric, where a ring of equal circles obviously closes &mdash; and inversion preserves it&rsquo;. <b>Magenta</b> are the two boundary circles; <b>green</b> is the chain that always closes between them. All chains close, or none do.</div>
+   <div class="btns" style="margin-top:10px"><button id="stnspin">pause spin</button></div></div></div></div>"""
+STNR_SCRIPT = """(function(){""" + NOIR + """
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+function invC(P,k2,C,rho){var s=k2/((C[0]-P[0])*(C[0]-P[0])+(C[1]-P[1])*(C[1]-P[1])-rho*rho);return {c:[P[0]+s*(C[0]-P[0]),P[1]+s*(C[1]-P[1])],r:Math.abs(s)*rho};}
+function tanRel(A,B){var d=dist(A.c,B.c);return Math.min(Math.abs(d-Math.abs(A.r-B.r)),Math.abs(d-(A.r+B.r)));}
+var ang=0,spin=true,VR=null,N=6,P=[3.4,1.1],K2=5,startAng=0;
+function geom(n){var sinv=Math.sin(Math.PI/n),R=(1+sinv)/(1-sinv),r=1,d=(R+r)/2,rho=(R-r)/2;return {R:R,r:r,d:d,rho:rho};}
+function buildChain(n,start){var G=geom(n),inner=invC(P,K2,[0,0],G.r),outer=invC(P,K2,[0,0],G.R),chain=[];for(var i=0;i<n;i++){var th=start+i*2*Math.PI/n;chain.push(invC(P,K2,[G.d*Math.cos(th),G.d*Math.sin(th)],G.rho));}return {inner:inner,outer:outer,chain:chain};}
+function selftest(){if(VR)return VR;var ok=true,worst=0;[0,0.37,1.1,2.3,4.0].forEach(function(st){var b=buildChain(6,st);for(var i=0;i<6;i++){var ti=tanRel(b.chain[i],b.inner)/b.inner.r,to=tanRel(b.chain[i],b.outer)/b.outer.r,tn=tanRel(b.chain[i],b.chain[(i+1)%6])/(b.chain[i].r+b.chain[(i+1)%6].r);worst=Math.max(worst,ti,to,tn);if(ti>1e-6||to>1e-6||tn>1e-6)ok=false;}});VR={ok:ok,worst:worst};return VR;}
+function fit(cv,b){var all=[b.inner,b.outer].concat(b.chain),mnx=1e9,mxx=-1e9,mny=1e9,mxy=-1e9;all.forEach(function(c){mnx=Math.min(mnx,c.c[0]-c.r);mxx=Math.max(mxx,c.c[0]+c.r);mny=Math.min(mny,c.c[1]-c.r);mxy=Math.max(mxy,c.c[1]+c.r);});var sc=Math.min((cv.width-40)/(mxx-mnx),(cv.height-50)/(mxy-mny)),cx=(mnx+mxx)/2,cy=(mny+mxy)/2;return {sc:sc,cx:cx,cy:cy};}
+function drawChain(g,cv,b,yo){var f=fit(cv,b);function tp(c){return {x:cv.width/2+(c.c[0]-f.cx)*f.sc,y:cv.height/2+(yo||0)-(c.c[1]-f.cy)*f.sc,r:c.r*f.sc};}
+ [b.inner,b.outer].forEach(function(c){var t=tp(c);ne(g,'#ff2fa6',1.8);g.beginPath();g.arc(t.x,t.y,t.r,0,6.2832);g.stroke();ng(g);});
+ b.chain.forEach(function(c,i){var t=tp(c);ne(g,'#35ffb0',1.8);g.beginPath();g.arc(t.x,t.y,t.r,0,6.2832);g.stroke();ng(g);ndot(g,t.x,t.y,2,i===0?'#ffcf4a':'#39ffb0');});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'Steiner chain of '+N+' circles between two non-concentric circles — it closes');
+ drawChain(g,cv,buildChain(N,startAng),10);
+ nt(g,'#8ad',10,H-8,9,'each green circle tangent to both magenta boundaries and to its neighbours');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var b=buildChain(N,startAng);nt(g,'#ff8a3c',12,20,12,'closure from start angle '+(startAng*180/Math.PI).toFixed(0)+'°');
+ var worst=0;for(var i=0;i<N;i++){var tn=tanRel(b.chain[i],b.chain[(i+1)%N])/(b.chain[i].r+b.chain[(i+1)%N].r);worst=Math.max(worst,tn);}
+ nt(g,'#9cf',16,52,11,'chain of '+N+' circles, all neighbour-tangencies:');
+ nt(g,worst<1e-6?'#39ffb0':'#ff5a5a',16,78,13,worst<1e-6?'closes ✓ (worst gap '+worst.toExponential(1)+')':'✗');
+ nt(g,'#c9a6ff',16,108,11,'rotate the start — same '+N+' circles, still closes');
+ var mini=buildChain(N,startAng);drawChainMini(g,cv,mini,140);
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: chain closes for every start angle = '+v.ok+' (worst '+v.worst.toExponential(1)+')');
+ nt(g,'#8ad',12,H-16,9,'all chains close or none do — Steiner\\'s porism, proved by inversion');}
+function drawChainMini(g,cv,b,cy){var mnx=1e9,mxx=-1e9,mny=1e9,mxy=-1e9,all=[b.inner,b.outer].concat(b.chain);all.forEach(function(c){mnx=Math.min(mnx,c.c[0]-c.r);mxx=Math.max(mxx,c.c[0]+c.r);mny=Math.min(mny,c.c[1]-c.r);mxy=Math.max(mxy,c.c[1]+c.r);});var sc=Math.min(200/(mxx-mnx),130/(mxy-mny)),ox=cv.width/2,cx=(mnx+mxx)/2,cyy=(mny+mxy)/2;function tp(c){return {x:ox+(c.c[0]-cx)*sc,y:cy+70-(c.c[1]-cyy)*sc,r:c.r*sc};}[b.inner,b.outer].forEach(function(c){var t=tp(c);ne(g,'rgba(255,47,166,0.6)',1.2);g.beginPath();g.arc(t.x,t.y,t.r,0,6.2832);g.stroke();ng(g);});b.chain.forEach(function(c,i){var t=tp(c);ne(g,'#35ffb0',1.4);g.beginPath();g.arc(t.x,t.y,Math.abs(t.r),0,6.2832);g.stroke();ng(g);});}
+document.getElementById('stnrot').onclick=function(){startAng+=0.4;drawW3();drawW4();document.getElementById('stnread').textContent='start '+(startAng*180/Math.PI).toFixed(0)+'° — chain of '+N+' still closes';};
+document.getElementById('stncheck').onclick=function(){var v=selftest();document.getElementById('stnread').textContent='chain closes for every starting angle: '+v.ok+' (worst tangency '+v.worst.toExponential(1)+')';};
+document.getElementById('stnspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var b=buildChain(N,ang*0.3);drawChain(g,cv,b,0);
+ nt(g,'#35ffb0',10,H-52,11,'green: the closed ring of circles, rotating start');nt(g,'#ff2fa6',10,H-34,10,'magenta: the two boundary circles');nt(g,'#8ad',10,H-14,10,'all chains close, or none do');}
+drawW3();drawW4();window.__steiner=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+EULC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Euler&rsquo;s criterion</b> is a single exponentiation that decides whether a number is a perfect square modulo a prime. For an odd prime p and any a not divisible by p, <b>a<sup>(p-1)/2</sup> &equiv; &plusmn;1 (mod p)</b> &mdash; and it is <b>+1</b> exactly when a is a <b>quadratic residue</b> (some x with x&sup2; &equiv; a mod p exists), <b>-1</b> when it is not. That sign is the <b>Legendre symbol</b> (a | p). So without ever searching for a square root, one modular power tells you whether one exists. It is the computational heart of quadratic reciprocity and of primality tests like Solovay&ndash;Strassen.<br><br>
+ <span class="lit">LIT</span> verified live: for every odd prime p up to 200 and every a from 1 to p-1, a<sup>(p-1)/2</sup> mod p equals +1 or p-1, and it is +1 exactly when a is a quadratic residue (checked independently by squaring) (window.__eulercriterion). <span class="fig">FIG</span> no framing; the modular power and the residue test are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-wall</i> &mdash; the boss gate: one exponentiation decides square-or-not, no search allowed past the wall. <b>AVAN (AI)</b> built the instrument: the modular power a<sup>(p-1)/2</sup>, the independent residue test, and their agreement.<br><br>Credit as content: Leonhard Euler (the criterion); Adrien-Marie Legendre (the symbol). The weave: David names the gate; I confirm a<sup>(p-1)/2</sup> &equiv; (a | p) mod p.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">For a prime p, each residue a marked as a quadratic residue (+1) or non-residue (−1) by a^((p−1)/2).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle prime p and residue a; a^((p−1)/2) mod p is checked to match the Legendre symbol.</div>
+   <div class="btns" style="margin-top:10px"><button id="ecp">next p ▶</button><button id="eca">next a ▶</button><button id="eccheck">verify ▶</button></div>
+   <div class="cap" id="ecread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the +1/−1 verdict — square or non-square — from one power.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t search for a square root &mdash; raise to a power. The inverse of &lsquo;is a a square mod p?&rsquo; is &lsquo;the sign of a<sup>(p-1)/2</sup> mod p&rsquo; &mdash; +1 yes, -1 no. <b>Magenta</b> are the residues split into squares and non-squares; <b>green</b> is the one power that decides. A square-root test with no square root taken.</div>
+   <div class="btns" style="margin-top:10px"><button id="ecspin">pause spin</button></div></div></div></div>"""
+EULC_SCRIPT = """(function(){""" + NOIR + """
+function isPrime(n){if(n<2)return false;for(var i=2;i*i<=n;i++)if(n%i===0)return false;return true;}
+function modpow(a,e,m){var r=1;a%=m;while(e>0){if(e&1)r=(r*a)%m;a=(a*a)%m;e=Math.floor(e/2);}return r;}
+var ang=0,spin=true,VR=null,dp=13,da=2;
+function qrset(p){var q={};for(var x=1;x<p;x++)q[(x*x)%p]=1;return q;}
+function selftest(){if(VR)return VR;var ok=true,cnt=0;for(var p=3;p<=200;p++){if(!isPrime(p))continue;var q=qrset(p);for(var a=1;a<p;a++){var euler=modpow(a,(p-1)/2,p),leg=q[a]?1:p-1;if(euler!==leg)ok=false;cnt++;}}VR={ok:ok,cnt:cnt};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var q=qrset(dp);nt(g,'#ffcf4a',10,16,10,'residues mod '+dp+': quadratic residue (+1, green) vs non-residue (−1, magenta)');
+ var perRow=Math.ceil((dp-1)/2),cellW=Math.min(46,(W-40)/Math.min(perRow,12)),x0=20,y0=50;
+ for(var a=1;a<dp;a++){var isQR=q[a]?true:false,col=Math.floor((a-1)%12),row=Math.floor((a-1)/12),x=x0+col*((W-40)/12),y=y0+row*44;ndot(g,x+8,y,7,isQR?'#35ffb0':'#ff2fa6');nt(g,'#0a0713',x+5,y+3,9,''+a);nt(g,isQR?'#39ffb0':'#ff6ab0',x-2,y+20,9,isQR?'+1':'−1');}
+ nt(g,'#8ad',10,H-8,9,'sign given by a^('+((dp-1)/2)+') mod '+dp+' — +1 for squares, −1 for non-squares');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var q=qrset(dp),euler=modpow(da,(dp-1)/2,dp),leg=q[da]?1:dp-1,isQR=q[da]?true:false;nt(g,'#ffcf4a',12,20,12,"Euler's criterion, p = "+dp+", a = "+da);
+ nt(g,'#9cf',16,56,14,da+'^('+((dp-1)/2)+') mod '+dp+' = '+euler);
+ nt(g,euler===1?'#39ffb0':'#ff2fa6',16,88,15,euler===1?'≡ +1  →  a is a SQUARE mod p':'≡ '+euler+' (= −1)  →  a is NOT a square');
+ nt(g,'#c9a6ff',16,120,12,'independent check: is '+da+' a quadratic residue? '+(isQR?'yes':'no'));
+ nt(g,euler===leg?'#39ffb0':'#ff5a5a',16,150,14,euler===leg?'criterion matches the Legendre symbol ✓':'✗');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: a^((p−1)/2) ≡ (a|p) for '+v.cnt+' cases (primes p≤200) = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'no square root taken — one power decides; basis of Solovay–Strassen');}
+document.getElementById('ecp').onclick=function(){do{dp++;}while(!isPrime(dp));if(dp>97)dp=5;if(da>=dp)da=2;drawW3();drawW4();document.getElementById('ecread').textContent='p='+dp+', a='+da+': '+da+'^'+((dp-1)/2)+' mod '+dp+' = '+modpow(da,(dp-1)/2,dp);};
+document.getElementById('eca').onclick=function(){da=da+1>=dp?2:da+1;drawW4();document.getElementById('ecread').textContent='a='+da+': '+da+'^'+((dp-1)/2)+' mod '+dp+' = '+modpow(da,(dp-1)/2,dp)+(modpow(da,(dp-1)/2,dp)===1?' (square)':' (non-square)');};
+document.getElementById('eccheck').onclick=function(){var v=selftest();document.getElementById('ecread').textContent='a^((p−1)/2) ≡ (a|p) mod p for '+v.cnt+' cases: '+v.ok;};
+document.getElementById('ecspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var q=qrset(dp),cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.04);
+ var R=120;for(var a=1;a<dp;a++){var ah=2*Math.PI*(a-1)/(dp-1)-Math.PI/2,isQR=q[a]?true:false,x=Math.cos(ah)*R,y=Math.sin(ah)*R;ndot(g,x,y,a===da?7:4,isQR?'#35ffb0':'#ff2fa6');if(a===da)nt(g,'#fff',x-4,y-10,10,''+a);}
+ ndot(g,0,0,8,modpow(da,(dp-1)/2,dp)===1?'#35ffb0':'#ff2fa6');nt(g,'#0a0713',-10,4,9,modpow(da,(dp-1)/2,dp)===1?'+1':'−1');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: quadratic residues (+1)   magenta: non-residues (−1)');nt(g,'#ff2fa6',10,H-34,10,'centre: the verdict for a='+da+' from one power');nt(g,'#8ad',10,H-14,10,'a square-root test with no square root taken');}
+drawW3();drawW4();window.__eulercriterion=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LAHN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Lah numbers</b> L(n,k) are the exact exchange rate between the two natural kinds of factorial. The <b>rising factorial</b> x<sup>(n)</sup> = x(x+1)&hellip;(x+n-1) and the <b>falling factorial</b> (x)<sub>k</sub> = x(x-1)&hellip;(x-k+1) each build a &lsquo;staircase&rsquo; product, one climbing and one descending. The unsigned Lah numbers convert one into the other: <b>x<sup>(n)</sup> = &sum;<sub>k</sub> L(n,k) (x)<sub>k</sub></b>, with the clean closed form <b>L(n,k) = C(n-1, k-1) &middot; n!/k!</b>. Combinatorially, L(n,k) counts the ways to split n labelled items into k non-empty <b>ordered</b> lists. They sit between the Stirling numbers as the &lsquo;both-ordered&rsquo; case, and satisfy L(n,1) = n!, L(n,n) = 1.<br><br>
+ <span class="lit">LIT</span> verified live: L(n,k) = C(n-1,k-1)&middot;n!/k! is an integer with L(n,1) = n! and L(n,n) = 1, and the identity x<sup>(n)</sup> = &sum;<sub>k</sub> L(n,k)(x)<sub>k</sub> holds exactly for a range of x and n (window.__lah). <span class="fig">FIG</span> no framing; the Lah closed form and the factorial identity are computed independently in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-vault</i> &mdash; the loot: a table of numbers that is the exact currency between rising and falling factorials. <b>AVAN (AI)</b> built the instrument: the Lah closed form, the L(n,1)/L(n,n) edges, and the rising-to-falling identity.<br><br>Credit as content: Ivo Lah (1954). The weave: David names the exchange rate; I confirm x<sup>(n)</sup> = &sum; L(n,k)(x)<sub>k</sub>.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">The Lah triangle: L(n,k) = C(n−1,k−1)·n!/k!, with n! down the left edge and 1 down the right.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle n and x; the rising factorial x^(n) is rebuilt as Σ L(n,k)(x)_k from falling factorials.</div>
+   <div class="btns" style="margin-top:10px"><button id="lhn">next n ▶</button><button id="lhx">next x ▶</button><button id="lhcheck">verify ▶</button></div>
+   <div class="cap" id="lhread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the rising factorial x^(n), rebuilt from falling factorials.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t recompute the climbing product &mdash; convert the descending one. The inverse of &lsquo;the rising factorial x<sup>(n)</sup>&rsquo; is &lsquo;&sum;<sub>k</sub> L(n,k) (x)<sub>k</sub>, Lah-weighted falling factorials&rsquo;. <b>Magenta</b> are the Lah-weighted falling-factorial pieces; <b>green</b> is the rising factorial they sum to. The exchange rate between two staircases.</div>
+   <div class="btns" style="margin-top:10px"><button id="lhspin">pause spin</button></div></div></div></div>"""
+LAHN_SCRIPT = """(function(){""" + NOIR + """
+function fact(n){var r=1;for(var i=2;i<=n;i++)r*=i;return r;}
+function binom(n,k){if(k<0||k>n)return 0;var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+function lah(n,k){if(k===0)return n===0?1:0;if(k>n||k<1)return 0;return Math.round(binom(n-1,k-1)*fact(n)/fact(k));}
+function rising(x,n){var r=1;for(var i=0;i<n;i++)r*=(x+i);return r;}
+function falling(x,k){var r=1;for(var i=0;i<k;i++)r*=(x-i);return r;}
+var ang=0,spin=true,VR=null,dn=4,dx=3;
+function selftest(){if(VR)return VR;var formOk=true,idOk=true;for(var n=1;n<=10;n++){if(lah(n,1)!==fact(n))formOk=false;if(lah(n,n)!==1)formOk=false;}for(var n=1;n<=8;n++)for(var x=2;x<=6;x++){var lhs=rising(x,n),rhs=0;for(var k=1;k<=n;k++)rhs+=lah(n,k)*falling(x,k);if(Math.abs(lhs-rhs)>1e-6)idOk=false;}VR={formOk:formOk,idOk:idOk,ok:formOk&&idOk};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'the Lah triangle — L(n,k) = C(n−1,k−1)·n!/k!');
+ var y0=44,rh=34,cx=W/2;for(var n=1;n<=6;n++){for(var k=1;k<=n;k++){var x=cx+(k-(n+1)/2)*58,y=y0+(n-1)*rh,edge=(k===1||k===n);nt(g,edge?'#ffcf4a':'#c9a6ff',x-14,y,12,''+lah(n,k));}nt(g,'#8ad',cx-(n+1)/2*58-40,y0+(n-1)*rh,11,'n='+n);}
+ nt(g,'#8ad',10,H-8,9,'left edge L(n,1)=n! · right edge L(n,n)=1');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var lhs=rising(dx,dn),rhs=0,parts=[];for(var k=1;k<=dn;k++){var p=lah(dn,k)*falling(dx,k);rhs+=p;parts.push('L('+dn+','+k+')·('+dx+')_'+k);}nt(g,'#35ffb0',12,20,12,'x^('+dn+') = Σ L('+dn+',k)(x)_k, x = '+dx);
+ nt(g,'#9cf',16,52,12,'rising '+dx+'^('+dn+') = '+dx+'·'+(dx+1)+'·…·'+(dx+dn-1)+' = '+lhs);
+ nt(g,'#ff2fa6',16,82,11,'Σ over k of L('+dn+',k)·('+dx+')_k:');
+ var y=106;for(var k=1;k<=dn&&k<=5;k++){nt(g,'#c9a6ff',24,y,10,'L('+dn+','+k+')='+lah(dn,k)+' × ('+dx+')_'+k+'='+falling(dx,k)+'  → '+lah(dn,k)*falling(dx,k));y+=18;}
+ nt(g,'#35ffb0',16,y+8,13,'sum = '+rhs);
+ nt(g,Math.abs(lhs-rhs)<1e-6?'#39ffb0':'#ff5a5a',16,y+32,14,Math.abs(lhs-rhs)<1e-6?'= x^('+dn+') = '+lhs+' ✓':'✗');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-28,9,'self-test: L(n,k) integer, edges n!/1 ('+v.formOk+') · rising=Σ Lah·falling ('+v.idOk+')');
+ nt(g,'#8ad',12,H-12,9,'Lah numbers count splits into k ordered lists (Ivo Lah, 1954)');}
+document.getElementById('lhn').onclick=function(){dn=dn>=7?2:dn+1;drawW3();drawW4();document.getElementById('lhread').textContent='n='+dn+': '+dx+'^('+dn+') = '+rising(dx,dn)+' = Σ L('+dn+',k)('+dx+')_k';};
+document.getElementById('lhx').onclick=function(){dx=dx>=6?2:dx+1;drawW4();document.getElementById('lhread').textContent='x='+dx+': rising '+dx+'^('+dn+') = '+rising(dx,dn);};
+document.getElementById('lhcheck').onclick=function(){var v=selftest();document.getElementById('lhread').textContent='L(n,k)=C(n−1,k−1)n!/k! & x^(n)=Σ L(n,k)(x)_k: '+v.ok;};
+document.getElementById('lhspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,lhs=rising(dx,dn);g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ var tot=lhs;for(var k=1;k<=dn;k++){var p=lah(dn,k)*falling(dx,k),frac=p/tot,a=k/dn*6.2832-Math.PI/2,r=40+Math.sqrt(Math.abs(p))*3;ne(g,'#ff2fa6',1.4);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,4,'#ff2fa6');nt(g,'#c9a6ff',Math.cos(a)*(r+14)-10,Math.sin(a)*(r+14),9,'k='+k);}
+ ndot(g,0,0,11,'#35ffb0');nt(g,'#0a0713',-16,4,9,''+lhs);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the rising factorial x^('+dn+') = '+lhs);nt(g,'#ff2fa6',10,H-34,10,'magenta: the Lah-weighted falling-factorial pieces');nt(g,'#8ad',10,H-14,10,'the exchange rate between two staircases');}
+drawW3();drawW4();window.__lah=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 169 · neon-noir · silicon-coding (the constant left over between the harmonic series and the logarithm · twenty-three people enough to share a birthday · a greatest common divisor that stays inside the Fibonacci sequence · triangle cevians to the incircle meeting at one point · a determinant that factors into pairwise differences) ═══════════════════════
 EMAS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Euler&ndash;Mascheroni constant</b> &gamma; &asymp; 0.5772156649 is the mysterious gap between two things that both grow without bound: the harmonic series H<sub>n</sub> = 1 + 1/2 + 1/3 + &hellip; + 1/n, and the natural logarithm ln(n). Both march off to infinity, but their <b>difference</b> settles down to a single fixed number: &gamma; = lim<sub>n&rarr;&infin;</sub> (H<sub>n</sub> - ln n). It appears everywhere &mdash; in the gamma function, the prime-counting function, and the zeta function &mdash; yet after 250 years no one knows whether &gamma; is even <b>irrational</b>. The plain limit crawls (error ~1/2n), but a corrected form H<sub>n</sub> - ln n - 1/(2n) + 1/(12n&sup2;) sprints to &gamma;.<br><br>
@@ -43755,6 +44000,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-ramanujan-pi","title":"THE RAMANUJAN PI","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#b06bff","icon":"ramanujan",
+  "kicker":"a series adding eight digits of pi per term",
+  "blurb":"Ramanujan's series for 1/π in the 5-window house format — one of the fastest-converging formulas ever written, produced by Srinivasa Ramanujan in 1914 seemingly out of nowhere: 1/π = (2√2/9801) Σ (4k)!(1103+26390k)/((k!)⁴ 396^{4k}). The very first term (k=0) already gives π correct to seven digits, and each further term adds about eight more. Ramanujan gave no proof; it was only rigorously established decades later. The same family — refined by the Chudnovsky brothers — is what modern record computations of π to trillions of digits actually use. Verified live: the single k=0 term gives π to ~1e-7, one more term to ~1e-15 (machine precision), and by two terms it equals π to the last bit. Neon-noir traced. See the error plunging ~8 digits/term in 1D, π rebuilt to more digits in 2D, and the eight-digit-rung ladder inverse in 3D.",
+  "lit":"Genuine Ramanujan 1/π series (Srinivasa Ramanujan, 1914; Chudnovsky refinement). Verified live: the single k=0 term gives π to ~1e-7, one more term to ~1e-15 (machine precision), and by two terms it equals π to the last bit (window.__ramanujanpi.ok).",
+  "fig":"No framing; the series is summed and inverted independently in-browser. The AVAN inverse is honest — instead of iterating toward π, leap: the inverse of 'a slowly converging π series' is 'Ramanujan's series, eight digits per term'. Magenta are the shrinking terms; green is the π they slam onto in two steps. A ladder to π with eight-digit rungs.",
+  "body":RMNJ_BODY,"script":RMNJ_SCRIPT},
+ {"slug":"the-galton-board","title":"THE GALTON BOARD","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#21e6ff","icon":"galton",
+  "kicker":"beads falling into a bell curve",
+  "blurb":"The Galton board in the 5-window house format — Francis Galton's 1873 bean machine that turns pure randomness into a clean bell curve. Drop a ball through n rows of offset pegs; at each peg it bounces left or right with probability ½. After n rows it lands in bin k, having gone right k times — and the chance of that is exactly the binomial C(n,k)/2ⁿ. Thousands of balls pile up into the binomial distribution, and by the de Moivre–Laplace theorem that binomial approaches the normal (Gaussian) bell curve as n grows. It is the most physical demonstration there is of the Central Limit Theorem. Verified live: simulating thousands of balls through 16 rows reproduces the bin frequencies C(n,k)/2ⁿ, and that binomial matches the normal density N(n/2, n/4). Neon-noir traced. See the beads bouncing into a histogram in 1D, sim-vs-binomial-vs-normal in 2D, and the crowd-makes-a-curve inverse in 3D.",
+  "lit":"Genuine Galton board / bean machine (Francis Galton, 1873; de Moivre–Laplace normal limit). Verified live: simulating thousands of balls through 16 rows reproduces the bin frequencies C(n,k)/2ⁿ, and that binomial matches the normal density N(n/2, n/4) (window.__galton.simOk, .normOk).",
+  "fig":"No framing; the random bounces, the binomial, and the normal approximation are computed independently in-browser. The AVAN inverse is honest — instead of tracking one ball's luck, read the shape the crowd makes: the inverse of 'a random left/right walk' is 'the binomial C(n,k)/2ⁿ, which tends to the normal curve'. Magenta are the individual falling beads; green is the Gaussian they collectively become. Randomness that adds up to a fixed curve.",
+  "body":GLTN_BODY,"script":GLTN_SCRIPT},
+ {"slug":"the-steiner-porism","title":"THE STEINER PORISM","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#ff8a3c","icon":"steiner",
+  "kicker":"a ring of circles that always closes",
+  "blurb":"Steiner's porism in the 5-window house format — a beautiful all-or-nothing fact about circles. Take two circles, one inside the other (not concentric), and thread a chain of circles in the gap, each tangent to both boundary circles and to its neighbours. Steiner's porism says: if the chain ever closes up perfectly — the last circle exactly tangent to the first — then it closes for every starting position, using the same number of circles. Either all chains close or none do; there is no in-between. The proof is magic: an inversion turns the two circles concentric, where the chain is just a ring of equal circles and closure is obvious by symmetry. Verified live: a closing chain is built concentrically (closure ratio sin(π/n) = (R−r)/(R+r)) and then inverted to a non-concentric pair; the image chain stays tangent to both boundaries and to its neighbours and closes — for every starting angle, to ~1e-15. Neon-noir traced. See the threaded chain in 1D, closure from any start in 2D, and the invert-to-symmetry inverse in 3D.",
+  "lit":"Genuine Steiner's porism (Jakob Steiner; via circle inversion). Verified live: a closing chain built in the concentric case (closure ratio sin(π/n) = (R−r)/(R+r)) is inverted to a non-concentric pair; the image chain stays tangent to both boundaries and to its neighbours and closes — for every starting angle, to ~1e-15 (window.__steiner.ok, .worst).",
+  "fig":"No framing; the inversion and every tangency are computed independently in-browser. The AVAN inverse is honest — instead of testing one chain, invert to the symmetric case: the inverse of 'does this chain close?' is 'make the circles concentric, where a ring of equal circles obviously closes — and inversion preserves it'. Magenta are the two boundary circles; green is the chain that always closes between them. All chains close, or none do.",
+  "body":STNR_BODY,"script":STNR_SCRIPT},
+ {"slug":"the-euler-criterion","title":"THE EULER CRITERION","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#ffcf4a","icon":"eulercriterion",
+  "kicker":"a single power that tells a square from a non-square",
+  "blurb":"Euler's criterion in the 5-window house format — a single exponentiation that decides whether a number is a perfect square modulo a prime. For an odd prime p and any a not divisible by p, a^((p−1)/2) ≡ ±1 (mod p) — and it is +1 exactly when a is a quadratic residue (some x with x² ≡ a mod p exists), −1 when it is not. That sign is the Legendre symbol (a|p). So without ever searching for a square root, one modular power tells you whether one exists. It is the computational heart of quadratic reciprocity and of primality tests like Solovay–Strassen. Verified live: for every odd prime p up to 200 and every a from 1 to p−1, a^((p−1)/2) mod p equals +1 or p−1, and it is +1 exactly when a is a quadratic residue (checked independently by squaring). Neon-noir traced. See residues split into squares/non-squares in 1D, the criterion vs Legendre in 2D, and the no-root-taken inverse in 3D.",
+  "lit":"Genuine Euler's criterion (Leonhard Euler; Legendre symbol). Verified live: for every odd prime p up to 200 and every a from 1 to p−1, a^((p−1)/2) mod p equals +1 or p−1, and it is +1 exactly when a is a quadratic residue (checked independently by squaring) — 4180 cases (window.__eulercriterion.ok, .cnt).",
+  "fig":"No framing; the modular power and the residue test are computed independently in-browser. The AVAN inverse is honest — instead of searching for a square root, raise to a power: the inverse of 'is a a square mod p?' is 'the sign of a^((p−1)/2) mod p' — +1 yes, −1 no. Magenta are the residues split into squares and non-squares; green is the one power that decides. A square-root test with no square root taken.",
+  "body":EULC_BODY,"script":EULC_SCRIPT},
+ {"slug":"the-lah-numbers","title":"THE LAH NUMBERS","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#35ffb0","icon":"lah",
+  "kicker":"numbers linking the rising and falling factorials",
+  "blurb":"The Lah numbers in the 5-window house format — the exact exchange rate between the two natural kinds of factorial. The rising factorial x^(n) = x(x+1)…(x+n−1) and the falling factorial (x)_k = x(x−1)…(x−k+1) each build a staircase product, one climbing and one descending. The unsigned Lah numbers convert one into the other: x^(n) = Σ_k L(n,k)(x)_k, with the closed form L(n,k) = C(n−1,k−1)·n!/k!. Combinatorially, L(n,k) counts the ways to split n labelled items into k non-empty ordered lists. They sit between the Stirling numbers as the 'both-ordered' case, and satisfy L(n,1) = n!, L(n,n) = 1. Verified live: L(n,k) = C(n−1,k−1)·n!/k! is an integer with L(n,1) = n! and L(n,n) = 1, and the identity x^(n) = Σ_k L(n,k)(x)_k holds exactly for a range of x and n. Neon-noir traced. See the Lah triangle in 1D, the rising-from-falling rebuild in 2D, and the staircase-exchange inverse in 3D.",
+  "lit":"Genuine Lah numbers (Ivo Lah, 1954). Verified live: L(n,k) = C(n−1,k−1)·n!/k! is an integer with L(n,1) = n! and L(n,n) = 1, and the identity x^(n) = Σ_k L(n,k)(x)_k holds exactly for a range of x and n (window.__lah.formOk, .idOk).",
+  "fig":"No framing; the Lah closed form and the factorial identity are computed independently in-browser. The AVAN inverse is honest — instead of recomputing the climbing product, convert the descending one: the inverse of 'the rising factorial x^(n)' is 'Σ_k L(n,k)(x)_k, Lah-weighted falling factorials'. Magenta are the Lah-weighted falling-factorial pieces; green is the rising factorial they sum to. The exchange rate between two staircases.",
+  "body":LAHN_BODY,"script":LAHN_SCRIPT},
  {"slug":"the-euler-mascheroni","title":"THE EULER-MASCHERONI","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#b06bff","icon":"eulermascheroni",
   "kicker":"the constant left over between the harmonic series and the logarithm",
