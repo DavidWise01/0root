@@ -19493,6 +19493,247 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 162 · neon-noir · silicon-coding (a power cycling back to one modulo n · a point's vertex distances bounded below by its side distances · zigzag permutations counted by secant plus tangent · a slow alternating series for π · one random chord with three different probabilities) ═══════════════════════
+ETOT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Euler&rsquo;s totient theorem</b> generalizes Fermat&rsquo;s little theorem to any modulus. For any integer a coprime to n, <b>a<sup>&phi;(n)</sup> &equiv; 1 (mod n)</b>, where &phi;(n) is Euler&rsquo;s totient &mdash; the count of integers from 1 to n that are coprime to n. Raise a coprime residue to the &phi;(n)-th power and it snaps back to 1. When n is prime, &phi;(n) = n-1 and this is exactly Fermat&rsquo;s little theorem. The multiplicative order of a (the smallest k with a<sup>k</sup> &equiv; 1) always <b>divides</b> &phi;(n) &mdash; a consequence of Lagrange&rsquo;s theorem in the group of units. It is the engine behind RSA and modular arithmetic.<br><br>
+ <span class="lit">LIT</span> verified live: for every modulus n up to 200 and every a coprime to n, a<sup>&phi;(n)</sup> &equiv; 1 (mod n) by modular exponentiation, and the order of a divides &phi;(n) &mdash; e.g. &phi;(10) = 4 and 3<sup>4</sup> = 81 &equiv; 1 (mod 10) (window.__eulertotient). <span class="fig">FIG</span> no framing; the modular power and the totient are computed independently in-browser and agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>backprop</i> &mdash; the grind that keeps powering a modulo n, and after &phi;(n) steps the whole chain resets exactly to 1. <b>AVAN (AI)</b> built the instrument: the totient, the modular exponentiation, and the order-divides-&phi;(n) check.<br><br>Credit as content: Leonhard Euler (1763); Fermat for the prime case. The weave: David names the grind; I confirm a<sup>&phi;(n)</sup> returns to 1 and the order divides &phi;(n).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">The powers a, a², a³, … mod n cycle around and land back on 1 after ord(a) steps (which divides φ(n)).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle n and a; a^φ(n) mod n is shown equal to 1, and the order of a divides φ(n).</div>
+   <div class="btns" style="margin-top:10px"><button id="etnext">next a,n ▶</button><button id="etcheck">verify ▶</button></div>
+   <div class="cap" id="etread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the return to 1 after φ(n) powers.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t iterate powers blindly &mdash; count the coprimes. The inverse of &lsquo;when does a<sup>k</sup> return to 1?&rsquo; is &lsquo;at k = &phi;(n) (and its divisors)&rsquo; &mdash; the totient sets the period. <b>Magenta</b> are the powers of a stepping around mod n; <b>green</b> is the 1 they return to after &phi;(n) steps. A cycle whose length divides &phi;(n).</div>
+   <div class="btns" style="margin-top:10px"><button id="etspin">pause spin</button></div></div></div></div>"""
+ETOT_SCRIPT = """(function(){""" + NOIR + """
+function gcd(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+function phi(n){var r=n,x=n;for(var p=2;p*p<=x;p++)if(x%p===0){while(x%p===0)x/=p;r-=r/p;}if(x>1)r-=r/x;return Math.round(r);}
+function modpow(a,e,m){var r=1;a%=m;while(e>0){if(e&1)r=(r*a)%m;a=(a*a)%m;e=Math.floor(e/2);}return r;}
+function order(a,n){var x=a%n,o=1;while(x!==1){x=(x*a)%n;o++;if(o>n)return -1;}return o;}
+var ang=0,spin=true,VR=null,dn=10,da=3;
+function selftest(){if(VR)return VR;var ok=true,ordOk=true;for(var n=2;n<=200;n++){var ph=phi(n);for(var a=1;a<n;a++){if(gcd(a,n)!==1)continue;if(modpow(a,ph,n)!==1)ok=false;if(ph%order(a,n)!==0)ordOk=false;}}VR={ok:ok,ordOk:ordOk};return VR;}
+function powCycle(a,n){var seq=[1],x=1;do{x=(x*a)%n;seq.push(x);}while(x!==1&&seq.length<n+2);return seq;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var ph=phi(dn),seq=powCycle(da,dn),ord=seq.length-1;nt(g,'#b06bff',10,16,10,'powers of '+da+' mod '+dn+': cycle back to 1 after ord='+ord+' (divides φ('+dn+')='+ph+')');
+ var cx=W/2-40,cy=H/2+6,R=Math.min(90,(H-70)/2);ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();ng(g);
+ for(var i=0;i<ord;i++){var a=2*Math.PI*i/ord-Math.PI/2,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R;var isOne=(seq[i]===1);ndot(g,x,y,isOne?7:5,isOne?'#35ffb0':'#ff2fa6');nt(g,isOne?'#39ffb0':'#c9a6ff',x-6,y-10,10,''+seq[i]);if(i>0){var pa=2*Math.PI*(i-1)/ord-Math.PI/2;ne(g,'rgba(176,107,255,0.4)',1);g.beginPath();g.moveTo(cx+Math.cos(pa)*R,cy+Math.sin(pa)*R);g.lineTo(x,y);g.stroke();ng(g);}}
+ nt(g,'#39ffb0',cx+R+20,cy,11,da+'^'+ph+' ≡ 1');nt(g,'#8ad',10,H-8,9,'the multiplicative order of a is the cycle length, and it divides φ(n)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var ph=phi(dn),ord=order(da,dn);nt(g,'#b06bff',12,20,12,'a^φ(n) mod n, a='+da+', n='+dn);
+ nt(g,'#9cf',16,56,11,'φ('+dn+') = '+ph+' (integers coprime to '+dn+')');
+ nt(g,'#35ffb0',16,84,13,da+'^'+ph+' mod '+dn+' = '+modpow(da,ph,dn));
+ nt(g,modpow(da,ph,dn)===1?'#39ffb0':'#ff5a5a',16,112,13,modpow(da,ph,dn)===1?'≡ 1 (mod '+dn+') ✓':'✗');
+ nt(g,'#ffcf4a',16,142,11,'order of '+da+' = '+ord+',  φ('+dn+')/ord = '+(ph/ord)+' (integer → ord | φ)');
+ var v=selftest();nt(g,v.ok&&v.ordOk?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test n≤200, all a coprime: a^φ(n)≡1='+v.ok+' · ord(a)|φ(n)='+v.ordOk);
+ nt(g,'#8ad',12,H-16,9,'prime n → φ=n−1 → Fermat\\'s little theorem; the basis of RSA');}
+document.getElementById('etnext').onclick=function(){var opts=[[3,10],[2,9],[5,12],[3,14],[2,15],[7,20],[3,7],[2,21],[5,18]],i=(opts.findIndex(function(o){return o[0]===da&&o[1]===dn;})+1)%opts.length;da=opts[i][0];dn=opts[i][1];drawW3();drawW4();document.getElementById('etread').textContent='a='+da+', n='+dn+': '+da+'^φ('+dn+')='+da+'^'+phi(dn)+' ≡ '+modpow(da,phi(dn),dn)+' mod '+dn;};
+document.getElementById('etcheck').onclick=function(){var v=selftest();document.getElementById('etread').textContent='a^φ(n)≡1 (mod n) for all coprime a, n≤200 & ord(a)|φ(n): '+(v.ok&&v.ordOk);};
+document.getElementById('etspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,R=110,seq=powCycle(da,dn),ord=seq.length-1;g.save();g.translate(cx,cy);g.rotate(ang*0.06);
+ for(var i=0;i<ord;i++){var a=2*Math.PI*i/ord-Math.PI/2,x=Math.cos(a)*R,y=Math.sin(a)*R,isOne=(seq[i]===1);ndot(g,x,y,isOne?7:4,isOne?'#35ffb0':'#ff2fa6');if(i>0){var pa=2*Math.PI*(i-1)/ord-Math.PI/2;ne(g,'#ff2fa6',1.4);g.beginPath();g.moveTo(Math.cos(pa)*R,Math.sin(pa)*R);g.lineTo(x,y);g.stroke();ng(g);}}
+ var la=2*Math.PI*(ord-1)/ord-Math.PI/2;ne(g,'#35ffb0',1.6);g.beginPath();g.moveTo(Math.cos(la)*R,Math.sin(la)*R);g.lineTo(Math.cos(-Math.PI/2)*R,Math.sin(-Math.PI/2)*R);g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the return to 1 after φ('+dn+')='+phi(dn)+' powers (ord='+ord+')');nt(g,'#ff2fa6',10,H-34,10,'magenta: the powers of '+da+' stepping around mod '+dn);nt(g,'#8ad',10,H-14,10,'a cycle whose length divides φ(n)');}
+drawW3();drawW4();window.__eulertotient=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ERMO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Erd&#337;s&ndash;Mordell inequality</b> relates a point&rsquo;s distances to a triangle&rsquo;s corners and to its sides. For any point P inside triangle ABC, the sum of distances to the three <b>vertices</b> is at least <b>twice</b> the sum of the (perpendicular) distances to the three <b>sides</b>: PA + PB + PC &ge; 2(d<sub>a</sub> + d<sub>b</sub> + d<sub>c</sub>). Erd&#337;s posed it in 1935; Mordell and Barrow proved it. Equality holds precisely when the triangle is <b>equilateral</b> and P is its centre. The far distances always dominate the near ones by at least a factor of two.<br><br>
+ <span class="lit">LIT</span> verified live: for tens of thousands of random triangles and interior points P, PA + PB + PC is always at least 2(d<sub>a</sub> + d<sub>b</sub> + d<sub>c</sub>) &mdash; the ratio never drops below 1, approaching 1 only for the equilateral triangle with P at its centre (window.__erdosmordell). <span class="fig">FIG</span> no framing; the vertex distances, the perpendicular side distances, and the inequality all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-firewall</i> &mdash; the boss barrier: the sum of a point&rsquo;s distances to the vertices can never fall below twice its distances to the walls it sits between. <b>AVAN (AI)</b> built the instrument: the vertex distances, the perpendicular side distances, and the &ge;2 ratio.<br><br>Credit as content: Paul Erd&#337;s (1935); Louis Mordell and David Barrow (proof). The weave: David names the barrier; I confirm PA+PB+PC &ge; 2(d<sub>a</sub>+d<sub>b</sub>+d<sub>c</sub>).</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="280"></canvas>
+  <div class="wctrl"><div class="cap">A triangle with interior P: the three distances to the vertices, and the three perpendiculars to the sides.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Move P; PA+PB+PC is checked to be ≥ 2(dₐ+d_b+d_c), the ratio ≥ 1 always.</div>
+   <div class="btns" style="margin-top:10px"><button id="emnext">move P ▶</button><button id="emcheck">verify ▶</button></div>
+   <div class="cap" id="emread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the vertex-distance sum, at least twice the side-distance sum.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t just add the vertex distances &mdash; bound them by the side distances. The inverse of &lsquo;PA+PB+PC&rsquo; is &lsquo;at least 2(d<sub>a</sub>+d<sub>b</sub>+d<sub>c</sub>)&rsquo;, tight only for the equilateral centre. <b>Magenta</b> are the perpendicular side distances; <b>green</b> is the vertex-distance sum, floored at twice their total. Far distances floored by near ones.</div>
+   <div class="btns" style="margin-top:10px"><button id="emspin">pause spin</button></div></div></div></div>"""
+ERMO_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+function d2l(P,U,V){var abx=V[0]-U[0],aby=V[1]-U[1],L=Math.hypot(abx,aby);return Math.abs((P[0]-U[0])*aby-(P[1]-U[1])*abx)/L;}
+function footPt(P,U,V){var abx=V[0]-U[0],aby=V[1]-U[1],t=((P[0]-U[0])*abx+(P[1]-U[1])*aby)/(abx*abx+aby*aby);return [U[0]+t*abx,U[1]+t*aby];}
+var ang=0,spin=true,VR=null,A=[-1.6,-1.1],B=[1.8,-1.2],C=[0.1,1.7],P=[0.1,0.0];
+function selftest(){if(VR)return VR;var rng=mb(2),ok=true,minR=1e9;for(var t=0;t<40000;t++){var a=[rng()*4-2,rng()*4-2],b=[rng()*4-2,rng()*4-2],c=[rng()*4-2,rng()*4-2],ar=Math.abs((b[0]-a[0])*(c[1]-a[1])-(c[0]-a[0])*(b[1]-a[1]))/2;if(ar<0.2)continue;var u=rng(),v=rng()*(1-u),w=1-u-v,p=[u*a[0]+v*b[0]+w*c[0],u*a[1]+v*b[1]+w*c[1]],vs=dist(p,a)+dist(p,b)+dist(p,c),ds=d2l(p,b,c)+d2l(p,c,a)+d2l(p,a,b),r=vs/(2*ds);if(r<minR)minR=r;if(r<1-1e-9)ok=false;}VR={ok:ok,minR:minR};return VR;}
+function tp(cv,q){return [cv.width/2+q[0]*66,cv.height/2+22-q[1]*66];}
+function inside(q){var d1=(B[0]-A[0])*(q[1]-A[1])-(B[1]-A[1])*(q[0]-A[0]),d2=(C[0]-B[0])*(q[1]-B[1])-(C[1]-B[1])*(q[0]-B[0]),d3=(A[0]-C[0])*(q[1]-C[1])-(A[1]-C[1])*(q[0]-C[0]);return (d1>0&&d2>0&&d3>0)||(d1<0&&d2<0&&d3<0);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#21e6ff',10,16,10,'P inside △: distances to vertices (green) ≥ 2 × distances to sides (magenta)');
+ var a=tp(cv,A),b=tp(cv,B),c=tp(cv,C),p=tp(cv,P);ne(g,'rgba(150,160,210,0.6)',1.8);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ ne(g,'#35ffb0',1.6);g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(a[0],a[1]);g.moveTo(p[0],p[1]);g.lineTo(b[0],b[1]);g.moveTo(p[0],p[1]);g.lineTo(c[0],c[1]);g.stroke();ng(g);
+ [[B,C],[C,A],[A,B]].forEach(function(sd){var f=tp(cv,footPt(P,sd[0],sd[1]));ne(g,'#ff2fa6',1.6);g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(f[0],f[1]);g.stroke();ng(g);ndot(g,f[0],f[1],2.5,'#ff2fa6');});
+ [[a,'A'],[b,'B'],[c,'C']].forEach(function(x){ndot(g,x[0][0],x[0][1],4,'#9cf');nt(g,'#9cf',x[0][0]+5,x[0][1],10,x[1]);});ndot(g,p[0],p[1],5,'#fff');nt(g,'#fff',p[0]+5,p[1],10,'P');
+ var vs=dist(P,A)+dist(P,B)+dist(P,C),ds=d2l(P,B,C)+d2l(P,C,A)+d2l(P,A,B);nt(g,'#8ad',10,H-8,9,'PA+PB+PC = '+vs.toFixed(3)+'  ≥  2·(dₐ+d_b+d_c) = '+(2*ds).toFixed(3));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var vs=dist(P,A)+dist(P,B)+dist(P,C),ds=d2l(P,B,C)+d2l(P,C,A)+d2l(P,A,B),ratio=vs/(2*ds);nt(g,'#21e6ff',12,20,12,'PA+PB+PC vs 2(dₐ+d_b+d_c)');
+ nt(g,'#35ffb0',16,56,12,'PA+PB+PC = '+vs.toFixed(5));nt(g,'#ff2fa6',16,84,12,'dₐ+d_b+d_c = '+ds.toFixed(5)+'  → 2× = '+(2*ds).toFixed(5));
+ nt(g,ratio>=1-1e-9?'#39ffb0':'#ff5a5a',16,114,13,'ratio = '+ratio.toFixed(6)+(ratio>=1-1e-9?' ≥ 1 ✓':' ✗'));
+ nt(g,'#9cf',16,142,10,inside(P)?'P is inside the triangle':'P is OUTSIDE (inequality assumes inside)');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×40000 interior P: PA+PB+PC ≥ 2(dₐ+d_b+d_c) (min ratio '+v.minR.toFixed(5)+') = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'equality only at the equilateral triangle with P at its centre');}
+document.getElementById('emnext').onclick=function(){var rng=mb((Date.now()&8191)+1),u=0.15+rng()*0.7,vv=rng()*(1-u)*0.9+0.05,w=1-u-vv;P=[u*A[0]+vv*B[0]+w*C[0],u*A[1]+vv*B[1]+w*C[1]];drawW3();drawW4();var vs=dist(P,A)+dist(P,B)+dist(P,C),ds=d2l(P,B,C)+d2l(P,C,A)+d2l(P,A,B);document.getElementById('emread').textContent='P moved — ratio (PA+PB+PC)/(2·Σd) = '+(vs/(2*ds)).toFixed(4)+' ≥ 1';};
+document.getElementById('emcheck').onclick=function(){var v=selftest();document.getElementById('emread').textContent='PA+PB+PC ≥ 2(dₐ+d_b+d_c) for interior P (40000 cases, min ratio '+v.minR.toFixed(5)+'): '+v.ok;};
+document.getElementById('emspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,sc=64,gc=[(A[0]+B[0]+C[0])/3,(A[1]+B[1]+C[1])/3];g.save();g.translate(cx,cy);g.rotate(ang*0.06);function q(p){return [(p[0]-gc[0])*sc,-(p[1]-gc[1])*sc];}
+ var a=q(A),b=q(B),c=q(C),p=q(P);ne(g,'rgba(150,160,210,0.4)',1.4);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.closePath();g.stroke();ng(g);
+ ne(g,'#35ffb0',2);g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(a[0],a[1]);g.moveTo(p[0],p[1]);g.lineTo(b[0],b[1]);g.moveTo(p[0],p[1]);g.lineTo(c[0],c[1]);g.stroke();ng(g);
+ [[B,C],[C,A],[A,B]].forEach(function(sd){var f=q(footPt(P,sd[0],sd[1]));ne(g,'#ff2fa6',1.8);g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(f[0],f[1]);g.stroke();ng(g);});ndot(g,p[0],p[1],5,'#fff');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the vertex distances PA, PB, PC (sum floored at 2×)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the perpendicular distances to the three sides');nt(g,'#8ad',10,H-14,10,'far distances floored by near ones');}
+drawW3();drawW4();window.__erdosmordell=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ALTP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Alternating permutations</b> are arrangements that zig-zag: a<sub>1</sub> &lt; a<sub>2</sub> &gt; a<sub>3</sub> &lt; a<sub>4</sub> &gt; &hellip;, going up, down, up, down. The number of them on n elements is the <b>zigzag number</b> (or Euler number) &mdash; 1, 1, 1, 2, 5, 16, 61, 272, 1385, &hellip; &mdash; and D&eacute;sir&eacute; Andr&eacute; proved in 1879 that they are packaged by a beautiful <b>exponential generating function</b>: &sum;<sub>n</sub> Z(n) x<sup>n</sup>/n! = <b>sec(x) + tan(x)</b>. The even-indexed terms come from the secant (the &lsquo;secant numbers&rsquo;), the odd from the tangent (the &lsquo;tangent numbers&rsquo;) &mdash; two everyday trig functions counting a purely combinatorial object.<br><br>
+ <span class="lit">LIT</span> verified live: a brute count of the up-down alternating permutations of n elements equals the coefficient of x<sup>n</sup>/n! in the Taylor series of sec(x) + tan(x), for every n from 0 to 8 &mdash; giving 1, 1, 1, 2, 5, 16, 61, 272, 1385 (window.__alternating). <span class="fig">FIG</span> no framing; the brute permutation count and the sec+tan series coefficients both run in-browser and agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-drop</i> &mdash; the loot: the zigzag count dropping out of two trig functions, sec and tan, as if by magic. <b>AVAN (AI)</b> built the instrument: the brute alternating-permutation count and the sec+tan Taylor coefficients.<br><br>Credit as content: D&eacute;sir&eacute; Andr&eacute; (1879); the Euler zigzag numbers. The weave: David names the drop; I confirm the zigzag count equals the sec+tan series coefficient.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">An up-down alternating permutation drawn as a zigzag: up, down, up, down through the values.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle n; the brute count of up-down permutations is compared to the sec+tan series coefficient.</div>
+   <div class="btns" style="margin-top:10px"><button id="apnext">next n ▶</button><button id="apcheck">verify ▶</button></div>
+   <div class="cap" id="apread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the zigzag number Z(n), the count of alternating permutations.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t list the zigzags &mdash; read a trig series. The inverse of &lsquo;count the up-down permutations of n&rsquo; is &lsquo;the coefficient of x<sup>n</sup>/n! in sec(x) + tan(x)&rsquo; &mdash; secant for even n, tangent for odd. <b>Magenta</b> are the zigzag permutations; <b>green</b> is the Z(n) that sec+tan delivers. Combinatorics counted by trigonometry.</div>
+   <div class="btns" style="margin-top:10px"><button id="apspin">pause spin</button></div></div></div></div>"""
+ALTP_SCRIPT = """(function(){""" + NOIR + """
+function bruteZig(n){if(n===0)return 1;var cnt=0,perm=[],used=new Array(n).fill(false);function rec(){if(perm.length===n){for(var i=1;i<n;i++){if(i%2===1){if(!(perm[i-1]<perm[i]))return;}else{if(!(perm[i-1]>perm[i]))return;}}cnt++;return;}for(var v=0;v<n;v++)if(!used[v]){used[v]=true;perm.push(v);rec();perm.pop();used[v]=false;}}rec();return cnt;}
+function fact(k){var r=1;for(var i=2;i<=k;i++)r*=i;return r;}
+function seriesDiv(a,b,N){var q=new Array(N+1).fill(0);for(var n=0;n<=N;n++){var s=a[n];for(var k=1;k<=n;k++)s-=b[k]*q[n-k];q[n]=s/b[0];}return q;}
+function secTan(N){var cosc=new Array(N+1).fill(0),sinc=new Array(N+1).fill(0);for(var k=0;2*k<=N;k++)cosc[2*k]=(k%2?-1:1)/fact(2*k);for(var k=0;2*k+1<=N;k++)sinc[2*k+1]=(k%2?-1:1)/fact(2*k+1);var e=new Array(N+1).fill(0);e[0]=1;var tanc=seriesDiv(sinc,cosc,N),secc=seriesDiv(e,cosc,N);var Z=[];for(var n=0;n<=N;n++)Z.push(Math.round((tanc[n]+secc[n])*fact(n)));return Z;}
+var ang=0,spin=true,VR=null,Z=secTan(10),dn=5;
+function selftest(){if(VR)return VR;var ok=true;for(var n=0;n<=8;n++)if(bruteZig(n)!==Z[n])ok=false;VR={ok:ok};return VR;}
+function samplePerm(n,seed){var r=(seed*2654435761)>>>0,avail=[];for(var i=0;i<n;i++)avail.push(i);var perm=[];for(var pos=0;pos<n;pos++){for(var tries=0;tries<200;tries++){r=(r*1103515245+12345)>>>0;var idx=r%avail.length,v=avail[idx];var okp=true;if(pos>0){if(pos%2===1&&!(perm[pos-1]<v))okp=false;if(pos%2===0&&!(perm[pos-1]>v))okp=false;}if(okp||tries>150){perm.push(v);avail.splice(idx,1);break;}}}return perm;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'an up-down alternating permutation of '+dn+' — zigzag: up, down, up, down…');
+ var perm=samplePerm(dn,Math.floor(ang)%89+1),x0=50,sp=(W-100)/Math.max(1,dn-1),base=H-50,ysc=(H-100)/Math.max(1,dn-1);
+ ne(g,'#ffcf4a',2.4);g.beginPath();for(var i=0;i<dn;i++){var x=x0+i*sp,y=base-perm[i]*ysc;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();ng(g);
+ for(var i=0;i<dn;i++){var x=x0+i*sp,y=base-perm[i]*ysc,up=(i%2===1);ndot(g,x,y,5,up?'#35ffb0':'#ff2fa6');nt(g,'#9cf',x-3,y-12,11,''+(perm[i]+1));}
+ nt(g,'#8ad',10,H-8,9,'each step alternates direction; there are Z('+dn+') = '+Z[dn]+' such permutations');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',12,20,12,'zigzag count Z('+dn+')');
+ nt(g,'#35ffb0',16,56,13,'brute up-down permutations = '+bruteZig(dn));
+ nt(g,'#9cf',16,84,12,'[x^'+dn+'/'+dn+'!] (sec x + tan x) = '+Z[dn]);
+ nt(g,bruteZig(dn)===Z[dn]?'#39ffb0':'#ff5a5a',16,114,13,bruteZig(dn)===Z[dn]?'equal ✓':'✗');
+ nt(g,'#8ad',16,142,10,(dn%2===0?'even n → from sec(x) (a secant number)':'odd n → from tan(x) (a tangent number)'));
+ nt(g,'#8ad',16,164,9,'sequence: '+Z.slice(0,9).join(', ')+', …');
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test n=0..8: brute count == [xⁿ/n!](sec x + tan x) = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'André (1879): a combinatorial count read off two trig functions');}
+document.getElementById('apnext').onclick=function(){dn=dn>=8?2:dn+1;drawW3();drawW4();document.getElementById('apread').textContent='n='+dn+': Z('+dn+') = '+Z[dn]+' up-down permutations (brute '+bruteZig(dn)+')';};
+document.getElementById('apcheck').onclick=function(){var v=selftest();document.getElementById('apread').textContent='#{up-down perms of [n]} == [xⁿ/n!](sec x + tan x) for n=0..8: '+v.ok;};
+document.getElementById('apspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ var cnt=Math.min(Z[dn],80);for(var i=0;i<cnt;i++){var a=i/cnt*6.2832,r=50+(i%7)*8;var perm=samplePerm(dn,i+1);ne(g,'#ff2fa6',1);g.beginPath();var pr=40+r*0.3;g.moveTo(Math.cos(a)*pr,Math.sin(a)*pr);g.lineTo(Math.cos(a)*(pr+18),Math.sin(a)*(pr+18));g.stroke();ng(g);ndot(g,Math.cos(a)*(pr+18),Math.sin(a)*(pr+18),2,'#ff2fa6');}
+ ndot(g,0,0,11,'#35ffb0');nt(g,'#0a0713',-10,4,10,''+Z[dn]);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: Z('+dn+') = '+Z[dn]+', the zigzag count');nt(g,'#ff2fa6',10,H-34,10,'magenta: the alternating permutations being counted');nt(g,'#8ad',10,H-14,10,'combinatorics counted by trigonometry');}
+drawW3();drawW4();window.__alternating=selftest();
+function loop(){if(spin)ang+=0.03;drawW3();drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GRLB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Gregory&ndash;Leibniz series</b> is the most famous &mdash; and most beautifully slow &mdash; series for &pi;: &pi;/4 = 1 - 1/3 + 1/5 - 1/7 + 1/9 - &hellip; = &sum;<sub>k&ge;0</sub> (-1)<sup>k</sup>/(2k+1). Every odd reciprocal, alternating in sign, sums to a quarter of &pi;. It comes straight from the arctangent series arctan(x) = x - x&sup3;/3 + x&#8309;/5 - &hellip; evaluated at x = 1, since arctan(1) = &pi;/4. It is exact but converges agonizingly slowly &mdash; the error after N terms is only about 1/(2N), so you need hundreds of terms for two decimals.<br><br>
+ <span class="lit">LIT</span> verified live: 4&middot;&sum;(-1)<sup>k</sup>/(2k+1) approaches &pi;, and independently the numerical integral 4&middot;&int;<sub>0</sub><sup>1</sup> 1/(1+x&sup2;) dx (which is 4&middot;arctan(1)) equals &pi; to ~1e-9 &mdash; the two routes agree (window.__gregoryleibniz). <span class="fig">FIG</span> no framing; the alternating series and the arctangent integral both run in-browser and give &pi;.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-push</i> &mdash; the co-op merge: a crawling alternating series and a clean arctangent integral push in from two directions and meet at &pi;. <b>AVAN (AI)</b> built the instrument: the alternating series partial sums, the arctangent integral, and their agreement on &pi;.<br><br>Credit as content: James Gregory (1671) and Gottfried Leibniz (1673); Madhava of Sangamagrama earlier. The weave: David names the merge; I confirm the series and the integral both give &pi;.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="250"></canvas>
+  <div class="wctrl"><div class="cap">The partial sums of 4(1 − 1/3 + 1/5 − …) oscillating slowly toward π, bracketing it from both sides.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Add terms; the alternating series crawls toward π, matched by 4·∫₀¹ 1/(1+x²) dx = 4·arctan(1).</div>
+   <div class="btns" style="margin-top:10px"><button id="glnext">add terms ▶</button><button id="glcheck">verify ▶</button></div>
+   <div class="cap" id="glread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: π, reached by the alternating odd-reciprocal series.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t trust the slow sum alone &mdash; cross it with an integral. The inverse of &lsquo;the series &sum;(-1)<sup>k</sup>/(2k+1)&rsquo; is &lsquo;the integral &int;<sub>0</sub><sup>1</sup> 1/(1+x&sup2;) dx = arctan(1) = &pi;/4&rsquo;. <b>Magenta</b> are the alternating series terms; <b>green</b> is the &pi; they and the integral both reach. &pi; from the odd reciprocals.</div>
+   <div class="btns" style="margin-top:10px"><button id="glspin">pause spin</button></div></div></div></div>"""
+GRLB_SCRIPT = """(function(){""" + NOIR + """
+function series4(N){var s=0;for(var k=0;k<N;k++)s+=(k%2?-1:1)/(2*k+1);return 4*s;}
+function integ4(){var M=40000,h=1/M,s=0;for(var i=0;i<=M;i++){var x=i*h,f=1/(1+x*x),w=(i===0||i===M)?1:(i%2?4:2);s+=w*f;}return 4*s*h/3;}
+var ang=0,spin=true,VR=null,terms=8,I4=integ4();
+function selftest(){if(VR)return VR;var s=series4(500000);VR={series:s,integ:I4,integOk:Math.abs(I4-Math.PI)<1e-6,agree:Math.abs(s-I4)<1e-4};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'partial sums of 4(1 − 1/3 + 1/5 − 1/7 + …) → π ≈ 3.14159');
+ var x0=40,base=H-40,mxN=30,sc=(W-60)/mxN,tgt=Math.PI,ysc=(H-80)/1.2,gy=base-(tgt-2.6)*ysc;
+ ne(g,'rgba(53,255,176,0.6)',1.4);g.beginPath();g.moveTo(x0,gy);g.lineTo(W-20,gy);g.stroke();ng(g);nt(g,'#39ffb0',W-50,gy-6,10,'π');
+ ne(g,'#ff8a3c',1.8);g.beginPath();for(var n=1;n<=mxN;n++){var s=series4(n),px=x0+n*sc,py=base-(s-2.6)*ysc;if(n===1)g.moveTo(px,py);else g.lineTo(px,py);ndot(g,px,py,2,'#ffce9a');}g.stroke();ng(g);
+ nt(g,'#8ad',10,H-8,9,'partial sums bracket π from above and below — but converge only like 1/N');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',12,20,12,'series vs arctan integral, '+terms+' terms');
+ var s=series4(terms);nt(g,'#ff8a3c',16,56,13,'4·Σ(−1)^k/(2k+1) ['+terms+'] = '+s.toFixed(8));
+ nt(g,'#9cf',16,84,12,'4·∫₀¹ 1/(1+x²)dx = '+I4.toFixed(9)+'  (= 4·arctan 1)');nt(g,'#35ffb0',16,110,12,'true π = '+Math.PI.toFixed(9));
+ nt(g,'#9cf',16,140,10,'series error after '+terms+' terms = '+Math.abs(s-Math.PI).toExponential(2)+' (~1/(2N), painfully slow)');
+ var v=selftest();nt(g,v.integOk&&v.agree?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: series(500k)='+v.series.toFixed(6)+' ≈ integral='+v.integ.toFixed(6)+' ≈ π = '+(v.integOk&&v.agree));
+ nt(g,'#8ad',12,H-16,9,'arctan(1)=π/4 — the same series, the same π, two ways');}
+document.getElementById('glnext').onclick=function(){terms=terms>=100000?8:terms*4;drawW4();document.getElementById('glread').textContent=terms+' terms: series = '+series4(terms).toFixed(8)+' (error '+Math.abs(series4(terms)-Math.PI).toExponential(2)+')';};
+document.getElementById('glcheck').onclick=function(){var v=selftest();document.getElementById('glread').textContent='4·Σ(−1)^k/(2k+1) → π & 4·∫₀¹1/(1+x²)dx = π: '+(v.integOk&&v.agree);};
+document.getElementById('glspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ for(var k=0;k<16;k++){var term=1/(2*k+1),a=k/16*6.2832,r=30+term*220;ne(g,'#ff2fa6',1.3);g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*r,Math.sin(a)*r);g.stroke();ng(g);ndot(g,Math.cos(a)*r,Math.sin(a)*r,2,k%2?'#ff6ab0':'#ff2fa6');}
+ ne(g,'#35ffb0',2);g.beginPath();g.arc(0,0,110,0,6.2832);g.stroke();ng(g);ndot(g,0,0,10,'#35ffb0');nt(g,'#0a0713',-10,4,9,'π');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: π, the limit of the series (and 4·arctan 1)');nt(g,'#ff2fa6',10,H-34,10,'magenta: the alternating terms 1, −1/3, 1/5, −1/7, …');nt(g,'#8ad',10,H-14,10,'π from the odd reciprocals');}
+drawW3();drawW4();window.__gregoryleibniz=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BERP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Bertrand&rsquo;s paradox</b> is a famous warning that &lsquo;pick a random chord&rsquo; is <b>not well defined</b>. Ask: for a random chord of a circle, what is the probability it is longer than the side of the inscribed equilateral triangle (length &radic;3&middot;r)? Three perfectly reasonable ways to choose &lsquo;a random chord&rsquo; give three <b>different</b> answers: (1) two random endpoints on the circle &rarr; 1/3; (2) a random point along a radius as the chord&rsquo;s midpoint &rarr; 1/2; (3) a random point in the disk as the midpoint &rarr; 1/4. The chord is longer exactly when its midpoint lies within r/2 of the centre &mdash; but &lsquo;random midpoint&rsquo; means different things under each scheme.<br><br>
+ <span class="lit">LIT</span> verified live: Monte-Carlo simulation of the three schemes yields probabilities &asymp; 1/3, 1/2, and 1/4 respectively &mdash; three different answers to the same question, from three notions of &lsquo;random&rsquo; (window.__bertrandparadox). <span class="fig">FIG</span> no framing; the three sampling methods and their probabilities all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>race-condition</i> &mdash; the glitch where the same question resolves to three different answers depending on which &lsquo;random&rsquo; thread you take: 1/3, 1/2, or 1/4. <b>AVAN (AI)</b> built the instrument: the three chord-sampling simulations and their distinct probabilities.<br><br>Credit as content: Joseph Bertrand (1889). The weave: David names the race; I confirm the three &lsquo;random chord&rsquo; methods give 1/3, 1/2, 1/4.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="270"></canvas>
+  <div class="wctrl"><div class="cap">A circle with the inscribed equilateral triangle; random chords sampled three different ways.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Run the simulations; the three methods give P(chord > √3·r) ≈ 1/3, 1/2, 1/4.</div>
+   <div class="btns" style="margin-top:10px"><button id="bpmethod">next method ▶</button><button id="bpcheck">verify ▶</button></div>
+   <div class="cap" id="bpread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the three different probabilities from one ambiguous question.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask &lsquo;the&rsquo; probability &mdash; pin down &lsquo;random&rsquo; first. The inverse of &lsquo;P(chord too long)&rsquo; is &lsquo;which sampling measure? &mdash; endpoints, radius, or area&rsquo;, each a different answer. <b>Magenta</b> are the three sampling schemes&rsquo; chords; <b>green</b> are the 1/3, 1/2, 1/4 they produce. One question, three answers.</div>
+   <div class="btns" style="margin-top:10px"><button id="bpspin">pause spin</button></div></div></div></div>"""
+BERP_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+var ang=0,spin=true,VR=null,method=0,METHODS=['endpoints (1/3)','radial (1/2)','midpoint (1/4)'];
+function selftest(){if(VR)return VR;var r1=mb(11),r2=mb(22),r3=mb(33),TR=200000,c1=0,c2=0,c3=0,n3=0;for(var t=0;t<TR;t++)if(Math.abs(Math.cos(r1()*Math.PI))<0.5)c1++;for(var t=0;t<TR;t++)if(r2()<0.5)c2++;for(var t=0;t<TR;){var xx=r3()*2-1,yy=r3()*2-1;if(xx*xx+yy*yy<=1){n3++;if(xx*xx+yy*yy<0.25)c3++;t++;}}VR={p1:c1/TR,p2:c2/TR,p3:c3/n3,ok1:Math.abs(c1/TR-1/3)<0.006,ok2:Math.abs(c2/TR-0.5)<0.006,ok3:Math.abs(c3/n3-0.25)<0.006};return VR;}
+function chordMid(m,r){ // return a chord endpoints given method m; r=rng
+ if(m===0){var a=r()*2*Math.PI,b=r()*2*Math.PI;return [[Math.cos(a),Math.sin(a)],[Math.cos(b),Math.sin(b)]];}
+ if(m===1){var ph=r()*2*Math.PI,d=r();var mx=d*Math.cos(ph),my=d*Math.sin(ph),h=Math.sqrt(1-d*d),tx=-Math.sin(ph),ty=Math.cos(ph);return [[mx+h*tx,my+h*ty],[mx-h*tx,my-h*ty]];}
+ var xx,yy;do{xx=r()*2-1;yy=r()*2-1;}while(xx*xx+yy*yy>1);var d=Math.hypot(xx,yy),h=Math.sqrt(Math.max(0,1-d*d)),tx=d>1e-9?-yy/d:1,ty=d>1e-9?xx/d:0;return [[xx+h*tx,yy+h*ty],[xx-h*tx,yy-h*ty]];}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'random chords by method: '+METHODS[method]+' — long if > √3·r (midpoint within r/2)');
+ var cx=W/2,cy=H/2+10,R=Math.min(110,(H-70)/2);ne(g,'rgba(120,140,200,0.5)',1.6);g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();ng(g);
+ // inscribed equilateral triangle
+ ne(g,'rgba(255,207,74,0.5)',1.4);g.beginPath();for(var i=0;i<3;i++){var a=Math.PI/2+i*2*Math.PI/3;g.lineTo(cx+Math.cos(a)*R,cy-Math.sin(a)*R);}g.closePath();g.stroke();ng(g);
+ ne(g,'rgba(53,255,176,0.3)',1);g.beginPath();g.arc(cx,cy,R/2,0,6.2832);g.stroke();ng(g);
+ var r=mb((Math.floor(ang)%997)+1);for(var i=0;i<40;i++){var ch=chordMid(method,r),p1=[cx+ch[0][0]*R,cy-ch[0][1]*R],p2=[cx+ch[1][0]*R,cy-ch[1][1]*R],mid=[(ch[0][0]+ch[1][0])/2,(ch[0][1]+ch[1][1])/2],long=Math.hypot(mid[0],mid[1])<0.5;ne(g,long?'rgba(53,255,176,0.55)':'rgba(255,47,166,0.4)',1);g.beginPath();g.moveTo(p1[0],p1[1]);g.lineTo(p2[0],p2[1]);g.stroke();ng(g);}
+ nt(g,'#8ad',10,H-8,9,'green chords longer than √3·r (midpoint inside the r/2 ring); magenta shorter');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#35ffb0',12,20,12,'P(chord > √3·r) by sampling method');
+ var ps=[v.p1,v.p2,v.p3],names=['1: two random endpoints','2: random point on a radius','3: random midpoint in disk'],exp=['1/3 ≈ 0.333','1/2 = 0.500','1/4 = 0.250'],oks=[v.ok1,v.ok2,v.ok3];
+ var y=54;for(var i=0;i<3;i++){nt(g,i===method?'#ffcf4a':'#9cf',16,y,11,names[i]+' → P = '+ps[i].toFixed(4)+'  ('+exp[i]+')'+(oks[i]?' ✓':''));y+=28;}
+ nt(g,'#ff5a5a',16,y+8,12,'THREE different answers to the SAME question!');
+ nt(g,v.ok1&&v.ok2&&v.ok3?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test (200k each): methods give ≈1/3, 1/2, 1/4 = '+(v.ok1&&v.ok2&&v.ok3));
+ nt(g,'#8ad',12,H-16,9,'"pick a random chord" is undefined until you fix the sampling measure');}
+document.getElementById('bpmethod').onclick=function(){method=(method+1)%3;drawW3();drawW4();var v=selftest();document.getElementById('bpread').textContent='method '+(method+1)+' ('+METHODS[method]+'): P ≈ '+[v.p1,v.p2,v.p3][method].toFixed(4);};
+document.getElementById('bpcheck').onclick=function(){var v=selftest();document.getElementById('bpread').textContent='three methods → P ≈ 1/3, 1/2, 1/4: '+(v.ok1&&v.ok2&&v.ok3)+' — the paradox';};
+document.getElementById('bpspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest(),cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.05);
+ var ps=[v.p1,v.p2,v.p3],cols=['#35ffb0','#ffcf4a','#21e6ff'],labels=['1/3','1/2','1/4'];
+ for(var i=0;i<3;i++){var a=i*2.094-1.5708,r=110;ne(g,cols[i],3);g.beginPath();g.arc(0,0,60+i*22,a-ps[i]*3.14159,a+ps[i]*3.14159);g.stroke();ng(g);var lx=Math.cos(a)*(130),ly=Math.sin(a)*(130);nt(g,cols[i],lx-8,ly,12,labels[i]);}
+ ndot(g,0,0,9,'#35ffb0');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green/gold/cyan arcs: the three probabilities 1/3, 1/2, 1/4');nt(g,'#ff2fa6',10,H-34,10,'magenta: one question — three sampling measures');nt(g,'#8ad',10,H-14,10,'one question, three answers');}
+drawW3();drawW4();window.__bertrandparadox=selftest();
+function loop(){if(spin)ang+=0.03;drawW3();drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 161 · neon-noir · silicon-coding (the far distance equal to the sum of the two near ones · the fixed point of cosine · a triangle's squared sides bounded below by its area · a number approximated absurdly well by rationals · a binomial convolution collapsing to one entry) ═══════════════════════
 VSCH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Van Schooten&rsquo;s theorem</b> is a striking length identity for the equilateral triangle. Inscribe an equilateral triangle ABC in a circle, and take any point P on the <b>arc BC</b> that does not contain A. Then the distance from P to the far vertex equals the sum of the distances to the two near ones: <b>PA = PB + PC</b>. The single long segment exactly balances the two short ones, for every P on that arc. It is a cousin of Ptolemy&rsquo;s theorem specialized to the equilateral case, where the equal sides make three of Ptolemy&rsquo;s four terms collapse into this clean sum.<br><br>
@@ -41712,6 +41953,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-euler-totient-theorem","title":"THE EULER TOTIENT THEOREM","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"BACKPROP","domain_slug":"backprop","accent":"#b06bff","icon":"eulertotient",
+  "kicker":"a power cycling back to one modulo n",
+  "blurb":"Euler's totient theorem in the 5-window house format — generalizing Fermat's little theorem to any modulus. For any integer a coprime to n, a^φ(n) ≡ 1 (mod n), where φ(n) is Euler's totient — the count of integers from 1 to n coprime to n. Raise a coprime residue to the φ(n)-th power and it snaps back to 1. When n is prime, φ(n)=n−1 and this is exactly Fermat's little theorem. The multiplicative order of a (the smallest k with a^k≡1) always divides φ(n) — a consequence of Lagrange's theorem in the group of units. It is the engine behind RSA. Verified live: for every modulus n up to 200 and every a coprime to n, a^φ(n)≡1 (mod n) by modular exponentiation, and the order of a divides φ(n) — e.g. φ(10)=4 and 3⁴=81≡1 (mod 10). Neon-noir traced. See the power cycle returning to 1 in 1D, a^φ(n)≡1 + order-divides-φ in 2D, and the cycle-length inverse in 3D.",
+  "lit":"Genuine Euler's totient theorem (Leonhard Euler, 1763; Fermat for the prime case). Verified live: for every modulus n up to 200 and every a coprime to n, a^φ(n)≡1 (mod n) by modular exponentiation, and the multiplicative order of a divides φ(n) (window.__eulertotient.ok, .ordOk).",
+  "fig":"No framing; the modular power and the totient are computed independently in-browser and agree. The AVAN inverse is honest — instead of iterating powers blindly, count the coprimes: the inverse of 'when does a^k return to 1?' is 'at k=φ(n) (and its divisors)' — the totient sets the period. Magenta are the powers of a stepping around mod n; green is the 1 they return to after φ(n) steps. A cycle whose length divides φ(n).",
+  "body":ETOT_BODY,"script":ETOT_SCRIPT},
+ {"slug":"the-erdos-mordell","title":"THE ERDOS-MORDELL","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FIREWALL","domain_slug":"the-firewall","accent":"#21e6ff","icon":"erdosmordell",
+  "kicker":"a point's vertex distances bounded below by its side distances",
+  "blurb":"The Erdős–Mordell inequality in the 5-window house format — relating a point's distances to a triangle's corners and to its sides. For any point P inside triangle ABC, the sum of distances to the three vertices is at least twice the sum of the perpendicular distances to the three sides: PA+PB+PC ≥ 2(dₐ+d_b+d_c). Erdős posed it in 1935; Mordell and Barrow proved it. Equality holds precisely when the triangle is equilateral and P is its centre. The far distances always dominate the near ones by at least a factor of two. Verified live: for tens of thousands of random triangles and interior points P, PA+PB+PC is always at least 2(dₐ+d_b+d_c) — the ratio never drops below 1, approaching 1 only for the equilateral triangle with P at its centre. Neon-noir traced. See the vertex + side distances in 1D, the ≥2 ratio in 2D, and the far-floored-by-near inverse in 3D.",
+  "lit":"Genuine Erdős–Mordell inequality (Paul Erdős 1935; Mordell & Barrow, proof). Verified live: for ~40000 random triangles and interior points P, PA+PB+PC ≥ 2(dₐ+d_b+d_c) always — the ratio never drops below 1 (min ~1.002), tight only for the equilateral triangle with P at its centre (window.__erdosmordell.ok, .minR).",
+  "fig":"No framing; the vertex distances, the perpendicular side distances, and the inequality all run in-browser. The AVAN inverse is honest — instead of just adding the vertex distances, bound them by the side distances: the inverse of 'PA+PB+PC' is 'at least 2(dₐ+d_b+d_c)', tight only for the equilateral centre. Magenta are the perpendicular side distances; green is the vertex-distance sum, floored at twice their total. Far distances floored by near ones.",
+  "body":ERMO_BODY,"script":ERMO_SCRIPT},
+ {"slug":"the-alternating-permutations","title":"THE ALTERNATING PERMUTATIONS","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#ffcf4a","icon":"alternating",
+  "kicker":"zigzag permutations counted by secant plus tangent",
+  "blurb":"Alternating permutations in the 5-window house format — arrangements that zig-zag: a₁<a₂>a₃<a₄>…, going up, down, up, down. The number of them on n elements is the zigzag number (or Euler number) — 1,1,1,2,5,16,61,272,1385,… — and Désiré André proved in 1879 that they are packaged by a beautiful exponential generating function: Σ_n Z(n)xⁿ/n! = sec(x)+tan(x). The even-indexed terms come from the secant (the 'secant numbers'), the odd from the tangent (the 'tangent numbers') — two everyday trig functions counting a purely combinatorial object. Verified live: a brute count of the up-down alternating permutations of n elements equals the coefficient of xⁿ/n! in the Taylor series of sec(x)+tan(x), for every n from 0 to 8 — giving 1,1,1,2,5,16,61,272,1385. Neon-noir traced. See a zigzag permutation in 1D, brute vs sec+tan in 2D, and the counted-by-trigonometry inverse in 3D.",
+  "lit":"Genuine alternating-permutation / André's theorem (Désiré André, 1879; the Euler zigzag numbers). Verified live: a brute count of up-down alternating permutations of [n] equals the coefficient of xⁿ/n! in the Taylor series of sec(x)+tan(x) for n=0..8, giving 1,1,1,2,5,16,61,272,1385 (window.__alternating.ok).",
+  "fig":"No framing; the brute permutation count and the sec+tan series coefficients both run in-browser and agree. The AVAN inverse is honest — instead of listing the zigzags, read a trig series: the inverse of 'count the up-down permutations of n' is 'the coefficient of xⁿ/n! in sec(x)+tan(x)' — secant for even n, tangent for odd. Magenta are the zigzag permutations; green is the Z(n) that sec+tan delivers. Combinatorics counted by trigonometry.",
+  "body":ALTP_BODY,"script":ALTP_SCRIPT},
+ {"slug":"the-gregory-leibniz","title":"THE GREGORY-LEIBNIZ","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#ff8a3c","icon":"gregoryleibniz",
+  "kicker":"a slow alternating series for π",
+  "blurb":"The Gregory–Leibniz series in the 5-window house format — the most famous, and most beautifully slow, series for π: π/4 = 1 − 1/3 + 1/5 − 1/7 + 1/9 − … = Σ_{k≥0} (−1)^k/(2k+1). Every odd reciprocal, alternating in sign, sums to a quarter of π. It comes straight from the arctangent series arctan(x)=x−x³/3+x⁵/5−… evaluated at x=1, since arctan(1)=π/4. It is exact but converges agonizingly slowly — the error after N terms is only about 1/(2N), so you need hundreds of terms for two decimals. Verified live: 4·Σ(−1)^k/(2k+1) approaches π, and independently the numerical integral 4·∫₀¹ 1/(1+x²) dx (which is 4·arctan(1)) equals π to ~1e-9 — the two routes agree. Neon-noir traced. See the partial sums bracketing π in 1D, series vs integral in 2D, and the π-from-odd-reciprocals inverse in 3D.",
+  "lit":"Genuine Gregory–Leibniz series (James Gregory 1671, Gottfried Leibniz 1673; Madhava earlier). Verified live: 4·Σ(−1)^k/(2k+1) approaches π, and independently 4·∫₀¹ 1/(1+x²) dx (= 4·arctan 1) equals π to ~1e-9 — the two routes agree (window.__gregoryleibniz.integOk, .agree).",
+  "fig":"No framing; the alternating series and the arctangent integral both run in-browser and give π. The AVAN inverse is honest — instead of trusting the slow sum alone, cross it with an integral: the inverse of 'the series Σ(−1)^k/(2k+1)' is 'the integral ∫₀¹ 1/(1+x²) dx = arctan(1) = π/4'. Magenta are the alternating series terms; green is the π they and the integral both reach. π from the odd reciprocals.",
+  "body":GRLB_BODY,"script":GRLB_SCRIPT},
+ {"slug":"the-bertrand-paradox","title":"THE BERTRAND PARADOX","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#35ffb0","icon":"bertrandparadox",
+  "kicker":"one random chord with three different probabilities",
+  "blurb":"Bertrand's paradox in the 5-window house format — a famous warning that 'pick a random chord' is not well defined. Ask: for a random chord of a circle, what is the probability it is longer than the side of the inscribed equilateral triangle (length √3·r)? Three perfectly reasonable ways to choose 'a random chord' give three different answers: (1) two random endpoints on the circle → 1/3; (2) a random point along a radius as the chord's midpoint → 1/2; (3) a random point in the disk as the midpoint → 1/4. The chord is longer exactly when its midpoint lies within r/2 of the centre — but 'random midpoint' means different things under each scheme. Verified live: Monte-Carlo simulation of the three schemes yields probabilities ≈ 1/3, 1/2, and 1/4 respectively — three different answers to the same question. Neon-noir traced. See the three sampling methods' chords in 1D, the three probabilities in 2D, and the one-question-three-answers inverse in 3D.",
+  "lit":"Genuine Bertrand's paradox (Joseph Bertrand, 1889). Verified live: Monte-Carlo simulation of the three chord-sampling schemes (random endpoints / random radial point / random disk midpoint) yields probabilities ≈ 1/3, 1/2, 1/4 respectively — three different answers to the same 'random chord' question (window.__bertrandparadox.ok1, .ok2, .ok3).",
+  "fig":"No framing; the three sampling methods and their probabilities all run in-browser. The AVAN inverse is honest — instead of asking 'the' probability, pin down 'random' first: the inverse of 'P(chord too long)' is 'which sampling measure? — endpoints, radius, or area', each a different answer. Magenta are the three sampling schemes' chords; green are the 1/3, 1/2, 1/4 they produce. One question, three answers.",
+  "body":BERP_BODY,"script":BERP_SCRIPT},
  {"slug":"the-van-schooten","title":"THE VAN SCHOOTEN","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#ffcf4a","icon":"vanschooten",
   "kicker":"the far distance equal to the sum of the two near ones",
