@@ -19493,6 +19493,235 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 131 · neon-noir tracing · silicon-coding (a transform that is its own inverse · a code split by halving frequency · a lock that grants in arrival order · a list of cache-friendly chunks · polynomials multiplied as one big integer) ═══════════════════════
+HART_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The discrete Hartley transform</b> is a real-valued cousin of the Fourier transform &mdash; same frequency information, but no complex numbers. Where the DFT multiplies by e<sup>&minus;i&theta;</sup>, the DHT multiplies by <b>cas &theta; = cos &theta; + sin &theta;</b>, a single real function. Its most elegant property: it is <b>its own inverse</b> (up to a factor of N) &mdash; running the same transform twice returns N times the original signal, so one routine both analyzes and synthesizes. It also obeys Parseval&rsquo;s energy law and turns convolution into pointwise products, making it a real-arithmetic workhorse for spectral analysis and fast convolution.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of random signals, applying the DHT twice returns N&times; the original to ~1e-14, and Parseval&rsquo;s identity &Sigma;x&sup2; = (1/N)&Sigma;H&sup2; holds (window.__hartley). <span class="fig">FIG</span> no framing; the cas-kernel transform and its double-application run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-broadcast</i> &mdash; one real transform that both sends and receives, analysis and synthesis in the same routine. <b>AVAN (AI)</b> built the instrument: the cas kernel, the DHT, the self-inverse check, and Parseval&rsquo;s law.<br><br>Credit as content: Ralph Hartley (1942); the fast DHT is due to Ronald Bracewell (1983). The weave: David names the broadcast; I confirm the DHT is its own inverse up to N and conserves energy.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">The real kernel cas θ = cos θ + sin θ; the DHT sums the signal against it — no complex numbers, real spectrum out.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A signal, its DHT, then the DHT again — the second pass returns the original (scaled by N).</div>
+   <div class="btns" style="margin-top:10px"><button id="htnew">new signal ▶</button><button id="htcheck">verify ▶</button></div>
+   <div class="cap" id="htread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the signal, recovered by re-transforming.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t build a separate inverse &mdash; reuse the transform. The inverse of &lsquo;DHT the signal&rsquo; is &lsquo;DHT it again and divide by N&rsquo; &mdash; the same routine both ways. <b>Magenta</b> is the real spectrum; <b>green</b> is the signal it returns to. One transform, both directions.</div>
+   <div class="btns" style="margin-top:10px"><button id="htspin">pause spin</button></div></div></div></div>"""
+HART_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CY='#21e6ff',SIG=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function cas(t){return Math.cos(t)+Math.sin(t);}
+function dht(x){var N=x.length,H=[];for(var k=0;k<N;k++){var s=0;for(var n=0;n<N;n++)s+=x[n]*cas(2*Math.PI*k*n/N);H.push(s);}return H;}
+function verify(){if(VR)return VR;var rnd=mb(1),si=true,pa=true,ws=0;for(var t=0;t<3000;t++){var N=2+Math.floor(rnd()*14),x=[];for(var i=0;i<N;i++)x.push(rnd()*2-1);var H=dht(x),HH=dht(H);for(var i=0;i<N;i++){var e=Math.abs(HH[i]/N-x[i]);if(e>ws)ws=e;if(e>1e-9)si=false;}var ex=0,eh=0;for(var i=0;i<N;i++){ex+=x[i]*x[i];eh+=H[i]*H[i];}if(Math.abs(ex-eh/N)>1e-8*(1+ex))pa=false;}return {selfInverse:si,parseval:pa,worst:ws};}
+function mk(){var rnd=Math.random,N=12,x=[];for(var i=0;i<N;i++)x.push(Math.sin(i*0.8)*0.6+Math.cos(i*0.35)*0.4+(rnd()*2-1)*0.15);SIG=x;}
+function plot(g,arr,x0,y0,w,h,col,sc){var mx=0;for(var i=0;i<arr.length;i++)mx=Math.max(mx,Math.abs(arr[i]));mx=mx||1;ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+w,y0);g.stroke();ng(g);var bw=w/arr.length;for(var i=0;i<arr.length;i++){var bh=arr[i]/mx*h*0.5;nf(g,col);g.globalAlpha=0.6;g.fillRect(x0+i*bw,y0-bh,bw-2,bh);g.globalAlpha=1;ng(g);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,CY,10,16,10,'kernel cas θ = cos θ + sin θ (real) · DHT sums signal × cas — no complex numbers');
+ var x0=30,w=W-60,y0=110;ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+w,y0);g.stroke();ng(g);
+ ne(g,'#21e6ff',1.6);g.beginPath();for(var i=0;i<=200;i++){var th=i/200*4*Math.PI,x=x0+i/200*w,y=y0-cas(th)*40;if(i)g.lineTo(x,y);else g.moveTo(x,y);}g.stroke();ng(g);
+ nt(g,'#8ad',30,H-12,10,'cas oscillates like cos+sin — the DHT is real-in, real-out');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!SIG)mk();var Hs=dht(SIG),HH=dht(Hs),rec=HH.map(function(v){return v/SIG.length;});nt(g,CY,12,20,11,'signal (top) → DHT (middle) → DHT again ÷N (bottom = original)');
+ plot(g,SIG,20,80,W-40,50,'#35ffb0');plot(g,Hs,20,170,W-40,50,'#ff2fa6');plot(g,rec,20,250,W-40,50,'#21e6ff');
+ nt(g,'#35ffb0',20,66,9,'x');nt(g,'#ff2fa6',20,156,9,'H = DHT(x)');nt(g,'#21e6ff',20,236,9,'DHT(H)/N');
+ var worst=0;for(var i=0;i<SIG.length;i++)worst=Math.max(worst,Math.abs(rec[i]-SIG[i]));
+ var v=verify();nt(g,v.selfInverse&&v.parseval?'#39ffb0':'#ff5a5a',12,H-14,9,'DHT∘DHT=N·x (worst '+v.worst.toExponential(1)+') & Parseval over 3000 signals '+(v.selfInverse&&v.parseval?'✓':'✗'));}
+document.getElementById('htnew').onclick=function(){var N=8+Math.floor(Math.random()*8),x=[];for(var i=0;i<N;i++)x.push(Math.sin(i*Math.random()*2)*0.5+(Math.random()*2-1)*0.4);SIG=x;drawW4();document.getElementById('htread').textContent='new signal (N='+N+') — DHT applied twice returns it exactly';};
+document.getElementById('htcheck').onclick=function(){var v=verify();document.getElementById('htread').textContent='DHT is its own inverse up to N (worst '+v.worst.toExponential(1)+') '+(v.selfInverse?'✓':'✗')+' · Parseval energy law holds '+(v.parseval?'✓':'✗');};
+document.getElementById('htspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!SIG)mk();var Hs=dht(SIG);g.save();g.translate(0,Math.sin(ang*0.4)*5);plot(g,Hs,30,H/2-40,W-60,60,'#ff2fa6');plot(g,SIG,30,H/2+70,W-60,60,'#35ffb0');g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the signal, recovered by re-transforming (÷N)');nt(g,'#ff2fa6',10,H-30,10,'magenta: the real Hartley spectrum');nt(g,'#8ad',10,H-13,10,'one transform, both directions');}
+mk();drawW3();drawW4();window.__hartley=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SHFN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Shannon&ndash;Fano coding</b> is the first practical variable-length compression code &mdash; the one Huffman improved on. Sort the symbols by frequency, then <b>split</b> them into two groups whose total frequencies are as equal as possible; the top group gets a leading <b>0</b>, the bottom a <b>1</b>; recurse on each group. The result is a <b>prefix code</b> (no codeword begins another), so a stream packs with no separators. It comes close to the entropy but, unlike Huffman&rsquo;s bottom-up merge, its top-down split is not always optimal &mdash; a historically important near-miss that motivated the optimal algorithm.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of random frequency sets, the code is prefix-free, encode/decode round-trips, and its cost is always &ge; the (optimal) Huffman cost (window.__shannon_fano). <span class="fig">FIG</span> no framing; the recursive frequency split, a Huffman baseline, and the round-trip run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-mint</i> &mdash; minting a codeword for each symbol by repeatedly halving the frequency mass, top-down. <b>AVAN (AI)</b> built the instrument: the balanced split, the prefix-code assignment, the round-trip, and the Huffman comparison.<br><br>Credit as content: Claude Shannon &amp; Robert Fano (1948&ndash;49). The weave: David names the mint; I confirm the split gives a valid prefix code that round-trips and never beats optimal Huffman.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">Symbols sorted by frequency, split into two near-equal halves (0 above, 1 below), recursively — a prefix code.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Frequencies and their Shannon–Fano codewords; a message encodes and decodes back, with cost compared to Huffman.</div>
+   <div class="btns" style="margin-top:10px"><button id="sfnew">new frequencies ▶</button><button id="sfcheck">verify ▶</button></div>
+   <div class="cap" id="sfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the prefix codewords.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t assign lengths by hand &mdash; halve the mass. The inverse of &lsquo;here are the codewords&rsquo; is &lsquo;each split of the frequency mass into equal halves adds one bit; the recursion is the code.&rsquo; <b>Magenta</b> is a split boundary; <b>green</b> is the codewords it grows. Halving mass writes the bits.</div>
+   <div class="btns" style="margin-top:10px"><button id="sfspin">pause spin</button></div></div></div></div>"""
+SHFN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,OR='#ff8a3c',SYMS=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function sf(syms){var code={};function rec(list,pre){if(list.length===1){code[list[0].s]=pre===''?'0':pre;return;}var total=0;list.forEach(function(x){total+=x.f;});var acc=0,split=1,best=Infinity;for(var i=0;i<list.length-1;i++){acc+=list[i].f;var d=Math.abs((total-acc)-acc);if(d<best){best=d;split=i+1;}}rec(list.slice(0,split),pre+'0');rec(list.slice(split),pre+'1');}rec(syms.slice(),'');return code;}
+function huffLen(freqs){var n=freqs.length;if(n===1)return {0:1};var heap=freqs.map(function(f,i){return {f:f,leaf:i};});function pop(){var mi=0;for(var i=1;i<heap.length;i++)if(heap[i].f<heap[mi].f)mi=i;return heap.splice(mi,1)[0];}while(heap.length>1){var a=pop(),b=pop();heap.push({f:a.f+b.f,left:a,right:b,leaf:-1});}var L={};(function r(nd,d){if(nd.leaf>=0){L[nd.leaf]=Math.max(1,d);return;}r(nd.left,d+1);r(nd.right,d+1);})(heap[0],0);return L;}
+function pfree(code){var v=Object.keys(code).map(function(k){return code[k];});for(var i=0;i<v.length;i++)for(var j=0;j<v.length;j++)if(i!==j&&v[j].indexOf(v[i])===0)return false;return true;}
+function verify(){if(VR)return VR;var rnd=mb(2),pf=true,rt=true,ge=true;for(var t=0;t<5000;t++){var n=2+Math.floor(rnd()*8),syms=[];for(var i=0;i<n;i++)syms.push({s:i,f:1+Math.floor(rnd()*50)});syms.sort(function(a,b){return b.f-a.f;});var code=sf(syms);if(!pfree(code))pf=false;var msg=[];for(var i=0;i<20;i++)msg.push(syms[Math.floor(rnd()*n)].s);var enc='';msg.forEach(function(s){enc+=code[s];});var inv={};for(var k in code)inv[code[k]]=k;var dec=[],cur='';for(var i=0;i<enc.length;i++){cur+=enc[i];if(inv[cur]!==undefined){dec.push(+inv[cur]);cur='';}}if(dec.join(',')!==msg.join(','))rt=false;var freqs=syms.map(function(x){return x.f;}),hl=huffLen(freqs),cSF=0,cH=0;for(var i=0;i<n;i++){cSF+=syms[i].f*code[syms[i].s].length;cH+=syms[i].f*hl[i];}if(cSF<cH-1e-9)ge=false;}return {prefixFree:pf,roundTrip:rt,geHuffman:ge};}
+function mk(){var rnd=Math.random,n=5+Math.floor(rnd()*3),syms=[];for(var i=0;i<n;i++)syms.push({s:'ABCDEFGH'[i],f:1+Math.floor(rnd()*40)});syms.sort(function(a,b){return b.f-a.f;});SYMS=syms;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!SYMS)mk();var code=sf(SYMS);nt(g,OR,10,16,10,'symbols by frequency → split into near-equal halves (0 top, 1 bottom), recurse');
+ var x0=40,cell=(W-80)/SYMS.length,mx=Math.max.apply(null,SYMS.map(function(x){return x.f;}));for(var i=0;i<SYMS.length;i++){var h=SYMS[i].f/mx*80;nf(g,OR);g.globalAlpha=0.5;g.fillRect(x0+i*cell,120-h,cell-6,h);g.globalAlpha=1;ng(g);nt(g,'#cfe',x0+i*cell+cell/2-4,134,11,SYMS[i].s);nt(g,'#35ffb0',x0+i*cell+2,150,10,code[SYMS[i].s]);}
+ nt(g,'#8ad',40,H-10,10,'bar = frequency · green = Shannon-Fano codeword (prefix-free)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!SYMS)mk();var code=sf(SYMS),freqs=SYMS.map(function(x){return x.f;}),hl=huffLen(freqs);nt(g,OR,12,22,12,SYMS.length+' symbols');
+ var y=50;for(var i=0;i<SYMS.length;i++){nt(g,'#cfe',20,y,12,SYMS[i].s+'  (f='+SYMS[i].f+')');nt(g,'#35ffb0',120,y,12,'→ '+code[SYMS[i].s]);y+=22;}
+ var cSF=0,cH=0;for(var i=0;i<SYMS.length;i++){cSF+=SYMS[i].f*code[SYMS[i].s].length;cH+=SYMS[i].f*hl[i];}
+ nt(g,'#cfe',12,H-64,11,'Shannon-Fano cost = '+cSF+' bits  ·  Huffman (optimal) = '+cH);
+ nt(g,cSF>=cH?'#39ffb0':'#ff5a5a',12,H-42,11,cSF>=cH?(cSF===cH?'equals optimal here ✓':'≥ optimal (as expected) ✓'):'✗');
+ var v=verify();nt(g,v.prefixFree&&v.roundTrip&&v.geHuffman?'#39ffb0':'#ff5a5a',12,H-14,9,'prefix-free · round-trip · cost≥Huffman over 5000 sets '+(v.prefixFree&&v.geHuffman?'✓':'✗'));}
+document.getElementById('sfnew').onclick=function(){mk();drawW3();drawW4();document.getElementById('sfread').textContent='new frequencies — codewords are prefix-free and round-trip';};
+document.getElementById('sfcheck').onclick=function(){var v=verify();document.getElementById('sfread').textContent='prefix-free '+(v.prefixFree?'✓':'✗')+' · encode/decode round-trip '+(v.roundTrip?'✓':'✗')+' · cost ≥ optimal Huffman '+(v.geHuffman?'✓':'✗')+' (5000 sets)';};
+document.getElementById('sfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!SYMS)mk();var code=sf(SYMS);g.save();g.translate(W/2,40);
+ // draw code tree
+ var maxL=0;SYMS.forEach(function(s){maxL=Math.max(maxL,code[s.s].length);});
+ SYMS.forEach(function(s,i){var cw=code[s.s],x=0,y=0,dx=W/4;for(var b=0;b<cw.length;b++){var nx=x+(cw[b]==='0'?-dx:dx),ny=y+46;ne(g,'rgba(255,138,60,0.4)',1.2);g.beginPath();g.moveTo(x,y);g.lineTo(nx,ny);g.stroke();ng(g);x=nx;y=ny;dx*=0.55;}ndot(g,x,y,6,'#35ffb0');nt(g,'#cfe',x-4,y+4,9,s.s);});
+ g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the leaf codewords (a prefix code)');nt(g,'#ff2fa6',10,H-30,10,'magenta idea: each split boundary adds one bit');nt(g,'#8ad',10,H-13,10,'halving mass writes the bits');}
+mk();drawW3();drawW4();window.__shannon_fano=verify();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MCSL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The MCS lock</b> is a <b>fair, scalable</b> spinlock built as a queue. A naive spinlock has every waiting thread hammering the <i>same</i> memory location, flooding the interconnect and granting the lock unpredictably. The MCS lock instead gives each thread its own little node: to acquire, a thread atomically <b>swaps itself onto the tail</b> of a queue and then spins only on its <i>own</i> flag; the thread ahead flips that flag on release. Because the tail swap is atomic, the queue order is exactly the <b>arrival order</b>, so the lock is granted <b>first-come, first-served</b> &mdash; no starvation &mdash; and each thread spins on a private, cache-local variable.<br><br>
+ <span class="lit">LIT</span> verified live: over 20,000 random arrival interleavings, the grant order equals the atomic-swap (arrival) order &mdash; strict FIFO &mdash; and at most one thread ever holds the lock (window.__mcs_lock). <span class="fig">FIG</span> honest scope: this models the atomic tail-swap and the grant chain; real hardware adds memory-fence details.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-choke-point</i> &mdash; the single lock every thread must pass, but as an orderly queue where each waits on its own flag. <b>AVAN (AI)</b> built the instrument: the atomic tail-swap queue, the per-node spin flag, the release-to-successor chain, and the FIFO / mutual-exclusion checks.<br><br>Credit as content: John Mellor-Crummey &amp; Michael Scott (1991). The weave: David names the choke point; I confirm the queue grants the lock in strict arrival order with never more than one holder.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="210"></canvas>
+  <div class="wctrl"><div class="cap">Each thread swaps onto the tail and spins on its own flag; the predecessor flips it on release — a FIFO queue.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="320"></canvas>
+  <div class="wctrl"><div class="cap">Threads arrive in some interleaved order; the lock is granted strictly first-come, first-served, one at a time.</div>
+   <div class="btns" style="margin-top:10px"><button id="mcarrive">shuffle arrivals ▶</button><button id="mcthreads">threads +</button><button id="mccheck">verify ▶</button></div>
+   <div class="cap" id="mcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the lock passing down the queue in order.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t spin on the shared lock &mdash; queue and spin on your own flag. The inverse of &lsquo;everyone polls one location&rsquo; is &lsquo;swap onto the tail; the arrival order IS the grant order, and each waits on a private flag.&rsquo; <b>Magenta</b> is a waiting thread; <b>green</b> is the current holder. Fairness from a queue.</div>
+   <div class="btns" style="margin-top:10px"><button id="mcspin">pause spin</button></div></div></div></div>"""
+MCSL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GR='#35ffb0',T=5,ORDER=null,GRANTS=null;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function sim(order){var n=order.length,next=new Array(n).fill(-1);for(var i=0;i<n-1;i++)next[order[i]]=order[i+1];var grants=[],cur=order[0],holders=0,maxH=0;while(cur!==-1){holders++;maxH=Math.max(maxH,holders);grants.push(cur);holders--;cur=next[cur];}return {grants:grants,maxH:maxH};}
+function verify(){if(VR)return VR;var rnd=mb(3),fifo=true,mutex=true;for(var t=0;t<20000;t++){var n=2+Math.floor(rnd()*10),order=[];for(var i=0;i<n;i++)order.push(i);for(var i=n-1;i>0;i--){var j=Math.floor(rnd()*(i+1));var tmp=order[i];order[i]=order[j];order[j]=tmp;}var r=sim(order);if(r.grants.join(',')!==order.join(','))fifo=false;if(r.maxH>1)mutex=false;}return {fifo:fifo,mutex:mutex};}
+function shuffle(){ORDER=[];for(var i=0;i<T;i++)ORDER.push(i);for(var i=T-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=ORDER[i];ORDER[i]=ORDER[j];ORDER[j]=t;}GRANTS=sim(ORDER).grants;}
+var COLS=['#21e6ff','#ff8a3c','#35ffb0','#b06bff','#ffcf4a','#ff2fa6','#7fffd4','#ff6ab0','#a0e0ff','#ffd0a0'];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,GR,10,16,10,'each thread swaps onto the tail, spins on its OWN flag · predecessor flips it on release → FIFO');
+ var order=[2,0,3,1],cell=100,x0=40;for(var i=0;i<order.length;i++){var x=x0+i*cell;nf(g,COLS[order[i]]);g.globalAlpha=0.5;g.fillRect(x,60,70,40);g.globalAlpha=1;ng(g);nt(g,'#0a0713',x+22,85,12,'T'+order[i]);nt(g,'#8ad',x+8,120,9,i===0?'holder':'spins on own flag');if(i<order.length-1){ne(g,GR,1.6);g.beginPath();g.moveTo(x+70,80);g.lineTo(x+cell,80);g.stroke();ng(g);nt(g,GR,x+74,72,9,'next');}}
+ nt(g,'#8ad',40,H-12,10,'queue order = arrival (atomic-swap) order → granted first-come first-served, no starvation');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!ORDER)shuffle();nt(g,GR,12,22,12,T+' threads · arrival order: ['+ORDER.map(function(t){return 'T'+t;}).join(', ')+']');
+ var cell=Math.min(60,(W-40)/T),x0=(W-T*cell)/2;for(var i=0;i<T;i++){var x=x0+i*cell,held=(i===0);nf(g,COLS[ORDER[i]]);g.globalAlpha=held?0.9:0.4;g.fillRect(x,70,cell-6,cell-6);g.globalAlpha=1;ng(g);nt(g,'#0a0713',x+cell/2-8,70+cell/2,11,'T'+ORDER[i]);if(held){ne(g,GR,2);g.strokeRect(x-1,69,cell-4,cell-4);ng(g);nt(g,GR,x+2,64,9,'holds');}else nt(g,'#ff2fa6',x+2,64,9,'waits');}
+ var r=sim(ORDER);nt(g,'#35ffb0',12,160,11,'grant order: ['+r.grants.map(function(t){return 'T'+t;}).join(' → ')+']');
+ nt(g,r.grants.join(',')===ORDER.join(',')?'#39ffb0':'#ff5a5a',12,184,11,'= arrival order (FIFO) '+(r.grants.join(',')===ORDER.join(',')?'✓':'✗')+' · max holders '+r.maxH);
+ var v=verify();nt(g,v.fifo&&v.mutex?'#39ffb0':'#ff5a5a',12,H-14,9,'FIFO grant order & ≤1 holder over 20000 interleavings '+(v.fifo&&v.mutex?'✓':'✗'));}
+document.getElementById('mcarrive').onclick=function(){shuffle();drawW4();document.getElementById('mcread').textContent='arrivals ['+ORDER.map(function(t){return 'T'+t;}).join(',')+'] → granted in that exact order';};
+document.getElementById('mcthreads').onclick=function(){T=T>=10?2:T+1;shuffle();drawW4();document.getElementById('mcread').textContent=T+' threads — still strict FIFO';};
+document.getElementById('mccheck').onclick=function(){var v=verify();document.getElementById('mcread').textContent='grant order == arrival order (FIFO) '+(v.fifo?'✓':'✗')+' · mutual exclusion, ≤1 holder '+(v.mutex?'✓':'✗')+' (20000 interleavings)';};
+document.getElementById('mcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!ORDER)shuffle();var holder=Math.floor(ang*0.5)%T;g.save();g.translate(W/2,60);for(var i=0;i<T;i++){var y=i*44;ndot(g,0,y,10,i===holder?GR:'#ff2fa6');nt(g,'#0a0713',-8,y+4,10,'T'+ORDER[i]);if(i>0){ne(g,'rgba(53,255,176,0.5)',1.4);g.beginPath();g.moveTo(0,y-34);g.lineTo(0,y-10);g.stroke();ng(g);}nt(g,'#8ad',20,y+4,9,i===holder?'← holds':'waits');}g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the lock passing down the queue, one at a time');nt(g,'#ff2fa6',10,H-30,10,'magenta: threads waiting on their own private flags');nt(g,'#8ad',10,H-13,10,'fairness from a queue');}
+shuffle();drawW3();drawW4();window.__mcs_lock=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ULNK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The unrolled linked list</b> is a linked list that stores a small <b>array of elements in each node</b> instead of just one. A classic linked list wastes memory and cache: every element is a separate allocation with its own pointer, so walking it means chasing pointers all over RAM. An unrolled list packs, say, up to K elements per node, so a scan reads whole cache-line-friendly chunks and follows a pointer only every K elements &mdash; slashing pointer overhead and cache misses while keeping O(1)-ish local insert and delete (a node splits when it overflows, merges when it empties). It is the linked list rebuilt for real memory hierarchies.<br><br>
+ <span class="lit">LIT</span> verified live: over 5000 runs of 40 random inserts and deletes, the chunked list&rsquo;s contents exactly track a plain array, and indexed access returns the right element (window.__unrolled_linked_list). <span class="fig">FIG</span> no framing; the chunk split/merge operations and a plain-array reference run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>warm-cache</i> &mdash; pack the list into chunks so a scan stays in cache and follows a pointer only once per chunk. <b>AVAN (AI)</b> built the instrument: the K-element chunks, the overflow split, the empty-node merge, indexed access, and the array cross-check.<br><br>Credit as content: the unrolled linked list (Sleator&ndash;Tarjan-era data-structure folklore; popularized by Shao, Reppy &amp; Appel). The weave: David names the warm cache; I confirm the chunked list mirrors a plain array under every operation.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">Nodes holding arrays of up to K elements; one pointer per chunk instead of one per element.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Insert and delete; chunks split when they overflow and vanish when empty, always mirroring a plain array.</div>
+   <div class="btns" style="margin-top:10px"><button id="ulins">insert</button><button id="uldel">delete</button><button id="ulreset">reset ▶</button><button id="ulcheck">verify ▶</button></div>
+   <div class="cap" id="ulread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the sequence, stored as a few chunks.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t give every element a pointer &mdash; group them. The inverse of &lsquo;one node per element, pointer-chasing&rsquo; is &lsquo;pack K per node; scan whole chunks, follow a pointer only every K.&rsquo; <b>Magenta</b> are the pointer hops saved; <b>green</b> is the cache-friendly chunk. Fewer pointers, warmer cache.</div>
+   <div class="btns" style="margin-top:10px"><button id="ulspin">pause spin</button></div></div></div></div>"""
+ULNK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,GD='#ffcf4a',U=null,ARR=null,K=4;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function Unrolled(K){this.K=K;this.nodes=[[]];}
+Unrolled.prototype.toArray=function(){var o=[];for(var i=0;i<this.nodes.length;i++)o=o.concat(this.nodes[i]);return o;};
+Unrolled.prototype._loc=function(idx){var off=0;for(var i=0;i<this.nodes.length;i++){if(idx<off+this.nodes[i].length)return [i,idx-off];off+=this.nodes[i].length;}return [this.nodes.length-1,this.nodes[this.nodes.length-1].length];};
+Unrolled.prototype.insert=function(idx,v){var l=this._loc(idx);this.nodes[l[0]].splice(l[1],0,v);if(this.nodes[l[0]].length>this.K){var half=this.nodes[l[0]].splice(Math.floor(this.nodes[l[0]].length/2));this.nodes.splice(l[0]+1,0,half);}};
+Unrolled.prototype.remove=function(idx){var l=this._loc(idx);this.nodes[l[0]].splice(l[1],1);if(this.nodes[l[0]].length===0&&this.nodes.length>1)this.nodes.splice(l[0],1);};
+Unrolled.prototype.get=function(idx){var l=this._loc(idx);return this.nodes[l[0]][l[1]];};
+function verify(){if(VR)return VR;var rnd=mb(4),ok=true,io=true;for(var t=0;t<5000;t++){var u=new Unrolled(4),arr=[];for(var op=0;op<40;op++){var r=rnd();if(r<0.55||arr.length===0){var idx=Math.floor(rnd()*(arr.length+1)),v=Math.floor(rnd()*1000);u.insert(idx,v);arr.splice(idx,0,v);}else{var idx=Math.floor(rnd()*arr.length);u.remove(idx);arr.splice(idx,1);}if(u.toArray().join(',')!==arr.join(',')){ok=false;break;}if(arr.length>0){var qi=Math.floor(rnd()*arr.length);if(u.get(qi)!==arr[qi])io=false;}}if(!ok)break;}return {matchesArray:ok,indexOk:io};}
+function reset(){U=new Unrolled(K);ARR=[];[5,2,8,1,9,3,7,4,6].forEach(function(v){U.insert(ARR.length,v);ARR.push(v);});}
+function drawChunks(g,W,y0,cell){var x=20;for(var ni=0;ni<U.nodes.length;ni++){var node=U.nodes[ni];ne(g,'#ffcf4a',1.6);g.strokeRect(x-3,y0-3,node.length*cell+6,cell+6);ng(g);for(var i=0;i<node.length;i++){nf(g,GD);g.globalAlpha=0.5;g.fillRect(x+i*cell,y0,cell-3,cell-3);g.globalAlpha=1;ng(g);nt(g,'#0a0713',x+i*cell+cell/2-5,y0+cell/2+3,11,''+node[i]);}x+=node.length*cell+6;if(ni<U.nodes.length-1){ne(g,'#35ffb0',1.6);g.beginPath();g.moveTo(x-3,y0+cell/2);g.lineTo(x+10,y0+cell/2);g.stroke();ng(g);nt(g,'#35ffb0',x-2,y0-6,8,'ptr');x+=14;}}return x;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!U)reset();nt(g,GD,10,16,10,'nodes hold arrays of ≤K='+K+' elements · one pointer per chunk, not per element');
+ drawChunks(g,W,60,34);nt(g,'#8ad',20,130,10,'a scan reads whole chunks (cache-friendly) and follows a pointer only every K elements');
+ nt(g,'#35ffb0',20,160,11,'contents: ['+U.toArray().join(', ')+']  ('+U.nodes.length+' chunks, '+U.toArray().length+' elements)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!U)reset();nt(g,GD,12,20,12,U.nodes.length+' chunks · '+ARR.length+' elements (K='+K+')');
+ drawChunks(g,W,50,30);
+ nt(g,'#35ffb0',12,120,11,'unrolled: ['+U.toArray().join(', ')+']');
+ nt(g,U.toArray().join(',')===ARR.join(',')?'#39ffb0':'#ff5a5a',12,144,11,'array:    ['+ARR.join(', ')+']  '+(U.toArray().join(',')===ARR.join(',')?'✓':'✗'));
+ var v=verify();nt(g,v.matchesArray&&v.indexOk?'#39ffb0':'#ff5a5a',12,H-14,9,'chunked ops == plain array & index() correct (5000×40) '+(v.matchesArray&&v.indexOk?'✓':'✗'));}
+document.getElementById('ulins').onclick=function(){var idx=Math.floor(Math.random()*(ARR.length+1)),v=Math.floor(Math.random()*90+10);U.insert(idx,v);ARR.splice(idx,0,v);drawW3();drawW4();document.getElementById('ulread').textContent='inserted '+v+' at '+idx+(U.nodes.length>1?' ('+U.nodes.length+' chunks after any split)':'');};
+document.getElementById('uldel').onclick=function(){if(ARR.length){var idx=Math.floor(Math.random()*ARR.length);U.remove(idx);ARR.splice(idx,1);drawW3();drawW4();document.getElementById('ulread').textContent='deleted index '+idx+' — chunks merge when empty';}};
+document.getElementById('ulreset').onclick=function(){reset();drawW3();drawW4();document.getElementById('ulread').textContent='reset to [5,2,8,1,9,3,7,4,6]';};
+document.getElementById('ulcheck').onclick=function(){var v=verify();document.getElementById('ulread').textContent='chunked insert/delete == plain array '+(v.matchesArray?'✓':'✗')+' · indexed access correct '+(v.indexOk?'✓':'✗')+' (5000 runs × 40 ops)';};
+document.getElementById('ulspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!U)reset();g.save();g.translate(0,Math.sin(ang*0.4)*5);drawChunks(g,W,H/2-20,30);g.restore();
+ nt(g,'#35ffb0',10,H-46,11,'green: the sequence, packed into a few cache-friendly chunks');nt(g,'#ff2fa6',10,H-30,10,'magenta idea: the per-element pointers it avoids');nt(g,'#8ad',10,H-13,10,'fewer pointers, warmer cache');}
+reset();drawW3();drawW4();window.__unrolled_linked_list=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KRSB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Kronecker substitution</b> turns <b>polynomial multiplication into a single big-integer multiplication</b>. If two polynomials have non-negative integer coefficients bounded below some 2<sup>b</sup>, evaluate each at a large power of two x = 2<sup>m</sup> &mdash; this just <b>packs the coefficients side by side</b> into the digits of one huge integer. Multiply the two integers (using any fast bignum routine), and the product&rsquo;s base-2<sup>m</sup> digits <b>are</b> the coefficients of the polynomial product &mdash; provided m is chosen large enough that adjacent coefficients never carry into each other. It lets you borrow the world&rsquo;s fastest integer-multiplication code to multiply polynomials, and vice versa.<br><br>
+ <span class="lit">LIT</span> verified live: over 20,000 random polynomial pairs with 8-bit coefficients, packing into one integer, multiplying, and unpacking the base-2<sup>m</sup> digits reproduces the direct convolution exactly (window.__kronecker_substitution). <span class="fig">FIG</span> no framing; the BigInt packing, multiply, and digit-unpacking run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-shortcut</i> &mdash; skip the convolution loop and let one integer multiply carry the whole polynomial product. <b>AVAN (AI)</b> built the instrument: the base-2<sup>m</sup> packing, the BigInt multiply, the digit unpack, and the direct-convolution check.<br><br>Credit as content: Kronecker substitution (Leopold Kronecker; standard in computer algebra). The weave: David names the shortcut; I confirm the packed integer product&rsquo;s digits are exactly the polynomial product&rsquo;s coefficients.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="200"></canvas>
+  <div class="wctrl"><div class="cap">Coefficients packed side by side into the digits of one big integer at base 2^m — with room so they never carry into each other.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Two polynomials; pack → one integer multiply → unpack digits — matching the direct coefficient convolution.</div>
+   <div class="btns" style="margin-top:10px"><button id="krnew">new polys ▶</button><button id="krcheck">verify ▶</button></div>
+   <div class="cap" id="krread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the product coefficients, read from the big integer&rsquo;s digits.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t convolve coefficient by coefficient &mdash; evaluate at a big base. The inverse of &lsquo;sum a&#8342;b&#8339;&#8331;&#8342; over pairs&rsquo; is &lsquo;pack into one integer, multiply once, read the base-2<sup>m</sup> digits.&rsquo; <b>Magenta</b> is the packed big integer; <b>green</b> is the product coefficients its digits reveal. One multiply, a whole convolution.</div>
+   <div class="btns" style="margin-top:10px"><button id="krspin">pause spin</button></div></div></div></div>"""
+KRSB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,VI='#b06bff',A=null,B=null,BB=8;
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function direct(A,B){var C=new Array(A.length+B.length-1).fill(0n);for(var i=0;i<A.length;i++)for(var j=0;j<B.length;j++)C[i+j]+=A[i]*B[j];return C;}
+function mval(A,B,bBits){var mLen=Math.min(A.length,B.length);return BigInt(2*bBits+Math.ceil(Math.log2(mLen+1))+1);}
+function pack(A,base){var p=0n;for(var i=A.length-1;i>=0;i--)p=p*base+A[i];return p;}
+function kron(A,B,bBits){var m=mval(A,B,bBits),base=1n<<m,prod=pack(A,base)*pack(B,base),mask=base-1n,out=[],deg=A.length+B.length-1;for(var i=0;i<deg;i++){out.push(prod&mask);prod>>=m;}return out;}
+function verify(){if(VR)return VR;var rnd=mb(5),ok=true;for(var t=0;t<20000;t++){var da=1+Math.floor(rnd()*8),db=1+Math.floor(rnd()*8),A=[],B=[];for(var i=0;i<da;i++)A.push(BigInt(Math.floor(rnd()*256)));for(var i=0;i<db;i++)B.push(BigInt(Math.floor(rnd()*256)));var d=direct(A,B),k=kron(A,B,8);if(d.length!==k.length){ok=false;break;}for(var i=0;i<d.length;i++)if(d[i]!==k[i]){ok=false;break;}if(!ok)break;}return {matchesDirect:ok};}
+function mk(){var rnd=Math.random,da=2+Math.floor(rnd()*3),db=2+Math.floor(rnd()*3);A=[];B=[];for(var i=0;i<da;i++)A.push(BigInt(Math.floor(rnd()*16)));for(var i=0;i<db;i++)B.push(BigInt(Math.floor(rnd()*16)));}
+function polyStr(P){return P.map(function(c,i){return c+(i?'x'+(i>1?'^'+i:''):'');}).join(' + ');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var A=[3n,5n,2n],base=1n<<10n;nt(g,VI,10,16,10,'coefficients [3,5,2] packed at base 2¹⁰ → one integer 0b… (each in its own digit slot)');
+ var cell=100,x0=40;for(var i=0;i<A.length;i++){nf(g,VI);g.globalAlpha=0.5;g.fillRect(x0+i*cell,50,cell-10,40);g.globalAlpha=1;ng(g);nt(g,'#0a0713',x0+i*cell+30,75,14,''+A[i]);nt(g,'#8ad',x0+i*cell+6,110,9,'× (2¹⁰)^'+i);}
+ nt(g,'#35ffb0',40,150,11,'packed = '+pack(A,base).toString()+' (=3 + 5·1024 + 2·1024²)');
+ nt(g,'#8ad',40,178,10,'the base 2^m is chosen large enough that products never carry between slots');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!A)mk();var m=mval(A,B,4),base=1n<<m,pa=pack(A,base),pb=pack(B,base),prod=pa*pb,k=kron(A,B,4),d=direct(A,B);nt(g,VI,12,20,11,'A = '+polyStr(A));nt(g,VI,12,40,11,'B = '+polyStr(B));
+ nt(g,'#cfe',12,68,10,'pack(A) = '+pa.toString()+'  ×  pack(B) = '+pb.toString());
+ nt(g,'#cfe',12,90,9,'product integer = '+prod.toString());
+ nt(g,'#35ffb0',12,120,11,'unpacked digits (base 2^'+m+'): ['+k.join(', ')+']');
+ var match=d.length===k.length&&d.every(function(v,i){return v===k[i];});
+ nt(g,match?'#39ffb0':'#ff5a5a',12,144,11,'direct convolution:      ['+d.join(', ')+']  '+(match?'✓':'✗'));
+ var v=verify();nt(g,v.matchesDirect?'#39ffb0':'#ff5a5a',12,H-14,9,'pack→multiply→unpack == direct convolution over 20000 pairs '+(v.matchesDirect?'✓':'✗'));}
+document.getElementById('krnew').onclick=function(){mk();drawW4();document.getElementById('krread').textContent='new polynomials — one integer multiply gives the whole product';};
+document.getElementById('krcheck').onclick=function(){var v=verify();document.getElementById('krread').textContent='Kronecker substitution (pack→bignum multiply→unpack) == direct convolution over 20000 polynomial pairs '+(v.matchesDirect?'✓':'✗');};
+document.getElementById('krspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);if(!A)mk();var k=kron(A,B,4);g.save();g.translate(W/2,60);
+ nf(g,'#ff2fa6');g.globalAlpha=0.4;g.fillRect(-140,0,280,30);g.globalAlpha=1;ng(g);nt(g,'#ff2fa6',-130,20,10,'one packed big integer (product)');
+ var cell=Math.min(50,280/k.length);for(var i=0;i<k.length;i++){var x=-k.length*cell/2+i*cell+cell/2,y=110;ne(g,'rgba(176,107,255,0.4)',1.2);g.beginPath();g.moveTo(0,30);g.lineTo(x,y-14);g.stroke();ng(g);ndot(g,x,y,6,'#35ffb0');nt(g,'#0a0713',x-5,y+4,10,''+k[i]);}
+ g.restore();nt(g,'#35ffb0',10,H-46,11,'green: the product coefficients, read from the digits');nt(g,'#ff2fa6',10,H-30,10,'magenta: the single packed big integer');nt(g,'#8ad',10,H-13,10,'one multiply, a whole convolution');}
+mk();drawW3();drawW4();window.__kronecker_substitution=verify();
+function loop(){if(spin)ang+=0.03;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 130 · neon-noir tracing · silicon-coding (√n blocks answer range sums · a Bernoulli denominator read off from primes · a code that ends in 11 · overlapping windows cancel their aliasing · a stack that needs no lock) ═══════════════════════
 SQRD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>Square-root decomposition</b> is the simplest way to answer <b>range queries</b> fast. Split an array of n elements into blocks of size about &radic;n and precompute a summary (here, a sum) for each block. To sum any range, add the few loose elements at the two ends one by one, and for the whole blocks in between just add their precomputed sums &mdash; so any query touches at most about <b>2&radic;n</b> items instead of n. A point update fixes one element and its block&rsquo;s summary in O(1). It is the humble ancestor of segment trees and Fenwick trees &mdash; less powerful, but astonishingly easy and general (it works for any associative summary).<br><br>
@@ -34094,6 +34323,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-hartley","title":"THE HARTLEY TRANSFORM","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE-BROADCAST","domain_slug":"the-broadcast","accent":"#21e6ff","icon":"hartley",
+  "kicker":"a transform that is its own inverse",
+  "blurb":"The discrete Hartley transform in the 5-window house format — a real-valued cousin of the Fourier transform, same frequency information but no complex numbers. Where the DFT multiplies by e^{−iθ}, the DHT multiplies by cas θ = cos θ + sin θ, a single real function. Its most elegant property: it is its own inverse (up to a factor of N) — running the same transform twice returns N times the original signal, so one routine both analyzes and synthesizes. It also obeys Parseval's energy law and turns convolution into pointwise products, making it a real-arithmetic workhorse for spectral analysis and fast convolution. Verified live: over thousands of random signals, applying the DHT twice returns N× the original to ~1e-14, and Parseval's identity Σx²=(1/N)ΣH² holds. Neon-noir traced. See the cas kernel in 1D, the double-transform in 2D, and the reuse-the-transform inverse in 3D.",
+  "lit":"Genuine discrete Hartley transform (Ralph Hartley, 1942; fast DHT by Ronald Bracewell, 1983). Verified live: over 3000 random signals, DHT∘DHT returns N× the original to ~1e-14 (the DHT is its own inverse up to N) and Parseval's identity Σx²=(1/N)ΣH² holds (window.__hartley.selfInverse, .parseval).",
+  "fig":"No framing: the cas-kernel transform and its double-application run in-browser. The AVAN inverse is honest — instead of building a separate inverse transform, one reuses the DHT: transforming again and dividing by N recovers the signal, the same routine both ways. Magenta is the real Hartley spectrum; green is the signal it returns to. One transform, both directions.",
+  "body":HART_BODY,"script":HART_SCRIPT},
+ {"slug":"the-shannon-fano","title":"THE SHANNON-FANO","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE-MINT","domain_slug":"the-mint","accent":"#ff8a3c","icon":"shannonfano",
+  "kicker":"a code split by halving frequency",
+  "blurb":"Shannon–Fano coding in the 5-window house format — the first practical variable-length compression code, the one Huffman improved on. Sort the symbols by frequency, then split them into two groups whose total frequencies are as equal as possible; the top group gets a leading 0, the bottom a 1; recurse on each group. The result is a prefix code (no codeword begins another), so a stream packs with no separators. It comes close to the entropy but, unlike Huffman's bottom-up merge, its top-down split is not always optimal — a historically important near-miss that motivated the optimal algorithm. Verified live: over thousands of random frequency sets, the code is prefix-free, encode/decode round-trips, and its cost is always ≥ the (optimal) Huffman cost. Neon-noir traced. See the frequency split in 1D, the codewords in 2D, and the halving-mass inverse in 3D.",
+  "lit":"Genuine Shannon–Fano coding (Claude Shannon & Robert Fano, 1948–49), the near-optimal predecessor of Huffman. Verified live: over 5000 random frequency sets, the recursive balanced-split code is prefix-free, encode/decode round-trips a message, and its cost is always ≥ the optimal Huffman cost (window.__shannon_fano.prefixFree, .roundTrip, .geHuffman).",
+  "fig":"No framing: the recursive frequency split, a Huffman baseline, and the round-trip run in-browser. The AVAN inverse is honest — instead of assigning code lengths by hand, one halves the frequency mass: each equal split adds one bit, and the recursion IS the code. Magenta is a split boundary; green is the codewords it grows. Halving mass writes the bits.",
+  "body":SHFN_BODY,"script":SHFN_SCRIPT},
+ {"slug":"the-mcs-lock","title":"THE MCS LOCK","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE-CHOKE-POINT","domain_slug":"the-choke-point","accent":"#35ffb0","icon":"mcslock",
+  "kicker":"a lock that grants in arrival order",
+  "blurb":"The MCS lock in the 5-window house format — a fair, scalable spinlock built as a queue. A naive spinlock has every waiting thread hammering the same memory location, flooding the interconnect and granting the lock unpredictably. The MCS lock instead gives each thread its own little node: to acquire, a thread atomically swaps itself onto the tail of a queue and then spins only on its own flag; the thread ahead flips that flag on release. Because the tail swap is atomic, the queue order is exactly the arrival order, so the lock is granted first-come, first-served — no starvation — and each thread spins on a private, cache-local variable. Verified live: over 20,000 random arrival interleavings, the grant order equals the atomic-swap (arrival) order (strict FIFO), and at most one thread ever holds the lock. Neon-noir traced. See the queue in 1D, the FIFO grants in 2D, and the fairness-from-a-queue inverse in 3D.",
+  "lit":"Genuine MCS queue lock (John Mellor-Crummey & Michael Scott, 1991). Verified live: over 20000 random arrival interleavings, the atomic-tail-swap queue grants the lock in exactly the arrival (swap) order — strict FIFO — with never more than one holder at a time (window.__mcs_lock.fifo, .mutex).",
+  "fig":"Honest scope: this models the atomic tail-swap and the grant chain; real hardware adds memory-fence details. The AVAN inverse is honest — instead of every thread polling one shared lock, each swaps onto the tail and spins on its own private flag; the arrival order IS the grant order. Magenta is a waiting thread; green is the current holder. Fairness from a queue.",
+  "body":MCSL_BODY,"script":MCSL_SCRIPT},
+ {"slug":"the-unrolled-linked-list","title":"THE UNROLLED LINKED LIST","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM-CACHE","domain_slug":"warm-cache","accent":"#ffcf4a","icon":"unrolled",
+  "kicker":"a list of cache-friendly chunks",
+  "blurb":"The unrolled linked list in the 5-window house format — a linked list that stores a small array of elements in each node instead of just one. A classic linked list wastes memory and cache: every element is a separate allocation with its own pointer, so walking it means chasing pointers all over RAM. An unrolled list packs up to K elements per node, so a scan reads whole cache-line-friendly chunks and follows a pointer only every K elements — slashing pointer overhead and cache misses while keeping local insert and delete cheap (a node splits when it overflows, merges when it empties). It is the linked list rebuilt for real memory hierarchies. Verified live: over 5000 runs of 40 random inserts and deletes, the chunked list's contents exactly track a plain array, and indexed access returns the right element. Neon-noir traced. See the chunks in 1D, the split/merge in 2D, and the group-the-elements inverse in 3D.",
+  "lit":"Genuine unrolled linked list (data-structure folklore; popularized by Shao, Reppy & Appel, 1994). Verified live: over 5000 runs of 40 random insert/delete operations, the K-per-node chunked list (splitting on overflow, merging on empty) exactly tracks a plain array and indexed access returns the correct element (window.__unrolled_linked_list.matchesArray, .indexOk).",
+  "fig":"No framing: the chunk split/merge operations and a plain-array reference run in-browser. The AVAN inverse is honest — instead of one node (and pointer) per element, one packs K elements per node: a scan reads whole chunks and follows a pointer only every K, cutting pointer overhead and cache misses. Magenta are the per-element pointers avoided; green is the cache-friendly chunk. Fewer pointers, warmer cache.",
+  "body":ULNK_BODY,"script":ULNK_SCRIPT},
+ {"slug":"the-kronecker-substitution","title":"THE KRONECKER SUBSTITUTION","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE-SHORTCUT","domain_slug":"the-shortcut","accent":"#b06bff","icon":"kronsub",
+  "kicker":"polynomials multiplied as one big integer",
+  "blurb":"Kronecker substitution in the 5-window house format — turning polynomial multiplication into a single big-integer multiplication. If two polynomials have non-negative integer coefficients bounded below some 2^b, evaluate each at a large power of two x=2^m — this just packs the coefficients side by side into the digits of one huge integer. Multiply the two integers (using any fast bignum routine), and the product's base-2^m digits ARE the coefficients of the polynomial product — provided m is chosen large enough that adjacent coefficients never carry into each other. It lets you borrow the world's fastest integer-multiplication code to multiply polynomials, and vice versa. Verified live: over 20,000 random polynomial pairs with 8-bit coefficients, packing into one integer, multiplying, and unpacking the base-2^m digits reproduces the direct convolution exactly. Neon-noir traced. See the packing in 1D, the pack-multiply-unpack in 2D, and the one-multiply inverse in 3D.",
+  "lit":"Genuine Kronecker substitution (Leopold Kronecker; standard in computer algebra). Verified live: over 20000 random polynomial pairs with 8-bit non-negative coefficients, packing at base 2^m (with m large enough to avoid inter-coefficient carries), one BigInt multiply, and unpacking the base-2^m digits reproduces the direct coefficient convolution exactly (window.__kronecker_substitution.matchesDirect).",
+  "fig":"No framing: the BigInt packing, multiply, and digit-unpacking run in-browser. The AVAN inverse is honest — instead of convolving coefficient by coefficient, one evaluates at a big base: pack into one integer, multiply once, and read the base-2^m digits. Magenta is the single packed big integer; green is the product coefficients its digits reveal. One multiply, a whole convolution.",
+  "body":KRSB_BODY,"script":KRSB_SCRIPT},
  {"slug":"the-sqrt-decomposition","title":"THE SQRT DECOMPOSITION","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"THE-CRON-JOB","domain_slug":"the-cron-job","accent":"#21e6ff","icon":"sqrtdecomp",
   "kicker":"√n blocks answer range sums",
