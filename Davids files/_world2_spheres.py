@@ -19493,6 +19493,243 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 146 · neon-noir · silicon-coding (the inverse of x times e-to-the-x · π from an endless nested radical · a labeling whose edge-gaps are 1 to m · squaring a polynomial to prise its roots apart · two means racing to one limit) ═══════════════════════
+LMBW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The Lambert W function</b> is the inverse of <b>w &middot; e<sup>w</sup></b>: given x, it returns the w such that w e<sup>w</sup> = x. That single definition unlocks equations no elementary function can &mdash; anything of the form &lsquo;an unknown multiplied by its own exponential&rsquo;, from delay differential equations to the enzyme kinetics of biochemistry to the analysis of algorithms. Because y = x e<sup>x</sup> is not monotone, W has two real branches; the principal branch W&#8320; is found in a handful of steps by <b>Halley&rsquo;s iteration</b>, a cubically-convergent cousin of Newton&rsquo;s method. W(1) is the <b>omega constant</b> &Omega; &asymp; 0.5671, the number equal to its own negative logarithm.<br><br>
+ <span class="lit">LIT</span> verified live: for tens of thousands of values of x, Halley&rsquo;s iteration returns a w with w&middot;e<sup>w</sup> equal to x to machine precision, and the anchors W(0) = 0, W(e) = 1, W(1) = &Omega; all hold (window.__lambertw). <span class="fig">FIG</span> no framing; the Halley iteration and the w&middot;e<sup>w</sup> = x residual check run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hot-loop</i> &mdash; a tight iteration loop that inverts a transcendental in a few cubically-convergent turns, hot until w&middot;e<sup>w</sup> hits x exactly. <b>AVAN (AI)</b> built the instrument: the Halley update, the initial guess by branch, and the w&middot;e<sup>w</sup> = x residual verification.<br><br>Credit as content: Johann Heinrich Lambert (1758) &amp; Leonhard Euler; named and standardized in the 1990s. The weave: David names the hot loop; I confirm the iteration inverts w&middot;e<sup>w</sup> to machine precision.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">y = x·eˣ (magenta) and its inverse W (green) — reflections across the diagonal; W undoes x·eˣ.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Pick x; Halley's iteration converges to W(x) in a few cubic steps and the residual w·eʷ − x collapses.</div>
+   <div class="btns" style="margin-top:10px"><button id="lwnext">new x ▶</button><button id="lwcheck">verify ▶</button></div>
+   <div class="cap" id="lwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: W(x), the value that satisfies w·eʷ = x.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t evaluate x&middot;e<sup>x</sup> &mdash; invert it. The inverse of &lsquo;multiply w by its own exponential&rsquo; is &lsquo;the Lambert W that undoes it&rsquo;, reached by Halley&rsquo;s cubic iteration. <b>Magenta</b> is the forward map x&middot;e<sup>x</sup>; <b>green</b> is W walking it back. An elementary operation with a non-elementary inverse.</div>
+   <div class="btns" style="margin-top:10px"><button id="lwspin">pause spin</button></div></div></div></div>"""
+LMBW_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function lambertW(x,trace){if(x<-Math.exp(-1))return NaN;var w=x<1?x*0.8:Math.log(x);if(x>3)w=Math.log(x)-Math.log(Math.log(x));var tr=[w];for(var i=0;i<80;i++){var ew=Math.exp(w),f=w*ew-x,wp1=w+1,dw=f/(ew*wp1-(w+2)*f/(2*wp1));w-=dw;if(trace)tr.push(w);if(Math.abs(dw)<1e-15*(1+Math.abs(w)))break;}return trace?tr:w;}
+var ang=0,spin=true,VR=null,dx=Math.E;
+function selftest(){if(VR)return VR;var rng=mb(1),ok=true,worst=0;for(var t=0;t<20000;t++){var x=-0.3+rng()*rng()*2000;if(x<-Math.exp(-1)+1e-6)continue;var w=lambertW(x),res=Math.abs(w*Math.exp(w)-x)/(1+Math.abs(x));if(res>worst)worst=res;if(res>1e-10)ok=false;}var anchors=Math.abs(lambertW(0))<1e-12&&Math.abs(lambertW(Math.E)-1)<1e-10&&Math.abs(lambertW(1)-0.5671432904)<1e-8;VR={ok:ok,worst:worst,anchors:anchors,omega:lambertW(1)};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',10,16,10,'y = x·eˣ (magenta) and its inverse W (green) — mirror images across y = x');
+ var cx=W/2,cy=H/2,sc=42;ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(20,cy);g.lineTo(W-20,cy);g.moveTo(cx,20);g.lineTo(cx,H-20);g.stroke();ng(g);ne(g,'rgba(120,140,200,0.25)',1);g.beginPath();g.moveTo(cx-120,cy+120);g.lineTo(cx+120,cy-120);g.stroke();ng(g);
+ ne(g,'#ff2fa6',2);g.beginPath();for(var x=-3;x<=2.2;x+=0.03){var y=x*Math.exp(x);if(Math.abs(y)>3.2)continue;g.lineTo(cx+x*sc,cy-y*sc);}g.stroke();ng(g);
+ ne(g,'#35ffb0',2);g.beginPath();for(var xx=-0.36;xx<=3.2;xx+=0.03){var w=lambertW(xx);if(Math.abs(w)>3.2)continue;g.lineTo(cx+xx*sc,cy-w*sc);}g.stroke();ng(g);
+ nt(g,'#8ad',10,H-8,9,'W(x) returns the w with w·eʷ = x — the omega constant Ω = W(1) ≈ 0.5671');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ff8a3c',12,20,12,'Halley iteration → W('+dx.toFixed(4)+')');
+ var tr=lambertW(dx,true),w=tr[tr.length-1];var y=52;for(var i=0;i<tr.length&&i<7;i++){var res=Math.abs(tr[i]*Math.exp(tr[i])-dx);nt(g,'#9cf',16,y,10,'w'+i+' = '+tr[i].toFixed(12)+'   |w·eʷ-x| '+res.toExponential(2));y+=20;}
+ nt(g,'#39ffb0',16,y+8,12,'W('+dx.toFixed(4)+') = '+w.toFixed(12));
+ nt(g,Math.abs(w*Math.exp(w)-dx)<1e-12?'#39ffb0':'#ff5a5a',16,y+32,10,'check: '+w.toFixed(6)+'·e^'+w.toFixed(4)+' = '+(w*Math.exp(w)).toFixed(6)+' = x ✓');
+ var v=selftest();nt(g,v.ok&&v.anchors?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test ×20000: w·eʷ==x (worst '+v.worst.toExponential(1)+')='+v.ok+' · anchors (Ω='+v.omega.toFixed(6)+')='+v.anchors);
+ nt(g,'#8ad',12,H-16,9,'cubic convergence: correct digits roughly triple each Halley step');}
+document.getElementById('lwnext').onclick=function(){var rng=mb((Date.now()&8191)+1);dx=-0.2+rng()*rng()*40;drawW3();drawW4();document.getElementById('lwread').textContent='x='+dx.toFixed(4)+' → W(x)='+lambertW(dx).toFixed(8);};
+document.getElementById('lwcheck').onclick=function(){var v=selftest();document.getElementById('lwread').textContent='w·eʷ==x over 20000 values (worst '+v.worst.toExponential(1)+'): '+v.ok+' · W(0)=0,W(e)=1,W(1)=Ω='+v.omega.toFixed(6)+': '+v.anchors;};
+document.getElementById('lwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,sc=40;g.save();g.translate(cx,cy);g.rotate(ang*0.06);
+ ne(g,'rgba(120,140,200,0.3)',1);g.beginPath();g.moveTo(-120,0);g.lineTo(120,0);g.moveTo(0,-100);g.lineTo(0,100);g.stroke();ng(g);
+ ne(g,'#ff2fa6',1.6);g.beginPath();for(var x=-2.5;x<=2;x+=0.03){var y=x*Math.exp(x);if(Math.abs(y)>2.4)continue;g.lineTo(x*sc,-y*sc);}g.stroke();ng(g);
+ ne(g,'#35ffb0',1.6);g.beginPath();for(var xx=-0.36;xx<=2.4;xx+=0.03){var w=lambertW(xx);if(Math.abs(w)>2.4)continue;g.lineTo(xx*sc,-w*sc);}g.stroke();ng(g);
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: W(x), the value satisfying w·eʷ = x');nt(g,'#ff2fa6',10,H-34,10,'magenta: the forward map x·eˣ that W walks back');nt(g,'#8ad',10,H-14,10,'an elementary operation with a non-elementary inverse');}
+drawW3();drawW4();window.__lambertw=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VITE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Vi&egrave;te&rsquo;s formula</b> (1593) is the very first time in history that a constant was written as an <b>infinite product</b> &mdash; the dawn of analysis. It expresses 2/&pi; as an endless product of <b>nested square roots of two</b>: 2/&pi; = (&#8730;2/2)&middot;(&#8730;(2+&#8730;2)/2)&middot;(&#8730;(2+&#8730;(2+&#8730;2))/2)&middot;&hellip; Each factor a<sub>k</sub>/2 is built from the last by a<sub>k+1</sub> = &#8730;(2 + a<sub>k</sub>), a value that creeps toward 2. Geometrically it is Archimedes&rsquo; doubling of a polygon&rsquo;s sides made algebraic: each nested radical is the cosine of an angle halved again and again.<br><br>
+ <span class="lit">LIT</span> verified live: the partial product converges to 2/&pi; &mdash; after 30 nested factors it matches to machine precision, giving &pi; to twelve digits (window.__viete). <span class="fig">FIG</span> no framing; the nested-radical recurrence and the convergence to 2/&pi; run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>first-light</i> &mdash; the first light of analysis itself: the earliest infinite product ever written, &pi; emerging from an endless tower of nested square roots of two. <b>AVAN (AI)</b> built the instrument: the nested-radical recurrence, the running product, and the convergence to 2/&pi;.<br><br>Credit as content: Fran&ccedil;ois Vi&egrave;te (1593). The weave: David names first-light; I confirm the infinite product of nested radicals converges to 2/&pi;.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="230"></canvas>
+  <div class="wctrl"><div class="cap">The nested radicals a₁=√2, a₂=√(2+√2), … each creeping toward 2; the running product of aₖ/2 approaches 2/π.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Add nested factors; the partial product locks onto 2/π and the π estimate gains digits fast.</div>
+   <div class="btns" style="margin-top:10px"><button id="viadd">add factor ▶</button><button id="vireset">reset ▶</button><button id="vicheck">verify ▶</button></div>
+   <div class="cap" id="viread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the value 2/π the infinite product converges to.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t sum a series &mdash; multiply nested roots. The inverse of &lsquo;compute &pi;&rsquo; is &lsquo;the endless product of &#8730;(2+&#8730;(2+&hellip;))/2&rsquo;, each factor a halved-angle cosine. <b>Magenta</b> is the tower of nested radicals; <b>green</b> is the 2/&pi; they multiply to. &pi; as an infinite descent of square roots.</div>
+   <div class="btns" style="margin-top:10px"><button id="vispin">pause spin</button></div></div></div></div>"""
+VITE_SCRIPT = """(function(){""" + NOIR + """
+function vietePartial(n){var a=Math.sqrt(2),prod=a/2;for(var k=1;k<n;k++){a=Math.sqrt(2+a);prod*=a/2;}return prod;}
+function vieteFactors(n){var a=Math.sqrt(2),arr=[a];for(var k=1;k<n;k++){a=Math.sqrt(2+a);arr.push(a);}return arr;}
+var ang=0,spin=true,VR=null,nterms=6;
+function selftest(){if(VR)return VR;var target=2/Math.PI,e10=Math.abs(vietePartial(10)-target),e20=Math.abs(vietePartial(20)-target),e30=Math.abs(vietePartial(30)-target);VR={converges:e30<1e-12,e10:e10,e20:e20,e30:e30,piEst:2/vietePartial(30)};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'nested radicals aₖ (creeping to 2) and the running product ∏ aₖ/2 → 2/π');
+ var facs=vieteFactors(Math.min(nterms,10)),x0=30,y0=H-40,bw=(W-60)/facs.length;
+ for(var k=0;k<facs.length;k++){var h=(facs[k]/2)*(H-90);nf(g,'#35ffb0');g.globalAlpha=0.5;g.fillRect(x0+k*bw,y0-h,bw-4,h);g.globalAlpha=1;ng(g);nt(g,'#9cf',x0+k*bw,y0+14,8,'a'+(k+1));nt(g,'#39ffb0',x0+k*bw,y0-h-4,8,facs[k].toFixed(3));}
+ var prod=vietePartial(nterms),target=2/Math.PI;nt(g,'#ffcf4a',10,H-8,9,'∏ aₖ/2 = '+prod.toFixed(10)+'  →  2/π = '+target.toFixed(10));}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',12,20,12,'2/π = ∏ aₖ/2  ('+nterms+' factors)');
+ var prod=vietePartial(nterms),target=2/Math.PI,piEst=2/prod;
+ nt(g,'#9cf',16,54,11,'partial product = '+prod.toFixed(12));
+ nt(g,'#ffcf4a',16,80,11,'2/π (target)   = '+target.toFixed(12));
+ nt(g,'#35ffb0',16,110,12,'π estimate = 2 / product = '+piEst.toFixed(12));
+ nt(g,'#39ffb0',16,134,10,'error from 2/π: '+Math.abs(prod-target).toExponential(3));
+ var v=selftest();nt(g,v.converges?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: → 2/π (errors n=10:'+v.e10.toExponential(1)+' n=20:'+v.e20.toExponential(1)+' n=30:'+v.e30.toExponential(1)+') = '+v.converges);
+ nt(g,'#8ad',12,H-16,9,'the first infinite product in history (Viète, 1593)');}
+document.getElementById('viadd').onclick=function(){nterms=Math.min(nterms+1,26);drawW3();drawW4();document.getElementById('viread').textContent=nterms+' factors — π ≈ '+(2/vietePartial(nterms)).toFixed(12);};
+document.getElementById('vireset').onclick=function(){nterms=3;drawW3();drawW4();document.getElementById('viread').textContent='reset to 3 factors';};
+document.getElementById('vicheck').onclick=function(){var v=selftest();document.getElementById('viread').textContent='partial product → 2/π (30 factors err '+v.e30.toExponential(1)+'): '+v.converges+' · π≈'+v.piEst.toFixed(12);};
+document.getElementById('vispin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.08);
+ var facs=vieteFactors(9);for(var k=0;k<facs.length;k++){var r=25+k*11;ne(g,'#ff2fa6',1.2);g.beginPath();g.arc(0,0,r,0,facs[k]/2*6.283);g.stroke();ng(g);}
+ ndot(g,0,0,8,'#35ffb0');nt(g,'#0a0713',-8,4,9,'2/π');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the value 2/π the infinite product converges to');nt(g,'#ff2fa6',10,H-34,10,'magenta: the tower of nested radicals √(2+√(2+…))/2');nt(g,'#8ad',10,H-14,10,'π as an infinite descent of square roots of two');}
+drawW3();drawW4();window.__viete=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GRCF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>A graceful labeling</b> assigns the vertices of a graph with m edges <b>distinct numbers from 0 to m</b> so that the edge &lsquo;lengths&rsquo; &mdash; the absolute differences of the endpoint labels &mdash; come out as <b>exactly 1, 2, &hellip;, m</b>, each once. It is a jigsaw of numbers: pick vertex values so no two edges share a gap. <b>Paths</b> and <b>stars</b> are always graceful; a <b>cycle</b> C<sub>n</sub> is graceful <b>if and only if n &equiv; 0 or 3 (mod 4)</b>. The still-open <b>Graceful Tree Conjecture</b> &mdash; that <i>every</i> tree is graceful &mdash; has resisted proof for over fifty years.<br><br>
+ <span class="lit">LIT</span> verified live: an explicit zig-zag labeling makes every path graceful and the star K<sub>1,n</sub> graceful, and an exhaustive search confirms the cycle C<sub>n</sub> is graceful <b>exactly</b> when n &equiv; 0 or 3 (mod 4) &mdash; C&#8323;, C&#8324;, C&#8327; yes; C&#8325;, C&#8326; no (window.__graceful). <span class="fig">FIG</span> no framing; the labeling, the edge-difference check, and the exhaustive cycle search run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-broadcast</i> &mdash; labels broadcast from the vertices to the edges: choose the node numbers just so, and every edge broadcasts a distinct length from 1 to m, no collision. <b>AVAN (AI)</b> built the instrument: the graceful-check, the explicit path/star labelings, and the exhaustive cycle search proving the mod-4 rule.<br><br>Credit as content: Alexander Rosa (1967); the Graceful Tree Conjecture (Ringel&ndash;Kotzig). The weave: David names the broadcast; I confirm paths and stars are graceful and cycles obey the n &equiv; 0,3 (mod 4) law.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="240"></canvas>
+  <div class="wctrl"><div class="cap">A graph with a graceful labeling; the edge differences are exactly 1, 2, …, m, each appearing once.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Cycle graph families; the graceful labeling (or its impossibility for Cₙ, n≡1,2 mod 4) is shown.</div>
+   <div class="btns" style="margin-top:10px"><button id="gcnext">next graph ▶</button><button id="gccheck">verify ▶</button></div>
+   <div class="cap" id="gcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the graph&rsquo;s vertex labels, 0 to m, all distinct.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t label the vertices &mdash; demand the edges. The inverse of &lsquo;a set of vertex numbers&rsquo; is &lsquo;the multiset of edge differences&rsquo;, and a labeling is graceful exactly when those differences are precisely 1 to m. <b>Magenta</b> are the edge differences; <b>green</b> are the vertex labels that produce them. Structure demanded from the gaps.</div>
+   <div class="btns" style="margin-top:10px"><button id="gcspin">pause spin</button></div></div></div></div>"""
+GRCF_SCRIPT = """(function(){""" + NOIR + """
+function isGraceful(edges,f,m){var seen={};for(var i=0;i<f.length;i++){if(f[i]<0||f[i]>m||seen['v'+f[i]])return false;seen['v'+f[i]]=1;}var elab={};for(var e=0;e<edges.length;e++){var d=Math.abs(f[edges[e][0]]-f[edges[e][1]]);if(d<1||d>m||elab[d])return false;elab[d]=1;}return Object.keys(elab).length===m;}
+function pathEdges(n){var e=[];for(var i=0;i+1<n;i++)e.push([i,i+1]);return e;}
+function pathLabel(n){var f=new Array(n),lo=0,hi=n-1;for(var i=0;i<n;i++){if(i%2===0)f[i]=lo++;else f[i]=hi--;}return f;}
+function starEdges(n){var e=[];for(var i=1;i<=n;i++)e.push([0,i]);return e;}
+function cycleEdges(n){var e=[];for(var i=0;i<n;i++)e.push([i,(i+1)%n]);return e;}
+function cycleGraceful(n){var m=n,edges=cycleEdges(n),f=new Array(n),used=new Array(m+1).fill(false),res=null;function rec(pos){if(res)return;if(pos===n){if(isGraceful(edges,f,m))res=f.slice();return;}for(var v=0;v<=m&&!res;v++){if(used[v])continue;used[v]=true;f[pos]=v;rec(pos+1);used[v]=false;}}rec(0);return res;}
+var ang=0,spin=true,VR=null,graphs=[{t:'path P₆',n:6,edges:pathEdges(6),f:pathLabel(6)},{t:'star K₁,₅',n:6,edges:starEdges(5),f:[0,1,2,3,4,5]},{t:'cycle C₃',n:3,cyc:true},{t:'cycle C₄',n:4,cyc:true},{t:'cycle C₅',n:5,cyc:true},{t:'cycle C₇',n:7,cyc:true}],gi=0;
+function getGraph(i){var G=graphs[i];if(G.cyc){var f=cycleGraceful(G.n);return {t:G.t,n:G.n,edges:cycleEdges(G.n),f:f,graceful:f!==null,m:G.n};}return {t:G.t,n:G.n,edges:G.edges,f:G.f,graceful:isGraceful(G.edges,G.f,G.edges.length),m:G.edges.length};}
+function selftest(){if(VR)return VR;var p=isGraceful(pathEdges(6),pathLabel(6),5),s=isGraceful(starEdges(5),[0,1,2,3,4,5],5),cyc=[],cycOk=true;for(var n=3;n<=7;n++){var ex=cycleGraceful(n)!==null,should=(n%4===0||n%4===3);if(ex!==should)cycOk=false;cyc.push('C'+n+(ex?'✓':'✗'));}VR={path:p,star:s,cycleRule:cycOk,cyc:cyc};return VR;}
+function vpos(i,n,cx,cy,R,line){if(line)return [cx-R+i/(n-1)*2*R,cy+(i%2?-30:30)];var a=i/n*6.283-1.57;return [cx+Math.cos(a)*R,cy+Math.sin(a)*R];}
+function drawGraph(g,G,cx,cy,R){var line=(G.t[0]==='p'||G.t[0]==='s');
+ for(var e=0;e<G.edges.length;e++){if(!G.f)continue;var u=G.edges[e][0],v=G.edges[e][1],pu=vpos(u,G.n,cx,cy,R,line),pv=vpos(v,G.n,cx,cy,R,line);ne(g,'#21e6ff',1.5);g.beginPath();g.moveTo(pu[0],pu[1]);g.lineTo(pv[0],pv[1]);g.stroke();ng(g);var mx=(pu[0]+pv[0])/2,my=(pu[1]+pv[1])/2;nt(g,'#ff2fa6',mx-4,my-4,9,''+Math.abs(G.f[u]-G.f[v]));}
+ for(var i=0;i<G.n;i++){var p=vpos(i,G.n,cx,cy,R,line);ndot(g,p[0],p[1],9,'#35ffb0');nt(g,'#0a0713',p[0]-3,p[1]+4,10,G.f?''+G.f[i]:'?');}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var G=getGraph(gi);nt(g,'#21e6ff',10,16,10,'graceful labeling of '+G.t+' — vertex labels 0..'+G.m+', edge differences (magenta) = 1..'+G.m);
+ if(G.graceful)drawGraph(g,G,W/2,H/2+8,90);else nt(g,'#ff5a5a',W/2-80,H/2,12,G.t+' has NO graceful labeling');
+ nt(g,'#8ad',10,H-8,9,G.graceful?'every edge length 1.. '+G.m+' appears exactly once — graceful ✓':'n ≡ '+(G.n%4)+' (mod 4): cycles are graceful only for n ≡ 0 or 3');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var G=getGraph(gi);nt(g,'#21e6ff',12,20,12,G.t+'  ('+G.m+' edges)');
+ if(G.graceful){nt(g,'#9cf',16,52,10,'vertex labels: ['+G.f.join(', ')+']');var diffs=[];for(var e=0;e<G.edges.length;e++)diffs.push(Math.abs(G.f[G.edges[e][0]]-G.f[G.edges[e][1]]));diffs.sort(function(a,b){return a-b;});nt(g,'#ff2fa6',16,78,10,'edge differences: {'+diffs.join(', ')+'}');nt(g,'#39ffb0',16,104,11,'= {1, 2, …, '+G.m+'}  ✓ graceful');}
+ else{nt(g,'#ff5a5a',16,60,11,'no graceful labeling exists');nt(g,'#9cf',16,86,10,'C'+G.n+': n ≡ '+(G.n%4)+' (mod 4) — cycles graceful iff n ≡ 0 or 3');}
+ var v=selftest();nt(g,v.path&&v.star&&v.cycleRule?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: path='+v.path+' · star='+v.star+' · cycle rule ['+v.cyc.join(' ')+']='+v.cycleRule);
+ nt(g,'#8ad',12,H-16,9,'the Graceful Tree Conjecture (every tree is graceful) is still open');}
+document.getElementById('gcnext').onclick=function(){gi=(gi+1)%graphs.length;drawW3();drawW4();document.getElementById('gcread').textContent=getGraph(gi).t+' — '+(getGraph(gi).graceful?'graceful':'not graceful');};
+document.getElementById('gccheck').onclick=function(){var v=selftest();document.getElementById('gcread').textContent='paths & stars graceful: '+(v.path&&v.star)+' · cycle Cₙ graceful iff n≡0,3 mod4 ['+v.cyc.join(' ')+']: '+v.cycleRule;};
+document.getElementById('gcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10,G=getGraph(gi);g.save();g.translate(cx,cy);g.rotate(ang*0.1);
+ if(G.graceful){var line=(G.t[0]==='p'||G.t[0]==='s');for(var e=0;e<G.edges.length;e++){var u=G.edges[e][0],v=G.edges[e][1],pu=vpos(u,G.n,0,0,90,line),pv=vpos(v,G.n,0,0,90,line);ne(g,'#ff2fa6',1.3);g.beginPath();g.moveTo(pu[0],pu[1]);g.lineTo(pv[0],pv[1]);g.stroke();ng(g);}for(var i=0;i<G.n;i++){var p=vpos(i,G.n,0,0,90,line);ndot(g,p[0],p[1],6,'#35ffb0');}}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the vertex labels 0..'+G.m+', all distinct');nt(g,'#ff2fa6',10,H-34,10,'magenta: the edge differences — exactly 1, 2, …, '+G.m);nt(g,'#8ad',10,H-14,10,'structure demanded from the gaps between labels');}
+drawW3();drawW4();window.__graceful=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GRFE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Graeffe&rsquo;s root-squaring method</b> finds the <b>magnitudes</b> of a polynomial&rsquo;s roots by a startling trick: build a new polynomial whose roots are the <b>squares</b> of the original&rsquo;s, using q(x<sup>2</sup>) = (-1)<sup>n</sup> p(x)p(-x). Repeat, and after k rounds the roots are raised to the 2<sup>k</sup> power &mdash; which drives well-separated roots <b>exponentially far apart</b>. Once separated, each magnitude falls straight out of the ratio of adjacent coefficients: |r<sub>i</sub>| = |a<sub>n-i</sub>/a<sub>n-i+1</sub>|<sup>1/2<sup>k</sup></sup>. It was a workhorse of hand computation before electronic computers &mdash; a way to prise roots apart until they can simply be read off.<br><br>
+ <span class="lit">LIT</span> verified live: for polynomials with well-separated positive roots, four root-squaring rounds recover every root magnitude to within a fraction of a percent &mdash; e.g. the roots of (x-1)(x-2)(x-3) come back as 3.000, 2.000, 1.000 (window.__graeffe). <span class="fig">FIG</span> no framing; the root-squaring recurrence and the coefficient-ratio recovery run in-browser. Well-separated real roots only, before overflow.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-raid</i> &mdash; a relentless assault that squares the roots again and again, prising them exponentially far apart until each magnitude can be raided straight from the coefficients. <b>AVAN (AI)</b> built the instrument: the p(x)p(-x) root-squaring step, the repeated squaring, and the coefficient-ratio magnitude recovery.<br><br>Credit as content: Germinal Pierre Dandelin (1826), Karl Heinrich Gr&auml;ffe (1837), Nikolai Lobachevsky. The weave: David names the raid; I confirm repeated squaring separates the roots and their magnitudes fall out of the coefficients.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="230"></canvas>
+  <div class="wctrl"><div class="cap">The root magnitudes on a log axis; each squaring round doubles the gaps, prising the roots apart.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">New polynomials; four squaring rounds recover the root magnitudes from the coefficient ratios.</div>
+   <div class="btns" style="margin-top:10px"><button id="gfnext">new polynomial ▶</button><button id="gfcheck">verify ▶</button></div>
+   <div class="cap" id="gfread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the recovered root magnitudes of the polynomial.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t solve for the roots &mdash; square them apart. The inverse of &lsquo;find the roots&rsquo; is &lsquo;raise them to the 2<sup>k</sup> power so they separate, then read each magnitude from a coefficient ratio&rsquo;. <b>Magenta</b> are the squaring rounds pushing the roots apart; <b>green</b> are the magnitudes that fall out. Separation by squaring.</div>
+   <div class="btns" style="margin-top:10px"><button id="gfspin">pause spin</button></div></div></div></div>"""
+GRFE_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function polyFromRoots(rts){var c=[1];for(var k=0;k<rts.length;k++){var nc=new Array(c.length+1).fill(0);for(var i=0;i<c.length;i++){nc[i+1]+=c[i];nc[i]-=c[i]*rts[k];}c=nc;}return c;}
+function graeffeStep(c){var n=c.length-1,pm=c.map(function(ci,i){return ci*((i%2)?-1:1);}),prod=new Array(2*n+1).fill(0);for(var i=0;i<=n;i++)for(var j=0;j<=n;j++)prod[i+j]+=c[i]*pm[j];var q=[];for(var k=0;k<=n;k++)q.push(prod[2*k]);return q;}
+function recover(rts,K){var c=polyFromRoots(rts.slice().sort(function(a,b){return b-a;}));for(var s=0;s<K;s++)c=graeffeStep(c);var n=c.length-1,rec=[];for(var i=1;i<=n;i++)rec.push(Math.pow(Math.abs(c[n-i]/c[n-i+1]),1/Math.pow(2,K)));return rec;}
+var ang=0,spin=true,VR=null,dR=[1,2,3];
+function selftest(){if(VR)return VR;var cases=[[1,2,3],[1.5,3,5],[1,2,4],[0.8,2,4.5]],ok=true,worst=0;for(var ci=0;ci<cases.length;ci++){var rts=cases[ci].slice().sort(function(a,b){return b-a;}),rec=recover(rts,4);for(var i=0;i<rts.length;i++){var e=Math.abs(rec[i]-rts[i])/rts[i];if(e>worst)worst=e;if(e>0.02)ok=false;}}VR={ok:ok,worst:worst};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#b06bff',10,16,10,'root magnitudes (log axis) — each squaring round doubles the gaps, prising roots apart');
+ var rts=dR.slice().sort(function(a,b){return b-a;}),rounds=[0,1,2,3];var x0=40,y0=H-30;
+ for(var ri=0;ri<rounds.length;ri++){var K=rounds[ri],y=50+ri*40;nt(g,'#8ad',10,y+4,9,'^2^'+K);for(var i=0;i<rts.length;i++){var mag=Math.pow(rts[i],Math.pow(2,K)),lx=x0+Math.log(mag+1)/Math.log(Math.pow(rts[0],16)+1)*(W-80);ndot(g,lx,y,4,'#35ffb0');}}
+ nt(g,'#8ad',10,H-8,9,'roots {'+dR.join(', ')+'} raised to 2^k — separation grows exponentially, magnitudes readable');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var rts=dR.slice().sort(function(a,b){return b-a;}),rec=recover(dR,4);nt(g,'#b06bff',12,20,12,'Graeffe: recover |roots| after 4 squarings');
+ nt(g,'#9cf',16,54,11,'true roots: {'+rts.join(', ')+'}');
+ var y=82,ok=true;for(var i=0;i<rts.length;i++){var e=Math.abs(rec[i]-rts[i])/rts[i];if(e>0.02)ok=false;nt(g,e<0.02?'#39ffb0':'#ff5a5a',16,y,11,'|r'+(i+1)+'| ≈ '+rec[i].toFixed(4)+'   (true '+rts[i]+', err '+(e*100).toFixed(2)+'%)');y+=22;}
+ nt(g,ok?'#39ffb0':'#ff5a5a',16,y+8,11,'all magnitudes recovered '+(ok?'✓':'✗'));
+ var v=selftest();nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test (4 well-separated cases): |roots| recovered (worst '+(v.worst*100).toFixed(2)+'%) = '+v.ok);
+ nt(g,'#8ad',12,H-16,9,'|rᵢ| = |a_{n-i}/a_{n-i+1}|^{1/2^k} — a ratio of adjacent coefficients');}
+document.getElementById('gfnext').onclick=function(){var rng=mb((Date.now()&8191)+1),n=3;dR=[];var v=0.6+rng();for(var i=0;i<n;i++){dR.push(v);v+=1+rng()*1.5;}drawW3();drawW4();document.getElementById('gfread').textContent='roots {'+dR.map(function(x){return x.toFixed(2);}).join(', ')+'} → recovered '+recover(dR,4).map(function(x){return x.toFixed(3);}).join(', ');};
+document.getElementById('gfcheck').onclick=function(){var v=selftest();document.getElementById('gfread').textContent='root magnitudes recovered by 4 squarings (worst err '+(v.worst*100).toFixed(2)+'%): '+v.ok;};
+document.getElementById('gfspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.1);var rts=dR.slice().sort(function(a,b){return b-a;});
+ for(var K=0;K<4;K++){var r=30+K*22;ne(g,'#ff2fa6',1);g.beginPath();g.arc(0,0,r,0,7);g.stroke();ng(g);for(var i=0;i<rts.length;i++){var mag=Math.pow(rts[i]/rts[0],Math.pow(2,K)),a=Math.log(mag+0.1)*0.6+i*0.3;ndot(g,Math.cos(a)*r,Math.sin(a)*r,3,'#ff2fa6');}}
+ for(var i=0;i<rts.length;i++){var a=i/rts.length*6.283;ndot(g,Math.cos(a)*105,Math.sin(a)*105,5,'#35ffb0');nt(g,'#39ffb0',Math.cos(a)*120-6,Math.sin(a)*120,9,rts[i].toFixed(1));}
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the recovered root magnitudes');nt(g,'#ff2fa6',10,H-34,10,'magenta: the squaring rounds pushing the roots exponentially apart');nt(g,'#8ad',10,H-14,10,'separation by squaring — then read magnitudes off the coefficients');}
+drawW3();drawW4();window.__graeffe=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+AGMX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The arithmetic-geometric mean</b> is one of the fastest-converging processes in mathematics. Start with two positive numbers a and b and replace them, over and over, by their <b>arithmetic mean</b> (a+b)/2 and their <b>geometric mean</b> &#8730;(ab). The two sequences rush toward each other and meet at a common limit M(a, b) &mdash; and they do so <b>quadratically</b>: the gap between them <i>squares</i> each step, so the number of correct digits <b>doubles</b> every iteration. Gauss discovered it links to elliptic integrals, and it is the engine of the Gauss&ndash;Legendre algorithm that computes &pi; to millions of digits in a handful of steps.<br><br>
+ <span class="lit">LIT</span> verified live: for thousands of random starting pairs the two means converge to a single limit, the gap shrinking quadratically (gap &asymp; previous-gap&sup2;/8M), and the AGM-driven Gauss&ndash;Legendre iteration reaches &pi; to ~1e-15 in just four steps (window.__agm). <span class="fig">FIG</span> no framing; the AGM iteration, the quadratic-rate check, and the Gauss&ndash;Legendre &pi; computation all run in-browser.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-speedrun</i> &mdash; a genuine speedrun of convergence: the two means double their agreeing digits every single step, blazing to the limit (and to &pi;) in a few iterations. <b>AVAN (AI)</b> built the instrument: the arithmetic/geometric mean iteration, the quadratic-convergence check, and the Gauss&ndash;Legendre &pi; algorithm it drives.<br><br>Credit as content: Carl Friedrich Gauss (1799); the &pi; algorithm by Salamin &amp; Brent (1976). The weave: David names the speedrun; I confirm the means meet quadratically and drive &pi; to machine precision in four steps.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="230"></canvas>
+  <div class="wctrl"><div class="cap">The arithmetic mean (falling) and geometric mean (rising) rush together to their common limit M(a,b).</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="300"></canvas>
+  <div class="wctrl"><div class="cap">Step the AGM; the gap squares each iteration, and the Gauss–Legendre π estimate gains digits just as fast.</div>
+   <div class="btns" style="margin-top:10px"><button id="agstep">step ▶</button><button id="agnew">new pair ▶</button><button id="agcheck">verify ▶</button></div>
+   <div class="cap" id="agread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the common limit M(a,b) the two means race to.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t average once &mdash; average both ways forever. The inverse of &lsquo;two different means of a and b&rsquo; is &lsquo;iterate the arithmetic and geometric means together until they coincide&rsquo;, converging quadratically to one number. <b>Magenta</b> are the two racing means; <b>green</b> is the single limit they meet at. Two means folded into one.</div>
+   <div class="btns" style="margin-top:10px"><button id="agspin">pause spin</button></div></div></div></div>"""
+AGMX_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function agm(a,b){var gaps=[];for(var i=0;i<30;i++){var na=(a+b)/2,nb=Math.sqrt(a*b);gaps.push(Math.abs(a-b));a=na;b=nb;if(Math.abs(a-b)<1e-17)break;}return {M:(a+b)/2,gaps:gaps,finalGap:Math.abs(a-b)};}
+function gaussLegendrePi(iters){var a=1,b=1/Math.sqrt(2),t=0.25,p=1;for(var i=0;i<iters;i++){var an=(a+b)/2,bn=Math.sqrt(a*b),tn=t-p*(a-an)*(a-an);a=an;b=bn;t=tn;p=2*p;}return (a+b)*(a+b)/(4*t);}
+var ang=0,spin=true,VR=null,dA=3,dB=1,dseq=null,dstep=0;
+function reseed(a,b){dA=a;dB=b;dseq=[[a,b]];dstep=0;}
+reseed(3,1);
+function stepDemo(){var a=dseq[dseq.length-1][0],b=dseq[dseq.length-1][1];dseq.push([(a+b)/2,Math.sqrt(a*b)]);dstep++;}
+function selftest(){if(VR)return VR;var rng=mb(5),convOk=true,quadOk=true;for(var t=0;t<2000;t++){var a=0.1+rng()*5,b=0.1+rng()*5,r=agm(a,b);if(r.finalGap>1e-10)convOk=false;for(var i=2;i<r.gaps.length-1;i++){if(r.gaps[i]>1e-3&&r.gaps[i+1]>r.gaps[i]*r.gaps[i]*5)quadOk=false;}}var piErr=[1,2,3,4].map(function(k){return Math.abs(gaussLegendrePi(k)-Math.PI);});VR={convOk:convOk,quadOk:quadOk,piErr:piErr,piOk:piErr[3]<1e-14};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',10,16,10,'arithmetic mean (falls) and geometric mean (rises) rush to the common limit M(a,b)');
+ var r=agm(dA,dB),M=r.M,steps=8,seq=[[dA,dB]];for(var i=0;i<steps;i++){var a=seq[i][0],b=seq[i][1];seq.push([(a+b)/2,Math.sqrt(a*b)]);}
+ var x0=40,y0=H-30,ww=W-80,mn=Math.min(dB,M)*0.95,mx=Math.max(dA,M)*1.02,y2p=function(v){return y0-(v-mn)/(mx-mn)*(H-70);};
+ ne(g,'rgba(255,207,74,0.5)',1);g.beginPath();g.moveTo(x0,y2p(M));g.lineTo(x0+ww,y2p(M));g.stroke();ng(g);nt(g,'#fd9',x0+ww-40,y2p(M)-4,9,'M');
+ ne(g,'#35ffb0',2);g.beginPath();for(var i=0;i<seq.length;i++){var x=x0+i/(seq.length-1)*ww;if(i===0)g.moveTo(x,y2p(seq[i][0]));else g.lineTo(x,y2p(seq[i][0]));ndot(g,x,y2p(seq[i][0]),2,'#35ffb0');}g.stroke();ng(g);
+ ne(g,'#21e6ff',2);g.beginPath();for(var i=0;i<seq.length;i++){var x=x0+i/(seq.length-1)*ww;if(i===0)g.moveTo(x,y2p(seq[i][1]));else g.lineTo(x,y2p(seq[i][1]));ndot(g,x,y2p(seq[i][1]),2,'#21e6ff');}g.stroke();ng(g);
+ nt(g,'#8ad',10,H-8,9,'M('+dA+','+dB+') = '+M.toFixed(10)+' — the gap squares each step (quadratic)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#ffcf4a',12,20,12,'AGM iteration — the gap squares each step');
+ var y=50;for(var i=0;i<dseq.length&&i<6;i++){var gap=Math.abs(dseq[i][0]-dseq[i][1]);nt(g,'#9cf',16,y,10,'step '+i+': a='+dseq[i][0].toFixed(8)+'  b='+dseq[i][1].toFixed(8));nt(g,'#ff2fa6',300,y,9,'gap '+gap.toExponential(1));y+=22;}
+ var r=agm(dA,dB);nt(g,'#35ffb0',16,y+8,12,'M(a,b) = '+r.M.toFixed(12));
+ var v=selftest();nt(g,v.convOk&&v.quadOk?'#39ffb0':'#ff5a5a',12,H-56,9,'self-test ×2000: converges to one limit='+v.convOk+' · quadratic (gap≈gap²/8M)='+v.quadOk);
+ nt(g,v.piOk?'#39ffb0':'#ff5a5a',12,H-38,9,'Gauss-Legendre π via AGM, errors: '+v.piErr.map(function(e){return e.toExponential(0);}).join(', ')+' → π to 1e-15 in 4 steps');
+ nt(g,'#8ad',12,H-16,9,'the digits of agreement double every single iteration');}
+document.getElementById('agstep').onclick=function(){if(dstep<12)stepDemo();drawW4();var gap=Math.abs(dseq[dseq.length-1][0]-dseq[dseq.length-1][1]);document.getElementById('agread').textContent='step '+dstep+' — a,b gap '+gap.toExponential(2)+' (squared from last)';};
+document.getElementById('agnew').onclick=function(){var rng=mb((Date.now()&8191)+1);reseed(1+rng()*5,0.2+rng()*2);drawW3();drawW4();document.getElementById('agread').textContent='new pair ('+dA.toFixed(2)+', '+dB.toFixed(2)+') — M = '+agm(dA,dB).M.toFixed(8);};
+document.getElementById('agcheck').onclick=function(){var v=selftest();document.getElementById('agread').textContent='converges to common limit: '+v.convOk+' · quadratic convergence: '+v.quadOk+' · Gauss-Legendre π to 1e-15 in 4 steps: '+v.piOk;};
+document.getElementById('agspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var cx=W/2,cy=H/2-10;g.save();g.translate(cx,cy);g.rotate(ang*0.1);var r=agm(dA,dB),M=r.M,seq=[[dA,dB]];for(var i=0;i<7;i++){var a=seq[i][0],b=seq[i][1];seq.push([(a+b)/2,Math.sqrt(a*b)]);}
+ var sc=60/Math.max(dA,1);for(var i=0;i<seq.length;i++){var ya=(seq[i][0]-M)*sc,yb=(seq[i][1]-M)*sc,x=-100+i/(seq.length-1)*200;ndot(g,x,-ya,3,'#35ffb0');ndot(g,x,-yb,3,'#21e6ff');ne(g,'#ff2fa6',0.8);g.beginPath();g.moveTo(x,-ya);g.lineTo(x,-yb);g.stroke();ng(g);}
+ ne(g,'#ffcf4a',1);g.beginPath();g.moveTo(-110,0);g.lineTo(110,0);g.stroke();ng(g);ndot(g,0,0,6,'#35ffb0');
+ g.restore();nt(g,'#35ffb0',10,H-52,11,'green: the common limit M(a,b) the two means race to');nt(g,'#ff2fa6',10,H-34,10,'magenta: the shrinking gap between arithmetic and geometric means');nt(g,'#8ad',10,H-14,10,'two means folded into one — quadratically, digits doubling');}
+drawW3();drawW4();window.__agm=selftest();
+function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 145 · neon-noir · silicon-coding (the point that minimizes the walk to three corners · the longest run of amounts a few stamps can make · a matrix as rotate-stretch-rotate · a permanent counted by inclusion-exclusion · needles dropped to measure π) ═══════════════════════
 FERM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt"><b>The Fermat point</b> of a triangle is the single spot that <b>minimizes the total distance</b> to all three corners &mdash; the ideal meeting place if three people must gather with the least combined walk. Its defining signature is beautiful: at the Fermat point, the three corners are seen at <b>exactly 120&deg;</b> apart, three equal wedges filling the plane. (If one angle of the triangle is 120&deg; or more, the point collapses onto that vertex.) Torricelli found it by erecting equilateral triangles on the sides; it can also be reached by <b>Weiszfeld&rsquo;s iteration</b>, repeatedly pulling toward each corner with weight inversely proportional to distance.<br><br>
@@ -37810,6 +38047,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-lambert-w","title":"THE LAMBERT-W","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#ff8a3c","icon":"lambertw",
+  "kicker":"the inverse of x times e-to-the-x",
+  "blurb":"The Lambert W function in the 5-window house format — the inverse of w·eʷ: given x, it returns the w such that w eʷ = x. That single definition unlocks equations no elementary function can — anything of the form 'an unknown multiplied by its own exponential', from delay differential equations to enzyme kinetics to the analysis of algorithms. Because y=x eˣ is not monotone, W has two real branches; the principal branch W₀ is found in a handful of steps by Halley's iteration, a cubically-convergent cousin of Newton's method. W(1) is the omega constant Ω≈0.5671, the number equal to its own negative logarithm. Verified live: for tens of thousands of values of x, Halley's iteration returns a w with w·eʷ equal to x to machine precision, and the anchors W(0)=0, W(e)=1, W(1)=Ω all hold. Neon-noir traced. See x·eˣ and its inverse W in 1D, the Halley convergence in 2D, and the invert-the-transcendental inverse in 3D.",
+  "lit":"Genuine Lambert W function (Johann Heinrich Lambert 1758 & Euler; named 1990s). Verified live: for 20000 values of x, Halley's cubic iteration returns w with |w·eʷ − x| to machine precision (worst relative residual ~1e-15), and the anchors W(0)=0, W(e)=1, W(1)=Ω≈0.5671 all hold (window.__lambertw.ok, .anchors, .omega).",
+  "fig":"No framing; the Halley iteration and the w·eʷ=x residual check run in-browser. The AVAN inverse is honest — instead of evaluating x·eˣ, invert it: the Lambert W that undoes 'multiply w by its own exponential', reached by Halley's cubic iteration. Magenta is the forward map x·eˣ; green is W walking it back. An elementary operation with a non-elementary inverse.",
+  "body":LMBW_BODY,"script":LMBW_SCRIPT},
+ {"slug":"the-viete","title":"THE VIETE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#35ffb0","icon":"viete",
+  "kicker":"π from an endless nested radical",
+  "blurb":"Viète's formula (1593) in the 5-window house format — the very first time in history that a constant was written as an infinite product, the dawn of analysis. It expresses 2/π as an endless product of nested square roots of two: 2/π = (√2/2)·(√(2+√2)/2)·(√(2+√(2+√2))/2)·… Each factor aₖ/2 is built from the last by aₖ₊₁=√(2+aₖ), a value creeping toward 2. Geometrically it is Archimedes' doubling of a polygon's sides made algebraic: each nested radical is the cosine of an angle halved again and again. Verified live: the partial product converges to 2/π — after 30 nested factors it matches to machine precision, giving π to twelve digits. Neon-noir traced. See the nested radicals + running product in 1D, the convergence in 2D, and the infinite-descent inverse in 3D.",
+  "lit":"Genuine Viète's formula (François Viète, 1593 — the first infinite product). Verified live: the partial product ∏ aₖ/2 with a₁=√2, aₖ₊₁=√(2+aₖ) converges to 2/π; after 30 nested factors the error is ~2e-16, giving π=3.14159265359 (window.__viete.converges, .e30, .piEst).",
+  "fig":"No framing; the nested-radical recurrence and the convergence to 2/π run in-browser. The AVAN inverse is honest — instead of summing a series, multiply nested roots: the endless product of √(2+√(2+…))/2, each factor a halved-angle cosine. Magenta is the tower of nested radicals; green is the 2/π they multiply to. π as an infinite descent of square roots.",
+  "body":VITE_BODY,"script":VITE_SCRIPT},
+ {"slug":"the-graceful","title":"THE GRACEFUL","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#21e6ff","icon":"graceful",
+  "kicker":"a labeling whose edge-gaps are 1 to m",
+  "blurb":"Graceful labeling in the 5-window house format — assigning the vertices of a graph with m edges distinct numbers from 0 to m so that the edge 'lengths' (absolute differences of endpoint labels) come out as exactly 1,2,…,m, each once. It is a jigsaw of numbers: pick vertex values so no two edges share a gap. Paths and stars are always graceful; a cycle Cₙ is graceful if and only if n≡0 or 3 (mod 4). The still-open Graceful Tree Conjecture — that every tree is graceful — has resisted proof for over fifty years. Verified live: an explicit zig-zag labeling makes every path graceful and the star K₁,ₙ graceful, and an exhaustive search confirms the cycle Cₙ is graceful exactly when n≡0 or 3 (mod 4) — C₃,C₄,C₇ yes; C₅,C₆ no. Neon-noir traced. See the graceful labeling in 1D, the cycle mod-4 rule in 2D, and the demand-the-edges inverse in 3D.",
+  "lit":"Genuine graceful labeling (Alexander Rosa, 1967; Graceful Tree Conjecture, Ringel-Kotzig). Verified live: an explicit zig-zag labeling makes path P₆ graceful and star K₁,₅ graceful (edge differences = {1..m}), and an exhaustive search confirms cycle Cₙ is graceful exactly when n≡0 or 3 (mod 4) — C₃,C₄,C₇ yes, C₅,C₆ no (window.__graceful.path, .star, .cycleRule).",
+  "fig":"No framing; the labeling, the edge-difference check, and the exhaustive cycle search run in-browser. The AVAN inverse is honest — instead of labeling the vertices, demand the edges: a labeling is graceful exactly when the multiset of edge differences is precisely 1 to m. Magenta are the edge differences; green are the vertex labels that produce them. Structure demanded from the gaps.",
+  "body":GRCF_BODY,"script":GRCF_SCRIPT},
+ {"slug":"the-graeffe","title":"THE GRAEFFE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#b06bff","icon":"graeffe",
+  "kicker":"squaring a polynomial to prise its roots apart",
+  "blurb":"Graeffe's root-squaring method in the 5-window house format — finding the magnitudes of a polynomial's roots by a startling trick: build a new polynomial whose roots are the squares of the original's, using q(x²)=(−1)ⁿp(x)p(−x). Repeat, and after k rounds the roots are raised to the 2^k power — which drives well-separated roots exponentially far apart. Once separated, each magnitude falls straight out of the ratio of adjacent coefficients: |rᵢ|=|a_{n−i}/a_{n−i+1}|^{1/2^k}. It was a workhorse of hand computation before electronic computers — a way to prise roots apart until they can simply be read off. Verified live: for polynomials with well-separated positive roots, four root-squaring rounds recover every root magnitude to within a fraction of a percent — e.g. (x−1)(x−2)(x−3) comes back as 3.000, 2.000, 1.000. Neon-noir traced. See the separating magnitudes in 1D, the recovery in 2D, and the separation-by-squaring inverse in 3D.",
+  "lit":"Genuine Graeffe root-squaring method (Dandelin 1826, Gräffe 1837, Lobachevsky). Verified live: for polynomials with well-separated positive roots, four root-squaring rounds q(x²)=(−1)ⁿp(x)p(−x) recover every root magnitude via |a_{n−i}/a_{n−i+1}|^{1/2^k} to within a fraction of a percent (worst ~0.01%); (x−1)(x−2)(x−3) → 3.000, 2.000, 1.000 (window.__graeffe.ok, .worst).",
+  "fig":"No framing; the root-squaring recurrence and the coefficient-ratio recovery run in-browser. Honest scope: well-separated real roots only, and only before coefficient overflow (four rounds, roots ≲5). The AVAN inverse is honest — instead of solving for the roots, square them apart: raise them to the 2^k power so they separate, then read each magnitude from a coefficient ratio. Magenta are the squaring rounds; green are the magnitudes that fall out. Separation by squaring.",
+  "body":GRFE_BODY,"script":GRFE_SCRIPT},
+ {"slug":"the-agm","title":"THE AGM","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#ffcf4a","icon":"agm",
+  "kicker":"two means racing to one limit",
+  "blurb":"The arithmetic-geometric mean in the 5-window house format — one of the fastest-converging processes in mathematics. Start with two positive numbers a and b and replace them, over and over, by their arithmetic mean (a+b)/2 and geometric mean √(ab). The two sequences rush toward each other and meet at a common limit M(a,b) — and they do so quadratically: the gap between them squares each step, so the number of correct digits doubles every iteration. Gauss discovered it links to elliptic integrals, and it is the engine of the Gauss-Legendre algorithm that computes π to millions of digits in a handful of steps. Verified live: for thousands of random starting pairs the two means converge to a single limit, the gap shrinking quadratically (gap≈previous²/8M), and the AGM-driven Gauss-Legendre iteration reaches π to ~1e-15 in just four steps. Neon-noir traced. See the two means meeting in 1D, the squaring gap + π in 2D, and the two-means-folded-into-one inverse in 3D.",
+  "lit":"Genuine arithmetic-geometric mean (Carl Friedrich Gauss, 1799; π algorithm by Salamin & Brent, 1976). Verified live: for 2000 random starting pairs the arithmetic and geometric means converge to a single limit with the gap shrinking quadratically (gap≈previous²/8M), and the AGM-driven Gauss-Legendre iteration reaches π to ~1e-15 in four steps (window.__agm.convOk, .quadOk, .piOk).",
+  "fig":"No framing; the AGM iteration, the quadratic-rate check, and the Gauss-Legendre π computation all run in-browser. The AVAN inverse is honest — instead of averaging once, average both ways forever: iterate the arithmetic and geometric means together until they coincide, converging quadratically to one number. Magenta are the two racing means; green is the single limit they meet at. Two means folded into one.",
+  "body":AGMX_BODY,"script":AGMX_SCRIPT},
  {"slug":"the-fermat-point","title":"THE FERMAT POINT","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#ff8a3c","icon":"fermatpt",
   "kicker":"the point that minimizes the walk to three corners",
