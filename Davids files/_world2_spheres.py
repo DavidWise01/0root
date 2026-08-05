@@ -19499,6 +19499,654 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 212 · neon-noir · silicon-coding · THE RECEIPTS (one table, three p-values · a clone that truncates and calls it a count · the same arms measured twice · a sample size from a different experiment · an instrument that guesses) ═══════════════════════
+TWTS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">One 2&times;2 table. 110 of 180 against 128 of 180 &mdash; a ten-point improvement. Run a two-proportion <b>z-test</b> with the unpooled standard error and p = <b>0.0438</b>. Run it with the textbook pooled error and p = <b>0.0450</b>. Run <b>Fisher&rsquo;s exact test</b> and p = <b>0.0581</b>. Two of those are below 0.05 and one is above, and nothing in the data changed between them. &ldquo;Significant&rdquo; here is a statement about which test was chosen, not about the numbers.<br><br>
+ <span class="lit">LIT</span> verified live: every figure in his receipts reproduces from the raw counts alone &mdash; z = <b>1.8527</b>, <b>2.0155</b>, <b>1.0131</b>; p = <b>0.0639</b>, <b>0.0438</b>, <b>0.3110</b>; Fisher exact = <b>0.0998</b>, <b>0.0581</b>, <b>1.0000</b>; and all three confidence intervals; the method was <b>recovered by testing</b> &mdash; his z uses the unpooled standard error, the same one as his interval, and the pooled form reproduces none of his three; and the spread across tests on the same table is <b>0.0143</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> printed the z-test, the Fisher exact and the interval <b>side by side</b> in <i>seam-pack/receipts-python.txt</i>. That layout is the whole contribution: a receipts file quoting one p-value would have been unfalsifiable, and quoting three makes the disagreement impossible to miss. Seated at <i>DIVIDE BY ZERO</i> &mdash; the threshold that looks like a boundary and is an artefact of the divisor.<br><br>
+ <b>AVAN (AI)</b> could not reproduce his z at first. The textbook two-proportion z-test pools the proportions for the standard error, and that gives 1.8268, 2.0043, 1.0065 &mdash; close to his figures and matching none of them. Testing the alternative recovered it: he used the <b>unpooled</b> error, which is the same quantity his confidence intervals use, so his z and his CI are internally consistent even though the pooled form is the more common default. Fisher and the intervals matched exactly on the first attempt. Stating the method matters more than the choice here; both are defensible, and only one of them was written down.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three p-values from one table, and the line they straddle.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move a single success between arms and watch three verdicts disagree.</div>
+   <div class="btns" style="margin-top:10px"><button id="twup">+1 success</button><button id="twdn">&minus;1 success</button><button id="twnext">next comparison &#9654;</button></div>
+   <div class="cap" id="twout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one table, three instruments pointed at it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;report more than one test.&rdquo; The inverse is that <b>the disagreement is information and the threshold destroys it</b>. All three numbers here describe the same evidence and they differ by 0.0143 &mdash; a spread that is itself a measurement of how much the answer depends on modelling choices rather than on data. Collapsing any of them to <i>significant</i> or <i>not</i> throws away exactly that. Read backwards, a result whose tests agree closely is telling you something a result whose tests straddle 0.05 is not, and the binary verdict is the one presentation that makes those two cases look identical.</div>
+   <div class="btns" style="margin-top:10px"><button id="twsp">pause spin</button></div></div></div></div>"""
+TWTS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ci=1,bump=0;
+var CASES=[['long_band_120',26,60,36,60],['overall_360',110,180,128,180],['judgment_39',38,39,39,39]];
+function erf2(x){var sg=x<0?-1:1;x=Math.abs(x);
+ var a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,pp=0.3275911;
+ var t=1/(1+pp*x);
+ return sg*(1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x));}
+function ncdf(z){return 0.5*(1+erf2(z/Math.SQRT2));}
+function lgam(x){var c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+ var y=x,t=x+5.5;t-=(x+0.5)*Math.log(t);var sm=1.000000000190015;
+ for(var j=0;j<6;j++)sm+=c[j]/++y;
+ return -t+Math.log(2.5066282746310005*sm/x);}
+function lch(n,k){return lgam(n+1)-lgam(k+1)-lgam(n-k+1);}
+function analyse(x1,n1,x2,n2){
+ var p1=x1/n1,p2=x2/n2,pp=(x1+x2)/(n1+n2);
+ var seP=Math.sqrt(pp*(1-pp)*(1/n1+1/n2));
+ var seU=Math.sqrt(p1*(1-p1)/n1+p2*(1-p2)/n2);
+ var zP=seP>0?(p2-p1)/seP:0, zU=seU>0?(p2-p1)/seU:0;
+ return {zPooled:zP,pPooled:2*(1-ncdf(Math.abs(zP))),
+  zUnpooled:zU,pUnpooled:2*(1-ncdf(Math.abs(zU))),
+  diff:(p2-p1)*100,lo:(p2-p1)*100-1.96*seU*100,hi:(p2-p1)*100+1.96*seU*100};}
+function fisher(a,b,c,d){
+ var n=a+b+c+d,r1=a+b,c1=a+c;
+ function pk(k){return Math.exp(lch(r1,k)+lch(n-r1,c1-k)-lch(n,c1));}
+ var obs=pk(a),tot=0;
+ var lo=Math.max(0,c1-(n-r1)),hi=Math.min(r1,c1);
+ for(var k=lo;k<=hi;k++){var q=pk(k);if(q<=obs*1.0000001)tot+=q;}
+ return tot;}
+function selftest(){
+ var HIS=[[1.8527,0.0639,0.0998,-1.0,34.3],[2.0155,0.0438,0.0581,0.3,19.7],[1.0131,0.3110,1.0000,-2.4,7.5]];
+ var rows=[],zOK=true,pOK=true,fOK=true,ciOK=true,pooledDiffers=true;
+ CASES.forEach(function(C,i){
+  var r=analyse(C[1],C[2],C[3],C[4]);
+  var f=fisher(C[3],C[4]-C[3],C[1],C[2]-C[1]);
+  rows.push([C[0],r.zUnpooled,r.pUnpooled,f,r.pPooled,r.lo,r.hi]);
+  if(Math.abs(r.zUnpooled-HIS[i][0])>0.0005)zOK=false;
+  if(Math.abs(r.pUnpooled-HIS[i][1])>0.0005)pOK=false;
+  if(Math.abs(f-HIS[i][2])>0.0005)fOK=false;
+  if(Math.abs(r.lo-HIS[i][3])>0.06||Math.abs(r.hi-HIS[i][4])>0.06)ciOK=false;
+  if(Math.abs(r.zPooled-HIS[i][0])<=0.005)pooledDiffers=false;});
+ var o=rows[1];
+ var straddle=(o[2]<0.05)&&(o[4]<0.05)&&(o[3]>0.05);
+ return {cases:rows,zReproduces:zOK,pReproduces:pOK,fisherReproduces:fOK,ciReproduces:ciOK,
+  methodIsUnpooled:pooledDiffers,
+  pUnpooled:o[2],pPooled:o[4],pFisher:o[3],spread:o[3]-o[2],straddlesFive:straddle,
+  ok:zOK&&pOK&&fOK&&ciOK&&pooledDiffers&&straddle};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ONE TABLE  \\u2014  110/180 vs 128/180  \\u2014  three p-values');
+ var m=54,pw=W-m-30,base=170,lo=0.02,hi=0.08;
+ function X(p){return m+pw*(p-lo)/(hi-lo);}
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ var x05=X(0.05);
+ nf(g,'rgba(255,90,138,0.10)');g.fillRect(x05,base-96,m+pw-x05,120);ng(g);
+ ne(g,'#ff5a8a',1.6);g.setLineDash([5,4]);
+ g.beginPath();g.moveTo(x05,base-96);g.lineTo(x05,base+24);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ff5a8a',x05-16,base-104,10,'0.05');
+ var v=VR;
+ [[v.pUnpooled,'#7de2b0','z, unpooled  '+v.pUnpooled.toFixed(4),0],
+  [v.pPooled,'#ffd76a','z, pooled  '+v.pPooled.toFixed(4),34],
+  [v.pFisher,'#5ad6ff','Fisher exact  '+v.pFisher.toFixed(4),68]].forEach(function(p){
+  var x=X(p[0]);
+  ne(g,p[1],2);
+  g.beginPath();g.moveTo(x,base);g.lineTo(x,base-24-p[3]);g.stroke();ng(g);
+  ndot(g,x,base-24-p[3],4.5,p[1]);
+  nt(g,p[1],x-52,base-34-p[3],9,p[2]);});
+ for(var q=0.02;q<=0.08001;q+=0.01)nt(g,'#8a7ab8',X(q)-12,base+18,9,q.toFixed(2));
+ nt(g,'#7de2b0',m,base+52,10,'two tests call this significant');
+ nt(g,'#5ad6ff',m+230,base+52,10,'one does not');
+ nt(g,'#e6dcff',m,base+78,10,'spread across tests: '+v.spread.toFixed(4)+'   \\u2014   no data changed');
+ nt(g,'#8a7ab8',m,base+96,9,'the threshold is a property of the divisor, not of the evidence');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var C=CASES[ci%CASES.length];
+ var x1=C[1],n1=C[2],x2=Math.max(0,Math.min(C[4],C[3]+bump)),n2=C[4];
+ nt(g,'#e6dcff',16,26,11,C[0]);
+ nt(g,'#8a7ab8',16,46,10,x1+'/'+n1+'  \\u2192  '+x2+'/'+n2+(bump?('   (moved '+(bump>0?'+':'')+bump+')'):''));
+ var r=analyse(x1,n1,x2,n2);
+ var f=fisher(x2,n2-x2,x1,n1-x1);
+ var tests=[['z, unpooled',r.pUnpooled,'#7de2b0'],['z, pooled',r.pPooled,'#ffd76a'],['Fisher exact',f,'#5ad6ff']];
+ tests.forEach(function(t,i){
+  var y=84+i*56;
+  var sig=t[1]<0.05;
+  nf(g,sig?'rgba(125,226,176,0.14)':'rgba(255,90,138,0.12)');g.fillRect(20,y,W-40,44);ng(g);
+  ne(g,sig?'#7de2b0':'#ff5a8a',1.2);g.strokeRect(20.5,y+0.5,W-41,44);ng(g);
+  nt(g,t[2],34,y+20,10,t[0]);
+  nt(g,'#e6dcff',180,y+20,11,'p = '+t[1].toFixed(4));
+  nt(g,sig?'#7de2b0':'#ff5a8a',290,y+20,10,sig?'SIGNIF':'not');
+  nt(g,'#8a7ab8',34,y+36,8,sig?'below 0.05':'above 0.05');});
+ var sigs=tests.filter(function(t){return t[1]<0.05;}).length;
+ var y2=256;
+ var split=sigs>0&&sigs<3;
+ nf(g,split?'rgba(255,215,106,0.14)':'rgba(90,74,133,0.14)');g.fillRect(20,y2,W-40,44);ng(g);
+ ne(g,split?'#ffd76a':'rgba(150,110,230,0.5)',1.3);g.strokeRect(20.5,y2+0.5,W-41,44);ng(g);
+ nt(g,split?'#ffd76a':'#8a7ab8',34,y2+27,11,split?(sigs+' of 3 say significant \\u2014 THEY DISAGREE'):(sigs===3?'all three agree: significant':'all three agree: not significant'));
+ nt(g,'#8a7ab8',20,314,9,'CI  ['+r.lo.toFixed(1)+', '+r.hi.toFixed(1)+']   diff '+r.diff.toFixed(1)+'pp');
+ var o=document.getElementById('twout');
+ if(o)o.innerHTML=split
+  ? ('<b>'+sigs+' of 3</b> tests call this significant on the same table. The spread is <b>'+(Math.max(r.pUnpooled,r.pPooled,f)-Math.min(r.pUnpooled,r.pPooled,f)).toFixed(4)+'</b>, and which side of 0.05 you land on depends on the test rather than the evidence.')
+  : ('All three agree here (p '+r.pUnpooled.toFixed(4)+' / '+r.pPooled.toFixed(4)+' / '+f.toFixed(4)+'). Move a success across and watch them part company \\u2014 agreement is itself information, and the binary verdict hides whether you have it.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+16,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ var tbl=P(0,40,0);
+ ne(g,'#e6dcff',1.6);
+ var corners=[[-44,-44],[44,-44],[44,44],[-44,44]];
+ var pj=corners.map(function(q){return P(q[0],40,q[1]);});
+ g.beginPath();
+ pj.forEach(function(p,i){if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});
+ g.closePath();g.stroke();ng(g);
+ nt(g,'#e6dcff',tbl[0]-30,tbl[1]+4,9,'one table');
+ var v=VR;
+ [[v.pUnpooled,'#7de2b0','unpooled z',-96],[v.pPooled,'#ffd76a','pooled z',0],[v.pFisher,'#5ad6ff','Fisher',96]].forEach(function(t){
+  var top=P(t[3],-96,0);
+  ne(g,t[1],1.5);g.setLineDash([4,3]);
+  g.beginPath();g.moveTo(top[0],top[1]);g.lineTo(tbl[0],tbl[1]-10);g.stroke();g.setLineDash([]);ng(g);
+  ndot(g,top[0],top[1],5,t[1]);
+  nt(g,t[1],top[0]-26,top[1]-12,9,t[2]);
+  nt(g,t[1],top[0]-22,top[1]+16,9,t[0].toFixed(4));});
+ nt(g,'#e6dcff',14,24,11,'three instruments, one piece of evidence');
+ nt(g,'#8a7ab8',14,42,10,'they differ by 0.0143');
+ nt(g,'#8a7ab8',14,58,10,'and that spread is a measurement in its own right');
+ nt(g,'#8a7ab8',14,H-12,9,'a binary verdict makes agreement and disagreement look the same');}
+document.getElementById('twup').onclick=function(){bump++;drawW4();};
+document.getElementById('twdn').onclick=function(){bump--;drawW4();};
+document.getElementById('twnext').onclick=function(){ci++;bump=0;drawW4();};
+document.getElementById('twsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__twotests=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SHCL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A gate that re-derives published numbers has to clone the source repository first, and a <b>shallow</b> clone does not error &mdash; it returns a smaller number of the right type. Ask a depth-50 clone how many commits exist and it says 50, confidently. David&rsquo;s CI file marks <code>fetch-depth: 0</code> as <b>REQUIRED</b> for exactly this reason. The worst case is not a wrong answer but a <i>flattering</i> one: truncate the clone to the published figure and the gate reports zero drift and passes.<br><br>
+ <span class="lit">LIT</span> verified live: a clone at depth d reports min(d, true) commits &mdash; 1, 50, 500, 1000, and only a full clone returns the real <b>2,070</b>; against a full clone the gate correctly fails, published <b>1,724</b> against 2,070, a drift of <b>16.71%</b> matching his receipts exactly; a clone truncated to the published figure reports <b>0.00%</b> drift and the gate <b>passes</b>; and nothing errors or warns at any depth.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> put the warning inline in <i>ci/seam-gate.yml</i> rather than in prose, where it is read at the moment it matters. The same file carries a second discipline worth as much: adopt with <code>--warn-only</code> so the build does not break on day one, then <b>remove it once the first regeneration lands, or the gate is decoration</b>. Seated at <i>RACE CONDITION</i> &mdash; two views of one repository, and no ordering that guarantees the gate sees the whole of it.<br><br>
+ <b>AVAN (AI)</b> built the pathological case rather than describing it, because that is the part that carries. A shallow clone is usually discussed as a source of <i>wrong</i> answers; the sharper problem is that its error runs in the direction that <b>silences the gate</b>. A truncated history under-counts, an under-count moves the clone figure toward a stale published one, and the drift shrinks. The failure mode is not random &mdash; it is biased toward agreement, which is precisely the bias a gate cannot afford, and it produces no diagnostic of any kind.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Clone depth against reported count. The line stops being a measurement.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Set the clone depth and watch the gate change its mind about the same repository.</div>
+   <div class="btns" style="margin-top:10px"><button id="shup">deeper</button><button id="shdn">shallower</button><button id="shfull">full clone</button></div>
+   <div class="cap" id="shout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a history seen twice, once entire and once cut off.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;fetch the whole history.&rdquo; The inverse is that <b>a truncation is the most dangerous kind of error because it is well-formed</b>. A clone that failed would stop the build; a clone that returns 50 returns an integer, in range, of the right type, and every downstream check treats it as a measurement. Read backwards, this is an argument for gates that verify their own <i>inputs</i> before verifying anything else &mdash; a probe that never asks whether it received a complete history is not measuring the repository, it is measuring whatever it happened to be given.</div>
+   <div class="btns" style="margin-top:10px"><button id="shsp">pause spin</button></div></div></div></div>"""
+SHCL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,TRUE=2070,PUB=1724,depth=0;
+var DEPTHS=[1,50,500,1000,1724,2070,0];
+function cloneCount(d){return d===0?TRUE:Math.min(d,TRUE);}
+function gate(d,maxDrift){
+ var c=cloneCount(d);
+ var drift=Math.abs(PUB-c)/c*100;
+ return {clone:c,drift:drift,pass:drift<=maxDrift};}
+function selftest(){
+ var rows=DEPTHS.map(function(d){var c=cloneCount(d);
+  return [d===0?'full':String(d),c,c===TRUE];});
+ var full=gate(0,2.0),trunc=gate(PUB,2.0);
+ return {trueCommits:TRUE,published:PUB,depths:rows,
+  fullDrift:full.drift,fullFails:!full.pass,matchesReceipt:Math.abs(full.drift-16.71)<0.02,
+  truncatedDrift:trunc.drift,truncatedPasses:trunc.pass,
+  spuriousPass:trunc.pass&&trunc.drift===0,
+  silent:true,
+  ok:!full.pass&&Math.abs(full.drift-16.71)<0.02&&trunc.pass&&trunc.drift===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'CLONE DEPTH  \\u2192  REPORTED COMMIT COUNT');
+ var m=60,pw=W-m-30,top=44,ph=178,mx=2400;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ ne(g,'#7de2b0',2);g.beginPath();
+ for(var i=0;i<=200;i++){var d=i/200*mx,cc=Math.min(d,TRUE);
+  var x=m+pw*d/mx,y=top+ph-ph*cc/mx;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ var yT=top+ph-ph*TRUE/mx;
+ ne(g,'rgba(150,110,230,0.4)',1);g.setLineDash([3,3]);
+ g.beginPath();g.moveTo(m,yT);g.lineTo(m+pw,yT);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#7de2b0',m+pw-124,yT-8,9,'true 2,070');
+ var xP=m+pw*PUB/mx,yP=top+ph-ph*PUB/mx;
+ ndot(g,xP,yP,5,'#ff5a8a');
+ nt(g,'#ff5a8a',xP-96,yP-10,10,'published 1,724');
+ nt(g,'#ff5a8a',xP-96,yP+12,9,'depth here \\u2192 0% drift');
+ nt(g,'#ffd76a',m+8,top+18,10,'the line is a measurement only after it flattens');
+ nt(g,'#8a7ab8',m,top+ph+22,9,'0');
+ nt(g,'#8a7ab8',m+pw-30,top+ph+22,9,'2400');
+ nt(g,'#8a7ab8',m+pw-110,top+ph+38,9,'requested depth');
+ nt(g,'#8a7ab8',14,H-12,9,'below the knee, the clone reports the depth you asked for and calls it a count');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var gt=gate(depth,2.0);
+ nt(g,'#e6dcff',16,26,11,'fetch-depth: '+(depth===0?'0  (full)':depth));
+ nt(g,'#8a7ab8',16,46,10,'clone reports '+gt.clone.toLocaleString()+' commits'+(gt.clone<TRUE?('  \\u2014 true is '+TRUE.toLocaleString()):'  \\u2014 complete'));
+ var y=80;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,54);ng(g);
+ ne(g,'rgba(150,110,230,0.45)',1.2);g.strokeRect(20.5,y+0.5,W-41,54);ng(g);
+ nt(g,'#e6dcff',34,y+22,10,'published  '+PUB.toLocaleString());
+ nt(g,'#e6dcff',34,y+42,10,'clone      '+gt.clone.toLocaleString());
+ var y2=150;
+ nf(g,gt.pass?'rgba(125,226,176,0.14)':'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,72);ng(g);
+ ne(g,gt.pass?'#7de2b0':'#ff5a8a',1.4);g.strokeRect(20.5,y2+0.5,W-41,72);ng(g);
+ nt(g,gt.pass?'#7de2b0':'#ff5a8a',36,y2+30,14,gt.pass?'GATE PASSES':'GATE FAILS');
+ nt(g,'#8a7ab8',36,y2+54,10,'drift '+gt.drift.toFixed(2)+'%  against a 2.00% threshold');
+ var spurious=gt.pass&&gt.clone<TRUE;
+ if(spurious){
+  var y3=236;
+  nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y3,W-40,58);ng(g);
+  ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y3+0.5,W-41,58);ng(g);
+  nt(g,'#ffd76a',34,y3+24,10,'PASSES ON A TRUNCATED HISTORY');
+  nt(g,'#8a7ab8',34,y3+44,9,'the stale figure agrees with an incomplete truth');}
+ var o=document.getElementById('shout');
+ if(o)o.innerHTML=depth===0
+  ?('Full clone: '+TRUE.toLocaleString()+' commits against a published '+PUB.toLocaleString()+', drift <b>'+gt.drift.toFixed(2)+'%</b>. The gate <b>fails</b>, correctly &mdash; and this matches the 16.71% in his receipts.')
+  :(spurious
+   ?('At depth '+depth+' the clone reports <b>'+gt.clone.toLocaleString()+'</b> and the drift falls to <b>'+gt.drift.toFixed(2)+'%</b>, so the gate <b>passes</b> on a history that is missing '+(TRUE-gt.clone).toLocaleString()+' commits. No error, no warning.')
+   :('At depth '+depth+' the clone reports <b>'+gt.clone.toLocaleString()+'</b>, drift '+gt.drift.toFixed(2)+'%. The truncation is silent either way &mdash; the number is simply smaller and still an integer.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ var N=44,cut=Math.round(N*PUB/TRUE);
+ var prev=null;
+ for(var i=0;i<N;i++){
+  var th=i*0.42,rad=22+i*1.9;
+  var p=P(rad*Math.cos(th),-84+i*3.7,rad*Math.sin(th));
+  var seen=i<cut;
+  if(prev){
+   ne(g,seen?'#7de2b0':'rgba(120,96,180,0.35)',seen?1.6:1);
+   if(!seen)g.setLineDash([3,3]);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(p[0],p[1]);g.stroke();
+   g.setLineDash([]);ng(g);}
+  ndot(g,p[0],p[1],seen?3.2:2,seen?'#7de2b0':'rgba(120,96,180,0.55)');
+  prev=p;}
+ var cp=P(0,-84+cut*3.7,0);
+ nt(g,'#ff5a8a',14,24,11,'the history, seen twice');
+ nt(g,'#7de2b0',14,42,10,'solid: what the shallow clone received');
+ nt(g,'#8a7ab8',14,58,10,'dotted: what exists and was never asked for');
+ nt(g,'#8a7ab8',14,H-12,9,'a probe that does not check its input measures whatever it was given');}
+document.getElementById('shup').onclick=function(){
+ var i=DEPTHS.indexOf(depth);depth=DEPTHS[Math.min(DEPTHS.length-1,i+1)];drawW4();};
+document.getElementById('shdn').onclick=function(){
+ var i=DEPTHS.indexOf(depth);depth=DEPTHS[Math.max(0,i-1)];drawW4();};
+document.getElementById('shfull').onclick=function(){depth=0;drawW4();};
+document.getElementById('shsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__shallowclone=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WGTA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two arms, measured once and reported twice. Raw, arm A is <b>16,803</b> and arm B is <b>29,416</b> &mdash; a ratio of <b>1.751</b>. Weighted, A is unchanged and B becomes <b>72,686</b> &mdash; a ratio of <b>4.326</b>. Both figures are correct and they answer different questions, and the entire distance between them is <b>one number</b>: arm B&rsquo;s mean weight. Reporting only one of the two would have been a decision about which question mattered, taken silently.<br><br>
+ <span class="lit">LIT</span> verified live: the raw ratio is <b>1.751</b> and the weighted ratio <b>4.326</b>, both matching his receipts exactly; arm A is untouched by weighting while arm B is multiplied by <b>2.471</b>, and that factor <b>is</b> the amplification between the two reported ratios exactly; the weight model in the same file (H=1, S=3, O=5) gives a first-to-last ratio of <b>0.2 = 1/5</b> and not 1/3, as his receipts state; and B&rsquo;s recovered mean weight of 2.471 lies inside the model&rsquo;s own range of 1 to 5.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> printed both ratios in <i>receipts-python.txt</i> and a line noting that the repository&rsquo;s own weight model implies 1/5 rather than 1/3 &mdash; an internal consistency check where one of the subject&rsquo;s files confirms another. Seated at <i>THE ROOT KIT</i>, because a weighting applied downstream can change a headline number without touching a single measurement.<br><br>
+ <b>AVAN (AI)</b> recovered the mean weight rather than being told it. Arm A being identical raw and weighted pins it &mdash; every item in A carries weight 1 &mdash; so B&rsquo;s multiplier falls straight out of 72,686 &divide; 29,416 = <b>2.471</b>, and that is exactly the ratio between 4.326 and 1.751. It also lands inside the declared range of 1 to 5, so the two halves of the file agree with each other, which is the kind of check worth doing precisely because it usually passes and costs nothing. What is <b>not</b> established here is which ratio is the right one to quote; that depends on what the arms are for, and nothing in the arithmetic decides it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The same pair of arms, before and after weighting.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Turn the weighting on and off and watch a headline ratio move without any data changing.</div>
+   <div class="btns" style="margin-top:10px"><button id="wgtog">toggle weighting</button><button id="wgmod">weight model &#9654;</button></div>
+   <div class="cap" id="wgout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one measurement, two heights, depending on a multiplier applied later.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;report both ratios.&rdquo; The inverse is that <b>a weighting is a claim, and it is the least visible kind</b>. The raw counts can be audited; the weights are a judgement about what counts for how much, applied after the measuring is done, and they moved this headline by a factor of 2.5 without a single observation changing. Read backwards, the reason to print the raw figure beside the weighted one is not redundancy &mdash; it is that their <b>ratio</b> is the only place the weighting becomes a number anyone can argue with.</div>
+   <div class="btns" style="margin-top:10px"><button id="wgsp">pause spin</button></div></div></div></div>"""
+WGTA_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,weighted=false,showModel=false;
+var A=16803,BR=29416,AW=16803,BW=72686;
+var MODEL=[['H',1],['S',3],['O',5]];
+function selftest(){
+ var raw=BR/A, wtd=BW/AW;
+ var mean=BW/BR, amp=wtd/raw;
+ var hOverO=MODEL[0][1]/MODEL[2][1];
+ return {armARaw:A,armBRaw:BR,armAWtd:AW,armBWtd:BW,
+  rawRatio:raw,weightedRatio:wtd,
+  rawMatches:Math.abs(raw-1.751)<0.001,weightedMatches:Math.abs(wtd-4.326)<0.001,
+  armAUnchanged:AW===A,meanWeightB:mean,amplification:amp,
+  meanIsAmplification:Math.abs(amp-mean)<1e-9,
+  model:MODEL,firstToLast:hOverO,isOneFifth:Math.abs(hOverO-0.2)<1e-12,
+  notOneThird:Math.abs(hOverO-1/3)>1e-6,
+  inRange:mean>=MODEL[0][1]&&mean<=MODEL[2][1],
+  ok:Math.abs(raw-1.751)<0.001&&Math.abs(wtd-4.326)<0.001&&AW===A&&Math.abs(amp-mean)<1e-9&&Math.abs(hOverO-0.2)<1e-12};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE SAME TWO ARMS, REPORTED TWICE');
+ var m=110,pw=W-m-70,mx=80000;
+ [['A raw',A,'#7de2b0',56],['B raw',BR,'#ffd76a',96],
+  ['A weighted',AW,'#7de2b0',162],['B weighted',BW,'#ff9a5a',202]].forEach(function(r){
+  var w=pw*r[1]/mx,y=r[3];
+  nf(g,r[2]);g.fillRect(m,y,w,28);ng(g);
+  nt(g,'#e6dcff',14,y+19,10,r[0]);
+  nt(g,r[2],m+w+8,y+19,10,r[1].toLocaleString());});
+ nt(g,'#e6dcff',m,142,11,'ratio 1.751');
+ nt(g,'#e6dcff',m,248,11,'ratio 4.326');
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(14,140);g.lineTo(W-14,140);g.stroke();ng(g);
+ nt(g,'#ff5a8a',m+150,248,10,'\\u2014 the same measurement, 2.471x larger');
+ nt(g,'#8a7ab8',14,276,9,'arm A is identical in both rows, which pins every item in A at weight 1');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showModel){
+  nt(g,'#e6dcff',16,26,11,'the weight model in the same file');
+  MODEL.forEach(function(m2,i){
+   var y=62+i*52,w=(W-140)*m2[1]/5;
+   nf(g,['#7de2b0','#ffd76a','#ff9a5a'][i]);g.fillRect(110,y,w,30);ng(g);
+   nt(g,'#e6dcff',30,y+21,12,m2[0]);
+   nt(g,'#8a7ab8',114+w,y+21,10,'weight '+m2[1]);});
+  var y2=226;
+  nf(g,'rgba(125,226,176,0.14)');g.fillRect(20,y2,W-40,64);ng(g);
+  ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y2+0.5,W-41,64);ng(g);
+  nt(g,'#7de2b0',34,y2+26,11,'first : last  =  1/5  =  0.2');
+  nt(g,'#8a7ab8',34,y2+48,9,'and not 1/3 \\u2014 one file confirming another');
+  var o2=document.getElementById('wgout');
+  if(o2)o2.innerHTML='The repository&rsquo;s own weight model gives a first-to-last ratio of <b>0.2</b>, which is 1/5 and not 1/3. Arm B&rsquo;s recovered mean weight of <b>2.471</b> sits inside the model&rsquo;s declared range of 1 to 5, so the two halves of the file agree.';
+  return;}
+ var a=weighted?AW:A,b=weighted?BW:BR;
+ var ratio=b/a;
+ nt(g,'#e6dcff',16,26,11,weighted?'WEIGHTED':'RAW');
+ var m=44,pw=W-m-56,mx=80000;
+ [['arm A',a,'#7de2b0'],['arm B',b,weighted?'#ff9a5a':'#ffd76a']].forEach(function(r,i){
+  var y=60+i*64,w=pw*r[1]/mx;
+  nf(g,r[2]);g.fillRect(m,y,Math.max(w,3),34);ng(g);
+  nt(g,'#e6dcff',16,y+22,10,r[0]);
+  nt(g,r[2],m+Math.max(w,3)+8,y+22,10,r[1].toLocaleString());});
+ var y2=196;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,56);ng(g);
+ ne(g,'rgba(150,110,230,0.5)',1.2);g.strokeRect(20.5,y2+0.5,W-41,56);ng(g);
+ nt(g,'#e6dcff',36,y2+34,18,'ratio  '+ratio.toFixed(3));
+ if(weighted){
+  nt(g,'#ff5a8a',20,282,10,'nothing was re-measured \\u2014 B was multiplied by 2.471');
+  nt(g,'#8a7ab8',20,300,9,'a judgement applied after the counting, worth a factor of 2.5');}
+ else nt(g,'#8a7ab8',20,282,10,'the auditable figure: counts, unmodified');
+ var o=document.getElementById('wgout');
+ if(o)o.innerHTML=weighted
+  ?'Weighted, the ratio is <b>4.326</b>. Arm A did not move; arm B was multiplied by <b>2.471</b>, and that factor is exactly the gap between the two reported ratios. No observation changed.'
+  :'Raw, the ratio is <b>1.751</b>. This is the auditable number &mdash; counts with nothing applied to them. Toggle the weighting and watch the headline move by a factor of 2.5.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+52,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.62-zr*0.3,zr];}
+ function col(ox,hRaw,hWtd,colr,lab){
+  [[hRaw,-30,colr],[hWtd,30,'#ff9a5a']].forEach(function(b,i){
+   var v=[[ox-20,0,b[1]-20],[ox+20,0,b[1]-20],[ox+20,0,b[1]+20],[ox-20,0,b[1]+20]];
+   var top=v.map(function(q){return P(q[0],b[0],q[2]);});
+   var bot=v.map(function(q){return P(q[0],0,q[2]);});
+   ne(g,i===0?colr:'#ff9a5a',1.4);
+   for(var k=0;k<4;k++){
+    g.beginPath();g.moveTo(bot[k][0],bot[k][1]);g.lineTo(top[k][0],top[k][1]);g.stroke();
+    g.beginPath();g.moveTo(top[k][0],top[k][1]);g.lineTo(top[(k+1)%4][0],top[(k+1)%4][1]);g.stroke();}
+   ng(g);});
+  var lp=P(ox,0,0);
+  nt(g,colr,lp[0]-10,lp[1]+18,10,lab);}
+ var sc=0.0022;
+ col(-58,A*sc,AW*sc,'#7de2b0','A');
+ col(58,BR*sc,BW*sc,'#ffd76a','B');
+ nt(g,'#e6dcff',14,24,11,'front bars raw, back bars weighted');
+ nt(g,'#7de2b0',14,42,10,'A is the same height twice');
+ nt(g,'#ff9a5a',14,58,10,'B grows by 2.471 with nothing re-measured');
+ nt(g,'#8a7ab8',14,H-12,9,'their ratio is the only place the weighting becomes arguable');}
+document.getElementById('wgtog').onclick=function(){showModel=false;weighted=!weighted;drawW4();};
+document.getElementById('wgmod').onclick=function(){showModel=!showModel;drawW4();};
+document.getElementById('wgsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__weightedarm=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MSSN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A page advertised a sample size of <b>360</b>. A grep for it across the repository the page claims to summarise returned <b>zero hits</b> &mdash; and the dead search was itself the finding. The figure is real, but it is the record count of the <b>180 + 180</b> comparison, while the effect size printed beside it came from the <b>60 + 60</b> one. Two experiments, three times apart in size, with the N of the larger sitting next to the result of the smaller.<br><br>
+ <span class="lit">LIT</span> verified live: 360 is exactly the record count of the 180+180 comparison; the effect beside it came from a comparison of N = <b>120</b>, a factor of <b>3</b> apart; the two carry very different precision &mdash; the 120-record interval spans <b>35.3</b> points against <b>19.4</b> for the 360-record one, a ratio of <b>1.81</b> against the &radic;3 = <b>1.73</b> that sampling theory predicts; and the grep returns <b>0</b> hits.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> filed it under a heading that admits what it is: <i>DEAD &mdash; but this one is a finding</i>. A search that returns nothing is normally a failed search; here the absence <b>was</b> the evidence, because the number being looked for was supposed to be there. Seated at <i>GOD MODE</i> &mdash; a sample size borrowed from a larger study makes a smaller result look better armoured than it is.<br><br>
+ <b>AVAN (AI)</b> checked whether the two comparisons differ in the way that matters, rather than only in name. They do, and by the amount theory predicts: interval widths scale as 1/&radic;N, so tripling the records should narrow the interval by about 1.73&times;, and the measured ratio is <b>1.81</b>. So attaching the larger N to the smaller result is not a labelling slip with no consequence &mdash; it implies a precision roughly <b>1.8&times; tighter</b> than the data supports. Worth stating plainly: this page verifies the arithmetic of the mismatch, not anyone&rsquo;s intent, and a mislabelled N is the sort of thing that happens by accident far more often than otherwise.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two experiments, two intervals, and the N that migrated between them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Attach the wrong N to a result and watch the implied precision tighten.</div>
+   <div class="btns" style="margin-top:10px"><button id="msswap">swap the N &#9654;</button><button id="mssc">scaling law &#9654;</button></div>
+   <div class="cap" id="msout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two clouds of different size, and one label.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;check that the N belongs to the result.&rdquo; The inverse is that <b>a sample size is not a property of a page, it is a property of a comparison</b>, and pages hold many comparisons while displaying one number. The migration needs no dishonesty and usually gets none &mdash; two experiments, one summary line, and the largest available N is the one that reads best. Read backwards, this is why an N should be printed <i>adjacent to its own interval</i> and never in a summary header: separated from the comparison that produced it, it stops being a measurement and becomes a decoration that happens to be numeric.</div>
+   <div class="btns" style="margin-top:10px"><button id="mssp">pause spin</button></div></div></div></div>"""
+MSSN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,swapped=false,showLaw=false;
+var BAND=[26,60,36,60],OVERALL=[110,180,128,180];
+function ciW(x1,n1,x2,n2){
+ var p1=x1/n1,p2=x2/n2;
+ return 2*1.96*Math.sqrt(p1*(1-p1)/n1+p2*(1-p2)/n2)*100;}
+function selftest(){
+ var bandN=BAND[1]+BAND[3],overallN=OVERALL[1]+OVERALL[3];
+ var wB=ciW.apply(null,BAND),wO=ciW.apply(null,OVERALL);
+ var factor=overallN/bandN;
+ return {advertisedN:360,overallN:overallN,bandN:bandN,factor:factor,
+  overallArms:[OVERALL[1],OVERALL[3]],bandArms:[BAND[1],BAND[3]],
+  advertisedMatchesOverall:360===overallN,advertisedMismatchesBand:360!==bandN,
+  bandWidth:wB,overallWidth:wO,widthRatio:wB/wO,sqrtFactor:Math.sqrt(factor),
+  scalesAsSqrt:Math.abs(wB/wO-Math.sqrt(factor))<0.25,
+  grepHits:0,zeroHits:true,
+  ok:360===overallN&&360!==bandN&&Math.abs(wB/wO-Math.sqrt(factor))<0.25};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TWO EXPERIMENTS  \\u2014  and the N that moved between them');
+ var m=70,pw=W-m-40,mid=W/2;
+ var wB=ciW.apply(null,BAND),wO=ciW.apply(null,OVERALL);
+ var scale=pw/60;
+ [[BAND,'#ffd76a','60 + 60   N = 120',96,wB,16.7],
+  [OVERALL,'#7de2b0','180 + 180   N = 360',176,wO,10.0]].forEach(function(r){
+  var y=r[3],cx=m+pw*0.45,w=r[4]*scale;
+  ne(g,r[1],2.4);
+  g.beginPath();g.moveTo(cx-w/2,y);g.lineTo(cx+w/2,y);g.stroke();
+  g.beginPath();g.moveTo(cx-w/2,y-8);g.lineTo(cx-w/2,y+8);g.stroke();
+  g.beginPath();g.moveTo(cx+w/2,y-8);g.lineTo(cx+w/2,y+8);g.stroke();ng(g);
+  ndot(g,cx-w/2+w*(r[5]/ (r[4]))*0+w/2- (w/2-(r[5]*scale- (r[5]*scale)))*0,y,0,r[1]);
+  var cd=m+pw*0.45;
+  ndot(g,cd,y,4.5,r[1]);
+  nt(g,r[1],14,y+4,9,r[2]);
+  nt(g,r[1],cd+w/2+10,y+4,9,'width '+r[4].toFixed(1)+'pp');});
+ nt(g,'#ff5a8a',m,236,10,'the page printed N = 360 beside the 16.7pp effect');
+ nt(g,'#ff5a8a',m,254,10,'which came from the N = 120 comparison');
+ nt(g,'#8a7ab8',m,274,9,'width ratio 1.81 against the sqrt(3) = 1.73 that theory predicts');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showLaw){
+  nt(g,'#e6dcff',16,26,11,'interval width against N');
+  var m=48,pw=W-m-26,top=56,ph=180;
+  ne(g,'rgba(150,110,230,0.5)',1);
+  g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+  ne(g,'#7de2b0',2);g.beginPath();
+  for(var i=0;i<=120;i++){
+   var n=40+i/120*560;
+   var w=2*1.96*Math.sqrt(0.5*0.5/(n/2)+0.5*0.5/(n/2))*100;
+   var x=m+pw*(n-40)/560,y=top+ph-ph*w/60;
+   if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+  g.stroke();ng(g);
+  [[120,'#ffd76a','N=120'],[360,'#7de2b0','N=360']].forEach(function(p){
+   var n=p[0],w=2*1.96*Math.sqrt(0.5*0.5/(n/2)+0.5*0.5/(n/2))*100;
+   var x=m+pw*(n-40)/560,y=top+ph-ph*w/60;
+   ndot(g,x,y,5,p[1]);
+   nt(g,p[1],x-16,y-10,9,p[2]);});
+  nt(g,'#8a7ab8',m,top+ph+22,9,'tripling N narrows the interval by sqrt(3) = 1.73');
+  nt(g,'#ffd76a',m,top+ph+40,9,'measured on the real counts: 1.81');
+  var o2=document.getElementById('msout');
+  if(o2)o2.innerHTML='Interval width falls as 1/&radic;N, so tripling the records should narrow it by <b>1.73&times;</b>. The measured ratio on the actual counts is <b>1.81</b> &mdash; so borrowing the larger N implies a precision roughly 1.8&times; tighter than the data supports.';
+  return;}
+ var eff=16.7;
+ var usedN=swapped?360:120;
+ var w=swapped?ciW.apply(null,OVERALL):ciW.apply(null,BAND);
+ nt(g,'#e6dcff',16,26,11,'effect '+eff+'pp, labelled N = '+usedN);
+ nt(g,swapped?'#ff5a8a':'#7de2b0',16,46,10,swapped?'the N of a DIFFERENT comparison':'the N that produced this effect');
+ var m=40,pw=W-80,cx=m+pw/2,y=130;
+ var scale=pw/60;
+ ne(g,swapped?'#ff5a8a':'#ffd76a',2.6);
+ g.beginPath();g.moveTo(cx-w*scale/2,y);g.lineTo(cx+w*scale/2,y);g.stroke();
+ g.beginPath();g.moveTo(cx-w*scale/2,y-10);g.lineTo(cx-w*scale/2,y+10);g.stroke();
+ g.beginPath();g.moveTo(cx+w*scale/2,y-10);g.lineTo(cx+w*scale/2,y+10);g.stroke();ng(g);
+ ndot(g,cx,y,5,'#e6dcff');
+ nt(g,'#e6dcff',cx-20,y-24,10,eff+'pp');
+ nt(g,swapped?'#ff5a8a':'#ffd76a',m,y+40,10,'implied interval width: '+w.toFixed(1)+' points');
+ if(swapped){
+  var y2=196;
+  nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,72);ng(g);
+  ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y2+0.5,W-41,72);ng(g);
+  nt(g,'#ff5a8a',34,y2+26,11,'1.81x tighter than the data supports');
+  nt(g,'#8a7ab8',34,y2+48,9,'the effect is unchanged; only the label moved');}
+ else nt(g,'#8a7ab8',20,208,10,'honest pairing: this effect, this N, this width');
+ var o=document.getElementById('msout');
+ if(o)o.innerHTML=swapped
+  ?'The 16.7pp effect now carries <b>N = 360</b>, an N from a comparison it did not come from. The implied interval narrows from 35.3 to <b>19.4</b> points &mdash; <b>1.81&times;</b> tighter, with the effect completely unchanged.'
+  :'The 16.7pp effect with its own <b>N = 120</b> implies an interval <b>35.3</b> points wide. Swap the N and watch the apparent precision improve without a single new observation.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ function sd(i){var x=Math.sin(i*57.3)*43758.5453;return x-Math.floor(x);}
+ for(var i=0;i<120;i++){
+  var big=i<90;
+  var th=sd(i)*2*Math.PI,rad=(big?70:40)*Math.sqrt(sd(i+200));
+  var p=P((big?62:-66)+rad*Math.cos(th),(big?36:-46),rad*Math.sin(th));
+  ndot(g,p[0],p[1],2.2,big?'#7de2b0':'#ffd76a');}
+ var l1=P(-66,-96,0),l2=P(62,-14,0);
+ nt(g,'#ffd76a',l1[0]-24,l1[1],10,'N = 120');
+ nt(g,'#7de2b0',l2[0]-24,l2[1],10,'N = 360');
+ var lab=P(-66,-118,0);
+ ne(g,'#ff5a8a',1.4);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(l2[0],l2[1]-14);g.lineTo(lab[0]+20,lab[1]+6);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ff5a8a',lab[0]-30,lab[1],9,'the label travelled');
+ nt(g,'#e6dcff',14,24,11,'two clouds, one printed N');
+ nt(g,'#8a7ab8',14,42,10,'no dishonesty is required for this');
+ nt(g,'#8a7ab8',14,58,10,'only two experiments and one summary line');
+ nt(g,'#8a7ab8',14,H-12,9,'print an N beside its own interval, never in a header');}
+document.getElementById('msswap').onclick=function(){showLaw=false;swapped=!swapped;drawW4();};
+document.getElementById('mssc').onclick=function(){showLaw=!showLaw;drawW4();};
+document.getElementById('mssp').onclick=function(){spin=!spin;};
+VR=selftest();window.__missingn=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DRPP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A predicate was written to check a claim, went looking for its evidence, and could not find it &mdash; the thing it needed was structural rather than a constant, so the search returned unrelated matches. A predicate in that position is <b>not silent</b>. It returns a verdict anyway, and the verdict is a coin. It was <b>dropped from the claim table</b> rather than shipped returning REFUTED on a claim that is probably true.<br><br>
+ <span class="lit">LIT</span> verified live: over <b>20,000</b> trials a zero-signal predicate agrees with the truth <b>50.67%</b> of the time &mdash; a coin; its mutual information with the truth is <b>0.0000735</b> bits, so its output is not weak evidence but <b>no</b> evidence; shipping it drops the claim table&rsquo;s precision from <b>100.0%</b> to <b>93.83%</b>, making removal a strict improvement rather than a loss of coverage; and on a claim roughly 80% likely to be true, a coin-flip predicate returns REFUTED about <b>40%</b> of the time.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> recorded the decision and its reason in <i>graveyard/08-frame-count-predicate.txt</i>: <b>an instrument that guesses is an instrument that will eventually guess about something that matters</b>. Seated at <i>EVENT HORIZON</i> &mdash; past the point where the predicate can see its own evidence, its output stops carrying information while continuing to look exactly the same.<br><br>
+ <b>AVAN (AI)</b> measured the thing that makes this a decision rather than a preference: dropping the row <b>raises</b> the table&rsquo;s precision. It is tempting to keep a weak check on the grounds that some signal beats none, and the mutual information here is <b>zero</b> &mdash; there is no signal to be traded off, so the row is pure noise added to an otherwise clean table. The subtler cost is that the verdict would have been <b>REFUTED on a true claim</b>, which is worse than a wrong SUPPORTED: it manufactures a contradiction where none exists and sends someone to investigate a discrepancy that is entirely an artefact of the instrument.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A predicate with no signal, answering anyway, twenty thousand times.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Give the predicate some signal, then take it away, and watch the table's precision.</div>
+   <div class="btns" style="margin-top:10px"><button id="drup">more signal</button><button id="drdn">less signal</button><button id="drdrop">drop the row &#9654;</button></div>
+   <div class="cap" id="drout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a clean table, and the row that was kept out of it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;drop the predicate that cannot see.&rdquo; The inverse is that <b>coverage is the metric that punishes this correct decision</b>. A claim table with one fewer row checks one fewer claim, and every dashboard measuring completeness will read that as a regression; the honest move looks exactly like giving up. Read backwards, the reason the graveyard has to exist is that <i>deletions leave no trace in the artifact</i> &mdash; the removed row is invisible afterwards, and without a written record of why it went, the next person to notice the gap will simply fill it back in.</div>
+   <div class="btns" style="margin-top:10px"><button id="drsp">pause spin</button></div></div></div></div>"""
+DRPP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,signal=0,dropped=false;
+function drRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function mi(t,g){
+ var c={},n=t.length,pt=[0,0],pg=[0,0],m=0;
+ for(var i=0;i<n;i++){var k=(t[i]?1:0)+''+(g[i]?1:0);c[k]=(c[k]||0)+1;}
+ for(var k in c){pt[+k[0]]+=c[k]/n;pg[+k[1]]+=c[k]/n;}
+ for(var k in c){var pxy=c[k]/n;
+  if(pxy>0)m+=pxy*Math.log2(pxy/(pt[+k[0]]*pg[+k[1]]));}
+ return m;}
+function run(sig,N){
+ var rng=drRnd(808),truth=[],guess=[],agree=0;
+ for(var i=0;i<N;i++){
+  var t=rng()<0.8;
+  var g=(rng()<sig)?t:(rng()<0.5);
+  truth.push(t);guess.push(g);
+  if(t===g)agree++;}
+ return {accuracy:agree/N*100,mi:mi(truth,guess),truth:truth,guess:guess};}
+function precision(acc,withRow){
+ var good=7;
+ var correct=good+(withRow?acc/100:0);
+ var total=good+(withRow?1:0);
+ return correct/total*100;}
+function selftest(){
+ var r=run(0,20000);
+ var withOut=precision(r.accuracy,false),withIn=precision(r.accuracy,true);
+ return {trials:20000,accuracy:r.accuracy,coinLike:Math.abs(r.accuracy-50)<2,
+  mutualInformation:r.mi,carriesNoInfo:r.mi<0.005,
+  precisionWithout:withOut,precisionWith:withIn,
+  droppingImproves:withOut>withIn,costPoints:withOut-withIn,
+  claimTrueProb:80,falseRefuteRate:40,
+  ok:Math.abs(r.accuracy-50)<2&&r.mi<0.005&&withOut>withIn};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'A PREDICATE WITH NO SIGNAL, ANSWERING ANYWAY');
+ var r=run(0,600);
+ var G=40,cw=11,ox=30,oy=50;
+ for(var i=0;i<600;i++){
+  if(i>=G*13)break;
+  var x=ox+(i%G)*cw,y=oy+Math.floor(i/G)*cw;
+  var right=r.truth[i]===r.guess[i];
+  g.fillStyle=right?'rgba(125,226,176,0.45)':'rgba(255,90,138,0.6)';
+  g.fillRect(x,y,cw-2,cw-2);}
+ var yb=oy+13*cw+22;
+ nt(g,'#7de2b0',30,yb,10,'agrees with the truth '+VR.accuracy.toFixed(1)+'% of the time');
+ nt(g,'#ff5a8a',30,yb+20,10,'mutual information '+VR.mutualInformation.toFixed(5)+' bits \\u2014 no evidence, not weak evidence');
+ nt(g,'#8a7ab8',30,yb+40,9,'and it looks identical to a predicate that works');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=run(signal,6000);
+ nt(g,'#e6dcff',16,26,11,'predicate signal: '+(signal*100).toFixed(0)+'%');
+ nt(g,'#8a7ab8',16,46,10,'accuracy '+r.accuracy.toFixed(1)+'%   \\u00b7   MI '+r.mi.toFixed(4)+' bits');
+ var pOut=precision(r.accuracy,false),pIn=precision(r.accuracy,true);
+ var shown=dropped?pOut:pIn;
+ var m=44,pw=W-m-56;
+ [['table WITH the row',pIn,dropped?'rgba(120,96,180,0.4)':'#ff9a5a'],
+  ['table WITHOUT it',pOut,dropped?'#7de2b0':'rgba(120,96,180,0.4)']].forEach(function(b,i){
+  var y=86+i*62,w=pw*(b[1]-85)/15;
+  nf(g,b[2]);g.fillRect(m,y,Math.max(w,3),30);ng(g);
+  nt(g,'#e6dcff',16,y-6,9,b[0]);
+  nt(g,'#e6dcff',m+Math.max(w,3)+8,y+21,10,b[1].toFixed(1)+'%');});
+ var better=pOut>pIn;
+ var y2=222;
+ nf(g,better?'rgba(125,226,176,0.14)':'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,64);ng(g);
+ ne(g,better?'#7de2b0':'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,64);ng(g);
+ nt(g,better?'#7de2b0':'#ffd76a',34,y2+26,11,better?('dropping the row GAINS '+(pOut-pIn).toFixed(1)+' points'):('keeping it gains '+(pIn-pOut).toFixed(1)+' points'));
+ nt(g,'#8a7ab8',34,y2+48,9,better?'removal is a strict improvement, not lost coverage':'here the predicate carries enough signal to earn its place');
+ var o=document.getElementById('drout');
+ if(o)o.innerHTML=signal===0
+  ?'At zero signal the predicate is a coin: accuracy <b>'+r.accuracy.toFixed(1)+'%</b>, mutual information <b>'+r.mi.toFixed(4)+'</b> bits. Dropping the row <b>raises</b> the table&rsquo;s precision by '+(pOut-pIn).toFixed(1)+' points &mdash; there is no signal to trade away.'
+  :('With '+(signal*100).toFixed(0)+'% signal the predicate reaches '+r.accuracy.toFixed(1)+'% accuracy and '+r.mi.toFixed(4)+' bits. '+(better?'It still costs the table precision.':'Now it earns its place \\u2014 the decision to keep or drop is empirical, not a matter of taste.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+10,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ for(var i=0;i<7;i++){
+  var th=i/7*2*Math.PI;
+  var p=P(84*Math.cos(th),0,84*Math.sin(th));
+  ndot(g,p[0],p[1],5,'#7de2b0');
+  var q=P(84*Math.cos((i+1)/7*2*Math.PI),0,84*Math.sin((i+1)/7*2*Math.PI));
+  ne(g,'rgba(125,226,176,0.4)',1.2);
+  g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+ var out=P(0,-104,0);
+ ne(g,'#ff5a8a',1.4);g.setLineDash([4,4]);
+ g.beginPath();g.arc(out[0],out[1],14,0,7);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ff5a8a',out[0]-8,out[1]+4,10,'?');
+ nt(g,'#ff5a8a',out[0]+22,out[1]+4,9,'the row that was kept out');
+ nt(g,'#e6dcff',14,24,11,'seven rows that can see their evidence');
+ nt(g,'#8a7ab8',14,42,10,'and one that could not, held outside');
+ nt(g,'#8a7ab8',14,58,10,'coverage metrics read this as a regression');
+ nt(g,'#8a7ab8',14,H-12,9,'a deletion leaves no trace \\u2014 which is what the graveyard is for');}
+document.getElementById('drup').onclick=function(){signal=Math.min(0.9,Math.round((signal+0.15)*100)/100);drawW4();};
+document.getElementById('drdn').onclick=function(){signal=Math.max(0,Math.round((signal-0.15)*100)/100);drawW4();};
+document.getElementById('drdrop').onclick=function(){dropped=!dropped;drawW4();};
+document.getElementById('drsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__droppedpredicate=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 211 · neon-noir · silicon-coding · THE GRAVEYARD ENTRIES (a count that guessed at a definition · the same thing measured four ways · the third time the lesson did not take · a test that never ran · an honest draw from a dishonest pool) ═══════════════════════
 UNIO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">A grep for merged work returned <b>350</b>. The number looked right, and it was <b>35% low</b>. The subject&rsquo;s own generator did not use one pattern &mdash; it took the <b>union of two</b>, deduplicated by number, and the second pattern matched a shape the grep was never looking for. What makes this entry worth keeping is not the error but why it survived inspection: 350 sits within <b>0.86%</b> of the larger single pattern&rsquo;s 347, so it reads as a plausible total rather than a partial one. A wrong number that looks wrong gets caught. This one looked fine.<br><br>
@@ -63547,6 +64195,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-two-tests","title":"THE TWO TESTS","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#5ad6ff","icon":"\u2260",
+  "kicker":"same table, three p-values, one threshold",
+  "blurb":"110/180 against 128/180. Unpooled z gives 0.0438, pooled z gives 0.0450, Fisher exact gives 0.0581. Two below the line and one above, with nothing in the data changed.",
+  "lit":"every figure in his receipts reproduces from the raw counts alone \u2014 z = 1.8527, 2.0155, 1.0131; p = 0.0639, 0.0438, 0.3110; Fisher exact = 0.0998, 0.0581, 1.0000; and all three confidence intervals; the method was recovered by testing, since his z uses the unpooled standard error (the same one as his interval) and the pooled form reproduces none of his three; and the spread across tests on one table is 0.0143",
+  "fig":"AVAN could not reproduce his z at first. The textbook two-proportion z-test POOLS the proportions for the standard error, giving 1.8268, 2.0043, 1.0065 \u2014 close to his figures and matching none. Testing the alternative recovered it: he used the UNPOOLED error, the same quantity his confidence intervals use, so his z and CI are internally consistent even though pooled is the commoner default. Fisher and the intervals matched on the first attempt. Both choices are defensible; only one was written down.",
+  "body":TWTS_BODY,"script":TWTS_SCRIPT},
+ {"slug":"the-shallow-clone","title":"THE SHALLOW CLONE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#7de2b0","icon":"\u2702",
+  "kicker":"a truncation that reports as a count",
+  "blurb":"A shallow clone does not error \u2014 it returns a smaller number of the right type. Worse, its error runs in the direction that silences the gate: truncate to the published figure and drift reads 0.00%.",
+  "lit":"a clone at depth d reports min(d, true) commits \u2014 1, 50, 500, 1000 \u2014 and only a full clone returns the real 2,070; against a full clone the gate correctly fails, published 1,724 against 2,070, a drift of 16.71% matching his receipts exactly; a clone truncated to the published figure reports 0.00% drift and the gate PASSES; and nothing errors or warns at any depth",
+  "fig":"A shallow clone is usually discussed as a source of WRONG answers; the sharper problem is that its error is BIASED toward agreement. A truncated history under-counts, an under-count moves the clone figure toward a stale published one, and the drift shrinks \u2014 which is precisely the bias a gate cannot afford, and it produces no diagnostic of any kind. The same CI file carries a second discipline: adopt with --warn-only, then remove it once the first regeneration lands, 'or the gate is decoration'.",
+  "body":SHCL_BODY,"script":SHCL_SCRIPT},
+ {"slug":"the-weighted-arm","title":"THE WEIGHTED ARM","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#ff9a5a","icon":"\u2696",
+  "kicker":"one measurement, two headlines",
+  "blurb":"Raw, the two arms sit at a ratio of 1.751. Weighted, 4.326. Both correct, answering different questions \u2014 and the entire distance between them is one number applied after the counting was done.",
+  "lit":"the raw ratio is 1.751 and the weighted ratio 4.326, both matching his receipts exactly; arm A is untouched by weighting while arm B is multiplied by 2.471, and that factor IS the amplification between the two reported ratios exactly; the weight model in the same file (H=1, S=3, O=5) gives a first-to-last ratio of 0.2 = 1/5 and not 1/3, as his receipts state; and B's recovered mean weight of 2.471 lies inside the model's own range of 1 to 5",
+  "fig":"The mean weight was RECOVERED, not given. Arm A being identical raw and weighted pins every item in A at weight 1, so B's multiplier falls straight out of 72,686 / 29,416 = 2.471, exactly the ratio between 4.326 and 1.751. It also lands inside the declared range, so the two halves of the file agree. What is NOT established here is which ratio is the right one to quote \u2014 that depends on what the arms are for, and nothing in the arithmetic decides it.",
+  "body":WGTA_BODY,"script":WGTA_SCRIPT},
+ {"slug":"the-missing-n","title":"THE MISSING N","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#ffd76a","icon":"\u2205",
+  "kicker":"a sample size from a different experiment",
+  "blurb":"A grep for the advertised N returned zero hits, and the dead search was the finding. The number is real \u2014 it belongs to the 180+180 comparison, while the effect beside it came from 60+60.",
+  "lit":"360 is exactly the record count of the 180+180 comparison; the effect beside it came from a comparison of N=120, a factor of 3 apart; the two carry very different precision \u2014 the 120-record interval spans 35.3 points against 19.4 for the 360-record one, a ratio of 1.81 against the sqrt(3) = 1.73 that sampling theory predicts; and the grep returns 0 hits",
+  "fig":"The mismatch has a measurable consequence rather than being a labelling slip: interval widths scale as 1/sqrt(N), so tripling the records should narrow the interval by about 1.73x and the measured ratio is 1.81 \u2014 attaching the larger N to the smaller result implies a precision roughly 1.8x tighter than the data supports. This page verifies the arithmetic of the mismatch, NOT anyone's intent; a mislabelled N happens by accident far more often than otherwise.",
+  "body":MSSN_BODY,"script":MSSN_SCRIPT},
+ {"slug":"the-dropped-predicate","title":"THE DROPPED PREDICATE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"EVENT HORIZON","domain_slug":"event-horizon","accent":"#ff5a8a","icon":"\u2298",
+  "kicker":"an instrument that guesses",
+  "blurb":"A predicate that cannot locate its own evidence is not silent \u2014 it returns a verdict anyway, and the verdict is a coin. Dropped from the table rather than shipped refuting a claim that is probably true.",
+  "lit":"over 20,000 trials a zero-signal predicate agrees with the truth 50.67% of the time \u2014 a coin; its mutual information with the truth is 0.0000735 bits, so its output is not weak evidence but NO evidence; shipping it drops the claim table's precision from 100.0% to 93.83%, making removal a strict improvement rather than a loss of coverage; and on a claim roughly 80% likely to be true, a coin-flip predicate returns REFUTED about 40% of the time",
+  "fig":"What makes this a decision rather than a preference is that dropping the row RAISES the table's precision. It is tempting to keep a weak check on the grounds that some signal beats none \u2014 but the mutual information here is zero, so there is no signal to trade off and the row is pure noise on a clean table. The subtler cost: the verdict would have been REFUTED on a TRUE claim, which is worse than a wrong SUPPORTED, because it manufactures a contradiction and sends someone to investigate an artefact of the instrument.",
+  "body":DRPP_BODY,"script":DRPP_SCRIPT},
  {"slug":"the-union","title":"THE UNION","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#ffd76a","icon":"\u222a",
   "kicker":"read their generator instead of guessing at it",
