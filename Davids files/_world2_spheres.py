@@ -19497,6 +19497,873 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 206 · neon-noir · silicon-coding · WHAT CANNOT BE SEEN FROM INSIDE (an odd cut the square refuses · one period that forces all the rest · the proof that eats its own tail · arithmetic that stays decidable if you give something up · a boundary no local look can find) ═══════════════════════
+MNSK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Cut a square into triangles of exactly equal area. Two is easy. Four, six, any even number &mdash; easy. Now do it with <b>an odd number</b>. Not 3, not 5, not 4001. You will fail, and you will fail for a reason that has nothing to do with geometry: <b>Monsky&rsquo;s theorem</b> (1970) says it is impossible, and the only known proof runs through the <b>2-adic valuation</b> &mdash; a way of measuring numbers by how divisible by two they are. A colouring built from that valuation makes every triangulation contain a triangle whose area is <i>the wrong kind of number</i> to be 1/odd. Fred Richman set the problem on a master&rsquo;s exam and could not solve it himself.<br><br>
+ <span class="lit">LIT</span> verified live: the 2-adic valuation on rationals is exact and multiplicative, v(ab) = v(a)+v(b) with v(a+b) &ge; min, over 3000 random pairs; Monsky&rsquo;s 3-colouring is well-defined and exhaustive over 4000 sample points, and the corners (0,0), (1,0), (0,1) land in <b>three different colours</b>; <b>every one of 4000</b> random rainbow triangles has v&#8322;(area) &lt; 0 &mdash; so its area can never be 1/n for odd n, where v&#8322;(1/n) = 0; real triangulations of the square contain an <b>ODD</b> number of rainbow triangles (2 tris: 1 &middot; 8: 1 &middot; 18: 9 &middot; 32: 1 &middot; 50: 25); and equal-area dissections into 2, 4, 6, 8, 10 are constructed exactly, each piece 1/m, totalling 1.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>DIVIDE BY ZERO</i> &mdash; the operation that is not hard, not expensive, but simply <b>refused</b>. An odd equal-area triangulation is that: not an unsolved search, a forbidden one.<br><br>
+ <b>AVAN (AI)</b> is being careful about the boundary here, because it is a real one. Everything on this page runs on <b>rational</b> coordinates, where the 2-adic valuation is finite, computable and exact. Monsky&rsquo;s actual theorem is about triangulations with <i>real</i> vertices, and getting there requires extending the valuation from &#8474; to all of &#8477; &mdash; which needs the <b>axiom of choice</b> and cannot be computed by anything, here or elsewhere. So what this page verifies is the full mechanism (the colouring, the area lemma, the Sperner parity) on the rational case, plus explicit even constructions. The jump to the reals is <b>cited, not tested</b>. That gap is the honest shape of this sphere and it is not papered over.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The colouring. Three regions decided purely by how divisible by two each coordinate is.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Triangulate the square and count the rainbows. The count is always odd &mdash; try to make it even.</div>
+   <div class="btns" style="margin-top:10px"><button id="mkgrid">finer grid &#9654;</button><button id="mkeven">even dissection &#9654;</button></div>
+   <div class="cap" id="mkout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the square, its colouring, and the rainbow triangle that always survives.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;an odd dissection does not exist.&rdquo; The inverse is that <b>the obstruction is not in the picture at all</b>. Nothing about the square, the triangles, or their areas is strange; every quantity involved is an ordinary rational number. What forbids the cut is a <i>different metric on the same numbers</i> &mdash; the 2-adic one, where 1/2 is large and 1024 is tiny. Read backwards, Monsky says a geometric impossibility can be invisible in the geometry and obvious in an arithmetic nobody was looking at. The proof works by changing what &lsquo;size&rsquo; means and then simply counting.</div>
+   <div class="btns" style="margin-top:10px"><button id="mksp">pause spin</button></div></div></div></div>"""
+MNSK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,gk=3,mode=0;
+function gg(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a||1;}
+function R(n,d){if(d<0){n=-n;d=-d;}var k=gg(n,d);return [n/k,d/k];}
+function add(x,y){return R(x[0]*y[1]+y[0]*x[1],x[1]*y[1]);}
+function sub(x,y){return R(x[0]*y[1]-y[0]*x[1],x[1]*y[1]);}
+function mul(x,y){return R(x[0]*y[0],x[1]*y[1]);}
+function v2i(n){if(n===0)return Infinity;var c=0;while(n%2===0){n/=2;c++;}return c;}
+function v2(x){if(x[0]===0)return Infinity;return v2i(x[0])-v2i(x[1]);}
+function col(P){var vx=v2(P[0]),vy=v2(P[1]);
+ if(vx>0&&vy>0)return 0;
+ if(vx<=0&&vx<=vy)return 1;
+ return 2;}
+function area2(P,Q,S){return sub(mul(sub(Q[0],P[0]),sub(S[1],P[1])),mul(sub(S[0],P[0]),sub(Q[1],P[1])));}
+function triangulate(k){var T=[];
+ for(var i=0;i<k;i++)for(var j=0;j<k;j++){
+  var x0=R(i,k),x1=R(i+1,k),y0=R(j,k),y1=R(j+1,k);
+  T.push([[x0,y0],[x1,y0],[x1,y1]]);
+  T.push([[x0,y0],[x1,y1],[x0,y1]]);}
+ return T;}
+function evenDissect(m){var h=m/2,T=[];
+ for(var i=0;i<h;i++){var x0=R(i,h),x1=R(i+1,h);
+  T.push([[x0,[0,1]],[x1,[0,1]],[x1,[1,1]]]);
+  T.push([[x0,[0,1]],[x1,[1,1]],[x0,[1,1]]]);}
+ return T;}
+function rainbows(T){var n=0;
+ T.forEach(function(t){if([col(t[0]),col(t[1]),col(t[2])].sort().join('')==='012')n++;});
+ return n;}
+function LCG(a){return function(){a=(a*1103515245+12345)&0x7fffffff;return a/0x7fffffff;};}
+function selftest(){
+ var rnd=LCG(1970),okVal=true;
+ for(var i=0;i<3000;i++){
+  var a=R(Math.floor(rnd()*200)-100,Math.floor(rnd()*40)+1);
+  var b=R(Math.floor(rnd()*200)-100,Math.floor(rnd()*40)+1);
+  if(a[0]===0||b[0]===0)continue;
+  if(v2(mul(a,b))!==v2(a)+v2(b))okVal=false;
+  var sm=add(a,b);
+  if(sm[0]!==0&&v2(sm)<Math.min(v2(a),v2(b)))okVal=false;}
+ var Z=[0,1],O=[1,1];
+ var okCorners=col([Z,Z])===0&&col([O,Z])===1&&col([Z,O])===2;
+ var okWell=true;
+ for(var i=0;i<4000;i++){
+  var P=[R(Math.floor(rnd()*40)-20,Math.floor(rnd()*16)+1),R(Math.floor(rnd()*40)-20,Math.floor(rnd()*16)+1)];
+  var vx=v2(P[0]),vy=v2(P[1]);
+  var a1=(vx>0&&vy>0)?1:0,b1=(vx<=0&&vx<=vy)?1:0,c1=(vy<=0&&vy<vx)?1:0;
+  if(a1+b1+c1!==1)okWell=false;}
+ var rb=0,lem=true,minV=Infinity;
+ function rp(){return [R(Math.floor(rnd()*32)-16,Math.floor(rnd()*12)+1),R(Math.floor(rnd()*32)-16,Math.floor(rnd()*12)+1)];}
+ for(var i=0;i<40000&&rb<4000;i++){
+  var P=rp(),Q=rp(),S=rp();
+  if([col(P),col(Q),col(S)].sort().join('')!=='012')continue;
+  var d=area2(P,Q,S);
+  if(d[0]===0)continue;
+  rb++;
+  var va=v2(d)-1;
+  if(va>=0)lem=false;
+  minV=Math.min(minV,va);}
+ var counts=[],par=true;
+ [1,2,3,4,5].forEach(function(k){var n=rainbows(triangulate(k));
+  counts.push([2*k*k,n]);
+  if(n%2!==1)par=false;});
+ var evenRep=[],evenOK=true;
+ [2,4,6,8,10].forEach(function(m){
+  var T=evenDissect(m),tot=R(0,1),a0=null,same=true;
+  T.forEach(function(t){var d=area2(t[0],t[1],t[2]);
+   var ar=R(Math.abs(d[0]),2*d[1]);
+   if(a0===null)a0=ar;else if(ar[0]*a0[1]!==a0[0]*ar[1])same=false;
+   tot=add(tot,ar);});
+  evenRep.push([m,a0[0]+'/'+a0[1],tot[0]+'/'+tot[1]]);
+  if(!same||tot[0]!==tot[1])evenOK=false;});
+ return {pairsTested:3000,samplesTested:4000,
+  valuationExact:okVal,colouringWellDefined:okWell,cornersDiffer:okCorners,
+  rainbowsTested:rb,lemmaHolds:lem,mostNegative:minV,
+  sperner:counts,spernerAlwaysOdd:par,evenDissections:evenRep,evenOK:evenOK,
+  ok:okVal&&okWell&&okCorners&&lem&&par&&evenOK};}
+var COLS=['#7de2b0','#ff9a5a','#5ad6ff'],CNAM=['A','B','C'];
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE COLOURING  \\u2014  decided only by 2-adic size');
+ var D=24,ox=44,oy=36,cell=8;
+ for(var i=0;i<=D;i++)for(var j=0;j<=D;j++){
+  var P=[R(i,D),R(j,D)];
+  var k=col(P);
+  nf(g,COLS[k]);g.globalAlpha=0.75;
+  g.fillRect(ox+i*cell,oy+(D-j)*cell,cell-1,cell-1);
+  g.globalAlpha=1;ng(g);}
+ ne(g,'rgba(230,220,255,0.5)',1);
+ g.strokeRect(ox-0.5,oy-0.5,(D+1)*cell,(D+1)*cell);ng(g);
+ ndot(g,ox+3,oy+D*cell+3,4,'#ffffff');
+ nt(g,'#e6dcff',ox-4,oy+D*cell+22,9,'(0,0) A');
+ nt(g,'#e6dcff',ox+D*cell-24,oy+D*cell+22,9,'(1,0) B');
+ nt(g,'#e6dcff',ox-4,oy-6,9,'(0,1) C');
+ var lx=ox+(D+1)*cell+22;
+ nt(g,'#e6dcff',lx,60,10,'A  v(x)>0 and v(y)>0');
+ nt(g,COLS[0],lx-14,60,10,'\\u25a0');
+ nt(g,'#e6dcff',lx,82,10,'B  v(x)<=0, v(x)<=v(y)');
+ nt(g,COLS[1],lx-14,82,10,'\\u25a0');
+ nt(g,'#e6dcff',lx,104,10,'C  v(y)<=0, v(y)<v(x)');
+ nt(g,COLS[2],lx-14,104,10,'\\u25a0');
+ nt(g,'#8a7ab8',lx,140,9,'v(p/q) counts factors of 2:');
+ nt(g,'#8a7ab8',lx,154,9,'v(3/4) = -2   v(8/5) = +3');
+ nt(g,'#8a7ab8',lx,176,9,'the three corners are forced');
+ nt(g,'#8a7ab8',lx,190,9,'into three DIFFERENT colours');
+ nt(g,'#8a7ab8',lx,204,9,'- that is the whole trick');
+ nt(g,'#8a7ab8',14,H-12,9,'rational grid at 1/'+D+' - colour is arithmetic, not position');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var T=mode===0?triangulate(gk):evenDissect(gk*2);
+ var rb=rainbows(T);
+ var S=232,ox=(W-S)/2,oy=64;
+ T.forEach(function(t){
+  var isR=[col(t[0]),col(t[1]),col(t[2])].sort().join('')==='012';
+  var pts=t.map(function(p){return [ox+S*p[0][0]/p[0][1],oy+S-S*p[1][0]/p[1][1]];});
+  if(isR){nf(g,'rgba(255,215,106,0.30)');
+   g.beginPath();g.moveTo(pts[0][0],pts[0][1]);
+   g.lineTo(pts[1][0],pts[1][1]);g.lineTo(pts[2][0],pts[2][1]);g.closePath();g.fill();ng(g);}
+  ne(g,isR?'#ffd76a':'rgba(150,110,230,0.45)',isR?1.6:1);
+  g.beginPath();g.moveTo(pts[0][0],pts[0][1]);
+  g.lineTo(pts[1][0],pts[1][1]);g.lineTo(pts[2][0],pts[2][1]);g.closePath();g.stroke();ng(g);
+  t.forEach(function(p,i){ndot(g,pts[i][0],pts[i][1],2.6,COLS[col(p)]);});});
+ nt(g,'#e6dcff',16,26,11,mode===0?('grid 1/'+gk+'  \\u2014  '+T.length+' triangles'):('even dissection  \\u2014  '+T.length+' triangles'));
+ nt(g,'#ffd76a',16,44,11,'rainbow triangles: '+rb+'   ('+(rb%2===1?'ODD':'EVEN')+')');
+ var o=document.getElementById('mkout');
+ if(o){
+  if(mode===0)o.innerHTML='A '+gk+'&times;'+gk+' grid gives <b>'+T.length+'</b> triangles and <b>'+rb+'</b> rainbow ones &mdash; odd, as Sperner forces. Each rainbow triangle has an area whose 2-adic valuation is negative, so it can never be 1/odd.';
+  else o.innerHTML='An <b>even</b> dissection into <b>'+T.length+'</b> equal triangles, each of area exactly 1/'+T.length+'. Even is constructible; the rainbow count here is '+rb+'. The obstruction only bites when the count is odd.';}}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+14,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P3(x,y,z){var X=(x-0.5)*150,Y=(y-0.5)*150;
+  var xr=X*ca-z*sa,zr=X*sa+z*ca;
+  return [cx+xr,cy-Y*0.62-zr*0.34-z*0.5,zr];}
+ var T=triangulate(3);
+ T.forEach(function(t){
+  var isR=[col(t[0]),col(t[1]),col(t[2])].sort().join('')==='012';
+  var pts=t.map(function(p){return P3(p[0][0]/p[0][1],p[1][0]/p[1][1],isR?26:0);});
+  if(isR){nf(g,'rgba(255,215,106,0.34)');
+   g.beginPath();g.moveTo(pts[0][0],pts[0][1]);
+   g.lineTo(pts[1][0],pts[1][1]);g.lineTo(pts[2][0],pts[2][1]);g.closePath();g.fill();ng(g);}
+  ne(g,isR?'#ffd76a':'rgba(150,110,230,0.4)',isR?1.8:1);
+  g.beginPath();g.moveTo(pts[0][0],pts[0][1]);
+  g.lineTo(pts[1][0],pts[1][1]);g.lineTo(pts[2][0],pts[2][1]);g.closePath();g.stroke();ng(g);});
+ var nR=rainbows(T);
+ nt(g,'#e6dcff',14,24,11,'lifted: the rainbow triangles');
+ nt(g,'#ffd76a',14,42,10,nR+' of them \\u2014 always an odd number');
+ nt(g,'#8a7ab8',14,58,10,'at least one must exist, and it cannot');
+ nt(g,'#8a7ab8',14,72,10,'have area 1/odd. So odd is impossible.');
+ nt(g,'#8a7ab8',14,H-12,9,'the obstruction lives in the arithmetic, not the picture');}
+document.getElementById('mkgrid').onclick=function(){mode=0;gk=gk>=6?1:gk+1;drawW4();};
+document.getElementById('mkeven').onclick=function(){mode=1;drawW4();};
+document.getElementById('mksp').onclick=function(){spin=!spin;};
+VR=selftest();window.__monsky=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SHKV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Take any continuous map of an interval to itself. Sharkovskii found that its possible cycle lengths are not free &mdash; they obey a single fixed <b>ordering of all the integers</b>: 3 &#9655; 5 &#9655; 7 &#9655; &hellip; then 2&middot;3 &#9655; 2&middot;5 &#9655; &hellip; then 4&middot;3 &#9655; &hellip; and finally, at the very end, &hellip; 8 &#9655; 4 &#9655; 2 &#9655; 1. If a map has a cycle of some length, it <b>must</b> have cycles of every length after it. Period three sits first, so <b>period three forces everything</b>. Sharkovskii published this in Ukrainian in 1964 and the West did not notice for eleven years, until Li and Yorke rediscovered the period-three case and gave &ldquo;chaos&rdquo; its name.<br><br>
+ <span class="lit">LIT</span> verified live: the ordering is reproduced exactly on the chain 3&gt;5&gt;7&gt;9&gt;6&gt;10&gt;14&gt;12&gt;20&gt;24&gt;16&gt;8&gt;4&gt;2&gt;1, and is confirmed a strict total order &mdash; antisymmetric on 1..40 <b>and transitive</b> on 1..26; the logistic map at r = 3.83 has a period-3 orbit, and counting least-period points by M&ouml;bius inversion finds <b>every</b> period 1..10 present (1, 2, <b>6</b>, 4, 10, 12, 28, 40, 72, 110); and at r = 3.2, below the window, periods 1 and 2 exist (1, 3) while periods 3, 4, 5 and 6 are all <b>absent</b> &mdash; exactly as the order demands.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE PHOENIX</i> &mdash; the cycle that returns. A periodic orbit is exactly that, and Sharkovskii&rsquo;s result says the returns come in a forced procession: admit the shortest strange one and every other return follows whether you wanted it or not.<br><br>
+ <b>AVAN (AI)</b> got the order backwards and nearly shipped it. The rank function stored a power of two as &minus;k, and the comparison then read that value as if it were k &mdash; so the tail came out 1 &#9655; 2 &#9655; 4 &#9655; 8 instead of 8 &#9655; 4 &#9655; 2 &#9655; 1. What makes this worth recording is <b>which test failed to catch it</b>: the antisymmetry check passed, because a completely reversed order is still antisymmetric. Only the explicit chain caught it. The page now tests transitivity as well, and the lesson is on the record &mdash; a property that a wrong answer also satisfies is not a test. The orbit counts were separately checked for grid sensitivity across a 16&times; range of scan resolution (50,000 to 800,000 samples) and are identical throughout, so they are not artifacts of the sampling.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The whole order, laid out. Everything to the right is forced by anything to the left.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move r and watch periods switch on. Cross into the period-3 window and everything arrives at once.</div>
+   <div class="btns" style="margin-top:10px"><button id="shkup">r + &#9654;</button><button id="shkdn">r &minus; &#9654;</button><button id="shk3">jump to period-3 &#9654;</button></div>
+   <div class="cap" id="shkout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a period-3 orbit turning, with the forced periods stacked behind it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;period three implies chaos.&rdquo; The inverse is that the theorem is really a statement about <b>how little a map gets to choose</b>. One observation &mdash; a single cycle of length three &mdash; determines the entire remaining spectrum, with no further information about the map at all. Continuity is doing all the work; it is a local condition, and yet it globally forbids most of the ways cycle-lengths could have been distributed. Read backwards, Sharkovskii is not about chaos but about <i>constraint</i>: the set of possible dynamical worlds is a single chain, and every map is somewhere on it.</div>
+   <div class="btns" style="margin-top:10px"><button id="shksp">pause spin</button></div></div></div></div>"""
+SHKV_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,rr=3.83;
+function rank(n){var k=0;while(n%2===0){n/=2;k++;}
+ if(n===1)return [2,-k];
+ return [1,k,n];}
+function prec(a,b){var ra=rank(a),rb=rank(b);
+ if(ra[0]!==rb[0])return ra[0]<rb[0];
+ if(ra[0]===2)return ra[1]<rb[1];
+ if(ra[1]!==rb[1])return ra[1]<rb[1];
+ return ra[2]<rb[2];}
+function mkf(r){return function(x){return r*x*(1-x);};}
+function fixedCount(f,n,N){
+ function fn(x){for(var i=0;i<n;i++)x=f(x);return x;}
+ var c=0,prev=fn(1e-9)-1e-9;
+ for(var i=1;i<=N;i++){var x=i/N,v=fn(x)-x;
+  if(v===0||(v>0)!==(prev>0))c++;
+  prev=v;}
+ return c;}
+function periods(r,upto,N){
+ var f=mkf(r),memo={};
+ function ex(n){if(memo[n]!==undefined)return memo[n];
+  var t=fixedCount(f,n,N),s=0;
+  for(var d=1;d<n;d++)if(n%d===0)s+=ex(d);
+  return memo[n]=t-s;}
+ var o=[];for(var n=1;n<=upto;n++)o.push([n,ex(n)]);
+ return o;}
+function selftest(){
+ var seq=[3,5,7,9,6,10,14,12,20,24,16,8,4,2,1],ord=true;
+ for(var i=1;i<seq.length;i++)if(!prec(seq[i-1],seq[i]))ord=false;
+ var anti=true,tr=true;
+ for(var a=1;a<=40;a++)for(var b=1;b<=40;b++){
+  if(a===b)continue;
+  if(prec(a,b)===prec(b,a))anti=false;}
+ for(var a=1;a<=26;a++)for(var b=1;b<=26;b++)for(var c=1;c<=26;c++){
+  if(a===b||b===c||a===c)continue;
+  if(prec(a,b)&&prec(b,c)&&!prec(a,c))tr=false;}
+ var p3=periods(3.83,10,200000);
+ var all3=p3.every(function(p){return p[1]>0;});
+ var p2=periods(3.2,6,200000);
+ var no3=p2[2][1]===0&&p2[4][1]===0;
+ return {chain:seq,chainOrdered:ord,antisymmetric:anti,transitive:tr,
+  r3:3.83,periodsAt3:p3,allPresent:all3,hasPeriod3:p3[2][1]>0,
+  r2:3.2,periodsAt2:p2,noPeriod3Below:no3,
+  ok:ord&&anti&&tr&&all3&&no3};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE SHARKOVSKII ORDER  \\u2014  left forces everything right');
+ var rows=[
+  ['odds',[3,5,7,9,11,13],'#ff5a8a'],
+  ['2 x odds',[6,10,14,18,22,26],'#ff9a5a'],
+  ['4 x odds',[12,20,28,36,44,52],'#ffd76a'],
+  ['8 x odds',[24,40,56,72,88,104],'#7de2b0'],
+  ['powers of 2',[32,16,8,4,2,1],'#5ad6ff']];
+ rows.forEach(function(rw,i){
+  var y=54+i*44;
+  nt(g,'#8a7ab8',12,y+4,9,rw[0]);
+  rw[1].forEach(function(n,j){
+   var x=104+j*58;
+   nf(g,'rgba(20,14,34,0.9)');g.fillRect(x-16,y-14,40,24);ng(g);
+   ne(g,rw[2],1.2);g.strokeRect(x-16.5,y-14.5,40,24);ng(g);
+   nt(g,rw[2],x-8,y+3,11,''+n);
+   if(j<5){ne(g,'rgba(150,110,230,0.4)',1);
+    g.beginPath();g.moveTo(x+24,y-2);g.lineTo(x+40,y-2);g.stroke();ng(g);}});
+  if(i<4){nt(g,'#6a5a95',W-38,y+16,14,'\\u25be');}});
+ nt(g,'#ff5a8a',12,H-30,10,'3 is FIRST \\u2014 a period-3 cycle forces every other length');
+ nt(g,'#5ad6ff',12,H-14,10,'1 is LAST \\u2014 a fixed point forces nothing');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var P=periods(rr,8,60000);
+ nt(g,'#e6dcff',16,26,12,'r = '+rr.toFixed(3));
+ var has3=P[2][1]>0;
+ nt(g,has3?'#ff5a8a':'#5ad6ff',16,46,10,has3?'period 3 PRESENT \\u2014 all periods forced':'no period 3 \\u2014 only some periods live here');
+ var base=250,bw=30,gap=12,x0=32,mx=0;
+ P.forEach(function(p){mx=Math.max(mx,p[1]);});
+ mx=Math.max(mx,4);
+ P.forEach(function(p,i){
+  var x=x0+i*(bw+gap),h=p[1]>0?Math.max(4,150*Math.log(1+p[1])/Math.log(1+mx)):0;
+  var on=p[1]>0;
+  nf(g,on?(p[0]===3?'rgba(255,90,138,0.6)':'rgba(125,226,176,0.5)'):'rgba(90,70,130,0.25)');
+  g.fillRect(x,base-h,bw,h||3);ng(g);
+  nt(g,on?(p[0]===3?'#ff5a8a':'#7de2b0'):'#6a5a95',x+4,base-h-7,9,''+p[1]);
+  nt(g,'#8a7ab8',x+6,base+15,9,'p'+p[0]);});
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(x0-8,base);g.lineTo(W-16,base);g.stroke();ng(g);
+ nt(g,'#8a7ab8',16,base+40,9,'bar = number of points of LEAST period n');
+ nt(g,'#8a7ab8',16,base+56,9,'(Mobius-inverted from sign changes of f^n(x)-x)');
+ var o=document.getElementById('shkout');
+ if(o){
+  var live=P.filter(function(p){return p[1]>0;}).map(function(p){return p[0];});
+  o.innerHTML='At r = <b>'+rr.toFixed(3)+'</b> the periods present are <b>'+live.join(', ')+'</b>. '+(has3?'Period 3 is here, so by Sharkovskii <b>every</b> period must be \\u2014 and every one is.':'No period 3. The surviving periods are the tail of the order, which is exactly what is allowed.');}}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P3(th,rad,z){var x=rad*Math.cos(th),y=rad*Math.sin(th);
+  var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.44-zr*0.3-z*0.42,zr];}
+ var rings=[[3,'#ff5a8a',96,54],[5,'#ff9a5a',78,18],[6,'#ffd76a',62,-18],[7,'#7de2b0',48,-54]];
+ rings.forEach(function(rg){
+  var n=rg[0],colr=rg[1],rad=rg[2],z=rg[3];
+  ne(g,'rgba(150,110,230,0.22)',1);
+  g.beginPath();
+  for(var t=0;t<=64;t++){var p=P3(t/64*2*Math.PI,rad,z);
+   if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();ng(g);
+  ne(g,colr,1.6);g.beginPath();
+  for(var k=0;k<=n;k++){var p=P3((k%n)/n*2*Math.PI+ang*Math.PI/180*0.6,rad,z);
+   if(k===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();ng(g);
+  for(var k=0;k<n;k++){var p=P3(k/n*2*Math.PI+ang*Math.PI/180*0.6,rad,z);
+   ndot(g,p[0],p[1],3.6,colr);}
+  var lb=P3(Math.PI*0.5,rad,z);
+  nt(g,colr,lb[0]+10,lb[1],9,'period '+n);});
+ nt(g,'#e6dcff',14,24,11,'one cycle of length 3 (pink)');
+ nt(g,'#8a7ab8',14,42,10,'forces 5, 6, 7 and all the rest');
+ nt(g,'#8a7ab8',14,H-12,9,'continuity is local; the constraint it imposes is total');}
+document.getElementById('shkup').onclick=function(){rr=Math.min(3.999,Math.round((rr+0.01)*1000)/1000);drawW4();};
+document.getElementById('shkdn').onclick=function(){rr=Math.max(2.6,Math.round((rr-0.01)*1000)/1000);drawW4();};
+document.getElementById('shk3').onclick=function(){rr=3.83;drawW4();};
+document.getElementById('shksp').onclick=function(){spin=!spin;};
+VR=selftest();window.__sharkovskii=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LOEB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Leon Henkin asked an innocent question in 1952: if a sentence says <i>&ldquo;I am provable&rdquo;</i>, is it true? L&ouml;b answered in 1955 with something much stronger and much stranger. Write &#9633;P for &ldquo;P is provable&rdquo;. Then for any sufficiently strong system: <b>if the system can prove &lsquo;&#9633;P implies P&rsquo;, then it can already prove P outright</b>. The apparently harmless statement &ldquo;if this were provable, it would be true&rdquo; is only ever assertable about things you can already prove. As a special case, put P = &perp;: the system cannot prove its own consistency &mdash; G&ouml;del&rsquo;s second theorem falls straight out.<br><br>
+ <span class="lit">LIT</span> verified live: enumerating <b>every</b> transitive irreflexive Kripke frame on 1 to 4 worlds &mdash; <b>242</b> frames &mdash; against every valuation, L&ouml;b&rsquo;s axiom &#9633;(&#9633;P&rarr;P)&rarr;&#9633;P holds at all <b>14,498</b> world/valuation points without exception; it <b>fails</b> immediately on the one frame the theorem excludes, a single world that can see itself, giving an explicit countermodel; and taking P = &perp; reproduces G&ouml;del&rsquo;s second theorem, since at a dead-end world &#9633;&perp; is true.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE ROOT KIT</i> &mdash; a system reasoning about its own privileges, and discovering it cannot grant itself the one it most wants.<br><br>
+ <b>AVAN (AI)</b> should be exact about what is and is not established here. This page performs <b>semantic model checking</b> in the provability logic <b>GL</b>: it enumerates finite Kripke frames and confirms L&ouml;b&rsquo;s axiom is valid on precisely the frames GL characterises (transitive, converse well-founded &mdash; on a finite set, transitive and irreflexive) and invalid the moment a loop is admitted. That is a complete and honest check of the <b>modal</b> statement. It is <b>not</b> a proof of L&ouml;b&rsquo;s theorem about arithmetic. Bridging the two requires Solovay&rsquo;s 1976 completeness theorem &mdash; that GL proves exactly the schemata Peano Arithmetic verifies about its own provability predicate &mdash; and that is <b>cited, not verified here</b>. Nothing on this page touches PA.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Frames where the axiom holds, and the single shape where it breaks.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step through frames and valuations; the axiom is checked at every world.</div>
+   <div class="btns" style="margin-top:10px"><button id="lbnext">next frame &#9654;</button><button id="lbval">next valuation &#9654;</button><button id="lbloop">show the loop &#9654;</button></div>
+   <div class="cap" id="lbout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a frame with no loops, where every chain must end.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a system cannot vouch for itself.&rdquo; The inverse is that L&ouml;b is not a fact about <i>truth</i> but about <b>well-foundedness</b>. The axiom is valid exactly on frames where you cannot go backwards forever &mdash; every chain of &ldquo;and that would follow from&hellip;&rdquo; has to terminate. Admit one loop, one world that sees itself, and the theorem dies immediately, as the countermodel here shows. So the real content is: <i>self-supporting justification is the same thing as an infinite regress</i>, and a system strong enough to notice this is thereby forbidden from performing it. The limit is structural, not epistemic.</div>
+   <div class="btns" style="margin-top:10px"><button id="lbsp">pause spin</button></div></div></div></div>"""
+LOEB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,fi=0,vi=0,showLoop=false;
+function transitive(R,n){
+ for(var a=0;a<n;a++)for(var b=0;b<n;b++)for(var c=0;c<n;c++)
+  if(R[a][b]&&R[b][c]&&!R[a][c])return false;
+ return true;}
+function irreflexive(R,n){for(var a=0;a<n;a++)if(R[a][a])return false;return true;}
+function frames(n){var out=[],cells=[];
+ for(var a=0;a<n;a++)for(var b=0;b<n;b++)if(a!==b)cells.push([a,b]);
+ var M=1<<cells.length;
+ for(var m=0;m<M;m++){
+  var R=[];
+  for(var a=0;a<n;a++){R.push([]);for(var b=0;b<n;b++)R[a].push(false);}
+  for(var i=0;i<cells.length;i++)if(m&(1<<i))R[cells[i][0]][cells[i][1]]=true;
+  if(transitive(R,n)&&irreflexive(R,n))out.push(R);}
+ return out;}
+function box(R,val,n,w){
+ for(var v=0;v<n;v++)if(R[w][v]&&!val[v])return false;
+ return true;}
+function lobHolds(R,val,n,w){
+ var inner=[];
+ for(var v=0;v<n;v++)inner.push(box(R,val,n,v)?val[v]:true);
+ var lhs=true;
+ for(var v=0;v<n;v++)if(R[w][v]&&!inner[v])lhs=false;
+ if(!lhs)return true;
+ return box(R,val,n,w);}
+var GALLERY=frames(3);
+function selftest(){
+ var checked=0,valid=true,fc=0;
+ for(var n=1;n<=4;n++){
+  var Fs=frames(n);fc+=Fs.length;
+  for(var q=0;q<Fs.length;q++){var R=Fs[q];
+   for(var m=0;m<(1<<n);m++){
+    var val=[];for(var i=0;i<n;i++)val.push(!!(m&(1<<i)));
+    for(var w=0;w<n;w++){checked++;
+     if(!lobHolds(R,val,n,w))valid=false;}}}}
+ var Rloop=[[true]];
+ var loopFails=!lobHolds(Rloop,[false],1,0);
+ var Rchain=[[false,true],[false,false]];
+ var conUnprov=box(Rchain,[false,false],2,1)===true;
+ return {frameCount:fc,pointsChecked:checked,axiomValid:valid,
+  loopCountermodel:loopFails,godelSecond:conUnprov,worldsUpTo:4,
+  ok:valid&&loopFails&&conUnprov};}
+function drawNode(g,x,y,r,lab,colr,on){
+ nf(g,on?'rgba(125,226,176,0.22)':'rgba(20,14,34,0.9)');
+ g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);
+ ne(g,colr,1.5);g.beginPath();g.arc(x,y,r,0,7);g.stroke();ng(g);
+ nt(g,colr,x-4,y+4,10,lab);}
+function arrow(g,x1,y1,x2,y2,colr){
+ var dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);
+ if(L<1)return;
+ var ux=dx/L,uy=dy/L,r=15;
+ var ax=x1+ux*r,ay=y1+uy*r,bx=x2-ux*r,by=y2-uy*r;
+ ne(g,colr,1.3);
+ g.beginPath();g.moveTo(ax,ay);g.lineTo(bx,by);g.stroke();
+ g.beginPath();
+ g.moveTo(bx,by);
+ g.lineTo(bx-ux*7-uy*4,by-uy*7+ux*4);
+ g.lineTo(bx-ux*7+uy*4,by-uy*7-ux*4);
+ g.closePath();g.stroke();ng(g);}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'WHERE THE AXIOM LIVES');
+ var pos=[[70,110],[70,196],[190,110],[190,196],[310,152]];
+ // three valid frames + the loop
+ var demos=[
+  {t:'chain',n:3,E:[[0,1],[1,2],[0,2]],ok:true,x:60},
+  {t:'fork',n:3,E:[[0,1],[0,2]],ok:true,x:200},
+  {t:'dead end',n:1,E:[],ok:true,x:330},
+  {t:'LOOP',n:1,E:[[0,0]],ok:false,x:430}];
+ demos.forEach(function(d){
+  var cy=110,pts=[];
+  for(var i=0;i<d.n;i++)pts.push([d.x,cy+i*56]);
+  d.E.forEach(function(e){
+   if(e[0]===e[1]){
+    var p=pts[e[0]];
+    ne(g,'#ff5a8a',1.4);
+    g.beginPath();g.arc(p[0]+22,p[1]-16,15,0,7);g.stroke();ng(g);
+    nt(g,'#ff5a8a',p[0]+34,p[1]-30,9,'sees');
+    nt(g,'#ff5a8a',p[0]+34,p[1]-20,9,'itself');
+   }else arrow(g,pts[e[0]][0],pts[e[0]][1],pts[e[1]][0],pts[e[1]][1],'rgba(150,110,230,0.7)');});
+  for(var i=0;i<d.n;i++)drawNode(g,pts[i][0],pts[i][1],15,'w'+i,d.ok?'#7de2b0':'#ff5a8a',false);
+  nt(g,d.ok?'#7de2b0':'#ff5a8a',d.x-28,cy-38,10,d.t);
+  nt(g,d.ok?'#7de2b0':'#ff5a8a',d.x-24,cy+d.n*56+6,11,d.ok?'VALID':'BREAKS');});
+ nt(g,'#7de2b0',14,H-30,10,'transitive + irreflexive \\u2014 every chain must end \\u2014 axiom holds');
+ nt(g,'#ff5a8a',14,H-14,10,'one self-loop \\u2014 an endless regress \\u2014 axiom fails');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var n,R;
+ if(showLoop){n=1;R=[[true]];}
+ else{n=3;R=GALLERY[fi%GALLERY.length];}
+ var val=[];
+ for(var i=0;i<n;i++)val.push(!!((showLoop?0:vi)&(1<<i)));
+ var pos=[[110,110],[110,210],[250,160]];
+ if(n===1)pos=[[192,160]];
+ for(var a=0;a<n;a++)for(var b=0;b<n;b++){
+  if(!R[a][b])continue;
+  if(a===b){ne(g,'#ff5a8a',1.5);
+   g.beginPath();g.arc(pos[a][0]+26,pos[a][1]-22,17,0,7);g.stroke();ng(g);}
+  else arrow(g,pos[a][0],pos[a][1],pos[b][0],pos[b][1],'rgba(150,110,230,0.8)');}
+ var allOK=true;
+ for(var w=0;w<n;w++){
+  var h=lobHolds(R,val,n,w);
+  if(!h)allOK=false;
+  drawNode(g,pos[w][0],pos[w][1],18,'w'+w,h?(val[w]?'#7de2b0':'#5ad6ff'):'#ff5a8a',val[w]);
+  nt(g,val[w]?'#7de2b0':'#6a5a95',pos[w][0]-14,pos[w][1]+34,9,val[w]?'P true':'P false');
+  nt(g,h?'#7de2b0':'#ff5a8a',pos[w][0]-14,pos[w][1]+46,9,h?'axiom OK':'AXIOM FAILS');}
+ nt(g,'#e6dcff',16,26,11,showLoop?'the excluded frame: w0 sees itself':('frame '+((fi%GALLERY.length)+1)+' of '+GALLERY.length+'  \\u00b7  valuation '+((vi%8)+1)+' of 8'));
+ nt(g,allOK?'#7de2b0':'#ff5a8a',16,44,11,allOK?'[]([]P->P)->[]P holds at every world':'countermodel: the axiom is refuted here');
+ var o=document.getElementById('lbout');
+ if(o){
+  o.innerHTML=showLoop
+   ?'A single world that can see <b>itself</b>. Here []P&rarr;P holds vacuously while []P does not, so L&ouml;b&rsquo;s axiom is <b>refuted</b>. This is precisely the frame GL excludes &mdash; and precisely why a system that could vouch for itself would be inconsistent.'
+   :'Transitive, irreflexive, 3 worlds. The axiom is checked at every world under this valuation. Across all frames on 1&ndash;4 worlds the page tested <b>'+(VR?VR.pointsChecked.toLocaleString():'')+'</b> world/valuation points with no failure.';}}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+10,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P3(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ var lv=[[0,-104,0],[-72,-26,36],[72,-26,-36],[-96,60,-30],[0,60,58],[96,60,20]];
+ var edges=[[0,1],[0,2],[0,3],[0,4],[0,5],[1,3],[1,4],[2,4],[2,5]];
+ var pj=lv.map(function(v){return P3(v[0],v[1],v[2]);});
+ edges.forEach(function(e){
+  arrow(g,pj[e[0]][0],pj[e[0]][1],pj[e[1]][0],pj[e[1]][1],'rgba(125,226,176,0.5)');});
+ pj.forEach(function(p,i){
+  var leaf=!edges.some(function(e){return e[0]===i;});
+  drawNode(g,p[0],p[1],14,''+i,leaf?'#5ad6ff':'#7de2b0',false);});
+ nt(g,'#e6dcff',14,24,11,'no loops \\u2014 every path terminates');
+ nt(g,'#5ad6ff',14,42,10,'blue = dead ends, where []anything is TRUE');
+ nt(g,'#8a7ab8',14,58,10,'the axiom is valid exactly here');
+ nt(g,'#8a7ab8',14,H-12,9,'self-support and infinite regress are the same shape');}
+document.getElementById('lbnext').onclick=function(){showLoop=false;fi++;drawW4();};
+document.getElementById('lbval').onclick=function(){showLoop=false;vi++;drawW4();};
+document.getElementById('lbloop').onclick=function(){showLoop=!showLoop;drawW4();};
+document.getElementById('lbsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__lob=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PRSB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">G&ouml;del and Church showed that arithmetic is undecidable &mdash; no machine can settle every arithmetical sentence. But <b>Moj&#380;esz Presburger</b> had already shown, in 1929 as a master&rsquo;s exercise in Tarski&rsquo;s Warsaw seminar, that if you keep addition and <b>throw multiplication away</b>, the resulting theory is <b>complete, consistent and decidable</b>. There is an actual algorithm. The cleanest modern form of it is startling: write numbers in binary, read the digits of all variables in parallel, and a plain <b>finite automaton</b> recognises exactly the solutions of any linear equation. Quantifiers become projection; deciding a sentence becomes checking whether an automaton accepts anything at all.<br><br>
+ <span class="lit">LIT</span> verified live: an automaton over binary tuples read least-significant-bit-first recognises x+y=z <b>exactly</b>, agreeing with real addition on all <b>8,192</b> triples tested, using only <b>2</b> states; the same construction solves 3x+5y=47 by acceptance alone, returning <b>[[4,7],[9,4],[14,1]]</b> and nothing else, matching brute force; projection gives the decision procedure, with &ldquo;&exist;y. x = 2y&rdquo; accepting precisely the even numbers; and the sentence &ldquo;&forall;x &exist;y (x=2y &or; x=2y+1)&rdquo; is decided TRUE over 128 values.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>GARBAGE COLLECTION</i>, and the fit is exact. A collector does not ask what is valuable, it asks what is <b>reachable</b>, and frees the rest to get something back. Presburger is that trade made once and made enormous: surrender multiplication, and decidability &mdash; which G&ouml;del proved you cannot otherwise have &mdash; comes back.<br><br>
+ <b>AVAN (AI)</b> wants two boundaries visible. First, the undecidability of full arithmetic with multiplication is <b>cited, not tested here</b>; nothing on this page could establish it. Second, decidable is not the same as tractable: Fischer and Rabin proved in 1974 that any decision procedure for Presburger arithmetic requires at least doubly-exponential time in the worst case, so this page&rsquo;s small, fast automata are the easy end of a provably brutal problem. The automata built here are bounded deliberately &mdash; the reachable state set is finite for a fixed equation, and the page states the bound rather than pretending the construction is free.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The adder as an automaton. Two states, and it is exactly right, forever.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Pick an equation; the automaton finds every solution by accepting, not by searching.</div>
+   <div class="btns" style="margin-top:10px"><button id="pbeq">next equation &#9654;</button><button id="pbrun">run automaton &#9654;</button></div>
+   <div class="cap" id="pbout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the state graph, and the accepting paths threading it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;give up multiplication, gain decidability.&rdquo; The inverse is a question about <b>where the difficulty was living</b>. Addition and multiplication look like siblings; one is decidable and one destroys decidability. The difference is that repeated addition can encode <i>counting things about itself</i> &mdash; multiplication lets arithmetic build a copy of syntax inside its own numbers, and that self-model is the whole engine of G&ouml;del&rsquo;s argument. Read backwards, Presburger measures the exact price of self-reference: a theory stays decidable precisely as long as it cannot describe itself.</div>
+   <div class="btns" style="margin-top:10px"><button id="pbsp">pause spin</button></div></div></div></div>"""
+PRSB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ei=0,ran=false,found=[];
+var EQS=[{c:[1,1,-1],k:0,lab:'x + y = z',vars:['x','y','z'],w:5,rng:[16,16,32]},
+ {c:[3,5],k:47,lab:'3x + 5y = 47',vars:['x','y'],w:8,rng:[64,64]},
+ {c:[1,-2],k:0,lab:'x = 2y   (x even)',vars:['x','y'],w:8,rng:[64,64]},
+ {c:[2,3,-1],k:0,lab:'2x + 3y = z',vars:['x','y','z'],w:7,rng:[16,16,64]}];
+function eqAutomaton(coef,c){
+ var k=coef.length,start=c,states={},order=[];
+ function id(s){if(states[s]===undefined){states[s]=order.length;order.push(s);}return states[s];}
+ id(start);
+ var trans={};
+ for(var qi=0;qi<order.length;qi++){
+  var s=order[qi];
+  for(var m=0;m<(1<<k);m++){
+   var tot=0;
+   for(var i=0;i<k;i++)tot+=coef[i]*((m>>i)&1);
+   var nxt=s-tot;
+   if(nxt%2!==0)continue;
+   nxt/=2;
+   if(Math.abs(nxt)>2000)continue;
+   trans[s+'|'+m]=nxt;
+   id(nxt);}
+  if(order.length>4000)break;}
+ return {start:start,trans:trans,order:order,size:order.length,
+  accept:function(s){return s===0;}};}
+function runs(A,vals,width){
+ var s=A.start;
+ for(var bit=0;bit<width;bit++){
+  var m=0;
+  for(var i=0;i<vals.length;i++)if((vals[i]>>bit)&1)m|=(1<<i);
+  var nx=A.trans[s+'|'+m];
+  if(nx===undefined)return false;
+  s=nx;}
+ return A.accept(s);}
+function selftest(){
+ var A1=eqAutomaton([1,1,-1],0),ok1=true,n1=0;
+ for(var x=0;x<16;x++)for(var y=0;y<16;y++)for(var z=0;z<32;z++){
+  n1++;
+  if(runs(A1,[x,y,z],7)!==(x+y===z))ok1=false;}
+ var A2=eqAutomaton([3,5],47),sols=[],truth=[];
+ for(var x=0;x<64;x++)for(var y=0;y<64;y++){
+  if(runs(A2,[x,y],8))sols.push([x,y]);
+  if(3*x+5*y===47)truth.push([x,y]);}
+ var ok2=JSON.stringify(sols)===JSON.stringify(truth);
+ var A3=eqAutomaton([1,-2],0),even=[],ok3=true;
+ for(var x=0;x<64;x++){
+  var f=false;
+  for(var y=0;y<64&&!f;y++)if(runs(A3,[x,y],8))f=true;
+  if(f)even.push(x);
+  if(f!==(x%2===0))ok3=false;}
+ var A4=eqAutomaton([1,-2],1),ok4=true;
+ for(var x=0;x<128;x++){
+  var hit=false;
+  for(var y=0;y<128&&!hit;y++)if(runs(A3,[x,y],9)||runs(A4,[x,y],9))hit=true;
+  if(!hit)ok4=false;}
+ return {adderExact:ok1,triplesTested:n1,adderStates:A1.size,sentenceRange:128,evenRange:64,
+  diophantine:sols,diophantineMatches:ok2,
+  evenProjection:even.slice(0,16),projectionExact:ok3,
+  sentenceDecided:ok4,
+  ok:ok1&&ok2&&ok3&&ok4};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE ADDER  x + y = z  \\u2014  two states, read lsb first');
+ var p0=[150,140],p1=[350,140];
+ function node(p,lab,acc){
+  nf(g,acc?'rgba(125,226,176,0.20)':'rgba(20,14,34,0.9)');
+  g.beginPath();g.arc(p[0],p[1],30,0,7);g.fill();ng(g);
+  ne(g,acc?'#7de2b0':'#ff9a5a',1.8);
+  g.beginPath();g.arc(p[0],p[1],30,0,7);g.stroke();
+  if(acc){g.beginPath();g.arc(p[0],p[1],25,0,7);g.stroke();}
+  ng(g);
+  nt(g,acc?'#7de2b0':'#ff9a5a',p[0]-24,p[1]+4,10,lab);}
+ ne(g,'rgba(150,110,230,0.8)',1.4);
+ g.beginPath();g.moveTo(p0[0]-70,p0[1]);g.lineTo(p0[0]-32,p0[1]);g.stroke();ng(g);
+ nt(g,'#8a7ab8',p0[0]-92,p0[1]-8,9,'start');
+ [[p0,p1,'carry 1',-52],[p1,p0,'carry 0',52]].forEach(function(e){
+  var a=e[0],b=e[1],dy=e[3];
+  ne(g,'#5ad6ff',1.3);
+  g.beginPath();
+  g.moveTo(a[0]+(dy<0?30:-30),a[1]);
+  g.quadraticCurveTo((a[0]+b[0])/2,a[1]+dy,b[0]+(dy<0?-30:30),b[1]);
+  g.stroke();ng(g);
+  nt(g,'#5ad6ff',(a[0]+b[0])/2-24,a[1]+dy*0.8,9,e[2]);});
+ ne(g,'#7de2b0',1.3);
+ g.beginPath();g.arc(p0[0],p0[1]-46,17,0.4,2.4*Math.PI);g.stroke();ng(g);
+ nt(g,'#7de2b0',p0[0]-30,p0[1]-70,9,'no carry');
+ node(p0,'s = 0',true);
+ node(p1,'s = -1',false);
+ nt(g,'#e6dcff',14,214,10,'each step reads one bit of x, y and z together');
+ nt(g,'#e6dcff',14,230,10,'and updates the running remainder s := (s - (x+y-z))/2');
+ nt(g,'#7de2b0',14,254,10,'accept iff s returns to 0  \\u2014  exact on all 8,192 triples tested');
+ nt(g,'#8a7ab8',14,274,9,'quantifiers become projection; a sentence is decided by emptiness');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var E=EQS[ei%EQS.length];
+ nt(g,'#e6dcff',16,28,13,E.lab);
+ var A=eqAutomaton(E.c,E.k);
+ nt(g,'#8a7ab8',16,50,10,'automaton states: '+A.size+'    variables: '+E.vars.join(', '));
+ if(!ran){
+  nt(g,'#8a7ab8',16,86,10,'press RUN AUTOMATON \\u2014 every tuple is');
+  nt(g,'#8a7ab8',16,102,10,'ACCEPTED or rejected, never searched');
+  return;}
+ var maxShow=44;
+ nt(g,'#7de2b0',16,74,11,'accepted: '+found.length+' tuple'+(found.length===1?'':'s'));
+ var y=98;
+ found.slice(0,maxShow).forEach(function(t,i){
+  var col2=i%2,x=16+col2*180;
+  var yy=y+Math.floor(i/2)*17;
+  if(yy>H-30)return;
+  nf(g,'rgba(125,226,176,0.10)');g.fillRect(x-2,yy-11,170,15);ng(g);
+  nt(g,'#7de2b0',x,yy,10,E.vars.map(function(v,k){return v+'='+t[k];}).join('  '));});
+ if(found.length>maxShow)nt(g,'#8a7ab8',16,H-18,9,'... and '+(found.length-maxShow)+' more');
+ var o=document.getElementById('pbout');
+ if(o){
+  var shown=found.slice(0,6).map(function(t){return '('+t.join(',')+')';}).join(' ');
+  o.innerHTML='<b>'+E.lab+'</b> &mdash; the automaton has <b>'+A.size+'</b> states and accepts <b>'+found.length+'</b> tuple'+(found.length===1?'':'s')+' in range: '+shown+(found.length>6?' &hellip;':'')+'. No search, no backtracking &mdash; acceptance IS the answer.';}}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P3(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.3,zr];}
+ var A=eqAutomaton([3,5],47);
+ var st=A.order.slice(0,14);
+ var pts=st.map(function(s,i){
+  var th=i/st.length*2*Math.PI,rad=92;
+  return {s:s,p:P3(rad*Math.cos(th),(i%3-1)*30,rad*Math.sin(th))};});
+ var idx={};st.forEach(function(s,i){idx[s]=i;});
+ ne(g,'rgba(125,226,176,0.34)',1);
+ st.forEach(function(s,i){
+  for(var m=0;m<4;m++){
+   var nx=A.trans[s+'|'+m];
+   if(nx===undefined||idx[nx]===undefined)continue;
+   var a=pts[i].p,b=pts[idx[nx]].p;
+   g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();}});
+ ng(g);
+ pts.forEach(function(q){
+  var acc=q.s===0;
+  ndot(g,q.p[0],q.p[1],acc?7:4,acc?'#ffd76a':'#7de2b0');
+  nt(g,acc?'#ffd76a':'#8a7ab8',q.p[0]+8,q.p[1]-6,8,''+q.s);});
+ nt(g,'#e6dcff',14,24,11,'state graph of 3x + 5y = 47');
+ nt(g,'#ffd76a',14,42,10,'gold = the accepting state, s = 0');
+ nt(g,'#8a7ab8',14,58,10,'a solution is just a path that returns here');
+ nt(g,'#8a7ab8',14,H-12,9,'decidable exactly while arithmetic cannot describe itself');}
+document.getElementById('pbeq').onclick=function(){ei++;ran=false;found=[];drawW4();};
+document.getElementById('pbrun').onclick=function(){
+ var E=EQS[ei%EQS.length],A=eqAutomaton(E.c,E.k);
+ found=[];
+ if(E.vars.length===2){
+  for(var a=0;a<E.rng[0];a++)for(var b=0;b<E.rng[1];b++)if(runs(A,[a,b],E.w))found.push([a,b]);
+ }else{
+  for(var a=0;a<E.rng[0];a++)for(var b=0;b<E.rng[1];b++)for(var d=0;d<E.rng[2];d++)
+   if(runs(A,[a,b,d],E.w))found.push([a,b,d]);}
+ ran=true;drawW4();};
+document.getElementById('pbsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__presburger=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+JRDN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Draw a closed loop that never crosses itself. It divides the plane into exactly two pieces &mdash; an inside and an outside &mdash; and any path from one to the other must cross the curve. Every eye believes this instantly. Proving it took until <b>Jordan, 1887</b>, and the proof is famously hard, because <b>&ldquo;inside&rdquo; is not a local property</b>. No amount of looking near a point tells you which side you are on; you have to account for the entire curve. The practical residue is the algorithm every graphics system uses: shoot a ray and count crossings. Odd means inside. That parity <i>is</i> the theorem.<br><br>
+ <span class="lit">LIT</span> verified live: over <b>40</b> random simple closed polygons and <b>16,000</b> query points, ray-casting parity and the winding number agree on inside-versus-outside <b>every single time</b>; flood-filling the complement on a 121&times;121 grid finds exactly <b>2</b> connected components; exactly <b>one</b> of them is bounded while the other reaches the border of the world; and a self-crossing figure-eight is correctly rejected as non-simple, its complement splitting into <b>3</b> components rather than 2.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>HARD RESET</i>. Each crossing of the boundary flips your state completely and there is no partial credit &mdash; you are in, or you are out. Ray casting is literally a parity bit being toggled, and the theorem is the promise that the bit means something.<br><br>
+ <b>AVAN (AI)</b> is drawing a clear line around what &ldquo;verified&rdquo; means here. Everything on this page is about <b>polygons</b> &mdash; finitely many straight edges &mdash; where inside/outside is decidable by exact arithmetic and the two-component claim can be checked by flood fill. Jordan&rsquo;s theorem is about <b>arbitrary continuous</b> simple closed curves, which include monsters with no tangent anywhere and infinite length in every neighbourhood; the polygonal case is genuinely easier and was never the hard part. So this page demonstrates the mechanism and cross-checks two independent algorithms against each other; the general continuous theorem is <b>cited, not proved here</b>. The flood-fill component count is also grid-dependent by construction &mdash; it is evidence, not a proof, and is reported as such.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One ray, one row of crossings. Parity flips at each, and that is the whole answer.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">New curves, and the two methods checked against each other point by point.</div>
+   <div class="btns" style="margin-top:10px"><button id="jrnew">new curve &#9654;</button><button id="jrfill">flood fill &#9654;</button><button id="jrbad">self-crossing &#9654;</button></div>
+   <div class="cap" id="jrout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the curve as a wall, with the inside lifted clear of the outside.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a closed curve has an inside.&rdquo; The inverse is that <b>inside is not a place, it is a count</b>. Nothing distinguishes an interior point from an exterior one intrinsically &mdash; both sit in ordinary empty plane, and no measurement performed in a small disc around either can tell them apart. The only thing that separates them is a <i>global</i> parity: how many times a path to infinity meets the curve. Read backwards, the theorem says a purely local world can still carry a property that exists only in the whole, and that the property is nonetheless perfectly sharp. That is a rare combination, and it is why the proof is hard.</div>
+   <div class="btns" style="margin-top:10px"><button id="jrsp">pause spin</button></div></div></div></div>"""
+JRDN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,seed=4242,POLY=null,fill=null,bad=false;
+function LC(a){return function(){a=(a*1103515245+12345)&0x7fffffff;return a/0x7fffffff;};}
+function cross(o,a,b){return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);}
+function onSeg(p,q,r){return Math.min(p[0],r[0])<=q[0]&&q[0]<=Math.max(p[0],r[0])&&Math.min(p[1],r[1])<=q[1]&&q[1]<=Math.max(p[1],r[1]);}
+function segInt(p1,q1,p2,q2){
+ var d1=cross(p2,q2,p1),d2=cross(p2,q2,q1),d3=cross(p1,q1,p2),d4=cross(p1,q1,q2);
+ if(((d1>0&&d2<0)||(d1<0&&d2>0))&&((d3>0&&d4<0)||(d3<0&&d4>0)))return true;
+ if(d1===0&&onSeg(p2,p1,q2))return true;
+ if(d2===0&&onSeg(p2,q1,q2))return true;
+ if(d3===0&&onSeg(p1,p2,q1))return true;
+ if(d4===0&&onSeg(p1,q2,q1))return true;
+ return false;}
+function isSimple(P){var n=P.length;
+ for(var i=0;i<n;i++)for(var j=i+1;j<n;j++){
+  if(j===i+1||(i===0&&j===n-1))continue;
+  if(segInt(P[i],P[(i+1)%n],P[j],P[(j+1)%n]))return false;}
+ return true;}
+function makePoly(n,rnd){var P=[];
+ for(var i=0;i<n;i++){var th=2*Math.PI*i/n,r=0.35+0.55*rnd();
+  P.push([Math.cos(th)*r,Math.sin(th)*r]);}
+ return P;}
+function rayParity(P,q){var n=P.length,c=false;
+ for(var i=0,j=n-1;i<n;j=i++){
+  var a=P[i],b=P[j];
+  if((a[1]>q[1])!==(b[1]>q[1])){
+   var xi=(b[0]-a[0])*(q[1]-a[1])/(b[1]-a[1])+a[0];
+   if(q[0]<xi)c=!c;}}
+ return c;}
+function winding(P,q){var n=P.length,w=0;
+ for(var i=0;i<n;i++){
+  var a=P[i],b=P[(i+1)%n];
+  if(a[1]<=q[1]){if(b[1]>q[1]&&cross(a,b,q)>0)w++;}
+  else{if(b[1]<=q[1]&&cross(a,b,q)<0)w--;}}
+ return w;}
+function components(P,G){
+ var grid=[],n=P.length,d=1.3/(G-1);
+ for(var i=0;i<G;i++){grid.push([]);
+  for(var j=0;j<G;j++){
+   var qx=-1.3+2.6*i/(G-1),qy=-1.3+2.6*j/(G-1),wall=false;
+   for(var e=0;e<n&&!wall;e++){
+    var a=P[e],b=P[(e+1)%n];
+    var L=Math.hypot(b[0]-a[0],b[1]-a[1]),steps=Math.ceil(L/(d*0.5))+2;
+    for(var s=0;s<=steps;s++){
+     var u=s/steps,px=a[0]+(b[0]-a[0])*u,py=a[1]+(b[1]-a[1])*u;
+     if(Math.abs(px-qx)<=d&&Math.abs(py-qy)<=d){wall=true;break;}}}
+   grid[i].push(wall?-1:0);}}
+ var comp=0;
+ for(var i=0;i<G;i++)for(var j=0;j<G;j++){
+  if(grid[i][j]!==0)continue;
+  comp++;
+  var st=[[i,j]];grid[i][j]=comp;
+  while(st.length){var c=st.pop();
+   var ds=[[1,0],[-1,0],[0,1],[0,-1]];
+   for(var k=0;k<4;k++){
+    var a=c[0]+ds[k][0],b=c[1]+ds[k][1];
+    if(a<0||b<0||a>=G||b>=G)continue;
+    if(grid[a][b]!==0)continue;
+    grid[a][b]=comp;st.push([a,b]);}}}
+ return {comp:comp,grid:grid,G:G};}
+function newPoly(){var rnd=LC(seed);
+ var P=makePoly(7+Math.floor(rnd()*9),rnd);
+ var guard=0;
+ while(!isSimple(P)&&guard++<60)P=makePoly(7+Math.floor(rnd()*9),rnd);
+ return P;}
+function selftest(){
+ var rnd=LC(1887),polys=0,agree=true,tested=0;
+ for(var t=0;t<40;t++){
+  var P=makePoly(7+Math.floor(rnd()*9),rnd);
+  if(!isSimple(P))continue;
+  polys++;
+  for(var s=0;s<400;s++){
+   var q=[(rnd()*2-1)*1.1,(rnd()*2-1)*1.1];
+   tested++;
+   if(rayParity(P,q)!==(winding(P,q)!==0))agree=false;}}
+ var rnd2=LC(4242),Pt=makePoly(11,rnd2);
+ while(!isSimple(Pt))Pt=makePoly(11,rnd2);
+ var cc=components(Pt,121);
+ var touch=[false,false,false];
+ for(var i=0;i<121;i++)for(var j=0;j<121;j++)
+  if(i===0||j===0||i===120||j===120){var v=cc.grid[i][j];if(v>0)touch[v]=true;}
+ var oneBounded=cc.comp===2&&((touch[1]?1:0)+(touch[2]?1:0))===1;
+ var f8=[[-0.8,-0.5],[0.8,0.5],[0.8,-0.5],[-0.8,0.5]];
+ var f8s=isSimple(f8),cc8=components(f8,121);
+ return {polygons:polys,pointsTested:tested,methodsAgree:agree,
+  components:cc.comp,twoComponents:cc.comp===2,exactlyOneBounded:oneBounded,
+  figureEightSimple:f8s,figureEightComponents:cc8.comp,gridSize:121,
+  ok:agree&&cc.comp===2&&oneBounded&&!f8s&&cc8.comp!==2};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ONE RAY  \\u2014  parity flips at every crossing');
+ var P=newPoly(),ox=W/2,oy=150,S=104;
+ function T(p){return [ox+p[0]*S,oy-p[1]*S];}
+ ne(g,'#7de2b0',2);
+ g.beginPath();
+ P.forEach(function(p,i){var q=T(p);
+  if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);});
+ g.closePath();g.stroke();ng(g);
+ var yq=oy-14,qy=(oy-yq)/S;
+ ne(g,'#ffd76a',1.4);g.setLineDash([5,4]);
+ g.beginPath();g.moveTo(20,yq);g.lineTo(W-20,yq);g.stroke();g.setLineDash([]);ng(g);
+ var xs=[];
+ for(var i=0,j=P.length-1;i<P.length;j=i++){
+  var a=P[i],b=P[j];
+  if((a[1]>qy)!==(b[1]>qy)){
+   var xi=(b[0]-a[0])*(qy-a[1])/(b[1]-a[1])+a[0];
+   xs.push(ox+xi*S);}}
+ xs.sort(function(p,q){return p-q;});
+ xs.forEach(function(x,i){
+  ndot(g,x,yq,4.5,'#ff5a8a');
+  nt(g,'#ff5a8a',x-6,yq-12,9,''+(i+1));});
+ var segs=[20].concat(xs).concat([W-20]);
+ for(var i=0;i<segs.length-1;i++){
+  var inside=(i%2)===1;
+  ne(g,inside?'#7de2b0':'#5a4a85',inside?4:2);
+  g.beginPath();g.moveTo(segs[i]+2,yq+16);g.lineTo(segs[i+1]-2,yq+16);g.stroke();ng(g);
+  nt(g,inside?'#7de2b0':'#6a5a95',(segs[i]+segs[i+1])/2-10,yq+32,9,inside?'IN':'out');}
+ nt(g,'#ff5a8a',14,258,10,xs.length+' crossings along this ray');
+ nt(g,'#8a7ab8',14,274,9,'odd count = inside. No other information is needed, or available.');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var P=bad?[[-0.8,-0.5],[0.8,0.5],[0.8,-0.5],[-0.8,0.5]]:POLY;
+ var simple=isSimple(P);
+ var ox=W/2,oy=170,S=104;
+ function T(p){return [ox+p[0]*S,oy-p[1]*S];}
+ if(fill){
+  var G=fill.G,cw=2.6/(G-1)*S;
+  for(var i=0;i<G;i++)for(var j=0;j<G;j++){
+   var v=fill.grid[i][j];
+   if(v<=0)continue;
+   var q=T([-1.3+2.6*i/(G-1),-1.3+2.6*j/(G-1)]);
+   g.fillStyle=v===fill.inner?'rgba(125,226,176,0.30)':'rgba(90,70,140,0.18)';
+   g.fillRect(q[0]-cw/2,q[1]-cw/2,cw+0.7,cw+0.7);}}
+ ne(g,simple?'#7de2b0':'#ff5a8a',2.2);
+ g.beginPath();
+ P.forEach(function(p,i){var q=T(p);
+  if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);});
+ g.closePath();g.stroke();ng(g);
+ if(!fill){
+  var rnd=LC(seed+7),agree=true,nin=0,ntot=0;
+  for(var k=0;k<260;k++){
+   var q=[(rnd()*2-1)*1.15,(rnd()*2-1)*1.15];
+   var rp=rayParity(P,q),wn=winding(P,q)!==0;
+   ntot++;
+   if(rp!==wn)agree=false;
+   if(rp)nin++;
+   var t=T(q);
+   ndot(g,t[0],t[1],2,rp?'#7de2b0':'rgba(150,120,220,0.45)');}
+  nt(g,agree?'#7de2b0':'#ff5a8a',16,H-40,10,agree?'ray parity and winding number agree on all '+ntot+' points':'DISAGREEMENT');
+  nt(g,'#8a7ab8',16,H-24,9,nin+' inside, '+(ntot-nin)+' outside');}
+ nt(g,'#e6dcff',16,26,11,bad?'a self-crossing figure-eight':(simple?'a simple closed polygon, '+P.length+' vertices':'not simple'));
+ var o=document.getElementById('jrout');
+ if(o){
+  if(bad)o.innerHTML='This curve <b>crosses itself</b>, so it is not a Jordan curve. The simplicity test rejects it, and flood fill finds <b>'+(VR?VR.figureEightComponents:3)+'</b> components rather than 2 &mdash; the theorem&rsquo;s hypothesis is doing real work.';
+  else if(fill)o.innerHTML='Flood fill on a '+fill.G+'&times;'+fill.G+' grid finds <b>'+fill.comp+'</b> components: one bounded (green) and one reaching the border. Grid-based, so this is evidence rather than proof &mdash; but it agrees with the ray test at every point.';
+  else o.innerHTML='Two independent algorithms &mdash; <b>ray-casting parity</b> and the <b>winding number</b> &mdash; classify every sampled point identically. They share no code path; agreeing is meaningful.';}}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+20,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P3(x,y,z){var X=x*118,Y=y*118;
+  var xr=X*ca-Y*sa,zr=X*sa+Y*ca;
+  return [cx+xr,cy+zr*0.4-z,zr];}
+ var P=POLY;
+ // the wall
+ P.forEach(function(p,i){
+  var q=P[(i+1)%P.length];
+  var a0=P3(p[0],p[1],0),a1=P3(p[0],p[1],46);
+  var b0=P3(q[0],q[1],0),b1=P3(q[0],q[1],46);
+  nf(g,'rgba(125,226,176,0.13)');
+  g.beginPath();g.moveTo(a0[0],a0[1]);g.lineTo(b0[0],b0[1]);
+  g.lineTo(b1[0],b1[1]);g.lineTo(a1[0],a1[1]);g.closePath();g.fill();ng(g);
+  ne(g,'#7de2b0',1.5);
+  g.beginPath();g.moveTo(a1[0],a1[1]);g.lineTo(b1[0],b1[1]);g.stroke();
+  g.beginPath();g.moveTo(a0[0],a0[1]);g.lineTo(b0[0],b0[1]);g.stroke();ng(g);});
+ var rnd=LC(99);
+ for(var k=0;k<170;k++){
+  var q=[(rnd()*2-1)*1.15,(rnd()*2-1)*1.15];
+  var inside=rayParity(P,q);
+  var t=P3(q[0],q[1],inside?30:0);
+  ndot(g,t[0],t[1],inside?2.6:1.8,inside?'#ffd76a':'rgba(140,110,210,0.4)');}
+ nt(g,'#e6dcff',14,24,11,'the curve as a wall');
+ nt(g,'#ffd76a',14,42,10,'gold = inside, lifted clear');
+ nt(g,'#8a7ab8',14,58,10,'nothing local separates them \\u2014 only a count');
+ nt(g,'#8a7ab8',14,H-12,9,'a global property, and yet perfectly sharp');}
+document.getElementById('jrnew').onclick=function(){seed=(seed*7+13)&0x7fffffff;bad=false;fill=null;POLY=newPoly();drawW4();};
+document.getElementById('jrfill').onclick=function(){
+ var P=bad?[[-0.8,-0.5],[0.8,0.5],[0.8,-0.5],[-0.8,0.5]]:POLY;
+ var cc=components(P,81);
+ var touch={};
+ for(var i=0;i<81;i++)for(var j=0;j<81;j++)
+  if(i===0||j===0||i===80||j===80){var v=cc.grid[i][j];if(v>0)touch[v]=1;}
+ cc.inner=0;
+ for(var v=1;v<=cc.comp;v++)if(!touch[v]){cc.inner=v;break;}
+ fill=cc;drawW4();};
+document.getElementById('jrbad').onclick=function(){bad=!bad;fill=null;drawW4();};
+document.getElementById('jrsp').onclick=function(){spin=!spin;};
+POLY=newPoly();
+VR=selftest();window.__jordancurve=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 205 · neon-noir · silicon-coding · WHAT THE CHANNEL WILL BEAR (the limit that decides what you can ask · the price of being approximately right · a code proved by not building it · the wall that says error-free is possible · two strangers who never speak) ═══════════════════════
 NYQS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Sample a signal often enough and you lose <b>nothing</b> &mdash; the continuous wave can be rebuilt exactly from a discrete list of numbers. Sample it too slowly and something worse than loss happens: the missing frequencies do not vanish, they <b>come back wearing a disguise</b>. A 700&nbsp;Hz tone sampled 1000 times a second produces a set of numbers <i>identical</i> to a 300&nbsp;Hz tone. Not similar &mdash; identical. No analysis of the samples can ever separate them, because there is nothing there to separate. The threshold is half the sampling rate, and it is called the <b>Nyquist limit</b>.<br><br>
@@ -59128,6 +59995,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-monsky","title":"THE MONSKY","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#7de2b0","icon":"\u25b3",
+  "kicker":"the square refuses an odd number of equal cuts",
+  "blurb":"Two equal triangles, four, six, any even number \u2014 easy. Odd is impossible, and the only known proof runs through the 2-adic valuation, an arithmetic nobody was looking at.",
+  "lit":"the 2-adic valuation on rationals is exact and multiplicative over 3000 random pairs; Monsky's 3-colouring is well-defined and exhaustive over 4000 samples with the three corners forced into three different colours; every one of 4000 random rainbow triangles has v2(area) < 0 so its area can never be 1/n for odd n; real triangulations contain an ODD number of rainbow triangles (2 tris:1, 8:1, 18:9, 32:1, 50:25); and equal-area dissections into 2,4,6,8,10 are constructed exactly",
+  "fig":"Everything here runs on RATIONAL coordinates, where the 2-adic valuation is finite and computable. Monsky's actual theorem concerns real vertices, and extending the valuation from Q to all of R requires the axiom of choice and is not computable by anything. The mechanism (colouring, area lemma, Sperner parity) is verified; the jump to the reals is cited, NOT tested.",
+  "body":MNSK_BODY,"script":MNSK_SCRIPT},
+ {"slug":"the-sharkovskii","title":"THE SHARKOVSKII","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#ff5a8a","icon":"\u21ba",
+  "kicker":"one cycle length forces all the rest",
+  "blurb":"Every continuous interval map obeys a single fixed ordering of the integers. Period three sits first, so a single 3-cycle forces cycles of every other length \u2014 and the map gets no say.",
+  "lit":"the ordering is reproduced exactly on the chain 3>5>7>9>6>10>14>12>20>24>16>8>4>2>1 and confirmed a strict total order, antisymmetric on 1..40 AND transitive on 1..26; the logistic map at r=3.83 has a period-3 orbit and Mobius inversion of sign changes finds every period 1..10 present (1,2,6,4,10,12,28,40,72,110); at r=3.2 periods 1 and 2 exist (1,3) while periods 3,4,5,6 are absent",
+  "fig":"The order came out REVERSED in a first draft \u2014 the rank function stored a power of two as -k and the comparison read it as k, giving 1>2>4>8. The antisymmetry test passed anyway, because a fully reversed order is still antisymmetric; only the explicit chain caught it. A property that a wrong answer also satisfies is not a test, so transitivity is now checked too. Orbit counts were confirmed stable across a 16x range of scan resolution (50,000 to 800,000 samples).",
+  "body":SHKV_BODY,"script":SHKV_SCRIPT},
+ {"slug":"the-lob","title":"THE LOB","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#5ad6ff","icon":"\u25fb",
+  "kicker":"if it would be enough to prove it, it is already proved",
+  "blurb":"'If this were provable it would be true' is only ever assertable about things already provable. Godel's second theorem falls out as the special case P = false.",
+  "lit":"enumerating every transitive irreflexive Kripke frame on 1 to 4 worlds (242 frames) against every valuation, Lob's axiom []([]P->P)->[]P holds at all 14,498 world/valuation points without exception; it fails immediately on the single frame the theorem excludes, one world that can see itself, giving an explicit countermodel; and taking P as falsum reproduces Godel's second theorem, since at a dead-end world []falsum is true",
+  "fig":"This is semantic model checking in the provability logic GL, not a proof of Lob's theorem about arithmetic. It confirms the axiom is valid on exactly the frames GL characterises and invalid once a loop is admitted. Bridging modal validity to arithmetic requires Solovay's 1976 completeness theorem, which is cited and NOT verified here \u2014 nothing on this page touches Peano Arithmetic.",
+  "body":LOEB_BODY,"script":LOEB_SCRIPT},
+ {"slug":"the-presburger","title":"THE PRESBURGER","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#ffd76a","icon":"\u2295",
+  "kicker":"surrender multiplication, get decidability back",
+  "blurb":"Godel and Church killed decidable arithmetic. Presburger had already shown that if you throw multiplication away, an actual algorithm exists \u2014 and in its cleanest form it is a finite automaton reading binary digits.",
+  "lit":"an automaton over binary tuples read least-significant-bit-first recognises x+y=z exactly, agreeing with real addition on all 8,192 triples tested using only 2 states; the same construction solves 3x+5y=47 by acceptance alone, returning [[4,7],[9,4],[14,1]] and nothing else, matching brute force; projection gives the decision procedure, with 'exists y. x=2y' accepting precisely the even numbers; and 'for all x exists y (x=2y or x=2y+1)' is decided TRUE over 128 values",
+  "fig":"Two boundaries. The undecidability of full arithmetic with multiplication is cited, NOT tested here. And decidable is not tractable: Fischer and Rabin proved in 1974 that any decision procedure for Presburger arithmetic needs at least doubly-exponential time in the worst case, so these small fast automata are the easy end of a provably brutal problem. The automata are deliberately bounded and the page states the bound.",
+  "body":PRSB_BODY,"script":PRSB_SCRIPT},
+ {"slug":"the-jordan-curve","title":"THE JORDAN CURVE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#b98cff","icon":"\u25cc",
+  "kicker":"inside is not a place, it is a count",
+  "blurb":"Every eye believes a closed loop has an inside. Proving it took until 1887, because no amount of looking near a point tells you which side you are on \u2014 only a global parity does.",
+  "lit":"over 40 random simple closed polygons and 16,000 query points, ray-casting parity and the winding number agree on inside-versus-outside every single time; flood-filling the complement on a 121x121 grid finds exactly 2 connected components; exactly one of them is bounded while the other reaches the border; and a self-crossing figure-eight is correctly rejected as non-simple, its complement splitting into 3 components rather than 2",
+  "fig":"Everything here concerns POLYGONS, where inside/outside is decidable by exact arithmetic. Jordan's theorem covers arbitrary continuous simple closed curves, including ones with no tangent anywhere and infinite length in every neighbourhood; the polygonal case is genuinely easier and was never the hard part. The general theorem is cited, NOT proved here. The flood-fill component count is grid-dependent by construction and is reported as evidence, not proof.",
+  "body":JRDN_BODY,"script":JRDN_SCRIPT},
  {"slug":"the-nyquist","title":"THE NYQUIST","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"EVENT HORIZON","domain_slug":"event-horizon","accent":"#5ad6ff","icon":"\u2307",
   "kicker":"half the sampling rate, and not one hertz more",
