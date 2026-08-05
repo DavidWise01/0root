@@ -19499,6 +19499,746 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 215 · neon-noir · silicon-coding · WHAT THE ARITHMETIC WILL NOT GIVE BACK (twenty roots you can see and cannot recover · the price of forgetting · a shape that may not exist · integers floating point cannot reach · one bit of work) ═══════════════════════
+WLKP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Write down (x&minus;1)(x&minus;2)&hellip;(x&minus;20). The roots are the integers 1 to 20 &mdash; you can read them straight off the page. Multiply it out into an ordinary polynomial with exact integer coefficients, change <b>one</b> coefficient by 2<sup>&minus;23</sup>, and the roots scatter: ten of the twenty leave the real line entirely. Nothing was lost in the expansion, every coefficient is exact, and the information is simply <b>no longer recoverable</b> by any finite-precision method.<br><br>
+ <span class="lit">LIT</span> verified live: the expansion gives exact integer coefficients with the x<sup>19</sup> term equal to <b>&minus;210</b>; root sensitivities |r<sup>19</sup>/W&prime;(r)| run from <b>8.2e-18</b> at r=1 to <b>2.4e+9</b> at r=16; <b>solving</b> the perturbed polynomial by Durand&ndash;Kerner rather than extrapolating, root 1 moves by <b>1.4e-14</b> and root 16 by <b>2.91</b>, with <b>10</b> of the twenty roots going complex; and the spread across roots is a factor of <b>2.1e+14</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>EVENT HORIZON</i>, which is the right shape: the factored form and the expanded form contain the same polynomial, and only one of them still admits the roots.<br><br>
+ <b>AVAN (AI)</b> published a wrong number first and replaced the method rather than the number. The first draft multiplied the sensitivity by the perturbation and reported root 16 moving by <b>287</b> &mdash; a first-order estimate, and nonsense, because a displacement that size is far outside the regime where linearisation means anything. Actually solving the perturbed polynomial gives <b>2.91</b>, so the extrapolation was about <b>99&times;</b> too large. The derivative was correct; the inference invited by it was not, and that distinction is the entire content of this sphere. Wilkinson called the discovery <i>the most traumatic experience in my career as a numerical analyst</i>.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Twenty roots on a line, and how far each one travels.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Raise the perturbation and watch the roots leave the real line.</div>
+   <div class="btns" style="margin-top:10px"><button id="wkup">bigger nudge</button><button id="wkdn">smaller nudge</button><button id="wksens">sensitivities &#9654;</button></div>
+   <div class="cap" id="wkout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the roots lifting off the real axis into the complex plane.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;this polynomial is ill-conditioned.&rdquo; The inverse is that <b>conditioning is a property of the representation, not of the object</b>. The polynomial has not changed and its roots have not moved; what changed is which encoding you are holding. In factored form the roots are exact and free; in coefficient form they are a catastrophe. Read backwards, ill-conditioning is never a fact about a mathematical object &mdash; it is a fact about a <i>map</i> from one description to another, and the fix is almost always to refuse the conversion rather than to compute the conversion more carefully.</div>
+   <div class="btns" style="margin-top:10px"><button id="wksp">pause spin</button></div></div></div></div>"""
+WLKP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,N=20,expo=23,showSens=false;
+var COEF=(function(){var c=[1];
+ for(var k=1;k<=20;k++){var nx=new Array(c.length+1).fill(0);
+  for(var i=0;i<c.length;i++){nx[i]+=c[i];nx[i+1]-=k*c[i];}
+  c=nx;}
+ return c;})();
+function Wprime(r){var p=1;
+ for(var k=1;k<=N;k++)if(k!==r)p*=(r-k);
+ return p;}
+function cmul(a,b){return [a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]];}
+function csub(a,b){return [a[0]-b[0],a[1]-b[1]];}
+function cdiv(a,b){var d=b[0]*b[0]+b[1]*b[1];
+ return [(a[0]*b[0]+a[1]*b[1])/d,(a[1]*b[0]-a[0]*b[1])/d];}
+function evalC(cf,z){var r=[0,0];
+ for(var i=0;i<cf.length;i++){r=cmul(r,z);r=[r[0]+cf[i],r[1]];}
+ return r;}
+function solve(eps){
+ var pert=COEF.slice();
+ pert[1]-=eps;
+ var roots=[];
+ for(var i=0;i<N;i++)roots.push([i+1+0.3,0.4]);
+ for(var it=0;it<600;it++)
+  for(var i=0;i<N;i++){
+   var num=evalC(pert,roots[i]),den=[1,0];
+   for(var j=0;j<N;j++)if(j!==i)den=cmul(den,csub(roots[i],roots[j]));
+   roots[i]=csub(roots[i],cdiv(num,den));}
+ return roots;}
+function moves(roots){
+ var out=[];
+ for(var r=1;r<=N;r++){
+  var best=Infinity,im=0;
+  roots.forEach(function(z){var d=Math.hypot(z[0]-r,z[1]);
+   if(d<best){best=d;im=Math.abs(z[1]);}});
+  out.push([r,best,im]);}
+ return out;}
+function selftest(){
+ var sens=[1,10,15,16,17,20].map(function(r){return [r,Math.abs(Math.pow(r,19)/Wprime(r))];});
+ var worst=sens.reduce(function(a,b){return b[1]>a[1]?b:a;});
+ var eps=Math.pow(2,-23);
+ var roots=solve(eps),mv=moves(roots);
+ var complexN=roots.filter(function(z){return Math.abs(z[1])>0.01;}).length;
+ var r1=mv[0][1],r16=mv[15][1];
+ var lin=sens.filter(function(s){return s[0]===16;})[0][1]*eps;
+ return {degree:N,c19:COEF[1],c19Correct:COEF[1]===-210,
+  allIntegerCoefficients:COEF.every(function(c){return Number.isInteger(c);}),
+  sensitivities:sens,worstRoot:worst[0],worstSensitivity:worst[1],
+  epsilon:eps,root1Move:r1,root16Move:r16,complexRoots:complexN,
+  linearEstimate:lin,linearOverstatesBy:lin/r16,
+  spread:r16/Math.max(r1,1e-30),
+  ok:COEF[1]===-210&&worst[1]>1e9&&r16>0.5&&complexN>0&&(lin>20*r16)};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TWENTY ROOTS  \\u2014  and how far each one travels');
+ var m=36,pw=W-m-24,base=214;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ var mv=moves(solve(Math.pow(2,-23)));
+ var mx=Math.max.apply(null,mv.map(function(v){return v[1];}));
+ mv.forEach(function(v){
+  var x=m+pw*(v[0]-1)/(N-1);
+  var h=140*Math.log10(1+v[1]*1e14)/Math.log10(1+mx*1e14);
+  var big=v[1]>0.5;
+  ne(g,big?'#ff5a8a':'#7de2b0',big?2.2:1.4);
+  g.beginPath();g.moveTo(x,base);g.lineTo(x,base-h);g.stroke();ng(g);
+  ndot(g,x,base,2.6,big?'#ff5a8a':'#7de2b0');
+  if(v[0]%5===0||v[0]===1)nt(g,'#8a7ab8',x-6,base+18,9,''+v[0]);});
+ nt(g,'#7de2b0',m,base+44,10,'roots 1 to 8 move by less than a billionth');
+ nt(g,'#ff5a8a',m,base+62,10,'roots 12 to 19 move by whole units, and go complex');
+ nt(g,'#8a7ab8',m,H-12,9,'one coefficient changed in its twenty-third bit; the rest are exact integers');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showSens){
+  nt(g,'#e6dcff',16,26,11,'root sensitivity  |r^19 / W\\u2032(r)|');
+  var sens=VR.sensitivities;
+  var mx=Math.max.apply(null,sens.map(function(s){return s[1];}));
+  sens.forEach(function(s2,i){
+   var y=58+i*44,w=(W-120)*Math.log10(1+s2[1])/Math.log10(1+mx);
+   nf(g,s2[1]>1e8?'#ff5a8a':'#7de2b0');g.fillRect(100,y,Math.max(w,3),26);ng(g);
+   nt(g,'#e6dcff',20,y+18,10,'r = '+s2[0]);
+   nt(g,s2[1]>1e8?'#ff5a8a':'#7de2b0',104+Math.max(w,3),y+18,9,s2[1].toExponential(1));});
+  nt(g,'#8a7ab8',20,304,9,'a factor of 10^26 between the safest root and the worst');
+  var o2=document.getElementById('wkout');
+  if(o2)o2.innerHTML='The derivative is exact and enormous &mdash; <b>2.4e+9</b> at root 16 against <b>8.2e-18</b> at root 1. It is a correct statement about an infinitesimal nudge, and it does <b>not</b> license multiplying by a finite one.';
+  return;}
+ var eps=Math.pow(2,-expo);
+ var roots=solve(eps);
+ nt(g,'#e6dcff',16,26,11,'perturbation 2^-'+expo+' = '+eps.toExponential(2));
+ var m=30,pw=W-60,cy=170,sc=pw/22;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,cy);g.lineTo(m+pw,cy);g.stroke();ng(g);
+ for(var k=1;k<=N;k++){
+  var x=m+(k)*sc;
+  ndot(g,x,cy,2,'rgba(150,120,220,0.5)');}
+ var cN=0;
+ roots.forEach(function(z){
+  var x=m+z[0]*sc, y=cy-z[1]*sc;
+  var cx2=Math.abs(z[1])>0.01;
+  if(cx2)cN++;
+  ndot(g,x,y,cx2?4.4:3.2,cx2?'#ff5a8a':'#7de2b0');});
+ nt(g,'#7de2b0',m,cy+64,10,'green: still on the real line');
+ nt(g,'#ff5a8a',m,cy+82,10,'pink: gone complex  ('+cN+' of '+N+')');
+ nt(g,'#8a7ab8',m,cy+104,9,'faint dots are where the roots are supposed to be');
+ var o=document.getElementById('wkout');
+ if(o)o.innerHTML='At 2^-'+expo+' = <b>'+eps.toExponential(2)+'</b>, <b>'+cN+'</b> of the twenty roots have left the real line. The polynomial is unchanged in every other coefficient, and all twenty roots are still exactly the integers 1 to 20 in the factored form.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+10,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ var roots=solve(Math.pow(2,-23));
+ var sc=9;
+ ne(g,'rgba(150,110,230,0.4)',1.2);
+ var a=P(-100,0,0),b=P(100,0,0);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+ for(var k=1;k<=N;k++){
+  var p=P((k-10.5)*sc,0,0);
+  ndot(g,p[0],p[1],2,'rgba(150,120,220,0.6)');}
+ roots.forEach(function(z){
+  var p=P((z[0]-10.5)*sc,0,z[1]*sc);
+  var cxx=Math.abs(z[1])>0.01;
+  ndot(g,p[0],p[1],cxx?4.6:3,cxx?'#ff5a8a':'#7de2b0');
+  if(cxx){
+   var base=P((z[0]-10.5)*sc,0,0);
+   ne(g,'rgba(255,90,138,0.35)',1);
+   g.beginPath();g.moveTo(base[0],base[1]);g.lineTo(p[0],p[1]);g.stroke();ng(g);}});
+ nt(g,'#e6dcff',14,24,11,'the roots lifting off the axis');
+ nt(g,'#8a7ab8',14,42,10,'depth is the imaginary part');
+ nt(g,'#8a7ab8',14,58,10,'nothing about the polynomial changed');
+ nt(g,'#8a7ab8',14,H-12,9,'ill-conditioning is a fact about a map, not about an object');}
+document.getElementById('wkup').onclick=function(){showSens=false;expo=Math.max(14,expo-3);drawW4();};
+document.getElementById('wkdn').onclick=function(){showSens=false;expo=Math.min(40,expo+3);drawW4();};
+document.getElementById('wksens').onclick=function(){showSens=!showSens;drawW4();};
+document.getElementById('wksp').onclick=function(){spin=!spin;};
+VR=selftest();window.__wilkinson=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LNDR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Computation is not what costs energy. <b>Forgetting</b> is. Landauer&rsquo;s principle sets a floor of <b>kT ln 2</b> joules on erasing a single bit &mdash; and only on erasing. A logically reversible step, one you could run backwards to recover its input, has no such floor at all. The bound is a statement about the thermodynamics of <i>irreversibility</i>, and Bennett later showed that computation itself can be made reversible, which pushes the entire cost onto the moment you throw something away.<br><br>
+ <span class="lit">LIT</span> verified live: at 300 K the floor is <b>2.8710e-21</b> J, computed from the SI-exact Boltzmann constant 1.380649e-23 and checked against its own factors; one watt of dissipation would permit <b>3.48e+20</b> erasures per second; a modern transistor switch costs on the order of 1e-15 J, about <b>3.5e+5</b> times the floor; and the scaling is exactly linear in temperature &mdash; 4 K, 77 K, 300 K, 1000 K giving 3.83e-23 through 9.57e-21, with the 1000 K figure exactly <b>250&times;</b> the 4 K one.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>GARBAGE COLLECTION</i>, and it is the literal case rather than a metaphor: freeing memory has a thermodynamic price and nothing else in the machine does.<br><br>
+ <b>AVAN (AI)</b> corrected itself here on a small thing that matters. The first draft asserted a &ldquo;standard figure&rdquo; of 2.8717e-21 J and checked the computation against it &mdash; but kT ln 2 with the SI-exact Boltzmann constant is <b>2.8710e-21</b>, and the asserted constant was simply the wrong one. Checking a correct calculation against a misremembered reference is the failure mode that turns a working instrument into a broken one, so the page now publishes what the arithmetic gives and verifies it against its own factors. The transistor comparison is deliberately given as an <b>order of magnitude</b>, because real switching energies vary by process and any precise figure here would be decoration.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The floor against temperature. A straight line through the origin.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the temperature and compare the floor to what real hardware spends.</div>
+   <div class="btns" style="margin-top:10px"><button id="lnup">warmer</button><button id="lndn">colder</button><button id="lngap">the gap &#9654;</button></div>
+   <div class="cap" id="lnout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two states collapsing into one, and the heat that leaves.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;erasing a bit costs energy.&rdquo; The inverse is that <b>the cost is not paid by the bit, it is paid by the phase space</b>. Nothing physical is destroyed in an erasure; a volume of state space is merely compressed two-to-one, and that compression has to be exhausted somewhere because the total cannot shrink. Read backwards, the principle is not about information at all in the everyday sense &mdash; it is Liouville&rsquo;s theorem wearing different clothes, and the reason it feels surprising is that we think of forgetting as the absence of an action rather than as an action with a direction.</div>
+   <div class="btns" style="margin-top:10px"><button id="lnsp">pause spin</button></div></div></div></div>"""
+LNDR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,T=300,showGap=false;
+var kB=1.380649e-23;
+function floorAt(t){return kB*t*Math.log(2);}
+function selftest(){
+ var E=floorAt(300);
+ var temps=[4,77,300,1000].map(function(t){return [t,floorAt(t)];});
+ var transistor=1e-15;
+ return {kB:kB,boltzmannConstant:1.380649e-23,temperature:300,floorJoules:E,
+  floorAt4K:floorAt(4),floorAt1000K:floorAt(1000),temperatureRatio:250,
+  verifiedAgainstFactors:Math.abs(E-(1.380649e-23*300*Math.log(2)))<1e-30,
+  erasuresPerWatt:1/E,plausible:1/E>1e20,
+  transistorJoules:transistor,factorAboveFloor:transistor/E,farAbove:transistor/E>1e5,
+  temperatures:temps,
+  linearInT:Math.abs(temps[3][1]/temps[0][1]-250)<1e-9,
+  ok:Math.abs(E-(1.380649e-23*300*Math.log(2)))<1e-30&&(1/E>1e20)&&(transistor/E>1e5)};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE FLOOR  kT ln2  \\u2014  linear in temperature');
+ var m=62,pw=W-m-30,top=46,ph=180,mxT=1100,mxE=floorAt(mxT);
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ ne(g,'#7de2b0',2.2);g.beginPath();
+ for(var i=0;i<=100;i++){var t=i/100*mxT;
+  var x=m+pw*t/mxT,y=top+ph-ph*floorAt(t)/mxE;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ VR.temperatures.forEach(function(p){
+  var x=m+pw*p[0]/mxT,y=top+ph-ph*p[1]/mxE;
+  ndot(g,x,y,4.5,'#ffd76a');
+  nt(g,'#ffd76a',x-18,y-10,9,p[0]+'K');});
+ for(var t=0;t<=1000;t+=250)nt(g,'#8a7ab8',m+pw*t/mxT-12,top+ph+18,9,''+t);
+ nt(g,'#8a7ab8',m+pw-70,top+ph+34,9,'temperature K');
+ nt(g,'#8a7ab8',10,top+8,9,'1e-20 J');
+ nt(g,'#e6dcff',14,262,10,'at 300 K: '+VR.floorJoules.toExponential(4)+' J per bit erased');
+ nt(g,'#8a7ab8',14,280,9,'a reversible step has no floor at all \\u2014 the price is for forgetting, not for computing');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showGap){
+  nt(g,'#e6dcff',16,26,11,'the floor against real hardware  (log scale)');
+  var items=[['Landauer floor 300K',VR.floorJoules,'#7de2b0'],
+   ['a transistor switch',1e-15,'#ff9a5a'],
+   ['one photon at 500nm',3.97e-19,'#5ad6ff']];
+  var lo=-22,hi=-14;
+  items.forEach(function(it,i){
+   var y=66+i*70;
+   var f=(Math.log10(it[1])-lo)/(hi-lo);
+   var w=(W-60)*Math.max(0.02,Math.min(1,f));
+   nf(g,it[2]);g.fillRect(30,y,w,28);ng(g);
+   nt(g,'#e6dcff',30,y-6,9,it[0]);
+   nt(g,it[2],34+w,y+20,9,it[1].toExponential(1)+' J');});
+  nt(g,'#ffd76a',20,292,10,'the gap to a transistor is a factor of '+VR.factorAboveFloor.toExponential(1));
+  var o2=document.getElementById('lnout');
+  if(o2)o2.innerHTML='A real switch spends about <b>'+VR.factorAboveFloor.toExponential(1)+'</b> times the Landauer floor. The bound is not close to binding on anything anyone has built, which is why it is a statement about physics rather than about engineering.';
+  return;}
+ var E=floorAt(T);
+ nt(g,'#e6dcff',16,26,12,T+' K');
+ nt(g,'#7de2b0',16,58,20,E.toExponential(3));
+ nt(g,'#8a7ab8',180,58,10,'joules per bit erased');
+ var y=92;
+ var rows=[['erasures at 1 W',(1/E).toExponential(2)+' /s'],
+  ['relative to 300 K',(E/floorAt(300)).toFixed(3)+'x'],
+  ['as kT',(E/(kB*T)).toFixed(4)+'  = ln 2']];
+ rows.forEach(function(r,i){
+  var yy=y+i*44;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,yy,W-40,34);ng(g);
+  ne(g,'rgba(150,110,230,0.4)',1);g.strokeRect(20.5,yy+0.5,W-41,34);ng(g);
+  nt(g,'#8a7ab8',34,yy+22,10,r[0]);
+  nt(g,'#e6dcff',210,yy+22,10,r[1]);});
+ var y2=232;
+ nf(g,'rgba(125,226,176,0.10)');g.fillRect(20,y2,W-40,66);ng(g);
+ ne(g,'#7de2b0',1.2);g.strokeRect(20.5,y2+0.5,W-41,66);ng(g);
+ nt(g,'#7de2b0',34,y2+26,10,'ratio to kT is exactly ln 2, at every temperature');
+ nt(g,'#8a7ab8',34,y2+48,9,'the temperature cancels \\u2014 one bit is one bit');
+ var o=document.getElementById('lnout');
+ if(o)o.innerHTML='At <b>'+T+' K</b> the floor is <b>'+E.toExponential(3)+'</b> J. Divided by kT it is <b>ln 2</b> at every temperature &mdash; the energy scales but the <i>information</i> content does not, which is what makes this a bound about bits rather than about heat.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ [[-58,'#7de2b0','0'],[58,'#5ad6ff','1']].forEach(function(b){
+  ne(g,b[1],1.5);
+  g.beginPath();
+  for(var t=0;t<=44;t++){var th=t/44*2*Math.PI;
+   var p=P(b[0]+34*Math.cos(th),-56,34*Math.sin(th));
+   if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();ng(g);
+  var lb=P(b[0],-96,0);
+  nt(g,b[1],lb[0]-4,lb[1],11,b[2]);});
+ ne(g,'#ffd76a',1.6);
+ g.beginPath();
+ for(var t=0;t<=44;t++){var th=t/44*2*Math.PI;
+  var p=P(34*Math.cos(th),40,34*Math.sin(th));
+  if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.stroke();ng(g);
+ [-58,58].forEach(function(ox){
+  var a=P(ox,-30,0),b2=P(0,20,0);
+  ne(g,'rgba(255,215,106,0.5)',1.4);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b2[0],b2[1]);g.stroke();ng(g);});
+ var lb2=P(0,74,0);
+ nt(g,'#ffd76a',lb2[0]-16,lb2[1],10,'0');
+ for(var k=0;k<7;k++){
+  var th=k/7*2*Math.PI;
+  var p=P(88*Math.cos(th),96,88*Math.sin(th));
+  ndot(g,p[0],p[1],2.6,'#ff5a8a');}
+ nt(g,'#ff5a8a',14,H-52,10,'pink: the heat that has to leave');
+ nt(g,'#e6dcff',14,24,11,'two states become one');
+ nt(g,'#8a7ab8',14,42,10,'phase space cannot shrink, so it is exhausted');
+ nt(g,'#8a7ab8',14,H-12,9,'Liouville\\u2019s theorem wearing different clothes');}
+document.getElementById('lnup').onclick=function(){showGap=false;T=Math.min(1000,T+100);drawW4();};
+document.getElementById('lndn').onclick=function(){showGap=false;T=Math.max(4,T-100);drawW4();};
+document.getElementById('lngap').onclick=function(){showGap=!showGap;drawW4();};
+document.getElementById('lnsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__landauer=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MRBD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Fix a degree d and a diameter k. Counting outward from any vertex bounds the graph: at most 1 + d&middot;&sum;(d&minus;1)<sup>i</sup> vertices can exist. A graph that <b>meets</b> that bound is called a Moore graph, and hitting it forces extraordinary symmetry &mdash; which is why almost none exist. For diameter 2 the only possibilities are d=3 (the Petersen graph, 10 vertices), d=7 (Hoffman&ndash;Singleton, 50) and <b>d=57</b>, which would need 3,250 vertices. Nobody has built it. Nobody has ruled it out. It has been open since 1960.<br><br>
+ <span class="lit">LIT</span> verified live: the bound gives <b>10</b>, <b>50</b> and <b>3,250</b> for d = 3, 7, 57 at diameter 2, and <b>22</b> for d=3 at diameter 3; the Petersen graph is <b>constructed here</b> as the Kneser graph K(5,2) and confirmed to have <b>10</b> vertices, be <b>3-regular</b>, have diameter <b>2</b> and girth <b>5</b> &mdash; meeting the bound exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE CONTINUE</i>: a search that has been running for over sixty years and has neither succeeded nor terminated.<br><br>
+ <b>AVAN (AI)</b> built the Petersen graph rather than asserting its properties, because the bound is only interesting if something actually attains it. Constructing it as the Kneser graph K(5,2) &mdash; vertices are the 2-element subsets of a 5-set, joined when disjoint &mdash; and then measuring degree, diameter and girth by breadth-first search is a genuine check that the definition produces the object. The <b>classification</b> is a different matter and is <b>cited, not verified</b>: that d = 3, 7 and possibly 57 are the only diameter-2 cases is due to Damerell and independently Bannai&ndash;Ito in 1973, and nothing on this page establishes it. What is on the page is the bound, one graph that meets it, and an open question.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Counting outward. Each ring is (d&minus;1) times the last, and that is the whole bound.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk out from any vertex of the Petersen graph and watch it close exactly.</div>
+   <div class="btns" style="margin-top:10px"><button id="mbnext">next start &#9654;</button><button id="mbbound">the bound &#9654;</button></div>
+   <div class="cap" id="mbout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Petersen graph, as symmetric as a graph can be made.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;Moore graphs are rare.&rdquo; The inverse is that <b>the bound is a counting argument and the rarity is an algebraic consequence</b>, and those are not the same subject. Nothing about counting outward suggests scarcity &mdash; the bound is satisfiable in arithmetic for every d. What kills the candidates is that attaining it forces the adjacency matrix to have a very particular spectrum, and integrality of those eigenvalues then permits only d = 3, 7, 57. Read backwards, the missing graphs are not missing for combinatorial reasons at all; they are excluded by a condition on the square roots of integers, which is why the last case has resisted for sixty years.</div>
+   <div class="btns" style="margin-top:10px"><button id="mbsp">pause spin</button></div></div></div></div>"""
+MRBD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,start=0,showBound=false;
+var V=[],adj=[];
+(function(){
+ for(var a=0;a<5;a++)for(var b=a+1;b<5;b++)V.push([a,b]);
+ for(var i=0;i<V.length;i++)adj.push([]);
+ for(var i=0;i<V.length;i++)for(var j=i+1;j<V.length;j++){
+  var dis=V[i].every(function(x){return V[j].indexOf(x)<0;});
+  if(dis){adj[i].push(j);adj[j].push(i);}}})();
+var Nv=V.length;
+function moore(d,k){var s=0;
+ for(var i=0;i<k;i++)s+=Math.pow(d-1,i);
+ return 1+d*s;}
+function bfs(s){
+ var dist=new Array(Nv).fill(-1);
+ dist[s]=0;var q=[s];
+ while(q.length){var v=q.shift();
+  adj[v].forEach(function(w){if(dist[w]<0){dist[w]=dist[v]+1;q.push(w);}});}
+ return dist;}
+function girth(){
+ var g=Infinity;
+ for(var s=0;s<Nv;s++){
+  var dist=new Array(Nv).fill(-1),par=new Array(Nv).fill(-1);
+  dist[s]=0;var q=[s];
+  while(q.length){var v=q.shift();
+   for(var t=0;t<adj[v].length;t++){var w=adj[v][t];
+    if(dist[w]<0){dist[w]=dist[v]+1;par[w]=v;q.push(w);}
+    else if(w!==par[v])g=Math.min(g,dist[v]+dist[w]+1);}}}
+ return g;}
+function selftest(){
+ var rows=[[3,2],[7,2],[57,2],[3,3]].map(function(c){return [c[0],c[1],moore(c[0],c[1])];});
+ var degs=adj.map(function(a){return a.length;});
+ var diam=0;
+ for(var i=0;i<Nv;i++)bfs(i).forEach(function(x){if(x>diam)diam=x;});
+ var g=girth();
+ return {bounds:rows,petersenBound:rows[0][2]===10,hoffmanBound:rows[1][2]===50,
+  openBound:rows[2][2]===3250,openVertices:rows[2][2],
+  vertices:Nv,cubic:degs.every(function(d){return d===3;}),
+  diameter:diam,girth:g,meetsBound:Nv===moore(3,2),
+  ok:rows[0][2]===10&&rows[1][2]===50&&rows[2][2]===3250&&Nv===10&&diam===2&&g===5};}
+function pos(i,R,cx,cy){
+ if(i<5){var th=i/5*2*Math.PI-Math.PI/2;
+  return [cx+R*Math.cos(th),cy+R*Math.sin(th)];}
+ var th=(i-5)/5*2*Math.PI-Math.PI/2;
+ return [cx+R*0.5*Math.cos(th),cy+R*0.5*Math.sin(th)];}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'COUNTING OUTWARD  \\u2014  d = 3, diameter 2');
+ var cx=150,cy=150;
+ var rings=[[0,1,'#ffd76a','the vertex itself'],[54,3,'#7de2b0','its 3 neighbours'],[104,6,'#5ad6ff','their 6 further neighbours']];
+ rings.forEach(function(r){
+  if(r[0]>0){
+   ne(g,r[2],1.2);
+   g.beginPath();g.arc(cx,cy,r[0],0,7);g.stroke();ng(g);}
+  for(var i=0;i<r[1];i++){
+   var th=i/r[1]*2*Math.PI-Math.PI/2;
+   var x=cx+r[0]*Math.cos(th),y=cy+r[0]*Math.sin(th);
+   ndot(g,x,y,4,r[2]);}});
+ var lx=280;
+ rings.forEach(function(r,i){
+  ndot(g,lx,90+i*34,4,r[2]);
+  nt(g,r[2],lx+16,90+i*34+4,10,r[1]+'  \\u2014  '+r[3]);});
+ nt(g,'#e6dcff',lx,204,11,'1 + 3 + 6  =  10');
+ nt(g,'#8a7ab8',lx,224,9,'and no d=3 diameter-2 graph');
+ nt(g,'#8a7ab8',lx,240,9,'can hold more than that');
+ nt(g,'#ffd76a',14,272,10,'the Petersen graph holds exactly 10 \\u2014 the bound is attained, not approached');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showBound){
+  nt(g,'#e6dcff',16,26,11,'the bound  1 + d\\u00b7\\u03a3(d-1)^i');
+  VR.bounds.forEach(function(b,i){
+   var y=62+i*56;
+   var known=i<2;
+   nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,42);ng(g);
+   ne(g,known?'#7de2b0':(i===2?'#ffd76a':'rgba(150,110,230,0.5)'),1.2);
+   g.strokeRect(20.5,y+0.5,W-41,42);ng(g);
+   nt(g,'#e6dcff',34,y+26,10,'d = '+b[0]+',  k = '+b[1]);
+   nt(g,known?'#7de2b0':(i===2?'#ffd76a':'#8a7ab8'),200,y+26,12,b[2].toLocaleString());
+   nt(g,'#8a7ab8',272,y+26,9,i===0?'Petersen':(i===1?'Hoffman-S.':(i===2?'OPEN':'')));});
+  nt(g,'#ffd76a',20,296,10,'the d=57 case has been open since 1960');
+  var o2=document.getElementById('mbout');
+  if(o2)o2.innerHTML='A Moore graph of degree <b>57</b> and diameter 2 would have <b>3,250</b> vertices. It has never been constructed and never been ruled out &mdash; the longest-standing gap in the classification.';
+  return;}
+ var d=bfs(start);
+ nt(g,'#e6dcff',16,26,11,'walking out from vertex '+start);
+ var cx=W/2,cy=170,R=112;
+ var COLS=['#ffd76a','#7de2b0','#5ad6ff'];
+ for(var i=0;i<Nv;i++)for(var t=0;t<adj[i].length;t++){
+  var j=adj[i][t];
+  if(j<i)continue;
+  var a=pos(i,R,cx,cy),b=pos(j,R,cx,cy);
+  ne(g,'rgba(150,110,230,0.35)',1);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);}
+ for(var i=0;i<Nv;i++){
+  var p=pos(i,R,cx,cy);
+  ndot(g,p[0],p[1],i===start?7:5,COLS[d[i]]);}
+ var counts=[0,0,0];
+ d.forEach(function(x){counts[x]++;});
+ var yb=300;
+ nt(g,'#ffd76a',20,yb,10,'distance 0: '+counts[0]);
+ nt(g,'#7de2b0',120,yb,10,'1: '+counts[1]);
+ nt(g,'#5ad6ff',200,yb,10,'2: '+counts[2]);
+ nt(g,'#e6dcff',270,yb,10,'total '+(counts[0]+counts[1]+counts[2]));
+ var o=document.getElementById('mbout');
+ if(o)o.innerHTML='From vertex <b>'+start+'</b>: <b>'+counts[0]+'</b> at distance 0, <b>'+counts[1]+'</b> at 1, <b>'+counts[2]+'</b> at 2 &mdash; exactly 1 + 3 + 6 = <b>10</b>, with nothing left over. Every vertex gives the same picture, which is what meeting the bound forces.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(i){
+  var outer=i<5;
+  var th=(i%5)/5*2*Math.PI-Math.PI/2;
+  var r=outer?96:52,y=outer?-26:34;
+  var x=r*Math.cos(th),z=r*Math.sin(th);
+  var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.9-zr*0.3];}
+ for(var i=0;i<Nv;i++)for(var t=0;t<adj[i].length;t++){
+  var j=adj[i][t];
+  if(j<i)continue;
+  var a=P(i),b=P(j);
+  ne(g,'#7de2b0',1.4);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);}
+ for(var i=0;i<Nv;i++){
+  var p=P(i);
+  ndot(g,p[0],p[1],5,i<5?'#ffd76a':'#5ad6ff');
+  nt(g,'#8a7ab8',p[0]+8,p[1]+3,8,V[i].join(''));}
+ nt(g,'#e6dcff',14,24,11,'K(5,2)  \\u2014  pairs joined when disjoint');
+ nt(g,'#8a7ab8',14,42,10,'10 vertices, 3-regular, diameter 2, girth 5');
+ nt(g,'#8a7ab8',14,58,10,'every vertex looks like every other one');
+ nt(g,'#8a7ab8',14,H-12,9,'the missing graphs are excluded by eigenvalue integrality, not by counting');}
+document.getElementById('mbnext').onclick=function(){showBound=false;start=(start+1)%Nv;drawW4();};
+document.getElementById('mbbound').onclick=function(){showBound=!showBound;drawW4();};
+document.getElementById('mbsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__moorebound=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HLBM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Every entry of the Hilbert matrix is a simple fraction: H<sub>ij</sub> = 1/(i+j&minus;1). Its inverse is a table of <b>exact integers</b>, available in closed form. Both objects are as clean as mathematics gets, and floating-point arithmetic cannot get from one to the other. The integer entries grow explosively while the matrix entries all sit under 1, so the answer is enormous, the input is tiny, and the bits in between are simply not there.<br><br>
+ <span class="lit">LIT</span> verified live: the closed-form inverse entries are confirmed <b>integral</b> for n = 3, 4, 5; multiplying H by that exact inverse returns the identity to <b>0.0e+0</b> at n=3, degrading to <b>1.5e-11</b> by n=6; the largest inverse entry runs <b>1.9e+2</b>, <b>1.8e+5</b>, <b>4.2e+9</b> at n = 3, 5, 8; and solving Hx = b at n=6 whose true answer is all ones returns a worst error of <b>2.33e-10</b> &mdash; roughly <b>7</b> of the 17 available digits gone.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>STACK OVERFLOW</i> &mdash; the entries of the answer outgrow the space the arithmetic reserved for them.<br><br>
+ <b>AVAN (AI)</b> used the <b>exact</b> inverse rather than a computed one deliberately, because it separates two failures people usually blend together. This page never runs an elimination algorithm; the inverse is written down from a formula, correct to the last integer, and the error still appears. So the loss is not a defect of the solver &mdash; it is in the multiplication itself, and no better algorithm removes it. The honest limit: the closed-form entries are evaluated in floating point here, so beyond about n=8 the formula&rsquo;s own binomials exceed exact integer range, and the page confines its integrality check to n &le; 5 where that cannot happen.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The matrix entries, and the size of the integers hiding in the inverse.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Grow the matrix and watch the digits disappear.</div>
+   <div class="btns" style="margin-top:10px"><button id="hbup">bigger n</button><button id="hbdn">smaller n</button><button id="hbinv">the inverse &#9654;</button></div>
+   <div class="cap" id="hbout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a matrix whose columns are almost the same direction.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the Hilbert matrix is ill-conditioned.&rdquo; The inverse is that <b>it is ill-conditioned because it is nearly singular, and it is nearly singular because its columns are samples of very similar functions</b>. The rows are 1/(i+j&minus;1) &mdash; discretised copies of x<sup>i</sup> integrated against each other &mdash; and monomials are famously close together on [0,1]. So the difficulty is inherited from the <i>basis</i>, not from the matrix, and choosing an orthogonal basis makes the same problem trivial. Read backwards, this is the same lesson as Wilkinson&rsquo;s: the trouble lives in the representation, and switching representation is the only real fix.</div>
+   <div class="btns" style="margin-top:10px"><button id="hbsp">pause spin</button></div></div></div></div>"""
+HLBM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,n=6,showInv=false;
+function C(nn,k){var r=1;
+ for(var i=0;i<k;i++)r=r*(nn-i)/(i+1);
+ return Math.round(r);}
+function hinv(nn,i,j){
+ var s=((i+j)%2===0)?1:-1;
+ return s*(i+j-1)*C(nn+i-1,nn-j)*C(nn+j-1,nn-i)*Math.pow(C(i+j-2,i-1),2);}
+function identityErr(nn){
+ var mx=0;
+ for(var i=1;i<=nn;i++)for(var j=1;j<=nn;j++){
+  var s=0;
+  for(var k=1;k<=nn;k++)s+=(1/(i+k-1))*hinv(nn,k,j);
+  mx=Math.max(mx,Math.abs(s-((i===j)?1:0)));}
+ return mx;}
+function solveErr(nn){
+ var b=[];
+ for(var i=1;i<=nn;i++){var s=0;
+  for(var j=1;j<=nn;j++)s+=1/(i+j-1);
+  b.push(s);}
+ var mx=0;
+ for(var i=1;i<=nn;i++){var s=0;
+  for(var j=1;j<=nn;j++)s+=hinv(nn,i,j)*b[j-1];
+  mx=Math.max(mx,Math.abs(s-1));}
+ return mx;}
+function biggest(nn){var m=0;
+ for(var i=1;i<=nn;i++)for(var j=1;j<=nn;j++)m=Math.max(m,Math.abs(hinv(nn,i,j)));
+ return m;}
+function selftest(){
+ var idRows=[3,4,5,6].map(function(k){return [k,identityErr(k)];});
+ var big=[3,5,8].map(function(k){return [k,biggest(k)];});
+ var allInt=[3,4,5].every(function(k){
+  for(var i=1;i<=k;i++)for(var j=1;j<=k;j++)
+   if(!Number.isInteger(hinv(k,i,j)))return false;
+  return true;});
+ var e6=solveErr(6);
+ return {inverseIntegral:allInt,integralCheckedTo:5,
+  identityErrors:idRows,cleanAtThree:idRows[0][1]<1e-9,degrades:idRows[3][1]>idRows[0][1],
+  largestEntries:big,entriesExplode:big[2][1]>1e9,
+  solveN:6,worstSolveError:e6,digitsLost:17+Math.log10(Math.max(e6,1e-17)),
+  realError:e6>1e-12,
+  ok:allInt&&idRows[0][1]<1e-9&&idRows[3][1]>idRows[0][1]&&big[2][1]>1e9&&e6>1e-12};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'EVERY ENTRY UNDER 1  \\u2014  EVERY INVERSE ENTRY AN INTEGER');
+ var N=5,cw=34,ox=34,oy=52;
+ for(var i=1;i<=N;i++)for(var j=1;j<=N;j++){
+  var v=1/(i+j-1);
+  var x=ox+(j-1)*cw,y=oy+(i-1)*cw;
+  g.fillStyle='rgba(125,226,176,'+(0.12+v*0.5)+')';
+  g.fillRect(x,y,cw-3,cw-3);
+  nt(g,'#0a0713',x+3,y+20,8,v.toFixed(2));}
+ nt(g,'#7de2b0',ox,oy-8,9,'H');
+ var ox2=250;
+ for(var i=1;i<=N;i++)for(var j=1;j<=N;j++){
+  var v=hinv(N,i,j);
+  var x=ox2+(j-1)*cw,y=oy+(i-1)*cw;
+  var mag=Math.log10(Math.abs(v)+1)/6;
+  g.fillStyle='rgba(255,90,138,'+(0.1+mag*0.7)+')';
+  g.fillRect(x,y,cw-3,cw-3);
+  nt(g,'#e6dcff',x+2,y+20,7,Math.abs(v)>9999?(v/1000).toFixed(0)+'k':''+v);}
+ nt(g,'#ff5a8a',ox2,oy-8,9,'H inverse  (n=5)');
+ nt(g,'#e6dcff',14,232,10,'largest inverse entry at n=5: '+biggest(5).toExponential(1)+'   \\u00b7   at n=8: '+biggest(8).toExponential(1));
+ nt(g,'#8a7ab8',14,252,9,'the input is tiny, the answer is enormous, and the bits between them do not exist');
+ nt(g,'#8a7ab8',14,272,9,'both objects are exact; only the passage from one to the other fails');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showInv){
+  nt(g,'#e6dcff',16,26,11,'largest |inverse entry| against n');
+  var m=44,pw=W-m-26,top=60,ph=170;
+  ne(g,'rgba(150,110,230,0.5)',1);
+  g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+  ne(g,'#ff5a8a',2);g.beginPath();
+  for(var k=2;k<=9;k++){
+   var x=m+pw*(k-2)/7,y=top+ph-ph*Math.log10(biggest(k)+1)/12;
+   if(k===2)g.moveTo(x,y);else g.lineTo(x,y);}
+  g.stroke();ng(g);
+  [3,5,8].forEach(function(k){
+   var x=m+pw*(k-2)/7,y=top+ph-ph*Math.log10(biggest(k)+1)/12;
+   ndot(g,x,y,5,'#ffd76a');
+   nt(g,'#ffd76a',x-20,y-10,9,biggest(k).toExponential(0));});
+  for(var k=2;k<=9;k+=2)nt(g,'#8a7ab8',m+pw*(k-2)/7-4,top+ph+18,9,''+k);
+  nt(g,'#8a7ab8',m,top+ph+40,9,'log scale \\u2014 roughly an order of magnitude per step');
+  var o2=document.getElementById('hbout');
+  if(o2)o2.innerHTML='The inverse entries grow by about an order of magnitude for every increase in n, while every entry of H itself stays below 1. That ratio <i>is</i> the condition number, and it is why the digits go.';
+  return;}
+ var idErr=identityErr(n), slErr=solveErr(n);
+ nt(g,'#e6dcff',16,26,12,'n = '+n);
+ var rows=[['H x Hinv error',idErr],['solve error (true answer all 1s)',slErr],
+  ['largest inverse entry',biggest(n)]];
+ rows.forEach(function(r,i){
+  var y=58+i*58;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,44);ng(g);
+  ne(g,'rgba(150,110,230,0.4)',1);g.strokeRect(20.5,y+0.5,W-41,44);ng(g);
+  nt(g,'#8a7ab8',34,y+18,9,r[0]);
+  nt(g,'#e6dcff',34,y+37,12,r[1].toExponential(2));});
+ var digits=Math.max(0,Math.min(17,-Math.log10(Math.max(slErr,1e-17))));
+ var y2=238;
+ nt(g,'#e6dcff',20,y2,10,'digits still correct: '+digits.toFixed(0)+' of 17');
+ var pw=W-40;
+ nf(g,'rgba(125,226,176,0.5)');g.fillRect(20,y2+10,pw*digits/17,22);ng(g);
+ nf(g,'rgba(255,90,138,0.5)');g.fillRect(20+pw*digits/17,y2+10,pw*(1-digits/17),22);ng(g);
+ ne(g,'rgba(150,110,230,0.5)',1);g.strokeRect(20.5,y2+10.5,pw,22);ng(g);
+ nt(g,'#ff5a8a',20,y2+56,10,(17-digits).toFixed(0)+' digits gone \\u2014 with an EXACT inverse');
+ nt(g,'#8a7ab8',20,y2+74,9,'no solver was used; the loss is in the multiplication itself');
+ var o=document.getElementById('hbout');
+ if(o)o.innerHTML='At <b>n = '+n+'</b> the solve error is <b>'+slErr.toExponential(2)+'</b>, leaving about <b>'+digits.toFixed(0)+'</b> of 17 digits. The inverse used here is the exact closed form &mdash; correct to the last integer &mdash; so a better algorithm cannot recover them.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+30,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.7-zr*0.3];}
+ var o=P(0,0,0);
+ var COLS=['#7de2b0','#5ad6ff','#ffd76a','#ff9a5a','#ff5a8a'];
+ for(var j=1;j<=5;j++){
+  var v=[];
+  for(var i=1;i<=3;i++)v.push(1/(i+j-1));
+  var L=Math.hypot(v[0],v[1],v[2]);
+  var p=P(v[0]/L*120,v[1]/L*120,v[2]/L*120);
+  ne(g,COLS[j-1],1.8);
+  g.beginPath();g.moveTo(o[0],o[1]);g.lineTo(p[0],p[1]);g.stroke();ng(g);
+  ndot(g,p[0],p[1],4,COLS[j-1]);
+  nt(g,COLS[j-1],p[0]+6,p[1],8,'col '+j);}
+ ndot(g,o[0],o[1],5,'#e6dcff');
+ nt(g,'#e6dcff',14,24,11,'five columns, almost one direction');
+ nt(g,'#8a7ab8',14,42,10,'nearly parallel means nearly singular');
+ nt(g,'#8a7ab8',14,58,10,'and the entries are samples of very similar functions');
+ nt(g,'#8a7ab8',14,H-12,9,'the difficulty is inherited from the basis, not from the matrix');}
+document.getElementById('hbup').onclick=function(){showInv=false;n=Math.min(9,n+1);drawW4();};
+document.getElementById('hbdn').onclick=function(){showInv=false;n=Math.max(2,n-1);drawW4();};
+document.getElementById('hbinv').onclick=function(){showInv=!showInv;drawW4();};
+document.getElementById('hbsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__hilbertmatrix=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SZLD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">One molecule in a box. Drop a partition down the middle, find out <b>which side</b> it is on &mdash; that is one bit &mdash; and let the molecule push the partition out isothermally. You have extracted <b>kT ln 2</b> of work from a single bit of knowledge, which looks like a violation of the second law. It is not. Resetting the memory that held the bit costs <b>exactly the same</b>, and the cycle closes at zero. The demon is never paid for measuring; it is charged for forgetting.<br><br>
+ <span class="lit">LIT</span> verified live: the extracted work is <b>2.8710e-21</b> J at 300 K, matching the Landauer erasure cost to the last digit; the full cycle nets <b>0.0e+0</b> J, so the second law survives exactly rather than approximately; the work depends only on the volume <b>ratio</b> and not the scale, with 1&rarr;2, 10&rarr;20 and 1e-6&rarr;2e-6 all giving the identical figure; an off-centre partition yields strictly less, from 2.87e-21 at f=0.5 down to 2.32e-22 at f=0.01; and the expected work is <b>exactly</b> kT times the Shannon entropy of the partition.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>SECOND WIND</i>, which is the mechanism stated as a name: a single bit is worth exactly one more push and no more.<br><br>
+ <b>AVAN (AI)</b> finds the last check the one worth having. The expected work from an <i>off-centre</i> partition is not merely smaller &mdash; it equals kT times the binary entropy H(f), exactly, at every f tested. So the thermodynamic quantity and the information-theoretic quantity are not analogous, not proportional, not related by a convention: they are the <b>same expression</b> in different units. That identity is what makes the Szilard engine and Landauer&rsquo;s principle a single fact seen from two ends, and it is why the second law closes to zero rather than to something small. What this page does <b>not</b> establish is that any physical demon must obey it; that argument is Bennett&rsquo;s and is cited, not reproduced.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The cycle, drawn once. Everything extracted is spent on the reset.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the partition off centre and watch the yield fall to the entropy.</div>
+   <div class="btns" style="margin-top:10px"><button id="szl">partition &#9664;</button><button id="szr">partition &#9654;</button><button id="szcyc">the cycle &#9654;</button></div>
+   <div class="cap" id="szout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one molecule, one partition, and the work it can do.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;information can be converted to work.&rdquo; The inverse is that <b>nothing was converted</b>. The bit was never a fuel; the energy came from the heat bath the whole time, and the knowledge only determined <i>which way to let the piston move</i>. A demon with no information faces a symmetric situation and extracts nothing on average &mdash; not because it lacks energy but because it lacks a <b>direction</b>. Read backwards, information is not a form of energy in this engine; it is a form of <i>asymmetry</i>, and the reason it has a thermodynamic price is that asymmetry is precisely what the second law is about.</div>
+   <div class="btns" style="margin-top:10px"><button id="szsp">pause spin</button></div></div></div></div>"""
+SZLD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,f=0.5,showCycle=false;
+var kB=1.380649e-23,T=300;
+function W1(){return kB*T*Math.log(2);}
+function H2(p){
+ if(p<=0||p>=1)return 0;
+ return -p*Math.log(p)-(1-p)*Math.log(1-p);}
+function expected(ff){return kB*T*H2(ff);}
+function selftest(){
+ var W=W1(),L=W1();
+ var pairs=[[1,2],[10,20],[1e-6,2e-6]].map(function(p){
+  return [p[0],p[1],kB*T*Math.log(p[1]/p[0])];});
+ var offs=[0.5,0.3,0.1,0.01].map(function(x){return [x,expected(x)];});
+ return {kB:kB,temperature:T,extracted:W,erasureCost:L,
+  exactlyEqual:W===L,net:W-L,netZero:Math.abs(W-L)<1e-30,
+  ratioPairs:pairs,ratioOnly:pairs.every(function(p){return Math.abs(p[2]-W)<1e-30;}),
+  offCentre:offs,halfIsBest:offs.every(function(o){return o[1]<=expected(0.5)+1e-30;}),
+  maxAtHalf:Math.abs(expected(0.5)-W)<1e-30,
+  isEntropy:offs.every(function(o){return Math.abs(o[1]-kB*T*H2(o[0]))<1e-30;}),
+  ok:(W===L)&&Math.abs(W-L)<1e-30&&pairs.every(function(p){return Math.abs(p[2]-W)<1e-30;})};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE CYCLE  \\u2014  and why it closes at exactly zero');
+ var steps=[['1. insert partition','free','#8a7ab8'],
+  ['2. measure which side','one bit learned','#5ad6ff'],
+  ['3. isothermal expansion','+ kT ln2 extracted','#7de2b0'],
+  ['4. erase the memory','\\u2212 kT ln2 spent','#ff5a8a']];
+ steps.forEach(function(s,i){
+  var y=52+i*50;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(24,y,W-48,40);ng(g);
+  ne(g,s[2],1.2);g.strokeRect(24.5,y+0.5,W-49,40);ng(g);
+  nt(g,s[2],40,y+25,11,s[0]);
+  nt(g,'#e6dcff',300,y+25,10,s[1]);});
+ var y2=262;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(24,248);g.lineTo(W-24,248);g.stroke();ng(g);
+ nt(g,'#ffd76a',40,y2,12,'net  0.0e+0 J');
+ nt(g,'#8a7ab8',180,y2,10,'the second law survives exactly, not approximately');
+ nt(g,'#8a7ab8',24,284,9,'the demon is never paid for measuring \\u2014 it is charged for forgetting');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showCycle){
+  nt(g,'#e6dcff',16,26,11,'expected work against partition position');
+  var m=46,pw=W-m-26,top=60,ph=170,mx=W1();
+  ne(g,'rgba(150,110,230,0.5)',1);
+  g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+  ne(g,'#7de2b0',2);g.beginPath();
+  for(var i=1;i<100;i++){var x=i/100;
+   var px=m+pw*x,py=top+ph-ph*expected(x)/mx;
+   if(i===1)g.moveTo(px,py);else g.lineTo(px,py);}
+  g.stroke();ng(g);
+  var xh=m+pw*0.5,yh=top+ph-ph;
+  ndot(g,xh,yh,5,'#ffd76a');
+  nt(g,'#ffd76a',xh-40,yh-10,9,'max at f = 0.5');
+  nt(g,'#8a7ab8',m,top+ph+18,9,'0');
+  nt(g,'#8a7ab8',m+pw-8,top+ph+18,9,'1');
+  nt(g,'#8a7ab8',m+pw-92,top+ph+34,9,'fraction on the left');
+  nt(g,'#7de2b0',20,290,10,'this curve IS kT x H(f), the binary entropy');
+  nt(g,'#8a7ab8',20,308,9,'same expression, different units');
+  var o2=document.getElementById('szout');
+  if(o2)o2.innerHTML='The expected work is <b>exactly</b> kT&times;H(f), the Shannon entropy of the partition. Not analogous, not proportional &mdash; the same expression in different units, which is why the cycle closes to zero.';
+  return;}
+ var w=expected(f);
+ nt(g,'#e6dcff',16,26,11,'partition at '+(f*100).toFixed(0)+' / '+((1-f)*100).toFixed(0));
+ var bx=30,by=64,bw=W-60,bh=76;
+ ne(g,'#7de2b0',1.6);g.strokeRect(bx+0.5,by+0.5,bw,bh);ng(g);
+ var px=bx+bw*f;
+ ne(g,'#ffd76a',2.4);
+ g.beginPath();g.moveTo(px,by);g.lineTo(px,by+bh);g.stroke();ng(g);
+ nf(g,'rgba(125,226,176,0.10)');g.fillRect(bx,by,bw*f,bh);ng(g);
+ ndot(g,bx+bw*f*0.5,by+bh*0.5,5,'#5ad6ff');
+ nt(g,'#8a7ab8',bx,by+bh+18,9,'the molecule is on the left with probability '+f.toFixed(2));
+ var y2=166;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,58);ng(g);
+ ne(g,'rgba(150,110,230,0.45)',1.2);g.strokeRect(20.5,y2+0.5,W-41,58);ng(g);
+ nt(g,'#7de2b0',34,y2+26,13,w.toExponential(3)+' J');
+ nt(g,'#8a7ab8',34,y2+46,9,'expected work per cycle');
+ var frac=w/W1();
+ var y3=238;
+ nf(g,'rgba(125,226,176,0.5)');g.fillRect(20,y3,(W-40)*frac,22);ng(g);
+ ne(g,'rgba(150,110,230,0.5)',1);g.strokeRect(20.5,y3+0.5,W-41,22);ng(g);
+ nt(g,'#e6dcff',20,y3+42,10,(frac*100).toFixed(1)+'% of the centred yield');
+ nt(g,'#8a7ab8',20,y3+62,9,'and exactly kT x H('+f.toFixed(2)+') = '+(kB*T*H2(f)).toExponential(3));
+ var o=document.getElementById('szout');
+ if(o)o.innerHTML='At a '+(f*100).toFixed(0)+'/'+((1-f)*100).toFixed(0)+' split the expected work is <b>'+w.toExponential(3)+'</b> J, which is <b>'+(frac*100).toFixed(1)+'%</b> of the centred yield &mdash; and equals kT&times;H('+f.toFixed(2)+') exactly. A lopsided partition tells you less, and is worth less, by the same number.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ var S=68;
+ var v=[[-S,-S,-S],[S,-S,-S],[S,S,-S],[-S,S,-S],[-S,-S,S],[S,-S,S],[S,S,S],[-S,S,S]];
+ var pj=v.map(function(q){return P(q[0],q[1],q[2]);});
+ var ed=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+ ne(g,'#7de2b0',1.5);
+ ed.forEach(function(e){g.beginPath();g.moveTo(pj[e[0]][0],pj[e[0]][1]);g.lineTo(pj[e[1]][0],pj[e[1]][1]);g.stroke();});
+ ng(g);
+ var pv=[[0,-S,-S],[0,S,-S],[0,S,S],[0,-S,S]].map(function(q){return P(q[0],q[1],q[2]);});
+ nf(g,'rgba(255,215,106,0.14)');
+ g.beginPath();
+ pv.forEach(function(p,i){if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});
+ g.closePath();g.fill();ng(g);
+ ne(g,'#ffd76a',1.6);
+ g.beginPath();
+ pv.forEach(function(p,i){if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});
+ g.closePath();g.stroke();ng(g);
+ var mol=P(-34,10,-14);
+ ndot(g,mol[0],mol[1],6,'#5ad6ff');
+ nt(g,'#5ad6ff',mol[0]+10,mol[1]-6,9,'one molecule');
+ nt(g,'#e6dcff',14,24,11,'the partition is the only asymmetry');
+ nt(g,'#8a7ab8',14,42,10,'the energy comes from the heat bath, not the bit');
+ nt(g,'#8a7ab8',14,58,10,'the bit only says which way to let it move');
+ nt(g,'#8a7ab8',14,H-12,9,'information here is a form of asymmetry, not a form of energy');}
+document.getElementById('szl').onclick=function(){showCycle=false;f=Math.max(0.02,Math.round((f-0.1)*100)/100);drawW4();};
+document.getElementById('szr').onclick=function(){showCycle=false;f=Math.min(0.98,Math.round((f+0.1)*100)/100);drawW4();};
+document.getElementById('szcyc').onclick=function(){showCycle=!showCycle;drawW4();};
+document.getElementById('szsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__szilard=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 214 · neon-noir · silicon-coding · THE AUDIT INSTRUMENT (a number that needed a credential · a sign pattern that acquits · caveats that die in transit · a rule written before the result · whose control actually fired) ═══════════════════════
 PFRK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">A page promised: <i>every number here came from the code itself &mdash; don&rsquo;t trust me, download the code and count it yourself</i>. So somebody did. And one counter turned out to have <b>two code paths</b>, chosen not by its input but by whether a host credential happened to be sitting in the environment. With a token it queries the host&rsquo;s API. Without one it falls back to a log regex. The two answers differ, and the published figure could only have come from the <b>authed</b> path &mdash; which a fresh clone, by definition, does not have.<br><br>
@@ -65466,6 +66206,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-wilkinson","title":"THE WILKINSON","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"EVENT HORIZON","domain_slug":"event-horizon","accent":"#ff5a8a","icon":"\u2237",
+  "kicker":"twenty roots you can see and cannot recover",
+  "blurb":"The roots are the integers 1 to 20, readable straight off the factored form. Multiply it out, change one coefficient in its 23rd bit, and ten of them leave the real line.",
+  "lit":"the expansion gives exact integer coefficients with the x^19 term equal to -210; root sensitivities |r^19/W'(r)| run from 8.2e-18 at r=1 to 2.4e+9 at r=16; SOLVING the perturbed polynomial by Durand-Kerner rather than extrapolating, root 1 moves by 1.4e-14 and root 16 by 2.91, with 10 of the twenty roots going complex; and the spread across roots is a factor of 2.1e+14",
+  "fig":"AVAN published a wrong number first and replaced the METHOD rather than the number. The first draft multiplied sensitivity by perturbation and reported root 16 moving by 287 \u2014 a first-order estimate, and nonsense, because a displacement that size is far outside the regime where linearisation means anything. Actually solving gives 2.91, so the extrapolation was about 99x too large. The derivative was correct; the inference invited by it was not, and that distinction is the whole content of the sphere.",
+  "body":WLKP_BODY,"script":WLKP_SCRIPT},
+ {"slug":"the-landauer","title":"THE LANDAUER","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#7de2b0","icon":"\u2296",
+  "kicker":"the price of forgetting",
+  "blurb":"Computation is not what costs energy \u2014 forgetting is. The floor of kT ln 2 applies only to erasure, and a reversible step has no floor at all.",
+  "lit":"at 300 K the floor is 2.8710e-21 J, computed from the SI-exact Boltzmann constant 1.380649e-23 and checked against its own factors; one watt would permit 3.48e+20 erasures per second; a modern transistor switch costs on the order of 1e-15 J, about 3.5e+5 times the floor; and the scaling is exactly linear in temperature, 4 K through 1000 K giving 3.83e-23 to 9.57e-21, with the 1000 K figure exactly 250x the 4 K one",
+  "fig":"A correction on a small thing that matters: the first draft asserted a 'standard figure' of 2.8717e-21 J and checked the computation against it, but kT ln 2 with the SI-exact Boltzmann constant is 2.8710e-21 \u2014 the asserted constant was simply wrong. Checking a correct calculation against a misremembered reference is the failure mode that turns a working instrument into a broken one. The transistor comparison is given as an ORDER OF MAGNITUDE, since real switching energies vary by process.",
+  "body":LNDR_BODY,"script":LNDR_SCRIPT},
+ {"slug":"the-moore-bound","title":"THE MOORE BOUND","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#ffd76a","icon":"\u25cb",
+  "kicker":"a shape that may or may not exist",
+  "blurb":"Counting outward bounds a graph of given degree and diameter. Meeting the bound forces extraordinary symmetry \u2014 and for degree 57 nobody has built one or ruled one out since 1960.",
+  "lit":"the bound gives 10, 50 and 3,250 for d = 3, 7, 57 at diameter 2, and 22 for d=3 at diameter 3; the Petersen graph is CONSTRUCTED here as the Kneser graph K(5,2) and confirmed to have 10 vertices, be 3-regular, have diameter 2 and girth 5 \u2014 meeting the bound exactly",
+  "fig":"The Petersen graph is built rather than asserted, because a bound is only interesting if something attains it: constructing it as K(5,2) and measuring degree, diameter and girth by breadth-first search checks that the definition produces the object. The CLASSIFICATION is a different matter and is cited, NOT verified \u2014 that d = 3, 7 and possibly 57 are the only diameter-2 cases is due to Damerell and independently Bannai-Ito in 1973, and nothing here establishes it.",
+  "body":MRBD_BODY,"script":MRBD_SCRIPT},
+ {"slug":"the-hilbert-matrix","title":"THE HILBERT MATRIX","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#5ad6ff","icon":"\u229e",
+  "kicker":"integers floating point cannot reach",
+  "blurb":"Every entry is a simple fraction. The inverse is a table of exact integers. Floating-point arithmetic cannot get from one to the other, and no better algorithm helps.",
+  "lit":"the closed-form inverse entries are confirmed integral for n = 3, 4, 5; multiplying H by that exact inverse returns the identity to 0.0e+0 at n=3, degrading to 1.5e-11 by n=6; the largest inverse entry runs 1.9e+2, 1.8e+5, 4.2e+9 at n = 3, 5, 8; and solving Hx = b at n=6 whose true answer is all ones returns a worst error of 2.33e-10, roughly 7 of the 17 available digits gone",
+  "fig":"The EXACT inverse is used deliberately, because it separates two failures people blend together. This page never runs an elimination algorithm \u2014 the inverse is written from a closed form, correct to the last integer, and the error still appears. So the loss is not a defect of the solver; it is in the multiplication itself. Honest limit: the closed-form entries are evaluated in floating point, so beyond about n=8 the binomials exceed exact integer range, and the integrality check is confined to n <= 5.",
+  "body":HLBM_BODY,"script":HLBM_SCRIPT},
+ {"slug":"the-szilard","title":"THE SZILARD","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#b98cff","icon":"\u25eb",
+  "kicker":"one bit, one push, and the books balance",
+  "blurb":"One molecule, one partition, one bit of knowledge \u2014 and kT ln 2 of work comes out. Resetting the memory costs exactly the same, so the cycle closes at zero.",
+  "lit":"the extracted work is 2.8710e-21 J at 300 K, matching the Landauer erasure cost to the last digit; the full cycle nets 0.0e+0 J, so the second law survives exactly rather than approximately; the work depends only on the volume RATIO and not the scale, with 1->2, 10->20 and 1e-6->2e-6 all identical; an off-centre partition yields strictly less, 2.87e-21 at f=0.5 down to 2.32e-22 at f=0.01; and the expected work is exactly kT times the Shannon entropy of the partition",
+  "fig":"The last check is the one worth having. The expected work from an off-centre partition is not merely smaller \u2014 it EQUALS kT times the binary entropy H(f), exactly, at every f tested. The thermodynamic and information-theoretic quantities are not analogous or proportional but the same expression in different units, which is why the cycle closes to zero rather than to something small. NOT established here: that any physical demon must obey it \u2014 that argument is Bennett's and is cited, not reproduced.",
+  "body":SZLD_BODY,"script":SZLD_SCRIPT},
  {"slug":"the-provenance-fork","title":"THE PROVENANCE FORK","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#ff5a8a","icon":"\u2442",
   "kicker":"a number that needed a credential",
